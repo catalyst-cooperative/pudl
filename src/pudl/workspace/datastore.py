@@ -5,6 +5,7 @@ import hashlib
 import io
 import json
 import logging
+import os
 import re
 import sys
 import zipfile
@@ -236,7 +237,7 @@ class Datastore:
 
     def __init__(
         self,
-        local_cache_path: Optional[Path] = None,
+        local_cache_path: Optional[str] = None,
         gcs_cache_path: Optional[str] = None,
         gcs_cache_readonly: bool = False,
         sandbox: bool = False,
@@ -247,7 +248,7 @@ class Datastore:
         Datastore manages file retrieval for PUDL datasets.
 
         Args:
-            local_cache_path (Path): if provided, LocalFileCache pointed at the data
+            local_cache_path (str): if provided, LocalFileCache pointed at the data
               subdirectory of this path will be used with this Datastore.
             gcs_cache_path (str): if provided, GoogleCloudStorageCache will be used
               to retrieve data files. The path is expected to have the following
@@ -281,6 +282,22 @@ class Datastore:
         kwargs = prefect.context.get("datastore_config", {})
         logger.debug(f"Instantiating Datastore with the following arguments: {kwargs}")
         return cls(**kwargs)
+
+    @classmethod
+    def configure_prefect_context(cls, commandline_args):
+        """Sets datastore_config in prefect.context based on commandline flags."""
+        if not prefect.context.get("pudl_settings"):
+            raise AssertionError('prefect.context.pudl_settings must be set')
+
+        local_cache_path = None
+        if not commandline_args.bypass_local_cache:
+            local_cache_path = os.path.join(prefect.context.pudl_settings / "data")
+
+        prefect.context.datastore_config = dict(
+            sandbox=prefect.context.pudl_settings.get("sandbox", False),
+            local_cache_path=local_cache_path,
+            gcs_cache_path=commandline_args.gcs_cache_path,
+            gcs_cache_readonly=True)
 
     def get_known_datasets(self) -> List[str]:
         """Returns list of supported datasets."""

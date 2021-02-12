@@ -549,19 +549,7 @@ def configure_prefect_context(etl_settings, pudl_settings, commandline_args):
     prefect.context.pudl_datapkg_bundle_name = etl_settings['datapkg_bundle_name']
     prefect.context.pudl_commandline_args = commandline_args
     prefect.context.pudl_upload_to_gcs = commandline_args.upload_to_gcs
-
-    local_cache_path = None
-    if not commandline_args.bypass_local_cache:
-        local_cache_path = Path(pudl_settings["pudl_in"]) / "data"
-
-    # Allow for construction of datastore by setting the params to context
-    # This will allow us to construct datastore when needed
-    # by calling Datastore.from_prefect_context()
-    prefect.context.datastore_config = dict(
-        sandbox=pudl_settings.get("sandbox", False),
-        local_cache_path=local_cache_path,
-        gcs_cache_path=commandline_args.gcs_cache_path,
-        gcs_cache_readonly=True)
+    pudl.workspace.Datastore.configure_prefect_context(commandline_args)
 
     pipeline_cache_path = commandline_args.pipeline_cache_path
     if not pipeline_cache_path:
