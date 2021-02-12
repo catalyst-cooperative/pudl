@@ -294,7 +294,8 @@ class Datastore:
 
         local_cache_path = None
         if not commandline_args.bypass_local_cache:
-            local_cache_path = os.path.join(prefect.context.pudl_settings / "data")
+            local_cache_path = os.path.join(
+                prefect.context.pudl_settings["pudl_in"], "data")
 
         prefect.context.datastore_config = dict(
             sandbox=prefect.context.pudl_settings.get("sandbox", False),
