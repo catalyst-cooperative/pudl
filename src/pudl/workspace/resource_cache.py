@@ -9,6 +9,8 @@ from urllib.parse import urlparse
 from google.cloud import storage
 from google.cloud.storage.blob import Blob
 
+import boto3
+
 logger = logging.getLogger(__name__)
 
 
@@ -134,6 +136,53 @@ class GoogleCloudStorageCache(AbstractCache):
     def contains(self, resource: PudlResourceKey) -> bool:
         """Returns True if resource is present in the cache."""
         return self._blob(resource).exists()
+
+
+class AWSS3Cache(AbstractCache):
+    """Implements file cache backed by AWS S3 bucket."""
+
+    def __init__(self, s3_path: str, **kwargs: Any):
+        """Constructs new cache that stores files in AWS S3.
+
+        Args:
+            s3_path (str): path to where the data should be stored. This should
+              be in the form of s3://{bucket-name}/{optional-path-prefix}
+        """
+        super().__init__(**kwargs)
+        parsed_url = urlparse(s3_path)
+        if parsed_url.scheme != "s3":
+            raise ValueError(f"s3_path should start with s3:// (found: {s3_path})")
+        self._path_prefix = Path(parsed_url.path)
+        self._s3_client = boto3.resource('s3')
+        self._bucket = self._s3_client.Bucket(parsed_url.netloc)
+
+    def _blob(self, resource: PudlResourceKey) -> Blob:
+        """Retrieve Blob object associated with given resource."""
+        p = (self._path_prefix / resource.get_local_path()).as_posix().lstrip('/')
+        return self._bucket.Object(p)
+
+    def get(self, resource: PudlResourceKey) -> bytes:
+        """Retrieves value associated with given resource."""
+        logger.debug(f"Getting from AWS S3 cache: {resource}")
+        return self._blob(resource).get()['Body'].read()
+
+    def add(self, resource: PudlResourceKey, value: bytes):
+        """Adds (or updates) resource to the cache with given value."""
+        logger.debug(f"Adding to AWS S3 cache: {resource}")
+        return self._blob(resource).put(Body=value)
+
+    def delete(self, resource: PudlResourceKey):
+        """Deletes resource from the cache."""
+        logger.debug(f"Deleting from AWS S3 cache: {resource}")
+        return self._blob(resource).delete()
+
+    def contains(self, resource: PudlResourceKey) -> bool:
+        """Returns True if resource is present in the cache."""
+        try:
+            self._blob(resource).load()
+            return True
+        except:
+            return False
 
 
 class LayeredCache(AbstractCache):

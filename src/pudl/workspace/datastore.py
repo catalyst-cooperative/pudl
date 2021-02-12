@@ -268,8 +268,12 @@ class Datastore:
             self._cache.add_cache_layer(
                 resource_cache.LocalFileCache(local_cache_path))
         if gcs_cache_path:
-            self._cache.add_cache_layer(
-                resource_cache.GoogleCloudStorageCache(gcs_cache_path))
+            if gcs_cache_path.startswith("s3://"):
+                self._cache.add_cache_layer(
+                    resource_cache.AWSS3Cache(gcs_cache_path))
+            else:
+                self._cache.add_cache_layer(
+                    resource_cache.GoogleCloudStorageCache(gcs_cache_path))
 
         self._zenodo_fetcher = ZenodoFetcher(
             sandbox=sandbox,
