@@ -19,14 +19,22 @@ Think of DataFrameCollection as a dict-like structure backed by a disk.
 
 import logging
 import uuid
-from pathlib import Path
-from typing import Dict, Iterator, List, Optional, Tuple
+from typing import Callable, Dict, Iterator, List, Optional, Tuple
 
+import fsspec
 import pandas as pd
 import prefect
 from prefect import task
 
 logger = logging.getLogger(__name__)
+
+
+class TableExists(Exception):
+    """The table already exists.
+
+    Either the table already exists in the DataFrameCollection when it is added or the file
+    containing the serialized form is found on disk.
+    """
 
 
 class DataFrameCollection:
@@ -75,23 +83,39 @@ class DataFrameCollection:
             return pd.read_pickle(self._get_filename(name, self._table_ids[name]))
         except KeyError:
             raise KeyError(f"Table {name} not found in the collection.")
+        except Exception as err:
+            fn = self._get_filename(name, self._table_ids[name])
+            logger.error(f'Failed to retrieve dataframe from {fn}: {err}')
+            raise err
+
+    def _create_file(self, name: str) -> fsspec.core.OpenFile:
+        """Open the file that should hold the serialized contentes for the table.
+
+        Raises:
+            TableExists if the underlying file already exists.
+        """
+        filename = self._get_filename(name, self._instance_id)
+        fs, _, _ = fsspec.get_fs_token_paths(filename)
+        if fs.exists(filename):
+            raise TableExists(
+                f'{filename} containing serialized data for table {name} already exists.')
+        return fsspec.open(filename, "wb")
 
     def store(self, name: str, data: pd.DataFrame):
         """Adds named dataframe to collection and stores its contents on disk."""
-        filename = self._get_filename(name, self._instance_id)
-        if not filename.startswith("gs://"):
-            # Do not make directories when dealing with remote storage.
-            # TODO(rousik): this is fairly crude solution and won't work
-            # for non gcs remote storage.
-            Path(filename).parent.mkdir(exist_ok=True, parents=True)
-        data.to_pickle(filename)
-        self._table_ids[name] = self._instance_id
+        if name in self._table_ids:
+            raise TableExists(f'Table {name} already present in the DFC.')
+        with self._create_file(name) as fd:
+            data.to_pickle(fd)
+            self._table_ids[name] = self._instance_id
 
     def add_reference(self, name: str, table_id: uuid.UUID):
         """Adds reference to a named dataframe to this collection.
 
         This assumes that the data is already present on disk.
         """
+        if name in self._table_ids:
+            raise TableExists(f'Table {name} already exists in this DFC.')
         self._table_ids[name] = table_id
 
     def __getitem__(self, name: str) -> pd.DataFrame:
@@ -106,6 +130,10 @@ class DataFrameCollection:
         """Returns number of tables that are stored in this DataFrameCollection."""
         return len(self._table_ids)
 
+    def __bool__(self):
+        """Returns true if this collection contains something."""
+        return bool(self._table_ids)
+
     def items(self) -> Iterator[Tuple[str, pd.DataFrame]]:
         """Iterates over table names and the corresponding pd.DataFrame objects."""
         for name in self.get_table_names():
@@ -115,9 +143,9 @@ class DataFrameCollection:
         """Returns sorted list of dataframes that are contained in this collection."""
         return sorted(set(self._table_ids))
 
-    def get_table_ids(self) -> Dict[str, uuid.UUID]:
-        """Returns dict mapping dataframe names to their uuid identifiers."""
-        return dict(self._table_ids)
+    def references(self) -> Iterator[Tuple[str, uuid.UUID]]:
+        """Returns a set-like object with (name, table_id) tuples."""
+        return self._table_ids.items()
 
     @staticmethod
     def from_dict(d: Dict[str, pd.DataFrame]):
@@ -131,7 +159,7 @@ class DataFrameCollection:
     def update(self, other):
         """Adds references to tables from the other DataFrameCollection."""
         # TODO(rousik): typecheck other?
-        for name, table_id in other.get_table_ids().items():
+        for name, table_id in other.references():
             self.add_reference(name, table_id)
 
     def union(self, *others):
@@ -168,7 +196,7 @@ def fanout(dfc: DataFrameCollection, chunk_size=1) -> List[DataFrameCollection]:
     """
     current_chunk = DataFrameCollection()
     all_results = []
-    for table_name, table_id in dfc.get_table_ids().items():
+    for table_name, table_id in dfc.references():
         if len(current_chunk) >= chunk_size:
             all_results.append(current_chunk)
             current_chunk = DataFrameCollection()
@@ -176,3 +204,20 @@ def fanout(dfc: DataFrameCollection, chunk_size=1) -> List[DataFrameCollection]:
     if len(current_chunk):
         all_results.append(current_chunk)
     return all_results
+
+
+@task(checkpoint=False)
+def filter_by_name(
+        dfc: DataFrameCollection,
+        condition: Callable[[str], bool]) -> DataFrameCollection:
+    """
+    Returns DataFrameCollection containing only tables that match the condition.
+
+    Conditions get table_name as a parameter. We could also pass dfc itself but it seems
+    currently unnecessary.
+    """
+    result = DataFrameCollection()
+    for table_name, table_id in dfc.references():
+        if condition(table_name):
+            result.add_reference(table_name, table_id)
+    return result
