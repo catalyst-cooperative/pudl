@@ -46,7 +46,7 @@ def pytest_addoption(parser):
                      help="Clobber the existing datapackages if they exist")
     parser.addoption("--sandbox", action="store_true", default=False,
                      help="Use raw inputs from the Zenodo sandbox server.")
-    parser.addoption("--gcs-cache-path", default=None,
+    parser.addoption("--remote-cache-path", default=None,
                      help="If set, use this GCS path as a datastore cache layer.")
 
 
@@ -343,10 +343,10 @@ def pudl_settings_fixture(  # noqa: C901
 @pytest.fixture(scope='session')  # noqa: C901
 def pudl_datastore_fixture(pudl_settings_fixture, request):
     """Produce a :class:pudl.workspace.datastore.Datastore."""
-    gcs_cache = request.config.getoption("--gcs-cache-path")
+    remote_cache = request.config.getoption("--remote-cache-path")
     return pudl.workspace.datastore.Datastore(
         local_cache_path=pathlib.Path(
             pudl_settings_fixture["pudl_in"]) / "data",
-        gcs_cache_path=gcs_cache,
-        gcs_cache_readonly=True,
+        remote_cache_path=remote_cache,
+        remote_cache_readonly=True,
         sandbox=pudl_settings_fixture["sandbox"])
