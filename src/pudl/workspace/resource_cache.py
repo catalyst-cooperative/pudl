@@ -10,6 +10,7 @@ from google.cloud import storage
 from google.cloud.storage.blob import Blob
 
 import boto3
+from botocore.exceptions import ClientError
 
 logger = logging.getLogger(__name__)
 
@@ -181,7 +182,7 @@ class AWSS3Cache(AbstractCache):
         try:
             self._blob(resource).load()
             return True
-        except botocore.exceptions.ClientError as e:
+        except ClientError as e:
             if e.response['Error']['Code'] == "404":
                 # The object does not exist.
                 return False
