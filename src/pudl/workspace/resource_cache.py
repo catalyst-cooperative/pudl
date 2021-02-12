@@ -1,13 +1,14 @@
 """Implementations of datastore resource caches."""
 
 import logging
+import os
 from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import Any, List, NamedTuple
-from urllib.parse import urlparse
 
-from google.cloud import storage
-from google.cloud.storage.blob import Blob
+import fsspec
+
+from pudl.helpers import metafs
 
 logger = logging.getLogger(__name__)
 
@@ -61,79 +62,38 @@ class AbstractCache(ABC):
         pass
 
 
-class LocalFileCache(AbstractCache):
-    """Simple key-value store mapping PudlResourceKeys to ByteIO contents."""
+class FSSpecCache(AbstractCache):
+    """Implements fsspec-based cache that stores datastore resources under cache_root_dir."""
 
-    def __init__(self, cache_root_dir: Path, **kwargs: Any):
-        """Constructs LocalFileCache that stores resources under cache_root_dir."""
+    def __init__(self, cache_root_dir: str, **kwargs: Any):
+        """Create instance of FSSpecCache storing resources under cache_root_dir."""
         super().__init__(**kwargs)
         self.cache_root_dir = cache_root_dir
 
-    def _resource_path(self, resource: PudlResourceKey) -> Path:
-        return self.cache_root_dir / resource.get_local_path()
+    def _resource_path(self, resource: PudlResourceKey) -> str:
+        return os.path.join(self.cache_root_dir, resource.get_local_path())
 
     def get(self, resource: PudlResourceKey) -> bytes:
-        """Retrieves value associated with a given resource."""
-        return self._resource_path(resource).open("rb").read()
+        """Retrieves content of given resource or throws KeyError."""
+        with fsspec.open(self._resource_path(resource), "rb") as fd:
+            return fd.read()
 
-    def add(self, resource: PudlResourceKey, content: bytes):
-        """Adds (or updates) resource to the cache with given value."""
+    def add(self, resource: PudlResourceKey, content: bytes) -> None:
+        """Adds resource to the cache and sets the content."""
         if self.is_read_only():
-            logger.debug(f"Read only cache: ignoring set({resource})")
             return
-        path = self._resource_path(resource)
-        path.parent.mkdir(parents=True, exist_ok=True)
-        path.open("wb").write(content)
+        with fsspec.open(self._resource_path(resource), "wb") as fd:
+            fd.write(content)
 
-    def delete(self, resource: PudlResourceKey):
-        """Deletes resource from the cache."""
+    def delete(self, resource: PudlResourceKey) -> None:
+        """Removes the resource from cache."""
         if self.is_read_only():
-            logger.debug(f"Read only cache: ignoring delete({resource})")
             return
-        self._resource_path(resource).unlink(missing_ok=True)
+        metafs.delete(self._resource_path(resource))
 
     def contains(self, resource: PudlResourceKey) -> bool:
-        """Returns True if resource is present in the cache."""
-        return self._resource_path(resource).exists()
-
-
-class GoogleCloudStorageCache(AbstractCache):
-    """Implements file cache backed by Google Cloud Storage bucket."""
-
-    def __init__(self, gcs_path: str, **kwargs: Any):
-        """Constructs new cache that stores files in Google Cloud Storage.
-
-        Args:
-            gcs_path (str): path to where the data should be stored. This should
-              be in the form of gs://{bucket-name}/{optional-path-prefix}
-        """
-        super().__init__(**kwargs)
-        parsed_url = urlparse(gcs_path)
-        if parsed_url.scheme != "gs":
-            raise ValueError(f"gsc_path should start with gs:// (found: {gcs_path})")
-        self._path_prefix = Path(parsed_url.path)
-        self._bucket = storage.Client().bucket(parsed_url.netloc)
-
-    def _blob(self, resource: PudlResourceKey) -> Blob:
-        """Retrieve Blob object associated with given resource."""
-        p = (self._path_prefix / resource.get_local_path()).as_posix().lstrip('/')
-        return self._bucket.blob(p)
-
-    def get(self, resource: PudlResourceKey) -> bytes:
-        """Retrieves value associated with given resource."""
-        return self._blob(resource).download_as_bytes()
-
-    def add(self, resource: PudlResourceKey, value: bytes):
-        """Adds (or updates) resource to the cache with given value."""
-        return self._blob(resource).upload_from_string(value)
-
-    def delete(self, resource: PudlResourceKey):
-        """Deletes resource from the cache."""
-        self._blob(resource).delete()
-
-    def contains(self, resource: PudlResourceKey) -> bool:
-        """Returns True if resource is present in the cache."""
-        return self._blob(resource).exists()
+        """Returns True if the resource is present in the cache."""
+        return metafs.exists(self._resource_path(resource))
 
 
 class LayeredCache(AbstractCache):

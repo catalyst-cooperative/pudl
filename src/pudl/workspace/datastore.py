@@ -238,22 +238,19 @@ class Datastore:
     def __init__(
         self,
         local_cache_path: Optional[str] = None,
-        gcs_cache_path: Optional[str] = None,
-        gcs_cache_readonly: bool = False,
+        remote_cache_path: Optional[str] = None,
+        remote_cache_readonly: bool = False,
         sandbox: bool = False,
         timeout: float = 15
     ):
-        # TODO(rousik): figure out an efficient way to configure datastore caching
         """
         Datastore manages file retrieval for PUDL datasets.
 
         Args:
-            local_cache_path (str): if provided, LocalFileCache pointed at the data
-              subdirectory of this path will be used with this Datastore.
-            gcs_cache_path (str): if provided, GoogleCloudStorageCache will be used
-              to retrieve data files. The path is expected to have the following
-              format: gs://bucket[/path_prefix]
-            gcs_cache_readonly (bool): controls whether GCS cache should be treated
+            local_cache_path (str): if provided, cache zenodo resources in this location.
+            remote_cache_path (str): if provided, contact this remote cache before fetching
+              resources from zenodo. This should be fsspec-compatible path.
+            remote_cache_readonly (bool): controls whether GCS cache should be treated
               as read-only layer and should not be modified.
             sandbox (bool): if True, use sandbox zenodo backend when retrieving files,
               otherwise use production. This affects which zenodo servers are contacted
@@ -262,15 +259,21 @@ class Datastore:
               to Zenodo servers.
 
         """
+        # TODO(rousik): FSSpec cache can replace both local and remote cache paths. Ideally
+        # we would simply construct datastore by providing list of cache layers (local or remote)
+        # that each specify path (str) and read_only (bool) attributes.
+
         self._cache = resource_cache.LayeredCache()
         self._datapackage_descriptors = {}  # type: Dict[str, DatapackageDescriptor]
 
         if local_cache_path:
             self._cache.add_cache_layer(
-                resource_cache.LocalFileCache(local_cache_path))
-        if gcs_cache_path:
+                resource_cache.FSSpecCache(local_cache_path))
+        if remote_cache_path:
             self._cache.add_cache_layer(
-                resource_cache.GoogleCloudStorageCache(gcs_cache_path))
+                resource_cache.FSSpecCache(
+                    remote_cache_path,
+                    read_only=remote_cache_readonly))
 
         self._zenodo_fetcher = ZenodoFetcher(
             sandbox=sandbox,
@@ -296,8 +299,8 @@ class Datastore:
         prefect.context.datastore_config = dict(
             sandbox=prefect.context.pudl_settings.get("sandbox", False),
             local_cache_path=local_cache_path,
-            gcs_cache_path=commandline_args.gcs_cache_path,
-            gcs_cache_readonly=True)
+            remote_cache_path=commandline_args.zenodo_cache_path,
+            remote_cache_readonly=True)
 
     def get_known_datasets(self) -> List[str]:
         """Returns list of supported datasets."""
@@ -432,10 +435,9 @@ Available Sandbox Datasets:
         default=False,
     )
     parser.add_argument(
-        "--populate-gcs-cache",
+        "--populate-remote-cache",
         default=None,
-        help="If specified, upload data resources to this GCS bucket"
-    )
+        help="If specified, load data resources to this fsspec-like remote location.")
     parser.add_argument(
         "--partition",
         default={},
@@ -446,24 +448,21 @@ Available Sandbox Datasets:
     return parser.parse_args()
 
 
-def _get_pudl_in(args: dict) -> Path:
+def _get_pudl_in(args: dict) -> str:
     """Figure out what pudl_in path should be used."""
-    if args.pudl_in:
-        return Path(args.pudl_in)
-    else:
-        cfg = yaml.safe_load(PUDL_YML.open())
-        return Path(cfg["pudl_in"])
 
 
 def _create_datastore(args: dict) -> Datastore:
     """Constructs datastore instance."""
-    local_cache_path = None
-    if not args.populate_gcs_cache:
-        local_cache_path = _get_pudl_in(args) / "data"
-    return Datastore(
-        sandbox=args.sandbox,
-        local_cache_path=local_cache_path,
-        gcs_cache_path=args.populate_gcs_cache)
+    if args.populate_remote_cache:
+        return Datastore(
+            sandbox=args.sandbox,
+            remote_cache_path=args.populate_remote_cache)
+    else:
+        pudl_in = args.pudl_in or yaml.safe_load(PUDL_YML.open())["pudl_in"]
+        return Datastore(
+            sandbox=args.sandbox,
+            local_cache_path=os.path.join(pudl_in, "data"))
 
 
 def main():

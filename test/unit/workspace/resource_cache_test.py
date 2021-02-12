@@ -8,13 +8,13 @@ from pudl.workspace import resource_cache
 from pudl.workspace.resource_cache import PudlResourceKey
 
 
-class TestLocalFileCache(unittest.TestCase):
-    """Unit tests for the LocalFileCache class."""
+class TestFSSpecCache(unittest.TestCase):
+    """Unit tests for the FSSpecCache class."""
 
     def setUp(self):
         """Prepares temporary directory for storing cache contents."""
         self.test_dir = tempfile.mkdtemp()
-        self.cache = resource_cache.LocalFileCache(Path(self.test_dir))
+        self.cache = resource_cache.FSSpecCache(Path(self.test_dir))
 
     def tearDown(self):
         """Deletes content of the temporary directories."""
@@ -29,8 +29,8 @@ class TestLocalFileCache(unittest.TestCase):
         self.assertEqual(b"blah", self.cache.get(res))
 
     def test_that_two_cache_objects_share_storage(self):
-        """Two LocalFileCache instances with the same path share the object storage."""
-        second_cache = resource_cache.LocalFileCache(Path(self.test_dir))
+        """Two FSSpecCache instances with the same path share the object storage."""
+        second_cache = resource_cache.FSSpecCache(Path(self.test_dir))
         res = PudlResourceKey("dataset", "doi", "file.txt")
         self.assertFalse(self.cache.contains(res))
         self.assertFalse(second_cache.contains(res))
@@ -51,7 +51,7 @@ class TestLocalFileCache(unittest.TestCase):
     def test_read_only_add_and_delete_do_nothing(self):
         """When cache is in read_only mode, add() and delete() calls should be ignored."""
         res = PudlResourceKey("a", "b", "c")
-        ro_cache = resource_cache.LocalFileCache(Path(self.test_dir), read_only=True)
+        ro_cache = resource_cache.FSSpecCache(Path(self.test_dir), read_only=True)
         self.assertTrue(ro_cache.is_read_only())
 
         ro_cache.add(res, b"sample")
@@ -71,12 +71,12 @@ class TestLayeredCache(unittest.TestCase):
     """Unit tests for LayeredCache class."""
 
     def setUp(self):
-        """Constructs two LocalFileCache layers pointed at temporary directories."""
+        """Constructs two FSSpecCache layers pointed at temporary directories."""
         self.layered_cache = resource_cache.LayeredCache()
         self.test_dir_1 = tempfile.mkdtemp()
         self.test_dir_2 = tempfile.mkdtemp()
-        self.cache_1 = resource_cache.LocalFileCache(self.test_dir_1)
-        self.cache_2 = resource_cache.LocalFileCache(self.test_dir_2)
+        self.cache_1 = resource_cache.FSSpecCache(self.test_dir_1)
+        self.cache_2 = resource_cache.FSSpecCache(self.test_dir_2)
 
     def tearDown(self):
         """Remove temporary directories storing the cache contents."""
@@ -136,8 +136,8 @@ class TestLayeredCache(unittest.TestCase):
 
     def test_read_only_layers_skipped_when_adding(self):
         """When add() is called, layers that are marked as read_only are skipped."""
-        c1 = resource_cache.LocalFileCache(self.test_dir_1, read_only=True)
-        c2 = resource_cache.LocalFileCache(self.test_dir_2)
+        c1 = resource_cache.FSSpecCache(self.test_dir_1, read_only=True)
+        c2 = resource_cache.FSSpecCache(self.test_dir_2)
         lc = resource_cache.LayeredCache(c1, c2)
 
         res = PudlResourceKey("a", "b", "c")

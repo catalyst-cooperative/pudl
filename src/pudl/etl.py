@@ -96,20 +96,21 @@ def command_line_flags() -> argparse.ArgumentParser:
         default=False,
         help="Controls whether flow dependency graphs should be displayed.")
     parser.add_argument(
-        "--gcs-cache-path",
+        "--zenodo-cache-path",
         type=str,
-        default=os.environ.get('PUDL_GCS_CACHE_PATH'),
-        help="""Specifies path in the form of gs://${bucket-name}[/optional-path-prefix].
+        default=os.environ.get('PUDL_ZENODO_CACHE_PATH'),
+        help="""Specifies fsspec-like path where zenodo datapackages are cached.
 
-        If set, datastore will use this storage bucket as a caching layer and will retrieve
-        resources from there before contacting Zenodo.
+        This can be local as well as remote location (e.g. GCS or S3).
 
-        This caching layer will be set to read-only mode. If you need to modify its
-        contents you should use pudl_datastore to populate it.
+        If specified, datastore will use this as a read-only cache and will retrieve
+        files from this location before contacting Zenodo.
 
-        If not specified, the default will be loaded from environment variable
-        PUDL_GCS_CACHE_PATH. If that one is not set, Google Cloud Storage caching will
-        not be used.""")
+        This is set to read-only mode and will not be modified during ETL run. If you
+        need to update or set it up, you can use pudl_datastore CLI to do so.
+
+        Default value for this flag is loaded from PUDL_ZENODO_CACHE_PATH environment
+        variable.""")
     # TODO(rousik): the above should be marked as "datastore" cache.
     parser.add_argument(
         "--bypass-local-cache",
