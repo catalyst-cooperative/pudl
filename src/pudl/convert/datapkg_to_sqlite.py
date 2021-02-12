@@ -31,7 +31,6 @@ from typing import List
 
 import coloredlogs
 import datapackage
-import fsspec
 import prefect
 import sqlalchemy as sa
 from prefect import task
@@ -39,13 +38,9 @@ from tableschema import exceptions
 
 import pudl
 from pudl.convert.merge_datapkgs import merge_datapkgs
+from pudl.helpers import metafs
 
 logger = logging.getLogger(__name__)
-
-
-def get_fs(urlpath):
-    """Returns fsspec fs object for a given urlpath."""
-    return fsspec.get_fs_token_paths(urlpath)[0]
 
 
 @task(checkpoint=False)
@@ -64,7 +59,7 @@ def populate_pudl_database(datapackage_directories: List[str], clobber: bool = F
             # Some pipelines return None when they do not produce datapackage.
             continue
         descriptor_file = os.path.join(p, "datapackage.json")
-        if not get_fs(p).exists(descriptor_file):
+        if not metafs.exists(descriptor_file):
             raise FileNotFoundError(f"Descriptor {descriptor_file} does not exist.")
         datapackages.append(datapackage.DataPackage(descriptor=descriptor_file))
 

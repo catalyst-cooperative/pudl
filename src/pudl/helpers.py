@@ -17,6 +17,7 @@ import tempfile
 from functools import partial
 
 import addfips
+import fsspec
 import numpy as np
 import pandas as pd
 import requests
@@ -38,6 +39,44 @@ sum_na = partial(pd.Series.sum, skipna=False)
 # them open for efficiency. I want to avoid doing that for every call to find
 # the timezone, so this is global.
 tz_finder = timezonefinder.TimezoneFinder()
+
+
+def get_fs(url) -> fsspec.AbstractFileSystem:
+    """Returns FileSystem associated with this url."""
+    return fsspec.core.get_fs_token_paths(url)[0]
+
+
+class MetaFsType(type):
+    """This implements the magic forwarding call to FileSystem methods.
+
+    Many useful operations (e.g. exists, ...) are implemented on a FileSystem
+    object level. However, if we have a path/url, we do not necessarily know
+    on which FileSystem it is stored.
+
+    This can be worked around by calling fsspec.core.get_fs_token_path() but
+    that API is kind of tedious.
+
+    This  metaclass will intercept method calls and, assuming that the file
+    url is the first argument to the method, will determine the relevant
+    FileSystem instance and forward the method call to it.
+
+    `MetaFs.foo(url, a, b=1)` translates to:
+
+    ```python
+    fs, _, _ = fsspec.core.get_fs_token_paths(url)
+    fs.foo(url, a, b=1)
+    ```
+    """
+
+    def __getattr__(self, name):
+        """Returns a wrapper that forwards the call to FileSystem instance."""
+        def wrapper(url, *args, **kwargs):
+            return get_fs(url).__getattribute__(name)(url, *args, **kwargs)
+        return wrapper
+
+
+class metafs(metaclass=MetaFsType):
+    """Magic access to FileSystem methods. Assume url is the first argument."""
 
 
 def download_zip_url(url, save_path, chunk_size=128):
