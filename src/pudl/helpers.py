@@ -68,15 +68,20 @@ class MetaFsType(type):
     ```
     """
 
-    def __getattr__(self, name):
+    def __getattr__(cls, name):
         """Returns a wrapper that forwards the call to FileSystem instance."""
         def wrapper(url, *args, **kwargs):
             return get_fs(url).__getattribute__(name)(url, *args, **kwargs)
         return wrapper
 
 
-class metafs(metaclass=MetaFsType):
-    """Magic access to FileSystem methods. Assume url is the first argument."""
+class metafs(metaclass=MetaFsType):  # noqa: N801
+    """Magic access to FileSystem methods. Assume url is the first argument.
+
+    While this violates the convention to use CapWords when naming classes, this
+    is really just a light-weight magic shim and helpers.metafs.blah() is similar
+    to fsspec.blah() which this emulates.
+    """
 
 
 def download_zip_url(url, save_path, chunk_size=128):
