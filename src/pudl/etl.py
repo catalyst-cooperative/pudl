@@ -32,6 +32,10 @@ from prefect.executors import DaskExecutor
 from prefect.executors.local import LocalExecutor
 from prefect.tasks.shell import ShellTask
 
+from s3fs import S3FileSystem
+from gcsfs import GCSFileSystem
+
+
 import pudl
 from pudl import dfc
 from pudl.convert import datapkg_to_sqlite
@@ -549,6 +553,11 @@ def configure_prefect_context(etl_settings, pudl_settings, commandline_args):
     prefect.context.pudl_datapkg_bundle_name = etl_settings['datapkg_bundle_name']
     prefect.context.pudl_commandline_args = commandline_args
     prefect.context.pudl_upload_to_gcs = commandline_args.upload_to_gcs
+    prefect.context.pudl_filesystem = None
+    if commandline_args.upload_to_gcs.startswith("gs://"):
+        prefect.context.pudl_filesystem = GCSFileSystem()
+    elif commandline_args.upload_to_gcs.startswith("s3://"):
+        prefect.context.pudl_filesystem = S3FileSystem()
 
     local_cache_path = None
     if not commandline_args.bypass_local_cache:

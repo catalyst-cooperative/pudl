@@ -70,6 +70,7 @@ def write_epacems_parquet_files(df: pd.DataFrame, table_name: str, partition: Ep
     parquet.write_to_dataset(
         table,
         root_path=output_path,
+        filesystem=prefect.context.pudl_filesystem,
         partition_cols=['year', 'state'],
         compression='snappy')
 
