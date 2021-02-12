@@ -63,7 +63,8 @@ def write_epacems_parquet_files(df: pd.DataFrame, table_name: str, partition: Ep
     # once we update our dependency.
     if prefect.context.pudl_upload_to_gcs:
         output_path = os.path.join(
-            prefect.context.pudl_upload_to_gcs, "parquet", "epacems")
+            prefect.context.pudl_upload_to_gcs, prefect.context.pudl_run_id,
+            "parquet", "epacems")
     else:
         output_path = os.path.join(
             prefect.context.pudl_settings["parquet_dir"], "epacems")
