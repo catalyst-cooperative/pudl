@@ -28,6 +28,7 @@ dependencies:
   - pyyaml~=5.0
   - python~=3.8
   - python-snappy~=0.5.4
+  - s3fs0~=.4.2
   - scikit-learn~=0.24
   - scipy~=1.6
   - seaborn~=0.11.1

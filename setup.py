@@ -26,6 +26,7 @@ install_requires = [
     "prefect[viz, gcp]~=0.14.2",
     "pyarrow~=3.0",
     "pyyaml~=5.0",
+    "s3fs~=0.4.2",
     "scikit-learn~=0.24",
     "scipy~=1.6",
     "seaborn~=0.11.1",

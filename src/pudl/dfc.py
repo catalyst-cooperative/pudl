@@ -94,7 +94,7 @@ class DataFrameCollection:
         if name in self._table_ids:
             raise TableExists(f'Table {name} already present in the DFC.')
         filename = self._get_filename(name, self._instance_id)
-        if not filename.startswith("gs://"):
+        if not (filename.startswith("gs://") or filename.startswith("s3://")):
             # Do not make directories when dealing with remote storage.
             # TODO(rousik): this is fairly crude solution and won't work
             # for non gcs remote storage.
