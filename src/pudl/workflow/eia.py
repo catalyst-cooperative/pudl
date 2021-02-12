@@ -74,12 +74,6 @@ def merge_eia860m(eia860: DataFrameCollection, eia860m: DataFrameCollection):
     return result
 
 
-@task(target="extract-table.{table_name}")  # noqa: FS003
-def extract_table(dfc: DataFrameCollection, table_name: str) -> pd.DataFrame:
-    """Retrieves named pd.DataFrame from dfc."""
-    return dfc.get(table_name)
-
-
 class EiaPipeline(DatasetPipeline):
     """Runs eia923, eia860 and eia (entity extraction) tasks."""
 
@@ -200,4 +194,4 @@ class EiaPipeline(DatasetPipeline):
         # Loads csv form
         # TODO(rousik): once we break down tasks to table-level granularity, this
         # extraction task/functionality may no longer be needed.
-        return extract_table.bind(self.output_dfc, table_name, flow=self.flow)
+        return dfc.extract_table.bind(self.output_dfc, table_name, flow=self.flow)

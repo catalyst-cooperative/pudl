@@ -19,7 +19,6 @@ Think of DataFrameCollection as a dict-like structure backed by a disk.
 
 import logging
 import uuid
-from pathlib import Path
 from typing import Dict, Iterator, List, Optional, Tuple
 
 import fsspec
@@ -89,22 +88,26 @@ class DataFrameCollection:
             logger.error(f'Failed to retrieve dataframe from {fn}: {err}')
             raise err
 
-    def store(self, name: str, data: pd.DataFrame):
-        """Adds named dataframe to collection and stores its contents on disk."""
-        if name in self._table_ids:
-            raise TableExists(f'Table {name} already present in the DFC.')
+    def _create_file(self, name: str) -> fsspec.core.OpenFile:
+        """Open the file that should hold the serialized contentes for the table.
+
+        Raises:
+            TableExists if the underlying file already exists.
+        """
         filename = self._get_filename(name, self._instance_id)
-        if not filename.startswith("gs://"):
-            # Do not make directories when dealing with remote storage.
-            # TODO(rousik): this is fairly crude solution and won't work
-            # for non gcs remote storage.
-            Path(filename).parent.mkdir(exist_ok=True, parents=True)
         fs, _, _ = fsspec.get_fs_token_paths(filename)
         if fs.exists(filename):
             raise TableExists(
                 f'{filename} containing serialized data for table {name} already exists.')
-        data.to_pickle(filename)
-        self._table_ids[name] = self._instance_id
+        return fsspec.open(filename, "wb")
+
+    def store(self, name: str, data: pd.DataFrame):
+        """Adds named dataframe to collection and stores its contents on disk."""
+        if name in self._table_ids:
+            raise TableExists(f'Table {name} already present in the DFC.')
+        with self._create_file(name) as fd:
+            data.to_pickle(fd)
+            self._table_ids[name] = self._instance_id
 
     def add_reference(self, name: str, table_id: uuid.UUID):
         """Adds reference to a named dataframe to this collection.
@@ -201,3 +204,9 @@ def fanout(dfc: DataFrameCollection, chunk_size=1) -> List[DataFrameCollection]:
     if len(current_chunk):
         all_results.append(current_chunk)
     return all_results
+
+
+@task
+def extract_table(dfc: DataFrameCollection, table_name: str) -> pd.DataFrame:
+    """Retrieves named pd.DataFrame from dfc."""
+    return dfc.get(table_name)
