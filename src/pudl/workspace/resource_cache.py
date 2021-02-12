@@ -181,8 +181,13 @@ class AWSS3Cache(AbstractCache):
         try:
             self._blob(resource).load()
             return True
-        except:
-            return False
+        except botocore.exceptions.ClientError as e:
+            if e.response['Error']['Code'] == "404":
+                # The object does not exist.
+                return False
+            else:
+                # Something else has gone wrong.
+                raise
 
 
 class LayeredCache(AbstractCache):
