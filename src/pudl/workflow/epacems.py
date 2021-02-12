@@ -61,15 +61,18 @@ def write_epacems_parquet_files(df: pd.DataFrame, table_name: str, partition: Ep
     #
     # This should be fixed in the newer pyarrow releases and could be removed
     # once we update our dependency.
-    if prefect.context.pudl_upload_to_gcs:
+    if prefect.context.pudl_upload_to:
         output_path = os.path.join(
-            prefect.context.pudl_upload_to_gcs, "parquet", "epacems")
+            prefect.context.pudl_upload_to,
+            prefect.context.pudl_run_id,
+            "parquet", "epacems")
     else:
         output_path = os.path.join(
             prefect.context.pudl_settings["parquet_dir"], "epacems")
     parquet.write_to_dataset(
         table,
         root_path=output_path,
+        filesystem=pudl.helpers.get_fs(output_path),
         partition_cols=['year', 'state'],
         compression='snappy')
 

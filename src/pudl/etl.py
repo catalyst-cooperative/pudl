@@ -71,18 +71,20 @@ def command_line_flags() -> argparse.ArgumentParser:
         default=None,
         help='If specified, use pre-existing DaskExecutor at this address.')
     parser.add_argument(
-        "--upload-to-gcs",
+        "--upload-to",
         type=str,
-        default=os.environ.get('PUDL_UPLOAD_TO_GCS'),
-        help="""gs://bucket/path where the ETL results should be uploaded to.
+        default=os.environ.get('PUDL_UPLOAD_TO'),
+        help="""A location (local or remote) where the results of the ETL run
+        should be uploaded to. This path will be interpreted by fsspec so
+        anything supported by that module is a valid destination.
 
-        If not set, the default value will be read from PUDL_UPLOAD_TO_GCS
-        environment variable.
+        This should work with GCS and S3 remote destinations.
 
-        Files will be stored under ${pudl_upload_to_gcs}/${run_id}.
+        Default value for this will be loaded from PUDL_UPLOAD_TO environment
+        variable.
 
-        If neither command-line flag nor env variable are set, the results
-        will be stored to local disk only and will not be uploaded to GCS.""")
+        Files will be stored under {upload_to}/{run_id} to avoid conflicts.
+        """)
     parser.add_argument(
         "--overwrite-ferc1-db",
         type=lambda mode: SqliteOverwriteMode[mode],
@@ -466,25 +468,27 @@ class DatapackageBuilder(prefect.Task):
 
 
 @task(checkpoint=False)
-def upload_datapackages_to_gcs(gcs_root_path: str, local_directories: List[str]) -> None:
+def upload_files(remote_root_path: str, local_directories: List[str]) -> None:
     """
-    Upload datapackage files to GCS.
+    Upload local files and directories to remote_root_path.
 
-    local_directories will be recursively scanned for files and these will be uploaded
-    to GCS under gcs_root_path/${pudl_run_id}. File structure will be retained using
-    paths relative to pudl_settings["pudl_out"].
+    Local directories will be recursively scanned for files and these will be uploaded
+    to the remote storage under {remote_root_path}/{run_id}. The local directory
+    structure relative to pudl_out will be maintained on the remote end, e.g.
+    pudl_out/some/path/file.txt will be uploaded to
+    remote_root_path/run_id/some/path/file.txt.
 
     Args:
-        gcs_root_path (str): a path prefix in the form of gs://bucket/path_prefix
-        local_directories (List[str]): list of directories that contain datapackage.json
-            files and the associated resources.
+        remote_root_path (str): a path prefix that can be interpreted by fsspec.
+        local_directories (List[str]): list of files or directories that should
+            be uploaded.
     """
-    gcs_base_path = os.path.join(gcs_root_path, prefect.context.pudl_run_id)
+    remote_base_path = os.path.join(remote_root_path, prefect.context.pudl_run_id)
     local_base_path = prefect.context.pudl_settings["pudl_out"]
 
     def upload_file(local_file: Path):
         rel_path = local_file.relative_to(local_base_path)
-        target_path = os.path.join(gcs_base_path, rel_path)
+        target_path = os.path.join(remote_base_path, rel_path)
         with local_file.open(mode="rb") as in_file:
             with fsspec.open(target_path, mode="wb") as out_file:
                 out_file.write(in_file.read())
@@ -548,7 +552,7 @@ def configure_prefect_context(etl_settings, pudl_settings, commandline_args):
     prefect.context.pudl_settings = pudl_settings
     prefect.context.pudl_datapkg_bundle_name = etl_settings['datapkg_bundle_name']
     prefect.context.pudl_commandline_args = commandline_args
-    prefect.context.pudl_upload_to_gcs = commandline_args.upload_to_gcs
+    prefect.context.pudl_upload_to = commandline_args.upload_to
     pudl.workspace.Datastore.configure_prefect_context(commandline_args)
 
     pipeline_cache_path = commandline_args.pipeline_cache_path
@@ -634,14 +638,12 @@ def generate_datapkg_bundle(etl_settings: dict,
         # TODO(rousik): we could also upload pudl db to gcs as an artifact
         if commandline_args.validate:
             validation_task(command="tox -ve validate", upstream_tasks=[pudl_db])
-        if commandline_args.upload_to_gcs:
-            upload_datapackages_to_gcs(
-                commandline_args.upload_to_gcs,
-                datapkg_paths)
-            upload_datapackages_to_gcs(
-                commandline_args.upload_to_gcs,
-                [Path(pudl_settings["sqlite_dir"], "pudl.sqlite")],
-                task_args={'name': 'upload_pudl_db_to_gcs'},
+        if commandline_args.upload_to:
+            upload_files(commandline_args.upload_to, datapkg_paths)
+            upload_files(
+                commandline_args.upload_to,
+                [os.path.join(pudl_settings["sqlite_dir"], "pudl.sqlite")],
+                task_args={'name': 'upload_pudl_db'},
                 upstream_tasks=[pudl_db])
 
     if commandline_args.show_flow_graph:
