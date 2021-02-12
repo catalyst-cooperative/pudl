@@ -121,7 +121,6 @@ def test_ferc1_solo_etl(pudl_settings_fixture,
     pudl.etl.generate_datapkg_bundle(
         pudl_settings,
         pudl_settings_fixture,
-        datapkg_bundle_name='ferc1-solo',
         commandline_args=commandline_args,
         clobber=True,
     )

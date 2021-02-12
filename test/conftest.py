@@ -201,7 +201,6 @@ def datapkg_bundle(ferc1_engine,
         pudl.etl.generate_datapkg_bundle(
             data_scope,
             pudl_settings_fixture,
-            datapkg_bundle_name=data_scope['datapkg_bundle_name'],
             datapkg_bundle_doi=data_scope['datapkg_bundle_doi'],
             commandline_args=commandline_args)
 

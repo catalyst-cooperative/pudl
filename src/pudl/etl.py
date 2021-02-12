@@ -554,7 +554,7 @@ def configure_prefect_context(etl_settings, pudl_settings, commandline_args):
     prefect.context.pudl_datapkg_bundle_name = etl_settings['datapkg_bundle_name']
     prefect.context.pudl_commandline_args = commandline_args
     prefect.context.pudl_upload_to = commandline_args.upload_to
-    pudl.workspace.Datastore.configure_prefect_context(commandline_args)
+    pudl.workspace.datastore.Datastore.configure_prefect_context(commandline_args)
 
     pipeline_cache_path = commandline_args.pipeline_cache_path
     if not pipeline_cache_path:
