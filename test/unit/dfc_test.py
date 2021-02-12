@@ -219,3 +219,17 @@ class TestDataFrameCollection(unittest.TestCase):
         self.assertEqual(
             [["a", "b", "c", "d"], ["e", "f"]],
             [x.get_table_names() for x in dfc4])
+
+    def test_extract_table(self):
+        """Test that extract_table task properly retrieves the relevant frames."""
+        left = pd.DataFrame({'x': [1, 2, 3]})
+        right = pd.DataFrame({'y': [4]})
+        my_dfc = DataFrameCollection.from_dict(dict(left=left, right=right))
+        with prefect.Flow("test") as f:
+            lf = dfc.extract_table(my_dfc, "left")
+            rf = dfc.extract_table(my_dfc, "right")
+            invalid = dfc.extract_table(my_dfc, "unknown")
+        status = f.run()
+        pd.testing.assert_frame_equal(left, status.result[lf].result)
+        pd.testing.assert_frame_equal(right, status.result[rf].result)
+        self.assertTrue(isinstance(status.result[invalid].result, KeyError))
