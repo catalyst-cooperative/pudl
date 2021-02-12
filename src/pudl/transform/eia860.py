@@ -407,6 +407,9 @@ def utilities(eia860_dfs, eia860_transformed_dfs):
         'Y': 'NY',  # Typo
     })
 
+    # Remove Address 3 column that is all NA
+    u_df = u_df.drop(['address_3'], axis=1)
+
     # Combine phone number columns into one
     def _make_phone_number(col1, col2, col3):
         """Make and validate full phone number seperated by dashes."""
