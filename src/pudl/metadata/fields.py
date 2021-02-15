@@ -1376,6 +1376,16 @@ FIELD_LIST: List[Dict[str, Any]] = [
         "description": "Algorithmically assigned PUDL FERC Plant ID. WARNING: NOT STABLE BETWEEN PUDL DB INITIALIZATIONS."
     },
     {
+        "name": "plant_id_pudl",
+        "type": "integer",
+        "description": "A manually assigned PUDL plant ID. May not be constant over time."
+    },
+    {
+        "name": "plant_name_eia",
+        "type": "string",
+        "description": "Plant name."
+    },
+    {
         "name": "plant_name_original",
         "type": "string",
         "description": "Original plant name in the FERC Form 1 FoxPro database."
@@ -1481,6 +1491,11 @@ FIELD_LIST: List[Dict[str, Any]] = [
         "name": "region_from",
         "type": "string",
         "description": "Name of the IPM region sending electricity"
+    },
+    {
+        "name": "region_id_epaipm",
+        "type": "string",
+        "description": "Name of the IPM region"
     },
     {
         "name": "region_to",
@@ -1901,6 +1916,16 @@ FIELD_LIST: List[Dict[str, Any]] = [
         "name": "utility_name_pudl",
         "type": "string",
         "description": "Utility name, chosen arbitrarily from the several possible utility names available in the utility matching process. Included for human readability only."
+    },
+    {
+        "name": "utility_id_ferc1",
+        "type": "integer",
+        "description": "FERC-assigned respondent_id, identifying the reporting entity. Stable from year to year."
+    },
+    {
+        "name": "utility_id_pudl",
+        "type": "integer",
+        "description": "A manually assigned PUDL utility ID. May not be stable over time."
     },
     {
         "name": "water_limited_capacity_mw",
