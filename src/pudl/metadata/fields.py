@@ -794,6 +794,11 @@ FIELD_LIST: List[Dict[str, Any]] = [
         "description": "MSHA issued mine identifier."
     },
     {
+        "name": "mine_id_pudl",
+        "type": "integer",
+        "description": "PUDL issued mine identifier."
+    },
+    {
         "name": "mine_name",
         "type": "string",
         "description": "Coal mine name."
