@@ -47,6 +47,11 @@ FIELD_LIST: List[Dict[str, Any]] = [
         "description": "If there is an ash impoundment at the plant, the ash impoundment status as of December 31 of the reporting year."
     },
     {
+        "name": "asset_retirement_cost",
+        "type": "number",
+        "description": "Asset retirement cost (USD)."
+    },
+    {
         "name": "associated_combined_heat_power",
         "type": "boolean",
         "description": "Indicates whether the generator is associated with a combined heat and power system"
@@ -77,29 +82,49 @@ FIELD_LIST: List[Dict[str, Any]] = [
         "description": "Can this generator operate while bypassing the heat recovery steam generator?"
     },
     {
+        "name": "capex_equipment",
+        "type": "number",
+        "description": "Cost of plant: equipment (USD)."
+    },
+    {
         "name": "capex_equipment_electric",
         "type": "number",
-        "description": "Cost of plant: accessory electric equipment. Nominal USD."
+        "description": "Cost of plant: accessory electric equipment (USD)."
     },
     {
         "name": "capex_equipment_misc",
         "type": "number",
-        "description": "Cost of plant: miscellaneous power plant equipment. Nominal USD."
+        "description": "Cost of plant: miscellaneous power plant equipment (USD)."
     },
     {
         "name": "capex_facilities",
         "type": "number",
-        "description": "Cost of plant: reservoirs, dams, and waterways. Nominal USD."
+        "description": "Cost of plant: reservoirs, dams, and waterways (USD)."
+    },
+    {
+        "name": "capex_land",
+        "type": "number",
+        "description": "Cost of plant: land and land rights (USD)."
     },
     {
         "name": "capex_roads",
         "type": "number",
-        "description": "Cost of plant: roads, railroads, and bridges. Nominal USD."
+        "description": "Cost of plant: roads, railroads, and bridges (USD)."
+    },
+    {
+        "name": "capex_structures",
+        "type": "number",
+        "description": "Cost of plant: structures and improvements (USD)."
+    },
+    {
+        "name": "capex_total",
+        "type": "number",
+        "description": "Total cost of plant (USD)."
     },
     {
         "name": "capex_wheels_turbines_generators",
         "type": "number",
-        "description": "Cost of plant: water wheels, turbines, and generators. Nominal USD."
+        "description": "Cost of plant: water wheels, turbines, and generators (USD)."
     },
     {
         "name": "carbon_capture",
@@ -220,7 +245,7 @@ FIELD_LIST: List[Dict[str, Any]] = [
     {
         "name": "demand_charges",
         "type": "number",
-        "description": "Demand charges. Nominal USD."
+        "description": "Demand charges (USD)."
     },
     {
         "name": "distribution_acct360_land",
@@ -310,7 +335,7 @@ FIELD_LIST: List[Dict[str, Any]] = [
     {
         "name": "electric_plant",
         "type": "number",
-        "description": "Electric Plant In Service. Nominal USD."
+        "description": "Electric Plant In Service (USD)."
     },
     {
         "name": "electric_plant_in_service_total",
@@ -330,7 +355,7 @@ FIELD_LIST: List[Dict[str, Any]] = [
     {
         "name": "energy_charges",
         "type": "number",
-        "description": "Energy charges. Nominal USD."
+        "description": "Energy charges (USD)."
     },
     {
         "name": "energy_source_code",
@@ -470,12 +495,12 @@ FIELD_LIST: List[Dict[str, Any]] = [
     {
         "name": "fuel_cost_per_unit_burned",
         "type": "number",
-        "description": "Average cost of fuel consumed in the report year, in nominal USD per reported fuel unit."
+        "description": "Average cost of fuel consumed in the report year per reported fuel unit (USD)."
     },
     {
         "name": "fuel_cost_per_unit_delivered",
         "type": "number",
-        "description": "Average cost of fuel delivered in the report year, in nominal USD per reported fuel unit."
+        "description": "Average cost of fuel delivered in the report year per reported fuel unit (USD)."
     },
     {
         "name": "fuel_group_code",
@@ -541,7 +566,7 @@ FIELD_LIST: List[Dict[str, Any]] = [
     {
         "name": "future_plant",
         "type": "number",
-        "description": "Electric Plant Held for Future Use. Nominal USD."
+        "description": "Electric Plant Held for Future Use (USD)."
     },
     {
         "name": "general_acct389_land",
@@ -736,7 +761,7 @@ FIELD_LIST: List[Dict[str, Any]] = [
     {
         "name": "leased_plant",
         "type": "number",
-        "description": "Electric Plant Leased to Others. Nominal USD."
+        "description": "Electric Plant Leased to Others (USD)."
     },
     {
         "name": "liquefied_natural_gas_storage",
@@ -1043,22 +1068,42 @@ FIELD_LIST: List[Dict[str, Any]] = [
     {
         "name": "opex_dams",
         "type": "number",
-        "description": "Production expenses: maintenance of reservoirs, dams, and waterways. Nominal USD."
+        "description": "Production expenses: maintenance of reservoirs, dams, and waterways (USD)."
+    },
+    {
+        "name": "opex_electric",
+        "type": "number",
+        "description": "Production expenses: electric expenses (USD)."
+    },
+    {
+        "name": "opex_engineering",
+        "type": "number",
+        "description": "Production expenses: maintenance, supervision, and engineering (USD)."
+    },
+    {
+        "name": "opex_fuel",
+        "type": "number",
+        "description": "Production expenses: fuel (USD)."
+    },
+    {
+        "name": "opex_generation_misc",
+        "type": "number",
+        "description": "Production expenses: miscellaneous power generation expenses (USD)."
     },
     {
         "name": "opex_hydraulic",
         "type": "number",
-        "description": "Production expenses: hydraulic expenses. Nominal USD."
+        "description": "Production expenses: hydraulic expenses (USD)."
     },
     {
         "name": "opex_maintenance",
         "type": "number",
-        "description": "Production expenses: Maintenance. Nominal USD."
+        "description": "Production expenses: Maintenance (USD)."
     },
     {
         "name": "opex_misc_plant",
         "type": "number",
-        "description": "Production expenses: maintenance of miscellaneous hydraulic plant. Nominal USD."
+        "description": "Production expenses: maintenance of miscellaneous hydraulic plant (USD)."
     },
     {
         "name": "opex_misc_power",
@@ -1071,9 +1116,19 @@ FIELD_LIST: List[Dict[str, Any]] = [
         "description": "Maintenance of miscellaneous steam (or nuclear) plant."
     },
     {
+        "name": "opex_operations",
+        "type": "number",
+        "description": "Production expenses: operations, supervision, and engineering (USD)."
+    },
+    {
+        "name": "opex_per_mwh",
+        "type": "number",
+        "description": "Total production expenses (USD per MWh generated)."
+    },
+    {
         "name": "opex_plant",
         "type": "number",
-        "description": "Production expenses: maintenance of electric plant. Nominal USD."
+        "description": "Production expenses: maintenance of electric plant (USD)."
     },
     {
         "name": "opex_plants",
@@ -1083,7 +1138,7 @@ FIELD_LIST: List[Dict[str, Any]] = [
     {
         "name": "opex_production_before_pumping",
         "type": "number",
-        "description": "Total production expenses before pumping. Nominal USD."
+        "description": "Total production expenses before pumping (USD)."
     },
     {
         "name": "opex_production_total",
@@ -1093,12 +1148,17 @@ FIELD_LIST: List[Dict[str, Any]] = [
     {
         "name": "opex_pumped_storage",
         "type": "number",
-        "description": "Production expenses: pumped storage. Nominal USD."
+        "description": "Production expenses: pumped storage (USD)."
     },
     {
         "name": "opex_pumping",
         "type": "number",
-        "description": "Production expenses: We are here to PUMP YOU UP! Nominal USD."
+        "description": "Production expenses: We are here to PUMP YOU UP! (USD)."
+    },
+    {
+        "name": "opex_rents",
+        "type": "number",
+        "description": "Production expenses: rents (USD)."
     },
     {
         "name": "opex_steam",
@@ -1111,6 +1171,16 @@ FIELD_LIST: List[Dict[str, Any]] = [
         "description": "Steam from other sources."
     },
     {
+        "name": "opex_structures",
+        "type": "number",
+        "description": "Production expenses: maintenance of structures (USD)."
+    },
+    {
+        "name": "opex_total",
+        "type": "number",
+        "description": "Total production expenses, excluding fuel (USD)."
+    },
+    {
         "name": "opex_transfer",
         "type": "number",
         "description": "Steam transferred (Credit)."
@@ -1118,7 +1188,7 @@ FIELD_LIST: List[Dict[str, Any]] = [
     {
         "name": "opex_water_for_power",
         "type": "number",
-        "description": "Production expenses: water for power. Nominal USD."
+        "description": "Production expenses: water for power (USD)."
     },
     {
         "name": "original_planned_operating_date",
@@ -1168,7 +1238,7 @@ FIELD_LIST: List[Dict[str, Any]] = [
     {
         "name": "other_charges",
         "type": "number",
-        "description": "Other charges, including out-of-period adjustments. Nominal USD."
+        "description": "Other charges, including out-of-period adjustments (USD)."
     },
     {
         "name": "other_combustion_tech",
@@ -1775,17 +1845,17 @@ FIELD_LIST: List[Dict[str, Any]] = [
     {
         "name": "total",
         "type": "number",
-        "description": "Total of Electric Plant In Service, Electric Plant Held for Future Use, and Electric Plant Leased to Others. Nominal USD."
+        "description": "Total of Electric Plant In Service, Electric Plant Held for Future Use, and Electric Plant Leased to Others (USD)."
     },
     {
         "name": "total_cost_of_plant",
         "type": "number",
-        "description": "Total cost of plant. Nominal USD."
+        "description": "Total cost of plant (USD)."
     },
     {
         "name": "total_settlement",
         "type": "number",
-        "description": "Sum of demand, energy, and other charges. For power exchanges, the settlement amount for the net receipt of energy. If more energy was delivered than received, this amount is negative. Nominal USD."
+        "description": "Sum of demand, energy, and other charges (USD). For power exchanges, the settlement amount for the net receipt of energy. If more energy was delivered than received, this amount is negative."
     },
     {
         "name": "transmission_acct350_land",
