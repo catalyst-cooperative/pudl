@@ -8,7 +8,7 @@ from typing import Any, List, NamedTuple
 
 import fsspec
 
-from pudl.helpers import metafs
+from pudl.helpers import fsspec_delete, metafs_exists
 
 logger = logging.getLogger(__name__)
 
@@ -89,11 +89,11 @@ class FSSpecCache(AbstractCache):
         """Removes the resource from cache."""
         if self.is_read_only():
             return
-        metafs.delete(self._resource_path(resource))
+        fsspec_delete(self._resource_path(resource))
 
     def contains(self, resource: PudlResourceKey) -> bool:
         """Returns True if the resource is present in the cache."""
-        return metafs.exists(self._resource_path(resource))
+        return fsspec_exists(self._resource_path(resource))
 
 
 class LayeredCache(AbstractCache):

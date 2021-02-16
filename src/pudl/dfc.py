@@ -26,7 +26,7 @@ import pandas as pd
 import prefect
 from prefect import task
 
-from pudl.helpers import metafs
+from pudl.helpers import fsspec_exists
 
 logger = logging.getLogger(__name__)
 
@@ -97,7 +97,7 @@ class DataFrameCollection:
             TableExists if the underlying file already exists.
         """
         filename = self._get_filename(name, self._instance_id)
-        if metafs.exists(filename):
+        if fsspec_exists(filename):
             raise TableExists(
                 f'{filename} containing serialized data for table {name} already exists.')
         return fsspec.open(filename, "wb")
