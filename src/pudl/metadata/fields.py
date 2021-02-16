@@ -267,9 +267,17 @@ FIELD_LIST: List[Dict[str, Any]] = [
         "description": "Gross megawatt-hours delivered in power exchanges and used as the basis for settlement."
     },
     {
+        "name": "demand_annual_mwh",
+        "type": "number"
+    },
+    {
         "name": "demand_charges",
         "type": "number",
         "description": "Demand charges (USD)."
+    },
+    {
+        "name": "demand_mwh",
+        "type": "number"
     },
     {
         "name": "description",
@@ -359,6 +367,10 @@ FIELD_LIST: List[Dict[str, Any]] = [
         "name": "duct_burners",
         "type": "boolean",
         "description": "Indicates whether the unit has duct-burners for supplementary firing of the turbine exhaust gas"
+    },
+    {
+        "name": "eia_code",
+        "type": "integer"
     },
     {
         "name": "electric_plant",
@@ -1440,6 +1452,14 @@ FIELD_LIST: List[Dict[str, Any]] = [
         "type": "number"
     },
     {
+        "name": "peak_demand_summer_mw",
+        "type": "number"
+    },
+    {
+        "name": "peak_demand_winter_mw",
+        "type": "number"
+    },
+    {
         "name": "pipeline_notes",
         "type": "string",
         "description": "Additional owner or operator of natural gas pipeline."
@@ -1675,6 +1695,21 @@ FIELD_LIST: List[Dict[str, Any]] = [
         "name": "report_year",
         "type": "year",
         "description": "Four-digit year in which the data was reported."
+    },
+    {
+        "name": "respondent_id_ferc714",
+        "type": "integer"
+    },
+    {
+        "name": "respondent_name_ferc714",
+        "type": "string"
+    },
+    {
+        "name": "respondent_type",
+        "type": "string",
+        "constraints": {
+            "enum": ["utility", "balancing_authority"]
+        }
     },
     {
         "name": "retirement_date",
@@ -1932,7 +1967,17 @@ FIELD_LIST: List[Dict[str, Any]] = [
     {
         "name": "timezone",
         "type": "string",
-        "description": "IANA timezone name"
+        "description": "IANA timezone name",
+        "constraints": {
+            "enum": [
+                "America/New_York",
+                "America/Chicago",
+                "America/Denver",
+                "America/Los_Angeles",
+                "America/Anchorage",
+                "Pacific/Honolulu",
+            ]
+        }
     },
     {
         "name": "topping_bottoming_code",
@@ -2068,6 +2113,10 @@ FIELD_LIST: List[Dict[str, Any]] = [
         "name": "uprate_derate_during_year",
         "type": "boolean",
         "description": "Was an uprate or derate completed on this generator during the reporting year?"
+    },
+    {
+        "name": "utc_datetime",
+        "type": "datetime"
     },
     {
         "name": "utility_name_eia",
