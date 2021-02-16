@@ -1,9 +1,8 @@
 """Resource metadata."""
-from typing import Any, Dict, List
+from typing import Any, Dict
 
-RESOURCE_LIST: List[Dict[str, Any]] = [
-    {
-        "name": "fuel_ferc1",
+RESOURCES: Dict[str, Dict[str, Any]] = {
+    "fuel_ferc1": {
         "description": "Annual fuel consumed by large thermal generating plants. As reported on page 402 of FERC Form 1.",
         "schema": {
             "fields": [
@@ -20,10 +19,8 @@ RESOURCE_LIST: List[Dict[str, Any]] = [
                 "fuel_cost_per_mmbtu",
             ],
         },
-        "sources": ["ferc1"],
     },
-    {
-        "name": "load_curves_epaipm",
+    "load_curves_epaipm": {
         "schema": {
             "fields": [
                 "region_id_epaipm",
@@ -36,41 +33,34 @@ RESOURCE_LIST: List[Dict[str, Any]] = [
         },
         "sources": ["epaipm"],
     },
-    {
-        "name": "plant_region_map_epaipm",
+    "plant_region_map_epaipm": {
         "schema": {
             "fields": ["plant_id_eia", "region"],
         },
         "sources": ["epaipm"],
     },
-    {
-        "name": "ferc_depreciation_lines",
+    "ferc_depreciation_lines": {
         "description": "PUDL assigned FERC Form 1 line identifiers and long descriptions from FERC Form 1 page 219, Accumulated Provision for Depreciation of Electric Utility Plant (Account 108).",
         "schema": {"fields": ["line_id", "description"], "primaryKey": ["line_id"]},
     },
-    {
-        "name": "utilities_eia",
+    "utilities_eia": {
         "schema": {
             "fields": ["utility_id_eia", "utility_name_eia", "utility_id_pudl"],
             "primaryKey": ["utility_id_eia"],
         },
     },
-    {
-        "name": "energy_source_eia923",
+    "energy_source_eia923": {
         "schema": {"fields": ["abbr", "source"], "primaryKey": ["abbr"]},
         "sources": ["eia923"],
     },
-    {
-        "name": "datasets",
+    "datasets": {
         "schema": {"fields": ["datasource", "active"], "primaryKey": ["datasource"]},
     },
-    {
-        "name": "fuel_type_eia923",
+    "fuel_type_eia923": {
         "schema": {"fields": ["abbr", "fuel_type"], "primaryKey": ["abbr"]},
         "sources": ["eia923"],
     },
-    {
-        "name": "utilities_pudl",
+    "utilities_pudl": {
         "title": "PUDL Utilities",
         "description": "Home table for PUDL assigned utility IDs. These IDs are manually generated each year when new FERC and EIA reporting is integrated, and any newly found utilities are added to the list with a new ID. Each ID maps to a power plant owning or operating entity which is reported in at least one FERC or EIA data set. This table is read in from a spreadsheet stored in the PUDL repository: src/pudl/package_data/glue/mapping_eia923_ferc1.xlsx",
         "schema": {
@@ -78,16 +68,14 @@ RESOURCE_LIST: List[Dict[str, Any]] = [
             "primaryKey": ["utility_id_pudl"],
         },
     },
-    {
-        "name": "plants_ferc1",
+    "plants_ferc1": {
         "title": "FERC 1 Plants",
         "schema": {
             "fields": ["utility_id_ferc1", "plant_name_ferc1", "plant_id_pudl"],
             "primaryKey": ["utility_id_ferc1", "plant_name_ferc1"],
         },
     },
-    {
-        "name": "generation_eia923",
+    "generation_eia923": {
         "schema": {
             "fields": [
                 "plant_id_eia",
@@ -99,15 +87,13 @@ RESOURCE_LIST: List[Dict[str, Any]] = [
         },
         "sources": ["eia923"],
     },
-    {
-        "name": "utilities_entity_eia",
+    "utilities_entity_eia": {
         "schema": {
             "fields": ["utility_id_eia", "utility_name_eia", "entity_type"],
             "primaryKey": ["utility_id_eia"],
         },
     },
-    {
-        "name": "generators_entity_eia",
+    "generators_entity_eia": {
         "schema": {
             "fields": [
                 "plant_id_eia",
@@ -135,12 +121,10 @@ RESOURCE_LIST: List[Dict[str, Any]] = [
             "primaryKey": ["plant_id_eia", "generator_id"],
         },
     },
-    {
-        "name": "regions_entity_epaipm",
+    "regions_entity_epaipm": {
         "schema": {"fields": ["region_id_epaipm"], "primaryKey": ["region_id_epaipm"]},
     },
-    {
-        "name": "plants_hydro_ferc1",
+    "plants_hydro_ferc1": {
         "description": "Hydroelectric generating plant statistics for large plants. Large plants have an installed nameplate capacity of more than 10 MW. As reported on FERC Form 1, pages 406-407, and extracted from the f1_hydro table in FERC's FoxPro database.",
         "schema": {
             "fields": [
@@ -185,8 +169,7 @@ RESOURCE_LIST: List[Dict[str, Any]] = [
         },
         "sources": ["ferc1"],
     },
-    {
-        "name": "plant_in_service_ferc1",
+    "plant_in_service_ferc1": {
         "description": "Balances and changes to FERC Electric Plant in Service accounts, as reported on FERC Form 1. Data originally from the f1_plant_in_srvce table in FERC's FoxPro database. Account numbers correspond to the FERC Uniform System of Accounts for Electric Plant, which is defined in Code of Federal Regulations (CFR) Title 18, Chapter I, Subchapter C, Part 101. (See e.g. https://www.law.cornell.edu/cfr/text/18/part-101). Each FERC respondent reports starting and ending balances for each account annually. Balances are organization wide, and are not broken down on a per-plant basis. End of year balance should equal beginning year balance plus the sum of additions, retirements, adjustments, and transfers.",
         "schema": {
             "fields": [
@@ -292,8 +275,7 @@ RESOURCE_LIST: List[Dict[str, Any]] = [
         },
         "sources": ["ferc1"],
     },
-    {
-        "name": "purchased_power_ferc1",
+    "purchased_power_ferc1": {
         "description": "Purchased Power (Account 555) including power exchanges (i.e. transactions involving a balancing of debits and credits for energy, capacity, etc.) and any settlements for imbalanced exchanges. Reported on pages 326-327 of FERC Form 1. Extracted from the f1_purchased_pwr table in FERC's FoxPro database. ",
         "schema": {
             "fields": [
@@ -317,8 +299,7 @@ RESOURCE_LIST: List[Dict[str, Any]] = [
         },
         "sources": ["ferc1"],
     },
-    {
-        "name": "generators_eia860",
+    "generators_eia860": {
         "schema": {
             "fields": [
                 "plant_id_eia",
@@ -379,8 +360,7 @@ RESOURCE_LIST: List[Dict[str, Any]] = [
         },
         "sources": ["eia860"],
     },
-    {
-        "name": "ownership_eia860",
+    "ownership_eia860": {
         "schema": {
             "fields": [
                 "report_date",
@@ -401,8 +381,7 @@ RESOURCE_LIST: List[Dict[str, Any]] = [
         },
         "sources": ["eia860"],
     },
-    {
-        "name": "plants_pudl",
+    "plants_pudl": {
         "title": "PUDL Plants",
         "description": "Home table for PUDL assigned plant IDs. These IDs are manually generated each year when new FERC and EIA reporting is integrated, and any newly identified plants are added to the list with a new ID. Each ID maps to a power plant which is reported in at least one FERC or EIA data set. This table is read in from a spreadsheet stored in the PUDL repository: src/pudl/package_data/glue/mapping_eia923_ferc1.xlsx",
         "schema": {
@@ -410,13 +389,11 @@ RESOURCE_LIST: List[Dict[str, Any]] = [
             "primaryKey": ["plant_id_pudl"],
         },
     },
-    {
-        "name": "fuel_type_aer_eia923",
+    "fuel_type_aer_eia923": {
         "schema": {"fields": ["abbr", "fuel_type"], "primaryKey": ["abbr"]},
         "sources": ["eia923"],
     },
-    {
-        "name": "accumulated_depreciation_ferc1",
+    "accumulated_depreciation_ferc1": {
         "description": "Balances and changes to FERC Accumulated Provision for Depreciation.",
         "schema": {
             "fields": [
@@ -433,13 +410,11 @@ RESOURCE_LIST: List[Dict[str, Any]] = [
         },
         "sources": ["ferc1"],
     },
-    {
-        "name": "prime_movers_eia923",
+    "prime_movers_eia923": {
         "schema": {"fields": ["abbr", "prime_mover"], "primaryKey": ["abbr"]},
         "sources": ["eia923"],
     },
-    {
-        "name": "fuel_receipts_costs_eia923",
+    "fuel_receipts_costs_eia923": {
         "schema": {
             "fields": [
                 "plant_id_eia",
@@ -468,16 +443,14 @@ RESOURCE_LIST: List[Dict[str, Any]] = [
         },
         "sources": ["eia923"],
     },
-    {
-        "name": "utilities_ferc1",
+    "utilities_ferc1": {
         "description": "This table maps the manually assigned PUDL utility ID to a FERC respondent ID, enabling a connection between the FERC and EIA data sets. It also stores the utility name associated with the FERC respondent ID. Those values originate in the f1_respondent_id table in FERC's FoxPro database, which is stored in a file called F1_1.DBF. This table is generated from a spreadsheet stored in the PUDL repository: results/id_mapping/mapping_eia923_ferc1.xlsx",
         "schema": {
             "fields": ["utility_id_ferc1", "utility_name_ferc1", "utility_id_pudl"],
             "primaryKey": ["utility_id_ferc1"],
         },
     },
-    {
-        "name": "boiler_generator_assn_eia860",
+    "boiler_generator_assn_eia860": {
         "schema": {
             "fields": [
                 "plant_id_eia",
@@ -492,18 +465,15 @@ RESOURCE_LIST: List[Dict[str, Any]] = [
         },
         "sources": ["eia860"],
     },
-    {
-        "name": "natural_gas_transport_eia923",
+    "natural_gas_transport_eia923": {
         "schema": {"fields": ["abbr", "status"], "primaryKey": ["abbr"]},
         "sources": ["eia923"],
     },
-    {
-        "name": "transport_modes_eia923",
+    "transport_modes_eia923": {
         "schema": {"fields": ["abbr", "mode"], "primaryKey": ["abbr"]},
         "sources": ["eia923"],
     },
-    {
-        "name": "coalmine_eia923",
+    "coalmine_eia923": {
         "schema": {
             "fields": [
                 "mine_id_pudl",
@@ -517,30 +487,26 @@ RESOURCE_LIST: List[Dict[str, Any]] = [
         },
         "sources": ["eia923"],
     },
-    {
-        "name": "plants_eia",
+    "plants_eia": {
         "schema": {
             "fields": ["plant_id_eia", "plant_name_eia", "plant_id_pudl"],
             "primaryKey": ["plant_id_eia"],
         },
     },
-    {
-        "name": "ferc_accounts",
+    "ferc_accounts": {
         "description": "Account numbers from the FERC Uniform System of Accounts for Electric Plant, which is defined in Code of Federal Regulations (CFR) Title 18, Chapter I, Subchapter C, Part 101. (See e.g. https://www.law.cornell.edu/cfr/text/18/part-101).",
         "schema": {
             "fields": ["ferc_account_id", "description"],
             "primaryKey": ["ferc_account_id"],
         },
     },
-    {
-        "name": "utility_plant_assn",
+    "utility_plant_assn": {
         "schema": {
             "fields": ["utility_id_pudl", "plant_id_pudl"],
             "primaryKey": ["utility_id_pudl", "plant_id_pudl"],
         },
     },
-    {
-        "name": "plants_eia860",
+    "plants_eia860": {
         "schema": {
             "fields": [
                 "plant_id_eia",
@@ -571,8 +537,7 @@ RESOURCE_LIST: List[Dict[str, Any]] = [
         },
         "sources": ["eia860"],
     },
-    {
-        "name": "generation_fuel_eia923",
+    "generation_fuel_eia923": {
         "schema": {
             "fields": [
                 "plant_id_eia",
@@ -592,8 +557,7 @@ RESOURCE_LIST: List[Dict[str, Any]] = [
         },
         "sources": ["eia923"],
     },
-    {
-        "name": "plants_small_ferc1",
+    "plants_small_ferc1": {
         "description": "Generating plant statistics for small plants, as reported on FERC Form 1 pages 410-411, and extracted from the FERC FoxPro database table f1_gnrt_plant. Small generating plants are defined by having nameplate capacity of less than 25MW for steam plants, and less than 10MW for internal combustion, conventional hydro, and pumped storage plants.",
         "schema": {
             "fields": [
@@ -619,8 +583,7 @@ RESOURCE_LIST: List[Dict[str, Any]] = [
         },
         "sources": ["ferc1"],
     },
-    {
-        "name": "plants_pumped_storage_ferc1",
+    "plants_pumped_storage_ferc1": {
         "schema": {
             "fields": [
                 "record_id",
@@ -668,8 +631,7 @@ RESOURCE_LIST: List[Dict[str, Any]] = [
         },
         "sources": ["ferc1"],
     },
-    {
-        "name": "boiler_fuel_eia923",
+    "boiler_fuel_eia923": {
         "schema": {
             "fields": [
                 "plant_id_eia",
@@ -685,8 +647,7 @@ RESOURCE_LIST: List[Dict[str, Any]] = [
         },
         "sources": ["eia923"],
     },
-    {
-        "name": "hourly_emissions_epacems",
+    "hourly_emissions_epacems": {
         "schema": {
             "fields": [
                 "state",
@@ -712,8 +673,7 @@ RESOURCE_LIST: List[Dict[str, Any]] = [
         "primaryKey": ["plant_id_eia", "unitid", "operating_datetime_utc"],
         "sources": ["epacems"],
     },
-    {
-        "name": "transmission_single_epaipm",
+    "transmission_single_epaipm": {
         "schema": {
             "fields": [
                 "region_from",
@@ -725,8 +685,7 @@ RESOURCE_LIST: List[Dict[str, Any]] = [
         },
         "sources": ["epaipm"],
     },
-    {
-        "name": "plants_steam_ferc1",
+    "plants_steam_ferc1": {
         "description": "Large thermal generating plants, as reported on page 402 of FERC Form 1.",
         "schema": {
             "fields": [
@@ -774,8 +733,7 @@ RESOURCE_LIST: List[Dict[str, Any]] = [
         },
         "sources": ["ferc1"],
     },
-    {
-        "name": "utilities_eia860",
+    "utilities_eia860": {
         "schema": {
             "fields": [
                 "utility_id_eia",
@@ -793,15 +751,13 @@ RESOURCE_LIST: List[Dict[str, Any]] = [
         },
         "sources": ["eia860"],
     },
-    {
-        "name": "boilers_entity_eia",
+    "boilers_entity_eia": {
         "schema": {
             "fields": ["plant_id_eia", "boiler_id", "prime_mover_code"],
             "primaryKey": ["plant_id_eia", "boiler_id"],
         },
     },
-    {
-        "name": "plants_entity_eia",
+    "plants_entity_eia": {
         "schema": {
             "fields": [
                 "plant_id_eia",
@@ -831,8 +787,7 @@ RESOURCE_LIST: List[Dict[str, Any]] = [
             "primaryKey": ["plant_id_eia"],
         },
     },
-    {
-        "name": "transmission_joint_epaipm",
+    "transmission_joint_epaipm": {
         "schema": {
             "fields": [
                 "joint_constraint_id",
@@ -844,14 +799,9 @@ RESOURCE_LIST: List[Dict[str, Any]] = [
         },
         "sources": ["epaipm"]
     },
-]
-"""
-Resource attributes.
-Each field and source may either be an object or a string identifier.
-TODO: Fix resources with no primaryKey.
-"""
-
-RESOURCES: Dict[str, Dict[str, Any]] = {r["name"]: r for r in RESOURCE_LIST}
+}
 """
 Resource attributes by PUDL identifier (`resource.name`).
+
+Each element of `fields` and `sources` may be a dictionary or a PUDL identifier.
 """
