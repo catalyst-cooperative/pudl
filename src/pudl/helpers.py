@@ -46,42 +46,9 @@ def get_fs(url) -> fsspec.AbstractFileSystem:
     return fsspec.core.get_fs_token_paths(url)[0]
 
 
-class MetaFsType(type):
-    """This implements the magic forwarding call to FileSystem methods.
-
-    Many useful operations (e.g. exists, ...) are implemented on a FileSystem
-    object level. However, if we have a path/url, we do not necessarily know
-    on which FileSystem it is stored.
-
-    This can be worked around by calling fsspec.core.get_fs_token_path() but
-    that API is kind of tedious.
-
-    This  metaclass will intercept method calls and, assuming that the file
-    url is the first argument to the method, will determine the relevant
-    FileSystem instance and forward the method call to it.
-
-    `MetaFs.foo(url, a, b=1)` translates to:
-
-    ```python
-    fs, _, _ = fsspec.core.get_fs_token_paths(url)
-    fs.foo(url, a, b=1)
-    ```
-    """
-
-    def __getattr__(cls, name):
-        """Returns a wrapper that forwards the call to FileSystem instance."""
-        def wrapper(url, *args, **kwargs):
-            return get_fs(url).__getattribute__(name)(url, *args, **kwargs)
-        return wrapper
-
-
-class metafs(metaclass=MetaFsType):  # noqa: N801
-    """Magic access to FileSystem methods. Assume url is the first argument.
-
-    While this violates the convention to use CapWords when naming classes, this
-    is really just a light-weight magic shim and helpers.metafs.blah() is similar
-    to fsspec.blah() which this emulates.
-    """
+def fsspec_exists(url, **kwargs):
+    """Calls exist() method on the FilesystemSpec associated with url."""
+    return get_fs(url).exists(url, **kwargs)
 
 
 def download_zip_url(url, save_path, chunk_size=128):

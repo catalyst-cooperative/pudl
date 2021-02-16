@@ -5,7 +5,7 @@ from typing import Any
 import fsspec
 from prefect.engine.result import Result
 
-from pudl.helpers import metafs
+from pudl.helpers import fsspec_exists
 
 
 class FSSpecResult(Result):
@@ -32,7 +32,7 @@ class FSSpecResult(Result):
     def exists(self, location: str, **kwargs: Any) -> bool:
         """Checks if the result is stored at a given location."""
         full_path = os.path.join(self.root_dir, location.format(**kwargs))  # noqa: FS002
-        return metafs.exists(full_path)
+        return fsspec_exists(full_path)
 
     def write(self, value_: Any, **kwargs: Any) -> Result:
         """Serializes result to a given location."""
