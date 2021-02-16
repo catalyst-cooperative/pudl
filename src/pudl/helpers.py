@@ -46,9 +46,9 @@ def get_fs(url) -> fsspec.AbstractFileSystem:
     return fsspec.core.get_fs_token_paths(url)[0]
 
 
-def fsspec_exists(url, **kwargs):
-    """Calls exist() method on the FilesystemSpec associated with url."""
-    return get_fs(url).exists(url, **kwargs)
+def fsspec_exists(path, **kwargs):
+    """Calls exists() on the FilesystemSpec associated with path."""
+    return get_fs(path).exists(path, **kwargs)
 
 
 def download_zip_url(url, save_path, chunk_size=128):
