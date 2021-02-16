@@ -1,6 +1,94 @@
 """Field metadata."""
 from typing import Any, Dict, List
 
+ENTITY_TYPES: Dict[str, str] = {
+    'M': 'Municipal',
+    'C': 'Cooperative',
+    'R': 'Retail Power Marketer',
+    'I': 'Investor Owned',
+    'P': 'Political Subdivision',
+    'T': 'Transmission',
+    'S': 'State',
+    'W': 'Wholesale Power Marketer',
+    'F': 'Federal',
+    'A': 'Municipal Mktg Authority',
+    'G': 'Community Choice Aggregator',
+    'D': 'Nonutility DSM Administrator',
+    'B': 'Behind the Meter',
+    'Q': 'Independent Power Producer',
+    'IND': 'Industrial',
+    'COM': 'Commercial',
+    'PR': 'Private',  # Added by AES for OD table (Arbitrary moniker)
+    'PO': 'Power Marketer',  # Added by AES for OD table
+    'U': 'Unknown',  # Added by AES for OD table
+    'O': 'Other',  # Added by AES for OD table
+}
+"""
+Descriptive labels for EIA entity type codes.
+"""
+
+ESTIMATED_OR_ACTUAL: Dict[str, str] = {'E': 'Estimated', 'A': 'Actual'}
+"""
+Descriptive labels for EIA estimated or actual codes.
+"""
+
+MOMENTARY_INTERRUPTIONS: Dict[str, str] = {
+    'L': 'Less than 1 minute',
+    'F': 'Less than or equal to 5 minutes',
+    'O': 'Other',
+}
+"""
+Descriptive labels for EIA momentary interruption codes.
+"""
+
+NERC_REGIONS: List[str] = [
+    'BASN',  # ASSESSMENT AREA Basin (WECC)
+    'CALN',  # ASSESSMENT AREA California (WECC)
+    'CALS',  # ASSESSMENT AREA California (WECC)
+    'DSW',  # ASSESSMENT AREA Desert Southwest (WECC)
+    'ASCC',  # Alaska
+    'ISONE',  # ISO New England (NPCC)
+    'ERCOT',  # lumped under TRE in 2017 Form instructions
+    'NORW',  # ASSESSMENT AREA Northwest (WECC)
+    'NYISO',  # ISO (NPCC)
+    'PJM',  # RTO
+    'ROCK',  # ASSESSMENT AREA Rockies (WECC)
+    'ECAR',  # OLD RE Now part of RFC and SERC
+    'FRCC',  # included in 2017 Form instructions, recently joined with SERC
+    'HICC',  # Hawaii
+    'MAAC',  # OLD RE Now part of RFC
+    'MAIN',  # OLD RE Now part of SERC, RFC, MRO
+    'MAPP',  # OLD/NEW RE Became part of MRO, resurfaced in 2010
+    'MRO',  # RE included in 2017 Form instructions
+    'NPCC',  # RE included in 2017 Form instructions
+    'RFC',  # RE included in 2017 Form instructions
+    'SERC',  # RE included in 2017 Form instructions
+    'SPP',  # RE included in 2017 Form instructions
+    'TRE',  # RE included in 2017 Form instructions (included ERCOT)
+    'WECC',  # RE included in 2017 Form instructions
+    'WSCC',  # OLD RE pre-2002 version of WECC
+    'MISO',  # ISO unclear whether technically a regional entity, but lots of entries
+    'ECAR_MAAC',
+    'MAPP_WECC',
+    'RFC_SERC',
+    'SPP_WECC',
+    'MRO_WECC',
+    'ERCOT_SPP',
+    'SPP_TRE',
+    'ERCOT_TRE',
+    'MISO_TRE',
+    'VI',  # Virgin Islands
+    'GU',  # Guam
+    'PR',  # Puerto Rico
+    'AS',  # American Samoa
+    'UNK',
+]
+"""
+North American Reliability Corporation (NERC) regions.
+
+See https://www.eia.gov/electricity/data/eia411/#tabs_NERC-3.
+"""
+
 FIELD_LIST: List[Dict[str, Any]] = [
     {
         "name": "abbr",
@@ -33,12 +121,12 @@ FIELD_LIST: List[Dict[str, Any]] = [
     },
     {
         "name": "ash_impoundment",
-        "type": "string",
+        "type": "boolean",
         "description": "Is there an ash impoundment (e.g. pond, reservoir) at the plant?"
     },
     {
         "name": "ash_impoundment_lined",
-        "type": "string",
+        "type": "boolean",
         "description": "If there is an ash impoundment at the plant, is the impoundment lined?"
     },
     {
@@ -229,7 +317,7 @@ FIELD_LIST: List[Dict[str, Any]] = [
     },
     {
         "name": "county_id_fips",
-        "type": "integer",
+        "type": "string",
         "description": "County ID from the Federal Information Processing Standard Publication 6-4."
     },
     {
@@ -434,7 +522,7 @@ FIELD_LIST: List[Dict[str, Any]] = [
     },
     {
         "name": "energy_storage",
-        "type": "string",
+        "type": "boolean",
         "description": "Indicates if the facility has energy storage capabilities."
     },
     {
@@ -445,7 +533,10 @@ FIELD_LIST: List[Dict[str, Any]] = [
     {
         "name": "entity_type",
         "type": "string",
-        "description": "Entity type of principle owner (C = Cooperative, I = Investor-Owned Utility, Q = Independent Power Producer, M = Municipally-Owned Utility, P = Political Subdivision, F = Federally-Owned Utility, S = State-Owned Utility, IND = Industrial, COM = Commercial"
+        "description": "Entity type of principle owner.",
+        "constraints": {
+            "enum": list(ENTITY_TYPES.values())
+        }
     },
     {
         "name": "experimental_plant_acct103",
@@ -469,12 +560,12 @@ FIELD_LIST: List[Dict[str, Any]] = [
     },
     {
         "name": "ferc_cogen_status",
-        "type": "string",
+        "type": "boolean",
         "description": "Indicates whether the plant has FERC qualifying facility cogenerator status."
     },
     {
         "name": "ferc_exempt_wholesale_generator",
-        "type": "string",
+        "type": "boolean",
         "description": "Indicates whether the plant has FERC qualifying facility exempt wholesale generator status"
     },
     {
@@ -489,7 +580,7 @@ FIELD_LIST: List[Dict[str, Any]] = [
     },
     {
         "name": "ferc_small_power_producer",
-        "type": "string",
+        "type": "boolean",
         "description": "Indicates whether the plant has FERC qualifying facility small power producer status"
     },
     {
@@ -833,7 +924,7 @@ FIELD_LIST: List[Dict[str, Any]] = [
     },
     {
         "name": "liquefied_natural_gas_storage",
-        "type": "string",
+        "type": "boolean",
         "description": "Indicates if the facility have the capability to store the natural gas in the form of liquefied natural gas."
     },
     {
@@ -946,7 +1037,7 @@ FIELD_LIST: List[Dict[str, Any]] = [
     },
     {
         "name": "natural_gas_storage",
-        "type": "string",
+        "type": "boolean",
         "description": "Indicates if the facility have on-site storage of natural gas."
     },
     {
@@ -963,7 +1054,10 @@ FIELD_LIST: List[Dict[str, Any]] = [
     {
         "name": "nerc_region",
         "type": "string",
-        "description": "NERC region in which the plant is located"
+        "description": "NERC region in which the plant is located",
+        "constraints": {
+            "enum": NERC_REGIONS
+        }
     },
     {
         "name": "net_capacity_adverse_conditions_mw",
@@ -986,7 +1080,7 @@ FIELD_LIST: List[Dict[str, Any]] = [
     },
     {
         "name": "net_metering",
-        "type": "string",
+        "type": "boolean",
         "description": "Did this plant have a net metering agreement in effect during the reporting year?  (Only displayed for facilities that report the sun or wind as an energy source). This field was only reported up until 2015"
     },
     {
@@ -1572,22 +1666,22 @@ FIELD_LIST: List[Dict[str, Any]] = [
     },
     {
         "name": "plants_reported_asset_manager",
-        "type": "string",
+        "type": "boolean",
         "description": "Is the reporting entity an asset manager of power plants reported on Schedule 2 of the form?"
     },
     {
         "name": "plants_reported_operator",
-        "type": "string",
+        "type": "boolean",
         "description": "Is the reporting entity an operator of power plants reported on Schedule 2 of the form?"
     },
     {
         "name": "plants_reported_other_relationship",
-        "type": "string",
+        "type": "boolean",
         "description": "Does the reporting entity have any other relationship to the power plants reported on Schedule 2 of the form?"
     },
     {
         "name": "plants_reported_owner",
-        "type": "string",
+        "type": "boolean",
         "description": "Is the reporting entity an owner of power plants reported on Schedule 2 of the form?"
     },
     {
@@ -1597,7 +1691,7 @@ FIELD_LIST: List[Dict[str, Any]] = [
     },
     {
         "name": "primary_purpose_naics_id",
-        "type": "number",
+        "type": "integer",
         "description": "North American Industry Classification System (NAICS) code that best describes the primary purpose of the reporting plant"
     },
     {
@@ -1768,7 +1862,7 @@ FIELD_LIST: List[Dict[str, Any]] = [
     },
     {
         "name": "sector_id",
-        "type": "number",
+        "type": "integer",
         "description": "Plant-level sector number, designated by the primary purpose, regulatory status and plant-level combined heat and power status"
     },
     {
@@ -2170,6 +2264,688 @@ FIELD_LIST: List[Dict[str, Any]] = [
     {
         "name": "zip_code",
         "type": "string"
+    },
+    {
+        "name": "actual_peak_demand_savings_mw",
+        "type": "number"
+    },
+    {
+        "name": "advanced_metering_infrastructure",
+        "type": "integer"
+    },
+    {
+        "name": "alternative_fuel_vehicle_2_activity",
+        "type": "boolean"
+    },
+    {
+        "name": "alternative_fuel_vehicle_activity",
+        "type": "boolean"
+    },
+    {
+        "name": "annual_indirect_program_cost",
+        "type": "number"
+    },
+    {
+        "name": "annual_total_cost",
+        "type": "number"
+    },
+    {
+        "name": "automated_meter_reading",
+        "type": "integer"
+    },
+    {
+        "name": "backup_capacity_mw",
+        "type": "number"
+    },
+    {
+        "name": "balancing_authority_id_eia",
+        "type": "integer"
+    },
+    {
+        "name": "bunded_activity",
+        "type": "boolean"
+    },
+    {
+        "name": "business_model",
+        "type": "string",
+        "constraints": {"enum": ["retail", "energy_services"]}
+    },
+    {
+        "name": "buy_distribution_activity",
+        "type": "boolean"
+    },
+    {
+        "name": "buying_transmission_activity",
+        "type": "boolean"
+    },
+    {
+        "name": "caidi_w_major_event_days_minus_loss_of_service_minutes",
+        "type": "number"
+    },
+    {
+        "name": "caidi_w_major_event_dats_minutes",
+        "type": "number"
+    },
+    {
+        "name": "caidi_wo_major_event_days_minutes",
+        "type": "number"
+    },
+    {
+        "name": "circuits_with_voltage_optimization",
+        "type": "integer"
+    },
+    {
+        "name": "consumed_by_facility_mwh",
+        "type": "number"
+    },
+    {
+        "name": "consumed_by_respondent_without_charge_mwh",
+        "type": "number"
+    },
+    {
+        "name": "contact_firstname",
+        "type": "string"
+    },
+    {
+        "name": "contact_firstname2",
+        "type": "string"
+    },
+    {
+        "name": "contact_lastname",
+        "type": "string"
+    },
+    {
+        "name": "contact_lastname2",
+        "type": "string"
+    },
+    {
+        "name": "contact_title",
+        "type": "string"
+    },
+    {
+        "name": "contact_title2",
+        "type": "string"
+    },
+    {
+        "name": "credits_or_adjustments",
+        "type": "number"
+    },
+    {
+        "name": "critical_peak_pricing",
+        "type": "boolean"
+    },
+    {
+        "name": "critical_peak_rebate",
+        "type": "boolean"
+    },
+    {
+        "name": "customers",
+        "type": "number"
+    },
+    {
+        "name": "customer_class",
+        "type": "string",
+        "constraints": {
+            "enum": [
+                "commercial",
+                "industrial",
+                "direct_connection",
+                "other",
+                "residential",
+                "total",
+                "transportation"
+            ]
+        }
+    },
+    {
+        "name": "customer_incentives_cost",
+        "type": "number"
+    },
+    {
+        "name": "customer_incentives_incremental_cost",
+        "type": "number"
+    },
+    {
+        "name": "customer_incentives_incremental_life_cycle_cost",
+        "type": "number"
+    },
+    {
+        "name": "customer_other_costs_incremental_life_cycle_cost",
+        "type": "number"
+    },
+    {
+        "name": "daily_digital_access_customers",
+        "type": "integer"
+    },
+    {
+        "name": "data_observed",
+        "type": "boolean"
+    },
+    {
+        "name": "delivery_customers",
+        "type": "number"
+    },
+    {
+        "name": "direct_load_control_customers",
+        "type": "integer"
+    },
+    {
+        "name": "distributed_generation_owned_capacity_mw",
+        "type": "number"
+    },
+    {
+        "name": "distribution_activity",
+        "type": "boolean"
+    },
+    {
+        "name": "distribution_circuits",
+        "type": "integer"
+    },
+    {
+        "name": "energy_displaced_mwh",
+        "type": "number"
+    },
+    {
+        "name": "energy_efficiency_annual_cost",
+        "type": "number"
+    },
+    {
+        "name": "energy_efficiency_annual_actual_peak_reduction_mw",
+        "type": "number"
+    },
+    {
+        "name": "energy_efficiency_annual_effects_mwh",
+        "type": "number"
+    },
+    {
+        "name": "energy_efficiency_annual_incentive_payment",
+        "type": "number"
+    },
+    {
+        "name": "energy_efficiency_incremental_actual_peak_reduction_mw",
+        "type": "number"
+    },
+    {
+        "name": "energy_efficiency_incremental_effects_mwh",
+        "type": "number"
+    },
+    {
+        "name": "energy_savings_estimates_independently_verified",
+        "type": "boolean"
+    },
+    {
+        "name": "energy_savings_independently_verified",
+        "type": "boolean"
+    },
+    {
+        "name": "energy_savings_mwh",
+        "type": "number"
+    },
+    {
+        "name": "energy_served_ami_mwh",
+        "type": "number"
+    },
+    {
+        "name": "estimated_or_actual_capacity_data",
+        "type": "string",
+        "constraints": {"enum": list(ESTIMATED_OR_ACTUAL.values())}
+    },
+    {
+        "name": "estimated_or_actual_fuel_data",
+        "type": "string",
+        "constraints": {"enum": list(ESTIMATED_OR_ACTUAL.values())}
+    },
+    {
+        "name": "estimated_or_actual_tech_data",
+        "type": "string",
+        "constraints": {"enum": list(ESTIMATED_OR_ACTUAL.values())}
+    },
+    {
+        "name": "exchange_energy_delivered_mwh",
+        "type": "number"
+    },
+    {
+        "name": "exchange_energy_recieved_mwh",
+        "type": "number"
+    },
+    {
+        "name": "fuel_class",
+        "type": "string"
+    },
+    {
+        "name": "fuel_pct",
+        "type": "number"
+    },
+    {
+        "name": "furnished_without_charge_mwh",
+        "type": "number"
+    },
+    {
+        "name": "generation_activity",
+        "type": "boolean"
+    },
+    {
+        "name": "generator_id",
+        "type": "string"
+    },
+    {
+        "name": "generators_number",
+        "type": "number"
+    },
+    {
+        "name": "generators_num_less_1_mw",
+        "type": "number"
+    },
+    {
+        "name": "green_pricing_revenue",
+        "type": "number"
+    },
+    {
+        "name": "highest_distribution_voltage_kv",
+        "type": "number"
+    },
+    {
+        "name": "home_area_network",
+        "type": "integer"
+    },
+    {
+        "name": "inactive_accounts_included",
+        "type": "boolean"
+    },
+    {
+        "name": "incremental_energy_savings_mwh",
+        "type": "number"
+    },
+    {
+        "name": "incremental_life_cycle_energy_savings_mwh",
+        "type": "number"
+    },
+    {
+        "name": "incremental_life_cycle_peak_reduction_mwh",
+        "type": "number"
+    },
+    {
+        "name": "incremental_peak_reduction_mw",
+        "type": "number"
+    },
+    {
+        "name": "load_management_annual_cost",
+        "type": "number"
+    },
+    {
+        "name": "load_management_annual_actual_peak_reduction_mw",
+        "type": "number"
+    },
+    {
+        "name": "load_management_annual_effects_mwh",
+        "type": "number"
+    },
+    {
+        "name": "load_management_annual_incentive_payment",
+        "type": "number"
+    },
+    {
+        "name": "load_management_annual_potential_peak_reduction_mw",
+        "type": "number"
+    },
+    {
+        "name": "load_management_incremental_actual_peak_reduction_mw",
+        "type": "number"
+    },
+    {
+        "name": "load_management_incremental_effects_mwh",
+        "type": "number"
+    },
+    {
+        "name": "load_management_incremental_potential_peak_reduction_mw",
+        "type": "number"
+    },
+    {
+        "name": "major_program_changes",
+        "type": "boolean"
+    },
+    {
+        "name": "merge_address",
+        "type": "string"
+    },
+    {
+        "name": "merge_city",
+        "type": "string"
+    },
+    {
+        "name": "merge_company",
+        "type": "string"
+    },
+    {
+        "name": "merge_date",
+        "type": "date"
+    },
+    {
+        "name": "merge_state",
+        "type": "string"
+    },
+    {
+        "name": "merge_zip_4",
+        "type": "string"
+    },
+    {
+        "name": "merge_zip_5",
+        "type": "string"
+    },
+    {
+        "name": "momentary_interruption_definition",
+        "type": "string",
+        "constraints": {"enum": list(MOMENTARY_INTERRUPTIONS.values())}
+    },
+    {
+        "name": "nerc_regions_of_operation",
+        "type": "string",
+        "constraints": {"enum": NERC_REGIONS}
+    },
+    {
+        "name": "net_power_exchanged_mwh",
+        "type": "number"
+    },
+    {
+        "name": "net_wheeled_power_mwh",
+        "type": "number"
+    },
+    {
+        "name": "new_parent",
+        "type": "string"
+    },
+    {
+        "name": "non_amr_ami",
+        "type": "integer"
+    },
+    {
+        "name": "operates_generating_plant",
+        "type": "boolean"
+    },
+    {
+        "name": "other",
+        "type": "number"
+    },
+    {
+        "name": "other_costs",
+        "type": "number"
+    },
+    {
+        "name": "other_costs_incremental_cost",
+        "type": "number"
+    },
+    {
+        "name": "outages_recorded_automatically",
+        "type": "boolean"
+    },
+    {
+        "name": "potential_peak_demand_savings_mw",
+        "type": "number"
+    },
+    {
+        "name": "price_responsive_programes",
+        "type": "boolean"
+    },
+    {
+        "name": "price_responsiveness_customers",
+        "type": "integer"
+    },
+    {
+        "name": "pv_current_flow_type",
+        "type": "string",
+        "constraints": {"enum": ["AC", "DC"]}
+    },
+    {
+        "name": "real_time_pricing_program",
+        "type": "boolean"
+    },
+    {
+        "name": "rec_revenue",
+        "type": "number"
+    },
+    {
+        "name": "rec_sales_mwh",
+        "type": "number"
+    },
+    {
+        "name": "reported_as_another_company",
+        "type": "string"
+    },
+    {
+        "name": "retail_marketing_activity",
+        "type": "boolean"
+    },
+    {
+        "name": "retail_sales",
+        "type": "number"
+    },
+    {
+        "name": "retail_sales_mwh",
+        "type": "number"
+    },
+    {
+        "name": "revenue_class",
+        "type": "string",
+        "constraints": {
+            "enum": [
+                "retail_sales",
+                "unbundled",
+                "delivery_customers",
+                "sales_for_resale",
+                "credits_or_adjustments",
+                "other",
+                "transmission",
+                "total"
+            ]
+        }
+    },
+    {
+        "name": "rtos_of_operation",
+        "type": "string"
+    },
+    {
+        "name": "saidi_w_major_event_dats_minus_loss_of_service_minutes",
+        "type": "number"
+    },
+    {
+        "name": "saidi_w_major_event_days_minutes",
+        "type": "number"
+    },
+    {
+        "name": "saidi_wo_major_event_days_minutes",
+        "type": "number"
+    },
+    {
+        "name": "saifi_w_major_event_days_customers",
+        "type": "number"
+    },
+    {
+        "name": "saifi_w_major_event_days_minus_loss_of_service_customers",
+        "type": "number"
+    },
+    {
+        "name": "saifi_wo_major_event_days_customers",
+        "type": "number"
+    },
+    {
+        "name": "sales_for_resale",
+        "type": "number"
+    },
+    {
+        "name": "sales_for_resale_mwh",
+        "type": "number"
+    },
+    {
+        "name": "sales_mwh",
+        "type": "number"
+    },
+    {
+        "name": "sales_revenue",
+        "type": "number"
+    },
+    {
+        "name": "sales_to_ultimate_consumers_mwh",
+        "type": "number"
+    },
+    {
+        "name": "service_type",
+        "type": "string",
+        "constraints": {"enum": ["bundled", "energy", "delivery"]}
+    },
+    {
+        "name": "short_form",
+        "type": "boolean"
+    },
+    {
+        "name": "sold_to_utility_mwh",
+        "type": "number"
+    },
+    {
+        "name": "standard",
+        "type": "string",
+        "constraints": {"enum": ["ieee_standard", "other_standard"]}
+    },
+    {
+        "name": "state_id_fips",
+        "type": "string"
+    },
+    {
+        "name": "storage_capacity_mw",
+        "type": "number"
+    },
+    {
+        "name": "storage_customers",
+        "type": "integer"
+    },
+    {
+        "name": "summer_peak_demand_mw",
+        "type": "number"
+    },
+    {
+        "name": "tech_class",
+        "type": "string",
+        "constraints": {
+            "enum": [
+                "backup",
+                "chp_cogen",
+                "combustion_turbine",
+                "fuel_cell",
+                "hydro",
+                "internal_combustion",
+                "other",
+                "pv",
+                "steam",
+                "storage_pv",
+                "all_storage",
+                "total",
+                "virtual_pv",
+                "wind"
+            ]
+        }
+    },
+    {
+        "name": "time_of_use_pricing_program",
+        "type": "boolean"
+    },
+    {
+        "name": "time_responsive_programs",
+        "type": "boolean"
+    },
+    {
+        "name": "time_responsiveness_customers",
+        "type": "integer"
+    },
+    {
+        "name": "total_capacity_less_1_mw",
+        "type": "number"
+    },
+    {
+        "name": "total_meters",
+        "type": "integer"
+    },
+    {
+        "name": "total_disposition_mwh",
+        "type": "number"
+    },
+    {
+        "name": "total_energy_losses_mwh",
+        "type": "number"
+    },
+    {
+        "name": "total_sources_mwh",
+        "type": "number"
+    },
+    {
+        "name": "transmission",
+        "type": "number"
+    },
+    {
+        "name": "transmission_activity",
+        "type": "boolean"
+    },
+    {
+        "name": "transmission_by_other_losses_mwh",
+        "type": "number"
+    },
+    {
+        "name": "unbundled_revenues",
+        "type": "number"
+    },
+    {
+        "name": "utility_attn",
+        "type": "string"
+    },
+    {
+        "name": "utility_owned_capacity_mw",
+        "type": "number"
+    },
+    {
+        "name": "utility_pobox",
+        "type": "string"
+    },
+    {
+        "name": "utility_zip_ext",
+        "type": "string"
+    },
+    {
+        "name": "variable_peak_pricing_program",
+        "type": "boolean"
+    },
+    {
+        "name": "virtual_capacity_mw",
+        "type": "number"
+    },
+    {
+        "name": "virtual_customers",
+        "type": "integer"
+    },
+    {
+        "name": "water_heater",
+        "type": "integer"
+    },
+    {
+        "name": "weighted_average_life_years",
+        "type": "number"
+    },
+    {
+        "name": "wheeled_power_delivered_mwh",
+        "type": "number"
+    },
+    {
+        "name": "wheeled_power_recieved_mwh",
+        "type": "number"
+    },
+    {
+        "name": "wholesale_marketing_activity",
+        "type": "boolean"
+    },
+    {
+        "name": "wholesale_power_purchases_mwh",
+        "type": "number"
+    },
+    {
+        "name": "winter_peak_demand_mw",
+        "type": "number"
     }
 ]
 """
