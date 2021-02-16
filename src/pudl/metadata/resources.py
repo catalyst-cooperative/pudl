@@ -34,12 +34,14 @@ RESOURCE_LIST: List[Dict[str, Any]] = [
                 "load_mw",
             ],
         },
+        "sources": ["epaipm"],
     },
     {
         "name": "plant_region_map_epaipm",
         "schema": {
             "fields": ["plant_id_eia", "region"],
         },
+        "sources": ["epaipm"],
     },
     {
         "name": "ferc_depreciation_lines",
@@ -721,6 +723,7 @@ RESOURCE_LIST: List[Dict[str, Any]] = [
                 "tariff_mills_kwh",
             ],
         },
+        "sources": ["epaipm"],
     },
     {
         "name": "plants_steam_ferc1",
@@ -839,6 +842,7 @@ RESOURCE_LIST: List[Dict[str, Any]] = [
                 "nonfirm_ttc_mw",
             ],
         },
+        "sources": ["epaipm"]
     },
 ]
 """
