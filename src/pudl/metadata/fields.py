@@ -57,6 +57,10 @@ FIELD_LIST: List[Dict[str, Any]] = [
         "description": "Indicates whether the generator is associated with a combined heat and power system"
     },
     {
+        "name": "avg_num_employees",
+        "type": "number"
+    },
+    {
         "name": "balancing_authority_code_eia",
         "type": "string",
         "description": "The plant's balancing authority code."
@@ -77,9 +81,17 @@ FIELD_LIST: List[Dict[str, Any]] = [
         "description": "Monthly average billing demand (for requirements purchases, and any transactions involving demand charges). In megawatts."
     },
     {
+        "name": "boiler_id",
+        "type": "string"
+    },
+    {
         "name": "bypass_heat_recovery",
         "type": "boolean",
         "description": "Can this generator operate while bypassing the heat recovery steam generator?"
+    },
+    {
+        "name": "capacity_mw",
+        "type": "number"
     },
     {
         "name": "capex_equipment",
@@ -105,6 +117,10 @@ FIELD_LIST: List[Dict[str, Any]] = [
         "name": "capex_land",
         "type": "number",
         "description": "Cost of plant: land and land rights (USD)."
+    },
+    {
+        "name": "capex_per_mw",
+        "type": "number"
     },
     {
         "name": "capex_roads",
@@ -134,6 +150,10 @@ FIELD_LIST: List[Dict[str, Any]] = [
     {
         "name": "chlorine_content_ppm",
         "type": "number"
+    },
+    {
+        "name": "city",
+        "type": "string"
     },
     {
         "name": "co2_mass_measurement_code",
@@ -179,6 +199,10 @@ FIELD_LIST: List[Dict[str, Any]] = [
                 "semioutdoor"
             ]
         }
+    },
+    {
+        "name": "construction_year",
+        "type": "year"
     },
     {
         "name": "contract_expiration_date",
@@ -246,6 +270,10 @@ FIELD_LIST: List[Dict[str, Any]] = [
         "name": "demand_charges",
         "type": "number",
         "description": "Demand charges (USD)."
+    },
+    {
+        "name": "description",
+        "type": "string"
     },
     {
         "name": "distribution_acct360_land",
@@ -493,6 +521,10 @@ FIELD_LIST: List[Dict[str, Any]] = [
         "description": "Consumption of the fuel type in physical units. Note: this is the total quantity consumed for both electricity and, in the case of combined heat and power plants, process steam production."
     },
     {
+        "name": "fuel_cost_per_mmbtu",
+        "type": "number"
+    },
+    {
         "name": "fuel_cost_per_unit_burned",
         "type": "number",
         "description": "Average cost of fuel consumed in the report year per reported fuel unit (USD)."
@@ -522,6 +554,10 @@ FIELD_LIST: List[Dict[str, Any]] = [
         "description": "Simplified grouping of fuel_group_code, with Coal and Petroluem Coke as well as Natural Gas and Other Gas grouped together."
     },
     {
+        "name": "fuel_mmbtu_per_unit",
+        "type": "number"
+    },
+    {
         "name": "fuel_qty_burned",
         "type": "number",
         "description": "Quantity of fuel consumed in the report year, in terms of the reported fuel units."
@@ -532,6 +568,10 @@ FIELD_LIST: List[Dict[str, Any]] = [
         "description": "Quanity of fuel received in tons, barrel, or Mcf."
     },
     {
+        "name": "fuel_type",
+        "type": "string"
+    },
+    {
         "name": "fuel_type_code",
         "type": "string",
         "description": "The fuel code reported to EIA. Two or three letter alphanumeric."
@@ -540,6 +580,10 @@ FIELD_LIST: List[Dict[str, Any]] = [
         "name": "fuel_type_code_aer",
         "type": "string",
         "description": "A partial aggregation of the reported fuel type codes into larger categories used by EIA in, for example, the Annual Energy Review (AER).Two or three letter alphanumeric."
+    },
+    {
+        "name": "fuel_type_code_pudl",
+        "type": "string"
     },
     {
         "name": "fuel_unit",
@@ -639,6 +683,10 @@ FIELD_LIST: List[Dict[str, Any]] = [
         "description": "General Plant Total (FERC Accounts 389-399.1)."
     },
     {
+        "name": "generator_id",
+        "type": "string"
+    },
+    {
         "name": "grid_voltage_2_kv",
         "type": "number",
         "description": "Plant's grid voltage at point of interconnection to transmission or distibution facilities"
@@ -724,6 +772,10 @@ FIELD_LIST: List[Dict[str, Any]] = [
         "description": "PUDL issued surrogate key."
     },
     {
+        "name": "installation_year",
+        "type": "year"
+    },
+    {
         "name": "intangible_acct301_organization",
         "type": "number",
         "description": "FERC Account 301: Intangible Plant Organization."
@@ -762,6 +814,10 @@ FIELD_LIST: List[Dict[str, Any]] = [
         "name": "leased_plant",
         "type": "number",
         "description": "Electric Plant Leased to Others (USD)."
+    },
+    {
+        "name": "line_id",
+        "type": "string"
     },
     {
         "name": "liquefied_natural_gas_storage",
@@ -906,6 +962,10 @@ FIELD_LIST: List[Dict[str, Any]] = [
         "name": "net_capacity_favorable_conditions_mw",
         "type": "number",
         "description": "Net plant capability under the most favorable operating conditions, in megawatts."
+    },
+    {
+        "name": "net_generation_mwh",
+        "type": "number"
     },
     {
         "name": "net_load_mwh",
@@ -1376,6 +1436,10 @@ FIELD_LIST: List[Dict[str, Any]] = [
         "description": "Identifies the ownership for each generator."
     },
     {
+        "name": "peak_demand_mw",
+        "type": "number"
+    },
+    {
         "name": "pipeline_notes",
         "type": "string",
         "description": "Additional owner or operator of natural gas pipeline."
@@ -1441,6 +1505,14 @@ FIELD_LIST: List[Dict[str, Any]] = [
         "description": "Planned effective date that the generator is scheduled to enter operation after the uprate modification."
     },
     {
+        "name": "plant_capability_mw",
+        "type": "number"
+    },
+    {
+        "name": "plant_hours_connected_while_generating",
+        "type": "number"
+    },
+    {
         "name": "plant_id_eia",
         "type": "integer",
         "description": "The unique six-digit facility identification number, also called an ORISPL, assigned by the Energy Information Administration."
@@ -1461,6 +1533,10 @@ FIELD_LIST: List[Dict[str, Any]] = [
         "description": "Plant name."
     },
     {
+        "name": "plant_name_ferc1",
+        "type": "string"
+    },
+    {
         "name": "plant_name_original",
         "type": "string",
         "description": "Original plant name in the FERC Form 1 FoxPro database."
@@ -1469,6 +1545,10 @@ FIELD_LIST: List[Dict[str, Any]] = [
         "name": "plant_name_pudl",
         "type": "string",
         "description": "Plant name, chosen arbitrarily from the several possible plant names available in the plant matching process. Included for human readability only."
+    },
+    {
+        "name": "plant_type",
+        "type": "string"
     },
     {
         "name": "plants_reported_asset_manager",
@@ -1507,6 +1587,10 @@ FIELD_LIST: List[Dict[str, Any]] = [
     },
     {
         "name": "prime_mover",
+        "type": "string"
+    },
+    {
+        "name": "prime_mover_code",
         "type": "string"
     },
     {
@@ -1714,6 +1798,10 @@ FIELD_LIST: List[Dict[str, Any]] = [
         "description": "The code representing the first, second, third or fourth start-up and flame stabilization energy source used by the combustion unit(s) associated with this generator."
     },
     {
+        "name": "state",
+        "type": "string"
+    },
+    {
         "name": "status",
         "type": "string"
     },
@@ -1771,6 +1859,10 @@ FIELD_LIST: List[Dict[str, Any]] = [
         "name": "stoker_tech",
         "type": "boolean",
         "description": "Indicates whether the generator uses stoker technology"
+    },
+    {
+        "name": "street_address",
+        "type": "string"
     },
     {
         "name": "subcritical_tech",
@@ -1993,6 +2085,10 @@ FIELD_LIST: List[Dict[str, Any]] = [
         "description": "Utility name, chosen arbitrarily from the several possible utility names available in the utility matching process. Included for human readability only."
     },
     {
+        "name": "utility_id_eia",
+        "type": "integer"
+    },
+    {
         "name": "utility_id_ferc1",
         "type": "integer",
         "description": "FERC-assigned respondent_id, identifying the reporting entity. Stable from year to year."
@@ -2021,6 +2117,10 @@ FIELD_LIST: List[Dict[str, Any]] = [
         "name": "winter_estimated_capability_mw",
         "type": "number",
         "description": "EIA estimated winter capacity (in MWh)."
+    },
+    {
+        "name": "zip_code",
+        "type": "string"
     }
 ]
 """
