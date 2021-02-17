@@ -1,5 +1,7 @@
 """Resource metadata."""
-from typing import Any, Dict
+from typing import Any, Dict, List
+
+from .helpers import build_foreign_keys
 
 RESOURCES: Dict[str, Dict[str, Any]] = {
     "accumulated_depreciation_ferc1": {
@@ -54,6 +56,7 @@ RESOURCES: Dict[str, Dict[str, Any]] = {
         "schema": {
             "fields": ["plant_id_eia", "boiler_id", "prime_mover_code"],
             "primaryKey": ["plant_id_eia", "boiler_id"],
+            "foreignKeyRules": {"fields": [["plant_id_eia", "boiler_id"]]},
         },
     },
     "coalmine_eia923": {
@@ -67,6 +70,7 @@ RESOURCES: Dict[str, Dict[str, Any]] = {
                 "mine_id_msha",
             ],
             "primaryKey": ["mine_id_pudl"],
+            "foreignKeyRules": {"fields": [["mine_id_pudl"]]},
         },
         "sources": ["eia923"],
     },
@@ -74,7 +78,11 @@ RESOURCES: Dict[str, Dict[str, Any]] = {
         "schema": {"fields": ["datasource", "active"], "primaryKey": ["datasource"]},
     },
     "energy_source_eia923": {
-        "schema": {"fields": ["abbr", "source"], "primaryKey": ["abbr"]},
+        "schema": {
+            "fields": ["abbr", "source"],
+            "primaryKey": ["abbr"],
+            "foreignKeyRules": {"fields": [["energy_source_code"]]},
+        },
         "sources": ["eia923"],
     },
     "ferc_accounts": {
@@ -86,7 +94,11 @@ RESOURCES: Dict[str, Dict[str, Any]] = {
     },
     "ferc_depreciation_lines": {
         "description": "PUDL assigned FERC Form 1 line identifiers and long descriptions from FERC Form 1 page 219, Accumulated Provision for Depreciation of Electric Utility Plant (Account 108).",
-        "schema": {"fields": ["line_id", "description"], "primaryKey": ["line_id"]},
+        "schema": {
+            "fields": ["line_id", "description"],
+            "primaryKey": ["line_id"],
+            "foreignKeyRules": {"fields": [["line_id"]]},
+        },
     },
     "fuel_ferc1": {
         "description": "Annual fuel consumed by large thermal generating plants. As reported on page 402 of FERC Form 1.",
@@ -136,11 +148,19 @@ RESOURCES: Dict[str, Dict[str, Any]] = {
         "sources": ["eia923"],
     },
     "fuel_type_aer_eia923": {
-        "schema": {"fields": ["abbr", "fuel_type"], "primaryKey": ["abbr"]},
+        "schema": {
+            "fields": ["abbr", "fuel_type"],
+            "primaryKey": ["abbr"],
+            "foreignKeyRules": {"fields": [["fuel_type_code_aer"]]},
+        },
         "sources": ["eia923"],
     },
     "fuel_type_eia923": {
-        "schema": {"fields": ["abbr", "fuel_type"], "primaryKey": ["abbr"]},
+        "schema": {
+            "fields": ["abbr", "fuel_type"],
+            "primaryKey": ["abbr"],
+            "foreignKeyRules": {"fields": [["fuel_type"], ["fuel_type_code"]]},
+        },
         "sources": ["eia923"],
     },
     "generation_eia923": {
@@ -233,6 +253,7 @@ RESOURCES: Dict[str, Dict[str, Any]] = {
                 "retirement_date",
             ],
             "primaryKey": ["plant_id_eia", "generator_id", "report_date"],
+            "foreignKeyRules": {"fields": [["plant_id_eia", "generator_id", "report_date"]]},
         },
         "sources": ["eia860"],
     },
@@ -262,6 +283,7 @@ RESOURCES: Dict[str, Dict[str, Any]] = {
                 "previously_canceled",
             ],
             "primaryKey": ["plant_id_eia", "generator_id"],
+            "foreignKeyRules": {"fields": [["plant_id_eia", "generator_id"]]},
         },
     },
     "hourly_emissions_epacems": {
@@ -474,6 +496,7 @@ RESOURCES: Dict[str, Dict[str, Any]] = {
                 "water_source",
             ],
             "primaryKey": ["plant_id_eia", "report_date"],
+            "foreignKeyRules": {"fields": [["plant_id_eia", "report_date"]]},
         },
         "sources": ["eia860"],
     },
@@ -505,6 +528,7 @@ RESOURCES: Dict[str, Dict[str, Any]] = {
                 "timezone",
             ],
             "primaryKey": ["plant_id_eia"],
+            "foreignKeyRules": {"fields": [["plant_id_eia"]]},
         },
     },
     "plants_ferc1": {
@@ -512,6 +536,10 @@ RESOURCES: Dict[str, Dict[str, Any]] = {
         "schema": {
             "fields": ["utility_id_ferc1", "plant_name_ferc1", "plant_id_pudl"],
             "primaryKey": ["utility_id_ferc1", "plant_name_ferc1"],
+            "foreignKeyRules": {"fields": [
+                ["utility_id_ferc1", "plant_name_ferc1"],
+                ["utility_id_ferc1", "plant_name_original"]
+            ]},
         },
     },
     "plants_hydro_ferc1": {
@@ -565,6 +593,7 @@ RESOURCES: Dict[str, Dict[str, Any]] = {
         "schema": {
             "fields": ["plant_id_pudl", "plant_name_pudl"],
             "primaryKey": ["plant_id_pudl"],
+            "foreignKeyRules": {"fields": [["plant_id_pudl"]]},
         },
     },
     "plants_pumped_storage_ferc1": {
@@ -690,7 +719,11 @@ RESOURCES: Dict[str, Dict[str, Any]] = {
         "sources": ["ferc1"],
     },
     "prime_movers_eia923": {
-        "schema": {"fields": ["abbr", "prime_mover"], "primaryKey": ["abbr"]},
+        "schema": {
+            "fields": ["abbr", "prime_mover"],
+            "primaryKey": ["abbr"],
+            "foreignKeyRules": {"fields": [["prime_mover_code"]]},
+        },
         "sources": ["eia923"],
     },
     "purchased_power_ferc1": {
@@ -718,7 +751,16 @@ RESOURCES: Dict[str, Dict[str, Any]] = {
         "sources": ["ferc1"],
     },
     "regions_entity_epaipm": {
-        "schema": {"fields": ["region_id_epaipm"], "primaryKey": ["region_id_epaipm"]},
+        "schema": {
+            "fields": ["region_id_epaipm"],
+            "primaryKey": ["region_id_epaipm"],
+            "foreignKeyRules": {"fields": [
+                ["region"],
+                ["region_from"],
+                ["region_id_epaipm"],
+                ["region_to"],
+            ]}
+        },
     },
     "transmission_joint_epaipm": {
         "schema": {
@@ -745,7 +787,14 @@ RESOURCES: Dict[str, Dict[str, Any]] = {
         "sources": ["epaipm"],
     },
     "transport_modes_eia923": {
-        "schema": {"fields": ["abbr", "mode"], "primaryKey": ["abbr"]},
+        "schema": {
+            "fields": ["abbr", "mode"],
+            "primaryKey": ["abbr"],
+            "foreignKeyRules": {"fields": [
+                ["primary_transportation_mode_code"],
+                ["secondary_transportation_mode_code"],
+            ]},
+        },
         "sources": ["eia923"],
     },
     "utilities_eia": {
@@ -769,6 +818,10 @@ RESOURCES: Dict[str, Dict[str, Any]] = {
                 "plants_reported_other_relationship",
             ],
             "primaryKey": ["utility_id_eia", "report_date"],
+            "foreignKeyRules": {"fields": [
+                ["utility_id_eia", "report_date"],
+                ["owner_utility_id_eia", "report_date"],
+            ]},
         },
         "sources": ["eia860"],
     },
@@ -776,6 +829,10 @@ RESOURCES: Dict[str, Dict[str, Any]] = {
         "schema": {
             "fields": ["utility_id_eia", "utility_name_eia", "entity_type"],
             "primaryKey": ["utility_id_eia"],
+            "foreignKeyRules": {"fields": [
+                ["utility_id_eia"],
+                ["owner_utility_id_eia"],
+            ]},
         },
     },
     "utilities_ferc1": {
@@ -783,6 +840,7 @@ RESOURCES: Dict[str, Dict[str, Any]] = {
         "schema": {
             "fields": ["utility_id_ferc1", "utility_name_ferc1", "utility_id_pudl"],
             "primaryKey": ["utility_id_ferc1"],
+            "foreignKeyRules": {"fields": [["utility_id_ferc1"]]},
         },
     },
     "utilities_pudl": {
@@ -791,6 +849,7 @@ RESOURCES: Dict[str, Dict[str, Any]] = {
         "schema": {
             "fields": ["utility_id_pudl", "utility_name_pudl"],
             "primaryKey": ["utility_id_pudl"],
+            "foreignKeyRules": {"fields": [["utility_id_pudl"]]},
         },
     },
     "utility_plant_assn": {
@@ -805,4 +864,13 @@ Resource attributes by PUDL identifier (`resource.name`).
 
 Keys are in alphabetical order.
 Each element of `fields` and `sources` may be a dictionary or a PUDL identifier.
+
+See :func:`build_foreign_keys` for the expected format of `foreignKeyRules`.
+"""
+
+FOREIGN_KEYS: Dict[str, List[dict]] = build_foreign_keys(RESOURCES)
+"""
+Foreign keys by resource name.
+
+See :func:`build_foreign_keys`.
 """
