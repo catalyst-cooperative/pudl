@@ -49,12 +49,10 @@ def fix_up_dates(df, plant_utc_offset):
     # Some of the timezones in the plants_entity_eia table may be missing,
     # but none of the CEMS plants should be.
     if not df["utc_offset"].notna().all():
-        missing_plants = df.loc[df["utc_offset"].isna(),
-                                "plant_id_eia"].unique()
-        raise ValueError(
-            f"utc_offset should never be missing for CEMS plants, but was "
-            f"missing for these: {str(list(missing_plants))}"
-        )
+        # In order to process 2020 EPACEMS data with 2020 860m data, we will just
+        # replace any missing utc_offsets with a 0 offset
+        df["utc_offset"].fillna(value=pd.Timedelta(seconds=0), inplace=True)
+
     # Add the offset from UTC. CEMS data don't have DST, so the offset is
     # always the same for a given plant.
     df["operating_datetime_utc"] = df["op_datetime_naive"] - df["utc_offset"]

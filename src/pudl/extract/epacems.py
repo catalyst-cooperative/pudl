@@ -159,9 +159,12 @@ class EpaCemsDatastore:
         dfs = []
         for month in range(1, 13):
             mf = partition.get_monthly_file(month)
-            with archive.open(str(mf.with_suffix(".zip")), "r") as mzip:
-                with ZipFile(mzip, "r").open(str(mf.with_suffix(".csv")), "r") as csv_file:
-                    dfs.append(self._csv_to_dataframe(csv_file))
+            try:
+                with archive.open(str(mf.with_suffix(".zip")), "r") as mzip:
+                    with ZipFile(mzip, "r").open(str(mf.with_suffix(".csv")), "r") as csv_file:
+                        dfs.append(self._csv_to_dataframe(csv_file))
+            except KeyError:
+                logger.warning(f"Coud not Load {str(mf.with_suffix('.zip'))}: skipping")
         return pd.concat(dfs, sort=True, copy=False, ignore_index=True)
 
     def _csv_to_dataframe(self, csv_file) -> pd.DataFrame:
