@@ -9,7 +9,8 @@ import re
 import sys
 import zipfile
 from pathlib import Path
-from typing import Any, Dict, Iterator, List, Optional, Tuple
+from typing import Any, Dict, Iterator, List, Optional, Tuple, Set
+from collections import defaultdict
 
 import coloredlogs
 import datapackage
@@ -98,6 +99,16 @@ class DatapackageDescriptor:
                     dataset=self.dataset,
                     doi=self.doi,
                     name=res["name"])
+
+    def get_partitions(self, name: str = None) -> Dict[str, Set[str]]:
+        """Returns mapping of all known partition keys to the set of its known values."""
+        partitions = defaultdict(set)  # type: Dict[str, Set[str]]
+        for res in self.datapackage_json["resources"]:
+            if name and res["name"] != name:
+                continue
+            for k, v in res.get('parts', {}).items():
+                partitions[k].add(v)
+        return partitions
 
     def _validate_datapackage(self, datapackage_json: dict):
         """Checks the correctness of datapackage.json metadata. Throws ValueError if invalid."""
@@ -296,12 +307,19 @@ class Datastore:
                 self._cache.add(res, bytes(desc.get_json_string(), "utf-8"))
         return self._datapackage_descriptors[doi]
 
-    def get_resources(self, dataset: str, cached_only: bool = False, **filters: Any) -> Iterator[Tuple[PudlResourceKey, bytes]]:
+    def get_resources(
+            self,
+            dataset: str,
+            cached_only: bool = False,
+            skip_optimally_cached: bool = False,
+            **filters: Any) -> Iterator[Tuple[PudlResourceKey, bytes]]:
         """Return content of the matching resources.
 
         Args:
             dataset (str): name of the dataset to query.
             cached_only (bool): if True, only retrieve resources that are present in the cache.
+            skip_optimally_cached (bool): if True, only retrieve resources that are not optimally
+                cached. This triggers attempt to optimally cache these resources.
             filters (key=val): only return resources that match the key-value mapping in their
             metadata["parts"].
 
@@ -310,6 +328,9 @@ class Datastore:
         """
         desc = self.get_datapackage_descriptor(dataset)
         for res in desc.get_resources(**filters):
+            if self.is_optimally_cached(res) and skip_optimally_cached:
+                logger.debug(f'{res} is already optimally cached.')
+                continue
             if self._cache.contains(res):
                 logger.debug(f"Retrieved {res} from cache.")
                 yield (res, self._cache.get(res))
@@ -418,7 +439,14 @@ Available Sandbox Datasets:
         default={},
         action=ParseKeyValues,
         metavar="KEY=VALUE,...",
-        help="Only retrieve resources matching these conditions.")
+        help="Only retrieve resources matching these conditions."
+    )
+    parser.add_argument(
+        "--list-partitions",
+        action="store_true",
+        default=False,
+        help="List available partition keys and values for each dataset."
+    )
 
     return parser.parse_args()
 
@@ -464,8 +492,17 @@ def main():
     if args.partition:
         logger.info(f"Only retrieving resources for partition: {args.partition}")
 
-    for selection in datasets:
-        if args.validate:
+    if args.list_partitions:
+        for single_ds in datasets:
+
+    for single_ds in datasets:
+        if args.list_partitions:
+            parts = dstore.get_datapackage_descriptor(single_ds).get_partitions()
+            print(f'Partitions for {single_ds}:')
+            for pkey in sorted(parts):
+                print(f'  {pkey}={", ".join(sorted(parts[pkey]))}')
+
+        elif args.validate:
             descriptor = dstore.get_datapackage_descriptor(selection)
             for res, content in dstore.get_resources(selection, cached_only=True, **args.partition):
                 try:
@@ -475,7 +512,10 @@ def main():
                         f"Resource {res} has invalid checksum. Removing from cache.")
                     dstore.remove_from_cache(res)
         else:
-            for res, _ in dstore.get_resources(selection, **args.partition):
+            for res, _ in dstore.get_resources(
+                    selection,
+                    skip_optimally_cached=True,
+                    **args.partition):
                 logger.info(f"Retrieved {res}.")
 
 
