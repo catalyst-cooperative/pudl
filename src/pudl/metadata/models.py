@@ -6,10 +6,12 @@ from typing import Any, Callable, List, Literal, Optional, Tuple, Type, Union
 
 import pandas as pd
 import pydantic
+import sqlalchemy as sa
 
 from ..transform.harvest import most_and_more_frequent
 from .constants import (CONTRIBUTORS, CONTRIBUTORS_BY_SOURCE, FIELD_DTYPES,
-                        KEYWORDS_BY_SOURCE, LICENSES, SOURCES)
+                        FIELD_DTYPES_SQL, KEYWORDS_BY_SOURCE, LICENSES,
+                        SOURCES)
 from .fields import FIELDS
 from .resources import FOREIGN_KEYS, RESOURCES
 
@@ -165,20 +167,19 @@ class Field(BaseModel):
     See https://specs.frictionlessdata.io/table-schema/#field-descriptors.
 
     Examples:
-        >>> field = Field(name='x', type='integer', constraints={'enum': ['x', 'y']})
+        >>> field = Field(name='x', type='string', constraints={'enum': ['x', 'y']})
         >>> field.dtype
         CategoricalDtype(categories=['x', 'y'], ordered=False)
-        >>> field = Field.from_id('utility_id_eia')
+        >>> field.to_sql()
+        Column('x', Enum('x', 'y'), table=None)
+        >>> Field.from_id('utility_id_eia')
         >>> field.name
         'utility_id_eia'
-        >>> field.dtype
-        'Int64'
     """
 
     name: String
     type: String  # noqa: A003
-    format: String = "default"  # noqa: A003
-    title: String = None
+    format: Literal["default"] = "default"  # noqa: A003
     description: String = None
     constraints: FieldConstraints = {}
     harvest: FieldHarvest = {}
@@ -190,6 +191,16 @@ class Field(BaseModel):
             raise ValueError(f"must be one of {list(FIELD_DTYPES.keys())}")
         return value
 
+    @pydantic.validator("constraints")
+    def _check_enum_type(cls, value, values):
+        if value.enum:
+            if values["type"] != "string":
+                raise ValueError("Non-string enum type is not supported")
+            for x in value.enum:
+                if not isinstance(x, str):
+                    raise ValueError(f"Enum value '{x}' is not {values['type']}")
+        return value
+
     @classmethod
     def from_id(cls, x: str) -> 'Field':
         """Construct from PUDL identifier (`Field.name`)."""
@@ -197,10 +208,27 @@ class Field(BaseModel):
 
     @property
     def dtype(self) -> Union[str, pd.CategoricalDtype]:
-        """Pandas data dtype."""
+        """Pandas data type."""
         if self.constraints.enum:
             return pd.CategoricalDtype(self.constraints.enum)
         return FIELD_DTYPES[self.type]
+
+    @property
+    def dtype_sql(self) -> sa.sql.visitors.VisitableType:
+        """SQLAlchemy data type."""  # noqa: D403
+        if self.constraints.enum:
+            return sa.Enum(*self.constraints.enum, create_constraint=True)
+        return FIELD_DTYPES_SQL[self.type]
+
+    def to_sql(self) -> sa.Column:
+        """Return equivalent SQL column."""
+        return sa.Column(
+            self.name,
+            self.dtype_sql,
+            nullable=not self.constraints.required,
+            unique=self.constraints.unique,
+            comment=self.description
+        )
 
 
 # ---- Models: Resource ---- #
@@ -233,9 +261,17 @@ class ForeignKey(BaseModel):
 
     @pydantic.validator("reference")
     def _check_fields_equal_length(cls, value, values):
+        print(values)
         if len(value.fields) != len(values["fields_"]):
             raise ValueError("fields and reference.fields are not equal length")
         return value
+
+    def to_sql(self) -> sa.ForeignKeyConstraint:
+        """Return equivalent SQL Foreign Key."""
+        return sa.ForeignKeyConstraint(
+            self.fields,
+            [f"{self.reference.resource}.{field}" for field in self.reference.fields]
+        )
 
 
 class Schema(BaseModel):
@@ -372,6 +408,17 @@ class Resource(BaseModel):
     Tabular data resource (`package.resources[...]`).
 
     See https://specs.frictionlessdata.io/tabular-data-resource.
+
+    Examples:
+        >>> fields = [{'name': 'x', 'type': 'year'}, {'name': 'y', 'type': 'string'}]
+        >>> fkeys = [{'fields': ['x', 'y'], 'reference': {'resource': 'b', 'fields': ['x', 'y']}}]
+        >>> schema = {'fields': fields, 'primaryKey': ['x'], 'foreignKeys': fkeys}
+        >>> resource = Resource(name='a', schema=schema)
+        >>> table = resource.to_sql()
+        >>> table.columns.x
+        Column('x', Integer(), ForeignKey('b.x'), table=<a>, primary_key=True, nullable=False)
+        >>> table.columns.y
+        Column('y', Text(), ForeignKey('b.y'), table=<a>)
     """
 
     name: String
@@ -439,6 +486,18 @@ class Resource(BaseModel):
         if "foreignKeyRules" in schema:
             del schema["foreignKeyRules"]
         return cls(name=x, **obj)
+
+    def to_sql(self, metadata: sa.MetaData = None) -> sa.Table:
+        """Return equivalent SQL Table."""
+        if metadata is None:
+            metadata = sa.MetaData()
+        columns = [f.to_sql() for f in self.schema.fields]
+        constraints = []
+        if self.schema.primaryKey:
+            constraints.append(sa.PrimaryKeyConstraint(*self.schema.primaryKey))
+        for key in self.schema.foreignKeys:
+            constraints.append(key.to_sql())
+        return sa.Table(self.name, metadata, *columns, *constraints)
 
 
 # ---- Package ---- #

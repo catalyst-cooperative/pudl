@@ -1,6 +1,8 @@
 """Metadata and operational constants."""
 from typing import Dict, List
 
+import sqlalchemy as sa
+
 FIELD_DTYPES: Dict[str, str] = {
     "string": "string",
     "number": "float",
@@ -12,6 +14,19 @@ FIELD_DTYPES: Dict[str, str] = {
 }
 """
 Pandas data type by PUDL field type (Data Package `field.type`).
+"""
+
+FIELD_DTYPES_SQL: Dict[str, sa.sql.visitors.VisitableType] = {
+    "boolean": sa.Boolean,
+    "date": sa.Date,
+    "datetime": sa.DateTime,
+    "integer": sa.Integer,
+    "number": sa.Float,
+    "string": sa.Text,
+    "year": sa.Integer,
+}
+"""
+SQLAlchemy column types by PUDL field type (Data Package `field.type`).
 """
 
 LICENSES: Dict[str, Dict[str, str]] = {
