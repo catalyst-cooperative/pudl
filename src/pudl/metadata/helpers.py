@@ -27,7 +27,7 @@ def _parse_foreign_key_rules(meta: dict, name: str) -> List[dict]:
     Returns:
         Foreign key rules:
         * `fields` (List[str]): Local fields.
-        * `reference['name']` (str): Reference resource name.
+        * `reference['resource']` (str): Reference resource name.
         * `reference['fields']` (List[str]): Reference primary key fields.
         * `exclude` (List[str]): Names of resources to exclude, including `name`.
     """
@@ -37,7 +37,7 @@ def _parse_foreign_key_rules(meta: dict, name: str) -> List[dict]:
             exclude = meta["schema"]["foreignKeyRules"].get("exclude", [])
             rules.append({
                 "fields": fields,
-                "reference": {"name": name, "fields": meta["schema"]["primaryKey"]},
+                "reference": {"resource": name, "fields": meta["schema"]["primaryKey"]},
                 "exclude": [name] + exclude
             })
     return rules
@@ -56,7 +56,7 @@ def _build_foreign_key_tree(
         Foreign key tree where the first key is a resource name (str),
         the second key is resource field names (Tuple[str]),
         and the value describes the reference resource (dict):
-        * `reference['name']` (str): Reference name.
+        * `reference['resource']` (str): Reference name.
         * `reference['fields']` (List[str]): Reference field names.
     """
     # Parse foreign key rules
@@ -92,7 +92,7 @@ def _traverse_foreign_key_tree(
     Returns:
         Sequence of foreign keys starting from `name` and `fields`:
         * `fields` (List[str]): Local fields.
-        * `reference['name']` (str): Reference resource name.
+        * `reference['resource']` (str): Reference resource name.
         * `reference['fields']` (List[str]): Reference primary key fields.
     """
     keys = []
@@ -100,11 +100,11 @@ def _traverse_foreign_key_tree(
         return keys
     ref = tree[name][fields]
     keys.append({"fields": list(fields), "reference": ref})
-    if ref["name"] not in tree:
+    if ref["resource"] not in tree:
         return keys
-    for next_fields in tree[ref["name"]]:
+    for next_fields in tree[ref["resource"]]:
         if set(next_fields) <= set(ref["fields"]):
-            for key in _traverse_foreign_key_tree(tree, ref["name"], next_fields):
+            for key in _traverse_foreign_key_tree(tree, ref["resource"], next_fields):
                 mapped_fields = [
                     fields[ref["fields"].index(field)] for field in key["fields"]
                 ]
@@ -132,7 +132,7 @@ def build_foreign_keys(
     Returns:
         Foreign keys for each resource (if any), by resource name.
         * `fields` (List[str]): Field names.
-        * `reference['name']` (str): Reference resource name.
+        * `reference['resource']` (str): Reference resource name.
         * `reference['fields']` (List[str]): Reference resource field names.
 
     Examples:
@@ -155,12 +155,12 @@ def build_foreign_keys(
         ... }
         >>> keys = build_foreign_keys(resources)
         >>> keys['z']
-        [{'fields': ['z', 'zz'], 'reference': {'name': 'y', 'fields': ['z', 'yy']}}]
+        [{'fields': ['z', 'zz'], 'reference': {'resource': 'y', 'fields': ['z', 'yy']}}]
         >>> keys['y']
-        [{'fields': ['z'], 'reference': {'name': 'x', 'fields': ['z']}}]
+        [{'fields': ['z'], 'reference': {'resource': 'x', 'fields': ['z']}}]
         >>> keys = build_foreign_keys(resources, prune=False)
         >>> keys['z'][0]
-        {'fields': ['z'], 'reference': {'name': 'x', 'fields': ['z']}}
+        {'fields': ['z'], 'reference': {'resource': 'x', 'fields': ['z']}}
     """
     tree = _build_foreign_key_tree(resources)
     keys = {}

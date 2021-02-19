@@ -307,9 +307,9 @@ RESOURCES: Dict[str, Dict[str, Any]] = {
                 "heat_content_mmbtu",
                 "facility_id",
                 "unit_id_epa",
-            ]
+            ],
+            "primaryKey": ["plant_id_eia", "unitid", "operating_datetime_utc"],
         },
-        "primaryKey": ["plant_id_eia", "unitid", "operating_datetime_utc"],
         "sources": ["epacems"],
     },
     "load_curves_epaipm": {
