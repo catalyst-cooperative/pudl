@@ -492,19 +492,18 @@ def main():
     if args.partition:
         logger.info(f"Only retrieving resources for partition: {args.partition}")
 
-    if args.list_partitions:
-        for single_ds in datasets:
-
     for single_ds in datasets:
         if args.list_partitions:
             parts = dstore.get_datapackage_descriptor(single_ds).get_partitions()
-            print(f'Partitions for {single_ds}:')
+            print(f'\nPartitions for {single_ds}:')
             for pkey in sorted(parts):
-                print(f'  {pkey}={", ".join(sorted(parts[pkey]))}')
+                print(f'  {pkey}: {", ".join(str(x) for x in sorted(parts[pkey]))}')
+            if not parts:
+                print(f'  -- no known partitions --')
 
         elif args.validate:
-            descriptor = dstore.get_datapackage_descriptor(selection)
-            for res, content in dstore.get_resources(selection, cached_only=True, **args.partition):
+            descriptor = dstore.get_datapackage_descriptor(single_ds)
+            for res, content in dstore.get_resources(single_ds, cached_only=True, **args.partition):
                 try:
                     descriptor.validate_checksum(res.name, content)
                 except ChecksumMismatch:
@@ -513,7 +512,7 @@ def main():
                     dstore.remove_from_cache(res)
         else:
             for res, _ in dstore.get_resources(
-                    selection,
+                    single_ds,
                     skip_optimally_cached=True,
                     **args.partition):
                 logger.info(f"Retrieved {res}.")
