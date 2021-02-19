@@ -45,7 +45,7 @@ and use. Hundreds of gigabytes of information is available from government
 agencies, but it's often difficult to work with, and different sources can be
 hard to combine. PUDL takes the original spreadsheets, CSV files, and databases
 and turns them into unified
-`tabular data packages <https://frictionlessdata.io/docs/tabular-data-package/>`__
+`tabular data packages <https://specs.frictionlessdata.io/tabular-data-package/>`__
 that can be used to populate a database, or read in directly with Python, R,
 Microsoft Access, and many other tools.
 
@@ -55,7 +55,6 @@ The project currently integrates data from:
 * `EIA Form 861 <https://www.eia.gov/electricity/data/eia861/>`__
 * `EIA Form 923 <https://www.eia.gov/electricity/data/eia923/>`__
 * `The EPA Continuous Emissions Monitoring System (CEMS) <https://ampd.epa.gov/ampd/>`__
-* `The EPA Integrated Planning Model (IPM) <https://www.epa.gov/airmarkets/national-electric-energy-data-system-needs-v6>`__
 * `FERC Form 1 <https://www.ferc.gov/industries-data/electric/general-information/electric-industry-forms/form-1-electric-utility-annual>`__
 * `FERC Form 714 <https://www.ferc.gov/industries-data/electric/general-information/electric-industry-forms/form-no-714-annual-electric/data>`__
 * `The US Census Demographic Profile 1 Geodatabase <https://www.census.gov/geographies/mapping-files/2010/geo/tiger-data.html>`__
@@ -177,7 +176,7 @@ Contributing to PUDL
 Find PUDL useful? Want to help make it better? There are lots of ways to
 contribute!
 
-* Please be sure to read our `Code of Conduct <https://catalystcoop-pudl.readthedocs.io/en/latest/CODE_OF_CONDUCT.html>`__
+* Please be sure to read our `Code of Conduct <https://catalystcoop-pudl.readthedocs.io/en/latest/code_of_conduct.html>`__
 * You can file a bug report, make a feature request, or ask questions in the
   `Github issue tracker <https://github.com/catalyst-cooperative/pudl/issues>`__.
 * Feel free to fork the project and make a pull request with new code,

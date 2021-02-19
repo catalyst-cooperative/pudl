@@ -5,4 +5,4 @@ requires = ["setuptools", "wheel", "setuptools_scm"]
 max-line-length = 88
 
 [tool.pytest.ini_options]
-doctest_optionflags = ["ELLIPSIS", "IGNORE_EXCEPTION_DETAIL"]
+doctest_optionflags = ["NORMALIZE_WHITESPACE", "ELLIPSIS", "IGNORE_EXCEPTION_DETAIL"]

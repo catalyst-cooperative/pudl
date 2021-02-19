@@ -24,6 +24,7 @@ Submodules
 
    pudl.cli
    pudl.constants
+   pudl.dfc
    pudl.etl
    pudl.helpers
    pudl.validate

@@ -5,6 +5,7 @@ omit =
     *__main__.py
     *__init__.py
     *cli.py
+    *_test.py
 
 [report]
 precision = 2

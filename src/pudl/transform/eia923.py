@@ -51,7 +51,7 @@ def _yearly_to_monthly_records(df, md):
             # Drop this month's data from the yearly data frame.
             this_year.drop(this_month.columns, axis=1, inplace=True)
             # Rename this month's columns to get rid of the month reference.
-            this_month.columns = this_month.columns.str.replace(md[m], '')
+            this_month.columns = this_month.columns.str.replace(md[m], '', regex=True)
             # Add a numerical month column corresponding to this month.
             this_month['report_month'] = m
             # Add this month's data to the monthly DataFrame we're building.

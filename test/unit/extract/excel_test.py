@@ -6,7 +6,6 @@ from unittest.mock import patch
 import pandas as pd
 
 from pudl.extract import excel as excel
-from pudl.workspace import datastore
 
 
 class TestMetadata(unittest.TestCase):
@@ -27,9 +26,9 @@ class TestMetadata(unittest.TestCase):
             self._metadata.get_all_columns('books'))
         self.assertDictEqual(
             {'book_title': 'title', 'name': 'author', 'pages': 'pages'},
-            self._metadata.get_column_map(2010, 'books'))
-        self.assertEqual(10, self._metadata.get_skiprows(2011, 'boxes'))
-        self.assertEqual(1, self._metadata.get_sheet_name(2011, 'boxes'))
+            self._metadata.get_column_map('books', year=2010))
+        self.assertEqual(10, self._metadata.get_skiprows('boxes', year=2011))
+        self.assertEqual(1, self._metadata.get_sheet_name('boxes', year=2011))
 
 
 class FakeExtractor(excel.GenericExtractor):
@@ -37,13 +36,13 @@ class FakeExtractor(excel.GenericExtractor):
 
     def __init__(self, *args, **kwargs):
         """It's a Fake extractor.  Good thing flake demanded this."""
-        ds = datastore.Datastore(sandbox=True)
-        self.METADATA = excel.Metadata('test', ds)
+        self.METADATA = excel.Metadata('test')
         self.BLACKLISTED_PAGES = ['shoes']
-        super().__init__()
+        super().__init__(ds=None)
 
-    def _load_excel_file(self, year, page):
-        return f'{page}-{year}'
+    def load_excel_file(self, page, **partition):
+        """Returns fake file contents for given page and partition."""
+        return f'{page}-{partition["year"]}'
 
 
 def _fake_data_frames(page_name, **kwargs):
@@ -73,12 +72,12 @@ class TestGenericExtractor(unittest.TestCase):
         """Verifies that read_excel method is called with expected arguments."""
         mock_read_excel.return_value = pd.DataFrame()
 
-        FakeExtractor('/blah').extract([2010, 2011])
+        FakeExtractor('/blah').extract(year=[2010, 2011])
         expected_calls = [
-            mock.call('books-2010', sheet_name=0, skiprows=0, dtype={}),
-            mock.call('books-2011', sheet_name=0, skiprows=1, dtype={}),
-            mock.call('boxes-2010', sheet_name=1, skiprows=0, dtype={}),
-            mock.call('boxes-2011', sheet_name=1, skiprows=10, dtype={})
+            mock.call('books-2010', sheet_name=0, skiprows=0, skipfooter=0, dtype={}),
+            mock.call('books-2011', sheet_name=0, skiprows=1, skipfooter=1, dtype={}),
+            mock.call('boxes-2010', sheet_name=1, skiprows=0, skipfooter=0, dtype={}),
+            mock.call('boxes-2011', sheet_name=1, skiprows=10, skipfooter=10, dtype={})
         ]
         mock_read_excel.assert_has_calls(expected_calls, any_order=True)
 

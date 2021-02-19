@@ -1,4 +1,4 @@
-# Configuration file for the Sphinx documentation builder.
+"""Configuration file for the Sphinx documentation builder."""
 #
 # This file only contains a selection of the most common options. For a full
 # list see the documentation:
@@ -19,7 +19,7 @@ import pkg_resources
 # -- Project information -----------------------------------------------------
 
 project = 'PUDL'
-copyright = '2020, Catalyst Cooperative'
+copyright = '2020, Catalyst Cooperative'  # noqa: A001
 author = 'Catalyst Cooperative'
 
 # The full version, including alpha/beta/rc tags
@@ -51,8 +51,8 @@ intersphinx_mapping = {
     'arrow': ('https://arrow.apache.org/docs/', None),
     'dask': ('https://docs.dask.org/en/latest/', None),
     'geopandas': ('https://geopandas.org/', None),
-    'networkx': ('https://networkx.github.io/documentation/stable/', None),
-    'numpy': ('https://docs.scipy.org/doc/numpy/', None),
+    'networkx': ('https://networkx.org/documentation/stable/', None),
+    'numpy': ('https://numpy.org/doc/stable/', None),
     'pandas': ('https://pandas.pydata.org/pandas-docs/stable', None),
     'pytest': ('https://docs.pytest.org/en/latest/', None),
     'python': ('https://docs.python.org/3', None),
@@ -66,7 +66,7 @@ intersphinx_mapping = {
 # List of packages that should not really be installed, because they are
 # written in C or have C extensions. Instead they should be mocked for import
 # purposes only to prevent the doc build from failing.
-autodoc_mock_imports = ['snappy', 'pyarrow']
+autodoc_mock_imports = ['snappy', 'pyarrow', 'fsspec']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']

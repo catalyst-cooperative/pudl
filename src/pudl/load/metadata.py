@@ -418,13 +418,10 @@ def get_tabular_data_resource(resource_name, datapkg_dir,
         descriptor that complies with the Frictionless Data specification.
 
     """
-    # Only some datasets have meaningful temporal coverage:
-    # temporal_data = ["eia860", "eia923", "ferc1", "eia861", "epacems"]
     # every time we want to generate the cems table, we want it compressed
+    abs_path = pathlib.Path(datapkg_dir, "data", f"{resource_name}.csv")
     if "hourly_emissions_epacems" in resource_name:
-        abs_path = pathlib.Path(datapkg_dir, "data", f"{resource_name}.csv.gz")
-    else:
-        abs_path = pathlib.Path(datapkg_dir, "data", f"{resource_name}.csv")
+        abs_path = pathlib.Path(abs_path.parent, abs_path.name + ".gz")
 
     # pull the skeleton of the descriptor from the megadata file
     descriptor = pull_resource_from_megadata(resource_name)
@@ -545,11 +542,23 @@ def validate_save_datapkg(datapkg_descriptor, datapkg_dir):
         f"using goodtables_pandas...")
     report = goodtables.validate(str(datapkg_json))
     if not report["valid"]:
+        # This will contain human-readable compact error report with up to 5 offending
+        # values per problem.
+        compact_report = {}
         goodtables_errors = ""
         for table in report["tables"]:
             if not table["valid"]:
-                goodtables_errors += str(table["source"])
+                goodtables_errors += str(table["path"])
                 goodtables_errors += str(table["errors"])
+                compact_errors = []
+                for err in table["errors"]:
+                    new_err = err.copy()
+                    # Only retain up to 5 samples of bad values
+                    new_err["values"] = new_err["values"][:5]
+                    compact_errors.append(new_err)
+                compact_report[table["path"]] = compact_errors
+        pretty_report = json.dumps(compact_report, sort_keys=True, indent=4)
+        logger.error(f'{datapkg.descriptor["name"]} failed: {pretty_report}')
         raise ValueError(
             f"Data package data validation failed with goodtables. "
             f"Errors: {goodtables_errors}"
