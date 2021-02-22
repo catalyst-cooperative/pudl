@@ -78,7 +78,7 @@ class DatapackageDescriptor:
         parts = res.get('parts', {})
         return all(str(parts.get(k)) == str(v) for k, v in filters.items())
 
-    def get_resources(self, name: str = None, **filters: Any) -> Iterator[PudlResourceKey]:
+    def get_resource_keys(self, name: str = None, **filters: Any) -> Iterator[PudlResourceKey]:
         """Returns series of PudlResourceKey identifiers for matching resources.
 
         Args:
@@ -336,7 +336,7 @@ class Datastore:
             (PudlResourceKey, io.BytesIO) holding content for each matching resource
         """
         desc = self.get_datapackage_descriptor(dataset)
-        for res in desc.get_resources(**filters):
+        for res in desc.get_resource_keys(**filters):
             if self._cache.contains(res):
                 logger.debug(f"Retrieved {res} from cache.")
                 yield (res, self._cache.get(res))

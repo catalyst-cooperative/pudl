@@ -48,24 +48,24 @@ class TestDatapackageDescriptor(unittest.TestCase):
             self.descriptor.get_resource_path,
             "third-orange")  # this resource does not exist
 
-    def test_get_resources_filtering(self):
-        """Verifies correct operation of get_resources()."""
+    def test_get_resource_keys_filtering(self):
+        """Verifies correct operation of get_resource_keys()."""
         self.assertEqual(
             [PudlResourceKey("epacems", "123", "first-red"),
              PudlResourceKey("epacems", "123", "second-blue")],
-            list(self.descriptor.get_resources()))
+            list(self.descriptor.get_resource_keys()))
         self.assertEqual(
             [PudlResourceKey("epacems", "123", "first-red")],
-            list(self.descriptor.get_resources(color="red")))
+            list(self.descriptor.get_resource_keys(color="red")))
         self.assertEqual(
             [],
-            list(self.descriptor.get_resources(flavor="blueberry")))
+            list(self.descriptor.get_resource_keys(flavor="blueberry")))
 
-    def test_get_resources_by_name(self):
+    def test_get_resource_keys_by_name(self):
         """Verifies that get_resources() work when name is specified."""
         self.assertEqual(
             [PudlResourceKey("epacems", "123", "second-blue")],
-            list(self.descriptor.get_resources(name="second-blue")))
+            list(self.descriptor.get_resource_keys(name="second-blue")))
 
     def test_json_string_representation(self):
         """Checks that json representation parses to the same dict."""
