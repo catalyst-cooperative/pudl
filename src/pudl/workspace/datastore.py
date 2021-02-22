@@ -328,7 +328,7 @@ class Datastore:
         """
         desc = self.get_datapackage_descriptor(dataset)
         for res in desc.get_resources(**filters):
-            if self.is_optimally_cached(res) and skip_optimally_cached:
+            if self._cache.is_optimally_cached(res) and skip_optimally_cached:
                 logger.debug(f'{res} is already optimally cached.')
                 continue
             if self._cache.contains(res):
@@ -471,6 +471,47 @@ def _create_datastore(args: dict) -> Datastore:
         gcs_cache_path=args.populate_gcs_cache)
 
 
+def print_partitions(dstore: Datastore, datasets: List[str]) -> None:
+    """Prints known partition keys and its values for each of the datasets."""
+    for single_ds in datasets:
+        parts = dstore.get_datapackage_descriptor(single_ds).get_partitions()
+
+        print(f'\nPartitions for {single_ds} ({dstore.get_doi(single_ds)}):')
+        for pkey in sorted(parts):
+            print(f'  {pkey}: {", ".join(str(x) for x in sorted(parts[pkey]))}')
+        if not parts:
+            print('  -- no known partitions --')
+
+
+def validate_cache(dstore: Datastore, datasets: List[str], args: argparse.Namespace) -> None:
+    """Validate elements in the datastore cache. Delete invalid entires from cache."""
+    for single_ds in datasets:
+        num_total = 0
+        num_invalid = 0
+        descriptor = dstore.get_datapackage_descriptor(single_ds)
+        for res, content in dstore.get_resources(single_ds, cached_only=True, **args.partition):
+            try:
+                num_total += 1
+                descriptor.validate_checksum(res.name, content)
+            except ChecksumMismatch:
+                num_invalid += 1
+                logger.warning(
+                    f"Resource {res} has invalid checksum. Removing from cache.")
+                dstore.remove_from_cache(res)
+        logger.info(
+            f'Checked {num_total} resources for {single_ds}. Removed {num_invalid}.')
+
+
+def fetch_resources(dstore: Datastore, datasets: List[str], args: argparse.Namespace) -> None:
+    """Retrieve all matching resources and store them in the cache."""
+    for single_ds in datasets:
+        for res, _ in dstore.get_resources(
+                single_ds,
+                skip_optimally_cached=True,
+                **args.partition):
+            logger.info(f"Retrieved {res}.")
+
+
 def main():
     """Cache datasets."""
     args = parse_command_line()
@@ -483,39 +524,20 @@ def main():
 
     dstore = _create_datastore(args)
 
-    datasets = []
     if args.dataset:
-        datasets.append(args.dataset)
+        datasets = [args.dataset]
     else:
         datasets = dstore.get_known_datasets()
 
     if args.partition:
         logger.info(f"Only retrieving resources for partition: {args.partition}")
 
-    for single_ds in datasets:
-        if args.list_partitions:
-            parts = dstore.get_datapackage_descriptor(single_ds).get_partitions()
-            print(f'\nPartitions for {single_ds}:')
-            for pkey in sorted(parts):
-                print(f'  {pkey}: {", ".join(str(x) for x in sorted(parts[pkey]))}')
-            if not parts:
-                print(f'  -- no known partitions --')
-
-        elif args.validate:
-            descriptor = dstore.get_datapackage_descriptor(single_ds)
-            for res, content in dstore.get_resources(single_ds, cached_only=True, **args.partition):
-                try:
-                    descriptor.validate_checksum(res.name, content)
-                except ChecksumMismatch:
-                    logger.warning(
-                        f"Resource {res} has invalid checksum. Removing from cache.")
-                    dstore.remove_from_cache(res)
-        else:
-            for res, _ in dstore.get_resources(
-                    single_ds,
-                    skip_optimally_cached=True,
-                    **args.partition):
-                logger.info(f"Retrieved {res}.")
+    if args.list_partitions:
+        print_partitions(dstore, datasets)
+    elif args.validate:
+        validate_cache(dstore, datasets, args)
+    else:
+        fetch_resources(dstore, datasets, args)
 
 
 if __name__ == "__main__":
