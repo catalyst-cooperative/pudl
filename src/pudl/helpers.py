@@ -47,8 +47,12 @@ def get_fs(url) -> fsspec.AbstractFileSystem:
 
 
 def fsspec_exists(path, **kwargs):
-    """Calls exists() on the FilesystemSpec associated with path."""
-    return get_fs(path).exists(path, **kwargs)
+    """Tests for file existence by attempting to open it in read mode."""
+    try:
+        with fsspec.open(path, "rb"):
+            return True
+    except FileNotFoundError:
+        return False
 
 
 def download_zip_url(url, save_path, chunk_size=128):
