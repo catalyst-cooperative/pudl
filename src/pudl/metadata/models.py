@@ -95,7 +95,7 @@ Positive :class:`float`.
 """
 
 
-def StrictList(item_type: Type = Any) -> pydantic.ConstrainedList:
+def StrictList(item_type: Type = Any) -> pydantic.ConstrainedList:  # noqa: N802
     """
     Non-empty :class:`list`.
 
@@ -206,13 +206,13 @@ class Field(BaseModel):
 
     @pydantic.validator("type")
     # NOTE: Could be replaced with `type: Literal[...]`
-    def _check_type_supported(cls, value):
+    def _check_type_supported(cls, value):  # noqa: N805
         if value not in FIELD_DTYPES:
             raise ValueError(f"must be one of {list(FIELD_DTYPES.keys())}")
         return value
 
     @pydantic.validator("constraints")
-    def _check_enum_type(cls, value, values):
+    def _check_enum_type(cls, value, values):  # noqa: N805
         if value.enum:
             if values["type"] != "string":
                 raise ValueError("Non-string enum type is not supported")
@@ -280,7 +280,7 @@ class ForeignKey(BaseModel):
     _check_unique = _validator("fields_", fn=_check_unique)
 
     @pydantic.validator("reference")
-    def _check_fields_equal_length(cls, value, values):
+    def _check_fields_equal_length(cls, value, values):  # noqa: N805
         if len(value.fields) != len(values["fields_"]):
             raise ValueError("fields and reference.fields are not equal length")
         return value
@@ -310,7 +310,7 @@ class Schema(BaseModel):
     )
 
     @pydantic.validator("fields_")
-    def _check_field_names_unique(cls, value):
+    def _check_field_names_unique(cls, value):  # noqa: N805
         _check_unique([f.name for f in value])
         return value
 
@@ -324,7 +324,7 @@ class Schema(BaseModel):
         return value
 
     @pydantic.validator("foreignKeys", each_item=True)
-    def _check_foreign_key_in_fields(cls, value, values):
+    def _check_foreign_key_in_fields(cls, value, values):  # noqa: N805
         names = [f.name for f in values['fields_']]
         missing = [x for x in value.fields if x not in names]
         if missing:
@@ -561,7 +561,7 @@ class Resource(BaseModel):
     )
 
     @pydantic.validator("schema_")
-    def _check_field_basenames_unique(cls, value):
+    def _check_field_basenames_unique(cls, value):  # noqa: N805
         if has_duplicate_basenames([f.name for f in value.fields]):
             raise ValueError("Field names contain duplicate basenames")
         return value
@@ -887,5 +887,5 @@ class Package(BaseModel):
     _stringify = _validator("id", "homepage", fn=_stringify)
 
     @pydantic.validator("created")
-    def _stringify_datetime(cls, value):
+    def _stringify_datetime(cls, value):  # noqa: N805
         return value.strftime(format="%Y-%m-%dT%H:%M:%SZ")
