@@ -5,7 +5,7 @@ channels:
   - intake
 dependencies:
   - pip~=21.0
-  - python~=3.8
+  - python>=3.8,<3.9
   - setuptools_scm~=5.0
 
   # install_requires
@@ -81,8 +81,7 @@ dependencies:
   - pygeos~=0.8.0
   - pysal~=2.1
   - python-graphviz~=0.16.0
+  - recordlinkage~=0.14.0
 
   - pip:
     - flake8-use-fstring~=1.0     # development
-    - recordlinkage~=0.14.0       # user environment
-    - fredapi~=0.4.3              # user environment
