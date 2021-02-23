@@ -26,6 +26,8 @@ dependencies:
   - pandas~=1.2
   - prefect~=0.14.2
   - pyarrow~=3.0
+  - pydantic~=1.7
+  - email-validator>=1.0.3  # pydantic[email] dependency
   - pyyaml~=5.0
   - python-snappy~=0.6.0
   - scikit-learn~=0.24

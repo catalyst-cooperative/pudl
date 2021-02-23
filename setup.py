@@ -23,6 +23,7 @@ install_requires = [
     "pandas~=1.2",
     "prefect[viz, gcp]~=0.14.2",
     "pyarrow~=3.0",
+    "pydantic[email]~=1.7",
     "pyyaml~=5.0",
     "scikit-learn~=0.24",
     "scipy~=1.6",
