@@ -6,7 +6,7 @@ channels:
 dependencies:
   - pip~=21.0
   - python~=3.8
-  - setuptools_scm~=5.0.1
+  - setuptools_scm~=5.0
 
   # install_requires
   - addfips~=0.3.0
@@ -79,7 +79,7 @@ dependencies:
   - jupyterlab~=3.0
   - nodejs~=12.19
   - pygeos~=0.8.0
-  - pysal~=2.1.0
+  - pysal~=2.1
   - python-graphviz~=0.16.0
 
   - pip:
