@@ -6,6 +6,8 @@ from typing import (Any, Callable, Dict, Iterable, List, Literal, Optional,
 import numpy as np
 import pandas as pd
 
+from .constants import PERIODS
+
 # --- Foreign keys --- #
 
 
@@ -185,17 +187,6 @@ def build_foreign_keys(
 
 
 # --- Harvest --- #
-
-
-PERIODS: Dict[str, Callable[[pd.Series], pd.Series]] = {
-    "year": lambda x: x.astype("datetime64[Y]"),
-    "quarter": lambda x: x.apply(
-        pd.tseries.offsets.QuarterBegin(startingMonth=1).rollback
-    ),
-    "month": lambda x: x.astype("datetime64[M]"),
-    "day": lambda x: x.astype("datetime64[D]"),
-}
-"""Functions converting timestamps to the start of the desired period."""
 
 
 def split_period(name: str) -> Tuple[str, Optional[str]]:

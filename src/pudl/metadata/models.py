@@ -11,9 +11,9 @@ import sqlalchemy as sa
 
 from .constants import (CONTRIBUTORS, CONTRIBUTORS_BY_SOURCE, FIELD_DTYPES,
                         FIELD_DTYPES_SQL, KEYWORDS_BY_SOURCE, LICENSES,
-                        SOURCES)
+                        PERIODS, SOURCES)
 from .fields import FIELDS
-from .helpers import (PERIODS, expand_periodic_column_names, groupby_aggregate,
+from .helpers import (expand_periodic_column_names, groupby_aggregate,
                       has_duplicate_basenames, most_and_more_frequent,
                       split_period)
 from .resources import FOREIGN_KEYS, RESOURCES

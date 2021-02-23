@@ -1,6 +1,7 @@
 """Metadata and operational constants."""
-from typing import Dict, List
+from typing import Callable, Dict, List
 
+import pandas as pd
 import sqlalchemy as sa
 
 FIELD_DTYPES: Dict[str, str] = {
@@ -322,4 +323,16 @@ KEYWORDS_BY_SOURCE: Dict[str, List[str]] = {
 }
 """
 Keywords by source (PUDL identifier).
+"""
+
+PERIODS: Dict[str, Callable[[pd.Series], pd.Series]] = {
+    "year": lambda x: x.astype("datetime64[Y]"),
+    "quarter": lambda x: x.apply(
+        pd.tseries.offsets.QuarterBegin(startingMonth=1).rollback
+    ),
+    "month": lambda x: x.astype("datetime64[M]"),
+    "day": lambda x: x.astype("datetime64[D]"),
+}
+"""
+Functions converting datetimes to period start times, by time period.
 """
