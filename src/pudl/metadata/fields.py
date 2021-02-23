@@ -1,6 +1,7 @@
 """Field metadata."""
 from typing import Any, Dict, List
 
+from .constants import SOURCES
 from .labels import ENTITY_TYPES, ESTIMATED_OR_ACTUAL, MOMENTARY_INTERRUPTIONS
 
 NERC_REGIONS: List[str] = [
@@ -362,7 +363,7 @@ FIELDS: Dict[str, Dict[str, Any]] = {
         "type": "string",
         "description": "Code identifying a dataset available within PUDL.",
         "constraints": {
-            "enum": ["epaipm", "eia923", "ferc1", "epacems", "eia860"]
+            "enum": list(SOURCES)
         }
     },
     "day_of_year": {
