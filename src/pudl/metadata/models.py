@@ -568,7 +568,22 @@ class Resource(BaseModel):
 
     @classmethod
     def from_id(cls, x: str) -> "Resource":
-        """Construct from PUDL identifier (`resource.name`)."""
+        """
+        Construct from PUDL identifier (`resource.name`).
+
+        * `schema.fields`
+            * Field names are expanded (:meth:`Field.from_id`).
+            * Field descriptors are expanded by name
+              (e.g. `{'name': 'x', ...}` to `Field.from_id('x')`)
+              and updated with custom properties (e.g. `{..., 'description': '...'}`).
+        * `sources`
+            * Source ids are expanded (:meth:`Source.from_id`).
+            * Source descriptors are used as is.
+        * `contributors`: Contributor ids are fetched by source ids,
+          then expanded (:meth:`Contributor.from_id`).
+        * `keywords`: Keywords are fetched by source ids.
+        * `schema.foreignKeys`: Foreign keys are fetched by resource name.
+        """
         obj = copy.deepcopy(RESOURCES[x])
         schema = obj["schema"]
         # Expand fields
