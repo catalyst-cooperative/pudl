@@ -61,11 +61,12 @@ def datapkg_to_sqlite(sqlite_url, out_path, clobber=False, fkeys=False):
     # https://docs.sqlalchemy.org/en/13/core/event.html
     # https://docs.sqlalchemy.org/en/13/dialects/sqlite.html#foreign-key-support
     if fkeys:
+        logger.info("Enforcing foreign key constraints in SQLite3")
+
         @sa.event.listens_for(sa.engine.Engine, "connect")
         def _set_sqlite_pragma(dbapi_connection, connection_record):
             from sqlite3 import Connection as SQLite3Connection
             if isinstance(dbapi_connection, SQLite3Connection):
-                logger.warning("Enforcing foreign key constraints in SQLite3")
                 cursor = dbapi_connection.cursor()
                 cursor.execute("PRAGMA foreign_keys=ON;")
                 cursor.close()
