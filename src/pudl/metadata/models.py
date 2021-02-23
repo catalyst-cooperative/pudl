@@ -2,13 +2,16 @@
 import copy
 import datetime
 import uuid
-from typing import Any, Callable, List, Literal, Optional, Tuple, Type, Union
+from typing import (Any, Callable, Dict, Iterable, List, Literal, Optional,
+                    Tuple, Type, Union)
 
 import pandas as pd
 import pydantic
 import sqlalchemy as sa
 
-from ..transform.harvest import most_and_more_frequent
+from ..transform.harvest import (PERIODS, expand_periodic_column_names,
+                                 groupby_aggregate, has_duplicate_basenames,
+                                 most_and_more_frequent, split_period)
 from .constants import (CONTRIBUTORS, CONTRIBUTORS_BY_SOURCE, FIELD_DTYPES,
                         FIELD_DTYPES_SQL, KEYWORDS_BY_SOURCE, LICENSES,
                         SOURCES)
@@ -106,29 +109,45 @@ def StrictList(item_type: Type = Any) -> pydantic.ConstrainedList:
 
 
 def _check_unique(value: list = None) -> Optional[list]:
-    if value is None:
-        return value
-    unique = []
-    for v in value:
-        if isinstance(v, BaseModel):
-            v = v.dict()
-        if v in unique:
-            raise ValueError(f"contains duplicate {v}")
-        unique.append(v)
+    """Check that input list has unique values."""
+    if value:
+        for i in range(len(value)):
+            if value[i] in value[:i]:
+                raise ValueError(f"contains duplicate {value[i]}")
     return value
 
 
 def _stringify(value: Any = None) -> Optional[str]:
-    if value is None:
-        return value
-    return str(value)
+    """Convert input to string."""
+    if value:
+        return str(value)
+    return value
 
 
 def _validator(*fields, fn: Callable) -> Callable:
+    """
+    Construct reusable Pydantic validator.
+
+    Args:
+        fields: Field names to validate.
+        fn: Validation function (see :meth:`pydantic.validator`).
+
+    Examples:
+        >>> class Model(BaseModel):
+        ...     x: int = None
+        ...     y: list = None
+        ...     _stringify = _validator("x", fn=_stringify)
+        ...     _check_unique = _validator("y", fn=_check_unique)
+        >>> Model(x=1).x
+        '1'
+        >>> Model(y=[0, 0])
+        Traceback (most recent call last):
+        ValidationError: ...
+    """
     return pydantic.validator(*fields, allow_reuse=True)(fn)
 
 
-# ---- Models ---- #
+# ---- Models: Field ---- #
 
 
 class FieldConstraints(BaseModel):
@@ -442,6 +461,12 @@ class Resource(BaseModel):
         "contributors", "keywords", "licenses", "sources", fn=_check_unique
     )
 
+    @pydantic.validator("schema_")
+    def _check_field_basenames_unique(cls, value):
+        if has_duplicate_basenames([f.name for f in value.fields]):
+            raise ValueError("Field names contain duplicate basenames")
+        return value
+
     @classmethod
     def from_id(cls, x: str) -> "Resource":
         """Construct from PUDL identifier (`resource.name`)."""
@@ -499,6 +524,245 @@ class Resource(BaseModel):
             constraints.append(key.to_sql())
         return sa.Table(self.name, metadata, *columns, *constraints)
 
+    @property
+    def dtypes(self) -> Dict[str, Union[str, pd.CategoricalDtype]]:
+        """Pandas data type of each field by field name."""
+        return {f.name: f.dtype for f in self.schema.fields}
+
+    def to_empty_df(self) -> pd.DataFrame:
+        """Empty dataframe with correct field names and data types."""
+        series = {name: pd.Series(dtype=dtype) for name, dtype in self.dtypes.items()}
+        return pd.DataFrame(series)
+
+    def match_primary_key(self, names: Iterable[str]) -> Optional[Dict[str, str]]:
+        """
+        Match primary key fields to input field names.
+
+        An exact match is required,
+        except for periodic names which also match a basename with a smaller period.
+
+        Args:
+            names: Field names.
+
+        Raises:
+            ValueError: Field names contain duplicate basenames.
+
+        Returns:
+            The name in `names` matching each primary key field (dict),
+            or `None` if not all primary key fields have a match.
+        """
+        if has_duplicate_basenames(names):
+            raise ValueError("Field names contain duplicate basenames")
+        key = self.schema.primaryKey or []
+        match = {}
+        for k in key:
+            for name in expand_periodic_column_names([k]):
+                if name in names:
+                    match[name] = k
+                    break
+        return match if len(match) == len(key) else None
+
+    def harvest_df(self, df: pd.DataFrame) -> pd.DataFrame:
+        """
+        Harvest from a dataframe.
+
+        Args:
+            df: Dataframe to harvest.
+
+        Raises:
+            NotImplementedError: A primary key is required for harvesting.
+
+        Returns:
+            Dataframe with column names and data types matching the resource fields.
+            Periodic primary key fields are snapped to the start of the desired period.
+            If the primary key fields could not be matched to columns in `df`
+            (:meth:`match_primary_key`), an empty dataframe is returned
+            (:meth:`to_empty_df`).
+        """
+        # TODO: Check whether and when this is still true
+        if not self.schema.primaryKey:
+            raise NotImplementedError("A primary key is required for harvesting")
+        match = self.match_primary_key(df.columns)
+        if match is None:
+            return self.to_empty_df()
+        dtypes = self.dtypes
+        df = (
+            df.copy()
+            # Rename periodic key columns to the requested period
+            .rename(columns=match, copy=False)
+            # Reorder columns and insert missing columns
+            .reindex(columns=dtypes.keys(), copy=False)
+            # Coerce columns to correct data type
+            .astype(dtypes, copy=False)
+        )
+        # Convert periodic key columns to the requested period
+        for df_key, key in match:
+            _, period = split_period(key)
+            if period and df_key != key:
+                df[key] = PERIODS[period](df[key])
+        return df
+
+    def aggregate_df(
+        self, df: pd.DataFrame, raise_errors: bool = True, errorfunc: Callable = None
+    ) -> Tuple[pd.DataFrame, dict]:
+        """
+        Aggregate dataframe by primary key.
+
+        The dataframe is grouped by primary key fields
+        and aggregated with the aggregate function of each field
+        (:attr:`schema`.`fields[*].harvest.aggregate`).
+
+        Args:
+            df: Dataframe to aggregate. It is assumed to have column names and
+              data types matching the resource fields.
+            raise_errors: Whether to stop at the first aggregation error.
+            errorfunc: A function with signature `f(x, e) -> Any`,
+                where `x` are the original field values as a :class:`pd.Series`
+                and `e` is the original error.
+                If provided, the returned value is reported instead of `e`.
+
+        Raises:
+            NotImplementedError: A primary key is required for aggregating.
+
+        Returns:
+            The aggregated dataframe indexed by primary key fields,
+            and an aggregation report (see :meth:`_build_aggregation_report`)
+            that includes all aggregation errors and whether the result
+            meets the resource's and fields' tolerance.
+        """
+        if not self.schema.primaryKey:
+            raise NotImplementedError("A primary key is required for aggregating")
+        aggfuncs = {
+            f.name: f.harvest.aggregate
+            for f in self.schema.fields
+            if f.name not in self.schema.primaryKey
+        }
+        df, report = groupby_aggregate(
+            df,
+            by=self.schema.primaryKey,
+            aggfuncs=aggfuncs,
+            errors="raise" if raise_errors else "report",
+            errorfunc=errorfunc,
+        )
+        report = self._build_aggregation_report(df, report)
+        return df, report
+
+    def _build_aggregation_report(self, df: pd.DataFrame, errors: dict) -> dict:
+        """
+        Build report from aggregation errors.
+
+        The report is formatted as follows:
+
+        * `valid` (bool): Whether resouce is valid.
+        * `stats` (dict): Error statistics for resource fields.
+        * `fields` (dict):
+            * `<field_name>` (str)
+                * `valid` (bool): Whether field is valid.
+                * `stats` (dict): Error statistics for field groups.
+                * `errors` (:class:`pd.Series`): Error values indexed by primary key.
+
+        where each `stats` contains the following:
+
+        * `stats` (dict):
+            * `all` (int): Number of entities (field or field group).
+            * `invalid` (int): Invalid number of entities.
+            * `tolerance` (float): Fraction of invalid entities below which
+              parent entity is considered valid.
+            * `actual` (float): Actual fraction of invalid entities.
+
+        Args:
+            df: Harvested dataframe (see :meth:`harvest_dfs`).
+            errors: Aggregation errors (see :func:`groupby_aggregate`).
+
+        Returns:
+            Aggregation report, as described above.
+        """
+        nrows, ncols = df.shape
+        freports = {}
+        for field in self.schema.fields:
+            if field.name in errors:
+                nerrors = errors[field.name].size
+            else:
+                nerrors = 0
+            stats = {
+                "all": nrows,
+                "invalid": nerrors,
+                "tolerance": field.tolerance,
+                "actual": nerrors / nrows,
+            }
+            freports[field.name] = {
+                "valid": stats["actual"] < stats["tolerance"],
+                "stats": stats,
+                "errors": errors[field.name],
+            }
+        nerrors = sum([not f["valid"] for f in freports.values()])
+        stats = {
+            "all": ncols,
+            "invalid": nerrors,
+            "tolerance": self.harvest.tolerance,
+            "actual": nerrors / ncols,
+        }
+        return {
+            "valid": stats["actual"] < stats["tolerance"],
+            "stats": stats,
+            "fields": freports,
+        }
+
+    def harvest_dfs(
+        self, dfs: Dict[str, pd.DataFrame], aggregate: bool = None, **kwargs: Any
+    ) -> Tuple[pd.DataFrame, dict]:
+        """
+        Harvest from named dataframes.
+
+        For standard resources (:attr:`harvest`.`harvest=False`),
+        the columns matching all primary key fields and any data fields
+        are extracted from the input dataframe of the same name.
+
+        For harvested resources (:attr:`harvest`.`harvest=True`),
+        the columns matching all primary key fields and any data fields
+        are extracted from each compatible input dataframe,
+        and concatenated into a single dataframe.
+
+        In either case, periodic key fields (e.g. 'report_month') are matched to any
+        column of the same name with an equal or smaller period (e.g. 'report_day')
+        and snapped to the start of the desired period.
+
+        If `aggregate=False`, rows are indexed by the name of the input dataframe.
+        If `aggregate=True`, rows are indexed by primary key fields.
+
+        Args:
+            dfs: Dataframes to harvest.
+            aggregate: Whether to aggregate the harvested rows by their primary key.
+              By default, this is `True` if `self.harvest.harvest=True`
+              and `False` otherwise.
+            kwargs: Optional arguments to :meth:`aggregate_df`.
+
+        Returns:
+            A dataframe harvested from the dataframes,
+            with column names and data types matching the resource fields,
+            alongside an aggregation report.
+        """
+        if aggregate is None:
+            aggregate = self.harvest.harvest
+        df = self.to_empty_df()
+        if self.harvest.harvest:
+            # Harvest resource from all inputs where all primary key fields are present
+            samples = {}
+            for name, df in dfs.items():
+                samples[name] = self.harvest_df(df)
+                # Pass input names to aggregate via the index
+                index = pd.Index([name] * len(samples[name]))
+                samples[name].set_index(index, name="df", inplace=True)
+            df = pd.concat(samples.values())
+        elif self.name in dfs:
+            # Subset resource from input of same name
+            df = self.harvest_df(dfs[self.name])
+            # Pass input names to aggregate via the index
+            index = pd.Index([self.name] * df.shape[0])
+            df.set_index(index, name="df", inplace=True)
+        if aggregate:
+            return self.aggregate_df(df, **kwargs)
+        return df, {}
 
 # ---- Package ---- #
 
@@ -510,17 +774,21 @@ class Package(BaseModel):
     See https://specs.frictionlessdata.io/data-package.
     """
 
-    name: str
+    name: String
     id: pydantic.UUID4 = uuid.uuid4()  # noqa: A003
     profile: Literal["tabular-data-package"] = "tabular-data-package"
-    title: str
-    description: str
-    keywords: List[str] = []
+    title: String = None
+    description: String = None
+    keywords: List[String] = []
     homepage: pydantic.HttpUrl = "https://catalyst.coop/pudl"
     created: datetime.datetime = datetime.datetime.utcnow()
     contributors: List[Contributor] = []
     sources: List[Source] = []
     licenses: List[License] = []
-    resources: List[Resource]
+    resources: StrictList(Resource)
 
     _stringify = _validator("id", "homepage", fn=_stringify)
+
+    @pydantic.validator("created")
+    def _stringify_datetime(cls, value):
+        return value.strftime(format="%Y-%m-%dT%H:%M:%SZ")
