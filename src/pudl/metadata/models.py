@@ -9,13 +9,13 @@ import pandas as pd
 import pydantic
 import sqlalchemy as sa
 
-from ..transform.harvest import (PERIODS, expand_periodic_column_names,
-                                 groupby_aggregate, has_duplicate_basenames,
-                                 most_and_more_frequent, split_period)
 from .constants import (CONTRIBUTORS, CONTRIBUTORS_BY_SOURCE, FIELD_DTYPES,
                         FIELD_DTYPES_SQL, KEYWORDS_BY_SOURCE, LICENSES,
                         SOURCES)
 from .fields import FIELDS
+from .helpers import (PERIODS, expand_periodic_column_names, groupby_aggregate,
+                      has_duplicate_basenames, most_and_more_frequent,
+                      split_period)
 from .resources import FOREIGN_KEYS, RESOURCES
 
 # ---- Base ---- #
@@ -142,6 +142,7 @@ def _validator(*fields, fn: Callable) -> Callable:
         '1'
         >>> Model(y=[0, 0])
         Traceback (most recent call last):
+          ...
         ValidationError: ...
     """
     return pydantic.validator(*fields, allow_reuse=True)(fn)
