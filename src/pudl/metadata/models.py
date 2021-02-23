@@ -376,8 +376,9 @@ class Source(BaseModel):
 
     title: String
     path: pydantic.AnyHttpUrl
+    email: pydantic.EmailStr = None
 
-    _stringify = _validator("path", fn=_stringify)
+    _stringify = _validator("path", "email", fn=_stringify)
 
     @classmethod
     def from_id(cls, x: str) -> "Source":
