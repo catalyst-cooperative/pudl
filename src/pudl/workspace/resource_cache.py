@@ -4,9 +4,10 @@ import logging
 import os
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Any, List, NamedTuple
+from typing import Any, List, NamedTuple, Optional
 
-import fsspec
+import gcsfs
+from fsspec.implementations.local import LocalFileSystem
 
 from pudl.helpers import fsspec_exists, get_fs
 
@@ -65,24 +66,29 @@ class AbstractCache(ABC):
 class FSSpecCache(AbstractCache):
     """Implements fsspec-based cache that stores datastore resources under cache_root_dir."""
 
-    def __init__(self, cache_root_dir: str, **kwargs: Any):
+    def __init__(self, cache_root_dir: str, gcs_requester_pays: Optional[str] = None, **kwargs: Any):
         """Create instance of FSSpecCache storing resources under cache_root_dir."""
         super().__init__(**kwargs)
         self.cache_root_dir = cache_root_dir
+        self.fs = get_fs(cache_root_dir)
+        if gcs_requester_pays and isinstance(self.fs, gcsfs.GCSFileSystem):
+            self.fs.requester_pays = gcs_requester_pays
+        if isinstance(self.fs, LocalFileSystem):
+            self.fs.auto_mkdir = True
 
     def _resource_path(self, resource: PudlResourceKey) -> str:
         return os.path.join(self.cache_root_dir, resource.get_local_path())
 
     def get(self, resource: PudlResourceKey) -> bytes:
         """Retrieves content of given resource or throws KeyError."""
-        with fsspec.open(self._resource_path(resource), "rb") as fd:
+        with self.fs.open(self._resource_path(resource), "rb") as fd:
             return fd.read()
 
     def add(self, resource: PudlResourceKey, content: bytes) -> None:
         """Adds resource to the cache and sets the content."""
         if self.is_read_only():
             return
-        with fsspec.open(self._resource_path(resource), "wb") as fd:
+        with self.fs.open(self._resource_path(resource), "wb") as fd:
             fd.write(content)
 
     def delete(self, resource: PudlResourceKey) -> None:

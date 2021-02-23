@@ -240,6 +240,7 @@ class Datastore:
         local_cache_path: Optional[str] = None,
         remote_cache_path: Optional[str] = None,
         remote_cache_readonly: bool = False,
+        remote_cache_requester_pays: Optional[str] = None,
         sandbox: bool = False,
         timeout: float = 15
     ):
@@ -273,7 +274,8 @@ class Datastore:
             self._cache.add_cache_layer(
                 resource_cache.FSSpecCache(
                     remote_cache_path,
-                    read_only=remote_cache_readonly))
+                    read_only=remote_cache_readonly,
+                    gcs_requester_pays=remote_cache_requester_pays))
 
         self._zenodo_fetcher = ZenodoFetcher(
             sandbox=sandbox,
@@ -301,7 +303,8 @@ class Datastore:
             sandbox=prefect.context.pudl_settings.get("sandbox", False),
             local_cache_path=local_cache_path,
             remote_cache_path=commandline_args.zenodo_cache_path,
-            remote_cache_readonly=True)
+            remote_cache_readonly=True,
+            remote_cache_requester_pays=commandline_args.gcs_requester_pays)
 
     def get_known_datasets(self) -> List[str]:
         """Returns list of supported datasets."""

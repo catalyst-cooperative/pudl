@@ -135,6 +135,11 @@ def command_line_flags() -> argparse.ArgumentParser:
         default=False,
         action="store_true",
         help="""If enabled, run validation via tox from the current directory.""")
+    parser.add_argument(
+        "--gcs-requester-pays",
+        type=str,
+        help="If specified, use this project name to charge the GCS operations to.""")
+
     return parser
 
 
