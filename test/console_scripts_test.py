@@ -18,4 +18,3 @@ def test_pudl_setup(script_runner, script_name):
     """Run each console script in --help mode for testing."""
     ret = script_runner.run(script_name, '--help', print_result=False)
     assert ret.success
-    assert ret.stderr == ''
