@@ -12,6 +12,8 @@ install_requires = [
     "coloredlogs~=15.0",
     "contextily~=1.0",
     "datapackage~=1.11",
+    "fsspec~=0.8.5",
+    "gcsfs~=0.7.1",
     "geopandas~=0.8.1",
     "goodtables-pandas-py~=0.2.0",
     "google-cloud-storage~=1.35.0",
@@ -38,7 +40,7 @@ install_requires = [
 # from the installed dependencies here, and mock it for import in docs/conf.py
 # using the autodoc_mock_imports parameter:
 if not os.getenv("READTHEDOCS"):
-    install_requires.append("python-snappy~=0.5.4")
+    install_requires.append("python-snappy~=0.6.0")
 
 doc_requires = [
     "doc8~=0.8.0",
@@ -94,7 +96,7 @@ setup(
         "electricity", "energy", "data", "analysis", "mcoe", "climate change",
         "finance", "eia 923", "eia 860", "ferc", "form 1", "epa ampd",
         "epa cems", "coal", "natural gas", "eia 861", "ferc 714"],
-    python_requires=">=3.8",
+    python_requires=">=3.8,<3.9",
     setup_requires=["setuptools_scm"],
     install_requires=install_requires,
     extras_require={
