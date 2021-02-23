@@ -170,7 +170,7 @@ class FieldHarvest(BaseModel):
     Field harvest parameters (`resource.schema.fields[...].harvest`).
 
     * `aggregate`: Computes a single value from all field values in a group.
-    * `tolerance`: Fraction of invalid groups below which result is valid.
+    * `tolerance`: Fraction of invalid groups above which result is considered invalid.
     """
 
     # NOTE: Callables with defaults must use pydantic.Field() to not bind to self
@@ -415,7 +415,7 @@ class ResourceHarvest(BaseModel):
     * `harvest`: Whether to harvest from dataframes based on field names.
       If `False`, the dataframe with the same name is used and
       the process is limited to dropping unwanted fields.
-    * `tolerance`: Fraction of invalid fields below which the result is valid.
+    * `tolerance`: Fraction of invalid fields above which result is considerd invalid.
     """
 
     harvest: Bool = False
@@ -429,6 +429,8 @@ class Resource(BaseModel):
     See https://specs.frictionlessdata.io/tabular-data-resource.
 
     Examples:
+        A simple example illustrates the conversion to SQLAlchemy objects.
+
         >>> fields = [{'name': 'x', 'type': 'year'}, {'name': 'y', 'type': 'string'}]
         >>> fkeys = [{'fields': ['x', 'y'], 'reference': {'resource': 'b', 'fields': ['x', 'y']}}]
         >>> schema = {'fields': fields, 'primaryKey': ['x'], 'foreignKeys': fkeys}
@@ -438,6 +440,102 @@ class Resource(BaseModel):
         Column('x', Integer(), ForeignKey('b.x'), table=<a>, primary_key=True, nullable=False)
         >>> table.columns.y
         Column('y', Text(), ForeignKey('b.y'), table=<a>)
+
+        To illustrate harvesting operations,
+        say we have a resource with two fields - a primary key (`id`) and a data field -
+        which we want to harvest from two different dataframes.
+
+        >>> from pudl.metadata.helpers import unique, as_dict
+        >>> fields = [
+        ...     {'name': 'id', 'type': 'integer'},
+        ...     {'name': 'x', 'type': 'integer', 'harvest': {'aggregate': unique, 'tolerance': 0.25}}
+        ... ]
+        >>> resource = Resource(**{
+        ...     'name': 'A',
+        ...     'harvest': {'harvest': True},
+        ...     'schema': {'fields': fields, 'primaryKey': ['id']}
+        ... })
+        >>> dfs = {
+        ...     'A': pd.DataFrame({'id': [1, 1, 2, 2], 'x': [1, 1, 2, 2]}),
+        ...     'B': pd.DataFrame({'id': [2, 3, 3], 'x': [3, 4, 4]})
+        ... }
+
+        Skip aggregation to access all the rows concatenated from the input dataframes.
+        The names of the input dataframes are used as the index.
+
+        >>> df, _ = resource.harvest_dfs(dfs, aggregate=False)
+        >>> df
+            id  x
+        df
+        A    1  1
+        A    1  1
+        A    2  2
+        A    2  2
+        B    2  3
+        B    3  4
+        B    3  4
+
+        Field names and data types are enforced.
+
+        >>> resource.dtypes == df.dtypes.apply(str).to_dict()
+        True
+
+        Alternatively, aggregate by primary key
+        (the default when :attr:`harvest`.`harvest=True`)
+        and report aggregation errors.
+
+        >>> df, report = resource.harvest_dfs(dfs)
+        >>> df
+               x
+        id
+        1      1
+        2   <NA>
+        3      4
+        >>> report['stats']
+        {'all': 2, 'invalid': 1, 'tolerance': 0.0, 'actual': 0.5}
+        >>> report['fields']['x']['stats']
+        {'all': 3, 'invalid': 1, 'tolerance': 0.25, 'actual': 0.33...}
+        >>> report['fields']['x']['errors']
+        id
+        2    Not unique.
+        Name: x, dtype: object
+
+        Customize the error values in the error report.
+
+        >>> errorfunc = lambda x, e: as_dict(x)
+        >>> df, report = resource.harvest_dfs(dfs, errorfunc=errorfunc, raise_errors=False)
+        >>> report['fields']['x']['errors']
+        id
+        2    {'A': [2, 2], 'B': [3]}
+        Name: x, dtype: object
+
+        Limit harvesting to the input dataframe of the same name
+        by setting :attr:`harvest`.`harvest=False`.
+
+        >>> resource.harvest.harvest = False
+        >>> df, _ = resource.harvest_dfs(dfs, raise_errors=False)
+        >>> df
+            id  x
+        df
+        A    1  1
+        A    1  1
+        A    2  2
+        A    2  2
+
+        Harvesting can also handle conversion to longer time periods.
+        Period harvesting requires primary key fields with a `datetime` data type,
+        so `year` fields (with `Int64` data type) are not currently supported.
+
+        >>> fields = [{'name': 'report_year', 'type': 'date'}]
+        >>> resource = Resource(**{
+        ...     'name': 'table',
+        ...     'schema': {'fields': fields, 'primaryKey': ['report_year']}
+        ... })
+        >>> df = pd.DataFrame({'report_date': ['2000-02-02', '2000-03-03']})
+        >>> resource.harvest_df(df)
+          report_year
+        0  2000-01-01
+        1  2000-01-01
     """
 
     name: String
@@ -596,14 +694,14 @@ class Resource(BaseModel):
             .astype(dtypes, copy=False)
         )
         # Convert periodic key columns to the requested period
-        for df_key, key in match:
+        for df_key, key in match.items():
             _, period = split_period(key)
             if period and df_key != key:
                 df[key] = PERIODS[period](df[key])
         return df
 
     def aggregate_df(
-        self, df: pd.DataFrame, raise_errors: bool = True, errorfunc: Callable = None
+        self, df: pd.DataFrame, raise_errors: bool = False, errorfunc: Callable = None
     ) -> Tuple[pd.DataFrame, dict]:
         """
         Aggregate dataframe by primary key.
@@ -677,7 +775,7 @@ class Resource(BaseModel):
         Returns:
             Aggregation report, as described above.
         """
-        nrows, ncols = df.shape
+        nrows, ncols = df.reset_index().shape
         freports = {}
         for field in self.schema.fields:
             if field.name in errors:
@@ -687,13 +785,13 @@ class Resource(BaseModel):
             stats = {
                 "all": nrows,
                 "invalid": nerrors,
-                "tolerance": field.tolerance,
+                "tolerance": field.harvest.tolerance,
                 "actual": nerrors / nrows,
             }
             freports[field.name] = {
-                "valid": stats["actual"] < stats["tolerance"],
+                "valid": stats["actual"] <= stats["tolerance"],
                 "stats": stats,
-                "errors": errors[field.name],
+                "errors": errors.get(field.name, None),
             }
         nerrors = sum([not f["valid"] for f in freports.values()])
         stats = {
@@ -703,7 +801,7 @@ class Resource(BaseModel):
             "actual": nerrors / ncols,
         }
         return {
-            "valid": stats["actual"] < stats["tolerance"],
+            "valid": stats["actual"] <= stats["tolerance"],
             "stats": stats,
             "fields": freports,
         }
@@ -751,15 +849,13 @@ class Resource(BaseModel):
             for name, df in dfs.items():
                 samples[name] = self.harvest_df(df)
                 # Pass input names to aggregate via the index
-                index = pd.Index([name] * len(samples[name]))
-                samples[name].set_index(index, name="df", inplace=True)
+                samples[name].index = pd.Index([name] * len(samples[name]), name="df")
             df = pd.concat(samples.values())
         elif self.name in dfs:
             # Subset resource from input of same name
             df = self.harvest_df(dfs[self.name])
             # Pass input names to aggregate via the index
-            index = pd.Index([self.name] * df.shape[0])
-            df.set_index(index, name="df", inplace=True)
+            df.index = pd.Index([self.name] * df.shape[0], name="df")
         if aggregate:
             return self.aggregate_df(df, **kwargs)
         return df, {}

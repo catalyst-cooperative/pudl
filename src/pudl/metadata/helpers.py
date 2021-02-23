@@ -200,12 +200,12 @@ def split_period(name: str) -> Tuple[str, Optional[str]]:
         Base name and time period, if any.
 
     Examples:
-        >>> split_period('report_day')
-        ('report', 'day')
         >>> split_period('report_date')
-        ('report_date', None)
-        >>> split_period('day')
-        ('day', None)
+        ('report', 'date')
+        >>> split_period('report_day')
+        ('report_day', None)
+        >>> split_period('date')
+        ('date', None)
     """
     parts = name.rsplit("_", 1)
     if len(parts) == 1 or parts[1] not in PERIODS:
@@ -224,9 +224,9 @@ def has_duplicate_basenames(names: Iterable[str]) -> bool:
         Whether duplicate base names were found.
 
     Examples:
-        >>> has_duplicate_basenames(['id', 'report_day'])
+        >>> has_duplicate_basenames(['id', 'report_date'])
         False
-        >>> has_duplicate_basenames(['id', 'report_day', 'report_month'])
+        >>> has_duplicate_basenames(['id', 'report_date', 'report_month'])
         True
     """
     basenames = [split_period(name)[0] for name in names]
@@ -245,7 +245,7 @@ def expand_periodic_column_names(names: Iterable[str]) -> List[str]:
 
     Examples:
         >>> expand_periodic_column_names(['id', 'report_year'])
-        ['id', 'report_year', 'report_quarter', 'report_month', 'report_day']
+        ['id', 'report_year', 'report_quarter', 'report_month', 'report_date']
     """
     periods = list(PERIODS)
     results = list(names)

@@ -331,7 +331,7 @@ PERIODS: Dict[str, Callable[[pd.Series], pd.Series]] = {
         pd.tseries.offsets.QuarterBegin(startingMonth=1).rollback
     ),
     "month": lambda x: x.astype("datetime64[M]"),
-    "day": lambda x: x.astype("datetime64[D]"),
+    "date": lambda x: x.astype("datetime64[D]"),
 }
 """
 Functions converting datetimes to period start times, by time period.
