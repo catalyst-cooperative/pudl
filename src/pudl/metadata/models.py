@@ -191,7 +191,7 @@ class Field(BaseModel):
         CategoricalDtype(categories=['x', 'y'], ordered=False)
         >>> field.to_sql()
         Column('x', Enum('x', 'y'), table=None)
-        >>> Field.from_id('utility_id_eia')
+        >>> field = Field.from_id('utility_id_eia')
         >>> field.name
         'utility_id_eia'
     """
@@ -280,7 +280,6 @@ class ForeignKey(BaseModel):
 
     @pydantic.validator("reference")
     def _check_fields_equal_length(cls, value, values):
-        print(values)
         if len(value.fields) != len(values["fields_"]):
             raise ValueError("fields and reference.fields are not equal length")
         return value
