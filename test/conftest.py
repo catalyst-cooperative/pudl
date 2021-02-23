@@ -228,7 +228,10 @@ def pudl_engine(ferc1_engine, live_pudl_db, pudl_settings_fixture,
 
         pudl.convert.datapkg_to_sqlite.datapkg_to_sqlite(
             sqlite_url=pudl_settings_fixture["pudl_db"],
-            out_path=out_path, clobber=False)
+            out_path=out_path,
+            clobber=False,
+            fkeys=True,
+        )
     # Grab a connection to the freshly populated PUDL DB, and hand it off.
     # All the hard work here is being done by the datapkg and
     # datapkg_to_sqlite fixtures, above.
