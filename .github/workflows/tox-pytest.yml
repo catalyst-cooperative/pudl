@@ -14,7 +14,7 @@ jobs:
       run: grep -e '.*10\.\(5281\|5072\)/zenodo\..*' src/pudl/workspace/datastore.py | sed -e 's/",*$//g' | sed -e 's/^.*"//g' | sort > datastore-dois.txt
 
     - name: Restore Zenodo datastore from cache if possible
-      uses: actions/cache@v2
+      uses: actions/cache@v2.1.4
       id: cache-zenodo-datastore
       with:
         path: ~/pudl-work/data/
