@@ -100,7 +100,7 @@ def StrictList(item_type: Type = Any) -> pydantic.ConstrainedList:  # noqa: N802
     Non-empty :class:`list`.
 
     Allows :class:`list`, :class:`tuple`, :class:`set`, :class:`frozenset`,
-    :class:`deque`, or generators and casts to a :class:`list`.
+    :class:`collections.deque`, or generators and casts to a :class:`list`.
     """
     return pydantic.conlist(item_type=item_type, min_items=1)
 
@@ -166,18 +166,16 @@ class FieldConstraints(BaseModel):
 
 
 class FieldHarvest(BaseModel):
-    """
-    Field harvest parameters (`resource.schema.fields[...].harvest`).
-
-    * `aggregate`: Computes a single value from all field values in a group.
-    * `tolerance`: Fraction of invalid groups above which result is considered invalid.
-    """
+    """Field harvest parameters (`resource.schema.fields[...].harvest`)."""
 
     # NOTE: Callables with defaults must use pydantic.Field() to not bind to self
     aggregate: Callable[[pd.Series], pd.Series] = pydantic.Field(
         default=lambda x: most_and_more_frequent(x, min_frequency=0.7)
     )
+    """Computes a single value from all field values in a group."""
+
     tolerance: Float = 0.0
+    """Fraction of invalid groups above which result is considered invalid."""
 
 
 class Field(BaseModel):
@@ -410,17 +408,18 @@ class Contributor(BaseModel):
 
 
 class ResourceHarvest(BaseModel):
-    """
-    Resource harvest parameters (`resource.harvest`).
-
-    * `harvest`: Whether to harvest from dataframes based on field names.
-      If `False`, the dataframe with the same name is used and
-      the process is limited to dropping unwanted fields.
-    * `tolerance`: Fraction of invalid fields above which result is considerd invalid.
-    """
+    """Resource harvest parameters (`resource.harvest`)."""
 
     harvest: Bool = False
+    """
+    Whether to harvest from dataframes based on field names.
+
+    If `False`, the dataframe with the same name is used
+    and the process is limited to dropping unwanted fields.
+    """
+
     tolerance: Float = 0.0
+    """Fraction of invalid fields above which result is considerd invalid."""
 
 
 class Resource(BaseModel):
@@ -482,7 +481,7 @@ class Resource(BaseModel):
         True
 
         Alternatively, aggregate by primary key
-        (the default when :attr:`harvest`.`harvest=True`)
+        (the default when :attr:`harvest`. `harvest=True`)
         and report aggregation errors.
 
         >>> df, report = resource.harvest_dfs(dfs)
@@ -511,7 +510,7 @@ class Resource(BaseModel):
         Name: x, dtype: object
 
         Limit harvesting to the input dataframe of the same name
-        by setting :attr:`harvest`.`harvest=False`.
+        by setting :attr:`harvest`. `harvest=False`.
 
         >>> resource.harvest.harvest = False
         >>> df, _ = resource.harvest_dfs(dfs, raise_errors=False)
@@ -572,13 +571,17 @@ class Resource(BaseModel):
         Construct from PUDL identifier (`resource.name`).
 
         * `schema.fields`
-            * Field names are expanded (:meth:`Field.from_id`).
-            * Field descriptors are expanded by name
-              (e.g. `{'name': 'x', ...}` to `Field.from_id('x')`)
-              and updated with custom properties (e.g. `{..., 'description': '...'}`).
+
+          * Field names are expanded (:meth:`Field.from_id`).
+          * Field descriptors are expanded by name
+            (e.g. `{'name': 'x', ...}` to `Field.from_id('x')`)
+            and updated with custom properties (e.g. `{..., 'description': '...'}`).
+
         * `sources`
-            * Source ids are expanded (:meth:`Source.from_id`).
-            * Source descriptors are used as is.
+
+          * Source ids are expanded (:meth:`Source.from_id`).
+          * Source descriptors are used as is.
+
         * `contributors`: Contributor ids are fetched by source ids,
           then expanded (:meth:`Contributor.from_id`).
         * `keywords`: Keywords are fetched by source ids.
@@ -643,11 +646,6 @@ class Resource(BaseModel):
         """Pandas data type of each field by field name."""
         return {f.name: f.dtype for f in self.schema.fields}
 
-    def to_empty_df(self) -> pd.DataFrame:
-        """Empty dataframe with correct field names and data types."""
-        series = {name: pd.Series(dtype=dtype) for name, dtype in self.dtypes.items()}
-        return pd.DataFrame(series)
-
     def match_primary_key(self, names: Iterable[str]) -> Optional[Dict[str, str]]:
         """
         Match primary key fields to input field names.
@@ -676,7 +674,7 @@ class Resource(BaseModel):
                     break
         return match if len(match) == len(key) else None
 
-    def harvest_df(self, df: pd.DataFrame) -> pd.DataFrame:
+    def harvest_df(self, df: pd.DataFrame = None) -> pd.DataFrame:
         """
         Harvest from a dataframe.
 
@@ -690,15 +688,16 @@ class Resource(BaseModel):
             Dataframe with column names and data types matching the resource fields.
             Periodic primary key fields are snapped to the start of the desired period.
             If the primary key fields could not be matched to columns in `df`
-            (:meth:`match_primary_key`), an empty dataframe is returned
-            (:meth:`to_empty_df`).
+            (:meth:`match_primary_key`) or if `df=None`, an empty dataframe is returned.
         """
+        if df is None:
+            return pd.DataFrame({n: pd.Series(dtype=d) for n, d in self.dtypes.items()})
         # TODO: Check whether and when this is still true
         if not self.schema.primaryKey:
             raise NotImplementedError("A primary key is required for harvesting")
         match = self.match_primary_key(df.columns)
         if match is None:
-            return self.to_empty_df()
+            return self.harvest_df()
         dtypes = self.dtypes
         df = (
             df.copy()
@@ -724,23 +723,45 @@ class Resource(BaseModel):
 
         The dataframe is grouped by primary key fields
         and aggregated with the aggregate function of each field
-        (:attr:`schema`.`fields[*].harvest.aggregate`).
+        (:attr:`schema_`. `fields[*].harvest.aggregate`).
+
+        The report is formatted as follows:
+
+        * `valid` (bool): Whether resouce is valid.
+        * `stats` (dict): Error statistics for resource fields.
+        * `fields` (dict):
+
+          * `<field_name>` (str)
+
+            * `valid` (bool): Whether field is valid.
+            * `stats` (dict): Error statistics for field groups.
+            * `errors` (:class:`pandas.Series`): Error values indexed by primary key.
+
+          * ...
+
+        Each `stats` (dict) contains the following:
+
+        * `all` (int): Number of entities (field or field group).
+        * `invalid` (int): Invalid number of entities.
+        * `tolerance` (float): Fraction of invalid entities below which
+          parent entity is considered valid.
+        * `actual` (float): Actual fraction of invalid entities.
 
         Args:
             df: Dataframe to aggregate. It is assumed to have column names and
               data types matching the resource fields.
             raise_errors: Whether to stop at the first aggregation error.
             errorfunc: A function with signature `f(x, e) -> Any`,
-                where `x` are the original field values as a :class:`pd.Series`
-                and `e` is the original error.
-                If provided, the returned value is reported instead of `e`.
+              where `x` are the original field values as a :class:`pandas.Series`
+              and `e` is the original error.
+              If provided, the returned value is reported instead of `e`.
 
         Raises:
             NotImplementedError: A primary key is required for aggregating.
 
         Returns:
             The aggregated dataframe indexed by primary key fields,
-            and an aggregation report (see :meth:`_build_aggregation_report`)
+            and an aggregation report (descripted above)
             that includes all aggregation errors and whether the result
             meets the resource's and fields' tolerance.
         """
@@ -765,31 +786,12 @@ class Resource(BaseModel):
         """
         Build report from aggregation errors.
 
-        The report is formatted as follows:
-
-        * `valid` (bool): Whether resouce is valid.
-        * `stats` (dict): Error statistics for resource fields.
-        * `fields` (dict):
-            * `<field_name>` (str)
-                * `valid` (bool): Whether field is valid.
-                * `stats` (dict): Error statistics for field groups.
-                * `errors` (:class:`pd.Series`): Error values indexed by primary key.
-
-        where each `stats` contains the following:
-
-        * `stats` (dict):
-            * `all` (int): Number of entities (field or field group).
-            * `invalid` (int): Invalid number of entities.
-            * `tolerance` (float): Fraction of invalid entities below which
-              parent entity is considered valid.
-            * `actual` (float): Actual fraction of invalid entities.
-
         Args:
             df: Harvested dataframe (see :meth:`harvest_dfs`).
             errors: Aggregation errors (see :func:`groupby_aggregate`).
 
         Returns:
-            Aggregation report, as described above.
+            Aggregation report, as described in :meth:`aggregate_df`.
         """
         nrows, ncols = df.reset_index().shape
         freports = {}
@@ -802,7 +804,7 @@ class Resource(BaseModel):
                 "all": nrows,
                 "invalid": nerrors,
                 "tolerance": field.harvest.tolerance,
-                "actual": nerrors / nrows,
+                "actual": nerrors / nrows if nrows else 0,
             }
             freports[field.name] = {
                 "valid": stats["actual"] <= stats["tolerance"],
@@ -828,11 +830,11 @@ class Resource(BaseModel):
         """
         Harvest from named dataframes.
 
-        For standard resources (:attr:`harvest`.`harvest=False`),
+        For standard resources (:attr:`harvest`. `harvest=False`),
         the columns matching all primary key fields and any data fields
         are extracted from the input dataframe of the same name.
 
-        For harvested resources (:attr:`harvest`.`harvest=True`),
+        For harvested resources (:attr:`harvest`. `harvest=True`),
         the columns matching all primary key fields and any data fields
         are extracted from each compatible input dataframe,
         and concatenated into a single dataframe.
@@ -858,7 +860,6 @@ class Resource(BaseModel):
         """
         if aggregate is None:
             aggregate = self.harvest.harvest
-        df = self.to_empty_df()
         if self.harvest.harvest:
             # Harvest resource from all inputs where all primary key fields are present
             samples = {}
@@ -872,6 +873,8 @@ class Resource(BaseModel):
             df = self.harvest_df(dfs[self.name])
             # Pass input names to aggregate via the index
             df.index = pd.Index([self.name] * df.shape[0], name="df")
+        else:
+            return self.harvest_df(), {}
         if aggregate:
             return self.aggregate_df(df, **kwargs)
         return df, {}

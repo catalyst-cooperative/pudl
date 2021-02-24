@@ -34,6 +34,7 @@ def _parse_foreign_key_rules(meta: dict, name: str) -> List[dict]:
 
     Returns:
         Foreign key rules:
+
         * `fields` (List[str]): Local fields.
         * `reference['resource']` (str): Reference resource name.
         * `reference['fields']` (List[str]): Reference primary key fields.
@@ -64,6 +65,7 @@ def _build_foreign_key_tree(
         Foreign key tree where the first key is a resource name (str),
         the second key is resource field names (Tuple[str]),
         and the value describes the reference resource (dict):
+
         * `reference['resource']` (str): Reference name.
         * `reference['fields']` (List[str]): Reference field names.
     """
@@ -99,6 +101,7 @@ def _traverse_foreign_key_tree(
 
     Returns:
         Sequence of foreign keys starting from `name` and `fields`:
+
         * `fields` (List[str]): Local fields.
         * `reference['resource']` (str): Reference resource name.
         * `reference['fields']` (List[str]): Reference primary key fields.
@@ -128,7 +131,8 @@ def build_foreign_keys(
 
     A resource's `foreignKeyRules` (if present)
     determines which other resources will be assigned a foreign key (`foreignKeys`)
-    to the reference's primary key.
+    to the reference's primary key:
+
     * `fields` (List[List[str]]): Sets of field names for which to create a foreign key.
       These are assumed to match the order of the reference's primary key fields.
     * `exclude` (Optional[List[str]]): Names of resources to exclude.
@@ -139,6 +143,7 @@ def build_foreign_keys(
 
     Returns:
         Foreign keys for each resource (if any), by resource name.
+
         * `fields` (List[str]): Field names.
         * `reference['resource']` (str): Reference resource name.
         * `reference['fields']` (List[str]): Reference resource field names.
@@ -193,7 +198,7 @@ def split_period(name: str) -> Tuple[str, Optional[str]]:
     """
     Split the time period from a column name.
 
-    Arguments:
+    Args:
         name: Column name.
 
     Returns:
@@ -217,7 +222,7 @@ def has_duplicate_basenames(names: Iterable[str]) -> bool:
     """
     Test whether column names contain duplicate base names.
 
-    Arguments:
+    Args:
         names: Column names.
 
     Returns:
@@ -237,7 +242,7 @@ def expand_periodic_column_names(names: Iterable[str]) -> List[str]:
     """
     Add smaller periods to a list of column names.
 
-    Arguments:
+    Args:
         names: Column names.
 
     Returns:
@@ -261,9 +266,9 @@ def expand_periodic_column_names(names: Iterable[str]) -> List[str]:
 """
 Aggregation functions.
 
-All take a :class:`pd.Series` as input (and any optional keyword arguments).
+All take a :class:`pandas.Series` as input (and any optional keyword arguments).
 They may either return a single value (ideally of the same data type as the input),
-null (`np.nan`),
+null (:obj:`numpy.nan`),
 or raise a :class:`AggregationError` if the input does not meet requirements.
 """
 
@@ -332,21 +337,21 @@ def try_aggfunc(  # noqa: C901
     """
     Wrap aggregate function in a try-except for error handling.
 
-    Arguments:
+    Args:
         func: Aggregate function.
         method: Error handling method for :class:`AggregationError`.
 
-            - 'coerce': Return `np.nan`.
-            - 'raise': Raise the error.
-            - 'report': Return the error.
+            * 'coerce': Return `np.nan`.
+            * 'raise': Raise the error.
+            * 'report': Return the error.
 
         error: Error value, whose type and format depends on `method`.
             Below, `x` is the original input and `e` is the original error.
 
-            - 'raise': A string with substitions (e.g. 'Error at {x.name}: {e}')
+            * 'raise': A string with substitions (e.g. 'Error at {x.name}: {e}')
               that replaces the arguments of the original error.
               By default, the original error is raised unchanged.
-            - 'report': A function with signature `f(x, e)` returning a value that
+            * 'report': A function with signature `f(x, e)` returning a value that
               replaces the arguments of the original error.
               By default, the original error is returned unchanged.
 
@@ -354,7 +359,6 @@ def try_aggfunc(  # noqa: C901
         Aggregate function with custom error handling.
 
     Examples:
-        >>> import pandas as pd
         >>> x = pd.Series([0, 0, 1, 1], index=['a', 'a', 'a', 'b'])
         >>> most_frequent(x)
         Traceback (most recent call last):
@@ -425,22 +429,22 @@ def groupby_apply(  # noqa: C901
     """
     Aggregate dataframe and capture errors (using apply).
 
-    Arguments:
+    Args:
         df: Dataframe to aggregate.
-        by: Columns names to use to group rows (see :meth:`pd.DataFrame.groupby`).
+        by: Columns names to use to group rows (see :meth:`pandas.DataFrame.groupby`).
         aggfuncs: Aggregation functions for columns not in `by`.
         errors: Handling method for errors raised by `aggfuncs`.
 
-            - 'raise': Stop at the first error.
-            - 'coerce': Silently replace errors with `np.nan`.
-            - 'report': Replace errors with `np.nan` and return an error report.
+            * 'raise': Stop at the first error.
+            * 'coerce': Silently replace errors with `np.nan`.
+            * 'report': Replace errors with `np.nan` and return an error report.
 
         errorfunc: A function with signature `f(x, e) -> Tuple[Any, Any]`,
             where `x` is the original input and `e` is the original error,
             used when `errors`='report'.
             The first and second value of the returned tuple are used as the
             index and values, respectively,
-            of the :class:`pd.Series` returned for each column.
+            of the :class:`pandas.Series` returned for each column.
             By default, the first value is `x.name`
             (the values of columns `by` for that row group),
             and the second is the original error.
@@ -448,10 +452,9 @@ def groupby_apply(  # noqa: C901
     Returns:
         Aggregated dataframe with `by` columns set as the index and
         an error report with (if `errors`='report')
-        a :class:`pd.Series` for each column where errors occured.
+        a :class:`pandas.Series` for each column where errors occured.
 
     Examples:
-        >>> import pandas as pd
         >>> df = pd.DataFrame({'x': [0, 0, 1, 1], 'y': pd.Series([2, 2, 2, 3], dtype='Int64')})
         >>> df.index = [0, 0, 0, 1]
         >>> base = dict(df=df, by='x', aggfuncs={'y': unique})
@@ -527,19 +530,19 @@ def groupby_aggregate(  # noqa: C901
 
     Although faster than :func:`groupby_apply`, it has some limitations:
 
-    - Raised errors cannot access the group index.
-    - Aggregation functions must return a scalar (must 'reduce').
-      This is not a limitation with :meth:`pd.Series.apply`.
+    * Raised errors cannot access the group index.
+    * Aggregation functions must return a scalar (must 'reduce').
+      This is not a limitation with :meth:`pandas.Series.apply`.
 
     Args:
         df: Dataframe to aggregate.
-        by: Columns names to use to group rows (see :meth:`pd.DataFrame.groupby`).
+        by: Columns names to use to group rows (see :meth:`pandas.DataFrame.groupby`).
         aggfuncs: Aggregation functions for columns not in `by`.
         errors: Error handling method.
 
-            - 'raise': Stop at the first error.
-            - 'coerce': Silently replace errors with `np.nan`.
-            - 'report': Replace errors with `np.nan` and return an error report.
+            * 'raise': Stop at the first error.
+            * 'coerce': Silently replace errors with :obj:`numpy.nan`.
+            * 'report': Replace errors with `np.nan` and return an error report.
 
         errorfunc: A function with signature `f(x, e) -> Any`,
             where `x` is the original input and `e` is the original error,
@@ -548,11 +551,10 @@ def groupby_aggregate(  # noqa: C901
 
     Returns:
         Aggregated dataframe with `by` columns set as the index and
-        an error report with (if `errors`='report') a :class:`pd.Series` of errors
+        an error report with (if `errors`='report') a :class:`pandas.Series` of errors
         (or the value returned by `errorfunc`) for each column where errors occured.
 
     Examples:
-        >>> import pandas as pd
         >>> df = pd.DataFrame({
         ...     'x': [0, 0, 1, 1],
         ...     'y': pd.Series([2, 2, 2, 3], dtype='Int64')

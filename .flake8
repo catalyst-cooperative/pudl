@@ -23,6 +23,7 @@ rst-roles =
     func,
     meth,
     mod,
+    obj,
     ref,
     user,
 rst-directives =

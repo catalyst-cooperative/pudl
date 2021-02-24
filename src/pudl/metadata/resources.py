@@ -867,12 +867,12 @@ Resource attributes by PUDL identifier (`resource.name`).
 Keys are in alphabetical order.
 Each element of `fields` and `sources` may be a dictionary or a PUDL identifier.
 
-See :func:`build_foreign_keys` for the expected format of `foreignKeyRules`.
+See :func:`.helpers.build_foreign_keys` for the expected format of `foreignKeyRules`.
 """
 
 FOREIGN_KEYS: Dict[str, List[dict]] = build_foreign_keys(RESOURCES)
 """
 Foreign keys by resource name.
 
-See :func:`build_foreign_keys`.
+See :func:`.helpers.build_foreign_keys`.
 """

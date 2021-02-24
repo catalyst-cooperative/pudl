@@ -1,169 +1,113 @@
-"""Tests for the harvest module."""
-from typing import Any, Dict, Tuple
+"""Tests for Resource harvesting methods."""
+from typing import Any, Dict, List
 
 import numpy as np
 import pandas as pd
 import pytest
 
-from pudl.transform.harvest import (ResourceBuilder, expand_resource_fields,
-                                    most_frequent)
+from pudl.metadata.helpers import most_frequent
+from pudl.metadata.models import Resource
 
 # ---- Helpers ---- #
 
 
-def _compare_dataframes(
-    a: pd.DataFrame,
-    b: pd.DataFrame,
-    check_index=True,
-    check_col_order=False,
-    check_row_order=False,
-    **kwargs: Any,
-) -> Tuple[str, pd.DataFrame, pd.DataFrame]:
-    if not a.columns.empty and (set(a.columns) == set(b.columns)):
-        columns = list(b.columns)
-        if not check_col_order:
-            a = a[columns]
-        if not check_row_order:
-            a = a.sort_index().sort_values(columns)
-            b = b.sort_index().sort_values(columns)
-    if not check_index:
-        a = a.reset_index(drop=True)
-        b = b.reset_index(drop=True)
+def _assert_frame_equal(a: pd.DataFrame, b: pd.DataFrame, **kwargs: Any) -> None:
+    """Assert dataframes are equal, printing a useful error if not."""
     try:
         pd.testing.assert_frame_equal(a, b, **kwargs)
-        return "", a, b
     except AssertionError as error:
-        return str(error), a, b
-
-
-def _assert_expected(
-    result: Dict[str, pd.DataFrame], expected: Dict[str, pd.DataFrame], **kwargs: Any
-) -> None:
-    errors = []
-    for k in result:
-        error, a, b = _compare_dataframes(result[k], expected[k], **kwargs)
-        if error:
-            errors += [f"* {k}", error, str(a), str(b)]
-    if errors:
-        raise AssertionError("\n\n".join(["Dataframes are not equal."] + errors))
+        msg = "\n\n".join(["Dataframes are not equal.", str(error), str(a), str(b)])
+        raise AssertionError(msg)
 
 
 # ---- Unit tests ---- #
 
-standard = [
-    {
-        "name": "r",
-        "harvest": False,
-        "schema": {"fields": ["i", "j", "x", "y"], "primaryKey": ["i", "j"]},
-    }
-]
-expand_resource_fields(standard, default={"aggregate": most_frequent})
-
-harvest = [
-    {
-        "name": "r",
-        "harvest": True,
-        "schema": {"fields": ["i", "j", "x", "y"], "primaryKey": ["i", "j"]},
-    }
-]
-expand_resource_fields(harvest, default={"aggregate": most_frequent})
-
-
-def test_prunes_standard_resource_with_missing_name() -> None:
-    """It prunes a standard resource not named the same as an input."""
-    dfs = {"other": pd.DataFrame([{"i": 1, "j": 1, "x": 1, "y": 1}])}
-    assert not ResourceBuilder(dfs).build(standard)
-
-
-def test_prunes_harvest_resource_with_no_key_fields() -> None:
-    """It prunes a harvest resource with no key fields in the inputs."""
-    dfs = [pd.DataFrame([{"x": 1, "y": 1}])]
-    assert not ResourceBuilder(dfs).build(harvest)
-
-
-def test_prunes_harvest_resource_with_no_data_fields() -> None:
-    """It prunes a harvest resource with no data fields in the inputs."""
-    dfs = [pd.DataFrame([{"i": 1, "j": 1}])]
-    assert not ResourceBuilder(dfs).build(harvest)
-
-
-@pytest.mark.parametrize(
-    "dfs",
-    [
-        {"r": pd.DataFrame([{"x": 1, "y": 1}])},  # no key fields
-        {"r": pd.DataFrame([{"i": 1, "j": 1}])},  # no data fields
-        {"r": pd.DataFrame([{"i": 1, "j": 1, "x": 1}])},  # incomplete data fields
-        {"r": pd.DataFrame([{"i": 1, "x": 1, "y": 1}])},  # incomplete key fields
-    ],
-)
-def test_errors_extracting_missing_fields(dfs) -> None:
-    """It rejects a standard resource with fields missing in the input."""
-    with pytest.raises(KeyError):
-        ResourceBuilder(dfs).build(standard)
-
-
-@pytest.mark.parametrize(
-    "dfs",
-    [
-        [pd.DataFrame([{"i": 1, "x": 1, "y": 1}])],  # incomplete
-        [
-            pd.DataFrame([{"i": 1, "x": 1}]),
-            pd.DataFrame([{"j": 1, "y": 1}]),
-        ],  # disjoint
-        [
-            pd.DataFrame([{"i": 1, "j": 1}]),
-            pd.DataFrame([{"x": 1, "y": 1}]),
-        ],  # unlinked
-    ],
-)
-def test_errors_harvesting_incomplete_key_fields(dfs) -> None:
-    """It rejects a harvest resource with key fields missing in the inputs."""
-    with pytest.raises(KeyError):
-        ResourceBuilder(dfs).build(harvest)
-
-
-@pytest.mark.parametrize(
-    "dfs",
-    [
-        [pd.DataFrame([{"i": 1, "j": 1, "x": 10, "y": 100}])],
-        [
-            pd.DataFrame([{"i": 1, "j": 1, "x": 10}]),
-            pd.DataFrame([{"i": 1, "j": 1, "y": 100}]),
+STANDARD: Dict[str, Any] = {
+    "name": "r",
+    "harvest": {"harvest": False},
+    "schema": {
+        "fields": [
+            {"name": "i", "type": "integer", "harvest": {"aggregate": most_frequent}},
+            {"name": "j", "type": "integer", "harvest": {"aggregate": most_frequent}},
+            {"name": "x", "type": "integer", "harvest": {"aggregate": most_frequent}},
+            {"name": "y", "type": "integer", "harvest": {"aggregate": most_frequent}}
         ],
-        [
-            pd.DataFrame([{"i": 1, "j": 1}]),
-            pd.DataFrame([{"i": 1, "j": 1, "x": 10, "y": 100}]),
-        ],
-    ],
-)
-def test_harvests_fields(dfs) -> None:
-    """It harvests a resource."""
-    expected = {
-        "r": pd.DataFrame([{"i": 1, "j": 1, "x": 10, "y": 100}]).set_index(["i", "j"])
-    }
-    result = ResourceBuilder(dfs).build(harvest)
-    _assert_expected(result, expected, check_dtype=False)
+        "primaryKey": ["i", "j"]
+    },
+}
+
+HARVEST: Dict[str, Any] = {**STANDARD, "harvest": {"harvest": True}}
 
 
-def test_harvests_resource_with_no_data_fields() -> None:
-    """It harvests a resource with no data fields (only key fields)."""
-    resources = [
+def test_resource_ignores_input_with_different_name() -> None:
+    """Standard resources ignore input dataframes not named the same as themselves."""
+    dfs = {0: pd.DataFrame([{"i": 1, "j": 1, "x": 1, "y": 1}])}
+    result, _ = Resource(**STANDARD).harvest_dfs(dfs)
+    assert result.empty
+
+
+@pytest.mark.parametrize("df", [
+    pd.DataFrame([{"x": 1, "y": 1}]),  # no key fields
+    pd.DataFrame([{"i": 1, "x": 1, "y": 1}]),  # missing key fields
+])
+def test_resource_ignores_input_with_missing_key_fields(df: pd.DataFrame) -> None:
+    """Harvest resources ignore inputs with missing primary key fields."""
+    dfs = {0: df}
+    result, _ = Resource(**HARVEST).harvest_dfs(dfs)
+    assert result.empty
+
+
+def test_resource_harvests_input_with_only_key_fields() -> None:
+    """Harvest resources harvests inputs with only primary key fields."""
+    dfs = {0: pd.DataFrame([{"i": 1, "j": 2}])}
+    result, _ = Resource(**HARVEST).harvest_dfs(dfs)
+    assert not result.empty
+    assert result.index.tolist() == [(1, 2)]
+
+
+@pytest.mark.parametrize(
+    "dfs",
+    [
+        {0: pd.DataFrame([{"i": 1, "j": 2, "x": 10, "y": 100}])},
         {
-            "name": "r",
-            "harvest": True,
-            "schema": {"fields": ["i", "j"], "primaryKey": ["i", "j"]},
-        }
-    ]
-    expand_resource_fields(resources, default={"aggregate": most_frequent})
-    dfs = [pd.DataFrame([{"i": 1, "j": 1, "x": 10, "y": 100}])]
-    expected = {"r": pd.DataFrame([{"i": 1, "j": 1}]).set_index(["i", "j"])}
-    result = ResourceBuilder(dfs).build(resources)
-    _assert_expected(result, expected)
+            0: pd.DataFrame([{"i": 1, "j": 2, "x": 10}]),
+            1: pd.DataFrame([{"i": 1, "j": 2, "y": 100}]),
+        },
+        {
+            0: pd.DataFrame([{"i": 1, "j": 2}]),
+            1: pd.DataFrame([{"i": 1, "j": 2, "x": 10, "y": 100}]),
+        },
+    ],
+)
+def test_resource_harvests_inputs(dfs: Dict[Any, pd.DataFrame]) -> None:
+    """Resource harvests inputs."""
+    resource = Resource(**HARVEST)
+    expected = (
+        pd.DataFrame([{"i": 1, "j": 2, "x": 10, "y": 100}])
+        .astype(resource.dtypes)
+        .set_index(["i", "j"])
+    )
+    result, _ = resource.harvest_dfs(dfs)
+    _assert_frame_equal(result, expected)
+
+
+def test_resource_with_only_key_fields_harvests() -> None:
+    """Harvest resource with only key fields harvests inputs."""
+    resource = Resource(**HARVEST)
+    resource.schema.fields = resource.schema.fields[:2]
+    expected = (
+        pd.DataFrame([{"i": 1, "j": 2}])
+        .astype(resource.dtypes)
+        .set_index(["i", "j"])
+    )
+    dfs = {0: pd.DataFrame([{"i": 1, "j": 2, "x": 10, "y": 100}])}
+    result, _ = resource.harvest_dfs(dfs)
+    _assert_frame_equal(result, expected)
 
 
 # ---- EIA example ---- #
 
-dfs = dict(
+INPUT_DFS: Dict[str, pd.DataFrame] = dict(
     service_territory_eia861=pd.DataFrame(
         columns=[
             "utility_id_eia",
@@ -290,10 +234,28 @@ dfs = dict(
     ),
 )
 
-resources = [
+FIELD_DTYPES: Dict[str, str] = {
+    "balancing_authority_code_eia": "string",
+    "utility_id_eia": "integer",
+    "plant_id_eia": "integer",
+    "generator_id": "string",
+    "boiler_id": "string",
+    "utility_name_eia": "string",
+    "state": "string",
+    "county": "string",
+    "prime_mover_code": "string",
+    "topping_bottoming_code": "string",
+    "report_year": "date",  # use 'date' (not 'year') for periodic harvest to work
+    "report_month": "date",
+    "capacity_mw": "number",
+    "sales": "number",
+    "net_generation_mwh": "number"
+}
+
+RESOURCES: List[Dict[str, Any]] = [
     {
         "name": "plant_entity_eia860",
-        "harvest": True,
+        "harvest": {"harvest": True},
         "schema": {
             "fields": ["plant_id_eia", "state", "balancing_authority_code_eia"],
             "primaryKey": ["plant_id_eia"],
@@ -301,7 +263,7 @@ resources = [
     },
     {
         "name": "generator_entity_eia860",
-        "harvest": True,
+        "harvest": {"harvest": True},
         "schema": {
             "fields": [
                 "plant_id_eia",
@@ -314,7 +276,7 @@ resources = [
     },
     {
         "name": "generators_eia860",
-        "harvest": True,
+        "harvest": {"harvest": True},
         "schema": {
             "fields": ["plant_id_eia", "generator_id", "report_year", "capacity_mw"],
             "primaryKey": ["plant_id_eia", "generator_id", "report_year"],
@@ -322,7 +284,7 @@ resources = [
     },
     {
         "name": "utility_entity_eia",
-        "harvest": True,
+        "harvest": {"harvest": True},
         "schema": {
             "fields": ["utility_id_eia", "utility_name_eia"],
             "primaryKey": ["utility_id_eia"],
@@ -330,7 +292,7 @@ resources = [
     },
     {
         "name": "utility_assn_eia",
-        "harvest": True,
+        "harvest": {"harvest": True},
         "schema": {
             "fields": ["utility_id_eia", "report_year", "state", "county"],
             "primaryKey": ["utility_id_eia", "report_year", "state", "county"],
@@ -338,7 +300,7 @@ resources = [
     },
     {
         "name": "generation_eia923",
-        "harvest": False,
+        "harvest": {"harvest": False},
         "schema": {
             "fields": [
                 "plant_id_eia",
@@ -351,7 +313,7 @@ resources = [
     },
     {
         "name": "sales_eia861",
-        "harvest": False,
+        "harvest": {"harvest": False},
         "schema": {
             "fields": ["utility_id_eia", "report_year", "state", "county", "sales"],
             "primaryKey": ["utility_id_eia", "report_year", "state", "county"],
@@ -359,16 +321,22 @@ resources = [
     },
     {
         "name": "boiler_generator_assn_eia860",
-        "harvest": True,
+        "harvest": {"harvest": True},
         "schema": {
             "fields": ["plant_id_eia", "generator_id", "report_year", "boiler_id"],
             "primaryKey": ["plant_id_eia", "generator_id", "report_year", "boiler_id"],
         },
     },
 ]
-expand_resource_fields(resources, default={"aggregate": most_frequent})
 
-expected = dict(
+# Build resource models
+for i, d in enumerate(RESOURCES):
+    d["schema"]["fields"] = [
+        {"name": name, "type": FIELD_DTYPES[name]} for name in d["schema"]["fields"]
+    ]
+    RESOURCES[i] = Resource(**d)
+
+EXPECTED_DFS: Dict[str, pd.DataFrame] = dict(
     plant_entity_eia860=pd.DataFrame(
         columns=["plant_id_eia", "state", "balancing_authority_code_eia"],
         data=[(3, "AL", "SOCO"), (4, np.nan, np.nan)],
@@ -390,17 +358,20 @@ expected = dict(
     generators_eia860=pd.DataFrame(
         columns=["plant_id_eia", "generator_id", "report_year", "capacity_mw"],
         data=[
-            (3, "1", "2018-01-01", 153.1),
             (3, "1", "2017-01-01", 153.1),
-            (3, "2", "2018-01-01", 50),
+            (3, "1", "2018-01-01", 153.1),
             (3, "2", "2017-01-01", 50),
+            (3, "2", "2018-01-01", 50),
             (4, "a", "2017-01-01", np.nan),
             (4, "b", "2017-01-01", np.nan),
         ],
     ),
     utility_entity_eia=pd.DataFrame(
         columns=["utility_id_eia", "utility_name_eia"],
-        data=[(3989, "City of Colorado Springs - (CO)"), (195, "Alabama Power Co")],
+        data=[
+            (195, "Alabama Power Co"),
+            (3989, "City of Colorado Springs - (CO)")
+        ],
     ),
     utility_assn_eia=pd.DataFrame(
         columns=["utility_id_eia", "report_year", "state", "county"],
@@ -453,22 +424,20 @@ expected = dict(
     ),
 )
 
-rnames = [r["name"] for r in resources]
-for name, df in expected.items():
-    ri = rnames.index(name)
-    # Expect all harvested periodic keys as datetime64[ns]
-    if resources[ri]["harvest"]:
-        for col in df:
-            if "report_" in col:
-                df[col] = df[col].astype("datetime64[ns]")
-    # Expect primary key as index
-    key = resources[ri]["schema"]["primaryKey"]
-    df = df.set_index(key)
-    expected[name] = df
+# Format expected dataframes
+rnames = [r.name for r in RESOURCES]
+for name, df in EXPECTED_DFS.items():
+    resource = RESOURCES[rnames.index(name)]
+    df = df.astype(resource.dtypes)
+    if resource.harvest.harvest:
+        df = df.set_index(resource.schema.primaryKey)
+    else:
+        df.index = pd.Index([name] * len(df), name="df")
+    EXPECTED_DFS[name] = df
 
 
-def test_eia_example() -> None:
-    """It builds the expected result for Christina's EIA example."""
-    builder = ResourceBuilder(dfs)
-    result = builder.build(resources)
-    _assert_expected(result, expected)
+@pytest.mark.parametrize("resource", RESOURCES)
+def test_eia_example(resource: Resource) -> None:
+    """Resources harvest the expected result for Christina's EIA example."""
+    result, _ = resource.harvest_dfs(INPUT_DFS)
+    _assert_frame_equal(result, EXPECTED_DFS[resource.name])
