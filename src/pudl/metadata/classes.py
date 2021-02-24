@@ -1,4 +1,4 @@
-"""Metadata data models."""
+"""Metadata data classes."""
 import copy
 import datetime
 import uuid
@@ -21,19 +21,19 @@ from .resources import FOREIGN_KEYS, RESOURCES
 # ---- Base ---- #
 
 
-class BaseModel(pydantic.BaseModel):
+class Base(pydantic.BaseModel):
     """
-    Custom Pydantic base model.
+    Custom Pydantic base class.
 
     It overrides :meth:`fields` and :meth:`schema` to allow properties with those names.
-    To use them in a model, use an underscore prefix and an alias.
+    To use them in a class, use an underscore prefix and an alias.
 
     Examples:
-        >>> class Model(BaseModel):
+        >>> class Class(Base):
         ...     fields_: List[str] = pydantic.Field(alias="fields")
-        >>> m = Model(fields=['x'])
+        >>> m = Class(fields=['x'])
         >>> m
-        Model(fields=['x'])
+        Class(fields=['x'])
         >>> m.fields
         ['x']
         >>> m.fields = ['y']
@@ -76,7 +76,7 @@ class BaseModel(pydantic.BaseModel):
         ]
 
 
-# ---- Model field types ---- #
+# ---- Class attribute types ---- #
 
 
 String = pydantic.constr(min_length=1, strict=True)
@@ -105,7 +105,7 @@ def StrictList(item_type: Type = Any) -> pydantic.ConstrainedList:  # noqa: N802
     return pydantic.conlist(item_type=item_type, min_items=1)
 
 
-# ---- Model field validators ---- #
+# ---- Class attribute validators ---- #
 
 
 def _check_unique(value: list = None) -> Optional[list]:
@@ -124,34 +124,34 @@ def _stringify(value: Any = None) -> Optional[str]:
     return value
 
 
-def _validator(*fields, fn: Callable) -> Callable:
+def _validator(*names, fn: Callable) -> Callable:
     """
     Construct reusable Pydantic validator.
 
     Args:
-        fields: Field names to validate.
+        names: Names of attributes to validate.
         fn: Validation function (see :meth:`pydantic.validator`).
 
     Examples:
-        >>> class Model(BaseModel):
+        >>> class Class(Base):
         ...     x: int = None
         ...     y: list = None
         ...     _stringify = _validator("x", fn=_stringify)
         ...     _check_unique = _validator("y", fn=_check_unique)
-        >>> Model(x=1).x
+        >>> Class(x=1).x
         '1'
-        >>> Model(y=[0, 0])
+        >>> Class(y=[0, 0])
         Traceback (most recent call last):
           ...
         ValidationError: ...
     """
-    return pydantic.validator(*fields, allow_reuse=True)(fn)
+    return pydantic.validator(*names, allow_reuse=True)(fn)
 
 
-# ---- Models: Field ---- #
+# ---- Classes: Field ---- #
 
 
-class FieldConstraints(BaseModel):
+class FieldConstraints(Base):
     """
     Field constraints (`resource.schema.fields[...].constraints`).
 
@@ -165,7 +165,7 @@ class FieldConstraints(BaseModel):
     _check_unique = _validator("enum", fn=_check_unique)
 
 
-class FieldHarvest(BaseModel):
+class FieldHarvest(Base):
     """Field harvest parameters (`resource.schema.fields[...].harvest`)."""
 
     # NOTE: Callables with defaults must use pydantic.Field() to not bind to self
@@ -178,7 +178,7 @@ class FieldHarvest(BaseModel):
     """Fraction of invalid groups above which result is considered invalid."""
 
 
-class Field(BaseModel):
+class Field(Base):
     """
     Field (`resource.schema.fields[...]`).
 
@@ -249,10 +249,10 @@ class Field(BaseModel):
         )
 
 
-# ---- Models: Resource ---- #
+# ---- Classes: Resource ---- #
 
 
-class ForeignKeyReference(BaseModel):
+class ForeignKeyReference(Base):
     """
     Foreign key reference (`resource.schema.foreignKeys[...].reference`).
 
@@ -265,7 +265,7 @@ class ForeignKeyReference(BaseModel):
     _check_unique = _validator("fields_", fn=_check_unique)
 
 
-class ForeignKey(BaseModel):
+class ForeignKey(Base):
     """
     Foreign key (`resource.schema.foreignKeys[...]`).
 
@@ -292,7 +292,7 @@ class ForeignKey(BaseModel):
         )
 
 
-class Schema(BaseModel):
+class Schema(Base):
     """
     Table schema (`resource.schema`).
 
@@ -332,7 +332,7 @@ class Schema(BaseModel):
         return value
 
 
-class Dialect(BaseModel):
+class Dialect(Base):
     """
     CSV dialect (`resource.dialect`).
 
@@ -348,7 +348,7 @@ class Dialect(BaseModel):
     caseSensitiveHeader: Bool = False  # noqa: N815
 
 
-class License(BaseModel):
+class License(Base):
     """
     Data license (`package|resource.licenses[...]`).
 
@@ -367,7 +367,7 @@ class License(BaseModel):
         return cls(**LICENSES[x])
 
 
-class Source(BaseModel):
+class Source(Base):
     """
     Data source (`package|resource.sources[...]`).
 
@@ -386,7 +386,7 @@ class Source(BaseModel):
         return cls(**SOURCES[x])
 
 
-class Contributor(BaseModel):
+class Contributor(Base):
     """
     Data contributor (`package.contributors[...]`).
 
@@ -409,7 +409,7 @@ class Contributor(BaseModel):
         return cls(**CONTRIBUTORS[x])
 
 
-class ResourceHarvest(BaseModel):
+class ResourceHarvest(Base):
     """Resource harvest parameters (`resource.harvest`)."""
 
     harvest: Bool = False
@@ -424,7 +424,7 @@ class ResourceHarvest(BaseModel):
     """Fraction of invalid fields above which result is considerd invalid."""
 
 
-class Resource(BaseModel):
+class Resource(Base):
     """
     Tabular data resource (`package.resources[...]`).
 
@@ -884,7 +884,7 @@ class Resource(BaseModel):
 # ---- Package ---- #
 
 
-class Package(BaseModel):
+class Package(Base):
     """
     Tabular data package.
 
