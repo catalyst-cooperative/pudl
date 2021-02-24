@@ -211,7 +211,7 @@ class Field(BaseModel):
 
     @pydantic.validator("constraints")
     def _check_enum_type(cls, value, values):  # noqa: N805
-        if value.enum:
+        if value.enum and "type" in values:
             if values["type"] != "string":
                 raise ValueError("Non-string enum type is not supported")
             for x in value.enum:
@@ -279,8 +279,9 @@ class ForeignKey(BaseModel):
 
     @pydantic.validator("reference")
     def _check_fields_equal_length(cls, value, values):  # noqa: N805
-        if len(value.fields) != len(values["fields_"]):
-            raise ValueError("fields and reference.fields are not equal length")
+        if "fields_" in values:
+            if len(value.fields) != len(values["fields_"]):
+                raise ValueError("fields and reference.fields are not equal length")
         return value
 
     def to_sql(self) -> sa.ForeignKeyConstraint:
@@ -314,7 +315,7 @@ class Schema(BaseModel):
 
     @pydantic.validator("primaryKey")
     def _check_primary_key_in_fields(cls, value, values):  # noqa: N805
-        if value is not None:
+        if value is not None and "fields_" in values:
             names = [f.name for f in values['fields_']]
             missing = [x for x in value if x not in names]
             if missing:
@@ -323,10 +324,11 @@ class Schema(BaseModel):
 
     @pydantic.validator("foreignKeys", each_item=True)
     def _check_foreign_key_in_fields(cls, value, values):  # noqa: N805
-        names = [f.name for f in values['fields_']]
-        missing = [x for x in value.fields if x not in names]
-        if missing:
-            raise ValueError(f"names {missing} missing from fields")
+        if value and "fields_" in values:
+            names = [f.name for f in values['fields_']]
+            missing = [x for x in value.fields if x not in names]
+            if missing:
+                raise ValueError(f"names {missing} missing from fields")
         return value
 
 
