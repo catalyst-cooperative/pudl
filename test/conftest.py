@@ -5,7 +5,6 @@ import os
 import pathlib
 
 import datapackage
-import pandas as pd
 import pytest
 import sqlalchemy as sa
 import yaml
@@ -15,15 +14,6 @@ from pudl import constants as pc
 from pudl.output.pudltabl import PudlTabl
 
 logger = logging.getLogger(__name__)
-
-START_DATE_EIA = pd.to_datetime(
-    f"{min(pc.working_partitions['eia923']['years'])}-01-01")
-END_DATE_EIA = pd.to_datetime(
-    f"{max(pc.working_partitions['eia923']['years'])}-12-31")
-START_DATE_FERC1 = pd.to_datetime(
-    f"{min(pc.working_partitions['ferc1']['years'])}-01-01")
-END_DATE_FERC1 = pd.to_datetime(
-    f"{max(pc.working_partitions['ferc1']['years'])}-12-31")
 
 
 def pytest_addoption(parser):
@@ -134,10 +124,7 @@ def pudl_out_ferc1(live_pudl_db, pudl_engine, request):
     """Define parameterized PudlTabl output object fixture for FERC 1 tests."""
     if not live_pudl_db:
         raise AssertionError("Output tests only work with a live PUDL DB.")
-    return PudlTabl(pudl_engine=pudl_engine,
-                    start_date=START_DATE_FERC1,
-                    end_date=END_DATE_FERC1,
-                    freq=request.param)
+    return PudlTabl(pudl_engine=pudl_engine, freq=request.param)
 
 
 @pytest.fixture(
@@ -149,14 +136,13 @@ def pudl_out_eia(live_pudl_db, pudl_engine, request):
     """Define parameterized PudlTabl output object fixture for EIA tests."""
     if not live_pudl_db:
         raise AssertionError("Output tests only work with a live PUDL DB.")
-    return PudlTabl(pudl_engine=pudl_engine,
-                    start_date=START_DATE_EIA,
-                    end_date=END_DATE_EIA,
-                    freq=request.param,
-                    fill_fuel_cost=True,
-                    roll_fuel_cost=True,
-                    fill_net_gen=True,
-                    )
+    return PudlTabl(
+        pudl_engine=pudl_engine,
+        freq=request.param,
+        fill_fuel_cost=True,
+        roll_fuel_cost=True,
+        fill_net_gen=False,
+    )
 
 
 @pytest.fixture(scope='session')
@@ -164,9 +150,7 @@ def pudl_out_orig(live_pudl_db, pudl_engine):
     """Create an unaggregated PUDL output object for checking raw data."""
     if not live_pudl_db:
         raise AssertionError("Output tests only work with a live PUDL DB.")
-    return PudlTabl(pudl_engine=pudl_engine,
-                    start_date=START_DATE_EIA,
-                    end_date=END_DATE_EIA)
+    return PudlTabl(pudl_engine=pudl_engine)
 
 
 @pytest.fixture(scope='session')
@@ -244,7 +228,10 @@ def pudl_engine(ferc1_engine, live_pudl_db, pudl_settings_fixture,
 
         pudl.convert.datapkg_to_sqlite.datapkg_to_sqlite(
             sqlite_url=pudl_settings_fixture["pudl_db"],
-            out_path=out_path, clobber=False)
+            out_path=out_path,
+            clobber=False,
+            fkeys=True,
+        )
     # Grab a connection to the freshly populated PUDL DB, and hand it off.
     # All the hard work here is being done by the datapkg and
     # datapkg_to_sqlite fixtures, above.
