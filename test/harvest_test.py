@@ -6,7 +6,7 @@ import pandas as pd
 import pytest
 
 from pudl.metadata.helpers import most_frequent
-from pudl.metadata.models import Resource
+from pudl.metadata.classes import Resource
 
 # ---- Helpers ---- #
 
