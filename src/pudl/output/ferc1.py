@@ -125,7 +125,7 @@ def fuel_by_plant_ferc1(pudl_engine, thresh=0.5):
         .drop(['id'], axis="columns")
         .pipe(pudl.transform.ferc1.fuel_by_plant_ferc1, thresh=thresh)
         .merge(plants_utils_ferc1(pudl_engine),
-               on=['utility_id_ferc1', 'plant_name_ferc1'])
+               on=['utility_id_ferc1', 'plant_name_ferc1'])  # not plant year??
         .pipe(pudl.helpers.organize_cols, ['report_year',
                                            'utility_id_ferc1',
                                            'utility_id_pudl',
