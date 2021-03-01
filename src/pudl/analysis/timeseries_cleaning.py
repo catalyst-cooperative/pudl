@@ -7,10 +7,12 @@ applied to the FERC Form 714, and various historical demand timeseries
 published by regional grid operators like MISO, PJM, ERCOT, and SPP.
 
 They are adapted from code published and modified by:
+
 * Tyler Ruggles <truggles@carnegiescience.edu>
 * Greg Schivley <greg@carbonimpact.co>
 
 And described at:
+
 * https://doi.org/10.1038/s41597-020-0483-x
 * https://zenodo.org/record/3737085
 * https://github.com/truggles/EIA_Cleaned_Hourly_Electricity_Demand_Code
@@ -18,12 +20,15 @@ And described at:
 The imputation methods were designed for multivariate time series forecasting.
 
 They are adapted from code published by:
+
 * Xinyu Chen <chenxy346@gmail.com>
 
 And described at:
+
 * https://arxiv.org/abs/2006.10436
 * https://arxiv.org/abs/2008.03194
 * https://github.com/xinychen/tensor-learning
+
 """
 
 import functools
