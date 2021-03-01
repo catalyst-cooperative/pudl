@@ -1,4 +1,4 @@
-"""Integration tests that verify that zenodo datapackages are correct."""
+"""Integration tests that verify that Zenodo datapackages are correct."""
 
 import pytest
 from requests.exceptions import ConnectionError
@@ -8,11 +8,11 @@ from pudl.workspace.datastore import Datastore
 
 
 class TestZenodoDatapackages:
-    """Ensure both prod & sandbox Datastores point to valid datapackage descriptors."""
+    """Ensure production & sandbox Datastores point to valid datapackages."""
 
     @pytest.mark.xfail(raises=(MaxRetryError, ConnectionError))
     def test_sandbox_datapackages(self):
-        """All datasets point to valid descriptors and each specifies non-zero resources."""
+        """All datasets point to valid descriptors with 1 or more resources."""
         ds = Datastore(sandbox=True)
         for dataset in ds.get_known_datasets():
             desc = ds.get_datapackage_descriptor(dataset)
@@ -20,7 +20,7 @@ class TestZenodoDatapackages:
 
     @pytest.mark.xfail(raises=(MaxRetryError, ConnectionError))
     def test_prod_datapackages(self):
-        """All datasets point to valid descriptors and each specifies non-zero resources."""
+        """All datasets point to valid descriptors with 1 or more resources."""
         ds = Datastore(sandbox=False)
         for dataset in ds.get_known_datasets():
             desc = ds.get_datapackage_descriptor(dataset)
