@@ -534,7 +534,7 @@ class Resource(Base):
         ...     'schema': {'fields': fields, 'primaryKey': ['report_year']}
         ... })
         >>> df = pd.DataFrame({'report_date': ['2000-02-02', '2000-03-03']})
-        >>> resource.harvest_df(df)
+        >>> resource.format_df(df)
           report_year
         0  2000-01-01
         1  2000-01-01
@@ -676,15 +676,15 @@ class Resource(Base):
                     break
         return match if len(match) == len(key) else None
 
-    def harvest_df(self, df: pd.DataFrame = None) -> pd.DataFrame:
+    def format_df(self, df: pd.DataFrame = None) -> pd.DataFrame:
         """
-        Harvest from a dataframe.
+        Format a dataframe.
 
         Args:
-            df: Dataframe to harvest.
+            df: Dataframe to format.
 
         Raises:
-            NotImplementedError: A primary key is required for harvesting.
+            NotImplementedError: A primary key is required for formatting.
 
         Returns:
             Dataframe with column names and data types matching the resource fields.
@@ -699,7 +699,7 @@ class Resource(Base):
             raise NotImplementedError("A primary key is required for harvesting")
         match = self.match_primary_key(df.columns)
         if match is None:
-            return self.harvest_df()
+            return self.format_df()
         dtypes = self.dtypes
         df = (
             df.copy()
@@ -866,17 +866,17 @@ class Resource(Base):
             # Harvest resource from all inputs where all primary key fields are present
             samples = {}
             for name, df in dfs.items():
-                samples[name] = self.harvest_df(df)
+                samples[name] = self.format_df(df)
                 # Pass input names to aggregate via the index
                 samples[name].index = pd.Index([name] * len(samples[name]), name="df")
             df = pd.concat(samples.values())
         elif self.name in dfs:
             # Subset resource from input of same name
-            df = self.harvest_df(dfs[self.name])
+            df = self.format_df(dfs[self.name])
             # Pass input names to aggregate via the index
             df.index = pd.Index([self.name] * df.shape[0], name="df")
         else:
-            return self.harvest_df(), {}
+            return self.format_df(), {}
         if aggregate:
             return self.aggregate_df(df, **kwargs)
         return df, {}
