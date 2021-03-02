@@ -245,7 +245,7 @@ FIELD_DTYPES: Dict[str, str] = {
     "county": "string",
     "prime_mover_code": "string",
     "topping_bottoming_code": "string",
-    "report_year": "date",  # use 'date' (not 'year') for periodic harvest to work
+    "report_year": "year",
     "report_month": "date",
     "capacity_mw": "number",
     "sales": "number",

@@ -11,7 +11,7 @@ FIELD_DTYPES: Dict[str, str] = {
     "boolean": "boolean",
     "date": "datetime64[ns]",
     "datetime": "datetime64[ns]",
-    "year": "Int64",
+    "year": "datetime64[ns]",
 }
 """
 Pandas data type by PUDL field type (Data Package `field.type`).
