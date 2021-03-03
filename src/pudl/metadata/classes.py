@@ -985,12 +985,12 @@ class Package(Base):
         return value.strftime(format="%Y-%m-%dT%H:%M:%SZ")
 
     @pydantic.validator("resources")
-    def _check_foreign_keys(cls, value):
+    def _check_foreign_keys(cls, value):  # noqa: N805
         rnames = [resource.name for resource in value]
         errors = []
         for resource in value:
-            for foreignKey in resource.schema.foreignKeys:
-                rname = foreignKey.reference.resource
+            for foreign_key in resource.schema.foreignKeys:
+                rname = foreign_key.reference.resource
                 tag = f"\t* [{resource.name} -> {rname}]"
                 if rname not in rnames:
                     errors.append(f"{tag}: Reference not found")
@@ -1000,7 +1000,7 @@ class Package(Base):
                     errors.append(f"{tag}: Reference missing primary key")
                     continue
                 missing = [
-                    x for x in foreignKey.reference.fields
+                    x for x in foreign_key.reference.fields
                     if x not in reference.schema.primaryKey
                 ]
                 if missing:
