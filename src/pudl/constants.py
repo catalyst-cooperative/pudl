@@ -1511,7 +1511,7 @@ working_partitions = {
         'years': tuple(range(2004, 2020))
     },
     'eia860m': {
-        'year_month': '2020-08'
+        'year_month': '2020-11'
     },
     'eia861': {
         'years': tuple(range(2001, 2020))
