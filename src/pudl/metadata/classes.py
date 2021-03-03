@@ -218,10 +218,15 @@ class Field(Base):
                     raise ValueError(f"Enum value '{x}' is not {values['type']}")
         return value
 
+    @staticmethod
+    def dict_from_id(x: str) -> dict:
+        """Construct dictionary from PUDL identifier (`Field.name`)."""
+        return {'name': x, **copy.deepcopy(FIELDS[x])}
+
     @classmethod
     def from_id(cls, x: str) -> 'Field':
         """Construct from PUDL identifier (`Field.name`)."""
-        return cls(name=x, **FIELDS[x])
+        return cls(**cls.dict_from_id(x))
 
     @property
     def dtype(self) -> Union[str, pd.CategoricalDtype]:
@@ -360,10 +365,15 @@ class License(Base):
 
     _stringify = _validator("path", fn=_stringify)
 
+    @staticmethod
+    def dict_from_id(x: str) -> dict:
+        """Construct dictionary from PUDL identifier."""
+        return copy.deepcopy(LICENSES[x])
+
     @classmethod
     def from_id(cls, x: str) -> "License":
         """Construct from PUDL identifier."""
-        return cls(**LICENSES[x])
+        return cls(**cls.dict_from_id(x))
 
 
 class Source(Base):
@@ -379,10 +389,15 @@ class Source(Base):
 
     _stringify = _validator("path", "email", fn=_stringify)
 
+    @staticmethod
+    def dict_from_id(x: str) -> dict:
+        """Construct dictionary from PUDL identifier."""
+        return copy.deepcopy(SOURCES[x])
+
     @classmethod
     def from_id(cls, x: str) -> "Source":
         """Construct from PUDL identifier."""
-        return cls(**SOURCES[x])
+        return cls(**cls.dict_from_id(x))
 
 
 class Contributor(Base):
@@ -402,10 +417,15 @@ class Contributor(Base):
 
     _stringify = _validator("path", "email", fn=_stringify)
 
+    @staticmethod
+    def dict_from_id(x: str) -> dict:
+        """Construct dictionary from PUDL identifier."""
+        return copy.deepcopy(CONTRIBUTORS[x])
+
     @classmethod
     def from_id(cls, x: str) -> "Contributor":
         """Construct from PUDL identifier."""
-        return cls(**CONTRIBUTORS[x])
+        return cls(**cls.dict_from_id(x))
 
 
 class ResourceHarvest(Base):
@@ -572,10 +592,10 @@ class Resource(Base):
                 raise ValueError("Harvesting requires a primary key")
         return value
 
-    @classmethod
-    def from_id(cls, x: str) -> "Resource":
+    @staticmethod
+    def dict_from_id(x: str) -> dict:
         """
-        Construct from PUDL identifier (`resource.name`).
+        Construct dictionary from PUDL identifier (`resource.name`).
 
         * `schema.fields`
 
@@ -595,6 +615,7 @@ class Resource(Base):
         * `schema.foreignKeys`: Foreign keys are fetched by resource name.
         """
         obj = copy.deepcopy(RESOURCES[x])
+        obj["name"] = x
         schema = obj["schema"]
         # Expand fields
         if "fields" in schema:
@@ -602,15 +623,15 @@ class Resource(Base):
             for value in schema["fields"]:
                 if isinstance(value, str):
                     # Lookup field by name
-                    fields.append(Field.from_id(value))
+                    fields.append(Field.dict_from_id(value))
                 else:
                     # Lookup field by name and update with custom metadata
-                    fields.append(Field.from_id(value["name"]).copy(update=value))
+                    fields.append({**Field.dict_from_id(value["name"]), **value})
             schema["fields"] = fields
         # Expand sources
         sources = obj.get("sources", [])
         obj["sources"] = [
-            Source.from_id(value) if isinstance(value, str) else value
+            Source.dict_from_id(value) if isinstance(value, str) else value
             for value in sources
         ]
         # Lookup and insert contributors
@@ -619,7 +640,7 @@ class Resource(Base):
         cids = []
         for source in sources:
             cids.extend(CONTRIBUTORS_BY_SOURCE.get(source, []))
-        obj["contributors"] = [Contributor.from_id(cid) for cid in set(cids)]
+        obj["contributors"] = [Contributor.dict_from_id(cid) for cid in set(cids)]
         # Lookup and insert keywords
         if "keywords" in schema:
             raise ValueError("Resource metadata contains explicit keywords")
@@ -634,7 +655,12 @@ class Resource(Base):
         # Delete foreign key rules
         if "foreignKeyRules" in schema:
             del schema["foreignKeyRules"]
-        return cls(name=x, **obj)
+        return obj
+
+    @classmethod
+    def from_id(cls, x: str) -> "Resource":
+        """Construct from PUDL identifier (`resource.name`)."""
+        return cls(**cls.dict_from_id(x))
 
     def to_sql(self, metadata: sa.MetaData = None) -> sa.Table:
         """Return equivalent SQL Table."""
