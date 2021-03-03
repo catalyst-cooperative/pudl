@@ -1,4 +1,4 @@
-"""Routines specific to cleaning up EIA Form 923 data."""
+"""Module to perform data cleaning functions on EIA923 data tables."""
 import logging
 
 import numpy as np
@@ -51,7 +51,8 @@ def _yearly_to_monthly_records(df, md):
             # Drop this month's data from the yearly data frame.
             this_year.drop(this_month.columns, axis=1, inplace=True)
             # Rename this month's columns to get rid of the month reference.
-            this_month.columns = this_month.columns.str.replace(md[m], '', regex=True)
+            this_month.columns = this_month.columns.str.replace(
+                md[m], '', regex=True)
             # Add a numerical month column corresponding to this month.
             this_month['report_month'] = m
             # Add this month's data to the monthly DataFrame we're building.
@@ -151,6 +152,12 @@ def plants(eia923_dfs, eia923_transformed_dfs):
     via the same dictionary of dataframes that all the other ingest functions
     use for uniformity.
 
+    Transformations include:
+    - Map full spelling onto code values.
+    - Convert Y/N columns to booleans.
+    - Remove excess white space around values.
+    - Drop duplicate rows.
+
     Args:
         eia923_dfs (dictionary of pandas.DataFrame): Each entry in this
             dictionary of DataFrame objects corresponds to a page from the EIA
@@ -201,6 +208,14 @@ def plants(eia923_dfs, eia923_transformed_dfs):
 
 def generation_fuel(eia923_dfs, eia923_transformed_dfs):
     """Transforms the generation_fuel_eia923 table.
+
+    Transformations include:
+    - Remove fields implicated elsewhere.
+    - Replace . values with NA.
+    - Remove rows with utility ids 99999.
+    - Create a fuel_type_code_pudl field that organizes fuel types into
+      clean, distinguishable categories.
+    - Combine year and month columns into a single date column.
 
     Args:
         eia923_dfs (dict): Each entry in this
@@ -260,6 +275,14 @@ def generation_fuel(eia923_dfs, eia923_transformed_dfs):
 def boiler_fuel(eia923_dfs, eia923_transformed_dfs):
     """Transforms the boiler_fuel_eia923 table.
 
+    Transformations include:
+    - Remove fields implicated elsewhere.
+    - Drop values with plant and boiler id values of NA.
+    - Replace . values with NA.
+    - Create a fuel_type_code_pudl field that organizes fuel types into
+      clean, distinguishable categories.
+    - Combine year and month columns into a single date column.
+
     Args:
         eia923_dfs (dict): Each entry in this
             dictionary of DataFrame objects corresponds to a page from the
@@ -313,6 +336,12 @@ def boiler_fuel(eia923_dfs, eia923_transformed_dfs):
 def generation(eia923_dfs, eia923_transformed_dfs):
     """Transforms the generation_eia923 table.
 
+    Transformations include:
+    - Drop rows with NA for generator id.
+    - Remove fields implicated elsewhere.
+    - Replace . values with NA.
+    - Drop generator-date row duplicates (all have no data).
+
     Args:
         eia923_dfs (dict): Each entry in this
             dictionary of DataFrame objects corresponds to a page from the
@@ -361,6 +390,10 @@ def generation(eia923_dfs, eia923_transformed_dfs):
 
 def coalmine(eia923_dfs, eia923_transformed_dfs):
     """Transforms the coalmine_eia923 table.
+
+    Transformations include:
+    - Remove fields implicated elsewhere.
+    - Drop duplicates with MSHA ID.
 
     Args:
         eia923_dfs (dict): Each entry in this dictionary of DataFrame objects
@@ -434,6 +467,13 @@ def coalmine(eia923_dfs, eia923_transformed_dfs):
 
 def fuel_receipts_costs(eia923_dfs, eia923_transformed_dfs):
     """Transforms the fuel_receipts_costs_eia923 dataframe.
+
+    Transformations include:
+    - Remove fields implicated elsewhere.
+    - Replace . values with NA.
+    - Standardize codes values.
+    - Fix dates.
+    - Replace invalid mercury content values with NA.
 
     Fuel cost is reported in cents per mmbtu. Converts cents to dollars.
 
