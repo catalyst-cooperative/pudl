@@ -14,8 +14,7 @@ from .constants import (CONTRIBUTORS, CONTRIBUTORS_BY_SOURCE, FIELD_DTYPES,
                         PERIODS, SOURCES)
 from .fields import FIELDS
 from .helpers import (expand_periodic_column_names, groupby_aggregate,
-                      has_duplicate_basenames, most_and_more_frequent,
-                      split_period)
+                      most_and_more_frequent, split_period)
 from .resources import FOREIGN_KEYS, RESOURCES
 
 # ---- Base ---- #
@@ -526,14 +525,19 @@ class Resource(Base):
 
         Harvesting can also handle conversion to longer time periods.
         Period harvesting requires primary key fields with a `datetime` data type,
-        so `year` fields (with `Int64` data type) are not currently supported.
+        except for `year` fields which can be integer.
 
-        >>> fields = [{'name': 'report_year', 'type': 'date'}]
+        >>> fields = [{'name': 'report_year', 'type': 'year'}]
         >>> resource = Resource(**{
-        ...     'name': 'table',
+        ...     'name': 'table', 'harvest': {'harvest': True},
         ...     'schema': {'fields': fields, 'primaryKey': ['report_year']}
         ... })
         >>> df = pd.DataFrame({'report_date': ['2000-02-02', '2000-03-03']})
+        >>> resource.format_df(df)
+          report_year
+        0  2000-01-01
+        1  2000-01-01
+        >>> df = pd.DataFrame({'report_year': [2000, 2000]})
         >>> resource.format_df(df)
           report_year
         0  2000-01-01
@@ -562,9 +566,10 @@ class Resource(Base):
     )
 
     @pydantic.validator("schema_")
-    def _check_field_basenames_unique(cls, value):  # noqa: N805
-        if has_duplicate_basenames([f.name for f in value.fields]):
-            raise ValueError("Field names contain duplicate basenames")
+    def _check_harvest_primary_key(cls, value, values):  # noqa: N805
+        if values["harvest"].harvest:
+            if not value.primaryKey:
+                raise ValueError("Harvesting requires a primary key")
         return value
 
     @classmethod
@@ -652,29 +657,76 @@ class Resource(Base):
         """
         Match primary key fields to input field names.
 
-        An exact match is required,
-        except for periodic names which also match a basename with a smaller period.
+        An exact match is required unless :attr:`harvest` .`harvest=True`,
+        in which case periodic names may also match a basename with a smaller period.
 
         Args:
             names: Field names.
 
         Raises:
-            ValueError: Field names contain duplicate basenames.
+            ValueError: Field names are not unique.
+            ValueError: Multiple field names match primary key field.
 
         Returns:
-            The name in `names` matching each primary key field (dict),
+            The name matching each primary key field (if any) as a :class:`dict`,
             or `None` if not all primary key fields have a match.
+
+        Examples:
+            >>> fields = [{'name': 'x_year', 'type': 'year'}]
+            >>> schema = {'fields': fields, 'primaryKey': ['x_year']}
+            >>> resource = Resource(name='r', schema=schema)
+
+            By default, when :attr:`harvest` .`harvest=False`,
+            exact matches are required.
+
+            >>> resource.harvest.harvest
+            False
+            >>> resource.match_primary_key(['x_month']) is None
+            True
+            >>> resource.match_primary_key(['x_year', 'x_month'])
+            {'x_year': 'x_year'}
+
+            When :attr:`harvest` .`harvest=True`,
+            in the absence of an exact match,
+            periodic names may also match a basename with a smaller period.
+
+            >>> resource.harvest.harvest = True
+            >>> resource.match_primary_key(['x_year', 'x_month'])
+            {'x_year': 'x_year'}
+            >>> resource.match_primary_key(['x_month'])
+            {'x_month': 'x_year'}
+            >>> resource.match_primary_key(['x_month', 'x_date'])
+            Traceback (most recent call last):
+            ValueError: ... {'x_month', 'x_date'} match primary key field 'x_year'
         """
-        if has_duplicate_basenames(names):
-            raise ValueError("Field names contain duplicate basenames")
-        key = self.schema.primaryKey or []
-        match = {}
-        for k in key:
-            for name in expand_periodic_column_names([k]):
-                if name in names:
-                    match[name] = k
-                    break
-        return match if len(match) == len(key) else None
+        if len(names) != len(set(names)):
+            raise ValueError("Field names are not unique")
+        keys = self.schema.primaryKey or []
+        if self.harvest.harvest:
+            remaining = set(names)
+            matches = {}
+            for key in keys:
+                match = None
+                if key in remaining:
+                    # Use exact match if present
+                    match = key
+                elif split_period(key)[1]:
+                    # Try periodic alternatives
+                    periods = expand_periodic_column_names([key])
+                    matching = remaining.intersection(periods)
+                    if len(matching) > 1:
+                        raise ValueError(
+                            f"Multiple field names {matching} "
+                            f"match primary key field '{key}'"
+                        )
+                    if len(matching) == 1:
+                        match = list(matching)[0]
+                if match:
+                    matches[match] = key
+                    remaining.remove(match)
+        else:
+            matches = {key: key for key in keys if key in names}
+        return matches if len(matches) == len(keys) else None
 
     def format_df(self, df: pd.DataFrame = None) -> pd.DataFrame:
         """
@@ -682,9 +734,6 @@ class Resource(Base):
 
         Args:
             df: Dataframe to format.
-
-        Raises:
-            NotImplementedError: A primary key is required for formatting.
 
         Returns:
             Dataframe with column names and data types matching the resource fields.
@@ -694,24 +743,29 @@ class Resource(Base):
         """
         if df is None:
             return pd.DataFrame({n: pd.Series(dtype=d) for n, d in self.dtypes.items()})
-        # TODO: Check whether and when this is still true
-        if not self.schema.primaryKey:
-            raise NotImplementedError("A primary key is required for harvesting")
-        match = self.match_primary_key(df.columns)
-        if match is None:
+        matches = self.match_primary_key(df.columns)
+        if matches is None:
+            # Primary key present but no matches were found
             return self.format_df()
-        dtypes = self.dtypes
+        df = df.copy()
+        # Rename periodic key columns (if any) to the requested period
+        df.rename(columns=matches, inplace=True)
+        # Cast integer year fields to datetime
+        for field in self.schema.fields:
+            if (
+                field.type == "year" and
+                field.name in df and
+                pd.api.types.is_integer_dtype(df[field.name])
+            ):
+                df[field.name] = pd.to_datetime(df[field.name], format="%Y")
         df = (
-            df.copy()
-            # Rename periodic key columns to the requested period
-            .rename(columns=match, copy=False)
             # Reorder columns and insert missing columns
-            .reindex(columns=dtypes.keys(), copy=False)
+            df.reindex(columns=self.dtypes.keys(), copy=False)
             # Coerce columns to correct data type
-            .astype(dtypes, copy=False)
+            .astype(self.dtypes, copy=False)
         )
         # Convert periodic key columns to the requested period
-        for df_key, key in match.items():
+        for df_key, key in matches.items():
             _, period = split_period(key)
             if period and df_key != key:
                 df[key] = PERIODS[period](df[key])
@@ -840,8 +894,7 @@ class Resource(Base):
         the columns matching all primary key fields and any data fields
         are extracted from each compatible input dataframe,
         and concatenated into a single dataframe.
-
-        In either case, periodic key fields (e.g. 'report_month') are matched to any
+        Periodic key fields (e.g. 'report_month') are matched to any
         column of the same name with an equal or smaller period (e.g. 'report_day')
         and snapped to the start of the desired period.
 

@@ -218,26 +218,6 @@ def split_period(name: str) -> Tuple[str, Optional[str]]:
     return parts[0], parts[1]
 
 
-def has_duplicate_basenames(names: Iterable[str]) -> bool:
-    """
-    Test whether column names contain duplicate base names.
-
-    Args:
-        names: Column names.
-
-    Returns:
-        Whether duplicate base names were found.
-
-    Examples:
-        >>> has_duplicate_basenames(['id', 'report_date'])
-        False
-        >>> has_duplicate_basenames(['id', 'report_date', 'report_month'])
-        True
-    """
-    basenames = [split_period(name)[0] for name in names]
-    return len(set(basenames)) != len(basenames)
-
-
 def expand_periodic_column_names(names: Iterable[str]) -> List[str]:
     """
     Add smaller periods to a list of column names.
