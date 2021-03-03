@@ -889,6 +889,27 @@ class Package(Base):
     Tabular data package.
 
     See https://specs.frictionlessdata.io/data-package.
+
+    Examples:
+        Foreign keys between resources are checked for completeness and consistency.
+
+        >>> fields = [{'name': 'x', 'type': 'year'}, {'name': 'y', 'type': 'string'}]
+        >>> fkey = {'fields': ['x', 'y'], 'reference': {'resource': 'b', 'fields': ['x', 'y']}}
+        >>> schema = {'fields': fields, 'primaryKey': ['x'], 'foreignKeys': [fkey]}
+        >>> a = Resource(name='a', schema=schema)
+        >>> b = Resource(name='b', schema=Schema(fields=fields, primaryKey=['x']))
+        >>> Package(name='ab', resources=[a, b])
+        Traceback (most recent call last):
+        ValidationError: ...
+        >>> b.schema.primaryKey = ['x', 'y']
+        >>> package = Package(name='ab', resources=[a, b])
+
+        SQL Alchemy can sort tables, based on foreign keys,
+        in the order in which they need to be loaded into a database.
+
+        >>> metadata = package.to_sql()
+        >>> [table.name for table in metadata.sorted_tables]
+        ['b', 'a']
     """
 
     name: String
@@ -909,3 +930,35 @@ class Package(Base):
     @pydantic.validator("created")
     def _stringify_datetime(cls, value):  # noqa: N805
         return value.strftime(format="%Y-%m-%dT%H:%M:%SZ")
+
+    @pydantic.validator("resources")
+    def _check_foreign_keys(cls, value):
+        rnames = [resource.name for resource in value]
+        errors = []
+        for resource in value:
+            for foreignKey in resource.schema.foreignKeys:
+                rname = foreignKey.reference.resource
+                tag = f"\t* [{resource.name} -> {rname}]"
+                if rname not in rnames:
+                    errors.append(f"{tag}: Reference not found")
+                    continue
+                reference = value[rnames.index(rname)]
+                if not reference.schema.primaryKey:
+                    errors.append(f"{tag}: Reference missing primary key")
+                    continue
+                missing = [
+                    x for x in foreignKey.reference.fields
+                    if x not in reference.schema.primaryKey
+                ]
+                if missing:
+                    errors.append(f"{tag}: Reference primary key missing {missing}")
+        if errors:
+            raise ValueError("Foreign keys\n" + '\n'.join(errors))
+        return value
+
+    def to_sql(self) -> sa.MetaData:
+        """Return equivalent SQL MetaData."""
+        metadata = sa.MetaData()
+        for resource in self.resources:
+            _ = resource.to_sql(metadata)
+        return metadata
