@@ -141,7 +141,6 @@ def _validator(*names, fn: Callable) -> Callable:
         '1'
         >>> Class(y=[0, 0])
         Traceback (most recent call last):
-          ...
         ValidationError: ...
     """
     return pydantic.validator(*names, allow_reuse=True)(fn)
@@ -523,8 +522,8 @@ class Resource(Base):
 
         Customize the error values in the error report.
 
-        >>> errorfunc = lambda x, e: as_dict(x)
-        >>> df, report = resource.harvest_dfs(dfs, errorfunc=errorfunc, raise_errors=False)
+        >>> error = lambda x, e: as_dict(x)
+        >>> df, report = resource.harvest_dfs(dfs, raised=False, error=error)
         >>> report['fields']['x']['errors']
         id
         2    {'A': [2, 2], 'B': [3]}
@@ -534,7 +533,7 @@ class Resource(Base):
         by setting :attr:`harvest`. `harvest=False`.
 
         >>> resource.harvest.harvest = False
-        >>> df, _ = resource.harvest_dfs(dfs, raise_errors=False)
+        >>> df, _ = resource.harvest_dfs(dfs, raised=False)
         >>> df
             id  x
         df
@@ -798,7 +797,7 @@ class Resource(Base):
         return df
 
     def aggregate_df(
-        self, df: pd.DataFrame, raise_errors: bool = False, errorfunc: Callable = None
+        self, df: pd.DataFrame, raised: bool = False, error: Callable = None
     ) -> Tuple[pd.DataFrame, dict]:
         """
         Aggregate dataframe by primary key.
@@ -832,14 +831,15 @@ class Resource(Base):
         Args:
             df: Dataframe to aggregate. It is assumed to have column names and
               data types matching the resource fields.
-            raise_errors: Whether to stop at the first aggregation error.
-            errorfunc: A function with signature `f(x, e) -> Any`,
+            raised: Whether aggregation errors are raised or
+               replaced with :obj:`np.nan` and returned in an error report.
+            error: A function with signature `f(x, e) -> Any`,
               where `x` are the original field values as a :class:`pandas.Series`
               and `e` is the original error.
               If provided, the returned value is reported instead of `e`.
 
         Raises:
-            NotImplementedError: A primary key is required for aggregating.
+            ValueError: A primary key is required for aggregating.
 
         Returns:
             The aggregated dataframe indexed by primary key fields,
@@ -848,7 +848,7 @@ class Resource(Base):
             meets the resource's and fields' tolerance.
         """
         if not self.schema.primaryKey:
-            raise NotImplementedError("A primary key is required for aggregating")
+            raise ValueError("A primary key is required for aggregating")
         aggfuncs = {
             f.name: f.harvest.aggregate
             for f in self.schema.fields
@@ -858,8 +858,8 @@ class Resource(Base):
             df,
             by=self.schema.primaryKey,
             aggfuncs=aggfuncs,
-            errors="raise" if raise_errors else "report",
-            errorfunc=errorfunc,
+            raised=raised,
+            error=error,
         )
         report = self._build_aggregation_report(df, report)
         return df, report
