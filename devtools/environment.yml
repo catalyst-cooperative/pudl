@@ -5,21 +5,21 @@ channels:
   - intake
 dependencies:
   - pip~=21.0
-  - python~=3.8
-  - setuptools_scm~=5.0.1
+  - python>=3.8,<3.9
+  - setuptools_scm~=5.0
 
   # install_requires
-  - addfips~=0.3.0
+  - addfips~=0.3.1
   - catalystcoop.dbfread~=3.0
   - coloredlogs~=15.0
   - contextily~=1.0
   - datapackage~=1.11
-  - fsspec~=0.8.5
-  - gcsfs~=0.7.1
-  - geopandas~=0.8.1
+  - fsspec~=0.8.7
+  - gcsfs~=0.7.2
+  - geopandas~=0.8.2
   - goodtables-pandas-py~=0.2.0
-  - google-cloud-storage~=1.35
   - google-cloud-bigquery~=1.28
+  - google-cloud-storage~=1.35
   - matplotlib~=3.0
   - networkx~=2.2
   - numpy~=1.20
@@ -28,7 +28,7 @@ dependencies:
   - pyarrow~=3.0
   - pyyaml~=5.0
   - python-snappy~=0.6.0
-  - scikit-learn~=0.24
+  - scikit-learn~=0.24.1
   - scipy~=1.6
   - seaborn~=0.11.1
   - sqlalchemy~=1.3
@@ -65,7 +65,7 @@ dependencies:
   - autopep8~=1.5
   - ipdb~=0.13.4
   - isort~=5.0
-  - jedi~=0.17.2
+  - jedi~=0.18
   - lxml~=4.6
   - pandoc~=2.11
   - pdbpp~=0.10
@@ -73,16 +73,16 @@ dependencies:
   - twine~=3.3
 
   # user environment
-  - dask~=2020.12
+  - dask~=2021.2
   - dask-labextension~=5.0
   - jupyter-resource-usage~=0.5.0
   - jupyterlab~=3.0
-  - nodejs~=12.19
-  - pygeos~=0.8.0
-  - pysal~=2.1.0
+  - nodejs~=15.8
+  - pygeos~=0.9.0
+  - pysal~=2.1
   - python-graphviz~=0.16.0
+  - recordlinkage~=0.14.0
 
   - pip:
     - flake8-use-fstring~=1.0     # development
-    - recordlinkage~=0.14.0       # user environment
-    - fredapi~=0.4.3              # user environment
+    - pytest-console-scripts~=1.1 # test_requires
