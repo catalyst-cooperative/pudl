@@ -15,6 +15,11 @@ def ownership(eia860_dfs, eia860_transformed_dfs):
     """
     Pull and transform the ownership table.
 
+    Transformations include:
+    - Replace . values with NA.
+    - Convert pre-2012 ownership percentages to proportions to match
+      post-2012 reporting.
+
     Args:
         eia860_dfs (dict): Each entry in this dictionary of DataFrame objects
             corresponds to a page from the EIA860 form, as reported in the
@@ -77,6 +82,18 @@ def generators(eia860_dfs, eia860_transformed_dfs):
     one dataframe and include an ``operational_status`` to indicate which tab
     the record came from. We use ``operational_status`` to parse the pre 2009
     files as well.
+
+    Transformations include:
+    - Replace . values with NA.
+    - Update ``operational_status_code`` to reflect plant status as either
+      proposed, existing or retired.
+    - Drop values with NA for plant and generator id.
+    - Replace 0 values with NA where appropriate.
+    - Convert Y/N/X values to boolean True/False.
+    - Convert U/Unknown values to NA.
+    - Map full spelling onto code values.
+    - Create a fuel_type_code_pudl field that organizes fuel types into
+      clean, distinguishable categories.
 
     Args:
         eia860_dfs (dict): Each entry in this
@@ -253,6 +270,11 @@ def plants(eia860_dfs, eia860_transformed_dfs):
     via the same dictionary of dataframes that all the other ingest functions
     use for uniformity.
 
+    Transformations include:
+    - Replace . values with NA.
+    - Homogenize spelling of county names.
+    - Convert Y/N/X values to boolean True/False.
+
     Args:
         eia860_dfs (dict): Each entry in this
             dictionary of DataFrame objects corresponds to a page from the
@@ -331,6 +353,10 @@ def boiler_generator_assn(eia860_dfs, eia860_transformed_dfs):
     """
     Pull and transform the boilder generator association table.
 
+    Transformations include:
+    - Drop non-data rows with EIA notes.
+    - Drop duplicate rows.
+
     Args:
         eia860_dfs (dict): Each entry in this dictionary of DataFrame objects
             corresponds to a page from the EIA860 form, as reported in the
@@ -381,6 +407,15 @@ def boiler_generator_assn(eia860_dfs, eia860_transformed_dfs):
 def utilities(eia860_dfs, eia860_transformed_dfs):
     """
     Pull and transform the utilities table.
+
+    Transformations include:
+    - Replace . values with NA.
+    - Fix typos in state abbreviations, convert to uppercase.
+    - Drop address_3 field (all NA).
+    - Combine phone number columns into one field and set values that don't
+      mimic real US phone numbers to NA.
+    - Convert Y/N/X values to boolean True/False.
+    - Map full spelling onto code values.
 
     Args:
         eia860_dfs (dict): Each entry in this
