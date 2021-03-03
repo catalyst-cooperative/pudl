@@ -12,10 +12,10 @@ import sqlalchemy as sa
 from .constants import (CONTRIBUTORS, CONTRIBUTORS_BY_SOURCE, FIELD_DTYPES,
                         FIELD_DTYPES_SQL, KEYWORDS_BY_SOURCE, LICENSES,
                         PERIODS, SOURCES)
-from .fields import FIELDS
+from .fields import FIELD_METADATA
 from .helpers import (expand_periodic_column_names, groupby_aggregate,
                       most_and_more_frequent, split_period)
-from .resources import FOREIGN_KEYS, RESOURCES
+from .resources import FOREIGN_KEYS, RESOURCE_METADATA
 
 # ---- Base ---- #
 
@@ -221,7 +221,7 @@ class Field(Base):
     @staticmethod
     def dict_from_id(x: str) -> dict:
         """Construct dictionary from PUDL identifier (`Field.name`)."""
-        return {'name': x, **copy.deepcopy(FIELDS[x])}
+        return {'name': x, **copy.deepcopy(FIELD_METADATA[x])}
 
     @classmethod
     def from_id(cls, x: str) -> 'Field':
@@ -614,7 +614,7 @@ class Resource(Base):
         * `keywords`: Keywords are fetched by source ids.
         * `schema.foreignKeys`: Foreign keys are fetched by resource name.
         """
-        obj = copy.deepcopy(RESOURCES[x])
+        obj = copy.deepcopy(RESOURCE_METADATA[x])
         obj["name"] = x
         schema = obj["schema"]
         # Expand fields

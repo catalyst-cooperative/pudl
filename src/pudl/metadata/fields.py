@@ -52,7 +52,7 @@ North American Reliability Corporation (NERC) regions.
 See https://www.eia.gov/electricity/data/eia411/#tabs_NERC-3.
 """
 
-FIELDS: Dict[str, Dict[str, Any]] = {
+FIELD_METADATA: Dict[str, Dict[str, Any]] = {
     "abbr": {
         "type": "string"
     },

@@ -3,7 +3,7 @@ from typing import Any, Dict, List
 
 from .helpers import build_foreign_keys
 
-RESOURCES: Dict[str, Dict[str, Any]] = {
+RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
     "accumulated_depreciation_ferc1": {
         "description": "Balances and changes to FERC Accumulated Provision for Depreciation.",
         "schema": {
@@ -870,7 +870,7 @@ Each element of `fields` and `sources` may be a dictionary or a PUDL identifier.
 See :func:`.helpers.build_foreign_keys` for the expected format of `foreignKeyRules`.
 """
 
-FOREIGN_KEYS: Dict[str, List[dict]] = build_foreign_keys(RESOURCES)
+FOREIGN_KEYS: Dict[str, List[dict]] = build_foreign_keys(RESOURCE_METADATA)
 """
 Foreign keys by resource name.
 
