@@ -343,7 +343,8 @@ def _standardize_offset_codes(df, offset_fixes):
     code = df["utc_offset_code"].mask(is_blank)
     # Apply specific fixes on a per-respondent basis:
     return code.groupby(df['respondent_id_ferc714']).apply(
-        lambda x: x.replace(offset_fixes[x.name]) if x.name in offset_fixes else x
+        lambda x: x.replace(
+            offset_fixes[x.name]) if x.name in offset_fixes else x
     )
 
 
@@ -392,6 +393,14 @@ def demand_hourly_pa(tfr_dfs):
     """
     Transform the hourly demand time series by Planning Area.
 
+    Transformations include:
+    - Clean UTC offset codes.
+    - Replace UTC offset codes with UTC offset and timezone.
+    - Drop 25th hour rows.
+    - Set records with 0 UTC code to 0 demand.
+    - Drop duplicate rows.
+    - Flip negative signs for reported demand.
+
     Args:
         tfr_dfs (dict): A dictionary of (partially) transformed dataframes,
             to be cleaned up.
@@ -421,7 +430,8 @@ def demand_hourly_pa(tfr_dfs):
 
     # Clean UTC offset codes
     df["utc_offset_code"] = df["utc_offset_code"].str.strip().str.upper()
-    df["utc_offset_code"] = df.pipe(_standardize_offset_codes, OFFSET_CODE_FIXES)
+    df["utc_offset_code"] = df.pipe(
+        _standardize_offset_codes, OFFSET_CODE_FIXES)
     # NOTE: Assumes constant timezone for entire year
     for fix in OFFSET_CODE_FIXES_BY_YEAR:
         mask = (
@@ -442,7 +452,8 @@ def demand_hourly_pa(tfr_dfs):
     # Melt daily rows with 24 demands to hourly rows with single demand
     logger.debug("Melting daily FERC 714 records into hourly records.")
     df.rename(
-        columns=lambda x: int(re.sub(r"^hour", "", x)) - 1 if "hour" in x else x,
+        columns=lambda x: int(re.sub(r"^hour", "", x)) -
+        1 if "hour" in x else x,
         inplace=True
     )
     df = df.melt(
@@ -475,7 +486,8 @@ def demand_hourly_pa(tfr_dfs):
     # There should be less than 10 of these,
     # resulting from changes to a planning area's reporting timezone.
     duplicated = df.duplicated(["respondent_id_ferc714", "utc_datetime"])
-    logger.debug(f"Found {np.count_nonzero(duplicated)} duplicate UTC datetimes.")
+    logger.debug(
+        f"Found {np.count_nonzero(duplicated)} duplicate UTC datetimes.")
     df.query("~@duplicated", inplace=True)
 
     # Flip the sign on sections of demand which were reported as negative
