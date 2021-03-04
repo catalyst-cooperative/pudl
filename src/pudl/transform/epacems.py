@@ -1,4 +1,5 @@
-"""Routines specific to cleaning up EPA CEMS hourly data."""
+"""Module to perform data cleaning functions on EPA CEMS data tables."""
+
 import datetime
 import logging
 import pathlib
@@ -19,6 +20,9 @@ logger = logging.getLogger(__name__)
 def fix_up_dates(df, plant_utc_offset):
     """
     Fix the dates for the CEMS data.
+
+    Transformations include:
+    - Account for timezone differences with offset from UTC.
 
     Args:
         df (pandas.DataFrame): A CEMS hourly dataframe for one year-month-state

@@ -1,14 +1,5 @@
-"""
-Routines for transforming FERC Form 1 data before loading into the PUDL DB.
+"""Module to perform data cleaning functions on FERC Form 1 data tables."""
 
-This module provides a variety of functions that are used in cleaning up the
-FERC Form 1 data prior to loading into our database. This includes adopting
-standardized units and column names, standardizing the formatting of some
-string values, and correcting data entry errors which we can infer based on
-the existing data. It may also include removing bad data, or replacing it
-with the appropriate NA values.
-
-"""
 import importlib.resources
 import logging
 import re
@@ -693,8 +684,15 @@ def _multiplicative_error_correction(tofix, mask, minval, maxval, mults):
 def plants_steam(ferc1_raw_dfs, ferc1_transformed_dfs):
     """Transforms FERC Form 1 plant_steam data for loading into PUDL Database.
 
-    This includes converting to our preferred units of MWh and MW, as well as
-    standardizing the strings describing the kind of plant and construction.
+    Transformations include:
+    - Add a FERC record id.
+    - Add PUDL plant id.
+    - Rename columns for clarity.
+    - Clean up plant name (remove UNICODE control characters, leading and trailing
+      white spaces, excess internal white space, uppercase to lowercase).
+    - Standardize the strings describing the kind of plant, fuel, and construction.
+    - Set non-numeric or error values to NA.
+    - Convert units to MWh and MW.
 
     Args:
         ferc1_raw_dfs (dict): Each entry in this dictionary of DataFrame
@@ -958,6 +956,17 @@ def fuel(ferc1_raw_dfs, ferc1_transformed_dfs):
     also standardized using our cleanstrings() function and string cleaning
     dictionaries found above (FUEL_STRINGS, etc.)
 
+    Transformations include:
+    - Add a FERC record id.
+    - Clean up plant name (remove UNICODE control characters, leading and trailing
+      white spaces, excess internal white space, uppercase to lowercase).
+    - Standardize the strings describing the kind of fuel.
+    - Drop fuel_cost_kwh and fuel_generation (they are not comprehensive).
+    - Convert units to mmtbu.
+    - Rename columns for clarity.
+    - Correct improper unit reporting and remove outliers.
+    - Drop records with missing data (blunt instrument)
+
     Args:
         ferc1_raw_dfs (dict): Each entry in this dictionary of DataFrame
             objects corresponds to a table from the  FERC Form 1 DBC database.
@@ -1076,12 +1085,22 @@ def plants_small(ferc1_raw_dfs, ferc1_transformed_dfs):
     categorization stored in an Excel spreadsheet. This function reads in the
     plant type data from the spreadsheet and merges it with the rest of the
     information from the FERC DB based on record number, FERC respondent ID,
-    and report year. When possible the FERC license number for small hydro
+    and report year. When possible, the FERC license number for small hydro
     plants is also manually extracted from the data.
 
     This categorization will need to be renewed with each additional year of
     FERC data we pull in. As of v0.1 the small plants have been categorized
     for 2004-2015.
+
+    Transformations include:
+    - Clean up plant name (remove UNICODE control characters, leading and trailing
+      white spaces, excess internal white space, uppercase to lowercase).
+    - Remove bad construction and installation years.
+    - Convert from cents/mmbtu to dollars/mmBTU.
+    - Add row numbers.
+    - Add a FERC record id.
+    - Parse plant types.
+    - Rename columns for clarity.
 
     Args:
         ferc1_raw_dfs (dict): Each entry in this dictionary of DataFrame
@@ -1192,6 +1211,15 @@ def plants_hydro(ferc1_raw_dfs, ferc1_transformed_dfs):
     Standardizes plant names (stripping whitespace and Using Title Case). Also
     converts into our preferred units of MW and MWh.
 
+    Transformations include:
+    - Add a FERC record id.
+    - Clean up plant name (remove UNICODE control characters, leading and trailing
+      white spaces, excess internal white space, uppercase to lowercase).
+    - Convert units to MWh and MW.
+    - Set non-numeric or error values to NA.
+    - Rename columns for clarity.
+    - Drop duplicate rows.
+
     Args:
         ferc1_raw_dfs (dict): Each entry in this dictionary of DataFrame
             objects corresponds to a table from the  FERC Form 1 DBC database.
@@ -1274,6 +1302,15 @@ def plants_pumped_storage(ferc1_raw_dfs, ferc1_transformed_dfs):
 
     Standardizes plant names (stripping whitespace and Using Title Case). Also
     converts into our preferred units of MW and MWh.
+
+    Transformations include:
+    - Add a FERC record id.
+    - Clean up plant name (remove UNICODE control characters, leading and trailing
+      white spaces, excess internal white space, uppercase to lowercase).
+    - Convert units to MWh and MW.
+    - Set non-numeric or error values to NA.
+    - Rename columns for clarity.
+    - Drop duplicate rows.
 
     Args:
         ferc1_raw_dfs (dict): Each entry in this dictionary of DataFrame
@@ -1435,6 +1472,14 @@ def purchased_power(ferc1_raw_dfs, ferc1_transformed_dfs):
     difficult to correlate with other data. It will need to be categorized by
     hand or with some fuzzy matching eventually.
 
+    Transformations include:
+    - Add a FERC record id.
+    - Rename columns for clarity.
+    - Replace NA values with 0 in data columns.
+    - Replace invalid purchases with empty string.
+    - Map full spelling onto code values.
+    - Drop duplicate rows and rows with no useful data.
+
     Args:
         ferc1_raw_dfs (dict): Each entry in this dictionary of DataFrame
             objects corresponds to a table from the  FERC Form 1 DBC database.
@@ -1509,6 +1554,11 @@ def accumulated_depreciation(ferc1_raw_dfs, ferc1_transformed_dfs):
     This information is organized by FERC account, with each line of the FERC
     Form 1 having a different descriptive identifier like 'balance_end_of_year'
     or 'transmission'.
+
+    Transformations include:
+    - Add a FERC record id.
+    - Add row numbers.
+    - Rename columns for clarity.
 
     Args:
         ferc1_raw_dfs (dict): Each entry in this dictionary of DataFrame
