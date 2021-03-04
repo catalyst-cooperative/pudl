@@ -75,4 +75,4 @@ repos:
       verbose: false
       pass_filenames: false
       always_run: true
-      entry: tox -e unit
+      entry: tox -re unit
