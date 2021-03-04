@@ -6,8 +6,10 @@ Building and Testing PUDL
 
 The PUDL Project uses `PyTest <https://pytest.org>`__ to test our code, and
 `Tox <https://tox.readthedocs.io>`__ to ensure the tests are run in a
-controlled environment. We run the tests locally, and on
-`Travis CI <https://travis-ci.org/catalyst-cooperative/pudl/>`__.
+controlled environment. We run the tests locally before pushing changes to
+GitHub so we can catch errors early and fix them. The tests are also run
+automatically using `GitHub Actions <https://github.com/features/actions>`__
+whenever code is pushed to our GitHub repo or someone makes a pull request.
 
 -------------------------------------------------------------------------------
 Test Data
@@ -37,19 +39,14 @@ testing. They can:
 * use an existing local datastore skipping the download step, or
 * use already processed local data, in the case of post-ETL data validation.
 
-Because
-`FTP doesn't work on Travis <https://docs.travis-ci.com/user/common-build-problems/#ftpsmtpother-protocol-do-not-work>`__,
-and the :doc:`data_sources/ferc1` and :doc:`data_sources/epacems` data can only
-be downloaded over FTP, we also keep a small amount of data for those sources in
-the PUDL Github repository and use it to populate the datastore for continuous
-integration. We download fresh data for the EIA and other data sources that are
-available via HTTPS.
+-------------------------------------------------------------------------------
+Running ``pytest``
+-------------------------------------------------------------------------------
+Our test suite is organized into three main sections:
 
--------------------------------------------------------------------------------
-Running PyTest
--------------------------------------------------------------------------------
-The PyTest suite is organized into two main categories. **ETL** tests and
-**data validation** tests.
+#. Unit tests
+#. Integration tests
+#. Data Validation
 
 ETL Tests
 ^^^^^^^^^
