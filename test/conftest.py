@@ -17,33 +17,34 @@ logger = logging.getLogger(__name__)
 
 
 def pytest_addoption(parser):
-    """Add a command line option for using the live FERC/PUDL DB."""
-    parser.addoption("--live_ferc1_db", action="store", default=False,
-                     help="""Path to a live rather than temporary FERC DB.
-                          Use --live_ferc1_db=AUTO if FERC DB location concurs
-                          with derived pudl_out.""")
-    parser.addoption("--live_pudl_db", action="store", default=False,
-                     help="""Path to a live rather than temporary PUDL DB.
-                          Use --live_pudl_db=AUTO if PUDL DB location concurs
-                          with derived pudl_out.""")
-    parser.addoption("--pudl_in", action="store", default=False,
-                     help="Path to the top level PUDL inputs directory.")
-    parser.addoption("--pudl_out", action="store", default=False,
-                     help="Path to the top level PUDL outputs directory.")
-    parser.addoption("--fast", action="store_true", default=False,
-                     help="Use minimal test data to speed up the tests.")
-    parser.addoption("--clobber", action="store_true", default=False,
-                     help="Clobber the existing datapackages if they exist")
-    parser.addoption("--sandbox", action="store_true", default=False,
-                     help="Use raw inputs from the Zenodo sandbox server.")
-    parser.addoption("--gcs-cache-path", default=None,
-                     help="If set, use this GCS path as a datastore cache layer.")
-
-
-@pytest.fixture(scope='session')
-def live_ferc1_db(request):
-    """Use the live FERC DB or make a temporary one."""
-    return request.config.getoption("--live_ferc1_db")
+    """Add a command line option Requiring fresh data download."""
+    parser.addoption(
+        "--tmp-data",
+        action="store",
+        default=False,
+        help="Download fresh input data for use with this test run only."
+    )
+    parser.addoption(
+        "--sandbox",
+        action="store_true",
+        default=False,
+        help="Use raw inputs from the Zenodo sandbox server."
+    )
+    parser.addoption(
+        "--gcs-cache-path",
+        default=None,
+        help="If set, use this GCS path as a datastore cache layer."
+    )
+    parser.addoption(
+        "--live_pudl_db", action="store", default=False,
+        help="Path to a live rather than temporary PUDL DB."
+    )
+    parser.addoption(
+        "--pudl_in",
+        action="store",
+        default=False,
+        help="Path to the top level PUDL inputs directory."
+    )
 
 
 @pytest.fixture(scope='session')
@@ -53,65 +54,29 @@ def live_pudl_db(request):
 
 
 @pytest.fixture(scope='session')
-def fast_tests(request):
+def data_scope(pudl_settings_fixture):
     """
-    Set a boolean flag indicating whether we are doing full or fast tests.
+    Define the scope of the data to test.
 
-    We sometimes want to do a quick sanity check while testing locally, and
-    that can be accomplished by setting the --fast flag on the command line.
-    if fast_tests is true, then we only use 1 year of data, otherwise we use
-    all available data (all the working_partitions for each dataset).
-
-    Additionally, if we are on a CI platform, we *always* want to use the fast
-    tests, regardless of what has been passed in on the command line with the
-    --fast arguement.
-
-    Returns:
-        boolean
-
+    This should probably be simplified to just read the settings directly
+    out of the settings file.
     """
-    fast_tests = request.config.getoption("--fast")
-    if os.getenv('CI'):
-        logger.info("We're testing on CI platform, using minimal data.")
-        fast_tests = True
-
-    return fast_tests
-
-
-@pytest.fixture(scope='session')
-def data_scope(fast_tests, pudl_settings_fixture):
-    """Define data scope for tests for CI vs. local use."""
     scope = {}
     test_dir = pathlib.Path(__file__).parent
-    if fast_tests:
-        settings_file = 'fast-test.yml'
-        # the ferc1_dbf_tables are for the ferc1_engine. they refer to ferc1
-        # dbf table names, not pudl table names. for the fast test, we only pull
-        # in tables we need for pudl.
-        scope['ferc1_dbf_tables'] = [
-            pc.table_map_ferc1_pudl[k] for k in pc.pudl_tables["ferc1"]
-        ] + ["f1_respondent_id"]
-    else:
-        settings_file = 'full-test.yml'
-        scope['ferc1_dbf_tables'] = [
-            tbl for tbl in pc.ferc1_tbl2dbf if tbl not in pc.ferc1_huge_tables
-        ]
-    with open(pathlib.Path(test_dir, 'settings', settings_file),
-              "r") as f:
+    # the ferc1_dbf_tables are for the ferc1_engine. they refer to ferc1
+    # dbf table names, not pudl table names. for the fast test, we only pull
+    # in tables we need for pudl.
+    scope['ferc1_dbf_tables'] = [
+        pc.table_map_ferc1_pudl[k] for k in pc.pudl_tables["ferc1"]
+    ] + ["f1_respondent_id"]
+
+    with open(pathlib.Path(test_dir) / 'settings/fast-test.yml', "r") as f:
         datapkg_settings = yaml.safe_load(f)
     # put the whole settings dictionary
     scope.update(datapkg_settings)
-    try:
-        datapkg_bundle_doi = datapkg_settings["datapkg_bundle_doi"]
-        if not pudl.helpers.is_doi(datapkg_bundle_doi):
-            raise ValueError(
-                f"Found invalid bundle DOI: {datapkg_bundle_doi} "
-                f"in bundle {datapkg_settings['datpkg_bundle_name']}."
-            )
-    except KeyError:
-        datapkg_bundle_doi = None
-
-    scope["datapkg_bundle_doi"] = datapkg_bundle_doi
+    scope["datapkg_bundle_doi"] = datapkg_settings.get("datapkg_bundle_doi", None)
+    if scope["datapkg_bundle_doi"] is not None:
+        assert pudl.helpers.is_doi(scope["datapkg_bundle_doi"])
     # copy the etl parameters (years, tables, states) from the datapkg dataset
     # settings into the scope so they are more easily available
     scope.update(pudl.etl.get_flattened_etl_parameters(
@@ -154,7 +119,7 @@ def pudl_out_orig(live_pudl_db, pudl_engine):
 
 
 @pytest.fixture(scope='session')
-def ferc1_engine(live_ferc1_db, pudl_settings_fixture,
+def ferc1_engine(pudl_settings_fixture,
                  data_scope, request, pudl_datastore_fixture):
     """
     Grab a connection to the FERC Form 1 DB clone.
@@ -162,23 +127,21 @@ def ferc1_engine(live_ferc1_db, pudl_settings_fixture,
     If we are using the test database, we initialize it from scratch first.
     If we're using the live database, then we just yield a conneciton to it.
     """
-    clobber = request.config.getoption("--clobber")
-    if not live_ferc1_db:
-        pudl.extract.ferc1.dbf2sqlite(
-            tables=data_scope['ferc1_dbf_tables'],
-            years=data_scope['ferc1_years'],
-            refyear=max(data_scope['ferc1_years']),
-            pudl_settings=pudl_settings_fixture,
-            clobber=clobber,
-            datastore=pudl_datastore_fixture)
+    pudl.extract.ferc1.dbf2sqlite(
+        tables=data_scope['ferc1_dbf_tables'],
+        years=data_scope['ferc1_years'],
+        refyear=max(data_scope['ferc1_years']),
+        pudl_settings=pudl_settings_fixture,
+        clobber=False,
+        datastore=pudl_datastore_fixture
+    )
     engine = sa.create_engine(pudl_settings_fixture["ferc1_db"])
     yield engine
 
     logger.info(f'Engine: {engine}')
 
-    if not live_ferc1_db:
-        # Clean up after ourselves by dropping the test DB tables.
-        pudl.helpers.drop_tables(engine, clobber=True)
+    # Clean up after ourselves by dropping the test DB tables.
+    pudl.helpers.drop_tables(engine, clobber=True)
 
 
 @pytest.fixture(scope='session')
@@ -187,13 +150,13 @@ def datapkg_bundle(request, ferc1_engine,
     """Generate limited packages for testing."""
     if not live_pudl_db:
         logger.info('setting up the datapkg_bundle fixture')
-        clobber = request.config.getoption("--clobber")
         pudl.etl.generate_datapkg_bundle(
             data_scope['datapkg_bundle_settings'],
             pudl_settings_fixture,
             datapkg_bundle_name=data_scope['datapkg_bundle_name'],
             datapkg_bundle_doi=data_scope['datapkg_bundle_doi'],
-            clobber=clobber)
+            clobber=False,
+        )
 
 
 @pytest.fixture(scope='session')
@@ -218,14 +181,13 @@ def pudl_engine(ferc1_engine, live_pudl_db, pudl_settings_fixture,
         out_path = pathlib.Path(
             pudl_settings_fixture["datapkg_dir"],
             data_scope["datapkg_bundle_name"],
-            "pudl-merged")
+            "pudl-merged"
+        )
         # clobber has to be False here, because if the pudl-merged datapackage
         # already existed somehow in the datapkg_bundle_dir, then we're
         # merging things back in more than once and that's broken... so we want
         # it to fail if the merged package exists already.
-        pudl.convert.merge_datapkgs.merge_datapkgs(
-            dps, out_path, clobber=False)
-
+        pudl.convert.merge_datapkgs.merge_datapkgs(dps, out_path, clobber=False)
         pudl.convert.datapkg_to_sqlite.datapkg_to_sqlite(
             sqlite_url=pudl_settings_fixture["pudl_db"],
             out_path=out_path,
@@ -239,16 +201,14 @@ def pudl_engine(ferc1_engine, live_pudl_db, pudl_settings_fixture,
     logger.info(pudl_engine)
     yield pudl_engine
 
-    if not live_pudl_db:
-        # Clean up after ourselves by dropping the test DB tables.
-        pudl.helpers.drop_tables(pudl_engine, clobber=True)
+    # Clean up after ourselves by dropping the test DB tables.
+    pudl.helpers.drop_tables(pudl_engine, clobber=True)
 
 
 @pytest.fixture(scope='session')  # noqa: C901
 def pudl_settings_fixture(  # noqa: C901
     request,  # noqa: C901
     tmpdir_factory,  # noqa: C901
-    live_ferc1_db,  # noqa: C901
     live_pudl_db,  # noqa: C901
 ):  # noqa: C901
     """Determine some settings (mostly paths) for the test session."""
@@ -264,7 +224,6 @@ def pudl_settings_fixture(  # noqa: C901
 
     # Grab the input / output dirs specified on the command line, if any:
     pudl_in = request.config.getoption("--pudl_in")
-    pudl_out = request.config.getoption("--pudl_out")
 
     # Having this in a constant place will allow us to cache inputs which should
     # speed up the tests considerably
@@ -284,26 +243,18 @@ def pudl_settings_fixture(  # noqa: C901
     elif pudl_in == 'AUTO':
         pudl_in = pudl_auto['pudl_in']
 
-    if pudl_out is False:
-        pudl_out = pudl_dir
-        os.environ["PUDL_OUT"] = str(pudl_out)
-    elif pudl_out == 'AUTO':
-        pudl_out = pudl_auto['pudl_out']
+    pudl_out = pudl_dir
+    os.environ["PUDL_OUT"] = str(pudl_out)
 
     logger.info(f"Using PUDL_IN={pudl_in}")
     logger.info(f"Using PUDL_OUT={pudl_out}")
 
     pudl_settings = pudl.workspace.setup.derive_paths(
         pudl_in=pudl_in,
-        pudl_out=pudl_out)
+        pudl_out=pudl_out
+    )
 
     pudl.workspace.setup.init(pudl_in=pudl_in, pudl_out=pudl_out)
-
-    if live_ferc1_db == 'AUTO':
-        pudl_settings['ferc1_db'] = pudl_auto['ferc1_db']
-    elif live_ferc1_db:
-        live_ferc1_db_path = pathlib.Path(live_ferc1_db).expanduser().resolve()
-        pudl_settings['ferc1_db'] = 'sqlite:///' + str(live_ferc1_db_path)
 
     if live_pudl_db == 'AUTO':
         pudl_settings['pudl_db'] = pudl_auto['pudl_db']

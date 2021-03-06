@@ -4,9 +4,7 @@ PyTest based testing of the FERC Database & PUDL data package initializations.
 This module also contains fixtures for returning connections to the databases.
 These connections can be either to the live databases for post-ETL testing or
 to new temporary databases, which are created from scratch and dropped after
-the tests have completed. See the --live_ferc1_db and --live_pudl_db command
-line options by running pytest --help. If you are using live databases, you
-will need to tell PUDL where to find them with --pudl_in=<PUDL_IN>.
+the tests have completed.
 
 """
 import logging
@@ -46,7 +44,6 @@ def test_epacems_to_parquet(datapkg_bundle,
                             data_scope,
                             request):
     """Attempt to convert a small amount of EPA CEMS data to parquet format."""
-    clobber = request.config.getoption("--clobber")
     epacems_datapkg_json = Path(
         pudl_settings_fixture['datapkg_dir'],
         data_scope['datapkg_bundle_name'],
@@ -60,7 +57,7 @@ def test_epacems_to_parquet(datapkg_bundle,
         epacems_states=data_scope['epacems_states'],
         out_dir=Path(pudl_settings_fixture['parquet_dir'], 'epacems'),
         compression='snappy',
-        clobber=clobber
+        clobber=False,
     )
 
 
@@ -109,9 +106,7 @@ def test_ferc1_lost_data(data_scope, pudl_ferc1datastore_fixture):
                     )
 
 
-def test_ferc1_solo_etl(pudl_settings_fixture,
-                        ferc1_engine,
-                        live_ferc1_db):
+def test_ferc1_solo_etl(pudl_settings_fixture, ferc1_engine):
     """Verify that a minimal FERC Form 1 can be loaded without other data."""
     with open(Path(__file__).parent.parent / 'settings/ferc1-solo.yml', "r") as f:
         datapkg_settings = yaml.safe_load(f)['datapkg_bundle_settings']
