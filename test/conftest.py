@@ -2,7 +2,7 @@
 import glob
 import logging
 import os
-import pathlib
+from pathlib import Path
 
 import datapackage
 import pytest
@@ -47,6 +47,12 @@ def pytest_addoption(parser):
     )
 
 
+@pytest.fixture(scope="session")
+def test_dir():
+    """Return the path to the top-level directory containing the tests."""
+    return Path(__file__).parent
+
+
 @pytest.fixture(scope='session')
 def live_pudl_db(request):
     """Fixture that tells use which PUDL DB to use (live vs. testing)."""
@@ -54,7 +60,7 @@ def live_pudl_db(request):
 
 
 @pytest.fixture(scope='session')
-def data_scope(pudl_settings_fixture):
+def data_scope(pudl_settings_fixture, test_dir):
     """
     Define the scope of the data to test.
 
@@ -62,7 +68,6 @@ def data_scope(pudl_settings_fixture):
     out of the settings file.
     """
     scope = {}
-    test_dir = pathlib.Path(__file__).parent
     # the ferc1_dbf_tables are for the ferc1_engine. they refer to ferc1
     # dbf table names, not pudl table names. for the fast test, we only pull
     # in tables we need for pudl.
@@ -70,7 +75,7 @@ def data_scope(pudl_settings_fixture):
         pc.table_map_ferc1_pudl[k] for k in pc.pudl_tables["ferc1"]
     ] + ["f1_respondent_id"]
 
-    with open(pathlib.Path(test_dir) / 'settings/fast-test.yml', "r") as f:
+    with open(test_dir / 'settings/fast-test.yml', "r") as f:
         datapkg_settings = yaml.safe_load(f)
     # put the whole settings dictionary
     scope.update(datapkg_settings)
@@ -171,14 +176,14 @@ def pudl_engine(ferc1_engine, live_pudl_db, pudl_settings_fixture,
     logger.info('setting up the pudl_engine fixture')
     if not live_pudl_db:
         # Generate the list of datapackages to merge...
-        datapkg_bundle_dir = pathlib.Path(
+        datapkg_bundle_dir = Path(
             pudl_settings_fixture["datapkg_dir"],
             data_scope["datapkg_bundle_name"],
         )
         # Here we're gonna merge *any* datapackages found within the bundle:
         in_paths = glob.glob(f"{datapkg_bundle_dir}/*/datapackage.json")
         dps = [datapackage.DataPackage(descriptor=path) for path in in_paths]
-        out_path = pathlib.Path(
+        out_path = Path(
             pudl_settings_fixture["datapkg_dir"],
             data_scope["datapkg_bundle_name"],
             "pudl-merged"
@@ -229,8 +234,8 @@ def pudl_settings_fixture(  # noqa: C901
     # speed up the tests considerably
     try:
         if os.environ["GITHUB_ACTIONS"]:
-            pudl_in = pathlib.Path(os.environ["HOME"]) / "pudl-work"
-            pudl_out = pathlib.Path(os.environ["HOME"]) / "pudl-work"
+            pudl_in = Path(os.environ["HOME"]) / "pudl-work"
+            pudl_out = Path(os.environ["HOME"]) / "pudl-work"
     except KeyError:
         pass
 
@@ -259,7 +264,7 @@ def pudl_settings_fixture(  # noqa: C901
     if live_pudl_db == 'AUTO':
         pudl_settings['pudl_db'] = pudl_auto['pudl_db']
     elif live_pudl_db:
-        live_pudl_db_path = pathlib.Path(live_pudl_db).expanduser().resolve()
+        live_pudl_db_path = Path(live_pudl_db).expanduser().resolve()
         pudl_settings['pudl_db'] = 'sqlite:///' + \
             str(live_pudl_db_path)
 
@@ -279,7 +284,7 @@ def pudl_datastore_fixture(pudl_settings_fixture, request):
     """Produce a :class:pudl.workspace.datastore.Datastore."""
     gcs_cache = request.config.getoption("--gcs-cache-path")
     return pudl.workspace.datastore.Datastore(
-        local_cache_path=pathlib.Path(
+        local_cache_path=Path(
             pudl_settings_fixture["pudl_in"]) / "data",
         gcs_cache_path=gcs_cache,
         sandbox=pudl_settings_fixture["sandbox"])
