@@ -127,14 +127,14 @@ your PUDL SQLite database or other outputs. See :ref:`basic-usage` for more deta
 -------------------------------------------------------------------------------
 Set Up Code Linting
 -------------------------------------------------------------------------------
-We use several automated tools to apply uniform coding style and formatting across the
-project codebase. This is known as
-`code linting <https://en.wikipedia.org/wiki/Lint_(software)>`__ and it reduces merge
-conflicts, makes the code easier to read, and helps catch some types of bugs before they
-are committed. These tools are part of the ``pudl-dev`` conda environment, and their
-configuration files are checked into the GitHub repository, so they should be installed
-and ready to go if you've cloned the pudl repo and are working inside the pudl conda
-environment.
+We use several automated tools to apply uniform coding style and formatting
+across the project codebase. This is known as
+`code linting <https://en.wikipedia.org/wiki/Lint_(software)>`__ and it reduces
+merge conflicts, makes the code easier to read, and helps catch some types of
+bugs before they are committed. These tools are part of the ``pudl-dev`` conda
+environment, and their configuration files are checked into the GitHub
+repository, so they should be installed and ready to go if you've cloned the
+pudl repo and are working inside the pudl conda environment.
 
 Git Pre-commit Hooks
 ^^^^^^^^^^^^^^^^^^^^

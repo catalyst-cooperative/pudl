@@ -2,16 +2,21 @@
 Contributing to PUDL
 ===============================================================================
 
-PUDL is an open source project that has thus far been supported by a
-combination of :doc:`volunteer efforts and grant funding <acknowledgments>`.
-The work is currently being coordinated by the members of `Catalyst Cooperative
-<https://catalyst.coop>`_. PUDL is meant to serve a wide variety of public
-interests including academic research, climate advocacy, data journalism, and
-public policymaking.
+PUDL is an open source project that has been supported by a combination of
+volunteer efforts, grant funding, and reinvestment of surplus income by
+Catalyst Cooperative. See our :doc:`/acknowledgments` for more details.
+
+The work is currently being coordinated by the members of
+`Catalyst Cooperative <https://catalyst.coop>`_. PUDL is meant to serve a wide
+variety of public interests including academic research, climate advocacy, data
+journalism, and public policy making.
 
 For more on the motivation and history of the project, have a look at
-:doc:`this background info <background>`. Please also review our :doc:`code of
-conduct <code_of_conduct>`.
+:doc:`this background info <background>`. Please also be sure to review our
+:doc:`code of conduct <code_of_conduct>`, which is based on the
+`Contributor Covenant <https://www.contributor-covenant.org/>`__.
+We want to make the PUDL project welcoming to contributors with different
+levels of experience and diverse personal backgrounds.
 
 -------------------------------------------------------------------------------
 How to Get Involved
@@ -42,27 +47,18 @@ There are lots of ways to contribute -- it's not all about code!
     ongoing open source development.
   * Contribute code via
     `pull requests <https://help.github.com/en/articles/about-pull-requests>`__.
-    See the :doc:`developer setup <dev_setup>` for more details.
+    See the :doc:`developer setup <dev/dev_setup>` for more details.
   * And of course... we also appreciate
     `financial contributions <https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=PZBZDFNKBJW5E&source=url>`__.
 
--------------------------------------------------------------------------------
-Code of Conduct
--------------------------------------------------------------------------------
-
-We want to make the PUDL project welcoming to contributors with different
-levels of experience and diverse personal backgrounds. If you're interested in
-contributing please read our :doc:`Code of Conduct <code_of_conduct>`, which is
-based on the `Contributor Covenant <https://www.contributor-covenant.org/>`__.
 
 -------------------------------------------------------------------------------
-We Use Github
+Find us on GitHub
 -------------------------------------------------------------------------------
-
 Github is the primary platform we use to manage the project, integrate
 contributions, write and publish documentation, answer user questions, automate
 testing & deployment, etc.
-`Signing up for a Github account <https://github.com/join>`__
+`Signing up for a GitHub account <https://github.com/join>`__
 (even if you don't intend to write code) will allow you to participate in
 online discussions and track projects that you're interested in.
 
@@ -70,7 +66,6 @@ online discussions and track projects that you're interested in.
 
 Ask Questions on Github
 ^^^^^^^^^^^^^^^^^^^^^^^
-
 Asking (and answering) questions is a valuable contribution!
 
 As noted in `How to support open-source software and stay sane
@@ -92,10 +87,35 @@ community of users to help each other!
 
 Make Suggestions on GitHub
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Don't hesitate to open an issue with a `feature request
-<https://github.com/catalyst-cooperative/pudl/issues/new?template=feature_request.md>`__,
+Don't hesitate to open an issue with a
+`feature request <https://github.com/catalyst-cooperative/pudl/issues/new?template=feature_request.md>`__,
 or a pointer to energy data that needs liberating, or a reference to
 documentation that's out of date, or unclear, or missing. Understanding how
 people are using the software, and how they would *like* to be using the
 software is very valuable, and will help us make it more useful and usable.
+
+.. _coding_standards:
+
+-------------------------------------------------------------------------------
+Coding Standards
+-------------------------------------------------------------------------------
+
+* We are trying to keep our own code entirely written in Python.
+* It's our expectation that PUDL will be run on Unix-like operating systems,
+  including Linux and MacOS. We have run into issues working on Windows, and
+  are intending for it to be run within Docker by most users. However, we are
+  still trying to use system agnostic filesystem paths and other portable
+  coding practices.
+* It's currently our intent to support on the most recent widely used versions
+  of Python.
+* Before making a PR, make sure the tests run and pass locally, including the
+  linters.
+* Don't decrease the overall test coverage -- if you introduce new code it
+  also needs to be exercised by the tests. See :doc:`dev/testing` for details.
+* Write good docstrings, using the `Google docstring <https://www.sphinx-doc.org/en/latest/usage/extensions/example_google.html>`__ format.
+
+.. seealso::
+
+    * :doc:`dev/dev_setup` for instructions on how to set up the PUDL
+      development environment.
+    * :doc:`dev/testing` for documentation of how to run the tests.

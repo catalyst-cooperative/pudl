@@ -113,7 +113,7 @@ def test_ferc1_solo_etl(pudl_settings_fixture,
                         ferc1_engine,
                         live_ferc1_db):
     """Verify that a minimal FERC Form 1 can be loaded without other data."""
-    with open(Path(__file__).parent / 'settings/ferc1-solo.yml', "r") as f:
+    with open(Path(__file__).parent.parent / 'settings/ferc1-solo.yml', "r") as f:
         datapkg_settings = yaml.safe_load(f)['datapkg_bundle_settings']
 
     pudl.etl.generate_datapkg_bundle(
@@ -140,7 +140,8 @@ class TestFerc1Datastore:
         """Check that the get fields table works as expected."""
         ds = pudl_ferc1datastore_fixture
 
-        expect_path = Path(__file__).parent / "data/ferc1/f1_2018/get_fields.json"
+        expect_path = Path(__file__).parent.parent / \
+            "data/ferc1/f1_2018/get_fields.json"
 
         with expect_path.open() as f:
             expect = yaml.safe_load(f)
