@@ -8,9 +8,9 @@ from pudl import helpers
 logger = logging.getLogger(__name__)
 
 
-def test_own_eia860(pudl_out_eia, live_pudl_db):
+def test_own_eia860(pudl_out_eia, live_dbs):
     """Sanity checks for EIA 860 generator ownership data."""
-    if not live_pudl_db:
+    if not live_dbs:
         raise AssertionError("Data validation only works with a live PUDL DB.")
     logger.info('Reading EIA 860 generator ownership data...')
     own_out = pudl_out_eia.own_eia860()

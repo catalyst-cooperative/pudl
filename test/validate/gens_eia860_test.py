@@ -13,9 +13,9 @@ logger = logging.getLogger(__name__)
 ###############################################################################
 
 
-def test_capacity_bounds(pudl_out_eia, live_pudl_db):
+def test_capacity_bounds(pudl_out_eia, live_dbs):
     """Check that the distribution of coal heat content per unit is valid."""
-    if not live_pudl_db:
+    if not live_dbs:
         raise AssertionError("Data validation only works with a live PUDL DB.")
     if pudl_out_eia.freq is not None:
         pytest.skip("Test should only run on un-aggregated data.")
@@ -24,9 +24,9 @@ def test_capacity_bounds(pudl_out_eia, live_pudl_db):
         pudl.validate.vs_bounds(pudl_out_eia.gens_eia860(), **args)
 
 
-def test_capacity_self(pudl_out_eia, live_pudl_db):
+def test_capacity_self(pudl_out_eia, live_dbs):
     """Check that the distribution of coal heat content per unit is valid."""
-    if not live_pudl_db:
+    if not live_dbs:
         raise AssertionError("Data validation only works with a live PUDL DB.")
     if pudl_out_eia.freq is not None:
         pytest.skip("Test should only run on un-aggregated data.")

@@ -29,9 +29,9 @@ logger = logging.getLogger(__name__)
         ),
     ]
 )
-def test_vs_bounds(pudl_out_ferc1, live_pudl_db, cases):
+def test_vs_bounds(pudl_out_ferc1, live_dbs, cases):
     """Test distributions of reported plants_steam_ferc1 columns."""
-    if not live_pudl_db:
+    if not live_dbs:
         raise AssertionError("Data validation only works with a live PUDL DB.")
     validate_df = (
         pudl_out_ferc1.plants_steam_ferc1().
@@ -46,9 +46,9 @@ def test_vs_bounds(pudl_out_ferc1, live_pudl_db, cases):
         pudl.validate.vs_bounds(validate_df, **case)
 
 
-def test_self_vs_historical(pudl_out_ferc1, live_pudl_db):
+def test_self_vs_historical(pudl_out_ferc1, live_dbs):
     """Validate..."""
-    if not live_pudl_db:
+    if not live_dbs:
         raise AssertionError("Data validation only works with a live PUDL DB.")
     validate_df = (
         pudl_out_ferc1.plants_steam_ferc1().

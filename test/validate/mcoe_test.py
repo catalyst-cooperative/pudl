@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 
 
 @pytest.fixture(scope="module")
-def pudl_out_mcoe(pudl_out_eia, live_pudl_db):
+def pudl_out_mcoe(pudl_out_eia, live_dbs):
     """
     A fixture to calculate MCOE appropriately for testing.
 
@@ -46,9 +46,9 @@ def pudl_out_mcoe(pudl_out_eia, live_pudl_db):
     return pudl_out_eia
 
 
-def test_bga(pudl_out_eia, live_pudl_db):
+def test_bga(pudl_out_eia, live_dbs):
     """Test the boiler generator associations."""
-    if not live_pudl_db:
+    if not live_dbs:
         raise AssertionError("Data validation only works with a live PUDL DB.")
     logger.info("Inferring complete boiler-generator associations...")
     bga = pudl_out_eia.bga()
@@ -94,9 +94,9 @@ def test_bga(pudl_out_eia, live_pudl_db):
         ("mcoe", "all"),
     ]
 )
-def test_no_null_cols_mcoe(pudl_out_mcoe, live_pudl_db, cols, df_name):
+def test_no_null_cols_mcoe(pudl_out_mcoe, live_dbs, cols, df_name):
     """Verify that output DataFrames have no entirely NULL columns."""
-    if not live_pudl_db:
+    if not live_dbs:
         raise AssertionError("Data validation only works with a live PUDL DB.")
     if pudl_out_mcoe.freq is None:
         pytest.skip()
@@ -115,10 +115,10 @@ def test_no_null_cols_mcoe(pudl_out_mcoe, live_pudl_db, cols, df_name):
         ("capacity_factor", 476_052, 39_671),
         ("mcoe", 476_052, 39_671),
     ])
-def test_minmax_rows_mcoe(pudl_out_mcoe, live_pudl_db,
+def test_minmax_rows_mcoe(pudl_out_mcoe, live_dbs,
                           monthly_rows, annual_rows, df_name):
     """Verify that output DataFrames don't have too many or too few rows."""
-    if not live_pudl_db:
+    if not live_dbs:
         raise AssertionError("Data validation only works with a live PUDL DB.")
     if pudl_out_mcoe.freq is None:
         pytest.skip()
@@ -145,9 +145,9 @@ def test_minmax_rows_mcoe(pudl_out_mcoe, live_pudl_db,
         ("capacity_factor", ["report_date", "plant_id_eia", "generator_id"]),
         ("mcoe", ["report_date", "plant_id_eia", "generator_id"]),
     ])
-def test_unique_rows_mcoe(pudl_out_mcoe, live_pudl_db, unique_subset, df_name):
+def test_unique_rows_mcoe(pudl_out_mcoe, live_dbs, unique_subset, df_name):
     """Test whether dataframe has unique records within a subset of columns."""
-    if not live_pudl_db:
+    if not live_dbs:
         raise AssertionError("Data validation only works with a live PUDL DB.")
     if pudl_out_mcoe.freq is None:
         pytest.skip()
@@ -161,9 +161,9 @@ def test_unique_rows_mcoe(pudl_out_mcoe, live_pudl_db, unique_subset, df_name):
 
 
 @pytest.mark.parametrize("fuel,max_idle", [('gas', 0.15), ('coal', 0.075)])
-def test_idle_capacity(fuel, max_idle, pudl_out_mcoe, live_pudl_db):
+def test_idle_capacity(fuel, max_idle, pudl_out_mcoe, live_dbs):
     """Validate that idle capacity isn't tooooo high."""
-    if not live_pudl_db:
+    if not live_dbs:
         raise AssertionError("Data validation only works with a live PUDL DB.")
     if pudl_out_mcoe.freq is None:
         pytest.skip()
@@ -179,9 +179,9 @@ def test_idle_capacity(fuel, max_idle, pudl_out_mcoe, live_pudl_db):
         raise AssertionError(f"Idle capacity ({idle_capacity}) is too high.")
 
 
-def test_gas_capacity_factor(pudl_out_mcoe, live_pudl_db):
+def test_gas_capacity_factor(pudl_out_mcoe, live_dbs):
     """Validate Coal Capacity Factors are within reasonable limits."""
-    if not live_pudl_db:
+    if not live_dbs:
         raise AssertionError("Data validation only works with a live PUDL DB.")
     if pudl_out_mcoe.freq is None:
         pytest.skip()
@@ -189,9 +189,9 @@ def test_gas_capacity_factor(pudl_out_mcoe, live_pudl_db):
         pv.vs_bounds(pudl_out_mcoe.mcoe(), **args)
 
 
-def test_coal_capacity_factor(pudl_out_mcoe, live_pudl_db):
+def test_coal_capacity_factor(pudl_out_mcoe, live_dbs):
     """Validate Coal Capacity Factors are within reasonable limits."""
-    if not live_pudl_db:
+    if not live_dbs:
         raise AssertionError("Data validation only works with a live PUDL DB.")
     if pudl_out_mcoe.freq is None:
         pytest.skip()
@@ -199,9 +199,9 @@ def test_coal_capacity_factor(pudl_out_mcoe, live_pudl_db):
         pv.vs_bounds(pudl_out_mcoe.mcoe(), **args)
 
 
-def test_gas_heat_rate_by_unit(pudl_out_mcoe, live_pudl_db):
+def test_gas_heat_rate_by_unit(pudl_out_mcoe, live_dbs):
     """Validate Coal Capacity Factors are within reasonable limits."""
-    if not live_pudl_db:
+    if not live_dbs:
         raise AssertionError("Data validation only works with a live PUDL DB.")
     if pudl_out_mcoe.freq is None:
         pytest.skip()
@@ -209,9 +209,9 @@ def test_gas_heat_rate_by_unit(pudl_out_mcoe, live_pudl_db):
         pv.vs_bounds(pudl_out_mcoe.mcoe(), **args)
 
 
-def test_coal_heat_rate_by_unit(pudl_out_mcoe, live_pudl_db):
+def test_coal_heat_rate_by_unit(pudl_out_mcoe, live_dbs):
     """Validate Coal Capacity Factors are within reasonable limits."""
-    if not live_pudl_db:
+    if not live_dbs:
         raise AssertionError("Data validation only works with a live PUDL DB.")
     if pudl_out_mcoe.freq is None:
         pytest.skip()
@@ -219,9 +219,9 @@ def test_coal_heat_rate_by_unit(pudl_out_mcoe, live_pudl_db):
         pv.vs_bounds(pudl_out_mcoe.mcoe(), **args)
 
 
-def test_fuel_cost_per_mwh(pudl_out_mcoe, live_pudl_db):
+def test_fuel_cost_per_mwh(pudl_out_mcoe, live_dbs):
     """Verify that fuel costs per MWh are reasonable for coal & gas."""
-    if not live_pudl_db:
+    if not live_dbs:
         raise AssertionError("Data validation only works with a live PUDL DB.")
     # The annual numbers for MCOE costs have too many NA values:
     if pudl_out_mcoe.freq != "MS":
@@ -233,9 +233,9 @@ def test_fuel_cost_per_mwh(pudl_out_mcoe, live_pudl_db):
         pv.vs_bounds(pudl_out_mcoe.mcoe(), **args)
 
 
-def test_fuel_cost_per_mmbtu(pudl_out_mcoe, live_pudl_db):
+def test_fuel_cost_per_mmbtu(pudl_out_mcoe, live_dbs):
     """Verify that fuel costs per mmbtu are reasonable for coal & gas."""
-    if not live_pudl_db:
+    if not live_dbs:
         raise AssertionError("Data validation only works with a live PUDL DB.")
     # The annual numbers for MCOE costs have too many NA values:
     if pudl_out_mcoe.freq != "MS":
@@ -247,9 +247,9 @@ def test_fuel_cost_per_mmbtu(pudl_out_mcoe, live_pudl_db):
         pv.vs_bounds(pudl_out_mcoe.mcoe(), **args)
 
 
-def test_mcoe_self(pudl_out_mcoe, live_pudl_db):
+def test_mcoe_self(pudl_out_mcoe, live_dbs):
     """Test MCOE outputs against their historical selves..."""
-    if not live_pudl_db:
+    if not live_dbs:
         raise AssertionError("Data validation only works with a live PUDL DB.")
     if pudl_out_mcoe.freq is None:
         pytest.skip()

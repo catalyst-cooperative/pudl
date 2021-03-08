@@ -44,17 +44,17 @@ def test_fuel_ferc1_trivial(pudl_out_ferc1):
                      id="gas_cost_per_unit"),
     ]
 )
-def test_vs_bounds(pudl_out_ferc1, live_pudl_db, cases):
+def test_vs_bounds(pudl_out_ferc1, live_dbs, cases):
     """Test distributions of reported plants_steam_ferc1 columns."""
-    if not live_pudl_db:
+    if not live_dbs:
         raise AssertionError("Data validation only works with a live PUDL DB.")
     for case in cases:
         pv.vs_bounds(pudl_out_ferc1.fuel_ferc1(), **case)
 
 
-def test_self_vs_historical(pudl_out_ferc1, live_pudl_db):
+def test_self_vs_historical(pudl_out_ferc1, live_dbs):
     """Validate..."""
-    if not live_pudl_db:
+    if not live_dbs:
         raise AssertionError("Data validation only works with a live PUDL DB.")
     for args in pv.fuel_ferc1_self:
         pv.vs_self(pudl_out_ferc1.fuel_ferc1(), **args)
