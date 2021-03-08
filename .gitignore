@@ -20,3 +20,6 @@ codecov.sh
 .env_pudl/
 *wheel-metadata
 dask-worker-space*
+devtools/requirements-zane.txt
+.vscode/*
+commit.txt

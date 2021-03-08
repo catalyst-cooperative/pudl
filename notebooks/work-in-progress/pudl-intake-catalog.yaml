@@ -1,0 +1,21 @@
+sources:
+  - hourly_emissions_epacems:
+      driver: intake_parquet.source.ParquetSource
+      description: "EPA Continuous Emissions Monitoring System hourly data."
+      args:
+        engine: pyarrow
+        urlpath: file:///home/zane/code/catalyst/pudl-work/parquet/epacems
+        #urlpath: gs://catalyst.coop/intake/test/parquet/epacems/year=2019/*
+      metadata: {}
+  - pudl:
+      driver: sql
+      description: The PUDL SQLite Database
+      args:
+        urlpath: sqlite:////home/zane/code/catalyst/pudl-work/sqlite/pudl.sqlite
+      metadata: {}
+  - ferc1:
+      driver: sql
+      description: The Cloned FERC 1 SQLite Database
+      args:
+         urlpath: sqlite:////home/zane/code/catalyst/pudl-work/sqlite/ferc1.sqlite
+      metadata: {}

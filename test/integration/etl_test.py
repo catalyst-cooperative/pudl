@@ -41,27 +41,30 @@ def test_ferc1_etl(ferc1_engine):
 
 def test_epacems_to_parquet(datapkg_bundle,
                             pudl_settings_fixture,
-                            data_scope,
+                            pudl_etl_params,
                             request):
     """Attempt to convert a small amount of EPA CEMS data to parquet format."""
     epacems_datapkg_json = Path(
         pudl_settings_fixture['datapkg_dir'],
-        data_scope['datapkg_bundle_name'],
+        pudl_etl_params['datapkg_bundle_name'],
         'epacems-eia-test',
         "datapackage.json"
     )
     logger.info(f"Loading epacems from {epacems_datapkg_json}")
+    flat = pudl.etl.get_flattened_etl_parameters(
+        pudl_etl_params["datapkg_bundle_settings"]
+    )
     epacems_to_parquet(
         datapkg_path=epacems_datapkg_json,
-        epacems_years=data_scope['epacems_years'],
-        epacems_states=data_scope['epacems_states'],
+        epacems_years=flat["epacems_years"],
+        epacems_states=flat["epacems_states"],
         out_dir=Path(pudl_settings_fixture['parquet_dir'], 'epacems'),
         compression='snappy',
         clobber=False,
     )
 
 
-def test_ferc1_lost_data(data_scope, pudl_ferc1datastore_fixture):
+def test_ferc1_lost_data(ferc1_etl_params, pudl_ferc1datastore_fixture):
     """
     Check to make sure we aren't missing any old FERC Form 1 tables or fields.
 
@@ -71,7 +74,7 @@ def test_ferc1_lost_data(data_scope, pudl_ferc1datastore_fixture):
     DBF filename to table name mapping from 2015, includes every single table
     and field that appears in the historical FERC Form 1 data.
     """
-    refyear = max(data_scope['ferc1_years'])
+    refyear = ferc1_etl_params['ferc1_to_sqlite_refyear']
     ds = pudl_ferc1datastore_fixture
     current_dbc_map = pudl.extract.ferc1.get_dbc_map(ds, year=refyear)
     current_tables = list(current_dbc_map.keys())
@@ -86,7 +89,7 @@ def test_ferc1_lost_data(data_scope, pudl_ferc1datastore_fixture):
             )
     # Get all historical table collections...
     dbc_maps = {}
-    for yr in data_scope['ferc1_years']:
+    for yr in ferc1_etl_params['ferc1_to_sqlite_years']:
         logger.info(f"Searching for lost FERC1 tables and fields in {yr}.")
         dbc_maps[yr] = pudl.extract.ferc1.get_dbc_map(ds, year=yr)
         old_tables = list(dbc_maps[yr].keys())

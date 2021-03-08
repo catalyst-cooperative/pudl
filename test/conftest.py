@@ -10,7 +10,6 @@ import sqlalchemy as sa
 import yaml
 
 import pudl
-from pudl import constants as pc
 from pudl.output.pudltabl import PudlTabl
 
 logger = logging.getLogger(__name__)
@@ -20,9 +19,15 @@ def pytest_addoption(parser):
     """Add a command line option Requiring fresh data download."""
     parser.addoption(
         "--tmp-data",
-        action="store",
+        action="store_true",
         default=False,
         help="Download fresh input data for use with this test run only."
+    )
+    parser.addoption(
+        "--etl-settings",
+        action="store",
+        default=False,
+        help="Path to a non-standard ETL settings file to use."
     )
     parser.addoption(
         "--sandbox",
@@ -39,12 +44,6 @@ def pytest_addoption(parser):
         "--live_pudl_db", action="store", default=False,
         help="Path to a live rather than temporary PUDL DB."
     )
-    parser.addoption(
-        "--pudl_in",
-        action="store",
-        default=False,
-        help="Path to the top level PUDL inputs directory."
-    )
 
 
 @pytest.fixture(scope="session")
@@ -60,33 +59,27 @@ def live_pudl_db(request):
 
 
 @pytest.fixture(scope='session')
-def data_scope(pudl_settings_fixture, test_dir):
-    """
-    Define the scope of the data to test.
+def etl_params(request, test_dir):
+    """Read the ETL parameters from the test settings or proffered file."""
+    if request.config.getoption("--etl-settings"):
+        etl_params_yml = Path(request.config.getoption("--etl-settings"))
+    else:
+        etl_params_yml = test_dir / "settings/integration-test.yml"
+    with open(etl_params_yml, "r") as f:
+        etl_params_out = yaml.safe_load(f)
+    return etl_params_out
 
-    This should probably be simplified to just read the settings directly
-    out of the settings file.
-    """
-    scope = {}
-    # the ferc1_dbf_tables are for the ferc1_engine. they refer to ferc1
-    # dbf table names, not pudl table names. for the fast test, we only pull
-    # in tables we need for pudl.
-    scope['ferc1_dbf_tables'] = [
-        pc.table_map_ferc1_pudl[k] for k in pc.pudl_tables["ferc1"]
-    ] + ["f1_respondent_id"]
 
-    with open(test_dir / 'settings/fast-test.yml', "r") as f:
-        datapkg_settings = yaml.safe_load(f)
-    # put the whole settings dictionary
-    scope.update(datapkg_settings)
-    scope["datapkg_bundle_doi"] = datapkg_settings.get("datapkg_bundle_doi", None)
-    if scope["datapkg_bundle_doi"] is not None:
-        assert pudl.helpers.is_doi(scope["datapkg_bundle_doi"])
-    # copy the etl parameters (years, tables, states) from the datapkg dataset
-    # settings into the scope so they are more easily available
-    scope.update(pudl.etl.get_flattened_etl_parameters(
-        datapkg_settings['datapkg_bundle_settings']))
-    return scope
+@pytest.fixture(scope="session")
+def ferc1_etl_params(etl_params):
+    """Read ferc1_to_sqlite parameters out of test settings dictionary."""
+    return {k: etl_params[k] for k in etl_params if "ferc1_to_sqlite" in k}
+
+
+@pytest.fixture(scope="session")
+def pudl_etl_params(etl_params):
+    """Read PUDL ETL parameters out of test settings dictionary."""
+    return {k: etl_params[k] for k in etl_params if "datapkg_bundle" in k}
 
 
 @pytest.fixture(scope='session', params=['AS'], ids=['ferc1_annual'])
@@ -124,8 +117,12 @@ def pudl_out_orig(live_pudl_db, pudl_engine):
 
 
 @pytest.fixture(scope='session')
-def ferc1_engine(pudl_settings_fixture,
-                 data_scope, request, pudl_datastore_fixture):
+def ferc1_engine(
+    pudl_settings_fixture,
+    ferc1_etl_params,
+    request,
+    pudl_datastore_fixture,
+):
     """
     Grab a connection to the FERC Form 1 DB clone.
 
@@ -133,9 +130,9 @@ def ferc1_engine(pudl_settings_fixture,
     If we're using the live database, then we just yield a conneciton to it.
     """
     pudl.extract.ferc1.dbf2sqlite(
-        tables=data_scope['ferc1_dbf_tables'],
-        years=data_scope['ferc1_years'],
-        refyear=max(data_scope['ferc1_years']),
+        tables=ferc1_etl_params['ferc1_to_sqlite_tables'],
+        years=ferc1_etl_params['ferc1_to_sqlite_years'],
+        refyear=ferc1_etl_params['ferc1_to_sqlite_refyear'],
         pudl_settings=pudl_settings_fixture,
         clobber=False,
         datastore=pudl_datastore_fixture
@@ -151,22 +148,22 @@ def ferc1_engine(pudl_settings_fixture,
 
 @pytest.fixture(scope='session')
 def datapkg_bundle(request, ferc1_engine,
-                   pudl_settings_fixture, live_pudl_db, data_scope):
+                   pudl_settings_fixture, live_pudl_db, pudl_etl_params):
     """Generate limited packages for testing."""
     if not live_pudl_db:
         logger.info('setting up the datapkg_bundle fixture')
         pudl.etl.generate_datapkg_bundle(
-            data_scope['datapkg_bundle_settings'],
+            pudl_etl_params["datapkg_bundle_settings"],
             pudl_settings_fixture,
-            datapkg_bundle_name=data_scope['datapkg_bundle_name'],
-            datapkg_bundle_doi=data_scope['datapkg_bundle_doi'],
+            datapkg_bundle_name=pudl_etl_params['datapkg_bundle_name'],
+            datapkg_bundle_doi=pudl_etl_params['datapkg_bundle_doi'],
             clobber=False,
         )
 
 
 @pytest.fixture(scope='session')
 def pudl_engine(ferc1_engine, live_pudl_db, pudl_settings_fixture,
-                data_scope, datapkg_bundle, request):
+                pudl_etl_params, datapkg_bundle, request):
     """
     Grab a connection to the PUDL Database.
 
@@ -178,14 +175,14 @@ def pudl_engine(ferc1_engine, live_pudl_db, pudl_settings_fixture,
         # Generate the list of datapackages to merge...
         datapkg_bundle_dir = Path(
             pudl_settings_fixture["datapkg_dir"],
-            data_scope["datapkg_bundle_name"],
+            pudl_etl_params["datapkg_bundle_name"],
         )
         # Here we're gonna merge *any* datapackages found within the bundle:
         in_paths = glob.glob(f"{datapkg_bundle_dir}/*/datapackage.json")
         dps = [datapackage.DataPackage(descriptor=path) for path in in_paths]
         out_path = Path(
             pudl_settings_fixture["datapkg_dir"],
-            data_scope["datapkg_bundle_name"],
+            pudl_etl_params["datapkg_bundle_name"],
             "pudl-merged"
         )
         # clobber has to be False here, because if the pudl-merged datapackage
@@ -207,68 +204,49 @@ def pudl_engine(ferc1_engine, live_pudl_db, pudl_settings_fixture,
     yield pudl_engine
 
     # Clean up after ourselves by dropping the test DB tables.
-    pudl.helpers.drop_tables(pudl_engine, clobber=True)
+    if not live_pudl_db:
+        pudl.helpers.drop_tables(pudl_engine, clobber=True)
 
 
-@pytest.fixture(scope='session')  # noqa: C901
-def pudl_settings_fixture(  # noqa: C901
-    request,  # noqa: C901
-    tmpdir_factory,  # noqa: C901
-    live_pudl_db,  # noqa: C901
-):  # noqa: C901
+@pytest.fixture(scope='session')
+def pudl_settings_fixture(request, tmpdir_factory):  # noqa: C901
     """Determine some settings (mostly paths) for the test session."""
     logger.info('setting up the pudl_settings_fixture')
     # Create a session scoped temporary directory.
-    pudl_dir = tmpdir_factory.mktemp('pudl')
+    tmpdir = tmpdir_factory.mktemp('pudl')
+    # Outputs are always written to a temporary directory:
+    pudl_out = tmpdir
 
-    # Grab the user configuration, if it exists:
-    try:
-        pudl_auto = pudl.workspace.setup.get_defaults()
-    except FileNotFoundError:
-        pass
+    # In CI we want a hard-coded path for input caching purposes:
+    if os.environ.get("GITHUB_ACTIONS", False):
+        pudl_in = Path(os.environ["HOME"]) / "pudl-work"
+    # If --tmp-data is set, create a disposable temporary datastore:
+    elif request.config.getoption("--tmp-data"):
+        pudl_in = tmpdir
+    # Otherwise, default to the user's existing datastore:
+    else:
+        try:
+            defaults = pudl.workspace.setup.get_defaults()
+        except FileNotFoundError as err:
+            logger.critical("Could not identify PUDL_IN / PUDL_OUT.")
+            raise err
+        pudl_in = defaults["pudl_in"]
 
-    # Grab the input / output dirs specified on the command line, if any:
-    pudl_in = request.config.getoption("--pudl_in")
-
-    # Having this in a constant place will allow us to cache inputs which should
-    # speed up the tests considerably
-    try:
-        if os.environ["GITHUB_ACTIONS"]:
-            pudl_in = Path(os.environ["HOME"]) / "pudl-work"
-            pudl_out = Path(os.environ["HOME"]) / "pudl-work"
-    except KeyError:
-        pass
-
-    # By default, we use the command line option. If that is left False, then
-    # we use a temporary directory. If the command_line option is AUTO, then
-    # we use whatever the user has configured in their $HOME/.pudl.yml file.
-    if pudl_in is False:
-        pudl_in = pudl_dir
-        os.environ["PUDL_IN"] = str(pudl_in)
-    elif pudl_in == 'AUTO':
-        pudl_in = pudl_auto['pudl_in']
-
-    pudl_out = pudl_dir
+    # Set these environment variables for future reference...
+    logger.info(f"Using PUDL_IN={pudl_in}")
+    os.environ["PUDL_IN"] = str(pudl_in)
+    logger.info(f"Using PUDL_OUT={pudl_out}")
     os.environ["PUDL_OUT"] = str(pudl_out)
 
-    logger.info(f"Using PUDL_IN={pudl_in}")
-    logger.info(f"Using PUDL_OUT={pudl_out}")
-
+    # Build all the pudl_settings paths:
     pudl_settings = pudl.workspace.setup.derive_paths(
         pudl_in=pudl_in,
         pudl_out=pudl_out
     )
-
+    pudl_settings["sandbox"] = request.config.getoption("--sandbox")
+    # Set up the pudl workspace:
     pudl.workspace.setup.init(pudl_in=pudl_in, pudl_out=pudl_out)
 
-    if live_pudl_db == 'AUTO':
-        pudl_settings['pudl_db'] = pudl_auto['pudl_db']
-    elif live_pudl_db:
-        live_pudl_db_path = Path(live_pudl_db).expanduser().resolve()
-        pudl_settings['pudl_db'] = 'sqlite:///' + \
-            str(live_pudl_db_path)
-
-    pudl_settings["sandbox"] = request.config.getoption("--sandbox")
     logger.info(f'pudl_settings being used : {pudl_settings}')
     return pudl_settings
 

@@ -1,6 +1,7 @@
 # The following settings are for the test_only_ferc1_pudl_init_db test.
 
 datapkg_bundle_name: pudl-ferc1-solo
+datapkg_bundle_doi: 10.5072/zenodo.412406  # Sandbox DOI... not real.
 datapkg_bundle_settings:
   ###########################################################################
   # FERC FORM 1 SETTINGS
@@ -14,9 +15,4 @@ datapkg_bundle_settings:
           ferc1_tables:
            - fuel_ferc1 # requires plants_steam_ferc1 to load properly
            - plants_steam_ferc1
-           #- plants_small_ferc1
-           #- plants_hydro_ferc1
-           #- plants_pumped_storage_ferc1
-           #- plant_in_service_ferc1
-           #- purchased_power_ferc1
           ferc1_years: [2019]
