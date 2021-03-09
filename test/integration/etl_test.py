@@ -10,6 +10,7 @@ the tests have completed.
 import logging
 from pathlib import Path
 
+import sqlalchemy as sa
 import yaml
 
 import pudl
@@ -26,7 +27,9 @@ def test_datapkg_bundle(datapkg_bundle):
 
 def test_pudl_engine(pudl_engine):
     """Try creating a pudl_engine...."""
-    pass
+    assert isinstance(pudl_engine, sa.engine.Engine)
+    assert "plants_pudl" in pudl_engine.table_names()
+    assert "utilities_pudl" in pudl_engine.table_names()
 
 
 def test_ferc1_etl(ferc1_engine):
@@ -36,13 +39,16 @@ def test_ferc1_etl(ferc1_engine):
     Nothing needs to be in the body of this "test" because the database
     connections are created by the ferc1_engine fixture defined in conftest.py
     """
-    pass
+    assert isinstance(ferc1_engine, sa.engine.Engine)
+    assert "f1_respondent_id" in ferc1_engine.table_names()
 
 
-def test_epacems_to_parquet(datapkg_bundle,
-                            pudl_settings_fixture,
-                            pudl_etl_params,
-                            request):
+def test_epacems_to_parquet(
+    datapkg_bundle,
+    pudl_settings_fixture,
+    pudl_etl_params,
+    request
+):
     """Attempt to convert a small amount of EPA CEMS data to parquet format."""
     epacems_datapkg_json = Path(
         pudl_settings_fixture['datapkg_dir'],
@@ -64,7 +70,7 @@ def test_epacems_to_parquet(datapkg_bundle,
     )
 
 
-def test_ferc1_lost_data(ferc1_etl_params, pudl_ferc1datastore_fixture):
+def test_ferc1_schema(ferc1_etl_params, pudl_ferc1datastore_fixture):
     """
     Check to make sure we aren't missing any old FERC Form 1 tables or fields.
 
@@ -100,6 +106,7 @@ def test_ferc1_lost_data(ferc1_etl_params, pudl_ferc1datastore_fixture):
                     f"Long lost FERC1 table: '{table}' found in year {yr}. "
                     f"Refyear: {refyear}"
                 )
+            # Check to make sure there aren't any lost archaic fields:
             for field in dbc_maps[yr][table].values():
                 if field not in current_dbc_map[table].values():
                     raise AssertionError(
@@ -107,19 +114,6 @@ def test_ferc1_lost_data(ferc1_etl_params, pudl_ferc1datastore_fixture):
                         f"'{table}' from year {yr}. "
                         f"Refyear: {refyear}"
                     )
-
-
-def test_ferc1_solo_etl(pudl_settings_fixture, ferc1_engine, test_dir):
-    """Verify that a minimal FERC Form 1 can be loaded without other data."""
-    with open(test_dir / 'settings/ferc1-solo.yml', "r") as f:
-        datapkg_settings = yaml.safe_load(f)['datapkg_bundle_settings']
-
-    pudl.etl.generate_datapkg_bundle(
-        datapkg_settings,
-        pudl_settings_fixture,
-        datapkg_bundle_name='ferc1-solo',
-        clobber=True,
-    )
 
 
 class TestFerc1Datastore:

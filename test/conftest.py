@@ -18,6 +18,12 @@ logger = logging.getLogger(__name__)
 def pytest_addoption(parser):
     """Add a command line option Requiring fresh data download."""
     parser.addoption(
+        "--live-dbs",
+        action="store_true",
+        default=False,
+        help="Use existing PUDL/FERC1 DBs instead of creating temporary ones."
+    )
+    parser.addoption(
         "--tmp-data",
         action="store_true",
         default=False,
@@ -30,21 +36,15 @@ def pytest_addoption(parser):
         help="Path to a non-standard ETL settings file to use."
     )
     parser.addoption(
-        "--sandbox",
-        action="store_true",
-        default=False,
-        help="Use raw inputs from the Zenodo sandbox server."
-    )
-    parser.addoption(
         "--gcs-cache-path",
         default=None,
         help="If set, use this GCS path as a datastore cache layer."
     )
     parser.addoption(
-        "--live-dbs",
+        "--sandbox",
         action="store_true",
         default=False,
-        help="Use existing PUDL/FERC1 DBs instead of creating temporary ones."
+        help="Use raw inputs from the Zenodo sandbox server."
     )
 
 
