@@ -48,20 +48,20 @@ def pytest_addoption(parser):
     )
 
 
-@pytest.fixture(scope="session")
-def test_dir():
+@pytest.fixture(scope="session", name="test_dir")
+def test_directory():
     """Return the path to the top-level directory containing the tests."""
     return Path(__file__).parent
 
 
-@pytest.fixture(scope='session')
-def live_dbs(request):
+@pytest.fixture(scope='session', name="live_dbs")
+def live_databases(request):
     """Fixture that tells whether to use existing live FERC1/PUDL DBs)."""
     return request.config.getoption("--live-dbs")
 
 
-@pytest.fixture(scope='session')
-def etl_params(request, test_dir):
+@pytest.fixture(scope='session', name="etl_params")
+def etl_parameters(request, test_dir):
     """Read the ETL parameters from the test settings or proffered file."""
     if request.config.getoption("--etl-settings"):
         etl_params_yml = Path(request.config.getoption("--etl-settings"))
@@ -72,14 +72,14 @@ def etl_params(request, test_dir):
     return etl_params_out
 
 
-@pytest.fixture(scope="session")
-def ferc1_etl_params(etl_params):
+@pytest.fixture(scope="session", name="ferc1_etl_params")
+def ferc1_etl_parameters(etl_params):
     """Read ferc1_to_sqlite parameters out of test settings dictionary."""
     return {k: etl_params[k] for k in etl_params if "ferc1_to_sqlite" in k}
 
 
-@pytest.fixture(scope="session")
-def pudl_etl_params(etl_params):
+@pytest.fixture(scope="session", name="pudl_etl_params")
+def pudl_etl_parameters(etl_params):
     """Read PUDL ETL parameters out of test settings dictionary."""
     return {k: etl_params[k] for k in etl_params if "datapkg_bundle" in k}
 
@@ -88,7 +88,7 @@ def pudl_etl_params(etl_params):
 def pudl_out_ferc1(live_dbs, pudl_engine, request):
     """Define parameterized PudlTabl output object fixture for FERC 1 tests."""
     if not live_dbs:
-        raise AssertionError("Output tests only work with a live PUDL DB.")
+        pytest.skip("Output tests only work with a live PUDL DB.")
     return PudlTabl(pudl_engine=pudl_engine, freq=request.param)
 
 
@@ -100,7 +100,7 @@ def pudl_out_ferc1(live_dbs, pudl_engine, request):
 def pudl_out_eia(live_dbs, pudl_engine, request):
     """Define parameterized PudlTabl output object fixture for EIA tests."""
     if not live_dbs:
-        raise AssertionError("Output tests only work with a live PUDL DB.")
+        pytest.skip("Output tests only work with a live PUDL DB.")
     return PudlTabl(
         pudl_engine=pudl_engine,
         freq=request.param,
@@ -114,16 +114,15 @@ def pudl_out_eia(live_dbs, pudl_engine, request):
 def pudl_out_orig(live_dbs, pudl_engine):
     """Create an unaggregated PUDL output object for checking raw data."""
     if not live_dbs:
-        raise AssertionError("Output tests only work with a live PUDL DB.")
+        pytest.skip("Output tests only work with a live PUDL DB.")
     return PudlTabl(pudl_engine=pudl_engine)
 
 
-@pytest.fixture(scope='session')
-def ferc1_engine(
+@pytest.fixture(scope='session', name="ferc1_engine")
+def ferc1_sql_engine(
     pudl_settings_fixture,
     live_dbs,
     ferc1_etl_params,
-    request,
     pudl_datastore_fixture,
 ):
     """
@@ -142,7 +141,7 @@ def ferc1_engine(
             datastore=pudl_datastore_fixture
         )
     engine = sa.create_engine(pudl_settings_fixture["ferc1_db"])
-    logger.info(f'FERC1 Engine: {engine}')
+    logger.info("FERC1 Engine: %s", engine)
     yield engine
 
     # Clean up after ourselves by dropping the test DB tables.
@@ -150,10 +149,9 @@ def ferc1_engine(
         pudl.helpers.drop_tables(engine, clobber=True)
 
 
-@pytest.fixture(scope='session')
-def datapkg_bundle(
-    request,
-    ferc1_engine,
+@pytest.fixture(scope='session', name="datapkg_bundle")
+def datapackage_bundle(
+    ferc1_engine,  # Implicit dependency
     pudl_settings_fixture,
     live_dbs,
     pudl_etl_params
@@ -170,14 +168,13 @@ def datapkg_bundle(
         )
 
 
-@pytest.fixture(scope='session')
-def pudl_engine(
-    ferc1_engine,
+@pytest.fixture(scope='session', name="pudl_engine")
+def pudl_sql_engine(
+    ferc1_engine,  # Implicit dependency
     live_dbs,
     pudl_settings_fixture,
     pudl_etl_params,
-    datapkg_bundle,
-    request
+    datapkg_bundle,  # Implicity dependency
 ):
     """
     Grab a connection to the PUDL Database.
@@ -204,7 +201,8 @@ def pudl_engine(
         # already existed somehow in the datapkg_bundle_dir, then we're
         # merging things back in more than once and that's broken... so we want
         # it to fail if the merged package exists already.
-        pudl.convert.merge_datapkgs.merge_datapkgs(dps, out_path, clobber=False)
+        pudl.convert.merge_datapkgs.merge_datapkgs(
+            dps, out_path, clobber=False)
         pudl.convert.datapkg_to_sqlite.datapkg_to_sqlite(
             sqlite_url=pudl_settings_fixture["pudl_db"],
             out_path=out_path,
@@ -215,7 +213,7 @@ def pudl_engine(
     # All the hard work here is being done by the datapkg and
     # datapkg_to_sqlite fixtures, above.
     engine = sa.create_engine(pudl_settings_fixture["pudl_db"])
-    logger.info(f'PUDL Engine: {engine}')
+    logger.info('PUDL Engine: %s', engine)
     yield engine
 
     # Clean up after ourselves by dropping the test DB tables.
@@ -223,8 +221,8 @@ def pudl_engine(
         pudl.helpers.drop_tables(engine, clobber=True)
 
 
-@pytest.fixture(scope='session')
-def pudl_settings_fixture(request, live_dbs, tmpdir_factory):  # noqa: C901
+@pytest.fixture(scope='session', name="pudl_settings_fixture")
+def pudl_settings_dict(request, live_dbs, tmpdir_factory):  # noqa: C901
     """Determine some settings (mostly paths) for the test session."""
     logger.info('setting up the pudl_settings_fixture')
     # Create a session scoped temporary directory.
@@ -248,9 +246,9 @@ def pudl_settings_fixture(request, live_dbs, tmpdir_factory):  # noqa: C901
         pudl_in = defaults["pudl_in"]
 
     # Set these environment variables for future reference...
-    logger.info(f"Using PUDL_IN={pudl_in}")
+    logger.info("Using PUDL_IN=%s", pudl_in)
     os.environ["PUDL_IN"] = str(pudl_in)
-    logger.info(f"Using PUDL_OUT={pudl_out}")
+    logger.info("Using PUDL_OUT=%s", pudl_out)
     os.environ["PUDL_OUT"] = str(pudl_out)
 
     # Build all the pudl_settings paths:
@@ -263,10 +261,12 @@ def pudl_settings_fixture(request, live_dbs, tmpdir_factory):  # noqa: C901
     pudl.workspace.setup.init(pudl_in=pudl_in, pudl_out=pudl_out)
 
     if live_dbs:
-        pudl_settings["pudl_db"] = pudl.workspace.setup.get_defaults()["pudl_db"]
-        pudl_settings["ferc1_db"] = pudl.workspace.setup.get_defaults()["ferc1_db"]
+        pudl_settings["pudl_db"] = pudl.workspace.setup.get_defaults()[
+            "pudl_db"]
+        pudl_settings["ferc1_db"] = pudl.workspace.setup.get_defaults()[
+            "ferc1_db"]
 
-    logger.info(f'pudl_settings being used : {pudl_settings}')
+    logger.info("pudl_settings being used: %s", pudl_settings)
     return pudl_settings
 
 
@@ -276,8 +276,8 @@ def pudl_ferc1datastore_fixture(pudl_datastore_fixture):
     return pudl.extract.ferc1.Ferc1Datastore(pudl_datastore_fixture)
 
 
-@pytest.fixture(scope='session')  # noqa: C901
-def pudl_datastore_fixture(pudl_settings_fixture, request):
+@pytest.fixture(scope='session', name="pudl_datastore_fixture")  # noqa: C901
+def pudl_datastore(pudl_settings_fixture, request):
     """Produce a :class:pudl.workspace.datastore.Datastore."""
     gcs_cache = request.config.getoption("--gcs-cache-path")
     return pudl.workspace.datastore.Datastore(

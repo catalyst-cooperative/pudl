@@ -24,7 +24,7 @@ logger = logging.getLogger(__name__)
 def test_no_null_cols_eia(pudl_out_eia, live_dbs, cols, df_name):
     """Verify that output DataFrames have no entirely NULL columns."""
     if not live_dbs:
-        raise AssertionError("Data validation only works with a live PUDL DB.")
+        pytest.skip("Data validation only works with a live PUDL DB.")
     pv.no_null_cols(
         pudl_out_eia.__getattribute__(df_name)(),
         cols=cols, df_name=df_name)
@@ -62,7 +62,7 @@ def test_minmax_rows(pudl_out_eia,
 
     """
     if not live_dbs:
-        raise AssertionError("Data validation only works with a live PUDL DB.")
+        pytest.skip("Data validation only works with a live PUDL DB.")
     if pudl_out_eia.freq == "AS":
         expected_rows = annual_rows
     elif pudl_out_eia.freq == "MS":
@@ -99,7 +99,7 @@ def test_minmax_rows(pudl_out_eia,
 def test_unique_rows_eia(pudl_out_eia, live_dbs, unique_subset, df_name):
     """Test whether dataframe has unique records within a subset of columns."""
     if not live_dbs:
-        raise AssertionError("Data validation only works with a live PUDL DB.")
+        pytest.skip("Data validation only works with a live PUDL DB.")
     if (pudl_out_eia.freq is None) and (df_name == "gen_eia923"):
         pytest.xfail(reason="RE-RUN ETL DUDE.")
     pv.check_unique_rows(

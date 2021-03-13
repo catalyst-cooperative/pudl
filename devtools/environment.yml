@@ -10,7 +10,7 @@ dependencies:
   # Package depending on binary libraries that need to be installed
   - geopandas~=0.9.0
   - libspatialite~=5.0  # SQLite extension for spatial data
-  - numba>=0.52,<0.54  # provides a ~100x speedup for timezonefinder
+  - numba~=0.53  # First numba version that's compatible with Python 3.9
   - pygeos~=0.9.0  # Python wrappers for the GEOS spatial libraries
   - python-graphviz~=0.16.0
   - python-snappy~=0.6.0

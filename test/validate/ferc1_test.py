@@ -53,7 +53,7 @@ def test_record_id_dupes(pudl_engine, table_name):
 def test_no_null_cols_ferc1(pudl_out_ferc1, live_dbs, cols, df_name):
     """Verify that output DataFrames have no entirely NULL columns."""
     if not live_dbs:
-        raise AssertionError("Data validation only works with a live PUDL DB.")
+        pytest.skip("Data validation only works with a live PUDL DB.")
     pv.no_null_cols(
         pudl_out_ferc1.__getattribute__(df_name)(),
         cols=cols, df_name=df_name)
@@ -85,7 +85,7 @@ def test_minmax_rows(pudl_out_ferc1, live_dbs, expected_rows, df_name):
 
     """
     if not live_dbs:
-        raise AssertionError("Data validation only works with a live PUDL DB.")
+        pytest.skip("Data validation only works with a live PUDL DB.")
     _ = (
         pudl_out_ferc1.__getattribute__(df_name)()
         .pipe(pv.check_min_rows, expected_rows=expected_rows,
@@ -109,7 +109,7 @@ def test_minmax_rows(pudl_out_ferc1, live_dbs, expected_rows, df_name):
 def test_unique_rows_ferc1(pudl_out_ferc1, live_dbs, df_name, unique_subset):
     """Test whether dataframe has unique records within a subset of columns."""
     if not live_dbs:
-        raise AssertionError("Data validation only works with a live PUDL DB.")
+        pytest.skip("Data validation only works with a live PUDL DB.")
     pv.check_unique_rows(
         pudl_out_ferc1.__getattribute__(df_name)(),
         subset=unique_subset, df_name=df_name)

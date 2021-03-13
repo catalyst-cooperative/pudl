@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 def test_fuel_for_electricity(pudl_out_eia, live_dbs):
     """Ensure fuel used for electricity is less than or equal to all fuel."""
     if not live_dbs:
-        raise AssertionError("Data validation only works with a live PUDL DB.")
+        pytest.skip("Data validation only works with a live PUDL DB.")
 
     gf_eia923 = pudl_out_eia.gf_eia923()
 
@@ -34,7 +34,7 @@ def test_fuel_for_electricity(pudl_out_eia, live_dbs):
 def test_vs_bounds(pudl_out_eia, live_dbs, cases):
     """Verify that report fuel heat content per unit is reasonable."""
     if not live_dbs:
-        raise AssertionError("Data validation only works with a live PUDL DB.")
+        pytest.skip("Data validation only works with a live PUDL DB.")
     # This test should only run on the un-aggregated data:
     if pudl_out_eia.freq is not None:
         pytest.skip("Test should only run on un-aggregated data.")
@@ -55,7 +55,7 @@ def test_vs_bounds(pudl_out_eia, live_dbs, cases):
 def test_agg_vs_historical(pudl_out_orig, pudl_out_eia, live_dbs):
     """Validate whole dataset against aggregated historical values."""
     if not live_dbs:
-        raise AssertionError("Data validation only works with a live PUDL DB.")
+        pytest.skip("Data validation only works with a live PUDL DB.")
     if pudl_out_eia.freq is None:
         pytest.skip("Only run if pudl_out_eia != pudl_out_orig.")
 

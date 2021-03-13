@@ -8,5 +8,4 @@ Development
   dev_setup
   testing
   packaging
-  data_validation
   build_docs

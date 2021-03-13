@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 def test_fbp_ferc1_missing_fractions(pudl_out_ferc1, live_dbs):
     """Check whether FERC 1 fuel costs by plant appear to be complete."""
     if not live_dbs:
-        raise AssertionError("Data validation only works with a live PUDL DB.")
+        pytest.skip("Data validation only works with a live PUDL DB.")
     fbp_ferc1 = pudl_out_ferc1.fbp_ferc1()
 
     # Make sure we're not missing any costs...
@@ -38,7 +38,7 @@ def test_fbp_ferc1_missing_fractions(pudl_out_ferc1, live_dbs):
 def test_fbp_ferc1_mismatched_fuels(pudl_out_ferc1, live_dbs):
     """Check whether FERC 1 primary fuel by cost and by heat content match."""
     if not live_dbs:
-        raise AssertionError("Data validation only works with a live PUDL DB.")
+        pytest.skip("Data validation only works with a live PUDL DB.")
     fbp_ferc1 = pudl_out_ferc1.fbp_ferc1()
     # High proportion of primary fuel by cost and by mmbtu should be the same
     mismatched_fuels = len(fbp_ferc1[
@@ -55,7 +55,7 @@ def test_fbp_ferc1_mismatched_fuels(pudl_out_ferc1, live_dbs):
 def test_fbp_ferc1_mmbtu_cost_correlation(pudl_out_ferc1, live_dbs):
     """Check that the fuel cost fraction and mmbtu fractions are similar."""
     if not live_dbs:
-        raise AssertionError("Data validation only works with a live PUDL DB.")
+        pytest.skip("Data validation only works with a live PUDL DB.")
     fbp_ferc1 = pudl_out_ferc1.fbp_ferc1()
     for fuel in ["gas", "oil", "coal", "nuclear", "unknown"]:
         fuel_cols = [f"{fuel}_fraction_mmbtu", f"{fuel}_fraction_cost"]
@@ -78,7 +78,7 @@ def test_fbp_ferc1_mmbtu_cost_correlation(pudl_out_ferc1, live_dbs):
 def test_vs_bounds(pudl_out_ferc1, live_dbs, cases):
     """Test distributions of calculated fuel by plant values."""
     if not live_dbs:
-        raise AssertionError("Data validation only works with a live PUDL DB.")
+        pytest.skip("Data validation only works with a live PUDL DB.")
 
     fbp_ferc1 = pudl_out_ferc1.fbp_ferc1()
     for f in ["gas", "oil", "coal", "waste", "nuclear", "unknown"]:
@@ -94,6 +94,6 @@ def test_vs_bounds(pudl_out_ferc1, live_dbs, cases):
 def test_self_vs_historical(pudl_out_ferc1, live_dbs):
     """Validate fuel by plants vs. historical data."""
     if not live_dbs:
-        raise AssertionError("Data validation only works with a live PUDL DB.")
+        pytest.skip("Data validation only works with a live PUDL DB.")
     for args in pv.fbp_ferc1_self:
         pv.vs_self(pudl_out_ferc1.fbp_ferc1(), **args)
