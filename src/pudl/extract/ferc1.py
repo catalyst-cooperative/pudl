@@ -725,8 +725,8 @@ def fuel(ferc1_meta, ferc1_table, ferc1_years):
     # but only gets records with plant names and non-zero fuel amounts:
     f1_fuel_select = (
         sa.sql.select([f1_fuel])
-        .where(f1_fuel.c.fuel != '')
-        .where(f1_fuel.c.fuel_quantity > 0)
+        # .where(f1_fuel.c.fuel != '')
+        # .where(f1_fuel.c.fuel_quantity > 0)
         .where(f1_fuel.c.plant_name != '')
         .where(f1_fuel.c.report_year.in_(ferc1_years))
     )
