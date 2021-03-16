@@ -55,10 +55,10 @@ version, and put it in a local directory where you can make changes.
 -------------------------------------------------------------------------------
 Create the PUDL Development Environment
 -------------------------------------------------------------------------------
-Inside the ``devtools`` directory of your newly cloned repository, you'll see an
-``environment.yml`` file, which specifies the ``pudl-dev`` ``conda`` environment.  You
-can create and activate that environment from within the main repository directory by
-running:
+Inside the ``devtools`` directory of your newly cloned repository, you'll see
+an ``environment.yml`` file, which specifies the ``pudl-dev`` ``conda``
+environment. You can create and activate that environment from within the
+main repository directory by running:
 
 .. code-block:: console
 
@@ -66,24 +66,37 @@ running:
     $ conda env create --name pudl-dev --file devtools/environment.yml
     $ conda activate pudl-dev
 
-This environment installs the ``catalystcoop.pudl`` package directly using the code in
-your cloned repository so that it can be edited during development. It also installs
-all of the software PUDL depends on, some packages for testing and quality control,
-working with interactive Jupyter Notebooks, and a few Python packages that have binary
-dependencies which can be easier to satisfy through ``conda`` packages.
+This environment installs the ``catalystcoop.pudl`` package directly using
+the code in your cloned repository so that it can be edited during
+development. It also installs all of the software PUDL depends on, some
+packages for testing and quality control, working with interactive Jupyter
+Notebooks, and a few Python packages that have binary dependencies which can
+be easier to satisfy through ``conda`` packages.
 
 -------------------------------------------------------------------------------
 Update the PUDL Development Environment
 -------------------------------------------------------------------------------
-Periodically you will need to update your development software environment. This will
-get you newer versions of existing dependencies, and also incorporate any changes that
-have been made to the environment specification by others. The most reliable way to do
-this is to remove the existing environment and recreate it. From within the top
-directory of the PUDL repository:
+Periodically you will need to update your development (``pudl-dev``) conda
+environment. This will get you newer versions of existing dependencies, and
+also incorporate any changes to the environment specification that have been
+made by other contributors. The most reliable way to do this is to remove the
+existing environment and recreate it.
+
+.. note::
+
+    Different development branches within the repository may specify their own
+    slightly different versions of the ``pudl-dev`` conda environment. As a
+    result you may need to update your environment when switching from one
+    branch to another.
+
+
+If you want to work with the most recent version of the code on a branch
+named ``new-feature``, then from within the top directory of the PUDL
+repository you would do:
 
 .. code-block:: console
 
-    $ git checkout BRANCH_NAME
+    $ git checkout new-feature
     $ git pull
     $ conda deactivate
     $ conda update conda
@@ -91,28 +104,22 @@ directory of the PUDL repository:
     $ conda env create --name pudl-dev --file devtools/environment.yml
     $ conda activate pudl-dev
 
-.. Note::
-
-    If you are switching back and forth between different branches within the
-    repository, and they have significantly different software environments specified,
-    you may need to recreate the environment after switching from one to the other. In
-    this case it may be more convenient to create two separate environments with
-    different names that you can switch between. This arrangement should be rare.
-
-If you find yourself recreating the environment frequently, and are frustrated by how
-long it takes ``conda`` to solve the dependencies, we recommend using the
-`mamba <https://github.com/mamba-org/mamba>`__ solver. In your ``base`` conda
-environment (i.e. with no conda environment activated) you can install it with:
+If you find yourself recreating the environment frequently, and are
+frustrated by how long it takes ``conda`` to solve the dependencies, we
+recommend using the `mamba <https://github.com/mamba-org/mamba>`__ solver.
+You'll want to install it in your ``base`` conda environment -- i.e. with no
+conda environment activated):
 
 .. code-block:: console
 
+    $ conda deactivate
     $ conda install mamba
 
 Then the above development environment update process would become:
 
 .. code-block:: console
 
-    $ git checkout BRANCH_NAME
+    $ git checkout new-feature
     $ git pull
     $ conda deactivate
     $ mamba update mamba
@@ -120,9 +127,12 @@ Then the above development environment update process would become:
     $ mamba env create --name pudl-dev --file devtools/environment.yml
     $ conda activate pudl-dev
 
-If you are working with locally processed data and there have been changes to the
-expectations about that data in the PUDL software, you may also need to regenerate
-your PUDL SQLite database or other outputs. See :ref:`basic-usage` for more details.
+If you are working with locally processed data and there have been changes to
+the expectations about that data in the PUDL software, you may also need to
+regenerate your PUDL SQLite database or other outputs. See :ref:`basic-usage`
+for more details.
+
+.. _linting:
 
 -------------------------------------------------------------------------------
 Set Up Code Linting
@@ -192,9 +202,9 @@ If you are using an editor designed for Python development many of these code li
 and formatting tools can be run automatically in the background while you write code or
 documentation. Popular editors that work with the above tools include:
 
-* `Atom <https://atom.io/>`__ developed by GitHub (free),
-* `Sublime Text <https://www.sublimetext.com/>`__ (paid), and
-* `Visual Studio Code <https://code.visualstudio.com/>`__, from Microsoft (free).
+* `Visual Studio Code <https://code.visualstudio.com/>`__, from Microsoft (free)
+* `Atom <https://atom.io/>`__ developed by GitHub (free), and
+* `Sublime Text <https://www.sublimetext.com/>`__ (paid).
 
 .. seealso::
 

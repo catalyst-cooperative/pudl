@@ -110,9 +110,13 @@ Coding Standards
   of Python.
 * Before making a PR, make sure the tests run and pass locally, including the
   linters.
-* Don't decrease the overall test coverage -- if you introduce new code it
-  also needs to be exercised by the tests. See :doc:`dev/testing` for details.
-* Write good docstrings, using the `Google docstring <https://www.sphinx-doc.org/en/latest/usage/extensions/example_google.html>`__ format.
+* Please don't decrease the overall test coverage -- if you introduce new code
+  it also needs to be exercised by the tests. See :doc:`dev/testing` for
+  details.
+* We use linters to enforce some formatting standards. See :ref:`linting` for
+  details.
+* Write good docstrings, using the `Google docstring <https://www.sphinx-doc.org/en/latest/usage/extensions/example_google.html>`__
+  format.
 
 .. seealso::
 

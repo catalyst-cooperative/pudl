@@ -82,16 +82,16 @@ This is equivalent to:
     $ tox -e ci
 
 If the dependencies have been changed, or you recently ran the tests while on
-another branch of the repository with other dependencies, you should tell Tox
-to rebuild the software environment it operates in with the ``-r`` (aka
-``--recreate``) flag:
+another branch of the repository with other dependencies, you may need to tell
+Tox to recreate the software environment it uses with the ``-r`` flag. This is
+turned on by default for the ``ci`` tests.
 
 .. code-block:: console
 
     $ tox -re ci
 
 In addition to running the ``unit`` and ``integration`` tests, the CI test
-environment lints the code and documentation input files, and uses Sphinx
+environment lints the code and documentation input files, and uses Sphinx to
 build the documentation. It also generates a test coverage report. Running
 the full set of CI tests takes 20-25 minutes, and requires a fair amount of
 data. If you don't already have that data downloaded, it will be downloaded
@@ -120,16 +120,16 @@ or:
 
 Full ETL Tests
 ^^^^^^^^^^^^^^
-As mentioned above the CI tests process a single year of data. If you would
+As mentioned above, the CI tests process a single year of data. If you would
 like to more exhaustively test the ETL process without affecting your
 existing FERC 1 and PUDL databases, you can use the ``full`` test
-environment:
+environment, which may take close to an hour to run:
 
 .. code-block:: console
 
     $ tox -e full
 
-This will process all years of data for the EIA and FERC datasets, and all
+This will process *all years of data* for the EIA and FERC datasets, and all
 years of EPA CEMS data for a single state (Idaho). The ETL parameters for
 this test are defined in ``test/settings/full-integration-tests.yml``
 
@@ -187,6 +187,46 @@ passed through to ``pytest``. We've configured ``pytest`` (through the
     * :doc:`/datastore` for more on how to work with the datastore.
 
 -------------------------------------------------------------------------------
+Data Validation
+-------------------------------------------------------------------------------
+Once the PUDL ETL pipeline has processed all of the available data, we have a
+collection of tests that can be run to verify a collection of expectations
+about what the outputs should look like. We run all available data
+validations before each data release is archived on Zenodo. It is useful to
+run the data validation tests prior to making a pull request that makes changes
+to the ETL process or output functions, to ensure that the outputs have not
+been unintentually affected.
+
+These data validation tests are organized into datasource specific modules
+under ``test/validate``. Running the full data validation can take as much as
+an hour, depending on your computer. These tests require a fully populated
+PUDL database which contains all available FERC and EIA data, as specified by
+the ``test/settings/full-integration-test.yml`` input file. They are run
+against the "live" SQLite database in your pudl workspace at
+``sqlite/pudl.sqlite``. To run the full data validation against an existing
+database:
+
+.. code-block:: console
+
+    $ tox -e validate
+
+The data validation cases that pertain to the contents of the data tables are
+currently stored as part of the :mod:`pudl.validate` module.
+
+The expected number of records in each output table is stored in the validation
+test modules under ``test/validate`` as pytest parameterizations.
+
+Data Validation Notebooks
+^^^^^^^^^^^^^^^^^^^^^^^^^
+We have a collection of Jupyter Notebooks that run the same functions as the
+data validation. The notebooks also produce some visualizations of the data
+to make it easier to understand what's wrong when validation fails. These
+notebooks are stored in ``test/notebooks``
+
+Like the data validations, the notebooks will only run successfully when
+there's a full PUDL SQLite database available in your PUDL workspace.
+
+-------------------------------------------------------------------------------
 Running pytest Directly
 -------------------------------------------------------------------------------
 Running tests directly with ``pytest`` gives you the ability to run only
@@ -199,7 +239,8 @@ robust as using Tox.
 
 Running specific tests
 ^^^^^^^^^^^^^^^^^^^^^^
-To run the software unit tests with ``pytest`` directly:
+To run the software unit tests with ``pytest`` directly (the same set of tests
+that would be run by ``tox -e unit``):
 
 .. code-block:: console
 
@@ -220,7 +261,10 @@ To run only the unit tests defined by a single test class within that module:
 Custom PUDL pytest flags
 ^^^^^^^^^^^^^^^^^^^^^^^^
 We have defined several custom flags to control pytest's behavior when running
-the PUDL tests. You can always check to see what custom flags exist by running
+the PUDL tests. They are mostly intended for use internally, to specify the
+behavior we want in the high level Tox test environments.
+
+You can always check to see what custom flags exist by running
 ``pytest --help`` and looking at the ``custom options`` section:
 
 .. code-block:: console
@@ -234,73 +278,59 @@ the PUDL tests. You can always check to see what custom flags exist by running
                         If set, use this GCS path as a datastore cache layer.
   --sandbox             Use raw inputs from the Zenodo sandbox server.
 
-Run the output tests using a pre-existing PUDL database rather than building
-a new one for testing:
+The main flexibility that these custom options provide is in selecting where
+the raw input data comes from, and what data the tests should be run
+against. Being able to specify the tests to run and the data to run them
+against independently simplifies the test suite, and keeps the data and tests
+very clearly separated.
+
+The ``--live-dbs`` option lets you use your existing FERC 1 and PUDL databases
+instead of building a new database at all. This can be useful if you want to
+test code that only operates on an existing database, and has nothing to do
+with the construction of that database. For example, the output routines:
 
 .. code-block:: console
 
   $ pytest --live-dbs test/integration/fast_output_test.py
 
-Run the ETL portion of the integration tests, and force it to download fresh
-input data to a temporary datastore:
+We also use this option to run the data validations.
 
-.. code-block:: console
+Assuming you do want to run the ETL and build new databases as part of the test
+you're running, the contents of that database are determined by an ETL settings
+file. By default, the settings file that's used is
+``test/settings/integration-test.yml`` But it's also possible to use a
+different input file, generating a different database, and then run some
+tests against that database.
 
-   $ pytest --tmp-data test/integration/etl_test.py
-
-Run the ETL portion of the integration tests, but using a non-standard settings
-file (equivalent to ``tox -e ferc1_solo``):
+For example, we test that FERC 1 data can be loaded into a PUDL database all
+by itself by running the ETL tests with a settings file that includes only A
+couple of FERC 1 tables for a single year. This is the ``ferc1_solo`` Tox
+test environment:
 
 .. code-block:: console
 
   $ pytest --etl-settings=test/settings/ferc1-solo-test.yml test/integration/etl_test.py
 
-Check that the schemas of all historical FERC 1 databases are compatible with
-the most recent year, which we use to generate the schema for our FERC 1 SQLite
-database containing all years of FERC 1 data (equivalent to ``tox -e ferc1_schema``):
+Similarly, we use the ``test/settings/full-integration-test.yml`` settings file
+to specify an exhaustive collection of input data, and then run a test that
+checks that the database schemas extracted from all historical FERC 1 databases
+are compatible with each other. This is the ``ferc1_schema`` test:
 
 .. code-block:: console
 
   $ pytest --etl-settings test/settings/full-integration-test.yml test/integration/etl_test.py::test_ferc1_schema
 
--------------------------------------------------------------------------------
-Data Validation
--------------------------------------------------------------------------------
-Once the PUDL ETL pipeline has processed all of the available data, we have a
-collection of tests that can be run to verify a collection of expectations
-about what the outputs should look like. These data validation tests are
-organized into datasource specific modules under ``test/validate``. Running
-the full data validation can take as much as an hour, depending on your
-computer.
+The raw input data that all the tests use is ultimately coming from our
+`archives on Zenodo <https://zenodo.org/communities/catalyst-cooperative>`__.
+but you can optionally tell the tests to look in a different places for more
+rapidly accessbile caches of that data, and to force the download of a fresh
+copy (especially useful when you are testing the datastore functionality
+specifically). By default the tests will use the datastore that's part of your
+local PUDL workspace.
 
-These tests require a fully populated PUDL database which contains all
-available FERC and EIA data, as specified by the
-``test/settings/full-integration-test.yml`` input file. They are run against the
-"live" SQLite database in your pudl workspace at ``sqlite/pudl.sqlite``. To run
-the full data validation against an existing database:
+For example, to run the ETL portion of the integration tests, and download
+fresh input data to a temporary datastore that's later deleted automatically:
 
 .. code-block:: console
 
-    $ tox -e validate
-
-Which internally calls pytest like this, but in a clean Python environment:
-
-.. code-block:: console
-
-    $ pytest --live-dbs test/validate
-
-The data validation cases that pertain to the contents of the data tables are
-currently stored as part of the :mod:`pudl.validate` module.
-
-The expected number of records in each output table is stored in the validation
-test modules under ``test/validate`` as pytest parameterizations.
-
-Data Validation Notebooks
-^^^^^^^^^^^^^^^^^^^^^^^^^
-We also have a collection of Jupyter Notebooks that use the same functions as
-the data validation tests and also produce some visualizations of the data to
-make it easier to understand what's wrong when validation fails. These
-notebooks are stored in ``test/notebooks``
-
-Like the data validations, the notebooks will only run successfully when
-there's a full PUDL SQLite database available in your PUDL workspace.
+   $ pytest --tmp-data test/integration/etl_test.py
