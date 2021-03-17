@@ -25,8 +25,6 @@ from jinja2 import Template
 logger = logging.getLogger(__name__)
 
 
-# pkg = 'pudl.package_data.meta.datapkg'
-
 ###############################################################################
 # T E M P L A T E S
 ###############################################################################
@@ -103,16 +101,14 @@ def parse_command_line(argv):
     parser.add_argument(
         '-i',
         '--metadata',
-        # type=str,
         help="""Path to the datapackage.json metadata file""",
-        default=False  # defaults["pudl_in"],
+        default=False
     )
     parser.add_argument(
         '-o',
         '--output',
-        # type=str,
         help="""Path to the metadata.rst output file""",
-        default=False  # str(defaults["pudl_out"])
+        default=False
     )
     arguments = parser.parse_args(argv[1:])
     return arguments
@@ -120,8 +116,6 @@ def parse_command_line(argv):
 
 def main():
     """Run conversion from json to rst."""
-    # parser = argparse.ArgumentParser(description=__doc__)
-    # parser.parse_args()
     args = parse_command_line(sys.argv)
     datapkg2rst_one(args.metadata, args.output)
 
