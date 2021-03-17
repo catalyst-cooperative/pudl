@@ -17,23 +17,6 @@ datapkg_bundle_name: pudl-example
 # The package bundle settings are a list of individual data package
 # specifications, each of which may contain one or more data sources.
 datapkg_bundle_settings:
-  ###########################################################################
-  # EPA IPM SETTINGS
-  ###########################################################################
-  - name: epaipm-example
-    title: EPA Integrated Planning Model Example Package
-    description: Transmission, load, and other data from the EPA's Integrated Planning Model.
-    datasets:
-      - epaipm:
-          epaipm_tables:
-            - transmission_single_epaipm
-            - transmission_joint_epaipm
-            - load_curves_epaipm
-            - plant_region_map_epaipm
-          # if you don't want to download ipm, either delete this entire package
-          # settings or comment out the epaipm_tables above and include the
-          # empty list below.
-          # epaipm_tables: []
 
   ###########################################################################
   # FERC FORM 1 SETTINGS
@@ -57,11 +40,11 @@ datapkg_bundle_settings:
            - purchased_power_ferc1
           # The ferc1 dataset goes back as far as 1994, but more cleaning and
           # integration needs to be done to bring in that data.
-          #ferc1_years: [1994, 1995, 1996, 1997, 1998,
-          #              1999, 2000, 2001, 2002, 2003,
-          #              2004, 2005, 2006, 2007, 2008,
-          #              2009, 2010, 2011, 2012, 2013,
-          #              2014, 2015, 2016, 2017, 2018, 2019]
+          #ferc1_years: [
+          #  1994, 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003,
+          #  2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013,
+          #  2014, 2015, 2016, 2017, 2018, 2019
+          #]
           ferc1_years: [2019]
 
   ###########################################################################
@@ -87,8 +70,10 @@ datapkg_bundle_settings:
             # NOTE: coalmine_eia923 REQUIRES fuel_receipts_costs_eia923
             - coalmine_eia923
             - fuel_receipts_costs_eia923
-          #eia923_years: [2009, 2010, 2011, 2012, 2013,
-          #               2014, 2015, 2016, 2017, 2018, 2019]
+          #eia923_years: [
+          #  2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018,
+          #  2019
+          #]
           eia923_years: [2019]
           # See notes above about the entanglement between EIA 923 and EIA 860.
           # It's best to load all the tables from both of them, or neither of
@@ -99,7 +84,10 @@ datapkg_bundle_settings:
             - plants_eia860
             - generators_eia860
             - ownership_eia860
-          #eia860_years: [2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019]
+          #eia860_years: [
+          #  2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018,
+          #  2019
+          #]
           eia860_years: [2019]
           # If you want to add the year-to-date data from EIA 860M, eia860_ytd
           # must be True. This will only add generator tables! You cannot load
@@ -132,8 +120,10 @@ datapkg_bundle_settings:
             # NOTE: coalmine_eia923 REQUIRES fuel_receipts_costs_eia923
             - coalmine_eia923
             - fuel_receipts_costs_eia923
-          #eia923_years: [2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017,
-          #               2018, 2019]
+          #eia923_years: [
+          #  2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018,
+          #  2019
+          #]
           eia923_years: [2019]
           # See notes above about the entanglement between EIA 923 and EIA 860.
           # It's best to load all the tables from both of them, or neither of
@@ -144,7 +134,10 @@ datapkg_bundle_settings:
             - plants_eia860
             - generators_eia860
             - ownership_eia860
-          #eia860_years: [2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019]
+          #eia860_years: [
+          #  2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018,
+          #  2019
+          #]
           eia860_years: [2019]
           # If you want to add the year-to-date data from EIA 860M, eia860_ytd
           # must be True. This will only add generator tables! You cannot load
@@ -154,9 +147,11 @@ datapkg_bundle_settings:
           # Note that the CEMS data relies on EIA 860 data for plant locations,
           # so if you're loading CEMS data for a particular year, you should
           # also load the EIA 860 data for that year (2011-2017 only)
-          #epacems_years: [1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002,
-          #                2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010,
-          #                2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019]
+          #epacems_years: [
+          #  1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004,
+          #  2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014,
+          #  2015, 2016, 2017, 2018, 2019
+          #]
           epacems_years: [2019]
           # Just Idaho, as it is has the smallest data of any state.
           epacems_states: [ID]

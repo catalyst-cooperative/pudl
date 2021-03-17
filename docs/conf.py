@@ -16,15 +16,14 @@ import pkg_resources
 # number via pkg_resources.get_distribution() so we need more than just an
 # importable path.
 
-# -- Project information -----------------------------------------------------
-
-project = 'PUDL'
-copyright = '2020, Catalyst Cooperative'  # noqa: A001
-author = 'Catalyst Cooperative'
-
 # The full version, including alpha/beta/rc tags
 release = pkg_resources.get_distribution('catalystcoop.pudl').version
 
+# -- Project information -----------------------------------------------------
+
+project = 'PUDL'
+copyright = '2016-2021, Catalyst Cooperative'  # noqa: A001
+author = 'Catalyst Cooperative'
 
 # -- General configuration ---------------------------------------------------
 
@@ -38,7 +37,7 @@ extensions = [
     'sphinx.ext.napoleon',
     'sphinx.ext.todo',
     'sphinx.ext.viewcode',
-    "sphinx_issues",
+    'sphinx_issues',
 ]
 todo_include_todos = True
 
@@ -90,8 +89,15 @@ html_context = {
     "display_github": True,  # Integrate GitHub
     "github_user": "catalyst-cooperative",  # Username
     "github_repo": "pudl",  # Repo name
-    "github_version": "master",  # Version
+    "github_version": "main",  # Version
     "conf_py_path": "/docs/",  # Path in the checkout to the docs root
+}
+
+# Theme options are theme-specific and customize the look and feel of a theme
+# further.  For a list of options available for each theme, see the
+# documentation.
+html_theme_options = {
+    "collapse_navigation": True
 }
 
 # Add any paths that contain custom static files (such as style sheets) here,

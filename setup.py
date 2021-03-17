@@ -14,10 +14,8 @@ install_requires = [
     "datapackage~=1.11",
     "fsspec~=0.8.7",
     "gcsfs~=0.7.2",
-    "geopandas~=0.8.2",
+    "geopandas~=0.9.0",
     "goodtables-pandas-py~=0.2.0",
-    "google-cloud-bigquery~=1.28",
-    "google-cloud-storage~=1.35",
     "jinja2~=2.11",
     "matplotlib~=3.0",
     "networkx~=2.2",
@@ -25,6 +23,7 @@ install_requires = [
     "pandas~=1.2",
     "prefect[viz, gcp]~=0.14.2",
     "pyarrow~=3.0",
+    "pygeos~=0.9.0",
     "pyyaml~=5.0",
     "scikit-learn~=0.24.1",
     "scipy~=1.6",
@@ -33,7 +32,7 @@ install_requires = [
     "tableschema~=1.12",
     "tableschema-sql~=1.3",
     "timezonefinder~=5.0",
-    "tqdm~=4.0",
+    "tqdm~=4.0",  # Remove when demand_mapping.py is removed
     "xlsxwriter~=1.3",
 ]
 
@@ -43,6 +42,17 @@ install_requires = [
 # using the autodoc_mock_imports parameter:
 if not os.getenv("READTHEDOCS"):
     install_requires.append("python-snappy~=0.6.0")
+
+dev_requires = [
+    "autopep8~=1.5",
+    "ipdb~=0.13.4",
+    "isort~=5.0",
+    "jedi~=0.18",
+    "lxml~=4.6",
+    "pdbpp~=0.10",
+    "tox~=3.20",
+    "twine~=3.3",
+]
 
 doc_requires = [
     "doc8~=0.8.0",
@@ -72,7 +82,6 @@ test_requires = [
     "responses~=0.12.1",
 ]
 
-
 readme_path = Path(__file__).parent / "README.rst"
 long_description = readme_path.read_text()
 
@@ -98,10 +107,11 @@ setup(
         "electricity", "energy", "data", "analysis", "mcoe", "climate change",
         "finance", "eia 923", "eia 860", "ferc", "form 1", "epa ampd",
         "epa cems", "coal", "natural gas", "eia 861", "ferc 714"],
-    python_requires=">=3.8,<3.9",
+    python_requires=">=3.8,<3.10",
     setup_requires=["setuptools_scm"],
     install_requires=install_requires,
     extras_require={
+        "dev": dev_requires,
         "doc": doc_requires,
         "test": test_requires,
     },
@@ -114,6 +124,7 @@ setup(
         "Natural Language :: English",
         "Operating System :: OS Independent",
         "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
         "Topic :: Scientific/Engineering",
     ],
     packages=find_packages("src"),

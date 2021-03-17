@@ -5,6 +5,10 @@ on: [ push, pull_request ]
 jobs:
   build:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.8, 3.9]
+
     steps:
     - uses: actions/checkout@v2
       with:
@@ -25,7 +29,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v2
       with:
-        python-version: 3.8
+        python-version: ${{ matrix.python-version }}
 
     - name: Install dependencies
       run: |
@@ -41,19 +45,13 @@ jobs:
     - name: Run PyTest with Tox
       env:
         API_KEY_EIA: ${{ secrets.API_KEY_EIA }}
-      run: tox -ve ci -- --fast
+      run: tox
 
     - name: Log post-test Zenodo datastore contents
       run: find ~/pudl-work/data/
 
     - name: Upload test coverage report to CodeCov
       uses: codecov/codecov-action@v1
-
-    - name: Archive test coverage report at GitHub
-      uses: actions/upload-artifact@v2
-      with:
-        name: code-coverage-report
-        path: coverage.xml
 
     - name: Inform the Codemonkeys
       uses: 8398a7/action-slack@v3

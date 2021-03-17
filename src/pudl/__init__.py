@@ -73,7 +73,6 @@ data, with the goal of enabling climate advocates, academic researchers, and
 data journalists to better understand the electricity system and its impacts
 on climate.
 """
-__pythonrequiredversion__ = "3.8"
 __projecturl__ = "https://catalyst.coop/pudl/"
 __downloadurl__ = "https://github.com/catalyst-cooperative/pudl/"
 
