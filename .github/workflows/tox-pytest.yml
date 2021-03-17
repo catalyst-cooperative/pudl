@@ -45,7 +45,7 @@ jobs:
     - name: Run PyTest with Tox
       env:
         API_KEY_EIA: ${{ secrets.API_KEY_EIA }}
-      run: tox -ve ci
+      run: tox
 
     - name: Log post-test Zenodo datastore contents
       run: find ~/pudl-work/data/

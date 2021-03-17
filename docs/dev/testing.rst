@@ -3,9 +3,39 @@
 ===============================================================================
 Testing PUDL
 ===============================================================================
-Our test suite is primarily written using `pytest <https://pytest.org>`__.
-The tests are all stored under the ``test/`` directory in the main repository,
-and they are organized into 3 broad categories, each with its own subdirectory:
+We use `Tox <https://tox.readthedocs.io>`__ to coordinate our software testing,
+and to manage other build and sanity checking tools. Under the hood it invokes
+a variety of other collections of command-line tools in predefined combinations
+that are described in ``tox.ini``. These include software tests defined using
+`pytest <https://pytest.org>`__, code linters like ``flake8``, documentation
+generators like Sphinx, and sanity checks defined as git pre-commit hooks. Each
+of these tools, or sometimes collections of related tools, can be selected at
+the command line. They can also be run independently without using Tox, but for
+the sake of simplicitly and standardization, we try to mostly just run them
+using the predefined settings we have configured in Tox.
+
+The simplest way to test PUDL -- which is also how the code is tested
+automatically by our continuous integration setup -- is to just run Tox alone
+with no arguments. This will typically take 25 minutes to run.
+
+.. code-block:: console
+
+    $ tox
+
+.. note::
+
+    If you aren't familiar with pytest and Tox already, you may want to go
+    peruse their introductory documentation.
+
+    * `Getting Started with pytest <https://docs.pytest.org/en/latest/getting-started.html>`__
+    * `Tox Documentation <https://tox.readthedocs.io/en/latest/>`__
+
+-------------------------------------------------------------------------------
+Software Tests
+-------------------------------------------------------------------------------
+Our ``pytest`` based software tests are all stored under the ``test/``
+directory in the main repository. They are organized into 3 broad categories,
+each with its own subdirectory:
 
 * **Software Unit Tests** (``test/unit/``) can be run in seconds and don't
   require any external data. They test the basic functionality of various
@@ -27,40 +57,13 @@ and they are organized into 3 broad categories, each with its own subdirectory:
 -------------------------------------------------------------------------------
 Running tests with Tox
 -------------------------------------------------------------------------------
-We use `Tox <https://tox.readthedocs.io>`__ to coordinate running different
-groups of tests together, and to make sure that the tests are run in a fresh
-Python environment without any other packages that might have been installed
-locally, but that won't necessarily be installed by PUDL users. Tox's behavior
-is configured with the ``tox.ini`` file in the main repository directory. There
-are several different "test environments" defined, to test different aspects
-of the software, or to perform other actions like building the documentation.
-To see a list of the available environments with short descriptions in the PUDL
-repository run:
-
-.. code-block:: console
-
-    $ tox -av
-
-    default environments:
-    ci               -> Run all continuous integration (CI) checks & generate test coverage.
-
-    additional environments:
-    flake8           -> Run the full suite of flake8 linters on the PUDL codebase.
-    pre_commit       -> Run git pre-commit hooks not covered by the other linters.
-    bandit           -> Check the PUDL codebase for common insecure code patterns.
-    linters          -> Run the pre-commit, flake8 and bandit linters.
-    doc8             -> Check the documentation input files for syntactical correctness.
-    docs             -> Remove old docs output and rebuild HTML from scratch with Sphinx
-    unit             -> Run all the software unit tests.
-    ferc1_solo       -> Test whether FERC 1 can be loaded into the PUDL database alone.
-    integration      -> Run all software integration tests and process a full year of data.
-    validate         -> Run all data validation tests. This requires a complete PUDL DB.
-    ferc1_schema     -> Verify FERC Form 1 DB schema are compatible for all years.
-    full_integration -> Run ETL and integration tests for all years and data sources.
-    full             -> Run all CI checks, but for all years of data.
-    build            -> Prepare Python source and binary packages for release.
-    testrelease      -> Do a dry run of Python package release using the PyPI test server.
-    release          -> Release the PUDL package to the production PyPI server.
+Tox installs the PUDL package in a fresh Python environment, ensuring that the
+tests only have access to packages which would be installed on a new user's
+computer. Tox's overall behavior is configured with the ``tox.ini`` file in the
+main repository directory. There are several different "test environments"
+defined, to test different aspects of the software, or to perform other
+actions like building the documentation. We'll go through some of the most
+common ones below.
 
 Continuous Integration Tests
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -81,14 +84,13 @@ This is equivalent to:
 
     $ tox -e ci
 
-If the dependencies have been changed, or you recently ran the tests while on
-another branch of the repository with other dependencies, you may need to tell
-Tox to recreate the software environment it uses with the ``-r`` flag. This is
-turned on by default for the ``ci`` tests.
-
-.. code-block:: console
-
-    $ tox -re ci
+If the PUDL package's dependencies have been changed (in ``setup.py``), or you
+recently ran the tests while on another branch of the repository with other
+dependencies, you may need to tell Tox to recreate the software environment
+it uses with the ``-r`` flag. This behavior is turned on by default for the
+``ci``, ``full``, and ``validate`` tests, since they take a long time to run
+and the extra time required to recreate the software environment is short by
+comparison.
 
 In addition to running the ``unit`` and ``integration`` tests, the CI test
 environment lints the code and documentation input files, and uses Sphinx to
@@ -137,7 +139,34 @@ this test are defined in ``test/settings/full-integration-tests.yml``
 Running Other Commands with Tox
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 You can run any of the individual test environments that ``tox -av`` lists on
-their own.  Not all of them literally run tests. For instance, to lint and
+their own:
+
+.. code-block:: console
+
+    $ tox -av
+
+    default environments:
+    ci               -> Run all continuous integration (CI) checks & generate test coverage.
+
+    additional environments:
+    flake8           -> Run the full suite of flake8 linters on the PUDL codebase.
+    pre_commit       -> Run git pre-commit hooks not covered by the other linters.
+    bandit           -> Check the PUDL codebase for common insecure code patterns.
+    linters          -> Run the pre-commit, flake8 and bandit linters.
+    doc8             -> Check the documentation input files for syntactical correctness.
+    docs             -> Remove old docs output and rebuild HTML from scratch with Sphinx
+    unit             -> Run all the software unit tests.
+    ferc1_solo       -> Test whether FERC 1 can be loaded into the PUDL database alone.
+    integration      -> Run all software integration tests and process a full year of data.
+    validate         -> Run all data validation tests. This requires a complete PUDL DB.
+    ferc1_schema     -> Verify FERC Form 1 DB schema are compatible for all years.
+    full_integration -> Run ETL and integration tests for all years and data sources.
+    full             -> Run all CI checks, but for all years of data.
+    build            -> Prepare Python source and binary packages for release.
+    testrelease      -> Do a dry run of Python package release using the PyPI test server.
+    release          -> Release the PUDL package to the production PyPI server.
+
+Note that not all of them literally run tests. For instance, to lint and
 build the documentation you can run:
 
 .. code-block:: console
@@ -158,7 +187,7 @@ section called ``commands`` is a list of shell commands that that test
 environment will run.
 
 -------------------------------------------------------------------------------
-Input Data for Integration Tests
+Selecting Input Data for Integration Tests
 -------------------------------------------------------------------------------
 The software integration tests need a year's worth of input data to process. By
 default they will look in your local PUDL datastore to find it. If the data
@@ -189,13 +218,12 @@ passed through to ``pytest``. We've configured ``pytest`` (through the
 -------------------------------------------------------------------------------
 Data Validation
 -------------------------------------------------------------------------------
-Once the PUDL ETL pipeline has processed all of the available data, we have a
-collection of tests that can be run to verify a collection of expectations
-about what the outputs should look like. We run all available data
-validations before each data release is archived on Zenodo. It is useful to
-run the data validation tests prior to making a pull request that makes changes
-to the ETL process or output functions, to ensure that the outputs have not
-been unintentually affected.
+Given the processed outputs of the PUDL ETL pipeline, we have a collection of
+tests that can be run to verify that the outputs look correct. We run all
+available data validations before each data release is archived on Zenodo. It
+is useful to run the data validation tests prior to making a pull request
+that makes changes to the ETL process or output functions, to ensure that the
+outputs have not been unintentually affected.
 
 These data validation tests are organized into datasource specific modules
 under ``test/validate``. Running the full data validation can take as much as
