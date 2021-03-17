@@ -105,7 +105,8 @@ def create_cems_schema():
     int_not_null = partial(pa.field, type=pa.int32(), nullable=False)
     str_not_null = partial(pa.field, type=pa.string(), nullable=False)
     # Timestamp resolution is hourly, but second is the largest allowed.
-    timestamp = partial(pa.field, type=pa.timestamp("s", tz="UTC"), nullable=False)
+    timestamp = partial(pa.field, type=pa.timestamp(
+        "s", tz="UTC"), nullable=False)
     float_nullable = partial(pa.field, type=pa.float32(), nullable=True)
     float_not_null = partial(pa.field, type=pa.float32(), nullable=False)
     # (float32 can accurately hold integers up to 16,777,216 so no need for
@@ -208,7 +209,8 @@ def epacems_to_parquet(datapkg_path,
                 f"hourly_emissions_epacems_{year}_{state.lower()}.csv.gz")
             df = (
                 pd.read_csv(
-                    newpath, dtype=in_types, parse_dates=["operating_datetime_utc"]
+                    newpath, dtype=in_types, parse_dates=[
+                        "operating_datetime_utc"]
                 )
                 .assign(year=year)
             )
@@ -217,7 +219,8 @@ def epacems_to_parquet(datapkg_path,
             else:
                 logger.info(f"{year}-{state}: {len(df)} records")
                 pq.write_to_dataset(
-                    pa.Table.from_pandas(df, preserve_index=False, schema=schema),
+                    pa.Table.from_pandas(
+                        df, preserve_index=False, schema=schema),
                     root_path=str(out_dir),
                     partition_cols=list(partition_cols),
                     compression=compression

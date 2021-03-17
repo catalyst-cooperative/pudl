@@ -16,7 +16,6 @@ tables. This way, these tags can be referenced and appear in other rst files.
 """
 
 import argparse
-# import importlib.resources
 import json
 import logging
 import sys
@@ -27,8 +26,6 @@ logger = logging.getLogger(__name__)
 
 
 # pkg = 'pudl.package_data.meta.datapkg'
-# with importlib.resources.open_text(pkg, 'datapackage.json') as f:
-# metadata_dict = json.load(f)
 
 ###############################################################################
 # T E M P L A T E S
@@ -77,7 +74,9 @@ Contents of {{ resource.name }} table
 
 def datapkg2rst_one(meta_json, meta_rst):
     """Convert json metadata to a single rst file."""
-    metadata_dict = json.load(meta_json)
+    logger.info("Accessing json metadata as dictionary")
+    with open(meta_json) as f:
+        metadata_dict = json.load(f)
 
     logger.info("Converting json metadata into an rst file")
     template = Template(rst_template)
@@ -103,17 +102,19 @@ def parse_command_line(argv):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
         '-i',
-        type=str,
+        '--metadata',
+        # type=str,
         help="""Path to the datapackage.json metadata file""",
         default=False  # defaults["pudl_in"],
     )
     parser.add_argument(
         '-o',
-        type=str,
+        '--output',
+        # type=str,
         help="""Path to the metadata.rst output file""",
         default=False  # str(defaults["pudl_out"])
     )
-    arguments = parser.parse_args(argv)
+    arguments = parser.parse_args(argv[1:])
     return arguments
 
 
@@ -122,7 +123,7 @@ def main():
     # parser = argparse.ArgumentParser(description=__doc__)
     # parser.parse_args()
     args = parse_command_line(sys.argv)
-    datapkg2rst_one(args.i, args.o)
+    datapkg2rst_one(args.metadata, args.output)
 
 
 if __name__ == '__main__':
