@@ -15,6 +15,7 @@ install_requires = [
     "geopandas~=0.8.1",
     "goodtables-pandas-py~=0.2.0",
     "google-cloud-storage~=1.35.0",
+    "jinja2~=2.11",
     "matplotlib~=3.0",
     "networkx~=2.2",
     "numpy~=1.19",
@@ -126,7 +127,7 @@ setup(
             'ferc1_to_sqlite = pudl.convert.ferc1_to_sqlite:main',
             'epacems_to_parquet = pudl.convert.epacems_to_parquet:main',
             'pudl_territories = pudl.analysis.service_territory:main',
-            'datapkg_to_rst = pudl.convert.datapkg_to_rst:main'
+            'datapkg_to_rst = pudl.convert.datapkg_to_rst:main',
         ]
     },
 )
