@@ -66,7 +66,7 @@ intersphinx_mapping = {
 # List of packages that should not really be installed, because they are
 # written in C or have C extensions. Instead they should be mocked for import
 # purposes only to prevent the doc build from failing.
-autodoc_mock_imports = ['snappy', 'pyarrow']
+autodoc_mock_imports = ['snappy', 'pyarrow', 'fsspec']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']

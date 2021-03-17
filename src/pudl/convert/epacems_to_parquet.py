@@ -32,8 +32,6 @@ from pyarrow import parquet as pq
 import pudl
 from pudl import constants as pc
 
-# Because this is an entry point module for a script, we want to gather all the
-# pudl output, not just from this module, hence the pudl.__name__
 logger = logging.getLogger(__name__)
 
 

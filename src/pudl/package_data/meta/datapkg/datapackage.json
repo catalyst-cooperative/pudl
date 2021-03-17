@@ -5252,11 +5252,6 @@
                         "format": "default"
                     },
                     {
-                        "name": "address_3",
-                        "type": "string",
-                        "format": "default"
-                    },
-                    {
                         "name": "zip_code_4",
                         "type": "string",
                         "format": "default"
