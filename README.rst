@@ -134,10 +134,8 @@ data packages from the same bundle into a single data package,
 .. code-block:: console
 
     $ datapkg_to_sqlite \
-        -o pudl-work/datapkg/pudl-example/pudl-merged \
         pudl-work/datapkg/pudl-example/ferc1-example/datapackage.json \
         pudl-work/datapkg/pudl-example/eia-example/datapackage.json \
-        pudl-work/datapkg/pudl-example/epaipm-example/datapackage.json
 
 The EPA CEMS data is ~100 times larger than all of the other data we have
 integrated thus far, and loading it into SQLite takes a very long time. We've
@@ -153,7 +151,7 @@ format. To convert the example EPA CEMS data package you can run:
 The resulting Apache Parquet dataset will be stored in
 ``pudl-work/parquet/epacems`` and will be partitioned by year and by state, so
 that you can read in only the relevant portions of the dataset. (Though in the
-example, you'll only find 2018 data for Idaho)
+example, you'll only find 2019 data for Idaho)
 
 Now that you have a live database, we can easily work with it using a variety
 of tools, including Python, pandas dataframes, and
