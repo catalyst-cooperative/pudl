@@ -4089,7 +4089,7 @@
                     {
                         "name": "capex_per_mw",
                         "type": "number",
-                        "description": "Plant costs (including asset retirement costs) per megawatt. Nominal USD. ",
+                        "description": "Plant costs (including asset retirement costs) per megawatt. Nominal USD.",
                         "format": "default"
                     },
                     {

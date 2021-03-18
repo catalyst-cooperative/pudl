@@ -24,9 +24,14 @@ repos:
 
 # Attempt to enforce standardized PEP8 style formatting:
 - repo: https://github.com/pre-commit/mirrors-autopep8
-  rev: v1.5.5
+  rev: v1.5.6
   hooks:
   - id: autopep8
+    exclude: ^docs/conf.py$
+    args:
+      - --global-config=tox.ini
+      - --in-place
+      - --max-line-length=88
 
 # Make sure import statements are sorted uniformly.
 - repo: https://github.com/pre-commit/mirrors-isort

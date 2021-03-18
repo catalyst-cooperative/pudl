@@ -11,6 +11,7 @@ import pudl.analysis.mcoe
 import pudl.analysis.service_territory
 import pudl.cli
 import pudl.constants
+import pudl.convert.datapkg_to_rst
 import pudl.convert.datapkg_to_sqlite
 import pudl.convert.epacems_to_parquet
 import pudl.convert.ferc1_to_sqlite
