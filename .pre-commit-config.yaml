@@ -2,7 +2,7 @@ repos:
 
 # Quick content checks based on grepping for python specific patterns:
 - repo: https://github.com/pre-commit/pygrep-hooks
-  rev: v1.7.1
+  rev: v1.8.0
   hooks:
   - id: python-check-blanket-noqa   # Prohibit overly broad QA exclusions.
   - id: python-no-eval              # Never use eval() it's dangerous.
@@ -24,7 +24,7 @@ repos:
 
 # Attempt to enforce standardized PEP8 style formatting:
 - repo: https://github.com/pre-commit/mirrors-autopep8
-  rev: v1.5.4
+  rev: v1.5.5
   hooks:
   - id: autopep8
 
@@ -36,10 +36,10 @@ repos:
 
 # Check for PEP8 non-compliance, code complexity, style, errors, etc:
 - repo: https://github.com/PyCQA/flake8
-  rev: 3.8.4
+  rev: 3.9.0
   hooks:
   - id: flake8
-    args: [--config, .flake8]
+    args: [--config, tox.ini]
     additional_dependencies:
       - flake8-docstrings
       - flake8-colors
@@ -75,4 +75,4 @@ repos:
       verbose: false
       pass_filenames: false
       always_run: true
-      entry: tox -e unit
+      entry: pytest test/unit

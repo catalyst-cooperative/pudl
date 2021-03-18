@@ -7,6 +7,7 @@ The Public Utility Data Liberation Project
 
 .. toctree::
   :hidden:
+  :maxdepth: 2
 
   install
   usage
@@ -17,11 +18,9 @@ The Public Utility Data Liberation Project
   data_sources
   settings_files
   Contributing <CONTRIBUTING>
-  dev_setup
-  testing
+  dev/index
   data_guidelines
   new_dataset
-  code_standards
   project_management
   naming_conventions
   background

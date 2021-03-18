@@ -2,9 +2,10 @@
 omit =
     *glue/zipper.py
     *analysis/analysis.py
+    *analysis/demand_mapping.py
+    *epaipm.py
     *__main__.py
     *__init__.py
-    *cli.py
     *_test.py
 
 [report]

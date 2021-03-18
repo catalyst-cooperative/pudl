@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 
 @pytest.fixture(scope="module")
 def fast_out(pudl_engine, pudl_datastore_fixture):
-    """A PUDL output object for use with Travis CI."""
+    """A PUDL output object for use in CI."""
     return pudl.output.pudltabl.PudlTabl(
         pudl_engine,
         ds=pudl_datastore_fixture,
