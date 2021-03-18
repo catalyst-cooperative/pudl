@@ -16,6 +16,7 @@ def ownership(eia860_dfs, eia860_transformed_dfs):
     Pull and transform the ownership table.
 
     Transformations include:
+
     - Replace . values with NA.
     - Convert pre-2012 ownership percentages to proportions to match
       post-2012 reporting.
@@ -84,6 +85,7 @@ def generators(eia860_dfs, eia860_transformed_dfs):
     files as well.
 
     Transformations include:
+
     - Replace . values with NA.
     - Update ``operational_status_code`` to reflect plant status as either
       proposed, existing or retired.
