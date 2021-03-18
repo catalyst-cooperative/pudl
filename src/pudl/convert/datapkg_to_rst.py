@@ -8,11 +8,6 @@ json metadata files into documentation-compatible rst files. The functions
 serve to extract the field names, field data types, and field descriptions of
 each pudl table and outputs them in a manner that automatically updates the
 read-the-docs.
-
-datapky2rst_many() reads the metadata json file, extracts the afformentioned
-data, and puts it into an rst file with tags and titles for each of the unique
-tables. This way, these tags can be referenced and appear in other rst files.
-
 """
 
 import argparse
@@ -31,27 +26,32 @@ logger = logging.getLogger(__name__)
 
 """
 The following templates map json data into one long rst file seperated by table
-titles and document links (rst_template)
+titles and document links (RST_TEMPLATE)
 
-It's important for the templates that the json data do not contain execess
+It's important for the templates that the json data do not contain excess
 white space either at the beginning or the end of each value.
 """
 
 
 # Template for all tables in one rst file
-rst_template = '''
+RST_TEMPLATE = '''
+===============================================================================
+All PUDL Database Tables
+===============================================================================
+
 {% for resource in resources %}
 .. _{{ resource.name }}:
 
-Contents of {{ resource.name }} table
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+-------------------------------------------------------------------------------
+{{ resource.name }}
+-------------------------------------------------------------------------------
 
 .. list-table::
-  :widths: 10 5 15
+  :widths: auto
   :header-rows: 1
 
-  * - **Field**
-    - **Data Type**
+  * - **Field Name**
+    - **Type**
     - **Description**
 {% for field in resource.schema.fields %}
   * - {{ field.name }}
@@ -76,8 +76,13 @@ def datapkg2rst_one(meta_json, meta_rst):
     with open(meta_json) as f:
         metadata_dict = json.load(f)
 
+    metadata_dict["resources"] = sorted(
+        metadata_dict["resources"],
+        key=lambda x: x["name"]
+    )
+
     logger.info("Converting json metadata into an rst file")
-    template = Template(rst_template)
+    template = Template(RST_TEMPLATE)
     rendered = template.render(metadata_dict)
     # Create or overwrite an rst file containing the field descriptions of the input table
     with open(meta_rst, 'w') as f:
@@ -100,14 +105,15 @@ def parse_command_line(argv):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
         '-i',
-        '--metadata',
-        help="""Path to the datapackage.json metadata file""",
+        '--input',
+        help="Path to the tabular datapackage descriptor (datapackage.json) "
+             "to convert into RST.",
         default=False
     )
     parser.add_argument(
         '-o',
         '--output',
-        help="""Path to the metadata.rst output file""",
+        help="Path to the file where the RST output should be written.",
         default=False
     )
     arguments = parser.parse_args(argv[1:])
@@ -117,7 +123,7 @@ def parse_command_line(argv):
 def main():
     """Run conversion from json to rst."""
     args = parse_command_line(sys.argv)
-    datapkg2rst_one(args.metadata, args.output)
+    datapkg2rst_one(args.input, args.output)
 
 
 if __name__ == '__main__':
