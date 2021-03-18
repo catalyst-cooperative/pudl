@@ -68,7 +68,7 @@ def get_census2010_gdf(pudl_settings, layer, ds):
         zip_ref.extractall(census2010_dir)
         # Grab the originally extracted directory name so we can change it:
         extract_root = census2010_dir / Path(zip_ref.filelist[0].filename)
-        logger.warning(f"Rename {extract_root} to {census2010_gdb_dir}")
+        logger.warning("Rename %s to %s", extract_root, census2010_gdb_dir)
         extract_root.rename(census2010_gdb_dir)
     else:
         logger.info("We've already got the 2010 Census GeoDB.")
@@ -319,7 +319,9 @@ def compile_geoms(pudl_out,
 
     """
     logger.info(
-        f"Compiling {entity_type} geometries with {dissolve=} and {limit_by_state=}.")
+        "Compiling %s geometries with dissolve=%s and limit_by_state=%s.",
+        entity_type, dissolve, limit_by_state
+    )
 
     if entity_type == "ba":
         ids = pudl_out.balancing_authority_eia861().balancing_authority_id_eia.unique()
@@ -398,7 +400,7 @@ def plot_historical_territory(gdf, id_col, id_val):
     """
     if id_col not in gdf.columns:
         raise ValueError(f"The input id_col {id_col} doesn't exist in this GDF.")
-    logger.info(f"Plotting historical territories for {id_col}=={id_val}.")
+    logger.info("Plotting historical territories for %s==%s.", id_col, id_val)
 
     # Pare down the GDF so this all goes faster
     entity_gdf = gdf[gdf[id_col] == id_val]
@@ -406,7 +408,10 @@ def plot_historical_territory(gdf, id_col, id_val):
         entity_gdf = entity_gdf.drop_duplicates(
             subset=["report_date", "county_id_fips"])
     entity_gdf["report_year"] = entity_gdf.report_date.dt.year
-    logger.info(f"Plotting service territories of {len(entity_gdf)} {id_col} records.")
+    logger.info(
+        "Plotting service territories of %s %s records.",
+        len(entity_gdf), id_col
+    )
 
     # Create a grid of subplots sufficient to hold all the years:
     years = entity_gdf.report_year.sort_values().unique()
@@ -467,7 +472,7 @@ def plot_all_territories(gdf,
         305,  # PJM Dupe
         306,  # PJM Dupe
     )
-    if type(respondent_type) == str:
+    if isinstance(respondent_type, str):
         respondent_type = (respondent_type, )
 
     plot_gdf = (
@@ -475,7 +480,7 @@ def plot_all_territories(gdf,
         .query("respondent_id_ferc714 not in @unwanted_respondent_ids")
         .query("respondent_type in @respondent_type")
     )
-    ax = plot_gdf.plot(figsize=(20, 20), color=color, alpha=0.25, linewidth=1)
+    ax = plot_gdf.plot(figsize=(20, 20), color=color, alpha=alpha, linewidth=1)
     plt.title(f"FERC 714 {', '.join(respondent_type)} planning areas for {report_date}")
     if basemap:
         ctx.add_basemap(ax)
@@ -512,7 +517,6 @@ def parse_command_line(argv):
 
 def main():
     """Compile historical utility and balancing area territories."""
-    logger = logging.getLogger(pudl.__name__)
     log_format = '%(asctime)s [%(levelname)8s] %(name)s:%(lineno)s %(message)s'
     coloredlogs.install(fmt=log_format, level='INFO', logger=logger)
 
@@ -521,7 +525,9 @@ def main():
     pudl_engine = sa.create_engine(pudl_settings['pudl_db'])
     pudl_out = pudl.output.pudltabl.PudlTabl(pudl_engine)
     # Load the US Census DP1 county data:
-    census_counties = get_census2010_gdf(pudl_settings, layer="county")
+    pudl_in = Path(pudl_settings["pudl_in"])
+    ds = pudl.workspace.datastore.Datastore(local_cache_path=pudl_in / "data")
+    census_counties = get_census2010_gdf(pudl_settings, layer="county", ds=ds)
 
     kwargs_dicts = [
         {"entity_type": "util", "limit_by_state": False},

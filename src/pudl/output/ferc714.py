@@ -563,7 +563,7 @@ class Respondents(object):
         """
         if update or self._respondents_gdf is None:
             census_counties = pudl.analysis.service_territory.get_census2010_gdf(
-                pudl_settings=self.pudl_settings, layer="county")
+                pudl_settings=self.pudl_settings, layer="county", ds=self.pudl_out.ds)
             self._respondents_gdf = (
                 pudl.analysis.service_territory.add_geometries(
                     self.fipsify(update=update),
