@@ -625,8 +625,7 @@ def _clean_nerc(df, idx_cols):
     converts non-recognized reported nerc regions to 'UNK'.
 
     Args:
-        df (pandas.DataFrame): A DataFrame with the column 'nerc_region' to be
-            cleaned.
+        df (pandas.DataFrame): A DataFrame with the column 'nerc_region' to be cleaned.
         idx_cols (list): A list of the primary keys.
 
     Returns:
@@ -766,18 +765,17 @@ def service_territory(tfr_dfs):
     """Transform the EIA 861 utility service territory table.
 
     Transformations include:
+
     - Homogenize spelling of county names.
     - Add field for state/county FIPS code.
 
     Args:
-        tfr_dfs (dict): A dictionary of DataFrame objects in
-            which pages from EIA861 form (keys) correspond to normalized
-            DataFrames of values from that page (values)
+        tfr_dfs (dict): A dictionary of DataFrame objects in which pages from EIA861
+            form (keys) correspond to normalized DataFrames of values from that page (values).
 
     Returns:
-        dict: a dictionary of pandas.DataFrame objects in
-        which pages from EIA861 form (keys) correspond to normalized
-        DataFrames of values from that page (values)
+        dict: a dictionary of pandas.DataFrame objects in which pages from EIA861 form
+            (keys) correspond to normalized DataFrames of values from that page (values).
 
     """
     # No data tidying required
@@ -804,6 +802,7 @@ def balancing_authority(tfr_dfs):
     Transform the EIA 861 Balancing Authority table.
 
     Transformations include:
+
     - Fill in balancing authrority IDs based on date, utility ID, and BA Name.
     - Backfill balancing authority codes based on BA ID.
     - Fix BA code and ID typos.
@@ -854,33 +853,16 @@ def balancing_authority_assn(tfr_dfs):
     """
     Compile a balancing authority, utility, state association table.
 
-    For the years up through 2012, the only BA-Util information that's
-    available comes from the balancing_authority_eia861 table, and it
-    does not include any state-level information. However, there is
-    utility-state association information in the sales_eia861 and
-    other data tables.
+    For the years up through 2012, the only BA-Util information that's available comes from the balancing_authority_eia861 table, and it does not include any state-level information. However, there is utility-state association information in the sales_eia861 and other data tables.
 
-    For the years from 2013 onward, there's explicit BA-Util-State
-    information in the data tables (e.g. sales_eia861). These observed
-    associations can be compiled to give us a picture of which
-    BA-Util-State associations exist. However, we need to merge in
-    the balancing authority IDs since the data tables only contain
-    the balancing authority codes.
+    For the years from 2013 onward, there's explicit BA-Util-State information in the data tables (e.g. sales_eia861). These observed associations can be compiled to give us a picture of which BA-Util-State associations exist. However, we need to merge in the balancing authority IDs since the data tables only contain the balancing authority codes.
 
     Args:
-        tfr_dfs (dict): A dictionary of transformed EIA 861 dataframes.
-            This must include any dataframes from which we want to
-            compile BA-Util-State associations, which means this
-            function has to be called after all the basic transform
-            functions that depend on only a single raw table.
+        tfr_dfs (dict): A dictionary of transformed EIA 861 dataframes. This must
+            include any dataframes from which we want to compile BA-Util-State associations, which means this function has to be called after all the basic transformfunctions that depend on only a single raw table.
 
     Returns:
-        dict: a dictionary of transformed dataframes. This function
-        both compiles the association table, and finishes the
-        normalization of the balancing authority table. It may be that
-        once the harvesting process incorporates the EIA 861, some or
-        all of this functionality should be pulled into the phase-2
-        transform functions.
+        dict: a dictionary of transformed dataframes. This function both compiles the association table, and finishes the normalization of the balancing authority table. It may be that once the harvesting process incorporates the EIA 861, some or all of this functionality should be pulled into the phase-2 transform functions.
 
     """
     # These aren't really "data" tables, and should not be searched for associations
@@ -1052,6 +1034,7 @@ def sales(tfr_dfs):
     """Transform the EIA 861 Sales table.
 
     Transformations include:
+
     - Remove rows with utility ids 88888 and 99999.
     - Tidy data by customer class.
     - Drop primary key duplicates.
@@ -1135,6 +1118,7 @@ def advanced_metering_infrastructure(tfr_dfs):
     Transform the EIA 861 Advanced Metering Infrastructure table.
 
     Transformations include:
+
     - Tidy data by customer class.
     - Drop total_meters columns (it's calculable with other fields).
 
@@ -1183,19 +1167,18 @@ def demand_response(tfr_dfs):
     Transform the EIA 861 Demand Response table.
 
     Transformations include:
-    - Fill in NA balancing authority codes with UNK (because it's part of the
-      primary key).
+
+    - Fill in NA balancing authority codes with UNK (because it's part of the primary key).
     - Tidy subset of the data by customer class.
     - Drop duplicate rows based on primary keys.
     - Convert 1000s of dollars into dollars.
 
     Args:
-        extract step. tfr_dfs (dict): A dictionary of transformed EIA 861
-        DataFrames, keyed by table name. It will be mutated by this function.
+        tfr_dfs (dict): A dictionary of transformed EIA 861 DataFrames, keyed by table
+            name. It will be mutated by this function.
 
     Returns:
-        dict: A dictionary of transformed EIA 861 dataframes, keyed by table
-            name.
+        dict: A dictionary of transformed EIA 861 dataframes, keyed by table name.
     """
     idx_cols = [
         "utility_id_eia",
@@ -1270,16 +1253,10 @@ def demand_side_management(tfr_dfs):
     In 2013, the EIA changed the contents of the 861 form so that information
     pertaining to demand side management was no longer housed in a single table,
     but rather two seperate ones pertaining to energy efficiency and demand response.
-    While the pre and post 2013 tables contain similar information, one
-    column in the pre-2013 demand side management table may not have an obvious
-    column equivalent in the post-2013 energy efficiency or demand response data.
-    We've addressed this by keeping the demand side management and energy efficiency
-    and demand response tables seperate. Use the DSM table for pre 2013 data
-    and the EE / DR tables for post 2013 data. Despite the uncertainty of comparing
-    across these years, the data are similar and we hope to provide a cohesive
-    dataset in the future with all years and comprable columns combined.
+    While the pre and post 2013 tables contain similar information, one column in the pre-2013 demand side management table may not have an obvious column equivalent in the post-2013 energy efficiency or demand response data. We've addressed this by keeping the demand side management and energy efficiency and demand response tables seperate. Use the DSM table for pre 2013 data and the EE / DR tables for post 2013 data. Despite the uncertainty of comparing across these years, the data are similar and we hope to provide a cohesive dataset in the future with all years and comprable columns combined.
 
     Transformations include:
+
     - Clean up NERC codes and ensure one per row.
     - Remove demand_side_management and data_observed columns (they are all the same).
     - Tidy subset of the data by customer class.
@@ -1437,6 +1414,7 @@ def distributed_generation(tfr_dfs):
     Transform the EIA 861 Distributed Generation table.
 
     Transformations include:
+
     - Map full spelling onto code values.
     - Convert pre-2010 percent values in mw values.
     - Remove total columns calculable with other fields
@@ -1608,6 +1586,7 @@ def distribution_systems(tfr_dfs):
     Transform the EIA 861 Distribution Systems table.
 
     Transformations include:
+
     - No additional transformations.
 
     Args:
@@ -1638,6 +1617,7 @@ def dynamic_pricing(tfr_dfs):
     Transform the EIA 861 Dynamic Pricing table.
 
     Transformations include:
+
     - Tidy subset of the data by customer class.
     - Convert Y/N columns to booleans.
 
@@ -1704,6 +1684,7 @@ def energy_efficiency(tfr_dfs):
     Transform the EIA 861 Energy Efficiency table.
 
     Transformations include:
+
     - Tidy subset of the data by customer class.
     - Drop website column (almost no valid information).
     - Convert 1000s of dollars into dollars.
@@ -1774,6 +1755,7 @@ def green_pricing(tfr_dfs):
     Transform the EIA 861 Green Pricing table.
 
     Transformations include:
+
     - Tidy subset of the data by customer class.
     - Convert 1000s of dollars into dollars.
 
@@ -1833,6 +1815,7 @@ def mergers(tfr_dfs):
     Transform the EIA 861 Mergers table.
 
     Transformations include:
+
     - Map full spelling onto code values.
     - Retain preceeding zeros in zipcode field.
 
@@ -1873,6 +1856,7 @@ def net_metering(tfr_dfs):
     Transform the EIA 861 Net Metering table.
 
     Transformations include:
+
     - Remove rows with utility ids 99999.
     - Tidy subset of the data by customer class.
     - Tidy subset of the data by tech class.
@@ -1956,6 +1940,7 @@ def non_net_metering(tfr_dfs):
     Transform the EIA 861 Non-Net Metering table.
 
     Transformations include:
+
     - Remove rows with utility ids 99999.
     - Drop duplicate rows.
     - Tidy subset of the data by customer class.
@@ -2059,6 +2044,7 @@ def operational_data(tfr_dfs):
     Transform the EIA 861 Operational Data table.
 
     Transformations include:
+
     - Remove rows with utility ids 88888.
     - Remove rows with NA utility id.
     - Clean up NERC codes and ensure one per row.
@@ -2152,6 +2138,7 @@ def reliability(tfr_dfs):
     Transform the EIA 861 Reliability table.
 
     Transformations include:
+
     - Tidy subset of the data by reliability standard.
     - Convert Y/N columns to booleans.
     - Map full spelling onto code values.
@@ -2230,6 +2217,7 @@ def utility_data(tfr_dfs):
     Transform the EIA 861 Utility Data table.
 
     Transformations include:
+
     - Remove rows with utility ids 88888.
     - Clean up NERC codes and ensure one per row.
     - Tidy subset of the data by NERC region.
@@ -2380,15 +2368,13 @@ def transform(raw_dfs, eia861_tables=pc.pudl_tables["eia861"]):
     Transform EIA 861 DataFrames.
 
     Args:
-        raw_dfs (dict): a dictionary of tab names (keys) and DataFrames
-            (values). This can be generated by pudl.
-        eia861_tables (tuple): A tuple containing the names of the EIA 861
-            tables that can be pulled into PUDL
+        raw_dfs (dict): a dictionary of tab names (keys) and DataFrames (values). This
+            can be generated by pudl.
+        eia861_tables (tuple): A tuple containing the names of the EIA 861 tables that
+            can be pulled into PUDL.
 
     Returns:
-        dict: A dictionary of DataFrame objects in which pages from EIA 861 form
-        (keys) corresponds to a normalized DataFrame of values from that page
-        (values)
+        dict: A dictionary of DataFrame objects in which pages from EIA 861 form (keys) corresponds to a normalized DataFrame of values from that page (values).
 
     """
     # these are the tables that we have transform functions for...

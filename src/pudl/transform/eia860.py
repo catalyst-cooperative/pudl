@@ -18,21 +18,16 @@ def ownership(eia860_dfs, eia860_transformed_dfs):
     Transformations include:
 
     - Replace . values with NA.
-    - Convert pre-2012 ownership percentages to proportions to match
-      post-2012 reporting.
+    - Convert pre-2012 ownership percentages to proportions to match post-2012 reporting.
 
     Args:
         eia860_dfs (dict): Each entry in this dictionary of DataFrame objects
-            corresponds to a page from the EIA860 form, as reported in the
-            Excel spreadsheets they distribute
+            corresponds to a page from the EIA860 form, as reported in the Excel spreadsheets they distribute
         eia860_transformed_dfs (dict): A dictionary of DataFrame objects in
-            which pages from EIA860 form (keys) correspond to normalized
-            DataFrames of values from that page (values)
+            which pages from EIA860 form (keys) correspond to normalized DataFrames of values from that page (values)
 
     Returns:
-        dict: eia860_transformed_dfs, a dictionary of DataFrame objects in
-        which pages from EIA860 form (keys) correspond to normalized
-        DataFrames of values from that page (values)
+        dict: eia860_transformed_dfs, a dictionary of DataFrame objects in which pages from EIA860 form (keys) correspond to normalized DataFrames of values from that page (values)
 
     """
     # Preiminary clean and get rid of unecessary 'year' column
@@ -77,12 +72,7 @@ def generators(eia860_dfs, eia860_transformed_dfs):
     """
     Pull and transform the generators table.
 
-    There are three tabs that the generator records come from (proposed,
-    existing, retired). Pre 2009, the existing and retired data are lumped
-    together under a single generator file with one tab. We pull each tab into
-    one dataframe and include an ``operational_status`` to indicate which tab
-    the record came from. We use ``operational_status`` to parse the pre 2009
-    files as well.
+    There are three tabs that the generator records come from (proposed, existing, retired). Pre 2009, the existing and retired data are lumped together under a single generator file with one tab. We pull each tab into one dataframe and include an ``operational_status`` to indicate which tab the record came from. We use ``operational_status`` to parse the pre 2009 files as well.
 
     Transformations include:
 
@@ -99,16 +89,12 @@ def generators(eia860_dfs, eia860_transformed_dfs):
 
     Args:
         eia860_dfs (dict): Each entry in this
-            dictionary of DataFrame objects corresponds to a page from the
-            EIA860 form, as reported in the Excel spreadsheets they distribute.
+            dictionary of DataFrame objects corresponds to a page from the EIA860 form, as reported in the Excel spreadsheets they distribute.
         eia860_transformed_dfs (dict): A dictionary of DataFrame objects in
-            which pages from EIA860 form (keys) correspond to a normalized
-            DataFrame of values from that page (values)
+            which pages from EIA860 form (keys) correspond to a normalized DataFrame of values from that page (values)
 
     Returns:
-        dict: eia860_transformed_dfs, a dictionary of DataFrame objects in
-        which pages from EIA860 form (keys) correspond to normalized
-        DataFrames of values from that page (values)
+        dict: eia860_transformed_dfs, a dictionary of DataFrame objects in which pages from EIA860 form (keys) correspond to normalized DataFrames of values from that page (values).
 
     """
     # Groupby objects were creating chained assignment warning that is N/A
@@ -266,29 +252,22 @@ def plants(eia860_dfs, eia860_transformed_dfs):
     """
     Pull and transform the plants table.
 
-    Much of the static plant information is reported repeatedly, and scattered
-    across several different pages of EIA 923. The data frame which this
-    function uses is assembled from those many different pages, and passed in
-    via the same dictionary of dataframes that all the other ingest functions
-    use for uniformity.
+    Much of the static plant information is reported repeatedly, and scattered across several different pages of EIA 923. The data frame which this function uses is assembled from those many different pages, and passed in via the same dictionary of dataframes that all the other ingest functions use for uniformity.
 
     Transformations include:
+
     - Replace . values with NA.
     - Homogenize spelling of county names.
     - Convert Y/N/X values to boolean True/False.
 
     Args:
-        eia860_dfs (dict): Each entry in this
-            dictionary of DataFrame objects corresponds to a page from the
-            EIA860 form, as reported in the Excel spreadsheets they distribute.
-        eia860_transformed_dfs (dict): A dictionary of DataFrame objects in
-            which pages from EIA860 form (keys) correspond to normalized
-            DataFrames of values from that page (values)
+        eia860_dfs (dict): Each entry in this dictionary of DataFrame objects
+            corresponds to a page from the EIA860 form, as reported in the Excel spreadsheets they distribute.
+        eia860_transformed_dfs (dict): A dictionary of DataFrame objects in which pages
+            from EIA860 form (keys) correspond to normalized DataFrames of values from that page (values)
 
     Returns:
-        dict: eia860_transformed_dfs, a dictionary of DataFrame objects in
-        which pages from EIA860 form (keys) correspond to normalized
-        DataFrames of values from that page (values)
+        dict: eia860_transformed_dfs, a dictionary of DataFrame objects in which pages from EIA860 form (keys) correspond to normalized DataFrames of values from that page (values)
 
     """
     # Populating the 'plants_eia860' table
@@ -356,21 +335,18 @@ def boiler_generator_assn(eia860_dfs, eia860_transformed_dfs):
     Pull and transform the boilder generator association table.
 
     Transformations include:
+
     - Drop non-data rows with EIA notes.
     - Drop duplicate rows.
 
     Args:
         eia860_dfs (dict): Each entry in this dictionary of DataFrame objects
-            corresponds to a page from the EIA860 form, as reported in the
-            Excel spreadsheets they distribute.
-        eia860_transformed_dfs (dict): A dictionary of DataFrame objects in
-            which pages from EIA860 form (keys) correspond to normalized
-            DataFrames of values from that page (values)
+            corresponds to a page from the EIA860 form, as reported in the Excel spreadsheets they distribute.
+        eia860_transformed_dfs (dict): A dictionary of DataFrame objects in which pages
+            from EIA860 form (keys) correspond to normalized DataFrames of values from that page (values)
 
     Returns:
-        dict: eia860_transformed_dfs, a dictionary of DataFrame objects in
-        which pages from EIA860 form (keys) correspond to normalized
-        DataFrames of values from that page (values)
+        dict: eia860_transformed_dfs, a dictionary of DataFrame objects in which pages from EIA860 form (keys) correspond to normalized DataFrames of values from that page (values)
 
     """
     # Populating the 'generators_eia860' table
@@ -411,6 +387,7 @@ def utilities(eia860_dfs, eia860_transformed_dfs):
     Pull and transform the utilities table.
 
     Transformations include:
+
     - Replace . values with NA.
     - Fix typos in state abbreviations, convert to uppercase.
     - Drop address_3 field (all NA).
@@ -421,16 +398,12 @@ def utilities(eia860_dfs, eia860_transformed_dfs):
 
     Args:
         eia860_dfs (dict): Each entry in this
-            dictionary of DataFrame objects corresponds to a page from the
-            EIA860 form, as reported in the Excel spreadsheets they distribute.
-        eia860_transformed_dfs (dict): A dictionary of DataFrame objects in
-            which pages from EIA860 form (keys) correspond to normalized
-            DataFrames of values from that page (values)
+            dictionary of DataFrame objects corresponds to a page from the EIA860 form, as reported in the Excel spreadsheets they distribute.
+        eia860_transformed_dfs (dict): A dictionary of DataFrame objects in which pages
+            from EIA860 form (keys) correspond to normalized DataFrames of values from that page (values)
 
     Returns:
-        dict: eia860_transformed_dfs, a dictionary of DataFrame objects in
-        which pages from EIA860 form (keys) correspond to normalized
-        DataFrames of values from that page (values)
+        dict: eia860_transformed_dfs, a dictionary of DataFrame objects in which pages from EIA860 form (keys) correspond to normalized DataFrames of values from that page (values)
 
     """
     # Populating the 'utilities_eia860' table
@@ -511,13 +484,11 @@ def transform(eia860_raw_dfs, eia860_tables=pc.pudl_tables["eia860"]):
     Args:
         eia860_raw_dfs (dict): a dictionary of tab names (keys) and DataFrames
             (values). This can be generated by pudl.
-        eia860_tables (tuple): A tuple containing the names of the EIA 860
-            tables that can be pulled into PUDL
+        eia860_tables (tuple): A tuple containing the names of the EIA 860 tables that
+            can be pulled into PUDL
 
     Returns:
-        dict: A dictionary of DataFrame objects in
-        which pages from EIA860 form (keys) corresponds to a normalized
-        DataFrame of values from that page (values)
+        dict: A dictionary of DataFrame objects in which pages from EIA860 form (keys) corresponds to a normalized DataFrame of values from that page (values)
 
     """
     # these are the tables that we have transform functions for...

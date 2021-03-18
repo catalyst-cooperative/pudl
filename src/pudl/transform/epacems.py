@@ -22,15 +22,16 @@ def fix_up_dates(df, plant_utc_offset):
     Fix the dates for the CEMS data.
 
     Transformations include:
+
     - Account for timezone differences with offset from UTC.
 
     Args:
         df (pandas.DataFrame): A CEMS hourly dataframe for one year-month-state
-        plant_utc_offset (pandas.DataFrame): A dataframe of plants' timezones
+            plant_utc_offset (pandas.DataFrame): A dataframe of plants' timezones.
 
     Returns:
         pandas.DataFrame: The same data, with an op_datetime_utc column added
-        and the op_date and op_hour columns removed
+        and the op_date and op_hour columns removed.
 
     """
     df = (
@@ -69,15 +70,14 @@ def fix_up_dates(df, plant_utc_offset):
 def _load_plant_utc_offset(datapkg_dir):
     """Load the UTC offset each EIA plant.
 
-    CEMS times don't change for DST, so we get get the UTC offset by using the
-    offset for the plants' timezones in January.
+    CEMS times don't change for DST, so we get get the UTC offset by using the offset for the plants' timezones in January.
 
     Args:
-        datapkg_dir (path-like) : Path to the directory of the datapackage
-            which is currently being assembled.
+        datapkg_dir (path-like) : Path to the directory of the datapackage which is
+            currently being assembled.
 
     Returns:
-        pandas.DataFrame: With columns plant_id_eia and utc_offset
+        pandas.DataFrame: With columns plant_id_eia and utc_offset.
 
     """
     import pytz
@@ -105,18 +105,15 @@ def harmonize_eia_epa_orispl(df):
     Harmonize the ORISPL code to match the EIA data -- NOT YET IMPLEMENTED.
 
     The EIA plant IDs and CEMS ORISPL codes almost match, but not quite. See
-    https://www.epa.gov/sites/production/files/2018-02/documents/egrid2016_technicalsupportdocument_0.pdf#page=104
-    for an example.
+    https://www.epa.gov/sites/production/files/2018-02/documents/egrid2016_technicalsupportdocument_0.pdf#page=104 for an example.
 
-    Note that this transformation needs to be run *before* fix_up_dates,
-    because fix_up_dates uses the plant ID to look up timezones.
+    Note that this transformation needs to be run *before* fix_up_dates, because fix_up_dates uses the plant ID to look up timezones.
 
     Args:
-        df (pandas.DataFrame): A CEMS hourly dataframe for one year-month-state
+        df (pandas.DataFrame): A CEMS hourly dataframe for one year-month-state.
 
     Returns:
-        pandas.DataFrame: The same data, with the ORISPL plant codes corrected
-        to match the EIA plant IDs.
+        pandas.DataFrame: The same data, with the ORISPL plant codes corrected to match the EIA plant IDs.
 
     Todo:
         Actually implement the function...
@@ -129,15 +126,13 @@ def add_facility_id_unit_id_epa(df):
     """
     Harmonize columns that are added later.
 
-    The datapackage validation checks for consistent column names, and these
-    two columns aren't present before August 2008, so this adds them in.
+    The datapackage validation checks for consistent column names, and these two columns aren't present before August 2008, so this adds them in.
 
     Args:
         df (pandas.DataFrame): A CEMS dataframe
 
     Returns:
-        pandas.Dataframe: The same DataFrame guaranteed to have int facility_id
-        and unit_id_epa cols.
+        pandas.Dataframe: The same DataFrame guaranteed to have int facility_id and unit_id_epa cols.
 
     """
     if ("facility_id" not in df.columns) or ("unit_id_epa" not in df.columns):
@@ -155,15 +150,13 @@ def _all_na_or_values(series, values):
     """
     Test whether every element in the series is either missing or in values.
 
-    This is fiddly because isin() changes behavior if the series is totally NaN
-    (because of type issues)
+    This is fiddly because isin() changes behavior if the series is totally NaN (because of type issues)
 
     Example: x = pd.DataFrame({'a': ['x', np.NaN], 'b': [np.NaN, np.NaN]})
         x.isin({'x', np.NaN})
 
     Args:
-        series (pd.Series): A data column
-        values (set): A set of values
+        series (pd.Series): A data column values (set): A set of values
 
     Returns:
         bool: True or False, whether the elements are missing or in values
