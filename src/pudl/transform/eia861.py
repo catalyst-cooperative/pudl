@@ -440,12 +440,12 @@ def _ba_code_backfill(df):
         retained.
 
     Args:
-        ba_eia861 (pandas.DataFrame): The transformed EIA 861 Balancing
-            Authority dataframe (balancing_authority_eia861).
+        ba_eia861 (pandas.DataFrame): The transformed EIA 861 Balancing Authority
+            dataframe (balancing_authority_eia861).
 
     Returns:
-        pandas.DataFrame: The balancing_authority_eia861 dataframe, but with
-        many fewer NA values in the balancing_authority_code_eia column.
+        pandas.DataFrame: The balancing_authority_eia861 dataframe, but with many fewer
+        NA values in the balancing_authority_code_eia column.
 
     """
     start_len = len(df)
@@ -454,7 +454,9 @@ def _ba_code_backfill(df):
         f"Started with {start_nas} missing BA Codes out of {start_len} "
         f"records ({start_nas/start_len:.2%})")
     ba_ids = (
-        df[["balancing_authority_id_eia", "balancing_authority_code_eia", "report_date"]]
+        df[["balancing_authority_id_eia",
+            "balancing_authority_code_eia",
+            "report_date"]]
         .drop_duplicates()
         .sort_values(["balancing_authority_id_eia", "report_date"])
     )
@@ -488,7 +490,8 @@ def _tidy_class_dfs(df, df_name, idx_cols, class_list, class_type, keep_totals=F
     if 'balancing_authority_code_eia' in idx_cols:
         df = (
             df.assign(
-                balancing_authority_code_eia=lambda x: x.balancing_authority_code_eia.fillna("UNK"))
+                balancing_authority_code_eia=(
+                    lambda x: x.balancing_authority_code_eia.fillna("UNK")))
         )
     raw_df = (
         df.dropna(subset=["utility_id_eia"])
@@ -504,8 +507,8 @@ def _tidy_class_dfs(df, df_name, idx_cols, class_list, class_type, keep_totals=F
     # deliniated in the class_list not just an underscore. This enables prefixes with
     # underscores such as fuel_cell as opposed to single-word prefixes followed by
     # underscores. Final string looks like: '(?<=customer_test)_|(?<=unbundled)_'
-    # This ensures that the underscore AFTER the desired string (that can also include underscores)
-    # is where the column headers are split, not just the first underscore.
+    # This ensures that the underscore AFTER the desired string (that can also include
+    # underscores) is where the column headers are split, not just the first underscore.
     class_list_regex = '|'.join(['(?<=' + col + ')_' for col in class_list])
 
     data_cols.columns = (
@@ -618,11 +621,11 @@ def _compare_totals(data_cols, idx_cols, class_type, df_name):
 def _clean_nerc(df, idx_cols):
     """Clean NERC region entries and make new rows for multiple nercs.
 
-    This function examines reported NERC regions and makes sure the output column of
-    the same name has reliable, singular NERC region acronyms. To do so, this function
-    identifies entries where there are two or more NERC regions specified in a single cell
-    (such as SPP & ERCOT) and makes new, duplicate rows for each NERC region. It also
-    converts non-recognized reported nerc regions to 'UNK'.
+    This function examines reported NERC regions and makes sure the output column of the
+    same name has reliable, singular NERC region acronyms. To do so, this function
+    identifies entries where there are two or more NERC regions specified in a single
+    cell (such as SPP & ERCOT) and makes new, duplicate rows for each NERC region. It
+    also converts non-recognized reported nerc regions to 'UNK'.
 
     Args:
         df (pandas.DataFrame): A DataFrame with the column 'nerc_region' to be cleaned.
@@ -657,9 +660,11 @@ def _clean_nerc(df, idx_cols):
     nerc_col = nerc_df['nerc_region'].tolist()
     nerc_list = list(set([item for sublist in nerc_col for item in sublist]))
     non_nerc_list = [
-        nerc_entity for nerc_entity in nerc_list if nerc_entity not in pc.RECOGNIZED_NERC_REGIONS + list(NERC_SPELLCHECK.keys())]
+        nerc_entity for nerc_entity in nerc_list
+        if nerc_entity not in pc.RECOGNIZED_NERC_REGIONS + list(NERC_SPELLCHECK.keys())]
     print(
-        f'The following reported NERC regions are not currently recognized and become UNK values: {non_nerc_list}')
+        f'The following reported NERC regions are not currently recognized and become \
+        UNK values: {non_nerc_list}')
 
     # Function to turn instances of 'SPP_UNK' or 'SPP_SPP' into 'SPP'
     def _remove_nerc_duplicates(entity_list):
@@ -670,12 +675,16 @@ def _clean_nerc(df, idx_cols):
                 entity_list = [entity_list[0]]
         return entity_list
 
-    # Go through the nerc regions, spellcheck errors, delete those that aren't recognized, and piece them back together
-    # (with _ separator if more than one recognized)
+    # Go through the nerc regions, spellcheck errors, delete those that aren't
+    # recognized, and piece them back together (with _ separator if more than one
+    # recognized)
     nerc_df['nerc_region'] = (
         nerc_df['nerc_region']
-        .apply(lambda x: [i if i not in NERC_SPELLCHECK.keys() else NERC_SPELLCHECK[i] for i in x])
-        .apply(lambda x: sorted([i if i in pc.RECOGNIZED_NERC_REGIONS else 'UNK' for i in x]))
+        .apply(lambda x: (
+            [i if i not in NERC_SPELLCHECK.keys()
+             else NERC_SPELLCHECK[i] for i in x]))
+        .apply(lambda x: sorted(
+            [i if i in pc.RECOGNIZED_NERC_REGIONS else 'UNK' for i in x]))
         .apply(lambda x: _remove_nerc_duplicates(x))
         .str.join('_')
     )
@@ -712,10 +721,12 @@ def _compare_nerc_physical_w_nerc_operational(df):
     # Set NA states to UNK
     df['state'] = df['state'].fillna('UNK')
 
-    # Create column indicating whether the nerc region matches the nerc region of operation (TRUE)
+    # Create column indicating whether the nerc region matches the nerc region of
+    # operation (TRUE)
     df['nerc_match'] = df['nerc_region'] == df['nerc_regions_of_operation']
 
-    # Group by utility, state, and report date to see which groups have at least one TRUE value
+    # Group by utility, state, and report date to see which groups have at least one
+    # TRUE value
     grouped_nerc_match_bools = (
         df.groupby(['utility_id_eia', 'state', 'report_date'])
         [['nerc_match']].any()
@@ -723,8 +734,8 @@ def _compare_nerc_physical_w_nerc_operational(df):
         .rename(columns={'nerc_match': 'nerc_group_match'})
     )
 
-    # Merge back with original df to show cases where there are multiple non-matching nerc values
-    # per utility id, year, and state.
+    # Merge back with original df to show cases where there are multiple non-matching
+    # nerc values per utility id, year, and state.
     expanded_nerc_match_bools = (
         pd.merge(df,
                  grouped_nerc_match_bools,
@@ -766,16 +777,18 @@ def service_territory(tfr_dfs):
 
     Transformations include:
 
-    - Homogenize spelling of county names.
-    - Add field for state/county FIPS code.
+    * Homogenize spelling of county names.
+    * Add field for state/county FIPS code.
 
     Args:
         tfr_dfs (dict): A dictionary of DataFrame objects in which pages from EIA861
-            form (keys) correspond to normalized DataFrames of values from that page (values).
+            form (keys) correspond to normalized DataFrames of values from that page
+            (values).
 
     Returns:
         dict: a dictionary of pandas.DataFrame objects in which pages from EIA861 form
-            (keys) correspond to normalized DataFrames of values from that page (values).
+            (keys) correspond to normalized DataFrames of values from that page
+            (values).
 
     """
     # No data tidying required
@@ -803,9 +816,9 @@ def balancing_authority(tfr_dfs):
 
     Transformations include:
 
-    - Fill in balancing authrority IDs based on date, utility ID, and BA Name.
-    - Backfill balancing authority codes based on BA ID.
-    - Fix BA code and ID typos.
+    * Fill in balancing authrority IDs based on date, utility ID, and BA Name.
+    * Backfill balancing authority codes based on BA ID.
+    * Fix BA code and ID typos.
 
     Args:
         tfr_dfs (dict): A dictionary of transformed EIA 861 DataFrames, keyed by table
@@ -853,16 +866,29 @@ def balancing_authority_assn(tfr_dfs):
     """
     Compile a balancing authority, utility, state association table.
 
-    For the years up through 2012, the only BA-Util information that's available comes from the balancing_authority_eia861 table, and it does not include any state-level information. However, there is utility-state association information in the sales_eia861 and other data tables.
+    For the years up through 2012, the only BA-Util information that's available comes
+    from the balancing_authority_eia861 table, and it does not include any state-level
+    information. However, there is utility-state association information in the
+    sales_eia861 and other data tables.
 
-    For the years from 2013 onward, there's explicit BA-Util-State information in the data tables (e.g. sales_eia861). These observed associations can be compiled to give us a picture of which BA-Util-State associations exist. However, we need to merge in the balancing authority IDs since the data tables only contain the balancing authority codes.
+    For the years from 2013 onward, there's explicit BA-Util-State information in the
+    data tables (e.g. sales_eia861). These observed associations can be compiled to give
+    us a picture of which BA-Util-State associations exist. However, we need to merge in
+    the balancing authority IDs since the data tables only contain the balancing
+    authority codes.
 
     Args:
         tfr_dfs (dict): A dictionary of transformed EIA 861 dataframes. This must
-            include any dataframes from which we want to compile BA-Util-State associations, which means this function has to be called after all the basic transformfunctions that depend on only a single raw table.
+            include any dataframes from which we want to compile BA-Util-State
+            associations, which means this function has to be called after all the basic
+            transformfunctions that depend on only a single raw table.
 
     Returns:
-        dict: a dictionary of transformed dataframes. This function both compiles the association table, and finishes the normalization of the balancing authority table. It may be that once the harvesting process incorporates the EIA 861, some or all of this functionality should be pulled into the phase-2 transform functions.
+        dict: a dictionary of transformed dataframes. This function both compiles the
+        association table, and finishes the normalization of the balancing authority
+        table. It may be that once the harvesting process incorporates the EIA 861, some
+        or all of this functionality should be pulled into the phase-2 transform
+        functions.
 
     """
     # These aren't really "data" tables, and should not be searched for associations
@@ -1035,12 +1061,12 @@ def sales(tfr_dfs):
 
     Transformations include:
 
-    - Remove rows with utility ids 88888 and 99999.
-    - Tidy data by customer class.
-    - Drop primary key duplicates.
-    - Convert 1000s of dollars into dollars.
-    - Convert data_observed field I/O into boolean.
-    - Map full spelling onto code values.
+    * Remove rows with utility ids 88888 and 99999.
+    * Tidy data by customer class.
+    * Drop primary key duplicates.
+    * Convert 1000s of dollars into dollars.
+    * Convert data_observed field I/O into boolean.
+    * Map full spelling onto code values.
 
     """
     idx_cols = [
@@ -1119,8 +1145,8 @@ def advanced_metering_infrastructure(tfr_dfs):
 
     Transformations include:
 
-    - Tidy data by customer class.
-    - Drop total_meters columns (it's calculable with other fields).
+    * Tidy data by customer class.
+    * Drop total_meters columns (it's calculable with other fields).
 
     Args:
         tfr_dfs (dict): A dictionary of transformed EIA 861 DataFrames, keyed by table
@@ -1168,10 +1194,11 @@ def demand_response(tfr_dfs):
 
     Transformations include:
 
-    - Fill in NA balancing authority codes with UNK (because it's part of the primary key).
-    - Tidy subset of the data by customer class.
-    - Drop duplicate rows based on primary keys.
-    - Convert 1000s of dollars into dollars.
+    * Fill in NA balancing authority codes with UNK (because it's part of the primary
+      key).
+    * Tidy subset of the data by customer class.
+    * Drop duplicate rows based on primary keys.
+    * Convert 1000s of dollars into dollars.
 
     Args:
         tfr_dfs (dict): A dictionary of transformed EIA 861 DataFrames, keyed by table
@@ -1250,18 +1277,25 @@ def demand_side_management(tfr_dfs):
     """
     Transform the EIA 861 Demand Side Management table.
 
-    In 2013, the EIA changed the contents of the 861 form so that information
-    pertaining to demand side management was no longer housed in a single table,
-    but rather two seperate ones pertaining to energy efficiency and demand response.
-    While the pre and post 2013 tables contain similar information, one column in the pre-2013 demand side management table may not have an obvious column equivalent in the post-2013 energy efficiency or demand response data. We've addressed this by keeping the demand side management and energy efficiency and demand response tables seperate. Use the DSM table for pre 2013 data and the EE / DR tables for post 2013 data. Despite the uncertainty of comparing across these years, the data are similar and we hope to provide a cohesive dataset in the future with all years and comprable columns combined.
+    In 2013, the EIA changed the contents of the 861 form so that information pertaining
+    to demand side management was no longer housed in a single table, but rather two
+    seperate ones pertaining to energy efficiency and demand response. While the pre and
+    post 2013 tables contain similar information, one column in the pre-2013 demand side
+    management table may not have an obvious column equivalent in the post-2013 energy
+    efficiency or demand response data. We've addressed this by keeping the demand side
+    management and energy efficiency and demand response tables seperate. Use the DSM
+    table for pre 2013 data and the EE / DR tables for post 2013 data. Despite the
+    uncertainty of comparing across these years, the data are similar and we hope to
+    provide a cohesive dataset in the future with all years and comprable columns
+    combined.
 
     Transformations include:
 
-    - Clean up NERC codes and ensure one per row.
-    - Remove demand_side_management and data_observed columns (they are all the same).
-    - Tidy subset of the data by customer class.
-    - Convert Y/N columns to booleans.
-    - Convert 1000s of dollars into dollars.
+    * Clean up NERC codes and ensure one per row.
+    * Remove demand_side_management and data_observed columns (they are all the same).
+    * Tidy subset of the data by customer class.
+    * Convert Y/N columns to booleans.
+    * Convert 1000s of dollars into dollars.
 
     Args:
         tfr_dfs (dict): A dictionary of transformed EIA 861 DataFrames, keyed by table
@@ -1304,7 +1338,8 @@ def demand_side_management(tfr_dfs):
     raw_dsm = tfr_dfs['demand_side_management_eia861'].copy()
 
     ###########################################################################
-    # Transform Data Round 1 (must be done to avoid issues with nerc_region col in _tidy_class_dfs())
+    # Transform Data Round 1 (must be done to avoid issues with nerc_region col in
+    # _tidy_class_dfs())
     # * Clean NERC region col
     # * Drop data_status and demand_side_management cols (they don't contain anything)
     ###########################################################################
@@ -1415,11 +1450,11 @@ def distributed_generation(tfr_dfs):
 
     Transformations include:
 
-    - Map full spelling onto code values.
-    - Convert pre-2010 percent values in mw values.
-    - Remove total columns calculable with other fields
-    - Tidy subset of the data by tech class.
-    - Tidy subset of the data by fuel class.
+    * Map full spelling onto code values.
+    * Convert pre-2010 percent values in mw values.
+    * Remove total columns calculable with other fields.
+    * Tidy subset of the data by tech class.
+    * Tidy subset of the data by fuel class.
 
     Args:
         tfr_dfs (dict): A dictionary of transformed EIA 861 DataFrames, keyed by table
@@ -1501,9 +1536,9 @@ def distributed_generation(tfr_dfs):
     # * Turn pct values into mw values
     # * Remove old pct cols and totals cols
     # Explanation: Pre 2010 reporting asks for components as a percent of total capacity
-    # whereas after 2010, the forms ask for the component portion as a mw value. In order
-    # To coalesce similar data, we've used total values to turn percent values from pre 2010
-    # into mw values like those post-2010.
+    # whereas after 2010, the forms ask for the component portion as a mw value. In
+    # order to coalesce similar data, we've used total values to turn percent values
+    # from pre 2010 into mw values like those post-2010.
     ###########################################################################
 
     # Separate datasets into years with only pct values (pre-2010) and years with only mw values (post-2010)
@@ -1587,7 +1622,7 @@ def distribution_systems(tfr_dfs):
 
     Transformations include:
 
-    - No additional transformations.
+    * No additional transformations.
 
     Args:
         tfr_dfs (dict): A dictionary of transformed EIA 861 DataFrames, keyed by table
@@ -1618,8 +1653,8 @@ def dynamic_pricing(tfr_dfs):
 
     Transformations include:
 
-    - Tidy subset of the data by customer class.
-    - Convert Y/N columns to booleans.
+    * Tidy subset of the data by customer class.
+    * Convert Y/N columns to booleans.
 
     Args:
         tfr_dfs (dict): A dictionary of transformed EIA 861 DataFrames, keyed by table
@@ -1685,9 +1720,9 @@ def energy_efficiency(tfr_dfs):
 
     Transformations include:
 
-    - Tidy subset of the data by customer class.
-    - Drop website column (almost no valid information).
-    - Convert 1000s of dollars into dollars.
+    * Tidy subset of the data by customer class.
+    * Drop website column (almost no valid information).
+    * Convert 1000s of dollars into dollars.
 
     Args:
         tfr_dfs (dict): A dictionary of transformed EIA 861 DataFrames, keyed by table
@@ -1756,8 +1791,8 @@ def green_pricing(tfr_dfs):
 
     Transformations include:
 
-    - Tidy subset of the data by customer class.
-    - Convert 1000s of dollars into dollars.
+    * Tidy subset of the data by customer class.
+    * Convert 1000s of dollars into dollars.
 
     Args:
         tfr_dfs (dict): A dictionary of transformed EIA 861 DataFrames, keyed by table
@@ -1816,8 +1851,8 @@ def mergers(tfr_dfs):
 
     Transformations include:
 
-    - Map full spelling onto code values.
-    - Retain preceeding zeros in zipcode field.
+    * Map full spelling onto code values.
+    * Retain preceeding zeros in zipcode field.
 
     Args:
         tfr_dfs (dict): A dictionary of transformed EIA 861 DataFrames, keyed by table
@@ -1857,9 +1892,9 @@ def net_metering(tfr_dfs):
 
     Transformations include:
 
-    - Remove rows with utility ids 99999.
-    - Tidy subset of the data by customer class.
-    - Tidy subset of the data by tech class.
+    * Remove rows with utility ids 99999.
+    * Tidy subset of the data by customer class.
+    * Tidy subset of the data by tech class.
 
     Args:
         tfr_dfs (dict): A dictionary of transformed EIA 861 DataFrames, keyed by table
@@ -1941,10 +1976,10 @@ def non_net_metering(tfr_dfs):
 
     Transformations include:
 
-    - Remove rows with utility ids 99999.
-    - Drop duplicate rows.
-    - Tidy subset of the data by customer class.
-    - Tidy subset of the data by tech class.
+    * Remove rows with utility ids 99999.
+    * Drop duplicate rows.
+    * Tidy subset of the data by customer class.
+    * Tidy subset of the data by tech class.
 
     Args:
         tfr_dfs (dict): A dictionary of transformed EIA 861 DataFrames, keyed by table
@@ -2018,9 +2053,11 @@ def non_net_metering(tfr_dfs):
         keep_totals=True
     )
 
-    # No duplicates to speak of (deleted 2018 duplicates above) but take measures to check just in case
+    # No duplicates to speak of (deleted 2018 duplicates above) but take measures to
+    # check just in case
     _check_for_dupes(
-        tidy_nnm_customer_fuel_class, 'Non Net Metering Customer & Fuel Class', idx_cols)
+        tidy_nnm_customer_fuel_class,
+        'Non Net Metering Customer & Fuel Class', idx_cols)
 
     # Delete total_capacity_mw col for redundancy (must delete x not y)
     tidy_nnm_customer_fuel_class = (
@@ -2033,7 +2070,8 @@ def non_net_metering(tfr_dfs):
     # Drop original net_metering_eia861 table from tfr_dfs
     del tfr_dfs['non_net_metering_eia861']
 
-    tfr_dfs["non_net_metering_customer_fuel_class_eia861"] = tidy_nnm_customer_fuel_class
+    tfr_dfs["non_net_metering_customer_fuel_class_eia861"] = (
+        tidy_nnm_customer_fuel_class)
     tfr_dfs["non_net_metering_misc_eia861"] = raw_nnm_misc
 
     return tfr_dfs
@@ -2045,12 +2083,12 @@ def operational_data(tfr_dfs):
 
     Transformations include:
 
-    - Remove rows with utility ids 88888.
-    - Remove rows with NA utility id.
-    - Clean up NERC codes and ensure one per row.
-    - Convert data_observed field I/O into boolean.
-    - Tidy subset of the data by revenue class.
-    - Convert 1000s of dollars into dollars.
+    * Remove rows with utility ids 88888.
+    * Remove rows with NA utility id.
+    * Clean up NERC codes and ensure one per row.
+    * Convert data_observed field I/O into boolean.
+    * Tidy subset of the data by revenue class.
+    * Convert 1000s of dollars into dollars.
 
     Args:
         tfr_dfs (dict): A dictionary of transformed EIA 861 DataFrames, keyed by table
@@ -2139,10 +2177,10 @@ def reliability(tfr_dfs):
 
     Transformations include:
 
-    - Tidy subset of the data by reliability standard.
-    - Convert Y/N columns to booleans.
-    - Map full spelling onto code values.
-    - Drop duplicate rows.
+    * Tidy subset of the data by reliability standard.
+    * Convert Y/N columns to booleans.
+    * Map full spelling onto code values.
+    * Drop duplicate rows.
 
     Args:
         tfr_dfs (dict): A dictionary of transformed EIA 861 DataFrames, keyed by table
@@ -2179,7 +2217,8 @@ def reliability(tfr_dfs):
 
     ###########################################################################
     # Transform Data:
-    # * Re-code outages_recorded_automatically and inactive_accounts_included to boolean:
+    # * Re-code outages_recorded_automatically and inactive_accounts_included to
+    # boolean:
     #   * Y/y="Yes" => True
     #   * N/n="No" => False
     # * Expand momentary_interruption_definition:
@@ -2218,11 +2257,11 @@ def utility_data(tfr_dfs):
 
     Transformations include:
 
-    - Remove rows with utility ids 88888.
-    - Clean up NERC codes and ensure one per row.
-    - Tidy subset of the data by NERC region.
-    - Tidy subset of the data by RTO.
-    - Convert Y/N columns to booleans.
+    * Remove rows with utility ids 88888.
+    * Clean up NERC codes and ensure one per row.
+    * Tidy subset of the data by NERC region.
+    * Tidy subset of the data by RTO.
+    * Convert Y/N columns to booleans.
 
     Args:
         tfr_dfs (dict): A dictionary of transformed EIA 861 DataFrames, keyed by table
@@ -2246,10 +2285,11 @@ def utility_data(tfr_dfs):
 
     )
 
-    ###########################################################################
-    # Transform Data Round 1 (must be done to avoid issues with nerc_region col in _tidy_class_dfs())
+    ##############################################################################
+    # Transform Data Round 1 (must be done to avoid issues with nerc_region col in
+    # _tidy_class_dfs())
     # * Clean NERC region col
-    ###########################################################################
+    ##############################################################################
 
     transformed_ud = _clean_nerc(raw_ud, idx_cols)
 
@@ -2374,7 +2414,8 @@ def transform(raw_dfs, eia861_tables=pc.pudl_tables["eia861"]):
             can be pulled into PUDL.
 
     Returns:
-        dict: A dictionary of DataFrame objects in which pages from EIA 861 form (keys) corresponds to a normalized DataFrame of values from that page (values).
+        dict: A dictionary of DataFrame objects in which pages from EIA 861 form (keys)
+        corresponds to a normalized DataFrame of values from that page (values).
 
     """
     # these are the tables that we have transform functions for...

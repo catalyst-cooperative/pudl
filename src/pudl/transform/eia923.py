@@ -18,16 +18,23 @@ logger = logging.getLogger(__name__)
 def _yearly_to_monthly_records(df, md):
     """Converts an EIA 923 record of 12 months of data into 12 monthly records.
 
-    Much of the data reported in EIA 923 is monthly, but all 12 months worth of data is reported in a single record, with one field for each of the 12 months.  This function converts these annualized composite records into a set of 12 monthly records containing the same information, by parsing the field names for months, and adding a month field.  Non - time series data is retained in the same format.
+    Much of the data reported in EIA 923 is monthly, but all 12 months worth of data is
+    reported in a single record, with one field for each of the 12 months.  This
+    function converts these annualized composite records into a set of 12 monthly
+    records containing the same information, by parsing the field names for months, and
+    adding a month field.  Non - time series data is retained in the same format.
 
     Args:
         df (pandas.DataFrame): A pandas DataFrame containing the annual data to be
             converted into monthly records.
         md (dict): a dictionary with the integers 1-12 as keys, and the patterns used
-            to match field names for each of the months as values. These patterns are also used to rename the columns in the dataframe which is returned, so they need to match the entire portion of the column name that is month specific.
+            to match field names for each of the months as values. These patterns are
+            also used to rename the columns in the dataframe which is returned, so they
+            need to match the entire portion of the column name that is month specific.
 
     Returns:
-        pandas.DataFrame: A dataframe containing the same data as was passed in via df, but with monthly records instead of annual records.
+        pandas.DataFrame: A dataframe containing the same data as was passed in via df,
+        but with monthly records instead of annual records.
 
     """
     yearly = df.copy()
@@ -63,11 +70,20 @@ def _yearly_to_monthly_records(df, md):
 def _coalmine_cleanup(cmi_df):
     """Cleans up the coalmine_eia923 table.
 
-    This function does most of the coalmine_eia923 table transformation. It is separate from the coalmine() transform function because of the peculiar way that we are normalizing the fuel_receipts_costs_eia923() table.
+    This function does most of the coalmine_eia923 table transformation. It is separate
+    from the coalmine() transform function because of the peculiar way that we are
+    normalizing the fuel_receipts_costs_eia923() table.
 
-    All of the coalmine information is originally coming from the EIA fuel_receipts_costs spreadsheet, but it really belongs in its own table. We strip it out of FRC, and create that separate table, but then we need to refer to that table through a foreign key. To do so, we actually merge the entire contents of the coalmine table into FRC, including the surrogate key, and then drop the data fields.
+    All of the coalmine information is originally coming from the EIA
+    fuel_receipts_costs spreadsheet, but it really belongs in its own table. We strip it
+    out of FRC, and create that separate table, but then we need to refer to that table
+    through a foreign key. To do so, we actually merge the entire contents of the
+    coalmine table into FRC, including the surrogate key, and then drop the data fields.
 
-    For this to work, we need to have exactly the same coalmine data fields in both the new coalmine table, and the FRC table. To ensure that's true, we isolate the transformations here in this function, and apply them to the coalmine columns in both the FRC table and the coalmine table.
+    For this to work, we need to have exactly the same coalmine data fields in both the
+    new coalmine table, and the FRC table. To ensure that's true, we isolate the
+    transformations here in this function, and apply them to the coalmine columns in
+    both the FRC table and the coalmine table.
 
     Args:
         cmi_df (pandas.DataFrame): A DataFrame to be cleaned, containing coalmine
@@ -127,23 +143,30 @@ def _coalmine_cleanup(cmi_df):
 def plants(eia923_dfs, eia923_transformed_dfs):
     """Transforms the plants_eia923 table.
 
-    Much of the static plant information is reported repeatedly, and scattered across several different pages of EIA 923. The data frame that this function uses is assembled from those many different pages, and passed in via the same dictionary of dataframes that all the other ingest functions use for uniformity.
+    Much of the static plant information is reported repeatedly, and scattered across
+    several different pages of EIA 923. The data frame that this function uses is
+    assembled from those many different pages, and passed in via the same dictionary of
+    dataframes that all the other ingest functions use for uniformity.
 
     Transformations include:
 
-    - Map full spelling onto code values.
-    - Convert Y/N columns to booleans.
-    - Remove excess white space around values.
-    - Drop duplicate rows.
+    * Map full spelling onto code values.
+    * Convert Y/N columns to booleans.
+    * Remove excess white space around values.
+    * Drop duplicate rows.
 
     Args:
         eia923_dfs (dictionary of pandas.DataFrame): Each entry in this dictionary of
-            DataFrame objects corresponds to a page from the EIA 923 form, as reported in the Excel spreadsheets they distribute.
+            DataFrame objects corresponds to a page from the EIA 923 form, as reported
+            in the Excel spreadsheets they distribute.
         eia923_transformed_dfs (dict): A dictionary of DataFrame objects in which pages
-            from EIA923 form (keys) correspond to normalized DataFrames of values from that page (values)
+            from EIA923 form (keys) correspond to normalized DataFrames of values from
+            that page (values).
 
     Returns:
-        dict: eia923_transformed_dfs, a dictionary of DataFrame objects in which pages from EIA923 form (keys) correspond to normalized DataFrames of values from that page (values)
+        dict: eia923_transformed_dfs, a dictionary of DataFrame objects in which pages
+        from EIA923 form (keys) correspond to normalized DataFrames of values from that
+        page (values).
 
     """
     plant_info_df = eia923_dfs['plant_frame'].copy()
@@ -185,21 +208,25 @@ def generation_fuel(eia923_dfs, eia923_transformed_dfs):
 
     Transformations include:
 
-    - Remove fields implicated elsewhere.
-    - Replace . values with NA.
-    - Remove rows with utility ids 99999.
-    - Create a fuel_type_code_pudl field that organizes fuel types into
+    * Remove fields implicated elsewhere.
+    * Replace . values with NA.
+    * Remove rows with utility ids 99999.
+    * Create a fuel_type_code_pudl field that organizes fuel types into
       clean, distinguishable categories.
-    - Combine year and month columns into a single date column.
+    * Combine year and month columns into a single date column.
 
     Args:
         eia923_dfs (dict): Each entry in this dictionary of DataFrame objects
-            corresponds to a page from the EIA923 form, as reported in the Excel spreadsheets they distribute.
+            corresponds to a page from the EIA923 form, as reported in the Excel
+            spreadsheets they distribute.
         eia923_transformed_dfs (dict): A dictionary of DataFrame objects in which pages
-            from EIA923 form (keys) correspond to normalized DataFrames of values from that page (values).
+            from EIA923 form (keys) correspond to normalized DataFrames of values from
+            that page (values).
 
     Returns:
-        dict: eia923_transformed_dfs, a dictionary of DataFrame objects in which pages from EIA923 form (keys) correspond to normalized DataFrames of values from that page (values).
+        dict: eia923_transformed_dfs, a dictionary of DataFrame objects in which pages
+        from EIA923 form (keys) correspond to normalized DataFrames of values from that
+        page (values).
 
     """
     # This needs to be a copy of what we're passed in so we can edit it.
@@ -232,8 +259,10 @@ def generation_fuel(eia923_dfs, eia923_transformed_dfs):
     # any particular plant (they have plant_id_eia == operator_id == 99999)
     gf_df = gf_df[gf_df.plant_id_eia != 99999]
 
-    gf_df['fuel_type_code_pudl'] = pudl.helpers.cleanstrings_series(gf_df.fuel_type,
-                                                                    pc.fuel_type_eia923_gen_fuel_simple_map)
+    gf_df['fuel_type_code_pudl'] = (
+        pudl.helpers.cleanstrings_series(gf_df.fuel_type,
+                                         pc.fuel_type_eia923_gen_fuel_simple_map)
+    )
 
     # Convert Year/Month columns into a single Date column...
     gf_df = pudl.helpers.convert_to_date(gf_df)
@@ -248,21 +277,25 @@ def boiler_fuel(eia923_dfs, eia923_transformed_dfs):
 
     Transformations include:
 
-    - Remove fields implicated elsewhere.
-    - Drop values with plant and boiler id values of NA.
-    - Replace . values with NA.
-    - Create a fuel_type_code_pudl field that organizes fuel types into clean, distinguishable categories.
-    - Combine year and month columns into a single date column.
+    * Remove fields implicated elsewhere.
+    * Drop values with plant and boiler id values of NA.
+    * Replace . values with NA.
+    * Create a fuel_type_code_pudl field that organizes fuel types into clean,
+      distinguishable categories.
+    * Combine year and month columns into a single date column.
 
     Args:
         eia923_dfs (dict): Each entry in this dictionary of DataFrame objects
-            corresponds to a page from the EIA923 form, as reported in the Excel spreadsheets they distribute.
+            corresponds to a page from the EIA923 form, as reported in the Excel
+            spreadsheets they distribute.
         eia923_transformed_dfs (dict): A dictionary of DataFrame objects in which pages
-            from EIA923 form (keys) correspond to normalized DataFrames of values from that page (values)
+            from EIA923 form (keys) correspond to normalized DataFrames of values from
+            that page (values).
 
     Returns:
         dict: eia923_transformed_dfs, a dictionary of DataFrame objects in which pages
-            from EIA923 form (keys) correspond to normalized DataFrames of values from that page (values).
+            from EIA923 form (keys) correspond to normalized DataFrames of values from
+            that page (values).
 
     """
     bf_df = eia923_dfs['boiler_fuel'].copy()
@@ -305,19 +338,23 @@ def generation(eia923_dfs, eia923_transformed_dfs):
 
     Transformations include:
 
-    - Drop rows with NA for generator id.
-    - Remove fields implicated elsewhere.
-    - Replace . values with NA.
-    - Drop generator-date row duplicates (all have no data).
+    * Drop rows with NA for generator id.
+    * Remove fields implicated elsewhere.
+    * Replace . values with NA.
+    * Drop generator-date row duplicates (all have no data).
 
     Args:
         eia923_dfs (dict): Each entry in this dictionary of DataFrame objects
-            corresponds to a page from the EIA923 form, as reported in the Excel spreadsheets they distribute.
+            corresponds to a page from the EIA923 form, as reported in the Excel
+            spreadsheets they distribute.
         eia923_transformed_dfs (dict): A dictionary of DataFrame objects in which pages
-            from EIA923 form (keys) correspond to normalized DataFrames of values from that page (values).
+            from EIA923 form (keys) correspond to normalized DataFrames of values from
+            that page (values).
 
     Returns:
-        dict: eia923_transformed_dfs, a dictionary of DataFrame objects in which pages from EIA923 form (keys) correspond to normalized DataFrames of values from that page (values).
+        dict: eia923_transformed_dfs, a dictionary of DataFrame objects in which pages
+        from EIA923 form (keys) correspond to normalized DataFrames of values from that
+        page (values).
 
     """
     gen_df = (
@@ -357,17 +394,21 @@ def coalmine(eia923_dfs, eia923_transformed_dfs):
 
     Transformations include:
 
-    - Remove fields implicated elsewhere.
-    - Drop duplicates with MSHA ID.
+    * Remove fields implicated elsewhere.
+    * Drop duplicates with MSHA ID.
 
     Args:
         eia923_dfs (dict): Each entry in this dictionary of DataFrame objects
-            corresponds to a page from the EIA923 form, as reported in the Excel spreadsheets they distribute.
+            corresponds to a page from the EIA923 form, as reported in the Excel
+            spreadsheets they distribute.
         eia923_transformed_dfs (dict): A dictionary of DataFrame objects in which pages
-            from EIA923 form (keys) correspond to normalized DataFrames of values from that page (values)
+            from EIA923 form (keys) correspond to normalized DataFrames of values from
+            that page (values).
 
     Returns:
-        dict: eia923_transformed_dfs, a dictionary of DataFrame objects in which pages from EIA923 form (keys) correspond to normalized DataFrames of values from that page (values).
+        dict: eia923_transformed_dfs, a dictionary of DataFrame objects in which pages
+        from EIA923 form (keys) correspond to normalized DataFrames of values from that
+        page (values).
 
     """
     # These are the columns that we want to keep from FRC for the
@@ -431,22 +472,26 @@ def fuel_receipts_costs(eia923_dfs, eia923_transformed_dfs):
 
     Transformations include:
 
-    - Remove fields implicated elsewhere.
-    - Replace . values with NA.
-    - Standardize codes values.
-    - Fix dates.
-    - Replace invalid mercury content values with NA.
+    * Remove fields implicated elsewhere.
+    * Replace . values with NA.
+    * Standardize codes values.
+    * Fix dates.
+    * Replace invalid mercury content values with NA.
 
     Fuel cost is reported in cents per mmbtu. Converts cents to dollars.
 
     Args:
         eia923_dfs (dict): Each entry in this dictionary of DataFrame objects
-            corresponds to a page from the EIA923 form, as reported in the Excel spreadsheets they distribute.
+            corresponds to a page from the EIA923 form, as reported in the Excel
+            spreadsheets they distribute.
         eia923_transformed_dfs (dict): A dictionary of DataFrame objects in which pages
-            from EIA923 form (keys) correspond to normalized DataFrames of values from that page (values).
+            from EIA923 form (keys) correspond to normalized DataFrames of values from
+            that page (values).
 
     Returns:
-        dict: eia923_transformed_dfs, a dictionary of DataFrame objects in which pages from EIA923 form (keys) correspond to normalized DataFrames of values from that page (values).
+        dict: eia923_transformed_dfs, a dictionary of DataFrame objects in which pages
+        from EIA923 form (keys) correspond to normalized DataFrames of values from that
+        page (values).
 
     """
     frc_df = eia923_dfs['fuel_receipts_costs'].copy()
@@ -491,10 +536,13 @@ def fuel_receipts_costs(eia923_dfs, eia923_transformed_dfs):
         pipe(pudl.helpers.fix_int_na, columns=['contract_expiration_date', ]).
         assign(
             # Standardize case on transportaion codes -- all upper case!
-            primary_transportation_mode_code=lambda x: x.primary_transportation_mode_code.str.upper(),
-            secondary_transportation_mode_code=lambda x: x.secondary_transportation_mode_code.str.upper(),
+            primary_transportation_mode_code=lambda x: (
+                x.primary_transportation_mode_code.str.upper()),
+            secondary_transportation_mode_code=lambda x: (
+                x.secondary_transportation_mode_code.str.upper()),
             fuel_cost_per_mmbtu=lambda x: x.fuel_cost_per_mmbtu / 100,
-            fuel_group_code=lambda x: x.fuel_group_code.str.lower().str.replace(' ', '_'),
+            fuel_group_code=lambda x: (
+                x.fuel_group_code.str.lower().str.replace(' ', '_')),
             fuel_type_code_pudl=lambda x: pudl.helpers.cleanstrings_series(
                 x.energy_source_code, pc.energy_source_eia_simple_map),
             fuel_group_code_simple=lambda x: pudl.helpers.cleanstrings_series(
@@ -542,7 +590,10 @@ def transform(eia923_raw_dfs, eia923_tables=pc.eia923_pudl_tables):
             into PUDL.
 
     Returns:
-        dict: A dictionary of DataFrame with table names as keys and :class:`pandas.DataFrame` objects as values, where the contents of the DataFrames correspond to cleaned and normalized PUDL database tables, ready for loading.
+        dict: A dictionary of DataFrame with table names as keys and
+        :class:`pandas.DataFrame` objects as values, where the contents of the
+        DataFrames correspond to cleaned and normalized PUDL database tables, ready for
+        loading.
 
     """
     eia923_transform_functions = {
