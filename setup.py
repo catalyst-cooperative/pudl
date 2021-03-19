@@ -41,7 +41,7 @@ install_requires = [
 # from the installed dependencies here, and mock it for import in docs/conf.py
 # using the autodoc_mock_imports parameter:
 if not os.getenv("READTHEDOCS"):
-    install_requires.append("python-snappy~=0.5.4")
+    install_requires.append("python-snappy~=0.6.0")
 
 dev_requires = [
     "autopep8~=1.5",
