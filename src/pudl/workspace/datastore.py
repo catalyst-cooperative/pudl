@@ -8,9 +8,9 @@ import logging
 import re
 import sys
 import zipfile
-from pathlib import Path
-from typing import Any, Dict, Iterator, List, Optional, Tuple, Set
 from collections import defaultdict
+from pathlib import Path
+from typing import Any, Dict, Iterator, List, Optional, Set, Tuple
 
 import coloredlogs
 import datapackage
@@ -187,13 +187,13 @@ class ZenodoFetcher:
         self.http.mount("https://", adapter)
 
     def _fetch_from_url(self, url: str) -> requests.Response:
-        # logger.info(f"Retrieving {url} from zenodo")
+        logger.info(f"Retrieving {url} from zenodo")
         response = self.http.get(
             url,
             params={"access_token": self._token},
             timeout=self.timeout)
         if response.status_code == requests.codes.ok:
-            # logger.info(f"Successfully downloaded {url}")
+            logger.debug(f"Successfully downloaded {url}")
             return response
         else:
             raise ValueError(f"Could not download {url}: {response.text}")

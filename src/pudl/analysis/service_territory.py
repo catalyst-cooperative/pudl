@@ -11,11 +11,9 @@ import argparse
 import logging
 import math
 import sys
-from pathlib import Path
 
 import coloredlogs
 import contextily as ctx
-import geopandas
 import pandas as pd
 import sqlalchemy as sa
 from matplotlib import pyplot as plt
@@ -29,62 +27,6 @@ logger = logging.getLogger(__name__)
 ################################################################################
 MAP_CRS = "EPSG:3857"  # For mapping w/ OSM baselayer tiles
 CALC_CRS = "ESRI:102003"  # For accurate area calculations
-
-
-################################################################################
-# Outside data that we rely on for this analysis
-################################################################################
-def get_census2010_gdf(pudl_settings, layer, ds):
-    """
-    Obtain a GeoDataFrame containing US Census demographic data for 2010.
-
-    If we don't have it locally already, download the US Census DP1 data and store it
-    under the "local/uscb/census2010" directory within the PUDL datastore directory,
-    as it isn't yet integrated into the core PUDL data management.
-
-    Read the specified layer out of the downloaded geodatabase, and return the
-    resulting geopandas.GeoDataFrame. The column names and types are not altered from
-    the US Census originals.
-
-    Args:
-        pudl_settings (dict): PUDL Settings dictionary.
-        layer (str): Indicates which layer of the Census GeoDB to read.
-            Must be one of "state", "county", or "tract".
-        ds (Datastore): instance of a datastore for resource retrieval.
-
-    Returns:
-        geopandas.GeoDataFrame: DataFrame containing the US Census
-        Demographic Profile 1 (DP1) data, aggregated to the layer
-
-    """
-    census2010_dir = Path(
-        pudl_settings["data_dir"]) / "local/uscb/census2010"
-    census2010_dir.mkdir(parents=True, exist_ok=True)
-    census2010_gdb_dir = census2010_dir / "census2010.gdb"
-
-    if not census2010_gdb_dir.is_dir():
-        zip_ref = ds.get_zipfile_resource("censusdp1tract", year=2010)
-        logger.debug("Extracting census geodb to %s", census2010_gdb_dir)
-        zip_ref.extractall(census2010_dir)
-        # Grab the originally extracted directory name so we can change it:
-        extract_root = census2010_dir / Path(zip_ref.filelist[0].filename)
-        logger.warning("Rename %s to %s", extract_root, census2010_gdb_dir)
-        extract_root.rename(census2010_gdb_dir)
-    else:
-        logger.info("We've already got the 2010 Census GeoDB.")
-
-    logger.info("Extracting the GeoDB into a GeoDataFrame")
-    layers = {
-        "state": "State_2010Census_DP1",
-        "county": "County_2010Census_DP1",
-        "tract": "Tract_2010Census_DP1",
-    }
-    census_gdf = geopandas.read_file(
-        census2010_gdb_dir,
-        driver='FileGDB',
-        layer=layers[layer],
-    )
-    return census_gdf
 
 
 def get_all_utils(pudl_out):
@@ -187,11 +129,11 @@ def add_geometries(df, census_gdf, dissolve=False, dissolve_by=None):
 
     """
     out_gdf = (
-        census_gdf[["GEOID10", "NAMELSAD10", "DP0010001", "geometry"]]
+        census_gdf[["geoid10", "namelsad10", "dp0010001", "geometry"]]
         .rename(columns={
-            "GEOID10": "county_id_fips",
-            "NAMELSAD10": "county_name_census",
-            "DP0010001": "population",
+            "geoid10": "county_id_fips",
+            "namelsad10": "county_name_census",
+            "dp0010001": "population",
         })
         # Calculate county areas using cylindrical equal area projection:
         .assign(area_km2=lambda x: x.geometry.to_crs(epsg=6933).area / 1e6)
@@ -255,7 +197,7 @@ def get_territory_geometries(ids,
             ``balancing_authority_id_eia`` or ``utility_id_eia``.
         st_eia861 (pandas.DataFrame): The EIA 861 Service Territory table.
         census_gdf (geopandas.GeoDataFrame): The US Census DP1 county-level geometries
-            as returned by get_census2010_gdf().
+            as returned by pudl.output.censusdp1tract.get_layer("county").
         limit_by_state (bool): Whether to require that the counties associated
             with the balancing authority are inside a state that has also been
             seen in association with the balancing authority and the utility
@@ -525,9 +467,10 @@ def main():
     pudl_engine = sa.create_engine(pudl_settings['pudl_db'])
     pudl_out = pudl.output.pudltabl.PudlTabl(pudl_engine)
     # Load the US Census DP1 county data:
-    pudl_in = Path(pudl_settings["pudl_in"])
-    ds = pudl.workspace.datastore.Datastore(local_cache_path=pudl_in / "data")
-    census_counties = get_census2010_gdf(pudl_settings, layer="county", ds=ds)
+    county_gdf = pudl.output.censusdp1tract.get_layer(
+        "county",
+        pudl_settings=pudl_settings
+    )
 
     kwargs_dicts = [
         {"entity_type": "util", "limit_by_state": False},
@@ -539,7 +482,7 @@ def main():
     for kwargs in kwargs_dicts:
         _ = compile_geoms(
             pudl_out,
-            census_counties=census_counties,
+            census_counties=county_gdf,
             dissolve=args.dissolve,
             **kwargs,
         )
