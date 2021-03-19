@@ -1,10 +1,18 @@
 """
 Convert the US Census DP1 ESRI GeoDatabase into an SQLite Database.
 
-This is a thin wrapper around GDAL's ogr2ogr utility, which does the actual
-conversion. The code in this module tells that utility where to find the input
-data in the PUDL Datastore, and where to output the SQLite DB, alongside our
-other SQLite Databases (ferc1.sqlite and pudl.sqlite)
+This is a thin wrapper around the GDAL ogr2ogr command line tool. We use it
+to convert the Census DP1 data which is distributed as an ESRI GeoDB into an
+SQLite DB. The module provides ogr2ogr with the Census DP 1 data from the
+PUDL datastore, and directs it to be output into the user's SQLite directory
+alongside our other SQLite Databases (ferc1.sqlite and pudl.sqlite)
+
+Note that the ogr2ogr command line utility must be available on the user's
+system for this to work. This tool is part of the ``pudl-dev`` conda
+environment, but if you are using PUDL outside of the conda environment, you
+will need to install ogr2ogr separately. On Debian Linux based systems such
+as Ubuntu it can be installed with ``sudo apt-get install gdal-bin`` (which
+is what we do in our CI setup and Docker images.)
 
 """
 
@@ -28,10 +36,11 @@ def censusdp1tract_to_sqlite(pudl_settings=None, year=2010):
     """
     Use GDAL's ogr2ogr utility to convert the Census DP1 GeoDB to an SQLite DB.
 
-    The Census DP1 GeoDB is read from the datastore, unzipped into a temporary
-    directory, and then converted to SQLite using an external process. The
-    resulting SQLite DB is put in the PUDL output directory alongside the ferc1
-    and pudl SQLite databases.
+    The Census DP1 GeoDB is read from the datastore, where it is stored as a
+    zipped archive. This archive is unzipped into a temporary directory so
+    that ogr2ogr can operate on the ESRI GeoDB, and convert it to SQLite. The
+    resulting SQLite DB file is put in the PUDL output directory alongside the
+    ferc1 and pudl SQLite databases.
 
     Args:
         pudl_settings (dict): A PUDL settings dictionary.
@@ -45,13 +54,19 @@ def censusdp1tract_to_sqlite(pudl_settings=None, year=2010):
         pudl_settings = pudl.workspace.setup.get_defaults()
     ds = Datastore(local_cache_path=pudl_settings["data_dir"])
 
-    # Avoid executing any random program that happens to be named ogr2ogr
-    # If we're in a conda environment, use the ogr2ogr there
-    # Otherwise assume it's where Ubuntu installs it /usr/bin/ogr2ogr
-    prefix_dir = os.environ.get("CONDA_PREFIX", "/usr")
-    ogr2ogr = prefix_dir + "/bin/ogr2ogr"
+    # If we're in a conda environment, use the version of ogr2ogr that has been
+    # installed by conda. Otherwise, try and use a system installed version
+    # at /usr/bin/ogr2ogr  This allows us to avoid simply running whatever
+    # program happens to be in the user's path and named ogr2ogr. This is a
+    # fragile solution that will not work on all platforms, but should cover
+    # conda environments, Docker, and continuous integration on GitHub.
+    ogr2ogr = os.environ.get("CONDA_PREFIX", "/usr") + "/bin/ogr2ogr"
 
-    # Do all this work in a temporary directory since it's transient and big:
+    # Extract the sippzed GeoDB archive from the Datastore into a temporary
+    # directory so that ogr2ogr can operate on it. Output the resulting SQLite
+    # database into the user's PUDL workspace. We do not need to keep the
+    # unzipped GeoDB around after this conversion. Using a temporary directory
+    # makes the cleanup automatic.
     with TemporaryDirectory() as tmpdir:
         # Use datastore to grab the Census DP1 zipfile
         tmpdir_path = Path(tmpdir)

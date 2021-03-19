@@ -531,8 +531,7 @@ class Respondents(object):
         """
         if update or self._counties_gdf is None:
             census_counties = pudl.output.censusdp1tract.get_layer(
-                "county",
-                pudl_settings=self.pudl_settings,
+                layer="county", pudl_settings=self.pudl_settings,
             )
             self._counties_gdf = (
                 pudl.analysis.service_territory.add_geometries(
@@ -565,8 +564,7 @@ class Respondents(object):
         """
         if update or self._respondents_gdf is None:
             census_counties = pudl.output.censusdp1tract.get_layer(
-                "county",
-                pudl_settings=self.pudl_settings,
+                layer="county", pudl_settings=self.pudl_settings,
             )
             self._respondents_gdf = (
                 pudl.analysis.service_territory.add_geometries(

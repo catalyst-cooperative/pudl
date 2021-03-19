@@ -468,8 +468,7 @@ def main():
     pudl_out = pudl.output.pudltabl.PudlTabl(pudl_engine)
     # Load the US Census DP1 county data:
     county_gdf = pudl.output.censusdp1tract.get_layer(
-        "county",
-        pudl_settings=pudl_settings
+        layer="county", pudl_settings=pudl_settings
     )
 
     kwargs_dicts = [
