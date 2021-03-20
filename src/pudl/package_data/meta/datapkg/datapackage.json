@@ -4089,7 +4089,7 @@
                     {
                         "name": "capex_per_mw",
                         "type": "number",
-                        "description": "Plant costs (including asset retirement costs) per megawatt. Nominal USD. ",
+                        "description": "Plant costs (including asset retirement costs) per megawatt. Nominal USD.",
                         "format": "default"
                     },
                     {
@@ -4761,7 +4761,7 @@
                     {
                         "name": "unit_id_epa",
                         "type": "integer",
-                        "description": "Smokestack' unit monitored by EPA CEMS.",
+                        "description": "Smokestack unit monitored by EPA CEMS.",
                         "format": "default"
                     }
                 ],
@@ -5663,7 +5663,7 @@
                     {
                         "name": "unit_id_epa",
                         "type": "string",
-                        "description": "Smokestack' unit monitored by EPA CEMS.",
+                        "description": "Smokestack unit monitored by EPA CEMS.",
                         "format": "default"
                     }
                 ],
@@ -5761,7 +5761,7 @@
                     {
                        "name": "unit_id_epa",
                        "type": "string",
-                       "description": "Smokestack' unit monitored by EPA CEMS.",
+                       "description": "Smokestack unit monitored by EPA CEMS.",
                        "format": "default"
                     },
                     {
