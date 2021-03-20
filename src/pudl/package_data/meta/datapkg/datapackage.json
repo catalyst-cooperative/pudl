@@ -4761,7 +4761,7 @@
                     {
                         "name": "unit_id_epa",
                         "type": "integer",
-                        "description": "Smokestack' unit monitored by EPA CEMS.",
+                        "description": "Smokestack unit monitored by EPA CEMS.",
                         "format": "default"
                     }
                 ],
@@ -5663,7 +5663,7 @@
                     {
                         "name": "unit_id_epa",
                         "type": "string",
-                        "description": "Smokestack' unit monitored by EPA CEMS.",
+                        "description": "Smokestack unit monitored by EPA CEMS.",
                         "format": "default"
                     }
                 ],
@@ -5761,7 +5761,7 @@
                     {
                        "name": "unit_id_epa",
                        "type": "string",
-                       "description": "Smokestack' unit monitored by EPA CEMS.",
+                       "description": "Smokestack unit monitored by EPA CEMS.",
                        "format": "default"
                     },
                     {

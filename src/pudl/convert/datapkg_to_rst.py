@@ -15,7 +15,7 @@ import json
 import logging
 import sys
 
-from jinja2 import Template
+from jinja2 import BaseLoader, Environment
 
 logger = logging.getLogger(__name__)
 
@@ -34,11 +34,9 @@ white space either at the beginning or the end of each value.
 
 
 # Template for all tables in one rst file
-RST_TEMPLATE = '''
-===============================================================================
+RST_TEMPLATE = """===============================================================================
 All PUDL Database Tables
 ===============================================================================
-
 {% for resource in resources %}
 .. _{{ resource.name }}:
 
@@ -52,15 +50,13 @@ All PUDL Database Tables
 
   * - **Field Name**
     - **Type**
-    - **Description**
-{% for field in resource.schema.fields %}
+    - **Description**{% for field in resource.schema.fields %}
   * - {{ field.name }}
     - {{ field.type }}{% if field.description %}
     - {{ field.description }}{% else %}
-    - N/A{% endif %}
+    - N/A{% endif %}{% endfor %}
 {% endfor %}
-{% endfor %}
-'''
+"""
 """ A template to map data from a json dictionary into one rst file. Contains
     multiple tables seperated by headers.
 """
@@ -70,7 +66,7 @@ All PUDL Database Tables
 ###############################################################################
 
 
-def datapkg2rst_one(meta_json, meta_rst):
+def datapkg2rst(meta_json, meta_rst):
     """Convert json metadata to a single rst file."""
     logger.info("Accessing json metadata as dictionary")
     with open(meta_json) as f:
@@ -82,13 +78,17 @@ def datapkg2rst_one(meta_json, meta_rst):
     )
 
     logger.info("Converting json metadata into an rst file")
-    template = Template(RST_TEMPLATE)
+
+    template = (
+        Environment(loader=BaseLoader(), autoescape=True)
+        .from_string(RST_TEMPLATE)
+    )
     rendered = template.render(metadata_dict)
     # Create or overwrite an rst file containing the field descriptions of the input table
     with open(meta_rst, 'w') as f:
-        f.seek(0)  # Used to overwrite exisiting content
+        f.seek(0)  # Used to overwrite existing content
         f.write(rendered)
-        f.truncate()  # Used to overwrite exisiting content
+        f.truncate()  # Used to overwrite existing content
 
 
 def parse_command_line(argv):
@@ -123,7 +123,7 @@ def parse_command_line(argv):
 def main():
     """Run conversion from json to rst."""
     args = parse_command_line(sys.argv)
-    datapkg2rst_one(args.input, args.output)
+    datapkg2rst(args.input, args.output)
 
 
 if __name__ == '__main__':
