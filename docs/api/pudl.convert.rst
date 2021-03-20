@@ -7,6 +7,7 @@ Submodules
 .. toctree::
    :maxdepth: 4
 
+   pudl.convert.censusdp1tract_to_sqlite
    pudl.convert.datapkg_to_rst
    pudl.convert.datapkg_to_sqlite
    pudl.convert.epacems_to_parquet

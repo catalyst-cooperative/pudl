@@ -134,6 +134,9 @@ def derive_paths(pudl_in, pudl_out):
     ps['pudl_db'] = "sqlite:///" + str(pathlib.Path(
         ps['sqlite_dir'], 'pudl.sqlite'))
 
+    ps['censusdp1tract_db'] = "sqlite:///" + str(pathlib.Path(
+        ps['sqlite_dir'], 'censusdp1tract.sqlite'))
+
     return ps
 
 
