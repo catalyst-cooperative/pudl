@@ -192,13 +192,13 @@ OFFSET_CODES = {
 """
 A mapping of timezone offset codes to Timedelta offsets from UTC.
 
-Note that the FERC 714 instructions state that all hourly demand is to be
-reported in STANDARD time for whatever timezone is being used. Even though
-many respondents use daylight savings / standard time abbreviations, a large
-majority do appear to conform to using a single UTC offset throughout the year.
-There are 6 instances in which the timezone associated with reporting changed
-from one year to the next, and these result in duplicate records, which are
-dropped.
+from one year to the next, and these result in duplicate records, which are Note that
+the FERC 714 instructions state that all hourly demand is to be reported in STANDARD
+time for whatever timezone is being used. Even though many respondents use daylight
+savings / standard time abbreviations, a large majority do appear to conform to using a
+single UTC offset throughout the year. There are 6 instances in which the timezone
+associated with reporting changed dropped.
+
 """
 
 TZ_CODES = {
@@ -306,10 +306,9 @@ def _standardize_offset_codes(df, offset_fixes):
     """
     Convert to standardized UTC offset abbreviations.
 
-    This function ensures that all of the 3-4 letter abbreviations used to
-    indicate a timestamp's localized offset from UTC are standardized, so that
-    they can be used to make the timestamps timezone aware. The standard
-    abbreviations we're using are:
+    This function ensures that all of the 3-4 letter abbreviations used to indicate a
+    timestamp's localized offset from UTC are standardized, so that they can be used to
+    make the timestamps timezone aware. The standard abbreviations we're using are:
 
     "HST": Hawaii Standard Time
     "AKST": Alaska Standard Time
@@ -323,9 +322,9 @@ def _standardize_offset_codes(df, offset_fixes):
     "EST": Eastern Standard Time
     "EDT": Eastern Daylight Time
 
-    In some cases different respondents use the same non-standard abbreviations
-    to indicate different offsets, and so the fixes are applied on a
-    per-respondent basis, as defined by offset_fixes.
+    In some cases different respondents use the same non-standard abbreviations to
+    indicate different offsets, and so the fixes are applied on a per-respondent basis,
+    as defined by offset_fixes.
 
     Args:
         df (pandas.DataFrame): A DataFrame containing a utc_offset_code column
@@ -343,8 +342,7 @@ def _standardize_offset_codes(df, offset_fixes):
     code = df["utc_offset_code"].mask(is_blank)
     # Apply specific fixes on a per-respondent basis:
     return code.groupby(df['respondent_id_ferc714']).apply(
-        lambda x: x.replace(offset_fixes[x.name]) if x.name in offset_fixes else x
-    )
+        lambda x: x.replace(offset_fixes[x.name]) if x.name in offset_fixes else x)
 
 
 def _log_dupes(df, dupe_cols):
@@ -357,14 +355,14 @@ def respondent_id(tfr_dfs):
     """
     Transform the FERC 714 respondent IDs, names, and EIA utility IDs.
 
-    This consists primarily of dropping test respondents and manually
-    assigning EIA utility IDs to a few FERC Form 714 respondents that report
-    planning area demand, but which don't have their corresponding EIA utility
-    IDs provided by FERC for some reason (including PacifiCorp).
+    This consists primarily of dropping test respondents and manually assigning EIA
+    utility IDs to a few FERC Form 714 respondents that report planning area demand, but
+    which don't have their corresponding EIA utility IDs provided by FERC for some
+    reason (including PacifiCorp).
 
     Args:
-        tfr_dfs (dict): A dictionary of (partially) transformed dataframes,
-            to be cleaned up.
+        tfr_dfs (dict): A dictionary of (partially) transformed dataframes, to be
+            cleaned up.
 
     Returns:
         dict: The input dictionary of dataframes, but with a finished
@@ -374,9 +372,7 @@ def respondent_id(tfr_dfs):
     df = (
         tfr_dfs["respondent_id_ferc714"].assign(
             respondent_name_ferc714=lambda x: x.respondent_name_ferc714.str.strip(),
-            eia_code=lambda x: x.eia_code.replace(
-                to_replace=0, value=pd.NA)
-        )
+            eia_code=lambda x: x.eia_code.replace(to_replace=0, value=pd.NA))
         # These excludes fake Test IDs -- not real planning areas
         .query("respondent_id_ferc714 not in @BAD_RESPONDENTS")
     )
@@ -392,9 +388,18 @@ def demand_hourly_pa(tfr_dfs):
     """
     Transform the hourly demand time series by Planning Area.
 
+    Transformations include:
+
+    - Clean UTC offset codes.
+    - Replace UTC offset codes with UTC offset and timezone.
+    - Drop 25th hour rows.
+    - Set records with 0 UTC code to 0 demand.
+    - Drop duplicate rows.
+    - Flip negative signs for reported demand.
+
     Args:
-        tfr_dfs (dict): A dictionary of (partially) transformed dataframes,
-            to be cleaned up.
+        tfr_dfs (dict): A dictionary of (partially) transformed dataframes, to be
+            cleaned up.
 
     Returns:
         dict: The input dictionary of dataframes, but with a finished
@@ -421,7 +426,8 @@ def demand_hourly_pa(tfr_dfs):
 
     # Clean UTC offset codes
     df["utc_offset_code"] = df["utc_offset_code"].str.strip().str.upper()
-    df["utc_offset_code"] = df.pipe(_standardize_offset_codes, OFFSET_CODE_FIXES)
+    df["utc_offset_code"] = df.pipe(
+        _standardize_offset_codes, OFFSET_CODE_FIXES)
     # NOTE: Assumes constant timezone for entire year
     for fix in OFFSET_CODE_FIXES_BY_YEAR:
         mask = (
@@ -442,7 +448,8 @@ def demand_hourly_pa(tfr_dfs):
     # Melt daily rows with 24 demands to hourly rows with single demand
     logger.debug("Melting daily FERC 714 records into hourly records.")
     df.rename(
-        columns=lambda x: int(re.sub(r"^hour", "", x)) - 1 if "hour" in x else x,
+        columns=lambda x: int(re.sub(r"^hour", "", x)) -
+        1 if "hour" in x else x,
         inplace=True
     )
     df = df.melt(
@@ -475,7 +482,8 @@ def demand_hourly_pa(tfr_dfs):
     # There should be less than 10 of these,
     # resulting from changes to a planning area's reporting timezone.
     duplicated = df.duplicated(["respondent_id_ferc714", "utc_datetime"])
-    logger.debug(f"Found {np.count_nonzero(duplicated)} duplicate UTC datetimes.")
+    logger.debug(
+        f"Found {np.count_nonzero(duplicated)} duplicate UTC datetimes.")
     df.query("~@duplicated", inplace=True)
 
     # Flip the sign on sections of demand which were reported as negative
@@ -582,15 +590,15 @@ def transform(raw_dfs, tables=pc.pudl_tables["ferc714"]):
     Transform the raw FERC 714 dataframes into datapackage ready ouputs.
 
     Args:
-        raw_dfs (dict): A dictionary of raw pandas.DataFrame objects,
-            as read out of the original FERC 714 CSV files. Generated by the
+        raw_dfs (dict): A dictionary of raw pandas.DataFrame objects, as read out of
+            the original FERC 714 CSV files. Generated by the
             `pudl.extract.ferc714.extract()` function.
-        tables (iterable): The set of PUDL tables within FERC 714 that
-            we should process. Typically set to all of them, unless
+        tables (iterable): The set of PUDL tables within FERC 714 that we should
+            process. Typically set to all of them, unless
 
     Returns:
-        dict: A dictionary of pandas.DataFrame objects that are ready to be
-        output in a data package / database table.
+        dict: A dictionary of pandas.DataFrame objects that are ready to be output in a
+        data package / database table.
 
     """
     tfr_funcs = {

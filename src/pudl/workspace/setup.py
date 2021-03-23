@@ -65,7 +65,7 @@ def get_defaults():
         with pathlib.Path(settings_file).open() as f:
             default_workspace = yaml.safe_load(f)
     except FileNotFoundError:
-        logger.warning("PUDL user settings file .pudl.yml not found.")
+        logger.info("PUDL user settings file .pudl.yml not found.")
         default_workspace = {"pudl_in": None, "pudl_out": None}
         return default_workspace
 
@@ -133,6 +133,9 @@ def derive_paths(pudl_in, pudl_out):
 
     ps['pudl_db'] = "sqlite:///" + str(pathlib.Path(
         ps['sqlite_dir'], 'pudl.sqlite'))
+
+    ps['censusdp1tract_db'] = "sqlite:///" + str(pathlib.Path(
+        ps['sqlite_dir'], 'censusdp1tract.sqlite'))
 
     return ps
 

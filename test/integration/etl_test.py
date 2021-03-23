@@ -4,15 +4,13 @@ PyTest based testing of the FERC Database & PUDL data package initializations.
 This module also contains fixtures for returning connections to the databases.
 These connections can be either to the live databases for post-ETL testing or
 to new temporary databases, which are created from scratch and dropped after
-the tests have completed. See the --live_ferc1_db and --live_pudl_db command
-line options by running pytest --help. If you are using live databases, you
-will need to tell PUDL where to find them with --pudl_in=<PUDL_IN>.
+the tests have completed.
 
 """
 import logging
 from pathlib import Path
 
-import pytest
+import sqlalchemy as sa
 import yaml
 
 import pudl
@@ -29,7 +27,9 @@ def test_datapkg_bundle(datapkg_bundle):
 
 def test_pudl_engine(pudl_engine):
     """Try creating a pudl_engine...."""
-    pass
+    assert isinstance(pudl_engine, sa.engine.Engine)
+    assert "plants_pudl" in pudl_engine.table_names()
+    assert "utilities_pudl" in pudl_engine.table_names()
 
 
 def test_ferc1_etl(ferc1_engine):
@@ -39,33 +39,38 @@ def test_ferc1_etl(ferc1_engine):
     Nothing needs to be in the body of this "test" because the database
     connections are created by the ferc1_engine fixture defined in conftest.py
     """
-    pass
+    assert isinstance(ferc1_engine, sa.engine.Engine)
+    assert "f1_respondent_id" in ferc1_engine.table_names()
 
 
-def test_epacems_to_parquet(datapkg_bundle,
-                            pudl_settings_fixture,
-                            data_scope,
-                            request):
+def test_epacems_to_parquet(
+    datapkg_bundle,
+    pudl_settings_fixture,
+    pudl_etl_params,
+    request
+):
     """Attempt to convert a small amount of EPA CEMS data to parquet format."""
-    clobber = request.config.getoption("--clobber")
     epacems_datapkg_json = Path(
         pudl_settings_fixture['datapkg_dir'],
-        data_scope['datapkg_bundle_name'],
+        pudl_etl_params['datapkg_bundle_name'],
         'epacems-eia-test',
         "datapackage.json"
     )
     logger.info(f"Loading epacems from {epacems_datapkg_json}")
+    flat = pudl.etl.get_flattened_etl_parameters(
+        pudl_etl_params["datapkg_bundle_settings"]
+    )
     epacems_to_parquet(
         datapkg_path=epacems_datapkg_json,
-        epacems_years=data_scope['epacems_years'],
-        epacems_states=data_scope['epacems_states'],
+        epacems_years=flat["epacems_years"],
+        epacems_states=flat["epacems_states"],
         out_dir=Path(pudl_settings_fixture['parquet_dir'], 'epacems'),
         compression='snappy',
-        clobber=clobber
+        clobber=False,
     )
 
 
-def test_ferc1_lost_data(data_scope, pudl_ferc1datastore_fixture):
+def test_ferc1_schema(ferc1_etl_params, pudl_ferc1datastore_fixture):
     """
     Check to make sure we aren't missing any old FERC Form 1 tables or fields.
 
@@ -75,7 +80,7 @@ def test_ferc1_lost_data(data_scope, pudl_ferc1datastore_fixture):
     DBF filename to table name mapping from 2015, includes every single table
     and field that appears in the historical FERC Form 1 data.
     """
-    refyear = max(data_scope['ferc1_years'])
+    refyear = ferc1_etl_params['ferc1_to_sqlite_refyear']
     ds = pudl_ferc1datastore_fixture
     current_dbc_map = pudl.extract.ferc1.get_dbc_map(ds, year=refyear)
     current_tables = list(current_dbc_map.keys())
@@ -90,7 +95,7 @@ def test_ferc1_lost_data(data_scope, pudl_ferc1datastore_fixture):
             )
     # Get all historical table collections...
     dbc_maps = {}
-    for yr in data_scope['ferc1_years']:
+    for yr in ferc1_etl_params['ferc1_to_sqlite_years']:
         logger.info(f"Searching for lost FERC1 tables and fields in {yr}.")
         dbc_maps[yr] = pudl.extract.ferc1.get_dbc_map(ds, year=yr)
         old_tables = list(dbc_maps[yr].keys())
@@ -101,6 +106,7 @@ def test_ferc1_lost_data(data_scope, pudl_ferc1datastore_fixture):
                     f"Long lost FERC1 table: '{table}' found in year {yr}. "
                     f"Refyear: {refyear}"
                 )
+            # Check to make sure there aren't any lost archaic fields:
             for field in dbc_maps[yr][table].values():
                 if field not in current_dbc_map[table].values():
                     raise AssertionError(
@@ -108,21 +114,6 @@ def test_ferc1_lost_data(data_scope, pudl_ferc1datastore_fixture):
                         f"'{table}' from year {yr}. "
                         f"Refyear: {refyear}"
                     )
-
-
-def test_ferc1_solo_etl(pudl_settings_fixture,
-                        ferc1_engine,
-                        live_ferc1_db):
-    """Verify that a minimal FERC Form 1 can be loaded without other data."""
-    with open(Path(__file__).parent / 'settings/ferc1-solo.yml', "r") as f:
-        datapkg_settings = yaml.safe_load(f)['datapkg_bundle_settings']
-
-    pudl.etl.generate_datapkg_bundle(
-        datapkg_settings,
-        pudl_settings_fixture,
-        datapkg_bundle_name='ferc1-solo',
-        clobber=True,
-    )
 
 
 class TestFerc1Datastore:
@@ -137,11 +128,11 @@ class TestFerc1Datastore:
         assert ds.get_dir(2010) == Path("UPLOADERS/FORM1/working")
         assert ds.get_dir(2015) == Path("UPLOADERS/FORM1/working")
 
-    def test_get_fields(self, pudl_ferc1datastore_fixture):
+    def test_get_fields(self, pudl_ferc1datastore_fixture, test_dir):
         """Check that the get fields table works as expected."""
         ds = pudl_ferc1datastore_fixture
 
-        expect_path = Path(__file__).parent / "data/ferc1/f1_2018/get_fields.json"
+        expect_path = test_dir / "data/ferc1/f1_2018/get_fields.json"
 
         with expect_path.open() as f:
             expect = yaml.safe_load(f)
@@ -178,8 +169,7 @@ class TestExcelExtractor:
     """Verify that we can lead excel files as provided via the datastore."""
 
     @staticmethod
-    @pytest.mark.skip(reason="helper function")
-    def test_expected_file_name(extractor, page, year, expected_name):
+    def expected_file_name(extractor, page, year, expected_name):
         """Check if extractor can access files with expected file names."""
         if extractor.excel_filename(page, year=year) != expected_name:
             raise AssertionError(
@@ -189,19 +179,19 @@ class TestExcelExtractor:
     def test_excel_filename_eia860(self, pudl_datastore_fixture):
         """Spot check eia860 extractor gets the correct excel sheet names."""
         extractor = pudl.extract.eia860.Extractor(pudl_datastore_fixture)
-        self.test_expected_file_name(
+        self.expected_file_name(
             extractor=extractor,
             page='boiler_generator_assn',
             year=2011,
             expected_name="EnviroAssocY2011.xlsx"
         )
-        self.test_expected_file_name(
+        self.expected_file_name(
             extractor=extractor,
             page='generator_retired',
             year=2016,
             expected_name="3_1_Generator_Y2016.xlsx"
         )
-        self.test_expected_file_name(
+        self.expected_file_name(
             extractor=extractor,
             page='utility',
             year=2018,
@@ -211,19 +201,19 @@ class TestExcelExtractor:
     def test_excel_filename_eia923(self, pudl_datastore_fixture):
         """Spot check eia923 extractor gets the correct excel sheet names."""
         extractor = pudl.extract.eia923.Extractor(pudl_datastore_fixture)
-        self.test_expected_file_name(
+        self.expected_file_name(
             extractor=extractor,
             page='plant_frame',
             year=2009,
             expected_name="EIA923 SCHEDULES 2_3_4_5 M Final 2009 REVISED 05252011.XLS"
         )
-        self.test_expected_file_name(
+        self.expected_file_name(
             extractor=extractor,
             page='energy_storage',
             year=2019,
             expected_name="EIA923_Schedules_2_3_4_5_M_12_2019_Final.xlsx"
         )
-        self.test_expected_file_name(
+        self.expected_file_name(
             extractor=extractor,
             page='puerto_rico',
             year=2012,

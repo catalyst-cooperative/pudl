@@ -85,7 +85,7 @@ PUDL is also available via the official
     ``pip`` will only install the dependencies required for PUDL to work as a
     development library and command line tool. If you want to check out the
     source code from Github for development purposes, see the
-    :doc:`dev_setup` documentation.
+    :doc:`/dev/dev_setup` documentation.
 
 In addition to making the :mod:`pudl` package available for import in Python,
 installing ``catalystcoop.pudl`` provides the following command line tools:

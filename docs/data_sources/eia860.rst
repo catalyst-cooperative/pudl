@@ -88,4 +88,17 @@ Where yyyy stands for a given year. Ex: LayoutYyyy = LayoutY2013 or LayoutY2014
 PUDL Data Transformations
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The
+PUDL Data Field Descriptions
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+:ref:`generators_eia860`
+
+:ref:`ownership_eia860`
+
+:ref:`boiler_generator_assn_eia860`
+
+:ref:`plants_eia860`
+
+:ref:`utilities_eia860`
+
+:ref:`generators_eia860`
