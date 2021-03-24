@@ -8,7 +8,6 @@ Data Sources
    :maxdepth: 1
 
    data_sources/eia860
-   data_sources/eia861
    data_sources/eia923
    data_sources/epacems
    data_sources/ferc1

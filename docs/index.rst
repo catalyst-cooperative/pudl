@@ -9,7 +9,9 @@ The Public Utility Data Liberation Project
   :hidden:
   :maxdepth: 2
 
+  pudl_overview
   install
+  usage_modes
   usage
   datastore
   clone_ferc1

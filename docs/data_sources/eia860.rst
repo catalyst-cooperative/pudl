@@ -11,94 +11,103 @@ Source Description  | The status of existing electric generating plants and
 Respondents         Utilities
 Source Format       Microsoft Excel (.xls/.xlsx)
 Source Years        2001-2019
-Size (Download)     127 MB
-Size (Uncompressed) 247 MB
+Size (Download)     XX MB
+Size (Uncompressed) XX MB
 PUDL Code           ``eia860``
-Years Liberated     2009-2018
-Records Liberated   ~600,000
+Years Liberated     2004-2019
+Records Liberated
 Issues              `open EIA 860 issues <https://github.com/catalyst-cooperative/pudl/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aopen+label%3Aeia860>`__
 =================== ===========================================================
 
 Background
 ^^^^^^^^^^
 
-The Form EIA-860 collects environmental equipment and generator-level data from
-extant as well as planned generation entities with one  or more megawatts of
-capacity. Beginning in 2013,  EIA-860 also collects construction cost data.
+The Form EIA-860 collects utility, owner, plant, and generator-level data from existing
+and planned entities with one or more megawatt of capacity. The form also contains
+information regarding environmental control equipment, and in 2013, began collecting
+construction cost data.
 
+As of 2019, the EIA-860 Form is organized into the following schedules:
 
-**Who is required to fill out the form?**
+* **Schedule 1:** Identification
+* **Schedule 2:** Power plant data
+* **Schedule 3:** Generator information
+* **Schedule 4:** Ownership of generators owned jointly or by others
+* **Schedule 5:** Generator construction cost information
+* **Schedule 6:** Boiler information
 
-As mandated by Section 13(b) of the Federal Energy Administration Act (FEAA) of
-1974 and specified by the Form instructions, respondents include:
-"all existing plants and proposed (10-year plans) plants that:
+Who is required to fill out the form?
+-------------------------------------
 
-* Have a total generator nameplate capacity (sum for generators at a single site)
-  of 1 Megawatt (MW) or greater.
-* Where the generator(s), or the facility in which the generator(s) resides, is
-  connected to the local or regional electric power grid and has the ability to
-  draw power from the grid or deliver power to the grid.
+Respondents include all existing and proposed plants that have a total generator
+nameplate capacity (sum for generators at a single site) of 1 Megawatt (MW) or greater
+and are connected to the local or regional electric power grid. Annual responses are due
+between the beginning of January and the end of February.
 
-In the case of generators located in Alaska and Hawaii which are not a part of the
-North American interconnected grid, generators that are connected to a “public grid,”
-meaning a local or regional transmission or distribution system that supplies power
-to the public, must be reported on Form EIA-860. The operator or planned operator
-of jointly-owned plants should be the only respondent for those ﻿plants."
+Jointly owned plants must be reported only once by their operator or planned operator.
 
-Annual responses are due between the beginning of January and the end of February.
-Failure to respond may result in fines of several thousand dollars per day, depending on
-the infraction and the form in question. Under Title 18 U.S.C. 1001, submitting
-false information is considered a criminal offense and warrants the highest fine.
+What does the original data look like?
+--------------------------------------
 
-**What does the published data look like?**
+Approximately a year after respondents submit their form, the EIA publishes the data in
+a series of spreadsheets that reflect the thematic contents of the form. These
+spreadsheets can change year-to-year as the questions in the form are updated and as EIA
+adopts new formatting standards for their outputs. They are accessible on the `EIA
+website <https://www.eia.gov/electricity/data/eia860/>`_ as downloadable ZIP files
+categorized by year. To gain greater insight into year-to-year nuances of the form, we
+recommend downloading multiple years of EIA-860 ZIP files and comparing both the Form
+and the Form Instructions files. See below for our description of notable irregularities
+in the data.
 
-Once the respondents have submitted their data, the EIA creates a series of
-spreadsheets that reflect themes within the form. These spreadsheets have changed
-over the years as the form itself evolves. To gain greater insight into year-to-year
-nuances of the form, we recommend downloading the EIA-860 zip files for the desired
-years from the `EIA website <https://www.eia.gov/electricity/data/eia860/>`__ and
-scrutinizing both the Form and the Form Instructions files.
+How much of the data is accessible through PUDL?
+------------------------------------------------
+
+EIA-860 data stretches back to 2001, and PUDL currently covers all years starting from
+2004. The prior years are published as DBF files and need a special process to read and
+extract. We intend to include these older years as soon as we can.
+
+PUDL does not currently include the files pertaining to specific renewable energy
+resources or interconnection.
 
 Notable Irregularities
 ^^^^^^^^^^^^^^^^^^^^^^
+In 2012 and 2013, the Form was updated to include specific information about renewable
+generators. These new data are not included in PUDL.
 
-Raw Data
-^^^^^^^^
+Prior to 2009, the Generators table was split into two spreadsheets, one for operating
+and one for proposed generation. In 2007 and before, there was an additional file for
+proposed changes to existing generation. The latter is excluded from PUDL while the
+former is combined into a single table during the transformation process.
 
-Where yyyy stands for a given year. Ex: LayoutYyyy = LayoutY2013 or LayoutY2014
+EIA 860 includes a table in “Schedule 6: Boiler Information” which is an association
+table between boilers and generators. This association is important because in EIA 923
+the net generation is reported by generators and the fuel consumption is reported by
+boilers - so a good boiler generator association is crucial for understanding heat
+rates. Unfortunately, the reported association is incomplete, but we have used a four
+step methodology that creates a complete association for 2014 and on. See our
+`blog post <https://catalyst.coop/2018/08/07/boiler-generator-associations/>`_ and
+`transform documentation <https://catalystcoop-pudl.readthedocs.io/en/latest/api/pudl.transform.eia.html>`_
+for more information.
 
-+-----------------+--------------+-----------------------------------------------+
-| 860 Table Name  | Years Used   | Description                                   |
-+=================+==============+===============================================+
-| LayoutYyyyy     |              | | A directory of all (published) data elements|
-|                 |              | | collected on the Form EIA-860 together with |
-|                 |              | | the related description, specific file      |
-|                 |              | | location(s), and, where appropriate, an     |
-|                 |              | | explanation of codes.                       |
-+-----------------+--------------+-----------------------------------------------+
-| 1__UtilityYyyyy |              | | Utility-level data for the plants and       |
-|                 |              | | generators surveyed in the reporting year.  |
-+-----------------+--------------+-----------------------------------------------+
-| 2__PlantYyyyy   |              | | Plant-level data for the generators surveyed|
-|                 |              | | in all available years.                     |
-+-----------------+--------------+-----------------------------------------------+
-+-----------------+--------------+-----------------------------------------------+
-+-----------------+--------------+-----------------------------------------------+
+PUDL Data Tables
+^^^^^^^^^^^^^^^^
+
+We've segmented the processed EIA-860 data into the following normalized data tables.
+Clicking on the links will show you the names and descriptions of the fields available
+in each table.
+
+:ref:`generators_eia860`
+:ref:`ownership_eia860`
+:ref:`boiler_generator_assn_eia860`
+:ref:`plants_eia860`
+:ref:`utilities_eia860`
 
 PUDL Data Transformations
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
-PUDL Data Field Descriptions
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+The PUDL transformation process cleans the input data so that it is adjusted for
+uniformity, corrected for errors, and ready for bulk programmatic use.
 
-:ref:`generators_eia860`
-
-:ref:`ownership_eia860`
-
-:ref:`boiler_generator_assn_eia860`
-
-:ref:`plants_eia860`
-
-:ref:`utilities_eia860`
-
-:ref:`generators_eia860`
+To see the transformations applied to the data in each table, you can read the
+`doc-strings <https://catalystcoop-pudl.readthedocs.io/en/latest/api/pudl.transform.eia860.html>`_
+created for their respective transform functions.
