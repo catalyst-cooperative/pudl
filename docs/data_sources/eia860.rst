@@ -96,11 +96,11 @@ We've segmented the processed EIA-860 data into the following normalized data ta
 Clicking on the links will show you the names and descriptions of the fields available
 in each table.
 
-:ref:`generators_eia860`
-:ref:`ownership_eia860`
-:ref:`boiler_generator_assn_eia860`
-:ref:`plants_eia860`
-:ref:`utilities_eia860`
+* :ref:`generators_eia860`
+* :ref:`ownership_eia860`
+* :ref:`boiler_generator_assn_eia860`
+* :ref:`plants_eia860`
+* :ref:`utilities_eia860`
 
 PUDL Data Transformations
 ^^^^^^^^^^^^^^^^^^^^^^^^^
