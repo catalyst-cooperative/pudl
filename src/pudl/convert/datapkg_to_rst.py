@@ -15,6 +15,7 @@ import json
 import logging
 import sys
 
+import coloredlogs
 from jinja2 import BaseLoader, Environment
 
 logger = logging.getLogger(__name__)
@@ -122,6 +123,10 @@ def parse_command_line(argv):
 
 def main():
     """Run conversion from json to rst."""
+    pudl_logger = logging.getLogger("pudl")
+    log_format = '%(asctime)s [%(levelname)8s] %(name)s:%(lineno)s %(message)s'
+    coloredlogs.install(fmt=log_format, level='INFO', logger=pudl_logger)
+
     args = parse_command_line(sys.argv)
     datapkg2rst(args.input, args.output)
 

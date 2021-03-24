@@ -64,8 +64,9 @@ def parse_command_line(argv):
 def main():  # noqa: C901
     """Clone the FERC Form 1 FoxPro database into SQLite."""
     # Display logged output from the PUDL package:
+    pudl_logger = logging.getLogger("pudl")
     log_format = '%(asctime)s [%(levelname)8s] %(name)s:%(lineno)s %(message)s'
-    coloredlogs.install(fmt=log_format, level='INFO', logger=logger)
+    coloredlogs.install(fmt=log_format, level='INFO', logger=pudl_logger)
 
     args = parse_command_line(sys.argv)
     with pathlib.Path(args.settings_file).open() as f:
