@@ -4,7 +4,7 @@ Cloning the FERC Form 1 DB
 
 FERC Form 1 is... special.
 
-The :doc:`data_sources/ferc1` is published in a particularly inaccessible
+The :doc:`../data_sources/ferc1` is published in a particularly inaccessible
 format (proprietary binary `FoxPro database <https://en.wikipedia.org/wiki/FoxPro>`__ files),
 and the data itself is unclean and poorly organized. As a result, very few
 people are currently able to use it at all, and we have not yet integrated the
@@ -38,7 +38,7 @@ try this example:
 
 .. code-block:: console
 
-   $ ferc1_to_sqlite settings/ferc1_to_sqlite_example.yml
+   $ ferc1_to_sqlite settings/etl-full.yml
 
 This should create an SQLite database that you can find in your workspace at
 ``sqlite/ferc1.sqlite`` By default, the script pulls in all available years of

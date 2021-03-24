@@ -60,8 +60,8 @@ PUDL Data Transformations
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
 PUDL can extract all of those tables and load them into a single SQLite database
-together (See :doc:`Cloning FERC Form 1 <../clone_ferc1>`). Thus far we have only
-integrated 7 of those tables into the full PUDL ETL pipeline. Mostly we
+together (See :doc:`Cloning FERC Form 1 <../dev/clone_ferc1>`). Thus far we have
+only integrated 7 of those tables into the full PUDL ETL pipeline. Mostly we
 focused on tables pertaining to power plants, their capital & operating
 expenses, and fuel consumption. However, we have the tools required to pull
 just about any other table in as well.

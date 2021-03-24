@@ -24,20 +24,17 @@ The directory structure set up for PUDL looks like this:
 
 PUDL_IN
   └── data
-      ├── eia
-      │   ├── form860
-      │   └── form923
-      ├── epa
-      │   ├── cems
-      │   └── ipm
-      ├── ferc
-      │   └── form1
+      ├── eia860
+      ├── eia860m
+      ├── eia861
+      ├── eia923
+      ├── epacems
+      ├── ferc1
+      ├── ferc714
       └── tmp
 
 PUDL_OUT
-  ├── datapackage
-  ├── environment.yml
-  ├── notebook
+  ├── datapkg
   ├── parquet
   ├── settings
   └── sqlite
