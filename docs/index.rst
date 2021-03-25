@@ -28,3 +28,4 @@ The Public Utility Data Liberation Project
   License <LICENSE>
   code_of_conduct
   Module Index <api/modules>
+  pudl_db_index
