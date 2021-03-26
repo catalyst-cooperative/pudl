@@ -691,7 +691,7 @@ def _multiplicative_error_correction(tofix, mask, minval, maxval, mults):
 # DATABASE TABLE SPECIFIC PROCEDURES ##########################################
 ##############################################################################
 def plants_steam(ferc1_raw_dfs, ferc1_transformed_dfs):
-    """Transforms FERC Form 1 plant_steam data for loading into PUDL Database.
+    """Transform FERC Form 1 plant_steam data for loading into PUDL Database.
 
     This includes converting to our preferred units of MWh and MW, as well as
     standardizing the strings describing the kind of plant and construction.
@@ -792,10 +792,21 @@ def _plants_steam_assign_plant_ids(ferc1_steam_df, ferc1_fuel_df):
     ferc1_steam_df = pudl.helpers.fix_int_na(
         ferc1_steam_df, columns=['construction_year'])
 
+    # filter away fuel = '' or </= 0 like we used to do in the extract step.
+    # Still want these values in the fuel table, but hinders the process here.
+    logger.info('slimming fuel table')
+    ferc1_fuel_df = (
+        ferc1_fuel_df[
+            (ferc1_fuel_df['fuel_type_code_pudl'] != '')
+            & (ferc1_fuel_df['fuel_qty_burned'] > 0)]
+    ).copy()
+
     # Grab fuel consumption proportions for use in assigning plant IDs:
+    logger.info('running fbp table')
     fuel_fractions = fuel_by_plant_ferc1(ferc1_fuel_df)
     ffc = list(fuel_fractions.filter(regex='.*_fraction_mmbtu$').columns)
 
+    logger.info('merging fractions with steam')
     ferc1_steam_df = (
         ferc1_steam_df.merge(
             fuel_fractions[
@@ -806,15 +817,18 @@ def _plants_steam_assign_plant_ids(ferc1_steam_df, ferc1_fuel_df):
     )
     # We need to fill the null values for these numerical feature vectors with
     # zeros. not ideal, but the model requires dealing with nulls
+    logger.info('filling nulls with zeros')
     null_to_zero = ffc + ['capacity_mw']
     ferc1_steam_df[null_to_zero] = (
         ferc1_steam_df[null_to_zero].fillna(value=0.0))
 
     # Train the classifier using DEFAULT weights, parameters not listed here.
+    logger.info('traning classifier with default weights')
     ferc1_clf = pudl.transform.ferc1.make_ferc1_clf(ferc1_steam_df)
     ferc1_clf = ferc1_clf.fit_transform(ferc1_steam_df)
 
     # Use the classifier to generate groupings of similar records:
+    logger.info('generating groups of similar records')
     record_groups = ferc1_clf.predict(ferc1_steam_df.record_id)
     n_tot = len(ferc1_steam_df)
     n_grp = len(record_groups)
@@ -954,7 +968,7 @@ def plants_steam_validate_ids(ferc1_steam_df):
 
 
 def fuel(ferc1_raw_dfs, ferc1_transformed_dfs):
-    """Transforms FERC Form 1 fuel data for loading into PUDL Database.
+    """Transform FERC Form 1 fuel data for loading into PUDL Database.
 
     This process includes converting some columns to be in terms of our
     preferred units, like MWh and mmbtu instead of kWh and btu. Plant names are
@@ -993,13 +1007,14 @@ def fuel(ferc1_raw_dfs, ferc1_transformed_dfs):
         drop(['fuel_cost_kwh', 'fuel_generaton'], axis=1).
         # Convert from BTU/unit of fuel to 1e6 BTU/unit.
         assign(fuel_avg_mmbtu_per_unit=lambda x: x.fuel_avg_heat / 1e6).
-        drop('fuel_avg_heat', axis=1).
+        # drop('fuel_avg_heat', axis=1).
         # Rename the columns to match our DB definitions
         rename(columns={
             # FERC 1 DB Name      PUDL DB Name
             "plant_name": "plant_name_ferc1",
             'fuel': 'fuel_type_code_pudl',
             'fuel_avg_mmbtu_per_unit': 'fuel_mmbtu_per_unit',
+            'fuel_avg_heat': 'fuel_avg_heat_raw',
             'fuel_quantity': 'fuel_qty_burned',
             'fuel_cost_burned': 'fuel_cost_per_unit_burned',
             'fuel_cost_delvd': 'fuel_cost_per_unit_delivered',
