@@ -101,8 +101,9 @@ def parse_command_line(argv):
 
 def main():
     """Convert the Census DP1 GeoDatabase into an SQLite Database."""
+    pudl_logger = logging.getLogger("pudl")
     log_format = '%(asctime)s [%(levelname)8s] %(name)s:%(lineno)s %(message)s'
-    coloredlogs.install(fmt=log_format, level='INFO', logger=logger)
+    coloredlogs.install(fmt=log_format, level='INFO', logger=pudl_logger)
 
     # Currently have no arguments, but want to generate a usage message.
     _ = parse_command_line(sys.argv)
