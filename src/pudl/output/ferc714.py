@@ -539,8 +539,9 @@ class Respondents(object):
         analyses.
         """
         if update or self._counties_gdf is None:
-            census_counties = pudl.analysis.service_territory.get_census2010_gdf(
-                pudl_settings=self.pudl_settings, layer="county", ds=self.pudl_out.ds)
+            census_counties = pudl.output.censusdp1tract.get_layer(
+                layer="county", pudl_settings=self.pudl_settings,
+            )
             self._counties_gdf = (
                 pudl.analysis.service_territory.add_geometries(
                     self.fipsify(update=update), census_gdf=census_counties)
@@ -571,8 +572,9 @@ class Respondents(object):
         from year to year, etc.
         """
         if update or self._respondents_gdf is None:
-            census_counties = pudl.analysis.service_territory.get_census2010_gdf(
-                pudl_settings=self.pudl_settings, layer="county")
+            census_counties = pudl.output.censusdp1tract.get_layer(
+                layer="county", pudl_settings=self.pudl_settings,
+            )
             self._respondents_gdf = (
                 pudl.analysis.service_territory.add_geometries(
                     self.fipsify(update=update),

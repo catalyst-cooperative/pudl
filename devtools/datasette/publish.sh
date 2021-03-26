@@ -14,9 +14,12 @@ sqlite-utils index-foreign-keys $SQLITE_DIR/pudl.sqlite
 # Full column and table level descriptions / metadata
 
 datasette publish cloudrun \
-    --service=catalyst-datasette \
-    --memory=3Gi \
-    --install=datasette-cluster-map \
-    --install=datasette-vega \
-    --install=datasette-block-robots \
-    -m metadata.yml $SQLITE_DIR/ferc1.sqlite $SQLITE_DIR/pudl.sqlite
+    --service catalyst-datasette \
+    --memory 3Gi \
+    --install datasette-cluster-map \
+    --install datasette-vega \
+    --install datasette-block-robots \
+    --metadata metadata.yml \
+    --extra-options="--setting sql_time_limit_ms 5000" \
+    $SQLITE_DIR/pudl.sqlite \
+    $SQLITE_DIR/ferc1.sqlite

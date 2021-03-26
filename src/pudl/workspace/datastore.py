@@ -8,9 +8,9 @@ import logging
 import re
 import sys
 import zipfile
-from pathlib import Path
-from typing import Any, Dict, Iterator, List, Optional, Tuple, Set
 from collections import defaultdict
+from pathlib import Path
+from typing import Any, Dict, Iterator, List, Optional, Set, Tuple
 
 import coloredlogs
 import datapackage
@@ -150,7 +150,7 @@ class ZenodoFetcher:
         "production": {
             "censusdp1tract": "10.5281/zenodo.4127049",
             "eia860": "10.5281/zenodo.4127027",
-            "eia860m": "10.5281/zenodo.4281337",
+            "eia860m": "10.5281/zenodo.4540268",
             "eia861": "10.5281/zenodo.4127029",
             "eia923": "10.5281/zenodo.4127040",
             "epacems": "10.5281/zenodo.4127055",
@@ -187,13 +187,13 @@ class ZenodoFetcher:
         self.http.mount("https://", adapter)
 
     def _fetch_from_url(self, url: str) -> requests.Response:
-        # logger.info(f"Retrieving {url} from zenodo")
+        logger.info(f"Retrieving {url} from zenodo")
         response = self.http.get(
             url,
             params={"access_token": self._token},
             timeout=self.timeout)
         if response.status_code == requests.codes.ok:
-            # logger.info(f"Successfully downloaded {url}")
+            logger.debug(f"Successfully downloaded {url}")
             return response
         else:
             raise ValueError(f"Could not download {url}: {response.text}")
@@ -516,9 +516,9 @@ def main():
     """Cache datasets."""
     args = parse_command_line()
 
-    # logger = logging.getLogger(pudl.__name__)
+    pudl_logger = logging.getLogger("pudl")
     log_format = '%(asctime)s [%(levelname)8s] %(name)s:%(lineno)s %(message)s'
-    coloredlogs.install(fmt=log_format, level='INFO', logger=logger)
+    coloredlogs.install(fmt=log_format, level='INFO', logger=pudl_logger)
 
     logger.setLevel(args.loglevel)
 

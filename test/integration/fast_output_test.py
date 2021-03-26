@@ -1,6 +1,9 @@
 """PyTest cases related to the integration between FERC1 & EIA 860/923."""
 import logging
+import os
+import sys
 
+import geopandas as gpd
 import pytest
 
 import pudl
@@ -10,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 @pytest.fixture(scope="module")
 def fast_out(pudl_engine, pudl_datastore_fixture):
-    """A PUDL output object for use with Travis CI."""
+    """A PUDL output object for use in CI."""
     return pudl.output.pudltabl.PudlTabl(
         pudl_engine,
         ds=pudl_datastore_fixture,
@@ -80,14 +83,50 @@ def test_ferc714_etl(fast_out):
     fast_out.etl_ferc714()
 
 
-def test_ferc714_respondents(fast_out, pudl_settings_fixture):
-    """Test the FERC 714 Respondent & Service Territory outputs."""
-    ferc714_out = pudl.output.ferc714.Respondents(
-        fast_out,
-        pudl_settings=pudl_settings_fixture,
+@pytest.fixture(scope="module")
+def ferc714_out(fast_out, pudl_settings_fixture):
+    """A FERC 714 Respondents output object for use in CI."""
+    return pudl.output.ferc714.Respondents(
+        fast_out, pudl_settings=pudl_settings_fixture,
     )
-    _ = ferc714_out.annualize()
-    _ = ferc714_out.categorize()
-    _ = ferc714_out.summarize_demand()
-    _ = ferc714_out.fipsify()
-    _ = ferc714_out.georef_counties()
+
+
+def test_ferc714_respondents_annualize(ferc714_out):
+    """Test annualized FERC 714 respondent outputs."""
+    assert len(ferc714_out.annualize()) > 0
+
+
+def test_ferc714_respondents_categorize(ferc714_out):
+    """Test categorized FERC 714 respondent outputs."""
+    assert len(ferc714_out.categorize()) > 0
+
+
+def test_ferc714_respondents_summarized(ferc714_out):
+    """Test summarized FERC 714 demand outputs."""
+    assert len(ferc714_out.summarize_demand()) > 0
+
+
+def test_ferc714_respondents_fipsified(ferc714_out):
+    """Test FERC 714 respondent county FIPS associations."""
+    assert len(ferc714_out.fipsify()) > 0
+
+
+@pytest.mark.xfail(
+    (sys.platform != "linux")
+    & (not os.environ.get("CONDA_PREFIX", False)),
+    reason="Test relies on ogr2ogr being installed via GDAL."
+)
+def test_ferc714_respondents_georef_counties(ferc714_out):
+    """
+    Test FERC 714 respondent county FIPS associations.
+
+    This test works with the Census DP1 data, which is converted into
+    SQLite using the GDAL command line tool ogr2ogr. That tools is easy
+    to install via conda or on Linux, but is more challenging on Windows
+    and MacOS, so this test is marked xfail conditionally if the user is
+    neither using conda, nor is on Linux.
+
+    """
+    ferc714_gdf = ferc714_out.georef_counties()
+    assert len(ferc714_gdf) > 0
+    assert isinstance(ferc714_gdf, gpd.GeoDataFrame)
