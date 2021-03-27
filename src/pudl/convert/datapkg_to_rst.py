@@ -36,7 +36,7 @@ white space either at the beginning or the end of each value.
 
 # Template for all tables in one rst file
 RST_TEMPLATE = """===============================================================================
-All PUDL Database Tables
+PUDL Database Table Index
 ===============================================================================
 {% for resource in resources %}
 .. _{{ resource.name }}:
