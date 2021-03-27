@@ -1056,7 +1056,7 @@ def fuel(ferc1_raw_dfs, ferc1_transformed_dfs):
     # Drop any records that are missing data. This is a blunt instrument, to
     # be sure. In some cases we lose data here, because some utilities have
     # (for example) a "Total" line w/ only fuel_mmbtu_per_kwh on it. Grr.
-    # fuel_ferc1_df.dropna(inplace=True)
+    fuel_ferc1_df.dropna(inplace=True)
 
     ferc1_transformed_dfs['fuel_ferc1'] = fuel_ferc1_df
 
