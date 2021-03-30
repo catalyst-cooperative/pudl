@@ -14,23 +14,21 @@ These instructions assume you have already gone through the development setup
 
 There are four main scripts that are involved in the PUDL processing pipeline:
 
-1. `ferc1_to_sqlite` :doc: clones FERC Form 1's dbf files <clone_ferc1> as
-   a sqlite database - a necessary prep extract step for FERC Form 1.
+1. `ferc1_to_sqlite` clones FERC Form 1's dbf files <clone_ferc1> as a sqlite
+   database - a necessary prep extract step for FERC Form 1.
 2. `pudl_etl` is where the magic happens. This is the main script which
    coordinates the "Extract, Transform, Load" steps which results in
    `Tabular Data Packages <https://frictionlessdata.io/specs/tabular-data-package/>`_.
 3. `datapkg_to_sqlite` converts the Tabular Data Packages into a SQLite
    database. We recommend this for all of the small-medium tables which is
    currently everything but the hourly EPA CEMS data.
-4. `epacems_to_parquet` converts the Tabular Data Packages into parquet files
-   for the large datasets - which is currently the hourly EPA CEMS data.
+4. `epacems_to_parquet` converts the EPA CEMS Tabular Data Packages into
+   parquet files.
 
 Settings files dictate which datasets, years, tables or states get processed in
 this processing pipeline. Two examples are provided in the ``settings`` folder
 that is created when you run ``pudl_setup`` (see: :ref:`install-workspace` for
-setup tools and see: :ref:`settings_files` for info on settings files). If you
-want to run an ETL with different configurations, feel free to edit or
-duplicate these files,
+setup tools and see: :ref:`settings_files` for info on settings files).
 
 Fast ETL
 --------
@@ -77,7 +75,7 @@ is stored in a bunch of CSV files (some of which may be :mod:`gzip` compressed)
 in the ``data/`` directories of each data package.
 
 You can use the ``pudl_etl`` script to process more or different data by
-copying and editing the ``settings/etl_one_year.yml`` file, and running the
+copying and editing the ``settings/etl_fast.yml`` file, and running the
 script again with your new settings file as an argument. Comments in the
 example settings file explain the available parameters. Know that these example
 files are the only configurations that are tested and supported.

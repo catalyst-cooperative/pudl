@@ -24,6 +24,7 @@ The directory structure set up for PUDL looks like this:
 
 PUDL_IN
   └── data
+      ├── censusdp1tract
       ├── eia860
       ├── eia860m
       ├── eia861
