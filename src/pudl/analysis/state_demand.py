@@ -503,8 +503,9 @@ def load_counties(
     Returns:
         Dataframe with columns `county_id_fips` and `population`.
     """
-    df = pudl.analysis.service_territory.get_census2010_gdf(
-        pudl_settings, "county", pudl_out
+    df = pudl.output.censusdp1tract.get_layer(
+        layer="county",
+        pudl_settings=pudl_settings
     )[["GEOID10", "DP0010001"]]
     return df.rename(columns={"GEOID10": "county_id_fips", "DP0010001": "population"})
 
