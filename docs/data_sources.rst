@@ -17,9 +17,3 @@ Data Sources
    :maxdepth: 1
 
    data_sources/wip_future
-
-.. toctree::
-   :caption: Metadata
-   :maxdepth: 1
-
-   data_sources/metadata

@@ -29,7 +29,8 @@ databases:
     description_html: |
       <p>This database contains cleaned and normalized data from...
       <ul>
-      <li><a href="https://www.eia.gov/electricity/data/eia860/">EIA Form 860</a> (2009-2019)</li>
+      <li><a href="https://www.eia.gov/electricity/data/eia860/">EIA Form 860</a> (2004-2019)</li>
+      <li><a href="https://www.eia.gov/electricity/data/eia860m/">EIA Form 860m</a> (year-to-date for 2020-11)</li>
       <li><a href="https://www.eia.gov/electricity/data/eia923/">EIA Form 923</a> (2009-2019)</li>
       <li><a href="https://www.ferc.gov/industries-data/electric/general-information/electric-industry-forms/form-1-electric-utility-annual">FERC Form 1</a> (1994-2019)</li>
       </ul></p>
