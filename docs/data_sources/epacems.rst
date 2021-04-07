@@ -8,8 +8,7 @@ Source Description  Hourly CO2, SO2, NOx emissions and gross load
 Respondents         Coal and high-sulfur fueled plants
 Source Format       Comma Separated Value (.csv)
 Source Years        1995-2019
-Size (Download)     7.6 GB
-Size (Uncompressed) ~100 GB
+Size (Download)     8.7 GB
 PUDL Code           ``epacems``
 Years Liberated     1995-2019
 Records Liberated   ~1 billion

@@ -9,11 +9,10 @@ Source Description  | Financial and operational information from electric utilit
 Respondents         | Major electric utilities and licensees
 Source Format       FoxPro Database (.DBC/.DBF)
 Source Years        1994-2019
-Size (Download)     1.4 GB
-Size (Uncompressed) 10 GB
+Size (Download)     1.3 GB
 PUDL Code           ``ferc1``
 Years Liberated     1994-2019
-Records Liberated   ~12 million (116 raw tables), ~280,000 (7 clean tables)
+Records Liberated   ~12 million (116 raw tables), ~316,000 (7 clean tables)
 Issues              `Open FERC Form 1 issues <https://github.com/catalyst-cooperative/pudl/issues?q=is%3Aissue+is%3Aopen+label%3Aferc1>`__
 =================== ===========================================================
 
@@ -22,7 +21,9 @@ Background
 
 The *Electric Utility Annual Report*, otherwise known as FERC Form 1, consists
 of 116 data tables containing ~8GB of financial and operating data for major
-utilities and licensees.
+utilities and licensees. There is a wide swath of information in these tables, but they
+are extremely difficult to access and analyze due to their published format (FoxPro
+Database) and large quantity of extraneous, inaccurate, or double counted values.
 
 Who is required to fill out the form?
 -------------------------------------

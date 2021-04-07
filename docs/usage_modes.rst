@@ -132,7 +132,7 @@ archives on Zenodo.
 
 To access the JupyterHub, you'll need to:
 
-* Submit a `request form <https://docs.google.com/forms/d/1i8O5kbExFkR-urrmYPdWSIDl-Aub-nx5eMFgOn6TTnM/edit>`_
+* Submit a `request form <https://forms.gle/TN3GuE2e2mnWoFC4A>`_
   to be added to our JupyterHub.
 * Once you get your credentials, login
 * And…

@@ -9,8 +9,8 @@ processed data from existing commercial providers, the technical expertise to
 access it as published, or the time to clean and prepare the data for bulk analysis.
 
 Currently, PUDL processes, integrates, and provides enhanced access to data from EIA
-Forms 860 and 923, FERC Forms 1 and 714, and EPA CEMS. See our `website <https://catalyst.coop/>`_
-for more data in the works!
+Forms 860 and 923, FERC Forms 1 and 714, and EPA CEMS. See our
+:doc:`data_sources/wip_future` page for more data in the works!
 
 If you want to get started using PUDL data, visit our :doc:`usage_modes` page. Read on
 to learn about the components of the data processing pipeline.
@@ -21,13 +21,14 @@ to learn about the components of the data processing pipeline.
 Raw Data Archive
 ---------------------------------------------------------------------------------------
 
-Scripts that reliably extract data published online require consistent access to
-consistent data. When data providers remove data, change its location, or
-retrospectively update the formatting, the scripts designed to grab the old version will
-either fail or output bad data. To avoid this undue reliance and uncertainty, we’ve
-archived all of the raw data inputs on `Zenodo <https://zenodo.org/>`_, an open-access
-repository operated by CERN. Reading inputs from Zenodo rather than external sources
-guarantees PUDL access to the same, verified data inputs.
+In order for scripts that extract data published online to be reliable, they need
+consistent access to consistent data. When data providers remove data, change its
+location, or retrospectively update the formatting, the scripts designed to grab the old
+version will either fail or output bad data. To avoid this undue reliance and
+uncertainty, we’ve archived all of the raw data inputs on `Zenodo
+<https://zenodo.org/>`_, an open-access repository operated by CERN. Reading inputs from
+Zenodo rather than external sources guarantees PUDL access to the same, verified data
+inputs.
 
 .. _etl-process:
 
@@ -72,14 +73,14 @@ Some of the more complex data transformations include:
 * Cross-association of boilers, generating units, and plants
 * Linkage of FERC plants with EIA plants
 
-Many of the original data sets are reported as a series of data tables with duplicate
+Many of the original datasets are published as a series of data tables with duplicated
 fields. For instance, the EIA reports `plant_name` in all tables with otherwise unique
-plant-related data. We attempt to conform to tidy data principles and normalize the data
-to eliminate duplicate information. As a part of the transform step, we
-“harvest” duplicated data fields, combine them, and check for consistency. The data
-harvesting and normalization process makes for efficient for data storage and easy
-integration with relational databases, like SQL, that we use to provide quick
-programmatic access to data.
+plant-related data. The transform step eliminates this duplicate information by
+normalizing the tables in accordance with tidy data principles. As a part of the
+transform step, we “harvest” duplicated data fields, combine them, and check for
+consistency. The data harvesting and normalization process makes for efficient for data
+storage and easy integration with relational databases, like SQL, that we use to provide
+quick programmatic access to data.
 
 For a list of the specific transformations applied to each table, see the `doc-strings <https://catalystcoop-pudl.readthedocs.io/en/latest/api/pudl.transform.html>`_
 for each of the transform methods.
@@ -130,3 +131,5 @@ Our current suite of tests include:
 * Checking raw data column and row length
 * Verifying reported heat rates against known standards
 * More
+
+See our :doc:`dev/testing` page for more information.

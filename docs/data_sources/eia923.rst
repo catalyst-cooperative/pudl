@@ -10,11 +10,10 @@ Respondents         | Electric, CHP plants, and sometimes fuel transfer terminal
                     | grid.
 Source Format       Microsoft Excel (.xls/.xlsx)
 Source Years        2001-2019
-Size (Download)     196 MB
-Size (Uncompressed) 299 MB
+Size (Download)     243.3 MB
 PUDL Code           ``eia923``
 Years Liberated     2009-2019
-Records Liberated   ~3.2 million
+Records Liberated   ~3.6 million
 Issues              `Open EIA 923 issues <https://github.com/catalyst-cooperative/pudl/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aopen+label%3Aeia923>`__
 =================== ===========================================================
 

@@ -14,38 +14,34 @@ Thanks to a grant from the `Alfred P. Sloan Foundation Energy & Environment Prog
 <https://sloan.org/programs/research/energy-and-environment>`__, we have support to
 integrate the following new datasets.
 
-
-.. _data-tmolmp:
-
-ISO/RTO LMP
-^^^^^^^^^^^
-
-Locational marginal electricity pricing information from the various grid operators
-(e.g. MISO, CAISO, NEISO, PJM, ERCOT...). At high time resolution, with many different
-delivery nodes, this will be a very large dataset (hundreds of GB). The format for the
-data is different for each of the ISOs. Physical location of the delivery nodes is not
-always publicly available.
-
--------------------------------------------------------------------------------
-Future Data
--------------------------------------------------------------------------------
-
 There's a huge variety and quantity of data about the US electric utility system
-available to the public. The data listed above is just the beginning! Other data we've
-heard demand for are listed below. If you're interested in using one of them, and would
-like to add it to PUDL, check out :doc:`our contribution guidelines <../CONTRIBUTING>`.
-If there are other datasets you think we should be looking at integration, don't
-hesitate to `open an issue on Github
+available to the public. The data we have integrated is just the beginning! Other data
+we've heard demand for are listed below. If you're interested in using one of them, and
+would like to add it to PUDL, check out :doc:`our contribution guidelines
+<../CONTRIBUTING>`. If there are other datasets you think we should be looking at
+integration, don't hesitate to `open an issue on Github
 <https://github.com/catalyst-cooperative/pudl/issues>`_ requesting the data and
 explaining why it would be useful.
 
-.. _data-eiah20:
+.. _data-eia861:
 
-EIA Water Usage
-^^^^^^^^^^^^^^^
+EIA-861
+^^^^^^^
+The *Annual Electric Power Industry Report*, also known as `Form EIA-861
+<https://www.eia.gov/electricity/data/eia861/>`_, elicits information on load,
+generation, capacity, sales, revenues, programs, and more. Right now we've got all of
+861 integrated and are building out our testing and data validation before publishing
+the data.
 
-`EIA Water <https://www.eia.gov/electricity/data/water/>`_ records water use by thermal
-generating stations in the US.
+.. _data-eia176:
+
+EIA-176
+^^^^^^^
+
+EIA `Form 176 <https://www.eia.gov/dnav/ng/TblDefs/NG_DataSources.html#s176>`_, also
+known as the Annual Report of Natural and Supplemental Gas Supply and Disposition,
+describes the origins, suppliers, and disposition of natural gas on a yearly and state
+by state basis.
 
 .. _data-ferc714:
 
@@ -71,6 +67,17 @@ of information about renewable energy power purchase agreements (PPAs). This is 
 but it requires fuzzy processing to get at some of the interesting and only indirectly
 reported attributes.
 
+.. _data-ferc2:
+
+FERC Form 2
+^^^^^^^^^^^
+
+`FERC Form 2 <https://www.ferc.gov/industries-data/natural-gas/overview/general-information/natural-gas-industry-forms/form-22a-data>`_
+is analogous to FERC Form 1, but pertains to gas rather than electric utilities. It
+paints a detailed picture of the finances of natural gas utilities.
+
+.. _data-msha:
+
 MSHA Mines and Production
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -78,6 +85,8 @@ The `MSHA Mines & Production <https://arlweb.msha.gov/OpenGovernmentData/OGIMSHA
 dataset describes coal production by mine and operating company, along with statistics
 about labor productivity and safety. This is a smaller dataset (100s of MB) available as
 relatively clean and well structured CSV files.
+
+.. _data-phmsa:
 
 PHMSA Natural Gas Pipelines
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -89,6 +98,27 @@ is part of the US Dept. of Transportation) collects data about the natural gas
 transmission and distribution system, including their age, length, diameter, materials,
 and carrying capacity.
 
+.. _data-ces:
+
+Machine Readable Clean Energy Standards
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+`Renewable Portfolio Standards (RPS) <https://www.ncsl.org/research/energy/renewable-portfolio-standards.aspx>`_
+and Clean Energy Standards (CES) have emerged as one of the primary policy tools to
+decarbonize the US electricity supply. Researchers who model future electricity systems
+need to include these binding regulations as constraints on their models to ensure that
+the systems they explore are legally compliant. Unfortunately for modelers, RPS and CES
+regulations vary from state to state. Sometimes there are carve outs for different types
+of generation, and sometimes there are different requirements for different types of
+utilities or distributed resources. Our goal is to compile a programmatically usable
+database of RPS/CES policies in the US for quick and easy reference by modelers.
+
+-------------------------------------------------------------------------------
+Future
+-------------------------------------------------------------------------------
+
+.. _data-tds:
+
 Transmission and Distribution Systems
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -96,3 +126,11 @@ In order to run electricity system operations models and cost optimizations, you
 some kind of model of the interconnections between generation and loads. There doesn't
 appear to be a generally accepted, publicly available set of these network descriptions
 (yet!).
+
+.. _data-eiah20:
+
+EIA Water Usage
+^^^^^^^^^^^^^^^
+
+`EIA Water <https://www.eia.gov/electricity/data/water/>`_ records water use by thermal
+generating stations in the US.
