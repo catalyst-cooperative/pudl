@@ -240,9 +240,6 @@ def generators_eia860(pudl_engine, start_date=None, end_date=None):
         pandas.DataFrame: A DataFrame containing all the fields of the EIA 860
         Generators table.
     """
-    # pudl_settings = pudl.workspace.setup.get_defaults()
-    # pudl_engine = sa.create_engine(pudl_settings["pudl_db"])
-
     pt = pudl.output.pudltabl.get_table_meta(pudl_engine)
     # Almost all the info we need will come from here.
     gens_eia860_tbl = pt['generators_eia860']
@@ -271,7 +268,6 @@ def generators_eia860(pudl_engine, start_date=None, end_date=None):
             gens_eia860_tbl.c.report_date <= end_date
         )
 
-    # breakpoint()
     gens_eia860 = pd.read_sql(gens_eia860_select, pudl_engine)
     generators_entity_eia_df = pd.read_sql(
         generators_entity_eia_select, pudl_engine)
@@ -299,6 +295,23 @@ def generators_eia860(pudl_engine, start_date=None, end_date=None):
     # Drop a few extraneous fields...
     out_df = out_df.drop(['id'], axis='columns')
 
+    # Merge in the unit_id_pudl assigned to each generator in the BGA process
+    # Pull the BGA table and make it unit-generator only:
+    out_df = pd.merge(
+        out_df,
+        boiler_generator_assn_eia860(
+            pudl_engine, start_date=start_date, end_date=end_date
+        )[[
+            "report_date",
+            "plant_id_eia",
+            "generator_id",
+            "unit_id_pudl"
+        ]].drop_duplicates(),
+        on=["report_date", "plant_id_eia", "generator_id"],
+        how="left",
+        validate="m:1",
+    )
+
     # In order to be able to differentiate between single and multi-fuel
     # plants, we need to count how many different simple energy sources there
     # are associated with plant's generators. This allows us to do the simple
@@ -317,6 +330,7 @@ def generators_eia860(pudl_engine, start_date=None, end_date=None):
         .astype({
             "plant_id_eia": "Int64",
             "plant_id_pudl": "Int64",
+            "unit_id_pudl": "Int64",
             "utility_id_eia": "Int64",
             "utility_id_pudl": "Int64",
         })

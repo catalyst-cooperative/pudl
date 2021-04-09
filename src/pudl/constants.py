@@ -789,6 +789,7 @@ prime_movers_eia923 = {
     'BA': 'Energy Storage, Battery',
     'BT': 'Turbines Used in a Binary Cycle. Including those used for geothermal applications',
     'CA': 'Combined-Cycle -- Steam Part',
+    'CC': 'Combined-Cycle, Total Unit',
     'CE': 'Energy Storage, Compressed Air',
     'CP': 'Energy Storage, Concentrated Solar Power',
     'CS': 'Combined-Cycle Single-Shaft Combustion Turbine and Steam Turbine share of single',

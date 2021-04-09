@@ -465,22 +465,42 @@ def boiler_fuel_eia923(pudl_engine, freq=None,
     out_df = (
         pudl.helpers.merge_on_date_year(bf_df, pu_eia, on=['plant_id_eia'])
         .dropna(subset=['plant_id_eia', 'utility_id_eia', 'boiler_id'])
-        .pipe(pudl.helpers.organize_cols,
-              cols=['report_date',
-                    'plant_id_eia',
-                    'plant_id_pudl',
-                    'plant_name_eia',
-                    'utility_id_eia',
-                    'utility_id_pudl',
-                    'utility_name_eia',
-                    'boiler_id'])
-        .astype({
-            'plant_id_eia': "Int64",
-            'plant_id_pudl': "Int64",
-            'utility_id_eia': "Int64",
-            'utility_id_pudl': "Int64",
-        })
     )
+    # Merge in the unit_id_pudl assigned to each generator in the BGA process
+    # Pull the BGA table and make it unit-boiler only:
+    out_df = pd.merge(
+        out_df,
+        pudl.output.eia860.boiler_generator_assn_eia860(
+            pudl_engine, start_date=start_date, end_date=end_date
+        )[[
+            "report_date",
+            "plant_id_eia",
+            "boiler_id",
+            "unit_id_pudl",
+        ]].drop_duplicates(),
+        on=["report_date", "plant_id_eia", "boiler_id"],
+        how="left",
+        validate="m:1")
+    out_df = pudl.helpers.organize_cols(
+        out_df,
+        cols=[
+            'report_date',
+            'plant_id_eia',
+            'plant_id_pudl',
+            'plant_name_eia',
+            'utility_id_eia',
+            'utility_id_pudl',
+            'utility_name_eia',
+            'boiler_id',
+            'unit_id_pudl',
+        ]
+    ).astype({
+        'plant_id_eia': "Int64",
+        'plant_id_pudl': "Int64",
+        'unit_id_pudl': "Int64",
+        'utility_id_eia': "Int64",
+        'utility_id_pudl': "Int64",
+    })
 
     if freq is None:
         out_df = out_df.drop(['id'], axis=1)
