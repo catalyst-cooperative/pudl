@@ -33,7 +33,7 @@ An example is provided in the ``settings`` folder that is created when you run
 
 To run the ETL pipeline for the example, from within your PUDL workspace you
 would need to run four commands, which
-:doc:`clone the FERC Form 1 database <clone_ferc1>`, convert
+:doc:`clone the FERC Form 1 database <dev/clone_ferc1>`, convert
 that and other raw data into datapackages, and loads those datapackages into an
 SQLite database, respectively:
 

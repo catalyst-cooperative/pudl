@@ -97,7 +97,7 @@ environment lints the code and documentation input files, and uses Sphinx to
 build the documentation. It also generates a test coverage report. Running
 the full set of CI tests takes 20-25 minutes, and requires a fair amount of
 data. If you don't already have that data downloaded, it will be downloaded
-automatically and put in your :doc:`local datastore </datastore>`
+automatically and put in your :doc:`local datastore <datastore>`
 
 .. note::
 
@@ -213,7 +213,7 @@ passed through to ``pytest``. We've configured ``pytest`` (through the
 
     * :doc:`/usage` for more on how to set up a PUDL workspace, including a
       datastore.
-    * :doc:`/datastore` for more on how to work with the datastore.
+    * :doc:`datastore` for more on how to work with the datastore.
 
 -------------------------------------------------------------------------------
 Data Validation
