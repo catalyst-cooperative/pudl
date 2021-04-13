@@ -59,6 +59,20 @@ however, we have the tools required to pull just about any other table in as wel
 
 Notable Irregularities
 ^^^^^^^^^^^^^^^^^^^^^^
+Sadly, the FERC Form 1 database is not particularly... relational. The only
+foreign key relationships that exist map ``respondent_id`` fields in the
+individual data tables back to ``f1_respondent_id``. In theory, most of the
+data tables use ``report_year``, ``respondent_id``, ``row_number``,
+``spplmnt_num`` and ``report_prd`` as a composite primary key (According to
+:download:`this FERC Form 1 database schema from 2015
+<ferc/form1/ferc_form1_database_design_diagram_2015.pdf>`.
+
+In practice, there are several thousand records (out of ~12 million), including
+some in almost every table, that violate the uniqueness constraint on those
+primary keys. Since there aren't many meaningful foreign key relationships
+anyway, rather than dropping the records with non-unique natural composite
+keys, we chose to preserve all of the records and use surrogate
+auto-incrementing primary keys in the cloned SQLite database.
 
 Lots of the data included in the FERC tables is extraneous and difficult to parse. None
 of the tables have record identification, and they sometimes contain multiple rows
@@ -98,9 +112,6 @@ available in each table.
 PUDL Data Transformations
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The PUDL transformation process cleans the input data so that it is adjusted for
-uniformity, corrected for errors, and ready for bulk programmatic use.
-
 To see the transformations applied to the data in each table, you can read the
-`doc-strings <https://catalystcoop-pudl.readthedocs.io/en/latest/api/pudl.transform.ferc1.html>`_
-created for their respective transform functions.
+:mod:`pudl.transform.ferc1` module documentation for more details. created for their
+respective transform functions.

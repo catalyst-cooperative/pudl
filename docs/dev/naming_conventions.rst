@@ -66,12 +66,12 @@ Data Source Specific Abbreviations
 ======================= ======================================================
 Abbreviation            Definition
 ======================= ======================================================
-``frc_eia923``          Fuel Receipts and Costs (:doc:`data_sources/eia923`)
-``gen_eia923``          Generation (:doc:`data_sources/eia923`)
-``gf_eia923``           Generation Fuel (:doc:`data_sources/eia923`)
-``gens_eia923``         Generators (:doc:`data_sources/eia923`)
-``utils_eia860``        Utilities (:doc:`data_sources/eia860`)
-``own_eia860``          Ownership (:doc:`data_sources/eia860`)
+``frc_eia923``          Fuel Receipts and Costs (:doc:`../data_sources/eia923`)
+``gen_eia923``          Generation (:doc:`../data_sources/eia923`)
+``gf_eia923``           Generation Fuel (:doc:`../data_sources/eia923`)
+``gens_eia923``         Generators (:doc:`../data_sources/eia923`)
+``utils_eia860``        Utilities (:doc:`../data_sources/eia860`)
+``own_eia860``          Ownership (:doc:`../data_sources/eia860`)
 ======================= ======================================================
 
 

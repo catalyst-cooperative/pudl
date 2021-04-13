@@ -13,18 +13,12 @@ The Public Utility Data Liberation Project
   install
   usage_modes
   usage
-  datastore
-  clone_ferc1
   datapackages
   cloud_access
   data_sources
-  settings_files
   Contributing <CONTRIBUTING>
   dev/index
-  data_guidelines
-  new_dataset
   project_management
-  naming_conventions
   background
   acknowledgments
   License <LICENSE>
