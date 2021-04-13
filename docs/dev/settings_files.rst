@@ -9,6 +9,11 @@ be easily managed on the command line, and it's useful to preserve a record of
 how the data processing pipeline was run, so they read their settings from YAML
 files, examples of which are included in the distribution.
 
+There are two example files that are deployed into a users workspace with the
+``pudl_setup`` script (see: :ref:`install-workspace`). The settings files are
+include instructions for running ``fast`` and ``full`` versions of the PUDL
+data processing pipeline.
+
 -------------------------------------------------------------------------------
 ferc1_to_sqlite
 -------------------------------------------------------------------------------

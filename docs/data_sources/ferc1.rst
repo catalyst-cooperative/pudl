@@ -52,6 +52,20 @@ Further information about Form 1 and its contents can be found by looking at the
 
 Notable Irregularities
 ^^^^^^^^^^^^^^^^^^^^^^
+Sadly, the FERC Form 1 database is not particularly... relational. The only
+foreign key relationships that exist map ``respondent_id`` fields in the
+individual data tables back to ``f1_respondent_id``. In theory, most of the
+data tables use ``report_year``, ``respondent_id``, ``row_number``,
+``spplmnt_num`` and ``report_prd`` as a composite primary key (According to
+:download:`this FERC Form 1 database schema from 2015
+<ferc/form1/ferc_form1_database_design_diagram_2015.pdf>`.
+
+In practice, there are several thousand records (out of ~12 million), including
+some in almost every table, that violate the uniqueness constraint on those
+primary keys. Since there aren't many meaningful foreign key relationships
+anyway, rather than dropping the records with non-unique natural composite
+keys, we chose to preserve all of the records and use surrogate
+auto-incrementing primary keys in the cloned SQLite database.
 
 Raw Data
 ^^^^^^^^
@@ -60,8 +74,8 @@ PUDL Data Transformations
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
 PUDL can extract all of those tables and load them into a single SQLite database
-together (See :doc:`Cloning FERC Form 1 <../clone_ferc1>`). Thus far we have only
-integrated 7 of those tables into the full PUDL ETL pipeline. Mostly we
+together (See :doc:`Cloning FERC Form 1 <../dev/clone_ferc1>`). Thus far we have
+only integrated 7 of those tables into the full PUDL ETL pipeline. Mostly we
 focused on tables pertaining to power plants, their capital & operating
 expenses, and fuel consumption. However, we have the tools required to pull
 just about any other table in as well.
