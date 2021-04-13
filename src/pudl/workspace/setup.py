@@ -136,7 +136,6 @@ def derive_paths(pudl_in, pudl_out):
 
     ps['censusdp1tract_db'] = "sqlite:///" + str(pathlib.Path(
         ps['sqlite_dir'], 'censusdp1tract.sqlite'))
-    logger.info(ps)
     return ps
 
 

@@ -1,13 +1,13 @@
 .. _run-the-etl:
 
 =======================
-Walk, Don't Run the ETL
+Run the ETL
 =======================
 
 So you want to run the PUDL data processing pipeline? This is the most involved
 way to get access to PUDL data. It is only suggested if you want to edit the
 ETL process or contribute to the code base. Check the basic usage page for the
-other access methods (see: :ref:`basic-usage`). Measure twice, cut once.
+other access methods (see: :ref:`basic-usage`).
 
 These instructions assume you have already gone through the development setup
 (see: :ref:`dev_setup`).
@@ -32,7 +32,7 @@ setup tools and see: :ref:`settings_files` for info on settings files).
 
 Fast ETL
 --------
-Running the fast ETL typically involves one-year of data for each dataset.
+Running the fast ETL typically involves one year of data for each dataset.
 
 .. code-block:: console
 
@@ -49,7 +49,7 @@ Full ETL
 The full ETL setting file includes all the datasets with all of the years and
 tables with the exception of EPA CEMS. A full ETL for EPA CEMS can take up to
 15 hours of processing time so the example setting here is all years of CEMS
-for one state (Idaho!).
+for one state (Idaho!) which takes around 20 minutes to process.
 
 .. code-block:: console
 
@@ -61,7 +61,7 @@ for one state (Idaho!).
 
 Additional Notes
 ----------------
-These commands should result in a bunch of Python :mod:`logging` output,
+These commands should result in a bunch of Python :mod:`logging` outputs,
 describing what the script is doing, and outputs in the ``sqlite``,
 ``datapkg``, and ``parquet`` directories within your workspace. In particular,
 you should see new files at ``sqlite/ferc1.sqlite`` and ``sqlite/pudl.sqlite``,
@@ -75,12 +75,15 @@ is stored in a bunch of CSV files (some of which may be :mod:`gzip` compressed)
 in the ``data/`` directories of each data package.
 
 You can use the ``pudl_etl`` script to process more or different data by
-copying and editing the ``settings/etl_fast.yml`` file, and running the
-script again with your new settings file as an argument. Comments in the
-example settings file explain the available parameters. Know that these example
-files are the only configurations that are tested and supported.
+copying and editing either of the the setting files, and running the script
+again with your new settings file as an argument. Comments in the example
+settings file explain the available parameters. Know that these example files
+are the only configurations that are tested and supported.
 
 If you want to re-run ``pudl_etl`` and replace an existing bundle of data
 packages, you can use ``--clobber``. If you want to generate a new data
 packages with a new or modified settings file, you can change the name of the
 output datapackage bundle in the configuration file.
+
+All of the  PUDL scripts have help messages if you want additional information
+(run ``script_name --help``).
