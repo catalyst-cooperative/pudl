@@ -4,37 +4,42 @@
 Settings Files
 ===============================================================================
 
-Several of the scripts provided as part of PUDL require more arguments than can
-be easily managed on the command line, and it's useful to preserve a record of
-how the data processing pipeline was run, so they read their settings from YAML
-files, examples of which are included in the distribution.
+Several of the scripts provided as part of PUDL require more arguments than can be
+easily managed on the command line, and it's useful to preserve a record of how the
+data processing pipeline was run, so they read their settings from YAML files,
+examples of which are included in the distribution.
 
 There are two example files that are deployed into a users workspace with the
-``pudl_setup`` script (see: :ref:`install-workspace`). The settings files are
-include instructions for running ``fast`` and ``full`` versions of the PUDL
-data processing pipeline.
+``pudl_setup`` script (see: :ref:`install-workspace`). The two settings files direct
+PUDl to process 1 year ("fast") and all years ("full") of data respectively. Each
+file contains parameters for both the ``ferc1_to_sqlite`` and the ``pudl_etl``
+scripts.
 
 -------------------------------------------------------------------------------
-ferc1_to_sqlite
+Setttings for ferc1_to_sqlite
 -------------------------------------------------------------------------------
 
-=========================== ===================================================
-Parameter                   Description
-=========================== ===================================================
-``ferc1_to_sqlite_refyear`` A single 4-digit year to use as the reference for
-                            inferring FERC Form 1 database's structure.
-``ferc1_to_sqlite_years``   A list of years to be included in the cloned FERC
-                            Form 1 database. These years must be present in the
-                            datastore, and available from FERC (1994 onward).
-``ferc1_to_sqlite_tables``  A list of strings indicating what tables to load.
-                            The list of acceptable tables can be found in the
-                            the example settings file, and corresponds to the
-                            values found in the ``ferc1_dbf2tbl`` dictionary
-                            in :mod:`pudl.constants`.
-=========================== ===================================================
+.. list-table::
+   :header-rows: 1
+   :widths: auto
+
+   * - Parameter
+     - Description
+   * - ``ferc1_to_sqlite_refyear``
+     - A single 4-digit year to use as the reference for inferring FERC Form 1
+       database's structure. Typically the most recent year of available data.
+   * - ``ferc1_to_sqlite_years``
+     - A list of years to be included in the cloned FERC Form 1 database. You
+       should only use a continuous range of years. 1994 is the earliest year
+       available.
+   * - ``ferc1_to_sqlite_tables``
+     - A list of strings indicating what tables to load. The list of acceptable
+       tables can be found in the the example settings file, and corresponds to
+       the values found in the ``ferc1_dbf2tbl`` dictionary in
+       :mod:`pudl.constants`.
 
 -------------------------------------------------------------------------------
-pudl_etl
+Settings for pudl_etl
 -------------------------------------------------------------------------------
 
 The ``pudl_etl`` script requires a YAML settings file. In the repository this
@@ -59,16 +64,19 @@ Similarly, EIA Forms 860 and 923 are very tightly related. You can load only
 EIA 860, but the settings verification will automatically add in a few 923
 tables that are needed to generate the complete list of plants and generators.
 
-.. note::
+.. warning::
 
-    **If you are processing the EIA 860/923 data, we strongly recommend
-    including the same years in both datasets.** Furthermore only test that
-    either **all** the years can be processed together, and that the most
-    recent year can be processed alone. Other combinations of years may yield
-    unexpected results.
+    If you are processing the EIA 860/923 data, we **strongly recommend**
+    including the same years in both datasets. We only test two combinations
+    of inputs:
 
-Structure of the ETL Settings File
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    * That **all** available years of EIA 860/923 can be processed together, and
+    * That the most recent year of both datasets can be processed together.
+
+    Other combinations of years may yield unexpected results.
+
+Structure of the pudl_etl Settings File
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The general structure of the settings file and the names of the keys of the
 dictionaries should not be changed, but the values of those dictionaries

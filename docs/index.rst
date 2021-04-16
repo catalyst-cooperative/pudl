@@ -9,19 +9,12 @@ The Public Utility Data Liberation Project
   :hidden:
   :maxdepth: 2
 
-  pudl_overview
-  install
-  usage_modes
-  usage
-  datapackages
-  cloud_access
+  intro
+  data_access
   data_sources
   Contributing <CONTRIBUTING>
   dev/index
-  project_management
-  background
-  acknowledgments
-  License <LICENSE>
-  code_of_conduct
+  Licensing <LICENSE>
+  Code of Conduct <code_of_conduct>
   Module Index <api/modules>
-  pudl_data_dict
+  data_dictionary

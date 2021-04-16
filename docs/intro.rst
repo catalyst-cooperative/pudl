@@ -1,5 +1,5 @@
 =======================================================================================
-Overview
+Introduction
 =======================================================================================
 
 PUDL is a data processing pipeline that cleans, integrates, and standardizes some of
@@ -15,39 +15,34 @@ Available Data
 Currently, PUDL has deeply integrated data from:
 
 * :doc:`data_sources/eia860` (including EIA 860m)
+* :ref:`data-eia861` (preliminary)
 * :doc:`data_sources/eia923`
-* :doc:`data_sources/ferc1` and
+* :doc:`data_sources/ferc1`
+* :ref:`data-ferc714` (preliminary)
 * :doc:`data_sources/epacems`
 
-We also have preliminary integrations for EIA 861 and FERC 714. See
-:doc:`data_sources/wip_future` for more information.
 
 In addition, we distribute an SQLite databases containing all available years of the
 `raw FERC Form 1 data <https://doi.org/10.5281/zenodo.3677547>`__ and an SQLite
 version of the `US Census DP1 geodatabase
 <https://www.census.gov/geographies/mapping-files/2010/geo/tiger-data.html>`__
 
-If you want to get started using PUDL data, visit our :doc:`usage_modes` page. Read
+If you want to get started using PUDL data, visit our :doc:`data_access` page. Read
 on to learn about the components of the data processing pipeline.
 
 .. _raw-data-archive:
 
 ---------------------------------------------------------------------------------------
-Raw Input Data Archives
+Raw Data Archives
 ---------------------------------------------------------------------------------------
 
-In order for the PUDL data processing pipeline to run successfully, it needs to have
-programmatic access to a particular version of the raw input data. Unfortunately, the
-agencies that publish this data often alter it long after the "final" release,
-changing the contents, structure, and filenames. Older versions of the data typically
-do not remain available.
-
-To avoid this issue, we periodically create archives of `the raw inputs on Zenodo
-<https://zenodo.org/communities/catalyst-cooperative>`_, where they are issued DOIs
+Because the original data PUDL depends on frequently changes, and old versions don't
+remain available, we periodically create archives of `the raw inputs on Zenodo
+<https://zenodo.org/communities/catalyst-cooperative>`_. They are issued DOIs
 and made available via Zenodo's REST API. Each data source can have several different
 versions, each with its own unique DOI. Each release of the PUDL Python package has a
 set of DOIs embedded in it, indicating which version of the raw inputs it is meant to
-process.
+process. This helps ensure that our outputs are replicable.
 
 These raw inputs are organized into `Frictionless Data Packages
 <https://specs.frictionlessdata.io/data-package/>`__ with some extra metadata
@@ -166,7 +161,8 @@ size and complexity of the data within PUDL, this format isn't ideal for day to 
 interactive use. In practice, we take the clean, processed data in the data packages
 and use it to populate a local SQLite database. To handle the ~1 billion row EPA CEMS
 hourly time series we convert the data package into Apache Parquet dataset which is
-partitioned by state and year.
+partitioned by state and year. For more details on these conversions to SQLite and
+Parquet formats, see :doc:`datapackages`.
 
 Denormalized Outputs
 ^^^^^^^^^^^^^^^^^^^^
@@ -201,8 +197,8 @@ There are several analytical routines built into the
 :mod:`pudl.output.pudltabl.PudlTabl` output objects for calculating derived values
 like the heat rate by generation unit (:meth:`hr_by_unit
 <pudl.output.pudltabl.PudlTabl.hr_by_unit>`), or the capacity factor by generator
-(:meth:`cap_fact <pudl.output.pudltabl.PudlTabl.cap_fact>`). We intend to integrate
-more analytical output into the library over time.
+(:meth:`capacity_factor <pudl.output.pudltabl.PudlTabl.capacity_factor>`). We intend to
+integrate more analytical output into the library over time.
 
 .. seealso::
 

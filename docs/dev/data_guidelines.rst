@@ -190,7 +190,7 @@ of subpackages organized by purpose (extract, transform, load, analysis,
 output, datastore…), containing a module for each data source. Each data source
 has a short name that is used everywhere throughout the project, composed of
 the reporting agency and the form number or another identifying abbreviation:
-``ferc1``, ``epacems``, ``eia923``, ``eia8601``, etc. See the :doc:`naming
+``ferc1``, ``epacems``, ``eia923``, ``eia861``, etc. See the :doc:`naming
 conventions <naming_conventions>` document for more details.
 
 -------------------------------------------------------------------------------

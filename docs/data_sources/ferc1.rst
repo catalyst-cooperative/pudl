@@ -4,9 +4,9 @@ FERC Form 1
 
 =================== ===========================================================
 Source URL          https://www.ferc.gov/industries-data/electric/general-information/electric-industry-forms/form-1-electric-utility-annual
-Source Description  | Financial and operational information from electric utilities,
-                    | licensees and others entities subject to FERC jurisdiction.
-Respondents         | Major electric utilities and licensees
+Source Description  Financial and operational information from electric utilities,
+                    licensees and others entities subject to FERC jurisdiction.
+Respondents         Major electric utilities and licensees
 Source Format       FoxPro Database (.DBC/.DBF)
 Source Years        1994-2019
 Size (Download)     1.3 GB
@@ -33,10 +33,10 @@ Utilities and Licensees Subject To the Provisions of The Federal Power Act (18 C
 Part 101), to qualify as a respondent, entities must exceed at least one of the
 following criteria for three consecutive years prior to reporting:
 
-  * 1 million MWh of total sales
-  * 100MWh of annual sales for resale
-  * 500MWh of annual power exchanges delivered
-  * 500MWh of annual wheeling for others (deliveries plus losses)
+* 1 million MWh of total sales
+* 100MWh of annual sales for resale
+* 500MWh of annual power exchanges delivered
+* 500MWh of annual wheeling for others (deliveries plus losses)
 
 Annual responses are due by April 13th.
 

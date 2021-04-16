@@ -96,8 +96,4 @@ which exist under the ``src/pudl`` directory.
 ^^^^^^^^^^^^^^^^^^
 The adoption of :pep:`517` and :pep:`518` has opened up the possibility of
 using build and packaging systems besides :mod:`setuptools`. The new system
-uses ``pyproject.toml`` to specify the build system requirements. Other tools
-related to the project can also store their settings in this file making it
-easier to see how everything is set up, and avoiding the proliferation of
-different configuration files for e.g. PyTest, Tox, Flake8, Travis,
-ReadTheDocs, bandit...
+uses ``pyproject.toml`` to specify the build system requirements.
