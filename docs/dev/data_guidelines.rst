@@ -158,11 +158,11 @@ Partition Big Data
 -------------------------------------------------------------------------------
 Our goal is that users should be able to run the ETL process on a decent laptop.
 However, some of the utility datasets are hundreds of gigabytes in size (e.g.
-:doc:`data_sources/epacems`, :ref:`FERC EQR <data-ferceqr>`). Many users will not need
-to use the entire dataset for the work they are doing. Allow them to pull in only
-certain years, or certain states, or other sensible partitions of the data if need be,
-so that they don’t run out of memory or disk space, or have to wait hours while data
-they don't need is being processed.
+:doc:`/data_sources/epacems`, :ref:`FERC EQR <data-ferceqr>`). Many users will not
+need to use the entire dataset for the work they are doing. Allow them to pull in
+only certain years, or certain states, or other sensible partitions of the data if
+need be, so that they don’t run out of memory or disk space, or have to wait hours
+while data they don't need is being processed.
 
 -------------------------------------------------------------------------------
 Naming Conventions

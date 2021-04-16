@@ -41,7 +41,7 @@ Pull Requests
   `GitHub Actions for the PUDL repo
   <https://github.com/catalyst-cooperative/pudl/actions>`_.
 * Please don't decrease the overall test coverage -- if you introduce new code
-  it also needs to be exercised by the tests. See :doc:`dev/testing` for
+  it also needs to be exercised by the tests. See :doc:`testing` for
   details.
 * Write good docstrings, using the `Google docstring
   <https://www.sphinx-doc.org/en/latest/usage/extensions/example_google.html>`__

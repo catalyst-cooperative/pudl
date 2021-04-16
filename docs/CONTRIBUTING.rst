@@ -26,7 +26,7 @@ The project will serve the community better if other folks get involved.
 
 There are lots of ways to contribute -- it's not all about code!
 
-* :ref:`Ask questions on Github <aq_on_gh>` using the `issue tracker <https://github.com/catalyst-cooperative/pudl/issues>`__.
+* Ask questions on Github using the `issue tracker <https://github.com/catalyst-cooperative/pudl/issues>`__.
 * `Suggest new data and features <https://github.com/catalyst-cooperative/pudl/issues/new?template=feature_request.md>`__ that would be useful.
 * `File bug reports <https://github.com/catalyst-cooperative/pudl/issues/new?template=bug_report.md>`__ on Github.
 * Help expand and improve the documentation, or create new

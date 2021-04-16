@@ -2,7 +2,7 @@
 Data Access
 =======================================================================================
 
-We publish the processed data output by the :doc:`PUDL pipeline <pudl_overview>`
+We publish the processed data output by the :doc:`PUDL pipeline <intro>`
 in several ways, to serve different users and use cases. We're always trying to
 increase accessibility of the PUDL data, so if you have suggestions or questions please
 `open a GitHub issue <https://github.com/catalyst-cooperative/pudl/issues>`__ or

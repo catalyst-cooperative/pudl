@@ -51,7 +51,7 @@ underlying data varies from source to source, and in some cases from year to yea
 and includes CSVs, Excel spreadsheets, and Visual FoxPro database (DBF) files.
 
 The PUDL software will download a copy of the appropriate raw inputs automatically as
-needed, and organizes them in a local :doc:`datastore <datastore>`.
+needed, and organizes them in a local :doc:`datastore <dev/datastore>`.
 
 .. seealso::
 
@@ -162,7 +162,7 @@ interactive use. In practice, we take the clean, processed data in the data pack
 and use it to populate a local SQLite database. To handle the ~1 billion row EPA CEMS
 hourly time series we convert the data package into Apache Parquet dataset which is
 partitioned by state and year. For more details on these conversions to SQLite and
-Parquet formats, see :doc:`datapackages`.
+Parquet formats, see :ref:`access-datapackage`.
 
 Denormalized Outputs
 ^^^^^^^^^^^^^^^^^^^^
