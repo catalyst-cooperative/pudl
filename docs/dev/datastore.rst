@@ -20,12 +20,12 @@ versioned DOI of the corresponding Zenodo deposition.
 
 The ``pudl_datastore`` script can also be used to pre-download the raw input data in
 bulk. It uses the routines defined in the :mod:`pudl.workspace.datastore` module. For
-details on what data is available, for what time periods, and how much of it there is,
-see the PUDL :doc:`../data_sources`. At present the ``pudl_datastore`` script downloads
-the entire collection of data available for each dataset. For the FERC Form 1 and EPA
-CEMS datasets, this is several gigabytes.
+details on what data is available, for what time periods, and how much of it there
+is, see the PUDL :doc:`/data_sources/index`. At present the ``pudl_datastore`` script
+downloads the entire collection of data available for each dataset. For the FERC Form
+1 and EPA CEMS datasets, this is several gigabytes.
 
-For example, to download the full :doc:`../data_sources/eia860` dataset
+For example, to download the full :doc:`/data_sources/eia860` dataset
 (covering 2001-present) you would use:
 
 .. code-block:: console

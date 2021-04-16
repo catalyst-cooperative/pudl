@@ -12,7 +12,7 @@ Work in Progress
 
 Thanks to a grant from the `Alfred P. Sloan Foundation Energy & Environment Program
 <https://sloan.org/programs/research/energy-and-environment>`__, we have support to
-integrate the following new datasets.
+integrate the following new datasets between April, 2021 and March 2023.
 
 There's a huge variety and quantity of data about the US electric utility system
 available to the public. The data we have integrated is just the beginning! Other data
@@ -23,20 +23,30 @@ integration, don't hesitate to `open an issue on Github
 <https://github.com/catalyst-cooperative/pudl/issues>`_ requesting the data and
 explaining why it would be useful.
 
+.. _data-censusdp1tract:
+
+Census DP1
+^^^^^^^^^^
+The `US Census Demographic Profile 1 (DP1) <https://www.census.gov/geographies/mapping-files/2010/geo/tiger-data.html>`_
+provides Census tract, county, and state-level demographic information, along with the
+geometries defining those areas. We use this information in generating historical
+utility and balancing authority service territories based on FERC 714 and EIA 861 data.
+Currently we are distributing the Census DP1 data as a standalone SQLite DB.
+
 .. _data-eia861:
 
-EIA-861
-^^^^^^^
-The *Annual Electric Power Industry Report*, also known as `Form EIA-861
-<https://www.eia.gov/electricity/data/eia861/>`_, elicits information on load,
-generation, capacity, sales, revenues, programs, and more. Right now we've got all of
-861 integrated and are building out our testing and data validation before publishing
-the data.
+EIA Form 861
+^^^^^^^^^^^^
+The `EIA Form 861 <https://www.eia.gov/electricity/data/eia861/>`_, also known as the
+**Annual Electric Power Industry Report**, compiles information on load, generation,
+capacity, sales, revenues, programs, and more. Right now we've got all of 861
+integrated and are building out our testing and data validation before publishing the
+data officially.
 
 .. _data-eia176:
 
-EIA-176
-^^^^^^^
+EIA Form 176
+^^^^^^^^^^^^
 
 EIA `Form 176 <https://www.eia.gov/dnav/ng/TblDefs/NG_DataSources.html#s176>`_, also
 known as the Annual Report of Natural and Supplemental Gas Supply and Disposition,
@@ -50,12 +60,14 @@ FERC Form 714
 
 `FERC Form 714 <https://www.ferc.gov/docs-filing/forms/form-714/data.asp>`_ includes
 hourly loads, reported by load balancing authorities annually. This is a modestly sized
-dataset, in the 100s of MB, distributed as Microsoft Excel spreadsheets.
+dataset, in the 100s of MB, distributed as CSV files exported from a Visual FoxPro
+database prior to publication. All of the raw tables are being extracted, and a couple
+of them have been integrated into the transform process. None are in the PUDL DB yet.
 
 .. _data-ferceqr:
 
 FERC EQR
-^^^^^^^^^
+^^^^^^^^
 
 The `FERC EQR <https://www.ferc.gov/docs-filing/eqr/q2-2013/data/database.asp>`_ Also
 known as the Electricity Quarterly Report or Form 920, this dataset includes the details
@@ -75,16 +87,6 @@ FERC Form 2
 `FERC Form 2 <https://www.ferc.gov/industries-data/natural-gas/overview/general-information/natural-gas-industry-forms/form-22a-data>`_
 is analogous to FERC Form 1, but pertains to gas rather than electric utilities. It
 paints a detailed picture of the finances of natural gas utilities.
-
-.. _data-msha:
-
-MSHA Mines and Production
-^^^^^^^^^^^^^^^^^^^^^^^^^
-
-The `MSHA Mines & Production <https://arlweb.msha.gov/OpenGovernmentData/OGIMSHA.asp>`_
-dataset describes coal production by mine and operating company, along with statistics
-about labor productivity and safety. This is a smaller dataset (100s of MB) available as
-relatively clean and well structured CSV files.
 
 .. _data-phmsa:
 
@@ -114,7 +116,7 @@ utilities or distributed resources. Our goal is to compile a programmatically us
 database of RPS/CES policies in the US for quick and easy reference by modelers.
 
 -------------------------------------------------------------------------------
-Future
+Future Data of Interest
 -------------------------------------------------------------------------------
 
 .. _data-tds:
@@ -134,3 +136,13 @@ EIA Water Usage
 
 `EIA Water <https://www.eia.gov/electricity/data/water/>`_ records water use by thermal
 generating stations in the US.
+
+.. _data-msha:
+
+MSHA Mines and Production
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The `MSHA Mines & Production <https://arlweb.msha.gov/OpenGovernmentData/OGIMSHA.asp>`_
+dataset describes coal production by mine and operating company, along with statistics
+about labor productivity and safety. This is a smaller dataset (100s of MB) available as
+relatively clean and well structured CSV files.

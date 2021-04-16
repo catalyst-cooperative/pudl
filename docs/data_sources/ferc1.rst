@@ -19,11 +19,9 @@ Issues              `Open FERC Form 1 issues <https://github.com/catalyst-cooper
 Background
 ^^^^^^^^^^
 
-The *Electric Utility Annual Report*, otherwise known as FERC Form 1, consists
-of 116 data tables containing ~8GB of financial and operating data for major
-utilities and licensees. There is a wide swath of information in these tables, but they
-are extremely difficult to access and analyze due to their published format (FoxPro
-Database) and large quantity of extraneous, inaccurate, or double counted values.
+The FERC Form 1, otherwise known as the **Electric Utility Annual Report**, contains
+financial and operating data for major utilities and licensees. Much of it is not
+publicly available anywhere else.
 
 Who is required to fill out the form?
 -------------------------------------
@@ -38,24 +36,50 @@ following criteria for three consecutive years prior to reporting:
 * 500MWh of annual power exchanges delivered
 * 500MWh of annual wheeling for others (deliveries plus losses)
 
-Annual responses are due by April 13th.
-
-What does the original data look like?
---------------------------------------
-
-The data are published as separate annual FoxPro databases for the years
-1994-2019.
-
-Further information about Form 1 and its contents can be found by looking at the
-`Form 1 Template <https://www.ferc.gov/sites/default/files/2020-04/form-1.pdf>`_.
+Annual responses are due in April of the following year. FERC typically releases the
+new data in October.
 
 How much of the data is accessible through PUDL?
 ------------------------------------------------
 
-FERC Form 1 data are messy and difficult to make programmatically readable. Thus far we
-have integrated 7 tables into the full PUDL ETL pipeline. We focused on the tables
-pertaining to power plants, their capital & operating expenses, and fuel consumption;
-however, we have the tools required to pull just about any other table in as well.
+Thus far we have integrated 7 tables into the full PUDL ETL pipeline. We
+focused on the tables pertaining to power plants, their capital & operating
+expenses, and fuel consumption; however, we have the tools required to pull
+just about any other table in as well.
+
+What does the original data look like?
+--------------------------------------
+
+.. seealso::
+
+    Explore the full FERC Form 1 dataset at: https://data.catalyst.coop/ferc1
+
+The data is published as a collection of Visual FoxPro databases, one per year
+beginning in 1994. The databases all share a very similar structure, with a total of
+116 data tables containing ~8GB of raw data (though 90% of that data is in 3 tables
+containing binary data). The `final release of Visual FoxPro was v9.0 in 2007
+<https://en.wikipedia.org/wiki/Visual_FoxPro>`_. Its `extended support period ended
+in 2015 <https://www.foxpro.co.uk/foxpro-end-of-life-and-you/>`_. The bridge
+application which allowed this database to be used in Microsoft Access has been
+discontinued. FERC's continued use of this database format creates a significant
+barrier to data access.
+
+Beyond that challenge, the structure of the database is poorly normalized, and the
+data itself does not appear to be subject to much if any quality control. Getting
+useful data out of this resource can be incredibly challenging.
+
+* :download:`FERC Form 1 Database Diagram (2015) <ferc1/ferc1_db_diagram_2015.pdf>`.
+* :download:`Blank FERC Form 1 (to 2014-12-31) <ferc1/ferc1_blank_2014-12-31.pdf>`
+* :download:`Blank FERC Form 1 (to 2019-12-31) <ferc1/ferc1_blank_2019-12-31.pdf>`
+* :download:`Blank FERC Form 1 (to 2022-11-30) <ferc1/ferc1_blank_2022-11-30.pdf>`
+
+Linking files, pages, and tables
+--------------------------------
+
+.. csv-table::
+   :file: ferc1/ferc1_db_notes.csv
+   :header-rows: 1
+   :widths: auto
 
 Notable Irregularities
 ^^^^^^^^^^^^^^^^^^^^^^
@@ -63,9 +87,8 @@ Sadly, the FERC Form 1 database is not particularly... relational. The only
 foreign key relationships that exist map ``respondent_id`` fields in the
 individual data tables back to ``f1_respondent_id``. In theory, most of the
 data tables use ``report_year``, ``respondent_id``, ``row_number``,
-``spplmnt_num`` and ``report_prd`` as a composite primary key (According to
-:download:`this FERC Form 1 database schema from 2015
-<ferc/form1/ferc_form1_database_design_diagram_2015.pdf>`.
+``spplmnt_num`` and ``report_prd`` as a composite primary key
+
 
 In practice, there are several thousand records (out of ~12 million), including
 some in almost every table, that violate the uniqueness constraint on those
@@ -98,16 +121,30 @@ We've segmented the processed FERC Form 1 data into the following normalized dat
 tables. Clicking on the links will show you the names and descriptions of the fields
 available in each table.
 
-* :ref:`accumulated_depreciation_ferc1`
-* :ref:`fuel_ferc1`
-* :ref:`plant_in_service_ferc1`
-* :ref:`plants_ferc1`
-* :ref:`plants_hydro_ferc1`
-* :ref:`plants_pumped_storage_ferc1`
-* :ref:`plants_small_ferc1`
-* :ref:`plants_steam_ferc1`
-* :ref:`purchased_power_ferc1`
-* :ref:`utilities_ferc1`
+.. list-table::
+   :header-rows: 1
+   :widths: auto
+
+   * - Data Dictionary
+     - Browse Online
+   * - :ref:`fuel_ferc1`
+     - https://data.catalyst.coop/pudl/fuel_ferc1
+   * - :ref:`plant_in_service_ferc1`
+     - https://data.catalyst.coop/pudl/plant_in_service_ferc1
+   * - :ref:`plants_ferc1`
+     - https://data.catalyst.coop/pudl/plants_ferc1
+   * - :ref:`plants_hydro_ferc1`
+     - https://data.catalyst.coop/pudl/plants_hydro_ferc1
+   * - :ref:`plants_pumped_storage_ferc1`
+     - https://data.catalyst.coop/pudl/plants_pumped_storage_ferc1
+   * - :ref:`plants_small_ferc1`
+     - https://data.catalyst.coop/pudl/plants_small_ferc1
+   * - :ref:`plants_steam_ferc1`
+     - https://data.catalyst.coop/pudl/plants_steam_ferc1
+   * - :ref:`purchased_power_ferc1`
+     - https://data.catalyst.coop/pudl/purchased_power_ferc1
+   * - :ref:`utilities_ferc1`
+     - https://data.catalyst.coop/pudl/utilities_ferc1
 
 PUDL Data Transformations
 ^^^^^^^^^^^^^^^^^^^^^^^^^
