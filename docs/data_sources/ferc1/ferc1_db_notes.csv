@@ -1,119 +1,119 @@
-f1_filename,f1_table,f1_pages,f1_report_freq,f1_description
-F1_1.DBF,f1_respondent_id,,,Respondent ID
-F1_10.DBF,f1_allowances,228-229,A,Allowances
-F1_106_2009.DBF,f1_106_2009,106,A,Information on Formula Rates
-F1_106A_2009.DBF,f1_106a_2009,106,A,Information on Formula Rates
-F1_106B_2009.DBF,f1_106b_2009,106,A,Information on Formula Rates
-F1_11.DBF,f1_bal_sheet_cr,112-113,A/Q,Comp Balance Sheet (Liabilities & Other Credits 112-113)
-F1_12.DBF,f1_capital_stock,250-251,A,Capital Stock
-F1_13.DBF,f1_cash_flow,120-121,A/Q,Statement of Cash Flows
-F1_14.DBF,f1_cmmn_utlty_p_e,356,A,Common Utility Plant & Expenses
-F1_15.DBF,f1_comp_balance_db,110-111,A/Q,Comp Balance Sheet (Assets & Other Debits 110-111)
-F1_16.DBF,f1_construction,217,,
-F1_17.DBF,f1_control_respdnt,102,A,Control Over Respondent
-F1_18.DBF,f1_co_directors,105,A,Directors
-F1_19.DBF,f1_cptl_stk_expns,254-254b,A,Capital Stock Expense
-F1_2.DBF,f1_acb_epda,336-337,A,Depr & Amort of Elec Plant (Basis for Amort Chgs 336)
-F1_20.DBF,f1_csscslc_pcsircs,252,,
-F1_208_ELC_DEP.DBF,f1_208_elc_dep,208,Q,Electric Plant In Service and Accum Provision For Depr by Function
-F1_21.DBF,f1_dacs_epda,336-337,A,Depr & Amort of Elec Plant (Depr & Amort Chgs 336)
-F1_22.DBF,f1_dscnt_cptl_stk,254,,
-F1_23.DBF,f1_edcfu_epda,336-337,A,Depr & Amort of Elec Plant (Factors Used in Est Depr Chgs 336-337)
-F1_231_TRN_STDYCST.DBF,f1_231_trn_stdycst,231,A/Q,Transmission Service and Generation Interconnection Study Costs
-F1_24.DBF,f1_elctrc_erg_acct,401-401a,A,Electric Energy Account
-F1_25.DBF,f1_elctrc_oper_rev,300-301a,A/Q,Elec Operating Revenues (Individual Schedule Lines 300-301)
-F1_26.DBF,f1_elc_oper_rev_nb,300-301b,A/Q,Elec Operating Revenues (Unbilled Revenues Only 301)
-F1_27.DBF,f1_elc_op_mnt_expn,320-323,A,Electric Operation & Maintenance Expenses
-F1_28.DBF,f1_electric,429,,
-F1_29.DBF,f1_envrnmntl_expns,431,,
-F1_3.DBF,f1_accumdepr_prvsn,219,A,Accumulated Provision for Depr. of Elec. Util. Plant (Account 108)
-F1_30.DBF,f1_envrnmntl_fclty,430,,
-F1_31.DBF,f1_fuel,402-403b,A,Steam-Elec Gen Plant Stats - Large Plants (Fuel Details)
-F1_32.DBF,f1_general_info,101,A,General Information
-F1_324_ELC_EXPNS.DBF,f1_324_elc_expns,324,Q,"Electric Prod, Other Power Supply Exp, Trans and Distrib Exp "
-F1_325_ELC_CUST.DBF,f1_325_elc_cust,325,Q,"Electric Customer Accts, Service, Sales, Admin and General Expenses "
-F1_33.DBF,f1_gnrt_plant,410-411,A,Generating Plant Statistics (Small Plants)
-F1_331_TRANSISO.DBF,f1_331_transiso,331,A/Q,Transmission of Electricity by ISO/RTOs
-F1_338_DEP_DEPL.DBF,f1_338_dep_depl,338,Q,"Deprec, Depl and Amort of Elec Plant (403,403.1,404,and 405) (except Amort of Acq Adj) "
-F1_34.DBF,f1_important_chg,108-109,A/Q,Important Changes During the Quarter/Year
-F1_35.DBF,f1_incm_stmnt_2,114-117b,A/Q,"Statement of Income (Oth Inc & Ded, Int Chgs, Xord Itms 117) "
-F1_36.DBF,f1_income_stmnt,114-117a,A/Q,Statement of Income (114-117)
-F1_37.DBF,f1_miscgen_expnelc,335,A,Miscellaneous General Expenses - Electric
-F1_38.DBF,f1_misc_dfrrd_dr,233,A,Miscellaneous Deferred Debits
-F1_39.DBF,f1_mthly_peak_otpt,401-401b,A,Monthly Peaks & Output
-F1_397_ISORTO_STL.DBF,f1_397_isorto_stl,397,A/Q,Amounts Included in ISO/RTO Settlement Statements
-F1_398_ANCL_PS.DBF,f1_398_ancl_ps,398,A,Purchases and Sales of Ancillary Services
-F1_399_MTH_PEAK.DBF,f1_399_mth_peak,399,A/Q,Monthly Peak Loads and Energy Output
-F1_4.DBF,f1_accumdfrrdtaxcr,266-267,A,Accumulated Deferred Investment Tax Credits
-F1_40.DBF,f1_mtrl_spply,"227, 228-229",A,Materials & Supplies
-F1_400_SYS_PEAK.DBF,f1_400_sys_peak,400,A/Q,Monthly Transmission System Peak Load
-F1_400A_ISO_PEAK.DBF,f1_400a_iso_peak,"980, 400a",A/Q,Monthly ISO/RTO Transmission System Peak Load
-F1_41.DBF,f1_nbr_elc_deptemp,320,,
-F1_42.DBF,f1_nonutility_prop,221,,
-F1_429_TRANS_AFF.DBF,f1_429_trans_aff,429,A,Transactions with Associated (Affiliated) Companies
-F1_43.DBF,f1_note_fin_stmnt,122-123,A/Q,Notes to Financial Statements
-F1_44.DBF,f1_nuclear_fuel,202-203,A,Nuclear Fuel Materials
-F1_45.DBF,f1_officers_co,104,A,Officers
-F1_46.DBF,f1_othr_dfrrd_cr,269,A,Other Deferred Credits
-F1_47.DBF,f1_othr_pd_in_cptl,253,A,Other Paid-in Capital
-F1_48.DBF,f1_othr_reg_assets,232,A/Q,Other Regulatory Assets
-F1_49.DBF,f1_othr_reg_liab,278,A/Q,Other Regulatory Liabilities
-F1_5.DBF,f1_adit_190_detail,234-234a,A,Accumulated Deferred Income Taxes (Individual Schedule Lines)
-F1_50.DBF,f1_overhead,218,,
-F1_51.DBF,f1_pccidica,340,,
-F1_52.DBF,f1_plant_in_srvce,204-207,A,Electric Plant in Service
-F1_53.DBF,f1_pumped_storage,408-409,A,Pumped Storage Generating Plant Statistics (Large Plants)
-F1_54.DBF,f1_purchased_pwr,326-327,A,Purchased Power
-F1_55.DBF,f1_reconrpt_netinc,261,A,Recon of Reported Net Inc with Taxable Inc for Fed Inc Taxes
-F1_56.DBF,f1_reg_comm_expn,350-351,A,Regulatory Commission Expenses
-F1_57.DBF,f1_respdnt_control,103,A,Corporations Controlled by Respondent
-F1_58.DBF,f1_retained_erng,118-119,A/Q,Statement of Retained Earnings for the Year
-F1_59.DBF,f1_r_d_demo_actvty,352-353,A,"Research, Development & Demonstration Activities"
-F1_6.DBF,f1_adit_190_notes,234-234b,A,Accumulated Deferred Income Taxes (Notes)
-F1_60.DBF,f1_sales_by_sched,304,A,Sales of Electricity by Rate Schedules
-F1_61.DBF,f1_sale_for_resale,310-311,A,Sales for Resale
-F1_62.DBF,f1_sbsdry_totals,224-225,A,Investment in Subsidiary Companies (Total Line for Schedule)
-F1_63.DBF,f1_schedules_list,002-004,A/Q,List of Schedules
-F1_64.DBF,f1_security_holder,106,,
-F1_65.DBF,f1_slry_wg_dstrbtn,354-355,A,Distribution of Salaries & Wages
-F1_66.DBF,f1_substations,426-427,A,Substations
-F1_67.DBF,f1_taxacc_ppchrgyr,262-263,A,"Taxes Accrued, Prepaid & Charged During Year"
-F1_68.DBF,f1_unrcvrd_cost,230-230b,A,Unrecovered Plant & Regulatory Study Costs
-F1_69.DBF,f1_utltyplnt_smmry,200-201,A/Q,"Sum of Util. Plant & Acc Prov for Depr., Amort, & Depl"
-F1_7.DBF,f1_adit_amrt_prop,272-273,A,Acc Deferred Inc Taxes - Accelerated Amortization Property
-F1_70.DBF,f1_work,216,A,Construction Work in Progress - Electric
-F1_71.DBF,f1_xmssn_adds,424-425,A,Transmission Lines Added During Year
-F1_72.DBF,f1_xmssn_elc_bothr,332,A/Q,Transmission of Electricity by Others
-F1_73.DBF,f1_xmssn_elc_fothr,328-330,A/Q,Transmission of Electricity for Others
-F1_74.DBF,f1_xmssn_line,422-423,A,Transmission Line Statistics
-F1_75.DBF,f1_xtraordnry_loss,230-230a,A,Extraordinary Property Losses
-F1_76.DBF,f1_codes_val,,,
-F1_77.DBF,f1_sched_lit_tbl,,,
-F1_78.DBF,f1_audit_log,,,
-F1_79.DBF,f1_col_lit_tbl,,,
-F1_8.DBF,f1_adit_other,276-277,A,Acc Deferred Inc Taxes - Other
-F1_80.DBF,f1_load_file_names,,,
-F1_81.DBF,f1_privilege,,,
-F1_82.DBF,f1_sys_error_log,,,
-F1_83.DBF,f1_unique_num_val,,,
-F1_84.DBF,f1_row_lit_tbl,,,
-F1_85.DBF,f1_footnote_data,450,A/Q,Footnote Data
-F1_86.DBF,f1_hydro,406-407,A,Hydroelectric Gen Plant Stats (Large Plants)
-F1_87.DBF,f1_footnote_tbl,,,
-F1_88.DBF,f1_ident_attsttn,001,A/Q,Identification & Attestation
-F1_89.DBF,f1_steam,402-403a,A,Steam-Elec Gen Plant Stats - Large Plants (Plant Information)
-F1_9.DBF,f1_adit_other_prop,274-275,A,Acc Deferred Inc Taxes - Other Property
-F1_90.DBF,f1_leased,213,A,Electric Plant Leased to Others
-F1_91.DBF,f1_sbsdry_detail,224-225,A,Investment in Subsidiary Companies (Account 123.1)
-F1_92.DBF,f1_plant,"204, 214",A,Electric Plant Held for Future Use
-F1_93.DBF,f1_long_term_debt,256-257,A,Long-Term Debt
-F1_ALLOWANCES_NOX.DBF,f1_allowances_nox,230-230a,A,
-F1_CMPINC_HEDGE_A.DBF,f1_cmpinc_hedge_a,990,,
-F1_CMPINC_HEDGE.DBF,f1_cmpinc_hedge,"990, 122(a)(b)",A/Q,"Statement of Accum Comp Income, Comp Income, and Hedging Activities "
-F1_EMAIL.DBF,f1_email,,,
-F1_FREEZE.DBF,f1_freeze,,,
-F1_PINS.DBF,f1_pins,,,
-F1_RG_TRN_SRV_REV.DBF,f1_rg_trn_srv_rev,302,A/Q,Regional Transmission Service Revenues (Account 457.1)
-F1_S0_CHECKS.DBF,f1_s0_checks,,,
-F1_S0_FILING_LOG.DBF,f1_s0_filing_log,,,
-F1_SECURITY.DBF,f1_security,106,,
+Table Name,File Name,Pages,Freq,Table Description
+f1_106_2009,F1_106_2009.DBF,106,A,Information on Formula Rates
+f1_106a_2009,F1_106A_2009.DBF,106,A,Information on Formula Rates
+f1_106b_2009,F1_106B_2009.DBF,106,A,Information on Formula Rates
+f1_208_elc_dep,F1_208_ELC_DEP.DBF,208,Q,Electric Plant In Service and Accum Provision For Depr by Function
+f1_231_trn_stdycst,F1_231_TRN_STDYCST.DBF,231,A/Q,Transmission Service and Generation Interconnection Study Costs
+f1_324_elc_expns,F1_324_ELC_EXPNS.DBF,324,Q,"Electric Prod, Other Power Supply Exp, Trans and Distrib Exp "
+f1_325_elc_cust,F1_325_ELC_CUST.DBF,325,Q,"Electric Customer Accts, Service, Sales, Admin and General Expenses "
+f1_331_transiso,F1_331_TRANSISO.DBF,331,A/Q,Transmission of Electricity by ISO/RTOs
+f1_338_dep_depl,F1_338_DEP_DEPL.DBF,338,Q,"Deprec, Depl and Amort of Elec Plant (403,403.1,404,and 405) (except Amort of Acq Adj) "
+f1_397_isorto_stl,F1_397_ISORTO_STL.DBF,397,A/Q,Amounts Included in ISO/RTO Settlement Statements
+f1_398_ancl_ps,F1_398_ANCL_PS.DBF,398,A,Purchases and Sales of Ancillary Services
+f1_399_mth_peak,F1_399_MTH_PEAK.DBF,399,A/Q,Monthly Peak Loads and Energy Output
+f1_400_sys_peak,F1_400_SYS_PEAK.DBF,400,A/Q,Monthly Transmission System Peak Load
+f1_400a_iso_peak,F1_400A_ISO_PEAK.DBF,"980, 400a",A/Q,Monthly ISO/RTO Transmission System Peak Load
+f1_429_trans_aff,F1_429_TRANS_AFF.DBF,429,A,Transactions with Associated (Affiliated) Companies
+f1_acb_epda,F1_2.DBF,336-337,A,Depr & Amort of Elec Plant (Basis for Amort Chgs 336)
+f1_accumdepr_prvsn,F1_3.DBF,219,A,Accumulated Provision for Depr. of Elec. Util. Plant (Account 108)
+f1_accumdfrrdtaxcr,F1_4.DBF,266-267,A,Accumulated Deferred Investment Tax Credits
+f1_adit_190_detail,F1_5.DBF,234-234a,A,Accumulated Deferred Income Taxes (Individual Schedule Lines)
+f1_adit_190_notes,F1_6.DBF,234-234b,A,Accumulated Deferred Income Taxes (Notes)
+f1_adit_amrt_prop,F1_7.DBF,272-273,A,Acc Deferred Inc Taxes - Accelerated Amortization Property
+f1_adit_other,F1_8.DBF,276-277,A,Acc Deferred Inc Taxes - Other
+f1_adit_other_prop,F1_9.DBF,274-275,A,Acc Deferred Inc Taxes - Other Property
+f1_allowances,F1_10.DBF,228-229,A,Allowances
+f1_allowances_nox,F1_ALLOWANCES_NOX.DBF,230-230a,A,
+f1_audit_log,F1_78.DBF,,,
+f1_bal_sheet_cr,F1_11.DBF,112-113,A/Q,Comp Balance Sheet (Liabilities & Other Credits 112-113)
+f1_capital_stock,F1_12.DBF,250-251,A,Capital Stock
+f1_cash_flow,F1_13.DBF,120-121,A/Q,Statement of Cash Flows
+f1_cmmn_utlty_p_e,F1_14.DBF,356,A,Common Utility Plant & Expenses
+f1_cmpinc_hedge,F1_CMPINC_HEDGE.DBF,"990, 122(a)(b)",A/Q,"Statement of Accum Comp Income, Comp Income, and Hedging Activities "
+f1_cmpinc_hedge_a,F1_CMPINC_HEDGE_A.DBF,990,,
+f1_co_directors,F1_18.DBF,105,A,Directors
+f1_codes_val,F1_76.DBF,,,
+f1_col_lit_tbl,F1_79.DBF,,,Descriptive headers for each column in the Form 1. Useful for discerning their semantic content.
+f1_comp_balance_db,F1_15.DBF,110-111,A/Q,Comp Balance Sheet (Assets & Other Debits 110-111)
+f1_construction,F1_16.DBF,217,,Spending on Construction (1994-2002 only)
+f1_control_respdnt,F1_17.DBF,102,A,Control Over Respondent
+f1_cptl_stk_expns,F1_19.DBF,254-254b,A,Capital Stock Expense
+f1_csscslc_pcsircs,F1_20.DBF,252,,
+f1_dacs_epda,F1_21.DBF,336-337,A,Depr & Amort of Elec Plant (Depr & Amort Chgs 336)
+f1_dscnt_cptl_stk,F1_22.DBF,254,,
+f1_edcfu_epda,F1_23.DBF,336-337,A,Depr & Amort of Elec Plant (Factors Used in Est Depr Chgs 336-337)
+f1_elc_op_mnt_expn,F1_27.DBF,320-323,A,Electric Operation & Maintenance Expenses
+f1_elc_oper_rev_nb,F1_26.DBF,300-301b,A/Q,Elec Operating Revenues (Unbilled Revenues Only 301)
+f1_elctrc_erg_acct,F1_24.DBF,401-401a,A,Electric Energy Account
+f1_elctrc_oper_rev,F1_25.DBF,300-301a,A/Q,Elec Operating Revenues (Individual Schedule Lines 300-301)
+f1_electric,F1_28.DBF,429,,
+f1_email,F1_EMAIL.DBF,,,
+f1_envrnmntl_expns,F1_29.DBF,431,,
+f1_envrnmntl_fclty,F1_30.DBF,430,,
+f1_footnote_data,F1_85.DBF,450,A/Q,Footnote Data
+f1_footnote_tbl,F1_87.DBF,,,
+f1_freeze,F1_FREEZE.DBF,,,
+f1_fuel,F1_31.DBF,402-403b,A,Steam-Elec Gen Plant Stats - Large Plants (Fuel Details)
+f1_general_info,F1_32.DBF,101,A,General Information
+f1_gnrt_plant,F1_33.DBF,410-411,A,Generating Plant Statistics (Small Plants)
+f1_hydro,F1_86.DBF,406-407,A,Hydroelectric Gen Plant Stats (Large Plants)
+f1_ident_attsttn,F1_88.DBF,1,A/Q,Identification & Attestation
+f1_important_chg,F1_34.DBF,108-109,A/Q,Important Changes During the Quarter/Year
+f1_incm_stmnt_2,F1_35.DBF,114-117b,A/Q,"Statement of Income (Oth Inc & Ded, Int Chgs, Xord Itms 117) "
+f1_income_stmnt,F1_36.DBF,114-117a,A/Q,Statement of Income (114-117)
+f1_leased,F1_90.DBF,213,A,Electric Plant Leased to Others
+f1_load_file_names,F1_80.DBF,,,
+f1_long_term_debt,F1_93.DBF,256-257,A,Long-Term Debt
+f1_misc_dfrrd_dr,F1_38.DBF,233,A,Miscellaneous Deferred Debits
+f1_miscgen_expnelc,F1_37.DBF,335,A,Miscellaneous General Expenses - Electric
+f1_mthly_peak_otpt,F1_39.DBF,401-401b,A,Monthly Peaks & Output
+f1_mtrl_spply,F1_40.DBF,"227, 228-229",A,Materials & Supplies
+f1_nbr_elc_deptemp,F1_41.DBF,320,,
+f1_nonutility_prop,F1_42.DBF,221,,
+f1_note_fin_stmnt,F1_43.DBF,122-123,A/Q,Notes to Financial Statements
+f1_nuclear_fuel,F1_44.DBF,202-203,A,Nuclear Fuel Materials
+f1_officers_co,F1_45.DBF,104,A,Officers
+f1_othr_dfrrd_cr,F1_46.DBF,269,A,Other Deferred Credits
+f1_othr_pd_in_cptl,F1_47.DBF,253,A,Other Paid-in Capital
+f1_othr_reg_assets,F1_48.DBF,232,A/Q,Other Regulatory Assets
+f1_othr_reg_liab,F1_49.DBF,278,A/Q,Other Regulatory Liabilities
+f1_overhead,F1_50.DBF,218,,
+f1_pccidica,F1_51.DBF,340,,
+f1_pins,F1_PINS.DBF,,,
+f1_plant,F1_92.DBF,"204, 214",A,Electric Plant Held for Future Use
+f1_plant_in_srvce,F1_52.DBF,204-207,A,Electric Plant in Service
+f1_privilege,F1_81.DBF,,,
+f1_pumped_storage,F1_53.DBF,408-409,A,Pumped Storage Generating Plant Statistics (Large Plants)
+f1_purchased_pwr,F1_54.DBF,326-327,A,Purchased Power
+f1_r_d_demo_actvty,F1_59.DBF,352-353,A,"Research, Development & Demonstration Activities"
+f1_reconrpt_netinc,F1_55.DBF,261,A,Recon of Reported Net Inc with Taxable Inc for Fed Inc Taxes
+f1_reg_comm_expn,F1_56.DBF,350-351,A,Regulatory Commission Expenses
+f1_respdnt_control,F1_57.DBF,103,A,Corporations Controlled by Respondent
+f1_respondent_id,F1_1.DBF,,,Respondent ID
+f1_retained_erng,F1_58.DBF,118-119,A/Q,Statement of Retained Earnings for the Year
+f1_rg_trn_srv_rev,F1_RG_TRN_SRV_REV.DBF,302,A/Q,Regional Transmission Service Revenues (Account 457.1)
+f1_row_lit_tbl,F1_84.DBF,,,Descriptive labels for each numbered row in the Form 1. Useful for discerning their semantic content.
+f1_s0_checks,F1_S0_CHECKS.DBF,,,
+f1_s0_filing_log,F1_S0_FILING_LOG.DBF,,,
+f1_sale_for_resale,F1_61.DBF,310-311,A,Sales for Resale
+f1_sales_by_sched,F1_60.DBF,304,A,Sales of Electricity by Rate Schedules
+f1_sbsdry_detail,F1_91.DBF,224-225,A,Investment in Subsidiary Companies (Account 123.1)
+f1_sbsdry_totals,F1_62.DBF,224-225,A,Investment in Subsidiary Companies (Total Line for Schedule)
+f1_sched_lit_tbl,F1_77.DBF,,,
+f1_schedules_list,F1_63.DBF,002-004,A/Q,List of Schedules
+f1_security,F1_SECURITY.DBF,106,,
+f1_security_holder,F1_64.DBF,106,,
+f1_slry_wg_dstrbtn,F1_65.DBF,354-355,A,Distribution of Salaries & Wages
+f1_steam,F1_89.DBF,402-403a,A,Steam-Elec Gen Plant Stats - Large Plants (Plant Information)
+f1_substations,F1_66.DBF,426-427,A,Substations
+f1_sys_error_log,F1_82.DBF,,,
+f1_taxacc_ppchrgyr,F1_67.DBF,262-263,A,"Taxes Accrued, Prepaid & Charged During Year"
+f1_unique_num_val,F1_83.DBF,,,
+f1_unrcvrd_cost,F1_68.DBF,230-230b,A,Unrecovered Plant & Regulatory Study Costs
+f1_utltyplnt_smmry,F1_69.DBF,200-201,A/Q,"Sum of Util. Plant & Acc Prov for Depr., Amort, & Depl"
+f1_work,F1_70.DBF,216,A,Construction Work in Progress - Electric
+f1_xmssn_adds,F1_71.DBF,424-425,A,Transmission Lines Added During Year
+f1_xmssn_elc_bothr,F1_72.DBF,332,A/Q,Transmission of Electricity by Others
+f1_xmssn_elc_fothr,F1_73.DBF,328-330,A/Q,Transmission of Electricity for Others
+f1_xmssn_line,F1_74.DBF,422-423,A,Transmission Line Statistics
+f1_xtraordnry_loss,F1_75.DBF,230-230a,A,Extraordinary Property Losses

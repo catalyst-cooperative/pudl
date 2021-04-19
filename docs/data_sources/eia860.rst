@@ -26,6 +26,11 @@ and planned entities with one or more megawatt of capacity. The form also contai
 information regarding environmental control equipment, and construction cost data from
 2013-2018.
 
+* :download:`EIA-860 Instructions (PDF, to 2020-03-31)
+  <eia860/eia860_instructions_2020-03-31.pdf>`
+* :download:`EIA-860 Instructions (PDF, to 2023-05-31)
+  <eia860/eia860_instructions_2020-03-31.pdf>`
+
 As of 2019, the EIA-860 Form is organized into the following schedules:
 
 * **Schedule 1:** Identification
@@ -35,7 +40,6 @@ As of 2019, the EIA-860 Form is organized into the following schedules:
 * **Schedule 6:** Boiler information
 
 (Schedule 5 contained generator construction cost information)
-
 
 Who is required to fill out the form?
 -------------------------------------

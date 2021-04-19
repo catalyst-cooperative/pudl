@@ -29,6 +29,11 @@ utility plants beginning in 1999. The Form EIA-923 has evolved over the years, b
 as an environmental add-on in 2007 and ultimately eclipsing the information previously
 recorded in EIA-906, EIA-920, FERC 423, and EIA-423 by 2008.
 
+* :download:`EIA-923 Instructions (PDF, to 2020-03-31)
+  <eia923/eia923_instructions_2020-03-31.pdf>`
+* :download:`EIA-923 Instructions (PDF, to 2023-05-31)
+  <eia923/eia923_instructions_2023-05-31.pdf>`
+
 As of 2019, the EIA-923 Form is organized into the following schedules:
 
 * **Schedule 2:** fuel receipts and costs

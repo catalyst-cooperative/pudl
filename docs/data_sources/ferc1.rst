@@ -64,22 +64,15 @@ application which allowed this database to be used in Microsoft Access has been
 discontinued. FERC's continued use of this database format creates a significant
 barrier to data access.
 
-Beyond that challenge, the structure of the database is poorly normalized, and the
-data itself does not appear to be subject to much if any quality control. Getting
-useful data out of this resource can be incredibly challenging.
+The FERC 1 database is poorly normalized, and the data itself does not appear
+to be subject to much quality control. The following documents can help provide useful
+context about the contents of the database:
 
+* :doc:`ferc1_db_notes`
 * :download:`FERC Form 1 Database Diagram (2015) <ferc1/ferc1_db_diagram_2015.pdf>`.
 * :download:`Blank FERC Form 1 (to 2014-12-31) <ferc1/ferc1_blank_2014-12-31.pdf>`
 * :download:`Blank FERC Form 1 (to 2019-12-31) <ferc1/ferc1_blank_2019-12-31.pdf>`
 * :download:`Blank FERC Form 1 (to 2022-11-30) <ferc1/ferc1_blank_2022-11-30.pdf>`
-
-Linking files, pages, and tables
---------------------------------
-
-.. csv-table::
-   :file: ferc1/ferc1_db_notes.csv
-   :header-rows: 1
-   :widths: auto
 
 Notable Irregularities
 ^^^^^^^^^^^^^^^^^^^^^^
