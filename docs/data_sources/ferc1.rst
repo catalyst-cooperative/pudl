@@ -65,14 +65,8 @@ discontinued. FERC's continued use of this database format creates a significant
 barrier to data access.
 
 The FERC 1 database is poorly normalized, and the data itself does not appear
-to be subject to much quality control. The following documents can help provide useful
-context about the contents of the database:
-
-* :doc:`ferc1_db_notes`
-* :download:`FERC Form 1 Database Diagram (2015) <ferc1/ferc1_db_diagram_2015.pdf>`.
-* :download:`Blank FERC Form 1 (to 2014-12-31) <ferc1/ferc1_blank_2014-12-31.pdf>`
-* :download:`Blank FERC Form 1 (to 2019-12-31) <ferc1/ferc1_blank_2019-12-31.pdf>`
-* :download:`Blank FERC Form 1 (to 2022-11-30) <ferc1/ferc1_blank_2022-11-30.pdf>`
+to be subject to much quality control. For more detaild context and
+documentation on a table-by-table basis, see :doc:`ferc1_db_notes`
 
 Notable Irregularities
 ^^^^^^^^^^^^^^^^^^^^^^
@@ -83,12 +77,12 @@ data tables use ``report_year``, ``respondent_id``, ``row_number``,
 ``spplmnt_num`` and ``report_prd`` as a composite primary key
 
 
-In practice, there are several thousand records (out of ~12 million), including
-some in almost every table, that violate the uniqueness constraint on those
-primary keys. Since there aren't many meaningful foreign key relationships
-anyway, rather than dropping the records with non-unique natural composite
-keys, we chose to preserve all of the records and use surrogate
-auto-incrementing primary keys in the cloned SQLite database.
+In practice, there are several thousand records (out of ~12 million), including some
+in almost every table, that violate the uniqueness constraint on those primary keys.
+Since there aren't many meaningful foreign key relationships anyway, rather than
+dropping the records with non-unique natural composite keys, we chose to preserve all
+of the records and use surrogate auto-incrementing primary keys in the cloned SQLite
+database.
 
 Lots of the data included in the FERC tables is extraneous and difficult to parse. None
 of the tables have record identification, and they sometimes contain multiple rows
