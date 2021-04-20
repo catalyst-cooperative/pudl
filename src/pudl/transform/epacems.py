@@ -105,9 +105,11 @@ def harmonize_eia_epa_orispl(df):
     """
     Harmonize the ORISPL code to match the EIA data -- NOT YET IMPLEMENTED.
 
-    The EIA plant IDs and CEMS ORISPL codes almost match, but not quite. See
-    https://www.epa.gov/sites/production/files/2018-02/documents/egrid2016_technicalsup
-    portdocument_0.pdf#page=104 for an example.
+    The EIA plant IDs and CEMS ORISPL codes almost match, but not quite. EPA has
+    compiled a crosswalk that maps one set of IDs to the other, but we haven't
+    integrated it yet. It can be found at:
+
+    https://github.com/USEPA/camd-eia-crosswalk
 
     Note that this transformation needs to be run *before* fix_up_dates, because
     fix_up_dates uses the plant ID to look up timezones.

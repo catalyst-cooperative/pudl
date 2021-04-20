@@ -43,9 +43,8 @@ Pull Requests
 * Please don't decrease the overall test coverage -- if you introduce new code
   it also needs to be exercised by the tests. See :doc:`testing` for
   details.
-* Write good docstrings, using the `Google docstring
-  <https://www.sphinx-doc.org/en/latest/usage/extensions/example_google.html>`__
-  format.
+* Write good docstrings, using the `Google format
+  <https://www.sphinx-doc.org/en/master/usage/extensions/example_google.html#example-google>`_
 * Pull Requests should update the documentation to reflect changes to the
   code, especially if it changes something user facing, like how one of the
   command line scripts works.

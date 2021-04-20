@@ -50,9 +50,9 @@ Table Name / Data Link,File Name,Pages,Freq,Table Description
 `f1_email <https://data.catalyst.coop/ferc1/f1_email>`_,F1_EMAIL.DBF,,,
 `f1_envrnmntl_expns <https://data.catalyst.coop/ferc1/f1_envrnmntl_expns>`_,F1_29.DBF,431,,
 `f1_envrnmntl_fclty <https://data.catalyst.coop/ferc1/f1_envrnmntl_fclty>`_,F1_30.DBF,430,,
-`f1_footnote_data <https://data.catalyst.coop/ferc1/f1_footnote_data>`_,F1_85.DBF,450,A/Q,Footnote Data
-`f1_footnote_tbl <https://data.catalyst.coop/ferc1/f1_footnote_tbl>`_,F1_87.DBF,,,
-`f1_freeze <https://data.catalyst.coop/ferc1/f1_freeze>`_,F1_FREEZE.DBF,,,
+f1_footnote_data,F1_85.DBF,450,A/Q,Footnote Data
+f1_footnote_tbl,F1_87.DBF,,,
+f1_freeze,F1_FREEZE.DBF,,,
 `f1_fuel <https://data.catalyst.coop/ferc1/f1_fuel>`_,F1_31.DBF,402-403b,A,Steam-Electric Generation Plant Statistics - Large Plants (Fuel Details)
 `f1_general_info <https://data.catalyst.coop/ferc1/f1_general_info>`_,F1_32.DBF,101,A,General Information
 `f1_gnrt_plant <https://data.catalyst.coop/ferc1/f1_gnrt_plant>`_,F1_33.DBF,410-411,A,Generating Plant Statistics (Small Plants)
@@ -70,7 +70,7 @@ Table Name / Data Link,File Name,Pages,Freq,Table Description
 `f1_mtrl_spply <https://data.catalyst.coop/ferc1/f1_mtrl_spply>`_,F1_40.DBF,"227, 228-229",A,Materials & Supplies
 `f1_nbr_elc_deptemp <https://data.catalyst.coop/ferc1/f1_nbr_elc_deptemp>`_,F1_41.DBF,320,,
 `f1_nonutility_prop <https://data.catalyst.coop/ferc1/f1_nonutility_prop>`_,F1_42.DBF,221,,
-`f1_note_fin_stmnt <https://data.catalyst.coop/ferc1/f1_note_fin_stmnt>`_,F1_43.DBF,122-123,A/Q,Notes to Financial Statements
+f1_note_fin_stmnt,F1_43.DBF,122-123,A/Q,Notes to Financial Statements
 `f1_nuclear_fuel <https://data.catalyst.coop/ferc1/f1_nuclear_fuel>`_,F1_44.DBF,202-203,A,Nuclear Fuel Materials
 `f1_officers_co <https://data.catalyst.coop/ferc1/f1_officers_co>`_,F1_45.DBF,104,A,Officers
 `f1_othr_dfrrd_cr <https://data.catalyst.coop/ferc1/f1_othr_dfrrd_cr>`_,F1_46.DBF,269,A,Other Deferred Credits
@@ -79,7 +79,7 @@ Table Name / Data Link,File Name,Pages,Freq,Table Description
 `f1_othr_reg_liab <https://data.catalyst.coop/ferc1/f1_othr_reg_liab>`_,F1_49.DBF,278,A/Q,Other Regulatory Liabilities
 `f1_overhead <https://data.catalyst.coop/ferc1/f1_overhead>`_,F1_50.DBF,218,,
 `f1_pccidica <https://data.catalyst.coop/ferc1/f1_pccidica>`_,F1_51.DBF,340,,
-`f1_pins <https://data.catalyst.coop/ferc1/f1_pins>`_,F1_PINS.DBF,,,
+f1_pins,F1_PINS.DBF,,,
 `f1_plant <https://data.catalyst.coop/ferc1/f1_plant>`_,F1_92.DBF,"204, 214",A,Electric Plant Held for Future Use
 `f1_plant_in_srvce <https://data.catalyst.coop/ferc1/f1_plant_in_srvce>`_,F1_52.DBF,204-207,A,Electric Plant in Service
 `f1_privilege <https://data.catalyst.coop/ferc1/f1_privilege>`_,F1_81.DBF,,,

@@ -56,7 +56,7 @@ needed, and organizes them in a local :doc:`datastore <dev/datastore>`.
 .. seealso::
 
     The software that creates and archives the raw inputs can be found in our `PUDL
-    Scrapers <https://github.com/catalyst-cooperative/pudl-scraper>`__ and `PUDL
+    Scrapers <https://github.com/catalyst-cooperative/pudl-scrapers>`__ and `PUDL
     Zenodo Storage <https://github.com/catalyst-cooperative/pudl-zenodo-storage>`__
     repositories on GitHub.
 

@@ -62,12 +62,12 @@ by state basis.
 
 FERC Form 714
 ^^^^^^^^^^^^^
-
-`FERC Form 714 <https://www.ferc.gov/docs-filing/forms/form-714/data.asp>`_ includes
-hourly loads, reported by load balancing authorities annually. This is a modestly sized
-dataset, in the 100s of MB, distributed as CSV files exported from a Visual FoxPro
-database prior to publication. All of the raw tables are being extracted, and a couple
-of them have been integrated into the transform process. None are in the PUDL DB yet.
+`FERC Form 714 <https://www.ferc.gov/industries-data/electric/general-information/electric-industry-forms/form-no-714-annual-electric/data>`_
+includes hourly loads, reported by load balancing authorities annually. This is a
+modestly sized dataset, in the 100s of MB, distributed as CSV files exported from a
+Visual FoxPro database prior to publication. All of the raw tables are being
+extracted, and a couple of them have been integrated into the transform process. None
+are in the PUDL DB yet.
 
 * :download:`FERC-714 Instructions (PDF, as of 2021-04-16)
   <ferc714/ferc714_instructions_2021-04-16.pdf>`
@@ -77,14 +77,14 @@ of them have been integrated into the transform process. None are in the PUDL DB
 FERC EQR
 ^^^^^^^^
 
-The `FERC EQR <https://www.ferc.gov/docs-filing/eqr/q2-2013/data/database.asp>`_ Also
-known as the Electricity Quarterly Report or Form 920, this dataset includes the details
-of many transactions between different utilities, and between utilities and merchant
-generators. It covers ancillary services as well as energy and capacity, time and
-location of delivery, prices, contract length, etc. It's one of the few public sources
-of information about renewable energy power purchase agreements (PPAs). This is a large
-(~100s of GB) dataset, composed of a very large number of relatively clean CSV files,
-but it requires fuzzy processing to get at some of the interesting and only indirectly
+The `FERC Electric Quarterly Reports (EQR) <https://www.ferc.gov/industries-data/electric/power-sales-and-markets/electric-quarterly-reports-eqr>`_,
+also known FERC Form 920, this dataset includes the details of many transactions
+between different utilities, and between utilities and merchant generators. It covers
+ancillary services as well as energy and capacity, time and location of delivery,
+prices, contract length, etc. It's one of the few public sources of information about
+renewable energy power purchase agreements (PPAs). This is a large (~100s of GB)
+dataset, composed of a very large number of relatively clean CSV files, but it
+requires fuzzy processing to get at some of the interesting and only indirectly
 reported attributes.
 
 .. _data-ferc2:
@@ -101,12 +101,12 @@ paints a detailed picture of the finances of natural gas utilities.
 PHMSA Natural Gas Pipelines
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The `PHMSA Natural Gas Pipelines
-<https://cms.phmsa.dot.gov/data-and-statistics/pipeline/gas-distribution-gas-gathering-gas-transmission-hazardous-liquids>`_
-dataset, published by the Pipeline and Hazardous Materials Safety Administration (which
-is part of the US Dept. of Transportation) collects data about the natural gas
-transmission and distribution system, including their age, length, diameter, materials,
-and carrying capacity.
+The `PHMSA Natural Gas Annual Report <https://www.phmsa.dot.gov/data-and-statistics/pipeline/gas-distribution-gas-gathering-gas-transmission-hazardous-liquids>`_,
+published by the Pipeline and Hazardous Materials Safety Administration (which is
+part of the US Dept. of Transportation) collects data about the natural gas
+gathering, transmission and distribution system, including their age, length,
+diameter, materials, and carrying capacity. It includes information about natural gas
+storage facilities and liquefied natural gas shipping facilities as well.
 
 .. _data-ces:
 

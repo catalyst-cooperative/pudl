@@ -117,9 +117,6 @@ within that collection of options.
 This is one aspect of a broader "least common denominator" strategy that is
 common within the open data. This strategy is also behind our decision to
 distribute the processed data as CSV files (with metadata stored as JSON).
-Frictionless Data
-`makes the case <https://frictionlessdata.io/docs/csv/>`__ for CSV files
-in their documentation.
 
 -------------------------------------------------------------------------------
 Use Consistent Units
