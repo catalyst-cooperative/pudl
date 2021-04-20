@@ -45,6 +45,7 @@ PUDL Data Dictionary
 -------------------------------------------------------------------------------
 {{ resource.name }}
 -------------------------------------------------------------------------------
+`Browse or query this table in Datasette. <https://data.catalyst.coop/pudl/{{ resource.name }}>`__
 
 .. list-table::
   :widths: auto
@@ -78,6 +79,11 @@ def datapkg2rst(meta_json, meta_rst):
         metadata_dict["resources"],
         key=lambda x: x["name"]
     )
+    for resource in metadata_dict["resources"]:
+        resource["schema"]["fields"] = sorted(
+            resource["schema"]["fields"],
+            key=lambda x: x["name"]
+        )
 
     logger.info("Converting json metadata into an rst file")
 
