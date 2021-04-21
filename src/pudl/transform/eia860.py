@@ -11,6 +11,11 @@ from pudl import constants as pc
 logger = logging.getLogger(__name__)
 
 
+OWNERSHIP_DUPLICATE_PLANT_GEN_IDS = (56032, )
+"""tuple: EIA Plant IDs which have duplicate generators within the ownership table due
+to the removal of leading zeroes from the generator IDs."""
+
+
 def ownership(eia860_dfs, eia860_transformed_dfs):
     """
     Pull and transform the ownership table.
@@ -36,7 +41,7 @@ def ownership(eia860_dfs, eia860_transformed_dfs):
 
     """
     # Preiminary clean and get rid of unecessary 'year' column
-    o_df = (
+    own_df = (
         eia860_dfs['ownership'].copy()
         .pipe(pudl.helpers.fix_eia_na)
         .pipe(pudl.helpers.convert_to_date)
@@ -46,29 +51,38 @@ def ownership(eia860_dfs, eia860_transformed_dfs):
     # The fix we're making here is only known to be valid for 2011 -- if we
     # get older data... then we need to to revisit the cleaning function and
     # make sure it also applies to those earlier years.
-    if (min(o_df.report_date.dt.year)
+    if (min(own_df.report_date.dt.year)
             < min(pc.working_partitions['eia860']['years'])):
         raise ValueError(
             f"EIA 860 transform step is only known to work for "
             f"year {min(pc.working_partitions['eia860']['years'])} and later, "
-            f"but found data from year {min(o_df.report_date.dt.year)}."
+            f"but found data from year {min(own_df.report_date.dt.year)}."
         )
 
     # Prior to 2012, ownership was reported as a percentage, rather than
     # as a proportion, so we need to divide those values by 100.
-    o_df.loc[o_df.report_date.dt.year < 2012, 'fraction_owned'] = \
-        o_df.loc[o_df.report_date.dt.year < 2012, 'fraction_owned'] / 100
+    own_df.loc[own_df.report_date.dt.year < 2012, 'fraction_owned'] = \
+        own_df.loc[own_df.report_date.dt.year < 2012, 'fraction_owned'] / 100
 
-    o_df = (
-        o_df.astype({
-            "owner_utility_id_eia": pd.Int64Dtype(),
-            "utility_id_eia": pd.Int64Dtype(),
-            "plant_id_eia": pd.Int64Dtype(),
-            "owner_state": pd.StringDtype()
-        })
-    )
+    own_pk = [
+        'report_date',
+        'plant_id_eia',
+        'generator_id',
+        'owner_utility_id_eia'
+    ]
+    dupes_to_drop = own_df[own_df.duplicated(subset=own_pk)]
+    dupes_to_drop = dupes_to_drop[
+        dupes_to_drop.plant_id_eia.isin(OWNERSHIP_DUPLICATE_PLANT_GEN_IDS)]
+    own_df = own_df.drop(dupes_to_drop.index)
 
-    eia860_transformed_dfs['ownership_eia860'] = o_df
+    own_df = own_df.astype({
+        "owner_utility_id_eia": pd.Int64Dtype(),
+        "utility_id_eia": pd.Int64Dtype(),
+        "plant_id_eia": pd.Int64Dtype(),
+        "owner_state": pd.StringDtype()
+    })
+
+    eia860_transformed_dfs['ownership_eia860'] = own_df
 
     return eia860_transformed_dfs
 

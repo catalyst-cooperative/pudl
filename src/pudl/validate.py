@@ -98,7 +98,7 @@ def check_unique_rows(df, subset=None, df_name=""):
     n_dupes = len(df[df.duplicated(subset=subset)])
     if n_dupes != 0:
         raise ValueError(
-            f"Found {n_dupes} dupes of in dataframe {df_name}")
+            f"Found {n_dupes} dupes of {subset} in dataframe {df_name}")
 
     return df
 
