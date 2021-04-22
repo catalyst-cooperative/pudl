@@ -551,7 +551,7 @@ def plant_fuel_proportions_gf_eia923(gf_df):
 
 
 def primary_fuel_gf_eia923(gf_df, id_col='plant_id_eia', fuel_thresh=0.5):
-    """Determines a plant's primary fuel from EIA923 generation fuel table."""
+    """Determine a plant's primary fuel from EIA923 generation fuel table."""
     gf_df = gf_df.copy()
 
     # Figure out the heat content proportions of each fuel received:
