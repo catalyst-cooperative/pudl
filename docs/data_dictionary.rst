@@ -3,45 +3,6 @@
 PUDL Data Dictionary
 ===============================================================================
 
-.. _accumulated_depreciation_ferc1:
-
--------------------------------------------------------------------------------
-accumulated_depreciation_ferc1
--------------------------------------------------------------------------------
-`Browse or query this table in Datasette. <https://data.catalyst.coop/pudl/accumulated_depreciation_ferc1>`__
-
-.. list-table::
-  :widths: auto
-  :header-rows: 1
-
-  * - **Field Name**
-    - **Type**
-    - **Description**
-  * - electric_plant
-    - number
-    - Electric Plant In Service. Nominal USD.
-  * - future_plant
-    - number
-    - Electric Plant Held for Future Use. Nominal USD.
-  * - leased_plant
-    - number
-    - Electric Plant Leased to Others. Nominal USD.
-  * - line_id
-    - string
-    - Line numbers, and corresponding FERC account number from FERC Form 1, page 2019, Accumulated Provision for Depreciation of Electric Utility Plant (Account 108).
-  * - record_id
-    - string
-    - Identifier indicating original FERC Form 1 source record. format: {table_name}_{report_year}_{report_prd}_{respondent_id}_{spplmnt_num}_{row_number}. Unique within FERC Form 1 DB tables which are not row-mapped.
-  * - report_year
-    - year
-    - Four-digit year in which the data was reported.
-  * - total
-    - number
-    - Total of Electric Plant In Service, Electric Plant Held for Future Use, and Electric Plant Leased to Others. Nominal USD.
-  * - utility_id_ferc1
-    - integer
-    - FERC-assigned respondent_id, identifying the reporting entity. Stable from year to year.
-
 .. _assn_gen_eia_unit_epa:
 
 -------------------------------------------------------------------------------
@@ -221,27 +182,6 @@ coalmine_eia923
   * - state
     - string
     - Two letter US state abbreviations and three letter ISO-3166-1 country codes for international mines.
-
-.. _datasets:
-
--------------------------------------------------------------------------------
-datasets
--------------------------------------------------------------------------------
-`Browse or query this table in Datasette. <https://data.catalyst.coop/pudl/datasets>`__
-
-.. list-table::
-  :widths: auto
-  :header-rows: 1
-
-  * - **Field Name**
-    - **Type**
-    - **Description**
-  * - active
-    - boolean
-    - Indicates whether or not the dataset has been pulled into PUDL by the extract transform load process.
-  * - datasource
-    - string
-    - Code identifying a dataset available within PUDL.
 
 .. _energy_source_eia923:
 
@@ -918,60 +858,6 @@ hourly_emissions_epacems
     - string
     - Facility-specific unit id (e.g. Unit 4)
 
-.. _load_curves_epaipm:
-
--------------------------------------------------------------------------------
-load_curves_epaipm
--------------------------------------------------------------------------------
-`Browse or query this table in Datasette. <https://data.catalyst.coop/pudl/load_curves_epaipm>`__
-
-.. list-table::
-  :widths: auto
-  :header-rows: 1
-
-  * - **Field Name**
-    - **Type**
-    - **Description**
-  * - day_of_year
-    - integer
-    - Day of the year
-  * - hour
-    - integer
-    - Hour of the day (0-23). Original IPM values were 1-24.
-  * - load_mw
-    - number
-    - Load (MW) in an hour of the day for the IPM region
-  * - month
-    - integer
-    - Month of the year
-  * - region_id_epaipm
-    - string
-    - Name of the IPM region
-  * - time_index
-    - integer
-    - 8760 index hour of the year
-
-.. _natural_gas_transport_eia923:
-
--------------------------------------------------------------------------------
-natural_gas_transport_eia923
--------------------------------------------------------------------------------
-`Browse or query this table in Datasette. <https://data.catalyst.coop/pudl/natural_gas_transport_eia923>`__
-
-.. list-table::
-  :widths: auto
-  :header-rows: 1
-
-  * - **Field Name**
-    - **Type**
-    - **Description**
-  * - abbr
-    - string
-    - N/A
-  * - status
-    - string
-    - N/A
-
 .. _ownership_eia860:
 
 -------------------------------------------------------------------------------
@@ -1325,27 +1211,6 @@ plant_in_service_ferc1
   * - utility_id_ferc1
     - integer
     - FERC assigned respondent_id, identifying the reporting entity. Stable from year to year.
-
-.. _plant_region_map_epaipm:
-
--------------------------------------------------------------------------------
-plant_region_map_epaipm
--------------------------------------------------------------------------------
-`Browse or query this table in Datasette. <https://data.catalyst.coop/pudl/plant_region_map_epaipm>`__
-
-.. list-table::
-  :widths: auto
-  :header-rows: 1
-
-  * - **Field Name**
-    - **Type**
-    - **Description**
-  * - plant_id_eia
-    - integer
-    - The unique six-digit facility identification number, also called an ORISPL, assigned by the Energy Information Administration.
-  * - region
-    - string
-    - Name of the IPM region
 
 .. _plant_unit_epa:
 
@@ -2162,84 +2027,6 @@ purchased_power_ferc1
   * - utility_id_ferc1
     - integer
     - FERC assigned respondent_id, identifying the reporting entity. Stable from year to year.
-
-.. _regions_entity_epaipm:
-
--------------------------------------------------------------------------------
-regions_entity_epaipm
--------------------------------------------------------------------------------
-`Browse or query this table in Datasette. <https://data.catalyst.coop/pudl/regions_entity_epaipm>`__
-
-.. list-table::
-  :widths: auto
-  :header-rows: 1
-
-  * - **Field Name**
-    - **Type**
-    - **Description**
-  * - region_id_epaipm
-    - string
-    - N/A
-
-.. _transmission_joint_epaipm:
-
--------------------------------------------------------------------------------
-transmission_joint_epaipm
--------------------------------------------------------------------------------
-`Browse or query this table in Datasette. <https://data.catalyst.coop/pudl/transmission_joint_epaipm>`__
-
-.. list-table::
-  :widths: auto
-  :header-rows: 1
-
-  * - **Field Name**
-    - **Type**
-    - **Description**
-  * - firm_ttc_mw
-    - number
-    - Transfer capacity with N-1 lines (used for reserve margins)
-  * - joint_constraint_id
-    - integer
-    - Identification of groups that make up a single joint constraint
-  * - nonfirm_ttc_mw
-    - number
-    - Transfer capacity with N-0 lines (used for energy sales)
-  * - region_from
-    - string
-    - Name of the IPM region sending electricity
-  * - region_to
-    - string
-    - Name of the IPM region receiving electricity
-
-.. _transmission_single_epaipm:
-
--------------------------------------------------------------------------------
-transmission_single_epaipm
--------------------------------------------------------------------------------
-`Browse or query this table in Datasette. <https://data.catalyst.coop/pudl/transmission_single_epaipm>`__
-
-.. list-table::
-  :widths: auto
-  :header-rows: 1
-
-  * - **Field Name**
-    - **Type**
-    - **Description**
-  * - firm_ttc_mw
-    - number
-    - Transfer capacity with N-1 lines (used for reserve margins)
-  * - nonfirm_ttc_mw
-    - number
-    - Transfer capacity with N-0 lines (used for energy sales)
-  * - region_from
-    - string
-    - Name of the IPM region sending electricity
-  * - region_to
-    - string
-    - Name of the IPM region receiving electricity
-  * - tariff_mills_kwh
-    - number
-    - Cost to transfer electricity between regions
 
 .. _transport_modes_eia923:
 

@@ -58,8 +58,8 @@ The data is published as a collection of Visual FoxPro databases, one per year
 beginning in 1994. The databases all share a very similar structure, with a total of
 116 data tables containing ~8GB of raw data (though 90% of that data is in 3 tables
 containing binary data). The `final release of Visual FoxPro was v9.0 in 2007
-<https://en.wikipedia.org/wiki/Visual_FoxPro>`_. Its `extended support period ended
-in 2015 <https://www.foxpro.co.uk/foxpro-end-of-life-and-you/>`_. The bridge
+<https://en.wikipedia.org/wiki/Visual_FoxPro>`__. Its `extended support period ended
+in 2015 <https://www.foxpro.co.uk/foxpro-end-of-life-and-you/>`__. The bridge
 application which allowed this database to be used in Microsoft Access has been
 discontinued. FERC's continued use of this database format creates a significant
 barrier to data access.

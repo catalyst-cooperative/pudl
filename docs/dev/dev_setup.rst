@@ -15,7 +15,7 @@ or Linux) and are already familiar with ``git``, GitHub, and the Unix shell.
     While it should be possible to set up the development environment on Windows, we
     haven't done it. In the future we may create a Docker image that provides the
     development environment. E.g. for use with `VS Code's Containers extension
-    <https://code.visualstudio.com/docs/remote/containers>`_.
+    <https://code.visualstudio.com/docs/remote/containers>`__.
 
 .. note::
 
@@ -23,7 +23,7 @@ or Linux) and are already familiar with ``git``, GitHub, and the Unix shell.
     check out:
 
     * `The Github Workflow <https://guides.github.com/introduction/flow/>`__
-    * `Collaborative Development Models <https://help.github.com/en/articles/about-collaborative-development-models>`_
+    * `Collaborative Development Models <https://help.github.com/en/articles/about-collaborative-development-models>`__
     * `Forking a Repository <https://help.github.com/en/articles/fork-a-repo>`__
     * `Cloning a Repository <https://help.github.com/articles/cloning-a-repository/>`__
 

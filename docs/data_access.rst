@@ -2,11 +2,11 @@
 Data Access
 =======================================================================================
 
-We publish the processed data output by the :doc:`PUDL pipeline <intro>`
-in several ways, to serve different users and use cases. We're always trying to
-increase accessibility of the PUDL data, so if you have suggestions or questions please
-`open a GitHub issue <https://github.com/catalyst-cooperative/pudl/issues>`__ or
-email us at pudl@catalyst.coop.
+We publish the :doc:`PUDL pipeline <intro>` outputs in several ways to serve
+different users and use cases. We're always trying to increase accessibility of the
+PUDL data, so if you have suggestions or questions please `open a GitHub issue
+<https://github.com/catalyst-cooperative/pudl/issues>`__ or email us at
+pudl@catalyst.coop.
 
 .. _access-modes:
 
@@ -56,7 +56,7 @@ Datasette
 ---------------------------------------------------------------------------------------
 
 We provide web-based access to the PUDL data via a
-`Datasette <https://datasette.io>`_ deployment at `<https://data.catalyst.coop>`_.
+`Datasette <https://datasette.io>`__ deployment at `<https://data.catalyst.coop>`__.
 
 Datasette is an open source tool that wraps SQLite databases in an interactive
 front-end. It allows users to browse database tables, select portions of them using
@@ -67,8 +67,8 @@ data you've selected.
 
 Note that only data which has been fully integrated into the SQLite databases are
 available here. Currently this includes `the core PUDL database
-<https://data.catalyst.coop/pudl>`_ and our concatenation of `all historical FERC
-Form 1 databases <https://data.catalyst.coop/ferc1>`_.
+<https://data.catalyst.coop/pudl>`__ and our concatenation of `all historical FERC
+Form 1 databases <https://data.catalyst.coop/ferc1>`__.
 
 .. _access-zenodo:
 
@@ -80,10 +80,10 @@ We use Zenodo to archive our fully processed data as a SQLite databasees and
 Parquet files. We also archive a Docker image that contains the software environment
 required to use PUDL within Jupyter Notebooks. You can find all our archived data
 products in `the Catalyst Cooperative Community on Zenodo
-<https://zenodo.org/communities/catalyst-cooperative/>`_ .
+<https://zenodo.org/communities/catalyst-cooperative/>`__.
 
 * The current (beta) version of the archived data and Docker container can be
-  downloaded from `This Zenodo archive <https://sandbox.zenodo.org/record/764417>`_
+  downloaded from `This Zenodo archive <https://sandbox.zenodo.org/record/764417>`__
 * Detailed instructions on how to access the archived PUDL data using a Docker
   container can be found in our `PUDL Examples repository
   <https://github.com/catalyst-cooperative/pudl-examples/>`__.
@@ -94,7 +94,7 @@ products in `the Catalyst Cooperative Community on Zenodo
 .. note::
 
    If you're already familiar with Docker, you can also pull
-   `the image we use <https://hub.docker.com/r/catalystcoop/pudl-jupyter>`_ to run
+   `the image we use <https://hub.docker.com/r/catalystcoop/pudl-jupyter>`__ to run
    Jupyter directly:
 
    .. code-block:: console
@@ -107,14 +107,14 @@ products in `the Catalyst Cooperative Community on Zenodo
 JupyterHub
 ---------------------------------------------------------------------------------------
 
-We've set up a `JupyterHub <https://jupyter.org/hub>`_ in collaboration with
-`2i2c.org <https://2i2c.org>`_ which provides access to all of the processed PUDL
+We've set up a `JupyterHub <https://jupyter.org/hub>`__ in collaboration with
+`2i2c.org <https://2i2c.org>`__ which provides access to all of the processed PUDL
 data and the software environment required to work with it. You don't have to
 download or install anything to use it, but we do need to create an account for you.
 
-* Request an account by submitting `this form <https://forms.gle/TN3GuE2e2mnWoFC4A>`_.
+* Request an account by submitting `this form <https://forms.gle/TN3GuE2e2mnWoFC4A>`__.
 * Once we've created an account for you
-  `follow this link <https://bit.ly/pudl-examples-01>`_ to log in and open up the first
+  `follow this link <https://bit.ly/pudl-examples-01>`__ to log in and open up the first
   example notebook on the JupyterHub.
 * You can create your own notebooks and upload, save, and download modest amounts of
   data on the hub.

@@ -3,13 +3,13 @@ Contributing to PUDL
 ===============================================================================
 
 Welcome! We're excited that you're interested in contributing to the Public Utility
-Data Liberation effort! PUDL is an source project that has been supported by a
-combination of volunteer efforts, grant funding (Thanks to the `Alfred P. Sloan
-Foundation <https://sloan.org>`_), and reinvestment of Catalyst Cooperative's surplus
-income. The work is currently being coordinated by the members of `Catalyst
-Cooperative <https://catalyst.coop>`_. PUDL is meant to serve a wide variety of
-public interests including academic research, climate advocacy, data journalism, and
-public policy making.
+Data Liberation effort! The work is currently being coordinated by the members of the
+`Catalyst Cooperative <https://catalyst.coop>`__. PUDL is meant to serve a wide
+variety of public interests including academic research, climate advocacy, data
+journalism, and public policy making. This open source project has been supported by
+a combination of volunteer contributions, grant funding from the `Alfred P. Sloan
+Foundation <https://sloan.org>`__, and reinvestment of net income from the
+cooperative's client projects.
 
 Please make sure you review our :doc:`code of conduct <code_of_conduct>`, which is
 based on the `Contributor Covenant <https://www.contributor-covenant.org/>`__. We
@@ -20,9 +20,9 @@ experience and diverse personal backgrounds.
 How to Get Involved
 -------------------------------------------------------------------------------
 
-We welcome just about any kind of contribution to the project. Alone we'll
-never be able to understand every use case or integrate all the available data.
-The project will serve the community better if other folks get involved.
+We welcome just about any kind of contribution to the project. Alone, we'll never be
+able to understand every use case or integrate all the available data. The project
+will serve the community better if other folks get involved.
 
 There are lots of ways to contribute -- it's not all about code!
 
@@ -30,7 +30,7 @@ There are lots of ways to contribute -- it's not all about code!
 * `Suggest new data and features <https://github.com/catalyst-cooperative/pudl/issues/new?template=feature_request.md>`__ that would be useful.
 * `File bug reports <https://github.com/catalyst-cooperative/pudl/issues/new?template=bug_report.md>`__ on Github.
 * Help expand and improve the documentation, or create new
-  `example notebooks <https://github.com/catalyst-cooperative/pudl-examples/>`_
+  `example notebooks <https://github.com/catalyst-cooperative/pudl-examples/>`__
 * Help us create more and better software :doc:`test cases <dev/testing>`.
 * Give us feedback on overall usability -- what's confusing?
 * Tell us a story about how you're using of the data.
@@ -86,6 +86,6 @@ community of users to help each other!
 Don't hesitate to open an issue with a `feature request
 <https://github.com/catalyst-cooperative/pudl/issues/new?template=feature_request.md>`__,
 or a pointer to energy data that needs liberating, or a reference to documentation
-that's out of date, or unclear, or missing. Understanding how people are using the
-software, and how they would *like* to be using the software is very valuable, and
+that's out of date, unclear, or missing. Understanding how people are using the
+software, and how they would *like* to be using the software, is very valuable and
 will help us make it more useful and usable.

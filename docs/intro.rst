@@ -38,7 +38,7 @@ Raw Data Archives
 
 Because the original data PUDL depends on frequently changes, and old versions don't
 remain available, we periodically create archives of `the raw inputs on Zenodo
-<https://zenodo.org/communities/catalyst-cooperative>`_. They are issued DOIs
+<https://zenodo.org/communities/catalyst-cooperative>`__. They are issued DOIs
 and made available via Zenodo's REST API. Each data source can have several different
 versions, each with its own unique DOI. Each release of the PUDL Python package has a
 set of DOIs embedded in it, indicating which version of the raw inputs it is meant to

@@ -4,20 +4,20 @@ Project Management
 
 The people working on PUDL are distributed all over North America.
 Collaboration takes place online. We make extensive use of Github's project
-management tools, as well as `Zenhub <https://www.zenhub.com>`_ which provides
+management tools, as well as `Zenhub <https://www.zenhub.com>`__ which provides
 additional features for sprint planning, task estimation, and progress reports.
 
 -------------------------------------------------------------------------------
 Issues and Project Tracking
 -------------------------------------------------------------------------------
-We use `Github issues <https://github.com/catalyst-cooperative/pudl/issues>`_ to
+We use `Github issues <https://github.com/catalyst-cooperative/pudl/issues>`__ to
 track bugs, enhancements, support requests, and just about any other work that goes
 into the project. Try to make sure that issues have informative tags so we can find
 them easily.
 
 We use Zenhub Sprints, Epics, and Releases to track our progress. These won't be
 visible unless you have the `ZenHub browser extension
-<https://www.zenhub.com/extension>`_ installed.
+<https://www.zenhub.com/extension>`__ installed.
 
 -------------------------------------------------------------------------------
 GitHub Workflow
@@ -39,12 +39,12 @@ Pull Requests
   figure out why and fix it, or ask for help. If the tests fail we don't want
   to merge it into **dev**. You can see the status of the CI builds in the
   `GitHub Actions for the PUDL repo
-  <https://github.com/catalyst-cooperative/pudl/actions>`_.
+  <https://github.com/catalyst-cooperative/pudl/actions>`__.
 * Please don't decrease the overall test coverage -- if you introduce new code
   it also needs to be exercised by the tests. See :doc:`testing` for
   details.
 * Write good docstrings, using the `Google format
-  <https://www.sphinx-doc.org/en/master/usage/extensions/example_google.html#example-google>`_
+  <https://www.sphinx-doc.org/en/master/usage/extensions/example_google.html#example-google>`__
 * Pull Requests should update the documentation to reflect changes to the
   code, especially if it changes something user facing, like how one of the
   command line scripts works.
@@ -53,9 +53,9 @@ Pull Requests
 Releases
 -------------------------------------------------------------------------------
 * Periodically, we tag a new release on **main** and upload the packages to
-  the Python Package Index and `conda-forge <https://conda-forge.org/>`_.
+  the Python Package Index and `conda-forge <https://conda-forge.org/>`__.
 * Whenever we tag a release on Github, the repository is archived on `Zenodo
-  <https://zenodo.org>`_ and issued a DOI.
+  <https://zenodo.org>`__ and issued a DOI.
 * For some software releases, we archive processed data on Zenodo along with a
   Docker container that encapsulates the necessary software environment.
 

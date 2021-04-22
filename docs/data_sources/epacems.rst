@@ -18,25 +18,26 @@ Issues              `Open EPA CEMS issues <https://github.com/catalyst-cooperati
 Background
 ^^^^^^^^^^
 
-As depicted by the EPA, `Continuous Emissions Monitoring Systems (CEMS) <https://www.epa.gov/emc/emc-continuous-emission-monitoring-systems>`_
-are the “total equipment necessary for the determination of a gas or particulate matter
+As depicted by the EPA, `Continuous Emissions Monitoring Systems (CEMS)
+<https://www.epa.gov/emc/emc-continuous-emission-monitoring-systems>`__ are the
+“total equipment necessary for the determination of a gas or particulate matter
 concentration or emission rate.” They are used to determine compliance with EPA
 emissions standards and are therefore associated with a given “smokestack” and are
 categorized in the raw data by a corresponding ``unitid``. Because point sources of
-pollution are not alway correlated on a one-to-one basis with generation units, the CEMS
-``unitid`` serves as its own unique grouping. The EPA in collaboration with the EIA has
-released a crosswalk file mapping the EPA’s ``unitid`` onto EIA’s ``boiler_id``,
-``generator_id``, and ``plant_id_eia``. This file has been integrated into the SQL
-database.
+pollution are not alway correlated on a one-to-one basis with generation units, the
+CEMS ``unitid`` serves as its own unique grouping. The EPA in collaboration with the
+EIA has developed `a crosswalk table <https://github.com/USEPA/camd-eia-crosswalk>`__
+that maps the EPA’s ``unitid`` onto EIA’s ``boiler_id``, ``generator_id``, and
+``plant_id_eia``. This file has been integrated into the SQL database.
 
-The EPA `Clean Air Markets Division (CAMD) <https://www.epa.gov/airmarkets>`_ has
+The EPA `Clean Air Markets Division (CAMD) <https://www.epa.gov/airmarkets>`__ has
 collected emissions data from CEMS units stretching back to 1995. Among the data
 included in CEMS are hourly SO2, CO2, NOx emission and gross load.
 
 Who is required to install CEMS and report to EPA?
 --------------------------------------------------
 
-`Part 75 <https://www.ecfr.gov/cgi-bin/retrieveECFR?gp=&SID=d20546b42dd4ea978d0de7eabe15cbf4&mc=true&n=pt40.18.75&r=PART&ty=HTML#se40.18.75_12>`_
+`Part 75 <https://www.ecfr.gov/cgi-bin/retrieveECFR?gp=&SID=d20546b42dd4ea978d0de7eabe15cbf4&mc=true&n=pt40.18.75&r=PART&ty=HTML#se40.18.75_12>`__
 of the Federal Code of Regulations (FRC), the backbone of the Clean Air Act Title IV and
 Acid Rain Program, requires coal and other solid-combusting units (see §72.2) to install
 and use CEMS (see §75.2, §72.6). Certain low-sulfur fueled gas and oil units (see §72.2)
@@ -48,14 +49,14 @@ missing data calculations and backup monitoring for instances of CEMS failure (s
 §§75,31-37).
 
 A plain English explanation of the requirements of Part 75 is available in section
-`2.0 Overview of Part 75 Monitoring Requirements <https://www.epa.gov/sites/production/files/2015-05/documents/plain_english_guide_to_the_part_75_rule.pdf>`_
+`2.0 Overview of Part 75 Monitoring Requirements <https://www.epa.gov/sites/production/files/2015-05/documents/plain_english_guide_to_the_part_75_rule.pdf>`__
 
 What does the original data look like?
 --------------------------------------
 
-EPA CAMD publishes the CEMS data in an online `data portal <https://ampd.epa.gov/ampd/>`_
-. The files are available in a prepackaged format, accessible via a `user interface <https://ampd.epa.gov/ampd/>`_
-or `FTP site <ftp://newftp.epa.gov/DMDnLoad>`_ with each downloadable zip file
+EPA CAMD publishes the CEMS data in an online `data portal <https://ampd.epa.gov/ampd/>`__
+. The files are available in a prepackaged format, accessible via a `user interface <https://ampd.epa.gov/ampd/>`__
+or `FTP site <ftp://newftp.epa.gov/DMDnLoad>`__ with each downloadable zip file
 encompassing a year of data.
 
 How much of the data is accessible through PUDL?
@@ -65,13 +66,14 @@ All of it!
 
 Notable Irregularities
 ^^^^^^^^^^^^^^^^^^^^^^
-
-CEMS is by far the largest dataset in PUDL at the moment, with hourly
-records for thousands of plants covering decades. Note that the ETL process
-can easily take all day for the full dataset. PUDL also provides a script that
-converts the raw EPA CEMS data into Apache Parquet files, which can be read
-and queried very efficiently with Dask. Check out our CEMS example notebook for help
-accessing the data.
+CEMS is by far the largest dataset in PUDL at the moment, with hourly records for
+thousands of plants covering decades. Note that the ETL process can easily take all
+day for the full dataset. PUDL also provides a script that converts the raw EPA CEMS
+data into Apache Parquet files, which can be read and queried very efficiently with
+Dask. Check out the `EPA CEMS example notebook <https://github.com/catalyst-cooperative/pudl-examples/blob/main/notebooks/03-pudl-parquet.ipynb>`__
+in our
+`pudl-examples repository <https://github.com/catalyst-cooperative/pudl-examples>`__
+on GitHub for pointers on how to access this big dataset efficiently using :mod:`dask`.
 
 PUDL Data Tables
 ^^^^^^^^^^^^^^^^
@@ -88,8 +90,8 @@ The PUDL transformation process cleans the input data so that it is adjusted for
 uniformity, corrected for errors, and ready for bulk programmatic use.
 
 To see the transformations applied to the data in each table, you can read the
-`doc-strings <https://catalystcoop-pudl.readthedocs.io/en/latest/api/pudl.transform.epacems.html>`_
-created for their respective transform functions.
+documentation for :mod:`pudl.transform.epacems` created for their respective
+transform functions.
 
-Thanks to `Karl Dunkle Werner <https://github.com/karldw>`_ for contributing
-much of the EPA CEMS Hourly ETL code.
+Thanks to `Karl Dunkle Werner <https://github.com/karldw>`__ for contributing
+much of the EPA CEMS Hourly ETL code!

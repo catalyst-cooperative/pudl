@@ -58,7 +58,7 @@ Approximately a year after respondents submit their form, the EIA publishes the 
 a series of spreadsheets that reflect the thematic contents of the form. These
 spreadsheets can change year-to-year as the questions in the form are updated and as EIA
 adopts new formatting standards for their outputs. They are accessible on the `EIA
-website <https://www.eia.gov/electricity/data/eia860/>`_ as downloadable ZIP files
+website <https://www.eia.gov/electricity/data/eia860/>`__ as downloadable ZIP files
 categorized by year. To gain greater insight into year-to-year nuances of the form, we
 recommend downloading multiple years of EIA-860 ZIP files and comparing both the Form
 and the Form Instructions files. See below for our description of notable irregularities
@@ -88,9 +88,10 @@ EIA 860 includes a table in “Schedule 6: Boiler Information” which is an ass
 table between boilers and generators. This association is important because in EIA 923
 the net generation is reported by generators and the fuel consumption is reported by
 boilers - so a good boiler generator association is crucial for understanding heat
-rates. Unfortunately, the reported association is incomplete, but we have used a four
-step methodology that creates a complete association for 2014 and on. See our
-`blog post <https://catalyst.coop/2018/08/07/boiler-generator-associations/>`_ and
+rates. Unfortunately, the reported associations are incomplete. We have implemented a
+methodology fills in many of the missing links 2014 and later, and covers more than 95%
+net generation reported in the :ref:`generation_eia923` table. See
+`this blog post <https://catalyst.coop/2018/08/07/boiler-generator-associations/>`__ and
 :mod:`pudl.transform.eia` for more information.
 
 PUDL Data Tables

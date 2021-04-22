@@ -20,14 +20,14 @@ we've heard demand for are listed below. If you're interested in using one of th
 would like to add it to PUDL, check out :doc:`our contribution guidelines
 <../CONTRIBUTING>`. If there are other datasets you think we should be looking at
 integration, don't hesitate to `open an issue on Github
-<https://github.com/catalyst-cooperative/pudl/issues>`_ requesting the data and
+<https://github.com/catalyst-cooperative/pudl/issues>`__ requesting the data and
 explaining why it would be useful.
 
 .. _data-censusdp1tract:
 
 Census DP1
 ^^^^^^^^^^
-The `US Census Demographic Profile 1 (DP1) <https://www.census.gov/geographies/mapping-files/2010/geo/tiger-data.html>`_
+The `US Census Demographic Profile 1 (DP1) <https://www.census.gov/geographies/mapping-files/2010/geo/tiger-data.html>`__
 provides Census tract, county, and state-level demographic information, along with the
 geometries defining those areas. We use this information in generating historical
 utility and balancing authority service territories based on FERC 714 and EIA 861 data.
@@ -37,7 +37,7 @@ Currently we are distributing the Census DP1 data as a standalone SQLite DB.
 
 EIA Form 861
 ^^^^^^^^^^^^
-The `EIA Form 861 <https://www.eia.gov/electricity/data/eia861/>`_, also known as the
+The `EIA Form 861 <https://www.eia.gov/electricity/data/eia861/>`__, also known as the
 **Annual Electric Power Industry Report**, compiles information on load, generation,
 capacity, sales, revenues, programs, and more. Right now we've got all of 861
 integrated and are building out our testing and data validation before publishing the
@@ -53,7 +53,7 @@ data officially.
 EIA Form 176
 ^^^^^^^^^^^^
 
-EIA `Form 176 <https://www.eia.gov/dnav/ng/TblDefs/NG_DataSources.html#s176>`_, also
+EIA `Form 176 <https://www.eia.gov/dnav/ng/TblDefs/NG_DataSources.html#s176>`__, also
 known as the Annual Report of Natural and Supplemental Gas Supply and Disposition,
 describes the origins, suppliers, and disposition of natural gas on a yearly and state
 by state basis.
@@ -62,7 +62,7 @@ by state basis.
 
 FERC Form 714
 ^^^^^^^^^^^^^
-`FERC Form 714 <https://www.ferc.gov/industries-data/electric/general-information/electric-industry-forms/form-no-714-annual-electric/data>`_
+`FERC Form 714 <https://www.ferc.gov/industries-data/electric/general-information/electric-industry-forms/form-no-714-annual-electric/data>`__
 includes hourly loads, reported by load balancing authorities annually. This is a
 modestly sized dataset, in the 100s of MB, distributed as CSV files exported from a
 Visual FoxPro database prior to publication. All of the raw tables are being
@@ -77,7 +77,7 @@ are in the PUDL DB yet.
 FERC EQR
 ^^^^^^^^
 
-The `FERC Electric Quarterly Reports (EQR) <https://www.ferc.gov/industries-data/electric/power-sales-and-markets/electric-quarterly-reports-eqr>`_,
+The `FERC Electric Quarterly Reports (EQR) <https://www.ferc.gov/industries-data/electric/power-sales-and-markets/electric-quarterly-reports-eqr>`__,
 also known FERC Form 920, this dataset includes the details of many transactions
 between different utilities, and between utilities and merchant generators. It covers
 ancillary services as well as energy and capacity, time and location of delivery,
@@ -92,7 +92,7 @@ reported attributes.
 FERC Form 2
 ^^^^^^^^^^^
 
-`FERC Form 2 <https://www.ferc.gov/industries-data/natural-gas/overview/general-information/natural-gas-industry-forms/form-22a-data>`_
+`FERC Form 2 <https://www.ferc.gov/industries-data/natural-gas/overview/general-information/natural-gas-industry-forms/form-22a-data>`__
 is analogous to FERC Form 1, but pertains to gas rather than electric utilities. It
 paints a detailed picture of the finances of natural gas utilities.
 
@@ -101,7 +101,7 @@ paints a detailed picture of the finances of natural gas utilities.
 PHMSA Natural Gas Pipelines
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The `PHMSA Natural Gas Annual Report <https://www.phmsa.dot.gov/data-and-statistics/pipeline/gas-distribution-gas-gathering-gas-transmission-hazardous-liquids>`_,
+The `PHMSA Natural Gas Annual Report <https://www.phmsa.dot.gov/data-and-statistics/pipeline/gas-distribution-gas-gathering-gas-transmission-hazardous-liquids>`__,
 published by the Pipeline and Hazardous Materials Safety Administration (which is
 part of the US Dept. of Transportation) collects data about the natural gas
 gathering, transmission and distribution system, including their age, length,
@@ -113,7 +113,7 @@ storage facilities and liquefied natural gas shipping facilities as well.
 Machine Readable Clean Energy Standards
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-`Renewable Portfolio Standards (RPS) <https://www.ncsl.org/research/energy/renewable-portfolio-standards.aspx>`_
+`Renewable Portfolio Standards (RPS) <https://www.ncsl.org/research/energy/renewable-portfolio-standards.aspx>`__
 and Clean Energy Standards (CES) have emerged as one of the primary policy tools to
 decarbonize the US electricity supply. Researchers who model future electricity systems
 need to include these binding regulations as constraints on their models to ensure that
@@ -142,7 +142,7 @@ appear to be a generally accepted, publicly available set of these network descr
 EIA Water Usage
 ^^^^^^^^^^^^^^^
 
-`EIA Water <https://www.eia.gov/electricity/data/water/>`_ records water use by thermal
+`EIA Water <https://www.eia.gov/electricity/data/water/>`__ records water use by thermal
 generating stations in the US.
 
 .. _data-msha:
@@ -150,7 +150,7 @@ generating stations in the US.
 MSHA Mines and Production
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The `MSHA Mines & Production <https://arlweb.msha.gov/OpenGovernmentData/OGIMSHA.asp>`_
+The `MSHA Mines & Production <https://arlweb.msha.gov/OpenGovernmentData/OGIMSHA.asp>`__
 dataset describes coal production by mine and operating company, along with statistics
 about labor productivity and safety. This is a smaller dataset (100s of MB) available as
 relatively clean and well structured CSV files.
