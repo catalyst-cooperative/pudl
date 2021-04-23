@@ -5,13 +5,14 @@ Settings Files
 ===============================================================================
 
 Several of the scripts provided as part of PUDL require more arguments than can be
-easily managed on the command line, and it's useful to preserve a record of how the
-data processing pipeline was run, so they read their settings from YAML files,
-examples of which are included in the distribution.
+easily managed on the command line. It's also useful to preserve a record of how the
+data processing pipeline was run in one instance so it can be re-run in exactly the
+same way. We have these scripts read their settings from YAML files, examples of
+which are included in the distribution.
 
 There are two example files that are deployed into a users workspace with the
 ``pudl_setup`` script (see: :ref:`install-workspace`). The two settings files direct
-PUDl to process 1 year ("fast") and all years ("full") of data respectively. Each
+PUDL to process 1 year ("fast") and all years ("full") of data respectively. Each
 file contains parameters for both the ``ferc1_to_sqlite`` and the ``pudl_etl``
 scripts.
 
@@ -34,7 +35,7 @@ Setttings for ferc1_to_sqlite
        available.
    * - ``ferc1_to_sqlite_tables``
      - A list of strings indicating what tables to load. The list of acceptable
-       tables can be found in the the example settings file, and corresponds to
+       tables can be found in the the example settings file and corresponds to
        the values found in the ``ferc1_dbf2tbl`` dictionary in
        :mod:`pudl.constants`.
 

@@ -12,7 +12,7 @@ it in its raw form, or the time to clean and prepare the data for bulk analysis.
 Available Data
 ---------------------------------------------------------------------------------------
 
-Currently, PUDL has deeply integrated data from:
+Currently, PUDL has integrated data from:
 
 * :doc:`data_sources/eia860` (including EIA 860m)
 * :ref:`data-eia861` (preliminary)

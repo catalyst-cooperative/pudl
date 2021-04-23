@@ -2,7 +2,7 @@
 The Public Utility Data Liberation Project (PUDL)
 ===============================================================================
 
-.. readme-intro
+.. _readme-intro:
 
 .. image:: https://www.repostatus.org/badges/latest/active.svg
    :target: https://www.repostatus.org/#active
@@ -46,10 +46,10 @@ What is PUDL?
 The `PUDL <https://catalyst.coop/pudl/>`__ Project is an open source data processing
 pipeline that makes US energy data easier to access and use programmatically.
 
-Hundreds of gigabytes of valuable data is published by US government agencies, but
+Hundreds of gigabytes of valuable data are published by US government agencies, but
 it's often difficult to work with. PUDL takes the original spreadsheets, CSV files,
-and databases and turns them into a unified resource, allowing users to spend more
-time doing novel analysis, and less time on data preparation.
+and databases and turns them into a unified resource. This allows users to spend more
+time on novel analysis and less time on data preparation.
 
 What data is available?
 -----------------------
@@ -74,7 +74,7 @@ integrating the following data as well:
 * `FERC Electric Quarterly Reports (EQR) <https://www.ferc.gov/industries-data/electric/power-sales-and-markets/electric-quarterly-reports-eqr>`__
 * `FERC Form 2 <https://www.ferc.gov/industries-data/natural-gas/overview/general-information/natural-gas-industry-forms/form-22a-data>`__
   (Annual Report of Major Natural Gas Companies)
-* `PHMSA Natural Gas Annual Report <https://www.phmsa.dot.gov/data-and-statistics/pipeline/gas-distribution-gas-gathering-gas-transmission-hazardous-liquids>`__,
+* `PHMSA Natural Gas Annual Report <https://www.phmsa.dot.gov/data-and-statistics/pipeline/gas-distribution-gas-gathering-gas-transmission-hazardous-liquids>`__
 * Machine Readable Specifications of State Clean Energy Standards
 
 Who is PUDL for?
@@ -132,8 +132,8 @@ image.
 
 JupyterHub
 ^^^^^^^^^^
-If you want to use Python and Jupyter Notebooks to access the data but aren't
-comfortable setting up Docker, we are working with `2i2c <https://2i2c.org>`__ to host
+Do you want to use Python and Jupyter Notebooks to access the data but aren't
+comfortable setting up Docker? We are working with `2i2c <https://2i2c.org>`__ to host
 a JupyterHub that has the same software and data as the Docker container and Zenodo
 archive mentioned above, but running in the cloud.
 
@@ -146,7 +146,7 @@ Eventually we hope to offer scalable computing resources on the JupyterHub as we
 
 The PUDL Development Environment
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-If you're more familiar with the Python data science stack, and are comfortable working
+If you're more familiar with the Python data science stack and are comfortable working
 with git, ``conda`` environments, and the Unix command line, then you can set up the
 whole PUDL Development Environment on your own computer. This will allow you to run the
 full data processing pipeline yourself, tweak the underlying source code, and (we hope!)
