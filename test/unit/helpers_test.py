@@ -1,4 +1,4 @@
-"""Unit tests for pudl.transform.eia module."""
+"""Unit tests for the :mod:`pudl.helpers` module."""
 import pandas as pd
 from pandas.testing import assert_frame_equal
 
