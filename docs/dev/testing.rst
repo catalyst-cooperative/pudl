@@ -211,7 +211,7 @@ passed through to ``pytest``. We've configured ``pytest`` (through the
 
 .. seealso::
 
-    * :doc:`/usage` for more on how to set up a PUDL workspace, including a
+    * :doc:`dev_setup` for more on how to set up a PUDL workspace, including a
       datastore.
     * :doc:`datastore` for more on how to work with the datastore.
 

@@ -59,3 +59,12 @@ tables in the list of tables that it directs the script to load.
     table, which maps ``respondent_id`` to the names of the respondents. For
     that table, we have allowed the most recently reported record to take
     precedence, overwriting previous mappings if they exist.
+
+.. note::
+
+   There are a handful of ``respondent_id`` values which appear in the FERC
+   Form 1 database tables, but which do not show up in ``f1_respondent_id``.
+   This renders the foreign key relationships between those tables invalid.
+   During the database cloning process we add these ``respondent_id`` values to
+   the ``f1_respondent_id`` table, with a ``respondent_name`` indicating that
+   the ID was filled in by PUDL.
