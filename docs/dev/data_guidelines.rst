@@ -117,9 +117,6 @@ within that collection of options.
 This is one aspect of a broader "least common denominator" strategy that is
 common within the open data. This strategy is also behind our decision to
 distribute the processed data as CSV files (with metadata stored as JSON).
-Frictionless Data
-`makes the case <https://frictionlessdata.io/docs/csv/>`__ for CSV files
-in their documentation.
 
 -------------------------------------------------------------------------------
 Use Consistent Units
@@ -156,14 +153,13 @@ the glue isn't working, or doesn't yet exist.
 -------------------------------------------------------------------------------
 Partition Big Data
 -------------------------------------------------------------------------------
-Our goal is that users should be able to run the ETL process on a decent
-laptop. However, some of the utility datasets are hundreds of gigabytes in size
-(e.g. :doc:`../data_sources/epacems`, :ref:`FERC EQR <data-ferceqr>`,
-:ref:`ISO/RTO LMP <data-tmolmp>`). Many users will not need to use the entire
-dataset for the work they are doing. Allow them to pull in only certain years,
-or certain states, or other sensible partitions of the data if need be, so that
-they don’t run out of memory or disk space, or have to wait hours while data
-they don't need is being processed.
+Our goal is that users should be able to run the ETL process on a decent laptop.
+However, some of the utility datasets are hundreds of gigabytes in size (e.g.
+:doc:`/data_sources/epacems`, :ref:`FERC EQR <data-ferceqr>`). Many users will not
+need to use the entire dataset for the work they are doing. Allow them to pull in
+only certain years, or certain states, or other sensible partitions of the data if
+need be, so that they don’t run out of memory or disk space, or have to wait hours
+while data they don't need is being processed.
 
 -------------------------------------------------------------------------------
 Naming Conventions
@@ -191,7 +187,7 @@ of subpackages organized by purpose (extract, transform, load, analysis,
 output, datastore…), containing a module for each data source. Each data source
 has a short name that is used everywhere throughout the project, composed of
 the reporting agency and the form number or another identifying abbreviation:
-``ferc1``, ``epacems``, ``eia923``, ``eia8601``, etc. See the :doc:`naming
+``ferc1``, ``epacems``, ``eia923``, ``eia861``, etc. See the :doc:`naming
 conventions <naming_conventions>` document for more details.
 
 -------------------------------------------------------------------------------

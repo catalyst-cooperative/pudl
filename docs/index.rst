@@ -9,16 +9,12 @@ The Public Utility Data Liberation Project
   :hidden:
   :maxdepth: 2
 
-  usage
-  datapackages
-  cloud_access
-  data_sources
+  intro
+  data_access
+  data_sources/index
+  Data Dictionary <data_dictionary>
   Contributing <CONTRIBUTING>
   dev/index
-  project_management
-  background
-  acknowledgments
-  License <LICENSE>
-  code_of_conduct
+  Licensing <LICENSE>
+  Code of Conduct <code_of_conduct>
   Module Index <api/modules>
-  pudl_db_index
