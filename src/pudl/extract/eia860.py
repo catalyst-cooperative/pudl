@@ -9,7 +9,8 @@ import logging
 
 import pandas as pd
 
-from pudl.extract import excel as excel
+from pudl.extract import excel
+from pudl.helpers import fix_leading_zero_gen_ids
 
 logger = logging.getLogger(__name__)
 
@@ -25,10 +26,19 @@ class Extractor(excel.GenericExtractor):
             ds (:class:datastore.Datastore): Initialized datastore.
         """
         self.METADATA = excel.Metadata('eia860')
+        self.cols_added = []
         super().__init__(*args, **kwargs)
 
     def process_raw(self, df, page, **partition):
-        """Adds data_source column and report_year column if missing."""
+        """
+        Apply necessary pre-processing to the dataframe.
+
+        * Rename columns based on our compiled spreadsheet metadata
+        * Add report_year if it is missing
+        * Add a flag indicating if record came from EIA 860, or EIA 860M
+        * Fix any generator_id values with leading zeroes.
+
+        """
         df = df.rename(
             columns=self._metadata.get_column_map(page, **partition))
         if 'report_year' not in df.columns:
@@ -40,6 +50,7 @@ class Extractor(excel.GenericExtractor):
         if page in pages_eia860m:
             df = df.assign(data_source='eia860')
             self.cols_added.append('data_source')
+        df = fix_leading_zero_gen_ids(df)
         return df
 
     @staticmethod
