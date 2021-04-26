@@ -9,23 +9,12 @@ The Public Utility Data Liberation Project
   :hidden:
   :maxdepth: 2
 
-  install
-  usage
-  datastore
-  clone_ferc1
-  datapackages
-  cloud_access
-  data_sources
-  settings_files
+  intro
+  data_access
+  data_sources/index
+  Data Dictionary <data_dictionary>
   Contributing <CONTRIBUTING>
   dev/index
-  data_guidelines
-  new_dataset
-  project_management
-  naming_conventions
-  background
-  acknowledgments
-  License <LICENSE>
-  code_of_conduct
+  Licensing <LICENSE>
+  Code of Conduct <code_of_conduct>
   Module Index <api/modules>
-  pudl_data_dict

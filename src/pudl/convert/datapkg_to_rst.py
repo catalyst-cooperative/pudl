@@ -45,6 +45,7 @@ PUDL Data Dictionary
 -------------------------------------------------------------------------------
 {{ resource.name }}
 -------------------------------------------------------------------------------
+`Browse or query this table in Datasette. <https://data.catalyst.coop/pudl/{{ resource.name }}>`__
 
 .. list-table::
   :widths: auto
@@ -68,16 +69,27 @@ PUDL Data Dictionary
 ###############################################################################
 
 
-def datapkg2rst(meta_json, meta_rst):
+def datapkg2rst(meta_json, meta_rst, ignore=None):
     """Convert json metadata to a single rst file."""
     logger.info("Accessing json metadata as dictionary")
     with open(meta_json) as f:
         metadata_dict = json.load(f)
 
+    metadata_dict["resources"] = [
+        x for x in metadata_dict["resources"]
+        if x["name"] not in ignore
+    ]
+
     metadata_dict["resources"] = sorted(
         metadata_dict["resources"],
         key=lambda x: x["name"]
     )
+
+    for resource in metadata_dict["resources"]:
+        resource["schema"]["fields"] = sorted(
+            resource["schema"]["fields"],
+            key=lambda x: x["name"]
+        )
 
     logger.info("Converting json metadata into an rst file")
 
@@ -113,6 +125,12 @@ def parse_command_line(argv):
         default=False
     )
     parser.add_argument(
+        '--ignore',
+        help="List of datapackage resource names to skip in generation of RST.",
+        nargs="*",
+        default=[],
+    )
+    parser.add_argument(
         '-o',
         '--output',
         help="Path to the file where the RST output should be written.",
@@ -129,7 +147,11 @@ def main():
     coloredlogs.install(fmt=log_format, level='INFO', logger=pudl_logger)
 
     args = parse_command_line(sys.argv)
-    datapkg2rst(args.input, args.output)
+    datapkg2rst(
+        meta_json=args.input,
+        meta_rst=args.output,
+        ignore=args.ignore,
+    )
 
 
 if __name__ == '__main__':

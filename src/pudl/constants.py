@@ -1779,7 +1779,6 @@ output_formats = [
     'sqlite',
     'parquet',
     'datapkg',
-    'notebook',
 ]
 """list: A list of types of PUDL output formats."""
 
