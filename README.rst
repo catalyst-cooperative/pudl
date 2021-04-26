@@ -2,7 +2,7 @@
 The Public Utility Data Liberation Project (PUDL)
 ===============================================================================
 
-.. _readme-intro:
+.. readme-intro
 
 .. image:: https://www.repostatus.org/badges/latest/active.svg
    :target: https://www.repostatus.org/#active
