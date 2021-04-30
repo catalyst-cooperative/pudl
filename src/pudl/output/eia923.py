@@ -459,9 +459,11 @@ def boiler_fuel_eia923(pudl_engine, freq=None,
                            axis=1)
 
     # Grab some basic plant & utility information to add.
-    pu_eia = pudl.output.eia860.plants_utils_eia860(pudl_engine,
-                                                    start_date=start_date,
-                                                    end_date=end_date)
+    pu_eia = pudl.output.eia860.plants_utils_eia860(
+        pudl_engine,
+        start_date=start_date,
+        end_date=end_date
+    )
     out_df = (
         pudl.helpers.merge_on_date_year(bf_df, pu_eia, on=['plant_id_eia'])
         .dropna(subset=['plant_id_eia', 'utility_id_eia', 'boiler_id'])

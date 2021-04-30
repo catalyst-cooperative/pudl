@@ -346,8 +346,11 @@ def merge_on_date_year(df_date, df_year, on=(), how='inner',
     cols_to_use = unshared_cols + full_on
 
     # Merge and drop the temp
-    merged = pd.merge(df_date, df_year[cols_to_use], how=how, on=full_on)
-    merged = merged.drop(['year_temp'], axis=1)
+    merged = (
+        pd.merge(df_date, df_year[cols_to_use], how=how, on=full_on)
+        .drop(['year_temp'], axis='columns')
+    )
+    merged[date_col] = pd.to_datetime(merged[date_col])
 
     return merged
 

@@ -290,7 +290,6 @@ def generators_eia860(pudl_engine, start_date=None, end_date=None):
     out_df = pd.merge(out_df, pu_eia,
                       on=['report_date', 'plant_id_eia'],
                       how="left")
-    # ,'plant_name_eia', 'utility_id_eia'])
 
     # Drop a few extraneous fields...
     out_df = out_df.drop(['id'], axis='columns')
@@ -305,7 +304,8 @@ def generators_eia860(pudl_engine, start_date=None, end_date=None):
             "report_date",
             "plant_id_eia",
             "generator_id",
-            "unit_id_pudl"
+            "unit_id_pudl",
+            "bga_source",
         ]].drop_duplicates(),
         on=["report_date", "plant_id_eia", "generator_id"],
         how="left",
