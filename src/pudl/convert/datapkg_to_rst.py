@@ -15,6 +15,7 @@ import json
 import logging
 import sys
 
+import coloredlogs
 from jinja2 import BaseLoader, Environment
 
 logger = logging.getLogger(__name__)
@@ -34,8 +35,9 @@ white space either at the beginning or the end of each value.
 
 
 # Template for all tables in one rst file
-RST_TEMPLATE = """===============================================================================
-All PUDL Database Tables
+RST_TEMPLATE = """
+===============================================================================
+PUDL Data Dictionary
 ===============================================================================
 {% for resource in resources %}
 .. _{{ resource.name }}:
@@ -43,6 +45,7 @@ All PUDL Database Tables
 -------------------------------------------------------------------------------
 {{ resource.name }}
 -------------------------------------------------------------------------------
+`Browse or query this table in Datasette. <https://data.catalyst.coop/pudl/{{ resource.name }}>`__
 
 .. list-table::
   :widths: auto
@@ -66,16 +69,27 @@ All PUDL Database Tables
 ###############################################################################
 
 
-def datapkg2rst(meta_json, meta_rst):
+def datapkg2rst(meta_json, meta_rst, ignore=None):
     """Convert json metadata to a single rst file."""
     logger.info("Accessing json metadata as dictionary")
     with open(meta_json) as f:
         metadata_dict = json.load(f)
 
+    metadata_dict["resources"] = [
+        x for x in metadata_dict["resources"]
+        if x["name"] not in ignore
+    ]
+
     metadata_dict["resources"] = sorted(
         metadata_dict["resources"],
         key=lambda x: x["name"]
     )
+
+    for resource in metadata_dict["resources"]:
+        resource["schema"]["fields"] = sorted(
+            resource["schema"]["fields"],
+            key=lambda x: x["name"]
+        )
 
     logger.info("Converting json metadata into an rst file")
 
@@ -111,6 +125,12 @@ def parse_command_line(argv):
         default=False
     )
     parser.add_argument(
+        '--ignore',
+        help="List of datapackage resource names to skip in generation of RST.",
+        nargs="*",
+        default=[],
+    )
+    parser.add_argument(
         '-o',
         '--output',
         help="Path to the file where the RST output should be written.",
@@ -122,8 +142,16 @@ def parse_command_line(argv):
 
 def main():
     """Run conversion from json to rst."""
+    pudl_logger = logging.getLogger("pudl")
+    log_format = '%(asctime)s [%(levelname)8s] %(name)s:%(lineno)s %(message)s'
+    coloredlogs.install(fmt=log_format, level='INFO', logger=pudl_logger)
+
     args = parse_command_line(sys.argv)
-    datapkg2rst(args.input, args.output)
+    datapkg2rst(
+        meta_json=args.input,
+        meta_rst=args.output,
+        ignore=args.ignore,
+    )
 
 
 if __name__ == '__main__':

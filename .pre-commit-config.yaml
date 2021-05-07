@@ -35,13 +35,13 @@ repos:
 
 # Make sure import statements are sorted uniformly.
 - repo: https://github.com/pre-commit/mirrors-isort
-  rev: v5.7.0
+  rev: v5.8.0
   hooks:
   - id: isort
 
 # Check for PEP8 non-compliance, code complexity, style, errors, etc:
 - repo: https://github.com/PyCQA/flake8
-  rev: 3.9.0
+  rev: 3.9.1
   hooks:
   - id: flake8
     args: [--config, tox.ini]

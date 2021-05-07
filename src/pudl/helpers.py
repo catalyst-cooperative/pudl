@@ -627,6 +627,44 @@ def month_year_to_date(df):
     return df
 
 
+def fix_leading_zero_gen_ids(df):
+    """
+    Remove leading zeros from EIA generator IDs which are numeric strings.
+
+    If the DataFrame contains a column named ``generator_id`` then that column
+    will be cast to a string, and any all numeric value with leading zeroes
+    will have the leading zeroes removed. This is necessary because in some
+    but not all years of data, some of the generator IDs are treated as integers
+    in the Excel spreadsheets published by EIA, so the same generator may show
+    up with the ID "0001" and "1" in different years.
+
+    Alphanumeric generator IDs with leadings zeroes are not affected, as we
+    found no instances in which an alphanumeric generator ID appeared both with
+    and without leading zeroes.
+
+    Args:
+        df (pandas.DataFrame): DataFrame, presumably containing a column named
+            generator_id (otherwise no action will be taken.)
+
+    Returns:
+        pandas.DataFrame
+
+    """
+    if "generator_id" in df.columns:
+        fixed_generator_id = (
+            df["generator_id"]
+            .astype(str)
+            .apply(lambda x: re.sub(r'^0+(\d+$)', r'\1', x))
+        )
+        num_fixes = len(df.loc[df["generator_id"].astype(str) != fixed_generator_id])
+        logger.info("Fixed %s EIA generator IDs with leading zeros.", num_fixes)
+        df = (
+            df.drop("generator_id", axis="columns")
+            .assign(generator_id=fixed_generator_id)
+        )
+    return df
+
+
 def convert_to_date(df,
                     date_col="report_date",
                     year_col="report_year",
@@ -689,18 +727,26 @@ def fix_eia_na(df):
     """
     Replace common ill-posed EIA NA spreadsheet values with np.nan.
 
+    Currently replaces empty string, single decimal points with no numbers,
+    and any single whitespace character with np.nan.
+
     Args:
         df (pandas.DataFrame): The DataFrame to clean.
 
     Returns:
         pandas.DataFrame: The cleaned DataFrame.
 
-    Todo:
-        Update docstring.
-
     """
-    return df.replace(to_replace=[r'^\.$', r'^\s$', r'^$'],
-                      value=np.nan, regex=True)
+    bad_na_regexes = [
+        r'^\.$',  # Nothing but a decimal point
+        r'^\s$',  # A single whitespace character
+        r'^$',    # The empty string
+    ]
+    return df.replace(
+        to_replace=bad_na_regexes,
+        value=np.nan,
+        regex=True
+    )
 
 
 def simplify_columns(df):

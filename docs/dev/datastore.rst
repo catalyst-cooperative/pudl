@@ -1,7 +1,7 @@
 .. _datastore:
 
 ===============================================================================
-Collecting a Datastore
+Working with the Datastore
 ===============================================================================
 
 The input data that PUDL processes comes from a variety of US government agencies.
@@ -12,19 +12,20 @@ we periodically archive the input files on the
 research archiving service maintained by CERN. (See our
 `pudl-scrapers <https://github.com/catalyst-cooperative/pudl-scrapers>`__ and
 `pudl-zenodo-storage <https://github.com/catalyst-cooperative/pudl-zenodo-storage>`__
-repositories on GitHub for more information.) When PUDL needs a data resource it will
-attempt to automatically retrieve it from Zenodo and store it locally in a file
-hierarchy organized by dataset and the versioned DOI of the corresponding Zenodo
-deposition.
+repositories on GitHub for more information.)
+
+When PUDL needs a data resource it will attempt to automatically retrieve it from
+Zenodo and store it locally in a file hierarchy organized by dataset and the
+versioned DOI of the corresponding Zenodo deposition.
 
 The ``pudl_datastore`` script can also be used to pre-download the raw input data in
 bulk. It uses the routines defined in the :mod:`pudl.workspace.datastore` module. For
-details on what data is available, for what time periods, and how much of it there is,
-see the PUDL :doc:`../data_sources`. At present the ``pudl_datastore`` script downloads
-the entire collection of data available for each dataset. For the FERC Form 1 and EPA
-CEMS datasets, this is several gigabytes.
+details on what data is available, for what time periods, and how much of it there
+is, see the PUDL :doc:`/data_sources/index`. At present the ``pudl_datastore`` script
+downloads the entire collection of data available for each dataset. For the FERC Form
+1 and EPA CEMS datasets, this is several gigabytes.
 
-For example, to download the full :doc:`../data_sources/eia860` dataset
+For example, to download the full :doc:`/data_sources/eia860` dataset
 (covering 2001-present) you would use:
 
 .. code-block:: console
@@ -53,9 +54,9 @@ If the download fails to complete successfully, the script can be run repeatedly
 all the files are downloaded. It will not try and re-download data which is already
 present locally.
 
-===============================================================================
-Creating a new Dataset for the Datastore
-===============================================================================
+-------------------------------------------------------------------------------
+Adding a new Dataset to the Datastore
+-------------------------------------------------------------------------------
 
 There are three components necessary to prepare a new datastet for use with the PUDL
 datastore.
@@ -67,16 +68,13 @@ datastore.
 In the event that data is already available on Zenodo in the appropriate format, it may
 be possible to skip steps 1 and 2.
 
--------------------------------------------------------------------------------
-Creating a scraper
--------------------------------------------------------------------------------
+Create a scraper
+^^^^^^^^^^^^^^^^
 
-Where possible, we use `Scrapy <https://docs.scrapy.org/en/latest/>`__ to
-handle data collection.  Our scrapy spiders, as well as any custom scripts, are
-located in our
+Where possible, we use `Scrapy <https://docs.scrapy.org/en/latest/>`__ to handle data
+collection. Our scrapy spiders, as well as any custom scripts, are located in our
 `scrapers repo <https://github.com/catalyst-cooperative/pudl-scrapers>`__.
-Familiarize yourself
-with scrapy, and note the following.
+Familiarize yourself with scrapy, and note the following.
 
 From a scraper, a correct ouput directory takes the form: ::
 
@@ -94,10 +92,8 @@ the ``items.py`` collection.  Make sure that it inherits from the existing
 If you follow those guidelines your new scraper should play well with the rest
 of the environment.
 
-
--------------------------------------------------------------------------------
 Prepare zenodo_store
--------------------------------------------------------------------------------
+^^^^^^^^^^^^^^^^^^^^
 
 Our `zenodo_store <https://github.com/catalyst-cooperative/pudl-zenodo-storage>`__
 script initializes and updates data sources that we maintain on
@@ -156,9 +152,8 @@ be used.
 If you lose track of the DOI, you can look up the archive on Zenodo using the
 UUID from ``zs.metadata``.
 
--------------------------------------------------------------------------------
 Prepare the Datastore
--------------------------------------------------------------------------------
+^^^^^^^^^^^^^^^^^^^^^
 
 If you have used a scraper and zenodo_store to prepare a Zenodo archive as above, you
 can add support for your archive to the datastore by adding the DOI to

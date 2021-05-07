@@ -34,3 +34,15 @@ To view the documentation that's been output at HTML you'll need to open the
 ``docs/_build/html/index.html`` file within the PUDL repository with a web
 browser. You may also be able to set up automatic previewing of the rendered
 documentation in your text editor with appropriate plugins.
+
+.. note::
+
+    Some of the documentation files are dynamically generated. We use the
+    sphinx-apidoc utility to generate RST files from the docstrings embedded
+    in our source code, so you should never edit the files under ``docs/api``.
+    If you create a new module, the corresponding documentation file will also
+    need to be checked in to version control.
+
+    Similarly the :doc:`/data_dictionary` is generated dynamically by the
+    :mod:`pudl.convert.datapkg_to_rst` script, which is run by Tox when it
+    builds the docs.

@@ -55,6 +55,8 @@ import coloredlogs
 
 import pudl
 
+logger = logging.getLogger(__name__)
+
 
 def initialize_parser():
     """Parse command line arguments for the pudl_setup script."""
@@ -103,9 +105,9 @@ def initialize_parser():
 def main():
     """Set up a new default PUDL workspace."""
     # Display logged output from the PUDL package:
-    logger = logging.getLogger(pudl.__name__)
+    pudl_logger = logging.getLogger("pudl")
     log_format = '%(asctime)s [%(levelname)8s] %(name)s:%(lineno)s %(message)s'
-    coloredlogs.install(fmt=log_format, level='INFO', logger=logger)
+    coloredlogs.install(fmt=log_format, level='INFO', logger=pudl_logger)
 
     parser = initialize_parser()
     args = parser.parse_args(sys.argv[1:])

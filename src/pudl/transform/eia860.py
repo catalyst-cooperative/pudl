@@ -11,6 +11,13 @@ from pudl import constants as pc
 logger = logging.getLogger(__name__)
 
 
+OWNERSHIP_PLANT_GEN_ID_DUPES = [
+    (56032, "1"),
+]
+"""tuple: EIA Plant IDs which have duplicate generators within the ownership table due
+to the removal of leading zeroes from the generator IDs."""
+
+
 def ownership(eia860_dfs, eia860_transformed_dfs):
     """
     Pull and transform the ownership table.
@@ -36,39 +43,78 @@ def ownership(eia860_dfs, eia860_transformed_dfs):
 
     """
     # Preiminary clean and get rid of unecessary 'year' column
-    o_df = (
+    own_df = (
         eia860_dfs['ownership'].copy()
         .pipe(pudl.helpers.fix_eia_na)
         .pipe(pudl.helpers.convert_to_date)
         .drop(columns=['year'])
     )
 
-    # The fix we're making here is only known to be valid for 2011 -- if we
-    # get older data... then we need to to revisit the cleaning function and
-    # make sure it also applies to those earlier years.
-    if (min(o_df.report_date.dt.year)
+    if (min(own_df.report_date.dt.year)
             < min(pc.working_partitions['eia860']['years'])):
         raise ValueError(
             f"EIA 860 transform step is only known to work for "
             f"year {min(pc.working_partitions['eia860']['years'])} and later, "
-            f"but found data from year {min(o_df.report_date.dt.year)}."
+            f"but found data from year {min(own_df.report_date.dt.year)}."
         )
 
     # Prior to 2012, ownership was reported as a percentage, rather than
     # as a proportion, so we need to divide those values by 100.
-    o_df.loc[o_df.report_date.dt.year < 2012, 'fraction_owned'] = \
-        o_df.loc[o_df.report_date.dt.year < 2012, 'fraction_owned'] / 100
+    own_df.loc[own_df.report_date.dt.year < 2012, 'fraction_owned'] = \
+        own_df.loc[own_df.report_date.dt.year < 2012, 'fraction_owned'] / 100
 
-    o_df = (
-        o_df.astype({
-            "owner_utility_id_eia": pd.Int64Dtype(),
-            "utility_id_eia": pd.Int64Dtype(),
-            "plant_id_eia": pd.Int64Dtype(),
-            "owner_state": pd.StringDtype()
-        })
+    # This has to come before the fancy indexing below, otherwise the plant_id_eia
+    # is still a float.
+    own_df = own_df.astype({
+        "owner_utility_id_eia": pd.Int64Dtype(),
+        "utility_id_eia": pd.Int64Dtype(),
+        "plant_id_eia": pd.Int64Dtype(),
+        "owner_state": pd.StringDtype()
+    })
+
+    # A small number of generators are reported multiple times in the ownership
+    # table due to the use of leading zeroes in their integer generator_id values
+    # which are stored as strings (since some generators use strings). This
+    # makes sure that we only keep a single copy of those duplicated records which
+    # we've identified as falling into this category. We refrain from doing a wholesale
+    # drop_duplicates() so that if duplicates are introduced by some other mechanism
+    # we'll be notified.
+
+    # The plant & generator ID values we know have duplicates to remove.
+    known_dupes = (
+        own_df.set_index(["plant_id_eia", "generator_id"])
+        .loc[OWNERSHIP_PLANT_GEN_ID_DUPES]
     )
+    # Index of own_df w/ duplicated records removed.
+    without_known_dupes_idx = (
+        own_df.set_index(["plant_id_eia", "generator_id"])
+        .index.difference(known_dupes.index)
+    )
+    # own_df w/ duplicated records removed.
+    without_known_dupes = (
+        own_df.set_index(["plant_id_eia", "generator_id"])
+        .loc[without_known_dupes_idx]
+        .reset_index()
+    )
+    # Drop duplicates from the known dupes using the whole primary key
+    own_pk = [
+        'report_date',
+        'plant_id_eia',
+        'generator_id',
+        'owner_utility_id_eia',
+    ]
+    deduped = known_dupes.reset_index().drop_duplicates(subset=own_pk)
+    # Bring these two parts back together:
+    own_df = pd.concat([without_known_dupes, deduped])
+    # Check whether we have truly deduplicated the dataframe.
+    remaining_dupes = own_df[own_df.duplicated(subset=own_pk, keep=False)]
+    if len(remaining_dupes) > 0:
+        raise ValueError(
+            "Duplicate ownership slices found in ownership_eia860:"
+            f"{remaining_dupes}"
+        )
 
-    eia860_transformed_dfs['ownership_eia860'] = o_df
+    eia860_transformed_dfs['ownership_eia860'] = own_df
 
     return eia860_transformed_dfs
 
