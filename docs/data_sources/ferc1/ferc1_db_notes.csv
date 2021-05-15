@@ -1,0 +1,119 @@
+Table Name / Data Link,File Name,Pages,Freq,Table Description
+`f1_106_2009 <https://data.catalyst.coop/ferc1/f1_106_2009>`_,F1_106_2009.DBF,106,A,Information on Formula Rates
+`f1_106a_2009 <https://data.catalyst.coop/ferc1/f1_106a_2009>`_,F1_106A_2009.DBF,106,A,Information on Formula Rates
+`f1_106b_2009 <https://data.catalyst.coop/ferc1/f1_106b_2009>`_,F1_106B_2009.DBF,106,A,Information on Formula Rates
+`f1_208_elc_dep <https://data.catalyst.coop/ferc1/f1_208_elc_dep>`_,F1_208_ELC_DEP.DBF,208,Q,Electric Plant In Service and Accumulated Provision For Depreciation by Function
+`f1_231_trn_stdycst <https://data.catalyst.coop/ferc1/f1_231_trn_stdycst>`_,F1_231_TRN_STDYCST.DBF,231,A/Q,Transmission Service and Generation Interconnection Study Costs
+`f1_324_elc_expns <https://data.catalyst.coop/ferc1/f1_324_elc_expns>`_,F1_324_ELC_EXPNS.DBF,324,Q,"Electric Production, Other Power Supply Expenses, Transmission and Distribution Expenses "
+`f1_325_elc_cust <https://data.catalyst.coop/ferc1/f1_325_elc_cust>`_,F1_325_ELC_CUST.DBF,325,Q,"Electric Customer Accounts, Service, Sales, Administration and General Expenses "
+`f1_331_transiso <https://data.catalyst.coop/ferc1/f1_331_transiso>`_,F1_331_TRANSISO.DBF,331,A/Q,Transmission of Electricity by ISO/RTOs
+`f1_338_dep_depl <https://data.catalyst.coop/ferc1/f1_338_dep_depl>`_,F1_338_DEP_DEPL.DBF,338,Q,"Depreciation, Depletion and Amortization of Electric Plant (FERC Accounts 403, 403.1, 404, and 405, except Amortization of Acquisition Adjustments) "
+`f1_397_isorto_stl <https://data.catalyst.coop/ferc1/f1_397_isorto_stl>`_,F1_397_ISORTO_STL.DBF,397,A/Q,Amounts Included in ISO/RTO Settlement Statements
+`f1_398_ancl_ps <https://data.catalyst.coop/ferc1/f1_398_ancl_ps>`_,F1_398_ANCL_PS.DBF,398,A,Purchases and Sales of Ancillary Services
+`f1_399_mth_peak <https://data.catalyst.coop/ferc1/f1_399_mth_peak>`_,F1_399_MTH_PEAK.DBF,399,A/Q,Monthly Peak Loads and Energy Output
+`f1_400_sys_peak <https://data.catalyst.coop/ferc1/f1_400_sys_peak>`_,F1_400_SYS_PEAK.DBF,400,A/Q,Monthly Transmission System Peak Load
+`f1_400a_iso_peak <https://data.catalyst.coop/ferc1/f1_400a_iso_peak>`_,F1_400A_ISO_PEAK.DBF,"980, 400a",A/Q,Monthly ISO/RTO Transmission System Peak Load
+`f1_429_trans_aff <https://data.catalyst.coop/ferc1/f1_429_trans_aff>`_,F1_429_TRANS_AFF.DBF,429,A,Transactions with Associated (Affiliated) Companies
+`f1_acb_epda <https://data.catalyst.coop/ferc1/f1_acb_epda>`_,F1_2.DBF,336-337,A,Depreciation & Amortization of Electric Plant (Basis for Amortization Charges)
+`f1_accumdepr_prvsn <https://data.catalyst.coop/ferc1/f1_accumdepr_prvsn>`_,F1_3.DBF,219,A,Accumulated Provision for Depreciation of Elecric Utility Plant (Account 108)
+`f1_accumdfrrdtaxcr <https://data.catalyst.coop/ferc1/f1_accumdfrrdtaxcr>`_,F1_4.DBF,266-267,A,Accumulated Deferred Investment Tax Credits
+`f1_adit_190_detail <https://data.catalyst.coop/ferc1/f1_adit_190_detail>`_,F1_5.DBF,234-234a,A,Accumulated Deferred Income Taxes (Individual Schedule Lines)
+`f1_adit_190_notes <https://data.catalyst.coop/ferc1/f1_adit_190_notes>`_,F1_6.DBF,234-234b,A,Accumulated Deferred Income Taxes (Notes)
+`f1_adit_amrt_prop <https://data.catalyst.coop/ferc1/f1_adit_amrt_prop>`_,F1_7.DBF,272-273,A,Accumulated Deferred Income Taxes - Accelerated Amortization Property
+`f1_adit_other <https://data.catalyst.coop/ferc1/f1_adit_other>`_,F1_8.DBF,276-277,A,Accumulated Deferred Income Taxes - Other
+`f1_adit_other_prop <https://data.catalyst.coop/ferc1/f1_adit_other_prop>`_,F1_9.DBF,274-275,A,Accumulated Deferred Income Taxes - Other Property
+`f1_allowances <https://data.catalyst.coop/ferc1/f1_allowances>`_,F1_10.DBF,228-229,A,Allowances
+`f1_allowances_nox <https://data.catalyst.coop/ferc1/f1_allowances_nox>`_,F1_ALLOWANCES_NOX.DBF,230-230a,A,
+`f1_audit_log <https://data.catalyst.coop/ferc1/f1_audit_log>`_,F1_78.DBF,,,
+`f1_bal_sheet_cr <https://data.catalyst.coop/ferc1/f1_bal_sheet_cr>`_,F1_11.DBF,112-113,A/Q,Comparative Balance Sheet (Liabilities & Other Credits)
+`f1_capital_stock <https://data.catalyst.coop/ferc1/f1_capital_stock>`_,F1_12.DBF,250-251,A,Capital Stock
+`f1_cash_flow <https://data.catalyst.coop/ferc1/f1_cash_flow>`_,F1_13.DBF,120-121,A/Q,Statement of Cash Flows
+`f1_cmmn_utlty_p_e <https://data.catalyst.coop/ferc1/f1_cmmn_utlty_p_e>`_,F1_14.DBF,356,A,Common Utility Plant & Expenses
+`f1_cmpinc_hedge <https://data.catalyst.coop/ferc1/f1_cmpinc_hedge>`_,F1_CMPINC_HEDGE.DBF,"990, 122(a)(b)",A/Q,"Statement of Accumulated Comparative Income, Comparative Income, and Hedging Activities "
+`f1_cmpinc_hedge_a <https://data.catalyst.coop/ferc1/f1_cmpinc_hedge_a>`_,F1_CMPINC_HEDGE_A.DBF,990,,
+`f1_co_directors <https://data.catalyst.coop/ferc1/f1_co_directors>`_,F1_18.DBF,105,A,"Names, Titles, and Addresses of Directors"
+`f1_codes_val <https://data.catalyst.coop/ferc1/f1_codes_val>`_,F1_76.DBF,,,
+`f1_col_lit_tbl <https://data.catalyst.coop/ferc1/f1_col_lit_tbl>`_,F1_79.DBF,,,Descriptive headers for each column in the Form 1. Useful for discerning their semantic content.
+`f1_comp_balance_db <https://data.catalyst.coop/ferc1/f1_comp_balance_db>`_,F1_15.DBF,110-111,A/Q,Comparative Balance Sheet (Assets & Other Debits)
+`f1_construction <https://data.catalyst.coop/ferc1/f1_construction>`_,F1_16.DBF,217,,Spending on Construction (1994-2002 only)
+`f1_control_respdnt <https://data.catalyst.coop/ferc1/f1_control_respdnt>`_,F1_17.DBF,102,A,Control Over Respondent
+`f1_cptl_stk_expns <https://data.catalyst.coop/ferc1/f1_cptl_stk_expns>`_,F1_19.DBF,254-254b,A,Capital Stock Expense
+`f1_csscslc_pcsircs <https://data.catalyst.coop/ferc1/f1_csscslc_pcsircs>`_,F1_20.DBF,252,,
+`f1_dacs_epda <https://data.catalyst.coop/ferc1/f1_dacs_epda>`_,F1_21.DBF,336-337,A,Depreciation & Amortization of Electric Plant (Depreciation & Amortization Charges)
+`f1_dscnt_cptl_stk <https://data.catalyst.coop/ferc1/f1_dscnt_cptl_stk>`_,F1_22.DBF,254,,
+`f1_edcfu_epda <https://data.catalyst.coop/ferc1/f1_edcfu_epda>`_,F1_23.DBF,336-337,A,Depreciation & Amortization of Electric Plant (Factors Used in Estimating Depreciation Charges)
+`f1_elc_op_mnt_expn <https://data.catalyst.coop/ferc1/f1_elc_op_mnt_expn>`_,F1_27.DBF,320-323,A,Electric Operation & Maintenance Expenses
+`f1_elc_oper_rev_nb <https://data.catalyst.coop/ferc1/f1_elc_oper_rev_nb>`_,F1_26.DBF,300-301b,A/Q,Electric Operating Revenues (Unbilled Revenues Only)
+`f1_elctrc_erg_acct <https://data.catalyst.coop/ferc1/f1_elctrc_erg_acct>`_,F1_24.DBF,401-401a,A,Electric Energy Account
+`f1_elctrc_oper_rev <https://data.catalyst.coop/ferc1/f1_elctrc_oper_rev>`_,F1_25.DBF,300-301a,A/Q,Electric Operating Revenues (Individual Schedule Lines)
+`f1_electric <https://data.catalyst.coop/ferc1/f1_electric>`_,F1_28.DBF,429,,
+`f1_email <https://data.catalyst.coop/ferc1/f1_email>`_,F1_EMAIL.DBF,,,
+`f1_envrnmntl_expns <https://data.catalyst.coop/ferc1/f1_envrnmntl_expns>`_,F1_29.DBF,431,,
+`f1_envrnmntl_fclty <https://data.catalyst.coop/ferc1/f1_envrnmntl_fclty>`_,F1_30.DBF,430,,
+f1_footnote_data,F1_85.DBF,450,A/Q,Footnote Data
+f1_footnote_tbl,F1_87.DBF,,,
+f1_freeze,F1_FREEZE.DBF,,,
+`f1_fuel <https://data.catalyst.coop/ferc1/f1_fuel>`_,F1_31.DBF,402-403b,A,Steam-Electric Generation Plant Statistics - Large Plants (Fuel Details)
+`f1_general_info <https://data.catalyst.coop/ferc1/f1_general_info>`_,F1_32.DBF,101,A,General Information
+`f1_gnrt_plant <https://data.catalyst.coop/ferc1/f1_gnrt_plant>`_,F1_33.DBF,410-411,A,Generating Plant Statistics (Small Plants)
+`f1_hydro <https://data.catalyst.coop/ferc1/f1_hydro>`_,F1_86.DBF,406-407,A,Hydroelectric Gen Plant Stats (Large Plants)
+`f1_ident_attsttn <https://data.catalyst.coop/ferc1/f1_ident_attsttn>`_,F1_88.DBF,1,A/Q,Identification & Attestation
+`f1_important_chg <https://data.catalyst.coop/ferc1/f1_important_chg>`_,F1_34.DBF,108-109,A/Q,Important Changes During the Quarter/Year
+`f1_incm_stmnt_2 <https://data.catalyst.coop/ferc1/f1_incm_stmnt_2>`_,F1_35.DBF,114-117b,A/Q,"Statement of Income (Other Income & Deductions, Interest Charges, Extraordinary Items) "
+`f1_income_stmnt <https://data.catalyst.coop/ferc1/f1_income_stmnt>`_,F1_36.DBF,114-117a,A/Q,Statement of Income
+`f1_leased <https://data.catalyst.coop/ferc1/f1_leased>`_,F1_90.DBF,213,A,Electric Plant Leased to Others
+`f1_load_file_names <https://data.catalyst.coop/ferc1/f1_load_file_names>`_,F1_80.DBF,,,
+`f1_long_term_debt <https://data.catalyst.coop/ferc1/f1_long_term_debt>`_,F1_93.DBF,256-257,A,Long-Term Debt
+`f1_misc_dfrrd_dr <https://data.catalyst.coop/ferc1/f1_misc_dfrrd_dr>`_,F1_38.DBF,233,A,Miscellaneous Deferred Debits
+`f1_miscgen_expnelc <https://data.catalyst.coop/ferc1/f1_miscgen_expnelc>`_,F1_37.DBF,335,A,Miscellaneous General Expenses - Electric
+`f1_mthly_peak_otpt <https://data.catalyst.coop/ferc1/f1_mthly_peak_otpt>`_,F1_39.DBF,401-401b,A,Monthly Peaks & Output
+`f1_mtrl_spply <https://data.catalyst.coop/ferc1/f1_mtrl_spply>`_,F1_40.DBF,"227, 228-229",A,Materials & Supplies
+`f1_nbr_elc_deptemp <https://data.catalyst.coop/ferc1/f1_nbr_elc_deptemp>`_,F1_41.DBF,320,,
+`f1_nonutility_prop <https://data.catalyst.coop/ferc1/f1_nonutility_prop>`_,F1_42.DBF,221,,
+f1_note_fin_stmnt,F1_43.DBF,122-123,A/Q,Notes to Financial Statements
+`f1_nuclear_fuel <https://data.catalyst.coop/ferc1/f1_nuclear_fuel>`_,F1_44.DBF,202-203,A,Nuclear Fuel Materials
+`f1_officers_co <https://data.catalyst.coop/ferc1/f1_officers_co>`_,F1_45.DBF,104,A,Officers
+`f1_othr_dfrrd_cr <https://data.catalyst.coop/ferc1/f1_othr_dfrrd_cr>`_,F1_46.DBF,269,A,Other Deferred Credits
+`f1_othr_pd_in_cptl <https://data.catalyst.coop/ferc1/f1_othr_pd_in_cptl>`_,F1_47.DBF,253,A,Other Paid-in Capital
+`f1_othr_reg_assets <https://data.catalyst.coop/ferc1/f1_othr_reg_assets>`_,F1_48.DBF,232,A/Q,Other Regulatory Assets
+`f1_othr_reg_liab <https://data.catalyst.coop/ferc1/f1_othr_reg_liab>`_,F1_49.DBF,278,A/Q,Other Regulatory Liabilities
+`f1_overhead <https://data.catalyst.coop/ferc1/f1_overhead>`_,F1_50.DBF,218,,
+`f1_pccidica <https://data.catalyst.coop/ferc1/f1_pccidica>`_,F1_51.DBF,340,,
+f1_pins,F1_PINS.DBF,,,
+`f1_plant <https://data.catalyst.coop/ferc1/f1_plant>`_,F1_92.DBF,"204, 214",A,Electric Plant Held for Future Use
+`f1_plant_in_srvce <https://data.catalyst.coop/ferc1/f1_plant_in_srvce>`_,F1_52.DBF,204-207,A,Electric Plant in Service
+`f1_privilege <https://data.catalyst.coop/ferc1/f1_privilege>`_,F1_81.DBF,,,
+`f1_pumped_storage <https://data.catalyst.coop/ferc1/f1_pumped_storage>`_,F1_53.DBF,408-409,A,Pumped Storage Generating Plant Statistics (Large Plants)
+`f1_purchased_pwr <https://data.catalyst.coop/ferc1/f1_purchased_pwr>`_,F1_54.DBF,326-327,A,Purchased Power
+`f1_r_d_demo_actvty <https://data.catalyst.coop/ferc1/f1_r_d_demo_actvty>`_,F1_59.DBF,352-353,A,"Research, Development & Demonstration Activities"
+`f1_reconrpt_netinc <https://data.catalyst.coop/ferc1/f1_reconrpt_netinc>`_,F1_55.DBF,261,A,Reconciliation of Reported Net Income with Taxable Income for Federal Income Taxes
+`f1_reg_comm_expn <https://data.catalyst.coop/ferc1/f1_reg_comm_expn>`_,F1_56.DBF,350-351,A,Regulatory Commission Expenses
+`f1_respdnt_control <https://data.catalyst.coop/ferc1/f1_respdnt_control>`_,F1_57.DBF,103,A,Corporations Controlled by Respondent
+`f1_respondent_id <https://data.catalyst.coop/ferc1/f1_respondent_id>`_,F1_1.DBF,,,Respondent ID
+`f1_retained_erng <https://data.catalyst.coop/ferc1/f1_retained_erng>`_,F1_58.DBF,118-119,A/Q,Statement of Retained Earnings for the Year
+`f1_rg_trn_srv_rev <https://data.catalyst.coop/ferc1/f1_rg_trn_srv_rev>`_,F1_RG_TRN_SRV_REV.DBF,302,A/Q,Regional Transmission Service Revenues (Account 457.1)
+`f1_row_lit_tbl <https://data.catalyst.coop/ferc1/f1_row_lit_tbl>`_,F1_84.DBF,,,Descriptive labels for each numbered row in the Form 1. Useful for identifying semantic content and changes in line numbers from year to year.
+`f1_s0_checks <https://data.catalyst.coop/ferc1/f1_s0_checks>`_,F1_S0_CHECKS.DBF,,,
+`f1_s0_filing_log <https://data.catalyst.coop/ferc1/f1_s0_filing_log>`_,F1_S0_FILING_LOG.DBF,,,
+`f1_sale_for_resale <https://data.catalyst.coop/ferc1/f1_sale_for_resale>`_,F1_61.DBF,310-311,A,Sales for Resale
+`f1_sales_by_sched <https://data.catalyst.coop/ferc1/f1_sales_by_sched>`_,F1_60.DBF,304,A,Sales of Electricity by Rate Schedules
+`f1_sbsdry_detail <https://data.catalyst.coop/ferc1/f1_sbsdry_detail>`_,F1_91.DBF,224-225,A,Investment in Subsidiary Companies (Account 123.1)
+`f1_sbsdry_totals <https://data.catalyst.coop/ferc1/f1_sbsdry_totals>`_,F1_62.DBF,224-225,A,Investment in Subsidiary Companies (Total Line for Schedule)
+`f1_sched_lit_tbl <https://data.catalyst.coop/ferc1/f1_sched_lit_tbl>`_,F1_77.DBF,,,
+`f1_schedules_list <https://data.catalyst.coop/ferc1/f1_schedules_list>`_,F1_63.DBF,002-004,A/Q,List of Schedules
+`f1_security <https://data.catalyst.coop/ferc1/f1_security>`_,F1_SECURITY.DBF,106,,
+`f1_security_holder <https://data.catalyst.coop/ferc1/f1_security_holder>`_,F1_64.DBF,106,,
+`f1_slry_wg_dstrbtn <https://data.catalyst.coop/ferc1/f1_slry_wg_dstrbtn>`_,F1_65.DBF,354-355,A,Distribution of Salaries & Wages
+`f1_steam <https://data.catalyst.coop/ferc1/f1_steam>`_,F1_89.DBF,402-403a,A,Steam-Electric Generation Plant Statistics - Large Plants (Plant Information)
+`f1_substations <https://data.catalyst.coop/ferc1/f1_substations>`_,F1_66.DBF,426-427,A,Substations
+`f1_sys_error_log <https://data.catalyst.coop/ferc1/f1_sys_error_log>`_,F1_82.DBF,,,
+`f1_taxacc_ppchrgyr <https://data.catalyst.coop/ferc1/f1_taxacc_ppchrgyr>`_,F1_67.DBF,262-263,A,"Taxes Accrued, Prepaid & Charged During Year"
+`f1_unique_num_val <https://data.catalyst.coop/ferc1/f1_unique_num_val>`_,F1_83.DBF,,,
+`f1_unrcvrd_cost <https://data.catalyst.coop/ferc1/f1_unrcvrd_cost>`_,F1_68.DBF,230-230b,A,Unrecovered Plant & Regulatory Study Costs
+`f1_utltyplnt_smmry <https://data.catalyst.coop/ferc1/f1_utltyplnt_smmry>`_,F1_69.DBF,200-201,A/Q,"Summary of Utility Plant & Accumulated Provisions for Depreciation, Amortization, & Depletion"
+`f1_work <https://data.catalyst.coop/ferc1/f1_work>`_,F1_70.DBF,216,A,Construction Work in Progress - Electric
+`f1_xmssn_adds <https://data.catalyst.coop/ferc1/f1_xmssn_adds>`_,F1_71.DBF,424-425,A,Transmission Lines Added During Year
+`f1_xmssn_elc_bothr <https://data.catalyst.coop/ferc1/f1_xmssn_elc_bothr>`_,F1_72.DBF,332,A/Q,Transmission of Electricity by Others
+`f1_xmssn_elc_fothr <https://data.catalyst.coop/ferc1/f1_xmssn_elc_fothr>`_,F1_73.DBF,328-330,A/Q,Transmission of Electricity for Others
+`f1_xmssn_line <https://data.catalyst.coop/ferc1/f1_xmssn_line>`_,F1_74.DBF,422-423,A,Transmission Line Statistics
+`f1_xtraordnry_loss <https://data.catalyst.coop/ferc1/f1_xtraordnry_loss>`_,F1_75.DBF,230-230a,A,Extraordinary Property Losses

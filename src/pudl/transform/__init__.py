@@ -42,7 +42,7 @@ This raw data is transformed in 3 main steps:
 At the end of the main coordinating transform() function, every column that remains in
 each of the transformed dataframes should correspond to a column that will exist in the
 database and be associated with the EIA datasets, which means it is also part of the EIA
-column namespace. It's important to make sure these column names match the naming
+column namespace. It's important that you make sure these column names match the naming
 conventions that are being used, and if any of the columns exist in other tables, that
 they have exactly the same name and datatype.
 

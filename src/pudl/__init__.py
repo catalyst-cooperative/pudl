@@ -12,6 +12,8 @@ import pudl.analysis.mcoe
 import pudl.analysis.service_territory
 import pudl.cli
 import pudl.constants
+import pudl.convert.censusdp1tract_to_sqlite
+import pudl.convert.datapkg_to_rst
 import pudl.convert.datapkg_to_sqlite
 import pudl.convert.epacems_to_parquet
 import pudl.convert.ferc1_to_sqlite
@@ -32,6 +34,7 @@ import pudl.helpers
 import pudl.load.csv
 import pudl.load.metadata
 # Output modules by data source:
+import pudl.output.censusdp1tract
 import pudl.output.eia860
 import pudl.output.eia923
 import pudl.output.epacems
@@ -73,7 +76,6 @@ data, with the goal of enabling climate advocates, academic researchers, and
 data journalists to better understand the electricity system and its impacts
 on climate.
 """
-__pythonrequiredversion__ = "3.8"
 __projecturl__ = "https://catalyst.coop/pudl/"
 __downloadurl__ = "https://github.com/catalyst-cooperative/pudl/"
 

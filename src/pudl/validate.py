@@ -98,7 +98,7 @@ def check_unique_rows(df, subset=None, df_name=""):
     n_dupes = len(df[df.duplicated(subset=subset)])
     if n_dupes != 0:
         raise ValueError(
-            f"Found {n_dupes} dupes of in dataframe {df_name}")
+            f"Found {n_dupes} dupes of {subset} in dataframe {df_name}")
 
     return df
 
@@ -1110,9 +1110,6 @@ Valid coal heat content values (all coal types).
 
 The Generation Fuel table does not break different coal types out separately,
 so we can only test the validity of the entire suite of coal records.
-
-Based on IEA coal grade definitions:
-https://www.iea.org/statistics/resources/balancedefinitions/
 """
 
 gf_eia923_gas_heat_content = [
@@ -1294,12 +1291,7 @@ bf_eia923_coal_heat_content = [
         "weight_col": "fuel_consumed_units",
     },
 ]
-"""
-Valid coal (bituminous, sub-bituminous, and lignite) heat content values.
-
-Based on IEA coal grade definitions:
-https://www.iea.org/statistics/resources/balancedefinitions/
-"""
+"""Valid coal (bituminous, sub-bituminous, and lignite) heat content values."""
 
 bf_eia923_oil_heat_content = [
     {

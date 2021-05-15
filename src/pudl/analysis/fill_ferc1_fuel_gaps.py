@@ -1,20 +1,8 @@
 """A Module to create a more specific fuel field for ferc1."""
 
-# Standard libraries
-import pickle
-
 # 3rd party libraries
 import numpy as np
 import pandas as pd
-
-#######################################################################################
-# ESTABLISH A CONNECTION TO THE NECESSARY TABLES
-#######################################################################################
-
-with open('/Users/aesharpe/Desktop/ferc1_transformed.pickle', 'rb') as handle:
-    ferc1_transformed_dfs = pickle.load(handle)
-
-fuel = ferc1_transformed_dfs['fuel_ferc1']
 
 #######################################################################################
 # DEFINE USEFUL VARIABLES
@@ -156,6 +144,7 @@ def add_manual_values(df, col_name, file_path):
 
 
 def show_unfilled_rows(df, fill_col):
+    """Blah."""
     print(len(df[df[f'{fill_col}'].isna()]), '/', len(df))
 
 
@@ -171,7 +160,7 @@ def _drop_bad_plants(df, bad_plants):
 #######################################################################################
 
 def make_cols_for_new_units(df):
-
+    """Blah."""
     def check_for_new_units(df, year_col, bool_col):
         """Check the construction_year and installation_year fields."""
         init_years = df[df['report_year'] == df.report_year.min()][year_col].unique()
@@ -189,6 +178,7 @@ def make_cols_for_new_units(df):
 
 
 def get_tech_descrip_from_eia(eia_gens):
+    """Blah."""
     # Get eia plants with only one technology description (besides NA)
     eia_one_tech = (
         eia_gens.groupby('plant_id_pudl')
@@ -200,10 +190,10 @@ def get_tech_descrip_from_eia(eia_gens):
     # (so there is one per plant-year)
     eia_one_tech = (
         eia_one_tech.drop(eia_one_tech[
-            (eia_one_tech['dup'] == True)
+            (eia_one_tech['dup'])
             & (eia_one_tech['technology_description'].isna())].index))
 
-    #eia_one_tech_list = list(eia_one_tech.plant_id_pudl.unique())
+    # eia_one_tech_list = list(eia_one_tech.plant_id_pudl.unique())
 
     # Get the technology description associated with the plant regardless of year...
     plant_id_tech_type = (
@@ -218,6 +208,7 @@ def get_tech_descrip_from_eia(eia_gens):
 
 
 def merge_with_eia_tech_desc(df, eia_one_tech, plant_tech_dict):
+    """Blah."""
     print("merging single-tech EIA technology_description with FERC")
     # Add a column for technology_type by year and one that shows the technology type
     # regardless of year (same_tech)
@@ -375,7 +366,7 @@ def primary_fuel_by_cost(df):
     return out_df
 
 
-def raw_ferc1_fuel(df):
+def raw_ferc1_fuel(df, fuel):
     """Blah."""
     print('filling in raw ferc1 fuels')
 
@@ -810,6 +801,7 @@ def flip_fuel_outliers_all(df, max_group_size):
 
 
 def fill_obvious_names_plant(df):
+    """Blah."""
     print('filling plants with obvious names')
     df.loc[df['plant_name_ferc1'].str.contains('nuclear'), 'plant_type'] = 'nuclear'
     df.loc[(df['plant_type'].isna()) & (df['plant_name_ferc1'].str.contains(
@@ -853,6 +845,7 @@ def impute_fuel_type(df, pudl_out):
     fbp = pudl_out.fbp_ferc1()
     fbp_small = fbp[ferc_merge_cols + ['primary_fuel_by_mmbtu', 'primary_fuel_by_cost']]
     gens = pudl_out.gens_eia860()
+    fuel = pudl_out.fuel_ferc1()
 
     common_col = 'primary_fuel'
 
@@ -862,7 +855,7 @@ def impute_fuel_type(df, pudl_out):
         .pipe(primary_fuel_by_mmbtu, fbp_small)
         .pipe(eia_one_reported_fuel, gens)
         .pipe(primary_fuel_by_cost)
-        .pipe(raw_ferc1_fuel)
+        .pipe(raw_ferc1_fuel, fuel)
         .pipe(ferc1_id_has_one_fuel)
         .pipe(pudl_id_has_one_fuel)
         .pipe(manually_add_fuel)
@@ -885,6 +878,7 @@ def impute_plant_type(df):
 
 
 def impute_tech_desc(df, eia_df):
+    """Blah."""
     eia_df = eia_df.assign(report_year=lambda x: x.report_date.dt.year)
     eia_one_tech, plant_id_tech_dict = get_tech_descrip_from_eia(eia_df)
 

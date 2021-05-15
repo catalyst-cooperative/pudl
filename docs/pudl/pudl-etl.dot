@@ -1,0 +1,184 @@
+digraph pudl_etl {
+  rankdir="LR"
+  node [shape=rectangle]
+  graph [ranksep=1.0, nodesep=0.5]
+
+  subgraph cluster_scrapy {
+    label="Web Scraping"
+    rank=same
+    style=filled
+    color=red
+    node [style=filled, color=white]
+    censusdp1tract_scrapy
+    eia860_scrapy
+    eia860m_scrapy
+    eia861_scrapy
+    eia923_scrapy
+    epacems_scrapy
+    ferc1_scrapy
+    ferc714_scrapy
+  }
+
+  subgraph cluster_zenodo {
+    label="Zenodo Archives"
+    rank=same
+    style=filled
+    color=orange
+    node [style=filled, color=white]
+    censusdp1tract_zenodo
+    eia860_zenodo
+    eia860m_zenodo
+    eia861_zenodo
+    eia923_zenodo
+    epacems_zenodo
+    ferc1_zenodo
+    ferc714_zenodo
+  }
+
+  subgraph cluster_datastore {
+    label="Local Datastore"
+    rank=same
+    style=filled
+    color=yellow
+    node [style=filled, color=white]
+    eia860_datastore
+    eia860m_datastore
+    eia861_datastore
+    eia923_datastore
+    epacems_datastore
+    ferc1_datastore
+    ferc714_datastore
+  }
+
+  subgraph cluster_extract {
+    label="Extract"
+    rank=same
+    style=filled
+    color=yellowgreen
+    node [style=filled, color=white]
+    eia860_extract
+    eia860m_extract
+    eia861_extract
+    eia923_extract
+    epacems_extract
+    ferc1_extract
+    ferc714_extract
+  }
+
+  subgraph cluster_transform {
+    label="Transform"
+    rank=same
+    style=filled
+    color=green
+    node [style=filled, color=white]
+    eia860_transform
+    eia861_transform
+    eia923_transform
+    epacems_transform
+    ferc1_transform
+    ferc714_transform
+  }
+
+  subgraph cluster_normalize {
+    label="Harvest Entities\nNormalize Tables"
+    rank=same
+    style=filled
+    color=cyan
+    node [style=filled, color=white]
+    eia_norm
+  }
+
+  subgraph cluster_dp {
+    label="Data Packages"
+    rank=same
+    style=filled
+    color=lightblue
+    node [style=filled, color=white]
+    eia_epacems_dp
+    eia_dp
+    ferc1_dp
+    ferc714_dp
+  }
+
+  subgraph cluster_release {
+    label="Public Release"
+    rank=same
+    style=filled
+    color=magenta
+    node [style=filled, color=white]
+    datasette
+    data_release
+    JupyterHub
+  }
+
+  subgraph cluster_schema {
+    label="Table Schemas"
+    rank=same
+    style=filled
+    color=pink
+    node [style=filled, color=white]
+    eia_schema
+    epacems_schema
+    ferc1_schema
+    ferc714_schema
+  }
+
+  subgraph cluster_glue {
+    label="Glue Tables"
+    rank=same
+    style=filled
+    color=turquoise
+    node [style=filled, color=white]
+    eia_epacems_glue
+    eia_ferc1_glue
+  }
+
+  censusdp1tract_scrapy -> censusdp1tract_zenodo
+  eia860_scrapy -> eia860_zenodo -> eia860_datastore -> eia860_extract -> eia860_transform -> eia_norm
+  eia860m_scrapy -> eia860m_zenodo -> eia860m_datastore -> eia860m_extract -> eia860_transform
+  eia861_scrapy -> eia861_zenodo -> eia861_datastore -> eia861_extract -> eia861_transform -> eia_norm
+  eia923_scrapy -> eia923_zenodo -> eia923_datastore -> eia923_extract -> eia923_transform -> eia_norm
+  epacems_scrapy -> epacems_zenodo -> epacems_datastore -> epacems_extract -> epacems_transform
+  ferc1_scrapy -> ferc1_zenodo -> ferc1_datastore -> ferc1_sqlite -> ferc1_extract -> ferc1_transform
+  ferc714_scrapy -> ferc714_zenodo -> ferc714_datastore -> ferc714_extract -> ferc714_transform
+
+  eia_norm -> eia_dp
+  eia_norm -> eia_epacems_dp
+  epacems_transform -> eia_epacems_dp
+  ferc1_transform -> ferc1_dp
+  ferc714_transform -> ferc714_dp
+
+  eia_dp -> pudl_sqlite
+  ferc1_dp -> pudl_sqlite
+  ferc714_dp -> pudl_sqlite
+
+  eia_epacems_dp -> epacems_parquet
+
+  ferc1_sqlite -> datasette
+  pudl_sqlite -> datasette
+
+  eia_dp -> data_release
+  eia_epacems_dp -> data_release
+  ferc1_dp -> data_release
+  ferc714_dp -> data_release
+
+  ferc1_sqlite -> JupyterHub
+  pudl_sqlite -> JupyterHub
+  epacems_parquet -> JupyterHub
+  censusdp1tract_zenodo -> JupyterHub
+
+  eia_ferc1_glue -> eia_dp
+  eia_ferc1_glue -> ferc1_dp
+  eia_epacems_glue -> eia_dp
+  eia_epacems_glue -> eia_epacems_dp
+
+  eia_schema -> eia_dp
+  epacems_schema -> eia_epacems_dp
+  ferc1_schema -> ferc1_dp
+  ferc714_schema -> ferc714_dp
+
+  eia_schema -> datasette
+  epacems_schema -> datasette
+  ferc1_schema -> datasette
+  ferc714_schema -> datasette
+}

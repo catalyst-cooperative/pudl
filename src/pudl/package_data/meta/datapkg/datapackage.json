@@ -1,8 +1,6 @@
 {
     "autoincrement": {
         "fuel_ferc1": "id",
-        "load_curves_epaipm": "id",
-        "plant_region_map_epaipm": "id",
         "generation_eia923": "id",
         "plants_hydro_ferc1": "id",
         "purchased_power_ferc1": "id",
@@ -16,10 +14,8 @@
         "plants_pumped_storage_ferc1": "id",
         "boiler_fuel_eia923": "id",
         "hourly_emissions_epacems": "id",
-        "transmission_single_epaipm": "id",
         "plants_steam_ferc1": "id",
-        "utilities_eia860": "id",
-        "transmission_joint_epaipm": "id"
+        "utilities_eia860": "id"
     },
     "resources": [{
             "profile": "tabular-data-resource",
@@ -62,6 +58,12 @@
                         "name": "plant_name_ferc1",
                         "type": "string",
                         "description": "Name of the plant, as reported to FERC. This is a freeform string, not guaranteed to be consistent across references to the same plant.",
+                        "format": "default"
+                    },
+                    {
+                        "name": "fuel_avg_heat_raw",
+                        "type": "number",
+                        "description": "Unitless heat rate for a given row",
                         "format": "default"
                     },
                     {
@@ -157,128 +159,6 @@
                 "title": "ferc1",
                 "path": "ftp://eforms1.ferc.gov/f1allyears"
             }]
-        },
-        {
-            "profile": "tabular-data-resource",
-            "name": "load_curves_epaipm",
-            "path": "data/load_curves_epaipm.csv",
-            "title": "load_curves_epaipm",
-            "encoding": "utf-8",
-            "mediatype": "text/csv",
-            "format": "csv",
-            "dialect": {
-                "delimiter": ",",
-                "header": true,
-                "quoteChar": "\"",
-                "doubleQuote": true,
-                "lineTerminator": "\r\n",
-                "skipInitialSpace": true,
-                "caseSensitiveHeader": false
-            },
-            "schema": {
-                "fields": [{
-                        "name": "region_id_epaipm",
-                        "type": "string",
-                        "description": "Name of the IPM region",
-                        "format": "default"
-                    },
-                    {
-                        "name": "month",
-                        "type": "integer",
-                        "description": "Month of the year",
-                        "format": "default"
-                    },
-                    {
-                        "name": "day_of_year",
-                        "type": "integer",
-                        "description": "Day of the year",
-                        "format": "default"
-                    },
-                    {
-                        "name": "hour",
-                        "type": "integer",
-                        "description": "Hour of the day (0-23). Original IPM values were 1-24.",
-                        "format": "default"
-                    },
-                    {
-                        "name": "time_index",
-                        "type": "integer",
-                        "description": "8760 index hour of the year",
-                        "format": "default"
-                    },
-                    {
-                        "name": "load_mw",
-                        "type": "number",
-                        "description": "Load (MW) in an hour of the day for the IPM region",
-                        "format": "default"
-                    }
-                ],
-                "foreignKeys": [{
-                    "fields": "region_id_epaipm",
-                    "reference": {
-                        "resource": "regions_entity_epaipm",
-                        "fields": "region_id_epaipm"
-                    }
-                }],
-                "missingValues": [
-                    ""
-                ]
-            },
-            "licenses": [{
-                "name": "CC-BY-4.0",
-                "title": "Creative Commons Attribution 4.0",
-                "path": "https://creativecommons.org/licenses/by/4.0/"
-            }],
-            "sources": []
-        },
-        {
-            "profile": "tabular-data-resource",
-            "name": "plant_region_map_epaipm",
-            "path": "data/plant_region_map_epaipm.csv",
-            "title": "plant_region_map_epaipm",
-            "encoding": "utf-8",
-            "mediatype": "text/csv",
-            "format": "csv",
-            "dialect": {
-                "delimiter": ",",
-                "header": true,
-                "quoteChar": "\"",
-                "doubleQuote": true,
-                "lineTerminator": "\r\n",
-                "skipInitialSpace": true,
-                "caseSensitiveHeader": false
-            },
-            "schema": {
-                "fields": [{
-                        "name": "plant_id_eia",
-                        "type": "integer",
-                        "description": "The unique six-digit facility identification number, also called an ORISPL, assigned by the Energy Information Administration.",
-                        "format": "default"
-                    },
-                    {
-                        "name": "region",
-                        "type": "string",
-                        "description": "Name of the IPM region",
-                        "format": "default"
-                    }
-                ],
-                "foreignKeys": [{
-                    "fields": "region",
-                    "reference": {
-                        "resource": "regions_entity_epaipm",
-                        "fields": "region_id_epaipm"
-                    }
-                }],
-                "missingValues": [
-                    ""
-                ]
-            },
-            "licenses": [{
-                "name": "CC-BY-4.0",
-                "title": "Creative Commons Attribution 4.0",
-                "path": "https://creativecommons.org/licenses/by/4.0/"
-            }],
-            "sources": []
         },
         {
             "profile": "tabular-data-resource",
@@ -458,8 +338,7 @@
                                 "ferc1",
                                 "eia860",
                                 "eia923",
-                                "epacems",
-                                "epaipm"
+                                "epacems"
                             ]
                         }
                     },
@@ -908,43 +787,6 @@
                         "fields": "plant_id_eia"
                     }
                 }],
-                "missingValues": [
-                    ""
-                ]
-            },
-            "licenses": [{
-                "name": "CC-BY-4.0",
-                "title": "Creative Commons Attribution 4.0",
-                "path": "https://creativecommons.org/licenses/by/4.0/"
-            }],
-            "sources": []
-        },
-        {
-            "profile": "tabular-data-resource",
-            "name": "regions_entity_epaipm",
-            "path": "data/regions_entity_epaipm.csv",
-            "title": "regions_entity_epaipm",
-            "encoding": "utf-8",
-            "mediatype": "text/csv",
-            "format": "csv",
-            "dialect": {
-                "delimiter": ",",
-                "header": true,
-                "quoteChar": "\"",
-                "doubleQuote": true,
-                "lineTerminator": "\r\n",
-                "skipInitialSpace": true,
-                "caseSensitiveHeader": false
-            },
-            "schema": {
-                "fields": [{
-                    "name": "region_id_epaipm",
-                    "type": "string",
-                    "format": "default"
-                }],
-                "primaryKey": [
-                    "region_id_epaipm"
-                ],
                 "missingValues": [
                     ""
                 ]
@@ -3263,52 +3105,6 @@
         },
         {
             "profile": "tabular-data-resource",
-            "name": "natural_gas_transport_eia923",
-            "path": "data/natural_gas_transport_eia923.csv",
-            "title": "natural_gas_transport_eia923",
-            "encoding": "utf-8",
-            "mediatype": "text/csv",
-            "format": "csv",
-            "dialect": {
-                "delimiter": ",",
-                "header": true,
-                "quoteChar": "\"",
-                "doubleQuote": true,
-                "lineTerminator": "\r\n",
-                "skipInitialSpace": true,
-                "caseSensitiveHeader": false
-            },
-            "schema": {
-                "fields": [{
-                        "name": "abbr",
-                        "type": "string",
-                        "format": "default"
-                    },
-                    {
-                        "name": "status",
-                        "type": "string",
-                        "format": "default"
-                    }
-                ],
-                "primaryKey": [
-                    "abbr"
-                ],
-                "missingValues": [
-                    ""
-                ]
-            },
-            "licenses": [{
-                "name": "CC-BY-4.0",
-                "title": "Creative Commons Attribution 4.0",
-                "path": "https://creativecommons.org/licenses/by/4.0/"
-            }],
-            "sources": [{
-                "title": "eia923",
-                "path": "https://www.eia.gov/electricity/data/eia923"
-            }]
-        },
-        {
-            "profile": "tabular-data-resource",
             "name": "transport_modes_eia923",
             "path": "data/transport_modes_eia923.csv",
             "title": "transport_modes_eia923",
@@ -4089,7 +3885,7 @@
                     {
                         "name": "capex_per_mw",
                         "type": "number",
-                        "description": "Plant costs (including asset retirement costs) per megawatt. Nominal USD. ",
+                        "description": "Plant costs (including asset retirement costs) per megawatt. Nominal USD.",
                         "format": "default"
                     },
                     {
@@ -4761,7 +4557,7 @@
                     {
                         "name": "unit_id_epa",
                         "type": "integer",
-                        "description": "Smokestack' unit monitored by EPA CEMS.",
+                        "description": "Smokestack unit monitored by EPA CEMS.",
                         "format": "default"
                     }
                 ],
@@ -4778,81 +4574,6 @@
                 "title": "epacems",
                 "path": "ftp://newftp.epa.gov/dmdnload/emissions/hourly/monthly"
             }]
-        },
-        {
-            "profile": "tabular-data-resource",
-            "name": "transmission_single_epaipm",
-            "path": "data/transmission_single_epaipm.csv",
-            "title": "transmission_single_epaipm",
-            "encoding": "utf-8",
-            "mediatype": "text/csv",
-            "format": "csv",
-            "dialect": {
-                "delimiter": ",",
-                "header": true,
-                "quoteChar": "\"",
-                "doubleQuote": true,
-                "lineTerminator": "\r\n",
-                "skipInitialSpace": true,
-                "caseSensitiveHeader": false
-            },
-            "schema": {
-                "fields": [{
-                        "name": "region_from",
-                        "type": "string",
-                        "description": "Name of the IPM region sending electricity",
-                        "format": "default"
-                    },
-                    {
-                        "name": "region_to",
-                        "type": "string",
-                        "description": "Name of the IPM region receiving electricity",
-                        "format": "default"
-                    },
-                    {
-                        "name": "firm_ttc_mw",
-                        "type": "number",
-                        "description": "Transfer capacity with N-1 lines (used for reserve margins)",
-                        "format": "default"
-                    },
-                    {
-                        "name": "nonfirm_ttc_mw",
-                        "type": "number",
-                        "description": "Transfer capacity with N-0 lines (used for energy sales)",
-                        "format": "default"
-                    },
-                    {
-                        "name": "tariff_mills_kwh",
-                        "type": "number",
-                        "description": "Cost to transfer electricity between regions",
-                        "format": "default"
-                    }
-                ],
-                "foreignKeys": [{
-                        "fields": "region_to",
-                        "reference": {
-                            "resource": "regions_entity_epaipm",
-                            "fields": "region_id_epaipm"
-                        }
-                    },
-                    {
-                        "fields": "region_from",
-                        "reference": {
-                            "resource": "regions_entity_epaipm",
-                            "fields": "region_id_epaipm"
-                        }
-                    }
-                ],
-                "missingValues": [
-                    ""
-                ]
-            },
-            "licenses": [{
-                "name": "CC-BY-4.0",
-                "title": "Creative Commons Attribution 4.0",
-                "path": "https://creativecommons.org/licenses/by/4.0/"
-            }],
-            "sources": []
         },
         {
             "profile": "tabular-data-resource",
@@ -5252,11 +4973,6 @@
                         "format": "default"
                     },
                     {
-                        "name": "address_3",
-                        "type": "string",
-                        "format": "default"
-                    },
-                    {
                         "name": "zip_code_4",
                         "type": "string",
                         "format": "default"
@@ -5569,81 +5285,6 @@
         },
         {
             "profile": "tabular-data-resource",
-            "name": "transmission_joint_epaipm",
-            "path": "data/transmission_joint_epaipm.csv",
-            "title": "transmission_joint_epaipm",
-            "encoding": "utf-8",
-            "mediatype": "text/csv",
-            "format": "csv",
-            "dialect": {
-                "delimiter": ",",
-                "header": true,
-                "quoteChar": "\"",
-                "doubleQuote": true,
-                "lineTerminator": "\r\n",
-                "skipInitialSpace": true,
-                "caseSensitiveHeader": false
-            },
-            "schema": {
-                "fields": [{
-                        "name": "joint_constraint_id",
-                        "type": "integer",
-                        "description": "Identification of groups that make up a single joint constraint",
-                        "format": "default"
-                    },
-                    {
-                        "name": "region_from",
-                        "type": "string",
-                        "description": "Name of the IPM region sending electricity",
-                        "format": "default"
-                    },
-                    {
-                        "name": "region_to",
-                        "type": "string",
-                        "description": "Name of the IPM region receiving electricity",
-                        "format": "default"
-                    },
-                    {
-                        "name": "firm_ttc_mw",
-                        "type": "number",
-                        "description": "Transfer capacity with N-1 lines (used for reserve margins)",
-                        "format": "default"
-                    },
-                    {
-                        "name": "nonfirm_ttc_mw",
-                        "type": "number",
-                        "description": "Transfer capacity with N-0 lines (used for energy sales)",
-                        "format": "default"
-                    }
-                ],
-                "foreignKeys": [{
-                        "fields": "region_to",
-                        "reference": {
-                            "resource": "regions_entity_epaipm",
-                            "fields": "region_id_epaipm"
-                        }
-                    },
-                    {
-                        "fields": "region_from",
-                        "reference": {
-                            "resource": "regions_entity_epaipm",
-                            "fields": "region_id_epaipm"
-                        }
-                    }
-                ],
-                "missingValues": [
-                    ""
-                ]
-            },
-            "licenses": [{
-                "name": "CC-BY-4.0",
-                "title": "Creative Commons Attribution 4.0",
-                "path": "https://creativecommons.org/licenses/by/4.0/"
-            }],
-            "sources": []
-        },
-        {
-            "profile": "tabular-data-resource",
             "name": "plant_unit_epa",
             "path": "data/plant_unit_epa.csv",
             "title": "EPA Plant and Unit",
@@ -5668,7 +5309,7 @@
                     {
                         "name": "unit_id_epa",
                         "type": "string",
-                        "description": "Smokestack' unit monitored by EPA CEMS.",
+                        "description": "Smokestack unit monitored by EPA CEMS.",
                         "format": "default"
                     }
                 ],
@@ -5766,7 +5407,7 @@
                     {
                        "name": "unit_id_epa",
                        "type": "string",
-                       "description": "Smokestack' unit monitored by EPA CEMS.",
+                       "description": "Smokestack unit monitored by EPA CEMS.",
                        "format": "default"
                     },
                     {

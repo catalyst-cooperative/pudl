@@ -29,10 +29,10 @@ logger = logging.getLogger(__name__)
         ),
     ]
 )
-def test_vs_bounds(pudl_out_ferc1, live_pudl_db, cases):
+def test_vs_bounds(pudl_out_ferc1, live_dbs, cases):
     """Test distributions of reported plants_steam_ferc1 columns."""
-    if not live_pudl_db:
-        raise AssertionError("Data validation only works with a live PUDL DB.")
+    if not live_dbs:
+        pytest.skip("Data validation only works with a live PUDL DB.")
     validate_df = (
         pudl_out_ferc1.plants_steam_ferc1().
         assign(
@@ -46,10 +46,10 @@ def test_vs_bounds(pudl_out_ferc1, live_pudl_db, cases):
         pudl.validate.vs_bounds(validate_df, **case)
 
 
-def test_self_vs_historical(pudl_out_ferc1, live_pudl_db):
+def test_self_vs_historical(pudl_out_ferc1, live_dbs):
     """Validate..."""
-    if not live_pudl_db:
-        raise AssertionError("Data validation only works with a live PUDL DB.")
+    if not live_dbs:
+        pytest.skip("Data validation only works with a live PUDL DB.")
     validate_df = (
         pudl_out_ferc1.plants_steam_ferc1().
         assign(
@@ -83,9 +83,8 @@ def test_dupe_years_in_plant_id_ferc1(pudl_out_ferc1):
     )
     for dupe in year_dupes.itertuples():
         logger.error(
-            f"Found report_year={dupe.report_year} "
-            f"{dupe.year_dupes} times in "
-            f"plant_id_ferc1={dupe.plant_id_ferc1}"
+            "Found report_year=%s %s times in plant_id_ferc1=%s",
+            dupe.report_year, dupe.year_dups, dupe.plant_id_ferc1
         )
     if len(year_dupes) != 0:
         raise AssertionError(
@@ -118,9 +117,10 @@ def test_plant_id_clash(pudl_out_ferc1):
         bad_records = steam_df[steam_df.plant_id_ferc1.
                                isin(bad_plant_ids_ferc1)]
         bad_plant_ids_pudl = bad_records.plant_id_pudl.unique().tolist()
-        raise AssertionError(
+        msg = (
             f"Found {len(bad_plant_ids_ferc1)} plant_id_ferc1 values "
             f"associated with {len(bad_plant_ids_pudl)} non-unique "
             f"plant_id_pudl values.\nplant_id_ferc1: {bad_plant_ids_ferc1}\n"
-            f"plant_id_pudl: {bad_plant_ids_pudl}."
-        )
+            f"plant_id_pudl: {bad_plant_ids_pudl}.")
+        logger.info(msg)
+        raise AssertionError(msg)

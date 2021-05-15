@@ -1362,7 +1362,7 @@ entities = {
         ['street_address', 'city', 'state', 'zip_code', 'entity_type',
          'plants_reported_owner', 'plants_reported_operator',
          'plants_reported_asset_manager', 'plants_reported_other_relationship',
-         'attention_line', 'address_2', 'address_3', 'zip_code_4',
+         'attention_line', 'address_2', 'zip_code_4',
          'contact_firstname', 'contact_lastname', 'contact_title',
          'contact_firstname_2', 'contact_lastname_2', 'contact_title_2',
          'phone_extension_1', 'phone_extension_2', 'phone_number_1',
@@ -1511,7 +1511,7 @@ working_partitions = {
         'years': tuple(range(2004, 2020))
     },
     'eia860m': {
-        'year_month': '2020-08'
+        'year_month': '2020-11'
     },
     'eia861': {
         'years': tuple(range(2001, 2020))
@@ -1778,7 +1778,6 @@ output_formats = [
     'sqlite',
     'parquet',
     'datapkg',
-    'notebook',
 ]
 """list: A list of types of PUDL output formats."""
 
@@ -2032,7 +2031,6 @@ column_dtypes = {
     "eia": {
         'actual_peak_demand_savings_mw': float,  # Added by AES for DR table
         'address_2': pd.StringDtype(),  # Added by AES for 860 utilities table
-        'address_3': pd.StringDtype(),
         'advanced_metering_infrastructure': pd.Int64Dtype(),  # Added by AES for AMI table
         # Added by AES for UD misc table
         'alternative_fuel_vehicle_2_activity': pd.BooleanDtype(),

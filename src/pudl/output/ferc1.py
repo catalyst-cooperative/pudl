@@ -1,4 +1,5 @@
 """Functions for pulling FERC Form 1 data out of the PUDL DB."""
+import numpy as np
 import pandas as pd
 
 import pudl
@@ -48,16 +49,22 @@ def plants_steam_ferc1(pudl_engine):
         .drop('id', axis="columns")
         .merge(plants_utils_ferc1(pudl_engine),
                on=['utility_id_ferc1', 'plant_name_ferc1'])
-        .assign(capacity_factor=lambda x: x.net_generation_mwh / (8760 * x.capacity_mw),
-                opex_fuel_per_mwh=lambda x: x.opex_fuel / x.net_generation_mwh,
-                opex_nonfuel_per_mwh=lambda x: (x.opex_production_total - x.opex_fuel) / x.net_generation_mwh)
-        .pipe(pudl.helpers.organize_cols, ['report_year',
-                                           'utility_id_ferc1',
-                                           'utility_id_pudl',
-                                           'utility_name_ferc1',
-                                           'plant_id_pudl',
-                                           'plant_id_ferc1',
-                                           'plant_name_ferc1'])
+        .assign(
+            capacity_factor=lambda x:
+                x.net_generation_mwh / (8760 * x.capacity_mw),
+            opex_fuel_per_mwh=lambda x: x.opex_fuel / x.net_generation_mwh,
+            opex_nonfuel=lambda x: x.opex_production_total - x.opex_fuel,
+            opex_nonfuel_per_mwh=lambda x: np.where(
+                x.net_generation_mwh > 0,
+                x.opex_nonfuel / x.net_generation_mwh,
+                pd.NA)
+        )
+        .pipe(
+            pudl.helpers.organize_cols,
+            ['report_year', 'utility_id_ferc1', 'utility_id_pudl',
+             'utility_name_ferc1', 'plant_id_pudl', 'plant_id_ferc1',
+             'plant_name_ferc1']
+        )
     )
     return steam_df
 
