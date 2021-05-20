@@ -8,6 +8,7 @@ Submodules
    :maxdepth: 4
 
    pudl.analysis.allocate_net_gen
+   pudl.analysis.fill_ferc1_fuel_gaps
    pudl.analysis.mcoe
    pudl.analysis.service_territory
    pudl.analysis.timeseries_cleaning

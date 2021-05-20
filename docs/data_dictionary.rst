@@ -260,6 +260,9 @@ fuel_ferc1
   * - **Field Name**
     - **Type**
     - **Description**
+  * - fuel_avg_heat_raw
+    - number
+    - Unitless heat rate for a given row
   * - fuel_cost_per_mmbtu
     - number
     - Average cost of fuel consumed in the report year, in nominal USD per mmBTU of fuel heat content.

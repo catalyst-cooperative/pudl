@@ -1,8 +1,12 @@
-"""A Module to create a more specific fuel field for ferc1."""
+"""A Module to create a more specific technology field for ferc1."""
+
+import logging
 
 # 3rd party libraries
 import numpy as np
 import pandas as pd
+
+logger = logging.getLogger(__name__)
 
 #######################################################################################
 # DEFINE USEFUL VARIABLES
@@ -33,6 +37,7 @@ td_flag3 = 'backfill from eia year'
 td_flag4 = 'obvious names'
 td_flag5 = 'primary fuel by mmbtu no dups'
 
+
 bad_plant_ids = [11536, 8469, 381, 8468, 8467]
 
 # RMI vaule cols
@@ -46,6 +51,41 @@ value_cols_no_cap = [
     'opex_production_total']
 
 value_cols = value_cols_no_cap + ['capacity_mw']
+
+# Map technology_descriptions
+rmi_tech_desc = {
+    "coal":
+        ['coal_combustion_turbine', 'coal_steam_turbine', 'coal_steam',
+         'coal_combined_cycle', 'coal_internal_combustion', 'coal_unknown',
+         'conventional_steam_coal'],
+    "gas_combined_cycle":
+        ['natural_gas_fired_combined_cycle'],
+    "gas_combustion_turbine":
+        ['natural_gas_fired_combusion_turbine'],
+    "gas_internal_combustion_engine":
+        ['natural_gas_fired_internal_combusion_entine', 'gas_internal_combustion',
+         'natural_gas_internal_combustion_engine', 'natural_gas_fired_combustion_turbine'],
+    "gas_steam_turbine":
+        ['natural_gas_steam_turbine', 'gas_steam'],
+    "geothermal":
+        ['geothermal_geothermal', 'geothermal'],
+    "hydroelectric_conventional":
+        ['conventional_hydroelectric'],
+    "hydroelectric_pumped_storage":
+        [],
+    "nuclear":
+        ['nuclear_nuclear', 'nuclear_unknown'],
+    "petroleum_liquids":
+        ['oil_combustion_turbine', 'oil_steam', 'oil_internal_combustion',
+         'oil_combined_cycle', 'oil_unknown'],
+    "solar":
+        ['solar_photovoltaic'],
+    "waste":
+        ['waste_steam', 'wood/wood_waste_biomass',
+         'municipal_solid_waste', 'landfill_gas'],
+    "wind":
+        ['wind_wind', 'wind_unknown', 'onshore_wind_turbine'],
+}
 
 #######################################################################################
 # SETUP AND TESTING FUNCTIONS
@@ -145,7 +185,8 @@ def add_manual_values(df, col_name, file_path):
 
 def show_unfilled_rows(df, fill_col):
     """Blah."""
-    print(len(df[df[f'{fill_col}'].isna()]), '/', len(df))
+    unfilled = len(df[df[f'{fill_col}'].isna()])
+    logger.info(f"{unfilled} / {len(df)} rows left unfilled")
 
 
 def _drop_bad_plants(df, bad_plants):
@@ -160,7 +201,25 @@ def _drop_bad_plants(df, bad_plants):
 #######################################################################################
 
 def make_cols_for_new_units(df):
-    """Blah."""
+    """Create columns to indicate whether there were units added or retired.
+
+    This function runs a subfunction check_for_new_units() on each plant_id_pudl group
+    to see whether there were any new units added or retired in a given year. This is
+    determined by intallation_year field (the date the the most recent unit installed)
+    and construction_year (the date of the oldest unit). The subfunction takes will
+    mark any rows TRUE that do no have an installation_year or construction_year that
+    matches the first reported installation_year and construction_year. These columns
+    are used for backfilling technology type to ensure that only years with no unit
+    changes can have the same fuel type.
+
+    Args:
+        df (pandas.DataFrame): The FERC1 steam table merged with EIA860 technology
+            description.
+    Returns:
+        pandas.DataFrame: The same DataFrame but with one bool column to show a change
+            in installation year and another to show a change in construction year.
+
+    """
     def check_for_new_units(df, year_col, bool_col):
         """Check the construction_year and installation_year fields."""
         init_years = df[df['report_year'] == df.report_year.min()][year_col].unique()
@@ -174,11 +233,30 @@ def make_cols_for_new_units(df):
         .groupby(['plant_id_pudl'])
         .apply(lambda x: check_for_new_units(x, 'installation_year', 'new_unit')))
 
-    return out_df
+    return out_df  # Might need tweaking
 
 
 def get_tech_descrip_from_eia(eia_gens):
-    """Blah."""
+    """Get technology_description from plants with only one tech description.
+
+    This function looks at the EIA860 generator table and collects the
+    technology_description field from all pudl plant id groups that only have one
+    technology description (besides NA).  We only take plant groups with one fuel
+    because we can't assign sub-plant technology types between EIA and FERC. The
+    function has two outputs: one is a pandas Dataframe that maps EIA
+    technology_descriptions to FERC records by plant_id_pudl and year, and the  second
+    is a dictionary that maps plant_id_pudl to technology description. The first is used
+    to show which years are definitely accounted for in EIA
+    (merge_with_eia_tech_desc()); the dictionary is used for backfilling  in years where
+    there hasn't been any newly installed units (see backfill_tech_desc_by_year()).
+
+    Args:
+        eia_gens (pandas.DataFrame): The gens_eia860 table.
+    Returns:
+        pandas.DataFrame: A dataframe linking plant_id_pudl and year to EIA860
+            technology_description.
+        dict: A dictionary mapping plant_id_pudl to technology_description.
+    """
     # Get eia plants with only one technology description (besides NA)
     eia_one_tech = (
         eia_gens.groupby('plant_id_pudl')
@@ -186,14 +264,16 @@ def get_tech_descrip_from_eia(eia_gens):
         [['report_year', 'plant_id_pudl', 'technology_description']].drop_duplicates()
         .assign(dup=lambda x: x.duplicated(subset=['report_year', 'plant_id_pudl'],
                                            keep=False)))
-    # Drop None cases when there is a None and a Tech Desc. for the same plant and year
+    # Drop cases when there is a None and a Tech Desc. for the same plant and year
     # (so there is one per plant-year)
     eia_one_tech = (
         eia_one_tech.drop(eia_one_tech[
             (eia_one_tech['dup'])
             & (eia_one_tech['technology_description'].isna())].index))
 
-    # eia_one_tech_list = list(eia_one_tech.plant_id_pudl.unique())
+    # Make technology description lower case
+    eia_one_tech['technology_description'] = (
+        eia_one_tech.technology_description.str.lower())
 
     # Get the technology description associated with the plant regardless of year...
     plant_id_tech_type = (
@@ -209,7 +289,7 @@ def get_tech_descrip_from_eia(eia_gens):
 
 def merge_with_eia_tech_desc(df, eia_one_tech, plant_tech_dict):
     """Blah."""
-    print("merging single-tech EIA technology_description with FERC")
+    logger.info("merging single-tech EIA technology_description with FERC")
     # Add a column for technology_type by year and one that shows the technology type
     # regardless of year (same_tech)
     out_df = (
@@ -217,7 +297,6 @@ def merge_with_eia_tech_desc(df, eia_one_tech, plant_tech_dict):
         .assign(same_tech=lambda x: x.plant_id_pudl.map(plant_tech_dict))
         .pipe(add_new_fuel_and_flag, td_flag1, common_col='tech_desc',
               new_col='technology_description'))
-
     show_unfilled_rows(out_df, 'tech_desc')
 
     return out_df
@@ -225,7 +304,7 @@ def merge_with_eia_tech_desc(df, eia_one_tech, plant_tech_dict):
 
 def backfill_tech_desc_by_year(df, eia_one_tech):
     """Blah."""
-    print("backfilling EIA technology_description by year if no new units installed")
+    logger.info("backfilling EIA technology_description by year if no new units installed")
     df_check_years = make_cols_for_new_units(df)
 
     def backfill_if_matching_year(df, eia):
@@ -250,9 +329,11 @@ def backfill_tech_desc_by_year(df, eia_one_tech):
             # Make sure there is only one technology description in the given plant group
             assert len(plant_eia['technology_description'].unique(
             )) == 1, 'backfilling only works when there is one tech description per plant...'
-            # Convert the op date to a year
-            plant_eia = plant_eia.assign(operating_date=pd.to_datetime(
-                plant_eia.operating_date).dt.year)
+            # Convert the op date to a year and make sure the tech_desc is in lower case!
+            plant_eia = (
+                plant_eia.assign(
+                    operating_date=pd.to_datetime(plant_eia.operating_date).dt.year,
+                    technology_description=lambda x: x.technology_description.str.lower()))
             install_years = list(plant_eia['operating_date'].unique())
             tech_type = plant_eia['technology_description'].unique().item()
             df.loc[df['installation_year'].isin(
@@ -268,11 +349,37 @@ def backfill_tech_desc_by_year(df, eia_one_tech):
               new_col='backfill_by_year')
         .pipe(add_new_fuel_and_flag, td_flag3, common_col='tech_desc',
               new_col='backfill_by_eia_year'))
+    show_unfilled_rows(out_df, 'tech_desc')
+
+    return out_df
+
+
+def fuel_plant_type_to_tech(df):
+    """Combine primary fuel and plant type rows to make mock technology type."""
+    logger.info('adding primary_fuel and plant_type columns')
+    # Combine the primary_fuel and plant_type columns and add them to the tech_desc
+    # column where thre are still gaps. Provide a temporary flag.
+    out_df = (
+        df.assign(tech_fpt=lambda x: x.primary_fuel + '_' + x.plant_type)
+        .pipe(add_new_fuel_and_flag, flag='temp', common_col='tech_desc',
+              new_col='tech_fpt'))
+
+    # Add the primary_fuel_flag to the tech_desc_flag column
+    out_df.loc[out_df['tech_desc_flag'] == 'temp',
+               'tech_desc_flag'] = 'FPT ' + out_df.primary_fuel_flag
 
     show_unfilled_rows(out_df, 'tech_desc')
 
     return out_df
 
+
+def map_tech_desc(df):
+    """Streamline categories in tech_desc column."""
+    logger.info("making uniform tech description col")
+    df['tech_desc'] = df['tech_desc'].replace(' ', '_', regex=True)
+    for tech in rmi_tech_desc:
+        df['tech_desc'] = df.tech_desc.replace(rmi_tech_desc[tech], tech)
+    return df
 
 #######################################################################################
 # FUNCTIONS TO SUPPLIMENT FUEL TYPE
@@ -281,7 +388,7 @@ def backfill_tech_desc_by_year(df, eia_one_tech):
 
 def fill_obvious_names_fuel(df, common_col, flag):
     """Blah."""
-    print('filling fuels with obvious names')
+    logger.info('filling fuels with obvious names')
 
     df.loc[df['plant_name_ferc1'].str.contains('solar'), 'name_based'] = 'solar'
     df.loc[df['plant_type'].str.contains('solar'), 'name_based'] = 'solar'
@@ -304,7 +411,7 @@ def fill_obvious_names_fuel(df, common_col, flag):
 
 def primary_fuel_by_mmbtu(df, fbp_small):
     """Blah."""
-    print('filling in primary fuel by mmbtu')
+    logger.info('filling in primary fuel by mmbtu')
 
     out_df = (
         pd.merge(df, fbp_small, on=ferc_merge_cols, how='left')
@@ -321,7 +428,7 @@ def primary_fuel_by_mmbtu(df, fbp_small):
 
 def eia_one_reported_fuel(df, gens):
     """Blah."""
-    print('filling in eia plants with one reported fuel')
+    logger.info('filling in eia plants with one reported fuel')
 
     # Only keep eia plants with one fuel
     gens_by_plant = (
@@ -351,7 +458,7 @@ def eia_one_reported_fuel(df, gens):
 
 def primary_fuel_by_cost(df):
     """Blah."""
-    print('filling in primary fuel by cost')
+    logger.info('filling in primary fuel by cost')
 
     out_df = (
         df.assign(primary_fuel_by_cost=lambda x: (
@@ -368,7 +475,7 @@ def primary_fuel_by_cost(df):
 
 def raw_ferc1_fuel(df, fuel):
     """Blah."""
-    print('filling in raw ferc1 fuels')
+    logger.info('filling in raw ferc1 fuels')
 
     # Identify duplicate columns
     fuel_dupes = (
@@ -457,7 +564,7 @@ def ferc1_heat_rate(df):
 
 def ferc1_id_has_one_fuel(df):
     """Blah."""
-    print('filling in ferc plants with one fuel')
+    logger.info('filling in ferc plants with one fuel')
 
     plant_df = (
         df.groupby(['plant_id_ferc1'])['primary_fuel']
@@ -479,7 +586,7 @@ def ferc1_id_has_one_fuel(df):
 
 def pudl_id_has_one_fuel(df):
     """Blah."""
-    print('filling in pudl plants with one fuel')
+    logger.info('filling in pudl plants with one fuel')
 
     plant_df = (
         df.groupby(['plant_id_pudl'])['primary_fuel']
@@ -501,7 +608,7 @@ def pudl_id_has_one_fuel(df):
 
 def manually_add_fuel(df):
     """Blah."""
-    print('filling in manually mapped fuels')
+    logger.info('filling in manually mapped fuels')
 
     out_df = (
         # df.assign(fuel_type=lambda x: x.primary_fuel)
@@ -517,7 +624,7 @@ def manually_add_fuel(df):
 
 def _fbfill(df, fill_col):
 
-    print('front and backfilling values with the same ferc1 id')
+    logger.info('front and backfilling values with the same ferc1 id')
 
     out_df = (
         df.sort_values(['plant_id_ferc1', 'report_year'])
@@ -548,7 +655,7 @@ def flip_one_outlier_all(df, group_level):
             flagged.
 
     """
-    print(f'flipping single fuel outliers for {group_level}')
+    logger.info(f'flipping single fuel outliers for {group_level}')
 
     def flip_one_outlier(df, flip_col):
         """
@@ -682,7 +789,7 @@ def flip_fuel_outliers_all(df, max_group_size):
     the official primary fuel column.
 
     """
-    print('flipping multiple fuel outliers')
+    logger.info(f'flipping multiple fuel outliers for groups under {max_group_size}')
 
     def flip_fuel_outliers(df, flip_col, max_group_size):
         """
@@ -802,7 +909,7 @@ def flip_fuel_outliers_all(df, max_group_size):
 
 def fill_obvious_names_plant(df):
     """Blah."""
-    print('filling plants with obvious names')
+    logger.info('filling plants with obvious names')
     df.loc[df['plant_name_ferc1'].str.contains('nuclear'), 'plant_type'] = 'nuclear'
     df.loc[(df['plant_type'].isna()) & (df['plant_name_ferc1'].str.contains(
         '(s)', regex=False)), 'plant_type'] = 'steam'
@@ -824,7 +931,7 @@ def fill_obvious_names_plant(df):
 
 def manually_add_plant(df):
     """Blah."""
-    print('filling in manually mapped plant types')
+    logger.info('filling in manually mapped plant types')
 
     out_df = (
         # df.assign(fuel_type=lambda x: x.primary_fuel)
@@ -860,7 +967,9 @@ def impute_fuel_type(df, pudl_out):
         .pipe(pudl_id_has_one_fuel)
         .pipe(manually_add_fuel)
         .drop_duplicates()
-        .pipe(_fbfill, common_col))
+        .pipe(_fbfill, common_col)
+        .pipe(flip_one_outlier_all, 'plant_id_ferc1')
+        .pipe(flip_fuel_outliers_all, max_group_size=7))
 
     return out_df
 
@@ -888,6 +997,8 @@ def impute_tech_desc(df, eia_df):
         df.assign(tech_desc=np.nan)
         .pipe(merge_with_eia_tech_desc, eia_one_tech, plant_id_tech_dict)
         .pipe(backfill_tech_desc_by_year, eia_df)
-        .pipe(fill_obvious_names_fuel, common_col, td_flag4))
+        .pipe(fill_obvious_names_fuel, common_col, td_flag4)
+        .pipe(fuel_plant_type_to_tech)
+        .pipe(map_tech_desc))
 
     return out_df
