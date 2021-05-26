@@ -1,66 +1,91 @@
 """
-Allocated data from generation_fuel_eia923 table to generator level.
+Allocate data from generation_fuel_eia923 table to generator level.
 
-Net generation and fuel consumption is reported in two seperate tables in EIA
-923: in the generation_eia923 and generation_fuel_eia923 tables. While the
-generation_fuel_eia923 table is more complete (the generation_eia923 table
-includes only ~55% of the reported MWhs), the generation_eia923 table is more
-granular (it is reported at the generator level).
+Net electricity generation and fuel consumption are reported in mutiple ways
+in the EIA 923. The generation_fuel_eia923 table reports both generation and
+fuel consumption, and breaks them down by plant, prime mover, and fuel. In
+parallel, the generation_eia923 table reports generation by generator, and the
+boiler_fuel_eia923 table reports fuel consumption by boiler.
 
-This module allocates net generation and fuel consumption from the
-generation_fuel_eia923 table to the generator level. The main function here is
-``allocate_gen_fuel_by_gen()``.
+The generation_fuel_eia923 table is more complete, but the generation_eia923 +
+boiler_fuel_eia923 tables are more granular. The generation_eia923 table
+includes only ~55% of the total MWhs reported in the generation_fuel_eia923
+table.
 
-The methodology we are employing here to allocate the net generation from the
-generation_fuel_eia923 table is not the only option and includes many
-assumptions. Firstly, this methodology assumes the generation_fuel_eia923
-table is the ground truth for net generation - as opposed to the
-generation_eia923 table. We are making this assumption because we know that the
-generation_fuel_eia923 table is necessarily more complete - there are many
-full plants or generators in plants that do not report to the generation_eia923
-table at all.
+This module estimates the net electricity generation and fuel consumption
+attributable to individual generators based on the more expansive reporting of
+the data in the generation_fuel_eia923 table. The main coordinating function
+here is :func:`pudl.analysis.allocate_net_gen.allocate_gen_fuel_by_gen`.
 
-The next important note is the way in which we associated the data reported in
-the generation_fuel_eia923 table with generators. The generation_fuel_eia923
-table is reported at the level of prime_mover_code/fuel_type (See
-``IDX_PM_FUEL``). Generators have prime_mover_codes, fuel_types (in
-energy_source_code_*s) and report_dates. This methology does not distinguish
-between primary and secondary fuel_types for generators - it associates
-portions of net generatoion to each prime_mover_code/fuel_type.
+The algorithm we're using assumes:
 
-The last high-level point about this methodology surrounds the allocation
-method. In order to allocate portions of the net generation, we calculate as
-allocation ratio, which is based on the net generation from the
-generation_eia923 table when available and the capacity_mw from the
-generators_eia860 table. Some plants have a portion of their generators that
-report to generation_eia923. For those plants, we assign an allocation ratio in
-three steps: first we generate an allocation ratio based on capacity_mw for each
-group of generators (generators the do report in generation_eia923 and those
-that do not). Then we generate an allocation ratio based on the net
-generation reported in generation_eia923. Then we multiply both allocation
-ratios together to scale down the net generation based ratio based on the
-capacity of the generators reporting in generation_eia923.
+* The generation_eia923 table is the authoritative source of information about
+  how much generation is attributable to an individual generator, if it reports
+  in that table.
+* The generation_fuel_eia923 table is the authoritative source of information
+  about how much generation and fuel consumption is attributable to an entire
+  plant.
+* The generators_eia860 table provides an exhaustive list of all generators
+  whose generation is being reported in the generation_fuel_eia923 table.
 
-This methodology has several potentail flaws and drawbacks. Because there is no
-indicator of what portion of the energy_source_codes (ie. fule_type), we
-associate the net generation equally amoung them. In effect, if a plant had
+We allocate the net generation reported in the generation_fuel_eia923 table on
+the basis of plant, prime mover, and fuel type among the generators in each
+plant that have matching fuel types. Generation is allocated proportional to
+reported generation if it's available, and proportional to each generator's
+capacity if generation is not available.
+
+In more detail: within each year of data, we split the plants into three groups:
+
+* Plants where ALL generators report in the more granular generation_eia923
+  table.
+* Plants where NONE of the generators report in the generation_eia923 table.
+* Plants where only SOME of the generators report in the generation_eia923
+  table.
+
+In plant-years where ALL generators report more granular generation, the total
+net generation reported in the generation_fuel_eia923 table is allocated in
+proportion to the generation each generator reported in the generation_eia923
+table. We do this instead of using net_generation_mwh from generation_eia923
+because there are some small discrepancies between the total amounts of
+generation reported in these two tables.
+
+In plant-years where NONE of the generators report more granular generation,
+we create a generator record for each associated fuel type. Those records are
+merged with the generation_fuel_eia923 table on plant, prime mover code, and
+fuel type. Each group of plant, prime mover, and fuel will have some amount of
+reported net generation associated with it, and one or more generators. The
+net generation is allocated among the generators within the group in proportion
+to their capacity. Then the allocated net generation is summed up by generator.
+
+In the hybrid case, where only SOME of of a plant's generators report the more
+granular generation data, we use a combination of the two allocation methods
+described above. First, the total generation reported across a plant in the
+generation_fuel_eia923 table is allocated between the two categories of
+generators (those that report fine-grained generation, and those that don't)
+in direct proportion to the fraction of the plant's generation which is reported
+in the generation_eia923 table, relative to the total generation reported in the
+generation_fuel_eia923 table.
+
+Note that this methology does not distinguish between primary and secondary
+fuel_types for generators. It associates portions of net generation to each
+combination of prime_mover_code and fuel_type equally. In cases where two
+generators in the same plant do not report detailed generation, have the same
+prime_mover_code, and use the same fuels, but have very different capacity
+factors in reality, this methodology will allocate generation such that they
+end up with very similar capacity factors. We imagine this is an uncommon
+scenario.
+
+This methodology has several potential flaws and drawbacks. Because there is no
+indicator of what portion of the energy_source_codes (ie. fuel_type), we
+associate the net generation equally among them. In effect, if a plant had
 multiple generators with the same prime_mover_code but opposite primary and
-secondary fuels (eg. gen 1 has a primary fuel of 'NG' and secondard fuel of
+secondary fuels (eg. gen 1 has a primary fuel of 'NG' and secondary fuel of
 'DFO', while gen 2 has a primary fuel of 'DFO' and a secondary fuel of 'NG'),
 the methodology associates the generation_fuel_eia923 records similarly across
-these two generators. Nonetheless, the allocated net generation will still be
-porporational to each generators generation_eia923 net generation or capacity.
+these two generators. However, the allocated net generation will still be
+porporational to each generator's net generation (if it's reported) or capacity
+(if generation is not reported).
 
-This methodology also has an effect of smoothing differences of generators with
-the same prime_mover_code and fuel_type. In effect, two similar generators will
-appear to have similar capacity factors, especially if they reported no data to
-the generation_eia923 table.
-
-Another methodology that could be worth employing is use the generation_eia923
-table when available and allocate the remaining net generation in a similar
-methodology as we have currently employed by using each generators' capacity as
-an allocator. For the ~.2% of records which report more net generation in the
-generation_eia923 table, we would have to augment that methodology.
 """
 
 import logging
@@ -105,7 +130,7 @@ def allocate_gen_fuel_by_gen(pudl_out):
 
     """
     gen_pm_fuel = allocate_gen_fuel_by_gen_pm_fuel(pudl_out)
-    gen = agg_by_generator(gen_pm_fuel, pudl_out)
+    gen = agg_by_generator(gen_pm_fuel)
     _test_gen_fuel_allocation(pudl_out, gen)
     return gen
 
@@ -115,10 +140,10 @@ def allocate_gen_fuel_by_gen_pm_fuel(pudl_out):
     Proportionally allocate net gen from gen_fuel table to generators.
 
     Two main steps here:
-     * associated gen_fuel data w/ generators
+     * associate gen_fuel data w/ generators
      * allocate gen_fuel data proportionally
 
-     The assocation process happens via `associate_gen_tables()`.
+     The association process happens via `associate_gen_tables()`.
 
      The allocation process entails generating a ratio for each record within a
      ``IDX_PM_FUEL`` group. We have two options for generating this ratio: the
@@ -166,7 +191,7 @@ def allocate_gen_fuel_by_gen_pm_fuel(pudl_out):
     return gen_pm_fuel
 
 
-def agg_by_generator(gen_pm_fuel, pudl_out):
+def agg_by_generator(gen_pm_fuel):
     """
     Aggreate the allocated gen fuel data to the generator level.
 
@@ -200,6 +225,7 @@ def _stack_generators(pudl_out, idx_stack, cols_to_stack,
     Returns:
         pandas.DataFrame: a dataframe with these columns: idx_stack, cat_col,
         stacked_col
+
     """
     gens = pudl_out.gens_eia860()
     gens_stack_prep = (
@@ -219,7 +245,7 @@ def _stack_generators(pudl_out, idx_stack, cols_to_stack,
 
 def associate_gen_tables(pudl_out):
     """
-    Assocaite the three tables needed to assign net gen to generators.
+    Associate the three tables needed to assign net gen to generators.
 
     Args:
         pudl_out (pudl.output.pudltabl.PudlTabl): An object used to create
@@ -269,19 +295,20 @@ def associate_gen_tables(pudl_out):
 
 def _associate_unconnected_records(eia_generators_merged):
     """
-    Associate unassocaited gen_fuel table records on idx_pm.
+    Associate unassociated gen_fuel table records on idx_pm.
 
     There are a subset of generation_fuel_eia923 records which do not
     merge onto the stacked generator table on ``IDX_PM_FUEL``. These records
     generally don't match with the set of prime movers and fuel types in the
-    stacked generator table. In this method, we associated those straggler,
+    stacked generator table. In this method, we associate those straggler,
     unconnected records by merging these records with the stacked generators on
     the prime mover only.
 
     Args:
         eia_generators_merged (pandas.DataFrame)
+
     """
-    # we're assocaiting on the plant/pm level... but we only want to associated
+    # we're associating on the plant/pm level... but we only want to associated
     # these unassocaited records w/ the primary fuel type from _stack_generators
     # so we're going to merge on energy_source_code_num and
     idx_pm = ['plant_id_eia', 'prime_mover_code',
@@ -311,8 +338,8 @@ def _associate_unconnected_records(eia_generators_merged):
             how='left'
         )
         .assign(
-            # we want the main and the unconnected net get to be added together
-            # but sometimes there is no main net get and sometimes there is no
+            # we want the main and the unconnected net gen to be added together
+            # but sometimes there is no main net gen and sometimes there is no
             # unconnected net gen
             net_generation_mwh_gf=lambda x: np.where(
                 x.net_generation_mwh_gf.notnull()
@@ -335,7 +362,7 @@ def _associate_unconnected_records(eia_generators_merged):
 
 def _associate_fuel_type_only(gens_asst, pudl_out):
     """
-    Assocaite the records w/o prime movers with fuel cost.
+    Associate the records w/o prime movers with fuel cost.
 
     The 2001 and 2002 generation fuel table does not include any prime mover
     codes. Because of this, we need to associated these records via their fuel
@@ -363,8 +390,7 @@ def _associate_fuel_type_only(gens_asst, pudl_out):
         indicator=True
     )
 
-    gens_asst = _associate_fuel_type_only_wo_matching_fuel_type(
-        gens_asst, gf_grouped)
+    gens_asst = _associate_fuel_type_only_wo_matching_fuel_type(gens_asst)
 
     if gf_missing_pm.empty:
         logger.info(
@@ -376,11 +402,11 @@ def _associate_fuel_type_only(gens_asst, pudl_out):
     return gens_asst
 
 
-def _associate_fuel_type_only_wo_matching_fuel_type(gens_asst, gf_grouped):
+def _associate_fuel_type_only_wo_matching_fuel_type(gens_asst):
     """
-    Associated the missing-pm records that don't have matching fuel types.
+    Associate the missing-pm records that don't have matching fuel types.
 
-    There are some generation fuel table records which don't associated with
+    There are some generation fuel table records which don't associate with
     any of the energy_source_code's reported in for the generators. For these
     records, we need to take a step back and associate these records with the
     full plant.
@@ -440,15 +466,16 @@ def make_allocation_ratio(gens_asst, pudl_out):
 
 def prep_alloction_ratio(gens_asst):
     """
-    Make flags and aggreations to prepate for the `calc_allocation_ratios()`.
+    Make flags and aggregations to prepare for the `calc_allocation_ratios()`.
 
     In `calc_allocation_ratios()`, we will break the generators out into four
     types - see `calc_allocation_ratios()` docs for details. This function adds
     flags for splitting the generators. It also adds
+
     """
-    # generate a flag if the generator exists in
-    # the generator table (this will be used later on)
-    # for generating ratios to use to allocate
+    # flag whether the generator exists in the
+    # generation table (this will be used later on)
+    # for calculating ratios to use to allocate net generation
     gens_asst = gens_asst.assign(
         exists_in_gen=lambda x: np.where(
             x.net_generation_mwh_gen.notnull(),
@@ -474,6 +501,10 @@ def prep_alloction_ratio(gens_asst):
             on=IDX_PM_FUEL,
             suffixes=('', '_pm_fuel_total_any')
         )
+        # Net generation and capacity are both proxies that can be used
+        # to allocate the generation which only shows up in generation_fuel
+        # Sum them up across the whole plant-prime-fuel group so we can tell
+        # what fraction of the total capacity each generator is.
         .merge(
             (gens_gb
              [['net_generation_mwh_gen', 'capacity_mw']]
@@ -483,6 +514,9 @@ def prep_alloction_ratio(gens_asst):
             on=IDX_PM_FUEL,
         )
     )
+    # Add a column that indicates how much capacity comes from generators that
+    # report in the generation table, and how much comes only from generators
+    # that show up in the generation_fuel table.
     gen_pm_fuel = (
         pd.merge(
             gen_pm_fuel,
@@ -540,6 +574,9 @@ def calc_allocation_ratios(gen_pm_fuel, pudl_out):
             'partially, or not at all in the generation table.'
         )
 
+    # In the case where we have all of teh generation from the generation
+    # table, we still allocate, because the generation reported in these two
+    # tables don't always match perfectly
     all_gen = all_gen.assign(
         gen_ratio_net_gen=lambda x:
         x.net_generation_mwh_gen /
@@ -550,15 +587,8 @@ def calc_allocation_ratios(gen_pm_fuel, pudl_out):
     _ = _test_gen_ratio(all_gen, pudl_out)
 
     some_gen = some_gen.assign(
-        gen_ratio_exist_in_gen_group=lambda x:
-            np.where(
-                (x.exists_in_gen_pm_fuel_total_any
-                 & ~x.exists_in_gen_pm_fuel_total_all
-                 & x.net_generation_mwh_gf.notnull()
-                 ),
-                (x.net_generation_mwh_gen_pm_fuel_total
-                 / x.net_generation_mwh_gf),
-                1),
+        gen_ratio_exist_in_gen_group=lambda x: x.net_generation_mwh_gen_pm_fuel_total /
+        x.net_generation_mwh_gf,
         # for records within these mix groups that do have net gen in the
         # generation table..
         gen_ratio_net_gen=lambda x:
@@ -567,19 +597,21 @@ def calc_allocation_ratios(gen_pm_fuel, pudl_out):
         gen_ratio_net_gen_scaled_by_exist_portion=lambda x:
             x.gen_ratio_net_gen * x.gen_ratio_exist_in_gen_group,
         # when these records
-        gen_ratio_remainer_exist_portion=lambda x:
+        gen_ratio_remainder_exist_portion=lambda x:
             1 - x.gen_ratio_exist_in_gen_group,
-        gen_ratio_remainer_by_cap=lambda x:
-            x.gen_ratio_remainer_exist_portion * \
+        gen_ratio_remainder_by_cap=lambda x:
+            x.gen_ratio_remainder_exist_portion * \
             (x.capacity_mw / x.capacity_mw_exist_in_gen_group),
-        # the real deal
+        #
         gen_ratio=lambda x: np.where(
             x.net_generation_mwh_gen.notnull(),
             x.gen_ratio_net_gen_scaled_by_exist_portion,
-            x.gen_ratio_remainer_by_cap)
+            x.gen_ratio_remainder_by_cap)
     )
     _ = _test_gen_ratio(some_gen, pudl_out)
 
+    # Calculate what fraction of the total capacity is associated with each of
+    # the generators in the grouping.
     gf_only = gf_only.assign(
         gen_ratio_cap=lambda x:
             x.capacity_mw / x.capacity_mw_pm_fuel_total,
