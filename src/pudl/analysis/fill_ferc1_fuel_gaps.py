@@ -31,8 +31,10 @@ flag8 = 'pudl plant id has one fuel'
 flag9 = 'manually filled in'
 flag10 = 'front and back filled based on ferc id'
 flag11 = 'flipped lone fuel outlier in ferc1 id groups'
+# look at this...same as 14?
 flag12 = 'flipped lone fuel outlier in pudl id and plant type groups'
 flag13 = 'flipped pockets of fuel outliers in ferc1 id groups'
+flag14 = 'flipped lone fuel outlier in pudl_id with matching capacity'
 
 td_flag1 = 'direct from eia860'
 td_flag2 = 'backfill from other year'
@@ -306,6 +308,7 @@ def merge_with_eia_tech_desc(df, eia_one_tech, plant_tech_dict):
         .assign(same_tech=lambda x: x.plant_id_pudl.map(plant_tech_dict))
         .pipe(add_new_fuel_and_flag, td_flag1, common_col='tech_desc',
               new_col='technology_description', keep_new_col=True))
+
     show_unfilled_rows(out_df, 'tech_desc')
 
     return out_df
@@ -401,12 +404,6 @@ def fuel_plant_type_to_tech(df):
     show_unfilled_rows(out_df, 'tech_desc')
 
     return out_df
-
-
-def coal_nan_to_coal(df):
-    """Coal plants with NA plant type become tech_desc coal."""
-    df.loc[(df['tech_desc'].isna()) & (
-        df['primary_fuel'] == 'coal'), 'tech_desc'] = 'coal'
 
 
 def map_tech_desc(df):
@@ -943,6 +940,107 @@ def flip_fuel_outliers_all(df, max_group_size):
     return out_df
 
 
+def show_year_outliers(df):
+    """Check for fuel outliers that are not consistent over multiple years.
+
+    This function displays the problem plants. In order to work it must
+    be fed a dataframe where primary_fuel has no NA values. I recommend
+    temporarily changing them to string value 'unknown' as done in
+    flip_single_outliers_by_capacity.
+    """
+    # Look at the number of fuels in a given year per plant id pudl
+    df = df.assign(primary_fuel=lambda x: x.primary_fuel.fillna('unknown'))
+
+    fuel_count = (
+        df.groupby(['report_year', 'plant_id_pudl'])
+        .apply(lambda x: ', '.join(x.primary_fuel.sort_values().unique()))
+        .reset_index()
+        .rename(columns={0: 'unique_fuels'})
+        .assign(new_year=lambda x: x.groupby(
+            'plant_id_pudl')['report_year'].apply(lambda x: x == x.max())))
+
+    # Check how consistent these fuel type totals are across years
+    fuel_appearances = (
+        fuel_count.groupby(['plant_id_pudl', 'unique_fuels']).size()
+        .reset_index()
+        .rename(columns={0: 'fuel_appearances'})
+        .assign(
+            total_appearances=lambda x: x.groupby(
+                'plant_id_pudl')['fuel_appearances'].transform(lambda x: x.sum()),
+            unique_fuel_groups=lambda x: x.groupby(
+                'plant_id_pudl')['fuel_appearances'].transform('count')))
+
+    # Only show instances where the a fuel or fuel pairing only appears in one year.
+    # Also show that year.
+    low_appearances = fuel_appearances.query(
+        "fuel_appearances < 2 and total_appearances > 1")
+    out_df = pd.merge(fuel_count, low_appearances, on=[
+        'plant_id_pudl', 'unique_fuels'], how='inner')
+
+    return out_df
+
+
+def flip_single_outliers_by_capacity(df):
+    """Blah."""
+    logger.info("flipping single outliers by capacity")
+
+    def flip_outliers(plant_df):
+        # Make a sub-dataframe with each of the capacities associated with a fuel and the
+        # number of times they appear for a given plant
+        val_count_df = (
+            plant_df[['primary_fuel', 'capacity_mw']].value_counts().reset_index()
+            .rename(columns={0: 'value_count'}))
+
+        # Seperate the outlier values from the "conformist" values and make a dictionary of
+        # the outliers so it can be iterated over in the event there are more than one.
+        outlier_df = val_count_df.query("value_count==1")
+        conformist_df = val_count_df.query("value_count>1")
+        outlier_dict = dict(zip(outlier_df['primary_fuel'], outlier_df['capacity_mw']))
+
+        for fuel, cap in outlier_dict.items():
+            if cap in conformist_df.capacity_mw.values:
+                flip_fuel = conformist_df.query(
+                    f"capacity_mw.isin(range({cap}-1, {cap}+2))").primary_fuel.item()
+        # CHANGED CAPACITY
+                plant_df.loc[(plant_df['primary_fuel'] == fuel) & (
+                    plant_df['capacity_mw'] == cap), 'flip_field'] = flip_fuel
+
+        return plant_df
+
+    # Copy the dataframe so that changes aren't make the the df passed in
+    df = df.copy()
+
+    # Create an outlier df and only keep outleirs that are the only outlier for their
+    # plant (unique_fuel_groups==2) meaning that the first fuel group is the standard
+    # pattern seen year to year (could be gas or gas and coal and the second pattern is
+    # the deviant, maybe gas unknown or just oil). Also only take outliers from
+    # non-recent years ( i.e. not the most recent year).
+    outlier_preview = show_year_outliers(df)
+    outlier_preview = outlier_preview.query(
+        "unique_fuel_groups==2 and new_year==False")
+    outlier_plants = outlier_preview.plant_id_pudl.unique()
+
+    # Create a sub-df from the original that only contains the outlier plants identified
+    outlier_df = df[df['plant_id_pudl'].isin(outlier_plants)].copy()
+    df['flip_field'] = np.nan
+
+    # Flip fuels in the outlier df and then add those flipped values to the full df
+    outlier_df = outlier_df.groupby(['plant_id_pudl']).apply(lambda x: flip_outliers(x))
+    df.update(outlier_df)
+
+    # Weirdly makes report_year into a float col...so change it back to dt
+    # pd.to_datetime(df.report_year, format="%Y").dt.year
+    df['report_year'] = df.report_year.astype('int')
+    df['plant_id_pudl'] = df.plant_id_pudl.astype('int')
+
+    # Flag these fields and add them to the primary_fuel column
+    out_df = (
+        df.pipe(add_new_fuel_and_flag, flag14, common_col='primary_fuel',
+                new_col='flip_field', overwrite=True))
+
+    return out_df
+
+
 #######################################################################################
 # FUNCTIONS TO SUPPLIMENT PLANT TYPE
 #######################################################################################
@@ -1011,7 +1109,8 @@ def impute_fuel_type(df, pudl_out):
         .drop_duplicates()
         .pipe(_fbfill, common_col)
         .pipe(flip_one_outlier_all, 'plant_id_ferc1')
-        .pipe(flip_fuel_outliers_all, max_group_size=7))
+        .pipe(flip_fuel_outliers_all, max_group_size=7)
+        .pipe(flip_single_outliers_by_capacity))
 
     # Check the primary_fuel column and make sure it contains expected fuel values
     if len(bad_fuels := [
@@ -1028,8 +1127,7 @@ def impute_plant_type(df):
 
     out_df = (
         df.pipe(fill_obvious_names_plant)
-        .pipe(manually_add_plant)
-    )
+        .pipe(manually_add_plant))
 
     return out_df
 
