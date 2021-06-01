@@ -1,18 +1,29 @@
+.. _dev_setup:
+
 ===============================================================================
 Development Setup
 ===============================================================================
 
 This page will walk you through what you need to do if you want to be able to
-contribute code or documentation to the PUDL project. It assumes that you're
-already familiar with using ``git`` and `GitHub <https://github.com>`__, and
-working with the command line.
+contribute code or documentation to the PUDL project.
+
+These instructions assume that you are working on a Unix-like operating system (MacOS
+or Linux) and are already familiar with ``git``, GitHub, and the Unix shell.
+
+.. warning::
+
+    While it should be possible to set up the development environment on Windows, we
+    haven't done it. In the future we may create a Docker image that provides the
+    development environment. E.g. for use with `VS Code's Containers extension
+    <https://code.visualstudio.com/docs/remote/containers>`__.
 
 .. note::
 
-    If you're new to ``git`` and Github, you'll want to check out:
+    If you're new to ``git`` and `GitHub <https://github.com>`__ , you'll want to
+    check out:
 
     * `The Github Workflow <https://guides.github.com/introduction/flow/>`__
-    * `Collaborative Development Models <https://help.github.com/en/articles/about-collaborative-development-models>`_
+    * `Collaborative Development Models <https://help.github.com/en/articles/about-collaborative-development-models>`__
     * `Forking a Repository <https://help.github.com/en/articles/fork-a-repo>`__
     * `Cloning a Repository <https://help.github.com/articles/cloning-a-repository/>`__
 
@@ -24,12 +35,11 @@ environment, preferentially installing packages from the community maintained
 `conda-forge <https://conda-forge.org>`__ distribution channel. We recommend
 using `miniconda <https://docs.conda.io/en/latest/miniconda.html>`__ rather
 than the large pre-defined collection of scientific packages bundled together
-in the Anaconda Python distribution. (You may also want to consider using
-`mamba <https://github.com/mamba-org/mamba>`__ -- a drop in replacement for
-``conda`` written in C++.)
+in the Anaconda Python distribution. You may also want to consider using
+`mamba <https://github.com/mamba-org/mamba>`__ -- a faster drop-in replacement for
+``conda`` written in C++.
 
-Once you've installed the  ``miniconda`` (and optionally ``mamba``) package manager,
-make sure they are configured to use
+After a conda package manager, make sure it's configured to use
 `strict channel priority <https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-channels.html#>`__
 with the following commands:
 
@@ -41,9 +51,8 @@ with the following commands:
 ------------------------------------------------------------------------------
 Fork and Clone the PUDL Repository
 ------------------------------------------------------------------------------
-Unless you're part of the Catalyst Cooperative organization already, you'll need to fork
-`the PUDL repository <https://github.com/catalyst-cooperative/pudl>`__
-(see `Forking a repository <https://help.github.com/en/articles/fork-a-repo>`__)
+Unless you're part of the Catalyst Cooperative organization already, you'll need to
+fork `the PUDL repository <https://github.com/catalyst-cooperative/pudl>`__
 This makes a copy of it in your personal (or organizational) account on GitHub that
 is independent of, but linked to, the original "upstream" project.
 
@@ -53,7 +62,7 @@ This will download the whole history of the project, including the most recent
 version, and put it in a local directory where you can make changes.
 
 -------------------------------------------------------------------------------
-Create the PUDL Development Environment
+Create the PUDL Dev Environment
 -------------------------------------------------------------------------------
 Inside the ``devtools`` directory of your newly cloned repository, you'll see
 an ``environment.yml`` file, which specifies the ``pudl-dev`` ``conda``
@@ -74,7 +83,7 @@ Notebooks, and a few Python packages that have binary dependencies which can
 be easier to satisfy through ``conda`` packages.
 
 -------------------------------------------------------------------------------
-Update the PUDL Development Environment
+Updating the PUDL Dev Environment
 -------------------------------------------------------------------------------
 Periodically you will need to update your development (``pudl-dev``) conda
 environment. This will get you newer versions of existing dependencies, and
@@ -129,7 +138,7 @@ Then the above development environment update process would become:
 
 If you are working with locally processed data and there have been changes to
 the expectations about that data in the PUDL software, you may also need to
-regenerate your PUDL SQLite database or other outputs. See :ref:`basic-usage`
+regenerate your PUDL SQLite database or other outputs. See :doc:`run_the_etl`
 for more details.
 
 .. _linting:
@@ -165,14 +174,10 @@ The scripts that run are configured in the ``.pre-commit-config.yaml`` file.
 
 .. seealso::
 
-    The `pre-commit project <https://pre-commit.com/>`__: A framework for
-    managing and maintaining multi-language pre-commit hooks.
-
-
-.. seealso::
-
-    `Real Python Code Quality Tools and Best Practices <https://realpython.com/python-code-quality/>`__
-    gives a good overview of available linters and static code analysis tools.
+    * The `pre-commit project <https://pre-commit.com/>`__: A framework for
+      managing and maintaining multi-language pre-commit hooks.
+    * `Real Python Code Quality Tools and Best Practices <https://realpython.com/python-code-quality/>`__
+      gives a good overview of available linters and static code analysis tools.
 
 Code and Docs Linters
 ^^^^^^^^^^^^^^^^^^^^^
@@ -206,22 +211,47 @@ documentation. Popular editors that work with the above tools include:
 * `Atom <https://atom.io/>`__ developed by GitHub (free), and
 * `Sublime Text <https://www.sublimetext.com/>`__ (paid).
 
+Each of these editors have their own collection of plugins and settings for working
+with linters and other code analysis tools.
+
 .. seealso::
 
     `Real Python Guide to Code Editors and IDEs <https://realpython.com/python-ides-code-editors-guide/>`__
 
-Catalyst primarily uses the Atom editor with the following plugins. These plugins
-require that the tools described above are installed on your system -- which is done
-automatically in the ``pudl-dev`` conda environment.
+.. _install-workspace:
 
-* `atom-beautify <https://atom.io/packages/atom-beautify>`__
-  set to "beautify on save," with ``autopep8`` as the beautifier and formatter,
-  and set to "sort imports."
-* `linter <https://atom.io/packages/linter>`__ the base linter package used by
-  all Atom linters.
-* `linter-flake8 <https://atom.io/packages/linter-flake8>`__ set to use
-  ``.flake8`` as the project config file.
-* `python-autopep8 <https://atom.io/packages/python-autopep8>`__ to actually
-  do the work of tidying up.
-* `python-indent <https://atom.io/packages/python-indent>`__ to autoindent your
-  code as you write, in accordance with :pep:`8`.
+-------------------------------------------------------------------------------
+Creating a Workspace
+-------------------------------------------------------------------------------
+
+PUDL needs to know where to store its big piles of inputs and outputs. It also comes
+with some example configuration files. The ``pudl_setup`` script lets PUDL know where
+all this stuff should go. We call this a "PUDL workspace":
+
+.. code-block:: console
+
+    $ pudl_setup <PUDL_DIR>
+
+Here <PUDL_DIR> is the path to the directory where you want PUDL to do its
+business -- this is where the datastore will be located, and where any outputs
+that are generated end up. The script will also put a configuration file in
+your home directory, called ``.pudl.yml`` which records the location of this
+workspace and uses it by default in the future. If you run ``pudl_setup`` with
+no arguments, it assumes you want to use the current working directory.
+
+The workspace is laid out like this:
+
+==================== ==========================================================
+**Directory / File** **Contents**
+-------------------- ----------------------------------------------------------
+``data/``            Raw data, automatically organized by source, year, etc.
+-------------------- ----------------------------------------------------------
+``datapkg/``         `Tabular data packages <https://frictionlessdata.io/specs/tabular-data-package/>`__ generated by PUDL.
+-------------------- ----------------------------------------------------------
+``parquet/``         `Apache Parquet <https://parquet.apache.org/>`__ files
+                     generated by PUDL.
+-------------------- ----------------------------------------------------------
+``settings/``        Example configuration files for controlling PUDL scripts.
+-------------------- ----------------------------------------------------------
+``sqlite/``          :mod:`sqlite3` databases generated by PUDL.
+==================== ==========================================================

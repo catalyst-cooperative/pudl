@@ -66,7 +66,8 @@ def etl_parameters(request, test_dir):
     if request.config.getoption("--etl-settings"):
         etl_params_yml = Path(request.config.getoption("--etl-settings"))
     else:
-        etl_params_yml = test_dir / "settings/integration-test.yml"
+        etl_params_yml = Path(
+            test_dir.parent / "src/pudl/package_data/settings/etl_fast.yml")
     with open(etl_params_yml, "r") as f:
         etl_params_out = yaml.safe_load(f)
     return etl_params_out
