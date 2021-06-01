@@ -142,11 +142,11 @@ def lookup_state(state: Union[str, int]) -> dict:
 
     Examples:
         >>> lookup_state('alabama')
-        {'name': 'Alabama', 'code': 'AL', 'fips': 1}
+        {'name': 'Alabama', 'code': 'AL', 'fips': '01'}
         >>> lookup_state('AL')
-        {'name': 'Alabama', 'code': 'AL', 'fips': 1}
+        {'name': 'Alabama', 'code': 'AL', 'fips': '01'}
         >>> lookup_state(1)
-        {'name': 'Alabama', 'code': 'AL', 'fips': 1}
+        {'name': 'Alabama', 'code': 'AL', 'fips': '01'}
     """
     # Try to cast state as an integer to deal with "02", "2", 2.0, np.int64(2)...
     try:
@@ -575,7 +575,7 @@ def predict_state_hourly_demand(
     )[['respondent_id_ferc714', 'year']]
     # Pre-compute state-county assignments
     counties = counties.copy()
-    counties['state_id_fips'] = pd.to_numeric(counties['county_id_fips'].str[:2])
+    counties['state_id_fips'] = counties['county_id_fips'].str[:2]
     # Merge counties with respondent- and state-county assignments
     df = (
         assignments
@@ -814,12 +814,12 @@ def main():
     for fips in prediction['state_id_fips'].unique():
         state = lookup_state(fips)
         # Filter demand by state
-        a = prediction.query(f'state_id_fips == {fips}')
+        a = prediction.query(f"state_id_fips == '{fips}'")
         b = None
         title = f'{state["fips"]}: {state["name"]} ({state["code"]})'
         plot_name = f'{state["fips"]}-{state["name"]}.png'
         if reference is not None:
-            b = reference.query(f'state_id_fips == {fips}')
+            b = reference.query(f"state_id_fips == '{fips}'")
         # Save timeseries plot
         plot_demand_timeseries(
             a, b=b, window=168, title=title, path=timeseries_dir / plot_name
