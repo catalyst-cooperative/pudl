@@ -530,10 +530,10 @@ def calc_allocation_ratios(gen_pm_fuel, pudl_out):
         & ~no_pm_mask]
 
     logger.info("Ratio calc types: \n"
-                f"   All gens w/in generation table:  {len(all_gen)}\n"
-                f"   Some gens w/in generation table: {len(some_gen)}\n"
-                f"   No gens w/in generation table:   {len(gf_only)}\n"
-                f"   GF table records have no PM:     {len(no_pm)}\n")
+                f"   All gens w/in generation table:  {len(all_gen)}#, {all_gen.capacity_mw.sum()} MW\n"
+                f"   Some gens w/in generation table: {len(some_gen)}#, {some_gen.capacity_mw.sum()} MW\n"
+                f"   No gens w/in generation table:   {len(gf_only)}#, {gf_only.capacity_mw.sum()} MW\n"
+                f"   GF table records have no PM:     {len(no_pm)}#\n")
     if len(gen_pm_fuel) != len(all_gen) + len(some_gen) + len(gf_only) + len(no_pm):
         raise AssertionError(
             'Error in splitting the gens between records showing up fully, '
@@ -551,14 +551,7 @@ def calc_allocation_ratios(gen_pm_fuel, pudl_out):
 
     some_gen = some_gen.assign(
         gen_ratio_exist_in_gen_group=lambda x:
-            np.where(
-                (x.exists_in_gen_pm_fuel_total_any
-                 & ~x.exists_in_gen_pm_fuel_total_all
-                 & x.net_generation_mwh_gf.notnull()
-                 ),
-                (x.net_generation_mwh_gen_pm_fuel_total
-                 / x.net_generation_mwh_gf),
-                1),
+            x.net_generation_mwh_gen_pm_fuel_total / x.net_generation_mwh_gf,
         # for records within these mix groups that do have net gen in the
         # generation table..
         gen_ratio_net_gen=lambda x:
