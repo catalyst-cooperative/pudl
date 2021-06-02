@@ -1,0 +1,85 @@
+###########################################################################
+# FERC FORM 1 DB CLONE SETTINGS
+###########################################################################
+# if you are loading ferc1, you need to specify a reference year. This is the
+# year whose database structure is used as a template.
+ferc1_to_sqlite_refyear: 2019
+# What years of original FERC data should be cloned into the SQLite DB?
+ferc1_to_sqlite_years: [2019]
+# A list of tables to be loaded into the local SQLite database. These are
+# the table names as they appear in the 2015 FERC Form 1 database.
+ferc1_to_sqlite_tables:
+  - f1_respondent_id
+  - f1_gnrt_plant
+  - f1_steam
+  - f1_fuel
+  - f1_plant_in_srvce
+  - f1_hydro
+  - f1_pumped_storage
+  - f1_purchased_pwr
+
+datapkg_bundle_name: pudl-fast
+datapkg_bundle_doi: 10.5072/zenodo.123456 # Sandbox DOI... not real.
+datapkg_bundle_settings:
+  ###########################################################################
+  # FERC FORM 1 SETTINGS
+  ###########################################################################
+  - name: ferc1
+    title: FERC Form 1
+    description: A single year of FERC Form 1 data, with all default tables.
+    version: 0.1.0
+    datasets:
+      - ferc1:
+          ferc1_tables:
+           - fuel_ferc1 # fuel_ferc1 requires plants_steam_ferc1 to load
+           - plants_steam_ferc1
+           - plants_small_ferc1
+           - plants_hydro_ferc1
+           - plants_pumped_storage_ferc1
+           - plant_in_service_ferc1
+           - purchased_power_ferc1
+          ferc1_years: [2019]
+
+  ###########################################################################
+  # EPA CEMS AND EIA 860/923 SETTINGS
+  ###########################################################################
+  # EPA CEMS depends on the EIA data. Rather than running the ETL on EIA
+  # twice, we assume its inclusion in this datapackage is sufficient for a
+  # quick test run.
+  - name: epacems-eia
+    title: EPA CEMS Hourly Emissions and EIA 860/923
+    description: A minimal EPA CEMS ETL run, including one year of Idaho data.
+    version: 0.1.0
+    datasets:
+      - eia:
+          # This is the full list of EIA 923 tables.  Many of them are
+          # interdependent, and are used in the definition of the overall
+          # database, so it is recommended that you import either all of them
+          # or none of them. Additionally, there are many relationships between
+          # the EIA 923 and EIA 860 tables, and in general they should be
+          # imported together.
+          eia923_tables:
+            - generation_fuel_eia923
+            - boiler_fuel_eia923
+            - generation_eia923
+            - coalmine_eia923 # REQUIRES fuel_receipts_costs_eia923
+            - fuel_receipts_costs_eia923
+          eia923_years: [2019]
+          # See notes above about the entanglement between EIA 923 and EIA 860.
+          # It's best to load all the tables from both of them, or neither of
+          # them.
+          eia860_tables:
+            - boiler_generator_assn_eia860
+            - utilities_eia860
+            - plants_eia860
+            - generators_eia860
+            - ownership_eia860
+          eia860_years: [2019]
+          eia860_ytd: True
+      - epacems:
+          # Note that the CEMS data relies on EIA 860 data for plant locations,
+          # so if you're loading CEMS data for a particular year, you should
+          # also load the EIA 860 data for that year (2011-2019 only)
+          epacems_years: [2019]
+          # Just Idaho, because it is tiny:
+          epacems_states: [ID]

@@ -53,7 +53,7 @@ def test_epacems_to_parquet(
     epacems_datapkg_json = Path(
         pudl_settings_fixture['datapkg_dir'],
         pudl_etl_params['datapkg_bundle_name'],
-        'epacems-eia-test',
+        'epacems-eia',
         "datapackage.json"
     )
     logger.info(f"Loading epacems from {epacems_datapkg_json}")

@@ -28,11 +28,10 @@ install_requires = [
     "scikit-learn~=0.24.1",
     "scipy~=1.6",
     "seaborn~=0.11.1",
-    "sqlalchemy~=1.3",
+    "sqlalchemy<1.4",
     "tableschema~=1.12",
     "tableschema-sql~=1.3",
     "timezonefinder~=5.0",
-    "tqdm~=4.0",  # Remove when demand_mapping.py is removed
     "xlsxwriter~=1.3",
 ]
 
