@@ -32,7 +32,6 @@ install_requires = [
     "tableschema~=1.12",
     "tableschema-sql~=1.3",
     "timezonefinder~=5.0",
-    "tqdm~=4.0",  # Remove when demand_mapping.py is removed
     "xlsxwriter~=1.3",
 ]
 
