@@ -2,71 +2,36 @@ name: pudl-dev
 channels:
   - conda-forge
   - defaults
+  - intake
 dependencies:
-  - addfips>=0.3        # base
-  - autopep8            # dev
-  - bandit              # dev
-  - catalystcoop.dbfread>=3.0 # base
-  - coloredlogs         # base
-  - contextily          # base (OSM basemap) TODO: Is this needed?
-  - coverage            # dev
-  - dask                # user
-  - dask-labextension   # user (allows dask control within JupyterLab)
-  - datapackage>=1.11.0 # base We depend on features introduced in v1.9.0
-  - doc8                # dev
-  - flake8              # dev
-  - flake8-colors       # dev
-  - flake8-docstrings   # dev
-  - flake8-rst-docstrings # dev
-  - flake8-builtins     # dev
-  - geopandas>=0.8.0    # base
-  - goodtables>=2.4.2   # base
-  - ipdb                # dev
-  - isort>=5.0          # dev
-  - jedi                # dev
-  - jupyter             # user
-  - jupyterlab          # user
-  - lxml                # dev -- used for pd.read_html
-  - matplotlib          # base
-  - mccabe              # dev
-  - nbdime              # dev
-  - nbresuse            # dev
-  - nbval               # dev
-  - networkx>=2.2       # base We depend on features introduced in v2.2
-  - numpy               # base
-  - pandas>=1.1         # base Extensive nullable data type use
-  - pandoc              # dev
-  - pdbpp               # dev
-  - pep8-naming         # dev
-  - pip                 # N/A
-  - pre_commit          # dev
-  - pyarrow>=2.0.0      # base
-  - pydocstyle          # dev
-  - pygeos              # user (speeds up geopandas operations)
-  - pysal               # user (required for making maps w/ geopandas)
-  - pytest              # dev
-  - pytest-cov          # dev
-  - python>=3.8         # N/A zipfile.Path() use requires 3.8
-  - python-graphviz     # user (for use with dask)
-  - python-snappy       # base
-  - pyyaml              # base
-  - seaborn             # dev
-  - scikit-learn>=0.20  # base pandas integration added in v0.20
-  - scipy               # base
-  - setuptools_scm      # dev
-  - sphinx>=3.0         # dev
-  - sphinx-issues       # dev
-  - sphinx_rtd_theme    # dev
-  - sqlalchemy>=1.3.0   # base Security issues below v1.3.0
-  - tableschema>=1.12   # base
-  - tableschema-sql>=1.1.0 # base
-  - timezonefinder      # base
-  - tox                 # dev
-  - tqdm                # base TODO: find usage. Does it need to be in base?
-  - twine               # dev
-  - xlsxwriter          # base
+  # Used to set up the environment
+  - pip~=21.0
+  - python>=3.8,<3.10
+  # These packages are also specified in setup.py
+  # However, they depend on or benefit from binary libraries
+  # which conda can install.
+  - geopandas~=0.9.0
+  - pygeos~=0.9.0  # Python wrappers for the GEOS spatial libraries
+  - python-snappy~=0.6.0
+  # These libraries aren't directly specified in setup.py as
+  # dependencies, but they are helpful and provide binaries
+  - numba~=0.53  # First numba version that's compatible with Python 3.9
+  - python-graphviz
+
+   # These are not normal Python packages available on PyPI
+  - nodejs  # Useful for Jupyter
+  - pandoc  # Useful for rendering RST files in Atom
+
+  # Packages related to current projects but not the core package
+  - dask~=2021.2 # For processing CEMS and eventually Prefect cloud ETL
+  - pysal  # Used for making maps in LBL / GridLab work
+  - recordlinkage~=0.14.0 # Used for fuzzy merge between FERC/EIA for RMI
+
+  # Jupyter notebook specific packages:
+  - dask-labextension~=5.0
+  - jupyter-resource-usage~=0.5.0
+  - jupyterlab~=3.0
+
+  # Use pip to install the main PUDL repo / package for development:
   - pip:
-    - flake8-use-fstring # dev
-    - goodtables-pandas-py>=0.1.1  # base get in conda!
-    - recordlinkage      # dev for now... base if it ends up in ETL
-    - fredapi            # dev
+    - --editable ../[doc,test,dev]

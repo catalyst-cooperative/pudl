@@ -1,4 +1,4 @@
-# Configuration file for the Sphinx documentation builder.
+"""Configuration file for the Sphinx documentation builder."""
 #
 # This file only contains a selection of the most common options. For a full
 # list see the documentation:
@@ -16,15 +16,14 @@ import pkg_resources
 # number via pkg_resources.get_distribution() so we need more than just an
 # importable path.
 
-# -- Project information -----------------------------------------------------
-
-project = 'PUDL'
-copyright = '2020, Catalyst Cooperative'
-author = 'Catalyst Cooperative'
-
 # The full version, including alpha/beta/rc tags
 release = pkg_resources.get_distribution('catalystcoop.pudl').version
 
+# -- Project information -----------------------------------------------------
+
+project = 'PUDL'
+copyright = '2016-2021, Catalyst Cooperative'  # noqa: A001
+author = 'Catalyst Cooperative'
 
 # -- General configuration ---------------------------------------------------
 
@@ -38,7 +37,7 @@ extensions = [
     'sphinx.ext.napoleon',
     'sphinx.ext.todo',
     'sphinx.ext.viewcode',
-    "sphinx_issues",
+    'sphinx_issues',
 ]
 todo_include_todos = True
 
@@ -51,8 +50,8 @@ intersphinx_mapping = {
     'arrow': ('https://arrow.apache.org/docs/', None),
     'dask': ('https://docs.dask.org/en/latest/', None),
     'geopandas': ('https://geopandas.org/', None),
-    'networkx': ('https://networkx.github.io/documentation/stable/', None),
-    'numpy': ('https://docs.scipy.org/doc/numpy/', None),
+    'networkx': ('https://networkx.org/documentation/stable/', None),
+    'numpy': ('https://numpy.org/doc/stable/', None),
     'pandas': ('https://pandas.pydata.org/pandas-docs/stable', None),
     'pytest': ('https://docs.pytest.org/en/latest/', None),
     'python': ('https://docs.python.org/3', None),
@@ -66,7 +65,7 @@ intersphinx_mapping = {
 # List of packages that should not really be installed, because they are
 # written in C or have C extensions. Instead they should be mocked for import
 # purposes only to prevent the doc build from failing.
-autodoc_mock_imports = ['snappy', 'pyarrow']
+autodoc_mock_imports = ['snappy', 'pyarrow', 'fsspec']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -90,11 +89,23 @@ html_context = {
     "display_github": True,  # Integrate GitHub
     "github_user": "catalyst-cooperative",  # Username
     "github_repo": "pudl",  # Repo name
-    "github_version": "master",  # Version
+    "github_version": "main",  # Version
     "conf_py_path": "/docs/",  # Path in the checkout to the docs root
+}
+
+# Theme options are theme-specific and customize the look and feel of a theme
+# further.  For a list of options available for each theme, see the
+# documentation.
+html_theme_options = {
+    "collapse_navigation": True,
 }
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
+
+
+def setup(app):
+    """Add custom CSS defined in _static/custom.css."""
+    app.add_css_file('custom.css')

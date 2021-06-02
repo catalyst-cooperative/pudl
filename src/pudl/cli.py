@@ -6,8 +6,8 @@ settings has empty datapackage parameters (meaning there are no years or
 tables included), no datapacakges will be generated. If the settings include a
 datapackage that has empty parameters, the other valid datatpackages will be
 generated, but not the empty one. If there are invalid parameters (meaning a
-year that is not included in the pudl.constant.working_years), the build will
-fail early on in the process.
+partition that is not included in the pudl.constant.working_partitions), the
+build will fail early on in the process.
 
 The datapackages will be stored in "PUDL_OUT" in the "datapackge" subdirectory.
 Currently, this function only uses default directories for "PUDL_IN" and
@@ -60,6 +60,15 @@ def parse_command_line(argv):
     parser.add_argument(
         "--logfile", default=None,
         help="If specified, write logs to this file.")
+    parser.add_argument(
+        "--gcs-cache-path",
+        type=str,
+        help="Load datastore resources from Google Cloud Storage. Should be gs://bucket[/path_prefix]")
+    parser.add_argument(
+        "--bypass-local-cache",
+        action="store_true",
+        default=False,
+        help="If enabled, the local file cache for datastore will not be used.")
 
     arguments = parser.parse_args(argv[1:])
     return arguments
@@ -68,15 +77,15 @@ def parse_command_line(argv):
 def main():
     """Parse command line and initialize PUDL DB."""
     # Display logged output from the PUDL package:
-    logger = logging.getLogger(pudl.__name__)
+    pudl_logger = logging.getLogger("pudl")
     log_format = '%(asctime)s [%(levelname)8s] %(name)s:%(lineno)s %(message)s'
-    coloredlogs.install(fmt=log_format, level='INFO', logger=logger)
+    coloredlogs.install(fmt=log_format, level='INFO', logger=pudl_logger)
 
     args = parse_command_line(sys.argv)
     if args.logfile:
         file_logger = logging.FileHandler(args.logfile)
         file_logger.setFormatter(logging.Formatter(log_format))
-        logger.addHandler(file_logger)
+        pudl_logger.addHandler(file_logger)
     with pathlib.Path(args.settings_file).open() as f:
         script_settings = yaml.safe_load(f)
 
@@ -108,7 +117,9 @@ def main():
         pudl_settings,
         datapkg_bundle_name=script_settings['datapkg_bundle_name'],
         datapkg_bundle_doi=datapkg_bundle_doi,
-        clobber=args.clobber)
+        clobber=args.clobber,
+        use_local_cache=not args.bypass_local_cache,
+        gcs_cache_path=args.gcs_cache_path)
 
 
 if __name__ == "__main__":

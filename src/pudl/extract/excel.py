@@ -2,8 +2,6 @@
 import csv
 import importlib.resources
 import logging
-import zipfile
-from pathlib import Path
 
 import pandas as pd
 
@@ -13,7 +11,7 @@ logger = logging.getLogger(__name__)
 
 
 class Metadata(object):
-    """Loads excel metadata from python package.
+    """Load Excel metadata from Python package data.
 
     Excel sheet files may contain many different tables. When we load those
     into dataframes, metadata tells us how to do this. Metadata generally informs
@@ -26,15 +24,16 @@ class Metadata(object):
     package.
 
     It expects the following kinds of files:
-    - skiprows.csv tells us how many initial rows should be skipped when loading
-    data for given (year, page).
-    - skipfooter.csv tells us how many bottom rows should be skipped when
-    loading data for given year (year, page).
-    - tab_map.csv tells us what is the excel sheet name that should be read
-    when loading data for given (year, page)
-    - column_map/${page}.csv currently informs us how to translate input column
-    names to standardized pudl names for given (year, input_col_name). Relevant
-    page is encoded in the filename.
+
+    * skiprows.csv tells us how many initial rows should be skipped when loading
+      data for given (partition, page).
+    * skipfooter.csv tells us how many bottom rows should be skipped when
+      loading data for given partition (partition, page).
+    * tab_map.csv tells us what is the excel sheet name that should be read
+      when loading data for given (partition, page)
+    * column_map/${page}.csv currently informs us how to translate input column
+      names to standardized pudl names for given (partition, input_col_name).
+      Relevant page is encoded in the filename.
     """
 
     # TODO: we could validate whether metadata is valid for all year. We should have
@@ -67,24 +66,24 @@ class Metadata(object):
         """Returns the name of the dataset described by this metadata."""
         return self._dataset_name
 
-    def get_sheet_name(self, year, page):
-        """Returns name of the excel sheet that contains the data for given year and page."""
-        return self._sheet_name.at[page, str(year)]
+    def get_sheet_name(self, page, **partition):
+        """Returns name of the excel sheet that contains the data for given partition and page."""
+        return self._sheet_name.at[page, str(self._get_partition_key(partition))]
 
-    def get_skiprows(self, year, page):
-        """Returns number of initial rows to skip when loading given year and page."""
-        return self._skiprows.at[page, str(year)]
+    def get_skiprows(self, page, **partition):
+        """Returns number of initial rows to skip when loading given partition and page."""
+        return self._skiprows.at[page, str(self._get_partition_key(partition))]
 
-    def get_skipfooter(self, year, page):
-        """Returns number of bottom rows to skip when loading given year and page."""
-        return self._skipfooter.at[page, str(year)]
+    def get_skipfooter(self, page, **partition):
+        """Returns number of bottom rows to skip when loading given partition and page."""
+        return self._skipfooter.at[page, str(self._get_partition_key(partition))]
 
-    def get_column_map(self, year, page):
-        """Returns the dictionary mapping input columns to pudl columns for given year and page."""
-        return {v: k for k, v in self._column_map[page].T.loc[str(year)].to_dict().items() if v != -1}
+    def get_column_map(self, page, **partition):
+        """Returns the dictionary mapping input columns to pudl columns for given partition and page."""
+        return {v: k for k, v in self._column_map[page].T.loc[str(self._get_partition_key(partition))].to_dict().items() if v != -1}
 
     def get_all_columns(self, page):
-        """Returns list of all pudl (standardized) columns for a given page (across all years)."""
+        """Returns list of all pudl (standardized) columns for a given page (across all partition)."""
         return sorted(self._column_map[page].T.columns)
 
     def get_all_pages(self):
@@ -96,6 +95,14 @@ class Metadata(object):
         """Load metadata from a filename that is found in a package."""
         return pd.read_csv(importlib.resources.open_text(package, filename),
                            index_col=0, comment='#')
+
+    @staticmethod
+    def _get_partition_key(partition):
+        """Grab the partition key."""
+        if len(partition) != 1:
+            raise AssertionError(
+                f"Expecting exactly one partition attribute (found: {partition})")
+        return list(partition.values())[0]
 
 
 class GenericExtractor(object):
@@ -116,20 +123,21 @@ class GenericExtractor(object):
     available. This can be used for experimental/new code that should not be
     run yet.
 
-    3. file_basename_glob() tells us what is the basename of the excel file
-    that contains the data for a given (year, page).
-
-    4. dtypes() should return dict with {column_name: pandas_datatype} if you
+    3. dtypes() should return dict with {column_name: pandas_datatype} if you
     need to specify which datatypes should be uded upon loading.
 
-    5. If data cleanup is necessary, you can apply custom logic by overriding
+    4. If data cleanup is necessary, you can apply custom logic by overriding
     one of the following functions (they all return the modified dataframe):
-    - process_raw() is applied right after loading the excel DataFrame
-    from the disk.
-    - process_renamed() is applied after input columns were renamed to
-    standardized pudl columns.
-    - process_final_page() is applied when data from all available years
-    is merged into single DataFrame for a given page.
+
+      * process_raw() is applied right after loading the excel DataFrame
+        from the disk.
+      * process_renamed() is applied after input columns were renamed to
+        standardized pudl columns.
+      * process_final_page() is applied when data from all available years
+        is merged into single DataFrame for a given page.
+
+    5. get_datapackage_resources() if partition is anything other than a year,
+    this method should be overwritten in the dataset-specific extractor.
     """
 
     METADATA = None
@@ -152,12 +160,13 @@ class GenericExtractor(object):
         self._file_cache = {}
         self.ds = ds
 
-    def process_raw(self, df, year, page):
+    def process_raw(self, df, page, **partition):
         """Transforms raw dataframe and rename columns."""
-        return df.rename(columns=self._metadata.get_column_map(year, page))
+        self.cols_added = []
+        return df.rename(columns=self._metadata.get_column_map(page, **partition))
 
     @staticmethod
-    def process_renamed(df, year, page):
+    def process_renamed(df, page, **partition):
         """Transforms dataframe after columns are renamed."""
         return df
 
@@ -167,24 +176,25 @@ class GenericExtractor(object):
         return df
 
     @staticmethod
-    def get_dtypes(year, page):
-        """Provide custom dtypes for given page and year."""
+    def get_dtypes(page, **partition):
+        """Provide custom dtypes for given page and partition."""
         return {}
 
-    def extract(self, years):
+    def extract(self, **partitions):
         """Extracts dataframes.
 
         Returns dict where keys are page names and values are
         DataFrames containing data across given years.
 
         Args:
-            years (list): list of years to extract.
+            partitions (list, tuple or string): list of partitions to
+                extract. (Ex: [2009, 2010] if dataset is partitioned by years
+                or '2020-08' if dataset is partitioned by year_month)
         """
         raw_dfs = {}
-        # TODO: should we run verify_years(?) here?
-        if not years:
+        if not partitions:
             logger.warning(
-                f'No years given. Not extracting {self._dataset_name} spreadsheet data.')
+                f'No partitions were given. Not extracting {self._dataset_name} spreadsheet data.')
             return raw_dfs
         logger.info(f'Extracting {self._dataset_name} spreadsheet data.')
 
@@ -193,23 +203,25 @@ class GenericExtractor(object):
                 logger.debug(f'Skipping blacklisted page {page}.')
                 continue
             df = pd.DataFrame()
-            for yr in years:
+            for partition in pudl.helpers.iterate_multivalue_dict(**partitions):
                 # we are going to skip
-                if self.excel_filename(yr, page) == '-1':
+                if self.excel_filename(page, **partition) == '-1':
                     logger.debug(
-                        f'No page for {self._dataset_name} {page} {yr}')
+                        f'No page for {self._dataset_name} {page} {partition}')
                     continue
                 logger.debug(
-                    f'Loading dataframe for {self._dataset_name} {page} {yr}')
+                    f'Loading dataframe for {self._dataset_name} {page} {partition}')
                 newdata = pd.read_excel(
-                    self.load_excel_file(yr, page),
-                    sheet_name=self._metadata.get_sheet_name(yr, page),
-                    skiprows=self._metadata.get_skiprows(yr, page),
-                    skipfooter=self._metadata.get_skipfooter(yr, page),
-                    dtype=self.get_dtypes(yr, page))
+                    self.load_excel_file(page, **partition),
+                    sheet_name=self._metadata.get_sheet_name(
+                        page, **partition),
+                    skiprows=self._metadata.get_skiprows(page, **partition),
+                    skipfooter=self._metadata.get_skipfooter(
+                        page, **partition),
+                    dtype=self.get_dtypes(page, **partition))
                 newdata = pudl.helpers.simplify_columns(newdata)
-                newdata = self.process_raw(newdata, yr, page)
-                newdata = self.process_renamed(newdata, yr, page)
+                newdata = self.process_raw(newdata, page, **partition)
+                newdata = self.process_renamed(newdata, page, **partition)
                 df = df.append(newdata, sort=True, ignore_index=True)
 
             # After all years are loaded, consolidate missing columns
@@ -217,7 +229,8 @@ class GenericExtractor(object):
                 page)).difference(df.columns)
             empty_cols = pd.DataFrame(columns=missing_cols)
             df = pd.concat([df, empty_cols], sort=True)
-            if len(self.METADATA._column_map[page].index) != len(df.columns):
+            if (len(self.METADATA._column_map[page].index)
+                    + len(self.cols_added)) != len(df.columns):
                 # raise AssertionError(
                 logger.warning(
                     f'Columns for {page} are off: should be '
@@ -227,40 +240,50 @@ class GenericExtractor(object):
             raw_dfs[page] = self.process_final_page(df, page)
         return raw_dfs
 
-    def load_excel_file(self, year, page):
+    def load_excel_file(self, page, **partition):
         """
-        Produce the ExcelFile object for the given (year, page).
+        Produce the ExcelFile object for the given (partition, page).
 
         Args:
-            year: 4 digit year
-            page: pudl name for the dataset contents, eg
+            page (str): pudl name for the dataset contents, eg
                   "boiler_generator_assn" or "coal_stocks"
+            partition: partition to load. (ex: 2009 for year partition or
+                "2020-08" for year_month partition)
 
-        Return:
-            string name of the xlsx file
+        Returns:
+            pd.ExcelFile instance with the parsed excel spreadsheet frame
         """
-        info = self.ds.get_resources(self._dataset_name, year=year)
+        xlsx_filename = self.excel_filename(page, **partition)
+        if xlsx_filename not in self._file_cache:
+            excel_file = None
+            try:
+                # eia860m exports the resources as raw xlsx files that are not
+                # embedded in zip archives. To support this, we will first try
+                # to retrieve the resource directly. If this fails, we will attempt
+                # to open zip archive and locate the xlsx file inside that.
 
-        if info is None:
-            return
+                # TODO(rousik): if we can make it so, it would be useful to normalize
+                # the eia860m and zip the xlsx files. Then we could simplify this code.
+                res = self.ds.get_unique_resource(
+                    self._dataset_name, name=xlsx_filename)
+                excel_file = pd.ExcelFile(res)
+            except KeyError:
+                zf = self.ds.get_zipfile_resource(self._dataset_name, **partition)
+                excel_file = pd.ExcelFile(zf.read(xlsx_filename))
+            finally:
+                self._file_cache[xlsx_filename] = excel_file
+        # TODO(rousik): this _file_cache could be replaced with @cache or @memoize annotations
+        return self._file_cache[xlsx_filename]
 
-        item = next(info)
-        p = Path(item["path"])
-
-        zf = zipfile.ZipFile(p)
-        xlsx_filename = self.excel_filename(year, page)
-        excel_file = pd.ExcelFile(zf.read(xlsx_filename))
-        self._file_cache[str(p)] = excel_file
-        return excel_file
-
-    def excel_filename(self, year, page):
+    def excel_filename(self, page, **partition):
         """
         Produce the xlsx document file name as it will appear in the archive.
 
         Args:
-            year: 4 digit year
             page: pudl name for the dataset contents, eg
                   "boiler_generator_assn" or "coal_stocks"
+            partition: partition to load. (ex: 2009 for year partition or
+                "2020-08" for year_month partition)
         Return:
             string name of the xlsx file
         """
@@ -271,6 +294,6 @@ class GenericExtractor(object):
 
             for row in reader:
                 if row["page"] == page:
-                    return row[str(year)]
+                    return row[str(self.METADATA._get_partition_key(partition))]
 
-        raise ValueError(f"No excel sheet for {year}, {page}")
+        raise ValueError(f"No excel sheet for {partition}, {page}")

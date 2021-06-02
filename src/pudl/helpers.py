@@ -8,6 +8,7 @@ scenarios, it should probably live here. There are lost of transform type
 functions in here that help with cleaning and restructing dataframes.
 
 """
+import itertools
 import logging
 import pathlib
 import re
@@ -109,14 +110,14 @@ def clean_eia_counties(df, fixes, state_col="state", county_col="county"):
     df = df.copy()
     df[county_col] = (
         df[county_col].str.strip()
-        .str.replace(r"\s+", " ")  # Condense multiple whitespace chars.
-        .str.replace(r"^St ", "St. ")  # Standardize abbreviation.
-        .str.replace(r"^Ste ", "Ste. ")  # Standardize abbreviation.
+        .str.replace(r"\s+", " ", regex=True)  # Condense multiple whitespace chars.
+        .str.replace(r"^St ", "St. ", regex=True)  # Standardize abbreviation.
+        .str.replace(r"^Ste ", "Ste. ", regex=True)  # Standardize abbreviation.
         .str.replace("Kent & New Castle", "Kent, New Castle")  # Two counties
         # Fix ordering, remove comma
         .str.replace("Borough, Kodiak Island", "Kodiak Island Borough")
         # Turn comma-separated counties into lists
-        .str.replace(",$", "").str.split(',')
+        .str.replace(r",$", "", regex=True).str.split(',')
     )
     # Create new records for each county in a multi-valued record
     df = df.explode(county_col)
@@ -403,10 +404,10 @@ def simplify_strings(df, columns):
             out_df.loc[out_df[col].notnull(), col] = (
                 out_df.loc[out_df[col].notnull(), col]
                 .astype(str)
-                .str.replace("[\x00-\x1f\x7f-\x9f]", "")
+                .str.replace(r"[\x00-\x1f\x7f-\x9f]", "", regex=True)
                 .str.strip()
                 .str.lower()
-                .str.replace(r'\s+', ' ')
+                .str.replace(r'\s+', ' ', regex=True)
             )
     return out_df
 
@@ -438,7 +439,7 @@ def cleanstrings_series(col, str_map, unmapped=None, simplify=True):
             col.astype(str).
             str.strip().
             str.lower().
-            str.replace(r'\s+', ' ')
+            str.replace(r'\s+', ' ', regex=True)
         )
         for k in str_map:
             str_map[k] = [re.sub(r'\s+', ' ', s.lower().strip())
@@ -626,6 +627,44 @@ def month_year_to_date(df):
     return df
 
 
+def fix_leading_zero_gen_ids(df):
+    """
+    Remove leading zeros from EIA generator IDs which are numeric strings.
+
+    If the DataFrame contains a column named ``generator_id`` then that column
+    will be cast to a string, and any all numeric value with leading zeroes
+    will have the leading zeroes removed. This is necessary because in some
+    but not all years of data, some of the generator IDs are treated as integers
+    in the Excel spreadsheets published by EIA, so the same generator may show
+    up with the ID "0001" and "1" in different years.
+
+    Alphanumeric generator IDs with leadings zeroes are not affected, as we
+    found no instances in which an alphanumeric generator ID appeared both with
+    and without leading zeroes.
+
+    Args:
+        df (pandas.DataFrame): DataFrame, presumably containing a column named
+            generator_id (otherwise no action will be taken.)
+
+    Returns:
+        pandas.DataFrame
+
+    """
+    if "generator_id" in df.columns:
+        fixed_generator_id = (
+            df["generator_id"]
+            .astype(str)
+            .apply(lambda x: re.sub(r'^0+(\d+$)', r'\1', x))
+        )
+        num_fixes = len(df.loc[df["generator_id"].astype(str) != fixed_generator_id])
+        logger.info("Fixed %s EIA generator IDs with leading zeros.", num_fixes)
+        df = (
+            df.drop("generator_id", axis="columns")
+            .assign(generator_id=fixed_generator_id)
+        )
+    return df
+
+
 def convert_to_date(df,
                     date_col="report_date",
                     year_col="report_year",
@@ -688,18 +727,26 @@ def fix_eia_na(df):
     """
     Replace common ill-posed EIA NA spreadsheet values with np.nan.
 
+    Currently replaces empty string, single decimal points with no numbers,
+    and any single whitespace character with np.nan.
+
     Args:
         df (pandas.DataFrame): The DataFrame to clean.
 
     Returns:
         pandas.DataFrame: The cleaned DataFrame.
 
-    Todo:
-        Update docstring.
-
     """
-    return df.replace(to_replace=[r'^\.$', r'^\s$', r'^$'],
-                      value=np.nan, regex=True)
+    bad_na_regexes = [
+        r'^\.$',  # Nothing but a decimal point
+        r'^\s$',  # A single whitespace character
+        r'^$',    # The empty string
+    ]
+    return df.replace(
+        to_replace=bad_na_regexes,
+        value=np.nan,
+        regex=True
+    )
 
 
 def simplify_columns(df):
@@ -725,10 +772,10 @@ def simplify_columns(df):
     """
     df.columns = (
         df.columns.
-        str.replace('[^0-9a-zA-Z]+', ' ').
+        str.replace(r'[^0-9a-zA-Z]+', ' ', regex=True).
         str.strip().
         str.lower().
-        str.replace(r'\s+', ' ').
+        str.replace(r'\s+', ' ', regex=True).
         str.replace(' ', '_')
     )
     return df
@@ -1080,7 +1127,7 @@ def cleanstrings_snake(df, cols):
             df[col].astype(str).
             str.strip().
             str.lower().
-            str.replace(r'\s+', '_')
+            str.replace(r'\s+', '_', regex=True)
         )
     return df
 
@@ -1112,3 +1159,36 @@ def zero_pad_zips(zip_series, n_digits):
         .replace({n_digits * "0": pd.NA})  # All-zero Zip codes aren't valid.
     )
     return zip_series
+
+
+def iterate_multivalue_dict(**kwargs):
+    """Make dicts from dict with main dict key and one value of main dict."""
+    single_valued = {k: v for k,
+                     v in kwargs.items()
+                     if not (isinstance(v, list) or isinstance(v, tuple))}
+
+    # Transform multi-valued {k: vlist} into {k1: [{k1: v1}, {k1: v2}, ...], k2: [...], ...}
+    multi_valued = {k: [{k: v} for v in vlist]
+                    for k, vlist in kwargs.items()
+                    if (isinstance(vlist, list) or isinstance(vlist, tuple))}
+
+    for value_assignments in itertools.product(*multi_valued.values()):
+        result = dict(single_valued)
+        for k_v in value_assignments:
+            result.update(k_v)
+        yield result
+
+
+def get_working_eia_dates():
+    """Get all working EIA dates as a DatetimeIndex."""
+    dates = pd.DatetimeIndex([])
+    for dataset_name, dataset in pc.working_partitions.items():
+        if 'eia' in dataset_name:
+            for name, partition in dataset.items():
+                if name == 'years':
+                    dates = dates.append(
+                        pd.to_datetime(partition, format='%Y'))
+                if name == 'year_month':
+                    dates = dates.append(pd.DatetimeIndex(
+                        [pd.to_datetime(partition)]))
+    return dates

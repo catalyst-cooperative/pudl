@@ -10,12 +10,14 @@ import argparse
 import logging
 import pathlib
 import sys
+from pathlib import Path
 
 import coloredlogs
 import yaml
 
 import pudl
 from pudl import constants as pc
+from pudl.workspace.datastore import Datastore
 
 # Create a logger to output any messages we might have...
 logger = logging.getLogger(__name__)
@@ -33,8 +35,12 @@ def parse_command_line(argv):
 
     """
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("settings_file", type=str, default='',
-                        help="path to YAML settings file.")
+    parser.add_argument(
+        "settings_file",
+        type=str,
+        default='',
+        help="path to YAML settings file."
+    )
     parser.add_argument(
         '-c',
         '--clobber',
@@ -42,10 +48,14 @@ def parse_command_line(argv):
         help="""Clobber existing sqlite database if it exists. If clobber is
         not included but the sqlite databse already exists the _build will
         fail.""",
-        default=False)
+        default=False
+    )
     parser.add_argument(
-        "--sandbox", action="store_true", default=False,
-        help="Use the Zenodo sandbox rather than production")
+        "--sandbox",
+        action="store_true",
+        default=False,
+        help="Use the Zenodo sandbox rather than production"
+    )
 
     arguments = parser.parse_args(argv[1:])
     return arguments
@@ -54,9 +64,9 @@ def parse_command_line(argv):
 def main():  # noqa: C901
     """Clone the FERC Form 1 FoxPro database into SQLite."""
     # Display logged output from the PUDL package:
-    logger = logging.getLogger(pudl.__name__)
+    pudl_logger = logging.getLogger("pudl")
     log_format = '%(asctime)s [%(levelname)8s] %(name)s:%(lineno)s %(message)s'
-    coloredlogs.install(fmt=log_format, level='INFO', logger=logger)
+    coloredlogs.install(fmt=log_format, level='INFO', logger=pudl_logger)
 
     args = parse_command_line(sys.argv)
     with pathlib.Path(args.settings_file).open() as f:
@@ -111,7 +121,10 @@ def main():  # noqa: C901
         refyear=script_settings['ferc1_to_sqlite_refyear'],
         pudl_settings=pudl_settings,
         bad_cols=bad_cols,
-        clobber=args.clobber)
+        clobber=args.clobber,
+        datastore=Datastore(
+            local_cache_path=(Path(pudl_in) / "data"),
+            sandbox=args.sandbox))
 
 
 if __name__ == '__main__':

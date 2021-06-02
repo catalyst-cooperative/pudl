@@ -1,0 +1,116 @@
+title: Catalyst Cooperative Data Portal (EXPERIMENTAL)
+description_html: |
+  <p>This <a href="https://datasette.io">Datasette</a> instance publishes
+  several databases produced by
+  <a href="https://catalyst.coop">Catalyst Cooperative</a> as part of the
+  <a href="https://github.com/catalyst-cooperative/pudl">Public Utility Data
+  Liberation (PUDL) Project</a>.
+  <h2>Caution:</h2>
+  <ul>
+  <li>The structure of the data and the API are not necessarily stable, so don't
+  build any critical infrastructure on top of this just yet.</li>
+  <li>If you find something wrong, please
+  <a href="https://github.com/catalyst-cooperative/pudl/issues">make an issue
+  on GitHub</a> to let us know.</li>
+  <li>You can reach the PUDL team at
+  <a href="mailto:pudl@catalyst.coop">pudl@catalyst.coop</a>.</li>
+  <li>If you find our work useful, please consider
+  <a href="https://www.paypal.com/donate/?cmd=_s-xclick&hosted_button_id=PZBZDFNKBJW5E&source=url">making
+  a recurring contribution</a> to support it.</li>
+  </ul></p>
+license: CC-BY-4.0
+license_url: https://creativecommons.org/licenses/by/4.0/
+databases:
+  pudl:
+    source: PUDL GitHub Repository
+    source_url: https://github.com/catalyst-cooperative/pudl
+    about: The Public Utility Data Liberation Project
+    about_url: https://catalyst.coop/pudl
+    description_html: |
+      <p>This database contains cleaned and normalized data from...
+      <ul>
+      <li><a href="https://www.eia.gov/electricity/data/eia860/">EIA Form 860</a> (2004-2019)</li>
+      <li><a href="https://www.eia.gov/electricity/data/eia860m/">EIA Form 860m</a> (year-to-date for 2020-11)</li>
+      <li><a href="https://www.eia.gov/electricity/data/eia923/">EIA Form 923</a> (2009-2019)</li>
+      <li><a href="https://www.ferc.gov/industries-data/electric/general-information/electric-industry-forms/form-1-electric-utility-annual">FERC Form 1</a> (1994-2019)</li>
+      </ul></p>
+      <p>It was produced by
+      <a href="https://catalyst.coop">Catalyst Cooperative</a> as part of the
+      <a href="https://github.com/catalyst-cooperative/pudl">Public Utility
+      Data Liberation Project</a>.</p>
+      <h2>Caution:</h2>
+      <ul>
+      <li>The structure of the data and the API are not necessarily stable, so don't
+      build any critical infrastructure on top of this just yet.</li>
+      <li>If you find something wrong, please
+      <a href="https://github.com/catalyst-cooperative/pudl/issues">make an issue
+      on GitHub</a> to let us know.</li>
+      <li>You can reach the PUDL team at
+      <a href="mailto:pudl@catalyst.coop">pudl@catalyst.coop</a>.</li>
+      <li>If you find our work useful, please consider
+      <a href="https://www.paypal.com/donate/?cmd=_s-xclick&hosted_button_id=PZBZDFNKBJW5E&source=url">making
+      a recurring contribution</a> to support it.</li>
+      </ul></p>
+    tables:
+      energy_source_eia923:
+        hidden: true
+      ferc_accounts:
+        hidden: true
+      ferc_depreciation_lines:
+        hidden: true
+      fuel_type_aer:
+        hidden: true
+      fuel_type_eia923:
+        hidden: true
+      prime_movers_eia923:
+        hidden: true
+      transport_modes_eia923:
+        hidden: true
+      coalmine_eia923:
+        label_column: mine_name
+      plants_entity_eia:
+        label_column: plant_name_eia
+      plants_ferc1:
+        label_column: plant_name_ferc1
+      plants_pudl:
+        label_column: plant_name_pudl
+      utilities_entity_eia:
+        label_column: utility_name_eia
+      utilities_ferc1:
+        label_column: utility_name_ferc1
+      utilities_pudl:
+        label_column: utility_name_pudl
+  ferc1:
+    source: Raw FERC Form 1 DBF Files
+    source_url: https://doi.org/10.5281/zenodo.4127044
+    about: FERC Form 1
+    about_url: https://www.ferc.gov/industries-data/electric/general-information/electric-industry-forms/form-1-electric-utility-annual
+    description_html: |
+      <p>This database is a concatenation of all the individual annual
+      <a href="https://www.ferc.gov/industries-data/electric/general-information/electric-industry-forms/form-1-electric-utility-annual">FERC Form 1</a> Visual FoxPro
+      databases published between 1994 and 2019. It has been minimally altered
+      to allow all years of data to coexist in the same database. It contains a
+      wealth of data about the operating costs and financial structures of US
+      electric utilities, much of which is not publicly available from any
+      other source. It was produced by <a href="https://catalyst.coop">Catalyst
+      Cooperative</a> as part of the
+      <a href="https://github.com/catalyst-cooperative/pudl">Public Utility
+      Data Liberation Project</a>.</p>
+      <p>Additional information about the database structure can be found
+      in the <a href="https://catalystcoop-pudl.readthedocs.io/en/latest/data_sources/ferc1.html">PUDL Documentation for FERC Form 1</a>.</p>
+      <h2>Caution:</h2>
+      <ul>
+      <li>The structure of the data and the API are not necessarily stable, so don't
+      build any critical infrastructure on top of this just yet.</li>
+      <li>If you find something wrong, please
+      <a href="https://github.com/catalyst-cooperative/pudl/issues">make an issue
+      on GitHub</a> to let us know.</li>
+      <li>You can reach the PUDL team at
+      <a href="mailto:pudl@catalyst.coop">pudl@catalyst.coop</a>.</li>
+      <li>If you find our work useful, please consider
+      <a href="https://www.paypal.com/donate/?cmd=_s-xclick&hosted_button_id=PZBZDFNKBJW5E&source=url">making
+      a recurring contribution</a> to support it.</li>
+      </ul></p>
+    tables:
+      f1_respondent_id:
+        label_column: respondent_name

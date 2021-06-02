@@ -1,8 +1,6 @@
 {
     "autoincrement": {
         "fuel_ferc1": "id",
-        "load_curves_epaipm": "id",
-        "plant_region_map_epaipm": "id",
         "generation_eia923": "id",
         "plants_hydro_ferc1": "id",
         "purchased_power_ferc1": "id",
@@ -16,10 +14,8 @@
         "plants_pumped_storage_ferc1": "id",
         "boiler_fuel_eia923": "id",
         "hourly_emissions_epacems": "id",
-        "transmission_single_epaipm": "id",
         "plants_steam_ferc1": "id",
-        "utilities_eia860": "id",
-        "transmission_joint_epaipm": "id"
+        "utilities_eia860": "id"
     },
     "resources": [{
             "profile": "tabular-data-resource",
@@ -157,128 +153,6 @@
                 "title": "ferc1",
                 "path": "ftp://eforms1.ferc.gov/f1allyears"
             }]
-        },
-        {
-            "profile": "tabular-data-resource",
-            "name": "load_curves_epaipm",
-            "path": "data/load_curves_epaipm.csv",
-            "title": "load_curves_epaipm",
-            "encoding": "utf-8",
-            "mediatype": "text/csv",
-            "format": "csv",
-            "dialect": {
-                "delimiter": ",",
-                "header": true,
-                "quoteChar": "\"",
-                "doubleQuote": true,
-                "lineTerminator": "\r\n",
-                "skipInitialSpace": true,
-                "caseSensitiveHeader": false
-            },
-            "schema": {
-                "fields": [{
-                        "name": "region_id_epaipm",
-                        "type": "string",
-                        "description": "Name of the IPM region",
-                        "format": "default"
-                    },
-                    {
-                        "name": "month",
-                        "type": "integer",
-                        "description": "Month of the year",
-                        "format": "default"
-                    },
-                    {
-                        "name": "day_of_year",
-                        "type": "integer",
-                        "description": "Day of the year",
-                        "format": "default"
-                    },
-                    {
-                        "name": "hour",
-                        "type": "integer",
-                        "description": "Hour of the day (0-23). Original IPM values were 1-24.",
-                        "format": "default"
-                    },
-                    {
-                        "name": "time_index",
-                        "type": "integer",
-                        "description": "8760 index hour of the year",
-                        "format": "default"
-                    },
-                    {
-                        "name": "load_mw",
-                        "type": "number",
-                        "description": "Load (MW) in an hour of the day for the IPM region",
-                        "format": "default"
-                    }
-                ],
-                "foreignKeys": [{
-                    "fields": "region_id_epaipm",
-                    "reference": {
-                        "resource": "regions_entity_epaipm",
-                        "fields": "region_id_epaipm"
-                    }
-                }],
-                "missingValues": [
-                    ""
-                ]
-            },
-            "licenses": [{
-                "name": "CC-BY-4.0",
-                "title": "Creative Commons Attribution 4.0",
-                "path": "https://creativecommons.org/licenses/by/4.0/"
-            }],
-            "sources": []
-        },
-        {
-            "profile": "tabular-data-resource",
-            "name": "plant_region_map_epaipm",
-            "path": "data/plant_region_map_epaipm.csv",
-            "title": "plant_region_map_epaipm",
-            "encoding": "utf-8",
-            "mediatype": "text/csv",
-            "format": "csv",
-            "dialect": {
-                "delimiter": ",",
-                "header": true,
-                "quoteChar": "\"",
-                "doubleQuote": true,
-                "lineTerminator": "\r\n",
-                "skipInitialSpace": true,
-                "caseSensitiveHeader": false
-            },
-            "schema": {
-                "fields": [{
-                        "name": "plant_id_eia",
-                        "type": "integer",
-                        "description": "The unique six-digit facility identification number, also called an ORISPL, assigned by the Energy Information Administration.",
-                        "format": "default"
-                    },
-                    {
-                        "name": "region",
-                        "type": "string",
-                        "description": "Name of the IPM region",
-                        "format": "default"
-                    }
-                ],
-                "foreignKeys": [{
-                    "fields": "region",
-                    "reference": {
-                        "resource": "regions_entity_epaipm",
-                        "fields": "region_id_epaipm"
-                    }
-                }],
-                "missingValues": [
-                    ""
-                ]
-            },
-            "licenses": [{
-                "name": "CC-BY-4.0",
-                "title": "Creative Commons Attribution 4.0",
-                "path": "https://creativecommons.org/licenses/by/4.0/"
-            }],
-            "sources": []
         },
         {
             "profile": "tabular-data-resource",
@@ -458,8 +332,7 @@
                                 "ferc1",
                                 "eia860",
                                 "eia923",
-                                "epacems",
-                                "epaipm"
+                                "epacems"
                             ]
                         }
                     },
@@ -736,12 +609,6 @@
                         "type": "string",
                         "description": "The name of the utility.",
                         "format": "default"
-                    },
-                    {
-                        "name": "entity_type",
-                        "type": "string",
-                        "description": "Entity type of principle owner (C = Cooperative, I = Investor-Owned Utility, Q = Independent Power Producer, M = Municipally-Owned Utility, P = Political Subdivision, F = Federally-Owned Utility, S = State-Owned Utility, IND = Industrial, COM = Commercial",
-                        "format": "default"
                     }
                 ],
                 "primaryKey": [
@@ -914,43 +781,6 @@
                         "fields": "plant_id_eia"
                     }
                 }],
-                "missingValues": [
-                    ""
-                ]
-            },
-            "licenses": [{
-                "name": "CC-BY-4.0",
-                "title": "Creative Commons Attribution 4.0",
-                "path": "https://creativecommons.org/licenses/by/4.0/"
-            }],
-            "sources": []
-        },
-        {
-            "profile": "tabular-data-resource",
-            "name": "regions_entity_epaipm",
-            "path": "data/regions_entity_epaipm.csv",
-            "title": "regions_entity_epaipm",
-            "encoding": "utf-8",
-            "mediatype": "text/csv",
-            "format": "csv",
-            "dialect": {
-                "delimiter": ",",
-                "header": true,
-                "quoteChar": "\"",
-                "doubleQuote": true,
-                "lineTerminator": "\r\n",
-                "skipInitialSpace": true,
-                "caseSensitiveHeader": false
-            },
-            "schema": {
-                "fields": [{
-                    "name": "region_id_epaipm",
-                    "type": "string",
-                    "format": "default"
-                }],
-                "primaryKey": [
-                    "region_id_epaipm"
-                ],
                 "missingValues": [
                     ""
                 ]
@@ -2069,6 +1899,12 @@
                         "format": "default"
                     },
                     {
+                        "name": "owned_by_non_utility",
+                        "type": "boolean",
+                        "description": "Whether any part of generator is owned by a nonutilty",
+                        "format": "default"
+                    },
+                    {
                         "name": "utility_id_eia",
                         "type": "integer",
                         "description": "EIA-assigned identification number for the company that is responsible for the day-to-day operations of the generator.",
@@ -2081,6 +1917,12 @@
                         "format": "default"
                     },
                     {
+                        "name": "reactive_power_output_mvar",
+                        "type": "number",
+                        "description": "Reactive Power Output (MVAr)",
+                        "format": "default"
+                    },
+                    {
                         "name": "summer_capacity_mw",
                         "type": "number",
                         "description": "The net summer capacity.",
@@ -2090,6 +1932,18 @@
                         "name": "winter_capacity_mw",
                         "type": "number",
                         "description": "The net winter capacity.",
+                        "format": "default"
+                    },
+                    {
+                        "name": "summer_capacity_estimate",
+                        "type": "boolean",
+                        "description": "Whether the summer capacity value was an estimate",
+                        "format": "default"
+                    },
+                    {
+                        "name": "winter_capacity_estimate",
+                        "type": "boolean",
+                        "description": "Whether the winter capacity value was an estimate",
                         "format": "default"
                     },
                     {
@@ -2129,9 +1983,51 @@
                         "format": "default"
                     },
                     {
+                        "name": "energy_source_1_transport_1",
+                        "type": "string",
+                        "description": "Primary Mode of Transportaion for Energy Source 1",
+                        "format": "default"
+                    },
+                    {
+                        "name": "energy_source_1_transport_2",
+                        "type": "string",
+                        "description": "Secondary Mode of Transportaion for Energy Source 1",
+                        "format": "default"
+                    },
+                    {
+                        "name": "energy_source_1_transport_3",
+                        "type": "string",
+                        "description": "Third Mode of Transportaion for Energy Source 1",
+                        "format": "default"
+                    },
+                    {
+                        "name": "energy_source_2_transport_1",
+                        "type": "string",
+                        "description": "Primary Mode of Transportaion for Energy Source 2",
+                        "format": "default"
+                    },
+                    {
+                        "name": "energy_source_2_transport_2",
+                        "type": "string",
+                        "description": "Secondary Mode of Transportaion for Energy Source 2",
+                        "format": "default"
+                    },
+                    {
+                        "name": "energy_source_2_transport_3",
+                        "type": "string",
+                        "description": "Third Mode of Transportaion for Energy Source 2",
+                        "format": "default"
+                    },
+                    {
                         "name": "fuel_type_code_pudl",
                         "type": "string",
                         "description": "Standardized fuel codes in PUDL.",
+                        "format": "default"
+                    },
+                    {
+                        "name": "distributed_generation",
+                        "type": "boolean",
+                        "description": "Whether the generator is considered distributed generation",
                         "format": "default"
                     },
                     {
@@ -2349,6 +2245,15 @@
                         "type": "date",
                         "description": "Date of the scheduled or effected retirement of the generator.",
                         "format": "default"
+                    },
+                    {
+                        "name": "data_source",
+                        "type": "string",
+                        "description": "Source of EIA 860 data. Either Annual EIA 860 or the year-to-date updates from EIA 860M.",
+                        "constraints": {
+                            "enum": ["eia860","eia860m"]
+                          },
+                        "format": "default"
                     }
                 ],
                 "foreignKeys": [{
@@ -2385,7 +2290,12 @@
             "sources": [{
                 "title": "eia860",
                 "path": "https://www.eia.gov/electricity/data/eia860"
-            }]
+            },
+            {
+              "title": "eia860m",
+              "path": "https://www.eia.gov/electricity/data/eia860m"
+            }
+          ]
         },
         {
             "profile": "tabular-data-resource",
@@ -3196,52 +3106,6 @@
         },
         {
             "profile": "tabular-data-resource",
-            "name": "natural_gas_transport_eia923",
-            "path": "data/natural_gas_transport_eia923.csv",
-            "title": "natural_gas_transport_eia923",
-            "encoding": "utf-8",
-            "mediatype": "text/csv",
-            "format": "csv",
-            "dialect": {
-                "delimiter": ",",
-                "header": true,
-                "quoteChar": "\"",
-                "doubleQuote": true,
-                "lineTerminator": "\r\n",
-                "skipInitialSpace": true,
-                "caseSensitiveHeader": false
-            },
-            "schema": {
-                "fields": [{
-                        "name": "abbr",
-                        "type": "string",
-                        "format": "default"
-                    },
-                    {
-                        "name": "status",
-                        "type": "string",
-                        "format": "default"
-                    }
-                ],
-                "primaryKey": [
-                    "abbr"
-                ],
-                "missingValues": [
-                    ""
-                ]
-            },
-            "licenses": [{
-                "name": "CC-BY-4.0",
-                "title": "Creative Commons Attribution 4.0",
-                "path": "https://creativecommons.org/licenses/by/4.0/"
-            }],
-            "sources": [{
-                "title": "eia923",
-                "path": "https://www.eia.gov/electricity/data/eia923"
-            }]
-        },
-        {
-            "profile": "tabular-data-resource",
             "name": "transport_modes_eia923",
             "path": "data/transport_modes_eia923.csv",
             "title": "transport_modes_eia923",
@@ -3648,6 +3512,11 @@
                         "format": "default"
                     },
                     {
+                        "name": "datum",
+                        "type": "string",
+                        "format": "default"
+                    },
+                    {
                         "name": "energy_storage",
                         "type": "string",
                         "description": "Indicates if the facility has energy storage capabilities.",
@@ -3705,6 +3574,12 @@
                         "name": "natural_gas_pipeline_name_3",
                         "type": "string",
                         "description": "The name of the owner or operator of natural gas pipeline that connects directly to this facility or that connects to a lateral pipeline owned by this facility.",
+                        "format": "default"
+                    },
+                    {
+                        "name": "nerc_region",
+                        "type": "string",
+                        "description": "NERC region in which the plant is located",
                         "format": "default"
                     },
                     {
@@ -4011,7 +3886,7 @@
                     {
                         "name": "capex_per_mw",
                         "type": "number",
-                        "description": "Plant costs (including asset retirement costs) per megawatt. Nominal USD. ",
+                        "description": "Plant costs (including asset retirement costs) per megawatt. Nominal USD.",
                         "format": "default"
                     },
                     {
@@ -4477,6 +4352,7 @@
                         "type": "string",
                         "constraints": {
                             "enum": [
+                                "AK",
                                 "AL",
                                 "AR",
                                 "AZ",
@@ -4682,7 +4558,7 @@
                     {
                         "name": "unit_id_epa",
                         "type": "integer",
-                        "description": "New EPA unit ID.",
+                        "description": "Smokestack unit monitored by EPA CEMS.",
                         "format": "default"
                     }
                 ],
@@ -4699,81 +4575,6 @@
                 "title": "epacems",
                 "path": "ftp://newftp.epa.gov/dmdnload/emissions/hourly/monthly"
             }]
-        },
-        {
-            "profile": "tabular-data-resource",
-            "name": "transmission_single_epaipm",
-            "path": "data/transmission_single_epaipm.csv",
-            "title": "transmission_single_epaipm",
-            "encoding": "utf-8",
-            "mediatype": "text/csv",
-            "format": "csv",
-            "dialect": {
-                "delimiter": ",",
-                "header": true,
-                "quoteChar": "\"",
-                "doubleQuote": true,
-                "lineTerminator": "\r\n",
-                "skipInitialSpace": true,
-                "caseSensitiveHeader": false
-            },
-            "schema": {
-                "fields": [{
-                        "name": "region_from",
-                        "type": "string",
-                        "description": "Name of the IPM region sending electricity",
-                        "format": "default"
-                    },
-                    {
-                        "name": "region_to",
-                        "type": "string",
-                        "description": "Name of the IPM region receiving electricity",
-                        "format": "default"
-                    },
-                    {
-                        "name": "firm_ttc_mw",
-                        "type": "number",
-                        "description": "Transfer capacity with N-1 lines (used for reserve margins)",
-                        "format": "default"
-                    },
-                    {
-                        "name": "nonfirm_ttc_mw",
-                        "type": "number",
-                        "description": "Transfer capacity with N-0 lines (used for energy sales)",
-                        "format": "default"
-                    },
-                    {
-                        "name": "tariff_mills_kwh",
-                        "type": "number",
-                        "description": "Cost to transfer electricity between regions",
-                        "format": "default"
-                    }
-                ],
-                "foreignKeys": [{
-                        "fields": "region_to",
-                        "reference": {
-                            "resource": "regions_entity_epaipm",
-                            "fields": "region_id_epaipm"
-                        }
-                    },
-                    {
-                        "fields": "region_from",
-                        "reference": {
-                            "resource": "regions_entity_epaipm",
-                            "fields": "region_id_epaipm"
-                        }
-                    }
-                ],
-                "missingValues": [
-                    ""
-                ]
-            },
-            "licenses": [{
-                "name": "CC-BY-4.0",
-                "title": "Creative Commons Attribution 4.0",
-                "path": "https://creativecommons.org/licenses/by/4.0/"
-            }],
-            "sources": []
         },
         {
             "profile": "tabular-data-resource",
@@ -5155,6 +4956,81 @@
                         "type": "string",
                         "description": "Does the reporting entity have any other relationship to the power plants reported on Schedule 2 of the form?",
                         "format": "default"
+                    },
+                    {
+                        "name": "entity_type",
+                        "type": "string",
+                        "description": "Entity type of principle owner (C = Cooperative, I = Investor-Owned Utility, Q = Independent Power Producer, M = Municipally-Owned Utility, P = Political Subdivision, F = Federally-Owned Utility, S = State-Owned Utility, IND = Industrial, COM = Commercial",
+                        "format": "default"
+                    },
+                    {
+                        "name": "attention_line",
+                        "type": "string",
+                        "format": "default"
+                    },
+                    {
+                        "name": "address_2",
+                        "type": "string",
+                        "format": "default"
+                    },
+                    {
+                        "name": "zip_code_4",
+                        "type": "string",
+                        "format": "default"
+                    },
+                    {
+                        "name": "contact_firstname",
+                        "type": "string",
+                        "format": "default"
+                    },
+                    {
+                        "name": "contact_lastname",
+                        "type": "string",
+                        "format": "default"
+                    },
+                    {
+                        "name": "contact_title",
+                        "type": "string",
+                        "format": "default"
+                    },
+                    {
+                        "name": "contact_firstname_2",
+                        "type": "string",
+                        "format": "default"
+                    },
+                    {
+                        "name": "contact_lastname_2",
+                        "type": "string",
+                        "format": "default"
+                    },
+                    {
+                        "name": "contact_title_2",
+                        "type": "string",
+                        "format": "default"
+                    },
+                    {
+                        "name": "phone_extension_1",
+                        "type": "string",
+                        "description": "Phone extension for contact 1",
+                        "format": "default"
+                    },
+                    {
+                        "name": "phone_extension_2",
+                        "type": "string",
+                        "description": "Phone extension for contact 2",
+                        "format": "default"
+                    },
+                    {
+                        "name": "phone_number_1",
+                        "type": "string",
+                        "description": "Phone number for contact 1",
+                        "format": "default"
+                    },
+                    {
+                        "name": "phone_number_2",
+                        "type": "string",
+                        "description": "Phone number for contact 2",
+                        "format": "default"
                     }
                 ],
                 "foreignKeys": [{
@@ -5346,12 +5222,6 @@
                         "format": "default"
                     },
                     {
-                        "name": "nerc_region",
-                        "type": "string",
-                        "description": "NERC region in which the plant is located",
-                        "format": "default"
-                    },
-                    {
                         "name": "primary_purpose_naics_id",
                         "type": "number",
                         "description": "North American Industry Classification System (NAICS) code that best describes the primary purpose of the reporting plant",
@@ -5367,6 +5237,12 @@
                         "name": "sector_id",
                         "type": "number",
                         "description": "Plant-level sector number, designated by the primary purpose, regulatory status and plant-level combined heat and power status",
+                        "format": "default"
+                    },
+                    {
+                        "name": "service_area",
+                        "type": "string",
+                        "description": "Service area in which plant is located; for unregulated companies, it's the electric utility with which plant is interconnected",
                         "format": "default"
                     },
                     {
@@ -5410,9 +5286,9 @@
         },
         {
             "profile": "tabular-data-resource",
-            "name": "transmission_joint_epaipm",
-            "path": "data/transmission_joint_epaipm.csv",
-            "title": "transmission_joint_epaipm",
+            "name": "plant_unit_epa",
+            "path": "data/plant_unit_epa.csv",
+            "title": "EPA Plant and Unit",
             "encoding": "utf-8",
             "mediatype": "text/csv",
             "format": "csv",
@@ -5427,50 +5303,20 @@
             },
             "schema": {
                 "fields": [{
-                        "name": "joint_constraint_id",
+                        "name": "plant_id_epa",
                         "type": "integer",
-                        "description": "Identification of groups that make up a single joint constraint",
                         "format": "default"
                     },
                     {
-                        "name": "region_from",
+                        "name": "unit_id_epa",
                         "type": "string",
-                        "description": "Name of the IPM region sending electricity",
-                        "format": "default"
-                    },
-                    {
-                        "name": "region_to",
-                        "type": "string",
-                        "description": "Name of the IPM region receiving electricity",
-                        "format": "default"
-                    },
-                    {
-                        "name": "firm_ttc_mw",
-                        "type": "number",
-                        "description": "Transfer capacity with N-1 lines (used for reserve margins)",
-                        "format": "default"
-                    },
-                    {
-                        "name": "nonfirm_ttc_mw",
-                        "type": "number",
-                        "description": "Transfer capacity with N-0 lines (used for energy sales)",
+                        "description": "Smokestack unit monitored by EPA CEMS.",
                         "format": "default"
                     }
                 ],
-                "foreignKeys": [{
-                        "fields": "region_to",
-                        "reference": {
-                            "resource": "regions_entity_epaipm",
-                            "fields": "region_id_epaipm"
-                        }
-                    },
-                    {
-                        "fields": "region_from",
-                        "reference": {
-                            "resource": "regions_entity_epaipm",
-                            "fields": "region_id_epaipm"
-                        }
-                    }
+                "primaryKey": [
+                    "plant_id_epa",
+                    "unit_id_epa"
                 ],
                 "missingValues": [
                     ""
@@ -5478,8 +5324,120 @@
             },
             "licenses": [{
                 "name": "CC-BY-4.0",
-                "title": "Creative Commons Attribution 4.0",
-                "path": "https://creativecommons.org/licenses/by/4.0/"
+                "title": "EPA",
+                "path": "https://www.epa.gov/"
+            }],
+            "sources": []
+        },
+        {
+            "profile": "tabular-data-resource",
+            "name": "assn_plant_id_eia_epa",
+            "path": "data/assn_plant_id_eia_epa.csv",
+            "title": "EIA-EPA Plant ID Crosswalk",
+            "encoding": "utf-8",
+            "mediatype": "text/csv",
+            "format": "csv",
+            "dialect": {
+                "delimiter": ",",
+                "header": true,
+                "quoteChar": "\"",
+                "doubleQuote": true,
+                "lineTerminator": "\r\n",
+                "skipInitialSpace": true,
+                "caseSensitiveHeader": false
+            },
+            "schema": {
+                "fields": [{
+                        "name": "plant_id_epa",
+                        "type": "integer",
+                        "format": "default"
+                    },
+                    {
+                        "name": "plant_id_eia",
+                        "type": "integer",
+                        "description": "The unique six-digit facility identification number, also called an ORISPL, assigned by the Energy Information Administration.",
+                        "format": "default"
+                    }
+                ],
+                "primaryKey": [
+                    "plant_id_epa",
+                    "plant_id_eia"
+                ],
+                "foreignKeys": [{
+                    "fields": ["plant_id_eia"],
+                    "reference": {
+                        "resource": "plants_entity_eia",
+                        "fields": ["plant_id_eia"]
+                    }
+                }],
+                "missingValues": [
+                    ""
+                ]
+            },
+            "licenses": [{
+                "name": "CC-BY-4.0",
+                "title": "EPA",
+                "path": "https://www.epa.gov/"
+            }],
+            "sources": []
+        },
+        {
+            "profile": "tabular-data-resource",
+            "name": "assn_gen_eia_unit_epa",
+            "path": "data/assn_gen_eia_unit_epa.csv",
+            "title": "EIA Plant and Generator to EPA Unit",
+            "encoding": "utf-8",
+            "mediatype": "text/csv",
+            "format": "csv",
+            "dialect": {
+                "delimiter": ",",
+                "header": true,
+                "quoteChar": "\"",
+                "doubleQuote": true,
+                "lineTerminator": "\r\n",
+                "skipInitialSpace": true,
+                "caseSensitiveHeader": false
+            },
+            "schema": {
+                "fields": [{
+                        "name": "plant_id_eia",
+                        "type": "integer",
+                        "description": "The unique six-digit facility identification number, also called an ORISPL, assigned by the Energy Information Administration.",
+                        "format": "default"
+                    },
+                    {
+                       "name": "unit_id_epa",
+                       "type": "string",
+                       "description": "Smokestack unit monitored by EPA CEMS.",
+                       "format": "default"
+                    },
+                    {
+                       "name": "generator_id",
+                       "type": "string",
+                       "description": "Generator identification code. Often numeric, but sometimes includes letters. It's a string!",
+                       "format": "default"
+                    }
+                ],
+                "primaryKey": [
+                    "plant_id_eia",
+                    "unit_id_epa",
+                    "generator_id"
+                ],
+                "foreignKeys": [{
+                    "fields": ["plant_id_eia", "generator_id"],
+                    "reference": {
+                        "resource": "generators_entity_eia",
+                        "fields": ["plant_id_eia", "generator_id"]
+                    }
+                }],
+                "missingValues": [
+                    ""
+                ]
+            },
+            "licenses": [{
+                "name": "CC-BY-4.0",
+                "title": "EPA",
+                "path": "https://www.epa.gov/"
             }],
             "sources": []
         }

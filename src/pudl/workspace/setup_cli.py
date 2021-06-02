@@ -24,20 +24,18 @@ The directory structure set up for PUDL looks like this:
 
 PUDL_IN
   └── data
-      ├── eia
-      │   ├── form860
-      │   └── form923
-      ├── epa
-      │   ├── cems
-      │   └── ipm
-      ├── ferc
-      │   └── form1
+      ├── censusdp1tract
+      ├── eia860
+      ├── eia860m
+      ├── eia861
+      ├── eia923
+      ├── epacems
+      ├── ferc1
+      ├── ferc714
       └── tmp
 
 PUDL_OUT
-  ├── datapackage
-  ├── environment.yml
-  ├── notebook
+  ├── datapkg
   ├── parquet
   ├── settings
   └── sqlite
@@ -56,6 +54,8 @@ import sys
 import coloredlogs
 
 import pudl
+
+logger = logging.getLogger(__name__)
 
 
 def initialize_parser():
@@ -105,9 +105,9 @@ def initialize_parser():
 def main():
     """Set up a new default PUDL workspace."""
     # Display logged output from the PUDL package:
-    logger = logging.getLogger(pudl.__name__)
+    pudl_logger = logging.getLogger("pudl")
     log_format = '%(asctime)s [%(levelname)8s] %(name)s:%(lineno)s %(message)s'
-    coloredlogs.install(fmt=log_format, level='INFO', logger=logger)
+    coloredlogs.install(fmt=log_format, level='INFO', logger=pudl_logger)
 
     parser = initialize_parser()
     args = parser.parse_args(sys.argv[1:])

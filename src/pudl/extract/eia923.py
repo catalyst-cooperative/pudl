@@ -10,7 +10,8 @@ import logging
 
 import pandas as pd
 
-from pudl.extract import excel as excel
+from pudl.extract import excel
+from pudl.helpers import fix_leading_zero_gen_ids
 
 logger = logging.getLogger(__name__)
 
@@ -27,6 +28,7 @@ class Extractor(excel.GenericExtractor):
         """
         self.METADATA = excel.Metadata('eia923')
         self.BLACKLISTED_PAGES = ['plant_frame']
+        self.cols_added = []
         super().__init__(*args, **kwargs)
 
     # Pages not supported by the metadata:
@@ -34,15 +36,18 @@ class Extractor(excel.GenericExtractor):
     # energy_storage, github issue #458
     # oil_stocks, coal_stocks, petcoke_stocks
 
-    def process_raw(self, df, year, page):
+    def process_raw(self, df, page, **partition):
         """Drops reserved columns."""
         to_drop = [c for c in df.columns if c[:8] == 'reserved']
         df.drop(to_drop, axis=1, inplace=True)
-        df = df.rename(columns=self._metadata.get_column_map(year, page))
+        df = df.rename(
+            columns=self._metadata.get_column_map(page, **partition))
+        self.cols_added = []
+        df = fix_leading_zero_gen_ids(df)
         return df
 
     @staticmethod
-    def process_renamed(df, year, page):
+    def process_renamed(df, page, **partition):
         """Cleans up unnamed_0 column in stocks page, drops invalid plan_id_eia rows."""
         if page == 'stocks':
             df = df.rename(columns={'unnamed_0': 'census_division_and_state'})
@@ -60,7 +65,7 @@ class Extractor(excel.GenericExtractor):
         return df
 
     @staticmethod
-    def get_dtypes(year, page):
+    def get_dtypes(page, **partition):
         """Returns dtypes for plant id columns."""
         return {
             "Plant ID": pd.Int64Dtype(),

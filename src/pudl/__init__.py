@@ -5,17 +5,23 @@ import logging
 
 import pkg_resources
 
-import pudl.analysis.demand_mapping
+import pudl.analysis.allocate_net_gen
 import pudl.analysis.mcoe
 import pudl.analysis.service_territory
+import pudl.analysis.spatial
+import pudl.analysis.state_demand
+import pudl.analysis.timeseries_cleaning
 import pudl.cli
 import pudl.constants
+import pudl.convert.censusdp1tract_to_sqlite
+import pudl.convert.datapkg_to_rst
 import pudl.convert.datapkg_to_sqlite
 import pudl.convert.epacems_to_parquet
 import pudl.convert.ferc1_to_sqlite
 import pudl.convert.merge_datapkgs
 import pudl.etl
 import pudl.extract.eia860
+import pudl.extract.eia860m
 import pudl.extract.eia861
 import pudl.extract.eia923
 import pudl.extract.epacems
@@ -23,13 +29,16 @@ import pudl.extract.epaipm
 import pudl.extract.excel
 import pudl.extract.ferc1
 import pudl.extract.ferc714
+import pudl.glue.eia_epacems
 import pudl.glue.ferc1_eia
 import pudl.helpers
 import pudl.load.csv
 import pudl.load.metadata
 # Output modules by data source:
+import pudl.output.censusdp1tract
 import pudl.output.eia860
 import pudl.output.eia923
+import pudl.output.epacems
 import pudl.output.ferc1
 import pudl.output.ferc714
 import pudl.output.glue
@@ -68,7 +77,6 @@ data, with the goal of enabling climate advocates, academic researchers, and
 data journalists to better understand the electricity system and its impacts
 on climate.
 """
-__pythonrequiredversion__ = "3.8"
 __projecturl__ = "https://catalyst.coop/pudl/"
 __downloadurl__ = "https://github.com/catalyst-cooperative/pudl/"
 
