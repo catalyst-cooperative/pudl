@@ -3,7 +3,7 @@ FERC Form 1 Data Dictionary
 ===============================================================================
 
 We have mapped the Visual FoxPro DBF files to their corresponding FERC Form 1
-database tables, and provided a short description of the contents of each table here.
+database tables and provided a short description of the contents of each table here.
 
 * :download:`A diagram of the 2015 FERC Form 1 Database (PDF)
   <ferc1/ferc1_db_diagram_2015.pdf>`

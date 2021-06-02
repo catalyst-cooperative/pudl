@@ -23,7 +23,7 @@ Background
 
 The Form EIA-860 collects utility, owner, plant, and generator-level data from existing
 and planned entities with one or more megawatt of capacity. The form also contains
-information regarding environmental control equipment, and construction cost data from
+information regarding environmental control equipment and construction cost data from
 2013-2018.
 
 * :download:`EIA-860 Instructions (PDF, to 2020-03-31)

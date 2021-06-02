@@ -2,7 +2,7 @@
 Data and ETL Design Guidelines
 ===============================================================================
 
-Here we list some technical norms and expectations that we strive to adhere to,
+Here we list some technical norms and expectations that we strive to adhere to
 and hope that contributors can also follow.
 
 We're all learning as we go -- if you have suggestions for best practices we
@@ -12,12 +12,12 @@ might want to adopt, let us know!
 Input vs. Output Data
 -------------------------------------------------------------------------------
 It's important to differentiate between the original data we're attempting
-to provide easy access to, and analyses or data products that are derived from
+to provide easy access to and analyses or data products that are derived from
 that original data. The original data is meant to be archived and re-used as an
 alternative to other users re-processing the raw data from various public
 agencies. For the sake of reproducibility, it's important that we archive the
 inputs alongside the ouputs -- since the reporting agencies often go back and
-update the data they have published without warning, and without version
+update the data they have published without warning and without version
 control.
 
 -------------------------------------------------------------------------------
@@ -55,14 +55,14 @@ Examples of Unacceptable Changes
   so that transformation should be applied in the output layer that sits on
   top of the original data.
 * Aggregating data that has date/time information associated with it into a
-  time series, when the individual records do not pertain to unique timesteps.
+  time series when the individual records do not pertain to unique timesteps.
   For example, the :doc:`EIA 923 <../data_sources/eia923>` Fuel Receipts and
   Costs table lists fuel deliveries by month, but each plant might receive
   several deliveries from the same supplier of the same fuel type in a month --
   the individual delivery information should be retained.
 * Computing heat rates for generators in an original table that contains both
-  fuel heat content and net electricity generation, since the heat rate would
-  be a derived value, and not part of the original data.
+  fuel heat content and net electricity generation. The heat rate would
+  be a derived value and not part of the original data.
 
 -------------------------------------------------------------------------------
 Make Tidy Data
@@ -109,7 +109,7 @@ Use Simple Data Types
 -------------------------------------------------------------------------------
 The Frictionless Data
 `TableSchema <https://frictionlessdata.io/specs/table-schema/>`__
-standard includes a modest selection of data types, which are meant to be very
+standard includes a modest selection of data types that are meant to be very
 widely usable in other contexts. Make sure that whatever data type you're using
 is included within that specification, but also be as specific as possible
 within that collection of options.
@@ -135,31 +135,31 @@ by 1 degree *Farenheit*?! What century even is this?).
 -------------------------------------------------------------------------------
 Silo the ETL Process
 -------------------------------------------------------------------------------
-It should be possible to run the ETL process on each data source independently,
+It should be possible to run the ETL process on each data source independently
 and with any combination of data sources included. This allows users to include
-only the data need. In some cases like the :doc:`EIA 860
+only the data need. In some cases, like the :doc:`EIA 860
 <../data_sources/eia860>` and :doc:`EIA 923 <../data_sources/eia923>` data, two
 data sources may be so intertwined that keeping them separate doesn't really
-make sense, but that should be the exception, not the rule.
+make sense. This should be the exception, however, not the rule.
 
 -------------------------------------------------------------------------------
 Separate Data from Glue
 -------------------------------------------------------------------------------
 The glue that relates different data sources to each other should be applied
-after or alongside the ETL process, and not as a mandatory part of ETL. This
+after or alongside the ETL process and not as a mandatory part of ETL. This
 makes it easy to pull individual data sources in and work with them even when
-the glue isn't working, or doesn't yet exist.
+the glue isn't working or doesn't yet exist.
 
 -------------------------------------------------------------------------------
 Partition Big Data
 -------------------------------------------------------------------------------
-Our goal is that users should be able to run the ETL process on a decent laptop.
+Our goal is for users to be able to run the ETL process on a decent laptop.
 However, some of the utility datasets are hundreds of gigabytes in size (e.g.
 :doc:`/data_sources/epacems`, :ref:`FERC EQR <data-ferceqr>`). Many users will not
-need to use the entire dataset for the work they are doing. Allow them to pull in
-only certain years, or certain states, or other sensible partitions of the data if
-need be, so that they don’t run out of memory or disk space, or have to wait hours
-while data they don't need is being processed.
+need to use the entire dataset for the work they are doing. Partitioning the data allows
+them to pull in only certain years, certain states, or other sensible partitions of the
+data so that they don’t run out of memory or disk space or have to wait hours while data
+they don't need is being processed.
 
 -------------------------------------------------------------------------------
 Naming Conventions

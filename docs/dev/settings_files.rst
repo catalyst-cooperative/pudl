@@ -6,7 +6,7 @@ Settings Files
 
 Several of the scripts provided as part of PUDL require more arguments than can be
 easily managed on the command line. It's also useful to preserve a record of how the
-data processing pipeline was run in one instance so it can be re-run in exactly the
+data processing pipeline was run in one instance so that it can be re-run in exactly the
 same way. We have these scripts read their settings from YAML files, examples of
 which are included in the distribution.
 
@@ -28,7 +28,7 @@ Setttings for ferc1_to_sqlite
      - Description
    * - ``ferc1_to_sqlite_refyear``
      - A single 4-digit year to use as the reference for inferring FERC Form 1
-       database's structure. Typically the most recent year of available data.
+       database's structure. Typically, the most recent year of available data.
    * - ``ferc1_to_sqlite_years``
      - A list of years to be included in the cloned FERC Form 1 database. You
        should only use a continuous range of years. 1994 is the earliest year
@@ -50,10 +50,10 @@ example file is lives in ``src/pudl/package_data/settings``. This example file
 is run. Once this file is in the settings directory, users can copy it and
 modify it as appropriate for their own use.
 
-This settings file allows users to determine the scope of the  integrated by
+This settings file allows users to determine the scope of the integrated by
 PUDL. Most datasets can be used to generate stand-alone data packages. If you
 only want to use FERC Form 1, you can remove the other data package
-specifications, or alter their parameters such that none of their data is
+specifications or alter their parameters such that none of their data is
 processed (e.g. by setting the list of years to be an empty list). The settings
 are verified early on in the ETL process so if you got something wrong, you
 should get an assertion error quickly.
