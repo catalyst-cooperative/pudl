@@ -142,9 +142,9 @@ def parse_command_line(argv):
 def main():
     """Merge PUDL datapackages and save them into an SQLite database."""
     # Display logged output from the PUDL package:
-    logger = logging.getLogger(pudl.__name__)
+    pudl_logger = logging.getLogger("pudl")
     log_format = '%(asctime)s [%(levelname)8s] %(name)s:%(lineno)s %(message)s'
-    coloredlogs.install(fmt=log_format, level='INFO', logger=logger)
+    coloredlogs.install(fmt=log_format, level='INFO', logger=pudl_logger)
 
     args = parse_command_line(sys.argv)
     pudl_settings = pudl.workspace.setup.get_defaults()

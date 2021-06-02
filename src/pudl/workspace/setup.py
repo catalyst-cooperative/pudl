@@ -134,6 +134,8 @@ def derive_paths(pudl_in, pudl_out):
     ps['pudl_db'] = "sqlite:///" + str(pathlib.Path(
         ps['sqlite_dir'], 'pudl.sqlite'))
 
+    ps['censusdp1tract_db'] = "sqlite:///" + str(pathlib.Path(
+        ps['sqlite_dir'], 'censusdp1tract.sqlite'))
     return ps
 
 
@@ -174,17 +176,10 @@ def init(pudl_in, pudl_out, clobber=False):
     settings_pkg = "pudl.package_data.settings"
     deploy(settings_pkg, settings_dir, ignore_files, clobber=clobber)
 
-    # Make several output directories, and deploy example notebooks:
+    # Make several output directories:
     for fmt in pc.output_formats:
         format_dir = pathlib.Path(ps["pudl_out"], fmt)
         format_dir.mkdir(parents=True, exist_ok=True)
-    notebook_dir = pathlib.Path(ps["notebook_dir"])
-    notebook_pkg = "pudl.package_data.notebooks"
-    deploy(notebook_pkg, notebook_dir, ignore_files, clobber=clobber)
-
-    # Deploy the pudl user environment file.
-    environment_pkg = "pudl.package_data"
-    deploy(environment_pkg, ps["pudl_out"], ignore_files, clobber=clobber)
 
 
 def deploy(pkg_path, deploy_dir, ignore_files, clobber=False):

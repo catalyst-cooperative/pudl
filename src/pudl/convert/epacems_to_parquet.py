@@ -301,9 +301,9 @@ def parse_command_line(argv):
 def main():
     """Convert zipped EPA CEMS Hourly data to Apache Parquet format."""
     # Display logged output from the PUDL package:
-    logger = logging.getLogger(pudl.__name__)
+    pudl_logger = logging.getLogger("pudl")
     log_format = '%(asctime)s [%(levelname)8s] %(name)s:%(lineno)s %(message)s'
-    coloredlogs.install(fmt=log_format, level='INFO', logger=logger)
+    coloredlogs.install(fmt=log_format, level='INFO', logger=pudl_logger)
 
     args = parse_command_line(sys.argv)
 

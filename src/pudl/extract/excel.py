@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 
 
 class Metadata(object):
-    """Loads excel metadata from python package.
+    """Load Excel metadata from Python package data.
 
     Excel sheet files may contain many different tables. When we load those
     into dataframes, metadata tells us how to do this. Metadata generally informs
@@ -24,15 +24,16 @@ class Metadata(object):
     package.
 
     It expects the following kinds of files:
-    - skiprows.csv tells us how many initial rows should be skipped when loading
-    data for given (partition, page).
-    - skipfooter.csv tells us how many bottom rows should be skipped when
-    loading data for given partition (partition, page).
-    - tab_map.csv tells us what is the excel sheet name that should be read
-    when loading data for given (partition, page)
-    - column_map/${page}.csv currently informs us how to translate input column
-    names to standardized pudl names for given (partition, input_col_name).
-    Relevant page is encoded in the filename.
+
+    * skiprows.csv tells us how many initial rows should be skipped when loading
+      data for given (partition, page).
+    * skipfooter.csv tells us how many bottom rows should be skipped when
+      loading data for given partition (partition, page).
+    * tab_map.csv tells us what is the excel sheet name that should be read
+      when loading data for given (partition, page)
+    * column_map/${page}.csv currently informs us how to translate input column
+      names to standardized pudl names for given (partition, input_col_name).
+      Relevant page is encoded in the filename.
     """
 
     # TODO: we could validate whether metadata is valid for all year. We should have
@@ -127,12 +128,13 @@ class GenericExtractor(object):
 
     4. If data cleanup is necessary, you can apply custom logic by overriding
     one of the following functions (they all return the modified dataframe):
-    - process_raw() is applied right after loading the excel DataFrame
-    from the disk.
-    - process_renamed() is applied after input columns were renamed to
-    standardized pudl columns.
-    - process_final_page() is applied when data from all available years
-    is merged into single DataFrame for a given page.
+
+      * process_raw() is applied right after loading the excel DataFrame
+        from the disk.
+      * process_renamed() is applied after input columns were renamed to
+        standardized pudl columns.
+      * process_final_page() is applied when data from all available years
+        is merged into single DataFrame for a given page.
 
     5. get_datapackage_resources() if partition is anything other than a year,
     this method should be overwritten in the dataset-specific extractor.
