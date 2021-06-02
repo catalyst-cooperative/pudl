@@ -5,8 +5,12 @@ on: [ push, pull_request ]
 jobs:
   build:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.8, 3.9]
+
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v2.3.4
       with:
         fetch-depth: 2
 
@@ -14,7 +18,7 @@ jobs:
       run: grep -e '.*10\.\(5281\|5072\)/zenodo\..*' src/pudl/workspace/datastore.py | sed -e 's/",*$//g' | sed -e 's/^.*"//g' | sort > datastore-dois.txt
 
     - name: Restore Zenodo datastore from cache if possible
-      uses: actions/cache@v2
+      uses: actions/cache@v2.1.6
       id: cache-zenodo-datastore
       with:
         path: ~/pudl-work/data/
@@ -23,13 +27,13 @@ jobs:
           zenodo-datastore-
 
     - name: Set up Python
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v2.2.2
       with:
-        python-version: 3.8
+        python-version: ${{ matrix.python-version }}
 
     - name: Install dependencies
       run: |
-        sudo apt-get install libsnappy-dev
+        sudo apt-get install libsnappy-dev gdal-bin
         python -m pip install --upgrade pip
         pip install tox
 
@@ -41,19 +45,13 @@ jobs:
     - name: Run PyTest with Tox
       env:
         API_KEY_EIA: ${{ secrets.API_KEY_EIA }}
-      run: tox -ve ci -- --fast
+      run: tox
 
     - name: Log post-test Zenodo datastore contents
       run: find ~/pudl-work/data/
 
     - name: Upload test coverage report to CodeCov
       uses: codecov/codecov-action@v1
-
-    - name: Archive test coverage report at GitHub
-      uses: actions/upload-artifact@v2
-      with:
-        name: code-coverage-report
-        path: coverage.xml
 
     - name: Inform the Codemonkeys
       uses: 8398a7/action-slack@v3

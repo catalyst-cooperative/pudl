@@ -16,6 +16,7 @@ The boiler generator association inferrence (bga) takes the associations
 provided by the EIA 860, and expands on it using several methods which can be
 found in :func:`pudl.transform.eia._boiler_generator_assn`.
 """
+
 import importlib.resources
 import logging
 

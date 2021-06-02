@@ -21,10 +21,10 @@ logger = logging.getLogger(__name__)
         ("bf_eia923", "all"),
         ("frc_eia923", "all"),
     ])
-def test_no_null_cols_eia(pudl_out_eia, live_pudl_db, cols, df_name):
+def test_no_null_cols_eia(pudl_out_eia, live_dbs, cols, df_name):
     """Verify that output DataFrames have no entirely NULL columns."""
-    if not live_pudl_db:
-        raise AssertionError("Data validation only works with a live PUDL DB.")
+    if not live_dbs:
+        pytest.skip("Data validation only works with a live PUDL DB.")
     pv.no_null_cols(
         pudl_out_eia.__getattribute__(df_name)(),
         cols=cols, df_name=df_name)
@@ -32,19 +32,19 @@ def test_no_null_cols_eia(pudl_out_eia, live_pudl_db, cols, df_name):
 
 @pytest.mark.parametrize(
     "df_name,raw_rows,monthly_rows,annual_rows", [
-        ("utils_eia860", 50_186, 50_186, 50_186),
-        ("plants_eia860", 96_694, 96_694, 96_694),
-        ("pu_eia860", 95_826, 95_826, 95_826),
-        ("own_eia860", 47_354, 47_354, 47_354),
+        ("utils_eia860", 94_895, 94_895, 94_895),
+        ("plants_eia860", 140_311, 140_311, 140_311),
+        ("pu_eia860", 139_443, 139_443, 139_443),
+        ("own_eia860", 65_271, 65_271, 65_271),
         ("bga_eia860", 103_805, 103_805, 103_805),
-        ("gens_eia860", 271_689, 271_689, 271_689),
+        ("gens_eia860", 404_158, 404_158, 404_158),
         ("frc_eia923", 454_891, 190_115, 18_773),
         ("gen_eia923", 476_052, 476_052, 39_671),
         ("bf_eia923", 1_133_388, 946_056, 78_838),
         ("gf_eia923", 1_551_264, 1_250_340, 104_195),
     ])
 def test_minmax_rows(pudl_out_eia,
-                     live_pudl_db,
+                     live_dbs,
                      raw_rows,
                      annual_rows,
                      monthly_rows,
@@ -53,7 +53,7 @@ def test_minmax_rows(pudl_out_eia,
 
     Args:
         pudl_out_eia: A PudlTabl output object.
-        live_pudl_db (bool): Whether we're using a live or testing DB.
+        live_dbs (bool): Whether we're using a live or testing DB.
         min_rows (int): Minimum number of rows that the dataframe should
             contain when all data is loaded and is output without aggregation.
         df_name (str): Shorthand name identifying the dataframe, corresponding
@@ -61,8 +61,8 @@ def test_minmax_rows(pudl_out_eia,
             output object.
 
     """
-    if not live_pudl_db:
-        raise AssertionError("Data validation only works with a live PUDL DB.")
+    if not live_dbs:
+        pytest.skip("Data validation only works with a live PUDL DB.")
     if pudl_out_eia.freq == "AS":
         expected_rows = annual_rows
     elif pudl_out_eia.freq == "MS":
@@ -96,10 +96,10 @@ def test_minmax_rows(pudl_out_eia,
                         "owner_utility_id_eia"]),
         ("gen_eia923", ["report_date", "plant_id_eia", "generator_id"]),
     ])
-def test_unique_rows_eia(pudl_out_eia, live_pudl_db, unique_subset, df_name):
+def test_unique_rows_eia(pudl_out_eia, live_dbs, unique_subset, df_name):
     """Test whether dataframe has unique records within a subset of columns."""
-    if not live_pudl_db:
-        raise AssertionError("Data validation only works with a live PUDL DB.")
+    if not live_dbs:
+        pytest.skip("Data validation only works with a live PUDL DB.")
     if (pudl_out_eia.freq is None) and (df_name == "gen_eia923"):
         pytest.xfail(reason="RE-RUN ETL DUDE.")
     pv.check_unique_rows(

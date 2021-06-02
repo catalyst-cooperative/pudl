@@ -32,8 +32,6 @@ from pyarrow import parquet as pq
 import pudl
 from pudl import constants as pc
 
-# Because this is an entry point module for a script, we want to gather all the
-# pudl output, not just from this module, hence the pudl.__name__
 logger = logging.getLogger(__name__)
 
 
@@ -303,9 +301,9 @@ def parse_command_line(argv):
 def main():
     """Convert zipped EPA CEMS Hourly data to Apache Parquet format."""
     # Display logged output from the PUDL package:
-    logger = logging.getLogger(pudl.__name__)
+    pudl_logger = logging.getLogger("pudl")
     log_format = '%(asctime)s [%(levelname)8s] %(name)s:%(lineno)s %(message)s'
-    coloredlogs.install(fmt=log_format, level='INFO', logger=logger)
+    coloredlogs.install(fmt=log_format, level='INFO', logger=pudl_logger)
 
     args = parse_command_line(sys.argv)
 

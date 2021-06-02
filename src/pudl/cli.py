@@ -77,15 +77,15 @@ def parse_command_line(argv):
 def main():
     """Parse command line and initialize PUDL DB."""
     # Display logged output from the PUDL package:
-    logger = logging.getLogger(pudl.__name__)
+    pudl_logger = logging.getLogger("pudl")
     log_format = '%(asctime)s [%(levelname)8s] %(name)s:%(lineno)s %(message)s'
-    coloredlogs.install(fmt=log_format, level='INFO', logger=logger)
+    coloredlogs.install(fmt=log_format, level='INFO', logger=pudl_logger)
 
     args = parse_command_line(sys.argv)
     if args.logfile:
         file_logger = logging.FileHandler(args.logfile)
         file_logger.setFormatter(logging.Formatter(log_format))
-        logger.addHandler(file_logger)
+        pudl_logger.addHandler(file_logger)
     with pathlib.Path(args.settings_file).open() as f:
         script_settings = yaml.safe_load(f)
 

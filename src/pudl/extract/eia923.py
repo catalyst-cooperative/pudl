@@ -10,7 +10,8 @@ import logging
 
 import pandas as pd
 
-from pudl.extract import excel as excel
+from pudl.extract import excel
+from pudl.helpers import fix_leading_zero_gen_ids
 
 logger = logging.getLogger(__name__)
 
@@ -27,6 +28,7 @@ class Extractor(excel.GenericExtractor):
         """
         self.METADATA = excel.Metadata('eia923')
         self.BLACKLISTED_PAGES = ['plant_frame']
+        self.cols_added = []
         super().__init__(*args, **kwargs)
 
     # Pages not supported by the metadata:
@@ -41,6 +43,7 @@ class Extractor(excel.GenericExtractor):
         df = df.rename(
             columns=self._metadata.get_column_map(page, **partition))
         self.cols_added = []
+        df = fix_leading_zero_gen_ids(df)
         return df
 
     @staticmethod

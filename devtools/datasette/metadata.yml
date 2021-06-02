@@ -29,7 +29,8 @@ databases:
     description_html: |
       <p>This database contains cleaned and normalized data from...
       <ul>
-      <li><a href="https://www.eia.gov/electricity/data/eia860/">EIA Form 860</a> (2009-2019)</li>
+      <li><a href="https://www.eia.gov/electricity/data/eia860/">EIA Form 860</a> (2004-2019)</li>
+      <li><a href="https://www.eia.gov/electricity/data/eia860m/">EIA Form 860m</a> (year-to-date for 2020-11)</li>
       <li><a href="https://www.eia.gov/electricity/data/eia923/">EIA Form 923</a> (2009-2019)</li>
       <li><a href="https://www.ferc.gov/industries-data/electric/general-information/electric-industry-forms/form-1-electric-utility-annual">FERC Form 1</a> (1994-2019)</li>
       </ul></p>
@@ -95,12 +96,8 @@ databases:
       Cooperative</a> as part of the
       <a href="https://github.com/catalyst-cooperative/pudl">Public Utility
       Data Liberation Project</a>.</p>
-      <p>Additional information about the database structure
-      <ul>
-      <li><a href="https://github.com/catalyst-cooperative/pudl/tree/master/docs/ferc/form1/ferc_form1_blank">Recent versions of the blank FERC Form 1</a></li>
-      <li><a href="https://github.com/catalyst-cooperative/pudl/blob/master/docs/ferc/form1/ferc_form1_database_notes.csv">Notes relating Form 1 page numbers, DBF file names, and database table names</a></li>
-      <li><a href="https://raw.githubusercontent.com/catalyst-cooperative/pudl/master/docs/ferc/form1/ferc_form1_database_design_diagram_2015.pdf">A diagram of the FoxPro database structure from 2015 (PDF)</a></li>
-      </ul></p>
+      <p>Additional information about the database structure can be found
+      in the <a href="https://catalystcoop-pudl.readthedocs.io/en/latest/data_sources/ferc1.html">PUDL Documentation for FERC Form 1</a>.</p>
       <h2>Caution:</h2>
       <ul>
       <li>The structure of the data and the API are not necessarily stable, so don't

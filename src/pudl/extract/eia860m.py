@@ -19,7 +19,8 @@ from datetime import datetime
 
 import pandas as pd
 
-from pudl.extract import excel as excel
+from pudl.extract import excel
+from pudl.helpers import fix_leading_zero_gen_ids
 
 logger = logging.getLogger(__name__)
 
@@ -35,6 +36,7 @@ class Extractor(excel.GenericExtractor):
             ds (:class:datastore.Datastore): Initialized datastore.
         """
         self.METADATA = excel.Metadata('eia860m')
+        self.cols_added = []
         super().__init__(*args, **kwargs)
 
     def process_raw(self, df, page, **partition):
@@ -46,6 +48,7 @@ class Extractor(excel.GenericExtractor):
                 list(partition.values())[0], "%Y-%m").year
         df = df.assign(data_source='eia860m')
         self.cols_added = ['data_source', 'report_year']
+        df = fix_leading_zero_gen_ids(df)
         return df
 
     @staticmethod
