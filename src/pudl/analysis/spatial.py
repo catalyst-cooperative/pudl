@@ -153,30 +153,6 @@ def explode(gdf: gpd.GeoDataFrame, ratios: Iterable[str] = None) -> gpd.GeoDataF
         GeoDataFrame with each Polygon as a separate row in the GeoDataFrame.
         The index is the number of the source row in the input GeoDataFrame.
 
-    Examples:
-        >>> gpd.options.display_precision = 0
-        >>> gdf = gpd.GeoDataFrame({
-        ...     'geometry': gpd.GeoSeries([
-        ...         MultiPolygon([
-        ...             Polygon([(0, 0), (0, 1), (1, 1), (1, 0)]),
-        ...             Polygon([(1, 1), (2, 1), (2, 2), (1, 2)])
-        ...         ]),
-        ...         Polygon([(1, 1), (1, 2), (2, 2), (2, 1)]),
-        ...     ]),
-        ...     'x': [0, 1],
-        ...     'y': [4.0, 8.0],
-        ... })
-        >>> explode(gdf, ratios=['y'])
-                                      geometry  x    y
-        0  POLYGON ((0 0, 0 1, 1 1, 1 0, 0 0))  0  2.0
-        0  POLYGON ((1 1, 2 1, 2 2, 1 2, 1 1))  0  2.0
-        1  POLYGON ((1 1, 1 2, 2 2, 2 1, 1 1))  1  8.0
-        >>> exploded = explode(gdf, ratios=['y']).reset_index()
-        >>> dissolved = dissolve(exploded, by='index', func={'x': 'first', 'y': 'sum'})
-        >>> dissolved.rename_axis(None)
-                                                    geometry  x    y
-        0  MULTIPOLYGON (((0 0, 0 1, 1 1, 1 0, 0 0)), ((1...  0  4.0
-        1                POLYGON ((1 1, 1 2, 2 2, 2 1, 1 1))  1  8.0
     """
     check_gdf(gdf)
     gdf = gdf.reset_index(drop=True)
@@ -212,31 +188,6 @@ def self_union(gdf: gpd.GeoDataFrame, ratios: Iterable[str] = None) -> gpd.GeoDa
     Raises:
         NotImplementedError: MultiPolygon geometries are not yet supported.
 
-    Examples:
-        >>> gpd.options.display_precision = 0
-        >>> gdf = gpd.GeoDataFrame({
-        ...     'geometry': gpd.GeoSeries([
-        ...         Polygon([(0, 0), (0, 2), (2, 2), (2, 0)]),
-        ...         Polygon([(1, 1), (3, 1), (3, 3), (1, 3)]),
-        ...         Polygon([(1, 1), (1, 2), (2, 2), (2, 1)]),
-        ...     ]),
-        ...     'x': [0, 1, 2],
-        ...     'y': [4.0, 8.0, 1.0],
-        ... })
-        >>> self_union(gdf)
-                                                        geometry  x    y
-        (0,)       POLYGON ((0 0, 0 2, 1 2, 1 1, 2 1, 2 0, 0 0))  0  4.0
-        (0, 1, 2)            POLYGON ((1 2, 2 2, 2 1, 1 1, 1 2))  0  4.0
-        (0, 1, 2)            POLYGON ((1 2, 2 2, 2 1, 1 1, 1 2))  1  8.0
-        (0, 1, 2)            POLYGON ((1 2, 2 2, 2 1, 1 1, 1 2))  2  1.0
-        (1,)       POLYGON ((2 2, 1 2, 1 3, 3 3, 3 1, 2 1, 2 2))  1  8.0
-        >>> self_union(gdf, ratios=['y'])
-                                                        geometry  x    y
-        (0,)       POLYGON ((0 0, 0 2, 1 2, 1 1, 2 1, 2 0, 0 0))  0  3.0
-        (0, 1, 2)            POLYGON ((1 2, 2 2, 2 1, 1 1, 1 2))  0  1.0
-        (0, 1, 2)            POLYGON ((1 2, 2 2, 2 1, 1 1, 1 2))  1  2.0
-        (0, 1, 2)            POLYGON ((1 2, 2 2, 2 1, 1 1, 1 2))  2  1.0
-        (1,)       POLYGON ((2 2, 1 2, 1 3, 3 3, 3 1, 2 1, 2 2))  1  6.0
     """
     check_gdf(gdf)
     gdf = gdf.reset_index(drop=True)
@@ -293,25 +244,6 @@ def dissolve(
         GeoDataFrame with dissolved geometry and data columns,
         and grouping columns set as the index.
 
-    Examples:
-        >>> gpd.options.display_precision = 0
-        >>> gdf = gpd.GeoDataFrame({
-        ...     'geometry': gpd.GeoSeries([
-        ...         Polygon([(0, 0), (0, 1), (3, 1), (3, 0)]),
-        ...         Polygon([(3, 0), (3, 1), (4, 1), (4, 0)])
-        ...     ]),
-        ...     'id': [0, 0],
-        ...     'ids': [0, 1],
-        ...     'x': [3.0, 1.0]
-        ... })
-        >>> dissolve(gdf, by='id', func={'ids': tuple, 'x': 'sum'}, how='union')
-                                                 geometry     ids    x
-        id  ...
-        0   POLYGON ((0 0, 0 1, 3 1, 4 1, 4 0, 3 0, 0 0))  (0, 1)  4.0
-        >>> dissolve(gdf, by='id', func={'ids': tuple, 'x': 'sum'}, how='first')
-                                       geometry     ids    x
-        id  ...
-        0   POLYGON ((0 0, 0 1, 3 1, 3 0, 0 0))  (0, 1)  4.0
     """
     check_gdf(gdf)
     merges = {"union": lambda x: x.unary_union, "first": lambda x: x.iloc[0]}
@@ -433,133 +365,3 @@ def get_data_columns(df: pd.DataFrame) -> list:
     if isinstance(df, gpd.GeoDataFrame) and hasattr(df, "geometry"):
         return [col for col in df.columns if col != df.geometry.name]
     return list(df.columns)
-
-
-class LayerBuilder:
-    """
-    Build a layer incrementally.
-
-    Attributes:
-        gdf (gpd.GeoDataFrame): GeoDataFrame with non-empty (Multi)Polygon geometries.
-        ratios (List[str]): Names of columns to rescale by the area fraction of the
-            split feature relative to the original.
-            Has no effect on the geometry column.
-    """
-
-    def __init__(self, gdf: gpd.GeoDataFrame, ratios: Iterable[str] = None) -> None:
-        """
-        Initialize a LayerBuilder.
-
-        Args:
-            gdf: GeoDataFrame with non-empty (Multi)Polygon geometries.
-            ratios: Names of columns (not necessarily present in `gdf`) to rescale by
-                the area fraction of the split feature relative to the original.
-                Has no effect on the geometry column.
-        """
-        check_gdf(gdf)
-        self.gdf = gdf
-        self.ratios = []
-        self.add_ratios(ratios)
-
-    def add_ratios(self, ratios: Iterable[str] = None) -> None:
-        """Add columns to those treated as ratios when features are split."""
-        if ratios is None:
-            ratios = []
-        self.ratios += [x for x in ratios if x not in self.ratios]
-
-    def join(self, df: pd.DataFrame, ratios: Iterable[str] = None) -> None:
-        """
-        Join to table on common attributes.
-
-        Args:
-            df: Dataframe with attributes to add to the layer.
-            ratios: Names of columns to rescale by the area fraction of the
-                split feature relative to the original.
-
-        Raises:
-            ValueError: Table and layer have no column names in common.
-        """
-        # Columns present in both existing and new layer (ignoring geometry)
-        on = list(set(get_data_columns(df)) & set(get_data_columns(self.gdf)))
-        if not on:
-            raise ValueError("Table and layer have no column names in common")
-        self.gdf = self.gdf.merge(df, how="left", on=on)
-        self.add_ratios(ratios)
-
-    def sjoin(
-        self,
-        gdf: gpd.GeoDataFrame,
-        how: Literal["left", "right", "inner"] = "left",
-        op: Literal["intersects", "contains", "within"] = "intersects",
-        ratios: Iterable[str] = None,
-    ) -> None:
-        """
-        Join to layer on spatial binary predicate.
-
-        Args:
-            gdf: GeoDataFrame with non-empty (Multi)Polygon geometries.
-            how: Type of join (see :func:`gpd.sjoin`).
-            op: Binary predicate
-                (http://shapely.readthedocs.io/en/latest/manual.html#binary-predicates).
-            ratios: Names of columns to rescale by the area fraction of the
-                split feature relative to the original.
-
-        Raises:
-            ValueError: Only non-empty (Multi)Polygon geometries are supported.
-        """
-        check_gdf(gdf)
-        # Drop data columns already present in layer
-        xcols = list(set(get_data_columns(gdf)) & set(get_data_columns(self.gdf)))
-        gdf = gdf.drop(columns=xcols)
-        # NOTE: Requires that no column be named 'index_right'.
-        self.layer = gpd.sjoin(self.gdf, gdf, how=how, op=op).drop(
-            columns=["index_right"]
-        )
-        self.add_ratios(ratios)
-
-    def overlay(
-        self,
-        gdf: gpd.GeoDataFrame,
-        how: Literal[
-            "intersection", "union", "identity", "symmetric_difference", "difference"
-        ] = "intersection",
-        ratios: Iterable[str] = None,
-    ) -> None:
-        """
-        Overlay onto layer.
-
-        Args:
-            gdf: GeoDataFrame with non-empty (Multi)Polygon geometries.
-            ratios: Names of columns to rescale by the area fraction of the
-                split feature relative to the original.
-
-        ValueError:
-            ValueError: Only non-empty (Multi)Polygon geometries are supported.
-        """
-        check_gdf(gdf)
-        # Drop data columns already present in layer
-        xcols = list(set(get_data_columns(gdf)) & set(get_data_columns(self.gdf)))
-        gdf = gdf.drop(columns=xcols)
-        self.add_ratios(ratios)
-        self.gdf = overlay(self.gdf, gdf, ratios=self.ratios)
-
-    def dissolve(
-        self,
-        by: Iterable[str],
-        how: Union[
-            Literal["union", "first"], Callable[[gpd.GeoSeries], BaseGeometry]
-        ] = "union",
-        func: Union[Callable, str, list, dict] = None,
-    ) -> gpd.GeoDataFrame:
-        """
-        Dissolve layer by aggregating features based on common attributes.
-
-        See :func:`dissolve`. If `func=None`, ratio columns are summed and non-ratio
-        columns are gathered into tuples.
-        """
-        if func is None:
-            func = {
-                col: pd.Series.sum if col in self.ratios else pd.Series.tolist
-                for col in get_data_columns(self.gdf)
-            }
-        return dissolve(self.gdf, by=by, how=how, func=func)
