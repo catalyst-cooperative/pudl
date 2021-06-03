@@ -172,7 +172,7 @@ Use Consistent Names
 If two columns in different tables record the same quantity in the same units,
 give them the same name. That way if they end up in the same dataframe for
 comparison it's easy to automatically rename them with suffixes indicating
-where they came from. For example net electricity generation is reported to
+where they came from. For example, net electricity generation is reported to
 both :doc:`FERC Form 1 <../data_sources/ferc1>` and :doc:`EIA 923
 <../data_sources/eia923>`, so we've named columns ``net_generation_mwh`` in
 each of those data sources. Similarly, give non-comparable quantities reported
@@ -185,7 +185,7 @@ We are trying to use consistent naming conventions for the data tables,
 columns, data sources, and functions. Generally speaking PUDL is a collection
 of subpackages organized by purpose (extract, transform, load, analysis,
 output, datastore…), containing a module for each data source. Each data source
-has a short name that is used everywhere throughout the project, composed of
+has a short name that is used everywhere throughout the project and is composed of
 the reporting agency and the form number or another identifying abbreviation:
 ``ferc1``, ``epacems``, ``eia923``, ``eia861``, etc. See the :doc:`naming
 conventions <naming_conventions>` document for more details.
@@ -193,7 +193,7 @@ conventions <naming_conventions>` document for more details.
 -------------------------------------------------------------------------------
 Complete, Continuous Time Series
 -------------------------------------------------------------------------------
-Most of the data in PUDL are time series, ranging from hourly to annual in
+Most of the data in PUDL are time series' ranging from hourly to annual in
 resolution.
 
 * **Assume and provide contiguous time series.** Otherwise there are just too
@@ -201,6 +201,6 @@ resolution.
   work if you pull in data from 2009-2010, and then also from 2016-2018, but
   not 2011-2015.
 * **Assume and provide complete time series.** In data that is indexed by date
-  or time, ensure that it is available as a complete time series, even if some
+  or time, ensure that it is available as a complete time series even if some
   values are missing (and thus NA). Many time series analyses only work when
   all the timesteps are present.
