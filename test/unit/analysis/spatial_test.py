@@ -10,29 +10,14 @@ from pudl.analysis.spatial import dissolve, explode, self_union
 gpd.options.display_precision = 0
 
 
-def test_dissolve():
-    """Test mergining of geometries and non-spatial attributes."""
-    gdf = gpd.GeoDataFrame({
-        'geometry': gpd.GeoSeries([
-            Polygon([(0, 0), (0, 1), (3, 1), (3, 0)]),
-            Polygon([(3, 0), (3, 1), (4, 1), (4, 0)])
-        ]),
-        'id': [0, 0],
-        'ids': [0, 1],
-        'x': [3.0, 1.0]
-    })
+def test_check_gdf():
+    """Test GeoDataFrame validation function."""
+    pass
 
-    output_gdf = dissolve(gdf, by='id', func={'ids': tuple, 'x': 'sum'}, how='union')
 
-    expected_gdf = gpd.GeoDataFrame({
-        'geometry': gpd.GeoSeries([
-            Polygon([(0, 0), (0, 1), (3, 1), (4, 1), (4, 0), (3, 0), (0, 0)]),
-        ]),
-        'ids': [(0, 1), ],
-        'x': [4.0, ],
-    }, index=pd.Index(data=[0, ], name="id"))
-
-    assert_geodataframe_equal(output_gdf, expected_gdf)
+def test_polygonize():
+    """Test conversion of Geometries into (Multi)Polygons."""
+    pass
 
 
 def test_explode():
@@ -81,8 +66,8 @@ def test_self_union():
         'x': [0, 1, 2],
         'y': [4.0, 8.0, 1.0],
     })
-    result_one = self_union(gdf)
 
+    result_one = self_union(gdf)
     expected_one = gpd.GeoDataFrame({
         'geometry': gpd.GeoSeries([
             Polygon([(0, 0), (0, 2), (1, 2), (1, 1), (2, 1), (2, 0), (0, 0)]),
@@ -109,3 +94,38 @@ def test_self_union():
         'y': [3.0, 1.0, 2.0, 1.0, 6.0],
     })
     assert_geodataframe_equal(result_two, expected_two)
+
+
+def test_dissolve():
+    """Test mergining of geometries and non-spatial attributes."""
+    gdf = gpd.GeoDataFrame({
+        'geometry': gpd.GeoSeries([
+            Polygon([(0, 0), (0, 1), (3, 1), (3, 0)]),
+            Polygon([(3, 0), (3, 1), (4, 1), (4, 0)])
+        ]),
+        'id': [0, 0],
+        'ids': [0, 1],
+        'x': [3.0, 1.0]
+    })
+
+    output_gdf = dissolve(gdf, by='id', func={'ids': tuple, 'x': 'sum'}, how='union')
+
+    expected_gdf = gpd.GeoDataFrame({
+        'geometry': gpd.GeoSeries([
+            Polygon([(0, 0), (0, 1), (3, 1), (4, 1), (4, 0), (3, 0), (0, 0)]),
+        ]),
+        'ids': [(0, 1), ],
+        'x': [4.0, ],
+    }, index=pd.Index(data=[0, ], name="id"))
+
+    assert_geodataframe_equal(output_gdf, expected_gdf)
+
+
+def test_overlay():
+    """Test overlaying of spatial layers and non-spatial attributes."""
+    pass
+
+
+def test_get_data_columns():
+    """Test extraction of non-spatial column names from GeoDataFrame."""
+    pass
