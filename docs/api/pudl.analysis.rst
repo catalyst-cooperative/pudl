@@ -10,6 +10,8 @@ Submodules
    pudl.analysis.allocate_net_gen
    pudl.analysis.mcoe
    pudl.analysis.service_territory
+   pudl.analysis.spatial
+   pudl.analysis.state_demand
    pudl.analysis.timeseries_cleaning
 
 Module contents
