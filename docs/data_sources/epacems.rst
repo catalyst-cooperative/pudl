@@ -66,10 +66,10 @@ All of it!
 
 Notable Irregularities
 ^^^^^^^^^^^^^^^^^^^^^^
-CEMS is by far the largest dataset in PUDL at the moment, with hourly records for
-thousands of plants covering decades. Note that the ETL process can easily take all
+CEMS is by far the largest dataset in PUDL at the moment with hourly records for
+thousands of plants spanning decades. Note that the ETL process can easily take all
 day for the full dataset. PUDL also provides a script that converts the raw EPA CEMS
-data into Apache Parquet files, which can be read and queried very efficiently with
+data into Apache Parquet files that can be read and queried very efficiently with
 Dask. Check out the `EPA CEMS example notebook <https://github.com/catalyst-cooperative/pudl-examples/blob/main/notebooks/03-pudl-parquet.ipynb>`__
 in our
 `pudl-examples repository <https://github.com/catalyst-cooperative/pudl-examples>`__
