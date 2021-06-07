@@ -100,7 +100,7 @@ to check out `the complete documentation
 Datasette
 ^^^^^^^^^
 We publish a lot of the data on https://data.catalyst.coop using a tool called
-`Datasette <https://datasette.io>`__ which lets us wrap our databases in a relatively
+`Datasette <https://datasette.io>`__ that lets us wrap our databases in a relatively
 friendly web interface. You can browse and query the data, make simple charts and
 maps, and download portions of the data as CSV files or JSON so you can work with it
 locally. For a quick introduction to what you can do with the Datasette interface,
@@ -190,7 +190,8 @@ Contact Us
 * For user support, bug reports and anything else that could be useful or interesting
   to other users, please make a
   `GitHub issue <https://github.com/catalyst-cooperative/pudl/issues>`__.
-* For private communication about the project, you can email the maintainers:
+* For private communication about the project or to hire us to provide customized data
+  extraction and analysis, you can email the maintainers:
   `pudl@catalyst.coop <mailto:pudl@catalyst.coop>`__
 * If you'd like to get occasional updates about the project
   `sign up for our email list <https://catalyst.coop/updates/>`__.
