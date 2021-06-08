@@ -1,23 +1,63 @@
 """Tests for timeseries anomalies detection and imputation."""
 
+import re
+
 import geopandas as gpd
 import pandas as pd
+import pytest
 from geopandas.testing import assert_geodataframe_equal
-from shapely.geometry import MultiPolygon, Polygon
+from shapely.geometry import GeometryCollection, MultiPolygon, Polygon
 
-from pudl.analysis.spatial import dissolve, explode, self_union
+from pudl.analysis.spatial import (check_gdf, dissolve, explode, polygonize,
+                                   self_union)
 
 gpd.options.display_precision = 0
 
+poly = Polygon([(0, 0), (0, 1), (1, 1), (1, 0)])
+zero_poly = Polygon([(0, 0), (0, 0), (0, 0), (0, 0)])
 
-def test_check_gdf():
+
+@pytest.mark.parametrize(
+    "gdf,exc,pattern", [
+        (None, TypeError, r"Object is not a GeoDataFrame"),
+        (gpd.GeoDataFrame({'x': [0]}), AttributeError, r"GeoDataFrame has no geometry"),
+        (gpd.GeoDataFrame({'geometry': [0]}),
+         TypeError, r"Geometry is not a GeoSeries"),
+        (gpd.GeoDataFrame(geometry=[GeometryCollection()]), ValueError,
+         r"Geometry contains non-(Multi)Polygon geometries"),
+        (gpd.GeoDataFrame(geometry=[zero_poly]), ValueError,
+         r"Geometry contains (Multi)Polygon geometries with zero area"),
+        (gpd.GeoDataFrame(geometry=[MultiPolygon([poly, zero_poly])]),
+         ValueError, r"MultiPolygon contains Polygon geometries with zero area"),
+    ]
+)
+def test_check_gdf(gdf, exc, pattern):
     """Test GeoDataFrame validation function."""
-    pass
+    with pytest.raises(exc) as err:
+        check_gdf(gdf)
+    assert err.match(re.escape(pattern))
+
+    assert check_gdf(gpd.GeoDataFrame(geometry=[poly])) is None
 
 
 def test_polygonize():
     """Test conversion of Geometries into (Multi)Polygons."""
-    pass
+    # A collection with one non-zero-area Polygon is returned as a Polygon.
+    geom1 = GeometryCollection([poly, zero_poly])
+    result1 = polygonize(geom1)
+    assert result1.geom_type == "Polygon"
+    assert result1.area == 1.0
+
+    # A collection with multiple non-zero-area polygons is returned as a MultiPolygon.
+    geom2 = GeometryCollection([poly, poly])
+    result2 = polygonize(geom2)
+    assert result2.geom_type == "MultiPolygon"
+    assert result2.area == 2.0
+
+    # Zero-area geometries are not permitted.
+    with pytest.raises(ValueError) as err:
+        _ = polygonize(zero_poly)
+    assert err.match("Geometry has zero area")
 
 
 def test_explode():
@@ -37,9 +77,9 @@ def test_explode():
     output_gdf = explode(gdf, ratios=['y'])
     expected_gdf = gpd.GeoDataFrame({
         'geometry': gpd.GeoSeries([
-            Polygon([(0, 0), (0, 1), (1, 1), (1, 0), (0, 0)]),
-            Polygon([(1, 1), (2, 1), (2, 2), (1, 2), (1, 1)]),
-            Polygon([(1, 1), (1, 2), (2, 2), (2, 1), (1, 1)]),
+            Polygon([(0, 0), (0, 1), (1, 1), (1, 0)]),
+            Polygon([(1, 1), (2, 1), (2, 2), (1, 2)]),
+            Polygon([(1, 1), (1, 2), (2, 2), (2, 1)]),
         ], index=[0, 0, 1]),
         'x': [0, 0, 1],
         'y': [2.0, 2.0, 8.0],
@@ -70,11 +110,11 @@ def test_self_union():
     result_one = self_union(gdf)
     expected_one = gpd.GeoDataFrame({
         'geometry': gpd.GeoSeries([
-            Polygon([(0, 0), (0, 2), (1, 2), (1, 1), (2, 1), (2, 0), (0, 0)]),
-            Polygon([(1, 2), (2, 2), (2, 1), (1, 1), (1, 2)]),
-            Polygon([(1, 2), (2, 2), (2, 1), (1, 1), (1, 2)]),
-            Polygon([(1, 2), (2, 2), (2, 1), (1, 1), (1, 2)]),
-            Polygon([(2, 2), (1, 2), (1, 3), (3, 3), (3, 1), (2, 1), (2, 2)]),
+            Polygon([(0, 0), (0, 2), (1, 2), (1, 1), (2, 1), (2, 0)]),
+            Polygon([(1, 2), (2, 2), (2, 1), (1, 1)]),
+            Polygon([(1, 2), (2, 2), (2, 1), (1, 1)]),
+            Polygon([(1, 2), (2, 2), (2, 1), (1, 1)]),
+            Polygon([(2, 2), (1, 2), (1, 3), (3, 3), (3, 1), (2, 1)]),
         ], index=[(0, ), (0, 1, 2), (0, 1, 2), (0, 1, 2), (1, )]),
         'x': [0, 0, 1, 2, 1],
         'y': [4.0, 4.0, 8.0, 1.0, 8.0],
@@ -84,11 +124,11 @@ def test_self_union():
     result_two = self_union(gdf, ratios=['y'])
     expected_two = gpd.GeoDataFrame({
         'geometry': gpd.GeoSeries([
-            Polygon([(0, 0), (0, 2), (1, 2), (1, 1), (2, 1), (2, 0), (0, 0)]),
-            Polygon([(1, 2), (2, 2), (2, 1), (1, 1), (1, 2)]),
-            Polygon([(1, 2), (2, 2), (2, 1), (1, 1), (1, 2)]),
-            Polygon([(1, 2), (2, 2), (2, 1), (1, 1), (1, 2)]),
-            Polygon([(2, 2), (1, 2), (1, 3), (3, 3), (3, 1), (2, 1), (2, 2)]),
+            Polygon([(0, 0), (0, 2), (1, 2), (1, 1), (2, 1), (2, 0)]),
+            Polygon([(1, 2), (2, 2), (2, 1), (1, 1)]),
+            Polygon([(1, 2), (2, 2), (2, 1), (1, 1)]),
+            Polygon([(1, 2), (2, 2), (2, 1), (1, 1)]),
+            Polygon([(2, 2), (1, 2), (1, 3), (3, 3), (3, 1), (2, 1)]),
         ], index=[(0, ), (0, 1, 2), (0, 1, 2), (0, 1, 2), (1, )]),
         'x': [0, 0, 1, 2, 1],
         'y': [3.0, 1.0, 2.0, 1.0, 6.0],

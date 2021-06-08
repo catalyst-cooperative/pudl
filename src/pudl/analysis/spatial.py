@@ -26,34 +26,6 @@ def check_gdf(gdf: gpd.GeoDataFrame) -> None:
         ValueError: Geometry contains (Multi)Polygon geometries with zero area.
         ValueError: MultiPolygon contains Polygon geometries with zero area.
 
-    Examples:
-        >>> poly = Polygon([(0, 0), (0, 1), (1, 1), (1, 0)])
-        >>> zero_poly = Polygon([(0, 0), (0, 0), (0, 0), (0, 0)])
-        >>> check_gdf(gpd.GeoDataFrame(geometry=[poly]))
-        >>> check_gdf(None)
-        Traceback (most recent call last):
-          ...
-        TypeError: Object is not a GeoDataFrame
-        >>> check_gdf(gpd.GeoDataFrame({'x': [0]}))
-        Traceback (most recent call last):
-          ...
-        AttributeError: GeoDataFrame has no geometry
-        >>> check_gdf(gpd.GeoDataFrame({'geometry': [0]}))
-        Traceback (most recent call last):
-          ...
-        TypeError: Geometry is not a GeoSeries
-        >>> check_gdf(gpd.GeoDataFrame(geometry=[GeometryCollection()]))
-        Traceback (most recent call last):
-          ...
-        ValueError: Geometry contains non-(Multi)Polygon geometries
-        >>> check_gdf(gpd.GeoDataFrame(geometry=[zero_poly]))
-        Traceback (most recent call last):
-          ...
-        ValueError: Geometry contains (Multi)Polygon geometries with zero area
-        >>> check_gdf(gpd.GeoDataFrame(geometry=[MultiPolygon([poly, zero_poly])]))
-        Traceback (most recent call last):
-          ...
-        ValueError: MultiPolygon contains Polygon geometries with zero area
     """
     if not isinstance(gdf, gpd.GeoDataFrame):
         raise TypeError("Object is not a GeoDataFrame")
@@ -90,29 +62,6 @@ def polygonize(geom: BaseGeometry) -> Union[Polygon, MultiPolygon]:
     Raises:
         ValueError: Geometry has zero area.
 
-    Exmaples:
-        A collection with one non-zero-area Polygon is returned as a Polygon.
-
-        >>> poly = Polygon([(0, 0), (0, 1), (1, 1), (1, 0)])
-        >>> zero_poly = Polygon([(0, 0), (0, 0), (0, 0), (0, 0)])
-        >>> geom = GeometryCollection([poly, zero_poly])
-        >>> result = polygonize(geom)
-        >>> result.geom_type, result.area
-        ('Polygon', 1.0)
-
-        A collection with multiple non-zero-area polygons is returned as a MultiPolygon.
-
-        >>> geom = GeometryCollection([poly, poly])
-        >>> result = polygonize(geom)
-        >>> result.geom_type, result.area
-        ('MultiPolygon', 2.0)
-
-        Zero-area geometries are not permitted.
-
-        >>> result = polygonize(zero_poly)
-        Traceback (most recent call last):
-          ...
-        ValueError: Geometry has zero area
     """
     polys = []
     # Explode geometries to polygons
