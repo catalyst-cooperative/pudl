@@ -23,7 +23,7 @@ Background
 
 The Form EIA-860 collects utility, owner, plant, and generator-level data from existing
 and planned entities with one or more megawatt of capacity. The form also contains
-information regarding environmental control equipment, and construction cost data from
+information regarding environmental control equipment and construction cost data from
 2013-2018.
 
 * :download:`EIA-860 Instructions (PDF, to 2020-03-31)
@@ -56,7 +56,7 @@ What does the original data look like?
 
 Approximately a year after respondents submit their form, the EIA publishes the data in
 a series of spreadsheets that reflect the thematic contents of the form. These
-spreadsheets can change year-to-year as the questions in the form are updated and as EIA
+spreadsheets can change year-to-year as the questions in the form are updated or as EIA
 adopts new formatting standards for their outputs. They are accessible on the `EIA
 website <https://www.eia.gov/electricity/data/eia860/>`__ as downloadable ZIP files
 categorized by year. To gain greater insight into year-to-year nuances of the form, we
@@ -79,7 +79,7 @@ Notable Irregularities
 In 2012 and 2013, the Form was updated to include specific information about renewable
 generators. These new data are not included in PUDL.
 
-Prior to 2009, the Generators table was split into two spreadsheets, one for operating
+Prior to 2009, the Generators table was split into two spreadsheets: one for operating
 and one for proposed generation. In 2007 and before, there was an additional file for
 proposed changes to existing generation. The latter is excluded from PUDL while the
 former is combined into a single table during the transformation process.
@@ -89,7 +89,7 @@ table between boilers and generators. This association is important because in E
 the net generation is reported by generators and the fuel consumption is reported by
 boilers - so a good boiler generator association is crucial for understanding heat
 rates. Unfortunately, the reported associations are incomplete. We have implemented a
-methodology fills in many of the missing links 2014 and later, and covers more than 95%
+methodology fills in many of the missing links 2014 and later that covers more than 95%
 net generation reported in the :ref:`generation_eia923` table. See
 `this blog post <https://catalyst.coop/2018/08/07/boiler-generator-associations/>`__ and
 :mod:`pudl.transform.eia` for more information.
