@@ -517,8 +517,9 @@ def prep_alloction_fraction(gen_assoc):
     gen_pm_fuel = (
         pd.merge(
             gen_pm_fuel,
-            gen_pm_fuel.groupby(by=IDX_PM_FUEL + ['in_g_tbl'], as_index=False)
-            [['capacity_mw']].sum(min_count=1).add_suffix('_in_g_tbl_group'),
+            gen_pm_fuel.groupby(by=IDX_PM_FUEL + ['in_g_tbl'])
+            [['capacity_mw']].sum(min_count=1)
+            .add_suffix('_in_g_tbl_group').reset_index(),
             on=IDX_PM_FUEL + ['in_g_tbl'],
         )
     )
