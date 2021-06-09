@@ -240,29 +240,6 @@ def overlay(
     Returns:
         GeoDataFrame with the geometries and attributes resulting from the overlay.
 
-    Examples:
-        >>> gpd.options.display_precision = 0
-        >>> a = gpd.GeoDataFrame({
-        ...     'geometry': gpd.GeoSeries([Polygon([(0, 0), (0, 1), (3, 1), (3, 0)])]),
-        ...     'a': [3.0]
-        ... })
-        >>> b = gpd.GeoDataFrame({
-        ...     'geometry': gpd.GeoSeries([Polygon([(2, 0), (2, 1), (4, 1), (4, 0)])]),
-        ...     'b': [8.0]
-        ... })
-        >>> overlay(a, b, how='intersection')
-             a    b                             geometry
-        0  3.0  8.0  POLYGON ((2 1, 3 1, 3 0, 2 0, 2 1))
-        >>> overlay(a, b, how='union')
-             a    b                             geometry
-        0  3.0  8.0  POLYGON ((2 1, 3 1, 3 0, 2 0, 2 1))
-        1  3.0  NaN  POLYGON ((0 0, 0 1, 2 1, 2 0, 0 0))
-        2  NaN  8.0  POLYGON ((3 1, 4 1, 4 0, 3 0, 3 1))
-        >>> overlay(a, b, how='union', ratios=['a', 'b'])
-                                      geometry    a    b
-        0  POLYGON ((2 1, 3 1, 3 0, 2 0, 2 1))  1.0  4.0
-        1  POLYGON ((0 0, 0 1, 2 1, 2 0, 0 0))  2.0  NaN
-        2  POLYGON ((3 1, 4 1, 4 0, 3 0, 3 1))  NaN  4.0
     """
     for gdf in gdfs:
         check_gdf(gdf)

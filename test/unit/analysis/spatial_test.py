@@ -3,13 +3,15 @@
 import re
 
 import geopandas as gpd
+import numpy as np
 import pandas as pd
 import pytest
+from geopandas import GeoDataFrame, GeoSeries
 from geopandas.testing import assert_geodataframe_equal
 from shapely.geometry import GeometryCollection, MultiPolygon, Polygon
 
-from pudl.analysis.spatial import (check_gdf, dissolve, explode, polygonize,
-                                   self_union)
+from pudl.analysis.spatial import (check_gdf, dissolve, explode, overlay,
+                                   polygonize, self_union)
 
 gpd.options.display_precision = 0
 
@@ -20,14 +22,14 @@ zero_poly = Polygon([(0, 0), (0, 0), (0, 0), (0, 0)])
 @pytest.mark.parametrize(
     "gdf,exc,pattern", [
         (None, TypeError, r"Object is not a GeoDataFrame"),
-        (gpd.GeoDataFrame({'x': [0]}), AttributeError, r"GeoDataFrame has no geometry"),
-        (gpd.GeoDataFrame({'geometry': [0]}),
+        (GeoDataFrame({'x': [0]}), AttributeError, r"GeoDataFrame has no geometry"),
+        (GeoDataFrame({'geometry': [0]}),
          TypeError, r"Geometry is not a GeoSeries"),
-        (gpd.GeoDataFrame(geometry=[GeometryCollection()]), ValueError,
+        (GeoDataFrame(geometry=[GeometryCollection()]), ValueError,
          r"Geometry contains non-(Multi)Polygon geometries"),
-        (gpd.GeoDataFrame(geometry=[zero_poly]), ValueError,
+        (GeoDataFrame(geometry=[zero_poly]), ValueError,
          r"Geometry contains (Multi)Polygon geometries with zero area"),
-        (gpd.GeoDataFrame(geometry=[MultiPolygon([poly, zero_poly])]),
+        (GeoDataFrame(geometry=[MultiPolygon([poly, zero_poly])]),
          ValueError, r"MultiPolygon contains Polygon geometries with zero area"),
     ]
 )
@@ -37,7 +39,7 @@ def test_check_gdf(gdf, exc, pattern):
         check_gdf(gdf)
     assert err.match(re.escape(pattern))
 
-    assert check_gdf(gpd.GeoDataFrame(geometry=[poly])) is None
+    assert check_gdf(GeoDataFrame(geometry=[poly])) is None
 
 
 def test_polygonize():
@@ -62,8 +64,8 @@ def test_polygonize():
 
 def test_explode():
     """Test exploting geometries and non-spatial attributes."""
-    gdf = gpd.GeoDataFrame({
-        'geometry': gpd.GeoSeries([
+    gdf = GeoDataFrame({
+        'geometry': GeoSeries([
             MultiPolygon([
                 Polygon([(0, 0), (0, 1), (1, 1), (1, 0)]),
                 Polygon([(1, 1), (2, 1), (2, 2), (1, 2)])
@@ -75,8 +77,8 @@ def test_explode():
     })
 
     output_gdf = explode(gdf, ratios=['y'])
-    expected_gdf = gpd.GeoDataFrame({
-        'geometry': gpd.GeoSeries([
+    expected_gdf = GeoDataFrame({
+        'geometry': GeoSeries([
             Polygon([(0, 0), (0, 1), (1, 1), (1, 0)]),
             Polygon([(1, 1), (2, 1), (2, 2), (1, 2)]),
             Polygon([(1, 1), (1, 2), (2, 2), (2, 1)]),
@@ -97,8 +99,8 @@ def test_explode():
 
 def test_self_union():
     """Test self union of geometries and non-spatial attributes."""
-    gdf = gpd.GeoDataFrame({
-        'geometry': gpd.GeoSeries([
+    gdf = GeoDataFrame({
+        'geometry': GeoSeries([
             Polygon([(0, 0), (0, 2), (2, 2), (2, 0)]),
             Polygon([(1, 1), (3, 1), (3, 3), (1, 3)]),
             Polygon([(1, 1), (1, 2), (2, 2), (2, 1)]),
@@ -108,8 +110,8 @@ def test_self_union():
     })
 
     result_one = self_union(gdf)
-    expected_one = gpd.GeoDataFrame({
-        'geometry': gpd.GeoSeries([
+    expected_one = GeoDataFrame({
+        'geometry': GeoSeries([
             Polygon([(0, 0), (0, 2), (1, 2), (1, 1), (2, 1), (2, 0)]),
             Polygon([(1, 2), (2, 2), (2, 1), (1, 1)]),
             Polygon([(1, 2), (2, 2), (2, 1), (1, 1)]),
@@ -122,8 +124,8 @@ def test_self_union():
     assert_geodataframe_equal(result_one, expected_one)
 
     result_two = self_union(gdf, ratios=['y'])
-    expected_two = gpd.GeoDataFrame({
-        'geometry': gpd.GeoSeries([
+    expected_two = GeoDataFrame({
+        'geometry': GeoSeries([
             Polygon([(0, 0), (0, 2), (1, 2), (1, 1), (2, 1), (2, 0)]),
             Polygon([(1, 2), (2, 2), (2, 1), (1, 1)]),
             Polygon([(1, 2), (2, 2), (2, 1), (1, 1)]),
@@ -138,8 +140,8 @@ def test_self_union():
 
 def test_dissolve():
     """Test mergining of geometries and non-spatial attributes."""
-    gdf = gpd.GeoDataFrame({
-        'geometry': gpd.GeoSeries([
+    gdf = GeoDataFrame({
+        'geometry': GeoSeries([
             Polygon([(0, 0), (0, 1), (3, 1), (3, 0)]),
             Polygon([(3, 0), (3, 1), (4, 1), (4, 0)])
         ]),
@@ -150,8 +152,8 @@ def test_dissolve():
 
     output_gdf = dissolve(gdf, by='id', func={'ids': tuple, 'x': 'sum'}, how='union')
 
-    expected_gdf = gpd.GeoDataFrame({
-        'geometry': gpd.GeoSeries([
+    expected_gdf = GeoDataFrame({
+        'geometry': GeoSeries([
             Polygon([(0, 0), (0, 1), (3, 1), (4, 1), (4, 0), (3, 0), (0, 0)]),
         ]),
         'ids': [(0, 1), ],
@@ -163,7 +165,46 @@ def test_dissolve():
 
 def test_overlay():
     """Test overlaying of spatial layers and non-spatial attributes."""
-    pass
+    gdf_a = GeoDataFrame({
+        'geometry': GeoSeries([Polygon([(0, 0), (0, 1), (3, 1), (3, 0)])]),
+        'a': [3.0]
+    })
+    gdf_b = GeoDataFrame({
+        'geometry': GeoSeries([Polygon([(2, 0), (2, 1), (4, 1), (4, 0)])]),
+        'b': [8.0]
+    })
+
+    expected_intersection = GeoDataFrame({
+        "a": [3.0],
+        "b": [8.0],
+        "geometry": GeoSeries([Polygon([(2, 1), (3, 1), (3, 0), (2, 0)])]),
+    })
+    result_intersection = overlay(gdf_a, gdf_b, how="intersection")
+    assert_geodataframe_equal(expected_intersection, result_intersection)
+
+    expected_union = GeoDataFrame({
+        "a": [3.0, 3.0, np.nan],
+        "b": [8.0, np.nan, 8.0],
+        "geometry": GeoSeries([
+            Polygon([(2, 1), (3, 1), (3, 0), (2, 0)]),
+            Polygon([(0, 0), (0, 1), (2, 1), (2, 0)]),
+            Polygon([(3, 1), (4, 1), (4, 0), (3, 0)]),
+        ]),
+    })
+    result_union = overlay(gdf_a, gdf_b, how="union")
+    assert_geodataframe_equal(expected_union, result_union)
+
+    expected_ratios = GeoDataFrame({
+        "geometry": GeoSeries([
+            Polygon([(2, 1), (3, 1), (3, 0), (2, 0)]),
+            Polygon([(0, 0), (0, 1), (2, 1), (2, 0)]),
+            Polygon([(3, 1), (4, 1), (4, 0), (3, 0)]),
+        ]),
+        "a": [1.0, 2.0, np.nan],
+        "b": [4.0, np.nan, 4.0],
+    })
+    result_ratios = overlay(gdf_a, gdf_b, how="union", ratios=["a", "b"])
+    assert_geodataframe_equal(expected_ratios, result_ratios)
 
 
 def test_get_data_columns():
