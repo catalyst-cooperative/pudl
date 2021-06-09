@@ -1,5 +1,6 @@
 """Tests for timeseries anomalies detection and imputation."""
 
+import logging
 import re
 
 import geopandas as gpd
@@ -15,8 +16,10 @@ from pudl.analysis.spatial import (check_gdf, dissolve, explode, overlay,
 
 gpd.options.display_precision = 0
 
-poly = Polygon([(0, 0), (0, 1), (1, 1), (1, 0)])
-zero_poly = Polygon([(0, 0), (0, 0), (0, 0), (0, 0)])
+POLY = Polygon([(0, 0), (0, 1), (1, 1), (1, 0)])
+ZERO_POLY = Polygon([(0, 0), (0, 0), (0, 0), (0, 0)])
+
+logger = logging.getLogger(__name__)
 
 
 @pytest.mark.parametrize(
@@ -27,9 +30,9 @@ zero_poly = Polygon([(0, 0), (0, 0), (0, 0), (0, 0)])
          TypeError, r"Geometry is not a GeoSeries"),
         (GeoDataFrame(geometry=[GeometryCollection()]), ValueError,
          r"Geometry contains non-(Multi)Polygon geometries"),
-        (GeoDataFrame(geometry=[zero_poly]), ValueError,
+        (GeoDataFrame(geometry=[ZERO_POLY]), ValueError,
          r"Geometry contains (Multi)Polygon geometries with zero area"),
-        (GeoDataFrame(geometry=[MultiPolygon([poly, zero_poly])]),
+        (GeoDataFrame(geometry=[MultiPolygon([POLY, ZERO_POLY])]),
          ValueError, r"MultiPolygon contains Polygon geometries with zero area"),
     ]
 )
@@ -39,26 +42,26 @@ def test_check_gdf(gdf, exc, pattern):
         check_gdf(gdf)
     assert err.match(re.escape(pattern))
 
-    assert check_gdf(GeoDataFrame(geometry=[poly])) is None
+    assert check_gdf(GeoDataFrame(geometry=[POLY])) is None
 
 
 def test_polygonize():
     """Test conversion of Geometries into (Multi)Polygons."""
     # A collection with one non-zero-area Polygon is returned as a Polygon.
-    geom1 = GeometryCollection([poly, zero_poly])
+    geom1 = GeometryCollection([POLY, ZERO_POLY])
     result1 = polygonize(geom1)
     assert result1.geom_type == "Polygon"
     assert result1.area == 1.0
 
     # A collection with multiple non-zero-area polygons is returned as a MultiPolygon.
-    geom2 = GeometryCollection([poly, poly])
+    geom2 = GeometryCollection([POLY, POLY])
     result2 = polygonize(geom2)
     assert result2.geom_type == "MultiPolygon"
     assert result2.area == 2.0
 
     # Zero-area geometries are not permitted.
     with pytest.raises(ValueError) as err:
-        _ = polygonize(zero_poly)
+        _ = polygonize(ZERO_POLY)
     assert err.match("Geometry has zero area")
 
 
@@ -209,4 +212,4 @@ def test_overlay():
 
 def test_get_data_columns():
     """Test extraction of non-spatial column names from GeoDataFrame."""
-    pass
+    logger.info("No unit tests exist for pudl.analysis.spatial.get_data_columns()")
