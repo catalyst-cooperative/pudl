@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 ###############################################################################
 
 
-def _yearly_to_monthly_records(df, md):
+def _yearly_to_monthly_records(df):
     """Converts an EIA 923 record of 12 months of data into 12 monthly records.
 
     Much of the data reported in EIA 923 is monthly, but all 12 months worth of data is
@@ -27,44 +27,27 @@ def _yearly_to_monthly_records(df, md):
     Args:
         df (pandas.DataFrame): A pandas DataFrame containing the annual data to be
             converted into monthly records.
-        md (dict): a dictionary with the integers 1-12 as keys, and the patterns used
-            to match field names for each of the months as values. These patterns are
-            also used to rename the columns in the dataframe which is returned, so they
-            need to match the entire portion of the column name that is month specific.
 
     Returns:
         pandas.DataFrame: A dataframe containing the same data as was passed in via df,
-        but with monthly records instead of annual records.
+        but with monthly records as rows instead of as columns.
 
     """
-    yearly = df.copy()
-    all_years = pd.DataFrame()
-
-    for y in yearly.report_year.unique():
-        this_year = yearly[yearly.report_year == y].copy()
-        monthly = pd.DataFrame()
-        for m in md:
-            # Grab just the columns for the month we're working on.
-            this_month = this_year.filter(regex=md[m]).copy()
-            # Drop this month's data from the yearly data frame.
-            this_year.drop(this_month.columns, axis=1, inplace=True)
-            # Rename this month's columns to get rid of the month reference.
-            this_month.columns = this_month.columns.str.replace(
-                md[m], '', regex=True)
-            # Add a numerical month column corresponding to this month.
-            this_month['report_month'] = m
-            # Add this month's data to the monthly DataFrame we're building.
-            monthly = pd.concat([monthly, this_month], sort=True)
-
-        # Merge the monthly data we've built up with the remaining fields in
-        # the data frame we started with -- all of which should be independent
-        # of the month, and apply across all 12 of the monthly records created
-        # from each of the # initial annual records.
-        this_year = this_year.merge(monthly, left_index=True, right_index=True)
-        # Add this new year's worth of data to the big dataframe we'll return
-        all_years = pd.concat([all_years, this_year], sort=True)
-
-    return all_years
+    ends_with_month_filter = df.columns.str.extract(
+        r'.+_(\w+?)$').isin(set(pc.month_name_to_num_dict.keys())).squeeze()
+    if not ends_with_month_filter.any():
+        return df
+    index_cols = df.columns[~ends_with_month_filter]
+    df = df.set_index(list(index_cols))
+    multi_idx = df.columns.str.rsplit(
+        "_", n=1, expand=True).set_names([None, 'report_month'])
+    # convert month names to numbers (january -> 1)
+    col_df = multi_idx.to_frame(index=False)
+    col_df['report_month'].replace(pc.month_name_to_num_dict, inplace=True)
+    # reshape
+    df.columns = pd.MultiIndex.from_frame(col_df).set_names([None, 'report_month'])
+    df = df.stack().reset_index()
+    return df
 
 
 def _coalmine_cleanup(cmi_df):
@@ -252,7 +235,7 @@ def generation_fuel(eia923_dfs, eia923_transformed_dfs):
     gf_df.drop(cols_to_drop, axis=1, inplace=True)
 
     # Convert the EIA923 DataFrame from yearly to monthly records.
-    gf_df = _yearly_to_monthly_records(gf_df, pc.month_dict_eia923)
+    gf_df = _yearly_to_monthly_records(gf_df)
     # Replace the EIA923 NA value ('.') with a real NA value.
     gf_df = pudl.helpers.fix_eia_na(gf_df)
     # Remove "State fuel-level increment" records... which don't pertain to
@@ -318,7 +301,7 @@ def boiler_fuel(eia923_dfs, eia923_transformed_dfs):
     bf_df.dropna(subset=['boiler_id', 'plant_id_eia'], inplace=True)
 
     # Convert the EIA923 DataFrame from yearly to monthly records.
-    bf_df = _yearly_to_monthly_records(bf_df, pc.month_dict_eia923)
+    bf_df = _yearly_to_monthly_records(bf_df)
     bf_df['fuel_type_code_pudl'] = pudl.helpers.cleanstrings_series(
         bf_df.fuel_type_code,
         pc.fuel_type_eia923_boiler_fuel_simple_map)
@@ -372,7 +355,7 @@ def generation(eia923_dfs, eia923_transformed_dfs):
                'sector_name',
                'net_generation_mwh_year_to_date'],
               axis="columns")
-        .pipe(_yearly_to_monthly_records, pc.month_dict_eia923)
+        .pipe(_yearly_to_monthly_records)
         .pipe(pudl.helpers.fix_eia_na)
         .pipe(pudl.helpers.convert_to_date)
     )
