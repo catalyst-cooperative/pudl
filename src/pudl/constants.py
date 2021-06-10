@@ -458,19 +458,21 @@ xlsx_maps_pkg = 'pudl.package_data.meta.xlsx_maps'
 # EIA 923 Spreadsheet Metadata
 ##############################################################################
 # patterns for matching columns to months:
-month_dict_eia923 = {1: '_january$',
-                     2: '_february$',
-                     3: '_march$',
-                     4: '_april$',
-                     5: '_may$',
-                     6: '_june$',
-                     7: '_july$',
-                     8: '_august$',
-                     9: '_september$',
-                     10: '_october$',
-                     11: '_november$',
-                     12: '_december$'}
-"""dict: A dictionary mapping column numbers (keys) to months (values)."""
+month_name_to_num_dict = {
+    'january': 1,
+    'february': 2,
+    'march': 3,
+    'april': 4,
+    'may': 5,
+    'june': 6,
+    'july': 7,
+    'august': 8,
+    'september': 9,
+    'october': 10,
+    'november': 11,
+    'december': 12
+}
+"""dict: A dictionary mapping months (keys) to numbers (values)."""
 
 ##############################################################################
 # EIA 860 Spreadsheet Metadata
