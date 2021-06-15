@@ -1519,7 +1519,7 @@ working_partitions = {
         'years': tuple(range(2001, 2020))
     },
     'eia923': {
-        'years': tuple(range(2009, 2020))
+        'years': tuple(range(2001, 2020))
     },
     'epacems': {
         'years': tuple(range(1995, 2020)),
