@@ -187,7 +187,7 @@ PLANT_KIND_STRINGS = {
         'steam (note 1)', 'steam (retired)', 'steam (leased)', 'coal-fired steam',
         'oil-fired steam', 'steam/fossil', 'steam (a,b)', 'steam (a)', 'stean',
         'steam-internal comb', 'steam (see notes)', 'steam units 4 & 6',
-        'resp share stm note3' 'mpc50% share steam', 'mpc40%share steam',
+        'resp share stm note3', 'mpc50% share steam', 'mpc40%share steam',
         'steam - 64%', 'steam - 100%', 'steam (1) & (2)', 'resp share st note3',
         'mpc 50% shares steam', 'steam-64%', 'steam-100%', 'steam (see note 1)',
         'mpc 50% share steam', 'steam units 1, 2, 3', 'steam units 4, 5',

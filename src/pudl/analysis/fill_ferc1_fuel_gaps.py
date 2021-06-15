@@ -643,7 +643,7 @@ def pudl_id_has_one_fuel(df):
 
 
 def manually_add_fuel(df):
-    """Blah."""
+    """Fill in manually mapped fuel."""
     logger.info('filling in manually mapped fuels')
 
     out_df = (
@@ -1082,7 +1082,7 @@ def flip_single_outliers_by_capacity(df):
 
 
 def fill_obvious_names_plant(df):
-    """Blah."""
+    """Fill plant type when indicated in plant name."""
     logger.info('filling plants with obvious names')
     df.loc[df['plant_name_ferc1'].str.contains('nuclear'), 'plant_type'] = 'nuclear'
     df.loc[(df['plant_type'].isna()) & (df['plant_name_ferc1'].str.contains(
@@ -1104,7 +1104,7 @@ def fill_obvious_names_plant(df):
 
 
 def manually_add_plant(df):
-    """Blah."""
+    """Fill in manually mapped plant types."""
     logger.info('filling in manually mapped plant types')
 
     out_df = (
@@ -1122,7 +1122,7 @@ def manually_add_plant(df):
 
 
 def impute_fuel_type(df, pudl_out):
-    """Blah."""
+    """Run all fuel type imputations."""
     logger.info("**** ADDING FUEL TYPES ****")
     fbp = pudl_out.fbp_ferc1()
     fbp_small = fbp[ferc_merge_cols + ['primary_fuel_by_mmbtu', 'primary_fuel_by_cost']]
@@ -1156,7 +1156,7 @@ def impute_fuel_type(df, pudl_out):
 
 
 def impute_plant_type(df):
-    """Blah."""
+    """Run all plant type imputations."""
     logger.info('**** ADDING PLANT TYPES ****')
     df['plant_type'] = df['plant_type'].replace({'unknown': np.nan})
 
@@ -1168,7 +1168,7 @@ def impute_plant_type(df):
 
 
 def impute_tech_desc(df, eia_df):
-    """Blah."""
+    """Run all technology type imputations."""
     logger.info('**** ADDING TECH TYPES ****')
     eia_df = eia_df.assign(report_year=lambda x: x.report_date.dt.year)
     eia_one_tech, plant_id_tech_dict = get_tech_descrip_from_eia(eia_df)

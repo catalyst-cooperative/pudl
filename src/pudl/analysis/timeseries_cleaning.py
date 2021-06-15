@@ -7,10 +7,12 @@ applied to the FERC Form 714, and various historical demand timeseries
 published by regional grid operators like MISO, PJM, ERCOT, and SPP.
 
 They are adapted from code published and modified by:
+
 * Tyler Ruggles <truggles@carnegiescience.edu>
 * Greg Schivley <greg@carbonimpact.co>
 
 And described at:
+
 * https://doi.org/10.1038/s41597-020-0483-x
 * https://zenodo.org/record/3737085
 * https://github.com/truggles/EIA_Cleaned_Hourly_Electricity_Demand_Code
@@ -18,12 +20,15 @@ And described at:
 The imputation methods were designed for multivariate time series forecasting.
 
 They are adapted from code published by:
+
 * Xinyu Chen <chenxy346@gmail.com>
 
 And described at:
+
 * https://arxiv.org/abs/2006.10436
 * https://arxiv.org/abs/2008.03194
 * https://github.com/xinychen/tensor-learning
+
 """
 
 import functools
@@ -578,6 +583,17 @@ class Timeseries:
         self.flags: np.ndarray = np.empty(self.x.shape, dtype=object)
         self.flagged: List[str] = []
 
+    def to_dataframe(self, array: np.ndarray = None, copy: bool = True) -> pd.DataFrame:
+        """
+        Return multivariate timeseries as a :class:`pandas.DataFrame`.
+
+        Args:
+            array: Two-dimensional array to use. If `None`, uses :attr:`x`.
+            copy: Whether to use a copy of `array`.
+        """
+        x = self.x if array is None else array
+        return pd.DataFrame(x, columns=self.columns, index=self.index, copy=copy)
+
     def flag(self, mask: np.ndarray, flag: str) -> None:
         """
         Flag values.
@@ -600,19 +616,19 @@ class Timeseries:
             if hasattr(attr, 'cache_clear'):
                 attr.cache_clear()
 
-    def unflag(self, flags: Iterable[str]) -> None:
+    def unflag(self, flags: Iterable[str] = None) -> None:
         """
         Unflag values.
 
         Unflags values by restoring their original values and removing their flag.
 
         Args:
-            flags: Flag names.
+            flags: Flag names. If `None`, all flags are removed.
         """
-        mask = np.isin(self.flags, flags)
+        mask = slice(None) if flags is None else np.isin(self.flags, flags)
         self.flags[mask] = None
         self.x[mask] = self.xi[mask]
-        self.flagged = [f for f in self.flagged if f not in flags]
+        self.flagged = [f for f in self.flagged if flags is not None and f not in flags]
 
     def flag_negative_or_zero(self) -> None:
         """Flag negative or zero values (NEGATIVE_OR_ZERO)."""
@@ -1276,9 +1292,10 @@ class Timeseries:
             ValueError: Zero values present. Replace with very small value.
         """
         imputer = {'tubal': impute_latc_tubal, 'tnn': impute_latc_tnn}[method]
-        x = self.x
-        if mask is not None:
-            x = np.where(mask, np.nan, x)
+        if mask is None:
+            x = self.x.copy()
+        else:
+            x = np.where(mask, np.nan, self.x)
         if (x == 0).any():
             raise ValueError("Zero values present. Replace with very small value.")
         tensor = self.fold_tensor(x, periods=periods)
