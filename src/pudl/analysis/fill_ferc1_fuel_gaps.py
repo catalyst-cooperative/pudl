@@ -947,6 +947,20 @@ def show_year_outliers(df):
     be fed a dataframe where primary_fuel has no NA values. I recommend
     temporarily changing them to string value 'unknown' as done in
     flip_single_outliers_by_capacity.
+
+    The output dataframe contains a row for each plant that does not comply with the
+    rules set below. These are fuel_appearances < 2 and total_appearances > 1.
+    fuel_appearances indicates the number of times that a fuel group appears over the
+    course of the plant id reporting. Currently, this function selects rows that
+    have ONE outlier. For example, most years a plant id reports rows for gas and coal
+    however one year it reports gas and oil. The gas and oil year would be considered a
+    deviant year and would show up in the output table. total_appearances indicates
+    the number of years a plant has reported for. If there is one outlier but only three
+    reporting years then it doesn't say much about the outlier. If there are many years
+    then it's more likely to be an outlier. unique_fuel_groups indicates the number of
+    groups that appear over the course of a plant's reporting life. For example, if a
+    plant consistently reports gas and coal plants but one year reports gas and oil
+    plants then their unique_fuel_groups would be two.
     """
     # Look at the number of fuels in a given year per plant id pudl
     df = df.assign(primary_fuel=lambda x: x.primary_fuel.fillna('unknown'))
@@ -981,27 +995,50 @@ def show_year_outliers(df):
 
 
 def flip_single_outliers_by_capacity(df):
-    """Blah."""
+    """Flip single outliers if there is a matching capacity of another fuel type.
+
+    This function starts by checking for outlier fuels. It uses the show_year_outliers()
+    function to do this. It then selects for outlier fuels with two unique_fuel_groups,
+    meaning that there are two types of fuels reported over the reporting life of a
+    plant. For example, a plant reports coal and gas for most years and then gas and oil
+    for another year. It also selects for outliers that are not from new_years. This
+    is because values from new years are more liekly to relect technology changes than
+    reporting errors.
+
+    """
     logger.info("flipping single outliers by capacity")
 
     def flip_outliers(plant_df):
+        """
+        Check outlier fuel capacity against other capacities in same pudl id for match.
+
+        This function looks at each pudl id group and checks to see whether that fuel
+        was consistently reported as another fuel in other years. We use the capacity_mw
+        field to determine if it is a match.
+
+        """
         # Make a sub-dataframe with each of the capacities associated with a fuel and the
         # number of times they appear for a given plant
         val_count_df = (
             plant_df[['primary_fuel', 'capacity_mw']].value_counts().reset_index()
             .rename(columns={0: 'value_count'}))
+        # print(val_count_df)
 
-        # Seperate the outlier values from the "conformist" values and make a dictionary of
-        # the outliers so it can be iterated over in the event there are more than one.
+        # Seperate the outlier values from the "conformist" values and make a dictionary
+        # of the outliers so it can be iterated over in the event there are more than
+        # one.
         outlier_df = val_count_df.query("value_count==1")
         conformist_df = val_count_df.query("value_count>1")
         outlier_dict = dict(zip(outlier_df['primary_fuel'], outlier_df['capacity_mw']))
-
+        # print(outlier_dict)
         for fuel, cap in outlier_dict.items():
-            if cap in conformist_df.capacity_mw.values:
-                flip_fuel = conformist_df.query(
-                    f"capacity_mw.isin(range({cap}-1, {cap}+2))").primary_fuel.item()
-        # CHANGED CAPACITY
+            # If a similar capacity exists in conformist_df.capacity_mw.values:
+            if len(conformist_df[conformist_df[
+                    'capacity_mw'].isin(range(int(cap - 1), int(cap + 2)))]) > 0:
+                # Record the fuel type from the conformist df
+                flip_fuel = conformist_df[conformist_df[
+                    'capacity_mw'].isin(range(int(cap - 1), int(cap + 2)))].primary_fuel.item()
+                # Replae the outlier fuel with the conformist fuel
                 plant_df.loc[(plant_df['primary_fuel'] == fuel) & (
                     plant_df['capacity_mw'] == cap), 'flip_field'] = flip_fuel
 
@@ -1010,17 +1047,15 @@ def flip_single_outliers_by_capacity(df):
     # Copy the dataframe so that changes aren't make the the df passed in
     df = df.copy()
 
-    # Create an outlier df and only keep outleirs that are the only outlier for their
-    # plant (unique_fuel_groups==2) meaning that the first fuel group is the standard
-    # pattern seen year to year (could be gas or gas and coal and the second pattern is
-    # the deviant, maybe gas unknown or just oil). Also only take outliers from
-    # non-recent years ( i.e. not the most recent year).
+    # Create a dataframe with all of the outlier rows from pudl plants
     outlier_preview = show_year_outliers(df)
     outlier_preview = outlier_preview.query(
         "unique_fuel_groups==2 and new_year==False")
     outlier_plants = outlier_preview.plant_id_pudl.unique()
 
-    # Create a sub-df from the original that only contains the outlier plants identified
+    # Create a sub-df from the original that contains all rows (not just outliers) from
+    # the plants with an outlier row indicated. This is so we can look for years with
+    # matching capacities that we could use to flip the outlier fuels
     outlier_df = df[df['plant_id_pudl'].isin(outlier_plants)].copy()
     df['flip_field'] = np.nan
 
