@@ -252,21 +252,22 @@ def get_tech_descrip_from_eia(eia_gens):
 
     This function looks at the EIA860 generator table and collects the
     technology_description field from all pudl plant id groups that only have one
-    technology description (besides NA).  We only take plant groups with one fuel
+    technology description (besides NA). We only take plant groups with one fuel
     because we can't assign sub-plant technology types between EIA and FERC. The
     function has two outputs: one is a pandas Dataframe that maps EIA
-    technology_descriptions to FERC records by plant_id_pudl and year, and the  second
+    technology_descriptions to FERC records by plant_id_pudl and year, and the second
     is a dictionary that maps plant_id_pudl to technology description. The first is used
     to show which years are definitely accounted for in EIA
-    (merge_with_eia_tech_desc()); the dictionary is used for backfilling  in years where
-    there hasn't been any newly installed units (see backfill_tech_desc_by_year()).
+    (merge_with_eia_tech_desc()); the dictionary is used for backfilling in years where
+    there has not been any newly installed units (see backfill_tech_desc_by_year()).
 
     Args:
         eia_gens (pandas.DataFrame): The gens_eia860 table.
     Returns:
-        pandas.DataFrame: A dataframe linking plant_id_pudl and year to EIA860
-            technology_description.
-        dict: A dictionary mapping plant_id_pudl to technology_description.
+        tuple: A tuple containing a pandas.DataFrame: A dataframe linking plant_id_pudl
+            and year to EIA860 technology_description and a dictionary mapping
+            plant_id_pudl to technology_description.
+
     """
     # Get eia plants with only one technology description (besides NA)
     eia_one_tech = (
@@ -643,7 +644,7 @@ def pudl_id_has_one_fuel(df):
 
 
 def manually_add_fuel(df):
-    """Fill in manually mapped fuel."""
+    """Blah."""
     logger.info('filling in manually mapped fuels')
 
     out_df = (
@@ -1082,7 +1083,7 @@ def flip_single_outliers_by_capacity(df):
 
 
 def fill_obvious_names_plant(df):
-    """Fill plant type when indicated in plant name."""
+    """Blah."""
     logger.info('filling plants with obvious names')
     df.loc[df['plant_name_ferc1'].str.contains('nuclear'), 'plant_type'] = 'nuclear'
     df.loc[(df['plant_type'].isna()) & (df['plant_name_ferc1'].str.contains(
@@ -1104,7 +1105,7 @@ def fill_obvious_names_plant(df):
 
 
 def manually_add_plant(df):
-    """Fill in manually mapped plant types."""
+    """Blah."""
     logger.info('filling in manually mapped plant types')
 
     out_df = (
@@ -1122,7 +1123,7 @@ def manually_add_plant(df):
 
 
 def impute_fuel_type(df, pudl_out):
-    """Run all fuel type imputations."""
+    """Blah."""
     logger.info("**** ADDING FUEL TYPES ****")
     fbp = pudl_out.fbp_ferc1()
     fbp_small = fbp[ferc_merge_cols + ['primary_fuel_by_mmbtu', 'primary_fuel_by_cost']]
@@ -1156,7 +1157,7 @@ def impute_fuel_type(df, pudl_out):
 
 
 def impute_plant_type(df):
-    """Run all plant type imputations."""
+    """Blah."""
     logger.info('**** ADDING PLANT TYPES ****')
     df['plant_type'] = df['plant_type'].replace({'unknown': np.nan})
 
@@ -1168,7 +1169,7 @@ def impute_plant_type(df):
 
 
 def impute_tech_desc(df, eia_df):
-    """Run all technology type imputations."""
+    """Blah."""
     logger.info('**** ADDING TECH TYPES ****')
     eia_df = eia_df.assign(report_year=lambda x: x.report_date.dt.year)
     eia_one_tech, plant_id_tech_dict = get_tech_descrip_from_eia(eia_df)

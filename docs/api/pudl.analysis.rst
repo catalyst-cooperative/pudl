@@ -9,6 +9,7 @@ Submodules
 
    pudl.analysis.allocate_net_gen
    pudl.analysis.fill_ferc1_fuel_gaps
+   pudl.analysis.flag_ferc1_totals
    pudl.analysis.mcoe
    pudl.analysis.service_territory
    pudl.analysis.spatial
