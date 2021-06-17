@@ -181,6 +181,16 @@ def fuel_receipts_costs_eia923(pudl_engine, freq=None,
     In addition, plant and utility names and IDs are pulled in from the EIA
     860 tables.
 
+    Optionally fill in missing fuel costs based on monthly state averages
+    which are pulled from the EIA's open data API, and/or use a rolling average
+    to fill in gaps in the fuel costs. These behaviors are controlled by the
+    ``fill`` and ``roll`` parameters. If you set ``fill=True`` you need to
+    ensure that you have stored your API key in an environment variable named
+    ``API_KEY_EIA``. You can register for a free EIA API key here:
+
+    https://www.eia.gov/opendata/register.php
+
+
     Args:
         pudl_engine (sqlalchemy.engine.Engine): SQLAlchemy connection engine
             for the PUDL DB.
@@ -205,6 +215,8 @@ def fuel_receipts_costs_eia923(pudl_engine, freq=None,
         Fuel Receipts and Costs table.
 
     """
+    if fill:
+        _check_eia_api_key()
     pt = pudl.output.pudltabl.get_table_meta(pudl_engine)
     # Most of the fields we want come direclty from Fuel Receipts & Costs
     frc_tbl = pt['fuel_receipts_costs_eia923']
@@ -568,7 +580,16 @@ def generation_eia923(pudl_engine, freq=None,
 
 
 def make_url_cat_eiaapi(category_id):
-    """Generate a url for a category from EIA's API."""
+    """
+    Generate a url for a category from EIA's API.
+
+    Requires an environment variable named ``API_KEY_EIA`` be set, containing
+    a valid EIA API key, which you can obtain from:
+
+    https://www.eia.gov/opendata/register.php
+
+    """
+    _check_eia_api_key()
     return (
         f"{BASE_URL_EIA}category/?api_key={os.environ.get('API_KEY_EIA')}"
         f"&category_id={category_id}"
@@ -576,7 +597,16 @@ def make_url_cat_eiaapi(category_id):
 
 
 def make_url_series_eiaapi(series_id):
-    """Generate a url for a series EIA's API."""
+    """
+    Generate a url for a series EIA's API.
+
+    Requires an environment variable named ``API_KEY_EIA`` be set, containing
+    a valid EIA API key, which you can obtain from:
+
+    https://www.eia.gov/opendata/register.php
+
+    """
+    _check_eia_api_key()
     if series_id.count(';') > 100:
         raise AssertionError(
             f"""
@@ -587,6 +617,19 @@ def make_url_series_eiaapi(series_id):
         f"{BASE_URL_EIA}series/?api_key={os.environ.get('API_KEY_EIA')}"
         f"&series_id={series_id}"
     )
+
+
+def _check_eia_api_key():
+    if "API_KEY_EIA" not in os.environ:
+        raise RuntimeError("""
+            The environment variable API_KEY_EIA is not set, and you are
+            attempting to fill in missing fuel cost data using the EIA API.
+            Please register for an EIA API key here, and store it in an
+            environment variable.
+
+            https://www.eia.gov/opendata/register.php
+
+        """)
 
 
 def get_response(url):
@@ -612,6 +655,7 @@ def grab_fuel_state_monthly(cat_id):
     Args:
         cat_id (int): category id for one fuel type. Known to be
     """
+    _check_eia_api_key()
     # we are going to compile a string of series ids to put into one request
     series_all = ""
     fuel_level_cat = get_response(make_url_cat_eiaapi(cat_id))
