@@ -242,7 +242,7 @@ These data validation tests are organized into datasource specific modules
 under ``test/validate``. Running the full data validation can take as much as
 an hour, depending on your computer. These tests require a fully populated
 PUDL database which contains all available FERC and EIA data, as specified by
-the ``test/settings/full-integration-test.yml`` input file. They are run
+the ``src/pudl/package_data/settings/etl_full.yml`` input file. They are run
 against the "live" SQLite database in your pudl workspace at
 ``sqlite/pudl.sqlite``. To run the full data validation against an existing
 database:
