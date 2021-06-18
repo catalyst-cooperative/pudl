@@ -242,6 +242,23 @@ def generation_fuel(eia923_dfs, eia923_transformed_dfs):
     # any particular plant (they have plant_id_eia == operator_id == 99999)
     gf_df = gf_df[gf_df.plant_id_eia != 99999]
 
+    # conservative manual correction for bad prime mover codes
+    gf_df['prime_mover_code'] = gf_df['prime_mover_code'].replace({
+        'CC': ''  # one plant in 2004. Pre-2004, it was '', post-2004, it was broken into combined cycle parts
+    })
+
+    # conservative manual corrections for misplaced or mistyped fuel types
+    gf_df['fuel_type'] = gf_df['fuel_type'].replace({
+        # mistyped, 1 record in 2002 (as of 2019 data)
+        'OW': 'WO',
+        # duplicated AER fuel code, subtype not reported. One record in 2001 (as of 2019 data)
+        'COL': '',
+        # duplicated AER fuel code, maps unambiguously to 'wat'. 4 records in 2001 (as of 2019 data)
+        'HPS': 'WAT',
+        # duplicated AER fuel code, subtype not reported. 12 records in 2001 (as of 2019 data)
+        'OOG': '',
+    })
+
     gf_df['fuel_type_code_pudl'] = (
         pudl.helpers.cleanstrings_series(gf_df.fuel_type,
                                          pc.fuel_type_eia923_gen_fuel_simple_map)
@@ -523,6 +540,10 @@ def fuel_receipts_costs(eia923_dfs, eia923_transformed_dfs):
                 x.primary_transportation_mode_code.str.upper()),
             secondary_transportation_mode_code=lambda x: (
                 x.secondary_transportation_mode_code.str.upper()),
+            # convert contract type "N" to "NC". The "N" code existed only
+            # in 2008, the first year contracts were reported to the EIA,
+            # before being replaced by "NC".
+            contract_type_code=lambda x: x.contract_type_code.replace({'N': 'NC'}),
             fuel_cost_per_mmbtu=lambda x: x.fuel_cost_per_mmbtu / 100,
             fuel_group_code=lambda x: (
                 x.fuel_group_code.str.lower().str.replace(' ', '_')),

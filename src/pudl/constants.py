@@ -1147,6 +1147,7 @@ fuel_units_eia923 = {
 contract_type_eia923 = {
     'C': 'Contract - Fuel received under a purchase order or contract with a term of one year or longer.  Contracts with a shorter term are considered spot purchases ',
     'NC': 'New Contract - Fuel received under a purchase order or contract with duration of one year or longer, under which deliveries were first made during the reporting month',
+    'N': 'New Contract - see NC code. This abbreviation existed only in 2008 before being replaced by NC.',
     'S': 'Spot Purchase',
     'T': 'Tolling Agreement – Fuel received under a tolling agreement (bartering arrangement of fuel for generation)'
 }
@@ -1222,7 +1223,7 @@ coalmine_country_eia923 = {
     'RS': 'RUS',  # Russia
     'UK': 'GBR',  # United Kingdom of Great Britain
     'VZ': 'VEN',  # Venezuela
-    'OC': 'other_country',
+    'OT': 'other_country',
     'IM': 'unknown'
 }
 """dict: A dictionary mapping coal mine country codes (keys) to ISO-3166-1 three
