@@ -79,7 +79,7 @@ class Metadata(object):
         return self._skipfooter.at[page, str(self._get_partition_key(partition))]
 
     def get_file_name(self, page, **partition):
-        """Returns number of bottom rows to skip when loading given partition and page."""
+        """Returns file name of given partition and page."""
         return self._file_name.at[page, str(self._get_partition_key(partition))]
 
     def get_column_map(self, page, **partition):
