@@ -9,25 +9,30 @@ def test__yearly_to_monthly_records__normal_values():
     """Test that monthly columns are reshaped to rows.
 
     input:
-    id   value_january   value_june
-    100           1               2
-    101           3               4
+    idx   other_col  value_january   value_june
+    100     0           1               2
+    101     3           4               5
 
     output:
-    id 	report_month 	value
-    100         1               1
-    100	        6            	2
-    101	        1            	3
-    101	        6            	4
+    idx      other_col 	report_month 	value
+    100         0           1           1
+    100         0           6           2
+    101         3           1           4
+    101         3           6           5
     """
-    test_df = pd.DataFrame([[100, 1, 2], [101, 3, 4]], columns=[
-                           'id', 'value_january', 'value_june'])
+    test_df = pd.DataFrame([[0, 1, 2],
+                            [3, 4, 5]],
+                           columns=['other_col', 'value_january', 'value_june'],
+                           index=[100, 101]
+                           )
     actual = eia923._yearly_to_monthly_records(test_df)
-    expected = pd.DataFrame([[100, 1, 1],
-                             [100, 6, 2],
-                             [101, 1, 3],
-                             [101, 6, 4]],
-                            columns=['id', 'report_month', 'value'])
+    expected = pd.DataFrame([[0, 1, 1],
+                             [0, 6, 2],
+                             [3, 1, 4],
+                             [3, 6, 5]],
+                            columns=['other_col', 'report_month', 'value'],
+                            index=[100, 100, 101, 101]
+                            )
     pd.testing.assert_frame_equal(expected, actual)
 
 
@@ -35,18 +40,18 @@ def test__yearly_to_monthly_records__empty_frame():
     """Test that empty dataframes still have correct column names.
 
     input:
-    id   value_january   value_june
+    idx   other_col  value_january   value_june
     <empty>
 
     output:
-    id 	report_month 	value
+    idx      other_col 	report_month 	value
     <empty>
     """
     # empty dfs initialize with Index by default, so need to specify RangeIndex
-    test_df = pd.DataFrame([], columns=['id', 'value_january',
-                           'value_june'], index=pd.RangeIndex(start=0, stop=0, step=1))
+    test_df = pd.DataFrame([], columns=['other_col', 'value_january', 'value_june'],
+                           index=pd.RangeIndex(start=0, stop=0, step=1))
     actual = eia923._yearly_to_monthly_records(test_df)
-    expected = pd.DataFrame([], columns=['id', 'report_month', 'value'],
+    expected = pd.DataFrame([], columns=['other_col', 'report_month', 'value'],
                             index=pd.RangeIndex(start=0, stop=0, step=1))
     # report_month dtype changes from object to int64
     # but only because they are empty and get sent to default types during df.stack()

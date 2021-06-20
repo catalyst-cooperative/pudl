@@ -33,20 +33,41 @@ def _yearly_to_monthly_records(df):
         but with monthly records as rows instead of as columns.
 
     """
-    ends_with_month_filter = df.columns.str.extract(
-        r'.+_(\w+?)$').isin(set(pc.month_name_to_num_dict.keys())).squeeze()
+    month_dict = {
+        'january': 1,
+        'february': 2,
+        'march': 3,
+        'april': 4,
+        'may': 5,
+        'june': 6,
+        'july': 7,
+        'august': 8,
+        'september': 9,
+        'october': 10,
+        'november': 11,
+        'december': 12
+    }
+    multi_idx = df.columns.str.rsplit(
+        "_", n=1, expand=True).set_names([None, 'report_month'])
+    ends_with_month_filter = multi_idx.get_level_values(
+        'report_month').isin(set(month_dict.keys()))
     if not ends_with_month_filter.any():
         return df
     index_cols = df.columns[~ends_with_month_filter]
-    df = df.set_index(list(index_cols))
-    multi_idx = df.columns.str.rsplit(
-        "_", n=1, expand=True).set_names([None, 'report_month'])
+    # performance note: this was good enough for eia923 data size.
+    # Using .set_index() is simple but inefficient due to unecessary index creation.
+    # Performance may be improved by separating into two dataframes,
+    # .stack()ing the monthly data, then joining back together on the original index.
+    df = df.set_index(list(index_cols), append=True)
     # convert month names to numbers (january -> 1)
-    col_df = multi_idx.to_frame(index=False)
-    col_df['report_month'].replace(pc.month_name_to_num_dict, inplace=True)
+    col_df = multi_idx[ends_with_month_filter].to_frame(index=False)
+    col_df.loc[:, 'report_month'] = col_df.loc[:, 'report_month'].map(month_dict)
+    month_idx = pd.MultiIndex.from_frame(col_df).set_names([None, 'report_month'])
     # reshape
-    df.columns = pd.MultiIndex.from_frame(col_df).set_names([None, 'report_month'])
-    df = df.stack().reset_index()
+    df.columns = month_idx
+    df = df.stack()
+    # restore original index and columns - reset index except level 0
+    df = df.reset_index(level=list(range(1, df.index.nlevels)))
     return df
 
 
