@@ -1,4 +1,12 @@
-"""A Module to create a more specific technology field for ferc1."""
+"""A Module to create a more specific technology field for ferc1.
+
+The steam table from FERC Form 1 does not have a column indicating the type of
+technology that each record represents. This information exists elsewhere, however, and
+the purpose of this module is to pull it all together, quality check it, and add it to
+the steam table. The goal is to mimic the technology_description field from the EIA 860
+generators table.
+
+"""
 
 import logging
 
@@ -9,7 +17,7 @@ import pandas as pd
 logger = logging.getLogger(__name__)
 
 #######################################################################################
-# DEFINE USEFUL VARIABLES
+# DEFINE GLOBAL VARIABLES
 #######################################################################################
 
 # Useful merge columns
@@ -31,7 +39,6 @@ flag8 = 'pudl plant id has one fuel'
 flag9 = 'manually filled in'
 flag10 = 'front and back filled based on ferc id'
 flag11 = 'flipped lone fuel outlier in ferc1 id groups'
-# look at this...same as 14?
 flag12 = 'flipped lone fuel outlier in pudl id and plant type groups'
 flag13 = 'flipped pockets of fuel outliers in ferc1 id groups'
 flag14 = 'flipped lone fuel outlier in pudl_id with matching capacity'
@@ -42,6 +49,8 @@ td_flag3 = 'backfill from eia year'
 td_flag4 = 'obvious names'
 td_flag5 = 'primary fuel by mmbtu no dups'
 
+# These plants are from utilities that reported non-owned portions of a plant in
+# addition to totals. They are duplicates and should be removed.
 bad_plant_ids = [11536, 8469, 381, 8468, 8467]
 
 # RMI vaule cols
@@ -99,14 +108,42 @@ rmi_tech_desc = {
 
 
 def _test_for_duplicates(df, subset):
-
+    """Return number of duplicate rows according to a given column subset."""
     test = df.copy()
     test['dup'] = test.duplicated(subset=subset)
     return f"number of duplicate index values for table: {len(test[test['dup']])}"
 
 
 def add_new_fuel_and_flag(df, flag, common_col, new_col, overwrite=False, keep_new_col=False):
-    """Add new values to the primary column and flag where they came from."""
+    """Add new values to a common column and flag where they came from.
+
+    We add new fuel types to the FERC steam table incrementally based on different
+    assumptions, algorythems, and inter-table relationships. Each time we find a new
+    value, we want to be able to add it to the column with all the other values (the
+    common column) and flag which mechanism it was derrived from. This helps in
+    determining which fuel designations are more reliable.
+
+    This function works by merging values from a new_col with the common_col and
+    noting where they came from. By default, it will prioritize values in the common_col
+    over values in the new_col unless specified with overwrite=True.
+
+    Args:
+        df (pandas.DataFrame): The most recent iteration of the steam table.
+        flag (str): The message you want associated with this round of value additions.
+        common_col (str): The name of the column where you are accumulating all of the
+            incrementally added values.
+        new_col (str): The name of the column where are have generated the new values.
+        overwrite (bool): An indication of whether you want to prioritize common_col
+            values over new_col values (False, default) or new_col values over
+            common_col values (True)
+        keep_new_col (bool): True if you want to keep the new_col after adding it to the
+            values in the common_col.
+
+    Returns:
+        pandas.DataFrame: A version of the steam table with newly added values and
+            flags.
+
+    """
     # If you want to be able to override some of the existing fuel types with new values
     # (only current context for this is with the manual overrides):
     if overwrite:
@@ -128,6 +165,7 @@ def add_new_fuel_and_flag(df, flag, common_col, new_col, overwrite=False, keep_n
 
 
 def _check_flags(df):
+    """Check that all fuels have a cooresponding flag."""
     fuel = df[df['primary_fuel'].notna()]
     flag = df[df['primary_fuel_flag'].notna()]
     assert len(fuel) == len(flag), 'imputed fuels must be associated with a flag'
@@ -139,7 +177,7 @@ def add_manual_values(df, col_name, file_path):
 
     This function will read the manually categorized csv of "bad" or double counted rows
     and add then to the appropriate column. It begins by converting the start_year and
-    end_year columns from the manually compiled data and turns then into full ranges
+    end_year columns from the manually compiled data and turns them into full ranges
     with each year comprising a new row. Next, the years are used to reconstruct the
     unique record_id column. Finally, the newly formulated record_ids undergo a QC
     before the flags are merged in with the original steam table.
@@ -155,7 +193,7 @@ def add_manual_values(df, col_name, file_path):
             stored.
     Returns:
         pd.Dataframe: a table with the manually categorized column values added to the
-        desired column.
+            desired column.
 
     """
     full_years = (
@@ -195,12 +233,20 @@ def add_manual_values(df, col_name, file_path):
 
 
 def show_unfilled_rows(df, fill_col):
-    """Blah."""
+    """Show how many nans are left in a given column compared to the expected length."""
     unfilled = len(df[df[f'{fill_col}'].isna()])
     logger.info(f"{unfilled} / {len(df)} rows left unfilled")
 
 
 def _drop_bad_plants(df, bad_plants):
+    """Remove designated bad plants and rows with no useful values.
+
+    This function is somewhat RMI specific as the value_cols were determined by them.
+    The bad plants are poorly labeled...maybe we can just fix them? In some cases
+    they pertain to utilities reporting values belonging to other utilities -- therefore
+    replicating information in the data.
+
+    """
     no_bad_plants_df = (
         df.loc[~df['plant_id_pudl'].isin(bad_plants)].copy()
         .dropna(subset=value_cols_no_cap, how='all').copy())
@@ -212,20 +258,21 @@ def _drop_bad_plants(df, bad_plants):
 #######################################################################################
 
 def make_cols_for_new_units(df):
-    """Create columns to indicate whether there were units added or retired.
+    """Create columns to indicate whether units were added or retired.
 
     This function runs a subfunction check_for_new_units() on each plant_id_pudl group
     to see whether there were any new units added or retired in a given year. This is
     determined by intallation_year field (the date the the most recent unit installed)
-    and construction_year (the date of the oldest unit). The subfunction takes will
-    mark any rows TRUE that do no have an installation_year or construction_year that
-    matches the first reported installation_year and construction_year. These columns
-    are used for backfilling technology type to ensure that only years with no unit
-    changes can have the same fuel type.
+    and construction_year (the date of the oldest unit). The subfunction marks any rows
+    True that do no have an installation_year or construction_year that matches the
+    first reported installation_year and construction_year. These columns are used for
+    backfilling technology type to ensure that only years with no unit changes can have
+    the same fuel type.
 
     Args:
-        df (pandas.DataFrame): The FERC1 steam table merged with EIA860 technology
+        df (pandas.DataFrame): The Ferc1 steam table merged with EIA860 technology
             description.
+
     Returns:
         pandas.DataFrame: The same DataFrame but with one bool column to show a change
             in installation year and another to show a change in construction year.
@@ -263,8 +310,9 @@ def get_tech_descrip_from_eia(eia_gens):
 
     Args:
         eia_gens (pandas.DataFrame): The gens_eia860 table.
+
     Returns:
-        tuple: A tuple containing a pandas.DataFrame: A dataframe linking plant_id_pudl
+        tuple: A tuple containing a pandas.DataFrame linking plant_id_pudl
             and year to EIA860 technology_description and a dictionary mapping
             plant_id_pudl to technology_description.
 
@@ -300,7 +348,22 @@ def get_tech_descrip_from_eia(eia_gens):
 
 
 def merge_with_eia_tech_desc(df, eia_one_tech, plant_tech_dict):
-    """Blah."""
+    """Merge EIA technology description data with FERC.
+
+    Args:
+        df (pandas.DataFrame): The most recent version of the steam table.
+        eia_one_tech (pandas.DataFrame): A version of the EIA 860 generator table where
+            all values under a given plant_id_pudl have the same technology_description
+            unless NA.
+        plant_tech_dict (dict): A dictionary that associates a plant_id_pudl with an
+            eia technology_description. The second tuple item that results from running
+            the function get_tech_descrip_from_eia().
+
+    Returns:
+        pandas.DataFrame: A dataframe that incorporates fuel descriptions from eia
+            into the given technology description column.
+
+    """
     logger.info("merging single-tech EIA technology_description with FERC")
     # Add a column for technology_type by year and one that shows the technology type
     # regardless of year (same_tech)
@@ -320,14 +383,24 @@ def backfill_tech_desc_by_year(df, eia_one_tech):
 
     This function looks to fill the technology_description field for for plants with EIA
     technology descriptions that don't extend back to the years reported in FERC. There
-    are two types of cases: 1) The plant shows us in FERC and EIA and some years map
-    directly to a tech type while others are None. 2) The plant shows up in FERC and EIA
-    but there is no year overlap between the two. To verify that we can use the same
+    are two cases: 1) The plant shows us in FERC and EIA and some years map directly to
+    a tech type while others are None, and 2) The plant shows up in FERC and EIA but
+    there is no year overlap between the two. To verify that we can use the same
     technology type moving back in time, we look at the EIA operating_date field and the
     FERC1 installation_year field. If they match with the EIA records that have
     descriptions, then we can reasonably assume it's the same technology moving
     backwards. There are some instances where this is not the case and we can manually
     override them.
+
+    Args:
+        df (pandas.DataFrame): Working version of the steam table.
+        eia_one_tech (pandas.DataFrame): A version of the EIA 860 generator table where
+            all values under a given plant_id_pudl have the same technology_description
+            unless NA.
+
+    Returns:
+        pandas.DataFrame: A version of the steam table with appropriatly backfilled eia
+            technology descriptions.
 
     """
     logger.info("backfilling EIA technology_description by year if no new units installed")
@@ -381,10 +454,21 @@ def backfill_tech_desc_by_year(df, eia_one_tech):
 
 
 def fuel_plant_type_to_tech(df):
-    """Combine primary fuel and plant type rows to make mock technology type."""
+    """Combine primary fuel and plant type rows to make mock technology type.
+
+    Combine the primary_fuel and plant_type columns and add them to the tech_desc
+    column where there are still gaps. Provide a temporary flag noting where they
+    came from.
+
+    Args:
+        df (pandas.Dataframe): A version of the steam table with finalized primary_fuel
+            and plant_type columns.
+
+    Returns:
+        pandas.DataFrame: A version of the steam table that cleans and combines
+            primary_fuel and plant_type to mimic the eia technology descriptions.
+    """
     logger.info('combining primary_fuel and plant_type columns')
-    # Combine the primary_fuel and plant_type columns and add them to the tech_desc
-    # column where there are still gaps. Provide a temporary flag.
 
     # Turn unknown coal plant types into unknown instead of NA so they will be caught
     # and changed by the RMI tech type dictionary
@@ -408,7 +492,20 @@ def fuel_plant_type_to_tech(df):
 
 
 def map_tech_desc(df):
-    """Streamline categories in tech_desc column."""
+    """Streamline categories in tech_desc column.
+
+    Here is where we map the various fuel and plant type combinations into
+    categorical technology_descriptions chosen by RMI. These are laid out in the
+    rmi_tech_desc dictionary above.
+
+    Args:
+        df (pandas.DataFrame): A version of the steam table.
+
+    Returns:
+        pandas.DataFrame: A version of the steam table with the values in tech_desc
+            mapped to the categories chosen by RMI and defined in rmi_tech_desc.
+
+    """
     logger.info("making uniform tech description col")
     df['tech_desc'] = df['tech_desc'].replace(' ', '_', regex=True)
     df['tech_desc_no_map'] = df['tech_desc']
@@ -424,9 +521,22 @@ def map_tech_desc(df):
 
 
 def fill_obvious_names_fuel(df, common_col, flag):
-    """Blah."""
+    """Add fuel types when fuel present in plant name.
+
+    Args:
+        df (pandas.DataFrame): Version of the steam table.
+        common_col (str): The name of the column where all fuel types are stored
+        flag (str): The string you want associated with the fuel types extracted using
+            this function.
+
+    Returns:
+        pandas.DataFrame: A version of the steam table with the recently derrived fuel
+            types added and flagged.
+
+    """
     logger.info('filling fuels with obvious names')
 
+    # Add obvious fuel types to a column called name_based
     df.loc[df['plant_name_ferc1'].str.contains('solar'), 'name_based'] = 'solar'
     df.loc[df['plant_type'].str.contains('solar'), 'name_based'] = 'solar'
     df.loc[df['plant_type'].str.contains('photovoltaic'), 'name_based'] = 'solar'
@@ -447,7 +557,23 @@ def fill_obvious_names_fuel(df, common_col, flag):
 
 
 def primary_fuel_by_mmbtu(df, fbp_small):
-    """Blah."""
+    """Add fuel based on a record's primary fuel by mmbtu.
+
+    The fuel_by_plant table calculates the primary fuel by mmbtu for each pudl plant.
+    When merged with the steam table, it will fill in some of the fuel gaps. This is
+    the first fuel-filling tool because it is directly related to ferc records and is
+    therefore most likely to be accurate.
+
+    Args:
+        df (pandas.DataFrame): The most recent version of the steam table
+        fpb_small (pandas.DataFrame): The pudl fuel_by_plant table.
+
+    Returns:
+        pandas.DataFrame: An updated version of the steam table with fuel from the
+            fuel_by_plants table added to the primary_fuel column and flagged
+            accordingly.
+
+    """
     logger.info('filling in primary fuel by mmbtu')
 
     out_df = (
@@ -464,7 +590,24 @@ def primary_fuel_by_mmbtu(df, fbp_small):
 
 
 def eia_one_reported_fuel(df, gens):
-    """Blah."""
+    """Add fuel from EIA plants with one reported fuel.
+
+    The EIA 860 generators table reports fuel type. Because there are more than one
+    generator in a given plant, we can only map records where the entire plant is
+    composed of generators that utilize the same fuel. These records are then merged
+    with the steam table where fuel values are not already mapped by primary fuel by
+    mmtbu.
+
+    Args:
+        df (pandas.DataFrame): The most recent version of the steam table.
+        gens (pandas.DataFrame): The eia860 generators table.
+
+    Returns:
+        pandas.DataFrame: An updated version of the steam table with fuel added from
+            eia860 plants with a single reported fuel to the primary_fuel column and
+            flagged accordingly.
+
+    """
     logger.info('filling in eia plants with one reported fuel')
 
     # Only keep eia plants with one fuel
@@ -494,7 +637,21 @@ def eia_one_reported_fuel(df, gens):
 
 
 def primary_fuel_by_cost(df):
-    """Blah."""
+    """Add fuel type based on a record's primary fuel by cost.
+
+    The fuel_by_plant table has a field for primary_fuel_by_mmbtu as well as
+    primary_fuel_by_cost. We use this field a little further down because fuel by cost
+    is not always representative of primary fuel. However, there are still some gaps
+    that are filled in by using these values.
+
+    Args:
+        df (pandas.DataFrame): The most recent version of the steam table.
+
+    Returns:
+        pandas.DataFrame: An updated version of the steam table with fuel added for
+            primary fuel by cost to the primary_fuel column and flagged accordingly.
+
+    """
     logger.info('filling in primary fuel by cost')
 
     out_df = (
@@ -511,7 +668,22 @@ def primary_fuel_by_cost(df):
 
 
 def raw_ferc1_fuel(df, fuel):
-    """Blah."""
+    """Add fuel types from the ferc1 fuel table.
+
+    The FERC 1 fuel table has a field for fuel_type_code_pudl. If we merge this table
+    with the steam table on plant name, year, and utility we get a pretty good match
+    and can fill in some more of the fuel gaps.
+
+    Args:
+        df (pandas.DataFrame): The most recent version of the steam table.
+        fuel (pandas.DataFrame): The ferc1 fuel table.
+
+    Returns:
+        pandas.DataFrame: An updated version of the steam table with fuel added from
+            values in the FERC fuel table to the primary_fuel column and flagged
+            accordingly.
+
+    """
     logger.info('filling in raw ferc1 fuels')
 
     # Identify duplicate columns
@@ -538,7 +710,11 @@ def raw_ferc1_fuel(df, fuel):
 
 
 def ferc1_heat_rate(df):
-    """Blah."""
+    """Add fuel based on heat rate.
+
+    This function is currently unused because it doesn't add any new fuel types.
+
+    """
     def _create_dict(df):
         """Create a dict of fuel types and fuel_avg_heat ranges within 1% of median."""
         no_unk = df[(df['primary_fuel'].notna()) & (df['fuel_avg_heat_raw'].notna())]
@@ -600,7 +776,21 @@ def ferc1_heat_rate(df):
 
 
 def ferc1_id_has_one_fuel(df):
-    """Blah."""
+    """Add fuel types from records with one fuel type per plant_id_ferc1.
+
+    This function looks for groups under the same plant_id_ferc1 to see if any have
+    only one reported fuel type. If that's the case, then fill in all of the NAN values
+    in that group with said fuel type.
+
+    Args:
+        df (pandas.DataFrame): The most recent version of the steam table.
+
+    Returns:
+        pandas.DataFrame: An updated version of the steam table with fuel added to the
+            primary_fuel column and flagged accordingly for plant_id_ferc1 groups in
+            which all other fuel types are the same.
+
+    """
     logger.info('filling in ferc plants with one fuel')
 
     plant_df = (
@@ -622,7 +812,21 @@ def ferc1_id_has_one_fuel(df):
 
 
 def pudl_id_has_one_fuel(df):
-    """Blah."""
+    """Add fuel types from records with one fuel type per plant_id_pudl.
+
+    This function looks for groups under the same plant_id_pudl to see if any have
+    only one reported fuel type. If that's the case, then fill in all of the NAN values
+    in that group with said fuel type.
+
+    Args:
+        df (pandas.DataFrame): The most recent version of the steam table.
+
+    Returns:
+        pandas.DataFrame: An updated version of the steam table with fuel added to the
+            primary_fuel column and flagged accordingly for plant_id_pudl groups in
+            which all other fuel types are the same.
+
+    """
     logger.info('filling in pudl plants with one fuel')
 
     plant_df = (
@@ -644,7 +848,21 @@ def pudl_id_has_one_fuel(df):
 
 
 def manually_add_fuel(df):
-    """Blah."""
+    """Add fuel from a list of manually compiled plant fuel types.
+
+    Sometimes there are records that we just can't map. These are usually really old or
+    wonky. For these, we've kept a spreadsheet where we manually determine their fuels.
+    This is also useful for plants that are incorrectly mapped and require a manual
+    override....CHECK THIS.
+
+    Args:
+        df (pandas.DataFrame): The most recent version of the steam table.
+
+    Returns:
+        pandas.DataFrame: An updated version of the steam table with manually compiled
+            plant fuel types added to the primary_fuel column and flagged accordingly.
+
+    """
     logger.info('filling in manually mapped fuels')
 
     out_df = (
@@ -660,7 +878,20 @@ def manually_add_fuel(df):
 
 
 def _fbfill(df, fill_col):
+    """Front and backfill values with the same plant_id_ferc1.
 
+    Once we've completed all of the fuel mapping, we'll back and front fill any fuel
+    values within a plant_id_ferc1 group.
+
+    Args:
+        df (pandas.DataFrame): The most recent version of the steam table.
+        fill_col (str): The name of the column you'd like to backfill.
+
+    Returns:
+        pandas.DataFrame: An updated version of the input table with values back and
+            front filled by plant_id_ferc1.
+
+    """
     logger.info('front and backfilling values with the same ferc1 id')
 
     out_df = (
@@ -777,10 +1008,10 @@ def create_groups(df, flip_col):
     beginning of the group (index=0) for which we need the first val_count.
 
     Args:
-        df (pandas.DataFrame): a groupby object that you'd like to condense.
+        df (pandas.DataFrame): A groupby object that you'd like to condense.
 
     Returns:
-        pandas.DataFrame: a condensed version of that dataframe input grouped by
+        pandas.DataFrame: A condensed version of that dataframe input grouped by
             breaks in fuel type over the years.
 
     """
@@ -825,6 +1056,18 @@ def flip_fuel_outliers_all(df, max_group_size):
     more details. Once the fuels have been flipped, the flags for the flipped rows are
     updated to show that they were flipped and the flipped fuel column is merged with
     the official primary fuel column.
+
+    Args:
+        df (pandas.DataFrame): The most recent version of the steam table with a
+            well-filled primary_fuel column.
+        max_group_size (int): The number of rows of the same column flanked by fuel of
+            the same type that you'd like to flip (ex: 3 = gas, coal, coal, coal, gas
+            becomes all gas).
+
+    Returns:
+        pandas.DataFrame: An updated version of the steam table with outliers in the
+            primary_fuel column flipped to match their surroundings and flagged
+            accordingly.
 
     """
     logger.info(f'flipping multiple fuel outliers for groups under {max_group_size}')
@@ -949,19 +1192,26 @@ def show_year_outliers(df):
     temporarily changing them to string value 'unknown' as done in
     flip_single_outliers_by_capacity.
 
-    The output dataframe contains a row for each plant that does not comply with the
-    rules set below. These are fuel_appearances < 2 and total_appearances > 1.
-    fuel_appearances indicates the number of times that a fuel group appears over the
-    course of the plant id reporting. Currently, this function selects rows that
-    have ONE outlier. For example, most years a plant id reports rows for gas and coal
-    however one year it reports gas and oil. The gas and oil year would be considered a
-    deviant year and would show up in the output table. total_appearances indicates
-    the number of years a plant has reported for. If there is one outlier but only three
-    reporting years then it doesn't say much about the outlier. If there are many years
-    then it's more likely to be an outlier. unique_fuel_groups indicates the number of
-    groups that appear over the course of a plant's reporting life. For example, if a
-    plant consistently reports gas and coal plants but one year reports gas and oil
-    plants then their unique_fuel_groups would be two.
+    Args:
+        df (pandas.DataFrame): The most recent version of the steam table where
+            the primary_fuel field has no NA values.
+
+    Returns:
+        pandas.DataFrame: A dataframe that contains a row for each plant that does not
+            comply with the rules set below. These are fuel_appearances < 2 and
+            total_appearances > 1. fuel_appearances indicates the number of times that a
+            fuel group appears over the course of the plant id reporting. Currently,
+            this function selects rows that have ONE outlier. For example, most years a
+            plant id reports rows for gas and coal however one year it reports gas and
+            oil. The gas and oil year would be considered a deviant year and would show
+            up in the output table. total_appearances indicates the number of years a
+            plant has reported for. If there is one outlier but only three reporting
+            years then it doesn't say much about the outlier. If there are many years
+            then it's more likely to be an outlier. unique_fuel_groups indicates the
+            number of groups that appear over the course of a plant's reporting life.
+            For example, if a plant consistently reports gas and coal plants but one
+            year reports gas and oil plants then their unique_fuel_groups would be two.
+
     """
     # Look at the number of fuels in a given year per plant id pudl
     df = df.assign(primary_fuel=lambda x: x.primary_fuel.fillna('unknown'))
@@ -1003,8 +1253,17 @@ def flip_single_outliers_by_capacity(df):
     meaning that there are two types of fuels reported over the reporting life of a
     plant. For example, a plant reports coal and gas for most years and then gas and oil
     for another year. It also selects for outliers that are not from new_years. This
-    is because values from new years are more liekly to relect technology changes than
+    is because values from new years are more likely to relect technology changes than
     reporting errors.
+
+    Args:
+        df (pandas.DataFrame): The most recent version of the steam table.
+
+    Returns:
+        pandas.DataFrame: An updated version of the steam table with outlier fuel types
+            in the primary_fuel column flipped based on whether their capacity matches
+            a previously mapped record within the same plant_id_pudl and flagged
+            accordingly.
 
     """
     logger.info("flipping single outliers by capacity")
@@ -1083,7 +1342,16 @@ def flip_single_outliers_by_capacity(df):
 
 
 def fill_obvious_names_plant(df):
-    """Blah."""
+    """Add plant types when fuel present in plant name.
+
+    Args:
+        df (pandas.DataFrame): The most recent version of the steam table that contains
+            a plant_type field.
+
+    Returns:
+        pandas.DataFrame: A version of the steam table with the recently labeled plant
+            types added to the plant_type column.
+    """
     logger.info('filling plants with obvious names')
     df.loc[df['plant_name_ferc1'].str.contains('nuclear'), 'plant_type'] = 'nuclear'
     df.loc[(df['plant_type'].isna()) & (df['plant_name_ferc1'].str.contains(
@@ -1105,7 +1373,20 @@ def fill_obvious_names_plant(df):
 
 
 def manually_add_plant(df):
-    """Blah."""
+    """Add plant type from a list of manually compiled plant types.
+
+    Sometimes there are records that we just can't map. These are usually really old or
+    wonky. For these, we've kept a spreadsheet where we manually determine their plant
+    types.
+
+    Args:
+        df (pandas.DataFrame): The most recent version of the steam table.
+
+    Returns:
+        pandas.DataFrame: An updated version of the steam table with manually compiled
+            plant types added to the plant_type column.
+
+    """
     logger.info('filling in manually mapped plant types')
 
     out_df = (
@@ -1123,7 +1404,7 @@ def manually_add_plant(df):
 
 
 def impute_fuel_type(df, pudl_out):
-    """Blah."""
+    """Call all the functions to add and correct fuel types."""
     logger.info("**** ADDING FUEL TYPES ****")
     fbp = pudl_out.fbp_ferc1()
     fbp_small = fbp[ferc_merge_cols + ['primary_fuel_by_mmbtu', 'primary_fuel_by_cost']]
@@ -1157,7 +1438,7 @@ def impute_fuel_type(df, pudl_out):
 
 
 def impute_plant_type(df):
-    """Blah."""
+    """Call all the functions to add and correct plant types."""
     logger.info('**** ADDING PLANT TYPES ****')
     df['plant_type'] = df['plant_type'].replace({'unknown': np.nan})
 
@@ -1169,7 +1450,7 @@ def impute_plant_type(df):
 
 
 def impute_tech_desc(df, eia_df):
-    """Blah."""
+    """Call all the functions to add and correct technology description."""
     logger.info('**** ADDING TECH TYPES ****')
     eia_df = eia_df.assign(report_year=lambda x: x.report_date.dt.year)
     eia_one_tech, plant_id_tech_dict = get_tech_descrip_from_eia(eia_df)
