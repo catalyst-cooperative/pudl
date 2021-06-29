@@ -1,4 +1,4 @@
-"""A Module to create a more specific technology field for ferc1.
+"""A Module to create a more specific technology field for ferc1 plants.
 
 The steam table from FERC Form 1 does not have a column indicating the type of
 technology that each record represents. This information exists elsewhere, however, and
@@ -49,23 +49,59 @@ td_flag3 = 'backfill from eia year'
 td_flag4 = 'obvious names'
 td_flag5 = 'primary fuel by mmbtu no dups'
 
-# These plants are from utilities that reported non-owned portions of a plant in
-# addition to totals. They are duplicates and should be removed.
-bad_plant_ids = [11536, 8469, 381, 8468, 8467]
+# Columns that shouldn't all be NAN
+steam_value_cols = [
+    'asset_retirement_cost',
+    'avg_num_employees',
+    'capex_equipment',
+    'capex_land',
+    'capex_structures',
+    'capex_total',
+    'opex_allowances',
+    'opex_boiler',
+    'opex_coolants',
+    'opex_electric',
+    'opex_engineering',
+    'opex_fuel',
+    'opex_misc_power',
+    'opex_misc_steam',
+    'opex_operations',
+    'opex_plants',
+    'opex_production_total',
+    'opex_rents',
+    'opex_steam',
+    'opex_steam_other',
+    'opex_structures',
+    'opex_transfer',
+    'net_generation_mwh']
 
-# RMI vaule cols
-value_cols_no_cap = [
-    'net_generation_mwh', 'avg_num_employees',
-    'capex_land', 'capex_equipment', 'capex_structures', 'capex_total',
-    'asset_retirement_cost', 'opex_operations', 'opex_fuel', 'opex_coolants',
-    'opex_steam', 'opex_steam_other', 'opex_transfer', 'opex_electric',
-    'opex_misc_power', 'opex_rents', 'opex_allowances', 'opex_engineering',
-    'opex_structures', 'opex_boiler', 'opex_plants', 'opex_misc_steam',
-    'opex_production_total']
+small_plt_value_cols = [
+    'construction_year',
+    'fuel_cost_per_mmbtu',
+    'net_generation_mwh',
+    'opex_fuel',
+    'opex_maintenance',
+    'opex_total',
+    'total_cost_of_plant']
 
-value_cols = value_cols_no_cap + ['capacity_mw']
+hydro_value_cols = steam_value_cols + [
+    'capex_facilities',
+    'capex_roads',
+    'opex_dams',
+    'opex_generation_misc',
+    'opex_hydraulic',
+    'opex_misc_plant',
+    'opex_water_for_power']
 
-# Map technology_descriptions
+pumped_storage_value_cols = [x for x in hydro_value_cols if x != 'opex_hydraulic'] + [
+    'capex_equipment_electric',
+    'capex_equipment_misc',
+    'capex_wheels_turbines_generators',
+    'opex_production_before_pumping',
+    'opex_pumped_storage',
+    'opex_pumping']
+
+# Map RMI technology_descriptions
 rmi_tech_desc = {
     "coal":
         ['coal_combustion_turbine', 'coal_steam_turbine', 'coal_steam',
@@ -107,7 +143,8 @@ rmi_tech_desc = {
 #######################################################################################
 
 
-def _test_for_duplicates(df, subset):
+def test_for_duplicates(df, subset):
+    # UNUSED!
     """Return number of duplicate rows according to a given column subset."""
     test = df.copy()
     test['dup'] = test.duplicated(subset=subset)
@@ -120,12 +157,13 @@ def add_new_fuel_and_flag(df, flag, common_col, new_col, overwrite=False, keep_n
     We add new fuel types to the FERC steam table incrementally based on different
     assumptions, algorythems, and inter-table relationships. Each time we find a new
     value, we want to be able to add it to the column with all the other values (the
-    common column) and flag which mechanism it was derrived from. This helps in
-    determining which fuel designations are more reliable.
+    common column) and indicate the mechanism it was derrived from in another column.
+    This "flagging" helps to determine which fuel designations are more reliable.
 
     This function works by merging values from a new_col with the common_col and
-    noting where they came from. By default, it will prioritize values in the common_col
-    over values in the new_col unless specified with overwrite=True.
+    noting where they came from in a column by the same name with a _flag suffix.
+    By default, this function will prioritize values in the common_col over values
+    in the new_col unless specified with overwrite=True.
 
     Args:
         df (pandas.DataFrame): The most recent iteration of the steam table.
@@ -140,8 +178,8 @@ def add_new_fuel_and_flag(df, flag, common_col, new_col, overwrite=False, keep_n
             values in the common_col.
 
     Returns:
-        pandas.DataFrame: A version of the steam table with newly added values and
-            flags.
+        pandas.DataFrame: An updated version of the steam table with new values added
+            to the common column and their origins flagged.
 
     """
     # If you want to be able to override some of the existing fuel types with new values
@@ -164,7 +202,7 @@ def add_new_fuel_and_flag(df, flag, common_col, new_col, overwrite=False, keep_n
     return df
 
 
-def _check_flags(df):
+def check_flags(df):
     """Check that all fuels have a cooresponding flag."""
     fuel = df[df['primary_fuel'].notna()]
     flag = df[df['primary_fuel_flag'].notna()]
@@ -233,24 +271,33 @@ def add_manual_values(df, col_name, file_path):
 
 
 def show_unfilled_rows(df, fill_col):
-    """Show how many nans are left in a given column compared to the expected length."""
+    """Show how many nans are left in a given column compared to the full length."""
     unfilled = len(df[df[f'{fill_col}'].isna()])
     logger.info(f"{unfilled} / {len(df)} rows left unfilled")
 
 
-def _drop_bad_plants(df, bad_plants):
+def table_clean_up(df, value_cols, drop_bad_steam_plants=False):
     """Remove designated bad plants and rows with no useful values.
 
-    This function is somewhat RMI specific as the value_cols were determined by them.
-    The bad plants are poorly labeled...maybe we can just fix them? In some cases
-    they pertain to utilities reporting values belonging to other utilities -- therefore
-    replicating information in the data.
+    This function should be run at the beginning of each table introduction.
 
     """
-    no_bad_plants_df = (
-        df.loc[~df['plant_id_pudl'].isin(bad_plants)].copy()
-        .dropna(subset=value_cols_no_cap, how='all').copy())
-    return no_bad_plants_df
+    # Alabama Power reports owned plant portions from other utilities (mississippi power
+    # and alabama electric coop). This is duplicate information so we'll remove these plants
+    # As far as I know it's only applicable to the steam table.
+    if drop_bad_steam_plants:
+        bad_plants = [
+            "ala.elec. coop.", "al elec coop's port.", "al elec coop's",
+            "miss power", "mississippi power 's"]
+        df.drop(df[~df['plant_name_ferc1'].isin(bad_plants)].index, inplace=True)
+
+    long_dash_name = df['plant_name_original'].str.contains('---')
+    na_name = df['plant_name_original'].isin(
+        ['', 'none', 'na', 'n/a', 'not applicable', '--blank--'])
+
+    df.drop(df[long_dash_name | na_name].index, inplace=True)
+
+    return df
 
 
 #######################################################################################
@@ -549,7 +596,7 @@ def fill_obvious_names_fuel(df, common_col, flag):
     out_df = (
         df.pipe(add_new_fuel_and_flag, flag,
                 common_col=common_col, new_col='name_based'))
-    # .pipe(_check_flags))
+    # .pipe(check_flags))
 
     show_unfilled_rows(out_df, common_col)
 
@@ -582,7 +629,7 @@ def primary_fuel_by_mmbtu(df, fbp_small):
             x.primary_fuel_by_mmbtu.replace({'': np.nan, 'unknown': np.nan})))
         .pipe(add_new_fuel_and_flag, flag2, common_col='primary_fuel',
               new_col='primary_fuel_by_mmbtu')
-        .pipe(_check_flags))
+        .pipe(check_flags))
 
     show_unfilled_rows(out_df, 'primary_fuel')
 
@@ -628,7 +675,7 @@ def eia_one_reported_fuel(df, gens):
         pd.merge(df, gens_one_fuel, on=['report_year', 'plant_id_pudl'], how='left')
         .pipe(add_new_fuel_and_flag, flag3, common_col='primary_fuel',
               new_col='fuel_type_code_pudl')
-        .pipe(_check_flags)
+        .pipe(check_flags)
         .drop_duplicates())
 
     show_unfilled_rows(out_df, 'primary_fuel')
@@ -660,7 +707,7 @@ def primary_fuel_by_cost(df):
                 '': np.nan, 'unknown': np.nan, 'other': np.nan})))
         .pipe(add_new_fuel_and_flag, flag4, common_col='primary_fuel',
               new_col='primary_fuel_by_cost')
-        .pipe(_check_flags))
+        .pipe(check_flags))
 
     show_unfilled_rows(out_df, 'primary_fuel')
 
@@ -702,7 +749,7 @@ def raw_ferc1_fuel(df, fuel):
         pd.merge(df, fuel_ferc_no_dup, on=ferc_merge_cols, how='left')
         .pipe(add_new_fuel_and_flag, flag5, common_col='primary_fuel',
               new_col='fuel_type_code_pudl_ferc')
-        .pipe(_check_flags))
+        .pipe(check_flags))
 
     show_unfilled_rows(out_df, 'primary_fuel')
 
@@ -768,7 +815,7 @@ def ferc1_heat_rate(df):
     out_df = (
         df.pipe(add_new_fuel_and_flag, flag6, common_col='primary_fuel',
                 new_col='ferc_fuel_by_heat_rate')
-        .pipe(_check_flags))
+        .pipe(check_flags))
 
     show_unfilled_rows(out_df, 'primary_fuel')
 
@@ -804,7 +851,7 @@ def ferc1_id_has_one_fuel(df):
         pd.merge(df, plant_df, on=['plant_id_ferc1'], how='left')
         .pipe(add_new_fuel_and_flag, flag7, common_col='primary_fuel',
               new_col='ferc1_id_has_one_fuel')
-        .pipe(_check_flags))
+        .pipe(check_flags))
 
     show_unfilled_rows(out_df, 'primary_fuel')
 
@@ -840,7 +887,7 @@ def pudl_id_has_one_fuel(df):
         pd.merge(df, plant_df, on=['plant_id_pudl'], how='left')
         .pipe(add_new_fuel_and_flag, flag8, common_col='primary_fuel',
               new_col='pudl_id_has_one_fuel')
-        .pipe(_check_flags))
+        .pipe(check_flags))
 
     show_unfilled_rows(out_df, 'primary_fuel')
 
@@ -870,7 +917,7 @@ def manually_add_fuel(df):
         df.pipe(add_manual_values, 'fuel_type',
                 '/Users/aesharpe/Desktop/fill_fuel_type.xlsx')
         .pipe(add_new_fuel_and_flag, flag9, common_col='primary_fuel', new_col='fuel_type', overwrite=True)
-        .pipe(_check_flags))
+        .pipe(check_flags))
 
     show_unfilled_rows(out_df, 'primary_fuel')
 
@@ -901,7 +948,7 @@ def _fbfill(df, fill_col):
             .apply(lambda x: x.ffill().bfill())))
         .pipe(add_new_fuel_and_flag, flag10, common_col='primary_fuel',
               new_col='fbfill')
-        .pipe(_check_flags)
+        .pipe(check_flags)
     )
 
     show_unfilled_rows(out_df, fill_col)
@@ -1414,7 +1461,7 @@ def impute_fuel_type(df, pudl_out):
     common_col = 'primary_fuel'
 
     out_df = (
-        df.pipe(_drop_bad_plants, bad_plant_ids)
+        df.pipe(table_clean_up, steam_value_cols, drop_bad_steam_plants=True)
         .pipe(fill_obvious_names_fuel, common_col, flag1)
         .pipe(primary_fuel_by_mmbtu, fbp_small)
         .pipe(eia_one_reported_fuel, gens)
@@ -1428,6 +1475,8 @@ def impute_fuel_type(df, pudl_out):
         .pipe(flip_one_outlier_all, 'plant_id_ferc1')
         .pipe(flip_fuel_outliers_all, max_group_size=7)
         .pipe(flip_single_outliers_by_capacity))
+
+    out_df.dropna(subset=steam_value_cols, how='all', inplace=True)
 
     # Check the primary_fuel column and make sure it contains expected fuel values
     if len(bad_fuels := [

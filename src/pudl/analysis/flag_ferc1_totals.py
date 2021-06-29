@@ -1,14 +1,16 @@
 """Module to flag total rows in FERC1 steam table.
 
-* **plant total:** pudl plant totals where the plant is owned by more than one utility.
-* **utility owned total:** all of the assets owned by a utility
-* **utility owned plant total:** a utility's owned portion of a pudl plant
-* **utility owned plant total steam:** all of the utility's steam assets within a given pudl plant
-* **utility owned plant total nuclear:** all of the utility's nuclear assets within a given pudl plant
-* **utility owned subtotal:** the sum of several units within a pudl plant owned by one utility
-* **utility owned plant extra:** any extra amounts that are associated with a plant
-* **utility owned extra:** any extra amounts that are associated with all a utility's assets
-* **unit total:** the sum of a co-owned unit (sub-pudl plant id)
+Types of totals include:
+
+    * **plant total:** pudl plant totals where the plant is owned by more than one utility.
+    * **utility owned total:** all of the assets owned by a utility
+    * **utility owned plant total:** a utility's owned portion of a pudl plant
+    * **utility owned plant total steam:** all of the utility's steam assets within a given pudl plant
+    * **utility owned plant total nuclear:** all of the utility's nuclear assets within a given pudl plant
+    * **utility owned subtotal:** the sum of several units within a pudl plant owned by one utility
+    * **utility owned plant extra:** any extra amounts that are associated with a plant
+    * **utility owned extra:** any extra amounts that are associated with all a utility's assets
+    * **unit total:** the sum of a co-owned unit (sub-pudl plant id)
 
 """
 
@@ -31,6 +33,15 @@ cost_list = ['chgs', 'indirect', 'exp']
 #######################################################################################
 # DEFINE TOTAL FLAGGING FUNCTIONS
 #######################################################################################
+
+
+def flag_totals_basic(df):
+    """Blah."""
+    logger.info(" - using basic total flag")
+    df.insert(3, 'is_total', False)
+    df.loc[df['plant_name_original'].str.contains('total'), 'is_total'] = True
+
+    return df
 
 
 def flag_specific_totals(df, col_name):
@@ -107,7 +118,7 @@ def backfill_by_capacity_all(df):
 # PULL IT ALL TOGETHER
 #######################################################################################
 
-def flag_totals(df):
+def flag_steam_totals(df):
     """Flag all total rows."""
     out_df = (
         df.pipe(flag_specific_totals, col_name='total_type')
