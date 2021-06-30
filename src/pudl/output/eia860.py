@@ -500,7 +500,7 @@ def assign_unit_ids(gens_df):
     Splits a few columns off from the big generator dataframe and uses several
     heuristic functions to fill in missing unit_id_pudl values beyond those that
     are generated in the boiler generator association process. Then merges the
-    new columns back in.
+    new unit ID values back in to the generators dataframe.
 
     Args:
         gens_df (pandas.DataFrame): An EIA generator table. Must contain at
@@ -514,10 +514,10 @@ def assign_unit_ids(gens_df):
 
     Raises:
         ValueError: If the input dataframe is missing required columns.
-        Error: If row or column indices are not equivalent before & after
-        Error: If pre-existing unit_id_pudl or bga_source values are altered.
-        Error: If contents of any other columns are altered at all
-        Error: If any generator is associated with more than one unit_id_pudl
+        ValueError: If any generator is associated with more than one unit_id_pudl.
+        AssertionError: If row or column indices are changed.
+        AssertionError: If pre-existing unit_id_pudl or bga_source values are altered.
+        AssertionError: If contents of any other columns are altered at all.
 
     """
     required_cols = [
@@ -536,19 +536,43 @@ def assign_unit_ids(gens_df):
 
     unit_ids = (
         gens_df.loc[:, required_cols]
+        # For whole-combined cycle (CC) and single-shaft combined cycle (CS)
+        # units, we give each generator their own unit ID. We do the same for
+        # internal combustion and simple-cycle gas combustion turbines.
         .pipe(
             assign_simple_unit_ids,
             prime_mover_codes=["CC", "CS", "GT", "IC"]
         )
+        # These four assignments deal with CT+CA combined cycle units.
         .pipe(assign_unique_combined_cycle_unit_ids)
         .pipe(assign_complex_combined_cycle_unit_ids)
         .pipe(flag_orphan_combined_cycle_gens, orphan_code="CA")
         .pipe(flag_orphan_combined_cycle_gens, orphan_code="CT")
+        # Nuclear units don't report in boiler_fuel_eia923 or generation_eia923
+        # Their fuel consumption is reported as mmbtu in generation_fuel_eia923
+        # Their net generation also only shows up in generation_fuel_eia923
+        # The generation_fuel_eia923 table records a "nuclear_unit_id" which
+        # appears to be the same as the associated generator_id. However, we
+        # can't use that as a unit_id_pudl since it might have a collision with
+        # other already assigned unit_id_pudl values in the same plant for
+        # generators with other fuel types. Thus we still need to assign them
+        # a fuel-and-prime-mover based unit ID here. For now ALL nuclear plants
+        # use steam turbines.
         .pipe(
             assign_simple_unit_ids,
             prime_mover_codes=["ST"],
             fuel_type_code_pudl="nuclear"
         )
+        # In these next 4 assignments, we lump together all steam turbine (ST)
+        # generators that have a consistent simplified fuel_type_code_pudl
+        # across all years within a given plant into the same unit, since we
+        # won't be able to distinguish them in the generation_fuel_eia923
+        # table. This will lump together solid fuels like BIT, LIG, SUB, PC etc.
+        # under "coal".  There are a few cases in which a generator has truly
+        # changed its fuel type, e.g. coal-to-gas conversions but these are
+        # rare and insubstantial. They will not be assigned a Unit ID in this
+        # process. Non-fuel steam generation is also left out (geothermal &
+        # solar thermal)
         .pipe(
             assign_prime_fuel_unit_ids,
             prime_mover_code="ST",
@@ -635,9 +659,28 @@ def fill_unit_ids(gens_df):
     generators, so that all of their fuel consumption is recorded alongside
     that of other types of generators.
 
+    The bga_source field is set to "bfill_units" for those that were backfilled,
+    and "ffill_units" for those that were forward filled.
+
+    Note: We could back/forward fill the boiler IDs prior to the BGA process and
+    we ought to get consistent units across all the years that are the same as
+    what we fill in here. We could also back/forward fill boiler IDs and Unit
+    IDs after the fact, and we *should* get the same result. this will address
+    many currently "boilerless" CCNG units that use generator ID as boiler ID in
+    the latter years. We could try and apply this more generally, but in cases
+    of generator IDs that haven't been used as boiler IDs, it would break the
+    foreign key relationship with the boiler table, unless we added them there
+    too, which seems like too much deep muddling.
+
+    Args:
+        gens_df (pandas.DataFrame): An generators_eia860 dataframe, which must
+            contain columns: report_date, plant_id_eia, generator_id,
+            unit_id_pudl, bga_source.
+
     Returns:
-        pd.DataFrame: with columns: report_date, plant_id_eia, generator_id,
-            unit_id_pudl, prime_mover_code, unit_id_source, unit_id_new
+        pandas.DataFrame: with the same columns as the input dataframe, but
+        having some NA values filled in for both the unit_id_pudl and bga_source
+        columns.
 
     """
     # forward and backward fill the unit IDs
@@ -662,8 +705,22 @@ def max_unit_id_by_plant(gens_df):
     """
     Identify the largest unit ID associated with each plant so we don't overlap.
 
-    This calculation depends on having all of the generators and units of all
-    kinds still available in the dataframe!
+    The PUDL Unit IDs are sequentially assigned integers. To assign a new ID, we
+    need to know the largest existing Unit ID within a plant. This function
+    calculates that largest existing ID, or uses zero, if no Unit IDs are set
+    within the plant.
+
+    Note that this calculation depends on having all of the pre-existing
+    generators and units still available in the dataframe!
+
+    Args:
+        gens_df (pandas.DataFrame): A generators_eia860 dataframe containing at
+            least the columns plant_id_eia and unit_id_pudl.
+
+    Returns:
+        pandas.DataFrame: Having two columns: plant_id_eia and max_unit_id_pudl
+        in which each row should be unique.
+
     """
     return (
         gens_df[["plant_id_eia", "unit_id_pudl"]]
@@ -687,10 +744,14 @@ def assign_simple_unit_ids(
     Calculate the maximum pre-existing PUDL Unit ID within each plant, and
     assign each as of yet unidentified distinct generator within each plant
     with an incrementing integer unit_id_pudl, beginning with 1 + the previous
-    maximum unit_id_pudl found in that plant. Mark that generator with the
-    given label.
+    maximum unit_id_pudl found in that plant. Mark that generator with a label
+    in the bga_source column consisting of label_prefix + the prime mover code.
 
-    Only generators with an NA unit_id_pudl will be assigned a new ID
+    If fuel_type_code_pudl is not None, then only assign new Unit IDs to those
+    generators having the specified fuel type code, and use that fuel type code
+    as the label prefix, e.g. "coal_st" for a coal-fired steam turbine.
+
+    Only generators having NA unit_id_pudl will be assigned a new ID.
 
     Args:
         gens_df (pandas.DataFrame): A collection of EIA generator records.
@@ -774,11 +835,17 @@ def assign_unique_combined_cycle_unit_ids(gens_df):
     """
     Assign unit IDs to combined cycle plants with a unique CT or CA generator.
 
+    In theory, combined cycle plants should always have both CT (combustion
+    turbine) and CA (heat recovery steam turbine) parts, and those prime movers
+    should only ever appear in association with each other. So if we have a
+    plant with a single generator of one of these prime movers, then we can
+    associate all of the prime movers of the other type with that generator in
+    a single unit confidently.
+
     Within each plant, for any generator that has no Unit ID, count the number
     of generators of each prime mover type. Assign any collection of generators
-    having only a single CT or a single CA a unit ID, and flag it "unique_cc".
-    Assign collection of generators having multiple CTs and multiple CAs unit
-    IDs and flag them "multi_cc"
+    having only a single CT or a single CA a unit ID, and flag it
+    "agg_unique_cc".
 
     """
     pm_cols = ["plant_id_eia", "generator_id", "prime_mover_code"]
@@ -824,6 +891,7 @@ def assign_unique_combined_cycle_unit_ids(gens_df):
         .drop("max_unit_id_pudl", axis="columns")
     )
 
+    # Append the altered rows to the unaltered rows in a new dataframe to return
     out_df = gens_df.loc[~row_mask].append(
         gens_df.loc[row_mask]
         .drop(["unit_id_pudl", "bga_source"], axis="columns")
@@ -838,7 +906,16 @@ def assign_unique_combined_cycle_unit_ids(gens_df):
 
 
 def assign_complex_combined_cycle_unit_ids(gens_df):
-    """Assign unit IDs to combined cycle plants that must aggregate CT/CA PMs."""
+    """
+    Assign unit IDs to combined cycle plants that with multiple CT/CA PMs.
+
+    When there are multiple CA and CT units missing a Unit ID, we can't know
+    which ones should be associated with each other specifically, and so we
+    lump them all together into a single aggregated unit. In theory this should
+    yield reasonable heat rates that are the average of the multiple units that
+    might be getting lumped together.
+
+    """
     pm_cols = ["plant_id_eia", "generator_id", "prime_mover_code"]
     # Get rid of the annual dependence, and only keep gens with missing PMs
     df = gens_df[gens_df.unit_id_pudl.isna()][pm_cols].drop_duplicates()
@@ -892,9 +969,16 @@ def flag_orphan_combined_cycle_gens(gens_df, orphan_code):
     """
     Flag CA/CT generators without corresponding CT/CAs as orphans.
 
+    Identify CA and CT generators that don't have Unit IDs and also have no
+    corresponding generator of the other type within the plant, that could be
+    used to create a whole combined-cycle unit, and flag them as orphans. In
+    theory this shouldn't happen, but the data isn't perfect. In some cases it
+    appears that the steam parts may have been incorrectly given prime mover
+    codes of ST or the combustion turbines may have been labeled GT.
+
     Args:
         gens_df (pandas.DataFrame): Must contain the columns plant_id_eia,
-            generator_id, and prime mover code. The column bga_code will
+            generator_id, and prime_mover_code. The column bga_code will
             be created or assigned in matching rows.
         orphan_code (str): Prime mover code indicating which type of generator
             is being flagged as orphaned. Must be either "CA" or "CT".

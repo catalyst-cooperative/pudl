@@ -490,7 +490,7 @@ generation_fuel_eia923
     - Net generation, year to date in megawatthours (MWh). This is total electrical output net of station service.  In the case of combined heat and power plants, this value is intended to include internal consumption of electricity for the purposes of a production process, as well as power put on the grid.
   * - nuclear_unit_id
     - integer
-    - For nuclear plants only, the unit number .One digit numeric. Nuclear plants are the only type of plants for which data are shown explicitly at the generating unit level.
+    - For nuclear plants only. This unit ID appears to correspond directly to the generator ID, as reported in the EIA-860. Nuclear plants are the only type of plants for which data are shown explicitly at the generating unit level. Note that nuclear plants only report their fuel consumption and net generation in the generation_fuel_eia923 table and not elsewhere.
   * - plant_id_eia
     - integer
     - The unique six-digit facility identification number, also called an ORISPL, assigned by the Energy Information Administration.
