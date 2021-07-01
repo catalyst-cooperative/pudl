@@ -95,6 +95,8 @@ import warnings
 import numpy as np
 import pandas as pd
 
+import pudl.helpers
+
 logger = logging.getLogger(__name__)
 
 IDX_GENS = ['plant_id_eia', 'generator_id', 'report_date']
@@ -136,7 +138,7 @@ def allocate_gen_fuel_by_gen(pudl_out):
     gen = pudl_out.gen_original_eia923().loc[
         :, IDX_GENS + ['net_generation_mwh']]
     gens = pudl_out.gens_eia860().loc[
-        :, IDX_GENS + ['prime_mover_code', 'capacity_mw']
+        :, IDX_GENS + ['prime_mover_code', 'capacity_mw', 'fuel_type_count']
         + list(pudl_out.gens_eia860().filter(like='energy_source_code'))]
 
     # do the allocation! (this function coordinates the bulk of the work in
@@ -156,7 +158,7 @@ def allocate_gen_fuel_by_gen_pm_fuel(gf, gen, gens):
      * associate `generation_fuel_eia923` table data w/ generators
      * allocate `generation_fuel_eia923` table data proportionally
 
-     The association process happens via `associate_gen_tables()`.
+     The association process happens via `associate_generator_tables()`.
 
      The allocation process (via `calc_allocation_fraction()`) entails
      generating a fraction for each record within a ``IDX_PM_FUEL`` group. We
@@ -179,7 +181,7 @@ def allocate_gen_fuel_by_gen_pm_fuel(gf, gen, gens):
         pandas.DataFrame
     """
     gen_assoc = (
-        associate_gen_tables(gf=gf, gen=gen, gens=gens)
+        associate_generator_tables(gf=gf, gen=gen, gens=gens)
         .pipe(_associate_unconnected_records)
         .pipe(_associate_fuel_type_only, gf=gf)
     )
@@ -197,7 +199,7 @@ def allocate_gen_fuel_by_gen_pm_fuel(gf, gen, gens):
             # take the net gen
             net_generation_mwh=lambda x: x.net_generation_mwh_gf_tbl * x.frac,
             # let's preserve the gf version of fuel consumption (it didn't show
-            # up in the tables we pulled together in associate_gen_tables()).
+            # up in the tables we pulled together in associate_generator_tables()).
             # TODO: THIS IS A HACK! We need to generate a proper fraction for
             # allocating fuel consumption based on the boiler_fuel_eia923 tbl
             fuel_consumed_mmbtu_gf_tbl=lambda x: x.fuel_consumed_mmbtu,
@@ -208,6 +210,7 @@ def allocate_gen_fuel_by_gen_pm_fuel(gf, gen, gens):
              "net_generation_mwh": "float"})
         .dropna(how='all')
         .pipe(_test_gen_pm_fuel_output, gf=gf, gen=gen)
+        .pipe(pudl.helpers.convert_cols_dtypes, 'eia')
     )
     return gen_pm_fuel_frac
 
@@ -263,7 +266,7 @@ def _stack_generators(gens,
     return gens_stack
 
 
-def associate_gen_tables(gf, gen, gens):
+def associate_generator_tables(gf, gen, gens):
     """
     Associate the three tables needed to assign net gen to generators.
 
@@ -336,13 +339,11 @@ def _associate_unconnected_records(eia_generators_merged):
     )
     eia_generators_unconnected = (
         eia_generators_merged[~connected_mask]
-        .dropna(axis='columns', how='all')
         .rename(columns={'fuel_type': 'fuel_type_unconnected'})
         .assign(energy_source_code_num='energy_source_code_1')
         .groupby(by=idx_pm).sum(min_count=1)
         .reset_index()
     )
-
     eia_generators = (
         pd.merge(
             eia_generators_connected,
@@ -356,7 +357,7 @@ def _associate_unconnected_records(eia_generators_merged):
             # we want the main and the unconnected net gen to be added together
             # but sometimes there is no main net gen and sometimes there is no
             # unconnected net gen
-            net_generation_mwh_gf=lambda x: np.where(
+            net_generation_mwh_gf_tbl=lambda x: np.where(
                 x.net_generation_mwh_gf_tbl.notnull()
                 | x.net_generation_mwh_gf_tbl_unconnected.notnull(),
                 x.net_generation_mwh_gf_tbl.fillna(0)
@@ -370,7 +371,9 @@ def _associate_unconnected_records(eia_generators_merged):
                 + x.fuel_consumed_mmbtu_unconnected.fillna(0),
                 np.nan
             ),
-        )
+        )  # we no longer need these _unconnected columns
+        .drop(columns=['net_generation_mwh_gf_tbl_unconnected',
+                       'fuel_consumed_mmbtu_unconnected'])
     )
     return eia_generators
 
@@ -446,8 +449,9 @@ def _associate_fuel_type_only_wo_matching_fuel_type(gen_assoc):
             how='left',
             suffixes=('', '_missing_pm')
         )
+        .drop(columns=['_merge'])
         .assign(
-            net_generation_mwh_gf=lambda x:
+            net_generation_mwh_gf_tbl=lambda x:
                 x.net_generation_mwh_gf_tbl.fillna(
                     x.net_generation_mwh_fuel  # TODO: what is this?
                     + x.net_generation_mwh_fuel_missing_pm.fillna(0)
@@ -534,7 +538,7 @@ def prep_alloction_fraction(gen_assoc):
     return gen_pm_fuel
 
 
-def calc_allocation_fraction(gen_pm_fuel):
+def calc_allocation_fraction(gen_pm_fuel, drop_interim_cols=True):
     """
     Make `frac` column to allocate net gen from the generation fuel table.
 
@@ -549,7 +553,15 @@ def calc_allocation_fraction(gen_pm_fuel):
 
     Each different type of generator needs to be treated slightly differently,
     but all will end up with a `frac` column that can be used to allocate
-    the `net_generation_mwh_gf`.
+    the `net_generation_mwh_gf_tbl`.
+
+    Args:
+        gen_pm_fuel (pandas.DataFrame): output of `prep_alloction_fraction()`.
+        drop_interim_cols (boolean): True/False flag for dropping interim
+            columns which are used to generate the `frac` column (they are
+            mostly interim frac columns and totals of net generataion from
+            various groupings of generators) that are useful for debugging.
+            Default is False.
 
     """
     # break out the table into these four different generator types.
@@ -557,7 +569,8 @@ def calc_allocation_fraction(gen_pm_fuel):
     no_pm = gen_pm_fuel[no_pm_mask]
     all_gen = gen_pm_fuel.loc[gen_pm_fuel.in_g_tbl_all & ~no_pm_mask]
     some_gen = gen_pm_fuel.loc[
-        gen_pm_fuel.in_g_tbl_any & ~gen_pm_fuel.in_g_tbl_all & ~no_pm_mask]
+        gen_pm_fuel.in_g_tbl_any & ~gen_pm_fuel.in_g_tbl_all &
+        ~no_pm_mask]
     gf_only = gen_pm_fuel.loc[~gen_pm_fuel.in_g_tbl_any & ~no_pm_mask]
 
     logger.info("Ratio calc types: \n"
@@ -575,11 +588,9 @@ def calc_allocation_fraction(gen_pm_fuel):
     # table, we still allocate, because the generation reported in these two
     # tables don't always match perfectly
     all_gen = all_gen.assign(
-        frac_net_gen=lambda x:
-            x.net_generation_mwh_g_tbl / x.net_generation_mwh_g_tbl_pm_fuel,
-        frac=lambda x:
-            x.frac_net_gen
-    )
+        frac_net_gen=lambda x: x.net_generation_mwh_g_tbl /
+        x.net_generation_mwh_g_tbl_pm_fuel,
+        frac=lambda x: x.frac_net_gen)
     _ = _test_frac(all_gen)
 
     # a brief explaination of the equations below
@@ -629,10 +640,8 @@ def calc_allocation_fraction(gen_pm_fuel):
     # Calculate what fraction of the total capacity is associated with each of
     # the generators in the grouping.
     gf_only = gf_only.assign(
-        frac_cap=lambda x:
-            x.capacity_mw / x.capacity_mw_pm_fuel,
-        frac=lambda x: x.frac_cap
-    )
+        frac_cap=lambda x: x.capacity_mw / x.capacity_mw_pm_fuel,
+        frac=lambda x: x.frac_cap)
     _ = _test_frac(gf_only)
 
     no_pm = no_pm.assign(
@@ -653,6 +662,12 @@ def calc_allocation_fraction(gen_pm_fuel):
     # null out the inf's
     gen_pm_fuel_ratio.loc[abs(gen_pm_fuel_ratio.frac) == np.inf] = np.NaN
     _ = _test_frac(gen_pm_fuel_ratio)
+
+    # drop all of the columns we needed to get to the `frac` column
+    if drop_interim_cols:
+        gen_pm_fuel_ratio = gen_pm_fuel_ratio[
+            IDX_PM_FUEL +
+            ['frac', 'net_generation_mwh_gf_tbl', 'net_generation_mwh_g_tbl', 'capacity_mw', 'fuel_consumed_mmbtu']]
     return gen_pm_fuel_ratio
 
 
@@ -712,7 +727,7 @@ def _test_gen_pm_fuel_output(gen_pm_fuel, gf, gen):
                 how='outer'
             )
             .assign(net_generation_mwh_diff=lambda x:
-                    x.net_generation_mwh_gf
+                    x.net_generation_mwh_gf_tbl
                     - x.net_generation_mwh_test)
         )
         return gen_pm_fuel_test
@@ -754,6 +769,9 @@ def _test_gen_pm_fuel_output(gen_pm_fuel, gf, gen):
     logger.info(
         "new v fuel table fuel (mmbtu) diff: "
         f"{(gen_pm_fuel_test.fuel_consumed_mmbtu.sum())/fuel_consumed:.1%}")
+
+    gen_pm_fuel_test = gen_pm_fuel_test.drop(
+        columns=['net_generation_mwh_test', 'net_generation_mwh_diff'])
     return gen_pm_fuel_test
 
 
