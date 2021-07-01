@@ -150,7 +150,7 @@ def allocate_gen_fuel_by_gen(pudl_out):
     return gen
 
 
-def allocate_gen_fuel_by_gen_pm_fuel(gf, gen, gens):
+def allocate_gen_fuel_by_gen_pm_fuel(gf, gen, gens, drop_interim_cols=True):
     """
     Proportionally allocate net gen from gen_fuel table to generators.
 
@@ -176,6 +176,12 @@ def allocate_gen_fuel_by_gen_pm_fuel(gf, gen, gens):
         gens (pandas.DataFrame): generators_eia860 table with cols:
             ``IDX_GENS``, `capacity_mw`, `prime_mover_code`,
             and all of the `energy_source_code` columns
+        drop_interim_cols (boolean): True/False flag for dropping interim
+            columns which are used to generate the `net_generation_mwh` column
+            (they are mostly the `frac` column and  net generataion reported in
+            the original generation_eia923 and generation_fuel_eia923 tables)
+            that are useful for debugging. Default is False, which will drop
+            the columns.
 
     Returns:
         pandas.DataFrame
@@ -212,6 +218,10 @@ def allocate_gen_fuel_by_gen_pm_fuel(gf, gen, gens):
         .pipe(_test_gen_pm_fuel_output, gf=gf, gen=gen)
         .pipe(pudl.helpers.convert_cols_dtypes, 'eia')
     )
+    if drop_interim_cols:
+        gen_pm_fuel_frac = gen_pm_fuel_frac[
+            IDX_PM_FUEL +
+            ['generator_id', 'net_generation_mwh', 'fuel_consumed_mmbtu']]
     return gen_pm_fuel_frac
 
 
@@ -667,7 +677,7 @@ def calc_allocation_fraction(gen_pm_fuel, drop_interim_cols=True):
     if drop_interim_cols:
         gen_pm_fuel_ratio = gen_pm_fuel_ratio[
             IDX_PM_FUEL +
-            ['frac', 'net_generation_mwh_gf_tbl', 'net_generation_mwh_g_tbl', 'capacity_mw', 'fuel_consumed_mmbtu']]
+            ['generator_id', 'frac', 'net_generation_mwh_gf_tbl', 'net_generation_mwh_g_tbl', 'capacity_mw', 'fuel_consumed_mmbtu']]
     return gen_pm_fuel_ratio
 
 

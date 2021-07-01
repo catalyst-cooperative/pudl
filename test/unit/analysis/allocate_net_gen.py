@@ -36,15 +36,15 @@ gf_1 = pd.DataFrame(
 gens_1 = pd.DataFrame(
     [
         [50307, 'GEN1', '2018-01-01', 'ST', 7.5, 2,
-            'NG', None, None, None, None, None, None],
+            'NG', None, None, None, None, None],
         [50307, 'GEN2', '2018-01-01', 'ST', 2.5, 2,
-            'NG', None, None, None, None, None, None],
+            'NG', None, None, None, None, None],
         [50307, 'GEN3', '2018-01-01', 'ST', 2.5, 2,
-            'NG', None, None, None, None, None, None],
+            'NG', None, None, None, None, None],
         [50307, 'GEN4', '2018-01-01', 'ST', 4.3, 2,
-            'NG', None, None, None, None, None, None],
+            'NG', None, None, None, None, None],
         [50307, 'GEN5', '2018-01-01', 'IC', 1.8, 2,
-            'DFO', None, None, None, None, None, None],
+            'DFO', None, None, None, None, None],
     ],
     columns=[
         'plant_id_eia', 'generator_id', 'report_date', 'prime_mover_code',
@@ -92,21 +92,15 @@ def test__allocate_gen_fuel_by_gen_pm_fuel_1():
     """Test allocate_gen_fuel_by_gen_pm_fuel function with example 1."""
     gen_pm_fuel_1_expected = pd.DataFrame(
         [
-            [50307, 'ST', 'NG', '2018-01-01', 0.9333333333333333,
-                15.0, 14.0, 7.5, 109721.73333333334, 14.0, 117559.0],
-            [50307, 'ST', 'NG', '2018-01-01', 0.06666666666666667,
-                15.0, 1.0, 2.5, 7837.266666666666, 1.0, 117559.0],
-            [50307, 'ST', 'NG', '2018-01-01', 0.0,
-                15.0, 0.0, 2.5, 0.0, 0.0, 117559.0],
-            [50307, 'ST', 'NG', '2018-01-01', 0.0,
-                15.0, 0.0, 4.3, 0.0, 0.0, 117559.0],
-            [50307, 'IC', 'DFO', '2018-01-01', 1.0, 0.0, 0.0, 1.8, 0.0, 0.0, 0.0],
+            [50307, 'ST', 'NG', '2018-01-01', 'GEN1', 14.0, 109721.73],
+            [50307, 'ST', 'NG', '2018-01-01', 'GEN2', 1.0, 7837.26],
+            [50307, 'ST', 'NG', '2018-01-01', 'GEN3', 0.0, 0.0],
+            [50307, 'ST', 'NG', '2018-01-01', 'GEN4', 0.0, 0.0],
+            [50307, 'IC', 'DFO', '2018-01-01', 'GEN5', 0.0, 0.0],
         ],
         columns=[
-            'plant_id_eia', 'prime_mover_code', 'fuel_type', 'report_date',
-            'frac', 'net_generation_mwh_gf_tbl', 'net_generation_mwh_g_tbl',
-            'capacity_mw', 'fuel_consumed_mmbtu', 'net_generation_mwh',
-            'fuel_consumed_mmbtu_gf_tbl']
+            'plant_id_eia', 'prime_mover_code', 'fuel_type', 'report_date', 'generator_id',
+            'net_generation_mwh', 'fuel_consumed_mmbtu', ]
     ).pipe(helpers.convert_cols_dtypes, 'eia')
 
     gen_pm_fuel_1_actual = allocate_net_gen.allocate_gen_fuel_by_gen_pm_fuel(
@@ -114,3 +108,23 @@ def test__allocate_gen_fuel_by_gen_pm_fuel_1():
     )
 
     pd.testing.assert_frame_equal(gen_pm_fuel_1_expected, gen_pm_fuel_1_actual)
+
+    # gen_pm_fuel_1_expected is an inputs into agg_by_generator().. so should I
+    # test this here??
+    #
+    # testing the aggregation to the generator level for example 1.
+    # in this case, each generator has one prime mover and one fuel source so
+    # they are effectively the same.
+    gen_out_1_expected = pd.DataFrame(
+        [
+            [50307, 'GEN1', '2018-01-01', 14.0, 109721.73],
+            [50307, 'GEN2', '2018-01-01', 1.0, 7837.26],
+            [50307, 'GEN3', '2018-01-01', 0.0, 0.0],
+            [50307, 'GEN4', '2018-01-01', 0.0, 0.0],
+            [50307, 'GEN5', '2018-01-01', 0.0, 0.0],
+        ],
+        columns=['plant_id_eia', 'generator_id', 'report_date',
+                 'net_generation_mwh', 'fuel_consumed_mmbtu']
+    )
+    gen_out_1_actual = allocate_net_gen.agg_by_generator(gen_pm_fuel_1_actual)
+    pd.testing.assert_frame_equal(gen_out_1_expected, gen_out_1_actual)
