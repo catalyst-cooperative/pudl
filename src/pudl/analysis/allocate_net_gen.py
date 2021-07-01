@@ -174,18 +174,6 @@ def agg_by_generator(gen_pm_fuel, pudl_out):
     gen = (gen_pm_fuel.groupby(by=IDX_GENS)
            [data_cols].sum(min_count=1).reset_index())
 
-    # merge in the plants table for the plant and utility names/ids so the
-    # output matches the orginal table (pudl_out.gen_original_eia923)
-    idx_plant = ['plant_id_eia', 'report_date']
-    gen.merge(
-        pudl_out.plants_eia860()[
-            idx_plant +
-            [c for c in pudl_out.gen_original_eia923() if c not in gen]],
-        on=idx_plant,
-        validate='m:1',
-        how='left'
-
-    )
     return gen
 
 
