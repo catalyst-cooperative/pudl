@@ -457,20 +457,6 @@ xlsx_maps_pkg = 'pudl.package_data.meta.xlsx_maps'
 ##############################################################################
 # EIA 923 Spreadsheet Metadata
 ##############################################################################
-# patterns for matching columns to months:
-month_dict_eia923 = {1: '_january$',
-                     2: '_february$',
-                     3: '_march$',
-                     4: '_april$',
-                     5: '_may$',
-                     6: '_june$',
-                     7: '_july$',
-                     8: '_august$',
-                     9: '_september$',
-                     10: '_october$',
-                     11: '_november$',
-                     12: '_december$'}
-"""dict: A dictionary mapping column numbers (keys) to months (values)."""
 
 ##############################################################################
 # EIA 860 Spreadsheet Metadata
@@ -1145,6 +1131,7 @@ fuel_units_eia923 = {
 contract_type_eia923 = {
     'C': 'Contract - Fuel received under a purchase order or contract with a term of one year or longer.  Contracts with a shorter term are considered spot purchases ',
     'NC': 'New Contract - Fuel received under a purchase order or contract with duration of one year or longer, under which deliveries were first made during the reporting month',
+    'N': 'New Contract - see NC code. This abbreviation existed only in 2008 before being replaced by NC.',
     'S': 'Spot Purchase',
     'T': 'Tolling Agreement – Fuel received under a tolling agreement (bartering arrangement of fuel for generation)'
 }
@@ -1220,7 +1207,7 @@ coalmine_country_eia923 = {
     'RS': 'RUS',  # Russia
     'UK': 'GBR',  # United Kingdom of Great Britain
     'VZ': 'VEN',  # Venezuela
-    'OC': 'other_country',
+    'OT': 'other_country',
     'IM': 'unknown'
 }
 """dict: A dictionary mapping coal mine country codes (keys) to ISO-3166-1 three
@@ -1517,7 +1504,7 @@ working_partitions = {
         'years': tuple(range(2001, 2020))
     },
     'eia923': {
-        'years': tuple(range(2009, 2020))
+        'years': tuple(range(2001, 2020))
     },
     'epacems': {
         'years': tuple(range(1995, 2020)),
