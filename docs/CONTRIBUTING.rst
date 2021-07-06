@@ -69,7 +69,7 @@ online discussions and track projects that you're interested in.
 
 Asking (and answering) questions is a valuable contribution! As noted in `How to
 support open-source software and stay sane
-<https://www.nature.com/articles/d41586-019-02046-0>`__ It's much more efficient to
+<https://www.nature.com/articles/d41586-019-02046-0>`__, it's much more efficient to
 ask and answer questions in a public forum because then other users and contributors
 who are having the same problem can find answers without having to re-ask the same
 question. The forum we're using is our `Github issues
@@ -85,7 +85,7 @@ community of users to help each other!
 
 Don't hesitate to open an issue with a `feature request
 <https://github.com/catalyst-cooperative/pudl/issues/new?template=feature_request.md>`__,
-or a pointer to energy data that needs liberating, or a reference to documentation
+a pointer to energy data that needs liberating, or a reference to documentation
 that's out of date, unclear, or missing. Understanding how people are using the
 software, and how they would *like* to be using the software, is very valuable and
 will help us make it more useful and usable.

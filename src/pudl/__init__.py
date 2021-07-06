@@ -6,9 +6,11 @@ import logging
 import pkg_resources
 
 import pudl.analysis.allocate_net_gen
-import pudl.analysis.demand_mapping
 import pudl.analysis.mcoe
 import pudl.analysis.service_territory
+import pudl.analysis.spatial
+import pudl.analysis.state_demand
+import pudl.analysis.timeseries_cleaning
 import pudl.cli
 import pudl.constants
 import pudl.convert.censusdp1tract_to_sqlite
