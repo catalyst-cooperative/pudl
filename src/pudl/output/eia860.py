@@ -226,6 +226,9 @@ def generators_eia860(pudl_engine, start_date=None, end_date=None):
     one year on after the reported data (since there should at most be a one
     year lag between EIA923 and EIA860 reporting)
 
+    This also backfills the technology_description field according to matching
+    energy_source_code_1 values.
+
     Args:
         pudl_engine (sqlalchemy.engine.Engine): SQLAlchemy connection engine
             for the PUDL DB.
@@ -320,6 +323,67 @@ def generators_eia860(pudl_engine, start_date=None, end_date=None):
             "utility_id_eia": "Int64",
             "utility_id_pudl": "Int64",
         })
+    )
+
+    # Backfill technology_description field. Things to note: the
+    # relationship between energy_soruce_code_1 and
+    # technology_description is not always one to one. See method
+    # doc string for further explanation.
+    def _backfill_tech_if_matching_fuel_code(group):
+        """Backfill technology description based on energy source code.
+
+        EIA started reporting the technology_description field in 2014. This
+        roughly coorelates to the energy_source_code_1 field, though not exactly.
+
+        This function groups the eia 860 generator table by plant and generator id and
+        creates a dictionary mapping the different energy source codes to
+        their cooresponding technology descriptions. When there are one to many
+        relationships between the source code and the technology description, the
+        dicitonary preserves the older reported pair. This is because all NA technology
+        description values reported after 2013 also have an NA enery source code. All
+        backfilling will therefore occur in the years 2013 and earlier which are by
+        definition older then the years used to create the source code tech desc
+        dictionary. While not entirely foolproof, it's reasonable to assume that
+        older years will map to the closest reported technology description with
+        the same reported source code.
+
+        """
+        # Keep track of len
+        len1 = len(group)
+        # If there are some NA values and some not NA values in a generator group accross time:
+        if group.technology_description.isna().any() \
+                and group.technology_description.notna().any():
+            # Sort from newest to oldest. dict(zip()) can only have unique keys so this will
+            # ensure that the older key values are the ones that get saved if there are
+            # duplicate energy_source_code_1 values.
+            tech_desc = (
+                group.sort_values('report_date', ascending=False)
+                .dropna(subset=['technology_description']).copy())
+            tech_dict = (
+                dict(zip(tech_desc['energy_source_code_1'],
+                         tech_desc['technology_description'])))
+
+            # Checking that NA values after 2013 (when tech_desc started getting reported)
+            # don't have a source code (because this would mess with the assumption that we
+            # use the oldest code to fill in NAs).
+            tech_report_year = group['report_date'].dt.year > 2013
+            isna = group['technology_description'].isna()
+            assert group[tech_report_year & isna]['energy_source_code_1'].dropna().empty, \
+                group[['plant_id_eia', 'generator_id']].drop_duplicates()
+
+            # Replace any NA tech desc values with values from records with
+            # matching source codes.
+            group.loc[isna, 'technology_description'] = (
+                group.energy_source_code_1.map(tech_dict).copy())
+
+            # Make sure didn't change group length
+            assert len(group) == len1, 'group length getting altered'
+
+        return group
+
+    out_df = (
+        out_df.groupby(['plant_id_eia', 'generator_id'])
+        .apply(lambda x: _backfill_tech_if_matching_fuel_code(x))
     )
 
     first_cols = [
