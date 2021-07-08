@@ -39,14 +39,14 @@ def flag_totals_basic(df):
     """Blah."""
     logger.info(" - using basic total flag")
     df.insert(3, 'is_total', False)
-    df.loc[df['plant_name_original'].str.contains('total'), 'is_total'] = True
+    df.loc[df['plant_name_ferc1'].str.contains('total'), 'is_total'] = True
 
     return df
 
 
 def flag_specific_totals(df, col_name):
     """Blah."""
-    logger.info("flagging specific totals")
+    logger.info(" - flagging specific totals")
 
     def _is_total(row):
         if any(x in row for x in total_plant_list):
@@ -72,11 +72,13 @@ def flag_specific_totals(df, col_name):
     return df
 
 
-def add_manual_totals(df):
+def add_man_totals(df):
     """Add manual totals to the total_type column."""
-    logger.info("adding manual totals")
+    logger.info(" - adding manual totals")
     out_df = (
-        df.pipe(fill_fuel.add_manual_values, 'total_type_manual', '/Users/aesharpe/Desktop/manual_total_types.xlsx'))
+        df.pipe(fill_fuel.add_manual_values, 'total_type_manual',
+                '/Users/aesharpe/Desktop/manual_total_types.xlsx')
+    )
 
     out_df.total_type.update(out_df.total_type_manual)
 
@@ -87,7 +89,7 @@ def add_manual_totals(df):
 
 def backfill_by_capacity_all(df):
     """Add the same total flag to rows in the same plant_id with the same capacity."""
-    logger.info("backfilling totals by capacity")
+    logger.info(" - backfilling totals by capacity")
 
     def _backfill_by_capacity(df_group):
         # First make sure there is a total type otherwise just return the df
@@ -122,8 +124,8 @@ def flag_steam_totals(df):
     """Flag all total rows."""
     out_df = (
         df.pipe(flag_specific_totals, col_name='total_type')
-        .pipe(add_manual_totals)
+        .pipe(add_man_totals)
         .pipe(backfill_by_capacity_all)
     )
 
-    return out_df
+    df = out_df

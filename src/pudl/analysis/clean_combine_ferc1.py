@@ -13,14 +13,17 @@ import logging
 
 # 3rd party libraries
 import numpy as np
+import pandas as pd
 # import pandas as pd
 from tqdm import tqdm
 
 # eventually make this just one function
-from pudl.analysis.fill_ferc1_fuel_gaps import create_groups
-from pudl.analysis.flag_ferc1_totals import flag_totals_basic
+from pudl.analysis.fill_ferc1_fuel_gaps import add_all_tech, create_groups
+from pudl.analysis.flag_ferc1_totals import (flag_steam_totals,
+                                             flag_totals_basic)
 
 logger = logging.getLogger(__name__)
+
 
 ########################################################################################
 # GLOBAL VARIABLES
@@ -79,25 +82,8 @@ pumped_value_cols = [x for x in hydro_value_cols if x != 'opex_hydraulic'] + [
 
 
 ########################################################################################
-# STEAM FUNCTIONS
+# CLASSES
 ########################################################################################
-
-def clean_steam(df):
-    """test."""
-    # Alabama Power reports owned plant portions from other utilities (mississippi power
-    # and alabama electric coop). This is duplicate information so we'll remove these plants
-    # As far as I know it's only applicable to the steam table.
-    bad_plants = [
-        "ala.elec. coop.", "al elec coop's port.", "al elec coop's",
-        "miss power", "mississippi power 's"]
-    df.drop(df[~df['plant_name_ferc1'].isin(bad_plants)].index, inplace=True)
-
-    long_dash_name = df['plant_name_ferc1'].str.contains('---')
-    na_name = df[df['plant_name_original'].isin([
-        '--blank--', 'n/a', 'none', 'not applicable'])]
-    df.drop(df[long_dash_name | na_name].index, inplace=True)
-
-    return df
 
 
 class FERCTable:
@@ -106,26 +92,74 @@ class FERCTable:
     def __init__(self, name, df, value_cols):
         """Initialize a FERC table."""
         self.name = name
+        self.raw = df.copy()
         self.df = df
         self.value_cols = value_cols
+        self.status = ['raw']
+        self.dropped_cols = pd.DataFrame()
 
-    def _clean(self):
+    def clean(self):
+        """Clean FERC Table."""
         logger.info(f"Cleaning {self.name} table")
+        df = self.df
+        na_name = df['plant_name_ferc1'].isin(
+            ['--blank--', 'n/a', 'none', 'not applicable'])
+        self.dropped_cols = self.dropped_cols.append(
+            df[na_name].copy()).drop_duplicates()
+        df.drop(df[na_name].index, inplace=True)
+        self.status.append('cleaned')
 
-    def _flag_totals(self):
+    def flag_totals(self):
+        """Flagging FERC Table Totals."""
         logger.info(f"Flagging totals rows for {self.name} table")
+        self.status.append('flagged totals')
+
+    def label_fuel(self):
+        """Label FERC Table Fuel Types."""
+        logger.info(f"Labeling fuel types for {self.name} table")
+        self.status.append('labeled fuels')
 
     def transform(self):
         """Transform FERC table."""
-        raise Exception("Not Implemented")
+        logger.info(F"\n*** TRANSFORMING {self.name.upper()} TABLE ***")
+        self.clean()
+        self.flag_totals()
+        self.label_fuel()
 
 
 class SteamTable(FERCTable):
     """Create a FERC steam table."""
 
-    def __init__(self, name, df, value_cols):
+    def __init__(self, name, df, value_cols, pudl_out):
         """Initialize a FERC steam table."""
         super().__init__(name, df, value_cols)
+        self.pudl_out = pudl_out
+
+    def clean(self):
+        """Clean FERC Table."""
+        super().clean()
+        df = self.df
+        bad_plants = [
+            "ala.elec. coop.", "al elec coop's port.", "al elec coop's",
+            "miss power", "mississippi power 's"]
+        is_bad_plant = df['plant_name_ferc1'].isin(bad_plants)
+        long_dash_name = df['plant_name_ferc1'].str.contains('---')
+
+        self.dropped_cols = self.dropped_cols.append(
+            df[is_bad_plant | long_dash_name].copy()).drop_duplicates()
+
+        df.drop(df[is_bad_plant | long_dash_name].index, inplace=True)
+        # df.drop(df[long_dash_name].index, inplace=True)
+
+    def flag_totals(self):
+        """Flagging FERC Table."""
+        super().flag_totals()
+        flag_steam_totals(self.df)
+
+    def label_fuel(self):
+        """Label FERC Table Fuel Types."""
+        super().label_fuel()
+        add_all_tech(self.df, self.pudl_out)
 
 
 class SmallTable(FERCTable):
@@ -173,25 +207,6 @@ class SmallTable(FERCTable):
     def __init__(self, name, df, value_cols):
         """Initialize a FERC small gens table."""
         super().__init__(name, df, value_cols)
-
-    def _clean(self):
-        super()._clean()
-        logger.info(f" - Pre-clean length: {len(self.df)}")
-        # It's important to drop these values BEFORE running the header_to_col function
-        # because some of the dash lines come below a header row (ex: row 1: 'hydro',
-        # row 2: '--------'. This is a sad programatic interpretation of an underlined
-        # header... The current header recognition function will interpret these two
-        # rows as possible headers....
-
-        # MAYBE WE CAN GET RID OF THIS IF AND ONLY IF THERE IS A WAY TO FLAG HEADERS AND THEN REMOVE ALL NON
-        # OFFICIAL HEADERS AND THEN RUN THE HEADER TO COLUMN THING....?)
-        long_dash_name = self.df['plant_name_ferc1'].str.contains('---')
-        self.df.drop(self.df[long_dash_name].index, inplace=True)
-        logger.info(f" - Post-clean length: {len(self.df)}")
-
-    def _flag_totals(self):
-        super()._flag_totals()
-        flag_totals_basic(self.df)
 
     def _add_ferc_lic_col(self, show_proof=False):
         """Extract FERC license number from the plant name and add it to a new column.
@@ -504,10 +519,34 @@ class SmallTable(FERCTable):
         print('total rows:', len(df))
         print('')
 
-    def transform(self):
-        """Transform the FERC small gens table."""
-        self._clean()
-        self._flag_totals()
+    def clean(self):
+        """Clean FERC Table."""
+        super().clean()
+        logger.info(f" - Pre-clean length: {len(self.df)}")
+        # It's important to drop these values BEFORE running the header_to_col function
+        # because some of the dash lines come below a header row (ex: row 1: 'hydro',
+        # row 2: '--------'. This is a sad programatic interpretation of an underlined
+        # header... The current header recognition function will interpret these two
+        # rows as possible headers....
+
+        # MAYBE WE CAN GET RID OF THIS IF AND ONLY IF THERE IS A WAY TO FLAG HEADERS AND THEN REMOVE ALL NON
+        # OFFICIAL HEADERS AND THEN RUN THE HEADER TO COLUMN THING....?)
+        long_dash_name = self.df['plant_name_ferc1'].str.contains('---')
+
+        self.dropped_cols = self.dropped_cols.append(
+            self.df[long_dash_name].copy()).drop_duplicates()
+
+        self.df.drop(self.df[long_dash_name].index, inplace=True)
+        logger.info(f" - Post-clean length: {len(self.df)}")
+
+    def flag_totals(self):
+        """Flagging FERC Table Totals."""
+        super().flag_totals()
+        flag_totals_basic(self.df)
+
+    def label_fuel(self):
+        """Label FERC Table Fuel Types."""
+        super().label_fuel()
         self._add_ferc_lic_col(show_proof=True)
         self._label_possible_headers()
         self._label_header_clumps_all()
@@ -516,6 +555,15 @@ class SmallTable(FERCTable):
         self._add_obvious_headers(self.zane_header_labels)
         self._show_header_stats()
 
-# class HydroTable(FercTable):
-#     def __init__(self, name, df, value_cols):
-#         super().__init__(name, df, value_cols)
+
+class HydroTable(FERCTable):
+    """Create a FERC hydro table."""
+
+    def __init__(self, name, df, value_cols):
+        """Initialize a FERC hydro table."""
+        super().__init__(name, df, value_cols)
+
+    def flag_totals(self):
+        """Flagging FERC Table Totals."""
+        super().flag_totals()
+        flag_totals_basic(self.df)
