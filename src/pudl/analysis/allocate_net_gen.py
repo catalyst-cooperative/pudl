@@ -68,7 +68,6 @@ generation_fuel_eia923 table.
 
 Note that this methology does not distinguish between primary and secondary
 fuel_types for generators. It associates portions of net generation to each
-combination of prime_mover_code and fuel_type equally. In cases where two
 generators in the same plant do not report detailed generation, have the same
 prime_mover_code, and use the same fuels, but have very different capacity
 factors in reality, this methodology will allocate generation such that they
@@ -175,6 +174,7 @@ def allocate_gen_fuel_by_gen_pm_fuel(gf, gen, gens, drop_interim_cols=True):
             ``IDX_GENS`` and `net_generation_mwh`.
         gens (pandas.DataFrame): generators_eia860 table with cols:
             ``IDX_GENS``, `capacity_mw`, `prime_mover_code`,
+            ``IDX_GENS``, `capacity_mw`, `'prime_mover_code'`,
             and all of the `energy_source_code` columns
         drop_interim_cols (boolean): True/False flag for dropping interim
             columns which are used to generate the `net_generation_mwh` column
@@ -186,11 +186,7 @@ def allocate_gen_fuel_by_gen_pm_fuel(gf, gen, gens, drop_interim_cols=True):
     Returns:
         pandas.DataFrame
     """
-    gen_assoc = (
-        associate_generator_tables(gf=gf, gen=gen, gens=gens)
-        .pipe(_associate_unconnected_records)
-        .pipe(_associate_fuel_type_only, gf=gf)
-    )
+    gen_assoc = associate_generator_tables(gf=gf, gen=gen, gens=gens)
 
     # Generate a fraction to use to allocate net generation by.
     # These two methods create a column called `frac`, which will be a fraction
@@ -240,9 +236,9 @@ def agg_by_generator(gen_pm_fuel):
     return gen
 
 
-def _stack_generators(gens,
-                      cat_col='energy_source_code_num',
-                      stacked_col='fuel_type'):
+def stack_generators(gens,
+                     cat_col='energy_source_code_num',
+                     stacked_col='fuel_type'):
     """
     Stack the generator table with a set of columns.
 
@@ -290,7 +286,7 @@ def associate_generator_tables(gf, gen, gens):
 
     TODO: Convert these groupby/merges into transforms.
     """
-    stack_gens = _stack_generators(
+    stack_gens = stack_generators(
         gens, cat_col='energy_source_code_num', stacked_col='fuel_type')
 
     gen_assoc = (
@@ -317,6 +313,8 @@ def associate_generator_tables(gf, gen, gens):
             .reset_index(),
             on=IDX_FUEL,
         )
+        .pipe(_associate_unconnected_records)
+        .pipe(_associate_fuel_type_only, gf=gf)
     )
     return gen_assoc
 
@@ -337,7 +335,7 @@ def _associate_unconnected_records(eia_generators_merged):
 
     """
     # we're associating on the plant/pm level... but we only want to associated
-    # these unassocaited records w/ the primary fuel type from _stack_generators
+    # these unassocaited records w/ the primary fuel type from stack_generators
     # so we're going to merge on energy_source_code_num and
     idx_pm = ['plant_id_eia', 'prime_mover_code',
               'energy_source_code_num', 'report_date', ]
@@ -459,7 +457,7 @@ def _associate_fuel_type_only_wo_matching_fuel_type(gen_assoc):
             how='left',
             suffixes=('', '_missing_pm')
         )
-        .drop(columns=['_merge'])
+
         .assign(
             net_generation_mwh_gf_tbl=lambda x:
                 x.net_generation_mwh_gf_tbl.fillna(
@@ -472,6 +470,7 @@ def _associate_fuel_type_only_wo_matching_fuel_type(gen_assoc):
                     + x.fuel_consumed_mmbtu_fuel_missing_pm.fillna(0)
                 ),
         )
+        .drop(columns=['_merge'])
     )
     return gen_assoc_w_unassociated
 
