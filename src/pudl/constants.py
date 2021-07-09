@@ -1482,7 +1482,7 @@ data_years = {
     'eia860': tuple(range(2001, 2020)),
     'eia861': tuple(range(1990, 2020)),
     'eia923': tuple(range(2001, 2020)),
-    'epacems': tuple(range(1995, 2020)),
+    'epacems': tuple(range(1995, 2021)),
     'epaipm': (None, ),
     'ferc1': tuple(range(1994, 2020)),
     'ferc714': (None, ),
@@ -1507,7 +1507,7 @@ working_partitions = {
         'years': tuple(range(2001, 2020))
     },
     'epacems': {
-        'years': tuple(range(1995, 2020)),
+        'years': tuple(range(1995, 2021)),
         'states': tuple(cems_states.keys())},
     'ferc1': {
         'years': tuple(range(1994, 2020))
