@@ -53,7 +53,7 @@ class Extractor(excel.GenericExtractor):
             df = df.rename(columns={'unnamed_0': 'census_division_and_state'})
         # Drop the fields with plant_id_eia 99999 or 999999.
         # These are state index
-        if page != 'stocks':
+        else:
             df = df[~df.plant_id_eia.isin([99999, 999999])]
         return df
 

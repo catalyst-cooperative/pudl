@@ -65,7 +65,7 @@ version, and put it in a local directory where you can make changes.
 Create the PUDL Dev Environment
 -------------------------------------------------------------------------------
 Inside the ``devtools`` directory of your newly cloned repository, you'll see
-an ``environment.yml`` file, which specifies the ``pudl-dev`` ``conda``
+an ``environment.yml`` file that specifies the ``pudl-dev`` ``conda``
 environment. You can create and activate that environment from within the
 main repository directory by running:
 
@@ -78,16 +78,33 @@ main repository directory by running:
 This environment installs the ``catalystcoop.pudl`` package directly using
 the code in your cloned repository so that it can be edited during
 development. It also installs all of the software PUDL depends on, some
-packages for testing and quality control, working with interactive Jupyter
+packages for testing and quality control, packages for working with interactive Jupyter
 Notebooks, and a few Python packages that have binary dependencies which can
 be easier to satisfy through ``conda`` packages.
 
 -------------------------------------------------------------------------------
+Getting and Storing an EIA API Key
+-------------------------------------------------------------------------------
+PUDL accesses Energy Information Agency (EIA) datasets via an API, which requires
+permission from the EIA. New users must `register for an API key
+<https://www.eia.gov/opendata/>`__, which is free, nearly instantaneous,
+and only requires you give an email address.
+
+To make this key accessible to pudl, store it in an environment variable and
+reactivate the environment:
+
+.. code-block:: console
+
+    $ conda activate pudl-dev
+    $ conda env config vars set API_KEY_EIA='your_api_key_here'
+    $ conda activate pudl-dev
+
+-------------------------------------------------------------------------------
 Updating the PUDL Dev Environment
 -------------------------------------------------------------------------------
-Periodically you will need to update your development (``pudl-dev``) conda
-environment. This will get you newer versions of existing dependencies, and
-also incorporate any changes to the environment specification that have been
+You will need to periodically update your development (``pudl-dev``) conda
+environment to get you newer versions of existing dependencies and
+incorporate any changes to the environment specification that have been
 made by other contributors. The most reliable way to do this is to remove the
 existing environment and recreate it.
 
@@ -95,7 +112,7 @@ existing environment and recreate it.
 
     Different development branches within the repository may specify their own
     slightly different versions of the ``pudl-dev`` conda environment. As a
-    result you may need to update your environment when switching from one
+    result, you may need to update your environment when switching from one
     branch to another.
 
 
@@ -148,12 +165,12 @@ Set Up Code Linting
 -------------------------------------------------------------------------------
 We use several automated tools to apply uniform coding style and formatting
 across the project codebase. This is known as
-`code linting <https://en.wikipedia.org/wiki/Lint_(software)>`__ and it reduces
+`code linting <https://en.wikipedia.org/wiki/Lint_(software)>`__, and it reduces
 merge conflicts, makes the code easier to read, and helps catch some types of
 bugs before they are committed. These tools are part of the ``pudl-dev`` conda
-environment, and their configuration files are checked into the GitHub
-repository, so they should be installed and ready to go if you've cloned the
-pudl repo and are working inside the pudl conda environment.
+environment and their configuration files are checked into the GitHub
+repository. If you've cloned the pudl repo and are working inside the pudl conda
+environment, they should be installed and ready to go.
 
 Git Pre-commit Hooks
 ^^^^^^^^^^^^^^^^^^^^
@@ -233,9 +250,9 @@ all this stuff should go. We call this a "PUDL workspace":
     $ pudl_setup <PUDL_DIR>
 
 Here <PUDL_DIR> is the path to the directory where you want PUDL to do its
-business -- this is where the datastore will be located, and where any outputs
-that are generated end up. The script will also put a configuration file in
-your home directory, called ``.pudl.yml`` which records the location of this
+business -- this is where the datastore will be located and where any outputs
+that are generated end up. The script will also put a configuration file called
+``.pudl.yml`` in your home directory that records the location of this
 workspace and uses it by default in the future. If you run ``pudl_setup`` with
 no arguments, it assumes you want to use the current working directory.
 

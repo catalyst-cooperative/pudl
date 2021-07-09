@@ -4,7 +4,7 @@ Project Management
 
 The people working on PUDL are distributed all over North America.
 Collaboration takes place online. We make extensive use of Github's project
-management tools, as well as `Zenhub <https://www.zenhub.com>`__ which provides
+management tools as well as `Zenhub <https://www.zenhub.com>`__ which provides
 additional features for sprint planning, task estimation, and progress reports.
 
 -------------------------------------------------------------------------------
@@ -36,17 +36,17 @@ Pull Requests
 * Don't forget to merge any new commits to the **dev** branch into your feature
   branch before making a PR.
 * If for some reason the continuous integration tests fail for your PR, try and
-  figure out why and fix it, or ask for help. If the tests fail we don't want
+  figure out why and fix it, or ask for help. If the tests fail, we don't want
   to merge it into **dev**. You can see the status of the CI builds in the
   `GitHub Actions for the PUDL repo
   <https://github.com/catalyst-cooperative/pudl/actions>`__.
-* Please don't decrease the overall test coverage -- if you introduce new code
+* Please don't decrease the overall test coverage -- if you introduce new code,
   it also needs to be exercised by the tests. See :doc:`testing` for
   details.
-* Write good docstrings, using the `Google format
+* Write good docstrings using the `Google format
   <https://www.sphinx-doc.org/en/master/usage/extensions/example_google.html#example-google>`__
 * Pull Requests should update the documentation to reflect changes to the
-  code, especially if it changes something user facing, like how one of the
+  code, especially if it changes something user-facing, like how one of the
   command line scripts works.
 
 -------------------------------------------------------------------------------
@@ -56,7 +56,7 @@ Releases
   the Python Package Index and `conda-forge <https://conda-forge.org/>`__.
 * Whenever we tag a release on Github, the repository is archived on `Zenodo
   <https://zenodo.org>`__ and issued a DOI.
-* For some software releases, we archive processed data on Zenodo along with a
+* For some software releases we archive processed data on Zenodo along with a
   Docker container that encapsulates the necessary software environment.
 
 -------------------------------------------------------------------------------

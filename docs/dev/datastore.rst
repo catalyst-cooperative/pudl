@@ -14,7 +14,7 @@ research archiving service maintained by CERN. (See our
 `pudl-zenodo-storage <https://github.com/catalyst-cooperative/pudl-zenodo-storage>`__
 repositories on GitHub for more information.)
 
-When PUDL needs a data resource it will attempt to automatically retrieve it from
+When PUDL needs a data resource, it will attempt to automatically retrieve it from
 Zenodo and store it locally in a file hierarchy organized by dataset and the
 versioned DOI of the corresponding Zenodo deposition.
 
@@ -89,7 +89,7 @@ the ``items.py`` collection.  Make sure that it inherits from the existing
 ``DataFile`` class, and ensure that your spider yields the new item.  See the
 ``items.py`` for examples.
 
-If you follow those guidelines your new scraper should play well with the rest
+If you follow those guidelines, your new scraper should play well with the rest
 of the environment.
 
 Prepare zenodo_store
