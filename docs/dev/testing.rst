@@ -92,6 +92,19 @@ it uses with the ``-r`` flag. This behavior is turned on by default for the
 and the extra time required to recreate the software environment is short by
 comparison.
 
+.. note::
+
+  You will need to `register for an EIA API key
+  <https://www.eia.gov/opendata/register.php>`__ to run the ``integration``
+  tests which are included as part of the ``ci`` tests. We use data from the
+  EIA API to fill in missing monthly fuel costs in the marginal cost of
+  electricity calculations. Once you have the API key, you'll need to store it
+  in an environment variable named ``API_KEY_EIA`` within the shell where you
+  are running the tests. You may want to add it to your ``.bashrc`` or
+  ``.zshrc`` so that it's automatically available to PUDL in the future. There
+  are many tutorials on how to manage environment variables online. `Here's one
+  tutorial from Digital Ocean <https://www.digitalocean.com/community/tutorials/how-to-read-and-set-environmental-and-shell-variables-on-linux>`__.
+
 In addition to running the ``unit`` and ``integration`` tests, the CI test
 environment lints the code and documentation input files and uses Sphinx to
 build the documentation. It also generates a test coverage report. Running
@@ -229,7 +242,7 @@ These data validation tests are organized into datasource specific modules
 under ``test/validate``. Running the full data validation can take as much as
 an hour, depending on your computer. These tests require a fully populated
 PUDL database which contains all available FERC and EIA data, as specified by
-the ``test/settings/full-integration-test.yml`` input file. They are run
+the ``src/pudl/package_data/settings/etl_full.yml`` input file. They are run
 against the "live" SQLite database in your pudl workspace at
 ``sqlite/pudl.sqlite``. To run the full data validation against an existing
 database:
