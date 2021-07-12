@@ -122,6 +122,7 @@ class PudlTabl(object):
         self.roll_fuel_cost = roll_fuel_cost
         self.fill_fuel_cost = fill_fuel_cost
         self.fill_net_gen = fill_net_gen
+        self.backfill_eia860_tech = False  # For EIA 860 table only
         # We populate this library of dataframes as they are generated, and
         # allow them to persist, in case they need to be used again.
         self._dfs = {
@@ -495,7 +496,7 @@ class PudlTabl(object):
                 end_date=self.end_date,)
         return self._dfs['plants_eia860']
 
-    def gens_eia860(self, update=False):
+    def gens_eia860(self, update=False, backfill_tech=False):
         """
         Pull a dataframe describing generators, as reported in EIA 860.
 
@@ -507,11 +508,14 @@ class PudlTabl(object):
             pandas.DataFrame: a denormalized table for interactive use.
 
         """
-        if update or self._dfs['gens_eia860'] is None:
+        if update or self._dfs['gens_eia860'] is None \
+                or backfill_tech != self.backfill_eia860_tech:
             self._dfs['gens_eia860'] = pudl.output.eia860.generators_eia860(
                 self.pudl_engine,
                 start_date=self.start_date,
-                end_date=self.end_date)
+                end_date=self.end_date,
+                backfill_tech=backfill_tech)
+            self.backfill_eia860_tech = backfill_tech
         return self._dfs['gens_eia860']
 
     def own_eia860(self, update=False):
