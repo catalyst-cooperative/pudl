@@ -137,7 +137,8 @@ def allocate_gen_fuel_by_gen(pudl_out):
     gen = pudl_out.gen_original_eia923().loc[
         :, IDX_GENS + ['net_generation_mwh']]
     gens = pudl_out.gens_eia860().loc[
-        :, IDX_GENS + ['prime_mover_code', 'capacity_mw', 'fuel_type_count']
+        :, IDX_GENS + ['prime_mover_code', 'capacity_mw', 'fuel_type_count',
+                       'operational_status', 'retirement_date']
         + list(pudl_out.gens_eia860().filter(like='energy_source_code'))]
 
     # do the allocation! (this function coordinates the bulk of the work in
@@ -313,10 +314,62 @@ def associate_generator_tables(gf, gen, gens):
             .reset_index(),
             on=IDX_FUEL,
         )
+        .pipe(pudl.helpers.convert_cols_dtypes, 'eia')
+        .pipe(remove_retired_generators)
         .pipe(_associate_unconnected_records)
         .pipe(_associate_fuel_type_only, gf=gf)
     )
     return gen_assoc
+
+
+def remove_retired_generators(gen_assoc):
+    """
+    Remove the retired generators.
+
+    We don't want to associate net generation to generators that are retired
+    (or proposed! or any other `operational_status` besides `existing`).
+
+    We do want to keep the generators that retire mid-year and have generator
+    specific data from the generation_eia923 table. Removing the generators
+    that retire mid-report year and don't report to the generation_eia923 table
+    is not exactly a great assumption. For now, we are removing them. We should
+    employ a strategy that allocates only a portion of the generation to them
+    based on their operational months (or by doing the allocation on a monthly
+    basis).
+
+    Args:
+        gen_assoc (pandas.DataFrame): table of generators with stacked fuel
+            types and broadcasted net generation data from the
+            generation_eia923 and generation_fuel_eia923 tables. Output of
+            `associate_generator_tables()`.
+    """
+    existing = gen_assoc.loc[
+        (gen_assoc.operational_status == 'existing')
+    ]
+    # keep the gens that retired mid-report-year that have generator
+    # specific data
+    retiring = gen_assoc.loc[
+        (gen_assoc.operational_status == 'retired')
+        & (gen_assoc.retirement_date.dt.year == gen_assoc.report_date.dt.year)
+        & (gen_assoc.net_generation_mwh_g_tbl.notnull())
+    ]
+
+    # check how many generators are retiring mid-year that don't have
+    # gen-specific data.
+    retiring_removing = gen_assoc.loc[
+        (gen_assoc.operational_status == 'retired')
+        & (gen_assoc.retirement_date.dt.year == gen_assoc.report_date.dt.year)
+        & (gen_assoc.net_generation_mwh_g_tbl.isnull())
+        & (gen_assoc.net_generation_mwh_gf_tbl.notnull())
+    ]
+    logger.info(
+        f'Removing {len(retiring_removing.drop_duplicates(IDX_GENS))} '
+        'generators that retired mid-year out of '
+        f'{len(gen_assoc.drop_duplicates(IDX_GENS))}'
+    )
+
+    gen_assoc_removed = pd.concat([existing, retiring])
+    return gen_assoc_removed
 
 
 def _associate_unconnected_records(eia_generators_merged):
