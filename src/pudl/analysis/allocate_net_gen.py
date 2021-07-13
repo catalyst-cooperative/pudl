@@ -145,9 +145,9 @@ def allocate_gen_fuel_by_gen(pudl_out):
     # this module)
     gen_pm_fuel = allocate_gen_fuel_by_gen_pm_fuel(gf, gen, gens)
     # aggregate the gen/pm/fuel records back to generator records
-    gen = agg_by_generator(gen_pm_fuel)
-    _test_gen_fuel_allocation(pudl_out, gen)
-    return gen
+    gen_allocated = agg_by_generator(gen_pm_fuel)
+    _test_gen_fuel_allocation(gen, gen_allocated)
+    return gen_allocated
 
 
 def allocate_gen_fuel_by_gen_pm_fuel(gf, gen, gens, drop_interim_cols=True):
@@ -175,7 +175,6 @@ def allocate_gen_fuel_by_gen_pm_fuel(gf, gen, gens, drop_interim_cols=True):
             ``IDX_GENS`` and `net_generation_mwh`.
         gens (pandas.DataFrame): generators_eia860 table with cols:
             ``IDX_GENS``, `capacity_mw`, `prime_mover_code`,
-            ``IDX_GENS``, `capacity_mw`, `'prime_mover_code'`,
             and all of the `energy_source_code` columns
         drop_interim_cols (boolean): True/False flag for dropping interim
             columns which are used to generate the `net_generation_mwh` column
@@ -261,6 +260,7 @@ def stack_generators(gens,
         pd.DataFrame(gens.set_index(IDX_GENS)[esc].stack(level=0))
         .reset_index()
         .rename(columns={'level_3': cat_col, 0: stacked_col})
+        .pipe(pudl.helpers.convert_cols_dtypes, 'eia')
     )
 
     # merge the stacked df back onto the gens table
@@ -268,6 +268,7 @@ def stack_generators(gens,
     gens_stack = pd.merge(
         gens.drop(columns=esc),
         gens_stack_prep,
+        on=IDX_GENS,
         how='outer'
     )
     return gens_stack
@@ -296,6 +297,7 @@ def associate_generator_tables(gf, gen, gens):
             gen,
             on=IDX_GENS,
             how='outer')
+        .pipe(remove_retired_generators)
         .merge(
             gf.groupby(by=IDX_PM_FUEL, as_index=False)
             .sum(min_count=1),
@@ -315,7 +317,6 @@ def associate_generator_tables(gf, gen, gens):
             on=IDX_FUEL,
         )
         .pipe(pudl.helpers.convert_cols_dtypes, 'eia')
-        .pipe(remove_retired_generators)
         .pipe(_associate_unconnected_records)
         .pipe(_associate_fuel_type_only, gf=gf)
     )
@@ -351,7 +352,7 @@ def remove_retired_generators(gen_assoc):
     retiring = gen_assoc.loc[
         (gen_assoc.operational_status == 'retired')
         & (gen_assoc.retirement_date.dt.year == gen_assoc.report_date.dt.year)
-        & (gen_assoc.net_generation_mwh_g_tbl.notnull())
+        & (gen_assoc.net_generation_mwh.notnull())
     ]
 
     # check how many generators are retiring mid-year that don't have
@@ -359,8 +360,7 @@ def remove_retired_generators(gen_assoc):
     retiring_removing = gen_assoc.loc[
         (gen_assoc.operational_status == 'retired')
         & (gen_assoc.retirement_date.dt.year == gen_assoc.report_date.dt.year)
-        & (gen_assoc.net_generation_mwh_g_tbl.isnull())
-        & (gen_assoc.net_generation_mwh_gf_tbl.notnull())
+        & (gen_assoc.net_generation_mwh.isnull())
     ]
     logger.info(
         f'Removing {len(retiring_removing.drop_duplicates(IDX_GENS))} '
@@ -546,7 +546,7 @@ def prep_alloction_fraction(gen_assoc):
             True, False)
     )
 
-    gens_gb = gen_assoc.groupby(by=IDX_PM_FUEL)
+    gens_gb = gen_assoc.groupby(by=IDX_PM_FUEL, dropna=False)
     # get the total values for the merge group
     # we would use on groupby here with agg but it is much slower
     # so we're gb-ing twice w/ a merge
@@ -591,7 +591,7 @@ def prep_alloction_fraction(gen_assoc):
     gen_pm_fuel = (
         pd.merge(
             gen_pm_fuel,
-            gen_pm_fuel.groupby(by=IDX_PM_FUEL + ['in_g_tbl'])
+            gen_pm_fuel.groupby(by=IDX_PM_FUEL + ['in_g_tbl'], dropna=False)
             [['capacity_mw']].sum(min_count=1)
             .add_suffix('_in_g_tbl_group').reset_index(),
             on=IDX_PM_FUEL + ['in_g_tbl'],
@@ -653,7 +653,7 @@ def calc_allocation_fraction(gen_pm_fuel, drop_interim_cols=True):
         frac_net_gen=lambda x: x.net_generation_mwh_g_tbl /
         x.net_generation_mwh_g_tbl_pm_fuel,
         frac=lambda x: x.frac_net_gen)
-    _ = _test_frac(all_gen)
+    # _ = _test_frac(all_gen)
 
     # a brief explaination of the equations below
     # input definitions:
@@ -697,14 +697,14 @@ def calc_allocation_fraction(gen_pm_fuel, drop_interim_cols=True):
             x.frac_gen,
             x.frac_cap)
     )
-    _ = _test_frac(some_gen)
+    # _ = _test_frac(some_gen)
 
     # Calculate what fraction of the total capacity is associated with each of
     # the generators in the grouping.
     gf_only = gf_only.assign(
         frac_cap=lambda x: x.capacity_mw / x.capacity_mw_pm_fuel,
         frac=lambda x: x.frac_cap)
-    _ = _test_frac(gf_only)
+    # _ = _test_frac(gf_only)
 
     no_pm = no_pm.assign(
         # ratio for the records with a missing prime mover that are
@@ -837,11 +837,11 @@ def _test_gen_pm_fuel_output(gen_pm_fuel, gf, gen):
     return gen_pm_fuel_test
 
 
-def _test_gen_fuel_allocation(pudl_out, gen_allocated, ratio=.05):
+def _test_gen_fuel_allocation(gen, gen_allocated, ratio=.05):
     gens_test = (
         pd.merge(
             gen_allocated,
-            pudl_out.gen_original_eia923(),
+            gen,
             on=IDX_GENS,
             suffixes=('_new', '_og')
         )
