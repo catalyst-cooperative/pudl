@@ -314,12 +314,7 @@ def generators_eia860(pudl_engine, start_date=None, end_date=None):
         pd.merge(out_df, ft_count, how='left',
                  on=['plant_id_eia', 'report_date'])
         .dropna(subset=["report_date", "plant_id_eia", "generator_id"])
-        .astype({
-            "plant_id_eia": "Int64",
-            "plant_id_pudl": "Int64",
-            "utility_id_eia": "Int64",
-            "utility_id_pudl": "Int64",
-        })
+        .pipe(pudl.helpers.convert_cols_dtypes, 'eia')
     )
 
     first_cols = [
