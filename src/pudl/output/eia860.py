@@ -339,7 +339,13 @@ def generators_eia860(
         pd.merge(out_df, ft_count, how='left',
                  on=['plant_id_eia', 'report_date'])
         .dropna(subset=["report_date", "plant_id_eia", "generator_id"])
-        .pipe(pudl.helpers.convert_cols_dtypes, 'eia')
+        .astype({
+            "plant_id_eia": "Int64",
+            "plant_id_pudl": "Int64",
+            "unit_id_pudl": "Int64",
+            "utility_id_eia": "Int64",
+            "utility_id_pudl": "Int64",
+        })
     )
     # Augment those base unit_id_pudl values using heuristics, see below.
     if unit_ids:

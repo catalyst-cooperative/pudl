@@ -124,7 +124,7 @@ boiler_generator_assn_eia860
     - EIA-assigned unit identification code.
   * - unit_id_pudl
     - integer
-    - PUDL-assigned unit identification number.
+    - Dynamically assigned PUDL unit id. WARNING: This ID is not guaranteed to be static long term as the input data and algorithm may evolve over time.
 
 .. _boilers_entity_eia:
 
