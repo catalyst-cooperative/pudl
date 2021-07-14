@@ -16,7 +16,7 @@ EPA CEMS Hourly
    * - Source Format
      - Comma Separated Value (.csv)
    * - Source Years
-     - 1995-2019
+     - 1995-2020
    * - Size (Download)
      - 8.7 GB
    * - PUDL Code
