@@ -12,7 +12,7 @@ The Public Utility Data Liberation Project
   intro
   data_access
   data_sources/index
-  Data Dictionary <data_dictionary>
+  data_dictionaries/index
   Contributing <CONTRIBUTING>
   dev/index
   Licensing <LICENSE>

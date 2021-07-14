@@ -3,11 +3,16 @@
 PUDL Data Dictionary
 ===============================================================================
 
+The following data tables have been cleaned and transformed by our ETL process.
+
+
 .. _assn_gen_eia_unit_epa:
 
 -------------------------------------------------------------------------------
 assn_gen_eia_unit_epa
 -------------------------------------------------------------------------------
+
+Pending description.
 `Browse or query this table in Datasette. <https://data.catalyst.coop/pudl/assn_gen_eia_unit_epa>`__
 
 .. list-table::
@@ -32,6 +37,8 @@ assn_gen_eia_unit_epa
 -------------------------------------------------------------------------------
 assn_plant_id_eia_epa
 -------------------------------------------------------------------------------
+
+Pending description.
 `Browse or query this table in Datasette. <https://data.catalyst.coop/pudl/assn_plant_id_eia_epa>`__
 
 .. list-table::
@@ -53,6 +60,8 @@ assn_plant_id_eia_epa
 -------------------------------------------------------------------------------
 boiler_fuel_eia923
 -------------------------------------------------------------------------------
+
+Pending description.
 `Browse or query this table in Datasette. <https://data.catalyst.coop/pudl/boiler_fuel_eia923>`__
 
 .. list-table::
@@ -95,6 +104,8 @@ boiler_fuel_eia923
 -------------------------------------------------------------------------------
 boiler_generator_assn_eia860
 -------------------------------------------------------------------------------
+
+Pending description.
 `Browse or query this table in Datasette. <https://data.catalyst.coop/pudl/boiler_generator_assn_eia860>`__
 
 .. list-table::
@@ -131,6 +142,8 @@ boiler_generator_assn_eia860
 -------------------------------------------------------------------------------
 boilers_entity_eia
 -------------------------------------------------------------------------------
+
+Pending description.
 `Browse or query this table in Datasette. <https://data.catalyst.coop/pudl/boilers_entity_eia>`__
 
 .. list-table::
@@ -155,6 +168,8 @@ boilers_entity_eia
 -------------------------------------------------------------------------------
 coalmine_eia923
 -------------------------------------------------------------------------------
+
+Pending description.
 `Browse or query this table in Datasette. <https://data.catalyst.coop/pudl/coalmine_eia923>`__
 
 .. list-table::
@@ -188,6 +203,8 @@ coalmine_eia923
 -------------------------------------------------------------------------------
 energy_source_eia923
 -------------------------------------------------------------------------------
+
+Pending description.
 `Browse or query this table in Datasette. <https://data.catalyst.coop/pudl/energy_source_eia923>`__
 
 .. list-table::
@@ -209,6 +226,11 @@ energy_source_eia923
 -------------------------------------------------------------------------------
 ferc_accounts
 -------------------------------------------------------------------------------
+
+Account numbers from the FERC Uniform System of Accounts for Electric Plant,
+which is defined in Code of Federal Regulations (CFR) Title 18, Chapter I,
+Subchapter C, Part 101. (See e.g.
+https://www.law.cornell.edu/cfr/text/18/part-101).
 `Browse or query this table in Datasette. <https://data.catalyst.coop/pudl/ferc_accounts>`__
 
 .. list-table::
@@ -230,6 +252,10 @@ ferc_accounts
 -------------------------------------------------------------------------------
 ferc_depreciation_lines
 -------------------------------------------------------------------------------
+
+PUDL assigned FERC Form 1 line identifiers and long descriptions from FERC
+Form 1 page 219, Accumulated Provision for Depreciation of Electric Utility
+Plant (Account 108).
 `Browse or query this table in Datasette. <https://data.catalyst.coop/pudl/ferc_depreciation_lines>`__
 
 .. list-table::
@@ -251,6 +277,11 @@ ferc_depreciation_lines
 -------------------------------------------------------------------------------
 fuel_ferc1
 -------------------------------------------------------------------------------
+
+Annual fuel cost and quanitiy for steam plants with a capacity of 25+ MW,
+internal combustion and gas-turbine plants of 10+ MW, and all nuclear plants.
+As reported on page 402 of FERC Form 1 and extracted from the f1_fuel table in
+FERC&#39;s FoxPro Database.
 `Browse or query this table in Datasette. <https://data.catalyst.coop/pudl/fuel_ferc1>`__
 
 .. list-table::
@@ -299,6 +330,8 @@ fuel_ferc1
 -------------------------------------------------------------------------------
 fuel_receipts_costs_eia923
 -------------------------------------------------------------------------------
+
+Pending description.
 `Browse or query this table in Datasette. <https://data.catalyst.coop/pudl/fuel_receipts_costs_eia923>`__
 
 .. list-table::
@@ -383,6 +416,8 @@ fuel_receipts_costs_eia923
 -------------------------------------------------------------------------------
 fuel_type_aer_eia923
 -------------------------------------------------------------------------------
+
+Pending description.
 `Browse or query this table in Datasette. <https://data.catalyst.coop/pudl/fuel_type_aer_eia923>`__
 
 .. list-table::
@@ -404,6 +439,8 @@ fuel_type_aer_eia923
 -------------------------------------------------------------------------------
 fuel_type_eia923
 -------------------------------------------------------------------------------
+
+Pending description.
 `Browse or query this table in Datasette. <https://data.catalyst.coop/pudl/fuel_type_eia923>`__
 
 .. list-table::
@@ -425,6 +462,8 @@ fuel_type_eia923
 -------------------------------------------------------------------------------
 generation_eia923
 -------------------------------------------------------------------------------
+
+Pending description.
 `Browse or query this table in Datasette. <https://data.catalyst.coop/pudl/generation_eia923>`__
 
 .. list-table::
@@ -452,6 +491,8 @@ generation_eia923
 -------------------------------------------------------------------------------
 generation_fuel_eia923
 -------------------------------------------------------------------------------
+
+Pending description.
 `Browse or query this table in Datasette. <https://data.catalyst.coop/pudl/generation_fuel_eia923>`__
 
 .. list-table::
@@ -506,6 +547,8 @@ generation_fuel_eia923
 -------------------------------------------------------------------------------
 generators_eia860
 -------------------------------------------------------------------------------
+
+Pending description.
 `Browse or query this table in Datasette. <https://data.catalyst.coop/pudl/generators_eia860>`__
 
 .. list-table::
@@ -716,6 +759,8 @@ generators_eia860
 -------------------------------------------------------------------------------
 generators_entity_eia
 -------------------------------------------------------------------------------
+
+Pending description.
 `Browse or query this table in Datasette. <https://data.catalyst.coop/pudl/generators_entity_eia>`__
 
 .. list-table::
@@ -794,6 +839,8 @@ generators_entity_eia
 -------------------------------------------------------------------------------
 hourly_emissions_epacems
 -------------------------------------------------------------------------------
+
+Pending description.
 `Browse or query this table in Datasette. <https://data.catalyst.coop/pudl/hourly_emissions_epacems>`__
 
 .. list-table::
@@ -863,6 +910,8 @@ hourly_emissions_epacems
 -------------------------------------------------------------------------------
 ownership_eia860
 -------------------------------------------------------------------------------
+
+Pending description.
 `Browse or query this table in Datasette. <https://data.catalyst.coop/pudl/ownership_eia860>`__
 
 .. list-table::
@@ -911,6 +960,17 @@ ownership_eia860
 -------------------------------------------------------------------------------
 plant_in_service_ferc1
 -------------------------------------------------------------------------------
+
+Balances and changes to FERC Electric Plant in Service accounts, as reported
+on FERC Form 1. Data originally from the f1_plant_in_srvce table in FERC&#39;s
+FoxPro database. Account numbers correspond to the FERC Uniform System of
+Accounts for Electric Plant, which is defined in Code of Federal Regulations
+(CFR) Title 18, Chapter I, Subchapter C, Part 101. (See e.g.
+https://www.law.cornell.edu/cfr/text/18/part-101). Each FERC respondent
+reports starting and ending balances for each account annually. Balances are
+organization wide, and are not broken down on a per-plant basis. End of year
+balance should equal beginning year balance plus the sum of additions,
+retirements, adjustments, and transfers.
 `Browse or query this table in Datasette. <https://data.catalyst.coop/pudl/plant_in_service_ferc1>`__
 
 .. list-table::
@@ -1217,6 +1277,8 @@ plant_in_service_ferc1
 -------------------------------------------------------------------------------
 plant_unit_epa
 -------------------------------------------------------------------------------
+
+Pending description.
 `Browse or query this table in Datasette. <https://data.catalyst.coop/pudl/plant_unit_epa>`__
 
 .. list-table::
@@ -1238,6 +1300,8 @@ plant_unit_epa
 -------------------------------------------------------------------------------
 plants_eia
 -------------------------------------------------------------------------------
+
+Pending description.
 `Browse or query this table in Datasette. <https://data.catalyst.coop/pudl/plants_eia>`__
 
 .. list-table::
@@ -1262,6 +1326,8 @@ plants_eia
 -------------------------------------------------------------------------------
 plants_eia860
 -------------------------------------------------------------------------------
+
+Pending description.
 `Browse or query this table in Datasette. <https://data.catalyst.coop/pudl/plants_eia860>`__
 
 .. list-table::
@@ -1352,6 +1418,8 @@ plants_eia860
 -------------------------------------------------------------------------------
 plants_entity_eia
 -------------------------------------------------------------------------------
+
+Pending description.
 `Browse or query this table in Datasette. <https://data.catalyst.coop/pudl/plants_entity_eia>`__
 
 .. list-table::
@@ -1436,6 +1504,10 @@ plants_entity_eia
 -------------------------------------------------------------------------------
 plants_ferc1
 -------------------------------------------------------------------------------
+
+Name, utility, and PUDL id for steam plants with a capacity of 25,000+ kW,
+internal combustion and gas-turbine plants of 10,000+ kW, and all nuclear
+plants.
 `Browse or query this table in Datasette. <https://data.catalyst.coop/pudl/plants_ferc1>`__
 
 .. list-table::
@@ -1460,6 +1532,10 @@ plants_ferc1
 -------------------------------------------------------------------------------
 plants_hydro_ferc1
 -------------------------------------------------------------------------------
+
+Generating plant statistics for hydroelectric plants with an installed
+nameplate capacity of 10 MW. As reported on FERC Form 1, pages 406-407 and
+extracted from the f1_hydro table in FERC&#39;s FoxPro database.
 `Browse or query this table in Datasette. <https://data.catalyst.coop/pudl/plants_hydro_ferc1>`__
 
 .. list-table::
@@ -1586,6 +1662,13 @@ plants_hydro_ferc1
 -------------------------------------------------------------------------------
 plants_pudl
 -------------------------------------------------------------------------------
+
+Home table for PUDL assigned plant IDs. These IDs are manually generated each
+year when new FERC and EIA reporting is integrated, and any newly identified
+plants are added to the list with a new ID. Each ID maps to a power plant
+which is reported in at least one FERC or EIA data set. This table is read in
+from a spreadsheet stored in the PUDL repository:
+src/pudl/package_data/glue/mapping_eia923_ferc1.xlsx
 `Browse or query this table in Datasette. <https://data.catalyst.coop/pudl/plants_pudl>`__
 
 .. list-table::
@@ -1607,6 +1690,10 @@ plants_pudl
 -------------------------------------------------------------------------------
 plants_pumped_storage_ferc1
 -------------------------------------------------------------------------------
+
+Generating plant statistics for hydroelectric pumped storage plants with an
+installed nameplate capacity of 10+ MW. As reported on page 408 of FERC Form 1
+and extracted from the f1_pumped_storage table in FERC&#39;s FoxPro Database.
 `Browse or query this table in Datasette. <https://data.catalyst.coop/pudl/plants_pumped_storage_ferc1>`__
 
 .. list-table::
@@ -1745,6 +1832,12 @@ plants_pumped_storage_ferc1
 -------------------------------------------------------------------------------
 plants_small_ferc1
 -------------------------------------------------------------------------------
+
+Generating plant statistics for steam plants with less than 25 MW installed
+nameplate capacity and internal combustion plants, gas turbine-plants,
+conventional hydro plants, and pumped storage plants with less than 10 MW
+installed nameplate capacity. As reported on FERC Form 1 pages 410-411, and
+extracted from the FERC FoxPro database table f1_gnrt_plant.
 `Browse or query this table in Datasette. <https://data.catalyst.coop/pudl/plants_small_ferc1>`__
 
 .. list-table::
@@ -1814,6 +1907,11 @@ plants_small_ferc1
 -------------------------------------------------------------------------------
 plants_steam_ferc1
 -------------------------------------------------------------------------------
+
+Generating plant statistics for steam plants with a capacity of 25+ MW,
+internal combustion and gas-turbine plants of 10+ MW, and all nuclear plants.
+As reported on page 402 of FERC Form 1 and extracted from the f1_gnrt_plant
+table in FERC&#39;s FoxPro Database.
 `Browse or query this table in Datasette. <https://data.catalyst.coop/pudl/plants_steam_ferc1>`__
 
 .. list-table::
@@ -1949,6 +2047,8 @@ plants_steam_ferc1
 -------------------------------------------------------------------------------
 prime_movers_eia923
 -------------------------------------------------------------------------------
+
+Pending description.
 `Browse or query this table in Datasette. <https://data.catalyst.coop/pudl/prime_movers_eia923>`__
 
 .. list-table::
@@ -1970,6 +2070,11 @@ prime_movers_eia923
 -------------------------------------------------------------------------------
 purchased_power_ferc1
 -------------------------------------------------------------------------------
+
+Purchased Power (Account 555) including power exchanges (i.e. transactions
+involving a balancing of debits and credits for energy, capacity, etc.) and
+any settlements for imbalanced exchanges. Reported on pages 326-327 of FERC
+Form 1. Extracted from the f1_purchased_pwr table in FERC&#39;s FoxPro database.
 `Browse or query this table in Datasette. <https://data.catalyst.coop/pudl/purchased_power_ferc1>`__
 
 .. list-table::
@@ -2033,6 +2138,8 @@ purchased_power_ferc1
 -------------------------------------------------------------------------------
 transport_modes_eia923
 -------------------------------------------------------------------------------
+
+Pending description.
 `Browse or query this table in Datasette. <https://data.catalyst.coop/pudl/transport_modes_eia923>`__
 
 .. list-table::
@@ -2054,6 +2161,8 @@ transport_modes_eia923
 -------------------------------------------------------------------------------
 utilities_eia
 -------------------------------------------------------------------------------
+
+Pending description.
 `Browse or query this table in Datasette. <https://data.catalyst.coop/pudl/utilities_eia>`__
 
 .. list-table::
@@ -2078,6 +2187,8 @@ utilities_eia
 -------------------------------------------------------------------------------
 utilities_eia860
 -------------------------------------------------------------------------------
+
+Pending description.
 `Browse or query this table in Datasette. <https://data.catalyst.coop/pudl/utilities_eia860>`__
 
 .. list-table::
@@ -2165,6 +2276,8 @@ utilities_eia860
 -------------------------------------------------------------------------------
 utilities_entity_eia
 -------------------------------------------------------------------------------
+
+Pending description.
 `Browse or query this table in Datasette. <https://data.catalyst.coop/pudl/utilities_entity_eia>`__
 
 .. list-table::
@@ -2186,6 +2299,13 @@ utilities_entity_eia
 -------------------------------------------------------------------------------
 utilities_ferc1
 -------------------------------------------------------------------------------
+
+This table maps the manually assigned PUDL utility ID to a FERC respondent ID,
+enabling a connection between the FERC and EIA data sets. It also stores the
+utility name associated with the FERC respondent ID. Those values originate in
+the f1_respondent_id table in FERC&#39;s FoxPro database, which is stored in a
+file called F1_1.DBF. This table is generated from a spreadsheet stored in the
+PUDL repository: results/id_mapping/mapping_eia923_ferc1.xlsx
 `Browse or query this table in Datasette. <https://data.catalyst.coop/pudl/utilities_ferc1>`__
 
 .. list-table::
@@ -2210,6 +2330,13 @@ utilities_ferc1
 -------------------------------------------------------------------------------
 utilities_pudl
 -------------------------------------------------------------------------------
+
+Home table for PUDL assigned utility IDs. These IDs are manually generated
+each year when new FERC and EIA reporting is integrated, and any newly found
+utilities are added to the list with a new ID. Each ID maps to a power plant
+owning or operating entity which is reported in at least one FERC or EIA data
+set. This table is read in from a spreadsheet stored in the PUDL repository:
+src/pudl/package_data/glue/mapping_eia923_ferc1.xlsx
 `Browse or query this table in Datasette. <https://data.catalyst.coop/pudl/utilities_pudl>`__
 
 .. list-table::
@@ -2231,6 +2358,8 @@ utilities_pudl
 -------------------------------------------------------------------------------
 utility_plant_assn
 -------------------------------------------------------------------------------
+
+Pending description.
 `Browse or query this table in Datasette. <https://data.catalyst.coop/pudl/utility_plant_assn>`__
 
 .. list-table::
