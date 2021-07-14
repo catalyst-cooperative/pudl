@@ -22,7 +22,7 @@ EPA CEMS Hourly
    * - PUDL Code
      - ``epacems``
    * - Years Liberated
-     - 1995-2019
+     - 1995-2020
    * - Records Liberated
      - ~1 billion
    * - Issues
@@ -102,7 +102,7 @@ descriptions of each of its fields.
    * - Data Dictionary
      - Browse Online
    * - :ref:`hourly_emissions_epacems`
-     - https://data.catalyst.coop/pudl/hourly_emissions_epacems
+     - Not Available via Datasette
 
 
 PUDL Data Transformations

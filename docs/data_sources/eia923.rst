@@ -23,7 +23,7 @@ EIA Form 923
    * - PUDL Code
      - ``eia923``
    * - Years Liberated
-     - 2009-2019
+     - 2001-2019
    * - Records Liberated
      - ~3.6 million
    * - Issues
@@ -43,6 +43,12 @@ over the years, beginning as an environmental add-on in 2007 and ultimately ecli
 the information previously recorded in EIA-906, EIA-920, FERC 423, and EIA-423 by
 2008.
 
+* :download:`EIA-923 Instructions (PDF, to 2013-10-31)
+  <eia923/eia923_instructions_2013-10-31.pdf>`
+* :download:`EIA-923 Instructions (PDF, to 2015-12-31)
+  <eia923/eia923_instructions_2015-12-31.pdf>`
+* :download:`EIA-923 Instructions (PDF, to 2017-05-31)
+  <eia923/eia923_instructions_2017-05-31.pdf>`
 * :download:`EIA-923 Instructions (PDF, to 2020-03-31)
   <eia923/eia923_instructions_2020-03-31.pdf>`
 * :download:`EIA-923 Instructions (PDF, to 2023-05-31)

@@ -143,7 +143,7 @@ data packages <https://specs.frictionlessdata.io/tabular-data-package/>`__ where
 data is stored as CSV files and the metadata is stored as JSON. These static,
 text-based output formats are archive-friendly and can be used to populate a database
 or read with Python, R, and many other tools. See the
-:doc:`data_dictionaries/pudl_data_dictionary` page for a list of the normalized database
+:doc:`data_dictionaries/pudl_db` page for a list of the normalized database
 tables and their contents.
 
 .. note::

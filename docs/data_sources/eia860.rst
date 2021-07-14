@@ -39,6 +39,10 @@ and planned entities with one or more megawatt of capacity. The form also contai
 information regarding environmental control equipment and construction cost data from
 2013-2018.
 
+* :download:`EIA-860 Instructions (PDF, to 2013-10-31)
+  <eia860/eia860_instructions_2013-10-31.pdf>`
+* :download:`EIA-860 Instructions (PDF, to 2017-05-31)
+  <eia860/eia860_instructions_2017-05-31.pdf>`
 * :download:`EIA-860 Instructions (PDF, to 2020-03-31)
   <eia860/eia860_instructions_2020-03-31.pdf>`
 * :download:`EIA-860 Instructions (PDF, to 2023-05-31)

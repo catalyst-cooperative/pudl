@@ -18,6 +18,6 @@ database tables and provided a short description of the contents of each table h
      Quarterly. A/Q if the data is reported both annually and quarterly.
 
 .. csv-table::
-   :file: ferc1_db_notes.csv
+   :file: ferc1_db.csv
    :header-rows: 1
    :widths: auto
