@@ -495,7 +495,7 @@ class PudlTabl(object):
                 end_date=self.end_date,)
         return self._dfs['plants_eia860']
 
-    def gens_eia860(self, update=False):
+    def gens_eia860(self, update=False, unit_ids=False):
         """
         Pull a dataframe describing generators, as reported in EIA 860.
 
@@ -511,7 +511,9 @@ class PudlTabl(object):
             self._dfs['gens_eia860'] = pudl.output.eia860.generators_eia860(
                 self.pudl_engine,
                 start_date=self.start_date,
-                end_date=self.end_date)
+                end_date=self.end_date,
+                unit_ids=unit_ids,
+            )
         return self._dfs['gens_eia860']
 
     def own_eia860(self, update=False):

@@ -217,7 +217,12 @@ def plants_utils_eia860(pudl_engine, start_date=None, end_date=None):
     return out_df
 
 
-def generators_eia860(pudl_engine, start_date=None, end_date=None):
+def generators_eia860(
+    pudl_engine,
+    start_date=None,
+    end_date=None,
+    unit_ids=False,
+):
     """Pull all fields reported in the generators_eia860 table.
 
     Merge in other useful fields including the latitude & longitude of the
@@ -239,10 +244,13 @@ def generators_eia860(pudl_engine, start_date=None, end_date=None):
         end_date (date-like): date-like object, including a string of the
             form 'YYYY-MM-DD' which will be used to specify the date range of
             records to be pulled.  Dates are inclusive.
+        pudl_unit_ids (bool): If True, use several heuristics to assign
+            individual generators to functional units. EXPERIMENTAL.
 
     Returns:
         pandas.DataFrame: A DataFrame containing all the fields of the EIA 860
         Generators table.
+
     """
     pt = pudl.output.pudltabl.get_table_meta(pudl_engine)
     # Almost all the info we need will come from here.
@@ -340,8 +348,8 @@ def generators_eia860(pudl_engine, start_date=None, end_date=None):
         })
     )
     # Augment those base unit_id_pudl values using heuristics, see below.
-    # Should this be optional? It takes a minute. Maybe we can speed it up.
-    out_df = assign_unit_ids(out_df)
+    if unit_ids:
+        out_df = assign_unit_ids(out_df)
 
     first_cols = [
         'report_date',
@@ -536,18 +544,17 @@ def assign_unit_ids(gens_df):
 
     unit_ids = (
         gens_df.loc[:, required_cols]
+        # Forward and back fill preexisting Unit IDs:
+        .pipe(fill_unit_ids)
+        # Assign Unit IDs to the CT+CA CC generators:
+        .pipe(assign_cc_unit_ids)
         # For whole-combined cycle (CC) and single-shaft combined cycle (CS)
         # units, we give each generator their own unit ID. We do the same for
         # internal combustion and simple-cycle gas combustion turbines.
         .pipe(
-            assign_simple_unit_ids,
+            assign_single_gen_unit_ids,
             prime_mover_codes=["CC", "CS", "GT", "IC"]
         )
-        # These four assignments deal with CT+CA combined cycle units.
-        .pipe(assign_unique_combined_cycle_unit_ids)
-        .pipe(assign_complex_combined_cycle_unit_ids)
-        .pipe(flag_orphan_combined_cycle_gens, orphan_code="CA")
-        .pipe(flag_orphan_combined_cycle_gens, orphan_code="CT")
         # Nuclear units don't report in boiler_fuel_eia923 or generation_eia923
         # Their fuel consumption is reported as mmbtu in generation_fuel_eia923
         # Their net generation also only shows up in generation_fuel_eia923
@@ -559,9 +566,10 @@ def assign_unit_ids(gens_df):
         # a fuel-and-prime-mover based unit ID here. For now ALL nuclear plants
         # use steam turbines.
         .pipe(
-            assign_simple_unit_ids,
+            assign_single_gen_unit_ids,
             prime_mover_codes=["ST"],
-            fuel_type_code_pudl="nuclear"
+            fuel_type_code_pudl="nuclear",
+            label_prefix="nuclear",
         )
         # In these next 4 assignments, we lump together all steam turbine (ST)
         # generators that have a consistent simplified fuel_type_code_pudl
@@ -621,10 +629,15 @@ def assign_unit_ids(gens_df):
     gens_idx = ["plant_id_eia", "generator_id", "report_date"]
     unit_ids = unit_ids.set_index(gens_idx).sort_index()
     gens_df = gens_df.set_index(gens_idx).sort_index()
+
     # Check that our input DataFrame and unit IDs have identical row indices
-    pd.testing.assert_index_equal(
-        unit_ids.index,
-        gens_df.index,
+    # This is a dumb hack b/c set_index() doesn't preserve index data types
+    # under some circumstances, and so we have "object" and "int64" types
+    # being used for plant_id_eia at this point, fml. Really this should just
+    # be assert_index_equal() for the two df indices:
+    pd.testing.assert_frame_equal(
+        unit_ids.reset_index()[gens_idx],
+        gens_df.reset_index()[gens_idx]
     )
     # Verify that anywhere out_df has a unit_id_pudl, it's identical in unit_ids
     pd.testing.assert_series_equal(
@@ -732,14 +745,50 @@ def max_unit_id_by_plant(gens_df):
     )
 
 
-def assign_simple_unit_ids(
+def _append_masked_units(gens_df, row_mask, unit_ids, on):
+    """
+    Replace rows with new PUDL Unit IDs in the original dataframe.
+
+    Merges the newly assigned Unit IDs found in ``unit_ids`` into the
+    ``gens_df`` dataframe, but only for those rows which are selected by the
+    boolean ``row_mask``. Merges using the column or columns specified by
+    ``on``. This operation should only result in changes to the values of
+    ``unit_id_pudl`` and ``bga_source`` in the output dataframe. All of
+    ``gens_df``, ``unit_ids`` and ``row_mask`` must be similarly indexed for
+    this to work.
+
+    Args:
+        gens_df (pandas.DataFrame): a gens_eia860 based dataframe.
+        row_mask (boolean mask): A boolean array indicating which records
+            in ``gens_df`` should be replaced using values from ``unit_ids``.
+        unit_ids (pandas.DataFrame): A dataframe containing newly assigned
+            ``unit_id_pudl`` values to be integrated into ``gens_df``.
+        on (str or list): Column or list of columns to merge on.
+
+    Returns:
+        pandas.DataFrame:
+
+    """
+    return gens_df.loc[~row_mask].append(
+        gens_df.loc[row_mask]
+        .drop(["unit_id_pudl", "bga_source"], axis="columns")
+        .merge(
+            unit_ids,
+            on=on,
+            how="left",
+            validate="many_to_one",
+        )
+    )
+
+
+def assign_single_gen_unit_ids(
     gens_df,
     prime_mover_codes,
     fuel_type_code_pudl=None,
     label_prefix="single"
 ):
     """
-    Assign unique PUDL Unit IDs to all generators of a given prime mover type.
+    Assign a unique PUDL Unit ID to each generator of a given prime mover type.
 
     Calculate the maximum pre-existing PUDL Unit ID within each plant, and
     assign each as of yet unidentified distinct generator within each plant
@@ -775,10 +824,6 @@ def assign_simple_unit_ids(
     if fuel_type_code_pudl is not None:
         # Need to make this only apply to consistent inter-year fuel types.
         fuel_type_mask = gens_df.fuel_type_code_pudl == fuel_type_code_pudl
-        # If we're selecting based on fuel as well as prime mover, use that
-        # in the label
-        logger.info("Using fuel type %s as label_prefix.", fuel_type_code_pudl)
-        label_prefix = fuel_type_code_pudl
     else:
         fuel_type_mask = True
 
@@ -817,219 +862,126 @@ def assign_simple_unit_ids(
     )
     # Split original dataframe based on row_mask, and merge in the new IDs and
     # labels only on the subset of the dataframe matching our row_mask:
-    out_df = gens_df.loc[~row_mask].append(
-        gens_df.loc[row_mask]
-        .drop(["unit_id_pudl", "bga_source"], axis="columns")
-        .merge(
-            unit_ids,
-            on=["plant_id_eia", "generator_id"],
-            how="left",
-            validate="many_to_one",
-        )
+    return _append_masked_units(
+        gens_df, row_mask, unit_ids, on=["plant_id_eia", "generator_id"]
     )
 
-    return out_df
 
-
-def assign_unique_combined_cycle_unit_ids(gens_df):
+def assign_cc_unit_ids(gens_df):
     """
-    Assign unit IDs to combined cycle plants with a unique CT or CA generator.
+    Assign PUDL Unit IDs for combined cycle generation units.
 
-    In theory, combined cycle plants should always have both CT (combustion
-    turbine) and CA (heat recovery steam turbine) parts, and those prime movers
-    should only ever appear in association with each other. So if we have a
-    plant with a single generator of one of these prime movers, then we can
-    associate all of the prime movers of the other type with that generator in
-    a single unit confidently.
+    This applies only to combined cycle units reported as a combination of CT
+    and CA prime movers. All CT and CA generators within a plant that do not
+    already have a unit_id_pudl assigned will be given the same unit ID. The
+    ``bga_source`` column is set to one of several flags indicating what type
+    of arrangement was found:
 
-    Within each plant, for any generator that has no Unit ID, count the number
-    of generators of each prime mover type. Assign any collection of generators
-    having only a single CT or a single CA a unit ID, and flag it
-    "agg_unique_cc".
+    * ``orphan_ct`` (zero CA gens, 1+ CT gens)
+    * ``orphan_ca`` (zero CT gens, 1+ CA gens)
+    * ``one_ct_one_ca_inferred`` (1 CT, 1 CA)
+    * ``one_ct_many_ca_inferred`` (1 CT, 1+ CA)
+    * ``many_ct_one_ca_inferred`` (1+ CT, 1 CA)
+    * ``many_ct_many_ca_inferred`` (1+ CT, 1+ CA)
 
-    """
-    pm_cols = ["plant_id_eia", "generator_id", "prime_mover_code"]
-    # Get rid of the annual dependence, and only keep gens with missing PMs
-    df = gens_df[gens_df.unit_id_pudl.isna()][pm_cols].drop_duplicates()
-    # Count up the number of each kind of prime mover on a per-plant ID basis:
-    pm_counts = (
-        df.groupby(["plant_id_eia", "prime_mover_code"])
-        .size()
-        .unstack(fill_value=0)
-    )
-    # Plant IDs with at least one CT and one CA
-    # and either a single CA or a single CT.
-    # This makes the combined cycle unit grouping unambiguous.
-    cc_plant_ids = pm_counts[
-        (pm_counts["CA"] > 0)
-        & (pm_counts["CT"] > 0)
-        & ((pm_counts["CT"] == 1) | (pm_counts["CA"] == 1))
-    ].index
-    row_mask = (
-        gens_df.plant_id_eia.isin(cc_plant_ids)
-        & gens_df.unit_id_pudl.isnull()
-        & gens_df.prime_mover_code.isin(["CA", "CT"])
-    )
-
-    # Create Unit IDs for CA/CT generators that are being grouped together.
-    # Note that generator_id is not involved here because all of the
-    # selected generators within each plant are going to get the same Unit ID
-    unit_ids = (
-        gens_df.loc[row_mask, ["plant_id_eia", "unit_id_pudl"]]
-        .drop_duplicates()
-        .merge(
-            max_unit_id_by_plant(gens_df),
-            on="plant_id_eia",
-            how="left",
-            validate="many_to_one",
-        )
-        # Assign new unit_id_pudl values by incrementing beyond the previous max
-        .assign(
-            unit_id_pudl=lambda x: x.max_unit_id_pudl + 1,
-            bga_source=lambda x: "agg_unique_cc",
-        )
-        .drop("max_unit_id_pudl", axis="columns")
-    )
-
-    # Append the altered rows to the unaltered rows in a new dataframe to return
-    out_df = gens_df.loc[~row_mask].append(
-        gens_df.loc[row_mask]
-        .drop(["unit_id_pudl", "bga_source"], axis="columns")
-        .merge(
-            unit_ids,
-            on="plant_id_eia",
-            how="left",
-            validate="many_to_one",
-        )
-    )
-    return out_df
-
-
-def assign_complex_combined_cycle_unit_ids(gens_df):
-    """
-    Assign unit IDs to combined cycle plants that with multiple CT/CA PMs.
-
-    When there are multiple CA and CT units missing a Unit ID, we can't know
-    which ones should be associated with each other specifically, and so we
-    lump them all together into a single aggregated unit. In theory this should
-    yield reasonable heat rates that are the average of the multiple units that
-    might be getting lumped together.
-
-    """
-    pm_cols = ["plant_id_eia", "generator_id", "prime_mover_code"]
-    # Get rid of the annual dependence, and only keep gens with missing PMs
-    df = gens_df[gens_df.unit_id_pudl.isna()][pm_cols].drop_duplicates()
-    # Plant IDs with more than one CT and more than one CA
-    cc_plant_ids = (
-        df.groupby(["plant_id_eia", "prime_mover_code"])
-        .size()
-        .unstack(fill_value=0)
-        .query("CA > 1 & CT > 1")
-    ).index
-    row_mask = (
-        gens_df.plant_id_eia.isin(cc_plant_ids)
-        & gens_df.unit_id_pudl.isnull()
-        & gens_df.prime_mover_code.isin(["CA", "CT"])
-    )
-
-    # Create Unit IDs for CA/CT generators that are being grouped together.
-    # Note that generator_id is not involved here because all of the
-    # selected generators within each plant are going to get the same Unit ID
-    unit_ids = (
-        gens_df.loc[row_mask, ["plant_id_eia", "unit_id_pudl"]]
-        .drop_duplicates()
-        .merge(
-            max_unit_id_by_plant(gens_df),
-            on="plant_id_eia",
-            how="left",
-            validate="many_to_one",
-        )
-        # Assign new unit_id_pudl values by incrementing beyond the previous max
-        .assign(
-            unit_id_pudl=lambda x: x.max_unit_id_pudl + 1,
-            bga_source=lambda x: "agg_complex_cc",
-        )
-        .drop("max_unit_id_pudl", axis="columns")
-    )
-
-    out_df = gens_df.loc[~row_mask].append(
-        gens_df.loc[row_mask]
-        .drop(["unit_id_pudl", "bga_source"], axis="columns")
-        .merge(
-            unit_ids,
-            on="plant_id_eia",
-            how="left",
-            validate="many_to_one",
-        )
-    )
-    return out_df
-
-
-def flag_orphan_combined_cycle_gens(gens_df, orphan_code):
-    """
-    Flag CA/CT generators without corresponding CT/CAs as orphans.
-
-    Identify CA and CT generators that don't have Unit IDs and also have no
-    corresponding generator of the other type within the plant, that could be
-    used to create a whole combined-cycle unit, and flag them as orphans. In
-    theory this shouldn't happen, but the data isn't perfect. In some cases it
-    appears that the steam parts may have been incorrectly given prime mover
-    codes of ST or the combustion turbines may have been labeled GT.
-
-    Args:
-        gens_df (pandas.DataFrame): Must contain the columns plant_id_eia,
-            generator_id, and prime_mover_code. The column bga_code will
-            be created or assigned in matching rows.
-        orphan_code (str): Prime mover code indicating which type of generator
-            is being flagged as orphaned. Must be either "CA" or "CT".
+    Orphaned generators are still assigned a ``unit_id_pudl`` so that they can
+    potentially be associated with other generators in the same unit across
+    years. It's likely that these orphans are a result of mislabled or missing
+    generators. Note that as generators are added or removed over time, the
+    flags associated with each generator may change, even though it remains
+    part of the same inferred unit.
 
     Returns:
         pandas.DataFrame
 
-    Raises:
-        ValueError: if orphan_code is not CA or CT.
-
     """
-    if orphan_code == "CA":
-        missing_code = "CT"
-    elif orphan_code == "CT":
-        missing_code = "CA"
-    else:
-        raise ValueError(
-            f"orphan must be either 'CA' or 'CT', but we got {orphan_code}."
-        )
+    # Calculate the largest preexisting unit_id_pudl within each plant
+    max_unit_ids = max_unit_id_by_plant(gens_df)
 
-    orphan_plant_ids = (
-        gens_df[gens_df.unit_id_pudl.isnull()]
-        .drop_duplicates(subset=["plant_id_eia", "generator_id", "prime_mover_code"])
-        .groupby(["plant_id_eia", "prime_mover_code"])
-        .size()
-        .unstack(fill_value=0)
-        .query(f"{orphan_code} > 0 & {missing_code} == 0")
-    ).index
-    row_mask = (
-        (gens_df.plant_id_eia.isin(orphan_plant_ids))
-        & (gens_df.unit_id_pudl.isnull())
-        & (gens_df.prime_mover_code == orphan_code)
+    cc_missing_units = gens_df[
+        (gens_df.unit_id_pudl.isna())
+        & gens_df.prime_mover_code.isin(["CT", "CA"])
+    ]
+    # On a per-plant, per-year basis, count up the number of CT and CA generators.
+    # Only look at those which don't already have a unit ID assigned:
+    cc_pm_counts = (
+        cc_missing_units
+        .groupby(["plant_id_eia", "report_date"])["prime_mover_code"]
+        .value_counts().unstack(fill_value=0).astype(int).reset_index()
     )
-    out_df = gens_df.loc[~row_mask].append(
-        gens_df.loc[row_mask]
-        .assign(bga_source=f"orphan_{orphan_code.lower()}")
+    cc_pm_counts.columns.name = None
+
+    # Bring the max unit ID and PM counts into the DF so we can select and
+    # assign based on them. We're using the cc_missing_units and a temporary
+    # dataframe here to avoid interference from the CT & CA generators
+    # that do already have unit IDs assigned to them in gens_df.
+    tmp_df = (
+        cc_missing_units
+        .merge(
+            max_unit_ids,
+            on="plant_id_eia",
+            how="left",
+            validate="many_to_one",
+        )
+        .merge(
+            cc_pm_counts,
+            on=["plant_id_eia", "report_date"],
+            how="left",
+            validate="many_to_one",
+        )
     )
-    return out_df
+
+    # Assign the new Unit IDs.
+    # All CA and CT units get assigned to the same unit within a plant:
+    tmp_df["unit_id_pudl"] = tmp_df["max_unit_id_pudl"] + 1
+
+    # Assign the orphan flags
+    tmp_df.loc[tmp_df.CA == 0, "bga_source"] = "orphan_ct"
+    tmp_df.loc[tmp_df.CT == 0, "bga_source"] = "orphan_ca"
+    # The orphan flags should only have been applied to generators that had
+    # at least one prime mover of the orphaned type. Just checking...
+    assert (tmp_df.loc[tmp_df.bga_source == "orphan_ct", "CT"] > 0).all()
+    assert (tmp_df.loc[tmp_df.bga_source == "orphan_ca", "CA"] > 0).all()
+
+    # Assign flags for various arrangements of CA and CT generators
+    tmp_df.loc[((tmp_df.CT == 1) & (tmp_df.CA == 1)),
+               "bga_source"] = "one_ct_one_ca_inferred"
+    tmp_df.loc[((tmp_df.CT == 1) & (tmp_df.CA > 1)),
+               "bga_source"] = "one_ct_many_ca_inferred"
+    tmp_df.loc[((tmp_df.CT > 1) & (tmp_df.CA == 1)),
+               "bga_source"] = "many_ct_one_ca_inferred"
+    tmp_df.loc[((tmp_df.CT > 1) & (tmp_df.CA > 1)),
+               "bga_source"] = "many_ct_many_ca_inferred"
+
+    # Align the indices of the two dataframes so we can assign directly
+    tmp_df = tmp_df.set_index(["plant_id_eia", "generator_id", "report_date"])
+    out_df = gens_df.set_index(["plant_id_eia", "generator_id", "report_date"])
+    out_df.loc[tmp_df.index, ["unit_id_pudl", "bga_source"]
+               ] = tmp_df[["unit_id_pudl", "bga_source"]]
+
+    return out_df.reset_index()
 
 
 def assign_prime_fuel_unit_ids(gens_df, prime_mover_code, fuel_type_code_pudl):
     """
     Assign a PUDL Unit ID to all generators with a given prime mover and fuel.
 
-    This only assigns a PUDL Unit ID to generators that don't already have one,
-    and only to generators that have a consistent `fuel_type_code_pudl` across
-    all of the years of data in `gens_df`. This is a simplified fuel code that
-    only looks at primary fuels like "coal", "oil", or "gas". All generators
-    within a plant that share the same `prime_mover_code` and
-    `fuel_type_code_pudl` across all years of data will be assigned a
-    `unit_id_pudl` value that is distinct from all pre-existing unit IDs.
+    Within each plant, assign a Unit ID to all generators that don't have one,
+    and that share the same `fuel_type_code_pudl` and `prime_mover_code`. This
+    is especially useful for differentiating between different types of steam
+    turbine generators, as there are so many different kinds of steam turbines,
+    and the only characteristic we have to differentiate between them in this
+    context is the fuel they consume. E.g. nuclear, geothermal, solar thermal,
+    natural gas, diesel, and coal can all run steam turbines, but it doesn't
+    make sense to lump those turbines together into a single unit just because
+    they are located at the same plant.
+
+    This routine only assigns a PUDL Unit ID to generators that have a
+    consistently reported value of `fuel_type_code_pudl` across all of the years
+    of data in `gens_df`. This consistency is important because otherwise the
+    prime-fuel based unit assignment could put the same generator into different
+    units in different years, which is currently not compatible with our concept
+    of "units."
 
     Args:
         gens_df (pandas.DataFrame): A collection of EIA generator records.
@@ -1046,17 +998,16 @@ def assign_prime_fuel_unit_ids(gens_df, prime_mover_code, fuel_type_code_pudl):
 
     """
     # Find generators with a consistent fuel_type_code_pudl across all years.
-    single_fuel = (
+    consistent_fuel = (
         gens_df.groupby(["plant_id_eia", "generator_id"])["fuel_type_code_pudl"]
         .transform(lambda x: x.nunique())
     ) == 1
-
     # This mask defines the generators generators we are going to alter:
     row_mask = (
         (gens_df.prime_mover_code == prime_mover_code)
         & (gens_df.unit_id_pudl.isna())
         & (gens_df.fuel_type_code_pudl == fuel_type_code_pudl)
-        & (single_fuel)
+        & (consistent_fuel)
     )
 
     # We only need a few columns to make these assignments.
@@ -1086,15 +1037,23 @@ def assign_prime_fuel_unit_ids(gens_df, prime_mover_code, fuel_type_code_pudl):
 
     # Split original dataframe based on row_mask, and merge in the new IDs and
     # labels only on the subset of the dataframe matching our row_mask:
-    out_df = gens_df.loc[~row_mask].append(
-        gens_df.loc[row_mask]
-        .drop(["unit_id_pudl", "bga_source"], axis="columns")
-        .merge(
-            unit_ids,
-            on=["plant_id_eia", "generator_id"],
-            how="left",
-            validate="many_to_one",
-        )
+    out_df = _append_masked_units(
+        gens_df, row_mask, unit_ids, on=["plant_id_eia", "generator_id"]
     )
 
+    # Find generators with inconsistent fuel_type_code_pudl so we can label them
+    inconsistent_fuel = (
+        out_df.groupby(["plant_id_eia", "generator_id"])["fuel_type_code_pudl"]
+        .transform(lambda x: x.nunique())
+    ) > 1
+
+    inconsistent_fuel_mask = (
+        (out_df.prime_mover_code == prime_mover_code)
+        & (out_df.unit_id_pudl.isna())
+        & (out_df.fuel_type_code_pudl == fuel_type_code_pudl)
+        & (inconsistent_fuel)
+    )
+    out_df.loc[inconsistent_fuel_mask, "bga_source"] = (
+        "inconsistent_" + fuel_type_code_pudl + "_" + prime_mover_code.lower()
+    )
     return out_df
