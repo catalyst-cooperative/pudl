@@ -366,6 +366,7 @@ def generators_eia860(
     out_df = (
         pudl.helpers.organize_cols(out_df, first_cols)
         .sort_values(['report_date', 'plant_id_eia', 'generator_id'])
+        .pipe(pudl.helpers.convert_cols_dtypes, data_source="eia")
     )
 
     return out_df
