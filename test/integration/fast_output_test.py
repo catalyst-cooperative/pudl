@@ -45,6 +45,13 @@ def test_fbp_ferc1(fast_out):
     logger.info(f"Generated {len(fbp_df)} FERC1 fuel by plant records.")
 
 
+def test_gens_eia860(fast_out):
+    """Pull original EIA 860 Boiler Generator Associations."""
+    logger.info("Pulling the EIA 860 Generator Table.")
+    bga_df = fast_out.gens_eia860(unit_ids=True)
+    logger.info(f"Generated {len(bga_df)} EIA 860 Generator records.")
+
+
 def test_bga_eia860(fast_out):
     """Pull original EIA 860 Boiler Generator Associations."""
     logger.info("Pulling the EIA 860 Boiler Generator Associations.")

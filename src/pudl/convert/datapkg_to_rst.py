@@ -39,12 +39,17 @@ RST_TEMPLATE = """
 ===============================================================================
 PUDL Data Dictionary
 ===============================================================================
+
+The following data tables have been cleaned and transformed by our ETL process.
+
 {% for resource in resources %}
 .. _{{ resource.name }}:
 
 -------------------------------------------------------------------------------
 {{ resource.name }}
 -------------------------------------------------------------------------------
+
+{{ resource.description | wordwrap(78)}}
 `Browse or query this table in Datasette. <https://data.catalyst.coop/pudl/{{ resource.name }}>`__
 
 .. list-table::

@@ -21,7 +21,7 @@ def heat_rate_by_unit(pudl_out):
     - boiler_id
 
     The unit_id is associated with generation records based on report_date,
-    plant_id_eia, and generator_id. Analogously, the unit_id is associtated
+    plant_id_eia, and generator_id. Analogously, the unit_id is associated
     with boiler fuel consumption records based on report_date, plant_id_eia,
     and boiler_id.
 

@@ -20,7 +20,7 @@ install_requires = [
     "matplotlib~=3.0",
     "networkx~=2.2",
     "numpy~=1.20",
-    "pandas~=1.2.4",
+    "pandas==1.2.5",
     "prefect[viz, gcp]~=0.14.2",
     "pyarrow~=3.0",
     "pygeos~=0.9.0",
@@ -48,7 +48,6 @@ dev_requires = [
     "isort~=5.0",
     "jedi~=0.18",
     "lxml~=4.6",
-    "pdbpp~=0.10",
     "tox~=3.20",
     "twine~=3.3",
 ]
