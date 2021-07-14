@@ -582,8 +582,8 @@ def transform(eia860_raw_dfs, eia860_tables=pc.pudl_tables["eia860"]):
     # for each of the tables, run the respective transform funtction
     for table in eia860_transform_functions:
         if table in eia860_tables:
-            logger.info(f"Transforming raw EIA 860 DataFrames for {table} "
-                        f"concatenated across all years.")
+            logger.info("Transforming raw EIA 860 DataFrames for %s "
+                        "concatenated across all years.", table)
             eia860_transform_functions[table](eia860_raw_dfs,
                                               eia860_transformed_dfs)
 

@@ -176,8 +176,8 @@ datapkg_bundle_settings:
             - coalmine_eia923 # REQUIRES fuel_receipts_costs_eia923
             - fuel_receipts_costs_eia923
           eia923_years: [
-              2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018,
-              2019
+              2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010,
+              2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
           ]
           eia860_tables:
             - boiler_generator_assn_eia860
@@ -219,8 +219,8 @@ datapkg_bundle_settings:
             - coalmine_eia923 # REQUIRES fuel_receipts_costs_eia923
             - fuel_receipts_costs_eia923
           eia923_years: [
-              2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018,
-              2019
+              2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010,
+              2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
           ]
           # See notes above about the entanglement between EIA 923 and EIA 860.
           # It's best to load all the tables from both of them, or neither of
@@ -245,5 +245,5 @@ datapkg_bundle_settings:
           epacems_years: [
               1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004,
               2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014,
-              2015, 2016, 2017, 2018, 2019,
+              2015, 2016, 2017, 2018, 2019, 2020
           ]

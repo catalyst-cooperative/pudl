@@ -21,7 +21,7 @@ def heat_rate_by_unit(pudl_out):
     - boiler_id
 
     The unit_id is associated with generation records based on report_date,
-    plant_id_eia, and generator_id. Analogously, the unit_id is associtated
+    plant_id_eia, and generator_id. Analogously, the unit_id is associated
     with boiler fuel consumption records based on report_date, plant_id_eia,
     and boiler_id.
 
@@ -33,7 +33,7 @@ def heat_rate_by_unit(pudl_out):
     - plant_id_eia
     - unit_id_pudl
     - net_generation_mwh
-    - total_heat_content_mmbtu
+    - fuel_consumed_mmbtu
     - heat_rate_mmbtu_mwh
 
     """
@@ -70,7 +70,7 @@ def heat_rate_by_unit(pudl_out):
     bf_gb = bf_w_unit.groupby(['report_date',
                                'plant_id_eia',
                                'unit_id_pudl'])
-    bf_by_unit = bf_gb.agg({'total_heat_content_mmbtu': pudl.helpers.sum_na})
+    bf_by_unit = bf_gb.agg({'fuel_consumed_mmbtu': pudl.helpers.sum_na})
     bf_by_unit = bf_by_unit.reset_index()
 
     # Merge together the per-unit generation and fuel consumption data so we
@@ -79,7 +79,7 @@ def heat_rate_by_unit(pudl_out):
                           on=['report_date', 'plant_id_eia', 'unit_id_pudl'],
                           validate='one_to_one')
     hr_by_unit['heat_rate_mmbtu_mwh'] = \
-        hr_by_unit.total_heat_content_mmbtu / hr_by_unit.net_generation_mwh
+        hr_by_unit.fuel_consumed_mmbtu / hr_by_unit.net_generation_mwh
 
     return hr_by_unit
 
@@ -182,7 +182,7 @@ def fuel_cost(pudl_out):
                                                'fuel_cost_per_mmbtu',
                                                'fuel_type_code_pudl',
                                                'total_fuel_cost',
-                                               'total_heat_content_mmbtu',
+                                               'fuel_consumed_mmbtu',
                                                'fuel_cost_from_eiaapi',
                                                ]],
                         how='left', on=['plant_id_eia', 'report_date'])
@@ -223,12 +223,12 @@ def fuel_cost(pudl_out):
     one_fuel_gb = one_fuel.groupby(by=['report_date', 'plant_id_eia'])
     one_fuel_agg = one_fuel_gb.agg({
         'total_fuel_cost': pudl.helpers.sum_na,
-        'total_heat_content_mmbtu': pudl.helpers.sum_na,
+        'fuel_consumed_mmbtu': pudl.helpers.sum_na,
         'fuel_cost_from_eiaapi': 'any',
     })
     one_fuel_agg['fuel_cost_per_mmbtu'] = \
         one_fuel_agg['total_fuel_cost'] / \
-        one_fuel_agg['total_heat_content_mmbtu']
+        one_fuel_agg['fuel_consumed_mmbtu']
     one_fuel_agg = one_fuel_agg.reset_index()
     one_fuel = pd.merge(
         one_fuel[['plant_id_eia', 'report_date', 'generator_id',

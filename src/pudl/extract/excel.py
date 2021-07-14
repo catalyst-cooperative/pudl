@@ -1,5 +1,4 @@
 """Load excel metadata CSV files form a python data package."""
-import csv
 import importlib.resources
 import logging
 
@@ -52,6 +51,7 @@ class Metadata(object):
         self._skiprows = self._load_csv(pkg, 'skiprows.csv')
         self._skipfooter = self._load_csv(pkg, 'skipfooter.csv')
         self._sheet_name = self._load_csv(pkg, 'tab_map.csv')
+        self._file_name = self._load_csv(pkg, 'file_map.csv')
         column_map_pkg = pkg + '.column_maps'
         self._column_map = {}
         for res in importlib.resources.contents(column_map_pkg):
@@ -77,6 +77,10 @@ class Metadata(object):
     def get_skipfooter(self, page, **partition):
         """Returns number of bottom rows to skip when loading given partition and page."""
         return self._skipfooter.at[page, str(self._get_partition_key(partition))]
+
+    def get_file_name(self, page, **partition):
+        """Returns file name of given partition and page."""
+        return self._file_name.at[page, str(self._get_partition_key(partition))]
 
     def get_column_map(self, page, **partition):
         """Returns the dictionary mapping input columns to pudl columns for given partition and page."""
@@ -287,13 +291,4 @@ class GenericExtractor(object):
         Return:
             string name of the xlsx file
         """
-        pkg = f"pudl.package_data.meta.xlsx_maps.{self._dataset_name}"
-
-        with importlib.resources.open_text(pkg, "file_map.csv") as f:
-            reader = csv.DictReader(f)
-
-            for row in reader:
-                if row["page"] == page:
-                    return row[str(self.METADATA._get_partition_key(partition))]
-
-        raise ValueError(f"No excel sheet for {partition}, {page}")
+        return self.METADATA.get_file_name(page, **partition)

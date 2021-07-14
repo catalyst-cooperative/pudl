@@ -170,7 +170,7 @@ def fuel_receipts_costs_eia923(pudl_engine, freq=None,
     - ``fuel_qty_units`` (sum)
     - ``fuel_cost_per_mmbtu`` (weighted average)
     - ``total_fuel_cost`` (sum)
-    - ``total_heat_content_mmbtu`` (sum)
+    - ``fuel_consumed_mmbtu`` (sum)
     - ``heat_content_mmbtu_per_unit`` (weighted average)
     - ``sulfur_content_pct`` (weighted average)
     - ``ash_content_pct`` (weighted average)
@@ -290,10 +290,10 @@ def fuel_receipts_costs_eia923(pudl_engine, freq=None,
         )
 
     # Calculate a few totals that are commonly needed:
-    frc_df['total_heat_content_mmbtu'] = \
+    frc_df['fuel_consumed_mmbtu'] = \
         frc_df['heat_content_mmbtu_per_unit'] * frc_df['fuel_qty_units']
     frc_df['total_fuel_cost'] = \
-        frc_df['total_heat_content_mmbtu'] * frc_df['fuel_cost_per_mmbtu']
+        frc_df['fuel_consumed_mmbtu'] * frc_df['fuel_cost_per_mmbtu']
 
     if freq is not None:
         by = ['plant_id_eia', 'fuel_type_code_pudl', pd.Grouper(freq=freq)]
@@ -314,7 +314,7 @@ def fuel_receipts_costs_eia923(pudl_engine, freq=None,
         frc_gb = frc_df.groupby(by=by)
         frc_df = frc_gb.agg({
             'fuel_qty_units': pudl.helpers.sum_na,
-            'total_heat_content_mmbtu': pudl.helpers.sum_na,
+            'fuel_consumed_mmbtu': pudl.helpers.sum_na,
             'total_fuel_cost': pudl.helpers.sum_na,
             'total_sulfur_content': pudl.helpers.sum_na,
             'total_ash_content': pudl.helpers.sum_na,
@@ -324,9 +324,9 @@ def fuel_receipts_costs_eia923(pudl_engine, freq=None,
             'fuel_cost_from_eiaapi': 'any',
         })
         frc_df['fuel_cost_per_mmbtu'] = \
-            frc_df['total_fuel_cost'] / frc_df['total_heat_content_mmbtu']
+            frc_df['total_fuel_cost'] / frc_df['fuel_consumed_mmbtu']
         frc_df['heat_content_mmbtu_per_unit'] = \
-            frc_df['total_heat_content_mmbtu'] / frc_df['fuel_qty_units']
+            frc_df['fuel_consumed_mmbtu'] / frc_df['fuel_qty_units']
         frc_df['sulfur_content_pct'] = \
             frc_df['total_sulfur_content'] / frc_df['fuel_qty_units']
         frc_df['ash_content_pct'] = \
@@ -395,7 +395,7 @@ def boiler_fuel_eia923(pudl_engine, freq=None,
 
     * ``fuel_consumed_units`` (sum)
     * ``fuel_mmbtu_per_unit`` (weighted average)
-    * ``total_heat_content_mmbtu`` (sum)
+    * ``fuel_consumed_mmbtu`` (sum)
     * ``sulfur_content_pct`` (weighted average)
     * ``ash_content_pct`` (weighted average)
 
@@ -435,11 +435,11 @@ def boiler_fuel_eia923(pudl_engine, freq=None,
 
     # The total heat content is also useful in its own right, and we'll keep it
     # around.  Also needed to calculate average heat content per unit of fuel.
-    bf_df['total_heat_content_mmbtu'] = bf_df['fuel_consumed_units'] * \
+    bf_df['fuel_consumed_mmbtu'] = bf_df['fuel_consumed_units'] * \
         bf_df['fuel_mmbtu_per_unit']
 
     # Create a date index for grouping based on freq
-    by = ['plant_id_eia', 'boiler_id', 'fuel_type_code_pudl']
+    by = ['plant_id_eia', 'boiler_id', 'fuel_type_code', 'fuel_type_code_pudl']
     if freq is not None:
         # In order to calculate the weighted average sulfur
         # content and ash content we need to calculate these totals.
@@ -454,13 +454,13 @@ def boiler_fuel_eia923(pudl_engine, freq=None,
         # Sum up these totals within each group, and recalculate the per-unit
         # values (weighted in this case by fuel_consumed_units)
         bf_df = bf_gb.agg({
-            'total_heat_content_mmbtu': pudl.helpers.sum_na,
+            'fuel_consumed_mmbtu': pudl.helpers.sum_na,
             'fuel_consumed_units': pudl.helpers.sum_na,
             'total_sulfur_content': pudl.helpers.sum_na,
             'total_ash_content': pudl.helpers.sum_na,
         })
 
-        bf_df['fuel_mmbtu_per_unit'] = bf_df['total_heat_content_mmbtu'] / \
+        bf_df['fuel_mmbtu_per_unit'] = bf_df['fuel_consumed_mmbtu'] / \
             bf_df['fuel_consumed_units']
         bf_df['sulfur_content_pct'] = bf_df['total_sulfur_content'] / \
             bf_df['fuel_consumed_units']
@@ -471,28 +471,50 @@ def boiler_fuel_eia923(pudl_engine, freq=None,
                            axis=1)
 
     # Grab some basic plant & utility information to add.
-    pu_eia = pudl.output.eia860.plants_utils_eia860(pudl_engine,
-                                                    start_date=start_date,
-                                                    end_date=end_date)
+    pu_eia = pudl.output.eia860.plants_utils_eia860(
+        pudl_engine,
+        start_date=start_date,
+        end_date=end_date
+    )
     out_df = (
         pudl.helpers.merge_on_date_year(bf_df, pu_eia, on=['plant_id_eia'])
         .dropna(subset=['plant_id_eia', 'utility_id_eia', 'boiler_id'])
-        .pipe(pudl.helpers.organize_cols,
-              cols=['report_date',
-                    'plant_id_eia',
-                    'plant_id_pudl',
-                    'plant_name_eia',
-                    'utility_id_eia',
-                    'utility_id_pudl',
-                    'utility_name_eia',
-                    'boiler_id'])
-        .astype({
-            'plant_id_eia': "Int64",
-            'plant_id_pudl': "Int64",
-            'utility_id_eia': "Int64",
-            'utility_id_pudl': "Int64",
-        })
     )
+    # Merge in the unit_id_pudl assigned to each generator in the BGA process
+    # Pull the BGA table and make it unit-boiler only:
+    out_df = pd.merge(
+        out_df,
+        pudl.output.eia860.boiler_generator_assn_eia860(
+            pudl_engine, start_date=start_date, end_date=end_date
+        )[[
+            "report_date",
+            "plant_id_eia",
+            "boiler_id",
+            "unit_id_pudl",
+        ]].drop_duplicates(),
+        on=["report_date", "plant_id_eia", "boiler_id"],
+        how="left",
+        validate="m:1")
+    out_df = pudl.helpers.organize_cols(
+        out_df,
+        cols=[
+            'report_date',
+            'plant_id_eia',
+            'plant_id_pudl',
+            'plant_name_eia',
+            'utility_id_eia',
+            'utility_id_pudl',
+            'utility_name_eia',
+            'boiler_id',
+            'unit_id_pudl',
+        ]
+    ).astype({
+        'plant_id_eia': "Int64",
+        'plant_id_pudl': "Int64",
+        'unit_id_pudl': "Int64",
+        'utility_id_eia': "Int64",
+        'utility_id_pudl': "Int64",
+    })
 
     if freq is None:
         out_df = out_df.drop(['id'], axis=1)
