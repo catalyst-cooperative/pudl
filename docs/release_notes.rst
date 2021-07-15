@@ -3,7 +3,7 @@ PUDL Release Notes
 =======================================================================================
 
 ---------------------------------------------------------------------------------------
-v0.4.0 (2021-07-XX)
+0.4.0 (2021-07-XX)
 ---------------------------------------------------------------------------------------
 This is a ridiculously large update including more than a year and a half's
 worth of work.
@@ -69,9 +69,15 @@ Known Issues
 * The EIA 861 and FERC 714 data are not yet integrated into the SQLite database
   outputs, because we need to overhaul our entity resolution process to
   accommodate them in the database structure. That work is ongoing.
+* The EIA 860 and EIA 923 data don't cover exactly the same rage of years. EIA
+  860 only goes back to 2004, while EIA 923 goes back to 2001. This is because
+  the pre-2004 EIA 860 data is stored in the DBF file format, and we need to
+  update our extraction code to deal with the different format. This means some
+  analyses that require both EIA 860 and EIA 923 data (like the calculation of
+  heat rates) can only be performed as far back as 2004 at the moment.
 
 ---------------------------------------------------------------------------------------
-v0.3.2 (2020-02-17) Integration of EIA 860 for 2009-2010
+0.3.2 (2020-02-17)
 ---------------------------------------------------------------------------------------
 The primary changes in this release:
 
@@ -88,7 +94,7 @@ The primary changes in this release:
 
 
 ---------------------------------------------------------------------------------------
-v0.3.1 (2020-02-05)
+0.3.1 (2020-02-05)
 ---------------------------------------------------------------------------------------
 A couple of minor bugs were found in the preparation of the first PUDL data
 release:
@@ -104,7 +110,7 @@ release:
   data packages and tries to load them.
 
 ---------------------------------------------------------------------------------------
-v0.3.0 (2020-01-30)
+0.3.0 (2020-01-30)
 ---------------------------------------------------------------------------------------
 This release is mostly about getting the infrastructure in place to do regular
 data releases via Zenodo, and updating ETL with 2018 data.
@@ -131,7 +137,7 @@ Command line interfaces of some of the ETL scripts have changed, see their help
 messages for details.
 
 ---------------------------------------------------------------------------------------
-v0.2.0 (2019-09-17)
+0.2.0 (2019-09-17)
 ---------------------------------------------------------------------------------------
 This is the first release of PUDL to generate data packages as the canonical
 output, rather than loading data into a local PostgreSQL database. The data
@@ -143,9 +149,9 @@ This change will enable easier installation of PUDL, as well as archiving and
 bulk distribution of the data products in a platform independent format.
 
 ---------------------------------------------------------------------------------------
-v0.1.0 (2019-09-12)
+0.1.0 (2019-09-12)
 ---------------------------------------------------------------------------------------
 
-v0.1.0 This is the only release of PUDL that will be made that makes use of
+This is the only release of PUDL that will be made that makes use of
 PostgreSQL as the primary data product. It is provided for reference, in case
 there are users relying on this setup who need access to a well defined release.
