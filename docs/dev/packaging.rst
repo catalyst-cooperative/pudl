@@ -2,10 +2,10 @@
 Packaging and Dependencies
 ===============================================================================
 In order to distribute a ready-to-use package to others via the Python Package
-Index and ``conda-forge`` we need to encapsulate it with some metadata and
-define its dependencies. When we first packaged up PUDL Python packaging systems
+Index and ``conda-forge``, we need to encapsulate it with some metadata and
+define its dependencies. When we first packaged up PUDL Python packaging systems, they
 were a bit of a mess. Changes to the Python packaging & build system implemented
-as a result of :pep:`517` and :pep:`518` have improved the available options
+as a result of :pep:`517` and :pep:`518` have improved the available options,
 and we should look at using a simpler more modern setup. The online
 `Python Packages <https://py-pkgs.org/>`__ book is a great guide to current
 best / better practices.
@@ -14,8 +14,8 @@ best / better practices.
 ^^^^^^^^^^^^
 
 The ``setup.py`` script in the top level of the repository coordinates the
-packaging process, using :mod:`setuptools` which is part of the Python standard
-library. ``setup.py`` is really just a single function call, to
+packaging process using :mod:`setuptools`, a part of the Python standard
+library. ``setup.py`` is really just a single function call to
 :func:`setuptools.setup`, and the parameters of that function are
 metadata related to the Python package. Most of them are relatively self
 explanatory -- like the name of the package, the license it's being released
@@ -24,7 +24,7 @@ under, search keywords, etc. -- but a few are more arcane:
 * ``use_scm_version``: Instead of having a hard-coded version that's stored in
   the repository somewhere, handed off to the packaging script, and often out
   of date, pull the version from the source code management (SCM)
-  system, in our case git (and Github). To make a release we will first need
+  system, in our case git (and Github). To make a release, we will first need
   to `tag a particular revision <https://help.github.com/en/articles/creating-releases>`__ in ``git``
   with a version like ``v0.1.0``.
 
@@ -33,8 +33,8 @@ under, search keywords, etc. -- but a few are more arcane:
 
 * ``setup_requires=['setuptools_scm']``: What *other* packages need to be
   installed in order for the packaging script to run? Because we are obtaining
-  the package version from our SCM (git/Github) we need the special package
-  that lets us do that magic, which is named
+  the package version from our SCM (git/Github), we need the special package
+  that lets us do that magic:
   `setuptools_scm <https://github.com/pypa/setuptools_scm>`__. This
   automatically generated version number can then be accessed in the package
   metadata, as is done our top-level ``__init__.py`` file:
@@ -55,7 +55,7 @@ under, search keywords, etc. -- but a few are more arcane:
 
 * ``extras_require``: a dictionary describing optional packages that can
   be conditionally installed depending on the expected usage of the install.
-  For now this is mostly used in conjunction with Tox, to ensure that the
+  For now, this is mostly used in conjunction with Tox to ensure that the
   required documentation and testing packages are installed alongside PUDL in
   the virtual environment.
 
@@ -75,11 +75,11 @@ under, search keywords, etc. -- but a few are more arcane:
 
 * ``include_package_data=True``: This tells the packaging system to include any
   non-python files that it finds in the directories it has been told to
-  package. In our case this is all the stuff inside ``package_data`` including
+  package. In our case, this is all the stuff inside ``package_data`` including
   example settings files, metadata, glue, etc.
 
 * ``entry_points``: This parameter tells the packaging what executable scripts
-  should be installed on the user's system, and which modules:functions
+  should be installed on the user's system and which modules:functions
   implement those scripts.
 
 ``MANIFEST.in``
@@ -89,8 +89,8 @@ repository, ``setuptools_scm`` pulls every single file tracked by the
 repository and every other random file sitting in the working repository
 directory into the distribution. This is... not what we want. ``MANIFEST.in``
 allows us to specify in more detail which files should be included and
-excluded. Mostly we are just including the python package and supporting data,
-which exist under the ``src/pudl`` directory.
+excluded. Mostly, we are just including the python package and supporting data that
+exist under the ``src/pudl`` directory.
 
 ``pyproject.toml``
 ^^^^^^^^^^^^^^^^^^

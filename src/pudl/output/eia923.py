@@ -170,7 +170,7 @@ def fuel_receipts_costs_eia923(pudl_engine, freq=None,
     - ``fuel_qty_units`` (sum)
     - ``fuel_cost_per_mmbtu`` (weighted average)
     - ``total_fuel_cost`` (sum)
-    - ``total_heat_content_mmbtu`` (sum)
+    - ``fuel_consumed_mmbtu`` (sum)
     - ``heat_content_mmbtu_per_unit`` (weighted average)
     - ``sulfur_content_pct`` (weighted average)
     - ``ash_content_pct`` (weighted average)
@@ -180,6 +180,16 @@ def fuel_receipts_costs_eia923(pudl_engine, freq=None,
 
     In addition, plant and utility names and IDs are pulled in from the EIA
     860 tables.
+
+    Optionally fill in missing fuel costs based on monthly state averages
+    which are pulled from the EIA's open data API, and/or use a rolling average
+    to fill in gaps in the fuel costs. These behaviors are controlled by the
+    ``fill`` and ``roll`` parameters. If you set ``fill=True`` you need to
+    ensure that you have stored your API key in an environment variable named
+    ``API_KEY_EIA``. You can register for a free EIA API key here:
+
+    https://www.eia.gov/opendata/register.php
+
 
     Args:
         pudl_engine (sqlalchemy.engine.Engine): SQLAlchemy connection engine
@@ -205,6 +215,8 @@ def fuel_receipts_costs_eia923(pudl_engine, freq=None,
         Fuel Receipts and Costs table.
 
     """
+    if fill:
+        _check_eia_api_key()
     pt = pudl.output.pudltabl.get_table_meta(pudl_engine)
     # Most of the fields we want come direclty from Fuel Receipts & Costs
     frc_tbl = pt['fuel_receipts_costs_eia923']
@@ -278,10 +290,10 @@ def fuel_receipts_costs_eia923(pudl_engine, freq=None,
         )
 
     # Calculate a few totals that are commonly needed:
-    frc_df['total_heat_content_mmbtu'] = \
+    frc_df['fuel_consumed_mmbtu'] = \
         frc_df['heat_content_mmbtu_per_unit'] * frc_df['fuel_qty_units']
     frc_df['total_fuel_cost'] = \
-        frc_df['total_heat_content_mmbtu'] * frc_df['fuel_cost_per_mmbtu']
+        frc_df['fuel_consumed_mmbtu'] * frc_df['fuel_cost_per_mmbtu']
 
     if freq is not None:
         by = ['plant_id_eia', 'fuel_type_code_pudl', pd.Grouper(freq=freq)]
@@ -302,7 +314,7 @@ def fuel_receipts_costs_eia923(pudl_engine, freq=None,
         frc_gb = frc_df.groupby(by=by)
         frc_df = frc_gb.agg({
             'fuel_qty_units': pudl.helpers.sum_na,
-            'total_heat_content_mmbtu': pudl.helpers.sum_na,
+            'fuel_consumed_mmbtu': pudl.helpers.sum_na,
             'total_fuel_cost': pudl.helpers.sum_na,
             'total_sulfur_content': pudl.helpers.sum_na,
             'total_ash_content': pudl.helpers.sum_na,
@@ -312,9 +324,9 @@ def fuel_receipts_costs_eia923(pudl_engine, freq=None,
             'fuel_cost_from_eiaapi': 'any',
         })
         frc_df['fuel_cost_per_mmbtu'] = \
-            frc_df['total_fuel_cost'] / frc_df['total_heat_content_mmbtu']
+            frc_df['total_fuel_cost'] / frc_df['fuel_consumed_mmbtu']
         frc_df['heat_content_mmbtu_per_unit'] = \
-            frc_df['total_heat_content_mmbtu'] / frc_df['fuel_qty_units']
+            frc_df['fuel_consumed_mmbtu'] / frc_df['fuel_qty_units']
         frc_df['sulfur_content_pct'] = \
             frc_df['total_sulfur_content'] / frc_df['fuel_qty_units']
         frc_df['ash_content_pct'] = \
@@ -383,7 +395,7 @@ def boiler_fuel_eia923(pudl_engine, freq=None,
 
     * ``fuel_consumed_units`` (sum)
     * ``fuel_mmbtu_per_unit`` (weighted average)
-    * ``total_heat_content_mmbtu`` (sum)
+    * ``fuel_consumed_mmbtu`` (sum)
     * ``sulfur_content_pct`` (weighted average)
     * ``ash_content_pct`` (weighted average)
 
@@ -423,11 +435,11 @@ def boiler_fuel_eia923(pudl_engine, freq=None,
 
     # The total heat content is also useful in its own right, and we'll keep it
     # around.  Also needed to calculate average heat content per unit of fuel.
-    bf_df['total_heat_content_mmbtu'] = bf_df['fuel_consumed_units'] * \
+    bf_df['fuel_consumed_mmbtu'] = bf_df['fuel_consumed_units'] * \
         bf_df['fuel_mmbtu_per_unit']
 
     # Create a date index for grouping based on freq
-    by = ['plant_id_eia', 'boiler_id', 'fuel_type_code_pudl']
+    by = ['plant_id_eia', 'boiler_id', 'fuel_type_code', 'fuel_type_code_pudl']
     if freq is not None:
         # In order to calculate the weighted average sulfur
         # content and ash content we need to calculate these totals.
@@ -442,13 +454,13 @@ def boiler_fuel_eia923(pudl_engine, freq=None,
         # Sum up these totals within each group, and recalculate the per-unit
         # values (weighted in this case by fuel_consumed_units)
         bf_df = bf_gb.agg({
-            'total_heat_content_mmbtu': pudl.helpers.sum_na,
+            'fuel_consumed_mmbtu': pudl.helpers.sum_na,
             'fuel_consumed_units': pudl.helpers.sum_na,
             'total_sulfur_content': pudl.helpers.sum_na,
             'total_ash_content': pudl.helpers.sum_na,
         })
 
-        bf_df['fuel_mmbtu_per_unit'] = bf_df['total_heat_content_mmbtu'] / \
+        bf_df['fuel_mmbtu_per_unit'] = bf_df['fuel_consumed_mmbtu'] / \
             bf_df['fuel_consumed_units']
         bf_df['sulfur_content_pct'] = bf_df['total_sulfur_content'] / \
             bf_df['fuel_consumed_units']
@@ -459,28 +471,50 @@ def boiler_fuel_eia923(pudl_engine, freq=None,
                            axis=1)
 
     # Grab some basic plant & utility information to add.
-    pu_eia = pudl.output.eia860.plants_utils_eia860(pudl_engine,
-                                                    start_date=start_date,
-                                                    end_date=end_date)
+    pu_eia = pudl.output.eia860.plants_utils_eia860(
+        pudl_engine,
+        start_date=start_date,
+        end_date=end_date
+    )
     out_df = (
         pudl.helpers.merge_on_date_year(bf_df, pu_eia, on=['plant_id_eia'])
         .dropna(subset=['plant_id_eia', 'utility_id_eia', 'boiler_id'])
-        .pipe(pudl.helpers.organize_cols,
-              cols=['report_date',
-                    'plant_id_eia',
-                    'plant_id_pudl',
-                    'plant_name_eia',
-                    'utility_id_eia',
-                    'utility_id_pudl',
-                    'utility_name_eia',
-                    'boiler_id'])
-        .astype({
-            'plant_id_eia': "Int64",
-            'plant_id_pudl': "Int64",
-            'utility_id_eia': "Int64",
-            'utility_id_pudl': "Int64",
-        })
     )
+    # Merge in the unit_id_pudl assigned to each generator in the BGA process
+    # Pull the BGA table and make it unit-boiler only:
+    out_df = pd.merge(
+        out_df,
+        pudl.output.eia860.boiler_generator_assn_eia860(
+            pudl_engine, start_date=start_date, end_date=end_date
+        )[[
+            "report_date",
+            "plant_id_eia",
+            "boiler_id",
+            "unit_id_pudl",
+        ]].drop_duplicates(),
+        on=["report_date", "plant_id_eia", "boiler_id"],
+        how="left",
+        validate="m:1")
+    out_df = pudl.helpers.organize_cols(
+        out_df,
+        cols=[
+            'report_date',
+            'plant_id_eia',
+            'plant_id_pudl',
+            'plant_name_eia',
+            'utility_id_eia',
+            'utility_id_pudl',
+            'utility_name_eia',
+            'boiler_id',
+            'unit_id_pudl',
+        ]
+    ).astype({
+        'plant_id_eia': "Int64",
+        'plant_id_pudl': "Int64",
+        'unit_id_pudl': "Int64",
+        'utility_id_eia': "Int64",
+        'utility_id_pudl': "Int64",
+    })
 
     if freq is None:
         out_df = out_df.drop(['id'], axis=1)
@@ -568,7 +602,16 @@ def generation_eia923(pudl_engine, freq=None,
 
 
 def make_url_cat_eiaapi(category_id):
-    """Generate a url for a category from EIA's API."""
+    """
+    Generate a url for a category from EIA's API.
+
+    Requires an environment variable named ``API_KEY_EIA`` be set, containing
+    a valid EIA API key, which you can obtain from:
+
+    https://www.eia.gov/opendata/register.php
+
+    """
+    _check_eia_api_key()
     return (
         f"{BASE_URL_EIA}category/?api_key={os.environ.get('API_KEY_EIA')}"
         f"&category_id={category_id}"
@@ -576,7 +619,16 @@ def make_url_cat_eiaapi(category_id):
 
 
 def make_url_series_eiaapi(series_id):
-    """Generate a url for a series EIA's API."""
+    """
+    Generate a url for a series EIA's API.
+
+    Requires an environment variable named ``API_KEY_EIA`` be set, containing
+    a valid EIA API key, which you can obtain from:
+
+    https://www.eia.gov/opendata/register.php
+
+    """
+    _check_eia_api_key()
     if series_id.count(';') > 100:
         raise AssertionError(
             f"""
@@ -587,6 +639,19 @@ def make_url_series_eiaapi(series_id):
         f"{BASE_URL_EIA}series/?api_key={os.environ.get('API_KEY_EIA')}"
         f"&series_id={series_id}"
     )
+
+
+def _check_eia_api_key():
+    if "API_KEY_EIA" not in os.environ:
+        raise RuntimeError("""
+            The environment variable API_KEY_EIA is not set, and you are
+            attempting to fill in missing fuel cost data using the EIA API.
+            Please register for an EIA API key here, and store it in an
+            environment variable.
+
+            https://www.eia.gov/opendata/register.php
+
+        """)
 
 
 def get_response(url):
@@ -612,6 +677,7 @@ def grab_fuel_state_monthly(cat_id):
     Args:
         cat_id (int): category id for one fuel type. Known to be
     """
+    _check_eia_api_key()
     # we are going to compile a string of series ids to put into one request
     series_all = ""
     fuel_level_cat = get_response(make_url_cat_eiaapi(cat_id))
