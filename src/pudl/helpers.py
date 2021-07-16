@@ -919,10 +919,9 @@ def convert_cols_dtypes(df, data_source, name=None):
         :mod:`pudl.constants` ``column_dtypes`` dictionary.
 
     """
-    source_dtypes = pc.column_dtypes[data_source]
     # get me all of the columns for the table in the constants dtype dict
     col_dtypes = {col: col_dtype for col, col_dtype
-                  in source_dtypes.items()
+                  in pc.column_dtypes[data_source].items()
                   if col in list(df.columns)}
 
     # grab only the boolean columns (we only need their names)
@@ -937,18 +936,6 @@ def convert_cols_dtypes(df, data_source, name=None):
     string_cols = {col: col_dtype for col, col_dtype
                    in col_dtypes.items()
                    if col_dtype == pd.StringDtype()}
-
-    # check for non-nullable string dtypes. we need them to all be the nullable
-    # type, otherwise string cols w/ nulls will not be able to be assigned
-    non_nullable_string_cols = [
-        c for c in source_dtypes.keys()
-        if (source_dtypes[c] == 'string')
-        & (source_dtypes[c] != pd.StringDtype())
-    ]
-    if non_nullable_string_cols:
-        raise TypeError(
-            "All string types must be nullable. Found basic string types for: "
-            f"{non_nullable_string_cols}")
 
     # If/when we have the columns exhaustively typed, we can do it like this,
     # but right now we don't have the FERC columns done, so we can't:
