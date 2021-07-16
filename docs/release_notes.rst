@@ -99,9 +99,6 @@ Data Management and Archiving
 Known Issues
 ^^^^^^^^^^^^
 
-* With the recent addition of new years of EIA and FERC data, we haven't yet
-  updated the expected number of rows in each table, so there are some data
-  validations which are failing. See :issue:`943,954` for more details.
 * The EIA 861 and FERC 714 data are not yet integrated into the SQLite database
   outputs, because we need to overhaul our entity resolution process to
   accommodate them in the database structure. That work is ongoing, see
@@ -120,6 +117,14 @@ Known Issues
   plants and utilities can't yet be used in conjuction with FERC data. When the
   EIA 860 data for 2001-2003 has been integrated, we will finish this manual
   ID assignment process. See :issue:`848,1069`
+* 52 of the algorithmically assigned ``plant_id_ferc1`` values found in the
+  ``plants_steam_ferc1`` table are currently associated with more than one
+  ``plant_id_pudl`` value (99 PUDL plant IDs are involved), indicating either
+  that the algorithm is making poor assignments, or that the manually assigned
+  ``plant_id_pudl`` values are incorrect. This is out of several thousand
+  distinct ``plant_id_ferc1`` values. See :issue:`954`
+* In the MCOE outputs, the ``distributed_generation`` column is composed
+  entirely of ``NA`` values. See :issue:`943`
 
 ---------------------------------------------------------------------------------------
 0.3.2 (2020-02-17)
