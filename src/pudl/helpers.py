@@ -990,6 +990,7 @@ def convert_cols_dtypes(df, data_source, name=None):
         df.astype(non_bool_cols)
         .astype(bool_cols)
         .replace(to_replace="nan", value={col: pd.NA for col in string_cols})
+        .replace(to_replace="<NA>", value={col: pd.NA for col in string_cols})
     )
 
     # Zip codes are highly coorelated with datatype. If they datatype gets
