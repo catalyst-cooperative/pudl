@@ -1001,9 +1001,9 @@ def convert_cols_dtypes(df, data_source, name=None):
         zip_cols = [col for col in df.columns if 'zip_code' in col]
         for col in zip_cols:
             if '4' in col:
-                df.loc[:, col] = zero_pad_zips(df.loc[:, col], 4)
+                df.loc[:, col] = zero_pad_zips(df[col], 4)
             else:
-                df.loc[:, col] = zero_pad_zips(df.loc[:, col], 5)
+                df.loc[:, col] = zero_pad_zips(df[col], 5)
 
     return df
 
