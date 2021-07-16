@@ -933,6 +933,10 @@ def convert_cols_dtypes(df, data_source, name=None):
     non_bool_cols = {col: col_dtype for col, col_dtype
                      in col_dtypes.items()
                      if col_dtype != pd.BooleanDtype()}
+    # Grab only the string columns...
+    string_cols = {col: col_dtype for col, col_dtype
+                   in col_dtypes.items()
+                   if col_dtype == pd.StringDtype()}
 
     # check for non-nullable string dtypes. we need them to all be the nullable
     # type, otherwise string cols w/ nulls will not be able to be assigned
@@ -983,7 +987,10 @@ def convert_cols_dtypes(df, data_source, name=None):
         if df.utility_id_eia.dtypes is np.dtype('object'):
             df = df.astype({'utility_id_eia': 'float'})
     df = (
-        df.astype(non_bool_cols).astype(bool_cols))
+        df.astype(non_bool_cols)
+        .astype(bool_cols)
+        .replace(to_replace="nan", value={col: pd.NA for col in string_cols})
+    )
 
     # Zip codes are highly coorelated with datatype. If they datatype gets
     # converted at any point it may mess up the accuracy of the data. For
