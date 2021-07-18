@@ -110,9 +110,11 @@ def clean_eia_counties(df, fixes, state_col="state", county_col="county"):
     df = df.copy()
     df[county_col] = (
         df[county_col].str.strip()
-        .str.replace(r"\s+", " ", regex=True)  # Condense multiple whitespace chars.
+        # Condense multiple whitespace chars.
+        .str.replace(r"\s+", " ", regex=True)
         .str.replace(r"^St ", "St. ", regex=True)  # Standardize abbreviation.
-        .str.replace(r"^Ste ", "Ste. ", regex=True)  # Standardize abbreviation.
+        # Standardize abbreviation.
+        .str.replace(r"^Ste ", "Ste. ", regex=True)
         .str.replace("Kent & New Castle", "Kent, New Castle")  # Two counties
         # Fix ordering, remove comma
         .str.replace("Borough, Kodiak Island", "Kodiak Island Borough")
@@ -659,7 +661,8 @@ def fix_leading_zero_gen_ids(df):
             .astype(str)
             .apply(lambda x: re.sub(r'^0+(\d+$)', r'\1', x))
         )
-        num_fixes = len(df.loc[df["generator_id"].astype(str) != fixed_generator_id])
+        num_fixes = len(
+            df.loc[df["generator_id"].astype(str) != fixed_generator_id])
         logger.info("Fixed %s EIA generator IDs with leading zeros.", num_fixes)
         df = (
             df.drop("generator_id", axis="columns")
@@ -925,15 +928,14 @@ def convert_cols_dtypes(df, data_source, name=None):
     bool_cols = {col: col_dtype for col, col_dtype
                  in col_dtypes.items()
                  if col_dtype == pd.BooleanDtype()}
-    # Grab only the string columns...
-    string_cols = {col: col_dtype for col, col_dtype
-                   in col_dtypes.items()
-                   if col_dtype == pd.StringDtype()}
-
     # grab all of the non boolean columns
     non_bool_cols = {col: col_dtype for col, col_dtype
                      in col_dtypes.items()
                      if col_dtype != pd.BooleanDtype()}
+    # Grab only the string columns...
+    string_cols = {col: col_dtype for col, col_dtype
+                   in col_dtypes.items()
+                   if col_dtype == pd.StringDtype()}
 
     # If/when we have the columns exhaustively typed, we can do it like this,
     # but right now we don't have the FERC columns done, so we can't:
@@ -972,11 +974,10 @@ def convert_cols_dtypes(df, data_source, name=None):
         if df.utility_id_eia.dtypes is np.dtype('object'):
             df = df.astype({'utility_id_eia': 'float'})
     df = (
-        df.replace(to_replace="<NA>", value={
-                   col: pd.NA for col in string_cols})
-        .replace(to_replace="nan", value={col: pd.NA for col in string_cols})
-        .astype(non_bool_cols)
+        df.astype(non_bool_cols)
         .astype(bool_cols)
+        .replace(to_replace="nan", value={col: pd.NA for col in string_cols})
+        .replace(to_replace="<NA>", value={col: pd.NA for col in string_cols})
     )
 
     # Zip codes are highly coorelated with datatype. If they datatype gets
@@ -988,9 +989,9 @@ def convert_cols_dtypes(df, data_source, name=None):
         zip_cols = [col for col in df.columns if 'zip_code' in col]
         for col in zip_cols:
             if '4' in col:
-                df[col] = zero_pad_zips(df[col], 4)
+                df.loc[:, col] = zero_pad_zips(df[col], 4)
             else:
-                df[col] = zero_pad_zips(df[col], 5)
+                df.loc[:, col] = zero_pad_zips(df[col], 5)
 
     return df
 
