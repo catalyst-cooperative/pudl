@@ -71,20 +71,21 @@ We have developed an experimental methodology to produce net generation and
 fuel consumption for all generators. The process has known issues and is being
 actively developed. See :pr:`989`
 
-Net electricity generation and fuel consumption are reported in multiple ways
-in the EIA 923. The generation_fuel_eia923 table reports both generation and
+Net electricity generation and fuel consumption are reported in multiple ways in
+the EIA 923. The :ref:`generation_fuel_eia923` table reports both generation and
 fuel consumption, and breaks them down by plant, prime mover, and fuel. In
-parallel, the generation_eia923 table reports generation by generator, and the
-boiler_fuel_eia923 table reports fuel consumption by boiler.
+parallel, the :ref:`generation_eia923` table reports generation by generator,
+and the :ref:`boiler_fuel_eia923` table reports fuel consumption by boiler.
 
-The generation_fuel_eia923 table is more complete, but the generation_eia923 +
-boiler_fuel_eia923 tables are more granular. The generation_eia923 table
-includes only ~55% of the total MWhs reported in the generation_fuel_eia923
-table.
+The :ref:`generation_fuel_eia923` table is more complete, but the
+:ref:`generation_eia923` + :ref:`boiler_fuel_eia923` tables are more granular.
+The :ref:`generation_eia923` table includes only ~55% of the total MWhs reported
+in the :ref:`generation_fuel_eia923` table.
 
-The ``pudl.analysis.allocate_net_gen`` module estimates the net electricity
+The :mod:`pudl.analysis.allocate_net_gen` module estimates the net electricity
 generation and fuel consumption attributable to individual generators based on
-the more expansive reporting of the data in the generation_fuel_eia923 table.
+the more expansive reporting of the data in the :ref:`generation_fuel_eia923`
+table.
 
 Data Management and Archiving
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
