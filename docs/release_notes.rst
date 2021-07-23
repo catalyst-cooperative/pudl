@@ -6,9 +6,7 @@ PUDL Release Notes
 0.4.0 (2021-07-XX)
 ---------------------------------------------------------------------------------------
 This is a ridiculously large update including more than a year and a half's
-worth of work. We're going to start doing much more frequent incremental
-software releases with immediately usable processed data outputs as we move
-toward automating the release process in the coming months.
+worth of work.
 
 New Data Coverage
 ^^^^^^^^^^^^^^^^^
