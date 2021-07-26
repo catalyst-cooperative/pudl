@@ -48,7 +48,6 @@ dev_requires = [
     "isort~=5.0",
     "jedi~=0.18",
     "lxml~=4.6",
-    "pdbpp~=0.10",
     "tox~=3.20",
     "twine~=3.3",
 ]

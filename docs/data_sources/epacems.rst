@@ -2,18 +2,32 @@
 EPA CEMS Hourly
 ===============================================================================
 
-=================== ===========================================================
-Source URL          ftp://newftp.epa.gov/dmdnload/emissions/hourly/monthly
-Source Description  Hourly CO2, SO2, NOx emissions and gross load
-Respondents         Coal and high-sulfur fueled plants
-Source Format       Comma Separated Value (.csv)
-Source Years        1995-2019
-Size (Download)     8.7 GB
-PUDL Code           ``epacems``
-Years Liberated     1995-2019
-Records Liberated   ~1 billion
-Issues              `Open EPA CEMS issues <https://github.com/catalyst-cooperative/pudl/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aopen+label%3Aepacems>`__
-=================== ===========================================================
+.. list-table::
+   :widths: auto
+   :header-rows: 0
+   :stub-columns: 1
+
+   * - Source URL
+     - ftp://newftp.epa.gov/dmdnload/emissions/hourly/monthly
+   * - Source Description
+     - Hourly CO2, SO2, NOx emissions and gross load
+   * - Respondents
+     - Coal and high-sulfur fueled plants
+   * - Source Format
+     - Comma Separated Value (.csv)
+   * - Source Years
+     - 1995-2020
+   * - Size (Download)
+     - 8.7 GB
+   * - PUDL Code
+     - ``epacems``
+   * - Years Liberated
+     - 1995-2020
+   * - Records Liberated
+     - ~1 billion
+   * - Issues
+     - `Open EPA CEMS issues <https://github.com/catalyst-cooperative/pudl/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aopen+label%3Aepacems>`__
+
 
 Background
 ^^^^^^^^^^
@@ -78,10 +92,18 @@ on GitHub for pointers on how to access this big dataset efficiently using :mod:
 PUDL Data Tables
 ^^^^^^^^^^^^^^^^
 
-Clicking on the links will show you the names and descriptions of the fields available
-in the CEMS table.
+Clicking on the links will show you a description of the table as well as the names and
+descriptions of each of its fields.
 
-* :ref:`hourly_emissions_epacems`
+.. list-table::
+   :header-rows: 1
+   :widths: auto
+
+   * - Data Dictionary
+     - Browse Online
+   * - :ref:`hourly_emissions_epacems`
+     - Not Available via Datasette
+
 
 PUDL Data Transformations
 ^^^^^^^^^^^^^^^^^^^^^^^^^

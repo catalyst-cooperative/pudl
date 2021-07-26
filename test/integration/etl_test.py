@@ -203,19 +203,19 @@ class TestExcelExtractor:
         extractor = pudl.extract.eia923.Extractor(pudl_datastore_fixture)
         self.expected_file_name(
             extractor=extractor,
-            page='plant_frame',
+            page='generation_fuel',
             year=2009,
             expected_name="EIA923 SCHEDULES 2_3_4_5 M Final 2009 REVISED 05252011.XLS"
         )
         self.expected_file_name(
             extractor=extractor,
-            page='energy_storage',
+            page='fuel_receipts_costs',
             year=2019,
             expected_name="EIA923_Schedules_2_3_4_5_M_12_2019_Final.xlsx"
         )
         self.expected_file_name(
             extractor=extractor,
-            page='puerto_rico',
+            page='boiler_fuel',
             year=2012,
             expected_name="EIA923_Schedules_2_3_4_5_M_12_2012_Final_Revision.xlsx"
         )
