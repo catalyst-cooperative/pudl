@@ -108,12 +108,12 @@ def test_no_null_cols_mcoe(pudl_out_mcoe, live_dbs, cols, df_name):
 
 @pytest.mark.parametrize(
     "df_name,monthly_rows,annual_rows", [
-        ("bga", 103_805, 103_805),
-        ("hr_by_unit", 302_256, 25_188),
-        ("hr_by_gen", 451_668, 37_639),
-        ("fuel_cost", 451_668, 37_639),
-        ("capacity_factor", 476_052, 39_671),
-        ("mcoe", 476_052, 39_671),
+        ("bga", 105_764, 105_764),
+        ("hr_by_unit", 302_256, 26_302),
+        ("hr_by_gen", 451_668, 39_056),
+        ("fuel_cost", 451_668, 39_056),
+        ("capacity_factor", 510_565, 42_610),
+        ("mcoe", 510_570, 42_610),
     ])
 def test_minmax_rows_mcoe(pudl_out_mcoe, live_dbs,
                           monthly_rows, annual_rows, df_name):
@@ -122,7 +122,7 @@ def test_minmax_rows_mcoe(pudl_out_mcoe, live_dbs,
         pytest.skip("Data validation only works with a live PUDL DB.")
     if pudl_out_mcoe.freq is None:
         pytest.skip()
-    if (pudl_out_mcoe.freq == "MS"):
+    if pudl_out_mcoe.freq == "MS":
         expected_rows = monthly_rows
     else:
         assert pudl_out_mcoe.freq == "AS"
@@ -130,9 +130,9 @@ def test_minmax_rows_mcoe(pudl_out_mcoe, live_dbs,
     _ = (
         pudl_out_mcoe.__getattribute__(df_name)()
         .pipe(pv.check_min_rows, expected_rows=expected_rows,
-              margin=0.05, df_name=df_name)
+              margin=0.0, df_name=df_name)
         .pipe(pv.check_max_rows, expected_rows=expected_rows,
-              margin=0.05, df_name=df_name)
+              margin=0.0, df_name=df_name)
     )
 
 
