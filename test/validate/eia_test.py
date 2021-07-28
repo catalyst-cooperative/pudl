@@ -38,17 +38,19 @@ def test_no_null_cols_eia(pudl_out_eia, live_dbs, cols, df_name):
         ("own_eia860", 65_264, 65_264, 65_264),
         ("bga_eia860", 105_764, 105_764, 105_764),
         ("gens_eia860", 403_834, 403_834, 403_834),
-        ("frc_eia923", 516_232, 213_329, 21_065),
-        ("gen_eia923", 510_565, 510_565, 42_610),
-        ("bf_eia923", 1_207_421, 1_196_353, 100_300),
-        ("gf_eia923", 2_108_133, 2_098_464, 175_708),
+        ("frc_eia923", 517_078, 213_563, 21_338),
+        ("gen_eia923", 510_835, 510_835, 42_884),
+        ("bf_eia923", 1_207_976, 1_196_908, 100_866),
+        ("gf_eia923", 2_109_040, 2_099_362, 176_618),
     ])
-def test_minmax_rows(pudl_out_eia,
-                     live_dbs,
-                     raw_rows,
-                     annual_rows,
-                     monthly_rows,
-                     df_name):
+def test_minmax_rows(
+    pudl_out_eia,
+    live_dbs,
+    raw_rows,
+    annual_rows,
+    monthly_rows,
+    df_name
+):
     """Verify that output DataFrames don't have too many or too few rows.
 
     Args:
@@ -86,14 +88,9 @@ def test_minmax_rows(pudl_out_eia,
         ("utils_eia860", ["report_date", "utility_id_eia"]),
         ("pu_eia860", ["report_date", "plant_id_eia"]),
         ("gens_eia860", ["report_date", "plant_id_eia", "generator_id"]),
-        ("bga_eia860", ["report_date",
-                        "plant_id_eia",
-                        "boiler_id",
-                        "generator_id"]),
-        ("own_eia860", ["report_date",
-                        "plant_id_eia",
-                        "generator_id",
-                        "owner_utility_id_eia"]),
+        ("bga_eia860", ["report_date", "plant_id_eia", "boiler_id", "generator_id"]),
+        ("own_eia860", ["report_date", "plant_id_eia",
+         "generator_id", "owner_utility_id_eia"]),
         ("gen_eia923", ["report_date", "plant_id_eia", "generator_id"]),
     ])
 def test_unique_rows_eia(pudl_out_eia, live_dbs, unique_subset, df_name):

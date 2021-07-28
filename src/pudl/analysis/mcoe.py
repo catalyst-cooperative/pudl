@@ -73,11 +73,41 @@ def heat_rate_by_unit(pudl_out):
         )
     )
 
-    return hr_by_unit
+    return pudl.helpers.convert_cols_dtypes(
+        hr_by_unit,
+        data_source="eia",
+        name="hr_by_unit",
+    )
 
 
 def heat_rate_by_gen(pudl_out):
-    """Convert by-unit heat rate to by-generator, adding fuel type & count."""
+    """
+    Convert per-unit heat rate to by-generator, adding fuel type & count.
+
+    Heat rates really only make sense at the unit level, since input fuel and
+    output electricity are comingled at the unit level, but it is useful in
+    many contexts to have that per-unit heat rate associated with each of the
+    underlying generators, as much more information is available about the
+    generators.
+
+    To combine the (potentially) more granular temporal information from the
+    per-unit heat rates with annual generator level attributes, we have to do
+    a many-to-many merge. This can't be done easily with merge_asof(), so we
+    treat the year and month fields as categorial variables, and do a normal
+    inner merge that broadcasts monthly dates in one direction, and generator
+    IDs in the other.
+
+    Returns:
+        pandas.DataFrame: with columns report_date, plant_id_eia, unit_id_pudl,
+        generator_id, heat_rate_mmbtu_mwh, fuel_type_code_pudl, fuel_type_count.
+        The output will have a time frequency corresponding to that of the
+        input pudl_out. Output data types are set to their canonical values
+        before returning.
+
+    Raises:
+        ValueError if pudl_out.freq is None.
+
+    """
     # pudl_out must have a freq, otherwise capacity factor will fail and merges
     # between tables with different frequencies will fail
     if pudl_out.freq is None:
@@ -88,26 +118,49 @@ def heat_rate_by_gen(pudl_out):
         pudl_out.bga_eia860()
         .loc[:, ['report_date', 'plant_id_eia', 'unit_id_pudl', 'generator_id']]
         .drop_duplicates()
+        .assign(year=lambda x: x.report_date.dt.year)
+        .drop("report_date", axis="columns")
     )
 
-    # Associate those heat rates with individual generators. This also means
-    # losing the net generation and fuel consumption information for now.
-    hr_by_gen = pudl.helpers.clean_merge_asof(
-        left=pudl_out.hr_by_unit()[[
-            'report_date',
-            'plant_id_eia',
-            'unit_id_pudl',
-            'heat_rate_mmbtu_mwh'
-        ]],
-        right=bga_gens,
-        by={
-            "plant_id_eia": pd.Int64Dtype(),
-            "unit_id_pudl": pd.Int64Dtype(),
-        }
+    hr_by_unit = (
+        pudl_out.hr_by_unit()
+        .assign(
+            year=lambda x: x.report_date.dt.year,
+            month=lambda x: x.report_date.dt.month,
+            day=lambda x: x.report_date.dt.day,
+        )
+        .loc[:, [
+            "year",
+            "month",
+            "day",
+            "plant_id_eia",
+            "unit_id_pudl",
+            "heat_rate_mmbtu_mwh"
+        ]]
     )
-    # Now in bring information about generator fuel type & count.
-    # The per-unit heat rates are broadcast to all generator_id values
-    # that are part of the unit.
+
+    hr_by_gen = (
+        pd.merge(
+            bga_gens,
+            hr_by_unit,
+            on=["year", "plant_id_eia", "unit_id_pudl"],
+            how="inner",
+            validate="many_to_many",
+        )
+        .assign(
+            # Reconstruct the date field out of its component parts.
+            report_date=lambda x: pd.to_datetime(x[["year", "month", "day"]])
+        )
+        .loc[:, [
+            "report_date",
+            "plant_id_eia",
+            "unit_id_pudl",
+            "generator_id",
+            "heat_rate_mmbtu_mwh"
+        ]]
+    )
+
+    # Bring in generator specific fuel type & fuel count.
     hr_by_gen = pudl.helpers.clean_merge_asof(
         left=hr_by_gen,
         right=pudl_out.gens_eia860()[[
@@ -122,7 +175,12 @@ def heat_rate_by_gen(pudl_out):
             "generator_id": pd.StringDtype(),
         }
     )
-    return hr_by_gen
+
+    return pudl.helpers.convert_cols_dtypes(
+        hr_by_gen,
+        data_source="eia",
+        name="hr_by_gen",
+    )
 
 
 def fuel_cost(pudl_out):
@@ -285,7 +343,11 @@ def fuel_cost(pudl_out):
         .merge(fc, on=['report_date', 'plant_id_eia', 'generator_id'])
     )
 
-    return out_df
+    return pudl.helpers.convert_cols_dtypes(
+        out_df,
+        data_source="eia",
+        name="fuel_cost",
+    )
 
 
 def capacity_factor(pudl_out, min_cap_fact=0, max_cap_fact=1.5):
@@ -365,7 +427,11 @@ def capacity_factor(pudl_out, min_cap_fact=0, max_cap_fact=1.5):
         .drop(['hours'], axis=1)
     )
 
-    return cf
+    return pudl.helpers.convert_cols_dtypes(
+        cf,
+        data_source="eia",
+        name="capacity_factor",
+    )
 
 
 def mcoe(
@@ -487,4 +553,9 @@ def mcoe(
         lb=min_cap_fact,
         ub=max_cap_fact
     )
-    return mcoe_out
+
+    return pudl.helpers.convert_cols_dtypes(
+        mcoe_out,
+        data_source="eia",
+        name="mcoe",
+    )

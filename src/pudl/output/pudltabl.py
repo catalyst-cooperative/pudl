@@ -71,7 +71,8 @@ class PudlTabl(object):
 
         Args:
             freq (str): String describing time frequency at which to aggregate
-                the reported data. E.g. 'MS' (monthly start).
+                the reported data. Currently this can only be 'MS'
+                (month start) or 'AS' (annual start).
             start_date (date): Beginning date for data to pull from the
                 PUDL DB.
             end_date (date): End date for data to pull from the PUDL DB.
@@ -89,23 +90,41 @@ class PudlTabl(object):
                 ``mcoe()``, ``capacity_factor()`` and ``heat_rate_by_unit()``.
 
         """
+        if not isinstance(pudl_engine, sa.engine.base.Engine):
+            raise TypeError(
+                "PudlTabl needs pudl_engine to be a SQLAlchemy Engine, but we "
+                f"got a {type(pudl_engine)}."
+            )
         self.pudl_engine = pudl_engine
+
+        if freq not in (None, "AS", "MS"):
+            raise ValueError(
+                f"freq must be one of None, 'MS', or 'AS', but we got {freq}."
+            )
         self.freq = freq
         # We need datastore access because some data is not yet integrated into the
         # PUDL DB. See the etl_eia861 method.
-        self.ds = ds
-        if self.ds is None:
+        if not (
+            (ds is None) or
+            isinstance(ds, pudl.workspace.datastore.Datastore)
+        ):
+            raise TypeError(
+                "PudlTable needs ds to be a PUDL Datastore object, but we got "
+                f"a {type(ds)}."
+            )
+        if ds is None:
             pudl_in = Path(pudl.workspace.setup.get_defaults()["pudl_in"])
             self.ds = pudl.workspace.datastore.Datastore(
                 local_cache_path=pudl_in / "data"
             )
+        else:
+            self.ds = ds
 
         # grab all working eia dates to use to set start and end dates if they
         # are not set
         eia_dates = pudl.helpers.get_working_eia_dates()
         if start_date is None:
             self.start_date = min(eia_dates)
-
         else:
             # Make sure it's a date... and not a string.
             self.start_date = pd.to_datetime(start_date)
@@ -115,9 +134,6 @@ class PudlTabl(object):
         else:
             # Make sure it's a date... and not a string.
             self.end_date = pd.to_datetime(end_date)
-
-        if not pudl_engine:
-            raise AssertionError('PudlTabl object needs a pudl_engine')
 
         self.roll_fuel_cost = roll_fuel_cost
         self.fill_fuel_cost = fill_fuel_cost
