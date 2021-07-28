@@ -213,187 +213,95 @@ def is_doi(doi):
     return bool(re.match(doi_regex, doi))
 
 
-def is_annual(df_year, year_col='report_date'):
-    """
-    Determine whether a DataFrame contains consistent annual time-series data.
-
-    Some processes will only work with consistent yearly reporting. This means
-    if you have two non-contiguous years of data or the datetime reporting is
-    inconsistent, the process will break. This function attempts to infer the
-    temporal frequency of the dataframe, or if that is impossible, to at least
-    see whether the data would be consistent with annual reporting -- e.g. if
-    there is only a single year of data, it should all have the same date, and
-    that date should correspond to January 1st of a given year.
-
-    This function is known to be flaky and needs to be re-written to deal with
-    the edge cases better.
-
-    Args:
-        df_year (pandas.DataFrame): A pandas DataFrame that might
-            contain time-series data at annual resolution.
-        year_col (str): The column of the DataFrame in which the year is
-            reported.
-
-    Returns:
-        bool: True if df_year is found to be consistent with continuous annual
-        time resolution, False otherwise.
-
-    """
-    year_index = pd.DatetimeIndex(df_year[year_col].unique()).sort_values()
-    if len(year_index) >= 3:
-        date_freq = pd.infer_freq(year_index)
-        assert date_freq == 'AS-JAN', "infer_freq() not AS-JAN"
-    elif len(year_index) == 2:
-        min_year = year_index.min()
-        max_year = year_index.max()
-        assert year_index.min().month == 1, "min year not Jan"
-        assert year_index.min().day == 1, "min day not 1st"
-        assert year_index.max().month == 1, "max year not Jan"
-        assert year_index.max().day == 1, "max day not 1st"
-        delta_year = pd.Timedelta(max_year - min_year)
-        assert delta_year / pd.Timedelta(days=1) >= 365.0
-        assert delta_year / pd.Timedelta(days=1) <= 366.0
-    elif len(year_index) == 1:
-        assert year_index.min().month == 1, "only month not Jan"
-        assert year_index.min().day == 1, "only day not 1st"
-    else:
-        assert False, "Zero dates found!"
-
-    return True
-
-
-def merge_on_date_year_new(
-    df_date,
-    df_year,
-    date_col="report_date",
-    year_col="report_date",
-    on=None,
-    how="inner",
+def clean_merge_asof(
+    left,  # Higher time frequency / resolution / granularity
+    right,  # Lower time frequency / resolution / granularity
+    by=None,  # dict of columns to merge on and their Dtypes
 ):
     """
-    Transition to using pd.merge_asof() instead of our janky homebrew.
+    Merge two dataframes having different time report_date frequencies.
 
-    Rather than swapping out all the calls to merge_on_date_year() just yet,
-    this function translates the call signature of that function and uses
-    pd.merge_asof() internally to hopefully simplify and make the process much
-    more robust.
+    We often need to bring together data which is reported on a monthly basis,
+    and entity attributes that are reported on an annual basis. For example, we
+    might want monthly net generation, and also a bunch of generator attributes
+    in the same dataframe. In addition, we allow aggregation at either monthly
+    or annual resolution in some contexts, and so we need to be able to merge
+    together a monthly or annual data table with an annual entity attribute
+    table. This is exactly what :func:`pandas.merge_asof` is designed to do.
 
-    """
-    left = df_date.copy()
-    left.loc[:, date_col] = pd.to_datetime(left.date_col)
-    right = df_year.copy()
-    right.loc[:, year_col] = pd.to_datetime(right.year_col)
+    However, to use that function, we need to ensure that the dataframes to be
+    merged are sorted by the field to be merged on at potentially different
+    resolutions (``report_date`` in this case) and we need to make sure that
+    any other columns that we're merging on have identical data types (e.g.
+    ``plant_id_eia`` needs to be a nullable integer in both dataframes, not a
+    python int in one, and a nullable :func:`pandas.Int64Dtype` in the other).
 
-    return (
-        pd.merge_asof(
-            left=left,
-            right=right,
-            left_on=date_col,
-            right_on=year_col,
-            left_by=on,
-            right_by=on,
-        )
-    )
+    The function also forces ``report_date`` to be a Datetime type, using
+    :func:`pandas.to_datetime`.
 
+    This function takes care of ensuring those requirements are met. Note that
+    :func:`pandas.merge_asof` can only perform left merges, so the higher
+    frequency dataframe **must** be the left dataframe, or you will lose many
+    records.
 
-def merge_on_date_year(
-    df_date,
-    df_year,
-    on=(),
-    how='inner',
-    date_col='report_date',
-    year_col='report_date',
-):
-    """Merge two dataframes based on a shared year.
-
-    Some of our data is annual, and has an integer year column (e.g. FERC 1).
-    Some of our data is annual, and uses a Date column (e.g. EIA 860), and
-    some of our data has other temporal resolutions, and uses date columns
-    (e.g. EIA 923 fuel receipts are monthly, EPA CEMS data is hourly). This
-    function takes two data frames and merges them based on the year that the
-    data pertains to.  It requires one of the dataframes to have annual
-    resolution, and allows the annual time to be described as either an integer
-    year or a Date. The non-annual dataframe must have a Date column.
-
-    By default, it is assumed that both the date and annual columns to be
-    merged on are called 'report_date' since that's the common case when
-    bringing together EIA860 and EIA923 data.
+    Note that because :func:`pandas.merge_asof` searches backwards for the first
+    matching date, this function only works if the less granular dataframe uses
+    the convention of reporting the first date in the time period for which it
+    reports. E.g. annual dataframes need to have January 1st as the date. This
+    is what happens by defualt if only a year or year-month are provided to
+    :func:`pandas.to_datetime`
 
     Args:
-        df_date: the dataframe with a more granular date column, the label of
-            which is specified by date_col (report_date by default)
-        df_year: the dataframe with a column containing annual dates, the label
-            of which is specified by year_col (report_date by default)
-        on: The list of columns to merge on, other than the year and date
-            columns.
-        date_col: name of the date column to use to find the year to merge on.
-            Must be a Date.
-        year_col: name of the year column to merge on. Must be a Date
-            column with annual resolution.
+        left (pandas.DataFrame): The higher frequency "data" dataframe.
+            Typically monthly in our use cases. E.g. ``generation_eia923``. Must
+            contain ``report_date`` and any columns specified in the ``by``
+            argument.
+        right (pandas.DataFrame): The lower frequency "attribute" dataframe.
+            Typically annual in our uses cases. E.g. ``generators_eia860``. Must
+            contain ``report_date`` and any columns specified in the ``by``
+            argument.
+        by (dict): A dictionary enumerating any columns to merge on, in addition
+            to ``report_date``. Typically ID columns like ``plant_id_eia``,
+            ``generator_id`` or ``boiler_id``. The keys of the dictionary are
+            the names of the columns, and the values are their data types.
 
     Returns:
-        pandas.DataFrame: a dataframe with a date column, but no year
-        columns, and only one copy of any shared columns that were not part of
-        the list of columns to be merged on.  The values from df1 are the ones
-        which are retained for any shared, non-merging columns
+        pandas.DataFrame: Contents of left and right input dataframes,
+        left-merged on ``report_date`` and the fields in ``by``, and sorted by
+        those fields as well. See :func:`pandas.merge_asof` for how this kind
+        of merge works.
 
     Raises:
-        ValueError: if the date or year columns are not found, or if the year
-            column is found to be inconsistent with annual reporting.
-
-    Todo: Right mergers will result in null values in the resulting date
-        column. The final output includes the date_col from the date_df and thus
-        if there are any entity records (records being merged on) in the
-        year_df but not in the date_df, a right merge will result in nulls in
-        the date_col. And when we drop the 'year_temp' column, the year from
-        the year_df will be gone. Need to determine how to deal with this.
-        Should we generate a montly record in each year? Should we generate
-        full time serires? Should we restrict right merges in this function?
+        ValueError: if ``report_date`` column is not found in either the left or
+            right input dataframes.
+        ValueError: if any of the labels referenced in ``by`` are missing from
+            either the left or right dataframes.
 
     """
-    if date_col not in df_date.columns.tolist():
-        raise ValueError(f"Date column {date_col} not found in df_date.")
-    if year_col not in df_year.columns.tolist():
-        raise ValueError(f"Year column {year_col} not found in df_year.")
-    if not is_annual(df_year, year_col=year_col):
-        raise ValueError(f"df_year is not annual, based on column {year_col}.")
+    # Make sure we've got all the required inputs...
+    if "report_date" not in left.columns:
+        raise ValueError("Left dataframe has no report_date.")
+    if "report_date" not in right.columns:
+        raise ValueError("Right dataframe has no report_date.")
+    missing_left_cols = [col for col in by if col not in left.columns]
+    if missing_left_cols:
+        raise ValueError(f"Left dataframe is missing {missing_left_cols}.")
+    missing_right_cols = [col for col in by if col not in right.columns]
+    if missing_right_cols:
+        raise ValueError(f"Left dataframe is missing {missing_right_cols}.")
 
-    first_date = pd.to_datetime(df_date[date_col].min())
-    all_dates = pd.DatetimeIndex(df_date[date_col]).unique().sort_values()
-    if not len(all_dates) > 0:
-        raise ValueError("Didn't find any dates in DatetimeIndex.")
-    if len(all_dates) > 1:
-        if len(all_dates) == 2:
-            second_date = all_dates.max()
-        elif len(all_dates) > 2:
-            date_freq = pd.infer_freq(all_dates)
-            rng = pd.date_range(start=first_date, periods=2, freq=date_freq)
-            second_date = rng[1]
-        if (second_date - first_date) / pd.Timedelta(days=366) > 1.0:
-            raise ValueError("Consecutive annual dates >1 year apart.")
+    def cleanup(df, dtypes):
+        df = df.astype(dtypes)
+        df.loc[:, "report_date"] = pd.to_datetime(df.report_date)
+        df = df.sort_values(["report_date"] + list(dtypes.keys()))
+        return df
 
-    # Create a temporary column in each dataframe with the year
-    df_year = df_year.copy()
-    df_date = df_date.copy()
-    df_year['year_temp'] = pd.to_datetime(df_year[year_col]).dt.year
-    # Drop the yearly report_date column: this way there won't be duplicates
-    # and the final df will have the more granular report_date.
-    df_year = df_year.drop([year_col], axis=1)
-    df_date['year_temp'] = pd.to_datetime(df_date[date_col]).dt.year
-
-    full_on = on + ['year_temp']
-    unshared_cols = [col for col in df_year.columns.tolist()
-                     if col not in df_date.columns.tolist()]
-    cols_to_use = unshared_cols + full_on
-
-    # Merge and drop the temp
-    merged = (
-        pd.merge(df_date, df_year[cols_to_use], how=how, on=full_on)
-        .drop(['year_temp'], axis='columns')
+    return pd.merge_asof(
+        cleanup(df=left, dtypes=by),
+        cleanup(df=right, dtypes=by),
+        on="report_date",
+        by=list(by.keys()),
     )
-    merged[date_col] = pd.to_datetime(merged[date_col])
-
-    return merged
 
 
 def organize_cols(df, cols):

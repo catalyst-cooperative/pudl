@@ -56,6 +56,7 @@ doc_requires = [
     "doc8~=0.8.0",
     "sphinx~=3.0",
     "sphinx-issues~=1.2",
+    "sphinx-reredirects",
     "sphinx_rtd_theme~=0.5.0",
 ]
 

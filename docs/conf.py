@@ -38,8 +38,14 @@ extensions = [
     'sphinx.ext.todo',
     'sphinx.ext.viewcode',
     'sphinx_issues',
+    'sphinx_reredirects',
 ]
 todo_include_todos = True
+
+# Redirects to keep folks from hitting 404 errors:
+redirects = {
+    "data_dictionary": "data_dictionaries/pudl_db.html",
+}
 
 # GitHub repo
 issues_github_path = "catalyst-cooperative/pudl"

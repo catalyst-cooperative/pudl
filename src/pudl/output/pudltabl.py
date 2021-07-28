@@ -791,25 +791,6 @@ class PudlTabl(object):
     ###########################################################################
     # EIA MCOE OUTPUTS
     ###########################################################################
-    def bga(self, update=False):
-        """
-        Pull the more complete EIA/PUDL boiler-generator associations.
-
-        Args:
-            update (bool): If true, re-calculate the output dataframe, even if
-                a cached version exists.
-
-        Returns:
-            pandas.DataFrame: a denormalized table for interactive use.
-
-        """
-        if update or self._dfs['bga'] is None:
-            self._dfs['bga'] = pudl.output.glue.boiler_generator_assn(
-                self.pudl_engine,
-                start_date=self.start_date,
-                end_date=self.end_date)
-        return self._dfs['bga']
-
     def hr_by_gen(self, update=False):
         """
         Calculate and return generator level heat rates (mmBTU/MWh).

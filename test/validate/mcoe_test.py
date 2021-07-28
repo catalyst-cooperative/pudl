@@ -12,7 +12,6 @@ non-fuel production costs have yet to be integrated.
 """
 import logging
 
-import pandas as pd
 import pytest
 
 from pudl import validate as pv
@@ -46,39 +45,6 @@ def pudl_out_mcoe(pudl_out_eia, live_dbs):
     return pudl_out_eia
 
 
-def test_bga(pudl_out_eia, live_dbs):
-    """Test the boiler generator associations."""
-    if not live_dbs:
-        pytest.skip("Data validation only works with a live PUDL DB.")
-    logger.info("Inferring complete boiler-generator associations...")
-    bga = pudl_out_eia.bga()
-    gens_simple = pudl_out_eia.gens_eia860()[['report_date',
-                                              'plant_id_eia',
-                                              'generator_id',
-                                              'fuel_type_code_pudl']]
-    bga_gens = bga[['report_date', 'plant_id_eia',
-                    'unit_id_pudl', 'generator_id']].drop_duplicates()
-
-    gens_simple = pd.merge(gens_simple, bga_gens,
-                           on=['report_date', 'plant_id_eia', 'generator_id'],
-                           validate='one_to_one')
-    units_simple = gens_simple.drop('generator_id', axis=1).drop_duplicates()
-    units_fuel_count = \
-        units_simple.groupby(
-            ['report_date',
-             'plant_id_eia',
-             'unit_id_pudl'])['fuel_type_code_pudl'].count().reset_index()
-    units_fuel_count.rename(
-        columns={'fuel_type_code_pudl': 'fuel_type_count'}, inplace=True)
-    units_simple = pd.merge(units_simple, units_fuel_count,
-                            on=['report_date', 'plant_id_eia', 'unit_id_pudl'])
-    num_multi_fuel_units = len(units_simple[units_simple.fuel_type_count > 1])
-    multi_fuel_unit_fraction = num_multi_fuel_units / len(units_simple)
-    logger.warning(
-        f"{multi_fuel_unit_fraction:.0%} of generation units contain "
-        f"generators with differing primary fuels.")
-
-
 ###############################################################################
 # Tests that look check for existence and uniqueness of some MCOE outputs:
 # These tests were inspired by some bad merges that generated multiple copies
@@ -90,7 +56,6 @@ def test_bga(pudl_out_eia, live_dbs):
         ("hr_by_gen", "all"),
         ("fuel_cost", "all"),
         ("capacity_factor", "all"),
-        ("bga", "all"),
         ("mcoe", "all"),
     ]
 )
@@ -108,7 +73,6 @@ def test_no_null_cols_mcoe(pudl_out_mcoe, live_dbs, cols, df_name):
 
 @pytest.mark.parametrize(
     "df_name,monthly_rows,annual_rows", [
-        ("bga", 105_764, 105_764),
         ("hr_by_unit", 302_256, 26_302),
         ("hr_by_gen", 451_668, 39_056),
         ("fuel_cost", 451_668, 39_056),

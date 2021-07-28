@@ -13,7 +13,6 @@ Submodules
    pudl.output.epacems
    pudl.output.ferc1
    pudl.output.ferc714
-   pudl.output.glue
    pudl.output.pudltabl
 
 Module contents
