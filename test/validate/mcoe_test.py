@@ -102,7 +102,6 @@ def test_minmax_rows_mcoe(pudl_out_mcoe, live_dbs,
 
 @pytest.mark.parametrize(
     "df_name,unique_subset", [
-        ("bga", ["report_date", "plant_id_eia", "boiler_id", "generator_id"]),
         ("hr_by_unit", ["report_date", "plant_id_eia", "unit_id_pudl"]),
         ("hr_by_gen", ["report_date", "plant_id_eia", "generator_id"]),
         ("fuel_cost", ["report_date", "plant_id_eia", "generator_id"]),

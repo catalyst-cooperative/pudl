@@ -214,9 +214,11 @@ def is_doi(doi):
 
 
 def clean_merge_asof(
-    left,  # Higher time frequency / resolution / granularity
-    right,  # Lower time frequency / resolution / granularity
-    by=None,  # dict of columns to merge on and their Dtypes
+    left,
+    right,
+    left_on="report_date",
+    right_on="report_date",
+    by={},
 ):
     """
     Merge two dataframes having different time report_date frequencies.
@@ -231,18 +233,20 @@ def clean_merge_asof(
 
     However, to use that function, we need to ensure that the dataframes to be
     merged are sorted by the field to be merged on at potentially different
-    resolutions (``report_date`` in this case) and we need to make sure that
-    any other columns that we're merging on have identical data types (e.g.
-    ``plant_id_eia`` needs to be a nullable integer in both dataframes, not a
-    python int in one, and a nullable :func:`pandas.Int64Dtype` in the other).
-
-    The function also forces ``report_date`` to be a Datetime type, using
-    :func:`pandas.to_datetime`.
+    resolutions (generally ``report_date`` in this case) and we need to make
+    sure that any other columns that we're merging on have identical data types
+    (e.g.  ``plant_id_eia`` needs to be a nullable integer in both dataframes,
+    not a python int in one, and a nullable :func:`pandas.Int64Dtype` in the
+    other).
 
     This function takes care of ensuring those requirements are met. Note that
     :func:`pandas.merge_asof` can only perform left merges, so the higher
     frequency dataframe **must** be the left dataframe, or you will lose many
     records.
+
+    The function also forces both ``left_on`` and ``right_on`` to be a Datetime
+    using :func:`pandas.to_datetime`. This is useful for merging dataframes
+    where one has an integer year, and the other has an actual date.
 
     Note that because :func:`pandas.merge_asof` searches backwards for the first
     matching date, this function only works if the less granular dataframe uses
@@ -260,29 +264,35 @@ def clean_merge_asof(
             Typically annual in our uses cases. E.g. ``generators_eia860``. Must
             contain ``report_date`` and any columns specified in the ``by``
             argument.
+        left_on (str): Column in ``left`` to merge on using merge_asof. Default
+            is ``report_date``. Must be convertible to a Datetime using
+            :func:`pandas.to_datetime`
+        right_on (str): Column in ``right`` to merge on using merge_asof.
+            Default is ``report_date``. Must be convertible to a Datetime using
+            :func:`pandas.to_datetime`
         by (dict): A dictionary enumerating any columns to merge on, in addition
             to ``report_date``. Typically ID columns like ``plant_id_eia``,
             ``generator_id`` or ``boiler_id``. The keys of the dictionary are
             the names of the columns, and the values are their data types.
 
     Returns:
-        pandas.DataFrame: Contents of left and right input dataframes,
-        left-merged on ``report_date`` and the fields in ``by``, and sorted by
-        those fields as well. See :func:`pandas.merge_asof` for how this kind
+        pandas.DataFrame: Merged contents of left and right input dataframes.
+        Will be sorted by ``left_on`` and any columns specified in ``by``. See
+        documentation for :func:`pandas.merge_asof` to understand how this kind
         of merge works.
 
     Raises:
-        ValueError: if ``report_date`` column is not found in either the left or
-            right input dataframes.
+        ValueError: if ``left_on`` or ``right_on`` columns are missing from
+            their respective input dataframes.
         ValueError: if any of the labels referenced in ``by`` are missing from
             either the left or right dataframes.
 
     """
     # Make sure we've got all the required inputs...
-    if "report_date" not in left.columns:
-        raise ValueError("Left dataframe has no report_date.")
-    if "report_date" not in right.columns:
-        raise ValueError("Right dataframe has no report_date.")
+    if left_on not in left.columns:
+        raise ValueError(f"Left dataframe has no column {left_on}.")
+    if right_on not in right.columns:
+        raise ValueError(f"Right dataframe has no {right_on}.")
     missing_left_cols = [col for col in by if col not in left.columns]
     if missing_left_cols:
         raise ValueError(f"Left dataframe is missing {missing_left_cols}.")
@@ -290,17 +300,19 @@ def clean_merge_asof(
     if missing_right_cols:
         raise ValueError(f"Left dataframe is missing {missing_right_cols}.")
 
-    def cleanup(df, dtypes):
+    def cleanup(df, on, dtypes):
         df = df.astype(dtypes)
-        df.loc[:, "report_date"] = pd.to_datetime(df.report_date)
-        df = df.sort_values(["report_date"] + list(dtypes.keys()))
+        df.loc[:, on] = pd.to_datetime(df[on])
+        df = df.sort_values([on] + list(dtypes.keys()))
         return df
 
     return pd.merge_asof(
-        cleanup(df=left, dtypes=by),
-        cleanup(df=right, dtypes=by),
-        on="report_date",
+        cleanup(df=left, on=left_on, dtypes=by),
+        cleanup(df=right, on=right_on, dtypes=by),
+        left_on=left_on,
+        right_on=right_on,
         by=list(by.keys()),
+        tolerance=pd.Timedelta("365 days")  # Should never match across years.
     )
 
 
