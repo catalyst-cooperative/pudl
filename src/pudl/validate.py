@@ -130,9 +130,9 @@ def no_null_cols(df, cols="all", df_name=""):
     if cols == "all":
         cols = df.columns
 
-    for c in cols:
-        if df[c].isna().all():
-            raise ValueError(f"Null column: {c} found in dataframe {df_name}")
+    null_cols = [c for c in cols if c in df.columns and df[c].isna().all()]
+    if null_cols:
+        raise ValueError(f"Null columns found in {df_name}: {null_cols}")
 
     return df
 

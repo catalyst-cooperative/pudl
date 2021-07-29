@@ -143,8 +143,6 @@ Known Issues
   that the algorithm is making poor assignments, or that the manually assigned
   ``plant_id_pudl`` values are incorrect. This is out of several thousand
   distinct ``plant_id_ferc1`` values. See :issue:`954`
-* In the MCOE outputs, the ``distributed_generation`` column is composed
-  entirely of ``NA`` values. See :issue:`943`
 
 ---------------------------------------------------------------------------------------
 0.3.2 (2020-02-17)

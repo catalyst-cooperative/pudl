@@ -51,24 +51,34 @@ def pudl_out_mcoe(pudl_out_eia, live_dbs):
 # of some records in the past...
 ###############################################################################
 @pytest.mark.parametrize(
-    "df_name,cols", [
-        ("hr_by_unit", "all"),
-        ("hr_by_gen", "all"),
-        ("fuel_cost", "all"),
-        ("capacity_factor", "all"),
-        ("mcoe", "all"),
-    ]
+    "df_name",
+    ["hr_by_unit", "hr_by_gen", "fuel_cost", "capacity_factor", "mcoe"]
 )
-def test_no_null_cols_mcoe(pudl_out_mcoe, live_dbs, cols, df_name):
+def test_no_null_cols_mcoe(pudl_out_mcoe, live_dbs, df_name):
     """Verify that output DataFrames have no entirely NULL columns."""
     if not live_dbs:
         pytest.skip("Data validation only works with a live PUDL DB.")
     if pudl_out_mcoe.freq is None:
         pytest.skip()
 
-    pv.no_null_cols(
-        pudl_out_mcoe.__getattribute__(df_name)(),
-        cols=cols, df_name=df_name)
+    # These are columns that only exist in 2006 and older data, beyond the time
+    # for which we can calculate the MCOE:
+    deprecated_cols = [
+        'distributed_generation',
+        'energy_source_1_transport_1',
+        'energy_source_1_transport_2',
+        'energy_source_1_transport_3',
+        'energy_source_2_transport_1',
+        'energy_source_2_transport_2',
+        'energy_source_2_transport_3',
+        'owned_by_non_utility',
+        'reactive_power_output_mvar',
+        'summer_capacity_estimate',
+        'winter_capacity_estimate'
+    ]
+    df = pudl_out_mcoe.__getattribute__(df_name)()
+    cols = [col for col in df.columns if col not in deprecated_cols]
+    pv.no_null_cols(df, cols=cols, df_name=df_name)
 
 
 @pytest.mark.parametrize(
@@ -79,8 +89,13 @@ def test_no_null_cols_mcoe(pudl_out_mcoe, live_dbs, cols, df_name):
         ("capacity_factor", 510_835, 42_884),
         ("mcoe", 510_880, 42_884),
     ])
-def test_minmax_rows_mcoe(pudl_out_mcoe, live_dbs,
-                          monthly_rows, annual_rows, df_name):
+def test_minmax_rows_mcoe(
+    pudl_out_mcoe,
+    live_dbs,
+    monthly_rows,
+    annual_rows,
+    df_name
+):
     """Verify that output DataFrames don't have too many or too few rows."""
     if not live_dbs:
         pytest.skip("Data validation only works with a live PUDL DB.")
