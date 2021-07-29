@@ -124,15 +124,10 @@ def heat_rate_by_gen(pudl_out):
 
     hr_by_unit = (
         pudl_out.hr_by_unit()
-        .assign(
-            year=lambda x: x.report_date.dt.year,
-            month=lambda x: x.report_date.dt.month,
-            day=lambda x: x.report_date.dt.day,
-        )
+        .assign(year=lambda x: x.report_date.dt.year)
         .loc[:, [
             "year",
-            "month",
-            "day",
+            "report_date",
             "plant_id_eia",
             "unit_id_pudl",
             "heat_rate_mmbtu_mwh"
@@ -146,10 +141,6 @@ def heat_rate_by_gen(pudl_out):
             on=["year", "plant_id_eia", "unit_id_pudl"],
             how="inner",
             validate="many_to_many",
-        )
-        .assign(
-            # Reconstruct the date field out of its component parts.
-            report_date=lambda x: pd.to_datetime(x[["year", "month", "day"]])
         )
         .loc[:, [
             "report_date",
