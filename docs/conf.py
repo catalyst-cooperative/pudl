@@ -22,7 +22,7 @@ release = pkg_resources.get_distribution('catalystcoop.pudl').version
 # -- Project information -----------------------------------------------------
 
 project = 'PUDL'
-copyright = '2016-2021, Catalyst Cooperative'  # noqa: A001
+copyright = '2016-2021, Catalyst Cooperative, CC-BY-4.0'  # noqa: A001
 author = 'Catalyst Cooperative'
 
 # -- General configuration ---------------------------------------------------

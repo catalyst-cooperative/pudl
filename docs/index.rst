@@ -17,4 +17,5 @@ The Public Utility Data Liberation Project
   dev/index
   Licensing <LICENSE>
   Code of Conduct <code_of_conduct>
+  Release Notes <release_notes>
   Module Index <api/modules>

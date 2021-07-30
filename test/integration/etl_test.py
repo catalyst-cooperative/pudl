@@ -10,6 +10,7 @@ the tests have completed.
 import logging
 from pathlib import Path
 
+import pytest
 import sqlalchemy as sa
 import yaml
 
@@ -47,9 +48,13 @@ def test_epacems_to_parquet(
     datapkg_bundle,
     pudl_settings_fixture,
     pudl_etl_params,
-    request
+    request,
+    live_dbs,
 ):
     """Attempt to convert a small amount of EPA CEMS data to parquet format."""
+    if live_dbs:
+        pytest.skip("Don't attempt EPA CEMS to Parquet conversion with live DBs.")
+
     epacems_datapkg_json = Path(
         pudl_settings_fixture['datapkg_dir'],
         pudl_etl_params['datapkg_bundle_name'],

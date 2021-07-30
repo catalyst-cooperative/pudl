@@ -626,9 +626,9 @@ class PudlTabl(object):
                     'to the generator level instead of using the less complete '
                     'generation_eia923 table.'
                 )
-                self._dfs['gen_eia923'] = self.gen_allocated_eia923(update)
+                self._dfs['gen_eia923'] = self.gen_allocated_eia923(update=update)
             else:
-                self._dfs['gen_eia923'] = self.gen_original_eia923(update)
+                self._dfs['gen_eia923'] = self.gen_original_eia923(update=update)
         return self._dfs['gen_eia923']
 
     def gen_original_eia923(self, update=False):
