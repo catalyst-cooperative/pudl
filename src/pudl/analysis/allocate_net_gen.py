@@ -149,7 +149,9 @@ def allocate_gen_fuel_by_gen(pudl_out):
         pudl_out.bf_eia923()
         .rename(columns={'fuel_type_code': 'fuel_type'})
         .loc[:, IDX_FUEL + ['boiler_id', 'unit_id_pudl', 'fuel_consumed_mmbtu']]
+        .dropna(subset=['fuel_consumed_mmbtu'])
     )
+    bf = bf[bf.fuel_consumed_mmbtu != 0]
 
     # do the allocation! (this function coordinates the bulk of the work in
     # this module)
@@ -300,6 +302,7 @@ def associate_generator_tables(gf, gen, gens, bf):
             ``IDX_GENS`` and `net_generation_mwh`.
         gens (pandas.DataFrame): generators_eia860 table with cols: ``IDX_GENS``
             and all of the `energy_source_code` columns
+        bf (pandas.DataFrame): boiler_fuel_eia923 table
 
     TODO: Convert these groupby/merges into transforms.
     """
@@ -658,6 +661,11 @@ def prep_alloction_fraction(gen_assoc):
             gen_pm_fuel.groupby(IDX_PM_FUEL + [in_t_col], dropna=False)
             [['capacity_mw']].transform(sum, min_count=1)
         )
+    gen_pm_fuel['capacity_mw_fuel_in_bf_tbl_group'] = (
+        gen_pm_fuel.groupby(
+            IDX_FUEL + ['in_bf_tbl', 'unit_id_pudl'], dropna=False)
+        [['capacity_mw']].transform(sum, min_count=1)
+    )
 
     return gen_pm_fuel
 
@@ -931,7 +939,57 @@ def _test_gen_fuel_allocation(gen, gen_allocated, ratio=.05):
 # Fuel Allocation Functions
 ###########################
 
-def allocate_fuel_for_non_bf_gens(gen_pm_fuel):
+def allocate_fuel_for_in_bf_gens(in_bf_tbl, debug=False):
+    """Allocate fuel consumption for records that are in the BF table."""
+    in_bf_tbl = in_bf_tbl.assign(
+        ########
+        # we are going to equally allocate fuel burned within a unit
+        # to the various generators (regardless of their prime mover)
+        # based on capacity
+        frac_cap=lambda x: x.capacity_mw / x.capacity_mw_fuel_in_bf_tbl_group,
+        # fuel_consumed_mmbtu_bf * frac_cap
+        fuel_consumed_mmbtu=lambda x: x.fuel_consumed_mmbtu_bf_tbl * x.frac_cap,
+    )
+    test_frac_cap_in_bf(in_bf_tbl, debug=debug)
+    return in_bf_tbl
+
+
+def test_frac_cap_in_bf(in_bf_tbl, debug=False):
+    """
+    Test the frac_cap column for records w/ BF data.
+
+    Raise:
+        AssertionError: if `frac_cap` does not sum to 1 within
+            each plant/fuel group (via `IDX_FUEL`).
+    """
+    # frac_cap for each fuel group should sum to 1
+    in_bf_tbl['frac_cap_test'] = (
+        in_bf_tbl.groupby(IDX_FUEL + ['unit_id_pudl'], dropna=False)
+        [['frac_cap']].transform(sum, min_count=1)
+    )
+
+    frac_cap_test = in_bf_tbl[~np.isclose(in_bf_tbl.frac_cap_test, 1)]
+    if not frac_cap_test.empty:
+        message = (
+            "Mayday! Mayday! The `frac_cap` test has failed. We have "
+            f"{len(frac_cap_test)} records who's `frac_cap` isn't summing to 1"
+            " in each plant/fuel group. Check creation of "
+            "`capacity_mw_fuel_in_bf_tbl_group` column in "
+            "`prep_alloction_fraction()` or assignment of `frac_calc in "
+            "`allocate_fuel_for_in_bf_gens()`"
+        )
+        if debug:
+            warnings.warn(message)
+        else:
+            raise AssertionError(message)
+    else:
+        logger.info(
+            "You've passed the frac_cap test for the `in_bf_tbl` records")
+    if not debug:
+        in_bf_tbl = in_bf_tbl.drop(columns=['frac_cap_test'])
+
+
+def allocate_fuel_for_non_bf_gens(not_in_bf_tbl, debug=False):
     """
     Allocate fuel consumption for records that are not in the BF table.
 
@@ -942,8 +1000,6 @@ def allocate_fuel_for_non_bf_gens(gen_pm_fuel):
     right now. I need to allocate the fuel for the "in_bf_tbl" gens
     and squish them together.
     """
-    not_in_bf_tbl = gen_pm_fuel.loc[~gen_pm_fuel.in_bf_tbl]
-    # in_bf_tbl = gen_pm_fuel.loc[gen_pm_fuel.in_bf_tbl]
     # what fuel should be assigned to these "not in bf"
     # records based on fuel groupings?
     not_in_bf_tbl = not_in_bf_tbl.assign(
@@ -962,12 +1018,12 @@ def allocate_fuel_for_non_bf_gens(gen_pm_fuel):
             x.frac_cap * x.fuel_consumed_mmbtu_not_in_bf,
     )
 
-    test_frac_cap(not_in_bf_tbl)
-    test_not_bf_fuel_totals(not_in_bf_tbl)
+    test_frac_cap_not_in_bf(not_in_bf_tbl)
+    test_not_bf_fuel_totals(not_in_bf_tbl, debug=debug)
     return not_in_bf_tbl
 
 
-def test_frac_cap(not_in_bf_tbl):
+def test_frac_cap_not_in_bf(not_in_bf_tbl):
     """
     Test the fraction of the capacity within each prime mover/fuel group.
 
@@ -992,7 +1048,7 @@ def test_frac_cap(not_in_bf_tbl):
     )
 
 
-def test_not_bf_fuel_totals(not_in_bf_tbl):
+def test_not_bf_fuel_totals(not_in_bf_tbl, debug=False):
     """
     Test the allocated fuel consumption for the records not in the BF table.
 
@@ -1009,11 +1065,18 @@ def test_not_bf_fuel_totals(not_in_bf_tbl):
         & (not_in_bf_tbl.fuel_consumed_mmbtu_not_in_bf.notnull())
     ]
     if not fuel_test.empty:
-        raise AssertionError(
+        message = (
             "Oh dear, oh dear... the allocation of fuel consumption is "
-            f"bro0oken. We got {len(fuel_test)} generator records that"
+            f"bro0oken. We got {len(fuel_test)} generator records who's fuel"
+            "didn't add up to the total fuel in the gf table after subtracting "
+            "the fuel reported in the bf table."
         )
-    logger.info(
-        "Wahoo! You passed the test for fuel allocation for the not_in_bf "
-        "records."
-    )
+        if debug:
+            warnings.warn(message)
+        else:
+            raise AssertionError(message)
+    else:
+        logger.info(
+            "Wahoo! You passed the test for fuel allocation for the not_in_bf "
+            "records."
+        )
