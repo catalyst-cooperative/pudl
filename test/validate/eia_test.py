@@ -32,16 +32,16 @@ def test_no_null_cols_eia(pudl_out_eia, live_dbs, cols, df_name):
 
 @pytest.mark.parametrize(
     "df_name,raw_rows,monthly_rows,annual_rows", [
-        ("utils_eia860", 94_895, 94_895, 94_895),
-        ("plants_eia860", 140_311, 140_311, 140_311),
-        ("pu_eia860", 139_443, 139_443, 139_443),
-        ("own_eia860", 65_271, 65_271, 65_271),
-        ("bga_eia860", 103_805, 103_805, 103_805),
-        ("gens_eia860", 404_158, 404_158, 404_158),
-        ("frc_eia923", 454_891, 190_115, 18_773),
-        ("gen_eia923", 476_052, 476_052, 39_671),
-        ("bf_eia923", 1_133_388, 946_056, 78_838),
-        ("gf_eia923", 1_551_264, 1_250_340, 104_195),
+        ("utils_eia860", 94_896, 94_896, 94_896),
+        ("plants_eia860", 155_045, 155_045, 155_045),
+        ("pu_eia860", 139_444, 139_444, 139_444),
+        ("own_eia860", 65_264, 65_264, 65_264),
+        ("bga_eia860", 105_764, 105_764, 105_764),
+        ("gens_eia860", 403_834, 403_834, 403_834),
+        ("frc_eia923", 516_232, 213_329, 21_065),
+        ("gen_eia923", 510_565, 510_565, 42_610),
+        ("bf_eia923", 1_207_421, 1_196_353, 100_300),
+        ("gf_eia923", 2_108_133, 2_098_464, 175_708),
     ])
 def test_minmax_rows(pudl_out_eia,
                      live_dbs,
@@ -74,9 +74,9 @@ def test_minmax_rows(pudl_out_eia,
     _ = (
         pudl_out_eia.__getattribute__(df_name)()
         .pipe(pv.check_min_rows, expected_rows=expected_rows,
-              margin=0.05, df_name=df_name)
+              margin=0.0, df_name=df_name)
         .pipe(pv.check_max_rows, expected_rows=expected_rows,
-              margin=0.05, df_name=df_name)
+              margin=0.0, df_name=df_name)
     )
 
 

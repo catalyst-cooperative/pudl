@@ -60,10 +60,10 @@ def heat_rate_by_unit(pudl_out):
     gen_by_unit = gen_gb.agg({'net_generation_mwh': pudl.helpers.sum_na})
     gen_by_unit = gen_by_unit.reset_index()
 
-    # Create a dataframe containingonly the unit-boiler mappings:
+    # Create a dataframe containing only the unit-boiler mappings:
     bga_boils = pudl_out.bga()[['report_date', 'plant_id_eia',
                                 'boiler_id', 'unit_id_pudl']].drop_duplicates()
-    # Merge those unit ids into the boiler fule consumption data:
+    # Merge those unit ids into the boiler fuel consumption data:
     bf_w_unit = pudl.helpers.merge_on_date_year(
         pudl_out.bf_eia923(), bga_boils, on=['plant_id_eia', 'boiler_id'])
     # Sum up all the fuel consumption per unit for each time period:
@@ -99,17 +99,26 @@ def heat_rate_by_gen(pudl_out):
     # Associate those heat rates with individual generators. This also means
     # losing the net generation and fuel consumption information for now.
     hr_by_gen = pudl.helpers.merge_on_date_year(
-        pudl_out.hr_by_unit()
-        [['report_date', 'plant_id_eia',
-          'unit_id_pudl', 'heat_rate_mmbtu_mwh']],
-        bga_gens, on=['plant_id_eia', 'unit_id_pudl']
+        pudl_out.hr_by_unit()[[
+            'report_date',
+            'plant_id_eia',
+            'unit_id_pudl',
+            'heat_rate_mmbtu_mwh'
+        ]],
+        bga_gens,
+        on=['plant_id_eia', 'unit_id_pudl']
     )
     hr_by_gen = hr_by_gen.drop('unit_id_pudl', axis=1)
     # Now bring information about generator fuel type & count
     hr_by_gen = pudl.helpers.merge_on_date_year(
         hr_by_gen,
-        pudl_out.gens_eia860()[['report_date', 'plant_id_eia', 'generator_id',
-                                'fuel_type_code_pudl', 'fuel_type_count']],
+        pudl_out.gens_eia860()[[
+            'report_date',
+            'plant_id_eia',
+            'generator_id',
+            'fuel_type_code_pudl',
+            'fuel_type_count'
+        ]],
         on=['plant_id_eia', 'generator_id']
     )
     return hr_by_gen
@@ -169,7 +178,8 @@ def fuel_cost(pudl_out):
     gen_w_ft = pudl.helpers.merge_on_date_year(
         hr_by_gen, gens,
         on=['plant_id_eia', 'generator_id'],
-        how='inner')
+        how='inner',
+    )
 
     one_fuel = gen_w_ft[gen_w_ft.fuel_type_count == 1]
     multi_fuel = gen_w_ft[gen_w_ft.fuel_type_count > 1]
@@ -285,14 +295,15 @@ def capacity_factor(pudl_out, min_cap_fact=0, max_cap_fact=1.5):
                'generator_id', 'net_generation_mwh']]
 
     # merge the generation and capacity to calculate capacity factor
-    capacity_factor = pudl.helpers.merge_on_date_year(gen,
-                                                      gens_eia860,
-                                                      on=['plant_id_eia',
-                                                          'generator_id'],
-                                                      how='inner')
+    cf = pudl.helpers.merge_on_date_year(
+        gen,
+        gens_eia860,
+        on=['plant_id_eia', 'generator_id'],
+        how='inner',
+    )
 
     # get a unique set of dates to generate the number of hours
-    dates = capacity_factor['report_date'].drop_duplicates()
+    dates = cf['report_date'].drop_duplicates()
     dates_to_hours = pd.DataFrame(
         data={'report_date': dates,
               'hours': dates.apply(
@@ -302,21 +313,20 @@ def capacity_factor(pudl_out, min_cap_fact=0, max_cap_fact=1.5):
                   pd.Timedelta(hours=1))})
 
     # merge in the hours for the calculation
-    capacity_factor = capacity_factor.merge(dates_to_hours, on=['report_date'])
+    cf = cf.merge(dates_to_hours, on=['report_date'])
 
     # actually calculate capacity factor wooo!
-    capacity_factor['capacity_factor'] = \
-        capacity_factor['net_generation_mwh'] / \
-        (capacity_factor['capacity_mw'] * capacity_factor['hours'])
+    cf['capacity_factor'] = cf.net_generation_mwh / (cf.capacity_mw * cf.hours)
 
     # Replace unrealistic capacity factors with NaN
-    capacity_factor = pudl.helpers.oob_to_nan(
-        capacity_factor, ['capacity_factor'], lb=min_cap_fact, ub=max_cap_fact)
+    cf = pudl.helpers.oob_to_nan(
+        cf, ['capacity_factor'], lb=min_cap_fact, ub=max_cap_fact
+    )
 
     # drop the hours column, cause we don't need it anymore
-    capacity_factor.drop(['hours'], axis=1, inplace=True)
+    cf.drop(['hours'], axis=1, inplace=True)
 
-    return capacity_factor
+    return cf
 
 
 def mcoe(pudl_out,
