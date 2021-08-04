@@ -52,6 +52,44 @@ def test_own_eia860(pudl_out_eia, live_dbs):
         )
 
 
+@pytest.mark.xfail(reason="There are 730 generators that report multiple operators")
+def test_operator_id(pudl_out_eia, live_dbs):
+    """
+    Test if the operator id in ownership table is consistent across generators.
+
+    The ``utility_id_eia`` column is supposed to be the operator, which should
+    only be one utility for each generator. The ``owner_utility_id_eia`` is
+    suppose to be the owner, which can be multiple utilities for each generator.
+
+    We have a known issue with 2010 data. Many generators are being reported
+    with the ``utility_id_eia`` with what appears to be the
+    ``owner_utility_id_eia`` instead.
+
+    Raises:
+        AssertionError: If there are generators with multiple reported operators
+    """
+    if not live_dbs:
+        pytest.skip("Data validation only works with a live PUDL DB.")
+    if pudl_out_eia.freq is not None:
+        pytest.skip()
+
+    own_out = pudl_out_eia.own_eia860()
+    operator_check = (
+        own_out.groupby(
+            ['report_date', 'plant_id_eia', 'generator_id'],
+            dropna=True)
+        [['utility_id_eia']].nunique()
+    )
+    multi_operator = operator_check[operator_check.utility_id_eia > 1]
+    years = multi_operator.report_date.dt.year.unique()
+    if not multi_operator.empty:
+        raise AssertionError(
+            f"There are {len(multi_operator)} generator records across "
+            f"{list(years)} that are being reported as having multiple "
+            "operators."
+        )
+
+
 @pytest.mark.xfail(reason="There are 40 known inconsistent generator IDs.")
 def test_generator_id_consistency(pudl_out_eia, live_dbs):
     """
