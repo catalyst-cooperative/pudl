@@ -702,7 +702,8 @@ def fix_leading_zero_gen_ids(df):
         )
         num_fixes = len(
             df.loc[df["generator_id"].astype(str) != fixed_generator_id])
-        logger.debug("Fixed %s EIA generator IDs with leading zeros.", num_fixes)
+        logger.debug(
+            "Fixed %s EIA generator IDs with leading zeros.", num_fixes)
         df = (
             df.drop("generator_id", axis="columns")
             .assign(generator_id=fixed_generator_id)
@@ -1149,11 +1150,14 @@ def count_records(df, cols, new_count_col_name):
         pandas.DataFrame: dataframe with only the `cols` definted and the
         `new_count_col_name`.
     """
-    return (df.assign(count_me=1).
-            groupby(cols).
-            agg({'count_me': 'count'}).
-            reset_index().
-            rename(columns={'count_me': new_count_col_name}))
+    return (
+        df.assign(count_me=1)
+        .groupby(cols)
+        [['count_me']]
+        .count()
+        .reset_index()
+        .rename(columns={'count_me': new_count_col_name})
+    )
 
 
 def cleanstrings_snake(df, cols):
