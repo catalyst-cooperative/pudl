@@ -29,7 +29,7 @@ from prefect import task
 logger = logging.getLogger(__name__)
 
 
-class TableExists(Exception):
+class TableExistsError(Exception):
     """The table already exists.
 
     Either the table already exists in the DataFrameCollection when it is added or the file
@@ -92,19 +92,19 @@ class DataFrameCollection:
         """Open the file that should hold the serialized contentes for the table.
 
         Raises:
-            TableExists if the underlying file already exists.
+            TableExistsError if the underlying file already exists.
         """
         filename = self._get_filename(name, self._instance_id)
         fs, _, _ = fsspec.get_fs_token_paths(filename)
         if fs.exists(filename):
-            raise TableExists(
+            raise TableExistsError(
                 f'{filename} containing serialized data for table {name} already exists.')
         return fsspec.open(filename, "wb")
 
     def store(self, name: str, data: pd.DataFrame):
         """Adds named dataframe to collection and stores its contents on disk."""
         if name in self._table_ids:
-            raise TableExists(f'Table {name} already present in the DFC.')
+            raise TableExistsError(f'Table {name} already present in the DFC.')
         with self._create_file(name) as fd:
             data.to_pickle(fd)
             self._table_ids[name] = self._instance_id
@@ -115,7 +115,7 @@ class DataFrameCollection:
         This assumes that the data is already present on disk.
         """
         if name in self._table_ids:
-            raise TableExists(f'Table {name} already exists in this DFC.')
+            raise TableExistsError(f'Table {name} already exists in this DFC.')
         self._table_ids[name] = table_id
 
     def __getitem__(self, name: str) -> pd.DataFrame:

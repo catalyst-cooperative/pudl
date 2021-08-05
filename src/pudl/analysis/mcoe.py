@@ -162,8 +162,8 @@ def heat_rate_by_gen(pudl_out):
             'fuel_type_count'
         ]],
         by={
-            "plant_id_eia": pd.Int64Dtype(),
-            "generator_id": pd.StringDtype(),
+            "plant_id_eia": "eia",
+            "generator_id": "eia",
         }
     )
 
@@ -240,8 +240,8 @@ def fuel_cost(pudl_out):
         left=hr_by_gen,
         right=gens,
         by={
-            "plant_id_eia": pd.Int64Dtype(),
-            "generator_id": pd.StringDtype(),
+            "plant_id_eia": "eia",
+            "generator_id": "eia",
         }
     )
 
@@ -386,8 +386,8 @@ def capacity_factor(pudl_out, min_cap_fact=0, max_cap_fact=1.5):
         left=gen,
         right=gens_eia860,
         by={
-            "plant_id_eia": pd.Int64Dtype(),
-            "generator_id": pd.StringDtype(),
+            "plant_id_eia": "eia",
+            "generator_id": "eia",
         }
     )
 
@@ -471,8 +471,8 @@ def mcoe(
         left=pudl_out.fuel_cost().drop(drop_cols, axis=1),
         right=pudl_out.gens_eia860(),
         by={
-            "plant_id_eia": pd.Int64Dtype(),
-            "generator_id": pd.StringDtype(),
+            "plant_id_eia": "eia",
+            "generator_id": "eia",
         }
     )
     # Bring together the fuel cost and capacity factor dataframes, which

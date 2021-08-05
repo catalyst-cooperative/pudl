@@ -224,33 +224,23 @@ def clean_merge_asof(
     Merge two dataframes having different time report_date frequencies.
 
     We often need to bring together data which is reported on a monthly basis,
-    and entity attributes that are reported on an annual basis. For example, we
-    might want monthly net generation, and also a bunch of generator attributes
-    in the same dataframe. In addition, we allow aggregation at either monthly
-    or annual resolution in some contexts, and so we need to be able to merge
-    together a monthly or annual data table with an annual entity attribute
-    table. This is exactly what :func:`pandas.merge_asof` is designed to do.
+    and entity attributes that are reported on an annual basis.  The
+    :func:`pandas.merge_asof` is designed to do this, but requires that
+    dataframes are sorted by the merge keys (``left_on``, ``right_on``, and
+    ``by.keys()`` here). We also need to make sure that all merge keys have
+    identical data types in the two dataframes (e.g. ``plant_id_eia`` needs to
+    be a nullable integer in both dataframes, not a python int in one, and a
+    nullable :func:`pandas.Int64Dtype` in the other).  Note that
+    :func:`pandas.merge_asof` performs a left merge, so the higher frequency
+    dataframe **must** be the left dataframe.
 
-    However, to use that function, we need to ensure that the dataframes to be
-    merged are sorted by the field to be merged on at potentially different
-    resolutions (generally ``report_date`` in this case) and we need to make
-    sure that any other columns that we're merging on have identical data types
-    (e.g.  ``plant_id_eia`` needs to be a nullable integer in both dataframes,
-    not a python int in one, and a nullable :func:`pandas.Int64Dtype` in the
-    other).
+    We also force both ``left_on`` and ``right_on`` to be a Datetime using
+    :func:`pandas.to_datetime` to allow merging dataframes having integer years
+    with those having datetime columns.
 
-    This function takes care of ensuring those requirements are met. Note that
-    :func:`pandas.merge_asof` can only perform left merges, so the higher
-    frequency dataframe **must** be the left dataframe, or you will lose many
-    records.
-
-    The function also forces both ``left_on`` and ``right_on`` to be a Datetime
-    using :func:`pandas.to_datetime`. This is useful for merging dataframes
-    where one has an integer year, and the other has an actual date.
-
-    Note that because :func:`pandas.merge_asof` searches backwards for the first
-    matching date, this function only works if the less granular dataframe uses
-    the convention of reporting the first date in the time period for which it
+    Because :func:`pandas.merge_asof` searches backwards for the first matching
+    date, this function only works if the less granular dataframe uses the
+    convention of reporting the first date in the time period for which it
     reports. E.g. annual dataframes need to have January 1st as the date. This
     is what happens by defualt if only a year or year-month are provided to
     :func:`pandas.to_datetime`
@@ -270,10 +260,12 @@ def clean_merge_asof(
         right_on (str): Column in ``right`` to merge on using merge_asof.
             Default is ``report_date``. Must be convertible to a Datetime using
             :func:`pandas.to_datetime`
-        by (dict): A dictionary enumerating any columns to merge on, in addition
-            to ``report_date``. Typically ID columns like ``plant_id_eia``,
+        by (dict): A dictionary enumerating any columns to merge on other than
+            ``report_date``. Typically ID columns like ``plant_id_eia``,
             ``generator_id`` or ``boiler_id``. The keys of the dictionary are
-            the names of the columns, and the values are their data types.
+            the names of the columns, and the values are their data source, as
+            defined in :mod:`pudl.constants` (e.g. ``ferc1`` or ``eia``). The
+            data source is used to look up the column's canonical data type.
 
     Returns:
         pandas.DataFrame: Merged contents of left and right input dataframes.
@@ -300,20 +292,33 @@ def clean_merge_asof(
     if missing_right_cols:
         raise ValueError(f"Left dataframe is missing {missing_right_cols}.")
 
-    def cleanup(df, on, dtypes):
-        df = df.astype(dtypes)
+    def cleanup(df, on, by):
+        df = df.astype(get_pudl_dtypes(by))
         df.loc[:, on] = pd.to_datetime(df[on])
-        df = df.sort_values([on] + list(dtypes.keys()))
+        df = df.sort_values([on] + list(by.keys()))
         return df
 
     return pd.merge_asof(
-        cleanup(df=left, on=left_on, dtypes=by),
-        cleanup(df=right, on=right_on, dtypes=by),
+        cleanup(df=left, on=left_on, by=by),
+        cleanup(df=right, on=right_on, by=by),
         left_on=left_on,
         right_on=right_on,
         by=list(by.keys()),
         tolerance=pd.Timedelta("365 days")  # Should never match across years.
     )
+
+
+def get_pudl_dtype(col, data_source):
+    """Look up a column's canonical data type based on its PUDL data source."""
+    return pudl.constants.column_dtypes[data_source][col]
+
+
+def get_pudl_dtypes(col_source_dict):
+    """Look up canonical PUDL data types for columns based on data sources."""
+    return {
+        col: get_pudl_dtype(col, col_source_dict[col])
+        for col in col_source_dict
+    }
 
 
 def organize_cols(df, cols):
@@ -622,8 +627,7 @@ def fix_leading_zero_gen_ids(df):
         )
         num_fixes = len(
             df.loc[df["generator_id"].astype(str) != fixed_generator_id])
-        logger.debug(
-            "Fixed %s EIA generator IDs with leading zeros.", num_fixes)
+        logger.debug("Fixed %s EIA generator IDs with leading zeros.", num_fixes)
         df = (
             df.drop("generator_id", axis="columns")
             .assign(generator_id=fixed_generator_id)
@@ -1066,15 +1070,16 @@ def count_records(df, cols, new_count_col_name):
         cols (iterable) : list of columns to group and count by.
         new_count_col_name (string) : the name that will be assigned to the
             column that will contain the count.
+
     Returns:
-        pandas.DataFrame: dataframe with only the `cols` definted and the
-        `new_count_col_name`.
+        pandas.DataFrame: dataframe containing only ``cols`` and
+        ``new_count_col_name``.
+
     """
     return (
         df.assign(count_me=1)
         .groupby(cols)
-        [['count_me']]
-        .count()
+        .count_me.count()
         .reset_index()
         .rename(columns={'count_me': new_count_col_name})
     )

@@ -65,10 +65,10 @@ def utilities_eia860(pudl_engine, start_date=None, end_date=None):
     out_df = (
         out_df.assign(report_date=lambda x: pd.to_datetime(x.report_date))
         .dropna(subset=["report_date", "utility_id_eia"])
-        .astype({
-            "utility_id_eia": "Int64",
-            "utility_id_pudl": "Int64",
-        })
+        .astype(pudl.helpers.get_pudl_dtypes({
+            "utility_id_eia": "eia",
+            "utility_id_pudl": "eia",
+        }))
         .drop(['id'], axis='columns')
     )
     first_cols = [
@@ -144,12 +144,12 @@ def plants_eia860(pudl_engine, start_date=None, end_date=None):
         pd.merge(out_df, utils_eia_df, how='left', on=['utility_id_eia'])
         .drop(['id'], axis='columns')
         .dropna(subset=["report_date", "plant_id_eia"])
-        .astype({
-            "plant_id_eia": "Int64",
-            "plant_id_pudl": "Int64",
-            "utility_id_eia": "Int64",
-            "utility_id_pudl": "Int64",
-        })
+        .astype(pudl.helpers.get_pudl_dtypes({
+            "plant_id_eia": "eia",
+            "plant_id_pudl": "eia",
+            "utility_id_eia": "eia",
+            "utility_id_pudl": "eia",
+        }))
     )
     return out_df
 
@@ -207,12 +207,12 @@ def plants_utils_eia860(pudl_engine, start_date=None, end_date=None):
                        'utility_id_pudl']
                    ]
         .dropna(subset=["report_date", "plant_id_eia", "utility_id_eia"])
-        .astype({
-            "plant_id_eia": "Int64",
-            "plant_id_pudl": "Int64",
-            "utility_id_eia": "Int64",
-            "utility_id_pudl": "Int64",
-        })
+        .astype(pudl.helpers.get_pudl_dtypes({
+            "plant_id_eia": "eia",
+            "plant_id_pudl": "eia",
+            "utility_id_eia": "eia",
+            "utility_id_pudl": "eia",
+        }))
     )
     return out_df
 
@@ -339,13 +339,13 @@ def generators_eia860(
         pd.merge(out_df, ft_count, how='left',
                  on=['plant_id_eia', 'report_date'])
         .dropna(subset=["report_date", "plant_id_eia", "generator_id"])
-        .astype({
-            "plant_id_eia": "Int64",
-            "plant_id_pudl": "Int64",
-            "unit_id_pudl": "Int64",
-            "utility_id_eia": "Int64",
-            "utility_id_pudl": "Int64",
-        })
+        .astype(pudl.helpers.get_pudl_dtypes({
+            "plant_id_eia": "eia",
+            "plant_id_pudl": "eia",
+            "unit_id_pudl": "eia",
+            "utility_id_eia": "eia",
+            "utility_id_pudl": "eia",
+        }))
     )
     # Augment those base unit_id_pudl values using heuristics, see below.
     if unit_ids:
@@ -467,12 +467,12 @@ def ownership_eia860(pudl_engine, start_date=None, end_date=None):
             "generator_id",
             "owner_utility_id_eia",
         ])
-        .astype({
-            "plant_id_eia": "Int64",
-            "plant_id_pudl": "Int64",
-            "utility_id_eia": "Int64",
-            "utility_id_pudl": "Int64",
-        })
+        .astype(pudl.helpers.get_pudl_dtypes({
+            "plant_id_eia": "eia",
+            "plant_id_pudl": "eia",
+            "utility_id_eia": "eia",
+            "utility_id_pudl": "eia",
+        }))
     )
 
     first_cols = [

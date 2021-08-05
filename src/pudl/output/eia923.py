@@ -133,7 +133,7 @@ def generation_fuel_eia923(pudl_engine, freq=None,
         pudl.helpers.clean_merge_asof(
             left=gf_df,
             right=pu_eia,
-            by={"plant_id_eia": pd.Int64Dtype()}
+            by={"plant_id_eia": "eia"}
         )
         # Drop any records where we've failed to get the 860 data merged in...
         .dropna(subset=[
@@ -141,12 +141,12 @@ def generation_fuel_eia923(pudl_engine, freq=None,
             'utility_id_eia',
         ])
         .pipe(pudl.helpers.organize_cols, first_cols)
-        .astype({
-            "plant_id_eia": "Int64",
-            "plant_id_pudl": "Int64",
-            "utility_id_eia": "Int64",
-            "utility_id_pudl": "Int64",
-        })
+        .astype(pudl.helpers.get_pudl_dtypes({
+            "plant_id_eia": "eia",
+            "plant_id_pudl": "eia",
+            "utility_id_eia": "eia",
+            "utility_id_pudl": "eia",
+        }))
     )
 
     return out_df
@@ -242,7 +242,7 @@ def fuel_receipts_costs_eia923(pudl_engine, freq=None,
 
     frc_df = (
         frc_df.merge(cmi_df, how='left', on='mine_id_pudl')
-        .rename(columns={"state": "coalmine_state"})
+        .rename(columns={"state": "mine_state"})
     )
 
     cols_to_drop = ['id', 'mine_id_pudl']
@@ -365,7 +365,7 @@ def fuel_receipts_costs_eia923(pudl_engine, freq=None,
         pudl.helpers.clean_merge_asof(
             left=frc_df,
             right=pu_eia,
-            by={"plant_id_eia": pd.Int64Dtype()}
+            by={"plant_id_eia": "eia"}
         )
         .dropna(subset=['utility_id_eia'])
         .pipe(
@@ -380,12 +380,12 @@ def fuel_receipts_costs_eia923(pudl_engine, freq=None,
                 'utility_name_eia',
             ]
         )
-        .astype({
-            "plant_id_eia": "Int64",
-            "plant_id_pudl": "Int64",
-            "utility_id_eia": "Int64",
-            "utility_id_pudl": "Int64",
-        })
+        .astype(pudl.helpers.get_pudl_dtypes({
+            "plant_id_eia": "eia",
+            "plant_id_pudl": "eia",
+            "utility_id_eia": "eia",
+            "utility_id_pudl": "eia",
+        }))
     )
 
     if freq is None:
@@ -496,7 +496,7 @@ def boiler_fuel_eia923(pudl_engine, freq=None,
         pudl.helpers.clean_merge_asof(
             left=bf_df,
             right=pu_eia,
-            by={"plant_id_eia": pd.Int64Dtype()},
+            by={"plant_id_eia": "eia"},
         )
         .dropna(subset=['plant_id_eia', 'utility_id_eia', 'boiler_id'])
     )
@@ -515,8 +515,8 @@ def boiler_fuel_eia923(pudl_engine, freq=None,
         left=out_df,
         right=bga_boilers,
         by={
-            "plant_id_eia": pd.Int64Dtype(),
-            "boiler_id": pd.StringDtype(),
+            "plant_id_eia": "eia",
+            "boiler_id": "eia",
         }
     )
     out_df = pudl.helpers.organize_cols(
@@ -532,13 +532,13 @@ def boiler_fuel_eia923(pudl_engine, freq=None,
             'boiler_id',
             'unit_id_pudl',
         ]
-    ).astype({
-        'plant_id_eia': "Int64",
-        'plant_id_pudl': "Int64",
-        'unit_id_pudl': "Int64",
-        'utility_id_eia': "Int64",
-        'utility_id_pudl': "Int64",
-    })
+    ).astype(pudl.helpers.get_pudl_dtypes({
+        'plant_id_eia': "eia",
+        'plant_id_pudl': "eia",
+        'unit_id_pudl': "eia",
+        'utility_id_eia': "eia",
+        'utility_id_pudl': "eia",
+    }))
 
     if freq is None:
         out_df = out_df.drop(['id'], axis=1)
@@ -608,7 +608,7 @@ def generation_eia923(
         pudl.helpers.clean_merge_asof(
             left=g_df,
             right=pu_eia,
-            by={"plant_id_eia": pd.Int64Dtype()},
+            by={"plant_id_eia": "eia"}
         )
         .dropna(subset=['plant_id_eia', 'utility_id_eia', 'generator_id'])
     )
@@ -627,8 +627,8 @@ def generation_eia923(
         left=out_df,
         right=bga_gens,
         by={
-            "plant_id_eia": pd.Int64Dtype(),
-            "generator_id": pd.StringDtype(),
+            "plant_id_eia": "eia",
+            "generator_id": "eia",
         }
     )
     out_df = (
@@ -642,12 +642,12 @@ def generation_eia923(
             'utility_name_eia',
             'generator_id',
         ])
-        .astype({
-            "plant_id_eia": "Int64",
-            "plant_id_pudl": "Int64",
-            "utility_id_eia": "Int64",
-            "utility_id_pudl": "Int64",
-        })
+        .astype(pudl.helpers.get_pudl_dtypes({
+            "plant_id_eia": "eia",
+            "plant_id_pudl": "eia",
+            "utility_id_eia": "eia",
+            "utility_id_pudl": "eia",
+        }))
     )
 
     if freq is None:
