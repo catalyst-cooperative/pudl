@@ -38,19 +38,20 @@ class TestDataFrameCollection(unittest.TestCase):
         self.assertRaises(KeyError, self.dfc.get, "unknown_df")
 
     def test_table_conflicts_are_prevented(self):
-        """Checks that subsequent calls to store throw TableExists exceptions."""
+        """Checks that subsequent calls to store throw TableExistsError exceptions."""
         test_df = pd.DataFrame({'x': [1, 2]})
         self.dfc.store("test", test_df)
-        self.assertRaises(dfc.TableExists, self.dfc.store, "test", pd.DataFrame())
+        self.assertRaises(dfc.TableExistsError, self.dfc.store, "test", pd.DataFrame())
         pd.testing.assert_frame_equal(test_df, self.dfc.get("test"))
 
     def test_disk_overwrites_are_prevented(self):
-        """Checks that TableExists is thrown if the file already exists on disk."""
+        """Checks that TableExistsError is thrown if the file already exists on disk."""
         self.dfc.store("first", pd.DataFrame())
         instance_id = dict(self.dfc.references())["first"]
         with open(os.path.join(self.temp_dir, instance_id.hex, "second"), "w") as f:
             f.write("random content")
-        self.assertRaises(dfc.TableExists, self.dfc.store, "second", pd.DataFrame())
+        self.assertRaises(dfc.TableExistsError, self.dfc.store,
+                          "second", pd.DataFrame())
 
     def test_simple_df_retrieval(self):
         """Adds single dataframe to DFC and retrieves it."""
@@ -86,9 +87,10 @@ class TestDataFrameCollection(unittest.TestCase):
         self.assertEqual(self.dfc.references(), extra_dfc.references())
 
     def test_add_reference_prevents_collisions(self):
-        """Tests that attempts to add_reference to existing table throw TableExists."""
+        """Tests that attempts to add_reference to existing table throw TableExistsError."""
         self.dfc.store("test", pd.DataFrame())
-        self.assertRaises(dfc.TableExists, self.dfc.add_reference, "test", uuid.uuid1())
+        self.assertRaises(dfc.TableExistsError,
+                          self.dfc.add_reference, "test", uuid.uuid1())
 
     def test_two_dfc_do_not_collide(self):
         """Test that two dfc storing the same df will not collide."""
@@ -130,7 +132,7 @@ class TestDataFrameCollection(unittest.TestCase):
         dfc1.store("y", pd.DataFrame())
         dfc2.store("y", pd.DataFrame())
         dfc2.store("z", pd.DataFrame())
-        self.assertRaises(dfc.TableExists, dfc1.union, dfc2)
+        self.assertRaises(dfc.TableExistsError, dfc1.union, dfc2)
 
     def test_to_dict(self):
         """Tests that dictionaries containing dataframes are correctly built from DFCs."""

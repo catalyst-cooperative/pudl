@@ -130,9 +130,9 @@ def no_null_cols(df, cols="all", df_name=""):
     if cols == "all":
         cols = df.columns
 
-    for c in cols:
-        if df[c].isna().all():
-            raise ValueError(f"Null column: {c} found in dataframe {df_name}")
+    null_cols = [c for c in cols if c in df.columns and df[c].isna().all()]
+    if null_cols:
+        raise ValueError(f"Null columns found in {df_name}: {null_cols}")
 
     return df
 
@@ -141,11 +141,15 @@ def check_max_rows(df, expected_rows=np.inf, margin=0.05, df_name=""):
     """Validate that a dataframe has less than a maximum number of rows."""
     len_df = len(df)
     max_rows = expected_rows * (1 + margin)
+    pct_off = (len_df - expected_rows) / expected_rows
+    msg = (
+        f"{df_name}: found {len_df} rows, expected {expected_rows}. "
+        f"Off by {pct_off:.3%}, allowed margin of {margin:.3%}"
+    )
+
     if len_df > max_rows:
-        raise ValueError(
-            f"Too many records ({len_df}>{max_rows}) in dataframe {df_name}")
-    logger.info(f"{df_name}: expected {expected_rows} rows, "
-                f"found {len_df} rows.")
+        raise ValueError(msg)
+    logger.info(msg)
 
     return df
 
@@ -154,11 +158,15 @@ def check_min_rows(df, expected_rows=0, margin=0.05, df_name=""):
     """Validate that a dataframe has a certain minimum number of rows."""
     len_df = len(df)
     min_rows = expected_rows / (1 + margin)
+    pct_off = (len_df - expected_rows) / expected_rows
+    msg = (
+        f"{df_name}: found {len_df} rows, expected {expected_rows}. "
+        f"Off by {pct_off:.3%}, allowed margin of {margin:.3%}"
+    )
+
     if len_df < min_rows:
-        raise ValueError(
-            f"Too few records ({len_df}<{min_rows}) in dataframe {df_name}")
-    logger.info(f"{df_name}: expected {expected_rows} rows, "
-                f"found {len_df} rows.")
+        raise ValueError(msg)
+    logger.info(msg)
 
     return df
 

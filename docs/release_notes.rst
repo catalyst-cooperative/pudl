@@ -143,8 +143,11 @@ Known Issues
   that the algorithm is making poor assignments, or that the manually assigned
   ``plant_id_pudl`` values are incorrect. This is out of several thousand
   distinct ``plant_id_ferc1`` values. See :issue:`954`
-* In the MCOE outputs, the ``distributed_generation`` column is composed
-  entirely of ``NA`` values. See :issue:`943`
+* The county FIPS codes associated with coal mines reported in the Fuel Receipts and
+  Costs table are being treated inconsistently in terms of their data types, especially
+  in the output functions, so they are currently being output as floating point numbers
+  that have been cast to strings, rather than zero-padded integers that are strings. See
+  :issue:`1119`
 
 ---------------------------------------------------------------------------------------
 0.3.2 (2020-02-17)
