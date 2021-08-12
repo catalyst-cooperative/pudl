@@ -1,7 +1,9 @@
 """Load excel metadata CSV files form a python data package."""
 import importlib.resources
 import logging
+import pathlib
 
+import dbfread
 import pandas as pd
 
 import pudl
@@ -203,6 +205,7 @@ class GenericExtractor(object):
         logger.info(f'Extracting {self._dataset_name} spreadsheet data.')
 
         for page in self._metadata.get_all_pages():
+            print(page)
             if page in self.BLACKLISTED_PAGES:
                 logger.debug(f'Skipping blacklisted page {page}.')
                 continue
@@ -273,7 +276,18 @@ class GenericExtractor(object):
                 excel_file = pd.ExcelFile(res)
             except KeyError:
                 zf = self.ds.get_zipfile_resource(self._dataset_name, **partition)
-                excel_file = pd.ExcelFile(zf.read(xlsx_filename))
+
+                # If loading the excel file from the zip fails then try to open a dbf file.
+                extension = pathlib.Path(xlsx_filename).suffix.lower()
+                if extension == ".dbf":
+                    dbf_filepath = zf.open(xlsx_filename)
+                    df = pd.DataFrame(iter(dbfread.DBF(
+                        xlsx_filename,
+                        filedata=dbf_filepath
+                    )))
+                    excel_file = pudl.helpers.convert_df_to_excel_file(df)
+                else:
+                    excel_file = pd.ExcelFile(zf.read(xlsx_filename))
             finally:
                 self._file_cache[xlsx_filename] = excel_file
         # TODO(rousik): this _file_cache could be replaced with @cache or @memoize annotations
