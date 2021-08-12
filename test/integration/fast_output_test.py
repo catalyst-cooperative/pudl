@@ -77,6 +77,21 @@ def test_eia_outputs(fast_out, df1_name, df2_name, mult):
     pv.check_date_freq(df1, df2, mult)
 
 
+@pytest.mark.parametrize(
+    "df_name,thresh", [
+        ("mcoe", 0.8),
+    ]
+)
+def test_null_rows(fast_out, df_name, thresh):
+    """Check MCOE output for null rows resulting from bad merges."""
+    # These are columns that only exist in earlier years
+    pv.no_null_rows(
+        df=fast_out.__getattribute__(df_name)(),
+        df_name=df_name,
+        thresh=thresh,
+    )
+
+
 def test_eia861_etl(fast_out):
     """Make sure that the EIA 861 Extract-Transform steps work."""
     fast_out.etl_eia861()

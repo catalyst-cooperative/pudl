@@ -82,6 +82,32 @@ def test_no_null_cols_mcoe(pudl_out_mcoe, live_dbs, df_name):
 
 
 @pytest.mark.parametrize(
+    "df_name,thresh", [
+        ("mcoe", 0.8),
+    ]
+)
+def test_no_null_rows_mcoe(pudl_out_mcoe, live_dbs, df_name, thresh):
+    """
+    Verify that output DataFrames have no overly NULL rows.
+
+    Currently we only test the MCOE dataframe because it has lots of columns
+    and some complicated merges. For tables with fewer columns, the "index"
+    columns end up being most of them, and should probably be skipped.
+
+    """
+    if not live_dbs:
+        pytest.skip("Data validation only works with a live PUDL DB.")
+    if pudl_out_mcoe.freq is None:
+        pytest.skip()
+
+    pv.no_null_rows(
+        df=pudl_out_mcoe.__getattribute__(df_name)(),
+        df_name=df_name,
+        thresh=thresh,
+    )
+
+
+@pytest.mark.parametrize(
     "df_name,monthly_rows,annual_rows", [
         ("hr_by_unit", 315_324, 26_570),
         ("hr_by_gen", 468_358, 39_323),
