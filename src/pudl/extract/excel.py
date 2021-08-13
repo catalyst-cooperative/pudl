@@ -226,6 +226,7 @@ class GenericExtractor(object):
                     skipfooter=self._metadata.get_skipfooter(
                         page, **partition),
                     dtype=self.get_dtypes(page, **partition))
+
                 newdata = pudl.helpers.simplify_columns(newdata)
                 newdata = self.process_raw(newdata, page, **partition)
                 newdata = self.process_renamed(newdata, page, **partition)
@@ -261,6 +262,7 @@ class GenericExtractor(object):
             pd.ExcelFile instance with the parsed excel spreadsheet frame
         """
         xlsx_filename = self.excel_filename(page, **partition)
+
         if xlsx_filename not in self._file_cache:
             excel_file = None
             try:
