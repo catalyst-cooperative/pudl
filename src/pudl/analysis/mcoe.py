@@ -457,8 +457,7 @@ def mcoe(
             previously would have been NaN.
         all_gens (bool): if True, include attributes of all generators in the
             :ref:`generators_eia860` table, rather than just the generators
-            which have records in the derived MCOE values. True by default
-            for backward compatibility.
+            which have records in the derived MCOE values. True by default.
 
     Returns:
         pandas.DataFrame: a dataframe organized by date and generator,
