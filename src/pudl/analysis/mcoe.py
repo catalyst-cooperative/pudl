@@ -430,30 +430,35 @@ def mcoe(
     min_heat_rate=5.5,
     min_fuel_cost_per_mwh=0.0,
     min_cap_fact=0.0,
-    max_cap_fact=1.5
+    max_cap_fact=1.5,
+    all_gens=True,
 ):
     """
     Compile marginal cost of electricity (MCOE) at the generator level.
 
-    Use data from EIA 923, EIA 860, and (eventually) FERC Form 1 to estimate
-    the MCOE of individual generating units. The calculation is performed at
-    the time resolution, and for the period indicated by the pudl_out object.
-    that is passed in.
+    Use data from EIA 923, EIA 860, and (someday) FERC Form 1 to estimate
+    the MCOE of individual generating units. The calculation is performed over
+    the range of times and at the time resolution of the input pudl_out object.
 
     Args:
-        pudl_out: a PudlTabl object, specifying the time resolution and
-            date range for which the calculations should be performed.
-        min_heat_rate: lowest plausible heat rate, in mmBTU/MWh. Any MCOE
-            records with lower heat rates are presumed to be invalid, and are
-            discarded before returning.
-        min_cap_fact, max_cap_fact: minimum & maximum generator capacity
+        pudl_out (pudl.output.pudltable.PudlTabl): a PUDL output object
+            specifying the time resolution and date range for which the
+            calculations should be performed.
+        min_heat_rate (float): lowest plausible heat rate, in mmBTU/MWh. Any
+            MCOE records with lower heat rates are presumed to be invalid, and
+            are discarded before returning.
+        min_cap_fact, max_cap_fact (float): minimum & maximum generator capacity
             factor. Generator records with a lower capacity factor will be
             filtered out before returning. This allows the user to exclude
             generators that aren't being used enough to have valid.
-        min_fuel_cost_per_mwh: minimum fuel cost on a per MWh basis that is
-            required for a generator record to be considered valid. For some
+        min_fuel_cost_per_mwh (float): minimum fuel cost on a per MWh basis that
+            is required for a generator record to be considered valid. For some
             reason there are now a large number of $0 fuel cost records, which
             previously would have been NaN.
+        all_gens (bool): if True, include attributes of all generators in the
+            :ref:`generators_eia860` table, rather than just the generators
+            which have records in the derived MCOE values. True by default
+            for backward compatibility.
 
     Returns:
         pandas.DataFrame: a dataframe organized by date and generator,
@@ -461,92 +466,103 @@ def mcoe(
         cost on a per MWh and MMBTU basis, heat rates, and net generation.
 
     """
-    # because lots of these input dfs include same info columns, this generates
-    # drop columns for fuel_cost. This avoids needing to hard code columns.
-    merge_cols = ['plant_id_eia', 'generator_id', 'report_date']
-    drop_cols = [x for x in pudl_out.gens_eia860().columns
-                 if x in pudl_out.fuel_cost().columns and x not in merge_cols]
-    # start with the generators table so we have all of the generators
-    mcoe_out = pudl.helpers.clean_merge_asof(
-        left=pudl_out.fuel_cost().drop(drop_cols, axis=1),
-        right=pudl_out.gens_eia860(),
-        by={
-            "plant_id_eia": "eia",
-            "generator_id": "eia",
-        }
-    )
-    # Bring together the fuel cost and capacity factor dataframes, which
-    # also include heat rate information.
-    mcoe_out = pd.merge(
-        mcoe_out,
-        pudl_out.capacity_factor(
-            min_cap_fact=min_cap_fact,
-            max_cap_fact=max_cap_fact
-        )[[
-            'report_date',
-            'plant_id_eia',
-            'generator_id',
-            'capacity_factor',
-            'net_generation_mwh'
-        ]],
-        on=['report_date', 'plant_id_eia', 'generator_id'],
-        how='outer'
-    )
+    gens_idx = ["report_date", "plant_id_eia", "generator_id"]
 
+    # Bring together all derived values we've calculated in the MCOE process:
     mcoe_out = (
-        # Instead of getting the total MMBTU through this multiplication... we
-        # could also calculate the total fuel consumed on a per-unit basis, from
-        # the boiler_fuel table, and then determine what proportion should be
-        # distributed to each generator based on its heat-rate and net
-        # generation.
-        mcoe_out.assign(
+        pd.merge(
+            pudl_out.fuel_cost()
+            .loc[:, gens_idx + [
+                "fuel_cost_from_eiaapi",
+                "fuel_cost_per_mmbtu",
+                "heat_rate_mmbtu_mwh",
+                "fuel_cost_per_mwh"
+            ]],
+            pudl_out.capacity_factor()
+            .loc[:, gens_idx + ["net_generation_mwh", "capacity_factor"]],
+            on=gens_idx,
+            how="outer",
+        )
+        # Calculate a couple more derived values:
+        .assign(
             total_mmbtu=lambda x: x.net_generation_mwh * x.heat_rate_mmbtu_mwh,
             total_fuel_cost=lambda x: x.total_mmbtu * x.fuel_cost_per_mmbtu,
         )
         .pipe(
-            pudl.helpers.organize_cols,
-            [
-                'report_date',
+            pudl.helpers.oob_to_nan,
+            ['heat_rate_mmbtu_mwh'],
+            lb=min_heat_rate,
+            ub=None
+        )
+        .pipe(
+            pudl.helpers.oob_to_nan,
+            ['fuel_cost_per_mwh'],
+            lb=min_fuel_cost_per_mwh,
+            ub=None
+        )
+        .pipe(
+            pudl.helpers.oob_to_nan,
+            ['capacity_factor'],
+            lb=min_cap_fact,
+            ub=max_cap_fact
+        )
+        # Make sure the merge worked!
+        .pipe(
+            pudl.validate.no_null_rows,
+            df_name="fuel_cost + capacity_factor",
+            thresh=0.9
+        )
+        .pipe(
+            pudl.validate.no_null_cols,
+            df_name="fuel_cost + capacity_factor"
+        )
+    )
+
+    # Combine MCOE derived values with all the generator attributes:
+    mcoe_out = (
+        pd.merge(
+            left=(
+                pudl_out.gens_eia860()
+                .assign(year=lambda x: x.report_date.dt.year)
+                .drop("report_date", axis="columns")
+            ),
+            right=mcoe_out.assign(year=lambda x: x.report_date.dt.year),
+            # This "how" determines whether MCOE or gens_eia860 is the backbone
+            how="left" if all_gens else "right",
+            on=["year", "plant_id_eia", "generator_id"]
+        )
+        .astype({"year": str})
+        .assign(report_date=lambda x: x.report_date.fillna(pd.to_datetime(x.year)))
+        .drop("year", axis="columns")
+        .pipe(pudl.validate.no_null_rows, df_name="mcoe_all_gens", thresh=0.9)
+    )
+
+    # Organize the dataframe for easier legibility
+    mcoe_out = (
+        mcoe_out.pipe(
+            pudl.helpers.organize_cols, [
                 'plant_id_eia',
-                'plant_id_pudl',
-                'unit_id_pudl',
                 'generator_id',
+                'report_date',
+                'unit_id_pudl',
+                'plant_id_pudl',
                 'plant_name_eia',
                 'utility_id_eia',
                 'utility_id_pudl',
-                'utility_name_eia'
-            ]
-        )
+                'utility_name_eia',
+            ])
         .sort_values([
             'plant_id_eia',
             'unit_id_pudl',
             'generator_id',
-            'report_date'
+            'report_date',
         ])
+        # Set column data types to canonical values:
+        .pipe(
+            pudl.helpers.convert_cols_dtypes,
+            data_source="eia",
+            name="mcoe",
+        )
     )
 
-    # Filter the output based on the range of validity supplied by the user:
-    mcoe_out = pudl.helpers.oob_to_nan(
-        mcoe_out,
-        ['heat_rate_mmbtu_mwh'],
-        lb=min_heat_rate,
-        ub=None
-    )
-    mcoe_out = pudl.helpers.oob_to_nan(
-        mcoe_out,
-        ['fuel_cost_per_mwh'],
-        lb=min_fuel_cost_per_mwh,
-        ub=None
-    )
-    mcoe_out = pudl.helpers.oob_to_nan(
-        mcoe_out,
-        ['capacity_factor'],
-        lb=min_cap_fact,
-        ub=max_cap_fact
-    )
-
-    return pudl.helpers.convert_cols_dtypes(
-        mcoe_out,
-        data_source="eia",
-        name="mcoe",
-    )
+    return mcoe_out

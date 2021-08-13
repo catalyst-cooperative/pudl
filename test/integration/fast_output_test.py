@@ -79,7 +79,7 @@ def test_eia_outputs(fast_out, df1_name, df2_name, mult):
 
 @pytest.mark.parametrize(
     "df_name,thresh", [
-        ("mcoe", 0.8),
+        ("mcoe", 0.9),
     ]
 )
 def test_null_rows(fast_out, df_name, thresh):
