@@ -1,6 +1,29 @@
 """Routines that provide user-friendly access to the partitioned EPA CEMS dataset."""
 
-import itertools
+from itertools import product
+from pathlib import Path
+from typing import Optional, Sequence
+
+import pandas as pd
+
+import pudl
+
+# TODO: hardcoded data version doesn't belong here, but will defer fixing it until
+# crosswalk is formally integrated into PUDL. See Issue # 1123
+EPA_CROSSWALK_RELEASE = "https://github.com/USEPA/camd-eia-crosswalk/releases/download/v0.2.1/"
+
+# TODO: formally integrate this into PUDL. See Issue # 1123
+
+
+def epa_crosswalk() -> pd.DataFrame:
+    """Read EPA/EIA crosswalk from EPA github repo.
+
+    See https://github.com/USEPA/camd-eia-crosswalk for details and data dictionary
+
+    Returns:
+        pd.Dataframe: EPA/EIA crosswalk
+    """
+    return pd.read_csv(EPA_CROSSWALK_RELEASE + "epa_eia_crosswalk.csv")
 
 
 def year_state_filter(years=(), states=()):
@@ -42,7 +65,7 @@ def year_state_filter(years=(), states=()):
     elif years and not states:
         filters = [[tuple(x), ] for x in year_filters]
     elif years and states:
-        filters = [list(x) for x in itertools.product(year_filters, state_filters)]
+        filters = [list(x) for x in product(year_filters, state_filters)]
     else:
         filters = None
 
@@ -103,3 +126,75 @@ def get_plant_years(plant_ids, pudl_out):
         .query("plant_id_eia in @plant_ids")
         .report_date.dt.year.unique()
     )
+
+
+def epacems(
+    states: Optional[Sequence[str]] = ("CO",),
+    years: Optional[Sequence[int]] = (2019,),
+    columns: Optional[Sequence[str]] = (
+        "plant_id_eia",
+        "unitid",
+        "operating_datetime_utc",
+        # "operating_time_hours",
+        "gross_load_mw",
+        # "steam_load_1000_lbs",
+        # "so2_mass_lbs",
+        # "so2_mass_measurement_code",
+        # "nox_rate_lbs_mmbtu",
+        # "nox_rate_measurement_code",
+        # "nox_mass_lbs",
+        # "nox_mass_measurement_code",
+        # "co2_mass_tons",
+        # "co2_mass_measurement_code",
+        # "heat_content_mmbtu",
+        # "facility_id",
+        "unit_id_epa",
+        # "year",
+        # "state",
+    ),
+) -> pd.DataFrame:
+    """Load EPA CEMS data from PUDL with optional subsetting.
+
+    Args:
+        states (Optional[Sequence[str]], optional): subset by state abbreviation. Pass None to get all states. Defaults to ("CO",).
+        years (Optional[Sequence[int]], optional): subset by year. Pass None to get all years. Defaults to (2019,).
+        columns (Optional[Sequence[str]], optional): subset by column. Pass None to get all columns. Defaults to ( "plant_id_eia", "unitid", "operating_datetime_utc", "gross_load_mw", "unit_id_epa").
+
+    Returns:
+        pd.DataFrame: epacems data
+    """
+    if states is None:
+        states = pudl.constants.us_states.keys()  # all states
+    else:
+        states = list(states)
+    if years is None:
+        years = pudl.constants.data_years["epacems"]  # all years
+    else:
+        years = list(years)
+    if columns is not None:
+        # columns=None is handled by pd.read_parquet, gives all columns
+        columns = list(columns)
+
+    # TODO: confirm pathfinding should go here vs passed in as arg.
+    # Other output funcs pass pudl_engine, but there is no db connection to worry about here
+    pudl_settings = pudl.workspace.setup.get_defaults()
+    cems_path = Path(pudl_settings["parquet_dir"]) / "epacems"
+
+    try:
+        cems = pd.read_parquet(
+            cems_path,
+            use_nullable_dtypes=True,
+            columns=columns,
+            filters=year_state_filter(
+                states=states,
+                years=years,
+            ),
+        )
+    # catch empty result and return empty dataframe instead of error
+    except ValueError as e:
+        if e.args[0] == "need at least one array to concatenate":
+            cems = pd.DataFrame(columns=columns)
+        else:
+            raise e
+
+    return cems
