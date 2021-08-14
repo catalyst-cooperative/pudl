@@ -40,7 +40,8 @@ def pudl_out_mcoe(pudl_out_eia, live_dbs):
             min_heat_rate=None,
             min_fuel_cost_per_mwh=None,
             min_cap_fact=None,
-            max_cap_fact=None
+            max_cap_fact=None,
+            all_gens=False,
         )
     return pudl_out_eia
 
