@@ -9,6 +9,7 @@ Submodules
 
    pudl.analysis.allocate_net_gen
    pudl.analysis.mcoe
+   pudl.analysis.ramp_rates
    pudl.analysis.service_territory
    pudl.analysis.spatial
    pudl.analysis.state_demand
