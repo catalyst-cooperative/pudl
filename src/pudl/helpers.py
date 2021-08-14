@@ -243,7 +243,7 @@ def clean_merge_asof(
     convention of reporting the first date in the time period for which it
     reports. E.g. annual dataframes need to have January 1st as the date. This
     is what happens by defualt if only a year or year-month are provided to
-    :func:`pandas.to_datetime`
+    :func:`pandas.to_datetime` as strings.
 
     Args:
         left (pandas.DataFrame): The higher frequency "data" dataframe.

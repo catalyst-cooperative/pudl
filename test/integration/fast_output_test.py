@@ -46,35 +46,50 @@ def test_ferc1_outputs(fast_out, df_name):
 
 
 @pytest.mark.parametrize(
-    "df1_name,df2_name,mult", [
-        ("gens_eia860", "bga_eia860", 1 / 1),
-        ("gens_eia860", "gens_eia860", 1 / 1),
-        ("gens_eia860", "own_eia860", 1 / 1),
-        ("gens_eia860", "plants_eia860", 1 / 1),
-        ("gens_eia860", "pu_eia860", 1 / 1),
-        ("gens_eia860", "utils_eia860", 1 / 1),
+    "df1_name,df2_name,mult,kwargs", [
+        ("gens_eia860", "bga_eia860", 1 / 1, {}),
+        ("gens_eia860", "gens_eia860", 1 / 1, {}),
+        ("gens_eia860", "own_eia860", 1 / 1, {}),
+        ("gens_eia860", "plants_eia860", 1 / 1, {}),
+        ("gens_eia860", "pu_eia860", 1 / 1, {}),
+        ("gens_eia860", "utils_eia860", 1 / 1, {}),
 
-        ("gens_eia860", "bf_eia923", 12 / 1),
-        ("gens_eia860", "frc_eia923", 12 / 1),
-        ("gens_eia860", "gen_eia923", 12 / 1),
+        ("gens_eia860", "bf_eia923", 12 / 1, {}),
+        ("gens_eia860", "frc_eia923", 12 / 1, {}),
+        ("gens_eia860", "gen_eia923", 12 / 1, {}),
         # gen_allocated_eia923 currently only produces annual results.
-        ("gens_eia860", "gen_allocated_eia923", 1 / 1),
-        ("gens_eia860", "gf_eia923", 12 / 1),
+        ("gens_eia860", "gen_allocated_eia923", 1 / 1, {}),
+        ("gens_eia860", "gf_eia923", 12 / 1, {}),
 
-        ("gens_eia860", "hr_by_unit", 12 / 1),
-        ("gens_eia860", "hr_by_gen", 12 / 1),
-        ("gens_eia860", "fuel_cost", 12 / 1),
-        ("gens_eia860", "capacity_factor", 12 / 1),
-        ("gens_eia860", "mcoe", 12 / 1),
+        ("gens_eia860", "hr_by_unit", 12 / 1, {}),
+        ("gens_eia860", "hr_by_gen", 12 / 1, {}),
+        ("gens_eia860", "fuel_cost", 12 / 1, {}),
+        ("gens_eia860", "capacity_factor", 12 / 1, {}),
+        ("gens_eia860", "mcoe", 12 / 1, {"all_gens": False}),
     ])
-def test_eia_outputs(fast_out, df1_name, df2_name, mult):
+def test_eia_outputs(fast_out, df1_name, df2_name, mult, kwargs):
     """Check EIA output functions and date frequencies of output dataframes."""
     df1 = fast_out.__getattribute__(df1_name)()
     logger.info(f"Running fast_out.{df2_name}() with freq={fast_out.freq}.")
-    df2 = fast_out.__getattribute__(df2_name)()
+    df2 = fast_out.__getattribute__(df2_name)(**kwargs)
     logger.info(f"Found {len(df2)} rows in {df2_name}")
     logger.info(f"Checking {df2_name} date frequency relative to {df1_name}.")
     pv.check_date_freq(df1, df2, mult)
+
+
+@pytest.mark.parametrize(
+    "df_name,thresh", [
+        ("mcoe", 0.9),
+    ]
+)
+def test_null_rows(fast_out, df_name, thresh):
+    """Check MCOE output for null rows resulting from bad merges."""
+    # These are columns that only exist in earlier years
+    pv.no_null_rows(
+        df=fast_out.__getattribute__(df_name)(),
+        df_name=df_name,
+        thresh=thresh,
+    )
 
 
 def test_eia861_etl(fast_out):

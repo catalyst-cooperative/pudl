@@ -877,9 +877,15 @@ class PudlTabl(object):
             )
         return self._dfs['capacity_factor']
 
-    def mcoe(self, update=False,
-             min_heat_rate=5.5, min_fuel_cost_per_mwh=0.0,
-             min_cap_fact=0.0, max_cap_fact=1.5):
+    def mcoe(
+        self,
+        update=False,
+        min_heat_rate=5.5,
+        min_fuel_cost_per_mwh=0.0,
+        min_cap_fact=0.0,
+        max_cap_fact=1.5,
+        all_gens=True,
+    ):
         """
         Calculate and return generator level MCOE based on EIA data.
 
@@ -906,6 +912,9 @@ class PudlTabl(object):
                 with a lower capacity factor will be filtered out before
                 returning. This allows the user to exclude generators that
                 aren't being used enough to have valid.
+            all_gens (bool): Controls whether the output contains records for
+                all generators in the :ref:`generators_eia860` table, or only
+                those generators with associated MCOE data. True by default.
 
         Returns:
             :class:`pandas.DataFrame`: a compilation of generator attributes,
@@ -919,6 +928,7 @@ class PudlTabl(object):
                 min_fuel_cost_per_mwh=min_fuel_cost_per_mwh,
                 min_cap_fact=min_cap_fact,
                 max_cap_fact=max_cap_fact,
+                all_gens=all_gens,
             )
         return self._dfs['mcoe']
 
