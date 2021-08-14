@@ -10,6 +10,7 @@ the tests have completed.
 import logging
 from pathlib import Path
 
+import pytest
 import sqlalchemy as sa
 import yaml
 
@@ -47,9 +48,13 @@ def test_epacems_to_parquet(
     datapkg_bundle,
     pudl_settings_fixture,
     pudl_etl_params,
-    request
+    request,
+    live_dbs,
 ):
     """Attempt to convert a small amount of EPA CEMS data to parquet format."""
+    if live_dbs:
+        pytest.skip("Don't attempt EPA CEMS to Parquet conversion with live DBs.")
+
     epacems_datapkg_json = Path(
         pudl_settings_fixture['datapkg_dir'],
         pudl_etl_params['datapkg_bundle_name'],
@@ -203,19 +208,19 @@ class TestExcelExtractor:
         extractor = pudl.extract.eia923.Extractor(pudl_datastore_fixture)
         self.expected_file_name(
             extractor=extractor,
-            page='plant_frame',
+            page='generation_fuel',
             year=2009,
             expected_name="EIA923 SCHEDULES 2_3_4_5 M Final 2009 REVISED 05252011.XLS"
         )
         self.expected_file_name(
             extractor=extractor,
-            page='energy_storage',
+            page='fuel_receipts_costs',
             year=2019,
             expected_name="EIA923_Schedules_2_3_4_5_M_12_2019_Final.xlsx"
         )
         self.expected_file_name(
             extractor=extractor,
-            page='puerto_rico',
+            page='boiler_fuel',
             year=2012,
             expected_name="EIA923_Schedules_2_3_4_5_M_12_2012_Final_Revision.xlsx"
         )

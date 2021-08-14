@@ -46,7 +46,8 @@ we do in our :doc:`software integration tests <testing>`.
     $ datapkg_to_sqlite \
         datapkg/pudl-fast/ferc1/datapackage.json \
         datapkg/pudl-fast/epacems-eia/datapackage.json
-    $ epacems_to_parquet datapkg/pudl-fast/epacems-eia/datapackage.json
+    $ epacems_to_parquet --years 2019 --states ID -- \
+        datapkg/pudl-fast/epacems-eia/datapackage.json
 
 The Full ETL
 ------------
@@ -61,7 +62,7 @@ for one state (Idaho!) and takes around 20 minutes to process.
     $ pudl_etl settings/etl_full.yml
     $ datapkg_to_sqlite datapkg/pudl-full/ferc1/datapackage.json \
         datapkg/pudl-full/eia/datapackage.json
-    $ epacems_to_parquet datapkg/pudl-full/epacems-eia/datapackage.json
+    $ epacems_to_parquet --states ID -- datapkg/pudl-full/epacems-eia/datapackage.json
 
 Additional Notes
 ----------------

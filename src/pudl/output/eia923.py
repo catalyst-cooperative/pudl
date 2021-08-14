@@ -130,19 +130,23 @@ def generation_fuel_eia923(pudl_engine, freq=None,
                   'utility_name_eia', ]
 
     out_df = (
-        pudl.helpers.merge_on_date_year(gf_df, pu_eia, on=['plant_id_eia'])
+        pudl.helpers.clean_merge_asof(
+            left=gf_df,
+            right=pu_eia,
+            by={"plant_id_eia": "eia"}
+        )
         # Drop any records where we've failed to get the 860 data merged in...
         .dropna(subset=[
             'plant_id_eia',
             'utility_id_eia',
         ])
         .pipe(pudl.helpers.organize_cols, first_cols)
-        .astype({
-            "plant_id_eia": "Int64",
-            "plant_id_pudl": "Int64",
-            "utility_id_eia": "Int64",
-            "utility_id_pudl": "Int64",
-        })
+        .astype(pudl.helpers.get_pudl_dtypes({
+            "plant_id_eia": "eia",
+            "plant_id_pudl": "eia",
+            "utility_id_eia": "eia",
+            "utility_id_pudl": "eia",
+        }))
     )
 
     return out_df
@@ -170,7 +174,7 @@ def fuel_receipts_costs_eia923(pudl_engine, freq=None,
     - ``fuel_qty_units`` (sum)
     - ``fuel_cost_per_mmbtu`` (weighted average)
     - ``total_fuel_cost`` (sum)
-    - ``total_heat_content_mmbtu`` (sum)
+    - ``fuel_consumed_mmbtu`` (sum)
     - ``heat_content_mmbtu_per_unit`` (weighted average)
     - ``sulfur_content_pct`` (weighted average)
     - ``ash_content_pct`` (weighted average)
@@ -236,9 +240,10 @@ def fuel_receipts_costs_eia923(pudl_engine, freq=None,
 
     frc_df = pd.read_sql(frc_select, pudl_engine)
 
-    frc_df = pd.merge(frc_df, cmi_df,
-                      how='left',
-                      on='mine_id_pudl')
+    frc_df = (
+        frc_df.merge(cmi_df, how='left', on='mine_id_pudl')
+        .rename(columns={"state": "mine_state"})
+    )
 
     cols_to_drop = ['id', 'mine_id_pudl']
     frc_df = frc_df.drop(cols_to_drop, axis=1)
@@ -248,29 +253,32 @@ def fuel_receipts_costs_eia923(pudl_engine, freq=None,
         logger.info('filling in fuel cost NaNs EIA APIs monthly state averages')
         fuel_costs_avg_eiaapi = get_fuel_cost_avg_eiaapi(
             FUEL_COST_CATEGORIES_EIAAPI)
-        # add the state from the plants table
-        frc_df = (
-            pudl.helpers.merge_on_date_year(
-                frc_df,
-                pudl.output.eia860.plants_eia860(
-                    pudl_engine, start_date=start_date, end_date=end_date)[
-                        ['report_date', 'plant_id_eia', 'state']],
-                on=['plant_id_eia', ], how='left')
-            .merge(fuel_costs_avg_eiaapi,
-                   on=['report_date', 'state', 'fuel_type_code_pudl'],
-                   how='left')
-            .assign(
-                # add a flag column to note if we are using the api data
-                fuel_cost_from_eiaapi=lambda x:
-                np.where(x.fuel_cost_per_mmbtu.isnull()
-                         & x.fuel_cost_per_unit.notnull(),
-                         True, False),
-                fuel_cost_per_mmbtu=lambda x:
-                np.where(x.fuel_cost_per_mmbtu.isnull(),
-                         (x.fuel_cost_per_unit
-                          / x.heat_content_mmbtu_per_unit),
-                         x.fuel_cost_per_mmbtu)
-            )
+        # Merge to bring in states associated with each plant:
+        plant_states = pd.read_sql(
+            "SELECT plant_id_eia, state FROM plants_entity_eia;", pudl_engine
+        )
+        frc_df = frc_df.merge(plant_states, on="plant_id_eia", how="left")
+
+        # Merge in monthly per-state fuel costs from EIA based on fuel type.
+        frc_df = frc_df.merge(
+            fuel_costs_avg_eiaapi,
+            on=['report_date', 'state', 'fuel_type_code_pudl'],
+            how='left',
+        )
+        frc_df = frc_df.assign(
+            # add a flag column to note if we are using the api data
+            fuel_cost_from_eiaapi=lambda x:
+                np.where(
+                    x.fuel_cost_per_mmbtu.isnull() & x.fuel_cost_per_unit.notnull(),
+                    True,
+                    False
+                ),
+            fuel_cost_per_mmbtu=lambda x:
+                np.where(
+                    x.fuel_cost_per_mmbtu.isnull(),
+                    (x.fuel_cost_per_unit / x.heat_content_mmbtu_per_unit),
+                    x.fuel_cost_per_mmbtu
+                )
         )
     # add the flag column to note that we didn't fill in with API data
     else:
@@ -290,10 +298,10 @@ def fuel_receipts_costs_eia923(pudl_engine, freq=None,
         )
 
     # Calculate a few totals that are commonly needed:
-    frc_df['total_heat_content_mmbtu'] = \
+    frc_df['fuel_consumed_mmbtu'] = \
         frc_df['heat_content_mmbtu_per_unit'] * frc_df['fuel_qty_units']
     frc_df['total_fuel_cost'] = \
-        frc_df['total_heat_content_mmbtu'] * frc_df['fuel_cost_per_mmbtu']
+        frc_df['fuel_consumed_mmbtu'] * frc_df['fuel_cost_per_mmbtu']
 
     if freq is not None:
         by = ['plant_id_eia', 'fuel_type_code_pudl', pd.Grouper(freq=freq)]
@@ -314,7 +322,7 @@ def fuel_receipts_costs_eia923(pudl_engine, freq=None,
         frc_gb = frc_df.groupby(by=by)
         frc_df = frc_gb.agg({
             'fuel_qty_units': pudl.helpers.sum_na,
-            'total_heat_content_mmbtu': pudl.helpers.sum_na,
+            'fuel_consumed_mmbtu': pudl.helpers.sum_na,
             'total_fuel_cost': pudl.helpers.sum_na,
             'total_sulfur_content': pudl.helpers.sum_na,
             'total_ash_content': pudl.helpers.sum_na,
@@ -324,9 +332,9 @@ def fuel_receipts_costs_eia923(pudl_engine, freq=None,
             'fuel_cost_from_eiaapi': 'any',
         })
         frc_df['fuel_cost_per_mmbtu'] = \
-            frc_df['total_fuel_cost'] / frc_df['total_heat_content_mmbtu']
+            frc_df['total_fuel_cost'] / frc_df['fuel_consumed_mmbtu']
         frc_df['heat_content_mmbtu_per_unit'] = \
-            frc_df['total_heat_content_mmbtu'] / frc_df['fuel_qty_units']
+            frc_df['fuel_consumed_mmbtu'] / frc_df['fuel_qty_units']
         frc_df['sulfur_content_pct'] = \
             frc_df['total_sulfur_content'] / frc_df['fuel_qty_units']
         frc_df['ash_content_pct'] = \
@@ -338,19 +346,27 @@ def fuel_receipts_costs_eia923(pudl_engine, freq=None,
         frc_df['moisture_content_pct'] = \
             frc_df['total_moisture_content'] / frc_df['fuel_qty_units']
         frc_df = frc_df.reset_index()
-        frc_df = frc_df.drop(['total_ash_content',
-                              'total_sulfur_content',
-                              'total_moisture_content',
-                              'total_chlorine_content',
-                              'total_mercury_content'], axis=1)
+        frc_df = frc_df.drop([
+            'total_ash_content',
+            'total_sulfur_content',
+            'total_moisture_content',
+            'total_chlorine_content',
+            'total_mercury_content'
+        ], axis=1)
 
     # Bring in some generic plant & utility information:
-    pu_eia = pudl.output.eia860.plants_utils_eia860(pudl_engine,
-                                                    start_date=start_date,
-                                                    end_date=end_date)
+    pu_eia = pudl.output.eia860.plants_utils_eia860(
+        pudl_engine,
+        start_date=start_date,
+        end_date=end_date
+    )
 
     out_df = (
-        pudl.helpers.merge_on_date_year(frc_df, pu_eia, on=['plant_id_eia'])
+        pudl.helpers.clean_merge_asof(
+            left=frc_df,
+            right=pu_eia,
+            by={"plant_id_eia": "eia"}
+        )
         .dropna(subset=['utility_id_eia'])
         .pipe(
             pudl.helpers.organize_cols,
@@ -364,12 +380,12 @@ def fuel_receipts_costs_eia923(pudl_engine, freq=None,
                 'utility_name_eia',
             ]
         )
-        .astype({
-            "plant_id_eia": "Int64",
-            "plant_id_pudl": "Int64",
-            "utility_id_eia": "Int64",
-            "utility_id_pudl": "Int64",
-        })
+        .astype(pudl.helpers.get_pudl_dtypes({
+            "plant_id_eia": "eia",
+            "plant_id_pudl": "eia",
+            "utility_id_eia": "eia",
+            "utility_id_pudl": "eia",
+        }))
     )
 
     if freq is None:
@@ -395,7 +411,7 @@ def boiler_fuel_eia923(pudl_engine, freq=None,
 
     * ``fuel_consumed_units`` (sum)
     * ``fuel_mmbtu_per_unit`` (weighted average)
-    * ``total_heat_content_mmbtu`` (sum)
+    * ``fuel_consumed_mmbtu`` (sum)
     * ``sulfur_content_pct`` (weighted average)
     * ``ash_content_pct`` (weighted average)
 
@@ -435,11 +451,11 @@ def boiler_fuel_eia923(pudl_engine, freq=None,
 
     # The total heat content is also useful in its own right, and we'll keep it
     # around.  Also needed to calculate average heat content per unit of fuel.
-    bf_df['total_heat_content_mmbtu'] = bf_df['fuel_consumed_units'] * \
+    bf_df['fuel_consumed_mmbtu'] = bf_df['fuel_consumed_units'] * \
         bf_df['fuel_mmbtu_per_unit']
 
     # Create a date index for grouping based on freq
-    by = ['plant_id_eia', 'boiler_id', 'fuel_type_code_pudl']
+    by = ['plant_id_eia', 'boiler_id', 'fuel_type_code', 'fuel_type_code_pudl']
     if freq is not None:
         # In order to calculate the weighted average sulfur
         # content and ash content we need to calculate these totals.
@@ -454,13 +470,13 @@ def boiler_fuel_eia923(pudl_engine, freq=None,
         # Sum up these totals within each group, and recalculate the per-unit
         # values (weighted in this case by fuel_consumed_units)
         bf_df = bf_gb.agg({
-            'total_heat_content_mmbtu': pudl.helpers.sum_na,
+            'fuel_consumed_mmbtu': pudl.helpers.sum_na,
             'fuel_consumed_units': pudl.helpers.sum_na,
             'total_sulfur_content': pudl.helpers.sum_na,
             'total_ash_content': pudl.helpers.sum_na,
         })
 
-        bf_df['fuel_mmbtu_per_unit'] = bf_df['total_heat_content_mmbtu'] / \
+        bf_df['fuel_mmbtu_per_unit'] = bf_df['fuel_consumed_mmbtu'] / \
             bf_df['fuel_consumed_units']
         bf_df['sulfur_content_pct'] = bf_df['total_sulfur_content'] / \
             bf_df['fuel_consumed_units']
@@ -471,28 +487,58 @@ def boiler_fuel_eia923(pudl_engine, freq=None,
                            axis=1)
 
     # Grab some basic plant & utility information to add.
-    pu_eia = pudl.output.eia860.plants_utils_eia860(pudl_engine,
-                                                    start_date=start_date,
-                                                    end_date=end_date)
-    out_df = (
-        pudl.helpers.merge_on_date_year(bf_df, pu_eia, on=['plant_id_eia'])
-        .dropna(subset=['plant_id_eia', 'utility_id_eia', 'boiler_id'])
-        .pipe(pudl.helpers.organize_cols,
-              cols=['report_date',
-                    'plant_id_eia',
-                    'plant_id_pudl',
-                    'plant_name_eia',
-                    'utility_id_eia',
-                    'utility_id_pudl',
-                    'utility_name_eia',
-                    'boiler_id'])
-        .astype({
-            'plant_id_eia': "Int64",
-            'plant_id_pudl': "Int64",
-            'utility_id_eia': "Int64",
-            'utility_id_pudl': "Int64",
-        })
+    pu_eia = pudl.output.eia860.plants_utils_eia860(
+        pudl_engine,
+        start_date=start_date,
+        end_date=end_date
     )
+    out_df = (
+        pudl.helpers.clean_merge_asof(
+            left=bf_df,
+            right=pu_eia,
+            by={"plant_id_eia": "eia"},
+        )
+        .dropna(subset=['plant_id_eia', 'utility_id_eia', 'boiler_id'])
+    )
+    # Merge in the unit_id_pudl assigned to each generator in the BGA process
+    # Pull the BGA table and make it unit-boiler only:
+    bga_boilers = (
+        pudl.output.eia860.boiler_generator_assn_eia860(
+            pudl_engine,
+            start_date=start_date,
+            end_date=end_date
+        )
+        .loc[:, ["report_date", "plant_id_eia", "boiler_id", "unit_id_pudl"]]
+        .drop_duplicates()
+    )
+    out_df = pudl.helpers.clean_merge_asof(
+        left=out_df,
+        right=bga_boilers,
+        by={
+            "plant_id_eia": "eia",
+            "boiler_id": "eia",
+        }
+    )
+    out_df = pudl.helpers.organize_cols(
+        out_df,
+        cols=[
+            'report_date',
+            'plant_id_eia',
+            'plant_id_pudl',
+            'plant_name_eia',
+            'utility_id_eia',
+            'utility_id_pudl',
+            'utility_name_eia',
+            'boiler_id',
+            'unit_id_pudl',
+        ]
+    ).astype(pudl.helpers.get_pudl_dtypes({
+        'plant_id_eia': "eia",
+        'plant_id_pudl': "eia",
+        'unit_id_pudl': "eia",
+        'utility_id_eia': "eia",
+        'utility_id_pudl': "eia",
+    }))
 
     if freq is None:
         out_df = out_df.drop(['id'], axis=1)
@@ -500,8 +546,12 @@ def boiler_fuel_eia923(pudl_engine, freq=None,
     return out_df
 
 
-def generation_eia923(pudl_engine, freq=None,
-                      start_date=None, end_date=None):
+def generation_eia923(
+    pudl_engine,
+    freq=None,
+    start_date=None,
+    end_date=None
+):
     """
     Pull records from the boiler_fuel_eia923 table in a given data range.
 
@@ -547,15 +597,42 @@ def generation_eia923(pudl_engine, freq=None,
             {'net_generation_mwh': pudl.helpers.sum_na}).reset_index()
 
     # Grab EIA 860 plant and utility specific information:
-    pu_eia = pudl.output.eia860.plants_utils_eia860(pudl_engine,
-                                                    start_date=start_date,
-                                                    end_date=end_date)
+    pu_eia = pudl.output.eia860.plants_utils_eia860(
+        pudl_engine,
+        start_date=start_date,
+        end_date=end_date
+    )
 
     # Merge annual plant/utility data in with the more granular dataframe
     out_df = (
-        pudl.helpers.merge_on_date_year(g_df, pu_eia, on=['plant_id_eia'])
+        pudl.helpers.clean_merge_asof(
+            left=g_df,
+            right=pu_eia,
+            by={"plant_id_eia": "eia"}
+        )
         .dropna(subset=['plant_id_eia', 'utility_id_eia', 'generator_id'])
-        .pipe(pudl.helpers.organize_cols, cols=[
+    )
+    # Merge in the unit_id_pudl assigned to each generator in the BGA process
+    # Pull the BGA table and make it unit-generator only:
+    bga_gens = (
+        pudl.output.eia860.boiler_generator_assn_eia860(
+            pudl_engine,
+            start_date=start_date,
+            end_date=end_date
+        )
+        .loc[:, ["report_date", "plant_id_eia", "generator_id", "unit_id_pudl"]]
+        .drop_duplicates()
+    )
+    out_df = pudl.helpers.clean_merge_asof(
+        left=out_df,
+        right=bga_gens,
+        by={
+            "plant_id_eia": "eia",
+            "generator_id": "eia",
+        }
+    )
+    out_df = (
+        out_df.pipe(pudl.helpers.organize_cols, cols=[
             'report_date',
             'plant_id_eia',
             'plant_id_pudl',
@@ -565,12 +642,12 @@ def generation_eia923(pudl_engine, freq=None,
             'utility_name_eia',
             'generator_id',
         ])
-        .astype({
-            "plant_id_eia": "Int64",
-            "plant_id_pudl": "Int64",
-            "utility_id_eia": "Int64",
-            "utility_id_pudl": "Int64",
-        })
+        .astype(pudl.helpers.get_pudl_dtypes({
+            "plant_id_eia": "eia",
+            "plant_id_pudl": "eia",
+            "utility_id_eia": "eia",
+            "utility_id_pudl": "eia",
+        }))
     )
 
     if freq is None:

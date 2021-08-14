@@ -43,6 +43,12 @@ capacity, sales, revenues, programs, and more. Right now we've got all of 861
 integrated and are building out our testing and data validation before publishing the
 data officially.
 
+* :download:`EIA-861 Instructions (PDF, to 2013-10-31)
+  <eia861/eia861_instructions_2013-10-31.pdf>`
+* :download:`EIA-861 Instructions (PDF, to 2015-12-31)
+  <eia861/eia861_instructions_2015-12-31.pdf>`
+* :download:`EIA-861 Instructions (PDF, to 2017-05-31)
+  <eia861/eia861_instructions_2017-05-31.pdf>`
 * :download:`EIA-861 Instructions (PDF, to 2020-03-31)
   <eia861/eia861_instructions_2020-03-31.pdf>`
 * :download:`EIA-861 Instructions (PDF, to 2023-05-31)

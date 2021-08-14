@@ -20,9 +20,9 @@ install_requires = [
     "matplotlib~=3.0",
     "networkx~=2.2",
     "numpy~=1.20",
-    "pandas==1.2.5",
+    "pandas~=1.2.5",
     "prefect[viz, gcp]~=0.14.2",
-    "pyarrow~=3.0",
+    "pyarrow~=4.0",
     "pygeos~=0.9.0",
     "pyyaml~=5.0",
     "scikit-learn~=0.24.1",
@@ -48,7 +48,6 @@ dev_requires = [
     "isort~=5.0",
     "jedi~=0.18",
     "lxml~=4.6",
-    "pdbpp~=0.10",
     "tox~=3.20",
     "twine~=3.3",
 ]
@@ -57,6 +56,7 @@ doc_requires = [
     "doc8~=0.8.0",
     "sphinx~=3.0",
     "sphinx-issues~=1.2",
+    "sphinx-reredirects",
     "sphinx_rtd_theme~=0.5.0",
 ]
 
