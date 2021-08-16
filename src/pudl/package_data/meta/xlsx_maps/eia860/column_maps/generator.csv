@@ -6,7 +6,7 @@ plant_name_eia,,plntname,plntname,plntname,plntname,plntname
 state,,state,state,state,state,state
 generator_id,gencode,gencode,gencode,gencode,gencode,gencode
 prime_mover_code,primemover,primemover,primemover,primemover,primemover,primemover
-unit_id_eia,,unit_code,unit_code,unit_code,unit_code,unit_code
+unit_id_eia,multigen,unit_code,unit_code,unit_code,unit_code,unit_code
 operational_status_code,status,status,status,status,status,status
 ownership_code,owner,owner,owner,owner,ownership,ownership
 owned_by_non_utility,,owned_by_nu,owned_by_nu,owned_by_nu,,
@@ -34,10 +34,10 @@ energy_source_code_3,ensource3,energy_source_3,energy_source_3,energy_source_3,e
 energy_source_code_4,ensource4,energy_source_4,energy_source_4,energy_source_4,energy_source_4,energy_source_4
 energy_source_code_5,ensource5,energy_source_5,energy_source_5,energy_source_5,energy_source_5,energy_source_5
 energy_source_code_6,ensource6,energy_source_6,energy_source_6,energy_source_6,energy_source_6,energy_source_6
-energy_source_1_transport_1,,es1trans_1,es1trans_1,es1trans_1,,
+energy_source_1_transport_1,transmode1,es1trans_1,es1trans_1,es1trans_1,,
 energy_source_1_transport_2,,es1trans_2,es1trans_2,es1trans_2,,
 energy_source_1_transport_3,,es1trans_3,es1trans_3,es1trans_3,,
-energy_source_2_transport_1,,es2trans_1,es2trans_1,es2trans_1,,
+energy_source_2_transport_1,transmode2,es2trans_1,es2trans_1,es2trans_1,,
 energy_source_2_transport_2,,es2trans_2,es2trans_2,es2trans_2,,
 energy_source_2_transport_3,,es2trans_3,es2trans_3,es2trans_3,,
 turbines_num,wind,windturbines,windturbines,windturbines,turbines,turbines
@@ -64,3 +64,5 @@ ferc_small_power_producer,fercsmall,fercspp,fercspp,fercspp,,
 ferc_small_power_producer_docket_no,fercsmadoc,fercsppdoc,fercsppdoc,fercsppdoc,,
 ferc_exempt_wholesale_generator,fercwhole,fercewg,fercewg,fercewg,,
 ferc_exempt_wholesale_generator_docket_no,fercwhldoc,fercewgdoc,fercewgdoc,,,
+ferc_other_generator,fercother,,,,,
+ferc_other_generator_docker_no,fercextdoc,,,,,
