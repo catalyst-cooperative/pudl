@@ -1167,12 +1167,16 @@ def get_working_eia_dates():
     return dates
 
 
-def convert_df_to_excel_file(df):
-    """Converts a pandas dataframe to a pandas ExcelFile object."""
+def convert_df_to_excel_file(df: pd.DataFrame, **kwargs) -> pd.ExcelFile:
+    """
+    Converts a pandas dataframe to a pandas ExcelFile object.
+
+    You can pass parameters for pandas.to_excel() function.
+    """
     bio = BytesIO()
 
     writer = pd.ExcelWriter(bio, engine='xlsxwriter')
-    df.to_excel(writer, sheet_name='Sheet1', index=False)
+    df.to_excel(writer, **kwargs)
 
     writer.save()
 

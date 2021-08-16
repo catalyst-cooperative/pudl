@@ -287,7 +287,7 @@ class GenericExtractor(object):
                         xlsx_filename,
                         filedata=dbf_filepath
                     )))
-                    excel_file = pudl.helpers.convert_df_to_excel_file(df)
+                    excel_file = pudl.helpers.convert_df_to_excel_file(df, index=False)
                 else:
                     excel_file = pd.ExcelFile(zf.read(xlsx_filename))
             finally:
