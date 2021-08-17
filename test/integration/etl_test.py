@@ -55,6 +55,10 @@ def test_epacems_to_parquet(
     if live_dbs:
         pytest.skip("Don't attempt EPA CEMS to Parquet conversion with live DBs.")
 
+    out_dir = Path(pudl_settings_fixture['parquet_dir'], 'epacems')
+    if out_dir.exists():
+        pytest.skip("epacems_to_parquet has already run in a fixture")
+
     epacems_datapkg_json = Path(
         pudl_settings_fixture['datapkg_dir'],
         pudl_etl_params['datapkg_bundle_name'],
@@ -69,7 +73,7 @@ def test_epacems_to_parquet(
         datapkg_path=epacems_datapkg_json,
         epacems_years=flat["epacems_years"],
         epacems_states=flat["epacems_states"],
-        out_dir=Path(pudl_settings_fixture['parquet_dir'], 'epacems'),
+        out_dir=out_dir,
         compression='snappy',
         clobber=False,
     )

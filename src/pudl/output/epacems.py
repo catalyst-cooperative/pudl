@@ -152,6 +152,7 @@ def epacems(
         # "year",
         # "state",
     ),
+    cems_path: Optional[Path] = None,
 ) -> pd.DataFrame:
     """Load EPA CEMS data from PUDL with optional subsetting.
 
@@ -159,6 +160,7 @@ def epacems(
         states (Optional[Sequence[str]], optional): subset by state abbreviation. Pass None to get all states. Defaults to ("CO",).
         years (Optional[Sequence[int]], optional): subset by year. Pass None to get all years. Defaults to (2019,).
         columns (Optional[Sequence[str]], optional): subset by column. Pass None to get all columns. Defaults to ( "plant_id_eia", "unitid", "operating_datetime_utc", "gross_load_mw", "unit_id_epa").
+        cems_path (Optional[Path], optional): path to parquet dir. By default it automatically loads the path from pudl.workspace
 
     Returns:
         pd.DataFrame: epacems data
@@ -174,11 +176,9 @@ def epacems(
     if columns is not None:
         # columns=None is handled by pd.read_parquet, gives all columns
         columns = list(columns)
-
-    # TODO: confirm pathfinding should go here vs passed in as arg.
-    # Other output funcs pass pudl_engine, but there is no db connection to worry about here
-    pudl_settings = pudl.workspace.setup.get_defaults()
-    cems_path = Path(pudl_settings["parquet_dir"]) / "epacems"
+    if cems_path is None:
+        pudl_settings = pudl.workspace.setup.get_defaults()
+        cems_path = Path(pudl_settings["parquet_dir"]) / "epacems"
 
     try:
         cems = pd.read_parquet(
