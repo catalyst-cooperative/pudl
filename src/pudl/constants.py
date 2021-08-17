@@ -1496,7 +1496,7 @@ dict: A dictionary of data sources (keys) and tuples containing the years
 # The full set of years we currently expect to be able to ingest, per source:
 working_partitions = {
     'eia860': {
-        'years': tuple(range(2003, 2020))
+        'years': tuple(range(2001, 2020))
     },
     'eia860m': {
         'year_month': '2020-11'
