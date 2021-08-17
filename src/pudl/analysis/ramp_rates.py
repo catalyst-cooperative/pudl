@@ -189,14 +189,8 @@ def _remove_irrelevant(df: pd.DataFrame):
     return df.loc[~bad]
 
 
-def _prep_crosswalk_for_networkx(
-    xwalk: pd.DataFrame, remove_retired_or_irrelevant=False, **kwargs
-) -> pd.DataFrame:
-    if remove_retired_or_irrelevant:
-        filtered = _filter_retirements(xwalk, **kwargs)
-        filtered = _remove_irrelevant(filtered).copy()
-    else:
-        filtered = xwalk.copy()
+def _prep_crosswalk_for_networkx(key_map: pd.DataFrame) -> pd.DataFrame:
+    filtered = key_map.copy()
     # networkx can't handle composite keys, so make surrogates
     filtered["combustor_id"] = filtered.groupby(
         by=["CAMD_PLANT_ID", "CAMD_UNIT_ID"]).ngroup()
@@ -225,24 +219,29 @@ def _subcomponent_ids_from_prepped_crosswalk(prepped: pd.DataFrame) -> pd.DataFr
     return nx.to_pandas_edgelist(graph)
 
 
-def make_subcomponent_ids(
-    xwalk: pd.DataFrame, cems: pd.DataFrame, remove_retired_or_irrelevant=False
-) -> pd.DataFrame:
-    """Analyze crosswalk graph and identify sub-plants."""
-    column_order = list(xwalk.columns)
-    year_range = None
-    if remove_retired_or_irrelevant:
-        # index 24 hours inside the min/max to avoid timezone shenanigans
-        min_year = cems.index.levels[1][24].year
-        max_year = cems.index.levels[1][-24].year
-        year_range = (min_year, max_year)
-
-    filtered = _prep_crosswalk_for_networkx(
-        xwalk, remove_retired_or_irrelevant=remove_retired_or_irrelevant, year_range=year_range
+def _add_key_map(crosswalk: pd.DataFrame, cems: pd.DataFrame) -> pd.DataFrame:
+    if "unit_id_epa" not in cems.index.names:
+        raise IndexError(
+            'cems data must have "unit_id_epa" and "operating_datetime_utc" in index')
+    key_map = cems.groupby(level="unit_id_epa")[
+        ["plant_id_eia", "unitid", "unit_id_epa"]].first()
+    key_map = key_map.merge(
+        crosswalk,
+        left_on=["plant_id_eia", "unitid"],
+        right_on=["CAMD_PLANT_ID", "CAMD_UNIT_ID"],
+        how="inner",
     )
-    filtered = _subcomponent_ids_from_prepped_crosswalk(filtered)
+    return key_map
+
+
+def _make_subcomponent_ids(crosswalk: pd.DataFrame, cems: pd.DataFrame) -> pd.DataFrame:
+    """Analyze crosswalk graph and identify sub-plants."""
+    key_map = _add_key_map(crosswalk=crosswalk, cems=cems)
+    column_order = list(key_map.columns)
+    edge_list = _prep_crosswalk_for_networkx(key_map)
+    edge_list = _subcomponent_ids_from_prepped_crosswalk(edge_list)
     column_order = ["component_id"] + column_order
-    return filtered[column_order]
+    return edge_list[column_order]
 
 
 def aggregate_subcomponents(
@@ -327,57 +326,26 @@ def _assign_by_capacity(xwalk: pd.DataFrame, col: str) -> pd.Series:
     return out
 
 
-def process_subset(cems, crosswalk, component_id_offset=0):
-    """Top level API to analyze a dataset for component-wise max ramp rates.
-
-    Args:
-        cems ([pd.DataFrame]): EPA CEMS data from ramprate.load_dataset.load_epacems
-        crosswalk ([pd.DataFrame]): EPA crosswalk from ramprate.load_dataset.load_epa_crosswalk
-        component_id_offset (int, optional): used when processing data in chunks to ensure unique IDs. Defaults to 0.
-
-    Returns:
-        [Dict[str, pd.DataFrame]]: key:value pairs are as follows:
-        "component_aggs": component-level aggregates like max ramp rates
-        "key_map": inner join of crosswalk and CEMS id columns
-        "component_timeseries": CEMS timeseries aggregated to component level
-        "cems": CEMS data
-    }
-    """
-    if "unit_id_epa" not in cems.index.names:
-        cems = cems.set_index(
-            ["unit_id_epa", "operating_datetime_utc"],
-            drop=False,
-        ).sort_index(inplace=True)
-
-    calc_distance_from_downtime(cems)  # in place
-    key_map = cems.groupby(level="unit_id_epa")[
-        ["plant_id_eia", "unitid", "unit_id_epa"]].first()
-    key_map = key_map.merge(
-        crosswalk,
-        left_on=["plant_id_eia", "unitid"],
-        right_on=["CAMD_PLANT_ID", "CAMD_UNIT_ID"],
-        how="inner",
-    )
-    key_map = make_subcomponent_ids(key_map, cems)
-    if component_id_offset:
-        key_map["component_id"] = key_map["component_id"] + component_id_offset
-
-    # NOTE: how='inner' drops unmatched units
-    cems = cems.join(key_map.groupby("unit_id_epa")[
-                     "component_id"].first(), how="inner")
-
-    # Aggregate to components
-    # aggregate metadata
-    meta = aggregate_subcomponents(key_map)
-    # aggregate operational data
-    cems = cems.merge(
-        meta["simple_EIA_UNIT_TYPE"], left_on="component_id", right_index=True, copy=False
-    )
+def _cems_index(cems: pd.DataFrame) -> pd.DataFrame:
+    cems = cems.set_index(["unit_id_epa", "operating_datetime_utc"], drop=False)
     cems.sort_index(inplace=True)
+
+    return cems
+
+
+def _classify_exclusions(cems: pd.DataFrame, exclusion_map: Optional[Dict[str, int]] = None) -> pd.DataFrame:
+    if exclusion_map is None:
+        exclusion_map = EXCLUSION_SIZE_HOURS
+    cems = cems.copy()
+    calc_distance_from_downtime(cems)  # in place
     cems["exclude_ramp"] = cems["hours_distance"] <= cems["simple_EIA_UNIT_TYPE"].map(
-        EXCLUSION_SIZE_HOURS
+        exclusion_map
     ).astype(np.float32)
-    # combine units' timeseries into a single timeseries per component
+    return cems
+
+
+def _agg_units_to_components(cems: pd.DataFrame) -> pd.DataFrame:
+    """Combine unit timeseries into a single timeseries per component."""
     component_timeseries = (
         # resolve name collision with index
         cems.drop(columns=["operating_datetime_utc"])
@@ -386,7 +354,16 @@ def process_subset(cems, crosswalk, component_id_offset=0):
     )
     component_timeseries["exclude_ramp"] = (
         component_timeseries["exclude_ramp"] > 0
-    )  # sum() > 0 is like logical 'or'
+    )  # sum() > 0 is like .any()
+    # calculate ramp rates
+    component_timeseries[["ramp"]] = component_timeseries.groupby("component_id")[
+        ["gross_load_mw"]
+    ].diff()
+    return component_timeseries
+
+
+def _estimate_capacity(cems: pd.DataFrame, component_timeseries: pd.DataFrame) -> pd.DataFrame:
+    # sum of maxima
     component_aggs = (
         cems.drop(columns=["unit_id_epa"])  # resolve name collision with index
         .groupby(["component_id", "unit_id_epa"])[["gross_load_mw"]]
@@ -395,17 +372,17 @@ def process_subset(cems, crosswalk, component_id_offset=0):
         .sum()
         .add_prefix("sum_of_max_")
     )
+    # max of sums
     component_aggs = component_aggs.join(
         component_timeseries[["gross_load_mw"]]
         .groupby("component_id")
         .max()
         .add_prefix("max_of_sum_"),
-        how="outer",  # shouldn't matter
     )
-    # calculate ramp rates
-    component_timeseries[["ramp"]] = component_timeseries.groupby("component_id")[
-        ["gross_load_mw"]
-    ].diff()
+    return component_aggs
+
+
+def _summarize_ramps(component_timeseries: pd.DataFrame) -> pd.DataFrame:
     ramps = (
         component_timeseries.loc[~component_timeseries["exclude_ramp"], ["ramp"]]
         .groupby("component_id")
@@ -424,10 +401,10 @@ def process_subset(cems, crosswalk, component_id_offset=0):
         )
     # remove multiindex
     ramps.columns = ["_".join(reversed(col)) for col in ramps.columns]
+    return ramps
 
-    # join all the aggs
-    component_aggs = component_aggs.join([ramps, meta])
 
+def _add_derived_values(component_aggs: pd.DataFrame) -> pd.DataFrame:
     # normalize ramp rates in various ways
     normed = component_aggs[["max_abs_ramp"] * 4].div(
         component_aggs[
@@ -441,6 +418,50 @@ def process_subset(cems, crosswalk, component_id_offset=0):
     )
     normed.columns = ["ramp_factor_" +
                       suf for suf in ["CAMD", "EIA", "sum_max", "max_sum"]]
+    return normed
+
+
+def process_subset(cems, crosswalk, component_id_offset=0):
+    """Top level API to analyze a dataset for component-wise max ramp rates.
+
+    Args:
+        cems ([pd.DataFrame]): EPA CEMS data from ramprate.load_dataset.load_epacems
+        crosswalk ([pd.DataFrame]): EPA crosswalk from ramprate.load_dataset.load_epa_crosswalk
+        component_id_offset (int, optional): used when processing data in chunks to ensure unique IDs. Defaults to 0.
+
+    Returns:
+        [Dict[str, pd.DataFrame]]: key:value pairs are as follows:
+        "component_aggs": component-level aggregates like max ramp rates
+        "key_map": inner join of crosswalk and CEMS id columns
+        "component_timeseries": CEMS timeseries aggregated to component level
+        "cems": CEMS data
+    """
+    key_map = _make_subcomponent_ids(crosswalk, cems)
+    if component_id_offset:
+        key_map["component_id"] = key_map["component_id"] + component_id_offset
+
+    meta = aggregate_subcomponents(key_map)
+
+    # NOTE: how='inner' drops unmatched units
+    cems = cems.join(key_map.groupby("unit_id_epa")[
+                     "component_id"].first(), how="inner")
+
+    # aggregate operational data
+    cems = cems.merge(
+        meta["simple_EIA_UNIT_TYPE"], left_on="component_id", right_index=True, copy=False
+    )
+    cems.sort_index(inplace=True)
+
+    cems = _classify_exclusions(cems)
+    component_timeseries = _agg_units_to_components(cems)
+    component_aggs = _estimate_capacity(cems, component_timeseries)
+
+    ramps = _summarize_ramps(component_timeseries)
+
+    # join all the aggs
+    component_aggs = component_aggs.join([ramps, meta])
+
+    normed = _add_derived_values(component_aggs)
     component_aggs = component_aggs.join(normed)
     return {
         "component_aggs": component_aggs,
