@@ -144,3 +144,21 @@ def test_ferc714_respondents_georef_counties(ferc714_out):
     ferc714_gdf = ferc714_out.georef_counties()
     assert len(ferc714_gdf) > 0
     assert isinstance(ferc714_gdf, gpd.GeoDataFrame)
+
+
+@pytest.fixture(scope="module")
+def fast_out_filled(pudl_engine, pudl_datastore_fixture):
+    """A PUDL output object for use in CI with net generation filled."""
+    return pudl.output.pudltabl.PudlTabl(
+        pudl_engine,
+        ds=pudl_datastore_fixture,
+        freq="MS",
+        fill_fuel_cost=True,
+        roll_fuel_cost=True,
+        fill_net_gen=True,
+    )
+
+
+def test_mcoe_filled(fast_out_filled):
+    """Ensure the MCOE works with the net generation allocated."""
+    fast_out_filled.mcoe()
