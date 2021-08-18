@@ -596,6 +596,31 @@ def generation_eia923(
         g_df = g_gb.agg(
             {'net_generation_mwh': pudl.helpers.sum_na}).reset_index()
 
+    out_df = denorm_generation_eia923(g_df, pudl_engine, start_date, end_date)
+
+    if freq is None:
+        out_df = out_df.drop(['id'], axis=1)
+
+    return out_df
+
+
+def denorm_generation_eia923(g_df, pudl_engine, start_date, end_date):
+    """
+    Denomralize generation_eia923 table.
+
+    Args:
+        g_df (pandas.DataFrame): generation_eia923 table. Should have columns:
+            ["plant_id_eia", "generator_id", "report_date",
+            "net_generation_mwh"]
+        pudl_engine (sqlalchemy.engine.Engine): SQLAlchemy connection engine
+            for the PUDL DB.
+        start_date (date-like): date-like object, including a string of the
+            form 'YYYY-MM-DD' which will be used to specify the date range of
+            records to be pulled.  Dates are inclusive.
+        end_date (date-like): date-like object, including a string of the
+            form 'YYYY-MM-DD' which will be used to specify the date range of
+            records to be pulled.  Dates are inclusive.
+    """
     # Grab EIA 860 plant and utility specific information:
     pu_eia = pudl.output.eia860.plants_utils_eia860(
         pudl_engine,
@@ -649,10 +674,6 @@ def generation_eia923(
             "utility_id_pudl": "eia",
         }))
     )
-
-    if freq is None:
-        out_df = out_df.drop(['id'], axis=1)
-
     return out_df
 
 
