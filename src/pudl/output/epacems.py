@@ -2,8 +2,9 @@
 
 from itertools import product
 from pathlib import Path
-from typing import Optional, Sequence
+from typing import Optional, Sequence, Union
 
+import dask.dataframe as dd
 import pandas as pd
 
 import pudl
@@ -152,19 +153,28 @@ def epacems(
         # "year",
         # "state",
     ),
+    engine: str = 'pandas',
     cems_path: Optional[Path] = None,
-) -> pd.DataFrame:
+) -> Union[pd.DataFrame, dd.DataFrame]:
     """Load EPA CEMS data from PUDL with optional subsetting.
 
     Args:
         states (Optional[Sequence[str]], optional): subset by state abbreviation. Pass None to get all states. Defaults to ("CO",).
         years (Optional[Sequence[int]], optional): subset by year. Pass None to get all years. Defaults to (2019,).
         columns (Optional[Sequence[str]], optional): subset by column. Pass None to get all columns. Defaults to ( "plant_id_eia", "unitid", "operating_datetime_utc", "gross_load_mw", "unit_id_epa").
+        engine (Optional[str], optional): choose 'pandas' or 'dask'. Defaults to 'pandas'
         cems_path (Optional[Path], optional): path to parquet dir. By default it automatically loads the path from pudl.workspace
 
     Returns:
-        pd.DataFrame: epacems data
+        Union[pd.DataFrame, dd.DataFrame]: epacems data
     """
+    if engine == "pandas":
+        dataframe = pd
+    elif engine == "dask":
+        dataframe = dd
+    else:
+        raise ValueError(f"engine must be either 'pandas' or 'dask'. Given: {engine}")
+
     if states is None:
         states = pudl.constants.us_states.keys()  # all states
     else:
@@ -181,7 +191,7 @@ def epacems(
         cems_path = Path(pudl_settings["parquet_dir"]) / "epacems"
 
     try:
-        cems = pd.read_parquet(
+        cems = dataframe.read_parquet(
             cems_path,
             use_nullable_dtypes=True,
             columns=columns,
@@ -193,7 +203,7 @@ def epacems(
     # catch empty result and return empty dataframe instead of error
     except ValueError as e:
         if e.args[0] == "need at least one array to concatenate":
-            cems = pd.DataFrame(columns=columns)
+            cems = dataframe.DataFrame(columns=columns)
         else:
             raise e
 

@@ -1,9 +1,14 @@
 """Empirical estimation of fossil plant ramp rates via hourly EPA CEMS data."""
-from typing import Dict, Optional, Tuple
+from typing import Callable, Dict, List, Optional, Sequence, Tuple, Union
 
+import dask
+import dask.dataframe as dd
 import networkx as nx
 import numpy as np
 import pandas as pd
+from dask.delayed import Delayed  # for type annotation
+
+from pudl.output.epacems import epa_crosswalk, epacems
 
 idx = pd.IndexSlice
 
@@ -88,7 +93,7 @@ EXCLUSION_SIZE_HOURS = {
 }
 
 
-def _binarize(ser: pd.Series):
+def _binarize(ser: pd.Series) -> pd.Series:
     """Classify generation values into running / not running."""
     # modularize this in case I want to add smoothing or other methods
     return ser.gt(0).astype(np.int8)
@@ -191,6 +196,7 @@ def _remove_irrelevant(df: pd.DataFrame):
 
 def _prep_crosswalk_for_networkx(key_map: pd.DataFrame) -> pd.DataFrame:
     filtered = key_map.copy()
+    filtered = _remove_irrelevant(filtered)
     # networkx can't handle composite keys, so make surrogates
     filtered["combustor_id"] = filtered.groupby(
         by=["CAMD_PLANT_ID", "CAMD_UNIT_ID"]).ngroup()
@@ -219,13 +225,19 @@ def _subcomponent_ids_from_prepped_crosswalk(prepped: pd.DataFrame) -> pd.DataFr
     return nx.to_pandas_edgelist(graph)
 
 
-def _add_key_map(crosswalk: pd.DataFrame, cems: pd.DataFrame) -> pd.DataFrame:
-    if "unit_id_epa" not in cems.index.names:
-        raise IndexError(
-            'cems data must have "unit_id_epa" and "operating_datetime_utc" in index')
-    key_map = cems.groupby(level="unit_id_epa")[
-        ["plant_id_eia", "unitid", "unit_id_epa"]].first()
-    key_map = key_map.merge(
+def _get_unique_keys(cems: Union[pd.DataFrame, dd.DataFrame]) -> pd.DataFrame:
+    """Get unique unit IDs from CEMS data."""
+    # The purpose of this function is mostly to resolve the
+    # ambiguity between dask and pandas dataframes
+    ids = cems[["plant_id_eia", "unitid", "unit_id_epa"]].drop_duplicates()
+    if isinstance(cems, dd.DataFrame):
+        ids = ids.compute()
+    return ids
+
+
+def _merge_crosswalk_with_cems_ids(crosswalk: pd.DataFrame, cems: Union[pd.DataFrame, dd.DataFrame]) -> pd.DataFrame:
+    ids = _get_unique_keys(cems)
+    key_map = ids.merge(
         crosswalk,
         left_on=["plant_id_eia", "unitid"],
         right_on=["CAMD_PLANT_ID", "CAMD_UNIT_ID"],
@@ -234,9 +246,9 @@ def _add_key_map(crosswalk: pd.DataFrame, cems: pd.DataFrame) -> pd.DataFrame:
     return key_map
 
 
-def _make_subcomponent_ids(crosswalk: pd.DataFrame, cems: pd.DataFrame) -> pd.DataFrame:
+def _make_subcomponent_ids(crosswalk: pd.DataFrame, cems: Union[pd.DataFrame, dd.DataFrame]) -> pd.DataFrame:
     """Analyze crosswalk graph and identify sub-plants."""
-    key_map = _add_key_map(crosswalk=crosswalk, cems=cems)
+    key_map = _merge_crosswalk_with_cems_ids(crosswalk=crosswalk, cems=cems)
     column_order = list(key_map.columns)
     edge_list = _prep_crosswalk_for_networkx(key_map)
     edge_list = _subcomponent_ids_from_prepped_crosswalk(edge_list)
@@ -244,7 +256,7 @@ def _make_subcomponent_ids(crosswalk: pd.DataFrame, cems: pd.DataFrame) -> pd.Da
     return edge_list[column_order]
 
 
-def aggregate_subcomponents(
+def _aggregate_subcomponents(
     xwalk: pd.DataFrame,
     camd_fuel_map: Optional[Dict[str, str]] = None,
     eia_fuel_map: Optional[Dict[str, str]] = None,
@@ -324,13 +336,6 @@ def _assign_by_capacity(xwalk: pd.DataFrame, col: str) -> pd.Series:
     # this is not very principled but it is rare enough to probably not matter
     out = out[~out.index.duplicated(keep="first")]
     return out
-
-
-def _cems_index(cems: pd.DataFrame) -> pd.DataFrame:
-    cems = cems.set_index(["unit_id_epa", "operating_datetime_utc"], drop=False)
-    cems.sort_index(inplace=True)
-
-    return cems
 
 
 def _classify_exclusions(cems: pd.DataFrame, exclusion_map: Optional[Dict[str, int]] = None) -> pd.DataFrame:
@@ -421,36 +426,38 @@ def _add_derived_values(component_aggs: pd.DataFrame) -> pd.DataFrame:
     return normed
 
 
-def process_subset(cems, crosswalk, component_id_offset=0):
+def _process_cems(cems: pd.DataFrame, key_map: pd.DataFrame, component_meta: pd.DataFrame) -> Dict[str, pd.DataFrame]:
     """Top level API to analyze a dataset for component-wise max ramp rates.
 
     Args:
         cems ([pd.DataFrame]): EPA CEMS data from ramprate.load_dataset.load_epacems
-        crosswalk ([pd.DataFrame]): EPA crosswalk from ramprate.load_dataset.load_epa_crosswalk
+        key_map ([pd.DataFrame]): output from _make_subcomponent_ids
         component_id_offset (int, optional): used when processing data in chunks to ensure unique IDs. Defaults to 0.
 
     Returns:
         [Dict[str, pd.DataFrame]]: key:value pairs are as follows:
-        "component_aggs": component-level aggregates like max ramp rates
-        "key_map": inner join of crosswalk and CEMS id columns
-        "component_timeseries": CEMS timeseries aggregated to component level
-        "cems": CEMS data
+            "component_aggs": component-level aggregates like max ramp rates
+            "component_timeseries": CEMS timeseries aggregated to component level
+            "cems": CEMS data
     """
-    key_map = _make_subcomponent_ids(crosswalk, cems)
-    if component_id_offset:
-        key_map["component_id"] = key_map["component_id"] + component_id_offset
-
-    meta = aggregate_subcomponents(key_map)
-
+    cems = cems.set_index(["unit_id_epa", "operating_datetime_utc"], drop=False)
+    cems.sort_index(inplace=True)
     # NOTE: how='inner' drops unmatched units
     cems = cems.join(key_map.groupby("unit_id_epa")[
                      "component_id"].first(), how="inner")
 
-    # aggregate operational data
     cems = cems.merge(
-        meta["simple_EIA_UNIT_TYPE"], left_on="component_id", right_index=True, copy=False
+        component_meta["simple_EIA_UNIT_TYPE"], left_on="component_id", right_index=True, copy=False
     )
     cems.sort_index(inplace=True)
+
+    # catch empty frames
+    if len(cems) == 0:
+        return {
+            "component_aggs": pd.DataFrame(),
+            "component_timeseries": pd.DataFrame(),
+            "cems": cems,
+        }
 
     cems = _classify_exclusions(cems)
     component_timeseries = _agg_units_to_components(cems)
@@ -459,13 +466,50 @@ def process_subset(cems, crosswalk, component_id_offset=0):
     ramps = _summarize_ramps(component_timeseries)
 
     # join all the aggs
-    component_aggs = component_aggs.join([ramps, meta])
+    component_aggs = component_aggs.join([ramps, component_meta])
 
     normed = _add_derived_values(component_aggs)
     component_aggs = component_aggs.join(normed)
     return {
         "component_aggs": component_aggs,
-        "key_map": key_map,
         "component_timeseries": component_timeseries,
         "cems": cems,
     }
+
+
+def _process_cems_parallel(key_map: pd.DataFrame, component_meta: pd.DataFrame) -> Callable[[pd.DataFrame], pd.DataFrame]:
+    """Wrap _process_cems to use a specific key_map and component_meta and to return only the 'component_aggs' dataframe (to save memory)."""
+    # Might be able to use functools.partial instead of this function but
+    # I *think* I need to index into the result before wrapping with dask.delayed
+    def closure(cems):
+        out = _process_cems(cems, key_map, component_meta)
+        return out['component_aggs']
+    return closure
+
+
+def _run_parallel(cems: dd.DataFrame, key_map: pd.DataFrame, component_meta: pd.DataFrame) -> List[Delayed]:
+    dfs = cems.to_delayed()
+    apply_func = _process_cems_parallel(key_map, component_meta)
+    delayed_results = [dask.delayed(apply_func)(df) for df in dfs]
+    return delayed_results
+
+
+def analyze_ramp_rates(states: Optional[Sequence[str]] = None, years: Optional[Sequence[int]] = None) -> Dict[str, pd.DataFrame]:
+    """Analyze ramp rates via EPA CEMS data.
+
+    See pudl.outputs.epacems.epacems for default args
+    """
+    crosswalk = epa_crosswalk()
+    cems = epacems(states=states, years=years, engine='dask')
+
+    key_map = _make_subcomponent_ids(crosswalk, cems)
+    component_meta = _aggregate_subcomponents(key_map)
+
+    delayed_results = _run_parallel(cems, key_map, component_meta)
+    results = dask.compute(*delayed_results)
+    results = pd.concat(results)
+
+    results = (results.set_index(
+        results['idxmax_ramp'].dt.year.rename('year'), append=True).sort_index())
+
+    return {'crosswalk_with_ids': key_map, 'ramp_rates': results}
