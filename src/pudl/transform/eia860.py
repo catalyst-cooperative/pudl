@@ -538,7 +538,7 @@ def utilities(eia860_dfs, eia860_transformed_dfs):
 
     u_df = (
         u_df.astype({
-            "utility_id_eia": int
+            "utility_id_eia": "Int64"
         })
         .assign(
             entity_type=lambda x: x.entity_type.map(pc.ENTITY_TYPE_DICT)

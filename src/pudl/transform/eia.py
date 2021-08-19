@@ -232,7 +232,7 @@ def _compile_all_entity_records(entity, eia_transformed_dfs):
     Compile all of the entity records from each table they appear in.
 
     Comb through each of the dataframes in the eia_transformed_dfs dictionary
-    to pull out ever instance of the entity id.
+    to pull out every instance of the entity id.
     """
     # we know these columns must be in the dfs
     entity_id = pc.entities[entity][0]
@@ -307,6 +307,7 @@ def _manage_strictness(col, eia860_ytd):
         'plant_name_eia': 0,
         'utility_name_eia': 0,
         'longitude': 0 if eia860_ytd else .7,
+        'service_area': 0.65
     }
     return strictness_cols.get(col, strictness_default)
 
