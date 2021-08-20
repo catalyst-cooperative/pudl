@@ -1276,7 +1276,7 @@ entities = {
          'city', 'county', 'ferc_cogen_status',
          'ferc_exempt_wholesale_generator', 'ferc_small_power_producer',
          'grid_voltage_2_kv', 'grid_voltage_3_kv', 'grid_voltage_kv',
-         'iso_rto_code', 'latitude', 'longitude', 'service_area',
+         'iso_rto_code', 'latitude', 'longitude',
          'plant_name_eia', 'primary_purpose_naics_id',
          'sector_id', 'sector_name', 'state', 'street_address', 'zip_code'],
         # annual cols
@@ -1288,7 +1288,7 @@ entities = {
          'natural_gas_local_distribution_company', 'natural_gas_storage',
          'natural_gas_pipeline_name_1', 'natural_gas_pipeline_name_2',
          'natural_gas_pipeline_name_3', 'nerc_region', 'net_metering',
-         'pipeline_notes', 'regulatory_status_code',
+         'pipeline_notes', 'regulatory_status_code', 'service_area',
          'transmission_distribution_owner_id',
          'transmission_distribution_owner_name',
          'transmission_distribution_owner_state', 'utility_id_eia'],
