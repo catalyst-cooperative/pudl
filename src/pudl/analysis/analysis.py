@@ -107,8 +107,8 @@ def frc_by_pudl(pudl_plant_ids, pudl_engine,
         ID, year, and (optionally) fuel.
 
     """
-    md = sa.MetaData(bind=pudl_engine)
-    md.reflect()
+    md = sa.MetaData()
+    md.reflect(bind=pudl_engine)
     # Get all the EIA info from generation_fuel_eia923
     frc_df = pudl.output.eia923.fuel_receipts_costs_eia923(pudl_engine,
                                                            md.tables)
@@ -170,8 +170,8 @@ def gen_fuel_by_pudl(pudl_plant_ids, pudl_engine,
         ID, year, and (optionally) fuel.
 
     """
-    md = sa.MetaData(bind=pudl_engine)
-    md.reflect()
+    md = sa.MetaData()
+    md.reflect(bind=pudl_engine)
     # Get all the EIA info from generation_fuel_eia923
     gf_df = pudl.output.eia923.generation_fuel_eia923(pudl_engine, md.tables)
 

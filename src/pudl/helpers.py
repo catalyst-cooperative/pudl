@@ -21,7 +21,6 @@ import pandas as pd
 import requests
 import sqlalchemy as sa
 import timezonefinder
-from sqlalchemy.engine import reflection
 
 import pudl
 from pudl import constants as pc
@@ -799,8 +798,7 @@ def find_timezone(*, lng=None, lat=None, state=None, strict=True):
     return tz
 
 
-def drop_tables(engine,
-                clobber=False):
+def drop_tables(engine, clobber=False):
     """Drops all tables from a SQLite database.
 
     Creates an sa.schema.MetaData object reflecting the structure of the
@@ -820,13 +818,13 @@ def drop_tables(engine,
     """
     md = sa.MetaData()
     md.reflect(engine)
-    insp = reflection.Inspector.from_engine(engine)
+    insp = sa.inspect(engine)
     if len(insp.get_table_names()) > 0 and not clobber:
         raise AssertionError(
             f'You are attempting to drop your database without setting clobber to {clobber}')
     md.drop_all(engine)
     conn = engine.connect()
-    conn.execute("VACUUM")
+    conn.exec_driver_sql("VACUUM")
     conn.close()
 
 

@@ -125,8 +125,8 @@ def get_db_plants_ferc1(pudl_settings, years):
 
     # Grab the FERC 1 DB metadata so we can query against the DB w/ SQLAlchemy:
     ferc1_engine = sa.create_engine(pudl_settings["ferc1_db"])
-    ferc1_meta = sa.MetaData(bind=ferc1_engine)
-    ferc1_meta.reflect()
+    ferc1_meta = sa.MetaData()
+    ferc1_meta.reflect(bind=ferc1_engine)
     ferc1_tables = ferc1_meta.tables
 
     # This table contains the utility names and IDs:
@@ -148,12 +148,12 @@ def get_db_plants_ferc1(pudl_settings, years):
     # purposes)
     all_plants = pd.DataFrame()
     for tbl in plant_tables:
-        plant_select = sa.sql.select([
+        plant_select = sa.sql.select(
             ferc1_tables[tbl].c.respondent_id,
             ferc1_tables[tbl].c.plant_name,
             ferc1_tables[tbl].columns[capacity_cols[tbl]],
             respondent_table.c.respondent_name
-        ]).distinct().where(
+        ).distinct().where(
             sa.and_(
                 ferc1_tables[tbl].c.respondent_id == respondent_table.c.respondent_id,
                 ferc1_tables[tbl].c.plant_name != '',
