@@ -63,7 +63,6 @@ def _occurrence_consistency(entity_id, compiled_df, col,
     """
     # select only the colums you want and drop the NaNs
     # we want to drop the NaNs because
-    # breakpoint()
     col_df = compiled_df[entity_id + ['report_date', col, 'table']].copy()
     if pc.column_dtypes["eia"][col] == pd.StringDtype():
         nan_str_mask = (col_df[col] == "nan").fillna(False)
@@ -232,7 +231,7 @@ def _compile_all_entity_records(entity, eia_transformed_dfs):
     Compile all of the entity records from each table they appear in.
 
     Comb through each of the dataframes in the eia_transformed_dfs dictionary
-    to pull out ever instance of the entity id.
+    to pull out every instance of the entity id.
     """
     # we know these columns must be in the dfs
     entity_id = pc.entities[entity][0]
@@ -825,6 +824,7 @@ def _boiler_generator_assn(eia_transformed_dfs,
                                                   'boiler_id',
                                                   'generator_id'])
 
+    bga_out = pudl.helpers.convert_cols_dtypes(bga_out, "eia")
     eia_transformed_dfs['boiler_generator_assn_eia860'] = bga_out
 
     return eia_transformed_dfs

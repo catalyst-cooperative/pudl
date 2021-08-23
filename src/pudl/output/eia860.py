@@ -425,7 +425,6 @@ def ownership_eia860(pudl_engine, start_date=None, end_date=None):
         to the EIA 860 Ownership table.
 
     """
-    # breakpoint()
     pt = pudl.output.pudltabl.get_table_meta(pudl_engine)
     own_eia860_tbl = pt["ownership_eia860"]
     own_eia860_select = sa.sql.select(own_eia860_tbl)
