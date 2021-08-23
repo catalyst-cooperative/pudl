@@ -9,13 +9,14 @@ version: 2
 sphinx:
     configuration: docs/conf.py
 
-# Set up a conda environment so we don't have to mock packages
-conda:
-  environment: devtools/environment.yml
+build:
+  image: testing
+  apt_packages:
+    - libsnappy-dev
 
 # Set the version of Python and requirements required to build your docs
 python:
-  version: "3.8"
+  version: "3.9"
   install:
     - method: pip
       path: .

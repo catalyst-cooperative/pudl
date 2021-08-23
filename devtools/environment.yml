@@ -31,7 +31,7 @@ dependencies:
   - dask-labextension~=5.1
   - jupyter-resource-usage~=0.5.0
     # Pinned due to this bug: https://github.com/jupyterlab/jupyterlab/issues/10840
-  - jupyterlab>=3.1,<3.1.6
+  - jupyterlab~=3.1
 
   # Use pip to install the main PUDL repo / package for development:
   - pip:
