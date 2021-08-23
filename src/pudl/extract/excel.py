@@ -205,7 +205,6 @@ class GenericExtractor(object):
         logger.info(f'Extracting {self._dataset_name} spreadsheet data.')
 
         for page in self._metadata.get_all_pages():
-            print(page)
             if page in self.BLACKLISTED_PAGES:
                 logger.debug(f'Skipping blacklisted page {page}.')
                 continue
@@ -240,11 +239,17 @@ class GenericExtractor(object):
             if (len(self.METADATA._column_map[page].index)
                     + len(self.cols_added)) != len(df.columns):
                 # raise AssertionError(
+                # TODO (bendnorman): Enforce canonical fields for all raw fields?
+                # TODO (bendnorman): Doesn't the condition conflict with the warning message? Should the warning message include self.cols_added?
                 logger.warning(
                     f'Columns for {page} are off: should be '
                     f'{len(self.METADATA._column_map[page].index)} but got '
                     f'{len(df.columns)}'
                 )
+                unmapped_cols = set(df.columns) - \
+                    set(self.METADATA._column_map[page].index)
+                logger.warning(f"Unmapped raw columns: {unmapped_cols}")
+
             raw_dfs[page] = self.process_final_page(df, page)
         return raw_dfs
 
