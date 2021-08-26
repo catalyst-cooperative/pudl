@@ -540,12 +540,7 @@ def validate_save_datapkg(datapkg_descriptor, datapkg_dir):
     logger.info(
         f"Validating {datapkg.descriptor['name']} tabular data package "
         f"using goodtables_pandas...")
-    report = goodtables.validate(
-        str(datapkg_json),
-        query={
-            "limitRows": 100_000_000,
-        }
-    )
+    report = goodtables.validate(str(datapkg_json))
     if not report["valid"]:
         goodtables_errors = {
             t["path"]: t["errors"][:5] for t in report["tables"] if not t["valid"]

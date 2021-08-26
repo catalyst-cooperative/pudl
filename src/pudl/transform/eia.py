@@ -555,6 +555,7 @@ def _boiler_generator_assn(
         .astype({
             'generator_id': pd.StringDtype(),
             'boiler_id': pd.StringDtype(),
+            "plant_id_eia": int,
         })
     )
     # grab the generation_eia923 table, group annually, generate a new tag
@@ -562,18 +563,24 @@ def _boiler_generator_assn(
     gen_eia923 = gen_eia923.set_index(pd.DatetimeIndex(gen_eia923.report_date))
     gen_eia923 = (
         _restrict_years(gen_eia923, eia923_years, eia860_years)
-        .astype({'generator_id': pd.StringDtype()})
+        .astype({
+            'generator_id': pd.StringDtype(),
+            "plant_id_eia": int,
+        })
         .groupby([pd.Grouper(freq='AS'), 'plant_id_eia', 'generator_id'])
         .net_generation_mwh.sum()
         .reset_index()
+        .assign(missing_from_923=False)
     )
-    gen_eia923['missing_from_923'] = False
 
     # compile all of the generators
     gens_eia860 = (
         eia_transformed_dfs['generators_eia860'].copy()
         .pipe(_restrict_years, eia923_years, eia860_years)
-        .astype({'generator_id': pd.StringDtype()})
+        .astype({
+            'generator_id': pd.StringDtype(),
+            "plant_id_eia": int,
+        })
     )
     gens = pd.merge(
         gen_eia923,
@@ -592,7 +599,10 @@ def _boiler_generator_assn(
             'missing_from_923'
         ]]
         .drop_duplicates()
-        .astype({'generator_id': pd.StringDtype()})
+        .astype({
+            'generator_id': pd.StringDtype(),
+            "plant_id_eia": int,
+        })
     )
 
     # create the beginning of a bga compilation w/ the generators as the
@@ -619,7 +629,10 @@ def _boiler_generator_assn(
     bf_eia923 = (
         eia_transformed_dfs['boiler_fuel_eia923'].copy()
         .pipe(_restrict_years, eia923_years, eia860_years)
-        .astype({"boiler_id": pd.StringDtype()})
+        .astype({
+            "boiler_id": pd.StringDtype(),
+            "plant_id_eia": int,
+        })
         .assign(total_heat_content_mmbtu=lambda x: x.fuel_consumed_units * x.fuel_mmbtu_per_unit)
     )
     bf_eia923 = (
@@ -748,10 +761,14 @@ def _boiler_generator_assn(
 
     # Need boiler & generator specific ID strings, or they look like
     # the same node to NX
-    bga_for_nx['generators'] = 'p' + bga_for_nx.plant_id_eia.astype(str) + \
-        '_g' + bga_for_nx.generator_id.astype(str)
-    bga_for_nx['boilers'] = 'p' + bga_for_nx.plant_id_eia.astype(str) + \
-        '_b' + bga_for_nx.boiler_id.astype(str)
+    bga_for_nx['generators'] = (
+        'p' + bga_for_nx.plant_id_eia.astype(int).astype(str) +
+        '_g' + bga_for_nx.generator_id.astype(pd.StringDtype())
+    )
+    bga_for_nx['boilers'] = (
+        'p' + bga_for_nx.plant_id_eia.astype(int).astype(str) +
+        '_b' + bga_for_nx.boiler_id.astype(pd.StringDtype())
+    )
 
     # dataframe to accumulate the unit_ids in
     bga_w_units = pd.DataFrame()
