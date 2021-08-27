@@ -21,22 +21,26 @@ import pandas as pd
 import requests
 import sqlalchemy as sa
 import timezonefinder
-from sqlalchemy.engine import reflection
 
 import pudl
 from pudl import constants as pc
 
 logger = logging.getLogger(__name__)
 
-# This is a little abbreviated function that allows us to propagate the NA
-# values through groupby aggregations, rather than using inefficient lambda
-# functions in each one.
 sum_na = partial(pd.Series.sum, skipna=False)
+"""
+A sum function that returns NA if the Series includes any NA values.
 
-# Initializing this TimezoneFinder opens a bunch of geography files and holds
-# them open for efficiency. I want to avoid doing that for every call to find
-# the timezone, so this is global.
-tz_finder = timezonefinder.TimezoneFinder()
+In many of our aggregations we need to override the default behavior of treating
+NA values as if they were zero. E.g. when calculating the heat rates of
+generation units, if there are some months where fuel consumption is reported
+as NA, but electricity generation is reported normally, then the fuel
+consumption for the year needs to be NA, otherwise we'll get unrealistic heat
+rates.
+"""
+
+TZ_FINDER = timezonefinder.TimezoneFinder()
+"""A global TimezoneFinder to cache geographies in memory for faster access."""
 
 
 def download_zip_url(url, save_path, chunk_size=128):
@@ -778,10 +782,10 @@ def find_timezone(*, lng=None, lat=None, state=None, strict=True):
 
     """
     try:
-        tz = tz_finder.timezone_at(lng=lng, lat=lat)
+        tz = TZ_FINDER.timezone_at(lng=lng, lat=lat)
         if tz is None:  # Try harder
             # Could change the search radius as well
-            tz = tz_finder.closest_timezone_at(lng=lng, lat=lat)
+            tz = TZ_FINDER.closest_timezone_at(lng=lng, lat=lat)
     # For some reason w/ Python 3.6 we get a ValueError here, but with
     # Python 3.7 we get an OverflowError...
     except (OverflowError, ValueError):
@@ -799,8 +803,7 @@ def find_timezone(*, lng=None, lat=None, state=None, strict=True):
     return tz
 
 
-def drop_tables(engine,
-                clobber=False):
+def drop_tables(engine, clobber=False):
     """Drops all tables from a SQLite database.
 
     Creates an sa.schema.MetaData object reflecting the structure of the
@@ -820,13 +823,13 @@ def drop_tables(engine,
     """
     md = sa.MetaData()
     md.reflect(engine)
-    insp = reflection.Inspector.from_engine(engine)
+    insp = sa.inspect(engine)
     if len(insp.get_table_names()) > 0 and not clobber:
         raise AssertionError(
             f'You are attempting to drop your database without setting clobber to {clobber}')
     md.drop_all(engine)
     conn = engine.connect()
-    conn.execute("VACUUM")
+    conn.exec_driver_sql("VACUUM")
     conn.close()
 
 

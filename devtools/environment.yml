@@ -23,14 +23,15 @@ dependencies:
   - pandoc  # Useful for rendering RST files in Atom
 
   # Packages related to current projects but not the core package
-  - dask~=2021.2 # For processing CEMS and eventually Prefect cloud ETL
+  - dask~=2021.8 # For processing CEMS and eventually Prefect cloud ETL
   - pysal  # Used for making maps in LBL / GridLab work
   - recordlinkage~=0.14.0 # Used for fuzzy merge between FERC/EIA for RMI
 
   # Jupyter notebook specific packages:
-  - dask-labextension~=5.0
+  - dask-labextension~=5.1
   - jupyter-resource-usage~=0.5.0
-  - jupyterlab~=3.0
+    # Pinned due to this bug: https://github.com/jupyterlab/jupyterlab/issues/10840
+  - jupyterlab~=3.1
 
   # Use pip to install the main PUDL repo / package for development:
   - pip:
