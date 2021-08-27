@@ -125,9 +125,7 @@ def get_db_plants_ferc1(pudl_settings, years):
 
     # Grab the FERC 1 DB metadata so we can query against the DB w/ SQLAlchemy:
     ferc1_engine = sa.create_engine(pudl_settings["ferc1_db"])
-    ferc1_meta = sa.MetaData()
-    ferc1_meta.reflect(bind=ferc1_engine)
-    ferc1_tables = ferc1_meta.tables
+    ferc1_tables = pudl.output.pudltabl.get_table_meta(ferc1_engine)
 
     # This table contains the utility names and IDs:
     respondent_table = ferc1_tables['f1_respondent_id']
