@@ -196,6 +196,10 @@ class PudlTabl(object):
             "fuel_cost": None,
             "capacity_factor": None,
             "mcoe": None,
+
+            "plant_parts_eia": None,
+            "gens_mega_eia": None,
+            "true_grans_eia": None,
         }
 
     def pu_eia860(self, update=False):
@@ -642,9 +646,11 @@ class PudlTabl(object):
                     'to the generator level instead of using the less complete '
                     'generation_eia923 table.'
                 )
-                self._dfs['gen_eia923'] = self.gen_allocated_eia923(update=update)
+                self._dfs['gen_eia923'] = self.gen_allocated_eia923(
+                    update=update)
             else:
-                self._dfs['gen_eia923'] = self.gen_original_eia923(update=update)
+                self._dfs['gen_eia923'] = self.gen_original_eia923(
+                    update=update)
         return self._dfs['gen_eia923']
 
     def gen_original_eia923(self, update=False):
@@ -931,6 +937,70 @@ class PudlTabl(object):
                 all_gens=all_gens,
             )
         return self._dfs['mcoe']
+
+    def gens_mega_eia(self, update=False):
+        """
+        Generate and return a generators table with ownership integrated.
+
+        Args:
+            update (boolean): If true, re-calculate the output dataframe, even
+                if a cached version exists. Defualt is `False`.
+
+        Returns:
+            pandas.DataFrame: a table of all of the generators with identifying
+            columns and data columns, sliced by ownership which makes
+            "total" and "owned" records for each generator owner. The "owned"
+            records have the generator's data scaled to the ownership percentage
+            (e.g. if a 100 MW generator has a 75% stake owner and a 25% stake
+            owner, this will result in two "owned" records with 75 MW and 25
+            MW). The "total" records correspond to the full plant for every
+            owner (e.g. using the same 2-owner 100 MW generator as above, each
+            owner will have a records with 100 MW).
+        """
+        if update or self._dfs['gens_mega_eia'] is None:
+            self._dfs['gens_mega_eia'] = (
+                pudl.analysis.plant_parts_eia.MakeMegaGenTbl(self).execute()
+            )
+        return self._dfs['gens_mega_eia']
+
+    def true_grans_eia(self, update=False):
+        """
+        Generate and return a table .
+
+        Note: This table is entirely intented for use within
+        ``PudlTabl.plant_parts_eia`` and would be difficult to work with
+        outside of that context.
+
+        Returns:
+            pandas.DataFrame: a table based on ``PudlTabl.gens_mega_eia()``
+            that has boolean columns that denotes whether each plant-part is a
+            true or false granularity.
+        """
+        if update or self._dfs['true_grans_eia'] is None:
+            self._dfs['true_grans_eia'] = (
+                pudl.analysis.plant_parts_eia.LabelTrueGranularities(
+                    self.gens_mega_eia()).execute()
+            )
+        return self._dfs['true_grans_eia']
+
+    def plant_parts_eia(self, update=False):
+        """
+        Generate and return master plant-parts EIA.
+
+        Args:
+            update (boolean): If true, re-calculate the output dataframe, even
+                if a cached version exists. Defualt is `False`.
+        """
+        if update or self._dfs['plant_parts_eia'] is None:
+            # make the plant-parts objects
+            parts_compiler = pudl.analysis.plant_parts_eia.MakePlantParts(
+                self,
+                self.gens_mega_eia(),
+                self.true_grans_eia())
+            # make the plant-parts df!
+            self._dfs['plant_parts_eia'] = parts_compiler.execute()
+
+        return self._dfs['plant_parts_eia']
 
 
 def get_table_meta(pudl_engine):

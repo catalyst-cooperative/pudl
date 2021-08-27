@@ -347,11 +347,8 @@ def capacity_factor(pudl_out, min_cap_fact=0, max_cap_fact=1.5):
 
     Capacity Factor is calculated by using the net generation from eia923 and
     the nameplate capacity from eia860. The net gen and capacity are pulled
-    into one dataframe, then the dates from that dataframe are pulled out to
-    determine the hours in each period based on the frequency. The number of
-    hours is used in calculating the capacity factor. Then records with
-    capacity factors outside the range specified by min_cap_fact and
-    max_cap_fact are dropped.
+    into one dataframe and then run through our standard capacity factor
+    function (``pudl.helpers.calc_capacity_factor()``).
     """
     # pudl_out must have a freq, otherwise capacity factor will fail and merges
     # between tables with different frequencies will fail
@@ -390,32 +387,11 @@ def capacity_factor(pudl_out, min_cap_fact=0, max_cap_fact=1.5):
             "generator_id": "eia",
         }
     )
-
-    # get a unique set of dates to generate the number of hours
-    dates = cf['report_date'].drop_duplicates()
-    dates_to_hours = pd.DataFrame(
-        data={'report_date': dates,
-              'hours': dates.apply(
-                  lambda d: (
-                      pd.date_range(d, periods=2, freq=pudl_out.freq)[1] -
-                      pd.date_range(d, periods=2, freq=pudl_out.freq)[0]) /
-                  pd.Timedelta(hours=1))})
-
-    cf = (
-        # merge in the hours for the calculation
-        cf.merge(dates_to_hours, on=['report_date'])
-        # actually calculate capacity factor wooo!
-        .assign(
-            capacity_factor=lambda x: x.net_generation_mwh / (x.capacity_mw * x.hours)
-        )
-        # Replace unrealistic capacity factors with NaN
-        .pipe(
-            pudl.helpers.oob_to_nan,
-            ['capacity_factor'],
-            lb=min_cap_fact,
-            ub=max_cap_fact
-        )
-        .drop(['hours'], axis=1)
+    cf = pudl.helpers.calc_capacity_factor(
+        cf,
+        min_cap_fact=min_cap_fact,
+        max_cap_fact=max_cap_fact,
+        freq=pudl_out.freq
     )
 
     return pudl.helpers.convert_cols_dtypes(

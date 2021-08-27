@@ -25,6 +25,32 @@ def fast_out(pudl_engine, pudl_datastore_fixture):
     )
 
 
+@pytest.fixture(scope="module")
+def fast_out_filled(pudl_engine, pudl_datastore_fixture):
+    """A PUDL output object for use in CI with net generation filled."""
+    return pudl.output.pudltabl.PudlTabl(
+        pudl_engine,
+        ds=pudl_datastore_fixture,
+        freq="MS",
+        fill_fuel_cost=True,
+        roll_fuel_cost=True,
+        fill_net_gen=True,
+    )
+
+
+@pytest.fixture(scope="module")
+def fast_out_annual(pudl_engine, pudl_datastore_fixture):
+    """A PUDL output object for use in CI."""
+    return pudl.output.pudltabl.PudlTabl(
+        pudl_engine,
+        ds=pudl_datastore_fixture,
+        freq="AS",
+        fill_fuel_cost=True,
+        roll_fuel_cost=True,
+        fill_net_gen=True,
+    )
+
+
 @pytest.mark.parametrize(
     "df_name", [
         "fuel_ferc1",
@@ -146,19 +172,11 @@ def test_ferc714_respondents_georef_counties(ferc714_out):
     assert isinstance(ferc714_gdf, gpd.GeoDataFrame)
 
 
-@pytest.fixture(scope="module")
-def fast_out_filled(pudl_engine, pudl_datastore_fixture):
-    """A PUDL output object for use in CI with net generation filled."""
-    return pudl.output.pudltabl.PudlTabl(
-        pudl_engine,
-        ds=pudl_datastore_fixture,
-        freq="MS",
-        fill_fuel_cost=True,
-        roll_fuel_cost=True,
-        fill_net_gen=True,
-    )
-
-
 def test_mcoe_filled(fast_out_filled):
     """Ensure the MCOE works with the net generation allocated."""
     fast_out_filled.mcoe()
+
+
+def test_plant_parts_eia_filled(fast_out_annual):
+    """Ensure the MCOE works with the net generation allocated."""
+    fast_out_filled.plant_parts_eia()
