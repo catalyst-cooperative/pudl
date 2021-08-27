@@ -1302,7 +1302,7 @@ def agg_cols(df_in, id_cols, sum_cols, wtavg_dict):
             df_in,
             data_col=data_col,
             weight_col=weight_col,
-            by_col=cols_to_grab
+            idx_cols=cols_to_grab
         ).merge(df_out, how='outer', on=cols_to_grab)
     return df_out
 

@@ -126,8 +126,8 @@ PLANT_PARTS = {
 dict: this dictionary contains a key for each of the 'plant parts' that should
 end up in the mater unit list. The top-level value for each key is another
 dictionary, which contains keys:
-    * id_cols (the primary key type id columns for this plant part). The
-    plant_id_eia column must come first.
+* id_cols (the primary key type id columns for this plant part). The
+plant_id_eia column must come first.
 """
 
 PLANT_PARTS_ORDERED = [
@@ -499,19 +499,19 @@ class LabelTrueGranularities(object):
         or false granularity.
 
         There are four main steps in this process:
-          * For every combinations of plant-parts, count the number of unique
-            types of peer plant-parts (see ``make_all_the_counts()`` for more
-            details).
-          * Convert those counts to boolean values if there is more or less
-            than one unique type parent or child plant-part (see
-            ``make_all_the_bools()`` for more details).
-          * Using the boolean values label each plant-part as a True or False
-            granularies if both the boolean for the parent-to-child and
-            child-to-parent (see ``label_true_grans_by_part()`` for more
-            details).
-          * For each plant-part, label it with its the appropriate plant-part
-            counterpart - if it is a True granularity, the appropriate label is
-            itself (see ``label_true_id_by_part()`` for more details).
+        * For every combinations of plant-parts, count the number of unique
+        types of peer plant-parts (see ``make_all_the_counts()`` for more
+        details).
+        * Convert those counts to boolean values if there is more or less
+        than one unique type parent or child plant-part (see
+        ``make_all_the_bools()`` for more details).
+        * Using the boolean values label each plant-part as a True or False
+        granularies if both the boolean for the parent-to-child and
+        child-to-parent (see ``label_true_grans_by_part()`` for more
+        details).
+        * For each plant-part, label it with its the appropriate plant-part
+        counterpart - if it is a True granularity, the appropriate label is
+        itself (see ``label_true_id_by_part()`` for more details).
 
         Args:
             drop_extra_cols (boolean): if True, the extra columns used to
@@ -854,11 +854,11 @@ class MakePlantParts(object):
         Returns:
             pandas.DataFrame: master unit list table with these additional
             columns:
-                * utility_id_pudl +
-                * plant_id_pudl +
-                * capacity_factor +
-                * ownership_dupe (boolean): indicator of whether the "owned"
-                    record has a corresponding "total" duplicate.
+            * utility_id_pudl +
+            * plant_id_pudl +
+            * capacity_factor +
+            * ownership_dupe (boolean): indicator of whether the "owned"
+            record has a corresponding "total" duplicate.
 
 
         """
