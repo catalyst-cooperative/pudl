@@ -15,7 +15,6 @@ import logging
 import pytest
 
 from pudl import validate as pv
-from pudl.analysis import plant_parts_eia
 
 logger = logging.getLogger(__name__)
 
@@ -261,16 +260,3 @@ def test_mcoe_self(pudl_out_mcoe, live_dbs):
         pytest.skip()
     for args in pv.mcoe_self:
         pv.vs_self(pudl_out_mcoe.mcoe(), **args)
-
-
-def test_plant_parts_eia(pudl_out_mcoe, live_dbs):
-    """The some of the aggregations in the EIA plant-parts table."""
-    if not live_dbs:
-        pytest.skip("Data validation only works with a live PUDL DB.")
-    if pudl_out_mcoe.freq == "AS":
-        plant_parts_eia.test_run_aggregations(
-            plant_parts_eia=pudl_out_mcoe.plant_parts_eia(),
-            gens_mega=pudl_out_mcoe.gens_mega_eia()
-        )
-    else:
-        pytest.skip()

@@ -178,5 +178,5 @@ def test_mcoe_filled(fast_out_filled):
 
 
 def test_plant_parts_eia_filled(fast_out_annual):
-    """Ensure the MCOE works with the net generation allocated."""
+    """Ensure the EIA plant-parts list can be generated."""
     fast_out_annual.plant_parts_eia()

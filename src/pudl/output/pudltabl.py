@@ -978,27 +978,30 @@ class PudlTabl(object):
         """
         if update or self._dfs['true_grans_eia'] is None:
             self._dfs['true_grans_eia'] = (
-                pudl.analysis.plant_parts_eia.LabelTrueGranularities(
-                    self.gens_mega_eia()).execute()
+                pudl.analysis.plant_parts_eia.LabelTrueGranularities()
+                .execute(self.gens_mega_eia())
             )
         return self._dfs['true_grans_eia']
 
-    def plant_parts_eia(self, update=False):
+    def plant_parts_eia(self, update=False, deep_update=False):
         """
         Generate and return master plant-parts EIA.
 
         Args:
             update (boolean): If true, re-calculate the output dataframe, even
                 if a cached version exists. Defualt is `False`.
+            deep_update (boolean): If True, re-calculate both the output
+                dataframe and its inputs. Defualt is `False`.
         """
-        if update or self._dfs['plant_parts_eia'] is None:
+        if update or deep_update or self._dfs['plant_parts_eia'] is None:
             # make the plant-parts objects
-            parts_compiler = pudl.analysis.plant_parts_eia.MakePlantParts(
-                self,
-                self.gens_mega_eia(),
-                self.true_grans_eia())
+            self.parts_compiler = pudl.analysis.plant_parts_eia.MakePlantParts(
+                self)
             # make the plant-parts df!
-            self._dfs['plant_parts_eia'] = parts_compiler.execute()
+            self._dfs['plant_parts_eia'] = self.parts_compiler.execute(
+                gens_mega=self.gens_mega_eia(update=deep_update),
+                true_grans=self.true_grans_eia(update=deep_update)
+            )
 
         return self._dfs['plant_parts_eia']
 
