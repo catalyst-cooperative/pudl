@@ -542,26 +542,14 @@ def validate_save_datapkg(datapkg_descriptor, datapkg_dir):
         f"using goodtables_pandas...")
     report = goodtables.validate(str(datapkg_json))
     if not report["valid"]:
-        # This will contain human-readable compact error report with up to 5 offending
-        # values per problem.
-        compact_report = {}
-        goodtables_errors = ""
-        for table in report["tables"]:
-            if not table["valid"]:
-                goodtables_errors += str(table["path"])
-                goodtables_errors += str(table["errors"])
-                compact_errors = []
-                for err in table["errors"]:
-                    new_err = err.copy()
-                    # Only retain up to 5 samples of bad values
-                    new_err["values"] = new_err["values"][:5]
-                    compact_errors.append(new_err)
-                compact_report[table["path"]] = compact_errors
-        pretty_report = json.dumps(compact_report, sort_keys=True, indent=4)
-        logger.error(f'{datapkg.descriptor["name"]} failed: {pretty_report}')
+        goodtables_errors = {
+            t["path"]: t["errors"][:5] for t in report["tables"] if not t["valid"]
+        }
+        pretty_errors = json.dumps(goodtables_errors, sort_keys=True, indent=4)
+        logger.error(f'{datapkg.descriptor["name"]} failed: {pretty_errors}')
         raise ValueError(
             f"Data package data validation failed with goodtables. "
-            f"Errors: {goodtables_errors}"
+            f"Errors: {pretty_errors}"
         )
     logger.info("Congrats! You made a valid data package!")
     logger.info("============================================================")

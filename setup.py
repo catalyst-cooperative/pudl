@@ -10,29 +10,28 @@ install_requires = [
     "addfips~=0.3.1",
     "catalystcoop.dbfread~=3.0",
     "coloredlogs~=15.0",
-    "contextily~=1.0",
-    "datapackage~=1.11",
-    "fsspec~=0.8.7",
-    "gcsfs~=0.7.2",
+    "contextily~=1.0",    # Only service_territory plotting. Remove?
+    "datapackage~=1.11",  # Transition datastore to use frictionless.
+    "fsspec~=2021.7",
+    "gcsfs~=2021.7",
     "geopandas~=0.9.0",
     "goodtables-pandas-py~=0.2.0",
-    "jinja2~=2.11",
+    "jinja2~=3.0",
     "matplotlib~=3.0",
     "networkx~=2.2",
     "numpy~=1.20",
-    "pandas~=1.2.5",
-    "prefect[viz, gcp]~=0.14.2",
-    "pyarrow~=4.0",
+    "pandas~=1.3",
+    "prefect[viz, gcp]~=0.15.0",
+    "pyarrow~=5.0",
     "pygeos~=0.9.0",
     "pyyaml~=5.0",
     "scikit-learn~=0.24.1",
     "scipy~=1.6",
     "seaborn~=0.11.1",
-    "sqlalchemy<1.4",
-    "tableschema~=1.12",
-    "tableschema-sql~=1.3",
+    "sqlalchemy~=1.4",
+    "tableschema~=1.12",     # Not needed post datapackage output removal?
+    "tableschema-sql~=1.3",  # Not needed post datapackage output removal?
     "timezonefinder~=5.0",
-    "xlsxwriter~=1.3",
 ]
 
 # We are installing the PUDL module to build the docs, but the C libraries
@@ -54,7 +53,7 @@ dev_requires = [
 
 doc_requires = [
     "doc8~=0.8.0",
-    "sphinx~=3.0",
+    "sphinx~=4.0",
     "sphinx-issues~=1.2",
     "sphinx-reredirects",
     "sphinx_rtd_theme~=0.5.0",
