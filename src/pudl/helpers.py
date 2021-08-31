@@ -1084,7 +1084,7 @@ def count_records(df, cols, new_count_col_name):
     """
     return (
         df.assign(count_me=1)
-        .groupby(cols)
+        .groupby(cols, observed=True)
         .count_me.count()
         .reset_index()
         .rename(columns={'count_me': new_count_col_name})
@@ -1172,7 +1172,7 @@ def get_working_eia_dates():
     return dates
 
 
-def dedup_on_category(dedup_df, base_cols, category_name, sorter):
+def dedupe_on_category(dedup_df, base_cols, category_name, sorter):
     """
     Deduplicate a df using a sorted category to retain prefered values.
 
@@ -1186,7 +1186,8 @@ def dedup_on_category(dedup_df, base_cols, category_name, sorter):
         sorter (list): sorted list of category options
     """
     dedup_df[category_name] = dedup_df[category_name].astype("category")
-    dedup_df[category_name].cat.set_categories(sorter, inplace=True)
+    dedup_df[category_name] = dedup_df[category_name].cat.set_categories(
+        sorter)
     dedup_df = dedup_df.sort_values(category_name)
     return dedup_df.drop_duplicates(subset=base_cols, keep='first')
 
@@ -1264,7 +1265,7 @@ def weighted_average(df, data_col, weight_col, idx_cols):
     """
     df['_data_times_weight'] = df[data_col] * df[weight_col]
     df['_weight_where_notnull'] = df[weight_col] * pd.notnull(df[data_col])
-    g = df.groupby(idx_cols)
+    g = df.groupby(idx_cols, observed=True)
     result = (
         g['_data_times_weight'].sum(min_count=1)
         / g['_weight_where_notnull'].sum(min_count=1)
@@ -1295,7 +1296,7 @@ def agg_cols(df_in, id_cols, sum_cols, wtavg_dict):
     logger.debug(f'grouping by {cols_to_grab}')
 
     df_out = (
-        df_in.groupby(by=cols_to_grab, as_index=False)
+        df_in.groupby(by=cols_to_grab, as_index=False, observed=True)
         [sum_cols]
         .sum(min_count=1)
     )

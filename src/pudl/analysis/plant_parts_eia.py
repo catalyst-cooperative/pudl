@@ -82,8 +82,7 @@ Make the table via objects in this module:
 mega_gens = MakeMegaGenTbl(pudl_out).execute()
 true_grans = LabelTrueGranularities(mega_gens).execute()
 
-parts_compiler = MakePlantParts(
-    pudl_out, mega_gens=mega_gens, true_grans=true_grans)
+parts_compiler = MakePlantParts(pudl_out, mega_gens=mega_gens, true_grans=true_grans)
 plant_parts_eia = parts_compiler.execute()
 ``
 
@@ -276,7 +275,7 @@ class MakeMegaGenTbl(object):
             owner will have a records with 100 MW).
         """
         logger.info('Generating the mega generator table with ownership.')
-        # pull in the main two tables
+        # pull in the main tables we'll use from the pudl_out object
         gens = self.pudl_out.gens_eia860()
         mcoe = self.pudl_out.mcoe()
         generation = self.pudl_out.gen_eia923()
@@ -350,12 +349,16 @@ class MakeMegaGenTbl(object):
         Returns
             pandas.DataFrame: annual table of all generators from EIA that
             operated within each reporting year.
+
+        TODO: This function results in warning: `PerformanceWarning: DataFrame
+        is highly fragmented...` I expect this is because of the number of
+        columns that are being assigned here via `.loc[:, col_to_assign]`.
+
         """
         mid_year_retiree_mask = (
             gen_df.retirement_date.dt.year == gen_df.report_date.dt.year)
         existing_mask = (gen_df.operational_status == 'existing')
         operating_mask = existing_mask | mid_year_retiree_mask
-
         # we've going to make a new column which combines both the mid-year
         # reitrees and the fully existing gens into one code so we can group
         # them together later on
@@ -460,12 +463,9 @@ class MakeMegaGenTbl(object):
         # duplicate all of these "owned" records, asign 1 to all of the
         # fraction_owned column to indicate 100% ownership, and add these new
         # "total" records to the "owned"
-        gens_mega = gens_mega.append(
-            gens_mega.copy()
-            .assign(
-                fraction_owned=1,
-                ownership='total')
-
+        gens_mega = pd.concat(
+            [gens_mega,
+             gens_mega.copy().assign(fraction_owned=1, ownership='total')]
         )
         gens_mega.loc[:, SUM_COLS] = (
             gens_mega.loc[:, SUM_COLS]
@@ -571,9 +571,10 @@ class LabelTrueGranularities(object):
             :,
             self.id_cols_list  # id_cols_list already has IDX_TO_ADD
             + IDX_OWN_TO_ADD
-        ]
+        ].copy()
         # grab the plant-part id columns from the generator table
-        count_ids = gens_mega.loc[:, self.id_cols_list].drop_duplicates()
+        count_ids = gens_mega.loc[:,
+                                  self.id_cols_list].drop_duplicates().copy()
 
         # we want to compile the count results on a copy of the generator table
         all_the_counts = gens_mega.copy()
@@ -621,7 +622,8 @@ class LabelTrueGranularities(object):
         # plant_id_eia column to count on
         df_count = (
             count_ids.assign(plant_id_eia_temp=lambda x: x.plant_id_eia)
-            .groupby(by=part_cols, dropna=False).nunique()
+            .groupby(by=part_cols, dropna=False, observed=True)
+            .nunique()
             .rename(columns={'plant_id_eia_temp': 'plant_id_eia'})
             .rename(columns={v: k for k, v in self.parts_to_ids.items()})
             .add_suffix(f'_count_per_{part_name}')
@@ -653,15 +655,19 @@ class LabelTrueGranularities(object):
         counts.loc[:, counts.filter(like='_count_per_').columns] = (
             counts.loc[:, counts.filter(like='_count_per_').columns]
             .astype(pd.Int64Dtype())
+            .copy()
         )
 
         # convert the count columns to bool columns
         for col in counts.filter(like='_count_per_').columns:
             bool_col = col.replace("_count_per_", "_has_only_one_")
-            counts.loc[counts[col].notnull(), bool_col] = counts[col] == 1
+            counts.loc[counts[col].notnull(), bool_col] = (
+                counts.loc[:, col] == 1
+            )
         # force the nullable bool type for all our count cols
         counts.loc[:, counts.filter(like='_has_only_one_').columns] = (
-            counts.filter(like='_has_only_one_').astype(pd.BooleanDtype())
+            counts.filter(like='_has_only_one_')
+            .astype(pd.BooleanDtype())
         )
         return counts
 
@@ -688,38 +694,46 @@ class LabelTrueGranularities(object):
 
         Args:
             part_bools (pandas.DataFrame): result of ``make_all_the_bools()``
+
+        TODO: This function results in warning: `PerformanceWarning: DataFrame
+        is highly fragmented...` I expect this is because of the number of
+        columns that are being assigned here via `.loc[:, col_to_assign]`. This
+        warning shows up only after the 5th iteration through the top-level
+        loop (when part_name = 'plant_prime_fuel').
+
         """
         # assign a bool for the true gran only if all
         for part_name, parent_parts in self.parts_to_parent_parts.items():
             for parent_part_name in parent_parts:
                 # let's save the input boolean columns
-                bool_cols = [f'{part_name}_has_only_one_{parent_part_name}',
-                             f'{parent_part_name}_has_only_one_{part_name}']
-                false_gran_col = f'false_gran_{part_name}_v_{parent_part_name}'
+                bool_cols = [
+                    f'{part_name}_has_only_one_{parent_part_name}',
+                    f'{parent_part_name}_has_only_one_{part_name}'
+                ]
+                # false_gran_col = f'false_gran_{part_name}_v_{parent_part_name}'
                 # the long awaited ALL.. label them as
-                part_bools[false_gran_col] = (
-                    part_bools[bool_cols].all(axis='columns'))
-                part_bools = part_bools.astype(
-                    {false_gran_col: pd.BooleanDtype()})
-                # create the inverse column as true_grans
-                part_bools[f'true_gran_{part_name}_v_{parent_part_name}'] = (
-                    ~part_bools[false_gran_col])
+                part_bools.loc[
+                    :, f'true_gran_{part_name}_v_{parent_part_name}'] = (
+                    ~(part_bools.loc[:, bool_cols].all(axis='columns'))
+                    .astype(pd.BooleanDtype())
+                )
             # if all of the true_gran part v parent part columns are false,
             # than this part is a false gran. if they are all true, then wahoo
             # the record is truly unique
-            part_bools[f'true_gran_{part_name}'] = (
+            part_bools.loc[:, f'true_gran_{part_name}'] = (
                 part_bools.filter(like=f'true_gran_{part_name}')
                 .all(axis='columns'))
             trues_found = (
                 part_bools[part_bools[f'true_gran_{part_name}']]
-                .drop_duplicates(subset=[self.parts_to_ids[part_name],
-                                         'plant_id_eia', ] + IDX_TO_ADD))
+                .drop_duplicates(
+                    subset=[self.parts_to_ids[part_name], 'plant_id_eia']
+                    + IDX_TO_ADD
+                )
+            )
             logger.info(
                 f'true grans found for {part_name}: {len(trues_found)}'
             )
-        part_trues = part_bools.drop(
-            columns=part_bools.filter(like='false_gran').columns)
-        return part_trues
+        return part_bools
 
     def label_true_id_by_part(self, part_trues):
         """
@@ -737,26 +751,30 @@ class LabelTrueGranularities(object):
         the possible parent-parts from biggest to smallest and the first time
         we find that a plant-part is a false gran, we label it's true id as
         that parent-part.
+
         """
+        part_trues = part_trues.copy()
         for part_name, parent_parts in self.parts_to_parent_parts.items():
             # make column which will indicate which part is the true/unique
             # plant-part...
             appro_part_col = f"appro_part_label_{part_name}"
             # make this col null so we can fill in
-            part_trues[appro_part_col] = pd.NA
+            part_trues.loc[:, appro_part_col] = pd.NA
             for parent_part_name in parent_parts:
                 # find the reords where the true gran col is false, and label
                 # the appropriate part column name with that parent part
                 mask_loc = (
-                    ~part_trues[f'true_gran_{part_name}_v_{parent_part_name}'],
+                    ~part_trues.loc[
+                        :, f'true_gran_{part_name}_v_{parent_part_name}'],
                     appro_part_col
                 )
                 part_trues.loc[mask_loc] = part_trues.loc[mask_loc].fillna(
                     parent_part_name)
             # for all of the plant-part records which we didn't find any false
             # gran's the appropriate label is itself! it is a unique snowflake
-            part_trues[appro_part_col] = part_trues[appro_part_col].fillna(
-                part_name)
+            part_trues.loc[:, appro_part_col] = (
+                part_trues.loc[:, appro_part_col].fillna(part_name)
+            )
             part_trues = (
                 assign_record_id_eia(
                     part_trues, plant_part_col=appro_part_col)
@@ -820,8 +838,8 @@ class MakePlantParts(object):
         Returns:
             pandas.DataFrame:
         """
-        # 3) aggreate everything by each plant part
-        plant_parts_eia = pd.DataFrame()
+        #  aggreate everything by each plant part
+        part_dfs = []
         for part_name in PLANT_PARTS_ORDERED:
             part_df = (
                 PlantPart(part_name,)
@@ -833,7 +851,8 @@ class MakePlantParts(object):
                     AddQualifier(qual_record, part_name)
                     .execute(part_df, gens_mega)
                 )
-            plant_parts_eia = plant_parts_eia.append(part_df, sort=True)
+            part_dfs.append(part_df)
+        plant_parts_eia = pd.concat(part_dfs)
         # clean up, add additional columns
         plant_parts_eia = (
             self.add_additonal_cols(plant_parts_eia)
@@ -919,7 +938,8 @@ class MakePlantParts(object):
         test_own_df = (
             plant_parts_eia.groupby(
                 by=self.id_cols_list + ['plant_part', 'ownership'],
-                dropna=False
+                dropna=False,
+                observed=True,
             )
             [['fraction_owned', 'capacity_mw']].sum(min_count=1).reset_index())
 
@@ -1057,7 +1077,7 @@ class PlantPart(object):
             .assign(ownership='total')
         )
         part_ag = (
-            part_own.append(part_tot, sort=False)
+            pd.concat([part_own, part_tot])
             .pipe(pudl.helpers.convert_cols_dtypes, 'eia')
         )
 
@@ -1090,8 +1110,7 @@ class PlantPart(object):
         # cleaner to run the full df through this same grouby
         frac_owned = (
             part_ag.groupby(
-                by=self.id_cols +
-                ['ownership', 'operational_status_pudl', 'report_date'])
+                by=self.id_cols + IDX_TO_ADD + ['ownership'], observed=True)
             [['capacity_mw']].sum(min_count=1)
         )
         # then merge the total capacity with the plant-part capacity to use to
@@ -1215,7 +1234,7 @@ class PlantPart(object):
         group_cols = ['plant_id_eia'] + IDX_TO_ADD + IDX_OWN_TO_ADD
         # count unique records per plant
         part_count = (
-            part_df.groupby(group_cols, as_index=False)
+            part_df.groupby(group_cols, as_index=False, observed=True)
             [['record_id_eia']].count()
             .rename(columns={'record_id_eia': 'record_count'})
         )
@@ -1302,10 +1321,10 @@ class AddQualifier(object):
         if qual_record == 'operational_status':
             logger.debug(f'getting max {qual_record}')
             # restric the number of columns in here to only include the ones we
-            # need, unlike get_consistent_qualifiers, dedup_on_category
+            # need, unlike get_consistent_qualifiers, dedupe_on_category
             # preserves all of the columns from record_df
             record_df = record_df[self.base_cols + [qual_record]]
-            consistent_records = pudl.helpers.dedup_on_category(
+            consistent_records = pudl.helpers.dedupe_on_category(
                 record_df,
                 self.base_cols,
                 qual_record,
@@ -1399,7 +1418,7 @@ def _test_prep_merge(part_name, plant_parts_eia, gens_mega):
     plant_cap = (
         gens_mega[gens_mega.ownership == 'owned']
         .groupby(
-            by=id_cols + IDX_TO_ADD + IDX_OWN_TO_ADD)
+            by=id_cols + IDX_TO_ADD + IDX_OWN_TO_ADD, observed=True)
         [SUM_COLS]
         .sum(min_count=1)
         .reset_index()
@@ -1463,18 +1482,17 @@ def add_record_id(part_df, id_cols, plant_part_col='plant_part'):
     """
     ids = deepcopy(id_cols)
     # we want the plant id first... mostly just bc it'll be easier to read
-    part_df = part_df.assign(record_id_eia=part_df.plant_id_eia.map(str))
+    part_df = part_df.assign(record_id_eia=lambda x: x.plant_id_eia.map(str))
     ids.remove('plant_id_eia')
     for col in ids:
         part_df = part_df.assign(
-            record_id_eia=part_df.record_id_eia + "_" +
-            part_df[col].astype(str))
+            record_id_eia=lambda x: x.record_id_eia + "_" + x[col].astype(str))
     part_df = part_df.assign(
-        record_id_eia=part_df.record_id_eia + "_" +
-        part_df.report_date.dt.year.astype(str) + "_" +
-        part_df[plant_part_col] + "_" +
-        part_df.ownership.astype(str) + "_" +
-        part_df.utility_id_eia.astype('Int64').astype(str))
+        record_id_eia=lambda x: x.record_id_eia + "_" +
+        x.report_date.dt.year.astype(str) + "_" +
+        x[plant_part_col] + "_" +
+        x.ownership.astype(str) + "_" +
+        x.utility_id_eia.astype('Int64').astype(str))
     # add operational status only when records are not "operating" (i.e.
     # existing or retiring mid-year see MakeMegaGenTbl.abel_operating_gens()
     # for more details)
@@ -1493,13 +1511,20 @@ def assign_record_id_eia(test_df, plant_part_col='plant_part'):
         test_df (pandas.DataFrame)
         plant_part_col (string)
 
+    TODO: This function results in warning: `PerformanceWarning: DataFrame is
+    highly fragmented...` I'm honestly not sure if this is happening because of
+    this function specifically or is a result from all of the column
+    assignments in `label_true_id_by_part()` or `label_true_grans_by_part()`
+    where we are also getting this warning.
+
     """
     dfs = []
     for part in PLANT_PARTS:
-        dfs.append(add_record_id(
-            part_df=test_df[test_df[plant_part_col] == part],
-            id_cols=PLANT_PARTS[part]['id_cols'],
-            plant_part_col=plant_part_col
-        ))
+        dfs.append(
+            add_record_id(
+                part_df=test_df[test_df[plant_part_col] == part],
+                id_cols=PLANT_PARTS[part]['id_cols'],
+                plant_part_col=plant_part_col)
+        )
     test_df_ids = pd.concat(dfs)
     return test_df_ids
