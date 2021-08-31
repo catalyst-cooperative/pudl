@@ -23,7 +23,7 @@ install_requires = [
     "pandas~=1.3",
     "prefect[viz, gcp]~=0.15.0",
     "pyarrow~=5.0",
-    "pygeos~=0.9.0",
+    "pygeos~=0.10.0",
     "pyyaml~=5.0",
     "scikit-learn~=0.24.1",
     "scipy~=1.6",
@@ -142,6 +142,7 @@ setup(
             "pudl_etl = pudl.cli:main",
             "pudl_setup = pudl.workspace.setup_cli:main",
             "pudl_territories = pudl.analysis.service_territory:main",
+            "state_demand = pudl.analysis.state_demand:main",
         ]
     },
 )

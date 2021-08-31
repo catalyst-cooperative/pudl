@@ -3,6 +3,30 @@ PUDL Release Notes
 =======================================================================================
 
 ---------------------------------------------------------------------------------------
+0.4.1 (Unreleased)
+---------------------------------------------------------------------------------------
+This is a minor maintenance release.
+
+Updated Dependencies
+^^^^^^^^^^^^^^^^^^^^
+* **SQLAlchemy 1.4.x:** Addressed all deprecation warnings associated with API changes
+  coming in SQLAlchemy 2.0, and bumped current requirement to 1.4.x
+* **Pandas 1.3.x:** Addressed many data type issues resulting from changes in how Pandas
+  preserves and propagates ExtensionArray / nullable data types.
+* **PyArrow v5.0.0:**
+* **PyGEOS v0.10.x:**
+
+New Analysis
+^^^^^^^^^^^^
+* Added a deployed console script for running the state-level hourly electricity demand
+  allocation, using FERC 714 and EIA 861 data, simply called ``state_demand``. This
+  script existed in the v0.4.0 release, but was not deployed on the user's system.
+
+New Data Coverage
+^^^^^^^^^^^^^^^^^
+* :doc:`data_sources/eia860` for 2001-2003 (extracted from DBF files)
+
+---------------------------------------------------------------------------------------
 0.4.0 (2021-08-16)
 ---------------------------------------------------------------------------------------
 This is a ridiculously large update including more than a year and a half's
