@@ -71,7 +71,8 @@ class PudlTabl(object):
 
         Args:
             freq (str): String describing time frequency at which to aggregate
-                the reported data. E.g. 'MS' (monthly start).
+                the reported data. Currently this can only be 'MS'
+                (month start) or 'AS' (annual start).
             start_date (date): Beginning date for data to pull from the
                 PUDL DB.
             end_date (date): End date for data to pull from the PUDL DB.
@@ -89,23 +90,41 @@ class PudlTabl(object):
                 ``mcoe()``, ``capacity_factor()`` and ``heat_rate_by_unit()``.
 
         """
+        if not isinstance(pudl_engine, sa.engine.base.Engine):
+            raise TypeError(
+                "PudlTabl needs pudl_engine to be a SQLAlchemy Engine, but we "
+                f"got a {type(pudl_engine)}."
+            )
         self.pudl_engine = pudl_engine
+
+        if freq not in (None, "AS", "MS"):
+            raise ValueError(
+                f"freq must be one of None, 'MS', or 'AS', but we got {freq}."
+            )
         self.freq = freq
         # We need datastore access because some data is not yet integrated into the
         # PUDL DB. See the etl_eia861 method.
-        self.ds = ds
-        if self.ds is None:
+        if not (
+            (ds is None) or
+            isinstance(ds, pudl.workspace.datastore.Datastore)
+        ):
+            raise TypeError(
+                "PudlTable needs ds to be a PUDL Datastore object, but we got "
+                f"a {type(ds)}."
+            )
+        if ds is None:
             pudl_in = Path(pudl.workspace.setup.get_defaults()["pudl_in"])
             self.ds = pudl.workspace.datastore.Datastore(
                 local_cache_path=pudl_in / "data"
             )
+        else:
+            self.ds = ds
 
         # grab all working eia dates to use to set start and end dates if they
         # are not set
         eia_dates = pudl.helpers.get_working_eia_dates()
         if start_date is None:
             self.start_date = min(eia_dates)
-
         else:
             # Make sure it's a date... and not a string.
             self.start_date = pd.to_datetime(start_date)
@@ -115,9 +134,6 @@ class PudlTabl(object):
         else:
             # Make sure it's a date... and not a string.
             self.end_date = pd.to_datetime(end_date)
-
-        if not pudl_engine:
-            raise AssertionError('PudlTabl object needs a pudl_engine')
 
         self.roll_fuel_cost = roll_fuel_cost
         self.fill_fuel_cost = fill_fuel_cost
@@ -495,7 +511,7 @@ class PudlTabl(object):
                 end_date=self.end_date,)
         return self._dfs['plants_eia860']
 
-    def gens_eia860(self, update=False):
+    def gens_eia860(self, update=False, unit_ids=False):
         """
         Pull a dataframe describing generators, as reported in EIA 860.
 
@@ -511,7 +527,9 @@ class PudlTabl(object):
             self._dfs['gens_eia860'] = pudl.output.eia860.generators_eia860(
                 self.pudl_engine,
                 start_date=self.start_date,
-                end_date=self.end_date)
+                end_date=self.end_date,
+                unit_ids=unit_ids,
+            )
         return self._dfs['gens_eia860']
 
     def own_eia860(self, update=False):
@@ -624,9 +642,9 @@ class PudlTabl(object):
                     'to the generator level instead of using the less complete '
                     'generation_eia923 table.'
                 )
-                self._dfs['gen_eia923'] = self.gen_allocated_eia923(update)
+                self._dfs['gen_eia923'] = self.gen_allocated_eia923(update=update)
             else:
-                self._dfs['gen_eia923'] = self.gen_original_eia923(update)
+                self._dfs['gen_eia923'] = self.gen_original_eia923(update=update)
         return self._dfs['gen_eia923']
 
     def gen_original_eia923(self, update=False):
@@ -789,25 +807,6 @@ class PudlTabl(object):
     ###########################################################################
     # EIA MCOE OUTPUTS
     ###########################################################################
-    def bga(self, update=False):
-        """
-        Pull the more complete EIA/PUDL boiler-generator associations.
-
-        Args:
-            update (bool): If true, re-calculate the output dataframe, even if
-                a cached version exists.
-
-        Returns:
-            pandas.DataFrame: a denormalized table for interactive use.
-
-        """
-        if update or self._dfs['bga'] is None:
-            self._dfs['bga'] = pudl.output.glue.boiler_generator_assn(
-                self.pudl_engine,
-                start_date=self.start_date,
-                end_date=self.end_date)
-        return self._dfs['bga']
-
     def hr_by_gen(self, update=False):
         """
         Calculate and return generator level heat rates (mmBTU/MWh).
@@ -878,9 +877,15 @@ class PudlTabl(object):
             )
         return self._dfs['capacity_factor']
 
-    def mcoe(self, update=False,
-             min_heat_rate=5.5, min_fuel_cost_per_mwh=0.0,
-             min_cap_fact=0.0, max_cap_fact=1.5):
+    def mcoe(
+        self,
+        update=False,
+        min_heat_rate=5.5,
+        min_fuel_cost_per_mwh=0.0,
+        min_cap_fact=0.0,
+        max_cap_fact=1.5,
+        all_gens=True,
+    ):
         """
         Calculate and return generator level MCOE based on EIA data.
 
@@ -907,6 +912,9 @@ class PudlTabl(object):
                 with a lower capacity factor will be filtered out before
                 returning. This allows the user to exclude generators that
                 aren't being used enough to have valid.
+            all_gens (bool): Controls whether the output contains records for
+                all generators in the :ref:`generators_eia860` table, or only
+                those generators with associated MCOE data. True by default.
 
         Returns:
             :class:`pandas.DataFrame`: a compilation of generator attributes,
@@ -920,6 +928,7 @@ class PudlTabl(object):
                 min_fuel_cost_per_mwh=min_fuel_cost_per_mwh,
                 min_cap_fact=min_cap_fact,
                 max_cap_fact=max_cap_fact,
+                all_gens=all_gens,
             )
         return self._dfs['mcoe']
 

@@ -11,10 +11,9 @@ Data Sources
    eia923
    epacems
    ferc1
-   ferc1_db_notes
 
 .. toctree::
    :caption: Work in Progress & Future Datasets
-   :maxdepth: 3
+   :maxdepth: 1
 
    wip_future

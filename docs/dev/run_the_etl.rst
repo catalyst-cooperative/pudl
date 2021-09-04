@@ -46,14 +46,15 @@ we do in our :doc:`software integration tests <testing>`.
     $ datapkg_to_sqlite \
         datapkg/pudl-fast/ferc1/datapackage.json \
         datapkg/pudl-fast/epacems-eia/datapackage.json
-    $ epacems_to_parquet datapkg/pudl-fast/epacems-eia/datapackage.json
+    $ epacems_to_parquet --years 2019 --states ID -- \
+        datapkg/pudl-fast/epacems-eia/datapackage.json
 
 The Full ETL
 ------------
 The full ETL setting file includes all the datasets with all of the years and
 tables with the exception of EPA CEMS. A full ETL for EPA CEMS can take up to
-15 hours of processing time so the example setting here is all years of CEMS
-for one state (Idaho!) which takes around 20 minutes to process.
+15 hours of processing time, so the example setting here is all years of CEMS
+for one state (Idaho!) and takes around 20 minutes to process.
 
 .. code-block:: console
 
@@ -61,14 +62,14 @@ for one state (Idaho!) which takes around 20 minutes to process.
     $ pudl_etl settings/etl_full.yml
     $ datapkg_to_sqlite datapkg/pudl-full/ferc1/datapackage.json \
         datapkg/pudl-full/eia/datapackage.json
-    $ epacems_to_parquet datapkg/pudl-full/epacems-eia/datapackage.json
+    $ epacems_to_parquet --states ID -- datapkg/pudl-full/epacems-eia/datapackage.json
 
 Additional Notes
 ----------------
 These commands should result in a bunch of Python :mod:`logging` output describing
-what the script is doing, and file outputs in the ``sqlite``, ``datapkg``, and
-``parquet`` directories within your workspace. When the ETL is complete you should
-see new files at ``sqlite/ferc1.sqlite`` and ``sqlite/pudl.sqlite``, and a new
+what the script is doing, file outputs in the ``sqlite``, ``datapkg``, and
+``parquet`` directories within your workspace. When the ETL is complete, you should
+see new files at ``sqlite/ferc1.sqlite`` and ``sqlite/pudl.sqlite`` as well as a new
 directory at ``datapkg/pudl-fast`` or ``datapkg/pudl-full`` containing several
 datapackage directories -- one for each of the ``ferc1``, ``eia`` (Forms 860 and
 923), and ``epacems-eia`` datasets.

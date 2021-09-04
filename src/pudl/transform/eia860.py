@@ -65,12 +65,12 @@ def ownership(eia860_dfs, eia860_transformed_dfs):
 
     # This has to come before the fancy indexing below, otherwise the plant_id_eia
     # is still a float.
-    own_df = own_df.astype({
-        "owner_utility_id_eia": pd.Int64Dtype(),
-        "utility_id_eia": pd.Int64Dtype(),
-        "plant_id_eia": pd.Int64Dtype(),
-        "owner_state": pd.StringDtype()
-    })
+    own_df = own_df.astype(pudl.helpers.get_pudl_dtypes({
+        "owner_utility_id_eia": "eia",
+        "utility_id_eia": "eia",
+        "plant_id_eia": "eia",
+        "owner_state": "eia",
+    }))
 
     # A small number of generators are reported multiple times in the ownership
     # table due to the use of leading zeroes in their integer generator_id values
@@ -582,8 +582,8 @@ def transform(eia860_raw_dfs, eia860_tables=pc.pudl_tables["eia860"]):
     # for each of the tables, run the respective transform funtction
     for table in eia860_transform_functions:
         if table in eia860_tables:
-            logger.info(f"Transforming raw EIA 860 DataFrames for {table} "
-                        f"concatenated across all years.")
+            logger.info("Transforming raw EIA 860 DataFrames for %s "
+                        "concatenated across all years.", table)
             eia860_transform_functions[table](eia860_raw_dfs,
                                               eia860_transformed_dfs)
 
