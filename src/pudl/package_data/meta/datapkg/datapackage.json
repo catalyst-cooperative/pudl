@@ -5270,7 +5270,7 @@
                         "format": "default"
                     },
                     {
-                        "name": "phone_extension_1",
+                        "name": "phone_extension",
                         "type": "string",
                         "description": "Phone extension for contact 1",
                         "format": "default"
@@ -5282,7 +5282,7 @@
                         "format": "default"
                     },
                     {
-                        "name": "phone_number_1",
+                        "name": "phone_number",
                         "type": "string",
                         "description": "Phone number for contact 1",
                         "format": "default"

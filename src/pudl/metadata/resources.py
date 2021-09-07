@@ -34,7 +34,14 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
                 "sulfur_content_pct",
                 "ash_content_pct",
             ],
-            "primaryKey": ["plant_id_eia", "boiler_id", "fuel_type_code", "report_date"],
+            # Need to fix transform function to ensure this natural primary key
+            # See https://github.com/catalyst-cooperative/pudl/issues/852
+            # "primaryKey": [
+            #     "plant_id_eia",
+            #     "boiler_id",
+            #     "fuel_type_code",
+            #     "report_date"
+            # ],
         },
         "sources": ["eia923"],
     },
@@ -193,7 +200,15 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
                 "fuel_consumed_for_electricity_mmbtu",
                 "net_generation_mwh",
             ],
-            "primaryKey": ["plant_id_eia", "report_date", "nuclear_unit_id", "fuel_type", "prime_mover_code"],
+            # Need to fix transform function to ensure this natural primary key
+            # See https://github.com/catalyst-cooperative/pudl/issues/851
+            # "primaryKey": [
+            #     "plant_id_eia",
+            #     "report_date",
+            #     "nuclear_unit_id",
+            #     "fuel_type",
+            #     "prime_mover_code"
+            # ],
         },
         "sources": ["eia923"],
     },
@@ -209,16 +224,25 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
                 "utility_id_eia",
                 "capacity_mw",
                 "summer_capacity_mw",
+                "summer_capacity_estimate",
                 "winter_capacity_mw",
+                "winter_capacity_estimate",
                 "energy_source_code_1",
                 "energy_source_code_2",
                 "energy_source_code_3",
                 "energy_source_code_4",
                 "energy_source_code_5",
                 "energy_source_code_6",
+                "energy_source_1_transport_1",
+                "energy_source_1_transport_2",
+                "energy_source_1_transport_3",
+                "energy_source_2_transport_1",
+                "energy_source_2_transport_2",
+                "energy_source_2_transport_3",
                 "fuel_type_code_pudl",
                 "multiple_fuels",
                 "deliver_power_transgrid",
+                "distributed_generation",
                 "syncronized_transmission_grid",
                 "turbines_num",
                 "planned_modifications",
@@ -253,6 +277,9 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
                 "summer_estimated_capability_mw",
                 "winter_estimated_capability_mw",
                 "retirement_date",
+                "owned_by_non_utility",
+                "reactive_power_output_mvar",
+                "data_source",
             ],
             "primaryKey": ["plant_id_eia", "generator_id", "report_date"],
             "foreignKeyRules": {"fields": [["plant_id_eia", "generator_id", "report_date"]]},
@@ -313,19 +340,6 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
             "primaryKey": ["plant_id_eia", "unitid", "operating_datetime_utc"],
         },
         "sources": ["epacems"],
-    },
-    "load_curves_epaipm": {
-        "schema": {
-            "fields": [
-                "region_id_epaipm",
-                "month",
-                "day_of_year",
-                "hour",
-                "time_index",
-                "load_mw",
-            ],
-        },
-        "sources": ["epaipm"],
     },
     "natural_gas_transport_eia923": {
         "schema": {"fields": ["abbr", "status"], "primaryKey": ["abbr"]},
@@ -458,12 +472,6 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
         },
         "sources": ["ferc1"],
     },
-    "plant_region_map_epaipm": {
-        "schema": {
-            "fields": ["plant_id_eia", "region"],
-        },
-        "sources": ["epaipm"],
-    },
     "plants_eia": {
         "schema": {
             "fields": ["plant_id_eia", "plant_name_eia", "plant_id_pudl"],
@@ -478,6 +486,7 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
                 "ash_impoundment",
                 "ash_impoundment_lined",
                 "ash_impoundment_status",
+                "datum",
                 "energy_storage",
                 "ferc_cogen_docket_no",
                 "ferc_exempt_wholesale_generator_docket_no",
@@ -488,6 +497,7 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
                 "natural_gas_pipeline_name_1",
                 "natural_gas_pipeline_name_2",
                 "natural_gas_pipeline_name_3",
+                "nerc_region",
                 "net_metering",
                 "pipeline_notes",
                 "regulatory_status_code",
@@ -520,10 +530,10 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
                 "iso_rto_code",
                 "latitude",
                 "longitude",
-                "nerc_region",
                 "primary_purpose_naics_id",
                 "sector_name",
                 "sector_id",
+                "service_area",
                 "state",
                 "street_address",
                 "zip_code",
@@ -752,42 +762,6 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
         },
         "sources": ["ferc1"],
     },
-    "regions_entity_epaipm": {
-        "schema": {
-            "fields": ["region_id_epaipm"],
-            "primaryKey": ["region_id_epaipm"],
-            "foreignKeyRules": {"fields": [
-                ["region"],
-                ["region_from"],
-                ["region_id_epaipm"],
-                ["region_to"],
-            ]}
-        },
-    },
-    "transmission_joint_epaipm": {
-        "schema": {
-            "fields": [
-                "joint_constraint_id",
-                "region_from",
-                "region_to",
-                "firm_ttc_mw",
-                "nonfirm_ttc_mw",
-            ],
-        },
-        "sources": ["epaipm"]
-    },
-    "transmission_single_epaipm": {
-        "schema": {
-            "fields": [
-                "region_from",
-                "region_to",
-                "firm_ttc_mw",
-                "nonfirm_ttc_mw",
-                "tariff_mills_kwh",
-            ],
-        },
-        "sources": ["epaipm"],
-    },
     "transport_modes_eia923": {
         "schema": {
             "fields": ["abbr", "mode"],
@@ -818,6 +792,21 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
                 "plants_reported_operator",
                 "plants_reported_asset_manager",
                 "plants_reported_other_relationship",
+                "entity_type",
+                "attention_line",
+                "address_2",
+                "zip_code_4",
+                "contact_firstname",
+                "contact_lastname",
+                "contact_title",
+                "phone_number",
+                "phone_extension",
+                "contact_firstname_2",
+                "contact_lastname_2",
+                "contact_title_2",
+                "phone_number_2",
+                "phone_extension_2",
+
             ],
             "primaryKey": ["utility_id_eia", "report_date"],
             "foreignKeyRules": {"fields": [

@@ -25,7 +25,6 @@ import pudl.extract.eia860m
 import pudl.extract.eia861
 import pudl.extract.eia923
 import pudl.extract.epacems
-import pudl.extract.epaipm
 import pudl.extract.excel
 import pudl.extract.ferc1
 import pudl.extract.ferc714
@@ -34,6 +33,14 @@ import pudl.glue.ferc1_eia
 import pudl.helpers
 import pudl.load.csv
 import pudl.load.metadata
+import pudl.load.parquet
+import pudl.load.sqlite
+import pudl.metadata.classes
+import pudl.metadata.constants
+import pudl.metadata.fields
+import pudl.metadata.helpers
+import pudl.metadata.labels
+import pudl.metadata.resources
 # Output modules by data source:
 import pudl.output.censusdp1tract
 import pudl.output.eia860
@@ -48,7 +55,6 @@ import pudl.transform.eia860
 import pudl.transform.eia861
 import pudl.transform.eia923
 import pudl.transform.epacems
-import pudl.transform.epaipm
 import pudl.transform.ferc1
 import pudl.transform.ferc714
 # Data validation tools and test cases:

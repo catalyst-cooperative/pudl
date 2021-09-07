@@ -67,10 +67,6 @@ SOURCES: Dict[str, Dict[str, str]] = {
         "title": "EPA Air Markets Program Data: Hourly Continuous Emission Monitoring System(CEMS)",
         "path": "https://ampd.epa.gov/ampd",
     },
-    "epaipm": {
-        "title": "EPA Integrated Planning Model (IPM)",
-        "path": "https://www.epa.gov/airmarkets/national-electric-energy-data-system-needs-v6",
-    },
     "ferc1": {
         "title": "FERC Form 1: Electric Utility Annual Report",
         "path": "https://www.ferc.gov/industries-data/electric/general-information/electric-industry-forms/form-1-electric-utility-annual",
@@ -185,9 +181,6 @@ CONTRIBUTORS_BY_SOURCE: Dict[str, List[str]] = {
         "catalyst-cooperative",
         "karl-dunkle-werner",
         "zane-selvans",
-    ],
-    "epaipm": [
-        "greg-schivley",
     ],
 }
 """
@@ -319,7 +312,6 @@ KEYWORDS_BY_SOURCE: Dict[str, List[str]] = {
         "investment",
         "capacity",
     ],
-    "epaipm": ["epaipm", "integrated planning"],
 }
 """
 Keywords by source (PUDL identifier).

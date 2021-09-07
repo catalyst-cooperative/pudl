@@ -13,15 +13,14 @@ data from:
    - Form 1 (ferc1)
  - US Environmental Protection Agency (EPA):
    - Continuous Emissions Monitory System (epacems)
-   - Integrated Planning Model (epaipm)
 
 """
 import logging
 import time
-import uuid
 from pathlib import Path
 
 import pandas as pd
+import sqlalchemy as sa
 
 import pudl
 from pudl import constants as pc
@@ -46,7 +45,7 @@ def _validate_params_partition(etl_params_og, tables):
                 pass
     except KeyError:
         partition_dict['partition'] = None
-    return(partition_dict)
+    return partition_dict
 
 
 def check_for_bad_years(try_years, dataset):
@@ -75,18 +74,30 @@ def _validate_params_eia(etl_params):
     eia_input_dict = {}
     # when nothing is set in the settings file, the years will default as none
     eia_input_dict['eia860_years'] = etl_params.get('eia860_years', [])
+    # Ensure there are no duplicate years:
+    eia_input_dict["eia860_years"] = list(set(eia_input_dict["eia860_years"]))
+    eia_input_dict["eia860_years"].sort()
 
     # the tables will default to all of the tables if nothing is given
     eia_input_dict['eia860_tables'] = etl_params.get(
-        'eia860_tables', pc.pudl_tables['eia860'])
+        'eia860_tables', pc.pudl_tables['eia860']
+    )
+    # Ensure no duplicate tables:
+    eia_input_dict['eia860_tables'] = list(set(eia_input_dict['eia860_tables']))
 
     # if eia860_ytd updates flag isn't included, the default is to not load ytd
     eia_input_dict['eia860_ytd'] = etl_params.get('eia860_ytd', False)
 
     eia_input_dict['eia923_years'] = etl_params.get('eia923_years', [])
+    # Ensure no duplicate years:
+    eia_input_dict['eia923_years'] = list(set(eia_input_dict['eia923_years']))
+    eia_input_dict['eia923_years'] = eia_input_dict['eia923_years'].sort()
 
     eia_input_dict['eia923_tables'] = etl_params.get(
-        'eia923_tables', pc.pudl_tables['eia923'])
+        'eia923_tables', pc.pudl_tables['eia923']
+    )
+    # Ensure no duplicate tables:
+    eia_input_dict['eia923_tables'] = list(set(eia_input_dict['eia923_tables']))
 
     # if we are only extracting 860, we also need to pull in the
     # boiler_fuel_eia923 table. this is for harvesting and also for the boiler
@@ -123,7 +134,7 @@ def _validate_params_eia(etl_params):
     return eia_input_dict
 
 
-def _load_static_tables_eia(datapkg_dir):
+def _load_static_tables_eia():
     """Populate static EIA tables with constants for use as foreign keys.
 
     There are many values specified within the data that are essentially
@@ -158,29 +169,18 @@ def _load_static_tables_eia(datapkg_dir):
         {'abbr': list(pc.transport_modes_eia923.keys()),
          'mode': list(pc.transport_modes_eia923.values())})
 
-    # compile the dfs in a dictionary, prep for dict_dump
-    static_dfs = {'fuel_type_eia923': fuel_type_eia923,
-                  'prime_movers_eia923': prime_movers_eia923,
-                  'fuel_type_aer_eia923': fuel_type_aer_eia923,
-                  'energy_source_eia923': energy_source_eia923,
-                  'transport_modes_eia923': transport_modes_eia923}
+    static_dfs = {
+        'fuel_type_eia923': fuel_type_eia923,
+        'prime_movers_eia923': prime_movers_eia923,
+        'fuel_type_aer_eia923': fuel_type_aer_eia923,
+        'energy_source_eia923': energy_source_eia923,
+        'transport_modes_eia923': transport_modes_eia923
+    }
 
-    # run dictionaries of prepped static tables through dict_dump to make CSVs
-    pudl.load.csv.dict_dump(static_dfs,
-                            "Static EIA Tables",
-                            datapkg_dir=datapkg_dir)
-    return list(static_dfs.keys())
+    return static_dfs
 
 
-def _add_eia_epacems_crosswalk(eia_transformed_dfs):
-    """Add normalized EIA-EPA crosswalk tables to the transformed dfs dict."""
-    assn_dfs = pudl.glue.eia_epacems.grab_clean_split()
-    eia_transformed_dfs.update(assn_dfs)
-
-    return eia_transformed_dfs
-
-
-def _etl_eia(etl_params, datapkg_dir, pudl_settings, ds_kwargs):
+def _etl_eia(etl_params, ds_kwargs):
     """Extract, transform and load CSVs for the EIA datasets.
 
     Args:
@@ -209,8 +209,8 @@ def _etl_eia(etl_params, datapkg_dir, pudl_settings, ds_kwargs):
         logger.info('Not loading EIA.')
         return []
 
-    # generate CSVs for the static EIA tables, return the list of tables
-    static_tables = _load_static_tables_eia(datapkg_dir)
+    # generate dataframes for the static EIA tables
+    out_dfs = _load_static_tables_eia()
 
     ds = Datastore(**ds_kwargs)
     # Extract EIA forms 923, 860
@@ -234,9 +234,6 @@ def _etl_eia(etl_params, datapkg_dir, pudl_settings, ds_kwargs):
     eia_transformed_dfs = eia860_transformed_dfs.copy()
     eia_transformed_dfs.update(eia923_transformed_dfs.copy())
 
-    # Add EIA-EPA crosswalk tables
-    eia_transformed_dfs = _add_eia_epacems_crosswalk(eia_transformed_dfs)
-
     # convert types..
     eia_transformed_dfs = pudl.helpers.convert_dfs_dict_dtypes(
         eia_transformed_dfs, 'eia')
@@ -250,18 +247,9 @@ def _etl_eia(etl_params, datapkg_dir, pudl_settings, ds_kwargs):
     # convert types..
     entities_dfs = pudl.helpers.convert_dfs_dict_dtypes(entities_dfs, 'eia')
 
-    # Compile transformed dfs for loading...
-    transformed_dfs = {"Entities": entities_dfs, "EIA": eia_transformed_dfs}
-    # Load step
-    for data_source, transformed_df in transformed_dfs.items():
-        pudl.load.csv.dict_dump(transformed_df,
-                                data_source,
-                                datapkg_dir=datapkg_dir)
-
-    return (
-        list(eia_transformed_dfs.keys())
-        + list(entities_dfs.keys())
-        + static_tables)
+    out_dfs.update(entities_dfs)
+    out_dfs.update(eia_transformed_dfs)
+    return out_dfs
 
 
 ###############################################################################
@@ -270,11 +258,17 @@ def _etl_eia(etl_params, datapkg_dir, pudl_settings, ds_kwargs):
 def _validate_params_ferc1(etl_params):
     ferc1_dict = {}
     # pull out the etl_params from the dictionary passed into this function
-    ferc1_dict['ferc1_years'] = etl_params.get('ferc1_years', [None])
+    ferc1_dict['ferc1_years'] = etl_params.get('ferc1_years', [])
+    # Ensure no there are no duplicate years by converting to set and back:
+    ferc1_dict["ferc1_years"] = list(set(ferc1_dict["ferc1_years"]))
+    ferc1_dict["ferc1_years"].sort()
 
     # the tables will default to all of the tables if nothing is given
     ferc1_dict['ferc1_tables'] = etl_params.get(
-        'ferc1_tables', pc.pudl_tables['ferc1'])
+        'ferc1_tables', pc.pudl_tables['ferc1']
+    )
+    # Ensure no duplicate tables:
+    ferc1_dict["ferc1_tables"] = list(set(ferc1_dict["ferc1_tables"]))
 
     ferc1_dict['debug'] = etl_params.get('debug', False)
 
@@ -288,7 +282,7 @@ def _validate_params_ferc1(etl_params):
         return ferc1_dict
 
 
-def _load_static_tables_ferc1(datapkg_dir):
+def _load_static_tables_ferc1():
     """Populate static PUDL tables with constants for use as foreign keys.
 
     There are many values specified within the data that are essentially
@@ -320,15 +314,10 @@ def _load_static_tables_ferc1(datapkg_dir):
         'ferc_depreciation_lines': ferc_depreciation_lines
     }
 
-    # run dictionary of prepped static tables through dict_dump to make CSVs
-    pudl.load.csv.dict_dump(static_dfs,
-                            "Static FERC Tables",
-                            datapkg_dir=datapkg_dir)
-
-    return list(static_dfs.keys())
+    return static_dfs
 
 
-def _etl_ferc1(etl_params, datapkg_dir, pudl_settings, ds_kwargs):
+def _etl_ferc1(etl_params, pudl_settings):
     """Extract, transform and load CSVs for FERC Form 1.
 
     Args:
@@ -351,7 +340,9 @@ def _etl_ferc1(etl_params, datapkg_dir, pudl_settings, ds_kwargs):
         logger.info('Not loading FERC1')
         return []
 
-    static_tables = _load_static_tables_ferc1(datapkg_dir)
+    # Compile static FERC 1 dataframes
+    out_dfs = _load_static_tables_ferc1()
+
     # Extract FERC form 1
     ferc1_raw_dfs = pudl.extract.ferc1.extract(
         ferc1_tables=ferc1_tables,
@@ -360,11 +351,9 @@ def _etl_ferc1(etl_params, datapkg_dir, pudl_settings, ds_kwargs):
     # Transform FERC form 1
     ferc1_transformed_dfs = pudl.transform.ferc1.transform(
         ferc1_raw_dfs, ferc1_tables=ferc1_tables)
-    # Load FERC form 1
-    pudl.load.csv.dict_dump(ferc1_transformed_dfs,
-                            "FERC 1",
-                            datapkg_dir=datapkg_dir)
-    return list(ferc1_transformed_dfs.keys()) + static_tables
+
+    out_dfs.update(ferc1_transformed_dfs)
+    return out_dfs
 
 
 ###############################################################################
@@ -410,150 +399,74 @@ def _validate_params_epacems(etl_params):
         return epacems_dict
 
 
-def _etl_epacems(etl_params, datapkg_dir, pudl_settings, ds_kwargs):
+def etl_epacems(etl_params, pudl_settings, ds_kwargs):
     """Extract, transform and load CSVs for EPA CEMS.
 
     Args:
         etl_params (dict): ETL parameters required by this data source.
-        datapkg_dir (path-like): The location of the directory for this
-            package, wihch will contain a datapackage.json file and a data
-            directory in which the CSV file are stored.
         pudl_settings (dict) : a dictionary filled with settings that mostly
             describe paths to various resources and outputs.
+        ds_kwargs: (dict): WTF is this?
 
     Returns:
-        list: Names of PUDL DB tables output by the ETL for this data source.
+        None
 
     """
-    epacems_dict = pudl.etl._validate_params_epacems(etl_params)
-    epacems_years = epacems_dict['epacems_years']
-    epacems_states = epacems_dict['epacems_states']
+    epacems_dict = _validate_params_epacems(etl_params)
+    # Deduplicate the years and states just in case. This happens outside of
+    # the settings validation because this ETL function is also called directly
+    # in the epacems_to_parquet() script.
+    epacems_years = list(set(epacems_dict['epacems_years']))
+    epacems_years.sort()
+    epacems_states = list(set(epacems_dict['epacems_states']))
+    epacems_states.sort()
+
     # If we're not doing CEMS, just stop here to avoid printing messages like
     # "Reading EPA CEMS data...", which could be confusing.
     if not epacems_states or not epacems_years:
         logger.info('Not ingesting EPA CEMS.')
 
-    # NOTE: This a generator for raw dataframes
+    pudl_engine = sa.create_engine(pudl_settings["pudl_db"])
+    eia_plant_years = pd.read_sql(
+        """
+        SELECT DISTINCT strftime('%Y', report_date)
+        AS year
+        FROM plants_eia860
+        ORDER BY year ASC
+        """, pudl_engine).year.astype(int)
+    missing_years = list(set(epacems_years) - set(eia_plant_years))
+    logger.info(
+        f"EPA CEMS years with no EIA plant data: {missing_years} "
+        "Some timezones may be estimated based on plant state."
+    )
+
+    # NOTE: This is a generator for raw dataframes
     epacems_raw_dfs = pudl.extract.epacems.extract(
         epacems_years, epacems_states, Datastore(**ds_kwargs))
 
     # NOTE: This is a generator for transformed dataframes
     epacems_transformed_dfs = pudl.transform.epacems.transform(
         epacems_raw_dfs=epacems_raw_dfs,
-        datapkg_dir=datapkg_dir)
+        pudl_engine=pudl_engine,
+    )
 
-    logger.info("Loading tables from EPA CEMS into PUDL:")
+    logger.info("Processing EPA CEMS data and writing it to Apache Parquet.")
     if logger.isEnabledFor(logging.INFO):
         start_time = time.monotonic()
-    epacems_tables = []
+
     # run the cems generator dfs through the load step
-    for transformed_df_dict in epacems_transformed_dfs:
-        pudl.load.csv.dict_dump(transformed_df_dict,
-                                "EPA CEMS",
-                                datapkg_dir=datapkg_dir)
-        epacems_tables.append(list(transformed_df_dict.keys())[0])
+    for df in epacems_transformed_dfs:
+        pudl.load.parquet.epacems_to_parquet(
+            df,
+            root_dir=str(Path(pudl_settings["parquet_dir"]) / "epacems"),
+        )
+
     if logger.isEnabledFor(logging.INFO):
         delta_t = time.strftime("%H:%M:%S", time.gmtime(
             time.monotonic() - start_time))
-        time_message = f"Loading EPA CEMS took {delta_t}"
+        time_message = f"Processing EPA CEMS took {delta_t}"
         logger.info(time_message)
         start_time = time.monotonic()
-
-    return epacems_tables
-
-
-###############################################################################
-# EPA IPM ETL FUNCTIONS
-###############################################################################
-def _validate_params_epaipm(etl_params):
-    """
-    Validate the etl parameters for EPA IPM.
-
-    Args:
-        etl_params (iterable): dictionary of inputs
-
-    Returns:
-        iterable: validated dictionary of inputs
-
-    """
-    epaipm_dict = {}
-    # pull out the etl_params from the dictionary passed into this function
-    try:
-        epaipm_dict['epaipm_tables'] = etl_params['epaipm_tables']
-    except KeyError:
-        epaipm_dict['epaipm_tables'] = []
-    if not epaipm_dict['epaipm_tables']:
-        return {}
-    return epaipm_dict
-
-
-def _load_static_tables_epaipm(datapkg_dir):
-    """
-    Populate static PUDL tables with constants for use as foreign keys.
-
-    For IPM, there is only one list of regional id's stored in constants that
-    we want to load as a tabular resource because many of the other tabular
-    resources in IPM rely on the regional_id_epaipm as a foreign key.
-
-    Args:
-        datapkg_dir (path-like): The location of the directory for this
-            package. The data package directory will be a subdirectory in the
-            `datapkg_dir` directory, with the name of the package as the
-            name of the subdirectory.
-
-    Returns:
-        list: names of tables which were loaded.
-
-    """
-    # compile the dfs in a dictionary, prep for dict_dump
-    static_dfs = {'regions_entity_epaipm':
-                  pd.DataFrame(
-                      pc.epaipm_region_names, columns=['region_id_epaipm'])}
-
-    # run the dictionary of prepped static tables through dict_dump to make
-    # CSVs
-    pudl.load.csv.dict_dump(static_dfs,
-                            "Static IPM Tables",
-                            datapkg_dir=datapkg_dir)
-
-    return list(static_dfs.keys())
-
-
-def _etl_epaipm(etl_params, datapkg_dir, pudl_settings, ds_kwargs):
-    """Extract, transform and load CSVs for EPA IPM.
-
-    Args:
-        etl_params (dict): ETL parameters required by this data source.
-        datapkg_dir (path-like): The location of the directory for this
-            package, wihch will contain a datapackage.json file and a data
-            directory in which the CSV file are stored.
-        pudl_settings (dict) : a dictionary filled with settings that mostly
-            describe paths to various resources and outputs.
-
-    Returns:
-        list: Names of PUDL DB tables output by the ETL for this data source.
-
-    """
-    epaipm_dict = _validate_params_epaipm(etl_params)
-    epaipm_tables = epaipm_dict['epaipm_tables']
-    if not epaipm_tables:
-        logger.info('Not ingesting EPA IPM.')
-        return []
-    static_tables = _load_static_tables_epaipm(datapkg_dir)
-
-    # Extract IPM tables
-    ds = pudl.extract.epaipm.EpaIpmDatastore(Datastore(**ds_kwargs))
-    epaipm_raw_dfs = pudl.extract.epaipm.extract(epaipm_tables, ds)
-
-    epaipm_transformed_dfs = pudl.transform.epaipm.transform(
-        epaipm_raw_dfs, epaipm_tables
-    )
-
-    pudl.load.csv.dict_dump(epaipm_transformed_dfs,
-                            "EPA IPM",
-                            datapkg_dir=datapkg_dir)
-
-    return list(epaipm_transformed_dfs.keys()) + static_tables
 
 
 ###############################################################################
@@ -573,40 +486,35 @@ def _validate_params_glue(etl_params):
     if not glue_dict['ferc1'] and not glue_dict['eia']:
         return {}
     else:
-        return(glue_dict)
+        return glue_dict
 
 
-def _etl_glue(etl_params, datapkg_dir, pudl_settings, ds_kwargs):
+def _etl_glue(etl_params):
     """Extract, transform and load CSVs for the Glue tables.
-
-    Currently this only generates glue connecting FERC Form 1 and EIA
 
     Args:
         etl_params (dict): ETL parameters required by this data source.
-        datapkg_dir (path-like): The location of the directory for this
-            package, wihch will contain a datapackage.json file and a data
-            directory in which the CSV file are stored.
-        pudl_settings (dict) : a dictionary filled with settings that mostly
-            describe paths to various resources and outputs.
 
     Returns:
-        list: Names of PUDL DB tables output by the ETL for this data source.
+        dict: A dictionary of :class:`pandas.Dataframe` whose keys are the names
+        of the corresponding database table.
 
     """
     glue_dict = _validate_params_glue(etl_params)
-    ferc1 = glue_dict['ferc1']
-    eia = glue_dict['eia']
-    if not eia and not ferc1:
-        return ('ahhhh this is not werking')  # [False]
-        # grab the glue tables for ferc1 & eia
+    if not glue_dict["eia"] and not glue_dict["ferc1"]:
+        raise ValueError(
+            "Neither EIA nor FERC 1 data is beiing processed. Nothing to glue."
+        )
+    # grab the glue tables for ferc1 & eia
     glue_dfs = pudl.glue.ferc1_eia.glue(
         ferc1=glue_dict['ferc1'],
         eia=glue_dict['eia']
     )
 
-    pudl.load.csv.dict_dump(
-        glue_dfs, "Glue", datapkg_dir=datapkg_dir)
-    return list(glue_dfs.keys())
+    # Read in the EIA to EPA CEMS / APMD crosswalk:
+    glue_dfs.update(pudl.glue.eia_epacems.grab_clean_split())
+
+    return glue_dfs
 
 
 ###############################################################################
@@ -706,7 +614,7 @@ def get_flattened_etl_parameters(datapkg_bundle_settings):  # noqa: C901
     return flattened_params_dict
 
 
-def validate_params(datapkg_bundle_settings, pudl_settings):
+def validate_params(datapkg_bundle_settings):
     """
     Enforce validity of ETL parameters found in datapackage bundle settings.
 
@@ -741,7 +649,6 @@ def validate_params(datapkg_bundle_settings, pudl_settings):
         'ferc1': _validate_params_ferc1,
         'epacems': _validate_params_epacems,
         'glue': _validate_params_glue,
-        'epaipm': _validate_params_epaipm,
     }
     # where we are going to compile the new validated settings
     validated_settings = []
@@ -776,135 +683,96 @@ def validate_params(datapkg_bundle_settings, pudl_settings):
     return validated_settings
 
 
-def etl(datapkg_settings, output_dir, pudl_settings, ds_kwargs):
+def etl(  # noqa: C901
+    etl_settings_bundle,
+    pudl_settings,
+    clobber: bool = False,
+    use_local_cache: bool = True,
+    gcs_cache_path: str = None,
+):
     """
-    Run ETL process for data package specified by datapkg_settings dictionary.
+    Run the PUDL Extract, Transform, and Load data pipeline.
 
-    This is the coordinating function for generating all of the CSV's for a
-    data package. For each of the datasets enumerated in the datapkg_settings,
-    this function runs the dataset specific ETL function. Along the way, we are
-    accumulating which tables have been loaded. This is useful for generating
-    the metadata associated with the package.
+    First we validate the settings, and then process data destined for loading
+    into SQLite, which includes The FERC Form 1 and the EIA Forms 860 and 923.
+    Once those data have been output to SQLite we mvoe on to processing the
+    long tables, which will be loaded into Apache Parquet files. Some of this
+    processing depends on data that's already been loaded into the SQLite DB.
 
     Args:
-        datapkg_settings (dict): Validated ETL parameters for a single
-            datapackage, originally read in from the PUDL ETL input file.
-        output_dir (path-like): The individual datapackage directory, which
-            will contain the datapackage.json file and the data directory.
-        pudl_settings (dict): a dictionary describing paths to various
-            resources and outputs.
-        ds_kwargs (dict): named-arguments to pass to Datastore constructor
-            when creating new instance. This contains values derived
-            from command-line flags that control how caching layers
-            operate.
-
-    Returns:
-        list: The names of the tables included in the output datapackage.
-
-    """
-    # compile a list of tables in each dataset
-    processed_tables = []
-    etl_funcs = {
-        "eia": _etl_eia,
-        "ferc1": _etl_ferc1,
-        "epacems": _etl_epacems,
-        "glue": _etl_glue,
-        "epaipm": _etl_epaipm,
-    }
-    for dataset_dict in datapkg_settings['datasets']:
-        for dataset in dataset_dict:
-            new_tables = etl_funcs[dataset](
-                dataset_dict[dataset], output_dir, pudl_settings,
-                ds_kwargs)
-            if new_tables:
-                processed_tables.extend(new_tables)
-    return processed_tables
-
-
-def generate_datapkg_bundle(datapkg_bundle_settings,
-                            pudl_settings,
-                            datapkg_bundle_name,
-                            datapkg_bundle_doi=None,
-                            clobber=False,
-                            use_local_cache: bool = True,
-                            gcs_cache_path: str = None):
-    """
-    Coordinate the generation of data packages.
-
-    For each bundle of packages laid out in the package_settings, this function
-    generates data packages. First, the settings are validated (which runs
-    through each of the settings listed in the package_settings). Then for
-    each of the packages, run through the etl (extract, transform, load)
-    functions, which generates CSVs. Then the metadata for the packages is
-    generated by pulling from the metadata (which is a json file containing
-    the schema for all of the possible pudl tables).
-
-    Args:
-        datapkg_bundle_settings (iterable): a list of dictionaries. Each item
+        etl_settings_bundle (iterable): a list of dictionaries. Each item
             in the list corresponds to a data package. Each data package's
             dictionary contains the arguements for its ETL function.
         pudl_settings (dict): a dictionary filled with settings that mostly
             describe paths to various resources and outputs.
-        datapkg_bundle_name (str): name of directory you want the bundle of
-            data packages to live.
-        clobber (bool): If True and there is already a directory with data
-            packages with the datapkg_bundle_name, the existing data packages
-            will be deleted and new data packages will be generated in their
-            place.
+        clobber (bool): If True and there is already a pudl.sqlite database
+            it will be deleted and a new one will be created.
         use_local_cache (bool): controls whether datastore should be using local
             file cache.
         gcs_cache_path (str): controls whether datastore should be using Google
             Cloud Storage based cache.
 
     Returns:
-        dict: A dictionary with datapackage names as the keys, and Python
-        dictionaries representing tabular datapackage resource descriptors as
-        the values, one per datapackage that was generated as part of the
-        bundle.
+        None
 
     """
-    # validate the settings from the settings file.
-    validated_bundle_settings = validate_params(
-        datapkg_bundle_settings, pudl_settings)
+    pudl_db_path = Path(pudl_settings["sqlite_dir"]) / "pudl.sqlite"
+    if pudl_db_path.exists() and not clobber:
+        raise SystemExit(
+            "The PUDL DB already exists, and we don't want to clobber it.\n"
+            f"Move {pudl_db_path} aside or set clobber=True and try again."
+        )
 
+    # Configure how we want to obtain raw input data:
     ds_kwargs = dict(
         gcs_cache_path=gcs_cache_path,
-        sandbox=pudl_settings.get("sandbox", False))
+        sandbox=pudl_settings.get("sandbox", False)
+    )
     if use_local_cache:
         ds_kwargs["local_cache_path"] = Path(pudl_settings["pudl_in"]) / "data"
 
-    # Generate a random UUID to identify this ETL run / data package bundle
-    datapkg_bundle_uuid = str(uuid.uuid4())
-    datapkg_bundle_dir = Path(
-        pudl_settings["datapkg_dir"], datapkg_bundle_name)
+    validated_etl_settings = validate_params(etl_settings_bundle)
+    # This is an artefact of outputting multiple data packages in the past.
+    # Now the settings file should only describe a single ETL run, but we
+    # haven't revised the ETL settings validation code yet, so we just grab
+    # the first specification:
+    num_settings = len(validated_etl_settings)
+    if num_settings != 1:
+        raise RuntimeError(
+            "The PUDL ETL expects one and only one set of datasets to process "
+            f"in each settings file, but here we found {num_settings}."
+        )
+    etl_settings = validated_etl_settings[0]
 
-    # Create, or delete and re-create the top level datapackage bundle directory:
-    _ = pudl.helpers.prep_dir(datapkg_bundle_dir, clobber=clobber)
+    # Check for existing EPA CEMS outputs if we're going to process CEMS, and
+    # do it before running the SQLite part of the ETL so we don't do a bunch of
+    # work only to discover that we can't finish.
+    for dataset in etl_settings["datasets"]:
+        if dataset.get("epacems", False):
+            epacems_pq_path = Path(pudl_settings["parquet_dir"]) / "epacems"
+            _ = pudl.helpers.prep_dir(epacems_pq_path, clobber=clobber)
 
-    metas = {}
-    for datapkg_settings in validated_bundle_settings:
-        output_dir = Path(
-            pudl_settings["datapkg_dir"],  # PUDL datapackage output dir
-            datapkg_bundle_name,           # Name of the datapackage bundle
-            datapkg_settings["name"])      # Name of the datapackage
+    sqlite_dfs = {}
+    # This could be cleaner if we simplified the settings file format:
+    for dataset in etl_settings["datasets"]:
+        if dataset.get("ferc1", False):
+            sqlite_dfs.update(_etl_ferc1(dataset["ferc1"], pudl_settings))
+        elif dataset.get("eia", False):
+            sqlite_dfs.update(_etl_eia(dataset["eia"], ds_kwargs))
+        elif dataset.get("glue", False):
+            sqlite_dfs.update(_etl_glue(dataset["glue"]))
 
-        # Create the datapackge directory, and its data subdir:
-        (output_dir / "data").mkdir(parents=True)
-        # run the ETL functions for this pkg and return the list of tables
-        # output to CSVs:
-        datapkg_resources = etl(datapkg_settings, output_dir, pudl_settings,
-                                ds_kwargs)
+    # Load the ferc1 + eia data directly into the SQLite DB:
+    pudl_engine = sa.create_engine(pudl_settings["pudl_db"])
+    pudl.load.sqlite.dfs_to_sqlite(
+        sqlite_dfs,
+        engine=pudl_engine,
+        # This should be "ON" but there are bugs at the moment.
+        # See: https://github.com/catalyst-cooperative/pudl/issues/1196
+        foreign_keys="OFF",
+    )
 
-        if datapkg_resources:
-            descriptor = pudl.load.metadata.generate_metadata(
-                datapkg_settings,
-                datapkg_resources,
-                output_dir,
-                datapkg_bundle_uuid=datapkg_bundle_uuid,
-                datapkg_bundle_doi=datapkg_bundle_doi)
-            metas[datapkg_settings["name"]] = descriptor
-        else:
-            logger.info(
-                f"Not generating metadata for {datapkg_settings['name']}")
-
-    return metas
+    # Parquet Outputs:
+    for dataset in etl_settings["datasets"]:
+        if dataset.get("epacems", False):
+            etl_epacems(dataset["epacems"], pudl_settings, ds_kwargs)

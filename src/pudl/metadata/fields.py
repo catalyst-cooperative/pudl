@@ -1,6 +1,8 @@
 """Field metadata."""
 from typing import Any, Dict, List
 
+from pytz import all_timezones
+
 from .constants import SOURCES
 from .labels import ENTITY_TYPES, ESTIMATED_OR_ACTUAL, MOMENTARY_INTERRUPTIONS
 
@@ -63,6 +65,9 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
     "actual_peak_demand_savings_mw": {
         "type": "number"
     },
+    "address_2": {
+        "type": "string"
+    },
     "advanced_metering_infrastructure": {
         "type": "integer"
     },
@@ -115,6 +120,9 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
     "associated_combined_heat_power": {
         "type": "boolean",
         "description": "Indicates whether the generator is associated with a combined heat and power system"
+    },
+    "attention_line": {
+        "type": "string"
     },
     "automated_meter_reading": {
         "type": "integer"
@@ -262,7 +270,7 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
         "type": "string",
         "description": "Type of plant construction ('outdoor', 'semioutdoor', or 'conventional'). Categorized by PUDL based on our best guess of intended value in FERC1 freeform strings.",
         "constraints": {
-            "enum": ["unknown", "conventional", "outdoor", "semioutdoor"]
+            "enum": ["", "unknown", "conventional", "outdoor", "semioutdoor"]
         }
     },
     "construction_year": {
@@ -275,22 +283,28 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
         "type": "number"
     },
     "contact_firstname": {
-        "type": "string"
+        "type": "string",
+        "description": "First name of utility contact 1."
     },
-    "contact_firstname2": {
-        "type": "string"
+    "contact_firstname_2": {
+        "type": "string",
+        "description": "First name of utility contact 2."
     },
     "contact_lastname": {
-        "type": "string"
+        "type": "string",
+        "description": "Last name of utility contact 1."
     },
-    "contact_lastname2": {
-        "type": "string"
+    "contact_lastname_2": {
+        "type": "string",
+        "description": "Last name of utility contact 2."
     },
     "contact_title": {
-        "type": "string"
+        "type": "string",
+        "description": "Title of of utility contact 1."
     },
-    "contact_title2": {
-        "type": "string"
+    "contact_title_2": {
+        "type": "string",
+        "description": "Title of utility contact 2."
     },
     "contract_expiration_date": {
         "type": "date",
@@ -359,6 +373,13 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
     "data_observed": {
         "type": "boolean"
     },
+    "data_source": {
+        "type": "string",
+        "description": "Source of EIA 860 data. Either Annual EIA 860 or the year-to-date updates from EIA 860M.",
+        "constraints": {
+            "enum": ["eia860", "eia860m"]
+        },
+    },
     "datasource": {
         "type": "string",
         "description": "Code identifying a dataset available within PUDL.",
@@ -366,9 +387,9 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
             "enum": list(SOURCES)
         }
     },
-    "day_of_year": {
-        "type": "integer",
-        "description": "Day of the year"
+    "datum": {
+        "type": "string",
+        "description": "Geodetic coordinate system identifier (e.g. NAD27, NAD83, or WGS84)."
     },
     "deliver_power_transgrid": {
         "type": "boolean",
@@ -396,6 +417,10 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
     },
     "direct_load_control_customers": {
         "type": "integer"
+    },
+    "distributed_generation": {
+        "type": "boolean",
+        "description": "Whether the generator is considered distributed generation",
     },
     "distributed_generation_owned_capacity_mw": {
         "type": "number"
@@ -534,6 +559,30 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
         "type": "string",
         "description": "The fuel code associated with the fuel receipt. Two or three character alphanumeric."
     },
+    "energy_source_1_transport_1": {
+        "type": "string",
+        "description": "Primary mode of transport for energy source 1."
+    },
+    "energy_source_1_transport_2": {
+        "type": "string",
+        "description": "Secondary mode of transport for energy source 1."
+    },
+    "energy_source_1_transport_3": {
+        "type": "string",
+        "description": "Tertiary mode of transport for energy source 1."
+    },
+    "energy_source_2_transport_1": {
+        "type": "string",
+        "description": "Primary mode of transport for energy source 2."
+    },
+    "energy_source_2_transport_2": {
+        "type": "string",
+        "description": "Secondary mode of transport for energy source 2."
+    },
+    "energy_source_2_transport_3": {
+        "type": "string",
+        "description": "Tertiary mode of transport for energy source 2."
+    },
     "energy_source_code_1": {
         "type": "string",
         "description": "The code representing the most predominant type of energy that fuels the generator."
@@ -636,10 +685,6 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
     "ferc_small_power_producer_docket_no": {
         "type": "string",
         "description": "The docket number relating to the FERC qualifying facility small power producer status."
-    },
-    "firm_ttc_mw": {
-        "type": "number",
-        "description": "Transfer capacity with N-1 lines (used for reserve margins)"
     },
     "fluidized_bed_tech": {
         "type": "boolean",
@@ -847,10 +892,6 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
     "home_area_network": {
         "type": "integer"
     },
-    "hour": {
-        "type": "integer",
-        "description": "Hour of the day (0-23). Original IPM values were 1-24."
-    },
     "hydro_acct330_land": {
         "type": "number",
         "description": "FERC Account 330: Hydro Land and Land Rights."
@@ -929,10 +970,6 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
         "type": "string",
         "description": "The code of the plant's ISO or RTO. NA if not reported in that year."
     },
-    "joint_constraint_id": {
-        "type": "integer",
-        "description": "Identification of groups that make up a single joint constraint"
-    },
     "latitude": {
         "type": "number",
         "description": "Latitude of the plant's location, in degrees."
@@ -971,10 +1008,6 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
     },
     "load_management_incremental_potential_peak_reduction_mw": {
         "type": "number"
-    },
-    "load_mw": {
-        "type": "number",
-        "description": "Load (MW) in an hour of the day for the IPM region"
     },
     "longitude": {
         "type": "number",
@@ -1063,7 +1096,7 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
         "type": "string",
         "description": "Contract type for natrual gas delivery service:",
         "constraints": {
-            "enum": ["firm", "interruptible"]
+            "enum": ["", "firm", "interruptible"]
         }
     },
     "natural_gas_local_distribution_company": {
@@ -1090,7 +1123,7 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
         "type": "string",
         "description": "Contract type for natural gas transportation service.",
         "constraints": {
-            "enum": ["firm", "interruptible"]
+            "enum": ["", "firm", "interruptible"]
         }
     },
     "nerc_region": {
@@ -1140,10 +1173,6 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
     "non_coincident_peak_demand_mw": {
         "type": "number",
         "description": "Average monthly non-coincident peak (NCP) demand (for requirements purhcases, and any transactions involving demand charges). Monthly NCP demand is the maximum metered hourly (60-minute integration) demand in a month. In megawatts."
-    },
-    "nonfirm_ttc_mw": {
-        "type": "number",
-        "description": "Transfer capacity with N-0 lines (used for energy sales)"
     },
     "not_water_limited_capacity_mw": {
         "type": "number",
@@ -1436,6 +1465,10 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
     "outages_recorded_automatically": {
         "type": "boolean"
     },
+    "owned_by_non_utility": {
+        "type": "boolean",
+        "description": "Whether any part of generator is owned by a nonutilty",
+    },
     "owner_city": {
         "type": "string",
         "description": "City of owner."
@@ -1547,6 +1580,22 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
     },
     "peak_demand_winter_mw": {
         "type": "number"
+    },
+    "phone_extension": {
+        "type": "string",
+        "description": "Phone extension for utility contact 1"
+    },
+    "phone_extension_2": {
+        "type": "string",
+        "description": "Phone extension for utility contact 2"
+    },
+    "phone_number": {
+        "type": "string",
+        "description": "Phone number for utility contact 1."
+    },
+    "phone_number_2": {
+        "type": "string",
+        "description": "Phone number for utility contact 2."
     },
     "pipeline_notes": {
         "type": "string",
@@ -1696,6 +1745,7 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
         "description": "Categorization based on the original contractual terms and conditions of the service. Must be one of 'requirements', 'long_firm', 'intermediate_firm', 'short_firm', 'long_unit', 'intermediate_unit', 'electricity_exchange', 'other_service', or 'adjustment'. Requirements service is ongoing high reliability service, with load integrated into system resource planning. 'Long term' means 5+ years. 'Intermediate term' is 1-5 years. 'Short term' is less than 1 year. 'Firm' means not interruptible for economic reasons. 'unit' indicates service from a particular designated generating unit. 'exchange' is an in-kind transaction.",
         "constraints": {
             "enum": [
+                "",
                 "intermediate_unit",
                 "requirement",
                 "other_service",
@@ -1718,6 +1768,10 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
             "enum": ["AC", "DC"]
         }
     },
+    "reactive_power_output_mvar": {
+        "type": "number",
+        "description": "Reactive Power Output (MVAr)",
+    },
     "real_time_pricing_program": {
         "type": "boolean"
     },
@@ -1734,22 +1788,6 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
     "record_id": {
         "type": "string",
         "description": "Identifier indicating original FERC Form 1 source record. format: {table_name}_{report_year}_{report_prd}_{respondent_id}_{spplmnt_num}_{row_number}. Unique within FERC Form 1 DB tables which are not row-mapped."  # noqa: FS003
-    },
-    "region": {
-        "type": "string",
-        "description": "Name of the IPM region"
-    },
-    "region_from": {
-        "type": "string",
-        "description": "Name of the IPM region sending electricity"
-    },
-    "region_id_epaipm": {
-        "type": "string",
-        "description": "Name of the IPM region"
-    },
-    "region_to": {
-        "type": "string",
-        "description": "Name of the IPM region receiving electricity"
     },
     "regulatory_status_code": {
         "type": "string",
@@ -1894,6 +1932,10 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
         "type": "string",
         "description": "Name of the seller, or the other party in an exchange transaction."
     },
+    "service_area": {
+        "type": "string",
+        "description": "Service area in which plant is located; for unregulated companies, it's the electric utility with which plant is interconnected",
+    },
     "service_type": {
         "type": "string",
         "constraints": {
@@ -2025,6 +2067,10 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
         "type": "number",
         "description": "Sulfur content percentage by weight to the nearest 0.01 percent."
     },
+    "summer_capacity_estimate": {
+        "type": "boolean",
+        "description": "Whether the summer capacity value was an estimate",
+    },
     "summer_capacity_mw": {
         "type": "number",
         "description": "The net summer capacity."
@@ -2056,10 +2102,6 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
         "type": "string",
         "description": "FERC Rate Schedule Number or Tariff. (Note: may be incomplete if originally reported on multiple lines.)"
     },
-    "tariff_mills_kwh": {
-        "type": "number",
-        "description": "Cost to transfer electricity between regions"
-    },
     "tech_class": {
         "type": "string",
         "constraints": {
@@ -2089,10 +2131,6 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
         "type": "string",
         "description": "The minimum amount of time required to bring the unit to full load from shutdown."
     },
-    "time_index": {
-        "type": "integer",
-        "description": "8760 index hour of the year"
-    },
     "time_of_use_pricing_program": {
         "type": "boolean"
     },
@@ -2106,14 +2144,7 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
         "type": "string",
         "description": "IANA timezone name",
         "constraints": {
-            "enum": [
-                "America/New_York",
-                "America/Chicago",
-                "America/Denver",
-                "America/Los_Angeles",
-                "America/Anchorage",
-                "Pacific/Honolulu"
-            ]
+            "enum": all_timezones
         }
     },
     "topping_bottoming_code": {
@@ -2307,7 +2338,7 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
     },
     "water_source": {
         "type": "string",
-        "description": "Name of water source associater with the plant."
+        "description": "Name of water source associated with the plant."
     },
     "weighted_average_life_years": {
         "type": "number"
@@ -2324,6 +2355,10 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
     "wholesale_power_purchases_mwh": {
         "type": "number"
     },
+    "winter_capacity_estimate": {
+        "type": "boolean",
+        "description": "Whether the winter capacity value was an estimate",
+    },
     "winter_capacity_mw": {
         "type": "number",
         "description": "The net winter capacity."
@@ -2336,7 +2371,12 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
         "type": "number"
     },
     "zip_code": {
-        "type": "string"
+        "type": "string",
+        "description": "Five digit US Zip Code."
+    },
+    "zip_code_4": {
+        "type": "string",
+        "description": "Four digit US Zip Code suffix."
     }
 }
 """

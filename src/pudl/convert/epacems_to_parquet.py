@@ -1,225 +1,25 @@
-"""A script for converting the EPA CEMS dataset from gzip to Apache Parquet.
+"""Process raw EPA CEMS data into a Parquet dataset outside of the PUDL ETL.
 
-The original EPA CEMS data is available as ~12,000 gzipped CSV files, one for
-each month for each state, from 1995 to the present. On disk they take up
-about 7.3 GB of space, compressed. Uncompressed it is closer to 100 GB. That's
-too much data to work with in memory.
+This script transforms the raw EPA CEMS data from Zip compressed CSV files into
+an Apache Parquet dataset partitioned by year and state.
 
-Apache Parquet is a compressed, columnar datastore format, widely used in Big
-Data applications. It's an open standard, and is very fast to read from disk.
-It works especially well with both `Dask dataframes <https://dask.org/>`__ (a
-parallel / distributed computing extension of pandas) and Apache Spark (a cloud
-based Big Data processing pipeline system.)
-
-Since pulling 100 GB of data into SQLite takes a long time, and working with
-that data en masse isn't particularly pleasant on a laptop, this script can be
-used to convert the original EPA CEMS data to the more widely usable Apache
-Parquet format for use with Dask, either on a multi-core workstation or in an
-interactive cloud computing environment like `Pangeo <https://pangeo.io>`__.
+Processing the EPA CEMS data requires information that's stored int he main PUDL
+database, so to run this script, you must already have a PUDL database
+available on your system.
 
 """
 import argparse
 import logging
 import pathlib
 import sys
-from functools import partial
 
 import coloredlogs
-import pandas as pd
-import pyarrow as pa
-from pyarrow import parquet as pq
+import sqlalchemy as sa
 
 import pudl
 from pudl import constants as pc
 
 logger = logging.getLogger(__name__)
-
-
-def create_in_dtypes():
-    """
-    Create a dictionary of input data types.
-
-    This specifies the dtypes of the input columns, which is necessary for some
-    cases where, e.g., a column is always NaN.
-
-    Returns:
-        dict: mapping columns names to :mod:`pandas` data types.
-
-    """
-    # These measurement codes are used by all four of our measurement variables
-    common_codes = (
-        "LME",
-        "Measured",
-        "Measured and Substitute",
-        "Other",
-        "Substitute",
-        "Undetermined",
-        "Unknown Code",
-        "",
-    )
-    co2_so2_cats = pd.CategoricalDtype(categories=common_codes, ordered=False)
-    nox_cats = pd.CategoricalDtype(
-        categories=common_codes + ("Calculated",), ordered=False
-    )
-    state_cats = pd.CategoricalDtype(
-        categories=pc.cems_states.keys(), ordered=False)
-    in_dtypes = {
-        "state": state_cats,
-        "plant_id_eia": "int32",
-        "unitid": pd.StringDtype(),
-        "operating_time_hours": "float32",
-        "gross_load_mw": "float32",
-        "steam_load_1000_lbs": "float32",
-        "so2_mass_lbs": "float32",
-        "so2_mass_measurement_code": co2_so2_cats,
-        "nox_rate_lbs_mmbtu": "float32",
-        "nox_rate_measurement_code": nox_cats,
-        "nox_mass_lbs": "float32",
-        "nox_mass_measurement_code": nox_cats,
-        "co2_mass_tons": "float32",
-        "co2_mass_measurement_code": co2_so2_cats,
-        "heat_content_mmbtu": "float32",
-        "facility_id": pd.Int32Dtype(),
-        "unit_id_epa": pd.Int32Dtype(),
-    }
-    return in_dtypes
-
-
-def create_cems_schema():
-    """Make an explicit Arrow schema for the EPA CEMS data.
-
-    Make changes in the types of the generated parquet files by editing this
-    function.
-
-    Note that parquet's internal representation doesn't use unsigned numbers or
-    16-bit ints, so just keep things simple here and always use int32 and
-    float32.
-
-    Returns:
-        pyarrow.schema: An Arrow schema for the EPA CEMS data.
-
-    """
-    int_nullable = partial(pa.field, type=pa.int32(), nullable=True)
-    int_not_null = partial(pa.field, type=pa.int32(), nullable=False)
-    str_not_null = partial(pa.field, type=pa.string(), nullable=False)
-    # Timestamp resolution is hourly, but second is the largest allowed.
-    timestamp = partial(pa.field, type=pa.timestamp("s", tz="UTC"), nullable=False)
-    float_nullable = partial(pa.field, type=pa.float32(), nullable=True)
-    float_not_null = partial(pa.field, type=pa.float32(), nullable=False)
-    # (float32 can accurately hold integers up to 16,777,216 so no need for
-    # float64)
-    dict_nullable = partial(
-        pa.field,
-        type=pa.dictionary(pa.int8(), pa.string(), ordered=False),
-        nullable=True
-    )
-    return pa.schema([
-        dict_nullable("state"),
-        int_not_null("plant_id_eia"),
-        str_not_null("unitid"),
-        timestamp("operating_datetime_utc"),
-        float_nullable("operating_time_hours"),
-        float_not_null("gross_load_mw"),
-        float_nullable("steam_load_1000_lbs"),
-        float_nullable("so2_mass_lbs"),
-        dict_nullable("so2_mass_measurement_code"),
-        float_nullable("nox_rate_lbs_mmbtu"),
-        dict_nullable("nox_rate_measurement_code"),
-        float_nullable("nox_mass_lbs"),
-        dict_nullable("nox_mass_measurement_code"),
-        float_nullable("co2_mass_tons"),
-        dict_nullable("co2_mass_measurement_code"),
-        float_not_null("heat_content_mmbtu"),
-        int_nullable("facility_id"),
-        int_nullable("unit_id_epa"),
-        int_not_null("year"),
-    ])
-
-
-def epacems_to_parquet(datapkg_path,
-                       epacems_years,
-                       epacems_states,
-                       out_dir,
-                       compression='snappy',
-                       partition_cols=('year', 'state'),
-                       clobber=False):
-    """Take transformed EPA CEMS dataframes and output them as Parquet files.
-
-    We need to do a few additional manipulations of the dataframes after they
-    have been transformed by PUDL to get them ready for output to the Apache
-    Parquet format. Mostly this has to do with ensuring homogeneous data types
-    across all of the dataframes, and downcasting to the most efficient data
-    type possible for each of them. We also add a 'year' column so that we can
-    partition the datset on disk by year as well as state.
-    (Year partitions follow the CEMS input data, based on local plant time.
-    The operating_datetime_utc identifies time in UTC, so there's a mismatch
-    of a few hours on December 31 / January 1.)
-
-    Args:
-        datapkg_path (path-like): Path to the datapackage.json file describing
-            the datapackage contaning the EPA CEMS data to be converted.
-        epacems_years (list): list of years from which we are trying to read
-            CEMS data
-        epacems_states (list): list of years from which we are trying to read
-            CEMS data
-        out_dir (path-like): The directory in which to output the Parquet files
-        compression (string):
-        partition_cols (tuple):
-        clobber (bool): If True and there is already a directory with out_dirs
-            name, the existing parquet files will be deleted and new ones will
-            be generated in their place.
-
-    Raises:
-        AssertionError: Raised if an output directory is not specified.
-
-    Todo:
-        Return to
-
-    """
-    if not out_dir:
-        raise AssertionError("Required output directory not specified.")
-    out_dir = pudl.helpers.prep_dir(out_dir, clobber=clobber)
-    data_dir = pathlib.Path(datapkg_path).parent / "data"
-
-    # Verify that all the requested data files are present:
-    epacems_years = list(epacems_years)
-    epacems_years.sort()
-    epacems_states = list(epacems_states)
-    epacems_states.sort()
-    for year in epacems_years:
-        for state in epacems_states:
-            newpath = pathlib.Path(
-                data_dir,
-                f"hourly_emissions_epacems_{year}_{state.lower()}.csv.gz")
-            if not newpath.is_file():
-                raise FileNotFoundError(f"EPA CEMS file not found: {newpath}")
-
-    # TODO: Rather than going directly to the data directory, we should really
-    # use the metadata inside the datapackage to find the appropriate file
-    # paths pertaining to the CEMS years/states of interest.
-    in_types = create_in_dtypes()
-    schema = create_cems_schema()
-    for year in epacems_years:
-        for state in epacems_states:
-            newpath = pathlib.Path(
-                data_dir,
-                f"hourly_emissions_epacems_{year}_{state.lower()}.csv.gz")
-            df = (
-                pd.read_csv(
-                    newpath, dtype=in_types, parse_dates=["operating_datetime_utc"]
-                )
-                .assign(year=year)
-            )
-            if len(df) == 0:
-                logger.info(f"Skipping {year}-{state}: 0 records found.")
-            else:
-                logger.info(f"{year}-{state}: {len(df)} records")
-                pq.write_to_dataset(
-                    pa.Table.from_pandas(df, preserve_index=False, schema=schema),
-                    root_path=str(out_dir),
-                    partition_cols=list(partition_cols),
-                    compression=compression
-                )
 
 
 def parse_command_line(argv):
@@ -234,38 +34,7 @@ def parse_command_line(argv):
 
     """
     parser = argparse.ArgumentParser(description=__doc__)
-    defaults = pudl.workspace.setup.get_defaults()
-    parser.add_argument(
-        'datapkg',
-        type=str,
-        help="""Path to the datapackage.json file describing the datapackage
-        that contains the CEMS data to be converted.""",
-    )
-    parser.add_argument(
-        '-z',
-        '--compression',
-        type=str,
-        choices=["gzip", "snappy"],
-        help="""Compression algorithm to use for Parquet files. Can be either
-        'snappy' (much faster but larger files) or 'gzip' (slower but better
-        compression). (default: %(default)s).""",
-        default='snappy'
-    )
-    parser.add_argument(
-        '-i',
-        '--pudl_in',
-        type=str,
-        help="""Path to the top level datastore directory. (default:
-        %(default)s).""",
-        default=defaults["pudl_in"],
-    )
-    parser.add_argument(
-        '-o',
-        '--pudl_out',
-        type=str,
-        help="""Path to the pudl output directory. (default: %(default)s).""",
-        default=str(defaults["pudl_out"])
-    )
+
     parser.add_argument(
         '-y',
         '--years',
@@ -274,7 +43,7 @@ def parse_command_line(argv):
         help="""Which years of EPA CEMS data should be converted to Apache
         Parquet format. Default is all available years, ranging from 1995 to
         the present. Note that data is typically incomplete before ~2000.""",
-        default=pc.data_years['epacems']
+        default=pc.working_partitions['epacems']['years']
     )
     parser.add_argument(
         '-s',
@@ -284,7 +53,7 @@ def parse_command_line(argv):
         help="""Which states EPA CEMS data should be converted to Apache
         Parquet format, as a list of two letter US state abbreviations. Default
         is everything: all 48 continental US states plus Washington DC.""",
-        default=pc.cems_states.keys()
+        default=pc.working_partitions["epacems"]["states"]
     )
     parser.add_argument(
         '-c',
@@ -293,7 +62,21 @@ def parse_command_line(argv):
         help="""Clobber existing parquet files if they exist. If clobber is not
         included but the parquet directory already exists the _build will
         fail.""",
-        default=False)
+        default=False
+    )
+    parser.add_argument(
+        "--gcs-cache-path",
+        type=str,
+        help="""Load datastore resources from Google Cloud Storage.
+        Should be gs://bucket[/path_prefix]"""
+    )
+    parser.add_argument(
+        "--bypass-local-cache",
+        action="store_true",
+        default=False,
+        help="If enabled, the local file cache for datastore will not be used."
+    )
+
     arguments = parser.parse_args(argv[1:])
     return arguments
 
@@ -307,17 +90,53 @@ def main():
 
     args = parse_command_line(sys.argv)
 
-    pudl_settings = pudl.workspace.setup.derive_paths(
-        pudl_in=args.pudl_in, pudl_out=args.pudl_out)
+    # Make sure the requested years/states are available:
+    for year in args.years:
+        if year not in pc.working_partitions["epacems"]["years"]:
+            raise ValueError(
+                f"{year} is not a valid year within the EPA CEMS dataset."
+            )
+    for state in args.states:
+        if state not in pc.working_partitions["epacems"]["states"]:
+            raise ValueError(
+                f"{state} is not a valid state within the EPA CEMS dataset."
+            )
 
-    epacems_to_parquet(datapkg_path=pathlib.Path(args.datapkg),
-                       epacems_years=args.years,
-                       epacems_states=args.states,
-                       out_dir=pathlib.Path(
-                           pudl_settings['parquet_dir'], "epacems"),
-                       compression=args.compression,
-                       partition_cols=('year', 'state'),
-                       clobber=args.clobber)
+    pudl_settings = pudl.workspace.setup.get_defaults()
+
+    # Configure how we want to obtain raw input data:
+    ds_kwargs = dict(
+        gcs_cache_path=args.gcs_cache_path,
+        sandbox=pudl_settings.get("sandbox", False)
+    )
+    if not args.bypass_local_cache:
+        ds_kwargs["local_cache_path"] = pathlib.Path(pudl_settings["pudl_in"]) / "data"
+
+    _ = pudl.helpers.prep_dir(
+        pathlib.Path(pudl_settings["parquet_dir"]) / "epacems",
+        clobber=args.clobber,
+    )
+
+    # Verify that we have a PUDL DB with plant attributes:
+    pudl_engine = sa.create_engine(pudl_settings["pudl_db"])
+    inspector = sa.inspect(pudl_engine)
+    if "plants_entity_eia" not in inspector.get_table_names():
+        raise RuntimeError("No PUDL DB available! Have you run the ETL?")
+
+    # Messy settings arguments used in our main ETL which we should clean up
+    epacems_etl_settings = {
+        'epacems_years': args.years,
+        'epacems_states': args.states,
+        'partition': {
+            'hourly_emissions_epacems': ['epacems_years', 'epacems_states']
+        }
+    }
+
+    pudl.etl.etl_epacems(
+        epacems_etl_settings,
+        pudl_settings,
+        ds_kwargs,
+    )
 
 
 if __name__ == '__main__':
