@@ -319,8 +319,15 @@ class Schema(Base):
     @pydantic.validator("primaryKey")
     def _check_primary_key_in_fields(cls, value, values):  # noqa: N805
         if value is not None and "fields_" in values:
+            missing = []
             names = [f.name for f in values['fields_']]
-            missing = [x for x in value if x not in names]
+            for name in value:
+                if name in names:
+                    # Flag primary key fields as required
+                    field = values['fields_'][names.index(name)]
+                    field.constraints.required = True
+                else:
+                    missing.append(field.name)
             if missing:
                 raise ValueError(f"names {missing} missing from fields")
         return value
