@@ -5,12 +5,6 @@ FERC Form 1 Data Dictionary
 We have mapped the Visual FoxPro DBF files to their corresponding FERC Form 1
 database tables and provided a short description of the contents of each table here.
 
-* :download:`A diagram of the 2015 FERC Form 1 Database (PDF)
-  <ferc1/ferc1_db_diagram_2015.pdf>`
-* :download:`Blank FERC Form 1 (PDF, to 2014-12-31) <ferc1/ferc1_blank_2014-12-31.pdf>`
-* :download:`Blank FERC Form 1 (PDF, to 2019-12-31) <ferc1/ferc1_blank_2019-12-31.pdf>`
-* :download:`Blank FERC Form 1 (PDF, to 2022-11-30) <ferc1/ferc1_blank_2022-11-30.pdf>`
-
 .. note::
 
    * The Table Names link to the contents of the database table on our `FERC Form 1
@@ -24,6 +18,6 @@ database tables and provided a short description of the contents of each table h
      Quarterly. A/Q if the data is reported both annually and quarterly.
 
 .. csv-table::
-   :file: ferc1/ferc1_db_notes.csv
+   :file: ferc1_db.csv
    :header-rows: 1
    :widths: auto

@@ -88,7 +88,11 @@ def _load_plant_utc_offset(datapkg_dir):
         pd.read_csv(
             pathlib.Path(datapkg_dir, 'data/plants_entity_eia.csv'),
             usecols=["plant_id_eia", "timezone"],
-            dtype={"plant_id_eia": "Int64", "timezone": pd.StringDtype()})
+            dtype=pudl.helpers.get_pudl_dtypes({
+                "plant_id_eia": "eia",
+                "timezone": "eia",
+            })
+        )
         .replace(to_replace="None", value=pd.NA)
         .dropna()
     )

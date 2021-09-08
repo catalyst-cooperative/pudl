@@ -22,7 +22,7 @@ release = pkg_resources.get_distribution('catalystcoop.pudl').version
 # -- Project information -----------------------------------------------------
 
 project = 'PUDL'
-copyright = '2016-2021, Catalyst Cooperative'  # noqa: A001
+copyright = '2016-2021, Catalyst Cooperative, CC-BY-4.0'  # noqa: A001
 author = 'Catalyst Cooperative'
 
 # -- General configuration ---------------------------------------------------
@@ -38,8 +38,14 @@ extensions = [
     'sphinx.ext.todo',
     'sphinx.ext.viewcode',
     'sphinx_issues',
+    'sphinx_reredirects',
 ]
 todo_include_todos = True
+
+# Redirects to keep folks from hitting 404 errors:
+redirects = {
+    "data_dictionary": "data_dictionaries/pudl_db.html",
+}
 
 # GitHub repo
 issues_github_path = "catalyst-cooperative/pudl"
@@ -61,11 +67,6 @@ intersphinx_mapping = {
     'sqlalchemy': ('https://docs.sqlalchemy.org/en/latest/', None),
     'tox': ('https://tox.readthedocs.io/en/latest/', None),
 }
-
-# List of packages that should not really be installed, because they are
-# written in C or have C extensions. Instead they should be mocked for import
-# purposes only to prevent the doc build from failing.
-autodoc_mock_imports = ['snappy', 'pyarrow', 'fsspec']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']

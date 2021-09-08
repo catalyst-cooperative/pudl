@@ -17,12 +17,13 @@
         "plants_steam_ferc1": "id",
         "utilities_eia860": "id"
     },
-    "resources": [{
+    "resources": [
+        {
             "profile": "tabular-data-resource",
             "name": "fuel_ferc1",
             "path": "data/fuel_ferc1.csv",
             "title": "fuel_ferc1",
-            "description": "Annual fuel consumed by large thermal generating plants. As reported on page 402 of FERC Form 1.",
+            "description": "Annual fuel cost and quanitiy for steam plants with a capacity of 25+ MW, internal combustion and gas-turbine plants of 10+ MW, and all nuclear plants. As reported on page 402 of FERC Form 1 and extracted from the f1_fuel table in FERC's FoxPro Database.",
             "encoding": "utf-8",
             "mediatype": "text/csv",
             "format": "csv",
@@ -36,7 +37,8 @@
                 "caseSensitiveHeader": false
             },
             "schema": {
-                "fields": [{
+                "fields": [
+                    {
                         "name": "record_id",
                         "type": "string",
                         "description": "Identifier indicating original FERC Form 1 source record. format: {table_name}_{report_year}_{report_prd}_{respondent_id}_{spplmnt_num}_{row_number}. Unique within FERC Form 1 DB tables which are not row-mapped.",
@@ -133,26 +135,38 @@
                         "format": "default"
                     }
                 ],
-                "foreignKeys": [{
-                    "fields": ["plant_name_ferc1", "utility_id_ferc1"],
-                    "reference": {
-                        "resource": "plants_ferc1",
-                        "fields": ["plant_name_ferc1", "utility_id_ferc1"]
+                "foreignKeys": [
+                    {
+                        "fields": [
+                            "plant_name_ferc1",
+                            "utility_id_ferc1"
+                        ],
+                        "reference": {
+                            "resource": "plants_ferc1",
+                            "fields": [
+                                "plant_name_ferc1",
+                                "utility_id_ferc1"
+                            ]
+                        }
                     }
-                }],
+                ],
                 "missingValues": [
                     ""
                 ]
             },
-            "licenses": [{
-                "name": "CC-BY-4.0",
-                "title": "Creative Commons Attribution 4.0",
-                "path": "https://creativecommons.org/licenses/by/4.0/"
-            }],
-            "sources": [{
-                "title": "ferc1",
-                "path": "ftp://eforms1.ferc.gov/f1allyears"
-            }]
+            "licenses": [
+                {
+                    "name": "CC-BY-4.0",
+                    "title": "Creative Commons Attribution 4.0",
+                    "path": "https://creativecommons.org/licenses/by/4.0/"
+                }
+            ],
+            "sources": [
+                {
+                    "title": "ferc1",
+                    "path": "ftp://eforms1.ferc.gov/f1allyears"
+                }
+            ]
         },
         {
             "profile": "tabular-data-resource",
@@ -173,7 +187,8 @@
                 "caseSensitiveHeader": false
             },
             "schema": {
-                "fields": [{
+                "fields": [
+                    {
                         "name": "line_id",
                         "type": "string",
                         "description": "A human readable string uniquely identifying the FERC depreciation account. Used in lieu of the actual line number, as those numbers are not guaranteed to be consistent from year to year.",
@@ -193,11 +208,13 @@
                     ""
                 ]
             },
-            "licenses": [{
-                "name": "CC-BY-4.0",
-                "title": "Creative Commons Attribution 4.0",
-                "path": "https://creativecommons.org/licenses/by/4.0/"
-            }],
+            "licenses": [
+                {
+                    "name": "CC-BY-4.0",
+                    "title": "Creative Commons Attribution 4.0",
+                    "path": "https://creativecommons.org/licenses/by/4.0/"
+                }
+            ],
             "sources": []
         },
         {
@@ -205,6 +222,7 @@
             "name": "utilities_eia",
             "path": "data/utilities_eia.csv",
             "title": "utilities_eia",
+            "description": "Pending description.",
             "encoding": "utf-8",
             "mediatype": "text/csv",
             "format": "csv",
@@ -218,7 +236,8 @@
                 "caseSensitiveHeader": false
             },
             "schema": {
-                "fields": [{
+                "fields": [
+                    {
                         "name": "utility_id_eia",
                         "type": "integer",
                         "format": "default",
@@ -240,22 +259,26 @@
                 "primaryKey": [
                     "utility_id_eia"
                 ],
-                "foreignKeys": [{
-                    "fields": "utility_id_pudl",
-                    "reference": {
-                        "resource": "utilities_pudl",
-                        "fields": "utility_id_pudl"
+                "foreignKeys": [
+                    {
+                        "fields": "utility_id_pudl",
+                        "reference": {
+                            "resource": "utilities_pudl",
+                            "fields": "utility_id_pudl"
+                        }
                     }
-                }],
+                ],
                 "missingValues": [
                     ""
                 ]
             },
-            "licenses": [{
-                "name": "CC-BY-4.0",
-                "title": "Creative Commons Attribution 4.0",
-                "path": "https://creativecommons.org/licenses/by/4.0/"
-            }],
+            "licenses": [
+                {
+                    "name": "CC-BY-4.0",
+                    "title": "Creative Commons Attribution 4.0",
+                    "path": "https://creativecommons.org/licenses/by/4.0/"
+                }
+            ],
             "sources": []
         },
         {
@@ -263,6 +286,7 @@
             "name": "energy_source_eia923",
             "path": "data/energy_source_eia923.csv",
             "title": "energy_source_eia923",
+            "description": "Pending description.",
             "encoding": "utf-8",
             "mediatype": "text/csv",
             "format": "csv",
@@ -276,7 +300,8 @@
                 "caseSensitiveHeader": false
             },
             "schema": {
-                "fields": [{
+                "fields": [
+                    {
                         "name": "abbr",
                         "type": "string",
                         "format": "default"
@@ -294,21 +319,26 @@
                     ""
                 ]
             },
-            "licenses": [{
-                "name": "CC-BY-4.0",
-                "title": "Creative Commons Attribution 4.0",
-                "path": "https://creativecommons.org/licenses/by/4.0/"
-            }],
-            "sources": [{
-                "title": "eia923",
-                "path": "https://www.eia.gov/electricity/data/eia923"
-            }]
+            "licenses": [
+                {
+                    "name": "CC-BY-4.0",
+                    "title": "Creative Commons Attribution 4.0",
+                    "path": "https://creativecommons.org/licenses/by/4.0/"
+                }
+            ],
+            "sources": [
+                {
+                    "title": "eia923",
+                    "path": "https://www.eia.gov/electricity/data/eia923"
+                }
+            ]
         },
         {
             "profile": "tabular-data-resource",
             "name": "datasets",
             "path": "data/datasets.csv",
             "title": "datasets",
+            "description": "Pending description.",
             "encoding": "utf-8",
             "mediatype": "text/csv",
             "format": "csv",
@@ -322,7 +352,8 @@
                 "caseSensitiveHeader": false
             },
             "schema": {
-                "fields": [{
+                "fields": [
+                    {
                         "name": "datasource",
                         "type": "string",
                         "description": "Code identifying a dataset available within PUDL.",
@@ -350,11 +381,13 @@
                     ""
                 ]
             },
-            "licenses": [{
-                "name": "CC-BY-4.0",
-                "title": "Creative Commons Attribution 4.0",
-                "path": "https://creativecommons.org/licenses/by/4.0/"
-            }],
+            "licenses": [
+                {
+                    "name": "CC-BY-4.0",
+                    "title": "Creative Commons Attribution 4.0",
+                    "path": "https://creativecommons.org/licenses/by/4.0/"
+                }
+            ],
             "sources": []
         },
         {
@@ -362,6 +395,7 @@
             "name": "fuel_type_eia923",
             "path": "data/fuel_type_eia923.csv",
             "title": "fuel_type_eia923",
+            "description": "Pending description.",
             "encoding": "utf-8",
             "mediatype": "text/csv",
             "format": "csv",
@@ -375,7 +409,8 @@
                 "caseSensitiveHeader": false
             },
             "schema": {
-                "fields": [{
+                "fields": [
+                    {
                         "name": "abbr",
                         "type": "string",
                         "format": "default"
@@ -393,15 +428,19 @@
                     ""
                 ]
             },
-            "licenses": [{
-                "name": "CC-BY-4.0",
-                "title": "Creative Commons Attribution 4.0",
-                "path": "https://creativecommons.org/licenses/by/4.0/"
-            }],
-            "sources": [{
-                "title": "eia923",
-                "path": "https://www.eia.gov/electricity/data/eia923"
-            }]
+            "licenses": [
+                {
+                    "name": "CC-BY-4.0",
+                    "title": "Creative Commons Attribution 4.0",
+                    "path": "https://creativecommons.org/licenses/by/4.0/"
+                }
+            ],
+            "sources": [
+                {
+                    "title": "eia923",
+                    "path": "https://www.eia.gov/electricity/data/eia923"
+                }
+            ]
         },
         {
             "profile": "tabular-data-resource",
@@ -422,7 +461,8 @@
                 "caseSensitiveHeader": false
             },
             "schema": {
-                "fields": [{
+                "fields": [
+                    {
                         "name": "utility_id_pudl",
                         "type": "integer",
                         "description": "A manually assigned PUDL utility ID. May not be stable over time.",
@@ -442,11 +482,13 @@
                     ""
                 ]
             },
-            "licenses": [{
-                "name": "CC-BY-4.0",
-                "title": "Creative Commons Attribution 4.0",
-                "path": "https://creativecommons.org/licenses/by/4.0/"
-            }],
+            "licenses": [
+                {
+                    "name": "CC-BY-4.0",
+                    "title": "Creative Commons Attribution 4.0",
+                    "path": "https://creativecommons.org/licenses/by/4.0/"
+                }
+            ],
             "sources": []
         },
         {
@@ -454,6 +496,7 @@
             "name": "plants_ferc1",
             "path": "data/plants_ferc1.csv",
             "title": "FERC 1 Plants",
+            "description": "Name, utility, and PUDL id for steam plants with a capacity of 25,000+ kW, internal combustion and gas-turbine plants of 10,000+ kW, and all nuclear plants.",
             "encoding": "utf-8",
             "mediatype": "text/csv",
             "format": "csv",
@@ -467,7 +510,8 @@
                 "caseSensitiveHeader": false
             },
             "schema": {
-                "fields": [{
+                "fields": [
+                    {
                         "name": "utility_id_ferc1",
                         "type": "integer",
                         "description": "FERC assigned respondent_id, identifying the reporting entity. Stable from year to year.",
@@ -490,7 +534,8 @@
                     "utility_id_ferc1",
                     "plant_name_ferc1"
                 ],
-                "foreignKeys": [{
+                "foreignKeys": [
+                    {
                         "fields": "utility_id_ferc1",
                         "reference": {
                             "resource": "utilities_ferc1",
@@ -509,11 +554,13 @@
                     ""
                 ]
             },
-            "licenses": [{
-                "name": "CC-BY-4.0",
-                "title": "Creative Commons Attribution 4.0",
-                "path": "https://creativecommons.org/licenses/by/4.0/"
-            }],
+            "licenses": [
+                {
+                    "name": "CC-BY-4.0",
+                    "title": "Creative Commons Attribution 4.0",
+                    "path": "https://creativecommons.org/licenses/by/4.0/"
+                }
+            ],
             "sources": []
         },
         {
@@ -521,6 +568,7 @@
             "name": "generation_eia923",
             "path": "data/generation_eia923.csv",
             "title": "generation_eia923",
+            "description": "Pending description.",
             "encoding": "utf-8",
             "mediatype": "text/csv",
             "format": "csv",
@@ -534,7 +582,8 @@
                 "caseSensitiveHeader": false
             },
             "schema": {
-                "fields": [{
+                "fields": [
+                    {
                         "name": "plant_id_eia",
                         "type": "integer",
                         "description": "The unique six-digit facility identification number, also called an ORISPL, assigned by the Energy Information Administration.",
@@ -559,32 +608,45 @@
                         "format": "default"
                     }
                 ],
-                "foreignKeys": [{
-                    "fields": ["plant_id_eia", "generator_id"],
-                    "reference": {
-                        "resource": "generators_entity_eia",
-                        "fields": ["plant_id_eia", "generator_id"]
+                "foreignKeys": [
+                    {
+                        "fields": [
+                            "plant_id_eia",
+                            "generator_id"
+                        ],
+                        "reference": {
+                            "resource": "generators_entity_eia",
+                            "fields": [
+                                "plant_id_eia",
+                                "generator_id"
+                            ]
+                        }
                     }
-                }],
+                ],
                 "missingValues": [
                     ""
                 ]
             },
-            "licenses": [{
-                "name": "CC-BY-4.0",
-                "title": "Creative Commons Attribution 4.0",
-                "path": "https://creativecommons.org/licenses/by/4.0/"
-            }],
-            "sources": [{
-                "title": "eia923",
-                "path": "https://www.eia.gov/electricity/data/eia923"
-            }]
+            "licenses": [
+                {
+                    "name": "CC-BY-4.0",
+                    "title": "Creative Commons Attribution 4.0",
+                    "path": "https://creativecommons.org/licenses/by/4.0/"
+                }
+            ],
+            "sources": [
+                {
+                    "title": "eia923",
+                    "path": "https://www.eia.gov/electricity/data/eia923"
+                }
+            ]
         },
         {
             "profile": "tabular-data-resource",
             "name": "utilities_entity_eia",
             "path": "data/utilities_entity_eia.csv",
             "title": "utilities_entity_eia",
+            "description": "Pending description.",
             "encoding": "utf-8",
             "mediatype": "text/csv",
             "format": "csv",
@@ -598,7 +660,8 @@
                 "caseSensitiveHeader": false
             },
             "schema": {
-                "fields": [{
+                "fields": [
+                    {
                         "name": "utility_id_eia",
                         "type": "integer",
                         "description": "The EIA Utility Identification number.",
@@ -618,11 +681,13 @@
                     ""
                 ]
             },
-            "licenses": [{
-                "name": "CC-BY-4.0",
-                "title": "Creative Commons Attribution 4.0",
-                "path": "https://creativecommons.org/licenses/by/4.0/"
-            }],
+            "licenses": [
+                {
+                    "name": "CC-BY-4.0",
+                    "title": "Creative Commons Attribution 4.0",
+                    "path": "https://creativecommons.org/licenses/by/4.0/"
+                }
+            ],
             "sources": []
         },
         {
@@ -630,6 +695,7 @@
             "name": "generators_entity_eia",
             "path": "data/generators_entity_eia.csv",
             "title": "generators_entity_eia",
+            "description": "Pending description.",
             "encoding": "utf-8",
             "mediatype": "text/csv",
             "format": "csv",
@@ -643,7 +709,8 @@
                 "caseSensitiveHeader": false
             },
             "schema": {
-                "fields": [{
+                "fields": [
+                    {
                         "name": "plant_id_eia",
                         "type": "integer",
                         "description": "The unique six-digit facility identification number, also called an ORISPL, assigned by the Energy Information Administration.",
@@ -774,22 +841,26 @@
                     "plant_id_eia",
                     "generator_id"
                 ],
-                "foreignKeys": [{
-                    "fields": "plant_id_eia",
-                    "reference": {
-                        "resource": "plants_entity_eia",
-                        "fields": "plant_id_eia"
+                "foreignKeys": [
+                    {
+                        "fields": "plant_id_eia",
+                        "reference": {
+                            "resource": "plants_entity_eia",
+                            "fields": "plant_id_eia"
+                        }
                     }
-                }],
+                ],
                 "missingValues": [
                     ""
                 ]
             },
-            "licenses": [{
-                "name": "CC-BY-4.0",
-                "title": "Creative Commons Attribution 4.0",
-                "path": "https://creativecommons.org/licenses/by/4.0/"
-            }],
+            "licenses": [
+                {
+                    "name": "CC-BY-4.0",
+                    "title": "Creative Commons Attribution 4.0",
+                    "path": "https://creativecommons.org/licenses/by/4.0/"
+                }
+            ],
             "sources": []
         },
         {
@@ -797,7 +868,7 @@
             "name": "plants_hydro_ferc1",
             "path": "data/plants_hydro_ferc1.csv",
             "title": "plants_hydro_ferc1",
-            "description": "Hydroelectric generating plant statistics for large plants. Large plants have an installed nameplate capacity of more than 10 MW. As reported on FERC Form 1, pages 406-407, and extracted from the f1_hydro table in FERC's FoxPro database.",
+            "description": "Generating plant statistics for hydroelectric plants with an installed nameplate capacity of 10 MW. As reported on FERC Form 1, pages 406-407 and extracted from the f1_hydro table in FERC's FoxPro database.",
             "encoding": "utf-8",
             "mediatype": "text/csv",
             "format": "csv",
@@ -811,7 +882,8 @@
                 "caseSensitiveHeader": false
             },
             "schema": {
-                "fields": [{
+                "fields": [
+                    {
                         "name": "record_id",
                         "type": "string",
                         "description": "Identifier indicating original FERC Form 1 source record. format: {table_name}_{report_year}_{report_prd}_{respondent_id}_{spplmnt_num}_{row_number}. Unique within FERC Form 1 DB tables which are not row-mapped.",
@@ -1042,26 +1114,38 @@
                         "format": "default"
                     }
                 ],
-                "foreignKeys": [{
-                    "fields": ["utility_id_ferc1", "plant_name_ferc1"],
-                    "reference": {
-                        "resource": "plants_ferc1",
-                        "fields": ["utility_id_ferc1", "plant_name_ferc1"]
+                "foreignKeys": [
+                    {
+                        "fields": [
+                            "utility_id_ferc1",
+                            "plant_name_ferc1"
+                        ],
+                        "reference": {
+                            "resource": "plants_ferc1",
+                            "fields": [
+                                "utility_id_ferc1",
+                                "plant_name_ferc1"
+                            ]
+                        }
                     }
-                }],
+                ],
                 "missingValues": [
                     ""
                 ]
             },
-            "licenses": [{
-                "name": "CC-BY-4.0",
-                "title": "Creative Commons Attribution 4.0",
-                "path": "https://creativecommons.org/licenses/by/4.0/"
-            }],
-            "sources": [{
-                "title": "ferc1",
-                "path": "ftp://eforms1.ferc.gov/f1allyears"
-            }]
+            "licenses": [
+                {
+                    "name": "CC-BY-4.0",
+                    "title": "Creative Commons Attribution 4.0",
+                    "path": "https://creativecommons.org/licenses/by/4.0/"
+                }
+            ],
+            "sources": [
+                {
+                    "title": "ferc1",
+                    "path": "ftp://eforms1.ferc.gov/f1allyears"
+                }
+            ]
         },
         {
             "profile": "tabular-data-resource",
@@ -1082,7 +1166,8 @@
                 "caseSensitiveHeader": false
             },
             "schema": {
-                "fields": [{
+                "fields": [
+                    {
                         "name": "utility_id_ferc1",
                         "type": "integer",
                         "description": "FERC assigned respondent_id, identifying the reporting entity. Stable from year to year.",
@@ -1680,26 +1765,32 @@
                     "report_year",
                     "amount_type"
                 ],
-                "foreignKeys": [{
-                    "fields": "utility_id_ferc1",
-                    "reference": {
-                        "resource": "utilities_ferc1",
-                        "fields": "utility_id_ferc1"
+                "foreignKeys": [
+                    {
+                        "fields": "utility_id_ferc1",
+                        "reference": {
+                            "resource": "utilities_ferc1",
+                            "fields": "utility_id_ferc1"
+                        }
                     }
-                }],
+                ],
                 "missingValues": [
                     ""
                 ]
             },
-            "licenses": [{
-                "name": "CC-BY-4.0",
-                "title": "Creative Commons Attribution 4.0",
-                "path": "https://creativecommons.org/licenses/by/4.0/"
-            }],
-            "sources": [{
-                "title": "ferc1",
-                "path": "ftp://eforms1.ferc.gov/f1allyears"
-            }]
+            "licenses": [
+                {
+                    "name": "CC-BY-4.0",
+                    "title": "Creative Commons Attribution 4.0",
+                    "path": "https://creativecommons.org/licenses/by/4.0/"
+                }
+            ],
+            "sources": [
+                {
+                    "title": "ferc1",
+                    "path": "ftp://eforms1.ferc.gov/f1allyears"
+                }
+            ]
         },
         {
             "profile": "tabular-data-resource",
@@ -1720,7 +1811,8 @@
                 "caseSensitiveHeader": false
             },
             "schema": {
-                "fields": [{
+                "fields": [
+                    {
                         "name": "record_id",
                         "type": "string",
                         "description": "Identifier indicating original FERC Form 1 source record. format: {table_name}_{report_year}_{report_prd}_{respondent_id}_{spplmnt_num}_{row_number}. Unique within FERC Form 1 DB tables which are not row-mapped.",
@@ -1834,21 +1926,26 @@
                     ""
                 ]
             },
-            "licenses": [{
-                "name": "CC-BY-4.0",
-                "title": "Creative Commons Attribution 4.0",
-                "path": "https://creativecommons.org/licenses/by/4.0/"
-            }],
-            "sources": [{
-                "title": "ferc1",
-                "path": "ftp://eforms1.ferc.gov/f1allyears"
-            }]
+            "licenses": [
+                {
+                    "name": "CC-BY-4.0",
+                    "title": "Creative Commons Attribution 4.0",
+                    "path": "https://creativecommons.org/licenses/by/4.0/"
+                }
+            ],
+            "sources": [
+                {
+                    "title": "ferc1",
+                    "path": "ftp://eforms1.ferc.gov/f1allyears"
+                }
+            ]
         },
         {
             "profile": "tabular-data-resource",
             "name": "generators_eia860",
             "path": "data/generators_eia860.csv",
             "title": "generators_eia860",
+            "description": "Pending description.",
             "encoding": "utf-8",
             "mediatype": "text/csv",
             "format": "csv",
@@ -1862,7 +1959,8 @@
                 "caseSensitiveHeader": false
             },
             "schema": {
-                "fields": [{
+                "fields": [
+                    {
                         "name": "plant_id_eia",
                         "type": "integer",
                         "description": "The unique six-digit facility identification number, also called an ORISPL, assigned by the Energy Information Administration.",
@@ -2251,16 +2349,26 @@
                         "type": "string",
                         "description": "Source of EIA 860 data. Either Annual EIA 860 or the year-to-date updates from EIA 860M.",
                         "constraints": {
-                            "enum": ["eia860","eia860m"]
-                          },
+                            "enum": [
+                                "eia860",
+                                "eia860m"
+                            ]
+                        },
                         "format": "default"
                     }
                 ],
-                "foreignKeys": [{
-                        "fields": ["plant_id_eia", "generator_id"],
+                "foreignKeys": [
+                    {
+                        "fields": [
+                            "plant_id_eia",
+                            "generator_id"
+                        ],
                         "reference": {
                             "resource": "generators_entity_eia",
-                            "fields": ["plant_id_eia", "generator_id"]
+                            "fields": [
+                                "plant_id_eia",
+                                "generator_id"
+                            ]
                         }
                     },
                     {
@@ -2275,26 +2383,30 @@
                     ""
                 ]
             },
-            "licenses": [{
-                "name": "CC-BY-4.0",
-                "title": "Creative Commons Attribution 4.0",
-                "path": "https://creativecommons.org/licenses/by/4.0/"
-            }],
-            "sources": [{
-                "title": "eia860",
-                "path": "https://www.eia.gov/electricity/data/eia860"
-            },
-            {
-              "title": "eia860m",
-              "path": "https://www.eia.gov/electricity/data/eia860m"
-            }
-          ]
+            "licenses": [
+                {
+                    "name": "CC-BY-4.0",
+                    "title": "Creative Commons Attribution 4.0",
+                    "path": "https://creativecommons.org/licenses/by/4.0/"
+                }
+            ],
+            "sources": [
+                {
+                    "title": "eia860",
+                    "path": "https://www.eia.gov/electricity/data/eia860"
+                },
+                {
+                    "title": "eia860m",
+                    "path": "https://www.eia.gov/electricity/data/eia860m"
+                }
+            ]
         },
         {
             "profile": "tabular-data-resource",
             "name": "ownership_eia860",
             "path": "data/ownership_eia860.csv",
             "title": "ownership_eia860",
+            "description": "Pending description.",
             "encoding": "utf-8",
             "mediatype": "text/csv",
             "format": "csv",
@@ -2308,7 +2420,8 @@
                 "caseSensitiveHeader": false
             },
             "schema": {
-                "fields": [{
+                "fields": [
+                    {
                         "name": "report_date",
                         "type": "date",
                         "description": "Date reported.",
@@ -2450,7 +2563,8 @@
                         "format": "default"
                     }
                 ],
-                "foreignKeys": [{
+                "foreignKeys": [
+                    {
                         "fields": "utility_id_eia",
                         "reference": {
                             "resource": "utilities_entity_eia",
@@ -2458,10 +2572,16 @@
                         }
                     },
                     {
-                        "fields": ["plant_id_eia", "generator_id"],
+                        "fields": [
+                            "plant_id_eia",
+                            "generator_id"
+                        ],
                         "reference": {
                             "resource": "generators_entity_eia",
-                            "fields": ["plant_id_eia", "generator_id"]
+                            "fields": [
+                                "plant_id_eia",
+                                "generator_id"
+                            ]
                         }
                     }
                 ],
@@ -2469,15 +2589,19 @@
                     ""
                 ]
             },
-            "licenses": [{
-                "name": "CC-BY-4.0",
-                "title": "Creative Commons Attribution 4.0",
-                "path": "https://creativecommons.org/licenses/by/4.0/"
-            }],
-            "sources": [{
-                "title": "eia860",
-                "path": "https://www.eia.gov/electricity/data/eia860"
-            }]
+            "licenses": [
+                {
+                    "name": "CC-BY-4.0",
+                    "title": "Creative Commons Attribution 4.0",
+                    "path": "https://creativecommons.org/licenses/by/4.0/"
+                }
+            ],
+            "sources": [
+                {
+                    "title": "eia860",
+                    "path": "https://www.eia.gov/electricity/data/eia860"
+                }
+            ]
         },
         {
             "profile": "tabular-data-resource",
@@ -2498,7 +2622,8 @@
                 "caseSensitiveHeader": false
             },
             "schema": {
-                "fields": [{
+                "fields": [
+                    {
                         "name": "plant_id_pudl",
                         "type": "integer",
                         "description": "A manually assigned PUDL plant ID. May not be constant over time.",
@@ -2518,11 +2643,13 @@
                     ""
                 ]
             },
-            "licenses": [{
-                "name": "CC-BY-4.0",
-                "title": "Creative Commons Attribution 4.0",
-                "path": "https://creativecommons.org/licenses/by/4.0/"
-            }],
+            "licenses": [
+                {
+                    "name": "CC-BY-4.0",
+                    "title": "Creative Commons Attribution 4.0",
+                    "path": "https://creativecommons.org/licenses/by/4.0/"
+                }
+            ],
             "sources": []
         },
         {
@@ -2530,6 +2657,7 @@
             "name": "fuel_type_aer_eia923",
             "path": "data/fuel_type_aer_eia923.csv",
             "title": "fuel_type_aer_eia923",
+            "description": "Pending description.",
             "encoding": "utf-8",
             "mediatype": "text/csv",
             "format": "csv",
@@ -2543,7 +2671,8 @@
                 "caseSensitiveHeader": false
             },
             "schema": {
-                "fields": [{
+                "fields": [
+                    {
                         "name": "abbr",
                         "type": "string",
                         "format": "default"
@@ -2561,15 +2690,19 @@
                     ""
                 ]
             },
-            "licenses": [{
-                "name": "CC-BY-4.0",
-                "title": "Creative Commons Attribution 4.0",
-                "path": "https://creativecommons.org/licenses/by/4.0/"
-            }],
-            "sources": [{
-                "title": "eia923",
-                "path": "https://www.eia.gov/electricity/data/eia923"
-            }]
+            "licenses": [
+                {
+                    "name": "CC-BY-4.0",
+                    "title": "Creative Commons Attribution 4.0",
+                    "path": "https://creativecommons.org/licenses/by/4.0/"
+                }
+            ],
+            "sources": [
+                {
+                    "title": "eia923",
+                    "path": "https://www.eia.gov/electricity/data/eia923"
+                }
+            ]
         },
         {
             "profile": "tabular-data-resource",
@@ -2590,7 +2723,8 @@
                 "caseSensitiveHeader": false
             },
             "schema": {
-                "fields": [{
+                "fields": [
+                    {
                         "name": "utility_id_ferc1",
                         "type": "integer",
                         "description": "FERC-assigned respondent_id, identifying the reporting entity. Stable from year to year.",
@@ -2644,7 +2778,8 @@
                     "report_year",
                     "line_id"
                 ],
-                "foreignKeys": [{
+                "foreignKeys": [
+                    {
                         "fields": "utility_id_ferc1",
                         "reference": {
                             "resource": "utilities_ferc1",
@@ -2663,21 +2798,26 @@
                     ""
                 ]
             },
-            "licenses": [{
-                "name": "CC-BY-4.0",
-                "title": "Creative Commons Attribution 4.0",
-                "path": "https://creativecommons.org/licenses/by/4.0/"
-            }],
-            "sources": [{
-                "title": "ferc1",
-                "path": "ftp://eforms1.ferc.gov/f1allyears"
-            }]
+            "licenses": [
+                {
+                    "name": "CC-BY-4.0",
+                    "title": "Creative Commons Attribution 4.0",
+                    "path": "https://creativecommons.org/licenses/by/4.0/"
+                }
+            ],
+            "sources": [
+                {
+                    "title": "ferc1",
+                    "path": "ftp://eforms1.ferc.gov/f1allyears"
+                }
+            ]
         },
         {
             "profile": "tabular-data-resource",
             "name": "prime_movers_eia923",
             "path": "data/prime_movers_eia923.csv",
             "title": "prime_movers_eia923",
+            "description": "Pending description.",
             "encoding": "utf-8",
             "mediatype": "text/csv",
             "format": "csv",
@@ -2691,7 +2831,8 @@
                 "caseSensitiveHeader": false
             },
             "schema": {
-                "fields": [{
+                "fields": [
+                    {
                         "name": "abbr",
                         "type": "string",
                         "format": "default"
@@ -2709,21 +2850,26 @@
                     ""
                 ]
             },
-            "licenses": [{
-                "name": "CC-BY-4.0",
-                "title": "Creative Commons Attribution 4.0",
-                "path": "https://creativecommons.org/licenses/by/4.0/"
-            }],
-            "sources": [{
-                "title": "eia923",
-                "path": "https://www.eia.gov/electricity/data/eia923"
-            }]
+            "licenses": [
+                {
+                    "name": "CC-BY-4.0",
+                    "title": "Creative Commons Attribution 4.0",
+                    "path": "https://creativecommons.org/licenses/by/4.0/"
+                }
+            ],
+            "sources": [
+                {
+                    "title": "eia923",
+                    "path": "https://www.eia.gov/electricity/data/eia923"
+                }
+            ]
         },
         {
             "profile": "tabular-data-resource",
             "name": "fuel_receipts_costs_eia923",
             "path": "data/fuel_receipts_costs_eia923.csv",
             "title": "fuel_receipts_costs_eia923",
+            "description": "Pending description.",
             "encoding": "utf-8",
             "mediatype": "text/csv",
             "format": "csv",
@@ -2737,7 +2883,8 @@
                 "caseSensitiveHeader": false
             },
             "schema": {
-                "fields": [{
+                "fields": [
+                    {
                         "name": "id",
                         "type": "integer",
                         "description": "PUDL issued surrogate key.",
@@ -2906,7 +3053,8 @@
                 "primaryKey": [
                     "id"
                 ],
-                "foreignKeys": [{
+                "foreignKeys": [
+                    {
                         "fields": "plant_id_eia",
                         "reference": {
                             "resource": "plants_entity_eia",
@@ -2946,15 +3094,19 @@
                     ""
                 ]
             },
-            "licenses": [{
-                "name": "CC-BY-4.0",
-                "title": "Creative Commons Attribution 4.0",
-                "path": "https://creativecommons.org/licenses/by/4.0/"
-            }],
-            "sources": [{
-                "title": "eia923",
-                "path": "https://www.eia.gov/electricity/data/eia923"
-            }]
+            "licenses": [
+                {
+                    "name": "CC-BY-4.0",
+                    "title": "Creative Commons Attribution 4.0",
+                    "path": "https://creativecommons.org/licenses/by/4.0/"
+                }
+            ],
+            "sources": [
+                {
+                    "title": "eia923",
+                    "path": "https://www.eia.gov/electricity/data/eia923"
+                }
+            ]
         },
         {
             "profile": "tabular-data-resource",
@@ -2975,7 +3127,8 @@
                 "caseSensitiveHeader": false
             },
             "schema": {
-                "fields": [{
+                "fields": [
+                    {
                         "name": "utility_id_ferc1",
                         "type": "integer",
                         "description": "FERC assigned respondent_id, identifying the reporting entity. Stable from year to year.",
@@ -2997,22 +3150,26 @@
                 "primaryKey": [
                     "utility_id_ferc1"
                 ],
-                "foreignKeys": [{
-                    "fields": "utility_id_pudl",
-                    "reference": {
-                        "resource": "utilities_pudl",
-                        "fields": "utility_id_pudl"
+                "foreignKeys": [
+                    {
+                        "fields": "utility_id_pudl",
+                        "reference": {
+                            "resource": "utilities_pudl",
+                            "fields": "utility_id_pudl"
+                        }
                     }
-                }],
+                ],
                 "missingValues": [
                     ""
                 ]
             },
-            "licenses": [{
-                "name": "CC-BY-4.0",
-                "title": "Creative Commons Attribution 4.0",
-                "path": "https://creativecommons.org/licenses/by/4.0/"
-            }],
+            "licenses": [
+                {
+                    "name": "CC-BY-4.0",
+                    "title": "Creative Commons Attribution 4.0",
+                    "path": "https://creativecommons.org/licenses/by/4.0/"
+                }
+            ],
             "sources": []
         },
         {
@@ -3020,6 +3177,7 @@
             "name": "boiler_generator_assn_eia860",
             "path": "data/boiler_generator_assn_eia860.csv",
             "title": "boiler_generator_assn_eia860",
+            "description": "Pending description.",
             "encoding": "utf-8",
             "mediatype": "text/csv",
             "format": "csv",
@@ -3033,7 +3191,8 @@
                 "caseSensitiveHeader": false
             },
             "schema": {
-                "fields": [{
+                "fields": [
+                    {
                         "name": "plant_id_eia",
                         "type": "integer",
                         "description": "The unique six-digit facility identification number, also called an ORISPL, assigned by the Energy Information Administration.",
@@ -3066,7 +3225,7 @@
                     {
                         "name": "unit_id_pudl",
                         "type": "integer",
-                        "description": "PUDL-assigned unit identification number.",
+                        "description": "Dynamically assigned PUDL unit id. WARNING: This ID is not guaranteed to be static long term as the input data and algorithm may evolve over time.",
                         "format": "default"
                     },
                     {
@@ -3076,32 +3235,45 @@
                         "format": "default"
                     }
                 ],
-                "foreignKeys": [{
-                    "fields": ["plant_id_eia", "generator_id"],
-                    "reference": {
-                        "resource": "generators_entity_eia",
-                        "fields": ["plant_id_eia", "generator_id"]
+                "foreignKeys": [
+                    {
+                        "fields": [
+                            "plant_id_eia",
+                            "generator_id"
+                        ],
+                        "reference": {
+                            "resource": "generators_entity_eia",
+                            "fields": [
+                                "plant_id_eia",
+                                "generator_id"
+                            ]
+                        }
                     }
-                }],
+                ],
                 "missingValues": [
                     ""
                 ]
             },
-            "licenses": [{
-                "name": "CC-BY-4.0",
-                "title": "Creative Commons Attribution 4.0",
-                "path": "https://creativecommons.org/licenses/by/4.0/"
-            }],
-            "sources": [{
-                "title": "eia860",
-                "path": "https://www.eia.gov/electricity/data/eia860"
-            }]
+            "licenses": [
+                {
+                    "name": "CC-BY-4.0",
+                    "title": "Creative Commons Attribution 4.0",
+                    "path": "https://creativecommons.org/licenses/by/4.0/"
+                }
+            ],
+            "sources": [
+                {
+                    "title": "eia860",
+                    "path": "https://www.eia.gov/electricity/data/eia860"
+                }
+            ]
         },
         {
             "profile": "tabular-data-resource",
             "name": "transport_modes_eia923",
             "path": "data/transport_modes_eia923.csv",
             "title": "transport_modes_eia923",
+            "description": "Pending description.",
             "encoding": "utf-8",
             "mediatype": "text/csv",
             "format": "csv",
@@ -3115,7 +3287,8 @@
                 "caseSensitiveHeader": false
             },
             "schema": {
-                "fields": [{
+                "fields": [
+                    {
                         "name": "abbr",
                         "type": "string",
                         "format": "default"
@@ -3133,21 +3306,26 @@
                     ""
                 ]
             },
-            "licenses": [{
-                "name": "CC-BY-4.0",
-                "title": "Creative Commons Attribution 4.0",
-                "path": "https://creativecommons.org/licenses/by/4.0/"
-            }],
-            "sources": [{
-                "title": "eia923",
-                "path": "https://www.eia.gov/electricity/data/eia923"
-            }]
+            "licenses": [
+                {
+                    "name": "CC-BY-4.0",
+                    "title": "Creative Commons Attribution 4.0",
+                    "path": "https://creativecommons.org/licenses/by/4.0/"
+                }
+            ],
+            "sources": [
+                {
+                    "title": "eia923",
+                    "path": "https://www.eia.gov/electricity/data/eia923"
+                }
+            ]
         },
         {
             "profile": "tabular-data-resource",
             "name": "coalmine_eia923",
             "path": "data/coalmine_eia923.csv",
             "title": "coalmine_eia923",
+            "description": "Pending description.",
             "encoding": "utf-8",
             "mediatype": "text/csv",
             "format": "csv",
@@ -3161,7 +3339,8 @@
                 "caseSensitiveHeader": false
             },
             "schema": {
-                "fields": [{
+                "fields": [
+                    {
                         "name": "mine_id_pudl",
                         "type": "integer",
                         "description": "PUDL issued surrogate key.",
@@ -3285,21 +3464,26 @@
                     ""
                 ]
             },
-            "licenses": [{
-                "name": "CC-BY-4.0",
-                "title": "Creative Commons Attribution 4.0",
-                "path": "https://creativecommons.org/licenses/by/4.0/"
-            }],
-            "sources": [{
-                "title": "eia923",
-                "path": "https://www.eia.gov/electricity/data/eia923"
-            }]
+            "licenses": [
+                {
+                    "name": "CC-BY-4.0",
+                    "title": "Creative Commons Attribution 4.0",
+                    "path": "https://creativecommons.org/licenses/by/4.0/"
+                }
+            ],
+            "sources": [
+                {
+                    "title": "eia923",
+                    "path": "https://www.eia.gov/electricity/data/eia923"
+                }
+            ]
         },
         {
             "profile": "tabular-data-resource",
             "name": "plants_eia",
             "path": "data/plants_eia.csv",
             "title": "plants_eia",
+            "description": "Pending description.",
             "encoding": "utf-8",
             "mediatype": "text/csv",
             "format": "csv",
@@ -3313,7 +3497,8 @@
                 "caseSensitiveHeader": false
             },
             "schema": {
-                "fields": [{
+                "fields": [
+                    {
                         "name": "plant_id_eia",
                         "type": "integer",
                         "format": "default",
@@ -3333,22 +3518,26 @@
                 "primaryKey": [
                     "plant_id_eia"
                 ],
-                "foreignKeys": [{
-                    "fields": "plant_id_pudl",
-                    "reference": {
-                        "resource": "plants_pudl",
-                        "fields": "plant_id_pudl"
+                "foreignKeys": [
+                    {
+                        "fields": "plant_id_pudl",
+                        "reference": {
+                            "resource": "plants_pudl",
+                            "fields": "plant_id_pudl"
+                        }
                     }
-                }],
+                ],
                 "missingValues": [
                     ""
                 ]
             },
-            "licenses": [{
-                "name": "CC-BY-4.0",
-                "title": "Creative Commons Attribution 4.0",
-                "path": "https://creativecommons.org/licenses/by/4.0/"
-            }],
+            "licenses": [
+                {
+                    "name": "CC-BY-4.0",
+                    "title": "Creative Commons Attribution 4.0",
+                    "path": "https://creativecommons.org/licenses/by/4.0/"
+                }
+            ],
             "sources": []
         },
         {
@@ -3370,7 +3559,8 @@
                 "caseSensitiveHeader": false
             },
             "schema": {
-                "fields": [{
+                "fields": [
+                    {
                         "name": "ferc_account_id",
                         "type": "string",
                         "description": "Account number, from FERC's Uniform System of Accounts for Electric Plant. Also includes higher level labeled categories.",
@@ -3390,11 +3580,13 @@
                     ""
                 ]
             },
-            "licenses": [{
-                "name": "CC-BY-4.0",
-                "title": "Creative Commons Attribution 4.0",
-                "path": "https://creativecommons.org/licenses/by/4.0/"
-            }],
+            "licenses": [
+                {
+                    "name": "CC-BY-4.0",
+                    "title": "Creative Commons Attribution 4.0",
+                    "path": "https://creativecommons.org/licenses/by/4.0/"
+                }
+            ],
             "sources": []
         },
         {
@@ -3402,6 +3594,7 @@
             "name": "utility_plant_assn",
             "path": "data/utility_plant_assn.csv",
             "title": "utility_plant_assn",
+            "description": "Pending description.",
             "encoding": "utf-8",
             "mediatype": "text/csv",
             "format": "csv",
@@ -3415,7 +3608,8 @@
                 "caseSensitiveHeader": false
             },
             "schema": {
-                "fields": [{
+                "fields": [
+                    {
                         "name": "utility_id_pudl",
                         "type": "integer",
                         "format": "default"
@@ -3430,7 +3624,8 @@
                     "utility_id_pudl",
                     "plant_id_pudl"
                 ],
-                "foreignKeys": [{
+                "foreignKeys": [
+                    {
                         "fields": "utility_id_pudl",
                         "reference": {
                             "resource": "utilities_pudl",
@@ -3449,11 +3644,13 @@
                     ""
                 ]
             },
-            "licenses": [{
-                "name": "CC-BY-4.0",
-                "title": "Creative Commons Attribution 4.0",
-                "path": "https://creativecommons.org/licenses/by/4.0/"
-            }],
+            "licenses": [
+                {
+                    "name": "CC-BY-4.0",
+                    "title": "Creative Commons Attribution 4.0",
+                    "path": "https://creativecommons.org/licenses/by/4.0/"
+                }
+            ],
             "sources": []
         },
         {
@@ -3461,6 +3658,7 @@
             "name": "plants_eia860",
             "path": "data/plants_eia860.csv",
             "title": "plants_eia860",
+            "description": "Pending description.",
             "encoding": "utf-8",
             "mediatype": "text/csv",
             "format": "csv",
@@ -3474,7 +3672,8 @@
                 "caseSensitiveHeader": false
             },
             "schema": {
-                "fields": [{
+                "fields": [
+                    {
                         "name": "plant_id_eia",
                         "type": "integer",
                         "description": "The unique six-digit facility identification number, also called an ORISPL, assigned by the Energy Information Administration.",
@@ -3624,32 +3823,39 @@
                         "format": "default"
                     }
                 ],
-                "foreignKeys": [{
-                    "fields": "plant_id_eia",
-                    "reference": {
-                        "resource": "plants_entity_eia",
-                        "fields": "plant_id_eia"
+                "foreignKeys": [
+                    {
+                        "fields": "plant_id_eia",
+                        "reference": {
+                            "resource": "plants_entity_eia",
+                            "fields": "plant_id_eia"
+                        }
                     }
-                }],
+                ],
                 "missingValues": [
                     ""
                 ]
             },
-            "licenses": [{
-                "name": "CC-BY-4.0",
-                "title": "Creative Commons Attribution 4.0",
-                "path": "https://creativecommons.org/licenses/by/4.0/"
-            }],
-            "sources": [{
-                "title": "eia860",
-                "path": "https://www.eia.gov/electricity/data/eia860"
-            }]
+            "licenses": [
+                {
+                    "name": "CC-BY-4.0",
+                    "title": "Creative Commons Attribution 4.0",
+                    "path": "https://creativecommons.org/licenses/by/4.0/"
+                }
+            ],
+            "sources": [
+                {
+                    "title": "eia860",
+                    "path": "https://www.eia.gov/electricity/data/eia860"
+                }
+            ]
         },
         {
             "profile": "tabular-data-resource",
             "name": "generation_fuel_eia923",
             "path": "data/generation_fuel_eia923.csv",
             "title": "generation_fuel_eia923",
+            "description": "Pending description.",
             "encoding": "utf-8",
             "mediatype": "text/csv",
             "format": "csv",
@@ -3663,7 +3869,8 @@
                 "caseSensitiveHeader": false
             },
             "schema": {
-                "fields": [{
+                "fields": [
+                    {
                         "name": "plant_id_eia",
                         "type": "integer",
                         "description": "The unique six-digit facility identification number, also called an ORISPL, assigned by the Energy Information Administration.",
@@ -3678,7 +3885,7 @@
                     {
                         "name": "nuclear_unit_id",
                         "type": "integer",
-                        "description": "For nuclear plants only, the unit number .One digit numeric. Nuclear plants are the only type of plants for which data are shown explicitly at the generating unit level.",
+                        "description": "For nuclear plants only. This unit ID appears to correspond directly to the generator ID, as reported in the EIA-860. Nuclear plants are the only type of plants for which data are shown explicitly at the generating unit level. Note that nuclear plants only report their fuel consumption and net generation in the generation_fuel_eia923 table and not elsewhere.",
                         "format": "default"
                     },
                     {
@@ -3742,7 +3949,8 @@
                         "format": "default"
                     }
                 ],
-                "foreignKeys": [{
+                "foreignKeys": [
+                    {
                         "fields": "plant_id_eia",
                         "reference": {
                             "resource": "plants_entity_eia",
@@ -3775,22 +3983,26 @@
                     ""
                 ]
             },
-            "licenses": [{
-                "name": "CC-BY-4.0",
-                "title": "Creative Commons Attribution 4.0",
-                "path": "https://creativecommons.org/licenses/by/4.0/"
-            }],
-            "sources": [{
-                "title": "eia923",
-                "path": "https://www.eia.gov/electricity/data/eia923"
-            }]
+            "licenses": [
+                {
+                    "name": "CC-BY-4.0",
+                    "title": "Creative Commons Attribution 4.0",
+                    "path": "https://creativecommons.org/licenses/by/4.0/"
+                }
+            ],
+            "sources": [
+                {
+                    "title": "eia923",
+                    "path": "https://www.eia.gov/electricity/data/eia923"
+                }
+            ]
         },
         {
             "profile": "tabular-data-resource",
             "name": "plants_small_ferc1",
             "path": "data/plants_small_ferc1.csv",
             "title": "plants_small_ferc1",
-            "description": "Generating plant statistics for small plants, as reported on FERC Form 1 pages 410-411, and extracted from the FERC FoxPro database table f1_gnrt_plant. Small generating plants are defined by having nameplate capacity of less than 25MW for steam plants, and less than 10MW for internal combustion, conventional hydro, and pumped storage plants.",
+            "description": "Generating plant statistics for steam plants with less than 25 MW installed nameplate capacity and internal combustion plants, gas turbine-plants, conventional hydro plants, and pumped storage plants with less than 10 MW installed nameplate capacity. As reported on FERC Form 1 pages 410-411, and extracted from the FERC FoxPro database table f1_gnrt_plant.",
             "encoding": "utf-8",
             "mediatype": "text/csv",
             "format": "csv",
@@ -3804,7 +4016,8 @@
                 "caseSensitiveHeader": false
             },
             "schema": {
-                "fields": [{
+                "fields": [
+                    {
                         "name": "record_id",
                         "type": "string",
                         "description": "Identifier indicating original FERC Form 1 source record. format: {table_name}_{report_year}_{report_prd}_{respondent_id}_{spplmnt_num}_{row_number}. Unique within FERC Form 1 DB tables which are not row-mapped.",
@@ -3913,32 +4126,45 @@
                         "format": "default"
                     }
                 ],
-                "foreignKeys": [{
-                    "fields": ["plant_name_original", "utility_id_ferc1"],
-                    "reference": {
-                        "resource": "plants_ferc1",
-                        "fields": ["plant_name_ferc1", "utility_id_ferc1"]
+                "foreignKeys": [
+                    {
+                        "fields": [
+                            "plant_name_original",
+                            "utility_id_ferc1"
+                        ],
+                        "reference": {
+                            "resource": "plants_ferc1",
+                            "fields": [
+                                "plant_name_ferc1",
+                                "utility_id_ferc1"
+                            ]
+                        }
                     }
-                }],
+                ],
                 "missingValues": [
                     ""
                 ]
             },
-            "licenses": [{
-                "name": "CC-BY-4.0",
-                "title": "Creative Commons Attribution 4.0",
-                "path": "https://creativecommons.org/licenses/by/4.0/"
-            }],
-            "sources": [{
-                "title": "ferc1",
-                "path": "ftp://eforms1.ferc.gov/f1allyears"
-            }]
+            "licenses": [
+                {
+                    "name": "CC-BY-4.0",
+                    "title": "Creative Commons Attribution 4.0",
+                    "path": "https://creativecommons.org/licenses/by/4.0/"
+                }
+            ],
+            "sources": [
+                {
+                    "title": "ferc1",
+                    "path": "ftp://eforms1.ferc.gov/f1allyears"
+                }
+            ]
         },
         {
             "profile": "tabular-data-resource",
             "name": "plants_pumped_storage_ferc1",
             "path": "data/plants_pumped_storage_ferc1.csv",
             "title": "plants_pumped_storage_ferc1",
+            "description": "Generating plant statistics for hydroelectric pumped storage plants with an installed nameplate capacity of 10+ MW. As reported on page 408 of FERC Form 1 and extracted from the f1_pumped_storage table in FERC's FoxPro Database.",
             "encoding": "utf-8",
             "mediatype": "text/csv",
             "format": "csv",
@@ -3952,7 +4178,8 @@
                 "caseSensitiveHeader": false
             },
             "schema": {
-                "fields": [{
+                "fields": [
+                    {
                         "name": "record_id",
                         "type": "string",
                         "description": "Identifier indicating original FERC Form 1 source record. format: {table_name}_{report_year}_{report_prd}_{respondent_id}_{spplmnt_num}_{row_number}. Unique within FERC Form 1 DB tables which are not row-mapped.",
@@ -4207,32 +4434,45 @@
                         "format": "default"
                     }
                 ],
-                "foreignKeys": [{
-                    "fields": ["plant_name_ferc1", "utility_id_ferc1"],
-                    "reference": {
-                        "resource": "plants_ferc1",
-                        "fields": ["plant_name_ferc1", "utility_id_ferc1"]
+                "foreignKeys": [
+                    {
+                        "fields": [
+                            "plant_name_ferc1",
+                            "utility_id_ferc1"
+                        ],
+                        "reference": {
+                            "resource": "plants_ferc1",
+                            "fields": [
+                                "plant_name_ferc1",
+                                "utility_id_ferc1"
+                            ]
+                        }
                     }
-                }],
+                ],
                 "missingValues": [
                     ""
                 ]
             },
-            "licenses": [{
-                "name": "CC-BY-4.0",
-                "title": "Creative Commons Attribution 4.0",
-                "path": "https://creativecommons.org/licenses/by/4.0/"
-            }],
-            "sources": [{
-                "title": "ferc1",
-                "path": "ftp://eforms1.ferc.gov/f1allyears"
-            }]
+            "licenses": [
+                {
+                    "name": "CC-BY-4.0",
+                    "title": "Creative Commons Attribution 4.0",
+                    "path": "https://creativecommons.org/licenses/by/4.0/"
+                }
+            ],
+            "sources": [
+                {
+                    "title": "ferc1",
+                    "path": "ftp://eforms1.ferc.gov/f1allyears"
+                }
+            ]
         },
         {
             "profile": "tabular-data-resource",
             "name": "boiler_fuel_eia923",
             "path": "data/boiler_fuel_eia923.csv",
             "title": "boiler_fuel_eia923",
+            "description": "Pending description.",
             "encoding": "utf-8",
             "mediatype": "text/csv",
             "format": "csv",
@@ -4246,7 +4486,8 @@
                 "caseSensitiveHeader": false
             },
             "schema": {
-                "fields": [{
+                "fields": [
+                    {
                         "name": "plant_id_eia",
                         "type": "integer",
                         "description": "The unique six-digit facility identification number, also called an ORISPL, assigned by the Energy Information Administration.",
@@ -4301,32 +4542,39 @@
                         "format": "default"
                     }
                 ],
-                "foreignKeys": [{
-                    "fields": "fuel_type_code",
-                    "reference": {
-                        "resource": "fuel_type_eia923",
-                        "fields": "abbr"
+                "foreignKeys": [
+                    {
+                        "fields": "fuel_type_code",
+                        "reference": {
+                            "resource": "fuel_type_eia923",
+                            "fields": "abbr"
+                        }
                     }
-                }],
+                ],
                 "missingValues": [
                     ""
                 ]
             },
-            "licenses": [{
-                "name": "CC-BY-4.0",
-                "title": "Creative Commons Attribution 4.0",
-                "path": "https://creativecommons.org/licenses/by/4.0/"
-            }],
-            "sources": [{
-                "title": "eia923",
-                "path": "https://www.eia.gov/electricity/data/eia923"
-            }]
+            "licenses": [
+                {
+                    "name": "CC-BY-4.0",
+                    "title": "Creative Commons Attribution 4.0",
+                    "path": "https://creativecommons.org/licenses/by/4.0/"
+                }
+            ],
+            "sources": [
+                {
+                    "title": "eia923",
+                    "path": "https://www.eia.gov/electricity/data/eia923"
+                }
+            ]
         },
         {
             "profile": "tabular-data-resource",
             "name": "hourly_emissions_epacems",
             "path": "data/hourly_emissions_epacems.csv",
             "title": "hourly_emissions_epacems",
+            "description": "Pending description.",
             "encoding": "utf-8",
             "mediatype": "text/csv",
             "format": "csv",
@@ -4340,7 +4588,8 @@
                 "caseSensitiveHeader": false
             },
             "schema": {
-                "fields": [{
+                "fields": [
+                    {
                         "name": "state",
                         "type": "string",
                         "constraints": {
@@ -4559,22 +4808,26 @@
                     ""
                 ]
             },
-            "licenses": [{
-                "name": "CC-BY-4.0",
-                "title": "Creative Commons Attribution 4.0",
-                "path": "https://creativecommons.org/licenses/by/4.0/"
-            }],
-            "sources": [{
-                "title": "epacems",
-                "path": "ftp://newftp.epa.gov/dmdnload/emissions/hourly/monthly"
-            }]
+            "licenses": [
+                {
+                    "name": "CC-BY-4.0",
+                    "title": "Creative Commons Attribution 4.0",
+                    "path": "https://creativecommons.org/licenses/by/4.0/"
+                }
+            ],
+            "sources": [
+                {
+                    "title": "epacems",
+                    "path": "ftp://newftp.epa.gov/dmdnload/emissions/hourly/monthly"
+                }
+            ]
         },
         {
             "profile": "tabular-data-resource",
             "name": "plants_steam_ferc1",
             "path": "data/plants_steam_ferc1.csv",
             "title": "plants_steam_ferc1",
-            "description": "Large thermal generating plants, as reported on page 402 of FERC Form 1.",
+            "description": "Generating plant statistics for steam plants with a capacity of 25+ MW, internal combustion and gas-turbine plants of 10+ MW, and all nuclear plants. As reported on page 402 of FERC Form 1 and extracted from the f1_gnrt_plant table in FERC's FoxPro Database.",
             "encoding": "utf-8",
             "mediatype": "text/csv",
             "format": "csv",
@@ -4588,7 +4841,8 @@
                 "caseSensitiveHeader": false
             },
             "schema": {
-                "fields": [{
+                "fields": [
+                    {
                         "name": "record_id",
                         "type": "string",
                         "description": "Identifier indicating original FERC Form 1 source record. format: {table_name}_{report_year}_{report_prd}_{respondent_id}_{spplmnt_num}_{row_number}. Unique within FERC Form 1 DB tables which are not row-mapped.",
@@ -4851,32 +5105,45 @@
                         "format": "default"
                     }
                 ],
-                "foreignKeys": [{
-                    "fields": ["plant_name_ferc1", "utility_id_ferc1"],
-                    "reference": {
-                        "resource": "plants_ferc1",
-                        "fields": ["plant_name_ferc1", "utility_id_ferc1"]
+                "foreignKeys": [
+                    {
+                        "fields": [
+                            "plant_name_ferc1",
+                            "utility_id_ferc1"
+                        ],
+                        "reference": {
+                            "resource": "plants_ferc1",
+                            "fields": [
+                                "plant_name_ferc1",
+                                "utility_id_ferc1"
+                            ]
+                        }
                     }
-                }],
+                ],
                 "missingValues": [
                     ""
                 ]
             },
-            "licenses": [{
-                "name": "CC-BY-4.0",
-                "title": "Creative Commons Attribution 4.0",
-                "path": "https://creativecommons.org/licenses/by/4.0/"
-            }],
-            "sources": [{
-                "title": "ferc1",
-                "path": "ftp://eforms1.ferc.gov/f1allyears"
-            }]
+            "licenses": [
+                {
+                    "name": "CC-BY-4.0",
+                    "title": "Creative Commons Attribution 4.0",
+                    "path": "https://creativecommons.org/licenses/by/4.0/"
+                }
+            ],
+            "sources": [
+                {
+                    "title": "ferc1",
+                    "path": "ftp://eforms1.ferc.gov/f1allyears"
+                }
+            ]
         },
         {
             "profile": "tabular-data-resource",
             "name": "utilities_eia860",
             "path": "data/utilities_eia860.csv",
             "title": "utilities_eia860",
+            "description": "Pending description.",
             "encoding": "utf-8",
             "mediatype": "text/csv",
             "format": "csv",
@@ -4890,7 +5157,8 @@
                 "caseSensitiveHeader": false
             },
             "schema": {
-                "fields": [{
+                "fields": [
+                    {
                         "name": "utility_id_eia",
                         "type": "integer",
                         "description": "EIA-assigned identification number for the company that is responsible for the day-to-day operations of the generator.",
@@ -5026,32 +5294,39 @@
                         "format": "default"
                     }
                 ],
-                "foreignKeys": [{
-                    "fields": "utility_id_eia",
-                    "reference": {
-                        "resource": "utilities_entity_eia",
-                        "fields": "utility_id_eia"
+                "foreignKeys": [
+                    {
+                        "fields": "utility_id_eia",
+                        "reference": {
+                            "resource": "utilities_entity_eia",
+                            "fields": "utility_id_eia"
+                        }
                     }
-                }],
+                ],
                 "missingValues": [
                     ""
                 ]
             },
-            "licenses": [{
-                "name": "CC-BY-4.0",
-                "title": "Creative Commons Attribution 4.0",
-                "path": "https://creativecommons.org/licenses/by/4.0/"
-            }],
-            "sources": [{
-                "title": "eia860",
-                "path": "https://www.eia.gov/electricity/data/eia860"
-            }]
+            "licenses": [
+                {
+                    "name": "CC-BY-4.0",
+                    "title": "Creative Commons Attribution 4.0",
+                    "path": "https://creativecommons.org/licenses/by/4.0/"
+                }
+            ],
+            "sources": [
+                {
+                    "title": "eia860",
+                    "path": "https://www.eia.gov/electricity/data/eia860"
+                }
+            ]
         },
         {
             "profile": "tabular-data-resource",
             "name": "boilers_entity_eia",
             "path": "data/boilers_entity_eia.csv",
             "title": "boilers_entity_eia",
+            "description": "Pending description.",
             "encoding": "utf-8",
             "mediatype": "text/csv",
             "format": "csv",
@@ -5065,7 +5340,8 @@
                 "caseSensitiveHeader": false
             },
             "schema": {
-                "fields": [{
+                "fields": [
+                    {
                         "name": "plant_id_eia",
                         "type": "integer",
                         "description": "The unique six-digit facility identification number, also called an ORISPL, assigned by the Energy Information Administration.",
@@ -5088,22 +5364,26 @@
                     "plant_id_eia",
                     "boiler_id"
                 ],
-                "foreignKeys": [{
-                    "fields": "plant_id_eia",
-                    "reference": {
-                        "resource": "plants_entity_eia",
-                        "fields": "plant_id_eia"
+                "foreignKeys": [
+                    {
+                        "fields": "plant_id_eia",
+                        "reference": {
+                            "resource": "plants_entity_eia",
+                            "fields": "plant_id_eia"
+                        }
                     }
-                }],
+                ],
                 "missingValues": [
                     ""
                 ]
             },
-            "licenses": [{
-                "name": "CC-BY-4.0",
-                "title": "Creative Commons Attribution 4.0",
-                "path": "https://creativecommons.org/licenses/by/4.0/"
-            }],
+            "licenses": [
+                {
+                    "name": "CC-BY-4.0",
+                    "title": "Creative Commons Attribution 4.0",
+                    "path": "https://creativecommons.org/licenses/by/4.0/"
+                }
+            ],
             "sources": []
         },
         {
@@ -5111,6 +5391,7 @@
             "name": "plants_entity_eia",
             "path": "data/plants_entity_eia.csv",
             "title": "plants_entity_eia",
+            "description": "Pending description.",
             "encoding": "utf-8",
             "mediatype": "text/csv",
             "format": "csv",
@@ -5124,7 +5405,8 @@
                 "caseSensitiveHeader": false
             },
             "schema": {
-                "fields": [{
+                "fields": [
+                    {
                         "name": "plant_id_eia",
                         "type": "integer",
                         "description": "The unique six-digit facility identification number, also called an ORISPL, assigned by the Energy Information Administration.",
@@ -5270,11 +5552,13 @@
                     ""
                 ]
             },
-            "licenses": [{
-                "name": "CC-BY-4.0",
-                "title": "Creative Commons Attribution 4.0",
-                "path": "https://creativecommons.org/licenses/by/4.0/"
-            }],
+            "licenses": [
+                {
+                    "name": "CC-BY-4.0",
+                    "title": "Creative Commons Attribution 4.0",
+                    "path": "https://creativecommons.org/licenses/by/4.0/"
+                }
+            ],
             "sources": []
         },
         {
@@ -5282,6 +5566,7 @@
             "name": "plant_unit_epa",
             "path": "data/plant_unit_epa.csv",
             "title": "EPA Plant and Unit",
+            "description": "Pending description.",
             "encoding": "utf-8",
             "mediatype": "text/csv",
             "format": "csv",
@@ -5295,7 +5580,8 @@
                 "caseSensitiveHeader": false
             },
             "schema": {
-                "fields": [{
+                "fields": [
+                    {
                         "name": "plant_id_epa",
                         "type": "integer",
                         "format": "default"
@@ -5315,11 +5601,13 @@
                     ""
                 ]
             },
-            "licenses": [{
-                "name": "CC-BY-4.0",
-                "title": "EPA",
-                "path": "https://www.epa.gov/"
-            }],
+            "licenses": [
+                {
+                    "name": "CC-BY-4.0",
+                    "title": "EPA",
+                    "path": "https://www.epa.gov/"
+                }
+            ],
             "sources": []
         },
         {
@@ -5327,6 +5615,7 @@
             "name": "assn_plant_id_eia_epa",
             "path": "data/assn_plant_id_eia_epa.csv",
             "title": "EIA-EPA Plant ID Crosswalk",
+            "description": "Pending description.",
             "encoding": "utf-8",
             "mediatype": "text/csv",
             "format": "csv",
@@ -5340,7 +5629,8 @@
                 "caseSensitiveHeader": false
             },
             "schema": {
-                "fields": [{
+                "fields": [
+                    {
                         "name": "plant_id_epa",
                         "type": "integer",
                         "format": "default"
@@ -5356,22 +5646,30 @@
                     "plant_id_epa",
                     "plant_id_eia"
                 ],
-                "foreignKeys": [{
-                    "fields": ["plant_id_eia"],
-                    "reference": {
-                        "resource": "plants_entity_eia",
-                        "fields": ["plant_id_eia"]
+                "foreignKeys": [
+                    {
+                        "fields": [
+                            "plant_id_eia"
+                        ],
+                        "reference": {
+                            "resource": "plants_entity_eia",
+                            "fields": [
+                                "plant_id_eia"
+                            ]
+                        }
                     }
-                }],
+                ],
                 "missingValues": [
                     ""
                 ]
             },
-            "licenses": [{
-                "name": "CC-BY-4.0",
-                "title": "EPA",
-                "path": "https://www.epa.gov/"
-            }],
+            "licenses": [
+                {
+                    "name": "CC-BY-4.0",
+                    "title": "EPA",
+                    "path": "https://www.epa.gov/"
+                }
+            ],
             "sources": []
         },
         {
@@ -5379,6 +5677,7 @@
             "name": "assn_gen_eia_unit_epa",
             "path": "data/assn_gen_eia_unit_epa.csv",
             "title": "EIA Plant and Generator to EPA Unit",
+            "description": "Pending description.",
             "encoding": "utf-8",
             "mediatype": "text/csv",
             "format": "csv",
@@ -5392,23 +5691,24 @@
                 "caseSensitiveHeader": false
             },
             "schema": {
-                "fields": [{
+                "fields": [
+                    {
                         "name": "plant_id_eia",
                         "type": "integer",
                         "description": "The unique six-digit facility identification number, also called an ORISPL, assigned by the Energy Information Administration.",
                         "format": "default"
                     },
                     {
-                       "name": "unit_id_epa",
-                       "type": "string",
-                       "description": "Smokestack unit monitored by EPA CEMS.",
-                       "format": "default"
+                        "name": "unit_id_epa",
+                        "type": "string",
+                        "description": "Smokestack unit monitored by EPA CEMS.",
+                        "format": "default"
                     },
                     {
-                       "name": "generator_id",
-                       "type": "string",
-                       "description": "Generator identification code. Often numeric, but sometimes includes letters. It's a string!",
-                       "format": "default"
+                        "name": "generator_id",
+                        "type": "string",
+                        "description": "Generator identification code. Often numeric, but sometimes includes letters. It's a string!",
+                        "format": "default"
                     }
                 ],
                 "primaryKey": [
@@ -5416,22 +5716,32 @@
                     "unit_id_epa",
                     "generator_id"
                 ],
-                "foreignKeys": [{
-                    "fields": ["plant_id_eia", "generator_id"],
-                    "reference": {
-                        "resource": "generators_entity_eia",
-                        "fields": ["plant_id_eia", "generator_id"]
+                "foreignKeys": [
+                    {
+                        "fields": [
+                            "plant_id_eia",
+                            "generator_id"
+                        ],
+                        "reference": {
+                            "resource": "generators_entity_eia",
+                            "fields": [
+                                "plant_id_eia",
+                                "generator_id"
+                            ]
+                        }
                     }
-                }],
+                ],
                 "missingValues": [
                     ""
                 ]
             },
-            "licenses": [{
-                "name": "CC-BY-4.0",
-                "title": "EPA",
-                "path": "https://www.epa.gov/"
-            }],
+            "licenses": [
+                {
+                    "name": "CC-BY-4.0",
+                    "title": "EPA",
+                    "path": "https://www.epa.gov/"
+                }
+            ],
             "sources": []
         }
     ]

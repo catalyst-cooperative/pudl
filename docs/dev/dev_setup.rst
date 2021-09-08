@@ -83,6 +83,23 @@ Notebooks, and a few Python packages that have binary dependencies which can
 be easier to satisfy through ``conda`` packages.
 
 -------------------------------------------------------------------------------
+Getting and Storing an EIA API Key
+-------------------------------------------------------------------------------
+PUDL accesses Energy Information Agency (EIA) datasets via an API, which requires
+permission from the EIA. New users must `register for an API key
+<https://www.eia.gov/opendata/>`__, which is free, nearly instantaneous,
+and only requires you give an email address.
+
+To make this key accessible to pudl, store it in an environment variable and
+reactivate the environment:
+
+.. code-block:: console
+
+    $ conda activate pudl-dev
+    $ conda env config vars set API_KEY_EIA='your_api_key_here'
+    $ conda activate pudl-dev
+
+-------------------------------------------------------------------------------
 Updating the PUDL Dev Environment
 -------------------------------------------------------------------------------
 You will need to periodically update your development (``pudl-dev``) conda
