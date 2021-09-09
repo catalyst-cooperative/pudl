@@ -2228,13 +2228,13 @@ Pending description.
   * - entity_type
     - string
     - Entity type of principle owner (C = Cooperative, I = Investor-Owned Utility, Q = Independent Power Producer, M = Municipally-Owned Utility, P = Political Subdivision, F = Federally-Owned Utility, S = State-Owned Utility, IND = Industrial, COM = Commercial
-  * - phone_extension_1
+  * - phone_extension
     - string
     - Phone extension for contact 1
   * - phone_extension_2
     - string
     - Phone extension for contact 2
-  * - phone_number_1
+  * - phone_number
     - string
     - Phone number for contact 1
   * - phone_number_2

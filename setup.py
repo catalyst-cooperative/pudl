@@ -137,13 +137,14 @@ setup(
         "console_scripts": [
             "censusdp1tract_to_sqlite = pudl.convert.censusdp1tract_to_sqlite:main",
             "datapkg_to_rst = pudl.convert.datapkg_to_rst:main",
-            "datapkg_to_sqlite = pudl.convert.datapkg_to_sqlite:main",
             "epacems_to_parquet = pudl.convert.epacems_to_parquet:main",
             "ferc1_to_sqlite = pudl.convert.ferc1_to_sqlite:main",
             "pudl_datastore = pudl.workspace.datastore:main",
             "pudl_etl = pudl.cli:main",
             "pudl_setup = pudl.workspace.setup_cli:main",
-            "pudl_territories = pudl.analysis.service_territory:main",
+            # Currently blows up memory usage to 100+ GB.
+            # See https://github.com/catalyst-cooperative/pudl/issues/1174
+            # "pudl_territories = pudl.analysis.service_territory:main",
             "state_demand = pudl.analysis.state_demand:main",
         ]
     },
