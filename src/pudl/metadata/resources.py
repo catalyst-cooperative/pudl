@@ -179,7 +179,9 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
                 "report_date",
                 "net_generation_mwh",
             ],
-            "primaryKey": ["plant_id_eia", "generator_id", "report_date"],
+            # Null values in the generator_id field. See:
+            # https://github.com/catalyst-cooperative/pudl/issues/1208
+            # "primaryKey": ["plant_id_eia", "generator_id", "report_date"],
         },
         "sources": ["eia923"],
     },
@@ -360,9 +362,12 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
                 "owner_zip_code",
                 "fraction_owned",
             ],
-            "primaryKey": [
-                "report_date", "plant_id_eia", "generator_id", "owner_utility_id_eia"
-            ],
+            # Currently there are NULL falues in some of these fields. This needs
+            # to be fixed in the transform process. See this Github issue:
+            # https://github.com/catalyst-cooperative/pudl/issues/1207
+            # "primaryKey": [
+            #     "report_date", "plant_id_eia", "generator_id", "owner_utility_id_eia"
+            # ],
         },
         "sources": ["eia860"],
     },
@@ -818,7 +823,7 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
     },
     "utilities_entity_eia": {
         "schema": {
-            "fields": ["utility_id_eia", "utility_name_eia", "entity_type"],
+            "fields": ["utility_id_eia", "utility_name_eia"],
             "primaryKey": ["utility_id_eia"],
             "foreignKeyRules": {"fields": [
                 ["utility_id_eia"],

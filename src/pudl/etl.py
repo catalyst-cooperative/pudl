@@ -91,7 +91,7 @@ def _validate_params_eia(etl_params):
     eia_input_dict['eia923_years'] = etl_params.get('eia923_years', [])
     # Ensure no duplicate years:
     eia_input_dict['eia923_years'] = list(set(eia_input_dict['eia923_years']))
-    eia_input_dict['eia923_years'] = eia_input_dict['eia923_years'].sort()
+    eia_input_dict['eia923_years'].sort()
 
     eia_input_dict['eia923_tables'] = etl_params.get(
         'eia923_tables', pc.pudl_tables['eia923']
