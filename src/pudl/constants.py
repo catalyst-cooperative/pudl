@@ -361,7 +361,6 @@ ferc1_huge_tables = {
 
 # Invert the map above so we can go either way as needed
 ferc1_tbl2dbf = {v: k for k, v in ferc1_dbf2tbl.items()}
-
 """dict: A dictionary mapping database table names (keys) to FERC Form 1 DBF
     files(w / o .DBF file extension) (values).
 """
@@ -406,7 +405,6 @@ ferc1_pudl_tables = (
 """tuple: A tuple containing the FERC Form 1 tables that can be successfully
     integrated into PUDL.
 """
-
 
 table_map_ferc1_pudl = {
     'fuel_ferc1': 'f1_fuel',
@@ -1370,7 +1368,6 @@ entities = {
 epacems_tables = ("hourly_emissions_epacems")
 """tuple: A tuple containing tables of EPA CEMS data to pull into PUDL.
 """
-
 
 data_sources = (
     'eia860',
