@@ -1397,6 +1397,9 @@ Pending description.
   * - report_date
     - date
     - Date reported.
+  * - service_area
+    - string
+    - Service area in which plant is located; for unregulated companies, it&#39;s the electric utility with which plant is interconnected
   * - transmission_distribution_owner_id
     - string
     - EIA-assigned code for owner of transmission/distribution system to which the plant is interconnected.
@@ -1483,9 +1486,6 @@ Pending description.
   * - sector_name
     - string
     - Plant-level sector name, designated by the primary purpose, regulatory status and plant-level combined heat and power status
-  * - service_area
-    - string
-    - Service area in which plant is located; for unregulated companies, it&#39;s the electric utility with which plant is interconnected
   * - state
     - string
     - Plant state. Two letter US state and territory abbreviations.

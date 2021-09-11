@@ -203,6 +203,12 @@ class TestExcelExtractor:
             year=2018,
             expected_name="1___Utility_Y2018.xlsx"
         )
+        self.expected_file_name(
+            extractor=extractor,
+            page='plant',
+            year=2003,
+            expected_name="PLANTY03.DBF"
+        )
 
     def test_excel_filename_eia923(self, pudl_datastore_fixture):
         """Spot check eia923 extractor gets the correct excel sheet names."""
