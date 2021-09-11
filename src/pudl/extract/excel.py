@@ -231,24 +231,29 @@ class GenericExtractor(object):
                 newdata = self.process_renamed(newdata, page, **partition)
                 df = df.append(newdata, sort=True, ignore_index=True)
 
-            # After all years are loaded, consolidate missing columns
+            # After all years are loaded, add empty columns that could appear
+            # in other years so that df matches the database schema
             missing_cols = set(self._metadata.get_all_columns(
                 page)).difference(df.columns)
-            empty_cols = pd.DataFrame(columns=missing_cols)
-            df = pd.concat([df, empty_cols], sort=True)
-            if (len(self.METADATA._column_map[page].index)
-                    + len(self.cols_added)) != len(df.columns):
-                # raise AssertionError(
+            df = pd.concat([df, pd.DataFrame(columns=missing_cols)], sort=True)
+
+            mapped_cols = set(self.METADATA._column_map[page].index)
+            expected_cols = mapped_cols.union(self.cols_added)
+
+            if set(df.columns) != expected_cols:
                 # TODO (bendnorman): Enforce canonical fields for all raw fields?
-                # TODO (bendnorman): Doesn't the condition conflict with the warning message? Should the warning message include self.cols_added?
-                logger.warning(
-                    f'Columns for {page} are off: should be '
-                    f'{len(self.METADATA._column_map[page].index)} but got '
-                    f'{len(df.columns)}'
-                )
-                unmapped_cols = set(df.columns) - \
-                    set(self.METADATA._column_map[page].index)
-                logger.warning(f"Unmapped raw columns: {unmapped_cols}")
+                extra_raw_cols = set(df.columns).difference(expected_cols)
+                missing_raw_cols = set(expected_cols).difference(df.columns)
+                if extra_raw_cols:
+                    logger.warning(
+                        f"Extra columns found in page {page}, {partition}: "
+                        f"{extra_raw_cols}"
+                    )
+                if missing_raw_cols:  # len(df.columns) < len(expected_columns)
+                    logger.warning(
+                        f"Columns found missing from page {page}, {partition}: "
+                        f"{missing_raw_cols}"
+                    )
 
             raw_dfs[page] = self.process_final_page(df, page)
         return raw_dfs
