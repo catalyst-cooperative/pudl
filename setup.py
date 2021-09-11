@@ -34,6 +34,7 @@ install_requires = [
     "tableschema~=1.12",     # Not needed post datapackage output removal?
     "tableschema-sql~=1.3",  # Not needed post datapackage output removal?
     "timezonefinder~=5.0",
+    "xlsxwriter~=3.0",
 ]
 
 # We are installing the PUDL module to build the docs, but the C libraries

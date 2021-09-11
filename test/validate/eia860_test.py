@@ -187,6 +187,7 @@ def test_nuclear_units_are_generators(pudl_out_eia, live_dbs):
         .set_index(["plant_id_eia", "generator_id"])
     )
 
+    # Drop all nuclear units that don't have a nuclear_unit_id.
     all_nuke_gf = (
         pudl_out_eia.gf_eia923()[[
             "plant_id_eia",
@@ -194,6 +195,7 @@ def test_nuclear_units_are_generators(pudl_out_eia, live_dbs):
             "fuel_type",
         ]]
         .query("fuel_type == 'NUC'")
+        .dropna(subset=["nuclear_unit_id"])
         .assign(generator_id=lambda x: x.nuclear_unit_id.astype(int).astype(str))
         .set_index(["plant_id_eia", "generator_id"])
     )
