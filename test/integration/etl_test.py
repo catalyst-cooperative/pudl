@@ -29,8 +29,9 @@ def test_datapkg_bundle(datapkg_bundle):
 def test_pudl_engine(pudl_engine):
     """Try creating a pudl_engine...."""
     assert isinstance(pudl_engine, sa.engine.Engine)
-    assert "plants_pudl" in pudl_engine.table_names()
-    assert "utilities_pudl" in pudl_engine.table_names()
+    insp = sa.inspect(pudl_engine)
+    assert "plants_pudl" in insp.get_table_names()
+    assert "utilities_pudl" in insp.get_table_names()
 
 
 def test_ferc1_etl(ferc1_engine):
@@ -41,7 +42,7 @@ def test_ferc1_etl(ferc1_engine):
     connections are created by the ferc1_engine fixture defined in conftest.py
     """
     assert isinstance(ferc1_engine, sa.engine.Engine)
-    assert "f1_respondent_id" in ferc1_engine.table_names()
+    assert "f1_respondent_id" in sa.inspect(ferc1_engine).get_table_names()
 
 
 def test_epacems_to_parquet(
