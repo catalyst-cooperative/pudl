@@ -246,12 +246,12 @@ class GenericExtractor(object):
                 missing_raw_cols = set(expected_cols).difference(df.columns)
                 if extra_raw_cols:
                     logger.warning(
-                        f"Extra columns found in page {page}, {partition}: "
+                        f"Extra columns found in page {page}: "
                         f"{extra_raw_cols}"
                     )
-                if missing_raw_cols:  # len(df.columns) < len(expected_columns)
+                if missing_raw_cols:
                     logger.warning(
-                        f"Columns found missing from page {page}, {partition}: "
+                        f"Columns found missing from page {page}: "
                         f"{missing_raw_cols}"
                     )
 
