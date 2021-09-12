@@ -133,10 +133,10 @@ ferc1_to_sqlite_tables: [
 #   f1_freeze,  # private database table, not publicly distributed
 ]
 
-datapkg_bundle_name: pudl-sqlite-full
+datapkg_bundle_name: pudl-full
 datapkg_bundle_doi: 10.5072/zenodo.123456 # Sandbox DOI... not real.
 datapkg_bundle_settings:
-  - name: pudl-sqlite-full
+  - name: pudl-full
     title: PUDL Full ETL
     description: >
       All available data for FERC 1 and EIA 860/923 (output to SQLite) plus all

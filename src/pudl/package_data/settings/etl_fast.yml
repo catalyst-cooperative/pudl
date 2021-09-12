@@ -18,10 +18,10 @@ ferc1_to_sqlite_tables:
   - f1_pumped_storage
   - f1_purchased_pwr
 
-datapkg_bundle_name: pudl-sqlite-fast
+datapkg_bundle_name: pudl-fast
 datapkg_bundle_doi: 10.5072/zenodo.123456 # Sandbox DOI... not real.
 datapkg_bundle_settings:
-  - name: pudl-sqlite-fast
+  - name: pudl-fast
     title: Fast PUDL ETL
     description: >
       A single year of FERC 1 and EIA 860/923 data with all default tables

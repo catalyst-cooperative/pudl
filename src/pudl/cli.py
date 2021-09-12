@@ -49,7 +49,7 @@ def parse_command_line(argv):
         '-c',
         '--clobber',
         action='store_true',
-        help="""Clobber the existing PUDL SQLite database if it exists.""",
+        help="""Clobber existing PUDL SQLite and Parquet outputs if they exist.""",
         default=False)
     parser.add_argument(
         "--sandbox", action="store_true", default=False,

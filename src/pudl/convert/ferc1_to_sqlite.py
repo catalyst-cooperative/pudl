@@ -42,6 +42,12 @@ def parse_command_line(argv):
         help="path to YAML settings file."
     )
     parser.add_argument(
+        "--logfile",
+        default=None,
+        type=str,
+        help="If specified, write logs to this file."
+    )
+    parser.add_argument(
         '-c',
         '--clobber',
         action='store_true',
@@ -69,6 +75,10 @@ def main():  # noqa: C901
     coloredlogs.install(fmt=log_format, level='INFO', logger=pudl_logger)
 
     args = parse_command_line(sys.argv)
+    if args.logfile:
+        file_logger = logging.FileHandler(args.logfile)
+        file_logger.setFormatter(logging.Formatter(log_format))
+        pudl_logger.addHandler(file_logger)
     with pathlib.Path(args.settings_file).open() as f:
         script_settings = yaml.safe_load(f)
 
