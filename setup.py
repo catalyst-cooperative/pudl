@@ -12,6 +12,7 @@ install_requires = [
     "coloredlogs~=15.0",
     "contextily~=1.0",    # Only service_territory plotting. Remove?
     "datapackage~=1.11",  # Transition datastore to use frictionless.
+    # "email-validator>=1.0.3",  # pydantic[email] dependency
     "fsspec~=2021.7",
     "gcsfs~=2021.7",
     "geopandas~=0.9.0",
@@ -20,9 +21,10 @@ install_requires = [
     "matplotlib~=3.0",
     "networkx~=2.2",
     "numpy~=1.20",
-    "pandas~=1.3",
+    "pandas~=1.3,!=1.3.3",  # IntCastingNaNError on v1.3.3 in unit tests
     "prefect[viz, gcp]~=0.15.0",
     "pyarrow~=5.0",
+    "pydantic[email]~=1.7",
     "pygeos~=0.10.0",
     "pyyaml~=5.0",
     "scikit-learn~=0.24.1",
@@ -142,7 +144,9 @@ setup(
             "pudl_datastore = pudl.workspace.datastore:main",
             "pudl_etl = pudl.cli:main",
             "pudl_setup = pudl.workspace.setup_cli:main",
-            "pudl_territories = pudl.analysis.service_territory:main",
+            # Currently blows up memory usage to 100+ GB.
+            # See https://github.com/catalyst-cooperative/pudl/issues/1174
+            # "pudl_territories = pudl.analysis.service_territory:main",
             "state_demand = pudl.analysis.state_demand:main",
         ]
     },
