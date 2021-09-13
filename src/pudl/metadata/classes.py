@@ -343,11 +343,38 @@ class Field(Base):
             return sa.Enum(*self.constraints.enum, create_constraint=True)
         return FIELD_DTYPES_SQL[self.type]
 
-    def to_sql(self) -> sa.Column:
+    def to_sql(self, dialect: Literal["sqlite"] = "sqlite") -> sa.Column:
         """Return equivalent SQL column."""
+        if dialect != "sqlite":
+            raise NotImplementedError(f"Dialect {dialect} is not supported")
+        checks = []
+        # Column names are escaped with double quotes (")
+        name = f'"{self.name}"'
+        if self.constraints.minLength is not None:
+            checks.append(f"LENGTH({name}) >= {self.constraints.minLength}")
+        if self.constraints.maxLength is not None:
+            checks.append(f"LENGTH({name}) <= {self.constraints.maxLength}")
+        if self.constraints.minimum is not None:
+            minimum = self.constraints.minimum
+            if isinstance(minimum, datetime.datetime):
+                minimum = minimum.strftime("%Y-%m-%d %H:%M:%S")
+            checks.append(f"{name} >= {minimum}")
+        if self.constraints.maximum is not None:
+            maximum = self.constraints.minimum
+            if isinstance(maximum, datetime.datetime):
+                maximum = maximum.strftime("%Y-%m-%d %H:%M:%S")
+            checks.append(f"{name} <= {maximum}")
+        if self.constraints.pattern:
+            # Single quotes (') are escaped by doubling them ('')
+            pattern = self.constraints.pattern.pattern.replace("'", "''")
+            checks.append(f"{name} REGEXP '{pattern}'")
+        if self.constraints.enum:
+            values = ", ".join([f"'{x}'" for x in self.constraints.enum])
+            checks.append(f"{name} IN ({values})")
         return sa.Column(
             self.name,
             self.dtype_sql,
+            *[sa.CheckConstraint(check) for check in checks],
             nullable=not self.constraints.required,
             unique=self.constraints.unique,
             comment=self.description
