@@ -2,8 +2,10 @@
 import copy
 import datetime
 import uuid
+import re
 from typing import (Any, Callable, Dict, Iterable, List, Literal, Optional,
                     Tuple, Type, Union)
+from numpy import maximum
 
 import pandas as pd
 import pydantic
@@ -101,10 +103,56 @@ Bool = pydantic.StrictBool
 Any :class:`bool` (`True` or `False`).
 """
 
-Float = pydantic.confloat(ge=0, strict=True)
+Float = pydantic.StrictFloat
+"""
+Any :class:`float`.
+"""
+
+Int = pydantic.StrictInt
+"""
+Any :class:`int`.
+"""
+
+PositiveInt = pydantic.conint(ge=0, strict=True)
+"""
+Positive :class:`int`.
+"""
+
+PositiveFloat = pydantic.confloat(ge=0, strict=True)
 """
 Positive :class:`float`.
 """
+
+
+class Datetime:
+    """Any :class:`datetime.datetime`."""
+    @classmethod
+    def __get_validators__(cls) -> Callable:
+        yield cls.validate
+
+    @classmethod
+    def validate(cls, value: Any) -> datetime.datetime:
+        if not isinstance(value, datetime.datetime):
+            raise TypeError("value is not a datetime")
+        return value
+
+
+class Pattern:
+    """Regular expression pattern."""
+    @classmethod
+    def __get_validators__(cls) -> Callable:
+        yield cls.validate
+
+    @classmethod
+    def validate(cls, value: Any) -> re.Pattern:
+        if not isinstance(value, (str, re.Pattern)):
+            raise TypeError("value is not a string or compiled regular expression")
+        if isinstance(value, str):
+            try:
+                value = re.compile(value)
+            except re.error:
+                raise ValueError("string is not a valid regular expression")
+        return value
 
 
 def StrictList(item_type: Type = Any) -> pydantic.ConstrainedList:  # noqa: N802
@@ -171,6 +219,11 @@ class FieldConstraints(Base):
 
     required: Bool = False
     unique: Bool = False
+    minLength: PositiveInt = None
+    maxLength: PositiveInt = None
+    minimum: Union[Int, Float, Datetime] = None
+    maximum: Union[Int, Float, Datetime] = None
+    pattern: Pattern = None
     enum: StrictList(Any) = None
 
     _check_unique = _validator("enum", fn=_check_unique)
@@ -185,7 +238,7 @@ class FieldHarvest(Base):
     )
     """Computes a single value from all field values in a group."""
 
-    tolerance: Float = 0.0
+    tolerance: PositiveFloat = 0.0
     """Fraction of invalid groups above which result is considered invalid."""
 
 
@@ -221,13 +274,36 @@ class Field(Base):
         return value
 
     @pydantic.validator("constraints")
-    def _check_enum_type(cls, value, values):  # noqa: N805
-        if value.enum and "type" in values:
-            if values["type"] != "string":
-                raise ValueError("Non-string enum type is not supported")
+    def _check_constraints(cls, value, values):  # noqa: N805
+        dtype = values.get("type", "any")
+        errors = []
+        for key in ("minLength", "maxLength", "pattern"):
+            if getattr(value, key) is not None and dtype != "string":
+                errors.append(f"{key} not supported by {dtype} field")
+        for key in ("minimum", "maximum"):
+            if getattr(value, key) is not None:
+                if dtype in ("string", "boolean"):
+                    errors.append(f"{key} not supported by {dtype} field")
+                elif (
+                    dtype in ("integer", "number", "year") and
+                    not isinstance(getattr(value, key), (int, float))
+                ):
+                    errors.append(f"{dtype} field requires numeric {key}")
+                elif (
+                    dtype in ("date", "datetime") and
+                    not isinstance(getattr(value, key), datetime.datetime)
+                ):
+                    errors.append(f"{dtype} field requires datetime {key}")
+        if value.enum:
+            if dtype != "string":
+                errors.append(f"enum not supported by {dtype} field")
             for x in value.enum:
                 if not isinstance(x, str):
-                    raise ValueError(f"Enum value '{x}' is not {values['type']}")
+                    errors.append(f"enum value '{x}' not {dtype}")
+        if errors:
+            raise ValueError(
+                f"* {errors[0]}\n" + "\n".join([f"  * {e}" for e in errors[1:]])
+            )
         return value
 
     @staticmethod
@@ -458,7 +534,7 @@ class ResourceHarvest(Base):
     and the process is limited to dropping unwanted fields.
     """
 
-    tolerance: Float = 0.0
+    tolerance: PositiveFloat = 0.0
     """Fraction of invalid fields above which result is considerd invalid."""
 
 
