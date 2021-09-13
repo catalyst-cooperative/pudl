@@ -243,6 +243,20 @@ class FieldConstraints(Base):
 
     _check_unique = _validator("enum", fn=_check_unique)
 
+    @pydantic.validator("maxLength")
+    def _check_max_length(cls, value, values):  # noqa: N805
+        minimum, maximum = values.get("minLength"), value
+        if minimum is not None and maximum is not None and maximum < minimum:
+            raise ValueError("must be greater or equal to minLength")
+        return value
+
+    @pydantic.validator("maximum")
+    def _check_max(cls, value, values):  # noqa: N805
+        minimum, maximum = values.get("minimum"), value
+        if minimum is not None and maximum is not None and maximum < minimum:
+            raise ValueError("must be greater or equal to minimum")
+        return value
+
 
 class FieldHarvest(Base):
     """Field harvest parameters (`resource.schema.fields[...].harvest`)."""
