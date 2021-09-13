@@ -107,6 +107,11 @@ String = pydantic.constr(min_length=1, strict=True)
 Non-empty :class:`str` (anything except "").
 """
 
+SnakeCase = pydantic.constr(
+    min_length=1, strict=True, regex=r"^[a-z][a-z0-9]*(_[a-z0-9]+)*$"
+)
+"""Snake-case variable name :class:`str` (e.g. 'pudl', 'entity_eia860')."""
+
 Bool = pydantic.StrictBool
 """
 Any :class:`bool` (`True` or `False`).
@@ -288,7 +293,7 @@ class Field(Base):
         'utility_id_eia'
     """
 
-    name: String
+    name: SnakeCase
     type: String  # noqa: A003
     format: Literal["default"] = "default"  # noqa: A003
     description: String = None
@@ -405,8 +410,8 @@ class ForeignKeyReference(Base):
     See https://specs.frictionlessdata.io/table-schema/#foreign-keys.
     """
 
-    resource: String
-    fields_: StrictList(String) = pydantic.Field(alias="fields")
+    resource: SnakeCase
+    fields_: StrictList(SnakeCase) = pydantic.Field(alias="fields")
 
     _check_unique = _validator("fields_", fn=_check_unique)
 
@@ -418,7 +423,7 @@ class ForeignKey(Base):
     See https://specs.frictionlessdata.io/table-schema/#foreign-keys.
     """
 
-    fields_: StrictList(String) = pydantic.Field(alias="fields")
+    fields_: StrictList(SnakeCase) = pydantic.Field(alias="fields")
     reference: ForeignKeyReference
 
     _check_unique = _validator("fields_", fn=_check_unique)
@@ -447,7 +452,7 @@ class Schema(Base):
 
     fields_: StrictList(Field) = pydantic.Field(alias="fields")
     missingValues: List[pydantic.StrictStr] = [""]  # noqa: N815
-    primaryKey: StrictList(String) = None  # noqa: N815
+    primaryKey: StrictList(SnakeCase) = None  # noqa: N815
     foreignKeys: List[ForeignKey] = []  # noqa: N815
 
     _check_unique = _validator(
@@ -713,7 +718,7 @@ class Resource(Base):
         1  2000-01-01
     """
 
-    name: String
+    name: SnakeCase
     path: pydantic.FilePath = None
     title: String = None
     description: String = None
