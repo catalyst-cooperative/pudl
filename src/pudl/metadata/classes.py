@@ -31,6 +31,16 @@ def _unique(*args: Iterable) -> list:
     return values
 
 
+def _format_pydantic_errors(*errors: str, header: bool = False) -> str:
+    """Format a list of validation errors for pydantic."""
+    if not errors:
+        return ""
+    return (
+        f"{'' if header else '* '}{errors[0]}\n" +
+        "\n".join([f"  * {e}" for e in errors[1:]])
+    )
+
+
 # ---- Base ---- #
 
 
@@ -306,9 +316,7 @@ class Field(Base):
                 if not isinstance(x, str):
                     errors.append(f"enum value '{x}' not {dtype}")
         if errors:
-            raise ValueError(
-                f"* {errors[0]}\n" + "\n".join([f"  * {e}" for e in errors[1:]])
-            )
+            raise ValueError(_format_pydantic_errors(*errors))
         return value
 
     @staticmethod
@@ -1118,7 +1126,7 @@ class Package(Base):
         for resource in value:
             for foreign_key in resource.schema.foreignKeys:
                 rname = foreign_key.reference.resource
-                tag = f"\t* [{resource.name} -> {rname}]"
+                tag = f"[{resource.name} -> {rname}]"
                 if rname not in rnames:
                     errors.append(f"{tag}: Reference not found")
                     continue
@@ -1133,7 +1141,9 @@ class Package(Base):
                 if missing:
                     errors.append(f"{tag}: Reference primary key missing {missing}")
         if errors:
-            raise ValueError("Foreign keys\n" + '\n'.join(errors))
+            raise ValueError(
+                _format_pydantic_errors("Foreign keys", *errors, header=True)
+            )
         return value
 
     @pydantic.root_validator(skip_on_failure=True)
