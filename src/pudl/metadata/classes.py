@@ -5,7 +5,6 @@ import uuid
 import re
 from typing import (Any, Callable, Dict, Iterable, List, Literal, Optional,
                     Tuple, Type, Union)
-from numpy import maximum
 
 import pandas as pd
 import pydantic
@@ -126,12 +125,15 @@ Positive :class:`float`.
 
 class Datetime:
     """Any :class:`datetime.datetime`."""
+
     @classmethod
     def __get_validators__(cls) -> Callable:
+        """Yield validator methods."""
         yield cls.validate
 
     @classmethod
     def validate(cls, value: Any) -> datetime.datetime:
+        """Validate as datetime."""
         if not isinstance(value, datetime.datetime):
             raise TypeError("value is not a datetime")
         return value
@@ -139,12 +141,15 @@ class Datetime:
 
 class Pattern:
     """Regular expression pattern."""
+
     @classmethod
     def __get_validators__(cls) -> Callable:
+        """Yield validator methods."""
         yield cls.validate
 
     @classmethod
     def validate(cls, value: Any) -> re.Pattern:
+        """Validate as pattern."""
         if not isinstance(value, (str, re.Pattern)):
             raise TypeError("value is not a string or compiled regular expression")
         if isinstance(value, str):
@@ -219,8 +224,8 @@ class FieldConstraints(Base):
 
     required: Bool = False
     unique: Bool = False
-    minLength: PositiveInt = None
-    maxLength: PositiveInt = None
+    minLength: PositiveInt = None  # noqa: N815
+    maxLength: PositiveInt = None  # noqa: N815
     minimum: Union[Int, Float, Datetime] = None
     maximum: Union[Int, Float, Datetime] = None
     pattern: Pattern = None
@@ -274,7 +279,7 @@ class Field(Base):
         return value
 
     @pydantic.validator("constraints")
-    def _check_constraints(cls, value, values):  # noqa: N805
+    def _check_constraints(cls, value, values):  # noqa: N805, C901
         dtype = values.get("type", "any")
         errors = []
         for key in ("minLength", "maxLength", "pattern"):
