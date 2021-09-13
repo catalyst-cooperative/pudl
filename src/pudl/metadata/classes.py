@@ -1,7 +1,6 @@
 """Metadata data classes."""
 import copy
 import datetime
-import uuid
 import re
 from typing import (Any, Callable, Dict, Iterable, List, Literal, Optional,
                     Tuple, Type, Union)
@@ -490,22 +489,6 @@ class Schema(Base):
         return value
 
 
-class Dialect(Base):
-    """
-    CSV dialect (`resource.dialect`).
-
-    See https://specs.frictionlessdata.io/csv-dialect.
-    """
-
-    delimiter: String = ","
-    header: Bool = True
-    quoteChar: String = "\""  # noqa: N815
-    doubleQuote: Bool = True  # noqa: N815
-    lineTerminator: String = "\r\n"  # noqa: N815
-    skipInitialSpace: Bool = True  # noqa: N815
-    caseSensitiveHeader: Bool = False  # noqa: N815
-
-
 class License(Base):
     """
     Data license (`package|resource.licenses[...]`).
@@ -719,22 +702,15 @@ class Resource(Base):
     """
 
     name: SnakeCase
-    path: pydantic.FilePath = None
     title: String = None
     description: String = None
     harvest: ResourceHarvest = {}
-    profile: Literal["tabular-data-resource"] = "tabular-data-resource"
-    encoding: Literal["utf-8"] = "utf-8"
-    mediatype: Literal["text/csv"] = "text/csv"
-    format: Literal["csv"] = "csv"  # noqa: A003
-    dialect: Dialect = {}
     schema_: Schema = pydantic.Field(alias='schema')
     contributors: List[Contributor] = []
     licenses: List[License] = []
     sources: List[Source] = []
     keywords: List[String] = []
 
-    _stringify = _validator("path", fn=_stringify)
     _check_unique = _validator(
         "contributors", "keywords", "licenses", "sources", fn=_check_unique
     )
@@ -1147,8 +1123,6 @@ class Package(Base):
     """
 
     name: String
-    id: pydantic.UUID4 = uuid.uuid4()  # noqa: A003
-    profile: Literal["tabular-data-package"] = "tabular-data-package"
     title: String = None
     description: String = None
     keywords: List[String] = []
@@ -1159,7 +1133,7 @@ class Package(Base):
     licenses: List[License] = []
     resources: StrictList(Resource)
 
-    _stringify = _validator("id", "homepage", fn=_stringify)
+    _stringify = _validator("homepage", fn=_stringify)
 
     @pydantic.validator("created")
     def _stringify_datetime(cls, value):  # noqa: N805
