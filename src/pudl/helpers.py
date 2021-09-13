@@ -14,6 +14,7 @@ import pathlib
 import re
 import shutil
 from functools import partial
+from io import BytesIO
 
 import addfips
 import numpy as np
@@ -1167,3 +1168,22 @@ def get_working_eia_dates():
                     dates = dates.append(pd.DatetimeIndex(
                         [pd.to_datetime(partition)]))
     return dates
+
+
+def convert_df_to_excel_file(df: pd.DataFrame, **kwargs) -> pd.ExcelFile:
+    """
+    Converts a pandas dataframe to a pandas ExcelFile object.
+
+    You can pass parameters for pandas.to_excel() function.
+    """
+    bio = BytesIO()
+
+    writer = pd.ExcelWriter(bio, engine='xlsxwriter')
+    df.to_excel(writer, **kwargs)
+
+    writer.save()
+
+    bio.seek(0)
+    workbook = bio.read()
+
+    return pd.ExcelFile(workbook)
