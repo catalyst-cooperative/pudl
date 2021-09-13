@@ -17,6 +17,19 @@ from .helpers import (expand_periodic_column_names, groupby_aggregate,
                       most_and_more_frequent, split_period)
 from .resources import FOREIGN_KEYS, RESOURCE_METADATA
 
+# ---- Helpers ---- #
+
+
+def _unique(*args: Iterable) -> list:
+    """Return a list of all unique values, in order of first appearance."""
+    values = []
+    for parent in args:
+        for child in parent:
+            if child not in values:
+                values.append(child)
+    return values
+
+
 # ---- Base ---- #
 
 
@@ -1041,6 +1054,37 @@ class Package(Base):
         if errors:
             raise ValueError("Foreign keys\n" + '\n'.join(errors))
         return value
+
+    @pydantic.root_validator(skip_on_failure=True)
+    def _populate_from_resources(cls, values):  # noqa: N805
+        for key in ('keywords', 'contributors', 'sources', 'licenses'):
+            values[key] = _unique(
+                values[key],
+                *[getattr(r, key) for r in values['resources']]
+            )
+        return values
+
+    @classmethod
+    def from_resource_ids(cls, resource_ids: Iterable[str]) -> "Package":
+        """
+        Construct from PUDL identifiers (`resource.name`).
+
+        Resources are added as needed based on foreign keys.
+        """
+        resources = [Resource.dict_from_id(x) for x in resource_ids]
+        # Add missing resources based on foreign keys
+        names = resource_ids.copy()
+        i = 0
+        while i < len(resources):
+            for resource in resources[i:]:
+                for key in resource["schema"].get("foreignKeys", []):
+                    name = key.get("reference", {}).get("resource")
+                    if name and name not in names:
+                        names.append(name)
+            i = len(resources)
+            if len(names) > i:
+                resources += [Resource.dict_from_id(x) for x in names[i:]]
+        return cls(name="pudl", resources=resources)
 
     def to_sql(self) -> sa.MetaData:
         """Return equivalent SQL MetaData."""
