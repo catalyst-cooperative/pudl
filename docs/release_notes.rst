@@ -3,9 +3,29 @@ PUDL Release Notes
 =======================================================================================
 
 ---------------------------------------------------------------------------------------
-0.4.1 (Unreleased)
+0.5.0? (Unreleased)
 ---------------------------------------------------------------------------------------
-This is a minor maintenance release.
+
+SQLite and Parquet Outputs
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+The ETL pipeline now outputs SQLite databases and Apache Parquet datasets
+directly, rather than generating tabular data packages. This is much faster and
+simpler, and also takes up less space on disk. Running the full ETL including
+all EPA CEMS data should now take around 2 hours if you have all the data
+downloaded. As a result, the ``datapkg_to_sqlite`` script has been removed and
+the ``epacems_to_parquet`` script can now be used to process the original EPA
+CEMS CSV data directly to Parquet using an existing PUDL database to source
+plant timezones.  See :issue:`1176,806`.
+
+New Metadata System
+^^^^^^^^^^^^^^^^^^^
+With the deprecation of tabular data package outputs, we have adopted a more
+modular metadata management system, which stores column and table metadata as
+Python objects to reduce duplication of information. It will also allows us to
+more easily support metadata exports to a variety of formats to support data
+distribution via Datasette and Intake Data Catalogs, and automatic generation
+of data dictionaries and documentation. See :issue:`806`
+
 
 Updated Dependencies
 ^^^^^^^^^^^^^^^^^^^^
@@ -24,6 +44,14 @@ New Analysis
 
 New Data Coverage
 ^^^^^^^^^^^^^^^^^
+* :doc:`data_sources/eia860` for 2001-2003. See :issue:`1122`.
+* We have removed EPA IPM / NEEDS data from PUDL as we did not have the internal
+  resources to maintain it, and it was no longer working.
+
+Known Issues
+^^^^^^^^^^^^
+* The ``pudl_territories`` script has been disabled temporarily due to a memory
+  issue. See :issue:`1174`
 
 ---------------------------------------------------------------------------------------
 0.4.0 (2021-08-16)
