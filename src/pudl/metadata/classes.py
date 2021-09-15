@@ -9,9 +9,9 @@ import pandas as pd
 import pydantic
 import sqlalchemy as sa
 
-from .constants import (CONTRIBUTORS, CONTRIBUTORS_BY_SOURCE, FIELD_DTYPES,
-                        FIELD_DTYPES_SQL, KEYWORDS_BY_SOURCE, LICENSES,
-                        PERIODS, SOURCES)
+from .constants import (CONSTRAINT_DTYPES, CONTRIBUTORS, CONTRIBUTORS_BY_SOURCE,
+                        FIELD_DTYPES, FIELD_DTYPES_SQL, KEYWORDS_BY_SOURCE,
+                        LICENSES, PERIODS, SOURCES)
 from .fields import FIELD_METADATA
 from .helpers import (expand_periodic_column_names, groupby_aggregate,
                       most_and_more_frequent, split_period)
@@ -38,6 +38,29 @@ def _format_pydantic_errors(*errors: str, header: bool = False) -> str:
         f"{'' if header else '* '}{errors[0]}\n" +
         "\n".join([f"  * {e}" for e in errors[1:]])
     )
+
+
+def _format_for_sql(x: Any) -> str:
+    if x is None:
+        return "null"
+    elif isinstance(x, (int, float)):
+        # NOTE: nan and (-)inf are TEXT in sqlite but numeric in postgresSQL
+        return str(x)
+    elif x is True:
+        return "TRUE"
+    elif x is False:
+        return "FALSE"
+    elif isinstance(x, re.Pattern):
+        x = x.pattern
+    elif isinstance(x, datetime.date):
+        x = x.strftime("%Y-%m-%d")
+    elif isinstance(x, datetime.datetime):
+        x = x.strftime("%Y-%m-%d %H:%M:%S")
+    if not isinstance(x, str):
+        raise ValueError(f"Cannot format type {type(x)} for SQL")
+    # Single quotes (') are escaped by doubling them ('')
+    x = x.replace("'", "''")
+    return f"'{x}'"
 
 
 # ---- Base ---- #
@@ -135,6 +158,22 @@ PositiveFloat = pydantic.confloat(ge=0, strict=True)
 """
 Positive :class:`float`.
 """
+
+
+class Date:
+    """Any :class:`datetime.date`."""
+
+    @classmethod
+    def __get_validators__(cls) -> Callable:
+        """Yield validator methods."""
+        yield cls.validate
+
+    @classmethod
+    def validate(cls, value: Any) -> datetime.date:
+        """Validate as date."""
+        if not isinstance(value, datetime.date):
+            raise TypeError("value is not a date")
+        return value
 
 
 class Datetime:
@@ -240,25 +279,32 @@ class FieldConstraints(Base):
     unique: Bool = False
     minLength: PositiveInt = None  # noqa: N815
     maxLength: PositiveInt = None  # noqa: N815
-    minimum: Union[Int, Float, Datetime] = None
-    maximum: Union[Int, Float, Datetime] = None
+    minimum: Union[Int, Float, Date, Datetime] = None
+    maximum: Union[Int, Float, Date, Datetime] = None
     pattern: Pattern = None
-    enum: StrictList(Any) = None
+    # TODO: Replace with String (min_length=1) once "" removed from enums
+    enum: StrictList(Union[pydantic.StrictStr, Int, Float, Bool, Date, Datetime]) = None
 
     _check_unique = _validator("enum", fn=_check_unique)
 
     @pydantic.validator("maxLength")
     def _check_max_length(cls, value, values):  # noqa: N805
         minimum, maximum = values.get("minLength"), value
-        if minimum is not None and maximum is not None and maximum < minimum:
-            raise ValueError("must be greater or equal to minLength")
+        if minimum is not None and maximum is not None:
+            if type(minimum) is not type(maximum):
+                raise ValueError("must be same type as minLength")
+            if maximum < minimum:
+                raise ValueError("must be greater or equal to minLength")
         return value
 
     @pydantic.validator("maximum")
     def _check_max(cls, value, values):  # noqa: N805
         minimum, maximum = values.get("minimum"), value
-        if minimum is not None and maximum is not None and maximum < minimum:
-            raise ValueError("must be greater or equal to minimum")
+        if minimum is not None and maximum is not None:
+            if type(minimum) is not type(maximum):
+                raise ValueError("must be same type as minimum")
+            if maximum < minimum:
+                raise ValueError("must be greater or equal to minimum")
         return value
 
 
@@ -308,31 +354,24 @@ class Field(Base):
 
     @pydantic.validator("constraints")
     def _check_constraints(cls, value, values):  # noqa: N805, C901
-        dtype = values.get("type", "any")
+        if "type" not in values:
+            return value
+        dtype = values["type"]
         errors = []
         for key in ("minLength", "maxLength", "pattern"):
             if getattr(value, key) is not None and dtype != "string":
                 errors.append(f"{key} not supported by {dtype} field")
         for key in ("minimum", "maximum"):
-            if getattr(value, key) is not None:
+            x = getattr(value, key)
+            if x is not None:
                 if dtype in ("string", "boolean"):
                     errors.append(f"{key} not supported by {dtype} field")
-                elif (
-                    dtype in ("integer", "number", "year") and
-                    not isinstance(getattr(value, key), (int, float))
-                ):
-                    errors.append(f"{dtype} field requires numeric {key}")
-                elif (
-                    dtype in ("date", "datetime") and
-                    not isinstance(getattr(value, key), datetime.datetime)
-                ):
-                    errors.append(f"{dtype} field requires datetime {key}")
+                elif not isinstance(x, CONSTRAINT_DTYPES[dtype]):
+                    errors.append(f"{key} not {dtype}")
         if value.enum:
-            if dtype != "string":
-                errors.append(f"enum not supported by {dtype} field")
             for x in value.enum:
-                if not isinstance(x, str):
-                    errors.append(f"enum value '{x}' not {dtype}")
+                if not isinstance(x, CONSTRAINT_DTYPES[dtype]):
+                    errors.append(f"enum value {x} not {dtype}")
         if errors:
             raise ValueError(_format_pydantic_errors(*errors))
         return value
@@ -357,38 +396,50 @@ class Field(Base):
     @property
     def dtype_sql(self) -> sa.sql.visitors.VisitableType:
         """SQLAlchemy data type."""  # noqa: D403
-        if self.constraints.enum:
-            return sa.Enum(*self.constraints.enum, create_constraint=True)
+        if self.constraints.enum and self.type == "string":
+            return sa.Enum(*self.constraints.enum)
         return FIELD_DTYPES_SQL[self.type]
 
-    def to_sql(self, dialect: Literal["sqlite"] = "sqlite") -> sa.Column:
+    def to_sql(self, dialect: Literal["sqlite"] = "sqlite") -> sa.Column:  # noqa: C901
         """Return equivalent SQL column."""
         if dialect != "sqlite":
             raise NotImplementedError(f"Dialect {dialect} is not supported")
         checks = []
         # Column names are escaped with double quotes (")
         name = f'"{self.name}"'
+        # Required with TYPEOF since TYPEOF(NULL) = 'null'
+        prefix = "" if self.constraints.required else f"{name} IS NULL OR "
+        # Field type
+        if self.type == "string":
+            checks.append(f"{prefix}TYPEOF({name}) = 'text'")
+        elif self.type in ("integer", "year"):
+            checks.append(f"{prefix}TYPEOF({name}) = 'integer'")
+        elif self.type == "number":
+            checks.append(f"{prefix}TYPEOF({name}) = 'real'")
+        elif self.type == "boolean":
+            # Just IN (0, 1) accepts floats equal to 0, 1 (0.0, 1.0)
+            checks.append(f"{prefix}(TYPEOF({name}) = 'integer' AND {name} IN (0, 1))")
+        elif self.type == "date":
+            checks.append(f"{name} IS DATE({name})")
+        elif self.type == "datetime":
+            checks.append(f"{name} IS DATETIME({name})")
+        # Field constraints
         if self.constraints.minLength is not None:
             checks.append(f"LENGTH({name}) >= {self.constraints.minLength}")
         if self.constraints.maxLength is not None:
             checks.append(f"LENGTH({name}) <= {self.constraints.maxLength}")
         if self.constraints.minimum is not None:
-            minimum = self.constraints.minimum
-            if isinstance(minimum, datetime.datetime):
-                minimum = minimum.strftime("%Y-%m-%d %H:%M:%S")
+            minimum = _format_for_sql(self.constraints.minimum)
             checks.append(f"{name} >= {minimum}")
         if self.constraints.maximum is not None:
-            maximum = self.constraints.minimum
-            if isinstance(maximum, datetime.datetime):
-                maximum = maximum.strftime("%Y-%m-%d %H:%M:%S")
+            maximum = _format_for_sql(self.constraints.maximum)
             checks.append(f"{name} <= {maximum}")
         if self.constraints.pattern:
-            # Single quotes (') are escaped by doubling them ('')
-            pattern = self.constraints.pattern.pattern.replace("'", "''")
-            checks.append(f"{name} REGEXP '{pattern}'")
+            pattern = _format_for_sql(self.constraints.pattern)
+            checks.append(f"{name} REGEXP {pattern}")
         if self.constraints.enum:
-            values = ", ".join([f"'{x}'" for x in self.constraints.enum])
-            checks.append(f"{name} IN ({values})")
+            enum = [_format_for_sql(x) for x in self.constraints.enum]
+            checks.append(f"{name} IN ({', '.join(enum)})")
         return sa.Column(
             self.name,
             self.dtype_sql,
@@ -595,9 +646,9 @@ class Resource(Base):
         >>> resource = Resource(name='a', schema=schema)
         >>> table = resource.to_sql()
         >>> table.columns.x
-        Column('x', Integer(), ForeignKey('b.x'), table=<a>, primary_key=True, nullable=False)
+        Column('x', Integer(), ForeignKey('b.x'), CheckConstraint(...), table=<a>, primary_key=True, nullable=False)
         >>> table.columns.y
-        Column('y', Text(), ForeignKey('b.y'), table=<a>)
+        Column('y', Text(), ForeignKey('b.y'), CheckConstraint(...), table=<a>)
 
         To illustrate harvesting operations,
         say we have a resource with two fields - a primary key (`id`) and a data field -
