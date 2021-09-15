@@ -17,7 +17,7 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
                 "future_plant",
                 "leased_plant",
             ],
-            "primaryKey": ["utility_id_ferc1", "report_year", "line_id"],
+            "primary_key": ["utility_id_ferc1", "report_year", "line_id"],
         },
         "sources": ["ferc1"],
     },
@@ -36,7 +36,7 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
             ],
             # Need to fix transform function to ensure this natural primary key
             # See https://github.com/catalyst-cooperative/pudl/issues/852
-            # "primaryKey": [
+            # "primary_key": [
             #     "plant_id_eia",
             #     "boiler_id",
             #     "fuel_type_code",
@@ -56,15 +56,15 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
                 "unit_id_pudl",
                 "bga_source",
             ],
-            "primaryKey": ["plant_id_eia", "report_date", "generator_id", "boiler_id"],
+            "primary_key": ["plant_id_eia", "report_date", "generator_id", "boiler_id"],
         },
         "sources": ["eia860"],
     },
     "boilers_entity_eia": {
         "schema": {
             "fields": ["plant_id_eia", "boiler_id", "prime_mover_code"],
-            "primaryKey": ["plant_id_eia", "boiler_id"],
-            "foreignKeyRules": {"fields": [["plant_id_eia", "boiler_id"]]},
+            "primary_key": ["plant_id_eia", "boiler_id"],
+            "foreign_key_rules": {"fields": [["plant_id_eia", "boiler_id"]]},
         },
     },
     "coalmine_eia923": {
@@ -77,19 +77,19 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
                 "county_id_fips",
                 "mine_id_msha",
             ],
-            "primaryKey": ["mine_id_pudl"],
-            "foreignKeyRules": {"fields": [["mine_id_pudl"]]},
+            "primary_key": ["mine_id_pudl"],
+            "foreign_key_rules": {"fields": [["mine_id_pudl"]]},
         },
         "sources": ["eia923"],
     },
     "datasets": {
-        "schema": {"fields": ["datasource", "active"], "primaryKey": ["datasource"]},
+        "schema": {"fields": ["datasource", "active"], "primary_key": ["datasource"]},
     },
     "energy_source_eia923": {
         "schema": {
             "fields": ["abbr", "source"],
-            "primaryKey": ["abbr"],
-            "foreignKeyRules": {"fields": [["energy_source_code"]]},
+            "primary_key": ["abbr"],
+            "foreign_key_rules": {"fields": [["energy_source_code"]]},
         },
         "sources": ["eia923"],
     },
@@ -97,15 +97,15 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
         "description": "Account numbers from the FERC Uniform System of Accounts for Electric Plant, which is defined in Code of Federal Regulations (CFR) Title 18, Chapter I, Subchapter C, Part 101. (See e.g. https://www.law.cornell.edu/cfr/text/18/part-101).",
         "schema": {
             "fields": ["ferc_account_id", "description"],
-            "primaryKey": ["ferc_account_id"],
+            "primary_key": ["ferc_account_id"],
         },
     },
     "ferc_depreciation_lines": {
         "description": "PUDL assigned FERC Form 1 line identifiers and long descriptions from FERC Form 1 page 219, Accumulated Provision for Depreciation of Electric Utility Plant (Account 108).",
         "schema": {
             "fields": ["line_id", "description"],
-            "primaryKey": ["line_id"],
-            "foreignKeyRules": {"fields": [["line_id"]]},
+            "primary_key": ["line_id"],
+            "foreign_key_rules": {"fields": [["line_id"]]},
         },
     },
     "fuel_ferc1": {
@@ -158,16 +158,16 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
     "fuel_type_aer_eia923": {
         "schema": {
             "fields": ["abbr", "fuel_type"],
-            "primaryKey": ["abbr"],
-            "foreignKeyRules": {"fields": [["fuel_type_code_aer"]]},
+            "primary_key": ["abbr"],
+            "foreign_key_rules": {"fields": [["fuel_type_code_aer"]]},
         },
         "sources": ["eia923"],
     },
     "fuel_type_eia923": {
         "schema": {
             "fields": ["abbr", "fuel_type"],
-            "primaryKey": ["abbr"],
-            "foreignKeyRules": {"fields": [["fuel_type"], ["fuel_type_code"]]},
+            "primary_key": ["abbr"],
+            "foreign_key_rules": {"fields": [["fuel_type"], ["fuel_type_code"]]},
         },
         "sources": ["eia923"],
     },
@@ -181,7 +181,7 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
             ],
             # Null values in the generator_id field. See:
             # https://github.com/catalyst-cooperative/pudl/issues/1208
-            # "primaryKey": ["plant_id_eia", "generator_id", "report_date"],
+            # "primary_key": ["plant_id_eia", "generator_id", "report_date"],
         },
         "sources": ["eia923"],
     },
@@ -204,7 +204,7 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
             ],
             # Need to fix transform function to ensure this natural primary key
             # See https://github.com/catalyst-cooperative/pudl/issues/851
-            # "primaryKey": [
+            # "primary_key": [
             #     "plant_id_eia",
             #     "report_date",
             #     "nuclear_unit_id",
@@ -283,8 +283,8 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
                 "reactive_power_output_mvar",
                 "data_source",
             ],
-            "primaryKey": ["plant_id_eia", "generator_id", "report_date"],
-            "foreignKeyRules": {"fields": [["plant_id_eia", "generator_id", "report_date"]]},
+            "primary_key": ["plant_id_eia", "generator_id", "report_date"],
+            "foreign_key_rules": {"fields": [["plant_id_eia", "generator_id", "report_date"]]},
         },
         "sources": ["eia860"],
     },
@@ -313,8 +313,8 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
                 "operating_switch",
                 "previously_canceled",
             ],
-            "primaryKey": ["plant_id_eia", "generator_id"],
-            "foreignKeyRules": {"fields": [["plant_id_eia", "generator_id"]]},
+            "primary_key": ["plant_id_eia", "generator_id"],
+            "foreign_key_rules": {"fields": [["plant_id_eia", "generator_id"]]},
         },
     },
     "hourly_emissions_epacems": {
@@ -339,12 +339,12 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
                 "facility_id",
                 "unit_id_epa",
             ],
-            "primaryKey": ["plant_id_eia", "unitid", "operating_datetime_utc"],
+            "primary_key": ["plant_id_eia", "unitid", "operating_datetime_utc"],
         },
         "sources": ["epacems"],
     },
     "natural_gas_transport_eia923": {
-        "schema": {"fields": ["abbr", "status"], "primaryKey": ["abbr"]},
+        "schema": {"fields": ["abbr", "status"], "primary_key": ["abbr"]},
         "sources": ["eia923"],
     },
     "ownership_eia860": {
@@ -365,7 +365,7 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
             # Currently there are NULL falues in some of these fields. This needs
             # to be fixed in the transform process. See this Github issue:
             # https://github.com/catalyst-cooperative/pudl/issues/1207
-            # "primaryKey": [
+            # "primary_key": [
             #     "report_date", "plant_id_eia", "generator_id", "owner_utility_id_eia"
             # ],
         },
@@ -473,14 +473,14 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
                 "transmission_acct359_roads_trails",
                 "transmission_total",
             ],
-            "primaryKey": ["utility_id_ferc1", "report_year", "amount_type"],
+            "primary_key": ["utility_id_ferc1", "report_year", "amount_type"],
         },
         "sources": ["ferc1"],
     },
     "plants_eia": {
         "schema": {
             "fields": ["plant_id_eia", "plant_name_eia", "plant_id_pudl"],
-            "primaryKey": ["plant_id_eia"],
+            "primary_key": ["plant_id_eia"],
         },
     },
     "plants_eia860": {
@@ -513,8 +513,8 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
                 "utility_id_eia",
                 "water_source",
             ],
-            "primaryKey": ["plant_id_eia", "report_date"],
-            "foreignKeyRules": {"fields": [["plant_id_eia", "report_date"]]},
+            "primary_key": ["plant_id_eia", "report_date"],
+            "foreign_key_rules": {"fields": [["plant_id_eia", "report_date"]]},
         },
         "sources": ["eia860"],
     },
@@ -544,16 +544,16 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
                 "zip_code",
                 "timezone",
             ],
-            "primaryKey": ["plant_id_eia"],
-            "foreignKeyRules": {"fields": [["plant_id_eia"]]},
+            "primary_key": ["plant_id_eia"],
+            "foreign_key_rules": {"fields": [["plant_id_eia"]]},
         },
     },
     "plants_ferc1": {
         "title": "FERC 1 Plants",
         "schema": {
             "fields": ["utility_id_ferc1", "plant_name_ferc1", "plant_id_pudl"],
-            "primaryKey": ["utility_id_ferc1", "plant_name_ferc1"],
-            "foreignKeyRules": {"fields": [
+            "primary_key": ["utility_id_ferc1", "plant_name_ferc1"],
+            "foreign_key_rules": {"fields": [
                 ["utility_id_ferc1", "plant_name_ferc1"],
                 ["utility_id_ferc1", "plant_name_original"]
             ]},
@@ -609,8 +609,8 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
         "description": "Home table for PUDL assigned plant IDs. These IDs are manually generated each year when new FERC and EIA reporting is integrated, and any newly identified plants are added to the list with a new ID. Each ID maps to a power plant which is reported in at least one FERC or EIA data set. This table is read in from a spreadsheet stored in the PUDL repository: src/pudl/package_data/glue/mapping_eia923_ferc1.xlsx",
         "schema": {
             "fields": ["plant_id_pudl", "plant_name_pudl"],
-            "primaryKey": ["plant_id_pudl"],
-            "foreignKeyRules": {"fields": [["plant_id_pudl"]]},
+            "primary_key": ["plant_id_pudl"],
+            "foreign_key_rules": {"fields": [["plant_id_pudl"]]},
         },
     },
     "plants_pumped_storage_ferc1": {
@@ -738,8 +738,8 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
     "prime_movers_eia923": {
         "schema": {
             "fields": ["abbr", "prime_mover"],
-            "primaryKey": ["abbr"],
-            "foreignKeyRules": {"fields": [["prime_mover_code"]]},
+            "primary_key": ["abbr"],
+            "foreign_key_rules": {"fields": [["prime_mover_code"]]},
         },
         "sources": ["eia923"],
     },
@@ -770,8 +770,8 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
     "transport_modes_eia923": {
         "schema": {
             "fields": ["abbr", "mode"],
-            "primaryKey": ["abbr"],
-            "foreignKeyRules": {"fields": [
+            "primary_key": ["abbr"],
+            "foreign_key_rules": {"fields": [
                 ["primary_transportation_mode_code"],
                 ["secondary_transportation_mode_code"],
             ]},
@@ -781,7 +781,7 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
     "utilities_eia": {
         "schema": {
             "fields": ["utility_id_eia", "utility_name_eia", "utility_id_pudl"],
-            "primaryKey": ["utility_id_eia"],
+            "primary_key": ["utility_id_eia"],
         },
     },
     "utilities_eia860": {
@@ -813,8 +813,8 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
                 "phone_extension_2",
 
             ],
-            "primaryKey": ["utility_id_eia", "report_date"],
-            "foreignKeyRules": {"fields": [
+            "primary_key": ["utility_id_eia", "report_date"],
+            "foreign_key_rules": {"fields": [
                 ["utility_id_eia", "report_date"],
                 ["owner_utility_id_eia", "report_date"],
             ]},
@@ -824,8 +824,8 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
     "utilities_entity_eia": {
         "schema": {
             "fields": ["utility_id_eia", "utility_name_eia"],
-            "primaryKey": ["utility_id_eia"],
-            "foreignKeyRules": {"fields": [
+            "primary_key": ["utility_id_eia"],
+            "foreign_key_rules": {"fields": [
                 ["utility_id_eia"],
                 ["owner_utility_id_eia"],
             ]},
@@ -835,8 +835,8 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
         "description": "This table maps the manually assigned PUDL utility ID to a FERC respondent ID, enabling a connection between the FERC and EIA data sets. It also stores the utility name associated with the FERC respondent ID. Those values originate in the f1_respondent_id table in FERC's FoxPro database, which is stored in a file called F1_1.DBF. This table is generated from a spreadsheet stored in the PUDL repository: results/id_mapping/mapping_eia923_ferc1.xlsx",
         "schema": {
             "fields": ["utility_id_ferc1", "utility_name_ferc1", "utility_id_pudl"],
-            "primaryKey": ["utility_id_ferc1"],
-            "foreignKeyRules": {"fields": [["utility_id_ferc1"]]},
+            "primary_key": ["utility_id_ferc1"],
+            "foreign_key_rules": {"fields": [["utility_id_ferc1"]]},
         },
     },
     "utilities_pudl": {
@@ -844,14 +844,14 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
         "description": "Home table for PUDL assigned utility IDs. These IDs are manually generated each year when new FERC and EIA reporting is integrated, and any newly found utilities are added to the list with a new ID. Each ID maps to a power plant owning or operating entity which is reported in at least one FERC or EIA data set. This table is read in from a spreadsheet stored in the PUDL repository: src/pudl/package_data/glue/mapping_eia923_ferc1.xlsx",
         "schema": {
             "fields": ["utility_id_pudl", "utility_name_pudl"],
-            "primaryKey": ["utility_id_pudl"],
-            "foreignKeyRules": {"fields": [["utility_id_pudl"]]},
+            "primary_key": ["utility_id_pudl"],
+            "foreign_key_rules": {"fields": [["utility_id_pudl"]]},
         },
     },
     "utility_plant_assn": {
         "schema": {
             "fields": ["utility_id_pudl", "plant_id_pudl"],
-            "primaryKey": ["utility_id_pudl", "plant_id_pudl"],
+            "primary_key": ["utility_id_pudl", "plant_id_pudl"],
         },
     },
 }
@@ -861,7 +861,7 @@ Resource attributes by PUDL identifier (`resource.name`).
 Keys are in alphabetical order.
 Each element of `fields` and `sources` may be a dictionary or a PUDL identifier.
 
-See :func:`.helpers.build_foreign_keys` for the expected format of `foreignKeyRules`.
+See :func:`.helpers.build_foreign_keys` for the expected format of `foreign_key_rules`.
 """
 
 FOREIGN_KEYS: Dict[str, List[dict]] = build_foreign_keys(RESOURCE_METADATA)

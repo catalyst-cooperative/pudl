@@ -277,8 +277,8 @@ class FieldConstraints(Base):
 
     required: Bool = False
     unique: Bool = False
-    minLength: PositiveInt = None  # noqa: N815
-    maxLength: PositiveInt = None  # noqa: N815
+    min_length: PositiveInt = None
+    max_length: PositiveInt = None
     minimum: Union[Int, Float, Date, Datetime] = None
     maximum: Union[Int, Float, Date, Datetime] = None
     pattern: Pattern = None
@@ -287,14 +287,14 @@ class FieldConstraints(Base):
 
     _check_unique = _validator("enum", fn=_check_unique)
 
-    @pydantic.validator("maxLength")
+    @pydantic.validator("max_length")
     def _check_max_length(cls, value, values):  # noqa: N805
-        minimum, maximum = values.get("minLength"), value
+        minimum, maximum = values.get("min_length"), value
         if minimum is not None and maximum is not None:
             if type(minimum) is not type(maximum):
-                raise ValueError("must be same type as minLength")
+                raise ValueError("must be same type as min_length")
             if maximum < minimum:
-                raise ValueError("must be greater or equal to minLength")
+                raise ValueError("must be greater or equal to min_length")
         return value
 
     @pydantic.validator("maximum")
@@ -358,7 +358,7 @@ class Field(Base):
             return value
         dtype = values["type"]
         errors = []
-        for key in ("minLength", "maxLength", "pattern"):
+        for key in ("min_length", "max_length", "pattern"):
             if getattr(value, key) is not None and dtype != "string":
                 errors.append(f"{key} not supported by {dtype} field")
         for key in ("minimum", "maximum"):
@@ -424,10 +424,10 @@ class Field(Base):
         elif self.type == "datetime":
             checks.append(f"{name} IS DATETIME({name})")
         # Field constraints
-        if self.constraints.minLength is not None:
-            checks.append(f"LENGTH({name}) >= {self.constraints.minLength}")
-        if self.constraints.maxLength is not None:
-            checks.append(f"LENGTH({name}) <= {self.constraints.maxLength}")
+        if self.constraints.min_length is not None:
+            checks.append(f"LENGTH({name}) >= {self.constraints.min_length}")
+        if self.constraints.max_length is not None:
+            checks.append(f"LENGTH({name}) <= {self.constraints.max_length}")
         if self.constraints.minimum is not None:
             minimum = _format_for_sql(self.constraints.minimum)
             checks.append(f"{name} >= {minimum}")
@@ -455,7 +455,7 @@ class Field(Base):
 
 class ForeignKeyReference(Base):
     """
-    Foreign key reference (`resource.schema.foreignKeys[...].reference`).
+    Foreign key reference (`resource.schema.foreign_keys[...].reference`).
 
     See https://specs.frictionlessdata.io/table-schema/#foreign-keys.
     """
@@ -468,7 +468,7 @@ class ForeignKeyReference(Base):
 
 class ForeignKey(Base):
     """
-    Foreign key (`resource.schema.foreignKeys[...]`).
+    Foreign key (`resource.schema.foreign_keys[...]`).
 
     See https://specs.frictionlessdata.io/table-schema/#foreign-keys.
     """
@@ -501,12 +501,12 @@ class Schema(Base):
     """
 
     fields_: StrictList(Field) = pydantic.Field(alias="fields")
-    missingValues: List[pydantic.StrictStr] = [""]  # noqa: N815
-    primaryKey: StrictList(SnakeCase) = None  # noqa: N815
-    foreignKeys: List[ForeignKey] = []  # noqa: N815
+    missing_values: List[pydantic.StrictStr] = [""]
+    primary_key: StrictList(SnakeCase) = None
+    foreign_keys: List[ForeignKey] = []
 
     _check_unique = _validator(
-        "missingValues", "primaryKey", "foreignKeys", fn=_check_unique
+        "missing_values", "primary_key", "foreign_keys", fn=_check_unique
     )
 
     @pydantic.validator("fields_")
@@ -514,7 +514,7 @@ class Schema(Base):
         _check_unique([f.name for f in value])
         return value
 
-    @pydantic.validator("primaryKey")
+    @pydantic.validator("primary_key")
     def _check_primary_key_in_fields(cls, value, values):  # noqa: N805
         if value is not None and "fields_" in values:
             missing = []
@@ -530,7 +530,7 @@ class Schema(Base):
                 raise ValueError(f"names {missing} missing from fields")
         return value
 
-    @pydantic.validator("foreignKeys", each_item=True)
+    @pydantic.validator("foreign_keys", each_item=True)
     def _check_foreign_key_in_fields(cls, value, values):  # noqa: N805
         if value and "fields_" in values:
             names = [f.name for f in values['fields_']]
@@ -642,7 +642,7 @@ class Resource(Base):
 
         >>> fields = [{'name': 'x', 'type': 'year'}, {'name': 'y', 'type': 'string'}]
         >>> fkeys = [{'fields': ['x', 'y'], 'reference': {'resource': 'b', 'fields': ['x', 'y']}}]
-        >>> schema = {'fields': fields, 'primaryKey': ['x'], 'foreignKeys': fkeys}
+        >>> schema = {'fields': fields, 'primary_key': ['x'], 'foreign_keys': fkeys}
         >>> resource = Resource(name='a', schema=schema)
         >>> table = resource.to_sql()
         >>> table.columns.x
@@ -662,7 +662,7 @@ class Resource(Base):
         >>> resource = Resource(**{
         ...     'name': 'a',
         ...     'harvest': {'harvest': True},
-        ...     'schema': {'fields': fields, 'primaryKey': ['id']}
+        ...     'schema': {'fields': fields, 'primary_key': ['id']}
         ... })
         >>> dfs = {
         ...     'a': pd.DataFrame({'id': [1, 1, 2, 2], 'x': [1, 1, 2, 2]}),
@@ -738,7 +738,7 @@ class Resource(Base):
         >>> fields = [{'name': 'report_year', 'type': 'year'}]
         >>> resource = Resource(**{
         ...     'name': 'table', 'harvest': {'harvest': True},
-        ...     'schema': {'fields': fields, 'primaryKey': ['report_year']}
+        ...     'schema': {'fields': fields, 'primary_key': ['report_year']}
         ... })
         >>> df = pd.DataFrame({'report_date': ['2000-02-02', '2000-03-03']})
         >>> resource.format_df(df)
@@ -769,7 +769,7 @@ class Resource(Base):
     @pydantic.validator("schema_")
     def _check_harvest_primary_key(cls, value, values):  # noqa: N805
         if values["harvest"].harvest:
-            if not value.primaryKey:
+            if not value.primary_key:
                 raise ValueError("Harvesting requires a primary key")
         return value
 
@@ -793,7 +793,7 @@ class Resource(Base):
         * `contributors`: Contributor ids are fetched by source ids,
           then expanded (:meth:`Contributor.from_id`).
         * `keywords`: Keywords are fetched by source ids.
-        * `schema.foreignKeys`: Foreign keys are fetched by resource name.
+        * `schema.foreign_keys`: Foreign keys are fetched by resource name.
         """
         obj = copy.deepcopy(RESOURCE_METADATA[x])
         obj["name"] = x
@@ -830,12 +830,12 @@ class Resource(Base):
             keywords.extend(KEYWORDS_BY_SOURCE.get(source, []))
         obj["keywords"] = list(set(keywords))
         # Insert foreign keys
-        if "foreignKeys" in schema:
+        if "foreign_keys" in schema:
             raise ValueError("Resource metadata contains explicit foreign keys")
-        schema["foreignKeys"] = FOREIGN_KEYS.get(x, [])
+        schema["foreign_keys"] = FOREIGN_KEYS.get(x, [])
         # Delete foreign key rules
-        if "foreignKeyRules" in schema:
-            del schema["foreignKeyRules"]
+        if "foreign_key_rules" in schema:
+            del schema["foreign_key_rules"]
         return obj
 
     @classmethod
@@ -849,9 +849,9 @@ class Resource(Base):
             metadata = sa.MetaData()
         columns = [f.to_sql() for f in self.schema.fields]
         constraints = []
-        if self.schema.primaryKey:
-            constraints.append(sa.PrimaryKeyConstraint(*self.schema.primaryKey))
-        for key in self.schema.foreignKeys:
+        if self.schema.primary_key:
+            constraints.append(sa.PrimaryKeyConstraint(*self.schema.primary_key))
+        for key in self.schema.foreign_keys:
             constraints.append(key.to_sql())
         return sa.Table(self.name, metadata, *columns, *constraints)
 
@@ -880,7 +880,7 @@ class Resource(Base):
 
         Examples:
             >>> fields = [{'name': 'x_year', 'type': 'year'}]
-            >>> schema = {'fields': fields, 'primaryKey': ['x_year']}
+            >>> schema = {'fields': fields, 'primary_key': ['x_year']}
             >>> resource = Resource(name='r', schema=schema)
 
             By default, when :attr:`harvest` .`harvest=False`,
@@ -908,7 +908,7 @@ class Resource(Base):
         """
         if len(names) != len(set(names)):
             raise ValueError("Field names are not unique")
-        keys = self.schema.primaryKey or []
+        keys = self.schema.primary_key or []
         if self.harvest.harvest:
             remaining = set(names)
             matches = {}
@@ -1029,16 +1029,16 @@ class Resource(Base):
             that includes all aggregation errors and whether the result
             meets the resource's and fields' tolerance.
         """
-        if not self.schema.primaryKey:
+        if not self.schema.primary_key:
             raise ValueError("A primary key is required for aggregating")
         aggfuncs = {
             f.name: f.harvest.aggregate
             for f in self.schema.fields
-            if f.name not in self.schema.primaryKey
+            if f.name not in self.schema.primary_key
         }
         df, report = groupby_aggregate(
             df,
-            by=self.schema.primaryKey,
+            by=self.schema.primary_key,
             aggfuncs=aggfuncs,
             raised=raised,
             error=error,
@@ -1156,13 +1156,13 @@ class Package(Base):
 
         >>> fields = [{'name': 'x', 'type': 'year'}, {'name': 'y', 'type': 'string'}]
         >>> fkey = {'fields': ['x', 'y'], 'reference': {'resource': 'b', 'fields': ['x', 'y']}}
-        >>> schema = {'fields': fields, 'primaryKey': ['x'], 'foreignKeys': [fkey]}
+        >>> schema = {'fields': fields, 'primary_key': ['x'], 'foreign_keys': [fkey]}
         >>> a = Resource(name='a', schema=schema)
-        >>> b = Resource(name='b', schema=Schema(fields=fields, primaryKey=['x']))
+        >>> b = Resource(name='b', schema=Schema(fields=fields, primary_key=['x']))
         >>> Package(name='ab', resources=[a, b])
         Traceback (most recent call last):
         ValidationError: ...
-        >>> b.schema.primaryKey = ['x', 'y']
+        >>> b.schema.primary_key = ['x', 'y']
         >>> package = Package(name='ab', resources=[a, b])
 
         SQL Alchemy can sort tables, based on foreign keys,
@@ -1191,19 +1191,19 @@ class Package(Base):
         rnames = [resource.name for resource in value]
         errors = []
         for resource in value:
-            for foreign_key in resource.schema.foreignKeys:
+            for foreign_key in resource.schema.foreign_keys:
                 rname = foreign_key.reference.resource
                 tag = f"[{resource.name} -> {rname}]"
                 if rname not in rnames:
                     errors.append(f"{tag}: Reference not found")
                     continue
                 reference = value[rnames.index(rname)]
-                if not reference.schema.primaryKey:
+                if not reference.schema.primary_key:
                     errors.append(f"{tag}: Reference missing primary key")
                     continue
                 missing = [
                     x for x in foreign_key.reference.fields
-                    if x not in reference.schema.primaryKey
+                    if x not in reference.schema.primary_key
                 ]
                 if missing:
                     errors.append(f"{tag}: Reference primary key missing {missing}")
@@ -1235,7 +1235,7 @@ class Package(Base):
         i = 0
         while i < len(resources):
             for resource in resources[i:]:
-                for key in resource["schema"].get("foreignKeys", []):
+                for key in resource["schema"].get("foreign_keys", []):
                     name = key.get("reference", {}).get("resource")
                     if name and name not in names:
                         names.append(name)
