@@ -1127,17 +1127,13 @@ class Package(Base):
     description: String = None
     keywords: List[String] = []
     homepage: pydantic.HttpUrl = "https://catalyst.coop/pudl"
-    created: datetime.datetime = datetime.datetime.utcnow()
+    created: Datetime = datetime.datetime.utcnow()
     contributors: List[Contributor] = []
     sources: List[Source] = []
     licenses: List[License] = []
     resources: StrictList(Resource)
 
     _stringify = _validator("homepage", fn=_stringify)
-
-    @pydantic.validator("created")
-    def _stringify_datetime(cls, value):  # noqa: N805
-        return value.strftime(format="%Y-%m-%dT%H:%M:%SZ")
 
     @pydantic.validator("resources")
     def _check_foreign_keys(cls, value):  # noqa: N805
