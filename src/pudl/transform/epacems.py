@@ -6,6 +6,7 @@ import logging
 import numpy as np
 import pandas as pd
 import pytz
+import sqlalchemy as sa
 
 import pudl
 
@@ -81,6 +82,13 @@ def _load_plant_utc_offset(pudl_engine):
         pandas.DataFrame: With columns plant_id_eia and utc_offset.
 
     """
+    # Verify that we have a PUDL DB with plant attributes:
+    inspector = sa.inspect(pudl_engine)
+    if "plants_entity_eia" not in inspector.get_table_names():
+        raise RuntimeError(
+            "No plants_entity_eia available in the PUDL DB! Have you run the ETL? "
+            f"Trying to access PUDL DB: {pudl_engine}"
+        )
     timezones = (
         pd.read_sql(
             sql="SELECT plant_id_eia, timezone FROM plants_entity_eia",

@@ -185,11 +185,8 @@ def _etl_eia(etl_params, ds_kwargs):
 
     Args:
         etl_params (dict): ETL parameters required by this data source.
-        datapkg_dir (path-like): The location of the directory for this
-            package, wihch will contain a datapackage.json file and a data
-            directory in which the CSV file are stored.
-        pudl_settings (dict) : a dictionary filled with settings that mostly
-            describe paths to various resources and outputs.
+        ds_kwargs: (dict): Keyword arguments for instantiating a PUDL datastore,
+            so that the ETL can access the raw input data.
 
     Returns:
         list: Names of PUDL DB tables output by the ETL for this data source.
@@ -406,10 +403,13 @@ def etl_epacems(etl_params, pudl_settings, ds_kwargs):
         etl_params (dict): ETL parameters required by this data source.
         pudl_settings (dict) : a dictionary filled with settings that mostly
             describe paths to various resources and outputs.
-        ds_kwargs: (dict): WTF is this?
+        ds_kwargs: (dict): Keyword arguments for instantiating a PUDL datastore,
+            so that the ETL can access the raw input data.
 
     Returns:
-        None
+        None: Unlike the other ETL functions, the EPACEMS writes its output to
+            Parquet as it goes, since the dataset is too large to hold in memory.
+            So it doesn't return a dictionary of dataframes.
 
     """
     epacems_dict = _validate_params_epacems(etl_params)
@@ -427,6 +427,15 @@ def etl_epacems(etl_params, pudl_settings, ds_kwargs):
         logger.info('Not ingesting EPA CEMS.')
 
     pudl_engine = sa.create_engine(pudl_settings["pudl_db"])
+
+    # Verify that we have a PUDL DB with plant attributes:
+    inspector = sa.inspect(pudl_engine)
+    if "plants_eia860" not in inspector.get_table_names():
+        raise RuntimeError(
+            "No plants_eia860 available in the PUDL DB! Have you run the ETL? "
+            f"Trying to access PUDL DB: {pudl_engine}"
+        )
+
     eia_plant_years = pd.read_sql(
         """
         SELECT DISTINCT strftime('%Y', report_date)

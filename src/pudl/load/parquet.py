@@ -15,6 +15,11 @@ from pyarrow import parquet as pq
 
 logger = logging.getLogger(__name__)
 
+# We re-use the same data types with the same options several times in the
+# definition of the PyArrow schema below. These partial() functions simply
+# define convenient aliases so we don't have to define the same thing multiple
+# times. These definitions will be migrated into the metadata classes. See:
+# https://github.com/catalyst-cooperative/pudl/issues/1200
 INT_NULLABLE = partial(pa.field, type=pa.int32(), nullable=True)
 INT_NOT_NULL = partial(pa.field, type=pa.int32(), nullable=False)
 STR_NOT_NULL = partial(pa.field, type=pa.string(), nullable=False)
@@ -50,15 +55,25 @@ EPACEMS_ARROW_SCHEMA = pa.schema([
     INT_NULLABLE("unit_id_epa"),
     INT_NOT_NULL("year"),
 ])
+"""Schema defining efficient data types for EPA CEMS Parquet outputs."""
 
 
 def epacems_to_parquet(
     df,
     root_dir,
-    partition_cols=('year', 'state'),
-    compression="snappy",
 ):
-    """Write an EPA CEMS dataframe out to a partitioned Parquet dataset."""
+    """
+    Write an EPA CEMS dataframe out to a partitioned Parquet dataset.
+
+    Args:
+        df (pandas.DataFrame): Dataframe containing the data to be output.
+        root_dir (path-like): The top level directory for the partitioned
+            dataset.
+
+    Returns:
+        None
+
+    """
     pq.write_to_dataset(
         pa.Table.from_pandas(
             df,
@@ -66,6 +81,6 @@ def epacems_to_parquet(
             schema=EPACEMS_ARROW_SCHEMA,
         ),
         root_path=root_dir,
-        partition_cols=list(partition_cols),
-        compression=compression,
+        partition_cols=["year", "state"],  # Hard-coded b/c we assume this
+        compression="snappy",  # Hard-coded b/c it's like 50x faster than gzip
     )

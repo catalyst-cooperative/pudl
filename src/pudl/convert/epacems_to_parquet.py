@@ -14,7 +14,6 @@ import pathlib
 import sys
 
 import coloredlogs
-import sqlalchemy as sa
 
 import pudl
 from pudl import constants as pc
@@ -116,12 +115,6 @@ def main():
         pathlib.Path(pudl_settings["parquet_dir"]) / "epacems",
         clobber=args.clobber,
     )
-
-    # Verify that we have a PUDL DB with plant attributes:
-    pudl_engine = sa.create_engine(pudl_settings["pudl_db"])
-    inspector = sa.inspect(pudl_engine)
-    if "plants_entity_eia" not in inspector.get_table_names():
-        raise RuntimeError("No PUDL DB available! Have you run the ETL?")
 
     # Messy settings arguments used in our main ETL which we should clean up
     epacems_etl_settings = {

@@ -1,6 +1,7 @@
 """Load PUDL data into an SQLite database."""
 
 import logging
+from sqlite3 import Connection as SQLite3Connection
 
 import sqlalchemy as sa
 
@@ -16,7 +17,6 @@ def dfs_to_sqlite(dfs, engine, foreign_keys="OFF"):
     # whenever we insert data into thd database, which it doesn't do by default
     @sa.event.listens_for(sa.engine.Engine, "connect")
     def _set_sqlite_pragma(dbapi_connection, connection_record):
-        from sqlite3 import Connection as SQLite3Connection
         if isinstance(dbapi_connection, SQLite3Connection):
             cursor = dbapi_connection.cursor()
             cursor.execute(f"PRAGMA foreign_keys={foreign_keys};")
