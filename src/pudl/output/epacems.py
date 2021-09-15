@@ -13,10 +13,9 @@ import pudl
 # crosswalk is formally integrated into PUDL. See Issue # 1123
 EPA_CROSSWALK_RELEASE = "https://github.com/USEPA/camd-eia-crosswalk/releases/download/v0.2.1/"
 
-# TODO: formally integrate this into PUDL. See Issue # 1123
-
 
 def epa_crosswalk() -> pd.DataFrame:
+    # TODO: formally integrate this into PUDL. See Issue # 1123
     """Read EPA/EIA crosswalk from EPA github repo.
 
     See https://github.com/USEPA/camd-eia-crosswalk for details and data dictionary
@@ -130,14 +129,15 @@ def get_plant_years(plant_ids, pudl_out):
 
 
 def epacems(
-    states: Optional[Sequence[str]] = ("CO",),
-    years: Optional[Sequence[int]] = (2019,),
-    columns: Optional[Sequence[str]] = (
-        "plant_id_eia",
-        "unitid",
-        "operating_datetime_utc",
+    states: Optional[Sequence[str]] = None,
+    years: Optional[Sequence[int]] = None,
+    columns: Optional[Sequence[str]] = None,
+    # (
+        # "plant_id_eia",
+        # "unitid",
+        # "operating_datetime_utc",
         # "operating_time_hours",
-        "gross_load_mw",
+        # "gross_load_mw",
         # "steam_load_1000_lbs",
         # "so2_mass_lbs",
         # "so2_mass_measurement_code",
@@ -149,19 +149,19 @@ def epacems(
         # "co2_mass_measurement_code",
         # "heat_content_mmbtu",
         # "facility_id",
-        "unit_id_epa",
+        # "unit_id_epa",
         # "year",
         # "state",
-    ),
+    # ),
     engine: str = 'pandas',
     cems_path: Optional[Path] = None,
 ) -> Union[pd.DataFrame, dd.DataFrame]:
     """Load EPA CEMS data from PUDL with optional subsetting.
 
     Args:
-        states (Optional[Sequence[str]], optional): subset by state abbreviation. Pass None to get all states. Defaults to ("CO",).
-        years (Optional[Sequence[int]], optional): subset by year. Pass None to get all years. Defaults to (2019,).
-        columns (Optional[Sequence[str]], optional): subset by column. Pass None to get all columns. Defaults to ( "plant_id_eia", "unitid", "operating_datetime_utc", "gross_load_mw", "unit_id_epa").
+        states (Optional[Sequence[str]], optional): subset by state abbreviation. Defaults to None (gets all states).
+        years (Optional[Sequence[int]], optional): subset by year. Defaults to None (gets all years).
+        columns (Optional[Sequence[str]], optional): subset by column. Defaults to None (gets all columns).
         engine (Optional[str], optional): choose 'pandas' or 'dask'. Defaults to 'pandas'
         cems_path (Optional[Path], optional): path to parquet dir. By default it automatically loads the path from pudl.workspace
 
@@ -176,15 +176,15 @@ def epacems(
         raise ValueError(f"engine must be either 'pandas' or 'dask'. Given: {engine}")
 
     if states is None:
-        states = pudl.constants.us_states.keys()  # all states
+        states = list(pudl.constants.us_states.keys())  # all states
     else:
         states = list(states)
     if years is None:
         years = pudl.constants.data_years["epacems"]  # all years
     else:
         years = list(years)
+    # columns=None is handled by dd.read_parquet; gives all columns
     if columns is not None:
-        # columns=None is handled by pd.read_parquet, gives all columns
         columns = list(columns)
     if cems_path is None:
         pudl_settings = pudl.workspace.setup.get_defaults()
