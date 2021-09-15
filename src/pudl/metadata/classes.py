@@ -286,7 +286,7 @@ class Field(Base):
         >>> field.dtype
         CategoricalDtype(categories=['x', 'y'], ordered=False)
         >>> field.to_sql()
-        Column('x', Enum('x', 'y'), table=None)
+        Column('x', Enum('x', 'y'), CheckConstraint(...), table=None)
         >>> field = Field.from_id('utility_id_eia')
         >>> field.name
         'utility_id_eia'
@@ -609,13 +609,13 @@ class Resource(Base):
         ...     {'name': 'x', 'type': 'integer', 'harvest': {'aggregate': unique, 'tolerance': 0.25}}
         ... ]
         >>> resource = Resource(**{
-        ...     'name': 'A',
+        ...     'name': 'a',
         ...     'harvest': {'harvest': True},
         ...     'schema': {'fields': fields, 'primaryKey': ['id']}
         ... })
         >>> dfs = {
-        ...     'A': pd.DataFrame({'id': [1, 1, 2, 2], 'x': [1, 1, 2, 2]}),
-        ...     'B': pd.DataFrame({'id': [2, 3, 3], 'x': [3, 4, 4]})
+        ...     'a': pd.DataFrame({'id': [1, 1, 2, 2], 'x': [1, 1, 2, 2]}),
+        ...     'b': pd.DataFrame({'id': [2, 3, 3], 'x': [3, 4, 4]})
         ... }
 
         Skip aggregation to access all the rows concatenated from the input dataframes.
@@ -625,13 +625,13 @@ class Resource(Base):
         >>> df
             id  x
         df
-        A    1  1
-        A    1  1
-        A    2  2
-        A    2  2
-        B    2  3
-        B    3  4
-        B    3  4
+        a    1  1
+        a    1  1
+        a    2  2
+        a    2  2
+        b    2  3
+        b    3  4
+        b    3  4
 
         Field names and data types are enforced.
 
@@ -664,7 +664,7 @@ class Resource(Base):
         >>> df, report = resource.harvest_dfs(dfs, raised=False, error=error)
         >>> report['fields']['x']['errors']
         id
-        2    {'A': [2, 2], 'B': [3]}
+        2    {'a': [2, 2], 'b': [3]}
         Name: x, dtype: object
 
         Limit harvesting to the input dataframe of the same name
@@ -675,10 +675,10 @@ class Resource(Base):
         >>> df
             id  x
         df
-        A    1  1
-        A    1  1
-        A    2  2
-        A    2  2
+        a    1  1
+        a    1  1
+        a    2  2
+        a    2  2
 
         Harvesting can also handle conversion to longer time periods.
         Period harvesting requires primary key fields with a `datetime` data type,
