@@ -21,7 +21,7 @@ install_requires = [
     "matplotlib~=3.0",
     "networkx~=2.2",
     "numpy~=1.20",
-    "pandas~=1.3",
+    "pandas~=1.3,!=1.3.3",  # IntCastingNaNError on v1.3.3 in unit tests
     "prefect[viz, gcp]~=0.15.0",
     "pyarrow~=5.0",
     "pydantic[email]~=1.7",
