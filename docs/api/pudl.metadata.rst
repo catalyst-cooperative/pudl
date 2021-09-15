@@ -13,6 +13,7 @@ Submodules
    pudl.metadata.helpers
    pudl.metadata.labels
    pudl.metadata.resources
+   pudl.metadata.templates
 
 Module contents
 ---------------

@@ -14,11 +14,11 @@ import pudl.analysis.timeseries_cleaning
 import pudl.cli
 import pudl.constants
 import pudl.convert.censusdp1tract_to_sqlite
-import pudl.convert.datapkg_to_rst
 import pudl.convert.datapkg_to_sqlite
 import pudl.convert.epacems_to_parquet
 import pudl.convert.ferc1_to_sqlite
 import pudl.convert.merge_datapkgs
+import pudl.convert.metadata_to_rst
 import pudl.etl
 import pudl.extract.eia860
 import pudl.extract.eia860m
@@ -41,6 +41,7 @@ import pudl.metadata.fields
 import pudl.metadata.helpers
 import pudl.metadata.labels
 import pudl.metadata.resources
+import pudl.metadata.templates
 # Output modules by data source:
 import pudl.output.censusdp1tract
 import pudl.output.eia860
