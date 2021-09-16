@@ -18,6 +18,7 @@ data from:
 import logging
 import time
 from pathlib import Path
+from typing import Dict
 
 import pandas as pd
 import sqlalchemy as sa
@@ -134,8 +135,8 @@ def _validate_params_eia(etl_params):
     return eia_input_dict
 
 
-def _load_static_tables_eia():
-    """Populate static EIA tables with constants for use as foreign keys.
+def _read_static_tables_eia() -> Dict[str, pd.DataFrame]:
+    """Build dataframes of static EIA tables for use as foreign key constraints.
 
     There are many values specified within the data that are essentially
     constant, but which we need to store for data validation purposes, for use
@@ -143,9 +144,7 @@ def _load_static_tables_eia():
     possible state and country codes indicating a coal delivery's location of
     origin. For now these values are primarily stored in a large collection of
     lists, dictionaries, and dataframes which are specified in the
-    pudl.constants module.  This function uses those data structures to
-    populate a bunch of small infrastructural tables within packages that
-    include EIA tables.
+    :mod:`pudl.constants` module.
 
     """
     # create dfs for tables with static data from constants.
@@ -207,7 +206,7 @@ def _etl_eia(etl_params, ds_kwargs):
         return []
 
     # generate dataframes for the static EIA tables
-    out_dfs = _load_static_tables_eia()
+    out_dfs = _read_static_tables_eia()
 
     ds = Datastore(**ds_kwargs)
     # Extract EIA forms 923, 860
@@ -279,7 +278,7 @@ def _validate_params_ferc1(etl_params):
         return ferc1_dict
 
 
-def _load_static_tables_ferc1():
+def _read_static_tables_ferc1() -> Dict[str, pd.DataFrame]:
     """Populate static PUDL tables with constants for use as foreign keys.
 
     There are many values specified within the data that are essentially
@@ -314,7 +313,7 @@ def _load_static_tables_ferc1():
     return static_dfs
 
 
-def _etl_ferc1(etl_params, pudl_settings):
+def _etl_ferc1(etl_params, pudl_settings) -> Dict[str, pd.DataFrame]:
     """Extract, transform and load CSVs for FERC Form 1.
 
     Args:
@@ -338,7 +337,7 @@ def _etl_ferc1(etl_params, pudl_settings):
         return []
 
     # Compile static FERC 1 dataframes
-    out_dfs = _load_static_tables_ferc1()
+    out_dfs = _read_static_tables_ferc1()
 
     # Extract FERC form 1
     ferc1_raw_dfs = pudl.extract.ferc1.extract(
@@ -396,7 +395,7 @@ def _validate_params_epacems(etl_params):
         return epacems_dict
 
 
-def etl_epacems(etl_params, pudl_settings, ds_kwargs):
+def etl_epacems(etl_params, pudl_settings, ds_kwargs) -> None:
     """Extract, transform and load CSVs for EPA CEMS.
 
     Args:
@@ -444,10 +443,11 @@ def etl_epacems(etl_params, pudl_settings, ds_kwargs):
         ORDER BY year ASC
         """, pudl_engine).year.astype(int)
     missing_years = list(set(epacems_years) - set(eia_plant_years))
-    logger.info(
-        f"EPA CEMS years with no EIA plant data: {missing_years} "
-        "Some timezones may be estimated based on plant state."
-    )
+    if missing_years:
+        logger.info(
+            f"EPA CEMS years with no EIA plant data: {missing_years} "
+            "Some timezones may be estimated based on plant state."
+        )
 
     # NOTE: This is a generator for raw dataframes
     epacems_raw_dfs = pudl.extract.epacems.extract(
@@ -467,7 +467,7 @@ def etl_epacems(etl_params, pudl_settings, ds_kwargs):
     for df in epacems_transformed_dfs:
         pudl.load.parquet.epacems_to_parquet(
             df,
-            root_dir=str(Path(pudl_settings["parquet_dir"]) / "epacems"),
+            root_path=Path(pudl_settings["parquet_dir"]) / "epacems",
         )
 
     if logger.isEnabledFor(logging.INFO):
@@ -484,21 +484,16 @@ def etl_epacems(etl_params, pudl_settings, ds_kwargs):
 def _validate_params_glue(etl_params):
     glue_dict = {}
     # pull out the etl_params from the dictionary passed into this function
-    try:
-        glue_dict['ferc1'] = etl_params['ferc1']
-    except KeyError:
-        glue_dict['ferc1'] = False
-    try:
-        glue_dict['eia'] = etl_params['eia']
-    except KeyError:
-        glue_dict['eia'] = False
-    if not glue_dict['ferc1'] and not glue_dict['eia']:
-        return {}
-    else:
+    glue_dict['ferc1'] = etl_params.get('ferc1', False)
+    glue_dict['eia'] = etl_params.get('eia', False)
+
+    if glue_dict['ferc1'] or glue_dict['eia']:
         return glue_dict
+    else:
+        return {}
 
 
-def _etl_glue(etl_params):
+def _etl_glue(etl_params) -> Dict[str, pd.DataFrame]:
     """Extract, transform and load CSVs for the Glue tables.
 
     Args:
@@ -510,18 +505,20 @@ def _etl_glue(etl_params):
 
     """
     glue_dict = _validate_params_glue(etl_params)
-    if not glue_dict["eia"] and not glue_dict["ferc1"]:
+    if not glue_dict:
         raise ValueError(
             "Neither EIA nor FERC 1 data is beiing processed. Nothing to glue."
         )
     # grab the glue tables for ferc1 & eia
     glue_dfs = pudl.glue.ferc1_eia.glue(
         ferc1=glue_dict['ferc1'],
-        eia=glue_dict['eia']
+        eia=glue_dict['eia'],
     )
 
-    # Read in the EIA to EPA CEMS / APMD crosswalk:
-    glue_dfs.update(pudl.glue.eia_epacems.grab_clean_split())
+    # Add the EPA to EIA crosswalk, but only if the eia data is being processed.
+    # Otherwise the foreign key references will have nothing to point at:
+    if glue_dict["eia"]:
+        glue_dfs.update(pudl.glue.eia_epacems.grab_clean_split())
 
     return glue_dfs
 
@@ -698,6 +695,9 @@ def etl(  # noqa: C901
     clobber: bool = False,
     use_local_cache: bool = True,
     gcs_cache_path: str = None,
+    check_foreign_keys: bool = True,
+    check_types: bool = True,
+    check_values: bool = True,
 ):
     """
     Run the PUDL Extract, Transform, and Load data pipeline.
@@ -776,9 +776,9 @@ def etl(  # noqa: C901
     pudl.load.sqlite.dfs_to_sqlite(
         sqlite_dfs,
         engine=pudl_engine,
-        # This should be "ON" but there are bugs at the moment.
-        # See: https://github.com/catalyst-cooperative/pudl/issues/1196
-        foreign_keys="OFF",
+        check_foreign_keys=check_foreign_keys,
+        check_types=check_types,
+        check_values=check_values,
     )
 
     # Parquet Outputs:

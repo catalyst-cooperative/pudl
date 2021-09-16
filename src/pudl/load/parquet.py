@@ -58,16 +58,13 @@ EPACEMS_ARROW_SCHEMA = pa.schema([
 """Schema defining efficient data types for EPA CEMS Parquet outputs."""
 
 
-def epacems_to_parquet(
-    df,
-    root_dir,
-):
+def epacems_to_parquet(df, root_path):
     """
     Write an EPA CEMS dataframe out to a partitioned Parquet dataset.
 
     Args:
         df (pandas.DataFrame): Dataframe containing the data to be output.
-        root_dir (path-like): The top level directory for the partitioned
+        root_path (path-like): The top level directory for the partitioned
             dataset.
 
     Returns:
@@ -80,7 +77,7 @@ def epacems_to_parquet(
             preserve_index=False,
             schema=EPACEMS_ARROW_SCHEMA,
         ),
-        root_path=root_dir,
+        root_path=str(root_path),
         partition_cols=["year", "state"],  # Hard-coded b/c we assume this
         compression="snappy",  # Hard-coded b/c it's like 50x faster than gzip
     )

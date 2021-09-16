@@ -44,28 +44,55 @@ def parse_command_line(argv):
         dest='settings_file',
         type=str,
         default='',
-        help="path to YAML datapackage settings file.")
+        help="path to ETL settings file."
+    )
+    parser.add_argument(
+        '--check_foreign_keys',
+        action='store_true',
+        default=False,
+        help="Check foreign key constraints when loading into SQLite.",
+    )
+    parser.add_argument(
+        '--check_types',
+        action='store_true',
+        default=False,
+        help="Check column data type compatibility when loading into SQLite.",
+    )
+    parser.add_argument(
+        '--check_values',
+        action='store_true',
+        default=False,
+        help="Check column value constraints when loading into SQLite.",
+    )
     parser.add_argument(
         '-c',
         '--clobber',
         action='store_true',
-        help="""Clobber existing PUDL SQLite and Parquet outputs if they exist.""",
-        default=False)
+        default=False,
+        help="Clobber existing PUDL SQLite and Parquet outputs if they exist.",
+    )
     parser.add_argument(
-        "--sandbox", action="store_true", default=False,
-        help="Use the Zenodo sandbox rather than production")
+        "--sandbox",
+        action="store_true",
+        default=False,
+        help="Use the Zenodo sandbox rather than production",
+    )
     parser.add_argument(
-        "--logfile", default=None,
-        help="If specified, write logs to this file.")
+        "--logfile",
+        default=None,
+        help="If specified, write logs to this file.",
+    )
     parser.add_argument(
         "--gcs-cache-path",
         type=str,
-        help="Load datastore resources from Google Cloud Storage. Should be gs://bucket[/path_prefix]")
+        help="Load datastore resources from Google Cloud Storage. Should be gs://bucket[/path_prefix]",
+    )
     parser.add_argument(
         "--bypass-local-cache",
         action="store_true",
         default=False,
-        help="If enabled, the local file cache for datastore will not be used.")
+        help="If enabled, the local file cache for datastore will not be used.",
+    )
 
     arguments = parser.parse_args(argv[1:])
     return arguments
@@ -102,6 +129,9 @@ def main():
         clobber=args.clobber,
         use_local_cache=not args.bypass_local_cache,
         gcs_cache_path=args.gcs_cache_path,
+        check_foreign_keys=args.check_foreign_keys,
+        check_types=args.check_types,
+        check_values=args.check_values,
     )
 
 

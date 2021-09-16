@@ -468,45 +468,53 @@ class Field(Base):
             return sa.Enum(*self.constraints.enum)
         return FIELD_DTYPES_SQL[self.type]
 
-    def to_sql(self, dialect: Literal["sqlite"] = "sqlite") -> sa.Column:  # noqa: C901
+    def to_sql(  # noqa: C901
+        self,
+        dialect: Literal["sqlite"] = "sqlite",
+        check_types: bool = True,
+        check_values: bool = True,
+    ) -> sa.Column:
         """Return equivalent SQL column."""
         if dialect != "sqlite":
             raise NotImplementedError(f"Dialect {dialect} is not supported")
         checks = []
         name = _format_for_sql(self.name, identifier=True)
-        # Required with TYPEOF since TYPEOF(NULL) = 'null'
-        prefix = "" if self.constraints.required else f"{name} IS NULL OR "
-        # Field type
-        if self.type == "string":
-            checks.append(f"{prefix}TYPEOF({name}) = 'text'")
-        elif self.type in ("integer", "year"):
-            checks.append(f"{prefix}TYPEOF({name}) = 'integer'")
-        elif self.type == "number":
-            checks.append(f"{prefix}TYPEOF({name}) = 'real'")
-        elif self.type == "boolean":
-            # Just IN (0, 1) accepts floats equal to 0, 1 (0.0, 1.0)
-            checks.append(f"{prefix}(TYPEOF({name}) = 'integer' AND {name} IN (0, 1))")
-        elif self.type == "date":
-            checks.append(f"{name} IS DATE({name})")
-        elif self.type == "datetime":
-            checks.append(f"{name} IS DATETIME({name})")
-        # Field constraints
-        if self.constraints.min_length is not None:
-            checks.append(f"LENGTH({name}) >= {self.constraints.min_length}")
-        if self.constraints.max_length is not None:
-            checks.append(f"LENGTH({name}) <= {self.constraints.max_length}")
-        if self.constraints.minimum is not None:
-            minimum = _format_for_sql(self.constraints.minimum)
-            checks.append(f"{name} >= {minimum}")
-        if self.constraints.maximum is not None:
-            maximum = _format_for_sql(self.constraints.maximum)
-            checks.append(f"{name} <= {maximum}")
-        if self.constraints.pattern:
-            pattern = _format_for_sql(self.constraints.pattern)
-            checks.append(f"{name} REGEXP {pattern}")
-        if self.constraints.enum:
-            enum = [_format_for_sql(x) for x in self.constraints.enum]
-            checks.append(f"{name} IN ({', '.join(enum)})")
+        if check_types:
+            # Required with TYPEOF since TYPEOF(NULL) = 'null'
+            prefix = "" if self.constraints.required else f"{name} IS NULL OR "
+            # Field type
+            if self.type == "string":
+                checks.append(f"{prefix}TYPEOF({name}) = 'text'")
+            elif self.type in ("integer", "year"):
+                checks.append(f"{prefix}TYPEOF({name}) = 'integer'")
+            elif self.type == "number":
+                checks.append(f"{prefix}TYPEOF({name}) = 'real'")
+            elif self.type == "boolean":
+                # Just IN (0, 1) accepts floats equal to 0, 1 (0.0, 1.0)
+                checks.append(
+                    f"{prefix}(TYPEOF({name}) = 'integer' AND {name} IN (0, 1))")
+            elif self.type == "date":
+                checks.append(f"{name} IS DATE({name})")
+            elif self.type == "datetime":
+                checks.append(f"{name} IS DATETIME({name})")
+        if check_values:
+            # Field constraints
+            if self.constraints.min_length is not None:
+                checks.append(f"LENGTH({name}) >= {self.constraints.min_length}")
+            if self.constraints.max_length is not None:
+                checks.append(f"LENGTH({name}) <= {self.constraints.max_length}")
+            if self.constraints.minimum is not None:
+                minimum = _format_for_sql(self.constraints.minimum)
+                checks.append(f"{name} >= {minimum}")
+            if self.constraints.maximum is not None:
+                maximum = _format_for_sql(self.constraints.maximum)
+                checks.append(f"{name} <= {maximum}")
+            if self.constraints.pattern:
+                pattern = _format_for_sql(self.constraints.pattern)
+                checks.append(f"{name} REGEXP {pattern}")
+            if self.constraints.enum:
+                enum = [_format_for_sql(x) for x in self.constraints.enum]
+                checks.append(f"{name} IN ({', '.join(enum)})")
         return sa.Column(
             self.name,
             self.dtype_sql,
@@ -916,11 +924,22 @@ class Resource(Base):
         """Construct from PUDL identifier (`resource.name`)."""
         return cls(**cls.dict_from_id(x))
 
-    def to_sql(self, metadata: sa.MetaData = None) -> sa.Table:
+    def to_sql(
+        self,
+        metadata: sa.MetaData = None,
+        check_types: bool = True,
+        check_values: bool = True,
+    ) -> sa.Table:
         """Return equivalent SQL Table."""
         if metadata is None:
             metadata = sa.MetaData()
-        columns = [f.to_sql() for f in self.schema.fields]
+        columns = [
+            f.to_sql(
+                check_types=check_types,
+                check_values=check_values,
+            )
+            for f in self.schema.fields
+        ]
         constraints = []
         if self.schema.primary_key:
             constraints.append(sa.PrimaryKeyConstraint(*self.schema.primary_key))
@@ -1326,9 +1345,17 @@ class Package(Base):
         rendered = template.render(self)
         Path(path).write_text(rendered)
 
-    def to_sql(self) -> sa.MetaData:
+    def to_sql(
+        self,
+        check_types: bool = True,
+        check_values: bool = True,
+    ) -> sa.MetaData:
         """Return equivalent SQL MetaData."""
         metadata = sa.MetaData()
         for resource in self.resources:
-            _ = resource.to_sql(metadata)
+            _ = resource.to_sql(
+                metadata,
+                check_types=check_types,
+                check_values=check_values,
+            )
         return metadata

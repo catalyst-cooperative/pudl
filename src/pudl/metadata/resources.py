@@ -27,7 +27,7 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
                 "generator_id",
                 "plant_id_eia",
                 "unit_id_epa",
-            ]
+            ],
         }
     },
     "assn_plant_id_eia_epa": {
@@ -35,7 +35,7 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
             "fields": [
                 "plant_id_eia",
                 "plant_id_epa",
-            ]
+            ],
         }
     },
     "boiler_fuel_eia923": {
