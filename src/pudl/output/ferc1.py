@@ -148,8 +148,10 @@ def plants_small_ferc1(pudl_engine):
     plants_small_df = (
         pd.read_sql_table("plants_small_ferc1", pudl_engine)
         .drop(['id'], axis="columns")
-        .merge(pd.read_sql_table("utilities_ferc1", pudl_engine),
-               on="utility_id_ferc1")
+        .merge(plants_utils_ferc1(pudl_engine),
+               on=['utility_id_ferc1', 'plant_name_ferc1'])
+        # .merge(pd.read_sql_table("utilities_ferc1", pudl_engine),
+        #       on="utility_id_ferc1")
         .pipe(pudl.helpers.organize_cols, ['report_year',
                                            'utility_id_ferc1',
                                            'utility_id_pudl',
