@@ -767,7 +767,7 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
         "sources": ["eia923"],
     },
     "purchased_power_ferc1": {
-        "description": "Purchased Power (Account 555) including power exchanges (i.e. transactions involving a balancing of debits and credits for energy, capacity, etc.) and any settlements for imbalanced exchanges. Reported on pages 326-327 of FERC Form 1. Extracted from the f1_purchased_pwr table in FERC's FoxPro database. ",
+        "description": "Purchased Power (Account 555) including power exchanges (i.e. transactions involving a balancing of debits and credits for energy, capacity, etc.) and any settlements for imbalanced exchanges. Reported on pages 326-327 of FERC Form 1. Extracted from the f1_purchased_pwr table in FERC's FoxPro database.",
         "schema": {
             "fields": [
                 "record_id",
