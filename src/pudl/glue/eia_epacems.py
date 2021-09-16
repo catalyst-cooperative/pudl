@@ -43,7 +43,6 @@ def grab_n_clean_epa_orignal():
     eia_epacems_crosswalk = (
         pd.read_csv(eia_epacems_crosswalk_csv)
         .pipe(pudl.helpers.simplify_columns)
-        # .pipe(pudl.helpers.convert_cols_dtypes, 'eia')
         .rename(columns={
             'oris_code': 'plant_id_epa',
             'eia_oris': 'plant_id_eia',
@@ -57,6 +56,7 @@ def grab_n_clean_epa_orignal():
             'generator_id',
             'boiler_id',
         ])
+        .pipe(pudl.helpers.convert_cols_dtypes, 'eia')
     )
     return eia_epacems_crosswalk
 

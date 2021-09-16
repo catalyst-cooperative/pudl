@@ -103,11 +103,13 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
     },
     "ash_impoundment": {
         "type": "boolean",
-        "description": "Is there an ash impoundment (e.g. pond, reservoir) at the plant?"
+        "description": "Is there an ash impoundment (e.g. pond, reservoir) at the plant?",
+        # TODO: Is this really boolean? Or do we have non-null strings that mean False?
     },
     "ash_impoundment_lined": {
         "type": "boolean",
         "description": "If there is an ash impoundment at the plant, is the impoundment lined?"
+        # TODO: Is this really boolean? Or do we have non-null strings that mean False?
     },
     "ash_impoundment_status": {
         "type": "string",
@@ -153,7 +155,8 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
         "description": "Monthly average billing demand (for requirements purchases, and any transactions involving demand charges). In megawatts."
     },
     "boiler_id": {
-        "type": "string"
+        "type": "string",
+        "description": "Alphanumeric boiler ID.",
     },
     "bunded_activity": {
         "type": "boolean"
@@ -184,7 +187,10 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
         "type": "number"
     },
     "capacity_mw": {
-        "type": "number"
+        "type": "number",
+        "description": "Total installed (nameplate) capacity, in megawatts.",
+        # TODO: Disambiguate if necessary. Does this mean different things in
+        # different tables? It shows up in a lot of places.
     },
     "capex_equipment": {
         "type": "number",
@@ -207,7 +213,8 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
         "description": "Cost of plant: land and land rights (USD)."
     },
     "capex_per_mw": {
-        "type": "number"
+        "type": "number",
+        "description": "Cost of plant per megawatt of installed (nameplate) capacity. Nominal USD.",
     },
     "capex_roads": {
         "type": "number",
@@ -236,7 +243,8 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
         "type": "integer"
     },
     "city": {
-        "type": "string"
+        "type": "string",
+        # TODO: Disambiguate column. City means different things in different tables.
     },
     "co2_mass_measurement_code": {
         "type": "string",
@@ -274,7 +282,8 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
         }
     },
     "construction_year": {
-        "type": "year"
+        "type": "year",
+        "description": "Year the plant's oldest still operational unit was built.",
     },
     "consumed_by_facility_mwh": {
         "type": "number"
@@ -324,6 +333,7 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
     "county_id_fips": {
         "type": "string",
         "description": "County ID from the Federal Information Processing Standard Publication 6-4."
+        # TODO: Add pattern & length constraint.
     },
     "credits_or_adjustments": {
         "type": "number"
@@ -413,7 +423,8 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
         "type": "number"
     },
     "description": {
-        "type": "string"
+        "type": "string",
+        # TODO: Disambiguate column name
     },
     "direct_load_control_customers": {
         "type": "integer"
@@ -610,6 +621,7 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
     "energy_storage": {
         "type": "boolean",
         "description": "Indicates if the facility has energy storage capabilities."
+        # TODO: Is this really boolean? Or do we have non-null strings that mean False?
     },
     "energy_used_for_pumping_mwh": {
         "type": "number",
@@ -617,7 +629,7 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
     },
     "entity_type": {
         "type": "string",
-        "description": "Entity type of principle owner.",
+        "description": "Entity type of principal owner.",
         "constraints": {
             "enum": list(ENTITY_TYPES.values())
         }
@@ -665,10 +677,12 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
     "ferc_cogen_status": {
         "type": "boolean",
         "description": "Indicates whether the plant has FERC qualifying facility cogenerator status."
+        # TODO: Is this really boolean? Or do we have non-null strings that mean False?
     },
     "ferc_exempt_wholesale_generator": {
         "type": "boolean",
         "description": "Indicates whether the plant has FERC qualifying facility exempt wholesale generator status"
+        # TODO: Is this really boolean? Or do we have non-null strings that mean False?
     },
     "ferc_exempt_wholesale_generator_docket_no": {
         "type": "string",
@@ -714,7 +728,8 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
         "description": "Consumption of the fuel type in physical units. Note: this is the total quantity consumed for both electricity and, in the case of combined heat and power plants, process steam production."
     },
     "fuel_cost_per_mmbtu": {
-        "type": "number"
+        "type": "number",
+        "description": "Average fuel cost per mmBTU of heat content in nominal USD.",
     },
     "fuel_cost_per_unit_burned": {
         "type": "number",
@@ -736,7 +751,8 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
         "description": "Simplified grouping of fuel_group_code, with Coal and Petroluem Coke as well as Natural Gas and Other Gas grouped together."
     },
     "fuel_mmbtu_per_unit": {
-        "type": "number"
+        "type": "number",
+        "description": "Heat content of the fuel in millions of Btus per physical unit.",
     },
     "fuel_pct": {
         "type": "number"
@@ -750,7 +766,9 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
         "description": "Quanity of fuel received in tons, barrel, or Mcf."
     },
     "fuel_type": {
-        "type": "string"
+        "type": "string",
+        # TODO disambiguate column name. There are fuel types everywhere. We need to know which
+        # data source it is associated with to know what it should look like.
     },
     "fuel_type_code": {
         "type": "string",
@@ -758,10 +776,12 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
     },
     "fuel_type_code_aer": {
         "type": "string",
-        "description": "A partial aggregation of the reported fuel type codes into larger categories used by EIA in, for example, the Annual Energy Review (AER).Two or three letter alphanumeric."
+        "description": "A partial aggregation of the reported fuel type codes into larger categories used by EIA in, for example, the Annual Energy Review (AER). Two or three letter alphanumeric."
     },
     "fuel_type_code_pudl": {
-        "type": "string"
+        "type": "string",
+        "description": "Simplified fuel type code used in PUDL",
+        # TODO: add an ENUM constraint here
     },
     "fuel_unit": {
         "type": "string",
@@ -851,7 +871,8 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
         "type": "boolean"
     },
     "generator_id": {
-        "type": "string"
+        "type": "string",
+        "description": "Generator ID is usually numeric, but sometimes includes letters. Make sure you treat it as a string!",
     },
     "generators_num_less_1_mw": {
         "type": "number"
@@ -948,7 +969,8 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
         "type": "number"
     },
     "installation_year": {
-        "type": "year"
+        "type": "year",
+        "description": "Year the plant's most recently built unit was installed.",
     },
     "intangible_acct301_organization": {
         "type": "number",
@@ -979,11 +1001,14 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
         "description": "Electric Plant Leased to Others (USD)."
     },
     "line_id": {
-        "type": "string"
+        "type": "string",
+        "description": "A human readable string uniquely identifying the FERC depreciation account. Used in lieu of the actual line number, as those numbers are not guaranteed to be consistent from year to year.",
+        # TODO disambiguate column name
     },
     "liquefied_natural_gas_storage": {
         "type": "boolean",
         "description": "Indicates if the facility have the capability to store the natural gas in the form of liquefied natural gas."
+        # TODO: Is this really boolean? Or do we have non-null strings that mean False?
     },
     "load_management_annual_actual_peak_reduction_mw": {
         "type": "number"
@@ -1037,13 +1062,17 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
         "type": "date"
     },
     "merge_state": {
-        "type": "string"
+        "type": "string",
+        "description": "Two letter US state abbreviations and three letter ISO-3166-1 country codes for international mines.",
+        # TODO: Add ENUM constraint.
     },
     "merge_zip_4": {
         "type": "string"
+        # TODO Standardize with other zip codes and apply pattern constraint
     },
     "merge_zip_5": {
         "type": "string"
+        # TODO Standardize with other zip codes and apply pattern constraint
     },
     "mine_id_msha": {
         "type": "integer",
@@ -1051,7 +1080,7 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
     },
     "mine_id_pudl": {
         "type": "integer",
-        "description": "PUDL issued mine identifier."
+        "description": "Dynamically assigned PUDL mine identifier."
     },
     "mine_name": {
         "type": "string",
@@ -1118,6 +1147,7 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
     "natural_gas_storage": {
         "type": "boolean",
         "description": "Indicates if the facility have on-site storage of natural gas."
+        # TODO: Is this really boolean? Or do we have non-null strings that mean False?
     },
     "natural_gas_transport_code": {
         "type": "string",
@@ -1148,7 +1178,11 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
         "description": "Net plant capability under the most favorable operating conditions, in megawatts."
     },
     "net_generation_mwh": {
-        "type": "number"
+        "type": "number",
+        "description": "Net electricity generation for the specified period in megawatt-hours (MWh).",
+        # TODO: disambiguate as this column means something different in
+        # generation_fuel_eia923:
+        # "description": "Net generation, year to date in megawatthours (MWh). This is total electrical output net of station service.  In the case of combined heat and power plants, this value is intended to include internal consumption of electricity for the purposes of a production process, as well as power put on the grid.",
     },
     "net_load_mwh": {
         "type": "number",
@@ -1157,6 +1191,7 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
     "net_metering": {
         "type": "boolean",
         "description": "Did this plant have a net metering agreement in effect during the reporting year?  (Only displayed for facilities that report the sun or wind as an energy source). This field was only reported up until 2015"
+        # TODO: Is this really boolean? Or do we have non-null strings that mean False?
     },
     "net_power_exchanged_mwh": {
         "type": "number"
@@ -1567,13 +1602,17 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
     "owner_zip_code": {
         "type": "string",
         "description": "Zip code of owner."
+        # TODO Standardize with other zip codes and apply pattern constraint
     },
     "ownership_code": {
         "type": "string",
         "description": "Identifies the ownership for each generator."
     },
     "peak_demand_mw": {
-        "type": "number"
+        "type": "number",
+        "description": "Net peak demand for 60 minutes. Note: in some cases peak demand for other time periods may have been reported instead, if hourly peak demand was unavailable.",
+        # TODO Disambiguate column names. Usually this is over 60 minutes, but in
+        # other tables it's not specified.
     },
     "peak_demand_summer_mw": {
         "type": "number"
@@ -1650,14 +1689,21 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
         "description": "Planned effective date that the generator is scheduled to enter operation after the uprate modification."
     },
     "plant_capability_mw": {
-        "type": "number"
+        "type": "number",
+        "description": "Net plant capability in megawatts.",
     },
     "plant_hours_connected_while_generating": {
-        "type": "number"
+        "type": "number",
+        "description": "Hours the plant was connected to load while generating in the report year.",
+        # TODO Add min/max constraint. 0 <= X <= 8784
     },
     "plant_id_eia": {
         "type": "integer",
         "description": "The unique six-digit facility identification number, also called an ORISPL, assigned by the Energy Information Administration."
+    },
+    "plant_id_epa": {
+        "type": "integer",
+        "description": "The ORISPL ID used by EPA to refer to the plant. Usually but not always the same as plant_id_eia.",
     },
     "plant_id_ferc1": {
         "type": "integer",
@@ -1672,7 +1718,8 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
         "description": "Plant name."
     },
     "plant_name_ferc1": {
-        "type": "string"
+        "type": "string",
+        "description": "Name of the plant, as reported to FERC. This is a freeform string, not guaranteed to be consistent across references to the same plant.",
     },
     "plant_name_original": {
         "type": "string",
@@ -1684,6 +1731,8 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
     },
     "plant_type": {
         "type": "string"
+        # TODO Disambiguate column name and apply table specific ENUM constraints. There
+        # are different allowable values in different tables.
     },
     "plants_reported_asset_manager": {
         "type": "boolean",
@@ -1717,16 +1766,21 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
     "primary_purpose_naics_id": {
         "type": "integer",
         "description": "North American Industry Classification System (NAICS) code that best describes the primary purpose of the reporting plant"
+        # TODO: Thes are really codes with different fields representing sub-industries.
+        # It might be better represented as a string like FIPS and ZIP codes.
     },
     "primary_transportation_mode_code": {
         "type": "string",
         "description": "Transportation mode for the longest distance transported."
     },
     "prime_mover": {
-        "type": "string"
+        "type": "string",
+        "description": "Full description of the type of prime mover."
     },
     "prime_mover_code": {
-        "type": "string"
+        "type": "string",
+        "description": "Code for the type of prime mover (e.g. CT, CG)",
+        # TODO: Add ENUM constraint here.
     },
     "production_total": {
         "type": "number",
@@ -1923,10 +1977,14 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
     "sector_id": {
         "type": "integer",
         "description": "Plant-level sector number, designated by the primary purpose, regulatory status and plant-level combined heat and power status"
+        # TODO: Potentially combine with the NAICS primary use code. Also consider
+        # storing it as a string with a pattern constraint because it's a code not a
+        # numerical value per se.
     },
     "sector_name": {
         "type": "string",
         "description": "Plant-level sector name, designated by the primary purpose, regulatory status and plant-level combined heat and power status"
+        # TODO: Make it clear this is from the NAICS taxonomy.
     },
     "seller_name": {
         "type": "string",
@@ -1999,12 +2057,17 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
     },
     "state": {
         "type": "string"
+        # TODO: disambiguate the column name. State means different things in
+        # different tables. E.g. state of the utility's HQ address vs. state that a
+        # plant is located in vs. state in which a utility provides service.
     },
     "state_id_fips": {
-        "type": "string"
+        "type": "string",
+        # TODO: add pattern / length constraint.
     },
     "status": {
         "type": "string"
+        # TODO: Disambiguate column name.
     },
     "steam_acct310_land": {
         "type": "number",
@@ -2057,7 +2120,8 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
         "type": "integer"
     },
     "street_address": {
-        "type": "string"
+        "type": "string",
+        # TODO: Disambiguate as this means different things in different tables.
     },
     "subcritical_tech": {
         "type": "boolean",
@@ -2263,12 +2327,12 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
         "description": "EIA-assigned unit identification code."
     },
     "unit_id_epa": {
-        "type": "integer",
-        "description": "New EPA unit ID."
+        "type": "string",
+        "description": "Emissions (smokestake) unit monitored by EPA CEMS."
     },
     "unit_id_pudl": {
         "type": "integer",
-        "description": "PUDL-assigned unit identification number."
+        "description": "Dynamically assigned PUDL unit id. WARNING: This ID is not guaranteed to be static long term as the input data and algorithm may evolve over time.",
     },
     "unitid": {
         "type": "string",
@@ -2289,7 +2353,13 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
         "type": "string"
     },
     "utility_id_eia": {
-        "type": "integer"
+        "type": "integer",
+        "description": "The EIA Utility Identification number.",
+        # TODO: Disambiguate column name. In some cases this specifically refers to
+        # the utility which operates a given plant or generator, but comes from the
+        # same set of IDs as all the utility IDs.
+        # E.g. in ownership_eia860 or generators_eia860 it would be something like:
+        # "description": "EIA-assigned identification number for the company that is responsible for the day-to-day operations of the generator.",
     },
     "utility_id_ferc1": {
         "type": "integer",
@@ -2318,7 +2388,8 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
         "type": "string"
     },
     "utility_zip_ext": {
-        "type": "string"
+        "type": "string",
+        # TODO: Standardize with other zip codes and impose pattern constraint.
     },
     "variable_peak_pricing_program": {
         "type": "boolean"
@@ -2373,10 +2444,12 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
     "zip_code": {
         "type": "string",
         "description": "Five digit US Zip Code."
+        # TODO Standardize with other zip codes and apply pattern constraint
     },
     "zip_code_4": {
         "type": "string",
         "description": "Four digit US Zip Code suffix."
+        # TODO Standardize with other zip codes and apply pattern constraint
     }
 }
 """

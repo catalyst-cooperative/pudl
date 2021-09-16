@@ -21,6 +21,23 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
         },
         "sources": ["ferc1"],
     },
+    "assn_gen_eia_unit_epa": {
+        "schema": {
+            "fields": [
+                "generator_id",
+                "plant_id_eia",
+                "unit_id_epa",
+            ]
+        }
+    },
+    "assn_plant_id_eia_epa": {
+        "schema": {
+            "fields": [
+                "plant_id_eia",
+                "plant_id_epa",
+            ]
+        }
+    },
     "boiler_fuel_eia923": {
         "schema": {
             "fields": [
@@ -109,7 +126,7 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
         },
     },
     "fuel_ferc1": {
-        "description": "Annual fuel consumed by large thermal generating plants. As reported on page 402 of FERC Form 1.",
+        "description": "Annual fuel cost and quanitiy for steam plants with a capacity of 25+ MW, internal combustion and gas-turbine plants of 10+ MW, and all nuclear plants. As reported on page 402 of FERC Form 1 and extracted from the f1_fuel table in FERC's FoxPro Database.",
         "schema": {
             "fields": [
                 "record_id",
@@ -477,6 +494,11 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
         },
         "sources": ["ferc1"],
     },
+    "plant_unit_epa": {
+        "schema": {
+            "fields": ["plant_id_epa", "unit_id_epa"],
+        }
+    },
     "plants_eia": {
         "schema": {
             "fields": ["plant_id_eia", "plant_name_eia", "plant_id_pudl"],
@@ -614,6 +636,7 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
         },
     },
     "plants_pumped_storage_ferc1": {
+        "description": "Generating plant statistics for hydroelectric pumped storage plants with an installed nameplate capacity of 10+ MW. As reported on page 408 of FERC Form 1 and extracted from the f1_pumped_storage table in FERC's FoxPro Database.",
         "schema": {
             "fields": [
                 "record_id",
@@ -662,7 +685,7 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
         "sources": ["ferc1"],
     },
     "plants_small_ferc1": {
-        "description": "Generating plant statistics for small plants, as reported on FERC Form 1 pages 410-411, and extracted from the FERC FoxPro database table f1_gnrt_plant. Small generating plants are defined by having nameplate capacity of less than 25MW for steam plants, and less than 10MW for internal combustion, conventional hydro, and pumped storage plants.",
+        "description": "Generating plant statistics for steam plants with less than 25 MW installed nameplate capacity and internal combustion plants, gas turbine-plants, conventional hydro plants, and pumped storage plants with less than 10 MW installed nameplate capacity. As reported on FERC Form 1 pages 410-411, and extracted from the FERC FoxPro database table f1_gnrt_plant.",
         "schema": {
             "fields": [
                 "record_id",
@@ -688,7 +711,7 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
         "sources": ["ferc1"],
     },
     "plants_steam_ferc1": {
-        "description": "Large thermal generating plants, as reported on page 402 of FERC Form 1.",
+        "description": "Generating plant statistics for steam plants with a capacity of 25+ MW, internal combustion and gas-turbine plants of 10+ MW, and all nuclear plants. As reported on page 402 of FERC Form 1 and extracted from the f1_gnrt_plant table in FERC's FoxPro Database.",
         "schema": {
             "fields": [
                 "record_id",
