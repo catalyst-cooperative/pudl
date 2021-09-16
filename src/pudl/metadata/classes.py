@@ -1237,7 +1237,7 @@ class Package(Base):
         """
         resources = [Resource.dict_from_id(x) for x in resource_ids]
         # Add missing resources based on foreign keys
-        names = resource_ids.copy()
+        names = list(resource_ids)
         i = 0
         while i < len(resources):
             for resource in resources[i:]:

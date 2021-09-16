@@ -5,7 +5,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from pudl.metadata.classes import Resource
+from pudl.metadata.classes import Package, Resource, RESOURCE_METADATA
 from pudl.metadata.helpers import most_frequent
 
 # ---- Helpers ---- #
@@ -21,6 +21,12 @@ def _assert_frame_equal(a: pd.DataFrame, b: pd.DataFrame, **kwargs: Any) -> None
 
 
 # ---- Unit tests ---- #
+
+
+def test_all_resources_valid() -> None:
+    """All resources in metadata pass validation tests."""
+    Package.from_resource_ids(RESOURCE_METADATA)
+
 
 STANDARD: Dict[str, Any] = {
     "name": "r",
