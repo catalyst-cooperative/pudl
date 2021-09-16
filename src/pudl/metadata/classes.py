@@ -123,10 +123,10 @@ class Base(pydantic.BaseModel):
 
 # ---- Class attribute types ---- #
 
-
-String = pydantic.constr(min_length=1, strict=True)
+# NOTE: Using regex=r"^\S(.*\S)*$" to fail on whitespace is too slow
+String = pydantic.constr(min_length=1, strict=True, regex=r"^\S+(\s+\S+)*$")
 """
-Non-empty :class:`str` (anything except "").
+Non-empty :class:`str` with no trailing or leading whitespace.
 """
 
 SnakeCase = pydantic.constr(
