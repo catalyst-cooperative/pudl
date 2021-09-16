@@ -143,21 +143,14 @@ def epacems(
         pudl_settings = pudl.workspace.setup.get_defaults()
         cems_path = Path(pudl_settings["parquet_dir"]) / "epacems"
 
-    try:
-        cems = dd.read_parquet(
-            cems_path,
-            use_nullable_dtypes=True,
-            columns=columns,
-            filters=year_state_filter(
-                states=states,
-                years=years,
-            ),
-        )
-    # catch empty result and return empty dataframe instead of error
-    except ValueError as e:
-        if e.args[0] == "need at least one array to concatenate":
-            cems = dd.DataFrame(columns=columns)
-        else:
-            raise e
+    cems = dd.read_parquet(
+        cems_path,
+        use_nullable_dtypes=True,
+        columns=columns,
+        filters=year_state_filter(
+            states=states,
+            years=years,
+        ),
+    )
 
     return cems
