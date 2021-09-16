@@ -9,22 +9,6 @@ import pandas as pd
 
 import pudl
 
-# TODO: hardcoded data version doesn't belong here, but will defer fixing it until
-# crosswalk is formally integrated into PUDL. See Issue # 1123
-EPA_CROSSWALK_RELEASE = "https://github.com/USEPA/camd-eia-crosswalk/releases/download/v0.2.1/"
-
-
-def epa_crosswalk() -> pd.DataFrame:
-    # TODO: formally integrate this into PUDL. See Issue # 1123
-    """Read EPA/EIA crosswalk from EPA github repo.
-
-    See https://github.com/USEPA/camd-eia-crosswalk for details and data dictionary
-
-    Returns:
-        pd.Dataframe: EPA/EIA crosswalk
-    """
-    return pd.read_csv(EPA_CROSSWALK_RELEASE + "epa_eia_crosswalk.csv")
-
 
 def year_state_filter(years=(), states=()):
     """
