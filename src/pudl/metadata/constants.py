@@ -1,5 +1,6 @@
 """Metadata and operational constants."""
-from typing import Callable, Dict, List
+import datetime
+from typing import Callable, Dict, List, Type
 
 import pandas as pd
 import sqlalchemy as sa
@@ -28,6 +29,19 @@ FIELD_DTYPES_SQL: Dict[str, sa.sql.visitors.VisitableType] = {
 }
 """
 SQLAlchemy column types by PUDL field type (Data Package `field.type`).
+"""
+
+CONSTRAINT_DTYPES: Dict[str, Type] = {
+    'string': str,
+    'integer': int,
+    'year': int,
+    'number': float,
+    'boolean': bool,
+    'date': datetime.date,
+    'datetime': datetime.datetime
+}
+"""
+Python types for field constraints by PUDL field type (Data Package `field.type`).
 """
 
 LICENSES: Dict[str, Dict[str, str]] = {

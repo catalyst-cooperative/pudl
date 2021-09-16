@@ -32,7 +32,7 @@ STANDARD: Dict[str, Any] = {
             {"name": "x", "type": "integer", "harvest": {"aggregate": most_frequent}},
             {"name": "y", "type": "integer", "harvest": {"aggregate": most_frequent}}
         ],
-        "primaryKey": ["i", "j"]
+        "primary_key": ["i", "j"]
     },
 }
 
@@ -258,7 +258,7 @@ RESOURCES: List[Dict[str, Any]] = [
         "harvest": {"harvest": True},
         "schema": {
             "fields": ["plant_id_eia", "state", "balancing_authority_code_eia"],
-            "primaryKey": ["plant_id_eia"],
+            "primary_key": ["plant_id_eia"],
         },
     },
     {
@@ -271,7 +271,7 @@ RESOURCES: List[Dict[str, Any]] = [
                 "prime_mover_code",
                 "topping_bottoming_code",
             ],
-            "primaryKey": ["plant_id_eia", "generator_id"],
+            "primary_key": ["plant_id_eia", "generator_id"],
         },
     },
     {
@@ -279,7 +279,7 @@ RESOURCES: List[Dict[str, Any]] = [
         "harvest": {"harvest": True},
         "schema": {
             "fields": ["plant_id_eia", "generator_id", "report_year", "capacity_mw"],
-            "primaryKey": ["plant_id_eia", "generator_id", "report_year"],
+            "primary_key": ["plant_id_eia", "generator_id", "report_year"],
         },
     },
     {
@@ -287,7 +287,7 @@ RESOURCES: List[Dict[str, Any]] = [
         "harvest": {"harvest": True},
         "schema": {
             "fields": ["utility_id_eia", "utility_name_eia"],
-            "primaryKey": ["utility_id_eia"],
+            "primary_key": ["utility_id_eia"],
         },
     },
     {
@@ -295,7 +295,7 @@ RESOURCES: List[Dict[str, Any]] = [
         "harvest": {"harvest": True},
         "schema": {
             "fields": ["utility_id_eia", "report_year", "state", "county"],
-            "primaryKey": ["utility_id_eia", "report_year", "state", "county"],
+            "primary_key": ["utility_id_eia", "report_year", "state", "county"],
         },
     },
     {
@@ -308,7 +308,7 @@ RESOURCES: List[Dict[str, Any]] = [
                 "report_month",
                 "net_generation_mwh",
             ],
-            "primaryKey": ["plant_id_eia", "generator_id", "report_month"],
+            "primary_key": ["plant_id_eia", "generator_id", "report_month"],
         },
     },
     {
@@ -316,7 +316,7 @@ RESOURCES: List[Dict[str, Any]] = [
         "harvest": {"harvest": False},
         "schema": {
             "fields": ["utility_id_eia", "report_year", "state", "county", "sales"],
-            "primaryKey": ["utility_id_eia", "report_year", "state", "county"],
+            "primary_key": ["utility_id_eia", "report_year", "state", "county"],
         },
     },
     {
@@ -324,7 +324,7 @@ RESOURCES: List[Dict[str, Any]] = [
         "harvest": {"harvest": True},
         "schema": {
             "fields": ["plant_id_eia", "generator_id", "report_year", "boiler_id"],
-            "primaryKey": ["plant_id_eia", "generator_id", "report_year", "boiler_id"],
+            "primary_key": ["plant_id_eia", "generator_id", "report_year", "boiler_id"],
         },
     },
 ]
@@ -430,7 +430,7 @@ for name, df in EXPECTED_DFS.items():
     resource = RESOURCES[rnames.index(name)]
     df = df.astype(resource.dtypes)
     if resource.harvest.harvest:
-        df = df.set_index(resource.schema.primaryKey)
+        df = df.set_index(resource.schema.primary_key)
     else:
         df.index = pd.Index([name] * len(df), name="df")
     EXPECTED_DFS[name] = df

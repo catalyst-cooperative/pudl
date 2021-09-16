@@ -1,7 +1,7 @@
 """Metadata data classes."""
 import copy
 import datetime
-import uuid
+import re
 from pathlib import Path
 from typing import (Any, Callable, Dict, Iterable, List, Literal, Optional,
                     Tuple, Type, Union)
@@ -11,14 +11,60 @@ import pydantic
 import sqlalchemy as sa
 from jinja2 import BaseLoader, Environment
 
-from .constants import (CONTRIBUTORS, CONTRIBUTORS_BY_SOURCE, FIELD_DTYPES,
-                        FIELD_DTYPES_SQL, KEYWORDS_BY_SOURCE, LICENSES,
-                        PERIODS, SOURCES)
+from .constants import (CONSTRAINT_DTYPES, CONTRIBUTORS,
+                        CONTRIBUTORS_BY_SOURCE, FIELD_DTYPES, FIELD_DTYPES_SQL,
+                        KEYWORDS_BY_SOURCE, LICENSES, PERIODS, SOURCES)
 from .fields import FIELD_METADATA
 from .helpers import (expand_periodic_column_names, groupby_aggregate,
                       most_and_more_frequent, split_period)
 from .resources import FOREIGN_KEYS, RESOURCE_METADATA
 from .templates import PACKAGE_TO_RST
+
+# ---- Helpers ---- #
+
+
+def _unique(*args: Iterable) -> list:
+    """Return a list of all unique values, in order of first appearance."""
+    values = []
+    for parent in args:
+        for child in parent:
+            if child not in values:
+                values.append(child)
+    return values
+
+
+def _format_pydantic_errors(*errors: str, header: bool = False) -> str:
+    """Format a list of validation errors for pydantic."""
+    if not errors:
+        return ""
+    return (
+        f"{'' if header else '* '}{errors[0]}\n" +
+        "\n".join([f"  * {e}" for e in errors[1:]])
+    )
+
+
+def _format_for_sql(x: Any) -> str:
+    if x is None:
+        return "null"
+    elif isinstance(x, (int, float)):
+        # NOTE: nan and (-)inf are TEXT in sqlite but numeric in postgresSQL
+        return str(x)
+    elif x is True:
+        return "TRUE"
+    elif x is False:
+        return "FALSE"
+    elif isinstance(x, re.Pattern):
+        x = x.pattern
+    elif isinstance(x, datetime.date):
+        x = x.strftime("%Y-%m-%d")
+    elif isinstance(x, datetime.datetime):
+        x = x.strftime("%Y-%m-%d %H:%M:%S")
+    if not isinstance(x, str):
+        raise ValueError(f"Cannot format type {type(x)} for SQL")
+    # Single quotes (') are escaped by doubling them ('')
+    x = x.replace("'", "''")
+    return f"'{x}'"
+
 
 # ---- Base ---- #
 
@@ -86,15 +132,88 @@ String = pydantic.constr(min_length=1, strict=True)
 Non-empty :class:`str` (anything except "").
 """
 
+SnakeCase = pydantic.constr(
+    min_length=1, strict=True, regex=r"^[a-z][a-z0-9]*(_[a-z0-9]+)*$"
+)
+"""Snake-case variable name :class:`str` (e.g. 'pudl', 'entity_eia860')."""
+
 Bool = pydantic.StrictBool
 """
 Any :class:`bool` (`True` or `False`).
 """
 
-Float = pydantic.confloat(ge=0, strict=True)
+Float = pydantic.StrictFloat
+"""
+Any :class:`float`.
+"""
+
+Int = pydantic.StrictInt
+"""
+Any :class:`int`.
+"""
+
+PositiveInt = pydantic.conint(ge=0, strict=True)
+"""
+Positive :class:`int`.
+"""
+
+PositiveFloat = pydantic.confloat(ge=0, strict=True)
 """
 Positive :class:`float`.
 """
+
+
+class Date:
+    """Any :class:`datetime.date`."""
+
+    @classmethod
+    def __get_validators__(cls) -> Callable:
+        """Yield validator methods."""
+        yield cls.validate
+
+    @classmethod
+    def validate(cls, value: Any) -> datetime.date:
+        """Validate as date."""
+        if not isinstance(value, datetime.date):
+            raise TypeError("value is not a date")
+        return value
+
+
+class Datetime:
+    """Any :class:`datetime.datetime`."""
+
+    @classmethod
+    def __get_validators__(cls) -> Callable:
+        """Yield validator methods."""
+        yield cls.validate
+
+    @classmethod
+    def validate(cls, value: Any) -> datetime.datetime:
+        """Validate as datetime."""
+        if not isinstance(value, datetime.datetime):
+            raise TypeError("value is not a datetime")
+        return value
+
+
+class Pattern:
+    """Regular expression pattern."""
+
+    @classmethod
+    def __get_validators__(cls) -> Callable:
+        """Yield validator methods."""
+        yield cls.validate
+
+    @classmethod
+    def validate(cls, value: Any) -> re.Pattern:
+        """Validate as pattern."""
+        if not isinstance(value, (str, re.Pattern)):
+            raise TypeError("value is not a string or compiled regular expression")
+        if isinstance(value, str):
+            try:
+                value = re.compile(value)
+            except re.error:
+                raise ValueError("string is not a valid regular expression")
+        return value
 
 
 def StrictList(item_type: Type = Any) -> pydantic.ConstrainedList:  # noqa: N802
@@ -161,9 +280,35 @@ class FieldConstraints(Base):
 
     required: Bool = False
     unique: Bool = False
-    enum: StrictList(Any) = None
+    min_length: PositiveInt = None
+    max_length: PositiveInt = None
+    minimum: Union[Int, Float, Date, Datetime] = None
+    maximum: Union[Int, Float, Date, Datetime] = None
+    pattern: Pattern = None
+    # TODO: Replace with String (min_length=1) once "" removed from enums
+    enum: StrictList(Union[pydantic.StrictStr, Int, Float, Bool, Date, Datetime]) = None
 
     _check_unique = _validator("enum", fn=_check_unique)
+
+    @pydantic.validator("max_length")
+    def _check_max_length(cls, value, values):  # noqa: N805
+        minimum, maximum = values.get("min_length"), value
+        if minimum is not None and maximum is not None:
+            if type(minimum) is not type(maximum):
+                raise ValueError("must be same type as min_length")
+            if maximum < minimum:
+                raise ValueError("must be greater or equal to min_length")
+        return value
+
+    @pydantic.validator("maximum")
+    def _check_max(cls, value, values):  # noqa: N805
+        minimum, maximum = values.get("minimum"), value
+        if minimum is not None and maximum is not None:
+            if type(minimum) is not type(maximum):
+                raise ValueError("must be same type as minimum")
+            if maximum < minimum:
+                raise ValueError("must be greater or equal to minimum")
+        return value
 
 
 class FieldHarvest(Base):
@@ -175,7 +320,7 @@ class FieldHarvest(Base):
     )
     """Computes a single value from all field values in a group."""
 
-    tolerance: Float = 0.0
+    tolerance: PositiveFloat = 0.0
     """Fraction of invalid groups above which result is considered invalid."""
 
 
@@ -190,13 +335,13 @@ class Field(Base):
         >>> field.dtype
         CategoricalDtype(categories=['x', 'y'], ordered=False)
         >>> field.to_sql()
-        Column('x', Enum('x', 'y'), table=None)
+        Column('x', Enum('x', 'y'), CheckConstraint(...), table=None)
         >>> field = Field.from_id('utility_id_eia')
         >>> field.name
         'utility_id_eia'
     """
 
-    name: String
+    name: SnakeCase
     type: String  # noqa: A003
     format: Literal["default"] = "default"  # noqa: A003
     description: String = None
@@ -211,13 +356,27 @@ class Field(Base):
         return value
 
     @pydantic.validator("constraints")
-    def _check_enum_type(cls, value, values):  # noqa: N805
-        if value.enum and "type" in values:
-            if values["type"] != "string":
-                raise ValueError("Non-string enum type is not supported")
+    def _check_constraints(cls, value, values):  # noqa: N805, C901
+        if "type" not in values:
+            return value
+        dtype = values["type"]
+        errors = []
+        for key in ("min_length", "max_length", "pattern"):
+            if getattr(value, key) is not None and dtype != "string":
+                errors.append(f"{key} not supported by {dtype} field")
+        for key in ("minimum", "maximum"):
+            x = getattr(value, key)
+            if x is not None:
+                if dtype in ("string", "boolean"):
+                    errors.append(f"{key} not supported by {dtype} field")
+                elif not isinstance(x, CONSTRAINT_DTYPES[dtype]):
+                    errors.append(f"{key} not {dtype}")
+        if value.enum:
             for x in value.enum:
-                if not isinstance(x, str):
-                    raise ValueError(f"Enum value '{x}' is not {values['type']}")
+                if not isinstance(x, CONSTRAINT_DTYPES[dtype]):
+                    errors.append(f"enum value {x} not {dtype}")
+        if errors:
+            raise ValueError(_format_pydantic_errors(*errors))
         return value
 
     @staticmethod
@@ -240,15 +399,54 @@ class Field(Base):
     @property
     def dtype_sql(self) -> sa.sql.visitors.VisitableType:
         """SQLAlchemy data type."""  # noqa: D403
-        if self.constraints.enum:
-            return sa.Enum(*self.constraints.enum, create_constraint=True)
+        if self.constraints.enum and self.type == "string":
+            return sa.Enum(*self.constraints.enum)
         return FIELD_DTYPES_SQL[self.type]
 
-    def to_sql(self) -> sa.Column:
+    def to_sql(self, dialect: Literal["sqlite"] = "sqlite") -> sa.Column:  # noqa: C901
         """Return equivalent SQL column."""
+        if dialect != "sqlite":
+            raise NotImplementedError(f"Dialect {dialect} is not supported")
+        checks = []
+        # Column names are escaped with double quotes (")
+        name = f'"{self.name}"'
+        # Required with TYPEOF since TYPEOF(NULL) = 'null'
+        prefix = "" if self.constraints.required else f"{name} IS NULL OR "
+        # Field type
+        if self.type == "string":
+            checks.append(f"{prefix}TYPEOF({name}) = 'text'")
+        elif self.type in ("integer", "year"):
+            checks.append(f"{prefix}TYPEOF({name}) = 'integer'")
+        elif self.type == "number":
+            checks.append(f"{prefix}TYPEOF({name}) = 'real'")
+        elif self.type == "boolean":
+            # Just IN (0, 1) accepts floats equal to 0, 1 (0.0, 1.0)
+            checks.append(f"{prefix}(TYPEOF({name}) = 'integer' AND {name} IN (0, 1))")
+        elif self.type == "date":
+            checks.append(f"{name} IS DATE({name})")
+        elif self.type == "datetime":
+            checks.append(f"{name} IS DATETIME({name})")
+        # Field constraints
+        if self.constraints.min_length is not None:
+            checks.append(f"LENGTH({name}) >= {self.constraints.min_length}")
+        if self.constraints.max_length is not None:
+            checks.append(f"LENGTH({name}) <= {self.constraints.max_length}")
+        if self.constraints.minimum is not None:
+            minimum = _format_for_sql(self.constraints.minimum)
+            checks.append(f"{name} >= {minimum}")
+        if self.constraints.maximum is not None:
+            maximum = _format_for_sql(self.constraints.maximum)
+            checks.append(f"{name} <= {maximum}")
+        if self.constraints.pattern:
+            pattern = _format_for_sql(self.constraints.pattern)
+            checks.append(f"{name} REGEXP {pattern}")
+        if self.constraints.enum:
+            enum = [_format_for_sql(x) for x in self.constraints.enum]
+            checks.append(f"{name} IN ({', '.join(enum)})")
         return sa.Column(
             self.name,
             self.dtype_sql,
+            *[sa.CheckConstraint(check) for check in checks],
             nullable=not self.constraints.required,
             unique=self.constraints.unique,
             comment=self.description
@@ -260,25 +458,25 @@ class Field(Base):
 
 class ForeignKeyReference(Base):
     """
-    Foreign key reference (`resource.schema.foreignKeys[...].reference`).
+    Foreign key reference (`resource.schema.foreign_keys[...].reference`).
 
     See https://specs.frictionlessdata.io/table-schema/#foreign-keys.
     """
 
-    resource: String
-    fields_: StrictList(String) = pydantic.Field(alias="fields")
+    resource: SnakeCase
+    fields_: StrictList(SnakeCase) = pydantic.Field(alias="fields")
 
     _check_unique = _validator("fields_", fn=_check_unique)
 
 
 class ForeignKey(Base):
     """
-    Foreign key (`resource.schema.foreignKeys[...]`).
+    Foreign key (`resource.schema.foreign_keys[...]`).
 
     See https://specs.frictionlessdata.io/table-schema/#foreign-keys.
     """
 
-    fields_: StrictList(String) = pydantic.Field(alias="fields")
+    fields_: StrictList(SnakeCase) = pydantic.Field(alias="fields")
     reference: ForeignKeyReference
 
     _check_unique = _validator("fields_", fn=_check_unique)
@@ -306,12 +504,12 @@ class Schema(Base):
     """
 
     fields_: StrictList(Field) = pydantic.Field(alias="fields")
-    missingValues: List[pydantic.StrictStr] = [""]  # noqa: N815
-    primaryKey: StrictList(String) = None  # noqa: N815
-    foreignKeys: List[ForeignKey] = []  # noqa: N815
+    missing_values: List[pydantic.StrictStr] = [""]
+    primary_key: StrictList(SnakeCase) = None
+    foreign_keys: List[ForeignKey] = []
 
     _check_unique = _validator(
-        "missingValues", "primaryKey", "foreignKeys", fn=_check_unique
+        "missing_values", "primary_key", "foreign_keys", fn=_check_unique
     )
 
     @pydantic.validator("fields_")
@@ -319,7 +517,7 @@ class Schema(Base):
         _check_unique([f.name for f in value])
         return value
 
-    @pydantic.validator("primaryKey")
+    @pydantic.validator("primary_key")
     def _check_primary_key_in_fields(cls, value, values):  # noqa: N805
         if value is not None and "fields_" in values:
             missing = []
@@ -335,7 +533,7 @@ class Schema(Base):
                 raise ValueError(f"names {missing} missing from fields")
         return value
 
-    @pydantic.validator("foreignKeys", each_item=True)
+    @pydantic.validator("foreign_keys", each_item=True)
     def _check_foreign_key_in_fields(cls, value, values):  # noqa: N805
         if value and "fields_" in values:
             names = [f.name for f in values['fields_']]
@@ -343,22 +541,6 @@ class Schema(Base):
             if missing:
                 raise ValueError(f"names {missing} missing from fields")
         return value
-
-
-class Dialect(Base):
-    """
-    CSV dialect (`resource.dialect`).
-
-    See https://specs.frictionlessdata.io/csv-dialect.
-    """
-
-    delimiter: String = ","
-    header: Bool = True
-    quoteChar: String = "\""  # noqa: N815
-    doubleQuote: Bool = True  # noqa: N815
-    lineTerminator: String = "\r\n"  # noqa: N815
-    skipInitialSpace: Bool = True  # noqa: N815
-    caseSensitiveHeader: Bool = False  # noqa: N815
 
 
 class License(Base):
@@ -448,7 +630,7 @@ class ResourceHarvest(Base):
     and the process is limited to dropping unwanted fields.
     """
 
-    tolerance: Float = 0.0
+    tolerance: PositiveFloat = 0.0
     """Fraction of invalid fields above which result is considerd invalid."""
 
 
@@ -463,13 +645,13 @@ class Resource(Base):
 
         >>> fields = [{'name': 'x', 'type': 'year'}, {'name': 'y', 'type': 'string'}]
         >>> fkeys = [{'fields': ['x', 'y'], 'reference': {'resource': 'b', 'fields': ['x', 'y']}}]
-        >>> schema = {'fields': fields, 'primaryKey': ['x'], 'foreignKeys': fkeys}
+        >>> schema = {'fields': fields, 'primary_key': ['x'], 'foreign_keys': fkeys}
         >>> resource = Resource(name='a', schema=schema)
         >>> table = resource.to_sql()
         >>> table.columns.x
-        Column('x', Integer(), ForeignKey('b.x'), table=<a>, primary_key=True, nullable=False)
+        Column('x', Integer(), ForeignKey('b.x'), CheckConstraint(...), table=<a>, primary_key=True, nullable=False)
         >>> table.columns.y
-        Column('y', Text(), ForeignKey('b.y'), table=<a>)
+        Column('y', Text(), ForeignKey('b.y'), CheckConstraint(...), table=<a>)
 
         To illustrate harvesting operations,
         say we have a resource with two fields - a primary key (`id`) and a data field -
@@ -481,13 +663,13 @@ class Resource(Base):
         ...     {'name': 'x', 'type': 'integer', 'harvest': {'aggregate': unique, 'tolerance': 0.25}}
         ... ]
         >>> resource = Resource(**{
-        ...     'name': 'A',
+        ...     'name': 'a',
         ...     'harvest': {'harvest': True},
-        ...     'schema': {'fields': fields, 'primaryKey': ['id']}
+        ...     'schema': {'fields': fields, 'primary_key': ['id']}
         ... })
         >>> dfs = {
-        ...     'A': pd.DataFrame({'id': [1, 1, 2, 2], 'x': [1, 1, 2, 2]}),
-        ...     'B': pd.DataFrame({'id': [2, 3, 3], 'x': [3, 4, 4]})
+        ...     'a': pd.DataFrame({'id': [1, 1, 2, 2], 'x': [1, 1, 2, 2]}),
+        ...     'b': pd.DataFrame({'id': [2, 3, 3], 'x': [3, 4, 4]})
         ... }
 
         Skip aggregation to access all the rows concatenated from the input dataframes.
@@ -497,13 +679,13 @@ class Resource(Base):
         >>> df
             id  x
         df
-        A    1  1
-        A    1  1
-        A    2  2
-        A    2  2
-        B    2  3
-        B    3  4
-        B    3  4
+        a    1  1
+        a    1  1
+        a    2  2
+        a    2  2
+        b    2  3
+        b    3  4
+        b    3  4
 
         Field names and data types are enforced.
 
@@ -536,7 +718,7 @@ class Resource(Base):
         >>> df, report = resource.harvest_dfs(dfs, raised=False, error=error)
         >>> report['fields']['x']['errors']
         id
-        2    {'A': [2, 2], 'B': [3]}
+        2    {'a': [2, 2], 'b': [3]}
         Name: x, dtype: object
 
         Limit harvesting to the input dataframe of the same name
@@ -547,10 +729,10 @@ class Resource(Base):
         >>> df
             id  x
         df
-        A    1  1
-        A    1  1
-        A    2  2
-        A    2  2
+        a    1  1
+        a    1  1
+        a    2  2
+        a    2  2
 
         Harvesting can also handle conversion to longer time periods.
         Period harvesting requires primary key fields with a `datetime` data type,
@@ -559,7 +741,7 @@ class Resource(Base):
         >>> fields = [{'name': 'report_year', 'type': 'year'}]
         >>> resource = Resource(**{
         ...     'name': 'table', 'harvest': {'harvest': True},
-        ...     'schema': {'fields': fields, 'primaryKey': ['report_year']}
+        ...     'schema': {'fields': fields, 'primary_key': ['report_year']}
         ... })
         >>> df = pd.DataFrame({'report_date': ['2000-02-02', '2000-03-03']})
         >>> resource.format_df(df)
@@ -573,23 +755,16 @@ class Resource(Base):
         1  2000-01-01
     """
 
-    name: String
-    path: pydantic.FilePath = None
+    name: SnakeCase
     title: String = None
     description: String = None
     harvest: ResourceHarvest = {}
-    profile: Literal["tabular-data-resource"] = "tabular-data-resource"
-    encoding: Literal["utf-8"] = "utf-8"
-    mediatype: Literal["text/csv"] = "text/csv"
-    format: Literal["csv"] = "csv"  # noqa: A003
-    dialect: Dialect = {}
     schema_: Schema = pydantic.Field(alias='schema')
     contributors: List[Contributor] = []
     licenses: List[License] = []
     sources: List[Source] = []
     keywords: List[String] = []
 
-    _stringify = _validator("path", fn=_stringify)
     _check_unique = _validator(
         "contributors", "keywords", "licenses", "sources", fn=_check_unique
     )
@@ -597,7 +772,7 @@ class Resource(Base):
     @pydantic.validator("schema_")
     def _check_harvest_primary_key(cls, value, values):  # noqa: N805
         if values["harvest"].harvest:
-            if not value.primaryKey:
+            if not value.primary_key:
                 raise ValueError("Harvesting requires a primary key")
         return value
 
@@ -621,7 +796,7 @@ class Resource(Base):
         * `contributors`: Contributor ids are fetched by source ids,
           then expanded (:meth:`Contributor.from_id`).
         * `keywords`: Keywords are fetched by source ids.
-        * `schema.foreignKeys`: Foreign keys are fetched by resource name.
+        * `schema.foreign_keys`: Foreign keys are fetched by resource name.
         """
         obj = copy.deepcopy(RESOURCE_METADATA[x])
         obj["name"] = x
@@ -643,6 +818,12 @@ class Resource(Base):
             Source.dict_from_id(value) if isinstance(value, str) else value
             for value in sources
         ]
+        # Expand licenses (assign CC-BY-4.0 by default)
+        licenses = obj.get("licenses", [License.dict_from_id("cc-by-4.0")])
+        obj["licenses"] = [
+            License.dict_from_id(value) if isinstance(value, str) else value
+            for value in licenses
+        ]
         # Lookup and insert contributors
         if "contributors" in schema:
             raise ValueError("Resource metadata contains explicit contributors")
@@ -658,12 +839,12 @@ class Resource(Base):
             keywords.extend(KEYWORDS_BY_SOURCE.get(source, []))
         obj["keywords"] = list(set(keywords))
         # Insert foreign keys
-        if "foreignKeys" in schema:
+        if "foreign_keys" in schema:
             raise ValueError("Resource metadata contains explicit foreign keys")
-        schema["foreignKeys"] = FOREIGN_KEYS.get(x, [])
+        schema["foreign_keys"] = FOREIGN_KEYS.get(x, [])
         # Delete foreign key rules
-        if "foreignKeyRules" in schema:
-            del schema["foreignKeyRules"]
+        if "foreign_key_rules" in schema:
+            del schema["foreign_key_rules"]
         return obj
 
     @classmethod
@@ -677,9 +858,9 @@ class Resource(Base):
             metadata = sa.MetaData()
         columns = [f.to_sql() for f in self.schema.fields]
         constraints = []
-        if self.schema.primaryKey:
-            constraints.append(sa.PrimaryKeyConstraint(*self.schema.primaryKey))
-        for key in self.schema.foreignKeys:
+        if self.schema.primary_key:
+            constraints.append(sa.PrimaryKeyConstraint(*self.schema.primary_key))
+        for key in self.schema.foreign_keys:
             constraints.append(key.to_sql())
         return sa.Table(self.name, metadata, *columns, *constraints)
 
@@ -708,7 +889,7 @@ class Resource(Base):
 
         Examples:
             >>> fields = [{'name': 'x_year', 'type': 'year'}]
-            >>> schema = {'fields': fields, 'primaryKey': ['x_year']}
+            >>> schema = {'fields': fields, 'primary_key': ['x_year']}
             >>> resource = Resource(name='r', schema=schema)
 
             By default, when :attr:`harvest` .`harvest=False`,
@@ -736,7 +917,7 @@ class Resource(Base):
         """
         if len(names) != len(set(names)):
             raise ValueError("Field names are not unique")
-        keys = self.schema.primaryKey or []
+        keys = self.schema.primary_key or []
         if self.harvest.harvest:
             remaining = set(names)
             matches = {}
@@ -857,16 +1038,16 @@ class Resource(Base):
             that includes all aggregation errors and whether the result
             meets the resource's and fields' tolerance.
         """
-        if not self.schema.primaryKey:
+        if not self.schema.primary_key:
             raise ValueError("A primary key is required for aggregating")
         aggfuncs = {
             f.name: f.harvest.aggregate
             for f in self.schema.fields
-            if f.name not in self.schema.primaryKey
+            if f.name not in self.schema.primary_key
         }
         df, report = groupby_aggregate(
             df,
-            by=self.schema.primaryKey,
+            by=self.schema.primary_key,
             aggfuncs=aggfuncs,
             raised=raised,
             error=error,
@@ -984,13 +1165,13 @@ class Package(Base):
 
         >>> fields = [{'name': 'x', 'type': 'year'}, {'name': 'y', 'type': 'string'}]
         >>> fkey = {'fields': ['x', 'y'], 'reference': {'resource': 'b', 'fields': ['x', 'y']}}
-        >>> schema = {'fields': fields, 'primaryKey': ['x'], 'foreignKeys': [fkey]}
+        >>> schema = {'fields': fields, 'primary_key': ['x'], 'foreign_keys': [fkey]}
         >>> a = Resource(name='a', schema=schema)
-        >>> b = Resource(name='b', schema=Schema(fields=fields, primaryKey=['x']))
+        >>> b = Resource(name='b', schema=Schema(fields=fields, primary_key=['x']))
         >>> Package(name='ab', resources=[a, b])
         Traceback (most recent call last):
         ValidationError: ...
-        >>> b.schema.primaryKey = ['x', 'y']
+        >>> b.schema.primary_key = ['x', 'y']
         >>> package = Package(name='ab', resources=[a, b])
 
         SQL Alchemy can sort tables, based on foreign keys,
@@ -1002,48 +1183,75 @@ class Package(Base):
     """
 
     name: String
-    id: pydantic.UUID4 = uuid.uuid4()  # noqa: A003
-    profile: Literal["tabular-data-package"] = "tabular-data-package"
     title: String = None
     description: String = None
     keywords: List[String] = []
     homepage: pydantic.HttpUrl = "https://catalyst.coop/pudl"
-    created: datetime.datetime = datetime.datetime.utcnow()
+    created: Datetime = datetime.datetime.utcnow()
     contributors: List[Contributor] = []
     sources: List[Source] = []
     licenses: List[License] = []
     resources: StrictList(Resource)
 
-    _stringify = _validator("id", "homepage", fn=_stringify)
-
-    @pydantic.validator("created")
-    def _stringify_datetime(cls, value):  # noqa: N805
-        return value.strftime(format="%Y-%m-%dT%H:%M:%SZ")
+    _stringify = _validator("homepage", fn=_stringify)
 
     @pydantic.validator("resources")
     def _check_foreign_keys(cls, value):  # noqa: N805
         rnames = [resource.name for resource in value]
         errors = []
         for resource in value:
-            for foreign_key in resource.schema.foreignKeys:
+            for foreign_key in resource.schema.foreign_keys:
                 rname = foreign_key.reference.resource
-                tag = f"\t* [{resource.name} -> {rname}]"
+                tag = f"[{resource.name} -> {rname}]"
                 if rname not in rnames:
                     errors.append(f"{tag}: Reference not found")
                     continue
                 reference = value[rnames.index(rname)]
-                if not reference.schema.primaryKey:
+                if not reference.schema.primary_key:
                     errors.append(f"{tag}: Reference missing primary key")
                     continue
                 missing = [
                     x for x in foreign_key.reference.fields
-                    if x not in reference.schema.primaryKey
+                    if x not in reference.schema.primary_key
                 ]
                 if missing:
                     errors.append(f"{tag}: Reference primary key missing {missing}")
         if errors:
-            raise ValueError("Foreign keys\n" + '\n'.join(errors))
+            raise ValueError(
+                _format_pydantic_errors("Foreign keys", *errors, header=True)
+            )
         return value
+
+    @pydantic.root_validator(skip_on_failure=True)
+    def _populate_from_resources(cls, values):  # noqa: N805
+        for key in ('keywords', 'contributors', 'sources', 'licenses'):
+            values[key] = _unique(
+                values[key],
+                *[getattr(r, key) for r in values['resources']]
+            )
+        return values
+
+    @classmethod
+    def from_resource_ids(cls, resource_ids: Iterable[str]) -> "Package":
+        """
+        Construct from PUDL identifiers (`resource.name`).
+
+        Resources are added as needed based on foreign keys.
+        """
+        resources = [Resource.dict_from_id(x) for x in resource_ids]
+        # Add missing resources based on foreign keys
+        names = resource_ids.copy()
+        i = 0
+        while i < len(resources):
+            for resource in resources[i:]:
+                for key in resource["schema"].get("foreign_keys", []):
+                    name = key.get("reference", {}).get("resource")
+                    if name and name not in names:
+                        names.append(name)
+            i = len(resources)
+            if len(names) > i:
+                resources += [Resource.dict_from_id(x) for x in names[i:]]
+        return cls(name="pudl", resources=resources)
 
     def to_rst(self, rst_path: str, skip: List[str] = []) -> None:
         """Output the full Package metadata to an RST file."""

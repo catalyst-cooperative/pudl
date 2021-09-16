@@ -40,12 +40,12 @@ def _parse_foreign_key_rules(meta: dict, name: str) -> List[dict]:
         * `exclude` (List[str]): Names of resources to exclude, including `name`.
     """
     rules = []
-    if "foreignKeyRules" in meta["schema"]:
-        for fields in meta["schema"]["foreignKeyRules"]["fields"]:
-            exclude = meta["schema"]["foreignKeyRules"].get("exclude", [])
+    if "foreign_key_rules" in meta["schema"]:
+        for fields in meta["schema"]["foreign_key_rules"]["fields"]:
+            exclude = meta["schema"]["foreign_key_rules"].get("exclude", [])
             rules.append({
                 "fields": fields,
-                "reference": {"resource": name, "fields": meta["schema"]["primaryKey"]},
+                "reference": {"resource": name, "fields": meta["schema"]["primary_key"]},
                 "exclude": [name] + exclude
             })
     return rules
@@ -128,8 +128,8 @@ def build_foreign_keys(
     """
     Build foreign keys for each resource.
 
-    A resource's `foreignKeyRules` (if present)
-    determines which other resources will be assigned a foreign key (`foreignKeys`)
+    A resource's `foreign_key_rules` (if present)
+    determines which other resources will be assigned a foreign key (`foreign_keys`)
     to the reference's primary key:
 
     * `fields` (List[List[str]]): Sets of field names for which to create a foreign key.
@@ -152,15 +152,15 @@ def build_foreign_keys(
         ...     'x': {
         ...         'schema': {
         ...             'fields': ['z'],
-        ...             'primaryKey': ['z'],
-        ...             'foreignKeyRules': {'fields': [['z']]}
+        ...             'primary_key': ['z'],
+        ...             'foreign_key_rules': {'fields': [['z']]}
         ...         }
         ...     },
         ...     'y': {
         ...         'schema': {
         ...             'fields': ['z', 'yy'],
-        ...             'primaryKey': ['z', 'yy'],
-        ...             'foreignKeyRules': {'fields': [['z', 'zz']]}
+        ...             'primary_key': ['z', 'yy'],
+        ...             'foreign_key_rules': {'fields': [['z', 'zz']]}
         ...         }
         ...     },
         ...     'z': {'schema': {'fields': ['z', 'zz']}}
