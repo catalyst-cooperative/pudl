@@ -21,7 +21,18 @@ from .resources import FOREIGN_KEYS, RESOURCE_METADATA
 
 
 def _unique(*args: Iterable) -> list:
-    """Return a list of all unique values, in order of first appearance."""
+    """
+    Return a list of all unique values, in order of first appearance.
+
+    Args:
+        args: Iterables of values.
+
+    Examples:
+        >>> _unique([0, 2], (2, 1))
+        [0, 2, 1]
+        >>> _unique([{'x': 0, 'y': 1}, {'y': 1, 'x': 0}], [{'z': 2}])
+        [{'x': 0, 'y': 1}, {'z': 2}]
+    """
     values = []
     for parent in args:
         for child in parent:
@@ -31,7 +42,25 @@ def _unique(*args: Iterable) -> list:
 
 
 def _format_pydantic_errors(*errors: str, header: bool = False) -> str:
-    """Format a list of validation errors for pydantic."""
+    """
+    Format multiple validation errors into a single error for pydantic.
+
+    Args:
+        errors: Error messages.
+        header: Whether first error message should be treated as a header.
+
+    Examples:
+        >>> e = _format_pydantic_errors('Header:', 'bad', 'worse', header=True)
+        >>> print(e)
+        Header:
+          * bad
+          * worse
+        >>> e = _format_pydantic_errors('Header:', 'bad', 'worse')
+        >>> print(e)
+        * Header:
+          * bad
+          * worse
+    """
     if not errors:
         return ""
     return (
@@ -40,7 +69,42 @@ def _format_pydantic_errors(*errors: str, header: bool = False) -> str:
     )
 
 
-def _format_for_sql(x: Any) -> str:
+def _format_for_sql(x: Any, identifier: bool = False) -> str:  # noqa: C901
+    """
+    Format value for use in raw SQL(ite).
+
+    Args:
+        x: Value to format.
+        identifier: Whether `x` represents an identifier
+            (e.g. table, column) name.
+
+    Examples:
+        >>> _format_for_sql('table_name', identifier=True)
+        '"table_name"'
+        >>> _format_for_sql('any string')
+        "'any string'"
+        >>> _format_for_sql("Single's quote")
+        "'Single''s quote'"
+        >>> _format_for_sql(None)
+        'null'
+        >>> _format_for_sql(1)
+        '1'
+        >>> _format_for_sql(True)
+        'True'
+        >>> _format_for_sql(False)
+        'False'
+        >>> _format_for_sql(re.compile("^[^']*$"))
+        "'^[^'']*$'"
+        >>> _format_for_sql(datetime.date(2020, 1, 2))
+        "'2020-01-02'"
+        >>> _format_for_sql(datetime.datetime(2020, 1, 2, 3, 4, 5, 6))
+        "'2020-01-02 03:04:05'"
+    """
+    if identifier:
+        if isinstance(x, str):
+            # Table and column names are escaped with double quotes (")
+            return f'"{x}"'
+        raise ValueError("Identifier must be a string")
     if x is None:
         return "null"
     elif isinstance(x, (int, float)):
@@ -52,10 +116,11 @@ def _format_for_sql(x: Any) -> str:
         return "FALSE"
     elif isinstance(x, re.Pattern):
         x = x.pattern
+    elif isinstance(x, datetime.datetime):
+        # Check datetime.datetime first, since also datetime.date
+        x = x.strftime("%Y-%m-%d %H:%M:%S")
     elif isinstance(x, datetime.date):
         x = x.strftime("%Y-%m-%d")
-    elif isinstance(x, datetime.datetime):
-        x = x.strftime("%Y-%m-%d %H:%M:%S")
     if not isinstance(x, str):
         raise ValueError(f"Cannot format type {type(x)} for SQL")
     # Single quotes (') are escaped by doubling them ('')
@@ -405,8 +470,7 @@ class Field(Base):
         if dialect != "sqlite":
             raise NotImplementedError(f"Dialect {dialect} is not supported")
         checks = []
-        # Column names are escaped with double quotes (")
-        name = f'"{self.name}"'
+        name = _format_for_sql(self.name, identifier=True)
         # Required with TYPEOF since TYPEOF(NULL) = 'null'
         prefix = "" if self.constraints.required else f"{name} IS NULL OR "
         # Field type
