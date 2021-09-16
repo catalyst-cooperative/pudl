@@ -2,10 +2,9 @@
 
 from itertools import product
 from pathlib import Path
-from typing import Optional, Sequence, Union
+from typing import Optional, Sequence
 
 import dask.dataframe as dd
-import pandas as pd
 
 import pudl
 
@@ -117,7 +116,7 @@ def epacems(
     years: Optional[Sequence[int]] = None,
     columns: Optional[Sequence[str]] = None,
     cems_path: Optional[Path] = None,
-) -> Union[pd.DataFrame, dd.DataFrame]:
+) -> dd.DataFrame:
     """Load EPA CEMS data from PUDL with optional subsetting.
 
     Args:
