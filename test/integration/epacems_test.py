@@ -55,18 +55,6 @@ def epacems_parquet_path(
     return out_dir
 
 
-def test_epacems_empty_frame(cems_year_and_state, epacems_parquet_path):
-    """Test that empty partitions return empty dataframes instead of an exception."""
-    path = epacems_parquet_path
-    empty_state = ['AK']  # no data for any year, as of 2019 data
-    year = cems_year_and_state['years']
-    cols = ["plant_id_eia", "unitid", "operating_datetime_utc",
-            "gross_load_mw", "unit_id_epa"]
-    actual = epacems(states=empty_state, years=year, columns=cols, cems_path=path)
-    expected = dd.DataFrame(columns=cols)
-    dd.utils.assert_eq(actual, expected)
-
-
 def test_epacems_subset(cems_year_and_state, epacems_parquet_path):
     """Minimal integration test of epacems(). Check if it returns a DataFrame."""
     path = epacems_parquet_path
