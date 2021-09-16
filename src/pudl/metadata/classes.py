@@ -2,20 +2,23 @@
 import copy
 import datetime
 import re
+from pathlib import Path
 from typing import (Any, Callable, Dict, Iterable, List, Literal, Optional,
                     Tuple, Type, Union)
 
 import pandas as pd
 import pydantic
 import sqlalchemy as sa
+from jinja2 import BaseLoader, Environment
 
-from .constants import (CONSTRAINT_DTYPES, CONTRIBUTORS, CONTRIBUTORS_BY_SOURCE,
-                        FIELD_DTYPES, FIELD_DTYPES_SQL, KEYWORDS_BY_SOURCE,
-                        LICENSES, PERIODS, SOURCES)
+from .constants import (CONSTRAINT_DTYPES, CONTRIBUTORS,
+                        CONTRIBUTORS_BY_SOURCE, FIELD_DTYPES, FIELD_DTYPES_SQL,
+                        KEYWORDS_BY_SOURCE, LICENSES, PERIODS, SOURCES)
 from .fields import FIELD_METADATA
 from .helpers import (expand_periodic_column_names, groupby_aggregate,
                       most_and_more_frequent, split_period)
 from .resources import FOREIGN_KEYS, RESOURCE_METADATA
+from .templates import PACKAGE_TO_RST
 
 # ---- Helpers ---- #
 
@@ -1313,6 +1316,32 @@ class Package(Base):
             if len(names) > i:
                 resources += [Resource.dict_from_id(x) for x in names[i:]]
         return cls(name="pudl", resources=resources)
+
+    def to_rst(self, rst_path: str, skip: List[str] = []) -> None:
+        """Output the full Package metadata to an RST file."""
+        output_dict = self.dict()
+        # Remove resources we are skipping:
+        output_dict["resources"] = [
+            x for x in output_dict["resources"]
+            if x["name"] not in skip
+        ]
+        # Sort by resource name:
+        output_dict["resources"] = sorted(
+            output_dict["resources"],
+            key=lambda x: x["name"]
+        )
+        # Sort fields within each resource by name:
+        for resource in output_dict["resources"]:
+            resource["schema"]["fields"] = sorted(
+                resource["schema"]["fields"],
+                key=lambda x: x["name"]
+            )
+        template = (
+            Environment(loader=BaseLoader(), autoescape=True)
+            .from_string(PACKAGE_TO_RST)
+        )
+        rendered = template.render(output_dict)
+        Path(rst_path).write_text(rendered)
 
     def to_sql(self) -> sa.MetaData:
         """Return equivalent SQL MetaData."""
