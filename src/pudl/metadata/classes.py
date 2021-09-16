@@ -1317,31 +1317,14 @@ class Package(Base):
                 resources += [Resource.dict_from_id(x) for x in names[i:]]
         return cls(name="pudl", resources=resources)
 
-    def to_rst(self, rst_path: str, skip: List[str] = []) -> None:
+    def to_rst(self, path: str) -> None:
         """Output the full Package metadata to an RST file."""
-        output_dict = self.dict()
-        # Remove resources we are skipping:
-        output_dict["resources"] = [
-            x for x in output_dict["resources"]
-            if x["name"] not in skip
-        ]
-        # Sort by resource name:
-        output_dict["resources"] = sorted(
-            output_dict["resources"],
-            key=lambda x: x["name"]
-        )
-        # Sort fields within each resource by name:
-        for resource in output_dict["resources"]:
-            resource["schema"]["fields"] = sorted(
-                resource["schema"]["fields"],
-                key=lambda x: x["name"]
-            )
         template = (
             Environment(loader=BaseLoader(), autoescape=True)
             .from_string(PACKAGE_TO_RST)
         )
-        rendered = template.render(output_dict)
-        Path(rst_path).write_text(rendered)
+        rendered = template.render(self)
+        Path(path).write_text(rendered)
 
     def to_sql(self) -> sa.MetaData:
         """Return equivalent SQL MetaData."""
