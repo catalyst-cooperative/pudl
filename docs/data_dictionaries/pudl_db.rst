@@ -783,7 +783,7 @@ No table description available.
     - string
     - Generator ID is usually numeric, but sometimes includes letters. Make sure you treat it as a string!
   * - operating_date
-    - datetime
+    - date
     - Date the generator began commercial operation
   * - operating_switch
     - string
