@@ -153,7 +153,6 @@ def epacems(
         # "year",
         # "state",
     # ),
-    engine: str = 'pandas',
     cems_path: Optional[Path] = None,
 ) -> Union[pd.DataFrame, dd.DataFrame]:
     """Load EPA CEMS data from PUDL with optional subsetting.
@@ -162,19 +161,11 @@ def epacems(
         states (Optional[Sequence[str]], optional): subset by state abbreviation. Defaults to None (gets all states).
         years (Optional[Sequence[int]], optional): subset by year. Defaults to None (gets all years).
         columns (Optional[Sequence[str]], optional): subset by column. Defaults to None (gets all columns).
-        engine (Optional[str], optional): choose 'pandas' or 'dask'. Defaults to 'pandas'
         cems_path (Optional[Path], optional): path to parquet dir. By default it automatically loads the path from pudl.workspace
 
     Returns:
-        Union[pd.DataFrame, dd.DataFrame]: epacems data
+        dd.DataFrame: epacems data
     """
-    if engine == "pandas":
-        dataframe = pd
-    elif engine == "dask":
-        dataframe = dd
-    else:
-        raise ValueError(f"engine must be either 'pandas' or 'dask'. Given: {engine}")
-
     if states is None:
         states = list(pudl.constants.us_states.keys())  # all states
     else:
@@ -191,7 +182,7 @@ def epacems(
         cems_path = Path(pudl_settings["parquet_dir"]) / "epacems"
 
     try:
-        cems = dataframe.read_parquet(
+        cems = dd.read_parquet(
             cems_path,
             use_nullable_dtypes=True,
             columns=columns,
@@ -203,7 +194,7 @@ def epacems(
     # catch empty result and return empty dataframe instead of error
     except ValueError as e:
         if e.args[0] == "need at least one array to concatenate":
-            cems = dataframe.DataFrame(columns=columns)
+            cems = dd.DataFrame(columns=columns)
         else:
             raise e
 
