@@ -209,7 +209,7 @@ def _prep_crosswalk_for_networkx(key_map: pd.DataFrame) -> pd.DataFrame:
     return filtered
 
 
-def _subcomponent_ids_from_prepped_crosswalk(prepped: pd.DataFrame) -> pd.DataFrame:
+def _subplant_ids_from_prepped_crosswalk(prepped: pd.DataFrame) -> pd.DataFrame:
     graph = nx.from_pandas_edgelist(
         prepped,
         source="combustor_id",
@@ -221,7 +221,7 @@ def _subcomponent_ids_from_prepped_crosswalk(prepped: pd.DataFrame) -> pd.DataFr
         assert nx.algorithms.bipartite.is_bipartite(
             subgraph
         ), f"non-bipartite: i={i}, node_set={node_set}"
-        nx.set_edge_attributes(subgraph, name="component_id", values=i)
+        nx.set_edge_attributes(subgraph, name="subplant_id", values=i)
     return nx.to_pandas_edgelist(graph)
 
 
@@ -246,17 +246,17 @@ def _merge_crosswalk_with_cems_ids(crosswalk: pd.DataFrame, cems: Union[pd.DataF
     return key_map
 
 
-def _make_subcomponent_ids(crosswalk: pd.DataFrame, cems: Union[pd.DataFrame, dd.DataFrame]) -> pd.DataFrame:
+def _make_subplant_ids(crosswalk: pd.DataFrame, cems: Union[pd.DataFrame, dd.DataFrame]) -> pd.DataFrame:
     """Analyze crosswalk graph and identify sub-plants."""
     key_map = _merge_crosswalk_with_cems_ids(crosswalk=crosswalk, cems=cems)
     column_order = list(key_map.columns)
     edge_list = _prep_crosswalk_for_networkx(key_map)
-    edge_list = _subcomponent_ids_from_prepped_crosswalk(edge_list)
-    column_order = ["component_id"] + column_order
+    edge_list = _subplant_ids_from_prepped_crosswalk(edge_list)
+    column_order = ["subplant_id"] + column_order
     return edge_list[column_order]
 
 
-def _aggregate_subcomponents(
+def _aggregate_subplants(
     xwalk: pd.DataFrame,
     camd_fuel_map: Optional[Dict[str, str]] = None,
     eia_fuel_map: Optional[Dict[str, str]] = None,
@@ -271,7 +271,7 @@ def _aggregate_subcomponents(
         tech_type_map = TECH_TYPE_MAP
 
     aggs = (
-        xwalk.groupby("component_id")["EIA_UNIT_TYPE"]
+        xwalk.groupby("subplant_id")["EIA_UNIT_TYPE"]
         .agg(lambda x: frozenset(x.values.reshape(-1)))
         .to_frame()
         .astype("category")
@@ -281,9 +281,9 @@ def _aggregate_subcomponents(
         agency = unit.split("_", maxsplit=1)[0]
         capacity = f"{agency}_NAMEPLATE_CAPACITY"
         aggs[f"capacity_{agency}"] = (
-            xwalk.groupby(by=["component_id", unit], as_index=False)
+            xwalk.groupby(by=["subplant_id", unit], as_index=False)
             .first()  # avoid double counting
-            .groupby("component_id")[capacity]
+            .groupby("subplant_id")[capacity]
             .sum()
             .replace(0, np.nan)
         )
@@ -322,15 +322,15 @@ def _assign_by_capacity(xwalk: pd.DataFrame, col: str) -> pd.Series:
 
     # assign by category with highest capacity
     grouped = (
-        xwalk.groupby(by=["component_id", unit], as_index=False)
+        xwalk.groupby(by=["subplant_id", unit], as_index=False)
         .first()  # avoid double counting units
-        .groupby(by=["component_id", col], as_index=False)[capacity]
+        .groupby(by=["subplant_id", col], as_index=False)[capacity]
         .sum()
         .replace({capacity: 0}, np.nan)
     )
-    grouped["max"] = grouped.groupby("component_id")[capacity].transform(np.max)
-    out = grouped.loc[grouped["max"] == grouped[capacity], ["component_id", col]].set_index(
-        "component_id"
+    grouped["max"] = grouped.groupby("subplant_id")[capacity].transform(np.max)
+    out = grouped.loc[grouped["max"] == grouped[capacity], ["subplant_id", col]].set_index(
+        "subplant_id"
     )
     # break ties by taking first category (alphabetical due to groupby)
     # this is not very principled but it is rare enough to probably not matter
@@ -349,48 +349,48 @@ def _classify_exclusions(cems: pd.DataFrame, exclusion_map: Optional[Dict[str, i
     return cems
 
 
-def _agg_units_to_components(cems: pd.DataFrame) -> pd.DataFrame:
-    """Combine unit timeseries into a single timeseries per component."""
-    component_timeseries = (
+def _agg_units_to_subplants(cems: pd.DataFrame) -> pd.DataFrame:
+    """Combine unit timeseries into a single timeseries per subplant."""
+    subplant_timeseries = (
         # resolve name collision with index
         cems.drop(columns=["operating_datetime_utc"])
-        .groupby(["component_id", "operating_datetime_utc"])[["gross_load_mw", "exclude_ramp"]]
+        .groupby(["subplant_id", "operating_datetime_utc"])[["gross_load_mw", "exclude_ramp"]]
         .sum()
     )
-    component_timeseries["exclude_ramp"] = (
-        component_timeseries["exclude_ramp"] > 0
+    subplant_timeseries["exclude_ramp"] = (
+        subplant_timeseries["exclude_ramp"] > 0
     )  # sum() > 0 is like .any()
     # calculate ramp rates
-    component_timeseries[["ramp"]] = component_timeseries.groupby("component_id")[
+    subplant_timeseries[["ramp"]] = subplant_timeseries.groupby("subplant_id")[
         ["gross_load_mw"]
     ].diff()
-    return component_timeseries
+    return subplant_timeseries
 
 
-def _estimate_capacity(cems: pd.DataFrame, component_timeseries: pd.DataFrame) -> pd.DataFrame:
+def _estimate_capacity(cems: pd.DataFrame, subplant_timeseries: pd.DataFrame) -> pd.DataFrame:
     # sum of maxima
-    component_aggs = (
+    subplant_aggs = (
         cems.drop(columns=["unit_id_epa"])  # resolve name collision with index
-        .groupby(["component_id", "unit_id_epa"])[["gross_load_mw"]]
+        .groupby(["subplant_id", "unit_id_epa"])[["gross_load_mw"]]
         .max()
-        .groupby("component_id")
+        .groupby("subplant_id")
         .sum()
         .add_prefix("sum_of_max_")
     )
     # max of sums
-    component_aggs = component_aggs.join(
-        component_timeseries[["gross_load_mw"]]
-        .groupby("component_id")
+    subplant_aggs = subplant_aggs.join(
+        subplant_timeseries[["gross_load_mw"]]
+        .groupby("subplant_id")
         .max()
         .add_prefix("max_of_sum_"),
     )
-    return component_aggs
+    return subplant_aggs
 
 
-def _summarize_ramps(component_timeseries: pd.DataFrame) -> pd.DataFrame:
+def _summarize_ramps(subplant_timeseries: pd.DataFrame) -> pd.DataFrame:
     ramps = (
-        component_timeseries.loc[~component_timeseries["exclude_ramp"], ["ramp"]]
-        .groupby("component_id")
+        subplant_timeseries.loc[~subplant_timeseries["exclude_ramp"], ["ramp"]]
+        .groupby("subplant_id")
         .agg(["max", "min", lambda x: x.idxmax()[1], lambda x: x.idxmin()[1]])
     ).rename(columns={"<lambda_0>": "idxmax", "<lambda_1>": "idxmin"}, level=1)
     for header in ramps.columns.levels[0]:
@@ -409,10 +409,10 @@ def _summarize_ramps(component_timeseries: pd.DataFrame) -> pd.DataFrame:
     return ramps
 
 
-def _add_derived_values(component_aggs: pd.DataFrame) -> pd.DataFrame:
+def _add_derived_values(subplant_aggs: pd.DataFrame) -> pd.DataFrame:
     # normalize ramp rates in various ways
-    normed = component_aggs[["max_abs_ramp"] * 4].div(
-        component_aggs[
+    normed = subplant_aggs[["max_abs_ramp"] * 4].div(
+        subplant_aggs[
             [
                 "capacity_CAMD",
                 "capacity_EIA",
@@ -426,70 +426,70 @@ def _add_derived_values(component_aggs: pd.DataFrame) -> pd.DataFrame:
     return normed
 
 
-def _process_cems(cems: pd.DataFrame, key_map: pd.DataFrame, component_meta: pd.DataFrame) -> Dict[str, pd.DataFrame]:
-    """Top level API to analyze a dataset for component-wise max ramp rates.
+def _process_cems(cems: pd.DataFrame, key_map: pd.DataFrame, subplant_meta: pd.DataFrame) -> Dict[str, pd.DataFrame]:
+    """Top level API to analyze a dataset for subplant-wise max ramp rates.
 
     Args:
         cems ([pd.DataFrame]): EPA CEMS data from ramprate.load_dataset.load_epacems
-        key_map ([pd.DataFrame]): output from _make_subcomponent_ids
-        component_id_offset (int, optional): used when processing data in chunks to ensure unique IDs. Defaults to 0.
+        key_map ([pd.DataFrame]): output from _make_subplant_ids
+        subplant_id_offset (int, optional): used when processing data in chunks to ensure unique IDs. Defaults to 0.
 
     Returns:
         [Dict[str, pd.DataFrame]]: key:value pairs are as follows:
-            "component_aggs": component-level aggregates like max ramp rates
-            "component_timeseries": CEMS timeseries aggregated to component level
+            "subplant_aggs": subplant-level aggregates like max ramp rates
+            "subplant_timeseries": CEMS timeseries aggregated to subplant level
             "cems": CEMS data
     """
     cems = cems.set_index(["unit_id_epa", "operating_datetime_utc"], drop=False)
     cems.sort_index(inplace=True)
     # NOTE: how='inner' drops unmatched units
     cems = cems.join(key_map.groupby("unit_id_epa")[
-                     "component_id"].first(), how="inner")
+                     "subplant_id"].first(), how="inner")
 
     cems = cems.merge(
-        component_meta["simple_EIA_UNIT_TYPE"], left_on="component_id", right_index=True, copy=False
+        subplant_meta["simple_EIA_UNIT_TYPE"], left_on="subplant_id", right_index=True, copy=False
     )
     cems.sort_index(inplace=True)
 
     # catch empty frames
     if len(cems) == 0:
         return {
-            "component_aggs": pd.DataFrame(),
-            "component_timeseries": pd.DataFrame(),
+            "subplant_aggs": pd.DataFrame(),
+            "subplant_timeseries": pd.DataFrame(),
             "cems": cems,
         }
 
     cems = _classify_exclusions(cems)
-    component_timeseries = _agg_units_to_components(cems)
-    component_aggs = _estimate_capacity(cems, component_timeseries)
+    subplant_timeseries = _agg_units_to_subplants(cems)
+    subplant_aggs = _estimate_capacity(cems, subplant_timeseries)
 
-    ramps = _summarize_ramps(component_timeseries)
+    ramps = _summarize_ramps(subplant_timeseries)
 
     # join all the aggs
-    component_aggs = component_aggs.join([ramps, component_meta])
+    subplant_aggs = subplant_aggs.join([ramps, subplant_meta])
 
-    normed = _add_derived_values(component_aggs)
-    component_aggs = component_aggs.join(normed)
+    normed = _add_derived_values(subplant_aggs)
+    subplant_aggs = subplant_aggs.join(normed)
     return {
-        "component_aggs": component_aggs,
-        "component_timeseries": component_timeseries,
+        "subplant_aggs": subplant_aggs,
+        "subplant_timeseries": subplant_timeseries,
         "cems": cems,
     }
 
 
-def _process_cems_parallel(key_map: pd.DataFrame, component_meta: pd.DataFrame) -> Callable[[pd.DataFrame], pd.DataFrame]:
-    """Wrap _process_cems to use a specific key_map and component_meta and to return only the 'component_aggs' dataframe (to save memory)."""
+def _process_cems_parallel(key_map: pd.DataFrame, subplant_meta: pd.DataFrame) -> Callable[[pd.DataFrame], pd.DataFrame]:
+    """Wrap _process_cems to use a specific key_map and subplant_meta and to return only the 'subplant_aggs' dataframe (to save memory)."""
     # Might be able to use functools.partial instead of this function but
     # I *think* I need to index into the result before wrapping with dask.delayed
     def closure(cems):
-        out = _process_cems(cems, key_map, component_meta)
-        return out['component_aggs']
+        out = _process_cems(cems, key_map, subplant_meta)
+        return out['subplant_aggs']
     return closure
 
 
-def _run_parallel(cems: dd.DataFrame, key_map: pd.DataFrame, component_meta: pd.DataFrame) -> List[Delayed]:
+def _run_parallel(cems: dd.DataFrame, key_map: pd.DataFrame, subplant_meta: pd.DataFrame) -> List[Delayed]:
     dfs = cems.to_delayed()
-    apply_func = _process_cems_parallel(key_map, component_meta)
+    apply_func = _process_cems_parallel(key_map, subplant_meta)
     delayed_results = [dask.delayed(apply_func)(df) for df in dfs]
     return delayed_results
 
@@ -502,10 +502,10 @@ def analyze_ramp_rates(states: Optional[Sequence[str]] = None, years: Optional[S
     crosswalk = epa_crosswalk()
     cems = epacems(states=states, years=years, engine='dask')
 
-    key_map = _make_subcomponent_ids(crosswalk, cems)
-    component_meta = _aggregate_subcomponents(key_map)
+    key_map = _make_subplant_ids(crosswalk, cems)
+    subplant_meta = _aggregate_subplants(key_map)
 
-    delayed_results = _run_parallel(cems, key_map, component_meta)
+    delayed_results = _run_parallel(cems, key_map, subplant_meta)
     results = dask.compute(*delayed_results)
     results = pd.concat(results)
 
