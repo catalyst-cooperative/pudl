@@ -3,8 +3,9 @@ from typing import Dict, Sequence
 
 import pandas as pd
 import pytest
+from pandas.testing import assert_series_equal  # , assert_frame_equal
 
-# import pudl.analysis.ramp_rates as rr
+import pudl.analysis.ramp_rates as rr
 
 
 def df_from_product(inputs: Dict[str, Sequence], as_index=True) -> pd.DataFrame:
@@ -59,6 +60,13 @@ def dummy_cems():
     cems['unitid'] = cems['unit_id_epa'].map({0: 'a', 1: 'a', 2: 'b'})
     # add values
     cems['gross_load_mw'] = range(len(cems))
+    # add binary values
+    lst = [
+        1, 0, 0, 1,  # start, end with 1
+        0, 1, 1, 0,  # start, end with 0
+        1, 1, 0, 0  # mix
+    ]
+    cems['binary'] = lst
 
     return cems
 
@@ -66,4 +74,19 @@ def dummy_cems():
 @pytest.fixture()
 def dummy_crosswalk():
     """EPA Crosswalk."""
+    raise NotImplementedError
+
+
+def test__sorted_groupby_diff(dummy_cems):
+    """Test equivalence to groupby."""
+    actual = rr._sorted_groupby_diff(
+        dummy_cems['binary'], dummy_cems['unit_id_epa'])
+    expected = dummy_cems.groupby('unit_id_epa')[
+        'binary'].transform(lambda x: x.diff())
+    assert_series_equal(actual, expected)
+
+
+@pytest.mark.xfail
+def test_add_startup_shutdown_timestamps(dummy_cems):
+    """Make linter shut up."""
     raise NotImplementedError

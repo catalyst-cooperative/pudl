@@ -70,13 +70,15 @@ EIA_FUEL_MAP = {
 TECH_TYPE_MAP = {
     frozenset({"ST"}): "steam_turbine",
     frozenset({"GT"}): "gas_turbine",
-    frozenset({"CT"}): "combined_cycle",  # in 2019 about half of solo CTs might be GTs
+    # in 2019 about half of solo CTs might be GTs
+    frozenset({"CT"}): "combined_cycle",
     # Could classify by operational characteristics but there were only 20 total so didn't bother
     frozenset({"CA"}): "combined_cycle",
     frozenset({"CS"}): "combined_cycle",
     frozenset({"IC"}): "internal_combustion",
     frozenset({"CT", "CA"}): "combined_cycle",
-    frozenset({"ST", "GT"}): "combined_cycle",  # I think industrial cogen or mistaken
+    # I think industrial cogen or mistaken
+    frozenset({"ST", "GT"}): "combined_cycle",
     frozenset({"CA", "GT"}): "combined_cycle",  # most look mistaken
     frozenset({"CT", "CA", "ST"}): "combined_cycle",  # most look mistaken
 }
@@ -93,27 +95,35 @@ EXCLUSION_SIZE_HOURS = {
 }
 
 
-def _binarize(ser: pd.Series) -> pd.Series:
+def _classify_on_off(ser: pd.Series) -> pd.Series:
     """Classify generation values into running / not running."""
     # modularize this in case I want to add smoothing or other methods
     return ser.gt(0).astype(np.int8)
 
 
-def _find_edges(cems: pd.DataFrame, drop_intermediates=True) -> None:
-    """Find timestamps of startups and shutdowns based on transition from zero to non-zero generation."""
-    cems["binarized"] = _binarize(cems["gross_load_mw"])
+def _sorted_groupby_diff(diff_col: pd.Series, group_col: pd.Series) -> pd.Series:
+    """Take a first difference within groups, assuming group_col is grouped.
+
+    This is a much faster equivalent to df.groupby(my_group)[my_data].transform(lambda x: x.diff())
+    but only if group_col is sorted (or actually just grouped, macro order doesn't matter)
+    """
+    # the where clause prevents diffs across groups (sets to NaN)
+    return diff_col.diff().where(group_col.diff().eq(0))
+
+
+def add_startup_shutdown_timestamps(cems: pd.DataFrame) -> None:
+    """Find timestamps of startups and shutdowns based on transition between generator on and off states."""
     # for each unit, find change points from zero to non-zero production
-    # this could be done with groupby but it is much slower
-    # cems.groupby(level='unit_id_epa')['binarized_col'].transform(lambda x: x.diff())
-    cems["binary_diffs"] = (
-        cems["binarized"].diff().where(cems["unit_id_epa"].diff().eq(0))
-    )  # dont take diffs across units
+    cems["binarized"] = _classify_on_off(cems["gross_load_mw"])
+    cems["binary_diffs"] = _sorted_groupby_diff(
+        cems['binarized'], cems.index.get_level_values('unit_id_epa'))
+    # extract changepoint times
     cems["shutdowns"] = cems["operating_datetime_utc"].where(
         cems["binary_diffs"] == -1, pd.NaT)
     cems["startups"] = cems["operating_datetime_utc"].where(
         cems["binary_diffs"] == 1, pd.NaT)
-    if drop_intermediates:
-        cems.drop(columns=["binarized", "binary_diffs"], inplace=True)
+    # drop intermediates
+    cems.drop(columns=["binarized", "binary_diffs"], inplace=True)
     return
 
 
@@ -161,7 +171,7 @@ def calc_distance_from_downtime(
 ) -> None:
     """Calculate two columns: the number of hours to the next shutdown; and from the last startup."""
     # in place
-    _find_edges(cems, drop_intermediates)
+    add_startup_shutdown_timestamps(cems)
     _distance_from_downtime(cems, drop_intermediates)
     cems["hours_distance"] = cems[[
         "hours_from_startup", "hours_to_shutdown"]].min(axis=1)
@@ -181,7 +191,8 @@ def _filter_retirements(df: pd.DataFrame, year_range: Tuple[int, int]) -> pd.Dat
     min_year = year_range[0]
     max_year = year_range[1]
 
-    not_retired_before_start = df["CAMD_RETIRE_YEAR"].replace(0, 3000) >= min_year
+    not_retired_before_start = df["CAMD_RETIRE_YEAR"].replace(
+        0, 3000) >= min_year
     not_built_after_end = (pd.to_datetime(df["CAMD_STATUS_DATE"]).dt.year <= max_year) & df[
         "CAMD_STATUS"
     ].ne("RET")
@@ -399,8 +410,10 @@ def _summarize_ramps(subplant_timeseries: pd.DataFrame) -> pd.DataFrame:
             ramps.loc[:, idx[header, ["max", "min"]]].abs().max(axis=1)
         )
         # associate correct timestamp - note that ties go to idxmax, nans go to idxmin
-        condition = ramps.loc[:, (header, "max")] >= ramps.loc[:, (header, "min")].abs()
-        ramps.loc[:, (header, "idxmax_abs")] = ramps.loc[:, idx[header, "idxmax"]]
+        condition = ramps.loc[:, (header, "max")
+                              ] >= ramps.loc[:, (header, "min")].abs()
+        ramps.loc[:, (header, "idxmax_abs")] = ramps.loc[:,
+                                                         idx[header, "idxmax"]]
         ramps.loc[:, (header, "idxmax_abs")].where(
             condition, ramps.loc[:, (header, "idxmin")], inplace=True
         )
@@ -440,7 +453,8 @@ def _process_cems(cems: pd.DataFrame, key_map: pd.DataFrame, subplant_meta: pd.D
             "subplant_timeseries": CEMS timeseries aggregated to subplant level
             "cems": CEMS data
     """
-    cems = cems.set_index(["unit_id_epa", "operating_datetime_utc"], drop=False)
+    cems = cems.set_index(
+        ["unit_id_epa", "operating_datetime_utc"], drop=False)
     cems.sort_index(inplace=True)
     # NOTE: how='inner' drops unmatched units
     cems = cems.join(key_map.groupby("unit_id_epa")[
