@@ -53,4 +53,5 @@ def dfs_to_sqlite(
             engine,
             if_exists="append",
             index=False,
+            dtype={c.name: c.type for c in table.columns},
         )

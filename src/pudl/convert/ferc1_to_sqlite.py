@@ -118,9 +118,9 @@ def main():  # noqa: C901
                 f"({min(pc.data_years['ferc1'])}-"
                 f"{max(pc.data_years['ferc1'])})."
             )
-    script_settings["ferc1_to_sqlite_years"] = list(
-        set(script_settings["ferc1_to_sqlite_years"]))
-    script_settings["ferc1_to_sqlite_years"].sort()
+    script_settings["ferc1_to_sqlite_years"] = sorted(
+        set(script_settings["ferc1_to_sqlite_years"])
+    )
 
     # This field is optional and generally unused...
     bad_cols = script_settings.get("ferc1_to_sqlite_bad_cols", ())

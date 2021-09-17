@@ -346,8 +346,7 @@ def organize_cols(df, cols):
     """
     # Generate a list of all the columns in the dataframe that are not
     # included in cols
-    data_cols = [c for c in df.columns.tolist() if c not in cols]
-    data_cols.sort()
+    data_cols = sorted([c for c in df.columns.tolist() if c not in cols])
     organized_cols = cols + data_cols
     return df[organized_cols]
 

@@ -76,8 +76,7 @@ def _validate_params_eia(etl_params):
     # when nothing is set in the settings file, the years will default as none
     eia_input_dict['eia860_years'] = etl_params.get('eia860_years', [])
     # Ensure there are no duplicate years:
-    eia_input_dict["eia860_years"] = list(set(eia_input_dict["eia860_years"]))
-    eia_input_dict["eia860_years"].sort()
+    eia_input_dict["eia860_years"] = sorted(set(eia_input_dict["eia860_years"]))
 
     # the tables will default to all of the tables if nothing is given
     eia_input_dict['eia860_tables'] = etl_params.get(
@@ -91,8 +90,7 @@ def _validate_params_eia(etl_params):
 
     eia_input_dict['eia923_years'] = etl_params.get('eia923_years', [])
     # Ensure no duplicate years:
-    eia_input_dict['eia923_years'] = list(set(eia_input_dict['eia923_years']))
-    eia_input_dict['eia923_years'].sort()
+    eia_input_dict['eia923_years'] = sorted(set(eia_input_dict['eia923_years']))
 
     eia_input_dict['eia923_tables'] = etl_params.get(
         'eia923_tables', pc.pudl_tables['eia923']
@@ -256,8 +254,7 @@ def _validate_params_ferc1(etl_params):
     # pull out the etl_params from the dictionary passed into this function
     ferc1_dict['ferc1_years'] = etl_params.get('ferc1_years', [])
     # Ensure no there are no duplicate years by converting to set and back:
-    ferc1_dict["ferc1_years"] = list(set(ferc1_dict["ferc1_years"]))
-    ferc1_dict["ferc1_years"].sort()
+    ferc1_dict["ferc1_years"] = sorted(set(ferc1_dict["ferc1_years"]))
 
     # the tables will default to all of the tables if nothing is given
     ferc1_dict['ferc1_tables'] = etl_params.get(
@@ -415,10 +412,8 @@ def etl_epacems(etl_params, pudl_settings, ds_kwargs) -> None:
     # Deduplicate the years and states just in case. This happens outside of
     # the settings validation because this ETL function is also called directly
     # in the epacems_to_parquet() script.
-    epacems_years = list(set(epacems_dict['epacems_years']))
-    epacems_years.sort()
-    epacems_states = list(set(epacems_dict['epacems_states']))
-    epacems_states.sort()
+    epacems_years = sorted(set(epacems_dict['epacems_years']))
+    epacems_states = sorted(set(epacems_dict['epacems_states']))
 
     # If we're not doing CEMS, just stop here to avoid printing messages like
     # "Reading EPA CEMS data...", which could be confusing.
