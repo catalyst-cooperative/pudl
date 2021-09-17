@@ -31,19 +31,19 @@ def dummy_cems():
     """
     EPA CEMS.
 
-    idx unit_id_epa     operating_datetime_utc  plant_id  unitid  gross_load_mw
-    0             0  2019-12-31 22:00:00+00:00        10       a              0
-    1             0  2019-12-31 23:00:00+00:00        10       a              1
-    2             0  2020-01-01 00:00:00+00:00        10       a              2
-    3             0  2020-01-01 01:00:00+00:00        10       a              3
-    4             1  2019-12-31 22:00:00+00:00        11       a              4
-    5             1  2019-12-31 23:00:00+00:00        11       a              5
-    6             1  2020-01-01 00:00:00+00:00        11       a              6
-    7             1  2020-01-01 01:00:00+00:00        11       a              7
-    8             2  2019-12-31 22:00:00+00:00        11       b              8
-    9             2  2019-12-31 23:00:00+00:00        11       b              9
-    10            2  2020-01-01 00:00:00+00:00        11       b             10
-    11            2  2020-01-01 01:00:00+00:00        11       b             11
+    unit_id_epa     operating_datetime_utc  plant_id  unitid  gross_load_mw
+              0  2019-12-31 22:00:00+00:00        10       a              1
+              0  2019-12-31 23:00:00+00:00        10       a              0
+              0  2020-01-01 00:00:00+00:00        10       a              0
+              0  2020-01-01 01:00:00+00:00        10       a              1
+              1  2019-12-31 22:00:00+00:00        11       a              0
+              1  2019-12-31 23:00:00+00:00        11       a              1
+              1  2020-01-01 00:00:00+00:00        11       a              1
+              1  2020-01-01 01:00:00+00:00        11       a              0
+              2  2019-12-31 22:00:00+00:00        11       b              1
+              2  2019-12-31 23:00:00+00:00        11       b              1
+              2  2020-01-01 00:00:00+00:00        11       b              0
+              2  2020-01-01 01:00:00+00:00        11       b              0
     """
     inputs = dict(
         unit_id_epa=[0, 1, 2],
@@ -59,15 +59,14 @@ def dummy_cems():
     cems['plant_id'] = cems['unit_id_epa'].map({0: 10, 1: 11, 2: 11})
     cems['unitid'] = cems['unit_id_epa'].map({0: 'a', 1: 'a', 2: 'b'})
     # add values
-    cems['gross_load_mw'] = range(len(cems))
-    # add binary values
     lst = [
         1, 0, 0, 1,  # start, end with 1
         0, 1, 1, 0,  # start, end with 0
         1, 1, 0, 0  # mix
     ]
-    cems['binary'] = lst
+    cems['gross_load_mw'] = lst
 
+    cems = cems.set_index(["unit_id_epa", "operating_datetime_utc"], drop=False)
     return cems
 
 
@@ -80,13 +79,37 @@ def dummy_crosswalk():
 def test__sorted_groupby_diff(dummy_cems):
     """Test equivalence to groupby."""
     actual = rr._sorted_groupby_diff(
-        dummy_cems['binary'], dummy_cems['unit_id_epa'])
-    expected = dummy_cems.groupby('unit_id_epa')[
-        'binary'].transform(lambda x: x.diff())
+        dummy_cems['gross_load_mw'], dummy_cems['unit_id_epa'])
+    expected = dummy_cems.groupby(level='unit_id_epa')[
+        'gross_load_mw'].transform(lambda x: x.diff())
     assert_series_equal(actual, expected)
 
 
-@pytest.mark.xfail
 def test_add_startup_shutdown_timestamps(dummy_cems):
-    """Make linter shut up."""
-    raise NotImplementedError
+    """Test startup and shutdown timestamps are correct and that intermediate columns were dropped."""
+    original_cols = list(dummy_cems.columns)
+    startup_indicators = [
+        False, False, False, True,
+        False, True, False, False,
+        False, False, False, False,
+    ]
+    shutdown_indicators = [
+        False, True, False, False,
+        False, False, False, True,
+        False, False, True, False,
+    ]
+    expected_startups = dummy_cems['operating_datetime_utc'].where(
+        startup_indicators, pd.NaT).rename('startups')
+    expected_shutdowns = dummy_cems['operating_datetime_utc'].where(
+        shutdown_indicators, pd.NaT).rename('shutdowns')
+
+    rr.add_startup_shutdown_timestamps(dummy_cems)
+    actual_startups = dummy_cems['startups']
+    actual_shutdowns = dummy_cems['shutdowns']
+
+    assert_series_equal(actual_shutdowns, expected_shutdowns)
+    assert_series_equal(actual_startups, expected_startups)
+
+    # check for intermediate columns
+    final_cols = set(dummy_cems.columns)
+    assert set(original_cols + ['startups', 'shutdowns']) == final_cols

@@ -115,8 +115,7 @@ def add_startup_shutdown_timestamps(cems: pd.DataFrame) -> None:
     """Find timestamps of startups and shutdowns based on transition between generator on and off states."""
     # for each unit, find change points from zero to non-zero production
     cems["binarized"] = _classify_on_off(cems["gross_load_mw"])
-    cems["binary_diffs"] = _sorted_groupby_diff(
-        cems['binarized'], cems.index.get_level_values('unit_id_epa'))
+    cems["binary_diffs"] = _sorted_groupby_diff(cems['binarized'], cems['unit_id_epa'])
     # extract changepoint times
     cems["shutdowns"] = cems["operating_datetime_utc"].where(
         cems["binary_diffs"] == -1, pd.NaT)
@@ -131,8 +130,8 @@ def _distance_from_downtime(
     cems: pd.DataFrame, drop_intermediates=True, boundary_offset_hours: int = 24
 ) -> None:
     """Calculate two columns: the number of hours to the next shutdown; and from the last startup."""
-    # fill startups forward and shutdowns backward
-    # Note that this leaves NaT values for any uptime periods at the very start/end of the timeseries
+    # Start by filling startups forward and shutdowns backward.
+    # This leaves NaT values for any uptime periods at the very start/end of the timeseries.
     # The second fillna handles this by assuming the real boundary is the edge of the dataset + an offset
     offset = pd.Timedelta(boundary_offset_hours, unit="h")
     cems["startups"] = (
