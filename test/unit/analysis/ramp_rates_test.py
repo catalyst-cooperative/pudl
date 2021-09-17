@@ -1,9 +1,10 @@
 """Unit tests for the :mod:`pudl.analysis.ramp_rates` module."""
 from typing import Dict, Sequence
 
+import numpy as np
 import pandas as pd
 import pytest
-from pandas.testing import assert_series_equal  # , assert_frame_equal
+from pandas.testing import assert_frame_equal, assert_series_equal
 
 import pudl.analysis.ramp_rates as rr
 
@@ -85,31 +86,105 @@ def test__sorted_groupby_diff(dummy_cems):
     assert_series_equal(actual, expected)
 
 
-def test_add_startup_shutdown_timestamps(dummy_cems):
-    """Test startup and shutdown timestamps are correct and that intermediate columns were dropped."""
-    original_cols = list(dummy_cems.columns)
-    startup_indicators = [
-        False, False, False, True,
-        False, True, False, False,
-        False, False, False, False,
-    ]
-    shutdown_indicators = [
-        False, True, False, False,
-        False, False, False, True,
-        False, False, True, False,
-    ]
-    expected_startups = dummy_cems['operating_datetime_utc'].where(
-        startup_indicators, pd.NaT).rename('startups')
-    expected_shutdowns = dummy_cems['operating_datetime_utc'].where(
-        shutdown_indicators, pd.NaT).rename('shutdowns')
+class TestRampRatePipeline:
+    """Test the full ramp rates analysis pipeline.
 
-    rr.add_startup_shutdown_timestamps(dummy_cems)
-    actual_startups = dummy_cems['startups']
-    actual_shutdowns = dummy_cems['shutdowns']
+    Due to the size of the CEMS dataset, these functions operate in place to minimize copying.
+    The downside of this approach is that it produces a long dependency chain of side effects.
 
-    assert_series_equal(actual_shutdowns, expected_shutdowns)
-    assert_series_equal(actual_startups, expected_startups)
+    To break this chain for testing, I define the expected outputs in separate methods
+    so that the next test can recreate the values as inputs.
+    """
 
-    # check for intermediate columns
-    final_cols = set(dummy_cems.columns)
-    assert set(original_cols + ['startups', 'shutdowns']) == final_cols
+    def expected_add_startup_shutdown_timestamps(self, cems: pd.DataFrame) -> pd.DataFrame:
+        """Make expected values."""
+        startup_indicators = [
+            False, False, False, True,
+            False, True, False, False,
+            False, False, False, False,
+        ]
+        shutdown_indicators = [
+            False, True, False, False,
+            False, False, False, True,
+            False, False, True, False,
+        ]
+        expected_startups = cems['operating_datetime_utc'].where(
+            startup_indicators, pd.NaT).rename('startups')
+        expected_shutdowns = cems['operating_datetime_utc'].where(
+            shutdown_indicators, pd.NaT).rename('shutdowns')
+        return cems.assign(startups=expected_startups, shutdowns=expected_shutdowns)
+
+    def test_add_startup_shutdown_timestamps(self, dummy_cems):
+        """Test startup and shutdown timestamps are correct and that intermediate columns were dropped."""
+        actual = dummy_cems
+        expected = self.expected_add_startup_shutdown_timestamps(dummy_cems)
+
+        rr.add_startup_shutdown_timestamps(actual)
+        assert_frame_equal(actual, expected)
+
+    def expected__fill_startups_shutdowns(self, cems: pd.DataFrame) -> pd.DataFrame:
+        """Make expected values."""
+        previous_startups = [
+            pd.Timestamp("2019-12-30 22:00:00+00:00"),
+            pd.Timestamp("2019-12-30 22:00:00+00:00"),
+            pd.Timestamp("2019-12-30 22:00:00+00:00"),
+            pd.Timestamp("2020-01-01 01:00:00+00:00"),  # end unit 1
+            pd.Timestamp("2019-12-30 22:00:00+00:00"),
+            pd.Timestamp("2019-12-31 23:00:00+00:00"),
+            pd.Timestamp("2019-12-31 23:00:00+00:00"),
+            pd.Timestamp("2019-12-31 23:00:00+00:00"),  # end unit 2
+            pd.Timestamp("2019-12-30 22:00:00+00:00"),
+            pd.Timestamp("2019-12-30 22:00:00+00:00"),
+            pd.Timestamp("2019-12-30 22:00:00+00:00"),
+            pd.Timestamp("2019-12-30 22:00:00+00:00"),
+        ]
+        next_shutdowns = [
+            pd.Timestamp("2019-12-31 23:00:00+00:00"),
+            pd.Timestamp("2019-12-31 23:00:00+00:00"),
+            pd.Timestamp("2020-01-02 01:00:00+00:00"),
+            pd.Timestamp("2020-01-02 01:00:00+00:00"),  # end unit 1
+            pd.Timestamp("2020-01-01 01:00:00+00:00"),
+            pd.Timestamp("2020-01-01 01:00:00+00:00"),
+            pd.Timestamp("2020-01-01 01:00:00+00:00"),
+            pd.Timestamp("2020-01-01 01:00:00+00:00"),  # end unit 2
+            pd.Timestamp("2020-01-01 00:00:00+00:00"),
+            pd.Timestamp("2020-01-01 00:00:00+00:00"),
+            pd.Timestamp("2020-01-01 00:00:00+00:00"),
+            pd.Timestamp("2020-01-02 01:00:00+00:00"),
+        ]
+        return cems.assign(startups=previous_startups, shutdowns=next_shutdowns)
+
+    def test__fill_startups_shutdowns(self, dummy_cems):
+        """Test that startup/shutdown timestamp columns are converted to previous/next startup/shutdown timestamps."""
+        actual = self.expected_add_startup_shutdown_timestamps(dummy_cems)
+        expected = self.expected__fill_startups_shutdowns(dummy_cems)
+
+        rr._fill_startups_shutdowns(actual)
+        assert_frame_equal(actual, expected)
+
+    def expected__distance_from_downtime(self, cems: pd.DataFrame) -> pd.DataFrame:
+        """Make expected values."""
+        hours_from_startup = [
+            24, 25, 26, 0,
+            24, 0, 1, 2,
+            24, 25, 26, 27,
+        ]
+        hours_to_shutdown = [
+            1, 0, 25, 24,
+            3, 2, 1, 0,
+            2, 1, 0, 24,
+        ]
+        expected = (
+            cems
+            .assign(hours_from_startup=hours_from_startup, hours_to_shutdown=hours_to_shutdown)
+            .astype(dict(hours_from_startup=np.float32, hours_to_shutdown=np.float32))
+        )
+        return expected
+
+    def test__distance_from_downtime(self, dummy_cems):
+        """Compute the distance, in hours, from current timestamp to previous/next startup/shutdown timestamps."""
+        actual = self.expected__fill_startups_shutdowns(dummy_cems)
+        expected = self.expected__distance_from_downtime(dummy_cems)
+
+        rr._distance_from_downtime(actual)
+        assert_frame_equal(actual, expected)

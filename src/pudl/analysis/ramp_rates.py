@@ -112,39 +112,43 @@ def _sorted_groupby_diff(diff_col: pd.Series, group_col: pd.Series) -> pd.Series
 
 
 def add_startup_shutdown_timestamps(cems: pd.DataFrame) -> None:
-    """Find timestamps of startups and shutdowns based on transition between generator on and off states."""
+    """Find timestamps of startups and shutdowns based on transitions between generator on and off states."""
     # for each unit, find change points from zero to non-zero production
     cems["binarized"] = _classify_on_off(cems["gross_load_mw"])
     cems["binary_diffs"] = _sorted_groupby_diff(cems['binarized'], cems['unit_id_epa'])
     # extract changepoint times
-    cems["shutdowns"] = cems["operating_datetime_utc"].where(
-        cems["binary_diffs"] == -1, pd.NaT)
     cems["startups"] = cems["operating_datetime_utc"].where(
         cems["binary_diffs"] == 1, pd.NaT)
+    cems["shutdowns"] = cems["operating_datetime_utc"].where(
+        cems["binary_diffs"] == -1, pd.NaT)
     # drop intermediates
     cems.drop(columns=["binarized", "binary_diffs"], inplace=True)
     return
 
 
-def _distance_from_downtime(
-    cems: pd.DataFrame, drop_intermediates=True, boundary_offset_hours: int = 24
+def _fill_startups_shutdowns(
+    cems: pd.DataFrame, boundary_offset_hours: int = 24
 ) -> None:
-    """Calculate two columns: the number of hours to the next shutdown; and from the last startup."""
+    """Create columns with the timestamps of the next shutdown and previous startup for each timestamp."""
     # Start by filling startups forward and shutdowns backward.
     # This leaves NaT values for any uptime periods at the very start/end of the timeseries.
-    # The second fillna handles this by assuming the real boundary is the edge of the dataset + an offset
+    # The second fillna handles this by assuming the next startup/shutdown is at
+    # the edge of the dataset + an offset
     offset = pd.Timedelta(boundary_offset_hours, unit="h")
+    units = cems.groupby(level="unit_id_epa")
     cems["startups"] = (
-        cems["startups"]
-        .groupby(level="unit_id_epa")
-        .transform(lambda x: x.ffill().fillna(x.index[0][1] - offset))
+        units["startups"]
+        .transform(lambda x: x.ffill().fillna(x.index.get_level_values('operating_datetime_utc')[0] - offset))
     )
     cems["shutdowns"] = (
-        cems["shutdowns"]
-        .groupby(level="unit_id_epa")
-        .transform(lambda x: x.bfill().fillna(x.index[-1][1] + offset))
+        units["shutdowns"]
+        .transform(lambda x: x.bfill().fillna(x.index.get_level_values('operating_datetime_utc')[-1] + offset))
     )
+    return
 
+
+def _distance_from_downtime(cems: pd.DataFrame) -> None:
+    """Calculate two columns: the number of hours 1) to the next shutdown and 2) from the last startup."""
     cems["hours_from_startup"] = (
         cems["operating_datetime_utc"]
         .sub(cems["startups"])
@@ -160,29 +164,16 @@ def _distance_from_downtime(
         .div(3600)
         .astype(np.float32)
     )
-    if drop_intermediates:
-        cems.drop(columns=["startups", "shutdowns"], inplace=True)
-    return None
+    cems.drop(columns=["startups", "shutdowns"], inplace=True)
+    return
 
 
-def calc_distance_from_downtime(
-    cems: pd.DataFrame, classify_startup=False, drop_intermediates=True
-) -> None:
-    """Calculate two columns: the number of hours to the next shutdown; and from the last startup."""
-    # in place
+def calc_distance_from_downtime(cems: pd.DataFrame) -> None:
+    """Add two columns: the number of hours 1) to the next shutdown and 2) from the last startup."""
     add_startup_shutdown_timestamps(cems)
-    _distance_from_downtime(cems, drop_intermediates)
-    cems["hours_distance"] = cems[[
-        "hours_from_startup", "hours_to_shutdown"]].min(axis=1)
-    if classify_startup:
-        cems["nearest_to_startup"] = cems["hours_from_startup"] < cems["hours_to_shutdown"]
-        # randomly allocate midpoints
-        rng = np.random.default_rng(seed=42)
-        rand_midpoints = (cems["hours_from_startup"] == cems["hours_to_shutdown"]) & rng.choice(
-            np.array([True, False]), size=len(cems)
-        )
-        cems.loc[rand_midpoints, "nearest_to_startup"] = True
-    return None
+    _fill_startups_shutdowns(cems)
+    _distance_from_downtime(cems)
+    return
 
 
 def _filter_retirements(df: pd.DataFrame, year_range: Tuple[int, int]) -> pd.DataFrame:
@@ -196,6 +187,27 @@ def _filter_retirements(df: pd.DataFrame, year_range: Tuple[int, int]) -> pd.Dat
         "CAMD_STATUS"
     ].ne("RET")
     return df.loc[not_retired_before_start & not_built_after_end]
+
+
+def _get_unique_keys(cems: Union[pd.DataFrame, dd.DataFrame]) -> pd.DataFrame:
+    """Get unique unit IDs from CEMS data."""
+    # The purpose of this function is mostly to resolve the
+    # ambiguity between dask and pandas dataframes
+    ids = cems[["plant_id_eia", "unitid", "unit_id_epa"]].drop_duplicates()
+    if isinstance(cems, dd.DataFrame):
+        ids = ids.compute()
+    return ids
+
+
+def _merge_crosswalk_with_cems_ids(crosswalk: pd.DataFrame, cems: Union[pd.DataFrame, dd.DataFrame]) -> pd.DataFrame:
+    ids = _get_unique_keys(cems)
+    key_map = ids.merge(
+        crosswalk,
+        left_on=["plant_id_eia", "unitid"],
+        right_on=["CAMD_PLANT_ID", "CAMD_UNIT_ID"],
+        how="inner",
+    )
+    return key_map
 
 
 def _remove_irrelevant(df: pd.DataFrame):
@@ -233,27 +245,6 @@ def _subplant_ids_from_prepped_crosswalk(prepped: pd.DataFrame) -> pd.DataFrame:
         ), f"non-bipartite: i={i}, node_set={node_set}"
         nx.set_edge_attributes(subgraph, name="subplant_id", values=i)
     return nx.to_pandas_edgelist(graph)
-
-
-def _get_unique_keys(cems: Union[pd.DataFrame, dd.DataFrame]) -> pd.DataFrame:
-    """Get unique unit IDs from CEMS data."""
-    # The purpose of this function is mostly to resolve the
-    # ambiguity between dask and pandas dataframes
-    ids = cems[["plant_id_eia", "unitid", "unit_id_epa"]].drop_duplicates()
-    if isinstance(cems, dd.DataFrame):
-        ids = ids.compute()
-    return ids
-
-
-def _merge_crosswalk_with_cems_ids(crosswalk: pd.DataFrame, cems: Union[pd.DataFrame, dd.DataFrame]) -> pd.DataFrame:
-    ids = _get_unique_keys(cems)
-    key_map = ids.merge(
-        crosswalk,
-        left_on=["plant_id_eia", "unitid"],
-        right_on=["CAMD_PLANT_ID", "CAMD_UNIT_ID"],
-        how="inner",
-    )
-    return key_map
 
 
 def _make_subplant_ids(crosswalk: pd.DataFrame, cems: Union[pd.DataFrame, dd.DataFrame]) -> pd.DataFrame:
@@ -353,6 +344,8 @@ def _classify_exclusions(cems: pd.DataFrame, exclusion_map: Optional[Dict[str, i
         exclusion_map = EXCLUSION_SIZE_HOURS
     cems = cems.copy()
     calc_distance_from_downtime(cems)  # in place
+    cems["hours_distance"] = cems[[
+        "hours_from_startup", "hours_to_shutdown"]].min(axis=1)
     cems["exclude_ramp"] = cems["hours_distance"] <= cems["simple_EIA_UNIT_TYPE"].map(
         exclusion_map
     ).astype(np.float32)
@@ -513,7 +506,7 @@ def analyze_ramp_rates(states: Optional[Sequence[str]] = None, years: Optional[S
     See pudl.outputs.epacems.epacems for default args
     """
     crosswalk = epa_crosswalk()
-    cems = epacems(states=states, years=years, engine='dask')
+    cems = epacems(states=states, years=years)
 
     key_map = _make_subplant_ids(crosswalk, cems)
     subplant_meta = _aggregate_subplants(key_map)
