@@ -31,8 +31,6 @@ import pudl.extract.ferc714
 import pudl.glue.eia_epacems
 import pudl.glue.ferc1_eia
 import pudl.helpers
-import pudl.load.csv
-import pudl.load.metadata
 import pudl.load.parquet
 import pudl.load.sqlite
 import pudl.metadata.classes

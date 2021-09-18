@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 """Setup script to make PUDL directly installable with pip."""
 
-import os
 from pathlib import Path
 
 from setuptools import find_packages, setup
@@ -15,7 +14,6 @@ install_requires = [
     "fsspec~=2021.7",
     "gcsfs~=2021.7",
     "geopandas~=0.9.0",
-    # "goodtables-pandas-py~=0.2.0",  # No longer needed with direct ETL?
     "jinja2~=3.0",
     "matplotlib~=3.0",
     "networkx~=2.2",
@@ -25,23 +23,15 @@ install_requires = [
     "pyarrow~=5.0",
     "pydantic[email]~=1.7",
     "pygeos~=0.10.0",
+    "python-snappy~=0.6.0",
     "pyyaml~=5.0",
     "scikit-learn~=0.24.1",
     "scipy~=1.6",
     "seaborn~=0.11.1",
     "sqlalchemy~=1.4",
-    # "tableschema~=1.12",     # Not needed post datapackage output removal?
-    # "tableschema-sql~=1.3",  # Not needed post datapackage output removal?
     "timezonefinder~=5.0",
     "xlsxwriter~=3.0",
 ]
-
-# We are installing the PUDL module to build the docs, but the C libraries
-# required to build snappy aren"t available on RTD, so we need to exclude it
-# from the installed dependencies here, and mock it for import in docs/conf.py
-# using the autodoc_mock_imports parameter:
-if not os.getenv("READTHEDOCS"):
-    install_requires.append("python-snappy~=0.6.0")
 
 dev_requires = [
     "autopep8~=1.5",
