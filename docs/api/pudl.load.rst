@@ -7,8 +7,6 @@ Submodules
 .. toctree::
    :maxdepth: 4
 
-   pudl.load.csv
-   pudl.load.metadata
    pudl.load.parquet
    pudl.load.sqlite
 
