@@ -26,7 +26,7 @@ SQLite and Parquet Outputs
 * Data types, specified value constraints, and the uniqueness / non-null
   constraints on primary keys are validated during insertion into the SQLite DB.
 * The PUDL ETL CLI :mod:`pudl.cli` now has flags to activate various constraint
-  checks including `--check-foreign-keys`, `--check-types`, and `--check-values`.
+  checks including ``--check-foreign-keys``, ``--check-types``, and ``--check-values``.
 
 New Metadata System
 ^^^^^^^^^^^^^^^^^^^
@@ -45,8 +45,12 @@ Updated Dependencies
   coming in SQLAlchemy 2.0, and bumped current requirement to 1.4.x
 * **Pandas 1.3.x:** Addressed many data type issues resulting from changes in how Pandas
   preserves and propagates ExtensionArray / nullable data types.
-* **PyArrow v5.0.0**
-* **PyGEOS v0.10.x**
+* **PyArrow v5.0.0** Updated to the most recent version
+* **PyGEOS v0.10.x** Updated to the most recent version
+* **contextily** has been removed, since we only used it optionally for making a single
+  visualization and it has substantial dependencies itself.
+* **goodtables-pandas-py** has been removed since we're no longer producing or
+  validating datapackages.
 
 New Analyses
 ^^^^^^^^^^^^
