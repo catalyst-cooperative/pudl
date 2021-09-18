@@ -3,7 +3,7 @@ PUDL Release Notes
 =======================================================================================
 
 ---------------------------------------------------------------------------------------
-0.5.0? (Unreleased)
+0.5.0 (Unreleased)
 ---------------------------------------------------------------------------------------
 
 SQLite and Parquet Outputs
@@ -63,8 +63,9 @@ New Analyses
 Data Coverage Changes
 ^^^^^^^^^^^^^^^^^^^^^
 * :doc:`data_sources/eia860` for 2001-2003. See :issue:`1122`.
-* **EPA IPM / NEEDS** data from PUDL as we did not have the internal resources
-  to maintain it, and it was no longer working. Apologies to :user:`gschivley`!
+* **EPA IPM / NEEDS** data has been removed from PUDL as we didn't have the internal
+  resources to maintain it, and it was no longer working. Apologies to
+  :user:`gschivley`!
 
 Known Issues
 ^^^^^^^^^^^^
