@@ -172,7 +172,7 @@ def pudl_sql_engine(
             # See: https://github.com/catalyst-cooperative/pudl/issues/1196
             check_foreign_keys=False,
             check_types=True,
-            check_values=True,
+            check_values=False,
         )
     # Grab a connection to the freshly populated PUDL DB, and hand it off.
     # All the hard work here is being done by the datapkg and
