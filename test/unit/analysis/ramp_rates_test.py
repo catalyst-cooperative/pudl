@@ -1,6 +1,7 @@
 """Unit tests for the :mod:`pudl.analysis.ramp_rates` module."""
 from typing import Dict, Sequence
 
+import dask.dataframe as dd
 import numpy as np
 import pandas as pd
 import pytest
@@ -32,19 +33,19 @@ def dummy_cems():
     """
     EPA CEMS.
 
-    unit_id_epa     operating_datetime_utc  plant_id  unitid  gross_load_mw
-              0  2019-12-31 22:00:00+00:00        10       a              1
-              0  2019-12-31 23:00:00+00:00        10       a              0
-              0  2020-01-01 00:00:00+00:00        10       a              0
-              0  2020-01-01 01:00:00+00:00        10       a              1
-              1  2019-12-31 22:00:00+00:00        11       a              0
-              1  2019-12-31 23:00:00+00:00        11       a              1
-              1  2020-01-01 00:00:00+00:00        11       a              1
-              1  2020-01-01 01:00:00+00:00        11       a              0
-              2  2019-12-31 22:00:00+00:00        11       b              1
-              2  2019-12-31 23:00:00+00:00        11       b              1
-              2  2020-01-01 00:00:00+00:00        11       b              0
-              2  2020-01-01 01:00:00+00:00        11       b              0
+    unit_id_epa     operating_datetime_utc  plant_id_eia  unitid  gross_load_mw
+              0  2019-12-31 22:00:00+00:00            10       a              1
+              0  2019-12-31 23:00:00+00:00            10       a              0
+              0  2020-01-01 00:00:00+00:00            10       a              0
+              0  2020-01-01 01:00:00+00:00            10       a              1
+              1  2019-12-31 22:00:00+00:00            11       a              0
+              1  2019-12-31 23:00:00+00:00            11       a              1
+              1  2020-01-01 00:00:00+00:00            11       a              1
+              1  2020-01-01 01:00:00+00:00            11       a              0
+              2  2019-12-31 22:00:00+00:00            11       b              1
+              2  2019-12-31 23:00:00+00:00            11       b              1
+              2  2020-01-01 00:00:00+00:00            11       b              0
+              2  2020-01-01 01:00:00+00:00            11       b              0
     """
     inputs = dict(
         unit_id_epa=[0, 1, 2],
@@ -57,7 +58,7 @@ def dummy_cems():
     )
     cems = df_from_product(inputs, as_index=False)
     # add composite keys
-    cems['plant_id'] = cems['unit_id_epa'].map({0: 10, 1: 11, 2: 11})
+    cems['plant_id_eia'] = cems['unit_id_epa'].map({0: 10, 1: 11, 2: 11})
     cems['unitid'] = cems['unit_id_epa'].map({0: 'a', 1: 'a', 2: 'b'})
     # add values
     lst = [
@@ -84,6 +85,20 @@ def test__sorted_groupby_diff(dummy_cems):
     expected = dummy_cems.groupby(level='unit_id_epa')[
         'gross_load_mw'].transform(lambda x: x.diff())
     assert_series_equal(actual, expected)
+
+
+def test__get_unique_keys(dummy_cems):
+    """Test that dask and pandas dataframes give the same unique keys."""
+    dummy_cems = dummy_cems.reset_index(
+        drop=True)  # this func is used before index is set. Dask doesn't support MultiIndex
+    # sensititve to column order
+    expected = dummy_cems[::4][["plant_id_eia", "unitid", "unit_id_epa"]]
+    actual = rr._get_unique_keys(dummy_cems)
+    assert_frame_equal(actual, expected)
+
+    dask_cems = dd.from_pandas(dummy_cems, npartitions=2)
+    actual = rr._get_unique_keys(dask_cems)
+    assert_frame_equal(actual, expected)
 
 
 class TestRampRatePipeline:
