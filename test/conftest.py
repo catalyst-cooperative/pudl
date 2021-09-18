@@ -171,7 +171,7 @@ def pudl_sql_engine(
             # These checks should all be True but there are bugs at the moment.
             # See: https://github.com/catalyst-cooperative/pudl/issues/1196
             check_foreign_keys=False,
-            check_types=False,
+            check_types=True,
             check_values=True,
         )
     # Grab a connection to the freshly populated PUDL DB, and hand it off.

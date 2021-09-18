@@ -42,6 +42,10 @@ jobs:
         mkdir -p ~/pudl-work/data/
         find ~/pudl-work/data/
 
+    - name: Log SQLite3 version
+      run: |
+        sqlite3 --version
+
     - name: Run PyTest with Tox
       env:
         API_KEY_EIA: ${{ secrets.API_KEY_EIA }}
