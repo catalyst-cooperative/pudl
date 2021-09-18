@@ -13,7 +13,6 @@ import math
 import sys
 
 import coloredlogs
-import contextily as ctx
 import pandas as pd
 import sqlalchemy as sa
 from matplotlib import pyplot as plt
@@ -373,12 +372,13 @@ def plot_historical_territory(gdf, id_col, id_val):
     plt.show()
 
 
-def plot_all_territories(gdf,
-                         report_date,
-                         respondent_type=("balancing_authority", "utility"),
-                         color="black",
-                         alpha=0.25,
-                         basemap=True):
+def plot_all_territories(
+    gdf,
+    report_date,
+    respondent_type=("balancing_authority", "utility"),
+    color="black",
+    alpha=0.25,
+):
     """
     Plot all of the planning areas of a given type for a given report date.
 
@@ -397,7 +397,6 @@ def plot_all_territories(gdf,
             "balancing_authority" or an iterable collection containing both.
         color (str): Color to use for the planning areas.
         alpha (float): Transparency to use for the planning areas.
-        basemap (bool): If true, use the OpenStreetMap tiles for context.
 
     Returns:
         matplotlib.axes.Axes
@@ -424,8 +423,6 @@ def plot_all_territories(gdf,
     )
     ax = plot_gdf.plot(figsize=(20, 20), color=color, alpha=alpha, linewidth=1)
     plt.title(f"FERC 714 {', '.join(respondent_type)} planning areas for {report_date}")
-    if basemap:
-        ctx.add_basemap(ax)
     plt.show()
     return ax
 
