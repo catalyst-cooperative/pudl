@@ -47,19 +47,19 @@ def parse_command_line(argv):
         help="path to ETL settings file."
     )
     parser.add_argument(
-        '--check_foreign_keys',
+        '--check-foreign-keys',
         action='store_true',
         default=False,
         help="Check foreign key constraints when loading into SQLite.",
     )
     parser.add_argument(
-        '--check_types',
+        '--check-types',
         action='store_true',
         default=False,
         help="Check column data type compatibility when loading into SQLite.",
     )
     parser.add_argument(
-        '--check_values',
+        '--check-values',
         action='store_true',
         default=False,
         help="Check column value constraints when loading into SQLite.",

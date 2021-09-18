@@ -44,5 +44,5 @@ documentation in your text editor with appropriate plugins.
     need to be checked in to version control.
 
     Similarly the :doc:`../data_dictionaries/pudl_db` is generated dynamically
-    by the :mod:`pudl.convert.datapkg_to_rst` script that gets run by Tox when
+    by the :mod:`pudl.convert.metadata_to_rst` script that gets run by Tox when
     it builds the docs.

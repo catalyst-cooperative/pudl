@@ -3,7 +3,7 @@
 This script transforms the raw EPA CEMS data from Zip compressed CSV files into
 an Apache Parquet dataset partitioned by year and state.
 
-Processing the EPA CEMS data requires information that's stored int he main PUDL
+Processing the EPA CEMS data requires information that's stored in the main PUDL
 database, so to run this script, you must already have a PUDL database
 available on your system.
 

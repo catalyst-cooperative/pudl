@@ -1186,17 +1186,16 @@ class Resource(Base):
         """
         Harvest from named dataframes.
 
-        For standard resources (:attr:`harvest`. `harvest=False`),
-        the columns matching all primary key fields and any data fields
-        are extracted from the input dataframe of the same name.
+        For standard resources (:attr:`harvest`. `harvest=False`), the columns
+        matching all primary key fields and any data fields are extracted from
+        the input dataframe of the same name.
 
-        For harvested resources (:attr:`harvest`. `harvest=True`),
-        the columns matching all primary key fields and any data fields
-        are extracted from each compatible input dataframe,
-        and concatenated into a single dataframe.
-        Periodic key fields (e.g. 'report_month') are matched to any
-        column of the same name with an equal or smaller period (e.g. 'report_day')
-        and snapped to the start of the desired period.
+        For harvested resources (:attr:`harvest`. `harvest=True`), the columns
+        matching all primary key fields and any data fields are extracted from
+        each compatible input dataframe, and concatenated into a single
+        dataframe.  Periodic key fields (e.g. 'report_month') are matched to any
+        column of the same name with an equal or smaller period (e.g.
+        'report_day') and snapped to the start of the desired period.
 
         If `aggregate=False`, rows are indexed by the name of the input dataframe.
         If `aggregate=True`, rows are indexed by primary key fields.
@@ -1204,14 +1203,15 @@ class Resource(Base):
         Args:
             dfs: Dataframes to harvest.
             aggregate: Whether to aggregate the harvested rows by their primary key.
-              By default, this is `True` if `self.harvest.harvest=True`
-              and `False` otherwise.
+                By default, this is `True` if `self.harvest.harvest=True` and
+                `False` otherwise.
             kwargs: Optional arguments to :meth:`aggregate_df`.
 
         Returns:
-            A dataframe harvested from the dataframes,
-            with column names and data types matching the resource fields,
-            alongside an aggregation report.
+            A dataframe harvested from the dataframes, with column names and
+            data types matching the resource fields, alongside an aggregation
+            report.
+
         """
         if aggregate is None:
             aggregate = self.harvest.harvest

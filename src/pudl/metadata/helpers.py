@@ -123,7 +123,8 @@ def _traverse_foreign_key_tree(
 
 
 def build_foreign_keys(
-    resources: Dict[str, dict], prune: bool = True
+    resources: Dict[str, dict],
+    prune: bool = True,
 ) -> Dict[str, List[dict]]:
     """
     Build foreign keys for each resource.
