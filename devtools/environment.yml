@@ -16,7 +16,7 @@ dependencies:
   # These libraries aren't directly specified in setup.py as
   # dependencies, but they are helpful and provide binaries
   - numba~=0.53  # First numba version that's compatible with Python 3.9
-  - python-graphviz
+  - python-graphviz # For visualizing DAGs from Prefect
 
    # These are not normal Python packages available on PyPI
   - nodejs  # Useful for Jupyter
@@ -24,7 +24,6 @@ dependencies:
 
   # Packages related to current projects but not the core package
   - dask~=2021.8 # For processing CEMS and eventually Prefect cloud ETL
-  - pysal  # Used for making maps in LBL / GridLab work
   - recordlinkage~=0.14.0 # Used for fuzzy merge between FERC/EIA for RMI
 
   # Jupyter notebook specific packages:

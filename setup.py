@@ -137,8 +137,7 @@ setup(
     entry_points={
         "console_scripts": [
             "censusdp1tract_to_sqlite = pudl.convert.censusdp1tract_to_sqlite:main",
-            "datapkg_to_rst = pudl.convert.datapkg_to_rst:main",
-            "datapkg_to_sqlite = pudl.convert.datapkg_to_sqlite:main",
+            "metadata_to_rst = pudl.convert.metadata_to_rst:main",
             "epacems_to_parquet = pudl.convert.epacems_to_parquet:main",
             "ferc1_to_sqlite = pudl.convert.ferc1_to_sqlite:main",
             "pudl_datastore = pudl.workspace.datastore:main",

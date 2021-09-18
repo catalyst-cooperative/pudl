@@ -1,9 +1,9 @@
 [run]
 omit =
-    *glue/zipper.py
-    *analysis/analysis.py
-    *analysis/demand_mapping.py
-    *epaipm.py
+    *convert/datapkg_to_sqlite.py   # Deprecated with direct SQLite/Parquet ETL
+    *convert/merge_datapkgs.py      # Deprecated with direct SQLite/Parquet ETL
+    *load/csv.py                    # Deprecated with direct SQLite/Parquet ETL
+    *load/metadata.py               # Deprecated with direct SQLite/Parquet ETL
     *__main__.py
     *__init__.py
     *_test.py

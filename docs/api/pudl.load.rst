@@ -9,6 +9,8 @@ Submodules
 
    pudl.load.csv
    pudl.load.metadata
+   pudl.load.parquet
+   pudl.load.sqlite
 
 Module contents
 ---------------
