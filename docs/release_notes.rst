@@ -51,6 +51,10 @@ Updated Dependencies
   visualization and it has substantial dependencies itself.
 * **goodtables-pandas-py** has been removed since we're no longer producing or
   validating datapackages.
+* **SQLite 3.32.0** The type checks that we've implemented currently only work with
+  SQLite version 3.32.0 or later, as we discovered in debugging build failures on PR
+  :issue:`1228`. Unfortunately Ubuntu 20.04 LTS shipped with SQLite 3.31.1. Using
+  ``conda`` to manage your Python environment avoids this issue.
 
 New Analyses
 ^^^^^^^^^^^^
