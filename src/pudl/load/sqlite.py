@@ -2,14 +2,18 @@
 
 import logging
 from sqlite3 import Connection as SQLite3Connection
+from sqlite3 import sqlite_version
 from typing import Dict
 
 import pandas as pd
 import sqlalchemy as sa
+from packaging import version
 
 from pudl.metadata.classes import Package, Resource
 
 logger = logging.getLogger(__name__)
+
+MINIMUM_SQLITE_VERSION = "3.32.0"
 
 
 def dfs_to_sqlite(
@@ -29,6 +33,14 @@ def dfs_to_sqlite(
             cursor.execute(
                 f"PRAGMA foreign_keys={'ON' if check_foreign_keys else 'OFF'};")
             cursor.close()
+
+    if (version.parse(sqlite_version) < version.parse(MINIMUM_SQLITE_VERSION) and check_types):
+        check_types = False
+        logger.warning(
+            f"Found SQLite {sqlite_version} which is less than "
+            f"the minimum required version {MINIMUM_SQLITE_VERSION} "
+            "As a result, data type constraint checking has been disabled."
+        )
 
     # Build a list of resources from the keysin our dataframe dictionary:
     resources = [Resource.from_id(x) for x in dfs]
