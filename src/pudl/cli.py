@@ -47,22 +47,22 @@ def parse_command_line(argv):
         help="path to ETL settings file."
     )
     parser.add_argument(
-        '--check-foreign-keys',
+        '--ignore-foreign-key-constraints',
         action='store_true',
         default=False,
-        help="Check foreign key constraints when loading into SQLite.",
+        help="Ignore foreign key constraints when loading into SQLite.",
     )
     parser.add_argument(
-        '--check-types',
+        '--ignore-type-constraints',
         action='store_true',
         default=False,
-        help="Check column data type compatibility when loading into SQLite.",
+        help="Ignore column data type constraints when loading into SQLite.",
     )
     parser.add_argument(
-        '--check-values',
+        '--ignore-value-constraints',
         action='store_true',
         default=False,
-        help="Check column value constraints when loading into SQLite.",
+        help="Ignore column value constraints when loading into SQLite.",
     )
     parser.add_argument(
         '-c',
@@ -129,9 +129,9 @@ def main():
         clobber=args.clobber,
         use_local_cache=not args.bypass_local_cache,
         gcs_cache_path=args.gcs_cache_path,
-        check_foreign_keys=args.check_foreign_keys,
-        check_types=args.check_types,
-        check_values=args.check_values,
+        check_foreign_keys=not args.ignore_foreign_key_constraints,
+        check_types=not args.ignore_type_constraints,
+        check_values=not args.ignore_value_constraints,
     )
 
 
