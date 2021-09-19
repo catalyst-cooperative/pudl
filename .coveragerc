@@ -1,9 +1,9 @@
 [run]
 omit =
-    *convert/datapkg_to_sqlite.py   # Deprecated with direct SQLite/Parquet ETL
-    *convert/merge_datapkgs.py      # Deprecated with direct SQLite/Parquet ETL
-    *load/csv.py                    # Deprecated with direct SQLite/Parquet ETL
-    *load/metadata.py               # Deprecated with direct SQLite/Parquet ETL
+    */pudl/convert/datapkg_to_sqlite.py
+    */pudl/convert/merge_datapkgs.py
+    */pudl/load/csv.py
+    */pudl/load/metadata.py
     *__main__.py
     *__init__.py
     *_test.py
