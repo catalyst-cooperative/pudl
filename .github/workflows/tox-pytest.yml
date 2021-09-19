@@ -50,13 +50,14 @@ jobs:
 
     - name: Log SQLite3 version
       run: |
-        which sqlite3
-        sqlite3 --version
+        conda run -n pudl-test which sqlite3
+        conda run -n pudl-test sqlite3 --version
 
     - name: Run PyTest with Tox
       env:
         API_KEY_EIA: ${{ secrets.API_KEY_EIA }}
-      run: tox
+      run: |
+        conda run -n pudl-test tox
 
     - name: Log post-test Zenodo datastore contents
       run: find ~/pudl-work/data/
