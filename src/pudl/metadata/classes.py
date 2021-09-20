@@ -1315,25 +1315,31 @@ class Package(Base):
         return values
 
     @classmethod
-    def from_resource_ids(cls, resource_ids: Iterable[str]) -> "Package":
+    def from_resource_ids(
+        cls, resource_ids: Iterable[str], resolve_foreign_keys: bool = False
+    ) -> "Package":
         """
         Construct from PUDL identifiers (`resource.name`).
 
-        Resources are added as needed based on foreign keys.
+        Args:
+            resource_ids: Resource PUDL identifiers (`resource.name`).
+            resolve_foreign_keys: Whether to add resources as needed based on
+                foreign keys.
         """
         resources = [Resource.dict_from_id(x) for x in resource_ids]
-        # Add missing resources based on foreign keys
-        names = list(resource_ids)
-        i = 0
-        while i < len(resources):
-            for resource in resources[i:]:
-                for key in resource["schema"].get("foreign_keys", []):
-                    name = key.get("reference", {}).get("resource")
-                    if name and name not in names:
-                        names.append(name)
-            i = len(resources)
-            if len(names) > i:
-                resources += [Resource.dict_from_id(x) for x in names[i:]]
+        if resolve_foreign_keys:
+            # Add missing resources based on foreign keys
+            names = list(resource_ids)
+            i = 0
+            while i < len(resources):
+                for resource in resources[i:]:
+                    for key in resource["schema"].get("foreign_keys", []):
+                        name = key.get("reference", {}).get("resource")
+                        if name and name not in names:
+                            names.append(name)
+                i = len(resources)
+                if len(names) > i:
+                    resources += [Resource.dict_from_id(x) for x in names[i:]]
         return cls(name="pudl", resources=resources)
 
     def to_rst(self, path: str) -> None:
