@@ -9,7 +9,7 @@ import pandas as pd
 import sqlalchemy as sa
 from packaging import version
 
-from pudl.metadata.classes import Package, Resource
+from pudl.metadata.classes import Package
 
 logger = logging.getLogger(__name__)
 
