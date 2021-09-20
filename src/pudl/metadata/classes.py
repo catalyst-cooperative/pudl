@@ -1242,6 +1242,13 @@ class Resource(Base):
             return self.aggregate_df(df, **kwargs)
         return df, {}
 
+    def to_rst(self, path: str) -> None:
+        """Output to an RST file."""
+        template = JINJA_ENVIRONMENT.get_template("resource.rst.jinja")
+        rendered = template.render(resource=self)
+        Path(path).write_text(rendered)
+
+
 # ---- Package ---- #
 
 
@@ -1351,9 +1358,9 @@ class Package(Base):
         return cls(name="pudl", resources=resources)
 
     def to_rst(self, path: str) -> None:
-        """Output the full Package metadata to an RST file."""
+        """Output to an RST file."""
         template = JINJA_ENVIRONMENT.get_template("package.rst.jinja")
-        rendered = template.render(self)
+        rendered = template.render(package=self)
         Path(path).write_text(rendered)
 
     def to_sql(
