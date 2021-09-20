@@ -1,15 +1,16 @@
 """Metadata data classes."""
 import copy
 import datetime
-import re
+import os
 from pathlib import Path
+import re
 from typing import (Any, Callable, Dict, Iterable, List, Literal, Optional,
                     Tuple, Type, Union)
 
+import jinja2
 import pandas as pd
 import pydantic
 import sqlalchemy as sa
-from jinja2 import BaseLoader, Environment
 
 from .constants import (CONSTRAINT_DTYPES, CONTRIBUTORS,
                         CONTRIBUTORS_BY_SOURCE, FIELD_DTYPES, FIELD_DTYPES_SQL,
@@ -18,7 +19,6 @@ from .fields import FIELD_METADATA
 from .helpers import (expand_periodic_column_names, groupby_aggregate,
                       most_and_more_frequent, split_period)
 from .resources import FOREIGN_KEYS, RESOURCE_METADATA
-from .templates import PACKAGE_TO_RST
 
 # ---- Helpers ---- #
 
@@ -129,6 +129,14 @@ def _format_for_sql(x: Any, identifier: bool = False) -> str:  # noqa: C901
     # Single quotes (') are escaped by doubling them ('')
     x = x.replace("'", "''")
     return f"'{x}'"
+
+
+JINJA_ENVIRONMENT: jinja2.Environment = jinja2.Environment(
+    loader=jinja2.FileSystemLoader(
+        os.path.join(os.path.dirname(__file__), "templates")
+    ),
+    autoescape=True
+)
 
 
 # ---- Base ---- #
@@ -1344,10 +1352,7 @@ class Package(Base):
 
     def to_rst(self, path: str) -> None:
         """Output the full Package metadata to an RST file."""
-        template = (
-            Environment(loader=BaseLoader(), autoescape=True)
-            .from_string(PACKAGE_TO_RST)
-        )
+        template = JINJA_ENVIRONMENT.get_template("package.rst.jinja")
         rendered = template.render(self)
         Path(path).write_text(rendered)
 
