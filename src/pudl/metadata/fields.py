@@ -120,7 +120,6 @@ RTO_CLASSES: List[str] = [
     'spp',
 ]
 
-# Define some categorical dtypes to reduce the size of EPA CEMS data
 EPACEMS_MEASUREMENT_CODES: List[str] = [
     "Calculated",
     "LME",

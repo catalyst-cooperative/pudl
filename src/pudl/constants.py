@@ -6,7 +6,7 @@ used throughout PUDL to populate static lists within the data packages or for
 data cleaning purposes.
 """
 
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List, Tuple, Union
 
 import pandas as pd
 
@@ -361,10 +361,10 @@ fuel_type_eia923_gen_fuel_simple_map: Dict[str, Tuple[str]] = {
     'coal': ('ant', 'bit', 'cbl', 'lig', 'pc', 'rc', 'sc', 'sub', 'wc'),
     'oil': ('dfo', 'rfo', 'wo', 'jf', 'ker'),
     'gas': ('bfg', 'lfg', 'ng', 'og', 'obg', 'pg', 'sgc', 'sgp'),
-    'solar': ('sun'),
-    'wind': ('wnd'),
-    'hydro': ('wat'),
-    'nuclear': ('nuc'),
+    'solar': ('sun', ),
+    'wind': ('wnd', ),
+    'hydro': ('wat', ),
+    'nuclear': ('nuc', ),
     'waste': ('ab', 'blq', 'msb', 'msn', 'msw', 'obl', 'obs', 'slw', 'tdf', 'wdl', 'wds'),
     'other': ('geo', 'mwh', 'oth', 'pur', 'wh'),
 }
@@ -383,11 +383,11 @@ aer_fuel_type_strings: Dict[str, Tuple[str]] = {
     'coal': ('col', 'woc', 'pc'),
     'gas': ('mlg', 'ng', 'oog'),
     'oil': ('dfo', 'rfo', 'woo'),
-    'solar': ('sun'),
-    'wind': ('wnd'),
+    'solar': ('sun', ),
+    'wind': ('wnd', ),
     'hydro': ('hps', 'hyc'),
-    'nuclear': ('nuc'),
-    'waste': ('www'),
+    'nuclear': ('nuc', ),
+    'waste': ('www', ),
     'other': ('geo', 'orw', 'oth'),
 }
 """
@@ -514,11 +514,8 @@ entities: Dict[str, List] = {
         {},
     ]
 }
-"""dict: A dictionary containing table name strings (keys) and lists of columns
-    to keep for those tables (values).
-"""
+"""Metadata for use in the current entity harvesting & resolution process."""
 
-# All the years for which we ought to be able to download these data sources
 data_years: Dict[str, Tuple] = {
     'eia860': tuple(range(2001, 2020)),
     'eia861': tuple(range(1990, 2020)),
@@ -528,12 +525,13 @@ data_years: Dict[str, Tuple] = {
     'ferc714': (None, ),
 }
 """
-dict: A dictionary of data sources (keys) and tuples containing the years
-    that we expect to be able to download for each data source (values).
+What years of raw input data are available for download from each dataset.
+
+Note: ferc714 is not partitioned by year and is available only as a single file
+containing all data.
 """
 
-# The full set of years we currently expect to be able to ingest, per source:
-working_partitions: Dict[str, Any] = {
+working_partitions: Dict[str, Union[str, Tuple]] = {
     'eia860': {
         'years': tuple(range(2001, 2020))
     },
@@ -555,10 +553,16 @@ working_partitions: Dict[str, Any] = {
     'ferc714': {},
 }
 """
-dict: A dictionary of data sources (keys) and dictionaries (values) of names of
-    partition type (sub-key) and paritions (sub-value) containing the paritions
-    such as tuples of years for each data source that are able to be ingested
-    into PUDL.
+Per-dataset descriptions of what raw input data partitions can be processed.
+
+Most of our datasets are distributed in chunks that correspond to a given year,
+state, or other logical partition. Not all available partitions of the raw have
+data have been integrated into PUDL. The sub-keys within each dataset partition
+dictionary refer to metadata in the data packages we have archived on Zenodo,
+which contain the original raw input data.
+
+Note: ferc714 is not partitioned by year and is available only as a single file
+containing all data.
 """
 
 PUDL_TABLES: Dict[str, Tuple[str]] = {

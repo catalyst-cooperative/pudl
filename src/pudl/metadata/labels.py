@@ -80,32 +80,26 @@ RTO_ISO: Dict[str, str] = {
 NAICS_SECTOR_CONSOLIDATED_EIA: Dict[str, str] = {
     # traditional regulated electric utilities
     '1': 'Electric Utility',
-
     # Independent power producers which are not cogenerators
     '2': 'NAICS-22 Non-Cogen',
-
     # Independent power producers which are cogenerators, but whose
     # primary business purpose is the sale of electricity to the public
     '3': 'NAICS-22 Cogen',
-
     # Commercial non-cogeneration facilities that produce electric power,
     # are connected to the gird, and can sell power to the public
     '4': 'Commercial NAICS Non-Cogen',
-
     # Commercial cogeneration facilities that produce electric power, are
     # connected to the grid, and can sell power to the public
     '5': 'Commercial NAICS Cogen',
-
     # Industrial non-cogeneration facilities that produce electric power, are
     # connected to the gird, and can sell power to the public
     '6': 'Industrial NAICS Non-Cogen',
-
     # Industrial cogeneration facilities that produce electric power, are
     # connected to the gird, and can sell power to the public
     '7': 'Industrial NAICS Cogen'
 }
 """
-dict: Descriptive labels for EIA consolidated NAICS sector codes.
+Descriptive labels for EIA consolidated NAICS sector codes.
 
 For internal purposes, EIA consolidates NAICS categories into seven groups.
 These codes and descriptions are listed on Page 7 of EIA Form 923 EIA’s internal
