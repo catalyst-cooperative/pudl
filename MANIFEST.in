@@ -1,4 +1,5 @@
 graft src/pudl/package_data
+graft src/pudl/metadata/templates
 
 prune ci
 prune data
