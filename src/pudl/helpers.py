@@ -23,7 +23,6 @@ import requests
 import sqlalchemy as sa
 import timezonefinder
 
-import pudl
 from pudl import constants as pc
 
 logger = logging.getLogger(__name__)
@@ -315,7 +314,7 @@ def clean_merge_asof(
 
 def get_pudl_dtype(col, data_source):
     """Look up a column's canonical data type based on its PUDL data source."""
-    return pudl.constants.column_dtypes[data_source][col]
+    return pc.column_dtypes[data_source][col]
 
 
 def get_pudl_dtypes(col_source_dict):
@@ -794,12 +793,7 @@ def find_timezone(*, lng=None, lat=None, state=None, strict=True):
             raise ValueError(
                 f"Can't find timezone for: lng={lng}, lat={lat}, state={state}"
             )
-        # If, e.g., the coordinates are missing, try looking in the
-        # state_tz_approx dictionary.
-        try:
-            tz = pudl.constants.state_tz_approx[state]
-        except KeyError:
-            tz = None
+        tz = pc.APPROXIMATE_TIMEZONES.get(state, None)
     return tz
 
 

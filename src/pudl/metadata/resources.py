@@ -102,25 +102,31 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
     "datasets": {
         "schema": {"fields": ["datasource", "active"], "primary_key": ["datasource"]},
     },
-    "energy_source_eia923": {
+    "energy_sources_eia": {
         "schema": {
-            "fields": ["abbr", "source"],
+            "fields": ["abbr", "energy_source"],
             "primary_key": ["abbr"],
-            "foreign_key_rules": {"fields": [["energy_source_code"]]},
+            "foreign_key_rules": {
+                "fields": [
+                    ["energy_source_code"],
+                    ["fuel_type"],
+                    ["fuel_type_code"],
+                ]
+            },
         },
         "sources": ["eia923"],
     },
     "ferc_accounts": {
         "description": "Account numbers from the FERC Uniform System of Accounts for Electric Plant, which is defined in Code of Federal Regulations (CFR) Title 18, Chapter I, Subchapter C, Part 101. (See e.g. https://www.law.cornell.edu/cfr/text/18/part-101).",
         "schema": {
-            "fields": ["ferc_account_id", "description"],
+            "fields": ["ferc_account_id", "ferc_account_description"],
             "primary_key": ["ferc_account_id"],
         },
     },
     "ferc_depreciation_lines": {
         "description": "PUDL assigned FERC Form 1 line identifiers and long descriptions from FERC Form 1 page 219, Accumulated Provision for Depreciation of Electric Utility Plant (Account 108).",
         "schema": {
-            "fields": ["line_id", "description"],
+            "fields": ["line_id", "ferc_account_description"],
             "primary_key": ["line_id"],
             "foreign_key_rules": {"fields": [["line_id"]]},
         },
@@ -172,19 +178,11 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
         },
         "sources": ["eia923"],
     },
-    "fuel_type_aer_eia923": {
+    "fuel_types_aer_eia": {
         "schema": {
             "fields": ["abbr", "fuel_type"],
             "primary_key": ["abbr"],
             "foreign_key_rules": {"fields": [["fuel_type_code_aer"]]},
-        },
-        "sources": ["eia923"],
-    },
-    "fuel_type_eia923": {
-        "schema": {
-            "fields": ["abbr", "fuel_type"],
-            "primary_key": ["abbr"],
-            "foreign_key_rules": {"fields": [["fuel_type"], ["fuel_type_code"]]},
         },
         "sources": ["eia923"],
     },
@@ -758,13 +756,13 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
         },
         "sources": ["ferc1"],
     },
-    "prime_movers_eia923": {
+    "prime_movers_eia": {
         "schema": {
             "fields": ["abbr", "prime_mover"],
             "primary_key": ["abbr"],
             "foreign_key_rules": {"fields": [["prime_mover_code"]]},
         },
-        "sources": ["eia923"],
+        "sources": ["eia923", "eia860"],
     },
     "purchased_power_ferc1": {
         "description": "Purchased Power (Account 555) including power exchanges (i.e. transactions involving a balancing of debits and credits for energy, capacity, etc.) and any settlements for imbalanced exchanges. Reported on pages 326-327 of FERC Form 1. Extracted from the f1_purchased_pwr table in FERC's FoxPro database.",
@@ -790,9 +788,9 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
         },
         "sources": ["ferc1"],
     },
-    "transport_modes_eia923": {
+    "fuel_transportation_modes_eia": {
         "schema": {
-            "fields": ["abbr", "mode"],
+            "fields": ["abbr", "fuel_transportation_mode"],
             "primary_key": ["abbr"],
             "foreign_key_rules": {"fields": [
                 ["primary_transportation_mode_code"],

@@ -1,13 +1,60 @@
 """Module to perform data cleaning functions on EIA923 data tables."""
 import logging
+from typing import Dict, List
 
 import numpy as np
 import pandas as pd
 
 import pudl
 from pudl import constants as pc
+from pudl.constants import PUDL_TABLES
 
 logger = logging.getLogger(__name__)
+
+SIMPLIFIED_FUEL_GROUPS: Dict[str, List[str]] = {
+    'coal': ['coal', 'petroleum coke'],
+    'oil': ['petroleum'],
+    'gas': ['natural gas', 'other gas']
+}
+"""A mapping of simplified EIA 923 fuel groups for string cleaning."""
+
+SIMPLIFIED_ENERGY_SOURCES: Dict[str, List[str]] = {
+    'coal': ['ANT', 'BIT', 'LIG', 'PC', 'SUB', 'WC', 'RC'],
+    'oil': ['DFO', 'JF', 'KER', 'RFO', 'WO'],
+    'gas': ['BFG', 'LFG', 'NG', 'OBG', 'OG', 'PG', 'SG', 'SGC', 'SGP'],
+    'solar': ['SUN'],
+    'wind': ['WND'],
+    'hydro': ['WAT'],
+    'nuclear': ['NUC'],
+    'waste': ['AB', 'BLQ', 'MSW', 'OBL', 'OBS', 'SLW', 'TDF', 'WDL', 'WDS'],
+    'other': ['GEO', 'MWH', 'OTH', 'PUR', 'WH']
+}
+"""A mapping of simplified EIA 923 energy source codes for string cleaning."""
+
+COALMINE_COUNTRY_CODES: Dict[str, str] = {
+    'AU': 'AUS',  # Australia
+    'CL': 'COL',  # Colombia
+    'CN': 'CAN',  # Canada
+    'IS': 'IDN',  # Indonesia
+    'PL': 'POL',  # Poland
+    'RS': 'RUS',  # Russia
+    'UK': 'GBR',  # United Kingdom of Great Britain
+    'VZ': 'VEN',  # Venezuela
+    'OT': 'other_country',
+    'IM': 'unknown'
+}
+"""
+A mapping of EIA foreign coal mine country codes to 3-letter ISO-3166-1 codes.
+
+The EIA-923 lists the US state of origin for coal deliveries using standard
+2-letter US state abbreviations. However, foreign countries are also included
+as "states" in this category and because some of them have 2-letter abbreviation
+collisions with US states, their coding is non-standard.
+
+Instead of using the provided non-standard codes, we convert to the ISO-3166-1
+three letter country codes: https://en.wikipedia.org/wiki/ISO_3166-1_alpha-3
+"""
+
 ###############################################################################
 ###############################################################################
 # HELPER FUNCTIONS
@@ -113,10 +160,9 @@ def _coalmine_cleanup(cmi_df):
             # Map mine type codes, which have changed over the years, to a few
             # canonical values:
             mine_type_code=lambda x: x.mine_type_code.replace(
-                {'[pP]': 'P', 'U/S': 'US', 'S/U': 'SU', 'Su': 'S'},
-                regex=True),
+                {'[pP]': 'P', 'U/S': 'US', 'S/U': 'SU', 'Su': 'S'}, regex=True),
             # replace 2-letter country codes w/ ISO 3 letter as appropriate:
-            state=lambda x: x.state.replace(pc.coalmine_country_eia923),
+            state=lambda x: x.state.replace(COALMINE_COUNTRY_CODES),
             # remove all internal non-alphanumeric characters:
             mine_name=lambda x: x.mine_name.replace(
                 '[^a-zA-Z0-9 -]', '', regex=True),
@@ -569,9 +615,9 @@ def fuel_receipts_costs(eia923_dfs, eia923_transformed_dfs):
             fuel_group_code=lambda x: (
                 x.fuel_group_code.str.lower().str.replace(' ', '_')),
             fuel_type_code_pudl=lambda x: pudl.helpers.cleanstrings_series(
-                x.energy_source_code, pc.energy_source_eia_simple_map),
+                x.energy_source_code, SIMPLIFIED_ENERGY_SOURCES),
             fuel_group_code_simple=lambda x: pudl.helpers.cleanstrings_series(
-                x.fuel_group_code, pc.fuel_group_eia923_simple_map),
+                x.fuel_group_code, SIMPLIFIED_FUEL_GROUPS),
             contract_expiration_month=lambda x: x.contract_expiration_date.apply(
                 lambda y: y[:-2] if y != '' else y)).
         assign(
@@ -605,7 +651,7 @@ def fuel_receipts_costs(eia923_dfs, eia923_transformed_dfs):
     return eia923_transformed_dfs
 
 
-def transform(eia923_raw_dfs, eia923_tables=pc.eia923_pudl_tables):
+def transform(eia923_raw_dfs, eia923_tables=PUDL_TABLES['eia923']):
     """Transforms all the EIA 923 tables.
 
     Args:

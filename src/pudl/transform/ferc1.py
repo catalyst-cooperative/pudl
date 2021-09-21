@@ -27,6 +27,8 @@ from sklearn.preprocessing import MinMaxScaler, Normalizer, OneHotEncoder
 
 import pudl
 from pudl import constants as pc
+from pudl.constants import PUDL_TABLES
+from pudl.metadata.labels import POWER_PURCHASE_TYPES_FERC1
 
 logger = logging.getLogger(__name__)
 
@@ -1434,44 +1436,42 @@ def purchased_power(ferc1_raw_dfs, ferc1_transformed_dfs):
         dict: The dictionary of the transformed DataFrames.
     """
     # grab table from dictionary of dfs
-    df = (_clean_cols(ferc1_raw_dfs['purchased_power_ferc1'], 'f1_purchased_pwr')
-          .rename(columns={
-              'athrty_co_name': 'seller_name',
-              'sttstcl_clssfctn': 'purchase_type',
-              'rtsched_trffnbr': 'tariff',
-              'avgmth_bill_dmnd': 'billing_demand_mw',
-              'avgmth_ncp_dmnd': 'non_coincident_peak_demand_mw',
-              'avgmth_cp_dmnd': 'coincident_peak_demand_mw',
-              'mwh_purchased': 'purchased_mwh',
-              'mwh_recv': 'received_mwh',
-              'mwh_delvd': 'delivered_mwh',
-              'dmnd_charges': 'demand_charges',
-              'erg_charges': 'energy_charges',
-              'othr_charges': 'other_charges',
-              'settlement_tot': 'total_settlement'})
-          .assign(  # Require these columns to numeric, or NaN
-        billing_demand_mw=lambda x: pd.to_numeric(
-            x.billing_demand_mw, errors="coerce"),
-        non_coincident_peak_demand_mw=lambda x: pd.to_numeric(
-            x.non_coincident_peak_demand_mw, errors="coerce"),
-        coincident_peak_demand_mw=lambda x: pd.to_numeric(
-            x.coincident_peak_demand_mw, errors="coerce"))
-          .fillna({  # Replace blanks w/ 0.0 in data columns.
-              "purchased_mwh": 0.0,
-              "received_mwh": 0.0,
-              "delivered_mwh": 0.0,
-              "demand_charges": 0.0,
-              "energy_charges": 0.0,
-              "other_charges": 0.0,
-              "total_settlement": 0.0}))
-
-    # Replace any invalid purchase types with the empty string
-    bad_rows = (~df.purchase_type.isin(pc.ferc1_power_purchase_type.keys()))
-    df.loc[bad_rows, 'purchase_type'] = ""
+    df = (
+        _clean_cols(ferc1_raw_dfs['purchased_power_ferc1'], 'f1_purchased_pwr')
+        .rename(columns={
+            'athrty_co_name': 'seller_name',
+            'sttstcl_clssfctn': 'purchase_type',
+            'rtsched_trffnbr': 'tariff',
+            'avgmth_bill_dmnd': 'billing_demand_mw',
+            'avgmth_ncp_dmnd': 'non_coincident_peak_demand_mw',
+            'avgmth_cp_dmnd': 'coincident_peak_demand_mw',
+            'mwh_purchased': 'purchased_mwh',
+            'mwh_recv': 'received_mwh',
+            'mwh_delvd': 'delivered_mwh',
+            'dmnd_charges': 'demand_charges',
+            'erg_charges': 'energy_charges',
+            'othr_charges': 'other_charges',
+            'settlement_tot': 'total_settlement'})
+        .assign(  # Require these columns to numeric, or NaN
+            billing_demand_mw=lambda x: pd.to_numeric(
+                x.billing_demand_mw, errors="coerce"),
+            non_coincident_peak_demand_mw=lambda x: pd.to_numeric(
+                x.non_coincident_peak_demand_mw, errors="coerce"),
+            coincident_peak_demand_mw=lambda x: pd.to_numeric(
+                x.coincident_peak_demand_mw, errors="coerce"))
+        .fillna({  # Replace blanks w/ 0.0 in data columns.
+            "purchased_mwh": 0.0,
+            "received_mwh": 0.0,
+            "delivered_mwh": 0.0,
+            "demand_charges": 0.0,
+            "energy_charges": 0.0,
+            "other_charges": 0.0,
+            "total_settlement": 0.0,
+        })
+    )
 
     # Replace inscrutable two letter codes with descriptive codes:
-    df['purchase_type'] = df.purchase_type.replace(
-        pc.ferc1_power_purchase_type)
+    df['purchase_type'] = df.purchase_type.map(POWER_PURCHASE_TYPES_FERC1)
 
     # Drop records containing no useful data and also any completely duplicate
     # records -- there are 6 in 1998 for utility 238 for some reason...
@@ -1529,7 +1529,7 @@ def accumulated_depreciation(ferc1_raw_dfs, ferc1_transformed_dfs):
     return ferc1_transformed_dfs
 
 
-def transform(ferc1_raw_dfs, ferc1_tables=pc.pudl_tables['ferc1']):
+def transform(ferc1_raw_dfs, ferc1_tables=PUDL_TABLES['ferc1']):
     """Transforms FERC 1.
 
     Args:

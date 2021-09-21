@@ -7,6 +7,8 @@ import pandas as pd
 
 import pudl
 from pudl import constants as pc
+from pudl.constants import PUDL_TABLES
+from pudl.metadata.labels import ENTITY_TYPES, FUEL_TRANSPORTATION_MODES_EIA
 
 logger = logging.getLogger(__name__)
 
@@ -288,7 +290,8 @@ def generators(eia860_dfs, eia860_transformed_dfs):
         gens_df[column] = (
             gens_df[column]
             .astype('string')
-            .replace(pc.TRANSIT_TYPE_DICT)
+            .str.upper()
+            .map(FUEL_TRANSPORTATION_MODES_EIA)
         )
 
     gens_df = (
@@ -541,7 +544,7 @@ def utilities(eia860_dfs, eia860_transformed_dfs):
             "utility_id_eia": "Int64"
         })
         .assign(
-            entity_type=lambda x: x.entity_type.map(pc.ENTITY_TYPE_DICT)
+            entity_type=lambda x: x.entity_type.map(ENTITY_TYPES)
         )
         .pipe(pudl.helpers.convert_to_date)
     )
@@ -551,7 +554,7 @@ def utilities(eia860_dfs, eia860_transformed_dfs):
     return eia860_transformed_dfs
 
 
-def transform(eia860_raw_dfs, eia860_tables=pc.pudl_tables["eia860"]):
+def transform(eia860_raw_dfs, eia860_tables=PUDL_TABLES["eia860"]):
     """
     Transform EIA 860 DataFrames.
 

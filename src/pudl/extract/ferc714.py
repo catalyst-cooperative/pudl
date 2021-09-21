@@ -5,7 +5,7 @@ import warnings
 import pandas as pd
 
 import pudl
-from pudl import constants as pc
+from pudl.constants import PUDL_TABLES
 
 logger = logging.getLogger(__name__)
 
@@ -42,7 +42,7 @@ TABLE_ENCODING = {
 """Dictionary describing the character encodings of the FERC 714 CSV files."""
 
 
-def extract(tables=pc.pudl_tables["ferc714"], pudl_settings=None, ds=None):
+def extract(tables=PUDL_TABLES["ferc714"], pudl_settings=None, ds=None):
     """
     Extract the raw FERC Form 714 dataframes from their original CSV files.
 
@@ -64,7 +64,7 @@ def extract(tables=pc.pudl_tables["ferc714"], pudl_settings=None, ds=None):
         pudl_settings = pudl.workspace.setup.get_defaults()
     raw_dfs = {}
     for table in tables:
-        if table not in pc.pudl_tables["ferc714"]:
+        if table not in PUDL_TABLES["ferc714"]:
             raise ValueError(
                 f"No extract function found for requested FERC Form 714 data "
                 f"table {table}!"

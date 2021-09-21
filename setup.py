@@ -98,7 +98,7 @@ setup(
         "finance", "eia 923", "eia 860", "ferc", "form 1", "epa ampd",
         "epa cems", "coal", "natural gas", "eia 861", "ferc 714"],
     python_requires=">=3.8,<3.10",
-    # setup_requires=["setuptools_scm"],
+    setup_requires=["setuptools_scm"],
     install_requires=install_requires,
     extras_require={
         "dev": dev_requires,

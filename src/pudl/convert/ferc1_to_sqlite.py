@@ -17,6 +17,7 @@ import yaml
 
 import pudl
 from pudl import constants as pc
+from pudl.extract.ferc1 import DBF_TABLES_FILENAMES
 from pudl.workspace.datastore import Datastore
 
 # Create a logger to output any messages we might have...
@@ -93,7 +94,7 @@ def main():  # noqa: C901
 
     # Check args for basic validity:
     for table in script_settings['ferc1_to_sqlite_tables']:
-        if table not in pc.ferc1_tbl2dbf:
+        if table not in DBF_TABLES_FILENAMES:
             raise ValueError(
                 f"{table} was not found in the list of "
                 f"available FERC Form 1 tables."

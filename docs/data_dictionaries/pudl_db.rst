@@ -198,14 +198,14 @@ No table description available.
     - string
     - N/A
 
-.. _energy_source_eia923:
+.. _energy_sources_eia:
 
 -------------------------------------------------------------------------------
-energy_source_eia923
+energy_sources_eia
 -------------------------------------------------------------------------------
 
 No table description available.
-`Browse or query this table in Datasette. <https://data.catalyst.coop/pudl/energy_source_eia923>`__
+`Browse or query this table in Datasette. <https://data.catalyst.coop/pudl/energy_sources_eia>`__
 
 .. list-table::
   :widths: auto
@@ -217,7 +217,7 @@ No table description available.
   * - abbr
     - string
     - N/A
-  * - source
+  * - energy_source
     - string
     - N/A
 
@@ -240,7 +240,7 @@ https://www.law.cornell.edu/cfr/text/18/part-101).
   * - **Field Name**
     - **Type**
     - **Description**
-  * - description
+  * - ferc_account_description
     - string
     - N/A
   * - ferc_account_id
@@ -265,7 +265,7 @@ Plant (Account 108).
   * - **Field Name**
     - **Type**
     - **Description**
-  * - description
+  * - ferc_account_description
     - string
     - N/A
   * - line_id
@@ -408,14 +408,14 @@ No table description available.
     - string
     - Company that sold the fuel to the plant or, in the case of Natural Gas, pipline owner.
 
-.. _fuel_type_aer_eia923:
+.. _fuel_transportation_modes_eia:
 
 -------------------------------------------------------------------------------
-fuel_type_aer_eia923
+fuel_transportation_modes_eia
 -------------------------------------------------------------------------------
 
 No table description available.
-`Browse or query this table in Datasette. <https://data.catalyst.coop/pudl/fuel_type_aer_eia923>`__
+`Browse or query this table in Datasette. <https://data.catalyst.coop/pudl/fuel_transportation_modes_eia>`__
 
 .. list-table::
   :widths: auto
@@ -427,18 +427,18 @@ No table description available.
   * - abbr
     - string
     - N/A
-  * - fuel_type
+  * - fuel_transportation_mode
     - string
     - N/A
 
-.. _fuel_type_eia923:
+.. _fuel_types_aer_eia:
 
 -------------------------------------------------------------------------------
-fuel_type_eia923
+fuel_types_aer_eia
 -------------------------------------------------------------------------------
 
 No table description available.
-`Browse or query this table in Datasette. <https://data.catalyst.coop/pudl/fuel_type_eia923>`__
+`Browse or query this table in Datasette. <https://data.catalyst.coop/pudl/fuel_types_aer_eia>`__
 
 .. list-table::
   :widths: auto
@@ -2061,14 +2061,14 @@ table in FERC&#39;s FoxPro Database.
     - number
     - Plant capacity in MW when limited by condenser water.
 
-.. _prime_movers_eia923:
+.. _prime_movers_eia:
 
 -------------------------------------------------------------------------------
-prime_movers_eia923
+prime_movers_eia
 -------------------------------------------------------------------------------
 
 No table description available.
-`Browse or query this table in Datasette. <https://data.catalyst.coop/pudl/prime_movers_eia923>`__
+`Browse or query this table in Datasette. <https://data.catalyst.coop/pudl/prime_movers_eia>`__
 
 .. list-table::
   :widths: auto
@@ -2151,29 +2151,6 @@ Form 1. Extracted from the f1_purchased_pwr table in FERC&#39;s FoxPro database.
   * - utility_id_ferc1
     - integer
     - FERC-assigned respondent_id, identifying the reporting entity. Stable from year to year.
-
-.. _transport_modes_eia923:
-
--------------------------------------------------------------------------------
-transport_modes_eia923
--------------------------------------------------------------------------------
-
-No table description available.
-`Browse or query this table in Datasette. <https://data.catalyst.coop/pudl/transport_modes_eia923>`__
-
-.. list-table::
-  :widths: auto
-  :header-rows: 1
-
-  * - **Field Name**
-    - **Type**
-    - **Description**
-  * - abbr
-    - string
-    - N/A
-  * - mode
-    - string
-    - N/A
 
 .. _utilities_eia:
 
