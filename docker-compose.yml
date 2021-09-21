@@ -16,7 +16,7 @@ services:
       - dask-scheduler
     command: ["dask-worker", "tcp://dask-scheduler:8786"]
     volumes:
-      - ${GCP_KEY_PATH}:/tmp/keys/gcp-keyfile.json:ro
+      # - ${GCP_KEY_PATH}:/tmp/keys/gcp-keyfile.json:ro
       - datapkg:/pudl/outputs/datapkg
     environment:
       GOOGLE_APPLICATION_CREDENTIALS: /tmp/keys/gcp-keyfile.json
@@ -26,7 +26,7 @@ services:
      - dask-scheduler
    command: ["dask-worker", "tcp://dask-scheduler:8786"]
    volumes:
-      - ${GCP_KEY_PATH}:/tmp/keys/gcp-keyfile.json:ro
+      # - ${GCP_KEY_PATH}:/tmp/keys/gcp-keyfile.json:ro
       - datapkg:/pudl/outputs/datapkg
    environment:
       GOOGLE_APPLICATION_CREDENTIALS: /tmp/keys/gcp-keyfile.json
@@ -44,12 +44,13 @@ services:
       "pudl_etl",
       "-c",
       "--dask-executor-address=tcp://dask-scheduler:8786",
+      # "--show-flow-graph",
       # "--rerun=2021-01-29-0546-616a38e4-8bbb-4cfd-8f01-47ff72ec3d68",
-      "/pudl/src/release/settings/release.yml",
-      # "/pudl/src/test/settings/test.yml",
+      # "/pudl/src/release/settings/release.yml",
+      "/pudl/src/release/settings/test.yml",
       ]
-    volumes:
-      - ${GCP_KEY_PATH}:/tmp/keys/gcp-keyfile.json:ro
+    # volumes:
+      # - ${GCP_KEY_PATH}:/tmp/keys/gcp-keyfile.json:ro
         # - datapkg:/pudl/outputs/datapkg
 volumes:
   datapkg:

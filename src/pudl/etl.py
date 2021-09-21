@@ -29,6 +29,7 @@ import fsspec
 import prefect
 from prefect import task, unmapped
 from prefect.executors import DaskExecutor
+from prefect.executors.dask import LocalDaskExecutor
 from prefect.executors.local import LocalExecutor
 from prefect.tasks.shell import ShellTask
 
@@ -65,7 +66,12 @@ def command_line_flags() -> argparse.ArgumentParser:
         "--use-dask-executor",
         action="store_true",
         default=False,
-        help='If enabled, use local DaskExecutor to run the flow.')
+        help='If enabled, use DaskExecutor to run the flow.')
+    parser.add_argument(
+        "--use-local-dask-executor",
+        action="store_true",
+        default=False,
+        help='If enabled, use LocalDaskExecutor to run the flow.')
     parser.add_argument(
         "--dask-executor-address",
         default=None,
@@ -656,8 +662,12 @@ def generate_datapkg_bundle(etl_settings: dict,
         flow.visualize()
 
     prefect_executor = LocalExecutor()
-    if commandline_args.dask_executor_address or commandline_args.use_dask_executor:
+    if commandline_args.use_local_dask_executor:
+        prefect_executor = LocalDaskExecutor()
+    elif commandline_args.dask_executor_address or commandline_args.use_dask_executor:
         prefect_executor = DaskExecutor(address=commandline_args.dask_executor_address)
+
+    logger.info(f"Using {type(prefect_executor)} Prefect executor.")
     state = flow.run(executor=prefect_executor)
 
     log_task_failures(state)
