@@ -39,7 +39,6 @@ import pudl.metadata.fields
 import pudl.metadata.helpers
 import pudl.metadata.labels
 import pudl.metadata.resources
-import pudl.metadata.templates
 # Output modules by data source:
 import pudl.output.censusdp1tract
 import pudl.output.eia860

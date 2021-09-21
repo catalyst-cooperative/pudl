@@ -9,7 +9,7 @@ import pandas as pd
 import sqlalchemy as sa
 from packaging import version
 
-from pudl.metadata.classes import Package, Resource
+from pudl.metadata.classes import Package
 
 logger = logging.getLogger(__name__)
 
@@ -42,13 +42,8 @@ def dfs_to_sqlite(
             "As a result, data type constraint checking has been disabled."
         )
 
-    # Build a list of resources from the keysin our dataframe dictionary:
-    resources = [Resource.from_id(x) for x in dfs]
-    # Use that list of resources to generate a SQLAlchemy MetaData object:
-    md = Package(
-        name="pudl",
-        resources=resources,
-    ).to_sql(
+    # Generate a SQLAlchemy MetaData object from dataframe names:
+    md = Package.from_resource_ids(dfs).to_sql(
         check_types=check_types,
         check_values=check_values,
     )
