@@ -53,10 +53,10 @@ def ownership(eia860_dfs, eia860_transformed_dfs):
     )
 
     if (min(own_df.report_date.dt.year)
-            < min(pc.working_partitions['eia860']['years'])):
+            < min(pc.WORKING_PARTITIONS['eia860']['years'])):
         raise ValueError(
             f"EIA 860 transform step is only known to work for "
-            f"year {min(pc.working_partitions['eia860']['years'])} and later, "
+            f"year {min(pc.WORKING_PARTITIONS['eia860']['years'])} and later, "
             f"but found data from year {min(own_df.report_date.dt.year)}."
         )
 
@@ -298,7 +298,7 @@ def generators(eia860_dfs, eia860_transformed_dfs):
         gens_df.
         pipe(pudl.helpers.month_year_to_date).
         assign(fuel_type_code_pudl=lambda x: pudl.helpers.cleanstrings_series(
-            x['energy_source_code_1'], pc.fuel_type_eia860_simple_map)).
+            x['energy_source_code_1'], pc.FUEL_TYPE_EIA860_SIMPLE_MAP)).
         pipe(pudl.helpers.simplify_strings,
              columns=['rto_iso_lmp_node_id',
                       'rto_iso_location_wholesale_reporting_id']).

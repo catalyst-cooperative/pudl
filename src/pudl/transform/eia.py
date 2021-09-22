@@ -64,7 +64,7 @@ def _occurrence_consistency(entity_id, compiled_df, col,
     # select only the colums you want and drop the NaNs
     # we want to drop the NaNs because
     col_df = compiled_df[entity_id + ['report_date', col, 'table']].copy()
-    if pc.column_dtypes["eia"][col] == pd.StringDtype():
+    if pc.COLUMN_DTYPES["eia"][col] == pd.StringDtype():
         nan_str_mask = (col_df[col] == "nan").fillna(False)
         col_df.loc[nan_str_mask, col] = pd.NA
     col_df = col_df.dropna()
@@ -234,10 +234,10 @@ def _compile_all_entity_records(entity, eia_transformed_dfs):
     to pull out every instance of the entity id.
     """
     # we know these columns must be in the dfs
-    entity_id = pc.entities[entity][0]
-    static_cols = pc.entities[entity][1]
-    annual_cols = pc.entities[entity][2]
-    base_cols = pc.entities[entity][0] + ['report_date']
+    entity_id = pc.ENTITIES[entity][0]
+    static_cols = pc.ENTITIES[entity][1]
+    annual_cols = pc.ENTITIES[entity][2]
+    base_cols = pc.ENTITIES[entity][0] + ['report_date']
 
     # empty list for dfs to be added to for each table below
     dfs = []
@@ -285,7 +285,7 @@ def _compile_all_entity_records(entity, eia_transformed_dfs):
 
     logger.debug('    Casting harvested IDs to correct data types')
     # most columns become objects (ack!), so assign types
-    compiled_df = compiled_df.astype(pc.entities[entity][3])
+    compiled_df = compiled_df.astype(pc.ENTITIES[entity][3])
     return compiled_df
 
 
@@ -371,9 +371,9 @@ def harvesting(entity,  # noqa: C901
 
     """
     # we know these columns must be in the dfs
-    entity_id = pc.entities[entity][0]
-    static_cols = pc.entities[entity][1]
-    annual_cols = pc.entities[entity][2]
+    entity_id = pc.ENTITIES[entity][0]
+    static_cols = pc.ENTITIES[entity][1]
+    annual_cols = pc.ENTITIES[entity][2]
 
     logger.debug("    compiling plants for entity tables from:")
 
@@ -491,8 +491,8 @@ def harvesting(entity,  # noqa: C901
 
 def _boiler_generator_assn(
     eia_transformed_dfs,
-    eia923_years=pc.working_partitions['eia923']['years'],
-    eia860_years=pc.working_partitions['eia860']['years'],
+    eia923_years=pc.WORKING_PARTITIONS['eia923']['years'],
+    eia860_years=pc.WORKING_PARTITIONS['eia860']['years'],
     debug=False
 ):
     """
@@ -897,8 +897,8 @@ def _boiler_generator_assn(
 
 
 def _restrict_years(df,
-                    eia923_years=pc.working_partitions['eia923']['years'],
-                    eia860_years=pc.working_partitions['eia860']['years']):
+                    eia923_years=pc.WORKING_PARTITIONS['eia923']['years'],
+                    eia860_years=pc.WORKING_PARTITIONS['eia860']['years']):
     """Restricts eia years for boiler generator association."""
     bga_years = set(eia860_years) & set(eia923_years)
     df = df[df.report_date.dt.year.isin(bga_years)]
@@ -906,8 +906,8 @@ def _restrict_years(df,
 
 
 def transform(eia_transformed_dfs,
-              eia860_years=pc.working_partitions['eia860']['years'],
-              eia923_years=pc.working_partitions['eia923']['years'],
+              eia860_years=pc.WORKING_PARTITIONS['eia860']['years'],
+              eia923_years=pc.WORKING_PARTITIONS['eia923']['years'],
               eia860_ytd=False,
               debug=False):
     """Creates DataFrames for EIA Entity tables and modifies EIA tables.
@@ -945,7 +945,7 @@ def transform(eia_transformed_dfs,
 
     # for each of the entities, harvest the static and annual columns.
     # the order of the entities matter! the
-    for entity in pc.entities.keys():
+    for entity in pc.ENTITIES.keys():
         logger.info(f"Harvesting IDs & consistently static attributes "
                     f"for EIA {entity}")
 

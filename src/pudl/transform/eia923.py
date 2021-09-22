@@ -328,7 +328,7 @@ def generation_fuel(eia923_dfs, eia923_transformed_dfs):
 
     gf_df['fuel_type_code_pudl'] = (
         pudl.helpers.cleanstrings_series(gf_df.fuel_type,
-                                         pc.fuel_type_eia923_gen_fuel_simple_map)
+                                         pc.FUEL_TYPE_EIA923_GEN_FUEL_SIMPLE_MAP)
     )
 
     # Convert Year/Month columns into a single Date column...
@@ -388,7 +388,7 @@ def boiler_fuel(eia923_dfs, eia923_transformed_dfs):
     bf_df = _yearly_to_monthly_records(bf_df)
     bf_df['fuel_type_code_pudl'] = pudl.helpers.cleanstrings_series(
         bf_df.fuel_type_code,
-        pc.fuel_type_eia923_boiler_fuel_simple_map)
+        pc.FUEL_TYPE_EIA923_BOILER_FUEL_SIMPLE_MAP)
     # Replace the EIA923 NA value ('.') with a real NA value.
     bf_df = pudl.helpers.fix_eia_na(bf_df)
 

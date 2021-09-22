@@ -6,7 +6,7 @@ settings has empty datapackage parameters (meaning there are no years or
 tables included), no datapacakges will be generated. If the settings include a
 datapackage that has empty parameters, the other valid datatpackages will be
 generated, but not the empty one. If there are invalid parameters (meaning a
-partition that is not included in the pudl.constant.working_partitions), the
+partition that is not included in the pudl.constant.WORKING_PARTITIONS), the
 build will fail early on in the process.
 
 The datapackages will be stored in "PUDL_OUT" in the "datapackge" subdirectory.

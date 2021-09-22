@@ -57,7 +57,7 @@ def check_for_bad_years(try_years, dataset):
     """Check for bad data years."""
     bad_years = [
         y for y in try_years
-        if y not in pc.working_partitions[dataset]['years']]
+        if y not in pc.WORKING_PARTITIONS[dataset]['years']]
     if bad_years:
         raise AssertionError(f"Unrecognized {dataset} years: {bad_years}")
 
@@ -116,7 +116,7 @@ def _validate_params_eia(etl_params):
         eia_input_dict['eia860_years'] = eia_input_dict['eia923_years']
 
     eia860m_year = pd.to_datetime(
-        pc.working_partitions['eia860m']['year_month']).year
+        pc.WORKING_PARTITIONS['eia860m']['year_month']).year
     if (eia_input_dict['eia860_ytd']
             and (eia860m_year in eia_input_dict['eia860_years'])):
         raise AssertionError(
@@ -207,7 +207,7 @@ def _etl_eia(etl_params, ds_kwargs):
     # if we are trying to add the EIA 860M YTD data, then extract it and append
     if eia860_ytd:
         eia860m_raw_dfs = pudl.extract.eia860m.Extractor(ds).extract(
-            year_month=pc.working_partitions['eia860m']['year_month'])
+            year_month=pc.WORKING_PARTITIONS['eia860m']['year_month'])
         eia860_raw_dfs = pudl.extract.eia860m.append_eia860m(
             eia860_raw_dfs=eia860_raw_dfs, eia860m_raw_dfs=eia860m_raw_dfs)
 
@@ -280,11 +280,11 @@ def _read_static_tables_ferc1() -> Dict[str, pd.DataFrame]:
     populate a bunch of small infrastructural tables within the PUDL DB.
     """
     return {
-        'ferc_accounts': pc.ferc_electric_plant_accounts[[
+        'ferc_accounts': pc.FERC_ELECTRIC_PLANT_ACCOUNTS[[
             "ferc_account_id",
             "ferc_account_description",
         ]],
-        'ferc_depreciation_lines': pc.ferc_accumulated_depreciation[[
+        'ferc_depreciation_lines': pc.FERC_ACCUMULATED_DEPRECIATION[[
             "line_id",
             "ferc_account_description",
         ]],
@@ -348,7 +348,7 @@ def _validate_params_epacems(etl_params):
     # if states are All, then we grab all of the states from constants
     if epacems_dict['epacems_states']:
         if epacems_dict['epacems_states'][0].lower() == 'all':
-            epacems_dict['epacems_states'] = pc.working_partitions['epacems']['states']
+            epacems_dict['epacems_states'] = pc.WORKING_PARTITIONS['epacems']['states']
 
     # CEMS is ALWAYS going to be partitioned by year and state. This means we
     # are functinoally removing the option to not partition or partition

@@ -314,7 +314,7 @@ def clean_merge_asof(
 
 def get_pudl_dtype(col, data_source):
     """Look up a column's canonical data type based on its PUDL data source."""
-    return pc.column_dtypes[data_source][col]
+    return pc.COLUMN_DTYPES[data_source][col]
 
 
 def get_pudl_dtypes(col_source_dict):
@@ -852,7 +852,7 @@ def convert_cols_dtypes(df, data_source, name=None):
     Convert the data types for a dataframe.
 
     This function will convert a PUDL dataframe's columns to the correct data
-    type. It uses a dictionary in constants.py called column_dtypes to assign
+    type. It uses a dictionary in constants.py called COLUMN_DTYPES to assign
     the right type. Within a given data source (e.g. eia923, ferc1) each column
     name is assumed to *always* have the same data type whenever it is found.
 
@@ -877,12 +877,12 @@ def convert_cols_dtypes(df, data_source, name=None):
 
     Returns:
         pandas.DataFrame: a dataframe with columns as specified by the
-        :mod:`pudl.constants` ``column_dtypes`` dictionary.
+        :mod:`pudl.constants` ``COLUMN_DTYPES`` dictionary.
 
     """
     # get me all of the columns for the table in the constants dtype dict
     col_dtypes = {col: col_dtype for col, col_dtype
-                  in pc.column_dtypes[data_source].items()
+                  in pc.COLUMN_DTYPES[data_source].items()
                   if col in list(df.columns)}
 
     # grab only the boolean columns (we only need their names)
@@ -902,7 +902,7 @@ def convert_cols_dtypes(df, data_source, name=None):
     # but right now we don't have the FERC columns done, so we can't:
     # get me all of the columns for the table in the constants dtype dict
     # col_types = {
-    #    col: pc.column_dtypes[data_source][col] for col in df.columns
+    #    col: pc.COLUMN_DTYPES[data_source][col] for col in df.columns
     # }
     # grab only the boolean columns (we only need their names)
     # bool_cols = {col for col in col_types if col_types[col] is bool}
@@ -1151,7 +1151,7 @@ def iterate_multivalue_dict(**kwargs):
 def get_working_eia_dates():
     """Get all working EIA dates as a DatetimeIndex."""
     dates = pd.DatetimeIndex([])
-    for dataset_name, dataset in pc.working_partitions.items():
+    for dataset_name, dataset in pc.WORKING_PARTITIONS.items():
         if 'eia' in dataset_name:
             for name, partition in dataset.items():
                 if name == 'years':

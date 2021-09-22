@@ -185,7 +185,7 @@ List of timezones in pytz.common_timezones
 Canada: https://en.wikipedia.org/wiki/Time_in_Canada#IANA_time_zone_database
 """
 
-ferc_electric_plant_accounts: pd.DataFrame = pd.DataFrame.from_records(
+FERC_ELECTRIC_PLANT_ACCOUNTS: pd.DataFrame = pd.DataFrame.from_records(
     columns=['row_number', 'ferc_account_id', 'ferc_account_description'],
     data=[
         # 1. Intangible Plant
@@ -305,7 +305,7 @@ From FERC Form 1 pages 204-207, Electric Plant in Service.
 Descriptions from: https://www.law.cornell.edu/cfr/text/18/part-101
 """
 
-ferc_accumulated_depreciation: pd.DataFrame = pd.DataFrame.from_records(
+FERC_ACCUMULATED_DEPRECIATION: pd.DataFrame = pd.DataFrame.from_records(
     columns=['row_number', 'line_id', 'ferc_account_description'],
     data=[
         # Section A. Balances and Changes During Year
@@ -357,7 +357,7 @@ From FERC Form 1 page 219, Accumulated Provision for Depreciation of electric
 utility plant (Account 108).
 """
 
-fuel_type_eia923_gen_fuel_simple_map: Dict[str, Tuple[str]] = {
+FUEL_TYPE_EIA923_GEN_FUEL_SIMPLE_MAP: Dict[str, Tuple[str]] = {
     'coal': ('ant', 'bit', 'cbl', 'lig', 'pc', 'rc', 'sc', 'sub', 'wc'),
     'oil': ('dfo', 'rfo', 'wo', 'jf', 'ker'),
     'gas': ('bfg', 'lfg', 'ng', 'og', 'obg', 'pg', 'sgc', 'sgp'),
@@ -370,7 +370,7 @@ fuel_type_eia923_gen_fuel_simple_map: Dict[str, Tuple[str]] = {
 }
 """Simplified grouping of fuel codes found in the generation_fuel_eia923 table."""
 
-fuel_type_eia923_boiler_fuel_simple_map: Dict[str, Tuple[str]] = {
+FUEL_TYPE_EIA923_BOILER_FUEL_SIMPLE_MAP: Dict[str, Tuple[str]] = {
     'coal': ('ant', 'bit', 'lig', 'pc', 'rc', 'sc', 'sub', 'wc'),
     'oil': ('dfo', 'rfo', 'wo', 'jf', 'ker'),
     'gas': ('bfg', 'lfg', 'ng', 'og', 'obg', 'pg', 'sgc', 'sgp'),
@@ -379,7 +379,7 @@ fuel_type_eia923_boiler_fuel_simple_map: Dict[str, Tuple[str]] = {
 }
 """Simplified grouping of fuel codes found in the boiler_fuel_eia923 table."""
 
-aer_fuel_type_strings: Dict[str, Tuple[str]] = {
+AER_FUEL_TYPE_STRINGS: Dict[str, Tuple[str]] = {
     'coal': ('col', 'woc', 'pc'),
     'gas': ('mlg', 'ng', 'oog'),
     'oil': ('dfo', 'rfo', 'woo'),
@@ -397,7 +397,7 @@ These classifications are not currently used, as the EIA fuel type and energy
 source designations provide more detailed information.
 """
 
-fuel_type_eia860_simple_map: Dict[str, Tuple[str]] = {
+FUEL_TYPE_EIA860_SIMPLE_MAP: Dict[str, Tuple[str]] = {
     'coal': ('ant', 'bit', 'cbl', 'lig', 'pc', 'rc', 'sc', 'sub', 'wc', 'coal', 'petroleum coke', 'col', 'woc'),
     'oil': ('dfo', 'jf', 'ker', 'rfo', 'wo', 'woo', 'petroleum'),
     'gas': ('bfg', 'lfg', 'mlg', 'ng', 'obg', 'og', 'pg', 'sgc', 'sgp', 'natural gas', 'other gas', 'oog', 'sg'),
@@ -413,7 +413,7 @@ fuel_type_eia860_simple_map: Dict[str, Tuple[str]] = {
 # we need to include all of the columns which we want to keep for either the
 # entity or annual tables. The order here matters. We need to harvest the plant
 # location before harvesting the location of the utilites for example.
-entities: Dict[str, List] = {
+ENTITIES: Dict[str, List] = {
     'plants': [
         # base cols
         ['plant_id_eia'],
@@ -516,7 +516,7 @@ entities: Dict[str, List] = {
 }
 """Metadata for use in the current entity harvesting & resolution process."""
 
-data_years: Dict[str, Tuple] = {
+DATA_YEARS: Dict[str, Tuple] = {
     'eia860': tuple(range(2001, 2020)),
     'eia861': tuple(range(1990, 2020)),
     'eia923': tuple(range(2001, 2020)),
@@ -531,7 +531,7 @@ Note: ferc714 is not partitioned by year and is available only as a single file
 containing all data.
 """
 
-working_partitions: Dict[str, Union[str, Tuple]] = {
+WORKING_PARTITIONS: Dict[str, Union[str, Tuple]] = {
     'eia860': {
         'years': tuple(range(2001, 2020))
     },
@@ -643,7 +643,7 @@ PUDL_TABLES: Dict[str, Tuple[str]] = {
 }
 """Tables that are available in the PUDL DB, organized by data source."""
 
-column_dtypes: Dict[str, Dict[str, Any]] = {
+COLUMN_DTYPES: Dict[str, Dict[str, Any]] = {
     "ferc1": {  # Obviously this is not yet a complete list...
         "construction_year": pd.Int64Dtype(),
         "installation_year": pd.Int64Dtype(),
