@@ -80,4 +80,4 @@ repos:
       verbose: false
       pass_filenames: false
       always_run: true
-      entry: pytest test/unit
+      entry: pytest --ignore=src/pudl/load/csv.py --ignore=src/pudl/load/metadata.py --ignore=src/pudl/convert/datapkg_to_sqlite.py --ignore=src/pudl/convert/merge_datapkgs.py --doctest-modules src/pudl test/unit

@@ -41,7 +41,7 @@ def test_no_null_cols_eia(pudl_out_eia, live_dbs, cols, df_name):
         ("frc_eia923", 517_078, 213_563, 21_338),
         ("gen_eia923", 510_835, 510_835, 42_884),
         ("bf_eia923", 1_207_976, 1_196_908, 100_866),
-        ("gf_eia923", 2_380_147, 2_196_583, 185_045),
+        ("gf_eia923", 2_380_147, 2_366_032, 199_425),
     ])
 def test_minmax_rows(
     pudl_out_eia,
@@ -97,8 +97,6 @@ def test_unique_rows_eia(pudl_out_eia, live_dbs, unique_subset, df_name):
     """Test whether dataframe has unique records within a subset of columns."""
     if not live_dbs:
         pytest.skip("Data validation only works with a live PUDL DB.")
-    if (pudl_out_eia.freq is None) and (df_name == "gen_eia923"):
-        pytest.xfail(reason="RE-RUN ETL DUDE.")
     pv.check_unique_rows(
         pudl_out_eia.__getattribute__(df_name)(),
         subset=unique_subset, df_name=df_name)

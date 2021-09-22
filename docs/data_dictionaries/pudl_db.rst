@@ -1,4 +1,3 @@
-
 ===============================================================================
 PUDL Data Dictionary
 ===============================================================================
@@ -12,7 +11,7 @@ The following data tables have been cleaned and transformed by our ETL process.
 assn_gen_eia_unit_epa
 -------------------------------------------------------------------------------
 
-Pending description.
+No table description available.
 `Browse or query this table in Datasette. <https://data.catalyst.coop/pudl/assn_gen_eia_unit_epa>`__
 
 .. list-table::
@@ -24,13 +23,14 @@ Pending description.
     - **Description**
   * - generator_id
     - string
-    - Generator identification code. Often numeric, but sometimes includes letters. It&#39;s a string!
+    - Generator ID is usually numeric, but sometimes includes letters. Make sure you treat it as a string!
   * - plant_id_eia
     - integer
     - The unique six-digit facility identification number, also called an ORISPL, assigned by the Energy Information Administration.
   * - unit_id_epa
     - string
-    - Smokestack unit monitored by EPA CEMS.
+    - Emissions (smokestake) unit monitored by EPA CEMS.
+
 
 .. _assn_plant_id_eia_epa:
 
@@ -38,7 +38,7 @@ Pending description.
 assn_plant_id_eia_epa
 -------------------------------------------------------------------------------
 
-Pending description.
+No table description available.
 `Browse or query this table in Datasette. <https://data.catalyst.coop/pudl/assn_plant_id_eia_epa>`__
 
 .. list-table::
@@ -53,7 +53,8 @@ Pending description.
     - The unique six-digit facility identification number, also called an ORISPL, assigned by the Energy Information Administration.
   * - plant_id_epa
     - integer
-    - N/A
+    - The ORISPL ID used by EPA to refer to the plant. Usually but not always the same as plant_id_eia.
+
 
 .. _boiler_fuel_eia923:
 
@@ -61,7 +62,7 @@ Pending description.
 boiler_fuel_eia923
 -------------------------------------------------------------------------------
 
-Pending description.
+No table description available.
 `Browse or query this table in Datasette. <https://data.catalyst.coop/pudl/boiler_fuel_eia923>`__
 
 .. list-table::
@@ -76,7 +77,7 @@ Pending description.
     - Ash content percentage by weight to the nearest 0.1 percent.
   * - boiler_id
     - string
-    - Boiler identification code. Alphanumeric.
+    - Alphanumeric boiler ID.
   * - fuel_consumed_units
     - number
     - Consumption of the fuel type in physical units. Note: this is the total quantity consumed for both electricity and, in the case of combined heat and power plants, process steam production.
@@ -88,7 +89,7 @@ Pending description.
     - The fuel code reported to EIA. Two or three letter alphanumeric.
   * - fuel_type_code_pudl
     - string
-    - Standardized fuel codes in PUDL.
+    - Simplified fuel type code used in PUDL
   * - plant_id_eia
     - integer
     - The unique six-digit facility identification number, also called an ORISPL, assigned by the Energy Information Administration.
@@ -99,13 +100,14 @@ Pending description.
     - number
     - Sulfur content percentage by weight to the nearest 0.01 percent.
 
+
 .. _boiler_generator_assn_eia860:
 
 -------------------------------------------------------------------------------
 boiler_generator_assn_eia860
 -------------------------------------------------------------------------------
 
-Pending description.
+No table description available.
 `Browse or query this table in Datasette. <https://data.catalyst.coop/pudl/boiler_generator_assn_eia860>`__
 
 .. list-table::
@@ -120,10 +122,10 @@ Pending description.
     - The source from where the unit_id_pudl is compiled. The unit_id_pudl comes directly from EIA 860, or string association (which looks at all the boilers and generators that are not associated with a unit and tries to find a matching string in the respective collection of boilers or generator), or from a unit connection (where the unit_id_eia is employed to find additional boiler generator connections).
   * - boiler_id
     - string
-    - EIA-assigned boiler identification code.
+    - Alphanumeric boiler ID.
   * - generator_id
     - string
-    - EIA-assigned generator identification code.
+    - Generator ID is usually numeric, but sometimes includes letters. Make sure you treat it as a string!
   * - plant_id_eia
     - integer
     - The unique six-digit facility identification number, also called an ORISPL, assigned by the Energy Information Administration.
@@ -137,13 +139,14 @@ Pending description.
     - integer
     - Dynamically assigned PUDL unit id. WARNING: This ID is not guaranteed to be static long term as the input data and algorithm may evolve over time.
 
+
 .. _boilers_entity_eia:
 
 -------------------------------------------------------------------------------
 boilers_entity_eia
 -------------------------------------------------------------------------------
 
-Pending description.
+No table description available.
 `Browse or query this table in Datasette. <https://data.catalyst.coop/pudl/boilers_entity_eia>`__
 
 .. list-table::
@@ -155,7 +158,7 @@ Pending description.
     - **Description**
   * - boiler_id
     - string
-    - The EIA-assigned boiler identification code. Alphanumeric.
+    - Alphanumeric boiler ID.
   * - plant_id_eia
     - integer
     - The unique six-digit facility identification number, also called an ORISPL, assigned by the Energy Information Administration.
@@ -163,13 +166,14 @@ Pending description.
     - string
     - Code for the type of prime mover (e.g. CT, CG)
 
+
 .. _coalmine_eia923:
 
 -------------------------------------------------------------------------------
 coalmine_eia923
 -------------------------------------------------------------------------------
 
-Pending description.
+No table description available.
 `Browse or query this table in Datasette. <https://data.catalyst.coop/pudl/coalmine_eia923>`__
 
 .. list-table::
@@ -180,14 +184,14 @@ Pending description.
     - **Type**
     - **Description**
   * - county_id_fips
-    - integer
+    - string
     - County ID from the Federal Information Processing Standard Publication 6-4.
   * - mine_id_msha
     - integer
     - MSHA issued mine identifier.
   * - mine_id_pudl
     - integer
-    - PUDL issued surrogate key.
+    - Dynamically assigned PUDL mine identifier.
   * - mine_name
     - string
     - Coal mine name.
@@ -196,7 +200,8 @@ Pending description.
     - Type of mine. P: Preparation plant, U: Underground, S: Surface, SU: Mostly Surface with some Underground, US: Mostly Underground with some Surface.
   * - state
     - string
-    - Two letter US state abbreviations and three letter ISO-3166-1 country codes for international mines.
+    - N/A
+
 
 .. _energy_source_eia923:
 
@@ -204,7 +209,7 @@ Pending description.
 energy_source_eia923
 -------------------------------------------------------------------------------
 
-Pending description.
+No table description available.
 `Browse or query this table in Datasette. <https://data.catalyst.coop/pudl/energy_source_eia923>`__
 
 .. list-table::
@@ -220,6 +225,7 @@ Pending description.
   * - source
     - string
     - N/A
+
 
 .. _ferc_accounts:
 
@@ -242,10 +248,11 @@ https://www.law.cornell.edu/cfr/text/18/part-101).
     - **Description**
   * - description
     - string
-    - Long description of the FERC Account.
+    - N/A
   * - ferc_account_id
     - string
     - Account number, from FERC&#39;s Uniform System of Accounts for Electric Plant. Also includes higher level labeled categories.
+
 
 .. _ferc_depreciation_lines:
 
@@ -267,10 +274,11 @@ Plant (Account 108).
     - **Description**
   * - description
     - string
-    - Description of the FERC depreciation account, as listed on FERC Form 1, Page 219.
+    - N/A
   * - line_id
     - string
     - A human readable string uniquely identifying the FERC depreciation account. Used in lieu of the actual line number, as those numbers are not guaranteed to be consistent from year to year.
+
 
 .. _fuel_ferc1:
 
@@ -293,22 +301,22 @@ FERC&#39;s FoxPro Database.
     - **Description**
   * - fuel_cost_per_mmbtu
     - number
-    - Average cost of fuel consumed in the report year, in nominal USD per mmBTU of fuel heat content.
+    - Average fuel cost per mmBTU of heat content in nominal USD.
   * - fuel_cost_per_unit_burned
     - number
-    - Average cost of fuel consumed in the report year, in nominal USD per reported fuel unit.
+    - Average cost of fuel consumed in the report year per reported fuel unit (USD).
   * - fuel_cost_per_unit_delivered
     - number
-    - Average cost of fuel delivered in the report year, in nominal USD per reported fuel unit.
+    - Average cost of fuel delivered in the report year per reported fuel unit (USD).
   * - fuel_mmbtu_per_unit
     - number
-    - Average heat content of fuel consumed in the report year, in mmBTU per reported fuel unit.
+    - Heat content of the fuel in millions of Btus per physical unit.
   * - fuel_qty_burned
     - number
     - Quantity of fuel consumed in the report year, in terms of the reported fuel units.
   * - fuel_type_code_pudl
     - string
-    - PUDL assigned code indicating the general fuel type.
+    - Simplified fuel type code used in PUDL
   * - fuel_unit
     - string
     - PUDL assigned code indicating reported fuel unit of measure.
@@ -323,7 +331,8 @@ FERC&#39;s FoxPro Database.
     - Four-digit year in which the data was reported.
   * - utility_id_ferc1
     - integer
-    - FERC assigned respondent_id, identifying the reporting entity. Stable from year to year.
+    - FERC-assigned respondent_id, identifying the reporting entity. Stable from year to year.
+
 
 .. _fuel_receipts_costs_eia923:
 
@@ -331,7 +340,7 @@ FERC&#39;s FoxPro Database.
 fuel_receipts_costs_eia923
 -------------------------------------------------------------------------------
 
-Pending description.
+No table description available.
 `Browse or query this table in Datasette. <https://data.catalyst.coop/pudl/fuel_receipts_costs_eia923>`__
 
 .. list-table::
@@ -358,7 +367,7 @@ Pending description.
     - The fuel code associated with the fuel receipt. Two or three character alphanumeric.
   * - fuel_cost_per_mmbtu
     - number
-    - All costs incurred in the purchase and delivery of the fuel to the plant in cents per million Btu(MMBtu) to the nearest 0.1 cent.
+    - Average fuel cost per mmBTU of heat content in nominal USD.
   * - fuel_group_code
     - string
     - Groups the energy sources into fuel groups that are located in the Electric Power Monthly:  Coal, Natural Gas, Petroleum, Petroleum Coke.
@@ -370,19 +379,16 @@ Pending description.
     - Quanity of fuel received in tons, barrel, or Mcf.
   * - fuel_type_code_pudl
     - string
-    - Standardized fuel codes in PUDL.
+    - Simplified fuel type code used in PUDL
   * - heat_content_mmbtu_per_unit
     - number
     - Heat content of the fuel in millions of Btus per physical unit to the nearest 0.01 percent.
-  * - id
-    - integer
-    - PUDL issued surrogate key.
   * - mercury_content_ppm
     - number
     - Mercury content in parts per million (ppm) to the nearest 0.001 ppm.
   * - mine_id_pudl
     - integer
-    - PUDL mine identification number.
+    - Dynamically assigned PUDL mine identifier.
   * - moisture_content_pct
     - number
     - N/A
@@ -411,13 +417,14 @@ Pending description.
     - string
     - Company that sold the fuel to the plant or, in the case of Natural Gas, pipline owner.
 
+
 .. _fuel_type_aer_eia923:
 
 -------------------------------------------------------------------------------
 fuel_type_aer_eia923
 -------------------------------------------------------------------------------
 
-Pending description.
+No table description available.
 `Browse or query this table in Datasette. <https://data.catalyst.coop/pudl/fuel_type_aer_eia923>`__
 
 .. list-table::
@@ -434,13 +441,14 @@ Pending description.
     - string
     - N/A
 
+
 .. _fuel_type_eia923:
 
 -------------------------------------------------------------------------------
 fuel_type_eia923
 -------------------------------------------------------------------------------
 
-Pending description.
+No table description available.
 `Browse or query this table in Datasette. <https://data.catalyst.coop/pudl/fuel_type_eia923>`__
 
 .. list-table::
@@ -457,13 +465,14 @@ Pending description.
     - string
     - N/A
 
+
 .. _generation_eia923:
 
 -------------------------------------------------------------------------------
 generation_eia923
 -------------------------------------------------------------------------------
 
-Pending description.
+No table description available.
 `Browse or query this table in Datasette. <https://data.catalyst.coop/pudl/generation_eia923>`__
 
 .. list-table::
@@ -475,10 +484,10 @@ Pending description.
     - **Description**
   * - generator_id
     - string
-    - Generator identification code. Often numeric, but sometimes includes letters. It&#39;s a string!
+    - Generator ID is usually numeric, but sometimes includes letters. Make sure you treat it as a string!
   * - net_generation_mwh
     - number
-    - Net generation for specified period in megawatthours (MWh).
+    - Net electricity generation for the specified period in megawatt-hours (MWh).
   * - plant_id_eia
     - integer
     - The unique six-digit facility identification number, also called an ORISPL, assigned by the Energy Information Administration.
@@ -486,13 +495,14 @@ Pending description.
     - date
     - Date reported.
 
+
 .. _generation_fuel_eia923:
 
 -------------------------------------------------------------------------------
 generation_fuel_eia923
 -------------------------------------------------------------------------------
 
-Pending description.
+No table description available.
 `Browse or query this table in Datasette. <https://data.catalyst.coop/pudl/generation_fuel_eia923>`__
 
 .. list-table::
@@ -519,28 +529,29 @@ Pending description.
     - Heat content of the fuel in millions of Btus per physical unit.
   * - fuel_type
     - string
-    - The fuel code reported to EIA. Two or three letter alphanumeric.
+    - N/A
   * - fuel_type_code_aer
     - string
-    - A partial aggregation of the reported fuel type codes into larger categories used by EIA in, for example, the Annual Energy Review (AER).Two or three letter alphanumeric.
+    - A partial aggregation of the reported fuel type codes into larger categories used by EIA in, for example, the Annual Energy Review (AER). Two or three letter alphanumeric.
   * - fuel_type_code_pudl
     - string
-    - Standardized fuel codes in PUDL.
+    - Simplified fuel type code used in PUDL
   * - net_generation_mwh
     - number
-    - Net generation, year to date in megawatthours (MWh). This is total electrical output net of station service.  In the case of combined heat and power plants, this value is intended to include internal consumption of electricity for the purposes of a production process, as well as power put on the grid.
+    - Net electricity generation for the specified period in megawatt-hours (MWh).
   * - nuclear_unit_id
     - integer
-    - For nuclear plants only. This unit ID appears to correspond directly to the generator ID, as reported in the EIA-860. Nuclear plants are the only type of plants for which data are shown explicitly at the generating unit level. Note that nuclear plants only report their fuel consumption and net generation in the generation_fuel_eia923 table and not elsewhere.
+    - For nuclear plants only, the unit number .One digit numeric. Nuclear plants are the only type of plants for which data are shown explicitly at the generating unit level.
   * - plant_id_eia
     - integer
     - The unique six-digit facility identification number, also called an ORISPL, assigned by the Energy Information Administration.
   * - prime_mover_code
     - string
-    - Type of prime mover.
+    - Code for the type of prime mover (e.g. CT, CG)
   * - report_date
     - date
     - Date reported.
+
 
 .. _generators_eia860:
 
@@ -548,7 +559,7 @@ Pending description.
 generators_eia860
 -------------------------------------------------------------------------------
 
-Pending description.
+No table description available.
 `Browse or query this table in Datasette. <https://data.catalyst.coop/pudl/generators_eia860>`__
 
 .. list-table::
@@ -560,7 +571,7 @@ Pending description.
     - **Description**
   * - capacity_mw
     - number
-    - The highest value on the generator nameplate in megawatts rounded to the nearest tenth.
+    - Total installed (nameplate) capacity, in megawatts.
   * - carbon_capture
     - boolean
     - Indicates whether the generator uses carbon capture technology.
@@ -581,22 +592,22 @@ Pending description.
     - Whether the generator is considered distributed generation
   * - energy_source_1_transport_1
     - string
-    - Primary Mode of Transportaion for Energy Source 1
+    - Primary mode of transport for energy source 1.
   * - energy_source_1_transport_2
     - string
-    - Secondary Mode of Transportaion for Energy Source 1
+    - Secondary mode of transport for energy source 1.
   * - energy_source_1_transport_3
     - string
-    - Third Mode of Transportaion for Energy Source 1
+    - Tertiary mode of transport for energy source 1.
   * - energy_source_2_transport_1
     - string
-    - Primary Mode of Transportaion for Energy Source 2
+    - Primary mode of transport for energy source 2.
   * - energy_source_2_transport_2
     - string
-    - Secondary Mode of Transportaion for Energy Source 2
+    - Secondary mode of transport for energy source 2.
   * - energy_source_2_transport_3
     - string
-    - Third Mode of Transportaion for Energy Source 2
+    - Tertiary mode of transport for energy source 2.
   * - energy_source_code_1
     - string
     - The code representing the most predominant type of energy that fuels the generator.
@@ -617,10 +628,10 @@ Pending description.
     - The code representing the sixth most predominant type of energy that fuels the generator
   * - fuel_type_code_pudl
     - string
-    - Standardized fuel codes in PUDL.
+    - Simplified fuel type code used in PUDL
   * - generator_id
     - string
-    - Generator identification number.
+    - Generator ID is usually numeric, but sometimes includes letters. Make sure you treat it as a string!
   * - minimum_load_mw
     - number
     - The minimum load at which the generator can operate at continuosuly.
@@ -743,7 +754,7 @@ Pending description.
     - Was an uprate or derate completed on this generator during the reporting year?
   * - utility_id_eia
     - integer
-    - EIA-assigned identification number for the company that is responsible for the day-to-day operations of the generator.
+    - The EIA Utility Identification number.
   * - winter_capacity_estimate
     - boolean
     - Whether the winter capacity value was an estimate
@@ -754,13 +765,14 @@ Pending description.
     - number
     - EIA estimated winter capacity (in MWh).
 
+
 .. _generators_entity_eia:
 
 -------------------------------------------------------------------------------
 generators_entity_eia
 -------------------------------------------------------------------------------
 
-Pending description.
+No table description available.
 `Browse or query this table in Datasette. <https://data.catalyst.coop/pudl/generators_entity_eia>`__
 
 .. list-table::
@@ -784,7 +796,7 @@ Pending description.
     - Indicates whether the generator uses fluidized bed technology
   * - generator_id
     - string
-    - Generator identification number
+    - Generator ID is usually numeric, but sometimes includes letters. Make sure you treat it as a string!
   * - operating_date
     - date
     - Date the generator began commercial operation
@@ -805,7 +817,7 @@ Pending description.
     - Indicates whether the generator was previously reported as indefinitely postponed or canceled
   * - prime_mover_code
     - string
-    - EIA assigned code for the prime mover (i.e. the engine, turbine, water wheel, or similar machine that drives an electric generator)
+    - Code for the type of prime mover (e.g. CT, CG)
   * - pulverized_coal_tech
     - boolean
     - Indicates whether the generator uses pulverized coal technology
@@ -834,13 +846,14 @@ Pending description.
     - boolean
     - Indicates whether the generator uses ultra-supercritical technology
 
+
 .. _hourly_emissions_epacems:
 
 -------------------------------------------------------------------------------
 hourly_emissions_epacems
 -------------------------------------------------------------------------------
 
-Pending description.
+No table description available.
 `Browse or query this table in Datasette. <https://data.catalyst.coop/pudl/hourly_emissions_epacems>`__
 
 .. list-table::
@@ -894,16 +907,41 @@ Pending description.
     - Identifies whether the reported value of emissions was measured, calculated, or measured and substitute.
   * - state
     - string
-    - State the plant is located in.
+    - N/A
   * - steam_load_1000_lbs
     - number
     - Total steam pressure produced by a unit during the reported hour.
   * - unit_id_epa
-    - integer
-    - Smokestack unit monitored by EPA CEMS.
+    - string
+    - Emissions (smokestake) unit monitored by EPA CEMS.
   * - unitid
     - string
     - Facility-specific unit id (e.g. Unit 4)
+
+
+.. _natural_gas_transport_eia923:
+
+-------------------------------------------------------------------------------
+natural_gas_transport_eia923
+-------------------------------------------------------------------------------
+
+No table description available.
+`Browse or query this table in Datasette. <https://data.catalyst.coop/pudl/natural_gas_transport_eia923>`__
+
+.. list-table::
+  :widths: auto
+  :header-rows: 1
+
+  * - **Field Name**
+    - **Type**
+    - **Description**
+  * - abbr
+    - string
+    - N/A
+  * - status
+    - string
+    - N/A
+
 
 .. _ownership_eia860:
 
@@ -911,7 +949,7 @@ Pending description.
 ownership_eia860
 -------------------------------------------------------------------------------
 
-Pending description.
+No table description available.
 `Browse or query this table in Datasette. <https://data.catalyst.coop/pudl/ownership_eia860>`__
 
 .. list-table::
@@ -926,7 +964,7 @@ Pending description.
     - Proportion of generator ownership.
   * - generator_id
     - string
-    - Generator identification number.
+    - Generator ID is usually numeric, but sometimes includes letters. Make sure you treat it as a string!
   * - owner_city
     - string
     - City of owner.
@@ -953,7 +991,8 @@ Pending description.
     - Date reported.
   * - utility_id_eia
     - integer
-    - EIA-assigned identification number for the company that is responsible for the day-to-day operations of the generator.
+    - The EIA Utility Identification number.
+
 
 .. _plant_in_service_ferc1:
 
@@ -1270,7 +1309,8 @@ retirements, adjustments, and transfers.
     - Total Transmission Plant (FERC Accounts 350-359.1)
   * - utility_id_ferc1
     - integer
-    - FERC assigned respondent_id, identifying the reporting entity. Stable from year to year.
+    - FERC-assigned respondent_id, identifying the reporting entity. Stable from year to year.
+
 
 .. _plant_unit_epa:
 
@@ -1278,7 +1318,7 @@ retirements, adjustments, and transfers.
 plant_unit_epa
 -------------------------------------------------------------------------------
 
-Pending description.
+No table description available.
 `Browse or query this table in Datasette. <https://data.catalyst.coop/pudl/plant_unit_epa>`__
 
 .. list-table::
@@ -1290,10 +1330,11 @@ Pending description.
     - **Description**
   * - plant_id_epa
     - integer
-    - N/A
+    - The ORISPL ID used by EPA to refer to the plant. Usually but not always the same as plant_id_eia.
   * - unit_id_epa
     - string
-    - Smokestack unit monitored by EPA CEMS.
+    - Emissions (smokestake) unit monitored by EPA CEMS.
+
 
 .. _plants_eia:
 
@@ -1301,7 +1342,7 @@ Pending description.
 plants_eia
 -------------------------------------------------------------------------------
 
-Pending description.
+No table description available.
 `Browse or query this table in Datasette. <https://data.catalyst.coop/pudl/plants_eia>`__
 
 .. list-table::
@@ -1316,10 +1357,11 @@ Pending description.
     - The unique six-digit facility identification number, also called an ORISPL, assigned by the Energy Information Administration.
   * - plant_id_pudl
     - integer
-    - N/A
+    - A manually assigned PUDL plant ID. May not be constant over time.
   * - plant_name_eia
     - string
-    - N/A
+    - Plant name.
+
 
 .. _plants_eia860:
 
@@ -1327,7 +1369,7 @@ Pending description.
 plants_eia860
 -------------------------------------------------------------------------------
 
-Pending description.
+No table description available.
 `Browse or query this table in Datasette. <https://data.catalyst.coop/pudl/plants_eia860>`__
 
 .. list-table::
@@ -1338,19 +1380,19 @@ Pending description.
     - **Type**
     - **Description**
   * - ash_impoundment
-    - string
+    - boolean
     - Is there an ash impoundment (e.g. pond, reservoir) at the plant?
   * - ash_impoundment_lined
-    - string
+    - boolean
     - If there is an ash impoundment at the plant, is the impoundment lined?
   * - ash_impoundment_status
     - string
     - If there is an ash impoundment at the plant, the ash impoundment status as of December 31 of the reporting year.
   * - datum
     - string
-    - N/A
+    - Geodetic coordinate system identifier (e.g. NAD27, NAD83, or WGS84).
   * - energy_storage
-    - string
+    - boolean
     - Indicates if the facility has energy storage capabilities.
   * - ferc_cogen_docket_no
     - string
@@ -1362,7 +1404,7 @@ Pending description.
     - string
     - The docket number relating to the FERC qualifying facility small power producer status.
   * - liquefied_natural_gas_storage
-    - string
+    - boolean
     - Indicates if the facility have the capability to store the natural gas in the form of liquefied natural gas.
   * - natural_gas_local_distribution_company
     - string
@@ -1377,13 +1419,13 @@ Pending description.
     - string
     - The name of the owner or operator of natural gas pipeline that connects directly to this facility or that connects to a lateral pipeline owned by this facility.
   * - natural_gas_storage
-    - string
+    - boolean
     - Indicates if the facility have on-site storage of natural gas.
   * - nerc_region
     - string
     - NERC region in which the plant is located
   * - net_metering
-    - string
+    - boolean
     - Did this plant have a net metering agreement in effect during the reporting year?  (Only displayed for facilities that report the sun or wind as an energy source). This field was only reported up until 2015
   * - pipeline_notes
     - string
@@ -1411,10 +1453,11 @@ Pending description.
     - State location for owner of transmission/distribution system to which the plant is interconnected.
   * - utility_id_eia
     - integer
-    - EIA-assigned identification number for the company that is responsible for the day-to-day operations of the generator.
+    - The EIA Utility Identification number.
   * - water_source
     - string
-    - Name of water source associater with the plant.
+    - Name of water source associated with the plant.
+
 
 .. _plants_entity_eia:
 
@@ -1422,7 +1465,7 @@ Pending description.
 plants_entity_eia
 -------------------------------------------------------------------------------
 
-Pending description.
+No table description available.
 `Browse or query this table in Datasette. <https://data.catalyst.coop/pudl/plants_entity_eia>`__
 
 .. list-table::
@@ -1440,18 +1483,18 @@ Pending description.
     - The plant&#39;s balancing authority name.
   * - city
     - string
-    - The plant&#39;s city.
+    - N/A
   * - county
     - string
     - The plant&#39;s county.
   * - ferc_cogen_status
-    - string
+    - boolean
     - Indicates whether the plant has FERC qualifying facility cogenerator status.
   * - ferc_exempt_wholesale_generator
-    - string
+    - boolean
     - Indicates whether the plant has FERC qualifying facility exempt wholesale generator status
   * - ferc_small_power_producer
-    - string
+    - boolean
     - Indicates whether the plant has FERC qualifying facility small power producer status
   * - grid_voltage_2_kv
     - number
@@ -1478,26 +1521,27 @@ Pending description.
     - string
     - Plant name.
   * - primary_purpose_naics_id
-    - number
+    - integer
     - North American Industry Classification System (NAICS) code that best describes the primary purpose of the reporting plant
   * - sector_id
-    - number
+    - integer
     - Plant-level sector number, designated by the primary purpose, regulatory status and plant-level combined heat and power status
   * - sector_name
     - string
     - Plant-level sector name, designated by the primary purpose, regulatory status and plant-level combined heat and power status
   * - state
     - string
-    - Plant state. Two letter US state and territory abbreviations.
+    - N/A
   * - street_address
     - string
-    - Plant street address
+    - N/A
   * - timezone
     - string
     - IANA timezone name
   * - zip_code
     - string
-    - Plant street address
+    - Five digit US Zip Code.
+
 
 .. _plants_ferc1:
 
@@ -1505,9 +1549,7 @@ Pending description.
 plants_ferc1
 -------------------------------------------------------------------------------
 
-Name, utility, and PUDL id for steam plants with a capacity of 25,000+ kW,
-internal combustion and gas-turbine plants of 10,000+ kW, and all nuclear
-plants.
+No table description available.
 `Browse or query this table in Datasette. <https://data.catalyst.coop/pudl/plants_ferc1>`__
 
 .. list-table::
@@ -1525,7 +1567,8 @@ plants.
     - Name of the plant, as reported to FERC. This is a freeform string, not guaranteed to be consistent across references to the same plant.
   * - utility_id_ferc1
     - integer
-    - FERC assigned respondent_id, identifying the reporting entity. Stable from year to year.
+    - FERC-assigned respondent_id, identifying the reporting entity. Stable from year to year.
+
 
 .. _plants_hydro_ferc1:
 
@@ -1533,9 +1576,10 @@ plants.
 plants_hydro_ferc1
 -------------------------------------------------------------------------------
 
-Generating plant statistics for hydroelectric plants with an installed
-nameplate capacity of 10 MW. As reported on FERC Form 1, pages 406-407 and
-extracted from the f1_hydro table in FERC&#39;s FoxPro database.
+Hydroelectric generating plant statistics for large plants. Large plants have
+an installed nameplate capacity of more than 10 MW. As reported on FERC Form
+1, pages 406-407, and extracted from the f1_hydro table in FERC&#39;s FoxPro
+database.
 `Browse or query this table in Datasette. <https://data.catalyst.coop/pudl/plants_hydro_ferc1>`__
 
 .. list-table::
@@ -1547,43 +1591,43 @@ extracted from the f1_hydro table in FERC&#39;s FoxPro database.
     - **Description**
   * - asset_retirement_cost
     - number
-    - Cost of plant: asset retirement costs. Nominal USD.
+    - Asset retirement cost (USD).
   * - avg_num_employees
     - number
-    - Average number of employees.
+    - N/A
   * - capacity_mw
     - number
     - Total installed (nameplate) capacity, in megawatts.
   * - capex_equipment
     - number
-    - Cost of plant: equipment. Nominal USD.
+    - Cost of plant: equipment (USD).
   * - capex_facilities
     - number
-    - Cost of plant: reservoirs, dams, and waterways. Nominal USD.
+    - Cost of plant: reservoirs, dams, and waterways (USD).
   * - capex_land
     - number
-    - Cost of plant: land and land rights. Nominal USD.
+    - Cost of plant: land and land rights (USD).
   * - capex_per_mw
     - number
     - Cost of plant per megawatt of installed (nameplate) capacity. Nominal USD.
   * - capex_roads
     - number
-    - Cost of plant: roads, railroads, and bridges. Nominal USD.
+    - Cost of plant: roads, railroads, and bridges (USD).
   * - capex_structures
     - number
-    - Cost of plant: structures and improvements. Nominal USD.
+    - Cost of plant: structures and improvements (USD).
   * - capex_total
     - number
-    - Total cost of plant. Nominal USD.
+    - Total cost of plant (USD).
   * - construction_type
     - string
     - Type of plant construction (&#39;outdoor&#39;, &#39;semioutdoor&#39;, or &#39;conventional&#39;). Categorized by PUDL based on our best guess of intended value in FERC1 freeform strings.
   * - construction_year
     - year
-    - Four digit year of the plant&#39;s original construction.
+    - Year the plant&#39;s oldest still operational unit was built.
   * - installation_year
     - year
-    - Four digit year in which the last unit was installed.
+    - Year the plant&#39;s most recently built unit was installed.
   * - net_capacity_adverse_conditions_mw
     - number
     - Net plant capability under the least favorable operating conditions, in megawatts.
@@ -1592,58 +1636,58 @@ extracted from the f1_hydro table in FERC&#39;s FoxPro database.
     - Net plant capability under the most favorable operating conditions, in megawatts.
   * - net_generation_mwh
     - number
-    - Net generation, exclusive of plant use, in megawatt hours.
+    - Net electricity generation for the specified period in megawatt-hours (MWh).
   * - opex_dams
     - number
-    - Production expenses: maintenance of reservoirs, dams, and waterways. Nominal USD.
+    - Production expenses: maintenance of reservoirs, dams, and waterways (USD).
   * - opex_electric
     - number
-    - Production expenses: electric expenses. Nominal USD.
+    - Production expenses: electric expenses (USD).
   * - opex_engineering
     - number
-    - Production expenses: maintenance, supervision, and engineering. Nominal USD.
+    - Production expenses: maintenance, supervision, and engineering (USD).
   * - opex_generation_misc
     - number
-    - Production expenses: miscellaneous hydraulic power generation expenses. Nominal USD.
+    - Production expenses: miscellaneous power generation expenses (USD).
   * - opex_hydraulic
     - number
-    - Production expenses: hydraulic expenses. Nominal USD.
+    - Production expenses: hydraulic expenses (USD).
   * - opex_misc_plant
     - number
-    - Production expenses: maintenance of miscellaneous hydraulic plant. Nominal USD.
+    - Production expenses: maintenance of miscellaneous hydraulic plant (USD).
   * - opex_operations
     - number
-    - Production expenses: operation, supervision, and engineering. Nominal USD.
+    - Production expenses: operations, supervision, and engineering (USD).
   * - opex_per_mwh
     - number
-    - Production expenses per net megawatt hour generated. Nominal USD.
+    - Total production expenses (USD per MWh generated).
   * - opex_plant
     - number
-    - Production expenses: maintenance of electric plant. Nominal USD.
+    - Production expenses: maintenance of electric plant (USD).
   * - opex_rents
     - number
-    - Production expenses: rent. Nominal USD.
+    - Production expenses: rents (USD).
   * - opex_structures
     - number
-    - Production expenses: maintenance of structures. Nominal USD.
+    - Production expenses: maintenance of structures (USD).
   * - opex_total
     - number
-    - Total production expenses. Nominal USD.
+    - Total production expenses, excluding fuel (USD).
   * - opex_water_for_power
     - number
-    - Production expenses: water for power. Nominal USD.
+    - Production expenses: water for power (USD).
   * - peak_demand_mw
     - number
-    - Net peak demand on the plant (60-minute integration), in megawatts.
+    - Net peak demand for 60 minutes. Note: in some cases peak demand for other time periods may have been reported instead, if hourly peak demand was unavailable.
   * - plant_hours_connected_while_generating
     - number
-    - Hours the plant was connected to load while generating.
+    - Hours the plant was connected to load while generating in the report year.
   * - plant_name_ferc1
     - string
     - Name of the plant, as reported to FERC. This is a freeform string, not guaranteed to be consistent across references to the same plant.
   * - plant_type
     - string
-    - Kind of plant (Run-of-River or Storage).
+    - N/A
   * - project_num
     - integer
     - FERC Licensed Project Number.
@@ -1655,7 +1699,8 @@ extracted from the f1_hydro table in FERC&#39;s FoxPro database.
     - Four-digit year in which the data was reported.
   * - utility_id_ferc1
     - integer
-    - FERC assigned respondent_id, identifying the reporting entity. Stable from year to year.
+    - FERC-assigned respondent_id, identifying the reporting entity. Stable from year to year.
+
 
 .. _plants_pudl:
 
@@ -1685,6 +1730,7 @@ src/pudl/package_data/glue/mapping_eia923_ferc1.xlsx
     - string
     - Plant name, chosen arbitrarily from the several possible plant names available in the plant matching process. Included for human readability only.
 
+
 .. _plants_pumped_storage_ferc1:
 
 -------------------------------------------------------------------------------
@@ -1705,112 +1751,112 @@ and extracted from the f1_pumped_storage table in FERC&#39;s FoxPro Database.
     - **Description**
   * - asset_retirement_cost
     - number
-    - Cost of plant: asset retirement costs. Nominal USD.
+    - Asset retirement cost (USD).
   * - avg_num_employees
     - number
-    - Average number of employees.
+    - N/A
   * - capacity_mw
     - number
     - Total installed (nameplate) capacity, in megawatts.
   * - capex_equipment_electric
     - number
-    - Cost of plant: accessory electric equipment. Nominal USD.
+    - Cost of plant: accessory electric equipment (USD).
   * - capex_equipment_misc
     - number
-    - Cost of plant: miscellaneous power plant equipment. Nominal USD.
+    - Cost of plant: miscellaneous power plant equipment (USD).
   * - capex_facilities
     - number
-    - Cost of plant: reservoirs, dams, and waterways. Nominal USD.
+    - Cost of plant: reservoirs, dams, and waterways (USD).
   * - capex_land
     - number
-    - Cost of plant: land and land rights. Nominal USD.
+    - Cost of plant: land and land rights (USD).
   * - capex_per_mw
     - number
     - Cost of plant per megawatt of installed (nameplate) capacity. Nominal USD.
   * - capex_roads
     - number
-    - Cost of plant: roads, railroads, and bridges. Nominal USD.
+    - Cost of plant: roads, railroads, and bridges (USD).
   * - capex_structures
     - number
-    - Cost of plant: structures and improvements. Nominal USD.
+    - Cost of plant: structures and improvements (USD).
   * - capex_total
     - number
-    - Total cost of plant. Nominal USD.
+    - Total cost of plant (USD).
   * - capex_wheels_turbines_generators
     - number
-    - Cost of plant: water wheels, turbines, and generators. Nominal USD.
+    - Cost of plant: water wheels, turbines, and generators (USD).
   * - construction_type
     - string
     - Type of plant construction (&#39;outdoor&#39;, &#39;semioutdoor&#39;, or &#39;conventional&#39;). Categorized by PUDL based on our best guess of intended value in FERC1 freeform strings.
   * - construction_year
     - year
-    - Four digit year of the plant&#39;s original construction.
+    - Year the plant&#39;s oldest still operational unit was built.
   * - energy_used_for_pumping_mwh
     - number
     - Energy used for pumping, in megawatt-hours.
   * - installation_year
     - year
-    - Four digit year in which the last unit was installed.
+    - Year the plant&#39;s most recently built unit was installed.
   * - net_generation_mwh
     - number
-    - Net generation, exclusive of plant use, in megawatt hours.
+    - Net electricity generation for the specified period in megawatt-hours (MWh).
   * - net_load_mwh
     - number
     - Net output for load (net generation - energy used for pumping) in megawatt-hours.
   * - opex_dams
     - number
-    - Production expenses: maintenance of reservoirs, dams, and waterways. Nominal USD.
+    - Production expenses: maintenance of reservoirs, dams, and waterways (USD).
   * - opex_electric
     - number
-    - Production expenses: electric expenses. Nominal USD.
+    - Production expenses: electric expenses (USD).
   * - opex_engineering
     - number
-    - Production expenses: maintenance, supervision, and engineering. Nominal USD.
+    - Production expenses: maintenance, supervision, and engineering (USD).
   * - opex_generation_misc
     - number
-    - Production expenses: miscellaneous pumped storage power generation expenses. Nominal USD.
+    - Production expenses: miscellaneous power generation expenses (USD).
   * - opex_misc_plant
     - number
-    - Production expenses: maintenance of miscellaneous hydraulic plant. Nominal USD.
+    - Production expenses: maintenance of miscellaneous hydraulic plant (USD).
   * - opex_operations
     - number
-    - Production expenses: operation, supervision, and engineering. Nominal USD.
+    - Production expenses: operations, supervision, and engineering (USD).
   * - opex_per_mwh
     - number
-    - Production expenses per net megawatt hour generated. Nominal USD.
+    - Total production expenses (USD per MWh generated).
   * - opex_plant
     - number
-    - Production expenses: maintenance of electric plant. Nominal USD.
+    - Production expenses: maintenance of electric plant (USD).
   * - opex_production_before_pumping
     - number
-    - Total production expenses before pumping. Nominal USD.
+    - Total production expenses before pumping (USD).
   * - opex_pumped_storage
     - number
-    - Production expenses: pumped storage. Nominal USD.
+    - Production expenses: pumped storage (USD).
   * - opex_pumping
     - number
-    - Production expenses: We are here to PUMP YOU UP! Nominal USD.
+    - Production expenses: We are here to PUMP YOU UP! (USD).
   * - opex_rents
     - number
-    - Production expenses: rent. Nominal USD.
+    - Production expenses: rents (USD).
   * - opex_structures
     - number
-    - Production expenses: maintenance of structures. Nominal USD.
+    - Production expenses: maintenance of structures (USD).
   * - opex_total
     - number
-    - Total production expenses. Nominal USD.
+    - Total production expenses, excluding fuel (USD).
   * - opex_water_for_power
     - number
-    - Production expenses: water for power. Nominal USD.
+    - Production expenses: water for power (USD).
   * - peak_demand_mw
     - number
-    - Net peak demand on the plant (60-minute integration), in megawatts.
+    - Net peak demand for 60 minutes. Note: in some cases peak demand for other time periods may have been reported instead, if hourly peak demand was unavailable.
   * - plant_capability_mw
     - number
     - Net plant capability in megawatts.
   * - plant_hours_connected_while_generating
     - number
-    - Hours the plant was connected to load while generating.
+    - Hours the plant was connected to load while generating in the report year.
   * - plant_name_ferc1
     - string
     - Name of the plant, as reported to FERC. This is a freeform string, not guaranteed to be consistent across references to the same plant.
@@ -1825,7 +1871,8 @@ and extracted from the f1_pumped_storage table in FERC&#39;s FoxPro Database.
     - Four-digit year in which the data was reported.
   * - utility_id_ferc1
     - integer
-    - FERC assigned respondent_id, identifying the reporting entity. Stable from year to year.
+    - FERC-assigned respondent_id, identifying the reporting entity. Stable from year to year.
+
 
 .. _plants_small_ferc1:
 
@@ -1849,46 +1896,46 @@ extracted from the FERC FoxPro database table f1_gnrt_plant.
     - **Description**
   * - capacity_mw
     - number
-    - Name plate capacity in megawatts.
+    - Total installed (nameplate) capacity, in megawatts.
   * - capex_per_mw
     - number
-    - Plant costs (including asset retirement costs) per megawatt. Nominal USD.
+    - Cost of plant per megawatt of installed (nameplate) capacity. Nominal USD.
   * - construction_year
     - year
-    - Original year of plant construction.
+    - Year the plant&#39;s oldest still operational unit was built.
   * - ferc_license_id
     - integer
     - FERC issued operating license ID for the facility, if available. This value is extracted from the original plant name where possible.
   * - fuel_cost_per_mmbtu
     - number
-    - Average fuel cost per mmBTU (if applicable). Nominal USD.
+    - Average fuel cost per mmBTU of heat content in nominal USD.
   * - fuel_type
     - string
-    - Kind of fuel. Originally reported to FERC as a freeform string. Assigned a canonical value by PUDL based on our best guess.
+    - N/A
   * - net_generation_mwh
     - number
-    - Net generation excluding plant use, in megawatt-hours.
+    - Net electricity generation for the specified period in megawatt-hours (MWh).
   * - opex_fuel
     - number
-    - Production expenses: Fuel. Nominal USD.
+    - Production expenses: fuel (USD).
   * - opex_maintenance
     - number
-    - Production expenses: Maintenance. Nominal USD.
+    - Production expenses: Maintenance (USD).
   * - opex_total
     - number
-    - Total plant operating expenses, excluding fuel. Nominal USD.
+    - Total production expenses, excluding fuel (USD).
   * - peak_demand_mw
     - number
     - Net peak demand for 60 minutes. Note: in some cases peak demand for other time periods may have been reported instead, if hourly peak demand was unavailable.
   * - plant_name_ferc1
     - string
-    - PUDL assigned simplified plant name.
+    - Name of the plant, as reported to FERC. This is a freeform string, not guaranteed to be consistent across references to the same plant.
   * - plant_name_original
     - string
     - Original plant name in the FERC Form 1 FoxPro database.
   * - plant_type
     - string
-    - PUDL assigned plant type. This is a best guess based on the fuel type, plant name, and other attributes.
+    - N/A
   * - record_id
     - string
     - Identifier indicating original FERC Form 1 source record. format: {table_name}_{report_year}_{report_prd}_{respondent_id}_{spplmnt_num}_{row_number}. Unique within FERC Form 1 DB tables which are not row-mapped.
@@ -1897,10 +1944,11 @@ extracted from the FERC FoxPro database table f1_gnrt_plant.
     - Four-digit year in which the data was reported.
   * - total_cost_of_plant
     - number
-    - Total cost of plant. Nominal USD.
+    - Total cost of plant (USD).
   * - utility_id_ferc1
     - integer
-    - FERC assigned respondent_id, identifying the reporting entity. Stable from year to year.
+    - FERC-assigned respondent_id, identifying the reporting entity. Stable from year to year.
+
 
 .. _plants_steam_ferc1:
 
@@ -1923,28 +1971,28 @@ table in FERC&#39;s FoxPro Database.
     - **Description**
   * - asset_retirement_cost
     - number
-    - Asset retirement cost.
+    - Asset retirement cost (USD).
   * - avg_num_employees
     - number
-    - Average number of plant employees during report year.
+    - N/A
   * - capacity_mw
     - number
-    - Total installed plant capacity in MW.
+    - Total installed (nameplate) capacity, in megawatts.
   * - capex_equipment
     - number
-    - Capital expense for equipment.
+    - Cost of plant: equipment (USD).
   * - capex_land
     - number
-    - Capital expense for land and land rights.
+    - Cost of plant: land and land rights (USD).
   * - capex_per_mw
     - number
-    - Capital expenses per MW of installed plant capacity.
+    - Cost of plant per megawatt of installed (nameplate) capacity. Nominal USD.
   * - capex_structures
     - number
-    - Capital expense for structures and improvements.
+    - Cost of plant: structures and improvements (USD).
   * - capex_total
     - number
-    - Total capital expenses.
+    - Total cost of plant (USD).
   * - construction_type
     - string
     - Type of plant construction (&#39;outdoor&#39;, &#39;semioutdoor&#39;, or &#39;conventional&#39;). Categorized by PUDL based on our best guess of intended value in FERC1 freeform strings.
@@ -1956,7 +2004,7 @@ table in FERC&#39;s FoxPro Database.
     - Year the plant&#39;s most recently built unit was installed.
   * - net_generation_mwh
     - number
-    - Net generation (exclusive of plant use) in MWh during report year.
+    - Net electricity generation for the specified period in megawatt-hours (MWh).
   * - not_water_limited_capacity_mw
     - number
     - Plant capacity in MW when not limited by condenser water.
@@ -1971,13 +2019,13 @@ table in FERC&#39;s FoxPro Database.
     - Cost of coolants and water (nuclear plants only)
   * - opex_electric
     - number
-    - Electricity expenses.
+    - Production expenses: electric expenses (USD).
   * - opex_engineering
     - number
-    - Maintenance, supervision, and engineering.
+    - Production expenses: maintenance, supervision, and engineering (USD).
   * - opex_fuel
     - number
-    - Total cost of fuel.
+    - Production expenses: fuel (USD).
   * - opex_misc_power
     - number
     - Miscellaneous steam (or nuclear) expenses.
@@ -1986,10 +2034,10 @@ table in FERC&#39;s FoxPro Database.
     - Maintenance of miscellaneous steam (or nuclear) plant.
   * - opex_operations
     - number
-    - Production expenses: operations, supervision, and engineering.
+    - Production expenses: operations, supervision, and engineering (USD).
   * - opex_per_mwh
     - number
-    - Total operating expenses per MWh of net generation.
+    - Total production expenses (USD per MWh generated).
   * - opex_plants
     - number
     - Maintenance of electrical plant.
@@ -1998,7 +2046,7 @@ table in FERC&#39;s FoxPro Database.
     - Total operating epxenses.
   * - opex_rents
     - number
-    - Rents.
+    - Production expenses: rents (USD).
   * - opex_steam
     - number
     - Steam expenses.
@@ -2007,19 +2055,19 @@ table in FERC&#39;s FoxPro Database.
     - Steam from other sources.
   * - opex_structures
     - number
-    - Maintenance of structures.
+    - Production expenses: maintenance of structures (USD).
   * - opex_transfer
     - number
     - Steam transferred (Credit).
   * - peak_demand_mw
     - number
-    - Net peak demand experienced by the plant in MW in report year.
+    - Net peak demand for 60 minutes. Note: in some cases peak demand for other time periods may have been reported instead, if hourly peak demand was unavailable.
   * - plant_capability_mw
     - number
-    - Net continuous plant capability in MW
+    - Net plant capability in megawatts.
   * - plant_hours_connected_while_generating
     - number
-    - Total number hours the plant was generated and connected to load during report year.
+    - Hours the plant was connected to load while generating in the report year.
   * - plant_id_ferc1
     - integer
     - Algorithmically assigned PUDL FERC Plant ID. WARNING: NOT STABLE BETWEEN PUDL DB INITIALIZATIONS.
@@ -2028,7 +2076,7 @@ table in FERC&#39;s FoxPro Database.
     - Name of the plant, as reported to FERC. This is a freeform string, not guaranteed to be consistent across references to the same plant.
   * - plant_type
     - string
-    - Simplified plant type, categorized by PUDL based on our best guess of what was intended based on freeform string reported to FERC. Unidentifiable types are null.
+    - N/A
   * - record_id
     - string
     - Identifier indicating original FERC Form 1 source record. format: {table_name}_{report_year}_{report_prd}_{respondent_id}_{spplmnt_num}_{row_number}. Unique within FERC Form 1 DB tables which are not row-mapped.
@@ -2037,10 +2085,11 @@ table in FERC&#39;s FoxPro Database.
     - Four-digit year in which the data was reported.
   * - utility_id_ferc1
     - integer
-    - FERC assigned respondent_id, identifying the reporting entity. Stable from year to year.
+    - FERC-assigned respondent_id, identifying the reporting entity. Stable from year to year.
   * - water_limited_capacity_mw
     - number
     - Plant capacity in MW when limited by condenser water.
+
 
 .. _prime_movers_eia923:
 
@@ -2048,7 +2097,7 @@ table in FERC&#39;s FoxPro Database.
 prime_movers_eia923
 -------------------------------------------------------------------------------
 
-Pending description.
+No table description available.
 `Browse or query this table in Datasette. <https://data.catalyst.coop/pudl/prime_movers_eia923>`__
 
 .. list-table::
@@ -2063,7 +2112,8 @@ Pending description.
     - N/A
   * - prime_mover
     - string
-    - N/A
+    - Full description of the type of prime mover.
+
 
 .. _purchased_power_ferc1:
 
@@ -2095,16 +2145,16 @@ Form 1. Extracted from the f1_purchased_pwr table in FERC&#39;s FoxPro database.
     - Gross megawatt-hours delivered in power exchanges and used as the basis for settlement.
   * - demand_charges
     - number
-    - Demand charges. Nominal USD.
+    - Demand charges (USD).
   * - energy_charges
     - number
-    - Energy charges. Nominal USD.
+    - Energy charges (USD).
   * - non_coincident_peak_demand_mw
     - number
     - Average monthly non-coincident peak (NCP) demand (for requirements purhcases, and any transactions involving demand charges). Monthly NCP demand is the maximum metered hourly (60-minute integration) demand in a month. In megawatts.
   * - other_charges
     - number
-    - Other charges, including out-of-period adjustments. Nominal USD.
+    - Other charges, including out-of-period adjustments (USD).
   * - purchase_type
     - string
     - Categorization based on the original contractual terms and conditions of the service. Must be one of &#39;requirements&#39;, &#39;long_firm&#39;, &#39;intermediate_firm&#39;, &#39;short_firm&#39;, &#39;long_unit&#39;, &#39;intermediate_unit&#39;, &#39;electricity_exchange&#39;, &#39;other_service&#39;, or &#39;adjustment&#39;. Requirements service is ongoing high reliability service, with load integrated into system resource planning. &#39;Long term&#39; means 5+ years. &#39;Intermediate term&#39; is 1-5 years. &#39;Short term&#39; is less than 1 year. &#39;Firm&#39; means not interruptible for economic reasons. &#39;unit&#39; indicates service from a particular designated generating unit. &#39;exchange&#39; is an in-kind transaction.
@@ -2128,10 +2178,11 @@ Form 1. Extracted from the f1_purchased_pwr table in FERC&#39;s FoxPro database.
     - FERC Rate Schedule Number or Tariff. (Note: may be incomplete if originally reported on multiple lines.)
   * - total_settlement
     - number
-    - Sum of demand, energy, and other charges. For power exchanges, the settlement amount for the net receipt of energy. If more energy was delivered than received, this amount is negative. Nominal USD.
+    - Sum of demand, energy, and other charges (USD). For power exchanges, the settlement amount for the net receipt of energy. If more energy was delivered than received, this amount is negative.
   * - utility_id_ferc1
     - integer
-    - FERC assigned respondent_id, identifying the reporting entity. Stable from year to year.
+    - FERC-assigned respondent_id, identifying the reporting entity. Stable from year to year.
+
 
 .. _transport_modes_eia923:
 
@@ -2139,7 +2190,7 @@ Form 1. Extracted from the f1_purchased_pwr table in FERC&#39;s FoxPro database.
 transport_modes_eia923
 -------------------------------------------------------------------------------
 
-Pending description.
+No table description available.
 `Browse or query this table in Datasette. <https://data.catalyst.coop/pudl/transport_modes_eia923>`__
 
 .. list-table::
@@ -2156,13 +2207,14 @@ Pending description.
     - string
     - N/A
 
+
 .. _utilities_eia:
 
 -------------------------------------------------------------------------------
 utilities_eia
 -------------------------------------------------------------------------------
 
-Pending description.
+No table description available.
 `Browse or query this table in Datasette. <https://data.catalyst.coop/pudl/utilities_eia>`__
 
 .. list-table::
@@ -2182,13 +2234,14 @@ Pending description.
     - string
     - The name of the utility.
 
+
 .. _utilities_eia860:
 
 -------------------------------------------------------------------------------
 utilities_eia860
 -------------------------------------------------------------------------------
 
-Pending description.
+No table description available.
 `Browse or query this table in Datasette. <https://data.catalyst.coop/pudl/utilities_eia860>`__
 
 .. list-table::
@@ -2206,70 +2259,71 @@ Pending description.
     - N/A
   * - city
     - string
-    - Name of the city in which operator/owner is located
+    - N/A
   * - contact_firstname
     - string
-    - N/A
+    - First name of utility contact 1.
   * - contact_firstname_2
     - string
-    - N/A
+    - First name of utility contact 2.
   * - contact_lastname
     - string
-    - N/A
+    - Last name of utility contact 1.
   * - contact_lastname_2
     - string
-    - N/A
+    - Last name of utility contact 2.
   * - contact_title
     - string
-    - N/A
+    - Title of of utility contact 1.
   * - contact_title_2
     - string
-    - N/A
+    - Title of utility contact 2.
   * - entity_type
     - string
-    - Entity type of principle owner (C = Cooperative, I = Investor-Owned Utility, Q = Independent Power Producer, M = Municipally-Owned Utility, P = Political Subdivision, F = Federally-Owned Utility, S = State-Owned Utility, IND = Industrial, COM = Commercial
-  * - phone_extension_1
+    - Entity type of principal owner.
+  * - phone_extension
     - string
-    - Phone extension for contact 1
+    - Phone extension for utility contact 1
   * - phone_extension_2
     - string
-    - Phone extension for contact 2
-  * - phone_number_1
+    - Phone extension for utility contact 2
+  * - phone_number
     - string
-    - Phone number for contact 1
+    - Phone number for utility contact 1.
   * - phone_number_2
     - string
-    - Phone number for contact 2
+    - Phone number for utility contact 2.
   * - plants_reported_asset_manager
-    - string
+    - boolean
     - Is the reporting entity an asset manager of power plants reported on Schedule 2 of the form?
   * - plants_reported_operator
-    - string
+    - boolean
     - Is the reporting entity an operator of power plants reported on Schedule 2 of the form?
   * - plants_reported_other_relationship
-    - string
+    - boolean
     - Does the reporting entity have any other relationship to the power plants reported on Schedule 2 of the form?
   * - plants_reported_owner
-    - string
+    - boolean
     - Is the reporting entity an owner of power plants reported on Schedule 2 of the form?
   * - report_date
     - date
     - Date reported.
   * - state
     - string
-    - State of the operator/owner
+    - N/A
   * - street_address
     - string
-    - Street address of the operator/owner
+    - N/A
   * - utility_id_eia
     - integer
-    - EIA-assigned identification number for the company that is responsible for the day-to-day operations of the generator.
+    - The EIA Utility Identification number.
   * - zip_code
     - string
-    - Zip code of the operator/owner
+    - Five digit US Zip Code.
   * - zip_code_4
     - string
-    - N/A
+    - Four digit US Zip Code suffix.
+
 
 .. _utilities_entity_eia:
 
@@ -2277,7 +2331,7 @@ Pending description.
 utilities_entity_eia
 -------------------------------------------------------------------------------
 
-Pending description.
+No table description available.
 `Browse or query this table in Datasette. <https://data.catalyst.coop/pudl/utilities_entity_eia>`__
 
 .. list-table::
@@ -2293,6 +2347,7 @@ Pending description.
   * - utility_name_eia
     - string
     - The name of the utility.
+
 
 .. _utilities_ferc1:
 
@@ -2317,13 +2372,14 @@ PUDL repository: results/id_mapping/mapping_eia923_ferc1.xlsx
     - **Description**
   * - utility_id_ferc1
     - integer
-    - FERC assigned respondent_id, identifying the reporting entity. Stable from year to year.
+    - FERC-assigned respondent_id, identifying the reporting entity. Stable from year to year.
   * - utility_id_pudl
     - integer
     - A manually assigned PUDL utility ID. May not be stable over time.
   * - utility_name_ferc1
     - string
     - Name of the responding utility, as it is reported in FERC Form 1. For human readability only.
+
 
 .. _utilities_pudl:
 
@@ -2353,13 +2409,14 @@ src/pudl/package_data/glue/mapping_eia923_ferc1.xlsx
     - string
     - Utility name, chosen arbitrarily from the several possible utility names available in the utility matching process. Included for human readability only.
 
+
 .. _utility_plant_assn:
 
 -------------------------------------------------------------------------------
 utility_plant_assn
 -------------------------------------------------------------------------------
 
-Pending description.
+No table description available.
 `Browse or query this table in Datasette. <https://data.catalyst.coop/pudl/utility_plant_assn>`__
 
 .. list-table::
@@ -2371,7 +2428,7 @@ Pending description.
     - **Description**
   * - plant_id_pudl
     - integer
-    - N/A
+    - A manually assigned PUDL plant ID. May not be constant over time.
   * - utility_id_pudl
     - integer
-    - N/A
+    - A manually assigned PUDL utility ID. May not be stable over time.

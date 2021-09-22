@@ -510,10 +510,10 @@ def utilities(eia860_dfs, eia860_transformed_dfs):
 
     u_df = (
         u_df.assign(
-            phone_number_1=_make_phone_number(
-                u_df.phone_number_first_1,
-                u_df.phone_number_mid_1,
-                u_df.phone_number_last_1),
+            phone_number=_make_phone_number(
+                u_df.phone_number_first,
+                u_df.phone_number_mid,
+                u_df.phone_number_last),
             phone_number_2=_make_phone_number(
                 u_df.phone_number_first_2,
                 u_df.phone_number_mid_2,

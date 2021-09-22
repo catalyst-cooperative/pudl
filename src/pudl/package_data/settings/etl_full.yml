@@ -136,12 +136,11 @@ ferc1_to_sqlite_tables: [
 datapkg_bundle_name: pudl-full
 datapkg_bundle_doi: 10.5072/zenodo.123456 # Sandbox DOI... not real.
 datapkg_bundle_settings:
-  ###########################################################################
-  # FERC FORM 1 SETTINGS
-  ###########################################################################
-  - name: ferc1
-    title: FERC Form 1
-    description: All integrated tables for the available FERC Form 1 years.
+  - name: pudl-full
+    title: PUDL Full ETL
+    description: >
+      All available data for FERC 1 and EIA 860/923 (output to SQLite) plus all
+      years of EPA CEMS hourly emissions data (output to Parquet).
     version: 0.1.0
     datasets:
       - ferc1:
@@ -158,16 +157,6 @@ datapkg_bundle_settings:
               2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013,
               2014, 2015, 2016, 2017, 2018, 2019
           ]
-
-  ###########################################################################
-  # EIA 860 & 923 SETTINGS
-  ###########################################################################
-  - name: eia
-    title: EIA Forms 860 and 923.
-    description: >
-      All years of EIA Forms 860 and 923.
-    version: 0.1.0
-    datasets:
       - eia:
           eia923_tables:
             - generation_fuel_eia923
@@ -179,52 +168,6 @@ datapkg_bundle_settings:
               2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010,
               2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
           ]
-          eia860_tables:
-            - boiler_generator_assn_eia860
-            - utilities_eia860
-            - plants_eia860
-            - generators_eia860
-            - ownership_eia860
-          eia860_years: [
-              2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010,
-              2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
-          ]
-          eia860_ytd: True
-
-  ###########################################################################
-  # EPA CEMS HOURLY SETTINGS
-  ###########################################################################
-  # EPA CEMS depends on the EIA data. Rather than running the ETL on EIA
-  # twice, we assume its inclusion in this datapackage is sufficient for a
-  # quick test run.
-  - name: epacems-eia
-    title: EIA Forms 860 and 923 combined with EPA CEMS Hourly Emissions.
-    description: >
-      All years of epacems data for the smallest state (Idaho), combined with
-      the EIA Forms 860 and 923, to supply plant latitudes and longitudes,
-      from which timezones are inferred.
-    version: 0.1.0
-    datasets:
-      - eia:
-          # This is the full list of EIA 923 tables.  Many of them are
-          # interdependent, and are used in the definition of the overall
-          # database, so it is recommended that you import either all of them
-          # or none of them. Additionally, there are many relationships between
-          # the EIA 923 and EIA 860 tables, and in general they should be
-          # imported together.
-          eia923_tables:
-            - generation_fuel_eia923
-            - boiler_fuel_eia923
-            - generation_eia923
-            - coalmine_eia923 # REQUIRES fuel_receipts_costs_eia923
-            - fuel_receipts_costs_eia923
-          eia923_years: [
-              2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010,
-              2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
-          ]
-          # See notes above about the entanglement between EIA 923 and EIA 860.
-          # It's best to load all the tables from both of them, or neither of
-          # them.
           eia860_tables:
             - boiler_generator_assn_eia860
             - utilities_eia860
@@ -239,9 +182,9 @@ datapkg_bundle_settings:
       - epacems:
           # Note that the CEMS data relies on EIA 860 data for plant locations,
           # so if you're loading CEMS data for a particular year, you should
-          # also load the EIA 860 data for that year (2011-2019 only)
+          # also load the EIA 860 data for that year if possible
           # Just Idaho, because it is tiny:
-          epacems_states: [ID]
+          epacems_states: [all]
           epacems_years: [
               1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004,
               2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014,
