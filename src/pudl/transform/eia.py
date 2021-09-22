@@ -234,10 +234,8 @@ def _compile_all_entity_records(entity, eia_transformed_dfs):
     to pull out every instance of the entity id.
     """
     # we know these columns must be in the dfs
-    entity_id = pc.ENTITIES[entity][0]
-    static_cols = pc.ENTITIES[entity][1]
-    annual_cols = pc.ENTITIES[entity][2]
-    base_cols = pc.ENTITIES[entity][0] + ['report_date']
+    entity_id, static_cols, annual_cols, dtypes = pc.ENTITIES[entity]
+    base_cols = entity_id + ['report_date']
 
     # empty list for dfs to be added to for each table below
     dfs = []
@@ -285,7 +283,7 @@ def _compile_all_entity_records(entity, eia_transformed_dfs):
 
     logger.debug('    Casting harvested IDs to correct data types')
     # most columns become objects (ack!), so assign types
-    compiled_df = compiled_df.astype(pc.ENTITIES[entity][3])
+    compiled_df = compiled_df.astype(dtypes)
     return compiled_df
 
 
@@ -371,9 +369,7 @@ def harvesting(entity,  # noqa: C901
 
     """
     # we know these columns must be in the dfs
-    entity_id = pc.ENTITIES[entity][0]
-    static_cols = pc.ENTITIES[entity][1]
-    annual_cols = pc.ENTITIES[entity][2]
+    entity_id, static_cols, annual_cols, _ = pc.ENTITIES[entity]
 
     logger.debug("    compiling plants for entity tables from:")
 
