@@ -9,6 +9,8 @@ Submodules
 
    pudl.metadata.classes
    pudl.metadata.constants
+   pudl.metadata.dfs
+   pudl.metadata.enums
    pudl.metadata.fields
    pudl.metadata.helpers
    pudl.metadata.labels
