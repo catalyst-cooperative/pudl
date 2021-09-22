@@ -26,6 +26,7 @@ import sqlalchemy as sa
 import pudl
 from pudl import constants as pc
 from pudl.constants import PUDL_TABLES
+from pudl.metadata.dfs import FERC_ACCOUNTS, FERC_DEPRECIATION_LINES
 from pudl.metadata.labels import (ENERGY_SOURCES_EIA,
                                   FUEL_TRANSPORTATION_MODES_EIA,
                                   FUEL_TYPES_AER_EIA, PRIME_MOVERS_EIA)
@@ -280,11 +281,11 @@ def _read_static_tables_ferc1() -> Dict[str, pd.DataFrame]:
     populate a bunch of small infrastructural tables within the PUDL DB.
     """
     return {
-        'ferc_accounts': pc.FERC_ELECTRIC_PLANT_ACCOUNTS[[
+        'ferc_accounts': FERC_ACCOUNTS[[
             "ferc_account_id",
             "ferc_account_description",
         ]],
-        'ferc_depreciation_lines': pc.FERC_ACCUMULATED_DEPRECIATION[[
+        'ferc_depreciation_lines': FERC_DEPRECIATION_LINES[[
             "line_id",
             "ferc_account_description",
         ]],
