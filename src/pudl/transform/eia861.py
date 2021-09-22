@@ -11,9 +11,9 @@ import pandas as pd
 
 import pudl
 from pudl.constants import PUDL_TABLES
-from pudl.metadata.fields import (CUSTOMER_CLASSES, FUEL_CLASSES, NERC_REGIONS,
-                                  RELIABILITY_STANDARDS, REVENUE_CLASSES,
-                                  RTO_CLASSES, TECH_CLASSES)
+from pudl.metadata.enums import (CUSTOMER_CLASSES, FUEL_CLASSES, NERC_REGIONS,
+                                 RELIABILITY_STANDARDS, REVENUE_CLASSES,
+                                 RTO_CLASSES, TECH_CLASSES)
 from pudl.metadata.labels import (ENTITY_TYPES, ESTIMATED_OR_ACTUAL,
                                   MOMENTARY_INTERRUPTIONS)
 

@@ -10,10 +10,10 @@ from typing import Any, Dict, List, Tuple, Union
 
 import pandas as pd
 
-from pudl.metadata.fields import (CUSTOMER_CLASSES, EPACEMS_MEASUREMENT_CODES,
-                                  FUEL_CLASSES, NERC_REGIONS,
-                                  RELIABILITY_STANDARDS, REVENUE_CLASSES,
-                                  TECH_CLASSES)
+from pudl.metadata.enums import (CUSTOMER_CLASSES, EPACEMS_MEASUREMENT_CODES,
+                                 FUEL_CLASSES, NERC_REGIONS,
+                                 RELIABILITY_STANDARDS, REVENUE_CLASSES,
+                                 TECH_CLASSES)
 from pudl.metadata.labels import (ENTITY_TYPES, ESTIMATED_OR_ACTUAL,
                                   FUEL_TRANSPORTATION_MODES_EIA,
                                   MOMENTARY_INTERRUPTIONS)
