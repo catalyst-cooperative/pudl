@@ -69,7 +69,6 @@ def utilities_eia860(pudl_engine, start_date=None, end_date=None):
             "utility_id_eia": "eia",
             "utility_id_pudl": "eia",
         }))
-        .drop(['id'], axis='columns')
     )
     first_cols = [
         'report_date',
@@ -142,7 +141,6 @@ def plants_eia860(pudl_engine, start_date=None, end_date=None):
 
     out_df = (
         pd.merge(out_df, utils_eia_df, how='left', on=['utility_id_eia'])
-        .drop(['id'], axis='columns')
         .dropna(subset=["report_date", "plant_id_eia"])
         .astype(pudl.helpers.get_pudl_dtypes({
             "plant_id_eia": "eia",
@@ -298,9 +296,6 @@ def generators_eia860(
                       on=['report_date', 'plant_id_eia'],
                       how="left")
 
-    # Drop a few extraneous fields...
-    out_df = out_df.drop(['id'], axis='columns')
-
     # Merge in the unit_id_pudl assigned to each generator in the BGA process
     # Pull the BGA table and make it unit-generator only:
     out_df = pd.merge(
@@ -402,7 +397,6 @@ def boiler_generator_assn_eia860(pudl_engine, start_date=None, end_date=None):
     out_df = (
         pd.read_sql(bga_eia860_select, pudl_engine)
         .assign(report_date=lambda x: pd.to_datetime(x.report_date))
-        .drop(['id'], axis='columns')
     )
     return out_df
 
@@ -441,7 +435,6 @@ def ownership_eia860(pudl_engine, start_date=None, end_date=None):
         )
     own_eia860_df = (
         pd.read_sql(own_eia860_select, pudl_engine)
-        .drop(['id'], axis='columns')
         .assign(report_date=lambda x: pd.to_datetime(x["report_date"]))
     )
 

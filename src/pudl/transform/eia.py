@@ -305,7 +305,7 @@ def _manage_strictness(col, eia860_ytd):
     strictness_cols = {
         'plant_name_eia': 0,
         'utility_name_eia': 0,
-        'longitude': 0 if eia860_ytd else .7,
+        'longitude': 0 if eia860_ytd else .7
     }
     return strictness_cols.get(col, strictness_default)
 
