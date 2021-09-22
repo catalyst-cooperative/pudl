@@ -6,7 +6,7 @@ used throughout PUDL to populate static lists within the data packages or for
 data cleaning purposes.
 """
 
-from typing import Any, Dict, List, Tuple, Union
+from typing import Any, Dict, List, Optional, Tuple, TypedDict
 
 import pandas as pd
 
@@ -357,7 +357,7 @@ From FERC Form 1 page 219, Accumulated Provision for Depreciation of electric
 utility plant (Account 108).
 """
 
-FUEL_TYPE_EIA923_GEN_FUEL_SIMPLE_MAP: Dict[str, Tuple[str]] = {
+FUEL_TYPE_EIA923_GEN_FUEL_SIMPLE_MAP: Dict[str, Tuple[str, ...]] = {
     'coal': ('ant', 'bit', 'cbl', 'lig', 'pc', 'rc', 'sc', 'sub', 'wc'),
     'oil': ('dfo', 'rfo', 'wo', 'jf', 'ker'),
     'gas': ('bfg', 'lfg', 'ng', 'og', 'obg', 'pg', 'sgc', 'sgp'),
@@ -370,7 +370,7 @@ FUEL_TYPE_EIA923_GEN_FUEL_SIMPLE_MAP: Dict[str, Tuple[str]] = {
 }
 """Simplified grouping of fuel codes found in the generation_fuel_eia923 table."""
 
-FUEL_TYPE_EIA923_BOILER_FUEL_SIMPLE_MAP: Dict[str, Tuple[str]] = {
+FUEL_TYPE_EIA923_BOILER_FUEL_SIMPLE_MAP: Dict[str, Tuple[str, ...]] = {
     'coal': ('ant', 'bit', 'lig', 'pc', 'rc', 'sc', 'sub', 'wc'),
     'oil': ('dfo', 'rfo', 'wo', 'jf', 'ker'),
     'gas': ('bfg', 'lfg', 'ng', 'og', 'obg', 'pg', 'sgc', 'sgp'),
@@ -379,7 +379,7 @@ FUEL_TYPE_EIA923_BOILER_FUEL_SIMPLE_MAP: Dict[str, Tuple[str]] = {
 }
 """Simplified grouping of fuel codes found in the boiler_fuel_eia923 table."""
 
-AER_FUEL_TYPE_STRINGS: Dict[str, Tuple[str]] = {
+AER_FUEL_TYPE_STRINGS: Dict[str, Tuple[str, ...]] = {
     'coal': ('col', 'woc', 'pc'),
     'gas': ('mlg', 'ng', 'oog'),
     'oil': ('dfo', 'rfo', 'woo'),
@@ -397,7 +397,7 @@ These classifications are not currently used, as the EIA fuel type and energy
 source designations provide more detailed information.
 """
 
-FUEL_TYPE_EIA860_SIMPLE_MAP: Dict[str, Tuple[str]] = {
+FUEL_TYPE_EIA860_SIMPLE_MAP: Dict[str, Tuple[str, ...]] = {
     'coal': ('ant', 'bit', 'cbl', 'lig', 'pc', 'rc', 'sc', 'sub', 'wc', 'coal', 'petroleum coke', 'col', 'woc'),
     'oil': ('dfo', 'jf', 'ker', 'rfo', 'wo', 'woo', 'petroleum'),
     'gas': ('bfg', 'lfg', 'mlg', 'ng', 'obg', 'og', 'pg', 'sgc', 'sgp', 'natural gas', 'other gas', 'oog', 'sg'),
@@ -413,8 +413,8 @@ FUEL_TYPE_EIA860_SIMPLE_MAP: Dict[str, Tuple[str]] = {
 # we need to include all of the columns which we want to keep for either the
 # entity or annual tables. The order here matters. We need to harvest the plant
 # location before harvesting the location of the utilites for example.
-ENTITIES: Dict[str, List] = {
-    'plants': [
+ENTITIES: Dict[str, Tuple[List[str], List[str], List[str], Dict[str, str]]] = {
+    'plants': (
         # base cols
         ['plant_id_eia'],
         # static cols
@@ -440,8 +440,8 @@ ENTITIES: Dict[str, List] = {
          'transmission_distribution_owner_state', 'utility_id_eia'],
         # need type fixing
         {},
-    ],
-    'generators': [
+    ),
+    'generators': (
         # base cols
         ['plant_id_eia', 'generator_id'],
         # static cols
@@ -484,10 +484,10 @@ ENTITIES: Dict[str, List] = {
          'utility_id_eia', 'data_source'],
         # need type fixing
         {}
-    ],
+    ),
     # utilities must come after plants. plant location needs to be
     # removed before the utility locations are compiled
-    'utilities': [
+    'utilities': (
         # base cols
         ['utility_id_eia'],
         # static cols
@@ -502,8 +502,9 @@ ENTITIES: Dict[str, List] = {
          'phone_extension', 'phone_extension_2', 'phone_number',
          'phone_number_2'],
         # need type fixing
-        {'utility_id_eia': 'int64', }, ],
-    'boilers': [
+        {'utility_id_eia': 'int64'},
+    ),
+    'boilers': (
         # base cols
         ['plant_id_eia', 'boiler_id'],
         # static cols
@@ -512,17 +513,17 @@ ENTITIES: Dict[str, List] = {
         [],
         # need type fixing
         {},
-    ]
+    )
 }
 """Metadata for use in the current entity harvesting & resolution process."""
 
-DATA_YEARS: Dict[str, Tuple] = {
+DATA_YEARS: Dict[str, Optional[Tuple[int, ...]]] = {
     'eia860': tuple(range(2001, 2020)),
     'eia861': tuple(range(1990, 2020)),
     'eia923': tuple(range(2001, 2020)),
     'epacems': tuple(range(1995, 2021)),
     'ferc1': tuple(range(1994, 2020)),
-    'ferc714': (None, ),
+    'ferc714': None,
 }
 """
 What years of raw input data are available for download from each dataset.
@@ -531,7 +532,16 @@ Note: ferc714 is not partitioned by year and is available only as a single file
 containing all data.
 """
 
-WORKING_PARTITIONS: Dict[str, Union[str, Tuple]] = {
+
+class Partition(TypedDict, total=False):
+    """Data partition."""
+
+    years: Tuple[int, ...]
+    year_month: str
+    states: Tuple[str, ...]
+
+
+WORKING_PARTITIONS: Dict[str, Partition] = {
     'eia860': {
         'years': tuple(range(2001, 2020))
     },
@@ -565,7 +575,7 @@ Note: ferc714 is not partitioned by year and is available only as a single file
 containing all data.
 """
 
-PUDL_TABLES: Dict[str, Tuple[str]] = {
+PUDL_TABLES: Dict[str, Tuple[str, ...]] = {
     'eia860': (
         'boiler_generator_assn_eia860',
         'utilities_eia860',

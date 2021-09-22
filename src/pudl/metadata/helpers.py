@@ -53,7 +53,7 @@ def _parse_foreign_key_rules(meta: dict, name: str) -> List[dict]:
 
 def _build_foreign_key_tree(
     resources: Dict[str, dict]
-) -> Dict[str, Dict[Tuple[str], dict]]:
+) -> Dict[str, Dict[Tuple[str, ...], dict]]:
     """
     Build foreign key tree.
 
@@ -62,7 +62,7 @@ def _build_foreign_key_tree(
 
     Returns:
         Foreign key tree where the first key is a resource name (str),
-        the second key is resource field names (Tuple[str]),
+        the second key is resource field names (Tuple[str, ...]),
         and the value describes the reference resource (dict):
 
         * `reference['resource']` (str): Reference name.
@@ -86,10 +86,10 @@ def _build_foreign_key_tree(
 
 
 def _traverse_foreign_key_tree(
-    tree: Dict[str, Dict[Tuple[str], dict]],
+    tree: Dict[str, Dict[Tuple[str, ...], dict]],
     name: str,
-    fields: Tuple[str]
-) -> List[Tuple[tuple, str, tuple]]:
+    fields: Tuple[str, ...]
+) -> List[Dict[str, Any]]:
     """
     Traverse foreign key tree.
 
