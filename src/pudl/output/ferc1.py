@@ -301,8 +301,7 @@ def all_plants_ferc1(pudl_engine):
             'fuel_cost': 'total_fuel_cost',
             'fuel_mmbtu': 'total_mmbtu',
             'opex_fuel_per_mwh': 'fuel_cost_per_mwh',
-            'primary_fuel_by_mmbtu': 'fuel_type_code_pudl',
-            'record_id': 'record_id_ferc1'})
+            'primary_fuel_by_mmbtu': 'fuel_type_code_pudl'})
         .assign(
             fuel_cost_per_mmbtu=lambda x: (
                 x.total_fuel_cost / x.total_mmbtu),
