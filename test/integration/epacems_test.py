@@ -10,14 +10,14 @@ from pudl.output.epacems import epacems
 
 
 @pytest.fixture(scope='module')
-def cems_year_and_state(etl_params):
+def epacems_year_and_state(etl_params):
     """Find the year and state defined in pudl/package_data/settings/etl_fast.yml."""
     # the etl_params data structure alternates dicts and lists so indexing is a pain.
     eia_epa = [item['datasets']
                for item in etl_params['datapkg_bundle_settings'] if 'epacems' in item['name']]
-    cems = [item for item in eia_epa[0] if 'epacems' in item.keys()]
-    cems = cems[0]['epacems']
-    return {'years': cems['epacems_years'], 'states': cems['epacems_states']}
+    epacems = [item for item in eia_epa[0] if 'epacems' in item.keys()]
+    epacems = epacems[0]['epacems']
+    return {'years': epacems['epacems_years'], 'states': epacems['epacems_states']}
 
 
 @pytest.fixture(scope='session')
@@ -55,11 +55,12 @@ def epacems_parquet_path(
     return out_dir
 
 
-def test_epacems_subset(cems_year_and_state, epacems_parquet_path):
+def test_epacems_subset(epacems_year_and_state, epacems_parquet_path):
     """Minimal integration test of epacems(). Check if it returns a DataFrame."""
     path = epacems_parquet_path
     # initially I checked len() exactly, but that had to be hardcoded for a specific year/state.
     # This is less strict, but because etl_fast only tests a single year/state, I think just as effective.
-    actual = epacems(columns=["gross_load_mw"], cems_path=path, **cems_year_and_state)
+    actual = epacems(columns=["gross_load_mw"],
+                     epacems_path=path, **epacems_year_and_state)
     assert isinstance(actual, dd.DataFrame)
     assert len(actual.compute()) > 0

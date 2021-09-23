@@ -115,7 +115,7 @@ def epacems(
     states: Optional[Sequence[str]] = None,
     years: Optional[Sequence[int]] = None,
     columns: Optional[Sequence[str]] = None,
-    cems_path: Optional[Path] = None,
+    epacems_path: Optional[Path] = None,
 ) -> dd.DataFrame:
     """Load EPA CEMS data from PUDL with optional subsetting.
 
@@ -123,7 +123,7 @@ def epacems(
         states (Optional[Sequence[str]], optional): subset by state abbreviation. Defaults to None (gets all states).
         years (Optional[Sequence[int]], optional): subset by year. Defaults to None (gets all years).
         columns (Optional[Sequence[str]], optional): subset by column. Defaults to None (gets all columns).
-        cems_path (Optional[Path], optional): path to parquet dir. By default it automatically loads the path from pudl.workspace
+        epacems_path (Optional[Path], optional): path to parquet dir. By default it automatically loads the path from pudl.workspace
 
     Returns:
         dd.DataFrame: epacems data
@@ -139,12 +139,12 @@ def epacems(
     # columns=None is handled by dd.read_parquet; gives all columns
     if columns is not None:
         columns = list(columns)
-    if cems_path is None:
+    if epacems_path is None:
         pudl_settings = pudl.workspace.setup.get_defaults()
-        cems_path = Path(pudl_settings["parquet_dir"]) / "epacems"
+        epacems_path = Path(pudl_settings["parquet_dir"]) / "epacems"
 
-    cems = dd.read_parquet(
-        cems_path,
+    epacems = dd.read_parquet(
+        epacems_path,
         use_nullable_dtypes=True,
         columns=columns,
         filters=year_state_filter(
@@ -153,4 +153,4 @@ def epacems(
         ),
     )
 
-    return cems
+    return epacems
