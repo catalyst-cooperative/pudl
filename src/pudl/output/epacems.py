@@ -128,17 +128,30 @@ def epacems(
     Returns:
         dd.DataFrame: epacems data
     """
+    all_states = pudl.constants.working_partitions['epacems']['states']
     if states is None:
-        states = list(pudl.constants.us_states.keys())  # all states
+        states = all_states  # all states
     else:
+        nonexistent = [state for state in states if state not in all_states]
+        if nonexistent:
+            raise ValueError(
+                f"These input states are not in our dataset: {nonexistent}")
         states = list(states)
+
+    all_years = pudl.constants.working_partitions['epacems']['years']
     if years is None:
-        years = pudl.constants.data_years["epacems"]  # all years
+        years = all_years
     else:
+        nonexistent = [year for year in years if year not in all_years]
+        if nonexistent:
+            raise ValueError(f"These input years are not in our dataset: {nonexistent}")
         years = list(years)
+
     # columns=None is handled by dd.read_parquet; gives all columns
     if columns is not None:
+        # nonexistent columns are handled by dd.read_parquet; raises ValueError
         columns = list(columns)
+
     if epacems_path is None:
         pudl_settings = pudl.workspace.setup.get_defaults()
         epacems_path = Path(pudl_settings["parquet_dir"]) / "epacems"

@@ -40,3 +40,35 @@ def test_epacems_subset(epacems_year_and_state, epacems_parquet_path):
                      states=states)
     assert isinstance(actual, dd.DataFrame)
     assert actual.shape[0].compute() > 0  # n rows
+
+
+def test_epacems_subset_input_validation(epacems_year_and_state, epacems_parquet_path):
+    """Check if invalid inputs raise exceptions."""
+    path = epacems_parquet_path
+    valid_year = epacems_year_and_state['years'][-1]
+    valid_state = epacems_year_and_state['states'][-1]
+    valid_column = "gross_load_mw"
+
+    invalid_state = 'confederacy'
+    invalid_year = 1775
+    invalid_column = 'clean_coal'
+    combos = [
+        dict(
+            years=[valid_year],
+            states=[valid_state],
+            columns=[invalid_column],
+        ),
+        dict(
+            years=[valid_year],
+            states=[invalid_state],
+            columns=[valid_column],
+        ),
+        dict(
+            years=[invalid_year],
+            states=[valid_state],
+            columns=[valid_column],
+        ),
+    ]
+    for combo in combos:
+        with pytest.raises(ValueError):
+            epacems(epacems_path=path, **combo)
