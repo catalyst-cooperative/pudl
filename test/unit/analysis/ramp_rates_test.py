@@ -74,8 +74,65 @@ def dummy_cems():
 
 @pytest.fixture()
 def dummy_crosswalk():
-    """EPA Crosswalk."""
-    raise NotImplementedError
+    """Minimal EPA Crosswalk.
+
+       CAMD_PLANT_ID CAMD_UNIT_ID  EIA_GENERATOR_ID MATCH_TYPE_GEN
+    0             10            a                 0           asdf
+    1             12            a                 0           asdf
+    2             12            a                 1           asdf
+    3             11            a                 0           asdf
+    4             11            b                 0           asdf
+    5             10            b                 1           asdf
+    6             10            c                 1           asdf
+    7             10            c                 2           asdf
+    """
+    columns = ["CAMD_PLANT_ID", "CAMD_UNIT_ID", "EIA_GENERATOR_ID", "MATCH_TYPE_GEN"]
+    one_to_one = pd.DataFrame(dict(zip(columns, [[10, ], ['a', ], [0, ], ['asdf']])))
+    many_to_one = pd.DataFrame(
+        dict(zip(columns, [[11, 11], ['a', 'b'], [0, 0], ['asdf', 'asdf']])))
+    one_to_many = pd.DataFrame(
+        dict(zip(columns, [[12, 12], ['a', 'a'], [0, 1], ['asdf', 'asdf']])))
+    many_to_many = pd.DataFrame(
+        dict(zip(columns, [[10, 10, 10], ['b', 'c', 'c'], [1, 1, 2], ['asdf', 'asdf', 'asdf']])))
+    crosswalk = pd.concat([one_to_one, one_to_many, many_to_one,
+                          many_to_many], axis=0, ignore_index=True)
+    return crosswalk
+
+
+@pytest.fixture()
+def dummy_cems_extended():
+    """
+    EPA CEMS with more units. Needed to cover all the cases in graph analysis.
+
+    Timestamps are reduced to 2 for this test.
+
+    Only unique IDs are in the table below. The actual dataframe has 2 timestamps per row shown here.
+    unit_id_epa     operating_datetime_utc  plant_id_eia  unitid  gross_load_mw
+              0  2019-12-31 22:00:00+00:00            10       a              0
+              1  2019-12-31 22:00:00+00:00            10       b              0
+              2  2019-12-31 22:00:00+00:00            10       c              0
+              3  2019-12-31 22:00:00+00:00            11       a              0
+              4  2019-12-31 22:00:00+00:00            11       b              0
+              5  2019-12-31 22:00:00+00:00            12       a              0
+    """
+    inputs = dict(
+        unit_id_epa=range(6),
+        operating_datetime_utc=pd.date_range(
+            start="2019-12-31 22:00",
+            end="2019-12-31 23:00",
+            freq="h",
+            tz='UTC'
+        ),
+    )
+    cems = df_from_product(inputs, as_index=False)
+    # add composite keys
+    # (duplicate each entry for other timestamp)
+    cems['plant_id_eia'] = [10, 10, 10, 10, 10, 10, 11, 11, 11, 11, 12, 12]
+    cems['unitid'] = ['a', 'a', 'b', 'b', 'c', 'c', 'a', 'a', 'b', 'b', 'a', 'a']
+    cems['gross_load_mw'] = 0  # not needed for crosswalk testing
+
+    cems = cems.set_index(["unit_id_epa", "operating_datetime_utc"], drop=False)
+    return cems
 
 
 def test__sorted_groupby_diff(dummy_cems):
@@ -102,13 +159,13 @@ def test__get_unique_keys(dummy_cems):
 
 
 class TestRampRatePipeline:
-    """Test the full ramp rates analysis pipeline.
+    """Test the full ramp rates analysis pipeline [not fully implemented].
 
     Due to the size of the CEMS dataset, these functions operate in place to minimize copying.
     The downside of this approach is that it produces a long dependency chain of side effects.
 
     To break this chain for testing, I define the expected outputs in separate methods
-    so that the next test can recreate the values as inputs.
+    so that the next test can re-generate those values as inputs.
     """
 
     def expected_add_startup_shutdown_timestamps(self, cems: pd.DataFrame) -> pd.DataFrame:
@@ -203,3 +260,41 @@ class TestRampRatePipeline:
 
         rr._distance_from_downtime(actual)
         assert_frame_equal(actual, expected)
+
+
+def test_make_subplant_ids(dummy_crosswalk, dummy_cems_extended):
+    """Integration test for the subplant_id assignment process.
+
+       subplant_id  ...  CAMD_PLANT_ID CAMD_UNIT_ID  EIA_GENERATOR_ID  ...
+    0            0  ...             10            a                 0  ... # one to one
+    1            1  ...             10            b                 1  ... # many to many
+    2            1  ...             10            c                 1  ...
+    3            1  ...             10            c                 2  ...
+    4            2  ...             11            a                 0  ... # one to many
+    5            2  ...             11            b                 0  ...
+    6            3  ...             12            a                 0  ... # many to one
+    7            3  ...             12            a                 1  ...
+    """
+    cols = ["plant_id_eia", "unitid", "unit_id_epa"]
+    uniques = dummy_cems_extended.loc[pd.IndexSlice[:,
+                                                    "2019-12-31 22:00:00+00:00"], cols].copy()
+
+    # simulate join by duplicating rows as appropriate
+    one_to_many = uniques.query('plant_id_eia == 12 and unitid == "a"')
+    many_to_many = uniques.query('plant_id_eia == 10 and unitid == "c"')
+    expected = pd.concat([uniques, one_to_many, many_to_many]
+                         ).sort_index().reset_index(drop=True)
+
+    expected = expected.assign(
+        CAMD_PLANT_ID=expected['plant_id_eia'],
+        CAMD_UNIT_ID=expected['unitid'],
+        EIA_GENERATOR_ID=[0, 1, 1, 2, 0, 0, 0, 1],
+        MATCH_TYPE_GEN='asdf',
+        subplant_id=[0, 1, 1, 1, 2, 2, 3, 3]
+    )
+    # fix column order
+    expected = expected[["subplant_id"] + cols + ["CAMD_PLANT_ID",
+                                                  "CAMD_UNIT_ID", "EIA_GENERATOR_ID", "MATCH_TYPE_GEN"]]
+
+    actual = rr.make_subplant_ids(dummy_crosswalk, dummy_cems_extended)
+    assert_frame_equal(actual, expected)

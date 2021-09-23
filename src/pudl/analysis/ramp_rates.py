@@ -199,9 +199,8 @@ def _get_unique_keys(cems: Union[pd.DataFrame, dd.DataFrame]) -> pd.DataFrame:
     return ids
 
 
-def _merge_crosswalk_with_cems_ids(crosswalk: pd.DataFrame, cems: Union[pd.DataFrame, dd.DataFrame]) -> pd.DataFrame:
-    ids = _get_unique_keys(cems)
-    key_map = ids.merge(
+def _merge_crosswalk_with_cems_ids(crosswalk: pd.DataFrame, unique_cems_ids: pd.DataFrame) -> pd.DataFrame:
+    key_map = unique_cems_ids.merge(
         crosswalk,
         left_on=["plant_id_eia", "unitid"],
         right_on=["CAMD_PLANT_ID", "CAMD_UNIT_ID"],
@@ -210,25 +209,31 @@ def _merge_crosswalk_with_cems_ids(crosswalk: pd.DataFrame, cems: Union[pd.DataF
     return key_map
 
 
-def _remove_irrelevant(df: pd.DataFrame):
+def _remove_unmatched(crosswalk: pd.DataFrame) -> pd.DataFrame:
     """Remove unmatched or excluded (non-exporting) units."""
-    bad = df["MATCH_TYPE_GEN"].isin({"CAMD Unmatched", "Manual CAMD Excluded"})
-    return df.loc[~bad]
+    bad = crosswalk["MATCH_TYPE_GEN"].isin({"CAMD Unmatched", "Manual CAMD Excluded"})
+    return crosswalk.loc[~bad].copy()
 
 
-def _prep_crosswalk_for_networkx(key_map: pd.DataFrame) -> pd.DataFrame:
-    filtered = key_map.copy()
-    filtered = _remove_irrelevant(filtered)
+def _remove_boiler_rows(crosswalk: pd.DataFrame) -> pd.DataFrame:
+    """Remove rows that represent graph edges between generators and boilers."""
+    crosswalk = crosswalk.drop_duplicates(
+        subset=["CAMD_PLANT_ID", "CAMD_UNIT_ID", "EIA_GENERATOR_ID"])
+    return crosswalk
+
+
+def _prep_for_networkx(merged: pd.DataFrame) -> pd.DataFrame:
+    prepped = merged.copy()
     # networkx can't handle composite keys, so make surrogates
-    filtered["combustor_id"] = filtered.groupby(
+    prepped["combustor_id"] = prepped.groupby(
         by=["CAMD_PLANT_ID", "CAMD_UNIT_ID"]).ngroup()
     # node IDs can't overlap so add (max + 1)
-    filtered["generator_id"] = (
-        filtered.groupby(by=["CAMD_PLANT_ID", "EIA_GENERATOR_ID"]).ngroup()
-        + filtered["combustor_id"].max()
+    prepped["generator_id"] = (
+        prepped.groupby(by=["CAMD_PLANT_ID", "EIA_GENERATOR_ID"]).ngroup()
+        + prepped["combustor_id"].max()
         + 1
     )
-    return filtered
+    return prepped
 
 
 def _subplant_ids_from_prepped_crosswalk(prepped: pd.DataFrame) -> pd.DataFrame:
@@ -247,11 +252,15 @@ def _subplant_ids_from_prepped_crosswalk(prepped: pd.DataFrame) -> pd.DataFrame:
     return nx.to_pandas_edgelist(graph)
 
 
-def _make_subplant_ids(crosswalk: pd.DataFrame, cems: Union[pd.DataFrame, dd.DataFrame]) -> pd.DataFrame:
+def make_subplant_ids(crosswalk: pd.DataFrame, cems: Union[pd.DataFrame, dd.DataFrame]) -> pd.DataFrame:
     """Analyze crosswalk graph and identify sub-plants."""
-    key_map = _merge_crosswalk_with_cems_ids(crosswalk=crosswalk, cems=cems)
+    ids = _get_unique_keys(cems)
+    filtered_crosswalk = _remove_unmatched(crosswalk)
+    filtered_crosswalk = _remove_boiler_rows(filtered_crosswalk)
+    key_map = _merge_crosswalk_with_cems_ids(
+        crosswalk=filtered_crosswalk, unique_cems_ids=ids)
     column_order = list(key_map.columns)
-    edge_list = _prep_crosswalk_for_networkx(key_map)
+    edge_list = _prep_for_networkx(key_map)
     edge_list = _subplant_ids_from_prepped_crosswalk(edge_list)
     column_order = ["subplant_id"] + column_order
     return edge_list[column_order]
@@ -436,7 +445,7 @@ def _process_cems(cems: pd.DataFrame, key_map: pd.DataFrame, subplant_meta: pd.D
 
     Args:
         cems ([pd.DataFrame]): EPA CEMS data from ramprate.load_dataset.load_epacems
-        key_map ([pd.DataFrame]): output from _make_subplant_ids
+        key_map ([pd.DataFrame]): output from make_subplant_ids
         subplant_id_offset (int, optional): used when processing data in chunks to ensure unique IDs. Defaults to 0.
 
     Returns:
@@ -508,7 +517,7 @@ def analyze_ramp_rates(states: Optional[Sequence[str]] = None, years: Optional[S
     crosswalk = epa_crosswalk()
     cems = epacems(states=states, years=years)
 
-    key_map = _make_subplant_ids(crosswalk, cems)
+    key_map = make_subplant_ids(crosswalk, cems)
     subplant_meta = _aggregate_subplants(key_map)
 
     delayed_results = _run_parallel(cems, key_map, subplant_meta)
