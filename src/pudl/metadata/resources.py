@@ -111,7 +111,8 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
                     ["energy_source_code"],
                     ["fuel_type"],
                     ["fuel_type_code"],
-                ]
+                ],
+                "exclude": ["plants_small_ferc1", "fuel_types_aer_eia"]
             },
         },
         "sources": ["eia923"],
@@ -299,7 +300,19 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
                 "data_source",
             ],
             "primary_key": ["plant_id_eia", "generator_id", "report_date"],
-            "foreign_key_rules": {"fields": [["plant_id_eia", "generator_id", "report_date"]]},
+            "foreign_key_rules": {
+                "fields": [["plant_id_eia", "generator_id", "report_date"]],
+                # TODO: Excluding monthly data tables since their report_date
+                # values don't match up with generators_eia860, which is annual,
+                # so non-january records violate the constraint.
+                # See: https://github.com/catalyst-cooperative/pudl/issues/1196
+                "exclude": [
+                    "boiler_fuel_eia923",
+                    "fuel_receipts_costs_eia923",
+                    "generation_eia923",
+                    "generation_fuel_eia923",
+                ]
+            },
         },
         "sources": ["eia860"],
     },
@@ -534,7 +547,19 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
                 "water_source",
             ],
             "primary_key": ["plant_id_eia", "report_date"],
-            "foreign_key_rules": {"fields": [["plant_id_eia", "report_date"]]},
+            "foreign_key_rules": {
+                "fields": [["plant_id_eia", "report_date"]],
+                # TODO: Excluding monthly data tables since their report_date
+                # values don't match up with plants_eia860, which is annual, so
+                # non-january records fail.
+                # See: https://github.com/catalyst-cooperative/pudl/issues/1196
+                "exclude": [
+                    "boiler_fuel_eia923",
+                    "fuel_receipts_costs_eia923",
+                    "generation_eia923",
+                    "generation_fuel_eia923",
+                ]
+            },
         },
         "sources": ["eia860"],
     },
@@ -565,7 +590,15 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
                 "timezone",
             ],
             "primary_key": ["plant_id_eia"],
-            "foreign_key_rules": {"fields": [["plant_id_eia"]]},
+            "foreign_key_rules": {
+                "fields": [["plant_id_eia"]],
+                # Excluding plants_eia because it's static and manually compiled
+                # so it has plants from *all* years of data, even when only a
+                # restricted set of data is processed, leading to constraint
+                # violations.
+                # See: https://github.com/catalyst-cooperative/pudl/issues/1196
+                "exclude": ["plants_eia"],
+            },
         },
     },
     "plants_ferc1": {
@@ -837,7 +870,10 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
             "primary_key": ["utility_id_eia", "report_date"],
             "foreign_key_rules": {"fields": [
                 ["utility_id_eia", "report_date"],
-                ["owner_utility_id_eia", "report_date"],
+                # Failing because this column is not harvested in the old
+                # system. TODO: re-enable when we switch to new system. See:
+                # https://github.com/catalyst-cooperative/pudl/issues/1196
+                # ["owner_utility_id_eia", "report_date"],
             ]},
         },
         "sources": ["eia860"],
@@ -846,10 +882,21 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
         "schema": {
             "fields": ["utility_id_eia", "utility_name_eia"],
             "primary_key": ["utility_id_eia"],
-            "foreign_key_rules": {"fields": [
-                ["utility_id_eia"],
-                ["owner_utility_id_eia"],
-            ]},
+            "foreign_key_rules": {
+                "fields": [
+                    ["utility_id_eia"],
+                    # Results in constraint failures because this column is not
+                    # harvested in the old system. See:
+                    # https://github.com/catalyst-cooperative/pudl/issues/1196
+                    # ["owner_utility_id_eia"]
+                ],
+                # Excluding utilities_eia b/c it's static and manually compiled
+                # so it has utilities from *all* years of data, even when only a
+                # restricted set of data is processed, leading to constraint
+                # violations.
+                # See: https://github.com/catalyst-cooperative/pudl/issues/1196
+                "exclude": ["utilities_eia"],
+            },
         },
     },
     "utilities_ferc1": {
