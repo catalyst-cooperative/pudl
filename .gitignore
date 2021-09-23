@@ -1,4 +1,5 @@
 **/*scratch*.ipynb
+**/*.log
 **/*.pyc
 **/*.pq
 **/*.parquet
