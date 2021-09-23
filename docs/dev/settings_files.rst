@@ -43,38 +43,29 @@ Setttings for ferc1_to_sqlite
 Settings for pudl_etl
 -------------------------------------------------------------------------------
 
-The ``pudl_etl`` script requires a YAML settings file. In the repository this
-example file is lives in ``src/pudl/package_data/settings``. This example file
-(``etl_example.yml``) is deployed onto a user's system in the
-``settings`` directory within the PUDL workspace when the ``pudl_setup`` script
-is run. Once this file is in the settings directory, users can copy it and
-modify it as appropriate for their own use.
-
-This settings file allows users to determine the scope of the integrated by
-PUDL. Most datasets can be used to generate stand-alone data packages. If you
-only want to use FERC Form 1, you can remove the other data package
-specifications or alter their parameters such that none of their data is
-processed (e.g. by setting the list of years to be an empty list). The settings
-are verified early on in the ETL process, so if you got something wrong, you
-should get an assertion error quickly.
+The ``pudl_etl`` script requires a YAML settings file. In the repository we
+provide two example files, which live in ``src/pudl/package_data/settings``.
+Both the ``etl_fast.yml`` and ``etl_full.yml`` examples are deployed onto a
+user's system in the ``settings`` directory within the PUDL workspace when the
+``pudl_setup`` script is run. Once this file is in the settings directory, users
+can copy it and modify it as appropriate for their own use. See
+:doc:`run_the_etl` for more details
 
 While PUDL largely keeps datasets disentangled for ETL purposes (enabling
 stand-alone ETL), the EPA CEMS and EIA datasets are exceptions. EPA CEMS cannot
-be loaded without EIA because it relies on IDs that come from EIA 860.
-Similarly, EIA Forms 860 and 923 are very tightly related. You can load only
-EIA 860, but the settings verification will automatically add in a few 923
-tables that are needed to generate the complete list of plants and generators.
+be loaded without having the EIA data available because it relies on IDs that
+come from EIA 860.  Similarly, EIA Forms 860 and 923 are very tightly related.
+You can load only EIA 860, but the settings verification will automatically add
+in a few 923 tables that are needed to generate the complete list of plants and
+generators.
 
 .. warning::
 
     If you are processing the EIA 860/923 data, we **strongly recommend**
-    including the same years in both datasets. We only test two combinations
-    of inputs:
-
-    * That **all** available years of EIA 860/923 can be processed together, and
-    * That the most recent year of both datasets can be processed together.
-
-    Other combinations of years may yield unexpected results.
+    including the same years in both datasets. We only test two combinations of
+    inputs, as specified by the ``etl_fast.yml`` and ``etl_full.yml`` settings
+    distributed with the package.  Other combinations of years may yield
+    unexpected results.
 
 Structure of the pudl_etl Settings File
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -116,4 +107,4 @@ Dataset ETL parameters (like years, states, tables) will only register if they
 are a part of the correct dataset. If you put some FERC Form 1 ETL parameter in
 an EIA dataset specification, FERC Form 1 will not be loaded as a part of that
 dataset. For an exhaustive listing of the available parameters, see the
-``etl_example.yml`` file.
+``etl_full.yml`` file.
