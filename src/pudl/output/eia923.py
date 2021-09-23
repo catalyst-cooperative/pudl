@@ -81,7 +81,7 @@ def generation_fuel_eia923(pudl_engine, freq=None,
     """
     pt = pudl.output.pudltabl.get_table_meta(pudl_engine)
     gf_tbl = pt['generation_fuel_eia923']
-    gf_select = sa.sql.select([gf_tbl, ])
+    gf_select = sa.sql.select(gf_tbl)
     if start_date is not None:
         gf_select = gf_select.where(
             gf_tbl.c.report_date >= start_date)
@@ -224,11 +224,11 @@ def fuel_receipts_costs_eia923(pudl_engine, freq=None,
     pt = pudl.output.pudltabl.get_table_meta(pudl_engine)
     # Most of the fields we want come direclty from Fuel Receipts & Costs
     frc_tbl = pt['fuel_receipts_costs_eia923']
-    frc_select = sa.sql.select([frc_tbl, ])
+    frc_select = sa.sql.select(frc_tbl)
 
     # Need to re-integrate the MSHA coalmine info:
     cmi_tbl = pt['coalmine_eia923']
-    cmi_select = sa.sql.select([cmi_tbl, ])
+    cmi_select = sa.sql.select(cmi_tbl)
     cmi_df = pd.read_sql(cmi_select, pudl_engine)
 
     if start_date is not None:
@@ -438,7 +438,7 @@ def boiler_fuel_eia923(pudl_engine, freq=None,
     """
     pt = pudl.output.pudltabl.get_table_meta(pudl_engine)
     bf_eia923_tbl = pt['boiler_fuel_eia923']
-    bf_eia923_select = sa.sql.select([bf_eia923_tbl, ])
+    bf_eia923_select = sa.sql.select(bf_eia923_tbl)
     if start_date is not None:
         bf_eia923_select = bf_eia923_select.where(
             bf_eia923_tbl.c.report_date >= start_date
@@ -575,7 +575,7 @@ def generation_eia923(
     """
     pt = pudl.output.pudltabl.get_table_meta(pudl_engine)
     g_eia923_tbl = pt['generation_eia923']
-    g_eia923_select = sa.sql.select([g_eia923_tbl, ])
+    g_eia923_select = sa.sql.select(g_eia923_tbl)
     if start_date is not None:
         g_eia923_select = g_eia923_select.where(
             g_eia923_tbl.c.report_date >= start_date
@@ -596,6 +596,31 @@ def generation_eia923(
         g_df = g_gb.agg(
             {'net_generation_mwh': pudl.helpers.sum_na}).reset_index()
 
+    out_df = denorm_generation_eia923(g_df, pudl_engine, start_date, end_date)
+
+    if freq is None:
+        out_df = out_df.drop(['id'], axis=1)
+
+    return out_df
+
+
+def denorm_generation_eia923(g_df, pudl_engine, start_date, end_date):
+    """
+    Denomralize generation_eia923 table.
+
+    Args:
+        g_df (pandas.DataFrame): generation_eia923 table. Should have columns:
+            ["plant_id_eia", "generator_id", "report_date",
+            "net_generation_mwh"]
+        pudl_engine (sqlalchemy.engine.Engine): SQLAlchemy connection engine
+            for the PUDL DB.
+        start_date (date-like): date-like object, including a string of the
+            form 'YYYY-MM-DD' which will be used to specify the date range of
+            records to be pulled.  Dates are inclusive.
+        end_date (date-like): date-like object, including a string of the
+            form 'YYYY-MM-DD' which will be used to specify the date range of
+            records to be pulled.  Dates are inclusive.
+    """
     # Grab EIA 860 plant and utility specific information:
     pu_eia = pudl.output.eia860.plants_utils_eia860(
         pudl_engine,
@@ -649,10 +674,6 @@ def generation_eia923(
             "utility_id_pudl": "eia",
         }))
     )
-
-    if freq is None:
-        out_df = out_df.drop(['id'], axis=1)
-
     return out_df
 
 

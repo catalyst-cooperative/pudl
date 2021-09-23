@@ -147,6 +147,14 @@ def allocate_gen_fuel_by_gen(pudl_out):
     # aggregate the gen/pm/fuel records back to generator records
     gen_allocated = agg_by_generator(gen_pm_fuel)
     _test_gen_fuel_allocation(gen, gen_allocated)
+
+    # make the output mirror the gen_original_eia923()
+    gen_allocated = pudl.output.eia923.denorm_generation_eia923(
+        g_df=gen_allocated,
+        pudl_engine=pudl_out.pudl_engine,
+        start_date=pudl_out.start_date,
+        end_date=pudl_out.end_date
+    )
     return gen_allocated
 
 

@@ -3,11 +3,11 @@
 # data environment.
 
 # Name of the directory to create the data release archive in
-RELEASE_DIR=pudl-v0.4.0-2021-07-15
+RELEASE_DIR=pudl-v0.4.0-2021-08-17
 # The PUDL working directory where we'll find the data to archive:
 PUDL_IN=$HOME/code/catalyst/pudl-work
 # Reference to an existing Docker image to pull
-DOCKER_TAG="2021.03.27"
+DOCKER_TAG="2021.08.17"
 
 echo "Started:" `date`
 # Start with a clean slate:
@@ -21,6 +21,8 @@ rm -rf $RELEASE_DIR/.git*
 mkdir -p $RELEASE_DIR/pudl_data
 mkdir -p $RELEASE_DIR/user_data
 
+# Make sure we have the specified version of the Docker container:
+docker pull catalystcoop/pudl-jupyter:$DOCKER_TAG
 # Freeze the version of the Docker container:
 cat $RELEASE_DIR/docker-compose.yml | sed -e "s/pudl-jupyter:latest/pudl-jupyter:$DOCKER_TAG/" > $RELEASE_DIR/new-docker-compose.yml
 mv $RELEASE_DIR/new-docker-compose.yml $RELEASE_DIR/docker-compose.yml

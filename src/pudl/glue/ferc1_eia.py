@@ -125,9 +125,7 @@ def get_db_plants_ferc1(pudl_settings, years):
 
     # Grab the FERC 1 DB metadata so we can query against the DB w/ SQLAlchemy:
     ferc1_engine = sa.create_engine(pudl_settings["ferc1_db"])
-    ferc1_meta = sa.MetaData(bind=ferc1_engine)
-    ferc1_meta.reflect()
-    ferc1_tables = ferc1_meta.tables
+    ferc1_tables = pudl.output.pudltabl.get_table_meta(ferc1_engine)
 
     # This table contains the utility names and IDs:
     respondent_table = ferc1_tables['f1_respondent_id']
@@ -148,12 +146,12 @@ def get_db_plants_ferc1(pudl_settings, years):
     # purposes)
     all_plants = pd.DataFrame()
     for tbl in plant_tables:
-        plant_select = sa.sql.select([
+        plant_select = sa.sql.select(
             ferc1_tables[tbl].c.respondent_id,
             ferc1_tables[tbl].c.plant_name,
             ferc1_tables[tbl].columns[capacity_cols[tbl]],
             respondent_table.c.respondent_name
-        ]).distinct().where(
+        ).distinct().where(
             sa.and_(
                 ferc1_tables[tbl].c.respondent_id == respondent_table.c.respondent_id,
                 ferc1_tables[tbl].c.plant_name != '',
@@ -452,6 +450,25 @@ def get_db_utils_eia(pudl_engine):
     return db_utils_eia
 
 
+def get_utility_most_recent_capacity(pudl_engine):
+    """Get a list of all utilities' most recent total net capacity of their generators."""
+    query = """
+    select utility_id_eia, capacity_mw, report_date from generators_eia860
+    """
+    with pudl_engine.connect() as conn:
+        generator_capacities = pd.read_sql(query, conn, parse_dates=["report_date"])
+        generator_capacities['utility_id_eia'] = generator_capacities['utility_id_eia'].astype(
+            "Int64")
+
+    most_recent_generators_idx = generator_capacities.groupby(
+        "utility_id_eia")["report_date"].transform(max) == generator_capacities["report_date"]
+    most_recent_generators = generator_capacities[most_recent_generators_idx]
+    utility_capacities = most_recent_generators.groupby("utility_id_eia").sum()
+    utility_capacities = utility_capacities.rename(
+        columns={"capacity_mw": "most_recent_total_capacity_mw"})
+    return utility_capacities
+
+
 def get_mapped_utils_eia():
     """Get a list of all the EIA Utilities that have PUDL IDs."""
     mapped_utils_eia = (
@@ -473,6 +490,13 @@ def get_unmapped_utils_eia(pudl_engine):
     mapped_utils_eia = get_mapped_utils_eia()
     unmapped_utils_idx = db_utils_eia.index.difference(mapped_utils_eia.index)
     unmapped_utils_eia = db_utils_eia.loc[unmapped_utils_idx]
+
+    # Get the most recent total capacity for the unmapped utils.
+    utils_recent_capacity = get_utility_most_recent_capacity(pudl_engine)
+    unmapped_utils_eia = unmapped_utils_eia.merge(
+        utils_recent_capacity, on="utility_id_eia", how="left", validate="1:1")
+    unmapped_utils_eia = unmapped_utils_eia.sort_values(
+        by="most_recent_total_capacity_mw", ascending=False)
     return unmapped_utils_eia
 
 
@@ -528,6 +552,13 @@ def get_unmapped_utils_with_plants_eia(pudl_engine):
         .set_index("utility_id_eia")
         .loc[:, ["utility_name_eia"]]
     )
+
+    # Get the most recent total capacity for the unmapped utils.
+    utils_recent_capacity = get_utility_most_recent_capacity(pudl_engine)
+    miss_utils = miss_utils.merge(
+        utils_recent_capacity, on="utility_id_eia", how="left", validate="1:1")
+    miss_utils = miss_utils.sort_values(
+        by="most_recent_total_capacity_mw", ascending=False)
     return miss_utils
 
 
