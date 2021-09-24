@@ -21,7 +21,6 @@ import numpy as np
 import pandas as pd
 import requests
 import sqlalchemy as sa
-import timezonefinder
 
 from pudl import constants as pc
 
@@ -38,9 +37,6 @@ as NA, but electricity generation is reported normally, then the fuel
 consumption for the year needs to be NA, otherwise we'll get unrealistic heat
 rates.
 """
-
-TZ_FINDER = timezonefinder.TimezoneFinder()
-"""A global TimezoneFinder to cache geographies in memory for faster access."""
 
 
 def download_zip_url(url, save_path, chunk_size=128):
@@ -752,49 +748,6 @@ def simplify_columns(df):
         str.replace(' ', '_')
     )
     return df
-
-
-def find_timezone(*, lng=None, lat=None, state=None, strict=True):
-    """Find the timezone associated with the a specified input location.
-
-    Note that this function requires named arguments. The names are lng, lat,
-    and state.  lng and lat must be provided, but they may be NA. state isn't
-    required, and isn't used unless lng/lat are NA or timezonefinder can't find
-    a corresponding timezone.
-
-    Timezones based on states are imprecise, so it's far better to use lng/lat
-    if possible. If `strict` is True, state will not be used.
-    More on state-to-timezone conversion here:
-    https://en.wikipedia.org/wiki/List_of_time_offsets_by_U.S._state_and_territory
-
-    Args:
-        lng (int or float in [-180,180]): Longitude, in decimal degrees
-        lat (int or float in [-90, 90]): Latitude, in decimal degrees
-        state (str): Abbreviation for US state or Canadian province
-        strict (bool): Raise an error if no timezone is found?
-
-    Returns:
-        str: The timezone (as an IANA string) for that location.
-
-    Todo:
-        Update docstring.
-
-    """
-    try:
-        tz = TZ_FINDER.timezone_at(lng=lng, lat=lat)
-        if tz is None:  # Try harder
-            # Could change the search radius as well
-            tz = TZ_FINDER.closest_timezone_at(lng=lng, lat=lat)
-    # For some reason w/ Python 3.6 we get a ValueError here, but with
-    # Python 3.7 we get an OverflowError...
-    except (OverflowError, ValueError):
-        # If we're being strict, only use lng/lat, not state
-        if strict:
-            raise ValueError(
-                f"Can't find timezone for: lng={lng}, lat={lat}, state={state}"
-            )
-        tz = pc.APPROXIMATE_TIMEZONES.get(state, None)
-    return tz
 
 
 def drop_tables(engine, clobber=False):

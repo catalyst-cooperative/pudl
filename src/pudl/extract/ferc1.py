@@ -615,7 +615,12 @@ class FERC1FieldParser(dbfread.FieldParser):
         return super(FERC1FieldParser, self).parseN(field, data)
 
 
-def get_raw_df(ds, table, dbc_map, years=pc.DATA_YEARS['ferc1']):
+def get_raw_df(
+    ds,
+    table,
+    dbc_map,
+    years=pc.WORKING_PARTITIONS['ferc1']['years']
+):
     """Combine several years of a given FERC Form 1 DBF table into a dataframe.
 
     Args:
@@ -833,12 +838,6 @@ def extract(
         pudl_settings = pudl.workspace.setup.get_defaults()
 
     for year in ferc1_years:
-        if year not in pc.DATA_YEARS["ferc1"]:
-            raise ValueError(
-                f"FERC Form 1 data from the year {year} was requested but is "
-                f"not available. The years for which data is available are: "
-                f"{' '.join(str(year) for item in pc.DATA_YEARS['ferc1'])}."
-            )
         if year not in pc.WORKING_PARTITIONS["ferc1"]["years"]:
             raise ValueError(
                 f"FERC Form 1 data from the year {year} was requested but it "

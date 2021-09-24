@@ -310,9 +310,13 @@ def generation_fuel(eia923_dfs, eia923_transformed_dfs):
     gf_df = gf_df[gf_df.plant_id_eia != 99999]
 
     # conservative manual correction for bad prime mover codes
-    gf_df['prime_mover_code'] = gf_df['prime_mover_code'].replace({
-        'CC': ''  # one plant in 2004. Pre-2004, it was '', post-2004, it was broken into combined cycle parts
-    })
+    gf_df['prime_mover_code'] = (
+        # one plant in 2004. Pre-2004, it was '',
+        # post-2004, it was broken into combined cycle parts
+        gf_df['prime_mover_code'].replace({'CC': ''})
+        # Empty strings and whitespace that should be NA.
+        .replace(to_replace=r'^\s*$', value=pd.NA, regex=True)
+    )
 
     # conservative manual corrections for misplaced or mistyped fuel types
     gf_df['fuel_type'] = gf_df['fuel_type'].replace({

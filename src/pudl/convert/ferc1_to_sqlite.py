@@ -104,20 +104,20 @@ def main():  # noqa: C901
         set(script_settings["ferc1_to_sqlite_tables"]))
 
     if script_settings['ferc1_to_sqlite_refyear'] \
-            not in pc.DATA_YEARS['ferc1']:
+            not in pc.WORKING_PARTITIONS['ferc1']['years']:
         raise ValueError(
             f"Reference year {script_settings['ferc1_to_sqlite_refyear']} "
             f"is outside the range of available FERC Form 1 data "
-            f"({min(pc.DATA_YEARS['ferc1'])}-"
-            f"{max(pc.DATA_YEARS['ferc1'])})."
+            f"({min(pc.WORKING_PARTITIONS['ferc1']['years'])}-"
+            f"{max(pc.WORKING_PARTITIONS['ferc1']['years'])})."
         )
     for year in script_settings['ferc1_to_sqlite_years']:
-        if year not in pc.DATA_YEARS['ferc1']:
+        if year not in pc.WORKING_PARTITIONS['ferc1']['years']:
             raise ValueError(
                 f"Requested data from {year} is outside the range of "
                 f"available FERC Form 1 data "
-                f"({min(pc.DATA_YEARS['ferc1'])}-"
-                f"{max(pc.DATA_YEARS['ferc1'])})."
+                f"({min(pc.WORKING_PARTITIONS['ferc1']['years'])}-"
+                f"{max(pc.WORKING_PARTITIONS['ferc1']['years'])})."
             )
     script_settings["ferc1_to_sqlite_years"] = sorted(
         set(script_settings["ferc1_to_sqlite_years"])

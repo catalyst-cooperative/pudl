@@ -1,5 +1,95 @@
 """Enumerations of valid field values."""
-from typing import List
+from typing import Dict, List
+
+US_STATES: Dict[str, str] = {
+    'AK': 'Alaska',
+    'AL': 'Alabama',
+    'AR': 'Arkansas',
+    'AZ': 'Arizona',
+    'CA': 'California',
+    'CO': 'Colorado',
+    'CT': 'Connecticut',
+    'DE': 'Delaware',
+    'FL': 'Florida',
+    'GA': 'Georgia',
+    'HI': 'Hawaii',
+    'IA': 'Iowa',
+    'ID': 'Idaho',
+    'IL': 'Illinois',
+    'IN': 'Indiana',
+    'KS': 'Kansas',
+    'KY': 'Kentucky',
+    'LA': 'Louisiana',
+    'MA': 'Massachusetts',
+    'MD': 'Maryland',
+    'ME': 'Maine',
+    'MI': 'Michigan',
+    'MN': 'Minnesota',
+    'MO': 'Missouri',
+    'MS': 'Mississippi',
+    'MT': 'Montana',
+    'NC': 'North Carolina',
+    'ND': 'North Dakota',
+    'NE': 'Nebraska',
+    'NH': 'New Hampshire',
+    'NJ': 'New Jersey',
+    'NM': 'New Mexico',
+    'NV': 'Nevada',
+    'NY': 'New York',
+    'OH': 'Ohio',
+    'OK': 'Oklahoma',
+    'OR': 'Oregon',
+    'PA': 'Pennsylvania',
+    'RI': 'Rhode Island',
+    'SC': 'South Carolina',
+    'SD': 'South Dakota',
+    'TN': 'Tennessee',
+    'TX': 'Texas',
+    'UT': 'Utah',
+    'VA': 'Virginia',
+    'VT': 'Vermont',
+    'WA': 'Washington',
+    'WI': 'Wisconsin',
+    'WV': 'West Virginia',
+    'WY': 'Wyoming',
+}
+"""Mapping of US state abbreviations to their full names."""
+
+US_TERRITORIES: Dict[str, str] = {
+    'AS': 'American Samoa',
+    'DC': 'District of Columbia',
+    'GU': 'Guam',
+    'MP': 'Northern Mariana Islands',
+    'PR': 'Puerto Rico',
+    'VI': 'Virgin Islands',
+}
+"""Mapping of US territory abbreviations to their full names."""
+
+US_STATES_TERRITORIES: Dict[str, str] = {**US_STATES, **US_TERRITORIES}
+
+EPACEMS_STATES: List[str] = [
+    state for state in US_STATES_TERRITORIES
+    if state not in {'AS', 'GU', 'HI', 'MP', 'VI'}
+]
+"""The US states and territories that are present in the EPA CEMS dataset."""
+
+CANADA_PROVINCES_TERRITORIES: Dict[str, str] = {
+    'AB': 'Alberta',
+    'BC': 'British Columbia',
+    'CN': 'Canada',
+    'MB': 'Manitoba',
+    'NB': 'New Brunswick',
+    'NS': 'Nova Scotia',
+    'NL': 'Newfoundland and Labrador',
+    'NT': 'Northwest Territories',
+    'NU': 'Nunavut',
+    'ON': 'Ontario',
+    'PE': 'Prince Edwards Island',
+    'QC': 'Quebec',
+    'SK': 'Saskatchewan',
+    'YT': 'Yukon Territory',
+}
+"""Mapping of Canadian province and territory abbreviations to their full names"""
 
 NERC_REGIONS: List[str] = [
     'BASN',  # ASSESSMENT AREA Basin (WECC)

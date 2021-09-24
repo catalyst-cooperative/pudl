@@ -6,185 +6,18 @@ used throughout PUDL to populate static lists within the data packages or for
 data cleaning purposes.
 """
 
-from typing import Any, Dict, List, Optional, Tuple, TypedDict
+from typing import Any, Dict, List, Tuple, TypedDict
 
 import pandas as pd
 
 from pudl.metadata import Resource
 from pudl.metadata.enums import (CUSTOMER_CLASSES, EPACEMS_MEASUREMENT_CODES,
-                                 FUEL_CLASSES, NERC_REGIONS,
+                                 EPACEMS_STATES, FUEL_CLASSES, NERC_REGIONS,
                                  RELIABILITY_STANDARDS, REVENUE_CLASSES,
                                  TECH_CLASSES)
 from pudl.metadata.labels import (ENTITY_TYPES, ESTIMATED_OR_ACTUAL,
                                   FUEL_TRANSPORTATION_MODES_EIA,
                                   MOMENTARY_INTERRUPTIONS)
-
-US_STATES_TERRITORIES: Dict[str, str] = {
-    'AK': 'Alaska',
-    'AL': 'Alabama',
-    'AR': 'Arkansas',
-    'AS': 'American Samoa',
-    'AZ': 'Arizona',
-    'CA': 'California',
-    'CO': 'Colorado',
-    'CT': 'Connecticut',
-    'DC': 'District of Columbia',
-    'DE': 'Delaware',
-    'FL': 'Florida',
-    'GA': 'Georgia',
-    'GU': 'Guam',
-    'HI': 'Hawaii',
-    'IA': 'Iowa',
-    'ID': 'Idaho',
-    'IL': 'Illinois',
-    'IN': 'Indiana',
-    'KS': 'Kansas',
-    'KY': 'Kentucky',
-    'LA': 'Louisiana',
-    'MA': 'Massachusetts',
-    'MD': 'Maryland',
-    'ME': 'Maine',
-    'MI': 'Michigan',
-    'MN': 'Minnesota',
-    'MO': 'Missouri',
-    'MP': 'Northern Mariana Islands',
-    'MS': 'Mississippi',
-    'MT': 'Montana',
-    'NA': 'National',
-    'NC': 'North Carolina',
-    'ND': 'North Dakota',
-    'NE': 'Nebraska',
-    'NH': 'New Hampshire',
-    'NJ': 'New Jersey',
-    'NM': 'New Mexico',
-    'NV': 'Nevada',
-    'NY': 'New York',
-    'OH': 'Ohio',
-    'OK': 'Oklahoma',
-    'OR': 'Oregon',
-    'PA': 'Pennsylvania',
-    'PR': 'Puerto Rico',
-    'RI': 'Rhode Island',
-    'SC': 'South Carolina',
-    'SD': 'South Dakota',
-    'TN': 'Tennessee',
-    'TX': 'Texas',
-    'UT': 'Utah',
-    'VA': 'Virginia',
-    'VI': 'Virgin Islands',
-    'VT': 'Vermont',
-    'WA': 'Washington',
-    'WI': 'Wisconsin',
-    'WV': 'West Virginia',
-    'WY': 'Wyoming'
-}
-"""Mapping of US state and territory abbreviations to their full names."""
-
-CANADA_PROVINCES_TERRITORIES: Dict[str, str] = {
-    'AB': 'Alberta',
-    'BC': 'British Columbia',
-    'CN': 'Canada',
-    'MB': 'Manitoba',
-    'NB': 'New Brunswick',
-    'NS': 'Nova Scotia',
-    'NL': 'Newfoundland and Labrador',
-    'NT': 'Northwest Territories',
-    'NU': 'Nunavut',
-    'ON': 'Ontario',
-    'PE': 'Prince Edwards Island',
-    'QC': 'Quebec',
-    'SK': 'Saskatchewan',
-    'YT': 'Yukon Territory',
-}
-"""Mapping of Canadian province and territory abbreviations to their full names"""
-
-EPACEMS_STATES: Dict[str, str] = {
-    k: v for k, v in US_STATES_TERRITORIES.items()
-    if k not in {'AK', 'AS', 'GU', 'HI', 'MP', 'PR', 'VI', 'NA'}
-}
-"""The US states and territories that are present in the EPA CEMS dataset."""
-
-APPROXIMATE_TIMEZONES: Dict[str, str] = {
-    "AK": "US/Alaska",            # Alaska; Not in CEMS
-    "AL": "US/Central",           # Alabama
-    "AR": "US/Central",           # Arkansas
-    "AS": "Pacific/Pago_Pago",    # American Samoa; Not in CEMS
-    "AZ": "US/Arizona",           # Arizona
-    "CA": "US/Pacific",           # California
-    "CO": "US/Mountain",          # Colorado
-    "CT": "US/Eastern",           # Connecticut
-    "DC": "US/Eastern",           # District of Columbia
-    "DE": "US/Eastern",           # Delaware
-    "FL": "US/Eastern",           # Florida (split state)
-    "GA": "US/Eastern",           # Georgia
-    "GU": "Pacific/Guam",         # Guam; Not in CEMS
-    "HI": "US/Hawaii",            # Hawaii; Not in CEMS
-    "IA": "US/Central",           # Iowa
-    "ID": "US/Mountain",          # Idaho (split state)
-    "IL": "US/Central",           # Illinois
-    "IN": "US/Eastern",           # Indiana (split state)
-    "KS": "US/Central",           # Kansas (split state)
-    "KY": "US/Eastern",           # Kentucky (split state)
-    "LA": "US/Central",           # Louisiana
-    "MA": "US/Eastern",           # Massachusetts
-    "MD": "US/Eastern",           # Maryland
-    "ME": "US/Eastern",           # Maine
-    "MI": "America/Detroit",      # Michigan (split state)
-    "MN": "US/Central",           # Minnesota
-    "MO": "US/Central",           # Missouri
-    "MP": "Pacific/Saipan",       # Northern Mariana Islands; Not in CEMS
-    "MS": "US/Central",           # Mississippi
-    "MT": "US/Mountain",          # Montana
-    "NC": "US/Eastern",           # North Carolina
-    "ND": "US/Central",           # North Dakota (split state)
-    "NE": "US/Central",           # Nebraska (split state)
-    "NH": "US/Eastern",           # New Hampshire
-    "NJ": "US/Eastern",           # New Jersey
-    "NM": "US/Mountain",          # New Mexico
-    "NV": "US/Pacific",           # Nevada
-    "NY": "US/Eastern",           # New York
-    "OH": "US/Eastern",           # Ohio
-    "OK": "US/Central",           # Oklahoma
-    "OR": "US/Pacific",           # Oregon (split state)
-    "PA": "US/Eastern",           # Pennsylvania
-    "PR": "America/Puerto_Rico",  # Puerto Rico; Not in CEMS
-    "RI": "US/Eastern",           # Rhode Island
-    "SC": "US/Eastern",           # South Carolina
-    "SD": "US/Central",           # South Dakota (split state)
-    "TN": "US/Central",           # Tennessee
-    "TX": "US/Central",           # Texas
-    "UT": "US/Mountain",          # Utah
-    "VA": "US/Eastern",           # Virginia
-    "VI": "America/Puerto_Rico",  # Virgin Islands; Not in CEMS
-    "VT": "US/Eastern",           # Vermont
-    "WA": "US/Pacific",           # Washington
-    "WI": "US/Central",           # Wisconsin
-    "WV": "US/Eastern",           # West Virginia
-    "WY": "US/Mountain",          # Wyoming
-    # Canada (none of these are in CEMS)
-    "AB": "America/Edmonton",     # Alberta
-    "BC": "America/Vancouver",    # British Columbia (split province)
-    "MB": "America/Winnipeg",     # Manitoba
-    "NB": "America/Moncton",      # New Brunswick
-    "NS": "America/Halifax",      # Nova Scotia
-    "NL": "America/St_Johns",     # Newfoundland and Labrador  (split province)
-    "NT": "America/Yellowknife",  # Northwest Territories (split province)
-    "NU": "America/Iqaluit",      # Nunavut (split province)
-    "ON": "America/Toronto",      # Ontario (split province)
-    "PE": "America/Halifax",      # Prince Edwards Island
-    "QC": "America/Montreal",     # Quebec (split province)
-    "SK": "America/Regina",       # Saskatchewan  (split province)
-    "YT": "America/Whitehorse",   # Yukon Territory
-}
-"""
-Approximate mapping of US & Canadian jurisdictions to canonical timezones
-
-This is imperfect for states that have split timezones. See:
-https://en.wikipedia.org/wiki/List_of_time_offsets_by_U.S._state_and_territory
-For states that are split, the timezone that has more people in it.
-List of timezones in pytz.common_timezones
-Canada: https://en.wikipedia.org/wiki/Time_in_Canada#IANA_time_zone_database
-"""
 
 FUEL_TYPE_EIA923_GEN_FUEL_SIMPLE_MAP: Dict[str, Tuple[str, ...]] = {
     'coal': ('ant', 'bit', 'cbl', 'lig', 'pc', 'rc', 'sc', 'sub', 'wc'),
@@ -270,21 +103,6 @@ for entity in ('plants', 'generators', 'utilities', 'boilers'):
     dtypes = {'utility_id_eia': 'int64'} if entity == 'utilities' else {}
     ENTITIES[entity] = ids, static, annual, dtypes
 
-DATA_YEARS: Dict[str, Optional[Tuple[int, ...]]] = {
-    'eia860': tuple(range(2001, 2020)),
-    'eia861': tuple(range(1990, 2020)),
-    'eia923': tuple(range(2001, 2020)),
-    'epacems': tuple(range(1995, 2021)),
-    'ferc1': tuple(range(1994, 2020)),
-    'ferc714': None,
-}
-"""
-What years of raw input data are available for download from each dataset.
-
-Note: ferc714 is not partitioned by year and is available only as a single file
-containing all data.
-"""
-
 
 class Partition(TypedDict, total=False):
     """Data partition."""
@@ -309,7 +127,8 @@ WORKING_PARTITIONS: Dict[str, Partition] = {
     },
     'epacems': {
         'years': tuple(range(1995, 2021)),
-        'states': tuple(EPACEMS_STATES.keys())},
+        'states': tuple(EPACEMS_STATES),
+    },
     'ferc1': {
         'years': tuple(range(1994, 2020))
     },
@@ -442,7 +261,7 @@ COLUMN_DTYPES: Dict[str, Dict[str, Any]] = {
         "utc_datetime": "datetime64[ns]",
     },
     "epacems": {
-        'state': pd.CategoricalDtype(categories=EPACEMS_STATES.keys()),
+        'state': pd.CategoricalDtype(categories=EPACEMS_STATES),
         'plant_id_eia': "int32",
         'unitid': pd.StringDtype(),
         'operating_datetime_utc': "datetime64[ns]",
