@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 """Setup script to make PUDL directly installable with pip."""
 
-import os
 from pathlib import Path
 
 from setuptools import find_packages, setup
@@ -10,36 +9,29 @@ install_requires = [
     "addfips~=0.3.1",
     "catalystcoop.dbfread~=3.0",
     "coloredlogs~=15.0",
-    "contextily~=1.0",    # Only service_territory plotting. Remove?
     "datapackage~=1.11",  # Transition datastore to use frictionless.
+    # "email-validator>=1.0.3",  # pydantic[email] dependency
     "fsspec~=2021.7",
     "gcsfs~=2021.7",
     "geopandas~=0.9.0",
-    "goodtables-pandas-py~=0.2.0",
     "jinja2~=3.0",
     "matplotlib~=3.0",
     "networkx~=2.2",
     "numpy~=1.20",
-    "pandas~=1.3",
+    "pandas~=1.3,!=1.3.3",  # IntCastingNaNError on v1.3.3 in unit tests
     "prefect[viz, gcp]~=0.15.0",
     "pyarrow~=5.0",
-    "pygeos~=0.9.0",
+    "pydantic[email]~=1.7",
+    "pygeos~=0.10.0",
+    "python-snappy~=0.6.0",
     "pyyaml~=5.0",
     "scikit-learn~=0.24.1",
     "scipy~=1.6",
     "seaborn~=0.11.1",
     "sqlalchemy~=1.4",
-    "tableschema~=1.12",     # Not needed post datapackage output removal?
-    "tableschema-sql~=1.3",  # Not needed post datapackage output removal?
     "timezonefinder~=5.0",
+    "xlsxwriter~=3.0",
 ]
-
-# We are installing the PUDL module to build the docs, but the C libraries
-# required to build snappy aren"t available on RTD, so we need to exclude it
-# from the installed dependencies here, and mock it for import in docs/conf.py
-# using the autodoc_mock_imports parameter:
-if not os.getenv("READTHEDOCS"):
-    install_requires.append("python-snappy~=0.6.0")
 
 dev_requires = [
     "autopep8~=1.5",
@@ -106,7 +98,7 @@ setup(
         "finance", "eia 923", "eia 860", "ferc", "form 1", "epa ampd",
         "epa cems", "coal", "natural gas", "eia 861", "ferc 714"],
     python_requires=">=3.8,<3.10",
-    setup_requires=["setuptools_scm"],
+    # setup_requires=["setuptools_scm"],
     install_requires=install_requires,
     extras_require={
         "dev": dev_requires,
@@ -134,14 +126,16 @@ setup(
     entry_points={
         "console_scripts": [
             "censusdp1tract_to_sqlite = pudl.convert.censusdp1tract_to_sqlite:main",
-            "datapkg_to_rst = pudl.convert.datapkg_to_rst:main",
-            "datapkg_to_sqlite = pudl.convert.datapkg_to_sqlite:main",
+            "metadata_to_rst = pudl.convert.metadata_to_rst:main",
             "epacems_to_parquet = pudl.convert.epacems_to_parquet:main",
             "ferc1_to_sqlite = pudl.convert.ferc1_to_sqlite:main",
             "pudl_datastore = pudl.workspace.datastore:main",
             "pudl_etl = pudl.cli:main",
             "pudl_setup = pudl.workspace.setup_cli:main",
-            "pudl_territories = pudl.analysis.service_territory:main",
+            # Currently blows up memory usage to 100+ GB.
+            # See https://github.com/catalyst-cooperative/pudl/issues/1174
+            # "pudl_territories = pudl.analysis.service_territory:main",
+            "state_demand = pudl.analysis.state_demand:main",
         ]
     },
 )

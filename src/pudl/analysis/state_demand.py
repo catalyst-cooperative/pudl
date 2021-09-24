@@ -1,4 +1,30 @@
-"""Predict state-level electricity demand."""
+"""
+Predict state-level electricity demand.
+
+Using hourly electricity demand reported at the balancing authority and utility
+level in the FERC 714, and service territories for utilities and balancing
+autorities inferred from the counties served by each utility, and the utilities
+that make up each balancing authority in the EIA 861, estimate the total hourly
+electricity demand for each US state.
+
+This analysis uses the total electricity sales by state reported in the EIA 861
+as a scaling factor to ensure that the magnitude of electricity sales is
+roughly correct, and obtains the shape of the demand curve from the hourly
+planning area demand reported in the FERC 714.
+
+The compilation of historical service territories based on the EIA 861 data is
+somewhat manual and could certainly be improved, but overall the results seem
+reasonable. Additional predictive spatial variables will be required to obtain
+more granular electricity demand estimates (e.g. at the county level).
+
+Currently the script takes no arguments and simply runs a predefined analysis
+across all states and all years for which both EIA 861 and FERC 714 data are
+available, and outputs the results as a CSV in
+PUDL_DIR/local/state-demand/demand.csv
+
+"""
+
+import argparse
 import datetime
 import logging
 import pathlib
@@ -745,7 +771,14 @@ def compare_state_demand(
     })
 
 
+# --- Parse Command Line Args --- #
+def parse_command_line(argv):
+    """Skeletal command line argument parser to provide a help message."""
+    parser = argparse.ArgumentParser(description=__doc__)
+    return parser.parse_args(argv[1:])
+
 # --- Example usage --- #
+
 
 def main():
     """Predict state demand."""
@@ -758,6 +791,9 @@ def main():
     ))
     logger.addHandler(handler)
     logger.setLevel(logging.INFO)
+
+    # --- Parse command line args --- #
+    _ = parse_command_line(sys.argv)
 
     # --- Connect to PUDL database --- #
 

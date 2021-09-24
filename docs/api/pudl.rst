@@ -12,6 +12,7 @@ Subpackages
    pudl.extract
    pudl.glue
    pudl.load
+   pudl.metadata
    pudl.output
    pudl.transform
    pudl.workspace

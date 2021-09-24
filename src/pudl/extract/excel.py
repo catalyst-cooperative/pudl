@@ -1,7 +1,9 @@
 """Load excel metadata CSV files form a python data package."""
 import importlib.resources
 import logging
+import pathlib
 
+import dbfread
 import pandas as pd
 
 import pudl
@@ -223,24 +225,36 @@ class GenericExtractor(object):
                     skipfooter=self._metadata.get_skipfooter(
                         page, **partition),
                     dtype=self.get_dtypes(page, **partition))
+
                 newdata = pudl.helpers.simplify_columns(newdata)
                 newdata = self.process_raw(newdata, page, **partition)
                 newdata = self.process_renamed(newdata, page, **partition)
                 df = df.append(newdata, sort=True, ignore_index=True)
 
-            # After all years are loaded, consolidate missing columns
+            # After all years are loaded, add empty columns that could appear
+            # in other years so that df matches the database schema
             missing_cols = set(self._metadata.get_all_columns(
                 page)).difference(df.columns)
-            empty_cols = pd.DataFrame(columns=missing_cols)
-            df = pd.concat([df, empty_cols], sort=True)
-            if (len(self.METADATA._column_map[page].index)
-                    + len(self.cols_added)) != len(df.columns):
-                # raise AssertionError(
-                logger.warning(
-                    f'Columns for {page} are off: should be '
-                    f'{len(self.METADATA._column_map[page].index)} but got '
-                    f'{len(df.columns)}'
-                )
+            df = pd.concat([df, pd.DataFrame(columns=missing_cols)], sort=True)
+
+            mapped_cols = set(self.METADATA._column_map[page].index)
+            expected_cols = mapped_cols.union(self.cols_added)
+
+            if set(df.columns) != expected_cols:
+                # TODO (bendnorman): Enforce canonical fields for all raw fields?
+                extra_raw_cols = set(df.columns).difference(expected_cols)
+                missing_raw_cols = set(expected_cols).difference(df.columns)
+                if extra_raw_cols:
+                    logger.warning(
+                        f"Extra columns found in page {page}: "
+                        f"{extra_raw_cols}"
+                    )
+                if missing_raw_cols:
+                    logger.warning(
+                        f"Columns found missing from page {page}: "
+                        f"{missing_raw_cols}"
+                    )
+
             raw_dfs[page] = self.process_final_page(df, page)
         return raw_dfs
 
@@ -258,6 +272,7 @@ class GenericExtractor(object):
             pd.ExcelFile instance with the parsed excel spreadsheet frame
         """
         xlsx_filename = self.excel_filename(page, **partition)
+
         if xlsx_filename not in self._file_cache:
             excel_file = None
             try:
@@ -273,7 +288,18 @@ class GenericExtractor(object):
                 excel_file = pd.ExcelFile(res)
             except KeyError:
                 zf = self.ds.get_zipfile_resource(self._dataset_name, **partition)
-                excel_file = pd.ExcelFile(zf.read(xlsx_filename))
+
+                # If loading the excel file from the zip fails then try to open a dbf file.
+                extension = pathlib.Path(xlsx_filename).suffix.lower()
+                if extension == ".dbf":
+                    dbf_filepath = zf.open(xlsx_filename)
+                    df = pd.DataFrame(iter(dbfread.DBF(
+                        xlsx_filename,
+                        filedata=dbf_filepath
+                    )))
+                    excel_file = pudl.helpers.convert_df_to_excel_file(df, index=False)
+                else:
+                    excel_file = pd.ExcelFile(zf.read(xlsx_filename))
             finally:
                 self._file_cache[xlsx_filename] = excel_file
         # TODO(rousik): this _file_cache could be replaced with @cache or @memoize annotations
