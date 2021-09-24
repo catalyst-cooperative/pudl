@@ -46,6 +46,7 @@ dev_requires = [
 doc_requires = [
     "doc8~=0.8.0",
     "sphinx~=4.0",
+    "sphinx-autodoc-typehints~=1.0",
     "sphinx-issues~=1.2",
     "sphinx-reredirects",
     "sphinx_rtd_theme~=0.5.0",

@@ -37,6 +37,7 @@ extensions = [
     'sphinx.ext.napoleon',
     'sphinx.ext.todo',
     'sphinx.ext.viewcode',
+    'sphinx_autodoc_typehints',
     'sphinx_issues',
     'sphinx_reredirects',
 ]
