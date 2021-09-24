@@ -2,8 +2,8 @@
 import copy
 import datetime
 import os
-from pathlib import Path
 import re
+from pathlib import Path
 from typing import (Any, Callable, Dict, Iterable, List, Literal, Optional,
                     Tuple, Type, Union)
 
@@ -16,8 +16,8 @@ from .constants import (CONSTRAINT_DTYPES, CONTRIBUTORS,
                         CONTRIBUTORS_BY_SOURCE, FIELD_DTYPES, FIELD_DTYPES_SQL,
                         KEYWORDS_BY_SOURCE, LICENSES, PERIODS, SOURCES)
 from .fields import FIELD_METADATA
-from .helpers import (expand_periodic_column_names, groupby_aggregate,
-                      most_and_more_frequent, split_period)
+from .helpers import (expand_periodic_column_names, format_errors,
+                      groupby_aggregate, most_and_more_frequent, split_period)
 from .resources import FOREIGN_KEYS, RESOURCE_METADATA
 
 # ---- Helpers ---- #
@@ -42,34 +42,6 @@ def _unique(*args: Iterable) -> list:
             if child not in values:
                 values.append(child)
     return values
-
-
-def _format_pydantic_errors(*errors: str, header: bool = False) -> str:
-    """
-    Format multiple validation errors into a single error for pydantic.
-
-    Args:
-        errors: Error messages.
-        header: Whether first error message should be treated as a header.
-
-    Examples:
-        >>> e = _format_pydantic_errors('Header:', 'bad', 'worse', header=True)
-        >>> print(e)
-        Header:
-          * bad
-          * worse
-        >>> e = _format_pydantic_errors('Header:', 'bad', 'worse')
-        >>> print(e)
-        * Header:
-          * bad
-          * worse
-    """
-    if not errors:
-        return ""
-    return (
-        f"{'' if header else '* '}{errors[0]}\n" +
-        "\n".join([f"  * {e}" for e in errors[1:]])
-    )
 
 
 def _format_for_sql(x: Any, identifier: bool = False) -> str:  # noqa: C901
@@ -449,7 +421,7 @@ class Field(Base):
                 if not isinstance(x, CONSTRAINT_DTYPES[dtype]):
                     errors.append(f"enum value {x} not {dtype}")
         if errors:
-            raise ValueError(_format_pydantic_errors(*errors))
+            raise ValueError(format_errors(*errors, pydantic=True))
         return value
 
     @staticmethod
@@ -1316,7 +1288,7 @@ class Package(Base):
                     errors.append(f"{tag}: Reference primary key missing {missing}")
         if errors:
             raise ValueError(
-                _format_pydantic_errors("Foreign keys", *errors, header=True)
+                format_errors(*errors, title="Foreign keys", pydantic=True)
             )
         return value
 
