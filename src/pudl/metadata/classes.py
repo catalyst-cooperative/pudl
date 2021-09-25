@@ -173,9 +173,7 @@ class Base(pydantic.BaseModel):
 
 # NOTE: Using regex=r"^\S(.*\S)*$" to fail on whitespace is too slow
 String = pydantic.constr(min_length=1, strict=True, regex=r"^\S+(\s+\S+)*$")
-"""
-Non-empty :class:`str` with no trailing or leading whitespace.
-"""
+"""Non-empty :class:`str` with no trailing or leading whitespace."""
 
 SnakeCase = pydantic.constr(
     min_length=1, strict=True, regex=r"^[a-z][a-z0-9]*(_[a-z0-9]+)*$"
@@ -183,38 +181,35 @@ SnakeCase = pydantic.constr(
 """Snake-case variable name :class:`str` (e.g. 'pudl', 'entity_eia860')."""
 
 Bool = pydantic.StrictBool
-"""
-Any :class:`bool` (`True` or `False`).
-"""
+"""Any :class:`bool` (`True` or `False`)."""
 
 Float = pydantic.StrictFloat
-"""
-Any :class:`float`.
-"""
+"""Any :class:`float`."""
 
 Int = pydantic.StrictInt
-"""
-Any :class:`int`.
-"""
+"""Any :class:`int`."""
 
 PositiveInt = pydantic.conint(ge=0, strict=True)
-"""
-Positive :class:`int`.
-"""
+"""Positive :class:`int`."""
 
 PositiveFloat = pydantic.confloat(ge=0, strict=True)
-"""
-Positive :class:`float`.
-"""
+"""Positive :class:`float`."""
+
+Email = pydantic.EmailStr
+"""String representing an email."""
 
 
-class Date:
-    """Any :class:`datetime.date`."""
+class BaseType:
+    """Base class for custom pydantic types."""
 
     @classmethod
     def __get_validators__(cls) -> Callable:
         """Yield validator methods."""
         yield cls.validate
+
+
+class Date(BaseType):
+    """Any :class:`datetime.date`."""
 
     @classmethod
     def validate(cls, value: Any) -> datetime.date:
@@ -224,13 +219,8 @@ class Date:
         return value
 
 
-class Datetime:
+class Datetime(BaseType):
     """Any :class:`datetime.datetime`."""
-
-    @classmethod
-    def __get_validators__(cls) -> Callable:
-        """Yield validator methods."""
-        yield cls.validate
 
     @classmethod
     def validate(cls, value: Any) -> datetime.datetime:
@@ -240,13 +230,8 @@ class Datetime:
         return value
 
 
-class Pattern:
+class Pattern(BaseType):
     """Regular expression pattern."""
-
-    @classmethod
-    def __get_validators__(cls) -> Callable:
-        """Yield validator methods."""
-        yield cls.validate
 
     @classmethod
     def validate(cls, value: Any) -> re.Pattern:
@@ -259,6 +244,15 @@ class Pattern:
             except re.error:
                 raise ValueError("string is not a valid regular expression")
         return value
+
+
+class HttpUrl(pydantic.AnyHttpUrl):
+    """Http(s) URL."""
+
+    @classmethod
+    def validate(cls, value: Any, field: Any, config: Any) -> str:
+        """Validate as URL and cast to string."""
+        return str(super().validate(value, field=field, config=config))
 
 
 def StrictList(item_type: Type = Any) -> pydantic.ConstrainedList:  # noqa: N802
@@ -283,13 +277,6 @@ def _check_unique(value: list = None) -> Optional[list]:
     return value
 
 
-def _stringify(value: Any = None) -> Optional[str]:
-    """Convert input to string."""
-    if value:
-        return str(value)
-    return value
-
-
 def _validator(*names, fn: Callable) -> Callable:
     """
     Construct reusable Pydantic validator.
@@ -300,12 +287,8 @@ def _validator(*names, fn: Callable) -> Callable:
 
     Examples:
         >>> class Class(Base):
-        ...     x: int = None
-        ...     y: list = None
-        ...     _stringify = _validator("x", fn=_stringify)
-        ...     _check_unique = _validator("y", fn=_check_unique)
-        >>> Class(x=1).x
-        '1'
+        ...     x: list = None
+        ...     _check_unique = _validator("x", fn=_check_unique)
         >>> Class(y=[0, 0])
         Traceback (most recent call last):
         ValidationError: ...
@@ -610,9 +593,7 @@ class License(Base):
 
     name: String
     title: String
-    path: pydantic.AnyHttpUrl
-
-    _stringify = _validator("path", fn=_stringify)
+    path: HttpUrl
 
     @staticmethod
     def dict_from_id(x: str) -> dict:
@@ -633,10 +614,8 @@ class Source(Base):
     """
 
     title: String
-    path: pydantic.AnyHttpUrl
-    email: pydantic.EmailStr = None
-
-    _stringify = _validator("path", "email", fn=_stringify)
+    path: HttpUrl
+    email: Email = None
 
     @staticmethod
     def dict_from_id(x: str) -> dict:
@@ -657,14 +636,12 @@ class Contributor(Base):
     """
 
     title: String
-    path: pydantic.AnyHttpUrl = None
-    email: pydantic.EmailStr = None
+    path: HttpUrl = None
+    email: Email = None
     role: Literal[
         "author", "contributor", "maintainer", "publisher", "wrangler"
     ] = "contributor"
     organization: String = None
-
-    _stringify = _validator("path", "email", fn=_stringify)
 
     @staticmethod
     def dict_from_id(x: str) -> dict:
@@ -1269,14 +1246,12 @@ class Package(Base):
     title: String = None
     description: String = None
     keywords: List[String] = []
-    homepage: pydantic.HttpUrl = "https://catalyst.coop/pudl"
+    homepage: HttpUrl = "https://catalyst.coop/pudl"
     created: Datetime = datetime.datetime.utcnow()
     contributors: List[Contributor] = []
     sources: List[Source] = []
     licenses: List[License] = []
     resources: StrictList(Resource)
-
-    _stringify = _validator("homepage", fn=_stringify)
 
     @pydantic.validator("resources")
     def _check_foreign_keys(cls, value):  # noqa: N805
