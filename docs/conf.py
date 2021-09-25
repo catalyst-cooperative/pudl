@@ -40,6 +40,7 @@ extensions = [
     'sphinx_autodoc_typehints',
     'sphinx_issues',
     'sphinx_reredirects',
+    'sphinx_rtd_dark_mode',
 ]
 todo_include_todos = True
 
@@ -79,8 +80,10 @@ exclude_patterns = ['_build']
 
 # -- Options for HTML output -------------------------------------------------
 
-# The theme to use for HTML and HTML Help pages.  See the documentation for
-# a list of builtin themes.
+# The theme to use for HTML and HTML Help pages.
+
+# user starts in dark mode
+default_dark_mode = False
 
 master_doc = 'index'
 html_theme = 'sphinx_rtd_theme'
