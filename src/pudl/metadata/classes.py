@@ -848,11 +848,8 @@ class Resource(Base):
           * Field attributes are replaced with any specific to the
             `resource.group` and `field.name`.
 
-        * `sources`
-
-          * Source ids are expanded (:meth:`Source.from_id`).
-          * Source descriptors are used as is.
-
+        * `sources`: Source ids are expanded (:meth:`Source.from_id`).
+        * `licenses`: License ids are expanded (:meth:`License.from_id`).
         * `contributors`: Contributor ids are fetched by source ids,
           then expanded (:meth:`Contributor.from_id`).
         * `keywords`: Keywords are fetched by source ids.
