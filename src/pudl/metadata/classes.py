@@ -377,7 +377,7 @@ class Field(Base):
 
     Examples:
         >>> field = Field(name='x', type='string', constraints={'enum': ['x', 'y']})
-        >>> field.dtype
+        >>> field.to_pandas_dtype()
         CategoricalDtype(categories=['x', 'y'], ordered=False)
         >>> field.to_sql()
         Column('x', Enum('x', 'y'), CheckConstraint(...), table=None)
@@ -434,16 +434,14 @@ class Field(Base):
         """Construct from PUDL identifier (`Field.name`)."""
         return cls(**cls.dict_from_id(x))
 
-    @property
-    def dtype(self) -> Union[str, pd.CategoricalDtype]:
-        """Pandas data type."""
+    def to_pandas_dtype(self) -> Union[str, pd.CategoricalDtype]:
+        """Return Pandas data type."""
         if self.constraints.enum:
             return pd.CategoricalDtype(self.constraints.enum)
         return FIELD_DTYPES[self.type]
 
-    @property
-    def dtype_sql(self) -> sa.sql.visitors.VisitableType:
-        """SQLAlchemy data type."""  # noqa: D403
+    def to_sql_dtype(self) -> sa.sql.visitors.VisitableType:
+        """Return SQLAlchemy data type."""
         if self.constraints.enum and self.type == "string":
             return sa.Enum(*self.constraints.enum)
         return FIELD_DTYPES_SQL[self.type]
@@ -497,7 +495,7 @@ class Field(Base):
                 checks.append(f"{name} IN ({', '.join(enum)})")
         return sa.Column(
             self.name,
-            self.dtype_sql,
+            self.to_sql_dtype(),
             *[sa.CheckConstraint(check) for check in checks],
             nullable=not self.constraints.required,
             unique=self.constraints.unique,
@@ -741,7 +739,7 @@ class Resource(Base):
 
         Field names and data types are enforced.
 
-        >>> resource.dtypes == df.dtypes.apply(str).to_dict()
+        >>> resource.to_pandas_dtypes() == df.dtypes.apply(str).to_dict()
         True
 
         Alternatively, aggregate by primary key
@@ -927,10 +925,9 @@ class Resource(Base):
             constraints.append(key.to_sql())
         return sa.Table(self.name, metadata, *columns, *constraints)
 
-    @property
-    def dtypes(self) -> Dict[str, Union[str, pd.CategoricalDtype]]:
-        """Pandas data type of each field by field name."""
-        return {f.name: f.dtype for f in self.schema.fields}
+    def to_pandas_dtypes(self) -> Dict[str, Union[str, pd.CategoricalDtype]]:
+        """Return Pandas data type of each field by field name."""
+        return {f.name: f.to_pandas_dtype() for f in self.schema.fields}
 
     def match_primary_key(self, names: Iterable[str]) -> Optional[Dict[str, str]]:
         """
@@ -1020,8 +1017,9 @@ class Resource(Base):
             If the primary key fields could not be matched to columns in `df`
             (:meth:`match_primary_key`) or if `df=None`, an empty dataframe is returned.
         """
+        dtypes = self.to_pandas_dtypes()
         if df is None:
-            return pd.DataFrame({n: pd.Series(dtype=d) for n, d in self.dtypes.items()})
+            return pd.DataFrame({n: pd.Series(dtype=d) for n, d in dtypes.items()})
         matches = self.match_primary_key(df.columns)
         if matches is None:
             # Primary key present but no matches were found
@@ -1039,9 +1037,9 @@ class Resource(Base):
                 df[field.name] = pd.to_datetime(df[field.name], format="%Y")
         df = (
             # Reorder columns and insert missing columns
-            df.reindex(columns=self.dtypes.keys(), copy=False)
+            df.reindex(columns=dtypes.keys(), copy=False)
             # Coerce columns to correct data type
-            .astype(self.dtypes, copy=False)
+            .astype(dtypes, copy=False)
         )
         # Convert periodic key columns to the requested period
         for df_key, key in matches.items():
