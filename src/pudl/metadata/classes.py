@@ -198,6 +198,9 @@ PositiveFloat = pydantic.confloat(ge=0, strict=True)
 Email = pydantic.EmailStr
 """String representing an email."""
 
+HttpUrl = pydantic.AnyHttpUrl
+"""Http(s) URL."""
+
 
 class BaseType:
     """Base class for custom pydantic types."""
@@ -244,15 +247,6 @@ class Pattern(BaseType):
             except re.error:
                 raise ValueError("string is not a valid regular expression")
         return value
-
-
-class HttpUrl(pydantic.AnyHttpUrl):
-    """Http(s) URL."""
-
-    @classmethod
-    def validate(cls, value: Any, field: Any, config: Any) -> str:
-        """Validate as URL and cast to string."""
-        return str(super().validate(value, field=field, config=config))
 
 
 def StrictList(item_type: Type = Any) -> pydantic.ConstrainedList:  # noqa: N802

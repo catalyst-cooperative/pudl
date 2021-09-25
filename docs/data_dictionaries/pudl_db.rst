@@ -726,7 +726,7 @@ No table description available.
     - string
     - The minimum amount of time required to bring the unit to full load from shutdown.
   * - turbines_inverters_hydrokinetics
-    - string
+    - integer
     - Number of wind turbines, or hydrokinetic buoys.
   * - turbines_num
     - integer
@@ -1420,7 +1420,7 @@ No table description available.
     - string
     - Service area in which plant is located; for unregulated companies, it&#39;s the electric utility with which plant is interconnected
   * - transmission_distribution_owner_id
-    - string
+    - integer
     - EIA-assigned code for owner of transmission/distribution system to which the plant is interconnected.
   * - transmission_distribution_owner_name
     - string

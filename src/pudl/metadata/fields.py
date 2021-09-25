@@ -511,10 +511,7 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
     },
     "energy_source_code": {
         "type": "string",
-        "description": "The fuel code associated with the fuel receipt. Two or three character alphanumeric.",
-        "constraints": {
-            "enum": list(set(FUEL_TRANSPORTATION_MODES_EIA.values()))
-        }
+        "description": "The fuel code associated with the fuel receipt. Two or three character alphanumeric."
     },
     "energy_source_1_transport_1": {
         "type": "string",
