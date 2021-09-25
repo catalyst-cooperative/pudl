@@ -8,8 +8,8 @@ from .enums import (CUSTOMER_CLASSES, EPACEMS_MEASUREMENT_CODES, FUEL_CLASSES,
                     NERC_REGIONS, RELIABILITY_STANDARDS, REVENUE_CLASSES,
                     RTO_CLASSES, TECH_CLASSES)
 from .labels import (ENTITY_TYPES, ESTIMATED_OR_ACTUAL,
-                     MOMENTARY_INTERRUPTIONS, POWER_PURCHASE_TYPES_FERC1,
-                     PRIME_MOVERS_EIA)
+                     FUEL_TRANSPORTATION_MODES_EIA, MOMENTARY_INTERRUPTIONS,
+                     POWER_PURCHASE_TYPES_FERC1, PRIME_MOVERS_EIA)
 
 FIELD_METADATA: Dict[str, Dict[str, Any]] = {
     "abbr": {
@@ -510,31 +510,52 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
     },
     "energy_source_code": {
         "type": "string",
-        "description": "The fuel code associated with the fuel receipt. Two or three character alphanumeric."
+        "description": "The fuel code associated with the fuel receipt. Two or three character alphanumeric.",
+        "constraints": {
+            "enum": list(set(FUEL_TRANSPORTATION_MODES_EIA.values()))
+        }
     },
     "energy_source_1_transport_1": {
         "type": "string",
-        "description": "Primary mode of transport for energy source 1."
+        "description": "Primary mode of transport for energy source 1.",
+        "constraints": {
+            "enum": list(set(FUEL_TRANSPORTATION_MODES_EIA.values()))
+        }
     },
     "energy_source_1_transport_2": {
         "type": "string",
-        "description": "Secondary mode of transport for energy source 1."
+        "description": "Secondary mode of transport for energy source 1.",
+        "constraints": {
+            "enum": list(set(FUEL_TRANSPORTATION_MODES_EIA.values()))
+        }
     },
     "energy_source_1_transport_3": {
         "type": "string",
-        "description": "Tertiary mode of transport for energy source 1."
+        "description": "Tertiary mode of transport for energy source 1.",
+        "constraints": {
+            "enum": list(set(FUEL_TRANSPORTATION_MODES_EIA.values()))
+        }
     },
     "energy_source_2_transport_1": {
         "type": "string",
-        "description": "Primary mode of transport for energy source 2."
+        "description": "Primary mode of transport for energy source 2.",
+        "constraints": {
+            "enum": list(set(FUEL_TRANSPORTATION_MODES_EIA.values()))
+        }
     },
     "energy_source_2_transport_2": {
         "type": "string",
-        "description": "Secondary mode of transport for energy source 2."
+        "description": "Secondary mode of transport for energy source 2.",
+        "constraints": {
+            "enum": list(set(FUEL_TRANSPORTATION_MODES_EIA.values()))
+        }
     },
     "energy_source_2_transport_3": {
         "type": "string",
-        "description": "Tertiary mode of transport for energy source 2."
+        "description": "Tertiary mode of transport for energy source 2.",
+        "constraints": {
+            "enum": list(set(FUEL_TRANSPORTATION_MODES_EIA.values()))
+        }
     },
     "energy_source_code_1": {
         "type": "string",
@@ -1694,7 +1715,10 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
     },
     "primary_transportation_mode_code": {
         "type": "string",
-        "description": "Transportation mode for the longest distance transported."
+        "description": "Transportation mode for the longest distance transported.",
+        "constraints": {
+            "enum": list(set(FUEL_TRANSPORTATION_MODES_EIA.values()))
+        }
     },
     "prime_mover": {
         "type": "string",
@@ -1880,7 +1904,10 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
     },
     "secondary_transportation_mode_code": {
         "type": "string",
-        "description": "Transportation mode for the second longest distance transported."
+        "description": "Transportation mode for the second longest distance transported.",
+        "constraints": {
+            "enum": list(set(FUEL_TRANSPORTATION_MODES_EIA.values()))
+        }
     },
     "sector_id": {
         "type": "integer",
@@ -2173,7 +2200,7 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
         "type": "number"
     },
     "transmission_distribution_owner_id": {
-        "type": "string",
+        "type": "integer",
         "description": "EIA-assigned code for owner of transmission/distribution system to which the plant is interconnected."
     },
     "transmission_distribution_owner_name": {
@@ -2189,7 +2216,7 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
         "description": "Total Transmission Plant (FERC Accounts 350-359.1)"
     },
     "turbines_inverters_hydrokinetics": {
-        "type": "string",
+        "type": "integer",
         "description": "Number of wind turbines, or hydrokinetic buoys."
     },
     "turbines_num": {
