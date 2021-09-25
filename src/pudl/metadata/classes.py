@@ -387,18 +387,13 @@ class Field(Base):
     """
 
     name: SnakeCase
-    type: String  # noqa: A003
+    type: Literal[  # noqa: A003
+        "string", "number", "integer", "boolean", "date", "datetime", "year"
+    ]
     format: Literal["default"] = "default"  # noqa: A003
     description: String = None
     constraints: FieldConstraints = {}
     harvest: FieldHarvest = {}
-
-    @pydantic.validator("type")
-    # NOTE: Could be replaced with `type: Literal[...]`
-    def _check_type_supported(cls, value):  # noqa: N805
-        if value not in FIELD_DTYPES:
-            raise ValueError(f"must be one of {list(FIELD_DTYPES.keys())}")
-        return value
 
     @pydantic.validator("constraints")
     def _check_constraints(cls, value, values):  # noqa: N805, C901
