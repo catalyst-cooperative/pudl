@@ -15,7 +15,7 @@ import sqlalchemy as sa
 from .constants import (CONSTRAINT_DTYPES, CONTRIBUTORS,
                         CONTRIBUTORS_BY_SOURCE, FIELD_DTYPES, FIELD_DTYPES_SQL,
                         KEYWORDS_BY_SOURCE, LICENSES, PERIODS, SOURCES)
-from .fields import FIELD_METADATA
+from .fields import FIELD_METADATA, FIELD_METADATA_BY_GROUP
 from .helpers import (expand_periodic_column_names, format_errors,
                       groupby_aggregate, most_and_more_frequent, split_period)
 from .resources import FOREIGN_KEYS, RESOURCE_METADATA
@@ -824,6 +824,7 @@ class Resource(Base):
     title: String = None
     description: String = None
     harvest: ResourceHarvest = {}
+    group: Literal["eia", "epacems", "ferc1", "ferc714", "glue"] = None
     schema_: Schema = pydantic.Field(alias='schema')
     contributors: List[Contributor] = []
     licenses: List[License] = []
@@ -849,9 +850,8 @@ class Resource(Base):
         * `schema.fields`
 
           * Field names are expanded (:meth:`Field.from_id`).
-          * Field descriptors are expanded by name
-            (e.g. `{'name': 'x', ...}` to `Field.from_id('x')`)
-            and updated with custom properties (e.g. `{..., 'description': '...'}`).
+          * Field attributes are replaced with any specific to the
+            `resource.group` and `field.name`.
 
         * `sources`
 
@@ -869,13 +869,14 @@ class Resource(Base):
         # Expand fields
         if "fields" in schema:
             fields = []
-            for value in schema["fields"]:
-                if isinstance(value, str):
-                    # Lookup field by name
-                    fields.append(Field.dict_from_id(value))
-                else:
-                    # Lookup field by name and update with custom metadata
-                    fields.append({**Field.dict_from_id(value["name"]), **value})
+            for name in schema["fields"]:
+                # Lookup field by name
+                value = Field.dict_from_id(name)
+                # Update with any custom group-level metadata
+                group = obj.get("group")
+                if name in FIELD_METADATA_BY_GROUP.get(group, {}):
+                    value = {**value, **FIELD_METADATA_BY_GROUP[group][name]}
+                fields.append(value)
             schema["fields"] = fields
         # Expand sources
         sources = obj.get("sources", [])

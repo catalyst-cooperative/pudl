@@ -4,9 +4,10 @@ from typing import Any, Dict
 from pytz import all_timezones
 
 from .constants import SOURCES
-from .enums import (CUSTOMER_CLASSES, EPACEMS_MEASUREMENT_CODES, FUEL_CLASSES,
-                    NERC_REGIONS, RELIABILITY_STANDARDS, REVENUE_CLASSES,
-                    RTO_CLASSES, TECH_CLASSES)
+from .enums import (CUSTOMER_CLASSES, EPACEMS_MEASUREMENT_CODES,
+                    EPACEMS_STATES, FUEL_CLASSES, NERC_REGIONS,
+                    RELIABILITY_STANDARDS, REVENUE_CLASSES, RTO_CLASSES,
+                    TECH_CLASSES)
 from .labels import (ENTITY_TYPES, ESTIMATED_OR_ACTUAL,
                      FUEL_TRANSPORTATION_MODES_EIA, MOMENTARY_INTERRUPTIONS,
                      POWER_PURCHASE_TYPES_FERC1, PRIME_MOVERS_EIA)
@@ -2364,4 +2365,17 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
 Field attributes by PUDL identifier (`field.name`).
 
 Keys are in alphabetical order.
+"""
+
+FIELD_METADATA_BY_GROUP: Dict[str, Dict[str, Any]] = {
+    "epacems": {
+        "state": {
+            "constraints": {
+                "enum": EPACEMS_STATES
+            }
+        }
+    }
+}
+"""
+Field attributes by resource group (`resource.group`) and PUDL identifier.
 """
