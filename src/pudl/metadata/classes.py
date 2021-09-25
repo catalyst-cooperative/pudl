@@ -434,10 +434,23 @@ class Field(Base):
         """Construct from PUDL identifier (`Field.name`)."""
         return cls(**cls.dict_from_id(x))
 
-    def to_pandas_dtype(self) -> Union[str, pd.CategoricalDtype]:
-        """Return Pandas data type."""
+    def to_pandas_dtype(
+        self, compact: bool = False
+    ) -> Union[str, pd.CategoricalDtype]:
+        """
+        Return Pandas data type.
+
+        Args:
+            compact: Whether to return a low-memory data type
+                (32-bit integer or float).
+        """
         if self.constraints.enum:
             return pd.CategoricalDtype(self.constraints.enum)
+        if compact:
+            if self.type == "integer":
+                return "Int32"
+            if self.type == "number":
+                return "float32"
         return FIELD_DTYPES[self.type]
 
     def to_sql_dtype(self) -> sa.sql.visitors.VisitableType:
@@ -765,7 +778,9 @@ class Resource(Base):
         Customize the error values in the error report.
 
         >>> error = lambda x, e: as_dict(x)
-        >>> df, report = resource.harvest_dfs(dfs, raised=False, error=error)
+        >>> df, report = resource.harvest_dfs(
+        ...    dfs, aggregate_kwargs={'raised': False, 'error': error}
+        ... )
         >>> report['fields']['x']['errors']
         id
         2    {'a': [2, 2], 'b': [3]}
@@ -775,7 +790,7 @@ class Resource(Base):
         by setting :attr:`harvest`. `harvest=False`.
 
         >>> resource.harvest.harvest = False
-        >>> df, _ = resource.harvest_dfs(dfs, raised=False)
+        >>> df, _ = resource.harvest_dfs(dfs, aggregate_kwargs={'raised': False})
         >>> df
             id  x
         df
@@ -925,9 +940,16 @@ class Resource(Base):
             constraints.append(key.to_sql())
         return sa.Table(self.name, metadata, *columns, *constraints)
 
-    def to_pandas_dtypes(self) -> Dict[str, Union[str, pd.CategoricalDtype]]:
-        """Return Pandas data type of each field by field name."""
-        return {f.name: f.to_pandas_dtype() for f in self.schema.fields}
+    def to_pandas_dtypes(
+        self, **kwargs: Any
+    ) -> Dict[str, Union[str, pd.CategoricalDtype]]:
+        """
+        Return Pandas data type of each field by field name.
+
+        Args:
+            kwargs: Arguments to :meth:`Field.to_pandas_dtype`.
+        """
+        return {f.name: f.to_pandas_dtype(**kwargs) for f in self.schema.fields}
 
     def match_primary_key(self, names: Iterable[str]) -> Optional[Dict[str, str]]:
         """
@@ -1004,12 +1026,13 @@ class Resource(Base):
             matches = {key: key for key in keys if key in names}
         return matches if len(matches) == len(keys) else None
 
-    def format_df(self, df: pd.DataFrame = None) -> pd.DataFrame:
+    def format_df(self, df: pd.DataFrame = None, **kwargs: Any) -> pd.DataFrame:
         """
         Format a dataframe.
 
         Args:
             df: Dataframe to format.
+            kwargs: Arguments to :meth:`Field.to_pandas_dtypes`.
 
         Returns:
             Dataframe with column names and data types matching the resource fields.
@@ -1017,7 +1040,7 @@ class Resource(Base):
             If the primary key fields could not be matched to columns in `df`
             (:meth:`match_primary_key`) or if `df=None`, an empty dataframe is returned.
         """
-        dtypes = self.to_pandas_dtypes()
+        dtypes = self.to_pandas_dtypes(**kwargs)
         if df is None:
             return pd.DataFrame({n: pd.Series(dtype=d) for n, d in dtypes.items()})
         matches = self.match_primary_key(df.columns)
@@ -1159,7 +1182,11 @@ class Resource(Base):
         }
 
     def harvest_dfs(
-        self, dfs: Dict[str, pd.DataFrame], aggregate: bool = None, **kwargs: Any
+        self,
+        dfs: Dict[str, pd.DataFrame],
+        aggregate: bool = None,
+        aggregate_kwargs: Dict[str, Any] = {},
+        format_kwargs: Dict[str, Any] = {}
     ) -> Tuple[pd.DataFrame, dict]:
         """
         Harvest from named dataframes.
@@ -1183,7 +1210,8 @@ class Resource(Base):
             aggregate: Whether to aggregate the harvested rows by their primary key.
                 By default, this is `True` if `self.harvest.harvest=True` and
                 `False` otherwise.
-            kwargs: Optional arguments to :meth:`aggregate_df`.
+            aggregate_kwargs: Optional arguments to :meth:`aggregate_df`.
+            format_kwargs: Optional arguments to :meth:`format_df`.
 
         Returns:
             A dataframe harvested from the dataframes, with column names and
@@ -1197,19 +1225,19 @@ class Resource(Base):
             # Harvest resource from all inputs where all primary key fields are present
             samples = {}
             for name, df in dfs.items():
-                samples[name] = self.format_df(df)
+                samples[name] = self.format_df(df, **format_kwargs)
                 # Pass input names to aggregate via the index
                 samples[name].index = pd.Index([name] * len(samples[name]), name="df")
             df = pd.concat(samples.values())
         elif self.name in dfs:
             # Subset resource from input of same name
-            df = self.format_df(dfs[self.name])
+            df = self.format_df(dfs[self.name], **format_kwargs)
             # Pass input names to aggregate via the index
             df.index = pd.Index([self.name] * df.shape[0], name="df")
         else:
-            return self.format_df(), {}
+            return self.format_df(df=None, **format_kwargs), {}
         if aggregate:
-            return self.aggregate_df(df, **kwargs)
+            return self.aggregate_df(df, **aggregate_kwargs)
         return df, {}
 
     def to_rst(self, path: str) -> None:
