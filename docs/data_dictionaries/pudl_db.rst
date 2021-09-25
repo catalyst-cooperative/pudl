@@ -31,7 +31,6 @@ No table description available.
     - string
     - Emissions (smokestake) unit monitored by EPA CEMS.
 
-
 .. _assn_plant_id_eia_epa:
 
 -------------------------------------------------------------------------------
@@ -54,7 +53,6 @@ No table description available.
   * - plant_id_epa
     - integer
     - The ORISPL ID used by EPA to refer to the plant. Usually but not always the same as plant_id_eia.
-
 
 .. _boiler_fuel_eia923:
 
@@ -100,7 +98,6 @@ No table description available.
     - number
     - Sulfur content percentage by weight to the nearest 0.01 percent.
 
-
 .. _boiler_generator_assn_eia860:
 
 -------------------------------------------------------------------------------
@@ -139,7 +136,6 @@ No table description available.
     - integer
     - Dynamically assigned PUDL unit id. WARNING: This ID is not guaranteed to be static long term as the input data and algorithm may evolve over time.
 
-
 .. _boilers_entity_eia:
 
 -------------------------------------------------------------------------------
@@ -165,7 +161,6 @@ No table description available.
   * - prime_mover_code
     - string
     - Code for the type of prime mover (e.g. CT, CG)
-
 
 .. _coalmine_eia923:
 
@@ -202,7 +197,6 @@ No table description available.
     - string
     - N/A
 
-
 .. _energy_source_eia923:
 
 -------------------------------------------------------------------------------
@@ -225,7 +219,6 @@ No table description available.
   * - source
     - string
     - N/A
-
 
 .. _ferc_accounts:
 
@@ -253,7 +246,6 @@ https://www.law.cornell.edu/cfr/text/18/part-101).
     - string
     - Account number, from FERC&#39;s Uniform System of Accounts for Electric Plant. Also includes higher level labeled categories.
 
-
 .. _ferc_depreciation_lines:
 
 -------------------------------------------------------------------------------
@@ -278,7 +270,6 @@ Plant (Account 108).
   * - line_id
     - string
     - A human readable string uniquely identifying the FERC depreciation account. Used in lieu of the actual line number, as those numbers are not guaranteed to be consistent from year to year.
-
 
 .. _fuel_ferc1:
 
@@ -332,7 +323,6 @@ FERC&#39;s FoxPro Database.
   * - utility_id_ferc1
     - integer
     - FERC-assigned respondent_id, identifying the reporting entity. Stable from year to year.
-
 
 .. _fuel_receipts_costs_eia923:
 
@@ -417,7 +407,6 @@ No table description available.
     - string
     - Company that sold the fuel to the plant or, in the case of Natural Gas, pipline owner.
 
-
 .. _fuel_type_aer_eia923:
 
 -------------------------------------------------------------------------------
@@ -441,7 +430,6 @@ No table description available.
     - string
     - N/A
 
-
 .. _fuel_type_eia923:
 
 -------------------------------------------------------------------------------
@@ -464,7 +452,6 @@ No table description available.
   * - fuel_type
     - string
     - N/A
-
 
 .. _generation_eia923:
 
@@ -494,7 +481,6 @@ No table description available.
   * - report_date
     - date
     - Date reported.
-
 
 .. _generation_fuel_eia923:
 
@@ -551,7 +537,6 @@ No table description available.
   * - report_date
     - date
     - Date reported.
-
 
 .. _generators_eia860:
 
@@ -765,7 +750,6 @@ No table description available.
     - number
     - EIA estimated winter capacity (in MWh).
 
-
 .. _generators_entity_eia:
 
 -------------------------------------------------------------------------------
@@ -846,7 +830,6 @@ No table description available.
     - boolean
     - Indicates whether the generator uses ultra-supercritical technology
 
-
 .. _hourly_emissions_epacems:
 
 -------------------------------------------------------------------------------
@@ -918,7 +901,6 @@ No table description available.
     - string
     - Facility-specific unit id (e.g. Unit 4)
 
-
 .. _natural_gas_transport_eia923:
 
 -------------------------------------------------------------------------------
@@ -941,7 +923,6 @@ No table description available.
   * - status
     - string
     - N/A
-
 
 .. _ownership_eia860:
 
@@ -992,7 +973,6 @@ No table description available.
   * - utility_id_eia
     - integer
     - The EIA Utility Identification number.
-
 
 .. _plant_in_service_ferc1:
 
@@ -1311,7 +1291,6 @@ retirements, adjustments, and transfers.
     - integer
     - FERC-assigned respondent_id, identifying the reporting entity. Stable from year to year.
 
-
 .. _plant_unit_epa:
 
 -------------------------------------------------------------------------------
@@ -1334,7 +1313,6 @@ No table description available.
   * - unit_id_epa
     - string
     - Emissions (smokestake) unit monitored by EPA CEMS.
-
 
 .. _plants_eia:
 
@@ -1361,7 +1339,6 @@ No table description available.
   * - plant_name_eia
     - string
     - Plant name.
-
 
 .. _plants_eia860:
 
@@ -1458,7 +1435,6 @@ No table description available.
     - string
     - Name of water source associated with the plant.
 
-
 .. _plants_entity_eia:
 
 -------------------------------------------------------------------------------
@@ -1542,7 +1518,6 @@ No table description available.
     - string
     - Five digit US Zip Code.
 
-
 .. _plants_ferc1:
 
 -------------------------------------------------------------------------------
@@ -1568,7 +1543,6 @@ No table description available.
   * - utility_id_ferc1
     - integer
     - FERC-assigned respondent_id, identifying the reporting entity. Stable from year to year.
-
 
 .. _plants_hydro_ferc1:
 
@@ -1701,7 +1675,6 @@ database.
     - integer
     - FERC-assigned respondent_id, identifying the reporting entity. Stable from year to year.
 
-
 .. _plants_pudl:
 
 -------------------------------------------------------------------------------
@@ -1729,7 +1702,6 @@ src/pudl/package_data/glue/mapping_eia923_ferc1.xlsx
   * - plant_name_pudl
     - string
     - Plant name, chosen arbitrarily from the several possible plant names available in the plant matching process. Included for human readability only.
-
 
 .. _plants_pumped_storage_ferc1:
 
@@ -1873,7 +1845,6 @@ and extracted from the f1_pumped_storage table in FERC&#39;s FoxPro Database.
     - integer
     - FERC-assigned respondent_id, identifying the reporting entity. Stable from year to year.
 
-
 .. _plants_small_ferc1:
 
 -------------------------------------------------------------------------------
@@ -1948,7 +1919,6 @@ extracted from the FERC FoxPro database table f1_gnrt_plant.
   * - utility_id_ferc1
     - integer
     - FERC-assigned respondent_id, identifying the reporting entity. Stable from year to year.
-
 
 .. _plants_steam_ferc1:
 
@@ -2090,7 +2060,6 @@ table in FERC&#39;s FoxPro Database.
     - number
     - Plant capacity in MW when limited by condenser water.
 
-
 .. _prime_movers_eia923:
 
 -------------------------------------------------------------------------------
@@ -2113,7 +2082,6 @@ No table description available.
   * - prime_mover
     - string
     - Full description of the type of prime mover.
-
 
 .. _purchased_power_ferc1:
 
@@ -2183,7 +2151,6 @@ Form 1. Extracted from the f1_purchased_pwr table in FERC&#39;s FoxPro database.
     - integer
     - FERC-assigned respondent_id, identifying the reporting entity. Stable from year to year.
 
-
 .. _transport_modes_eia923:
 
 -------------------------------------------------------------------------------
@@ -2206,7 +2173,6 @@ No table description available.
   * - mode
     - string
     - N/A
-
 
 .. _utilities_eia:
 
@@ -2233,7 +2199,6 @@ No table description available.
   * - utility_name_eia
     - string
     - The name of the utility.
-
 
 .. _utilities_eia860:
 
@@ -2324,7 +2289,6 @@ No table description available.
     - string
     - Four digit US Zip Code suffix.
 
-
 .. _utilities_entity_eia:
 
 -------------------------------------------------------------------------------
@@ -2347,7 +2311,6 @@ No table description available.
   * - utility_name_eia
     - string
     - The name of the utility.
-
 
 .. _utilities_ferc1:
 
@@ -2380,7 +2343,6 @@ PUDL repository: results/id_mapping/mapping_eia923_ferc1.xlsx
     - string
     - Name of the responding utility, as it is reported in FERC Form 1. For human readability only.
 
-
 .. _utilities_pudl:
 
 -------------------------------------------------------------------------------
@@ -2408,7 +2370,6 @@ src/pudl/package_data/glue/mapping_eia923_ferc1.xlsx
   * - utility_name_pudl
     - string
     - Utility name, chosen arbitrarily from the several possible utility names available in the utility matching process. Included for human readability only.
-
 
 .. _utility_plant_assn:
 
