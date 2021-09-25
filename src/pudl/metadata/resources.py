@@ -928,7 +928,6 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
 Resource attributes by PUDL identifier (`resource.name`).
 
 Keys are in alphabetical order.
-Each element of `sources` and `licenses` may be a dictionary or a PUDL identifier.
 
 See :func:`.helpers.build_foreign_keys` for the expected format of `foreign_key_rules`.
 """

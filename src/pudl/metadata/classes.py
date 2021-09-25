@@ -880,16 +880,10 @@ class Resource(Base):
             schema["fields"] = fields
         # Expand sources
         sources = obj.get("sources", [])
-        obj["sources"] = [
-            Source.dict_from_id(value) if isinstance(value, str) else value
-            for value in sources
-        ]
+        obj["sources"] = [Source.dict_from_id(value) for value in sources]
         # Expand licenses (assign CC-BY-4.0 by default)
-        licenses = obj.get("licenses", [License.dict_from_id("cc-by-4.0")])
-        obj["licenses"] = [
-            License.dict_from_id(value) if isinstance(value, str) else value
-            for value in licenses
-        ]
+        licenses = obj.get("licenses", ["cc-by-4.0"])
+        obj["licenses"] = [License.dict_from_id(value) for value in licenses]
         # Lookup and insert contributors
         if "contributors" in schema:
             raise ValueError("Resource metadata contains explicit contributors")
