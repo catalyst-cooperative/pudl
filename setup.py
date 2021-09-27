@@ -25,7 +25,7 @@ install_requires = [
     "pygeos~=0.10.0",
     "python-snappy~=0.6.0",
     "pyyaml~=5.0",
-    "scikit-learn~=0.24.1",
+    "scikit-learn~=1.0",
     "scipy~=1.6",
     "sqlalchemy~=1.4",
     "timezonefinder~=5.0",
@@ -43,7 +43,7 @@ dev_requires = [
 ]
 
 doc_requires = [
-    "doc8~=0.8.0",
+    "doc8~=0.9",
     "sphinx~=4.0",
     "sphinx-issues~=1.2",
     "sphinx-reredirects",
@@ -54,22 +54,22 @@ doc_requires = [
 test_requires = [
     "bandit~=1.6",
     "coverage~=5.3",
-    "doc8~=0.8.0",
+    "doc8~=0.9",
     "flake8~=3.8",
     "flake8-builtins~=1.5",
-    "flake8-colors~=0.1.0",
+    "flake8-colors~=0.1",
     "flake8-docstrings~=1.5",
-    "flake8-rst-docstrings~=0.0.14",
+    "flake8-rst-docstrings~=0.2",
     "flake8-use-fstring~=1.0",
-    "mccabe~=0.6.0",
-    "nbval~=0.9.0",
-    "pep8-naming~=0.11.0",
+    "mccabe~=0.6",
+    "nbval~=0.9",
+    "pep8-naming~=0.12",
     "pre-commit~=2.9",
     "pydocstyle~=5.1",
     "pytest~=6.2",
     "pytest-console-scripts~=1.1",
     "pytest-cov~=2.10",
-    "responses~=0.12.1",
+    "responses~=0.14",
 ]
 
 readme_path = Path(__file__).parent / "README.rst"
@@ -98,7 +98,7 @@ setup(
         "finance", "eia 923", "eia 860", "ferc", "form 1", "epa ampd",
         "epa cems", "coal", "natural gas", "eia 861", "ferc 714"],
     python_requires=">=3.8,<3.10",
-    # setup_requires=["setuptools_scm"],
+    setup_requires=["setuptools_scm"],
     install_requires=install_requires,
     extras_require={
         "dev": dev_requires,
