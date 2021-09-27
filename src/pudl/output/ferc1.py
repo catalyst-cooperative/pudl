@@ -270,11 +270,6 @@ def all_plants_ferc1(pudl_engine):
             'fuel_mmbtu': 'total_mmbtu',
             'opex_fuel_per_mwh': 'fuel_cost_per_mwh',
             'primary_fuel_by_mmbtu': 'fuel_type_code_pudl'})
-        .assign(
-            fuel_cost_per_mmbtu=lambda x: (
-                x.total_fuel_cost / x.total_mmbtu),
-            heat_rate_mmbtu_mwh=lambda x: (
-                x.total_mmbtu / x.net_generation_mwh))
         .replace({'': np.nan})
     )
 
