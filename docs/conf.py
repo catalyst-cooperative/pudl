@@ -10,6 +10,21 @@
 
 import pkg_resources
 
+from pudl.metadata.classes import Package
+from pudl.metadata.resources import RESOURCE_METADATA
+
+# Generate a data dictionary for the documentation:
+# Doing this here means we don't have track script output with Git:
+skip_names = ["datasets", "accumulated_depreciation_ferc1"]
+names = [name for name in sorted(RESOURCE_METADATA) if name not in skip_names]
+package = Package.from_resource_ids(names)
+# Sort fields within each resource by name:
+for resource in package.resources:
+    resource.schema.fields = sorted(
+        resource.schema.fields, key=lambda x: x.name
+    )
+package.to_rst(path="data_dictionaries/pudl_db.rst")
+
 # -- Path setup --------------------------------------------------------------
 # We are building and installing the pudl package in order to get access to
 # the distribution metadata, including an automatically generated version
@@ -31,12 +46,12 @@ author = 'Catalyst Cooperative'
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-    'sphinx.ext.autodoc',
     'sphinx.ext.doctest',
     'sphinx.ext.intersphinx',
     'sphinx.ext.napoleon',
     'sphinx.ext.todo',
     'sphinx.ext.viewcode',
+    'autoapi.extension',
     'sphinx_issues',
     'sphinx_reredirects',
     'sphinx_rtd_dark_mode',
@@ -47,6 +62,18 @@ todo_include_todos = True
 redirects = {
     "data_dictionary": "data_dictionaries/pudl_db.html",
 }
+
+# Automatically generate API documentation during the doc build:
+autoapi_type = 'python'
+autoapi_dirs = ['../src/pudl', ]
+autoapi_ignore = [
+    "*/convert/datapkg_to_sqlite.py",
+    "*/convert/merge_datapkgs.py",
+    "*/load/csv.py",
+    "*/load/metadata.py",
+    "*_test.py",
+    "*/package_data/*",
+]
 
 # GitHub repo
 issues_github_path = "catalyst-cooperative/pudl"
