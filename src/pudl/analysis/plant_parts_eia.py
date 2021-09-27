@@ -917,7 +917,7 @@ class MakePlantParts(object):
                     x.plant_id_pudl.astype(str)
                     + "_" + x.report_year.astype(str)
             )
-            .pipe(pudl.helpers.cleanstrings_snake, ['record_id_eia'])
+            .pipe(pudl.helpers.cleanstrings_snake, ['record_id_eia', 'appro_record_id_eia'])
             # we'll eventually take this out... once Issue #20
             .drop_duplicates(subset=['record_id_eia'])
             .set_index('record_id_eia')
@@ -1016,6 +1016,12 @@ class PlantPart(object):
                 add_record_id,
                 id_cols=self.id_cols,
                 plant_part_col='plant_part'
+            )
+            .pipe(
+                add_record_id,
+                id_cols=self.id_cols,
+                plant_part_col='plant_part',
+                year=False
             )
             .pipe(self.add_new_plant_name, gens_mega)
             .pipe(self.add_record_count_per_plant)
@@ -1471,7 +1477,7 @@ def make_parts_to_ids_dict():
     return parts_to_ids
 
 
-def add_record_id(part_df, id_cols, plant_part_col='plant_part'):
+def add_record_id(part_df, id_cols, plant_part_col='plant_part', year=True):
     """
     Add a record id to a compiled part df.
 
@@ -1482,24 +1488,37 @@ def add_record_id(part_df, id_cols, plant_part_col='plant_part'):
     """
     ids = deepcopy(id_cols)
     # we want the plant id first... mostly just bc it'll be easier to read
-    part_df = part_df.assign(record_id_eia=lambda x: x.plant_id_eia.map(str))
+    part_df = part_df.assign(
+        record_id_eia_temp=lambda x: x.plant_id_eia.map(str))
     ids.remove('plant_id_eia')
     for col in ids:
         part_df = part_df.assign(
-            record_id_eia=lambda x: x.record_id_eia + "_" + x[col].astype(str))
+            record_id_eia_temp=lambda x: x.record_id_eia_temp + "_" + x[col].astype(str))
+    if year:
+        part_df = part_df.assign(
+            record_id_eia_temp=lambda x:
+                x.record_id_eia_temp + "_" +
+                x.report_date.dt.year.astype(str))
     part_df = part_df.assign(
-        record_id_eia=lambda x: x.record_id_eia + "_" +
-        x.report_date.dt.year.astype(str) + "_" +
-        x[plant_part_col] + "_" +
-        x.ownership.astype(str) + "_" +
-        x.utility_id_eia.astype('Int64').astype(str))
+        record_id_eia_temp=lambda x:
+            x.record_id_eia_temp + "_" +
+            x[plant_part_col] + "_" +
+            x.ownership.astype(str) + "_" +
+            x.utility_id_eia.astype('Int64').astype(str)
+    )
     # add operational status only when records are not "operating" (i.e.
     # existing or retiring mid-year see MakeMegaGenTbl.abel_operating_gens()
     # for more details)
     non_op_mask = part_df.operational_status_pudl != 'operating'
-    part_df.loc[non_op_mask, 'record_id_eia'] = (
-        part_df.loc[non_op_mask, 'record_id_eia'] + "_"
+    part_df.loc[non_op_mask, 'record_id_eia_temp'] = (
+        part_df.loc[non_op_mask, 'record_id_eia_temp'] + "_"
         + part_df.loc[non_op_mask, 'operational_status_pudl'])
+    if year:
+        part_df = part_df.rename(
+            columns={'record_id_eia_temp': 'record_id_eia'})
+    else:
+        part_df = part_df.rename(
+            columns={'record_id_eia_temp': 'plant_part_id_eia'})
     return part_df
 
 
