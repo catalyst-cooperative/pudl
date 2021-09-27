@@ -91,9 +91,6 @@ def generation_fuel_eia923(pudl_engine, freq=None,
 
     gf_df = pd.read_sql(gf_select, pudl_engine)
 
-    cols_to_drop = ['id']
-    gf_df = gf_df.drop(cols_to_drop, axis=1)
-
     # fuel_type_code_pudl was formerly aer_fuel_category
     by = ['plant_id_eia', 'fuel_type_code_pudl',
           'fuel_type', 'prime_mover_code']
@@ -245,7 +242,7 @@ def fuel_receipts_costs_eia923(pudl_engine, freq=None,
         .rename(columns={"state": "mine_state"})
     )
 
-    cols_to_drop = ['id', 'mine_id_pudl']
+    cols_to_drop = ['mine_id_pudl']
     frc_df = frc_df.drop(cols_to_drop, axis=1)
     frc_df = pudl.helpers.convert_cols_dtypes(frc_df, data_source='eia')
 
@@ -540,9 +537,6 @@ def boiler_fuel_eia923(pudl_engine, freq=None,
         'utility_id_pudl': "eia",
     }))
 
-    if freq is None:
-        out_df = out_df.drop(['id'], axis=1)
-
     return out_df
 
 
@@ -597,9 +591,6 @@ def generation_eia923(
             {'net_generation_mwh': pudl.helpers.sum_na}).reset_index()
 
     out_df = denorm_generation_eia923(g_df, pudl_engine, start_date, end_date)
-
-    if freq is None:
-        out_df = out_df.drop(['id'], axis=1)
 
     return out_df
 

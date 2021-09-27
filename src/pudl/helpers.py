@@ -15,6 +15,7 @@ import re
 import shutil
 from functools import partial
 from importlib import resources
+from io import BytesIO
 from warnings import warn
 
 import addfips
@@ -347,8 +348,7 @@ def organize_cols(df, cols):
     """
     # Generate a list of all the columns in the dataframe that are not
     # included in cols
-    data_cols = [c for c in df.columns.tolist() if c not in cols]
-    data_cols.sort()
+    data_cols = sorted([c for c in df.columns.tolist() if c not in cols])
     organized_cols = cols + data_cols
     return df[organized_cols]
 
@@ -1337,3 +1337,22 @@ def dedupe_n_flatten_list_of_lists(mega_list):
     """Flatten a list of lists and remove duplicates."""
     return list(set(
         [item for sublist in mega_list for item in sublist]))
+
+
+def convert_df_to_excel_file(df: pd.DataFrame, **kwargs) -> pd.ExcelFile:
+    """
+    Converts a pandas dataframe to a pandas ExcelFile object.
+
+    You can pass parameters for pandas.to_excel() function.
+    """
+    bio = BytesIO()
+
+    writer = pd.ExcelWriter(bio, engine='xlsxwriter')
+    df.to_excel(writer, **kwargs)
+
+    writer.save()
+
+    bio.seek(0)
+    workbook = bio.read()
+
+    return pd.ExcelFile(workbook)

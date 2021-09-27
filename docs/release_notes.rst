@@ -3,6 +3,87 @@ PUDL Release Notes
 =======================================================================================
 
 ---------------------------------------------------------------------------------------
+0.5.0 (Unreleased)
+---------------------------------------------------------------------------------------
+
+SQLite and Parquet Outputs
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+* The ETL pipeline now outputs SQLite databases and Apache Parquet datasets
+  directly, rather than generating tabular data packages. This is much faster
+  and simpler, and also takes up less space on disk. Running the full ETL
+  including all EPA CEMS data should now take around 2 hours if you have all the
+  data downloaded.
+* The new :mod:`pudl.load.sqlite` and :mod:`pudl.load.parquet` modules contain
+  this logic. The :mod:`pudl.load.csv` and :mod:`pudl.load.metadata` modules
+  have been deprecated and will be removed shortly along with other remaining
+  datapackage infrastructure. See :issue:`1211`
+* Many more tables now have natural primary keys explicitly specified within the
+  database schema.
+* The ``datapkg_to_sqlite`` script has been removed and the ``epacems_to_parquet``
+  script can now be used to process the original EPA CEMS CSV data directly to
+  Parquet using an existing PUDL database to source plant timezones.  See
+  :issue:`1176,806`.
+* Data types, specified value constraints, and the uniqueness / non-null
+  constraints on primary keys are validated during insertion into the SQLite DB.
+* The PUDL ETL CLI :mod:`pudl.cli` now has flags to toggle various constraint
+  checks including ``--ignore-foreign-key-constraints``,
+  ``--ignore-type-constraints``, and ``--ignore-value-constraints``.
+
+New Metadata System
+^^^^^^^^^^^^^^^^^^^
+With the deprecation of tabular data package outputs, we've adopted a more
+modular metadata management system that uses `Pydantic
+<https://pydantic-docs.helpmanual.io/>`__.  This setup will allow us to easily
+validate the metadata schema and export to a variety of formats to support data
+distribution via `Datasette <https://datasette.io>`__ and `Intake catalogs
+<https://intake.readthedocs.io>`__, and automatic generation of data
+dictionaries and documentation. See :issue:`806` and the :mod:`pudl.metadata`
+subpackage. Many thanks to :user:`ezwelty` for most of this work.
+
+Updated Dependencies
+^^^^^^^^^^^^^^^^^^^^
+* **SQLAlchemy 1.4.x:** Addressed all deprecation warnings associated with API changes
+  coming in SQLAlchemy 2.0, and bumped current requirement to 1.4.x
+* **Pandas 1.3.x:** Addressed many data type issues resulting from changes in how Pandas
+  preserves and propagates ExtensionArray / nullable data types.
+* **PyArrow v5.0.0** Updated to the most recent version
+* **PyGEOS v0.10.x** Updated to the most recent version
+* **contextily** has been removed, since we only used it optionally for making a single
+  visualization and it has substantial dependencies itself.
+* **goodtables-pandas-py** has been removed since we're no longer producing or
+  validating datapackages.
+* **SQLite 3.32.0** The type checks that we've implemented currently only work with
+  SQLite version 3.32.0 or later, as we discovered in debugging build failures on PR
+  :issue:`1228`. Unfortunately Ubuntu 20.04 LTS shipped with SQLite 3.31.1. Using
+  ``conda`` to manage your Python environment avoids this issue.
+
+New Analyses
+^^^^^^^^^^^^
+* Added a deployed console script for running the state-level hourly electricity
+  demand allocation, using FERC 714 and EIA 861 data, simply called
+  ``state_demand`` and implemented in :mod:`pudl.analysis.state_demand`. This
+  script existed in the v0.4.0 release, but was not deployed on the user's
+  system.
+
+Data Coverage Changes
+^^^^^^^^^^^^^^^^^^^^^
+* :doc:`data_sources/eia860` for 2001-2003. See :issue:`1122`.
+* **EPA IPM / NEEDS** data has been removed from PUDL as we didn't have the internal
+  resources to maintain it, and it was no longer working. Apologies to
+  :user:`gschivley`!
+
+Known Issues
+^^^^^^^^^^^^
+* The ``pudl_territories`` script has been disabled temporarily due to a memory
+  issue. See :issue:`1174`
+* The full extent of pre-load data validation that was previously being done
+  with `goodtables-pandas` has not yet been fully reimplemented. Foreign key
+  constraints are still being debugged. See :issue:`1196`.
+* Several tables that should have natural primary keys currently do not, because
+  of null or duplicate values in those columns. These need to be resolved in the
+  ETL process. See :issue:`851,852,1207,1208`
+
+---------------------------------------------------------------------------------------
 0.4.0 (2021-08-16)
 ---------------------------------------------------------------------------------------
 This is a ridiculously large update including more than a year and a half's

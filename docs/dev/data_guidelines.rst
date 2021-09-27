@@ -105,20 +105,6 @@ Reading on Tidy Data
   ASCII art.
 
 -------------------------------------------------------------------------------
-Use Simple Data Types
--------------------------------------------------------------------------------
-The Frictionless Data
-`TableSchema <https://frictionlessdata.io/specs/table-schema/>`__
-standard includes a modest selection of data types that are meant to be very
-widely usable in other contexts. Make sure that whatever data type you're using
-is included within that specification, but also be as specific as possible
-within that collection of options.
-
-This is one aspect of a broader "least common denominator" strategy that is
-common within the open data. This strategy is also behind our decision to
-distribute the processed data as CSV files (with metadata stored as JSON).
-
--------------------------------------------------------------------------------
 Use Consistent Units
 -------------------------------------------------------------------------------
 Different data sources often use different units to describe the same type of

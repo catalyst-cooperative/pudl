@@ -1,7 +1,7 @@
-pudl.transform.epaipm module
+pudl.metadata.classes module
 ============================
 
-.. automodule:: pudl.transform.epaipm
+.. automodule:: pudl.metadata.classes
    :members:
    :undoc-members:
    :show-inheritance:
