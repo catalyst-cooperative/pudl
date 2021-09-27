@@ -247,35 +247,14 @@ def all_plants_ferc1(pudl_engine):
     hydro_df = plants_hydro_ferc1(pudl_engine)
     logger.info("loading pumped storage table")
     pump_df = plants_pumped_storage_ferc1(pudl_engine)
-    logger.info("loading fbp table")
-    fbp_df = fuel_by_plant_ferc1(pudl_engine)
 
-    # Prep steam table (merge with fbp)
+    # Prep steam table
     logger.info("prepping steam table")
-    fbp_cols_to_use = [
-        'report_year', 'utility_id_ferc1', 'plant_name_ferc1',
-        'utility_id_pudl', 'fuel_cost', 'fuel_mmbtu',
-        'primary_fuel_by_mmbtu']
-    steam_fbp_df = (
-        pd.merge(
-            steam_df,
-            fbp_df[fbp_cols_to_use],
-            on=['report_year',
-                'utility_id_ferc1',
-                'utility_id_pudl',
-                'plant_name_ferc1'],
-            how='left')
-        .rename(columns={'opex_plants': 'opex_plant'})
+    steam_df = (
+        steam_df.rename(columns={'opex_plants': 'opex_plant'})
         .pipe(pudl.helpers.convert_cols_dtypes,
-              'ferc1', 'ferc1 plant records'))
-
-    if 0.9 > (len(steam_fbp_df) /
-              len(steam_fbp_df.drop_duplicates(
-                  subset=['report_year',
-                          'utility_id_pudl',
-                          'plant_id_ferc1'])) < 1.1):
-        raise AssertionError(
-            'Merge issue w/ pudl_out.plants_steam_ferc1 and fbp_ferc1')
+              'ferc1', 'ferc1 plant records')
+    )
 
     # Prep hydro tables (Add this to the meta data later)
     logger.info("prepping hydro tables")
@@ -285,7 +264,7 @@ def all_plants_ferc1(pudl_engine):
     # Combine all the tables together
     logger.info("combining all tables")
     all_plants_df = (
-        pd.concat([steam_fbp_df, small_df, hydro_df, pump_df])
+        pd.concat([steam_df, small_df, hydro_df, pump_df])
         .rename(columns={
             'fuel_cost': 'total_fuel_cost',
             'fuel_mmbtu': 'total_mmbtu',

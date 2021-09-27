@@ -36,6 +36,7 @@ def fast_out(pudl_engine, pudl_datastore_fixture):
         "plants_small_ferc1",
         "pu_ferc1",
         "purchased_power_ferc1",
+        "all_plants_ferc1"
     ])
 def test_ferc1_outputs(fast_out, df_name):
     """Check that FERC 1 output functions work."""
