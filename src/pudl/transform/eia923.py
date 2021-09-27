@@ -400,9 +400,9 @@ def generation(eia923_dfs, eia923_transformed_dfs):
         .pipe(pudl.helpers.fix_eia_na)
         .pipe(pudl.helpers.convert_to_date)
     )
-    # There are a few records that contain "nans" in the generator_id field.
+    # There are a few records that contain "nan"s in the generator_id field.
     # We are doing a targeted drop here instead of a full drop because
-    # We don't want to drop a bunch of data points in new nans are introduced
+    # We don't want to drop a bunch of data points if new nans are introduced
     # into the data. See issue #1208 for targeted drop reasoning.
     row_drop_mask = gen_df.plant_id_eia.isin(
         TARGET_DROP_PLANT_IDS) & gen_df.generator_id.isin(MISSING_DATA_STRINGS)
