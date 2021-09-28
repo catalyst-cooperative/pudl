@@ -197,7 +197,7 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
             ],
             # Null values in the generator_id field. See:
             # https://github.com/catalyst-cooperative/pudl/issues/1208
-            # "primary_key": ["plant_id_eia", "generator_id", "report_date"],
+            "primary_key": ["plant_id_eia", "generator_id", "report_date"],
         },
         "sources": ["eia923"],
     },
