@@ -14,9 +14,6 @@ logger = logging.getLogger(__name__)
 ###############################################################################
 ###############################################################################
 
-TARGET_DROP_PLANT_IDS = [54587]
-MISSING_DATA_STRINGS = ["nan"]
-
 
 def _yearly_to_monthly_records(df):
     """Converts an EIA 923 record of 12 months of data into 12 monthly records.
@@ -404,6 +401,9 @@ def generation(eia923_dfs, eia923_transformed_dfs):
     # We are doing a targeted drop here instead of a full drop because
     # We don't want to drop a bunch of data points if new nans are introduced
     # into the data. See issue #1208 for targeted drop reasoning.
+    TARGET_DROP_PLANT_IDS = [54587]
+    MISSING_DATA_STRINGS = ["nan"]
+
     row_drop_mask = gen_df.plant_id_eia.isin(
         TARGET_DROP_PLANT_IDS) & gen_df.generator_id.isin(MISSING_DATA_STRINGS)
     gen_df = gen_df[~row_drop_mask]
