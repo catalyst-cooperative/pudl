@@ -275,8 +275,7 @@ class Datastore:
 
         """
         self._cache = resource_cache.LayeredCache()
-        # type: Dict[str, DatapackageDescriptor]
-        self._datapackage_descriptors = {}
+        self._datapackage_descriptors: Dict[str, DatapackageDescriptor] = {}
 
         if local_cache_path:
             self._cache.add_cache_layer(
