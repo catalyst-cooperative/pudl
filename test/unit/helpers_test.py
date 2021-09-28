@@ -78,3 +78,14 @@ def test_fix_leading_zero_gen_ids():
     })
     out_df = pudl.helpers.fix_leading_zero_gen_ids(in_df)
     assert_frame_equal(out_df, expected_df)
+
+
+def test_convert_df_to_excel_file():
+    """Test converting a dataframe into a pandas ExcelFile."""
+    in_df = pd.DataFrame([[1, 2], [1, 2]])
+    expected_df = pd.DataFrame([[1, 2], [1, 2]])
+
+    out_excel_file = pudl.helpers.convert_df_to_excel_file(in_df, index=False)
+    out_df = pd.read_excel(out_excel_file)
+
+    assert_frame_equal(out_df, expected_df)

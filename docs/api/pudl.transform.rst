@@ -12,7 +12,6 @@ Submodules
    pudl.transform.eia861
    pudl.transform.eia923
    pudl.transform.epacems
-   pudl.transform.epaipm
    pudl.transform.ferc1
    pudl.transform.ferc714
 

@@ -10,27 +10,21 @@ the tests have completed.
 import logging
 from pathlib import Path
 
-import pytest
 import sqlalchemy as sa
 import yaml
 
 import pudl
-from pudl.convert.epacems_to_parquet import epacems_to_parquet
 from pudl.extract.ferc1 import get_dbc_map, get_fields
 
 logger = logging.getLogger(__name__)
 
 
-def test_datapkg_bundle(datapkg_bundle):
-    """Generate limited packages for testing."""
-    pass
-
-
 def test_pudl_engine(pudl_engine):
     """Try creating a pudl_engine...."""
     assert isinstance(pudl_engine, sa.engine.Engine)
-    assert "plants_pudl" in pudl_engine.table_names()
-    assert "utilities_pudl" in pudl_engine.table_names()
+    insp = sa.inspect(pudl_engine)
+    assert "plants_pudl" in insp.get_table_names()
+    assert "utilities_pudl" in insp.get_table_names()
 
 
 def test_ferc1_etl(ferc1_engine):
@@ -41,42 +35,7 @@ def test_ferc1_etl(ferc1_engine):
     connections are created by the ferc1_engine fixture defined in conftest.py
     """
     assert isinstance(ferc1_engine, sa.engine.Engine)
-    assert "f1_respondent_id" in ferc1_engine.table_names()
-
-
-def test_epacems_to_parquet(
-    datapkg_bundle,
-    pudl_settings_fixture,
-    pudl_etl_params,
-    request,
-    live_dbs,
-):
-    """Attempt to convert a small amount of EPA CEMS data to parquet format."""
-    if live_dbs:
-        pytest.skip("Don't attempt EPA CEMS to Parquet conversion with live DBs.")
-
-    out_dir = Path(pudl_settings_fixture['parquet_dir'], 'epacems')
-    if out_dir.exists():
-        pytest.skip("epacems_to_parquet has already run in a fixture")
-
-    epacems_datapkg_json = Path(
-        pudl_settings_fixture['datapkg_dir'],
-        pudl_etl_params['datapkg_bundle_name'],
-        'epacems-eia',
-        "datapackage.json"
-    )
-    logger.info(f"Loading epacems from {epacems_datapkg_json}")
-    flat = pudl.etl.get_flattened_etl_parameters(
-        pudl_etl_params["datapkg_bundle_settings"]
-    )
-    epacems_to_parquet(
-        datapkg_path=epacems_datapkg_json,
-        epacems_years=flat["epacems_years"],
-        epacems_states=flat["epacems_states"],
-        out_dir=out_dir,
-        compression='snappy',
-        clobber=False,
-    )
+    assert "f1_respondent_id" in sa.inspect(ferc1_engine).get_table_names()
 
 
 def test_ferc1_schema(ferc1_etl_params, pudl_ferc1datastore_fixture):
@@ -205,6 +164,12 @@ class TestExcelExtractor:
             page='utility',
             year=2018,
             expected_name="1___Utility_Y2018.xlsx"
+        )
+        self.expected_file_name(
+            extractor=extractor,
+            page='plant',
+            year=2003,
+            expected_name="PLANTY03.DBF"
         )
 
     def test_excel_filename_eia923(self, pudl_datastore_fixture):

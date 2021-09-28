@@ -31,12 +31,12 @@ def utilities_eia860(pudl_engine, start_date=None, end_date=None):
     pt = pudl.output.pudltabl.get_table_meta(pudl_engine)
     # grab the entity table
     utils_eia_tbl = pt['utilities_entity_eia']
-    utils_eia_select = sa.sql.select([utils_eia_tbl])
+    utils_eia_select = sa.sql.select(utils_eia_tbl)
     utils_eia_df = pd.read_sql(utils_eia_select, pudl_engine)
 
     # grab the annual eia entity table
     utils_eia860_tbl = pt['utilities_eia860']
-    utils_eia860_select = sa.sql.select([utils_eia860_tbl])
+    utils_eia860_select = sa.sql.select(utils_eia860_tbl)
 
     if start_date is not None:
         start_date = pd.to_datetime(start_date)
@@ -52,10 +52,10 @@ def utilities_eia860(pudl_engine, start_date=None, end_date=None):
 
     # grab the glue table for the utility_id_pudl
     utils_g_eia_tbl = pt['utilities_eia']
-    utils_g_eia_select = sa.sql.select([
+    utils_g_eia_select = sa.sql.select(
         utils_g_eia_tbl.c.utility_id_eia,
         utils_g_eia_tbl.c.utility_id_pudl,
-    ])
+    )
     utils_g_eia_df = pd.read_sql(utils_g_eia_select, pudl_engine)
 
     out_df = pd.merge(utils_eia_df, utils_eia860_df,
@@ -69,7 +69,6 @@ def utilities_eia860(pudl_engine, start_date=None, end_date=None):
             "utility_id_eia": "eia",
             "utility_id_pudl": "eia",
         }))
-        .drop(['id'], axis='columns')
     )
     first_cols = [
         'report_date',
@@ -103,12 +102,12 @@ def plants_eia860(pudl_engine, start_date=None, end_date=None):
     pt = pudl.output.pudltabl.get_table_meta(pudl_engine)
     # grab the entity table
     plants_eia_tbl = pt['plants_entity_eia']
-    plants_eia_select = sa.sql.select([plants_eia_tbl])
+    plants_eia_select = sa.sql.select(plants_eia_tbl)
     plants_eia_df = pd.read_sql(plants_eia_select, pudl_engine)
 
     # grab the annual table select
     plants_eia860_tbl = pt['plants_eia860']
-    plants_eia860_select = sa.sql.select([plants_eia860_tbl])
+    plants_eia860_select = sa.sql.select(plants_eia860_tbl)
     if start_date is not None:
         start_date = pd.to_datetime(start_date)
         plants_eia860_select = plants_eia860_select.where(
@@ -126,10 +125,10 @@ def plants_eia860(pudl_engine, start_date=None, end_date=None):
 
     # plant glue table
     plants_g_eia_tbl = pt['plants_eia']
-    plants_g_eia_select = sa.sql.select([
+    plants_g_eia_select = sa.sql.select(
         plants_g_eia_tbl.c.plant_id_eia,
         plants_g_eia_tbl.c.plant_id_pudl,
-    ])
+    )
     plants_g_eia_df = pd.read_sql(plants_g_eia_select, pudl_engine)
 
     out_df = pd.merge(
@@ -137,12 +136,11 @@ def plants_eia860(pudl_engine, start_date=None, end_date=None):
     out_df = pd.merge(out_df, plants_g_eia_df, how='left', on=['plant_id_eia'])
 
     utils_eia_tbl = pt['utilities_eia']
-    utils_eia_select = sa.sql.select([utils_eia_tbl])
+    utils_eia_select = sa.sql.select(utils_eia_tbl)
     utils_eia_df = pd.read_sql(utils_eia_select, pudl_engine)
 
     out_df = (
         pd.merge(out_df, utils_eia_df, how='left', on=['utility_id_eia'])
-        .drop(['id'], axis='columns')
         .dropna(subset=["report_date", "plant_id_eia"])
         .astype(pudl.helpers.get_pudl_dtypes({
             "plant_id_eia": "eia",
@@ -255,18 +253,13 @@ def generators_eia860(
     pt = pudl.output.pudltabl.get_table_meta(pudl_engine)
     # Almost all the info we need will come from here.
     gens_eia860_tbl = pt['generators_eia860']
-    gens_eia860_select = sa.sql.select([gens_eia860_tbl, ])
+    gens_eia860_select = sa.sql.select(gens_eia860_tbl)
     # To get plant age
     generators_entity_eia_tbl = pt['generators_entity_eia']
-    generators_entity_eia_select = sa.sql.select([
-        generators_entity_eia_tbl,
-        # generators_entity_eia_tbl.c.report_date
-    ])
+    generators_entity_eia_select = sa.sql.select(generators_entity_eia_tbl)
     # To get the Lat/Lon coordinates
     plants_entity_eia_tbl = pt['plants_entity_eia']
-    plants_entity_eia_select = sa.sql.select([
-        plants_entity_eia_tbl,
-    ])
+    plants_entity_eia_select = sa.sql.select(plants_entity_eia_tbl)
 
     if start_date is not None:
         start_date = pd.to_datetime(start_date)
@@ -302,9 +295,6 @@ def generators_eia860(
     out_df = pd.merge(out_df, pu_eia,
                       on=['report_date', 'plant_id_eia'],
                       how="left")
-
-    # Drop a few extraneous fields...
-    out_df = out_df.drop(['id'], axis='columns')
 
     # Merge in the unit_id_pudl assigned to each generator in the BGA process
     # Pull the BGA table and make it unit-generator only:
@@ -392,7 +382,7 @@ def boiler_generator_assn_eia860(pudl_engine, start_date=None, end_date=None):
     """
     pt = pudl.output.pudltabl.get_table_meta(pudl_engine)
     bga_eia860_tbl = pt['boiler_generator_assn_eia860']
-    bga_eia860_select = sa.sql.select([bga_eia860_tbl])
+    bga_eia860_select = sa.sql.select(bga_eia860_tbl)
 
     if start_date is not None:
         start_date = pd.to_datetime(start_date)
@@ -407,7 +397,6 @@ def boiler_generator_assn_eia860(pudl_engine, start_date=None, end_date=None):
     out_df = (
         pd.read_sql(bga_eia860_select, pudl_engine)
         .assign(report_date=lambda x: pd.to_datetime(x.report_date))
-        .drop(['id'], axis='columns')
     )
     return out_df
 
@@ -430,10 +419,9 @@ def ownership_eia860(pudl_engine, start_date=None, end_date=None):
         to the EIA 860 Ownership table.
 
     """
-    # breakpoint()
     pt = pudl.output.pudltabl.get_table_meta(pudl_engine)
     own_eia860_tbl = pt["ownership_eia860"]
-    own_eia860_select = sa.sql.select([own_eia860_tbl])
+    own_eia860_select = sa.sql.select(own_eia860_tbl)
 
     if start_date is not None:
         start_date = pd.to_datetime(start_date)
@@ -447,7 +435,6 @@ def ownership_eia860(pudl_engine, start_date=None, end_date=None):
         )
     own_eia860_df = (
         pd.read_sql(own_eia860_select, pudl_engine)
-        .drop(['id'], axis='columns')
         .assign(report_date=lambda x: pd.to_datetime(x["report_date"]))
     )
 

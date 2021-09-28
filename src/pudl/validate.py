@@ -106,6 +106,39 @@ def check_date_freq(df1, df2, mult):
         )
 
 
+def no_null_rows(df, cols="all", df_name="", thresh=0.9):
+    """
+    Check for rows filled with NA values indicating bad merges.
+
+    Sum up the number of NA values in each row and the columns specified by
+    ``cols``. If the NA values make up more than ``thresh`` of the columns
+    overall, the row is considered Null and the check fails.
+
+    Args:
+        df (pandas.DataFrame): DataFrame to check for null rows.
+        cols (iterable or "all"): The labels of columns to check for
+            all-null values. If "all" check all columns.
+
+    Returns:
+        pandas.DataFrame: The input DataFrame, for use with DataFrame.pipe().
+
+    Raises:
+        ValueError: If the fraction of NA values in any row is greater than
+        ``thresh``.
+
+    """
+    if cols == "all":
+        cols = df.columns
+
+    null_rows = df[cols].isna().sum(axis="columns") / len(cols) > thresh
+    if null_rows.any():
+        raise ValueError(
+            f"Found {null_rows.sum(axis='rows')} Null rows in {df_name}."
+        )
+
+    return df
+
+
 def no_null_cols(df, cols="all", df_name=""):
     """Check that a dataframe has no all-NaN columns.
 

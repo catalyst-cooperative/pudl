@@ -3793,6 +3793,12 @@
                         "format": "default"
                     },
                     {
+                        "name": "service_area",
+                        "type": "string",
+                        "description": "Service area in which plant is located; for unregulated companies, it's the electric utility with which plant is interconnected",
+                        "format": "default"
+                    },
+                    {
                         "name": "transmission_distribution_owner_id",
                         "type": "string",
                         "description": "EIA-assigned code for owner of transmission/distribution system to which the plant is interconnected.",
@@ -5270,7 +5276,7 @@
                         "format": "default"
                     },
                     {
-                        "name": "phone_extension_1",
+                        "name": "phone_extension",
                         "type": "string",
                         "description": "Phone extension for contact 1",
                         "format": "default"
@@ -5282,7 +5288,7 @@
                         "format": "default"
                     },
                     {
-                        "name": "phone_number_1",
+                        "name": "phone_number",
                         "type": "string",
                         "description": "Phone number for contact 1",
                         "format": "default"
@@ -5512,12 +5518,6 @@
                         "name": "sector_id",
                         "type": "number",
                         "description": "Plant-level sector number, designated by the primary purpose, regulatory status and plant-level combined heat and power status",
-                        "format": "default"
-                    },
-                    {
-                        "name": "service_area",
-                        "type": "string",
-                        "description": "Service area in which plant is located; for unregulated companies, it's the electric utility with which plant is interconnected",
                         "format": "default"
                     },
                     {
