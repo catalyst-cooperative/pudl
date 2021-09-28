@@ -15,7 +15,7 @@ install_requires = [
     "gcsfs~=2021.7",
     "geopandas~=0.9.0",
     "jinja2~=3.0",
-    "matplotlib~=3.0",
+    "matplotlib~=3.0",  # Should make this optional with a "viz" extras
     "networkx~=2.2",
     "numpy~=1.20",
     "pandas~=1.3,!=1.3.3",  # IntCastingNaNError on v1.3.3 in unit tests
@@ -27,7 +27,6 @@ install_requires = [
     "pyyaml~=5.0",
     "scikit-learn~=0.24.1",
     "scipy~=1.6",
-    "seaborn~=0.11.1",
     "sqlalchemy~=1.4",
     "timezonefinder~=5.0",
     "xlsxwriter~=3.0",
@@ -44,17 +43,19 @@ dev_requires = [
 ]
 
 doc_requires = [
-    "doc8~=0.8.0",
+    "doc8~=0.9.0",
     "sphinx~=4.0",
+    "sphinx-autoapi~=1.8",
     "sphinx-issues~=1.2",
     "sphinx-reredirects",
-    "sphinx_rtd_theme~=0.5.0",
+    "sphinx-rtd-dark-mode~=1.2",
+    "sphinx-rtd-theme~=1.0",
 ]
 
 test_requires = [
     "bandit~=1.6",
     "coverage~=5.3",
-    "doc8~=0.8.0",
+    "doc8~=0.9.0",
     "flake8~=3.8",
     "flake8-builtins~=1.5",
     "flake8-colors~=0.1.0",
