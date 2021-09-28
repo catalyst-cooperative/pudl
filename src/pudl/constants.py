@@ -1382,11 +1382,11 @@ data_sources = (
 
 # All the years for which we ought to be able to download these data sources
 data_years = {
-    'eia860': tuple(range(2001, 2020)),
+    'eia860': tuple(range(2001, 2021)),
     'eia861': tuple(range(1990, 2020)),
-    'eia923': tuple(range(2001, 2020)),
+    'eia923': tuple(range(2001, 2021)),
     'epacems': tuple(range(1995, 2021)),
-    'ferc1': tuple(range(1994, 2020)),
+    'ferc1': tuple(range(1994, 2021)),
     'ferc714': (None, ),
 }
 """
@@ -1400,7 +1400,7 @@ working_partitions = {
         'years': tuple(range(2001, 2020))
     },
     'eia860m': {
-        'year_month': '2020-11'
+        'year_month': '2020-11'  # 2021-07 is available
     },
     'eia861': {
         'years': tuple(range(2001, 2020))
