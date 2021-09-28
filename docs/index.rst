@@ -18,4 +18,4 @@ The Public Utility Data Liberation Project
   Licensing <LICENSE>
   Code of Conduct <code_of_conduct>
   Release Notes <release_notes>
-  Module Index <api/modules>
+  autoapi/index

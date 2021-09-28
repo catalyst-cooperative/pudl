@@ -43,8 +43,9 @@ dev_requires = [
 ]
 
 doc_requires = [
-    "doc8~=0.8.0",
+    "doc8~=0.9.0",
     "sphinx~=4.0",
+    "sphinx-autoapi~=1.8",
     "sphinx-issues~=1.2",
     "sphinx-reredirects",
     "sphinx-rtd-dark-mode~=1.2",
@@ -54,7 +55,7 @@ doc_requires = [
 test_requires = [
     "bandit~=1.6",
     "coverage~=5.3",
-    "doc8~=0.8.0",
+    "doc8~=0.9.0",
     "flake8~=3.8",
     "flake8-builtins~=1.5",
     "flake8-colors~=0.1.0",
