@@ -5,25 +5,8 @@ from pathlib import Path
 from typing import Optional, Sequence
 
 import dask.dataframe as dd
-import pandas as pd
 
 import pudl
-
-# TODO: hardcoded data version doesn't belong here, but will defer fixing it until
-# crosswalk is formally integrated into PUDL. See Issue # 1123
-EPA_CROSSWALK_RELEASE = "https://github.com/USEPA/camd-eia-crosswalk/releases/download/v0.2.1/"
-
-
-def epa_crosswalk() -> pd.DataFrame:
-    # TODO: formally integrate this into PUDL. See Issue # 1123
-    """Read EPA/EIA crosswalk from EPA github repo.
-
-    See https://github.com/USEPA/camd-eia-crosswalk for details and data dictionary
-
-    Returns:
-        pd.Dataframe: EPA/EIA crosswalk
-    """
-    return pd.read_csv(EPA_CROSSWALK_RELEASE + "epa_eia_crosswalk.csv")
 
 
 def year_state_filter(years=(), states=()):
@@ -132,7 +115,7 @@ def epacems(
     states: Optional[Sequence[str]] = None,
     years: Optional[Sequence[int]] = None,
     columns: Optional[Sequence[str]] = None,
-    cems_path: Optional[Path] = None,
+    epacems_path: Optional[Path] = None,
 ) -> dd.DataFrame:
     """Load EPA CEMS data from PUDL with optional subsetting.
 
@@ -140,28 +123,41 @@ def epacems(
         states (Optional[Sequence[str]], optional): subset by state abbreviation. Defaults to None (gets all states).
         years (Optional[Sequence[int]], optional): subset by year. Defaults to None (gets all years).
         columns (Optional[Sequence[str]], optional): subset by column. Defaults to None (gets all columns).
-        cems_path (Optional[Path], optional): path to parquet dir. By default it automatically loads the path from pudl.workspace
+        epacems_path (Optional[Path], optional): path to parquet dir. By default it automatically loads the path from pudl.workspace
 
     Returns:
         dd.DataFrame: epacems data
     """
+    all_states = pudl.constants.working_partitions['epacems']['states']
     if states is None:
-        states = list(pudl.constants.us_states.keys())  # all states
+        states = all_states  # all states
     else:
+        nonexistent = [state for state in states if state not in all_states]
+        if nonexistent:
+            raise ValueError(
+                f"These input states are not in our dataset: {nonexistent}")
         states = list(states)
+
+    all_years = pudl.constants.working_partitions['epacems']['years']
     if years is None:
-        years = pudl.constants.data_years["epacems"]  # all years
+        years = all_years
     else:
+        nonexistent = [year for year in years if year not in all_years]
+        if nonexistent:
+            raise ValueError(f"These input years are not in our dataset: {nonexistent}")
         years = list(years)
+
     # columns=None is handled by dd.read_parquet; gives all columns
     if columns is not None:
+        # nonexistent columns are handled by dd.read_parquet; raises ValueError
         columns = list(columns)
-    if cems_path is None:
-        pudl_settings = pudl.workspace.setup.get_defaults()
-        cems_path = Path(pudl_settings["parquet_dir"]) / "epacems"
 
-    cems = dd.read_parquet(
-        cems_path,
+    if epacems_path is None:
+        pudl_settings = pudl.workspace.setup.get_defaults()
+        epacems_path = Path(pudl_settings["parquet_dir"]) / "epacems"
+
+    epacems = dd.read_parquet(
+        epacems_path,
         use_nullable_dtypes=True,
         columns=columns,
         filters=year_state_filter(
@@ -170,4 +166,4 @@ def epacems(
         ),
     )
 
-    return cems
+    return epacems
