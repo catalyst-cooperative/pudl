@@ -11,13 +11,6 @@ from pudl import constants as pc
 logger = logging.getLogger(__name__)
 
 
-OWNERSHIP_PLANT_GEN_ID_DUPES = [
-    (56032, "1"),
-]
-"""tuple: EIA Plant IDs which have duplicate generators within the ownership table due
-to the removal of leading zeroes from the generator IDs."""
-
-
 def ownership(eia860_dfs, eia860_transformed_dfs):
     """
     Pull and transform the ownership table.
@@ -83,7 +76,7 @@ def ownership(eia860_dfs, eia860_transformed_dfs):
     # The plant & generator ID values we know have duplicates to remove.
     known_dupes = (
         own_df.set_index(["plant_id_eia", "generator_id"])
-        .loc[OWNERSHIP_PLANT_GEN_ID_DUPES]
+        .loc[(56032, "1")]
     )
     # Index of own_df w/ duplicated records removed.
     without_known_dupes_idx = (
@@ -108,11 +101,20 @@ def ownership(eia860_dfs, eia860_transformed_dfs):
     own_df = pd.concat([without_known_dupes, deduped])
     # Check whether we have truly deduplicated the dataframe.
     remaining_dupes = own_df[own_df.duplicated(subset=own_pk, keep=False)]
-    if len(remaining_dupes) > 0:
+    if not remaining_dupes.empty:
         raise ValueError(
             "Duplicate ownership slices found in ownership_eia860:"
             f"{remaining_dupes}"
         )
+
+    # Remove a couple of records known to have null values in the primary key
+    mask = (
+        (own_df.report_date.isin(["2018-01-01", "2019-01-01"]))
+        & (own_df.plant_id_eia == 62844)
+        & (own_df.owner_utility_id_eia == 62745)
+        & (own_df.generator_id == "nan")
+    )
+    own_df = own_df[~mask]
 
     eia860_transformed_dfs['ownership_eia860'] = own_df
 
@@ -580,11 +582,10 @@ def transform(eia860_raw_dfs, eia860_tables=pc.pudl_tables["eia860"]):
                     "Not transforming EIA 860.")
         return eia860_transformed_dfs
     # for each of the tables, run the respective transform funtction
-    for table in eia860_transform_functions:
+    for table, transform_func in eia860_transform_functions.items():
         if table in eia860_tables:
             logger.info("Transforming raw EIA 860 DataFrames for %s "
                         "concatenated across all years.", table)
-            eia860_transform_functions[table](eia860_raw_dfs,
-                                              eia860_transformed_dfs)
+            transform_func(eia860_raw_dfs, eia860_transformed_dfs)
 
     return eia860_transformed_dfs

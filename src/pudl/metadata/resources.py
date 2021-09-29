@@ -196,8 +196,6 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
                 "report_date",
                 "net_generation_mwh",
             ],
-            # Null values in the generator_id field. See:
-            # https://github.com/catalyst-cooperative/pudl/issues/1208
             "primary_key": ["plant_id_eia", "generator_id", "report_date"],
         },
         "sources": ["eia923"],
@@ -379,12 +377,9 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
                 "owner_zip_code",
                 "fraction_owned",
             ],
-            # Currently there are NULL falues in some of these fields. This needs
-            # to be fixed in the transform process. See this Github issue:
-            # https://github.com/catalyst-cooperative/pudl/issues/1207
-            # "primary_key": [
-            #     "report_date", "plant_id_eia", "generator_id", "owner_utility_id_eia"
-            # ],
+            "primary_key": [
+                "report_date", "plant_id_eia", "generator_id", "owner_utility_id_eia"
+            ],
         },
         "sources": ["eia860"],
     },
