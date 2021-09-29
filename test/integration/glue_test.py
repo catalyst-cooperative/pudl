@@ -56,8 +56,7 @@ def test_unmapped_utils_ferc1(pudl_settings_fixture, ferc1_engine):
     """Test that we can identify unmapped FERC 1 utilities."""
     # First run the unmapped utility function as is:
     actually_unmapped_utils = (
-        pudl.glue.ferc1_eia.
-        get_unmapped_utils_ferc1(ferc1_engine)
+        pudl.glue.ferc1_eia.get_unmapped_utils_ferc1(ferc1_engine)
     )
     if len(actually_unmapped_utils) != 0:
         raise AssertionError(
