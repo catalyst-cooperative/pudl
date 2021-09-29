@@ -189,6 +189,7 @@ class PudlTabl(object):
             "plants_pumped_storage_ferc1": None,
             "purchased_power_ferc1": None,
             "plant_in_service_ferc1": None,
+            "all_plants_ferc1": None,
 
             "bga": None,
             "hr_by_unit": None,
@@ -810,6 +811,23 @@ class PudlTabl(object):
                 self.pudl_engine)
         return self._dfs['plant_in_service_ferc1']
 
+    def all_plants_ferc1(self, update=False):
+        """
+        Pull the FERC Form 1 all plants table.
+
+        Args:
+            update (bool): If true, re-calculate the output dataframe, even if
+                a cached version exists.
+
+        Returns:
+            pandas.DataFrame: a denormalized table for interactive use.
+
+        """
+        if update or self._dfs['all_plants_ferc1'] is None:
+            self._dfs['all_plants_ferc1'] = pudl.output.ferc1.all_plants_ferc1(
+                self.pudl_engine)
+        return self._dfs['all_plants_ferc1']
+
     ###########################################################################
     # EIA MCOE OUTPUTS
     ###########################################################################
@@ -863,8 +881,7 @@ class PudlTabl(object):
             self._dfs['fuel_cost'] = pudl.analysis.mcoe.fuel_cost(self)
         return self._dfs['fuel_cost']
 
-    def capacity_factor(self, update=False,
-                        min_cap_fact=None, max_cap_fact=None):
+    def capacity_factor(self, update=False, min_cap_fact=None, max_cap_fact=None):
         """
         Calculate and return generator level capacity factors.
 
