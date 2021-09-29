@@ -1400,7 +1400,7 @@ working_partitions = {
         'years': tuple(range(2001, 2020))
     },
     'eia860m': {
-        'year_month': '2021-07'  # 2021-07 is available
+        'year_month': '2020-11'  # 2021-07 is available swap when ids are mapped
     },
     'eia861': {
         'years': tuple(range(2001, 2020))
