@@ -7,6 +7,8 @@ import pandas as pd
 
 import pudl
 from pudl import constants as pc
+from pudl.constants import PUDL_TABLES
+from pudl.metadata.labels import ENTITY_TYPES, FUEL_TRANSPORTATION_MODES_EIA
 
 logger = logging.getLogger(__name__)
 
@@ -44,10 +46,10 @@ def ownership(eia860_dfs, eia860_transformed_dfs):
     )
 
     if (min(own_df.report_date.dt.year)
-            < min(pc.working_partitions['eia860']['years'])):
+            < min(pc.WORKING_PARTITIONS['eia860']['years'])):
         raise ValueError(
             f"EIA 860 transform step is only known to work for "
-            f"year {min(pc.working_partitions['eia860']['years'])} and later, "
+            f"year {min(pc.WORKING_PARTITIONS['eia860']['years'])} and later, "
             f"but found data from year {min(own_df.report_date.dt.year)}."
         )
 
@@ -294,14 +296,15 @@ def generators(eia860_dfs, eia860_transformed_dfs):
         gens_df[column] = (
             gens_df[column]
             .astype('string')
-            .replace(pc.TRANSIT_TYPE_DICT)
+            .str.upper()
+            .map(FUEL_TRANSPORTATION_MODES_EIA)
         )
 
     gens_df = (
         gens_df.
         pipe(pudl.helpers.month_year_to_date).
         assign(fuel_type_code_pudl=lambda x: pudl.helpers.cleanstrings_series(
-            x['energy_source_code_1'], pc.fuel_type_eia860_simple_map)).
+            x['energy_source_code_1'], pc.FUEL_TYPE_EIA860_SIMPLE_MAP)).
         pipe(pudl.helpers.simplify_strings,
              columns=['rto_iso_lmp_node_id',
                       'rto_iso_location_wholesale_reporting_id']).
@@ -547,7 +550,7 @@ def utilities(eia860_dfs, eia860_transformed_dfs):
             "utility_id_eia": "Int64"
         })
         .assign(
-            entity_type=lambda x: x.entity_type.map(pc.ENTITY_TYPE_DICT)
+            entity_type=lambda x: x.entity_type.map(ENTITY_TYPES)
         )
         .pipe(pudl.helpers.convert_to_date)
     )
@@ -557,7 +560,7 @@ def utilities(eia860_dfs, eia860_transformed_dfs):
     return eia860_transformed_dfs
 
 
-def transform(eia860_raw_dfs, eia860_tables=pc.pudl_tables["eia860"]):
+def transform(eia860_raw_dfs, eia860_tables=PUDL_TABLES["eia860"]):
     """
     Transform EIA 860 DataFrames.
 

@@ -1,58 +1,16 @@
 """Field metadata."""
-from typing import Any, Dict, List
+from typing import Any, Dict
 
 from pytz import all_timezones
 
 from .constants import SOURCES
-from .labels import ENTITY_TYPES, ESTIMATED_OR_ACTUAL, MOMENTARY_INTERRUPTIONS
-
-NERC_REGIONS: List[str] = [
-    'BASN',  # ASSESSMENT AREA Basin (WECC)
-    'CALN',  # ASSESSMENT AREA California (WECC)
-    'CALS',  # ASSESSMENT AREA California (WECC)
-    'DSW',  # ASSESSMENT AREA Desert Southwest (WECC)
-    'ASCC',  # Alaska
-    'ISONE',  # ISO New England (NPCC)
-    'ERCOT',  # lumped under TRE in 2017 Form instructions
-    'NORW',  # ASSESSMENT AREA Northwest (WECC)
-    'NYISO',  # ISO (NPCC)
-    'PJM',  # RTO
-    'ROCK',  # ASSESSMENT AREA Rockies (WECC)
-    'ECAR',  # OLD RE Now part of RFC and SERC
-    'FRCC',  # included in 2017 Form instructions, recently joined with SERC
-    'HICC',  # Hawaii
-    'MAAC',  # OLD RE Now part of RFC
-    'MAIN',  # OLD RE Now part of SERC, RFC, MRO
-    'MAPP',  # OLD/NEW RE Became part of MRO, resurfaced in 2010
-    'MRO',  # RE included in 2017 Form instructions
-    'NPCC',  # RE included in 2017 Form instructions
-    'RFC',  # RE included in 2017 Form instructions
-    'SERC',  # RE included in 2017 Form instructions
-    'SPP',  # RE included in 2017 Form instructions
-    'TRE',  # RE included in 2017 Form instructions (included ERCOT)
-    'WECC',  # RE included in 2017 Form instructions
-    'WSCC',  # OLD RE pre-2002 version of WECC
-    'MISO',  # ISO unclear whether technically a regional entity, but lots of entries
-    'ECAR_MAAC',
-    'MAPP_WECC',
-    'RFC_SERC',
-    'SPP_WECC',
-    'MRO_WECC',
-    'ERCOT_SPP',
-    'SPP_TRE',
-    'ERCOT_TRE',
-    'MISO_TRE',
-    'VI',  # Virgin Islands
-    'GU',  # Guam
-    'PR',  # Puerto Rico
-    'AS',  # American Samoa
-    'UNK',
-]
-"""
-North American Reliability Corporation (NERC) regions.
-
-See https://www.eia.gov/electricity/data/eia411/#tabs_NERC-3.
-"""
+from .enums import (CUSTOMER_CLASSES, EPACEMS_MEASUREMENT_CODES,
+                    EPACEMS_STATES, FUEL_CLASSES, NERC_REGIONS,
+                    RELIABILITY_STANDARDS, REVENUE_CLASSES, RTO_CLASSES,
+                    TECH_CLASSES)
+from .labels import (ENTITY_TYPES, ESTIMATED_OR_ACTUAL,
+                     FUEL_TRANSPORTATION_MODES_EIA, MOMENTARY_INTERRUPTIONS,
+                     POWER_PURCHASE_TYPES_FERC1, PRIME_MOVERS_EIA)
 
 FIELD_METADATA: Dict[str, Dict[str, Any]] = {
     "abbr": {
@@ -250,16 +208,7 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
         "type": "string",
         "description": "Identifies whether the reported value of emissions was measured, calculated, or measured and substitute.",
         "constraints": {
-            "enum": [
-                "",
-                "Measured and Substitute",
-                "Measured",
-                "Unknown Code",
-                "Undetermined",
-                "Substitute",
-                "LME",
-                "Other"
-            ]
+            "enum": EPACEMS_MEASUREMENT_CODES
         }
     },
     "co2_mass_tons": {
@@ -351,15 +300,7 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
     "customer_class": {
         "type": "string",
         "constraints": {
-            "enum": [
-                "commercial",
-                "industrial",
-                "direct_connection",
-                "other",
-                "residential",
-                "total",
-                "transportation"
-            ]
+            "enum": CUSTOMER_CLASSES
         }
     },
     "customer_incentives_cost": {
@@ -422,9 +363,8 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
     "demand_mwh": {
         "type": "number"
     },
-    "description": {
+    "ferc_account_description": {
         "type": "string",
-        # TODO: Disambiguate column name
     },
     "direct_load_control_customers": {
         "type": "integer"
@@ -566,33 +506,54 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
     "energy_served_ami_mwh": {
         "type": "number"
     },
+    "energy_source": {
+        "type": "string"
+    },
     "energy_source_code": {
         "type": "string",
         "description": "The fuel code associated with the fuel receipt. Two or three character alphanumeric."
     },
     "energy_source_1_transport_1": {
         "type": "string",
-        "description": "Primary mode of transport for energy source 1."
+        "description": "Primary mode of transport for energy source 1.",
+        "constraints": {
+            "enum": list(set(FUEL_TRANSPORTATION_MODES_EIA.values()))
+        }
     },
     "energy_source_1_transport_2": {
         "type": "string",
-        "description": "Secondary mode of transport for energy source 1."
+        "description": "Secondary mode of transport for energy source 1.",
+        "constraints": {
+            "enum": list(set(FUEL_TRANSPORTATION_MODES_EIA.values()))
+        }
     },
     "energy_source_1_transport_3": {
         "type": "string",
-        "description": "Tertiary mode of transport for energy source 1."
+        "description": "Tertiary mode of transport for energy source 1.",
+        "constraints": {
+            "enum": list(set(FUEL_TRANSPORTATION_MODES_EIA.values()))
+        }
     },
     "energy_source_2_transport_1": {
         "type": "string",
-        "description": "Primary mode of transport for energy source 2."
+        "description": "Primary mode of transport for energy source 2.",
+        "constraints": {
+            "enum": list(set(FUEL_TRANSPORTATION_MODES_EIA.values()))
+        }
     },
     "energy_source_2_transport_2": {
         "type": "string",
-        "description": "Secondary mode of transport for energy source 2."
+        "description": "Secondary mode of transport for energy source 2.",
+        "constraints": {
+            "enum": list(set(FUEL_TRANSPORTATION_MODES_EIA.values()))
+        }
     },
     "energy_source_2_transport_3": {
         "type": "string",
-        "description": "Tertiary mode of transport for energy source 2."
+        "description": "Tertiary mode of transport for energy source 2.",
+        "constraints": {
+            "enum": list(set(FUEL_TRANSPORTATION_MODES_EIA.values()))
+        }
     },
     "energy_source_code_1": {
         "type": "string",
@@ -709,7 +670,10 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
         "description": "Proportion of generator ownership."
     },
     "fuel_class": {
-        "type": "string"
+        "type": "string",
+        "constraints": {
+            "enum": FUEL_CLASSES
+        }
     },
     "fuel_consumed_for_electricity_mmbtu": {
         "type": "number",
@@ -1097,7 +1061,7 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
         "type": "number",
         "description": "The minimum load at which the generator can operate at continuosuly."
     },
-    "mode": {
+    "fuel_transportation_mode": {
         "type": "string"
     },
     "moisture_content_pct": {
@@ -1221,18 +1185,7 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
         "type": "string",
         "description": "Identifies whether the reported value of emissions was measured, calculated, or measured and substitute.",
         "constraints": {
-            "enum": [
-                "",
-                "Calculated",
-                "Measured and Substitute",
-                "Measured",
-                "Unknown Code",
-                "Undetermined",
-                "Substitute",
-                "LME",
-                "Other",
-                "Not Applicable"
-            ]
+            "enum": EPACEMS_MEASUREMENT_CODES
         }
     },
     "nox_rate_lbs_mmbtu": {
@@ -1243,18 +1196,7 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
         "type": "string",
         "description": "Identifies whether the reported value of emissions was measured, calculated, or measured and substitute.",
         "constraints": {
-            "enum": [
-                "",
-                "Calculated",
-                "Measured and Substitute",
-                "Measured",
-                "Unknown Code",
-                "Undetermined",
-                "Substitute",
-                "LME",
-                "Other",
-                "Not Applicable"
-            ]
+            "enum": EPACEMS_MEASUREMENT_CODES
         }
     },
     "nuclear_acct320_land": {
@@ -1721,9 +1663,9 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
         "type": "string",
         "description": "Name of the plant, as reported to FERC. This is a freeform string, not guaranteed to be consistent across references to the same plant.",
     },
-    "plant_name_original": {
+    "plant_name_clean": {
         "type": "string",
-        "description": "Original plant name in the FERC Form 1 FoxPro database."
+        "description": "A semi-manually cleaned version of the freeform FERC 1 plant name."
     },
     "plant_name_pudl": {
         "type": "string",
@@ -1771,7 +1713,10 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
     },
     "primary_transportation_mode_code": {
         "type": "string",
-        "description": "Transportation mode for the longest distance transported."
+        "description": "Transportation mode for the longest distance transported.",
+        "constraints": {
+            "enum": list(set(FUEL_TRANSPORTATION_MODES_EIA.values()))
+        }
     },
     "prime_mover": {
         "type": "string",
@@ -1780,7 +1725,9 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
     "prime_mover_code": {
         "type": "string",
         "description": "Code for the type of prime mover (e.g. CT, CG)",
-        # TODO: Add ENUM constraint here.
+        "constraints": {
+            "enum": list(PRIME_MOVERS_EIA.keys())
+        }
     },
     "production_total": {
         "type": "number",
@@ -1798,18 +1745,7 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
         "type": "string",
         "description": "Categorization based on the original contractual terms and conditions of the service. Must be one of 'requirements', 'long_firm', 'intermediate_firm', 'short_firm', 'long_unit', 'intermediate_unit', 'electricity_exchange', 'other_service', or 'adjustment'. Requirements service is ongoing high reliability service, with load integrated into system resource planning. 'Long term' means 5+ years. 'Intermediate term' is 1-5 years. 'Short term' is less than 1 year. 'Firm' means not interruptible for economic reasons. 'unit' indicates service from a particular designated generating unit. 'exchange' is an in-kind transaction.",
         "constraints": {
-            "enum": [
-                "",
-                "intermediate_unit",
-                "requirement",
-                "other_service",
-                "electricity_exchange",
-                "long_unit",
-                "adjustment",
-                "long_firm",
-                "intermediate_firm",
-                "short_firm"
-            ]
+            "enum": list(POWER_PURCHASE_TYPES_FERC1.values())
         }
     },
     "purchased_mwh": {
@@ -1886,16 +1822,7 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
     "revenue_class": {
         "type": "string",
         "constraints": {
-            "enum": [
-                "retail_sales",
-                "unbundled",
-                "delivery_customers",
-                "sales_for_resale",
-                "credits_or_adjustments",
-                "other",
-                "transmission",
-                "total"
-            ]
+            "enum": REVENUE_CLASSES
         }
     },
     "rtmo_acct380_land": {
@@ -1935,7 +1862,10 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
         "description": "The designation used to report ths specific location of the wholesale sales transactions to FERC for the Electric Quarterly Report"
     },
     "rtos_of_operation": {
-        "type": "string"
+        "type": "string",
+        "constraints": {
+            "enum": RTO_CLASSES
+        }
     },
     "saidi_w_major_event_dats_minus_loss_of_service_minutes": {
         "type": "number"
@@ -1972,7 +1902,10 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
     },
     "secondary_transportation_mode_code": {
         "type": "string",
-        "description": "Transportation mode for the second longest distance transported."
+        "description": "Transportation mode for the second longest distance transported.",
+        "constraints": {
+            "enum": list(set(FUEL_TRANSPORTATION_MODES_EIA.values()))
+        }
     },
     "sector_id": {
         "type": "integer",
@@ -2011,16 +1944,7 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
         "type": "string",
         "description": "Identifies whether the reported value of emissions was measured, calculated, or measured and substitute.",
         "constraints": {
-            "enum": [
-                "",
-                "Measured and Substitute",
-                "Measured",
-                "Unknown Code",
-                "Undetermined",
-                "Substitute",
-                "LME",
-                "Other"
-            ]
+            "enum": EPACEMS_MEASUREMENT_CODES
         }
     },
     "sold_to_utility_mwh": {
@@ -2030,13 +1954,10 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
         "type": "boolean",
         "description": "Indicates whether the generator is part of a solid fuel gasification system"
     },
-    "source": {
-        "type": "string"
-    },
     "standard": {
         "type": "string",
         "constraints": {
-            "enum": ["ieee_standard", "other_standard"]
+            "enum": RELIABILITY_STANDARDS
         }
     },
     "startup_source_code_1": {
@@ -2169,22 +2090,7 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
     "tech_class": {
         "type": "string",
         "constraints": {
-            "enum": [
-                "backup",
-                "chp_cogen",
-                "combustion_turbine",
-                "fuel_cell",
-                "hydro",
-                "internal_combustion",
-                "other",
-                "pv",
-                "steam",
-                "storage_pv",
-                "all_storage",
-                "total",
-                "virtual_pv",
-                "wind"
-            ]
+            "enum": TECH_CLASSES
         }
     },
     "technology_description": {
@@ -2292,7 +2198,7 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
         "type": "number"
     },
     "transmission_distribution_owner_id": {
-        "type": "string",
+        "type": "integer",
         "description": "EIA-assigned code for owner of transmission/distribution system to which the plant is interconnected."
     },
     "transmission_distribution_owner_name": {
@@ -2308,7 +2214,7 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
         "description": "Total Transmission Plant (FERC Accounts 350-359.1)"
     },
     "turbines_inverters_hydrokinetics": {
-        "type": "string",
+        "type": "integer",
         "description": "Number of wind turbines, or hydrokinetic buoys."
     },
     "turbines_num": {
@@ -2456,4 +2362,21 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
 Field attributes by PUDL identifier (`field.name`).
 
 Keys are in alphabetical order.
+"""
+
+FIELD_METADATA_BY_GROUP: Dict[str, Dict[str, Any]] = {
+    "epacems": {
+        "state": {
+            "constraints": {
+                "enum": EPACEMS_STATES
+            }
+        }
+    }
+}
+"""
+Field attributes by resource group (`resource.group`) and PUDL identifier.
+
+If a field exists in more than one data group (e.g. both ``eia`` and ``ferc1``)
+and has distinct metadata in those groups, this is the place to specify the
+override. Only those elements which should be overridden need to be specified.
 """

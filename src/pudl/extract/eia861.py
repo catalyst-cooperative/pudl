@@ -59,4 +59,4 @@ class Extractor(excel.GenericExtractor):
         return {
             "Plant ID": pd.Int64Dtype(),
             "Plant Id": pd.Int64Dtype(),
-            "zip_code": pc.column_dtypes['eia']['zip_code']}
+            "zip_code": pc.COLUMN_DTYPES['eia']['zip_code']}

@@ -102,25 +102,32 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
     "datasets": {
         "schema": {"fields": ["datasource", "active"], "primary_key": ["datasource"]},
     },
-    "energy_source_eia923": {
+    "energy_sources_eia": {
         "schema": {
-            "fields": ["abbr", "source"],
+            "fields": ["abbr", "energy_source"],
             "primary_key": ["abbr"],
-            "foreign_key_rules": {"fields": [["energy_source_code"]]},
+            "foreign_key_rules": {
+                "fields": [
+                    ["energy_source_code"],
+                    ["fuel_type"],
+                    ["fuel_type_code"],
+                ],
+                "exclude": ["plants_small_ferc1", "fuel_types_aer_eia"]
+            },
         },
         "sources": ["eia923"],
     },
     "ferc_accounts": {
         "description": "Account numbers from the FERC Uniform System of Accounts for Electric Plant, which is defined in Code of Federal Regulations (CFR) Title 18, Chapter I, Subchapter C, Part 101. (See e.g. https://www.law.cornell.edu/cfr/text/18/part-101).",
         "schema": {
-            "fields": ["ferc_account_id", "description"],
+            "fields": ["ferc_account_id", "ferc_account_description"],
             "primary_key": ["ferc_account_id"],
         },
     },
     "ferc_depreciation_lines": {
         "description": "PUDL assigned FERC Form 1 line identifiers and long descriptions from FERC Form 1 page 219, Accumulated Provision for Depreciation of Electric Utility Plant (Account 108).",
         "schema": {
-            "fields": ["line_id", "description"],
+            "fields": ["line_id", "ferc_account_description"],
             "primary_key": ["line_id"],
             "foreign_key_rules": {"fields": [["line_id"]]},
         },
@@ -172,19 +179,11 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
         },
         "sources": ["eia923"],
     },
-    "fuel_type_aer_eia923": {
+    "fuel_types_aer_eia": {
         "schema": {
             "fields": ["abbr", "fuel_type"],
             "primary_key": ["abbr"],
             "foreign_key_rules": {"fields": [["fuel_type_code_aer"]]},
-        },
-        "sources": ["eia923"],
-    },
-    "fuel_type_eia923": {
-        "schema": {
-            "fields": ["abbr", "fuel_type"],
-            "primary_key": ["abbr"],
-            "foreign_key_rules": {"fields": [["fuel_type"], ["fuel_type_code"]]},
         },
         "sources": ["eia923"],
     },
@@ -299,7 +298,19 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
                 "data_source",
             ],
             "primary_key": ["plant_id_eia", "generator_id", "report_date"],
-            "foreign_key_rules": {"fields": [["plant_id_eia", "generator_id", "report_date"]]},
+            "foreign_key_rules": {
+                "fields": [["plant_id_eia", "generator_id", "report_date"]],
+                # TODO: Excluding monthly data tables since their report_date
+                # values don't match up with generators_eia860, which is annual,
+                # so non-january records violate the constraint.
+                # See: https://github.com/catalyst-cooperative/pudl/issues/1196
+                "exclude": [
+                    "boiler_fuel_eia923",
+                    "fuel_receipts_costs_eia923",
+                    "generation_eia923",
+                    "generation_fuel_eia923",
+                ]
+            },
         },
         "sources": ["eia860"],
     },
@@ -356,6 +367,7 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
             ],
             "primary_key": ["plant_id_eia", "unitid", "operating_datetime_utc"],
         },
+        "group": "epacems",
         "sources": ["epacems"],
     },
     "natural_gas_transport_eia923": {
@@ -531,7 +543,19 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
                 "water_source",
             ],
             "primary_key": ["plant_id_eia", "report_date"],
-            "foreign_key_rules": {"fields": [["plant_id_eia", "report_date"]]},
+            "foreign_key_rules": {
+                "fields": [["plant_id_eia", "report_date"]],
+                # TODO: Excluding monthly data tables since their report_date
+                # values don't match up with plants_eia860, which is annual, so
+                # non-january records fail.
+                # See: https://github.com/catalyst-cooperative/pudl/issues/1196
+                "exclude": [
+                    "boiler_fuel_eia923",
+                    "fuel_receipts_costs_eia923",
+                    "generation_eia923",
+                    "generation_fuel_eia923",
+                ]
+            },
         },
         "sources": ["eia860"],
     },
@@ -562,7 +586,15 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
                 "timezone",
             ],
             "primary_key": ["plant_id_eia"],
-            "foreign_key_rules": {"fields": [["plant_id_eia"]]},
+            "foreign_key_rules": {
+                "fields": [["plant_id_eia"]],
+                # Excluding plants_eia because it's static and manually compiled
+                # so it has plants from *all* years of data, even when only a
+                # restricted set of data is processed, leading to constraint
+                # violations.
+                # See: https://github.com/catalyst-cooperative/pudl/issues/1196
+                "exclude": ["plants_eia"],
+            },
         },
     },
     "plants_ferc1": {
@@ -570,10 +602,11 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
         "schema": {
             "fields": ["utility_id_ferc1", "plant_name_ferc1", "plant_id_pudl"],
             "primary_key": ["utility_id_ferc1", "plant_name_ferc1"],
-            "foreign_key_rules": {"fields": [
-                ["utility_id_ferc1", "plant_name_ferc1"],
-                ["utility_id_ferc1", "plant_name_original"]
-            ]},
+            "foreign_key_rules": {
+                "fields": [
+                    ["utility_id_ferc1", "plant_name_ferc1"],
+                ],
+            },
         },
     },
     "plants_hydro_ferc1": {
@@ -686,7 +719,7 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
                 "record_id",
                 "utility_id_ferc1",
                 "report_year",
-                "plant_name_original",
+                "plant_name_clean",
                 "plant_name_ferc1",
                 "plant_type",
                 "ferc_license_id",
@@ -753,13 +786,18 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
         },
         "sources": ["ferc1"],
     },
-    "prime_movers_eia923": {
+    "prime_movers_eia": {
         "schema": {
             "fields": ["abbr", "prime_mover"],
             "primary_key": ["abbr"],
-            "foreign_key_rules": {"fields": [["prime_mover_code"]]},
+            "foreign_key_rules": {
+                "fields": [
+                    ["prime_mover_code"],
+                    ["planned_new_prime_mover_code"],
+                ]
+            },
         },
-        "sources": ["eia923"],
+        "sources": ["eia923", "eia860"],
     },
     "purchased_power_ferc1": {
         "description": "Purchased Power (Account 555) including power exchanges (i.e. transactions involving a balancing of debits and credits for energy, capacity, etc.) and any settlements for imbalanced exchanges. Reported on pages 326-327 of FERC Form 1. Extracted from the f1_purchased_pwr table in FERC's FoxPro database.",
@@ -785,9 +823,9 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
         },
         "sources": ["ferc1"],
     },
-    "transport_modes_eia923": {
+    "fuel_transportation_modes_eia": {
         "schema": {
-            "fields": ["abbr", "mode"],
+            "fields": ["abbr", "fuel_transportation_mode"],
             "primary_key": ["abbr"],
             "foreign_key_rules": {"fields": [
                 ["primary_transportation_mode_code"],
@@ -832,10 +870,20 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
 
             ],
             "primary_key": ["utility_id_eia", "report_date"],
-            "foreign_key_rules": {"fields": [
-                ["utility_id_eia", "report_date"],
-                ["owner_utility_id_eia", "report_date"],
-            ]},
+            "foreign_key_rules": {
+                "fields": [
+                    ["utility_id_eia", "report_date"],
+                    # Failing because this column is not harvested in the old
+                    # system. TODO: re-enable when we switch to new system.
+                    # https://github.com/catalyst-cooperative/pudl/issues/1196
+                    # ["owner_utility_id_eia", "report_date"],
+                ],
+                # 541 Utility IDs are missing from the 2010 utilities_eia860
+                # table, but do show up in plants_eia860 data. This needs to be
+                # addressed somehow, but for the moment I'm excluding this FK
+                # See: https://github.com/catalyst-cooperative/pudl/issues/1262
+                "exclude": ["plants_eia860"]
+            },
         },
         "sources": ["eia860"],
     },
@@ -843,10 +891,21 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
         "schema": {
             "fields": ["utility_id_eia", "utility_name_eia"],
             "primary_key": ["utility_id_eia"],
-            "foreign_key_rules": {"fields": [
-                ["utility_id_eia"],
-                ["owner_utility_id_eia"],
-            ]},
+            "foreign_key_rules": {
+                "fields": [
+                    ["utility_id_eia"],
+                    # Results in constraint failures because this column is not
+                    # harvested in the old system. See:
+                    # https://github.com/catalyst-cooperative/pudl/issues/1196
+                    # ["owner_utility_id_eia"]
+                ],
+                # Excluding utilities_eia b/c it's static and manually compiled
+                # so it has utilities from *all* years of data, even when only a
+                # restricted set of data is processed, leading to constraint
+                # violations.
+                # See: https://github.com/catalyst-cooperative/pudl/issues/1196
+                "exclude": ["utilities_eia"],
+            },
         },
     },
     "utilities_ferc1": {
@@ -877,8 +936,6 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
 Resource attributes by PUDL identifier (`resource.name`).
 
 Keys are in alphabetical order.
-Each element of `schema.fields`, `sources`, and `licenses`
-may be a dictionary or a PUDL identifier.
 
 See :func:`.helpers.build_foreign_keys` for the expected format of `foreign_key_rules`.
 """

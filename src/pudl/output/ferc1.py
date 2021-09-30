@@ -154,7 +154,6 @@ def plants_small_ferc1(pudl_engine):
                                            'utility_id_ferc1',
                                            'utility_id_pudl',
                                            'utility_name_ferc1',
-                                           "plant_name_original",
                                            'plant_name_ferc1',
                                            "record_id"])
     )

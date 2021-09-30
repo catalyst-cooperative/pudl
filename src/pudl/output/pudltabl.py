@@ -260,7 +260,7 @@ class PudlTabl(object):
 
             eia861_raw_dfs = (
                 pudl.extract.eia861.Extractor(self.ds)
-                .extract(year=pc.working_partitions["eia861"]["years"])
+                .extract(year=pc.WORKING_PARTITIONS["eia861"]["years"])
             )
             eia861_tfr_dfs = pudl.transform.eia861.transform(eia861_raw_dfs)
             for table in eia861_tfr_dfs:
