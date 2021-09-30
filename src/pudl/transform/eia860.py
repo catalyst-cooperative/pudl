@@ -109,7 +109,11 @@ def ownership(eia860_dfs, eia860_transformed_dfs):
             f"{remaining_dupes}"
         )
 
-    # Remove a couple of records known to have null values in the primary key
+    # Remove a couple of records known to have (literal) "nan" values in the
+    # generator_id column, which is part of the table's natural primary key.
+    # These "nan" strings get converted to true pd.NA values when the column
+    # datatypes are applied, which violates the primary key constraints.
+    # See https://github.com/catalyst-cooperative/pudl/issues/1207
     mask = (
         (own_df.report_date.isin(["2018-01-01", "2019-01-01"]))
         & (own_df.plant_id_eia == 62844)
