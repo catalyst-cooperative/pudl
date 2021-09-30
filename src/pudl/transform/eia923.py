@@ -319,20 +319,26 @@ def generation_fuel(eia923_dfs, eia923_transformed_dfs):
     )
 
     # conservative manual corrections for misplaced or mistyped fuel types
-    gf_df['fuel_type'] = gf_df['fuel_type'].replace({
-        # mistyped, 1 record in 2002 (as of 2019 data)
-        'OW': 'WO',
-        # duplicated AER fuel code, subtype not reported. One record in 2001 (as of 2019 data)
-        'COL': '',
-        # duplicated AER fuel code, maps unambiguously to 'wat'. 4 records in 2001 (as of 2019 data)
-        'HPS': 'WAT',
-        # duplicated AER fuel code, subtype not reported. 12 records in 2001 (as of 2019 data)
-        'OOG': '',
-    })
+    gf_df['fuel_type'] = (
+        gf_df['fuel_type']
+        .replace({
+            # mistyped, 1 record in 2002 (as of 2019 data)
+            'OW': 'WO',
+            # duplicated AER fuel code, subtype not reported. One record in 2001 (as of 2019 data)
+            'COL': '',
+            # duplicated AER fuel code, maps unambiguously to 'wat'. 4 records in 2001 (as of 2019 data)
+            'HPS': 'WAT',
+            # duplicated AER fuel code, subtype not reported. 12 records in 2001 (as of 2019 data)
+            'OOG': '',
+        })
+        # Empty strings and whitespace that should be NA.
+        .replace(to_replace=r'^\s*$', value=pd.NA, regex=True)
+    )
 
     gf_df['fuel_type_code_pudl'] = (
-        pudl.helpers.cleanstrings_series(gf_df.fuel_type,
-                                         pc.FUEL_TYPE_EIA923_GEN_FUEL_SIMPLE_MAP)
+        pudl.helpers.cleanstrings_series(
+            gf_df.fuel_type,
+            pc.FUEL_TYPE_EIA923_GEN_FUEL_SIMPLE_MAP)
     )
 
     # Convert Year/Month columns into a single Date column...

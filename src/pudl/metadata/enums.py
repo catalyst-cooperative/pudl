@@ -69,7 +69,9 @@ US_STATES_TERRITORIES: Dict[str, str] = {**US_STATES, **US_TERRITORIES}
 
 EPACEMS_STATES: List[str] = [
     state for state in US_STATES_TERRITORIES
-    if state not in {'AS', 'GU', 'HI', 'MP', 'VI'}
+    # AK and PR have data but only a few years, and that breaks the Datastore.
+    # See https://github.com/catalyst-cooperative/pudl/issues/1264
+    if state not in {'AK', 'AS', 'GU', 'HI', 'MP', 'PR', 'VI'}
 ]
 """The US states and territories that are present in the EPA CEMS dataset."""
 

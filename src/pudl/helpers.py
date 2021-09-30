@@ -15,6 +15,7 @@ import re
 import shutil
 from functools import partial
 from io import BytesIO
+from typing import Any, Dict, List
 
 import addfips
 import numpy as np
@@ -23,6 +24,7 @@ import requests
 import sqlalchemy as sa
 
 from pudl import constants as pc
+from pudl.metadata.classes import Package
 
 logger = logging.getLogger(__name__)
 
@@ -37,6 +39,50 @@ as NA, but electricity generation is reported normally, then the fuel
 consumption for the year needs to be NA, otherwise we'll get unrealistic heat
 rates.
 """
+
+
+def find_foreign_key_errors(dfs: Dict[str, pd.DataFrame]) -> List[Dict[str, Any]]:
+    """
+    Report foreign key violations from a dictionary of dataframes.
+
+    The database schema to check against is generated based on the names of the
+    dataframes (keys of the dictionary) and the PUDL metadata structures.
+
+    Args:
+        dfs: Keys are table names, and values are dataframes ready for loading
+            into the SQLite database.
+
+    Returns:
+        A list of dictionaries, each one pertains to a single database table
+        in which a foreign key constraint violation was found, and it includes
+        the table name, foreign key definition, and the elements of the
+        dataframe that violated the foreign key constraint.
+
+    """
+    package = Package.from_resource_ids(dfs)
+    errors = []
+    for resource in package.resources:
+        for foreign_key in resource.schema.foreign_keys:
+            x = dfs[resource.name][foreign_key.fields]
+            y = dfs[foreign_key.reference.resource][foreign_key.reference.fields]
+            ncols = x.shape[1]
+            idx = range(ncols)
+            xx, yy = x.set_axis(idx, axis=1), y.set_axis(idx, axis=1)
+            if ncols == 1:
+                # Faster check for single-field foreign key
+                invalid = ~(xx[0].isin(yy[0]) | xx[0].isna())
+            else:
+                invalid = ~(
+                    pd.concat([yy, xx]).duplicated().iloc[len(yy):] |
+                    xx.isna().any(axis=1)
+                )
+            if invalid.any():
+                errors.append({
+                    'resource': resource.name,
+                    'foreign_key': foreign_key,
+                    'invalid': x[invalid]
+                })
+    return errors
 
 
 def download_zip_url(url, save_path, chunk_size=128):

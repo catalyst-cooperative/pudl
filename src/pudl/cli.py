@@ -19,11 +19,14 @@ import argparse
 import logging
 import pathlib
 import sys
+from sqlite3 import sqlite_version
 
 import coloredlogs
 import yaml
+from packaging import version
 
 import pudl
+from pudl.load.sqlite import MINIMUM_SQLITE_VERSION
 
 logger = logging.getLogger(__name__)
 
@@ -122,6 +125,17 @@ def main():
         pudl_out=pudl_out
     )
     pudl_settings["sandbox"] = args.sandbox
+
+    bad_sqlite_version = (
+        version.parse(sqlite_version) < version.parse(MINIMUM_SQLITE_VERSION)
+    )
+    if bad_sqlite_version and not args.ignore_type_constraints:
+        args.ignore_type_constraints = False
+        logger.warning(
+            f"Found SQLite {sqlite_version} which is less than "
+            f"the minimum required version {MINIMUM_SQLITE_VERSION} "
+            "As a result, data type constraint checking will be disabled."
+        )
 
     pudl.etl.etl(
         etl_settings_bundle=script_settings['datapkg_bundle_settings'],

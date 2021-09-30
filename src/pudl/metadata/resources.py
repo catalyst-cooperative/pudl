@@ -602,10 +602,13 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
         "schema": {
             "fields": ["utility_id_ferc1", "plant_name_ferc1", "plant_id_pudl"],
             "primary_key": ["utility_id_ferc1", "plant_name_ferc1"],
-            "foreign_key_rules": {"fields": [
-                ["utility_id_ferc1", "plant_name_ferc1"],
-                ["utility_id_ferc1", "plant_name_original"]
-            ]},
+            "foreign_key_rules": {
+                "fields": [
+                    ["utility_id_ferc1", "plant_name_ferc1"],
+                    ["utility_id_ferc1", "plant_name_original"]
+                ],
+                "exclude": ["plants_small_ferc1"],
+            },
         },
     },
     "plants_hydro_ferc1": {
@@ -789,7 +792,12 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
         "schema": {
             "fields": ["abbr", "prime_mover"],
             "primary_key": ["abbr"],
-            "foreign_key_rules": {"fields": [["prime_mover_code"]]},
+            "foreign_key_rules": {
+                "fields": [
+                    ["prime_mover_code"],
+                    ["planned_new_prime_mover_code"],
+                ]
+            },
         },
         "sources": ["eia923", "eia860"],
     },
@@ -864,13 +872,20 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
 
             ],
             "primary_key": ["utility_id_eia", "report_date"],
-            "foreign_key_rules": {"fields": [
-                ["utility_id_eia", "report_date"],
-                # Failing because this column is not harvested in the old
-                # system. TODO: re-enable when we switch to new system. See:
-                # https://github.com/catalyst-cooperative/pudl/issues/1196
-                # ["owner_utility_id_eia", "report_date"],
-            ]},
+            "foreign_key_rules": {
+                "fields": [
+                    ["utility_id_eia", "report_date"],
+                    # Failing because this column is not harvested in the old
+                    # system. TODO: re-enable when we switch to new system.
+                    # https://github.com/catalyst-cooperative/pudl/issues/1196
+                    # ["owner_utility_id_eia", "report_date"],
+                ],
+                # 541 Utility IDs are missing from the 2010 utilities_eia860
+                # table, but do show up in plants_eia860 data. This needs to be
+                # addressed somehow, but for the moment I'm excluding this FK
+                # See: https://github.com/catalyst-cooperative/pudl/issues/1262
+                "exclude": ["plants_eia860"]
+            },
         },
         "sources": ["eia860"],
     },
