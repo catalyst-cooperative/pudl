@@ -1663,9 +1663,9 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
         "type": "string",
         "description": "Name of the plant, as reported to FERC. This is a freeform string, not guaranteed to be consistent across references to the same plant.",
     },
-    "plant_name_original": {
+    "plant_name_clean": {
         "type": "string",
-        "description": "Original plant name in the FERC Form 1 FoxPro database."
+        "description": "A semi-manually cleaned version of the freeform FERC 1 plant name."
     },
     "plant_name_pudl": {
         "type": "string",

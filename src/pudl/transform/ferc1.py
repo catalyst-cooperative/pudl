@@ -1162,8 +1162,7 @@ def plants_small(ferc1_raw_dfs, ferc1_transformed_dfs):
 
     ferc1_small_df.rename(columns={
         # FERC 1 DB Name      PUDL DB Name
-        'plant_name': 'plant_name_original',
-        'plant_name_clean': 'plant_name_ferc1',
+        'plant_name': 'plant_name_ferc1',
         'ferc_license': 'ferc_license_id',
         'yr_constructed': 'construction_year',
         'capacity_rating': 'capacity_mw',

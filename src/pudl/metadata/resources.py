@@ -605,9 +605,7 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
             "foreign_key_rules": {
                 "fields": [
                     ["utility_id_ferc1", "plant_name_ferc1"],
-                    ["utility_id_ferc1", "plant_name_original"]
                 ],
-                "exclude": ["plants_small_ferc1"],
             },
         },
     },
@@ -721,7 +719,7 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
                 "record_id",
                 "utility_id_ferc1",
                 "report_year",
-                "plant_name_original",
+                "plant_name_clean",
                 "plant_name_ferc1",
                 "plant_type",
                 "ferc_license_id",
