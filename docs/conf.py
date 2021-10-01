@@ -59,12 +59,7 @@ redirects = {
 autoapi_type = 'python'
 autoapi_dirs = ['../src/pudl', ]
 autoapi_ignore = [
-    "*/convert/datapkg_to_sqlite.py",
-    "*/convert/merge_datapkgs.py",
-    "*/load/csv.py",
-    "*/load/metadata.py",
     "*_test.py",
-    "*/package_data/*",
 ]
 
 # GitHub repo

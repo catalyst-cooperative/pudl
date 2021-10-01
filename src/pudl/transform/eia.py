@@ -393,10 +393,10 @@ def _compile_all_entity_records(entity, eia_transformed_dfs):
                 dfs.append(df)
 
                 # remove the static columns, with an exception
-                if ((entity in ('generators', 'plants'))
-                    and (table_name in ('ownership_eia860',
-                                        'utilities_eia860',
-                                        'generators_eia860'))):
+                if (
+                    (entity in ('generators', 'plants'))
+                    and (table_name in ('utilities_eia860', 'plants_eia860', 'generators_eia860'))
+                ):
                     cols.remove('utility_id_eia')
                 transformed_df = transformed_df.drop(columns=cols)
                 eia_transformed_dfs[table_name] = transformed_df
