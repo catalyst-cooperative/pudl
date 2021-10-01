@@ -898,6 +898,7 @@ def etl(  # noqa: C901
         dataset_names.update(ds.keys())
     logger.warning(
         f'Running etl with the following configurations: {sorted(dataset_names)}')
+    prefect.context.dataset_names = dataset_names
 
     # Create the prefect pipelines
     extra_params = {
@@ -909,53 +910,54 @@ def etl(  # noqa: C901
 
     pipelines = {}
 
-    # for pl_class in [Ferc1Pipeline, EiaPipeline, EpaIpmPipeline, GluePipeline]:
-    #     pipelines[pl_class.DATASET] = pl_class(
-    #         pudl_settings, dataset_list, flow,
-    #         etl_settings=etl_settings,
-    #         **extra_params.get(pl_class.DATASET, {}))
-
     for dataset in dataset_list:
         if dataset.get("ferc1", False):
-            pl_class = Ferc1Pipeline
+            pipelines[Ferc1Pipeline.DATASET] = Ferc1Pipeline(
+                pudl_settings, dataset_list, flow,
+                etl_settings=etl_settings,
+                **extra_params.get(Ferc1Pipeline.DATASET, {}))
         elif dataset.get("eia", False):
-            pl_class = EiaPipeline
+            pipelines[EiaPipeline.DATASET] = EiaPipeline(
+                pudl_settings, dataset_list, flow,
+                etl_settings=etl_settings,
+                **extra_params.get(EiaPipeline.DATASET, {}))
         elif dataset.get("glue", False):
-            pl_class = GluePipeline
-        pipelines[pl_class.DATASET] = pl_class(
-            pudl_settings, dataset_list, flow,
-            etl_settings=etl_settings,
-            **extra_params.get(pl_class.DATASET, {}))
+            pipelines[GluePipeline.DATASET] = GluePipeline(
+                pudl_settings, dataset_list, flow,
+                etl_settings=etl_settings,
+                **extra_params.get(GluePipeline.DATASET, {}))
 
-    # EpaCems pipeline is special because it needs to read the output of eia
-    # pipeline
+    if pipelines:
+        with flow:
+            outputs = []
+            for dataset, pl in pipelines.items():
+                if pl.is_executed():
+                    outputs.append(pl.outputs())
 
-    pipelines['epacems'] = EpaCemsPipeline(
-        pudl_settings,
-        dataset_list,
-        flow,
-        etl_settings,
-        eia_pipeline=pipelines['eia'])
+            # `tables` is a DataFrame collections containing every dataframe from the pipelines.
+            tables = dfc.merge_list(outputs)
 
-    # TODO: These steps will probably fail because load.sqlite does not expect DataFrameCollections
-    with flow:
-        outputs = []
-        for dataset, pl in pipelines.items():
-            if pl.is_executed():
-                outputs.append(pl.outputs())
+            # # Load the ferc1 + eia data directly into the SQLite DB:
+            pudl_engine = sa.create_engine(pudl_settings["pudl_db"])
+            pudl.load.sqlite.dfs_to_sqlite(
+                tables,
+                engine=pudl_engine,
+                check_foreign_keys=check_foreign_keys,
+                check_types=check_types,
+                check_values=check_values,
+            )
 
-        # `tables` is a DataFrame collections containing every dataframe from the pipelines.
-        tables = dfc.merge_list(outputs)
+    # Add CEMS pipeline to the flow
+    for dataset in dataset_list:
+        if dataset.get("epacems", False):
+            epacems_pipeline = EpaCemsPipeline(
+                pudl_settings,
+                dataset_list,
+                flow,
+                etl_settings=etl_settings)
 
-        # # Load the ferc1 + eia data directly into the SQLite DB:
-        pudl_engine = sa.create_engine(pudl_settings["pudl_db"])
-        pudl.load.sqlite.dfs_to_sqlite(
-            tables,
-            engine=pudl_engine,
-            check_foreign_keys=check_foreign_keys,
-            check_types=check_types,
-            check_values=check_values,
-        )
+            with flow:
+                epacems_pipeline.build(etl_settings)
 
     if commandline_args.show_flow_graph:
         flow.visualize()

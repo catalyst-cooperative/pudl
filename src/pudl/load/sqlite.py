@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 MINIMUM_SQLITE_VERSION = "3.32.0"
 
 
-@task(checkpoint=False)
+@task(checkpoint=False, name="dfs_to_sqlite")
 def dfs_to_sqlite(
     dfs: DataFrameCollection,
     engine: sa.engine.Engine,
