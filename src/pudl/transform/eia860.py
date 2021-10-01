@@ -148,8 +148,6 @@ def ownership(eia860_dfs, eia860_transformed_dfs):
         & (own_df.fraction_owned == 1.0)
     )
     own_df.loc[single_owner_operator, "utility_id_eia"] = pd.NA
-    # Utility ID doesn't end up in this table, so neither should utility name...
-    own_df = own_df.drop("utility_name_eia", axis="columns")
 
     eia860_transformed_dfs['ownership_eia860'] = own_df
 

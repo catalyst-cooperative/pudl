@@ -233,11 +233,11 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
             "fields": [
                 "plant_id_eia",
                 "generator_id",
+                "utility_id_eia",
                 "report_date",
                 "operational_status_code",
                 "operational_status",
                 "ownership_code",
-                "utility_id_eia",
                 "capacity_mw",
                 "summer_capacity_mw",
                 "summer_capacity_estimate",
@@ -378,7 +378,7 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
         "schema": {
             "fields": [
                 "report_date",
-                # "utility_id_eia",
+                "utility_id_eia",
                 "plant_id_eia",
                 "generator_id",
                 "owner_utility_id_eia",
