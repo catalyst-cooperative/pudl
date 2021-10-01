@@ -21,8 +21,8 @@ class DatasetPipeline:
 
     DATASET = None
 
-    def __init__(self, pudl_settings, dataset_list, flow, datapkg_name=None, etl_settings=None,
-                 clobber=False, datapkg_dir=None):
+    def __init__(self, pudl_settings, dataset_list, flow, etl_settings=None,
+                 clobber=False):
         """Initialize Pipeline object and construct prefect tasks.
 
         Args:
@@ -32,8 +32,6 @@ class DatasetPipeline:
             datapkg_name (str): fully qualified name of the datapackage/bundle
             etl_settings (dict): the complete ETL configuration
             clobber (bool): if True, then existing outputs will be clobbered
-            datapkg_dir (str): specifies where the output datapkg csv files should be
-              written to.
         """
         if not self.DATASET:
             raise NotImplementedError(
@@ -41,12 +39,11 @@ class DatasetPipeline:
         self.flow = flow
         self.pipeline_params = None
         self.pudl_settings = pudl_settings
+        self.datapkg_name = etl_settings["datapkg_bundle_settings"]["name"]
         self.output_dfc = None
         self.pipeline_params = self._get_dataset_params(dataset_list)
-        self.datapkg_name = datapkg_name
         self.etl_settings = etl_settings
         self.clobber = clobber
-        self.datapkg_dir = datapkg_dir
         if self.pipeline_params:
             self.pipeline_params = self.validate_params(self.pipeline_params)
             self.output_dfc = self.build(self.pipeline_params)

@@ -361,7 +361,6 @@ ferc1_huge_tables = {
 
 # Invert the map above so we can go either way as needed
 ferc1_tbl2dbf = {v: k for k, v in ferc1_dbf2tbl.items()}
-
 """dict: A dictionary mapping database table names (keys) to FERC Form 1 DBF
     files(w / o .DBF file extension) (values).
 """
@@ -407,7 +406,6 @@ ferc1_pudl_tables = (
     integrated into PUDL.
 """
 
-
 table_map_ferc1_pudl = {
     'fuel_ferc1': 'f1_fuel',
     'plants_steam_ferc1': 'f1_steam',
@@ -423,58 +421,39 @@ table_map_ferc1_pudl = {
 """
 
 # This is the list of EIA923 tables that can be successfully pulled into PUDL
-eia923_pudl_tables = ('generation_fuel_eia923',
-                      'boiler_fuel_eia923',
-                      'generation_eia923',
-                      'coalmine_eia923',
-                      'fuel_receipts_costs_eia923')
+eia923_pudl_tables = (
+    'generation_fuel_eia923',
+    'boiler_fuel_eia923',
+    'generation_eia923',
+    'coalmine_eia923',
+    'fuel_receipts_costs_eia923'
+)
 """tuple: A tuple containing the EIA923 tables that can be successfully
     integrated into PUDL.
 """
 
-epaipm_pudl_tables = (
-    'transmission_single_epaipm',
-    'transmission_joint_epaipm',
-    'load_curves_epaipm',
-    'plant_region_map_epaipm',
-)
-"""tuple: A tuple containing the EPA IPM tables that can be successfully
-    integrated into PUDL.
-"""
-
 # List of entity tables
-entity_tables = ['utilities_entity_eia',
-                 'plants_entity_eia',
-                 'generators_entity_eia',
-                 'boilers_entity_eia',
-                 'regions_entity_epaipm', ]
-"""list: A list of PUDL entity tables.
-"""
+entity_tables = [
+    'utilities_entity_eia',
+    'plants_entity_eia',
+    'generators_entity_eia',
+    'boilers_entity_eia',
+]
+"""list: A list of PUDL entity tables."""
 
 xlsx_maps_pkg = 'pudl.package_data.meta.xlsx_maps'
 """string: The location of the xlsx maps within the PUDL package data."""
 
-##############################################################################
-# EIA 923 Spreadsheet Metadata
-##############################################################################
-# patterns for matching columns to months:
-month_dict_eia923 = {1: '_january$',
-                     2: '_february$',
-                     3: '_march$',
-                     4: '_april$',
-                     5: '_may$',
-                     6: '_june$',
-                     7: '_july$',
-                     8: '_august$',
-                     9: '_september$',
-                     10: '_october$',
-                     11: '_november$',
-                     12: '_december$'}
-"""dict: A dictionary mapping column numbers (keys) to months (values)."""
-
-##############################################################################
-# EIA 860 Spreadsheet Metadata
-##############################################################################
+glue_pudl_tables = (
+    'plants_eia',
+    'plants_ferc',
+    'plants',
+    'utilities_eia',
+    'utilities_ferc',
+    'utilities',
+    'utility_plant_assn'
+)
+"""tuple: The 'glue' tables used to connect different datasets together."""
 
 # This is the list of EIA860 tables that can be successfully pulled into PUDL
 eia860_pudl_tables = (
@@ -789,6 +768,7 @@ prime_movers_eia923 = {
     'BA': 'Energy Storage, Battery',
     'BT': 'Turbines Used in a Binary Cycle. Including those used for geothermal applications',
     'CA': 'Combined-Cycle -- Steam Part',
+    'CC': 'Combined-Cycle, Total Unit',
     'CE': 'Energy Storage, Compressed Air',
     'CP': 'Energy Storage, Concentrated Solar Power',
     'CS': 'Combined-Cycle Single-Shaft Combustion Turbine and Steam Turbine share of single',
@@ -1145,6 +1125,7 @@ fuel_units_eia923 = {
 contract_type_eia923 = {
     'C': 'Contract - Fuel received under a purchase order or contract with a term of one year or longer.  Contracts with a shorter term are considered spot purchases ',
     'NC': 'New Contract - Fuel received under a purchase order or contract with duration of one year or longer, under which deliveries were first made during the reporting month',
+    'N': 'New Contract - see NC code. This abbreviation existed only in 2008 before being replaced by NC.',
     'S': 'Spot Purchase',
     'T': 'Tolling Agreement – Fuel received under a tolling agreement (bartering arrangement of fuel for generation)'
 }
@@ -1220,7 +1201,7 @@ coalmine_country_eia923 = {
     'RS': 'RUS',  # Russia
     'UK': 'GBR',  # United Kingdom of Great Britain
     'VZ': 'VEN',  # Venezuela
-    'OC': 'other_country',
+    'OT': 'other_country',
     'IM': 'unknown'
 }
 """dict: A dictionary mapping coal mine country codes (keys) to ISO-3166-1 three
@@ -1288,7 +1269,7 @@ entities = {
          'city', 'county', 'ferc_cogen_status',
          'ferc_exempt_wholesale_generator', 'ferc_small_power_producer',
          'grid_voltage_2_kv', 'grid_voltage_3_kv', 'grid_voltage_kv',
-         'iso_rto_code', 'latitude', 'longitude', 'service_area',
+         'iso_rto_code', 'latitude', 'longitude',
          'plant_name_eia', 'primary_purpose_naics_id',
          'sector_id', 'sector_name', 'state', 'street_address', 'zip_code'],
         # annual cols
@@ -1300,7 +1281,7 @@ entities = {
          'natural_gas_local_distribution_company', 'natural_gas_storage',
          'natural_gas_pipeline_name_1', 'natural_gas_pipeline_name_2',
          'natural_gas_pipeline_name_3', 'nerc_region', 'net_metering',
-         'pipeline_notes', 'regulatory_status_code',
+         'pipeline_notes', 'regulatory_status_code', 'service_area',
          'transmission_distribution_owner_id',
          'transmission_distribution_owner_name',
          'transmission_distribution_owner_state', 'utility_id_eia'],
@@ -1365,7 +1346,7 @@ entities = {
          'attention_line', 'address_2', 'zip_code_4',
          'contact_firstname', 'contact_lastname', 'contact_title',
          'contact_firstname_2', 'contact_lastname_2', 'contact_title_2',
-         'phone_extension_1', 'phone_extension_2', 'phone_number_1',
+         'phone_extension', 'phone_extension_2', 'phone_number',
          'phone_number_2'],
         # need type fixing
         {'utility_id_eia': 'int64', }, ],
@@ -1388,102 +1369,11 @@ epacems_tables = ("hourly_emissions_epacems")
 """tuple: A tuple containing tables of EPA CEMS data to pull into PUDL.
 """
 
-files_dict_epaipm = {
-    'transmission_single_epaipm': '*table_3-21*',
-    'transmission_joint_epaipm': '*transmission_joint_ipm*',
-    'load_curves_epaipm': '*table_2-2_*',
-    'plant_region_map_epaipm': '*needs_v6*',
-}
-"""dict: A dictionary of EPA IPM tables and strings that files of those tables
-    contain.
-"""
-
-epaipm_url_ext = {
-    'transmission_single_epaipm': 'table_3-21_annual_transmission_capabilities_of_u.s._model_regions_in_epa_platform_v6_-_2021.xlsx',
-    'load_curves_epaipm': 'table_2-2_load_duration_curves_used_in_epa_platform_v6.xlsx',
-    'plant_region_map_epaipm': 'needs_v6_november_2018_reference_case_0.xlsx',
-}
-"""dict: A dictionary of EPA IPM tables and associated URLs extensions for
-    downloading that table's data.
-"""
-
-epaipm_region_names = [
-    'ERC_PHDL', 'ERC_REST', 'ERC_FRNT', 'ERC_GWAY', 'ERC_WEST',
-    'FRCC', 'NENG_CT', 'NENGREST', 'NENG_ME', 'MIS_AR', 'MIS_IL',
-    'MIS_INKY', 'MIS_IA', 'MIS_MIDA', 'MIS_LA', 'MIS_LMI', 'MIS_MNWI',
-    'MIS_D_MS', 'MIS_MO', 'MIS_MAPP', 'MIS_AMSO', 'MIS_WOTA',
-    'MIS_WUMS', 'NY_Z_A', 'NY_Z_B', 'NY_Z_C&E', 'NY_Z_D', 'NY_Z_F',
-    'NY_Z_G-I', 'NY_Z_J', 'NY_Z_K', 'PJM_West', 'PJM_AP', 'PJM_ATSI',
-    'PJM_COMD', 'PJM_Dom', 'PJM_EMAC', 'PJM_PENE', 'PJM_SMAC',
-    'PJM_WMAC', 'S_C_KY', 'S_C_TVA', 'S_D_AECI', 'S_SOU', 'S_VACA',
-    'SPP_NEBR', 'SPP_N', 'SPP_SPS', 'SPP_WEST', 'SPP_KIAM', 'SPP_WAUE',
-    'WECC_AZ', 'WEC_BANC', 'WECC_CO', 'WECC_ID', 'WECC_IID',
-    'WEC_LADW', 'WECC_MT', 'WECC_NM', 'WEC_CALN', 'WECC_NNV',
-    'WECC_PNW', 'WEC_SDGE', 'WECC_SCE', 'WECC_SNV', 'WECC_UT',
-    'WECC_WY', 'CN_AB', 'CN_BC', 'CN_NL', 'CN_MB', 'CN_NB', 'CN_NF',
-    'CN_NS', 'CN_ON', 'CN_PE', 'CN_PQ', 'CN_SK',
-]
-"""list: A list of EPA IPM region names."""
-
-epaipm_region_aggregations = {
-    'PJM': [
-        'PJM_AP', 'PJM_ATSI', 'PJM_COMD', 'PJM_Dom',
-        'PJM_EMAC', 'PJM_PENE', 'PJM_SMAC', 'PJM_WMAC'
-    ],
-    'NYISO': [
-        'NY_Z_A', 'NY_Z_B', 'NY_Z_C&E', 'NY_Z_D',
-        'NY_Z_F', 'NY_Z_G-I', 'NY_Z_J', 'NY_Z_K'
-    ],
-    'ISONE': ['NENG_CT', 'NENGREST', 'NENG_ME'],
-    'MISO': [
-        'MIS_AR', 'MIS_IL', 'MIS_INKY', 'MIS_IA',
-        'MIS_MIDA', 'MIS_LA', 'MIS_LMI', 'MIS_MNWI', 'MIS_D_MS',
-        'MIS_MO', 'MIS_MAPP', 'MIS_AMSO', 'MIS_WOTA', 'MIS_WUMS'
-    ],
-    'SPP': [
-        'SPP_NEBR', 'SPP_N', 'SPP_SPS', 'SPP_WEST', 'SPP_KIAM', 'SPP_WAUE'
-    ],
-    'WECC_NW': [
-        'WECC_CO', 'WECC_ID', 'WECC_MT', 'WECC_NNV',
-        'WECC_PNW', 'WECC_UT', 'WECC_WY'
-    ]
-
-}
-"""
-dict: A dictionary containing EPA IPM regions (keys) and lists of their
-    associated abbreviations (values).
-"""
-
-epaipm_rename_dict = {
-    'transmission_single_epaipm': {
-        'From': 'region_from',
-        'To': 'region_to',
-        'Capacity TTC (MW)': 'firm_ttc_mw',
-        'Energy TTC (MW)': 'nonfirm_ttc_mw',
-        'Transmission Tariff (2016 mills/kWh)': 'tariff_mills_kwh',
-    },
-    'load_curves_epaipm': {
-        'day': 'day_of_year',
-        'region': 'region_id_epaipm',
-    },
-    'plant_region_map_epaipm': {
-        'ORIS Plant Code': 'plant_id_eia',
-        'Region Name': 'region',
-    },
-}
-glue_pudl_tables = ('plants_eia', 'plants_ferc', 'plants', 'utilities_eia',
-                    'utilities_ferc', 'utilities', 'utility_plant_assn')
-"""
-dict: A dictionary of dictionaries containing EPA IPM tables (keys) and items
-    for each table to be renamed along with the replacement name (values).
-"""
-
 data_sources = (
     'eia860',
     'eia861',
     'eia923',
     'epacems',
-    'epaipm',
     'ferc1',
     'ferc714',
     # 'pudl'
@@ -1495,8 +1385,7 @@ data_years = {
     'eia860': tuple(range(2001, 2020)),
     'eia861': tuple(range(1990, 2020)),
     'eia923': tuple(range(2001, 2020)),
-    'epacems': tuple(range(1995, 2020)),
-    'epaipm': (None, ),
+    'epacems': tuple(range(1995, 2021)),
     'ferc1': tuple(range(1994, 2020)),
     'ferc714': (None, ),
 }
@@ -1508,19 +1397,19 @@ dict: A dictionary of data sources (keys) and tuples containing the years
 # The full set of years we currently expect to be able to ingest, per source:
 working_partitions = {
     'eia860': {
-        'years': tuple(range(2004, 2020))
+        'years': tuple(range(2001, 2020))
     },
     'eia860m': {
-        'year_month': '2020-08'
+        'year_month': '2020-11'
     },
     'eia861': {
         'years': tuple(range(2001, 2020))
     },
     'eia923': {
-        'years': tuple(range(2009, 2020))
+        'years': tuple(range(2001, 2020))
     },
     'epacems': {
-        'years': tuple(range(1995, 2020)),
+        'years': tuple(range(1995, 2021)),
         'states': tuple(cems_states.keys())},
     'ferc1': {
         'years': tuple(range(1994, 2020))
@@ -1557,7 +1446,6 @@ pudl_tables = {
     ),
     'eia923': eia923_pudl_tables,
     'epacems': epacems_tables,
-    'epaipm': epaipm_pudl_tables,
     'ferc1': ferc1_pudl_tables,
     'ferc714': (
         "respondent_id_ferc714",
@@ -1589,7 +1477,6 @@ base_data_urls = {
     'ferc714': 'https://www.ferc.gov/docs-filing/forms/form-714/data',
     'ferceqr': 'ftp://eqrdownload.ferc.gov/DownloadRepositoryProd/BulkNew/CSV',
     'msha': 'https://arlweb.msha.gov/OpenGovernmentData/DataSets',
-    'epaipm': 'https://www.epa.gov/sites/production/files/2019-03',
     'pudl': 'https://catalyst.coop/pudl/'
 }
 """
@@ -1680,10 +1567,6 @@ data_source_info = {
         "title": "EPA Air Markets Program Data",
         "path": "https://ampd.epa.gov/ampd/",
     },
-    "epaipm": {
-        "title": "EPA Integrated Planning Model",
-        "path": "https://www.epa.gov/airmarkets/national-electric-energy-data-system-needs-v6",
-    },
     "ferc1": {
         "title": "FERC Form 1",
         "path": "https://www.ferc.gov/docs-filing/forms/form-1/data.asp",
@@ -1749,9 +1632,6 @@ contributors_by_source = {
         "karl-dunkle-werner",
         "zane-selvans",
     ],
-    "epaipm": [
-        "greg-schivley",
-    ],
 }
 """
 dict: A dictionary of data sources (keys) and lists of contributors (values).
@@ -1777,8 +1657,6 @@ dict: A dictionary of dictionaries containing license types and their
 output_formats = [
     'sqlite',
     'parquet',
-    'datapkg',
-    'notebook',
 ]
 """list: A list of types of PUDL output formats."""
 
@@ -1824,9 +1702,6 @@ keywords_by_data_source = {
         'federal energy regulatory commission', "hourly", "generation",
         "interchange", "forecast", "load", "adjacency", "plants",
     ],
-    'epaipm': [
-        'epaipm', 'integrated planning',
-    ]
 }
 """dict: A dictionary of datasets (keys) and keywords (values). """
 
@@ -1979,7 +1854,25 @@ TRANSIT_TYPE_DICT = {
     'UN': 'unknown',
 }
 
-"""dict: A dictionary of datasets (keys) and keywords (values). """
+# Define some categorical dtypes to reduce the size of EPA CEMS data
+epacems_codes = (
+    "LME",
+    "Measured",
+    "Measured and Substitute",
+    "Other",
+    "Substitute",
+    "Undetermined",
+    "Unknown Code",
+    "",
+)
+co2_so2_cats = pd.CategoricalDtype(
+    categories=epacems_codes,
+    ordered=False
+)
+nox_cats = pd.CategoricalDtype(
+    categories=epacems_codes + ("Calculated",),
+    ordered=False
+)
 
 column_dtypes = {
     "ferc1": {  # Obviously this is not yet a complete list...
@@ -2010,24 +1903,24 @@ column_dtypes = {
         "utc_datetime": "datetime64[ns]",
     },
     "epacems": {
-        'state': pd.StringDtype(),
-        'plant_id_eia': pd.Int64Dtype(),  # Nullable Integer
+        'state': pd.CategoricalDtype(categories=cems_states, ordered=False),
+        'plant_id_eia': "int32",
         'unitid': pd.StringDtype(),
         'operating_datetime_utc': "datetime64[ns]",
-        'operating_time_hours': float,
-        'gross_load_mw': float,
-        'steam_load_1000_lbs': float,
-        'so2_mass_lbs': float,
-        'so2_mass_measurement_code': pd.StringDtype(),
-        'nox_rate_lbs_mmbtu': float,
-        'nox_rate_measurement_code': pd.StringDtype(),
-        'nox_mass_lbs': float,
-        'nox_mass_measurement_code': pd.StringDtype(),
-        'co2_mass_tons': float,
-        'co2_mass_measurement_code': pd.StringDtype(),
-        'heat_content_mmbtu': float,
-        'facility_id': pd.Int64Dtype(),  # Nullable Integer
-        'unit_id_epa': pd.Int64Dtype(),  # Nullable Integer
+        'operating_time_hours': "float32",
+        'gross_load_mw': "float32",
+        'steam_load_1000_lbs': "float32",
+        'so2_mass_lbs': "float32",
+        'so2_mass_measurement_code': co2_so2_cats,
+        'nox_rate_lbs_mmbtu': "float32",
+        'nox_rate_measurement_code': nox_cats,
+        'nox_mass_lbs': "float32",
+        'nox_mass_measurement_code': nox_cats,
+        'co2_mass_tons': "float32",
+        'co2_mass_measurement_code': co2_so2_cats,
+        'heat_content_mmbtu': "float32",
+        'facility_id': pd.Int32Dtype(),  # Nullable Integer
+        'unit_id_epa': pd.Int32Dtype(),  # Nullable Integer
     },
     "eia": {
         'actual_peak_demand_savings_mw': float,  # Added by AES for DR table
@@ -2242,9 +2135,9 @@ column_dtypes = {
         'owner_zip_code': pd.StringDtype(),
         # we should transition these into readable codes, not a one letter thing
         'ownership_code': pd.StringDtype(),
-        'phone_extension_1': pd.StringDtype(),
+        'phone_extension': pd.StringDtype(),
         'phone_extension_2': pd.StringDtype(),
-        'phone_number_1': pd.StringDtype(),
+        'phone_number': pd.StringDtype(),
         'phone_number_2': pd.StringDtype(),
         'pipeline_notes': pd.StringDtype(),
         'planned_derate_date': 'datetime64[ns]',

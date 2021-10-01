@@ -172,6 +172,7 @@ class EiaPipeline(DatasetPipeline):
                 eia860_years=params['eia860_years'],
                 eia923_years=params['eia923_years'],
                 eia860_ytd=params['eia860_ytd'])
+
             return dfc.merge(
                 load_static_tables_eia(),
                 output_tables,

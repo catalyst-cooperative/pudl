@@ -4,6 +4,7 @@
 **/*.parquet
 **/*.*.swp
 **/__pycache__/*
+docs/data_dictionaries/pudl_db.rst
 .ipynb_checkpoints/
 .cache/
 .pytest_cache/*
@@ -20,3 +21,6 @@ codecov.sh
 .env_pudl/
 *wheel-metadata
 dask-worker-space*
+devtools/user-requirements.txt
+.vscode/*
+commit.txt

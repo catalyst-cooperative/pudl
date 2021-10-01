@@ -59,11 +59,41 @@ def parse_command_line(argv):
         If not specified, the default will be set from PUDL_SETTINGS_FILE environment
         variable. If this is also not set the script will fail.""")
     parser.add_argument(
-        "--sandbox", action="store_true", default=False,
-        help="Use the Zenodo sandbox rather than production")
+        '--ignore-foreign-key-constraints',
+        action='store_true',
+        default=False,
+        help="Ignore foreign key constraints when loading into SQLite.",
+    )
     parser.add_argument(
-        "--logfile", default=None,
-        help="If specified, write logs to this file.")
+        '--ignore-type-constraints',
+        action='store_true',
+        default=False,
+        help="Ignore column data type constraints when loading into SQLite.",
+    )
+    parser.add_argument(
+        '--ignore-value-constraints',
+        action='store_true',
+        default=False,
+        help="Ignore column value constraints when loading into SQLite.",
+    )
+    parser.add_argument(
+        '-c',
+        '--clobber',
+        action='store_true',
+        default=False,
+        help="Clobber existing PUDL SQLite and Parquet outputs if they exist.",
+    )
+    parser.add_argument(
+        "--sandbox",
+        action="store_true",
+        default=False,
+        help="Use the Zenodo sandbox rather than production",
+    )
+    parser.add_argument(
+        "--logfile",
+        default=None,
+        help="If specified, write logs to this file.",
+    )
     parser.add_argument(
         "--timestamped-logfile",
         default="/tmp/pudl_etl.%F-%H%M%S.log",  # nosec
@@ -85,6 +115,11 @@ def parse_command_line(argv):
         help="""If specified, use this run_id instead of generating random one.""")
     # TODO(rousik): we could also consider --rerun-latest that will pick up the most recent run_id
     # from the provided cache directory.
+    parser.add_argument(
+        "--gcs-cache-path",
+        type=str,
+        help="Load datastore resources from Google Cloud Storage. Should be gs://bucket[/path_prefix]",
+    )
     arguments = parser.parse_args(argv[1:])
     return arguments
 
@@ -159,7 +194,9 @@ def build_pudl_settings(script_settings, args):
     pudl_out = script_settings.get(
         "pudl_out", pudl.workspace.setup.get_defaults()["pudl_out"])
     pudl_settings = pudl.workspace.setup.derive_paths(
-        pudl_in=pudl_in, pudl_out=pudl_out)
+        pudl_in=pudl_in,
+        pudl_out=pudl_out
+    )
     pudl_settings["sandbox"] = args.sandbox
     return pudl_settings
 
@@ -198,11 +235,17 @@ def main():
     with fsspec.open(os.path.join(args.pipeline_cache_path, "settings.yml"), "w") as outfile:
         yaml.dump(script_settings, outfile, default_flow_style=False)
 
-    pudl.etl.generate_datapkg_bundle(
-        script_settings,
-        pudl_settings,
-        datapkg_bundle_doi=datapkg_bundle_doi,
-        commandline_args=args)
+    pudl.etl.etl(
+        etl_settings=script_settings,
+        pudl_settings=pudl_settings,
+        clobber=args.clobber,
+        use_local_cache=not args.bypass_local_cache,
+        gcs_cache_path=args.gcs_cache_path,
+        check_foreign_keys=not args.ignore_foreign_key_constraints,
+        check_types=not args.ignore_type_constraints,
+        check_values=not args.ignore_value_constraints,
+        commandline_args=args
+    )
 
 
 if __name__ == "__main__":

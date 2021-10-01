@@ -11,11 +11,8 @@ import argparse
 import logging
 import math
 import sys
-from pathlib import Path
 
 import coloredlogs
-import contextily as ctx
-import geopandas
 import pandas as pd
 import sqlalchemy as sa
 from matplotlib import pyplot as plt
@@ -29,62 +26,6 @@ logger = logging.getLogger(__name__)
 ################################################################################
 MAP_CRS = "EPSG:3857"  # For mapping w/ OSM baselayer tiles
 CALC_CRS = "ESRI:102003"  # For accurate area calculations
-
-
-################################################################################
-# Outside data that we rely on for this analysis
-################################################################################
-def get_census2010_gdf(pudl_settings, layer, ds):
-    """
-    Obtain a GeoDataFrame containing US Census demographic data for 2010.
-
-    If we don't have it locally already, download the US Census DP1 data and store it
-    under the "local/uscb/census2010" directory within the PUDL datastore directory,
-    as it isn't yet integrated into the core PUDL data management.
-
-    Read the specified layer out of the downloaded geodatabase, and return the
-    resulting geopandas.GeoDataFrame. The column names and types are not altered from
-    the US Census originals.
-
-    Args:
-        pudl_settings (dict): PUDL Settings dictionary.
-        layer (str): Indicates which layer of the Census GeoDB to read.
-            Must be one of "state", "county", or "tract".
-        ds (Datastore): instance of a datastore for resource retrieval.
-
-    Returns:
-        geopandas.GeoDataFrame: DataFrame containing the US Census
-        Demographic Profile 1 (DP1) data, aggregated to the layer
-
-    """
-    census2010_dir = Path(
-        pudl_settings["data_dir"]) / "local/uscb/census2010"
-    census2010_dir.mkdir(parents=True, exist_ok=True)
-    census2010_gdb_dir = census2010_dir / "census2010.gdb"
-
-    if not census2010_gdb_dir.is_dir():
-        zip_ref = ds.get_zipfile_resource("censusdp1tract", year=2010)
-        logger.debug("Extracting census geodb to %s", census2010_gdb_dir)
-        zip_ref.extractall(census2010_dir)
-        # Grab the originally extracted directory name so we can change it:
-        extract_root = census2010_dir / Path(zip_ref.filelist[0].filename)
-        logger.warning(f"Rename {extract_root} to {census2010_gdb_dir}")
-        extract_root.rename(census2010_gdb_dir)
-    else:
-        logger.info("We've already got the 2010 Census GeoDB.")
-
-    logger.info("Extracting the GeoDB into a GeoDataFrame")
-    layers = {
-        "state": "State_2010Census_DP1",
-        "county": "County_2010Census_DP1",
-        "tract": "Tract_2010Census_DP1",
-    }
-    census_gdf = geopandas.read_file(
-        census2010_gdb_dir,
-        driver='FileGDB',
-        layer=layers[layer],
-    )
-    return census_gdf
 
 
 def get_all_utils(pudl_out):
@@ -187,11 +128,11 @@ def add_geometries(df, census_gdf, dissolve=False, dissolve_by=None):
 
     """
     out_gdf = (
-        census_gdf[["GEOID10", "NAMELSAD10", "DP0010001", "geometry"]]
+        census_gdf[["geoid10", "namelsad10", "dp0010001", "geometry"]]
         .rename(columns={
-            "GEOID10": "county_id_fips",
-            "NAMELSAD10": "county_name_census",
-            "DP0010001": "population",
+            "geoid10": "county_id_fips",
+            "namelsad10": "county_name_census",
+            "dp0010001": "population",
         })
         # Calculate county areas using cylindrical equal area projection:
         .assign(area_km2=lambda x: x.geometry.to_crs(epsg=6933).area / 1e6)
@@ -255,7 +196,7 @@ def get_territory_geometries(ids,
             ``balancing_authority_id_eia`` or ``utility_id_eia``.
         st_eia861 (pandas.DataFrame): The EIA 861 Service Territory table.
         census_gdf (geopandas.GeoDataFrame): The US Census DP1 county-level geometries
-            as returned by get_census2010_gdf().
+            as returned by pudl.output.censusdp1tract.get_layer("county").
         limit_by_state (bool): Whether to require that the counties associated
             with the balancing authority are inside a state that has also been
             seen in association with the balancing authority and the utility
@@ -319,7 +260,9 @@ def compile_geoms(pudl_out,
 
     """
     logger.info(
-        f"Compiling {entity_type} geometries with {dissolve=} and {limit_by_state=}.")
+        "Compiling %s geometries with dissolve=%s and limit_by_state=%s.",
+        entity_type, dissolve, limit_by_state
+    )
 
     if entity_type == "ba":
         ids = pudl_out.balancing_authority_eia861().balancing_authority_id_eia.unique()
@@ -398,7 +341,7 @@ def plot_historical_territory(gdf, id_col, id_val):
     """
     if id_col not in gdf.columns:
         raise ValueError(f"The input id_col {id_col} doesn't exist in this GDF.")
-    logger.info(f"Plotting historical territories for {id_col}=={id_val}.")
+    logger.info("Plotting historical territories for %s==%s.", id_col, id_val)
 
     # Pare down the GDF so this all goes faster
     entity_gdf = gdf[gdf[id_col] == id_val]
@@ -406,7 +349,10 @@ def plot_historical_territory(gdf, id_col, id_val):
         entity_gdf = entity_gdf.drop_duplicates(
             subset=["report_date", "county_id_fips"])
     entity_gdf["report_year"] = entity_gdf.report_date.dt.year
-    logger.info(f"Plotting service territories of {len(entity_gdf)} {id_col} records.")
+    logger.info(
+        "Plotting service territories of %s %s records.",
+        len(entity_gdf), id_col
+    )
 
     # Create a grid of subplots sufficient to hold all the years:
     years = entity_gdf.report_year.sort_values().unique()
@@ -426,12 +372,13 @@ def plot_historical_territory(gdf, id_col, id_val):
     plt.show()
 
 
-def plot_all_territories(gdf,
-                         report_date,
-                         respondent_type=("balancing_authority", "utility"),
-                         color="black",
-                         alpha=0.25,
-                         basemap=True):
+def plot_all_territories(
+    gdf,
+    report_date,
+    respondent_type=("balancing_authority", "utility"),
+    color="black",
+    alpha=0.25,
+):
     """
     Plot all of the planning areas of a given type for a given report date.
 
@@ -450,7 +397,6 @@ def plot_all_territories(gdf,
             "balancing_authority" or an iterable collection containing both.
         color (str): Color to use for the planning areas.
         alpha (float): Transparency to use for the planning areas.
-        basemap (bool): If true, use the OpenStreetMap tiles for context.
 
     Returns:
         matplotlib.axes.Axes
@@ -467,7 +413,7 @@ def plot_all_territories(gdf,
         305,  # PJM Dupe
         306,  # PJM Dupe
     )
-    if type(respondent_type) == str:
+    if isinstance(respondent_type, str):
         respondent_type = (respondent_type, )
 
     plot_gdf = (
@@ -475,10 +421,8 @@ def plot_all_territories(gdf,
         .query("respondent_id_ferc714 not in @unwanted_respondent_ids")
         .query("respondent_type in @respondent_type")
     )
-    ax = plot_gdf.plot(figsize=(20, 20), color=color, alpha=0.25, linewidth=1)
+    ax = plot_gdf.plot(figsize=(20, 20), color=color, alpha=alpha, linewidth=1)
     plt.title(f"FERC 714 {', '.join(respondent_type)} planning areas for {report_date}")
-    if basemap:
-        ctx.add_basemap(ax)
     plt.show()
     return ax
 
@@ -512,16 +456,19 @@ def parse_command_line(argv):
 
 def main():
     """Compile historical utility and balancing area territories."""
-    logger = logging.getLogger(pudl.__name__)
+    # Display logged output from the PUDL package:
+    pudl_logger = logging.getLogger("pudl")
     log_format = '%(asctime)s [%(levelname)8s] %(name)s:%(lineno)s %(message)s'
-    coloredlogs.install(fmt=log_format, level='INFO', logger=logger)
+    coloredlogs.install(fmt=log_format, level='INFO', logger=pudl_logger)
 
     args = parse_command_line(sys.argv)
     pudl_settings = pudl.workspace.setup.get_defaults()
     pudl_engine = sa.create_engine(pudl_settings['pudl_db'])
     pudl_out = pudl.output.pudltabl.PudlTabl(pudl_engine)
     # Load the US Census DP1 county data:
-    census_counties = get_census2010_gdf(pudl_settings, layer="county")
+    county_gdf = pudl.output.censusdp1tract.get_layer(
+        layer="county", pudl_settings=pudl_settings
+    )
 
     kwargs_dicts = [
         {"entity_type": "util", "limit_by_state": False},
@@ -533,7 +480,7 @@ def main():
     for kwargs in kwargs_dicts:
         _ = compile_geoms(
             pudl_out,
-            census_counties=census_counties,
+            census_counties=county_gdf,
             dissolve=args.dissolve,
             **kwargs,
         )

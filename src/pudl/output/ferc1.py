@@ -1,4 +1,5 @@
 """Functions for pulling FERC Form 1 data out of the PUDL DB."""
+import numpy as np
 import pandas as pd
 
 import pudl
@@ -45,19 +46,24 @@ def plants_steam_ferc1(pudl_engine):
     """
     steam_df = (
         pd.read_sql("plants_steam_ferc1", pudl_engine)
-        .drop('id', axis="columns")
         .merge(plants_utils_ferc1(pudl_engine),
                on=['utility_id_ferc1', 'plant_name_ferc1'])
-        .assign(capacity_factor=lambda x: x.net_generation_mwh / (8760 * x.capacity_mw),
-                opex_fuel_per_mwh=lambda x: x.opex_fuel / x.net_generation_mwh,
-                opex_nonfuel_per_mwh=lambda x: (x.opex_production_total - x.opex_fuel) / x.net_generation_mwh)
-        .pipe(pudl.helpers.organize_cols, ['report_year',
-                                           'utility_id_ferc1',
-                                           'utility_id_pudl',
-                                           'utility_name_ferc1',
-                                           'plant_id_pudl',
-                                           'plant_id_ferc1',
-                                           'plant_name_ferc1'])
+        .assign(
+            capacity_factor=lambda x:
+                x.net_generation_mwh / (8760 * x.capacity_mw),
+            opex_fuel_per_mwh=lambda x: x.opex_fuel / x.net_generation_mwh,
+            opex_nonfuel=lambda x: x.opex_production_total - x.opex_fuel,
+            opex_nonfuel_per_mwh=lambda x: np.where(
+                x.net_generation_mwh > 0,
+                x.opex_nonfuel / x.net_generation_mwh,
+                pd.NA)
+        )
+        .pipe(
+            pudl.helpers.organize_cols,
+            ['report_year', 'utility_id_ferc1', 'utility_id_pudl',
+             'utility_name_ferc1', 'plant_id_pudl', 'plant_id_ferc1',
+             'plant_name_ferc1']
+        )
     )
     return steam_df
 
@@ -85,7 +91,6 @@ def fuel_ferc1(pudl_engine):
     """
     fuel_df = (
         pd.read_sql("fuel_ferc1", pudl_engine).
-        drop('id', axis="columns").
         assign(fuel_consumed_mmbtu=lambda x: x["fuel_qty_burned"] * x["fuel_mmbtu_per_unit"],
                fuel_consumed_total_cost=lambda x: x["fuel_qty_burned"] * x["fuel_cost_per_unit_burned"]).
         merge(plants_utils_ferc1(pudl_engine),
@@ -122,7 +127,6 @@ def fuel_by_plant_ferc1(pudl_engine, thresh=0.5):
     """
     fbp_df = (
         pd.read_sql_table('fuel_ferc1', pudl_engine)
-        .drop(['id'], axis="columns")
         .pipe(pudl.transform.ferc1.fuel_by_plant_ferc1, thresh=thresh)
         .merge(plants_utils_ferc1(pudl_engine),
                on=['utility_id_ferc1', 'plant_name_ferc1'])
@@ -140,7 +144,6 @@ def plants_small_ferc1(pudl_engine):
     """Pull a useful dataframe related to the FERC Form 1 small plants."""
     plants_small_df = (
         pd.read_sql_table("plants_small_ferc1", pudl_engine)
-        .drop(['id'], axis="columns")
         .merge(pd.read_sql_table("utilities_ferc1", pudl_engine),
                on="utility_id_ferc1")
         .pipe(pudl.helpers.organize_cols, ['report_year',
@@ -158,7 +161,6 @@ def plants_hydro_ferc1(pudl_engine):
     """Pull a useful dataframe related to the FERC Form 1 hydro plants."""
     plants_hydro_df = (
         pd.read_sql_table("plants_hydro_ferc1", pudl_engine)
-        .drop(['id'], axis="columns")
         .merge(plants_utils_ferc1(pudl_engine),
                on=["utility_id_ferc1", "plant_name_ferc1"])
         .pipe(pudl.helpers.organize_cols, ["report_year",
@@ -175,7 +177,6 @@ def plants_pumped_storage_ferc1(pudl_engine):
     """Pull a dataframe of FERC Form 1 Pumped Storage plant data."""
     pumped_storage_df = (
         pd.read_sql_table("plants_pumped_storage_ferc1", pudl_engine)
-        .drop(['id'], axis="columns")
         .merge(pudl.output.ferc1.plants_utils_ferc1(pudl_engine),
                on=["utility_id_ferc1", "plant_name_ferc1"])
         .pipe(pudl.helpers.organize_cols, ["report_year",
@@ -192,7 +193,6 @@ def purchased_power_ferc1(pudl_engine):
     """Pull a useful dataframe of FERC Form 1 Purchased Power data."""
     purchased_power_df = (
         pd.read_sql_table("purchased_power_ferc1", pudl_engine)
-        .drop(['id'], axis="columns")
         .merge(pd.read_sql_table("utilities_ferc1", pudl_engine),
                on="utility_id_ferc1")
         .pipe(pudl.helpers.organize_cols, ["report_year",

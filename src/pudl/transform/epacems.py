@@ -1,9 +1,12 @@
-"""Routines specific to cleaning up EPA CEMS hourly data."""
+"""Module to perform data cleaning functions on EPA CEMS data tables."""
+
 import datetime
 import logging
 
 import numpy as np
 import pandas as pd
+import pytz
+import sqlalchemy as sa
 from prefect import task
 
 import pudl
@@ -20,13 +23,17 @@ def fix_up_dates(df, plant_utc_offset):
     """
     Fix the dates for the CEMS data.
 
+    Transformations include:
+
+    * Account for timezone differences with offset from UTC.
+
     Args:
         df (pandas.DataFrame): A CEMS hourly dataframe for one year-month-state
-        plant_utc_offset (pandas.DataFrame): A dataframe of plants' timezones
+            plant_utc_offset (pandas.DataFrame): A dataframe of plants' timezones.
 
     Returns:
         pandas.DataFrame: The same data, with an op_datetime_utc column added
-        and the op_date and op_hour columns removed
+        and the op_date and op_hour columns removed.
 
     """
     df = (
@@ -63,25 +70,34 @@ def fix_up_dates(df, plant_utc_offset):
 
 
 @task(target="epacems.plant_entity")
-def load_plant_utc_offset(plant_entity_df):
-    """Build UTC offset for each EIA plant.
+def load_plant_utc_offset(pudl_engine):
+    """Load the UTC offset each EIA plant.
+
+    CEMS times don't change for DST, so we get get the UTC offset by using the
+    offset for the plants' timezones in January.
 
     Args:
-        plant_entity_df: pandas.DataFrame that holds the plant_entity_eia table.
+        pudl_engine (sqlalchemy.engine.Engine): A database connection engine for
+            an existing PUDL DB.
 
     Returns:
-        pandas.DataFrame: With columns plant_id_eia and utc_offset
+        pandas.DataFrame: With columns plant_id_eia and utc_offset.
     """
-    import pytz
-
-    jan1 = datetime.datetime(2011, 1, 1)  # year doesn't matter
+    # Verify that we have a PUDL DB with plant attributes:
+    inspector = sa.inspect(pudl_engine)
+    if "plants_entity_eia" not in inspector.get_table_names():
+        raise RuntimeError(
+            "No plants_entity_eia available in the PUDL DB! Have you run the ETL? "
+            f"Trying to access PUDL DB: {pudl_engine}"
+        )
     timezones = (
-        plant_entity_df[["plant_id_eia", "timezone"]]
-        .astype({
-                "plant_id_eia": pd.Int64Dtype(),
-                "timezone": pd.StringDtype()})
-        .replace(to_replace="None", value=pd.NA)
-        .dropna())
+        pd.read_sql(
+            sql="SELECT plant_id_eia, timezone FROM plants_entity_eia",
+            con=pudl_engine
+        )
+        .dropna()
+    )
+    jan1 = datetime.datetime(2011, 1, 1)  # year doesn't matter
     timezones["utc_offset"] = (
         timezones["timezone"]
         .apply(lambda tz: pytz.timezone(tz).localize(jan1).utcoffset())
@@ -94,19 +110,21 @@ def harmonize_eia_epa_orispl(df):
     """
     Harmonize the ORISPL code to match the EIA data -- NOT YET IMPLEMENTED.
 
-    The EIA plant IDs and CEMS ORISPL codes almost match, but not quite. See
-    https://www.epa.gov/sites/production/files/2018-02/documents/egrid2016_technicalsupportdocument_0.pdf#page=104
-    for an example.
+    The EIA plant IDs and CEMS ORISPL codes almost match, but not quite. EPA has
+    compiled a crosswalk that maps one set of IDs to the other, but we haven't
+    integrated it yet. It can be found at:
 
-    Note that this transformation needs to be run *before* fix_up_dates,
-    because fix_up_dates uses the plant ID to look up timezones.
+    https://github.com/USEPA/camd-eia-crosswalk
+
+    Note that this transformation needs to be run *before* fix_up_dates, because
+    fix_up_dates uses the plant ID to look up timezones.
 
     Args:
-        df (pandas.DataFrame): A CEMS hourly dataframe for one year-month-state
+        df (pandas.DataFrame): A CEMS hourly dataframe for one year-month-state.
 
     Returns:
-        pandas.DataFrame: The same data, with the ORISPL plant codes corrected
-        to match the EIA plant IDs.
+        pandas.DataFrame: The same data, with the ORISPL plant codes corrected to match
+        the EIA plant IDs.
 
     Todo:
         Actually implement the function...
@@ -119,15 +137,15 @@ def add_facility_id_unit_id_epa(df):
     """
     Harmonize columns that are added later.
 
-    The datapackage validation checks for consistent column names, and these
-    two columns aren't present before August 2008, so this adds them in.
+    The datapackage validation checks for consistent column names, and these two columns
+    aren't present before August 2008, so this adds them in.
 
     Args:
         df (pandas.DataFrame): A CEMS dataframe
 
     Returns:
-        pandas.Dataframe: The same DataFrame guaranteed to have int facility_id
-        and unit_id_epa cols.
+        pandas.Dataframe: The same DataFrame guaranteed to have int facility_id and
+        unit_id_epa cols.
 
     """
     if ("facility_id" not in df.columns) or ("unit_id_epa" not in df.columns):
@@ -145,15 +163,14 @@ def _all_na_or_values(series, values):
     """
     Test whether every element in the series is either missing or in values.
 
-    This is fiddly because isin() changes behavior if the series is totally NaN
-    (because of type issues)
+    This is fiddly because isin() changes behavior if the series is totally NaN (because
+    of type issues).
 
     Example: x = pd.DataFrame({'a': ['x', np.NaN], 'b': [np.NaN, np.NaN]})
         x.isin({'x', np.NaN})
 
     Args:
-        series (pd.Series): A data column
-        values (set): A set of values
+        series (pd.Series): A data column values (set): A set of values
 
     Returns:
         bool: True or False, whether the elements are missing or in values

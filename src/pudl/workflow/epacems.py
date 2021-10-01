@@ -6,6 +6,7 @@ from typing import Any
 import pandas as pd
 import prefect
 import pyarrow
+import sqlalchemy as sa
 from prefect import task, unmapped
 from pyarrow import parquet
 
@@ -147,8 +148,9 @@ class EpaCemsPipeline(DatasetPipeline):
         if not self.all_params_present(params, ['epacems_states', 'epacems_years']):
             return None
         with self.flow:
-            plants = pudl.transform.epacems.load_plant_utc_offset(
-                self.eia_pipeline.get_table('plants_entity_eia'))
+            pudl_db = prefect.context.get("pudl_settings", {})["pudl_db"]
+            pudl_engine = sa.create_engine(pudl_db)
+            plants = pudl.transform.epacems.load_plant_utc_offset(pudl_engine)
 
             partitions = [
                 EpaCemsPartition(year=y, state=s)

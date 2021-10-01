@@ -5,16 +5,37 @@ on: [ push, pull_request ]
 jobs:
   build:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.8, 3.9]
+
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v2.3.4
       with:
         fetch-depth: 2
+
+    - name: Set up conda environment for testing
+      uses: conda-incubator/setup-miniconda@v2.1.1
+      with:
+        mamba-version: "*"
+        channels: conda-forge,defaults
+        channel-priority: true
+        python-version: ${{ matrix.python-version }}
+        activate-environment: pudl-test
+        environment-file: devtools/ci-environment.yml
+    - shell: bash -l {0}
+      run: |
+        conda info
+        conda list
+        conda config --show-sources
+        conda config --show
+        printenv | sort
 
     - name: Compile Zenodo datastore DOIs for cache invalidation
       run: grep -e '.*10\.\(5281\|5072\)/zenodo\..*' src/pudl/workspace/datastore.py | sed -e 's/",*$//g' | sed -e 's/^.*"//g' | sort > datastore-dois.txt
 
     - name: Restore Zenodo datastore from cache if possible
-      uses: actions/cache@v2
+      uses: actions/cache@v2.1.6
       id: cache-zenodo-datastore
       with:
         path: ~/pudl-work/data/
@@ -22,38 +43,27 @@ jobs:
         restore-keys: |
           zenodo-datastore-
 
-    - name: Set up Python
-      uses: actions/setup-python@v2
-      with:
-        python-version: 3.8
-
-    - name: Install dependencies
-      run: |
-        sudo apt-get install libsnappy-dev
-        python -m pip install --upgrade pip
-        pip install tox
-
     - name: Log pre-test Zenodo datastore contents
       run: |
         mkdir -p ~/pudl-work/data/
         find ~/pudl-work/data/
 
+    - name: Log SQLite3 version
+      run: |
+        conda run -n pudl-test which sqlite3
+        conda run -n pudl-test sqlite3 --version
+
     - name: Run PyTest with Tox
       env:
         API_KEY_EIA: ${{ secrets.API_KEY_EIA }}
-      run: tox -ve ci -- --fast
+      run: |
+        conda run -n pudl-test tox
 
     - name: Log post-test Zenodo datastore contents
       run: find ~/pudl-work/data/
 
     - name: Upload test coverage report to CodeCov
-      uses: codecov/codecov-action@v1
-
-    - name: Archive test coverage report at GitHub
-      uses: actions/upload-artifact@v2
-      with:
-        name: code-coverage-report
-        path: coverage.xml
+      uses: codecov/codecov-action@v2.1.0
 
     - name: Inform the Codemonkeys
       uses: 8398a7/action-slack@v3

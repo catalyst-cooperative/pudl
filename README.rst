@@ -20,10 +20,6 @@ The Public Utility Data Liberation Project (PUDL)
    :target: https://codecov.io/gh/catalyst-cooperative/pudl
    :alt: Codecov Test Coverage
 
-.. image:: https://img.shields.io/codacy/grade/2fead07adef249c08288d0bafae7cbb5
-   :target: https://app.codacy.com/app/zaneselvans/pudl
-   :alt: Codacy Grade
-
 .. image:: https://img.shields.io/pypi/v/catalystcoop.pudl
    :target: https://pypi.org/project/catalystcoop.pudl/
    :alt: PyPI Latest Version
@@ -40,143 +36,127 @@ The Public Utility Data Liberation Project (PUDL)
    :target: https://zenodo.org/badge/latestdoi/80646423
    :alt: Zenodo DOI
 
-`PUDL <https://catalyst.coop/pudl/>`__ makes US energy data easier to access
-and use. Hundreds of gigabytes of information is available from government
-agencies, but it's often difficult to work with, and different sources can be
-hard to combine. PUDL takes the original spreadsheets, CSV files, and databases
-and turns them into unified
-`tabular data packages <https://specs.frictionlessdata.io/tabular-data-package/>`__
-that can be used to populate a database, or read in directly with Python, R,
-Microsoft Access, and many other tools.
+What is PUDL?
+-------------
 
-The project currently integrates data from:
+The `PUDL <https://catalyst.coop/pudl/>`__ Project is an open source data processing
+pipeline that makes US energy data easier to access and use programmatically.
 
-* `EIA Form 860 <https://www.eia.gov/electricity/data/eia860/>`__
-* `EIA Form 861 <https://www.eia.gov/electricity/data/eia861/>`__
-* `EIA Form 923 <https://www.eia.gov/electricity/data/eia923/>`__
-* `The EPA Continuous Emissions Monitoring System (CEMS) <https://ampd.epa.gov/ampd/>`__
-* `FERC Form 1 <https://www.ferc.gov/industries-data/electric/general-information/electric-industry-forms/form-1-electric-utility-annual>`__
-* `FERC Form 714 <https://www.ferc.gov/industries-data/electric/general-information/electric-industry-forms/form-no-714-annual-electric/data>`__
-* `The US Census Demographic Profile 1 Geodatabase <https://www.census.gov/geographies/mapping-files/2010/geo/tiger-data.html>`__
+Hundreds of gigabytes of valuable data are published by US government agencies, but
+it's often difficult to work with. PUDL takes the original spreadsheets, CSV files,
+and databases and turns them into a unified resource. This allows users to spend more
+time on novel analysis and less time on data preparation.
 
-The project is focused on serving researchers, activists, journalists, and
-policy makers that might not otherwise be able to afford access to this data
-from existing commercial data providers. You can sign up for PUDL email updates
-`here <https://catalyst.coop/updates/>`__.
+What data is available?
+-----------------------
 
-Quick Start
------------
+PUDL currently integrates data from:
 
-Install
-`Anaconda <https://www.anaconda.com/distribution/>`__
-or `miniconda <https://docs.conda.io/en/latest/miniconda.html>`__ (see
-`this detailed setup guide <https://www.mrdbourke.com/get-your-computer-ready-for-machine-learning-using-anaconda-miniconda-and-conda/>`__
-if you need help) and then work through the following commands.
+* `EIA Form 860 <https://www.eia.gov/electricity/data/eia860/>`__ (2001-2019)
+* `EIA Form 860m <https://www.eia.gov/electricity/data/eia860m/>`__ (2020-2021)
+* `EIA Form 861 <https://www.eia.gov/electricity/data/eia861/>`__ (2001-2019)
+* `EIA Form 923 <https://www.eia.gov/electricity/data/eia923/>`__ (2001-2019)
+* `EPA Continuous Emissions Monitoring System (CEMS) <https://ampd.epa.gov/ampd/>`__ (1995-2020)
+* `FERC Form 1 <https://www.ferc.gov/industries-data/electric/general-information/electric-industry-forms/form-1-electric-utility-annual>`__ (1994-2019)
+* `FERC Form 714 <https://www.ferc.gov/industries-data/electric/general-information/electric-industry-forms/form-no-714-annual-electric/data>`__ (2006-2019)
+* `US Census Demographic Profile 1 Geodatabase <https://www.census.gov/geographies/mapping-files/2010/geo/tiger-data.html>`__ (2010)
 
-Create and activate a conda environment named ``pudl`` that installs packages
-from the community maintained ``conda-forge`` channel. In addition to the
-``catalystcoop.pudl`` package, install JupyterLab so we can work with the PUDL
-data interactively.
+Thanks to support from the `Alfred P. Sloan Foundation Energy & Environment
+Program <https://sloan.org/programs/research/energy-and-environment>`__, from
+2021 to 2023 we will be integrating the following data as well:
 
-.. code-block:: console
+* `EIA Form 176 <https://www.eia.gov/dnav/ng/TblDefs/NG_DataSources.html#s176>`__
+  (The Annual Report of Natural Gas Supply and Disposition)
+* `FERC Electric Quarterly Reports (EQR) <https://www.ferc.gov/industries-data/electric/power-sales-and-markets/electric-quarterly-reports-eqr>`__
+* `FERC Form 2 <https://www.ferc.gov/industries-data/natural-gas/overview/general-information/natural-gas-industry-forms/form-22a-data>`__
+  (Annual Report of Major Natural Gas Companies)
+* `PHMSA Natural Gas Annual Report <https://www.phmsa.dot.gov/data-and-statistics/pipeline/gas-distribution-gas-gathering-gas-transmission-hazardous-liquids>`__
+* Machine Readable Specifications of State Clean Energy Standards
 
-    $ conda create --yes --name pudl --channel conda-forge \
-        --strict-channel-priority python=3.8 \
-        catalystcoop.pudl jupyter jupyterlab pip
-    $ conda activate pudl
+Who is PUDL for?
+----------------
 
-Now create a data management workspace called ``pudl-work``. The workspace
-has a well defined directory structure that PUDL uses to organize the data it
-downloads, processes, and outputs. Run ``pudl_setup --help`` for details.
+The project is focused on serving researchers, activists, journalists, policy makers,
+and small businesses that might not otherwise be able to afford access to this data
+from commercial sources and who may not have the time or expertise to do all the
+data processing themselves from scratch.
 
-.. code-block:: console
+We want to make this data accessible and easy to work with for as wide an audience as
+possible: anyone from a grassroots youth climate organizers working with Google
+sheets to university researchers with access to scalable cloud computing
+resources and everyone in between!
 
-    $ mkdir pudl-work
-    $ pudl_setup pudl-work
+How do I access the data?
+-------------------------
 
-Now that we have some raw data, we can run the PUDL ETL (Extract, Transform,
-Load) pipeline to clean it up and integrate it together. There are several
-steps:
+There are four main ways to access PUDL outputs. For more details you'll want
+to check out `the complete documentation
+<https://catalystcoop-pudl.readthedocs.io>`__, but here's a quick overview:
 
-* Cloning the FERC Form 1 database into SQLite
-* Extracting data from that database and other sources and cleaning it up
-* Outputting the clean data into CSV/JSON based data packages, and finally
-* Loading the data packages into a local database or other storage medium.
+Datasette
+^^^^^^^^^
+We publish a lot of the data on https://data.catalyst.coop using a tool called
+`Datasette <https://datasette.io>`__ that lets us wrap our databases in a relatively
+friendly web interface. You can browse and query the data, make simple charts and
+maps, and download portions of the data as CSV files or JSON so you can work with it
+locally. For a quick introduction to what you can do with the Datasette interface,
+check out `this 17 minute video <https://simonwillison.net/2021/Feb/7/video/>`__.
 
-PUDL provides a script to clone the FERC Form 1 database. The script is called
-``ferc1_to_sqlite`` and it is controlled by a YAML file. An example can be
-found in the settings folder:
+This access mode is good for casual data explorers or anyone who just wants to grab a
+small subset of the data. It also lets you share links to a particular subset of the
+data and provides a REST API for querying the data from other applications.
 
-.. code-block:: console
+Docker + Jupyter
+^^^^^^^^^^^^^^^^
+Want access to all the published data in bulk? If you're familiar with Python
+and `Jupyter Notebooks <https://jupyter.org/>`__ and are willing to install Docker you
+can:
 
-    $ ferc1_to_sqlite pudl-work/settings/ferc1_to_sqlite_example.yml
+* `Download a PUDL data release <https://sandbox.zenodo.org/record/764696>`__ from
+  CERN's `Zenodo <https://zenodo.org>`__ archiving service.
+* `Install Docker <https://docs.docker.com/get-docker/>`__
+* Run the archived image using ``docker-compose up``
+* Access the data via the resulting Jupyter Notebook server running on your machine.
 
-The main ETL process is controlled by another YAML file defining the data that
-will be processed. A well commented ``etl_example.yml`` can also be found
-in the ``settings`` directory of the PUDL workspace you set up. The script that
-runs the ETL process is called ``pudl_etl``:
+If you'd rather work with the PUDL `SQLite <https://sqlite.org>`__ Databases and
+`Apache Parquet <https://parquet.apache.org>`__ files directly, they are accessible
+within the same Zenodo archive.
 
-.. code-block:: console
+The `PUDL Examples repository <https://github.com/catalyst-cooperative/pudl-examples>`__
+has more detailed instructions on how to work with the Zenodo data archive and Docker
+image.
 
-    $ pudl_etl pudl-work/settings/etl_example.yml
+JupyterHub
+^^^^^^^^^^
+Do you want to use Python and Jupyter Notebooks to access the data but aren't
+comfortable setting up Docker? We are working with `2i2c <https://2i2c.org>`__ to host
+a JupyterHub that has the same software and data as the Docker container and Zenodo
+archive mentioned above, but running in the cloud.
 
-This generates a bundle of tabular data packages in
-``pudl-work/datapkg/pudl-example``
+* `Request an account <https://forms.gle/TN3GuE2e2mnWoFC4A>`__
+* `Log in to the JupyterHub <https://bit.ly/pudl-examples-01>`__
 
-Tabular data packages are made up of CSV and JSON files. They're relatively
-easy to parse programmatically, and readable by humans. They are also well
-suited to archiving, citation, and bulk distribution, but they are static.
+**Note:** you'll only have 4-6GB of RAM and 1 CPU to work with on the JupyterHub, so
+if you need more computing power, you may need to set PUDL up on your own computer.
+Eventually we hope to offer scalable computing resources on the JupyterHub as well.
 
-To make the data easier to query and work with interactively, we typically load
-it into a local SQLite database using this script, which first combines several
-data packages from the same bundle into a single data package,
+The PUDL Development Environment
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+If you're more familiar with the Python data science stack and are comfortable working
+with git, ``conda`` environments, and the Unix command line, then you can set up the
+whole PUDL Development Environment on your own computer. This will allow you to run the
+full data processing pipeline yourself, tweak the underlying source code, and (we hope!)
+make contributions back to the project.
 
-.. code-block:: console
-
-    $ datapkg_to_sqlite \
-        -o pudl-work/datapkg/pudl-example/pudl-merged \
-        pudl-work/datapkg/pudl-example/ferc1-example/datapackage.json \
-        pudl-work/datapkg/pudl-example/eia-example/datapackage.json \
-        pudl-work/datapkg/pudl-example/epaipm-example/datapackage.json
-
-The EPA CEMS data is ~100 times larger than all of the other data we have
-integrated thus far, and loading it into SQLite takes a very long time. We've
-found the most convenient way to work with it is using
-`Apache Parquet <https://parquet.apache.org>`__ files, and have a script that
-converts the EPA CEMS Hourly table from the generated datapackage into that
-format. To convert the example EPA CEMS data package you can run:
-
-.. code-block:: console
-
-    $ epacems_to_parquet pudl-work/datapkg/pudl-example/epacems-eia-example/datapackage.json
-
-The resulting Apache Parquet dataset will be stored in
-``pudl-work/parquet/epacems`` and will be partitioned by year and by state, so
-that you can read in only the relevant portions of the dataset. (Though in the
-example, you'll only find 2018 data for Idaho)
-
-Now that you have a live database, we can easily work with it using a variety
-of tools, including Python, pandas dataframes, and
-`Jupyter Notebooks <https://jupyter.org>`__. This command will start up a local
-Jupyter notebook server, and open a notebook containing some simple PUDL usage
-examples, which is distributed with the Python package, and deployed into your
-workspace:
-
-.. code-block:: console
-
-    $ jupyter lab pudl-work/notebook/pudl_intro.ipynb
-
-For more usage and installation details, see
-`our more in-depth documentation <https://catalystcoop-pudl.readthedocs.io/>`__
-on Read The Docs.
+This is by far the most involved way to access the data and isn't recommended for
+most users. You should check out the Development section of the main `PUDL
+documentation <https://catalystcoop-pudl.readthedocs.io>`__ for more details.
 
 Contributing to PUDL
 --------------------
+Find PUDL useful? Want to help make it better? There are lots of ways to help!
 
-Find PUDL useful? Want to help make it better? There are lots of ways to
-contribute!
-
-* Please be sure to read our `Code of Conduct <https://catalystcoop-pudl.readthedocs.io/en/latest/code_of_conduct.html>`__
+* First, be sure to read our `Code of Conduct <https://catalystcoop-pudl.readthedocs.io/en/latest/code_of_conduct.html>`__.
 * You can file a bug report, make a feature request, or ask questions in the
   `Github issue tracker <https://github.com/catalyst-cooperative/pudl/issues>`__.
 * Feel free to fork the project and make a pull request with new code,
@@ -185,45 +165,42 @@ contribute!
   our work liberating public energy data.
 * `Hire us to do some custom analysis <https://catalyst.coop/hire-catalyst/>`__
   and allow us to integrate the resulting code into PUDL.
-* For more information check out our `Contribution Guidelines <https://catalystcoop-pudl.readthedocs.io/en/latest/CONTRIBUTING.html>`__
+* For more information check out the Contributing section of the
+  `PUDL Documentation <https://catalystcoop-pudl.readthedocs.io>`__
 
 Licensing
 ---------
 
-The PUDL software is released under the
-`MIT License <https://opensource.org/licenses/MIT>`__.
-`The PUDL documentation <https://catalystcoop-pudl.readthedocs.io>`__
-and the data packages we distribute are released under the
-`CC-BY-4.0 <https://creativecommons.org/licenses/by/4.0/>`__ license.
+In general, our code, data, and other work are permissively licensed for use by
+anybody, for any purpose, so long as you give us credit for the work we've done.
+
+* The PUDL software is released under
+  `the MIT License <https://opensource.org/licenses/MIT>`__.
+* The PUDL data and documentation are published under the
+  `Creative Commons Attribution License v4.0 <https://creativecommons.org/licenses/by/4.0/>`__
+  (CC-BY-4.0).
 
 Contact Us
 ----------
 
-For help with initial setup, usage questions, bug reports, suggestions to make
-PUDL better and anything else that could conceivably be of use or interest to
-the broader community of users, use the
-`PUDL issue tracker <https://github.com/catalyst-cooperative/pudl/issues>`__.
-on Github. For private communication about the project, you can email the
-team: `pudl@catalyst.coop <mailto:pudl@catalyst.coop>`__
+* For user support, bug reports and anything else that could be useful or interesting
+  to other users, please make a
+  `GitHub issue <https://github.com/catalyst-cooperative/pudl/issues>`__.
+* For private communication about the project or to hire us to provide customized data
+  extraction and analysis, you can email the maintainers:
+  `pudl@catalyst.coop <mailto:pudl@catalyst.coop>`__
+* If you'd like to get occasional updates about the project
+  `sign up for our email list <https://catalyst.coop/updates/>`__.
+* Follow us on Twitter: `@CatalystCoop <https://twitter.com/CatalystCoop>`__
+* More info on our website: https://catalyst.coop
 
 About Catalyst Cooperative
 --------------------------
 
-`Catalyst Cooperative <https://catalyst.coop>`__ is a small group of data
-scientists and policy wonks. We’re organized as a worker-owned cooperative
-consultancy. Our goal is a more just, livable, and sustainable world. We
-integrate public data and perform custom analyses to inform public policy. Our
-focus is primarily on mitigating climate change and improving electric utility
-regulation in the United States.
-
-Do you work on renewable energy or climate policy? Have you found yourself
-scraping data from government PDFs, spreadsheets, websites, and databases,
-without getting something reusable? We build tools to pull this kind of
-information together reliably and automatically so you can focus on your real
-work instead — whether that’s political advocacy, energy journalism, academic
-research, or public policymaking.
-
-* Web: https://catalyst.coop
-* Newsletter: https://catalyst.coop/updates/
-* Email: `hello@catalyst.coop <mailto:hello@catalyst.coop>`__
-* Twitter: `@CatalystCoop <https://twitter.com/CatalystCoop>`__
+`Catalyst Cooperative <https://catalyst.coop>`__ is a small group of data wranglers
+and policy wonks organized as a worker-owned cooperative consultancy. Our goal is a
+more just, livable, and sustainable world. We integrate public data and perform
+custom analyses to inform public policy
+(`Hire us! <https://catalyst.coop/hire-catalyst>`__). Our focus is primarily on
+mitigating climate change and improving electric utility regulation in the United
+States.

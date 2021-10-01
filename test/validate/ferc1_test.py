@@ -50,10 +50,10 @@ def test_record_id_dupes(pudl_engine, table_name):
         ("purchased_power_ferc1", "all"),
         ("plant_in_service_ferc1", "all"),
     ])
-def test_no_null_cols_ferc1(pudl_out_ferc1, live_pudl_db, cols, df_name):
+def test_no_null_cols_ferc1(pudl_out_ferc1, live_dbs, cols, df_name):
     """Verify that output DataFrames have no entirely NULL columns."""
-    if not live_pudl_db:
-        raise AssertionError("Data validation only works with a live PUDL DB.")
+    if not live_dbs:
+        pytest.skip("Data validation only works with a live PUDL DB.")
     pv.no_null_cols(
         pudl_out_ferc1.__getattribute__(df_name)(),
         cols=cols, df_name=df_name)
@@ -69,14 +69,14 @@ def test_no_null_cols_ferc1(pudl_out_ferc1, live_pudl_db, cols, df_name):
         ("plants_pumped_storage_ferc1", 689),
         ("plant_in_service_ferc1", 25_931),
         ("purchased_power_ferc1", 183_583),
-        ("pu_ferc1", 6797),
+        ("pu_ferc1", 6798),
     ])
-def test_minmax_rows(pudl_out_ferc1, live_pudl_db, expected_rows, df_name):
+def test_minmax_rows(pudl_out_ferc1, live_dbs, expected_rows, df_name):
     """Verify that output DataFrames don't have too many or too few rows.
 
     Args:
         pudl_out_ferc1: A PudlTabl output object.
-        live_pudl_db: Boolean (wether we're using a live or testing DB).
+        live_dbs: Boolean (wether we're using a live or testing DB).
         expected_rows (int): Expected number of rows that the dataframe should
             contain when all data is loaded and is output without aggregation.
         df_name (str): Shorthand name identifying the dataframe, corresponding
@@ -84,14 +84,14 @@ def test_minmax_rows(pudl_out_ferc1, live_pudl_db, expected_rows, df_name):
             output object.
 
     """
-    if not live_pudl_db:
-        raise AssertionError("Data validation only works with a live PUDL DB.")
+    if not live_dbs:
+        pytest.skip("Data validation only works with a live PUDL DB.")
     _ = (
         pudl_out_ferc1.__getattribute__(df_name)()
         .pipe(pv.check_min_rows, expected_rows=expected_rows,
-              margin=0.02, df_name=df_name)
+              margin=0.0, df_name=df_name)
         .pipe(pv.check_max_rows, expected_rows=expected_rows,
-              margin=0.02, df_name=df_name)
+              margin=0.0, df_name=df_name)
     )
 
 
@@ -106,10 +106,10 @@ def test_minmax_rows(pudl_out_ferc1, live_pudl_db, expected_rows, df_name):
         ("plant_in_service_ferc1",
          ["report_year", "utility_id_ferc1", "amount_type"]),
     ])
-def test_unique_rows_ferc1(pudl_out_ferc1, live_pudl_db, df_name, unique_subset):
+def test_unique_rows_ferc1(pudl_out_ferc1, live_dbs, df_name, unique_subset):
     """Test whether dataframe has unique records within a subset of columns."""
-    if not live_pudl_db:
-        raise AssertionError("Data validation only works with a live PUDL DB.")
+    if not live_dbs:
+        pytest.skip("Data validation only works with a live PUDL DB.")
     pv.check_unique_rows(
         pudl_out_ferc1.__getattribute__(df_name)(),
         subset=unique_subset, df_name=df_name)

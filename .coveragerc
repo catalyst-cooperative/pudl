@@ -1,10 +1,11 @@
 [run]
 omit =
-    *glue/zipper.py
-    *analysis/analysis.py
+    */pudl/convert/datapkg_to_sqlite.py
+    */pudl/convert/merge_datapkgs.py
+    */pudl/load/csv.py
+    */pudl/load/metadata.py
     *__main__.py
     *__init__.py
-    *cli.py
     *_test.py
 
 [report]

@@ -19,6 +19,15 @@ ASSOCIATIONS: List[Dict[str, Any]] = [
     {'id': 12506, 'from': 2012, 'to': [2013, 2013]},
     # (no code): American Electric Power Co Inc
     {'id': 829, 'from': 2008, 'to': [2009, 2013]},
+    # PJM: PJM Interconnection LLC
+    {'id': 14725, 'from': 2011, 'to': [2006, 2010]},
+    # BANC: Balancing Authority of Northern California
+    {'id': 16534, 'from': 2013, 'to': [2012, 2012]},
+    # SPS: Southwestern Public Service
+    {'id': 17718, 'from': 2010, 'to': [2006, 2009]},
+    # Nevada Power Company
+    {'id': 13407, 'from': 2009, 'to': [2006, 2008]},
+    {'id': 13407, 'from': 2013, 'to': [2014, 2019]},
 ]
 """
 Adjustments to balancing authority-utility associations from EIA 861.
@@ -102,6 +111,98 @@ def add_dates(rids_ferc714, report_dates):
         ).reset_index()
     )
     return pd.merge(rids_ferc714, dates_rids_df, on="respondent_id_ferc714")
+
+
+def categorize_eia_code(eia_codes, ba_ids, util_ids, priority="balancing_authority"):
+    """
+    Categorize FERC 714 ``eia_codes`` as either balancing authority or utility IDs.
+
+    Most FERC 714 respondent IDs are associated with an ``eia_code`` which refers to
+    either a ``balancing_authority_id_eia`` or a ``utility_id_eia`` but no indication
+    as to which type of ID each one is. This is further complicated by the fact
+    that EIA uses the same numerical ID to refer to the same entity in most but not all
+    cases, when that entity acts as both a utility and as a balancing authority.
+
+    This function associates a ``respondent_type`` of ``utility``,
+    ``balancing_authority`` or ``pandas.NA`` with each input ``eia_code`` using the
+    following rules:
+    * If a ``eia_code`` appears only in ``util_ids`` the ``respondent_type`` will be
+    ``utility``.
+    * If ``eia_code`` appears only in ``ba_ids`` the ``respondent_type`` will be
+    assigned ``balancing_authority``.
+    * If ``eia_code`` appears in neither set of IDs, ``respondent_type`` will be
+    assigned ``pandas.NA``.
+    * If ``eia_code`` appears in both sets of IDs, then whichever ``respondent_type``
+    has been selected with the ``priority`` flag will be assigned.
+
+    Note that the vast majority of ``balancing_authority_id_eia`` values also show up
+    as ``utility_id_eia`` values, but only a small subset of the ``utility_id_eia``
+    values are associated with balancing authorities. If you use
+    ``priority="utility"`` you should probably also be specifically compiling the list
+    of Utility IDs because you know they should take precedence. If you use utility
+    priority with all utility IDs
+
+    Args:
+        eia_codes (ordered collection of ints): A collection of IDs which may be either
+            associated with EIA balancing authorities or utilities, to be categorized.
+        ba_ids_eia (ordered collection of ints): A collection of IDs which should be
+            interpreted as belonging to EIA Balancing Authorities.
+        util_ids_eia (ordered collection of ints): A collection of IDs which should be
+            interpreted as belonging to EIA Utilities.
+        priorty (str): Which respondent_type to give priority to if the eia_code shows
+            up in both util_ids_eia and ba_ids_eia. Must be one of "utility" or
+            "balancing_authority". The default is "balanacing_authority".
+
+    Returns:
+        pandas.DataFrame: A dataframe containing 2 columns: ``eia_code`` and
+        ``respondent_type``.
+
+    """
+    if priority == "balancing_authority":
+        primary = "balancing_authority"
+        secondary = "utility"
+    elif priority == "utility":
+        primary = "utility"
+        secondary = "balancing_authority"
+    else:
+        raise ValueError(
+            f"Invalid respondent type {priority} chosen as priority."
+            "Must be either 'utility' or 'balancing_authority'."
+        )
+
+    eia_codes = pd.DataFrame(eia_codes, columns=["eia_code"]).drop_duplicates()
+    ba_ids = (
+        pd.Series(ba_ids, name="balancing_authority_id_eia")
+        .drop_duplicates()
+        .astype(
+            pudl.helpers.get_pudl_dtype(
+                col="balancing_authority_id_eia",
+                data_source="eia"
+            )
+        )
+    )
+    util_ids = (
+        pd.Series(util_ids, name="utility_id_eia")
+        .drop_duplicates()
+        .astype(
+            pudl.helpers.get_pudl_dtype(col="utility_id_eia", data_source="eia")
+        )
+    )
+
+    df = (
+        eia_codes
+        .merge(ba_ids, left_on="eia_code", right_on="balancing_authority_id_eia", how="left")
+        .merge(util_ids, left_on="eia_code", right_on="utility_id_eia", how="left")
+    )
+    df.loc[df[f"{primary}_id_eia"].notnull(), "respondent_type"] = primary
+    df.loc[
+        (df[f"{secondary}_id_eia"].notnull())
+        & (df[f"{primary}_id_eia"].isnull()), "respondent_type"] = secondary
+    df = (
+        df.astype({"respondent_type": pd.StringDtype()})
+        .loc[:, ["eia_code", "respondent_type"]]
+    )
+    return df
 
 
 class Respondents(object):
@@ -218,7 +319,7 @@ class Respondents(object):
             ref = df[mask]
             if 'exclude' in fix:
                 # Exclude utilities by state
-                mask = ref['state'].isin(fix['exclude'])
+                mask = ~ref['state'].isin(fix['exclude'])
                 ref = ref[mask]
             refs.append(ref)
         # Buid table of new rows
@@ -348,7 +449,7 @@ class Respondents(object):
         if update or self._categorized is None:
             rids_ferc714 = self.pudl_out.respondent_id_ferc714()
             categorized = (
-                pudl.analysis.demand_mapping.categorize_eia_code(
+                categorize_eia_code(
                     rids_ferc714.eia_code.dropna().unique(),
                     ba_ids=self.ba_ids,
                     util_ids=self.util_ids,
@@ -530,8 +631,9 @@ class Respondents(object):
         analyses.
         """
         if update or self._counties_gdf is None:
-            census_counties = pudl.analysis.service_territory.get_census2010_gdf(
-                pudl_settings=self.pudl_settings, layer="county", ds=self.pudl_out.ds)
+            census_counties = pudl.output.censusdp1tract.get_layer(
+                layer="county", pudl_settings=self.pudl_settings,
+            )
             self._counties_gdf = (
                 pudl.analysis.service_territory.add_geometries(
                     self.fipsify(update=update), census_gdf=census_counties)
@@ -562,8 +664,9 @@ class Respondents(object):
         from year to year, etc.
         """
         if update or self._respondents_gdf is None:
-            census_counties = pudl.analysis.service_territory.get_census2010_gdf(
-                pudl_settings=self.pudl_settings, layer="county")
+            census_counties = pudl.output.censusdp1tract.get_layer(
+                layer="county", pudl_settings=self.pudl_settings,
+            )
             self._respondents_gdf = (
                 pudl.analysis.service_territory.add_geometries(
                     self.fipsify(update=update),

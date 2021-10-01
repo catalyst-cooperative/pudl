@@ -7,25 +7,15 @@ The Public Utility Data Liberation Project
 
 .. toctree::
   :hidden:
+  :maxdepth: 2
 
-  install
-  usage
-  datastore
-  clone_ferc1
-  datapackages
-  cloud_access
-  data_sources
-  settings_files
+  intro
+  data_access
+  data_sources/index
+  data_dictionaries/index
   Contributing <CONTRIBUTING>
-  dev_setup
-  testing
-  data_guidelines
-  new_dataset
-  code_standards
-  project_management
-  naming_conventions
-  background
-  acknowledgments
-  License <LICENSE>
-  code_of_conduct
-  Module Index <api/modules>
+  dev/index
+  Licensing <LICENSE>
+  Code of Conduct <code_of_conduct>
+  Release Notes <release_notes>
+  autoapi/index
