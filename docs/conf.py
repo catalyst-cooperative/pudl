@@ -60,6 +60,7 @@ autoapi_type = 'python'
 autoapi_dirs = ['../src/pudl', ]
 autoapi_ignore = [
     "*_test.py",
+    "*/package_data/*",
 ]
 
 # GitHub repo
