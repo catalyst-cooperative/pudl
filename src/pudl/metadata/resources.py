@@ -233,11 +233,11 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
             "fields": [
                 "plant_id_eia",
                 "generator_id",
+                "utility_id_eia",
                 "report_date",
                 "operational_status_code",
                 "operational_status",
                 "ownership_code",
-                "utility_id_eia",
                 "capacity_mw",
                 "summer_capacity_mw",
                 "summer_capacity_estimate",
@@ -878,11 +878,6 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
                     # https://github.com/catalyst-cooperative/pudl/issues/1196
                     # ["owner_utility_id_eia", "report_date"],
                 ],
-                # 541 Utility IDs are missing from the 2010 utilities_eia860
-                # table, but do show up in plants_eia860 data. This needs to be
-                # addressed somehow, but for the moment I'm excluding this FK
-                # See: https://github.com/catalyst-cooperative/pudl/issues/1262
-                "exclude": ["plants_eia860"]
             },
         },
         "sources": ["eia860"],
