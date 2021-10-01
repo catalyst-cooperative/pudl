@@ -122,6 +122,35 @@ def ownership(eia860_dfs, eia860_transformed_dfs):
     )
     own_df = own_df[~mask]
 
+    # In 2010 there are several hundred utilities that appear to be incorrectly
+    # reporting the owner_utility_id_eia value *also* in the utility_id_eia
+    # column. This results in duplicate operator IDs associated with a given
+    # generator in a particular year, which should never happen. We identify
+    # these values and set them to NA so they don't mess up the harvested
+    # relationships between plants and utilities:
+    # See https://github.com/catalyst-cooperative/pudl/issues/1116
+    duplicate_operators = (
+        own_df.groupby(["report_date", "plant_id_eia", "generator_id"])
+        .utility_id_eia.transform(pd.Series.nunique)
+    ) > 1
+    own_df.loc[duplicate_operators, "utility_id_eia"] = pd.NA
+
+    # The above fix won't catch owner_utility_id_eia values in the
+    # utility_id_eia (operator) column when there's only a single
+    # owner-operator. But also, when there's a single owner-operator they souldn't
+    # even be reporting in this table. So we can also drop those utility_id_eia
+    # values without losing any valuable information here. The utility_id_eia
+    # column here is only useful for entity harvesting & resolution purposes
+    # since the (report_date, plant_id_eia) tuple fully defines the operator id.
+    # See https://github.com/catalyst-cooperative/pudl/issues/1116
+    single_owner_operator = (
+        (own_df.utility_id_eia == own_df.owner_utility_id_eia)
+        & (own_df.fraction_owned == 1.0)
+    )
+    own_df.loc[single_owner_operator, "utility_id_eia"] = pd.NA
+    # Utility ID doesn't end up in this table, so neither should utility name...
+    own_df = own_df.drop("utility_name_eia", axis="columns")
+
     eia860_transformed_dfs['ownership_eia860'] = own_df
 
     return eia860_transformed_dfs

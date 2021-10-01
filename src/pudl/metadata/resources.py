@@ -378,7 +378,7 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
         "schema": {
             "fields": [
                 "report_date",
-                "utility_id_eia",
+                # "utility_id_eia",
                 "plant_id_eia",
                 "generator_id",
                 "owner_utility_id_eia",
@@ -882,7 +882,7 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
                 # table, but do show up in plants_eia860 data. This needs to be
                 # addressed somehow, but for the moment I'm excluding this FK
                 # See: https://github.com/catalyst-cooperative/pudl/issues/1262
-                "exclude": ["plants_eia860"]
+                # "exclude": ["plants_eia860"]
             },
         },
         "sources": ["eia860"],
