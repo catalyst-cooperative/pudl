@@ -168,9 +168,7 @@ def pudl_sql_engine(
             etl_settings_bundle=pudl_etl_params["datapkg_bundle_settings"],
             pudl_settings=pudl_settings_fixture,
             clobber=False,
-            # These checks should all be True but there are bugs at the moment.
-            # See: https://github.com/catalyst-cooperative/pudl/issues/1196
-            check_foreign_keys=False,
+            check_foreign_keys=True,
             check_types=True,
             check_values=True,
         )

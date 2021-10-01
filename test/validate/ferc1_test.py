@@ -9,8 +9,8 @@ import logging
 import pandas as pd
 import pytest
 
-from pudl import constants as pc
 from pudl import validate as pv
+from pudl.constants import PUDL_TABLES
 
 logger = logging.getLogger(__name__)
 
@@ -20,7 +20,7 @@ row_mapped_tables = [
     "plant_in_service_ferc1",
 ]
 unique_record_tables = [
-    t for t in pc.pudl_tables["ferc1"] if t not in row_mapped_tables
+    t for t in PUDL_TABLES["ferc1"] if t not in row_mapped_tables
 ]
 
 

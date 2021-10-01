@@ -15,16 +15,16 @@ import re
 import shutil
 from functools import partial
 from io import BytesIO
+from typing import Any, Dict, List
 
 import addfips
 import numpy as np
 import pandas as pd
 import requests
 import sqlalchemy as sa
-import timezonefinder
 
-import pudl
 from pudl import constants as pc
+from pudl.metadata.classes import Package
 
 logger = logging.getLogger(__name__)
 
@@ -40,8 +40,49 @@ consumption for the year needs to be NA, otherwise we'll get unrealistic heat
 rates.
 """
 
-TZ_FINDER = timezonefinder.TimezoneFinder()
-"""A global TimezoneFinder to cache geographies in memory for faster access."""
+
+def find_foreign_key_errors(dfs: Dict[str, pd.DataFrame]) -> List[Dict[str, Any]]:
+    """
+    Report foreign key violations from a dictionary of dataframes.
+
+    The database schema to check against is generated based on the names of the
+    dataframes (keys of the dictionary) and the PUDL metadata structures.
+
+    Args:
+        dfs: Keys are table names, and values are dataframes ready for loading
+            into the SQLite database.
+
+    Returns:
+        A list of dictionaries, each one pertains to a single database table
+        in which a foreign key constraint violation was found, and it includes
+        the table name, foreign key definition, and the elements of the
+        dataframe that violated the foreign key constraint.
+
+    """
+    package = Package.from_resource_ids(dfs)
+    errors = []
+    for resource in package.resources:
+        for foreign_key in resource.schema.foreign_keys:
+            x = dfs[resource.name][foreign_key.fields]
+            y = dfs[foreign_key.reference.resource][foreign_key.reference.fields]
+            ncols = x.shape[1]
+            idx = range(ncols)
+            xx, yy = x.set_axis(idx, axis=1), y.set_axis(idx, axis=1)
+            if ncols == 1:
+                # Faster check for single-field foreign key
+                invalid = ~(xx[0].isin(yy[0]) | xx[0].isna())
+            else:
+                invalid = ~(
+                    pd.concat([yy, xx]).duplicated().iloc[len(yy):] |
+                    xx.isna().any(axis=1)
+                )
+            if invalid.any():
+                errors.append({
+                    'resource': resource.name,
+                    'foreign_key': foreign_key,
+                    'invalid': x[invalid]
+                })
+    return errors
 
 
 def download_zip_url(url, save_path, chunk_size=128):
@@ -315,7 +356,7 @@ def clean_merge_asof(
 
 def get_pudl_dtype(col, data_source):
     """Look up a column's canonical data type based on its PUDL data source."""
-    return pudl.constants.column_dtypes[data_source][col]
+    return pc.COLUMN_DTYPES[data_source][col]
 
 
 def get_pudl_dtypes(col_source_dict):
@@ -755,54 +796,6 @@ def simplify_columns(df):
     return df
 
 
-def find_timezone(*, lng=None, lat=None, state=None, strict=True):
-    """Find the timezone associated with the a specified input location.
-
-    Note that this function requires named arguments. The names are lng, lat,
-    and state.  lng and lat must be provided, but they may be NA. state isn't
-    required, and isn't used unless lng/lat are NA or timezonefinder can't find
-    a corresponding timezone.
-
-    Timezones based on states are imprecise, so it's far better to use lng/lat
-    if possible. If `strict` is True, state will not be used.
-    More on state-to-timezone conversion here:
-    https://en.wikipedia.org/wiki/List_of_time_offsets_by_U.S._state_and_territory
-
-    Args:
-        lng (int or float in [-180,180]): Longitude, in decimal degrees
-        lat (int or float in [-90, 90]): Latitude, in decimal degrees
-        state (str): Abbreviation for US state or Canadian province
-        strict (bool): Raise an error if no timezone is found?
-
-    Returns:
-        str: The timezone (as an IANA string) for that location.
-
-    Todo:
-        Update docstring.
-
-    """
-    try:
-        tz = TZ_FINDER.timezone_at(lng=lng, lat=lat)
-        if tz is None:  # Try harder
-            # Could change the search radius as well
-            tz = TZ_FINDER.closest_timezone_at(lng=lng, lat=lat)
-    # For some reason w/ Python 3.6 we get a ValueError here, but with
-    # Python 3.7 we get an OverflowError...
-    except (OverflowError, ValueError):
-        # If we're being strict, only use lng/lat, not state
-        if strict:
-            raise ValueError(
-                f"Can't find timezone for: lng={lng}, lat={lat}, state={state}"
-            )
-        # If, e.g., the coordinates are missing, try looking in the
-        # state_tz_approx dictionary.
-        try:
-            tz = pudl.constants.state_tz_approx[state]
-        except KeyError:
-            tz = None
-    return tz
-
-
 def drop_tables(engine, clobber=False):
     """Drops all tables from a SQLite database.
 
@@ -858,7 +851,7 @@ def convert_cols_dtypes(df, data_source, name=None):
     Convert the data types for a dataframe.
 
     This function will convert a PUDL dataframe's columns to the correct data
-    type. It uses a dictionary in constants.py called column_dtypes to assign
+    type. It uses a dictionary in constants.py called COLUMN_DTYPES to assign
     the right type. Within a given data source (e.g. eia923, ferc1) each column
     name is assumed to *always* have the same data type whenever it is found.
 
@@ -883,12 +876,12 @@ def convert_cols_dtypes(df, data_source, name=None):
 
     Returns:
         pandas.DataFrame: a dataframe with columns as specified by the
-        :mod:`pudl.constants` ``column_dtypes`` dictionary.
+        :mod:`pudl.constants` ``COLUMN_DTYPES`` dictionary.
 
     """
     # get me all of the columns for the table in the constants dtype dict
     col_dtypes = {col: col_dtype for col, col_dtype
-                  in pc.column_dtypes[data_source].items()
+                  in pc.COLUMN_DTYPES[data_source].items()
                   if col in list(df.columns)}
 
     # grab only the boolean columns (we only need their names)
@@ -908,7 +901,7 @@ def convert_cols_dtypes(df, data_source, name=None):
     # but right now we don't have the FERC columns done, so we can't:
     # get me all of the columns for the table in the constants dtype dict
     # col_types = {
-    #    col: pc.column_dtypes[data_source][col] for col in df.columns
+    #    col: pc.COLUMN_DTYPES[data_source][col] for col in df.columns
     # }
     # grab only the boolean columns (we only need their names)
     # bool_cols = {col for col in col_types if col_types[col] is bool}
@@ -1157,7 +1150,7 @@ def iterate_multivalue_dict(**kwargs):
 def get_working_eia_dates():
     """Get all working EIA dates as a DatetimeIndex."""
     dates = pd.DatetimeIndex([])
-    for dataset_name, dataset in pc.working_partitions.items():
+    for dataset_name, dataset in pc.WORKING_PARTITIONS.items():
         if 'eia' in dataset_name:
             for name, partition in dataset.items():
                 if name == 'years':

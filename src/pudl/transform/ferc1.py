@@ -27,6 +27,8 @@ from sklearn.preprocessing import MinMaxScaler, Normalizer, OneHotEncoder
 
 import pudl
 from pudl import constants as pc
+from pudl.constants import PUDL_TABLES
+from pudl.metadata.labels import POWER_PURCHASE_TYPES_FERC1
 
 logger = logging.getLogger(__name__)
 
@@ -759,7 +761,7 @@ def _plants_steam_clean(ferc1_steam_df):
               unmapped='')
         .pipe(pudl.helpers.oob_to_nan,
               cols=["construction_year", "installation_year"],
-              lb=1850, ub=max(pc.working_partitions["ferc1"]["years"]) + 1)
+              lb=1850, ub=max(pc.WORKING_PARTITIONS["ferc1"]["years"]) + 1)
         .assign(
             capex_per_mw=lambda x: 1000.0 * x.capex_per_kw,
             opex_per_mwh=lambda x: 1000.0 * x.opex_per_kwh,
@@ -1098,7 +1100,7 @@ def plants_small(ferc1_raw_dfs, ferc1_transformed_dfs):
     # set them to NA if they can't be converted. (table has some junk values)
     ferc1_small_df = pudl.helpers.oob_to_nan(
         ferc1_small_df, cols=["yr_constructed"],
-        lb=1850, ub=max(pc.working_partitions["ferc1"]["years"]) + 1)
+        lb=1850, ub=max(pc.WORKING_PARTITIONS["ferc1"]["years"]) + 1)
 
     # Convert from cents per mmbtu to dollars per mmbtu to be consistent
     # with the f1_fuel table data. Also, let's use a clearer name.
@@ -1160,8 +1162,7 @@ def plants_small(ferc1_raw_dfs, ferc1_transformed_dfs):
 
     ferc1_small_df.rename(columns={
         # FERC 1 DB Name      PUDL DB Name
-        'plant_name': 'plant_name_original',
-        'plant_name_clean': 'plant_name_ferc1',
+        'plant_name': 'plant_name_ferc1',
         'ferc_license': 'ferc_license_id',
         'yr_constructed': 'construction_year',
         'capacity_rating': 'capacity_mw',
@@ -1210,7 +1211,7 @@ def plants_hydro(ferc1_raw_dfs, ferc1_transformed_dfs):
             # Converting kWh to MWh
             expns_per_mwh=lambda x: x.expns_kwh * 1000.0)
         .pipe(pudl.helpers.oob_to_nan, cols=["yr_const", "yr_installed"],
-              lb=1850, ub=max(pc.working_partitions["ferc1"]["years"]) + 1)
+              lb=1850, ub=max(pc.WORKING_PARTITIONS["ferc1"]["years"]) + 1)
         .drop(columns=['net_generation', 'cost_per_kw', 'expns_kwh'])
         .rename(columns={
             # FERC1 DB          PUDL DB
@@ -1294,7 +1295,7 @@ def plants_pumped_storage(ferc1_raw_dfs, ferc1_transformed_dfs):
             cost_per_mw=lambda x: x.cost_per_kw * 1000.0,
             expns_per_mwh=lambda x: x.expns_kwh * 1000.0)
         .pipe(pudl.helpers.oob_to_nan, cols=["yr_const", "yr_installed"],
-              lb=1850, ub=max(pc.working_partitions["ferc1"]["years"]) + 1)
+              lb=1850, ub=max(pc.WORKING_PARTITIONS["ferc1"]["years"]) + 1)
         .drop(columns=['net_generation', 'energy_used', 'net_load',
                        'cost_per_kw', 'expns_kwh'])
         .rename(columns={
@@ -1434,44 +1435,42 @@ def purchased_power(ferc1_raw_dfs, ferc1_transformed_dfs):
         dict: The dictionary of the transformed DataFrames.
     """
     # grab table from dictionary of dfs
-    df = (_clean_cols(ferc1_raw_dfs['purchased_power_ferc1'], 'f1_purchased_pwr')
-          .rename(columns={
-              'athrty_co_name': 'seller_name',
-              'sttstcl_clssfctn': 'purchase_type',
-              'rtsched_trffnbr': 'tariff',
-              'avgmth_bill_dmnd': 'billing_demand_mw',
-              'avgmth_ncp_dmnd': 'non_coincident_peak_demand_mw',
-              'avgmth_cp_dmnd': 'coincident_peak_demand_mw',
-              'mwh_purchased': 'purchased_mwh',
-              'mwh_recv': 'received_mwh',
-              'mwh_delvd': 'delivered_mwh',
-              'dmnd_charges': 'demand_charges',
-              'erg_charges': 'energy_charges',
-              'othr_charges': 'other_charges',
-              'settlement_tot': 'total_settlement'})
-          .assign(  # Require these columns to numeric, or NaN
-        billing_demand_mw=lambda x: pd.to_numeric(
-            x.billing_demand_mw, errors="coerce"),
-        non_coincident_peak_demand_mw=lambda x: pd.to_numeric(
-            x.non_coincident_peak_demand_mw, errors="coerce"),
-        coincident_peak_demand_mw=lambda x: pd.to_numeric(
-            x.coincident_peak_demand_mw, errors="coerce"))
-          .fillna({  # Replace blanks w/ 0.0 in data columns.
-              "purchased_mwh": 0.0,
-              "received_mwh": 0.0,
-              "delivered_mwh": 0.0,
-              "demand_charges": 0.0,
-              "energy_charges": 0.0,
-              "other_charges": 0.0,
-              "total_settlement": 0.0}))
-
-    # Replace any invalid purchase types with the empty string
-    bad_rows = (~df.purchase_type.isin(pc.ferc1_power_purchase_type.keys()))
-    df.loc[bad_rows, 'purchase_type'] = ""
+    df = (
+        _clean_cols(ferc1_raw_dfs['purchased_power_ferc1'], 'f1_purchased_pwr')
+        .rename(columns={
+            'athrty_co_name': 'seller_name',
+            'sttstcl_clssfctn': 'purchase_type',
+            'rtsched_trffnbr': 'tariff',
+            'avgmth_bill_dmnd': 'billing_demand_mw',
+            'avgmth_ncp_dmnd': 'non_coincident_peak_demand_mw',
+            'avgmth_cp_dmnd': 'coincident_peak_demand_mw',
+            'mwh_purchased': 'purchased_mwh',
+            'mwh_recv': 'received_mwh',
+            'mwh_delvd': 'delivered_mwh',
+            'dmnd_charges': 'demand_charges',
+            'erg_charges': 'energy_charges',
+            'othr_charges': 'other_charges',
+            'settlement_tot': 'total_settlement'})
+        .assign(  # Require these columns to numeric, or NaN
+            billing_demand_mw=lambda x: pd.to_numeric(
+                x.billing_demand_mw, errors="coerce"),
+            non_coincident_peak_demand_mw=lambda x: pd.to_numeric(
+                x.non_coincident_peak_demand_mw, errors="coerce"),
+            coincident_peak_demand_mw=lambda x: pd.to_numeric(
+                x.coincident_peak_demand_mw, errors="coerce"))
+        .fillna({  # Replace blanks w/ 0.0 in data columns.
+            "purchased_mwh": 0.0,
+            "received_mwh": 0.0,
+            "delivered_mwh": 0.0,
+            "demand_charges": 0.0,
+            "energy_charges": 0.0,
+            "other_charges": 0.0,
+            "total_settlement": 0.0,
+        })
+    )
 
     # Replace inscrutable two letter codes with descriptive codes:
-    df['purchase_type'] = df.purchase_type.replace(
-        pc.ferc1_power_purchase_type)
+    df['purchase_type'] = df.purchase_type.map(POWER_PURCHASE_TYPES_FERC1)
 
     # Drop records containing no useful data and also any completely duplicate
     # records -- there are 6 in 1998 for utility 238 for some reason...
@@ -1509,7 +1508,7 @@ def accumulated_depreciation(ferc1_raw_dfs, ferc1_transformed_dfs):
     # grab table from dictionary of dfs
     ferc1_apd_df = ferc1_raw_dfs['accumulated_depreciation_ferc1']
 
-    ferc1_acct_apd = pc.ferc_accumulated_depreciation.drop(
+    ferc1_acct_apd = pc.FERC_ACCUMULATED_DEPRECIATION.drop(
         ['ferc_account_description'], axis=1)
     ferc1_acct_apd.dropna(inplace=True)
     ferc1_acct_apd['row_number'] = ferc1_acct_apd['row_number'].astype(int)
@@ -1529,7 +1528,7 @@ def accumulated_depreciation(ferc1_raw_dfs, ferc1_transformed_dfs):
     return ferc1_transformed_dfs
 
 
-def transform(ferc1_raw_dfs, ferc1_tables=pc.pudl_tables['ferc1']):
+def transform(ferc1_raw_dfs, ferc1_tables=PUDL_TABLES['ferc1']):
     """Transforms FERC 1.
 
     Args:

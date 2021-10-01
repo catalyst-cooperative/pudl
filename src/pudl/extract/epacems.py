@@ -139,8 +139,8 @@ class EpaCemsDatastore:
         )
         df = df.rename(columns=RENAME_DICT)
         df = df.astype({
-            col: pc.column_dtypes["epacems"][col]
-            for col in pc.column_dtypes["epacems"]
+            col: pc.COLUMN_DTYPES["epacems"][col]
+            for col in pc.COLUMN_DTYPES["epacems"]
             if col in df.columns
         })
         return df
@@ -163,7 +163,6 @@ def extract(epacems_years, states, ds: Datastore):
     """
     ds = EpaCemsDatastore(ds)
     for year in epacems_years:
-        # The keys of the us_states dictionary are the state abbrevs
         for state in states:
             partition = EpaCemsPartition(state=state, year=year)
             logger.info(f"Processing EPA CEMS hourly data for {state}-{year}")
