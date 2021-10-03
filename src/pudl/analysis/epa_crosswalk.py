@@ -31,13 +31,13 @@ def _merge_crosswalk_with_cems_ids(crosswalk: pd.DataFrame, unique_cems_ids: pd.
     return key_map
 
 
-def _remove_unmatched(crosswalk: pd.DataFrame) -> pd.DataFrame:
+def filter_out_unmatched(crosswalk: pd.DataFrame) -> pd.DataFrame:
     """Remove unmatched or excluded (non-exporting) units."""
     bad = crosswalk["MATCH_TYPE_GEN"].isin({"CAMD Unmatched", "Manual CAMD Excluded"})
     return crosswalk.loc[~bad].copy()
 
 
-def _remove_boiler_rows(crosswalk: pd.DataFrame) -> pd.DataFrame:
+def filter_out_boiler_rows(crosswalk: pd.DataFrame) -> pd.DataFrame:
     """Remove rows that represent graph edges between generators and boilers."""
     crosswalk = crosswalk.drop_duplicates(
         subset=["CAMD_PLANT_ID", "CAMD_UNIT_ID", "EIA_GENERATOR_ID"])
@@ -76,23 +76,35 @@ def _subplant_ids_from_prepped_crosswalk(prepped: pd.DataFrame) -> pd.DataFrame:
     return nx.to_pandas_edgelist(graph)
 
 
-def make_subplant_ids(crosswalk: pd.DataFrame, cems: Union[pd.DataFrame, dd.DataFrame]) -> pd.DataFrame:
-    """Identify sub-plants in the graph made by an inner join of the EPA crosswalk and CEMS emissions data.
+def filter_crosswalk(crosswalk: pd.DataFrame, cems: Union[pd.DataFrame, dd.DataFrame]) -> pd.DataFrame:
+    """Remove crosswalk rows that do not correspond to an EIA facility or are duplicated due to many-to-many boiler relationships.
 
     Args:
         crosswalk (pd.DataFrame): The EPA/EIA crosswalk.
         cems (Union[pd.DataFrame, dd.DataFrame]): Emissions data. Must contain columns named ["plant_id_eia", "unitid", "unit_id_epa"]
 
     Returns:
-        pd.DataFrame: An edge list connecting EPA units to EIA generators, with connected pieces issued a subplant_id
+        pd.DataFrame: An edge list connecting EPA units to EIA generators
     """
     ids = _get_unique_keys(cems)
-    filtered_crosswalk = _remove_unmatched(crosswalk)
-    filtered_crosswalk = _remove_boiler_rows(filtered_crosswalk)
+    filtered_crosswalk = filter_out_unmatched(crosswalk)
+    filtered_crosswalk = filter_out_boiler_rows(filtered_crosswalk)
     key_map = _merge_crosswalk_with_cems_ids(
         crosswalk=filtered_crosswalk, unique_cems_ids=ids)
-    column_order = list(key_map.columns)
-    edge_list = _prep_for_networkx(key_map)
+    return key_map
+
+
+def make_subplant_ids(crosswalk: pd.DataFrame) -> pd.DataFrame:
+    """Identify sub-plants in the EPA/EIA crosswalk graph. Any row filtering should be done before this step.
+
+    Args:
+        crosswalk (pd.DataFrame): The EPA/EIA crosswalk.
+
+    Returns:
+        pd.DataFrame: An edge list connecting EPA units to EIA generators, with connected pieces issued a subplant_id
+    """
+    column_order = list(crosswalk.columns)
+    edge_list = _prep_for_networkx(crosswalk)
     edge_list = _subplant_ids_from_prepped_crosswalk(edge_list)
     column_order = ["subplant_id"] + column_order
     return edge_list[column_order]

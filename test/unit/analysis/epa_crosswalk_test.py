@@ -144,5 +144,7 @@ def test_make_subplant_ids(mock_crosswalk, mock_cems_extended):
     expected = expected[["subplant_id"] + cols + ["CAMD_PLANT_ID",
                                                   "CAMD_UNIT_ID", "EIA_GENERATOR_ID", "MATCH_TYPE_GEN"]]
 
-    actual = cw.make_subplant_ids(mock_crosswalk, mock_cems_extended)
+    # should be two separate tests but I ran out of time
+    actual = cw.filter_crosswalk(mock_crosswalk, mock_cems_extended)
+    actual = cw.make_subplant_ids(actual)
     assert_frame_equal(actual, expected)
