@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 
 import pudl
-from pudl import constants as pc
+from pudl.constants import PUDL_TABLES
 
 logger = logging.getLogger(__name__)
 
@@ -585,7 +585,7 @@ def _early_transform(raw_df):
     return out_df
 
 
-def transform(raw_dfs, tables=pc.pudl_tables["ferc714"]):
+def transform(raw_dfs, tables=PUDL_TABLES["ferc714"]):
     """
     Transform the raw FERC 714 dataframes into datapackage ready ouputs.
 
@@ -618,7 +618,7 @@ def transform(raw_dfs, tables=pc.pudl_tables["ferc714"]):
     }
     tfr_dfs = {}
     for table in tables:
-        if table not in pc.pudl_tables["ferc714"]:
+        if table not in PUDL_TABLES["ferc714"]:
             raise ValueError(
                 f"No transform function found for requested FERC Form 714 "
                 f"data table {table}!"

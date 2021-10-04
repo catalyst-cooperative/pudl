@@ -6,7 +6,7 @@ settings has empty datapackage parameters (meaning there are no years or
 tables included), no datapacakges will be generated. If the settings include a
 datapackage that has empty parameters, the other valid datatpackages will be
 generated, but not the empty one. If there are invalid parameters (meaning a
-partition that is not included in the pudl.constant.working_partitions), the
+partition that is not included in the pudl.constant.WORKING_PARTITIONS), the
 build will fail early on in the process.
 
 The datapackages will be stored in "PUDL_OUT" in the "datapackge" subdirectory.
@@ -21,6 +21,7 @@ import os
 import sys
 import uuid
 from datetime import datetime
+from sqlite3 import sqlite_version
 from typing import Dict
 
 import coloredlogs
@@ -28,8 +29,10 @@ import fsspec
 import prefect
 import yaml
 from fsspec.implementations.local import LocalFileSystem
+from packaging import version
 
 import pudl
+from pudl.load.sqlite import MINIMUM_SQLITE_VERSION
 
 logger = logging.getLogger(__name__)
 
@@ -234,6 +237,17 @@ def main():
         )
     with fsspec.open(os.path.join(args.pipeline_cache_path, "settings.yml"), "w") as outfile:
         yaml.dump(script_settings, outfile, default_flow_style=False)
+
+    bad_sqlite_version = (
+        version.parse(sqlite_version) < version.parse(MINIMUM_SQLITE_VERSION)
+    )
+    if bad_sqlite_version and not args.ignore_type_constraints:
+        args.ignore_type_constraints = False
+        logger.warning(
+            f"Found SQLite {sqlite_version} which is less than "
+            f"the minimum required version {MINIMUM_SQLITE_VERSION} "
+            "As a result, data type constraint checking will be disabled."
+        )
 
     pudl.etl.etl(
         etl_settings=script_settings,

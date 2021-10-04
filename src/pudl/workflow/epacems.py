@@ -6,18 +6,15 @@ from typing import Any
 
 import pandas as pd
 import prefect
-import pyarrow
 import sqlalchemy as sa
 from prefect import task, unmapped
-from pyarrow import parquet
 
 import pudl
 from pudl import constants as pc
 from pudl import dfc
-from pudl.convert import epacems_to_parquet
+from pudl.constants import PUDL_TABLES
 from pudl.dfc import DataFrameCollection
 from pudl.extract.epacems import EpaCemsPartition
-from pudl.load import csv
 from pudl.workflow.dataset_pipeline import DatasetPipeline
 
 logger = logging.getLogger(__name__)
@@ -40,44 +37,6 @@ def _validate_params_partition(etl_params_og, tables):
     except KeyError:
         partition_dict['partition'] = None
     return(partition_dict)
-
-
-def write_epacems_parquet_files(df: pd.DataFrame, table_name: str, partition: EpaCemsPartition):
-    """Writes epacems dataframes to parquet files."""
-    schema = epacems_to_parquet.create_cems_schema()
-    df = pudl.helpers.convert_cols_dtypes(df, "epacems")
-    df = csv.reindex_table(df, table_name)
-    # TODO(rousik): this is a dirty hack, year column should simply be part of the
-    # dataframe all along, however reindex_table complains about it.
-    df["year"] = int(partition.year)
-    df.year = df.year.astype(int)
-
-    table = pyarrow.Table.from_pandas(
-        df, preserve_index=False, schema=schema).cast(schema)
-    # FIXME(rousik): cast(schema) applies schema for the second time.
-    # This looks unnecessary but prevents crash when calling write_to_dataset with
-    # pyarrow~=2.0.0 that fails on missing metadata.
-    # This code has already been fixed in the new pyarrow codebase but this may not have
-    # yet been released and we have not updated our dependency versions yet.
-    # Here's the offending line in pyarrow that throws an exception:
-    # https://github.com/apache/arrow/blob/478286658055bb91737394c2065b92a7e92fb0c1/python/pyarrow/pandas_compat.py#L1184
-    #
-    # This should be fixed in the newer pyarrow releases and could be removed
-    # once we update our dependency.
-    if prefect.context.pudl_upload_to:
-        output_path = os.path.join(
-            prefect.context.pudl_upload_to,
-            prefect.context.pudl_run_id,
-            "parquet", "epacems")
-    else:
-        output_path = os.path.join(
-            prefect.context.pudl_settings["parquet_dir"], "epacems")
-    parquet.write_to_dataset(
-        table,
-        root_path=output_path,
-        filesystem=pudl.helpers.get_fs(output_path),
-        partition_cols=['year', 'state'],
-        compression='snappy')
 
 
 @task(target="epacems-{partition}", task_run_name="epacems-{partition}")  # noqa: FS003
@@ -138,7 +97,7 @@ class EpaCemsPipeline(DatasetPipeline):
         # this is maybe unnecessary because we are hardcoding the partitions, but
         # we are still going to validate that the partitioning is
         epacems_dict['partition'] = _validate_params_partition(
-            epacems_dict, [pc.epacems_tables])
+            epacems_dict, [PUDL_TABLES["epacems"]])
         if not epacems_dict['partition']:
             raise AssertionError(
                 'No partition found for EPA CEMS.'

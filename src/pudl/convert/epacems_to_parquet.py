@@ -274,7 +274,7 @@ def parse_command_line(argv):
         help="""Which years of EPA CEMS data should be converted to Apache
         Parquet format. Default is all available years, ranging from 1995 to
         the present. Note that data is typically incomplete before ~2000.""",
-        default=pc.data_years['epacems']
+        default=pc.WORKING_PARTITIONS['epacems']['years']
     )
     parser.add_argument(
         '-s',
@@ -284,7 +284,7 @@ def parse_command_line(argv):
         help="""Which states EPA CEMS data should be converted to Apache
         Parquet format, as a list of two letter US state abbreviations. Default
         is everything: all 48 continental US states plus Washington DC.""",
-        default=pc.cems_states.keys()
+        default=pc.WORKING_PARTITIONS["epacems"]["states"]
     )
     parser.add_argument(
         '-c',
@@ -307,8 +307,19 @@ def main():
 
     args = parse_command_line(sys.argv)
 
-    pudl_settings = pudl.workspace.setup.derive_paths(
-        pudl_in=args.pudl_in, pudl_out=args.pudl_out)
+    # Make sure the requested years/states are available:
+    for year in args.years:
+        if year not in pc.WORKING_PARTITIONS["epacems"]["years"]:
+            raise ValueError(
+                f"{year} is not a valid year within the EPA CEMS dataset."
+            )
+    for state in args.states:
+        if state not in pc.WORKING_PARTITIONS["epacems"]["states"]:
+            raise ValueError(
+                f"{state} is not a valid state within the EPA CEMS dataset."
+            )
+
+    pudl_settings = pudl.workspace.setup.get_defaults()
 
     epacems_to_parquet(datapkg_path=pathlib.Path(args.datapkg),
                        epacems_years=args.years,

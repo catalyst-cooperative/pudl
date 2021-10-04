@@ -4,6 +4,7 @@ from pathlib import Path
 import dask.dataframe as dd
 import pytest
 
+from pudl.etl import _validate_params_epacems
 from pudl.output.epacems import epacems
 
 
@@ -13,8 +14,12 @@ def epacems_year_and_state(etl_params):
     # the etl_params data structure alternates dicts and lists so indexing is a pain.
     epacems = [item for item in etl_params['datapkg_bundle_settings']
                [0]['datasets'] if 'epacems' in item.keys()]
-    epacems = epacems[0]['epacems']
-    return {'years': epacems['epacems_years'], 'states': epacems['epacems_states']}
+    if epacems:
+        epacems = epacems[0]['epacems']
+        params = _validate_params_epacems(epacems)
+    else:
+        params = {}
+    return params
 
 
 @pytest.fixture(scope='session')
@@ -29,11 +34,13 @@ def epacems_parquet_path(
 
 def test_epacems_subset(epacems_year_and_state, epacems_parquet_path):
     """Minimal integration test of epacems(). Check if it returns a DataFrame."""
+    if not epacems_year_and_state:
+        pytest.skip("EPA CEMS not in settings file and so is not being tested.")
     path = epacems_parquet_path
-    years = epacems_year_and_state['years']
+    years = epacems_year_and_state['epacems_years']
     # Use only Idaho if multiple states are given
-    states = epacems_year_and_state['states'] if len(
-        epacems_year_and_state['states']) == 1 else ['ID']
+    states = epacems_year_and_state['epacems_states'] if len(
+        epacems_year_and_state['epacems_states']) == 1 else ['ID']
     actual = epacems(columns=["gross_load_mw"],
                      epacems_path=path,
                      years=years,
@@ -44,9 +51,11 @@ def test_epacems_subset(epacems_year_and_state, epacems_parquet_path):
 
 def test_epacems_subset_input_validation(epacems_year_and_state, epacems_parquet_path):
     """Check if invalid inputs raise exceptions."""
+    if not epacems_year_and_state:
+        pytest.skip("EPA CEMS not in settings file and so is not being tested.")
     path = epacems_parquet_path
-    valid_year = epacems_year_and_state['years'][-1]
-    valid_state = epacems_year_and_state['states'][-1]
+    valid_year = epacems_year_and_state['epacems_years'][-1]
+    valid_state = epacems_year_and_state['epacems_states'][-1]
     valid_column = "gross_load_mw"
 
     invalid_state = 'confederacy'

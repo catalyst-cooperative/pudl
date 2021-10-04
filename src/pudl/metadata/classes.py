@@ -2,8 +2,8 @@
 import copy
 import datetime
 import os
-from pathlib import Path
 import re
+from pathlib import Path
 from typing import (Any, Callable, Dict, Iterable, List, Literal, Optional,
                     Tuple, Type, Union)
 
@@ -15,9 +15,9 @@ import sqlalchemy as sa
 from .constants import (CONSTRAINT_DTYPES, CONTRIBUTORS,
                         CONTRIBUTORS_BY_SOURCE, FIELD_DTYPES, FIELD_DTYPES_SQL,
                         KEYWORDS_BY_SOURCE, LICENSES, PERIODS, SOURCES)
-from .fields import FIELD_METADATA
-from .helpers import (expand_periodic_column_names, groupby_aggregate,
-                      most_and_more_frequent, split_period)
+from .fields import FIELD_METADATA, FIELD_METADATA_BY_GROUP
+from .helpers import (expand_periodic_column_names, format_errors,
+                      groupby_aggregate, most_and_more_frequent, split_period)
 from .resources import FOREIGN_KEYS, RESOURCE_METADATA
 
 # ---- Helpers ---- #
@@ -42,34 +42,6 @@ def _unique(*args: Iterable) -> list:
             if child not in values:
                 values.append(child)
     return values
-
-
-def _format_pydantic_errors(*errors: str, header: bool = False) -> str:
-    """
-    Format multiple validation errors into a single error for pydantic.
-
-    Args:
-        errors: Error messages.
-        header: Whether first error message should be treated as a header.
-
-    Examples:
-        >>> e = _format_pydantic_errors('Header:', 'bad', 'worse', header=True)
-        >>> print(e)
-        Header:
-          * bad
-          * worse
-        >>> e = _format_pydantic_errors('Header:', 'bad', 'worse')
-        >>> print(e)
-        * Header:
-          * bad
-          * worse
-    """
-    if not errors:
-        return ""
-    return (
-        f"{'' if header else '* '}{errors[0]}\n" +
-        "\n".join([f"  * {e}" for e in errors[1:]])
-    )
 
 
 def _format_for_sql(x: Any, identifier: bool = False) -> str:  # noqa: C901
@@ -201,9 +173,7 @@ class Base(pydantic.BaseModel):
 
 # NOTE: Using regex=r"^\S(.*\S)*$" to fail on whitespace is too slow
 String = pydantic.constr(min_length=1, strict=True, regex=r"^\S+(\s+\S+)*$")
-"""
-Non-empty :class:`str` with no trailing or leading whitespace.
-"""
+"""Non-empty :class:`str` with no trailing or leading whitespace."""
 
 SnakeCase = pydantic.constr(
     min_length=1, strict=True, regex=r"^[a-z][a-z0-9]*(_[a-z0-9]+)*$"
@@ -211,38 +181,38 @@ SnakeCase = pydantic.constr(
 """Snake-case variable name :class:`str` (e.g. 'pudl', 'entity_eia860')."""
 
 Bool = pydantic.StrictBool
-"""
-Any :class:`bool` (`True` or `False`).
-"""
+"""Any :class:`bool` (`True` or `False`)."""
 
 Float = pydantic.StrictFloat
-"""
-Any :class:`float`.
-"""
+"""Any :class:`float`."""
 
 Int = pydantic.StrictInt
-"""
-Any :class:`int`.
-"""
+"""Any :class:`int`."""
 
 PositiveInt = pydantic.conint(ge=0, strict=True)
-"""
-Positive :class:`int`.
-"""
+"""Positive :class:`int`."""
 
 PositiveFloat = pydantic.confloat(ge=0, strict=True)
-"""
-Positive :class:`float`.
-"""
+"""Positive :class:`float`."""
+
+Email = pydantic.EmailStr
+"""String representing an email."""
+
+HttpUrl = pydantic.AnyHttpUrl
+"""Http(s) URL."""
 
 
-class Date:
-    """Any :class:`datetime.date`."""
+class BaseType:
+    """Base class for custom pydantic types."""
 
     @classmethod
     def __get_validators__(cls) -> Callable:
         """Yield validator methods."""
         yield cls.validate
+
+
+class Date(BaseType):
+    """Any :class:`datetime.date`."""
 
     @classmethod
     def validate(cls, value: Any) -> datetime.date:
@@ -252,13 +222,8 @@ class Date:
         return value
 
 
-class Datetime:
+class Datetime(BaseType):
     """Any :class:`datetime.datetime`."""
-
-    @classmethod
-    def __get_validators__(cls) -> Callable:
-        """Yield validator methods."""
-        yield cls.validate
 
     @classmethod
     def validate(cls, value: Any) -> datetime.datetime:
@@ -268,13 +233,8 @@ class Datetime:
         return value
 
 
-class Pattern:
+class Pattern(BaseType):
     """Regular expression pattern."""
-
-    @classmethod
-    def __get_validators__(cls) -> Callable:
-        """Yield validator methods."""
-        yield cls.validate
 
     @classmethod
     def validate(cls, value: Any) -> re.Pattern:
@@ -311,13 +271,6 @@ def _check_unique(value: list = None) -> Optional[list]:
     return value
 
 
-def _stringify(value: Any = None) -> Optional[str]:
-    """Convert input to string."""
-    if value:
-        return str(value)
-    return value
-
-
 def _validator(*names, fn: Callable) -> Callable:
     """
     Construct reusable Pydantic validator.
@@ -328,12 +281,8 @@ def _validator(*names, fn: Callable) -> Callable:
 
     Examples:
         >>> class Class(Base):
-        ...     x: int = None
-        ...     y: list = None
-        ...     _stringify = _validator("x", fn=_stringify)
-        ...     _check_unique = _validator("y", fn=_check_unique)
-        >>> Class(x=1).x
-        '1'
+        ...     x: list = None
+        ...     _check_unique = _validator("x", fn=_check_unique)
         >>> Class(y=[0, 0])
         Traceback (most recent call last):
         ValidationError: ...
@@ -405,7 +354,7 @@ class Field(Base):
 
     Examples:
         >>> field = Field(name='x', type='string', constraints={'enum': ['x', 'y']})
-        >>> field.dtype
+        >>> field.to_pandas_dtype()
         CategoricalDtype(categories=['x', 'y'], ordered=False)
         >>> field.to_sql()
         Column('x', Enum('x', 'y'), CheckConstraint(...), table=None)
@@ -415,18 +364,13 @@ class Field(Base):
     """
 
     name: SnakeCase
-    type: String  # noqa: A003
+    type: Literal[  # noqa: A003
+        "string", "number", "integer", "boolean", "date", "datetime", "year"
+    ]
     format: Literal["default"] = "default"  # noqa: A003
     description: String = None
     constraints: FieldConstraints = {}
     harvest: FieldHarvest = {}
-
-    @pydantic.validator("type")
-    # NOTE: Could be replaced with `type: Literal[...]`
-    def _check_type_supported(cls, value):  # noqa: N805
-        if value not in FIELD_DTYPES:
-            raise ValueError(f"must be one of {list(FIELD_DTYPES.keys())}")
-        return value
 
     @pydantic.validator("constraints")
     def _check_constraints(cls, value, values):  # noqa: N805, C901
@@ -449,7 +393,7 @@ class Field(Base):
                 if not isinstance(x, CONSTRAINT_DTYPES[dtype]):
                     errors.append(f"enum value {x} not {dtype}")
         if errors:
-            raise ValueError(_format_pydantic_errors(*errors))
+            raise ValueError(format_errors(*errors, pydantic=True))
         return value
 
     @staticmethod
@@ -462,16 +406,27 @@ class Field(Base):
         """Construct from PUDL identifier (`Field.name`)."""
         return cls(**cls.dict_from_id(x))
 
-    @property
-    def dtype(self) -> Union[str, pd.CategoricalDtype]:
-        """Pandas data type."""
+    def to_pandas_dtype(
+        self, compact: bool = False
+    ) -> Union[str, pd.CategoricalDtype]:
+        """
+        Return Pandas data type.
+
+        Args:
+            compact: Whether to return a low-memory data type
+                (32-bit integer or float).
+        """
         if self.constraints.enum:
             return pd.CategoricalDtype(self.constraints.enum)
+        if compact:
+            if self.type == "integer":
+                return "Int32"
+            if self.type == "number":
+                return "float32"
         return FIELD_DTYPES[self.type]
 
-    @property
-    def dtype_sql(self) -> sa.sql.visitors.VisitableType:
-        """SQLAlchemy data type."""  # noqa: D403
+    def to_sql_dtype(self) -> sa.sql.visitors.VisitableType:
+        """Return SQLAlchemy data type."""
         if self.constraints.enum and self.type == "string":
             return sa.Enum(*self.constraints.enum)
         return FIELD_DTYPES_SQL[self.type]
@@ -525,7 +480,7 @@ class Field(Base):
                 checks.append(f"{name} IN ({', '.join(enum)})")
         return sa.Column(
             self.name,
-            self.dtype_sql,
+            self.to_sql_dtype(),
             *[sa.CheckConstraint(check) for check in checks],
             nullable=not self.constraints.required,
             unique=self.constraints.unique,
@@ -632,9 +587,7 @@ class License(Base):
 
     name: String
     title: String
-    path: pydantic.AnyHttpUrl
-
-    _stringify = _validator("path", fn=_stringify)
+    path: HttpUrl
 
     @staticmethod
     def dict_from_id(x: str) -> dict:
@@ -655,10 +608,8 @@ class Source(Base):
     """
 
     title: String
-    path: pydantic.AnyHttpUrl
-    email: pydantic.EmailStr = None
-
-    _stringify = _validator("path", "email", fn=_stringify)
+    path: HttpUrl
+    email: Email = None
 
     @staticmethod
     def dict_from_id(x: str) -> dict:
@@ -679,14 +630,12 @@ class Contributor(Base):
     """
 
     title: String
-    path: pydantic.AnyHttpUrl = None
-    email: pydantic.EmailStr = None
+    path: HttpUrl = None
+    email: Email = None
     role: Literal[
         "author", "contributor", "maintainer", "publisher", "wrangler"
     ] = "contributor"
     organization: String = None
-
-    _stringify = _validator("path", "email", fn=_stringify)
 
     @staticmethod
     def dict_from_id(x: str) -> dict:
@@ -769,7 +718,7 @@ class Resource(Base):
 
         Field names and data types are enforced.
 
-        >>> resource.dtypes == df.dtypes.apply(str).to_dict()
+        >>> resource.to_pandas_dtypes() == df.dtypes.apply(str).to_dict()
         True
 
         Alternatively, aggregate by primary key
@@ -795,7 +744,9 @@ class Resource(Base):
         Customize the error values in the error report.
 
         >>> error = lambda x, e: as_dict(x)
-        >>> df, report = resource.harvest_dfs(dfs, raised=False, error=error)
+        >>> df, report = resource.harvest_dfs(
+        ...    dfs, aggregate_kwargs={'raised': False, 'error': error}
+        ... )
         >>> report['fields']['x']['errors']
         id
         2    {'a': [2, 2], 'b': [3]}
@@ -805,7 +756,7 @@ class Resource(Base):
         by setting :attr:`harvest`. `harvest=False`.
 
         >>> resource.harvest.harvest = False
-        >>> df, _ = resource.harvest_dfs(dfs, raised=False)
+        >>> df, _ = resource.harvest_dfs(dfs, aggregate_kwargs={'raised': False})
         >>> df
             id  x
         df
@@ -839,6 +790,7 @@ class Resource(Base):
     title: String = None
     description: String = None
     harvest: ResourceHarvest = {}
+    group: Literal["eia", "epacems", "ferc1", "ferc714", "glue"] = None
     schema_: Schema = pydantic.Field(alias='schema')
     contributors: List[Contributor] = []
     licenses: List[License] = []
@@ -864,15 +816,11 @@ class Resource(Base):
         * `schema.fields`
 
           * Field names are expanded (:meth:`Field.from_id`).
-          * Field descriptors are expanded by name
-            (e.g. `{'name': 'x', ...}` to `Field.from_id('x')`)
-            and updated with custom properties (e.g. `{..., 'description': '...'}`).
+          * Field attributes are replaced with any specific to the
+            `resource.group` and `field.name`.
 
-        * `sources`
-
-          * Source ids are expanded (:meth:`Source.from_id`).
-          * Source descriptors are used as is.
-
+        * `sources`: Source ids are expanded (:meth:`Source.from_id`).
+        * `licenses`: License ids are expanded (:meth:`License.from_id`).
         * `contributors`: Contributor ids are fetched by source ids,
           then expanded (:meth:`Contributor.from_id`).
         * `keywords`: Keywords are fetched by source ids.
@@ -884,26 +832,21 @@ class Resource(Base):
         # Expand fields
         if "fields" in schema:
             fields = []
-            for value in schema["fields"]:
-                if isinstance(value, str):
-                    # Lookup field by name
-                    fields.append(Field.dict_from_id(value))
-                else:
-                    # Lookup field by name and update with custom metadata
-                    fields.append({**Field.dict_from_id(value["name"]), **value})
+            for name in schema["fields"]:
+                # Lookup field by name
+                value = Field.dict_from_id(name)
+                # Update with any custom group-level metadata
+                group = obj.get("group")
+                if name in FIELD_METADATA_BY_GROUP.get(group, {}):
+                    value = {**value, **FIELD_METADATA_BY_GROUP[group][name]}
+                fields.append(value)
             schema["fields"] = fields
         # Expand sources
         sources = obj.get("sources", [])
-        obj["sources"] = [
-            Source.dict_from_id(value) if isinstance(value, str) else value
-            for value in sources
-        ]
+        obj["sources"] = [Source.dict_from_id(value) for value in sources]
         # Expand licenses (assign CC-BY-4.0 by default)
-        licenses = obj.get("licenses", [License.dict_from_id("cc-by-4.0")])
-        obj["licenses"] = [
-            License.dict_from_id(value) if isinstance(value, str) else value
-            for value in licenses
-        ]
+        licenses = obj.get("licenses", ["cc-by-4.0"])
+        obj["licenses"] = [License.dict_from_id(value) for value in licenses]
         # Lookup and insert contributors
         if "contributors" in schema:
             raise ValueError("Resource metadata contains explicit contributors")
@@ -955,10 +898,16 @@ class Resource(Base):
             constraints.append(key.to_sql())
         return sa.Table(self.name, metadata, *columns, *constraints)
 
-    @property
-    def dtypes(self) -> Dict[str, Union[str, pd.CategoricalDtype]]:
-        """Pandas data type of each field by field name."""
-        return {f.name: f.dtype for f in self.schema.fields}
+    def to_pandas_dtypes(
+        self, **kwargs: Any
+    ) -> Dict[str, Union[str, pd.CategoricalDtype]]:
+        """
+        Return Pandas data type of each field by field name.
+
+        Args:
+            kwargs: Arguments to :meth:`Field.to_pandas_dtype`.
+        """
+        return {f.name: f.to_pandas_dtype(**kwargs) for f in self.schema.fields}
 
     def match_primary_key(self, names: Iterable[str]) -> Optional[Dict[str, str]]:
         """
@@ -1035,12 +984,13 @@ class Resource(Base):
             matches = {key: key for key in keys if key in names}
         return matches if len(matches) == len(keys) else None
 
-    def format_df(self, df: pd.DataFrame = None) -> pd.DataFrame:
+    def format_df(self, df: pd.DataFrame = None, **kwargs: Any) -> pd.DataFrame:
         """
         Format a dataframe.
 
         Args:
             df: Dataframe to format.
+            kwargs: Arguments to :meth:`Field.to_pandas_dtypes`.
 
         Returns:
             Dataframe with column names and data types matching the resource fields.
@@ -1048,8 +998,9 @@ class Resource(Base):
             If the primary key fields could not be matched to columns in `df`
             (:meth:`match_primary_key`) or if `df=None`, an empty dataframe is returned.
         """
+        dtypes = self.to_pandas_dtypes(**kwargs)
         if df is None:
-            return pd.DataFrame({n: pd.Series(dtype=d) for n, d in self.dtypes.items()})
+            return pd.DataFrame({n: pd.Series(dtype=d) for n, d in dtypes.items()})
         matches = self.match_primary_key(df.columns)
         if matches is None:
             # Primary key present but no matches were found
@@ -1067,9 +1018,9 @@ class Resource(Base):
                 df[field.name] = pd.to_datetime(df[field.name], format="%Y")
         df = (
             # Reorder columns and insert missing columns
-            df.reindex(columns=self.dtypes.keys(), copy=False)
+            df.reindex(columns=dtypes.keys(), copy=False)
             # Coerce columns to correct data type
-            .astype(self.dtypes, copy=False)
+            .astype(dtypes, copy=False)
         )
         # Convert periodic key columns to the requested period
         for df_key, key in matches.items():
@@ -1189,7 +1140,11 @@ class Resource(Base):
         }
 
     def harvest_dfs(
-        self, dfs: Dict[str, pd.DataFrame], aggregate: bool = None, **kwargs: Any
+        self,
+        dfs: Dict[str, pd.DataFrame],
+        aggregate: bool = None,
+        aggregate_kwargs: Dict[str, Any] = {},
+        format_kwargs: Dict[str, Any] = {}
     ) -> Tuple[pd.DataFrame, dict]:
         """
         Harvest from named dataframes.
@@ -1213,7 +1168,8 @@ class Resource(Base):
             aggregate: Whether to aggregate the harvested rows by their primary key.
                 By default, this is `True` if `self.harvest.harvest=True` and
                 `False` otherwise.
-            kwargs: Optional arguments to :meth:`aggregate_df`.
+            aggregate_kwargs: Optional arguments to :meth:`aggregate_df`.
+            format_kwargs: Optional arguments to :meth:`format_df`.
 
         Returns:
             A dataframe harvested from the dataframes, with column names and
@@ -1227,19 +1183,19 @@ class Resource(Base):
             # Harvest resource from all inputs where all primary key fields are present
             samples = {}
             for name, df in dfs.items():
-                samples[name] = self.format_df(df)
+                samples[name] = self.format_df(df, **format_kwargs)
                 # Pass input names to aggregate via the index
                 samples[name].index = pd.Index([name] * len(samples[name]), name="df")
             df = pd.concat(samples.values())
         elif self.name in dfs:
             # Subset resource from input of same name
-            df = self.format_df(dfs[self.name])
+            df = self.format_df(dfs[self.name], **format_kwargs)
             # Pass input names to aggregate via the index
             df.index = pd.Index([self.name] * df.shape[0], name="df")
         else:
-            return self.format_df(), {}
+            return self.format_df(df=None, **format_kwargs), {}
         if aggregate:
-            return self.aggregate_df(df, **kwargs)
+            return self.aggregate_df(df, **aggregate_kwargs)
         return df, {}
 
     def to_rst(self, path: str) -> None:
@@ -1284,14 +1240,12 @@ class Package(Base):
     title: String = None
     description: String = None
     keywords: List[String] = []
-    homepage: pydantic.HttpUrl = "https://catalyst.coop/pudl"
+    homepage: HttpUrl = "https://catalyst.coop/pudl"
     created: Datetime = datetime.datetime.utcnow()
     contributors: List[Contributor] = []
     sources: List[Source] = []
     licenses: List[License] = []
     resources: StrictList(Resource)
-
-    _stringify = _validator("homepage", fn=_stringify)
 
     @pydantic.validator("resources")
     def _check_foreign_keys(cls, value):  # noqa: N805
@@ -1316,7 +1270,7 @@ class Package(Base):
                     errors.append(f"{tag}: Reference primary key missing {missing}")
         if errors:
             raise ValueError(
-                _format_pydantic_errors("Foreign keys", *errors, header=True)
+                format_errors(*errors, title="Foreign keys", pydantic=True)
             )
         return value
 

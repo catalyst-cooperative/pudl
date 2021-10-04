@@ -16,6 +16,8 @@ import coloredlogs
 import yaml
 
 import pudl
+from pudl import constants as pc
+from pudl.extract.ferc1 import DBF_TABLES_FILENAMES
 from pudl.workspace.datastore import Datastore
 
 # Create a logger to output any messages we might have...
@@ -91,7 +93,35 @@ def main():  # noqa: C901
     )
 
     # Check args for basic validity:
-    pudl.extract.ferc1.validate_ferc1_to_sqlite_settings(script_settings)
+    for table in script_settings['ferc1_to_sqlite_tables']:
+        if table not in DBF_TABLES_FILENAMES:
+            raise ValueError(
+                f"{table} was not found in the list of "
+                f"available FERC Form 1 tables."
+            )
+    # Deduplicate the list of tables, just in case
+    script_settings["ferc1_to_sqlite_tables"] = list(
+        set(script_settings["ferc1_to_sqlite_tables"]))
+
+    if script_settings['ferc1_to_sqlite_refyear'] \
+            not in pc.WORKING_PARTITIONS['ferc1']['years']:
+        raise ValueError(
+            f"Reference year {script_settings['ferc1_to_sqlite_refyear']} "
+            f"is outside the range of available FERC Form 1 data "
+            f"({min(pc.WORKING_PARTITIONS['ferc1']['years'])}-"
+            f"{max(pc.WORKING_PARTITIONS['ferc1']['years'])})."
+        )
+    for year in script_settings['ferc1_to_sqlite_years']:
+        if year not in pc.WORKING_PARTITIONS['ferc1']['years']:
+            raise ValueError(
+                f"Requested data from {year} is outside the range of "
+                f"available FERC Form 1 data "
+                f"({min(pc.WORKING_PARTITIONS['ferc1']['years'])}-"
+                f"{max(pc.WORKING_PARTITIONS['ferc1']['years'])})."
+            )
+    script_settings["ferc1_to_sqlite_years"] = sorted(
+        set(script_settings["ferc1_to_sqlite_years"])
+    )
 
     pudl_settings["sandbox"] = args.sandbox
     pudl.extract.ferc1.dbf2sqlite(

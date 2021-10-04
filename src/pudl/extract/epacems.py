@@ -243,8 +243,8 @@ class EpaCemsDatastore:
         )
         df = df.rename(columns=RENAME_DICT)
         df = df.astype({
-            col: pc.column_dtypes["epacems"][col]
-            for col in pc.column_dtypes["epacems"]
+            col: pc.COLUMN_DTYPES["epacems"][col]
+            for col in pc.COLUMN_DTYPES["epacems"]
             if col in df.columns
         })
         return df

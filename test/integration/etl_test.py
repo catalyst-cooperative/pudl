@@ -15,7 +15,7 @@ import yaml
 
 import pudl
 from pudl.convert.epacems_to_parquet import epacems_to_parquet
-from pudl.extract.ferc1 import get_dbc_map, get_fields
+from pudl.extract.ferc1 import DBF_TABLES_FILENAMES, get_dbc_map, get_fields
 
 logger = logging.getLogger(__name__)
 
@@ -85,7 +85,7 @@ def test_ferc1_schema(ferc1_etl_params, pudl_ferc1datastore_fixture):
                 f"tables in {refyear}.")
     for table in current_tables:
         # First make sure there are new tables in refyear:
-        if table not in pudl.constants.ferc1_tbl2dbf:
+        if table not in DBF_TABLES_FILENAMES:
             raise AssertionError(
                 f"New FERC Form 1 table '{table}' in {refyear} "
                 f"does not exist in 2015 list of tables"
