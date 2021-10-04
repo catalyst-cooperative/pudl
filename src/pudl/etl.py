@@ -27,6 +27,7 @@ import pandas as pd
 import prefect
 import sqlalchemy as sa
 from prefect.executors import DaskExecutor
+from prefect.executors.dask import LocalDaskExecutor
 from prefect.executors.local import LocalExecutor
 
 import pudl
@@ -47,6 +48,11 @@ def command_line_flags() -> argparse.ArgumentParser:
     """Returns argparse.ArgumentParser containing flags relevant to the ETL component."""
     parser = argparse.ArgumentParser(
         description="ETL configuration flags", add_help=False)
+    parser.add_argument(
+        "--use-local-dask-executor",
+        action="store_true",
+        default=False,
+        help='If enabled, use LocalDaskExecutor to run the flow.')
     parser.add_argument(
         "--use-dask-executor",
         action="store_true",
@@ -963,8 +969,12 @@ def etl(  # noqa: C901
         flow.visualize()
 
     prefect_executor = LocalExecutor()
-    if commandline_args.dask_executor_address or commandline_args.use_dask_executor:
+    if commandline_args.use_local_dask_executor:
+        prefect_executor = LocalDaskExecutor()
+    elif commandline_args.dask_executor_address or commandline_args.use_dask_executor:
         prefect_executor = DaskExecutor(address=commandline_args.dask_executor_address)
+    logger.info(f"Using {type(prefect_executor)} Prefect executor.")
+
     state = flow.run(executor=prefect_executor)
 
     log_task_failures(state)
