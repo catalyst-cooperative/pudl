@@ -104,21 +104,18 @@ class PudlTabl(object):
         self.freq = freq
         # We need datastore access because some data is not yet integrated into the
         # PUDL DB. See the etl_eia861 method.
-        if not (
-            (ds is None) or
-            isinstance(ds, pudl.workspace.datastore.Datastore)
-        ):
-            raise TypeError(
-                "PudlTable needs ds to be a PUDL Datastore object, but we got "
-                f"a {type(ds)}."
-            )
-        if ds is None:
+        if isinstance(ds, pudl.workspace.datastore.Datastore):
+            self.ds = ds
+        elif ds is None:
             pudl_in = Path(pudl.workspace.setup.get_defaults()["pudl_in"])
             self.ds = pudl.workspace.datastore.Datastore(
                 local_cache_path=pudl_in / "data"
             )
         else:
-            self.ds = ds
+            raise TypeError(
+                "PudlTable needs ds to be a PUDL Datastore object, but we got "
+                f"a {type(ds)}."
+            )
 
         # grab all working eia dates to use to set start and end dates if they
         # are not set

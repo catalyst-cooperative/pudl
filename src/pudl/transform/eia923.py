@@ -1,35 +1,16 @@
 """Module to perform data cleaning functions on EIA923 data tables."""
 import logging
-from typing import Dict, List
+from typing import Dict
 
 import numpy as np
 import pandas as pd
 
 import pudl
-from pudl import constants as pc
 from pudl.constants import PUDL_TABLES
+from pudl.metadata.dfs import ENERGY_SOURCES_EIA
 
 logger = logging.getLogger(__name__)
 
-SIMPLIFIED_FUEL_GROUPS: Dict[str, List[str]] = {
-    'coal': ['coal', 'petroleum coke'],
-    'oil': ['petroleum'],
-    'gas': ['natural gas', 'other gas']
-}
-"""A mapping of simplified EIA 923 fuel groups for string cleaning."""
-
-SIMPLIFIED_ENERGY_SOURCES: Dict[str, List[str]] = {
-    'coal': ['ANT', 'BIT', 'LIG', 'PC', 'SUB', 'WC', 'RC'],
-    'oil': ['DFO', 'JF', 'KER', 'RFO', 'WO'],
-    'gas': ['BFG', 'LFG', 'NG', 'OBG', 'OG', 'PG', 'SG', 'SGC', 'SGP'],
-    'solar': ['SUN'],
-    'wind': ['WND'],
-    'hydro': ['WAT'],
-    'nuclear': ['NUC'],
-    'waste': ['AB', 'BLQ', 'MSW', 'OBL', 'OBS', 'SLW', 'TDF', 'WDL', 'WDS'],
-    'other': ['GEO', 'MWH', 'OTH', 'PUR', 'WH']
-}
-"""A mapping of simplified EIA 923 energy source codes for string cleaning."""
 
 COALMINE_COUNTRY_CODES: Dict[str, str] = {
     'AU': 'AUS',  # Australia
@@ -335,10 +316,13 @@ def generation_fuel(eia923_dfs, eia923_transformed_dfs):
         .replace(to_replace=r'^\s*$', value=pd.NA, regex=True)
     )
 
-    gf_df['fuel_type_code_pudl'] = (
-        pudl.helpers.cleanstrings_series(
-            gf_df.fuel_type,
-            pc.FUEL_TYPE_EIA923_GEN_FUEL_SIMPLE_MAP)
+    gf_df['fuel_type_code_pudl'] = gf_df.fuel_type.map(
+        pudl.helpers.label_map(
+            ENERGY_SOURCES_EIA,
+            from_col="code",
+            to_col="fuel_type_code_pudl",
+            null_value=pd.NA,
+        )
     )
 
     # Convert Year/Month columns into a single Date column...
@@ -394,11 +378,19 @@ def boiler_fuel(eia923_dfs, eia923_transformed_dfs):
 
     bf_df.dropna(subset=['boiler_id', 'plant_id_eia'], inplace=True)
 
+    # Add a simplified PUDL fuel type
+    bf_df['fuel_type_code_pudl'] = bf_df.fuel_type_code.map(
+        pudl.helpers.label_map(
+            ENERGY_SOURCES_EIA,
+            from_col="code",
+            to_col="fuel_type_code_pudl",
+            null_value=pd.NA,
+        )
+    )
+
     # Convert the EIA923 DataFrame from yearly to monthly records.
     bf_df = _yearly_to_monthly_records(bf_df)
-    bf_df['fuel_type_code_pudl'] = pudl.helpers.cleanstrings_series(
-        bf_df.fuel_type_code,
-        pc.FUEL_TYPE_EIA923_BOILER_FUEL_SIMPLE_MAP)
+
     # Replace the EIA923 NA value ('.') with a real NA value.
     bf_df = pudl.helpers.fix_eia_na(bf_df)
 
@@ -636,10 +628,6 @@ def fuel_receipts_costs(eia923_dfs, eia923_transformed_dfs):
             fuel_cost_per_mmbtu=lambda x: x.fuel_cost_per_mmbtu / 100,
             fuel_group_code=lambda x: (
                 x.fuel_group_code.str.lower().str.replace(' ', '_')),
-            fuel_type_code_pudl=lambda x: pudl.helpers.cleanstrings_series(
-                x.energy_source_code, SIMPLIFIED_ENERGY_SOURCES),
-            fuel_group_code_simple=lambda x: pudl.helpers.cleanstrings_series(
-                x.fuel_group_code, SIMPLIFIED_FUEL_GROUPS),
             contract_expiration_month=lambda x: x.contract_expiration_date.apply(
                 lambda y: y[:-2] if y != '' else y)).
         assign(
@@ -661,6 +649,16 @@ def fuel_receipts_costs(eia923_dfs, eia923_transformed_dfs):
              [{'firm': ['F'], 'interruptible': ['I']},
               {'firm': ['F'], 'interruptible': ['I']}],
              unmapped='')
+    )
+    frc_df["fuel_type_code_pudl"] = (
+        frc_df.energy_source_code.map(
+            pudl.helpers.label_map(
+                ENERGY_SOURCES_EIA,
+                from_col="code",
+                to_col="fuel_type_code_pudl",
+                null_value=pd.NA,
+            )
+        )
     )
 
     # Remove known to be invalid mercury content values. Almost all of these

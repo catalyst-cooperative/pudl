@@ -8,7 +8,8 @@ import pandas as pd
 import pudl
 from pudl import constants as pc
 from pudl.constants import PUDL_TABLES
-from pudl.metadata.labels import ENTITY_TYPES, FUEL_TRANSPORTATION_MODES_EIA
+from pudl.metadata.dfs import ENERGY_SOURCES_EIA, FUEL_TRANSPORTATION_MODES_EIA
+from pudl.metadata.labels import ENTITY_TYPES
 
 logger = logging.getLogger(__name__)
 
@@ -321,21 +322,30 @@ def generators(eia860_dfs, eia860_transformed_dfs):
 
     for column in transport_columns_to_fix:
         gens_df[column] = (
-            gens_df[column]
-            .astype('string')
-            .str.upper()
-            .map(FUEL_TRANSPORTATION_MODES_EIA)
+            gens_df[column].astype('string').str.upper().map(
+                pudl.helpers.label_map(df=FUEL_TRANSPORTATION_MODES_EIA)
+            )
         )
 
     gens_df = (
         gens_df.
         pipe(pudl.helpers.month_year_to_date).
-        assign(fuel_type_code_pudl=lambda x: pudl.helpers.cleanstrings_series(
-            x['energy_source_code_1'], pc.FUEL_TYPE_EIA860_SIMPLE_MAP)).
         pipe(pudl.helpers.simplify_strings,
              columns=['rto_iso_lmp_node_id',
                       'rto_iso_location_wholesale_reporting_id']).
         pipe(pudl.helpers.convert_to_date)
+    )
+    gens_df["fuel_type_code_pudl"] = (
+        gens_df.energy_source_code_1
+        .str.upper()
+        .map(
+            pudl.helpers.label_map(
+                ENERGY_SOURCES_EIA,
+                from_col="code",
+                to_col="fuel_type_code_pudl",
+                null_value=pd.NA,
+            )
+        )
     )
 
     eia860_transformed_dfs['generators_eia860'] = gens_df

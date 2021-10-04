@@ -26,10 +26,10 @@ import sqlalchemy as sa
 import pudl
 from pudl import constants as pc
 from pudl.constants import PUDL_TABLES
-from pudl.metadata.dfs import FERC_ACCOUNTS, FERC_DEPRECIATION_LINES
-from pudl.metadata.labels import (ENERGY_SOURCES_EIA,
-                                  FUEL_TRANSPORTATION_MODES_EIA,
-                                  FUEL_TYPES_AER_EIA, PRIME_MOVERS_EIA)
+from pudl.metadata.dfs import (ENERGY_SOURCES_EIA, FERC_ACCOUNTS,
+                               FERC_DEPRECIATION_LINES,
+                               FUEL_TRANSPORTATION_MODES_EIA,
+                               FUEL_TYPES_AER_EIA, PRIME_MOVERS_EIA)
 from pudl.workspace.datastore import Datastore
 
 logger = logging.getLogger(__name__)
@@ -130,10 +130,11 @@ def _validate_params_eia(etl_params):
         try_tables=eia_input_dict['eia923_tables'], dataset='eia923')
     check_for_bad_tables(
         try_tables=eia_input_dict['eia860_tables'], dataset='eia860')
-    check_for_bad_years(
-        try_years=eia_input_dict['eia860_years'], dataset='eia860')
+
     check_for_bad_years(
         try_years=eia_input_dict['eia923_years'], dataset='eia923')
+    check_for_bad_years(
+        try_years=eia_input_dict['eia860_years'], dataset='eia860')
 
     return eia_input_dict
 
@@ -151,22 +152,10 @@ def _read_static_tables_eia() -> Dict[str, pd.DataFrame]:
 
     """
     return {
-        'energy_sources_eia': pd.DataFrame(
-            columns=["abbr", "energy_source"],
-            data=ENERGY_SOURCES_EIA.items(),
-        ),
-        'fuel_types_aer_eia': pd.DataFrame(
-            columns=["abbr", "fuel_type"],
-            data=FUEL_TYPES_AER_EIA.items(),
-        ),
-        'prime_movers_eia': pd.DataFrame(
-            columns=["abbr", "prime_mover"],
-            data=PRIME_MOVERS_EIA.items(),
-        ),
-        'fuel_transportation_modes_eia': pd.DataFrame(
-            columns=["abbr", "fuel_transportation_mode"],
-            data=FUEL_TRANSPORTATION_MODES_EIA.items(),
-        ),
+        'energy_sources_eia': ENERGY_SOURCES_EIA,
+        'fuel_types_aer_eia': FUEL_TYPES_AER_EIA,
+        'prime_movers_eia': PRIME_MOVERS_EIA,
+        'fuel_transportation_modes_eia': FUEL_TRANSPORTATION_MODES_EIA,
     }
 
 

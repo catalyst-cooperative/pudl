@@ -16,61 +16,7 @@ from pudl.metadata.enums import (CUSTOMER_CLASSES, EPACEMS_MEASUREMENT_CODES,
                                  RELIABILITY_STANDARDS, REVENUE_CLASSES,
                                  TECH_CLASSES)
 from pudl.metadata.labels import (ENTITY_TYPES, ESTIMATED_OR_ACTUAL,
-                                  FUEL_TRANSPORTATION_MODES_EIA,
                                   MOMENTARY_INTERRUPTIONS)
-
-FUEL_TYPE_EIA923_GEN_FUEL_SIMPLE_MAP: Dict[str, Tuple[str, ...]] = {
-    'coal': ('ant', 'bit', 'cbl', 'lig', 'pc', 'rc', 'sc', 'sub', 'wc'),
-    'oil': ('dfo', 'rfo', 'wo', 'jf', 'ker'),
-    'gas': ('bfg', 'lfg', 'ng', 'og', 'obg', 'pg', 'sgc', 'sgp'),
-    'solar': ('sun', ),
-    'wind': ('wnd', ),
-    'hydro': ('wat', ),
-    'nuclear': ('nuc', ),
-    'waste': ('ab', 'blq', 'msb', 'msn', 'msw', 'obl', 'obs', 'slw', 'tdf', 'wdl', 'wds'),
-    'other': ('geo', 'mwh', 'oth', 'pur', 'wh'),
-}
-"""Simplified grouping of fuel codes found in the generation_fuel_eia923 table."""
-
-FUEL_TYPE_EIA923_BOILER_FUEL_SIMPLE_MAP: Dict[str, Tuple[str, ...]] = {
-    'coal': ('ant', 'bit', 'lig', 'pc', 'rc', 'sc', 'sub', 'wc'),
-    'oil': ('dfo', 'rfo', 'wo', 'jf', 'ker'),
-    'gas': ('bfg', 'lfg', 'ng', 'og', 'obg', 'pg', 'sgc', 'sgp'),
-    'waste': ('ab', 'blq', 'msb', 'msn', 'obl', 'obs', 'slw', 'tdf', 'wdl', 'wds'),
-    'other': ('oth', 'pur', 'wh'),
-}
-"""Simplified grouping of fuel codes found in the boiler_fuel_eia923 table."""
-
-AER_FUEL_TYPE_STRINGS: Dict[str, Tuple[str, ...]] = {
-    'coal': ('col', 'woc', 'pc'),
-    'gas': ('mlg', 'ng', 'oog'),
-    'oil': ('dfo', 'rfo', 'woo'),
-    'solar': ('sun', ),
-    'wind': ('wnd', ),
-    'hydro': ('hps', 'hyc'),
-    'nuclear': ('nuc', ),
-    'waste': ('www', ),
-    'other': ('geo', 'orw', 'oth'),
-}
-"""
-Consolidation of AER fuel types into energy_sources_eia' categories.
-
-These classifications are not currently used, as the EIA fuel type and energy
-source designations provide more detailed information.
-"""
-
-FUEL_TYPE_EIA860_SIMPLE_MAP: Dict[str, Tuple[str, ...]] = {
-    'coal': ('ant', 'bit', 'cbl', 'lig', 'pc', 'rc', 'sc', 'sub', 'wc', 'coal', 'petroleum coke', 'col', 'woc'),
-    'oil': ('dfo', 'jf', 'ker', 'rfo', 'wo', 'woo', 'petroleum'),
-    'gas': ('bfg', 'lfg', 'mlg', 'ng', 'obg', 'og', 'pg', 'sgc', 'sgp', 'natural gas', 'other gas', 'oog', 'sg'),
-    'solar': ('sun', 'solar'),
-    'wind': ('wnd', 'wind', 'wt'),
-    'hydro': ('wat', 'hyc', 'hps', 'hydro'),
-    'nuclear': ('nuc', 'nuclear'),
-    'waste': ('ab', 'blq', 'bm', 'msb', 'msn', 'obl', 'obs', 'slw', 'tdf', 'wdl', 'wds', 'biomass', 'msw', 'www'),
-    'other': ('mwh', 'oth', 'pur', 'wh', 'geo', 'none', 'orw', 'other')
-}
-"""Simplified grouping of fuel codes found in the generators_eia860 table."""
 
 ENTITIES: Dict[str, Tuple[List[str], List[str], List[str], Dict[str, str]]] = {}
 """
@@ -223,7 +169,7 @@ PUDL_TABLES: Dict[str, Tuple[str, ...]] = {
         'utility_plant_assn',
     ),
 }
-"""Tables that are available in the PUDL DB, organized by data source."""
+"""Core PUDL DB tables by data source. Used to validate ETL inputs."""
 
 COLUMN_DTYPES: Dict[str, Dict[str, Any]] = {
     "ferc1": {  # Obviously this is not yet a complete list...
@@ -371,24 +317,12 @@ COLUMN_DTYPES: Dict[str, Dict[str, Any]] = {
         'energy_savings_independently_verified': pd.BooleanDtype(),
         'energy_savings_mwh': float,
         'energy_served_ami_mwh': float,
-        'energy_source_1_transport_1': pd.CategoricalDtype(
-            categories=set(FUEL_TRANSPORTATION_MODES_EIA.values())
-        ),
-        'energy_source_1_transport_2': pd.CategoricalDtype(
-            categories=set(FUEL_TRANSPORTATION_MODES_EIA.values())
-        ),
-        'energy_source_1_transport_3': pd.CategoricalDtype(
-            categories=set(FUEL_TRANSPORTATION_MODES_EIA.values())
-        ),
-        'energy_source_2_transport_1': pd.CategoricalDtype(
-            categories=set(FUEL_TRANSPORTATION_MODES_EIA.values())
-        ),
-        'energy_source_2_transport_2': pd.CategoricalDtype(
-            categories=set(FUEL_TRANSPORTATION_MODES_EIA.values())
-        ),
-        'energy_source_2_transport_3': pd.CategoricalDtype(
-            categories=set(FUEL_TRANSPORTATION_MODES_EIA.values())
-        ),
+        'energy_source_1_transport_1': pd.StringDtype(),
+        'energy_source_1_transport_2': pd.StringDtype(),
+        'energy_source_1_transport_3': pd.StringDtype(),
+        'energy_source_2_transport_1': pd.StringDtype(),
+        'energy_source_2_transport_2': pd.StringDtype(),
+        'energy_source_2_transport_3': pd.StringDtype(),
         'energy_source_code': pd.StringDtype(),
         'energy_source_code_1': pd.StringDtype(),
         'energy_source_code_2': pd.StringDtype(),
@@ -553,9 +487,7 @@ COLUMN_DTYPES: Dict[str, Dict[str, Any]] = {
         'previously_canceled': pd.BooleanDtype(),
         'price_responsive_programes': pd.BooleanDtype(),
         'price_responsiveness_customers': pd.Int64Dtype(),
-        'primary_transportation_mode_code': pd.CategoricalDtype(
-            categories=set(FUEL_TRANSPORTATION_MODES_EIA.values())
-        ),
+        'primary_transportation_mode_code': pd.StringDtype(),
         'primary_purpose_naics_id': pd.Int64Dtype(),
         'prime_mover_code': pd.StringDtype(),
         'pv_current_flow_type': pd.CategoricalDtype(categories=['AC', 'DC']),
@@ -585,9 +517,7 @@ COLUMN_DTYPES: Dict[str, Dict[str, Any]] = {
         'sales_mwh': float,
         'sales_revenue': float,
         'sales_to_ultimate_consumers_mwh': float,
-        'secondary_transportation_mode_code': pd.CategoricalDtype(
-            categories=set(FUEL_TRANSPORTATION_MODES_EIA.values())
-        ),
+        'secondary_transportation_mode_code': pd.StringDtype(),
         'sector_id': pd.Int64Dtype(),
         'sector_name': pd.StringDtype(),
         'service_area': pd.StringDtype(),

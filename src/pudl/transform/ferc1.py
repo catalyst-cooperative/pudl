@@ -28,6 +28,7 @@ from sklearn.preprocessing import MinMaxScaler, Normalizer, OneHotEncoder
 import pudl
 from pudl import constants as pc
 from pudl.constants import PUDL_TABLES
+from pudl.metadata.dfs import FERC_DEPRECIATION_LINES
 from pudl.metadata.labels import POWER_PURCHASE_TYPES_FERC1
 
 logger = logging.getLogger(__name__)
@@ -994,6 +995,7 @@ def fuel(ferc1_raw_dfs, ferc1_transformed_dfs):
             # FERC 1 DB Name      PUDL DB Name
             "plant_name": "plant_name_ferc1",
             'fuel': 'fuel_type_code_pudl',
+            'fuel_unit': 'fuel_units',
             'fuel_avg_mmbtu_per_unit': 'fuel_mmbtu_per_unit',
             'fuel_quantity': 'fuel_qty_burned',
             'fuel_cost_burned': 'fuel_cost_per_unit_burned',
@@ -1508,7 +1510,7 @@ def accumulated_depreciation(ferc1_raw_dfs, ferc1_transformed_dfs):
     # grab table from dictionary of dfs
     ferc1_apd_df = ferc1_raw_dfs['accumulated_depreciation_ferc1']
 
-    ferc1_acct_apd = pc.FERC_ACCUMULATED_DEPRECIATION.drop(
+    ferc1_acct_apd = FERC_DEPRECIATION_LINES.drop(
         ['ferc_account_description'], axis=1)
     ferc1_acct_apd.dropna(inplace=True)
     ferc1_acct_apd['row_number'] = ferc1_acct_apd['row_number'].astype(int)

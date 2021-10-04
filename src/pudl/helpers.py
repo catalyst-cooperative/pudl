@@ -13,6 +13,7 @@ import logging
 import pathlib
 import re
 import shutil
+from collections import defaultdict
 from functools import partial
 from io import BytesIO
 from typing import Any, Dict, List
@@ -39,6 +40,21 @@ as NA, but electricity generation is reported normally, then the fuel
 consumption for the year needs to be NA, otherwise we'll get unrealistic heat
 rates.
 """
+
+
+def label_map(
+    df: pd.DataFrame,
+    from_col: str = "code",
+    to_col: str = "label",
+    null_value=pd.NA
+) -> Dict[str, str]:
+    """Build a mapping dictionary from two columns of a labelling dataframe."""
+    return defaultdict(
+        lambda: null_value,
+        df.loc[:, [from_col, to_col]]
+        .drop_duplicates(subset=[from_col])
+        .to_records(index=False),
+    )
 
 
 def find_foreign_key_errors(dfs: Dict[str, pd.DataFrame]) -> List[Dict[str, Any]]:

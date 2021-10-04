@@ -790,7 +790,7 @@ class Resource(Base):
     title: String = None
     description: String = None
     harvest: ResourceHarvest = {}
-    group: Literal["eia", "epacems", "ferc1", "ferc714", "glue"] = None
+    group: Literal["eia", "epacems", "ferc1", "ferc714", "glue", "pudl"] = None
     schema_: Schema = pydantic.Field(alias='schema')
     contributors: List[Contributor] = []
     licenses: List[License] = []

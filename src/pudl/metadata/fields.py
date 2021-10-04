@@ -4,18 +4,14 @@ from typing import Any, Dict
 from pytz import all_timezones
 
 from .constants import SOURCES
-from .enums import (CUSTOMER_CLASSES, EPACEMS_MEASUREMENT_CODES,
-                    EPACEMS_STATES, FUEL_CLASSES, NERC_REGIONS,
-                    RELIABILITY_STANDARDS, REVENUE_CLASSES, RTO_CLASSES,
-                    TECH_CLASSES)
+from .enums import (CANADA_PROVINCES_TERRITORIES, CUSTOMER_CLASSES,
+                    EPACEMS_MEASUREMENT_CODES, EPACEMS_STATES, FUEL_CLASSES,
+                    NERC_REGIONS, RELIABILITY_STANDARDS, REVENUE_CLASSES,
+                    RTO_CLASSES, TECH_CLASSES, US_STATES_TERRITORIES)
 from .labels import (ENTITY_TYPES, ESTIMATED_OR_ACTUAL,
-                     FUEL_TRANSPORTATION_MODES_EIA, MOMENTARY_INTERRUPTIONS,
-                     POWER_PURCHASE_TYPES_FERC1, PRIME_MOVERS_EIA)
+                     MOMENTARY_INTERRUPTIONS, POWER_PURCHASE_TYPES_FERC1)
 
 FIELD_METADATA: Dict[str, Dict[str, Any]] = {
-    "abbr": {
-        "type": "string"
-    },
     "active": {
         "type": "boolean",
         "description": "Indicates whether or not the dataset has been pulled into PUDL by the extract transform load process."
@@ -215,6 +211,10 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
         "type": "number",
         "description": "Carbon dioxide emissions in short tons."
     },
+    "code": {
+        "type": "string",
+        "description": "Originally reported short code.",
+    },
     "cofire_fuels": {
         "type": "boolean",
         "description": "Can the generator co-fire fuels?."
@@ -362,6 +362,10 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
     },
     "demand_mwh": {
         "type": "number"
+    },
+    "description": {
+        "type": "string",
+        "description": "Long human-readable description of the meaning of a code/label.",
     },
     "ferc_account_description": {
         "type": "string",
@@ -516,44 +520,26 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
     "energy_source_1_transport_1": {
         "type": "string",
         "description": "Primary mode of transport for energy source 1.",
-        "constraints": {
-            "enum": list(set(FUEL_TRANSPORTATION_MODES_EIA.values()))
-        }
     },
     "energy_source_1_transport_2": {
         "type": "string",
         "description": "Secondary mode of transport for energy source 1.",
-        "constraints": {
-            "enum": list(set(FUEL_TRANSPORTATION_MODES_EIA.values()))
-        }
     },
     "energy_source_1_transport_3": {
         "type": "string",
         "description": "Tertiary mode of transport for energy source 1.",
-        "constraints": {
-            "enum": list(set(FUEL_TRANSPORTATION_MODES_EIA.values()))
-        }
     },
     "energy_source_2_transport_1": {
         "type": "string",
         "description": "Primary mode of transport for energy source 2.",
-        "constraints": {
-            "enum": list(set(FUEL_TRANSPORTATION_MODES_EIA.values()))
-        }
     },
     "energy_source_2_transport_2": {
         "type": "string",
         "description": "Secondary mode of transport for energy source 2.",
-        "constraints": {
-            "enum": list(set(FUEL_TRANSPORTATION_MODES_EIA.values()))
-        }
     },
     "energy_source_2_transport_3": {
         "type": "string",
         "description": "Tertiary mode of transport for energy source 2.",
-        "constraints": {
-            "enum": list(set(FUEL_TRANSPORTATION_MODES_EIA.values()))
-        }
     },
     "energy_source_code_1": {
         "type": "string",
@@ -703,6 +689,13 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
         "type": "number",
         "description": "Average cost of fuel delivered in the report year per reported fuel unit (USD)."
     },
+    "fuel_derived_from": {
+        "type": "string",
+        "description": "Original fuel from which this refined fuel was derived.",
+        "constraints": {
+            "enum": ["biomass", "coal", "gas", "other", "petroleum"]
+        }
+    },
     "fuel_group_code": {
         "type": "string",
         "description": "Groups the energy sources into fuel groups that are located in the Electric Power Monthly:  Coal, Natural Gas, Petroleum, Petroleum Coke.",
@@ -710,9 +703,12 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
             "enum": ["petroleum", "other_gas", "petroleum_coke", "natural_gas", "coal"]
         }
     },
-    "fuel_group_code_simple": {
+    "fuel_group_eia": {
         "type": "string",
-        "description": "Simplified grouping of fuel_group_code, with Coal and Petroluem Coke as well as Natural Gas and Other Gas grouped together."
+        "description": "High level fuel group defined in the 2021-2023 EIA Form 860 instructions, Table 28.",
+        "constraints": {
+            "enum": ["fossil", "renewable", "other"]
+        }
     },
     "fuel_mmbtu_per_unit": {
         "type": "number",
@@ -720,6 +716,13 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
     },
     "fuel_pct": {
         "type": "number"
+    },
+    "fuel_phase": {
+        "type": "string",
+        "description": "Physical phase of matter of the fuel.",
+        "constraints": {
+            "enum": ["gas", "liquid", "solid"]
+        }
     },
     "fuel_qty_burned": {
         "type": "number",
@@ -747,26 +750,9 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
         "description": "Simplified fuel type code used in PUDL",
         # TODO: add an ENUM constraint here
     },
-    "fuel_unit": {
+    "fuel_units": {
         "type": "string",
-        "description": "PUDL assigned code indicating reported fuel unit of measure.",
-        "constraints": {
-            "enum": [
-                "unknown",
-                "mmbtu",
-                "gramsU",
-                "kgU",
-                "mwhth",
-                "kgal",
-                "bbl",
-                "klbs",
-                "mcf",
-                "gal",
-                "mwdth",
-                "btu",
-                "ton"
-            ]
-        }
+        "description": "Reported units of measure for fuel.",
     },
     "furnished_without_charge_mwh": {
         "type": "number"
@@ -913,10 +899,6 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
         "type": "number",
         "description": "Hydraulic Production Plant Total (FERC Accounts 330-337)"
     },
-    "id": {
-        "type": "integer",
-        "description": "PUDL issued surrogate key."
-    },
     "inactive_accounts_included": {
         "type": "boolean"
     },
@@ -955,6 +937,10 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
     "iso_rto_code": {
         "type": "string",
         "description": "The code of the plant's ISO or RTO. NA if not reported in that year."
+    },
+    "label": {
+        "type": "string",
+        "description": "Longer human-readable code using snake_case",
     },
     "latitude": {
         "type": "number",
@@ -1009,6 +995,10 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
     "major_program_changes": {
         "type": "boolean"
     },
+    "max_fuel_mmbtu_per_unit": {
+        "type": "number",
+        "description": "Maximum heat content per physical unit of fuel in MMBtu.",
+    },
     "mercury_content_ppm": {
         "type": "number",
         "description": "Mercury content in parts per million (ppm) to the nearest 0.001 ppm."
@@ -1037,6 +1027,10 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
     "merge_zip_5": {
         "type": "string"
         # TODO Standardize with other zip codes and apply pattern constraint
+    },
+    "min_fuel_mmbtu_per_unit": {
+        "type": "number",
+        "description": "Minimum heat content per physical unit of fuel in MMBtu.",
     },
     "mine_id_msha": {
         "type": "integer",
@@ -1458,79 +1452,10 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
         "type": "string",
         "description": "Two letter US & Canadian state and territory abbreviations.",
         "constraints": {
-            "enum": [
-                "NE",
-                "LA",
-                "NU",
-                "WI",
-                "YT",
-                "IL",
-                "GA",
-                "FL",
-                "GU",
-                "IN",
-                "NA",
-                "VA",
-                "SC",
-                "AK",
-                "WA",
-                "NB",
-                "HI",
-                "AR",
-                "ND",
-                "MP",
-                "ID",
-                "ON",
-                "DE",
-                "MD",
-                "MT",
-                "NV",
-                "TX",
-                "NM",
-                "SK",
-                "KY",
-                "WY",
-                "OH",
-                "CT",
-                "SD",
-                "NS",
-                "ME",
-                "MI",
-                "AS",
-                "IA",
-                "TN",
-                "UT",
-                "AL",
-                "KS",
-                "AZ",
-                "QC",
-                "MA",
-                "NL",
-                "PA",
-                "CO",
-                "DC",
-                "NJ",
-                "CA",
-                "BC",
-                "MB",
-                "AB",
-                "NY",
-                "VT",
-                "PR",
-                "OK",
-                "VI",
-                "PE",
-                "RI",
-                "OR",
-                "NC",
-                "NH",
-                "NT",
-                "WV",
-                "MO",
-                "MS",
-                "CN",
-                "MN"
-            ]
+            "enum": sorted({
+                **US_STATES_TERRITORIES,
+                **CANADA_PROVINCES_TERRITORIES,
+            }.keys())
         }
     },
     "owner_street_address": {
@@ -1714,9 +1639,6 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
     "primary_transportation_mode_code": {
         "type": "string",
         "description": "Transportation mode for the longest distance transported.",
-        "constraints": {
-            "enum": list(set(FUEL_TRANSPORTATION_MODES_EIA.values()))
-        }
     },
     "prime_mover": {
         "type": "string",
@@ -1725,9 +1647,6 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
     "prime_mover_code": {
         "type": "string",
         "description": "Code for the type of prime mover (e.g. CT, CG)",
-        "constraints": {
-            "enum": list(PRIME_MOVERS_EIA.keys())
-        }
     },
     "production_total": {
         "type": "number",
@@ -1903,9 +1822,6 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
     "secondary_transportation_mode_code": {
         "type": "string",
         "description": "Transportation mode for the second longest distance transported.",
-        "constraints": {
-            "enum": list(set(FUEL_TRANSPORTATION_MODES_EIA.values()))
-        }
     },
     "sector_id": {
         "type": "integer",
@@ -2369,6 +2285,34 @@ FIELD_METADATA_BY_GROUP: Dict[str, Dict[str, Any]] = {
         "state": {
             "constraints": {
                 "enum": EPACEMS_STATES
+            }
+        }
+    },
+    "eia": {
+        "fuel_units": {
+            "constraints": {
+                "enum": ["barrels", "mcf", "short_tons", "mwh"]
+            }
+        }
+    },
+    "ferc1": {
+        "fuel_units": {
+            "constraints": {
+                "enum": [
+                    "unknown",
+                    "mmbtu",
+                    "gramsU",
+                    "kgU",
+                    "mwhth",
+                    "kgal",
+                    "bbl",
+                    "klbs",
+                    "mcf",
+                    "gal",
+                    "mwdth",
+                    "btu",
+                    "ton"
+                ]
             }
         }
     }
