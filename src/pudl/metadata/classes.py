@@ -825,6 +825,7 @@ class Resource(Base):
                 f"{values['bad_codes']=} \n"
                 f"fix_codes.keys()={list(values['fix_codes'].keys())} \n"
             )
+        return values
 
     @pydantic.root_validator
     def _check_fixed_codes_are_good_codes(cls, values):  # noqa: N805
@@ -835,6 +836,7 @@ class Resource(Base):
                 f"{values['good_codes']=} \n"
                 f"fix_codes.values()={list(values['fix_codes'].values())} \n"
             )
+        return values
 
     @pydantic.validator("schema_")
     def _check_harvest_primary_key(cls, value, values):  # noqa: N805

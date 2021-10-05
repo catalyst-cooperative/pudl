@@ -10,7 +10,6 @@ from typing import Any, Dict, List, Tuple, TypedDict
 
 import pandas as pd
 
-from pudl.metadata import Resource
 from pudl.metadata.enums import (CUSTOMER_CLASSES, EPACEMS_MEASUREMENT_CODES,
                                  EPACEMS_STATES, FUEL_CLASSES, NERC_REGIONS,
                                  RELIABILITY_STANDARDS, REVENUE_CLASSES,
@@ -18,7 +17,108 @@ from pudl.metadata.enums import (CUSTOMER_CLASSES, EPACEMS_MEASUREMENT_CODES,
 from pudl.metadata.labels import (ENTITY_TYPES, ESTIMATED_OR_ACTUAL,
                                   MOMENTARY_INTERRUPTIONS)
 
-ENTITIES: Dict[str, Tuple[List[str], List[str], List[str], Dict[str, str]]] = {}
+ENTITIES: Dict[str, Tuple[List[str], List[str], List[str], Dict[str, str]]] = {
+    'plants': (
+        # base cols
+        ['plant_id_eia'],
+        # static cols
+        ['balancing_authority_code_eia', 'balancing_authority_name_eia',
+         'city', 'county', 'ferc_cogen_status',
+         'ferc_exempt_wholesale_generator', 'ferc_small_power_producer',
+         'grid_voltage_2_kv', 'grid_voltage_3_kv', 'grid_voltage_kv',
+         'iso_rto_code', 'latitude', 'longitude',
+         'plant_name_eia', 'primary_purpose_naics_id',
+         'sector_id', 'sector_name', 'state', 'street_address', 'zip_code'],
+        # annual cols
+        ['ash_impoundment', 'ash_impoundment_lined', 'ash_impoundment_status',
+         'datum', 'energy_storage', 'ferc_cogen_docket_no', 'water_source',
+         'ferc_exempt_wholesale_generator_docket_no',
+         'ferc_small_power_producer_docket_no',
+         'liquefied_natural_gas_storage',
+         'natural_gas_local_distribution_company', 'natural_gas_storage',
+         'natural_gas_pipeline_name_1', 'natural_gas_pipeline_name_2',
+         'natural_gas_pipeline_name_3', 'nerc_region', 'net_metering',
+         'pipeline_notes', 'regulatory_status_code', 'service_area',
+         'transmission_distribution_owner_id',
+         'transmission_distribution_owner_name',
+         'transmission_distribution_owner_state', 'utility_id_eia'],
+        # need type fixing
+        {},
+    ),
+    'generators': (
+        # base cols
+        ['plant_id_eia', 'generator_id'],
+        # static cols
+        ['prime_mover_code', 'duct_burners', 'operating_date',
+         'topping_bottoming_code', 'solid_fuel_gasification',
+         'pulverized_coal_tech', 'fluidized_bed_tech', 'subcritical_tech',
+         'supercritical_tech', 'ultrasupercritical_tech', 'stoker_tech',
+         'other_combustion_tech', 'bypass_heat_recovery',
+         'rto_iso_lmp_node_id', 'rto_iso_location_wholesale_reporting_id',
+         'associated_combined_heat_power', 'original_planned_operating_date',
+         'operating_switch', 'previously_canceled'],
+        # annual cols
+        ['capacity_mw', 'fuel_type_code_pudl', 'multiple_fuels',
+         'ownership_code', 'owned_by_non_utility', 'deliver_power_transgrid',
+         'summer_capacity_mw', 'winter_capacity_mw', 'summer_capacity_estimate',
+         'winter_capacity_estimate', 'minimum_load_mw', 'distributed_generation',
+         'technology_description', 'reactive_power_output_mvar',
+         'energy_source_code_1', 'energy_source_code_2',
+         'energy_source_code_3', 'energy_source_code_4',
+         'energy_source_code_5', 'energy_source_code_6',
+         'energy_source_1_transport_1', 'energy_source_1_transport_2',
+         'energy_source_1_transport_3', 'energy_source_2_transport_1',
+         'energy_source_2_transport_2', 'energy_source_2_transport_3',
+         'startup_source_code_1', 'startup_source_code_2',
+         'startup_source_code_3', 'startup_source_code_4',
+         'time_cold_shutdown_full_load_code', 'syncronized_transmission_grid',
+         'turbines_num', 'operational_status_code', 'operational_status',
+         'planned_modifications', 'planned_net_summer_capacity_uprate_mw',
+         'planned_net_winter_capacity_uprate_mw', 'planned_new_capacity_mw',
+         'planned_uprate_date', 'planned_net_summer_capacity_derate_mw',
+         'planned_net_winter_capacity_derate_mw', 'planned_derate_date',
+         'planned_new_prime_mover_code', 'planned_energy_source_code_1',
+         'planned_repower_date', 'other_planned_modifications',
+         'other_modifications_date', 'planned_retirement_date',
+         'carbon_capture', 'cofire_fuels', 'switch_oil_gas',
+         'turbines_inverters_hydrokinetics', 'nameplate_power_factor',
+         'uprate_derate_during_year', 'uprate_derate_completed_date',
+         'current_planned_operating_date', 'summer_estimated_capability_mw',
+         'winter_estimated_capability_mw', 'retirement_date',
+         'utility_id_eia', 'data_source'],
+        # need type fixing
+        {}
+    ),
+    # utilities must come after plants. plant location needs to be
+    # removed before the utility locations are compiled
+    'utilities': (
+        # base cols
+        ['utility_id_eia'],
+        # static cols
+        ['utility_name_eia'],
+        # annual cols
+        ['street_address', 'city', 'state', 'zip_code', 'entity_type',
+         'plants_reported_owner', 'plants_reported_operator',
+         'plants_reported_asset_manager', 'plants_reported_other_relationship',
+         'attention_line', 'address_2', 'zip_code_4',
+         'contact_firstname', 'contact_lastname', 'contact_title',
+         'contact_firstname_2', 'contact_lastname_2', 'contact_title_2',
+         'phone_extension', 'phone_extension_2', 'phone_number',
+         'phone_number_2'],
+        # need type fixing
+        {'utility_id_eia': 'int64'},
+    ),
+    'boilers': (
+        # base cols
+        ['plant_id_eia', 'boiler_id'],
+        # static cols
+        ['prime_mover_code'],
+        # annual cols
+        [],
+        # need type fixing
+        {},
+    )
+}
 """
 Columns kept for either entity or annual EIA tables in the harvesting process.
 
@@ -28,26 +128,6 @@ followed by any custom data type fixes.
 The order of the entities matters. Plants must be harvested before utilities,
 since plant location must be removed before the utility locations are harvested.
 """
-
-for entity in ('plants', 'generators', 'utilities', 'boilers'):
-    # Static
-    resource = Resource.from_id(f'{entity}_entity_eia')
-    ids = resource.schema.primary_key
-    static = [
-        field.name for field in resource.schema.fields
-        if field.name not in resource.schema.primary_key + ['timezone']
-    ]
-    # Annual
-    try:
-        resource = Resource.from_id(f'{entity}_eia860')
-        annual = [
-            field.name for field in resource.schema.fields
-            if field.name not in resource.schema.primary_key
-        ]
-    except KeyError:
-        annual = []
-    dtypes = {'utility_id_eia': 'int64'} if entity == 'utilities' else {}
-    ENTITIES[entity] = ids, static, annual, dtypes
 
 
 class Partition(TypedDict, total=False):
