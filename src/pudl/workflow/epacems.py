@@ -11,11 +11,11 @@ from prefect import task, unmapped
 
 import pudl
 from pudl import constants as pc
-from pudl import dfc
 from pudl.constants import PUDL_TABLES
 from pudl.dfc import DataFrameCollection
-from pudl.extract.epacems import EpaCemsPartition
+from pudl.extract.epacems import EpaCemsDatastore, EpaCemsPartition
 from pudl.workflow.dataset_pipeline import DatasetPipeline
+from pudl.workspace.datastore import Datastore
 
 logger = logging.getLogger(__name__)
 
@@ -42,12 +42,13 @@ def _validate_params_partition(etl_params_og, tables):
 @task(target="epacems-{partition}", task_run_name="epacems-{partition}")  # noqa: FS003
 def epacems_process_partition(
         partition: EpaCemsPartition,
-        plant_utc_offset: pd.DataFrame) -> DataFrameCollection:
+        plant_utc_offset: pd.DataFrame,
+        datastore: EpaCemsDatastore) -> DataFrameCollection:
     """Runs extract and transform phases for a given epacems partition."""
     logger = prefect.context.get("logger")
     logger.info(f'Processing epacems partition {partition}')
 
-    df = pudl.extract.epacems.extract_epacems(partition)
+    df = pudl.extract.epacems.extract_epacems(partition, datastore)
     df = pudl.transform.epacems.transform_epacems(df, plant_utc_offset)
 
     # Add state and year to dataframe
@@ -130,8 +131,8 @@ class EpaCemsPipeline(DatasetPipeline):
                 EpaCemsPartition(year=y, state=s)
                 for y, s in itertools.product(params["epacems_years"], params["epacems_states"])]
 
-            epacems_dfc = epacems_process_partition.map(
+            ds = EpaCemsDatastore(Datastore.from_prefect_context())
+            epacems_process_partition.map(
                 partitions,
-                plant_utc_offset=unmapped(plants))
-            df = dfc.merge_list(epacems_dfc)
-            return df
+                plant_utc_offset=unmapped(plants),
+                datastore=unmapped(ds))

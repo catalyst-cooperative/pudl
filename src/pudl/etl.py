@@ -950,14 +950,16 @@ def etl(  # noqa: C901
     if commandline_args.show_flow_graph:
         flow.visualize()
 
+    # Set the prefect executor.
     prefect_executor = LocalExecutor()
     if commandline_args.use_local_dask_executor:
         prefect_executor = LocalDaskExecutor()
     elif commandline_args.dask_executor_address or commandline_args.use_dask_executor:
         prefect_executor = DaskExecutor(address=commandline_args.dask_executor_address)
     logger.info(f"Using {type(prefect_executor)} Prefect executor.")
+    flow.executor = prefect_executor
 
-    state = flow.run(executor=prefect_executor)
+    state = flow.run()
 
     log_task_failures(state)
     cleanup_pipeline_cache(state, commandline_args)

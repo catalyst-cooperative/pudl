@@ -250,7 +250,7 @@ class EpaCemsDatastore:
         return df
 
 
-def extract_epacems(partition: EpaCemsPartition) -> pd.DataFrame:
+def extract_epacems(partition: EpaCemsPartition, datastore: EpaCemsDatastore) -> pd.DataFrame:
     """Extracts epacems dataframe for given year and state.
 
     Args:
@@ -260,4 +260,4 @@ def extract_epacems(partition: EpaCemsPartition) -> pd.DataFrame:
     Returns:
         {fragment_name: pandas.DataFrame}
     """
-    return EpaCemsDatastore(Datastore.from_prefect_context()).get_data_frame(partition)
+    return datastore.get_data_frame(partition)
