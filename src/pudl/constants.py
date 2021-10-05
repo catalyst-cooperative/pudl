@@ -130,7 +130,7 @@ WORKING_PARTITIONS: Dict[str, Partition] = {
         'states': tuple(EPACEMS_STATES),
     },
     'ferc1': {
-        'years': tuple(range(1994, 2020))
+        'years': tuple(range(1994, 2021))
     },
     'ferc714': {},
 }
