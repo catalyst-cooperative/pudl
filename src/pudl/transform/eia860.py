@@ -308,33 +308,64 @@ def generators(eia860_dfs, eia860_transformed_dfs):
                 value=[True, False, pd.NA])
         )
 
-    # A subset of the pre-2009 columns refer to transportation methods with a
-    # series of codes. This writes them out in their entirety.
+    gens_resource = pudl.metadata.Resource.from_id("generators_eia860")
 
-    transport_columns_to_fix = [
-        'energy_source_1_transport_1',
-        'energy_source_1_transport_2',
-        'energy_source_1_transport_3',
-        'energy_source_2_transport_1',
-        'energy_source_2_transport_2',
-        'energy_source_2_transport_3',
+    fuel_transport_cols = [
+        fk.fields for fk in gens_resource.schema.foreign_keys
+        if fk.reference.resource == "fuel_transportation_modes_eia"
     ]
-
-    for column in transport_columns_to_fix:
-        gens_df[column] = (
-            gens_df[column].astype('string').str.upper().map(
-                pudl.helpers.label_map(df=FUEL_TRANSPORTATION_MODES_EIA)
-            )
-        )
+    # Flatten the list of foreign key fields:
+    fuel_transport_cols = [col for sublist in fuel_transport_cols for col in sublist]
+    # Map to standard codes:
+    for col in fuel_transport_cols:
+        gens_df[col] = pudl.helpers.standardize_codes(
+            # Make sure we have uniform type and case:
+            col=gens_df[col].astype('string').str.upper(),
+            good_codes=FUEL_TRANSPORTATION_MODES_EIA.code,
+            bad_codes=["UN"],
+            fix_codes={
+                "TK": "TR",  # Truck
+                "WA": "WT",  # Other Waterways
+                "CV": "TC",  # Tramway / Conveyor
+            }
+        ).map(pudl.helpers.label_map(df=FUEL_TRANSPORTATION_MODES_EIA))
 
     gens_df = (
-        gens_df.
-        pipe(pudl.helpers.month_year_to_date).
-        pipe(pudl.helpers.simplify_strings,
-             columns=['rto_iso_lmp_node_id',
-                      'rto_iso_location_wholesale_reporting_id']).
-        pipe(pudl.helpers.convert_to_date)
+        gens_df
+        .pipe(pudl.helpers.month_year_to_date)
+        .pipe(
+            pudl.helpers.simplify_strings,
+            columns=['rto_iso_lmp_node_id', 'rto_iso_location_wholesale_reporting_id']
+        )
+        .pipe(pudl.helpers.convert_to_date)
     )
+
+    # Look up all the generator fields that refer to energy_sources_eia:
+    energy_source_code_cols = [
+        fk.fields for fk in gens_resource.schema.foreign_keys
+        if fk.reference.resource == "energy_sources_eia"
+    ]
+    # Flatten the list of foreign key fields:
+    energy_source_code_cols = [
+        col for sublist in energy_source_code_cols for col in sublist
+    ]
+    for col in energy_source_code_cols:
+        gens_df[col] = pudl.helpers.standardize_codes(
+            # Make sure we have uniform type and case:
+            col=gens_df[col].astype('string').str.upper(),
+            good_codes=ENERGY_SOURCES_EIA.code,
+            fix_codes={
+                "BL": "BLQ",   # Black Liquor
+                "HPS": "WAT",  # Accidental use of AER Fuel Code
+                "MSB": "MSW",  # Municipal Solid Waste
+                "MSN": "MSW",  # Municipal Solid Waste
+                "WOC": "WC",   # Waste Coal
+                "OW": "WO",    # Mistyped Wood
+                "WT": "WND",   # Win
+            },
+            bad_codes=['0', 'OO', 'BM', 'CBL', 'COL', 'N', 'NO', 'OOG', 'PL', 'ST'],
+        )
+
     gens_df["fuel_type_code_pudl"] = (
         gens_df.energy_source_code_1
         .str.upper()

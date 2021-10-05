@@ -7,7 +7,7 @@ import pandas as pd
 
 import pudl
 from pudl.constants import PUDL_TABLES
-from pudl.metadata.dfs import ENERGY_SOURCES_EIA
+from pudl.metadata.dfs import ENERGY_SOURCES_EIA, FUEL_TRANSPORTATION_MODES_EIA
 
 logger = logging.getLogger(__name__)
 
@@ -299,22 +299,32 @@ def generation_fuel(eia923_dfs, eia923_transformed_dfs):
         .replace(to_replace=r'^\s*$', value=pd.NA, regex=True)
     )
 
-    # conservative manual corrections for misplaced or mistyped fuel types
-    gf_df['fuel_type'] = (
-        gf_df['fuel_type']
-        .replace({
-            # mistyped, 1 record in 2002 (as of 2019 data)
-            'OW': 'WO',
-            # duplicated AER fuel code, subtype not reported. One record in 2001 (as of 2019 data)
-            'COL': '',
-            # duplicated AER fuel code, maps unambiguously to 'wat'. 4 records in 2001 (as of 2019 data)
-            'HPS': 'WAT',
-            # duplicated AER fuel code, subtype not reported. 12 records in 2001 (as of 2019 data)
-            'OOG': '',
-        })
-        # Empty strings and whitespace that should be NA.
-        .replace(to_replace=r'^\s*$', value=pd.NA, regex=True)
-    )
+    gf_resource = pudl.metadata.Resource.from_id("generation_fuel_eia923")
+    # Look up all the generator fields that refer to energy_sources_eia:
+    energy_source_code_cols = [
+        fk.fields for fk in gf_resource.schema.foreign_keys
+        if fk.reference.resource == "energy_sources_eia"
+    ]
+    # Flatten the list of foreign key fields:
+    energy_source_code_cols = [
+        col for sublist in energy_source_code_cols for col in sublist
+    ]
+    for col in energy_source_code_cols:
+        gf_df[col] = pudl.helpers.standardize_codes(
+            # Make sure we have uniform type and case:
+            col=gf_df[col].astype('string').str.upper(),
+            good_codes=ENERGY_SOURCES_EIA.code,
+            fix_codes={
+                "BL": "BLQ",   # Black Liquor
+                "HPS": "WAT",  # Accidental use of AER Fuel Code
+                "MSB": "MSW",  # Municipal Solid Waste
+                "MSN": "MSW",  # Municipal Solid Waste
+                "WOC": "WC",   # Waste Coal
+                "OW": "WO",    # Mistyped Wood
+                "WT": "WND",   # Wind
+            },
+            bad_codes=['0', 'OO', 'BM', 'CBL', 'COL', 'N', 'NO', 'OOG', 'PL', 'ST'],
+        )
 
     gf_df['fuel_type_code_pudl'] = gf_df.fuel_type.map(
         pudl.helpers.label_map(
@@ -378,6 +388,42 @@ def boiler_fuel(eia923_dfs, eia923_transformed_dfs):
 
     bf_df.dropna(subset=['boiler_id', 'plant_id_eia'], inplace=True)
 
+    # Convert the EIA923 DataFrame from yearly to monthly records.
+    bf_df = _yearly_to_monthly_records(bf_df)
+
+    # Replace the EIA923 NA value ('.') with a real NA value.
+    bf_df = pudl.helpers.fix_eia_na(bf_df)
+
+    # Convert Year/Month columns into a single Date column...
+    bf_df = pudl.helpers.convert_to_date(bf_df)
+
+    bf_resource = pudl.metadata.Resource.from_id("boiler_fuel_eia923")
+
+    # Look up all the generator fields that refer to energy_sources_eia:
+    energy_source_code_cols = [
+        fk.fields for fk in bf_resource.schema.foreign_keys
+        if fk.reference.resource == "energy_sources_eia"
+    ]
+    # Flatten the list of foreign key fields:
+    energy_source_code_cols = [
+        col for sublist in energy_source_code_cols for col in sublist
+    ]
+    for col in energy_source_code_cols:
+        bf_df[col] = pudl.helpers.standardize_codes(
+            # Make sure we have uniform type and case:
+            col=bf_df[col].astype('string').str.upper(),
+            good_codes=ENERGY_SOURCES_EIA.code,
+            fix_codes={
+                "BL": "BLQ",   # Black Liquor
+                "HPS": "WAT",  # Accidental use of AER Fuel Code
+                "MSB": "MSW",  # Municipal Solid Waste
+                "MSN": "MSW",  # Municipal Solid Waste
+                "WOC": "WC",   # Waste Coal
+                "OW": "WO",    # Mistyped Wood
+                "WT": "WND",   # Wind
+            },
+            bad_codes=['0', 'OO', 'BM', 'CBL', 'COL', 'N', 'NO', 'OOG', 'PL', 'ST'],
+        )
     # Add a simplified PUDL fuel type
     bf_df['fuel_type_code_pudl'] = bf_df.fuel_type_code.map(
         pudl.helpers.label_map(
@@ -387,15 +433,6 @@ def boiler_fuel(eia923_dfs, eia923_transformed_dfs):
             null_value=pd.NA,
         )
     )
-
-    # Convert the EIA923 DataFrame from yearly to monthly records.
-    bf_df = _yearly_to_monthly_records(bf_df)
-
-    # Replace the EIA923 NA value ('.') with a real NA value.
-    bf_df = pudl.helpers.fix_eia_na(bf_df)
-
-    # Convert Year/Month columns into a single Date column...
-    bf_df = pudl.helpers.convert_to_date(bf_df)
 
     eia923_transformed_dfs['boiler_fuel_eia923'] = bf_df
 
@@ -616,11 +653,6 @@ def fuel_receipts_costs(eia923_dfs, eia923_transformed_dfs):
         pipe(pudl.helpers.simplify_strings, columns=['supplier_name']).
         pipe(pudl.helpers.fix_int_na, columns=['contract_expiration_date', ]).
         assign(
-            # Standardize case on transportaion codes -- all upper case!
-            primary_transportation_mode_code=lambda x: (
-                x.primary_transportation_mode_code.str.upper()),
-            secondary_transportation_mode_code=lambda x: (
-                x.secondary_transportation_mode_code.str.upper()),
             # convert contract type "N" to "NC". The "N" code existed only
             # in 2008, the first year contracts were reported to the EIA,
             # before being replaced by "NC".
@@ -660,6 +692,26 @@ def fuel_receipts_costs(eia923_dfs, eia923_transformed_dfs):
             )
         )
     )
+    frc_resource = pudl.metadata.Resource.from_id("fuel_receipts_costs_eia923")
+    fuel_transport_cols = [
+        fk.fields for fk in frc_resource.schema.foreign_keys
+        if fk.reference.resource == "fuel_transportation_modes_eia"
+    ]
+    # Flatten the list of foreign key fields:
+    fuel_transport_cols = [col for sublist in fuel_transport_cols for col in sublist]
+    # Map to standard codes:
+    for col in fuel_transport_cols:
+        frc_df[col] = pudl.helpers.standardize_codes(
+            # Make sure we have uniform type and case:
+            col=frc_df[col].astype('string').str.upper(),
+            good_codes=FUEL_TRANSPORTATION_MODES_EIA.code,
+            bad_codes=["UN"],
+            fix_codes={
+                "TK": "TR",  # Truck
+                "WA": "WT",  # Other Waterways
+                "CV": "TC",  # Tramway / Conveyor
+            }
+        ).map(pudl.helpers.label_map(df=FUEL_TRANSPORTATION_MODES_EIA))
 
     # Remove known to be invalid mercury content values. Almost all of these
     # occur in the 2012 data. Real values should be <0.25ppm.

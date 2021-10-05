@@ -42,6 +42,74 @@ rates.
 """
 
 
+def standardize_codes(
+    col: pd.Series,
+    good_codes: List[str],
+    fix_codes: Dict[str, str],
+    bad_codes: List[str],
+) -> pd.Series:
+    """
+    Set all codes in a column to a known standard value or NA.
+
+    Args:
+        col: the Series whose values are to be standardized.
+        good_codes: known, standard codes which are expected in ``col``.
+        fix_codes: a mapping from known non-standard codes to standard values.
+        bad_codes: known non-standard codes which can't be mapped to a standard
+            value, and so will be replaced with NA.
+
+    Returns:
+        A Series of the same dtype as the input ``col`` containing only values
+        from ``good_codes``, and NA.
+
+    Raises:
+        ValueError: if there is any intersection between ``good_codes``,
+            ``bad_codes``, or the keys of ``fix_codes``.
+        ValueError: if any of the values in ``fix_codes`` don't also appear in
+            ``good_codes``.
+        ValueError: if there are any values which appear in the input ``col``
+            that do **not** appear in ``good_codes``, ``fix_codes``, or
+            ``bad_codes``.
+
+    """
+    # There should be no overlap betwteen good, bad, and fixable codes:
+    if (
+        set(good_codes).intersection(bad_codes)
+        or set(good_codes).intersection(fix_codes)
+        or set(fix_codes).intersection(bad_codes)
+    ):
+        raise ValueError(
+            "Overlap found between good, bad, and fixable codes:\n"
+            f"{good_codes=} \n"
+            f"{bad_codes=} \n"
+            f"fix_codes.keys()={list(fix_codes.keys())} \n"
+        )
+
+    # Every fixed code value should be part of good codes
+    if set(fix_codes.values()).difference(good_codes):
+        raise ValueError(
+            "Some fixed codes aren't in the list of good codes:\n"
+            f"{good_codes=} \n"
+            f"fix_codes.values()={list(fix_codes.values())} \n"
+        )
+    # Set missing values to pd.NA. Map good codes to themselves
+    code_map = {code: code for code in good_codes}
+    # Add the fixable codes to the map
+    code_map.update(fix_codes)
+    # Map the bad codes to NA
+    code_map.update({code: pd.NA for code in bad_codes})
+    # Every value in the Series should now appear in the map.
+    # If not we want to know about it so we don't wipe out unknown codes.
+    unknown_codes = set(col.dropna()).difference(code_map)
+    if unknown_codes:
+        raise ValueError(
+            f"Unknown codes found in {col.name}:\n"
+            f"{unknown_codes=}"
+        )
+    # Re-map values, and make sure we retain the same dtype as input col:
+    return col.map(code_map).astype(col.dtype)
+
+
 def label_map(
     df: pd.DataFrame,
     from_col: str = "code",
@@ -768,13 +836,11 @@ def fix_eia_na(df):
         pandas.DataFrame: The cleaned DataFrame.
 
     """
-    bad_na_regexes = [
-        r'^\.$',  # Nothing but a decimal point
-        r'^\s$',  # A single whitespace character
-        r'^$',    # The empty string
-    ]
     return df.replace(
-        to_replace=bad_na_regexes,
+        to_replace=[
+            r'^\.$',  # Nothing but a decimal point
+            r'^\s*$',  # The empty string and entirely whitespace strings
+        ],
         value=np.nan,
         regex=True
     )

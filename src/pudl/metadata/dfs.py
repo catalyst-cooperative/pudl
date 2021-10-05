@@ -120,18 +120,15 @@ PRIME_MOVERS_EIA: pd.DataFrame = pd.DataFrame(
 FUEL_TRANSPORTATION_MODES_EIA: pd.DataFrame = pd.DataFrame(
     columns=["code", "label", "description"],
     data=[
+        ("GL", "great_lakes", "Shipments of coal moved to consumers via the Great Lakes. These shipments are moved via the Great Lakes coal loading docks."),
         ("RR", "railroad", "Shipments of fuel moved to consumers by rail (private or public/commercial). Included is coal hauled to or away from a railroad siding by truck if the truck did not use public roads."),
         ("RV", "river", "Shipments of fuel moved to consumers via river by barge.  Not included are shipments to Great Lakes coal loading docks, tidewater piers, or coastal ports."),
-        ("GL", "great_lakes", "Shipments of coal moved to consumers via the Great Lakes. These shipments are moved via the Great Lakes coal loading docks."),
-        ("TK", "truck", "Shipments of fuel moved to consumers by truck.  Not included is fuel hauled to or away from a railroad siding by truck on non-public roads."),
-        ("TR", "truck", "Shipments of fuel moved to consumers by truck.  Not included is fuel hauled to or away from a railroad siding by truck on non-public roads."),
-        ("TP", "coastal_ports", "Shipments of coal moved to Tidewater Piers and Coastal Ports for further shipments to consumers via coastal water or ocean."),
-        ("WT", "other_waterways", pd.NA),
-        ("WA", "other_waterways", pd.NA),
-        ("TC", "tramway_conveyor", "Shipments of fuel moved to consumers by tramway or conveyor."),
-        ("CV", "tramway_conveyor", "Shipments of fuel moved to consumers by tramway or conveyor."),
-        ("SP", "slurry_pipeline", "Shipments of coal moved to consumers by slurry pipeline."),
         ("PL", "pipeline", "Shipments of fuel moved to consumers by pipeline"),
+        ("SP", "slurry_pipeline", "Shipments of coal moved to consumers by slurry pipeline."),
+        ("TC", "tramway_conveyor", "Shipments of fuel moved to consumers by tramway or conveyor."),
+        ("TP", "coastal_ports", "Shipments of coal moved to Tidewater Piers and Coastal Ports for further shipments to consumers via coastal water or ocean."),
+        ("TR", "truck", "Shipments of fuel moved to consumers by truck.  Not included is fuel hauled to or away from a railroad siding by truck on non-public roads."),
+        ("WT", "other_waterways", "Shipments of fuel moved to consumers by other waterways."),
     ],
 ).astype({
     "code": pd.StringDtype(),
@@ -158,7 +155,6 @@ ENERGY_SOURCES_EIA: pd.DataFrame = pd.DataFrame(
         ('ANT', 'anthracite', 'short_tons', 22.0, 28.0, 'fossil', 'coal', 'solid', 'coal', 'Anthracite coal'),  # nopep8
         ('BFG', 'blast_furnace_gas', 'mcf', 0.07, 0.12, 'fossil', 'gas', 'gas', 'gas', 'Blast furnace gas'),  # nopep8
         ('BIT', 'bituminous_coal', 'short_tons', 20.0, 29.0, 'fossil', 'coal', 'solid', 'coal', 'Bituminous coal'),  # nopep8
-        ('BL', 'black_liquor', 'short_tons', 10.0, 14.0, 'renewable', 'biomass', 'liquid', 'waste', 'Black liquor'),  # nopep8
         ('BLQ', 'black_liquor', 'short_tons', 10.0, 14.0, 'renewable', 'biomass', 'liquid', 'waste', 'Black liquor'),  # nopep8
         ('DFO', 'distillate_fuel_oil', 'barrels', 5.5, 6.2, 'fossil', 'petroleum', 'liquid', 'oil', 'Distillate fuel oil, including diesel, No. 1, No. 2, and No. 4 fuel oils'),  # nopep8
         ('GEO', 'geothermal', pd.NA, np.nan, np.nan, 'renewable', 'other', pd.NA, 'other', 'Geothermal'),  # nopep8
@@ -166,8 +162,6 @@ ENERGY_SOURCES_EIA: pd.DataFrame = pd.DataFrame(
         ('KER', 'kerosene', 'barrels', 5.6, 6.1, 'fossil', 'petroleum', 'liquid', 'oil', 'Kerosene'),  # nopep8
         ('LFG', 'landfill_gas', 'mcf', 0.3, 0.6, 'renewable', 'biomass', 'gas', 'waste', 'Landfill gas'),  # nopep8
         ('LIG', 'lignite', 'short_tons', 10.0, 14.5, 'fossil', 'coal', 'solid', 'coal', 'Lignite coal'),  # nopep8
-        ('MSB', 'municipal_solid_waste', 'short_tons', 9.0, 12.0, 'renewable', 'biomass', 'solid', 'waste', 'Municipal solid waste'),  # nopep8
-        ('MSN', 'municipal_solid_waste', 'short_tons', 9.0, 12.0, 'renewable', 'biomass', 'solid', 'waste', 'Municipal solid waste'),  # nopep8
         ('MSW', 'municipal_solid_waste', 'short_tons', 9.0, 12.0, 'renewable', 'biomass', 'solid', 'waste', 'Municipal solid waste'),  # nopep8
         ('MWH', 'electricity_storage', 'mwh', np.nan, np.nan, 'other', 'other', pd.NA, 'other', 'Electricity used for electricity storage'),  # nopep8
         ('NG', 'natural_gas', 'mcf', 0.8, 1.1, 'fossil', 'gas', 'gas', 'gas', 'Natural gas'),  # nopep8
@@ -176,7 +170,6 @@ ENERGY_SOURCES_EIA: pd.DataFrame = pd.DataFrame(
         ('OBL', 'other_biomass_liquid', 'barrels', 3.5, 4.0, 'renewable', 'biomass', 'liquid', 'waste', 'Other biomass liquids'),  # nopep8
         ('OBS', 'other_biomass_solid', 'short_tons', 8.0, 25.0, 'renewable', 'biomass', 'solid', 'waste', 'Other biomass solids'),  # nopep8
         ('OG', 'other_gas', 'mcf', 0.32, 3.3, 'fossil', 'other', 'gas', 'gas', 'Other gas'),  # nopep8
-        ('OO', 'propane_gas', 'mcf', 2.5, 2.75, 'fossil', 'petroleum', 'gas', 'gas', 'Gaseous propane'),  # nopep8
         ('OTH', 'other', pd.NA, np.nan, np.nan, 'other', 'other', pd.NA, 'other', 'Other'),  # nopep8
         ('PC', 'petroleum_coke', 'short_tons', 24.0, 30.0, 'fossil', 'petroleum', 'solid', 'coal', 'Petroleum coke'),  # nopep8
         ('PG', 'propane_gas', 'mcf', 2.5, 2.75, 'fossil', 'petroleum', 'gas', 'gas', 'Gaseous propane'),  # nopep8
@@ -197,7 +190,6 @@ ENERGY_SOURCES_EIA: pd.DataFrame = pd.DataFrame(
         ('WDS', 'wood_solids', 'short_tons', 7.0, 18.0, 'renewable', 'biomass', 'solid', 'waste', 'Wood/Wood waste solids, including paper pellets, railroad ties, utility poles, wood chips, park, and wood waste solids'),  # nopep8
         ('WH', 'waste_heat', pd.NA, np.nan, np.nan, 'other', 'other', pd.NA, 'other', 'Waste heat not directly attributed to a fuel source. WH should only be reported when the fuel source is undetermined, and for combined cycle steam turbines that do not have supplemental firing.'),  # nopep8
         ('WND', 'wind', pd.NA, np.nan, np.nan, 'renewable', 'other', pd.NA, 'wind', 'Wind'),  # nopep8
-        ('WOC', 'waste_coal', 'short_tons', 6.5, 16.0, 'fossil', 'coal', 'solid', 'coal', 'Waste/Other coal, including anthracite culm, bituminous gob, fine coal, lignite waste, waste coal.'),  # nopep8
         ('WO', 'waste_oil', 'barrels', 3.0, 5.8, 'fossil', 'petroleum', 'liquid', 'oil', 'Waste/Other oil, including crude oil, liquid butane, liquid propane, naptha, oil waste, re-refined motor oil, sludge oil, tar oil, or other petroleum-based liquid wastes'),  # nopep8
     ],
 ).astype({

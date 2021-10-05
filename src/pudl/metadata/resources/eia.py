@@ -90,11 +90,15 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
                     ["energy_source_code_4"],
                     ["energy_source_code_5"],
                     ["energy_source_code_6"],
+                    ["startup_source_code_1"],
+                    ["startup_source_code_2"],
+                    ["startup_source_code_3"],
+                    ["startup_source_code_4"],
                     ["planned_energy_source_code_1"],
                     ["fuel_type"],
                     ["fuel_type_code"],
                 ],
-                "exclude": ["plants_small_ferc1", "fuel_types_aer_eia"]
+                "exclude": ["plants_small_ferc1"]
             },
         },
         "sources": ["eia923"],
@@ -130,7 +134,7 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
     "fuel_transportation_modes_eia": {
         "schema": {
             "fields": ["code", "label", "description"],
-            "primary_key": ["code"],
+            "primary_key": ["label"],
             "foreign_key_rules": {
                 "fields": [
                     ["energy_source_1_transport_1"],
