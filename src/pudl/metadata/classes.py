@@ -796,10 +796,45 @@ class Resource(Base):
     licenses: List[License] = []
     sources: List[Source] = []
     keywords: List[String] = []
+    good_codes: List[String] = []
+    bad_codes: List[String] = []
+    fix_codes: Dict[String, String] = {}
 
     _check_unique = _validator(
-        "contributors", "keywords", "licenses", "sources", fn=_check_unique
+        "contributors",
+        "good_codes",
+        "bad_codes",
+        "keywords",
+        "licenses",
+        "sources",
+        fn=_check_unique
     )
+
+    @pydantic.root_validator
+    def _check_no_overlapping_codes(cls, values):  # noqa: N805
+        """Verify there's no overlap between good, fixable, and bad codes."""
+        if (
+            set(values["good_codes"]).intersection(values["bad_codes"])
+            or set(values["good_codes"]).intersection(values["fix_codes"])
+            or set(values["fix_codes"]).intersection(values["bad_codes"])
+        ):
+            raise ValueError(
+                "Overlap found between good, bad, and fixable codes in\n"
+                f"{values['name']}. These must all be disjoint sets:\n"
+                f"{values['good_codes']=} \n"
+                f"{values['bad_codes']=} \n"
+                f"fix_codes.keys()={list(values['fix_codes'].keys())} \n"
+            )
+
+    @pydantic.root_validator
+    def _check_fixed_codes_are_good_codes(cls, values):  # noqa: N805
+        """Check that every every fixed code is also one of the good codes."""
+        if set(values["fix_codes"].values()).difference(values["good_codes"]):
+            raise ValueError(
+                "Some fixed codes aren't in the list of good codes:\n"
+                f"{values['good_codes']=} \n"
+                f"fix_codes.values()={list(values['fix_codes'].values())} \n"
+            )
 
     @pydantic.validator("schema_")
     def _check_harvest_primary_key(cls, value, values):  # noqa: N805
@@ -860,7 +895,7 @@ class Resource(Base):
         keywords = []
         for source in sources:
             keywords.extend(KEYWORDS_BY_SOURCE.get(source, []))
-        obj["keywords"] = list(set(keywords))
+        obj["keywords"] = sorted(set(keywords))
         # Insert foreign keys
         if "foreign_keys" in schema:
             raise ValueError("Resource metadata contains explicit foreign keys")
@@ -868,6 +903,7 @@ class Resource(Base):
         # Delete foreign key rules
         if "foreign_key_rules" in schema:
             del schema["foreign_key_rules"]
+
         return obj
 
     @classmethod
