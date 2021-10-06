@@ -18,15 +18,15 @@ ferc1_to_sqlite_tables:
   - f1_pumped_storage
   - f1_purchased_pwr
 
-datapkg_bundle_name: pudl-fast
+datapkg_bundle_name: pudl-fast-prefect
 datapkg_bundle_doi: 10.5072/zenodo.123456 # Sandbox DOI... not real.
 datapkg_bundle_settings:
-  - name: pudl-fast
-    title: Fast PUDL ETL
-    description: >
-      A single year of FERC 1 and EIA 860/923 data with all default tables
-      (output to SQLite), plus a single state-year of EPA CEMS (output to
-      Parquet).
+  ###########################################################################
+  # FERC FORM 1 SETTINGS
+  ###########################################################################
+  - name: ferc1
+    title: FERC Form 1
+    description: A single year of FERC Form 1 data, with all default tables.
     version: 0.1.0
     datasets:
       - ferc1:
@@ -39,6 +39,18 @@ datapkg_bundle_settings:
            - plant_in_service_ferc1
            - purchased_power_ferc1
           ferc1_years: [2019]
+
+  ###########################################################################
+  # EPA CEMS AND EIA 860/923 SETTINGS
+  ###########################################################################
+  # EPA CEMS depends on the EIA data. Rather than running the ETL on EIA
+  # twice, we assume its inclusion in this datapackage is sufficient for a
+  # quick test run.
+  - name: epacems-eia
+    title: EPA CEMS Hourly Emissions and EIA 860/923
+    description: A minimal EPA CEMS ETL run, including one year of Idaho data.
+    version: 0.1.0
+    datasets:
       - eia:
           # This is the full list of EIA 923 tables.  Many of them are
           # interdependent, and are used in the definition of the overall
@@ -68,6 +80,10 @@ datapkg_bundle_settings:
           # Note that the CEMS data relies on EIA 860 data for plant locations,
           # so if you're loading CEMS data for a particular year, you should
           # also load the EIA 860 data for that year (2011-2019 only)
-          epacems_years: [2019]
+          epacems_years: [
+              1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004,
+              2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014,
+              2015, 2016, 2017, 2018, 2019, 2020
+          ]
           # Just Idaho, because it is tiny:
           epacems_states: [ID]

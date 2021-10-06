@@ -185,7 +185,7 @@ def pudl_sql_engine(
     if not live_dbs:
         # Run the ETL and generate a new PUDL SQLite DB for testing:
         pudl.etl.etl(
-            etl_settings_bundle=pudl_etl_params["datapkg_bundle_settings"],
+            etl_settings=pudl_etl_params,
             pudl_settings=pudl_settings_fixture,
             clobber=False,
             check_foreign_keys=True,
