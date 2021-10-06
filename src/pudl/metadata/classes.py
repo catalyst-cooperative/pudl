@@ -1,6 +1,7 @@
 """Metadata data classes."""
 import copy
 import datetime
+import logging
 import os
 import re
 from pathlib import Path
@@ -15,10 +16,13 @@ import sqlalchemy as sa
 from .constants import (CONSTRAINT_DTYPES, CONTRIBUTORS,
                         CONTRIBUTORS_BY_SOURCE, FIELD_DTYPES, FIELD_DTYPES_SQL,
                         KEYWORDS_BY_SOURCE, LICENSES, PERIODS, SOURCES)
-from .fields import FIELD_METADATA, FIELD_METADATA_BY_GROUP
+from .fields import (FIELD_METADATA, FIELD_METADATA_BY_GROUP,
+                     FIELD_METADATA_BY_RESOURCE)
 from .helpers import (expand_periodic_column_names, format_errors,
                       groupby_aggregate, most_and_more_frequent, split_period)
 from .resources import FOREIGN_KEYS, RESOURCE_METADATA
+
+logger = logging.getLogger(__name__)
 
 # ---- Helpers ---- #
 
@@ -346,6 +350,64 @@ class FieldHarvest(Base):
     """Fraction of invalid groups above which result is considered invalid."""
 
 
+class Encoder(Base):
+    """Encoder to standardize string codes within a Field."""
+
+    df: pd.DataFrame
+    code_fixes: Dict[String, String] = {}
+    ignored_codes: List[String] = []
+
+    class Config:
+        """Configuration for the Encoder model."""
+
+        arbitrary_types_allowed = True
+
+    @pydantic.root_validator
+    def _check_no_overlapping_codes(cls, values):  # noqa: N805
+        """Verify there's no overlap between good, fixable, and bad codes."""
+        if (
+            set(values["df"]["code"]).intersection(values["ignored_codes"])
+            or set(values["df"]["code"]).intersection(values["code_fixes"])
+            or set(values["code_fixes"]).intersection(values["ignored_codes"])
+        ):
+            raise ValueError(
+                "Overlap found between good, bad, and fixable codes.\n"
+                f"These must all be disjoint sets:\n"
+                f"{values['df']['code']=}\n"
+                f"{values.ignored_codes=}\n"
+                f"code_fixes.keys()={list(values['code_fixes'].keys())}"
+            )
+        return values
+
+    @pydantic.root_validator
+    def _check_fixed_codes_are_good_codes(cls, values):  # noqa: N805
+        """Check that every every fixed code is also one of the good codes."""
+        if set(values["code_fixes"].values()).difference(values["df"]["code"]):
+            raise ValueError(
+                "Some fixed codes aren't in the list of good codes:\n"
+                f"{values['df']['code']=} \n"
+                f"code_fixes.values()={list(values.code_fixes.values())} \n"
+            )
+        return values
+
+    @property
+    def code_map(self) -> Dict[str, Union[str, type(pd.NA)]]:
+        """A mapping of all known codes to their standardized values, or NA."""
+        code_map = {code: code for code in self.df["code"]}
+        code_map.update(self.code_fixes)
+        code_map.update({code: pd.NA for code in self.ignored_codes})
+        return code_map
+
+    def encode(self, col: pd.Series) -> pd.Series:
+        """Apply the stored code mapping to an input Series."""
+        # Every value in the Series should appear in the map. If that's not the
+        # case we want to hear about it so we don't wipe out data unknowingly.
+        unknown_codes = set(col.dropna()).difference(self.code_map)
+        if unknown_codes:
+            raise ValueError(f"Found unknown codes while encoding: {unknown_codes=}")
+        return col.map(self.code_map).convert_dtypes()
+
+
 class Field(Base):
     """
     Field (`resource.schema.fields[...]`).
@@ -371,6 +433,7 @@ class Field(Base):
     description: String = None
     constraints: FieldConstraints = {}
     harvest: FieldHarvest = {}
+    encoder: Encoder = None
 
     @pydantic.validator("constraints")
     def _check_constraints(cls, value, values):  # noqa: N805, C901
@@ -392,6 +455,18 @@ class Field(Base):
             for x in value.enum:
                 if not isinstance(x, CONSTRAINT_DTYPES[dtype]):
                     errors.append(f"enum value {x} not {dtype}")
+        if errors:
+            raise ValueError(format_errors(*errors, pydantic=True))
+        return value
+
+    @pydantic.validator("encoder")
+    def _check_encoder(cls, value, values):  # noqa: N805
+        if "type" not in values or value is None:
+            return value
+        errors = []
+        dtype = values["type"]
+        if dtype != "string":
+            errors.append(f"Encoding only supported for string fields, found {dtype}")
         if errors:
             raise ValueError(format_errors(*errors, pydantic=True))
         return value
@@ -796,47 +871,14 @@ class Resource(Base):
     licenses: List[License] = []
     sources: List[Source] = []
     keywords: List[String] = []
-    good_codes: List[String] = []
-    bad_codes: List[String] = []
-    fix_codes: Dict[String, String] = {}
 
     _check_unique = _validator(
         "contributors",
-        "good_codes",
-        "bad_codes",
         "keywords",
         "licenses",
         "sources",
         fn=_check_unique
     )
-
-    @pydantic.root_validator
-    def _check_no_overlapping_codes(cls, values):  # noqa: N805
-        """Verify there's no overlap between good, fixable, and bad codes."""
-        if (
-            set(values["good_codes"]).intersection(values["bad_codes"])
-            or set(values["good_codes"]).intersection(values["fix_codes"])
-            or set(values["fix_codes"]).intersection(values["bad_codes"])
-        ):
-            raise ValueError(
-                "Overlap found between good, bad, and fixable codes in\n"
-                f"{values['name']}. These must all be disjoint sets:\n"
-                f"{values['good_codes']=} \n"
-                f"{values['bad_codes']=} \n"
-                f"fix_codes.keys()={list(values['fix_codes'].keys())} \n"
-            )
-        return values
-
-    @pydantic.root_validator
-    def _check_fixed_codes_are_good_codes(cls, values):  # noqa: N805
-        """Check that every every fixed code is also one of the good codes."""
-        if set(values["fix_codes"].values()).difference(values["good_codes"]):
-            raise ValueError(
-                "Some fixed codes aren't in the list of good codes:\n"
-                f"{values['good_codes']=} \n"
-                f"fix_codes.values()={list(values['fix_codes'].values())} \n"
-            )
-        return values
 
     @pydantic.validator("schema_")
     def _check_harvest_primary_key(cls, value, values):  # noqa: N805
@@ -846,7 +888,7 @@ class Resource(Base):
         return value
 
     @staticmethod
-    def dict_from_id(x: str) -> dict:
+    def dict_from_id(x: str) -> dict:  # noqa: C901
         """
         Construct dictionary from PUDL identifier (`resource.name`).
 
@@ -876,6 +918,9 @@ class Resource(Base):
                 group = obj.get("group")
                 if name in FIELD_METADATA_BY_GROUP.get(group, {}):
                     value = {**value, **FIELD_METADATA_BY_GROUP[group][name]}
+                # Update with any custom resource-level metadata
+                if name in FIELD_METADATA_BY_RESOURCE.get(x, {}):
+                    value = {**value, **FIELD_METADATA_BY_RESOURCE[x][name]}
                 fields.append(value)
             schema["fields"] = fields
         # Expand sources
@@ -1241,6 +1286,27 @@ class Resource(Base):
         template = JINJA_ENVIRONMENT.get_template("resource.rst.jinja")
         rendered = template.render(resource=self)
         Path(path).write_text(rendered)
+
+    def encode(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Standardize coded columns using the foreign column they refer to."""
+        for fk in self.schema.foreign_keys:
+            logger.info(f"Examining ForeignKey: {fk}")
+            ref_resource = Resource.from_id(fk.reference.resource)
+            ref_cols = [
+                col for col in ref_resource.schema.fields
+                if col.name in fk.reference.fields
+            ]
+            if len(ref_cols) == 1 and ref_cols[0].encoder:
+                col_to_encode = [
+                    col for col in self.schema.fields if col.name == fk.fields[0]
+                ][0]
+                logger.info(
+                    f"Encoding {self.name}.{col_to_encode.name} "
+                    f"to match {ref_resource.name}.{ref_cols[0].name}"
+                )
+                df[col_to_encode.name] = ref_cols[0].encoder.encode(
+                    df[col_to_encode.name])
+        return df
 
 
 # ---- Package ---- #

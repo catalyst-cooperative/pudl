@@ -4,6 +4,7 @@ from typing import Any, Dict
 from pytz import all_timezones
 
 from .constants import SOURCES
+from .dfs import ENERGY_SOURCES_EIA, FUEL_TRANSPORTATION_MODES_EIA
 from .enums import (CANADA_PROVINCES_TERRITORIES, CUSTOMER_CLASSES,
                     EPACEMS_MEASUREMENT_CODES, EPACEMS_STATES, FUEL_CLASSES,
                     NERC_REGIONS, RELIABILITY_STANDARDS, REVENUE_CLASSES,
@@ -2324,3 +2325,38 @@ If a field exists in more than one data group (e.g. both ``eia`` and ``ferc1``)
 and has distinct metadata in those groups, this is the place to specify the
 override. Only those elements which should be overridden need to be specified.
 """
+
+FIELD_METADATA_BY_RESOURCE: Dict[str, Dict[str, Any]] = {
+    "energy_sources_eia": {
+        "code": {
+            "encoder": {
+                "df": ENERGY_SOURCES_EIA,
+                "code_fixes": {
+                    "BL": "BLQ",
+                    "HPS": "WAT",
+                    "MSB": "MSW",
+                    "MSN": "MSW",
+                    "WOC": "WC",
+                    "OW": "WO",
+                    "WT": "WND",
+                },
+                "ignored_codes": [
+                    '0', 'OO', 'BM', 'CBL', 'COL', 'N', 'NO', 'OOG', 'PL', 'ST'
+                ],
+            }
+        }
+    },
+    "fuel_transportation_modes_eia": {
+        "code": {
+            "encoder": {
+                "df": FUEL_TRANSPORTATION_MODES_EIA,
+                "code_fixes": {
+                    "TK": "TR",
+                    "WA": "WT",
+                    "CV": "TC",
+                },
+                "ignored_codes": ["UN"],
+            }
+        }
+    }
+}

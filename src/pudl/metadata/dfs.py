@@ -83,58 +83,47 @@ PRIME_MOVERS_EIA: pd.DataFrame = pd.DataFrame(
     columns=["code", "label", "description"],
     data=[
         ('BA', 'battery_storage', 'Energy Storage, Battery'),
-        ('BT', 'binary_cycle_turbine',
-         'Turbines Used in a Binary Cycle. Including those used for geothermal applications'),
+        ('BT', 'binary_cycle_turbine', 'Turbines Used in a Binary Cycle. Including those used for geothermal applications'),  # nopep8
         ('CA', 'combined_cycle_steam_turbine', 'Combined-Cycle, Steam Turbine Part'),
         ('CC', 'combined_cycle_total', 'Combined-Cycle, Total Unit'),
         ('CE', 'compressed_air_storage', 'Energy Storage, Compressed Air'),
-        ('CP', 'concentrated_solar_storage', 'Energy Storage, Concentrated Solar Power'),
-        ('CS', 'combined_cycle_single_shaft',
-         'Combined-Cycle Single-Shaft Combustion Turbine and Steam Turbine share of single'),
-        ('CT', 'combined_cycle_combustion_turbine',
-         'Combined-Cycle Combustion Turbine Part'),
-        ('ES', 'other_storage', 'Energy Storage, Other (Specify on Schedule 9, Comments)'),
+        ('CP', 'concentrated_solar_storage', 'Energy Storage, Concentrated Solar Power'),  # nopep8
+        ('CS', 'combined_cycle_single_shaft', 'Combined-Cycle Single-Shaft Combustion Turbine and Steam Turbine share of single'),  # nopep8
+        ('CT', 'combined_cycle_combustion_turbine', 'Combined-Cycle Combustion Turbine Part'),  # nopep8
+        ('ES', 'other_storage', 'Energy Storage, Other (Specify on Schedule 9, Comments)'),  # nopep8
         ('FC', 'fuel_cell', 'Fuel Cell'),
         ('FW', 'flywheel_storage', 'Energy Storage, Flywheel'),
-        ('GT', 'gas_combustion_turbine', 'Combustion (Gas) Turbine. Including Jet Engine design'),
+        ('GT', 'gas_combustion_turbine', 'Combustion (Gas) Turbine. Including Jet Engine design'),  # nopep8
         ('HA', 'hydrokinetic_axial_flow', 'Hydrokinetic, Axial Flow Turbine'),
         ('HB', 'hydrokinetic_wave_buoy', 'Hydrokinetic, Wave Buoy'),
         ('HK', 'hydrokinetic_other', 'Hydrokinetic, Other'),
-        ('HY', 'hydraulic_turbine',
-         'Hydraulic Turbine. Including turbines associated with delivery of water by pipeline.'),
-        ('IC', 'internal_combustion', 'Internal Combustion (diesel, piston, reciprocating) Engine'),
+        ('HY', 'hydraulic_turbine', 'Hydraulic Turbine. Including turbines associated with delivery of water by pipeline.'),  # nopep8
+        ('IC', 'internal_combustion', 'Internal Combustion (diesel, piston, reciprocating) Engine'),  # nopep8
         ('OT', 'other', 'Other'),
-        ('PS', 'pumped_storage', 'Energy Storage, Reversible Hydraulic Turbine (Pumped Storage)'),
+        ('PS', 'pumped_storage', 'Energy Storage, Reversible Hydraulic Turbine (Pumped Storage)'),  # nopep8
         ('PV', 'solar_pv', 'Solar Photovoltaic'),
-        ('ST', 'steam_turbine', 'Steam Turbine. Including Nuclear, Geothermal, and Solar Steam (does not include Combined Cycle).'),
+        ('ST', 'steam_turbine', 'Steam Turbine. Including Nuclear, Geothermal, and Solar Steam (does not include Combined Cycle).'),  # nopep8
         ('WS', 'wind_offshore', 'Wind Turbine, Offshore'),
         ('WT', 'wind_onshore', 'Wind Turbine, Onshore'),
     ],
-).astype({
-    "code": pd.StringDtype(),
-    "label": pd.StringDtype(),
-    "description": pd.StringDtype(),
-})
+).convert_dtypes()
 """Descriptive labels for EIA prime mover codes."""
 
 FUEL_TRANSPORTATION_MODES_EIA: pd.DataFrame = pd.DataFrame(
     columns=["code", "label", "description"],
     data=[
-        ("GL", "great_lakes", "Shipments of coal moved to consumers via the Great Lakes. These shipments are moved via the Great Lakes coal loading docks."),
-        ("RR", "railroad", "Shipments of fuel moved to consumers by rail (private or public/commercial). Included is coal hauled to or away from a railroad siding by truck if the truck did not use public roads."),
-        ("RV", "river", "Shipments of fuel moved to consumers via river by barge.  Not included are shipments to Great Lakes coal loading docks, tidewater piers, or coastal ports."),
+        ("GL", "great_lakes", "Shipments of coal moved to consumers via the Great Lakes. These shipments are moved via the Great Lakes coal loading docks."),  # nopep8
+        ("OP", "onsite_production", "Fuel is produced on-site, making fuel shipment unnecessary."),  # nopep8
+        ("RR", "rail", "Shipments of fuel moved to consumers by rail (private or public/commercial). Included is coal hauled to or away from a railroad siding by truck if the truck did not use public roads."),  # nopep8
+        ("RV", "river", "Shipments of fuel moved to consumers via river by barge.  Not included are shipments to Great Lakes coal loading docks, tidewater piers, or coastal ports."),  # nopep8
         ("PL", "pipeline", "Shipments of fuel moved to consumers by pipeline"),
-        ("SP", "slurry_pipeline", "Shipments of coal moved to consumers by slurry pipeline."),
-        ("TC", "tramway_conveyor", "Shipments of fuel moved to consumers by tramway or conveyor."),
-        ("TP", "coastal_ports", "Shipments of coal moved to Tidewater Piers and Coastal Ports for further shipments to consumers via coastal water or ocean."),
-        ("TR", "truck", "Shipments of fuel moved to consumers by truck.  Not included is fuel hauled to or away from a railroad siding by truck on non-public roads."),
-        ("WT", "other_waterways", "Shipments of fuel moved to consumers by other waterways."),
+        ("SP", "slurry_pipeline", "Shipments of coal moved to consumers by slurry pipeline."),  # nopep8
+        ("TC", "tramway_conveyor", "Shipments of fuel moved to consumers by tramway or conveyor."),  # nopep8
+        ("TP", "tidewater_ports", "Shipments of coal moved to Tidewater Piers and Coastal Ports for further shipments to consumers via coastal water or ocean."),  # nopep8
+        ("TR", "truck", "Shipments of fuel moved to consumers by truck.  Not included is fuel hauled to or away from a railroad siding by truck on non-public roads."),  # nopep8
+        ("WT", "other_waterways", "Shipments of fuel moved to consumers by other waterways."),  # nopep8
     ],
-).astype({
-    "code": pd.StringDtype(),
-    "label": pd.StringDtype(),
-    "description": pd.StringDtype(),
-})
+).convert_dtypes()
 """Descriptive labels for fuel transport modes reported in the EIA 923."""
 
 ENERGY_SOURCES_EIA: pd.DataFrame = pd.DataFrame(
@@ -175,7 +164,7 @@ ENERGY_SOURCES_EIA: pd.DataFrame = pd.DataFrame(
         ('PG', 'propane_gas', 'mcf', 2.5, 2.75, 'fossil', 'petroleum', 'gas', 'gas', 'Gaseous propane'),  # nopep8
         ('PUR', 'purchased_steam', pd.NA, np.nan, np.nan, 'other', 'other', pd.NA, 'other', 'Purchased steam'),  # nopep8
         ('RC', 'refined_coal', 'short_tons', 20.0, 29.0, 'fossil', 'coal', 'solid', 'coal', 'Refined coal'),  # nopep8
-        ('RFO', 'residual_fuel_oil', 'barrels', 5.8, 6.8, 'fossil', 'petroleum', 'liquid', 'oil', 'Residual fuel oil, including Nos. 5 & 6 fuel oils and bunker C fuel oil'),  # nopep8
+        ('RFO', 'residual_fuel_oil', 'barrels', 5.7, 6.9, 'fossil', 'petroleum', 'liquid', 'oil', 'Residual fuel oil, including Nos. 5 & 6 fuel oils and bunker C fuel oil'),  # nopep8
         ('SC', 'coal_synfuel', 'short_tons', np.nan, np.nan, 'fossil', 'coal', 'solid', 'coal', 'Coal synfuel. Coal-based solid fuel that has been processed by a coal synfuel plant, and coal-based fuels such as briquettes, pellets, or extrusions, which are formed from fresh or recycled coal and binding materials.'),  # nopep8
         ('SG', 'syngas_other', 'mcf', np.nan, np.nan, 'fossil', 'other', 'gas', 'gas', 'Synthetic gas, other than coal-derived'),  # nopep8
         ('SGC', 'syngas_coal', 'mcf', 0.2, 0.3, 'fossil', 'coal', 'gas', 'gas', 'Coal-derived synthesis gas'),  # nopep8
@@ -192,18 +181,16 @@ ENERGY_SOURCES_EIA: pd.DataFrame = pd.DataFrame(
         ('WND', 'wind', pd.NA, np.nan, np.nan, 'renewable', 'other', pd.NA, 'wind', 'Wind'),  # nopep8
         ('WO', 'waste_oil', 'barrels', 3.0, 5.8, 'fossil', 'petroleum', 'liquid', 'oil', 'Waste/Other oil, including crude oil, liquid butane, liquid propane, naptha, oil waste, re-refined motor oil, sludge oil, tar oil, or other petroleum-based liquid wastes'),  # nopep8
     ],
-).astype({
-    "code": pd.StringDtype(),
-    "label": pd.StringDtype(),
-    "fuel_units": pd.StringDtype(),
-    "min_fuel_mmbtu_per_unit": float,
-    "max_fuel_mmbtu_per_unit": float,
-    "fuel_group_eia": pd.StringDtype(),
-    "fuel_derived_from": pd.StringDtype(),
-    "fuel_phase": pd.StringDtype(),
-    "fuel_type_code_pudl": pd.StringDtype(),
-    "description": pd.StringDtype(),
-})
+).convert_dtypes()
+"""
+Descriptive labels and other metadata for energy sources reported by EIA.
+
+This metadata was compiled from Table 28 in the EIA-860 instructions valid
+through 2023-05-31, Table 8 in the EIA-923 instructions valid through
+2023-05-31, and information in the "file layout" pages in the original
+Excel spreadsheets containing fuel data.
+
+"""
 
 FERC_ACCOUNTS: pd.DataFrame = pd.DataFrame(
     columns=['row_number', 'ferc_account_id', 'ferc_account_description'],
