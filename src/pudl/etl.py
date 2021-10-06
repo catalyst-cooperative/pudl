@@ -128,7 +128,7 @@ def command_line_flags() -> argparse.ArgumentParser:
     parser.add_argument(
         "--gcs-requester-pays",
         type=str,
-        help="If specified, use this project name to charge the GCS operations to.""")
+        help="If specified, use this project name to charge the GCS operations to.")
 
     return parser
 
@@ -821,17 +821,19 @@ def etl(  # noqa: C901
     overwrite_ferc1_db=SqliteOverwriteMode.ALWAYS,
     commandline_args: argparse.Namespace = None
 ):
-    """Run the PUDL Extract, Transform, and Load data pipeline.
+    """
+    Run the PUDL Extract, Transform, and Load data pipeline.
 
     First we validate the settings, and then process data destined for loading
     into SQLite, which includes The FERC Form 1 and the EIA Forms 860 and 923.
     Once those data have been output to SQLite we mvoe on to processing the
     long tables, which will be loaded into Apache Parquet files. Some of this
     processing depends on data that's already been loaded into the SQLite DB.
+
     Args:
-        etl_settings (iterable): a list of dictionaries. Each item
-            in the list corresponds to a data package. Each data package's
-            dictionary contains the arguements for its ETL function.
+        etl_settings_bundle (iterable): a list of dictionaries. Each item in the
+            list corresponds to a data package. Each data package's dictionary
+            contains the arguements for its ETL function.
         pudl_settings (dict): a dictionary filled with settings that mostly
             describe paths to various resources and outputs.
         clobber (bool): If True and there is already a pudl.sqlite database
@@ -840,10 +842,10 @@ def etl(  # noqa: C901
             file cache.
         gcs_cache_path (str): controls whether datastore should be using Google
             Cloud Storage based cache.
-        overwrite_ferc1_db (SqliteOverwriteMode): controls how ferc1 db should
-            be treated.
+
     Returns:
         None
+
     """
     pudl_db_path = Path(pudl_settings["sqlite_dir"]) / "pudl.sqlite"
     if pudl_db_path.exists() and not clobber:

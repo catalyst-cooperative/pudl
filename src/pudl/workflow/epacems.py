@@ -6,7 +6,6 @@ from typing import Any
 
 import pandas as pd
 import prefect
-import sqlalchemy as sa
 from prefect import task, unmapped
 
 import pudl
@@ -115,10 +114,7 @@ class EpaCemsPipeline(DatasetPipeline):
         if not self.all_params_present(params, ['epacems_states', 'epacems_years']):
             return None
         with self.flow as flow:
-
-            pudl_db = prefect.context.get("pudl_settings", {})["pudl_db"]
-            pudl_engine = sa.create_engine(pudl_db)
-            plants = pudl.transform.epacems.load_plant_utc_offset(pudl_engine)
+            plants = pudl.transform.epacems.load_plant_utc_offset()
 
             # Wait to build CEMS until EIA is done if EIA is in the settings file.
             # If EIA is not in the settings file, go ahead and build CEMS on its own.

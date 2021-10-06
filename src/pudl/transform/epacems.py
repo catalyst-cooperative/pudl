@@ -5,6 +5,7 @@ import logging
 
 import numpy as np
 import pandas as pd
+import prefect
 import pytz
 import sqlalchemy as sa
 from prefect import task
@@ -70,7 +71,7 @@ def fix_up_dates(df, plant_utc_offset):
 
 
 @task(target="epacems.plant_entity")
-def load_plant_utc_offset(pudl_engine):
+def load_plant_utc_offset():
     """Load the UTC offset each EIA plant.
 
     CEMS times don't change for DST, so we get get the UTC offset by using the
@@ -84,6 +85,9 @@ def load_plant_utc_offset(pudl_engine):
         pandas.DataFrame: With columns plant_id_eia and utc_offset.
     """
     # Verify that we have a PUDL DB with plant attributes:
+    pudl_db = prefect.context.get("pudl_settings", {})["pudl_db"]
+    pudl_engine = sa.create_engine(pudl_db)
+
     inspector = sa.inspect(pudl_engine)
     if "plants_entity_eia" not in inspector.get_table_names():
         raise RuntimeError(

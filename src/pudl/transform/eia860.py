@@ -19,9 +19,11 @@ def ownership(eia860_dfs, eia860_transformed_dfs):
     """Pull and transform the ownership table.
 
     Transformations include:
+
     * Replace . values with NA.
     * Convert pre-2012 ownership percentages to proportions to match post-2012
       reporting.
+
     Args:
         eia860_dfs (dict): Each entry in this dictionary of DataFrame objects
             corresponds to a page from the EIA860 form, as reported in the Excel
