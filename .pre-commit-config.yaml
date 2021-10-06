@@ -73,6 +73,14 @@ repos:
 
 - repo: local
   hooks:
+    - id: nb-output-clear
+      name: nb-output-clear
+      stages: [commit]
+      language: system
+      verbose: false
+      pass_filenames: false
+      always_run: true
+      entry: bash -c 'jupyter nbconvert --clear-output $(find devtools -name \*.ipynb)'
     - id: unit-tests
       name: unit-tests
       stages: [commit]
@@ -81,11 +89,3 @@ repos:
       pass_filenames: false
       always_run: true
       entry: pytest --doctest-modules src/pudl test/unit
-    - id: nb-output-clear
-      name: nb-output-clear
-      stages: [commit]
-      language: system
-      verbose: false
-      pass_filenames: false
-      always_run: true
-      entry: jupyter nbconvert --ClearOutputPreprocessor.enabled=True --inplace devtools/*.ipynb
