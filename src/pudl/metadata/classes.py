@@ -1290,7 +1290,6 @@ class Resource(Base):
     def encode(self, df: pd.DataFrame) -> pd.DataFrame:
         """Standardize coded columns using the foreign column they refer to."""
         for fk in self.schema.foreign_keys:
-            logger.info(f"Examining ForeignKey: {fk}")
             ref_resource = Resource.from_id(fk.reference.resource)
             ref_cols = [
                 col for col in ref_resource.schema.fields

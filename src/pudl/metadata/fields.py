@@ -2336,12 +2336,13 @@ FIELD_METADATA_BY_RESOURCE: Dict[str, Dict[str, Any]] = {
                     "HPS": "WAT",
                     "MSB": "MSW",
                     "MSN": "MSW",
+                    "ng": "NG",
                     "WOC": "WC",
                     "OW": "WO",
                     "WT": "WND",
                 },
                 "ignored_codes": [
-                    '0', 'OO', 'BM', 'CBL', 'COL', 'N', 'NO', 'OOG', 'PL', 'ST'
+                    '0', 'OO', 'BM', 'CBL', 'COL', 'N', 'no', 'OOG', 'PL', 'ST'
                 ],
             }
         }
