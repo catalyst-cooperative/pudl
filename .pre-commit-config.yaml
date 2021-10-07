@@ -80,8 +80,7 @@ repos:
       verbose: false
       pass_filenames: false
       always_run: true
-      # TODO (bendnorman): find a better way to clear nb outputs in all directories.
-      entry: jupyter nbconvert --clear-output devtools/*.ipynb devtools/ferc1-eia-glue/*.ipynb
+      entry: find devtools \( -name \*.ipynb -not -name \*checkpoint.ipynb \) -type f -exec jupyter nbconvert --clear-output {} \;
     - id: unit-tests
       name: unit-tests
       stages: [commit]
