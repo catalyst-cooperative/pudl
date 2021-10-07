@@ -73,6 +73,15 @@ repos:
 
 - repo: local
   hooks:
+    - id: nb-output-clear
+      name: nb-output-clear
+      stages: [commit]
+      language: system
+      verbose: false
+      pass_filenames: false
+      always_run: true
+      # TODO (bendnorman): find a better way to clear nb outputs in all directories.
+      entry: jupyter nbconvert --clear-output devtools/*.ipynb devtools/ferc1-eia-glue/*.ipynb
     - id: unit-tests
       name: unit-tests
       stages: [commit]
