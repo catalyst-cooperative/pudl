@@ -7,12 +7,15 @@ import pudl
 from pudl import constants as pc
 from pudl import dfc
 from pudl.dfc import DataFrameCollection
+from pudl.metadata.labels import (ENERGY_SOURCES_EIA,
+                                  FUEL_TRANSPORTATION_MODES_EIA,
+                                  FUEL_TYPES_AER_EIA, PRIME_MOVERS_EIA)
 from pudl.workflow.dataset_pipeline import DatasetPipeline
 
 
 @task(target="eia.static-tables")
-def load_static_tables_eia():
-    """Populate static EIA tables with constants for use as foreign keys.
+def read_static_tables_eia() -> DataFrameCollection:
+    """Build dataframes of static EIA tables for use as foreign key constraints.
 
     There are many values specified within the data that are essentially
     constant, but which we need to store for data validation purposes, for use
@@ -20,32 +23,24 @@ def load_static_tables_eia():
     possible state and country codes indicating a coal delivery's location of
     origin. For now these values are primarily stored in a large collection of
     lists, dictionaries, and dataframes which are specified in the
-    pudl.constants module.  This function uses those data structures to
-    populate a bunch of small infrastructural tables within packages that
-    include EIA tables.
-
+    :mod:`pudl.constants` module.
     """
-    # create dfs for tables with static data from constants.
     return DataFrameCollection(
-        fuel_type_eia923=pd.DataFrame(
-            {'abbr': list(pc.fuel_type_eia923.keys()),
-             'fuel_type': list(pc.fuel_type_eia923.values())}
+        energy_sources_eia=pd.DataFrame(
+            columns=["abbr", "energy_source"],
+            data=ENERGY_SOURCES_EIA.items(),
         ),
-        prime_movers_eia923=pd.DataFrame(
-            {'abbr': list(pc.prime_movers_eia923.keys()),
-             'prime_mover': list(pc.prime_movers_eia923.values())}
+        fuel_types_aer_eia=pd.DataFrame(
+            columns=["abbr", "fuel_type"],
+            data=FUEL_TYPES_AER_EIA.items(),
         ),
-        fuel_type_aer_eia923=pd.DataFrame(
-            {'abbr': list(pc.fuel_type_aer_eia923.keys()),
-             'fuel_type': list(pc.fuel_type_aer_eia923.values())}
+        prime_movers_eia=pd.DataFrame(
+            columns=["abbr", "prime_mover"],
+            data=PRIME_MOVERS_EIA.items(),
         ),
-        energy_source_eia923=pd.DataFrame(
-            {'abbr': list(pc.energy_source_eia923.keys()),
-             'source': list(pc.energy_source_eia923.values())}
-        ),
-        transport_modes_eia923=pd.DataFrame(
-            {'abbr': list(pc.transport_modes_eia923.keys()),
-             'mode': list(pc.transport_modes_eia923.values())}
+        fuel_transportation_modes_eia=pd.DataFrame(
+            columns=["abbr", "fuel_transportation_mode"],
+            data=FUEL_TRANSPORTATION_MODES_EIA.items(),
         )
     )
 
@@ -86,12 +81,12 @@ class EiaPipeline(DatasetPipeline):
         # empty dictionary to compile etl_params
         eia_input_dict = {
             'eia860_years': etl_params.get('eia860_years', []),
-            'eia860_tables': etl_params.get('eia860_tables', pc.pudl_tables['eia860']),
+            'eia860_tables': etl_params.get('eia860_tables', pc.PUDL_TABLES['eia860']),
 
             'eia860_ytd': etl_params.get('eia860_ytd', False),
 
             'eia923_years': etl_params.get('eia923_years', []),
-            'eia923_tables': etl_params.get('eia923_tables', pc.pudl_tables['eia923']),
+            'eia923_tables': etl_params.get('eia923_tables', pc.PUDL_TABLES['eia923']),
         }
 
         # if we are only extracting 860, we also need to pull in the
@@ -108,7 +103,7 @@ class EiaPipeline(DatasetPipeline):
             eia_input_dict['eia860_years'] = eia_input_dict['eia923_years']
 
         eia860m_year = pd.to_datetime(
-            pc.working_partitions['eia860m']['year_month']).year
+            pc.WORKING_PARTITIONS['eia860m']['year_month']).year
         if (eia_input_dict['eia860_ytd']
                 and (eia860m_year in eia_input_dict['eia860_years'])):
             raise AssertionError(
@@ -152,7 +147,7 @@ class EiaPipeline(DatasetPipeline):
             eia860_df = eia860_extract(year=params['eia860_years'])
             if params['eia860_ytd']:
                 m_df = eia860m_extract(
-                    year_month=pc.working_partitions['eia860m']['year_month'])
+                    year_month=pc.WORKING_PARTITIONS['eia860m']['year_month'])
                 eia860_df = merge_eia860m(
                     eia860_df, m_df,
                     task_args=dict(target=f'{self.datapkg_name}/eia860m.merge'))
@@ -166,7 +161,7 @@ class EiaPipeline(DatasetPipeline):
                 params['eia923_tables'],
                 task_args=dict(target=f'{self.datapkg_name}/eia923.transform'))
 
-            output_tables = pudl.transform.eia.transform_eia(
+            output_tables = pudl.transform.eia.transform(
                 dfc.merge_list(
                     [eia860_df, eia923_df, pudl.glue.eia_epacems.grab_clean_split()]),
                 eia860_years=params['eia860_years'],
@@ -174,7 +169,7 @@ class EiaPipeline(DatasetPipeline):
                 eia860_ytd=params['eia860_ytd'])
 
             return dfc.merge(
-                load_static_tables_eia(),
+                read_static_tables_eia(),
                 output_tables,
                 task_args=dict(target=f'{self.datapkg_name}/eia.final_tables'))
 

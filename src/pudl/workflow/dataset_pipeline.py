@@ -110,13 +110,13 @@ class DatasetPipeline:
         """Check for bad data years."""
         bad_years = [
             y for y in try_years
-            if y not in pc.working_partitions[dataset]['years']]
+            if y not in pc.WORKING_PARTITIONS[dataset]['years']]
         if bad_years:
             raise AssertionError(f"Unrecognized {dataset} years: {bad_years}")
 
     @staticmethod
     def check_for_bad_tables(try_tables, dataset):
         """Check for bad data tables."""
-        bad_tables = [t for t in try_tables if t not in pc.pudl_tables[dataset]]
+        bad_tables = [t for t in try_tables if t not in pc.PUDL_TABLES[dataset]]
         if bad_tables:
             raise AssertionError(f"Unrecognized {dataset} table: {bad_tables}")

@@ -671,26 +671,31 @@ def get_raw_df(
 def validate_ferc1_to_sqlite_settings(script_settings):
     """Check that ferc1_to_sqlite settings are correct."""
     for table in script_settings['ferc1_to_sqlite_tables']:
-        if table not in pc.ferc1_tbl2dbf:
+        if table not in DBF_TABLES_FILENAMES:
             raise ValueError(
                 f"{table} was not found in the list of "
                 f"available FERC Form 1 tables."
             )
+
+    # Deduplicate the list of tables, just in case
+    script_settings["ferc1_to_sqlite_tables"] = list(
+        set(script_settings["ferc1_to_sqlite_tables"]))
+
     if script_settings['ferc1_to_sqlite_refyear'] \
-            not in pc.data_years['ferc1']:
+            not in pc.WORKING_PARTITIONS['ferc1']['years']:
         raise ValueError(
             f"Reference year {script_settings['ferc1_to_sqlite_refyear']} "
             f"is outside the range of available FERC Form 1 data "
-            f"({min(pc.data_years['ferc1'])}-"
-            f"{max(pc.data_years['ferc1'])})."
+            f"({min(pc.WORKING_PARTITIONS['ferc1']['years'])}-"
+            f"{max(pc.WORKING_PARTITIONS['ferc1']['years'])})."
         )
     for year in script_settings['ferc1_to_sqlite_years']:
-        if year not in pc.data_years['ferc1']:
+        if year not in pc.WORKING_PARTITIONS['ferc1']['years']:
             raise ValueError(
                 f"Requested data from {year} is outside the range of "
                 f"available FERC Form 1 data "
-                f"({min(pc.data_years['ferc1'])}-"
-                f"{max(pc.data_years['ferc1'])})."
+                f"({min(pc.WORKING_PARTITIONS['ferc1']['years'])}-"
+                f"{max(pc.WORKING_PARTITIONS['ferc1']['years'])})."
             )
 
 

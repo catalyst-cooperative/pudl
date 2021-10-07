@@ -6,6 +6,7 @@ from pudl import constants as pc
 from pudl import dfc
 from pudl.dfc import DataFrameCollection
 from pudl.extract.ferc1 import SqliteOverwriteMode
+from pudl.metadata.dfs import FERC_ACCOUNTS, FERC_DEPRECIATION_LINES
 from pudl.workflow.dataset_pipeline import DatasetPipeline
 
 
@@ -25,18 +26,15 @@ def load_static_tables_ferc1():
     # create dfs for tables with static data from constants.
     df = DataFrameCollection()
 
-    df['ferc_accounts'] = (
-        pc.ferc_electric_plant_accounts
-        .drop('row_number', axis=1)
-        .replace({'ferc_account_description': r'\s+'}, ' ', regex=True)
-        .rename(columns={'ferc_account_description': 'description'})
-    )
+    df['ferc_accounts'] = FERC_ACCOUNTS[[
+        "ferc_account_id",
+        "ferc_account_description",
+    ]]
 
-    df['ferc_depreciation_lines'] = (
-        pc.ferc_accumulated_depreciation
-        .drop('row_number', axis=1)
-        .rename(columns={'ferc_account_description': 'description'})
-    )
+    df['ferc_depreciation_lines'] = FERC_DEPRECIATION_LINES[[
+        "line_id",
+        "ferc_account_description",
+    ]]
     return df
 
 
@@ -70,7 +68,7 @@ class Ferc1Pipeline(DatasetPipeline):
         """Validate and normalize ferc1 parameters."""
         ferc1_dict = {
             'ferc1_years': etl_params.get('ferc1_years', [None]),
-            'ferc1_tables': etl_params.get('ferc1_tables', pc.pudl_tables['ferc1']),
+            'ferc1_tables': etl_params.get('ferc1_tables', pc.PUDL_TABLES['ferc1']),
             'debug': etl_params.get('debug', False),
         }
         if not ferc1_dict['debug']:
