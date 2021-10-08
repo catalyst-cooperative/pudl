@@ -28,7 +28,9 @@ Todo:
 """
 
 import logging
+from datetime import date, datetime
 from pathlib import Path
+from typing import Literal, Union
 
 # Useful high-level external modules.
 import pandas as pd
@@ -36,6 +38,7 @@ import sqlalchemy as sa
 
 import pudl
 from pudl import constants as pc
+from pudl.workspace.datastore import Datastore
 
 logger = logging.getLogger(__name__)
 
@@ -50,14 +53,14 @@ class PudlTabl(object):
 
     def __init__(
         self,
-        pudl_engine,
-        ds=None,
-        freq=None,
-        start_date=None,
-        end_date=None,
-        fill_fuel_cost=False,
-        roll_fuel_cost=False,
-        fill_net_gen=False
+        pudl_engine: sa.engine.Engine,
+        ds: Union[Datastore, None] = None,
+        freq: Literal["AS", "MS", None] = None,
+        start_date: Union[str, date, datetime, pd.Timestamp] = None,
+        end_date: Union[str, date, datetime, pd.Timestamp] = None,
+        fill_fuel_cost: bool = False,
+        roll_fuel_cost: bool = False,
+        fill_net_gen: bool = False
     ):
         """
         Initialize the PUDL output object.
@@ -70,26 +73,32 @@ class PudlTabl(object):
         pull substantial data and do a bunch of calculations.
 
         Args:
-            freq (str): String describing time frequency at which to aggregate
-                the reported data. Currently this can only be 'MS'
-                (month start) or 'AS' (annual start).
-            start_date (date): Beginning date for data to pull from the
-                PUDL DB.
-            end_date (date): End date for data to pull from the PUDL DB.
-            pudl_engine (sqlalchemy.engine.Engine): SQLAlchemy connection engine
-                for the PUDL DB.
-            fill_fuel_cost (boolean): if True, fill in missing EIA fuel cost
-                from ``frc_eia923()`` with state-level monthly averages from EIA's
-                API.
-            roll_fuel_cost (boolean): if True, apply a rolling average
-                to a subset of output table's columns (currently only
-                'fuel_cost_per_mmbtu' for the frc table).
-            fill_net_gen (boolean): if True, use net generation from the
+            pudl_engine: A connection engine for the PUDL DB.
+            freq: A string indicating the time frequency at which to aggregate
+                reported data. ``MS`` is monththly and ``AS`` is annually. If
+                None, the data will not be aggregated.
+            ds: A PUDL Datastore from which raw input data can be obtained.
+                Required because the ``ferc714`` and ``eia861`` datasets are
+                not yet integrated into the database outputs, and are instead
+                processed from their raw form upon request.
+            start_date: Beginning date for data to pull from the PUDL DB. If
+                a string, it should use the ISO 8601 ``YYYY-MM-DD`` format.
+            end_date: End date for data to pull from the PUDL DB. If a string,
+                it should use the ISO 8601 ``YYYY-MM-DD`` format.
+            fill_fuel_cost: if True, fill in missing ``frc_eia923()`` fuel cost
+                data with state-level averages obtained from EIA's API.
+            roll_fuel_cost: if True, apply a rolling average to a subset of
+                output table's columns (currently only ``fuel_cost_per_mmbtu``
+                for the ``fuel_receipts_costs_eia923`` table.)
+            fill_net_gen: if True, use the net generation from the
                 generation_fuel_eia923 - which is reported at the
-                plant/fuel/prime mover level - re-allocated to generators in
+                plant/fuel/prime mover level and  re-allocated to generators in
                 ``mcoe()``, ``capacity_factor()`` and ``heat_rate_by_unit()``.
 
         """
+        # Validating ds is deferred to the etl_eia861 & etl_ferc714 methods
+        # because those are the only places a datastore is required.
+        self.ds = ds
         if not isinstance(pudl_engine, sa.engine.base.Engine):
             raise TypeError(
                 "PudlTabl needs pudl_engine to be a SQLAlchemy Engine, but we "
@@ -102,23 +111,6 @@ class PudlTabl(object):
                 f"freq must be one of None, 'MS', or 'AS', but we got {freq}."
             )
         self.freq = freq
-        # We need datastore access because some data is not yet integrated into the
-        # PUDL DB. See the etl_eia861 method.
-        if not (
-            (ds is None) or
-            isinstance(ds, pudl.workspace.datastore.Datastore)
-        ):
-            raise TypeError(
-                "PudlTable needs ds to be a PUDL Datastore object, but we got "
-                f"a {type(ds)}."
-            )
-        if ds is None:
-            pudl_in = Path(pudl.workspace.setup.get_defaults()["pudl_in"])
-            self.ds = pudl.workspace.datastore.Datastore(
-                local_cache_path=pudl_in / "data"
-            )
-        else:
-            self.ds = ds
 
         # grab all working eia dates to use to set start and end dates if they
         # are not set
@@ -254,6 +246,24 @@ class PudlTabl(object):
             update (bool): Whether to overwrite the existing dataframes if they exist.
 
         """
+        if isinstance(self.ds, Datastore):
+            pass
+        elif self.ds is None:
+            pudl_settings = pudl.workspace.setup.get_defaults()
+            if pudl_settings["pudl_in"] is None:
+                raise FileNotFoundError(
+                    "In order to run the ad-hoc EIA-861 ETL PUDL needs a valid "
+                    "Datastore, but none was found. Run 'pudl_setup --help' "
+                    "to see how to create one."
+                )
+            pudl_in = Path(pudl_settings["pudl_in"])
+            self.ds = Datastore(local_cache_path=pudl_in / "data")
+        else:
+            raise TypeError(
+                "PudlTabl needs a PUDL Datastore object, but we got "
+                f"a {type(self.ds)}."
+            )
+
         if update or self._dfs["balancing_authority_eia861"] is None:
             logger.warning(
                 "Running the interim EIA 861 ETL process!")
@@ -382,6 +392,24 @@ class PudlTabl(object):
             update (bool): Whether to overwrite the existing dataframes if they exist.
 
         """
+        if isinstance(self.ds, Datastore):
+            pass
+        elif self.ds is None:
+            pudl_settings = pudl.workspace.setup.get_defaults()
+            if pudl_settings["pudl_in"] is None:
+                raise FileNotFoundError(
+                    "In order to run the ad-hoc FERC-714 ETL PUDL needs a valid "
+                    "Datastore, but none was found. Run 'pudl_setup --help' "
+                    "to see how to create one."
+                )
+            pudl_in = Path(pudl_settings["pudl_in"])
+            self.ds = Datastore(local_cache_path=pudl_in / "data")
+        else:
+            raise TypeError(
+                "PudlTabl needs a PUDL Datastore object, but we got "
+                f"a {type(self.ds)}."
+            )
+
         if update or self._dfs["respondent_id_ferc714"] is None:
             logger.warning(
                 "Running the interim FERC 714 ETL process!")
