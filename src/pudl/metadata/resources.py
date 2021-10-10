@@ -50,6 +50,7 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
                 "fuel_mmbtu_per_unit",
                 "sulfur_content_pct",
                 "ash_content_pct",
+                "respondent_frequency"
             ],
             # Need to fix transform function to ensure this natural primary key
             # See https://github.com/catalyst-cooperative/pudl/issues/852
@@ -194,6 +195,7 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
                 "generator_id",
                 "report_date",
                 "net_generation_mwh",
+                "respondent_frequency",
             ],
             "primary_key": ["plant_id_eia", "generator_id", "report_date"],
         },
@@ -215,6 +217,7 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
                 "fuel_consumed_mmbtu",
                 "fuel_consumed_for_electricity_mmbtu",
                 "net_generation_mwh",
+                "respondent_frequency"
             ],
             # Need to fix transform function to ensure this natural primary key
             # See https://github.com/catalyst-cooperative/pudl/issues/851
