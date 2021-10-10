@@ -764,7 +764,8 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
                 "gal",
                 "mwdth",
                 "btu",
-                "ton"
+                "ton",
+                ""
             ]
         }
     },
@@ -1793,6 +1794,12 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
     },
     "reported_as_another_company": {
         "type": "string"
+    },
+    "respondent_frequency": {
+        "type": "string",
+        "constraints": {
+            "enum": ["A", "M", "AM"]
+        }
     },
     "respondent_id_ferc714": {
         "type": "integer"

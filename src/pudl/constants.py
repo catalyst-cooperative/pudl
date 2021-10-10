@@ -566,6 +566,7 @@ COLUMN_DTYPES: Dict[str, Dict[str, Any]] = {
         'regulatory_status_code': pd.StringDtype(),
         'report_date': 'datetime64[ns]',
         'reported_as_another_company': pd.StringDtype(),
+        'respondent_frequency': pd.CategoricalDtype(categories=["A", "M", "AM"]),
         'retail_marketing_activity': pd.BooleanDtype(),
         'retail_sales': float,
         'retail_sales_mwh': float,
