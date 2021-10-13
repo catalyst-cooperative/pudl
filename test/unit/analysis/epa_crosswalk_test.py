@@ -1,4 +1,4 @@
-"""Unit tests for the :mod:`pudl.analysis.ramp_rates` module."""
+"""Unit tests for the :mod:`pudl.analysis.epa_crosswalk` module."""
 from typing import Dict, Sequence
 
 import dask.dataframe as dd
@@ -155,7 +155,8 @@ def test__convert_global_id_to_composite_id(mock_crosswalk, mock_cems_extended):
 def test_make_subplant_ids(mock_crosswalk, mock_cems_extended):
     """Integration test for the subplant_id assignment process.
 
-    The new global_subplant_id column should identify disjoint subgraphs of units and generators.
+    The new subplant_id column is half of the compound key (CAMD_PLANT_ID, subplant_id) that
+    should identify disjoint subgraphs of units and generators.
 
        subplant_id  ...  CAMD_PLANT_ID CAMD_UNIT_ID  EIA_GENERATOR_ID  ...
     0            0  ...             10            a                 0  ... # one to one

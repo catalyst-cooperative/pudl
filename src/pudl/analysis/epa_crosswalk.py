@@ -25,7 +25,8 @@ package provides functions to analyze this edge list and extract
 disjoint subgraphs (groups of combustors and generators that are connected to each other).
 These are the distinct power plants. To avoid a name collision
 with plant_id, we term these collections 'subplants', and identify them with a subplant_id
-that is unique within each plant_id.
+that is unique within each plant_id. Subplants are thus identified with the composite key
+(plant_id, subplant_id).
 
 Through this analysis, we found that 56% of plant_ids contain multiple distinct subplants,
 and 11% contain subplants with different technology types, such as
@@ -87,6 +88,8 @@ def filter_crosswalk_by_epacems(crosswalk: pd.DataFrame, epacems: Union[pd.DataF
 
 def filter_out_unmatched(crosswalk: pd.DataFrame) -> pd.DataFrame:
     """Remove unmatched or excluded (non-exporting) units.
+
+    Unmatched rows are limitations of the completeness of the EPA crosswalk itself, not of PUDL.
 
     Args:
         crosswalk (pd.DataFrame): the EPA crosswalk, as from pudl.output.epacems.epa_crosswalk()
@@ -163,9 +166,9 @@ def _convert_global_id_to_composite_id(crosswalk_with_ids: pd.DataFrame) -> pd.D
 
     The composite key will be much more stable (though not fully stable!) in time.
     The global ID changes if ANY unit or generator changes, whereas the
-    compound key only changes if units/generators change in that specific plant.
+    compound key only changes if units/generators change within that specific plant.
 
-    A global ID could also tempt users into using it as a crutch, even thoug it isn't stable.
+    A global ID could also tempt users into using it as a crutch, even though it isn't stable.
     A compound key should discourage that behavior.
 
     Args:
@@ -199,6 +202,7 @@ def _convert_global_id_to_composite_id(crosswalk_with_ids: pd.DataFrame) -> pd.D
 
     # Recombine. Could use index join but I chose to reindex, sort and assign.
     # Errors like mismatched length will raise exceptions, which is good.
+
     # drop the outer group, leave the reindexed row index
     composite_key.reset_index(level=0, drop=True, inplace=True)
     composite_key.sort_index(inplace=True)  # put back in same order as reindexed
