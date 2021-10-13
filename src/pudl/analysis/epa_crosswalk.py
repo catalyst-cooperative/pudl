@@ -1,6 +1,7 @@
 """Use the EPA crosswalk to connect EPA units to EIA generators and other data.
 
-A major use case for this dataset is to identify subplants within plant_ids.
+A major use case for this dataset is to identify subplants within plant_ids,
+which are the smallest coherent units for aggregation.
 Despite the name, plant_id refers to a legal entity that often contains
 multiple distinct power plants, even of different technology or fuel types.
 
@@ -134,13 +135,13 @@ def _prep_for_networkx(crosswalk: pd.DataFrame) -> pd.DataFrame:
 
 
 def _subplant_ids_from_prepped_crosswalk(prepped: pd.DataFrame) -> pd.DataFrame:
-    """Apply networkx graph analysis to a preprocessed crosswalk edge list.
+    """Use networkx graph analysis to create global subplant IDs from a preprocessed crosswalk edge list.
 
     Args:
         prepped (pd.DataFrame): an EPA crosswalk that has passed through _prep_for_networkx()
 
     Returns:
-        pd.DataFrame: copy of EPA crosswalk plus new column 'subplant_id'
+        pd.DataFrame: copy of EPA crosswalk plus new column 'global_subplant_id'
     """
     graph = nx.from_pandas_edgelist(
         prepped,
@@ -153,8 +154,59 @@ def _subplant_ids_from_prepped_crosswalk(prepped: pd.DataFrame) -> pd.DataFrame:
         assert nx.algorithms.bipartite.is_bipartite(
             subgraph
         ), f"non-bipartite: i={i}, node_set={node_set}"
-        nx.set_edge_attributes(subgraph, name="subplant_id", values=i)
+        nx.set_edge_attributes(subgraph, name="global_subplant_id", values=i)
     return nx.to_pandas_edgelist(graph)
+
+
+def _convert_global_id_to_composite_id(crosswalk_with_ids: pd.DataFrame) -> pd.DataFrame:
+    """Convert global_subplant_id to an equivalent composite key (CAMD_PLANT_ID, subplant_id).
+
+    The composite key will be much more stable (though not fully stable!) in time.
+    The global ID changes if ANY unit or generator changes, whereas the
+    compound key only changes if units/generators change in that specific plant.
+
+    A global ID could also tempt users into using it as a crutch, even thoug it isn't stable.
+    A compound key should discourage that behavior.
+
+    Args:
+        crosswalk_with_ids (pd.DataFrame): crosswalk with global_subplant_id, as from _subplant_ids_from_prepped_crosswalk()
+
+    Raises:
+        ValueError: if crosswalk_with_ids has a MultiIndex
+
+    Returns:
+        pd.DataFrame: copy of crosswalk_with_ids with an added column: 'subplant_id'
+    """
+    if isinstance(crosswalk_with_ids.index, pd.MultiIndex):
+        raise ValueError(
+            f"Input crosswalk must have single level index. Given levels: {crosswalk_with_ids.index.names}")
+
+    reindexed = crosswalk_with_ids.reset_index()  # copy
+    idx_name = crosswalk_with_ids.index.name
+    if idx_name is None:
+        # Indices with no name (None) are set to a pandas default name ('index'), which
+        # could (though probably won't) change.
+        idx_col = reindexed.columns.symmetric_difference(
+            crosswalk_with_ids.columns)[0]  # get index name
+    else:
+        idx_col = idx_name
+
+    composite_key: pd.Series = (
+        reindexed
+        .groupby('CAMD_PLANT_ID', as_index=False)
+        .apply(lambda x: x.groupby('global_subplant_id').ngroup())
+    )
+
+    # Recombine. Could use index join but I chose to reindex, sort and assign.
+    # Errors like mismatched length will raise exceptions, which is good.
+    # drop the outer group, leave the reindexed row index
+    composite_key.reset_index(level=0, drop=True, inplace=True)
+    composite_key.sort_index(inplace=True)  # put back in same order as reindexed
+    reindexed['subplant_id'] = composite_key
+    # restore original index
+    reindexed.set_index(idx_col, inplace=True)  # restore values
+    reindexed.index.rename(idx_name, inplace=True)  # restore original name
+    return reindexed
 
 
 def filter_crosswalk(crosswalk: pd.DataFrame, epacems: Union[pd.DataFrame, dd.DataFrame]) -> pd.DataFrame:
@@ -190,8 +242,8 @@ def make_subplant_ids(crosswalk: pd.DataFrame) -> pd.DataFrame:
     Returns:
         pd.DataFrame: An edge list connecting EPA units to EIA generators, with connected pieces issued a subplant_id
     """
-    column_order = list(crosswalk.columns)
     edge_list = _prep_for_networkx(crosswalk)
     edge_list = _subplant_ids_from_prepped_crosswalk(edge_list)
-    column_order = ["subplant_id"] + column_order
-    return edge_list[column_order]
+    edge_list = _convert_global_id_to_composite_id(edge_list)
+    column_order = ["subplant_id"] + list(crosswalk.columns)
+    return edge_list[column_order]  # reorder and drop global_subplant_id

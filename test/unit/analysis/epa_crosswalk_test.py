@@ -108,20 +108,20 @@ def test__get_unique_keys(mock_cems_extended):
     assert_frame_equal(actual, expected)
 
 
-def test_make_subplant_ids(mock_crosswalk, mock_cems_extended):
-    """Integration test for the subplant_id assignment process.
+def test__convert_global_id_to_composite_id(mock_crosswalk, mock_cems_extended):
+    """Test conversion of global_subplant_id to a composite subplant_id.
 
-    The new subplant_id column should identify disjoint subgraphs of units and generators.
+    The global_subplant_id should be equivalent to the composite (CAMD_PLANT_ID, subplant_id).
 
-       subplant_id  ...  CAMD_PLANT_ID CAMD_UNIT_ID  EIA_GENERATOR_ID  ...
-    0            0  ...             10            a                 0  ... # one to one
-    1            1  ...             10            b                 1  ... # many to many
-    2            1  ...             10            c                 1  ...
-    3            1  ...             10            c                 2  ...
-    4            2  ...             11            a                 0  ... # one to many
-    5            2  ...             11            b                 0  ...
-    6            3  ...             12            a                 0  ... # many to one
-    7            3  ...             12            a                 1  ...
+       global_subplant_id  subplant_id  ...  CAMD_PLANT_ID CAMD_UNIT_ID  EIA_GENERATOR_ID  ...
+    0                   0            0  ...             10            a                 0  ... # one to one
+    1                   1            1  ...             10            b                 1  ... # many to many
+    2                   1            1  ...             10            c                 1  ...
+    3                   1            1  ...             10            c                 2  ...
+    4                   2            0  ...             11            a                 0  ... # one to many
+    5                   2            0  ...             11            b                 0  ...
+    6                   3            0  ...             12            a                 0  ... # many to one
+    7                   3            0  ...             12            a                 1  ...
     """
     cols = ["plant_id_eia", "unitid", "unit_id_epa"]
     uniques = mock_cems_extended.loc[pd.IndexSlice[:,
@@ -138,7 +138,51 @@ def test_make_subplant_ids(mock_crosswalk, mock_cems_extended):
         CAMD_UNIT_ID=expected['unitid'],
         EIA_GENERATOR_ID=[0, 1, 1, 2, 0, 0, 0, 1],
         MATCH_TYPE_GEN='asdf',
-        subplant_id=[0, 1, 1, 1, 2, 2, 3, 3]
+        global_subplant_id=[0, 1, 1, 1, 2, 2, 3, 3],
+        subplant_id=[0, 1, 1, 1, 0, 0, 0, 0]
+    )
+    # fix column order
+    expected = expected[cols + [
+        "CAMD_PLANT_ID", "CAMD_UNIT_ID", "EIA_GENERATOR_ID", "MATCH_TYPE_GEN"
+    ] + ["global_subplant_id", 'subplant_id']
+    ]
+
+    input_ = expected.drop(columns=['subplant_id'])
+    actual = cw._convert_global_id_to_composite_id(input_)
+    assert_frame_equal(actual, expected)
+
+
+def test_make_subplant_ids(mock_crosswalk, mock_cems_extended):
+    """Integration test for the subplant_id assignment process.
+
+    The new global_subplant_id column should identify disjoint subgraphs of units and generators.
+
+       subplant_id  ...  CAMD_PLANT_ID CAMD_UNIT_ID  EIA_GENERATOR_ID  ...
+    0            0  ...             10            a                 0  ... # one to one
+    1            1  ...             10            b                 1  ... # many to many
+    2            1  ...             10            c                 1  ...
+    3            1  ...             10            c                 2  ...
+    4            0  ...             11            a                 0  ... # one to many
+    5            0  ...             11            b                 0  ...
+    6            0  ...             12            a                 0  ... # many to one
+    7            0  ...             12            a                 1  ...
+    """
+    cols = ["plant_id_eia", "unitid", "unit_id_epa"]
+    uniques = mock_cems_extended.loc[pd.IndexSlice[:,
+                                                   "2019-12-31 22:00:00+00:00"], cols].copy()
+
+    # simulate join by duplicating rows as appropriate
+    one_to_many = uniques.query('plant_id_eia == 12 and unitid == "a"')
+    many_to_many = uniques.query('plant_id_eia == 10 and unitid == "c"')
+    expected = pd.concat([uniques, one_to_many, many_to_many]
+                         ).sort_index().reset_index(drop=True)
+
+    expected = expected.assign(
+        CAMD_PLANT_ID=expected['plant_id_eia'],
+        CAMD_UNIT_ID=expected['unitid'],
+        EIA_GENERATOR_ID=[0, 1, 1, 2, 0, 0, 0, 1],
+        MATCH_TYPE_GEN='asdf',
+        subplant_id=[0, 1, 1, 1, 0, 0, 0, 0]
     )
     # fix column order
     expected = expected[["subplant_id"] + cols + ["CAMD_PLANT_ID",
