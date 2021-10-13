@@ -25,6 +25,11 @@ import sqlalchemy as sa
 
 import pudl
 from pudl import constants as pc
+from pudl.constants import PUDL_TABLES
+from pudl.metadata.dfs import FERC_ACCOUNTS, FERC_DEPRECIATION_LINES
+from pudl.metadata.labels import (ENERGY_SOURCES_EIA,
+                                  FUEL_TRANSPORTATION_MODES_EIA,
+                                  FUEL_TYPES_AER_EIA, PRIME_MOVERS_EIA)
 from pudl.workspace.datastore import Datastore
 
 logger = logging.getLogger(__name__)
@@ -53,14 +58,14 @@ def check_for_bad_years(try_years, dataset):
     """Check for bad data years."""
     bad_years = [
         y for y in try_years
-        if y not in pc.working_partitions[dataset]['years']]
+        if y not in pc.WORKING_PARTITIONS[dataset]['years']]
     if bad_years:
         raise AssertionError(f"Unrecognized {dataset} years: {bad_years}")
 
 
 def check_for_bad_tables(try_tables, dataset):
     """Check for bad data tables."""
-    bad_tables = [t for t in try_tables if t not in pc.pudl_tables[dataset]]
+    bad_tables = [t for t in try_tables if t not in PUDL_TABLES[dataset]]
     if bad_tables:
         raise AssertionError(f"Unrecognized {dataset} table: {bad_tables}")
 
@@ -80,7 +85,7 @@ def _validate_params_eia(etl_params):
 
     # the tables will default to all of the tables if nothing is given
     eia_input_dict['eia860_tables'] = etl_params.get(
-        'eia860_tables', pc.pudl_tables['eia860']
+        'eia860_tables', PUDL_TABLES['eia860']
     )
     # Ensure no duplicate tables:
     eia_input_dict['eia860_tables'] = list(set(eia_input_dict['eia860_tables']))
@@ -93,7 +98,7 @@ def _validate_params_eia(etl_params):
     eia_input_dict['eia923_years'] = sorted(set(eia_input_dict['eia923_years']))
 
     eia_input_dict['eia923_tables'] = etl_params.get(
-        'eia923_tables', pc.pudl_tables['eia923']
+        'eia923_tables', PUDL_TABLES['eia923']
     )
     # Ensure no duplicate tables:
     eia_input_dict['eia923_tables'] = list(set(eia_input_dict['eia923_tables']))
@@ -112,7 +117,7 @@ def _validate_params_eia(etl_params):
         eia_input_dict['eia860_years'] = eia_input_dict['eia923_years']
 
     eia860m_year = pd.to_datetime(
-        pc.working_partitions['eia860m']['year_month']).year
+        pc.WORKING_PARTITIONS['eia860m']['year_month']).year
     if (eia_input_dict['eia860_ytd']
             and (eia860m_year in eia_input_dict['eia860_years'])):
         raise AssertionError(
@@ -145,36 +150,24 @@ def _read_static_tables_eia() -> Dict[str, pd.DataFrame]:
     :mod:`pudl.constants` module.
 
     """
-    # create dfs for tables with static data from constants.
-    fuel_type_eia923 = pd.DataFrame(
-        {'abbr': list(pc.fuel_type_eia923.keys()),
-         'fuel_type': list(pc.fuel_type_eia923.values())})
-
-    prime_movers_eia923 = pd.DataFrame(
-        {'abbr': list(pc.prime_movers_eia923.keys()),
-         'prime_mover': list(pc.prime_movers_eia923.values())})
-
-    fuel_type_aer_eia923 = pd.DataFrame(
-        {'abbr': list(pc.fuel_type_aer_eia923.keys()),
-         'fuel_type': list(pc.fuel_type_aer_eia923.values())})
-
-    energy_source_eia923 = pd.DataFrame(
-        {'abbr': list(pc.energy_source_eia923.keys()),
-         'source': list(pc.energy_source_eia923.values())})
-
-    transport_modes_eia923 = pd.DataFrame(
-        {'abbr': list(pc.transport_modes_eia923.keys()),
-         'mode': list(pc.transport_modes_eia923.values())})
-
-    static_dfs = {
-        'fuel_type_eia923': fuel_type_eia923,
-        'prime_movers_eia923': prime_movers_eia923,
-        'fuel_type_aer_eia923': fuel_type_aer_eia923,
-        'energy_source_eia923': energy_source_eia923,
-        'transport_modes_eia923': transport_modes_eia923
+    return {
+        'energy_sources_eia': pd.DataFrame(
+            columns=["abbr", "energy_source"],
+            data=ENERGY_SOURCES_EIA.items(),
+        ),
+        'fuel_types_aer_eia': pd.DataFrame(
+            columns=["abbr", "fuel_type"],
+            data=FUEL_TYPES_AER_EIA.items(),
+        ),
+        'prime_movers_eia': pd.DataFrame(
+            columns=["abbr", "prime_mover"],
+            data=PRIME_MOVERS_EIA.items(),
+        ),
+        'fuel_transportation_modes_eia': pd.DataFrame(
+            columns=["abbr", "fuel_transportation_mode"],
+            data=FUEL_TRANSPORTATION_MODES_EIA.items(),
+        ),
     }
-
-    return static_dfs
 
 
 def _etl_eia(etl_params, ds_kwargs):
@@ -215,7 +208,7 @@ def _etl_eia(etl_params, ds_kwargs):
     # if we are trying to add the EIA 860M YTD data, then extract it and append
     if eia860_ytd:
         eia860m_raw_dfs = pudl.extract.eia860m.Extractor(ds).extract(
-            year_month=pc.working_partitions['eia860m']['year_month'])
+            year_month=pc.WORKING_PARTITIONS['eia860m']['year_month'])
         eia860_raw_dfs = pudl.extract.eia860m.append_eia860m(
             eia860_raw_dfs=eia860_raw_dfs, eia860m_raw_dfs=eia860m_raw_dfs)
 
@@ -258,7 +251,7 @@ def _validate_params_ferc1(etl_params):
 
     # the tables will default to all of the tables if nothing is given
     ferc1_dict['ferc1_tables'] = etl_params.get(
-        'ferc1_tables', pc.pudl_tables['ferc1']
+        'ferc1_tables', PUDL_TABLES['ferc1']
     )
     # Ensure no duplicate tables:
     ferc1_dict["ferc1_tables"] = list(set(ferc1_dict["ferc1_tables"]))
@@ -270,9 +263,9 @@ def _validate_params_ferc1(etl_params):
             try_tables=ferc1_dict['ferc1_tables'], dataset='ferc1')
 
     if not ferc1_dict['ferc1_years']:
-        return {}
-    else:
-        return ferc1_dict
+        ferc1_dict = {}
+
+    return ferc1_dict
 
 
 def _read_static_tables_ferc1() -> Dict[str, pd.DataFrame]:
@@ -287,27 +280,16 @@ def _read_static_tables_ferc1() -> Dict[str, pd.DataFrame]:
     pudl.constants module.  This function uses those data structures to
     populate a bunch of small infrastructural tables within the PUDL DB.
     """
-    # create dfs for tables with static data from constants.
-    ferc_accounts = (
-        pc.ferc_electric_plant_accounts
-        .drop('row_number', axis=1)
-        .replace({'ferc_account_description': r'\s+'}, ' ', regex=True)
-        .rename(columns={'ferc_account_description': 'description'})
-    )
-
-    ferc_depreciation_lines = (
-        pc.ferc_accumulated_depreciation
-        .drop('row_number', axis=1)
-        .rename(columns={'ferc_account_description': 'description'})
-    )
-
-    # compile the dfs in a dictionary, prep for dict_dump
-    static_dfs = {
-        'ferc_accounts': ferc_accounts,
-        'ferc_depreciation_lines': ferc_depreciation_lines
+    return {
+        'ferc_accounts': FERC_ACCOUNTS[[
+            "ferc_account_id",
+            "ferc_account_description",
+        ]],
+        'ferc_depreciation_lines': FERC_DEPRECIATION_LINES[[
+            "line_id",
+            "ferc_account_description",
+        ]],
     }
-
-    return static_dfs
 
 
 def _etl_ferc1(etl_params, pudl_settings) -> Dict[str, pd.DataFrame]:
@@ -367,7 +349,7 @@ def _validate_params_epacems(etl_params):
     # if states are All, then we grab all of the states from constants
     if epacems_dict['epacems_states']:
         if epacems_dict['epacems_states'][0].lower() == 'all':
-            epacems_dict['epacems_states'] = pc.working_partitions['epacems']['states']
+            epacems_dict['epacems_states'] = pc.WORKING_PARTITIONS['epacems']['states']
 
     # CEMS is ALWAYS going to be partitioned by year and state. This means we
     # are functinoally removing the option to not partition or partition
@@ -379,7 +361,7 @@ def _validate_params_epacems(etl_params):
     # this is maybe unnecessary because we are hardcoding the partitions, but
     # we are still going to validate that the partitioning is
     epacems_dict['partition'] = _validate_params_partition(
-        epacems_dict, [pc.epacems_tables])
+        epacems_dict, [PUDL_TABLES["epacems"]])
     if not epacems_dict['partition']:
         raise AssertionError(
             'No partition found for EPA CEMS.'

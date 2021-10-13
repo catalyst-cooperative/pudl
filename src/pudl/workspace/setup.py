@@ -6,8 +6,6 @@ import shutil
 
 import yaml
 
-from pudl import constants as pc
-
 logger = logging.getLogger(__name__)
 
 
@@ -62,7 +60,7 @@ def get_defaults():
     settings_file = pathlib.Path.home() / '.pudl.yml'
 
     try:
-        with pathlib.Path(settings_file).open() as f:
+        with pathlib.Path(settings_file).open(encoding="utf8") as f:
             default_workspace = yaml.safe_load(f)
     except FileNotFoundError:
         logger.info("PUDL user settings file .pudl.yml not found.")
@@ -108,8 +106,7 @@ def derive_paths(pudl_in, pudl_out):
             read out of the YAML file. Mostly paths for inputs & outputs.
 
     """
-    # ps is short for pudl settings -- a dictionary of paths, etc.
-    ps = {}
+    pudl_settings = {}
 
     # The only "inputs" are the datastore and example settings files:
     # Convert from input string to Path and make it absolute w/ resolve()
@@ -117,26 +114,26 @@ def derive_paths(pudl_in, pudl_out):
     data_dir = pudl_in / "data"
     settings_dir = pudl_in / "settings"
     # Store these as strings... since we aren't using Paths everywhere yet:
-    ps["pudl_in"] = str(pudl_in)
-    ps["data_dir"] = str(data_dir)
-    ps["settings_dir"] = str(settings_dir)
+    pudl_settings["pudl_in"] = str(pudl_in)
+    pudl_settings["data_dir"] = str(data_dir)
+    pudl_settings["settings_dir"] = str(settings_dir)
 
     # Everything else goes into outputs, generally organized by type of file:
     pudl_out = pathlib.Path(pudl_out).expanduser().resolve()
-    ps["pudl_out"] = str(pudl_out)
+    pudl_settings["pudl_out"] = str(pudl_out)
     # One directory per output format, datapackage, sqlite, etc.:
-    for fmt in pc.output_formats:
-        ps[f"{fmt}_dir"] = str(pudl_out / fmt)
+    for fmt in ["sqlite", "parquet"]:
+        pudl_settings[f"{fmt}_dir"] = str(pudl_out / fmt)
 
-    ferc1_db_file = pathlib.Path(ps['sqlite_dir'], 'ferc1.sqlite')
-    ps['ferc1_db'] = "sqlite:///" + str(ferc1_db_file.resolve())
+    ferc1_db_file = pathlib.Path(pudl_settings['sqlite_dir'], 'ferc1.sqlite')
+    pudl_settings['ferc1_db'] = "sqlite:///" + str(ferc1_db_file.resolve())
 
-    ps['pudl_db'] = "sqlite:///" + str(pathlib.Path(
-        ps['sqlite_dir'], 'pudl.sqlite'))
+    pudl_settings['pudl_db'] = "sqlite:///" + str(pathlib.Path(
+        pudl_settings['sqlite_dir'], 'pudl.sqlite'))
 
-    ps['censusdp1tract_db'] = "sqlite:///" + str(pathlib.Path(
-        ps['sqlite_dir'], 'censusdp1tract.sqlite'))
-    return ps
+    pudl_settings['censusdp1tract_db'] = "sqlite:///" + str(pathlib.Path(
+        pudl_settings['sqlite_dir'], 'censusdp1tract.sqlite'))
+    return pudl_settings
 
 
 def init(pudl_in, pudl_out, clobber=False):
@@ -160,10 +157,10 @@ def init(pudl_in, pudl_out, clobber=False):
 
     """
     # Generate paths for the workspace:
-    ps = derive_paths(pudl_in, pudl_out)
+    pudl_settings = derive_paths(pudl_in, pudl_out)
 
     # Create tmp directory
-    tmp_dir = pathlib.Path(ps["data_dir"], "tmp")
+    tmp_dir = pathlib.Path(pudl_settings["data_dir"], "tmp")
     tmp_dir.mkdir(parents=True, exist_ok=True)
 
     # These are files that may exist in the package_data directory, but that
@@ -171,14 +168,14 @@ def init(pudl_in, pudl_out, clobber=False):
     ignore_files = ['__init__.py', '.gitignore']
 
     # Make a settings directory in the workspace, and deploy settings files:
-    settings_dir = pathlib.Path(ps['settings_dir'])
+    settings_dir = pathlib.Path(pudl_settings['settings_dir'])
     settings_dir.mkdir(parents=True, exist_ok=True)
     settings_pkg = "pudl.package_data.settings"
     deploy(settings_pkg, settings_dir, ignore_files, clobber=clobber)
 
     # Make several output directories:
-    for fmt in pc.output_formats:
-        format_dir = pathlib.Path(ps["pudl_out"], fmt)
+    for fmt in ["sqlite", "parquet"]:
+        format_dir = pathlib.Path(pudl_settings["pudl_out"], fmt)
         format_dir.mkdir(parents=True, exist_ok=True)
 
 

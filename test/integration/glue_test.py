@@ -21,7 +21,7 @@ def test_unmapped_plants_ferc1(pudl_settings_fixture, ferc1_engine):
     actually_unmapped_plants = (
         pudl.glue.ferc1_eia.
         get_unmapped_plants_ferc1(pudl_settings_fixture,
-                                  pc.working_partitions['ferc1']['years'])
+                                  pc.WORKING_PARTITIONS['ferc1']['years'])
     )
     if len(actually_unmapped_plants) != 0:
         raise AssertionError(
@@ -33,7 +33,7 @@ def test_unmapped_plants_ferc1(pudl_settings_fixture, ferc1_engine):
     db_plants = (
         pudl.glue.ferc1_eia.
         get_db_plants_ferc1(pudl_settings_fixture,
-                            pc.working_partitions['ferc1']['years']).
+                            pc.WORKING_PARTITIONS['ferc1']['years']).
         set_index(["utility_id_ferc1", "plant_name_ferc1"])
     )
     # Read in the mapped plants... but ditch Xcel's Comanche:
@@ -77,7 +77,7 @@ def test_unmapped_utils_ferc1(pudl_settings_fixture, ferc1_engine):
     db_plants = (
         pudl.glue.ferc1_eia.
         get_db_plants_ferc1(pudl_settings_fixture,
-                            pc.working_partitions['ferc1']['years']).
+                            pc.WORKING_PARTITIONS['ferc1']['years']).
         set_index(["utility_id_ferc1", "plant_name_ferc1"])
     )
     # Read in the mapped plants... but ditch Xcel's Comanche:

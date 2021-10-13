@@ -59,7 +59,7 @@ repos:
 
 # Check for errors in restructuredtext (.rst) files under the doc hierarchy
 - repo: https://github.com/PyCQA/doc8
-  rev: 0.9.0
+  rev: 0.9.1
   hooks:
   - id: doc8
     args: [--config, tox.ini]
@@ -80,4 +80,4 @@ repos:
       verbose: false
       pass_filenames: false
       always_run: true
-      entry: pytest --ignore=src/pudl/load/csv.py --ignore=src/pudl/load/metadata.py --ignore=src/pudl/convert/datapkg_to_sqlite.py --ignore=src/pudl/convert/merge_datapkgs.py --doctest-modules src/pudl test/unit
+      entry: pytest --doctest-modules src/pudl test/unit

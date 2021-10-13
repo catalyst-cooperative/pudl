@@ -119,7 +119,7 @@ def get_db_plants_ferc1(pudl_settings, years):
     # Need to be able to use years outside the "valid" range if we're trying
     # to get new plant ID info...
     for yr in years:
-        if yr not in pc.data_years['ferc1']:
+        if yr not in pc.WORKING_PARTITIONS['ferc1']['years']:
             raise ValueError(
                 f"Input year {yr} is not available in the FERC data.")
 

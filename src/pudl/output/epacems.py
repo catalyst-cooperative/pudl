@@ -137,15 +137,17 @@ def epacems(
     """Load EPA CEMS data from PUDL with optional subsetting.
 
     Args:
-        states (Optional[Sequence[str]], optional): subset by state abbreviation. Defaults to None (gets all states).
-        years (Optional[Sequence[int]], optional): subset by year. Defaults to None (gets all years).
-        columns (Optional[Sequence[str]], optional): subset by column. Defaults to None (gets all columns).
-        epacems_path (Optional[Path], optional): path to parquet dir. By default it automatically loads the path from pudl.workspace
+        states: subset by state abbreviation.  Defaults to None (which gets all states).
+        years: subset by year. Defaults to None (which gets all years).
+        columns: subset by column. Defaults to None (which gets all columns).
+        epacems_path: path to parquet dir. By default it automatically loads the path
+            from :mod:`pudl.workspace`
 
     Returns:
-        dd.DataFrame: epacems data
+        The requested epacems data
+
     """
-    all_states = pudl.constants.working_partitions['epacems']['states']
+    all_states = pudl.constants.WORKING_PARTITIONS['epacems']['states']
     if states is None:
         states = all_states  # all states
     else:
@@ -155,7 +157,7 @@ def epacems(
                 f"These input states are not in our dataset: {nonexistent}")
         states = list(states)
 
-    all_years = pudl.constants.working_partitions['epacems']['years']
+    all_years = pudl.constants.WORKING_PARTITIONS['epacems']['years']
     if years is None:
         years = all_years
     else:
