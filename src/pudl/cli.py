@@ -138,7 +138,7 @@ def main():
         )
 
     pudl.etl.etl(
-        etl_settings_bundle=script_settings['datapkg_bundle_settings'],
+        etl_settings=script_settings["etl_settings"],
         pudl_settings=pudl_settings,
         clobber=args.clobber,
         use_local_cache=not args.bypass_local_cache,

@@ -4,7 +4,7 @@ import unittest
 from pydantic import ValidationError
 
 from pudl.settings import (DatasetsSettings, Eia860Settings, Eia923Settings,
-                           Ferc1Settings)
+                           EiaSettings, EpaCemsSettings, Ferc1Settings)
 
 
 class TestFerc1Settings(unittest.TestCase):
@@ -54,6 +54,37 @@ class TestFerc1Settings(unittest.TestCase):
         self.assertListEqual(expected_tables, returned_settings.tables)
 
 
+class TestEpaCemsSettings(unittest.TestCase):
+    """Test EpaCems settings validation."""
+
+    def test_not_working_state(self):
+        """Make sure a validation error is being thrown when given an invalid state."""
+        with self.assertRaises(ValidationError):
+            EpaCemsSettings(states=["fake_state"])
+
+    def test_duplicate_sort_states(self):
+        """Test states are sorted and deduplicated."""
+        returned_settings = EpaCemsSettings(
+            states=["CA", "CA", "AL"])
+        expected_states = ["AL", "CA"]
+
+        self.assertListEqual(expected_states, returned_settings.states)
+
+    def test_default_states(self):
+        """Test all states are used as default."""
+        returned_settings = EpaCemsSettings()
+
+        expected_states = EpaCemsSettings.working_states
+        self.assertListEqual(expected_states, returned_settings.states)
+
+    def test_all_states(self):
+        """Test all states are used as default."""
+        returned_settings = EpaCemsSettings(states=["all"])
+
+        expected_states = EpaCemsSettings.working_states
+        self.assertListEqual(expected_states, returned_settings.states)
+
+
 class TestEIA860Settings(unittest.TestCase):
     """
     Test EIA860 setting validation.
@@ -68,6 +99,30 @@ class TestEIA860Settings(unittest.TestCase):
 
         with self.assertRaises(ValidationError):
             settings_cls(eia860m=True)
+
+
+class TestEiaSettings(unittest.TestCase):
+    """Test pydantic model that validates EIA datasets."""
+
+    def test_eia923_dependency(self):
+        """Test 860 is added if 923 is specified and 860 is not."""
+        eia923_settings = Eia923Settings()
+        settings = EiaSettings(eia923=eia923_settings)
+
+        assert settings.eia860
+
+        self.assertListEqual(settings.eia860.years, Eia860Settings.working_years)
+        self.assertListEqual(settings.eia860.tables, Eia860Settings.working_tables)
+
+    def test_eia860_dependency(self):
+        """Test 923 tables are added to eia860 if 923 is not specified."""
+        eia860_settings = Eia860Settings()
+        settings = EiaSettings(eia860=eia860_settings)
+
+        expected_tables = ['boiler_fuel_eia923', 'generation_eia923']
+
+        self.assertListEqual(settings.eia923.tables, expected_tables)
+        self.assertListEqual(settings.eia923.years, eia860_settings.years)
 
 
 class TestDatasetsSettings(unittest.TestCase):
@@ -85,21 +140,7 @@ class TestDatasetsSettings(unittest.TestCase):
         returned_tables = settings.ferc1.tables
         self.assertListEqual(expected_tables, returned_tables)
 
-        expected_years = Eia860Settings.working_years
-        returned_years = settings.eia860.years
-        self.assertListEqual(expected_years, returned_years)
-
-        expected_tables = Eia860Settings.working_tables
-        returned_tables = settings.eia860.tables
-        self.assertListEqual(expected_tables, returned_tables)
-
-        expected_years = Eia923Settings.working_years
-        returned_years = settings.eia923.years
-        self.assertListEqual(expected_years, returned_years)
-
-        expected_tables = Eia923Settings.working_tables
-        returned_tables = settings.eia923.tables
-        self.assertListEqual(expected_tables, returned_tables)
+        assert settings.eia, "EIA settings were not added."
 
     def test_glue(self):
         """Test glue settings get added when ferc and eia are requested."""
@@ -109,28 +150,24 @@ class TestDatasetsSettings(unittest.TestCase):
         assert settings.glue.eia
         assert settings.glue.ferc1
 
-    def test_eia923_dependency(self):
-        """Test 860 is added if 923 is specified and 860 is not."""
-        eia923_settings = Eia923Settings()
-        settings = DatasetsSettings(eia923=eia923_settings)
 
-        assert settings.eia860
+class TestGlobalConfig(unittest.TestCase):
+    """Test global pydantic model config works."""
 
-        self.assertListEqual(settings.eia860.years, Eia860Settings.working_years)
-        self.assertListEqual(settings.eia860.tables, Eia860Settings.working_tables)
-
-    def test_eia860_dependency(self):
-        """Test 923 tables are added to eia860 if 923 is not specified."""
-        eia860_settings = Eia860Settings()
-        settings = DatasetsSettings(eia860=eia860_settings)
-
-        expected_tables = ['boiler_fuel_eia923', 'generation_eia923']
-
-        self.assertListEqual(settings.eia923.tables, expected_tables)
-        self.assertListEqual(settings.eia923.years, eia860_settings.years)
-
-    @unittest.skip("Pydantic allows you to instantiate a Model with an unkown arg.")
     def test_unknown_dataset(self):
         """Test unkown dataset fed to DatasetsSettings."""
         with self.assertRaises(ValidationError):
             DatasetsSettings().parse_obj({"unknown_data": "data"})
+
+        with self.assertRaises(ValidationError):
+            EiaSettings().parse_obj({"unknown_data": "data"})
+
+    def test_immutability(self):
+        """Test immutability config is working correctly."""
+        with self.assertRaises(TypeError):
+            settings = DatasetsSettings()
+            settings.eia = EiaSettings()
+
+        with self.assertRaises(TypeError):
+            settings = EiaSettings()
+            settings.eia860 = Eia860Settings()

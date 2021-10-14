@@ -2,7 +2,10 @@
 from typing import ClassVar, List
 
 import pandas as pd
-from pydantic import BaseModel, root_validator, validator
+from pydantic import BaseModel as PydanticBaseModel
+from pydantic import root_validator, validator
+
+from pudl.metadata.enums import EPACEMS_STATES
 
 
 def _validate_years(cls, years: List[int]) -> List[int]:
@@ -49,6 +52,16 @@ def _validate_tables(cls, tables: List[str]) -> List[str]:
     return sorted(set(tables))
 
 
+class BaseModel(PydanticBaseModel):
+    """BaseModel with global configuration."""
+
+    class Config:
+        """Pydantic config."""
+
+        allow_mutation = False
+        extra = "forbid"
+
+
 class Ferc1Settings(BaseModel):
     """
     An immutable pydantic model to validate FERC1 settings.
@@ -74,11 +87,6 @@ class Ferc1Settings(BaseModel):
 
     years: List[int] = working_years
     tables: List[str] = working_tables
-
-    class Config:
-        """Pydantic config."""
-
-        allow_mutation = False
 
     _validate_years = validator("years", allow_reuse=True)(_validate_years)
     _validate_tables = validator("tables", allow_reuse=True)(_validate_tables)
@@ -111,11 +119,6 @@ class Eia860Settings(BaseModel):
     years: List[int] = working_years
     tables: List[str] = working_tables
     eia860m: bool = False
-
-    class Config:
-        """Pydantic config."""
-
-        allow_mutation = False
 
     _validate_years = validator("years", allow_reuse=True)(_validate_years)
     _validate_tables = validator("tables", allow_reuse=True)(_validate_tables)
@@ -169,11 +172,6 @@ class Eia923Settings(BaseModel):
     years: List[int] = working_years
     tables: List[str] = working_tables
 
-    class Config:
-        """Pydantic config."""
-
-        allow_mutation = False
-
     _validate_years = validator("years", allow_reuse=True)(_validate_years)
     _validate_tables = validator("tables", allow_reuse=True)(_validate_tables)
 
@@ -190,64 +188,62 @@ class GlueSettings(BaseModel):
     eia: bool = True
     ferc1: bool = True
 
-    class Config:
-        """Pydantic config."""
 
-        allow_mutation = False
-
-
-class DatasetsSettings(BaseModel):
+class EpaCemsSettings(BaseModel):
     """
-    An immutable pydantic model to validate PUDL Dataset settings.
+    An immutable pydantic nodel to validate EPA CEMS settings.
 
     Attributes:
-        ferc1 (Ferc1Settings): Immutable pydantic model to validate ferc1 settings.
-        eia860 (Eia860Settings): Immutable pydantic model to validate eia860 settings.
-        eia923 (Eia923Settings): Immutable pydantic model to validate eia923 settings.
-        glue (GlueSettings): Immutable pydantic model to validate glue settings.
+        states (List[str]): List of states to validate.
+        years (List[str]): List of years to validate.
     """
 
-    ferc1: Ferc1Settings = None
+    working_years: ClassVar[List[int]] = list(range(1995, 2021))
+    working_states: ClassVar[List[str]] = sorted(set(EPACEMS_STATES))
+
+    years: List[int] = working_years
+    states: List[str] = working_states
+
+    _validate_years = validator("years", allow_reuse=True)(_validate_years)
+
+    @validator("states")
+    def validate_states(cls, states: List[str]) -> List[str]:
+        """
+        Validate states of a BaseModel dataset.
+
+        This function checks the states are available. They are sorted and deduplicated.
+        If states is "all" then all working states are used.
+
+        Args:
+            states (List[int]): List of states to check.
+
+        Returns:
+            states (List[int]): List of sorted and deduplicated states.
+
+        Raises:
+            ValueError: some of the states are not available.
+        """
+        if states == ["all"]:
+            states = cls.working_states
+
+        states_not_working = set(states) - set(cls.working_states)
+
+        if len(states_not_working) > 0:
+            raise ValueError(f"'{states_not_working}' states are not available.")
+        return sorted(set(states))
+
+
+class EiaSettings(BaseModel):
+    """
+    An immutable pydantic model to validate EIA datasets settings.
+
+    Attributes:
+        eia860 (Eia860Settings): Immutable pydantic model to validate eia860 settings.
+        eia923 (Eia923Settings): Immutable pydantic model to validate eia923 settings.
+    """
+
     eia860: Eia860Settings = None
     eia923: Eia923Settings = None
-    glue: GlueSettings = None
-
-    class Config:
-        """Pydantic config."""
-
-        allow_mutation = False
-
-    @root_validator(pre=True)
-    def default_load_all(cls, values):
-        """
-        If no datasets are specified default to all.
-
-        Args:
-            values (Dict[str, BaseModel]): dataset settings.
-
-        Returns:
-            values (Dict[str, BaseModel]): dataset settings.
-        """
-        if not any(values.values()):
-            values["ferc1"] = Ferc1Settings()
-            values["eia860"] = Eia860Settings()
-            values["eia923"] = Eia923Settings()
-        return values
-
-    @root_validator
-    def add_glue_settings(cls, values):
-        """
-        Add glue settings if ferc1 and eia data are both requested.
-
-        Args:
-            values (Dict[str, BaseModel]): dataset settings.
-
-        Returns:
-            values (Dict[str, BaseModel]): dataset settings.
-        """
-        if values.get("ferc1") and (values.get("eia860") or values.get("eia923")):
-            values["glue"] = GlueSettings()
-        return values
 
     @root_validator
     def check_eia_dependencies(cls, values):
@@ -274,6 +270,54 @@ class DatasetsSettings(BaseModel):
             values["eia860"] = Eia860Settings(
                 years=eia923.years
             )
+        return values
+
+
+class DatasetsSettings(BaseModel):
+    """
+    An immutable pydantic model to validate PUDL Dataset settings.
+
+    Attributes:
+        ferc1 (Ferc1Settings): Immutable pydantic model to validate ferc1 settings.
+        eia860 (Eia860Settings): Immutable pydantic model to validate eia860 settings.
+        eia923 (Eia923Settings): Immutable pydantic model to validate eia923 settings.
+        glue (GlueSettings): Immutable pydantic model to validate glue settings.
+    """
+
+    ferc1: Ferc1Settings = None
+    eia: EiaSettings = None
+    glue: GlueSettings = None
+    epacems: EpaCemsSettings = None
+
+    @root_validator(pre=True)
+    def default_load_all(cls, values):
+        """
+        If no datasets are specified default to all.
+
+        Args:
+            values (Dict[str, BaseModel]): dataset settings.
+
+        Returns:
+            values (Dict[str, BaseModel]): dataset settings.
+        """
+        if not any(values.values()):
+            values["ferc1"] = Ferc1Settings()
+            values["eia"] = EiaSettings()
+        return values
+
+    @root_validator
+    def add_glue_settings(cls, values):
+        """
+        Add glue settings if ferc1 and eia data are both requested.
+
+        Args:
+            values (Dict[str, BaseModel]): dataset settings.
+
+        Returns:
+            values (Dict[str, BaseModel]): dataset settings.
+        """
+        if values.get("ferc1") and values.get("eia"):
+            values["glue"] = GlueSettings()
         return values
 
     def get_datasets(cls):
