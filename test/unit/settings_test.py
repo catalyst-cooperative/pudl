@@ -4,7 +4,28 @@ import unittest
 from pydantic import ValidationError
 
 from pudl.settings import (DatasetsSettings, Eia860Settings, Eia923Settings,
-                           EiaSettings, EpaCemsSettings, Ferc1Settings)
+                           EiaSettings, EpaCemsSettings, Ferc1Settings,
+                           Ferc1ToSqliteSettings, GenericDatasetSettings)
+
+
+class TestGenericDatasetSettings(unittest.TestCase):
+    """Test generic dataset behavior."""
+
+    def test_abstract_property_error(self):
+        """Test GenericDatasetSettings forces you to add working tables, years."""
+        with self.assertRaises(TypeError):
+            class Test(GenericDatasetSettings):
+                pass
+            Test()
+
+
+class TestFerc1ToSqliteSettings(unittest.TestCase):
+    """Test Ferc1ToSqliteSettings."""
+
+    def test_ref_year(self):
+        """Test reference year is within working years."""
+        with self.assertRaises(ValidationError):
+            Ferc1ToSqliteSettings(ferc1_to_sqlite_refyear=1990)
 
 
 class TestFerc1Settings(unittest.TestCase):

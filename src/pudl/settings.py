@@ -1,14 +1,16 @@
 """Module for validating pudl etl settings."""
+import abc
 from typing import ClassVar, List
 
 import pandas as pd
 from pydantic import BaseModel as PydanticBaseModel
 from pydantic import root_validator, validator
 
+from pudl.extract.ferc1 import DBF_TABLES_FILENAMES
 from pudl.metadata.enums import EPACEMS_STATES
 
 
-def _validate_years(cls, years: List[int]) -> List[int]:
+def validate_years(cls, years: List[int]) -> List[int]:
     """
     Validate years of a Basemodel dataset.
 
@@ -23,6 +25,10 @@ def _validate_years(cls, years: List[int]) -> List[int]:
     Raises:
         ValueError: some of the years are not available.
     """
+    # Make sure the working tables are sorted too.
+    cls.working_years = cls.working_years
+    if not years:
+        years = cls.working_years
     years_not_working = set(years) - set(cls.working_years)
 
     if len(years_not_working) > 0:
@@ -30,7 +36,7 @@ def _validate_years(cls, years: List[int]) -> List[int]:
     return sorted(set(years))
 
 
-def _validate_tables(cls, tables: List[str]) -> List[str]:
+def validate_tables(cls, tables: List[str]) -> List[str]:
     """
     Validate tables of a BaseModel dataset.
 
@@ -45,6 +51,10 @@ def _validate_tables(cls, tables: List[str]) -> List[str]:
     Raises:
         ValueError: some of the tables are not available.
     """
+    # Make sure the working tables are sorted too.
+    cls.working_tables = sorted(cls.working_tables)
+    if not tables:
+        tables = cls.working_tables
     tables_not_working = set(tables) - set(cls.working_tables)
 
     if len(tables_not_working) > 0:
@@ -62,7 +72,39 @@ class BaseModel(PydanticBaseModel):
         extra = "forbid"
 
 
-class Ferc1Settings(BaseModel):
+class GenericDatasetSettings(BaseModel, abc.ABC):
+    """
+    An abstract pydantic model for generic datasets.
+
+    Attributes:
+        years (List[int]): List of years to validate.
+        tables (List[str]): List of table to validate.
+
+        working_years ClassVar[List[int]]: List of working years.
+        working_tables ClassVar[List[str]]: List of working table.
+    """
+
+    years: List[int] = None
+    tables: List[str] = None
+
+    _validate_years = validator("years", allow_reuse=True, always=True)(validate_years)
+    _validate_tables = validator("tables", allow_reuse=True,
+                                 always=True)(validate_tables)
+
+    @property
+    @abc.abstractmethod
+    def working_years(cls) -> List[int]:
+        """Abstract working year property."""
+        return cls.working_years
+
+    @property
+    @abc.abstractmethod
+    def working_tables(cls) -> List[str]:
+        """Abstract working tables property."""
+        return cls.working_tables
+
+
+class Ferc1Settings(GenericDatasetSettings):
     """
     An immutable pydantic model to validate FERC1 settings.
 
@@ -85,14 +127,8 @@ class Ferc1Settings(BaseModel):
         'plant_in_service_ferc1'
     ]
 
-    years: List[int] = working_years
-    tables: List[str] = working_tables
 
-    _validate_years = validator("years", allow_reuse=True)(_validate_years)
-    _validate_tables = validator("tables", allow_reuse=True)(_validate_tables)
-
-
-class Eia860Settings(BaseModel):
+class Eia860Settings(GenericDatasetSettings):
     """
     An immutable pydantic model to validate EIA860 settings.
 
@@ -116,12 +152,7 @@ class Eia860Settings(BaseModel):
     ]
     eia860m_date: ClassVar[str] = '2020-11'
 
-    years: List[int] = working_years
-    tables: List[str] = working_tables
     eia860m: bool = False
-
-    _validate_years = validator("years", allow_reuse=True)(_validate_years)
-    _validate_tables = validator("tables", allow_reuse=True)(_validate_tables)
 
     @validator("eia860m")
     def check_860m_date(cls, eia860m):
@@ -148,7 +179,7 @@ class Eia860Settings(BaseModel):
         return eia860m
 
 
-class Eia923Settings(BaseModel):
+class Eia923Settings(GenericDatasetSettings):
     """
     An immutable pydantic model to validate EIA923 settings.
 
@@ -168,12 +199,6 @@ class Eia923Settings(BaseModel):
         'coalmine_eia923',
         'fuel_receipts_costs_eia923'
     ]
-
-    years: List[int] = working_years
-    tables: List[str] = working_tables
-
-    _validate_years = validator("years", allow_reuse=True)(_validate_years)
-    _validate_tables = validator("tables", allow_reuse=True)(_validate_tables)
 
 
 class GlueSettings(BaseModel):
@@ -204,7 +229,7 @@ class EpaCemsSettings(BaseModel):
     years: List[int] = working_years
     states: List[str] = working_states
 
-    _validate_years = validator("years", allow_reuse=True)(_validate_years)
+    _validate_years = validator("years", allow_reuse=True)(validate_years)
 
     @validator("states")
     def validate_states(cls, states: List[str]) -> List[str]:
@@ -323,3 +348,28 @@ class DatasetsSettings(BaseModel):
     def get_datasets(cls):
         """Gets dictionary of dataset settings."""
         return vars(cls)
+
+
+class Ferc1ToSqliteSettings(GenericDatasetSettings):
+    """
+    An immutable pydantic nodel to validate EPA CEMS settings.
+
+    Attributes:
+        tables (List[str]): List of states to validate.
+        years (List[str]): List of years to validate.
+        ferc1_to_sqlite_refyear (int): reference year. Defaults to most recent year.
+    """
+
+    working_years: ClassVar[List[int]] = list(range(1994, 2020))
+    working_tables: ClassVar[List[str]] = DBF_TABLES_FILENAMES.keys()
+
+    refyear: int = max(working_tables)
+    bad_cols: tuple = ()
+
+    @validator("refyear")
+    def check_reference_year(cls, refyear: int) -> int:
+        """Checks reference year is within available years."""
+        if refyear not in cls.working_years:
+            raise ValueError(f"Reference year {refyear} is outside the range of "
+                             f"available FERC Form 1 data {cls.working_years}.")
+        return refyear
