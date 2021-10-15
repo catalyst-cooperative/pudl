@@ -148,12 +148,13 @@ def plants_small_ferc1(pudl_engine):
     """Pull a useful dataframe related to the FERC Form 1 small plants."""
     plants_small_df = (
         pd.read_sql_table("plants_small_ferc1", pudl_engine)
-        .merge(pd.read_sql_table("utilities_ferc1", pudl_engine),
-               on="utility_id_ferc1")
+        .merge(plants_utils_ferc1(pudl_engine),
+               on=['utility_id_ferc1', 'plant_name_ferc1'])
         .pipe(pudl.helpers.organize_cols, ['report_year',
                                            'utility_id_ferc1',
                                            'utility_id_pudl',
                                            'utility_name_ferc1',
+                                           'plant_id_pudl',
                                            'plant_name_ferc1',
                                            "record_id"])
     )
