@@ -26,7 +26,8 @@ def validate_years(cls, years: List[int]) -> List[int]:
         ValueError: some of the years are not available.
     """
     # Make sure the working tables are sorted too.
-    cls.working_years = cls.working_years
+    cls.working_years = sorted(cls.working_years)
+    # TODO (bendnorman): Hacky fix to not set defaults usings abstract property
     if not years:
         years = cls.working_years
     years_not_working = set(years) - set(cls.working_years)
@@ -53,6 +54,7 @@ def validate_tables(cls, tables: List[str]) -> List[str]:
     """
     # Make sure the working tables are sorted too.
     cls.working_tables = sorted(cls.working_tables)
+    # TODO (bendnorman): Hacky fix to not set defaults usings abstract property
     if not tables:
         tables = cls.working_tables
     tables_not_working = set(tables) - set(cls.working_tables)
