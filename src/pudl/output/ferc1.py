@@ -145,26 +145,11 @@ def fuel_by_plant_ferc1(pudl_engine, thresh=0.5):
 
 
 def plants_small_ferc1(pudl_engine):
-    """Pull a useful dataframe related to the FERC Form 1 small plants.
-
-    The small generators table has two fields for plant name the "raw"
-    plant_name_original and the cleaned plant_name_ferc1. This is confusing because the
-    plant_name_ferc1 field does not match up with the plant_name_ferc1 filed in other
-    tables. This is why we have to do a left_on right_on merge when we combine it with
-    the plant and utility pudl ids. We add the temporary suffix _raw to the
-    plant_id_ferc1 column from the plants_utils_ferc1 table so that we can delete it
-    later and not have duplicate plant_id_ferc1 columns with different inputs. If we
-    kept it, the plant_id_ferc1 column from the plants_utils_ferc1 field would be the
-    same as the plants_original field.
-
-    """
+    """Pull a useful dataframe related to the FERC Form 1 small plants."""
     plants_small_df = (
         pd.read_sql_table("plants_small_ferc1", pudl_engine)
         .merge(plants_utils_ferc1(pudl_engine),
-               left_on=['utility_id_ferc1', 'plant_name_original'],
-               right_on=['utility_id_ferc1', 'plant_name_ferc1'],
-               how='left', suffixes=('', '_raw'))
-        .drop(columns=['plant_name_ferc1_raw'])
+               on=["utility_id_ferc1", "plant_name_ferc1"], how='left')
         .pipe(pudl.helpers.organize_cols, ['report_year',
                                            'utility_id_ferc1',
                                            'utility_id_pudl',
