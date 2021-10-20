@@ -204,6 +204,31 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
             "fields": [
                 "plant_id_eia",
                 "report_date",
+                "fuel_type",
+                "fuel_type_code_pudl",
+                "fuel_type_code_aer",
+                "prime_mover_code",
+                "fuel_consumed_units",
+                "fuel_consumed_for_electricity_units",
+                "fuel_mmbtu_per_unit",
+                "fuel_consumed_mmbtu",
+                "fuel_consumed_for_electricity_mmbtu",
+                "net_generation_mwh",
+            ],
+            "primary_key": [
+                "plant_id_eia",
+                "report_date",
+                "fuel_type",
+                "prime_mover_code"
+            ],
+        },
+        "sources": ["eia923"],
+    },
+    "nuclear_unit_fuel_eia923": {
+        "schema": {
+            "fields": [
+                "plant_id_eia",
+                "report_date",
                 "nuclear_unit_id",
                 "fuel_type",
                 "fuel_type_code_pudl",
@@ -216,15 +241,13 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
                 "fuel_consumed_for_electricity_mmbtu",
                 "net_generation_mwh",
             ],
-            # Need to fix transform function to ensure this natural primary key
-            # See https://github.com/catalyst-cooperative/pudl/issues/851
-            # "primary_key": [
-            #     "plant_id_eia",
-            #     "report_date",
-            #     "nuclear_unit_id",
-            #     "fuel_type",
-            #     "prime_mover_code"
-            # ],
+            "primary_key": [
+                "plant_id_eia",
+                "report_date",
+                "nuclear_unit_id",
+                "fuel_type",
+                "prime_mover_code"
+            ],
         },
         "sources": ["eia923"],
     },
