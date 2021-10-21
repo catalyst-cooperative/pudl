@@ -115,8 +115,8 @@ def _backfill_nuclear_unit_id(nuc_fuel: pd.DataFrame) -> pd.DataFrame:
                                                                             "plant_id_eia"].map(plant_to_nuc_id_map)
 
     # If we aren't able to impute nuclear_unit_id, fill them UNK.
-    missing_nuc_is = nuc_fuel.nuclear_unit_id.isna()
-    nuc_fuel.loc[missing_nuc_is, "nuclear_unit_id"] = "UNK"
+    missing_nuclear_unit_id = nuc_fuel.nuclear_unit_id.isna()
+    nuc_fuel.loc[missing_nuclear_unit_id, "nuclear_unit_id"] = "UNK"
 
     return nuc_fuel
 
