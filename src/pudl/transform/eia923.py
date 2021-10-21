@@ -507,6 +507,7 @@ def nuclear_unit_fuel(nuclear_unit_fuel: pd.DataFrame, eia923_transformed_dfs: D
     """Transforms the nuclear_unit_fuel_eia923 table.
 
     Transformations include:
+
     * Backfill nuclear_unit_ids for 2001 and 2002.
     * Set all prime_mover_codes to 'ST'.
     * Aggregate remaining duplicate units.
