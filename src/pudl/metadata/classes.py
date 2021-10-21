@@ -144,6 +144,7 @@ class Base(pydantic.BaseModel):
         validate_all: bool = True
         validate_assignment: bool = True
         extra: str = 'forbid'
+        arbitrary_types_allowed = True
 
     def dict(self, *args, by_alias=True, **kwargs) -> dict:  # noqa: A003
         """Return as a dictionary."""
@@ -357,37 +358,70 @@ class Encoder(Base):
     code_fixes: Dict[String, String] = {}
     ignored_codes: List[String] = []
 
-    class Config:
-        """Configuration for the Encoder model."""
+    @pydantic.validator("df")
+    def _df_is_encoding_table(cls, value, values):  # noqa: N805
+        errors = []
+        if "code" not in value.columns or "description" not in value.columns:
+            errors.append(
+                "Encoding tables must contain both 'code' & 'description' columns."
+            )
+        if errors:
+            raise ValueError(format_errors(*errors, pydantic=True))
+        return value
 
-        arbitrary_types_allowed = True
+    @pydantic.root_validator()
+    def _good_and_ignored_codes_are_disjoint(cls, values):  # noqa: N805
+        errors = []
+        if set(values["df"]["code"]).intersection(values["ignored_codes"]):
+            errors.append(
+                "Overlap found between good and ignored codes. "
+                f"These must be disjoint sets: "
+                f"{values['df']['code']=}; {values.ignored_codes=}"
+            )
+        if errors:
+            raise ValueError(format_errors(*errors, pydantic=True))
+        return values
 
-    @pydantic.root_validator
-    def _check_no_overlapping_codes(cls, values):  # noqa: N805
-        """Verify there's no overlap between good, fixable, and bad codes."""
-        if (
-            set(values["df"]["code"]).intersection(values["ignored_codes"])
-            or set(values["df"]["code"]).intersection(values["code_fixes"])
-            or set(values["code_fixes"]).intersection(values["ignored_codes"])
-        ):
-            raise ValueError(
-                "Overlap found between good, bad, and fixable codes.\n"
-                f"These must all be disjoint sets:\n"
-                f"{values['df']['code']=}\n"
-                f"{values.ignored_codes=}\n"
+    @pydantic.root_validator()
+    def _good_and_fixable_codes_are_disjoint(cls, values):  # noqa: N805
+        errors = []
+        if set(values["df"]["code"]).intersection(values["code_fixes"]):
+            errors.append(
+                "Overlap found between good and fixable codes. "
+                f"These must be disjoint sets: "
+                f"{values['df']['code']=} "
                 f"code_fixes.keys()={list(values['code_fixes'].keys())}"
             )
+        if errors:
+            raise ValueError(format_errors(*errors, pydantic=True))
+        return values
+
+    @pydantic.root_validator()
+    def _fixable_and_ignored_codes_are_disjoint(cls, values):  # noqa: N805
+        errors = []
+        if set(values["code_fixes"]).intersection(values["ignored_codes"]):
+            errors.append(
+                "Overlap found between fixable and ignored codes. "
+                f"These must be disjoint sets: "
+                f"{values['df']['code']=} "
+                f"code_fixes.keys()={list(values['code_fixes'].keys())}"
+            )
+        if errors:
+            raise ValueError(format_errors(*errors, pydantic=True))
         return values
 
     @pydantic.root_validator
     def _check_fixed_codes_are_good_codes(cls, values):  # noqa: N805
         """Check that every every fixed code is also one of the good codes."""
+        errors = []
         if set(values["code_fixes"].values()).difference(values["df"]["code"]):
-            raise ValueError(
-                "Some fixed codes aren't in the list of good codes:\n"
-                f"{values['df']['code']=} \n"
-                f"code_fixes.values()={list(values.code_fixes.values())} \n"
+            errors.append(
+                "Some fixed codes aren't in the list of good codes: "
+                f"{values['df']['code']=} "
+                f"code_fixes.values()={list(values.code_fixes.values())}"
             )
+        if errors:
+            raise ValueError(format_errors(*errors, pydantic=True))
         return values
 
     @property
@@ -398,14 +432,32 @@ class Encoder(Base):
         code_map.update({code: pd.NA for code in self.ignored_codes})
         return code_map
 
-    def encode(self, col: pd.Series) -> pd.Series:
+    def encode(
+        self,
+        col: pd.Series,
+        dtype: Union[type, None] = None,
+    ) -> pd.Series:
         """Apply the stored code mapping to an input Series."""
         # Every value in the Series should appear in the map. If that's not the
         # case we want to hear about it so we don't wipe out data unknowingly.
         unknown_codes = set(col.dropna()).difference(self.code_map)
         if unknown_codes:
             raise ValueError(f"Found unknown codes while encoding: {unknown_codes=}")
-        return col.map(self.code_map).convert_dtypes()
+        col = col.map(self.code_map)
+        if dtype:
+            col = col.astype(dtype)
+
+        return col
+
+    @staticmethod
+    def dict_from_id(x: str) -> dict:
+        """Look up the encoder by coding table name in the metadata."""
+        return copy.deepcopy(RESOURCE_METADATA[x]).get("encoder", None)
+
+    @classmethod
+    def from_id(cls, x: str) -> 'Encoder':
+        """Construct from the PUDL identifier (`Resource.name`)."""
+        return cls(**cls.dict_from_id(x))
 
 
 class Field(Base):
@@ -562,6 +614,13 @@ class Field(Base):
             comment=self.description
         )
 
+    def encode(
+        self,
+        col: pd.Series,
+        dtype: Union[type, None] = None
+    ) -> pd.Series:
+        """Re-code the column if it has an encoder."""
+        return self.encoder.encode(col, dtype=dtype) if self.encoder else col
 
 # ---- Classes: Resource ---- #
 
@@ -597,6 +656,10 @@ class ForeignKey(Base):
             if len(value.fields) != len(values["fields_"]):
                 raise ValueError("fields and reference.fields are not equal length")
         return value
+
+    def is_simple(self) -> bool:
+        """Indicate whether the FK relationship contains a single column."""
+        return True if len(self.fields) == 1 else False
 
     def to_sql(self) -> sa.ForeignKeyConstraint:
         """Return equivalent SQL Foreign Key."""
@@ -871,6 +934,7 @@ class Resource(Base):
     licenses: List[License] = []
     sources: List[Source] = []
     keywords: List[String] = []
+    encoder: Encoder = None
 
     _check_unique = _validator(
         "contributors",
@@ -926,6 +990,8 @@ class Resource(Base):
         # Expand sources
         sources = obj.get("sources", [])
         obj["sources"] = [Source.dict_from_id(value) for value in sources]
+        encoder = obj.get("encoder", None)
+        obj["encoder"] = encoder
         # Expand licenses (assign CC-BY-4.0 by default)
         licenses = obj.get("licenses", ["cc-by-4.0"])
         obj["licenses"] = [License.dict_from_id(value) for value in licenses]
@@ -957,6 +1023,11 @@ class Resource(Base):
     def from_id(cls, x: str) -> "Resource":
         """Construct from PUDL identifier (`resource.name`)."""
         return cls(**cls.dict_from_id(x))
+
+    def get_field(self, name: str) -> Field:
+        """Return field with the given name if it's part of the Resources."""
+        names = [field.name for field in self.schema.fields]
+        return self.schema.fields[names.index(name)]
 
     def to_sql(
         self,
@@ -1289,24 +1360,14 @@ class Resource(Base):
 
     def encode(self, df: pd.DataFrame) -> pd.DataFrame:
         """Standardize coded columns using the foreign column they refer to."""
-        for fk in self.schema.foreign_keys:
-            ref_resource = Resource.from_id(fk.reference.resource)
-            ref_cols = [
-                col for col in ref_resource.schema.fields
-                if col.name in fk.reference.fields
-            ]
-            if len(ref_cols) == 1 and ref_cols[0].encoder:
-                col_to_encode = [
-                    col for col in self.schema.fields if col.name == fk.fields[0]
-                ][0]
-                logger.info(
-                    f"Encoding {self.name}.{col_to_encode.name} "
-                    f"to match {ref_resource.name}.{ref_cols[0].name}"
+        for field in self.schema.fields:
+            if field.encoder:
+                logger.info(f"Recoding {self.name}.{field.name}")
+                df[field.name] = field.encoder.encode(
+                    col=df[field.name],
+                    dtype=field.to_pandas_dtype()
                 )
-                df[col_to_encode.name] = ref_cols[0].encoder.encode(
-                    df[col_to_encode.name])
         return df
-
 
 # ---- Package ---- #
 
@@ -1412,7 +1473,24 @@ class Package(Base):
                 i = len(resources)
                 if len(names) > i:
                     resources += [Resource.dict_from_id(x) for x in names[i:]]
+
+        # Add per-column encoders
+        for resource in resources:
+            for fk in resource["schema"]["foreign_keys"]:
+                encoder = Encoder.dict_from_id(fk["reference"]["resource"])
+                if len(fk["fields"]) == 1 and encoder:
+                    # fk["fields"] is a one element list, get the one element:
+                    field = fk["fields"][0]
+                    field_names = [f["name"] for f in resource["schema"]["fields"]]
+                    idx = field_names.index(field)
+                    resource["schema"]["fields"][idx]["encoder"] = encoder
+
         return cls(name="pudl", resources=resources)
+
+    def get_resource(self, name: str) -> Resource:
+        """Return the resource with the given name if it is in the Package."""
+        names = [resource.name for resource in self.resources]
+        return self.resources[names.index(name)]
 
     def to_rst(self, path: str) -> None:
         """Output to an RST file."""

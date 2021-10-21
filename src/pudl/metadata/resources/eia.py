@@ -1,6 +1,9 @@
 """Definitions for the glue/crosswalk tables that connect data groups."""
 from typing import Any, Dict
 
+from pudl.metadata.codes import (ENERGY_SOURCES_EIA,
+                                 FUEL_TRANSPORTATION_MODES_EIA)
+
 RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
     "boiler_fuel_eia923": {
         "schema": {
@@ -101,6 +104,7 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
                 "exclude": ["plants_small_ferc1"]
             },
         },
+        "encoder": ENERGY_SOURCES_EIA,
         "sources": ["eia923"],
     },
     "fuel_receipts_costs_eia923": {
@@ -134,7 +138,7 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
     "fuel_transportation_modes_eia": {
         "schema": {
             "fields": ["code", "label", "description"],
-            "primary_key": ["label"],
+            "primary_key": ["code"],
             "foreign_key_rules": {
                 "fields": [
                     ["energy_source_1_transport_1"],
@@ -148,6 +152,7 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
                 ]
             }
         },
+        "encoder": FUEL_TRANSPORTATION_MODES_EIA,
         "sources": ["eia923"],
     },
     "fuel_types_aer_eia": {
