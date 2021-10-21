@@ -62,6 +62,62 @@ three letter country codes: https://en.wikipedia.org/wiki/ISO_3166-1_alpha-3
 ###############################################################################
 
 
+def _get_plant_nuclear_unit_id_map(nuc_fuel: pd.DataFrame):
+    """Get a plant_id -> nuclear_unit_id mapping for all plants with one nuclear unit.
+
+    Parameters:
+        nuc_fuel (pd.DataFrame): dataframe of nuclear unit fuels.
+
+    Returns:
+        plant_to_nuc_id (Dict): one to one mapping of plant_id_eia to nuclear_unit_id.
+    """
+    nuc_fuel = nuc_fuel[nuc_fuel.nuclear_unit_id.notna()].copy()
+
+    plant_nuc_unit_counts = nuc_fuel.groupby(
+        "plant_id_eia").nuclear_unit_id.nunique().copy()
+
+    plant_id_with_one_unit = plant_nuc_unit_counts[plant_nuc_unit_counts.eq(1)].index
+
+    plant_to_nuc_id = nuc_fuel.groupby(
+        "plant_id_eia").nuclear_unit_id.unique().loc[plant_id_with_one_unit]
+
+    plant_to_nuc_id = plant_to_nuc_id.explode()
+
+    # check there is one nuclear unit per plant.
+    assert plant_to_nuc_id.index.is_unique, "Found multiple nuclear units in plant_to_nuc_id mapping."
+    # Check there are no missing nuclear unit ids.
+    assert (~plant_to_nuc_id.isna()).all(
+    ), "Found missing nuclear_unit_ids in plant_to_nuc_id mappings."
+
+    return dict(plant_to_nuc_id)
+
+
+def _backfill_nuclear_unit_id(nuc_fuel: pd.DataFrame):
+    """Backfill 2001 and 2002 nuclear_unit_id for plants with nuclear unit.
+
+    2001 and 2002 generation_fuel_eia923 records do not include nuclear_unit_id
+    which is required for the primary key of nuclear_unit_fuel_eia923. We backfill this field for plants
+    with nuclear unit. Records are dropped if the nuclear_unit_id can't be recovered.
+
+    Parameters:
+        nuc_fuel (pd.DataFrame): nuclear fuels dataframe.
+
+    Returns:
+        nuc_fuel (pd.DataFrame): nuclear fuels dataframe with backfilled nuclear_unit_id field.
+    """
+    plant_to_nuc_id_map = _get_plant_nuclear_unit_id_map(nuc_fuel)
+
+    missing_nuclear_unit_id = nuc_fuel.nuclear_unit_id.isna()
+
+    nuc_fuel.loc[missing_nuclear_unit_id, "nuclear_unit_id"] = nuc_fuel.loc[missing_nuclear_unit_id,
+                                                                            "plant_id_eia"].map(plant_to_nuc_id_map)
+
+    # If we aren't able to imputer nuclear_unit_id, drop the records.
+    nuc_fuel = nuc_fuel.dropna(subset=["nuclear_unit_id"])
+
+    return nuc_fuel
+
+
 def _get_plant_prime_mover_map(gen_fuel: pd.DataFrame) -> Dict:
     """Get a plant_id -> prime_mover_code mapping for all plants with one prime mover.
 
@@ -69,7 +125,7 @@ def _get_plant_prime_mover_map(gen_fuel: pd.DataFrame) -> Dict:
         gen_fuel (pd.DataFrame): dataframe of generation fuels.
 
     Returns:
-        fuel_type_map (Dict): mapping of plant_id_eia to prime_mover_codes.
+        fuel_type_map (Dict): one to one mapping of plant_id_eia to prime_mover_codes.
     """
     # Remove fuels that don't have a prime mover.
     gen_fuel = gen_fuel[~gen_fuel.prime_mover_code.isna()].copy()
@@ -200,15 +256,16 @@ def _clean_fuel_types(gen_fuel: pd.DataFrame) -> pd.DataFrame:
     return gen_fuel
 
 
-def _aggregate_generation_fuel_duplicates(gen_fuel: pd.DataFrame) -> pd.DataFrame:
+def _aggregate_generation_fuel_duplicates(gen_fuel: pd.DataFrame, nuclear: bool = False) -> pd.DataFrame:
     """Aggregate remaining duplicate generation fuels.
 
-    There are a handful of plants (< 100) whose prime_mover_code can be imputed
+    There are a handful of plants (< 100) whose prime_mover_code can't be imputed
     or duplicates exist in the raw table. We resolve these be aggregate the variable
     fields.
 
     Parameters:
         gen_fuel (pd.DataFrame): generation fuels dataframe.
+        nuclear (bool): adds nuclear_unit_id to list of natural key fields.
 
     Returns:
         gen_fuel (pd.DataFrame): generation fuels dataframe without duplicates in natural key fields.
@@ -219,6 +276,9 @@ def _aggregate_generation_fuel_duplicates(gen_fuel: pd.DataFrame) -> pd.DataFram
         "fuel_type",
         "prime_mover_code",
     ]
+    if nuclear:
+        natural_key_fields += ["nuclear_unit_id"]
+
     is_duplicate = gen_fuel.duplicated(subset=natural_key_fields, keep=False)
 
     duplicates = gen_fuel[is_duplicate].copy()
@@ -443,9 +503,30 @@ def plants(eia923_dfs, eia923_transformed_dfs):
     return eia923_transformed_dfs
 
 
-def nuclear_unit_fuel(nuclear_unit_fuels, eia923_transformed_dfs):
-    """Transforms the nuclear_unit_fuel_eia923 table."""
-    eia923_transformed_dfs["nuclear_unit_fuel_eia923"] = nuclear_unit_fuels
+def nuclear_unit_fuel(nuclear_unit_fuel: pd.DataFrame, eia923_transformed_dfs: Dict[str, pd.DataFrame]) -> None:
+    """Transforms the nuclear_unit_fuel_eia923 table.
+
+    Transformations include:
+    * Backfill nuclear_unit_ids for 2001 and 2002.
+    * Set all prime_mover_codes to 'ST'.
+    * Aggregate remaining duplicate units.
+
+    Parameters:
+        nuclear_unit_fuel (pd.DataFrame): dataframe of nuclear unit fuels.
+        eia923_transformed_dfs (Dict[str, pd.DataFrame]): dictionary to hold all eia923 tables.
+
+    """
+    nuclear_unit_fuel = _backfill_nuclear_unit_id(nuclear_unit_fuel)
+
+    # All nuclear plants have steam turbines.
+    nuclear_unit_fuel.loc[:, "prime_mover_code"] = nuclear_unit_fuel["prime_mover_code"].fillna(
+        "ST")
+
+    # Aggregate remaining duplicates.
+    nuclear_unit_fuel = _aggregate_generation_fuel_duplicates(
+        nuclear_unit_fuel, nuclear=True)
+
+    eia923_transformed_dfs["nuclear_unit_fuel_eia923"] = nuclear_unit_fuel
 
 
 def generation_fuel(eia923_dfs, eia923_transformed_dfs):
@@ -459,6 +540,10 @@ def generation_fuel(eia923_dfs, eia923_transformed_dfs):
     * Create a fuel_type_code_pudl field that organizes fuel types into
       clean, distinguishable categories.
     * Combine year and month columns into a single date column.
+    * Clean and impute fuel_type field.
+    * Backfill missing prime_mover_codes
+    * Create a separate nuclear_unit_fuel table.
+    * Aggregate records with duplicate natural keys.
 
     Args:
         eia923_dfs (dict): Each entry in this dictionary of DataFrame objects

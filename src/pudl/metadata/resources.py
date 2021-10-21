@@ -200,6 +200,7 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
         "sources": ["eia923"],
     },
     "generation_fuel_eia923": {
+        "description": "Fuel consumption of prime movers in plants. Each record is the amount of a type of fuel a prime mover uses.",
         "schema": {
             "fields": [
                 "plant_id_eia",
@@ -225,6 +226,7 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
         "sources": ["eia923"],
     },
     "nuclear_unit_fuel_eia923": {
+        "description": "Fuel consumption of nuclear units. Each record is the amount of fuel a nuclear unit uses.",
         "schema": {
             "fields": [
                 "plant_id_eia",
