@@ -62,22 +62,24 @@ three letter country codes: https://en.wikipedia.org/wiki/ISO_3166-1_alpha-3
 ###############################################################################
 
 
-def _get_plant_nuclear_unit_id_map(nuc_fuel: pd.DataFrame):
+def _get_plant_nuclear_unit_id_map(nuc_fuel: pd.DataFrame) -> Dict[int, str]:
     """Get a plant_id -> nuclear_unit_id mapping for all plants with one nuclear unit.
 
     Parameters:
-        nuc_fuel (pd.DataFrame): dataframe of nuclear unit fuels.
+        nuc_fuel: dataframe of nuclear unit fuels.
 
     Returns:
-        plant_to_nuc_id (Dict): one to one mapping of plant_id_eia to nuclear_unit_id.
+        plant_to_nuc_id: one to one mapping of plant_id_eia to nuclear_unit_id.
     """
     nuc_fuel = nuc_fuel[nuc_fuel.nuclear_unit_id.notna()].copy()
 
+    # Find the plants with one nuclear unit
     plant_nuc_unit_counts = nuc_fuel.groupby(
         "plant_id_eia").nuclear_unit_id.nunique().copy()
 
     plant_id_with_one_unit = plant_nuc_unit_counts[plant_nuc_unit_counts.eq(1)].index
 
+    # get the nuclear_unit_id for the plants with one prime mover
     plant_to_nuc_id = nuc_fuel.groupby(
         "plant_id_eia").nuclear_unit_id.unique().loc[plant_id_with_one_unit]
 
@@ -92,18 +94,18 @@ def _get_plant_nuclear_unit_id_map(nuc_fuel: pd.DataFrame):
     return dict(plant_to_nuc_id)
 
 
-def _backfill_nuclear_unit_id(nuc_fuel: pd.DataFrame):
-    """Backfill 2001 and 2002 nuclear_unit_id for plants with nuclear unit.
+def _backfill_nuclear_unit_id(nuc_fuel: pd.DataFrame) -> pd.DataFrame:
+    """Backfill 2001 and 2002 nuclear_unit_id for plants with one nuclear unit.
 
     2001 and 2002 generation_fuel_eia923 records do not include nuclear_unit_id
     which is required for the primary key of nuclear_unit_fuel_eia923. We backfill this field for plants
     with nuclear unit. Records are dropped if the nuclear_unit_id can't be recovered.
 
     Parameters:
-        nuc_fuel (pd.DataFrame): nuclear fuels dataframe.
+        nuc_fuel: nuclear fuels dataframe.
 
     Returns:
-        nuc_fuel (pd.DataFrame): nuclear fuels dataframe with backfilled nuclear_unit_id field.
+        nuc_fuel: nuclear fuels dataframe with backfilled nuclear_unit_id field.
     """
     plant_to_nuc_id_map = _get_plant_nuclear_unit_id_map(nuc_fuel)
 
@@ -118,14 +120,14 @@ def _backfill_nuclear_unit_id(nuc_fuel: pd.DataFrame):
     return nuc_fuel
 
 
-def _get_plant_prime_mover_map(gen_fuel: pd.DataFrame) -> Dict:
+def _get_plant_prime_mover_map(gen_fuel: pd.DataFrame) -> Dict[int, str]:
     """Get a plant_id -> prime_mover_code mapping for all plants with one prime mover.
 
     Parameters:
-        gen_fuel (pd.DataFrame): dataframe of generation fuels.
+        gen_fuel: dataframe of generation fuels.
 
     Returns:
-        fuel_type_map (Dict): one to one mapping of plant_id_eia to prime_mover_codes.
+        fuel_type_map: one to one mapping of plant_id_eia to prime_mover_codes.
     """
     # Remove fuels that don't have a prime mover.
     gen_fuel = gen_fuel[~gen_fuel.prime_mover_code.isna()].copy()
@@ -133,7 +135,8 @@ def _get_plant_prime_mover_map(gen_fuel: pd.DataFrame) -> Dict:
     # find plants with one prime mover
     plant_prime_movers_counts = gen_fuel.groupby(
         "plant_id_eia").prime_mover_code.nunique().copy()
-    plant_ids_with_one_pm = plant_prime_movers_counts[plant_prime_movers_counts == 1].index
+    plant_ids_with_one_pm = plant_prime_movers_counts[plant_prime_movers_counts.eq(
+        1)].index
 
     # get the prime mover codes for the plants with one prime mover
     plant_to_prime_mover = gen_fuel.groupby(
@@ -147,7 +150,7 @@ def _get_plant_prime_mover_map(gen_fuel: pd.DataFrame) -> Dict:
     assert (~plant_to_prime_mover.isna()).all(
     ), "Found missing prime_mover_codes in plant_to_prime_mover mappings."
 
-    return dict(plant_to_prime_mover.values)
+    return dict(plant_to_prime_mover)
 
 
 def _backfill_prime_mover_code(gen_fuel: pd.DataFrame) -> pd.DataFrame:
@@ -159,10 +162,10 @@ def _backfill_prime_mover_code(gen_fuel: pd.DataFrame) -> pd.DataFrame:
     have multiple prime movers.
 
     Parameters:
-        gen_fuel (pd.DataFrame): generation fuels dataframe.
+        gen_fuel: generation fuels dataframe.
 
     Returns:
-        gen_fuel (pd.DataFrame): generation fuels dataframe with backfilled prime_mover_code field.
+        gen_fuel: generation fuels dataframe with backfilled prime_mover_code field.
     """
     plant_to_prime_mover_map = _get_plant_prime_mover_map(gen_fuel)
 
@@ -185,14 +188,14 @@ def _backfill_prime_mover_code(gen_fuel: pd.DataFrame) -> pd.DataFrame:
     return gen_fuel
 
 
-def _get_most_frequent_fuel_type_map(gen_fuel: pd.DataFrame) -> Dict:
+def _get_most_frequent_fuel_type_map(gen_fuel: pd.DataFrame) -> Dict[str, str]:
     """Get the a mapping of the most common fuel_types for each fuel_type_code_aer.
 
     Parameters:
-        gen_fuel (pd.DataFrame): dataframe of generation fuels.
+        gen_fuel: dataframe of generation fuels.
 
     Returns:
-        fuel_type_map (Dict): mapping of fuel_type_code_aer to fuel_type codes.
+        fuel_type_map: mapping of fuel_type_code_aer to fuel_type codes.
     """
     fuel_type_counts = gen_fuel.groupby(
         ["fuel_type_code_aer", "fuel_type"]).plant_id_eia.count()
@@ -214,10 +217,10 @@ def _clean_fuel_types(gen_fuel: pd.DataFrame) -> pd.DataFrame:
     * Fill missing fuel_types using most common fuel_types for each AER fuel codes.
 
     Parameters:
-        gen_fuel (pd.DataFrame): generation fuels dataframe.
+        gen_fuel: generation fuels dataframe.
 
     Returns:
-        gen_fuel (pd.DataFrame): generation fuels dataframe with cleaned fuel_type field.
+        gen_fuel: generation fuels dataframe with cleaned fuel_type field.
     """
     # conservative manual corrections for misplaced or mistyped fuel types
     gen_fuel['fuel_type'] = (
@@ -240,7 +243,7 @@ def _clean_fuel_types(gen_fuel: pd.DataFrame) -> pd.DataFrame:
     # Starting in 2006 MSW got split into MSB and MSN.
     msw_fuels = gen_fuel.fuel_type.eq("MSW")
     gen_fuel.loc[msw_fuels, "fuel_type"] = gen_fuel.loc[msw_fuels,
-                                                        "fuel_type_code_aer"].map({"OTH": "MSB", "MLG": "MSN"})
+                                                        "fuel_type_code_aer"].map({"OTH": "MSN", "MLG": "MSB"})
 
     # Make sure we replaced all MSWs
     assert gen_fuel.fuel_type.ne("MSW").all()
@@ -264,11 +267,11 @@ def _aggregate_generation_fuel_duplicates(gen_fuel: pd.DataFrame, nuclear: bool 
     fields.
 
     Parameters:
-        gen_fuel (pd.DataFrame): generation fuels dataframe.
-        nuclear (bool): adds nuclear_unit_id to list of natural key fields.
+        gen_fuel: generation fuels dataframe.
+        nuclear: adds nuclear_unit_id to list of natural key fields.
 
     Returns:
-        gen_fuel (pd.DataFrame): generation fuels dataframe without duplicates in natural key fields.
+        gen_fuel: generation fuels dataframe without duplicates in natural key fields.
     """
     natural_key_fields = [
         "report_date",
@@ -291,7 +294,7 @@ def _aggregate_generation_fuel_duplicates(gen_fuel: pd.DataFrame, nuclear: bool 
         'fuel_consumed_mmbtu': "sum",
         'fuel_consumed_for_electricity_mmbtu': "sum",
         'net_generation_mwh': "sum",
-        # We will safely select the first fuel_type_code_aer because we know they are the same for each group of duplicates.
+        # We can safely select the first fuel_type_code_aer because we know they are the same for each group of duplicates.
         'fuel_type_code_aer': "first"
     }
 
@@ -312,7 +315,7 @@ def _aggregate_generation_fuel_duplicates(gen_fuel: pd.DataFrame, nuclear: bool 
     return gen_df
 
 
-def _yearly_to_monthly_records(df):
+def _yearly_to_monthly_records(df: pd.DataFrame) -> pd.DataFrame:
     """Converts an EIA 923 record of 12 months of data into 12 monthly records.
 
     Much of the data reported in EIA 923 is monthly, but all 12 months worth of data is
@@ -322,11 +325,11 @@ def _yearly_to_monthly_records(df):
     adding a month field.  Non - time series data is retained in the same format.
 
     Args:
-        df (pandas.DataFrame): A pandas DataFrame containing the annual data to be
+        df: A pandas DataFrame containing the annual data to be
             converted into monthly records.
 
     Returns:
-        pandas.DataFrame: A dataframe containing the same data as was passed in via df,
+        A dataframe containing the same data as was passed in via df,
         but with monthly records as rows instead of as columns.
 
     """
@@ -504,7 +507,7 @@ def plants(eia923_dfs, eia923_transformed_dfs):
 
 
 def nuclear_unit_fuel(nuclear_unit_fuel: pd.DataFrame, eia923_transformed_dfs: Dict[str, pd.DataFrame]) -> None:
-    """Transforms the nuclear_unit_fuel_eia923 table.
+    """Transforms the generation_fuel_nuclear_eia923 table.
 
     Transformations include:
 
@@ -527,7 +530,7 @@ def nuclear_unit_fuel(nuclear_unit_fuel: pd.DataFrame, eia923_transformed_dfs: D
     nuclear_unit_fuel = _aggregate_generation_fuel_duplicates(
         nuclear_unit_fuel, nuclear=True)
 
-    eia923_transformed_dfs["nuclear_unit_fuel_eia923"] = nuclear_unit_fuel
+    eia923_transformed_dfs["generation_fuel_nuclear_eia923"] = nuclear_unit_fuel
 
 
 def generation_fuel(eia923_dfs, eia923_transformed_dfs):
