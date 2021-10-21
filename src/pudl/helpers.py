@@ -16,7 +16,7 @@ import shutil
 from collections import defaultdict
 from functools import partial
 from io import BytesIO
-from typing import Any, Dict, List
+from typing import Any, DefaultDict, Dict, List, Literal, Union
 
 import addfips
 import numpy as np
@@ -115,8 +115,28 @@ def label_map(
     from_col: str = "code",
     to_col: str = "label",
     null_value=pd.NA
-) -> Dict[str, str]:
-    """Build a mapping dictionary from two columns of a labelling dataframe."""
+) -> DefaultDict[str, Union[str, Literal[pd.NA]]]:
+    """
+    Build a mapping dictionary from two columns of a labeling / coding dataframe.
+
+    These dataframes document the meanings of the codes that show up in much of the
+    originall reported data. They're defined in :mod:`pudl.metadata.codes`.  This
+    function is mostly used to build maps that can translate the hard to understand
+    short codes into longer human-readable codes.
+
+    Args:
+        df: The coding / labeling dataframe. Must contain columns ``from_col``
+            and ``to_col``.
+        from_col: Label of column containing the existing codes to be replaced.
+        to_col: Label of column containing the new codes to be swapped in.
+        null_value: Defualt (Null) value to map to when a value which doesn't
+            appear in ``from_col`` is encountered.
+
+
+    Returns:
+        A mapping dictionary suitable for use with :meth:`pandas.Series.map`.
+
+    """
     return defaultdict(
         lambda: null_value,
         df.loc[:, [from_col, to_col]]

@@ -352,7 +352,46 @@ class FieldHarvest(Base):
 
 
 class Encoder(Base):
-    """Encoder to standardize string codes within a Field."""
+    """
+    A class that allows us to standardize reported categorical codes.
+
+    Often the original data we are integrating uses short codes to indicate a
+    categorical value, like ``ST`` in place of "steam turbine" or ``LIG`` in place of
+    "lignite coal". Many of these coded fields contain non-standard codes due to
+    data-entry errors. The codes have also evolved over the years.
+
+    In order to allow easy comparison of records across all years and tables, we define
+    a standard set of codes, a mapping from non-standard codes to standard codes (where
+    possible), and a set of known but unfixable codes which will be ignored and replaced
+    with NA values. These definitions can be found in :mod:`pudl.metadata.codes` and we
+    refer to these as coding or labeling tables.
+
+    Each coding table contains at least a ``code`` column containing the standard codes
+    and a ``definition`` column with a human readable explanation of what the code
+    stands for. This information is stored as a :class:`pandas.DataFrame`. Additional
+    metadata pertaining to the codes and their categories may also appear in this
+    dataframe, which will be loaded into the PUDL DB as a static table.
+
+    In our metadata structures, each coding table is defined just like any other DB
+    table, with the addition of an associated ``Encoder`` object defining the standard,
+    fixable, and ignored codes.
+
+    In addition, a :class:`Package` class that has been instantiated using the
+    :meth:`Package.from_resource_ids` method will associate an `Encoder` object with any
+    column that has a foreign key constraint referring to a coding table (This
+    column-level encoder is same as the encoder associated with the referenced table).
+    This `Encoder` can be used to standardize the codes found within the column.
+
+    :class:`Field` and :class:`Resource` objects have ``encode()`` methods that will
+    use the column-level encoders to recode the original values, either for a single
+    column or for all coded columns within a Resource, given either a corresponding
+    :class:`pandas.Series` or :class:`pandas.DataFrame` containing actual values.
+
+    If any unrecognized values are encountered, an exception will be raised, alerting
+    us that a new code has been identified, and needs to be classified as fixable or
+    to be ignored.
+
+    """
 
     df: pd.DataFrame
     code_fixes: Dict[String, String] = {}
@@ -456,7 +495,7 @@ class Encoder(Base):
 
     @classmethod
     def from_id(cls, x: str) -> 'Encoder':
-        """Construct from the PUDL identifier (`Resource.name`)."""
+        """Construct an Encoder based on `Resource.name` of a coding table."""
         return cls(**cls.dict_from_id(x))
 
 
@@ -619,7 +658,7 @@ class Field(Base):
         col: pd.Series,
         dtype: Union[type, None] = None
     ) -> pd.Series:
-        """Re-code the column if it has an encoder."""
+        """Recode the Field if it has an associated encoder."""
         return self.encoder.encode(col, dtype=dtype) if self.encoder else col
 
 # ---- Classes: Resource ---- #
@@ -1452,12 +1491,17 @@ class Package(Base):
         cls, resource_ids: Iterable[str], resolve_foreign_keys: bool = False
     ) -> "Package":
         """
-        Construct from PUDL identifiers (`resource.name`).
+        Construct a collection of Resources from PUDL identifiers (`resource.name`).
+
+        Identify any fields that have foreign key relationships referencing the
+        coding tables defined in :mod:`pudl.metadata.codes` and if so, associate the
+        coding table's encoder with those columns for later use cleaning them up.
 
         Args:
             resource_ids: Resource PUDL identifiers (`resource.name`).
             resolve_foreign_keys: Whether to add resources as needed based on
                 foreign keys.
+
         """
         resources = [Resource.dict_from_id(x) for x in resource_ids]
         if resolve_foreign_keys:
@@ -1474,9 +1518,14 @@ class Package(Base):
                 if len(names) > i:
                     resources += [Resource.dict_from_id(x) for x in names[i:]]
 
-        # Add per-column encoders
+        # Add per-column encoders for each resource
         for resource in resources:
+            # Foreign key relationships determine the set of codes to use
             for fk in resource["schema"]["foreign_keys"]:
+                # Only referenced tables with an associated encoder indicate
+                # that the column we're looking at should have an encoder
+                # attached to it. All of these FK relationships must have simple
+                # single-column keys.
                 encoder = Encoder.dict_from_id(fk["reference"]["resource"])
                 if len(fk["fields"]) == 1 and encoder:
                     # fk["fields"] is a one element list, get the one element:
