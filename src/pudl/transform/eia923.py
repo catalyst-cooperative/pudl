@@ -99,7 +99,7 @@ def _backfill_nuclear_unit_id(nuc_fuel: pd.DataFrame) -> pd.DataFrame:
 
     2001 and 2002 generation_fuel_eia923 records do not include nuclear_unit_id
     which is required for the primary key of nuclear_unit_fuel_eia923. We backfill this field for plants
-    with nuclear unit. Records are dropped if the nuclear_unit_id can't be recovered.
+    with one nuclear unit. nuclear_unit_id is filled with 'UNK' if the nuclear_unit_id can't be recovered.
 
     Parameters:
         nuc_fuel: nuclear fuels dataframe.
@@ -114,8 +114,9 @@ def _backfill_nuclear_unit_id(nuc_fuel: pd.DataFrame) -> pd.DataFrame:
     nuc_fuel.loc[missing_nuclear_unit_id, "nuclear_unit_id"] = nuc_fuel.loc[missing_nuclear_unit_id,
                                                                             "plant_id_eia"].map(plant_to_nuc_id_map)
 
-    # If we aren't able to imputer nuclear_unit_id, drop the records.
-    nuc_fuel = nuc_fuel.dropna(subset=["nuclear_unit_id"])
+    # If we aren't able to impute nuclear_unit_id, fill them UNK.
+    missing_nuc_is = nuc_fuel.nuclear_unit_id.isna()
+    nuc_fuel.loc[missing_nuc_is, "nuclear_unit_id"] = "UNK"
 
     return nuc_fuel
 
@@ -309,7 +310,7 @@ def _aggregate_generation_fuel_duplicates(gen_fuel: pd.DataFrame, nuclear: bool 
     gen_df = gen_df.append(resolved_duplicates)
 
     assert gen_df[natural_key_fields].notna().all().all(
-    ), "There are missing values in generation_fuel_eia923 natural key fields."
+    ), f"There are missing values in generation_fuel{'_nuclear' if nuclear else ''}_eia923 natural key fields."
     assert (~gen_df.duplicated(subset=natural_key_fields)).all(
     ), "Duplicate generation fuels have not been resolved."
     return gen_df
