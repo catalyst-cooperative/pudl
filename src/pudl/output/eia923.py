@@ -74,7 +74,7 @@ def generation_fuel_eia923(pudl_engine, freq=None,
         end_date (date-like): date-like object, including a string of the
             form 'YYYY-MM-DD' which will be used to specify the date range of
             records to be pulled.  Dates are inclusive.
-        nuclear: return generation_fuel_eia923 or generation_fuel_nuclear_eia923.
+        nuclear: If True, return generation_fuel_nuclear_eia923 table.
 
     Returns:
         pandas.DataFrame: A DataFrame containing all records from the EIA 923
