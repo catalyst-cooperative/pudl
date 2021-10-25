@@ -141,11 +141,7 @@ def ferc1_sql_engine(
         )
     engine = sa.create_engine(pudl_settings_fixture["ferc1_db"])
     logger.info("FERC1 Engine: %s", engine)
-    yield engine
-
-    # Clean up after ourselves by dropping the test DB tables.
-    if not live_dbs:
-        pudl.helpers.drop_tables(engine, clobber=True)
+    return engine
 
 
 @pytest.fixture(scope='session', name="pudl_engine")
@@ -177,11 +173,7 @@ def pudl_sql_engine(
     # datapkg_to_sqlite fixtures, above.
     engine = sa.create_engine(pudl_settings_fixture["pudl_db"])
     logger.info('PUDL Engine: %s', engine)
-    yield engine
-
-    # Clean up after ourselves by dropping the test DB tables.
-    if not live_dbs:
-        pudl.helpers.drop_tables(engine, clobber=True)
+    return engine
 
 
 @pytest.fixture(scope='session', name="pudl_settings_fixture")

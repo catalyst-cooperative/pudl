@@ -32,6 +32,7 @@ implications of using a co-located set of plant infrastructure as an id.
 """
 import importlib
 import logging
+from typing import Dict, Iterable, List
 
 import pandas as pd
 import sqlalchemy as sa
@@ -41,15 +42,26 @@ from pudl import constants as pc
 
 logger = logging.getLogger(__name__)
 
+# Identify only those utilities assocaited with plants that reported data
+# at some point in the EIA 923 -- these are the ones we might need to link
+# to the FERC Form 1 utilities:
+DATA_TABLES_EIA923: List[str] = [
+    "fuel_receipts_costs_eia923",
+    "generation_fuel_eia923",
+    # "generation_fuel_nuclear_eia923",  # Not yet integrated
+    "generation_eia923",
+    "boiler_fuel_eia923",
+]
 
-def get_plant_map():
+
+def get_plant_map() -> pd.DataFrame:
     """Read in the manual FERC to EIA plant mapping data."""
-    map_eia_ferc_file = importlib.resources.open_binary(
+    mapping_xlsx = importlib.resources.open_binary(
         'pudl.package_data.glue', 'mapping_eia923_ferc1.xlsx')
 
     return pd.read_excel(
-        map_eia_ferc_file,
-        'plants_output',
+        mapping_xlsx,
+        sheet_name='plants_output',
         na_values='',
         keep_default_na=False,
         converters={
@@ -66,14 +78,14 @@ def get_plant_map():
     )
 
 
-def get_utility_map():
+def get_utility_map() -> pd.DataFrame:
     """Read in the manual FERC to EIA utility mapping data."""
-    map_eia_ferc_file = importlib.resources.open_binary(
+    mapping_xlsx = importlib.resources.open_binary(
         'pudl.package_data.glue', 'mapping_eia923_ferc1.xlsx')
 
     return pd.read_excel(
-        map_eia_ferc_file,
-        'utilities_output',
+        mapping_xlsx,
+        sheet_name='utilities_output',
         na_values='',
         keep_default_na=False,
         converters={
@@ -87,7 +99,10 @@ def get_utility_map():
     )
 
 
-def get_db_plants_ferc1(pudl_settings, years):
+def get_db_plants_ferc1(
+    pudl_settings: Dict[str, str],
+    years: Iterable[int]
+) -> pd.DataFrame:
     """
     Pull a dataframe of all plants in the FERC Form 1 DB for the given years.
 
@@ -105,23 +120,23 @@ def get_db_plants_ferc1(pudl_settings, years):
     mapping of FERC to EIA plants with PUDL IDs.
 
     Args:
-        pudl_settings (dict): Dictionary containing various paths and database
-            URLs used by PUDL.
-        years (iterable): Years for which plants should be compiled.
+        pudl_settings: Dictionary containing various paths and database URLs used by
+            PUDL.
+        years: Years for which plants should be compiled.
 
     Returns:
-        pandas.DataFrame: A dataframe containing columns
-        utility_id_ferc1, utility_name_ferc1, plant_name, capacity_mw, and
-        plant_table. Each row is a unique combination of utility_id_ferc1 and
-        plant_name.
+        A dataframe containing columns ``utility_id_ferc1``, ``utility_name_ferc1``,
+        ``plant_name``, ``capacity_mw``, and ``plant_table``. Each row is a unique
+        combination of ``utility_id_ferc1`` and ``plant_name``.
 
     """
     # Need to be able to use years outside the "valid" range if we're trying
     # to get new plant ID info...
-    for yr in years:
-        if yr not in pc.WORKING_PARTITIONS['ferc1']['years']:
-            raise ValueError(
-                f"Input year {yr} is not available in the FERC data.")
+    unrecognized_years = set(years).difference(pc.WORKING_PARTITIONS['ferc1']['years'])
+    if unrecognized_years:
+        raise ValueError(
+            f"Input years {sorted(unrecognized_years)} not available in FERC 1 DB."
+        )
 
     # Grab the FERC 1 DB metadata so we can query against the DB w/ SQLAlchemy:
     ferc1_engine = sa.create_engine(pudl_settings["ferc1_db"])
@@ -130,14 +145,20 @@ def get_db_plants_ferc1(pudl_settings, years):
     # This table contains the utility names and IDs:
     respondent_table = ferc1_tables['f1_respondent_id']
     # These are all the tables we're gathering "plants" from:
-    plant_tables = ['f1_steam', 'f1_gnrt_plant',
-                    'f1_hydro', 'f1_pumped_storage']
+    plant_tables = [
+        'f1_steam',
+        'f1_gnrt_plant',
+        'f1_hydro',
+        'f1_pumped_storage'
+    ]
     # FERC doesn't use the sme column names for the same values across all of
     # Their tables... but all of these are cpacity in MW.
-    capacity_cols = {'f1_steam': 'tot_capacity',
-                     'f1_gnrt_plant': 'capacity_rating',
-                     'f1_hydro': 'tot_capacity',
-                     'f1_pumped_storage': 'tot_capacity'}
+    capacity_cols = {
+        'f1_steam': 'tot_capacity',
+        'f1_gnrt_plant': 'capacity_rating',
+        'f1_hydro': 'tot_capacity',
+        'f1_pumped_storage': 'tot_capacity'
+    }
 
     # Generate a list of all combinations of utility ID, utility name, and
     # plant name that currently exist inside the raw FERC Form 1 Database, by
@@ -146,33 +167,44 @@ def get_db_plants_ferc1(pudl_settings, years):
     # purposes)
     all_plants = pd.DataFrame()
     for tbl in plant_tables:
-        plant_select = sa.sql.select(
-            ferc1_tables[tbl].c.respondent_id,
-            ferc1_tables[tbl].c.plant_name,
-            ferc1_tables[tbl].columns[capacity_cols[tbl]],
-            respondent_table.c.respondent_name
-        ).distinct().where(
-            sa.and_(
-                ferc1_tables[tbl].c.respondent_id == respondent_table.c.respondent_id,
-                ferc1_tables[tbl].c.plant_name != '',
-                ferc1_tables[tbl].c.report_year.in_(years)
+        plant_select = (
+            sa.sql.select(
+                ferc1_tables[tbl].c.respondent_id,
+                ferc1_tables[tbl].c.plant_name,
+                ferc1_tables[tbl].columns[capacity_cols[tbl]],
+                respondent_table.c.respondent_name
+            )
+            .distinct()
+            .where(
+                sa.and_(
+                    ferc1_tables[tbl].c.respondent_id == respondent_table.c.respondent_id,
+                    ferc1_tables[tbl].c.plant_name != '',
+                    ferc1_tables[tbl].c.report_year.in_(years)
+                )
             )
         )
+
         # Add all the plants from the current table to our bigger list:
         all_plants = all_plants.append(
-            pd.read_sql(plant_select, ferc1_engine).
-            rename(columns={"respondent_id": "utility_id_ferc1",
-                            "respondent_name": "utility_name_ferc1",
-                            "plant_name": "plant_name_ferc1",
-                            capacity_cols[tbl]: "capacity_mw"}).
-            pipe(pudl.helpers.simplify_strings, columns=["plant_name_ferc1",
-                                                         "utility_name_ferc1"]).
-            assign(plant_table=tbl).
-            loc[:, ["utility_id_ferc1",
-                    "utility_name_ferc1",
-                    "plant_name_ferc1",
-                    "capacity_mw",
-                    "plant_table"]]
+            pd.read_sql(plant_select, ferc1_engine)
+            .rename(columns={
+                "respondent_id": "utility_id_ferc1",
+                "respondent_name": "utility_name_ferc1",
+                "plant_name": "plant_name_ferc1",
+                capacity_cols[tbl]: "capacity_mw"
+            })
+            .pipe(
+                pudl.helpers.simplify_strings,
+                columns=["plant_name_ferc1", "utility_name_ferc1"]
+            )
+            .assign(plant_table=tbl)
+            .loc[:, [
+                "utility_id_ferc1",
+                "utility_name_ferc1",
+                "plant_name_ferc1",
+                "capacity_mw",
+                "plant_table"
+            ]]
         )
 
     # We don't want dupes, and sorting makes the whole thing more readable:
@@ -183,7 +215,7 @@ def get_db_plants_ferc1(pudl_settings, years):
     return all_plants
 
 
-def get_mapped_plants_ferc1():
+def get_mapped_plants_ferc1() -> pd.DataFrame:
     """
     Generate a dataframe containing all previously mapped FERC 1 plants.
 
@@ -202,9 +234,9 @@ def get_mapped_plants_ferc1():
         None
 
     Returns:
-        pandas.DataFrame A DataFrame with three columns: plant_name,
-        utility_id_ferc1, and utility_name_ferc1. Each row represents a unique
-        combination of utility_id_ferc1 and plant_name.
+        A DataFrame with three columns: ``plant_name``, ``utility_id_ferc1``, and
+        ``utility_name_ferc1``. Each row represents a unique combination of
+        ``utility_id_ferc1`` and ``plant_name``.
 
     """
     # If we're only trying to get the NEW plants, then we need to see which
@@ -215,16 +247,20 @@ def get_mapped_plants_ferc1():
     # canonincal names we've chosen to represent all the varied plant names
     # that exist in the raw FERC DB.
     ferc1_mapped_plants = (
-        pudl.glue.ferc1_eia.get_plant_map().
-        loc[:, ["utility_id_ferc1", "utility_name_ferc1", "plant_name_ferc1"]].
-        dropna(subset=["utility_id_ferc1"]).
-        pipe(pudl.helpers.simplify_strings,
-             columns=["utility_id_ferc1",
-                      "utility_name_ferc1",
-                      "plant_name_ferc1"]).
-        astype({"utility_id_ferc1": int}).
-        drop_duplicates(["utility_id_ferc1", "plant_name_ferc1"]).
-        sort_values(["utility_id_ferc1", "plant_name_ferc1"])
+        get_plant_map()
+        .loc[:, ["utility_id_ferc1", "utility_name_ferc1", "plant_name_ferc1"]]
+        .dropna(subset=["utility_id_ferc1"])
+        .pipe(
+            pudl.helpers.simplify_strings,
+            columns=[
+                "utility_id_ferc1",
+                "utility_name_ferc1",
+                "plant_name_ferc1"
+            ]
+        )
+        .astype({"utility_id_ferc1": int})
+        .drop_duplicates(["utility_id_ferc1", "plant_name_ferc1"])
+        .sort_values(["utility_id_ferc1", "plant_name_ferc1"])
     )
     return ferc1_mapped_plants
 
@@ -256,26 +292,27 @@ def get_mapped_utils_ferc1():
     return ferc1_mapped_utils
 
 
-def get_unmapped_plants_ferc1(pudl_settings, years):
+def get_unmapped_plants_ferc1(
+    pudl_settings: Dict[str, str],
+    years: Iterable[int],
+) -> pd.DataFrame:
     """
     Generate a DataFrame of all unmapped FERC plants in the given years.
 
-    Pulls all plants from the FERC Form 1 DB for the given years, and compares
-    that list against the already mapped plants. Any plants found in the
-    database but not in the list of mapped plants are returned.
+    Pulls all plants from the FERC Form 1 DB for the given years, and compares that list
+    against the already mapped plants. Any plants found in the database but not in the
+    list of mapped plants are returned.
 
     Args:
-        pudl_settings (dict): Dictionary containing various paths and database
-            URLs used by PUDL.
-        years (iterable): Years for which plants should be compiled from the
-            raw FERC Form 1 DB.
+        pudl_settings: Dictionary containing various paths and database URLs used by
+            PUDL.
+        years: Years for which plants should be compiled from the raw FERC Form 1 DB.
 
     Returns:
-        pandas.DataFrame: A dataframe containing five columns:
-        utility_id_ferc1, utility_name_ferc1, plant_name, capacity_mw, and
-        plant_table. Each row is a unique combination of utility_id_ferc1 and
-        plant_name, which appears in the FERC Form 1 DB, but not in the list of
-        manually mapped plants.
+        A dataframe containing five columns: utility_id_ferc1, utility_name_ferc1,
+        plant_name, capacity_mw, and plant_table. Each row is a unique combination of
+        utility_id_ferc1 and plant_name, which appears in the FERC Form 1 DB, but not in
+        the list of manually mapped plants.
 
     """
     db_plants = (
@@ -393,37 +430,40 @@ def get_mapped_plants_eia():
 def get_unmapped_plants_eia(pudl_engine):
     """Identify any as-of-yet unmapped EIA Plants."""
     plants_utils_eia = (
-        pd.read_sql("""SELECT DISTINCT plant_id_eia, utility_id_eia
-                       FROM plants_eia860;""", pudl_engine).
-        dropna().
-        astype({"plant_id_eia": int,
-                "utility_id_eia": int}).
-        drop_duplicates().
+        pd.read_sql(
+            "SELECT DISTINCT plant_id_eia, utility_id_eia FROM plants_eia860;",
+            pudl_engine
+        )
+        .dropna()
+        .astype({
+            "plant_id_eia": int,
+            "utility_id_eia": int,
+        })
+        .drop_duplicates()
         # Need to get the name of the utility, to merge with the ID
-        merge(get_db_utils_eia(pudl_engine).reset_index(),
-              on="utility_id_eia")
+        .merge(
+            get_db_utils_eia(pudl_engine).reset_index(),
+            on="utility_id_eia",
+        )
     )
     plant_capacity_mw = (
-        pd.read_sql("SELECT * FROM generators_eia860;", pudl_engine).
-        groupby(["plant_id_eia"])[["capacity_mw"]].agg(sum).
-        reset_index()
+        pd.read_sql("SELECT * FROM generators_eia860;", pudl_engine)
+        .groupby(["plant_id_eia"])[["capacity_mw"]].agg(sum)
+        .reset_index()
     )
     db_plants_eia = get_db_plants_eia(pudl_engine).set_index("plant_id_eia")
     mapped_plants_eia = get_mapped_plants_eia().set_index("plant_id_eia")
-    unmapped_plants_idx = (
-        db_plants_eia.index.
-        difference(mapped_plants_eia.index)
-    )
+    unmapped_plants_idx = db_plants_eia.index.difference(mapped_plants_eia.index)
     unmapped_plants_eia = (
-        db_plants_eia.loc[unmapped_plants_idx].
-        merge(plants_utils_eia, how="left", on="plant_id_eia").
-        merge(plant_capacity_mw, how="left", on="plant_id_eia").
-        loc[:, ["plant_id_eia", "plant_name_eia",
-                "utility_id_eia", "utility_name_eia",
-                "state", "capacity_mw"]].
-        astype({"utility_id_eia": "Int32"})  # Woo! Nullable Integers FTW!
+        db_plants_eia.loc[unmapped_plants_idx]
+        .merge(plants_utils_eia, how="left", on="plant_id_eia")
+        .merge(plant_capacity_mw, how="left", on="plant_id_eia")
+        .loc[:, ["plant_id_eia", "plant_name_eia",
+                 "utility_id_eia", "utility_name_eia",
+                 "state", "capacity_mw"]]
+        .astype({"utility_id_eia": "Int32"})  # Woo! Nullable Integers FTW!
+        .set_index("plant_id_eia")
     )
-
     return unmapped_plants_eia
 
 
@@ -439,52 +479,51 @@ def get_lost_plants_eia(pudl_engine):
 def get_db_utils_eia(pudl_engine):
     """Get a list of all EIA Utilities appearing in the PUDL DB."""
     db_utils_eia = (
-        pd.read_sql("utilities_entity_eia", pudl_engine).
-        loc[:, ["utility_id_eia", "utility_name_eia"]].
-        pipe(pudl.helpers.simplify_strings, columns=["utility_name_eia"]).
-        astype({"utility_id_eia": int}).
-        drop_duplicates("utility_id_eia").
-        sort_values("utility_id_eia").
-        set_index("utility_id_eia")
+        pd.read_sql("utilities_entity_eia", pudl_engine)
+        .loc[:, ["utility_id_eia", "utility_name_eia"]]
+        .pipe(pudl.helpers.simplify_strings, columns=["utility_name_eia"])
+        .astype({"utility_id_eia": int})
+        .drop_duplicates("utility_id_eia")
+        .set_index("utility_id_eia")
+        .sort_index()
     )
     return db_utils_eia
 
 
-def get_utility_most_recent_capacity(pudl_engine):
+def get_utility_most_recent_capacity(pudl_engine) -> pd.DataFrame:
     """Get a list of all utilities' most recent total net capacity of their generators."""
-    query = """
-    select utility_id_eia, capacity_mw, report_date from generators_eia860
-    """
-    with pudl_engine.connect() as conn:
-        generator_capacities = pd.read_sql(query, conn, parse_dates=["report_date"])
-        generator_capacities['utility_id_eia'] = generator_capacities['utility_id_eia'].astype(
-            "Int64")
+    gen_caps = pd.read_sql(
+        "SELECT utility_id_eia, capacity_mw, report_date FROM generators_eia860",
+        con=pudl_engine,
+        parse_dates=["report_date"],
+    )
+    gen_caps['utility_id_eia'] = gen_caps['utility_id_eia'].astype("Int64")
 
-    most_recent_generators_idx = generator_capacities.groupby(
-        "utility_id_eia")["report_date"].transform(max) == generator_capacities["report_date"]
-    most_recent_generators = generator_capacities[most_recent_generators_idx]
-    utility_capacities = most_recent_generators.groupby("utility_id_eia").sum()
-    utility_capacities = utility_capacities.rename(
-        columns={"capacity_mw": "most_recent_total_capacity_mw"})
-    return utility_capacities
+    most_recent_gens_idx = (
+        gen_caps.groupby("utility_id_eia")["report_date"]
+        .transform(max) == gen_caps["report_date"]
+    )
+    most_recent_gens = gen_caps.loc[most_recent_gens_idx]
+    utility_caps = most_recent_gens.groupby("utility_id_eia").sum()
+    return utility_caps
 
 
-def get_mapped_utils_eia():
+def get_mapped_utils_eia() -> pd.DataFrame:
     """Get a list of all the EIA Utilities that have PUDL IDs."""
     mapped_utils_eia = (
-        pudl.glue.ferc1_eia.get_utility_map().
-        loc[:, ["utility_id_eia", "utility_name_eia"]].
-        dropna(subset=["utility_id_eia"]).
-        pipe(pudl.helpers.simplify_strings, columns=["utility_name_eia"]).
-        astype({"utility_id_eia": int}).
-        drop_duplicates(["utility_id_eia"]).
-        sort_values(["utility_id_eia"]).
-        set_index("utility_id_eia")
+        pudl.glue.ferc1_eia.get_utility_map()
+        .loc[:, ["utility_id_eia", "utility_name_eia"]]
+        .dropna(subset=["utility_id_eia"])
+        .pipe(pudl.helpers.simplify_strings, columns=["utility_name_eia"])
+        .astype({"utility_id_eia": int})
+        .drop_duplicates("utility_id_eia")
+        .set_index("utility_id_eia")
+        .sort_index()
     )
     return mapped_utils_eia
 
 
-def get_unmapped_utils_eia(pudl_engine):
+def get_unmapped_utils_eia(pudl_engine, data_tables_eia923=DATA_TABLES_EIA923):
     """Get a list of all the EIA Utilities in the PUDL DB without PUDL IDs."""
     db_utils_eia = get_db_utils_eia(pudl_engine)
     mapped_utils_eia = get_mapped_utils_eia()
@@ -492,11 +531,42 @@ def get_unmapped_utils_eia(pudl_engine):
     unmapped_utils_eia = db_utils_eia.loc[unmapped_utils_idx]
 
     # Get the most recent total capacity for the unmapped utils.
-    utils_recent_capacity = get_utility_most_recent_capacity(pudl_engine)
     unmapped_utils_eia = unmapped_utils_eia.merge(
-        utils_recent_capacity, on="utility_id_eia", how="left", validate="1:1")
+        get_utility_most_recent_capacity(pudl_engine),
+        on="utility_id_eia",
+        how="left",
+        validate="1:1"
+    )
+
+    plant_ids = pd.Series(dtype="Int64")
+    for table in data_tables_eia923:
+        query = f"SELECT DISTINCT plant_id_eia FROM {table}"  # nosec
+        new_ids = pd.read_sql(query, pudl_engine)
+        plant_ids = plant_ids.append(new_ids["plant_id_eia"])
+    plant_ids_in_eia923 = sorted(set(plant_ids))
+
+    utils_with_plants = (
+        pd.read_sql("SELECT utility_id_eia, plant_id_eia FROM plants_eia860", pudl_engine)
+        .astype("Int64")
+        .drop_duplicates()
+        .dropna()
+    )
+    utils_with_data_in_eia923 = utils_with_plants.loc[
+        utils_with_plants.plant_id_eia.isin(plant_ids_in_eia923),
+        "utility_id_eia"].to_frame()
+
+    # Most unmapped utilities have no EIA 923 data and so don't need to be linked:
+    unmapped_utils_eia["link_to_ferc1"] = False
+    # Any utility ID that's both unmapped and has EIA 923 data should get linked:
+    idx_to_link = unmapped_utils_eia.index.intersection(
+        utils_with_data_in_eia923.utility_id_eia)
+    unmapped_utils_eia.loc[idx_to_link, "link_to_ferc1"] = True
+
     unmapped_utils_eia = unmapped_utils_eia.sort_values(
-        by="most_recent_total_capacity_mw", ascending=False)
+        by="capacity_mw",
+        ascending=False
+    )
+
     return unmapped_utils_eia
 
 
@@ -558,7 +628,7 @@ def get_unmapped_utils_with_plants_eia(pudl_engine):
     miss_utils = miss_utils.merge(
         utils_recent_capacity, on="utility_id_eia", how="left", validate="1:1")
     miss_utils = miss_utils.sort_values(
-        by="most_recent_total_capacity_mw", ascending=False)
+        by="capacity_mw", ascending=False)
     return miss_utils
 
 
