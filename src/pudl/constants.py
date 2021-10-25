@@ -498,7 +498,7 @@ COLUMN_DTYPES: Dict[str, Dict[str, Any]] = {
         'net_wheeled_power_mwh': float,
         'new_parent': pd.StringDtype(),
         'non_amr_ami': pd.Int64Dtype(),
-        'nuclear_unit_id': pd.Int64Dtype(),
+        'nuclear_unit_id': pd.StringDtype(),
         'operates_generating_plant': pd.BooleanDtype(),
         'operating_date': 'datetime64[ns]',
         'operating_switch': pd.StringDtype(),

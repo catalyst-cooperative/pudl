@@ -91,6 +91,8 @@ def _get_plant_nuclear_unit_id_map(nuc_fuel: pd.DataFrame) -> Dict[int, str]:
     assert (~plant_to_nuc_id.isna()).all(
     ), "Found missing nuclear_unit_ids in plant_to_nuc_id mappings."
 
+    plant_to_nuc_id = plant_to_nuc_id.astype("string")
+
     return dict(plant_to_nuc_id)
 
 
@@ -111,10 +113,13 @@ def _backfill_nuclear_unit_id(nuc_fuel: pd.DataFrame) -> pd.DataFrame:
 
     missing_nuclear_unit_id = nuc_fuel.nuclear_unit_id.isna()
 
-    nuc_fuel.loc[missing_nuclear_unit_id, "nuclear_unit_id"] = nuc_fuel.loc[missing_nuclear_unit_id,
-                                                                            "plant_id_eia"].map(plant_to_nuc_id_map)
-
+    unit_id_fill = nuc_fuel.loc[missing_nuclear_unit_id,
+                                "plant_id_eia"].map(plant_to_nuc_id_map)
     # If we aren't able to impute nuclear_unit_id, fill them UNK.
+    unit_id_fill = unit_id_fill.fillna("UNK")
+
+    nuc_fuel.loc[missing_nuclear_unit_id, "nuclear_unit_id"] = unit_id_fill
+
     missing_nuclear_unit_id = nuc_fuel.nuclear_unit_id.isna()
     nuc_fuel.loc[missing_nuclear_unit_id, "nuclear_unit_id"] = "UNK"
 
@@ -521,6 +526,9 @@ def nuclear_unit_fuel(nuclear_unit_fuel: pd.DataFrame, eia923_transformed_dfs: D
         eia923_transformed_dfs (Dict[str, pd.DataFrame]): dictionary to hold all eia923 tables.
 
     """
+    nuclear_unit_fuel["nuclear_unit_id"] = nuclear_unit_fuel["nuclear_unit_id"].astype(
+        "Int64").astype("string")
+
     nuclear_unit_fuel = _backfill_nuclear_unit_id(nuclear_unit_fuel)
 
     # All nuclear plants have steam turbines.
