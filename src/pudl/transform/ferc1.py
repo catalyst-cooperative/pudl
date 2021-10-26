@@ -12,6 +12,7 @@ import importlib.resources
 import logging
 import re
 from difflib import SequenceMatcher
+from typing import Dict, List
 
 # NetworkX is used to knit incomplete ferc plant time series together.
 import networkx as nx
@@ -35,13 +36,13 @@ logger = logging.getLogger(__name__)
 ##############################################################################
 # Dicts for categorizing freeform strings ####################################
 ##############################################################################
-FUEL_STRINGS = {
+FUEL_STRINGS: Dict[str, List[str]] = {
     "coal": [
         'coal', 'coal-subbit', 'lignite', 'coal(sb)', 'coal (sb)', 'coal-lignite',
         'coke', 'coa', 'lignite/coal', 'coal - subbit', 'coal-subb', 'coal-sub',
         'coal-lig', 'coal-sub bit', 'coals', 'ciak', 'petcoke', 'coal.oil', 'coal/gas',
         'bit coal', 'coal-unit #3', 'coal-subbitum', 'coal tons', 'coal mcf',
-        'coal unit #3', 'pet. coke', 'coal-u3', 'coal&coke', 'tons'
+        'coal unit #3', 'pet. coke', 'coal-u3', 'coal&coke', 'tons', 'coal  (sb)',
     ],
     "oil": [
         'oil', '#6 oil', '#2 oil', 'fuel oil', 'jet', 'no. 2 oil', 'no.2 oil',
@@ -58,7 +59,9 @@ FUEL_STRINGS = {
         'diesel/compos', 'oil-8', 'oil {6}', 'oil-unit #1', 'bbl.', 'oil.',  # noqa: FS003
         'oil #6', 'oil (6)', 'oil(#2)', 'oil-unit1&2', 'oil-6', '#2 fue oil',
         'dielel oil', 'dielsel oil', '#6 & used', 'barrels', 'oil un 1 & 2',
-        'jet oil', 'oil-u1&2', 'oiul', 'pil', 'oil - 2', '#6 & used', 'oial'
+        'jet oil', 'oil-u1&2', 'oiul', 'pil', 'oil - 2', '#6 & used', 'oial',
+        'diesel fuel', 'diesel/compo', 'oil (used)',
+
     ],
     "gas": [
         'gas', 'gass', 'methane', 'natural gas', 'blast gas', 'gas mcf',
@@ -76,15 +79,15 @@ FUEL_STRINGS = {
         'nuclear', 'grams of uran', 'grams of', 'grams of  ura',
         'grams', 'nucleur', 'nulear', 'nucl', 'nucleart', 'nucelar',
         'gr.uranium', 'grams of urm', 'nuclear (9)', 'nulcear', 'nuc',
-        'gr. uranium', 'nuclear mw da', 'grams of ura'
+        'gr. uranium', 'nuclear mw da', 'grams of ura', 'nucvlear',
     ],
     "waste": [
         'tires', 'tire', 'refuse', 'switchgrass', 'wood waste', 'woodchips',
         'biomass', 'wood', 'wood chips', 'rdf', 'tires/refuse', 'tire refuse',
-        'waste oil', 'waste', 'woodships', 'tire chips'
+        'waste oil', 'waste', 'woodships', 'tire chips', 'tdf',
     ],
-    "unknown": [
-        'steam', 'purch steam', 'all', 'tdf', 'n/a', 'purch. steam', 'other',
+    "other": [
+        'steam', 'purch steam', 'all', 'n/a', 'purch. steam', 'other',
         'composite', 'composit', 'mbtus', 'total', 'avg', 'avg.', 'blo',
         'all fuel', 'comb.', 'alt. fuels', 'na', 'comb', '/#=2\x80â\x91?',
         'kã\xadgv¸\x9d?', "mbtu's", 'gas, oil', 'rrm', '3\x9c', 'average',
@@ -93,15 +96,16 @@ FUEL_STRINGS = {
         'lime', 'all fuels', 'at right', '20', '1', 'comp oil/gas', 'all fuels to',
         'the right are', 'c omposite', 'all fuels are', 'total pr crk',
         'all fuels =', 'total pc', 'comp', 'alternative', 'alt. fuel', 'bio fuel',
-        'total prairie', ''
+        'total prairie', '', 'kã\xadgv¸?', 'm', 'waste heat', '/#=2â?', '3',
     ],
 }
-"""dict: A mapping a canonical fuel name to a list of strings which are used
-to represent that fuel in the FERC Form 1 Reporting. Case is ignored, as all fuel
-strings are converted to a lower case in the data set.
+"""
+A mapping a canonical fuel name to a list of strings which are used to represent that
+fuel in the FERC Form 1 Reporting. Case is ignored, as all fuel strings are converted to
+a lower case in the data set.
 """
 
-FUEL_UNIT_STRINGS = {
+FUEL_UNIT_STRINGS: Dict[str, List[str]] = {
     "ton": [
         'toms', 'taons', 'tones', 'col-tons', 'toncoaleq', 'coal', 'tons coal eq',
         'coal-tons', 'ton', 'tons', 'tons coal', 'coal-ton', 'tires-tons',
@@ -112,7 +116,7 @@ FUEL_UNIT_STRINGS = {
     "mcf": [
         'mcf', "mcf's", 'mcfs', 'mcf.', 'gas mcf', '"gas" mcf', 'gas-mcf',
         'mfc', 'mct', ' mcf', 'msfs', 'mlf', 'mscf', 'mci', 'mcl', 'mcg',
-        'm.cu.ft.', 'kcf', '(mcf)', 'mcf *(4)', 'mcf00', 'm.cu.ft..',
+        'm.cu.ft.', 'kcf', '(mcf)', 'mcf *(4)', 'mcf00', 'm.cu.ft..', '1000 c.f',
     ],
     "bbl": [
         'barrel', 'bbls', 'bbl', 'barrels', 'bbrl', 'bbl.', 'bbls.', 'oil 42 gal',
@@ -124,14 +128,19 @@ FUEL_UNIT_STRINGS = {
         'bsrrels', "bbl's", '*barrels', 'oil - barrels', 'oil 42 gal ba', 'bll',
         'boiler barrel', 'gas barrel', '"boiler" barr', '"gas" barrel',
         '"boiler"barre', '"boiler barre', 'barrels .', 'bariel', 'brrels', 'oil barrel',
+        'barreks', 'oil-bbls', 'oil-bbs',
     ],
     "gal": ['gallons', 'gal.', 'gals', 'gals.', 'gallon', 'gal', 'galllons'],
-    "kgal": ['oil(1000 gal)', 'oil(1000)', 'oil (1000)', 'oil(1000', 'oil(1000ga)'],
+    "kgal": [
+        'oil(1000 gal)', 'oil(1000)', 'oil (1000)', 'oil(1000', 'oil(1000ga)',
+        '1000 gals', '1000 gal',
+    ],
     "gramsU": [
         'gram', 'grams', 'gm u', 'grams u235', 'grams u-235', 'grams of uran',
         'grams: u-235', 'grams:u-235', 'grams:u235', 'grams u308', 'grams: u235',
         'grams of', 'grams - n/a', 'gms uran', 's e uo2 grams', 'gms uranium',
         'grams of urm', 'gms. of uran', 'grams (100%)', 'grams v-235', 'se uo2 grams',
+        'grams u',
     ],
     "kgU": [
         'kg of uranium', 'kg uranium', 'kilg. u-235', 'kg u-235', 'kilograms-u23',
@@ -139,7 +148,7 @@ FUEL_UNIT_STRINGS = {
         'kilogr. u235', 'uranium kg', 'kg uranium25', 'kilogr. u-235',
         'kg uranium 25', 'kilgr. u-235', 'kguranium 25', 'kg-u235', 'kgm',
     ],
-    "klbs": ['k lbs.', 'k lbs'],
+    "klbs": ['k lbs.', 'k lbs', '1000 / lbs', '1000 lbs', ],
     "mmbtu": [
         'mmbtu', 'mmbtus', 'mbtus', '(mmbtu)', "mmbtu's", 'nuclear-mmbtu',
         'nuclear-mmbt', 'mmbtul',
@@ -167,15 +176,15 @@ FUEL_UNIT_STRINGS = {
         'oil-mcf', '3303671', '929', '7182175', '319', '1490442', '10881', '1363663',
         '7171', '1726497', '4783', '7800', '12559', '2398', 'creek fuels',
         'propane-barre', '509', 'barrels/mcf', 'propane-bar', '4853325', '4069628',
-        '1431536', '708903', 'mcf/oil (1000',
+        '1431536', '708903', 'mcf/oil (1000', '344', 'å?"', 'mcf / gallen',
     ],
 }
 """
-dict: A dictionary linking fuel units (keys) to lists of various strings
-    representing those fuel units (values)
+A dictionary linking fuel units (keys) to lists of various strings representing those
+fuel units (values)
 """
 
-PLANT_KIND_STRINGS = {
+PLANT_KIND_STRINGS: Dict[str, List[str]] = {
     "steam": [
         'coal', 'steam', 'steam units 1 2 3', 'steam units 4 5',
         'steam fossil', 'steam turbine', 'steam a', 'steam 100',
@@ -197,6 +206,7 @@ PLANT_KIND_STRINGS = {
         'steam- 72%', 'steam;retired - 2013', "respondent's sh.-st.",
         "respondent's sh-st", '40% share steam', 'resp share stm note3',
         'mpc50% share steam', 'resp share st note 3', '\x02steam (1)',
+        'coal fired steam tur', 'steam- 64%',
     ],
     "combustion_turbine": [
         'combustion turbine', 'gt', 'gas turbine',
@@ -231,6 +241,7 @@ PLANT_KIND_STRINGS = {
         'gas turb, int. comb.', 'gas turb, diesel', 'gas turb, int. comb',
         'i.c.e/gas turbine', 'diesel turbine', 'comubstion turbine',
         'i.c.e. /gas turbine', 'i.c.e/ gas turbine', 'i.c.e./gas tubine',
+        'gas turbine; retired',
     ],
     "combined_cycle": [
         'Combined cycle', 'combined cycle', 'combined', 'gas & steam turbine',
@@ -251,7 +262,7 @@ PLANT_KIND_STRINGS = {
         'gas turb/cumbus cycl', 'gas turb/comb cycle', 'gasturb/comb cycle',
         'gas turb/cumb. cyc', 'igcc/gas turbine', 'gas / steam', 'ctg/steam-gas',
         'ctg/steam -gas', 'gas fired cc turbine', 'combinedcycle', 'comb cycle gas turb',
-        'combined cycle opern', 'comb. cycle gas turb',
+        'combined cycle opern', 'comb. cycle gas turb', 'ngcc',
     ],
     "nuclear": [
         'nuclear', 'nuclear (3)', 'steam(nuclear)', 'nuclear(see note4)'
@@ -272,10 +283,11 @@ PLANT_KIND_STRINGS = {
         'internal combust.', 'int. combustion (1)', '*int combustion (1)',
         "*internal combust'n", 'internal', 'internal comb.', 'steam internal comb',
         'combustion', 'int. combustion', 'int combust (note1)', 'int. combustine',
-        'internl combustion', '*int. combustion (1)'
+        'internl combustion', '*int. combustion (1)', 'internal conbustion',
     ],
     "wind": [
         'wind', 'wind energy', 'wind turbine', 'wind - turbine', 'wind generation'
+        'wind turbin'
     ],
     "photovoltaic": ['solar photovoltaic', 'photovoltaic', 'solar', 'solar project'],
     "solar_thermal": ['solar thermal'],
@@ -301,15 +313,15 @@ PLANT_KIND_STRINGS = {
     ],
 }
 """
-dict: A mapping from canonical plant kinds (keys) to the associated freeform strings
-    (values) identified as being associated with that kind of plant in the FERC Form 1
-    raw data. There are many strings that weren't categorized, Solar and Solar
-    Project were not classified as these do not indicate if they are solar thermal or
-    photovoltaic. Variants on Steam (e.g. "steam 72" and "steam and gas") were
-    classified based on additional research of the plants on the Internet.
+A mapping from canonical plant kinds (keys) to the associated freeform strings (values)
+identified as being associated with that kind of plant in the FERC Form 1 raw data.
+There are many strings that weren't categorized, Solar and Solar Project were not
+classified as these do not indicate if they are solar thermal or photovoltaic. Variants
+on Steam (e.g. "steam 72" and "steam and gas") were classified based on additional
+research of the plants on the Internet.
 """
 
-CONSTRUCTION_TYPE_STRINGS = {
+CONSTRUCTION_TYPE_STRINGS: Dict[str, List[str]] = {
     "outdoor": [
         'outdoor', 'outdoor boiler', 'full outdoor', 'outdoor boiler',
         'outdoor boilers', 'outboilers', 'fuel outdoor', 'full outdoor',
@@ -333,7 +345,7 @@ CONSTRUCTION_TYPE_STRINGS = {
         'outodoor (auto oper)', 'outdoor steel encl.', 'full outoor',
         'boiler & outdoor ful', 'otdr. blr. & f. otdr', 'f.otdr & otdr.blr.',
         'oudoor (auto oper)', 'outdoor constructin', 'f. otdr. & otdr. blr',
-        'outdoor boiler & fue',
+        'outdoor boiler & fue', 'outdoor boiler &fuel',
     ],
     "semioutdoor": [
         'more than 50% outdoo', 'more than 50% outdos', 'over 50% outdoor',
@@ -390,6 +402,7 @@ CONSTRUCTION_TYPE_STRINGS = {
         '2 indoor boilers', '1 indoor boiler', '2 indoor boiler',
         '3 indoor boilers', 'fully contained', 'conv - b', 'conventional/boiler',
         'cnventional', 'comb. cycle indooor', 'sonventional', 'ind enclosures',
+        'conentional', 'conventional - boilr', 'indoor boiler and st',
     ],
     "unknown": [
         '', 'automatic operation', 'comb. turb. installn', 'comb. turb. instaln',
@@ -415,18 +428,18 @@ CONSTRUCTION_TYPE_STRINGS = {
         'tower -10 unit', 'tower - 101 unit', '3 on 1 gas turbine', 'tower - 10 units',
         'tower - 165 units', 'wind turbine', 'fixed tilt pv', 'tracking pv', 'o',
         'wind trubine', 'subcritical', 'sucritical', 'simple cycle',
-        'simple & reciprocat'
+        'simple & reciprocat', 'solar',
     ],
 }
-"""dict: A dictionary of construction types (keys) and lists of construction type
-    strings associated with each type (values) from FERC Form 1.
+"""
+A dictionary of construction types (keys) and lists of construction type strings
+associated with each type (values) from FERC Form 1.
 
-    There are many strings that weren't categorized, including crosses between
-    conventional and outdoor, PV, wind, combined cycle, and internal combustion. The
-    lists are broken out into the two types specified in Form 1: conventional and
-    outdoor. These lists are inclusive so that variants of conventional (e.g.
-    "conventional full") and outdoor (e.g. "outdoor full" and "outdoor hrsg") are
-    included.
+There are many strings that weren't categorized, including crosses between conventional
+and outdoor, PV, wind, combined cycle, and internal combustion. The lists are broken out
+into the two types specified in Form 1: conventional and outdoor. These lists are
+inclusive so that variants of conventional (e.g.  "conventional full") and outdoor (e.g.
+"outdoor full" and "outdoor hrsg") are included.
 """
 
 ##############################################################################
