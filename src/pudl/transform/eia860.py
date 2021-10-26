@@ -151,6 +151,7 @@ def ownership(eia860_dfs, eia860_transformed_dfs):
         & (own_df.fraction_owned == 1.0)
     )
     own_df.loc[single_owner_operator, "utility_id_eia"] = pd.NA
+    own_df = PUDL_META.get_resource("ownership_eia860").encode(own_df)
 
     eia860_transformed_dfs['ownership_eia860'] = own_df
 
@@ -254,7 +255,6 @@ def generators(eia860_dfs, eia860_transformed_dfs):
     # A subset of the columns have "X" values, where other columns_to_fix
     # have "N" values. Replacing these values with "N" will make for uniform
     # values that can be converted to Boolean True and False pairs.
-
     gens_df.duct_burners = \
         gens_df.duct_burners.replace(to_replace='X', value='N')
     gens_df.bypass_heat_recovery = \
@@ -421,8 +421,9 @@ def plants(eia860_dfs, eia860_transformed_dfs):
                 value=[True, False, pd.NA])
         )
 
-    # Ensure plant & operator IDs are integers.
     p_df = pudl.helpers.convert_to_date(p_df)
+
+    p_df = PUDL_META.get_resource("plants_eia860").encode(p_df)
 
     eia860_transformed_dfs['plants_eia860'] = p_df
 

@@ -14,8 +14,8 @@ from pudl.metadata.enums import (CUSTOMER_CLASSES, EPACEMS_MEASUREMENT_CODES,
                                  EPACEMS_STATES, FUEL_CLASSES, NERC_REGIONS,
                                  RELIABILITY_STANDARDS, REVENUE_CLASSES,
                                  TECH_CLASSES)
-from pudl.metadata.labels import (ENTITY_TYPES, ESTIMATED_OR_ACTUAL,
-                                  MOMENTARY_INTERRUPTIONS)
+from pudl.metadata.labels import (COALMINE_TYPES_EIA, ENTITY_TYPES,
+                                  ESTIMATED_OR_ACTUAL, MOMENTARY_INTERRUPTIONS)
 
 ENTITIES: Dict[str, Tuple[List[str], List[str], List[str], Dict[str, str]]] = {
     'plants': (
@@ -27,8 +27,8 @@ ENTITIES: Dict[str, Tuple[List[str], List[str], List[str], Dict[str, str]]] = {
          'ferc_exempt_wholesale_generator', 'ferc_small_power_producer',
          'grid_voltage_2_kv', 'grid_voltage_3_kv', 'grid_voltage_kv',
          'iso_rto_code', 'latitude', 'longitude',
-         'plant_name_eia', 'primary_purpose_naics_id',
-         'sector_id', 'sector_name', 'state', 'street_address', 'zip_code'],
+         'plant_name_eia', 'primary_purpose_id_naics',
+         'sector_id_eia', 'sector_name_eia', 'state', 'street_address', 'zip_code'],
         # annual cols
         ['ash_impoundment', 'ash_impoundment_lined', 'ash_impoundment_status',
          'datum', 'energy_storage', 'ferc_cogen_docket_no', 'water_source',
@@ -441,12 +441,7 @@ COLUMN_DTYPES: Dict[str, Dict[str, Any]] = {
         'fuel_group_code_simple': pd.StringDtype(),
         'fuel_mmbtu_per_unit': float,
         'fuel_pct': float,
-        'fuel_qty_units': float,
-        # are fuel_type and fuel_type_code the same??
-        # fuel_type includes 40 code-like things.. WAT, SUN, NUC, etc.
-        'fuel_type': pd.StringDtype(),
-        # from the boiler_fuel_eia923 table, there are 30 code-like things, like NG, BIT, LIG
-        'fuel_type_code': pd.StringDtype(),
+        'fuel_received_units': float,
         'fuel_type_code_aer': pd.StringDtype(),
         'fuel_type_code_pudl': pd.StringDtype(),
         'furnished_without_charge_mwh': float,
@@ -459,7 +454,6 @@ COLUMN_DTYPES: Dict[str, Dict[str, Any]] = {
         'grid_voltage_2_kv': float,
         'grid_voltage_3_kv': float,
         'grid_voltage_kv': float,
-        'heat_content_mmbtu_per_unit': float,
         'highest_distribution_voltage_kv': float,
         'home_area_network': pd.Int64Dtype(),
         'inactive_accounts_included': pd.BooleanDtype(),
@@ -489,7 +483,9 @@ COLUMN_DTYPES: Dict[str, Dict[str, Any]] = {
         'mine_id_msha': pd.Int64Dtype(),
         'mine_id_pudl': pd.Int64Dtype(),
         'mine_name': pd.StringDtype(),
-        'mine_type_code': pd.StringDtype(),
+        'mine_type': pd.CategoricalDtype(
+            categories=COALMINE_TYPES_EIA.values()
+        ),
         'minimum_load_mw': float,
         'moisture_content_pct': float,
         'momentary_interruption_definition': pd.CategoricalDtype(
@@ -568,7 +564,7 @@ COLUMN_DTYPES: Dict[str, Dict[str, Any]] = {
         'price_responsive_programes': pd.BooleanDtype(),
         'price_responsiveness_customers': pd.Int64Dtype(),
         'primary_transportation_mode_code': pd.StringDtype(),
-        'primary_purpose_naics_id': pd.Int64Dtype(),
+        'primary_purpose_id_naics': pd.Int64Dtype(),
         'prime_mover_code': pd.StringDtype(),
         'pv_current_flow_type': pd.CategoricalDtype(categories=['AC', 'DC']),
         'reactive_power_output_mvar': float,
@@ -598,8 +594,8 @@ COLUMN_DTYPES: Dict[str, Dict[str, Any]] = {
         'sales_revenue': float,
         'sales_to_ultimate_consumers_mwh': float,
         'secondary_transportation_mode_code': pd.StringDtype(),
-        'sector_id': pd.Int64Dtype(),
-        'sector_name': pd.StringDtype(),
+        'sector_id_eia': pd.Int64Dtype(),
+        'sector_name_eia': pd.StringDtype(),
         'service_area': pd.StringDtype(),
         'service_type': pd.CategoricalDtype(
             categories=["bundled", "energy", "delivery"]

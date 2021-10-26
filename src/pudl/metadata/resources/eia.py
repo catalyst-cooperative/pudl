@@ -10,7 +10,7 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
             "fields": [
                 "plant_id_eia",
                 "boiler_id",
-                "fuel_type_code",
+                "energy_source_code",
                 "fuel_type_code_pudl",
                 "report_date",
                 "fuel_consumed_units",
@@ -23,7 +23,7 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
             # "primary_key": [
             #     "plant_id_eia",
             #     "boiler_id",
-            #     "fuel_type_code",
+            #     "energy_source_code",
             #     "report_date"
             # ],
         },
@@ -56,7 +56,7 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
             "fields": [
                 "mine_id_pudl",
                 "mine_name",
-                "mine_type_code",
+                "mine_type",
                 "state",
                 "county_id_fips",
                 "mine_id_msha",
@@ -65,6 +65,13 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
             "foreign_key_rules": {"fields": [["mine_id_pudl"]]},
         },
         "sources": ["eia923"],
+    },
+    "contract_types_eia": {
+        "schema": {
+            "fields": ["code", "label", "description"],
+            "primary_key": ["code"],
+            "foreign_key_rules": {"fields": [["contract_type_code"]]}
+        }
     },
     "datasets": {
         "schema": {"fields": ["datasource", "active"], "primary_key": ["datasource"]},
@@ -98,10 +105,7 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
                     ["startup_source_code_3"],
                     ["startup_source_code_4"],
                     ["planned_energy_source_code_1"],
-                    ["fuel_type"],
-                    ["fuel_type_code"],
                 ],
-                "exclude": ["plants_small_ferc1"]
             },
         },
         "encoder": ENERGY_SOURCES_EIA,
@@ -119,8 +123,8 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
                 "fuel_group_code",
                 "mine_id_pudl",
                 "supplier_name",
-                "fuel_qty_units",
-                "heat_content_mmbtu_per_unit",
+                "fuel_received_units",
+                "fuel_mmbtu_per_unit",
                 "sulfur_content_pct",
                 "ash_content_pct",
                 "mercury_content_ppm",
@@ -181,7 +185,7 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
                 "plant_id_eia",
                 "report_date",
                 "nuclear_unit_id",
-                "fuel_type",
+                "energy_source_code",
                 "fuel_type_code_pudl",
                 "fuel_type_code_aer",
                 "prime_mover_code",
@@ -198,7 +202,7 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
             #     "plant_id_eia",
             #     "report_date",
             #     "nuclear_unit_id",
-            #     "fuel_type",
+            #     "energy_source_code",
             #     "prime_mover_code"
             # ],
         },
@@ -415,9 +419,9 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
                 "iso_rto_code",
                 "latitude",
                 "longitude",
-                "primary_purpose_naics_id",
-                "sector_name",
-                "sector_id",
+                "primary_purpose_id_naics",
+                "sector_name_eia",
+                "sector_id_eia",
                 "state",
                 "street_address",
                 "zip_code",
@@ -448,7 +452,13 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
         },
         "sources": ["eia923", "eia860"],
     },
-
+    "sector_consolidated_eia": {
+        "schema": {
+            "fields": ["code", "label", "description"],
+            "primary_key": ["code"],
+            "foreign_key_rules": {"fields": [["sector_id_eia"]]},
+        }
+    },
     "utilities_eia": {
         "schema": {
             "fields": ["utility_id_eia", "utility_name_eia", "utility_id_pudl"],

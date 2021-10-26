@@ -116,75 +116,108 @@ FUEL_TRANSPORTATION_MODES_EIA: Dict[str, Any] = {
 """Descriptive labels for fuel transport modes reported in the EIA 923."""
 
 
-FUEL_TYPES_AER_EIA: pd.DataFrame = pd.DataFrame(
-    columns=["code", "description"],
-    data=[
-        ('SUN', 'Solar PV and thermal'),
-        ('COL', 'Coal'),
-        ('DFO', 'Distillate Petroleum'),
-        ('GEO', 'Geothermal'),
-        ('HPS', 'Hydroelectric Pumped Storage'),
-        ('HYC', 'Hydroelectric Conventional'),
-        ('MLG', 'Biogenic Municipal Solid Waste and Landfill Gas'),
-        ('NG', 'Natural Gas'),
-        ('NUC', 'Nuclear'),
-        ('OOG', 'Other Gases'),
-        ('ORW', 'Other Renewables'),
-        ('OTH', 'Other (including nonbiogenic MSW)'),
-        ('PC', 'Petroleum Coke'),
-        ('RFO', 'Residual Petroleum'),
-        ('WND', 'Wind'),
-        ('WOC', 'Waste Coal'),
-        ('WOO', 'Waste Oil'),
-        ('WWW', 'Wood and Wood Waste'),
-    ],
-).astype({
-    "code": pd.StringDtype(),
-    "description": pd.StringDtype(),
-})
+FUEL_TYPES_AER_EIA: Dict[str, Any] = {
+    "df": pd.DataFrame(
+        columns=["code", "description"],
+        data=[
+            ('SUN', 'Solar PV and thermal'),
+            ('COL', 'Coal'),
+            ('DFO', 'Distillate Petroleum'),
+            ('GEO', 'Geothermal'),
+            ('HPS', 'Hydroelectric Pumped Storage'),
+            ('HYC', 'Hydroelectric Conventional'),
+            ('MLG', 'Biogenic Municipal Solid Waste and Landfill Gas'),
+            ('NG', 'Natural Gas'),
+            ('NUC', 'Nuclear'),
+            ('OOG', 'Other Gases'),
+            ('ORW', 'Other Renewables'),
+            ('OTH', 'Other (including Nonbiogenic Municipal Solid Waste)'),
+            ('PC', 'Petroleum Coke'),
+            ('RFO', 'Residual Petroleum'),
+            ('WND', 'Wind'),
+            ('WOC', 'Waste Coal'),
+            ('WOO', 'Waste Oil'),
+            ('WWW', 'Wood and Wood Waste'),
+        ],
+    ).convert_dtypes(),
+    "code_fixes": {},
+    "ignored_codes": [],
+}
 """
 Descriptive labels for aggregated fuel types used in the Annual Energy Review.
 
 See the EIA 923 Fuel Code table (Table 5) for additional information.
 """
 
-CONTRACT_TYPES_EIA: pd.DataFrame = pd.DataFrame(
-    columns=["code", "label", "description"],
-    data=[
-        ('C', 'contract', 'Fuel received under a purchase order or contract with a term of one year or longer.  Contracts with a shorter term are considered spot purchases '),
-        ('NC', 'new_contract', 'Fuel received under a purchase order or contract with duration of one year or longer, under which deliveries were first made during the reporting month'),
-        ('N', 'new_contract', 'Fuel received under a purchase order or contract with duration of one year or longer, under which deliveries were first made during the reporting month'),
-        ('S', 'spot_purchase', pd.NA),
-        ('T', 'tolling_agreement',
-         'Fuel received under a tolling agreement (bartering arrangement of fuel for generation)'),
-    ]
-).astype({
-    "code": pd.StringDtype(),
-    "label": pd.StringDtype(),
-    "description": pd.StringDtype(),
-})
+CONTRACT_TYPES_EIA: Dict[str, Any] = {
+    "df": pd.DataFrame(
+        columns=["code", "label", "description"],
+        data=[
+            ('C', 'contract', 'Fuel received under a purchase order or contract with a term of one year or longer.  Contracts with a shorter term are considered spot purchases '),  # nopep8
+            ('NC', 'new_contract', 'Fuel received under a purchase order or contract with duration of one year or longer, under which deliveries were first made during the reporting month'),  # nopep8
+            ('S', 'spot_purchase', 'Fuel obtained through a spot market purchase'),
+            ('T', 'tolling_agreement', 'Fuel received under a tolling agreement (bartering arrangement of fuel for generation)'),  # nopep8
+        ]
+    ).convert_dtypes(),
+    "code_fixes": {"N": "NC"},
+    "ignored_codes": [],
+}
 """
 Descriptive labels for fuel supply contract type codes reported in EIA 923.
 
 The purchase type under which fuel receipts occurred in the reporting month.
 """
 
-NAICS_SECTOR_CONSOLIDATED_EIA: pd.DataFrame = pd.DataFrame(
-    columns=["code", "label", "description"],
-    data=[
-        ("1", "electric_utility", "Traditional regulated electric utilities."),
-        ("2", "ipp_non_cogen", "Independent power producers which are not cogenerators."),
-        ("3", "ipp_cogen", "Independent power producers which are cogenerators, but whose primary business purpose is the same of electricity to the public."),
-        ("4", "commercial_non_cogen", "Commercial non-cogeneration facilities that produce electric power, are connected to the grid, and can sell power to the public."),
-        ("5", "commercial_cogen", "Commercial cogeneration facilities that produce electric power, are connected to the grid, and can sell power to the public."),
-        ("6", "industrial_non_cogen", "Industrial non-cogeneration facilities that produce electric power, are connected to the grid, and can sell power to the public."),
-        ("7", "industrial_cogen", "Industrial cogeneration facilities that produce electric power, are connected to the grid, and can sell power to the public"),
-    ]
-).astype({
-    "code": pd.StringDtype(),
-    "label": pd.StringDtype(),
-    "description": pd.StringDtype(),
-})
+PRIME_MOVERS_EIA: Dict[str, Any] = {
+    "df": pd.DataFrame(
+        columns=["code", "label", "description"],
+        data=[
+            ('BA', 'battery_storage', 'Energy Storage, Battery'),
+            ('BT', 'binary_cycle_turbine', 'Turbines Used in a Binary Cycle. Including those used for geothermal applications'),  # nopep8
+            ('CA', 'combined_cycle_steam_turbine', 'Combined-Cycle, Steam Turbine Part'),
+            ('CC', 'combined_cycle_total', 'Combined-Cycle, Total Unit'),
+            ('CE', 'compressed_air_storage', 'Energy Storage, Compressed Air'),
+            ('CP', 'concentrated_solar_storage', 'Energy Storage, Concentrated Solar Power'),  # nopep8
+            ('CS', 'combined_cycle_single_shaft', 'Combined-Cycle Single-Shaft Combustion Turbine and Steam Turbine share of single'),  # nopep8
+            ('CT', 'combined_cycle_combustion_turbine', 'Combined-Cycle Combustion Turbine Part'),  # nopep8
+            ('ES', 'other_storage', 'Energy Storage, Other (Specify on Schedule 9, Comments)'),  # nopep8
+            ('FC', 'fuel_cell', 'Fuel Cell'),
+            ('FW', 'flywheel_storage', 'Energy Storage, Flywheel'),
+            ('GT', 'gas_combustion_turbine', 'Combustion (Gas) Turbine. Including Jet Engine design'),  # nopep8
+            ('HA', 'hydrokinetic_axial_flow', 'Hydrokinetic, Axial Flow Turbine'),
+            ('HB', 'hydrokinetic_wave_buoy', 'Hydrokinetic, Wave Buoy'),
+            ('HK', 'hydrokinetic_other', 'Hydrokinetic, Other'),
+            ('HY', 'hydraulic_turbine', 'Hydraulic Turbine. Including turbines associated with delivery of water by pipeline.'),  # nopep8
+            ('IC', 'internal_combustion', 'Internal Combustion (diesel, piston, reciprocating) Engine'),  # nopep8
+            ('OT', 'other', 'Other'),
+            ('PS', 'pumped_storage', 'Energy Storage, Reversible Hydraulic Turbine (Pumped Storage)'),  # nopep8
+            ('PV', 'solar_pv', 'Solar Photovoltaic'),
+            ('ST', 'steam_turbine', 'Steam Turbine. Including Nuclear, Geothermal, and Solar Steam (does not include Combined Cycle).'),  # nopep8
+            ('WS', 'wind_offshore', 'Wind Turbine, Offshore'),
+            ('WT', 'wind_onshore', 'Wind Turbine, Onshore'),
+        ],
+    ).convert_dtypes(),
+    "code_fixes": {},
+    "ignored_codes": []
+}
+"""Descriptive labels for EIA prime mover codes."""
+
+SECTOR_CONSOLIDATED_EIA: Dict[str, Any] = {
+    "df": pd.DataFrame(
+        columns=["code", "label", "description"],
+        data=[
+            (1, "electric_utility", "Traditional regulated electric utilities."),
+            (2, "ipp_non_cogen", "Independent power producers which are not cogenerators."),
+            (3, "ipp_cogen", "Independent power producers which are cogenerators, but whose primary business purpose is the same of electricity to the public."),
+            (4, "commercial_non_cogen", "Commercial non-cogeneration facilities that produce electric power, are connected to the grid, and can sell power to the public."),
+            (5, "commercial_cogen", "Commercial cogeneration facilities that produce electric power, are connected to the grid, and can sell power to the public."),
+            (6, "industrial_non_cogen", "Industrial non-cogeneration facilities that produce electric power, are connected to the grid, and can sell power to the public."),
+            (7, "industrial_cogen", "Industrial cogeneration facilities that produce electric power, are connected to the grid, and can sell power to the public"),
+        ]
+    ).convert_dtypes(),
+    "code_fixes": {},
+    "ignored_codes": []
+}
 """
 Descriptive labels for EIA consolidated NAICS sector codes.
 
@@ -192,33 +225,3 @@ For internal purposes, EIA consolidates NAICS categories into seven groups.
 These codes and descriptions are listed on Page 7 of EIA Form 923 EIA’s internal
 consolidated NAICS sectors.
 """
-
-PRIME_MOVERS_EIA: pd.DataFrame = pd.DataFrame(
-    columns=["code", "label", "description"],
-    data=[
-        ('BA', 'battery_storage', 'Energy Storage, Battery'),
-        ('BT', 'binary_cycle_turbine', 'Turbines Used in a Binary Cycle. Including those used for geothermal applications'),  # nopep8
-        ('CA', 'combined_cycle_steam_turbine', 'Combined-Cycle, Steam Turbine Part'),
-        ('CC', 'combined_cycle_total', 'Combined-Cycle, Total Unit'),
-        ('CE', 'compressed_air_storage', 'Energy Storage, Compressed Air'),
-        ('CP', 'concentrated_solar_storage', 'Energy Storage, Concentrated Solar Power'),  # nopep8
-        ('CS', 'combined_cycle_single_shaft', 'Combined-Cycle Single-Shaft Combustion Turbine and Steam Turbine share of single'),  # nopep8
-        ('CT', 'combined_cycle_combustion_turbine', 'Combined-Cycle Combustion Turbine Part'),  # nopep8
-        ('ES', 'other_storage', 'Energy Storage, Other (Specify on Schedule 9, Comments)'),  # nopep8
-        ('FC', 'fuel_cell', 'Fuel Cell'),
-        ('FW', 'flywheel_storage', 'Energy Storage, Flywheel'),
-        ('GT', 'gas_combustion_turbine', 'Combustion (Gas) Turbine. Including Jet Engine design'),  # nopep8
-        ('HA', 'hydrokinetic_axial_flow', 'Hydrokinetic, Axial Flow Turbine'),
-        ('HB', 'hydrokinetic_wave_buoy', 'Hydrokinetic, Wave Buoy'),
-        ('HK', 'hydrokinetic_other', 'Hydrokinetic, Other'),
-        ('HY', 'hydraulic_turbine', 'Hydraulic Turbine. Including turbines associated with delivery of water by pipeline.'),  # nopep8
-        ('IC', 'internal_combustion', 'Internal Combustion (diesel, piston, reciprocating) Engine'),  # nopep8
-        ('OT', 'other', 'Other'),
-        ('PS', 'pumped_storage', 'Energy Storage, Reversible Hydraulic Turbine (Pumped Storage)'),  # nopep8
-        ('PV', 'solar_pv', 'Solar Photovoltaic'),
-        ('ST', 'steam_turbine', 'Steam Turbine. Including Nuclear, Geothermal, and Solar Steam (does not include Combined Cycle).'),  # nopep8
-        ('WS', 'wind_offshore', 'Wind Turbine, Offshore'),
-        ('WT', 'wind_onshore', 'Wind Turbine, Onshore'),
-    ],
-).convert_dtypes()
-"""Descriptive labels for EIA prime mover codes."""

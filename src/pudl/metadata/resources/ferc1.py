@@ -44,7 +44,7 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
                 "plant_name_ferc1",
                 "fuel_type_code_pudl",
                 "fuel_units",
-                "fuel_qty_burned",
+                "fuel_consumed_units",
                 "fuel_mmbtu_per_unit",
                 "fuel_cost_per_unit_burned",
                 "fuel_cost_per_unit_delivered",

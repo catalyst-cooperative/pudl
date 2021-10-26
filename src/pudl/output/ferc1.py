@@ -95,8 +95,8 @@ def fuel_ferc1(pudl_engine):
     """
     fuel_df = (
         pd.read_sql("fuel_ferc1", pudl_engine).
-        assign(fuel_consumed_mmbtu=lambda x: x["fuel_qty_burned"] * x["fuel_mmbtu_per_unit"],
-               fuel_consumed_total_cost=lambda x: x["fuel_qty_burned"] * x["fuel_cost_per_unit_burned"]).
+        assign(fuel_consumed_mmbtu=lambda x: x["fuel_consumed_units"] * x["fuel_mmbtu_per_unit"],
+               fuel_consumed_total_cost=lambda x: x["fuel_consumed_units"] * x["fuel_cost_per_unit_burned"]).
         merge(plants_utils_ferc1(pudl_engine),
               on=['utility_id_ferc1', 'plant_name_ferc1']).
         pipe(pudl.helpers.organize_cols, ['report_year',

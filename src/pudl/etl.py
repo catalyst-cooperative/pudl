@@ -26,9 +26,10 @@ import sqlalchemy as sa
 import pudl
 from pudl import constants as pc
 from pudl.constants import PUDL_TABLES
-from pudl.metadata.codes import (ENERGY_SOURCES_EIA,
+from pudl.metadata.codes import (CONTRACT_TYPES_EIA, ENERGY_SOURCES_EIA,
                                  FUEL_TRANSPORTATION_MODES_EIA,
-                                 FUEL_TYPES_AER_EIA, PRIME_MOVERS_EIA)
+                                 FUEL_TYPES_AER_EIA, PRIME_MOVERS_EIA,
+                                 SECTOR_CONSOLIDATED_EIA)
 from pudl.metadata.dfs import FERC_ACCOUNTS, FERC_DEPRECIATION_LINES
 from pudl.workspace.datastore import Datastore
 
@@ -153,9 +154,11 @@ def _read_static_tables_eia() -> Dict[str, pd.DataFrame]:
     """
     return {
         'energy_sources_eia': ENERGY_SOURCES_EIA["df"],
-        'fuel_types_aer_eia': FUEL_TYPES_AER_EIA,
-        'prime_movers_eia': PRIME_MOVERS_EIA,
+        'fuel_types_aer_eia': FUEL_TYPES_AER_EIA["df"],
+        'prime_movers_eia': PRIME_MOVERS_EIA["df"],
+        'sector_consolidated_eia': SECTOR_CONSOLIDATED_EIA["df"],
         'fuel_transportation_modes_eia': FUEL_TRANSPORTATION_MODES_EIA["df"],
+        'contract_types_eia': CONTRACT_TYPES_EIA["df"]
     }
 
 

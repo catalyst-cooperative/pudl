@@ -3,12 +3,13 @@ from typing import Any, Dict
 
 from pytz import all_timezones
 
+from .codes import ENERGY_SOURCES_EIA
 from .constants import SOURCES
 from .enums import (CANADA_PROVINCES_TERRITORIES, CUSTOMER_CLASSES,
                     EPACEMS_MEASUREMENT_CODES, EPACEMS_STATES, FUEL_CLASSES,
                     NERC_REGIONS, RELIABILITY_STANDARDS, REVENUE_CLASSES,
                     RTO_CLASSES, TECH_CLASSES, US_STATES_TERRITORIES)
-from .labels import (ENTITY_TYPES, ESTIMATED_OR_ACTUAL,
+from .labels import (COALMINE_TYPES_EIA, ENTITY_TYPES, ESTIMATED_OR_ACTUAL,
                      MOMENTARY_INTERRUPTIONS, POWER_PURCHASE_TYPES_FERC1)
 
 FIELD_METADATA: Dict[str, Dict[str, Any]] = {
@@ -724,22 +725,14 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
             "enum": ["gas", "liquid", "solid"]
         }
     },
-    "fuel_qty_burned": {
-        "type": "number",
-        "description": "Quantity of fuel consumed in the report year, in terms of the reported fuel units."
-    },
-    "fuel_qty_units": {
+    "fuel_received_units": {
         "type": "number",
         "description": "Quanity of fuel received in tons, barrel, or Mcf."
     },
     "fuel_type": {
         "type": "string",
-        # TODO disambiguate column name. There are fuel types everywhere. We need to know which
-        # data source it is associated with to know what it should look like.
-    },
-    "fuel_type_code": {
-        "type": "string",
-        "description": "The fuel code reported to EIA. Two or three letter alphanumeric."
+        # TODO disambiguate column name. This should be just FERC 1 tables, as the EIA
+        # fuel types are now all energy_source_code
     },
     "fuel_type_code_aer": {
         "type": "string",
@@ -748,11 +741,15 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
     "fuel_type_code_pudl": {
         "type": "string",
         "description": "Simplified fuel type code used in PUDL",
-        # TODO: add an ENUM constraint here
+        "constraints": {
+            "enum": sorted(set(ENERGY_SOURCES_EIA["df"].fuel_type_code_pudl))
+        }
     },
     "fuel_units": {
         "type": "string",
         "description": "Reported units of measure for fuel.",
+        # TODO: add an ENUM constraint here, depending where this field shows up
+        # It may be in both the FERC 1 and the EIA datasets.
     },
     "furnished_without_charge_mwh": {
         "type": "number"
@@ -852,10 +849,6 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
     "heat_content_mmbtu": {
         "type": "number",
         "description": "The energy contained in fuel burned, measured in million BTU."
-    },
-    "heat_content_mmbtu_per_unit": {
-        "type": "number",
-        "description": "Heat content of the fuel in millions of Btus per physical unit to the nearest 0.01 percent."
     },
     "highest_distribution_voltage_kv": {
         "type": "number"
@@ -1044,11 +1037,11 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
         "type": "string",
         "description": "Coal mine name."
     },
-    "mine_type_code": {
+    "mine_type": {
         "type": "string",
-        "description": "Type of mine. P: Preparation plant, U: Underground, S: Surface, SU: Mostly Surface with some Underground, US: Mostly Underground with some Surface.",
+        "description": "Type of coal mine.",
         "constraints": {
-            "enum": ["US", "S", "U", "SU", "P"]
+            "enum": list(COALMINE_TYPES_EIA.values()),
         }
     },
     "minimum_load_mw": {
@@ -1630,11 +1623,9 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
     "price_responsiveness_customers": {
         "type": "integer"
     },
-    "primary_purpose_naics_id": {
+    "primary_purpose_id_naics": {
         "type": "integer",
         "description": "North American Industry Classification System (NAICS) code that best describes the primary purpose of the reporting plant"
-        # TODO: Thes are really codes with different fields representing sub-industries.
-        # It might be better represented as a string like FIPS and ZIP codes.
     },
     "primary_transportation_mode_code": {
         "type": "string",
@@ -1823,17 +1814,13 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
         "type": "string",
         "description": "Transportation mode for the second longest distance transported.",
     },
-    "sector_id": {
+    "sector_id_eia": {
         "type": "integer",
-        "description": "Plant-level sector number, designated by the primary purpose, regulatory status and plant-level combined heat and power status"
-        # TODO: Potentially combine with the NAICS primary use code. Also consider
-        # storing it as a string with a pattern constraint because it's a code not a
-        # numerical value per se.
+        "description": "EIA assigned sector ID, corresponding to high level NAICS sector, designated by the primary purpose, regulatory status and plant-level combined heat and power status"
     },
-    "sector_name": {
+    "sector_name_eia": {
         "type": "string",
-        "description": "Plant-level sector name, designated by the primary purpose, regulatory status and plant-level combined heat and power status"
-        # TODO: Make it clear this is from the NAICS taxonomy.
+        "description": "EIA assigned sector name, corresponding to high level NAICS sector, designated by the primary purpose, regulatory status and plant-level combined heat and power status"
     },
     "seller_name": {
         "type": "string",
