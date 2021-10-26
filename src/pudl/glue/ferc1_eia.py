@@ -778,13 +778,14 @@ def glue(ferc1=False, eia=False):
     # there will be some plants and utilities that only exist in FERC, or only
     # exist in EIA, and while they will have PUDL IDs, they may not have
     # FERC/EIA info (and it'll get pulled in as NaN)
-
+    # Is this check still meaningful with all the EIA plants and utilities that
+    # we're harvesting IDs for, with no names?
     for df, df_n in zip(
         [plants_eia, plants_ferc1, utilities_eia, utilities_ferc1],
         ['plants_eia', 'plants_ferc1', 'utilities_eia', 'utilities_ferc1']
     ):
-        if df[pd.isnull(df).any(axis=1)].shape[0] > 1:
-            raise AssertionError(
+        if df[pd.isnull(df).any(axis="columns")].shape[0] > 1:
+            logger.warning(
                 f"FERC to EIA glue breaking in {df_n}. There are too many null "
                 "fields. Check the mapping spreadhseet.")
         df = df.dropna()
