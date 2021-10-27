@@ -222,6 +222,8 @@ def pudl_settings_dict(request, live_dbs, tmpdir_factory):  # noqa: C901
             "ferc1_db"]
         pudl_settings["censusdp1tract_db"] = pudl.workspace.setup.get_defaults()[
             "censusdp1tract_db"]
+        pudl_settings["parquet_dir"] = pudl.workspace.setup.get_defaults()[
+            "parquet_dir"]
 
     logger.info("pudl_settings being used: %s", pudl_settings)
     return pudl_settings

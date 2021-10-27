@@ -42,7 +42,7 @@ FUEL_STRINGS: Dict[str, List[str]] = {
         'coke', 'coa', 'lignite/coal', 'coal - subbit', 'coal-subb', 'coal-sub',
         'coal-lig', 'coal-sub bit', 'coals', 'ciak', 'petcoke', 'coal.oil', 'coal/gas',
         'bit coal', 'coal-unit #3', 'coal-subbitum', 'coal tons', 'coal mcf',
-        'coal unit #3', 'pet. coke', 'coal-u3', 'coal&coke', 'tons', 'coal  (sb)',
+        'coal unit #3', 'pet. coke', 'coal-u3', 'coal&coke', 'tons',
     ],
     "oil": [
         'oil', '#6 oil', '#2 oil', 'fuel oil', 'jet', 'no. 2 oil', 'no.2 oil',
@@ -86,7 +86,7 @@ FUEL_STRINGS: Dict[str, List[str]] = {
         'biomass', 'wood', 'wood chips', 'rdf', 'tires/refuse', 'tire refuse',
         'waste oil', 'waste', 'woodships', 'tire chips', 'tdf',
     ],
-    "other": [
+    "unknown": [
         'steam', 'purch steam', 'all', 'n/a', 'purch. steam', 'other',
         'composite', 'composit', 'mbtus', 'total', 'avg', 'avg.', 'blo',
         'all fuel', 'comb.', 'alt. fuels', 'na', 'comb', '/#=2\x80â\x91?',
