@@ -117,7 +117,7 @@ WORKING_PARTITIONS: Dict[str, Partition] = {
         'years': tuple(range(2001, 2021))
     },
     'eia860m': {
-        'year_month': '2020-11'  # 2021-07 is available swap when ids are mapped
+        'year_month': '2021-08'
     },
     'eia861': {
         'years': tuple(range(2001, 2021))
