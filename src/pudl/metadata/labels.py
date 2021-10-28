@@ -130,7 +130,8 @@ PRIME_MOVERS_EIA: Dict[str, str] = {
     'ST': 'Steam Turbine. Including Nuclear, Geothermal, and Solar Steam (does not include Combined Cycle).',
     'PV': 'Photovoltaic',
     'WT': 'Wind Turbine, Onshore',
-    'WS': 'Wind Turbine, Offshore'
+    'WS': 'Wind Turbine, Offshore',
+    'UNK': 'Unkown Prime Mover'
 }
 """Descriptive labels for EIA prime mover codes."""
 

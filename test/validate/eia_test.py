@@ -41,7 +41,7 @@ def test_no_null_cols_eia(pudl_out_eia, live_dbs, cols, df_name):
         ("frc_eia923", 517_078, 213_563, 21_338),
         ("gen_eia923", 510_835, 510_835, 42_884),
         ("bf_eia923", 1_207_976, 1_196_908, 100_866),
-        ("gf_eia923", 2_380_147, 2_366_032, 199_425),
+        ("gf_eia923", 2_321_513, 2_320_776, 198_580),
     ])
 def test_minmax_rows(
     pudl_out_eia,
