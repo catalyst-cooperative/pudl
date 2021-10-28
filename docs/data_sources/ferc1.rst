@@ -17,13 +17,13 @@ FERC Form 1
    * - Source Format
      - FoxPro Database (.DBC/.DBF)
    * - Source Years
-     - 1994-2019
+     - 1994-2020
    * - Size (Download)
-     - 1.3 GB
+     - 1.6 GB
    * - PUDL Code
      - ``ferc1``
    * - Years Liberated
-     - 1994-2019
+     - 1994-2020
    * - Records Liberated
      - ~12 million (116 raw tables), ~316,000 (7 clean tables)
    * - Issues
