@@ -284,7 +284,6 @@ def observed_respondents(ferc1_engine: sa.engine.Engine) -> Set[int]:
     f1_table_meta = pudl.output.pudltabl.get_table_meta(ferc1_engine)
     observed = set([])
     for table in f1_table_meta.values():
-        # if table.name != "f1_respondent_id" and "respondent_id" in table.columns:
         if "respondent_id" in table.columns:
             observed = observed.union(set(pd.read_sql_table(
                 table.name, ferc1_engine, columns=["respondent_id"]).respondent_id))
