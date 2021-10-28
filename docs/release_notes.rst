@@ -67,7 +67,10 @@ New Analyses
 
 Data Coverage Changes
 ^^^^^^^^^^^^^^^^^^^^^
-* :doc:`data_sources/eia860` for 2001-2003. See :issue:`1122`.
+* :doc:`data_sources/eia860` for 2020 as well as 2001-2003 (see :issue:`1122`).
+* eia860m through 2021-08.
+* :doc:`data_sources/eia923` for 2020.
+* :doc:`data_sources/ferc1` for 2020.
 * **EPA IPM / NEEDS** data has been removed from PUDL as we didn't have the internal
   resources to maintain it, and it was no longer working. Apologies to
   :user:`gschivley`!

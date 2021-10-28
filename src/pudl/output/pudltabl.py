@@ -167,6 +167,7 @@ class PudlTabl(object):
             "respondent_id_ferc714": None,
 
             "gf_eia923": None,
+            "gfn_eia923": None,
             "frc_eia923": None,
             "bf_eia923": None,
             "gen_eia923": None,
@@ -599,6 +600,27 @@ class PudlTabl(object):
                 start_date=self.start_date,
                 end_date=self.end_date)
         return self._dfs['gf_eia923']
+
+    def gfn_eia923(self, update=False):
+        """
+        Pull EIA 923 generation and fuel consumption data for nuclear units.
+
+        Args:
+            update (bool): If true, re-calculate the output dataframe, even if
+                a cached version exists.
+
+        Returns:
+            pandas.DataFrame: a denormalized table for interactive use.
+
+        """
+        if update or self._dfs['gfn_eia923'] is None:
+            self._dfs['gfn_eia923'] = pudl.output.eia923.generation_fuel_eia923(
+                self.pudl_engine,
+                freq=self.freq,
+                start_date=self.start_date,
+                end_date=self.end_date,
+                nuclear=True)
+        return self._dfs['gfn_eia923']
 
     def frc_eia923(self, update=False):
         """
