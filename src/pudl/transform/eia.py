@@ -422,13 +422,13 @@ def _compile_all_entity_records(entity, eia_transformed_dfs):
     return compiled_df
 
 
-def _manage_strictness(col, eia860_ytd):
+def _manage_strictness(col, eia860m):
     """
     Manage the strictness level for each column.
 
     Args:
         col (str): name of column
-        eia860_ytd (boolean): if True, the etl run is attempting to include
+        eia860m (boolean): if True, the etl run is attempting to include
             year-to-date updated from EIA 860M.
     """
     strictness_default = .7
@@ -438,7 +438,7 @@ def _manage_strictness(col, eia860_ytd):
     strictness_cols = {
         'plant_name_eia': 0,
         'utility_name_eia': 0,
-        'longitude': 0 if eia860_ytd else .7
+        'longitude': 0 if eia860m else .7
     }
     return strictness_cols.get(col, strictness_default)
 
@@ -446,7 +446,7 @@ def _manage_strictness(col, eia860_ytd):
 def harvesting(entity,  # noqa: C901
                eia_transformed_dfs,
                entities_dfs,
-               eia860_ytd=False,
+               eia860m=False,
                debug=False):
     """Compiles consistent records for various entities.
 
@@ -480,7 +480,7 @@ def harvesting(entity,  # noqa: C901
             transformed dfs (values)
         entities_dfs(dict): A dictionary of entity table names (keys) and
             entity dfs (values)
-        eia860_ytd (boolean): if True, the etl run is attempting to include
+        eia860m (boolean): if True, the etl run is attempting to include
             year-to-date updated from EIA 860M.
         debug (bool): If True, this function will also return an additional
             dictionary of dataframes that includes the pre-deduplicated
@@ -534,7 +534,7 @@ def harvesting(entity,  # noqa: C901
         if col in static_cols:
             cols_to_consit = entity_id
 
-        strictness = _manage_strictness(col, eia860_ytd)
+        strictness = _manage_strictness(col, eia860m)
         col_df = _occurrence_consistency(
             entity_id, compiled_df, col, cols_to_consit, strictness=strictness)
 
@@ -1039,7 +1039,7 @@ def _restrict_years(df,
 def transform(eia_transformed_dfs,
               eia860_years=pc.WORKING_PARTITIONS['eia860']['years'],
               eia923_years=pc.WORKING_PARTITIONS['eia923']['years'],
-              eia860_ytd=False,
+              eia860m=False,
               debug=False):
     """Creates DataFrames for EIA Entity tables and modifies EIA tables.
 
@@ -1057,7 +1057,7 @@ def transform(eia_transformed_dfs,
             and only include working years.
         eia923_years (list): a list of years for EIA 923, must be continuous,
             and include only working years.
-        eia860_ytd (boolean): if True, the etl run is attempting to include
+        eia860m (boolean): if True, the etl run is attempting to include
             year-to-date updated from EIA 860M.
         debug (bool): if true, informational columns will be added into
             boiler_generator_assn
@@ -1081,7 +1081,7 @@ def transform(eia_transformed_dfs,
                     f"for EIA {entity}")
 
         harvesting(entity, eia_transformed_dfs, entities_dfs,
-                   debug=debug, eia860_ytd=eia860_ytd)
+                   debug=debug, eia860m=eia860m)
 
     _boiler_generator_assn(eia_transformed_dfs,
                            eia923_years=eia923_years,

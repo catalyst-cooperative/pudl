@@ -1,6 +1,7 @@
 """Tests for settings validation."""
-import unittest
+from typing import ClassVar
 
+import pytest
 from pydantic import ValidationError
 
 from pudl.settings import (DatasetsSettings, Eia860Settings, Eia923Settings,
@@ -8,27 +9,34 @@ from pudl.settings import (DatasetsSettings, Eia860Settings, Eia923Settings,
                            Ferc1ToSqliteSettings, GenericDatasetSettings)
 
 
-class TestGenericDatasetSettings(unittest.TestCase):
+class TestGenericDatasetSettings:
     """Test generic dataset behavior."""
 
     def test_abstract_property_error(self):
         """Test GenericDatasetSettings forces you to add working tables, years."""
-        with self.assertRaises(TypeError):
+        with pytest.raises(TypeError):
             class Test(GenericDatasetSettings):
                 pass
             Test()
 
+    def test_missing_field_error(self):
+        """Test GenericDatasetSettings throws error if user forgets to add a field."""
+        with pytest.raises(ValidationError):
+            class Test(GenericDatasetSettings):
+                working_partitions: ClassVar = {"years": [2001]}
+            Test()
 
-class TestFerc1ToSqliteSettings(unittest.TestCase):
+
+class TestFerc1ToSqliteSettings:
     """Test Ferc1ToSqliteSettings."""
 
     def test_ref_year(self):
         """Test reference year is within working years."""
-        with self.assertRaises(ValidationError):
+        with pytest.raises(ValidationError):
             Ferc1ToSqliteSettings(ferc1_to_sqlite_refyear=1990)
 
 
-class TestFerc1Settings(unittest.TestCase):
+class TestFerc1Settings:
     """
     Test Ferc1 settings validation.
 
@@ -37,7 +45,7 @@ class TestFerc1Settings(unittest.TestCase):
 
     def test_not_working_year(self):
         """Make sure a validation error is being thrown when given an invalid year."""
-        with self.assertRaises(ValidationError):
+        with pytest.raises(ValidationError):
             Ferc1Settings(years=[1901])
 
     def test_duplicate_sort_years(self):
@@ -45,18 +53,18 @@ class TestFerc1Settings(unittest.TestCase):
         returned_settings = Ferc1Settings(years=[2001, 2001, 2000])
         expected_years = [2000, 2001]
 
-        self.assertListEqual(expected_years, returned_settings.years)
+        assert expected_years == returned_settings.years
 
     def test_default_years(self):
         """Test all years are used as default."""
         returned_settings = Ferc1Settings()
 
-        expected_years = Ferc1Settings.working_years
-        self.assertListEqual(expected_years, returned_settings.years)
+        expected_years = Ferc1Settings.working_partitions["years"]
+        assert expected_years == returned_settings.years
 
     def test_not_working_table(self):
         """Make sure a validation error is being thrown when given an invalid table."""
-        with self.assertRaises(ValidationError):
+        with pytest.raises(ValidationError):
             Ferc1Settings(tables=["fake_table"])
 
     def test_duplicate_sort_tables(self):
@@ -65,22 +73,22 @@ class TestFerc1Settings(unittest.TestCase):
             tables=["plants_pumped_storage_ferc1", "plant_in_service_ferc1", "plant_in_service_ferc1"])
         expected_tables = ["plant_in_service_ferc1", "plants_pumped_storage_ferc1"]
 
-        self.assertListEqual(expected_tables, returned_settings.tables)
+        assert expected_tables == returned_settings.tables
 
     def test_default_tables(self):
         """Test all tables are used as default."""
         returned_settings = Ferc1Settings()
 
-        expected_tables = Ferc1Settings.working_tables
-        self.assertListEqual(expected_tables, returned_settings.tables)
+        expected_tables = Ferc1Settings.working_partitions["tables"]
+        assert expected_tables == returned_settings.tables
 
 
-class TestEpaCemsSettings(unittest.TestCase):
+class TestEpaCemsSettings:
     """Test EpaCems settings validation."""
 
     def test_not_working_state(self):
         """Make sure a validation error is being thrown when given an invalid state."""
-        with self.assertRaises(ValidationError):
+        with pytest.raises(ValidationError):
             EpaCemsSettings(states=["fake_state"])
 
     def test_duplicate_sort_states(self):
@@ -89,24 +97,26 @@ class TestEpaCemsSettings(unittest.TestCase):
             states=["CA", "CA", "AL"])
         expected_states = ["AL", "CA"]
 
-        self.assertListEqual(expected_states, returned_settings.states)
+        print(returned_settings.states)
+        print(expected_states)
+        assert expected_states == returned_settings.states
 
     def test_default_states(self):
         """Test all states are used as default."""
         returned_settings = EpaCemsSettings()
 
-        expected_states = EpaCemsSettings.working_states
-        self.assertListEqual(expected_states, returned_settings.states)
+        expected_states = EpaCemsSettings.working_partitions["states"]
+        assert expected_states == returned_settings.states
 
     def test_all_states(self):
         """Test all states are used as default."""
         returned_settings = EpaCemsSettings(states=["all"])
 
-        expected_states = EpaCemsSettings.working_states
-        self.assertListEqual(expected_states, returned_settings.states)
+        expected_states = EpaCemsSettings.working_partitions["states"]
+        assert expected_states == returned_settings.states
 
 
-class TestEIA860Settings(unittest.TestCase):
+class TestEIA860Settings:
     """
     Test EIA860 setting validation.
 
@@ -118,11 +128,11 @@ class TestEIA860Settings(unittest.TestCase):
         settings_cls = Eia860Settings
         settings_cls.eia860m_date = "2019-11"
 
-        with self.assertRaises(ValidationError):
+        with pytest.raises(ValidationError):
             settings_cls(eia860m=True)
 
 
-class TestEiaSettings(unittest.TestCase):
+class TestEiaSettings:
     """Test pydantic model that validates EIA datasets."""
 
     def test_eia923_dependency(self):
@@ -132,8 +142,8 @@ class TestEiaSettings(unittest.TestCase):
 
         assert settings.eia860
 
-        self.assertListEqual(settings.eia860.years, Eia860Settings.working_years)
-        self.assertListEqual(settings.eia860.tables, Eia860Settings.working_tables)
+        assert settings.eia860.years == Eia860Settings.working_partitions["years"]
+        assert settings.eia860.tables == Eia860Settings.working_partitions["tables"]
 
     def test_eia860_dependency(self):
         """Test 923 tables are added to eia860 if 923 is not specified."""
@@ -142,24 +152,24 @@ class TestEiaSettings(unittest.TestCase):
 
         expected_tables = ['boiler_fuel_eia923', 'generation_eia923']
 
-        self.assertListEqual(settings.eia923.tables, expected_tables)
-        self.assertListEqual(settings.eia923.years, eia860_settings.years)
+        assert settings.eia923.tables == expected_tables
+        assert settings.eia923.years == eia860_settings.years
 
 
-class TestDatasetsSettings(unittest.TestCase):
+class TestDatasetsSettings:
     """Test pydantic model that validates all datasets."""
 
     def test_default_behavior(self):
         """Make sure all of the years and tables are added if nothing is specified."""
         settings = DatasetsSettings()
 
-        expected_years = Ferc1Settings.working_years
+        expected_years = Ferc1Settings.working_partitions["years"]
         returned_years = settings.ferc1.years
-        self.assertListEqual(expected_years, returned_years)
+        assert expected_years == returned_years
 
-        expected_tables = Ferc1Settings.working_tables
+        expected_tables = Ferc1Settings.working_partitions["tables"]
         returned_tables = settings.ferc1.tables
-        self.assertListEqual(expected_tables, returned_tables)
+        assert expected_tables == returned_tables
 
         assert settings.eia, "EIA settings were not added."
 
@@ -172,23 +182,23 @@ class TestDatasetsSettings(unittest.TestCase):
         assert settings.glue.ferc1
 
 
-class TestGlobalConfig(unittest.TestCase):
+class TestGlobalConfig:
     """Test global pydantic model config works."""
 
     def test_unknown_dataset(self):
         """Test unkown dataset fed to DatasetsSettings."""
-        with self.assertRaises(ValidationError):
+        with pytest.raises(ValidationError):
             DatasetsSettings().parse_obj({"unknown_data": "data"})
 
-        with self.assertRaises(ValidationError):
+        with pytest.raises(ValidationError):
             EiaSettings().parse_obj({"unknown_data": "data"})
 
     def test_immutability(self):
         """Test immutability config is working correctly."""
-        with self.assertRaises(TypeError):
+        with pytest.raises(TypeError):
             settings = DatasetsSettings()
             settings.eia = EiaSettings()
 
-        with self.assertRaises(TypeError):
+        with pytest.raises(TypeError):
             settings = EiaSettings()
             settings.eia860 = Eia860Settings()

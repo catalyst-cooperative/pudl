@@ -86,7 +86,7 @@ def _etl_eia(etl_params: EiaSettings, ds_kwargs):
     """
     eia860_tables = etl_params.eia860.tables
     eia860_years = etl_params.eia860.years
-    eia860_ytd = etl_params.eia860.eia860m
+    eia860m = etl_params.eia860.eia860m
     eia923_tables = etl_params.eia923.tables
     eia923_years = etl_params.eia923.years
 
@@ -107,7 +107,7 @@ def _etl_eia(etl_params: EiaSettings, ds_kwargs):
     eia860_raw_dfs = pudl.extract.eia860.Extractor(ds).extract(
         year=eia860_years)
     # if we are trying to add the EIA 860M YTD data, then extract it and append
-    if eia860_ytd:
+    if eia860m:
         eia860m_raw_dfs = pudl.extract.eia860m.Extractor(ds).extract(
             year_month=pc.WORKING_PARTITIONS['eia860m']['year_month'])
         eia860_raw_dfs = pudl.extract.eia860m.append_eia860m(
@@ -130,7 +130,7 @@ def _etl_eia(etl_params: EiaSettings, ds_kwargs):
         eia_transformed_dfs,
         eia860_years=eia860_years,
         eia923_years=eia923_years,
-        eia860_ytd=eia860_ytd,
+        eia860m=eia860m,
     )
     # convert types..
     entities_dfs = pudl.helpers.convert_dfs_dict_dtypes(entities_dfs, 'eia')
