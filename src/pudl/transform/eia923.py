@@ -349,6 +349,32 @@ def generation_fuel(eia923_dfs, eia923_transformed_dfs):
     return eia923_transformed_dfs
 
 
+def _map_prime_mover_sets(prime_mover_set: np.ndarray) -> str:
+    """Map unique prime mover combinations to a single prime mover code.
+
+    In 2001-2019 data, the .value_counts() of the combinations is:
+    (CA, CT)        750
+    (ST, CA)        101
+    (ST)             60
+    (CA)             17
+    (CS, ST, CT)      2
+    Args:
+        prime_mover_set (np.ndarray): unique combinations of prime_mover_code
+
+    Returns:
+        str: single prime mover code
+    """
+    if len(prime_mover_set) == 1:  # single valued
+        return prime_mover_set[0]
+    elif 'CA' in prime_mover_set:
+        return 'CA'  # arbitrary choice
+    elif 'CS' in prime_mover_set:
+        return 'CS'
+    else:
+        raise ValueError(
+            f"Dataset contains new kinds of duplicate boiler_fuel rows. Prime movers are {prime_mover_set}")
+
+
 def _aggregate_duplicate_boiler_fuel_keys(boiler_fuel_df: pd.DataFrame) -> pd.DataFrame:
     """Combine boiler_fuel rows with duplicate keys by aggregating them.
 
@@ -365,14 +391,13 @@ def _aggregate_duplicate_boiler_fuel_keys(boiler_fuel_df: pd.DataFrame) -> pd.Da
         boiler_fuel_df (pd.DataFrame): the boiler_fuel dataframe
 
     Returns:
-        pd.DataFrame: copy of boiler_fuel dataframe with aggregated duplicate keys
+        pd.DataFrame: copy of boiler_fuel dataframe with duplicates removed and aggregates appended
     """
     quantity_cols = ['fuel_consumed_units', ]
     relative_cols = ['ash_content_pct', 'sulfur_content_pct', 'fuel_mmbtu_per_unit']
-    # categorical_cols = ['prime_mover_code', ]
     key_cols = ['boiler_id', 'fuel_type_code', 'plant_id_eia', 'report_date']
 
-    expected_cols = set(quantity_cols + relative_cols + key_cols)
+    expected_cols = set(quantity_cols + relative_cols + key_cols + ['prime_mover_code'])
     actual_cols = set(boiler_fuel_df.columns)
     difference = actual_cols.symmetric_difference(expected_cols)
     assert len(
@@ -392,7 +417,11 @@ def _aggregate_duplicate_boiler_fuel_keys(boiler_fuel_df: pd.DataFrame) -> pd.Da
         fuel_fraction.to_numpy().reshape(-1, 1))
 
     aggregates = boiler_fuel_groups[quantity_cols + relative_cols].sum()
-    # NOTE: the following method of combining changes the order of the data and resets the index
+    # apply manual mapping to prime_mover_code
+    aggregates['prime_mover_code'] = boiler_fuel_groups['prime_mover_code'].unique().apply(
+        _map_prime_mover_sets)
+
+    # NOTE: the following method changes the order of the data and resets the index
     modified_boiler_fuel_df = boiler_fuel_df.loc[~is_duplicate, :].append(
         aggregates, ignore_index=True)
 
