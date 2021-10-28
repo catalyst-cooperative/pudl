@@ -523,8 +523,22 @@ def get_mapped_utils_eia() -> pd.DataFrame:
     return mapped_utils_eia
 
 
-def get_unmapped_utils_eia(pudl_engine, data_tables_eia923=DATA_TABLES_EIA923):
-    """Get a list of all the EIA Utilities in the PUDL DB without PUDL IDs."""
+def get_unmapped_utils_eia(
+    pudl_engine: sa.engine.Engine,
+    data_tables_eia923: List[str] = DATA_TABLES_EIA923,
+) -> pd.DataFrame:
+    """
+    Get a list of all the EIA Utilities in the PUDL DB without PUDL IDs.
+
+    Identify any EIA Utility that appears in the data but does not have a
+    utility_id_pudl associated with it in our ID mapping spreadsheet. Label some
+    of those utilities for potential linkage to FERC 1 utilities, but only if they
+    have plants which report data somewhere in the EIA-923 data tables. For those
+    utilites that do have plants reporting in EIA-923, sum up the total capacity
+    of all of their plants and include that in the output dataframe so that we can
+    effectively prioritize mapping them.
+
+    """
     db_utils_eia = get_db_utils_eia(pudl_engine)
     mapped_utils_eia = get_mapped_utils_eia()
     unmapped_utils_idx = db_utils_eia.index.difference(mapped_utils_eia.index)

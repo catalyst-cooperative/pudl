@@ -17,11 +17,16 @@ Before running this script:
   year of data to be integrated, so you'll have to do the file, tab, and column mapping
   first, and may need to do a bit of data wrangling to get the transform steps to work.
   You'll probably want to load this data into the PUDL DB without any FERC Form 1 data.
+  The script you'll use is ``pudl_etl`` and you'll need to edit the full ETL settings
+  file to suit your purpses.
 * Load all available years of FERC Form 1 data into your FERC 1 DB. Again, this includes
-  the new year of data to be integrated.
+  the new year of data to be integrated. You'll need to use ``ferc1_to_sqlite`` to do
+  this, and you'll want to edit the ``ferc1_to_sqlite`` specific settings in the full
+  ETL settings file to include the new year of data, and to use it as the reference
+  year for creating the database schema.
 
-If the script sees that all available years of data are not loaded in your databases, it
-will raise an AssertionError.
+If this script sees that all available years of data are not loaded in your databases,
+it will raise an AssertionError.
 
 If there is an unexpectedly large number of "lost" EIA plants or utilities (which appear
 in the mapping spreadsheet but not the database) it will raise an AssertionError. This
@@ -127,14 +132,15 @@ def main():
         "SELECT DISTINCT report_year FROM f1_steam ORDER BY report_year ASC",
         ferc1_engine
     )
-    ferc1_years = sorted(ferc1_years.report_year)
+    ferc1_years = list(ferc1_years.report_year)
     pudl_logger.info(f"Examining FERC 1 data for {min(ferc1_years)}-{max(ferc1_years)}")
     all_ferc1_years = pudl.constants.WORKING_PARTITIONS["ferc1"]["years"]
     missing_ferc1_years = set(all_ferc1_years).difference(ferc1_years)
     if missing_ferc1_years:
         raise AssertionError(
-            "All available years of FERC 1 data are not loaded into the FERC 1 DB."
-            f"{missing_ferc1_years} could have been included but were not."
+            "All available years of FERC 1 data have not been loaded into the "
+            f"FERC 1 DB. {missing_ferc1_years} could have been included but were "
+            "not. You need to run ferc1_to_sqlite with all available years."
         )
 
     # Get and check EIA Years:
@@ -143,14 +149,15 @@ def main():
         pudl_engine,
         parse_dates=["report_date"]
     )
-    eia_years = sorted(eia_years.report_date.dt.year)
+    eia_years = list(eia_years.report_date.dt.year)
     pudl_logger.info(f"Examining EIA data for {min(eia_years)}-{max(eia_years)}")
     all_eia_years = pudl.constants.WORKING_PARTITIONS["eia860"]["years"]
     missing_eia_years = set(all_eia_years).difference(eia_years)
     if missing_eia_years:
         raise AssertionError(
-            "All available years of EIA data are not loaded into the PUDL DB."
-            f"{missing_eia_years} could have been included but were not."
+            "All available years of EIA data have not been loaded into the PUDL DB. "
+            f"{missing_eia_years} could have been included but were not. "
+            "You need to run pudl_etl with all available years of EIA data."
         )
 
     # Check for lost EIA plants
