@@ -404,7 +404,7 @@ def _aggregate_duplicate_boiler_fuel_keys(boiler_fuel_df: pd.DataFrame) -> pd.Da
         difference) == 0, f"Columns were expected to align, instead found this difference: {difference}"
 
     is_duplicate = boiler_fuel_df.duplicated(subset=key_cols, keep=False)
-    duplicates: pd.DataFrame = boiler_fuel_df.loc[is_duplicate, :]
+    duplicates: pd.DataFrame = boiler_fuel_df[is_duplicate]
     boiler_fuel_groups = duplicates.groupby(key_cols)
 
     # For relative columns, take average weighted by fuel usage
@@ -422,8 +422,8 @@ def _aggregate_duplicate_boiler_fuel_keys(boiler_fuel_df: pd.DataFrame) -> pd.Da
         _map_prime_mover_sets)
 
     # NOTE: the following method changes the order of the data and resets the index
-    modified_boiler_fuel_df = boiler_fuel_df.loc[~is_duplicate, :].append(
-        aggregates, ignore_index=True)
+    modified_boiler_fuel_df = boiler_fuel_df[~is_duplicate].append(
+        aggregates.reset_index(), ignore_index=True)
 
     return modified_boiler_fuel_df
 
