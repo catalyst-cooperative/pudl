@@ -25,7 +25,7 @@ EIA Form 923
    * - Years Liberated
      - 2001-2020
    * - Records Liberated
-     - ~3.6 million
+     - ~5 million
    * - Issues
      - `Open EIA 923 issues <https://github.com/catalyst-cooperative/pudl/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aopen+label%3Aeia923>`__
 

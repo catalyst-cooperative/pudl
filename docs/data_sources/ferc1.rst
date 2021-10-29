@@ -25,7 +25,7 @@ FERC Form 1
    * - Years Liberated
      - 1994-2020
    * - Records Liberated
-     - ~12 million (116 raw tables), ~316,000 (7 clean tables)
+     - ~13.2 million (116 raw tables), ~307,000 (7 clean tables)
    * - Issues
      - `Open FERC Form 1 issues <https://github.com/catalyst-cooperative/pudl/issues?q=is%3Aissue+is%3Aopen+label%3Aferc1>`__
 

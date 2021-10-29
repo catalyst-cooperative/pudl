@@ -18,7 +18,7 @@ EPA CEMS Hourly
    * - Source Years
      - 1995-2020
    * - Size (Download)
-     - 8.7 GB
+     - 8.1 GB
    * - PUDL Code
      - ``epacems``
    * - Years Liberated

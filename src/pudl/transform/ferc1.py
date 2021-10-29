@@ -472,7 +472,7 @@ def unpack_table(ferc1_df, table_name, data_cols, data_rows):
     row_map = (
         pd.read_csv(
             importlib.resources.open_text(
-                "pudl.package_data.meta.ferc1_row_maps", f"{table_name}.csv"),
+                "pudl.package_data.ferc1.row_maps", f"{table_name}.csv"),
             index_col=0, comment="#")
         .copy().transpose()
         .rename_axis(index="year_index", columns=None)
@@ -1130,7 +1130,7 @@ def plants_small(ferc1_raw_dfs, ferc1_transformed_dfs):
     # in this table. It's been done manually for 2004-2015, and the results
     # get merged in in the following section.
     small_types_file = importlib.resources.open_binary(
-        'pudl.package_data.ferc.form1', 'small_plants_2004-2016.xlsx')
+        'pudl.package_data.ferc1', 'small_plants_2004-2016.xlsx')
     small_types_df = pd.read_excel(small_types_file)
 
     # Only rows with plant_type set will give us novel information.
