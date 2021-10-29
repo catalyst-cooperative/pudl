@@ -21,7 +21,7 @@ class Metadata(object):
     column names.
 
     When metadata object is instantiated, it is given ${dataset} name and it
-    will attempt to load csv files from pudl.package_data.meta.xlsx_maps.${dataset}
+    will attempt to load csv files from pudl.package_data.${dataset}.xlsx_maps
     package.
 
     It expects the following kinds of files:
@@ -41,14 +41,15 @@ class Metadata(object):
     # existing records for each (year, page) -> sheet_name, (year, page) -> skiprows
     # and for all (year, page) -> column map
 
-    def __init__(self, dataset_name):
+    def __init__(self, dataset_name: str):
         """Create Metadata object and load metadata from python package.
 
         Args:
             dataset_name: Name of the package/dataset to load the metadata from.
-            Files will be loaded from pudl.package_data.meta.xlsx_meta.${dataset_name}.
+            Files will be loaded from pudl.package_data.${dataset_name}.xlsx_maps.
+
         """
-        pkg = f'pudl.package_data.meta.xlsx_maps.{dataset_name}'
+        pkg = f'pudl.package_data.{dataset_name}.xlsx_maps'
         self._dataset_name = dataset_name
         self._skiprows = self._load_csv(pkg, 'skiprows.csv')
         self._skipfooter = self._load_csv(pkg, 'skipfooter.csv')

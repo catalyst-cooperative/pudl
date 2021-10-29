@@ -29,7 +29,6 @@ Todo:
 
 import logging
 from datetime import date, datetime
-from pathlib import Path
 from typing import Literal, Union
 
 # Useful high-level external modules.
@@ -231,7 +230,7 @@ class PudlTabl(object):
     ###########################################################################
     # EIA 861 Interim Outputs (awaiting full DB integration)
     ###########################################################################
-    def etl_eia861(self, update=False):
+    def etl_eia861(self, update: bool = False):
         """
         A single function that runs the temporary EIA 861 ETL and sets all DFs.
 
@@ -244,7 +243,7 @@ class PudlTabl(object):
         beyond my knowledge right now.
 
         Args:
-            update (bool): Whether to overwrite the existing dataframes if they exist.
+            update: Whether to overwrite the existing dataframes if they exist.
 
         """
         if isinstance(self.ds, Datastore):
@@ -257,8 +256,7 @@ class PudlTabl(object):
                     "Datastore, but none was found. Run 'pudl_setup --help' "
                     "to see how to create one."
                 )
-            pudl_in = Path(pudl_settings["pudl_in"])
-            self.ds = Datastore(local_cache_path=pudl_in / "data")
+            self.ds = Datastore(local_cache_path=pudl_settings["data_dir"])
         else:
             raise TypeError(
                 "PudlTabl needs a PUDL Datastore object, but we got "
@@ -375,7 +373,7 @@ class PudlTabl(object):
     ###########################################################################
     # FERC 714 Interim Outputs (awaiting full DB integration)
     ###########################################################################
-    def etl_ferc714(self, update=False):
+    def etl_ferc714(self, update: bool = False):
         """
         A single function that runs the temporary FERC 714 ETL and sets all DFs.
 
@@ -390,7 +388,7 @@ class PudlTabl(object):
         generating one of them.
 
         Args:
-            update (bool): Whether to overwrite the existing dataframes if they exist.
+            update: Whether to overwrite the existing dataframes if they exist.
 
         """
         if isinstance(self.ds, Datastore):
@@ -403,8 +401,7 @@ class PudlTabl(object):
                     "Datastore, but none was found. Run 'pudl_setup --help' "
                     "to see how to create one."
                 )
-            pudl_in = Path(pudl_settings["pudl_in"])
-            self.ds = Datastore(local_cache_path=pudl_in / "data")
+            self.ds = Datastore(local_cache_path=pudl_settings["data_dir"])
         else:
             raise TypeError(
                 "PudlTabl needs a PUDL Datastore object, but we got "
