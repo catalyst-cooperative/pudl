@@ -51,8 +51,6 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
                 "sulfur_content_pct",
                 "ash_content_pct",
             ],
-            # Need to fix transform function to ensure this natural primary key
-            # See https://github.com/catalyst-cooperative/pudl/issues/852
             "primary_key": [
                 "plant_id_eia",
                 "boiler_id",

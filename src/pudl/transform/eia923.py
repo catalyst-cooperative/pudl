@@ -512,7 +512,10 @@ def plants(eia923_dfs, eia923_transformed_dfs):
     return eia923_transformed_dfs
 
 
-def nuclear_unit_fuel(nuclear_unit_fuel: pd.DataFrame, eia923_transformed_dfs: Dict[str, pd.DataFrame]) -> None:
+def nuclear_unit_fuel(
+    nuclear_unit_fuel: pd.DataFrame,
+    eia923_transformed_dfs: Dict[str, pd.DataFrame]
+) -> None:
     """Transforms the generation_fuel_nuclear_eia923 table.
 
     Transformations include:
@@ -522,8 +525,8 @@ def nuclear_unit_fuel(nuclear_unit_fuel: pd.DataFrame, eia923_transformed_dfs: D
     * Aggregate remaining duplicate units.
 
     Parameters:
-        nuclear_unit_fuel (pd.DataFrame): dataframe of nuclear unit fuels.
-        eia923_transformed_dfs (Dict[str, pd.DataFrame]): dictionary to hold all eia923 tables.
+        nuclear_unit_fuel: dataframe of nuclear unit fuels.
+        eia923_transformed_dfs: dictionary to hold all eia923 tables.
 
     """
     nuclear_unit_fuel["nuclear_unit_id"] = nuclear_unit_fuel["nuclear_unit_id"].astype(
@@ -677,7 +680,9 @@ def _map_prime_mover_sets(prime_mover_set: np.ndarray) -> str:
         return 'CS'
     else:
         raise ValueError(
-            f"Dataset contains new kinds of duplicate boiler_fuel rows. Prime movers are {prime_mover_set}")
+            "Dataset contains new kinds of duplicate boiler_fuel rows. "
+            f"Prime movers are {prime_mover_set}"
+        )
 
 
 def _aggregate_duplicate_boiler_fuel_keys(boiler_fuel_df: pd.DataFrame) -> pd.DataFrame:
@@ -693,10 +698,11 @@ def _aggregate_duplicate_boiler_fuel_keys(boiler_fuel_df: pd.DataFrame) -> pd.Da
     affected records (4.5% of combined cycle plants).
 
     Args:
-        boiler_fuel_df (pd.DataFrame): the boiler_fuel dataframe
+        boiler_fuel_df: the boiler_fuel dataframe
 
     Returns:
-        pd.DataFrame: copy of boiler_fuel dataframe with duplicates removed and aggregates appended
+        A copy of boiler_fuel dataframe with duplicates removed and aggregates appended.
+
     """
     quantity_cols = ['fuel_consumed_units', ]
     relative_cols = ['ash_content_pct', 'sulfur_content_pct', 'fuel_mmbtu_per_unit']
@@ -761,19 +767,20 @@ def boiler_fuel(eia923_dfs, eia923_transformed_dfs):
     bf_df = eia923_dfs['boiler_fuel'].copy()
 
     # Drop fields we're not inserting into the boiler_fuel_eia923 table.
-    cols_to_drop = ['combined_heat_power',
-                    'plant_name_eia',
-                    'operator_name',
-                    'operator_id',
-                    'plant_state',
-                    'census_region',
-                    'nerc_region',
-                    'naics_code',
-                    'eia_sector',
-                    'sector_name',
-                    'fuel_unit',
-                    'total_fuel_consumption_quantity',
-                    ]
+    cols_to_drop = [
+        'combined_heat_power',
+        'plant_name_eia',
+        'operator_name',
+        'operator_id',
+        'plant_state',
+        'census_region',
+        'nerc_region',
+        'naics_code',
+        'eia_sector',
+        'sector_name',
+        'fuel_unit',
+        'total_fuel_consumption_quantity',
+    ]
     bf_df.drop(cols_to_drop, axis=1, inplace=True)
 
     bf_df.dropna(subset=['boiler_id', 'plant_id_eia'], inplace=True)
