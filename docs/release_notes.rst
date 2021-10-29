@@ -8,12 +8,15 @@ PUDL Release Notes
 
 Data Coverage Changes
 ^^^^^^^^^^^^^^^^^^^^^
-* :doc:`data_sources/eia860` for 2020 as well as 2001-2003 (see :issue:`1122`).
-* EIA-860m through 2021-08.
-* :doc:`data_sources/eia923` for 2020.
-* :doc:`data_sources/ferc1` for 2020.
-* EIA-861 data for 2020.
-* FERC-714 data for 2020.
+* Integration of 2020 data for all our core datasets (See :issue:`1255`):
+
+  * :doc:`data_sources/eia860` for 2020 as well as 2001-2003 (see :issue:`1122`).
+  * EIA Form 860m through 2021-08.
+  * :doc:`data_sources/eia923` for 2020.
+  * :doc:`data_sources/ferc1` for 2020.
+  * :ref:`data-eia861` data for 2020.
+  * :ref:`data-ferc714` data for 2020.
+
 * **EPA IPM / NEEDS** data has been removed from PUDL as we didn't have the internal
   resources to maintain it, and it was no longer working. Apologies to
   :user:`gschivley`!
@@ -52,23 +55,6 @@ distribution via `Datasette <https://datasette.io>`__ and `Intake catalogs
 dictionaries and documentation. See :issue:`806` and the :mod:`pudl.metadata`
 subpackage. Many thanks to :user:`ezwelty` for most of this work.
 
-Updated Dependencies
-^^^^^^^^^^^^^^^^^^^^
-* **SQLAlchemy 1.4.x:** Addressed all deprecation warnings associated with API changes
-  coming in SQLAlchemy 2.0, and bumped current requirement to 1.4.x
-* **Pandas 1.3.x:** Addressed many data type issues resulting from changes in how Pandas
-  preserves and propagates ExtensionArray / nullable data types.
-* **PyArrow v5.0.0** Updated to the most recent version
-* **PyGEOS v0.10.x** Updated to the most recent version
-* **contextily** has been removed, since we only used it optionally for making a single
-  visualization and it has substantial dependencies itself.
-* **goodtables-pandas-py** has been removed since we're no longer producing or
-  validating datapackages.
-* **SQLite 3.32.0** The type checks that we've implemented currently only work with
-  SQLite version 3.32.0 or later, as we discovered in debugging build failures on PR
-  :issue:`1228`. Unfortunately Ubuntu 20.04 LTS shipped with SQLite 3.31.1. Using
-  ``conda`` to manage your Python environment avoids this issue.
-
 New Analyses
 ^^^^^^^^^^^^
 * Added a deployed console script for running the state-level hourly electricity
@@ -87,6 +73,26 @@ Known Issues
 * Several tables that should have natural primary keys currently do not, because
   of null or duplicate values in those columns. These need to be resolved in the
   ETL process. See :issue:`851,852,1207,1208`
+* Utility and Balancing Authority service territories for 2020 have not been vetted,
+  and may contain errors or omissions. In particular there seems to be some missing
+  demand in ND, SD, NE, KS, and OK. See :issue:`1310`
+
+Updated Dependencies
+^^^^^^^^^^^^^^^^^^^^
+* **SQLAlchemy 1.4.x:** Addressed all deprecation warnings associated with API changes
+  coming in SQLAlchemy 2.0, and bumped current requirement to 1.4.x
+* **Pandas 1.3.x:** Addressed many data type issues resulting from changes in how Pandas
+  preserves and propagates ExtensionArray / nullable data types.
+* **PyArrow v5.0.0** Updated to the most recent version
+* **PyGEOS v0.10.x** Updated to the most recent version
+* **contextily** has been removed, since we only used it optionally for making a single
+  visualization and it has substantial dependencies itself.
+* **goodtables-pandas-py** has been removed since we're no longer producing or
+  validating datapackages.
+* **SQLite 3.32.0** The type checks that we've implemented currently only work with
+  SQLite version 3.32.0 or later, as we discovered in debugging build failures on PR
+  :issue:`1228`. Unfortunately Ubuntu 20.04 LTS shipped with SQLite 3.31.1. Using
+  ``conda`` to manage your Python environment avoids this issue.
 
 ---------------------------------------------------------------------------------------
 0.4.0 (2021-08-16)
