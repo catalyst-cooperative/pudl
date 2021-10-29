@@ -512,7 +512,10 @@ def plants(eia923_dfs, eia923_transformed_dfs):
     return eia923_transformed_dfs
 
 
-def nuclear_unit_fuel(nuclear_unit_fuel: pd.DataFrame, eia923_transformed_dfs: Dict[str, pd.DataFrame]) -> None:
+def nuclear_unit_fuel(
+    nuclear_unit_fuel: pd.DataFrame,
+    eia923_transformed_dfs: Dict[str, pd.DataFrame]
+) -> None:
     """Transforms the generation_fuel_nuclear_eia923 table.
 
     Transformations include:
@@ -522,8 +525,8 @@ def nuclear_unit_fuel(nuclear_unit_fuel: pd.DataFrame, eia923_transformed_dfs: D
     * Aggregate remaining duplicate units.
 
     Parameters:
-        nuclear_unit_fuel (pd.DataFrame): dataframe of nuclear unit fuels.
-        eia923_transformed_dfs (Dict[str, pd.DataFrame]): dictionary to hold all eia923 tables.
+        nuclear_unit_fuel: dataframe of nuclear unit fuels.
+        eia923_transformed_dfs: dictionary to hold all eia923 tables.
 
     """
     nuclear_unit_fuel["nuclear_unit_id"] = nuclear_unit_fuel["nuclear_unit_id"].astype(
@@ -654,6 +657,88 @@ def generation_fuel(eia923_dfs, eia923_transformed_dfs):
     return eia923_transformed_dfs
 
 
+def _map_prime_mover_sets(prime_mover_set: np.ndarray) -> str:
+    """Map unique prime mover combinations to a single prime mover code.
+
+    In 2001-2019 data, the .value_counts() of the combinations is:
+    (CA, CT)        750
+    (ST, CA)        101
+    (ST)             60
+    (CA)             17
+    (CS, ST, CT)      2
+    Args:
+        prime_mover_set (np.ndarray): unique combinations of prime_mover_code
+
+    Returns:
+        str: single prime mover code
+    """
+    if len(prime_mover_set) == 1:  # single valued
+        return prime_mover_set[0]
+    elif 'CA' in prime_mover_set:
+        return 'CA'  # arbitrary choice
+    elif 'CS' in prime_mover_set:
+        return 'CS'
+    else:
+        raise ValueError(
+            "Dataset contains new kinds of duplicate boiler_fuel rows. "
+            f"Prime movers are {prime_mover_set}"
+        )
+
+
+def _aggregate_duplicate_boiler_fuel_keys(boiler_fuel_df: pd.DataFrame) -> pd.DataFrame:
+    """Combine boiler_fuel rows with duplicate keys by aggregating them.
+
+    Boiler_fuel_eia923 contains a few records with duplicate keys, mostly caused by
+    CA and CT parts of combined cycle plants being mapped to the same boiler ID.
+    This is most likely a data entry error. See GitHub issue #852
+
+    One solution (implemented here) is to simply aggregate those records together.
+    This is cheap and easy compared to the more thorough solution of making
+    surrogate boiler IDs. Aggregation was preferred to purity due to the low volume of
+    affected records (4.5% of combined cycle plants).
+
+    Args:
+        boiler_fuel_df: the boiler_fuel dataframe
+
+    Returns:
+        A copy of boiler_fuel dataframe with duplicates removed and aggregates appended.
+
+    """
+    quantity_cols = ['fuel_consumed_units', ]
+    relative_cols = ['ash_content_pct', 'sulfur_content_pct', 'fuel_mmbtu_per_unit']
+    key_cols = ['boiler_id', 'fuel_type_code', 'plant_id_eia', 'report_date']
+
+    expected_cols = set(quantity_cols + relative_cols + key_cols + ['prime_mover_code'])
+    actual_cols = set(boiler_fuel_df.columns)
+    difference = actual_cols.symmetric_difference(expected_cols)
+    assert len(
+        difference) == 0, f"Columns were expected to align, instead found this difference: {difference}"
+
+    is_duplicate = boiler_fuel_df.duplicated(subset=key_cols, keep=False)
+    duplicates: pd.DataFrame = boiler_fuel_df[is_duplicate]
+    boiler_fuel_groups = duplicates.groupby(key_cols)
+
+    # For relative columns, take average weighted by fuel usage
+    total_fuel: pd.Series = boiler_fuel_groups['fuel_consumed_units'].transform('sum')
+    # division by zero -> NaN, so fill with 0 in those cases
+    fuel_fraction = duplicates['fuel_consumed_units'].div(
+        total_fuel.to_numpy()).fillna(0.0)
+    # overwrite with weighted values
+    duplicates[relative_cols] = duplicates[relative_cols].mul(
+        fuel_fraction.to_numpy().reshape(-1, 1))
+
+    aggregates = boiler_fuel_groups[quantity_cols + relative_cols].sum()
+    # apply manual mapping to prime_mover_code
+    aggregates['prime_mover_code'] = boiler_fuel_groups['prime_mover_code'].unique().apply(
+        _map_prime_mover_sets)
+
+    # NOTE: the following method changes the order of the data and resets the index
+    modified_boiler_fuel_df = boiler_fuel_df[~is_duplicate].append(
+        aggregates.reset_index(), ignore_index=True)
+
+    return modified_boiler_fuel_df
+
+
 def boiler_fuel(eia923_dfs, eia923_transformed_dfs):
     """Transforms the boiler_fuel_eia923 table.
 
@@ -678,37 +763,39 @@ def boiler_fuel(eia923_dfs, eia923_transformed_dfs):
         dict: eia923_transformed_dfs, a dictionary of DataFrame objects in which pages
             from EIA923 form (keys) correspond to normalized DataFrames of values from
             that page (values).
-
     """
     bf_df = eia923_dfs['boiler_fuel'].copy()
 
     # Drop fields we're not inserting into the boiler_fuel_eia923 table.
-    cols_to_drop = ['combined_heat_power',
-                    'plant_name_eia',
-                    'operator_name',
-                    'operator_id',
-                    'plant_state',
-                    'census_region',
-                    'nerc_region',
-                    'naics_code',
-                    'eia_sector',
-                    'sector_name',
-                    'fuel_unit',
-                    'total_fuel_consumption_quantity']
+    cols_to_drop = [
+        'combined_heat_power',
+        'plant_name_eia',
+        'operator_name',
+        'operator_id',
+        'plant_state',
+        'census_region',
+        'nerc_region',
+        'naics_code',
+        'eia_sector',
+        'sector_name',
+        'fuel_unit',
+        'total_fuel_consumption_quantity',
+    ]
     bf_df.drop(cols_to_drop, axis=1, inplace=True)
 
     bf_df.dropna(subset=['boiler_id', 'plant_id_eia'], inplace=True)
 
-    # Convert the EIA923 DataFrame from yearly to monthly records.
     bf_df = _yearly_to_monthly_records(bf_df)
+    # Replace the EIA923 NA value ('.') with a real NA value.
+    bf_df = pudl.helpers.fix_eia_na(bf_df)
+    # Convert Year/Month columns into a single Date column...
+    bf_df = pudl.helpers.convert_to_date(bf_df)
+
+    bf_df = _aggregate_duplicate_boiler_fuel_keys(bf_df)
+
     bf_df['fuel_type_code_pudl'] = pudl.helpers.cleanstrings_series(
         bf_df.fuel_type_code,
         pc.FUEL_TYPE_EIA923_BOILER_FUEL_SIMPLE_MAP)
-    # Replace the EIA923 NA value ('.') with a real NA value.
-    bf_df = pudl.helpers.fix_eia_na(bf_df)
-
-    # Convert Year/Month columns into a single Date column...
-    bf_df = pudl.helpers.convert_to_date(bf_df)
 
     eia923_transformed_dfs['boiler_fuel_eia923'] = bf_df
 
