@@ -11,8 +11,8 @@ As of fall 2021 the annual updates include:
 * :ref:`data-eia861`
 * :doc:`/data_sources/eia923`
 * :doc:`/data_sources/epacems`
-* :ferc1:`data-ferc1`
-* :ferc714:`data-ferc714`
+* :doc:`/data_sources/ferc1`
+* :ref:`data-ferc714`
 
 This document outlines all the tasks required to complete the annual update, based on
 our experience in 2021. You can look at :issue:`1255` to see all the commits that went
