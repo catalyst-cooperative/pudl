@@ -17,13 +17,13 @@ EIA Form 923
    * - Source Format
      - Microsoft Excel (.xls/.xlsx)
    * - Source Years
-     - 2001-2019
+     - 2001-2020
    * - Size (Download)
-     - 243.3 MB
+     - 256 MB
    * - PUDL Code
      - ``eia923``
    * - Years Liberated
-     - 2001-2019
+     - 2001-2020
    * - Records Liberated
      - ~3.6 million
    * - Issues

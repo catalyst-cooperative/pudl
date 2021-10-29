@@ -6,6 +6,18 @@ PUDL Release Notes
 0.5.0 (Unreleased)
 ---------------------------------------------------------------------------------------
 
+Data Coverage Changes
+^^^^^^^^^^^^^^^^^^^^^
+* :doc:`data_sources/eia860` for 2020 as well as 2001-2003 (see :issue:`1122`).
+* EIA-860m through 2021-08.
+* :doc:`data_sources/eia923` for 2020.
+* :doc:`data_sources/ferc1` for 2020.
+* EIA-861 data for 2020.
+* FERC-714 data for 2020.
+* **EPA IPM / NEEDS** data has been removed from PUDL as we didn't have the internal
+  resources to maintain it, and it was no longer working. Apologies to
+  :user:`gschivley`!
+
 SQLite and Parquet Outputs
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 * The ETL pipeline now outputs SQLite databases and Apache Parquet datasets
@@ -64,16 +76,6 @@ New Analyses
   ``state_demand`` and implemented in :mod:`pudl.analysis.state_demand`. This
   script existed in the v0.4.0 release, but was not deployed on the user's
   system.
-
-Data Coverage Changes
-^^^^^^^^^^^^^^^^^^^^^
-* :doc:`data_sources/eia860` for 2020 as well as 2001-2003 (see :issue:`1122`).
-* eia860m through 2021-08.
-* :doc:`data_sources/eia923` for 2020.
-* :doc:`data_sources/ferc1` for 2020.
-* **EPA IPM / NEEDS** data has been removed from PUDL as we didn't have the internal
-  resources to maintain it, and it was no longer working. Apologies to
-  :user:`gschivley`!
 
 Known Issues
 ^^^^^^^^^^^^
