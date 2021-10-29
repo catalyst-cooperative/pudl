@@ -340,7 +340,7 @@ class PudlTabl(object):
     def non_net_metering_eia861(self, update=False):
         """An interim EIA 861 output function."""
         self.etl_eia861(update=update)
-        return self._dfs["non_net_meterin_eia861"]
+        return self._dfs["non_net_metering_eia861"]
 
     def operational_data_eia861(self, update=False):
         """An interim EIA 861 output function."""
@@ -370,7 +370,7 @@ class PudlTabl(object):
     def utility_data_eia861(self, update=False):
         """An interim EIA 861 output function."""
         self.etl_eia861(update=update)
-        return self._dfs["_eia861"]
+        return self._dfs["utility_data_eia861"]
 
     ###########################################################################
     # FERC 714 Interim Outputs (awaiting full DB integration)
