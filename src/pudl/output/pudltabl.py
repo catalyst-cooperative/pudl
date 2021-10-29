@@ -273,6 +273,7 @@ class PudlTabl(object):
             )
             eia861_tfr_dfs = pudl.transform.eia861.transform(eia861_raw_dfs)
             for table in eia861_tfr_dfs:
+                print(table)
                 self._dfs[table] = eia861_tfr_dfs[table]
 
     def advanced_metering_infrastructure_eia861(self, update=False):
@@ -295,15 +296,40 @@ class PudlTabl(object):
         self.etl_eia861(update=update)
         return self._dfs["demand_response_eia861"]
 
-    def demand_side_management_eia861(self, update=False):
+    def demand_response_water_heater_eia861(self, update=False):
         """An interim EIA 861 output function."""
         self.etl_eia861(update=update)
-        return self._dfs["demand_side_management_eia861"]
+        return self._dfs["demand_response_water_heater_eia861"]
 
-    def distributed_generation_eia861(self, update=False):
+    def demand_side_management_sales_eia861(self, update=False):
         """An interim EIA 861 output function."""
         self.etl_eia861(update=update)
-        return self._dfs["distributed_generation_eia861"]
+        return self._dfs["demand_side_management_sales_eia861"]
+
+    def demand_side_management_ee_dr_eia861(self, update=False):
+        """An interim EIA 861 output function."""
+        self.etl_eia861(update=update)
+        return self._dfs["demand_side_management_ee_dr_eia861"]
+
+    def demand_side_management_misc_eia861(self, update=False):
+        """An interim EIA 861 output function."""
+        self.etl_eia861(update=update)
+        return self._dfs["demand_side_management_misc_eia861"]
+
+    def distributed_generation_tech_eia861(self, update=False):
+        """An interim EIA 861 output function."""
+        self.etl_eia861(update=update)
+        return self._dfs["distributed_generation_tech_eia861"]
+
+    def distributed_generation_fuel_eia861(self, update=False):
+        """An interim EIA 861 output function."""
+        self.etl_eia861(update=update)
+        return self._dfs["distributed_generation_fuel_eia861"]
+
+    def distributed_generation_misc_eia861(self, update=False):
+        """An interim EIA 861 output function."""
+        self.etl_eia861(update=update)
+        return self._dfs["distributed_generation_misc_eia861"]
 
     def distribution_systems_eia861(self, update=False):
         """An interim EIA 861 output function."""
@@ -330,20 +356,35 @@ class PudlTabl(object):
         self.etl_eia861(update=update)
         return self._dfs["mergers_eia861"]
 
-    def net_metering_eia861(self, update=False):
+    def net_metering_customer_fuel_class_eia861(self, update=False):
         """An interim EIA 861 output function."""
         self.etl_eia861(update=update)
-        return self._dfs["net_metering_eia861"]
+        return self._dfs["net_metering_customer_fuel_class_eia861"]
 
-    def non_net_metering_eia861(self, update=False):
+    def net_metering_misc_eia861(self, update=False):
         """An interim EIA 861 output function."""
         self.etl_eia861(update=update)
-        return self._dfs["non_net_metering_eia861"]
+        return self._dfs["net_metering_misc_eia861"]
 
-    def operational_data_eia861(self, update=False):
+    def non_net_metering_customer_fuel_class_eia861(self, update=False):
         """An interim EIA 861 output function."""
         self.etl_eia861(update=update)
-        return self._dfs["operational_data_eia861"]
+        return self._dfs["non_net_metering_customer_fuel_class_eia861"]
+
+    def non_net_metering_misc_eia861(self, update=False):
+        """An interim EIA 861 output function."""
+        self.etl_eia861(update=update)
+        return self._dfs["non_net_metering_misc_eia861"]
+
+    def operational_data_revenue_eia861(self, update=False):
+        """An interim EIA 861 output function."""
+        self.etl_eia861(update=update)
+        return self._dfs["operational_data_revenue_eia861"]
+
+    def operational_data_misc_eia861(self, update=False):
+        """An interim EIA 861 output function."""
+        self.etl_eia861(update=update)
+        return self._dfs["operational_data_misc_eia861"]
 
     def reliability_eia861(self, update=False):
         """An interim EIA 861 output function."""
@@ -365,10 +406,20 @@ class PudlTabl(object):
         self.etl_eia861(update=update)
         return self._dfs["utility_assn_eia861"]
 
-    def utility_data_eia861(self, update=False):
+    def utility_data_nerc_eia861(self, update=False):
         """An interim EIA 861 output function."""
         self.etl_eia861(update=update)
-        return self._dfs["utility_data_eia861"]
+        return self._dfs["utility_data_nerc_eia861"]
+
+    def utility_data_rto_eia861(self, update=False):
+        """An interim EIA 861 output function."""
+        self.etl_eia861(update=update)
+        return self._dfs["utility_data_rto_eia861"]
+
+    def utility_data_misc_eia861(self, update=False):
+        """An interim EIA 861 output function."""
+        self.etl_eia861(update=update)
+        return self._dfs["utility_data_misc_eia861"]
 
     ###########################################################################
     # FERC 714 Interim Outputs (awaiting full DB integration)
