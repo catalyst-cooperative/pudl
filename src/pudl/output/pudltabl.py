@@ -271,9 +271,7 @@ class PudlTabl(object):
                 pudl.extract.eia861.Extractor(self.ds)
                 .extract(year=pc.WORKING_PARTITIONS["eia861"]["years"])
             )
-            eia861_tfr_dfs = pudl.transform.eia861.transform(eia861_raw_dfs)
-            for table in eia861_tfr_dfs:
-                self._dfs[table] = eia861_tfr_dfs[table]
+            self._dfs.update(pudl.transform.eia861.transform(eia861_raw_dfs))
 
     def advanced_metering_infrastructure_eia861(self, update=False):
         """An interim EIA 861 output function."""
@@ -414,8 +412,7 @@ class PudlTabl(object):
 
             ferc714_raw_dfs = pudl.extract.ferc714.extract(ds=self.ds)
             ferc714_tfr_dfs = pudl.transform.ferc714.transform(ferc714_raw_dfs)
-            for table in ferc714_tfr_dfs:
-                self._dfs[table] = ferc714_tfr_dfs[table]
+            self._dfs.update(ferc714_tfr_dfs)
 
     def respondent_id_ferc714(self, update=False):
         """An interim FERC 714 output function."""

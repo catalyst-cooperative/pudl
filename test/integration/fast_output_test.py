@@ -4,6 +4,7 @@ import os
 import sys
 
 import geopandas as gpd
+import pandas as pd
 import pytest
 
 import pudl
@@ -96,11 +97,23 @@ def test_null_rows(fast_out, df_name, thresh):
 def test_eia861_etl(fast_out):
     """Make sure that the EIA 861 Extract-Transform steps work."""
     fast_out.etl_eia861()
+    eia861_tables = [tbl for tbl in fast_out._dfs if "_eia861" in tbl]
+    for tbl in eia861_tables:
+        logger.info(f"Checking that {tbl} is a non-empty DataFrame")
+        df = fast_out.__getattribute__(tbl)()
+        assert isinstance(df, pd.DataFrame), f"{tbl} is {type(df)}, not DataFrame!"
+        assert not df.empty, f"{tbl} is empty!"
 
 
 def test_ferc714_etl(fast_out):
     """Make sure that the FERC 714 Extract-Transform steps work."""
     fast_out.etl_ferc714()
+    ferc714_tables = [tbl for tbl in fast_out._dfs if "_ferc714" in tbl]
+    for tbl in ferc714_tables:
+        logger.info(f"Checking that {tbl} is a non-empty DataFrame")
+        df = fast_out.__getattribute__(tbl)()
+        assert isinstance(df, pd.DataFrame), f"{tbl} is {type(df)} not DataFrame!"
+        assert not df.empty, f"{tbl} is empty!"
 
 
 @pytest.fixture(scope="module")
