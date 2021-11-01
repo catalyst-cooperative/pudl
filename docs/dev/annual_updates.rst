@@ -144,6 +144,15 @@ descriptive strings associated with each row in the FERC Form 1, and also indica
 last year that the string was changed in the ``row_chg_yr`` column. The
 ``devtools/ferc1/ferc1-new-year.ipynb`` notebook can make this process less tedious.
 
+The ``plant_kind`` and ``construction_type`` fields in the ``plants_steam_ferc1`` table
+and the ``fuel_type`` and ``fuel_unit`` fields in the ``fuel_ferc1`` table are reported
+as freeform strings and need to be converted to simple categorical values to be useful.
+If the new year of data contains strings that have never been encountered before, they
+need to be added to the string cleaning dictionaries defined in
+:mod:`pudl.transform.ferc1`. The ``devtools/ferc1/ferc1-new-year.ipynb`` notebook has
+some tools to make this process less tedious. Every string observed in these fileds
+should ultimately be mapped to one of the defined categories.
+
 EIA Forms 860/861/923
 ^^^^^^^^^^^^^^^^^^^^^
 Using the EIA ETL Debugging notebook you can attempt to run the initial transform step
@@ -176,44 +185,104 @@ debug inconsistencies in the harvested values.
 
 Integration between datasets
 ----------------------------
-Once you have a PUDL DB containing **ALL OF AND ONLY** the EIA data (including the new
+
+FERC 1 & EIA Plants & Utilities
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Once you have a PUDL DB containing **ALL OF AND ONLY THE EIA DATA** (including the new
 year of data), and a cloned FERC 1 DB containing all years of available data, you can
 start associating the plant & utility entities that are reported in the two datasets.
 
-* FERC 1 to EIA plant & utility mappings
+The ``devtools/ferc1-eia-glue/find_unmapped_plants_utils.py`` script will read all of
+the EIA plant and utility IDs out of the PUDL DB, and all of the FERC 1 utility IDs
+and plant names out of the FERC 1 DB, and compare them against the values that appear
+in the ID mapping spreadsheet (``src/pudl/package_data/mapping_eia923_ferc1.xlsx``).
+Any unrecognized plants and utilities will be written into CSV files for use in updating
+the spreadsheet.
 
-* Add location data for any plant that shows up in EPA CEMS but not in the EIA 860 data
-  to ``src/pudl/package_data/epacems/additional_epacems_plants.csv``
+.. note::
 
-Update the output routines
---------------------------
-* Are there new columns that should be getting output?
-* Are there new tables that need to have an output function?
+    **All** FERC 1 respondent IDs and plant names and **all** EIA plant and utility IDs
+    should end up in the mapping spreadsheet with PUDL plant and utility IDs, but only a
+    small subset of them will end up being linked together with a shared ID. Only EIA
+    plants with a capacity of more than 5 MW and EIA utilities that actually report data
+    in the EIA 923 data tables are considered for linkage to their FERC Form 1
+    counterparts. All FERC 1 plants and utilities should be linked to their EIA
+    counterparts (there are far fewer of them).
 
-Running the tests and Full ETL
-------------------------------
-* Run the FAST tests to make sure the new year of data can be processed
-* Run the FULL ETL to generate complete FERC 1 & PUDL DBs, and EPA CEMS Parquet files.
-* Run the FULL tests against these live resources to make sure all the years of data
-  work with each other
+Update missing EIA plant locations
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+If there are any plants that appear in the EPA CEMS dataset that do not appear in the
+``plants_entity_eia`` table or that are missing latitute and longitude values, the
+missing information should be compiled and added to
+``src/pudl/package_data/epacems/additional_epacems_plants.csv`` to enable accurate
+adjustment of the EPA CEMS timestamps to UTC. This information can usually be obtained
+with the ``plant_id_eia`` and the
+`EPA's FACT API <https://www.epa.gov/airmarkets/field-audit-checklist-tool-fact-api>`__
+but in some cases you may need to resort to Google Maps. If no coordinates can be found
+then at least the plant's state should be included, so that an approximate timezone can
+be inferred.
 
-Update data validations
------------------------
-* Update expected number of rows in the minmax_row validation tests.
-* May need to update expected distribution of fuel costs
+Run the ETL
+-----------
+Once the FERC 1 and EIA utilities and plants have been associated with each other, you
+can try and run the ETL with all datasets included. See: :doc:`run_the_etl`.
+
+* First run the ETL for just the new year of data, using the ``etl_fast.yml`` settings
+  file.
+* Once the fast ETL works, run the full ETL using the ``etl_full.yml`` settings to
+  populate complete FERC 1 & PUDL DBs and EPA CEMS Parquet files.
+
+Update the output routines and run full tests
+---------------------------------------------
+With a full PUDL DB update the denormalized table outputs and derived analytical
+routines to accommodate the new data if necessary. These are generally called from
+within the :class:`pudl.output.pudltabl.PudlTabl` class.
+
+* Are there new columns that should incorporated into the output tables?
+* Are there new tables that need to have an output function defined for them?
+
+To ensure that you (more) fully exercise all of the possible output functions, you
+should run the entire CI test suite against your live databases with:
+
+.. code-block:: bash
+
+    tox -e full -- --live-dbs
+
+Run and update data validations
+-------------------------------
+When the CI tests are passing against all years of data, sanity check the data in the
+database and the derived outputs by running
+
+.. code-block:: bash
+
+    tox -e validate
+
+We expect at least some of the validation tests to fail initially, because we haven't
+updated the number of records we expect to see in each table. Updating the expected
+number of records should be the last thing you do, as any other changes to the ETL
+process are likely to affect those numbers.
+
+You may also need to update the expected distribution of fuel prices if they were
+particularly high or low in the new year of data. Other values like expected heat
+content per unit of fuel should be relatively stable. If the required adjustments are
+large, or there are other types of validations failing, they should be investigated.
+
+When updating the expected number of rows in the minmax_row validation tests you should
+pay attention to how far off of previous expectations the new tables are. E.g. if there
+are already 20 years of data, and you're integrating 1 new year of data, probably the
+number of rows in the tables should be increasing by around 5% (since 1/20 = 0.05).
 
 Run additional standalone analyses
 ----------------------------------
-* If there are any important analyses that haven't been integrated into the CI tests
-  yet they should be run with the new year of data for sanity checking.
-* E.g. the state level hourly demand allocations, the EIA plant parts list
-  generation.
+If there are any important analyses that haven't been integrated into the CI tests yet
+they should be run including the new year of data for sanity checking. For example
+the :mod:`pudl.analysis.state_demand` script or generating the EIA Plant Parts List
+for integration with FERC 1 data.
 
 Update documentation
 --------------------
-* README
-* Release notes
-* data source specific pages
-
-Do a new software & data release
---------------------------------
+Once the new year of data is integrated, the documentation should be updated to reflect
+the new state of affairs. This will include updating at least:
+* The top-level :doc:`/index`
+* The :doc:`/release_notes`
+* Any updated :doc:`/data_sources/index`
