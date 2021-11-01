@@ -50,6 +50,7 @@ doc_requires = [
     "sphinx-reredirects",
     "sphinx-rtd-dark-mode~=1.2",
     "sphinx-rtd-theme~=1.0",
+    "sphinxcontrib_bibtex~=2.4",
 ]
 
 test_requires = [

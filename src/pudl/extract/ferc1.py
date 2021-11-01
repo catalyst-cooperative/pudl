@@ -293,7 +293,7 @@ def observed_respondents(ferc1_engine: sa.engine.Engine) -> Set[int]:
 class Ferc1Datastore:
     """Simple datastore wrapper for accessing ferc1 resources."""
 
-    PACKAGE_PATH = "pudl.package_data.ferc1.row_maps"
+    PACKAGE_PATH = "pudl.package_data.ferc1"
 
     def __init__(self, datastore: Datastore):
         """Instantiate datastore wrapper for ferc1 resources."""
