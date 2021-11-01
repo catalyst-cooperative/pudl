@@ -4,11 +4,10 @@ from typing import Any, ClassVar, Dict, List
 
 import pandas as pd
 from pydantic import BaseModel as PydanticBaseModel
-from pydantic import root_validator, validator
+from pydantic import create_model, root_validator, validator
 
 import pudl.constants as pc
 from pudl.extract.ferc1 import DBF_TABLES_FILENAMES
-from pudl.metadata.enums import EPACEMS_STATES
 
 
 class BaseModel(PydanticBaseModel):
@@ -25,19 +24,32 @@ class GenericDatasetSettings(BaseModel, abc.ABC):
     """
     An abstract pydantic model for generic datasets.
 
+    Each dataset must specify working tables are partitions.
+    A dataset can have an arbitrary number of partitioins.
+
     Attributes:
         working_partitions ClassVar[Dict[str, List[Any]]]):
             dictionary of arbitrary working partitions.
+        working_tables List: dictionary of arbitrary working partitions.
+        tables List: requested tables to be validated.
     """
+
+    tables: List
 
     @property
     @abc.abstractmethod
-    def working_partitions(cls) -> Dict[str, List[Any]]:
+    def working_partitions(cls) -> Dict[str, List[Any]]:  # noqa: N805
         """Abstract working_partitions property."""
-        return sorted(cls.working_partitions)
+        return cls.working_partitions
+
+    @property
+    @abc.abstractmethod
+    def working_tables(cls) -> List:  # noqa: N805
+        """Abstract working_tables property."""
+        return cls.working_tables
 
     @root_validator
-    def validate_partitions(cls, partitions):
+    def validate_partitions(cls, partitions):  # noqa: N805
         """Validate partitions are available."""
         for name, working_partitions in cls.working_partitions.items():
             try:
@@ -52,69 +64,75 @@ class GenericDatasetSettings(BaseModel, abc.ABC):
             partitions[name] = sorted(set(partition))
         return partitions
 
+    @validator("tables")
+    def validate_tables(cls, tables):
+        """Validate tables are available."""
+        tables_not_working = list(set(tables) - set(cls.working_tables))
+        if len(tables_not_working) > 0:
+            raise ValueError(
+                f"'{tables_not_working}' tables are not available.")
+        return sorted(set(tables))
 
-class Ferc1Settings(GenericDatasetSettings):
+
+# TODO: How to specify type hint here?
+def create_dataset_settings(name: str) -> GenericDatasetSettings:
     """
-    An immutable pydantic model to validate FERC1 settings.
+    Create a pydantic settings class for a dataset.
 
-    Attributes:
-        years (List[int]): List of years to validate.
-        tables (List[str]): List of table to validate.
+    This function dynamically creates subclasses of GenericDatasetSettings
+    using information from the constants WORKING_PARTITIONS and PUDL_TABLES.
+    The returned class can be subclassed to add additional fields or validators.
 
-        working_partitions ClassVar[Dict[str, Any]]: working paritions.
+    TODO: examples
+
+    Args:
+        name: the name of the dataset.
+
+    Returns:
+        dataset_model: Subclass of GenericDatasetSettings
     """
+    partitions = pc.WORKING_PARTITIONS[name]
+    partitions = {k: sorted(v) for (k, v) in partitions.items()}
+    tables = sorted(list(pc.PUDL_TABLES[name]))
 
-    # TODO: import tables from resources.py
-    # TODO: Move all working partition data to resources?
-    working_partitions: ClassVar = {
-        "tables": sorted([
-            'fuel_ferc1',
-            'plants_steam_ferc1',
-            'plants_small_ferc1',
-            'plants_hydro_ferc1',
-            'plants_pumped_storage_ferc1',
-            'purchased_power_ferc1',
-            'plant_in_service_ferc1'
-        ]),
-        "years": list(pc.WORKING_PARTITIONS["ferc1"]["years"])
-    }
-
-    years: List[int] = working_partitions["years"]
-    tables: List[str] = working_partitions["tables"]
+    class_name = name.title() + "Settings"
+    dataset_model = create_model(class_name,
+                                 working_partitions=(ClassVar, partitions),
+                                 working_tables=(ClassVar, tables),
+                                 tables=(List, tables),
+                                 **partitions,
+                                 __base__=GenericDatasetSettings)
+    return dataset_model
 
 
-class Eia860Settings(GenericDatasetSettings):
+# Settings that don't need to be extended
+Ferc1Settings = create_dataset_settings("ferc1")
+Eia923Settings = create_dataset_settings("eia923")
+
+# Settings that do need to be extended
+Eia860BaseSettings = create_dataset_settings("eia860")
+EpaCemsBaseSettings = create_dataset_settings("epacems")
+
+
+class Eia860Settings(Eia860BaseSettings):
     """
     An immutable pydantic model to validate EIA860 settings.
 
     This model also check 860m settings.
 
     Attributes:
-        years (List[int]): List of years to validate.
         tables (List[str]): List of table to validate.
+        years (List[int]): List of years to validate.
 
         working_partitions ClassVar[Dict[str, Any]]: working paritions.
         eia860m_date ClassVar[str]: The 860m year to date.
     """
 
-    working_partitions: ClassVar = {
-        "tables": sorted([
-            'boiler_generator_assn_eia860',
-            'utilities_eia860',
-            'plants_eia860',
-            'generators_eia860',
-            'ownership_eia860'
-        ]),
-        "years": list(pc.WORKING_PARTITIONS["eia860"]["years"])
-    }
-    eia860m_date: ClassVar[str] = '2020-11'
-
-    years: List[int] = working_partitions["years"]
-    tables: List[str] = working_partitions["tables"]
     eia860m: bool = False
+    eia860m_date: ClassVar[str] = pc.WORKING_PARTITIONS["eia860m"]["year_month"]
 
     @validator("eia860m")
-    def check_860m_date(cls, eia860m):
+    def check_860m_date(cls, eia860m):  # noqa: N805
         """
         Check 860m date year is exactly one year later than most recent working 860 year.
 
@@ -138,33 +156,6 @@ class Eia860Settings(GenericDatasetSettings):
         return eia860m
 
 
-class Eia923Settings(GenericDatasetSettings):
-    """
-    An immutable pydantic model to validate EIA923 settings.
-
-    Attributes:
-        years (List[int]): List of years to validate.
-        tables (List[str]): List of table to validate.
-
-        working_years (ClassVar[List[int]]): List of working years.
-        working_tables (ClassVar[List[str]]): List of working table.
-    """
-
-    working_partitions: ClassVar = {
-        "tables": sorted([
-            'generation_fuel_eia923',
-            'boiler_fuel_eia923',
-            'generation_eia923',
-            'coalmine_eia923',
-            'fuel_receipts_costs_eia923'
-        ]),
-        "years": list(pc.WORKING_PARTITIONS["eia923"]["years"])
-    }
-
-    years: List[int] = working_partitions["years"]
-    tables: List[str] = working_partitions["tables"]
-
-
 class GlueSettings(BaseModel):
     """
     An immutable pydantic model to validate Glue settings.
@@ -178,25 +169,18 @@ class GlueSettings(BaseModel):
     ferc1: bool = True
 
 
-class EpaCemsSettings(GenericDatasetSettings):
+class EpaCemsSettings(EpaCemsBaseSettings):
     """
     An immutable pydantic nodel to validate EPA CEMS settings.
 
     Attributes:
+        tables (List[str])
         states (List[str]): List of states to validate.
         years (List[str]): List of years to validate.
     """
 
-    working_partitions: ClassVar = {
-        "states": sorted(set(EPACEMS_STATES)),
-        "years": list(pc.WORKING_PARTITIONS["epacems"]["years"])
-    }
-
-    years: List[int] = working_partitions["years"]
-    states: List[str] = working_partitions["states"]
-
     @validator("states")
-    def allow_all_keyword(cls, states):
+    def allow_all_keyword(cls, states):  # noqa: N805
         """Allow users to specify ['all'] to get all states."""
         if states == ["all"]:
             states = cls.working_partitions["states"]
@@ -216,7 +200,7 @@ class EiaSettings(BaseModel):
     eia923: Eia923Settings = None
 
     @root_validator
-    def check_eia_dependencies(cls, values):
+    def check_eia_dependencies(cls, values):  # noqa: N805
         """
         Make sure the dependencies between the eia datasets are satisfied.
 
@@ -262,7 +246,7 @@ class DatasetsSettings(BaseModel):
     epacems: EpaCemsSettings = None
 
     @root_validator(pre=True)
-    def default_load_all(cls, values):
+    def default_load_all(cls, values):  # noqa: N805
         """
         If no datasets are specified default to all.
 
@@ -278,7 +262,7 @@ class DatasetsSettings(BaseModel):
         return values
 
     @root_validator
-    def add_glue_settings(cls, values):
+    def add_glue_settings(cls, values):  # noqa: N805
         """
         Add glue settings if ferc1 and eia data are both requested.
 
@@ -292,7 +276,7 @@ class DatasetsSettings(BaseModel):
             values["glue"] = GlueSettings()
         return values
 
-    def get_datasets(cls):
+    def get_datasets(cls):  # noqa: N805
         """Gets dictionary of dataset settings."""
         return vars(cls)
 
@@ -308,18 +292,18 @@ class Ferc1ToSqliteSettings(GenericDatasetSettings):
     """
 
     working_partitions: ClassVar = {
-        "tables": sorted(list(DBF_TABLES_FILENAMES.keys())),
         "years": list(pc.WORKING_PARTITIONS["ferc1"]["years"])
     }
+    working_tables: ClassVar = sorted(list(DBF_TABLES_FILENAMES.keys())),
 
     years: List[int] = working_partitions["years"]
-    tables: List[str] = working_partitions["tables"]
+    tables: List[str] = working_tables
 
     refyear: int = max(working_partitions["years"])
     bad_cols: tuple = ()
 
     @validator("refyear")
-    def check_reference_year(cls, refyear: int) -> int:
+    def check_reference_year(cls, refyear: int) -> int:  # noqa: N805
         """Checks reference year is within available years."""
         if refyear not in cls.working_partitions["years"]:
             raise ValueError(f"Reference year {refyear} is outside the range of "

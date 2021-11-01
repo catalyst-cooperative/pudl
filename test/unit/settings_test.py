@@ -24,6 +24,7 @@ class TestGenericDatasetSettings:
         with pytest.raises(ValidationError):
             class Test(GenericDatasetSettings):
                 working_partitions: ClassVar = {"years": [2001]}
+                working_tables: ClassVar = ["table"]
             Test()
 
 
@@ -79,7 +80,7 @@ class TestFerc1Settings:
         """Test all tables are used as default."""
         returned_settings = Ferc1Settings()
 
-        expected_tables = Ferc1Settings.working_partitions["tables"]
+        expected_tables = Ferc1Settings.working_tables
         assert expected_tables == returned_settings.tables
 
 
@@ -97,8 +98,6 @@ class TestEpaCemsSettings:
             states=["CA", "CA", "AL"])
         expected_states = ["AL", "CA"]
 
-        print(returned_settings.states)
-        print(expected_states)
         assert expected_states == returned_settings.states
 
     def test_default_states(self):
@@ -143,7 +142,7 @@ class TestEiaSettings:
         assert settings.eia860
 
         assert settings.eia860.years == Eia860Settings.working_partitions["years"]
-        assert settings.eia860.tables == Eia860Settings.working_partitions["tables"]
+        assert settings.eia860.tables == Eia860Settings.working_tables
 
     def test_eia860_dependency(self):
         """Test 923 tables are added to eia860 if 923 is not specified."""
@@ -167,7 +166,7 @@ class TestDatasetsSettings:
         returned_years = settings.ferc1.years
         assert expected_years == returned_years
 
-        expected_tables = Ferc1Settings.working_partitions["tables"]
+        expected_tables = Ferc1Settings.working_tables
         returned_tables = settings.ferc1.tables
         assert expected_tables == returned_tables
 

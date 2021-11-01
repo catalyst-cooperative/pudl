@@ -114,23 +114,23 @@ class Partition(TypedDict, total=False):
 
 WORKING_PARTITIONS: Dict[str, Partition] = {
     'eia860': {
-        'years': tuple(range(2001, 2020))
+        'years': list(range(2001, 2020))
     },
     'eia860m': {
         'year_month': '2020-11'
     },
     'eia861': {
-        'years': tuple(range(2001, 2020))
+        'years': list(range(2001, 2020))
     },
     'eia923': {
-        'years': tuple(range(2001, 2020))
+        'years': list(range(2001, 2020))
     },
     'epacems': {
-        'years': tuple(range(1995, 2021)),
-        'states': tuple(EPACEMS_STATES),
+        'years': list(range(1995, 2021)),
+        'states': list(EPACEMS_STATES),
     },
     'ferc1': {
-        'years': tuple(range(1994, 2020))
+        'years': list(range(1994, 2020))
     },
     'ferc714': {},
 }
@@ -148,14 +148,14 @@ containing all data.
 """
 
 PUDL_TABLES: Dict[str, Tuple[str, ...]] = {
-    'eia860': (
+    'eia860': [
         'boiler_generator_assn_eia860',
         'utilities_eia860',
         'plants_eia860',
         'generators_eia860',
         'ownership_eia860',
-    ),
-    'eia861': (
+    ],
+    'eia861': [
         "service_territory_eia861",
         "balancing_authority_eia861",
         "sales_eia861",
@@ -173,24 +173,24 @@ PUDL_TABLES: Dict[str, Tuple[str, ...]] = {
         "operational_data_eia861",
         "reliability_eia861",
         "utility_data_eia861",
-    ),
-    'eia923': (
+    ],
+    'eia923': [
         'generation_fuel_eia923',
         'boiler_fuel_eia923',
         'generation_eia923',
         'coalmine_eia923',
         'fuel_receipts_costs_eia923',
-    ),
-    'entity_tables': (
+    ],
+    'entity_tables': [
         'utilities_entity_eia',
         'plants_entity_eia',
         'generators_entity_eia',
         'boilers_entity_eia',
-    ),
-    'epacems': (
+    ],
+    'epacems': [
         "hourly_emissions_epacems"
-    ),
-    'ferc1': (
+    ],
+    'ferc1': [
         'fuel_ferc1',
         'plants_steam_ferc1',
         'plants_small_ferc1',
@@ -198,8 +198,8 @@ PUDL_TABLES: Dict[str, Tuple[str, ...]] = {
         'plants_pumped_storage_ferc1',
         'purchased_power_ferc1',
         'plant_in_service_ferc1',
-    ),
-    'ferc714': (
+    ],
+    'ferc714': [
         "respondent_id_ferc714",
         "id_certification_ferc714",
         "gen_plants_ba_ferc714",
@@ -212,8 +212,8 @@ PUDL_TABLES: Dict[str, Tuple[str, ...]] = {
         "description_pa_ferc714",
         "demand_forecast_pa_ferc714",
         "demand_hourly_pa_ferc714",
-    ),
-    'glue': (
+    ],
+    'glue': [
         'plants_eia',
         'plants_ferc',
         'plants',
@@ -221,7 +221,7 @@ PUDL_TABLES: Dict[str, Tuple[str, ...]] = {
         'utilities_ferc',
         'utilities',
         'utility_plant_assn',
-    ),
+    ],
 }
 """Tables that are available in the PUDL DB, organized by data source."""
 
