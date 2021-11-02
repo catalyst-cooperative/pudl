@@ -185,7 +185,7 @@ class TestExcelExtractor:
             extractor=extractor,
             page='fuel_receipts_costs',
             year=2019,
-            expected_name="EIA923_Schedules_2_3_4_5_M_12_2019_Final.xlsx"
+            expected_name="EIA923_Schedules_2_3_4_5_M_12_2019_Final_Revision.xlsx"
         )
         self.expected_file_name(
             extractor=extractor,

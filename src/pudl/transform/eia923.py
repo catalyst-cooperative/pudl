@@ -711,8 +711,12 @@ def _aggregate_duplicate_boiler_fuel_keys(boiler_fuel_df: pd.DataFrame) -> pd.Da
     expected_cols = set(quantity_cols + relative_cols + key_cols + ['prime_mover_code'])
     actual_cols = set(boiler_fuel_df.columns)
     difference = actual_cols.symmetric_difference(expected_cols)
-    assert len(
-        difference) == 0, f"Columns were expected to align, instead found this difference: {difference}"
+
+    if difference:
+        raise AssertionError(
+            "Columns were expected to align, instead found this difference: "
+            f"{difference}"
+        )
 
     is_duplicate = boiler_fuel_df.duplicated(subset=key_cols, keep=False)
     duplicates: pd.DataFrame = boiler_fuel_df[is_duplicate]
@@ -766,7 +770,8 @@ def boiler_fuel(eia923_dfs, eia923_transformed_dfs):
     """
     bf_df = eia923_dfs['boiler_fuel'].copy()
 
-    # Drop fields we're not inserting into the boiler_fuel_eia923 table.
+    # Need to stop dropping fields that contain harvestable entity attributes.
+    # See https://github.com/catalyst-cooperative/pudl/issues/509
     cols_to_drop = [
         'combined_heat_power',
         'plant_name_eia',
@@ -780,6 +785,8 @@ def boiler_fuel(eia923_dfs, eia923_transformed_dfs):
         'sector_name',
         'fuel_unit',
         'total_fuel_consumption_quantity',
+        'respondent_frequency',
+        'balancing_authority_code_eia',
     ]
     bf_df.drop(cols_to_drop, axis=1, inplace=True)
 

@@ -4,6 +4,7 @@ import os
 import sys
 
 import geopandas as gpd
+import pandas as pd
 import pytest
 
 import pudl
@@ -96,11 +97,23 @@ def test_null_rows(fast_out, df_name, thresh):
 def test_eia861_etl(fast_out):
     """Make sure that the EIA 861 Extract-Transform steps work."""
     fast_out.etl_eia861()
+    eia861_tables = [tbl for tbl in fast_out._dfs if "_eia861" in tbl]
+    for df_name in eia861_tables:
+        logger.info(f"Checking that {df_name} is a non-empty DataFrame")
+        df = fast_out.__getattribute__(df_name)()
+        assert isinstance(df, pd.DataFrame), f"{df_name} is {type(df)}, not DataFrame!"
+        assert not df.empty, f"{df_name} is empty!"
 
 
 def test_ferc714_etl(fast_out):
     """Make sure that the FERC 714 Extract-Transform steps work."""
     fast_out.etl_ferc714()
+    ferc714_tables = [tbl for tbl in fast_out._dfs if "_ferc714" in tbl]
+    for df_name in ferc714_tables:
+        logger.info(f"Checking that {df_name} is a non-empty DataFrame")
+        df = fast_out.__getattribute__(df_name)()
+        assert isinstance(df, pd.DataFrame), f"{df_name} is {type(df)} not DataFrame!"
+        assert not df.empty, f"{df_name} is empty!"
 
 
 @pytest.fixture(scope="module")
@@ -122,8 +135,9 @@ def test_ferc714_outputs(ferc714_out, df_name):
     """Test FERC 714 derived output methods."""
     logger.info(f"Running ferc714_out.{df_name}()")
     df = ferc714_out.__getattribute__(df_name)()
+    assert isinstance(df, pd.DataFrame), f"{df_name} is {type(df)} not DataFrame!"
     logger.info(f"Found {len(df)} rows in {df_name}")
-    assert not df.empty
+    assert not df.empty, f"{df_name} is empty!"
 
 
 @pytest.mark.xfail(
@@ -143,8 +157,8 @@ def test_ferc714_respondents_georef_counties(ferc714_out):
 
     """
     ferc714_gdf = ferc714_out.georef_counties()
-    assert len(ferc714_gdf) > 0
-    assert isinstance(ferc714_gdf, gpd.GeoDataFrame)
+    assert isinstance(ferc714_gdf, gpd.GeoDataFrame), "ferc714_gdf not a GeoDataFrame!"
+    assert not ferc714_gdf.empty, "ferc714_gdf is empty!"
 
 
 @pytest.fixture(scope="module")

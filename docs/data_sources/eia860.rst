@@ -18,13 +18,13 @@ EIA Form 860
    * - Source Format
      - Microsoft Excel (.xls/.xlsx)
    * - Source Years
-     - 2001-2019
+     - 2001-2020
    * - Size (Download)
-     - 413.4 MB
+     - 182 MB
    * - PUDL Code
      - ``eia860``
    * - Years Liberated
-     - 2004-2019
+     - 2001-2020
    * - Records Liberated
      - ~1 million
    * - Issues

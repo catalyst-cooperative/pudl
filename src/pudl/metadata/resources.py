@@ -564,6 +564,7 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
                 "transmission_distribution_owner_state",
                 "utility_id_eia",
                 "water_source",
+                "respondent_frequency",
             ],
             "primary_key": ["plant_id_eia", "report_date"],
             "foreign_key_rules": {
