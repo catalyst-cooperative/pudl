@@ -46,11 +46,12 @@ logger = logging.getLogger(__name__)
 # at some point in the EIA 923 -- these are the ones we might need to link
 # to the FERC Form 1 utilities:
 DATA_TABLES_EIA923: List[str] = [
-    "fuel_receipts_costs_eia923",
-    "generation_fuel_eia923",
-    # "generation_fuel_nuclear_eia923",  # Not yet integrated
-    "generation_eia923",
     "boiler_fuel_eia923",
+    "coalmine_eia923",
+    "fuel_receipts_costs_eia923",
+    "generation_eia923",
+    "generation_fuel_eia923",
+    "generation_fuel_nuclear_eia923",
 ]
 
 

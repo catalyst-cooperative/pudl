@@ -7,7 +7,7 @@ time the final release for the previous year have been published by EIA and FERC
 
 As of fall 2021 the annual updates include:
 
-* :doc:`/data_sources/eia860`
+* :doc:`/data_sources/eia860` (and eia860m)
 * :ref:`data-eia861`
 * :doc:`/data_sources/eia923`
 * :doc:`/data_sources/epacems`
@@ -18,8 +18,8 @@ This document outlines all the tasks required to complete the annual update, bas
 our experience in 2021. You can look at :issue:`1255` to see all the commits that went
 into integrating the 2020 data.
 
-Obtain fresh new data
----------------------
+Obtain fresh data
+-----------------
 Scrape a new copy of the raw PUDL inputs from agency websites using the tools in the
 `pudl-scrapers repository <https://github.com/catalyst-cooperative/pudl-scrapers>`__.
 If the structure of the web pages or the URLs have changed, you may need to update the
@@ -52,52 +52,33 @@ network hiccups don't cause issues during ETL.
 Mapping the Structure of New Data
 ---------------------------------
 
-FERC Form 1
-^^^^^^^^^^^
-The path to the directory containing the database files stored within the annual FERC 1
-zipfiles changes from year to year, and will need to be updated for the new year of
-data. We store this information in ``src/pudl/package_data/ferc1/file_map.csv``
-
-The process we use for :doc:`clone_ferc1` uses the most recent annual database to
-define the schema for our multi-year FERC 1 DB. This only works because historically the
-FERC 1 DB has only added tables and columns over time. To check whether the new year of
-data continues this pattern, you can run:
-
-.. code-block:: bash
-
-  pytest --etl_settings src/pudl/package_data/settings/etl_full.yml \
-    test/integration/etl_test.py::test_ferc1_schema
-
-EIA Forms 860/861/923
-^^^^^^^^^^^^^^^^^^^^^
-As with FERC Form 1, EIA often alters the structure of their published spreadsheets from
-year to year. This includes changing file names; adding, removing, or re-ordering tabs;
+EIA Forms 860/860m/861/923
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+EIA often alters the structure of their published spreadsheets from year to year. This
+includes changing file names; adding, removing, or re-ordering spreadsheet pages;
 changing the number of header and footer rows; and adding, removing, re-ordering, or
-re-naming the data columns. We track this information in the following files, all of
-which can be found under ``src/pudl/package_data`` in the PUDL repository:
+re-naming the data columns. We track this information in the following files which can
+be found under ``src/pudl/package_data`` in the PUDL repository:
 
 * ``${data_source}/file_map.csv``: Paths (within the annual zip archive) to the files we
   parse.
 * ``${data_source}/page_map.csv``: Mapping between the named spreadsheet pages we refer
   to across years, and the numerical index of that page within the workbook.
-
 * ``${data_source}/skiprows.csv``: A per-page, per-year number of rows that should be
   skipped when reading the spreadsheet.
-
 * ``${data_source}/skipfooter.csv``: A per-page, per-year number of rows that should be
   ignored at the end of the page when reading the spreadsheet.
-
 * ``${data_source}/column_maps/${page_name}.csv``: A mapping from annual spreadsheet
   columns to consistent inter-year column names that we refer to in the raw dataframes
   during the extract step. The spreadsheet columns can be referred to either by their
   simplified ``snake_case`` column header (in ``eia860``, ``eia860m``, and ``eia923``)
   or numerical column index (``eia861``).
 
-In the above ``${data_source}`` is one of our data source short codes (``eia860``,
-``eia923`` etc.) and ``${page_name}`` is a label we use to refer to a given spreadsheet
-tab over the years (e.g. ``boiler_fuel``). However ``page_name`` does not necessarily
-correspond directly to PUDL database table names because we don't load the data from all
-pages, and some pages result in more than one database table after normalization.
+Here ``${data_source}`` is one of our data source short codes (``eia860``, ``eia923``
+etc.) and ``${page_name}`` is a label we use to refer to a given spreadsheet tab over
+the years (e.g. ``boiler_fuel``). However ``page_name`` does not necessarily correspond
+directly to PUDL database table names because we don't load the data from all pages, and
+some pages result in more than one database table after normalization.
 
 .. note::
 
@@ -114,8 +95,45 @@ information over time.
 In all of the the above CSV files we use a value of ``-1`` to indicate that the data
 does not exist in a given year.
 
+FERC Form 1
+^^^^^^^^^^^
+The path to the directory containing the database files stored within the annual FERC 1
+zipfiles changes from year to year, and will need to be updated for the new year of
+data. We store this information in ``src/pudl/package_data/ferc1/file_map.csv``
+
+The process we use for :doc:`clone_ferc1` uses the most recent annual database to
+define the schema for our multi-year FERC 1 DB. This only works because historically the
+FERC 1 DB has only added tables and columns over time. To check whether the new year of
+data continues this pattern, you can run:
+
+.. code-block:: bash
+
+  pytest --etl_settings src/pudl/package_data/settings/etl_full.yml \
+    test/integration/etl_test.py::test_ferc1_schema
+
+FERC Form 714
+^^^^^^^^^^^^^
+FERC Form 714 is distributed as an archive of CSV files, each of which spans all
+available years of data. This means there's much less structure to keep track of. The
+main thing that changes from year to year is the names of the CSV files within the ZIP
+archive. The mapping between extracted dataframes and those filenames is currently
+stored in the :py:const:`pudl.extract.ferc714.TABLE_FNAME` dictionary.
+
+The character encodings of these CSV files vary, with some of them using ``iso-8859-1``
+(Latin) rather than ``utf-8`` (Unicode). The per-file encoding is stored in
+:py:const:`pudl.extract.ferc714.TABLE_ENCODING` and could change over time.
+
 Initial Data Extraction
 -----------------------
+
+EIA Forms 860/860m/861/923
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+It should also be possible to extract all years of data from the EIA 860/861/923
+spreadsheets to generate raw dataframes. The Jupyter notebook
+``devtools/eia-etl-debug.ipynb`` will let you run one step of the process at a time,
+independently for each dataset. This makes debugging issues easier. Given that there are
+hundreds of columns mapped across all the different EIA spreadsheets, you'll almost
+certainly find some typos or errors in the extract process and need to revise your work.
 
 FERC Form 1
 ^^^^^^^^^^^
@@ -129,17 +147,16 @@ new year) into SQLite with:
 This is necessary to enable mapping associations between the FERC 1 and EIA plants and
 utilities later.
 
-EIA Forms 860/861/923
-^^^^^^^^^^^^^^^^^^^^^
-It should also be possible to extract all years of data from the EIA 860/861/923
-spreadsheets to generate raw dataframes. The Jupyter notebook
-``devtools/eia-etl-debug.ipynb`` will let you run one step of the process at a time,
-independently for each dataset. This makes debugging issues easier. Given that there are
-hundreds of columns mapped across all the different EIA spreadsheets, you'll almost
-certainly find some typos or errors in the extract process and need to revise your work.
-
 Update table & column transformations
 -------------------------------------
+
+EIA Forms 860/860m/861/923
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+Using the EIA ETL Debugging notebook you can attempt to run the initial transform step
+on all tables of the new year of data and debug any failures. If any new tables were
+added in the new year of data you will need to add a new transform function for the
+corresponding dataframe. If new columns have been added, they should also be inspected
+for cleanup.
 
 FERC Form 1
 ^^^^^^^^^^^
@@ -159,17 +176,9 @@ and the ``fuel_type`` and ``fuel_unit`` fields in the ``fuel_ferc1`` table are r
 as freeform strings and need to be converted to simple categorical values to be useful.
 If the new year of data contains strings that have never been encountered before, they
 need to be added to the string cleaning dictionaries defined in
-:mod:`pudl.transform.ferc1`. The ``devtools/ferc1/ferc1-new-year.ipynb`` notebook has
-some tools to make this process less tedious. Every string observed in these fileds
-should ultimately be mapped to one of the defined categories.
-
-EIA Forms 860/861/923
-^^^^^^^^^^^^^^^^^^^^^
-Using the EIA ETL Debugging notebook you can attempt to run the initial transform step
-on all tables of the new year of data and debug any failures. If any new tables were
-added in the new year of data you will need to add a new transform function for the
-corresponding dataframe. If new columns have been added, they should also be inspected
-for cleanup.
+:mod:`pudl.transform.ferc1`. The ``devtools/ferc1/ferc1-new-year.ipynb`` notebook and
+:func:`pudl.helpers.find_new_ferc1_strings` will help with this process. Every string
+observed in these fileds should ultimately be mapped to one of the defined categories.
 
 Update the PUDL DB schema
 -------------------------
