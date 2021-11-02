@@ -26,14 +26,14 @@ Setttings for ferc1_to_sqlite
 
    * - Parameter
      - Description
-   * - ``ferc1_to_sqlite_refyear``
+   * - ``refyear``
      - A single 4-digit year to use as the reference for inferring FERC Form 1
        database's structure. Typically, the most recent year of available data.
-   * - ``ferc1_to_sqlite_years``
+   * - ``years``
      - A list of years to be included in the cloned FERC Form 1 database. You
        should only use a continuous range of years. 1994 is the earliest year
        available.
-   * - ``ferc1_to_sqlite_tables``
+   * - ``tables``
      - A list of strings indicating what tables to load. The list of acceptable
        tables can be found in the the example settings file and corresponds to
        the values found in the ``ferc1_dbf2tbl`` dictionary in
@@ -73,20 +73,19 @@ Structure of the pudl_etl Settings File
 
 The general structure of the settings file and the names of the keys of the
 dictionaries should not be changed, but the values of those dictionaries
-can be edited. The elements and structure of the ``etl_settings``
+can be edited. The elements and structure of the ETL settings
 are described below::
 
-    etl_settings
-      ├── name : unique name identifying the data package
-      │   title : short human readable title for the data package
-      │   description : a longer description of the data package
-      │   datasets
-      │    ├── dataset name
-      │    │    ├── dataset etl parameter (e.g. states) : list of states
-      │    │    └── dataset etl parameter (e.g. years) : list of years
-      │    └── dataset name
-      │    │    ├── dataset etl parameter (e.g. states) : list of states
-      │    │    └── dataset etl parameter (e.g. years) : list of years
+    name : unique name identifying the data package
+    title : short human readable title for the data package
+    description : a longer description of the data package
+    datasets
+      ├── dataset name
+      │    ├── dataset etl parameter (e.g. states) : list of states
+      │    └── dataset etl parameter (e.g. years) : list of years
+      └── dataset name
+      │    ├── dataset etl parameter (e.g. states) : list of states
+      │    └── dataset etl parameter (e.g. years) : list of years
 
 The dataset names must not be changed. The dataset names enabled include:
 ``eia`` (which includes Forms 860/923 only for now), ``ferc1``, and ``epacems``.
