@@ -18,30 +18,36 @@ This document outlines all the tasks required to complete the annual update, bas
 our experience in 2021. You can look at :issue:`1255` to see all the commits that went
 into integrating the 2020 data.
 
-Obtaining New Raw Data
-----------------------
-* Scrape a new copy of the raw inputs from agency websites using the tools in the
-  `pudl-scrapers repository <https://github.com/catalyst-cooperative/pudl-scrapers>`__.
-  If the structure of the web pages or the URLs have changed, you may need to update
-  the scrapers themselves.
-* Use the newly scraped files and the tools in the
-  `pudl-zenodo-storage repository <https://github.com/catalyst-cooperative/pudl-zenodo-storage>`__
-  to create new raw input achives on Zenodo. If we've
-  previously archived the dataset this will add a new version to an existing archive.
-* It is useful to run the ``zenodo_store.py`` script using the ``--noop`` option first
-  to see what actions will be taken. Take note of any older years of data that have
-  been changed, so that you can keep an eye out for those changes later in the data
-  integration process.
-* Update the dictionary of production DOIs in :mod:`pudl.workspace.datastore` to refer
-  to the new raw input archives.
-* Update the :py:const:`pudl.constants.WORKING_PARTITIONS` dictionary to reflect the
-  data that is now available within each dataset.
-* Update the years of data to be processed in the ``etl_full.yml`` and ``etl_fast.yml``
-  settings files stored under ``src/pudl/package_data/settings`` in the PUDL repo.
-  Note that you will also need to have your own working copies of the settings files
-  that you edit throughout the process of integrating the new year of data.
-* Use the ``pudl_datastore`` script to download the new raw data archives in bulk so
-  that network hiccups don't cause issues during ETL.
+Obtain fresh new data
+---------------------
+Scrape a new copy of the raw PUDL inputs from agency websites using the tools in the
+`pudl-scrapers repository <https://github.com/catalyst-cooperative/pudl-scrapers>`__.
+If the structure of the web pages or the URLs have changed, you may need to update the
+scrapers themselves.
+
+Use the newly scraped files and the tools in the `pudl-zenodo-storage repository
+<https://github.com/catalyst-cooperative/pudl-zenodo-storage>`__ to create new raw input
+achives on Zenodo. If we've previously archived the dataset this will add a new version
+to an existing archive.
+
+.. note::
+
+    It is useful to run the ``zenodo_store.py`` script using the ``--noop`` option first
+    to see what actions will be taken. Take note of any older years of data that have
+    been changed, so that you can keep an eye out for those changes later in the data
+    integration process.
+
+Update the dictionary of production DOIs in :mod:`pudl.workspace.datastore` to refer to
+the new raw input archives and update the :py:const:`pudl.constants.WORKING_PARTITIONS`
+dictionary to reflect the data that is now available within each dataset.
+
+Update the years of data to be processed in the ``etl_full.yml`` and ``etl_fast.yml``
+settings files stored under ``src/pudl/package_data/settings`` in the PUDL repo.  Note
+that you will also need to have your own working copies of the settings files that you
+edit throughout the process of integrating the new year of data.
+
+Use the ``pudl_datastore`` script to download the new raw data archives in bulk so that
+network hiccups don't cause issues during ETL.
 
 Mapping the Structure of New Data
 ---------------------------------
@@ -67,22 +73,25 @@ EIA Forms 860/861/923
 As with FERC Form 1, EIA often alters the structure of their published spreadsheets from
 year to year. This includes changing file names; adding, removing, or re-ordering tabs;
 changing the number of header and footer rows; and adding, removing, re-ordering, or
-re-naming the data columns. We track this information in the following files:
+re-naming the data columns. We track this information in the following files, all of
+which can be found under ``src/pudl/package_data`` in the PUDL repository:
 
-* ``src/pudl/package_data/${data_source}/file_map.csv``: Paths (within the
-  annual zip archive) to the files we parse.
-* ``src/pudl/package_data/${data_source}/page_map.csv``: Mapping between the named
-  spreadsheet pages we refer to across years, and the numerical index of that page
-  within the workbook.
-* ``src/pudl/package_data/${data_source}/skiprows.csv``: A per-page, per-year number of
-  rows that should be skipped when reading the spreadsheet.
-* ``src/pudl/package_data/${data_source}/skipfooter.csv``: A per-page, per-year number
-  of rows that should be ignored at the end of the page when reading the spreadsheet.
-* ``src/pudl/package_data/${data_source}/column_maps/${page_name}.csv``: A mapping
-  from annual spreadsheet columns to consistent inter-year column names that we refer
-  to in the raw dataframes during the extract step. The spreadsheet columns can be
-  referred to either by their simplified ``snake_case`` column header (in ``eia860``,
-  ``eia860m``, and ``eia923``) or numerical column index (``eia861``).
+* ``${data_source}/file_map.csv``: Paths (within the annual zip archive) to the files we
+  parse.
+* ``${data_source}/page_map.csv``: Mapping between the named spreadsheet pages we refer
+  to across years, and the numerical index of that page within the workbook.
+
+* ``${data_source}/skiprows.csv``: A per-page, per-year number of rows that should be
+  skipped when reading the spreadsheet.
+
+* ``${data_source}/skipfooter.csv``: A per-page, per-year number of rows that should be
+  ignored at the end of the page when reading the spreadsheet.
+
+* ``${data_source}/column_maps/${page_name}.csv``: A mapping from annual spreadsheet
+  columns to consistent inter-year column names that we refer to in the raw dataframes
+  during the extract step. The spreadsheet columns can be referred to either by their
+  simplified ``snake_case`` column header (in ``eia860``, ``eia860m``, and ``eia923``)
+  or numerical column index (``eia861``).
 
 In the above ``${data_source}`` is one of our data source short codes (``eia860``,
 ``eia923`` etc.) and ``${page_name}`` is a label we use to refer to a given spreadsheet
@@ -92,14 +101,15 @@ pages, and some pages result in more than one database table after normalization
 
 .. note::
 
-    Sometimes EIA will change files published several years ago without providing any
-    explanation. When creating new raw input archives for Zenodo, note which years of
-    data have been altered so you can be particularly alert to changes in those files.
+    As mentioned above, sometimes EIA will change files published several years ago
+    without providing any explanation. When creating new raw input archives for Zenodo,
+    note which years of data have been altered so you can be particularly alert to
+    changes in those files.
 
 If files, spreadsheet pages, or individual columns with new semantic meanings have
-appeared -- meaning they don’t correspond to any of the previously mapped files,
-pages, or columns, then new mapping structures analogous to the above need to be created
-to track their structure over time.
+appeared -- meaning they don’t correspond to any of the previously mapped files, pages,
+or columns, then new mappings analogous to the above need to be created to track that
+information over time.
 
 In all of the the above CSV files we use a value of ``-1`` to indicate that the data
 does not exist in a given year.
@@ -279,10 +289,11 @@ they should be run including the new year of data for sanity checking. For examp
 the :mod:`pudl.analysis.state_demand` script or generating the EIA Plant Parts List
 for integration with FERC 1 data.
 
-Update documentation
---------------------
+Update the documentation
+------------------------
 Once the new year of data is integrated, the documentation should be updated to reflect
 the new state of affairs. This will include updating at least:
-* The top-level :doc:`/index`
-* The :doc:`/release_notes`
-* Any updated :doc:`/data_sources/index`
+
+* the top-level :doc:`README </index>`
+* the :doc:`/release_notes`
+* any updated :doc:`data sources </data_sources/index>`
