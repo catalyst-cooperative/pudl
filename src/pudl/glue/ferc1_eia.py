@@ -47,7 +47,6 @@ logger = logging.getLogger(__name__)
 # to the FERC Form 1 utilities:
 DATA_TABLES_EIA923: List[str] = [
     "boiler_fuel_eia923",
-    "coalmine_eia923",
     "fuel_receipts_costs_eia923",
     "generation_eia923",
     "generation_fuel_eia923",
