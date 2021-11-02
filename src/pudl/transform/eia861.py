@@ -1644,8 +1644,11 @@ def distribution_systems(tfr_dfs):
     )
 
     # No duplicates to speak of but take measures to check just in case
-    _check_for_dupes(raw_ds, 'Distribution Systems', [
-                     "utility_id_eia", "state", "report_date"])
+    _check_for_dupes(
+        raw_ds,
+        'Distribution Systems',
+        ["utility_id_eia", "state", "report_date"]
+    )
 
     tfr_dfs["distribution_systems_eia861"] = raw_ds
 
@@ -1679,12 +1682,15 @@ def dynamic_pricing(tfr_dfs):
     class_attributes = [
         'critical_peak_pricing',
         'critical_peak_rebate',
-        'real_time_pricing_program',
-        'time_of_use_pricing_program',
-        'variable_peak_pricing_program'
+        'real_time_pricing',
+        'time_of_use_pricing',
+        'variable_peak_pricing'
     ]
 
-    raw_dp = tfr_dfs["dynamic_pricing_eia861"].copy()
+    raw_dp = (
+        tfr_dfs["dynamic_pricing_eia861"].copy()
+        .query("utility_id_eia not in [88888]")
+    )
 
     ###########################################################################
     # Tidy Data:
@@ -1884,8 +1890,11 @@ def mergers(tfr_dfs):
     )
 
     # No duplicates to speak of but take measures to check just in case
-    _check_for_dupes(transformed_mergers, 'Mergers', [
-                     "utility_id_eia", "state", "report_date"])
+    _check_for_dupes(
+        transformed_mergers,
+        'Mergers',
+        ["utility_id_eia", "state", "report_date"]
+    )
 
     tfr_dfs["mergers_eia861"] = transformed_mergers
     return tfr_dfs
@@ -1933,8 +1942,7 @@ def net_metering(tfr_dfs):
     raw_nm_misc = raw_nm[idx_cols + misc_cols].copy()
 
     # Check for duplicates before idx cols get changed
-    _check_for_dupes(
-        raw_nm_misc, 'Net Metering Current Flow Type PV', idx_cols)
+    _check_for_dupes(raw_nm_misc, 'Net Metering Current Flow Type PV', idx_cols)
 
     ###########################################################################
     # Tidy Data:
@@ -2286,7 +2294,6 @@ def utility_data(tfr_dfs):
     raw_ud = (
         tfr_dfs["utility_data_eia861"].copy()
         .query("utility_id_eia not in [88888]")
-
     )
 
     ##############################################################################

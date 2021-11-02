@@ -114,23 +114,23 @@ class Partition(TypedDict, total=False):
 
 WORKING_PARTITIONS: Dict[str, Partition] = {
     'eia860': {
-        'years': list(range(2001, 2020))
+        'years': list(range(2001, 2021))
     },
     'eia860m': {
-        'year_month': '2020-11'
+        'year_month': '2021-08'
     },
     'eia861': {
-        'years': list(range(2001, 2020))
+        'years': list(range(2001, 2021))
     },
     'eia923': {
-        'years': list(range(2001, 2020))
+        'years': list(range(2001, 2021))
     },
     'epacems': {
         'years': list(range(1995, 2021)),
         'states': list(EPACEMS_STATES),
     },
     'ferc1': {
-        'years': list(range(1994, 2020))
+        'years': list(range(1994, 2021))
     },
     'ferc714': {},
 }
@@ -372,22 +372,22 @@ COLUMN_DTYPES: Dict[str, Dict[str, Any]] = {
         'energy_savings_mwh': float,
         'energy_served_ami_mwh': float,
         'energy_source_1_transport_1': pd.CategoricalDtype(
-            categories=set(FUEL_TRANSPORTATION_MODES_EIA.values())
+            categories=set(FUEL_TRANSPORTATION_MODES_EIA.keys())
         ),
         'energy_source_1_transport_2': pd.CategoricalDtype(
-            categories=set(FUEL_TRANSPORTATION_MODES_EIA.values())
+            categories=set(FUEL_TRANSPORTATION_MODES_EIA.keys())
         ),
         'energy_source_1_transport_3': pd.CategoricalDtype(
-            categories=set(FUEL_TRANSPORTATION_MODES_EIA.values())
+            categories=set(FUEL_TRANSPORTATION_MODES_EIA.keys())
         ),
         'energy_source_2_transport_1': pd.CategoricalDtype(
-            categories=set(FUEL_TRANSPORTATION_MODES_EIA.values())
+            categories=set(FUEL_TRANSPORTATION_MODES_EIA.keys())
         ),
         'energy_source_2_transport_2': pd.CategoricalDtype(
-            categories=set(FUEL_TRANSPORTATION_MODES_EIA.values())
+            categories=set(FUEL_TRANSPORTATION_MODES_EIA.keys())
         ),
         'energy_source_2_transport_3': pd.CategoricalDtype(
-            categories=set(FUEL_TRANSPORTATION_MODES_EIA.values())
+            categories=set(FUEL_TRANSPORTATION_MODES_EIA.keys())
         ),
         'energy_source_code': pd.StringDtype(),
         'energy_source_code_1': pd.StringDtype(),
@@ -498,7 +498,7 @@ COLUMN_DTYPES: Dict[str, Dict[str, Any]] = {
         'net_wheeled_power_mwh': float,
         'new_parent': pd.StringDtype(),
         'non_amr_ami': pd.Int64Dtype(),
-        'nuclear_unit_id': pd.Int64Dtype(),
+        'nuclear_unit_id': pd.StringDtype(),
         'operates_generating_plant': pd.BooleanDtype(),
         'operating_date': 'datetime64[ns]',
         'operating_switch': pd.StringDtype(),
@@ -554,7 +554,7 @@ COLUMN_DTYPES: Dict[str, Dict[str, Any]] = {
         'price_responsive_programes': pd.BooleanDtype(),
         'price_responsiveness_customers': pd.Int64Dtype(),
         'primary_transportation_mode_code': pd.CategoricalDtype(
-            categories=set(FUEL_TRANSPORTATION_MODES_EIA.values())
+            categories=set(FUEL_TRANSPORTATION_MODES_EIA.keys())
         ),
         'primary_purpose_naics_id': pd.Int64Dtype(),
         'prime_mover_code': pd.StringDtype(),
@@ -566,6 +566,7 @@ COLUMN_DTYPES: Dict[str, Dict[str, Any]] = {
         'regulatory_status_code': pd.StringDtype(),
         'report_date': 'datetime64[ns]',
         'reported_as_another_company': pd.StringDtype(),
+        'respondent_frequency': pd.CategoricalDtype(categories=["A", "M", "AM"]),
         'retail_marketing_activity': pd.BooleanDtype(),
         'retail_sales': float,
         'retail_sales_mwh': float,
@@ -586,7 +587,7 @@ COLUMN_DTYPES: Dict[str, Dict[str, Any]] = {
         'sales_revenue': float,
         'sales_to_ultimate_consumers_mwh': float,
         'secondary_transportation_mode_code': pd.CategoricalDtype(
-            categories=set(FUEL_TRANSPORTATION_MODES_EIA.values())
+            categories=set(FUEL_TRANSPORTATION_MODES_EIA.keys())
         ),
         'sector_id': pd.Int64Dtype(),
         'sector_name': pd.StringDtype(),

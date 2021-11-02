@@ -143,11 +143,7 @@ def ferc1_sql_engine(
         )
     engine = sa.create_engine(pudl_settings_fixture["ferc1_db"])
     logger.info("FERC1 Engine: %s", engine)
-    yield engine
-
-    # Clean up after ourselves by dropping the test DB tables.
-    if not live_dbs:
-        pudl.helpers.drop_tables(engine, clobber=True)
+    return engine
 
 
 @pytest.fixture(scope='session', name="pudl_engine")
@@ -179,11 +175,7 @@ def pudl_sql_engine(
     # datapkg_to_sqlite fixtures, above.
     engine = sa.create_engine(pudl_settings_fixture["pudl_db"])
     logger.info('PUDL Engine: %s', engine)
-    yield engine
-
-    # Clean up after ourselves by dropping the test DB tables.
-    if not live_dbs:
-        pudl.helpers.drop_tables(engine, clobber=True)
+    return engine
 
 
 @pytest.fixture(scope='session', name="pudl_settings_fixture")
@@ -232,6 +224,8 @@ def pudl_settings_dict(request, live_dbs, tmpdir_factory):  # noqa: C901
             "ferc1_db"]
         pudl_settings["censusdp1tract_db"] = pudl.workspace.setup.get_defaults()[
             "censusdp1tract_db"]
+        pudl_settings["parquet_dir"] = pudl.workspace.setup.get_defaults()[
+            "parquet_dir"]
 
     logger.info("pudl_settings being used: %s", pudl_settings)
     return pudl_settings

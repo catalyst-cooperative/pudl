@@ -4,10 +4,10 @@ ferc1_to_sqlite_settings:
 ###########################################################################
 # if you are loading ferc1, you need to specify a reference year. This is the
 # year whose database structure is used as a template.
-    refyear: 2019
+    refyear: 2020
     # What years of original FERC data should be cloned into the SQLite DB?
     years: [
-        2019
+        2020
     ]
     # A list of tables to be loaded into the local SQLite database. These are
     # the table names as they appear in the 2015 FERC Form 1 database.
@@ -38,7 +38,7 @@ datasets:
       - plant_in_service_ferc1
       - purchased_power_ferc1
       years: [
-          2019
+          2020
       ]
     eia:
       eia923:
@@ -49,7 +49,7 @@ datasets:
           - coalmine_eia923 # REQUIRES fuel_receipts_costs_eia923
           - fuel_receipts_costs_eia923
         years: [
-            2019
+            2020
         ]
       eia860:
         tables:
@@ -59,7 +59,7 @@ datasets:
           - generators_eia860
           - ownership_eia860
         years: [
-            2019
+            2020
         ]
         eia860m: True
     epacems:
