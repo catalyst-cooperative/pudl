@@ -54,7 +54,8 @@ can copy it and modify it as appropriate for their own use. See
 While PUDL largely keeps datasets disentangled for ETL purposes (enabling
 stand-alone ETL), the EPA CEMS and EIA datasets are exceptions. EPA CEMS cannot
 be loaded without having the EIA data available because it relies on IDs that
-come from EIA 860.  Similarly, EIA Forms 860 and 923 are very tightly related.
+come from EIA 860. However, EPA CEMS can be loaded without EIA if you have an existing
+PUDL database. Similarly, EIA Forms 860 and 923 are very tightly related.
 You can load only EIA 860, but the settings verification will automatically add
 in a few 923 tables that are needed to generate the complete list of plants and
 generators.
@@ -72,14 +73,10 @@ Structure of the pudl_etl Settings File
 
 The general structure of the settings file and the names of the keys of the
 dictionaries should not be changed, but the values of those dictionaries
-can be edited. There are two high-level elements of the settings file which
-pertain to the entire bundle of tabular data packages which will be generated:
-``datapkg_bundle_name`` and ``datapkg_bundle_settings``. The
-``datapkg_bundle_name`` determines which directory the data packages are
-written into. The elements and structure of the ``datapkg_bundle_settings``
+can be edited. The elements and structure of the ``etl_settings``
 are described below::
 
-    datapkg_bundle_settings
+    etl_settings
       ├── name : unique name identifying the data package
       │   title : short human readable title for the data package
       │   description : a longer description of the data package
@@ -90,7 +87,6 @@ are described below::
       │    └── dataset name
       │    │    ├── dataset etl parameter (e.g. states) : list of states
       │    │    └── dataset etl parameter (e.g. years) : list of years
-      └── another data package...
 
 The dataset names must not be changed. The dataset names enabled include:
 ``eia`` (which includes Forms 860/923 only for now), ``ferc1``, and ``epacems``.

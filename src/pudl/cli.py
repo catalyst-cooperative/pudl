@@ -27,6 +27,7 @@ from packaging import version
 
 import pudl
 from pudl.load.sqlite import MINIMUM_SQLITE_VERSION
+from pudl.settings import EtlSettings
 
 logger = logging.getLogger(__name__)
 
@@ -137,8 +138,10 @@ def main():
             "As a result, data type constraint checking will be disabled."
         )
 
+    etl_settings = EtlSettings().parse_obj(script_settings)
+
     pudl.etl.etl(
-        etl_settings=script_settings["etl_settings"],
+        etl_settings=etl_settings,
         pudl_settings=pudl_settings,
         clobber=args.clobber,
         use_local_cache=not args.bypass_local_cache,

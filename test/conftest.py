@@ -9,6 +9,7 @@ import yaml
 
 import pudl
 from pudl.output.pudltabl import PudlTabl
+from pudl.settings import EtlSettings
 
 logger = logging.getLogger(__name__)
 
@@ -68,19 +69,20 @@ def etl_parameters(request, test_dir):
             test_dir.parent / "src/pudl/package_data/settings/etl_fast.yml")
     with open(etl_params_yml, mode="r", encoding="utf8") as settings_file:
         etl_params_out = yaml.safe_load(settings_file)
-    return etl_params_out
+    etl_params = EtlSettings().parse_obj(etl_params_out)
+    return etl_params
 
 
 @pytest.fixture(scope="session", name="ferc1_etl_params")
 def ferc1_etl_parameters(etl_params):
     """Read ferc1_to_sqlite parameters out of test settings dictionary."""
-    return {k: etl_params[k] for k in etl_params if "ferc1_to_sqlite" in k}
+    return etl_params.ferc1_to_sqlite_settings
 
 
 @pytest.fixture(scope="session", name="pudl_etl_params")
 def pudl_etl_parameters(etl_params):
     """Read PUDL ETL parameters out of test settings dictionary."""
-    return {k: etl_params[k] for k in etl_params if "datapkg_bundle" in k}
+    return etl_params.datasets
 
 
 @pytest.fixture(scope='session', params=['AS'], ids=['ferc1_annual'])
@@ -132,9 +134,9 @@ def ferc1_sql_engine(
     """
     if not live_dbs:
         pudl.extract.ferc1.dbf2sqlite(
-            tables=ferc1_etl_params['ferc1_to_sqlite_tables'],
-            years=ferc1_etl_params['ferc1_to_sqlite_years'],
-            refyear=ferc1_etl_params['ferc1_to_sqlite_refyear'],
+            tables=ferc1_etl_params.tables,
+            years=ferc1_etl_params.years,
+            refyear=ferc1_etl_params.refyear,
             pudl_settings=pudl_settings_fixture,
             clobber=False,
             datastore=pudl_datastore_fixture
@@ -153,7 +155,7 @@ def pudl_sql_engine(
     ferc1_engine,  # Implicit dependency
     live_dbs,
     pudl_settings_fixture,
-    pudl_etl_params,
+    etl_params,
 ):
     """
     Grab a connection to the PUDL Database.
@@ -165,7 +167,7 @@ def pudl_sql_engine(
     if not live_dbs:
         # Run the ETL and generate a new PUDL SQLite DB for testing:
         pudl.etl.etl(
-            etl_settings_bundle=pudl_etl_params["datapkg_bundle_settings"],
+            etl_settings=etl_params,
             pudl_settings=pudl_settings_fixture,
             clobber=False,
             check_foreign_keys=True,

@@ -6,7 +6,8 @@ from pydantic import ValidationError
 
 from pudl.settings import (DatasetsSettings, Eia860Settings, Eia923Settings,
                            EiaSettings, EpaCemsSettings, Ferc1Settings,
-                           Ferc1ToSqliteSettings, GenericDatasetSettings)
+                           Ferc1ToSqliteSettings, GenericDatasetSettings,
+                           create_dataset_settings)
 
 
 class TestGenericDatasetSettings:
@@ -201,3 +202,12 @@ class TestGlobalConfig:
         with pytest.raises(TypeError):
             settings = EiaSettings()
             settings.eia860 = Eia860Settings()
+
+
+class TestCreateDatasetModel:
+    """Test create_dataset_model."""
+
+    def test_missing_dataset(self):
+        """Test a KeyError is raised when a use requests a unavailable dataset."""
+        with pytest.raises(KeyError):
+            create_dataset_settings("oops!")

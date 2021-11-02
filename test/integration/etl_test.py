@@ -48,7 +48,7 @@ def test_ferc1_schema(ferc1_etl_params, pudl_ferc1datastore_fixture):
     DBF filename to table name mapping from 2015, includes every single table
     and field that appears in the historical FERC Form 1 data.
     """
-    refyear = ferc1_etl_params['ferc1_to_sqlite_refyear']
+    refyear = ferc1_etl_params.refyear
     ds = pudl_ferc1datastore_fixture
     current_dbc_map = pudl.extract.ferc1.get_dbc_map(ds, year=refyear)
     current_tables = list(current_dbc_map.keys())
@@ -63,7 +63,7 @@ def test_ferc1_schema(ferc1_etl_params, pudl_ferc1datastore_fixture):
             )
     # Get all historical table collections...
     dbc_maps = {}
-    for yr in ferc1_etl_params['ferc1_to_sqlite_years']:
+    for yr in ferc1_etl_params.years:
         logger.info(f"Searching for lost FERC1 tables and fields in {yr}.")
         dbc_maps[yr] = pudl.extract.ferc1.get_dbc_map(ds, year=yr)
         old_tables = list(dbc_maps[yr].keys())

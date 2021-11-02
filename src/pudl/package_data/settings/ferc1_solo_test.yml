@@ -1,33 +1,42 @@
+ferc1_to_sqlite_settings:
 ###########################################################################
 # FERC FORM 1 DB CLONE SETTINGS
 ###########################################################################
 # if you are loading ferc1, you need to specify a reference year. This is the
 # year whose database structure is used as a template.
-ferc1_to_sqlite_refyear: 2019
-# What years of original FERC data should be cloned into the SQLite DB?
-ferc1_to_sqlite_years: [2019]
-# A list of tables to be loaded into the local SQLite database. These are
-# the table names as they appear in the 2015 FERC Form 1 database.
-ferc1_to_sqlite_tables:
-  - f1_respondent_id
-  - f1_steam
-  - f1_fuel
+    refyear: 2019
+    # What years of original FERC data should be cloned into the SQLite DB?
+    years: [
+        2019
+    ]
+    # A list of tables to be loaded into the local SQLite database. These are
+    # the table names as they appear in the 2015 FERC Form 1 database.
+    tables:
+      - f1_respondent_id
+      - f1_gnrt_plant
+      - f1_steam
+      - f1_fuel
+      - f1_plant_in_srvce
+      - f1_hydro
+      - f1_pumped_storage
+      - f1_purchased_pwr
 
-datapkg_bundle_name: pudl-ferc1-solo
-datapkg_bundle_doi: 10.5072/zenodo.123456 # Sandbox DOI... not real.
-datapkg_bundle_settings:
-  ###########################################################################
-  # FERC FORM 1 SETTINGS
-  ###########################################################################
-  - name: ferc1-solo
-    title: FERC Form 1 Solo ETL
-    description: >
-      A truly minimal FERC Form 1 ETL, just to demonstrate it can be loaded
-      independently of all other datasets. One year, fuel and steam tables.
-    version: 0.1.0
-    datasets:
-      - ferc1:
-          ferc1_tables:
-           - fuel_ferc1 # requires plants_steam_ferc1 to load properly
-           - plants_steam_ferc1
-          ferc1_years: [2019]
+name: pudl-full
+title: PUDL Full ETL
+description: >
+  All available data for FERC 1 and EIA 860/923 (output to SQLite) plus all
+  years of EPA CEMS hourly emissions data (output to Parquet).
+version: 0.1.0
+datasets:
+    ferc1:
+      tables:
+      - fuel_ferc1 # requires plants_steam_ferc1 to load properly
+      - plants_steam_ferc1
+      - plants_small_ferc1
+      - plants_hydro_ferc1
+      - plants_pumped_storage_ferc1
+      - plant_in_service_ferc1
+      - purchased_power_ferc1
+      years: [
+          2019
+      ]

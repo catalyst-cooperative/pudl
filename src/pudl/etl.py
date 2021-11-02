@@ -29,8 +29,8 @@ from pudl.metadata.dfs import FERC_ACCOUNTS, FERC_DEPRECIATION_LINES
 from pudl.metadata.labels import (ENERGY_SOURCES_EIA,
                                   FUEL_TRANSPORTATION_MODES_EIA,
                                   FUEL_TYPES_AER_EIA, PRIME_MOVERS_EIA)
-from pudl.settings import (DatasetsSettings, EiaSettings, EpaCemsSettings,
-                           Ferc1Settings, GlueSettings)
+from pudl.settings import (EiaSettings, EpaCemsSettings, Ferc1Settings,
+                           GlueSettings)
 from pudl.workspace.datastore import Datastore
 
 logger = logging.getLogger(__name__)
@@ -372,7 +372,7 @@ def etl(  # noqa: C901
     if use_local_cache:
         ds_kwargs["local_cache_path"] = Path(pudl_settings["pudl_in"]) / "data"
 
-    validated_etl_settings = DatasetsSettings().parse_obj(etl_settings["datasets"])
+    validated_etl_settings = etl_settings.datasets
 
     # Check for existing EPA CEMS outputs if we're going to process CEMS, and
     # do it before running the SQLite part of the ETL so we don't do a bunch of

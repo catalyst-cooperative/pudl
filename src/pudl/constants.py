@@ -147,7 +147,7 @@ Note: ferc714 is not partitioned by year and is available only as a single file
 containing all data.
 """
 
-PUDL_TABLES: Dict[str, Tuple[str, ...]] = {
+PUDL_TABLES: Dict[str, List[str]] = {
     'eia860': [
         'boiler_generator_assn_eia860',
         'utilities_eia860',

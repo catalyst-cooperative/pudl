@@ -4,7 +4,7 @@ from typing import Any, ClassVar, Dict, List
 
 import pandas as pd
 from pydantic import BaseModel as PydanticBaseModel
-from pydantic import create_model, root_validator, validator
+from pydantic import BaseSettings, create_model, root_validator, validator
 
 import pudl.constants as pc
 from pudl.extract.ferc1 import DBF_TABLES_FILENAMES
@@ -26,12 +26,6 @@ class GenericDatasetSettings(BaseModel, abc.ABC):
 
     Each dataset must specify working tables are partitions.
     A dataset can have an arbitrary number of partitioins.
-
-    Attributes:
-        working_partitions ClassVar[Dict[str, List[Any]]]):
-            dictionary of arbitrary working partitions.
-        working_tables List: dictionary of arbitrary working partitions.
-        tables List: requested tables to be validated.
     """
 
     tables: List
@@ -65,7 +59,7 @@ class GenericDatasetSettings(BaseModel, abc.ABC):
         return partitions
 
     @validator("tables")
-    def validate_tables(cls, tables):
+    def validate_tables(cls, tables):  # noqa: N805
         """Validate tables are available."""
         tables_not_working = list(set(tables) - set(cls.working_tables))
         if len(tables_not_working) > 0:
@@ -74,7 +68,6 @@ class GenericDatasetSettings(BaseModel, abc.ABC):
         return sorted(set(tables))
 
 
-# TODO: How to specify type hint here?
 def create_dataset_settings(name: str) -> GenericDatasetSettings:
     """
     Create a pydantic settings class for a dataset.
@@ -83,17 +76,21 @@ def create_dataset_settings(name: str) -> GenericDatasetSettings:
     using information from the constants WORKING_PARTITIONS and PUDL_TABLES.
     The returned class can be subclassed to add additional fields or validators.
 
-    TODO: examples
-
     Args:
         name: the name of the dataset.
 
     Returns:
         dataset_model: Subclass of GenericDatasetSettings
     """
-    partitions = pc.WORKING_PARTITIONS[name]
+    try:
+        partitions = pc.WORKING_PARTITIONS[name]
+        tables = pc.PUDL_TABLES[name]
+    except KeyError:
+        raise KeyError(f"{name} is not an available dataset.")
+
+    # sort the partitions.
+    tables = sorted(list(tables))
     partitions = {k: sorted(v) for (k, v) in partitions.items()}
-    tables = sorted(list(pc.PUDL_TABLES[name]))
 
     class_name = name.title() + "Settings"
     dataset_model = create_model(class_name,
@@ -120,9 +117,8 @@ class Eia860Settings(Eia860BaseSettings):
 
     This model also check 860m settings.
 
-    Attributes:
-        tables (List[str]): List of table to validate.
-        years (List[int]): List of years to validate.
+    Parameters:
+        years: List of years to validate.
 
         working_partitions ClassVar[Dict[str, Any]]: working paritions.
         eia860m_date ClassVar[str]: The 860m year to date.
@@ -132,15 +128,15 @@ class Eia860Settings(Eia860BaseSettings):
     eia860m_date: ClassVar[str] = pc.WORKING_PARTITIONS["eia860m"]["year_month"]
 
     @validator("eia860m")
-    def check_860m_date(cls, eia860m):  # noqa: N805
+    def check_860m_date(cls, eia860m: bool) -> bool:  # noqa: N805
         """
         Check 860m date year is exactly one year later than most recent working 860 year.
 
         Args:
-            eia860m (bool): True if 860m is requested.
+            eia860m: True if 860m is requested.
 
         Returns:
-            eia860m (bool): True if 860m is requested.
+            eia860m: True if 860m is requested.
 
         Raises:
             ValueError: the 860m date is within 860 working years.
@@ -160,9 +156,9 @@ class GlueSettings(BaseModel):
     """
     An immutable pydantic model to validate Glue settings.
 
-    Attributes:
-        eia (bool): Include eia in glue settings.
-        ferc1 (bool): Include ferc1 in glue settings.
+    Parameters:
+        eia: Include eia in glue settings.
+        ferc1: Include ferc1 in glue settings.
     """
 
     eia: bool = True
@@ -173,10 +169,9 @@ class EpaCemsSettings(EpaCemsBaseSettings):
     """
     An immutable pydantic nodel to validate EPA CEMS settings.
 
-    Attributes:
-        tables (List[str])
-        states (List[str]): List of states to validate.
-        years (List[str]): List of years to validate.
+    Parameters:
+        states: List of states to validate.
+        years: List of years to validate.
     """
 
     @validator("states")
@@ -191,9 +186,9 @@ class EiaSettings(BaseModel):
     """
     An immutable pydantic model to validate EIA datasets settings.
 
-    Attributes:
-        eia860 (Eia860Settings): Immutable pydantic model to validate eia860 settings.
-        eia923 (Eia923Settings): Immutable pydantic model to validate eia923 settings.
+    Parameters:
+        eia860: Immutable pydantic model to validate eia860 settings.
+        eia923: Immutable pydantic model to validate eia923 settings.
     """
 
     eia860: Eia860Settings = None
@@ -233,11 +228,11 @@ class DatasetsSettings(BaseModel):
     """
     An immutable pydantic model to validate PUDL Dataset settings.
 
-    Attributes:
-        ferc1 (Ferc1Settings): Immutable pydantic model to validate ferc1 settings.
-        eia (EiaSettings): Immutable pydantic model to validate eia(860, 923) settings.
-        glue (GlueSettings): Immutable pydantic model to validate glue settings.
-        epacems (EpaCemsSettings): Immutable pydantic model to validate epacems settings.
+    Parameters:
+        ferc1: Immutable pydantic model to validate ferc1 settings.
+        eia: Immutable pydantic model to validate eia(860, 923) settings.
+        glue: Immutable pydantic model to validate glue settings.
+        epacems: Immutable pydantic model to validate epacems settings.
     """
 
     ferc1: Ferc1Settings = None
@@ -272,8 +267,10 @@ class DatasetsSettings(BaseModel):
         Returns:
             values (Dict[str, BaseModel]): dataset settings.
         """
-        if values.get("ferc1") and values.get("eia"):
-            values["glue"] = GlueSettings()
+        ferc1 = bool(values.get("ferc1"))
+        eia = bool(values.get("eia"))
+
+        values["glue"] = GlueSettings(ferc1=ferc1, eia=eia)
         return values
 
     def get_datasets(cls):  # noqa: N805
@@ -285,16 +282,15 @@ class Ferc1ToSqliteSettings(GenericDatasetSettings):
     """
     An immutable pydantic nodel to validate EPA CEMS settings.
 
-    Attributes:
-        tables (List[str]): List of states to validate.
-        years (List[str]): List of years to validate.
-        refyear (int): reference year. Defaults to most recent year.
+    Parameters:
+        years: List of years to validate.
+        refyear: reference year. Defaults to most recent year.
     """
 
     working_partitions: ClassVar = {
         "years": list(pc.WORKING_PARTITIONS["ferc1"]["years"])
     }
-    working_tables: ClassVar = sorted(list(DBF_TABLES_FILENAMES.keys())),
+    working_tables: ClassVar = sorted(list(DBF_TABLES_FILENAMES.keys()))
 
     years: List[int] = working_partitions["years"]
     tables: List[str] = working_tables
@@ -309,3 +305,15 @@ class Ferc1ToSqliteSettings(GenericDatasetSettings):
             raise ValueError(f"Reference year {refyear} is outside the range of "
                              f"available FERC Form 1 data {cls.working_partitions['years']}.")
         return refyear
+
+
+class EtlSettings(BaseSettings):
+    """Main settings validation class."""
+
+    ferc1_to_sqlite_settings: Ferc1ToSqliteSettings = None
+    datasets: DatasetsSettings = None
+
+    name: str = None
+    title: str = None
+    description: str = None
+    version: str = None
