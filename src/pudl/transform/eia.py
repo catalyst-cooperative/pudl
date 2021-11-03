@@ -343,8 +343,8 @@ def _add_additional_epacems_plants(plants_entity):
     # See also: https://github.com/pandas-dev/pandas/issues/22812
     cems_df = pd.read_csv(
         importlib.resources.open_text(
-            'pudl.package_data.epa.cems',
-            'plant_info_for_additional_cems_plants.csv'),
+            'pudl.package_data.epacems',
+            'additional_epacems_plants.csv'),
         index_col=["plant_id_eia"],
         usecols=["plant_id_eia", "plant_name_eia",
                  "state", "latitude", "longitude"],

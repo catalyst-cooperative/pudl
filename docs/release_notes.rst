@@ -6,6 +6,21 @@ PUDL Release Notes
 0.5.0 (Unreleased)
 ---------------------------------------------------------------------------------------
 
+Data Coverage Changes
+^^^^^^^^^^^^^^^^^^^^^
+* Integration of 2020 data for all our core datasets (See :issue:`1255`):
+
+  * :doc:`data_sources/eia860` for 2020 as well as 2001-2003 (see :issue:`1122`).
+  * EIA Form 860m through 2021-08.
+  * :doc:`data_sources/eia923` for 2020.
+  * :doc:`data_sources/ferc1` for 2020.
+  * :ref:`data-eia861` data for 2020.
+  * :ref:`data-ferc714` data for 2020.
+
+* **EPA IPM / NEEDS** data has been removed from PUDL as we didn't have the internal
+  resources to maintain it, and it was no longer working. Apologies to
+  :user:`gschivley`!
+
 SQLite and Parquet Outputs
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 * The ETL pipeline now outputs SQLite databases and Apache Parquet datasets
@@ -40,6 +55,28 @@ distribution via `Datasette <https://datasette.io>`__ and `Intake catalogs
 dictionaries and documentation. See :issue:`806` and the :mod:`pudl.metadata`
 subpackage. Many thanks to :user:`ezwelty` for most of this work.
 
+New Analyses
+^^^^^^^^^^^^
+* Added a deployed console script for running the state-level hourly electricity
+  demand allocation, using FERC 714 and EIA 861 data, simply called
+  ``state_demand`` and implemented in :mod:`pudl.analysis.state_demand`. This
+  script existed in the v0.4.0 release, but was not deployed on the user's
+  system.
+
+Known Issues
+^^^^^^^^^^^^
+* The ``pudl_territories`` script has been disabled temporarily due to a memory
+  issue. See :issue:`1174`
+* The full extent of pre-load data validation that was previously being done
+  with `goodtables-pandas` has not yet been fully reimplemented. Foreign key
+  constraints are still being debugged. See :issue:`1196`.
+* Several tables that should have natural primary keys currently do not, because
+  of null or duplicate values in those columns. These need to be resolved in the
+  ETL process. See :issue:`851,852,1207,1208`
+* Utility and Balancing Authority service territories for 2020 have not been vetted,
+  and may contain errors or omissions. In particular there seems to be some missing
+  demand in ND, SD, NE, KS, and OK. See :issue:`1310`
+
 Updated Dependencies
 ^^^^^^^^^^^^^^^^^^^^
 * **SQLAlchemy 1.4.x:** Addressed all deprecation warnings associated with API changes
@@ -56,32 +93,6 @@ Updated Dependencies
   SQLite version 3.32.0 or later, as we discovered in debugging build failures on PR
   :issue:`1228`. Unfortunately Ubuntu 20.04 LTS shipped with SQLite 3.31.1. Using
   ``conda`` to manage your Python environment avoids this issue.
-
-New Analyses
-^^^^^^^^^^^^
-* Added a deployed console script for running the state-level hourly electricity
-  demand allocation, using FERC 714 and EIA 861 data, simply called
-  ``state_demand`` and implemented in :mod:`pudl.analysis.state_demand`. This
-  script existed in the v0.4.0 release, but was not deployed on the user's
-  system.
-
-Data Coverage Changes
-^^^^^^^^^^^^^^^^^^^^^
-* :doc:`data_sources/eia860` for 2001-2003. See :issue:`1122`.
-* **EPA IPM / NEEDS** data has been removed from PUDL as we didn't have the internal
-  resources to maintain it, and it was no longer working. Apologies to
-  :user:`gschivley`!
-
-Known Issues
-^^^^^^^^^^^^
-* The ``pudl_territories`` script has been disabled temporarily due to a memory
-  issue. See :issue:`1174`
-* The full extent of pre-load data validation that was previously being done
-  with `goodtables-pandas` has not yet been fully reimplemented. Foreign key
-  constraints are still being debugged. See :issue:`1196`.
-* Several tables that should have natural primary keys currently do not, because
-  of null or duplicate values in those columns. These need to be resolved in the
-  ETL process. See :issue:`851,852,1207,1208`
 
 ---------------------------------------------------------------------------------------
 0.4.0 (2021-08-16)

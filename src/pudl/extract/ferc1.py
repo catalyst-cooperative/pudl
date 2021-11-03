@@ -56,7 +56,7 @@ import logging
 import os
 from enum import Enum
 from pathlib import Path
-from typing import Dict
+from typing import Dict, Set
 from urllib.parse import urlparse
 from zipfile import ZipFile
 
@@ -270,27 +270,26 @@ def missing_respondents(reported, observed, identified):
     return records
 
 
-def observed_respondents(ferc1_engine):
+def observed_respondents(ferc1_engine: sa.engine.Engine) -> Set[int]:
     """
     Compile the set of all observed respondent IDs found in the FERC 1 database.
 
     A significant number of FERC 1 respondent IDs appear in the data tables, but not
-    in the f1_respondent_id table. In order to construct a self-consisten database with
+    in the f1_respondent_id table. In order to construct a self-consistent database with
     we need to find all of those missing respondent IDs and inject them into the table
     when we clone the database.
 
     Args:
-        ferc1_engine (sqlalchemy.engine.Engine): An engine for connecting to the FERC 1
-            database.
+        ferc1_engine: An engine for connecting to the FERC 1 database.
 
     Returns:
-        set: Every respondent ID reported in any of the FERC 1 DB tables.
+        Every respondent ID reported in any of the FERC 1 DB tables.
 
     """
     f1_table_meta = pudl.output.pudltabl.get_table_meta(ferc1_engine)
     observed = set([])
     for table in f1_table_meta.values():
-        if table.name != "f1_respondent_id" and "respondent_id" in table.columns:
+        if "respondent_id" in table.columns:
             observed = observed.union(set(pd.read_sql_table(
                 table.name, ferc1_engine, columns=["respondent_id"]).respondent_id))
     return observed
@@ -299,7 +298,7 @@ def observed_respondents(ferc1_engine):
 class Ferc1Datastore:
     """Simple datastore wrapper for accessing ferc1 resources."""
 
-    PACKAGE_PATH = "pudl.package_data.meta.ferc1_row_maps"
+    PACKAGE_PATH = "pudl.package_data.ferc1"
 
     def __init__(self, datastore: Datastore):
         """Instantiate datastore wrapper for ferc1 resources."""

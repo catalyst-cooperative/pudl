@@ -115,7 +115,7 @@ def ownership(eia860_dfs, eia860_transformed_dfs):
     # datatypes are applied, which violates the primary key constraints.
     # See https://github.com/catalyst-cooperative/pudl/issues/1207
     mask = (
-        (own_df.report_date.isin(["2018-01-01", "2019-01-01"]))
+        (own_df.report_date.isin(["2018-01-01", "2019-01-01", "2020-01-01"]))
         & (own_df.plant_id_eia == 62844)
         & (own_df.owner_utility_id_eia == 62745)
         & (own_df.generator_id == "nan")

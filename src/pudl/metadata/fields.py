@@ -517,42 +517,42 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
         "type": "string",
         "description": "Primary mode of transport for energy source 1.",
         "constraints": {
-            "enum": list(set(FUEL_TRANSPORTATION_MODES_EIA.values()))
+            "enum": list(set(FUEL_TRANSPORTATION_MODES_EIA.keys()))
         }
     },
     "energy_source_1_transport_2": {
         "type": "string",
         "description": "Secondary mode of transport for energy source 1.",
         "constraints": {
-            "enum": list(set(FUEL_TRANSPORTATION_MODES_EIA.values()))
+            "enum": list(set(FUEL_TRANSPORTATION_MODES_EIA.keys()))
         }
     },
     "energy_source_1_transport_3": {
         "type": "string",
         "description": "Tertiary mode of transport for energy source 1.",
         "constraints": {
-            "enum": list(set(FUEL_TRANSPORTATION_MODES_EIA.values()))
+            "enum": list(set(FUEL_TRANSPORTATION_MODES_EIA.keys()))
         }
     },
     "energy_source_2_transport_1": {
         "type": "string",
         "description": "Primary mode of transport for energy source 2.",
         "constraints": {
-            "enum": list(set(FUEL_TRANSPORTATION_MODES_EIA.values()))
+            "enum": list(set(FUEL_TRANSPORTATION_MODES_EIA.keys()))
         }
     },
     "energy_source_2_transport_2": {
         "type": "string",
         "description": "Secondary mode of transport for energy source 2.",
         "constraints": {
-            "enum": list(set(FUEL_TRANSPORTATION_MODES_EIA.values()))
+            "enum": list(set(FUEL_TRANSPORTATION_MODES_EIA.keys()))
         }
     },
     "energy_source_2_transport_3": {
         "type": "string",
         "description": "Tertiary mode of transport for energy source 2.",
         "constraints": {
-            "enum": list(set(FUEL_TRANSPORTATION_MODES_EIA.values()))
+            "enum": list(set(FUEL_TRANSPORTATION_MODES_EIA.keys()))
         }
     },
     "energy_source_code_1": {
@@ -764,7 +764,8 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
                 "gal",
                 "mwdth",
                 "btu",
-                "ton"
+                "ton",
+                ""
             ]
         }
     },
@@ -1232,7 +1233,7 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
         "description": "Total Nuclear Production Plant (FERC Accounts 320-326)"
     },
     "nuclear_unit_id": {
-        "type": "integer",
+        "type": "string",
         "description": "For nuclear plants only, the unit number .One digit numeric. Nuclear plants are the only type of plants for which data are shown explicitly at the generating unit level."
     },
     "operates_generating_plant": {
@@ -1715,7 +1716,7 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
         "type": "string",
         "description": "Transportation mode for the longest distance transported.",
         "constraints": {
-            "enum": list(set(FUEL_TRANSPORTATION_MODES_EIA.values()))
+            "enum": list(set(FUEL_TRANSPORTATION_MODES_EIA.keys()))
         }
     },
     "prime_mover": {
@@ -1793,6 +1794,12 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
     },
     "reported_as_another_company": {
         "type": "string"
+    },
+    "respondent_frequency": {
+        "type": "string",
+        "constraints": {
+            "enum": ["A", "M", "AM"]
+        }
     },
     "respondent_id_ferc714": {
         "type": "integer"
@@ -1904,7 +1911,7 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
         "type": "string",
         "description": "Transportation mode for the second longest distance transported.",
         "constraints": {
-            "enum": list(set(FUEL_TRANSPORTATION_MODES_EIA.values()))
+            "enum": list(set(FUEL_TRANSPORTATION_MODES_EIA.keys()))
         }
     },
     "sector_id": {

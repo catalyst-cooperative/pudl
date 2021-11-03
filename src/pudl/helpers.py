@@ -16,7 +16,7 @@ import shutil
 import tempfile
 from functools import partial
 from io import BytesIO
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Set
 
 import addfips
 import fsspec
@@ -41,6 +41,35 @@ as NA, but electricity generation is reported normally, then the fuel
 consumption for the year needs to be NA, otherwise we'll get unrealistic heat
 rates.
 """
+
+
+def find_new_ferc1_strings(
+    table: str,
+    field: str,
+    strdict: Dict[str, List[str]],
+    ferc1_engine: sa.engine.Engine,
+) -> Set[str]:
+    """
+    Identify as-of-yet uncategorized freeform strings in FERC Form 1.
+
+    Args:
+        table: Name of the FERC Form 1 DB to search.
+        field: Name of the column in that table to search.
+        strdict: A string cleaning dictionary. See
+            e.g. `pudl.transform.ferc1.FUEL_UNIT_STRINGS`
+        ferc1_engine: SQL Alchemy DB connection engine for the FERC Form 1 DB.
+
+    Returns:
+        Any string found in the searched table + field that was not part of any of
+        categories enumerated in strdict.
+
+    """
+    all_strings = set(
+        pd.read_sql(f"SELECT {field} FROM {table};", ferc1_engine)  # nosec
+        .pipe(simplify_strings, columns=[field])[field]
+    )
+    old_strings = set.union(*[set(strings) for strings in strdict.values()])
+    return all_strings.difference(old_strings)
 
 
 def find_foreign_key_errors(dfs: Dict[str, pd.DataFrame]) -> List[Dict[str, Any]]:

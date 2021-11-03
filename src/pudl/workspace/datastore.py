@@ -63,7 +63,8 @@ class DatapackageDescriptor:
         for res in self.datapackage_json["resources"]:
             if res["name"] == name:
                 return res
-        raise KeyError(f"Resource {name} not found for {self.dataset}/{self.doi}")
+        raise KeyError(
+            f"Resource {name} not found for {self.dataset}/{self.doi}")
 
     def validate_checksum(self, name: str, content: str) -> bool:
         """Returns True if content matches checksum for given named resource."""
@@ -154,23 +155,23 @@ class ZenodoFetcher:
     DOI = {
         "sandbox": {
             "censusdp1tract": "10.5072/zenodo.674992",
-            "eia860": "10.5072/zenodo.672210",
-            "eia860m": "10.5072/zenodo.692655",
+            "eia860": "10.5072/zenodo.926292",
+            "eia860m": "10.5072/zenodo.926659",
             "eia861": "10.5072/zenodo.687052",
-            "eia923": "10.5072/zenodo.687071",
+            "eia923": "10.5072/zenodo.926301",
             "epacems": "10.5072/zenodo.672963",
-            "ferc1": "10.5072/zenodo.687072",
-            "ferc714": "10.5072/zenodo.672224",
+            "ferc1": "10.5072/zenodo.926302",
+            "ferc714": "10.5072/zenodo.926660",
         },
         "production": {
             "censusdp1tract": "10.5281/zenodo.4127049",
-            "eia860": "10.5281/zenodo.4127027",
-            "eia860m": "10.5281/zenodo.4540268",
-            "eia861": "10.5281/zenodo.4127029",
-            "eia923": "10.5281/zenodo.4127040",
+            "eia860": "10.5281/zenodo.5534934",
+            "eia860m": "10.5281/zenodo.5602152",
+            "eia861": "10.5281/zenodo.5602102",
+            "eia923": "10.5281/zenodo.5596977",
             "epacems": "10.5281/zenodo.4660268",
-            "ferc1": "10.5281/zenodo.4127044",
-            "ferc714": "10.5281/zenodo.4127101",
+            "ferc1": "10.5281/zenodo.5534788",
+            "ferc714": "10.5281/zenodo.5076672",
         },
     }
     API_ROOT = {
@@ -294,7 +295,7 @@ class Datastore:
         # that each specify path (str) and read_only (bool) attributes.
 
         self._cache = resource_cache.LayeredCache()
-        self._datapackage_descriptors = {}  # type: Dict[str, DatapackageDescriptor]
+        self._datapackage_descriptors: Dict[str, DatapackageDescriptor] = {}
 
         if local_cache_path:
             self._cache.add_cache_layer(
@@ -429,7 +430,8 @@ def parse_command_line():
     """Collect the command line arguments."""
     prod_dois = "\n".join(
         [f"    - {x}" for x in ZenodoFetcher.DOI["production"].keys()])
-    sand_dois = "\n".join([f"    - {x}" for x in ZenodoFetcher.DOI["sandbox"].keys()])
+    sand_dois = "\n".join(
+        [f"    - {x}" for x in ZenodoFetcher.DOI["sandbox"].keys()])
 
     dataset_msg = f"""
 Available Production Datasets:
@@ -522,7 +524,8 @@ def print_partitions(dstore: Datastore, datasets: List[str]) -> None:
 
         print(f'\nPartitions for {single_ds} ({dstore.get_doi(single_ds)}):')
         for pkey in sorted(parts):
-            print(f'  {pkey}: {", ".join(str(x) for x in sorted(parts[pkey]))}')
+            print(
+                f'  {pkey}: {", ".join(str(x) for x in sorted(parts[pkey]))}')
         if not parts:
             print('  -- no known partitions --')
 
@@ -574,7 +577,8 @@ def main():
         datasets = dstore.get_known_datasets()
 
     if args.partition:
-        logger.info(f"Only retrieving resources for partition: {args.partition}")
+        logger.info(
+            f"Only retrieving resources for partition: {args.partition}")
 
     if args.list_partitions:
         print_partitions(dstore, datasets)
