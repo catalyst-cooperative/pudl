@@ -430,8 +430,10 @@ def generators_eia860(
         # Make sure didn't change group length
         assert len(df) == len1, 'group length getting altered'
 
+        return df
+
     if backfill_tech:
-        _backfill_tech_desc(out_df)
+        out_df = _backfill_tech_desc(out_df)
 
     first_cols = [
         'report_date',

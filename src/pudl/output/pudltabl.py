@@ -533,6 +533,12 @@ class PudlTabl(object):
         Args:
             update (bool): If true, re-calculate the output dataframe, even if
                 a cached version exists.
+            backfill_tech (bool): This allows users to specify whether they would like
+                to backfill the technology_description field or not. The output table
+                will reload if you ask for the table with a different specification for
+                tech_desc.
+            unit_ids (bool): If true, this will add unit IDs via assign_unit_ids so
+                that more or less all of the generators have a pudl-assigned unit it.
 
         Returns:
             pandas.DataFrame: a denormalized table for interactive use.
