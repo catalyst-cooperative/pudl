@@ -21,22 +21,17 @@ ferc1_to_sqlite_settings:
       - f1_pumped_storage
       - f1_purchased_pwr
 
-name: pudl-full
-title: PUDL Full ETL
+name: ferc1-solo
+title: FERC Form 1 Solo ETL
 description: >
-  All available data for FERC 1 and EIA 860/923 (output to SQLite) plus all
-  years of EPA CEMS hourly emissions data (output to Parquet).
+  A truly minimal FERC Form 1 ETL, just to demonstrate it can be loaded
+  independently of all other datasets. One year, fuel and steam tables.
 version: 0.1.0
 datasets:
     ferc1:
       tables:
       - fuel_ferc1 # requires plants_steam_ferc1 to load properly
       - plants_steam_ferc1
-      - plants_small_ferc1
-      - plants_hydro_ferc1
-      - plants_pumped_storage_ferc1
-      - plant_in_service_ferc1
-      - purchased_power_ferc1
       years: [
           2019
       ]
