@@ -20,10 +20,6 @@ The Public Utility Data Liberation Project (PUDL)
    :target: https://codecov.io/gh/catalyst-cooperative/pudl
    :alt: Codecov Test Coverage
 
-.. image:: https://img.shields.io/codacy/grade/2fead07adef249c08288d0bafae7cbb5
-   :target: https://app.codacy.com/app/zaneselvans/pudl
-   :alt: Codacy Grade
-
 .. image:: https://img.shields.io/pypi/v/catalystcoop.pudl
    :target: https://pypi.org/project/catalystcoop.pudl/
    :alt: PyPI Latest Version
@@ -56,18 +52,18 @@ What data is available?
 
 PUDL currently integrates data from:
 
-* `EIA Form 860 <https://www.eia.gov/electricity/data/eia860/>`__ (2004-2019)
-* `EIA Form 860m <https://www.eia.gov/electricity/data/eia860m/>`__ (2020-2021)
-* `EIA Form 861 <https://www.eia.gov/electricity/data/eia861/>`__ (2001-2019)
-* `EIA Form 923 <https://www.eia.gov/electricity/data/eia923/>`__ (2009-2019)
+* `EIA Form 860 <https://www.eia.gov/electricity/data/eia860/>`__ (2001-2020)
+* `EIA Form 860m <https://www.eia.gov/electricity/data/eia860m/>`__ (to 2021-08)
+* `EIA Form 861 <https://www.eia.gov/electricity/data/eia861/>`__ (2001-2020)
+* `EIA Form 923 <https://www.eia.gov/electricity/data/eia923/>`__ (2001-2020)
 * `EPA Continuous Emissions Monitoring System (CEMS) <https://ampd.epa.gov/ampd/>`__ (1995-2020)
-* `FERC Form 1 <https://www.ferc.gov/industries-data/electric/general-information/electric-industry-forms/form-1-electric-utility-annual>`__ (1994-2019)
-* `FERC Form 714 <https://www.ferc.gov/industries-data/electric/general-information/electric-industry-forms/form-no-714-annual-electric/data>`__ (2006-2019)
+* `FERC Form 1 <https://www.ferc.gov/industries-data/electric/general-information/electric-industry-forms/form-1-electric-utility-annual>`__ (1994-2020)
+* `FERC Form 714 <https://www.ferc.gov/industries-data/electric/general-information/electric-industry-forms/form-no-714-annual-electric/data>`__ (2006-2020)
 * `US Census Demographic Profile 1 Geodatabase <https://www.census.gov/geographies/mapping-files/2010/geo/tiger-data.html>`__ (2010)
 
-Thanks to support from the `Alfred P. Sloan Foundation Energy & Environment Program
-<https://sloan.org/programs/research/energy-and-environment>`__, from 2021 to 2023 we will be
-integrating the following data as well:
+Thanks to support from the `Alfred P. Sloan Foundation Energy & Environment
+Program <https://sloan.org/programs/research/energy-and-environment>`__, from
+2021 to 2023 we will be integrating the following data as well:
 
 * `EIA Form 176 <https://www.eia.gov/dnav/ng/TblDefs/NG_DataSources.html#s176>`__
   (The Annual Report of Natural Gas Supply and Disposition)

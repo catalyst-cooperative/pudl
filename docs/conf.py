@@ -8,7 +8,14 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 
+from pathlib import Path
+
 import pkg_resources
+
+from pudl.metadata.classes import Package
+from pudl.metadata.resources import RESOURCE_METADATA
+
+DOCS_DIR = Path(__file__).parent.resolve()
 
 # -- Path setup --------------------------------------------------------------
 # We are building and installing the pudl package in order to get access to
@@ -22,7 +29,7 @@ release = pkg_resources.get_distribution('catalystcoop.pudl').version
 # -- Project information -----------------------------------------------------
 
 project = 'PUDL'
-copyright = '2016-2021, Catalyst Cooperative'  # noqa: A001
+copyright = '2016-2021, Catalyst Cooperative, CC-BY-4.0'  # noqa: A001
 author = 'Catalyst Cooperative'
 
 # -- General configuration ---------------------------------------------------
@@ -31,15 +38,36 @@ author = 'Catalyst Cooperative'
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-    'sphinx.ext.autodoc',
     'sphinx.ext.doctest',
     'sphinx.ext.intersphinx',
     'sphinx.ext.napoleon',
     'sphinx.ext.todo',
     'sphinx.ext.viewcode',
+    'autoapi.extension',
     'sphinx_issues',
+    'sphinx_reredirects',
+    'sphinx_rtd_dark_mode',
+    'sphinxcontrib.bibtex',
 ]
 todo_include_todos = True
+bibtex_bibfiles = [
+    'catalyst_pubs.bib',
+    'catalyst_cites.bib',
+    'further_reading.bib',
+]
+
+# Redirects to keep folks from hitting 404 errors:
+redirects = {
+    "data_dictionary": "data_dictionaries/pudl_db.html",
+}
+
+# Automatically generate API documentation during the doc build:
+autoapi_type = 'python'
+autoapi_dirs = ['../src/pudl', ]
+autoapi_ignore = [
+    "*_test.py",
+    "*/package_data/*",
+]
 
 # GitHub repo
 issues_github_path = "catalyst-cooperative/pudl"
@@ -56,16 +84,11 @@ intersphinx_mapping = {
     'pytest': ('https://docs.pytest.org/en/latest/', None),
     'python': ('https://docs.python.org/3', None),
     'scipy': ('https://docs.scipy.org/doc/scipy/reference', None),
-    'setuptools': ('https://setuptools.readthedocs.io/en/latest/', None),
+    'setuptools': ('https://setuptools.pypa.io/en/latest/', None),
     'sklearn': ('https://scikit-learn.org/stable', None),
     'sqlalchemy': ('https://docs.sqlalchemy.org/en/latest/', None),
     'tox': ('https://tox.readthedocs.io/en/latest/', None),
 }
-
-# List of packages that should not really be installed, because they are
-# written in C or have C extensions. Instead they should be mocked for import
-# purposes only to prevent the doc build from failing.
-autodoc_mock_imports = ['snappy', 'pyarrow', 'fsspec']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -77,8 +100,10 @@ exclude_patterns = ['_build']
 
 # -- Options for HTML output -------------------------------------------------
 
-# The theme to use for HTML and HTML Help pages.  See the documentation for
-# a list of builtin themes.
+# The theme to use for HTML and HTML Help pages.
+
+# user starts in dark mode
+default_dark_mode = False
 
 master_doc = 'index'
 html_theme = 'sphinx_rtd_theme'
@@ -106,6 +131,29 @@ html_theme_options = {
 html_static_path = ['_static']
 
 
+# -- Custom build operations -------------------------------------------------
+def metadata_to_rst(app):
+    """Export metadata structures to RST for inclusion in the documentation."""
+    # Create an RST Data Dictionary for the PUDL DB:
+    print("Exporting PUDL DB metadata to RST.")
+    skip_names = ["datasets", "accumulated_depreciation_ferc1"]
+    names = [name for name in sorted(RESOURCE_METADATA) if name not in skip_names]
+    package = Package.from_resource_ids(names)
+    # Sort fields within each resource by name:
+    for resource in package.resources:
+        resource.schema.fields = sorted(
+            resource.schema.fields, key=lambda x: x.name
+        )
+    package.to_rst(path=DOCS_DIR / "data_dictionaries/pudl_db.rst")
+
+
+def cleanup_rst(app, exception):
+    """Remove generated RST files when the build is finished."""
+    (DOCS_DIR / "data_dictionaries/pudl_db.rst").unlink()
+
+
 def setup(app):
     """Add custom CSS defined in _static/custom.css."""
     app.add_css_file('custom.css')
+    app.connect("builder-inited", metadata_to_rst)
+    app.connect("build-finished", cleanup_rst)

@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 
 import pudl
-from pudl import constants as pc
+from pudl.constants import PUDL_TABLES
 
 logger = logging.getLogger(__name__)
 
@@ -54,7 +54,10 @@ OFFSET_CODE_FIXES = {
     153: {np.nan: "MST"},
     154: {np.nan: "MST"},
     156: {np.nan: "CST"},
-    157: {"DST": "EDT"},
+    157: {
+        "DST": "EDT",
+        "EPT": "EST",
+    },
     161: {"CPT": "CST"},
     163: {"CPT": "CST"},
     164: {np.nan: "CST"},
@@ -102,7 +105,10 @@ OFFSET_CODE_FIXES = {
     },
     226: {"DST": "CDT"},
     230: {"EPT": "EST"},
-    233: {"DST": "EDT"},
+    233: {
+        "DST": "EDT",
+        "EPT": "EST",
+    },
     234: {
         "1": "EST",
         "2": "EDT",
@@ -585,7 +591,7 @@ def _early_transform(raw_df):
     return out_df
 
 
-def transform(raw_dfs, tables=pc.pudl_tables["ferc714"]):
+def transform(raw_dfs, tables=PUDL_TABLES["ferc714"]):
     """
     Transform the raw FERC 714 dataframes into datapackage ready ouputs.
 
@@ -618,7 +624,7 @@ def transform(raw_dfs, tables=pc.pudl_tables["ferc714"]):
     }
     tfr_dfs = {}
     for table in tables:
-        if table not in pc.pudl_tables["ferc714"]:
+        if table not in PUDL_TABLES["ferc714"]:
             raise ValueError(
                 f"No transform function found for requested FERC Form 714 "
                 f"data table {table}!"

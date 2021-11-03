@@ -1,10 +1,8 @@
 """PyTest configuration module. Defines useful fixtures, command line args."""
-import glob
 import logging
 import os
 from pathlib import Path
 
-import datapackage
 import pytest
 import sqlalchemy as sa
 import yaml
@@ -68,8 +66,8 @@ def etl_parameters(request, test_dir):
     else:
         etl_params_yml = Path(
             test_dir.parent / "src/pudl/package_data/settings/etl_fast.yml")
-    with open(etl_params_yml, "r") as f:
-        etl_params_out = yaml.safe_load(f)
+    with open(etl_params_yml, mode="r", encoding="utf8") as settings_file:
+        etl_params_out = yaml.safe_load(settings_file)
     return etl_params_out
 
 
@@ -143,30 +141,7 @@ def ferc1_sql_engine(
         )
     engine = sa.create_engine(pudl_settings_fixture["ferc1_db"])
     logger.info("FERC1 Engine: %s", engine)
-    yield engine
-
-    # Clean up after ourselves by dropping the test DB tables.
-    if not live_dbs:
-        pudl.helpers.drop_tables(engine, clobber=True)
-
-
-@pytest.fixture(scope='session', name="datapkg_bundle")
-def datapackage_bundle(
-    ferc1_engine,  # Implicit dependency
-    pudl_settings_fixture,
-    live_dbs,
-    pudl_etl_params
-):
-    """Generate limited packages for testing."""
-    if not live_dbs:
-        logger.info('setting up the datapkg_bundle fixture')
-        pudl.etl.generate_datapkg_bundle(
-            pudl_etl_params["datapkg_bundle_settings"],
-            pudl_settings_fixture,
-            datapkg_bundle_name=pudl_etl_params['datapkg_bundle_name'],
-            datapkg_bundle_doi=pudl_etl_params['datapkg_bundle_doi'],
-            clobber=False,
-        )
+    return engine
 
 
 @pytest.fixture(scope='session', name="pudl_engine")
@@ -175,7 +150,6 @@ def pudl_sql_engine(
     live_dbs,
     pudl_settings_fixture,
     pudl_etl_params,
-    datapkg_bundle,  # Implicity dependency
 ):
     """
     Grab a connection to the PUDL Database.
@@ -185,41 +159,21 @@ def pudl_sql_engine(
     """
     logger.info('setting up the pudl_engine fixture')
     if not live_dbs:
-        # Generate the list of datapackages to merge...
-        datapkg_bundle_dir = Path(
-            pudl_settings_fixture["datapkg_dir"],
-            pudl_etl_params["datapkg_bundle_name"],
-        )
-        # Here we're gonna merge *any* datapackages found within the bundle:
-        in_paths = glob.glob(f"{datapkg_bundle_dir}/*/datapackage.json")
-        dps = [datapackage.DataPackage(descriptor=path) for path in in_paths]
-        out_path = Path(
-            pudl_settings_fixture["datapkg_dir"],
-            pudl_etl_params["datapkg_bundle_name"],
-            "pudl-merged"
-        )
-        # clobber has to be False here, because if the pudl-merged datapackage
-        # already existed somehow in the datapkg_bundle_dir, then we're
-        # merging things back in more than once and that's broken... so we want
-        # it to fail if the merged package exists already.
-        pudl.convert.merge_datapkgs.merge_datapkgs(
-            dps, out_path, clobber=False)
-        pudl.convert.datapkg_to_sqlite.datapkg_to_sqlite(
-            sqlite_url=pudl_settings_fixture["pudl_db"],
-            out_path=out_path,
+        # Run the ETL and generate a new PUDL SQLite DB for testing:
+        pudl.etl.etl(
+            etl_settings_bundle=pudl_etl_params["datapkg_bundle_settings"],
+            pudl_settings=pudl_settings_fixture,
             clobber=False,
-            fkeys=True,
+            check_foreign_keys=True,
+            check_types=True,
+            check_values=True,
         )
     # Grab a connection to the freshly populated PUDL DB, and hand it off.
     # All the hard work here is being done by the datapkg and
     # datapkg_to_sqlite fixtures, above.
     engine = sa.create_engine(pudl_settings_fixture["pudl_db"])
     logger.info('PUDL Engine: %s', engine)
-    yield engine
-
-    # Clean up after ourselves by dropping the test DB tables.
-    if not live_dbs:
-        pudl.helpers.drop_tables(engine, clobber=True)
+    return engine
 
 
 @pytest.fixture(scope='session', name="pudl_settings_fixture")
@@ -266,6 +220,10 @@ def pudl_settings_dict(request, live_dbs, tmpdir_factory):  # noqa: C901
             "pudl_db"]
         pudl_settings["ferc1_db"] = pudl.workspace.setup.get_defaults()[
             "ferc1_db"]
+        pudl_settings["censusdp1tract_db"] = pudl.workspace.setup.get_defaults()[
+            "censusdp1tract_db"]
+        pudl_settings["parquet_dir"] = pudl.workspace.setup.get_defaults()[
+            "parquet_dir"]
 
     logger.info("pudl_settings being used: %s", pudl_settings)
     return pudl_settings

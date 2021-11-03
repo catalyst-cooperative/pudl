@@ -2,19 +2,33 @@
 FERC Form 1
 ===============================================================================
 
-=================== ===========================================================
-Source URL          https://www.ferc.gov/industries-data/electric/general-information/electric-industry-forms/form-1-electric-utility-annual
-Source Description  Financial and operational information from electric utilities,
-                    licensees and others entities subject to FERC jurisdiction.
-Respondents         Major electric utilities and licensees
-Source Format       FoxPro Database (.DBC/.DBF)
-Source Years        1994-2019
-Size (Download)     1.3 GB
-PUDL Code           ``ferc1``
-Years Liberated     1994-2019
-Records Liberated   ~12 million (116 raw tables), ~316,000 (7 clean tables)
-Issues              `Open FERC Form 1 issues <https://github.com/catalyst-cooperative/pudl/issues?q=is%3Aissue+is%3Aopen+label%3Aferc1>`__
-=================== ===========================================================
+.. list-table::
+   :widths: auto
+   :header-rows: 0
+   :stub-columns: 1
+
+   * - Source URL
+     - https://www.ferc.gov/industries-data/electric/general-information/electric-industry-forms/form-1-electric-utility-annual
+   * - Source Description
+     - Financial and operational information from electric utilities,
+       licensees and others entities subject to FERC jurisdiction.
+   * - Respondents
+     - Major electric utilities and licensees.
+   * - Source Format
+     - FoxPro Database (.DBC/.DBF)
+   * - Source Years
+     - 1994-2020
+   * - Size (Download)
+     - 1.6 GB
+   * - PUDL Code
+     - ``ferc1``
+   * - Years Liberated
+     - 1994-2020
+   * - Records Liberated
+     - ~13.2 million (116 raw tables), ~307,000 (7 clean tables)
+   * - Issues
+     - `Open FERC Form 1 issues <https://github.com/catalyst-cooperative/pudl/issues?q=is%3Aissue+is%3Aopen+label%3Aferc1>`__
+
 
 Background
 ^^^^^^^^^^
@@ -22,6 +36,18 @@ Background
 The FERC Form 1, otherwise known as the **Electric Utility Annual Report**, contains
 financial and operating data for major utilities and licensees. Much of it is not
 publicly available anywhere else.
+
+* :download:`A diagram of the 2015 FERC Form 1 Database (PDF)
+  <ferc1/ferc1_db_diagram_2015.pdf>`
+* :download:`Blank FERC Form 1 (PDF, to 2005-03-31) <ferc1/ferc1_blank_2005-03-31.pdf>`
+* :download:`Blank FERC Form 1 (PDF, to 2007-06-30) <ferc1/ferc1_blank_2007-06-30.pdf>`
+* :download:`Blank FERC Form 1 (PDF, to 2008-07-31) <ferc1/ferc1_blank_2008-07-31.pdf>`
+* :download:`Blank FERC Form 1 (PDF, to 2011-12-31) <ferc1/ferc1_blank_2011-12-31.pdf>`
+* :download:`Blank FERC Form 1 (PDF, to 2014-12-31) <ferc1/ferc1_blank_2014-12-31.pdf>`
+* :download:`Blank FERC Form 1 (PDF, to 2016-11-30) <ferc1/ferc1_blank_2016-11-30.pdf>`
+* :download:`Blank FERC Form 1 (PDF, to 2019-12-31) <ferc1/ferc1_blank_2019-12-31.pdf>`
+* :download:`Blank FERC Form 1 (PDF, to 2022-11-30) <ferc1/ferc1_blank_2022-11-30.pdf>`
+
 
 Who is required to fill out the form?
 -------------------------------------
@@ -47,6 +73,7 @@ focused on the tables pertaining to power plants, their capital & operating
 expenses, and fuel consumption; however, we have the tools required to pull
 just about any other table in as well.
 
+
 What does the original data look like?
 --------------------------------------
 
@@ -65,8 +92,9 @@ discontinued. FERC's continued use of this database format creates a significant
 barrier to data access.
 
 The FERC 1 database is poorly normalized and the data itself does not appear
-to be subject to much quality control. For more detaild context and
-documentation on a table-by-table basis, see :doc:`ferc1_db_notes`
+to be subject to much quality control. For more detailed context and
+documentation on a table-by-table basis, look at
+:doc:`/data_dictionaries/ferc1_db`.
 
 Notable Irregularities
 ^^^^^^^^^^^^^^^^^^^^^^
@@ -105,8 +133,8 @@ PUDL Data Tables
 ^^^^^^^^^^^^^^^^
 
 We've segmented the processed FERC Form 1 data into the following normalized data
-tables. Clicking on the links will show you the names and descriptions of the fields
-available in each table.
+tables. Clicking on the links will show you a description of the table as well as
+the names and descriptions of each of its fields.
 
 .. list-table::
    :header-rows: 1

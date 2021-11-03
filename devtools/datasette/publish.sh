@@ -15,7 +15,7 @@ sqlite-utils index-foreign-keys $SQLITE_DIR/pudl.sqlite
 
 datasette publish cloudrun \
     --service catalyst-datasette \
-    --memory 3Gi \
+    --memory 4Gi \
     --install datasette-cluster-map \
     --install datasette-vega \
     --install datasette-block-robots \

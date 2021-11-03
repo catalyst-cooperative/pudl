@@ -14,29 +14,104 @@ import pathlib
 import re
 import shutil
 from functools import partial
+from io import BytesIO
+from typing import Any, Dict, List, Set
 
 import addfips
 import numpy as np
 import pandas as pd
 import requests
 import sqlalchemy as sa
-import timezonefinder
-from sqlalchemy.engine import reflection
 
-import pudl
 from pudl import constants as pc
+from pudl.metadata.classes import Package
 
 logger = logging.getLogger(__name__)
 
-# This is a little abbreviated function that allows us to propagate the NA
-# values through groupby aggregations, rather than using inefficient lambda
-# functions in each one.
 sum_na = partial(pd.Series.sum, skipna=False)
+"""
+A sum function that returns NA if the Series includes any NA values.
 
-# Initializing this TimezoneFinder opens a bunch of geography files and holds
-# them open for efficiency. I want to avoid doing that for every call to find
-# the timezone, so this is global.
-tz_finder = timezonefinder.TimezoneFinder()
+In many of our aggregations we need to override the default behavior of treating
+NA values as if they were zero. E.g. when calculating the heat rates of
+generation units, if there are some months where fuel consumption is reported
+as NA, but electricity generation is reported normally, then the fuel
+consumption for the year needs to be NA, otherwise we'll get unrealistic heat
+rates.
+"""
+
+
+def find_new_ferc1_strings(
+    table: str,
+    field: str,
+    strdict: Dict[str, List[str]],
+    ferc1_engine: sa.engine.Engine,
+) -> Set[str]:
+    """
+    Identify as-of-yet uncategorized freeform strings in FERC Form 1.
+
+    Args:
+        table: Name of the FERC Form 1 DB to search.
+        field: Name of the column in that table to search.
+        strdict: A string cleaning dictionary. See
+            e.g. `pudl.transform.ferc1.FUEL_UNIT_STRINGS`
+        ferc1_engine: SQL Alchemy DB connection engine for the FERC Form 1 DB.
+
+    Returns:
+        Any string found in the searched table + field that was not part of any of
+        categories enumerated in strdict.
+
+    """
+    all_strings = set(
+        pd.read_sql(f"SELECT {field} FROM {table};", ferc1_engine)  # nosec
+        .pipe(simplify_strings, columns=[field])[field]
+    )
+    old_strings = set.union(*[set(strings) for strings in strdict.values()])
+    return all_strings.difference(old_strings)
+
+
+def find_foreign_key_errors(dfs: Dict[str, pd.DataFrame]) -> List[Dict[str, Any]]:
+    """
+    Report foreign key violations from a dictionary of dataframes.
+
+    The database schema to check against is generated based on the names of the
+    dataframes (keys of the dictionary) and the PUDL metadata structures.
+
+    Args:
+        dfs: Keys are table names, and values are dataframes ready for loading
+            into the SQLite database.
+
+    Returns:
+        A list of dictionaries, each one pertains to a single database table
+        in which a foreign key constraint violation was found, and it includes
+        the table name, foreign key definition, and the elements of the
+        dataframe that violated the foreign key constraint.
+
+    """
+    package = Package.from_resource_ids(dfs)
+    errors = []
+    for resource in package.resources:
+        for foreign_key in resource.schema.foreign_keys:
+            x = dfs[resource.name][foreign_key.fields]
+            y = dfs[foreign_key.reference.resource][foreign_key.reference.fields]
+            ncols = x.shape[1]
+            idx = range(ncols)
+            xx, yy = x.set_axis(idx, axis=1), y.set_axis(idx, axis=1)
+            if ncols == 1:
+                # Faster check for single-field foreign key
+                invalid = ~(xx[0].isin(yy[0]) | xx[0].isna())
+            else:
+                invalid = ~(
+                    pd.concat([yy, xx]).duplicated().iloc[len(yy):] |
+                    xx.isna().any(axis=1)
+                )
+            if invalid.any():
+                errors.append({
+                    'resource': resource.name,
+                    'foreign_key': foreign_key,
+                    'invalid': x[invalid]
+                })
+    return errors
 
 
 def download_zip_url(url, save_path, chunk_size=128):
@@ -110,9 +185,11 @@ def clean_eia_counties(df, fixes, state_col="state", county_col="county"):
     df = df.copy()
     df[county_col] = (
         df[county_col].str.strip()
-        .str.replace(r"\s+", " ", regex=True)  # Condense multiple whitespace chars.
+        # Condense multiple whitespace chars.
+        .str.replace(r"\s+", " ", regex=True)
         .str.replace(r"^St ", "St. ", regex=True)  # Standardize abbreviation.
-        .str.replace(r"^Ste ", "Ste. ", regex=True)  # Standardize abbreviation.
+        # Standardize abbreviation.
+        .str.replace(r"^Ste ", "Ste. ", regex=True)
         .str.replace("Kent & New Castle", "Kent, New Castle")  # Two counties
         # Fix ordering, remove comma
         .str.replace("Borough, Kodiak Island", "Kodiak Island Borough")
@@ -211,145 +288,112 @@ def is_doi(doi):
     return bool(re.match(doi_regex, doi))
 
 
-def is_annual(df_year, year_col='report_date'):
+def clean_merge_asof(
+    left,
+    right,
+    left_on="report_date",
+    right_on="report_date",
+    by={},
+):
     """
-    Determine whether a DataFrame contains consistent annual time-series data.
+    Merge two dataframes having different time report_date frequencies.
 
-    Some processes will only work with consistent yearly reporting. This means
-    if you have two non-contiguous years of data or the datetime reporting is
-    inconsistent, the process will break. This function attempts to infer the
-    temporal frequency of the dataframe, or if that is impossible, to at least
-    see whether the data would be consistent with annual reporting -- e.g. if
-    there is only a single year of data, it should all have the same date, and
-    that date should correspond to January 1st of a given year.
+    We often need to bring together data which is reported on a monthly basis,
+    and entity attributes that are reported on an annual basis.  The
+    :func:`pandas.merge_asof` is designed to do this, but requires that
+    dataframes are sorted by the merge keys (``left_on``, ``right_on``, and
+    ``by.keys()`` here). We also need to make sure that all merge keys have
+    identical data types in the two dataframes (e.g. ``plant_id_eia`` needs to
+    be a nullable integer in both dataframes, not a python int in one, and a
+    nullable :func:`pandas.Int64Dtype` in the other).  Note that
+    :func:`pandas.merge_asof` performs a left merge, so the higher frequency
+    dataframe **must** be the left dataframe.
 
-    This function is known to be flaky and needs to be re-written to deal with
-    the edge cases better.
+    We also force both ``left_on`` and ``right_on`` to be a Datetime using
+    :func:`pandas.to_datetime` to allow merging dataframes having integer years
+    with those having datetime columns.
+
+    Because :func:`pandas.merge_asof` searches backwards for the first matching
+    date, this function only works if the less granular dataframe uses the
+    convention of reporting the first date in the time period for which it
+    reports. E.g. annual dataframes need to have January 1st as the date. This
+    is what happens by defualt if only a year or year-month are provided to
+    :func:`pandas.to_datetime` as strings.
 
     Args:
-        df_year (pandas.DataFrame): A pandas DataFrame that might
-            contain time-series data at annual resolution.
-        year_col (str): The column of the DataFrame in which the year is
-            reported.
+        left (pandas.DataFrame): The higher frequency "data" dataframe.
+            Typically monthly in our use cases. E.g. ``generation_eia923``. Must
+            contain ``report_date`` and any columns specified in the ``by``
+            argument.
+        right (pandas.DataFrame): The lower frequency "attribute" dataframe.
+            Typically annual in our uses cases. E.g. ``generators_eia860``. Must
+            contain ``report_date`` and any columns specified in the ``by``
+            argument.
+        left_on (str): Column in ``left`` to merge on using merge_asof. Default
+            is ``report_date``. Must be convertible to a Datetime using
+            :func:`pandas.to_datetime`
+        right_on (str): Column in ``right`` to merge on using merge_asof.
+            Default is ``report_date``. Must be convertible to a Datetime using
+            :func:`pandas.to_datetime`
+        by (dict): A dictionary enumerating any columns to merge on other than
+            ``report_date``. Typically ID columns like ``plant_id_eia``,
+            ``generator_id`` or ``boiler_id``. The keys of the dictionary are
+            the names of the columns, and the values are their data source, as
+            defined in :mod:`pudl.constants` (e.g. ``ferc1`` or ``eia``). The
+            data source is used to look up the column's canonical data type.
 
     Returns:
-        bool: True if df_year is found to be consistent with continuous annual
-        time resolution, False otherwise.
-
-    """
-    year_index = pd.DatetimeIndex(df_year[year_col].unique()).sort_values()
-    if len(year_index) >= 3:
-        date_freq = pd.infer_freq(year_index)
-        assert date_freq == 'AS-JAN', "infer_freq() not AS-JAN"
-    elif len(year_index) == 2:
-        min_year = year_index.min()
-        max_year = year_index.max()
-        assert year_index.min().month == 1, "min year not Jan"
-        assert year_index.min().day == 1, "min day not 1st"
-        assert year_index.max().month == 1, "max year not Jan"
-        assert year_index.max().day == 1, "max day not 1st"
-        delta_year = pd.Timedelta(max_year - min_year)
-        assert delta_year / pd.Timedelta(days=1) >= 365.0
-        assert delta_year / pd.Timedelta(days=1) <= 366.0
-    elif len(year_index) == 1:
-        assert year_index.min().month == 1, "only month not Jan"
-        assert year_index.min().day == 1, "only day not 1st"
-    else:
-        assert False, "Zero dates found!"
-
-    return True
-
-
-def merge_on_date_year(df_date, df_year, on=(), how='inner',
-                       date_col='report_date',
-                       year_col='report_date'):
-    """Merge two dataframes based on a shared year.
-
-    Some of our data is annual, and has an integer year column (e.g. FERC 1).
-    Some of our data is annual, and uses a Date column (e.g. EIA 860), and
-    some of our data has other temporal resolutions, and uses date columns
-    (e.g. EIA 923 fuel receipts are monthly, EPA CEMS data is hourly). This
-    function takes two data frames and merges them based on the year that the
-    data pertains to.  It requires one of the dataframes to have annual
-    resolution, and allows the annual time to be described as either an integer
-    year or a Date. The non-annual dataframe must have a Date column.
-
-    By default, it is assumed that both the date and annual columns to be
-    merged on are called 'report_date' since that's the common case when
-    bringing together EIA860 and EIA923 data.
-
-    Args:
-        df_date: the dataframe with a more granular date column, the label of
-            which is specified by date_col (report_date by default)
-        df_year: the dataframe with a column containing annual dates, the label
-            of which is specified by year_col (report_date by default)
-        on: The list of columns to merge on, other than the year and date
-            columns.
-        date_col: name of the date column to use to find the year to merge on.
-            Must be a Date.
-        year_col: name of the year column to merge on. Must be a Date
-            column with annual resolution.
-
-    Returns:
-        pandas.DataFrame: a dataframe with a date column, but no year
-        columns, and only one copy of any shared columns that were not part of
-        the list of columns to be merged on.  The values from df1 are the ones
-        which are retained for any shared, non-merging columns
+        pandas.DataFrame: Merged contents of left and right input dataframes.
+        Will be sorted by ``left_on`` and any columns specified in ``by``. See
+        documentation for :func:`pandas.merge_asof` to understand how this kind
+        of merge works.
 
     Raises:
-        ValueError: if the date or year columns are not found, or if the year
-            column is found to be inconsistent with annual reporting.
-
-    Todo: Right mergers will result in null values in the resulting date
-        column. The final output includes the date_col from the date_df and thus
-        if there are any entity records (records being merged on) in the
-        year_df but not in the date_df, a right merge will result in nulls in
-        the date_col. And when we drop the 'year_temp' column, the year from
-        the year_df will be gone. Need to determine how to deal with this.
-        Should we generate a montly record in each year? Should we generate
-        full time serires? Should we restrict right merges in this function?
+        ValueError: if ``left_on`` or ``right_on`` columns are missing from
+            their respective input dataframes.
+        ValueError: if any of the labels referenced in ``by`` are missing from
+            either the left or right dataframes.
 
     """
-    if date_col not in df_date.columns.tolist():
-        raise ValueError(f"Date column {date_col} not found in df_date.")
-    if year_col not in df_year.columns.tolist():
-        raise ValueError(f"Year column {year_col} not found in df_year.")
-    if not is_annual(df_year, year_col=year_col):
-        raise ValueError(f"df_year is not annual, based on column {year_col}.")
+    # Make sure we've got all the required inputs...
+    if left_on not in left.columns:
+        raise ValueError(f"Left dataframe has no column {left_on}.")
+    if right_on not in right.columns:
+        raise ValueError(f"Right dataframe has no {right_on}.")
+    missing_left_cols = [col for col in by if col not in left.columns]
+    if missing_left_cols:
+        raise ValueError(f"Left dataframe is missing {missing_left_cols}.")
+    missing_right_cols = [col for col in by if col not in right.columns]
+    if missing_right_cols:
+        raise ValueError(f"Left dataframe is missing {missing_right_cols}.")
 
-    first_date = pd.to_datetime(df_date[date_col].min())
-    all_dates = pd.DatetimeIndex(df_date[date_col]).unique().sort_values()
-    if not len(all_dates) > 0:
-        raise ValueError("Didn't find any dates in DatetimeIndex.")
-    if len(all_dates) > 1:
-        if len(all_dates) == 2:
-            second_date = all_dates.max()
-        elif len(all_dates) > 2:
-            date_freq = pd.infer_freq(all_dates)
-            rng = pd.date_range(start=first_date, periods=2, freq=date_freq)
-            second_date = rng[1]
-        if (second_date - first_date) / pd.Timedelta(days=366) > 1.0:
-            raise ValueError("Consecutive annual dates >1 year apart.")
+    def cleanup(df, on, by):
+        df = df.astype(get_pudl_dtypes(by))
+        df.loc[:, on] = pd.to_datetime(df[on])
+        df = df.sort_values([on] + list(by.keys()))
+        return df
 
-    # Create a temporary column in each dataframe with the year
-    df_year = df_year.copy()
-    df_date = df_date.copy()
-    df_year['year_temp'] = pd.to_datetime(df_year[year_col]).dt.year
-    # Drop the yearly report_date column: this way there won't be duplicates
-    # and the final df will have the more granular report_date.
-    df_year = df_year.drop([year_col], axis=1)
-    df_date['year_temp'] = pd.to_datetime(df_date[date_col]).dt.year
+    return pd.merge_asof(
+        cleanup(df=left, on=left_on, by=by),
+        cleanup(df=right, on=right_on, by=by),
+        left_on=left_on,
+        right_on=right_on,
+        by=list(by.keys()),
+        tolerance=pd.Timedelta("365 days")  # Should never match across years.
+    )
 
-    full_on = on + ['year_temp']
-    unshared_cols = [col for col in df_year.columns.tolist()
-                     if col not in df_date.columns.tolist()]
-    cols_to_use = unshared_cols + full_on
 
-    # Merge and drop the temp
-    merged = pd.merge(df_date, df_year[cols_to_use], how=how, on=full_on)
-    merged = merged.drop(['year_temp'], axis=1)
+def get_pudl_dtype(col, data_source):
+    """Look up a column's canonical data type based on its PUDL data source."""
+    return pc.COLUMN_DTYPES[data_source][col]
 
-    return merged
+
+def get_pudl_dtypes(col_source_dict):
+    """Look up canonical PUDL data types for columns based on data sources."""
+    return {
+        col: get_pudl_dtype(col, col_source_dict[col])
+        for col in col_source_dict
+    }
 
 
 def organize_cols(df, cols):
@@ -372,8 +416,7 @@ def organize_cols(df, cols):
     """
     # Generate a list of all the columns in the dataframe that are not
     # included in cols
-    data_cols = [c for c in df.columns.tolist() if c not in cols]
-    data_cols.sort()
+    data_cols = sorted([c for c in df.columns.tolist() if c not in cols])
     organized_cols = cols + data_cols
     return df[organized_cols]
 
@@ -656,8 +699,9 @@ def fix_leading_zero_gen_ids(df):
             .astype(str)
             .apply(lambda x: re.sub(r'^0+(\d+$)', r'\1', x))
         )
-        num_fixes = len(df.loc[df["generator_id"].astype(str) != fixed_generator_id])
-        logger.info("Fixed %s EIA generator IDs with leading zeros.", num_fixes)
+        num_fixes = len(
+            df.loc[df["generator_id"].astype(str) != fixed_generator_id])
+        logger.debug("Fixed %s EIA generator IDs with leading zeros.", num_fixes)
         df = (
             df.drop("generator_id", axis="columns")
             .assign(generator_id=fixed_generator_id)
@@ -781,56 +825,7 @@ def simplify_columns(df):
     return df
 
 
-def find_timezone(*, lng=None, lat=None, state=None, strict=True):
-    """Find the timezone associated with the a specified input location.
-
-    Note that this function requires named arguments. The names are lng, lat,
-    and state.  lng and lat must be provided, but they may be NA. state isn't
-    required, and isn't used unless lng/lat are NA or timezonefinder can't find
-    a corresponding timezone.
-
-    Timezones based on states are imprecise, so it's far better to use lng/lat
-    if possible. If `strict` is True, state will not be used.
-    More on state-to-timezone conversion here:
-    https://en.wikipedia.org/wiki/List_of_time_offsets_by_U.S._state_and_territory
-
-    Args:
-        lng (int or float in [-180,180]): Longitude, in decimal degrees
-        lat (int or float in [-90, 90]): Latitude, in decimal degrees
-        state (str): Abbreviation for US state or Canadian province
-        strict (bool): Raise an error if no timezone is found?
-
-    Returns:
-        str: The timezone (as an IANA string) for that location.
-
-    Todo:
-        Update docstring.
-
-    """
-    try:
-        tz = tz_finder.timezone_at(lng=lng, lat=lat)
-        if tz is None:  # Try harder
-            # Could change the search radius as well
-            tz = tz_finder.closest_timezone_at(lng=lng, lat=lat)
-    # For some reason w/ Python 3.6 we get a ValueError here, but with
-    # Python 3.7 we get an OverflowError...
-    except (OverflowError, ValueError):
-        # If we're being strict, only use lng/lat, not state
-        if strict:
-            raise ValueError(
-                f"Can't find timezone for: lng={lng}, lat={lat}, state={state}"
-            )
-        # If, e.g., the coordinates are missing, try looking in the
-        # state_tz_approx dictionary.
-        try:
-            tz = pudl.constants.state_tz_approx[state]
-        except KeyError:
-            tz = None
-    return tz
-
-
-def drop_tables(engine,
-                clobber=False):
+def drop_tables(engine, clobber=False):
     """Drops all tables from a SQLite database.
 
     Creates an sa.schema.MetaData object reflecting the structure of the
@@ -850,13 +845,13 @@ def drop_tables(engine,
     """
     md = sa.MetaData()
     md.reflect(engine)
-    insp = reflection.Inspector.from_engine(engine)
+    insp = sa.inspect(engine)
     if len(insp.get_table_names()) > 0 and not clobber:
         raise AssertionError(
             f'You are attempting to drop your database without setting clobber to {clobber}')
     md.drop_all(engine)
     conn = engine.connect()
-    conn.execute("VACUUM")
+    conn.exec_driver_sql("VACUUM")
     conn.close()
 
 
@@ -885,7 +880,7 @@ def convert_cols_dtypes(df, data_source, name=None):
     Convert the data types for a dataframe.
 
     This function will convert a PUDL dataframe's columns to the correct data
-    type. It uses a dictionary in constants.py called column_dtypes to assign
+    type. It uses a dictionary in constants.py called COLUMN_DTYPES to assign
     the right type. Within a given data source (e.g. eia923, ferc1) each column
     name is assumed to *always* have the same data type whenever it is found.
 
@@ -910,33 +905,32 @@ def convert_cols_dtypes(df, data_source, name=None):
 
     Returns:
         pandas.DataFrame: a dataframe with columns as specified by the
-        :mod:`pudl.constants` ``column_dtypes`` dictionary.
+        :mod:`pudl.constants` ``COLUMN_DTYPES`` dictionary.
 
     """
     # get me all of the columns for the table in the constants dtype dict
     col_dtypes = {col: col_dtype for col, col_dtype
-                  in pc.column_dtypes[data_source].items()
+                  in pc.COLUMN_DTYPES[data_source].items()
                   if col in list(df.columns)}
 
     # grab only the boolean columns (we only need their names)
     bool_cols = {col: col_dtype for col, col_dtype
                  in col_dtypes.items()
                  if col_dtype == pd.BooleanDtype()}
+    # grab all of the non boolean columns
+    non_bool_cols = {col: col_dtype for col, col_dtype
+                     in col_dtypes.items()
+                     if col_dtype != pd.BooleanDtype()}
     # Grab only the string columns...
     string_cols = {col: col_dtype for col, col_dtype
                    in col_dtypes.items()
                    if col_dtype == pd.StringDtype()}
 
-    # grab all of the non boolean columns
-    non_bool_cols = {col: col_dtype for col, col_dtype
-                     in col_dtypes.items()
-                     if col_dtype != pd.BooleanDtype()}
-
     # If/when we have the columns exhaustively typed, we can do it like this,
     # but right now we don't have the FERC columns done, so we can't:
     # get me all of the columns for the table in the constants dtype dict
     # col_types = {
-    #    col: pc.column_dtypes[data_source][col] for col in df.columns
+    #    col: pc.COLUMN_DTYPES[data_source][col] for col in df.columns
     # }
     # grab only the boolean columns (we only need their names)
     # bool_cols = {col for col in col_types if col_types[col] is bool}
@@ -969,11 +963,10 @@ def convert_cols_dtypes(df, data_source, name=None):
         if df.utility_id_eia.dtypes is np.dtype('object'):
             df = df.astype({'utility_id_eia': 'float'})
     df = (
-        df.replace(to_replace="<NA>", value={
-                   col: pd.NA for col in string_cols})
-        .replace(to_replace="nan", value={col: pd.NA for col in string_cols})
-        .astype(non_bool_cols)
+        df.astype(non_bool_cols)
         .astype(bool_cols)
+        .replace(to_replace="nan", value={col: pd.NA for col in string_cols})
+        .replace(to_replace="<NA>", value={col: pd.NA for col in string_cols})
     )
 
     # Zip codes are highly coorelated with datatype. If they datatype gets
@@ -985,9 +978,9 @@ def convert_cols_dtypes(df, data_source, name=None):
         zip_cols = [col for col in df.columns if 'zip_code' in col]
         for col in zip_cols:
             if '4' in col:
-                df[col] = zero_pad_zips(df[col], 4)
+                df.loc[:, col] = zero_pad_zips(df[col], 4)
             else:
-                df[col] = zero_pad_zips(df[col], 5)
+                df.loc[:, col] = zero_pad_zips(df[col], 5)
 
     return df
 
@@ -1102,15 +1095,19 @@ def count_records(df, cols, new_count_col_name):
         cols (iterable) : list of columns to group and count by.
         new_count_col_name (string) : the name that will be assigned to the
             column that will contain the count.
+
     Returns:
-        pandas.DataFrame: dataframe with only the `cols` definted and the
-        `new_count_col_name`.
+        pandas.DataFrame: dataframe containing only ``cols`` and
+        ``new_count_col_name``.
+
     """
-    return (df.assign(count_me=1).
-            groupby(cols).
-            agg({'count_me': 'count'}).
-            reset_index().
-            rename(columns={'count_me': new_count_col_name}))
+    return (
+        df.assign(count_me=1)
+        .groupby(cols)
+        .count_me.count()
+        .reset_index()
+        .rename(columns={'count_me': new_count_col_name})
+    )
 
 
 def cleanstrings_snake(df, cols):
@@ -1182,7 +1179,7 @@ def iterate_multivalue_dict(**kwargs):
 def get_working_eia_dates():
     """Get all working EIA dates as a DatetimeIndex."""
     dates = pd.DatetimeIndex([])
-    for dataset_name, dataset in pc.working_partitions.items():
+    for dataset_name, dataset in pc.WORKING_PARTITIONS.items():
         if 'eia' in dataset_name:
             for name, partition in dataset.items():
                 if name == 'years':
@@ -1192,3 +1189,22 @@ def get_working_eia_dates():
                     dates = dates.append(pd.DatetimeIndex(
                         [pd.to_datetime(partition)]))
     return dates
+
+
+def convert_df_to_excel_file(df: pd.DataFrame, **kwargs) -> pd.ExcelFile:
+    """
+    Converts a pandas dataframe to a pandas ExcelFile object.
+
+    You can pass parameters for pandas.to_excel() function.
+    """
+    bio = BytesIO()
+
+    writer = pd.ExcelWriter(bio, engine='xlsxwriter')
+    df.to_excel(writer, **kwargs)
+
+    writer.save()
+
+    bio.seek(0)
+    workbook = bio.read()
+
+    return pd.ExcelFile(workbook)

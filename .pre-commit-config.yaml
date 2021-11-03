@@ -2,7 +2,7 @@ repos:
 
 # Quick content checks based on grepping for python specific patterns:
 - repo: https://github.com/pre-commit/pygrep-hooks
-  rev: v1.8.0
+  rev: v1.9.0
   hooks:
   - id: python-check-blanket-noqa   # Prohibit overly broad QA exclusions.
   - id: python-no-eval              # Never use eval() it's dangerous.
@@ -35,7 +35,7 @@ repos:
 
 # Make sure import statements are sorted uniformly.
 - repo: https://github.com/pre-commit/mirrors-isort
-  rev: v5.8.0
+  rev: v5.9.3
   hooks:
   - id: isort
 
@@ -59,7 +59,7 @@ repos:
 
 # Check for errors in restructuredtext (.rst) files under the doc hierarchy
 - repo: https://github.com/PyCQA/doc8
-  rev: 0.9.0a1
+  rev: 0.9.1
   hooks:
   - id: doc8
     args: [--config, tox.ini]
@@ -73,6 +73,14 @@ repos:
 
 - repo: local
   hooks:
+    - id: nb-output-clear
+      name: nb-output-clear
+      stages: [commit]
+      language: system
+      verbose: false
+      pass_filenames: false
+      always_run: true
+      entry: find devtools \( -name \*.ipynb -not -name \*checkpoint.ipynb \) -type f -exec jupyter nbconvert --clear-output {} \;
     - id: unit-tests
       name: unit-tests
       stages: [commit]
@@ -80,4 +88,4 @@ repos:
       verbose: false
       pass_filenames: false
       always_run: true
-      entry: pytest test/unit
+      entry: pytest --doctest-modules src/pudl test/unit

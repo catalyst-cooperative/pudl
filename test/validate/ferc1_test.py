@@ -9,8 +9,8 @@ import logging
 import pandas as pd
 import pytest
 
-from pudl import constants as pc
 from pudl import validate as pv
+from pudl.constants import PUDL_TABLES
 
 logger = logging.getLogger(__name__)
 
@@ -20,7 +20,7 @@ row_mapped_tables = [
     "plant_in_service_ferc1",
 ]
 unique_record_tables = [
-    t for t in pc.pudl_tables["ferc1"] if t not in row_mapped_tables
+    t for t in PUDL_TABLES["ferc1"] if t not in row_mapped_tables
 ]
 
 
@@ -69,7 +69,7 @@ def test_no_null_cols_ferc1(pudl_out_ferc1, live_dbs, cols, df_name):
         ("plants_pumped_storage_ferc1", 689),
         ("plant_in_service_ferc1", 25_931),
         ("purchased_power_ferc1", 183_583),
-        ("pu_ferc1", 6797),
+        ("pu_ferc1", 6798),
     ])
 def test_minmax_rows(pudl_out_ferc1, live_dbs, expected_rows, df_name):
     """Verify that output DataFrames don't have too many or too few rows.
@@ -89,9 +89,9 @@ def test_minmax_rows(pudl_out_ferc1, live_dbs, expected_rows, df_name):
     _ = (
         pudl_out_ferc1.__getattribute__(df_name)()
         .pipe(pv.check_min_rows, expected_rows=expected_rows,
-              margin=0.02, df_name=df_name)
+              margin=0.0, df_name=df_name)
         .pipe(pv.check_max_rows, expected_rows=expected_rows,
-              margin=0.02, df_name=df_name)
+              margin=0.0, df_name=df_name)
     )
 
 

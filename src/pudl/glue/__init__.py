@@ -6,13 +6,9 @@ often not easy to programmatically relate the datasets to each other. The glue
 subpackage provides tools for doing so, making all of the individual datasets
 more useful, and enabling richer analyses.
 
-In this subpackage there are two basic types of modules:
-
-* those that implement general tools for connecting datasets together (like the
-  :mod:`pudl.glue.zipper` module which two tabular datasets based on a set of
-  mutually reported variables with no common IDs), and
-* those that implement a connection between two specific datasets (like the
-  :mod:`pudl.glue.ferc1_eia` module).
+This subpackage contains modules that connect pairs of datasets, like
+:mod:`pudl.glue.ferc1_eia` which links together the plants and utilities that
+report to both FERC and EIA, but using different names and IDs.
 
 In general we try to enable each dataset to be processed independently, and
 optionally apply the glue to connect them to each other when both datasets for

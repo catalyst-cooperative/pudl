@@ -17,6 +17,7 @@ import yaml
 
 import pudl
 from pudl import constants as pc
+from pudl.extract.ferc1 import DBF_TABLES_FILENAMES
 from pudl.workspace.datastore import Datastore
 
 # Create a logger to output any messages we might have...
@@ -40,6 +41,12 @@ def parse_command_line(argv):
         type=str,
         default='',
         help="path to YAML settings file."
+    )
+    parser.add_argument(
+        "--logfile",
+        default=None,
+        type=str,
+        help="If specified, write logs to this file."
     )
     parser.add_argument(
         '-c',
@@ -69,50 +76,55 @@ def main():  # noqa: C901
     coloredlogs.install(fmt=log_format, level='INFO', logger=pudl_logger)
 
     args = parse_command_line(sys.argv)
+    if args.logfile:
+        file_logger = logging.FileHandler(args.logfile)
+        file_logger.setFormatter(logging.Formatter(log_format))
+        pudl_logger.addHandler(file_logger)
     with pathlib.Path(args.settings_file).open() as f:
         script_settings = yaml.safe_load(f)
 
-    try:
-        pudl_in = script_settings["pudl_in"]
-    except KeyError:
-        pudl_in = pudl.workspace.setup.get_defaults()["pudl_in"]
-    try:
-        pudl_out = script_settings["pudl_out"]
-    except KeyError:
-        pudl_out = pudl.workspace.setup.get_defaults()["pudl_out"]
+    defaults = pudl.workspace.setup.get_defaults()
+    pudl_in = script_settings.get("pudl_in", defaults["pudl_in"])
+    pudl_out = script_settings.get("pudl_out", defaults["pudl_out"])
 
     pudl_settings = pudl.workspace.setup.derive_paths(
-        pudl_in=pudl_in, pudl_out=pudl_out)
+        pudl_in=pudl_in,
+        pudl_out=pudl_out
+    )
 
     # Check args for basic validity:
     for table in script_settings['ferc1_to_sqlite_tables']:
-        if table not in pc.ferc1_tbl2dbf:
+        if table not in DBF_TABLES_FILENAMES:
             raise ValueError(
                 f"{table} was not found in the list of "
                 f"available FERC Form 1 tables."
             )
+    # Deduplicate the list of tables, just in case
+    script_settings["ferc1_to_sqlite_tables"] = list(
+        set(script_settings["ferc1_to_sqlite_tables"]))
+
     if script_settings['ferc1_to_sqlite_refyear'] \
-            not in pc.data_years['ferc1']:
+            not in pc.WORKING_PARTITIONS['ferc1']['years']:
         raise ValueError(
             f"Reference year {script_settings['ferc1_to_sqlite_refyear']} "
             f"is outside the range of available FERC Form 1 data "
-            f"({min(pc.data_years['ferc1'])}-"
-            f"{max(pc.data_years['ferc1'])})."
+            f"({min(pc.WORKING_PARTITIONS['ferc1']['years'])}-"
+            f"{max(pc.WORKING_PARTITIONS['ferc1']['years'])})."
         )
     for year in script_settings['ferc1_to_sqlite_years']:
-        if year not in pc.data_years['ferc1']:
+        if year not in pc.WORKING_PARTITIONS['ferc1']['years']:
             raise ValueError(
                 f"Requested data from {year} is outside the range of "
                 f"available FERC Form 1 data "
-                f"({min(pc.data_years['ferc1'])}-"
-                f"{max(pc.data_years['ferc1'])})."
+                f"({min(pc.WORKING_PARTITIONS['ferc1']['years'])}-"
+                f"{max(pc.WORKING_PARTITIONS['ferc1']['years'])})."
             )
+    script_settings["ferc1_to_sqlite_years"] = sorted(
+        set(script_settings["ferc1_to_sqlite_years"])
+    )
 
-    try:
-        # This field is optional and generally unused...
-        bad_cols = script_settings['ferc1_to_sqlite_bad_cols']
-    except KeyError:
-        bad_cols = ()
+    # This field is optional and generally unused...
+    bad_cols = script_settings.get("ferc1_to_sqlite_bad_cols", ())
 
     pudl_settings["sandbox"] = args.sandbox
     pudl.extract.ferc1.dbf2sqlite(
