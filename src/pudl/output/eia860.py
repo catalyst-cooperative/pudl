@@ -235,7 +235,8 @@ def generators_eia860(
     year lag between EIA923 and EIA860 reporting)
 
     This also backfills the technology_description field according to matching
-    energy_source_code_1 values.
+    energy_source_code_1 values. It will only do so if the energy_source_code_1
+    is consistent throughout years for a given plant.
 
     Args:
         pudl_engine (sqlalchemy.engine.Engine): SQLAlchemy connection engine
@@ -368,8 +369,9 @@ def generators_eia860(
         the same reported source code.
 
         As a secondary measure, this function also creates a dictionary for source codes
-        that have a one-to-one mapping to a technology description. After mapping the
-        generator specific values, these are also mapped to fill in more gaps.
+        that have a one-to-one mapping to a technology description throughout all years
+        and plants. After mapping the generator specific values, these are also mapped
+        on to the data to fill in more gaps.
 
         """
         # Keep track of len
