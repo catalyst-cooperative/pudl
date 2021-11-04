@@ -8,10 +8,10 @@ from pudl.output.epacems import epacems
 
 
 @pytest.fixture(scope='module')
-def epacems_year_and_state(etl_params):
+def epacems_year_and_state(etl_settings):
     """Find the year and state defined in pudl/package_data/settings/etl_*.yml."""
-    # the etl_params data structure alternates dicts and lists so indexing is a pain.
-    return etl_params.datasets.epacems
+    # the etl_settings data structure alternates dicts and lists so indexing is a pain.
+    return etl_settings.datasets.epacems
 
 
 @pytest.fixture(scope='session')

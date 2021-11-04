@@ -1,11 +1,14 @@
 """Module for validating pudl etl settings."""
 import abc
+import pathlib
 from typing import Any, ClassVar, Dict, List
 
 import pandas as pd
+import yaml
 from pydantic import BaseModel as PydanticBaseModel
 from pydantic import BaseSettings, create_model, root_validator, validator
 
+import pudl
 import pudl.constants as pc
 from pudl.extract.ferc1 import DBF_TABLES_FILENAMES
 
@@ -194,6 +197,23 @@ class EiaSettings(BaseModel):
     eia860: Eia860Settings = None
     eia923: Eia923Settings = None
 
+    @root_validator(pre=True)
+    def default_load_all(cls, values):  # noqa: N805
+        """
+        If no datasets are specified default to all.
+
+        Args:
+            values (Dict[str, BaseModel]): dataset settings.
+
+        Returns:
+            values (Dict[str, BaseModel]): dataset settings.
+        """
+        if not any(values.values()):
+            values["eia860"] = Eia860Settings()
+            values["eia923"] = Eia923Settings()
+
+        return values
+
     @root_validator
     def check_eia_dependencies(cls, values):  # noqa: N805
         """
@@ -254,6 +274,9 @@ class DatasetsSettings(BaseModel):
         if not any(values.values()):
             values["ferc1"] = Ferc1Settings()
             values["eia"] = EiaSettings()
+            values["glue"] = GlueSettings()
+            values["epacems"] = EpaCemsSettings()
+
         return values
 
     @root_validator
@@ -280,11 +303,11 @@ class DatasetsSettings(BaseModel):
 
 class Ferc1ToSqliteSettings(GenericDatasetSettings):
     """
-    An immutable pydantic nodel to validate EPA CEMS settings.
+    An immutable pydantic nodel to validate Ferc1 to SQLite settings.
 
     Parameters:
+        tables: List of tables to validate.
         years: List of years to validate.
-        refyear: reference year. Defaults to most recent year.
     """
 
     working_partitions: ClassVar = {
@@ -295,16 +318,8 @@ class Ferc1ToSqliteSettings(GenericDatasetSettings):
     years: List[int] = working_partitions["years"]
     tables: List[str] = working_tables
 
-    refyear: int = max(working_partitions["years"])
+    refyear: ClassVar[int] = max(years)
     bad_cols: tuple = ()
-
-    @validator("refyear")
-    def check_reference_year(cls, refyear: int) -> int:  # noqa: N805
-        """Checks reference year is within available years."""
-        if refyear not in cls.working_partitions["years"]:
-            raise ValueError(f"Reference year {refyear} is outside the range of "
-                             f"available FERC Form 1 data {cls.working_partitions['years']}.")
-        return refyear
 
 
 class EtlSettings(BaseSettings):
@@ -317,3 +332,21 @@ class EtlSettings(BaseSettings):
     title: str = None
     description: str = None
     version: str = None
+
+    pudl_in: str = pudl.workspace.setup.get_defaults()["pudl_in"]
+    pudl_out: str = pudl.workspace.setup.get_defaults()["pudl_out"]
+
+    @classmethod
+    def from_yaml(cls, path: str):
+        """
+        Create an EtlSettings instance from a yaml_file path.
+
+        Parameters:
+            path: path to a yaml file.
+
+        Returns:
+            EtlSettings: etl settings object.
+        """
+        with pathlib.Path(path).open() as f:
+            yaml_file = yaml.safe_load(f)
+        return cls.parse_obj(yaml_file)

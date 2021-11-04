@@ -2,9 +2,6 @@ ferc1_to_sqlite_settings:
 ###########################################################################
 # FERC FORM 1 DB CLONE SETTINGS
 ###########################################################################
-# if you are loading ferc1, you need to specify a reference year. This is the
-# year whose database structure is used as a template.
-    refyear: 2020
     # What years of original FERC data should be cloned into the SQLite DB?
     years: [
         2020

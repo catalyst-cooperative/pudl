@@ -26,9 +26,6 @@ Setttings for ferc1_to_sqlite
 
    * - Parameter
      - Description
-   * - ``refyear``
-     - A single 4-digit year to use as the reference for inferring FERC Form 1
-       database's structure. Typically, the most recent year of available data.
    * - ``years``
      - A list of years to be included in the cloned FERC Form 1 database. You
        should only use a continuous range of years. 1994 is the earliest year
@@ -58,7 +55,8 @@ come from EIA 860. However, EPA CEMS can be loaded without EIA if you have an ex
 PUDL database. Similarly, EIA Forms 860 and 923 are very tightly related.
 You can load only EIA 860, but the settings verification will automatically add
 in a few 923 tables that are needed to generate the complete list of plants and
-generators.
+generators. The settings verification will also automatically add all 860 tables
+if only 923 is specified.
 
 .. warning::
 
@@ -76,9 +74,9 @@ dictionaries should not be changed, but the values of those dictionaries
 can be edited. The elements and structure of the ETL settings
 are described below::
 
-    name : unique name identifying the data package
-    title : short human readable title for the data package
-    description : a longer description of the data package
+    name : unique name identifying the etl outputs
+    title : short human readable title for the etl outputs
+    description : a longer description of the etl outputs
     datasets
       ├── dataset name
       │    ├── dataset etl parameter (e.g. states) : list of states
@@ -89,7 +87,7 @@ are described below::
 
 The dataset names must not be changed. The dataset names enabled include:
 ``eia`` (which includes Forms 860/923 only for now), ``ferc1``, and ``epacems``.
-Any other dataset name will result in an assertion error.
+Any other dataset name will result in an validation error.
 
 .. note::
 

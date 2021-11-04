@@ -2,24 +2,16 @@ ferc1_to_sqlite_settings:
 ###########################################################################
 # FERC FORM 1 DB CLONE SETTINGS
 ###########################################################################
-# if you are loading ferc1, you need to specify a reference year. This is the
-# year whose database structure is used as a template.
-    refyear: 2019
     # What years of original FERC data should be cloned into the SQLite DB?
     years: [
-        2019
+        2020
     ]
     # A list of tables to be loaded into the local SQLite database. These are
     # the table names as they appear in the 2015 FERC Form 1 database.
     tables:
       - f1_respondent_id
-      - f1_gnrt_plant
       - f1_steam
       - f1_fuel
-      - f1_plant_in_srvce
-      - f1_hydro
-      - f1_pumped_storage
-      - f1_purchased_pwr
 
 name: ferc1-solo
 title: FERC Form 1 Solo ETL
@@ -32,6 +24,4 @@ datasets:
       tables:
       - fuel_ferc1 # requires plants_steam_ferc1 to load properly
       - plants_steam_ferc1
-      years: [
-          2019
-      ]
+      years: [2020]

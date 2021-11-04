@@ -29,8 +29,8 @@ from pudl.metadata.dfs import FERC_ACCOUNTS, FERC_DEPRECIATION_LINES
 from pudl.metadata.labels import (ENERGY_SOURCES_EIA,
                                   FUEL_TRANSPORTATION_MODES_EIA,
                                   FUEL_TYPES_AER_EIA, PRIME_MOVERS_EIA)
-from pudl.settings import (EiaSettings, EpaCemsSettings, Ferc1Settings,
-                           GlueSettings)
+from pudl.settings import (EiaSettings, EpaCemsSettings, EtlSettings,
+                           Ferc1Settings, GlueSettings)
 from pudl.workspace.datastore import Datastore
 
 logger = logging.getLogger(__name__)
@@ -72,11 +72,11 @@ def _read_static_tables_eia() -> Dict[str, pd.DataFrame]:
     }
 
 
-def _etl_eia(etl_params: EiaSettings, ds_kwargs):
+def _etl_eia(etl_settings: EiaSettings, ds_kwargs):
     """Extract, transform and load CSVs for the EIA datasets.
 
     Args:
-        etl_params (EiaSettings): Validated ETL parameters required by this data source.
+        etl_settings (EiaSettings): Validated ETL parameters required by this data source.
         ds_kwargs: (dict): Keyword arguments for instantiating a PUDL datastore,
             so that the ETL can access the raw input data.
 
@@ -84,11 +84,11 @@ def _etl_eia(etl_params: EiaSettings, ds_kwargs):
         list: Names of PUDL DB tables output by the ETL for this data source.
 
     """
-    eia860_tables = etl_params.eia860.tables
-    eia860_years = etl_params.eia860.years
-    eia860m = etl_params.eia860.eia860m
-    eia923_tables = etl_params.eia923.tables
-    eia923_years = etl_params.eia923.years
+    eia860_tables = etl_settings.eia860.tables
+    eia860_years = etl_settings.eia860.years
+    eia860m = etl_settings.eia860.eia860m
+    eia923_tables = etl_settings.eia923.tables
+    eia923_years = etl_settings.eia923.years
 
     if (
         (not eia923_tables or not eia923_years)
@@ -169,11 +169,11 @@ def _read_static_tables_ferc1() -> Dict[str, pd.DataFrame]:
     }
 
 
-def _etl_ferc1(etl_params: Ferc1Settings, pudl_settings) -> Dict[str, pd.DataFrame]:
+def _etl_ferc1(etl_settings: Ferc1Settings, pudl_settings) -> Dict[str, pd.DataFrame]:
     """Extract, transform and load CSVs for FERC Form 1.
 
     Args:
-        etl_params (Ferc1Settings): Validated ETL parameters required by this data source.
+        etl_settings (Ferc1Settings): Validated ETL parameters required by this data source.
         datapkg_dir (path-like): The location of the directory for this
             package, wihch will contain a datapackage.json file and a data
             directory in which the CSV file are stored.
@@ -184,8 +184,8 @@ def _etl_ferc1(etl_params: Ferc1Settings, pudl_settings) -> Dict[str, pd.DataFra
         list: Names of PUDL DB tables output by the ETL for this data source.
 
     """
-    ferc1_years = etl_params.years
-    ferc1_tables = etl_params.tables
+    ferc1_years = etl_settings.years
+    ferc1_tables = etl_settings.tables
 
     if not ferc1_years or not ferc1_tables:
         logger.info('Not loading FERC1')
@@ -212,11 +212,11 @@ def _etl_ferc1(etl_params: Ferc1Settings, pudl_settings) -> Dict[str, pd.DataFra
 ###############################################################################
 
 
-def etl_epacems(etl_params: EpaCemsSettings, pudl_settings, ds_kwargs) -> None:
+def etl_epacems(etl_settings: EpaCemsSettings, pudl_settings, ds_kwargs) -> None:
     """Extract, transform and load CSVs for EPA CEMS.
 
     Args:
-        etl_params (EpaCemsSettings): Validated ETL parameters required by this data source.
+        etl_settings (EpaCemsSettings): Validated ETL parameters required by this data source.
         pudl_settings (dict) : a dictionary filled with settings that mostly
             describe paths to various resources and outputs.
         ds_kwargs: (dict): Keyword arguments for instantiating a PUDL datastore,
@@ -228,8 +228,8 @@ def etl_epacems(etl_params: EpaCemsSettings, pudl_settings, ds_kwargs) -> None:
             So it doesn't return a dictionary of dataframes.
 
     """
-    epacems_years = etl_params.years
-    epacems_states = etl_params.states
+    epacems_years = etl_settings.years
+    epacems_states = etl_settings.states
 
     # If we're not doing CEMS, just stop here to avoid printing messages like
     # "Reading EPA CEMS data...", which could be confusing.
@@ -293,11 +293,11 @@ def etl_epacems(etl_params: EpaCemsSettings, pudl_settings, ds_kwargs) -> None:
 # GLUE EXPORT FUNCTIONS
 ###############################################################################
 
-def _etl_glue(etl_params: GlueSettings) -> Dict[str, pd.DataFrame]:
+def _etl_glue(etl_settings: GlueSettings) -> Dict[str, pd.DataFrame]:
     """Extract, transform and load CSVs for the Glue tables.
 
     Args:
-        etl_params (GlueSettings): Validated ETL parameters required by this data source.
+        etl_settings (GlueSettings): Validated ETL parameters required by this data source.
 
     Returns:
         dict: A dictionary of :class:`pandas.Dataframe` whose keys are the names
@@ -306,13 +306,13 @@ def _etl_glue(etl_params: GlueSettings) -> Dict[str, pd.DataFrame]:
     """
     # grab the glue tables for ferc1 & eia
     glue_dfs = pudl.glue.ferc1_eia.glue(
-        ferc1=etl_params.ferc1,
-        eia=etl_params.eia,
+        ferc1=etl_settings.ferc1,
+        eia=etl_settings.eia,
     )
 
     # Add the EPA to EIA crosswalk, but only if the eia data is being processed.
     # Otherwise the foreign key references will have nothing to point at:
-    if etl_params.eia:
+    if etl_settings.eia:
         glue_dfs.update(pudl.glue.eia_epacems.grab_clean_split())
 
     return glue_dfs
@@ -323,8 +323,8 @@ def _etl_glue(etl_params: GlueSettings) -> Dict[str, pd.DataFrame]:
 ###############################################################################
 
 def etl(  # noqa: C901
-    etl_settings,
-    pudl_settings,
+    etl_settings: EtlSettings,
+    pudl_settings: Dict,
     clobber: bool = False,
     use_local_cache: bool = True,
     gcs_cache_path: str = None,
@@ -342,15 +342,14 @@ def etl(  # noqa: C901
     processing depends on data that's already been loaded into the SQLite DB.
 
     Args:
-        etl_settings (dict): A dictionary filled with settings that describe
-            datasets to be loaded.
-        pudl_settings (dict): a dictionary filled with settings that mostly
+        etl_settings: settings that describe datasets to be loaded.
+        pudl_settings: a dictionary filled with settings that mostly
             describe paths to various resources and outputs.
-        clobber (bool): If True and there is already a pudl.sqlite database
+        clobber: If True and there is already a pudl.sqlite database
             it will be deleted and a new one will be created.
-        use_local_cache (bool): controls whether datastore should be using local
+        use_local_cache: controls whether datastore should be using local
             file cache.
-        gcs_cache_path (str): controls whether datastore should be using Google
+        gcs_cache_path: controls whether datastore should be using Google
             Cloud Storage based cache.
 
     Returns:
