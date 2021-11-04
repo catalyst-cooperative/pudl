@@ -26,14 +26,11 @@ Setttings for ferc1_to_sqlite
 
    * - Parameter
      - Description
-   * - ``ferc1_to_sqlite_refyear``
-     - A single 4-digit year to use as the reference for inferring FERC Form 1
-       database's structure. Typically, the most recent year of available data.
-   * - ``ferc1_to_sqlite_years``
+   * - ``years``
      - A list of years to be included in the cloned FERC Form 1 database. You
        should only use a continuous range of years. 1994 is the earliest year
        available.
-   * - ``ferc1_to_sqlite_tables``
+   * - ``tables``
      - A list of strings indicating what tables to load. The list of acceptable
        tables can be found in the the example settings file and corresponds to
        the values found in the ``ferc1_dbf2tbl`` dictionary in
@@ -54,10 +51,12 @@ can copy it and modify it as appropriate for their own use. See
 While PUDL largely keeps datasets disentangled for ETL purposes (enabling
 stand-alone ETL), the EPA CEMS and EIA datasets are exceptions. EPA CEMS cannot
 be loaded without having the EIA data available because it relies on IDs that
-come from EIA 860.  Similarly, EIA Forms 860 and 923 are very tightly related.
+come from EIA 860. However, EPA CEMS can be loaded without EIA if you have an existing
+PUDL database. Similarly, EIA Forms 860 and 923 are very tightly related.
 You can load only EIA 860, but the settings verification will automatically add
 in a few 923 tables that are needed to generate the complete list of plants and
-generators.
+generators. The settings verification will also automatically add all 860 tables
+if only 923 is specified.
 
 .. warning::
 
@@ -72,29 +71,23 @@ Structure of the pudl_etl Settings File
 
 The general structure of the settings file and the names of the keys of the
 dictionaries should not be changed, but the values of those dictionaries
-can be edited. There are two high-level elements of the settings file which
-pertain to the entire bundle of tabular data packages which will be generated:
-``datapkg_bundle_name`` and ``datapkg_bundle_settings``. The
-``datapkg_bundle_name`` determines which directory the data packages are
-written into. The elements and structure of the ``datapkg_bundle_settings``
+can be edited. The elements and structure of the ETL settings
 are described below::
 
-    datapkg_bundle_settings
-      ├── name : unique name identifying the data package
-      │   title : short human readable title for the data package
-      │   description : a longer description of the data package
-      │   datasets
-      │    ├── dataset name
-      │    │    ├── dataset etl parameter (e.g. states) : list of states
-      │    │    └── dataset etl parameter (e.g. years) : list of years
-      │    └── dataset name
-      │    │    ├── dataset etl parameter (e.g. states) : list of states
-      │    │    └── dataset etl parameter (e.g. years) : list of years
-      └── another data package...
+    name : unique name identifying the etl outputs
+    title : short human readable title for the etl outputs
+    description : a longer description of the etl outputs
+    datasets
+      ├── dataset name
+      │    ├── dataset etl parameter (e.g. states) : list of states
+      │    └── dataset etl parameter (e.g. years) : list of years
+      └── dataset name
+      │    ├── dataset etl parameter (e.g. states) : list of states
+      │    └── dataset etl parameter (e.g. years) : list of years
 
 The dataset names must not be changed. The dataset names enabled include:
 ``eia`` (which includes Forms 860/923 only for now), ``ferc1``, and ``epacems``.
-Any other dataset name will result in an assertion error.
+Any other dataset name will result in an validation error.
 
 .. note::
 

@@ -17,16 +17,15 @@ pudl directories see the pudl_setup script (pudl_setup --help for more details).
 """
 import argparse
 import logging
-import pathlib
 import sys
 from sqlite3 import sqlite_version
 
 import coloredlogs
-import yaml
 from packaging import version
 
 import pudl
 from pudl.load.sqlite import MINIMUM_SQLITE_VERSION
+from pudl.settings import EtlSettings
 
 logger = logging.getLogger(__name__)
 
@@ -113,16 +112,12 @@ def main():
         file_logger = logging.FileHandler(args.logfile)
         file_logger.setFormatter(logging.Formatter(log_format))
         pudl_logger.addHandler(file_logger)
-    with pathlib.Path(args.settings_file).open() as f:
-        script_settings = yaml.safe_load(f)
 
-    default_settings = pudl.workspace.setup.get_defaults()
-    pudl_in = script_settings.get("pudl_in", default_settings["pudl_in"])
-    pudl_out = script_settings.get("pudl_out", default_settings["pudl_out"])
+    etl_settings = EtlSettings.from_yaml(args.settings_file)
 
     pudl_settings = pudl.workspace.setup.derive_paths(
-        pudl_in=pudl_in,
-        pudl_out=pudl_out
+        pudl_in=etl_settings.pudl_in,
+        pudl_out=etl_settings.pudl_out
     )
     pudl_settings["sandbox"] = args.sandbox
 
@@ -138,7 +133,7 @@ def main():
         )
 
     pudl.etl.etl(
-        etl_settings_bundle=script_settings['datapkg_bundle_settings'],
+        etl_settings=etl_settings,
         pudl_settings=pudl_settings,
         clobber=args.clobber,
         use_local_cache=not args.bypass_local_cache,
