@@ -198,7 +198,7 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
         "sources": ["eia923"],
     },
     "generation_fuel_eia923": {
-        "description": "Monthly electricity generation and fuel consumption reported for each combination of fuel and prime mover within a plant. This table does not include nuclear fuels because nuclear fuels are reported by generator unit where as non nuclear fuels are reported by plant_id, prime_mover and fuel_type. See the generation_fuel_nuclear_eia923 table for nuclear fuel data.",
+        "description": "Monthly electricity generation and fuel consumption reported for each combination of fuel and prime mover within a plant. This table does not include nuclear electricity generation and fuel consumption because they are reported by generator unit where as non nuclear information is reported by plant_id, prime_mover and fuel_type. See the generation_fuel_nuclear_eia923 table for nuclear electricity generation and fuel consumption data.",
         "schema": {
             "fields": [
                 "plant_id_eia",
