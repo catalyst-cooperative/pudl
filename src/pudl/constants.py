@@ -174,7 +174,7 @@ Note: ferc714 is not partitioned by year and is available only as a single file
 containing all data.
 """
 
-PUDL_TABLES: Dict[str, Tuple[str, ...]] = {
+PUDL_TABLES: Dict[str, Tuple[str]] = {
     'eia860': (
         'boiler_generator_assn_eia860',
         'utilities_eia860',
@@ -215,7 +215,7 @@ PUDL_TABLES: Dict[str, Tuple[str, ...]] = {
         'boilers_entity_eia',
     ),
     'epacems': (
-        "hourly_emissions_epacems"
+        "hourly_emissions_epacems",
     ),
     'ferc1': (
         'fuel_ferc1',
@@ -248,7 +248,7 @@ PUDL_TABLES: Dict[str, Tuple[str, ...]] = {
         'utilities_ferc',
         'utilities',
         'utility_plant_assn',
-    ),
+    )
 }
 """Core PUDL DB tables by data source. Used to validate ETL inputs."""
 
