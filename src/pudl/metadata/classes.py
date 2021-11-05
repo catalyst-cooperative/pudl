@@ -1066,6 +1066,10 @@ class Resource(Base):
     def get_field(self, name: str) -> Field:
         """Return field with the given name if it's part of the Resources."""
         names = [field.name for field in self.schema.fields]
+        if name not in names:
+            raise KeyError(
+                f"The field {name} is not part of the {self.name} schema."
+            )
         return self.schema.fields[names.index(name)]
 
     def to_sql(

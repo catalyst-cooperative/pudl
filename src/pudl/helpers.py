@@ -120,7 +120,7 @@ def label_map(
     Build a mapping dictionary from two columns of a labeling / coding dataframe.
 
     These dataframes document the meanings of the codes that show up in much of the
-    originall reported data. They're defined in :mod:`pudl.metadata.codes`.  This
+    originally reported data. They're defined in :mod:`pudl.metadata.codes`.  This
     function is mostly used to build maps that can translate the hard to understand
     short codes into longer human-readable codes.
 

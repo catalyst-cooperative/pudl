@@ -659,6 +659,7 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
     },
     "fuel_class": {
         "type": "string",
+        # TODO: Needs a description / better name. EIA-861 distributed generation only.
         "constraints": {
             "enum": FUEL_CLASSES
         }
@@ -695,12 +696,12 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
         "type": "string",
         "description": "Original fuel from which this refined fuel was derived.",
         "constraints": {
-            "enum": ["biomass", "coal", "gas", "other", "petroleum"]
+            "enum": sorted(set(ENERGY_SOURCES_EIA["df"]["fuel_derived_from"]))
         }
     },
     "fuel_group_code": {
         "type": "string",
-        "description": "Groups the energy sources into fuel groups that are located in the Electric Power Monthly:  Coal, Natural Gas, Petroleum, Petroleum Coke.",
+        "description": "Fuel groups used in the Electric Power Monthly",
         "constraints": {
             "enum": ["petroleum", "other_gas", "petroleum_coke", "natural_gas", "coal"]
         }
@@ -709,7 +710,7 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
         "type": "string",
         "description": "High level fuel group defined in the 2021-2023 EIA Form 860 instructions, Table 28.",
         "constraints": {
-            "enum": ["fossil", "renewable", "other"]
+            "enum": sorted(set(ENERGY_SOURCES_EIA["df"]["fuel_group_eia"]))
         }
     },
     "fuel_mmbtu_per_unit": {
@@ -723,7 +724,7 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
         "type": "string",
         "description": "Physical phase of matter of the fuel.",
         "constraints": {
-            "enum": ["gas", "liquid", "solid"]
+            "enum": sorted(set(ENERGY_SOURCES_EIA["df"]["fuel_phase"].dropna()))
         }
     },
     "fuel_received_units": {
