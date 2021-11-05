@@ -87,7 +87,7 @@ def test_slice_by_ownership():
 
     out = (
         pudl.analysis.plant_parts_eia.MakeMegaGenTbl(pu_fake)
-        .pudl.analysis.plant_parts_eia.slice_by_ownership(
+        .slice_by_ownership(
             gens_mega=gens_mega_ex1,
             own_eia860=own_ex1).reset_index(drop=True)
     )

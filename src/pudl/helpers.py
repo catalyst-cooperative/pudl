@@ -16,7 +16,7 @@ import shutil
 from functools import partial
 from importlib import resources
 from io import BytesIO
-from warnings import warn
+from typing import Dict
 
 import addfips
 import numpy as np
@@ -1185,14 +1185,15 @@ def dedupe_on_category(dedup_df, base_cols, category_name, sorter):
         category_name (string) : name of categorical column
         sorter (list): sorted list of category options
     """
-    dedup_df[category_name] = dedup_df[category_name].astype("category")
-    dedup_df[category_name] = dedup_df[category_name].cat.set_categories(
-        sorter)
-    dedup_df = dedup_df.sort_values(category_name)
+    dedup_df.loc[:, category_name] = (
+        dedup_df.loc[:, category_name]
+        .astype(pd.CategoricalDtype(categories=sorter, ordered=True))
+    )
+
     return dedup_df.drop_duplicates(subset=base_cols, keep='first')
 
 
-def calc_capacity_factor(df, min_cap_fact, max_cap_fact, freq):
+def calc_capacity_factor(df, freq, min_cap_fact=None, max_cap_fact=None):
     """
     Calculate capacity factor.
 
@@ -1206,13 +1207,14 @@ def calc_capacity_factor(df, min_cap_fact, max_cap_fact, freq):
     Args:
         df (pandas.DataFrame): table with components of capacity factor (
             `report_date`, `net_generation_mwh` and `capacity_mw`)
-        min_cap_fact (number): Lower bound, below which values are set to NaN.
-            If None, don't use a lower bound.
-        max_cap_fact (number): Upper bound, below which values are set to NaN.
-            If None, don't use an upper bound.
+        min_cap_fact (float): Lower bound, below which values are set to NaN.
+            If None, don't use a lower bound. Default is None.
+        max_cap_fact (float): Upper bound, below which values are set to NaN.
+            If None, don't use an upper bound. Default is None.
         freq (str): String describing time frequency at which to aggregate
             the reported data, such as 'MS' (month start) or 'AS' (annual
             start).
+
     Returns:
         pandas.DataFrame: modified version of input `df` with one additional
         column (`capacity_factor`).
@@ -1248,67 +1250,77 @@ def calc_capacity_factor(df, min_cap_fact, max_cap_fact, freq):
     return df
 
 
-def weighted_average(df, data_col, weight_col, idx_cols):
+def weighted_average(df, data_col, weight_col, by):
     """
     Generate a weighted average.
 
     Args:
         df (pandas.DataFrame): A DataFrame containing, at minimum, the columns
             specified in the other parameters data_col and weight_col.
-        data_col (string): column name of
+        data_col (string): column name of data column to average
         weight_col (string): column name to weight on
-        idx_cols (list): A list of the columns to group by when calcuating
+        by (list): A list of the columns to group by when calcuating
             the weighted average value.
 
     Returns:
-        pandas.DataFrame: a table with idx_cols and the weighted data_col.
+        pandas.DataFrame: a table with ``by`` columns as the index and the
+        weighted ``data_col``.
     """
     df['_data_times_weight'] = df[data_col] * df[weight_col]
-    df['_weight_where_notnull'] = df[weight_col] * pd.notnull(df[data_col])
-    g = df.groupby(idx_cols, observed=True)
+    df['_weight_where_notnull'] = df.loc[df[data_col].notnull(), weight_col]
+    g = df.groupby(by, observed=True)
     result = (
         g['_data_times_weight'].sum(min_count=1)
         / g['_weight_where_notnull'].sum(min_count=1)
     )
     del df['_data_times_weight'], df['_weight_where_notnull']
-    return result.to_frame(name=data_col).reset_index()
+    return result.to_frame(name=data_col)  # .reset_index()
 
 
-def agg_cols(df_in, id_cols, sum_cols, wtavg_dict):
+def sum_and_weighted_average_agg(
+        df_in: pd.DataFrame,
+        by: list,
+        sum_cols: list,
+        wtavg_dict: Dict[str, str],
+) -> pd.DataFrame:
     """
     Aggregate dataframe by summing and using weighted averages.
+
+    Many times we want to aggreate a data table using the same groupby columns
+    but with different aggregation methods. This function combines two of our
+    most common aggregation methods (summing and applying a weighted average)
+    into one function. Because pandas does not have a built-in weighted average
+    method for groupby we use :func:``weighted_average``.
 
     Args:
         df_in (pandas.DataFrame): input table to aggregate. Must have columns
             in ``id_cols``, ``sum_cols`` and keys from ``wtavg_dict``.
-        id_cols (iterable): columns to group/aggregate based on. These columns
-            will be passed as an argument into grouby as ``by``.
-        sum_cols (iterable): columns to sum.
+        by (list): columns to group/aggregate based on. These columns
+            will be passed as an argument into grouby as ``by`` arg.
+        sum_cols (list): columns to sum.
         wtavg_dict (dictionary): dictionary of columns to average (keys) and
             columns to weight by (values).
 
-    """
-    cols_to_grab = id_cols
-    cols_to_grab = list(
-        set([x for x in cols_to_grab if x in list(df_in.columns)]))
-    if set(cols_to_grab) != set(id_cols):
-        warn(f"um {[x for x in id_cols if x not in cols_to_grab]}")
-    logger.debug(f'grouping by {cols_to_grab}')
+    Returns:
+        table with join of columns from ``by``, ``sum_cols`` and keys of
+        ``wtavg_dict``. Primary key of table will be ``by``.
 
+    """
+    logger.debug(f'grouping by {by}')
+    # we are keeping the index here for easy merging of the weighted cols below
     df_out = (
-        df_in.groupby(by=cols_to_grab, as_index=False, observed=True)
+        df_in.groupby(by=by, as_index=True, observed=True)
         [sum_cols]
         .sum(min_count=1)
     )
-
     for data_col, weight_col in wtavg_dict.items():
-        df_out = weighted_average(
+        df_out.loc[:, data_col] = weighted_average(
             df_in,
             data_col=data_col,
             weight_col=weight_col,
-            idx_cols=cols_to_grab
-        ).merge(df_out, how='outer', on=cols_to_grab)
-    return df_out
+            by=by
+        )[data_col]
+    return df_out.reset_index()
 
 
 def get_eia_ferc_acct_map():
