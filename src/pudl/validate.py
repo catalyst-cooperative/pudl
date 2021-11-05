@@ -2748,7 +2748,7 @@ mcoe_fuel_cost_per_mmbtu = [
         "title": "Natural Gas Fuel Costs (tails, 2015+)",
         "query": "fuel_type_code_pudl=='gas' and report_date>='2015-01-01'",
         "low_q": 0.05,
-        "low_bound": 1.75,
+        "low_bound": 1.65,
         "hi_q": 0.95,
         "hi_bound": 6.7,
         "data_col": "fuel_cost_per_mmbtu",

@@ -70,9 +70,11 @@ ENERGY_SOURCES_EIA: Dict[str, Any] = {
         "WOC": "WC",
         "OW": "WO",
         "WT": "WND",
+        "H2": "OG",
+        "OOG": "OG",
     },
     "ignored_codes": [
-        '0', 'OO', 'BM', 'CBL', 'COL', 'N', 'no', 'OOG', 'PL', 'ST'
+        '0', 'OO', 'BM', 'CBL', 'COL', 'N', 'no', 'PL', 'ST'
     ],
 }
 """

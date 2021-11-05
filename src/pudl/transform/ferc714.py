@@ -54,7 +54,10 @@ OFFSET_CODE_FIXES = {
     153: {np.nan: "MST"},
     154: {np.nan: "MST"},
     156: {np.nan: "CST"},
-    157: {"DST": "EDT"},
+    157: {
+        "DST": "EDT",
+        "EPT": "EST",
+    },
     161: {"CPT": "CST"},
     163: {"CPT": "CST"},
     164: {np.nan: "CST"},
@@ -102,7 +105,10 @@ OFFSET_CODE_FIXES = {
     },
     226: {"DST": "CDT"},
     230: {"EPT": "EST"},
-    233: {"DST": "EDT"},
+    233: {
+        "DST": "EDT",
+        "EPT": "EST",
+    },
     234: {
         "1": "EST",
         "2": "EDT",

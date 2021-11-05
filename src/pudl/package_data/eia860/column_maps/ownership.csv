@@ -1,0 +1,16 @@
+year_index,2001,2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020
+utility_id_eia,utilcode,utilcode,utilcode,utilcode,utilcode,utilcode,utilcode,utilcode,utility_id,utility_id,utility_id,utility_id,utility_id,utility_id,utility_id,utility_id,utility_id,utility_id,utility_id,utility_id
+utility_name_eia,,,,,,utilname,utilname,utilname,utility_name,utility_name,utility_name,utility_name,utility_name,utility_name,utility_name,utility_name,utility_name,utility_name,utility_name,utility_name
+plant_id_eia,plntcode,plntcode,plntcode,plntcode,plntcode,plantcode,plntcode,plntcode,plant_code,plant_code,plant_code,plant_code,plant_code,plant_code,plant_code,plant_code,plant_code,plant_code,plant_code,plant_code
+plant_name_eia,,,,,,plantname,plntname,plntname,plant_name,plant_name,plant_name,plant_name,plant_name,plant_name,plant_name,plant_name,plant_name,plant_name,plant_name,plant_name
+state,,,,,,,,,state,state,state,state,state,state,state,state,state,state,state,state
+generator_id,gencode,gencode,gencode,gencode,gencode,gencode,gencode,gencode,generator_id,generator_id,generator_id,generator_id,generator_id,generator_id,generator_id,generator_id,generator_id,generator_id,generator_id,generator_id
+operational_status_code,,,,,,,status,status,status,status,status,status,status,status,status,status,status,status,status,status
+owner_utility_id_eia,ownership,ownership,ownership,ownership,ownership,owner_id,ownership_id,ownership_id,ownership_id,ownership_id,ownership_id,ownership_id,ownership_id,ownership_id,ownership_id,ownership_id,ownership_id,ownership_id,ownership_id,ownership_id
+owner_name,owner_n,owner_n,owner_n,owner_n,owner_n,owner_name,ownername,ownername,owner_name,owner_name,owner_name,owner_name,owner_name,owner_name,owner_name,owner_name,owner_name,owner_name,owner_name,owner_name
+owner_state,,,,,,,,,owner_state,owner_state,owner_state,owner_state,owner_state,owner_state,owner_state,owner_state,owner_state,owner_state,owner_state,owner_state
+owner_street_address,,,,,,,,,,,,,owner_street_address,owner_street_address,owner_street_address,owner_street_address,owner_street_address,owner_street_address,owner_street_address,owner_street_address
+owner_city,,,,,,,,,,,,,owner_city,owner_city,owner_city,owner_city,owner_city,owner_city,owner_city,owner_city
+owner_zip_code,,,,,,,,,,,,,owner_zip,owner_zip,owner_zip,owner_zip,owner_zip,owner_zip,owner_zip,owner_zip
+fraction_owned,percent_ow,percent_ow,percent_ow,percent_ow,percent_ow,percent_owned,percent_owned,percent_owned,percent_owned,percent_owned,percent_owned,percent_owned,percent_owned,percent_owned,percent_owned,percent_owned,percent_owned,percent_owned,percent_owned,percent_owned
+year,year,year,year,year,year,year,,,,,,,,,,,,,,

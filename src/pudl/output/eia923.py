@@ -1,3 +1,4 @@
+
 """Functions for pulling EIA 923 data out of the PUDl DB."""
 import logging
 import os
@@ -35,7 +36,7 @@ See EIA's query browse here:
 
 
 def generation_fuel_eia923(pudl_engine, freq=None,
-                           start_date=None, end_date=None):
+                           start_date=None, end_date=None, nuclear: bool = False):
     """
     Pull records from the generation_fuel_eia923 table in given date range.
 
@@ -73,6 +74,7 @@ def generation_fuel_eia923(pudl_engine, freq=None,
         end_date (date-like): date-like object, including a string of the
             form 'YYYY-MM-DD' which will be used to specify the date range of
             records to be pulled.  Dates are inclusive.
+        nuclear: If True, return generation_fuel_nuclear_eia923 table.
 
     Returns:
         pandas.DataFrame: A DataFrame containing all records from the EIA 923
@@ -80,7 +82,10 @@ def generation_fuel_eia923(pudl_engine, freq=None,
 
     """
     pt = pudl.output.pudltabl.get_table_meta(pudl_engine)
-    gf_tbl = pt['generation_fuel_eia923']
+
+    table_name = "generation_fuel_nuclear_eia923" if nuclear else "generation_fuel_eia923"
+    gf_tbl = pt[table_name]
+
     gf_select = sa.sql.select(gf_tbl)
     if start_date is not None:
         gf_select = gf_select.where(

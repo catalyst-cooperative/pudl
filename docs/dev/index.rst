@@ -13,6 +13,7 @@ Development
   build_docs
   datastore
   clone_ferc1
+  annual_updates
   naming_conventions
   data_guidelines
   packaging

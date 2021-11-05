@@ -47,8 +47,14 @@ extensions = [
     'sphinx_issues',
     'sphinx_reredirects',
     'sphinx_rtd_dark_mode',
+    'sphinxcontrib.bibtex',
 ]
 todo_include_todos = True
+bibtex_bibfiles = [
+    'catalyst_pubs.bib',
+    'catalyst_cites.bib',
+    'further_reading.bib',
+]
 
 # Redirects to keep folks from hitting 404 errors:
 redirects = {

@@ -10,7 +10,8 @@ from .enums import (CANADA_PROVINCES_TERRITORIES, CUSTOMER_CLASSES,
                     NERC_REGIONS, RELIABILITY_STANDARDS, REVENUE_CLASSES,
                     RTO_CLASSES, TECH_CLASSES, US_STATES_TERRITORIES)
 from .labels import (COALMINE_TYPES_EIA, ENTITY_TYPES, ESTIMATED_OR_ACTUAL,
-                     MOMENTARY_INTERRUPTIONS, POWER_PURCHASE_TYPES_FERC1)
+                     FUEL_UNITS_EIA, MOMENTARY_INTERRUPTIONS,
+                     POWER_PURCHASE_TYPES_FERC1)
 
 FIELD_METADATA: Dict[str, Dict[str, Any]] = {
     "active": {
@@ -748,8 +749,7 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
     "fuel_units": {
         "type": "string",
         "description": "Reported units of measure for fuel.",
-        # TODO: add an ENUM constraint here, depending where this field shows up
-        # It may be in both the FERC 1 and the EIA datasets.
+        # Note: Different ENUM constraints are applied below on EIA vs. FERC1
     },
     "furnished_without_charge_mwh": {
         "type": "number"
@@ -1219,7 +1219,7 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
         "description": "Total Nuclear Production Plant (FERC Accounts 320-326)"
     },
     "nuclear_unit_id": {
-        "type": "integer",
+        "type": "string",
         "description": "For nuclear plants only, the unit number .One digit numeric. Nuclear plants are the only type of plants for which data are shown explicitly at the generating unit level."
     },
     "operates_generating_plant": {
@@ -1703,6 +1703,12 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
     },
     "reported_as_another_company": {
         "type": "string"
+    },
+    "respondent_frequency": {
+        "type": "string",
+        "constraints": {
+            "enum": ["A", "M", "AM"]
+        }
     },
     "respondent_id_ferc714": {
         "type": "integer"
@@ -2278,7 +2284,7 @@ FIELD_METADATA_BY_GROUP: Dict[str, Dict[str, Any]] = {
     "eia": {
         "fuel_units": {
             "constraints": {
-                "enum": ["barrels", "mcf", "short_tons", "mwh"]
+                "enum": sorted(FUEL_UNITS_EIA.keys())
             }
         }
     },

@@ -37,14 +37,13 @@ logger = logging.getLogger(__name__)
 ##############################################################################
 # Dicts for categorizing freeform strings ####################################
 ##############################################################################
-
 FUEL_STRINGS: Dict[str, List[str]] = {
     "coal": [
         'coal', 'coal-subbit', 'lignite', 'coal(sb)', 'coal (sb)', 'coal-lignite',
         'coke', 'coa', 'lignite/coal', 'coal - subbit', 'coal-subb', 'coal-sub',
         'coal-lig', 'coal-sub bit', 'coals', 'ciak', 'petcoke', 'coal.oil', 'coal/gas',
         'bit coal', 'coal-unit #3', 'coal-subbitum', 'coal tons', 'coal mcf',
-        'coal unit #3', 'pet. coke', 'coal-u3', 'coal&coke', 'tons', 'coal  (sb)',
+        'coal unit #3', 'pet. coke', 'coal-u3', 'coal&coke', 'tons',
     ],
     "oil": [
         'oil', '#6 oil', '#2 oil', 'fuel oil', 'jet', 'no. 2 oil', 'no.2 oil',
@@ -474,7 +473,7 @@ def unpack_table(ferc1_df, table_name, data_cols, data_rows):
     row_map = (
         pd.read_csv(
             importlib.resources.open_text(
-                "pudl.package_data.meta.ferc1_row_maps", f"{table_name}.csv"),
+                "pudl.package_data.ferc1.row_maps", f"{table_name}.csv"),
             index_col=0, comment="#")
         .copy().transpose()
         .rename_axis(index="year_index", columns=None)
@@ -1133,7 +1132,7 @@ def plants_small(ferc1_raw_dfs, ferc1_transformed_dfs):
     # in this table. It's been done manually for 2004-2015, and the results
     # get merged in in the following section.
     small_types_file = importlib.resources.open_binary(
-        'pudl.package_data.ferc.form1', 'small_plants_2004-2016.xlsx')
+        'pudl.package_data.ferc1', 'small_plants_2004-2016.xlsx')
     small_types_df = pd.read_excel(small_types_file)
 
     # Only rows with plant_type set will give us novel information.

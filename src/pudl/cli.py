@@ -131,7 +131,7 @@ def main():
     )
     if bad_sqlite_version and not args.ignore_type_constraints:
         args.ignore_type_constraints = False
-        logger.warning(
+        pudl_logger.warning(
             f"Found SQLite {sqlite_version} which is less than "
             f"the minimum required version {MINIMUM_SQLITE_VERSION} "
             "As a result, data type constraint checking will be disabled."
