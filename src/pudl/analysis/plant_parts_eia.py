@@ -131,8 +131,10 @@ PLANT_PARTS = {
 dict: this dictionary contains a key for each of the 'plant parts' that should
 end up in the mater unit list. The top-level value for each key is another
 dictionary, which contains keys:
+
 * id_cols (the primary key type id columns for this plant part). The
-plant_id_eia column must come first.
+  plant_id_eia column must come first.
+
 """
 
 PLANT_PARTS_ORDERED = [
@@ -157,7 +159,7 @@ non-operating plant-parts.
 
 IDX_OWN_TO_ADD = ['utility_id_eia', 'ownership']
 """
-list: list of additional columns beyond the IDX_TO_ADD to add to the
+list: list of additional columns beyond the :py:const:`IDX_TO_ADD` to add to the
 id_cols in :py:const:`PLANT_PARTS` when we are dealing with plant-part records
 that have been broken out into "owned" and "total" records for each of their
 owners.
@@ -314,9 +316,10 @@ class MakeMegaGenTbl(object):
             pandas.DataFrame: annual table of all generators from EIA that
             operated within each reporting year.
 
-        TODO: This function results in warning: `PerformanceWarning: DataFrame
-        is highly fragmented...` I expect this is because of the number of
-        columns that are being assigned here via `.loc[:, col_to_assign]`.
+        TODO:
+            This function results in warning: `PerformanceWarning: DataFrame
+            is highly fragmented...` I expect this is because of the number of
+            columns that are being assigned here via `.loc[:, col_to_assign]`.
 
         """
         mid_year_retiree_mask = (
@@ -503,7 +506,7 @@ class LabelTrueGranularities(object):
         Make a dictionary of each plant-part's parent parts.
 
         We have imposed a hierarchy on the plant-parts with the
-        :py:const:``PLANT_PARTS_ORDERED`` list and this method generates a
+        :py:const:`PLANT_PARTS_ORDERED` list and this method generates a
         dictionary of each plant-part's (key) parent-parts (value).
         """
         parts_to_parent_parts = {}
@@ -660,8 +663,8 @@ class LabelTrueGranularities(object):
             part_bools (pandas.DataFrame): result of :meth:`make_all_the_bools`
 
         TODO:
-            This function results in warning: `PerformanceWarning: DataFrame
-            is highly fragmented...` I expect this is because of the number of
+            This function results in warning: ``PerformanceWarning: DataFrame
+            is highly fragmented...`` I expect this is because of the number of
             columns that are being assigned here via ``.loc[:, col_to_assign]``.
             This warning shows up only after the 5th iteration through the top-level
             loop (when part_name = 'plant_prime_fuel').
@@ -801,6 +804,7 @@ class MakePlantParts(object):
 
         Returns:
             pandas.DataFrame:
+
         """
         #  aggreate everything by each plant part
         part_dfs = []
@@ -845,12 +849,12 @@ class MakePlantParts(object):
         Returns:
             pandas.DataFrame: master unit list table with these additional
             columns:
+
             * utility_id_pudl +
             * plant_id_pudl +
             * capacity_factor +
             * ownership_dupe (boolean): indicator of whether the "owned"
               record has a corresponding "total" duplicate.
-
 
         """
         plant_parts_eia = (
@@ -908,7 +912,7 @@ class MakePlantParts(object):
         Test ownership - fraction owned for owned records.
 
         This test can be run at the end of or with the result of
-        ``MakePlantParts.execute``. It tests a few aspects of the the
+        :meth:`MakePlantParts.execute`. It tests a few aspects of the the
         fraction_owned column and raises assertions if the tests fail.
         """
         test_own_df = (
@@ -962,6 +966,7 @@ class PlantPart(object):
         Args:
             part_name (str): the name of the part to aggregate to. Names can be
                 only those in :py:const:`PLANT_PARTS`
+
         """
         self.part_name = part_name
         self.id_cols = PLANT_PARTS[part_name]['id_cols']
@@ -978,6 +983,7 @@ class PlantPart(object):
 
         Returns:
             pandas.DataFrame
+
         """
         part_df = (
             self.ag_part_by_own_slice(gens_mega)
@@ -1015,8 +1021,9 @@ class PlantPart(object):
         appropriately aggregated to each plant part level.
 
         Returns:
-            pandas.DataFrame : dataframe aggregated to the level of the
-                part_name
+            pandas.DataFrame: dataframe aggregated to the level of the
+            part_name
+
         """
         logger.info(f'begin aggregation for: {self.part_name}')
         # id_cols = PLANT_PARTS[self.part_name]['id_cols']
@@ -1076,8 +1083,8 @@ class PlantPart(object):
 
         Args:
             part_ag (pandas.DataFrame):
-            id_cols (list): list of identifying columns
-                (stored as: ``PLANT_PARTS[part_name]['id_cols']``)
+            id_cols (list): list of identifying columns (stored as:
+                ``PLANT_PARTS[part_name]['id_cols']``)
         """
         # we must first get the total capacity of the full plant
         # Note: we could simply not include the ownership == "total" records
@@ -1453,6 +1460,7 @@ def make_id_cols_list():
     Returns:
         list: a list of the ID columns for all of the plant-parts, including
         ``report_date``
+
     """
     return (
         IDX_TO_ADD + pudl.helpers.dedupe_n_flatten_list_of_lists(
@@ -1529,14 +1537,15 @@ def assign_record_id_eia(test_df, plant_part_col='plant_part'):
     Assign record ids to a df with a mix of plant parts.
 
     Args:
-        test_df (pandas.DataFrame)
-        plant_part_col (string)
+        test_df (pandas.DataFrame):
+        plant_part_col (string):
 
-    TODO: This function results in warning: ``PerformanceWarning: DataFrame is
-    highly fragmented...`` I'm honestly not sure if this is happening because of
-    this function specifically or is a result from all of the column
-    assignments in :meth:`label_true_id_by_part` or :meth:`label_true_grans_by_part`
-    where we are also getting this warning.
+    TODO:
+        This function results in warning: ``PerformanceWarning: DataFrame is
+        highly fragmented...`` I'm honestly not sure if this is happening because of
+        this function specifically or is a result from all of the column
+        assignments in :meth:`label_true_id_by_part` or :meth:`label_true_grans_by_part`
+        where we are also getting this warning.
 
     """
     dfs = []
