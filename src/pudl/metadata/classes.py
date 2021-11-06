@@ -395,7 +395,7 @@ class Encoder(Base):
 
     df: pd.DataFrame
     code_fixes: Dict[String, String] = {}
-    ignored_codes: List[String] = []
+    ignored_codes: List[Union[Int, String]] = []
 
     @pydantic.validator("df")
     def _df_is_encoding_table(cls, value, values):  # noqa: N805
@@ -556,8 +556,11 @@ class Field(Base):
             return value
         errors = []
         dtype = values["type"]
-        if dtype != "string":
-            errors.append(f"Encoding only supported for string fields, found {dtype}")
+        if dtype not in ["string", "integer"]:
+            errors.append(
+                "Encoding only supported for string and integer fields, found "
+                f"{dtype}"
+            )
         if errors:
             raise ValueError(format_errors(*errors, pydantic=True))
         return value

@@ -1,8 +1,10 @@
 """Definitions for the glue/crosswalk tables that connect data groups."""
 from typing import Any, Dict
 
-from pudl.metadata.codes import (ENERGY_SOURCES_EIA,
-                                 FUEL_TRANSPORTATION_MODES_EIA)
+from pudl.metadata.codes import (CONTRACT_TYPES_EIA, ENERGY_SOURCES_EIA,
+                                 FUEL_TRANSPORTATION_MODES_EIA,
+                                 FUEL_TYPES_AER_EIA, PRIME_MOVERS_EIA,
+                                 SECTOR_CONSOLIDATED_EIA)
 
 RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
     "boiler_fuel_eia923": {
@@ -69,7 +71,9 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
             "fields": ["code", "label", "description"],
             "primary_key": ["code"],
             "foreign_key_rules": {"fields": [["contract_type_code"]]}
-        }
+        },
+        "encoder": CONTRACT_TYPES_EIA,
+        "sources": ["eia923"],
     },
     "datasets": {
         "schema": {"fields": ["datasource", "active"], "primary_key": ["datasource"]},
@@ -163,6 +167,7 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
             "primary_key": ["code"],
             "foreign_key_rules": {"fields": [["fuel_type_code_aer"]]},
         },
+        "encoder": FUEL_TYPES_AER_EIA,
         "sources": ["eia923"],
     },
     "generation_eia923": {
@@ -479,6 +484,7 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
                 ]
             },
         },
+        "encoder": PRIME_MOVERS_EIA,
         "sources": ["eia923", "eia860"],
     },
     "sector_consolidated_eia": {
@@ -486,7 +492,9 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
             "fields": ["code", "label", "description"],
             "primary_key": ["code"],
             "foreign_key_rules": {"fields": [["sector_id_eia"]]},
-        }
+        },
+        "encoder": SECTOR_CONSOLIDATED_EIA,
+        "sources": ["eia923"],
     },
     "utilities_eia": {
         "schema": {

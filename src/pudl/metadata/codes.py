@@ -74,7 +74,7 @@ ENERGY_SOURCES_EIA: Dict[str, Any] = {
         "OOG": "OG",
     },
     "ignored_codes": [
-        '0', 'OO', 'BM', 'CBL', 'COL', 'N', 'no', 'PL', 'ST'
+        0, '0', 'OO', 'BM', 'CBL', 'COL', 'N', 'no', 'PL', 'ST',
     ],
 }
 """
@@ -110,8 +110,15 @@ FUEL_TRANSPORTATION_MODES_EIA: Dict[str, Any] = {
     ).convert_dtypes(),
     "code_fixes": {
         "TK": "TR",
+        "tk": "TR",
+        "tr": "TR",
         "WA": "WT",
+        "wa": "WT",
         "CV": "TC",
+        "cv": "TC",
+        "rr": "RR",
+        "pl": "PL",
+        "rv": "RV",
     },
     "ignored_codes": ["UN"],
 }
@@ -195,6 +202,7 @@ PRIME_MOVERS_EIA: Dict[str, Any] = {
             ('PS', 'pumped_storage', 'Energy Storage, Reversible Hydraulic Turbine (Pumped Storage)'),  # nopep8
             ('PV', 'solar_pv', 'Solar Photovoltaic'),
             ('ST', 'steam_turbine', 'Steam Turbine. Including Nuclear, Geothermal, and Solar Steam (does not include Combined Cycle).'),  # nopep8
+            ('UNK', 'unknown', 'Unknown prime mover.'),
             ('WS', 'wind_offshore', 'Wind Turbine, Offshore'),
             ('WT', 'wind_onshore', 'Wind Turbine, Onshore'),
         ],

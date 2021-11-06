@@ -36,6 +36,7 @@ collisions with US states, their coding is non-standard.
 
 Instead of using the provided non-standard codes, we convert to the ISO-3166-1
 three letter country codes: https://en.wikipedia.org/wiki/ISO_3166-1_alpha-3
+
 """
 
 ###############################################################################
@@ -123,8 +124,11 @@ def _get_plant_prime_mover_map(gen_fuel: pd.DataFrame) -> Dict[int, str]:
     gen_fuel = gen_fuel[~gen_fuel.prime_mover_code.isna()].copy()
 
     # find plants with one prime mover
-    plant_prime_movers_counts = gen_fuel.groupby(
-        "plant_id_eia").prime_mover_code.nunique().copy()
+    plant_prime_movers_counts = (
+        gen_fuel.groupby("plant_id_eia")
+        .prime_mover_code.nunique()
+        .copy()
+    )
     plant_ids_with_one_pm = plant_prime_movers_counts[plant_prime_movers_counts.eq(
         1)].index
 
@@ -137,7 +141,7 @@ def _get_plant_prime_mover_map(gen_fuel: pd.DataFrame) -> Dict[int, str]:
     # check there is one prime mover per plant.
     assert plant_to_prime_mover.index.is_unique, "Found multiple plants in plant_to_prime_mover mapping."
     # Check there are no missing prime mover codes.
-    assert (~plant_to_prime_mover.isna()).all(
+    assert (plant_to_prime_mover.notnull()).all(
     ), "Found missing prime_mover_codes in plant_to_prime_mover mappings."
 
     return dict(plant_to_prime_mover)
@@ -160,8 +164,11 @@ def _backfill_prime_mover_code(gen_fuel: pd.DataFrame) -> pd.DataFrame:
     plant_to_prime_mover_map = _get_plant_prime_mover_map(gen_fuel)
 
     missing_prime_movers = gen_fuel.prime_mover_code.isna()
-    gen_fuel.loc[missing_prime_movers, "prime_mover_code"] = gen_fuel.loc[missing_prime_movers,
-                                                                          "plant_id_eia"].map(plant_to_prime_mover_map)
+    gen_fuel.loc[missing_prime_movers, "prime_mover_code"] = (
+        gen_fuel.loc[missing_prime_movers, "plant_id_eia"]
+        .map(plant_to_prime_mover_map)
+        .astype("string")
+    )
 
     # Assign prime mover codes for hydro fuels
     hydro_map = {"HPS": "PS", "HYC": "HY"}
