@@ -8,12 +8,13 @@ import pandas as pd
 import pudl
 from pudl import constants as pc
 from pudl.constants import PUDL_TABLES
+from pudl.metadata import RESOURCE_METADATA
 from pudl.metadata.codes import ENERGY_SOURCES_EIA
 from pudl.metadata.labels import ENTITY_TYPES
 
-logger = logging.getLogger(__name__)
+PUDL_META = pudl.metadata.classes.Package.from_resource_ids(RESOURCE_METADATA)
 
-PUDL_META = pudl.metadata.Package.from_resource_ids(pudl.metadata.RESOURCE_METADATA)
+logger = logging.getLogger(__name__)
 
 
 def ownership(eia860_dfs, eia860_transformed_dfs):

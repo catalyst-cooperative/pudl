@@ -25,6 +25,7 @@ import sqlalchemy as sa
 
 import pudl
 from pudl import constants as pc
+from pudl.metadata import RESOURCE_METADATA
 from pudl.metadata.codes import (CONTRACT_TYPES_EIA, ENERGY_SOURCES_EIA,
                                  FUEL_TRANSPORTATION_MODES_EIA,
                                  FUEL_TYPES_AER_EIA, PRIME_MOVERS_EIA,
@@ -35,6 +36,8 @@ from pudl.settings import (EiaSettings, EpaCemsSettings, EtlSettings,
 from pudl.workspace.datastore import Datastore
 
 logger = logging.getLogger(__name__)
+
+PUDL_META = pudl.metadata.classes.Package.from_resource_ids(RESOURCE_METADATA)
 
 
 ###############################################################################
@@ -125,6 +128,8 @@ def _etl_eia(etl_settings: EiaSettings, ds_kwargs):
     )
     # convert types..
     entities_dfs = pudl.helpers.convert_dfs_dict_dtypes(entities_dfs, 'eia')
+    for table in entities_dfs:
+        entities_dfs[table] = PUDL_META.get_resource(table).encode(entities_dfs[table])
 
     out_dfs.update(entities_dfs)
     out_dfs.update(eia_transformed_dfs)
