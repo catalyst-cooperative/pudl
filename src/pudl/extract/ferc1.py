@@ -667,37 +667,6 @@ def get_raw_df(
         )
 
 
-def validate_ferc1_to_sqlite_settings(script_settings):
-    """Check that ferc1_to_sqlite settings are correct."""
-    for table in script_settings['ferc1_to_sqlite_tables']:
-        if table not in DBF_TABLES_FILENAMES:
-            raise ValueError(
-                f"{table} was not found in the list of "
-                f"available FERC Form 1 tables."
-            )
-
-    # Deduplicate the list of tables, just in case
-    script_settings["ferc1_to_sqlite_tables"] = list(
-        set(script_settings["ferc1_to_sqlite_tables"]))
-
-    if script_settings['ferc1_to_sqlite_refyear'] \
-            not in pc.WORKING_PARTITIONS['ferc1']['years']:
-        raise ValueError(
-            f"Reference year {script_settings['ferc1_to_sqlite_refyear']} "
-            f"is outside the range of available FERC Form 1 data "
-            f"({min(pc.WORKING_PARTITIONS['ferc1']['years'])}-"
-            f"{max(pc.WORKING_PARTITIONS['ferc1']['years'])})."
-        )
-    for year in script_settings['ferc1_to_sqlite_years']:
-        if year not in pc.WORKING_PARTITIONS['ferc1']['years']:
-            raise ValueError(
-                f"Requested data from {year} is outside the range of "
-                f"available FERC Form 1 data "
-                f"({min(pc.WORKING_PARTITIONS['ferc1']['years'])}-"
-                f"{max(pc.WORKING_PARTITIONS['ferc1']['years'])})."
-            )
-
-
 class SqliteOverwriteMode(Enum):
     """Controls how the existing sqlite database should be treated."""
 
@@ -707,7 +676,7 @@ class SqliteOverwriteMode(Enum):
 
 
 @task(checkpoint=False)
-def ferc1_to_sqlite(script_settings, pudl_settings, overwrite=SqliteOverwriteMode.ONCE):
+def ferc1_to_sqlite(settings, pudl_settings, overwrite=SqliteOverwriteMode.ONCE):
     """Clones the FERC1 Form 1 database to sqlite."""
     logger.warning(f'overwrite={overwrite}, dbfile={pudl_settings["ferc1_db"]}')
     if overwrite == SqliteOverwriteMode.NEVER:
@@ -715,14 +684,13 @@ def ferc1_to_sqlite(script_settings, pudl_settings, overwrite=SqliteOverwriteMod
     elif overwrite == SqliteOverwriteMode.ONCE and os.path.isfile(urlparse(pudl_settings["ferc1_db"]).path):
         return False
     else:
-        validate_ferc1_to_sqlite_settings(script_settings)
         dbf2sqlite(
-            tables=script_settings['ferc1_to_sqlite_tables'],
-            years=script_settings['ferc1_to_sqlite_years'],
-            refyear=script_settings['ferc1_to_sqlite_refyear'],
+            tables=settings.tables,
+            years=settings.years,
+            refyear=settings.refyear,
             pudl_settings=pudl_settings,
             datastore=Datastore.from_prefect_context(),
-            bad_cols=script_settings.get('ferc1_to_sqlite_bad_cols', ()),
+            bad_cols=settings.bad_cols,
             clobber=True)
         return True
 

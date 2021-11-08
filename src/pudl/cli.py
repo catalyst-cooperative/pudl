@@ -22,17 +22,15 @@ import sys
 import uuid
 from datetime import datetime
 from sqlite3 import sqlite_version
-from typing import Dict
 
 import coloredlogs
-import fsspec
 import prefect
-import yaml
 from fsspec.implementations.local import LocalFileSystem
 from packaging import version
 
 import pudl
 from pudl.load.sqlite import MINIMUM_SQLITE_VERSION
+from pudl.settings import EtlSettings
 
 logger = logging.getLogger(__name__)
 
@@ -164,7 +162,7 @@ def generate_run_id(args):
         return f"{ts}-{uuid.uuid4()}"
 
 
-def load_script_settings(args, run_id) -> Dict:
+def load_etl_settings(args, run_id) -> EtlSettings:
     """Loads the script settings from the right location.
 
     If --rerun is specified, it loads the settings file from the cache. Otherwise
@@ -184,21 +182,14 @@ def load_script_settings(args, run_id) -> Dict:
                 " via PUDL_SETTINGS_FILE when not using --rerun flag.")
         settings_file_path = args.settings_file
     logger.info(f'Loading settings from {settings_file_path}')
-    with fsspec.open(settings_file_path, "r") as fs:
-        script_settings = yaml.safe_load(fs)
-        script_settings["run_id"] = run_id
-        return script_settings
+    return EtlSettings.from_yaml(settings_file_path)
 
 
-def build_pudl_settings(script_settings, args):
+def build_pudl_settings(etl_settings, args):
     """Builds pudl_settings object with correct path and other configurations."""
-    pudl_in = script_settings.get(
-        "pudl_in", pudl.workspace.setup.get_defaults()["pudl_in"])
-    pudl_out = script_settings.get(
-        "pudl_out", pudl.workspace.setup.get_defaults()["pudl_out"])
     pudl_settings = pudl.workspace.setup.derive_paths(
-        pudl_in=pudl_in,
-        pudl_out=pudl_out
+        pudl_in=etl_settings.pudl_in,
+        pudl_out=etl_settings.pudl_out
     )
     pudl_settings["sandbox"] = args.sandbox
     return pudl_settings
@@ -219,8 +210,8 @@ def main():
     logger.warning(
         f'Running pipeline with run_id {run_id} (use this with --rerun to resume).')
 
-    script_settings = load_script_settings(args, run_id)
-    pudl_settings = build_pudl_settings(script_settings, args)
+    etl_settings = load_etl_settings(args, run_id)
+    pudl_settings = build_pudl_settings(etl_settings, args)
 
     if args.pipeline_cache_path:
         args.pipeline_cache_path = os.path.join(args.pipeline_cache_path, run_id)
@@ -229,14 +220,9 @@ def main():
             pudl_settings["pudl_out"], "cache", run_id)
     prefect.context.pudl_pipeline_cache_path = args.pipeline_cache_path
 
-    datapkg_bundle_doi = script_settings.get("datapkg_bundle_doi")
-    if datapkg_bundle_doi and not pudl.helpers.is_doi(datapkg_bundle_doi):
-        raise ValueError(
-            f"Found invalid bundle DOI: {datapkg_bundle_doi} "
-            f"in bundle {script_settings['datpkg_bundle_name']}."
-        )
-    with fsspec.open(os.path.join(args.pipeline_cache_path, "settings.yml"), "w") as outfile:
-        yaml.dump(script_settings, outfile, default_flow_style=False)
+    # Save the settings file to the pipeline cache.
+    settings_file_path = os.path.join(args.pipeline_cache_path, "settings.yml")
+    etl_settings.write_yaml(settings_file_path)
 
     bad_sqlite_version = (
         version.parse(sqlite_version) < version.parse(MINIMUM_SQLITE_VERSION)
@@ -250,7 +236,7 @@ def main():
         )
 
     pudl.etl.etl(
-        etl_settings=script_settings,
+        etl_settings=etl_settings,
         pudl_settings=pudl_settings,
         clobber=args.clobber,
         use_local_cache=not args.bypass_local_cache,

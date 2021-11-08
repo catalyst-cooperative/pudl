@@ -9,8 +9,6 @@ import prefect
 from prefect import task, unmapped
 
 import pudl
-from pudl import constants as pc
-from pudl.constants import PUDL_TABLES
 from pudl.dfc import DataFrameCollection
 from pudl.extract.epacems import EpaCemsDatastore, EpaCemsPartition
 from pudl.workflow.dataset_pipeline import DatasetPipeline
@@ -77,42 +75,9 @@ class EpaCemsPipeline(DatasetPipeline):
         """
         super().__init__(*args, **kwargs)
 
-    @classmethod
-    def validate_params(cls, etl_params):
-        """Validate and normalize epacems parameters."""
-        epacems_dict = {
-            "epacems_years": etl_params.get("epacems_years", []),
-            "epacems_states": etl_params.get("epacems_states", []),
-        }
-        if epacems_dict["epacems_states"] and epacems_dict["epacems_states"][0].lower() == "all":
-            epacems_dict["epacems_states"] = sorted(pc.cems_states.keys())
-
-        # CEMS is ALWAYS going to be partitioned by year and state. This means we
-        # are functinoally removing the option to not partition or partition
-        # another way. Nonetheless, we are adding it in here because we still need
-        # to know what the partitioning is like for the metadata generation
-        # (it treats partitioned tables differently).
-        epacems_dict['partition'] = {'hourly_emissions_epacems':
-                                     ['epacems_years', 'epacems_states']}
-        # this is maybe unnecessary because we are hardcoding the partitions, but
-        # we are still going to validate that the partitioning is
-        epacems_dict['partition'] = _validate_params_partition(
-            epacems_dict, [PUDL_TABLES["epacems"]])
-        if not epacems_dict['partition']:
-            raise AssertionError(
-                'No partition found for EPA CEMS.'
-                'EPA CEMS requires either states or years as a partion'
-            )
-
-        if not epacems_dict['epacems_years'] or not epacems_dict['epacems_states']:
-            return None
-        else:
-            return epacems_dict
-
-    def build(self, params):
+    def build(self):
         """Add epacems tasks to the flow."""
-        if not self.all_params_present(params, ['epacems_states', 'epacems_years']):
-            return None
+        print("in epacems")
         with self.flow as flow:
             plants = pudl.transform.epacems.load_plant_utc_offset()
 
@@ -125,7 +90,7 @@ class EpaCemsPipeline(DatasetPipeline):
 
             partitions = [
                 EpaCemsPartition(year=y, state=s)
-                for y, s in itertools.product(params["epacems_years"], params["epacems_states"])]
+                for y, s in itertools.product(self.pipeline_settings.years, self.pipeline_settings.states)]
 
             ds = EpaCemsDatastore(Datastore.from_prefect_context())
             epacems_process_partition.map(

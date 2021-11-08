@@ -1,8 +1,8 @@
 """Implements pipeline for processing FERC1 dataset."""
+import prefect
 from prefect import task
 
 import pudl
-from pudl import constants as pc
 from pudl import dfc
 from pudl.dfc import DataFrameCollection
 from pudl.extract.ferc1 import SqliteOverwriteMode
@@ -39,18 +39,18 @@ def load_static_tables_ferc1():
 
 
 @task(target="ferc1.extract")
-def _extract_ferc1(params, pudl_settings):
+def _extract_ferc1(pipeline_settings, pudl_settings):
     return DataFrameCollection(
         **pudl.extract.ferc1.extract(
-            ferc1_tables=params['ferc1_tables'],
-            ferc1_years=params['ferc1_years'],
+            ferc1_tables=pipeline_settings.tables,
+            ferc1_years=pipeline_settings.years,
             pudl_settings=pudl_settings))
 
 
 @task(target="ferc1.transform")
-def _transform_ferc1(params, dfs):
+def _transform_ferc1(pipeline_settings, dfs):
     return DataFrameCollection(
-        **pudl.transform.ferc1.transform(dfs, ferc1_tables=params['ferc1_tables']))
+        **pudl.transform.ferc1.transform(dfs, ferc1_tables=pipeline_settings.tables))
 
 
 class Ferc1Pipeline(DatasetPipeline):
@@ -63,40 +63,18 @@ class Ferc1Pipeline(DatasetPipeline):
         self.overwrite_ferc1_db = overwrite_ferc1_db
         super().__init__(*args, **kwargs)
 
-    @classmethod  # noqa: C901
-    def validate_params(cls, etl_params):
-        """Validate and normalize ferc1 parameters."""
-        ferc1_dict = {
-            'ferc1_years': etl_params.get('ferc1_years', [None]),
-            'ferc1_tables': etl_params.get('ferc1_tables', pc.PUDL_TABLES['ferc1']),
-            'debug': etl_params.get('debug', False),
-        }
-        if not ferc1_dict['debug']:
-            cls.check_for_bad_tables(
-                try_tables=ferc1_dict['ferc1_tables'], dataset='ferc1')
-
-        if not ferc1_dict['ferc1_years']:
-            # TODO(rousik): this really does not make much sense? We should be skipping the pipeline
-            # when ferc1_years assumes false value so why do we need to clear the parameters dict
-            # here???
-            # Perhaps this is due to the [None] hack above that may span all years? Who knows.
-            return {}
-        else:
-            return ferc1_dict
-
-    def build(self, params):
+    def build(self):
         """Add ferc1 tasks to the flow."""
-        if not self.all_params_present(params, ['ferc1_years', 'ferc1_tables']):
-            return None
         with self.flow:
             # ferc1_to_sqlite task should only happen once.
             # Only add this task to the flow if it is not already present.
+            ferc1_to_sqlite_settings = prefect.context.etl_settings.ferc1_to_sqlite_settings
             if not self.flow.get_tasks(name='ferc1_to_sqlite'):
                 pudl.extract.ferc1.ferc1_to_sqlite(
-                    self.etl_settings,
+                    ferc1_to_sqlite_settings,
                     self.pudl_settings,
                     overwrite=self.overwrite_ferc1_db)
-            raw_dfs = _extract_ferc1(params, self.pudl_settings,
+            raw_dfs = _extract_ferc1(self.pipeline_settings, self.pudl_settings,
                                      upstream_tasks=self.flow.get_tasks(name='ferc1_to_sqlite'))
-            dfs = _transform_ferc1(params, raw_dfs)
+            dfs = _transform_ferc1(self.pipeline_settings, raw_dfs)
             return dfc.merge(load_static_tables_ferc1(), dfs)

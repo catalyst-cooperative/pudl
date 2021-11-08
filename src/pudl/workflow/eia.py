@@ -4,8 +4,7 @@ import prefect
 from prefect import task
 
 import pudl
-from pudl import constants as pc
-from pudl import dfc
+from pudl import dfc, settings
 from pudl.dfc import DataFrameCollection
 from pudl.metadata.labels import (ENERGY_SOURCES_EIA,
                                   FUEL_TRANSPORTATION_MODES_EIA,
@@ -73,105 +72,64 @@ class EiaPipeline(DatasetPipeline):
     """Runs eia923, eia860 and eia (entity extraction) tasks."""
 
     DATASET = 'eia'
+    settings = settings.EiaSettings
 
-    @classmethod  # noqa: C901
-    def validate_params(cls, etl_params):
-        """Validate and normalize eia parameters."""
-        # extract all of the etl_params for the EIA ETL function
-        # empty dictionary to compile etl_params
-        eia_input_dict = {
-            'eia860_years': etl_params.get('eia860_years', []),
-            'eia860_tables': etl_params.get('eia860_tables', pc.PUDL_TABLES['eia860']),
+    def __init__(self, flow, pudl_settings, pipeline_settings, etl_name):
+        """Init EIA pipeline."""
+        # TODO: I still don't fully understand what the target parameter is doing.
+        # Get this from prefect context?? Read up on what should live in context.
+        self.etl_name = etl_name
+        super().__init__(flow, pudl_settings, pipeline_settings)
 
-            'eia860_ytd': etl_params.get('eia860_ytd', False),
-
-            'eia923_years': etl_params.get('eia923_years', []),
-            'eia923_tables': etl_params.get('eia923_tables', pc.PUDL_TABLES['eia923']),
-        }
-
-        # if we are only extracting 860, we also need to pull in the
-        # boiler_fuel_eia923 table. this is for harvesting and also for the boiler
-        # generator association
-        if not eia_input_dict['eia923_years'] and eia_input_dict['eia860_years']:
-            eia_input_dict['eia923_years'] = eia_input_dict['eia860_years']
-            eia_input_dict['eia923_tables'] = [
-                'boiler_fuel_eia923', 'generation_eia923']
-
-        # if someone is trying to generate 923 without 860... well that won't work
-        # so we're forcing the same 860 years.
-        if not eia_input_dict['eia860_years'] and eia_input_dict['eia923_years']:
-            eia_input_dict['eia860_years'] = eia_input_dict['eia923_years']
-
-        eia860m_year = pd.to_datetime(
-            pc.WORKING_PARTITIONS['eia860m']['year_month']).year
-        if (eia_input_dict['eia860_ytd']
-                and (eia860m_year in eia_input_dict['eia860_years'])):
-            raise AssertionError(
-                "Attempting to integrate an eia860m year "
-                f"({eia860m_year}) that is within the eia860 years: "
-                f"{eia_input_dict['eia860_years']}. Consider switching eia860_ytd "
-                "parameter to False."
-            )
-        cls.check_for_bad_tables(
-            try_tables=eia_input_dict['eia923_tables'], dataset='eia923')
-        cls.check_for_bad_tables(
-            try_tables=eia_input_dict['eia860_tables'], dataset='eia860')
-        cls.check_for_bad_years(
-            try_years=eia_input_dict['eia860_years'], dataset='eia860')
-        cls.check_for_bad_years(
-            try_years=eia_input_dict['eia923_years'], dataset='eia923')
-        return eia_input_dict
-
-    def build(self, params):
+    def build(self):
         """Extract, transform and load CSVs for the EIA datasets.
 
         Returns:
             prefect.Result object that contains emitted table names.
         """
-        if not (self.all_params_present(params, ['eia923_tables', 'eia923_years']) or
-                self.all_params_present(params, ['eia860_tables', 'eia860_years'])):
-            return None
+        eia860_settings = self.pipeline_settings.eia860
+        eia923_settings = self.pipeline_settings.eia923
 
         # TODO(rousik): task names are nice for human readable results but in the end, they
         # are probably not worth worrying about.
         eia860_extract = pudl.extract.eia860.Extractor(
             name='eia860.extract',
-            target=f'{self.datapkg_name}/eia860.extract')
+            target=f'{self.etl_name}/eia860.extract')
         eia860m_extract = pudl.extract.eia860m.Extractor(
             name='eia860m.extract',
-            target=f'{self.datapkg_name}/eia860m.extract')
+            target=f'{self.etl_name}/eia860m.extract')
         eia923_extract = pudl.extract.eia923.Extractor(
             name='eia923.extract',
-            target=f'{self.datapkg_name}/eia923.extract')
+            target=f'{self.etl_name}/eia923.extract')
         with self.flow:
-            eia860_df = eia860_extract(year=params['eia860_years'])
-            if params['eia860_ytd']:
+            eia860_df = eia860_extract(year=eia860_settings.years)
+            if eia860_settings.eia860m:
                 m_df = eia860m_extract(
-                    year_month=pc.WORKING_PARTITIONS['eia860m']['year_month'])
+                    year_month=eia860_settings.eia860m_date)
                 eia860_df = merge_eia860m(
                     eia860_df, m_df,
-                    task_args=dict(target=f'{self.datapkg_name}/eia860m.merge'))
+                    task_args=dict(target=f'{self.etl_name}/eia860m.merge'))
             eia860_df = pudl.transform.eia860.transform_eia860(
                 eia860_df,
-                params['eia860_tables'],
-                task_args=dict(target=f'{self.datapkg_name}/eia860.transform'))
+                eia860_settings.tables,
+                task_args=dict(target=f'{self.etl_name}/eia860.transform'))
 
             eia923_df = pudl.transform.eia923.transform_eia923(
-                eia923_extract(year=params['eia923_years']),
-                params['eia923_tables'],
-                task_args=dict(target=f'{self.datapkg_name}/eia923.transform'))
+                eia923_extract(year=eia923_settings.years),
+                eia923_settings.tables,
+                task_args=dict(target=f'{self.etl_name}/eia923.transform'))
 
             output_tables = pudl.transform.eia.transform(
                 dfc.merge_list(
                     [eia860_df, eia923_df, pudl.glue.eia_epacems.grab_clean_split()]),
-                eia860_years=params['eia860_years'],
-                eia923_years=params['eia923_years'],
-                eia860_ytd=params['eia860_ytd'])
+                eia860_years=eia860_settings.years,
+                eia923_years=eia923_settings.years,
+                eia860m=eia860_settings.eia860m_date)
 
             return dfc.merge(
                 read_static_tables_eia(),
                 output_tables,
-                task_args=dict(target=f'{self.datapkg_name}/eia.final_tables'))
+                task_args=dict(target=f'{self.etl_name}/eia.final_tables'))
 
     def get_table(self, table_name):
         """Returns DataFrame for given table that is emitted by the pipeline.
