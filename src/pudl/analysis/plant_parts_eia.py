@@ -520,6 +520,21 @@ class LabelTrueGranularities(object):
         """
         For each plant-part, count the unique child and parent parts.
 
+        All plant-part's are situated within a hierarchy that is defined within
+        :py:const:`PLANT_PARTS_ORDERED`. Child parts are plant-parts that are
+        defined as a lower priority within :py:const:`PLANT_PARTS_ORDERED` and
+        parent parts are those with a higher priority.
+
+        In order to determine if a particular plant-part is a unique
+        granularity, we want to know if a cooresponding parent or child
+        plant-part is comprised of the same collection of generators. In order
+        to do that, we count the unique instances of the ID columns in both
+        the cooresponding parent and child parts. We use this count in
+        :meth:`make_all_the_bools` and subsequently
+        :meth:`label_true_grans_by_part` to label each plant-part as a unique
+        granularity or not based on whether there is only once type of
+        plant-part.
+
         Args:
             gens_mega: a table of all of the generators with identifying
                 columns and data columns, sliced by ownership which makes
@@ -542,16 +557,27 @@ class LabelTrueGranularities(object):
         # we want to compile the count results on a copy of the generator table
         for part_name in PLANT_PARTS_ORDERED:
             logger.debug(f"making the counts for: {part_name}")
+            part_cols = PLANT_PARTS[part_name]['id_cols'] + IDX_TO_ADD
+            # because the plant_id_eia is always a part of the groupby columns
+            # and we want to count the plants as well, we need to make a duplicate
+            # plant_id_eia column to count on
+            part_count = (
+                gens_wo_ownership.assign(plant_id_eia_temp=lambda x: x.plant_id_eia)
+                .groupby(by=part_cols, dropna=False, observed=True)
+                .nunique()
+                .rename(columns={'plant_id_eia_temp': 'plant_id_eia'})
+                .rename(columns={v: k for k, v in self.parts_to_ids.items()})
+                .add_suffix(f'_count_per_{part_name}')
+            )
             all_the_counts = all_the_counts.merge(
-                self.count_child_and_parent_parts(part_name, gens_wo_ownership),
+                part_count,
                 how='left',
-                left_on=PLANT_PARTS[part_name]['id_cols'] + IDX_TO_ADD,
+                left_on=part_cols,
                 right_index=True,
                 validate='m:1'
             )
 
-        # check the expected # of columns
-        # id columns minus the added columns
+        # CHECK the expected # of columns id columns minus the added columns
         len_ids = len(self.id_cols_list) - len(IDX_TO_ADD)
         expected_col_len = (
             og_gen_mega_cols +  # the gens_mega colums
@@ -565,38 +591,6 @@ class LabelTrueGranularities(object):
                 f"all_the_counts when we should have gotten {expected_col_len}"
             )
         return all_the_counts
-
-    def count_child_and_parent_parts(self, part_name, gens_wo_ownership):
-        """
-        Count the child- and parent-parts contained within a plant-part.
-
-        Args:
-            part_name (string): name of plant-part
-            gens_wo_ownership (pandas.DataFrame): a table of generators with
-                all of the ID columns (``id_cols_list``) without the ownership
-                columns :py:const:`IDX_OWN_TO_ADD` typically in ``gens_mega``.
-
-        Returns:
-            pandas.DataFrame: an agumented version of the ``gens_mega``
-            dataframe with new columns for each of the child and parent
-            plant-parts with counts of unique instances of those parts. The
-            columns will be named in the following format:
-            `{child/parent_part_name}_count_per_{part_name}`
-
-        """
-        part_cols = PLANT_PARTS[part_name]['id_cols'] + IDX_TO_ADD
-        # because the plant_id_eia is always a part of the groupby columns
-        # and we want to count the plants as well, we need to make a duplicate
-        # plant_id_eia column to count on
-        df_count = (
-            gens_wo_ownership.assign(plant_id_eia_temp=lambda x: x.plant_id_eia)
-            .groupby(by=part_cols, dropna=False, observed=True)
-            .nunique()
-            .rename(columns={'plant_id_eia_temp': 'plant_id_eia'})
-            .rename(columns={v: k for k, v in self.parts_to_ids.items()})
-            .add_suffix(f'_count_per_{part_name}')
-        )
-        return df_count
 
     def make_all_the_bools(self, counts):
         """
