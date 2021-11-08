@@ -394,74 +394,83 @@ class Encoder(Base):
     """
 
     df: pd.DataFrame
-    code_fixes: Dict[String, String] = {}
     ignored_codes: List[Union[Int, String]] = []
+    code_fixes: Dict[Union[Int, String], Union[Int, String]] = {}
 
     @pydantic.validator("df")
-    def _df_is_encoding_table(cls, value, values):  # noqa: N805
+    def _df_is_encoding_table(cls, df):  # noqa: N805
+        """Verify that the coding table provides both codes and descriptions."""
         errors = []
-        if "code" not in value.columns or "description" not in value.columns:
+        if "code" not in df.columns or "description" not in df.columns:
             errors.append(
                 "Encoding tables must contain both 'code' & 'description' columns."
             )
+        if len(df.code) != len(df.code.unique()):
+            dupes = df[df.duplicated("code")].code.to_list()
+            errors.append(f"Duplicate codes {dupes} found in coding table")
         if errors:
             raise ValueError(format_errors(*errors, pydantic=True))
-        return value
+        return df
 
-    @pydantic.root_validator()
-    def _good_and_ignored_codes_are_disjoint(cls, values):  # noqa: N805
+    @pydantic.validator("ignored_codes")
+    def _good_and_ignored_codes_are_disjoint(cls, ignored_codes, values):  # noqa: N805
+        """Check that there's no overlap between good and ignored codes."""
+        if "df" not in values:
+            return ignored_codes
         errors = []
-        if set(values["df"]["code"]).intersection(values["ignored_codes"]):
+        overlap = set(values["df"]["code"]).intersection(ignored_codes)
+        if overlap:
             errors.append(
-                "Overlap found between good and ignored codes. "
-                f"These must be disjoint sets: "
-                f"{values['df']['code']=}; {values.ignored_codes=}"
+                f"Overlap found between good and ignored codes: {overlap}."
             )
         if errors:
             raise ValueError(format_errors(*errors, pydantic=True))
-        return values
+        return ignored_codes
 
-    @pydantic.root_validator()
-    def _good_and_fixable_codes_are_disjoint(cls, values):  # noqa: N805
+    @pydantic.validator("code_fixes")
+    def _good_and_fixable_codes_are_disjoint(cls, code_fixes, values):  # noqa: N805
+        """Check that there's no overlap between the good and fixable codes."""
+        if "df" not in values:
+            return code_fixes
         errors = []
-        if set(values["df"]["code"]).intersection(values["code_fixes"]):
+        overlap = set(values["df"]["code"]).intersection(code_fixes)
+        if overlap:
             errors.append(
-                "Overlap found between good and fixable codes. "
-                f"These must be disjoint sets: "
-                f"{values['df']['code']=} "
-                f"code_fixes.keys()={list(values['code_fixes'].keys())}"
+                f"Overlap found between good and fixable codes: {overlap}"
             )
         if errors:
             raise ValueError(format_errors(*errors, pydantic=True))
-        return values
+        return code_fixes
 
-    @pydantic.root_validator()
-    def _fixable_and_ignored_codes_are_disjoint(cls, values):  # noqa: N805
+    @pydantic.validator("code_fixes")
+    def _fixable_and_ignored_codes_are_disjoint(cls, code_fixes, values):  # noqa: N805
+        """Check that there's no overlap between the ignored and fixable codes."""
+        if "ignored_codes" not in values:
+            return code_fixes
         errors = []
-        if set(values["code_fixes"]).intersection(values["ignored_codes"]):
+        overlap = set(code_fixes).intersection(values["ignored_codes"])
+        if overlap:
             errors.append(
-                "Overlap found between fixable and ignored codes. "
-                f"These must be disjoint sets: "
-                f"{values['df']['code']=} "
-                f"code_fixes.keys()={list(values['code_fixes'].keys())}"
+                f"Overlap found between fixable and ignored codes: {overlap}"
             )
         if errors:
             raise ValueError(format_errors(*errors, pydantic=True))
-        return values
+        return code_fixes
 
-    @pydantic.root_validator
-    def _check_fixed_codes_are_good_codes(cls, values):  # noqa: N805
+    @pydantic.validator("code_fixes")
+    def _check_fixed_codes_are_good_codes(cls, code_fixes, values):  # noqa: N805
         """Check that every every fixed code is also one of the good codes."""
+        if "df" not in values:
+            return code_fixes
         errors = []
-        if set(values["code_fixes"].values()).difference(values["df"]["code"]):
+        bad_codes = set(code_fixes.values()).difference(values["df"]["code"])
+        if bad_codes:
             errors.append(
-                "Some fixed codes aren't in the list of good codes: "
-                f"{values['df']['code']=} "
-                f"code_fixes.values()={list(values.code_fixes.values())}"
+                f"Some fixed codes aren't in the list of good codes: {bad_codes}"
             )
         if errors:
             raise ValueError(format_errors(*errors, pydantic=True))
-        return values
+        return code_fixes
 
     @property
     def code_map(self) -> Dict[str, Union[str, type(pd.NA)]]:
