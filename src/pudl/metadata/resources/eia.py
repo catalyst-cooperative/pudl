@@ -1,4 +1,4 @@
-"""Definitions for the glue/crosswalk tables that connect data groups."""
+"""Definitions of data tables primarily coming from EIA 860/861/923."""
 from typing import Any, Dict
 
 from pudl.metadata.codes import (CONTRACT_TYPES_EIA, ENERGY_SOURCES_EIA,
