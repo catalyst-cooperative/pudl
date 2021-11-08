@@ -1,92 +1,10 @@
 """Unit tests for the :mod:`pudl.helpers` module."""
-from contextlib import AbstractContextManager, nullcontext
-from typing import Dict, List
 
 import pandas as pd
-import pytest
 from pandas.testing import assert_frame_equal
 
 from pudl.helpers import (convert_df_to_excel_file, convert_to_date,
-                          fix_eia_na, fix_leading_zero_gen_ids,
-                          standardize_codes)
-
-
-@pytest.mark.parametrize(
-    "col,good_codes,bad_codes,fix_codes,expected,expected_error",
-    [
-        pytest.param(
-            pd.Series(["a", "b", "c", "d", "e", "f", "g", "h", "i", pd.NA]),
-            ["a", "b", "c"],
-            ["d", "e", "f"],
-            {"g": "a", "h": "b", "i": "c"},
-            pd.Series(["a", "b", "c", pd.NA, pd.NA, pd.NA, "a", "b", "c", pd.NA]),
-            nullcontext(),
-            id="normal-execution",
-        ),
-        pytest.param(
-            pd.Series(["a", "b", "c", "d", "e", "f", "g", "h", "i"]),
-            ["a", "b", "c"],
-            ["a", "e", "f"],
-            {"g": "a", "h": "b", "i": "c"},
-            pd.Series(dtype="string"),
-            pytest.raises(ValueError),
-            id="good-code-in-bad-codes",
-        ),
-        pytest.param(
-            pd.Series(["a", "b", "c", "d", "e", "f", "g", "h", "i"]),
-            ["a", "b", "c"],
-            ["d", "e", "f"],
-            {"b": "a", "h": "b", "i": "c"},
-            pd.Series(dtype="string"),
-            pytest.raises(ValueError),
-            id="good-code-in-fixable-codes",
-        ),
-        pytest.param(
-            pd.Series(["a", "b", "c", "d", "e", "f", "g", "h", "i"]),
-            ["a", "b", "c"],
-            ["d", "e", "f"],
-            {"d": "a", "h": "b", "i": "c"},
-            pd.Series(dtype="string"),
-            pytest.raises(ValueError),
-            id="bad-code-in-fixable-codes",
-        ),
-        pytest.param(
-            pd.Series(["a", "b", "c", "d", "e", "f", "g", "h", "i"]),
-            ["a", "b", "c"],
-            ["d", "e", "f"],
-            {"g": "x", "h": "b", "i": "c"},
-            pd.Series(dtype="string"),
-            pytest.raises(ValueError),
-            id="fixed-code-not-in-good-codes",
-        ),
-        pytest.param(
-            pd.Series(["a", "b", "c", "d", "e", "f", "g", "h", "i", "wtf"]),
-            ["a", "b", "c"],
-            ["d", "e", "f"],
-            {"g": "a", "h": "b", "i": "c"},
-            pd.Series(dtype="string"),
-            pytest.raises(ValueError),
-            id="input-contains-unknown-code",
-        ),
-    ]
-)
-def test_standardize_codes(
-    col: pd.Series,
-    good_codes: List[str],
-    bad_codes: List[str],
-    fix_codes: Dict[str, str],
-    expected: pd.Series,
-    expected_error: AbstractContextManager,
-):
-    """Test the function which standardizes messy string codes."""
-    with expected_error:
-        actual = standardize_codes(
-            col=col,
-            good_codes=good_codes,
-            bad_codes=bad_codes,
-            fix_codes=fix_codes,
-        )
-        pd.testing.assert_series_equal(actual, expected)
+                          fix_eia_na, fix_leading_zero_gen_ids)
 
 
 def test_convert_to_date():
