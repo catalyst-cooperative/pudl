@@ -18,7 +18,7 @@ data from:
 import logging
 import time
 from pathlib import Path
-from typing import Dict
+from typing import Any, Dict
 
 import pandas as pd
 import sqlalchemy as sa
@@ -66,16 +66,19 @@ def _read_static_tables_eia() -> Dict[str, pd.DataFrame]:
     }
 
 
-def _etl_eia(etl_settings: EiaSettings, ds_kwargs):
+def _etl_eia(
+    etl_settings: EiaSettings,
+    ds_kwargs: Dict[str, Any]
+) -> Dict[str, pd.DataFrame]:
     """Extract, transform and load CSVs for the EIA datasets.
 
     Args:
-        etl_settings (EiaSettings): Validated ETL parameters required by this data source.
-        ds_kwargs: (dict): Keyword arguments for instantiating a PUDL datastore,
+        etl_settings: Validated ETL parameters required by this data source.
+        ds_kwargs: Keyword arguments for instantiating a PUDL datastore,
             so that the ETL can access the raw input data.
 
     Returns:
-        list: Names of PUDL DB tables output by the ETL for this data source.
+        A dictionary of EIA dataframes ready for loading into the PUDL DB.
 
     """
     eia860_tables = etl_settings.eia860.tables

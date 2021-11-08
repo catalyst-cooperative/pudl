@@ -364,13 +364,7 @@ class Encoder(Base):
     a standard set of codes, a mapping from non-standard codes to standard codes (where
     possible), and a set of known but unfixable codes which will be ignored and replaced
     with NA values. These definitions can be found in :mod:`pudl.metadata.codes` and we
-    refer to these as coding or labeling tables.
-
-    Each coding table contains at least a ``code`` column containing the standard codes
-    and a ``definition`` column with a human readable explanation of what the code
-    stands for. This information is stored as a :class:`pandas.DataFrame`. Additional
-    metadata pertaining to the codes and their categories may also appear in this
-    dataframe, which will be loaded into the PUDL DB as a static table.
+    refer to these as coding tables.
 
     In our metadata structures, each coding table is defined just like any other DB
     table, with the addition of an associated ``Encoder`` object defining the standard,
@@ -394,8 +388,33 @@ class Encoder(Base):
     """
 
     df: pd.DataFrame
+    """
+    A table associating short codes with long descriptions and other information.
+
+    Each coding table contains at least a ``code`` column containing the standard codes
+    and a ``definition`` column with a human readable explanation of what the code
+    stands for. Additional metadata pertaining to the codes and their categories may
+    also appear in this dataframe, which will be loaded into the PUDL DB as a static
+    table. The ``code`` column is a natural primary key and must contain no duplicate
+    values.
+    """
+
     ignored_codes: List[Union[Int, String]] = []
+    """
+    A list of non-standard codes which appear in the data, and will be set to NA.
+
+    These codes may be the result of data entry errors, and we are unable to map them
+    to the appropriate canonical code. They are discarded from the raw input data.
+    """
+
     code_fixes: Dict[Union[Int, String], Union[Int, String]] = {}
+    """
+    A dictionary mapping non-standard codes to canonical, standardized codes.
+
+    The intended meanings of some non-standard codes are clear, and therefore they can
+    be mapped to the standardized, canonical codes with confidence. Sometimes these are
+    the result of data entry errors or changes in the stanard codes over time.
+    """
 
     @pydantic.validator("df")
     def _df_is_encoding_table(cls, df):  # noqa: N805
