@@ -192,7 +192,7 @@ def test_nuclear_units_are_generators(pudl_out_eia, live_dbs):
         pudl_out_eia.gfn_eia923()[[
             "plant_id_eia",
             "nuclear_unit_id",
-            "fuel_type",
+            "energy_source_code",
         ]]
         .query("nuclear_unit_id != 'UNK'")
         .assign(generator_id=lambda x: x.nuclear_unit_id)

@@ -117,13 +117,10 @@ def main():
     )
 
     # Messy settings arguments used in our main ETL which we should clean up
-    epacems_etl_settings = {
-        'epacems_years': args.years,
-        'epacems_states': args.states,
-        'partition': {
-            'hourly_emissions_epacems': ['epacems_years', 'epacems_states']
-        }
-    }
+    epacems_etl_settings = pudl.settings.EpaCemsBaseSettings(
+        states=args.states,
+        years=args.years,
+    )
 
     pudl.etl.etl_epacems(
         epacems_etl_settings,

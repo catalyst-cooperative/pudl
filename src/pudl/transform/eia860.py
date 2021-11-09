@@ -8,7 +8,11 @@ import pandas as pd
 import pudl
 from pudl import constants as pc
 from pudl.constants import PUDL_TABLES
-from pudl.metadata.labels import ENTITY_TYPES, FUEL_TRANSPORTATION_MODES_EIA
+from pudl.metadata import RESOURCE_METADATA
+from pudl.metadata.codes import ENERGY_SOURCES_EIA
+from pudl.metadata.labels import ENTITY_TYPES
+
+PUDL_META = pudl.metadata.classes.Package.from_resource_ids(RESOURCE_METADATA)
 
 logger = logging.getLogger(__name__)
 
@@ -148,6 +152,7 @@ def ownership(eia860_dfs, eia860_transformed_dfs):
         & (own_df.fraction_owned == 1.0)
     )
     own_df.loc[single_owner_operator, "utility_id_eia"] = pd.NA
+    own_df = PUDL_META.get_resource("ownership_eia860").encode(own_df)
 
     eia860_transformed_dfs['ownership_eia860'] = own_df
 
@@ -251,7 +256,6 @@ def generators(eia860_dfs, eia860_transformed_dfs):
     # A subset of the columns have "X" values, where other columns_to_fix
     # have "N" values. Replacing these values with "N" will make for uniform
     # values that can be converted to Boolean True and False pairs.
-
     gens_df.duct_burners = \
         gens_df.duct_burners.replace(to_replace='X', value='N')
     gens_df.bypass_heat_recovery = \
@@ -307,35 +311,29 @@ def generators(eia860_dfs, eia860_transformed_dfs):
                 value=[True, False, pd.NA])
         )
 
-    # A subset of the pre-2009 columns refer to transportation methods with a
-    # series of codes. This writes them out in their entirety.
-
-    transport_columns_to_fix = [
-        'energy_source_1_transport_1',
-        'energy_source_1_transport_2',
-        'energy_source_1_transport_3',
-        'energy_source_2_transport_1',
-        'energy_source_2_transport_2',
-        'energy_source_2_transport_3',
-    ]
-
-    for column in transport_columns_to_fix:
-        gens_df[column] = (
-            gens_df[column]
-            .astype('string')
-            .str.upper()
-            .map(FUEL_TRANSPORTATION_MODES_EIA)
-        )
-
     gens_df = (
-        gens_df.
-        pipe(pudl.helpers.month_year_to_date).
-        assign(fuel_type_code_pudl=lambda x: pudl.helpers.cleanstrings_series(
-            x['energy_source_code_1'], pc.FUEL_TYPE_EIA860_SIMPLE_MAP)).
-        pipe(pudl.helpers.simplify_strings,
-             columns=['rto_iso_lmp_node_id',
-                      'rto_iso_location_wholesale_reporting_id']).
-        pipe(pudl.helpers.convert_to_date)
+        gens_df
+        .pipe(pudl.helpers.month_year_to_date)
+        .pipe(
+            pudl.helpers.simplify_strings,
+            columns=['rto_iso_lmp_node_id', 'rto_iso_location_wholesale_reporting_id']
+        )
+        .pipe(pudl.helpers.convert_to_date)
+    )
+
+    gens_df = PUDL_META.get_resource("generators_eia860").encode(gens_df)
+
+    gens_df["fuel_type_code_pudl"] = (
+        gens_df.energy_source_code_1
+        .str.upper()
+        .map(
+            pudl.helpers.label_map(
+                ENERGY_SOURCES_EIA["df"],
+                from_col="code",
+                to_col="fuel_type_code_pudl",
+                null_value=pd.NA,
+            )
+        )
     )
 
     eia860_transformed_dfs['generators_eia860'] = gens_df
@@ -424,8 +422,9 @@ def plants(eia860_dfs, eia860_transformed_dfs):
                 value=[True, False, pd.NA])
         )
 
-    # Ensure plant & operator IDs are integers.
     p_df = pudl.helpers.convert_to_date(p_df)
+
+    p_df = PUDL_META.get_resource("plants_eia860").encode(p_df)
 
     eia860_transformed_dfs['plants_eia860'] = p_df
 
