@@ -96,6 +96,11 @@ class PudlTabl(object):
                 generation_fuel_eia923 - which is reported at the
                 plant/fuel/prime mover level and  re-allocated to generators in
                 ``mcoe()``, ``capacity_factor()`` and ``heat_rate_by_unit()``.
+            backfill_tech_desc: If True, backfill the technology_description
+                field to years earlier than 2013 based on plant and
+                energy_source_code_1.
+            unit_ids: If True, use several heuristics to assign
+                individual generators to functional units. EXPERIMENTAL.
 
         """
         # Validating ds is deferred to the etl_eia861 & etl_ferc714 methods
