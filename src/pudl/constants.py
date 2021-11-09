@@ -2286,6 +2286,7 @@ column_dtypes = {
         'utility_id_ferc1': pd.Int64Dtype(),
         'utility_id_pudl': pd.Int64Dtype(),
         'plant_id_pudl': pd.Int64Dtype(),
+        'plant_id_eia': pd.Int64Dtype(),
         # 'plant_name': pd.StringDtype(),
         'note': pd.StringDtype(),
         'report_year': int,

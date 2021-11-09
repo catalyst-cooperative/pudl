@@ -980,27 +980,7 @@ class PudlTabl(object):
             )
         return self._dfs['gens_mega_eia']
 
-    def true_grans_eia(self, update=False):
-        """
-        Generate and return a table .
-
-        Note: This table is entirely intented for use within
-        ``PudlTabl.plant_parts_eia`` and would be difficult to work with
-        outside of that context.
-
-        Returns:
-            pandas.DataFrame: a table based on ``PudlTabl.gens_mega_eia()``
-            that has boolean columns that denotes whether each plant-part is a
-            true or false granularity.
-        """
-        if update or self._dfs['true_grans_eia'] is None:
-            self._dfs['true_grans_eia'] = (
-                pudl.analysis.plant_parts_eia.LabelTrueGranularities()
-                .execute(self.gens_mega_eia())
-            )
-        return self._dfs['true_grans_eia']
-
-    def plant_parts_eia(self, update=False, deep_update=False):
+    def plant_parts_eia(self, update=False, update_gens_mega=False, update_true_gran=False):
         """
         Generate and return master plant-parts EIA.
 
@@ -1010,14 +990,23 @@ class PudlTabl(object):
             deep_update (boolean): If True, re-calculate both the output
                 dataframe and its inputs. Defualt is `False`.
         """
-        if update or deep_update or self._dfs['plant_parts_eia'] is None:
+        # generate the true_gran table
+        # the true_gran table is really not helpful on it's own
+        if update_true_gran or self._dfs['true_grans_eia'] is None:
+            self._dfs['true_grans_eia'] = (
+                pudl.analysis.plant_parts_eia.LabelTrueGranularities()
+                .execute(self.gens_mega_eia())
+            )
+
+        update_any = any([update, update_gens_mega, update_true_gran])
+        if update_any or self._dfs['plant_parts_eia'] is None:
             # make the plant-parts objects
             self.parts_compiler = pudl.analysis.plant_parts_eia.MakePlantParts(
                 self)
             # make the plant-parts df!
             self._dfs['plant_parts_eia'] = self.parts_compiler.execute(
-                gens_mega=self.gens_mega_eia(update=deep_update),
-                true_grans=self.true_grans_eia(update=deep_update)
+                gens_mega=self.gens_mega_eia(update=update_gens_mega),
+                true_grans=self._dfs['true_grans_eia']
             )
 
         return self._dfs['plant_parts_eia']
