@@ -16,7 +16,7 @@ Data Coverage Changes
   * :doc:`data_sources/ferc1` for 2020.
   * :ref:`data-eia861` data for 2020.
   * :ref:`data-ferc714` data for 2020.
-  * Note: the 2020 :ref:`data_sources/epacems` data was already available in v0.4.0.
+  * Note: the 2020 :doc:`data_sources/epacems` data was already available in v0.4.0.
 
 * **EPA IPM / NEEDS** data has been removed from PUDL as we didn't have the internal
   resources to maintain it, and it was no longer working. Apologies to
