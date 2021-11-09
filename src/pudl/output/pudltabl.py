@@ -60,7 +60,9 @@ class PudlTabl(object):
         end_date: Union[str, date, datetime, pd.Timestamp] = None,
         fill_fuel_cost: bool = False,
         roll_fuel_cost: bool = False,
-        fill_net_gen: bool = False
+        fill_net_gen: bool = False,
+        backfill_tech_desc: bool = False,
+        unit_ids=False
     ):
         """
         Initialize the PUDL output object.
@@ -130,7 +132,8 @@ class PudlTabl(object):
         self.roll_fuel_cost: bool = roll_fuel_cost
         self.fill_fuel_cost: bool = fill_fuel_cost
         self.fill_net_gen: bool = fill_net_gen
-        self.backfill_eia860_tech = False  # only for eia860 table backfilling
+        self.backfill_tech_desc = backfill_tech_desc  # only for eia860 table.
+        self.unit_ids = unit_ids
 
         # Used to persist the output tables. Returns None if they don't exist.
         self._dfs = defaultdict(lambda: None)
@@ -526,33 +529,29 @@ class PudlTabl(object):
                 end_date=self.end_date,)
         return self._dfs['plants_eia860']
 
-    def gens_eia860(self, update=False, backfill_tech=False, unit_ids=False):
+    def gens_eia860(self, update=False):
         """
         Pull a dataframe describing generators, as reported in EIA 860.
+
+        If you want to backfill the technology_description field, recreate
+        the pudl_out object with the parameter backfill_tech_desc = True.
 
         Args:
             update (bool): If true, re-calculate the output dataframe, even if
                 a cached version exists.
-            backfill_tech (bool): This allows users to specify whether they would like
-                to backfill the technology_description field or not. The output table
-                will reload if you ask for the table with a different specification for
-                tech_desc.
-            unit_ids (bool): If true, this will add unit IDs via assign_unit_ids so
-                that more or less all of the generators have a pudl-assigned unit it.
 
         Returns:
             pandas.DataFrame: a denormalized table for interactive use.
 
         """
-        if update or self._dfs['gens_eia860'] is None \
-                or backfill_tech != self.backfill_eia860_tech:
+        if update or self._dfs['gens_eia860'] is None:
             self._dfs['gens_eia860'] = pudl.output.eia860.generators_eia860(
                 self.pudl_engine,
                 start_date=self.start_date,
                 end_date=self.end_date,
-                unit_ids=unit_ids,
-                backfill_tech=backfill_tech)
-            self.backfill_eia860_tech = backfill_tech
+                unit_ids=self.unit_ids,
+                backfill_tech_desc=self.backfill_tech_desc)
+
         return self._dfs['gens_eia860']
 
     def own_eia860(self, update=False):

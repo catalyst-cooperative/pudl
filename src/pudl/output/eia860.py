@@ -220,7 +220,7 @@ def generators_eia860(
     start_date=None,
     end_date=None,
     unit_ids=False,
-    backfill_tech=False
+    backfill_tech_desc=False
 ):
     """Pull all fields reported in the generators_eia860 table.
 
@@ -247,8 +247,11 @@ def generators_eia860(
         end_date (date-like): date-like object, including a string of the
             form 'YYYY-MM-DD' which will be used to specify the date range of
             records to be pulled.  Dates are inclusive.
-        pudl_unit_ids (bool): If True, use several heuristics to assign
+        unit_ids (bool): If True, use several heuristics to assign
             individual generators to functional units. EXPERIMENTAL.
+        backfill_tech_desc (bool): If True, backfill the technology_description
+            field to years earlier than 2013 based on plant and
+            energy_source_code_1.
 
     Returns:
         pandas.DataFrame: A DataFrame containing all the fields of the EIA 860
@@ -344,6 +347,7 @@ def generators_eia860(
     )
     # Augment those base unit_id_pudl values using heuristics, see below.
     if unit_ids:
+        logger.info("Assigning pudl unit ids")
         out_df = assign_unit_ids(out_df)
 
     # Backfill technology_description field. Things to note: the
@@ -432,7 +436,8 @@ def generators_eia860(
 
         return df
 
-    if backfill_tech:
+    if backfill_tech_desc:
+        logger.info("Backfilling technology type")
         out_df = _backfill_tech_desc(out_df)
 
     first_cols = [
