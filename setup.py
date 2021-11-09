@@ -80,7 +80,7 @@ setup(
         ],
         "test": [
             "bandit~=1.6",
-            "coverage~=5.3",
+            "coverage>=5.3,<7.0",
             "doc8~=0.9",
             "flake8~=4.0",
             "flake8-builtins~=1.5",
