@@ -9,7 +9,7 @@ the extracted EIA 860M dataframes to the extracted EIA 860 dataframes. Example
 setup with pre-genrated `eia860_raw_dfs` and datastore as `ds`:
 
 eia860m_raw_dfs = pudl.extract.eia860m.Extractor(ds).extract(
-    pc.working_partitions['eia860m']['year_month'])
+    pc.WORKING_PARTITIONS['eia860m']['year_month'])
 eia860_raw_dfs = pudl.extract.eia860m.append_eia860m(
     eia860_raw_dfs=eia860_raw_dfs, eia860m_raw_dfs=eia860m_raw_dfs)
 

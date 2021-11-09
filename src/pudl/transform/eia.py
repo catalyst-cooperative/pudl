@@ -19,15 +19,145 @@ found in :func:`pudl.transform.eia._boiler_generator_assn`.
 
 import importlib.resources
 import logging
+from typing import Dict
 
 import networkx as nx
 import numpy as np
 import pandas as pd
+import timezonefinder
 
 import pudl
-from pudl import constants as pc
+import pudl.constants as pc
 
 logger = logging.getLogger(__name__)
+
+TZ_FINDER = timezonefinder.TimezoneFinder()
+"""A global TimezoneFinder to cache geographies in memory for faster access."""
+
+APPROXIMATE_TIMEZONES: Dict[str, str] = {
+    "AK": "America/Anchorage",      # Alaska
+    "AL": "America/Chicago",        # Alabama
+    "AR": "America/Chicago",        # Arkansas
+    "AS": "Pacific/Pago_Pago",      # American Samoa; Not in CEMS
+    "AZ": "America/Phoenix",        # Arizona
+    "CA": "America/Los_Angeles",    # California
+    "CO": "America/Denver",         # Colorado
+    "CT": "America/New_York",       # Connecticut
+    "DC": "America/New_York",       # District of Columbia
+    "DE": "America/New_York",       # Delaware
+    "FL": "America/New_York",       # Florida (split state)
+    "GA": "America/New_York",       # Georgia
+    "GU": "Pacific/Guam",           # Guam; Not in CEMS
+    "HI": "Pacific/Honolulu",       # Hawaii; Not in CEMS
+    "IA": "America/Chicago",        # Iowa
+    "ID": "America/Denver",         # Idaho (split state)
+    "IL": "America/Chicago",        # Illinois
+    "IN": "America/New_York",       # Indiana (split state)
+    "KS": "America/Chicago",        # Kansas (split state)
+    "KY": "America/New_York",       # Kentucky (split state)
+    "LA": "America/Chicago",        # Louisiana
+    "MA": "America/New_York",       # Massachusetts
+    "MD": "America/New_York",       # Maryland
+    "ME": "America/New_York",       # Maine
+    "MI": "America/Detroit",        # Michigan (split state)
+    "MN": "America/Chicago",        # Minnesota
+    "MO": "America/Chicago",        # Missouri
+    "MP": "Pacific/Guam",           # Northern Mariana Islands; Not in CEMS
+    "MS": "America/Chicago",        # Mississippi
+    "MT": "America/Denver",         # Montana
+    "NC": "America/New_York",       # North Carolina
+    "ND": "America/Chicago",        # North Dakota (split state)
+    "NE": "America/Chicago",        # Nebraska (split state)
+    "NH": "America/New_York",       # New Hampshire
+    "NJ": "America/New_York",       # New Jersey
+    "NM": "America/Denver",         # New Mexico
+    "NV": "America/Los_Angeles",    # Nevada
+    "NY": "America/New_York",       # New York
+    "OH": "America/New_York",       # Ohio
+    "OK": "America/Chicago",        # Oklahoma
+    "OR": "America/Los_Angeles",    # Oregon (split state)
+    "PA": "America/New_York",       # Pennsylvania
+    "PR": "America/Puerto_Rico",    # Puerto Rico; Not in CEMS
+    "RI": "America/New_York",       # Rhode Island
+    "SC": "America/New_York",       # South Carolina
+    "SD": "America/Chicago",        # South Dakota (split state)
+    "TN": "America/Chicago",        # Tennessee
+    "TX": "America/Chicago",        # Texas
+    "UT": "America/Denver",         # Utah
+    "VA": "America/New_York",       # Virginia
+    "VI": "America/Port_of_Spain",  # Virgin Islands; Not in CEMS
+    "VT": "America/New_York",       # Vermont
+    "WA": "America/Los_Angeles",    # Washington
+    "WI": "America/Chicago",        # Wisconsin
+    "WV": "America/New_York",       # West Virginia
+    "WY": "America/Denver",         # Wyoming
+    # Canada (none of these are in CEMS)
+    "AB": "America/Edmonton",       # Alberta
+    "BC": "America/Vancouver",      # British Columbia (split province)
+    "MB": "America/Winnipeg",       # Manitoba
+    "NB": "America/Moncton",        # New Brunswick
+    "NS": "America/Halifax",        # Nova Scotia
+    "NL": "America/St_Johns",       # Newfoundland and Labrador (split province)
+    "NT": "America/Yellowknife",    # Northwest Territories (split province)
+    "NU": "America/Iqaluit",        # Nunavut (split province)
+    "ON": "America/Toronto",        # Ontario (split province)
+    "PE": "America/Halifax",        # Prince Edwards Island
+    "QC": "America/Montreal",       # Quebec (split province)
+    "SK": "America/Regina",         # Saskatchewan  (split province)
+    "YT": "America/Whitehorse",     # Yukon Territory
+}
+"""
+Approximate mapping of US & Canadian jurisdictions to canonical timezones
+
+This is imperfect for states that have split timezones. See:
+https://en.wikipedia.org/wiki/List_of_time_offsets_by_U.S._state_and_territory
+For states that are split, the timezone that has more people in it.
+List of timezones in pytz.common_timezones
+Canada: https://en.wikipedia.org/wiki/Time_in_Canada#IANA_time_zone_database
+"""
+
+
+def find_timezone(*, lng=None, lat=None, state=None, strict=True):
+    """Find the timezone associated with the a specified input location.
+
+    Note that this function requires named arguments. The names are lng, lat,
+    and state.  lng and lat must be provided, but they may be NA. state isn't
+    required, and isn't used unless lng/lat are NA or timezonefinder can't find
+    a corresponding timezone.
+
+    Timezones based on states are imprecise, so it's far better to use lng/lat
+    if possible. If `strict` is True, state will not be used.
+    More on state-to-timezone conversion here:
+    https://en.wikipedia.org/wiki/List_of_time_offsets_by_U.S._state_and_territory
+
+    Args:
+        lng (int or float in [-180,180]): Longitude, in decimal degrees
+        lat (int or float in [-90, 90]): Latitude, in decimal degrees
+        state (str): Abbreviation for US state or Canadian province
+        strict (bool): Raise an error if no timezone is found?
+
+    Returns:
+        str: The timezone (as an IANA string) for that location.
+
+    Todo:
+        Update docstring.
+
+    """
+    try:
+        tz = TZ_FINDER.timezone_at(lng=lng, lat=lat)
+        if tz is None:  # Try harder
+            # Could change the search radius as well
+            tz = TZ_FINDER.closest_timezone_at(lng=lng, lat=lat)
+    # For some reason w/ Python 3.6 we get a ValueError here, but with
+    # Python 3.7 we get an OverflowError...
+    except (OverflowError, ValueError):
+        # If we're being strict, only use lng/lat, not state
+        if strict:
+            raise ValueError(
+                f"Can't find timezone for: lng={lng}, lat={lat}, state={state}"
+            )
+        tz = APPROXIMATE_TIMEZONES.get(state, None)
+    return tz
 
 
 def _occurrence_consistency(entity_id, compiled_df, col,
@@ -64,7 +194,7 @@ def _occurrence_consistency(entity_id, compiled_df, col,
     # select only the colums you want and drop the NaNs
     # we want to drop the NaNs because
     col_df = compiled_df[entity_id + ['report_date', col, 'table']].copy()
-    if pc.column_dtypes["eia"][col] == pd.StringDtype():
+    if pc.COLUMN_DTYPES["eia"][col] == pd.StringDtype():
         nan_str_mask = (col_df[col] == "nan").fillna(False)
         col_df.loc[nan_str_mask, col] = pd.NA
     col_df = col_df.dropna()
@@ -159,21 +289,21 @@ def _lat_long(dirty_df, clean_df, entity_id_df, entity_id,
     return ll_clean_df
 
 
-def _add_timezone(plants_entity):
-    """Adds plant IANA timezones from lat / lon.
+def _add_timezone(plants_entity: pd.DataFrame) -> pd.DataFrame:
+    """
+    Add plant IANA timezone based on lat/lon or state if lat/lon is unavailable.
 
     Args:
-        plants_entity (pandas.DataFrame): Plant entity table, including columns
-            named "latitude", "longitude", and optionally "state"
+        plants_entity: Plant entity table, including columns named "latitude",
+            "longitude", and optionally "state"
 
     Returns:
-        :class:`pandas.DataFrame`: A DataFrame containing the same table, with a
-        "timezone" column added. Timezone may be missing if lat / lon is
-        missing or invalid.
+        A DataFrame containing the same table, with a "timezone" column added.
+        Timezone may be missing if lat / lon is missing or invalid.
 
     """
     plants_entity["timezone"] = plants_entity.apply(
-        lambda row: pudl.helpers.find_timezone(
+        lambda row: find_timezone(
             lng=row["longitude"], lat=row["latitude"],
             state=row["state"], strict=False
         ),
@@ -211,8 +341,8 @@ def _add_additional_epacems_plants(plants_entity):
     # See also: https://github.com/pandas-dev/pandas/issues/22812
     cems_df = pd.read_csv(
         importlib.resources.open_text(
-            'pudl.package_data.epa.cems',
-            'plant_info_for_additional_cems_plants.csv'),
+            'pudl.package_data.epacems',
+            'additional_epacems_plants.csv'),
         index_col=["plant_id_eia"],
         usecols=["plant_id_eia", "plant_name_eia",
                  "state", "latitude", "longitude"],
@@ -234,10 +364,8 @@ def _compile_all_entity_records(entity, eia_transformed_dfs):
     to pull out every instance of the entity id.
     """
     # we know these columns must be in the dfs
-    entity_id = pc.entities[entity][0]
-    static_cols = pc.entities[entity][1]
-    annual_cols = pc.entities[entity][2]
-    base_cols = pc.entities[entity][0] + ['report_date']
+    entity_id, static_cols, annual_cols, dtypes = pc.ENTITIES[entity]
+    base_cols = entity_id + ['report_date']
 
     # empty list for dfs to be added to for each table below
     dfs = []
@@ -265,10 +393,15 @@ def _compile_all_entity_records(entity, eia_transformed_dfs):
                 dfs.append(df)
 
                 # remove the static columns, with an exception
-                if ((entity in ('generators', 'plants'))
-                    and (table_name in ('ownership_eia860',
-                                        'utilities_eia860',
-                                        'generators_eia860'))):
+                if (
+                    (entity in ('generators', 'plants'))
+                    and (table_name in (
+                        'generators_eia860',
+                        'ownership_eia860',
+                        'plants_eia860',
+                        'utilities_eia860',
+                    ))
+                ):
                     cols.remove('utility_id_eia')
                 transformed_df = transformed_df.drop(columns=cols)
                 eia_transformed_dfs[table_name] = transformed_df
@@ -285,17 +418,17 @@ def _compile_all_entity_records(entity, eia_transformed_dfs):
 
     logger.debug('    Casting harvested IDs to correct data types')
     # most columns become objects (ack!), so assign types
-    compiled_df = compiled_df.astype(pc.entities[entity][3])
+    compiled_df = compiled_df.astype(dtypes)
     return compiled_df
 
 
-def _manage_strictness(col, eia860_ytd):
+def _manage_strictness(col, eia860m):
     """
     Manage the strictness level for each column.
 
     Args:
         col (str): name of column
-        eia860_ytd (boolean): if True, the etl run is attempting to include
+        eia860m (boolean): if True, the etl run is attempting to include
             year-to-date updated from EIA 860M.
     """
     strictness_default = .7
@@ -305,7 +438,7 @@ def _manage_strictness(col, eia860_ytd):
     strictness_cols = {
         'plant_name_eia': 0,
         'utility_name_eia': 0,
-        'longitude': 0 if eia860_ytd else .7
+        'longitude': 0 if eia860m else .7
     }
     return strictness_cols.get(col, strictness_default)
 
@@ -313,7 +446,7 @@ def _manage_strictness(col, eia860_ytd):
 def harvesting(entity,  # noqa: C901
                eia_transformed_dfs,
                entities_dfs,
-               eia860_ytd=False,
+               eia860m=False,
                debug=False):
     """Compiles consistent records for various entities.
 
@@ -347,7 +480,7 @@ def harvesting(entity,  # noqa: C901
             transformed dfs (values)
         entities_dfs(dict): A dictionary of entity table names (keys) and
             entity dfs (values)
-        eia860_ytd (boolean): if True, the etl run is attempting to include
+        eia860m (boolean): if True, the etl run is attempting to include
             year-to-date updated from EIA 860M.
         debug (bool): If True, this function will also return an additional
             dictionary of dataframes that includes the pre-deduplicated
@@ -371,9 +504,7 @@ def harvesting(entity,  # noqa: C901
 
     """
     # we know these columns must be in the dfs
-    entity_id = pc.entities[entity][0]
-    static_cols = pc.entities[entity][1]
-    annual_cols = pc.entities[entity][2]
+    entity_id, static_cols, annual_cols, _ = pc.ENTITIES[entity]
 
     logger.debug("    compiling plants for entity tables from:")
 
@@ -403,7 +534,7 @@ def harvesting(entity,  # noqa: C901
         if col in static_cols:
             cols_to_consit = entity_id
 
-        strictness = _manage_strictness(col, eia860_ytd)
+        strictness = _manage_strictness(col, eia860m)
         col_df = _occurrence_consistency(
             entity_id, compiled_df, col, cols_to_consit, strictness=strictness)
 
@@ -491,8 +622,8 @@ def harvesting(entity,  # noqa: C901
 
 def _boiler_generator_assn(
     eia_transformed_dfs,
-    eia923_years=pc.working_partitions['eia923']['years'],
-    eia860_years=pc.working_partitions['eia860']['years'],
+    eia923_years=pc.WORKING_PARTITIONS['eia923']['years'],
+    eia860_years=pc.WORKING_PARTITIONS['eia860']['years'],
     debug=False
 ):
     """
@@ -897,8 +1028,8 @@ def _boiler_generator_assn(
 
 
 def _restrict_years(df,
-                    eia923_years=pc.working_partitions['eia923']['years'],
-                    eia860_years=pc.working_partitions['eia860']['years']):
+                    eia923_years=pc.WORKING_PARTITIONS['eia923']['years'],
+                    eia860_years=pc.WORKING_PARTITIONS['eia860']['years']):
     """Restricts eia years for boiler generator association."""
     bga_years = set(eia860_years) & set(eia923_years)
     df = df[df.report_date.dt.year.isin(bga_years)]
@@ -906,9 +1037,9 @@ def _restrict_years(df,
 
 
 def transform(eia_transformed_dfs,
-              eia860_years=pc.working_partitions['eia860']['years'],
-              eia923_years=pc.working_partitions['eia923']['years'],
-              eia860_ytd=False,
+              eia860_years=pc.WORKING_PARTITIONS['eia860']['years'],
+              eia923_years=pc.WORKING_PARTITIONS['eia923']['years'],
+              eia860m=False,
               debug=False):
     """Creates DataFrames for EIA Entity tables and modifies EIA tables.
 
@@ -926,7 +1057,7 @@ def transform(eia_transformed_dfs,
             and only include working years.
         eia923_years (list): a list of years for EIA 923, must be continuous,
             and include only working years.
-        eia860_ytd (boolean): if True, the etl run is attempting to include
+        eia860m (boolean): if True, the etl run is attempting to include
             year-to-date updated from EIA 860M.
         debug (bool): if true, informational columns will be added into
             boiler_generator_assn
@@ -945,12 +1076,12 @@ def transform(eia_transformed_dfs,
 
     # for each of the entities, harvest the static and annual columns.
     # the order of the entities matter! the
-    for entity in pc.entities.keys():
+    for entity in pc.ENTITIES.keys():
         logger.info(f"Harvesting IDs & consistently static attributes "
                     f"for EIA {entity}")
 
         harvesting(entity, eia_transformed_dfs, entities_dfs,
-                   debug=debug, eia860_ytd=eia860_ytd)
+                   debug=debug, eia860m=eia860m)
 
     _boiler_generator_assn(eia_transformed_dfs,
                            eia923_years=eia923_years,

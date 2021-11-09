@@ -16,7 +16,7 @@ import coloredlogs
 import yaml
 
 import pudl
-from pudl import constants as pc
+from pudl.settings import Ferc1ToSqliteSettings
 from pudl.workspace.datastore import Datastore
 
 # Create a logger to output any messages we might have...
@@ -91,47 +91,16 @@ def main():  # noqa: C901
         pudl_out=pudl_out
     )
 
-    # Check args for basic validity:
-    for table in script_settings['ferc1_to_sqlite_tables']:
-        if table not in pc.ferc1_tbl2dbf:
-            raise ValueError(
-                f"{table} was not found in the list of "
-                f"available FERC Form 1 tables."
-            )
-    # Deduplicate the list of tables, just in case
-    script_settings["ferc1_to_sqlite_tables"] = list(
-        set(script_settings["ferc1_to_sqlite_tables"]))
-
-    if script_settings['ferc1_to_sqlite_refyear'] \
-            not in pc.data_years['ferc1']:
-        raise ValueError(
-            f"Reference year {script_settings['ferc1_to_sqlite_refyear']} "
-            f"is outside the range of available FERC Form 1 data "
-            f"({min(pc.data_years['ferc1'])}-"
-            f"{max(pc.data_years['ferc1'])})."
-        )
-    for year in script_settings['ferc1_to_sqlite_years']:
-        if year not in pc.data_years['ferc1']:
-            raise ValueError(
-                f"Requested data from {year} is outside the range of "
-                f"available FERC Form 1 data "
-                f"({min(pc.data_years['ferc1'])}-"
-                f"{max(pc.data_years['ferc1'])})."
-            )
-    script_settings["ferc1_to_sqlite_years"] = sorted(
-        set(script_settings["ferc1_to_sqlite_years"])
-    )
-
-    # This field is optional and generally unused...
-    bad_cols = script_settings.get("ferc1_to_sqlite_bad_cols", ())
+    script_settings = Ferc1ToSqliteSettings().parse_obj(
+        script_settings["ferc1_to_sqlite_settings"])
 
     pudl_settings["sandbox"] = args.sandbox
     pudl.extract.ferc1.dbf2sqlite(
-        tables=script_settings['ferc1_to_sqlite_tables'],
-        years=script_settings['ferc1_to_sqlite_years'],
-        refyear=script_settings['ferc1_to_sqlite_refyear'],
+        tables=script_settings.tables,
+        years=script_settings.years,
+        refyear=script_settings.refyear,
         pudl_settings=pudl_settings,
-        bad_cols=bad_cols,
+        bad_cols=script_settings.bad_cols,
         clobber=args.clobber,
         datastore=Datastore(
             local_cache_path=(Path(pudl_in) / "data"),

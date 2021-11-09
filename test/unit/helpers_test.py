@@ -1,18 +1,20 @@
 """Unit tests for the :mod:`pudl.helpers` module."""
+
 import pandas as pd
 from pandas.testing import assert_frame_equal
 
-import pudl
+from pudl.helpers import (convert_df_to_excel_file, convert_to_date,
+                          fix_eia_na, fix_leading_zero_gen_ids)
 
 
 def test_convert_to_date():
     """Test automated cleanup of EIA date columns."""
-    data = [
-        (2019, 3, 14),
-        ("2019", "03", "14"),
-    ]
     in_df = pd.DataFrame.from_records(
-        data, columns=["report_year", "report_month", "report_day"]
+        columns=["report_year", "report_month", "report_day"],
+        data=[
+            (2019, 3, 14),
+            ("2019", "03", "14"),
+        ],
     )
     expected_df = pd.DataFrame({
         "report_date": pd.to_datetime([
@@ -20,7 +22,7 @@ def test_convert_to_date():
             "2019-03-14",
         ]),
     })
-    out_df = pudl.helpers.convert_to_date(in_df)
+    out_df = convert_to_date(in_df)
     assert_frame_equal(out_df, expected_df)
 
 
@@ -28,29 +30,35 @@ def test_fix_eia_na():
     """Test cleanup of bad EIA spreadsheet NA values."""
     in_df = pd.DataFrame({
         "vals": [
+            0,     # Don't touch integers, even if they're null-ish
+            0.0,   # Don't touch floats, even if they're null-ish
+            "0.",  # Should only replace naked decimals
+            ".0",  # Should only replace naked decimals
+            "..",  # Only replace single naked decimals
             "",
             " ",
             "\t",
             ".",
-            ".0",  # Should only replace naked decimals
-            "..",  # Only single naked decimals?
-            "  ",  # 2 spaces -- we only replace single whitespace chars?
-            "\t\t",  # 2 tabs -- we only replace single whitespace chars?
+            "  ",  # Multiple whitespace characters
+            "\t\t",  # 2-tabs: another Multi-whitespace
         ]
     })
     expected_df = pd.DataFrame({
         "vals": [
-            pd.NA,
-            pd.NA,
-            pd.NA,
-            pd.NA,
+            0,
+            0.0,
+            "0.",
             ".0",
             "..",
-            "  ",
-            "\t\t",
+            pd.NA,
+            pd.NA,
+            pd.NA,
+            pd.NA,
+            pd.NA,
+            pd.NA,
         ]
     })
-    out_df = pudl.helpers.fix_eia_na(in_df)
+    out_df = fix_eia_na(in_df)
     assert_frame_equal(out_df, expected_df)
 
 
@@ -76,7 +84,7 @@ def test_fix_leading_zero_gen_ids():
             "HRSG-01",
         ]
     })
-    out_df = pudl.helpers.fix_leading_zero_gen_ids(in_df)
+    out_df = fix_leading_zero_gen_ids(in_df)
     assert_frame_equal(out_df, expected_df)
 
 
@@ -85,7 +93,7 @@ def test_convert_df_to_excel_file():
     in_df = pd.DataFrame([[1, 2], [1, 2]])
     expected_df = pd.DataFrame([[1, 2], [1, 2]])
 
-    out_excel_file = pudl.helpers.convert_df_to_excel_file(in_df, index=False)
+    out_excel_file = convert_df_to_excel_file(in_df, index=False)
     out_df = pd.read_excel(out_excel_file)
 
     assert_frame_equal(out_df, expected_df)

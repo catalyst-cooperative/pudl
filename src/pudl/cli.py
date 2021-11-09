@@ -6,7 +6,7 @@ settings has empty datapackage parameters (meaning there are no years or
 tables included), no datapacakges will be generated. If the settings include a
 datapackage that has empty parameters, the other valid datatpackages will be
 generated, but not the empty one. If there are invalid parameters (meaning a
-partition that is not included in the pudl.constant.working_partitions), the
+partition that is not included in the pudl.constant.WORKING_PARTITIONS), the
 build will fail early on in the process.
 
 The datapackages will be stored in "PUDL_OUT" in the "datapackge" subdirectory.
@@ -17,13 +17,15 @@ pudl directories see the pudl_setup script (pudl_setup --help for more details).
 """
 import argparse
 import logging
-import pathlib
 import sys
+from sqlite3 import sqlite_version
 
 import coloredlogs
-import yaml
+from packaging import version
 
 import pudl
+from pudl.load.sqlite import MINIMUM_SQLITE_VERSION
+from pudl.settings import EtlSettings
 
 logger = logging.getLogger(__name__)
 
@@ -110,21 +112,28 @@ def main():
         file_logger = logging.FileHandler(args.logfile)
         file_logger.setFormatter(logging.Formatter(log_format))
         pudl_logger.addHandler(file_logger)
-    with pathlib.Path(args.settings_file).open() as f:
-        script_settings = yaml.safe_load(f)
 
-    default_settings = pudl.workspace.setup.get_defaults()
-    pudl_in = script_settings.get("pudl_in", default_settings["pudl_in"])
-    pudl_out = script_settings.get("pudl_out", default_settings["pudl_out"])
+    etl_settings = EtlSettings.from_yaml(args.settings_file)
 
     pudl_settings = pudl.workspace.setup.derive_paths(
-        pudl_in=pudl_in,
-        pudl_out=pudl_out
+        pudl_in=etl_settings.pudl_in,
+        pudl_out=etl_settings.pudl_out
     )
     pudl_settings["sandbox"] = args.sandbox
 
+    bad_sqlite_version = (
+        version.parse(sqlite_version) < version.parse(MINIMUM_SQLITE_VERSION)
+    )
+    if bad_sqlite_version and not args.ignore_type_constraints:
+        args.ignore_type_constraints = False
+        pudl_logger.warning(
+            f"Found SQLite {sqlite_version} which is less than "
+            f"the minimum required version {MINIMUM_SQLITE_VERSION} "
+            "As a result, data type constraint checking will be disabled."
+        )
+
     pudl.etl.etl(
-        etl_settings_bundle=script_settings['datapkg_bundle_settings'],
+        etl_settings=etl_settings,
         pudl_settings=pudl_settings,
         clobber=args.clobber,
         use_local_cache=not args.bypass_local_cache,

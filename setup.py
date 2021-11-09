@@ -50,13 +50,14 @@ doc_requires = [
     "sphinx-reredirects",
     "sphinx-rtd-dark-mode~=1.2",
     "sphinx-rtd-theme~=1.0",
+    "sphinxcontrib_bibtex~=2.4",
 ]
 
 test_requires = [
     "bandit~=1.6",
     "coverage~=5.3",
     "doc8~=0.9",
-    "flake8~=3.8",
+    "flake8~=4.0",
     "flake8-builtins~=1.5",
     "flake8-colors~=0.1",
     "flake8-docstrings~=1.5",

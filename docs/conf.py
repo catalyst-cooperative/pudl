@@ -47,8 +47,14 @@ extensions = [
     'sphinx_issues',
     'sphinx_reredirects',
     'sphinx_rtd_dark_mode',
+    'sphinxcontrib.bibtex',
 ]
 todo_include_todos = True
+bibtex_bibfiles = [
+    'catalyst_pubs.bib',
+    'catalyst_cites.bib',
+    'further_reading.bib',
+]
 
 # Redirects to keep folks from hitting 404 errors:
 redirects = {
@@ -59,10 +65,6 @@ redirects = {
 autoapi_type = 'python'
 autoapi_dirs = ['../src/pudl', ]
 autoapi_ignore = [
-    "*/convert/datapkg_to_sqlite.py",
-    "*/convert/merge_datapkgs.py",
-    "*/load/csv.py",
-    "*/load/metadata.py",
     "*_test.py",
     "*/package_data/*",
 ]

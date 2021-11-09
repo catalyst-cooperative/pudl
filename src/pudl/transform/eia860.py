@@ -7,6 +7,12 @@ import pandas as pd
 
 import pudl
 from pudl import constants as pc
+from pudl.constants import PUDL_TABLES
+from pudl.metadata import RESOURCE_METADATA
+from pudl.metadata.codes import ENERGY_SOURCES_EIA
+from pudl.metadata.labels import ENTITY_TYPES
+
+PUDL_META = pudl.metadata.classes.Package.from_resource_ids(RESOURCE_METADATA)
 
 logger = logging.getLogger(__name__)
 
@@ -44,10 +50,10 @@ def ownership(eia860_dfs, eia860_transformed_dfs):
     )
 
     if (min(own_df.report_date.dt.year)
-            < min(pc.working_partitions['eia860']['years'])):
+            < min(pc.WORKING_PARTITIONS['eia860']['years'])):
         raise ValueError(
             f"EIA 860 transform step is only known to work for "
-            f"year {min(pc.working_partitions['eia860']['years'])} and later, "
+            f"year {min(pc.WORKING_PARTITIONS['eia860']['years'])} and later, "
             f"but found data from year {min(own_df.report_date.dt.year)}."
         )
 
@@ -113,12 +119,40 @@ def ownership(eia860_dfs, eia860_transformed_dfs):
     # datatypes are applied, which violates the primary key constraints.
     # See https://github.com/catalyst-cooperative/pudl/issues/1207
     mask = (
-        (own_df.report_date.isin(["2018-01-01", "2019-01-01"]))
+        (own_df.report_date.isin(["2018-01-01", "2019-01-01", "2020-01-01"]))
         & (own_df.plant_id_eia == 62844)
         & (own_df.owner_utility_id_eia == 62745)
         & (own_df.generator_id == "nan")
     )
     own_df = own_df[~mask]
+
+    # In 2010 there are several hundred utilities that appear to be incorrectly
+    # reporting the owner_utility_id_eia value *also* in the utility_id_eia
+    # column. This results in duplicate operator IDs associated with a given
+    # generator in a particular year, which should never happen. We identify
+    # these values and set them to NA so they don't mess up the harvested
+    # relationships between plants and utilities:
+    # See https://github.com/catalyst-cooperative/pudl/issues/1116
+    duplicate_operators = (
+        own_df.groupby(["report_date", "plant_id_eia", "generator_id"])
+        .utility_id_eia.transform(pd.Series.nunique)
+    ) > 1
+    own_df.loc[duplicate_operators, "utility_id_eia"] = pd.NA
+
+    # The above fix won't catch owner_utility_id_eia values in the
+    # utility_id_eia (operator) column when there's only a single
+    # owner-operator. But also, when there's a single owner-operator they souldn't
+    # even be reporting in this table. So we can also drop those utility_id_eia
+    # values without losing any valuable information here. The utility_id_eia
+    # column here is only useful for entity harvesting & resolution purposes
+    # since the (report_date, plant_id_eia) tuple fully defines the operator id.
+    # See https://github.com/catalyst-cooperative/pudl/issues/1116
+    single_owner_operator = (
+        (own_df.utility_id_eia == own_df.owner_utility_id_eia)
+        & (own_df.fraction_owned == 1.0)
+    )
+    own_df.loc[single_owner_operator, "utility_id_eia"] = pd.NA
+    own_df = PUDL_META.get_resource("ownership_eia860").encode(own_df)
 
     eia860_transformed_dfs['ownership_eia860'] = own_df
 
@@ -222,7 +256,6 @@ def generators(eia860_dfs, eia860_transformed_dfs):
     # A subset of the columns have "X" values, where other columns_to_fix
     # have "N" values. Replacing these values with "N" will make for uniform
     # values that can be converted to Boolean True and False pairs.
-
     gens_df.duct_burners = \
         gens_df.duct_burners.replace(to_replace='X', value='N')
     gens_df.bypass_heat_recovery = \
@@ -278,34 +311,29 @@ def generators(eia860_dfs, eia860_transformed_dfs):
                 value=[True, False, pd.NA])
         )
 
-    # A subset of the pre-2009 columns refer to transportation methods with a
-    # series of codes. This writes them out in their entirety.
-
-    transport_columns_to_fix = [
-        'energy_source_1_transport_1',
-        'energy_source_1_transport_2',
-        'energy_source_1_transport_3',
-        'energy_source_2_transport_1',
-        'energy_source_2_transport_2',
-        'energy_source_2_transport_3',
-    ]
-
-    for column in transport_columns_to_fix:
-        gens_df[column] = (
-            gens_df[column]
-            .astype('string')
-            .replace(pc.TRANSIT_TYPE_DICT)
-        )
-
     gens_df = (
-        gens_df.
-        pipe(pudl.helpers.month_year_to_date).
-        assign(fuel_type_code_pudl=lambda x: pudl.helpers.cleanstrings_series(
-            x['energy_source_code_1'], pc.fuel_type_eia860_simple_map)).
-        pipe(pudl.helpers.simplify_strings,
-             columns=['rto_iso_lmp_node_id',
-                      'rto_iso_location_wholesale_reporting_id']).
-        pipe(pudl.helpers.convert_to_date)
+        gens_df
+        .pipe(pudl.helpers.month_year_to_date)
+        .pipe(
+            pudl.helpers.simplify_strings,
+            columns=['rto_iso_lmp_node_id', 'rto_iso_location_wholesale_reporting_id']
+        )
+        .pipe(pudl.helpers.convert_to_date)
+    )
+
+    gens_df = PUDL_META.get_resource("generators_eia860").encode(gens_df)
+
+    gens_df["fuel_type_code_pudl"] = (
+        gens_df.energy_source_code_1
+        .str.upper()
+        .map(
+            pudl.helpers.label_map(
+                ENERGY_SOURCES_EIA["df"],
+                from_col="code",
+                to_col="fuel_type_code_pudl",
+                null_value=pd.NA,
+            )
+        )
     )
 
     eia860_transformed_dfs['generators_eia860'] = gens_df
@@ -394,8 +422,9 @@ def plants(eia860_dfs, eia860_transformed_dfs):
                 value=[True, False, pd.NA])
         )
 
-    # Ensure plant & operator IDs are integers.
     p_df = pudl.helpers.convert_to_date(p_df)
+
+    p_df = PUDL_META.get_resource("plants_eia860").encode(p_df)
 
     eia860_transformed_dfs['plants_eia860'] = p_df
 
@@ -547,7 +576,7 @@ def utilities(eia860_dfs, eia860_transformed_dfs):
             "utility_id_eia": "Int64"
         })
         .assign(
-            entity_type=lambda x: x.entity_type.map(pc.ENTITY_TYPE_DICT)
+            entity_type=lambda x: x.entity_type.map(ENTITY_TYPES)
         )
         .pipe(pudl.helpers.convert_to_date)
     )
@@ -557,7 +586,7 @@ def utilities(eia860_dfs, eia860_transformed_dfs):
     return eia860_transformed_dfs
 
 
-def transform(eia860_raw_dfs, eia860_tables=pc.pudl_tables["eia860"]):
+def transform(eia860_raw_dfs, eia860_tables=PUDL_TABLES["eia860"]):
     """
     Transform EIA 860 DataFrames.
 

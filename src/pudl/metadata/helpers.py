@@ -7,6 +7,41 @@ import pandas as pd
 
 from .constants import PERIODS
 
+
+def format_errors(*errors: str, title: str = None, pydantic: bool = False) -> str:
+    """
+    Format multiple errors into a single error.
+
+    Args:
+        errors: Error messages.
+        title: Title for error messages.
+
+    Examples:
+        >>> e = format_errors('worse', title='bad')
+        >>> print(e)
+        bad
+        * worse
+        >>> e = format_errors('worse', title='bad', pydantic=True)
+        >>> print(e)
+        bad
+          * worse
+        >>> e = format_errors('bad', 'worse')
+        >>> print(e)
+        * bad
+        * worse
+        >>> e = format_errors('bad', 'worse', pydantic=True)
+        >>> print(e)
+        * bad
+          * worse
+    """
+    title = f"{title}\n" if title else ""
+    messages = [f"* {e}" for e in errors if e]
+    if pydantic:
+        indent = 0 if title else 1
+        messages[indent:] = [f"  {m}" for m in messages[indent:]]
+    return title + "\n".join(messages)
+
+
 # --- Foreign keys --- #
 
 
@@ -23,16 +58,17 @@ def _parse_field_names(fields: List[Union[str, dict]]) -> List[str]:
     return [field if isinstance(field, str) else field["name"] for field in fields]
 
 
-def _parse_foreign_key_rules(meta: dict, name: str) -> List[dict]:
+def _parse_foreign_key_rule(rule: dict, name: str, key: List[str]) -> List[dict]:
     """
-    Parse foreign key rules from resource descriptor.
+    Parse foreign key rule from resource descriptor.
 
     Args:
         meta: Resource descriptor.
         name: Resource name.
+        key: Resource primary key.
 
     Returns:
-        Foreign key rules:
+        Parsed foreign key rules:
 
         * `fields` (List[str]): Local fields.
         * `reference['resource']` (str): Reference resource name.
@@ -40,20 +76,19 @@ def _parse_foreign_key_rules(meta: dict, name: str) -> List[dict]:
         * `exclude` (List[str]): Names of resources to exclude, including `name`.
     """
     rules = []
-    if "foreign_key_rules" in meta["schema"]:
-        for fields in meta["schema"]["foreign_key_rules"]["fields"]:
-            exclude = meta["schema"]["foreign_key_rules"].get("exclude", [])
-            rules.append({
-                "fields": fields,
-                "reference": {"resource": name, "fields": meta["schema"]["primary_key"]},
-                "exclude": [name] + exclude
-            })
+    for fields in rule["fields"]:
+        exclude = rule.get("exclude", [])
+        rules.append({
+            "fields": fields,
+            "reference": {"resource": name, "fields": key},
+            "exclude": [name] + exclude
+        })
     return rules
 
 
 def _build_foreign_key_tree(
     resources: Dict[str, dict]
-) -> Dict[str, Dict[Tuple[str], dict]]:
+) -> Dict[str, Dict[Tuple[str, ...], dict]]:
     """
     Build foreign key tree.
 
@@ -62,7 +97,7 @@ def _build_foreign_key_tree(
 
     Returns:
         Foreign key tree where the first key is a resource name (str),
-        the second key is resource field names (Tuple[str]),
+        the second key is resource field names (Tuple[str, ...]),
         and the value describes the reference resource (dict):
 
         * `reference['resource']` (str): Reference name.
@@ -72,7 +107,11 @@ def _build_foreign_key_tree(
     # [{fields: [], reference: {name: '', fields: []}, exclude: []}, ...]
     rules = []
     for name, meta in resources.items():
-        rules.extend(_parse_foreign_key_rules(meta, name=name))
+        if "foreign_key_rules" in meta["schema"]:
+            rule = meta["schema"]["foreign_key_rules"]
+            rules.extend(_parse_foreign_key_rule(
+                rule, name=name, key=meta["schema"]["primary_key"]
+            ))
     # Build foreign key tree
     # [local_name][local_fields] => (reference_name, reference_fields)
     tree = defaultdict(dict)
@@ -86,10 +125,10 @@ def _build_foreign_key_tree(
 
 
 def _traverse_foreign_key_tree(
-    tree: Dict[str, Dict[Tuple[str], dict]],
+    tree: Dict[str, Dict[Tuple[str, ...], dict]],
     name: str,
-    fields: Tuple[str]
-) -> List[Tuple[tuple, str, tuple]]:
+    fields: Tuple[str, ...]
+) -> List[Dict[str, Any]]:
     """
     Traverse foreign key tree.
 

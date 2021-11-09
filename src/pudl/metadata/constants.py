@@ -7,7 +7,7 @@ import sqlalchemy as sa
 
 FIELD_DTYPES: Dict[str, str] = {
     "string": "string",
-    "number": "float",
+    "number": "float64",
     "integer": "Int64",
     "boolean": "boolean",
     "date": "datetime64[ns]",
