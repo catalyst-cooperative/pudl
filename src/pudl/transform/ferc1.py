@@ -2019,6 +2019,9 @@ def fuel_by_plant_ferc1(fuel_df, thresh=0.5):
         pivot(columns='fuel_type_code_pudl').fillna(0.0)
     )
 
+    # undo pivot. Could refactor this old function but out of scope for now (fixing a pandas API deprecation)
+    plant_year_totals = df.stack('fuel_type_code_pudl').groupby(level=[0, 1, 2]).sum()
+
     # Calculate total heat content burned for each plant, and divide it out
     mmbtu_group = (
         pd.merge(
@@ -2028,7 +2031,7 @@ def fuel_by_plant_ferc1(fuel_df, thresh=0.5):
             df.loc[:, 'fuel_mmbtu'].div(
                 df.loc[:, 'fuel_mmbtu'].sum(axis=1), axis='rows'),
             # Merge that same total into the dataframe separately as well.
-            df.sum(level=0, axis=1).loc[:, 'fuel_mmbtu'],
+            plant_year_totals.loc[:, 'fuel_mmbtu'],
             right_index=True, left_index=True).
         rename(columns=lambda x: re.sub(r'$', '_fraction_mmbtu', x)).
         rename(columns=lambda x: re.sub(r'_mmbtu_fraction_mmbtu$', '_mmbtu', x))
@@ -2043,7 +2046,8 @@ def fuel_by_plant_ferc1(fuel_df, thresh=0.5):
             df.loc[:, 'fuel_cost'].div(
                 df.loc[:, 'fuel_cost'].sum(axis=1), axis='rows'),
             # Merge that same total into the dataframe separately as well.
-            df.sum(level=0, axis=1).loc[:, 'fuel_cost'], right_index=True, left_index=True).
+            plant_year_totals.loc[:, 'fuel_cost'],
+            right_index=True, left_index=True).
         rename(columns=lambda x: re.sub(r'$', '_fraction_cost', x)).
         rename(columns=lambda x: re.sub(r'_cost_fraction_cost$', '_cost', x))
     )
