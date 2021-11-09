@@ -52,8 +52,60 @@ modular metadata management system that uses `Pydantic
 validate the metadata schema and export to a variety of formats to support data
 distribution via `Datasette <https://datasette.io>`__ and `Intake catalogs
 <https://intake.readthedocs.io>`__, and automatic generation of data
-dictionaries and documentation. See :issue:`806` and the :mod:`pudl.metadata`
+dictionaries and documentation. See :issue:`806,1271,1272` and the :mod:`pudl.metadata`
 subpackage. Many thanks to :user:`ezwelty` for most of this work.
+
+ETL Settings File Format Changed
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+We are also using `Pydantic <https://pydantic-docs.helpmanual.io/>`__ to parse and
+validate the YAML settings files that tell PUDL what data to include in an ETL run. If
+you have any old settings files of your own lying around they'll need to be updated.
+Examples of the new format will be deployed to your system if you re-run the
+``pudl_setup`` script. Or you can make a copy of the ``etl_full.yml`` or
+``etl_fast.yml`` files that are stored under ``src/pudl/package_data/settings`` and
+edit them to reflect your needs.
+
+Database Schema Changes
+^^^^^^^^^^^^^^^^^^^^^^^
+With the direct database output and the new metadata system, it's much eaiser for us
+to create foreign key relationships automatically. Updates that are in progress to
+the database normalization and entity resolution process also benefit from using
+natural primary keys when possible. As a result we've made some changes to the PUDL
+database schema, which will probably affect some users.
+
+* We have split out a new :ref:`generation_fuel_nuclear_eia923` table from the existing
+  :ref:`generation_fuel_eia923` table, as nuclear generation and fuel consumption are
+  reported at the generation unit level, rather than the plant level, requiring a
+  different natural primary key. See :issue:`851,1296,1325`.
+* Implementing a natural primary key for the :ref:`boiler_fuel_eia923` table required
+  the aggregation of a small number of records that didn't have well-defined
+  ``prime_mover_code`` values. See :issue:`852,1306,1311`.
+* We repaired, aggregated, or dropped a small number of records in the
+  :ref:`generation_eia923` (See :issue:`1208,1248`) and
+  :ref:`ownership_eia860` (See :issue:`1207,1258`) tables due to null values in their
+  primary key columns.
+* Many new foreign key constraints are being enforced between the EIA data tables,
+  entity tables, and coding tables. See :issue:`1196`.
+* Fuel types and energy sources reported to EIA are now defined in / constrained by
+  the static :ref:`energy_sources_eia` table.
+* The columns that indicate the mode of transport for various fuels now contain short
+  codes rather than longer labels, and are defined in / constrained by the static
+  :ref:`fuel_transportation_modes_eia` table.
+* In the simplified FERC 1 fuel type categories, we're now using `other` instead of
+  `unknown`.
+* Several columns have been renamed to harmonize meanings between different tables and
+  datasets, including:
+
+  * In :ref:`generation_fuel_eia923` and :ref:`boiler_fuel_eia923` the ``fuel_type`` and
+    ``fuel_type_code`` columns have been replaced with ``energy_source_code``, which
+    appears in various forms in :ref:`generators_eia860` and
+    :ref:`fuel_receipts_costs_eia923`.
+  * ``fuel_qty_burned`` is now ``fuel_consumed_units``
+  * ``fuel_qty_units`` is now ``fuel_received_units``
+  * ``heat_content_mmbtu_per_unit`` is now ``fuel_mmbtu_per_unit``
+  * ``sector_name` and `sector_id` are now ``sector_name_eia`` and ``sector_id_eia``
+  * ``primary_purpose_naics_id`` is now ``primary_purpose_id_naics``
+  * ``mine_type_code`` is now ``mine_type`` (a human readable label, not a code).
 
 New Analyses
 ^^^^^^^^^^^^
@@ -67,12 +119,6 @@ Known Issues
 ^^^^^^^^^^^^
 * The ``pudl_territories`` script has been disabled temporarily due to a memory
   issue. See :issue:`1174`
-* The full extent of pre-load data validation that was previously being done
-  with `goodtables-pandas` has not yet been fully reimplemented. Foreign key
-  constraints are still being debugged. See :issue:`1196`.
-* Several tables that should have natural primary keys currently do not, because
-  of null or duplicate values in those columns. These need to be resolved in the
-  ETL process. See :issue:`851,852,1207,1208`
 * Utility and Balancing Authority service territories for 2020 have not been vetted,
   and may contain errors or omissions. In particular there seems to be some missing
   demand in ND, SD, NE, KS, and OK. See :issue:`1310`
