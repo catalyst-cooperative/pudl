@@ -5,9 +5,8 @@ Each module in this subpackage transforms the tabular data associated with a sin
 source from the PUDL :ref:`data-sources`. This process begins with a dictionary of
 "raw" :class:`pandas.DataFrame` objects produced by the corresponding data source
 specific routines from the :mod:`pudl.extract` subpackage, and ends with a dictionary of
-:class:`pandas.DataFrame` objects that are fully normalized, cleaned, and congruent with
-the tabular datapackage metadata -- i.e. they are ready to be exported by the
-:mod:`pudl.load` module.
+:class:`pandas.DataFrame` objects that are fully normalized, cleaned, and ready to be
+loaded into external databases and Parquet files by the :mod:`pudl.load` subpackage.
 
 Inputs to the transform functions are a dictionary of dataframes, each of which
 represents a concatenation of records with common column names from across some set of

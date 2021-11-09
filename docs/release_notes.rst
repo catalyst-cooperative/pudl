@@ -16,6 +16,7 @@ Data Coverage Changes
   * :doc:`data_sources/ferc1` for 2020.
   * :ref:`data-eia861` data for 2020.
   * :ref:`data-ferc714` data for 2020.
+  * Note: the 2020 :ref:`data_sources/epacems` data was already available in v0.4.0.
 
 * **EPA IPM / NEEDS** data has been removed from PUDL as we didn't have the internal
   resources to maintain it, and it was no longer working. Apologies to
@@ -29,9 +30,8 @@ SQLite and Parquet Outputs
   including all EPA CEMS data should now take around 2 hours if you have all the
   data downloaded.
 * The new :mod:`pudl.load.sqlite` and :mod:`pudl.load.parquet` modules contain
-  this logic. The :mod:`pudl.load.csv` and :mod:`pudl.load.metadata` modules
-  have been deprecated and will be removed shortly along with other remaining
-  datapackage infrastructure. See :issue:`1211`
+  this logic. The :mod:`pudl.load.csv` and :mod:`pudl.load.metadata` modules have been
+  removed along with other remaining datapackage infrastructure. See :issue:`1211`
 * Many more tables now have natural primary keys explicitly specified within the
   database schema.
 * The ``datapkg_to_sqlite`` script has been removed and the ``epacems_to_parquet``

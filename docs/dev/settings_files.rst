@@ -33,8 +33,7 @@ Setttings for ferc1_to_sqlite
    * - ``tables``
      - A list of strings indicating what tables to load. The list of acceptable
        tables can be found in the the example settings file and corresponds to
-       the values found in the ``ferc1_dbf2tbl`` dictionary in
-       :mod:`pudl.constants`.
+       the keys of :py:const:`pudl.extract.ferc1.DBF_TABLES_FILENAMES`.
 
 -------------------------------------------------------------------------------
 Settings for pudl_etl
