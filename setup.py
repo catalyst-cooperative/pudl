@@ -51,7 +51,7 @@ setup(
         "pydantic[email]~=1.7",
         "pygeos>=0.10,<0.12",
         "python-snappy~=0.6.0",
-        "pyyaml~=5.0",
+        "pyyaml>=5,<7",
         "scikit-learn~=1.0",
         "scipy~=1.6",
         "sqlalchemy~=1.4",
