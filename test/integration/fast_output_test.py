@@ -16,11 +16,14 @@ logger = logging.getLogger(__name__)
 @pytest.fixture(scope="module")
 def fast_out(pudl_engine, pudl_datastore_fixture):
     """A PUDL output object for use in CI."""
+    bot = os.environ.get("GITHUB_ACTOR", "").endswith("[bot]")
+    fill_fuel_cost = False if bot else True
+
     return pudl.output.pudltabl.PudlTabl(
         pudl_engine,
         ds=pudl_datastore_fixture,
         freq="MS",
-        fill_fuel_cost=True,
+        fill_fuel_cost=fill_fuel_cost,
         roll_fuel_cost=True,
         fill_net_gen=False,
     )

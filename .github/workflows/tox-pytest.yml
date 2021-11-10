@@ -83,4 +83,5 @@ jobs:
         GITHUB_TOKEN: ${{ github.token }} # required
         SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }} # required
         MATRIX_CONTEXT: ${{ toJson(matrix) }} # required
-      if: always() # Pick up events even if the job fails or is canceled.
+      if: ${{ github.actor != 'dependabot[bot]' }}
+      #if: always() # Pick up events even if the job fails or is canceled.
