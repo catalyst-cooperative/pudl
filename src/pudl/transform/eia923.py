@@ -1,37 +1,21 @@
 """Module to perform data cleaning functions on EIA923 data tables."""
 import logging
-from typing import Dict, List
+from typing import Dict
 
 import numpy as np
 import pandas as pd
 from prefect import task
 
 import pudl
-from pudl import constants as pc
 from pudl.constants import PUDL_TABLES
 from pudl.dfc import DataFrameCollection
+from pudl.metadata import RESOURCE_METADATA
+from pudl.metadata.codes import ENERGY_SOURCES_EIA
+from pudl.metadata.labels import COALMINE_TYPES_EIA
+
+PUDL_META = pudl.metadata.classes.Package.from_resource_ids(RESOURCE_METADATA)
 
 logger = logging.getLogger(__name__)
-
-SIMPLIFIED_FUEL_GROUPS: Dict[str, List[str]] = {
-    'coal': ['coal', 'petroleum coke'],
-    'oil': ['petroleum'],
-    'gas': ['natural gas', 'other gas']
-}
-"""A mapping of simplified EIA 923 fuel groups for string cleaning."""
-
-SIMPLIFIED_ENERGY_SOURCES: Dict[str, List[str]] = {
-    'coal': ['ANT', 'BIT', 'LIG', 'PC', 'SUB', 'WC', 'RC'],
-    'oil': ['DFO', 'JF', 'KER', 'RFO', 'WO'],
-    'gas': ['BFG', 'LFG', 'NG', 'OBG', 'OG', 'PG', 'SG', 'SGC', 'SGP'],
-    'solar': ['SUN'],
-    'wind': ['WND'],
-    'hydro': ['WAT'],
-    'nuclear': ['NUC'],
-    'waste': ['AB', 'BLQ', 'MSW', 'OBL', 'OBS', 'SLW', 'TDF', 'WDL', 'WDS'],
-    'other': ['GEO', 'MWH', 'OTH', 'PUR', 'WH']
-}
-"""A mapping of simplified EIA 923 energy source codes for string cleaning."""
 
 COALMINE_COUNTRY_CODES: Dict[str, str] = {
     'AU': 'AUS',  # Australia
@@ -55,6 +39,7 @@ collisions with US states, their coding is non-standard.
 
 Instead of using the provided non-standard codes, we convert to the ISO-3166-1
 three letter country codes: https://en.wikipedia.org/wiki/ISO_3166-1_alpha-3
+
 """
 
 ###############################################################################
@@ -101,9 +86,10 @@ def _get_plant_nuclear_unit_id_map(nuc_fuel: pd.DataFrame) -> Dict[int, str]:
 def _backfill_nuclear_unit_id(nuc_fuel: pd.DataFrame) -> pd.DataFrame:
     """Backfill 2001 and 2002 nuclear_unit_id for plants with one nuclear unit.
 
-    2001 and 2002 generation_fuel_eia923 records do not include nuclear_unit_id
-    which is required for the primary key of nuclear_unit_fuel_eia923. We backfill this field for plants
-    with one nuclear unit. nuclear_unit_id is filled with 'UNK' if the nuclear_unit_id can't be recovered.
+    2001 and 2002 generation_fuel_eia923 records do not include nuclear_unit_id which is
+    required for the primary key of nuclear_unit_fuel_eia923. We backfill this field for
+    plants with one nuclear unit. nuclear_unit_id is filled with 'UNK' if the
+    nuclear_unit_id can't be recovered.
 
     Parameters:
         nuc_fuel: nuclear fuels dataframe.
@@ -141,8 +127,11 @@ def _get_plant_prime_mover_map(gen_fuel: pd.DataFrame) -> Dict[int, str]:
     gen_fuel = gen_fuel[~gen_fuel.prime_mover_code.isna()].copy()
 
     # find plants with one prime mover
-    plant_prime_movers_counts = gen_fuel.groupby(
-        "plant_id_eia").prime_mover_code.nunique().copy()
+    plant_prime_movers_counts = (
+        gen_fuel.groupby("plant_id_eia")
+        .prime_mover_code.nunique()
+        .copy()
+    )
     plant_ids_with_one_pm = plant_prime_movers_counts[plant_prime_movers_counts.eq(
         1)].index
 
@@ -155,7 +144,7 @@ def _get_plant_prime_mover_map(gen_fuel: pd.DataFrame) -> Dict[int, str]:
     # check there is one prime mover per plant.
     assert plant_to_prime_mover.index.is_unique, "Found multiple plants in plant_to_prime_mover mapping."
     # Check there are no missing prime mover codes.
-    assert (~plant_to_prime_mover.isna()).all(
+    assert (plant_to_prime_mover.notnull()).all(
     ), "Found missing prime_mover_codes in plant_to_prime_mover mappings."
 
     return dict(plant_to_prime_mover)
@@ -178,14 +167,21 @@ def _backfill_prime_mover_code(gen_fuel: pd.DataFrame) -> pd.DataFrame:
     plant_to_prime_mover_map = _get_plant_prime_mover_map(gen_fuel)
 
     missing_prime_movers = gen_fuel.prime_mover_code.isna()
-    gen_fuel.loc[missing_prime_movers, "prime_mover_code"] = gen_fuel.loc[missing_prime_movers,
-                                                                          "plant_id_eia"].map(plant_to_prime_mover_map)
+    gen_fuel.loc[missing_prime_movers, "prime_mover_code"] = (
+        gen_fuel.loc[missing_prime_movers, "plant_id_eia"]
+        .map(plant_to_prime_mover_map)
+        .astype("string")
+    )
 
     # Assign prime mover codes for hydro fuels
     hydro_map = {"HPS": "PS", "HYC": "HY"}
-    missing_hydro = gen_fuel.fuel_type.eq("WAT") & gen_fuel.prime_mover_code.isna()
-    gen_fuel.loc[missing_hydro, "prime_mover_code"] = gen_fuel.loc[missing_hydro,
-                                                                   "fuel_type_code_aer"].map(hydro_map)
+    missing_hydro = (
+        gen_fuel.energy_source_code.eq("WAT")
+        & gen_fuel.prime_mover_code.isna()
+    )
+    gen_fuel.loc[missing_hydro, "prime_mover_code"] = (
+        gen_fuel.loc[missing_hydro, "fuel_type_code_aer"].map(hydro_map)
+    )
 
     # Assign the rest to UNK
     missing_prime_movers = gen_fuel.prime_mover_code.isna()
@@ -196,78 +192,86 @@ def _backfill_prime_mover_code(gen_fuel: pd.DataFrame) -> pd.DataFrame:
     return gen_fuel
 
 
-def _get_most_frequent_fuel_type_map(gen_fuel: pd.DataFrame) -> Dict[str, str]:
-    """Get the a mapping of the most common fuel_types for each fuel_type_code_aer.
+def _get_most_frequent_energy_source_map(gen_fuel: pd.DataFrame) -> Dict[str, str]:
+    """Get the a mapping of the most common energy_source for each fuel_type_code_aer.
 
     Parameters:
-        gen_fuel: dataframe of generation fuels.
+        gen_fuel: generation_fuel dataframe.
 
     Returns:
-        fuel_type_map: mapping of fuel_type_code_aer to fuel_type codes.
+        energy_source_map: mapping of fuel_type_code_aer to energy_source_code.
+
     """
-    fuel_type_counts = gen_fuel.groupby(
-        ["fuel_type_code_aer", "fuel_type"]).plant_id_eia.count()
-    fuel_type_counts = fuel_type_counts.reset_index(
+    energy_source_counts = gen_fuel.groupby(
+        ["fuel_type_code_aer", "energy_source_code"]).plant_id_eia.count()
+    energy_source_counts = energy_source_counts.reset_index(
     ).sort_values(by="plant_id_eia", ascending=False)
 
-    fuel_type_map = fuel_type_counts.groupby(["fuel_type_code_aer"]).first().reset_index()[
-        ["fuel_type_code_aer", "fuel_type"]]
-    return dict(fuel_type_map.values)
+    energy_source_map = (
+        energy_source_counts
+        .groupby(["fuel_type_code_aer"]).first()
+        .reset_index()[["fuel_type_code_aer", "energy_source_code"]]
+    )
+    return dict(energy_source_map.values)
 
 
-def _clean_fuel_types(gen_fuel: pd.DataFrame) -> pd.DataFrame:
-    """Clean generator_fuel_eia923.fuel_type field.
+def _clean_gen_fuel_energy_sources(gen_fuel: pd.DataFrame) -> pd.DataFrame:
+    """
+    Clean the generator_fuel_eia923.energy_source_code field specifically.
 
     Transformations include:
 
-    * Remap mistyped fuel_types and duplicated AER fuel codes.
     * Remap MSW to biogenic and non biogenic fuel types.
-    * Fill missing fuel_types using most common fuel_types for each AER fuel codes.
+    * Fill missing energy_source_code using most common code for each AER fuel codes.
 
     Parameters:
         gen_fuel: generation fuels dataframe.
 
     Returns:
-        gen_fuel: generation fuels dataframe with cleaned fuel_type field.
+        gen_fuel: generation fuels dataframe with cleaned energy_source_code field.
+
     """
-    # conservative manual corrections for misplaced or mistyped fuel types
-    gen_fuel['fuel_type'] = (
-        gen_fuel['fuel_type']
-        .replace({
-            # mistyped, 1 record in 2002 (as of 2019 data)
-            'OW': 'WO',
-            # duplicated AER fuel code, subtype not reported. One record in 2001 (as of 2019 data)
-            'COL': '',
-            # duplicated AER fuel code, maps unambiguously to 'wat'. 4 records in 2001 (as of 2019 data)
-            'HPS': 'WAT',
-            # duplicated AER fuel code, subtype not reported. 12 records in 2001 (as of 2019 data)
-            'OOG': '',
-        })
-        # Empty strings and whitespace that should be NA.
+    # replace whitespace and empty strings with NA values.
+    gen_fuel['energy_source_code'] = (
+        gen_fuel.energy_source_code
         .replace(to_replace=r'^\s*$', value=pd.NA, regex=True)
     )
 
-    # Remap MSW. Prior to 2006, MSW contained biogenic and non biogenic fuel types.
-    # Starting in 2006 MSW got split into MSB and MSN.
-    msw_fuels = gen_fuel.fuel_type.eq("MSW")
-    gen_fuel.loc[msw_fuels, "fuel_type"] = gen_fuel.loc[msw_fuels,
-                                                        "fuel_type_code_aer"].map({"OTH": "MSN", "MLG": "MSB"})
+    # Remap MSW: Prior to 2006, MSW contained biogenic and non biogenic fuel types.
+    # Starting in 2006 MSW got split into MSB and MSN. However, the AER fuel type
+    # codes always differentiated between biogenic and non-biogenic waste, so we can
+    # impose the more recent categorization on the older EIA fuel types.
+    msw_fuels = gen_fuel.energy_source_code.eq("MSW")
+    gen_fuel.loc[msw_fuels, "energy_source_code"] = (
+        gen_fuel.loc[msw_fuels, "fuel_type_code_aer"]
+        .map({
+            "OTH": "MSN",  # non-biogenic municipal waste
+            "MLG": "MSB",  # biogenic municipal waste
+        })
+    )
 
     # Make sure we replaced all MSWs
-    assert gen_fuel.fuel_type.ne("MSW").all()
+    assert gen_fuel.energy_source_code.ne("MSW").all()
 
-    # Fill in any missing fuel_types with the most common fuel type of each fuel_type_code_aer.
-    missing_fuel_type = gen_fuel["fuel_type"].isna()
-    frequent_fuel_type_map = _get_most_frequent_fuel_type_map(gen_fuel)
+    # Fill in any missing fuel_types with the most common fuel type of each
+    # fuel_type_code_aer.
+    missing_energy_source = gen_fuel.energy_source_code.isna()
+    frequent_energy_source_map = _get_most_frequent_energy_source_map(gen_fuel)
 
-    gen_fuel.loc[missing_fuel_type, "fuel_type"] = gen_fuel.loc[missing_fuel_type,
-                                                                "fuel_type_code_aer"].map(frequent_fuel_type_map)
-    assert gen_fuel.fuel_type.notna().all(), "Missing data in generator_fuel_eia923.fuel_type"
+    gen_fuel.loc[missing_energy_source, "energy_source_code"] = (
+        gen_fuel.loc[missing_energy_source, "fuel_type_code_aer"]
+        .map(frequent_energy_source_map)
+    )
+    if gen_fuel.energy_source_code.isna().any():
+        raise AssertionError("Missing data in generator_fuel_eia923.energy_source_code")
 
     return gen_fuel
 
 
-def _aggregate_generation_fuel_duplicates(gen_fuel: pd.DataFrame, nuclear: bool = False) -> pd.DataFrame:
+def _aggregate_generation_fuel_duplicates(
+    gen_fuel: pd.DataFrame,
+    nuclear: bool = False,
+) -> pd.DataFrame:
     """Aggregate remaining duplicate generation fuels.
 
     There are a handful of plants (< 100) whose prime_mover_code can't be imputed
@@ -284,7 +288,7 @@ def _aggregate_generation_fuel_duplicates(gen_fuel: pd.DataFrame, nuclear: bool 
     natural_key_fields = [
         "report_date",
         "plant_id_eia",
-        "fuel_type",
+        "energy_source_code",
         "prime_mover_code",
     ]
     if nuclear:
@@ -293,8 +297,12 @@ def _aggregate_generation_fuel_duplicates(gen_fuel: pd.DataFrame, nuclear: bool 
     is_duplicate = gen_fuel.duplicated(subset=natural_key_fields, keep=False)
 
     duplicates = gen_fuel[is_duplicate].copy()
-    assert duplicates.groupby(natural_key_fields).fuel_type_code_aer.nunique().eq(
-        1).all(), "Duplicate fuels have different fuel_type_code_aer."
+    fuel_type_code_aer_is_unique = (
+        duplicates.groupby(natural_key_fields)
+        .fuel_type_code_aer.nunique().eq(1).all()
+    )
+    if not fuel_type_code_aer_is_unique:
+        raise AssertionError("Duplicate fuels have different fuel_type_code_aer.")
 
     agg_fields = {
         'fuel_consumed_units': "sum",
@@ -420,7 +428,7 @@ def _coalmine_cleanup(cmi_df):
         cmi_df.assign(
             # Map mine type codes, which have changed over the years, to a few
             # canonical values:
-            mine_type_code=lambda x: x.mine_type_code.replace(
+            mine_type=lambda x: x.mine_type.replace(
                 {'[pP]': 'P', 'U/S': 'US', 'S/U': 'SU', 'Su': 'S'}, regex=True),
             # replace 2-letter country codes w/ ISO 3 letter as appropriate:
             state=lambda x: x.state.replace(COALMINE_COUNTRY_CODES),
@@ -435,12 +443,13 @@ def _coalmine_cleanup(cmi_df):
                 '[a-zA-Z]+', value=np.nan, regex=True
             )
         )
+        .assign(mine_type=lambda x: x.mine_type.map(COALMINE_TYPES_EIA))
         # No leading or trailing whitespace:
         .pipe(pudl.helpers.simplify_strings, columns=["mine_name"])
         .astype({"county_id_fips": float})
         .astype({"county_id_fips": pd.Int64Dtype()})
-        .fillna({"mine_type_code": pd.NA})
-        .astype({"mine_type_code": pd.StringDtype()})
+        .fillna({"mine_type": pd.NA})
+        .astype({"mine_type": pd.StringDtype()})
     )
     return cmi_df
 
@@ -616,13 +625,17 @@ def generation_fuel(eia923_dfs, eia923_transformed_dfs):
         .replace(to_replace=r'^\s*$', value=pd.NA, regex=True)
     )
 
-    # Clean the fuel type field
-    gen_fuel = _clean_fuel_types(gen_fuel)
+    gen_fuel = _clean_gen_fuel_energy_sources(gen_fuel)
 
-    gen_fuel['fuel_type_code_pudl'] = (
-        pudl.helpers.cleanstrings_series(
-            gen_fuel.fuel_type,
-            pc.FUEL_TYPE_EIA923_GEN_FUEL_SIMPLE_MAP)
+    gen_fuel = PUDL_META.get_resource("generation_fuel_eia923").encode(gen_fuel)
+
+    gen_fuel['fuel_type_code_pudl'] = gen_fuel.energy_source_code.map(
+        pudl.helpers.label_map(
+            ENERGY_SOURCES_EIA["df"],
+            from_col="code",
+            to_col="fuel_type_code_pudl",
+            null_value=pd.NA,
+        )
     )
 
     # Drop records missing all variable fields.
@@ -641,11 +654,11 @@ def generation_fuel(eia923_dfs, eia923_transformed_dfs):
 
     # Create separate nuclear unit fuel table
     nuclear_units = gen_fuel[gen_fuel.nuclear_unit_id.notna() |
-                             gen_fuel.fuel_type.eq("NUC")].copy()
+                             gen_fuel.energy_source_code.eq("NUC")].copy()
     nuclear_unit_fuel(nuclear_units, eia923_transformed_dfs)
 
     gen_fuel = gen_fuel[gen_fuel.nuclear_unit_id.isna(
-    ) & gen_fuel.fuel_type.ne("NUC")].copy()
+    ) & gen_fuel.energy_source_code.ne("NUC")].copy()
     gen_fuel = gen_fuel.drop(columns=["nuclear_unit_id"])
 
     # Backfill 2001, 2002 prime_mover_codes.
@@ -687,7 +700,9 @@ def _map_prime_mover_sets(prime_mover_set: np.ndarray) -> str:
         )
 
 
-def _aggregate_duplicate_boiler_fuel_keys(boiler_fuel_df: pd.DataFrame) -> pd.DataFrame:
+def _aggregate_duplicate_boiler_fuel_keys(
+    boiler_fuel_df: pd.DataFrame
+) -> pd.DataFrame:
     """Combine boiler_fuel rows with duplicate keys by aggregating them.
 
     Boiler_fuel_eia923 contains a few records with duplicate keys, mostly caused by
@@ -708,7 +723,7 @@ def _aggregate_duplicate_boiler_fuel_keys(boiler_fuel_df: pd.DataFrame) -> pd.Da
     """
     quantity_cols = ['fuel_consumed_units', ]
     relative_cols = ['ash_content_pct', 'sulfur_content_pct', 'fuel_mmbtu_per_unit']
-    key_cols = ['boiler_id', 'fuel_type_code', 'plant_id_eia', 'report_date']
+    key_cols = ['boiler_id', 'energy_source_code', 'plant_id_eia', 'report_date']
 
     expected_cols = set(quantity_cols + relative_cols + key_cols + ['prime_mover_code'])
     actual_cols = set(boiler_fuel_df.columns)
@@ -800,11 +815,19 @@ def boiler_fuel(eia923_dfs, eia923_transformed_dfs):
     # Convert Year/Month columns into a single Date column...
     bf_df = pudl.helpers.convert_to_date(bf_df)
 
+    bf_df = PUDL_META.get_resource("boiler_fuel_eia923").encode(bf_df)
+
     bf_df = _aggregate_duplicate_boiler_fuel_keys(bf_df)
 
-    bf_df['fuel_type_code_pudl'] = pudl.helpers.cleanstrings_series(
-        bf_df.fuel_type_code,
-        pc.FUEL_TYPE_EIA923_BOILER_FUEL_SIMPLE_MAP)
+    # Add a simplified PUDL fuel type
+    bf_df['fuel_type_code_pudl'] = bf_df.energy_source_code.map(
+        pudl.helpers.label_map(
+            ENERGY_SOURCES_EIA["df"],
+            from_col="code",
+            to_col="fuel_type_code_pudl",
+            null_value=pd.NA,
+        )
+    )
 
     eia923_transformed_dfs['boiler_fuel_eia923'] = bf_df
 
@@ -874,6 +897,8 @@ def generation(eia923_dfs, eia923_transformed_dfs):
     dupes = gen_df[gen_df.duplicated(subset=unique_subset, keep=False)]
     gen_df = gen_df.drop(dupes.net_generation_mwh.isna().index)
 
+    gen_df = PUDL_META.get_resource("generation_eia923").encode(gen_df)
+
     eia923_transformed_dfs['generation_eia923'] = gen_df
 
     return eia923_transformed_dfs
@@ -904,7 +929,7 @@ def coalmine(eia923_dfs, eia923_transformed_dfs):
     # These are the columns that we want to keep from FRC for the
     # coal mine info table.
     coalmine_cols = ['mine_name',
-                     'mine_type_code',
+                     'mine_type',
                      'state',
                      'county_id_fips',
                      'mine_id_msha']
@@ -932,7 +957,7 @@ def coalmine(eia923_dfs, eia923_transformed_dfs):
     cmi_df = cmi_df.drop_duplicates(subset=['mine_name',
                                             'state',
                                             'mine_id_msha',
-                                            'mine_type_code',
+                                            'mine_type',
                                             'county_id_fips'])
 
     # drop null values if they occur in vital fields....
@@ -951,6 +976,8 @@ def coalmine(eia923_dfs, eia923_transformed_dfs):
     cmi_df.index.name = 'mine_id_pudl'
     # then make the id index a column for simpler transferability
     cmi_df = cmi_df.reset_index()
+
+    cmi_df = PUDL_META.get_resource("coalmine_eia923").encode(cmi_df)
 
     eia923_transformed_dfs['coalmine_eia923'] = cmi_df
 
@@ -993,7 +1020,7 @@ def fuel_receipts_costs(eia923_dfs, eia923_transformed_dfs):
                     'operator_name',
                     'operator_id',
                     'mine_id_msha',
-                    'mine_type_code',
+                    'mine_type',
                     'state',
                     'county_id_fips',
                     'mine_name',
@@ -1017,7 +1044,7 @@ def fuel_receipts_costs(eia923_dfs, eia923_transformed_dfs):
         frc_df.pipe(_coalmine_cleanup).
         merge(cmi_df, how='left',
               on=['mine_name', 'state', 'mine_id_msha',
-                  'mine_type_code', 'county_id_fips']).
+                  'mine_type', 'county_id_fips']).
         drop(cols_to_drop, axis=1).
         # Replace the EIA923 NA value ('.') with a real NA value.
         pipe(pudl.helpers.fix_eia_na).
@@ -1025,22 +1052,9 @@ def fuel_receipts_costs(eia923_dfs, eia923_transformed_dfs):
         pipe(pudl.helpers.simplify_strings, columns=['supplier_name']).
         pipe(pudl.helpers.fix_int_na, columns=['contract_expiration_date', ]).
         assign(
-            # Standardize case on transportaion codes -- all upper case!
-            primary_transportation_mode_code=lambda x: (
-                x.primary_transportation_mode_code.str.upper()),
-            secondary_transportation_mode_code=lambda x: (
-                x.secondary_transportation_mode_code.str.upper()),
-            # convert contract type "N" to "NC". The "N" code existed only
-            # in 2008, the first year contracts were reported to the EIA,
-            # before being replaced by "NC".
-            contract_type_code=lambda x: x.contract_type_code.replace({'N': 'NC'}),
             fuel_cost_per_mmbtu=lambda x: x.fuel_cost_per_mmbtu / 100,
             fuel_group_code=lambda x: (
                 x.fuel_group_code.str.lower().str.replace(' ', '_')),
-            fuel_type_code_pudl=lambda x: pudl.helpers.cleanstrings_series(
-                x.energy_source_code, SIMPLIFIED_ENERGY_SOURCES),
-            fuel_group_code_simple=lambda x: pudl.helpers.cleanstrings_series(
-                x.fuel_group_code, SIMPLIFIED_FUEL_GROUPS),
             contract_expiration_month=lambda x: x.contract_expiration_date.apply(
                 lambda y: y[:-2] if y != '' else y)).
         assign(
@@ -1062,6 +1076,17 @@ def fuel_receipts_costs(eia923_dfs, eia923_transformed_dfs):
              [{'firm': ['F'], 'interruptible': ['I']},
               {'firm': ['F'], 'interruptible': ['I']}],
              unmapped='')
+    )
+    frc_df = PUDL_META.get_resource("fuel_receipts_costs_eia923").encode(frc_df)
+    frc_df["fuel_type_code_pudl"] = (
+        frc_df.energy_source_code.map(
+            pudl.helpers.label_map(
+                ENERGY_SOURCES_EIA["df"],
+                from_col="code",
+                to_col="fuel_type_code_pudl",
+                null_value=pd.NA,
+            )
+        )
     )
 
     # Remove known to be invalid mercury content values. Almost all of these

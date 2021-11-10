@@ -35,7 +35,6 @@ PUDL_IN
       └── tmp
 
 PUDL_OUT
-  ├── datapkg
   ├── parquet
   ├── settings
   └── sqlite

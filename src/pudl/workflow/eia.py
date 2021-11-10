@@ -6,9 +6,9 @@ from prefect import task
 import pudl
 from pudl import dfc, settings
 from pudl.dfc import DataFrameCollection
-from pudl.metadata.labels import (ENERGY_SOURCES_EIA,
-                                  FUEL_TRANSPORTATION_MODES_EIA,
-                                  FUEL_TYPES_AER_EIA, PRIME_MOVERS_EIA)
+from pudl.metadata.codes import (ENERGY_SOURCES_EIA,
+                                 FUEL_TRANSPORTATION_MODES_EIA,
+                                 FUEL_TYPES_AER_EIA, PRIME_MOVERS_EIA)
 from pudl.workflow.dataset_pipeline import DatasetPipeline
 
 

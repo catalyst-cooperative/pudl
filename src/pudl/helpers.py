@@ -14,9 +14,10 @@ import pathlib
 import re
 import shutil
 import tempfile
+from collections import defaultdict
 from functools import partial
 from io import BytesIO
-from typing import Any, Dict, List, Set
+from typing import Any, DefaultDict, Dict, List, Literal, Set, Union
 
 import addfips
 import fsspec
@@ -41,6 +42,41 @@ as NA, but electricity generation is reported normally, then the fuel
 consumption for the year needs to be NA, otherwise we'll get unrealistic heat
 rates.
 """
+
+
+def label_map(
+    df: pd.DataFrame,
+    from_col: str = "code",
+    to_col: str = "label",
+    null_value=pd.NA
+) -> DefaultDict[str, Union[str, Literal[pd.NA]]]:
+    """
+    Build a mapping dictionary from two columns of a labeling / coding dataframe.
+
+    These dataframes document the meanings of the codes that show up in much of the
+    originally reported data. They're defined in :mod:`pudl.metadata.codes`.  This
+    function is mostly used to build maps that can translate the hard to understand
+    short codes into longer human-readable codes.
+
+    Args:
+        df: The coding / labeling dataframe. Must contain columns ``from_col``
+            and ``to_col``.
+        from_col: Label of column containing the existing codes to be replaced.
+        to_col: Label of column containing the new codes to be swapped in.
+        null_value: Defualt (Null) value to map to when a value which doesn't
+            appear in ``from_col`` is encountered.
+
+
+    Returns:
+        A mapping dictionary suitable for use with :meth:`pandas.Series.map`.
+
+    """
+    return defaultdict(
+        lambda: null_value,
+        df.loc[:, [from_col, to_col]]
+        .drop_duplicates(subset=[from_col])
+        .to_records(index=False),
+    )
 
 
 def find_new_ferc1_strings(
@@ -797,13 +833,11 @@ def fix_eia_na(df):
         pandas.DataFrame: The cleaned DataFrame.
 
     """
-    bad_na_regexes = [
-        r'^\.$',  # Nothing but a decimal point
-        r'^\s$',  # A single whitespace character
-        r'^$',    # The empty string
-    ]
     return df.replace(
-        to_replace=bad_na_regexes,
+        to_replace=[
+            r'^\.$',  # Nothing but a decimal point
+            r'^\s*$',  # The empty string and entirely whitespace strings
+        ],
         value=np.nan,
         regex=True
     )

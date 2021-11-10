@@ -1,9 +1,9 @@
 """
 Run the PUDL ETL Pipeline.
 
-The PUDL project integrates several different public data sets into well
-normalized data packages allowing easier access and interaction between all
-each dataset. This module coordinates the extract/transfrom/load process for
+The PUDL project integrates several different public datasets into a well
+normalized relational database allowing easier access and interaction between all
+datasets. This module coordinates the extract/transfrom/load process for
 data from:
 
  - US Energy Information Agency (EIA):
@@ -21,7 +21,7 @@ import os
 import shutil
 import time
 from pathlib import Path
-from typing import Dict
+from typing import Any, Dict
 
 import pandas as pd
 import prefect
@@ -35,10 +35,12 @@ from pudl import constants as pc
 from pudl import dfc
 from pudl.extract.ferc1 import SqliteOverwriteMode
 from pudl.fsspec_result import FSSpecResult
+from pudl.metadata import RESOURCE_METADATA
+from pudl.metadata.codes import (CONTRACT_TYPES_EIA, ENERGY_SOURCES_EIA,
+                                 FUEL_TRANSPORTATION_MODES_EIA,
+                                 FUEL_TYPES_AER_EIA, PRIME_MOVERS_EIA,
+                                 SECTOR_CONSOLIDATED_EIA)
 from pudl.metadata.dfs import FERC_ACCOUNTS, FERC_DEPRECIATION_LINES
-from pudl.metadata.labels import (ENERGY_SOURCES_EIA,
-                                  FUEL_TRANSPORTATION_MODES_EIA,
-                                  FUEL_TYPES_AER_EIA, PRIME_MOVERS_EIA)
 from pudl.settings import (EiaSettings, EpaCemsSettings, EtlSettings,
                            Ferc1Settings, GlueSettings)
 from pudl.workflow.eia import EiaPipeline
@@ -48,6 +50,8 @@ from pudl.workflow.glue import GluePipeline
 from pudl.workspace.datastore import Datastore
 
 logger = logging.getLogger(__name__)
+
+PUDL_META = pudl.metadata.classes.Package.from_resource_ids(RESOURCE_METADATA)
 
 
 def command_line_flags() -> argparse.ArgumentParser:
@@ -151,35 +155,28 @@ def _read_static_tables_eia() -> Dict[str, pd.DataFrame]:
 
     """
     return {
-        'energy_sources_eia': pd.DataFrame(
-            columns=["abbr", "energy_source"],
-            data=ENERGY_SOURCES_EIA.items(),
-        ),
-        'fuel_types_aer_eia': pd.DataFrame(
-            columns=["abbr", "fuel_type"],
-            data=FUEL_TYPES_AER_EIA.items(),
-        ),
-        'prime_movers_eia': pd.DataFrame(
-            columns=["abbr", "prime_mover"],
-            data=PRIME_MOVERS_EIA.items(),
-        ),
-        'fuel_transportation_modes_eia': pd.DataFrame(
-            columns=["abbr", "fuel_transportation_mode"],
-            data=FUEL_TRANSPORTATION_MODES_EIA.items(),
-        ),
+        'energy_sources_eia': ENERGY_SOURCES_EIA["df"],
+        'fuel_types_aer_eia': FUEL_TYPES_AER_EIA["df"],
+        'prime_movers_eia': PRIME_MOVERS_EIA["df"],
+        'sector_consolidated_eia': SECTOR_CONSOLIDATED_EIA["df"],
+        'fuel_transportation_modes_eia': FUEL_TRANSPORTATION_MODES_EIA["df"],
+        'contract_types_eia': CONTRACT_TYPES_EIA["df"]
     }
 
 
-def _etl_eia(etl_settings: EiaSettings, ds_kwargs):
+def _etl_eia(
+    etl_settings: EiaSettings,
+    ds_kwargs: Dict[str, Any]
+) -> Dict[str, pd.DataFrame]:
     """Extract, transform and load CSVs for the EIA datasets.
 
     Args:
-        etl_settings (EiaSettings): Validated ETL parameters required by this data source.
-        ds_kwargs: (dict): Keyword arguments for instantiating a PUDL datastore,
+        etl_settings: Validated ETL parameters required by this data source.
+        ds_kwargs: Keyword arguments for instantiating a PUDL datastore,
             so that the ETL can access the raw input data.
 
     Returns:
-        list: Names of PUDL DB tables output by the ETL for this data source.
+        A dictionary of EIA dataframes ready for loading into the PUDL DB.
 
     """
     eia860_tables = etl_settings.eia860.tables
@@ -232,6 +229,8 @@ def _etl_eia(etl_settings: EiaSettings, ds_kwargs):
     )
     # convert types..
     entities_dfs = pudl.helpers.convert_dfs_dict_dtypes(entities_dfs, 'eia')
+    for table in entities_dfs:
+        entities_dfs[table] = PUDL_META.get_resource(table).encode(entities_dfs[table])
 
     out_dfs.update(entities_dfs)
     out_dfs.update(eia_transformed_dfs)
@@ -267,19 +266,20 @@ def _read_static_tables_ferc1() -> Dict[str, pd.DataFrame]:
     }
 
 
-def _etl_ferc1(etl_settings: Ferc1Settings, pudl_settings) -> Dict[str, pd.DataFrame]:
+def _etl_ferc1(
+    etl_settings: Ferc1Settings,
+    pudl_settings: Dict[str, Any],
+) -> Dict[str, pd.DataFrame]:
     """Extract, transform and load CSVs for FERC Form 1.
 
     Args:
-        etl_settings (Ferc1Settings): Validated ETL parameters required by this data source.
-        datapkg_dir (path-like): The location of the directory for this
-            package, wihch will contain a datapackage.json file and a data
-            directory in which the CSV file are stored.
-        pudl_settings (dict) : a dictionary filled with settings that mostly
+        etl_settings: Validated ETL parameters required by this data source.
+        pudl_settings: a dictionary filled with settings that mostly
             describe paths to various resources and outputs.
 
     Returns:
-        list: Names of PUDL DB tables output by the ETL for this data source.
+        Dataframes containing PUDL database tables pertaining to the FERC Form 1
+        data, keyed by table name.
 
     """
     ferc1_years = etl_settings.years
@@ -310,20 +310,24 @@ def _etl_ferc1(etl_settings: Ferc1Settings, pudl_settings) -> Dict[str, pd.DataF
 ###############################################################################
 
 
-def etl_epacems(etl_settings: EpaCemsSettings, pudl_settings, ds_kwargs) -> None:
+def etl_epacems(
+    etl_settings: EpaCemsSettings,
+    pudl_settings: Dict[str, Any],
+    ds_kwargs: Dict[str, Any],
+) -> None:
     """Extract, transform and load CSVs for EPA CEMS.
 
     Args:
-        etl_settings (EpaCemsSettings): Validated ETL parameters required by this data source.
-        pudl_settings (dict) : a dictionary filled with settings that mostly
-            describe paths to various resources and outputs.
-        ds_kwargs: (dict): Keyword arguments for instantiating a PUDL datastore,
-            so that the ETL can access the raw input data.
+        etl_settings: Validated ETL parameters required by this data source.
+        pudl_settings: a dictionary filled with settings that mostly describe paths to
+            various resources and outputs.
+        ds_kwargs: Keyword arguments for instantiating a PUDL datastore, so that the ETL
+            can access the raw input data.
 
     Returns:
-        None: Unlike the other ETL functions, the EPACEMS writes its output to
-            Parquet as it goes, since the dataset is too large to hold in memory.
-            So it doesn't return a dictionary of dataframes.
+        Unlike the other ETL functions, the EPACEMS writes its output to Parquet as it
+        goes, since the dataset is too large to hold in memory.  So it doesn't return a
+        dictionary of dataframes.
 
     """
     epacems_years = etl_settings.years

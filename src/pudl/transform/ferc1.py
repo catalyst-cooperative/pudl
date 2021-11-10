@@ -29,6 +29,7 @@ from sklearn.preprocessing import MinMaxScaler, Normalizer, OneHotEncoder
 import pudl
 from pudl import constants as pc
 from pudl.constants import PUDL_TABLES
+from pudl.metadata.dfs import FERC_DEPRECIATION_LINES
 from pudl.metadata.labels import POWER_PURCHASE_TYPES_FERC1
 
 logger = logging.getLogger(__name__)
@@ -86,7 +87,7 @@ FUEL_STRINGS: Dict[str, List[str]] = {
         'biomass', 'wood', 'wood chips', 'rdf', 'tires/refuse', 'tire refuse',
         'waste oil', 'waste', 'woodships', 'tire chips', 'tdf',
     ],
-    "unknown": [
+    "other": [
         'steam', 'purch steam', 'all', 'n/a', 'purch. steam', 'other',
         'composite', 'composit', 'mbtus', 'total', 'avg', 'avg.', 'blo',
         'all fuel', 'comb.', 'alt. fuels', 'na', 'comb', '/#=2\x80â\x91?',
@@ -1007,8 +1008,9 @@ def fuel(ferc1_raw_dfs, ferc1_transformed_dfs):
             # FERC 1 DB Name      PUDL DB Name
             "plant_name": "plant_name_ferc1",
             'fuel': 'fuel_type_code_pudl',
+            'fuel_unit': 'fuel_units',
             'fuel_avg_mmbtu_per_unit': 'fuel_mmbtu_per_unit',
-            'fuel_quantity': 'fuel_qty_burned',
+            'fuel_quantity': 'fuel_consumed_units',
             'fuel_cost_burned': 'fuel_cost_per_unit_burned',
             'fuel_cost_delvd': 'fuel_cost_per_unit_delivered',
             'fuel_cost_btu': 'fuel_cost_per_mmbtu'})
@@ -1521,7 +1523,7 @@ def accumulated_depreciation(ferc1_raw_dfs, ferc1_transformed_dfs):
     # grab table from dictionary of dfs
     ferc1_apd_df = ferc1_raw_dfs['accumulated_depreciation_ferc1']
 
-    ferc1_acct_apd = pc.FERC_ACCUMULATED_DEPRECIATION.drop(
+    ferc1_acct_apd = FERC_DEPRECIATION_LINES.drop(
         ['ferc_account_description'], axis=1)
     ferc1_acct_apd.dropna(inplace=True)
     ferc1_acct_apd['row_number'] = ferc1_acct_apd['row_number'].astype(int)
@@ -1989,7 +1991,7 @@ def fuel_by_plant_ferc1(fuel_df, thresh=0.5):
         'utility_id_ferc1',  # key
         'plant_name_ferc1',  # key
         'fuel_type_code_pudl',  # pivot
-        'fuel_qty_burned',  # value
+        'fuel_consumed_units',  # value
         'fuel_mmbtu_per_unit',  # value
         'fuel_cost_per_unit_burned',  # value
     ]
@@ -2007,10 +2009,10 @@ def fuel_by_plant_ferc1(fuel_df, thresh=0.5):
         # bug somewhere that introduces them into the fuel_ferc1 table.
         fuel_df[keep_cols].drop_duplicates().
         # Calculate totals for each record based on per-unit values:
-        assign(fuel_mmbtu=lambda x: x.fuel_qty_burned * x.fuel_mmbtu_per_unit).
-        assign(fuel_cost=lambda x: x.fuel_qty_burned * x.fuel_cost_per_unit_burned).
+        assign(fuel_mmbtu=lambda x: x.fuel_consumed_units * x.fuel_mmbtu_per_unit).
+        assign(fuel_cost=lambda x: x.fuel_consumed_units * x.fuel_cost_per_unit_burned).
         # Drop the ratios and heterogeneous fuel "units"
-        drop(['fuel_mmbtu_per_unit', 'fuel_cost_per_unit_burned', 'fuel_qty_burned'], axis=1).
+        drop(['fuel_mmbtu_per_unit', 'fuel_cost_per_unit_burned', 'fuel_consumed_units'], axis=1).
         # Group by the keys and fuel type, and sum:
         groupby(['utility_id_ferc1', 'plant_name_ferc1', 'report_year', 'fuel_type_code_pudl']).
         agg(sum).reset_index().
@@ -2018,6 +2020,9 @@ def fuel_by_plant_ferc1(fuel_df, thresh=0.5):
         set_index(['utility_id_ferc1', 'plant_name_ferc1', 'report_year']).
         pivot(columns='fuel_type_code_pudl').fillna(0.0)
     )
+
+    # undo pivot. Could refactor this old function but out of scope for now (fixing a pandas API deprecation)
+    plant_year_totals = df.stack('fuel_type_code_pudl').groupby(level=[0, 1, 2]).sum()
 
     # Calculate total heat content burned for each plant, and divide it out
     mmbtu_group = (
@@ -2028,7 +2033,7 @@ def fuel_by_plant_ferc1(fuel_df, thresh=0.5):
             df.loc[:, 'fuel_mmbtu'].div(
                 df.loc[:, 'fuel_mmbtu'].sum(axis=1), axis='rows'),
             # Merge that same total into the dataframe separately as well.
-            df.sum(level=0, axis=1).loc[:, 'fuel_mmbtu'],
+            plant_year_totals.loc[:, 'fuel_mmbtu'],
             right_index=True, left_index=True).
         rename(columns=lambda x: re.sub(r'$', '_fraction_mmbtu', x)).
         rename(columns=lambda x: re.sub(r'_mmbtu_fraction_mmbtu$', '_mmbtu', x))
@@ -2043,7 +2048,8 @@ def fuel_by_plant_ferc1(fuel_df, thresh=0.5):
             df.loc[:, 'fuel_cost'].div(
                 df.loc[:, 'fuel_cost'].sum(axis=1), axis='rows'),
             # Merge that same total into the dataframe separately as well.
-            df.sum(level=0, axis=1).loc[:, 'fuel_cost'], right_index=True, left_index=True).
+            plant_year_totals.loc[:, 'fuel_cost'],
+            right_index=True, left_index=True).
         rename(columns=lambda x: re.sub(r'$', '_fraction_cost', x)).
         rename(columns=lambda x: re.sub(r'_cost_fraction_cost$', '_cost', x))
     )

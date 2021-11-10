@@ -137,8 +137,9 @@ def add_facility_id_unit_id_epa(df):
     """
     Harmonize columns that are added later.
 
-    The datapackage validation checks for consistent column names, and these two columns
-    aren't present before August 2008, so this adds them in.
+    The Parquet schema requires consistent column names across all partitions and
+    ``facility_id`` and ``unit_id_epa`` aren't present before August 2008, so this
+    function adds them in.
 
     Args:
         df (pandas.DataFrame): A CEMS dataframe
