@@ -8,6 +8,7 @@ import sqlalchemy as sa
 import yaml
 
 import pudl
+from pudl.cli import create_arg_parser
 from pudl.output.pudltabl import PudlTabl
 from pudl.settings import EtlSettings
 
@@ -166,12 +167,20 @@ def ferc1_sql_engine(
     return engine
 
 
+@pytest.fixture(scope='session', name="commandline_args")
+def commandline_args():
+    """Fixture with default commandline args."""
+    parser = create_arg_parser()
+    return parser.parse_args(args=[])
+
+
 @pytest.fixture(scope='session', name="pudl_engine")
 def pudl_sql_engine(
     ferc1_engine,  # Implicit dependency
     live_dbs,
     pudl_settings_fixture,
     etl_settings,
+    commandline_args
 ):
     """
     Grab a connection to the PUDL Database.
@@ -185,10 +194,7 @@ def pudl_sql_engine(
         pudl.etl.etl(
             etl_settings=etl_settings,
             pudl_settings=pudl_settings_fixture,
-            clobber=False,
-            check_foreign_keys=True,
-            check_types=True,
-            check_values=True,
+            commandline_args=commandline_args
         )
     # Grab a connection to the freshly populated PUDL DB, and hand it off.
     # All the hard work here is being done by the datapkg and

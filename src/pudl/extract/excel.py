@@ -155,7 +155,7 @@ class GenericExtractor(Task):
     BLACKLISTED_PAGES = []
     """List of supported pages that should not be extracted."""
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, datastore=None, *args, **kwargs):
         """
         Create new extractor object and load metadata.
 
@@ -168,6 +168,11 @@ class GenericExtractor(Task):
         self._metadata = self.METADATA
         self._dataset_name = self._metadata.get_dataset_name()
         self._file_cache = {}
+
+        if datastore is None:
+            self.ds = Datastore.from_prefect_context()
+        else:
+            self.ds = datastore
 
     def process_raw(self, df, page, **partition):
         """Transforms raw dataframe and rename columns."""
@@ -278,9 +283,6 @@ class GenericExtractor(Task):
         Returns:
             pd.ExcelFile instance with the parsed excel spreadsheet frame
         """
-        ds = Datastore.from_prefect_context()
-        # TODO(rousik): perhaps this is not efficient because we are constructing
-        # datastore instances repeatedly
         xlsx_filename = self.excel_filename(page, **partition)
 
         if xlsx_filename not in self._file_cache:
@@ -293,11 +295,11 @@ class GenericExtractor(Task):
 
                 # TODO(rousik): if we can make it so, it would be useful to normalize
                 # the eia860m and zip the xlsx files. Then we could simplify this code.
-                res = ds.get_unique_resource(
+                res = self.ds.get_unique_resource(
                     self._dataset_name, name=xlsx_filename)
                 excel_file = pd.ExcelFile(res)
             except KeyError:
-                zf = ds.get_zipfile_resource(self._dataset_name, **partition)
+                zf = self.ds.get_zipfile_resource(self._dataset_name, **partition)
 
                 # If loading the excel file from the zip fails then try to open a dbf file.
                 extension = pathlib.Path(xlsx_filename).suffix.lower()

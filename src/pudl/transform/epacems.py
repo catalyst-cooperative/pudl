@@ -77,10 +77,6 @@ def load_plant_utc_offset():
     CEMS times don't change for DST, so we get get the UTC offset by using the
     offset for the plants' timezones in January.
 
-    Args:
-        pudl_engine (sqlalchemy.engine.Engine): A database connection engine for
-            an existing PUDL DB.
-
     Returns:
         pandas.DataFrame: With columns plant_id_eia and utc_offset.
     """

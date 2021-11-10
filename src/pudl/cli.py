@@ -35,17 +35,8 @@ from pudl.settings import EtlSettings
 logger = logging.getLogger(__name__)
 
 
-def parse_command_line(argv):
-    """
-    Parse script command line arguments. See the -h option.
-
-    Args:
-        argv (list): command line arguments including caller file name.
-
-    Returns:
-        dict: A dictionary mapping command line arguments to their values.
-
-    """
+def create_arg_parser():
+    """Create an argument parser for the etl script."""
     parser = argparse.ArgumentParser(
         description=__doc__,
         parents=[pudl.etl.command_line_flags()])
@@ -121,6 +112,21 @@ def parse_command_line(argv):
         type=str,
         help="Load datastore resources from Google Cloud Storage. Should be gs://bucket[/path_prefix]",
     )
+    return parser
+
+
+def parse_command_line(argv):
+    """
+    Parse script command line arguments. See the -h option.
+
+    Args:
+        argv (list): command line arguments including caller file name.
+
+    Returns:
+        dict: A dictionary mapping command line arguments to their values.
+
+    """
+    parser = create_arg_parser()
     arguments = parser.parse_args(argv[1:])
     return arguments
 
@@ -238,12 +244,6 @@ def main():
     pudl.etl.etl(
         etl_settings=etl_settings,
         pudl_settings=pudl_settings,
-        clobber=args.clobber,
-        use_local_cache=not args.bypass_local_cache,
-        gcs_cache_path=args.gcs_cache_path,
-        check_foreign_keys=not args.ignore_foreign_key_constraints,
-        check_types=not args.ignore_type_constraints,
-        check_values=not args.ignore_value_constraints,
         commandline_args=args
     )
 

@@ -29,11 +29,7 @@ class DatasetPipeline(ABC):
 
         Args:
             pudl_settings (dict): overall configuration (paths and such)
-            dataset_list (list): list of named datasets associated with this bundle
             flow (prefect.Flow): attach prefect tasks to this flow
-            datapkg_name (str): fully qualified name of the datapackage/bundle
-            etl_settings (dict): the complete ETL configuration
-            clobber (bool): if True, then existing outputs will be clobbered
         """
         self.flow = flow
         self.pudl_settings = pudl_settings

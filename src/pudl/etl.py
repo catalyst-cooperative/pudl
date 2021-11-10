@@ -476,13 +476,6 @@ def configure_prefect_context(etl_settings, pudl_settings, commandline_args):
 def etl(  # noqa: C901
     etl_settings: EtlSettings,
     pudl_settings: Dict,
-    clobber: bool = False,
-    use_local_cache: bool = True,
-    gcs_cache_path: str = None,
-    check_foreign_keys: bool = True,
-    check_types: bool = True,
-    check_values: bool = True,
-    overwrite_ferc1_db=SqliteOverwriteMode.ALWAYS,
     commandline_args: argparse.Namespace = None
 ):
     """
@@ -498,19 +491,13 @@ def etl(  # noqa: C901
         etl_settings: settings that describe datasets to be loaded.
         pudl_settings: a dictionary filled with settings that mostly
             describe paths to various resources and outputs.
-        clobber: If True and there is already a pudl.sqlite database
-            it will be deleted and a new one will be created.
-        use_local_cache: controls whether datastore should be using local
-            file cache.
-        gcs_cache_path: controls whether datastore should be using Google
-            Cloud Storage based cache.
 
     Returns:
         None
 
     """
     pudl_db_path = Path(pudl_settings["sqlite_dir"]) / "pudl.sqlite"
-    if pudl_db_path.exists() and not clobber:
+    if pudl_db_path.exists() and not commandline_args.clobber:
         raise SystemExit(
             "The PUDL DB already exists, and we don't want to clobber it.\n"
             f"Move {pudl_db_path} aside or set clobber=True and try again."
@@ -518,10 +505,10 @@ def etl(  # noqa: C901
 
     # Configure how we want to obtain raw input data:
     ds_kwargs = dict(
-        gcs_cache_path=gcs_cache_path,
+        gcs_cache_path=commandline_args.gcs_cache_path,
         sandbox=pudl_settings.get("sandbox", False)
     )
-    if use_local_cache:
+    if not commandline_args.bypass_local_cache:
         ds_kwargs["local_cache_path"] = Path(pudl_settings["pudl_in"]) / "data"
 
     # TODO (bendnorman): The naming convention here is getting a little wacky.
@@ -533,7 +520,7 @@ def etl(  # noqa: C901
     datasets = validated_etl_settings.get_datasets()
     if validated_etl_settings.epacems:
         epacems_pq_path = Path(pudl_settings["parquet_dir"]) / "epacems"
-        _ = pudl.helpers.prep_dir(epacems_pq_path, clobber=clobber)
+        _ = pudl.helpers.prep_dir(epacems_pq_path, clobber=commandline_args.clobber)
 
     # Setup pipeline cache
     configure_prefect_context(etl_settings, pudl_settings, commandline_args)
@@ -554,7 +541,7 @@ def etl(  # noqa: C901
 
     pipelines = {}
 
-    # TODO: There's got to be a better way here.
+    # TODO(bendnorman): There's got to be a better way here.
     if validated_etl_settings.ferc1:
         pipelines[Ferc1Pipeline.DATASET] = Ferc1Pipeline(
             flow, pudl_settings, validated_etl_settings.ferc1)
@@ -580,9 +567,9 @@ def etl(  # noqa: C901
             pudl.load.sqlite.dfs_to_sqlite(
                 tables,
                 engine=pudl_engine,
-                check_foreign_keys=check_foreign_keys,
-                check_types=check_types,
-                check_values=check_values,
+                check_foreign_keys=not commandline_args.ignore_foreign_key_constraints,
+                check_types=not commandline_args.ignore_type_constraints,
+                check_values=not commandline_args.ignore_value_constraints,
             )
 
     # # Add CEMS pipeline to the flow
