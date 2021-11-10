@@ -49,7 +49,7 @@ setup(
         "prefect[viz, gcp]~=0.15.0",
         "pyarrow~=5.0",
         "pydantic[email]~=1.7",
-        "pygeos~=0.10.0",
+        "pygeos>=0.10,<0.12",
         "python-snappy~=0.6.0",
         "pyyaml~=5.0",
         "scikit-learn~=1.0",
