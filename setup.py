@@ -95,7 +95,7 @@ setup(
             "pydocstyle~=5.1",
             "pytest~=6.2",
             "pytest-console-scripts~=1.1",
-            "pytest-cov~=2.10",
+            "pytest-cov>=2.10,<4.0",
             "responses~=0.14",
         ],
     },
