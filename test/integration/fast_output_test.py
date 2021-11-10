@@ -14,7 +14,10 @@ logger = logging.getLogger(__name__)
 
 # This avoids trying to use the EIA API key when CI is run by a bot that doesn't
 # have access to our GitHub secrets
-FILL_FUEL_COST = bool(os.environ.get("API_KEY_EIA", False))
+API_KEY_EIA = os.environ.get("API_KEY_EIA", False)
+if not API_KEY_EIA:
+    logger.warning("API_KEY_EIA not available from the environment.")
+FILL_FUEL_COST = bool(API_KEY_EIA)
 
 
 @pytest.fixture(scope="module")
