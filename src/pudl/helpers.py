@@ -983,8 +983,7 @@ def convert_cols_dtypes(df, data_source, name=None):
     columns that have this problem... and hopefully pandas just enables this
     direct conversion.
     Args:
-        df (pandas.DataFrame): dataframe with columns that appear in the PUDL
-            tables.
+        df (pandas.DataFrame): dataframe with columns that appear in the PUDL tables.
         data_source (str): the name of the datasource (eia, ferc1, etc.)
         name (str): name of the table (for logging only!)
     Returns:
