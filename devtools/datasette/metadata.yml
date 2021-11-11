@@ -52,22 +52,6 @@ databases:
       a recurring contribution</a> to support it.</li>
       </ul></p>
     tables:
-      energy_source_eia923:
-        hidden: true
-      ferc_accounts:
-        hidden: true
-      ferc_depreciation_lines:
-        hidden: true
-      fuel_type_aer:
-        hidden: true
-      fuel_type_eia923:
-        hidden: true
-      prime_movers_eia923:
-        hidden: true
-      transport_modes_eia923:
-        hidden: true
-      coalmine_eia923:
-        label_column: mine_name
       plants_entity_eia:
         label_column: plant_name_eia
       plants_ferc1:
