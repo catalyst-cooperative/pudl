@@ -189,13 +189,13 @@ the weight column (values)"""
 CONSISTENT_ATTRIBUTE_COLS = [
     'fuel_type_code_pudl',
     'planned_retirement_date',
-    # 'retirement_date',
-    # 'generator_id',
-    # 'unit_id_pudl',
-    # 'technology_description',
-    # 'energy_source_code_1',
-    # 'prime_mover_code',
-    # 'ferc_acct_name',
+    'retirement_date',
+    'generator_id',
+    'unit_id_pudl',
+    'technology_description',
+    'energy_source_code_1',
+    'prime_mover_code',
+    'ferc_acct_name',
 ]
 """
 list: a list of column names to add as attributes when they are consistent into
