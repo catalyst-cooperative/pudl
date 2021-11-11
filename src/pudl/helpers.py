@@ -971,30 +971,25 @@ def convert_cols_dtypes(df, data_source, name=None):
     type. It uses a dictionary in constants.py called COLUMN_DTYPES to assign
     the right type. Within a given data source (e.g. eia923, ferc1) each column
     name is assumed to *always* have the same data type whenever it is found.
-
     Boolean type conversions created a special problem, because null values in
     boolean columns get converted to True (which is bonkers!)... we generally
     want to preserve the null values and definitely don't want them to be True,
     so we are keeping those columns as objects and preforming a simple mask for
     the boolean columns.
-
     The other exception in here is with the `utility_id_eia` column. It is
     often an object column of strings. All of the strings are numbers, so it
     should be possible to convert to :func:`pandas.Int32Dtype` directly, but it
     is requiring us to convert to int first. There will probably be other
     columns that have this problem... and hopefully pandas just enables this
     direct conversion.
-
     Args:
         df (pandas.DataFrame): dataframe with columns that appear in the PUDL
             tables.
         data_source (str): the name of the datasource (eia, ferc1, etc.)
         name (str): name of the table (for logging only!)
-
     Returns:
         pandas.DataFrame: a dataframe with columns as specified by the
         :mod:`pudl.constants` ``COLUMN_DTYPES`` dictionary.
-
     """
     # get me all of the columns for the table in the constants dtype dict
     col_dtypes = {col: col_dtype for col, col_dtype
@@ -1038,12 +1033,18 @@ def convert_cols_dtypes(df, data_source, name=None):
                                True: True,
                                'nan': pd.NA})
 
-    # Int64Dtype() can't convert from object dtype so we need to convert via
-    # float type. Identify columns for which this needs to happen.
-    cols_to_fix = set(df.select_dtypes(object).keys()).intersection(
-        set(col for col, dtype in col_dtypes.items() if dtype == pd.Int64Dtype()))
-    if cols_to_fix:
-        df = df.astype({c: float for c in cols_to_fix})
+    if name:
+        logger.debug(f'Converting the dtypes of: {name}')
+    # unfortunately, the pd.Int32Dtype() doesn't allow a conversion from object
+    # columns to this nullable int type column. `utility_id_eia` shows up as a
+    # column of strings (!) of numbers so it is an object column, and therefor
+    # needs to be converted beforehand.
+    if 'utility_id_eia' in df.columns:
+        # we want to be able to use this dtype cleaning at many stages, and
+        # sometimes this column has been converted to a float and therefor
+        # we need to skip this conversion
+        if pd.api.types.is_object_dtype(df.utility_id_eia.dtypes):
+            df = df.astype({'utility_id_eia': 'float'})
 
     df = (
         df.astype(non_bool_cols)
@@ -1065,10 +1066,7 @@ def convert_cols_dtypes(df, data_source, name=None):
             else:
                 df.loc[:, col] = zero_pad_zips(df[col], 5)
 
-    # Apply dtype conversion all at once. If this fails, dump the failed dataframe to
-    # disk and try running conversion one column at a time to determine what exactly has
-    # failed.
-    return _apply_type_conversion(df, col_dtypes, name=name)
+    return df
 
 
 def convert_dfs_dict_dtypes(dfs_dict, data_source):

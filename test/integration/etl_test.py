@@ -14,8 +14,8 @@ import sqlalchemy as sa
 import yaml
 
 import pudl
-from pudl.convert.epacems_to_parquet import epacems_to_parquet
 from pudl.extract.ferc1 import DBF_TABLES_FILENAMES, get_dbc_map, get_fields
+from pudl.settings import EtlSettings
 
 logger = logging.getLogger(__name__)
 
@@ -38,30 +38,7 @@ def test_ferc1_etl(ferc1_engine):
     pass
 
 
-def test_epacems_to_parquet(datapkg_bundle,
-                            pudl_settings_fixture,
-                            data_scope,
-                            request):
-    """Attempt to convert a small amount of EPA CEMS data to parquet format."""
-    clobber = request.config.getoption("--clobber")
-    epacems_datapkg_json = Path(
-        pudl_settings_fixture['datapkg_dir'],
-        data_scope['datapkg_bundle_name'],
-        'epacems-eia-test',
-        "datapackage.json"
-    )
-    logger.info(f"Loading epacems from {epacems_datapkg_json}")
-    epacems_to_parquet(
-        datapkg_path=epacems_datapkg_json,
-        epacems_years=data_scope['epacems_years'],
-        epacems_states=data_scope['epacems_states'],
-        out_dir=Path(pudl_settings_fixture['parquet_dir'], 'epacems'),
-        compression='snappy',
-        clobber=clobber
-    )
-
-
-def test_ferc1_lost_data(pudl_settings_fixture, pudl_datastore_fixture, data_scop, ferc1_engine):
+def test_ferc1_lost_data(pudl_settings_fixture, pudl_datastore_fixture, ferc1_engine):
     """Check to make sure f1_respondent_id table exists."""
     assert isinstance(ferc1_engine, sa.engine.Engine)
     assert "f1_respondent_id" in sa.inspect(ferc1_engine).get_table_names()
@@ -118,14 +95,13 @@ def test_ferc1_solo_etl(pudl_settings_fixture,
                         live_ferc1_db,
                         commandline_args):
     """Verify that a minimal FERC Form 1 can be loaded without other data."""
-    cfg_path = Path(__file__).parent / "settings/ferc1-solo.yml"
-    pudl_settings = yaml.safe_load(open(cfg_path, "r"))
+    settings_file_path = Path().cwd() / "src/pudl/package_data/settings/ferc1_solo_test.yml"
+    etl_settings = EtlSettings.from_yaml(settings_file_path)
 
-    pudl.etl.generate_datapkg_bundle(
-        pudl_settings,
-        pudl_settings_fixture,
-        commandline_args=commandline_args,
-        clobber=True,
+    pudl.etl.etl(
+        etl_settings=etl_settings,
+        pudl_settings=pudl_settings_fixture,
+        commandline_args=commandline_args
     )
 
 

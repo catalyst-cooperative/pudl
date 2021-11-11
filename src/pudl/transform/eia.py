@@ -30,6 +30,7 @@ from prefect import task
 import pudl
 import pudl.constants as pc
 from pudl.dfc import DataFrameCollection
+from pudl.etl import PUDL_META
 
 logger = logging.getLogger(__name__)
 
@@ -1071,9 +1072,10 @@ def transform(eia_transformed_dfs,
     if not eia923_years and not eia860_years:
         logger.info('Not ingesting EIA')
         return None
-    # Apply the right dtypes to the input dfs
+
+    # convert types..
     eia_transformed_dfs = pudl.helpers.convert_dfs_dict_dtypes(
-        eia_transformed_dfs.to_dict(), 'eia')
+        eia_transformed_dfs, 'eia')
 
     # create the empty entities df to fill up
     entities_dfs = {}
@@ -1097,10 +1099,14 @@ def transform(eia_transformed_dfs,
     for entity in remove:
         eia_transformed_dfs[f'{entity}_eia860'] = eia_transformed_dfs.pop(
             f'{entity}_annual_eia', f'{entity}_annual_eia')
+
+    # convert types..
+    entities_dfs = pudl.helpers.convert_dfs_dict_dtypes(entities_dfs, 'eia')
+    for table in entities_dfs:
+        entities_dfs[table] = PUDL_META.get_resource(table).encode(entities_dfs[table])
+
     # remove the boilers annual table bc it has no columns
     eia_transformed_dfs.pop('boilers_annual_eia',)
     eia_transformed_dfs.update(entities_dfs)
 
-    eia_transformed_dfs = pudl.helpers.convert_dfs_dict_dtypes(
-        eia_transformed_dfs, 'eia')
     return DataFrameCollection.from_dict(eia_transformed_dfs)
