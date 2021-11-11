@@ -37,7 +37,7 @@ def fast_out(pudl_engine, pudl_datastore_fixture):
 
 @pytest.mark.parametrize(
     "df_name", [
-        "all_plants_ferc1"
+        "all_plants_ferc1",
         "fbp_ferc1",
         "fuel_ferc1",
         "plant_in_service_ferc1",
