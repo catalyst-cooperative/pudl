@@ -7,10 +7,10 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.8, 3.9]
+        python-version: ["3.8", "3.9"]
 
     steps:
-    - uses: actions/checkout@v2.3.4
+    - uses: actions/checkout@v2.4.0
       with:
         fetch-depth: 2
 
@@ -83,4 +83,5 @@ jobs:
         GITHUB_TOKEN: ${{ github.token }} # required
         SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }} # required
         MATRIX_CONTEXT: ${{ toJson(matrix) }} # required
-      if: always() # Pick up events even if the job fails or is canceled.
+      if: ${{ github.actor != 'dependabot[bot]' }}
+      #if: always() # Pick up events even if the job fails or is canceled.

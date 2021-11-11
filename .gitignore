@@ -1,9 +1,11 @@
 **/*scratch*.ipynb
+**/*.log
 **/*.pyc
 **/*.pq
 **/*.parquet
 **/*.*.swp
 **/__pycache__/*
+docs/data_dictionaries/pudl_db.rst
 .ipynb_checkpoints/
 .cache/
 .pytest_cache/*

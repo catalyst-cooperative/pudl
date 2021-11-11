@@ -10,16 +10,17 @@ logger = logging.getLogger(__name__)
 
 @pytest.mark.parametrize(
     "df_name,cols", [
-        ("plants_eia860", "all"),
-        ("utils_eia860", "all"),
-        ("pu_eia860", "all"),
-        ("bga_eia860", "all"),
-        ("own_eia860", "all"),
-        ("gens_eia860", "all"),
-        ("gen_eia923", "all"),
-        ("gf_eia923", "all"),
         ("bf_eia923", "all"),
+        ("bga_eia860", "all"),
         ("frc_eia923", "all"),
+        ("gen_eia923", "all"),
+        ("gens_eia860", "all"),
+        ("gf_eia923", "all"),
+        ("gfn_eia923", "all"),
+        ("own_eia860", "all"),
+        ("plants_eia860", "all"),
+        ("pu_eia860", "all"),
+        ("utils_eia860", "all"),
     ])
 def test_no_null_cols_eia(pudl_out_eia, live_dbs, cols, df_name):
     """Verify that output DataFrames have no entirely NULL columns."""
@@ -32,17 +33,19 @@ def test_no_null_cols_eia(pudl_out_eia, live_dbs, cols, df_name):
 
 @pytest.mark.parametrize(
     "df_name,raw_rows,monthly_rows,annual_rows", [
-        ("utils_eia860", 107_614, 107_614, 107_614),
-        ("plants_eia860", 157_939, 157_939, 157_939),
-        ("pu_eia860", 156_648, 156_648, 156_648),
-        ("own_eia860", 74_479, 74_479, 74_479),
-        ("gens_eia860", 459_975, 459_975, 459_975),
-        ("bga_eia860", 105_768, 105_768, 105_768),
-        ("frc_eia923", 517_078, 213_563, 21_338),
-        ("gen_eia923", 510_835, 510_835, 42_884),
-        ("bf_eia923", 1_207_976, 1_196_908, 100_866),
-        ("gf_eia923", 2_380_147, 2_366_032, 199_425),
-    ])
+        ('bf_eia923', 1_309_942, 1_309_942, 109_807),
+        ('bga_eia860', 117_930, 117_930, 117_930),
+        ('frc_eia923', 560_377, 230_063, 22_686),
+        ('gen_eia923', 559_570, 559_570, 46_718),
+        ('gens_eia860', 490_824, 490_824, 490_824),
+        ('gf_eia923', 2_492_481, 2_491_744, 213_369),
+        ('gfn_eia923', 23_498, 23_445, 1_961),
+        ('own_eia860', 79_311, 79_311, 79_311),
+        ('plants_eia860', 171_148, 171_148, 171_148),
+        ('pu_eia860', 170_370, 170_370, 170_370),
+        ('utils_eia860', 113_357, 113_357, 113_357),
+    ]
+)
 def test_minmax_rows(
     pudl_out_eia,
     live_dbs,
@@ -75,23 +78,54 @@ def test_minmax_rows(
 
     _ = (
         pudl_out_eia.__getattribute__(df_name)()
-        .pipe(pv.check_min_rows, expected_rows=expected_rows,
-              margin=0.0, df_name=df_name)
-        .pipe(pv.check_max_rows, expected_rows=expected_rows,
-              margin=0.0, df_name=df_name)
+        .pipe(
+            pv.check_min_rows,
+            expected_rows=expected_rows,
+            margin=0.0,
+            df_name=df_name
+        )
+        .pipe(
+            pv.check_max_rows,
+            expected_rows=expected_rows,
+            margin=0.0,
+            df_name=df_name
+        )
     )
 
 
 @pytest.mark.parametrize(
     "df_name,unique_subset", [
-        ("plants_eia860", ["report_date", "plant_id_eia"]),
-        ("utils_eia860", ["report_date", "utility_id_eia"]),
-        ("pu_eia860", ["report_date", "plant_id_eia"]),
-        ("gens_eia860", ["report_date", "plant_id_eia", "generator_id"]),
+        ("bf_eia923", [
+            "report_date",
+            "plant_id_eia",
+            "boiler_id",
+            "energy_source_code",
+        ]),
         ("bga_eia860", ["report_date", "plant_id_eia", "boiler_id", "generator_id"]),
-        ("own_eia860", ["report_date", "plant_id_eia",
-         "generator_id", "owner_utility_id_eia"]),
         ("gen_eia923", ["report_date", "plant_id_eia", "generator_id"]),
+        ("gens_eia860", ["report_date", "plant_id_eia", "generator_id"]),
+        ("gf_eia923", [
+            "report_date",
+            "plant_id_eia",
+            "prime_mover_code",
+            "energy_source_code"
+        ]),
+        ("gfn_eia923", [
+            "report_date",
+            "plant_id_eia",
+            "nuclear_unit_id",
+            "prime_mover_code",
+            "energy_source_code",
+        ]),
+        ("own_eia860", [
+            "report_date",
+            "plant_id_eia",
+            "generator_id",
+            "owner_utility_id_eia"
+        ]),
+        ("plants_eia860", ["report_date", "plant_id_eia"]),
+        ("pu_eia860", ["report_date", "plant_id_eia"]),
+        ("utils_eia860", ["report_date", "utility_id_eia"]),
     ])
 def test_unique_rows_eia(pudl_out_eia, live_dbs, unique_subset, df_name):
     """Test whether dataframe has unique records within a subset of columns."""

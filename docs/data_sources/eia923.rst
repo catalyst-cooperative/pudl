@@ -17,15 +17,15 @@ EIA Form 923
    * - Source Format
      - Microsoft Excel (.xls/.xlsx)
    * - Source Years
-     - 2001-2019
+     - 2001-2020
    * - Size (Download)
-     - 243.3 MB
+     - 256 MB
    * - PUDL Code
      - ``eia923``
    * - Years Liberated
-     - 2001-2019
+     - 2001-2020
    * - Records Liberated
-     - ~3.6 million
+     - ~5 million
    * - Issues
      - `Open EIA 923 issues <https://github.com/catalyst-cooperative/pudl/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aopen+label%3Aeia923>`__
 
@@ -111,9 +111,9 @@ after its collection date. The fields subject to this legislation include: total
 delivered cost of coal, natural gas, and petroleum received at non-utility power plants
 and the commodity cost information for all plants (Schedule 2).
 
-Net generation & fuel consumed reported in two seperate tables
+Net generation & fuel consumed reported in two separate tables
 --------------------------------------------------------------
-Net generation and fuel consumption are reported in two seperate tables in EIA-923:
+Net generation and fuel consumption are reported in two separate tables in EIA-923:
 in the :ref:`generation_eia923` and :ref:`generation_fuel_eia923` tables. The
 :ref:`generation_fuel_eia923` table is more complete (the :ref:`generation_eia923`
 table includes only ~55% of the reported MWh), but the :ref:`generation_eia923` table
@@ -150,28 +150,6 @@ These tables contain the bulk data reported in the EIA-923.
      - https://data.catalyst.coop/pudl/generation_eia923
    * - :ref:`generation_fuel_eia923`
      - https://data.catalyst.coop/pudl/generation_fuel_eia923
-
-
-EIA-923 Structural Tables
--------------------------
-These tables define various codes and abbreviations more fully.
-
-.. list-table::
-   :header-rows: 1
-   :widths: auto
-
-   * - Data Dictionary
-     - Browse Online
-   * - :ref:`energy_source_eia923`
-     - https://data.catalyst.coop/pudl/energy_source_eia923
-   * - :ref:`fuel_type_aer_eia923`
-     - https://data.catalyst.coop/pudl/fuel_type_aer_eia923
-   * - :ref:`fuel_type_eia923`
-     - https://data.catalyst.coop/pudl/fuel_type_eia923
-   * - :ref:`prime_movers_eia923`
-     - https://data.catalyst.coop/pudl/prime_movers_eia923
-   * - :ref:`transport_modes_eia923`
-     - https://data.catalyst.coop/pudl/transport_modes_eia923
 
 
 PUDL Data Transformations

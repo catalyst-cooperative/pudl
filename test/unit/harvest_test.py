@@ -5,7 +5,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from pudl.metadata.classes import Package, Resource, RESOURCE_METADATA
+from pudl.metadata import Resource
 from pudl.metadata.helpers import most_frequent
 
 # ---- Helpers ---- #
@@ -21,11 +21,6 @@ def _assert_frame_equal(a: pd.DataFrame, b: pd.DataFrame, **kwargs: Any) -> None
 
 
 # ---- Unit tests ---- #
-
-
-def test_all_resources_valid() -> None:
-    """All resources in metadata pass validation tests."""
-    Package.from_resource_ids(RESOURCE_METADATA)
 
 
 STANDARD: Dict[str, Any] = {
@@ -90,7 +85,7 @@ def test_resource_harvests_inputs(dfs: Dict[Any, pd.DataFrame]) -> None:
     resource = Resource(**HARVEST)
     expected = (
         pd.DataFrame([{"i": 1, "j": 2, "x": 10, "y": 100}])
-        .astype(resource.dtypes)
+        .astype(resource.to_pandas_dtypes())
         .set_index(["i", "j"])
     )
     result, _ = resource.harvest_dfs(dfs)
@@ -103,7 +98,7 @@ def test_resource_with_only_key_fields_harvests() -> None:
     resource.schema.fields = resource.schema.fields[:2]
     expected = (
         pd.DataFrame([{"i": 1, "j": 2}])
-        .astype(resource.dtypes)
+        .astype(resource.to_pandas_dtypes())
         .set_index(["i", "j"])
     )
     dfs = {0: pd.DataFrame([{"i": 1, "j": 2, "x": 10, "y": 100}])}
@@ -434,7 +429,7 @@ EXPECTED_DFS: Dict[str, pd.DataFrame] = dict(
 rnames = [r.name for r in RESOURCES]
 for name, df in EXPECTED_DFS.items():
     resource = RESOURCES[rnames.index(name)]
-    df = df.astype(resource.dtypes)
+    df = df.astype(resource.to_pandas_dtypes())
     if resource.harvest.harvest:
         df = df.set_index(resource.schema.primary_key)
     else:

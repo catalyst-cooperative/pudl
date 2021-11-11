@@ -1,6 +1,7 @@
 """Load PUDL data into an SQLite database."""
 
 import logging
+import sys
 from sqlite3 import Connection as SQLite3Connection
 from sqlite3 import sqlite_version
 from typing import Dict
@@ -8,7 +9,9 @@ from typing import Dict
 import pandas as pd
 import sqlalchemy as sa
 from packaging import version
+from sqlalchemy.exc import IntegrityError
 
+from pudl.helpers import find_foreign_key_errors
 from pudl.metadata.classes import Package
 
 logger = logging.getLogger(__name__)
@@ -34,7 +37,10 @@ def dfs_to_sqlite(
                 f"PRAGMA foreign_keys={'ON' if check_foreign_keys else 'OFF'};")
             cursor.close()
 
-    if (version.parse(sqlite_version) < version.parse(MINIMUM_SQLITE_VERSION) and check_types):
+    bad_sqlite_version = (
+        version.parse(sqlite_version) < version.parse(MINIMUM_SQLITE_VERSION)
+    )
+    if bad_sqlite_version and check_types:
         check_types = False
         logger.warning(
             f"Found SQLite {sqlite_version} which is less than "
@@ -55,10 +61,15 @@ def dfs_to_sqlite(
     # corresponding table in the newly create database:
     for table in md.sorted_tables:
         logger.info(f"Loading {table.name} into PUDL SQLite DB.")
-        dfs[table.name].to_sql(
-            table.name,
-            engine,
-            if_exists="append",
-            index=False,
-            dtype={c.name: c.type for c in table.columns},
-        )
+        try:
+            dfs[table.name].to_sql(
+                table.name,
+                engine,
+                if_exists="append",
+                index=False,
+                dtype={c.name: c.type for c in table.columns},
+            )
+        except IntegrityError as err:
+            logger.info(find_foreign_key_errors(dfs))
+            logger.info(err)
+            sys.exit(1)

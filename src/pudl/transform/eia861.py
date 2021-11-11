@@ -10,7 +10,12 @@ import logging
 import pandas as pd
 
 import pudl
-from pudl import constants as pc
+from pudl.constants import PUDL_TABLES
+from pudl.metadata.enums import (CUSTOMER_CLASSES, FUEL_CLASSES, NERC_REGIONS,
+                                 RELIABILITY_STANDARDS, REVENUE_CLASSES,
+                                 RTO_CLASSES, TECH_CLASSES)
+from pudl.metadata.labels import (ENTITY_TYPES, ESTIMATED_OR_ACTUAL,
+                                  MOMENTARY_INTERRUPTIONS)
 
 logger = logging.getLogger(__name__)
 
@@ -661,7 +666,7 @@ def _clean_nerc(df, idx_cols):
     nerc_list = list(set([item for sublist in nerc_col for item in sublist]))
     non_nerc_list = [
         nerc_entity for nerc_entity in nerc_list
-        if nerc_entity not in pc.RECOGNIZED_NERC_REGIONS + list(NERC_SPELLCHECK.keys())]
+        if nerc_entity not in NERC_REGIONS + list(NERC_SPELLCHECK.keys())]
     print(
         f'The following reported NERC regions are not currently recognized and become \
         UNK values: {non_nerc_list}')
@@ -684,7 +689,7 @@ def _clean_nerc(df, idx_cols):
             [i if i not in NERC_SPELLCHECK.keys()
              else NERC_SPELLCHECK[i] for i in x]))
         .apply(lambda x: sorted(
-            [i if i in pc.RECOGNIZED_NERC_REGIONS else 'UNK' for i in x]))
+            [i if i in NERC_REGIONS else 'UNK' for i in x]))
         .apply(lambda x: _remove_nerc_duplicates(x))
         .str.join('_')
     )
@@ -1091,7 +1096,7 @@ def sales(tfr_dfs):
         raw_sales,
         df_name='Sales',
         idx_cols=idx_cols,
-        class_list=pc.CUSTOMER_CLASSES,
+        class_list=CUSTOMER_CLASSES,
         class_type='customer_class',
     )
 
@@ -1174,7 +1179,7 @@ def advanced_metering_infrastructure(tfr_dfs):
         raw_ami,
         df_name='Advanced Metering Infrastructure',
         idx_cols=idx_cols,
-        class_list=pc.CUSTOMER_CLASSES,
+        class_list=CUSTOMER_CLASSES,
         class_type='customer_class',
     )
 
@@ -1238,7 +1243,7 @@ def demand_response(tfr_dfs):
         raw_dr,
         df_name='Demand Response',
         idx_cols=idx_cols,
-        class_list=pc.CUSTOMER_CLASSES,
+        class_list=CUSTOMER_CLASSES,
         class_type='customer_class',
     )
 
@@ -1363,7 +1368,7 @@ def demand_side_management(tfr_dfs):
             dsm_ee_dr,
             df_name='Demand Side Management',
             idx_cols=idx_cols,
-            class_list=pc.CUSTOMER_CLASSES,
+            class_list=CUSTOMER_CLASSES,
             class_type='customer_class',
             keep_totals=True
         )
@@ -1518,11 +1523,11 @@ def distributed_generation(tfr_dfs):
         tfr_dfs['distributed_generation_eia861'].copy()
         .assign(
             estimated_or_actual_capacity_data=lambda x: (
-                x.estimated_or_actual_capacity_data.map(pc.ESTIMATED_OR_ACTUAL)),
+                x.estimated_or_actual_capacity_data.map(ESTIMATED_OR_ACTUAL)),
             estimated_or_actual_fuel_data=lambda x: (
-                x.estimated_or_actual_fuel_data.map(pc.ESTIMATED_OR_ACTUAL)),
+                x.estimated_or_actual_fuel_data.map(ESTIMATED_OR_ACTUAL)),
             estimated_or_actual_tech_data=lambda x: (
-                x.estimated_or_actual_tech_data.map(pc.ESTIMATED_OR_ACTUAL))
+                x.estimated_or_actual_tech_data.map(ESTIMATED_OR_ACTUAL))
         )
     )
 
@@ -1593,7 +1598,7 @@ def distributed_generation(tfr_dfs):
         df=transformed_dg_tech,
         df_name='Distributed Generation Tech Component Capacity',
         idx_cols=idx_cols,
-        class_list=pc.TECH_CLASSES,
+        class_list=TECH_CLASSES,
         class_type='tech_class',
     )
 
@@ -1602,7 +1607,7 @@ def distributed_generation(tfr_dfs):
         df=raw_dg_fuel,
         df_name='Distributed Generation Fuel Percent',
         idx_cols=idx_cols,
-        class_list=pc.FUEL_CLASSES,
+        class_list=FUEL_CLASSES,
         class_type='fuel_class',
     )
 
@@ -1639,8 +1644,11 @@ def distribution_systems(tfr_dfs):
     )
 
     # No duplicates to speak of but take measures to check just in case
-    _check_for_dupes(raw_ds, 'Distribution Systems', [
-                     "utility_id_eia", "state", "report_date"])
+    _check_for_dupes(
+        raw_ds,
+        'Distribution Systems',
+        ["utility_id_eia", "state", "report_date"]
+    )
 
     tfr_dfs["distribution_systems_eia861"] = raw_ds
 
@@ -1674,12 +1682,15 @@ def dynamic_pricing(tfr_dfs):
     class_attributes = [
         'critical_peak_pricing',
         'critical_peak_rebate',
-        'real_time_pricing_program',
-        'time_of_use_pricing_program',
-        'variable_peak_pricing_program'
+        'real_time_pricing',
+        'time_of_use_pricing',
+        'variable_peak_pricing'
     ]
 
-    raw_dp = tfr_dfs["dynamic_pricing_eia861"].copy()
+    raw_dp = (
+        tfr_dfs["dynamic_pricing_eia861"].copy()
+        .query("utility_id_eia not in [88888]")
+    )
 
     ###########################################################################
     # Tidy Data:
@@ -1690,7 +1701,7 @@ def dynamic_pricing(tfr_dfs):
         raw_dp,
         df_name='Dynamic Pricing',
         idx_cols=idx_cols,
-        class_list=pc.CUSTOMER_CLASSES,
+        class_list=CUSTOMER_CLASSES,
         class_type='customer_class',
     )
 
@@ -1755,7 +1766,7 @@ def energy_efficiency(tfr_dfs):
         raw_ee,
         df_name='Energy Efficiency',
         idx_cols=idx_cols,
-        class_list=pc.CUSTOMER_CLASSES,
+        class_list=CUSTOMER_CLASSES,
         class_type='customer_class',
         keep_totals=True
     )
@@ -1819,7 +1830,7 @@ def green_pricing(tfr_dfs):
         raw_gp,
         df_name='Green Pricing',
         idx_cols=idx_cols,
-        class_list=pc.CUSTOMER_CLASSES,
+        class_list=CUSTOMER_CLASSES,
         class_type='customer_class',
     )
 
@@ -1874,13 +1885,16 @@ def mergers(tfr_dfs):
 
     transformed_mergers = (
         raw_mergers.assign(
-            entity_type=lambda x: x.entity_type.map(pc.ENTITY_TYPE_DICT),
+            entity_type=lambda x: x.entity_type.map(ENTITY_TYPES),
         )
     )
 
     # No duplicates to speak of but take measures to check just in case
-    _check_for_dupes(transformed_mergers, 'Mergers', [
-                     "utility_id_eia", "state", "report_date"])
+    _check_for_dupes(
+        transformed_mergers,
+        'Mergers',
+        ["utility_id_eia", "state", "report_date"]
+    )
 
     tfr_dfs["mergers_eia861"] = transformed_mergers
     return tfr_dfs
@@ -1928,8 +1942,7 @@ def net_metering(tfr_dfs):
     raw_nm_misc = raw_nm[idx_cols + misc_cols].copy()
 
     # Check for duplicates before idx cols get changed
-    _check_for_dupes(
-        raw_nm_misc, 'Net Metering Current Flow Type PV', idx_cols)
+    _check_for_dupes(raw_nm_misc, 'Net Metering Current Flow Type PV', idx_cols)
 
     ###########################################################################
     # Tidy Data:
@@ -1941,7 +1954,7 @@ def net_metering(tfr_dfs):
         raw_nm_customer_fuel_class,
         df_name='Net Metering',
         idx_cols=idx_cols,
-        class_list=pc.CUSTOMER_CLASSES,
+        class_list=CUSTOMER_CLASSES,
         class_type='customer_class',
     )
 
@@ -1950,7 +1963,7 @@ def net_metering(tfr_dfs):
         tidy_nm_customer_class,
         df_name='Net Metering',
         idx_cols=idx_cols,
-        class_list=pc.TECH_CLASSES,
+        class_list=TECH_CLASSES,
         class_type='tech_class',
         keep_totals=True,
     )
@@ -2038,7 +2051,7 @@ def non_net_metering(tfr_dfs):
         raw_nnm_customer_fuel_class,
         df_name='Non Net Metering',
         idx_cols=idx_cols,
-        class_list=pc.CUSTOMER_CLASSES,
+        class_list=CUSTOMER_CLASSES,
         class_type='customer_class',
         keep_totals=True
     )
@@ -2048,7 +2061,7 @@ def non_net_metering(tfr_dfs):
         tidy_nnm_customer_class,
         df_name='Non Net Metering',
         idx_cols=idx_cols,
-        class_list=pc.TECH_CLASSES,
+        class_list=TECH_CLASSES,
         class_type='tech_class',
         keep_totals=True
     )
@@ -2145,7 +2158,7 @@ def operational_data(tfr_dfs):
             transformed_od_rev,
             df_name='Operational Data Revenue',
             idx_cols=idx_cols,
-            class_list=pc.REVENUE_CLASSES,
+            class_list=REVENUE_CLASSES,
             class_type='revenue_class'
         )
     )
@@ -2210,7 +2223,7 @@ def reliability(tfr_dfs):
         df=raw_r,
         df_name='Reliability',
         idx_cols=idx_cols,
-        class_list=pc.RELIABILITY_STANDARDS,
+        class_list=RELIABILITY_STANDARDS,
         class_type='standard',
         keep_totals=False,
     )
@@ -2234,8 +2247,7 @@ def reliability(tfr_dfs):
             inactive_accounts_included=lambda x: (
                 _make_yn_bool(x.inactive_accounts_included)),
             momentary_interruption_definition=lambda x: (
-                x.momentary_interruption_definition.map(
-                    pc.MOMENTARY_INTERRUPTION_DEF))
+                x.momentary_interruption_definition.map(MOMENTARY_INTERRUPTIONS))
         )
     )
 
@@ -2282,7 +2294,6 @@ def utility_data(tfr_dfs):
     raw_ud = (
         tfr_dfs["utility_data_eia861"].copy()
         .query("utility_id_eia not in [88888]")
-
     )
 
     ##############################################################################
@@ -2308,19 +2319,19 @@ def utility_data(tfr_dfs):
 
     logger.info("Tidying the EIA 861 Utility Data tables.")
 
-    tidy_ud_nerc, nerc_idx_cols = _tidy_class_dfs(
+    tidy_ud_nerc, _ = _tidy_class_dfs(
         df=raw_ud_nerc,
         df_name='Utility Data NERC Regions',
         idx_cols=idx_cols,
-        class_list=[x.lower() for x in pc.RECOGNIZED_NERC_REGIONS],
+        class_list=[x.lower() for x in NERC_REGIONS],
         class_type='nerc_regions_of_operation',
     )
 
-    tidy_ud_rto, rto_idx_cols = _tidy_class_dfs(
+    tidy_ud_rto, _ = _tidy_class_dfs(
         df=raw_ud_rto,
         df_name='Utility Data RTOs',
         idx_cols=idx_cols,
-        class_list=pc.RTO_CLASSES,
+        class_list=RTO_CLASSES,
         class_type='rtos_of_operation'
     )
 
@@ -2403,7 +2414,7 @@ def utility_data(tfr_dfs):
 # Coordinating Transform Function
 ##############################################################################
 
-def transform(raw_dfs, eia861_tables=pc.pudl_tables["eia861"]):
+def transform(raw_dfs, eia861_tables=PUDL_TABLES["eia861"]):
     """
     Transform EIA 861 DataFrames.
 

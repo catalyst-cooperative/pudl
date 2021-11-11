@@ -1,3 +1,4 @@
+
 """Functions for pulling EIA 923 data out of the PUDl DB."""
 import logging
 import os
@@ -35,7 +36,7 @@ See EIA's query browse here:
 
 
 def generation_fuel_eia923(pudl_engine, freq=None,
-                           start_date=None, end_date=None):
+                           start_date=None, end_date=None, nuclear: bool = False):
     """
     Pull records from the generation_fuel_eia923 table in given date range.
 
@@ -73,6 +74,7 @@ def generation_fuel_eia923(pudl_engine, freq=None,
         end_date (date-like): date-like object, including a string of the
             form 'YYYY-MM-DD' which will be used to specify the date range of
             records to be pulled.  Dates are inclusive.
+        nuclear: If True, return generation_fuel_nuclear_eia923 table.
 
     Returns:
         pandas.DataFrame: A DataFrame containing all records from the EIA 923
@@ -80,7 +82,10 @@ def generation_fuel_eia923(pudl_engine, freq=None,
 
     """
     pt = pudl.output.pudltabl.get_table_meta(pudl_engine)
-    gf_tbl = pt['generation_fuel_eia923']
+
+    table_name = "generation_fuel_nuclear_eia923" if nuclear else "generation_fuel_eia923"
+    gf_tbl = pt[table_name]
+
     gf_select = sa.sql.select(gf_tbl)
     if start_date is not None:
         gf_select = gf_select.where(
@@ -91,9 +96,14 @@ def generation_fuel_eia923(pudl_engine, freq=None,
 
     gf_df = pd.read_sql(gf_select, pudl_engine)
 
-    # fuel_type_code_pudl was formerly aer_fuel_category
-    by = ['plant_id_eia', 'fuel_type_code_pudl',
-          'fuel_type', 'prime_mover_code']
+    by = [
+        'plant_id_eia',
+        'fuel_type_code_pudl',
+        'energy_source_code',
+        'prime_mover_code',
+    ]
+    if nuclear:
+        by = by + ['nuclear_unit_id']
     if freq is not None:
         # Create a date index for temporal resampling:
         gf_df = gf_df.set_index(pd.DatetimeIndex(gf_df.report_date))
@@ -118,13 +128,17 @@ def generation_fuel_eia923(pudl_engine, freq=None,
                                                     start_date=start_date,
                                                     end_date=end_date)
 
-    first_cols = ['report_date',
-                  'plant_id_eia',
-                  'plant_id_pudl',
-                  'plant_name_eia',
-                  'utility_id_eia',
-                  'utility_id_pudl',
-                  'utility_name_eia', ]
+    first_cols = [
+        'report_date',
+        'plant_id_eia',
+        'plant_id_pudl',
+        'plant_name_eia',
+        'utility_id_eia',
+        'utility_id_pudl',
+        'utility_name_eia',
+    ]
+    if nuclear:
+        first_cols = first_cols + ['nuclear_unit_id']
 
     out_df = (
         pudl.helpers.clean_merge_asof(
@@ -145,6 +159,10 @@ def generation_fuel_eia923(pudl_engine, freq=None,
             "utility_id_pudl": "eia",
         }))
     )
+    if nuclear:
+        out_df = out_df.astype(
+            pudl.helpers.get_pudl_dtypes({"nuclear_unit_id": "eia"})
+        )
 
     return out_df
 
@@ -168,11 +186,11 @@ def fuel_receipts_costs_eia923(pudl_engine, freq=None,
     - ``plant_id_eia``
     - ``report_date``
     - ``fuel_type_code_pudl`` (formerly energy_source_simple)
-    - ``fuel_qty_units`` (sum)
+    - ``fuel_received_units`` (sum)
     - ``fuel_cost_per_mmbtu`` (weighted average)
     - ``total_fuel_cost`` (sum)
     - ``fuel_consumed_mmbtu`` (sum)
-    - ``heat_content_mmbtu_per_unit`` (weighted average)
+    - ``fuel_mmbtu_per_unit`` (weighted average)
     - ``sulfur_content_pct`` (weighted average)
     - ``ash_content_pct`` (weighted average)
     - ``moisture_content_pct`` (weighted average)
@@ -273,7 +291,7 @@ def fuel_receipts_costs_eia923(pudl_engine, freq=None,
             fuel_cost_per_mmbtu=lambda x:
                 np.where(
                     x.fuel_cost_per_mmbtu.isnull(),
-                    (x.fuel_cost_per_unit / x.heat_content_mmbtu_per_unit),
+                    (x.fuel_cost_per_unit / x.fuel_mmbtu_per_unit),
                     x.fuel_cost_per_mmbtu
                 )
         )
@@ -296,7 +314,7 @@ def fuel_receipts_costs_eia923(pudl_engine, freq=None,
 
     # Calculate a few totals that are commonly needed:
     frc_df['fuel_consumed_mmbtu'] = \
-        frc_df['heat_content_mmbtu_per_unit'] * frc_df['fuel_qty_units']
+        frc_df['fuel_mmbtu_per_unit'] * frc_df['fuel_received_units']
     frc_df['total_fuel_cost'] = \
         frc_df['fuel_consumed_mmbtu'] * frc_df['fuel_cost_per_mmbtu']
 
@@ -306,19 +324,19 @@ def fuel_receipts_costs_eia923(pudl_engine, freq=None,
         frc_df = frc_df.set_index(pd.DatetimeIndex(frc_df.report_date))
         # Sum up these values so we can calculate quantity weighted averages
         frc_df['total_ash_content'] = \
-            frc_df['ash_content_pct'] * frc_df['fuel_qty_units']
+            frc_df['ash_content_pct'] * frc_df['fuel_received_units']
         frc_df['total_sulfur_content'] = \
-            frc_df['sulfur_content_pct'] * frc_df['fuel_qty_units']
+            frc_df['sulfur_content_pct'] * frc_df['fuel_received_units']
         frc_df['total_mercury_content'] = \
-            frc_df['mercury_content_ppm'] * frc_df['fuel_qty_units']
+            frc_df['mercury_content_ppm'] * frc_df['fuel_received_units']
         frc_df['total_moisture_content'] = \
-            frc_df['moisture_content_pct'] * frc_df['fuel_qty_units']
+            frc_df['moisture_content_pct'] * frc_df['fuel_received_units']
         frc_df['total_chlorine_content'] = \
-            frc_df['chlorine_content_ppm'] * frc_df['fuel_qty_units']
+            frc_df['chlorine_content_ppm'] * frc_df['fuel_received_units']
 
         frc_gb = frc_df.groupby(by=by)
         frc_df = frc_gb.agg({
-            'fuel_qty_units': pudl.helpers.sum_na,
+            'fuel_received_units': pudl.helpers.sum_na,
             'fuel_consumed_mmbtu': pudl.helpers.sum_na,
             'total_fuel_cost': pudl.helpers.sum_na,
             'total_sulfur_content': pudl.helpers.sum_na,
@@ -330,18 +348,18 @@ def fuel_receipts_costs_eia923(pudl_engine, freq=None,
         })
         frc_df['fuel_cost_per_mmbtu'] = \
             frc_df['total_fuel_cost'] / frc_df['fuel_consumed_mmbtu']
-        frc_df['heat_content_mmbtu_per_unit'] = \
-            frc_df['fuel_consumed_mmbtu'] / frc_df['fuel_qty_units']
+        frc_df['fuel_mmbtu_per_unit'] = \
+            frc_df['fuel_consumed_mmbtu'] / frc_df['fuel_received_units']
         frc_df['sulfur_content_pct'] = \
-            frc_df['total_sulfur_content'] / frc_df['fuel_qty_units']
+            frc_df['total_sulfur_content'] / frc_df['fuel_received_units']
         frc_df['ash_content_pct'] = \
-            frc_df['total_ash_content'] / frc_df['fuel_qty_units']
+            frc_df['total_ash_content'] / frc_df['fuel_received_units']
         frc_df['mercury_content_ppm'] = \
-            frc_df['total_mercury_content'] / frc_df['fuel_qty_units']
+            frc_df['total_mercury_content'] / frc_df['fuel_received_units']
         frc_df['chlorine_content_ppm'] = \
-            frc_df['total_chlorine_content'] / frc_df['fuel_qty_units']
+            frc_df['total_chlorine_content'] / frc_df['fuel_received_units']
         frc_df['moisture_content_pct'] = \
-            frc_df['total_moisture_content'] / frc_df['fuel_qty_units']
+            frc_df['total_moisture_content'] / frc_df['fuel_received_units']
         frc_df = frc_df.reset_index()
         frc_df = frc_df.drop([
             'total_ash_content',
@@ -452,7 +470,7 @@ def boiler_fuel_eia923(pudl_engine, freq=None,
         bf_df['fuel_mmbtu_per_unit']
 
     # Create a date index for grouping based on freq
-    by = ['plant_id_eia', 'boiler_id', 'fuel_type_code', 'fuel_type_code_pudl']
+    by = ['plant_id_eia', 'boiler_id', 'energy_source_code', 'fuel_type_code_pudl']
     if freq is not None:
         # In order to calculate the weighted average sulfur
         # content and ash content we need to calculate these totals.

@@ -1,0 +1,5 @@
+year_index,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020
+utility_id_eia,utility_id,utility_id,utility_id,utility_id,utility_id,utility_id,utility_id,utility_id,utility_id,utility_id,utility_id,utility_id
+plant_id_eia,plant_code,plant_code,plant_code,plant_code,plant_code,plant_code,plant_code,plant_code,plant_code,plant_code,plant_code,plant_code
+boiler_id,boiler_id,boiler_id,boiler_id,boiler_id,boiler_id,boiler_id,boiler_id,boiler_id,boiler_id,boiler_id,boiler_id,boiler_id
+generator_id,generator_id,generator_id,generator_id,generator_id,generator_id,generator_id,generator_id,generator_id,generator_id,generator_id,generator_id,generator_id
