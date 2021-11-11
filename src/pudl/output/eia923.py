@@ -159,6 +159,10 @@ def generation_fuel_eia923(pudl_engine, freq=None,
             "utility_id_pudl": "eia",
         }))
     )
+    if nuclear:
+        out_df = out_df.astype(
+            pudl.helpers.get_pudl_dtypes({"nuclear_unit_id": "eia"})
+        )
 
     return out_df
 
