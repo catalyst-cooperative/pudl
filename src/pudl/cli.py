@@ -92,6 +92,7 @@ def create_arg_parser():
         help="Set logging level (DEBUG, INFO, WARNING, ERROR, or CRITICAL).",
         default="INFO",
     )
+    # TODO(bendnorman): Is this something we want to support right now?
     parser.add_argument(
         "--rerun",
         type=str,
@@ -224,6 +225,8 @@ def main():
 
     # Save the settings file to the pipeline cache.
     settings_file_path = os.path.join(args.pipeline_cache_path, "settings.yml")
+
+    # TODO(bendnorman): I don't think this is writing the yaml correctly.
     etl_settings.write_yaml(settings_file_path)
 
     bad_sqlite_version = (

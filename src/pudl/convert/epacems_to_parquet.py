@@ -20,17 +20,18 @@ interactive cloud computing environment like `Pangeo <https://pangeo.io>`__.
 """
 import argparse
 import logging
-import pathlib
 import sys
 from functools import partial
 
 import coloredlogs
 import pandas as pd
+import prefect
 import pyarrow as pa
-from pyarrow import parquet as pq
 
 import pudl
 from pudl import constants as pc
+from pudl.settings import EpaCemsSettings
+from pudl.workflow.epacems import EpaCemsPipeline
 
 logger = logging.getLogger(__name__)
 
@@ -136,92 +137,6 @@ def create_cems_schema():
     ])
 
 
-def epacems_to_parquet(datapkg_path,
-                       epacems_years,
-                       epacems_states,
-                       out_dir,
-                       compression='snappy',
-                       partition_cols=('year', 'state'),
-                       clobber=False):
-    """Take transformed EPA CEMS dataframes and output them as Parquet files.
-
-    We need to do a few additional manipulations of the dataframes after they
-    have been transformed by PUDL to get them ready for output to the Apache
-    Parquet format. Mostly this has to do with ensuring homogeneous data types
-    across all of the dataframes, and downcasting to the most efficient data
-    type possible for each of them. We also add a 'year' column so that we can
-    partition the datset on disk by year as well as state.
-    (Year partitions follow the CEMS input data, based on local plant time.
-    The operating_datetime_utc identifies time in UTC, so there's a mismatch
-    of a few hours on December 31 / January 1.)
-
-    Args:
-        datapkg_path (path-like): Path to the datapackage.json file describing
-            the datapackage contaning the EPA CEMS data to be converted.
-        epacems_years (list): list of years from which we are trying to read
-            CEMS data
-        epacems_states (list): list of years from which we are trying to read
-            CEMS data
-        out_dir (path-like): The directory in which to output the Parquet files
-        compression (string):
-        partition_cols (tuple):
-        clobber (bool): If True and there is already a directory with out_dirs
-            name, the existing parquet files will be deleted and new ones will
-            be generated in their place.
-
-    Raises:
-        AssertionError: Raised if an output directory is not specified.
-
-    Todo:
-        Return to
-
-    """
-    if not out_dir:
-        raise AssertionError("Required output directory not specified.")
-    out_dir = pudl.helpers.prep_dir(out_dir, clobber=clobber)
-    data_dir = pathlib.Path(datapkg_path).parent / "data"
-
-    # Verify that all the requested data files are present:
-    epacems_years = list(epacems_years)
-    epacems_years.sort()
-    epacems_states = list(epacems_states)
-    epacems_states.sort()
-    for year in epacems_years:
-        for state in epacems_states:
-            newpath = pathlib.Path(
-                data_dir,
-                f"hourly_emissions_epacems_{year}_{state.lower()}.csv.gz")
-            if not newpath.is_file():
-                raise FileNotFoundError(f"EPA CEMS file not found: {newpath}")
-
-    # TODO: Rather than going directly to the data directory, we should really
-    # use the metadata inside the datapackage to find the appropriate file
-    # paths pertaining to the CEMS years/states of interest.
-    in_types = create_in_dtypes()
-    schema = create_cems_schema()
-    for year in epacems_years:
-        for state in epacems_states:
-            newpath = pathlib.Path(
-                data_dir,
-                f"hourly_emissions_epacems_{year}_{state.lower()}.csv.gz")
-            df = (
-                pd.read_csv(
-                    newpath, dtype=in_types, parse_dates=["operating_datetime_utc"]
-                )
-                .assign(year=year)
-            )
-            if len(df) == 0:
-                logger.info(f"Skipping {year}-{state}: 0 records found.")
-            else:
-                logger.info(f"{year}-{state}: {len(df)} records")
-                pq.write_to_dataset(
-                    pa.Table.from_pandas(df, preserve_index=False, schema=schema),
-                    root_path=str(out_dir),
-                    partition_cols=list(partition_cols),
-                    compression=compression
-                )
-
-
 def parse_command_line(argv):
     """
     Parse command line arguments. See the -h option.
@@ -307,28 +222,12 @@ def main():
 
     args = parse_command_line(sys.argv)
 
-    # Make sure the requested years/states are available:
-    for year in args.years:
-        if year not in pc.WORKING_PARTITIONS["epacems"]["years"]:
-            raise ValueError(
-                f"{year} is not a valid year within the EPA CEMS dataset."
-            )
-    for state in args.states:
-        if state not in pc.WORKING_PARTITIONS["epacems"]["states"]:
-            raise ValueError(
-                f"{state} is not a valid state within the EPA CEMS dataset."
-            )
-
     pudl_settings = pudl.workspace.setup.get_defaults()
+    settings = EpaCemsSettings(years=args.years, states=args.states)
+    # flow = prefect.Flow("EPACems Parquet", result=FSSpecResult(root_dir=result_cache))
+    flow = prefect.Flow("EPACems Parquet")
 
-    epacems_to_parquet(datapkg_path=pathlib.Path(args.datapkg),
-                       epacems_years=args.years,
-                       epacems_states=args.states,
-                       out_dir=pathlib.Path(
-                           pudl_settings['parquet_dir'], "epacems"),
-                       compression=args.compression,
-                       partition_cols=('year', 'state'),
-                       clobber=args.clobber)
+    _ = EpaCemsPipeline(flow, pudl_settings, settings)
 
 
 if __name__ == '__main__':

@@ -126,11 +126,6 @@ def command_line_flags() -> argparse.ArgumentParser:
         be used for development/debugging purposes.
         """)
     parser.add_argument(
-        "--validate",
-        default=False,
-        action="store_true",
-        help="""If enabled, run validation via tox from the current directory.""")
-    parser.add_argument(
         "--gcs-requester-pays",
         type=str,
         help="If specified, use this project name to charge the GCS operations to.")
@@ -443,6 +438,7 @@ def cleanup_pipeline_cache(state, commandline_args):
     locally (not on GCS) and if the flow completed succesfully.
     """
     # TODO(rousik): add --keep-cache=ALWAYS|NEVER|ONFAIL commandline flag to control this
+    # TODO(bendnorman): When is this cache actually used? rerun_id?
     if commandline_args.keep_cache:
         logger.warning('--keep-cache prevents cleanup of local cache.')
         return
@@ -507,6 +503,7 @@ def etl(  # noqa: C901
             f"Move {pudl_db_path} aside or set clobber=True and try again."
         )
 
+    # TODO(bendnorman): what are we using ds_kwargs for? epacems?
     # Configure how we want to obtain raw input data:
     ds_kwargs = dict(
         gcs_cache_path=commandline_args.gcs_cache_path,
@@ -527,13 +524,12 @@ def etl(  # noqa: C901
         _ = pudl.helpers.prep_dir(epacems_pq_path, clobber=commandline_args.clobber)
 
     # Setup pipeline cache
+    # TODO(bendnorman): what do we want to live in here? How does it affect testing?
     configure_prefect_context(etl_settings, pudl_settings, commandline_args)
 
+    # TODO(bendnorman): How does this differ from pudl_pipeline_cache_path?
     result_cache = os.path.join(prefect.context.pudl_pipeline_cache_path, "prefect")
     flow = prefect.Flow("PUDL ETL", result=FSSpecResult(root_dir=result_cache))
-
-    # For debugging purposes, print the dataset names
-    # list of {dataset: params_dict}
 
     logger.warning(
         f'Running etl with the following configurations: {sorted(datasets.keys())}')
@@ -560,6 +556,7 @@ def etl(  # noqa: C901
         with flow:
             outputs = []
             for dataset, pl in pipelines.items():
+                # TODO(bendnorman) is_excuted() working properly?:
                 if pl.is_executed():
                     outputs.append(pl.outputs())
 
@@ -576,7 +573,8 @@ def etl(  # noqa: C901
                 check_values=not commandline_args.ignore_value_constraints,
             )
 
-    # # Add CEMS pipeline to the flow
+    # Add CEMS pipeline to the flow
+    # TODO(bendnorman): can this live inside the flow statement above? ^^
     if validated_etl_settings.epacems:
         _ = EpaCemsPipeline(
             flow,
