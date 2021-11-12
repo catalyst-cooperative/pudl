@@ -37,16 +37,16 @@ def fast_out(pudl_engine, pudl_datastore_fixture):
 
 @pytest.mark.parametrize(
     "df_name", [
-        "fuel_ferc1",
-        "plants_steam_ferc1",
+        "all_plants_ferc1",
         "fbp_ferc1",
+        "fuel_ferc1",
         "plant_in_service_ferc1",
         "plants_hydro_ferc1",
         "plants_pumped_storage_ferc1",
         "plants_small_ferc1",
+        "plants_steam_ferc1",
         "pu_ferc1",
         "purchased_power_ferc1",
-        "all_plants_ferc1"
     ])
 def test_ferc1_outputs(fast_out, df_name):
     """Check that FERC 1 output functions work."""
@@ -71,6 +71,7 @@ def test_ferc1_outputs(fast_out, df_name):
         # gen_allocated_eia923 currently only produces annual results.
         ("gens_eia860", "gen_allocated_eia923", 1 / 1, {}),
         ("gens_eia860", "gf_eia923", 12 / 1, {}),
+        ("gens_eia860", "gfn_eia923", 12 / 1, {}),
 
         ("gens_eia860", "hr_by_unit", 12 / 1, {}),
         ("gens_eia860", "hr_by_gen", 12 / 1, {}),
