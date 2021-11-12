@@ -15,7 +15,6 @@ import yaml
 
 import pudl
 from pudl.extract.ferc1 import DBF_TABLES_FILENAMES, get_dbc_map, get_fields
-from pudl.settings import EtlSettings
 
 logger = logging.getLogger(__name__)
 
@@ -88,21 +87,6 @@ def test_ferc1_schema(ferc1_etl_settings, pudl_ferc1datastore_fixture):
                         f"'{table}' from year {yr}. "
                         f"Refyear: {refyear}"
                     )
-
-
-def test_ferc1_solo_etl(pudl_settings_fixture,
-                        ferc1_engine,
-                        live_ferc1_db,
-                        commandline_args):
-    """Verify that a minimal FERC Form 1 can be loaded without other data."""
-    settings_file_path = Path().cwd() / "src/pudl/package_data/settings/ferc1_solo_test.yml"
-    etl_settings = EtlSettings.from_yaml(settings_file_path)
-
-    pudl.etl.etl(
-        etl_settings=etl_settings,
-        pudl_settings=pudl_settings_fixture,
-        commandline_args=commandline_args
-    )
 
 
 class TestFerc1Datastore:
