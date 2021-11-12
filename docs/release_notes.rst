@@ -2,6 +2,8 @@
 PUDL Release Notes
 =======================================================================================
 
+.. _release-v0-5-0:
+
 ---------------------------------------------------------------------------------------
 0.5.0 (2021-11-11)
 ---------------------------------------------------------------------------------------
@@ -41,8 +43,8 @@ SQLite and Parquet Outputs
 * Data types, specified value constraints, and the uniqueness / non-null
   constraints on primary keys are validated during insertion into the SQLite DB.
 * The PUDL ETL CLI :mod:`pudl.cli` now has flags to toggle various constraint
-  checks including ``--ignore-foreign-key-constraints``,
-  ``--ignore-type-constraints``, and ``--ignore-value-constraints``.
+  checks including ``--ignore-foreign-key-constraints``
+  ``--ignore-type-constraints`` and ``--ignore-value-constraints``.
 
 New Metadata System
 ^^^^^^^^^^^^^^^^^^^
@@ -139,6 +141,8 @@ Updated Dependencies
   SQLite version 3.32.0 or later, as we discovered in debugging build failures on PR
   :issue:`1228`. Unfortunately Ubuntu 20.04 LTS shipped with SQLite 3.31.1. Using
   ``conda`` to manage your Python environment avoids this issue.
+
+.. _release-v0-4-0:
 
 ---------------------------------------------------------------------------------------
 0.4.0 (2021-08-16)
@@ -287,6 +291,8 @@ Known Issues
   that have been cast to strings, rather than zero-padded integers that are strings. See
   :issue:`1119`
 
+.. _release-v0-3-2:
+
 ---------------------------------------------------------------------------------------
 0.3.2 (2020-02-17)
 ---------------------------------------------------------------------------------------
@@ -303,6 +309,7 @@ The primary changes in this release:
   of time. We do not anticipate integrating any older EIA 860 or 923 data at
   this time.
 
+.. _release-v0-3-1:
 
 ---------------------------------------------------------------------------------------
 0.3.1 (2020-02-05)
@@ -319,6 +326,8 @@ release:
   it was always being run in a context where the original data was lying
   around... but that's not the case when someone just downloads the released
   data packages and tries to load them.
+
+.. _release-v0-3-0:
 
 ---------------------------------------------------------------------------------------
 0.3.0 (2020-01-30)
@@ -347,6 +356,8 @@ integrated for all future ferc1 tables.
 Command line interfaces of some of the ETL scripts have changed, see their help
 messages for details.
 
+.. _release-v0-2-0:
+
 ---------------------------------------------------------------------------------------
 0.2.0 (2019-09-17)
 ---------------------------------------------------------------------------------------
@@ -358,6 +369,8 @@ the catalyst.coop package.
 
 This change will enable easier installation of PUDL, as well as archiving and
 bulk distribution of the data products in a platform independent format.
+
+.. _release-v0-1-0:
 
 ---------------------------------------------------------------------------------------
 0.1.0 (2019-09-12)
