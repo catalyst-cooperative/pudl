@@ -10,7 +10,7 @@ from pudl.metadata.dfs import FERC_ACCOUNTS, FERC_DEPRECIATION_LINES
 from pudl.workflow.dataset_pipeline import DatasetPipeline
 
 
-@task(target="ferc1.static-tables")
+@task()
 def load_static_tables_ferc1():
     """Populate static PUDL tables with constants for use as foreign keys.
 
@@ -38,7 +38,7 @@ def load_static_tables_ferc1():
     return df
 
 
-@task(target="ferc1.extract")
+@task()
 def _extract_ferc1(pipeline_settings, pudl_settings):
     return DataFrameCollection(
         **pudl.extract.ferc1.extract(
@@ -47,7 +47,7 @@ def _extract_ferc1(pipeline_settings, pudl_settings):
             pudl_settings=pudl_settings))
 
 
-@task(target="ferc1.transform")
+@task()
 def _transform_ferc1(pipeline_settings, dfs):
     return DataFrameCollection(
         **pudl.transform.ferc1.transform(dfs, ferc1_tables=pipeline_settings.tables))

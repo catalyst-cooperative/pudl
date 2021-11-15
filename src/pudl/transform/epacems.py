@@ -70,7 +70,7 @@ def fix_up_dates(df, plant_utc_offset):
     return df
 
 
-@task(target="epacems.plant_entity")
+@task()
 def load_plant_utc_offset():
     """Load the UTC offset each EIA plant.
 

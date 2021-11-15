@@ -13,7 +13,7 @@ from pudl.metadata.codes import (CONTRACT_TYPES_EIA, ENERGY_SOURCES_EIA,
 from pudl.workflow.dataset_pipeline import DatasetPipeline
 
 
-@task(target="eia.static-tables")
+@task()
 def read_static_tables_eia() -> DataFrameCollection:
     """Build dataframes of static EIA tables for use as foreign key constraints.
 
@@ -84,11 +84,8 @@ class EiaPipeline(DatasetPipeline):
     DATASET = 'eia'
     settings = settings.EiaSettings
 
-    def __init__(self, flow, pudl_settings, pipeline_settings, etl_name):
+    def __init__(self, flow, pudl_settings, pipeline_settings):
         """Init EIA pipeline."""
-        # TODO: I still don't fully understand what the target parameter is doing.
-        # Get this from prefect context?? Read up on what should live in context.
-        self.etl_name = etl_name
         super().__init__(flow, pudl_settings, pipeline_settings)
 
     def build(self):
@@ -100,34 +97,26 @@ class EiaPipeline(DatasetPipeline):
         eia860_settings = self.pipeline_settings.eia860
         eia923_settings = self.pipeline_settings.eia923
 
-        # TODO(rousik): task names are nice for human readable results but in the end, they
-        # are probably not worth worrying about.
         eia860_extract = pudl.extract.eia860.Extractor(
-            name='eia860.extract',
-            target=f'{self.etl_name}/eia860.extract')
+            name='eia860.extract')
         eia860m_extract = pudl.extract.eia860m.Extractor(
-            name='eia860m.extract',
-            target=f'{self.etl_name}/eia860m.extract')
+            name='eia860m.extract')
         eia923_extract = pudl.extract.eia923.Extractor(
-            name='eia923.extract',
-            target=f'{self.etl_name}/eia923.extract')
+            name='eia923.extract')
         with self.flow:
             eia860_df = eia860_extract(year=eia860_settings.years)
             if eia860_settings.eia860m:
                 m_df = eia860m_extract(
                     year_month=eia860_settings.eia860m_date)
                 eia860_df = merge_eia860m(
-                    eia860_df, m_df,
-                    task_args=dict(target=f'{self.etl_name}/eia860m.merge'))
+                    eia860_df, m_df)
             eia860_df = pudl.transform.eia860.transform_eia860(
                 eia860_df,
-                eia860_settings.tables,
-                task_args=dict(target=f'{self.etl_name}/eia860.transform'))
+                eia860_settings.tables)
 
             eia923_df = pudl.transform.eia923.transform_eia923(
                 eia923_extract(year=eia923_settings.years),
-                eia923_settings.tables,
-                task_args=dict(target=f'{self.etl_name}/eia923.transform'))
+                eia923_settings.tables)
 
             output_tables = pudl.transform.eia.transform(
                 dfc.merge_list(
@@ -138,8 +127,7 @@ class EiaPipeline(DatasetPipeline):
 
             return dfc.merge(
                 read_static_tables_eia(),
-                output_tables,
-                task_args=dict(target=f'{self.etl_name}/eia.final_tables'))
+                output_tables)
 
     def get_table(self, table_name):
         """Returns DataFrame for given table that is emitted by the pipeline.

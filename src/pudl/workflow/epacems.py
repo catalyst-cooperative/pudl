@@ -36,7 +36,7 @@ def _validate_params_partition(etl_params_og, tables):
     return(partition_dict)
 
 
-@task(target="epacems-{partition}", task_run_name="epacems-{partition}")  # noqa: FS003
+@task(task_run_name="epacems-{partition}")  # noqa: FS003
 def epacems_process_partition(
         partition: EpaCemsPartition,
         plant_utc_offset: pd.DataFrame,

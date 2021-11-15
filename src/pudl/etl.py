@@ -33,7 +33,6 @@ from prefect.executors.local import LocalExecutor
 import pudl
 from pudl import constants as pc
 from pudl import dfc
-from pudl.extract.ferc1 import SqliteOverwriteMode
 from pudl.fsspec_result import FSSpecResult
 from pudl.metadata import RESOURCE_METADATA
 from pudl.metadata.codes import (CONTRACT_TYPES_EIA, ENERGY_SOURCES_EIA,
@@ -43,10 +42,8 @@ from pudl.metadata.codes import (CONTRACT_TYPES_EIA, ENERGY_SOURCES_EIA,
 from pudl.metadata.dfs import FERC_ACCOUNTS, FERC_DEPRECIATION_LINES
 from pudl.settings import (EiaSettings, EpaCemsSettings, EtlSettings,
                            Ferc1Settings, GlueSettings)
-from pudl.workflow.eia import EiaPipeline
+from pudl.workflow.dataset_pipeline import DatasetPipeline
 from pudl.workflow.epacems import EpaCemsPipeline
-from pudl.workflow.ferc1 import Ferc1Pipeline
-from pudl.workflow.glue import GluePipeline
 from pudl.workspace.datastore import Datastore
 
 logger = logging.getLogger(__name__)
@@ -58,6 +55,7 @@ def command_line_flags() -> argparse.ArgumentParser:
     """Returns argparse.ArgumentParser containing flags relevant to the ETL component."""
     parser = argparse.ArgumentParser(
         description="ETL configuration flags", add_help=False)
+    # TODO(bendnorman): combine the executors into one arg?
     parser.add_argument(
         "--use-local-dask-executor",
         action="store_true",
@@ -72,6 +70,7 @@ def command_line_flags() -> argparse.ArgumentParser:
         "--dask-executor-address",
         default=None,
         help='If specified, use pre-existing DaskExecutor at this address.')
+    # TODO(bendnorman): Should this be supported right now?
     parser.add_argument(
         "--upload-to",
         type=str,
@@ -84,11 +83,13 @@ def command_line_flags() -> argparse.ArgumentParser:
         variable.
         Files will be stored under {upload_to}/{run_id} to avoid conflicts.
         """)
+    # TODO(bendnorman): add this back to the ferc1 datapipline.
+    # TODO(bendnorman): should this be T|F? First doesn't make much sense given we don't support multiple datapackages anymore.
     parser.add_argument(
         "--overwrite-ferc1-db",
-        type=lambda mode: SqliteOverwriteMode[mode],
-        default=SqliteOverwriteMode.ALWAYS,
-        choices=list(SqliteOverwriteMode))
+        action="store_true",
+        default=True,
+        help="Control whether to rerun the ferc1 database.")
     parser.add_argument(
         "--show-flow-graph",
         action="store_true",
@@ -503,15 +504,6 @@ def etl(  # noqa: C901
             f"Move {pudl_db_path} aside or set clobber=True and try again."
         )
 
-    # TODO(bendnorman): what are we using ds_kwargs for? epacems?
-    # Configure how we want to obtain raw input data:
-    ds_kwargs = dict(
-        gcs_cache_path=commandline_args.gcs_cache_path,
-        sandbox=pudl_settings.get("sandbox", False)
-    )
-    if not commandline_args.bypass_local_cache:
-        ds_kwargs["local_cache_path"] = Path(pudl_settings["pudl_in"]) / "data"
-
     # TODO (bendnorman): The naming convention here is getting a little wacky.
     validated_etl_settings = etl_settings.datasets
 
@@ -533,6 +525,8 @@ def etl(  # noqa: C901
 
     logger.warning(
         f'Running etl with the following configurations: {sorted(datasets.keys())}')
+
+    # TODO(bendnorman): do I need this?
     prefect.context.dataset_names = datasets.keys()
 
     # TODO(rousik): we need to have a good way of configuring the datastore caching options
@@ -541,40 +535,33 @@ def etl(  # noqa: C901
 
     pipelines = {}
 
-    # TODO(bendnorman): There's got to be a better way here.
-    if validated_etl_settings.ferc1:
-        pipelines[Ferc1Pipeline.DATASET] = Ferc1Pipeline(
-            flow, pudl_settings, validated_etl_settings.ferc1)
-    if validated_etl_settings.eia:
-        pipelines[EiaPipeline.DATASET] = EiaPipeline(
-            flow, pudl_settings, validated_etl_settings.eia, etl_settings.name)
-    if validated_etl_settings.glue:
-        pipelines[GluePipeline.DATASET] = GluePipeline(
-            flow, pudl_settings, validated_etl_settings.glue)
+    for dataset, settings in datasets.items():
+        # Add cems to flow after eia is added.
+        if settings and dataset != "epacems":
+            pipeline = DatasetPipeline.get_pipeline_for_dataset(dataset)
+            pipelines[dataset] = pipeline(flow, pudl_settings, settings)
 
-    if pipelines:
-        with flow:
-            outputs = []
-            for dataset, pl in pipelines.items():
-                # TODO(bendnorman) is_excuted() working properly?:
-                if pl.is_executed():
-                    outputs.append(pl.outputs())
+    with flow:
+        outputs = []
+        for dataset, pl in pipelines.items():
+            # TODO(bendnorman) is_excuted() working properly?:
+            if pl.is_executed():
+                outputs.append(pl.outputs())
 
-            # `tables` is a DataFrame collections containing every dataframe from the pipelines.
-            tables = dfc.merge_list(outputs)
+        # `tables` is a DataFrame collections containing every dataframe from the pipelines.
+        tables = dfc.merge_list(outputs)
 
-            # # Load the ferc1 + eia data directly into the SQLite DB:
-            pudl_engine = sa.create_engine(pudl_settings["pudl_db"])
-            pudl.load.sqlite.dfs_to_sqlite(
-                tables,
-                engine=pudl_engine,
-                check_foreign_keys=not commandline_args.ignore_foreign_key_constraints,
-                check_types=not commandline_args.ignore_type_constraints,
-                check_values=not commandline_args.ignore_value_constraints,
-            )
+        # # Load the ferc1 + eia data directly into the SQLite DB:
+        pudl_engine = sa.create_engine(pudl_settings["pudl_db"])
+        pudl.load.sqlite.dfs_to_sqlite(
+            tables,
+            engine=pudl_engine,
+            check_foreign_keys=not commandline_args.ignore_foreign_key_constraints,
+            check_types=not commandline_args.ignore_type_constraints,
+            check_values=not commandline_args.ignore_value_constraints,
+        )
 
     # Add CEMS pipeline to the flow
-    # TODO(bendnorman): can this live inside the flow statement above? ^^
     if validated_etl_settings.epacems:
         _ = EpaCemsPipeline(
             flow,
