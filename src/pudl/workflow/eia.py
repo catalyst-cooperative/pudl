@@ -84,9 +84,9 @@ class EiaPipeline(DatasetPipeline):
     DATASET = 'eia'
     settings = settings.EiaSettings
 
-    def __init__(self, flow, pudl_settings, pipeline_settings):
+    def __init__(self, flow, pipeline_settings):
         """Init EIA pipeline."""
-        super().__init__(flow, pudl_settings, pipeline_settings)
+        super().__init__(flow, pipeline_settings)
 
     def build(self):
         """Extract, transform and load CSVs for the EIA datasets.

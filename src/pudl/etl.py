@@ -19,11 +19,9 @@ import argparse
 import logging
 import os
 import shutil
-import time
 from pathlib import Path
-from typing import Any, Dict
+from typing import Dict
 
-import pandas as pd
 import prefect
 import sqlalchemy as sa
 from prefect.executors import DaskExecutor
@@ -31,20 +29,12 @@ from prefect.executors.dask import LocalDaskExecutor
 from prefect.executors.local import LocalExecutor
 
 import pudl
-from pudl import constants as pc
 from pudl import dfc
 from pudl.fsspec_result import FSSpecResult
 from pudl.metadata import RESOURCE_METADATA
-from pudl.metadata.codes import (CONTRACT_TYPES_EIA, ENERGY_SOURCES_EIA,
-                                 FUEL_TRANSPORTATION_MODES_EIA,
-                                 FUEL_TYPES_AER_EIA, PRIME_MOVERS_EIA,
-                                 SECTOR_CONSOLIDATED_EIA)
-from pudl.metadata.dfs import FERC_ACCOUNTS, FERC_DEPRECIATION_LINES
-from pudl.settings import (EiaSettings, EpaCemsSettings, EtlSettings,
-                           Ferc1Settings, GlueSettings)
+from pudl.settings import EtlSettings
 from pudl.workflow.dataset_pipeline import DatasetPipeline
 from pudl.workflow.epacems import EpaCemsPipeline
-from pudl.workspace.datastore import Datastore
 
 logger = logging.getLogger(__name__)
 
@@ -135,288 +125,6 @@ def command_line_flags() -> argparse.ArgumentParser:
 
 
 ###############################################################################
-# EIA EXPORT FUNCTIONS
-###############################################################################
-
-def _read_static_tables_eia() -> Dict[str, pd.DataFrame]:
-    """Build dataframes of static EIA tables for use as foreign key constraints.
-
-    There are many values specified within the data that are essentially
-    constant, but which we need to store for data validation purposes, for use
-    as foreign keys.  E.g. the list of valid EIA fuel type codes, or the
-    possible state and country codes indicating a coal delivery's location of
-    origin. For now these values are primarily stored in a large collection of
-    lists, dictionaries, and dataframes which are specified in the
-    :mod:`pudl.constants` module.
-
-    """
-    return {
-        'energy_sources_eia': ENERGY_SOURCES_EIA["df"],
-        'fuel_types_aer_eia': FUEL_TYPES_AER_EIA["df"],
-        'prime_movers_eia': PRIME_MOVERS_EIA["df"],
-        'sector_consolidated_eia': SECTOR_CONSOLIDATED_EIA["df"],
-        'fuel_transportation_modes_eia': FUEL_TRANSPORTATION_MODES_EIA["df"],
-        'contract_types_eia': CONTRACT_TYPES_EIA["df"]
-    }
-
-
-def _etl_eia(
-    etl_settings: EiaSettings,
-    ds_kwargs: Dict[str, Any]
-) -> Dict[str, pd.DataFrame]:
-    """Extract, transform and load CSVs for the EIA datasets.
-
-    Args:
-        etl_settings: Validated ETL parameters required by this data source.
-        ds_kwargs: Keyword arguments for instantiating a PUDL datastore,
-            so that the ETL can access the raw input data.
-
-    Returns:
-        A dictionary of EIA dataframes ready for loading into the PUDL DB.
-
-    """
-    eia860_tables = etl_settings.eia860.tables
-    eia860_years = etl_settings.eia860.years
-    eia860m = etl_settings.eia860.eia860m
-    eia923_tables = etl_settings.eia923.tables
-    eia923_years = etl_settings.eia923.years
-
-    if (
-        (not eia923_tables or not eia923_years)
-        and (not eia860_tables or not eia860_years)
-    ):
-        logger.info('Not loading EIA.')
-        return []
-
-    # generate dataframes for the static EIA tables
-    out_dfs = _read_static_tables_eia()
-
-    ds = Datastore(**ds_kwargs)
-    # Extract EIA forms 923, 860
-    eia923_raw_dfs = pudl.extract.eia923.Extractor(ds).extract(
-        year=eia923_years)
-    eia860_raw_dfs = pudl.extract.eia860.Extractor(ds).extract(
-        year=eia860_years)
-    # if we are trying to add the EIA 860M YTD data, then extract it and append
-    if eia860m:
-        eia860m_raw_dfs = pudl.extract.eia860m.Extractor(ds).extract(
-            year_month=pc.WORKING_PARTITIONS['eia860m']['year_month'])
-        eia860_raw_dfs = pudl.extract.eia860m.append_eia860m(
-            eia860_raw_dfs=eia860_raw_dfs, eia860m_raw_dfs=eia860m_raw_dfs)
-
-    # Transform EIA forms 923, 860
-    eia860_transformed_dfs = pudl.transform.eia860.transform(
-        eia860_raw_dfs, eia860_tables=eia860_tables)
-    eia923_transformed_dfs = pudl.transform.eia923.transform(
-        eia923_raw_dfs, eia923_tables=eia923_tables)
-    # create an eia transformed dfs dictionary
-    eia_transformed_dfs = eia860_transformed_dfs.copy()
-    eia_transformed_dfs.update(eia923_transformed_dfs.copy())
-
-    # convert types..
-    eia_transformed_dfs = pudl.helpers.convert_dfs_dict_dtypes(
-        eia_transformed_dfs, 'eia')
-
-    entities_dfs, eia_transformed_dfs = pudl.transform.eia.transform(
-        eia_transformed_dfs,
-        eia860_years=eia860_years,
-        eia923_years=eia923_years,
-        eia860m=eia860m,
-    )
-    # convert types..
-    entities_dfs = pudl.helpers.convert_dfs_dict_dtypes(entities_dfs, 'eia')
-    for table in entities_dfs:
-        entities_dfs[table] = PUDL_META.get_resource(table).encode(entities_dfs[table])
-
-    out_dfs.update(entities_dfs)
-    out_dfs.update(eia_transformed_dfs)
-    return out_dfs
-
-
-###############################################################################
-# FERC1 EXPORT FUNCTIONS
-###############################################################################
-
-
-def _read_static_tables_ferc1() -> Dict[str, pd.DataFrame]:
-    """Populate static PUDL tables with constants for use as foreign keys.
-
-    There are many values specified within the data that are essentially
-    constant, but which we need to store for data validation purposes, for use
-    as foreign keys.  E.g. the list of valid EIA fuel type codes, or the
-    possible state and country codes indicating a coal delivery's location of
-    origin. For now these values are primarily stored in a large collection of
-    lists, dictionaries, and dataframes which are specified in the
-    pudl.constants module.  This function uses those data structures to
-    populate a bunch of small infrastructural tables within the PUDL DB.
-    """
-    return {
-        'ferc_accounts': FERC_ACCOUNTS[[
-            "ferc_account_id",
-            "ferc_account_description",
-        ]],
-        'ferc_depreciation_lines': FERC_DEPRECIATION_LINES[[
-            "line_id",
-            "ferc_account_description",
-        ]],
-    }
-
-
-def _etl_ferc1(
-    etl_settings: Ferc1Settings,
-    pudl_settings: Dict[str, Any],
-) -> Dict[str, pd.DataFrame]:
-    """Extract, transform and load CSVs for FERC Form 1.
-
-    Args:
-        etl_settings: Validated ETL parameters required by this data source.
-        pudl_settings: a dictionary filled with settings that mostly
-            describe paths to various resources and outputs.
-
-    Returns:
-        Dataframes containing PUDL database tables pertaining to the FERC Form 1
-        data, keyed by table name.
-
-    """
-    ferc1_years = etl_settings.years
-    ferc1_tables = etl_settings.tables
-
-    if not ferc1_years or not ferc1_tables:
-        logger.info('Not loading FERC1')
-        return []
-
-    # Compile static FERC 1 dataframes
-    out_dfs = _read_static_tables_ferc1()
-
-    # Extract FERC form 1
-    ferc1_raw_dfs = pudl.extract.ferc1.extract(
-        ferc1_tables=ferc1_tables,
-        ferc1_years=ferc1_years,
-        pudl_settings=pudl_settings)
-    # Transform FERC form 1
-    ferc1_transformed_dfs = pudl.transform.ferc1.transform(
-        ferc1_raw_dfs, ferc1_tables=ferc1_tables)
-
-    out_dfs.update(ferc1_transformed_dfs)
-    return out_dfs
-
-
-###############################################################################
-# EPA CEMS EXPORT FUNCTIONS
-###############################################################################
-
-
-def etl_epacems(
-    etl_settings: EpaCemsSettings,
-    pudl_settings: Dict[str, Any],
-    ds_kwargs: Dict[str, Any],
-) -> None:
-    """Extract, transform and load CSVs for EPA CEMS.
-
-    Args:
-        etl_settings: Validated ETL parameters required by this data source.
-        pudl_settings: a dictionary filled with settings that mostly describe paths to
-            various resources and outputs.
-        ds_kwargs: Keyword arguments for instantiating a PUDL datastore, so that the ETL
-            can access the raw input data.
-
-    Returns:
-        Unlike the other ETL functions, the EPACEMS writes its output to Parquet as it
-        goes, since the dataset is too large to hold in memory.  So it doesn't return a
-        dictionary of dataframes.
-
-    """
-    epacems_years = etl_settings.years
-    epacems_states = etl_settings.states
-
-    # If we're not doing CEMS, just stop here to avoid printing messages like
-    # "Reading EPA CEMS data...", which could be confusing.
-    if not epacems_states or not epacems_years:
-        logger.info('Not ingesting EPA CEMS.')
-
-    pudl_engine = sa.create_engine(pudl_settings["pudl_db"])
-
-    # Verify that we have a PUDL DB with plant attributes:
-    inspector = sa.inspect(pudl_engine)
-    if "plants_eia860" not in inspector.get_table_names():
-        raise RuntimeError(
-            "No plants_eia860 available in the PUDL DB! Have you run the ETL? "
-            f"Trying to access PUDL DB: {pudl_engine}"
-        )
-
-    eia_plant_years = pd.read_sql(
-        """
-        SELECT DISTINCT strftime('%Y', report_date)
-        AS year
-        FROM plants_eia860
-        ORDER BY year ASC
-        """, pudl_engine).year.astype(int)
-    missing_years = list(set(epacems_years) - set(eia_plant_years))
-    if missing_years:
-        logger.info(
-            f"EPA CEMS years with no EIA plant data: {missing_years} "
-            "Some timezones may be estimated based on plant state."
-        )
-
-    # NOTE: This is a generator for raw dataframes
-    epacems_raw_dfs = pudl.extract.epacems.extract(
-        epacems_years, epacems_states, Datastore(**ds_kwargs))
-
-    # NOTE: This is a generator for transformed dataframes
-    epacems_transformed_dfs = pudl.transform.epacems.transform(
-        epacems_raw_dfs=epacems_raw_dfs,
-        pudl_engine=pudl_engine,
-    )
-
-    logger.info("Processing EPA CEMS data and writing it to Apache Parquet.")
-    if logger.isEnabledFor(logging.INFO):
-        start_time = time.monotonic()
-
-    # run the cems generator dfs through the load step
-    for df in epacems_transformed_dfs:
-        pudl.load.parquet.epacems_to_parquet(
-            df,
-            root_path=Path(pudl_settings["parquet_dir"]) / "epacems",
-        )
-
-    if logger.isEnabledFor(logging.INFO):
-        delta_t = time.strftime("%H:%M:%S", time.gmtime(
-            time.monotonic() - start_time))
-        time_message = f"Processing EPA CEMS took {delta_t}"
-        logger.info(time_message)
-        start_time = time.monotonic()
-
-
-###############################################################################
-# GLUE EXPORT FUNCTIONS
-###############################################################################
-
-def _etl_glue(etl_settings: GlueSettings) -> Dict[str, pd.DataFrame]:
-    """Extract, transform and load CSVs for the Glue tables.
-
-    Args:
-        etl_settings (GlueSettings): Validated ETL parameters required by this data source.
-
-    Returns:
-        dict: A dictionary of :class:`pandas.Dataframe` whose keys are the names
-        of the corresponding database table.
-
-    """
-    # grab the glue tables for ferc1 & eia
-    glue_dfs = pudl.glue.ferc1_eia.glue(
-        ferc1=etl_settings.ferc1,
-        eia=etl_settings.eia,
-    )
-
-    # Add the EPA to EIA crosswalk, but only if the eia data is being processed.
-    # Otherwise the foreign key references will have nothing to point at:
-    if etl_settings.eia:
-        glue_dfs.update(pudl.glue.eia_epacems.grab_clean_split())
-
-    return glue_dfs
-
-
-###############################################################################
 # Coordinating functions
 ###############################################################################
 
@@ -462,7 +170,6 @@ def configure_prefect_context(etl_settings, pudl_settings, commandline_args):
     """
     prefect.context.etl_settings = etl_settings
     prefect.context.pudl_settings = pudl_settings
-    prefect.context.pudl_commandline_args = commandline_args
     prefect.context.pudl_upload_to = commandline_args.upload_to
     pudl.workspace.datastore.Datastore.configure_prefect_context(commandline_args)
 
@@ -539,7 +246,7 @@ def etl(  # noqa: C901
         # Add cems to flow after eia is added.
         if settings and dataset != "epacems":
             pipeline = DatasetPipeline.get_pipeline_for_dataset(dataset)
-            pipelines[dataset] = pipeline(flow, pudl_settings, settings)
+            pipelines[dataset] = pipeline(flow, settings)
 
     with flow:
         outputs = []
@@ -565,7 +272,6 @@ def etl(  # noqa: C901
     if validated_etl_settings.epacems:
         _ = EpaCemsPipeline(
             flow,
-            pudl_settings,
             validated_etl_settings.epacems)
 
     if commandline_args.show_flow_graph:

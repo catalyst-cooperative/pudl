@@ -24,7 +24,7 @@ class DatasetPipeline(ABC):
     DATASET: str
     settings: GenericDatasetSettings
 
-    def __init__(self, flow, pudl_settings, pipeline_settings):
+    def __init__(self, flow, pipeline_settings):
         """Initialize Pipeline object and construct prefect tasks.
 
         Args:
@@ -32,7 +32,6 @@ class DatasetPipeline(ABC):
             flow (prefect.Flow): attach prefect tasks to this flow
         """
         self.flow = flow
-        self.pudl_settings = pudl_settings
         self.pipeline_settings = pipeline_settings
         self.output_dfc = self.build()
 

@@ -69,12 +69,14 @@ class Ferc1Pipeline(DatasetPipeline):
             # ferc1_to_sqlite task should only happen once.
             # Only add this task to the flow if it is not already present.
             ferc1_to_sqlite_settings = prefect.context.etl_settings.ferc1_to_sqlite_settings
+            pudl_settings = prefect.context.get("pudl_settings")
+
             if not self.flow.get_tasks(name='ferc1_to_sqlite'):
                 pudl.extract.ferc1.ferc1_to_sqlite(
                     ferc1_to_sqlite_settings,
-                    self.pudl_settings,
+                    pudl_settings,
                     overwrite=self.overwrite_ferc1_db)
-            raw_dfs = _extract_ferc1(self.pipeline_settings, self.pudl_settings,
+            raw_dfs = _extract_ferc1(self.pipeline_settings, pudl_settings,
                                      upstream_tasks=self.flow.get_tasks(name='ferc1_to_sqlite'))
             dfs = _transform_ferc1(self.pipeline_settings, raw_dfs)
             return dfc.merge(load_static_tables_ferc1(), dfs)
