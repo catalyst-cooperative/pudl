@@ -4,6 +4,7 @@ This produces several static tables that can be used for correlate
 data from FERC1 and EIA datasets.
 """
 import pudl
+from pudl.settings import GlueSettings
 from pudl.workflow.dataset_pipeline import DatasetPipeline
 
 
@@ -11,7 +12,8 @@ class GluePipeline(DatasetPipeline):
     """Runs glue tasks combining eia/ferc1 results."""
 
     # TODO(rousik): this is a lot of boilerplate for very little use. Perhaps refactor.
-    DATASET = 'glue'
+    dataset = 'glue'
+    settings = GlueSettings
 
     def build(self):
         """Add glue tasks to the flow."""

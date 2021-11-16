@@ -81,12 +81,8 @@ def merge_eia860m(eia860: DataFrameCollection, eia860m: DataFrameCollection):
 class EiaPipeline(DatasetPipeline):
     """Runs eia923, eia860 and eia (entity extraction) tasks."""
 
-    DATASET = 'eia'
+    dataset = 'eia'
     settings = settings.EiaSettings
-
-    def __init__(self, flow, pipeline_settings):
-        """Init EIA pipeline."""
-        super().__init__(flow, pipeline_settings)
 
     def build(self):
         """Extract, transform and load CSVs for the EIA datasets.

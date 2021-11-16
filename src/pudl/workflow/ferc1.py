@@ -6,6 +6,7 @@ import pudl
 from pudl import dfc
 from pudl.dfc import DataFrameCollection
 from pudl.metadata.dfs import FERC_ACCOUNTS, FERC_DEPRECIATION_LINES
+from pudl.settings import Ferc1Settings
 from pudl.workflow.dataset_pipeline import DatasetPipeline
 
 
@@ -55,11 +56,8 @@ def _transform_ferc1(pipeline_settings, dfs):
 class Ferc1Pipeline(DatasetPipeline):
     """Runs ferc1 tasks."""
 
-    DATASET = 'ferc1'
-
-    def __init__(self, *args, **kwargs):
-        """Initializes ferc1 pipeline, optionally creates ferc1 sqlite database."""
-        super().__init__(*args, **kwargs)
+    dataset = 'ferc1'
+    settings = Ferc1Settings
 
     def build(self):
         """Add ferc1 tasks to the flow."""

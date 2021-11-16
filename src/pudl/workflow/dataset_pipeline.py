@@ -3,6 +3,7 @@
 Each dataset should make subclass for this and add prefect tasks to the flow
 in its build() method.
 """
+import abc
 from abc import ABC
 
 from pudl.settings import GenericDatasetSettings
@@ -16,13 +17,10 @@ class DatasetPipeline(ABC):
     tasks to the provided flow.
 
     When implementing subclasses of this, you should:
-    - set DATASET class attribute
-    - implement validate_params() method
     - implement build() method
+    - implement a dataset settings class to validate requested partitions.
+    - implement a dataset name.
     """
-
-    DATASET: str
-    settings: GenericDatasetSettings
 
     def __init__(self, flow, pipeline_settings):
         """Initialize Pipeline object and construct prefect tasks.
@@ -35,6 +33,18 @@ class DatasetPipeline(ABC):
         self.pipeline_settings = pipeline_settings
         self.output_dfc = self.build()
 
+    @property
+    @abc.abstractmethod
+    def dataset(cls) -> str:
+        """Abstract dataset property."""
+        return cls.dataset
+
+    @property
+    @abc.abstractmethod
+    def settings(cls) -> GenericDatasetSettings:
+        """Abstract settings property."""
+        return cls.settings
+
     def build(self):
         """Add pipeline tasks to the flow.
 
@@ -42,7 +52,7 @@ class DatasetPipeline(ABC):
           etl_params: parameters for this pipeline (returned by self.validate_params)
         """
         raise NotImplementedError(
-            f'{self.__name__}: Please implement pipeline build method.')
+            f'{self.dataset}: Please implement pipeline build method.')
 
     def outputs(self):
         """Returns prefect.Result containing DataFrameCollection."""
@@ -52,6 +62,6 @@ class DatasetPipeline(ABC):
     def get_pipeline_for_dataset(cls, dataset):
         """Returns subclass of DatasetPipeline associated with the given dataset."""
         for subclass in cls.__subclasses__():
-            if subclass.DATASET == dataset:
+            if subclass.dataset == dataset:
                 return subclass
         return None
