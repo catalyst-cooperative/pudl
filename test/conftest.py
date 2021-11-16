@@ -5,7 +5,6 @@ from pathlib import Path
 
 import pytest
 import sqlalchemy as sa
-import yaml
 
 import pudl
 from pudl.cli import create_arg_parser
@@ -88,9 +87,8 @@ def etl_parameters(request, test_dir):
     else:
         etl_settings_yml = Path(
             test_dir.parent / "src/pudl/package_data/settings/etl_fast.yml")
-    with open(etl_settings_yml, mode="r", encoding="utf8") as settings_file:
-        etl_settings_out = yaml.safe_load(settings_file)
-    etl_settings = EtlSettings().parse_obj(etl_settings_out)
+
+    etl_settings = EtlSettings.from_yaml(etl_settings_yml)
     return etl_settings
 
 

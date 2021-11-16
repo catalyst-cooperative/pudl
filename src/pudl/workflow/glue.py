@@ -11,7 +11,6 @@ from pudl.workflow.dataset_pipeline import DatasetPipeline
 class GluePipeline(DatasetPipeline):
     """Runs glue tasks combining eia/ferc1 results."""
 
-    # TODO(rousik): this is a lot of boilerplate for very little use. Perhaps refactor.
     dataset = 'glue'
     settings = GlueSettings
 

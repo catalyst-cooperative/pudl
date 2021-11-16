@@ -209,7 +209,6 @@ def etl(  # noqa: C901
         )
 
     # Setup pipeline cache
-    # TODO(bendnorman): what do we want to live in here? How does it affect testing?
     configure_prefect_context(etl_settings, pudl_settings, commandline_args)
 
     # Check for existing EPA CEMS outputs if we're going to process CEMS, and
@@ -282,7 +281,6 @@ def etl(  # noqa: C901
     log_task_failures(state)
     cleanup_pipeline_cache(state, commandline_args)
 
-    # TODO(rousik): summarize flow errors (directly failed tasks and their execeptions)
     if commandline_args.show_flow_graph:
         flow.visualize(flow_state=state)
 

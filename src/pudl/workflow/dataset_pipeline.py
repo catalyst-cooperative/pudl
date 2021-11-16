@@ -35,13 +35,13 @@ class DatasetPipeline(ABC):
 
     @property
     @abc.abstractmethod
-    def dataset(cls) -> str:
+    def dataset(cls) -> str:    # noqa: N805
         """Abstract dataset property."""
         return cls.dataset
 
     @property
     @abc.abstractmethod
-    def settings(cls) -> GenericDatasetSettings:
+    def settings(cls) -> GenericDatasetSettings:    # noqa: N805
         """Abstract settings property."""
         return cls.settings
 

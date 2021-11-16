@@ -17,25 +17,6 @@ from pudl.workspace.datastore import Datastore
 logger = logging.getLogger(__name__)
 
 
-def _validate_params_partition(etl_params_og, tables):
-    # if there is a `partition` in the package settings..
-    partition_dict = {}
-    try:
-        partition_dict = etl_params_og['partition']
-        # it should be a dictionary with tables (keys) and partitions (values)
-        # so for each table, grab the list of the corresponding partition.
-        for table in tables:
-            try:
-                for part in partition_dict[table]:
-                    if part not in etl_params_og.keys():
-                        raise AssertionError('Partion not recognized')
-            except KeyError:
-                pass
-    except KeyError:
-        partition_dict['partition'] = None
-    return(partition_dict)
-
-
 @task(task_run_name="epacems-{partition}")  # noqa: FS003
 def epacems_process_partition(
         partition: EpaCemsPartition,

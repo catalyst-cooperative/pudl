@@ -1,13 +1,14 @@
 """Tests for settings validation."""
+from pathlib import Path
 from typing import ClassVar
 
 import pytest
 from pydantic import ValidationError
 
 from pudl.settings import (DatasetsSettings, Eia860Settings, Eia923Settings,
-                           EiaSettings, EpaCemsSettings, Ferc1Settings,
-                           Ferc1ToSqliteSettings, GenericDatasetSettings,
-                           create_dataset_settings)
+                           EiaSettings, EpaCemsSettings, EtlSettings,
+                           Ferc1Settings, Ferc1ToSqliteSettings,
+                           GenericDatasetSettings, create_dataset_settings)
 
 
 class TestGenericDatasetSettings:
@@ -211,3 +212,22 @@ class TestCreateDatasetModel:
         """Test a KeyError is raised when a use requests a unavailable dataset."""
         with pytest.raises(KeyError):
             create_dataset_settings("oops!")
+
+
+@pytest.mark.skip(reason="Not supporting this right now.")
+class TestEtlSettings:
+    """Test EtlSettings."""
+
+    def test_write_yaml(self, test_dir):
+        """Make sure writing to a yaml works correctly."""
+        etl_settings_yml = Path(
+            test_dir.parent / "src/pudl/package_data/settings/etl_fast.yml")
+
+        expected_settings = EtlSettings.from_yaml(etl_settings_yml)
+
+        result_yml_path = test_dir / "settings_test.yml"
+        expected_settings.write_yaml(result_yml_path)
+
+        resulted_settings = EtlSettings.from_yaml(result_yml_path)
+
+        self.assertEqual(resulted_settings, expected_settings)

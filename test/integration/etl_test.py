@@ -228,7 +228,6 @@ def test_epacems_datastore_integration(pudl_datastore_fixture):
     ds = pudl.extract.epacems.EpaCemsDatastore(pudl_datastore_fixture)
     df = ds.get_data_frame(pudl.extract.epacems.EpaCemsPartition(
         state="NY", year=1999))
-    # TODO(rousik): this is reading file from zenodo which may be expensive, slow
-    # and potentially flaky.
+
     assert "state" in df.columns
     assert "plant_id_eia" in df.columns

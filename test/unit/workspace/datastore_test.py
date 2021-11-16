@@ -207,4 +207,4 @@ class TestZenodoFetcher(unittest.TestCase):
         self.assertRaises(KeyError, self.fetcher.get_resource, res)
 
 
-# TODO(rousik): add unit tests for Datasource class as well
+# TODO(rousik): add unit tests for DataStore class as well

@@ -226,7 +226,7 @@ def main():
     # Save the settings file to the pipeline cache.
     settings_file_path = os.path.join(args.pipeline_cache_path, "settings.yml")
 
-    # TODO(bendnorman): I don't think this is writing the yaml correctly.
+    # TODO(bendnorman): This needs to be tested.
     etl_settings.write_yaml(settings_file_path)
 
     bad_sqlite_version = (
