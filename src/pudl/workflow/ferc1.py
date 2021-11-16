@@ -5,7 +5,6 @@ from prefect import task
 import pudl
 from pudl import dfc
 from pudl.dfc import DataFrameCollection
-from pudl.extract.ferc1 import SqliteOverwriteMode
 from pudl.metadata.dfs import FERC_ACCOUNTS, FERC_DEPRECIATION_LINES
 from pudl.workflow.dataset_pipeline import DatasetPipeline
 
@@ -58,9 +57,8 @@ class Ferc1Pipeline(DatasetPipeline):
 
     DATASET = 'ferc1'
 
-    def __init__(self, *args, overwrite_ferc1_db=SqliteOverwriteMode.ALWAYS, **kwargs):
+    def __init__(self, *args, **kwargs):
         """Initializes ferc1 pipeline, optionally creates ferc1 sqlite database."""
-        self.overwrite_ferc1_db = overwrite_ferc1_db
         super().__init__(*args, **kwargs)
 
     def build(self):
@@ -68,14 +66,16 @@ class Ferc1Pipeline(DatasetPipeline):
         with self.flow:
             # ferc1_to_sqlite task should only happen once.
             # Only add this task to the flow if it is not already present.
-            ferc1_to_sqlite_settings = prefect.context.etl_settings.ferc1_to_sqlite_settings
+            ferc1_to_sqlite_settings = prefect.context.get(
+                "etl_settings").ferc1_to_sqlite_settings
+            overwrite_ferc1_db = prefect.context.get("overwrite_ferc1_db")
             pudl_settings = prefect.context.get("pudl_settings")
 
             if not self.flow.get_tasks(name='ferc1_to_sqlite'):
                 pudl.extract.ferc1.ferc1_to_sqlite(
                     ferc1_to_sqlite_settings,
                     pudl_settings,
-                    overwrite=self.overwrite_ferc1_db)
+                    overwrite=overwrite_ferc1_db)
             raw_dfs = _extract_ferc1(self.pipeline_settings, pudl_settings,
                                      upstream_tasks=self.flow.get_tasks(name='ferc1_to_sqlite'))
             dfs = _transform_ferc1(self.pipeline_settings, raw_dfs)

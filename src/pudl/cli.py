@@ -92,7 +92,7 @@ def create_arg_parser():
         help="Set logging level (DEBUG, INFO, WARNING, ERROR, or CRITICAL).",
         default="INFO",
     )
-    # TODO(bendnorman): Is this something we want to support right now?
+    # TODO(bendnorman): Do we want to rerun an ETL from a cache?
     parser.add_argument(
         "--rerun",
         type=str,

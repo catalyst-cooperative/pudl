@@ -45,22 +45,17 @@ def command_line_flags() -> argparse.ArgumentParser:
     """Returns argparse.ArgumentParser containing flags relevant to the ETL component."""
     parser = argparse.ArgumentParser(
         description="ETL configuration flags", add_help=False)
-    # TODO(bendnorman): combine the executors into one arg?
     parser.add_argument(
-        "--use-local-dask-executor",
-        action="store_true",
-        default=False,
-        help='If enabled, use LocalDaskExecutor to run the flow.')
-    parser.add_argument(
-        "--use-dask-executor",
-        action="store_true",
-        default=False,
-        help='If enabled, use local DaskExecutor to run the flow.')
+        "--executor",
+        choices=["LOCAL", "LOCAL-DASK", "DASK"],
+        default="LOCAL",
+        help="Which Prefect executor to run the ETL on."
+    ),
     parser.add_argument(
         "--dask-executor-address",
         default=None,
         help='If specified, use pre-existing DaskExecutor at this address.')
-    # TODO(bendnorman): Should this be supported right now?
+    # TODO(bendnorman): Should upload-to be supported right now?
     parser.add_argument(
         "--upload-to",
         type=str,
@@ -73,11 +68,9 @@ def command_line_flags() -> argparse.ArgumentParser:
         variable.
         Files will be stored under {upload_to}/{run_id} to avoid conflicts.
         """)
-    # TODO(bendnorman): add this back to the ferc1 datapipline.
-    # TODO(bendnorman): should this be T|F? First doesn't make much sense given we don't support multiple datapackages anymore.
     parser.add_argument(
         "--overwrite-ferc1-db",
-        action="store_true",
+        action=argparse.BooleanOptionalAction,
         default=True,
         help="Control whether to rerun the ferc1 database.")
     parser.add_argument(
@@ -110,6 +103,7 @@ def command_line_flags() -> argparse.ArgumentParser:
         default=os.environ.get('PUDL_PIPELINE_CACHE_PATH'),
         help="""Controls where the pipeline should be storing its cache. This should be
         used for both the prefect task results as well as for the DataFrameCollections.""")
+    # TODO(rousik): add --keep-cache=ALWAYS|NEVER|ONFAIL commandline flag to control this
     parser.add_argument(
         "--keep-cache",
         action="store_true",
@@ -147,7 +141,6 @@ def cleanup_pipeline_cache(state, commandline_args):
     locally (not on GCS) and if the flow completed succesfully.
     """
     # TODO(rousik): add --keep-cache=ALWAYS|NEVER|ONFAIL commandline flag to control this
-    # TODO(bendnorman): When is this cache actually used? rerun_id?
     if commandline_args.keep_cache:
         logger.warning('--keep-cache prevents cleanup of local cache.')
         return
@@ -172,6 +165,10 @@ def configure_prefect_context(etl_settings, pudl_settings, commandline_args):
     prefect.context.pudl_settings = pudl_settings
     prefect.context.pudl_upload_to = commandline_args.upload_to
     pudl.workspace.datastore.Datastore.configure_prefect_context(commandline_args)
+
+    prefect.context.overwrite_ferc1_db = commandline_args.overwrite_ferc1_db
+
+    prefect.context.datasets = etl_settings.datasets.get_datasets()
 
     pipeline_cache_path = commandline_args.pipeline_cache_path
     if not pipeline_cache_path:
@@ -211,30 +208,24 @@ def etl(  # noqa: C901
             f"Move {pudl_db_path} aside or set clobber=True and try again."
         )
 
-    # TODO (bendnorman): The naming convention here is getting a little wacky.
-    validated_etl_settings = etl_settings.datasets
-
-    # Check for existing EPA CEMS outputs if we're going to process CEMS, and
-    # do it before running the SQLite part of the ETL so we don't do a bunch of
-    # work only to discover that we can't finish.
-    datasets = validated_etl_settings.get_datasets()
-    if validated_etl_settings.epacems:
-        epacems_pq_path = Path(pudl_settings["parquet_dir"]) / "epacems"
-        _ = pudl.helpers.prep_dir(epacems_pq_path, clobber=commandline_args.clobber)
-
     # Setup pipeline cache
     # TODO(bendnorman): what do we want to live in here? How does it affect testing?
     configure_prefect_context(etl_settings, pudl_settings, commandline_args)
 
-    # TODO(bendnorman): How does this differ from pudl_pipeline_cache_path?
-    result_cache = os.path.join(prefect.context.pudl_pipeline_cache_path, "prefect")
+    # Check for existing EPA CEMS outputs if we're going to process CEMS, and
+    # do it before running the SQLite part of the ETL so we don't do a bunch of
+    # work only to discover that we can't finish.
+    datasets = prefect.context.get("datasets")
+    if datasets.get("epacems"):
+        epacems_pq_path = Path(pudl_settings["parquet_dir"]) / "epacems"
+        _ = pudl.helpers.prep_dir(epacems_pq_path, clobber=commandline_args.clobber)
+
+    result_cache = os.path.join(prefect.context.get(
+        "pudl_pipeline_cache_path"), "prefect")
     flow = prefect.Flow("PUDL ETL", result=FSSpecResult(root_dir=result_cache))
 
     logger.warning(
         f'Running etl with the following configurations: {sorted(datasets.keys())}')
-
-    # TODO(bendnorman): do I need this?
-    prefect.context.dataset_names = datasets.keys()
 
     # TODO(rousik): we need to have a good way of configuring the datastore caching options
     # from commandline arguments here. Perhaps passing cmdline args by Datastore constructor
@@ -251,9 +242,7 @@ def etl(  # noqa: C901
     with flow:
         outputs = []
         for dataset, pl in pipelines.items():
-            # TODO(bendnorman) is_excuted() working properly?:
-            if pl.is_executed():
-                outputs.append(pl.outputs())
+            outputs.append(pl.outputs())
 
         # `tables` is a DataFrame collections containing every dataframe from the pipelines.
         tables = dfc.merge_list(outputs)
@@ -269,21 +258,23 @@ def etl(  # noqa: C901
         )
 
     # Add CEMS pipeline to the flow
-    if validated_etl_settings.epacems:
+    if datasets.get("epacems"):
         _ = EpaCemsPipeline(
             flow,
-            validated_etl_settings.epacems)
+            datasets.get("epacems"))
 
     if commandline_args.show_flow_graph:
         flow.visualize()
 
     # Set the prefect executor.
-    prefect_executor = LocalExecutor()
-    if commandline_args.use_local_dask_executor:
+    if commandline_args.executor == "LOCAL":
+        prefect_executor = LocalExecutor()
+    if commandline_args.executor == "LOCAL-DASK":
         prefect_executor = LocalDaskExecutor()
-    elif commandline_args.dask_executor_address or commandline_args.use_dask_executor:
+    if commandline_args.executor == "DASK" or commandline_args.dask_executor_address:
         prefect_executor = DaskExecutor(address=commandline_args.dask_executor_address)
-    logger.info(f"Using {type(prefect_executor)} Prefect executor.")
+
+    logger.info(f"Using {commandline_args.executor.title()} Prefect executor.")
     flow.executor = prefect_executor
 
     state = flow.run()

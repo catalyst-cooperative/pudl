@@ -82,7 +82,7 @@ class EpaCemsPipeline(DatasetPipeline):
 
             # Wait to build CEMS until EIA is done if EIA is in the settings file.
             # If EIA is not in the settings file, go ahead and build CEMS on its own.
-            if "eia" in prefect.context.get("dataset_names", {}):
+            if "eia" in prefect.context.get("datasets", {}).keys():
                 dfs_to_sqlite_task = flow.get_tasks(name="dfs_to_sqlite")
                 logger.info("Setting EIA as a dependency of CEMS.")
                 plants.set_dependencies(upstream_tasks=[dfs_to_sqlite_task])

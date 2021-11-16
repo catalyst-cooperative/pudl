@@ -53,11 +53,8 @@ import csv
 import importlib
 import io
 import logging
-import os
-from enum import Enum
 from pathlib import Path
 from typing import Dict, Set
-from urllib.parse import urlparse
 from zipfile import ZipFile
 
 import dbfread
@@ -667,23 +664,11 @@ def get_raw_df(
         )
 
 
-class SqliteOverwriteMode(Enum):
-    """Controls how the existing sqlite database should be treated."""
-
-    ALWAYS = 1
-    ONCE = 2
-    NEVER = 3
-
-
 @task(checkpoint=False)
-def ferc1_to_sqlite(settings, pudl_settings, overwrite=SqliteOverwriteMode.ONCE):
+def ferc1_to_sqlite(settings, pudl_settings, overwrite: bool = True):
     """Clones the FERC1 Form 1 database to sqlite."""
     logger.warning(f'overwrite={overwrite}, dbfile={pudl_settings["ferc1_db"]}')
-    if overwrite == SqliteOverwriteMode.NEVER:
-        return False
-    elif overwrite == SqliteOverwriteMode.ONCE and os.path.isfile(urlparse(pudl_settings["ferc1_db"]).path):
-        return False
-    else:
+    if overwrite:
         dbf2sqlite(
             tables=settings.tables,
             years=settings.years,
@@ -693,6 +678,8 @@ def ferc1_to_sqlite(settings, pudl_settings, overwrite=SqliteOverwriteMode.ONCE)
             bad_cols=settings.bad_cols,
             clobber=True)
         return True
+    else:
+        return False
 
 
 def dbf2sqlite(tables, years, refyear, pudl_settings,

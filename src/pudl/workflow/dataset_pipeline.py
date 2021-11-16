@@ -48,11 +48,6 @@ class DatasetPipeline(ABC):
         """Returns prefect.Result containing DataFrameCollection."""
         return self.output_dfc
 
-    def is_executed(self):
-        """Returns true if the pipeline is executed."""
-        # TODO: Is this accurate? Won't an object of dataset_pipeline always have pipeline_settings
-        return bool(self.pipeline_settings)
-
     @classmethod
     def get_pipeline_for_dataset(cls, dataset):
         """Returns subclass of DatasetPipeline associated with the given dataset."""
