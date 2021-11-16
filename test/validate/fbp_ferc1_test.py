@@ -57,7 +57,7 @@ def test_fbp_ferc1_mmbtu_cost_correlation(pudl_out_ferc1, live_dbs):
     if not live_dbs:
         pytest.skip("Data validation only works with a live PUDL DB.")
     fbp_ferc1 = pudl_out_ferc1.fbp_ferc1()
-    for fuel in ["gas", "oil", "coal", "nuclear", "unknown"]:
+    for fuel in ["gas", "oil", "coal", "nuclear", "other"]:
         fuel_cols = [f"{fuel}_fraction_mmbtu", f"{fuel}_fraction_cost"]
         fuel_corr = fbp_ferc1[fuel_cols].corr().iloc[0, 1]
         if fuel_corr < 0.9:
@@ -81,7 +81,7 @@ def test_vs_bounds(pudl_out_ferc1, live_dbs, cases):
         pytest.skip("Data validation only works with a live PUDL DB.")
 
     fbp_ferc1 = pudl_out_ferc1.fbp_ferc1()
-    for f in ["gas", "oil", "coal", "waste", "nuclear", "unknown"]:
+    for f in ["gas", "oil", "coal", "waste", "nuclear", "other"]:
         fbp_ferc1[f"{f}_cost_per_mmbtu"] = (
             (fbp_ferc1[f"{f}_fraction_cost"] * fbp_ferc1["fuel_cost"]) /
             (fbp_ferc1[f"{f}_fraction_mmbtu"] * fbp_ferc1["fuel_mmbtu"])

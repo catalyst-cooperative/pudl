@@ -593,7 +593,7 @@ def _early_transform(raw_df):
 
 def transform(raw_dfs, tables=PUDL_TABLES["ferc714"]):
     """
-    Transform the raw FERC 714 dataframes into datapackage ready ouputs.
+    Prepare the raw FERC 714 dataframes for loading into the PUDL database.
 
     Args:
         raw_dfs (dict): A dictionary of raw pandas.DataFrame objects, as read out of

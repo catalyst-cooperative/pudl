@@ -99,7 +99,7 @@ def derive_paths(pudl_in, pudl_out):
             directory as ``pudl_out``.
         pudl_out (os.PathLike): Path to the directory where PUDL should write
             the outputs it generates. These will be organized into directories
-            according to the output format (sqlite, datapackage, etc.).
+            according to the output format (sqlite, parquet, etc.).
 
     Returns:
         dict: A dictionary containing common PUDL settings, derived from those
@@ -121,7 +121,7 @@ def derive_paths(pudl_in, pudl_out):
     # Everything else goes into outputs, generally organized by type of file:
     pudl_out = pathlib.Path(pudl_out).expanduser().resolve()
     pudl_settings["pudl_out"] = str(pudl_out)
-    # One directory per output format, datapackage, sqlite, etc.:
+    # One directory per output format:
     for fmt in ["sqlite", "parquet"]:
         pudl_settings[f"{fmt}_dir"] = str(pudl_out / fmt)
 
@@ -148,7 +148,7 @@ def init(pudl_in, pudl_out, clobber=False):
             directory as ``pudl_out``.
         pudl_out (os.PathLike): Path to the directory where PUDL should write
             the outputs it generates. These will be organized into directories
-            according to the output format (sqlite, datapackage, etc.).
+            according to the output format (sqlite, parquet, etc.).
         clobber (bool): if True, replace existing files. If False (the default)
             do not replace existing files.
 

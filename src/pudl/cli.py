@@ -1,18 +1,14 @@
 """A command line interface (CLI) to the main PUDL ETL functionality.
 
-This script generates datapacakges based on the datapackage settings enumerated
-in the settings_file which is given as an argument to this script. If the
-settings has empty datapackage parameters (meaning there are no years or
-tables included), no datapacakges will be generated. If the settings include a
-datapackage that has empty parameters, the other valid datatpackages will be
-generated, but not the empty one. If there are invalid parameters (meaning a
-partition that is not included in the pudl.constant.WORKING_PARTITIONS), the
-build will fail early on in the process.
+This script cordinates the PUDL ETL process, based on parameters provided via a YAML
+settings file.
 
-The datapackages will be stored in "PUDL_OUT" in the "datapackge" subdirectory.
-Currently, this function only uses default directories for "PUDL_IN" and
-"PUDL_OUT" (meaning those stored in $HOME/.pudl.yml). To setup your default
-pudl directories see the pudl_setup script (pudl_setup --help for more details).
+If the settings for a dataset has empty parameters (meaning there are no years or tables
+included), no outputs will be generated. See :doc:`/dev/settings_files` for details.
+
+The output SQLite and Parquet files will be stored in ``PUDL_OUT`` in directories named
+``sqlite`` and ``parquet``.  To setup your default ``PUDL_IN`` and ``PUDL_OUT``
+directories see ``pudl_setup --help``.
 
 """
 import argparse
