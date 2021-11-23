@@ -657,7 +657,7 @@ def get_lost_utils_eia(pudl_engine):
     return lost_utils_eia
 
 
-@task()  # noqa: FS003
+@task(target="glue-eia:{eia}-ferc1:{ferc1}")  # noqa: FS003
 def glue(ferc1=False, eia=False) -> DataFrameCollection:
     """Generates a dictionary of dataframes for glue tables between FERC1, EIA.
 

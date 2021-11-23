@@ -17,7 +17,7 @@ from pudl.workspace.datastore import Datastore
 logger = logging.getLogger(__name__)
 
 
-@task(task_run_name="epacems-{partition}")  # noqa: FS003
+@task(target="epacems-{partition}", task_run_name="epacems-{partition}")  # noqa: FS003
 def epacems_process_partition(
         partition: EpaCemsPartition,
         plant_utc_offset: pd.DataFrame,

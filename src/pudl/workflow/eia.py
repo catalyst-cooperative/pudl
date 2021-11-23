@@ -13,7 +13,7 @@ from pudl.metadata.codes import (CONTRACT_TYPES_EIA, ENERGY_SOURCES_EIA,
 from pudl.workflow.dataset_pipeline import DatasetPipeline
 
 
-@task()
+@task(target="eia.static-tables")
 def read_static_tables_eia() -> DataFrameCollection:
     """Build dataframes of static EIA tables for use as foreign key constraints.
 
@@ -54,7 +54,7 @@ def read_static_tables_eia() -> DataFrameCollection:
     )
 
 
-@task
+@task(target='eia860m.merge')
 def merge_eia860m(eia860: DataFrameCollection, eia860m: DataFrameCollection):
     """Combines overlapping eia860 and eia860m data frames."""
     logger = prefect.context.get("logger")
@@ -94,25 +94,31 @@ class EiaPipeline(DatasetPipeline):
         eia923_settings = self.pipeline_settings.eia923
 
         eia860_extract = pudl.extract.eia860.Extractor(
-            name='eia860.extract')
+            name='eia860.extract',
+            target='eia860.extract')
         eia860m_extract = pudl.extract.eia860m.Extractor(
-            name='eia860m.extract')
+            name='eia860m.extract',
+            target='eia860m.extract')
         eia923_extract = pudl.extract.eia923.Extractor(
-            name='eia923.extract')
+            name='eia923.extract',
+            target='eia923.extract')
         with self.flow:
             eia860_df = eia860_extract(year=eia860_settings.years)
             if eia860_settings.eia860m:
                 m_df = eia860m_extract(
                     year_month=eia860_settings.eia860m_date)
                 eia860_df = merge_eia860m(
-                    eia860_df, m_df)
+                    eia860_df, m_df,
+                    task_args=dict(target='eia860m.merge'))
             eia860_df = pudl.transform.eia860.transform_eia860(
                 eia860_df,
-                eia860_settings.tables)
+                eia860_settings.tables,
+                task_args=dict(target='eia860.transform'))
 
             eia923_df = pudl.transform.eia923.transform_eia923(
                 eia923_extract(year=eia923_settings.years),
-                eia923_settings.tables)
+                eia923_settings.tables,
+                task_args=dict(target='eia923.transform'))
 
             output_tables = pudl.transform.eia.transform(
                 dfc.merge_list(
@@ -123,7 +129,8 @@ class EiaPipeline(DatasetPipeline):
 
             return dfc.merge(
                 read_static_tables_eia(),
-                output_tables)
+                output_tables,
+                task_args=dict(target='eia.final_tables'))
 
     def get_table(self, table_name):
         """Returns DataFrame for given table that is emitted by the pipeline.

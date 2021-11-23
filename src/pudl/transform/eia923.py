@@ -1099,7 +1099,7 @@ def fuel_receipts_costs(eia923_dfs, eia923_transformed_dfs):
     return eia923_transformed_dfs
 
 
-@task
+@task(target='eia923.transform')
 def transform_eia923(
         dfc: DataFrameCollection,
         eia923_tables=PUDL_TABLES['eia923']) -> DataFrameCollection:

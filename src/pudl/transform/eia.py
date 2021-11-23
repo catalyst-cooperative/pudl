@@ -1039,7 +1039,7 @@ def _restrict_years(df,
     return df
 
 
-@task
+@task(name="eia.transform", target="eia.transform")
 def transform(eia_transformed_dfs,
               eia860_years=pc.WORKING_PARTITIONS['eia860']['years'],
               eia923_years=pc.WORKING_PARTITIONS['eia923']['years'],

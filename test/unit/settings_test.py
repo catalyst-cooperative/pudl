@@ -1,5 +1,4 @@
 """Tests for settings validation."""
-from pathlib import Path
 from typing import ClassVar
 
 import pytest
@@ -214,20 +213,16 @@ class TestCreateDatasetModel:
             create_dataset_settings("oops!")
 
 
-@pytest.mark.skip(reason="Not supporting this right now.")
 class TestEtlSettings:
     """Test EtlSettings."""
 
-    def test_write_yaml(self, test_dir):
+    # TODO(bendnorman): The behavior of this method works and passes as an invidual unit test but fails when run with all unit tests.
+    @pytest.mark.skip(reason="Unresolved testing bug.")
+    def test_write_yaml(self, etl_settings, test_dir):
         """Make sure writing to a yaml works correctly."""
-        etl_settings_yml = Path(
-            test_dir.parent / "src/pudl/package_data/settings/etl_fast.yml")
-
-        expected_settings = EtlSettings.from_yaml(etl_settings_yml)
-
         result_yml_path = test_dir / "settings_test.yml"
-        expected_settings.write_yaml(result_yml_path)
+        etl_settings.write_yaml(result_yml_path)
 
         resulted_settings = EtlSettings.from_yaml(result_yml_path)
 
-        self.assertEqual(resulted_settings, expected_settings)
+        assert resulted_settings == etl_settings

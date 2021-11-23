@@ -319,7 +319,7 @@ class Ferc1ToSqliteSettings(GenericDatasetSettings):
     tables: List[str] = working_tables
 
     refyear: ClassVar[int] = max(years)
-    bad_cols: tuple = ()
+    bad_cols: List = []
 
 
 class EtlSettings(BaseSettings):

@@ -92,7 +92,6 @@ def create_arg_parser():
         help="Set logging level (DEBUG, INFO, WARNING, ERROR, or CRITICAL).",
         default="INFO",
     )
-    # TODO(bendnorman): Do we want to rerun an ETL from a cache?
     parser.add_argument(
         "--rerun",
         type=str,
@@ -173,9 +172,6 @@ def load_etl_settings(args, run_id) -> EtlSettings:
     script and loads that.
     """
     if args.rerun:
-        if not args.pipeline_cache_path:
-            raise AssertionError(
-                'When using --rerun, --pipeline-cache-path must be also set.')
         settings_file_path = os.path.join(
             args.pipeline_cache_path, run_id, "settings.yml")
     else:
@@ -225,8 +221,6 @@ def main():
 
     # Save the settings file to the pipeline cache.
     settings_file_path = os.path.join(args.pipeline_cache_path, "settings.yml")
-
-    # TODO(bendnorman): This needs to be tested.
     etl_settings.write_yaml(settings_file_path)
 
     bad_sqlite_version = (

@@ -100,15 +100,15 @@ def command_line_flags() -> argparse.ArgumentParser:
     parser.add_argument(
         "--pipeline-cache-path",
         type=str,
-        default=os.environ.get('PUDL_PIPELINE_CACHE_PATH'),
+        default=Path(pudl.workspace.setup.get_defaults()["pudl_out"]) / "cache",
         help="""Controls where the pipeline should be storing its cache. This should be
         used for both the prefect task results as well as for the DataFrameCollections.""")
-    # TODO(rousik): add --keep-cache=ALWAYS|NEVER|ONFAIL commandline flag to control this
     parser.add_argument(
         "--keep-cache",
-        action="store_true",
+        choices=["ALWAYS", "NEVER", "ONFAIL"],
+        default="ONFAIL",
         help="""Do not remove local pipeline cache even if the pipeline succeeds. This can
-        be used for development/debugging purposes.
+        be used for development/debugging purposes. Defaults to ONFAIL.
         """)
     parser.add_argument(
         "--gcs-requester-pays",
@@ -121,6 +121,19 @@ def command_line_flags() -> argparse.ArgumentParser:
 ###############################################################################
 # Coordinating functions
 ###############################################################################
+
+def set_downstream_checkpoints(flow, task):
+    """Set downstream checkpoints to false if task checkpoint is false."""
+    downstream_tasks = flow.downstream_tasks(task)
+    if not downstream_tasks:
+        return
+    if task.checkpoint is False:
+        for d_task in downstream_tasks:
+            d_task.checkpoint = False
+
+    for d_task in downstream_tasks:
+        set_downstream_checkpoints(flow, d_task)
+
 
 def log_task_failures(flow_state: prefect.engine.state.State) -> None:
     """Log messages for directly failed tasks."""
@@ -140,12 +153,13 @@ def cleanup_pipeline_cache(state, commandline_args):
     Currently, the cache is destroyed if caching is enabled, if it is done
     locally (not on GCS) and if the flow completed succesfully.
     """
-    # TODO(rousik): add --keep-cache=ALWAYS|NEVER|ONFAIL commandline flag to control this
-    if commandline_args.keep_cache:
-        logger.warning('--keep-cache prevents cleanup of local cache.')
+    onfail_success = (commandline_args.keep_cache == 'ONFAIL' and state.is_successful())
+    cache_root = str(commandline_args.pipeline_cache_path)
+
+    if (commandline_args.keep_cache == 'ALWAYS') or not onfail_success or commandline_args.rerun:
+        logger.warning(f'Keep pipeline cache director under {cache_root}')
         return
-    if state.is_successful() and commandline_args.pipeline_cache_path:
-        cache_root = commandline_args.pipeline_cache_path
+    if (commandline_args.keep_cache == 'NEVER') or onfail_success:
         if not cache_root.startswith("gs://"):
             logger.warning(f'Deleting pipeline cache directory under {cache_root}')
             # TODO(rousik): in order to prevent catastrophic results due to misconfiguration
@@ -275,6 +289,12 @@ def etl(  # noqa: C901
 
     logger.info(f"Using {commandline_args.executor.title()} Prefect executor.")
     flow.executor = prefect_executor
+
+    # Turn off downstream checkpoints if keeping cached version
+    if commandline_args.keep_cache == "ALWAYS":
+        root_tasks = flow.root_tasks()
+        for root_task in root_tasks:
+            set_downstream_checkpoints(flow, root_task)
 
     state = flow.run()
 

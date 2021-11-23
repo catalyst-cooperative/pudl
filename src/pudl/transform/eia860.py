@@ -585,7 +585,7 @@ def utilities(eia860_dfs, eia860_transformed_dfs):
     return eia860_transformed_dfs
 
 
-@task
+@task(target='eia860.transform')
 def transform_eia860(
         dfc: DataFrameCollection,
         eia860_tables=PUDL_TABLES['eia860']) -> DataFrameCollection:
