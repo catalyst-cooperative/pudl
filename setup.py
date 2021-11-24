@@ -41,7 +41,7 @@ setup(
         "fsspec~=2021.7",
         "gcsfs~=2021.7",
         "geopandas>=0.9,<0.11",
-        "jinja2~=3.0",
+        "jinja2>=2,<4",
         "matplotlib~=3.0",  # Should make this optional with a "viz" extras
         "networkx~=2.2",
         "numpy~=1.20",
