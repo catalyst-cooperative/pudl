@@ -166,7 +166,7 @@ def ferc1_sql_engine(
 
 
 @pytest.fixture(scope='session', name="commandline_args")
-def commandline_args():
+def commandline_args(pudl_settings_fixture):
     """Fixture with default commandline args."""
     parser = create_arg_parser()
     return parser.parse_args(args=[])
