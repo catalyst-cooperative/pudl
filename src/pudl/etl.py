@@ -100,7 +100,7 @@ def command_line_flags() -> argparse.ArgumentParser:
     parser.add_argument(
         "--pipeline-cache-path",
         type=str,
-        default=Path(pudl.workspace.setup.get_defaults()["pudl_out"]) / "cache",
+        default=str(Path(pudl.workspace.setup.get_defaults()["pudl_out"]) / "cache"),
         help="""Controls where the pipeline should be storing its cache. This should be
         used for both the prefect task results as well as for the DataFrameCollections.""")
     parser.add_argument(
@@ -154,7 +154,7 @@ def cleanup_pipeline_cache(state, commandline_args):
     locally (not on GCS) and if the flow completed succesfully.
     """
     onfail_success = (commandline_args.keep_cache == 'ONFAIL' and state.is_successful())
-    cache_root = str(commandline_args.pipeline_cache_path)
+    cache_root = commandline_args.pipeline_cache_path
 
     if (commandline_args.keep_cache == 'ALWAYS') or not onfail_success or commandline_args.rerun:
         logger.warning(f'Keep pipeline cache director under {cache_root}')
