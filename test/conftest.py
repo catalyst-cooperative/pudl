@@ -165,13 +165,6 @@ def ferc1_sql_engine(
     return engine
 
 
-@pytest.fixture(scope='session', name="commandline_args")
-def commandline_args(pudl_settings_fixture):
-    """Fixture with default commandline args."""
-    parser = create_arg_parser()
-    return parser.parse_args(args=[])
-
-
 @pytest.fixture(scope='session', name="pudl_engine")
 def pudl_sql_engine(
     ferc1_engine,  # Implicit dependency
@@ -231,6 +224,7 @@ def pudl_settings_dict(request, live_dbs, tmpdir_factory):  # noqa: C901
     os.environ["PUDL_IN"] = str(pudl_in)
     logger.info("Using PUDL_OUT=%s", pudl_out)
     os.environ["PUDL_OUT"] = str(pudl_out)
+    os.environ["PUDL_PIPELINE_CACHE_PATH"] = str(pudl_out / "cache")
 
     # Build all the pudl_settings paths:
     pudl_settings = pudl.workspace.setup.derive_paths(
@@ -253,6 +247,13 @@ def pudl_settings_dict(request, live_dbs, tmpdir_factory):  # noqa: C901
 
     logger.info("pudl_settings being used: %s", pudl_settings)
     return pudl_settings
+
+
+@pytest.fixture(scope='session', name="commandline_args")
+def commandline_args(pudl_settings_fixture):
+    """Fixture with default commandline args."""
+    parser = create_arg_parser()
+    return parser.parse_args(args=[])
 
 
 @pytest.fixture(scope='session')  # noqa: C901
