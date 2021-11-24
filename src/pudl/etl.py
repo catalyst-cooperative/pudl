@@ -70,8 +70,8 @@ def command_line_flags() -> argparse.ArgumentParser:
         """)
     parser.add_argument(
         "--overwrite-ferc1-db",
-        action=argparse.BooleanOptionalAction,
-        default=True,
+        action="store_true",
+        default=False,
         help="Control whether to rerun the ferc1 database.")
     parser.add_argument(
         "--show-flow-graph",
