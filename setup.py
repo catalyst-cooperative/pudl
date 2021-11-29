@@ -43,18 +43,18 @@ setup(
         "geopandas>=0.9,<0.11",
         "jinja2>=2,<4",
         "matplotlib~=3.0",  # Should make this optional with a "viz" extras
-        "networkx~=2.2",
-        "numpy~=1.20",
-        "pandas~=1.3,!=1.3.3",  # IntCastingNaNError on v1.3.3 in unit tests
+        "networkx>=2.2,<3",
+        "numpy>=1.18.5,<2",
+        "pandas>=1.3,!=1.3.3,<1.4",  # IntCastingNaNError on v1.3.3 in unit tests
         "prefect[viz, gcp]~=0.15.0",
         "pyarrow>=5,<7",
         "pydantic[email]~=1.7",
         "pygeos>=0.10,<0.12",
-        "python-snappy~=0.6.0",
+        "python-snappy>=0.6,<1",
         "pyyaml>=5,<7",
         "scikit-learn~=1.0",
         "scipy~=1.6",
-        "sqlalchemy~=1.4",
+        "sqlalchemy>=1.4,<2",
         "timezonefinder~=5.0",
         "xlsxwriter~=3.0",
     ],
