@@ -39,6 +39,7 @@ class Metadata(object):
     # TODO: we could validate whether metadata is valid for all year. We should have
     # existing records for each (year, page) -> sheet_name, (year, page) -> skiprows
     # and for all (year, page) -> column map
+    PKG = "pudl.package_data"
 
     def __init__(self, dataset_name: str):
         """Create Metadata object and load metadata from python package.
@@ -48,13 +49,13 @@ class Metadata(object):
             Files will be loaded from pudl.package_data.${dataset_name}
 
         """
-        pkg = f'pudl.package_data.{dataset_name}'
+        dataset_pkg = f"{self.PKG}.{dataset_name}"
         self._dataset_name = dataset_name
-        self._skiprows = self._load_csv(pkg, 'skiprows.csv')
-        self._skipfooter = self._load_csv(pkg, 'skipfooter.csv')
-        self._sheet_name = self._load_csv(pkg, 'page_map.csv')
-        self._file_name = self._load_csv(pkg, 'file_map.csv')
-        column_map_pkg = pkg + '.column_maps'
+        self._skiprows = self._load_csv(dataset_pkg, 'skiprows.csv')
+        self._skipfooter = self._load_csv(dataset_pkg, 'skipfooter.csv')
+        self._sheet_name = self._load_csv(dataset_pkg, 'page_map.csv')
+        self._file_name = self._load_csv(dataset_pkg, 'file_map.csv')
+        column_map_pkg = dataset_pkg + '.column_maps'
         self._column_map = {}
         for res in importlib.resources.contents(column_map_pkg):
             # res is expected to be ${page}.csv
