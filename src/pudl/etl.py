@@ -1,9 +1,9 @@
 """
 Run the PUDL ETL Pipeline.
 
-The PUDL project integrates several different public data sets into well
-normalized data packages allowing easier access and interaction between all
-each dataset. This module coordinates the extract/transfrom/load process for
+The PUDL project integrates several different public datasets into a well
+normalized relational database allowing easier access and interaction between all
+datasets. This module coordinates the extract/transfrom/load process for
 data from:
 
  - US Energy Information Agency (EIA):
@@ -168,19 +168,20 @@ def _read_static_tables_ferc1() -> Dict[str, pd.DataFrame]:
     }
 
 
-def _etl_ferc1(etl_settings: Ferc1Settings, pudl_settings) -> Dict[str, pd.DataFrame]:
+def _etl_ferc1(
+    etl_settings: Ferc1Settings,
+    pudl_settings: Dict[str, Any],
+) -> Dict[str, pd.DataFrame]:
     """Extract, transform and load CSVs for FERC Form 1.
 
     Args:
-        etl_settings (Ferc1Settings): Validated ETL parameters required by this data source.
-        datapkg_dir (path-like): The location of the directory for this
-            package, wihch will contain a datapackage.json file and a data
-            directory in which the CSV file are stored.
-        pudl_settings (dict) : a dictionary filled with settings that mostly
+        etl_settings: Validated ETL parameters required by this data source.
+        pudl_settings: a dictionary filled with settings that mostly
             describe paths to various resources and outputs.
 
     Returns:
-        list: Names of PUDL DB tables output by the ETL for this data source.
+        Dataframes containing PUDL database tables pertaining to the FERC Form 1
+        data, keyed by table name.
 
     """
     ferc1_years = etl_settings.years
@@ -211,20 +212,24 @@ def _etl_ferc1(etl_settings: Ferc1Settings, pudl_settings) -> Dict[str, pd.DataF
 ###############################################################################
 
 
-def etl_epacems(etl_settings: EpaCemsSettings, pudl_settings, ds_kwargs) -> None:
+def etl_epacems(
+    etl_settings: EpaCemsSettings,
+    pudl_settings: Dict[str, Any],
+    ds_kwargs: Dict[str, Any],
+) -> None:
     """Extract, transform and load CSVs for EPA CEMS.
 
     Args:
-        etl_settings (EpaCemsSettings): Validated ETL parameters required by this data source.
-        pudl_settings (dict) : a dictionary filled with settings that mostly
-            describe paths to various resources and outputs.
-        ds_kwargs: (dict): Keyword arguments for instantiating a PUDL datastore,
-            so that the ETL can access the raw input data.
+        etl_settings: Validated ETL parameters required by this data source.
+        pudl_settings: a dictionary filled with settings that mostly describe paths to
+            various resources and outputs.
+        ds_kwargs: Keyword arguments for instantiating a PUDL datastore, so that the ETL
+            can access the raw input data.
 
     Returns:
-        None: Unlike the other ETL functions, the EPACEMS writes its output to
-            Parquet as it goes, since the dataset is too large to hold in memory.
-            So it doesn't return a dictionary of dataframes.
+        Unlike the other ETL functions, the EPACEMS writes its output to Parquet as it
+        goes, since the dataset is too large to hold in memory.  So it doesn't return a
+        dictionary of dataframes.
 
     """
     epacems_years = etl_settings.years

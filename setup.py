@@ -5,75 +5,6 @@ from pathlib import Path
 
 from setuptools import find_packages, setup
 
-install_requires = [
-    "addfips~=0.3.1",
-    "catalystcoop.dbfread~=3.0",
-    "coloredlogs~=15.0",
-    "datapackage~=1.11",  # Transition datastore to use frictionless.
-    # "email-validator>=1.0.3",  # pydantic[email] dependency
-    "fsspec~=2021.7",
-    "gcsfs~=2021.7",
-    "geopandas~=0.9.0",
-    "jinja2~=3.0",
-    "matplotlib~=3.0",  # Should make this optional with a "viz" extras
-    "networkx~=2.2",
-    "numpy~=1.20",
-    "pandas~=1.3,!=1.3.3",  # IntCastingNaNError on v1.3.3 in unit tests
-    "prefect[viz, gcp]~=0.15.0",
-    "pyarrow~=5.0",
-    "pydantic[email]~=1.7",
-    "pygeos~=0.10.0",
-    "python-snappy~=0.6.0",
-    "pyyaml~=5.0",
-    "scikit-learn~=1.0",
-    "scipy~=1.6",
-    "sqlalchemy~=1.4",
-    "timezonefinder~=5.0",
-    "xlsxwriter~=3.0",
-]
-
-dev_requires = [
-    "autopep8~=1.5",
-    "ipdb~=0.13.4",
-    "isort~=5.0",
-    "jedi~=0.18",
-    "lxml~=4.6",
-    "tox~=3.20",
-    "twine~=3.3",
-]
-
-doc_requires = [
-    "doc8~=0.9",
-    "sphinx~=4.0",
-    "sphinx-autoapi~=1.8",
-    "sphinx-issues~=1.2",
-    "sphinx-reredirects",
-    "sphinx-rtd-dark-mode~=1.2",
-    "sphinx-rtd-theme~=1.0",
-    "sphinxcontrib_bibtex~=2.4",
-]
-
-test_requires = [
-    "bandit~=1.6",
-    "coverage~=5.3",
-    "doc8~=0.9",
-    "flake8~=4.0",
-    "flake8-builtins~=1.5",
-    "flake8-colors~=0.1",
-    "flake8-docstrings~=1.5",
-    "flake8-rst-docstrings~=0.2",
-    "flake8-use-fstring~=1.0",
-    "mccabe~=0.6",
-    "nbval~=0.9",
-    "pep8-naming~=0.12",
-    "pre-commit~=2.9",
-    "pydocstyle~=5.1",
-    "pytest~=6.2",
-    "pytest-console-scripts~=1.1",
-    "pytest-cov~=2.10",
-    "responses~=0.14",
-]
-
 readme_path = Path(__file__).parent / "README.rst"
 long_description = readme_path.read_text()
 
@@ -101,11 +32,72 @@ setup(
         "epa cems", "coal", "natural gas", "eia 861", "ferc 714"],
     python_requires=">=3.8,<3.10",
     setup_requires=["setuptools_scm"],
-    install_requires=install_requires,
+    install_requires=[
+        "addfips~=0.3.1",
+        "catalystcoop.dbfread~=3.0",
+        "coloredlogs~=15.0",
+        "datapackage~=1.11",  # Transition datastore to use frictionless.
+        # "email-validator>=1.0.3",  # pydantic[email] dependency
+        "fsspec~=2021.7",
+        "gcsfs~=2021.7",
+        "geopandas>=0.9,<0.11",
+        "jinja2>=2,<4",
+        "matplotlib~=3.0",  # Should make this optional with a "viz" extras
+        "networkx~=2.2",
+        "numpy~=1.20",
+        "pandas~=1.3,!=1.3.3",  # IntCastingNaNError on v1.3.3 in unit tests
+        "prefect[viz, gcp]~=0.15.0",
+        "pyarrow>=5,<7",
+        "pydantic[email]~=1.7",
+        "pygeos>=0.10,<0.12",
+        "python-snappy~=0.6.0",
+        "pyyaml>=5,<7",
+        "scikit-learn~=1.0",
+        "scipy~=1.6",
+        "sqlalchemy~=1.4",
+        "timezonefinder~=5.0",
+        "xlsxwriter~=3.0",
+    ],
     extras_require={
-        "dev": dev_requires,
-        "doc": doc_requires,
-        "test": test_requires,
+        "dev": [
+            "autopep8~=1.5",
+            "ipdb~=0.13.4",
+            "isort~=5.0",
+            "jedi~=0.18",
+            "lxml~=4.6",
+            "tox~=3.20",
+            "twine~=3.3",
+        ],
+        "doc": [
+            "doc8~=0.9",
+            "sphinx~=4.0",
+            "sphinx-autoapi~=1.8",
+            "sphinx-issues~=1.2",
+            "sphinx-reredirects",
+            "sphinx-rtd-dark-mode~=1.2",
+            "sphinx-rtd-theme~=1.0",
+            "sphinxcontrib_bibtex~=2.4",
+        ],
+        "test": [
+            "bandit~=1.6",
+            "coverage>=5.3,<7.0",
+            "doc8~=0.9",
+            "flake8~=4.0",
+            "flake8-builtins~=1.5",
+            "flake8-colors~=0.1",
+            "flake8-docstrings~=1.5",
+            "flake8-rst-docstrings~=0.2",
+            "flake8-use-fstring~=1.0",
+            "mccabe~=0.6",
+            "nbval~=0.9",
+            "pep8-naming~=0.12",
+            "pre-commit~=2.9",
+            "pydocstyle>=5.1,<7.0",
+            "pytest~=6.2",
+            "pytest-console-scripts~=1.1",
+            "pytest-cov>=2.10,<4.0",
+            "responses~=0.14",
+        ],
     },
     classifiers=[
         "Development Status :: 3 - Alpha",

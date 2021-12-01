@@ -12,6 +12,15 @@ import pudl.validate as pv
 
 logger = logging.getLogger(__name__)
 
+# This avoids trying to use the EIA API key when CI is run by a bot that doesn't
+# have access to our GitHub secrets
+API_KEY_EIA = os.environ.get("API_KEY_EIA", False)
+if API_KEY_EIA:
+    logger.info("Found an API_KEY_EIA in the environment.")
+else:
+    logger.warning("API_KEY_EIA was not available from the environment.")
+FILL_FUEL_COST = bool(API_KEY_EIA)
+
 
 @pytest.fixture(scope="module")
 def fast_out(pudl_engine, pudl_datastore_fixture):
@@ -20,7 +29,7 @@ def fast_out(pudl_engine, pudl_datastore_fixture):
         pudl_engine,
         ds=pudl_datastore_fixture,
         freq="MS",
-        fill_fuel_cost=True,
+        fill_fuel_cost=FILL_FUEL_COST,
         roll_fuel_cost=True,
         fill_net_gen=False,
     )
@@ -33,7 +42,7 @@ def fast_out_filled(pudl_engine, pudl_datastore_fixture):
         pudl_engine,
         ds=pudl_datastore_fixture,
         freq="MS",
-        fill_fuel_cost=True,
+        fill_fuel_cost=FILL_FUEL_COST,
         roll_fuel_cost=True,
         fill_net_gen=True,
     )
@@ -54,16 +63,16 @@ def fast_out_annual(pudl_engine, pudl_datastore_fixture):
 
 @pytest.mark.parametrize(
     "df_name", [
-        "fuel_ferc1",
-        "plants_steam_ferc1",
+        "all_plants_ferc1",
         "fbp_ferc1",
+        "fuel_ferc1",
         "plant_in_service_ferc1",
         "plants_hydro_ferc1",
         "plants_pumped_storage_ferc1",
         "plants_small_ferc1",
+        "plants_steam_ferc1",
         "pu_ferc1",
         "purchased_power_ferc1",
-        "all_plants_ferc1"
     ])
 def test_ferc1_outputs(fast_out, df_name):
     """Check that FERC 1 output functions work."""
@@ -88,6 +97,7 @@ def test_ferc1_outputs(fast_out, df_name):
         # gen_allocated_eia923 currently only produces annual results.
         ("gens_eia860", "gen_allocated_eia923", 1 / 1, {}),
         ("gens_eia860", "gf_eia923", 12 / 1, {}),
+        ("gens_eia860", "gfn_eia923", 12 / 1, {}),
 
         ("gens_eia860", "hr_by_unit", 12 / 1, {}),
         ("gens_eia860", "hr_by_gen", 12 / 1, {}),

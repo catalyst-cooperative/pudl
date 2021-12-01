@@ -96,9 +96,14 @@ def generation_fuel_eia923(pudl_engine, freq=None,
 
     gf_df = pd.read_sql(gf_select, pudl_engine)
 
-    # fuel_type_code_pudl was formerly aer_fuel_category
-    by = ['plant_id_eia', 'fuel_type_code_pudl',
-          'energy_source_code', 'prime_mover_code']
+    by = [
+        'plant_id_eia',
+        'fuel_type_code_pudl',
+        'energy_source_code',
+        'prime_mover_code',
+    ]
+    if nuclear:
+        by = by + ['nuclear_unit_id']
     if freq is not None:
         # Create a date index for temporal resampling:
         gf_df = gf_df.set_index(pd.DatetimeIndex(gf_df.report_date))
@@ -123,13 +128,17 @@ def generation_fuel_eia923(pudl_engine, freq=None,
                                                     start_date=start_date,
                                                     end_date=end_date)
 
-    first_cols = ['report_date',
-                  'plant_id_eia',
-                  'plant_id_pudl',
-                  'plant_name_eia',
-                  'utility_id_eia',
-                  'utility_id_pudl',
-                  'utility_name_eia', ]
+    first_cols = [
+        'report_date',
+        'plant_id_eia',
+        'plant_id_pudl',
+        'plant_name_eia',
+        'utility_id_eia',
+        'utility_id_pudl',
+        'utility_name_eia',
+    ]
+    if nuclear:
+        first_cols = first_cols + ['nuclear_unit_id']
 
     out_df = (
         pudl.helpers.clean_merge_asof(
@@ -150,6 +159,10 @@ def generation_fuel_eia923(pudl_engine, freq=None,
             "utility_id_pudl": "eia",
         }))
     )
+    if nuclear:
+        out_df = out_df.astype(
+            pudl.helpers.get_pudl_dtypes({"nuclear_unit_id": "eia"})
+        )
 
     return out_df
 

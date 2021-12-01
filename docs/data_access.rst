@@ -154,4 +154,4 @@ derived from data packages.
 
 As of PUDL v0.5.0 we will generate SQLite and Apache Parquet outputs directly,
 and will no longer be archiving tabular data packages as the format of record.
-You can track Github :issue:`1176` for the status of this work in development.
+See :issue:`1176,1211` for details on the change.
