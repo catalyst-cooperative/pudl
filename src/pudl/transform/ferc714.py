@@ -54,7 +54,10 @@ OFFSET_CODE_FIXES = {
     153: {np.nan: "MST"},
     154: {np.nan: "MST"},
     156: {np.nan: "CST"},
-    157: {"DST": "EDT"},
+    157: {
+        "DST": "EDT",
+        "EPT": "EST",
+    },
     161: {"CPT": "CST"},
     163: {"CPT": "CST"},
     164: {np.nan: "CST"},
@@ -102,7 +105,10 @@ OFFSET_CODE_FIXES = {
     },
     226: {"DST": "CDT"},
     230: {"EPT": "EST"},
-    233: {"DST": "EDT"},
+    233: {
+        "DST": "EDT",
+        "EPT": "EST",
+    },
     234: {
         "1": "EST",
         "2": "EDT",
@@ -587,7 +593,7 @@ def _early_transform(raw_df):
 
 def transform(raw_dfs, tables=PUDL_TABLES["ferc714"]):
     """
-    Transform the raw FERC 714 dataframes into datapackage ready ouputs.
+    Prepare the raw FERC 714 dataframes for loading into the PUDL database.
 
     Args:
         raw_dfs (dict): A dictionary of raw pandas.DataFrame objects, as read out of

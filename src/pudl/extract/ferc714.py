@@ -13,14 +13,14 @@ TABLE_FNAME = {
     "id_certification_ferc714": "Part 1 Schedule 1 - Identification Certification.csv",
     "gen_plants_ba_ferc714": "Part 2 Schedule 1 - Balancing Authority Generating Plants.csv",
     "demand_monthly_ba_ferc714": "Part 2 Schedule 2 - Balancing Authority Monthly Demand.csv",
-    "net_energy_load_ba_ferc714": "Part 2 Schedule 3 - Balancing Authority Net Energy For Load.csv",
+    "net_energy_load_ba_ferc714": "Part 2 Schedule 3 - Balancing Authority Net Energy for Load.csv",
     "adjacency_ba_ferc714": "Part 2 Schedule 4 - Adjacent Balancing Authorities.csv",
     "interchange_ba_ferc714": "Part 2 Schedule 5 - Balancing Authority Interchange.csv",
     "lambda_hourly_ba_ferc714": "Part 2 Schedule 6 - Balancing Authority Hourly System Lambda.csv",
     "lambda_description_ferc714": "Part 2 Schedule 6 - System Lambda Description.csv",
     "description_pa_ferc714": "Part 3 Schedule 1 - Planning Area Description.csv",
+    "demand_forecast_pa_ferc714": "Part 3 Schedule 2 - Planning Area Forecast Demand.csv",
     "demand_hourly_pa_ferc714": "Part 3 Schedule 2 - Planning Area Hourly Demand.csv",
-    "demand_forecast_pa_ferc714": "Part 3 Schedule 3 - Planning Area Forecast Demand.csv",
     "respondent_id_ferc714": "Respondent IDs.csv",
 }
 """Dictionary mapping PUDL tables to filenames within the FERC 714 zipfile."""

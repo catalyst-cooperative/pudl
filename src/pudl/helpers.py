@@ -13,9 +13,10 @@ import logging
 import pathlib
 import re
 import shutil
+from collections import defaultdict
 from functools import partial
 from io import BytesIO
-from typing import Any, Dict, List
+from typing import Any, DefaultDict, Dict, List, Literal, Set, Union
 
 import addfips
 import numpy as np
@@ -39,6 +40,70 @@ as NA, but electricity generation is reported normally, then the fuel
 consumption for the year needs to be NA, otherwise we'll get unrealistic heat
 rates.
 """
+
+
+def label_map(
+    df: pd.DataFrame,
+    from_col: str = "code",
+    to_col: str = "label",
+    null_value=pd.NA
+) -> DefaultDict[str, Union[str, Literal[pd.NA]]]:
+    """
+    Build a mapping dictionary from two columns of a labeling / coding dataframe.
+
+    These dataframes document the meanings of the codes that show up in much of the
+    originally reported data. They're defined in :mod:`pudl.metadata.codes`.  This
+    function is mostly used to build maps that can translate the hard to understand
+    short codes into longer human-readable codes.
+
+    Args:
+        df: The coding / labeling dataframe. Must contain columns ``from_col``
+            and ``to_col``.
+        from_col: Label of column containing the existing codes to be replaced.
+        to_col: Label of column containing the new codes to be swapped in.
+        null_value: Defualt (Null) value to map to when a value which doesn't
+            appear in ``from_col`` is encountered.
+
+
+    Returns:
+        A mapping dictionary suitable for use with :meth:`pandas.Series.map`.
+
+    """
+    return defaultdict(
+        lambda: null_value,
+        df.loc[:, [from_col, to_col]]
+        .drop_duplicates(subset=[from_col])
+        .to_records(index=False),
+    )
+
+
+def find_new_ferc1_strings(
+    table: str,
+    field: str,
+    strdict: Dict[str, List[str]],
+    ferc1_engine: sa.engine.Engine,
+) -> Set[str]:
+    """
+    Identify as-of-yet uncategorized freeform strings in FERC Form 1.
+
+    Args:
+        table: Name of the FERC Form 1 DB to search.
+        field: Name of the column in that table to search.
+        strdict: A string cleaning dictionary. See
+            e.g. `pudl.transform.ferc1.FUEL_UNIT_STRINGS`
+        ferc1_engine: SQL Alchemy DB connection engine for the FERC Form 1 DB.
+
+    Returns:
+        Any string found in the searched table + field that was not part of any of
+        categories enumerated in strdict.
+
+    """
+    all_strings = set(
+        pd.read_sql(f"SELECT {field} FROM {table};", ferc1_engine)  # nosec
+        .pipe(simplify_strings, columns=[field])[field]
+    )
+    old_strings = set.union(*[set(strings) for strings in strdict.values()])
+    return all_strings.difference(old_strings)
 
 
 def find_foreign_key_errors(dfs: Dict[str, pd.DataFrame]) -> List[Dict[str, Any]]:
@@ -136,7 +201,7 @@ def add_fips_ids(df, state_col="state", county_col="county", vintage=2015):
     )
     df["county_id_fips"] = df.apply(
         lambda x: (af.get_county_fips(state=x[state_col], county=x[county_col])
-                   if pd.notnull(x[county_col]) else pd.NA),
+                   if pd.notnull(x[county_col]) and pd.notnull(x[state_col]) else pd.NA),
         axis=1)
     # force the code columns to be nullable strings - the leading zeros are
     # important
@@ -752,13 +817,11 @@ def fix_eia_na(df):
         pandas.DataFrame: The cleaned DataFrame.
 
     """
-    bad_na_regexes = [
-        r'^\.$',  # Nothing but a decimal point
-        r'^\s$',  # A single whitespace character
-        r'^$',    # The empty string
-    ]
     return df.replace(
-        to_replace=bad_na_regexes,
+        to_replace=[
+            r'^\.$',  # Nothing but a decimal point
+            r'^\s*$',  # The empty string and entirely whitespace strings
+        ],
         value=np.nan,
         regex=True
     )

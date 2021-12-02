@@ -28,8 +28,8 @@ Todo:
 """
 
 import logging
+from collections import defaultdict
 from datetime import date, datetime
-from pathlib import Path
 from typing import Literal, Union
 
 # Useful high-level external modules.
@@ -98,19 +98,19 @@ class PudlTabl(object):
         """
         # Validating ds is deferred to the etl_eia861 & etl_ferc714 methods
         # because those are the only places a datastore is required.
-        self.ds = ds
+        self.ds: Union[Datastore, None] = ds
         if not isinstance(pudl_engine, sa.engine.base.Engine):
             raise TypeError(
                 "PudlTabl needs pudl_engine to be a SQLAlchemy Engine, but we "
                 f"got a {type(pudl_engine)}."
             )
-        self.pudl_engine = pudl_engine
+        self.pudl_engine: sa.engine.Engine = pudl_engine
 
         if freq not in (None, "AS", "MS"):
             raise ValueError(
                 f"freq must be one of None, 'MS', or 'AS', but we got {freq}."
             )
-        self.freq = freq
+        self.freq: Literal["AS", "MS", None] = freq
 
         # grab all working eia dates to use to set start and end dates if they
         # are not set
@@ -127,70 +127,12 @@ class PudlTabl(object):
             # Make sure it's a date... and not a string.
             self.end_date = pd.to_datetime(end_date)
 
-        self.roll_fuel_cost = roll_fuel_cost
-        self.fill_fuel_cost = fill_fuel_cost
-        self.fill_net_gen = fill_net_gen
-        # We populate this library of dataframes as they are generated, and
-        # allow them to persist, in case they need to be used again.
-        self._dfs = {
-            "pu_eia": None,
-            "pu_ferc1": None,
+        self.roll_fuel_cost: bool = roll_fuel_cost
+        self.fill_fuel_cost: bool = fill_fuel_cost
+        self.fill_net_gen: bool = fill_net_gen
 
-            "utils_eia860": None,
-            "bga_eia860": None,
-            "plants_eia860": None,
-            "gens_eia860": None,
-            "own_eia860": None,
-
-            # TODO add the other tables -- this is just an interim check
-            "advanced_metering_infrastructure_eia861": None,
-            "balancing_authority_eia861": None,
-            "balancing_authority_assn_eia861": None,
-            "demand_response_eia861": None,
-            "demand_side_management_eia861": None,
-            "distributed_generation_eia861": None,
-            "distribution_systems_eia861": None,
-            "dynamic_pricing_eia861": None,
-            "energy_efficiency_eia861": None,
-            "green_pricing_eia861": None,
-            "mergers_eia861": None,
-            "net_metering_eia861": None,
-            "non_net_metering_eia861": None,
-            "operational_data_eia861": None,
-            "reliability_eia861": None,
-            "sales_eia861": None,
-            "service_territory_eia861": None,
-            "utility_assn_eia861": None,
-            "utility_data_eia861": None,
-
-            # TODO add the other tables -- this is just an interim check
-            "respondent_id_ferc714": None,
-
-            "gf_eia923": None,
-            "gfn_eia923": None,
-            "frc_eia923": None,
-            "bf_eia923": None,
-            "gen_eia923": None,
-            "gen_og_eia923": None,
-            "gen_allocated_eia923": None,
-
-            "plants_steam_ferc1": None,
-            "fuel_ferc1": None,
-            "fbp_ferc1": None,
-            "plants_small_ferc1": None,
-            "plants_hydro_ferc1": None,
-            "plants_pumped_storage_ferc1": None,
-            "purchased_power_ferc1": None,
-            "plant_in_service_ferc1": None,
-            "all_plants_ferc1": None,
-
-            "bga": None,
-            "hr_by_unit": None,
-            "hr_by_gen": None,
-            "fuel_cost": None,
-            "capacity_factor": None,
-            "mcoe": None,
-        }
+        # Used to persist the output tables. Returns None if they don't exist.
+        self._dfs = defaultdict(lambda: None)
 
     def pu_eia860(self, update=False):
         """
@@ -231,7 +173,7 @@ class PudlTabl(object):
     ###########################################################################
     # EIA 861 Interim Outputs (awaiting full DB integration)
     ###########################################################################
-    def etl_eia861(self, update=False):
+    def etl_eia861(self, update: bool = False):
         """
         A single function that runs the temporary EIA 861 ETL and sets all DFs.
 
@@ -244,7 +186,7 @@ class PudlTabl(object):
         beyond my knowledge right now.
 
         Args:
-            update (bool): Whether to overwrite the existing dataframes if they exist.
+            update: Whether to overwrite the existing dataframes if they exist.
 
         """
         if isinstance(self.ds, Datastore):
@@ -257,8 +199,7 @@ class PudlTabl(object):
                     "Datastore, but none was found. Run 'pudl_setup --help' "
                     "to see how to create one."
                 )
-            pudl_in = Path(pudl_settings["pudl_in"])
-            self.ds = Datastore(local_cache_path=pudl_in / "data")
+            self.ds = Datastore(local_cache_path=pudl_settings["data_dir"])
         else:
             raise TypeError(
                 "PudlTabl needs a PUDL Datastore object, but we got "
@@ -266,16 +207,13 @@ class PudlTabl(object):
             )
 
         if update or self._dfs["balancing_authority_eia861"] is None:
-            logger.warning(
-                "Running the interim EIA 861 ETL process!")
+            logger.warning("Running the interim EIA 861 ETL process!")
 
             eia861_raw_dfs = (
                 pudl.extract.eia861.Extractor(self.ds)
                 .extract(year=pc.WORKING_PARTITIONS["eia861"]["years"])
             )
-            eia861_tfr_dfs = pudl.transform.eia861.transform(eia861_raw_dfs)
-            for table in eia861_tfr_dfs:
-                self._dfs[table] = eia861_tfr_dfs[table]
+            self._dfs.update(pudl.transform.eia861.transform(eia861_raw_dfs))
 
     def advanced_metering_infrastructure_eia861(self, update=False):
         """An interim EIA 861 output function."""
@@ -297,15 +235,40 @@ class PudlTabl(object):
         self.etl_eia861(update=update)
         return self._dfs["demand_response_eia861"]
 
-    def demand_side_management_eia861(self, update=False):
+    def demand_response_water_heater_eia861(self, update=False):
         """An interim EIA 861 output function."""
         self.etl_eia861(update=update)
-        return self._dfs["demand_side_management_eia861"]
+        return self._dfs["demand_response_water_heater_eia861"]
 
-    def distributed_generation_eia861(self, update=False):
+    def demand_side_management_sales_eia861(self, update=False):
         """An interim EIA 861 output function."""
         self.etl_eia861(update=update)
-        return self._dfs["distributed_generation_eia861"]
+        return self._dfs["demand_side_management_sales_eia861"]
+
+    def demand_side_management_ee_dr_eia861(self, update=False):
+        """An interim EIA 861 output function."""
+        self.etl_eia861(update=update)
+        return self._dfs["demand_side_management_ee_dr_eia861"]
+
+    def demand_side_management_misc_eia861(self, update=False):
+        """An interim EIA 861 output function."""
+        self.etl_eia861(update=update)
+        return self._dfs["demand_side_management_misc_eia861"]
+
+    def distributed_generation_tech_eia861(self, update=False):
+        """An interim EIA 861 output function."""
+        self.etl_eia861(update=update)
+        return self._dfs["distributed_generation_tech_eia861"]
+
+    def distributed_generation_fuel_eia861(self, update=False):
+        """An interim EIA 861 output function."""
+        self.etl_eia861(update=update)
+        return self._dfs["distributed_generation_fuel_eia861"]
+
+    def distributed_generation_misc_eia861(self, update=False):
+        """An interim EIA 861 output function."""
+        self.etl_eia861(update=update)
+        return self._dfs["distributed_generation_misc_eia861"]
 
     def distribution_systems_eia861(self, update=False):
         """An interim EIA 861 output function."""
@@ -332,20 +295,35 @@ class PudlTabl(object):
         self.etl_eia861(update=update)
         return self._dfs["mergers_eia861"]
 
-    def net_metering_eia861(self, update=False):
+    def net_metering_customer_fuel_class_eia861(self, update=False):
         """An interim EIA 861 output function."""
         self.etl_eia861(update=update)
-        return self._dfs["net_metering_eia861"]
+        return self._dfs["net_metering_customer_fuel_class_eia861"]
 
-    def non_net_metering_eia861(self, update=False):
+    def net_metering_misc_eia861(self, update=False):
         """An interim EIA 861 output function."""
         self.etl_eia861(update=update)
-        return self._dfs["non_net_meterin_eia861"]
+        return self._dfs["net_metering_misc_eia861"]
 
-    def operational_data_eia861(self, update=False):
+    def non_net_metering_customer_fuel_class_eia861(self, update=False):
         """An interim EIA 861 output function."""
         self.etl_eia861(update=update)
-        return self._dfs["operational_data_eia861"]
+        return self._dfs["non_net_metering_customer_fuel_class_eia861"]
+
+    def non_net_metering_misc_eia861(self, update=False):
+        """An interim EIA 861 output function."""
+        self.etl_eia861(update=update)
+        return self._dfs["non_net_metering_misc_eia861"]
+
+    def operational_data_revenue_eia861(self, update=False):
+        """An interim EIA 861 output function."""
+        self.etl_eia861(update=update)
+        return self._dfs["operational_data_revenue_eia861"]
+
+    def operational_data_misc_eia861(self, update=False):
+        """An interim EIA 861 output function."""
+        self.etl_eia861(update=update)
+        return self._dfs["operational_data_misc_eia861"]
 
     def reliability_eia861(self, update=False):
         """An interim EIA 861 output function."""
@@ -367,15 +345,25 @@ class PudlTabl(object):
         self.etl_eia861(update=update)
         return self._dfs["utility_assn_eia861"]
 
-    def utility_data_eia861(self, update=False):
+    def utility_data_nerc_eia861(self, update=False):
         """An interim EIA 861 output function."""
         self.etl_eia861(update=update)
-        return self._dfs["_eia861"]
+        return self._dfs["utility_data_nerc_eia861"]
+
+    def utility_data_rto_eia861(self, update=False):
+        """An interim EIA 861 output function."""
+        self.etl_eia861(update=update)
+        return self._dfs["utility_data_rto_eia861"]
+
+    def utility_data_misc_eia861(self, update=False):
+        """An interim EIA 861 output function."""
+        self.etl_eia861(update=update)
+        return self._dfs["utility_data_misc_eia861"]
 
     ###########################################################################
     # FERC 714 Interim Outputs (awaiting full DB integration)
     ###########################################################################
-    def etl_ferc714(self, update=False):
+    def etl_ferc714(self, update: bool = False):
         """
         A single function that runs the temporary FERC 714 ETL and sets all DFs.
 
@@ -390,7 +378,7 @@ class PudlTabl(object):
         generating one of them.
 
         Args:
-            update (bool): Whether to overwrite the existing dataframes if they exist.
+            update: Whether to overwrite the existing dataframes if they exist.
 
         """
         if isinstance(self.ds, Datastore):
@@ -403,8 +391,7 @@ class PudlTabl(object):
                     "Datastore, but none was found. Run 'pudl_setup --help' "
                     "to see how to create one."
                 )
-            pudl_in = Path(pudl_settings["pudl_in"])
-            self.ds = Datastore(local_cache_path=pudl_in / "data")
+            self.ds = Datastore(local_cache_path=pudl_settings["data_dir"])
         else:
             raise TypeError(
                 "PudlTabl needs a PUDL Datastore object, but we got "
@@ -412,13 +399,10 @@ class PudlTabl(object):
             )
 
         if update or self._dfs["respondent_id_ferc714"] is None:
-            logger.warning(
-                "Running the interim FERC 714 ETL process!")
-
+            logger.warning("Running the interim FERC 714 ETL process!")
             ferc714_raw_dfs = pudl.extract.ferc714.extract(ds=self.ds)
             ferc714_tfr_dfs = pudl.transform.ferc714.transform(ferc714_raw_dfs)
-            for table in ferc714_tfr_dfs:
-                self._dfs[table] = ferc714_tfr_dfs[table]
+            self._dfs.update(ferc714_tfr_dfs)
 
     def respondent_id_ferc714(self, update=False):
         """An interim FERC 714 output function."""

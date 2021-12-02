@@ -1,18 +1,18 @@
 """
 Modules implementing the "Transform" step of the PUDL ETL pipeline.
 
-Each module in this subpackage transforms the tabular data associated with a
-single data source from the PUDL :ref: `data-sources`. This process begins
-with a dictionary of "raw" :class:`pandas.DataFrame` objects produced by the
-corresponding data source specific routines from the :mod:`pudl.extract`
-subpackage, and ends with a dictionary of :class:`pandas.DataFrame` objects
-that are fully normalized, cleaned, and congruent with the tabular datapackage
-metadata -- i.e. they are ready to be exported by the :mod:`pudl.load` module.
+Each module in this subpackage transforms the tabular data associated with a single data
+source from the PUDL :ref:`data-sources`. This process begins with a dictionary of
+"raw" :class:`pandas.DataFrame` objects produced by the corresponding data source
+specific routines from the :mod:`pudl.extract` subpackage, and ends with a dictionary of
+:class:`pandas.DataFrame` objects that are fully normalized, cleaned, and ready to be
+loaded into external databases and Parquet files by the :mod:`pudl.load` subpackage.
 
 Inputs to the transform functions are a dictionary of dataframes, each of which
 represents a concatenation of records with common column names from across some set of
-years of reported data. The names of those columns are determined by the xlsx_maps
-metadata associated with the given dataset in PUDL's package_metadata.
+years of reported data. The names of those columns are determined by the Excel
+spreadsheet mapping metadata associated with the given dataset in PUDL's
+``package_data``.
 
 This raw data is transformed in 3 main steps:
 
@@ -47,9 +47,9 @@ conventions that are being used, and if any of the columns exist in other tables
 they have exactly the same name and datatype.
 
 If you find that you need to rename a column for it to conform to those requirements, in
-many cases that should happen in the xlsx_map metadata, so that column renamings can be
-kept to a minimum and only used for real semantic transformations of a column (like a
-unit conversion).
+many cases that should happen in the Excel spreadsheet mapping metadata, so that column
+renamings can be kept to a minimum and only used for real semantic transformations of a
+column (like a unit conversion).
 
 At the end of this step, it should be easy to categorize every column in every
 dataframe as to whether it is a "data" column (containing data unique to the table it

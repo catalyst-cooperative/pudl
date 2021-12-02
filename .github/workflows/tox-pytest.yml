@@ -7,10 +7,10 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.8, 3.9]
+        python-version: ["3.8", "3.9"]
 
     steps:
-    - uses: actions/checkout@v2.3.5
+    - uses: actions/checkout@v2.4.0
       with:
         fetch-depth: 2
 
@@ -35,7 +35,7 @@ jobs:
       run: grep -e '.*10\.\(5281\|5072\)/zenodo\..*' src/pudl/workspace/datastore.py | sed -e 's/",*$//g' | sed -e 's/^.*"//g' | sort > datastore-dois.txt
 
     - name: Restore Zenodo datastore from cache if possible
-      uses: actions/cache@v2.1.6
+      uses: actions/cache@v2.1.7
       id: cache-zenodo-datastore
       with:
         path: ~/pudl-work/data/
@@ -83,4 +83,5 @@ jobs:
         GITHUB_TOKEN: ${{ github.token }} # required
         SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }} # required
         MATRIX_CONTEXT: ${{ toJson(matrix) }} # required
-      if: always() # Pick up events even if the job fails or is canceled.
+      if: ${{ github.actor != 'dependabot[bot]' }}
+      #if: always() # Pick up events even if the job fails or is canceled.

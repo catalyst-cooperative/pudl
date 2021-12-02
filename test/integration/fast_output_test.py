@@ -4,12 +4,22 @@ import os
 import sys
 
 import geopandas as gpd
+import pandas as pd
 import pytest
 
 import pudl
 import pudl.validate as pv
 
 logger = logging.getLogger(__name__)
+
+# This avoids trying to use the EIA API key when CI is run by a bot that doesn't
+# have access to our GitHub secrets
+API_KEY_EIA = os.environ.get("API_KEY_EIA", False)
+if API_KEY_EIA:
+    logger.info("Found an API_KEY_EIA in the environment.")
+else:
+    logger.warning("API_KEY_EIA was not available from the environment.")
+FILL_FUEL_COST = bool(API_KEY_EIA)
 
 
 @pytest.fixture(scope="module")
@@ -19,7 +29,7 @@ def fast_out(pudl_engine, pudl_datastore_fixture):
         pudl_engine,
         ds=pudl_datastore_fixture,
         freq="MS",
-        fill_fuel_cost=True,
+        fill_fuel_cost=FILL_FUEL_COST,
         roll_fuel_cost=True,
         fill_net_gen=False,
     )
@@ -27,16 +37,16 @@ def fast_out(pudl_engine, pudl_datastore_fixture):
 
 @pytest.mark.parametrize(
     "df_name", [
-        "fuel_ferc1",
-        "plants_steam_ferc1",
+        "all_plants_ferc1",
         "fbp_ferc1",
+        "fuel_ferc1",
         "plant_in_service_ferc1",
         "plants_hydro_ferc1",
         "plants_pumped_storage_ferc1",
         "plants_small_ferc1",
+        "plants_steam_ferc1",
         "pu_ferc1",
         "purchased_power_ferc1",
-        "all_plants_ferc1"
     ])
 def test_ferc1_outputs(fast_out, df_name):
     """Check that FERC 1 output functions work."""
@@ -61,6 +71,7 @@ def test_ferc1_outputs(fast_out, df_name):
         # gen_allocated_eia923 currently only produces annual results.
         ("gens_eia860", "gen_allocated_eia923", 1 / 1, {}),
         ("gens_eia860", "gf_eia923", 12 / 1, {}),
+        ("gens_eia860", "gfn_eia923", 12 / 1, {}),
 
         ("gens_eia860", "hr_by_unit", 12 / 1, {}),
         ("gens_eia860", "hr_by_gen", 12 / 1, {}),
@@ -96,11 +107,23 @@ def test_null_rows(fast_out, df_name, thresh):
 def test_eia861_etl(fast_out):
     """Make sure that the EIA 861 Extract-Transform steps work."""
     fast_out.etl_eia861()
+    eia861_tables = [tbl for tbl in fast_out._dfs if "_eia861" in tbl]
+    for df_name in eia861_tables:
+        logger.info(f"Checking that {df_name} is a non-empty DataFrame")
+        df = fast_out.__getattribute__(df_name)()
+        assert isinstance(df, pd.DataFrame), f"{df_name} is {type(df)}, not DataFrame!"
+        assert not df.empty, f"{df_name} is empty!"
 
 
 def test_ferc714_etl(fast_out):
     """Make sure that the FERC 714 Extract-Transform steps work."""
     fast_out.etl_ferc714()
+    ferc714_tables = [tbl for tbl in fast_out._dfs if "_ferc714" in tbl]
+    for df_name in ferc714_tables:
+        logger.info(f"Checking that {df_name} is a non-empty DataFrame")
+        df = fast_out.__getattribute__(df_name)()
+        assert isinstance(df, pd.DataFrame), f"{df_name} is {type(df)} not DataFrame!"
+        assert not df.empty, f"{df_name} is empty!"
 
 
 @pytest.fixture(scope="module")
@@ -122,8 +145,9 @@ def test_ferc714_outputs(ferc714_out, df_name):
     """Test FERC 714 derived output methods."""
     logger.info(f"Running ferc714_out.{df_name}()")
     df = ferc714_out.__getattribute__(df_name)()
+    assert isinstance(df, pd.DataFrame), f"{df_name} is {type(df)} not DataFrame!"
     logger.info(f"Found {len(df)} rows in {df_name}")
-    assert not df.empty
+    assert not df.empty, f"{df_name} is empty!"
 
 
 @pytest.mark.xfail(
@@ -143,8 +167,8 @@ def test_ferc714_respondents_georef_counties(ferc714_out):
 
     """
     ferc714_gdf = ferc714_out.georef_counties()
-    assert len(ferc714_gdf) > 0
-    assert isinstance(ferc714_gdf, gpd.GeoDataFrame)
+    assert isinstance(ferc714_gdf, gpd.GeoDataFrame), "ferc714_gdf not a GeoDataFrame!"
+    assert not ferc714_gdf.empty, "ferc714_gdf is empty!"
 
 
 @pytest.fixture(scope="module")
@@ -154,7 +178,7 @@ def fast_out_filled(pudl_engine, pudl_datastore_fixture):
         pudl_engine,
         ds=pudl_datastore_fixture,
         freq="MS",
-        fill_fuel_cost=True,
+        fill_fuel_cost=FILL_FUEL_COST,
         roll_fuel_cost=True,
         fill_net_gen=True,
     )

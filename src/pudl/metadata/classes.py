@@ -1,6 +1,7 @@
 """Metadata data classes."""
 import copy
 import datetime
+import logging
 import os
 import re
 from pathlib import Path
@@ -15,10 +16,13 @@ import sqlalchemy as sa
 from .constants import (CONSTRAINT_DTYPES, CONTRIBUTORS,
                         CONTRIBUTORS_BY_SOURCE, FIELD_DTYPES, FIELD_DTYPES_SQL,
                         KEYWORDS_BY_SOURCE, LICENSES, PERIODS, SOURCES)
-from .fields import FIELD_METADATA, FIELD_METADATA_BY_GROUP
+from .fields import (FIELD_METADATA, FIELD_METADATA_BY_GROUP,
+                     FIELD_METADATA_BY_RESOURCE)
 from .helpers import (expand_periodic_column_names, format_errors,
                       groupby_aggregate, most_and_more_frequent, split_period)
 from .resources import FOREIGN_KEYS, RESOURCE_METADATA
+
+logger = logging.getLogger(__name__)
 
 # ---- Helpers ---- #
 
@@ -140,6 +144,7 @@ class Base(pydantic.BaseModel):
         validate_all: bool = True
         validate_assignment: bool = True
         extra: str = 'forbid'
+        arbitrary_types_allowed = True
 
     def dict(self, *args, by_alias=True, **kwargs) -> dict:  # noqa: A003
         """Return as a dictionary."""
@@ -346,6 +351,182 @@ class FieldHarvest(Base):
     """Fraction of invalid groups above which result is considered invalid."""
 
 
+class Encoder(Base):
+    """
+    A class that allows us to standardize reported categorical codes.
+
+    Often the original data we are integrating uses short codes to indicate a
+    categorical value, like ``ST`` in place of "steam turbine" or ``LIG`` in place of
+    "lignite coal". Many of these coded fields contain non-standard codes due to
+    data-entry errors. The codes have also evolved over the years.
+
+    In order to allow easy comparison of records across all years and tables, we define
+    a standard set of codes, a mapping from non-standard codes to standard codes (where
+    possible), and a set of known but unfixable codes which will be ignored and replaced
+    with NA values. These definitions can be found in :mod:`pudl.metadata.codes` and we
+    refer to these as coding tables.
+
+    In our metadata structures, each coding table is defined just like any other DB
+    table, with the addition of an associated ``Encoder`` object defining the standard,
+    fixable, and ignored codes.
+
+    In addition, a :class:`Package` class that has been instantiated using the
+    :meth:`Package.from_resource_ids` method will associate an `Encoder` object with any
+    column that has a foreign key constraint referring to a coding table (This
+    column-level encoder is same as the encoder associated with the referenced table).
+    This `Encoder` can be used to standardize the codes found within the column.
+
+    :class:`Field` and :class:`Resource` objects have ``encode()`` methods that will
+    use the column-level encoders to recode the original values, either for a single
+    column or for all coded columns within a Resource, given either a corresponding
+    :class:`pandas.Series` or :class:`pandas.DataFrame` containing actual values.
+
+    If any unrecognized values are encountered, an exception will be raised, alerting
+    us that a new code has been identified, and needs to be classified as fixable or
+    to be ignored.
+
+    """
+
+    df: pd.DataFrame
+    """
+    A table associating short codes with long descriptions and other information.
+
+    Each coding table contains at least a ``code`` column containing the standard codes
+    and a ``definition`` column with a human readable explanation of what the code
+    stands for. Additional metadata pertaining to the codes and their categories may
+    also appear in this dataframe, which will be loaded into the PUDL DB as a static
+    table. The ``code`` column is a natural primary key and must contain no duplicate
+    values.
+    """
+
+    ignored_codes: List[Union[Int, String]] = []
+    """
+    A list of non-standard codes which appear in the data, and will be set to NA.
+
+    These codes may be the result of data entry errors, and we are unable to map them
+    to the appropriate canonical code. They are discarded from the raw input data.
+    """
+
+    code_fixes: Dict[Union[Int, String], Union[Int, String]] = {}
+    """
+    A dictionary mapping non-standard codes to canonical, standardized codes.
+
+    The intended meanings of some non-standard codes are clear, and therefore they can
+    be mapped to the standardized, canonical codes with confidence. Sometimes these are
+    the result of data entry errors or changes in the stanard codes over time.
+    """
+
+    @pydantic.validator("df")
+    def _df_is_encoding_table(cls, df):  # noqa: N805
+        """Verify that the coding table provides both codes and descriptions."""
+        errors = []
+        if "code" not in df.columns or "description" not in df.columns:
+            errors.append(
+                "Encoding tables must contain both 'code' & 'description' columns."
+            )
+        if len(df.code) != len(df.code.unique()):
+            dupes = df[df.duplicated("code")].code.to_list()
+            errors.append(f"Duplicate codes {dupes} found in coding table")
+        if errors:
+            raise ValueError(format_errors(*errors, pydantic=True))
+        return df
+
+    @pydantic.validator("ignored_codes")
+    def _good_and_ignored_codes_are_disjoint(cls, ignored_codes, values):  # noqa: N805
+        """Check that there's no overlap between good and ignored codes."""
+        if "df" not in values:
+            return ignored_codes
+        errors = []
+        overlap = set(values["df"]["code"]).intersection(ignored_codes)
+        if overlap:
+            errors.append(
+                f"Overlap found between good and ignored codes: {overlap}."
+            )
+        if errors:
+            raise ValueError(format_errors(*errors, pydantic=True))
+        return ignored_codes
+
+    @pydantic.validator("code_fixes")
+    def _good_and_fixable_codes_are_disjoint(cls, code_fixes, values):  # noqa: N805
+        """Check that there's no overlap between the good and fixable codes."""
+        if "df" not in values:
+            return code_fixes
+        errors = []
+        overlap = set(values["df"]["code"]).intersection(code_fixes)
+        if overlap:
+            errors.append(
+                f"Overlap found between good and fixable codes: {overlap}"
+            )
+        if errors:
+            raise ValueError(format_errors(*errors, pydantic=True))
+        return code_fixes
+
+    @pydantic.validator("code_fixes")
+    def _fixable_and_ignored_codes_are_disjoint(cls, code_fixes, values):  # noqa: N805
+        """Check that there's no overlap between the ignored and fixable codes."""
+        if "ignored_codes" not in values:
+            return code_fixes
+        errors = []
+        overlap = set(code_fixes).intersection(values["ignored_codes"])
+        if overlap:
+            errors.append(
+                f"Overlap found between fixable and ignored codes: {overlap}"
+            )
+        if errors:
+            raise ValueError(format_errors(*errors, pydantic=True))
+        return code_fixes
+
+    @pydantic.validator("code_fixes")
+    def _check_fixed_codes_are_good_codes(cls, code_fixes, values):  # noqa: N805
+        """Check that every every fixed code is also one of the good codes."""
+        if "df" not in values:
+            return code_fixes
+        errors = []
+        bad_codes = set(code_fixes.values()).difference(values["df"]["code"])
+        if bad_codes:
+            errors.append(
+                f"Some fixed codes aren't in the list of good codes: {bad_codes}"
+            )
+        if errors:
+            raise ValueError(format_errors(*errors, pydantic=True))
+        return code_fixes
+
+    @property
+    def code_map(self) -> Dict[str, Union[str, type(pd.NA)]]:
+        """A mapping of all known codes to their standardized values, or NA."""
+        code_map = {code: code for code in self.df["code"]}
+        code_map.update(self.code_fixes)
+        code_map.update({code: pd.NA for code in self.ignored_codes})
+        return code_map
+
+    def encode(
+        self,
+        col: pd.Series,
+        dtype: Union[type, None] = None,
+    ) -> pd.Series:
+        """Apply the stored code mapping to an input Series."""
+        # Every value in the Series should appear in the map. If that's not the
+        # case we want to hear about it so we don't wipe out data unknowingly.
+        unknown_codes = set(col.dropna()).difference(self.code_map)
+        if unknown_codes:
+            raise ValueError(f"Found unknown codes while encoding: {unknown_codes=}")
+        col = col.map(self.code_map)
+        if dtype:
+            col = col.astype(dtype)
+
+        return col
+
+    @staticmethod
+    def dict_from_id(x: str) -> dict:
+        """Look up the encoder by coding table name in the metadata."""
+        return copy.deepcopy(RESOURCE_METADATA[x]).get("encoder", None)
+
+    @classmethod
+    def from_id(cls, x: str) -> 'Encoder':
+        """Construct an Encoder based on `Resource.name` of a coding table."""
+        return cls(**cls.dict_from_id(x))
+
+
 class Field(Base):
     """
     Field (`resource.schema.fields[...]`).
@@ -371,6 +552,7 @@ class Field(Base):
     description: String = None
     constraints: FieldConstraints = {}
     harvest: FieldHarvest = {}
+    encoder: Encoder = None
 
     @pydantic.validator("constraints")
     def _check_constraints(cls, value, values):  # noqa: N805, C901
@@ -392,6 +574,21 @@ class Field(Base):
             for x in value.enum:
                 if not isinstance(x, CONSTRAINT_DTYPES[dtype]):
                     errors.append(f"enum value {x} not {dtype}")
+        if errors:
+            raise ValueError(format_errors(*errors, pydantic=True))
+        return value
+
+    @pydantic.validator("encoder")
+    def _check_encoder(cls, value, values):  # noqa: N805
+        if "type" not in values or value is None:
+            return value
+        errors = []
+        dtype = values["type"]
+        if dtype not in ["string", "integer"]:
+            errors.append(
+                "Encoding only supported for string and integer fields, found "
+                f"{dtype}"
+            )
         if errors:
             raise ValueError(format_errors(*errors, pydantic=True))
         return value
@@ -487,6 +684,13 @@ class Field(Base):
             comment=self.description
         )
 
+    def encode(
+        self,
+        col: pd.Series,
+        dtype: Union[type, None] = None
+    ) -> pd.Series:
+        """Recode the Field if it has an associated encoder."""
+        return self.encoder.encode(col, dtype=dtype) if self.encoder else col
 
 # ---- Classes: Resource ---- #
 
@@ -522,6 +726,10 @@ class ForeignKey(Base):
             if len(value.fields) != len(values["fields_"]):
                 raise ValueError("fields and reference.fields are not equal length")
         return value
+
+    def is_simple(self) -> bool:
+        """Indicate whether the FK relationship contains a single column."""
+        return True if len(self.fields) == 1 else False
 
     def to_sql(self) -> sa.ForeignKeyConstraint:
         """Return equivalent SQL Foreign Key."""
@@ -790,15 +998,20 @@ class Resource(Base):
     title: String = None
     description: String = None
     harvest: ResourceHarvest = {}
-    group: Literal["eia", "epacems", "ferc1", "ferc714", "glue"] = None
+    group: Literal["eia", "epacems", "ferc1", "ferc714", "glue", "pudl"] = None
     schema_: Schema = pydantic.Field(alias='schema')
     contributors: List[Contributor] = []
     licenses: List[License] = []
     sources: List[Source] = []
     keywords: List[String] = []
+    encoder: Encoder = None
 
     _check_unique = _validator(
-        "contributors", "keywords", "licenses", "sources", fn=_check_unique
+        "contributors",
+        "keywords",
+        "licenses",
+        "sources",
+        fn=_check_unique
     )
 
     @pydantic.validator("schema_")
@@ -809,7 +1022,7 @@ class Resource(Base):
         return value
 
     @staticmethod
-    def dict_from_id(x: str) -> dict:
+    def dict_from_id(x: str) -> dict:  # noqa: C901
         """
         Construct dictionary from PUDL identifier (`resource.name`).
 
@@ -839,11 +1052,16 @@ class Resource(Base):
                 group = obj.get("group")
                 if name in FIELD_METADATA_BY_GROUP.get(group, {}):
                     value = {**value, **FIELD_METADATA_BY_GROUP[group][name]}
+                # Update with any custom resource-level metadata
+                if name in FIELD_METADATA_BY_RESOURCE.get(x, {}):
+                    value = {**value, **FIELD_METADATA_BY_RESOURCE[x][name]}
                 fields.append(value)
             schema["fields"] = fields
         # Expand sources
         sources = obj.get("sources", [])
         obj["sources"] = [Source.dict_from_id(value) for value in sources]
+        encoder = obj.get("encoder", None)
+        obj["encoder"] = encoder
         # Expand licenses (assign CC-BY-4.0 by default)
         licenses = obj.get("licenses", ["cc-by-4.0"])
         obj["licenses"] = [License.dict_from_id(value) for value in licenses]
@@ -860,7 +1078,7 @@ class Resource(Base):
         keywords = []
         for source in sources:
             keywords.extend(KEYWORDS_BY_SOURCE.get(source, []))
-        obj["keywords"] = list(set(keywords))
+        obj["keywords"] = sorted(set(keywords))
         # Insert foreign keys
         if "foreign_keys" in schema:
             raise ValueError("Resource metadata contains explicit foreign keys")
@@ -868,12 +1086,22 @@ class Resource(Base):
         # Delete foreign key rules
         if "foreign_key_rules" in schema:
             del schema["foreign_key_rules"]
+
         return obj
 
     @classmethod
     def from_id(cls, x: str) -> "Resource":
         """Construct from PUDL identifier (`resource.name`)."""
         return cls(**cls.dict_from_id(x))
+
+    def get_field(self, name: str) -> Field:
+        """Return field with the given name if it's part of the Resources."""
+        names = [field.name for field in self.schema.fields]
+        if name not in names:
+            raise KeyError(
+                f"The field {name} is not part of the {self.name} schema."
+            )
+        return self.schema.fields[names.index(name)]
 
     def to_sql(
         self,
@@ -1204,6 +1432,16 @@ class Resource(Base):
         rendered = template.render(resource=self)
         Path(path).write_text(rendered)
 
+    def encode(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Standardize coded columns using the foreign column they refer to."""
+        for field in self.schema.fields:
+            if field.encoder:
+                logger.info(f"Recoding {self.name}.{field.name}")
+                df[field.name] = field.encoder.encode(
+                    col=df[field.name],
+                    dtype=field.to_pandas_dtype()
+                )
+        return df
 
 # ---- Package ---- #
 
@@ -1288,12 +1526,17 @@ class Package(Base):
         cls, resource_ids: Iterable[str], resolve_foreign_keys: bool = False
     ) -> "Package":
         """
-        Construct from PUDL identifiers (`resource.name`).
+        Construct a collection of Resources from PUDL identifiers (`resource.name`).
+
+        Identify any fields that have foreign key relationships referencing the
+        coding tables defined in :mod:`pudl.metadata.codes` and if so, associate the
+        coding table's encoder with those columns for later use cleaning them up.
 
         Args:
             resource_ids: Resource PUDL identifiers (`resource.name`).
             resolve_foreign_keys: Whether to add resources as needed based on
                 foreign keys.
+
         """
         resources = [Resource.dict_from_id(x) for x in resource_ids]
         if resolve_foreign_keys:
@@ -1309,7 +1552,29 @@ class Package(Base):
                 i = len(resources)
                 if len(names) > i:
                     resources += [Resource.dict_from_id(x) for x in names[i:]]
+
+        # Add per-column encoders for each resource
+        for resource in resources:
+            # Foreign key relationships determine the set of codes to use
+            for fk in resource["schema"]["foreign_keys"]:
+                # Only referenced tables with an associated encoder indicate
+                # that the column we're looking at should have an encoder
+                # attached to it. All of these FK relationships must have simple
+                # single-column keys.
+                encoder = Encoder.dict_from_id(fk["reference"]["resource"])
+                if len(fk["fields"]) == 1 and encoder:
+                    # fk["fields"] is a one element list, get the one element:
+                    field = fk["fields"][0]
+                    field_names = [f["name"] for f in resource["schema"]["fields"]]
+                    idx = field_names.index(field)
+                    resource["schema"]["fields"][idx]["encoder"] = encoder
+
         return cls(name="pudl", resources=resources)
+
+    def get_resource(self, name: str) -> Resource:
+        """Return the resource with the given name if it is in the Package."""
+        names = [resource.name for resource in self.resources]
+        return self.resources[names.index(name)]
 
     def to_rst(self, path: str) -> None:
         """Output to an RST file."""

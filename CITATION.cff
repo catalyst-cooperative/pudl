@@ -15,7 +15,11 @@ authors:
   - family-names: Welty
     given-names: Ethan
     orcid: https://orcid.org/0000-0001-8046-2210
+  - family-names: Bush
+    given-names: Trenton
+  - family-names: Norman
+    given-names: Bennett
 title: "The Public Utility Data Liberation (PUDL) Project"
-version: 0.4.0
-doi: 10.5281/zenodo.5207986
-date-released: 2020-08-16
+version: 0.5.0
+doi: 10.5281/zenodo.5677623
+date-released: 2020-11-11

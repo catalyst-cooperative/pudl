@@ -2,9 +2,27 @@
 PUDL Release Notes
 =======================================================================================
 
+.. _release-v0-5-0:
+
 ---------------------------------------------------------------------------------------
-0.5.0 (Unreleased)
+0.5.0 (2021-11-11)
 ---------------------------------------------------------------------------------------
+
+Data Coverage Changes
+^^^^^^^^^^^^^^^^^^^^^
+* Integration of 2020 data for all our core datasets (See :issue:`1255`):
+
+  * :doc:`data_sources/eia860` for 2020 as well as 2001-2003 (see :issue:`1122`).
+  * EIA Form 860m through 2021-08.
+  * :doc:`data_sources/eia923` for 2020.
+  * :doc:`data_sources/ferc1` for 2020.
+  * :ref:`data-eia861` data for 2020.
+  * :ref:`data-ferc714` data for 2020.
+  * Note: the 2020 :doc:`data_sources/epacems` data was already available in v0.4.0.
+
+* **EPA IPM / NEEDS** data has been removed from PUDL as we didn't have the internal
+  resources to maintain it, and it was no longer working. Apologies to
+  :user:`gschivley`!
 
 SQLite and Parquet Outputs
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -14,9 +32,8 @@ SQLite and Parquet Outputs
   including all EPA CEMS data should now take around 2 hours if you have all the
   data downloaded.
 * The new :mod:`pudl.load.sqlite` and :mod:`pudl.load.parquet` modules contain
-  this logic. The :mod:`pudl.load.csv` and :mod:`pudl.load.metadata` modules
-  have been deprecated and will be removed shortly along with other remaining
-  datapackage infrastructure. See :issue:`1211`
+  this logic. The :mod:`pudl.load.csv` and :mod:`pudl.load.metadata` modules have been
+  removed along with other remaining datapackage infrastructure. See :issue:`1211`
 * Many more tables now have natural primary keys explicitly specified within the
   database schema.
 * The ``datapkg_to_sqlite`` script has been removed and the ``epacems_to_parquet``
@@ -26,8 +43,8 @@ SQLite and Parquet Outputs
 * Data types, specified value constraints, and the uniqueness / non-null
   constraints on primary keys are validated during insertion into the SQLite DB.
 * The PUDL ETL CLI :mod:`pudl.cli` now has flags to toggle various constraint
-  checks including ``--ignore-foreign-key-constraints``,
-  ``--ignore-type-constraints``, and ``--ignore-value-constraints``.
+  checks including ``--ignore-foreign-key-constraints``
+  ``--ignore-type-constraints`` and ``--ignore-value-constraints``.
 
 New Metadata System
 ^^^^^^^^^^^^^^^^^^^
@@ -37,8 +54,76 @@ modular metadata management system that uses `Pydantic
 validate the metadata schema and export to a variety of formats to support data
 distribution via `Datasette <https://datasette.io>`__ and `Intake catalogs
 <https://intake.readthedocs.io>`__, and automatic generation of data
-dictionaries and documentation. See :issue:`806` and the :mod:`pudl.metadata`
+dictionaries and documentation. See :issue:`806,1271,1272` and the :mod:`pudl.metadata`
 subpackage. Many thanks to :user:`ezwelty` for most of this work.
+
+ETL Settings File Format Changed
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+We are also using `Pydantic <https://pydantic-docs.helpmanual.io/>`__ to parse and
+validate the YAML settings files that tell PUDL what data to include in an ETL run. If
+you have any old settings files of your own lying around they'll need to be updated.
+Examples of the new format will be deployed to your system if you re-run the
+``pudl_setup`` script. Or you can make a copy of the ``etl_full.yml`` or
+``etl_fast.yml`` files that are stored under ``src/pudl/package_data/settings`` and
+edit them to reflect your needs.
+
+Database Schema Changes
+^^^^^^^^^^^^^^^^^^^^^^^
+With the direct database output and the new metadata system, it's much eaiser for us
+to create foreign key relationships automatically. Updates that are in progress to
+the database normalization and entity resolution process also benefit from using
+natural primary keys when possible. As a result we've made some changes to the PUDL
+database schema, which will probably affect some users.
+
+* We have split out a new :ref:`generation_fuel_nuclear_eia923` table from the existing
+  :ref:`generation_fuel_eia923` table, as nuclear generation and fuel consumption are
+  reported at the generation unit level, rather than the plant level, requiring a
+  different natural primary key. See :issue:`851,1296,1325`.
+* Implementing a natural primary key for the :ref:`boiler_fuel_eia923` table required
+  the aggregation of a small number of records that didn't have well-defined
+  ``prime_mover_code`` values. See :issue:`852,1306,1311`.
+* We repaired, aggregated, or dropped a small number of records in the
+  :ref:`generation_eia923` (See :issue:`1208,1248`) and
+  :ref:`ownership_eia860` (See :issue:`1207,1258`) tables due to null values in their
+  primary key columns.
+* Many new foreign key constraints are being enforced between the EIA data tables,
+  entity tables, and coding tables. See :issue:`1196`.
+* Fuel types and energy sources reported to EIA are now defined in / constrained by
+  the static :ref:`energy_sources_eia` table.
+* The columns that indicate the mode of transport for various fuels now contain short
+  codes rather than longer labels, and are defined in / constrained by the static
+  :ref:`fuel_transportation_modes_eia` table.
+* In the simplified FERC 1 fuel type categories, we're now using `other` instead of
+  `unknown`.
+* Several columns have been renamed to harmonize meanings between different tables and
+  datasets, including:
+
+  * In :ref:`generation_fuel_eia923` and :ref:`boiler_fuel_eia923` the ``fuel_type`` and
+    ``fuel_type_code`` columns have been replaced with ``energy_source_code``, which
+    appears in various forms in :ref:`generators_eia860` and
+    :ref:`fuel_receipts_costs_eia923`.
+  * ``fuel_qty_burned`` is now ``fuel_consumed_units``
+  * ``fuel_qty_units`` is now ``fuel_received_units``
+  * ``heat_content_mmbtu_per_unit`` is now ``fuel_mmbtu_per_unit``
+  * ``sector_name` and `sector_id` are now ``sector_name_eia`` and ``sector_id_eia``
+  * ``primary_purpose_naics_id`` is now ``primary_purpose_id_naics``
+  * ``mine_type_code`` is now ``mine_type`` (a human readable label, not a code).
+
+New Analyses
+^^^^^^^^^^^^
+* Added a deployed console script for running the state-level hourly electricity
+  demand allocation, using FERC 714 and EIA 861 data, simply called
+  ``state_demand`` and implemented in :mod:`pudl.analysis.state_demand`. This
+  script existed in the v0.4.0 release, but was not deployed on the user's
+  system.
+
+Known Issues
+^^^^^^^^^^^^
+* The ``pudl_territories`` script has been disabled temporarily due to a memory
+  issue. See :issue:`1174`
+* Utility and Balancing Authority service territories for 2020 have not been vetted,
+  and may contain errors or omissions. In particular there seems to be some missing
+  demand in ND, SD, NE, KS, and OK. See :issue:`1310`
 
 Updated Dependencies
 ^^^^^^^^^^^^^^^^^^^^
@@ -57,31 +142,7 @@ Updated Dependencies
   :issue:`1228`. Unfortunately Ubuntu 20.04 LTS shipped with SQLite 3.31.1. Using
   ``conda`` to manage your Python environment avoids this issue.
 
-New Analyses
-^^^^^^^^^^^^
-* Added a deployed console script for running the state-level hourly electricity
-  demand allocation, using FERC 714 and EIA 861 data, simply called
-  ``state_demand`` and implemented in :mod:`pudl.analysis.state_demand`. This
-  script existed in the v0.4.0 release, but was not deployed on the user's
-  system.
-
-Data Coverage Changes
-^^^^^^^^^^^^^^^^^^^^^
-* :doc:`data_sources/eia860` for 2001-2003. See :issue:`1122`.
-* **EPA IPM / NEEDS** data has been removed from PUDL as we didn't have the internal
-  resources to maintain it, and it was no longer working. Apologies to
-  :user:`gschivley`!
-
-Known Issues
-^^^^^^^^^^^^
-* The ``pudl_territories`` script has been disabled temporarily due to a memory
-  issue. See :issue:`1174`
-* The full extent of pre-load data validation that was previously being done
-  with `goodtables-pandas` has not yet been fully reimplemented. Foreign key
-  constraints are still being debugged. See :issue:`1196`.
-* Several tables that should have natural primary keys currently do not, because
-  of null or duplicate values in those columns. These need to be resolved in the
-  ETL process. See :issue:`851,852,1207,1208`
+.. _release-v0-4-0:
 
 ---------------------------------------------------------------------------------------
 0.4.0 (2021-08-16)
@@ -230,6 +291,8 @@ Known Issues
   that have been cast to strings, rather than zero-padded integers that are strings. See
   :issue:`1119`
 
+.. _release-v0-3-2:
+
 ---------------------------------------------------------------------------------------
 0.3.2 (2020-02-17)
 ---------------------------------------------------------------------------------------
@@ -246,6 +309,7 @@ The primary changes in this release:
   of time. We do not anticipate integrating any older EIA 860 or 923 data at
   this time.
 
+.. _release-v0-3-1:
 
 ---------------------------------------------------------------------------------------
 0.3.1 (2020-02-05)
@@ -262,6 +326,8 @@ release:
   it was always being run in a context where the original data was lying
   around... but that's not the case when someone just downloads the released
   data packages and tries to load them.
+
+.. _release-v0-3-0:
 
 ---------------------------------------------------------------------------------------
 0.3.0 (2020-01-30)
@@ -290,6 +356,8 @@ integrated for all future ferc1 tables.
 Command line interfaces of some of the ETL scripts have changed, see their help
 messages for details.
 
+.. _release-v0-2-0:
+
 ---------------------------------------------------------------------------------------
 0.2.0 (2019-09-17)
 ---------------------------------------------------------------------------------------
@@ -301,6 +369,8 @@ the catalyst.coop package.
 
 This change will enable easier installation of PUDL, as well as archiving and
 bulk distribution of the data products in a platform independent format.
+
+.. _release-v0-1-0:
 
 ---------------------------------------------------------------------------------------
 0.1.0 (2019-09-12)
