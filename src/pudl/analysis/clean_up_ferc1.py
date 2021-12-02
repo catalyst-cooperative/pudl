@@ -18,10 +18,16 @@ logger = logging.getLogger(__name__)
 
 ########################################################################################
 # --------------------------------------------------------------------------------------
-#  S M A L L  G E N E R A T O R S  T A B L E
+#  S T E A M  T A B L E
 # --------------------------------------------------------------------------------------
 ########################################################################################
 
+
+########################################################################################
+# --------------------------------------------------------------------------------------
+#  S M A L L  G E N E R A T O R S  T A B L E
+# --------------------------------------------------------------------------------------
+########################################################################################
 # If these columns are nan, we can assume it is either a header row or isn't useful
 nan_cols = [
     'construction_year',
@@ -167,7 +173,7 @@ def show_removed_rows(df_pre_drop, df_post_drop, cols, message, view=None):
 # Analysis Functions
 ########################################################################################
 
-def remove_bad_rows(sg_df, show_removed=False):
+def remove_bad_rows_sg(sg_df, show_removed=False):
     """Test."""
     # Remove utilities with all NAN rows because these won't contain anything meaningful
     logger.info("Removing rows where an entire utility has reported NA in key columns")
@@ -195,7 +201,7 @@ def remove_bad_rows(sg_df, show_removed=False):
     return sg_clean3
 
 
-def _label_total_rows(sg_df):
+def _label_total_rows_sg(sg_df):
     """Label total rows."""
     logger.info("Labeling total rows")
     sg_df.loc[sg_df['plant_name_ferc1'].str.contains('total'), 'row_type'] = 'total'
@@ -217,11 +223,15 @@ def _label_total_rows(sg_df):
     return sg_df
 
 
-def _label_header_rows(sg_df):
+def _label_header_rows_sg(sg_df):
     """Label header rows.
 
-    This function alone will label lots of notes rows as headers. It must be superceded
-    by the notes labeling function.
+    This function labels rows it believes are possible headers based on whether they
+    contain information in certain key columns. Of those possible headers, ones that
+    contain a specific key word or phrase are dubbed headers.
+
+    Leftover possible header rows are evaluated as possible note rows in the
+    _label_notes_rows() function.
 
     """
     logger.info("Labeling header rows")
@@ -240,10 +250,12 @@ def _label_header_rows(sg_df):
     return sg_df
 
 
-def _find_header_clumps(group, group_col):
-    """Count groups of headers in a given utiltiy group.
+def _find_header_clumps_sg(group, group_col):
+    """Count groups of possible headers in a given utiltiy group.
 
-    This function takes a utility group and regroups it by rows where
+    This function is used within the _label_note_rows() function.
+
+    It takes a utility group and regroups it by rows where
     possible_header = True (i.e.: all values in the specified nan_cols are NA)
     vs. False. Rows where possible_header = True can be bad data, headers, or notes.
     The result is a DataFrame that contains one row per clump of similar adjecent
@@ -277,7 +289,7 @@ def _find_header_clumps(group, group_col):
     return header_groups, header_groups_df
 
 
-def _label_notes_rows(sg_df):
+def _label_notes_rows_sg(sg_df):
     """
     Remove clumps of consecutive rows flagged as possible headers.
 
@@ -322,7 +334,7 @@ def _label_notes_rows(sg_df):
         # adjecent, equal values for a given column. Ex: a column of True, True, True,
         # False, True, False, False, will appear as True, False, True, False with value
         # counts for each
-        group, header_count = _find_header_clumps(
+        group, header_count = _find_header_clumps_sg(
             util_year_group, 'possible_header')
 
         # Used later to enable exceptions
@@ -372,7 +384,7 @@ def _label_notes_rows(sg_df):
     return util_groups.apply(lambda x: _label_notes_rows_group(x))
 
 
-def label_row_type(sg_df):
+def label_row_type_sg(sg_df):
     """Label rows as headers, notes, or totals.
 
     This function coordinates all of the row labeling functions.
@@ -383,19 +395,23 @@ def label_row_type(sg_df):
 
     # Label the row types
     sg_labeled = (
-        sg_df.pipe(_label_header_rows)
-        .pipe(_label_total_rows)
-        .pipe(_label_notes_rows)
+        sg_df.pipe(_label_header_rows_sg)
+        .pipe(_label_total_rows_sg)
+        .pipe(_label_notes_rows_sg)
         .drop(columns=['possible_header']))
 
     return sg_labeled
 
 
-def _map_header_fuels(sg_df, show_unmapped_headers=False):
-    """Apply the fuel type indicated in the header row to the relevant rows.
+def _map_header_fuels_sg(sg_df, show_unmapped_headers=False):
+    """Apply the plant type indicated in the header row to the relevant rows.
 
     This function groups the data by utility, year, and header and forward fills the
-    cleaned technology type based on that.
+    cleaned plant type based on that.
+
+    Right now, this function puts the new header plant type into a column called
+    plant_type_2. This is so we can compare against the current plant_type column
+    for accuracy and validation purposes.
 
     """
     logger.info("Mapping header fuels to relevant rows")
@@ -415,8 +431,8 @@ def _map_header_fuels(sg_df, show_unmapped_headers=False):
         ['utility_id_ferc1', 'report_year', (sg_df['row_type'] == 'header').cumsum()])
 
     # Forward fill based on headers
-    sg_df['fuel_type'] = np.nan
-    sg_df.loc[sg_df['row_type'] != 'note', 'fuel_type'] = (
+    sg_df['plant_type_2'] = np.nan
+    sg_df.loc[sg_df['row_type'] != 'note', 'plant_type_2'] = (
         header_groups.header_clean.ffill())
 
     if show_unmapped_headers:
@@ -427,13 +443,22 @@ def _map_header_fuels(sg_df, show_unmapped_headers=False):
     return sg_df
 
 
-def _map_plant_name_fuels(sg_df, show_labels=False):
-    """Get fuel type from plant name."""
+def _map_plant_name_fuels_sg(sg_df, show_labels=False):
+    """Get plant type from plant name.
+
+    If there is a plant type embedded in the plant name (that's not a header) then move
+    that to the plant_type_2 column.
+
+    Right now, this only works for hydro plants because the rest are complicated and
+    have a slew of exceptions.
+
+    """
     logger.info("Getting fuel type from plant name")
 
     # Check for non-labeled hydro in name
     non_labeled_hydro = sg_df[
-        (sg_df['fuel_type'] != 'hydro')
+        (sg_df['plant_type_2'] != 'hydro')
+        & (sg_df['plant_type'] != 'hydro')
         & (sg_df['row_type'] != 'note')
         & (sg_df['plant_name_ferc1'].str.contains('hydro'))]
 
@@ -441,7 +466,7 @@ def _map_plant_name_fuels(sg_df, show_labels=False):
         # Fill in hydro
         not_note = sg_df['row_type'] != 'note'
         contains_hydro = sg_df['plant_name_ferc1'].str.contains('hydro')
-        sg_df.loc[not_note & contains_hydro, 'fuel_type'] = 'hydro'
+        sg_df.loc[not_note & contains_hydro, 'plant_type_2'] = 'hydro'
 
     if show_labels:
         print(non_labeled_hydro.plant_name_ferc1.value_counts())
@@ -449,17 +474,17 @@ def _map_plant_name_fuels(sg_df, show_labels=False):
     return sg_df
 
 
-def improve_fuel_type(sg_df):
-    """Pull fuel type from header rows and plant name."""
+def improve_plant_type_sg(sg_df):
+    """Pull plant type from header rows and plant name."""
     sg_fuel = (
-        sg_df.pipe(_map_header_fuels)
-        .pipe(_map_plant_name_fuels)
+        sg_df.pipe(_map_header_fuels_sg)
+        .pipe(_map_plant_name_fuels_sg)
         .drop(columns=['header_clean']))
 
     return sg_fuel
 
 
-def extract_ferc_license(sg_df):
+def extract_ferc_license_sg(sg_df):
     """Extract FERC license number from plant_name.
 
     Many of FERC license numbers are embedded in the plant_name_ferc1 field, whether
@@ -517,7 +542,7 @@ def extract_ferc_license(sg_df):
     return sg_lic
 
 
-def associate_notes_with_values(sg_df):
+def associate_notes_with_values_sg(sg_df):
     """Use footnotes to map string and ferc license to value rows.
 
     There are many utilities that report a bunch of note rows at the bottom of their
@@ -582,20 +607,47 @@ def associate_notes_with_values(sg_df):
     return sg_notes
 
 
+def remove_header_note_rows_sg(sg_df):
+    """Remove header and note rows now that information is stored elsewhere.
+
+    This function can't run until you've successfully created a row_type column
+    and labeled particular rows.
+
+    """
+    clean_sg = sg_df[
+        (sg_df['row_type'] != 'header') &
+        (sg_df['row_type'] != 'note')]
+
+    return clean_sg
+
 ########################################################################################
-# Final Functions
+# **************************************************************************************
+# F I N A L  F U N C T I O N S
+# **************************************************************************************
 ########################################################################################
 
-def clean_small_gens(sg_df):
-    """Run all the small gen cleaning functions together."""
-    print('test')
+
+def clean_small_gens(sg_df, keep_totals=True):
+    """Run all the small gen cleaning functions together.
+
+    This function also gives you the option to remove the total rows if you'd like
+
+    """
+    print('CLEANING SMALL GENS TABLE...')
     # sg_df = sg_df.rename(columns={'ferc_license_id': 'ferc_license_manual'})
     sg_clean = (
         sg_df.dropna(subset=['plant_name_ferc1'])
-        .pipe(remove_bad_rows)
-        .pipe(label_row_type)
-        .pipe(improve_fuel_type)
-        .pipe(extract_ferc_license)
-        .pipe(associate_notes_with_values))
+        .pipe(remove_bad_rows_sg)
+        .pipe(label_row_type_sg)
+        .pipe(improve_plant_type_sg)
+        .pipe(extract_ferc_license_sg)
+        .pipe(associate_notes_with_values_sg)
+        .pipe(remove_header_note_rows_sg))
+
+    if not keep_totals:
+        print('Removing known total rows')
+        sg_clean = (
+            sg_clean[sg_clean['row_type'].isna()]
+            .drop(columns=['row_type']))
 
     return sg_clean
