@@ -6,8 +6,54 @@ It's like someone took a paper form, copied it into Microsoft Excel, and called 
 day. Needless to say, it needs a lot of help before it can be used programatically for
 bulk analysis.
 
+In the case of the small generators table, this module will:
+1) Remove obviously bad rows (where there is no data and there are NA or ---- names)
+2) Label row type (total, note, header, or NA for regular rows)
+3) Use headers and clues in plant name to supplement plant type column (currently kept
+separate for comparison purposes -- plant_type for Zane's manual effort and plant_type_2
+for my programatic scrape).
+4) Extract FERC license number from plant name (and put them in a column called
+ferc_license not to be confused with Zane's manual ferc_license_manual column kept for
+comparison purposes.
+5) Associate notes rows with their respective value rows (this also applies to FERC
+license numbers that appear in the notes. The association is done via the presence of
+footnotes like (a), (b), etc. and therefore does not catch and associate every note row.
+6) Remove header and note rows from the final df (with an optional flag to remove totals
+or not).
+
+For example, this module can take a table that looks like this:
++-------------------+------------+--------------+
+| plant_name_ferc1  | plant_type | ferc_license |
++===================+============+==============+
+| HYDRO:            | NA         | NA           |
++-------------------+------------+--------------+
+| rainbow falls (b) | NA         | NA           |
++-------------------+------------+--------------+
+| cadyville (a)     | NA         | NA           |
++-------------------+------------+--------------+
+| keuka (c)         | NA         | NA           |
++-------------------+------------+--------------+
+| (a) project #2738 | NA         | NA           |
++-------------------+------------+--------------+
+| (b) project #2835	| NA         | NA           |
++-------------------+------------+--------------+
+| (c) project #2852 | NA         | NA           |
++-------------------+------------+--------------+
+
+And turn it into this:
++-------------------+------------+--------------+
+| plant_name_ferc1  | plant_type | ferc_license |
++===================+============+==============+
+| rainbow falls (b) | hydro      | 2835         |
++-------------------+------------+--------------+
+| cadyville (a)     | hydro      | 2738         |
++-------------------+------------+--------------+
+| keuka (c)         | hydro      | 2852         |
++-------------------+------------+--------------+
+
 This module is indented as a hub for some of the more drastic cleaning measures
 required to make the data from FERC Form 1 useful.
+
 """
 import logging
 
@@ -31,7 +77,7 @@ logger = logging.getLogger(__name__)
 # --------------------------------------------------------------------------------------
 ########################################################################################
 # If these columns are nan, we can assume it is either a header row or isn't useful
-nan_cols = [
+NAN_COLS = [
     'construction_year',
     'net_generation_mwh',
     'total_cost_of_plant',
@@ -43,7 +89,7 @@ nan_cols = [
 ]
 
 # If a potential header column has these strings, it's probably a useful header
-header_strings = [
+HEADER_STRINGS = [
     'hydro',
     'hyrdo',
     'internal',
@@ -69,7 +115,7 @@ header_strings = [
 ]
 
 # If a potential header has these strings, it is not a header...
-exclude = [
+EXCLUDE = [
     '#',
     r'\*',
     'pg',
@@ -81,21 +127,21 @@ exclude = [
 ]
 
 # ...unless it also has one of these strings
-exceptions = [
+EXCEPTIONS = [
     'hydro plants: licensed proj. no.',
     'hydro license no.',
     'hydro: license no.',
     'hydro plants: licensed proj no.'
 ]
 
-# plants with two fuel names in the plant_name
-two_fuel_names_dict = {
+# plants with two fuel names in the plant_name...not currently used
+TWO_FUEL_NAMES_DICT = {
     'las vegas solar': 'solar_pv',
     'solar centaur': 'gas_turbine'
 }
 
 # What we will rename the headers once we remove them as rows
-new_header_labels = {
+NEW_HEADER_LABELS = {
     'hydroelectric': ['hydro', 'hyrdo'],
     'internal combustion': ['internal', 'interal', 'international combustion'],
     'combustion turbine': ['combustion turbine'],
@@ -115,7 +161,7 @@ new_header_labels = {
 
 # Header names that match the one's that zane used in his manual mapping (so we can
 # compare processes)
-zane_header_labels = {
+ZANE_HEADER_LABELS = {
     'solar_pv': ['solar', 'photovoltaic'],
     'wind': ['wind'],
     'hydro': ['hydro', 'hyrdo'],
@@ -137,7 +183,16 @@ zane_header_labels = {
 ########################################################################################
 
 def expand_dict(dic):
-    """Change format of header_labels."""
+    """Change format of header_labels.
+
+    Right now, the header_labels dictionaries defined above follow this format:
+    {clean_name_A: [ bad_name_A1, bad_name_A2, ...], clean_name_B: [bad_name_B1,
+    bad_nameB2]}. This is convenient visually, but it makes more sense to format it like
+    this: {bad_name_A1: clean_name_A, bad_name_A2: clean_name_A, bad_name_B1:
+    clean_name_B, bad_name_B2: clean_name_B}. We could reformat the dictionaries, but
+    for now I created this function to do it where necessariy in certain functions.
+
+    """
     d = {}
     for k, lst in dic.items():
         for i in range(len(lst)):
@@ -181,7 +236,7 @@ def remove_bad_rows_sg(sg_df, show_removed=False):
     logger.info("Removing rows where an entire utility has reported NA in key columns")
     sg_clean1 = (
         sg_df.groupby('utility_id_ferc1')
-        .filter(lambda x: ~x[nan_cols].isna().all().all()))
+        .filter(lambda x: ~x[NAN_COLS].isna().all().all()))
 
     # Remove rows with three or more dashes for plant name
     logger.info("Removing rows with three or more dashes for plant name")
@@ -193,7 +248,7 @@ def remove_bad_rows_sg(sg_df, show_removed=False):
     sg_clean3 = sg_clean2[~sg_clean2['plant_name_ferc1'].isin(na_names_list)].copy()
 
     if show_removed:
-        show_removed_rows(sg_df, sg_clean1, nan_cols,
+        show_removed_rows(sg_df, sg_clean1, NAN_COLS,
                           'REMOVED NAN VALUES:', view='info',)
         show_removed_rows(sg_clean1, sg_clean2, ['plant_name_ferc1'],
                           'REMOVED DASH NAMES:', view='value_counts')
@@ -210,13 +265,16 @@ def _label_total_rows_sg(sg_df):
 
     # Now deal with some outliers:
 
-    # Move total row values that are reported in notes row below to correct row above
-    # and null the values in the notes row.
+    # There are a couple rows that contain the phrase "amounts are for" in the plant name
+    # that contain total pertaining to total records above. This section of code moves
+    # the total row values that are reported as notes to correct row above and nulls the
+    # values in the notes row.
     num_cols = [
-        x for x in sg_df.select_dtypes(include=['float', 'Int64']).columns.tolist(
-        ) if x not in ['utility_id_ferc1', 'report_year', 'ferc_license_id']]
-    bad_row = sg_df[(sg_df['plant_name_ferc1'].str.contains(
-        "amounts are for")) & (sg_df['capacity_mw'] > 0)]
+        x for x in sg_df.select_dtypes(include=['float', 'Int64']).columns.tolist()
+        if x not in ['utility_id_ferc1', 'report_year', 'ferc_license_id']]
+    bad_row = sg_df[
+        (sg_df['plant_name_ferc1'].str.contains("amounts are for"))
+        & (sg_df['capacity_mw'] > 0)]
     assert len(bad_row) == 1, 'found more bad rows than expected'
 
     sg_df.loc[bad_row.index, num_cols] = sg_df.loc[bad_row.index - 1][num_cols].values
@@ -239,15 +297,15 @@ def _label_header_rows_sg(sg_df):
     logger.info("Labeling header rows")
 
     # Label possible header rows (based on the nan cols specified above)
-    sg_df.loc[sg_df.filter(nan_cols).isna().all(1), 'possible_header'] = True
+    sg_df.loc[sg_df.filter(NAN_COLS).isna().all(1), 'possible_header'] = True
 
     # Label good header rows (based on whether they contain key strings)
     possible_header = sg_df['possible_header']
-    good_header = sg_df['plant_name_ferc1'].str.contains('|'.join(header_strings))
-    not_bad = ~sg_df['plant_name_ferc1'].str.contains('|'.join(exclude))
+    good_header = sg_df['plant_name_ferc1'].str.contains('|'.join(HEADER_STRINGS))
+    not_bad = ~sg_df['plant_name_ferc1'].str.contains('|'.join(EXCLUDE))
 
     sg_df.loc[possible_header & good_header & not_bad, 'row_type'] = 'header'
-    sg_df.loc[sg_df['plant_name_ferc1'].isin(exceptions), 'row_type'] = 'header'
+    sg_df.loc[sg_df['plant_name_ferc1'].isin(EXCEPTIONS), 'row_type'] = 'header'
 
     return sg_df
 
@@ -258,7 +316,7 @@ def _find_header_clumps_sg(group, group_col):
     This function is used within the _label_note_rows() function.
 
     It takes a utility group and regroups it by rows where
-    possible_header = True (i.e.: all values in the specified nan_cols are NA)
+    possible_header = True (i.e.: all values in the specified NAN_COLS are NA)
     vs. False. Rows where possible_header = True can be bad data, headers, or notes.
     The result is a DataFrame that contains one row per clump of similar adjecent
     possible_header values with columns val_col depicting the number of rows per
@@ -371,7 +429,7 @@ def _label_notes_rows_sg(sg_df):
                     util_year_group.loc[
                         util_year_group.index.isin(group.groups[idx + 1])]
                     .tail(1)['plant_name_ferc1']
-                    .str.contains('|'.join(header_strings))
+                    .str.contains('|'.join(HEADER_STRINGS))
                     .all())
                 # If the clump is in the middle and the last row looks like a header,
                 # then drop it from the idx range
@@ -420,7 +478,7 @@ def _map_header_fuels_sg(sg_df, show_unmapped_headers=False):
 
     # Clean header names
     sg_df['header_clean'] = np.nan
-    d = expand_dict(zane_header_labels)
+    d = expand_dict(ZANE_HEADER_LABELS)
 
     # Map cleaned header names onto df in a new column
     sg_df.loc[sg_df['row_type'] == 'header', 'header_clean'] = (
@@ -632,10 +690,16 @@ def remove_header_note_rows_sg(sg_df):
 def clean_small_gens(sg_df, keep_totals=True):
     """Run all the small gen cleaning functions together.
 
-    This function also gives you the option to remove the total rows if you'd like
+    This function also gives you the option to remove the total rows if you'd like.
+
+    Args:
+        sg_df (pandas.DataFrame): The small generators table from FERC 1.
+        keep_totals (bool): A boolean where TRUE retains total rows and FALSE removes
+            them from the final output. These total rows may or may not represent
+            duplicate information.
 
     """
-    print('CLEANING SMALL GENS TABLE...')
+    logger.info('CLEANING SMALL GENS TABLE...')
     # sg_df = sg_df.rename(columns={'ferc_license_id': 'ferc_license_manual'})
     sg_clean = (
         sg_df.dropna(subset=['plant_name_ferc1'])
@@ -647,7 +711,7 @@ def clean_small_gens(sg_df, keep_totals=True):
         .pipe(remove_header_note_rows_sg))
 
     if not keep_totals:
-        print('Removing known total rows')
+        logger.info('Removing known total rows')
         sg_clean = (
             sg_clean[sg_clean['row_type'].isna()]
             .drop(columns=['row_type']))
