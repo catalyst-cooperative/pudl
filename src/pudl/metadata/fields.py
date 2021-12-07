@@ -2319,4 +2319,10 @@ and has distinct metadata in those groups, this is the place to specify the
 override. Only those elements which should be overridden need to be specified.
 """
 
-FIELD_METADATA_BY_RESOURCE: Dict[str, Dict[str, Any]] = {}
+FIELD_METADATA_BY_RESOURCE: Dict[str, Dict[str, Any]] = {
+    "sector_consolidated_eia": {
+        "code": {
+            "type": "integer"
+        }
+    }
+}

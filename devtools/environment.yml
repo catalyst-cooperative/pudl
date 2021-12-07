@@ -35,6 +35,9 @@ dependencies:
   - jupyterlab~=3.2
   - nbdime~=3.1.0
 
+  # Helpful for profiling PUDL
+  - py-spy
+
   # Use pip to install the main PUDL repo / package for development:
   - pip:
     - --editable ../[doc,test,dev]
