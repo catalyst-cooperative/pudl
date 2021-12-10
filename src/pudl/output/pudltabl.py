@@ -61,8 +61,8 @@ class PudlTabl(object):
         fill_fuel_cost: bool = False,
         roll_fuel_cost: bool = False,
         fill_net_gen: bool = False,
-        backfill_tech_desc: bool = False,
-        unit_ids=False
+        backfill_tech_desc: bool = True,
+        unit_ids: bool = False
     ):
         """
         Initialize the PUDL output object.
