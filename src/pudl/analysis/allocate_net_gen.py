@@ -238,8 +238,11 @@ def agg_by_generator(gen_pm_fuel):
             `allocate_gen_fuel_by_gen_pm_fuel()`
     """
     data_cols = ['net_generation_mwh', 'fuel_consumed_mmbtu']
-    gen = (gen_pm_fuel.groupby(by=IDX_GENS)
-           [data_cols].sum(min_count=1).reset_index())
+    gen = (
+        gen_pm_fuel.groupby(by=IDX_GENS)
+        [data_cols].sum(min_count=1).reset_index()
+        .pipe(pudl.helpers.convert_cols_dtypes, 'eia')
+    )
 
     return gen
 
@@ -472,7 +475,7 @@ def _associate_energy_source_only(gen_assoc, gf):
 
     gen_assoc = pd.merge(
         gen_assoc,
-        gf_missing_pm,
+        gf_missing_pm.pipe(pudl.helpers.convert_cols_dtypes, 'eia'),
         how='outer',
         on=IDX_FUEL,
         indicator=True
