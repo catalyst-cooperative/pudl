@@ -4,10 +4,10 @@ channels:
   - defaults
   - intake
 dependencies:
-  - geopandas~=0.9.0
+  - geopandas>=0.9,<11
   - numba~=0.53
-  - pip~=21.2
-  - pygeos~=0.10.0
-  - python-snappy~=0.6.0
+  - pip~=21.0
+  - pygeos>=0.10,<0.13
+  - python-snappy>=0.6,<1
   - sqlite~=3.36
   - tox~=3.24
