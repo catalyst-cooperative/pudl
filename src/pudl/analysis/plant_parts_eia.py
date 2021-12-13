@@ -821,14 +821,14 @@ class MakePlantParts(object):
             part_dfs.append(part_df)
         plant_parts_eia = pd.concat(part_dfs)
         # clean up, add additional columns
-        plant_parts_eia = (
+        self.plant_parts_eia = (
             self.add_additonal_cols(plant_parts_eia)
             .pipe(pudl.helpers.organize_cols, FIRST_COLS)
             .pipe(self._clean_plant_parts)
         )
-        self.test_ownership_for_owned_records(plant_parts_eia)
-        test_run_aggregations(plant_parts_eia, gens_mega)
-        return plant_parts_eia
+        self.test_ownership_for_owned_records(self.plant_parts_eia)
+        test_run_aggregations(self.plant_parts_eia, gens_mega)
+        return self.plant_parts_eia
 
     #######################################
     # Add Entity Columns and Final Cleaning
@@ -1038,22 +1038,36 @@ class PlantPart(object):
             wtavg_dict=WTAVG_DICT
         )
 
-        dedup_cols = list(part_tot.columns)
-        dedup_cols.remove('utility_id_eia')
-        dedup_cols.remove('unit_id_pudl')
-        part_tot = part_tot.drop_duplicates(subset=dedup_cols)
+        # we want a "total" record for each of the utilities that own any slice
+        # of a particular plant-part. To achieve this, we are going to remove
+        # the utility info (and drop duplicates bc a plant-part with many
+        # generators will have multiple duplicate records for each owner)
+        # we are going to generate the aggregated output for a utility-less
+        # "total" record and then merge back in the many utilites so each of
+        # the utilities is associated with an aggergated "total" plant-part
+        # record
+        part_tot_no_utils = (
+            part_tot.drop(columns=['utility_id_eia'])
+            .drop_duplicates()
+        )
         # still need to re-calc the fraction owned for the part
-        part_tot = (
+        part_tot_out = (
             pudl.helpers.sum_and_weighted_average_agg(
-                df_in=part_tot,
-                by=self.id_cols + IDX_TO_ADD + ['utility_id_eia'],
+                df_in=part_tot_no_utils,
+                by=self.id_cols + IDX_TO_ADD,
                 sum_cols=SUM_COLS,
                 wtavg_dict=WTAVG_DICT
             )
-            .assign(ownership='total')
+            .pipe(pudl.helpers.convert_cols_dtypes, 'eia')
+            .merge(
+                part_tot[self.id_cols + IDX_TO_ADD + IDX_OWN_TO_ADD],
+                on=self.id_cols + IDX_TO_ADD,
+                how='left',
+                validate='1:m'
+            )
         )
         part_ag = (
-            pd.concat([part_own, part_tot])
+            pd.concat([part_own, part_tot_out])
             .pipe(pudl.helpers.convert_cols_dtypes, 'eia')
         )
 
@@ -1426,11 +1440,13 @@ def _test_prep_merge(part_name, plant_parts_eia, gens_mega):
     id_cols = PLANT_PARTS[part_name]['id_cols']
     plant_cap = (
         gens_mega[gens_mega.ownership == 'owned']
+        .pipe(pudl.helpers.convert_cols_dtypes, 'eia')
         .groupby(
             by=id_cols + IDX_TO_ADD + IDX_OWN_TO_ADD, observed=True)
         [SUM_COLS]
         .sum(min_count=1)
         .reset_index()
+        .pipe(pudl.helpers.convert_cols_dtypes, 'eia')
     )
     test_merge = pd.merge(
         plant_parts_eia[plant_parts_eia.plant_part == part_name],
