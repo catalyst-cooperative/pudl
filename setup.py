@@ -30,7 +30,7 @@ setup(
         "electricity", "energy", "data", "analysis", "mcoe", "climate change",
         "finance", "eia 923", "eia 860", "ferc", "form 1", "epa ampd",
         "epa cems", "coal", "natural gas", "eia 861", "ferc 714"],
-    python_requires=">=3.8,<3.10",
+    python_requires=">=3.8,<3.11",
     setup_requires=["setuptools_scm"],
     install_requires=[
         "addfips~=0.3.1",
@@ -109,6 +109,7 @@ setup(
         "Operating System :: OS Independent",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
         "Topic :: Scientific/Engineering",
     ],
     packages=find_packages("src"),
