@@ -229,7 +229,7 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
         "type": "string",
         "description": "Type of plant construction ('outdoor', 'semioutdoor', or 'conventional'). Categorized by PUDL based on our best guess of intended value in FERC1 freeform strings.",
         "constraints": {
-            "enum": ["", "unknown", "conventional", "outdoor", "semioutdoor"]
+            "enum": ["unknown", "conventional", "outdoor", "semioutdoor"]
         }
     },
     "construction_year": {

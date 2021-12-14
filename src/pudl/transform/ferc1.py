@@ -769,10 +769,8 @@ def _plants_steam_clean(ferc1_steam_df):
             "expns_kwh": 'opex_per_kwh'})
         .pipe(_clean_cols, "f1_steam")
         .pipe(pudl.helpers.simplify_strings, ['plant_name_ferc1'])
-        .pipe(pudl.helpers.cleanstrings,
-              ['construction_type', 'plant_type'],
-              [CONSTRUCTION_TYPE_STRINGS, PLANT_KIND_STRINGS],
-              unmapped='')
+        .pipe(pudl.helpers.cleanstrings, ['construction_type'], [CONSTRUCTION_TYPE_STRINGS], unmapped=pd.NA)
+        .pipe(pudl.helpers.cleanstrings, ['plant_type'], [PLANT_KIND_STRINGS], unmapped="")
         .pipe(pudl.helpers.oob_to_nan,
               cols=["construction_year", "installation_year"],
               lb=1850, ub=max(pc.WORKING_PARTITIONS["ferc1"]["years"]) + 1)
@@ -1217,7 +1215,7 @@ def plants_hydro(ferc1_raw_dfs, ferc1_transformed_dfs):
         # white space -- necesary b/c plant_name is part of many foreign keys.
         .pipe(pudl.helpers.simplify_strings, ['plant_name'])
         .pipe(pudl.helpers.cleanstrings, ['plant_const'],
-              [CONSTRUCTION_TYPE_STRINGS], unmapped='')
+              [CONSTRUCTION_TYPE_STRINGS], unmapped=pd.NA)
         .assign(
             # Converting kWh to MWh
             net_generation_mwh=lambda x: x.net_generation / 1000.0,
@@ -1301,7 +1299,7 @@ def plants_pumped_storage(ferc1_raw_dfs, ferc1_transformed_dfs):
         .pipe(pudl.helpers.simplify_strings, ['plant_name'])
         # Clean up the messy plant construction type column:
         .pipe(pudl.helpers.cleanstrings, ['plant_kind'],
-              [CONSTRUCTION_TYPE_STRINGS], unmapped='')
+              [CONSTRUCTION_TYPE_STRINGS], unmapped=pd.NA)
         .assign(
             # Converting from kW/kWh to MW/MWh
             net_generation_mwh=lambda x: x.net_generation / 1000.0,
