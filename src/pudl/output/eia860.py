@@ -407,7 +407,7 @@ def fill_generator_technology_description(gens_df: pd.DataFrame) -> pd.DataFrame
     )
 
     # Fill in remaining missing technology_descriptions with unique correspondences
-    # between energy_source_code_1, where possible:
+    # between energy_source_code_1 where possible:
     static_fuels = (
         gens_df.dropna(subset=['technology_description'])
         .drop_duplicates(subset=['energy_source_code_1', 'technology_description'])
@@ -415,94 +415,13 @@ def fill_generator_technology_description(gens_df: pd.DataFrame) -> pd.DataFrame
         .set_index('energy_source_code_1')
         ['technology_description'].to_dict()
     )
+
     out_df.loc[out_df.technology_description.isna(
-    ), "technology_description"] = out_df.energy_source_code_1.map(static_fuels)
+    ), "technology_description"] = (
+        out_df.energy_source_code_1.map(static_fuels).fillna(pd.NA))
+
     assert len(out_df) == nrows_orig
     return out_df
-
-
-def _backfill_tech_desc(df):
-    """
-    Backfill ``technology_description`` based on ``energy_source_code_1``.
-
-    EIA started reporting the ``technology_description`` field in 2014. This field
-    roughly correlates with the ``energy_source_code_1`` field.
-
-    This function groups the ``generators_eia860`` table by ``plant_id_eia`` and
-    ``generator_id`` and creates a dictionary mapping the different energy source codes
-    to their cooresponding technology descriptions. When there are one to many
-    relationships between ``energy_source_code_1`` and ``technology_description``, the
-    dictionary preserves the older reported pair. This is because all NA technology
-    description values reported after 2013 also have an NA ``energy_source_code_1``. All
-    backfilling will therefore occur in the years 2013 and earlier which are by
-    definition older then the years used to create the source code tech desc dictionary.
-    While not entirely foolproof, it's reasonable to assume that older years will map to
-    the closest reported ``technology_description`` with the same reported
-    ``energy_source_code_1``.
-
-    As a secondary measure, this function also creates a dictionary for source codes
-    that have a one-to-one mapping to a technology description throughout all years and
-    plants. After mapping the generator specific values, these are also mapped on to the
-    data to fill in more gaps.
-
-    """
-    # Keep track of how many rows the dataframe has
-    len1 = len(df)
-    na_len = len(df['technology_description'].isna())
-    older_than_2013 = df['report_date'].dt.year > 2013
-    notna = df['technology_description'].notna()
-    idx = ['plant_id_eia', 'generator_id', 'energy_source_code_1']
-
-    # Create a dictionary that maps plant id, gen id and fuel code to a technology
-    # description. By sorting values from oldest to newest and dropping duplicates,
-    # we only keep the oldest associates for a given fuel code.
-    map_dict = (
-        df.sort_values(['report_date'])
-        .loc[older_than_2013 & notna]
-        .drop_duplicates(subset=idx)
-        .set_index(idx)
-        ['technology_description'].to_dict()
-    )
-
-    # For values that are NA, map tech descs specific to that plant generator. Note
-    # that you CANNOT define this isna above and use it twice after altering the
-    # amount of NA values because it will preserve the original slice and mess
-    # things up.
-    isna = df['technology_description'].isna()
-    df.loc[isna, 'technology_description'] = (
-        df[idx].agg(tuple, 1).map(map_dict)
-    )
-
-    # Make sure this NAs get filled (and more aren't accidentally created)
-    assert (new_na_len := len(df[df['technology_description'].isna()])) < na_len, \
-        'Supposed to fill tech desc NA.'
-    na_len = new_na_len
-
-    # Make dictionary of energy source codes that only ever map to one
-    # known technology description
-    static_fuels = (
-        df.dropna(subset=['technology_description'])
-        .drop_duplicates(subset=['energy_source_code_1', 'technology_description'])
-        .drop_duplicates(subset=['energy_source_code_1'], keep=False)
-        .set_index('energy_source_code_1')
-        ['technology_description'].to_dict()
-    )
-
-    # For values that are NA, map tech descs that are static throughout all the data
-    isna = df['technology_description'].isna()
-    df.loc[isna, 'technology_description'] = (
-        df.energy_source_code_1.map(static_fuels)
-    )
-
-    # Make sure this NAs get filled (and more aren't accidentally created)
-    assert (new_na_len := len(df[df['technology_description'].isna()])) < na_len, \
-        'Supposed to fill tech desc NA.'
-    na_len = new_na_len
-
-    # Make sure didn't change group length
-    assert len(df) == len1, 'group length getting altered'
-
-    return df
 
 
 def boiler_generator_assn_eia860(pudl_engine, start_date=None, end_date=None):
