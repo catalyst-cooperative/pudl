@@ -1103,7 +1103,7 @@ def fuel_receipts_costs(eia923_dfs, eia923_transformed_dfs):
               'natural_gas_delivery_contract_type_code'],
              [{'firm': ['F'], 'interruptible': ['I']},
               {'firm': ['F'], 'interruptible': ['I']}],
-             unmapped='')
+             unmapped=pd.NA)
     )
     frc_df = PUDL_META.get_resource("fuel_receipts_costs_eia923").encode(frc_df)
     frc_df["fuel_type_code_pudl"] = (

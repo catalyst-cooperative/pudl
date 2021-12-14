@@ -1077,7 +1077,7 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
         "type": "string",
         "description": "Contract type for natrual gas delivery service:",
         "constraints": {
-            "enum": ["", "firm", "interruptible"]
+            "enum": ["firm", "interruptible"]
         }
     },
     "natural_gas_local_distribution_company": {
@@ -1105,7 +1105,7 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
         "type": "string",
         "description": "Contract type for natural gas transportation service.",
         "constraints": {
-            "enum": ["", "firm", "interruptible"]
+            "enum": ["firm", "interruptible"]
         }
     },
     "nerc_region": {
