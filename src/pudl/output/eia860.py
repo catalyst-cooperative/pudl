@@ -1,6 +1,7 @@
 """Functions for pulling data primarily from the EIA's Form 860."""
 
 import logging
+from collections import defaultdict
 
 import pandas as pd
 import sqlalchemy as sa
@@ -407,8 +408,10 @@ def fill_generator_technology_description(gens_df: pd.DataFrame) -> pd.DataFrame
     )
 
     # Fill in remaining missing technology_descriptions with unique correspondences
-    # between energy_source_code_1 where possible:
-    static_fuels = (
+    # between energy_source_code_1 where possible. Use a default value of pd.NA
+    # for any technology_description that isn't uniquely identified by energy source
+    static_fuels = defaultdict(
+        lambda: pd.NA,
         gens_df.dropna(subset=['technology_description'])
         .drop_duplicates(subset=['energy_source_code_1', 'technology_description'])
         .drop_duplicates(subset=['energy_source_code_1'], keep=False)
@@ -416,9 +419,10 @@ def fill_generator_technology_description(gens_df: pd.DataFrame) -> pd.DataFrame
         ['technology_description'].to_dict()
     )
 
-    out_df.loc[out_df.technology_description.isna(
-    ), "technology_description"] = (
-        out_df.energy_source_code_1.map(static_fuels).fillna(pd.NA))
+    out_df.loc[
+        out_df.technology_description.isna(),
+        "technology_description"
+    ] = (out_df.energy_source_code_1.map(static_fuels))
 
     assert len(out_df) == nrows_orig
     return out_df
