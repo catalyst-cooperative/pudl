@@ -7,7 +7,8 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.8", "3.9"]
+        python-version: ["3.8", "3.9", "3.10"]
+      fail-fast: false
 
     steps:
     - uses: actions/checkout@v2.4.0
@@ -35,7 +36,7 @@ jobs:
       run: grep -e '.*10\.\(5281\|5072\)/zenodo\..*' src/pudl/workspace/datastore.py | sed -e 's/",*$//g' | sed -e 's/^.*"//g' | sort > datastore-dois.txt
 
     - name: Restore Zenodo datastore from cache if possible
-      uses: actions/cache@v2.1.6
+      uses: actions/cache@v2.1.7
       id: cache-zenodo-datastore
       with:
         path: ~/pudl-work/data/

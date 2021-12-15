@@ -308,24 +308,48 @@ def _aggregate_generation_fuel_duplicates(
         'fuel_consumed_mmbtu': "sum",
         'fuel_consumed_for_electricity_mmbtu': "sum",
         'net_generation_mwh': "sum",
-        # We can safely select the first fuel_type_code_aer because we know they are the same for each group of duplicates.
-        'fuel_type_code_aer': "first"
+        # We can safely select the first fuel_type_code_* because we know they
+        # are the same for each group of duplicates.
+        'fuel_type_code_aer': "first",
+        'fuel_type_code_pudl': "first",
     }
 
-    resolved_duplicates = duplicates.groupby(
-        natural_key_fields).agg(agg_fields).reset_index()
+    resolved_dupes = (
+        duplicates
+        .groupby(natural_key_fields)
+        .agg(agg_fields)
+        .reset_index()
+    )
     # Recalculate fuel_mmbtu_per_unit after aggregation.
-    resolved_duplicates["fuel_mmbtu_per_unit"] = resolved_duplicates["fuel_consumed_mmbtu"] / \
-        resolved_duplicates["fuel_consumed_units"]
+    resolved_dupes["fuel_mmbtu_per_unit"] = (
+        resolved_dupes["fuel_consumed_mmbtu"] / resolved_dupes["fuel_consumed_units"]
+    )
+    # In a few cases heat content is reported without any fuel consumed units.
+    # In these cases we want NA values, not infinite values:
+    resolved_dupes["fuel_mmbtu_per_unit"] = (
+        resolved_dupes["fuel_mmbtu_per_unit"]
+        .replace([np.inf, -np.inf], np.nan)
+    )
 
     # Add the resolved records back to generation_fuel dataframe.
     gen_df = gen_fuel[~is_duplicate].copy()
-    gen_df = gen_df.append(resolved_duplicates)
+    gen_df = gen_df.append(resolved_dupes)
 
-    assert gen_df[natural_key_fields].notna().all().all(
-    ), f"There are missing values in generation_fuel{'_nuclear' if nuclear else ''}_eia923 natural key fields."
-    assert (~gen_df.duplicated(subset=natural_key_fields)).all(
-    ), "Duplicate generation fuels have not been resolved."
+    if gen_df[natural_key_fields].isnull().any().any():
+        raise AssertionError(
+            "There are missing values in "
+            f"generation_fuel{'_nuclear' if nuclear else ''}_eia923 "
+            "natural key fields."
+        )
+
+    if gen_df.duplicated(subset=natural_key_fields).any():
+        raise AssertionError("Duplicate generation fuels have not been resolved.")
+
+    if gen_fuel.fuel_type_code_pudl.isnull().any():
+        raise AssertionError(
+            "Null fuel_type_code_pudl values found after aggregating duplicates."
+        )
+
     return gen_df
 
 
@@ -521,10 +545,7 @@ def plants(eia923_dfs, eia923_transformed_dfs):
     return eia923_transformed_dfs
 
 
-def nuclear_unit_fuel(
-    nuclear_unit_fuel: pd.DataFrame,
-    eia923_transformed_dfs: Dict[str, pd.DataFrame]
-) -> None:
+def gen_fuel_nuclear(gen_fuel_nuke: pd.DataFrame) -> pd.DataFrame:
     """Transforms the generation_fuel_nuclear_eia923 table.
 
     Transformations include:
@@ -534,24 +555,28 @@ def nuclear_unit_fuel(
     * Aggregate remaining duplicate units.
 
     Parameters:
-        nuclear_unit_fuel: dataframe of nuclear unit fuels.
-        eia923_transformed_dfs: dictionary to hold all eia923 tables.
+        gen_fuel_nuke: dataframe of nuclear unit fuels.
+
+    Returns:
+        Transformed nuclear generation fuel table.
 
     """
-    nuclear_unit_fuel["nuclear_unit_id"] = nuclear_unit_fuel["nuclear_unit_id"].astype(
-        "Int64").astype("string")
+    gen_fuel_nuke["nuclear_unit_id"] = (
+        gen_fuel_nuke["nuclear_unit_id"]
+        .astype("Int64").astype("string")
+    )
 
-    nuclear_unit_fuel = _backfill_nuclear_unit_id(nuclear_unit_fuel)
+    gen_fuel_nuke = _backfill_nuclear_unit_id(gen_fuel_nuke)
 
     # All nuclear plants have steam turbines.
-    nuclear_unit_fuel.loc[:, "prime_mover_code"] = nuclear_unit_fuel["prime_mover_code"].fillna(
-        "ST")
+    gen_fuel_nuke.loc[:, "prime_mover_code"] = (
+        gen_fuel_nuke["prime_mover_code"].fillna("ST")
+    )
 
     # Aggregate remaining duplicates.
-    nuclear_unit_fuel = _aggregate_generation_fuel_duplicates(
-        nuclear_unit_fuel, nuclear=True)
+    gen_fuel_nuke = _aggregate_generation_fuel_duplicates(gen_fuel_nuke, nuclear=True)
 
-    eia923_transformed_dfs["generation_fuel_nuclear_eia923"] = nuclear_unit_fuel
+    return gen_fuel_nuke
 
 
 def generation_fuel(eia923_dfs, eia923_transformed_dfs):
@@ -567,7 +592,7 @@ def generation_fuel(eia923_dfs, eia923_transformed_dfs):
     * Combine year and month columns into a single date column.
     * Clean and impute fuel_type field.
     * Backfill missing prime_mover_codes
-    * Create a separate nuclear_unit_fuel table.
+    * Create a separate generation_fuel_nuclear table.
     * Aggregate records with duplicate natural keys.
 
     Args:
@@ -651,12 +676,17 @@ def generation_fuel(eia923_dfs, eia923_transformed_dfs):
     gen_fuel = pudl.helpers.convert_to_date(gen_fuel)
 
     # Create separate nuclear unit fuel table
-    nuclear_units = gen_fuel[gen_fuel.nuclear_unit_id.notna() |
-                             gen_fuel.energy_source_code.eq("NUC")].copy()
-    nuclear_unit_fuel(nuclear_units, eia923_transformed_dfs)
+    nukes = gen_fuel[
+        gen_fuel.nuclear_unit_id.notna()
+        | gen_fuel.energy_source_code.eq("NUC")
+    ].copy()
 
-    gen_fuel = gen_fuel[gen_fuel.nuclear_unit_id.isna(
-    ) & gen_fuel.energy_source_code.ne("NUC")].copy()
+    eia923_transformed_dfs['generation_fuel_nuclear_eia923'] = gen_fuel_nuclear(nukes)
+
+    gen_fuel = gen_fuel[
+        gen_fuel.nuclear_unit_id.isna()
+        & gen_fuel.energy_source_code.ne("NUC")
+    ].copy()
     gen_fuel = gen_fuel.drop(columns=["nuclear_unit_id"])
 
     # Backfill 2001, 2002 prime_mover_codes.
