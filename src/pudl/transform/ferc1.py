@@ -1271,7 +1271,6 @@ def plants_hydro(ferc1_raw_dfs, ferc1_transformed_dfs):
                     "capacity_mw"],
             keep=False)
     )
-
     ferc1_transformed_dfs['plants_hydro_ferc1'] = ferc1_hydro_df
     return ferc1_transformed_dfs
 
