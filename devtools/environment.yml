@@ -6,7 +6,7 @@ channels:
 dependencies:
   # Used to set up the environment
   - pip~=21.0
-  - python>=3.8,<3.10
+  - python>=3.8,<3.11
   # These packages are also specified in setup.py
   # However, they depend on or benefit from binary libraries
   # which conda can install.
@@ -16,7 +16,7 @@ dependencies:
   - sqlite~=3.36
   # These libraries aren't directly specified in setup.py as
   # dependencies, but they are helpful and provide binaries
-  - numba~=0.53  # First numba version that's compatible with Python 3.9
+  #- numba~=0.53  # First numba version that's compatible with Python 3.9
   - python-graphviz # For visualizing DAGs from Prefect
 
    # These are not normal Python packages available on PyPI
