@@ -399,11 +399,13 @@ CONSTRUCTION_TYPE_STRINGS: Dict[str, List[str]] = {
         'conventionsl', 'conventiional', 'convntl steam plants', 'indoor const.',
         'full indoor', 'indoor', 'indoor automatic', 'indoor boiler',
         '(peak load) indoor', 'conventionl,indoor', 'conventionl, indoor',
-        'conventional, indoor', 'comb. cycle indoor', '3 indoor boiler',
+        'conventional, indoor', 'conventional;outdoor', 'conven./outdoor',
+        'conventional;semi-ou', 'comb. cycle indoor', '3 indoor boiler',
         '2 indoor boilers', '1 indoor boiler', '2 indoor boiler',
         '3 indoor boilers', 'fully contained', 'conv - b', 'conventional/boiler',
         'cnventional', 'comb. cycle indooor', 'sonventional', 'ind enclosures',
         'conentional', 'conventional - boilr', 'indoor boiler and st',
+        'underground', 'pump storage',
     ],
     "unknown": [
         '', 'automatic operation', 'comb. turb. installn', 'comb. turb. instaln',
@@ -429,7 +431,7 @@ CONSTRUCTION_TYPE_STRINGS: Dict[str, List[str]] = {
         'tower -10 unit', 'tower - 101 unit', '3 on 1 gas turbine', 'tower - 10 units',
         'tower - 165 units', 'wind turbine', 'fixed tilt pv', 'tracking pv', 'o',
         'wind trubine', 'subcritical', 'sucritical', 'simple cycle',
-        'simple & reciprocat', 'solar',
+        'simple & reciprocat', 'solar', 'pre-fab power plant', 'prefab power plant',
     ],
 }
 """
@@ -781,7 +783,10 @@ def _plants_steam_clean(ferc1_steam_df):
         )
         .drop(columns=["capex_per_kw", "opex_per_kwh", "net_generation_kwh"])
     )
-
+    if ferc1_steam_df['construction_type'].isnull().any() is True:
+        raise AssertionError(
+            "NA values found in construction_type column, add string to CONSTRUCTION_TYPE_STRINGS"
+        )
     return ferc1_steam_df
 
 
@@ -1271,6 +1276,10 @@ def plants_hydro(ferc1_raw_dfs, ferc1_transformed_dfs):
                     "capacity_mw"],
             keep=False)
     )
+    if ferc1_hydro_df['construction_type'].isnull().any() is True:
+        raise AssertionError(
+            "NA values found in construction_type column, add string to CONSTRUCTION_TYPE_STRINGS"
+        )
     ferc1_transformed_dfs['plants_hydro_ferc1'] = ferc1_hydro_df
     return ferc1_transformed_dfs
 
@@ -1357,7 +1366,10 @@ def plants_pumped_storage(ferc1_raw_dfs, ferc1_transformed_dfs):
                     "capacity_mw"],
             keep=False)
     )
-
+    if ferc1_pump_df['construction_type'].isnull().any() is True:
+        raise AssertionError(
+            "NA values found in construction_type column, add string to CONSTRUCTION_TYPE_STRINGS"
+        )
     ferc1_transformed_dfs['plants_pumped_storage_ferc1'] = ferc1_pump_df
     return ferc1_transformed_dfs
 
