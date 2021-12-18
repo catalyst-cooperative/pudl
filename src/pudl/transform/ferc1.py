@@ -405,7 +405,6 @@ CONSTRUCTION_TYPE_STRINGS: Dict[str, List[str]] = {
         '3 indoor boilers', 'fully contained', 'conv - b', 'conventional/boiler',
         'cnventional', 'comb. cycle indooor', 'sonventional', 'ind enclosures',
         'conentional', 'conventional - boilr', 'indoor boiler and st',
-        'underground', 'pump storage',
     ],
     "unknown": [
         '', 'automatic operation', 'comb. turb. installn', 'comb. turb. instaln',
@@ -432,6 +431,7 @@ CONSTRUCTION_TYPE_STRINGS: Dict[str, List[str]] = {
         'tower - 165 units', 'wind turbine', 'fixed tilt pv', 'tracking pv', 'o',
         'wind trubine', 'subcritical', 'sucritical', 'simple cycle',
         'simple & reciprocat', 'solar', 'pre-fab power plant', 'prefab power plant',
+        'pump storage', 'underground',
     ],
 }
 """
