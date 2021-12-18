@@ -10,11 +10,13 @@ from typing import (Any, Callable, Dict, Iterable, List, Literal, Optional,
 
 import jinja2
 import pandas as pd
+import pyarrow as pa
 import pydantic
 import sqlalchemy as sa
 
 from .constants import (CONSTRAINT_DTYPES, CONTRIBUTORS,
-                        CONTRIBUTORS_BY_SOURCE, FIELD_DTYPES, FIELD_DTYPES_SQL,
+                        CONTRIBUTORS_BY_SOURCE, FIELD_DTYPES_PANDAS,
+                        FIELD_DTYPES_PYARROW, FIELD_DTYPES_SQL,
                         KEYWORDS_BY_SOURCE, LICENSES, PERIODS, SOURCES)
 from .fields import (FIELD_METADATA, FIELD_METADATA_BY_GROUP,
                      FIELD_METADATA_BY_RESOURCE)
@@ -620,13 +622,27 @@ class Field(Base):
                 return "Int32"
             if self.type == "number":
                 return "float32"
-        return FIELD_DTYPES[self.type]
+        return FIELD_DTYPES_PANDAS[self.type]
 
     def to_sql_dtype(self) -> sa.sql.visitors.VisitableType:
         """Return SQLAlchemy data type."""
         if self.constraints.enum and self.type == "string":
             return sa.Enum(*self.constraints.enum)
         return FIELD_DTYPES_SQL[self.type]
+
+    def to_pyarrow_dtype(self) -> pa.lib.DataType:
+        """Return PyArrow data type."""
+        if self.constraints.enum and self.type == "string":
+            return pa.dictionary(pa.int8(), pa.string(), ordered=False)
+        return FIELD_DTYPES_PYARROW[self.type]
+
+    def to_pyarrow(self) -> pa.Field:
+        """Return a PyArrow Field appropriate to the field."""
+        return pa.field(
+            name=self.name,
+            type=self.to_pyarrow_dtype(),
+            nullable=(not self.constraints.required),
+        )
 
     def to_sql(  # noqa: C901
         self,
@@ -1125,6 +1141,12 @@ class Resource(Base):
         for key in self.schema.foreign_keys:
             constraints.append(key.to_sql())
         return sa.Table(self.name, metadata, *columns, *constraints)
+
+    def to_pyarrow(self) -> pa.Schema:
+        """Construct a PyArrow schema for the resource."""
+        return pa.schema(
+            [field.to_pyarrow() for field in self.schema.fields]
+        )
 
     def to_pandas_dtypes(
         self, **kwargs: Any
