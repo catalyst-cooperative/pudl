@@ -774,8 +774,7 @@ def _plants_steam_clean(ferc1_steam_df):
             "expns_kwh": 'opex_per_kwh'})
         .pipe(_clean_cols, "f1_steam")
         .pipe(pudl.helpers.simplify_strings, ['plant_name_ferc1'])
-        .pipe(pudl.helpers.cleanstrings, ['construction_type'], [CONSTRUCTION_TYPE_STRINGS], unmapped=pd.NA)
-        .pipe(pudl.helpers.cleanstrings, ['plant_type'], [PLANT_KIND_STRINGS], unmapped=pd.NA)
+        .pipe(pudl.helpers.cleanstrings, ['construction_type', 'plant_type'], [CONSTRUCTION_TYPE_STRINGS, PLANT_KIND_STRINGS], unmapped=pd.NA)
         .pipe(pudl.helpers.oob_to_nan,
               cols=["construction_year", "installation_year"],
               lb=1850, ub=max(pc.WORKING_PARTITIONS["ferc1"]["years"]) + 1)
