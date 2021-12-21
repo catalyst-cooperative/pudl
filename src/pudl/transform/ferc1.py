@@ -287,8 +287,8 @@ PLANT_KIND_STRINGS: Dict[str, List[str]] = {
         'internl combustion', '*int. combustion (1)', 'internal conbustion',
     ],
     "wind": [
-        'wind', 'wind energy', 'wind turbine', 'wind - turbine', 'wind generation'
-        'wind turbin'
+        'wind', 'wind energy', 'wind turbine', 'wind - turbine', 'wind generation',
+        'wind turbin',
     ],
     "photovoltaic": ['solar photovoltaic', 'photovoltaic', 'solar', 'solar project'],
     "solar_thermal": ['solar thermal'],
@@ -431,7 +431,8 @@ CONSTRUCTION_TYPE_STRINGS: Dict[str, List[str]] = {
         'tower - 165 units', 'wind turbine', 'fixed tilt pv', 'tracking pv', 'o',
         'wind trubine', 'subcritical', 'sucritical', 'simple cycle',
         'simple & reciprocat', 'solar', 'pre-fab power plant', 'prefab power plant',
-        'pump storage', 'underground',
+        'prefab. power plant', 'pump storage', 'underground', 'see page 402',
+        'conv. underground', 'conven. underground', 'conventional (a)', 'non-applicable',
     ],
 }
 """
@@ -726,6 +727,8 @@ def plants_steam(ferc1_raw_dfs, ferc1_transformed_dfs):
              ferc1_transformed_dfs['fuel_ferc1'])
     )
     plants_steam_validate_ids(ferc1_steam_df)
+    ferc1_steam_df = ferc1_steam_df.replace(
+        {'construction_type': 'unknown', 'plant_type': 'unknown'}, pd.NA)
     ferc1_transformed_dfs['plants_steam_ferc1'] = ferc1_steam_df
     return ferc1_transformed_dfs
 
@@ -772,7 +775,7 @@ def _plants_steam_clean(ferc1_steam_df):
         .pipe(_clean_cols, "f1_steam")
         .pipe(pudl.helpers.simplify_strings, ['plant_name_ferc1'])
         .pipe(pudl.helpers.cleanstrings, ['construction_type'], [CONSTRUCTION_TYPE_STRINGS], unmapped=pd.NA)
-        .pipe(pudl.helpers.cleanstrings, ['plant_type'], [PLANT_KIND_STRINGS], unmapped="")
+        .pipe(pudl.helpers.cleanstrings, ['plant_type'], [PLANT_KIND_STRINGS], unmapped=pd.NA)
         .pipe(pudl.helpers.oob_to_nan,
               cols=["construction_year", "installation_year"],
               lb=1850, ub=max(pc.WORKING_PARTITIONS["ferc1"]["years"]) + 1)
@@ -783,10 +786,12 @@ def _plants_steam_clean(ferc1_steam_df):
         )
         .drop(columns=["capex_per_kw", "opex_per_kwh", "net_generation_kwh"])
     )
-    if ferc1_steam_df['construction_type'].isnull().any() is True:
-        raise AssertionError(
-            "NA values found in construction_type column, add string to CONSTRUCTION_TYPE_STRINGS"
-        )
+
+    for col in ['construction_type', 'plant_type']:
+        if ferc1_steam_df[col].isnull().any():
+            raise AssertionError(
+                f"NA values found in {col} column during FERC 1 steam clean, add string to dictionary for this column"
+            )
     return ferc1_steam_df
 
 
@@ -995,7 +1000,7 @@ def fuel(ferc1_raw_dfs, ferc1_transformed_dfs):
         # imperfect:
         pipe(pudl.helpers.cleanstrings, ['fuel', 'fuel_unit'],
              [FUEL_STRINGS, FUEL_UNIT_STRINGS],
-             unmapped='').
+             unmapped=pd.NA).
         # Fuel cost per kWh is a per-unit value that doesn't make sense to
         # report for a single fuel that may be only a small part of the fuel
         # consumed. "fuel generaton" is heat rate, but as it's based only on
@@ -1018,6 +1023,11 @@ def fuel(ferc1_raw_dfs, ferc1_transformed_dfs):
             'fuel_cost_delvd': 'fuel_cost_per_unit_delivered',
             'fuel_cost_btu': 'fuel_cost_per_mmbtu'})
     )
+
+    if fuel_ferc1_df['fuel_units'].isnull().any():
+        raise AssertionError(
+            "NA values found in fuel_units column during FERC 1 fuel clean, add string to dictionary"
+        )
 
     #########################################################################
     # CORRECT DATA ENTRY ERRORS #############################################
@@ -1078,6 +1088,8 @@ def fuel(ferc1_raw_dfs, ferc1_transformed_dfs):
     # (for example) a "Total" line w/ only fuel_mmbtu_per_kwh on it. Grr.
     fuel_ferc1_df.dropna(inplace=True)
 
+    # Replace "unkown" fuel unit with NAs - this comes after we drop missing data with NAs
+    fuel_ferc1_df = fuel_ferc1_df.replace({'fuel_units': 'unknown'}, pd.NA)
     ferc1_transformed_dfs['fuel_ferc1'] = fuel_ferc1_df
 
     return ferc1_transformed_dfs
@@ -1276,10 +1288,11 @@ def plants_hydro(ferc1_raw_dfs, ferc1_transformed_dfs):
                     "capacity_mw"],
             keep=False)
     )
-    if ferc1_hydro_df['construction_type'].isnull().any() is True:
+    if ferc1_hydro_df['construction_type'].isnull().any():
         raise AssertionError(
-            "NA values found in construction_type column, add string to CONSTRUCTION_TYPE_STRINGS"
+            "NA values found in construction_type column during FERC1 hydro clean, add string to CONSTRUCTION_TYPE_STRINGS"
         )
+    ferc1_hydro_df = ferc1_hydro_df.replace({'construction_type': 'unknown'}, pd.NA)
     ferc1_transformed_dfs['plants_hydro_ferc1'] = ferc1_hydro_df
     return ferc1_transformed_dfs
 
@@ -1366,10 +1379,11 @@ def plants_pumped_storage(ferc1_raw_dfs, ferc1_transformed_dfs):
                     "capacity_mw"],
             keep=False)
     )
-    if ferc1_pump_df['construction_type'].isnull().any() is True:
+    if ferc1_pump_df['construction_type'].isnull().any():
         raise AssertionError(
-            "NA values found in construction_type column, add string to CONSTRUCTION_TYPE_STRINGS"
+            "NA values found in construction_type column during FERC 1 pumped storage clean, add string to CONSTRUCTION_TYPE_STRINGS"
         )
+    ferc1_pump_df = ferc1_pump_df.replace({'construction_type': 'unknown'}, pd.NA)
     ferc1_transformed_dfs['plants_pumped_storage_ferc1'] = ferc1_pump_df
     return ferc1_transformed_dfs
 

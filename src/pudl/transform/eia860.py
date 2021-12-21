@@ -579,6 +579,7 @@ def utilities(eia860_dfs, eia860_transformed_dfs):
             entity_type=lambda x: x.entity_type.map(ENTITY_TYPES)
         )
         .pipe(pudl.helpers.convert_to_date)
+        .fillna({'entity_type': pd.NA})
     )
 
     eia860_transformed_dfs['utilities_eia860'] = u_df

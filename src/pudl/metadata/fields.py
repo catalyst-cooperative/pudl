@@ -229,7 +229,7 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
         "type": "string",
         "description": "Type of plant construction ('outdoor', 'semioutdoor', or 'conventional'). Categorized by PUDL based on our best guess of intended value in FERC1 freeform strings.",
         "constraints": {
-            "enum": ["unknown", "conventional", "outdoor", "semioutdoor"]
+            "enum": ["conventional", "outdoor", "semioutdoor"]
         }
     },
     "construction_year": {
@@ -2293,7 +2293,6 @@ FIELD_METADATA_BY_GROUP: Dict[str, Dict[str, Any]] = {
         "fuel_units": {
             "constraints": {
                 "enum": [
-                    "unknown",
                     "mmbtu",
                     "gramsU",
                     "kgU",
@@ -2323,6 +2322,14 @@ FIELD_METADATA_BY_RESOURCE: Dict[str, Dict[str, Any]] = {
     "sector_consolidated_eia": {
         "code": {
             "type": "integer"
+        }
+    },
+    "plants_steam_ferc1": {
+        "plant_type": {
+            "type": "string",
+            "constraints": {
+                "enum": ['steam', 'combustion_turbine', 'combined_cycle', 'nuclear', 'geothermal', 'internal_combustion', 'wind', 'photovoltaic', 'solar_thermal']
+            }
         }
     }
 }
