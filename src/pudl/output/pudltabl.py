@@ -96,7 +96,7 @@ class PudlTabl(object):
                 generation_fuel_eia923 - which is reported at the
                 plant/fuel/prime mover level and  re-allocated to generators in
                 ``mcoe()``, ``capacity_factor()`` and ``heat_rate_by_unit()``.
-            backfill_tech_desc: If True, backfill the technology_description
+            backfill_tech_desc: If True, fill the technology_description
                 field to years earlier than 2013 based on plant and
                 energy_source_code_1.
             unit_ids: If True, use several heuristics to assign
@@ -538,7 +538,7 @@ class PudlTabl(object):
         """
         Pull a dataframe describing generators, as reported in EIA 860.
 
-        If you want to backfill the technology_description field, recreate
+        If you want to fill the technology_description field, recreate
         the pudl_out object with the parameter backfill_tech_desc = True.
 
         Args:
