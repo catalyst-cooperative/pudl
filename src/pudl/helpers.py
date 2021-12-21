@@ -201,7 +201,7 @@ def add_fips_ids(df, state_col="state", county_col="county", vintage=2015):
     )
     df["county_id_fips"] = df.apply(
         lambda x: (af.get_county_fips(state=x[state_col], county=x[county_col])
-                   if pd.notnull(x[county_col]) else pd.NA),
+                   if pd.notnull(x[county_col]) and pd.notnull(x[state_col]) else pd.NA),
         axis=1)
     # force the code columns to be nullable strings - the leading zeros are
     # important
