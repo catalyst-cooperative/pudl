@@ -280,9 +280,11 @@ def etl_epacems(
 
     # run the cems generator dfs through the load step
     for df in epacems_transformed_dfs:
-        pudl.load.parquet.epacems_to_parquet(
+        pudl.load.parquet.to_parquet(
             df,
+            resource_id="hourly_emissions_epacems",
             root_path=Path(pudl_settings["parquet_dir"]) / "epacems",
+            partition_cols=["year", "state"]
         )
 
     if logger.isEnabledFor(logging.INFO):
