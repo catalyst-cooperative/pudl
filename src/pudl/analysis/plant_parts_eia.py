@@ -247,11 +247,74 @@ class MakeMegaGenTbl(object):
             columns and data columns, sliced by ownership which makes
             "total" and "owned" records for each generator owner. The "owned"
             records have the generator's data scaled to the ownership percentage
-            (e.g. if a 100 MW generator has a 75% stake owner and a 25% stake
-            owner, this will result in two "owned" records with 75 MW and 25
+            (e.g. if a 200 MW generator has a 75% stake owner and a 25% stake
+            owner, this will result in two "owned" records with 150 MW and 50
             MW). The "total" records correspond to the full plant for every
-            owner (e.g. using the same 2-owner 100 MW generator as above, each
-            owner will have a records with 100 MW).
+            owner (e.g. using the same 2-owner 200 MW generator as above, each
+            owner will have a records with 200 MW).
+
+        Examples
+        --------
+        **Input Tables**
+
+        Here is an example of one plant with three generators. We will use
+        ``capacity_mw`` as the data column.
+
+        >>> df_mcoe = pd.DataFrame({
+        ...     'plant_id_eia': [1, 1, 1],
+        ...     'generator_id': ['a', 'b', 'c'],
+        ...     'capacity_mw': [100, 100, 200]
+        ... })
+
+        The ownership table from EIA 860 includes one record for every owner of
+        each generator. In this example generator ``c`` has two owners.
+
+        >>> df_own_eia860 = pd.DataFrame({
+        ...     'plant_id_eia': [1, 1, 1, 1],
+        ...     'generator_id': ['a', 'b', 'c', 'c'],
+        ...     'utility_id_eia': [111, 111, 111, 111],
+        ...     'owner_utility_id_eia': [111, 111, 111, 888],
+        ...     'fraction_owned': [1, 1, .75, .25]
+        ... })
+
+        **Output Mega Generators Table**
+
+        The ouptut from this example plant will include two distinct
+
+        >>> gens_mega = pd.DataFrame({
+        ...     'plant_id_eia': [1, 1, 1, 1, 1, 1, 1, 1,],
+        ...     'generator_id': ['a', 'b', 'c', 'c', 'a', 'b', 'c', 'c',],
+        ...     'ownership': [
+        ...         'total', 'total', 'total', 'total',
+        ...         'owned', 'owned', 'owned', 'owned',],
+        ...     'utility_id_eia': [111, 111, 111, 888, 111, 111, 111, 888],
+        ...     'fraction_owned': [
+        ...         1, 1, 1, 1,
+        ...         1, 1, .75, .25],
+        ...     'capacity_mw': [
+        ...         100, 100, 200, 200,
+        ...         100, 100, 150, 50],
+        ... })
+        >>> gens_mega
+             plant_id_eia     generator_id     ownership     utility_id_eia     fraction_owned     capacity_mw
+        0               1                a         total                111               1.00             100
+        1               1                b         total                111               1.00             100
+        2               1                c         total                111               1.00             200
+        3               1                c         total                888               1.00             200
+        4               1                a         owned                111               1.00             100
+        5               1                b         owned                111               1.00             100
+        6               1                c         owned                111               0.75             150
+        7               1                c         owned                888               0.25              50
+
+        This output table ``gens_mega`` includes two main sections: the
+        generators with a "total" ownership stake for each of their owners and
+        the generators with an "owned" ownership stake for each of their
+        owners. For the generators that are owned 100% by one utility, the
+        records are identical except the ``ownership`` column. For the
+        generators that have more than one owner, there are two "total" records
+        with 100% of the capacity of that generator - one for each owner - and
+        two "owned" records with the capacity scaled to the ownership stake
+        of each of the owner utilites - represented by ``fraction_owned``.
         """
         logger.info('Generating the mega generator table with ownership.')
         # pull in the main tables we'll use from the pudl_out object
