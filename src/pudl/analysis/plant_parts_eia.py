@@ -38,7 +38,41 @@ the unique granularity.
 Overview of flow for generating the master unit list:
 
 :py:const:`PLANT_PARTS` is the main recipe book for how each of the plant-parts
-need to be compiled.
+need to be compiled. These plant-parts represent ways to group generators based
+on widely reported values in EIA. All of these are logical ways to group
+collections of generators, in most cases. The canonical example here is the
+plant-unit. A unit is a collection of generators that operate together - most
+notably the combined-cycle natural gas plants. Combined-cycle units generally
+consist of a number of gas turbines which feed excess steam to a number of
+steam turbines.
+
+>>> df_gens = pd.DataFrame({
+...     'plant_id_eia': [1, 1, 1],
+...     'generator_id': ['a', 'b', 'c'],
+...     'unit_id_pudl': [1, 1, 1],
+...     'prime_mover_code': ['CT', 'CT', 'CA'],
+...     'capacity_mw': [50, 50, 100],
+... })
+>>> df_gens
+    plant_id_eia    generator_id    unit_id_pudl    prime_mover_code    capacity_mw
+0              1               a               1                  CT             50
+1              1               b               1                  CT             50
+2              1               c               1                  CA            100
+
+A good example of a plant-part that isn't really logical also comes from a
+combined-cycle unit. Grouping this example plant by the ``prime_mover_code``
+would generate two records that would basically never show up in FERC1.
+This stems from the inseparability of the generators.
+
+>>> df_plant_prime_mover = pd.DataFrame({
+...     'plant_id_eia': [1, 1],
+...     'prime_mover_code': ['CT', 'CA'],
+...     'capacity_mw': [100, 100],
+... })
+>>> df_plant_prime_mover
+    plant_id_eia    prime_mover_code    capacity_mw
+0              1                  CT            100
+1              1                  CA            100
 
 The three main classes which enable the generation of the plant-part table are:
 
@@ -96,6 +130,7 @@ plant_parts_eia = parts_compiler.execute(gens_mega=gens_mega, true_grans=true_gr
 import logging
 import warnings
 from copy import deepcopy
+from typing import Dict, List
 
 import numpy as np
 import pandas as pd
@@ -104,7 +139,7 @@ import pudl
 
 logger = logging.getLogger(__name__)
 
-PLANT_PARTS = {
+PLANT_PARTS: Dict[str, Dict[str, List]] = {
     'plant': {
         'id_cols': ['plant_id_eia'],
     },
@@ -282,7 +317,6 @@ class MakeMegaGenTbl(object):
         The ouptut from this example plant will include two distinct
 
         >>> gens_mega = pd.DataFrame({
-        ...     'plant_id_eia': [1, 1, 1, 1, 1, 1, 1, 1,],
         ...     'generator_id': ['a', 'b', 'c', 'c', 'a', 'b', 'c', 'c',],
         ...     'ownership': [
         ...         'total', 'total', 'total', 'total',
@@ -296,15 +330,15 @@ class MakeMegaGenTbl(object):
         ...         100, 100, 150, 50],
         ... })
         >>> gens_mega
-             plant_id_eia     generator_id     ownership     utility_id_eia     fraction_owned     capacity_mw
-        0               1                a         total                111               1.00             100
-        1               1                b         total                111               1.00             100
-        2               1                c         total                111               1.00             200
-        3               1                c         total                888               1.00             200
-        4               1                a         owned                111               1.00             100
-        5               1                b         owned                111               1.00             100
-        6               1                c         owned                111               0.75             150
-        7               1                c         owned                888               0.25              50
+            generator_id   ownership   utility_id_eia  fraction_owned  capacity_mw
+        0              a       total              111            1.00          100
+        1              b       total              111            1.00          100
+        2              c       total              111            1.00          200
+        3              c       total              888            1.00          200
+        4              a       owned              111            1.00          100
+        5              b       owned              111            1.00          100
+        6              c       owned              111            0.75          150
+        7              c       owned              888            0.25           50
 
         This output table ``gens_mega`` includes two main sections: the
         generators with a "total" ownership stake for each of their owners and
@@ -444,6 +478,15 @@ class MakeMegaGenTbl(object):
     def slice_by_ownership(self, gens_mega, own_eia860):
         """
         Generate proportional data by ownership %s.
+
+        Why do we have to do this at all? Sometimes generators are owned by
+        many different utility owners that own slices of that generator. EIA
+        reports which portion of each generator is owned by which utility
+        relatively clearly in their ownership table. On the other hand, in
+        FERC1, sometimes a partial owner reports the full plant-part, sometimes
+        they report only their ownership portion of the plant-part. And of
+        course it is not labeld in FERC1. Because of this, we need to compile
+        all of the possible ownership slices of the EIA generators.
 
         In order to accumulate every possible version of how a generator could
         be reported, this method generates two records for each generator's
