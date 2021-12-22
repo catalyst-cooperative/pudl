@@ -128,8 +128,12 @@ def allocate_gen_fuel_by_gen(pudl_out):
     # only the columns we need. this is for speed and clarity.
     gf = pudl_out.gf_eia923().loc[
         :, IDX_PM_FUEL + ['net_generation_mwh', 'fuel_consumed_mmbtu']]
-    gen = pudl_out.gen_original_eia923().loc[
-        :, IDX_GENS + ['net_generation_mwh']]
+    gen = (
+        pudl_out.gen_original_eia923()
+        .loc[:, IDX_GENS + ["net_generation_mwh"]]
+        # removes 4 records with NaN generator_id as of pudl v0.5
+        .dropna(subset=IDX_GENS)
+    )
     gens = pudl_out.gens_eia860().loc[
         :, IDX_GENS + ['prime_mover_code', 'capacity_mw', 'fuel_type_count',
                        'operational_status', 'retirement_date']
@@ -234,8 +238,11 @@ def agg_by_generator(gen_pm_fuel):
             `allocate_gen_fuel_by_gen_pm_fuel()`
     """
     data_cols = ['net_generation_mwh', 'fuel_consumed_mmbtu']
-    gen = (gen_pm_fuel.groupby(by=IDX_GENS)
-           [data_cols].sum(min_count=1).reset_index())
+    gen = (
+        gen_pm_fuel.groupby(by=IDX_GENS)
+        [data_cols].sum(min_count=1).reset_index()
+        .pipe(pudl.helpers.convert_cols_dtypes, 'eia')
+    )
 
     return gen
 
@@ -459,13 +466,16 @@ def _associate_energy_source_only(gen_assoc, gf):
     )
     gf_missing_pm = (
         gf_grouped[gf_grouped[IDX_PM_FUEL].isnull().any(axis=1)]
-        .drop(columns=['prime_mover_code'])
-        .set_index(IDX_FUEL).add_suffix("_fuel").reset_index()
+        .drop(columns=["prime_mover_code"])
+        .set_index(IDX_FUEL)
+        .add_suffix("_fuel")
+        .reset_index()
+        .astype({"plant_id_eia": pd.Int64Dtype()})
     )
 
     gen_assoc = pd.merge(
         gen_assoc,
-        gf_missing_pm,
+        gf_missing_pm.pipe(pudl.helpers.convert_cols_dtypes, 'eia'),
         how='outer',
         on=IDX_FUEL,
         indicator=True

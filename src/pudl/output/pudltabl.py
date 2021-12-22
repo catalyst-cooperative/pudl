@@ -60,7 +60,9 @@ class PudlTabl(object):
         end_date: Union[str, date, datetime, pd.Timestamp] = None,
         fill_fuel_cost: bool = False,
         roll_fuel_cost: bool = False,
-        fill_net_gen: bool = False
+        fill_net_gen: bool = False,
+        backfill_tech_desc: bool = True,
+        unit_ids: bool = False
     ):
         """
         Initialize the PUDL output object.
@@ -94,6 +96,11 @@ class PudlTabl(object):
                 generation_fuel_eia923 - which is reported at the
                 plant/fuel/prime mover level and  re-allocated to generators in
                 ``mcoe()``, ``capacity_factor()`` and ``heat_rate_by_unit()``.
+            backfill_tech_desc: If True, backfill the technology_description
+                field to years earlier than 2013 based on plant and
+                energy_source_code_1.
+            unit_ids: If True, use several heuristics to assign
+                individual generators to functional units. EXPERIMENTAL.
 
         """
         # Validating ds is deferred to the etl_eia861 & etl_ferc714 methods
@@ -130,6 +137,8 @@ class PudlTabl(object):
         self.roll_fuel_cost: bool = roll_fuel_cost
         self.fill_fuel_cost: bool = fill_fuel_cost
         self.fill_net_gen: bool = fill_net_gen
+        self.backfill_tech_desc = backfill_tech_desc  # only for eia860 table.
+        self.unit_ids = unit_ids
 
         # Used to persist the output tables. Returns None if they don't exist.
         self._dfs = defaultdict(lambda: None)
@@ -525,9 +534,12 @@ class PudlTabl(object):
                 end_date=self.end_date,)
         return self._dfs['plants_eia860']
 
-    def gens_eia860(self, update=False, unit_ids=False):
+    def gens_eia860(self, update=False):
         """
         Pull a dataframe describing generators, as reported in EIA 860.
+
+        If you want to backfill the technology_description field, recreate
+        the pudl_out object with the parameter backfill_tech_desc = True.
 
         Args:
             update (bool): If true, re-calculate the output dataframe, even if
@@ -542,8 +554,9 @@ class PudlTabl(object):
                 self.pudl_engine,
                 start_date=self.start_date,
                 end_date=self.end_date,
-                unit_ids=unit_ids,
-            )
+                unit_ids=self.unit_ids,
+                backfill_tech_desc=self.backfill_tech_desc)
+
         return self._dfs['gens_eia860']
 
     def own_eia860(self, update=False):
