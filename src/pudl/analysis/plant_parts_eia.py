@@ -35,16 +35,18 @@ order to choose which plant-part to keep in these instances, we assigned a
 :py:const:`PLANT_PARTS_ORDERED` and label whichever plant-part comes first as
 the unique granularity.
 
-Overview of flow for generating the master unit list:
+**Recipe Book for the plant-part list**
 
 :py:const:`PLANT_PARTS` is the main recipe book for how each of the plant-parts
 need to be compiled. These plant-parts represent ways to group generators based
 on widely reported values in EIA. All of these are logical ways to group
-collections of generators, in most cases. The canonical example here is the
-plant-unit. A unit is a collection of generators that operate together - most
-notably the combined-cycle natural gas plants. Combined-cycle units generally
-consist of a number of gas turbines which feed excess steam to a number of
-steam turbines.
+collections of generators - in most cases - but some groupings of generators
+are more prevelant or relevant than others for certain types of plants.
+
+The canonical example here is the ``plant_unit``. A unit is a collection of
+generators that operate together - most notably the combined-cycle natural gas
+plants. Combined-cycle units generally consist of a number of gas turbines
+which feed excess steam to a number of steam turbines.
 
 >>> df_gens = pd.DataFrame({
 ...     'plant_id_eia': [1, 1, 1],
@@ -66,13 +68,65 @@ This stems from the inseparability of the generators.
 
 >>> df_plant_prime_mover = pd.DataFrame({
 ...     'plant_id_eia': [1, 1],
+...     'plant_part': ['plant_prime_mover', 'plant_prime_mover'],
 ...     'prime_mover_code': ['CT', 'CA'],
 ...     'capacity_mw': [100, 100],
 ... })
 >>> df_plant_prime_mover
-    plant_id_eia    prime_mover_code    capacity_mw
-0              1                  CT            100
-1              1                  CA            100
+    plant_id_eia         plant_part    prime_mover_code    capacity_mw
+0              1  plant_prime_mover                  CT            100
+1              1  plant_prime_mover                  CA            100
+
+In this case the unit is more relevant:
+
+>>> df_plant_unit = pd.DataFrame({
+...     'plant_id_eia': [1],
+...     'plant_part': ['plant_unit'],
+...     'unit_id_pudl': [1],
+...     'capacity_mw': [200],
+... })
+>>> df_plant_unit
+    plant_id_eia    plant_part    unit_id_pudl    capacity_mw
+0              1    plant_unit               1            200
+
+But if this same plant had both this combined-cycle unit and two more
+generators that were self contained "GT" or gas combustion turbine, a frequent
+way to group these generators is differnt for the combined-cycle unit and the
+gas-turbine.
+
+>>> df_gens = pd.DataFrame({
+...     'plant_id_eia': [1, 1, 1, 1, 1],
+...     'generator_id': ['a', 'b', 'c', 'd', 'e'],
+...     'unit_id_pudl': [1, 1, 1, 2, 3],
+...     'prime_mover_code': ['CT', 'CT', 'CA', 'GT', 'GT'],
+...     'capacity_mw': [50, 50, 100, 75, 75],
+... })
+>>> df_gens
+    plant_id_eia    generator_id    unit_id_pudl    prime_mover_code    capacity_mw
+0              1               a               1                  CT             50
+1              1               b               1                  CT             50
+2              1               c               1                  CA            100
+3              1               d               2                  GT             75
+4              1               e               3                  GT             75
+
+>>> df_plant_part = pd.DataFrame({
+...     'plant_id_eia': [1, 1],
+...     'plant_part': ['plant_unit', 'plant_prime_mover'],
+...     'unit_id_pudl': [1, pd.NA],
+...     'prime_mover_code': [pd.NA, 'GT',],
+...     'capacity_mw': [200, 150],
+... })
+>>> df_plant_part
+    plant_id_eia           plant_part    unit_id_pudl    prime_mover_code    capacity_mw
+0              1           plant_unit               1                <NA>            200
+1              1    plant_prime_mover            <NA>                  GT            150
+
+In this case last, the ``plant_unit`` record would have a null
+``plant_prime_mover`` because the unit contains more than one
+``prime_mover_code``. Same goes for the ``unit_id_pudl`` of the
+``plant_prime_mover``. This is handled in the :class:``AddConsistentAttributes``.
+
+**Overview of flow for generating the master unit list:**
 
 The three main classes which enable the generation of the plant-part table are:
 
@@ -172,7 +226,7 @@ dictionary, which contains keys:
 
 """
 
-PLANT_PARTS_ORDERED = [
+PLANT_PARTS_ORDERED: List[str] = [
     'plant',
     'plant_unit',
     'plant_prime_mover',
@@ -183,7 +237,7 @@ PLANT_PARTS_ORDERED = [
 ]
 
 
-IDX_TO_ADD = ['report_date', 'operational_status_pudl']
+IDX_TO_ADD: List[str] = ['report_date', 'operational_status_pudl']
 """
 list: list of additional columns to add to the id_cols in :py:const:`PLANT_PARTS`.
 The id_cols are the base columns that we need to aggregate on, but we also need
@@ -192,7 +246,7 @@ operational_status_pudl to separate the operating plant-parts from the
 non-operating plant-parts.
 """
 
-IDX_OWN_TO_ADD = ['utility_id_eia', 'ownership']
+IDX_OWN_TO_ADD: List[str] = ['utility_id_eia', 'ownership']
 """
 list: list of additional columns beyond the :py:const:`IDX_TO_ADD` to add to the
 id_cols in :py:const:`PLANT_PARTS` when we are dealing with plant-part records
@@ -200,7 +254,7 @@ that have been broken out into "owned" and "total" records for each of their
 owners.
 """
 
-SUM_COLS = [
+SUM_COLS: List[str] = [
     'total_fuel_cost',
     'net_generation_mwh',
     'capacity_mw',
@@ -249,7 +303,71 @@ FIRST_COLS = ['plant_id_eia', 'report_date', 'plant_part', 'generator_id',
 
 
 class MakeMegaGenTbl(object):
-    """Compiler for a MEGA generator table with ownership integrated."""
+    """
+    Compiler for a MEGA generator table with ownership integrated.
+
+    Examples
+    --------
+    **Input Tables**
+
+    Here is an example of one plant with three generators. We will use
+    ``capacity_mw`` as the data column.
+
+    >>> df_mcoe = pd.DataFrame({
+    ...     'plant_id_eia': [1, 1, 1],
+    ...     'generator_id': ['a', 'b', 'c'],
+    ...     'capacity_mw': [100, 100, 200]
+    ... })
+
+    The ownership table from EIA 860 includes one record for every owner of
+    each generator. In this example generator ``c`` has two owners.
+
+    >>> df_own_eia860 = pd.DataFrame({
+    ...     'plant_id_eia': [1, 1, 1, 1],
+    ...     'generator_id': ['a', 'b', 'c', 'c'],
+    ...     'utility_id_eia': [111, 111, 111, 111],
+    ...     'owner_utility_id_eia': [111, 111, 111, 888],
+    ...     'fraction_owned': [1, 1, .75, .25]
+    ... })
+
+    **Output Mega Generators Table**
+
+    The ouptut from this example plant will include two distinct
+
+    >>> gens_mega = pd.DataFrame({
+    ...     'generator_id': ['a', 'b', 'c', 'c', 'a', 'b', 'c', 'c',],
+    ...     'ownership': [
+    ...         'total', 'total', 'total', 'total',
+    ...         'owned', 'owned', 'owned', 'owned',],
+    ...     'utility_id_eia': [111, 111, 111, 888, 111, 111, 111, 888],
+    ...     'fraction_owned': [
+    ...         1, 1, 1, 1,
+    ...         1, 1, .75, .25],
+    ...     'capacity_mw': [
+    ...         100, 100, 200, 200,
+    ...         100, 100, 150, 50],
+    ... })
+    >>> gens_mega
+        generator_id   ownership   utility_id_eia  fraction_owned  capacity_mw
+    0              a       total              111            1.00          100
+    1              b       total              111            1.00          100
+    2              c       total              111            1.00          200
+    3              c       total              888            1.00          200
+    4              a       owned              111            1.00          100
+    5              b       owned              111            1.00          100
+    6              c       owned              111            0.75          150
+    7              c       owned              888            0.25           50
+
+    This output table ``gens_mega`` includes two main sections: the
+    generators with a "total" ownership stake for each of their owners and
+    the generators with an "owned" ownership stake for each of their
+    owners. For the generators that are owned 100% by one utility, the
+    records are identical except the ``ownership`` column. For the
+    generators that have more than one owner, there are two "total" records
+    with 100% of the capacity of that generator - one for each owner - and
+    two "owned" records with the capacity scaled to the ownership stake
+    of each of the owner utilites - represented by ``fraction_owned``.
+    """
 
     def __init__(self, pudl_out):
         """
@@ -288,67 +406,6 @@ class MakeMegaGenTbl(object):
             owner (e.g. using the same 2-owner 200 MW generator as above, each
             owner will have a records with 200 MW).
 
-        Examples
-        --------
-        **Input Tables**
-
-        Here is an example of one plant with three generators. We will use
-        ``capacity_mw`` as the data column.
-
-        >>> df_mcoe = pd.DataFrame({
-        ...     'plant_id_eia': [1, 1, 1],
-        ...     'generator_id': ['a', 'b', 'c'],
-        ...     'capacity_mw': [100, 100, 200]
-        ... })
-
-        The ownership table from EIA 860 includes one record for every owner of
-        each generator. In this example generator ``c`` has two owners.
-
-        >>> df_own_eia860 = pd.DataFrame({
-        ...     'plant_id_eia': [1, 1, 1, 1],
-        ...     'generator_id': ['a', 'b', 'c', 'c'],
-        ...     'utility_id_eia': [111, 111, 111, 111],
-        ...     'owner_utility_id_eia': [111, 111, 111, 888],
-        ...     'fraction_owned': [1, 1, .75, .25]
-        ... })
-
-        **Output Mega Generators Table**
-
-        The ouptut from this example plant will include two distinct
-
-        >>> gens_mega = pd.DataFrame({
-        ...     'generator_id': ['a', 'b', 'c', 'c', 'a', 'b', 'c', 'c',],
-        ...     'ownership': [
-        ...         'total', 'total', 'total', 'total',
-        ...         'owned', 'owned', 'owned', 'owned',],
-        ...     'utility_id_eia': [111, 111, 111, 888, 111, 111, 111, 888],
-        ...     'fraction_owned': [
-        ...         1, 1, 1, 1,
-        ...         1, 1, .75, .25],
-        ...     'capacity_mw': [
-        ...         100, 100, 200, 200,
-        ...         100, 100, 150, 50],
-        ... })
-        >>> gens_mega
-            generator_id   ownership   utility_id_eia  fraction_owned  capacity_mw
-        0              a       total              111            1.00          100
-        1              b       total              111            1.00          100
-        2              c       total              111            1.00          200
-        3              c       total              888            1.00          200
-        4              a       owned              111            1.00          100
-        5              b       owned              111            1.00          100
-        6              c       owned              111            0.75          150
-        7              c       owned              888            0.25           50
-
-        This output table ``gens_mega`` includes two main sections: the
-        generators with a "total" ownership stake for each of their owners and
-        the generators with an "owned" ownership stake for each of their
-        owners. For the generators that are owned 100% by one utility, the
-        records are identical except the ``ownership`` column. For the
-        generators that have more than one owner, there are two "total" records
-        with 100% of the capacity of that generator - one for each owner - and
-        two "owned" records with the capacity scaled to the ownership stake
-        of each of the owner utilites - represented by ``fraction_owned``.
         """
         logger.info('Generating the mega generator table with ownership.')
         # pull in the main tables we'll use from the pudl_out object
