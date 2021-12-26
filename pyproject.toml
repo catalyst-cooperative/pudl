@@ -1,4 +1,4 @@
 [build-system]
-requires = ["setuptools", "pip", "wheel", "setuptools_scm"]
+requires = ["setuptools<60.0.0", "pip", "wheel", "setuptools_scm"]
 
 [tool.setuptools_scm]
