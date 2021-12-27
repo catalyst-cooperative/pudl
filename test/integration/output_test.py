@@ -32,6 +32,7 @@ def fast_out(pudl_engine, pudl_datastore_fixture):
         fill_fuel_cost=FILL_FUEL_COST,
         roll_fuel_cost=True,
         fill_net_gen=False,
+        backfill_tech_desc=True
     )
 
 

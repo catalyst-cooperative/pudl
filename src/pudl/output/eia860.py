@@ -425,9 +425,13 @@ def fill_generator_technology_description(gens_df: pd.DataFrame) -> pd.DataFrame
     ] = (out_df.energy_source_code_1.map(static_fuels))
 
     assert len(out_df) == nrows_orig
-    assert out_df.technology_description.count() \
+
+    # Assert that at least 95 percent of tech desc rows are filled in
+    if out_df.technology_description.count() \
         / out_df.technology_description.size \
-        * 100 > 95, "technology_description filling no longer covering 95%"
+            * 100 < 95:
+        raise AssertionError("technology_description filling no longer covering 95%")
+
     return out_df
 
 
