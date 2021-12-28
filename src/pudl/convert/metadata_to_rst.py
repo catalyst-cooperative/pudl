@@ -6,7 +6,7 @@ import sys
 
 import coloredlogs
 
-from pudl.metadata import Package, RESOURCE_METADATA
+from pudl.metadata import RESOURCE_METADATA, Package
 
 logger = logging.getLogger(__name__)
 
@@ -47,8 +47,8 @@ def main():
 
     args = parse_command_line(sys.argv)
     logger.info(f"Exporting PUDL metadata to: {args.output}")
-    names = [name for name in sorted(RESOURCE_METADATA) if name not in args.skip]
-    package = Package.from_resource_ids(names)
+    resource_ids = [rid for rid in sorted(RESOURCE_METADATA) if rid not in args.skip]
+    package = Package.from_resource_ids(resource_ids)
     # Sort fields within each resource by name:
     for resource in package.resources:
         resource.schema.fields = sorted(
