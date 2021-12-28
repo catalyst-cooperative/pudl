@@ -1544,7 +1544,7 @@ class Package(Base):
         return values
 
     @classmethod
-    def from_resource_ids(
+    def from_resource_ids(  # noqa: C901
         cls, resource_ids: Iterable[str], resolve_foreign_keys: bool = False
     ) -> "Package":
         """
@@ -1587,9 +1587,10 @@ class Package(Base):
                 if len(fk["fields"]) == 1 and encoder:
                     # fk["fields"] is a one element list, get the one element:
                     field = fk["fields"][0]
-                    field_names = [f["name"] for f in resource["schema"]["fields"]]
-                    idx = field_names.index(field)
-                    resource["schema"]["fields"][idx]["encoder"] = encoder
+                    for f in resource["schema"]["fields"]:
+                        if f["name"] == field:
+                            f["encoder"] = encoder
+                            break
 
         return cls(name="pudl", resources=resources)
 
