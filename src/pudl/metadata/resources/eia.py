@@ -8,6 +8,7 @@ from pudl.metadata.codes import (CONTRACT_TYPES_EIA, ENERGY_SOURCES_EIA,
 
 RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
     "boiler_fuel_eia923": {
+        "description": "EIA-923 Monthly Boiler Fuel Consumption and Emissions Time Series. From EIA-923 Schedule 3.",
         "schema": {
             "fields": [
                 "plant_id_eia",
@@ -30,6 +31,7 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
         "sources": ["eia923"],
     },
     "boiler_generator_assn_eia860": {
+        "description": "Associations between boilers and generators as reported in EIA-860 Schedule 6, Part A. Augmented with various heuristics within PUDL.",
         "schema": {
             "fields": [
                 "plant_id_eia",
@@ -42,16 +44,19 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
             ],
             "primary_key": ["plant_id_eia", "report_date", "generator_id", "boiler_id"],
         },
-        "sources": ["eia860"],
+        "sources": ["eia860", "eia923"],
     },
     "boilers_entity_eia": {
+        "description": "Static boiler attributes compiled from the EIA-860 and EIA-923 data.",
         "schema": {
             "fields": ["plant_id_eia", "boiler_id", "prime_mover_code"],
             "primary_key": ["plant_id_eia", "boiler_id"],
             "foreign_key_rules": {"fields": [["plant_id_eia", "boiler_id"]]},
         },
+        "sources": ["eia860", "eia923"],
     },
     "coalmine_eia923": {
+        "description": "Coal mine attributes originally reported within the Fuel Receipts and Costs table via EIA-923 Schedule 2, Part C.",
         "schema": {
             "fields": [
                 "mine_id_pudl",
@@ -67,6 +72,7 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
         "sources": ["eia923"],
     },
     "contract_types_eia": {
+        "description": "A coding table describing the various types of fuel supply contracts reported in EIA-923.",
         "schema": {
             "fields": ["code", "label", "description"],
             "primary_key": ["code"],
@@ -75,10 +81,8 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
         "encoder": CONTRACT_TYPES_EIA,
         "sources": ["eia923"],
     },
-    "datasets": {
-        "schema": {"fields": ["datasource", "active"], "primary_key": ["datasource"]},
-    },
     "energy_sources_eia": {
+        "description": "Codes and metadata pertaining to energy sources reported to EIA. Compiled from EIA-860 instructions and EIA-923 file layout spreadsheets.",
         "schema": {
             "fields": [
                 "code",
@@ -111,9 +115,10 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
             },
         },
         "encoder": ENERGY_SOURCES_EIA,
-        "sources": ["eia923"],
+        "sources": ["eia860", "eia923"],
     },
     "fuel_receipts_costs_eia923": {
+        "description": "Monthly fuel contract information, purchases, and costs reported in EIA-923 Schedule 2, Part A.",
         "schema": {
             "fields": [
                 "plant_id_eia",
@@ -142,6 +147,7 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
         "sources": ["eia923"],
     },
     "fuel_transportation_modes_eia": {
+        "description": "Long descriptions of the fuel transportation modes reported in the EIA-860 and EIA-923.",
         "schema": {
             "fields": ["code", "label", "description"],
             "primary_key": ["code"],
@@ -159,9 +165,10 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
             }
         },
         "encoder": FUEL_TRANSPORTATION_MODES_EIA,
-        "sources": ["eia923"],
+        "sources": ["eia860", "eia923"],
     },
     "fuel_types_aer_eia": {
+        "description": "Descriptive labels for aggregated fuel types used in the Annual Energy Review. See EIA-923 Fuel Code table for additional information.",
         "schema": {
             "fields": ["code", "description"],
             "primary_key": ["code"],
@@ -171,6 +178,7 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
         "sources": ["eia923"],
     },
     "generation_eia923": {
+        "description": "EIA-923 Monthly Generating Unit Net Generation Time Series. From EIA-923 Schedule 3.",
         "schema": {
             "fields": [
                 "plant_id_eia",
@@ -183,8 +191,7 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
         "sources": ["eia923"],
     },
     "generation_fuel_eia923": {
-        "description": "Monthly electricity generation and fuel consumption reported for each combination of fuel and prime mover within a plant. Note that this table does not include data from nuclear plants as they report at the generation unit level, rather than the plant level. See the generation_fuel_nuclear_eia923 table for nuclear electricity generation and fuel consumption.",
-
+        "description": "EIA-923 Monthly Generation and Fuel Consumption Time Series. From EIA-923 Schedule 3. Monthly electricity generation and fuel consumption reported for each combination of fuel and prime mover within a plant. This table does not include data from nuclear plants as they report at the generation unit level, rather than the plant level. See the generation_fuel_nuclear_eia923 table for nuclear electricity generation and fuel consumption.",
         "schema": {
             "fields": [
                 "plant_id_eia",
@@ -210,7 +217,7 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
         "sources": ["eia923"],
     },
     "generation_fuel_nuclear_eia923": {
-        "description": "Monthly electricity generation and fuel consumption reported for each combination of fuel and prime mover within a nuclear generation unit.",
+        "description": "EIA-923 Monthly Generation and Fuel Consumption Time Series. From EIA-923 Schedule 3. Monthly electricity generation and fuel consumption reported for each combination of fuel and prime mover within a nuclear generation unit.",
         "schema": {
             "fields": [
                 "plant_id_eia",
@@ -238,6 +245,7 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
         "sources": ["eia923"],
     },
     "generators_eia860": {
+        "description": "Annually varying generator attributes compiled from across EIA-860 and EIA-923 data.",
         "schema": {
             "fields": [
                 "plant_id_eia",
@@ -321,9 +329,10 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
                 ]
             },
         },
-        "sources": ["eia860"],
+        "sources": ["eia860", "eia923"],
     },
     "generators_entity_eia": {
+        "description": "Static generator attributes compiled from across the EIA-860 and EIA-923 data.",
         "schema": {
             "fields": [
                 "plant_id_eia",
@@ -351,15 +360,10 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
             "primary_key": ["plant_id_eia", "generator_id"],
             "foreign_key_rules": {"fields": [["plant_id_eia", "generator_id"]]},
         },
-    },
-    "natural_gas_transport_eia923": {
-        "schema": {
-            "fields": ["code", "status"],
-            "primary_key": ["code"]
-        },
-        "sources": ["eia923"],
+        "sources": ["eia860", "eia923"],
     },
     "ownership_eia860": {
+        "description": "Generator Ownership, reported in EIA-860 Schedule 4. Includes only jointly or third-party owned generators.",
         "schema": {
             "fields": [
                 "report_date",
@@ -381,12 +385,15 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
         "sources": ["eia860"],
     },
     "plants_eia": {
+        "description": "Association between EIA Plant IDs and manually assigned PUDL Plant IDs",
         "schema": {
             "fields": ["plant_id_eia", "plant_name_eia", "plant_id_pudl"],
             "primary_key": ["plant_id_eia"],
         },
+        "sources": ["eia860", "eia923"],
     },
     "plants_eia860": {
+        "description": "Annually varying plant attributes, compiled from across all EIA-860 and EIA-923 data.",
         "schema": {
             "fields": [
                 "plant_id_eia",
@@ -433,9 +440,10 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
                 ]
             },
         },
-        "sources": ["eia860"],
+        "sources": ["eia860", "eia923"],
     },
     "plants_entity_eia": {
+        "description": "Static plant attributes, compiled from across all EIA-860 and EIA-923 data.",
         "schema": {
             "fields": [
                 "plant_id_eia",
@@ -472,8 +480,10 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
                 "exclude": ["plants_eia"],
             },
         },
+        "sources": ["eia860", "eia923"],
     },
     "prime_movers_eia": {
+        "description": "Long descriptions explaining the short prime mover codes reported in the EIA-860 and EIA-923.",
         "schema": {
             "fields": ["code", "label", "description"],
             "primary_key": ["code"],
@@ -488,21 +498,25 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
         "sources": ["eia923", "eia860"],
     },
     "sector_consolidated_eia": {
+        "description": "Long descriptions for the EIA consolidated NAICS sector codes. Codes and descriptions taken from the EIA-923 File Layout spreadsheet.",
         "schema": {
             "fields": ["code", "label", "description"],
             "primary_key": ["code"],
             "foreign_key_rules": {"fields": [["sector_id_eia"]]},
         },
         "encoder": SECTOR_CONSOLIDATED_EIA,
-        "sources": ["eia923"],
+        "sources": ["eia860", "eia923"],
     },
     "utilities_eia": {
+        "description": "Associations between the EIA Utility IDs and the manually assigned PUDL Utility IDs.",
         "schema": {
             "fields": ["utility_id_eia", "utility_name_eia", "utility_id_pudl"],
             "primary_key": ["utility_id_eia"],
         },
+        "sources": ["eia860", "eia923"],
     },
     "utilities_eia860": {
+        "description": "Annually varying utility attributes, compiled from all EIA data.",
         "schema": {
             "fields": [
                 "utility_id_eia",
@@ -541,9 +555,10 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
                 ],
             },
         },
-        "sources": ["eia860"],
+        "sources": ["eia860", "eia923"],
     },
     "utilities_entity_eia": {
+        "description": "Static attributes of utilities, compiled from all EIA data.",
         "schema": {
             "fields": ["utility_id_eia", "utility_name_eia"],
             "primary_key": ["utility_id_eia"],
@@ -563,6 +578,7 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
                 "exclude": ["utilities_eia"],
             },
         },
+        "sources": ["eia860", "eia923"],
     },
 }
 """
