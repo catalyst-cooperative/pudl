@@ -648,7 +648,7 @@ def generation_fuel(eia923_dfs, eia923_transformed_dfs):
     gen_fuel = _clean_gen_fuel_energy_sources(gen_fuel)
 
     gen_fuel = (
-        pudl.metadata.build_package()
+        pudl.metadata.classes.Package.from_resource_ids()
         .get_resource("generation_fuel_eia923")
         .encode(gen_fuel)
     )
@@ -845,7 +845,7 @@ def boiler_fuel(eia923_dfs, eia923_transformed_dfs):
     bf_df = pudl.helpers.convert_to_date(bf_df)
 
     bf_df = (
-        pudl.metadata.build_package()
+        pudl.metadata.classes.Package.from_resource_ids()
         .get_resource("boiler_fuel_eia923")
         .encode(bf_df)
     )
@@ -931,7 +931,7 @@ def generation(eia923_dfs, eia923_transformed_dfs):
     gen_df = gen_df.drop(dupes.net_generation_mwh.isna().index)
 
     gen_df = (
-        pudl.metadata.build_package()
+        pudl.metadata.classes.Package.from_resource_ids()
         .get_resource("generation_eia923")
         .encode(gen_df)
     )
@@ -1015,7 +1015,7 @@ def coalmine(eia923_dfs, eia923_transformed_dfs):
     cmi_df = cmi_df.reset_index()
 
     cmi_df = (
-        pudl.metadata.build_package()
+        pudl.metadata.classes.Package.from_resource_ids()
         .get_resource("coalmine_eia923")
         .encode(cmi_df)
     )
@@ -1119,7 +1119,7 @@ def fuel_receipts_costs(eia923_dfs, eia923_transformed_dfs):
              unmapped='')
     )
     frc_df = (
-        pudl.metadata.build_package()
+        pudl.metadata.classes.Package.from_resource_ids()
         .get_resource("fuel_receipts_costs_eia923")
         .encode(frc_df)
     )

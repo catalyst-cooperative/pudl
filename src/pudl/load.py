@@ -62,9 +62,9 @@ def dfs_to_sqlite(
         )
 
     # Generate a SQLAlchemy MetaData object from dataframe names:
-    md = Package.from_resource_ids(dfs).to_sql(
-        check_types=check_types,
-        check_values=check_values,
+    md = (
+        Package.from_resource_ids(resource_ids=tuple(sorted(dfs)))
+        .to_sql(check_types=check_types, check_values=check_values)
     )
     # Delete any existing tables, and create them anew:
     md.drop_all(engine)

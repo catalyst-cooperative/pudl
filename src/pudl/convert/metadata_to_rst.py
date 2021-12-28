@@ -48,7 +48,7 @@ def main():
     args = parse_command_line(sys.argv)
     logger.info(f"Exporting PUDL metadata to: {args.output}")
     resource_ids = [rid for rid in sorted(RESOURCE_METADATA) if rid not in args.skip]
-    package = Package.from_resource_ids(resource_ids)
+    package = Package.from_resource_ids(resource_ids=tuple(sorted(resource_ids)))
     # Sort fields within each resource by name:
     for resource in package.resources:
         resource.schema.fields = sorted(

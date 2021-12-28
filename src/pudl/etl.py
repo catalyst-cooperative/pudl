@@ -130,7 +130,7 @@ def _etl_eia(
     entities_dfs = pudl.helpers.convert_dfs_dict_dtypes(entities_dfs, 'eia')
     for table in entities_dfs:
         entities_dfs[table] = (
-            pudl.metadata.build_package()
+            pudl.metadata.classes.Package.from_resource_ids()
             .get_resource(table)
             .encode(entities_dfs[table])
         )

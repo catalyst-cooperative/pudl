@@ -4,6 +4,7 @@ import datetime
 import logging
 import os
 import re
+from functools import lru_cache
 from pathlib import Path
 from typing import (Any, Callable, Dict, Iterable, List, Literal, Optional,
                     Tuple, Type, Union)
@@ -1103,6 +1104,27 @@ class Resource(Base):
         if "foreign_key_rules" in schema:
             del schema["foreign_key_rules"]
 
+        # Add encoders to columns as appropriate, based on FKs.
+        # Foreign key relationships determine the set of codes to use
+        for fk in obj["schema"]["foreign_keys"]:
+            # Only referenced tables with an associated encoder indicate
+            # that the column we're looking at should have an encoder
+            # attached to it. All of these FK relationships must have simple
+            # single-column keys.
+            encoder = Encoder.dict_from_id(fk["reference"]["resource"])
+            if len(fk["fields"]) != 1 and encoder:
+                raise ValueError(
+                    "Encoder for table with a composite primary key: "
+                    f"{fk['reference']['resource']}"
+                )
+            if len(fk["fields"]) == 1 and encoder:
+                # fk["fields"] is a one element list, get the one element:
+                field = fk["fields"][0]
+                for f in obj["schema"]["fields"]:
+                    if f["name"] == field:
+                        f["encoder"] = encoder
+                        break
+
         return obj
 
     @classmethod
@@ -1544,8 +1566,11 @@ class Package(Base):
         return values
 
     @classmethod
+    @lru_cache
     def from_resource_ids(  # noqa: C901
-        cls, resource_ids: Iterable[str], resolve_foreign_keys: bool = False
+        cls,
+        resource_ids: Tuple[str] = tuple(sorted(RESOURCE_METADATA)),
+        resolve_foreign_keys: bool = False
     ) -> "Package":
         """
         Construct a collection of Resources from PUDL identifiers (`resource.name`).
@@ -1554,8 +1579,13 @@ class Package(Base):
         coding tables defined in :mod:`pudl.metadata.codes` and if so, associate the
         coding table's encoder with those columns for later use cleaning them up.
 
+        The result is cached, since we so often need to generate the metdata for
+        the full collection of PUDL tables.
+
         Args:
-            resource_ids: Resource PUDL identifiers (`resource.name`).
+            resource_ids: Resource PUDL identifiers (`resource.name`). Needs to
+                be a Tuple so that the set of identifiers is hashable, allowing
+                return value caching through lru_cache.
             resolve_foreign_keys: Whether to add resources as needed based on
                 foreign keys.
 
@@ -1574,23 +1604,6 @@ class Package(Base):
                 i = len(resources)
                 if len(names) > i:
                     resources += [Resource.dict_from_id(x) for x in names[i:]]
-
-        # Add per-column encoders for each resource
-        for resource in resources:
-            # Foreign key relationships determine the set of codes to use
-            for fk in resource["schema"]["foreign_keys"]:
-                # Only referenced tables with an associated encoder indicate
-                # that the column we're looking at should have an encoder
-                # attached to it. All of these FK relationships must have simple
-                # single-column keys.
-                encoder = Encoder.dict_from_id(fk["reference"]["resource"])
-                if len(fk["fields"]) == 1 and encoder:
-                    # fk["fields"] is a one element list, get the one element:
-                    field = fk["fields"][0]
-                    for f in resource["schema"]["fields"]:
-                        if f["name"] == field:
-                            f["encoder"] = encoder
-                            break
 
         return cls(name="pudl", resources=resources)
 

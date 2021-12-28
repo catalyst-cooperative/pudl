@@ -150,7 +150,7 @@ def ownership(eia860_dfs, eia860_transformed_dfs):
     )
     own_df.loc[single_owner_operator, "utility_id_eia"] = pd.NA
     own_df = (
-        pudl.metadata.build_package()
+        pudl.metadata.classes.Package.from_resource_ids()
         .get_resource("ownership_eia860")
         .encode(own_df)
     )
@@ -323,7 +323,7 @@ def generators(eia860_dfs, eia860_transformed_dfs):
     )
 
     gens_df = (
-        pudl.metadata.build_package()
+        pudl.metadata.classes.Package.from_resource_ids()
         .get_resource("generators_eia860")
         .encode(gens_df)
     )
@@ -430,7 +430,7 @@ def plants(eia860_dfs, eia860_transformed_dfs):
     p_df = pudl.helpers.convert_to_date(p_df)
 
     p_df = (
-        pudl.metadata.build_package()
+        pudl.metadata.classes.Package.from_resource_ids()
         .get_resource("plants_eia860")
         .encode(p_df)
     )

@@ -1,11 +1,11 @@
 """Tests for metadata not covered elsewhere."""
-from pudl.metadata import RESOURCE_METADATA, build_package
+from pudl.metadata import RESOURCE_METADATA, Package
 from pudl.metadata.helpers import format_errors
 
 
 def test_all_resources_valid() -> None:
     """All resources in metadata pass validation tests."""
-    _ = build_package()
+    _ = Package.from_resource_ids()
 
 
 def test_all_excluded_resources_exist() -> None:
