@@ -28,7 +28,6 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
             ],
             "primary_key": ["plant_id_eia", "unitid", "operating_datetime_utc"],
         },
-        "group": "epacems",
         "sources": ["eia860", "epacems"],
     },
 }
