@@ -8,11 +8,8 @@ import pandas as pd
 import pudl
 from pudl import constants as pc
 from pudl.constants import PUDL_TABLES
-from pudl.metadata import RESOURCE_METADATA
 from pudl.metadata.codes import ENERGY_SOURCES_EIA
 from pudl.metadata.labels import ENTITY_TYPES
-
-PUDL_META = pudl.metadata.classes.Package.from_resource_ids(RESOURCE_METADATA)
 
 logger = logging.getLogger(__name__)
 
@@ -152,7 +149,11 @@ def ownership(eia860_dfs, eia860_transformed_dfs):
         & (own_df.fraction_owned == 1.0)
     )
     own_df.loc[single_owner_operator, "utility_id_eia"] = pd.NA
-    own_df = PUDL_META.get_resource("ownership_eia860").encode(own_df)
+    own_df = (
+        pudl.metadata.classes.Package.from_resource_ids()
+        .get_resource("ownership_eia860")
+        .encode(own_df)
+    )
 
     eia860_transformed_dfs['ownership_eia860'] = own_df
 
@@ -321,7 +322,11 @@ def generators(eia860_dfs, eia860_transformed_dfs):
         .pipe(pudl.helpers.convert_to_date)
     )
 
-    gens_df = PUDL_META.get_resource("generators_eia860").encode(gens_df)
+    gens_df = (
+        pudl.metadata.classes.Package.from_resource_ids()
+        .get_resource("generators_eia860")
+        .encode(gens_df)
+    )
 
     gens_df["fuel_type_code_pudl"] = (
         gens_df.energy_source_code_1
@@ -424,7 +429,11 @@ def plants(eia860_dfs, eia860_transformed_dfs):
 
     p_df = pudl.helpers.convert_to_date(p_df)
 
-    p_df = PUDL_META.get_resource("plants_eia860").encode(p_df)
+    p_df = (
+        pudl.metadata.classes.Package.from_resource_ids()
+        .get_resource("plants_eia860")
+        .encode(p_df)
+    )
 
     eia860_transformed_dfs['plants_eia860'] = p_df
 

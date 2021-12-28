@@ -124,7 +124,7 @@ def find_foreign_key_errors(dfs: Dict[str, pd.DataFrame]) -> List[Dict[str, Any]
         dataframe that violated the foreign key constraint.
 
     """
-    package = Package.from_resource_ids(dfs)
+    package = Package.from_resource_ids(resource_ids=tuple(sorted(dfs)))
     errors = []
     for resource in package.resources:
         for foreign_key in resource.schema.foreign_keys:

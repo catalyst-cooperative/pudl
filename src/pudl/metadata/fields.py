@@ -2257,6 +2257,10 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
     "winter_peak_demand_mw": {
         "type": "number"
     },
+    "year": {
+        "type": "year",
+        "description": "Year associated with data, for partitioning EPA CEMS.",
+    },
     "zip_code": {
         "type": "string",
         "description": "Five digit US Zip Code."
@@ -2280,7 +2284,37 @@ FIELD_METADATA_BY_GROUP: Dict[str, Dict[str, Any]] = {
             "constraints": {
                 "enum": EPACEMS_STATES
             }
-        }
+        },
+        "gross_load_mw": {
+            "constraints": {
+                "required": True,
+            }
+        },
+        "heat_content_mmbtu": {
+            "constraints": {
+                "required": True,
+            }
+        },
+        "operating_datetime_utc": {
+            "constraints": {
+                "required": True,
+            }
+        },
+        "plant_id_eia": {
+            "constraints": {
+                "required": True,
+            }
+        },
+        "unitid": {
+            "constraints": {
+                "required": True,
+            }
+        },
+        "year": {
+            "constraints": {
+                "required": True,
+            }
+        },
     },
     "eia": {
         "fuel_units": {

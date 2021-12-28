@@ -312,8 +312,8 @@ COLUMN_DTYPES: Dict[str, Dict[str, Any]] = {
             categories=EPACEMS_MEASUREMENT_CODES
         ),
         'heat_content_mmbtu': "float32",
-        'facility_id': pd.Int32Dtype(),  # Nullable Integer
-        'unit_id_epa': pd.Int32Dtype(),  # Nullable Integer
+        'facility_id': pd.Int32Dtype(),
+        'unit_id_epa': pd.StringDtype(),
     },
     "eia": {
         'actual_peak_demand_savings_mw': float,  # Added by AES for DR table

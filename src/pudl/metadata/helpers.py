@@ -168,9 +168,8 @@ def build_foreign_keys(
     """
     Build foreign keys for each resource.
 
-    A resource's `foreign_key_rules` (if present)
-    determines which other resources will be assigned a foreign key (`foreign_keys`)
-    to the reference's primary key:
+    A resource's `foreign_key_rules` (if present) determines which other resources will
+    be assigned a foreign key (`foreign_keys`) to the reference's primary key:
 
     * `fields` (List[List[str]]): Sets of field names for which to create a foreign key.
       These are assumed to match the order of the reference's primary key fields.
