@@ -214,7 +214,7 @@ start associating the plant & utility entities that are reported in the two data
 The ``devtools/ferc1-eia-glue/find_unmapped_plants_utils.py`` script will read all of
 the EIA plant and utility IDs out of the PUDL DB, and all of the FERC 1 utility IDs
 and plant names out of the FERC 1 DB, and compare them against the values that appear
-in the ID mapping spreadsheet (``src/pudl/package_data/mapping_eia923_ferc1.xlsx``).
+in the ID mapping spreadsheet (``src/pudl/package_data/pudl_id_mapping.xlsx``).
 Any unrecognized plants and utilities will be written into CSV files for use in updating
 the spreadsheet.
 

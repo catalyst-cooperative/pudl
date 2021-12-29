@@ -57,7 +57,7 @@ DATA_TABLES_EIA923: List[str] = [
 def get_plant_map() -> pd.DataFrame:
     """Read in the manual FERC to EIA plant mapping data."""
     mapping_xlsx = importlib.resources.open_binary(
-        'pudl.package_data.glue', 'mapping_eia923_ferc1.xlsx')
+        'pudl.package_data.glue', 'pudl_id_mapping.xlsx')
 
     return pd.read_excel(
         mapping_xlsx,
@@ -81,7 +81,7 @@ def get_plant_map() -> pd.DataFrame:
 def get_utility_map() -> pd.DataFrame:
     """Read in the manual FERC to EIA utility mapping data."""
     mapping_xlsx = importlib.resources.open_binary(
-        'pudl.package_data.glue', 'mapping_eia923_ferc1.xlsx')
+        'pudl.package_data.glue', 'pudl_id_mapping.xlsx')
 
     return pd.read_excel(
         mapping_xlsx,
@@ -659,7 +659,7 @@ def glue(ferc1=False, eia=False):
     """Generates a dictionary of dataframes for glue tables between FERC1, EIA.
 
     That data is primarily stored in the plant_output and
-    utility_output tabs of package_data/glue/mapping_eia923_ferc1.xlsx in the
+    utility_output tabs of package_data/glue/pudl_id_mapping.xlsx in the
     repository. There are a total of seven relations described in this data:
 
         - utilities: Unique id and name for each utility for use across the
