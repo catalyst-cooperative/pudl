@@ -12,7 +12,8 @@ from pathlib import Path
 
 import pkg_resources
 
-from pudl.metadata.classes import Package
+from pudl.metadata.classes import CodeData, Package
+from pudl.metadata.codes import CODE_METADATA
 from pudl.metadata.resources import RESOURCE_METADATA
 
 DOCS_DIR = Path(__file__).parent.resolve()
@@ -157,3 +158,11 @@ def setup(app):
     app.add_css_file('custom.css')
     app.connect("builder-inited", metadata_to_rst)
     app.connect("build-finished", cleanup_rst)
+
+
+def static_dfs_to_rst():  # need app argument?
+    """Export static code labeling dataframes to RST for inclusion in the documentation."""
+    skip_names = ["energy_sources_eia", "fuel_transportation_modes_eia", "fuel_types_aer_eia", "contract_types_eia"]
+    names = [name for name in sorted(CODE_METADATA.keys()) if name not in skip_names]
+    codedata = CodeData.from_code_names(names)
+    codedata.to_rst(path=DOCS_DIR / "data_dictionaries/codes_and_labels.rst")

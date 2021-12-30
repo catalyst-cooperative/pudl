@@ -13,6 +13,7 @@ import pandas as pd
 import pydantic
 import sqlalchemy as sa
 
+from .codes import CODE_DESCRIPTIONS, CODE_METADATA
 from .constants import (CONSTRAINT_DTYPES, CONTRIBUTORS,
                         CONTRIBUTORS_BY_SOURCE, FIELD_DTYPES, FIELD_DTYPES_SQL,
                         KEYWORDS_BY_SOURCE, LICENSES, PERIODS, SOURCES)
@@ -392,7 +393,7 @@ class Encoder(Base):
     A table associating short codes with long descriptions and other information.
 
     Each coding table contains at least a ``code`` column containing the standard codes
-    and a ``definition`` column with a human readable explanation of what the code
+    and a ``description`` column with a human readable explanation of what the code
     stands for. Additional metadata pertaining to the codes and their categories may
     also appear in this dataframe, which will be loaded into the PUDL DB as a static
     table. The ``code`` column is a natural primary key and must contain no duplicate
@@ -1596,3 +1597,35 @@ class Package(Base):
                 check_values=check_values,
             )
         return metadata
+
+
+class CodeData(Base):
+    """Put in a class description."""
+
+    code_list: List[dict]
+
+    @classmethod
+    def from_code_names(
+        cls, code_names: Iterable[str]
+    ) -> "CodeData":
+        """
+        Construct a list of code label dictionaries from PUDL identifiers.
+
+        Args:
+            code_names: Code PUDL identifiers (`resource.name`).
+
+        """
+        code_list = []
+        for name in code_names:
+            readable_name = name.replace("_", " ")
+            description = CODE_DESCRIPTIONS[name]
+            code_dict = {"name": readable_name, "description": description,
+                         "df": CODE_METADATA[name]["df"]}
+            code_list.append(code_dict)
+        return cls(code_list=code_list)
+
+    def to_rst(self, path: str) -> None:
+        """Output to an RST file."""
+        template = JINJA_ENVIRONMENT.get_template("codedata.rst.jinja")
+        rendered = template.render(CodeData=self)
+        Path(path).write_text(rendered)

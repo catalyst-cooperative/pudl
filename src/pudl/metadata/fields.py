@@ -3,7 +3,7 @@ from typing import Any, Dict
 
 from pytz import all_timezones
 
-from .codes import ENERGY_SOURCES_EIA
+from .codes import CODE_METADATA
 from .constants import SOURCES
 from .enums import (CANADA_PROVINCES_TERRITORIES, CUSTOMER_CLASSES,
                     EPACEMS_MEASUREMENT_CODES, EPACEMS_STATES, FUEL_CLASSES,
@@ -696,7 +696,7 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
         "type": "string",
         "description": "Original fuel from which this refined fuel was derived.",
         "constraints": {
-            "enum": sorted(set(ENERGY_SOURCES_EIA["df"]["fuel_derived_from"]))
+            "enum": sorted(set(CODE_METADATA["energy_sources_eia"]["df"]["fuel_derived_from"]))
         }
     },
     "fuel_group_code": {
@@ -710,7 +710,7 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
         "type": "string",
         "description": "High level fuel group defined in the 2021-2023 EIA Form 860 instructions, Table 28.",
         "constraints": {
-            "enum": sorted(set(ENERGY_SOURCES_EIA["df"]["fuel_group_eia"]))
+            "enum": sorted(set(CODE_METADATA["energy_sources_eia"]["df"]["fuel_group_eia"]))
         }
     },
     "fuel_mmbtu_per_unit": {
@@ -724,7 +724,7 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
         "type": "string",
         "description": "Physical phase of matter of the fuel.",
         "constraints": {
-            "enum": sorted(set(ENERGY_SOURCES_EIA["df"]["fuel_phase"].dropna()))
+            "enum": sorted(set(CODE_METADATA["energy_sources_eia"]["df"]["fuel_phase"].dropna()))
         }
     },
     "fuel_received_units": {
@@ -744,7 +744,7 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
         "type": "string",
         "description": "Simplified fuel type code used in PUDL",
         "constraints": {
-            "enum": sorted(set(ENERGY_SOURCES_EIA["df"].fuel_type_code_pudl))
+            "enum": sorted(set(CODE_METADATA["energy_sources_eia"]["df"].fuel_type_code_pudl))
         }
     },
     "fuel_units": {

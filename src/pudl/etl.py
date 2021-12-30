@@ -26,10 +26,7 @@ import sqlalchemy as sa
 import pudl
 from pudl import constants as pc
 from pudl.metadata import RESOURCE_METADATA
-from pudl.metadata.codes import (CONTRACT_TYPES_EIA, ENERGY_SOURCES_EIA,
-                                 FUEL_TRANSPORTATION_MODES_EIA,
-                                 FUEL_TYPES_AER_EIA, PRIME_MOVERS_EIA,
-                                 SECTOR_CONSOLIDATED_EIA)
+from pudl.metadata.codes import CODE_METADATA
 from pudl.metadata.dfs import FERC_ACCOUNTS, FERC_DEPRECIATION_LINES
 from pudl.settings import (EiaSettings, EpaCemsSettings, EtlSettings,
                            Ferc1Settings, GlueSettings)
@@ -57,12 +54,12 @@ def _read_static_tables_eia() -> Dict[str, pd.DataFrame]:
 
     """
     return {
-        'energy_sources_eia': ENERGY_SOURCES_EIA["df"],
-        'fuel_types_aer_eia': FUEL_TYPES_AER_EIA["df"],
-        'prime_movers_eia': PRIME_MOVERS_EIA["df"],
-        'sector_consolidated_eia': SECTOR_CONSOLIDATED_EIA["df"],
-        'fuel_transportation_modes_eia': FUEL_TRANSPORTATION_MODES_EIA["df"],
-        'contract_types_eia': CONTRACT_TYPES_EIA["df"]
+        'energy_sources_eia': CODE_METADATA["energy_sources_eia"]["df"],
+        'fuel_types_aer_eia': CODE_METADATA["fuel_types_aer_eia"]["df"],
+        'prime_movers_eia': CODE_METADATA["prime_movers_eia"]["df"],
+        'sector_consolidated_eia': CODE_METADATA["sector_consolidated_eia"]["df"],
+        'fuel_transportation_modes_eia': CODE_METADATA["fuel_transportation_modes_eia"]["df"],
+        'contract_types_eia': CODE_METADATA["contract_types_eia"]["df"]
     }
 
 

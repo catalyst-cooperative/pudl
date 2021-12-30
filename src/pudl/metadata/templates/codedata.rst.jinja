@@ -1,0 +1,23 @@
+===============================================================================
+PUDL Code Metadata
+===============================================================================
+
+The following tables map from codes used in raw data to labels used in the PUDL database and their descriptions.
+
+{% for code in CodeData.code_list %}
+
+  {{ code.name }}
+  {{ code.description | wordwrap(78) if code.description }}
+
+  .. list-table::
+    :widths: auto
+    :header-rows: 1
+
+    *{% for col in code.df.columns.to_list() %}- **{{ col }}**
+    {% endfor %}
+  {%- for _, row in code.df.iterrows() %}
+    * - {{ row.code }}
+      - {{ row.label }}
+      - {{ row.description if row.description else "N/A" }}
+  {% endfor %}
+{% endfor %}
