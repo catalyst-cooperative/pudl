@@ -166,6 +166,6 @@ def cleanup_rst(app, exception):
 def setup(app):
     """Add custom CSS defined in _static/custom.css."""
     app.add_css_file('custom.css')
-    app.connect("builder-initiated", metadata_to_rst)
-    app.connect("building-static-dfs", static_dfs_to_rst)
+    app.connect("builder-inited", metadata_to_rst)
+    # app.connect("building-static-dfs", static_dfs_to_rst)
     app.connect("build-finished", cleanup_rst)
