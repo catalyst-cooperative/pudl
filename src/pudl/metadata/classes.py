@@ -4,18 +4,21 @@ import datetime
 import logging
 import os
 import re
+from functools import lru_cache
 from pathlib import Path
 from typing import (Any, Callable, Dict, Iterable, List, Literal, Optional,
                     Tuple, Type, Union)
 
 import jinja2
 import pandas as pd
+import pyarrow as pa
 import pydantic
 import sqlalchemy as sa
 
 from .codes import CODE_DESCRIPTIONS, CODE_METADATA
 from .constants import (CONSTRAINT_DTYPES, CONTRIBUTORS,
-                        CONTRIBUTORS_BY_SOURCE, FIELD_DTYPES, FIELD_DTYPES_SQL,
+                        CONTRIBUTORS_BY_SOURCE, FIELD_DTYPES_PANDAS,
+                        FIELD_DTYPES_PYARROW, FIELD_DTYPES_SQL,
                         KEYWORDS_BY_SOURCE, LICENSES, PERIODS, SOURCES)
 from .fields import (FIELD_METADATA, FIELD_METADATA_BY_GROUP,
                      FIELD_METADATA_BY_RESOURCE)
@@ -621,13 +624,27 @@ class Field(Base):
                 return "Int32"
             if self.type == "number":
                 return "float32"
-        return FIELD_DTYPES[self.type]
+        return FIELD_DTYPES_PANDAS[self.type]
 
     def to_sql_dtype(self) -> sa.sql.visitors.VisitableType:
         """Return SQLAlchemy data type."""
         if self.constraints.enum and self.type == "string":
             return sa.Enum(*self.constraints.enum)
         return FIELD_DTYPES_SQL[self.type]
+
+    def to_pyarrow_dtype(self) -> pa.lib.DataType:
+        """Return PyArrow data type."""
+        if self.constraints.enum and self.type == "string":
+            return pa.dictionary(pa.int8(), pa.string(), ordered=False)
+        return FIELD_DTYPES_PYARROW[self.type]
+
+    def to_pyarrow(self) -> pa.Field:
+        """Return a PyArrow Field appropriate to the field."""
+        return pa.field(
+            name=self.name,
+            type=self.to_pyarrow_dtype(),
+            nullable=(not self.constraints.required),
+        )
 
     def to_sql(  # noqa: C901
         self,
@@ -1088,6 +1105,27 @@ class Resource(Base):
         if "foreign_key_rules" in schema:
             del schema["foreign_key_rules"]
 
+        # Add encoders to columns as appropriate, based on FKs.
+        # Foreign key relationships determine the set of codes to use
+        for fk in obj["schema"]["foreign_keys"]:
+            # Only referenced tables with an associated encoder indicate
+            # that the column we're looking at should have an encoder
+            # attached to it. All of these FK relationships must have simple
+            # single-column keys.
+            encoder = Encoder.dict_from_id(fk["reference"]["resource"])
+            if len(fk["fields"]) != 1 and encoder:
+                raise ValueError(
+                    "Encoder for table with a composite primary key: "
+                    f"{fk['reference']['resource']}"
+                )
+            if len(fk["fields"]) == 1 and encoder:
+                # fk["fields"] is a one element list, get the one element:
+                field = fk["fields"][0]
+                for f in obj["schema"]["fields"]:
+                    if f["name"] == field:
+                        f["encoder"] = encoder
+                        break
+
         return obj
 
     @classmethod
@@ -1126,6 +1164,12 @@ class Resource(Base):
         for key in self.schema.foreign_keys:
             constraints.append(key.to_sql())
         return sa.Table(self.name, metadata, *columns, *constraints)
+
+    def to_pyarrow(self) -> pa.Schema:
+        """Construct a PyArrow schema for the resource."""
+        return pa.schema(
+            [field.to_pyarrow() for field in self.schema.fields]
+        )
 
     def to_pandas_dtypes(
         self, **kwargs: Any
@@ -1523,8 +1567,11 @@ class Package(Base):
         return values
 
     @classmethod
-    def from_resource_ids(
-        cls, resource_ids: Iterable[str], resolve_foreign_keys: bool = False
+    @lru_cache
+    def from_resource_ids(  # noqa: C901
+        cls,
+        resource_ids: Tuple[str] = tuple(sorted(RESOURCE_METADATA)),
+        resolve_foreign_keys: bool = False
     ) -> "Package":
         """
         Construct a collection of Resources from PUDL identifiers (`resource.name`).
@@ -1533,8 +1580,13 @@ class Package(Base):
         coding tables defined in :mod:`pudl.metadata.codes` and if so, associate the
         coding table's encoder with those columns for later use cleaning them up.
 
+        The result is cached, since we so often need to generate the metdata for
+        the full collection of PUDL tables.
+
         Args:
-            resource_ids: Resource PUDL identifiers (`resource.name`).
+            resource_ids: Resource PUDL identifiers (`resource.name`). Needs to
+                be a Tuple so that the set of identifiers is hashable, allowing
+                return value caching through lru_cache.
             resolve_foreign_keys: Whether to add resources as needed based on
                 foreign keys.
 
@@ -1553,22 +1605,6 @@ class Package(Base):
                 i = len(resources)
                 if len(names) > i:
                     resources += [Resource.dict_from_id(x) for x in names[i:]]
-
-        # Add per-column encoders for each resource
-        for resource in resources:
-            # Foreign key relationships determine the set of codes to use
-            for fk in resource["schema"]["foreign_keys"]:
-                # Only referenced tables with an associated encoder indicate
-                # that the column we're looking at should have an encoder
-                # attached to it. All of these FK relationships must have simple
-                # single-column keys.
-                encoder = Encoder.dict_from_id(fk["reference"]["resource"])
-                if len(fk["fields"]) == 1 and encoder:
-                    # fk["fields"] is a one element list, get the one element:
-                    field = fk["fields"][0]
-                    field_names = [f["name"] for f in resource["schema"]["fields"]]
-                    idx = field_names.index(field)
-                    resource["schema"]["fields"][idx]["encoder"] = encoder
 
         return cls(name="pudl", resources=resources)
 

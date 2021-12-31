@@ -229,7 +229,7 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
         "type": "string",
         "description": "Type of plant construction ('outdoor', 'semioutdoor', or 'conventional'). Categorized by PUDL based on our best guess of intended value in FERC1 freeform strings.",
         "constraints": {
-            "enum": ["", "unknown", "conventional", "outdoor", "semioutdoor"]
+            "enum": ["conventional", "outdoor", "semioutdoor"]
         }
     },
     "construction_year": {
@@ -1077,7 +1077,7 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
         "type": "string",
         "description": "Contract type for natrual gas delivery service:",
         "constraints": {
-            "enum": ["", "firm", "interruptible"]
+            "enum": ["firm", "interruptible"]
         }
     },
     "natural_gas_local_distribution_company": {
@@ -1105,7 +1105,7 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
         "type": "string",
         "description": "Contract type for natural gas transportation service.",
         "constraints": {
-            "enum": ["", "firm", "interruptible"]
+            "enum": ["firm", "interruptible"]
         }
     },
     "nerc_region": {
@@ -2257,6 +2257,10 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
     "winter_peak_demand_mw": {
         "type": "number"
     },
+    "year": {
+        "type": "year",
+        "description": "Year associated with data, for partitioning EPA CEMS.",
+    },
     "zip_code": {
         "type": "string",
         "description": "Five digit US Zip Code."
@@ -2280,7 +2284,37 @@ FIELD_METADATA_BY_GROUP: Dict[str, Dict[str, Any]] = {
             "constraints": {
                 "enum": EPACEMS_STATES
             }
-        }
+        },
+        "gross_load_mw": {
+            "constraints": {
+                "required": True,
+            }
+        },
+        "heat_content_mmbtu": {
+            "constraints": {
+                "required": True,
+            }
+        },
+        "operating_datetime_utc": {
+            "constraints": {
+                "required": True,
+            }
+        },
+        "plant_id_eia": {
+            "constraints": {
+                "required": True,
+            }
+        },
+        "unitid": {
+            "constraints": {
+                "required": True,
+            }
+        },
+        "year": {
+            "constraints": {
+                "required": True,
+            }
+        },
     },
     "eia": {
         "fuel_units": {
@@ -2293,7 +2327,6 @@ FIELD_METADATA_BY_GROUP: Dict[str, Dict[str, Any]] = {
         "fuel_units": {
             "constraints": {
                 "enum": [
-                    "unknown",
                     "mmbtu",
                     "gramsU",
                     "kgU",
@@ -2323,6 +2356,14 @@ FIELD_METADATA_BY_RESOURCE: Dict[str, Dict[str, Any]] = {
     "sector_consolidated_eia": {
         "code": {
             "type": "integer"
+        }
+    },
+    "plants_steam_ferc1": {
+        "plant_type": {
+            "type": "string",
+            "constraints": {
+                "enum": ['steam', 'combustion_turbine', 'combined_cycle', 'nuclear', 'geothermal', 'internal_combustion', 'wind', 'photovoltaic', 'solar_thermal']
+            }
         }
     }
 }

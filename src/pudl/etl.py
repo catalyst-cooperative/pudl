@@ -25,7 +25,6 @@ import sqlalchemy as sa
 
 import pudl
 from pudl import constants as pc
-from pudl.metadata import RESOURCE_METADATA
 from pudl.metadata.codes import CODE_METADATA
 from pudl.metadata.dfs import FERC_ACCOUNTS, FERC_DEPRECIATION_LINES
 from pudl.settings import (EiaSettings, EpaCemsSettings, EtlSettings,
@@ -33,8 +32,6 @@ from pudl.settings import (EiaSettings, EpaCemsSettings, EtlSettings,
 from pudl.workspace.datastore import Datastore
 
 logger = logging.getLogger(__name__)
-
-PUDL_META = pudl.metadata.classes.Package.from_resource_ids(RESOURCE_METADATA)
 
 
 ###############################################################################
@@ -129,7 +126,11 @@ def _etl_eia(
     # convert types..
     entities_dfs = pudl.helpers.convert_dfs_dict_dtypes(entities_dfs, 'eia')
     for table in entities_dfs:
-        entities_dfs[table] = PUDL_META.get_resource(table).encode(entities_dfs[table])
+        entities_dfs[table] = (
+            pudl.metadata.classes.Package.from_resource_ids()
+            .get_resource(table)
+            .encode(entities_dfs[table])
+        )
 
     out_dfs.update(entities_dfs)
     out_dfs.update(eia_transformed_dfs)
@@ -277,9 +278,11 @@ def etl_epacems(
 
     # run the cems generator dfs through the load step
     for df in epacems_transformed_dfs:
-        pudl.load.parquet.epacems_to_parquet(
+        pudl.load.df_to_parquet(
             df,
+            resource_id="hourly_emissions_epacems",
             root_path=Path(pudl_settings["parquet_dir"]) / "epacems",
+            partition_cols=["year", "state"]
         )
 
     if logger.isEnabledFor(logging.INFO):
@@ -393,7 +396,7 @@ def etl(  # noqa: C901
 
     # Load the ferc1 + eia data directly into the SQLite DB:
     pudl_engine = sa.create_engine(pudl_settings["pudl_db"])
-    pudl.load.sqlite.dfs_to_sqlite(
+    pudl.load.dfs_to_sqlite(
         sqlite_dfs,
         engine=pudl_engine,
         check_foreign_keys=check_foreign_keys,

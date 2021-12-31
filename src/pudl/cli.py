@@ -20,7 +20,7 @@ import coloredlogs
 from packaging import version
 
 import pudl
-from pudl.load.sqlite import MINIMUM_SQLITE_VERSION
+from pudl.load import MINIMUM_SQLITE_VERSION
 from pudl.settings import EtlSettings
 
 logger = logging.getLogger(__name__)
