@@ -1,0 +1,25 @@
+,code,label,description
+0,BA,battery_storage,"Energy Storage, Battery"
+1,BT,binary_cycle_turbine,Turbines Used in a Binary Cycle. Including those used for geothermal applications
+2,CA,combined_cycle_steam_turbine,"Combined-Cycle, Steam Turbine Part"
+3,CC,combined_cycle_total,"Combined-Cycle, Total Unit"
+4,CE,compressed_air_storage,"Energy Storage, Compressed Air"
+5,CP,concentrated_solar_storage,"Energy Storage, Concentrated Solar Power"
+6,CS,combined_cycle_single_shaft,Combined-Cycle Single-Shaft Combustion Turbine and Steam Turbine share of single
+7,CT,combined_cycle_combustion_turbine,Combined-Cycle Combustion Turbine Part
+8,ES,other_storage,"Energy Storage, Other (Specify on Schedule 9, Comments)"
+9,FC,fuel_cell,Fuel Cell
+10,FW,flywheel_storage,"Energy Storage, Flywheel"
+11,GT,gas_combustion_turbine,Combustion (Gas) Turbine. Including Jet Engine design
+12,HA,hydrokinetic_axial_flow,"Hydrokinetic, Axial Flow Turbine"
+13,HB,hydrokinetic_wave_buoy,"Hydrokinetic, Wave Buoy"
+14,HK,hydrokinetic_other,"Hydrokinetic, Other"
+15,HY,hydraulic_turbine,Hydraulic Turbine. Including turbines associated with delivery of water by pipeline.
+16,IC,internal_combustion,"Internal Combustion (diesel, piston, reciprocating) Engine"
+17,OT,other,Other
+18,PS,pumped_storage,"Energy Storage, Reversible Hydraulic Turbine (Pumped Storage)"
+19,PV,solar_pv,Solar Photovoltaic
+20,ST,steam_turbine,"Steam Turbine. Including Nuclear, Geothermal, and Solar Steam (does not include Combined Cycle)."
+21,UNK,unknown,Unknown prime mover.
+22,WS,wind_offshore,"Wind Turbine, Offshore"
+23,WT,wind_onshore,"Wind Turbine, Onshore"

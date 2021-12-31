@@ -1600,27 +1600,37 @@ class Package(Base):
 
 
 class CodeData(Base):
-    """Put in a class description."""
+    """
+    A collection of dictionaries representing codes for various PUDL fields.
+
+    Used to export to documentation.
+    """
 
     code_list: List[dict]
 
     @classmethod
     def from_code_names(
-        cls, code_names: Iterable[str]
+        cls, code_names: Iterable[str], csv_dir: String
     ) -> "CodeData":
         """
-        Construct a list of code label dictionaries from PUDL identifiers.
+        Construct a list of code dictionaries containing name, description, and file path to a CSV of the code label dataframe.
 
         Args:
-            code_names: Code PUDL identifiers (`resource.name`).
+            code_names: A list of Code PUDL identifiers, keys to entries in the CODE_METADATA dictionary.
 
         """
         code_list = []
         for name in code_names:
-            readable_name = name.replace("_", " ")
-            description = CODE_DESCRIPTIONS[name]
-            code_dict = {"name": readable_name, "description": description,
-                         "df": CODE_METADATA[name]["df"]}
+            if name in CODE_DESCRIPTIONS.keys():
+                description = CODE_DESCRIPTIONS[name]['description']
+                title_name = CODE_DESCRIPTIONS[name]['doc_name']
+            else:
+                description = None
+                title_name = name
+            csv_filepath = os.path.join(csv_dir, f"{name}.csv")
+            CODE_METADATA[name]["df"].to_csv(csv_filepath)
+            code_dict = {"title_name": title_name, "var_name": name, "description": description,
+                         "csv_filepath": csv_filepath}
             code_list.append(code_dict)
         return cls(code_list=code_list)
 

@@ -213,32 +213,39 @@ used as encoders for their respective fields.
 """
 
 CODE_DESCRIPTIONS = {
-    "energy_sources_eia":
-        """Descriptive labels and other metadata for energy sources reported by EIA.
+    "energy_sources_eia": {
+        "description":
+        "Descriptive labels and other metadata for energy sources reported by EIA. This metadata was compiled from Table 28 in the EIA-860 instructions valid through 2023-05-31, Table 8 in the EIA-923 instructions valid through 2023-05-31, and information in the \"file layout\" pages in the original Excel spreadsheets containing fuel data. Prior to 2006 both biogenic and non-biogenic municipal solid waste were lumped together under the MSW code. From 2006 onward these categories were separated into MSB and MSN. The range of heat contents and categorizations of MSB/MSW are not provided by EIA, and represent our best guesses.",
+        "doc_name": "Energy Sources EIA"
+    },
 
-This metadata was compiled from Table 28 in the EIA-860 instructions valid through
-2023-05-31, Table 8 in the EIA-923 instructions valid through 2023-05-31, and
-information in the \"file layout\" pages in the original Excel spreadsheets containing
-fuel data.
+    "fuel_transportation_modes_eia": {
+        "description":
+        "Descriptive labels for fuel transport modes reported in the EIA 923.",
+        "doc_name": "Fuel Transportation Modes EIA"
+    },
 
-Prior to 2006 both biogenic and non-biogenic municipal solid waste were lumped together
-under the MSW code. From 2006 onward these categories were separated into MSB and MSN.
-The range of heat contents and categorizations of MSB/MSW are not provided by EIA, and
-represent our best guesses.""",
+    "fuel_types_aer_eia": {
+        "description":
+        "Descriptive labels for aggregated fuel types used in the Annual Energy Review. See the EIA 923 Fuel Code table (Table 5) for additional information.",
+        "doc_name": "Fuel Types AER EIA"
+    },
 
-    "fuel_transportation_modes_eia": """Descriptive labels for fuel transport modes reported in the EIA 923.""",
+    "contract_types_eia": {
+        "description":
+        "Descriptive labels for fuel supply contract type codes reported in EIA 923. The purchase type under which fuel receipts occurred in the reporting month.",
+        "doc_name": "Contract Types EIA"
+    },
 
-    "fuel_types_aer_eia": """Descriptive labels for aggregated fuel types used in the Annual Energy Review.
-See the EIA 923 Fuel Code table (Table 5) for additional information.""",
+    "prime_movers_eia": {
+        "description":
+        "Descriptive labels for EIA prime mover codes.",
+        "doc_name": "Prime Movers EIA"
+    },
 
-    "contract_types_eia": """Descriptive labels for fuel supply contract type codes reported in EIA 923.
-The purchase type under which fuel receipts occurred in the reporting month.""",
-
-    "prime_movers_eia": """Descriptive labels for EIA prime mover codes.""",
-
-    "sector_consolidated_eia": """Descriptive labels for EIA consolidated NAICS sector codes.
-
-For internal purposes, EIA consolidates NAICS categories into seven groups.
-These codes and descriptions are listed on Page 7 of EIA Form 923 EIA’s internal
-consolidated NAICS sectors."""
+    "sector_consolidated_eia": {
+        "description":
+        "Descriptive labels for EIA consolidated NAICS sector codes. For internal purposes, EIA consolidates NAICS categories into seven groups. These codes and descriptions are listed on Page 7 of EIA Form 923 EIA’s internal consolidated NAICS sectors.",
+        "doc_name": "Sector Consolidated EIA"
+    },
 }

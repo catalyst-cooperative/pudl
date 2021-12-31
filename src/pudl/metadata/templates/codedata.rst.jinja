@@ -2,22 +2,18 @@
 PUDL Code Metadata
 ===============================================================================
 
-The following tables map from codes used in raw data to labels used in the PUDL database and their descriptions.
+  *The following tables map from codes used in raw data to labels used in the PUDL database and their descriptions.*
 
 {% for code in CodeData.code_list %}
 
-  {{ code.name }}
-  {{ code.description | wordwrap(78) if code.description }}
+  | **{{ code.title_name }}**
+  | PUDL Field Name\: {{ code.var_name }}
+  | Description\:
+    {{ code.description if code.description }}
 
-  .. list-table::
-    :widths: auto
-    :header-rows: 1
+  .. csv-table::
+   :file: {{ code.csv_filepath }}
+   :header-rows: 1
+   :widths: auto
 
-    *{% for col in code.df.columns.to_list() %}- **{{ col }}**
-    {% endfor %}
-  {%- for _, row in code.df.iterrows() %}
-    * - {{ row.code }}
-      - {{ row.label }}
-      - {{ row.description if row.description else "N/A" }}
-  {% endfor %}
 {% endfor %}

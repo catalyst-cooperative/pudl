@@ -160,9 +160,10 @@ def setup(app):
     app.connect("build-finished", cleanup_rst)
 
 
-def static_dfs_to_rst():  # need app argument?
+def static_dfs_to_rst(app):
     """Export static code labeling dataframes to RST for inclusion in the documentation."""
-    skip_names = ["energy_sources_eia", "fuel_transportation_modes_eia", "fuel_types_aer_eia", "contract_types_eia"]
+    skip_names = []
     names = [name for name in sorted(CODE_METADATA.keys()) if name not in skip_names]
-    codedata = CodeData.from_code_names(names)
+    csv_dir = DOCS_DIR / "data_dictionaries/code_csvs"
+    codedata = CodeData.from_code_names(names, csv_dir)
     codedata.to_rst(path=DOCS_DIR / "data_dictionaries/codes_and_labels.rst")
