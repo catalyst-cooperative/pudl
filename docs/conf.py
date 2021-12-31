@@ -148,18 +148,6 @@ def metadata_to_rst(app):
     package.to_rst(path=DOCS_DIR / "data_dictionaries/pudl_db.rst")
 
 
-def cleanup_rst(app, exception):
-    """Remove generated RST files when the build is finished."""
-    (DOCS_DIR / "data_dictionaries/pudl_db.rst").unlink()
-
-
-def setup(app):
-    """Add custom CSS defined in _static/custom.css."""
-    app.add_css_file('custom.css')
-    app.connect("builder-inited", metadata_to_rst)
-    app.connect("build-finished", cleanup_rst)
-
-
 def static_dfs_to_rst(app):
     """Export static code labeling dataframes to RST for inclusion in the documentation."""
     skip_names = []
@@ -167,3 +155,17 @@ def static_dfs_to_rst(app):
     csv_dir = DOCS_DIR / "data_dictionaries/code_csvs"
     codedata = CodeData.from_code_names(names, csv_dir)
     codedata.to_rst(path=DOCS_DIR / "data_dictionaries/codes_and_labels.rst")
+
+
+def cleanup_rst(app, exception):
+    """Remove generated RST files when the build is finished."""
+    # add cleanup for codes_and_labels rst as well once debugging is done
+    (DOCS_DIR / "data_dictionaries/pudl_db.rst").unlink()
+
+
+def setup(app):
+    """Add custom CSS defined in _static/custom.css."""
+    app.add_css_file('custom.css')
+    app.connect("builder-initiated", metadata_to_rst)
+    app.connect("building-static-dfs", static_dfs_to_rst)
+    app.connect("build-finished", cleanup_rst)
