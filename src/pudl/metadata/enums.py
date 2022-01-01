@@ -214,6 +214,5 @@ EPACEMS_MEASUREMENT_CODES: List[str] = [
     "Substitute",
     "Undetermined",  # Should be replaced with NA
     "Unknown Code",  # Should be replaced with NA
-    "",  # Should be replaced with NA
 ]
 """Valid emissions measurement codes for the EPA CEMS hourly data."""

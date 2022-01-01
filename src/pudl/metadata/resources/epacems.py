@@ -23,6 +23,7 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
                 "heat_content_mmbtu",
                 "facility_id",
                 "unit_id_epa",
+                "year",
             ],
             "primary_key": ["plant_id_eia", "unitid", "operating_datetime_utc"],
         },
