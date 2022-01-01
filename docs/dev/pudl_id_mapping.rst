@@ -162,10 +162,31 @@ datasets.
 Linking FERC1-EIA Records
 #########################
 
-Utilities are only useful insofar as they represent a group of plants. For this reason,
-we are only concerned with matching utilities that have plants associated with them. You
-can find the utilities in need of matching in the ``unmapped_utils_eia/ferc1.csv`` files
-created alongside the unmapped_plants csvs.
+Copy the information output to the ``unmapped_utils_eia/ferc1.csv`` files and paste it
+in the appropriate columns at the bottom of the ``pudl_id_mapping.xlsx``  sheet. Note
+that FERC 1 utility information goes in the left-hand columns and EIA utility
+information goes in the right-hand columns.
+
+Next, you'll have to manually assign ``utility_id_pudl`` values to each row. There is no
+formula you can drag down, so just find the largest ``utility_id_pudl`` and create new
+values going up from there. To double check whether a utility has already appeared,
+drag down the formulas in the ``check_utility_id_ferc1`` and ``check_utility_id_eia``
+columns. If there's a match, the correct ``utility_id_pudl`` will show up in the column,
+and you can create a reference to the original ``utility_id_pudl`` assignment above.
+
+Make sure to save the file when you're done!
+
+
+Testing Newly Mapped Records
+----------------------------
+
+Before you integrate these newly mapped records into the PUDL database, you'll want to
+run some basic tests in the command line to make sure you've covered all of the unmapped
+entities.
+
+.. code-block:: console
+
+    $ pytest test/integration/glue_test.py
 
 Integrating Newly Mapped Records into PUDL
 ------------------------------------------
