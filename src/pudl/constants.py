@@ -262,6 +262,7 @@ COLUMN_DTYPES: Dict[str, Dict[str, Any]] = {
         "report_year": pd.Int64Dtype(),
         "utility_id_ferc1": pd.Int64Dtype(),
         "utility_id_pudl": pd.Int64Dtype(),
+        "construction_type": pd.StringDtype(),
     },
     "ferc714": {  # INCOMPLETE
         "demand_mwh": float,
@@ -312,8 +313,8 @@ COLUMN_DTYPES: Dict[str, Dict[str, Any]] = {
             categories=EPACEMS_MEASUREMENT_CODES
         ),
         'heat_content_mmbtu': "float32",
-        'facility_id': pd.Int32Dtype(),  # Nullable Integer
-        'unit_id_epa': pd.Int32Dtype(),  # Nullable Integer
+        'facility_id': pd.Int32Dtype(),
+        'unit_id_epa': pd.StringDtype(),
     },
     "eia": {
         'actual_peak_demand_savings_mw': float,  # Added by AES for DR table
