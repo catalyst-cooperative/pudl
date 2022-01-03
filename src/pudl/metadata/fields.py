@@ -93,7 +93,7 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
     },
     "balancing_authority_code_eia": {
         "type": "string",
-        "description": "The plant's balancing authority code."
+        "description": "EIA short code identifying a balancing authority.",
     },
     "balancing_authority_id_eia": {
         "type": "integer"
