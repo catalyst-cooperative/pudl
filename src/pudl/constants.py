@@ -262,6 +262,7 @@ COLUMN_DTYPES: Dict[str, Dict[str, Any]] = {
         "report_year": pd.Int64Dtype(),
         "utility_id_ferc1": pd.Int64Dtype(),
         "utility_id_pudl": pd.Int64Dtype(),
+        "construction_type": pd.StringDtype(),
     },
     "ferc714": {  # INCOMPLETE
         "demand_mwh": float,
