@@ -150,10 +150,8 @@ def metadata_to_rst(app):
 
 def static_dfs_to_rst(app):
     """Export static code labeling dataframes to RST for inclusion in the documentation."""
-    skip_names = []
-    names = [name for name in sorted(CODE_METADATA.keys()) if name not in skip_names]
     csv_dir = DOCS_DIR / "data_dictionaries/code_csvs"
-    codedata = CodeData.from_code_names(names, csv_dir)
+    codedata = CodeData.from_code_ids(sorted(CODE_METADATA.keys()), csv_dir)
     codedata.to_rst(path=DOCS_DIR / "data_dictionaries/codes_and_labels.rst")
 
 

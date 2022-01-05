@@ -14,6 +14,7 @@ import pandas as pd
 import pyarrow as pa
 import pydantic
 import sqlalchemy as sa
+from pydantic.types import DirectoryPath
 
 from .codes import CODE_DESCRIPTIONS, CODE_METADATA
 from .constants import (CONSTRAINT_DTYPES, CONTRIBUTORS,
@@ -1642,33 +1643,32 @@ class CodeData(Base):
     Used to export to documentation.
     """
 
-    code_list: List[dict]
+    code_dict: Dict[str, Dict] = {}
 
     @classmethod
-    def from_code_names(
-        cls, code_names: Iterable[str], csv_dir: String
+    def from_code_ids(
+        cls, code_ids: Iterable[str], csv_dir: DirectoryPath
     ) -> "CodeData":
         """
-        Construct a list of code dictionaries containing name, description, and file path to a CSV of the code label dataframe.
+        Construct a dictionary of code dictionaries containing the code name as it appears in the docs, a description, and file path to a CSV of the code label dataframe.
 
         Args:
             code_names: A list of Code PUDL identifiers, keys to entries in the CODE_METADATA dictionary.
 
         """
-        code_list = []
-        for name in code_names:
-            if name in CODE_DESCRIPTIONS.keys():
+        code_dict = {}
+        for name in code_ids:
+            if name in CODE_DESCRIPTIONS:
                 description = CODE_DESCRIPTIONS[name]['description']
                 title_name = CODE_DESCRIPTIONS[name]['doc_name']
             else:
                 description = None
                 title_name = name
-            csv_filepath = os.path.join(csv_dir, f"{name}.csv")
-            CODE_METADATA[name]["df"].to_csv(csv_filepath)
-            code_dict = {"title_name": title_name, "var_name": name, "description": description,
-                         "csv_filepath": csv_filepath}
-            code_list.append(code_dict)
-        return cls(code_list=code_list)
+            csv_filepath = Path(csv_dir, f"{name}.csv")
+            CODE_METADATA[name]["df"].to_csv(csv_filepath, index=False)
+            code_dict[name] = {"title_name": title_name, "description": description,
+                               "csv_filepath": csv_filepath}
+        return cls(code_dict=code_dict)
 
     def to_rst(self, path: str) -> None:
         """Output to an RST file."""

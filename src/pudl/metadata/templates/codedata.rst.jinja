@@ -4,10 +4,10 @@ PUDL Code Metadata
 
   *The following tables map from codes used in raw data to labels used in the PUDL database and their descriptions.*
 
-{% for code in CodeData.code_list %}
+{% for code_name, code in CodeData.code_dict.items() %}
 
   | **{{ code.title_name }}**
-  | PUDL Field Name\: {{ code.var_name }}
+  | PUDL Field Name\: {{ code_name }}
   | Description\:
     {{ code.description if code.description }}
 
