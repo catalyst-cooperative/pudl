@@ -1,5 +1,0 @@
-,code,label,description
-0,C,contract,Fuel received under a purchase order or contract with a term of one year or longer.  Contracts with a shorter term are considered spot purchases
-1,NC,new_contract,"Fuel received under a purchase order or contract with duration of one year or longer, under which deliveries were first made during the reporting month"
-2,S,spot_purchase,Fuel obtained through a spot market purchase
-3,T,tolling_agreement,Fuel received under a tolling agreement (bartering arrangement of fuel for generation)

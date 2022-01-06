@@ -553,7 +553,7 @@ class Encoder(Base):
         filename = self.doc_name.replace(" ", "_")
         csv_filepath = Path(csv_dir, f"{filename}.csv")
         self.df.to_csv(csv_filepath, index=False)
-        template = JINJA_ENVIRONMENT.get_template("codedata.rst.jinja")
+        template = JINJA_ENVIRONMENT.get_template("codemetadata.rst.jinja")
         rendered = template.render(Encoder=self, csv_filepath=csv_filepath)
         return rendered
 
@@ -1662,7 +1662,7 @@ class Package(Base):
         return metadata
 
 
-class CodeData(Base):
+class CodeMetadata(Base):
     """
     A list of Encoders representing standardization and description for reported categorical codes.
 
@@ -1670,11 +1670,19 @@ class CodeData(Base):
     """
 
     encoder_list: List[Encoder] = []
+    rst_header = """===============================================================================
+PUDL Code Metadata
+===============================================================================
+
+*The following tables map from codes used in raw data to labels used in the PUDL database.*
+*Also included is a table of non-standard codes that are mapped to canonical, standardized codes.*
+
+"""
 
     @classmethod
     def from_code_ids(
         cls, code_ids: Iterable[str]
-    ) -> "CodeData":
+    ) -> "CodeMetadata":
         """
         Construct a dictionary of code dictionaries containing the code name as it appears in the docs, a description, and file path to a CSV of the code label dataframe.
 
@@ -1690,6 +1698,8 @@ class CodeData(Base):
 
     def to_rst(self, csv_dir: DirectoryPath, path: str) -> None:
         """Iterate through encoders and output to an RST file."""
-        for encoder in self.encoder_list:
-            rendered = encoder.to_rst(csv_dir=csv_dir)
-            Path(path).write_text(rendered)
+        with Path(path).open("w") as f:
+            f.writelines(self.rst_header)
+            for encoder in self.encoder_list:
+                rendered = encoder.to_rst(csv_dir=csv_dir)
+                f.write(rendered)

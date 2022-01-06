@@ -1,8 +1,0 @@
-,code,label,description
-0,1,electric_utility,Traditional regulated electric utilities.
-1,2,ipp_non_cogen,Independent power producers which are not cogenerators.
-2,3,ipp_cogen,"Independent power producers which are cogenerators, but whose primary business purpose is the same of electricity to the public."
-3,4,commercial_non_cogen,"Commercial non-cogeneration facilities that produce electric power, are connected to the grid, and can sell power to the public."
-4,5,commercial_cogen,"Commercial cogeneration facilities that produce electric power, are connected to the grid, and can sell power to the public."
-5,6,industrial_non_cogen,"Industrial non-cogeneration facilities that produce electric power, are connected to the grid, and can sell power to the public."
-6,7,industrial_cogen,"Industrial cogeneration facilities that produce electric power, are connected to the grid, and can sell power to the public"

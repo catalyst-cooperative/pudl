@@ -13,7 +13,7 @@ from pathlib import Path
 
 import pkg_resources
 
-from pudl.metadata.classes import CodeData, Package
+from pudl.metadata.classes import CodeMetadata, Package
 from pudl.metadata.codes import CODE_METADATA
 from pudl.metadata.resources import RESOURCE_METADATA
 
@@ -152,8 +152,9 @@ def metadata_to_rst(app):
 def static_dfs_to_rst(app):
     """Export static code labeling dataframes to RST for inclusion in the documentation."""
     csv_dir = DOCS_DIR / "data_dictionaries/code_csvs"
-    codedata = CodeData.from_code_ids(sorted(CODE_METADATA.keys()))
-    codedata.to_rst(csv_dir=csv_dir, path=DOCS_DIR / "data_dictionaries/codes_and_labels.rst")
+    csv_dir.mkdir(parents=True, exist_ok=True)
+    codemetadata = CodeMetadata.from_code_ids(sorted(CODE_METADATA.keys()))
+    codemetadata.to_rst(csv_dir=csv_dir, path=DOCS_DIR / "data_dictionaries/codes_and_labels.rst")
 
 
 def cleanup_rsts(app, exception):
@@ -164,7 +165,9 @@ def cleanup_rsts(app, exception):
 
 def cleanup_csv_dir(app, exception):
     """Remove generated CSV files when the build is finished."""
-    shutil.rmtree(DOCS_DIR / "data_dictionaries/code_csvs")
+    csv_dir = DOCS_DIR / "data_dictionaries/code_csvs"
+    if csv_dir.exists() and csv_dir.is_dir():
+        shutil.rmtree(csv_dir)
 
 
 def setup(app):
