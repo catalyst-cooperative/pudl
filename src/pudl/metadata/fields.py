@@ -9,9 +9,8 @@ from .enums import (CANADA_PROVINCES_TERRITORIES, CUSTOMER_CLASSES,
                     EPACEMS_MEASUREMENT_CODES, EPACEMS_STATES, FUEL_CLASSES,
                     NERC_REGIONS, RELIABILITY_STANDARDS, REVENUE_CLASSES,
                     RTO_CLASSES, TECH_CLASSES, US_STATES_TERRITORIES)
-from .labels import (COALMINE_TYPES_EIA, ENTITY_TYPES, ESTIMATED_OR_ACTUAL,
-                     FUEL_UNITS_EIA, MOMENTARY_INTERRUPTIONS,
-                     POWER_PURCHASE_TYPES_FERC1)
+from .labels import (COALMINE_TYPES_EIA, ESTIMATED_OR_ACTUAL, FUEL_UNITS_EIA,
+                     MOMENTARY_INTERRUPTIONS, POWER_PURCHASE_TYPES_FERC1)
 
 FIELD_METADATA: Dict[str, Dict[str, Any]] = {
     "active": {
@@ -579,9 +578,6 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
     "entity_type": {
         "type": "string",
         "description": "Entity type of principal owner.",
-        "constraints": {
-            "enum": list(ENTITY_TYPES.values())
-        }
     },
     "estimated_or_actual_capacity_data": {
         "type": "string",
