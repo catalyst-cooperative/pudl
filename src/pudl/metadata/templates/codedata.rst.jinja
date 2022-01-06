@@ -2,18 +2,25 @@
 PUDL Code Metadata
 ===============================================================================
 
-  *The following tables map from codes used in raw data to labels used in the PUDL database and their descriptions.*
+  *The following tables map from codes used in raw data to labels used in the PUDL database.*
+  *Also included is a table of non-standard codes that are mapped to canonical, standardized codes.*
 
-{% for code_name, code in CodeData.code_dict.items() %}
+| **{{ Encoder.doc_name }}**
+| Description\:
+  {{ Encoder.description if Encoder.description }}
 
-  | **{{ code.title_name }}**
-  | PUDL Field Name\: {{ code_name }}
-  | Description\:
-    {{ code.description if code.description }}
+.. csv-table:: Code Mappings
+  :file: {{ csv_filepath }}
+  :header-rows: 1
+  :widths: auto
 
-  .. csv-table::
-   :file: {{ code.csv_filepath }}
-   :header-rows: 1
-   :widths: auto
+.. list-table:: Fixed Codes
+  :widths: auto
+  :header-rows: 1
 
-{% endfor %}
+  * - **Non Standard Code**
+    - **Standard Code**
+{%- for bad_code, good_code in Encoder.code_fixes.items() %}
+  * - {{ bad_code }}
+    - {{ good_code }}
+{%- endfor %}

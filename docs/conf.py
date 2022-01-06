@@ -8,6 +8,7 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 
+import shutil
 from pathlib import Path
 
 import pkg_resources
@@ -151,19 +152,25 @@ def metadata_to_rst(app):
 def static_dfs_to_rst(app):
     """Export static code labeling dataframes to RST for inclusion in the documentation."""
     csv_dir = DOCS_DIR / "data_dictionaries/code_csvs"
-    codedata = CodeData.from_code_ids(sorted(CODE_METADATA.keys()), csv_dir)
-    codedata.to_rst(path=DOCS_DIR / "data_dictionaries/codes_and_labels.rst")
+    codedata = CodeData.from_code_ids(sorted(CODE_METADATA.keys()))
+    codedata.to_rst(csv_dir=csv_dir, path=DOCS_DIR / "data_dictionaries/codes_and_labels.rst")
 
 
-def cleanup_rst(app, exception):
+def cleanup_rsts(app, exception):
     """Remove generated RST files when the build is finished."""
-    # add cleanup for codes_and_labels rst as well once debugging is done
     (DOCS_DIR / "data_dictionaries/pudl_db.rst").unlink()
+    (DOCS_DIR / "data_dictionaries/codes_and_labels.rst").unlink()
+
+
+def cleanup_csv_dir(app, exception):
+    """Remove generated CSV files when the build is finished."""
+    shutil.rmtree(DOCS_DIR / "data_dictionaries/code_csvs")
 
 
 def setup(app):
     """Add custom CSS defined in _static/custom.css."""
     app.add_css_file('custom.css')
     app.connect("builder-inited", metadata_to_rst)
-    # app.connect("building-static-dfs", static_dfs_to_rst)
-    app.connect("build-finished", cleanup_rst)
+    app.connect("builder-inited", static_dfs_to_rst)
+    app.connect("build-finished", cleanup_rsts)
+    app.connect("build-finished", cleanup_csv_dir)

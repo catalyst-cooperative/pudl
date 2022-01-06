@@ -16,7 +16,7 @@ import pydantic
 import sqlalchemy as sa
 from pydantic.types import DirectoryPath
 
-from .codes import CODE_DESCRIPTIONS, CODE_METADATA
+from .codes import CODE_METADATA
 from .constants import (CONSTRAINT_DTYPES, CONTRIBUTORS,
                         CONTRIBUTORS_BY_SOURCE, FIELD_DTYPES_PANDAS,
                         FIELD_DTYPES_PYARROW, FIELD_DTYPES_SQL,
@@ -421,6 +421,18 @@ class Encoder(Base):
     the result of data entry errors or changes in the stanard codes over time.
     """
 
+    description: String = None
+    """
+    A description of the code and where it's found in resource documentation.
+    """
+
+    doc_name: String = None
+    """
+    How the code name appears in the documentation of these code dictionaries.
+
+    A cleaned and presentable version of the name.
+    """
+
     @pydantic.validator("df")
     def _df_is_encoding_table(cls, df):  # noqa: N805
         """Verify that the coding table provides both codes and descriptions."""
@@ -530,6 +542,20 @@ class Encoder(Base):
     def from_id(cls, x: str) -> 'Encoder':
         """Construct an Encoder based on `Resource.name` of a coding table."""
         return cls(**cls.dict_from_id(x))
+
+    @classmethod
+    def from_code_id(cls, x: str) -> 'Encoder':
+        """Construct an Encoder based on looking up the name of a coding table directly in the codes metadata."""
+        return cls(**copy.deepcopy(CODE_METADATA[x]))
+
+    def to_rst(self, csv_dir: DirectoryPath) -> String:
+        """Ouput dataframe to a csv for use in jinja template. Then output to an RST file."""
+        filename = self.doc_name.replace(" ", "_")
+        csv_filepath = Path(csv_dir, f"{filename}.csv")
+        self.df.to_csv(csv_filepath, index=False)
+        template = JINJA_ENVIRONMENT.get_template("codedata.rst.jinja")
+        rendered = template.render(Encoder=self, csv_filepath=csv_filepath)
+        return rendered
 
 
 class Field(Base):
@@ -1638,16 +1664,16 @@ class Package(Base):
 
 class CodeData(Base):
     """
-    A collection of dictionaries representing codes for various PUDL fields.
+    A list of Encoders representing standardization and description for reported categorical codes.
 
     Used to export to documentation.
     """
 
-    code_dict: Dict[str, Dict] = {}
+    encoder_list: List[Encoder] = []
 
     @classmethod
     def from_code_ids(
-        cls, code_ids: Iterable[str], csv_dir: DirectoryPath
+        cls, code_ids: Iterable[str]
     ) -> "CodeData":
         """
         Construct a dictionary of code dictionaries containing the code name as it appears in the docs, a description, and file path to a CSV of the code label dataframe.
@@ -1656,22 +1682,14 @@ class CodeData(Base):
             code_names: A list of Code PUDL identifiers, keys to entries in the CODE_METADATA dictionary.
 
         """
-        code_dict = {}
+        encoder_list = []
         for name in code_ids:
-            if name in CODE_DESCRIPTIONS:
-                description = CODE_DESCRIPTIONS[name]['description']
-                title_name = CODE_DESCRIPTIONS[name]['doc_name']
-            else:
-                description = None
-                title_name = name
-            csv_filepath = Path(csv_dir, f"{name}.csv")
-            CODE_METADATA[name]["df"].to_csv(csv_filepath, index=False)
-            code_dict[name] = {"title_name": title_name, "description": description,
-                               "csv_filepath": csv_filepath}
-        return cls(code_dict=code_dict)
+            if name in CODE_METADATA:
+                encoder_list.append(Encoder.from_code_id(name))
+        return cls(encoder_list=encoder_list)
 
-    def to_rst(self, path: str) -> None:
-        """Output to an RST file."""
-        template = JINJA_ENVIRONMENT.get_template("codedata.rst.jinja")
-        rendered = template.render(CodeData=self)
-        Path(path).write_text(rendered)
+    def to_rst(self, csv_dir: DirectoryPath, path: str) -> None:
+        """Iterate through encoders and output to an RST file."""
+        for encoder in self.encoder_list:
+            rendered = encoder.to_rst(csv_dir=csv_dir)
+            Path(path).write_text(rendered)
