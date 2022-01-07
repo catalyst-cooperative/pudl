@@ -151,11 +151,10 @@ def metadata_to_rst(app):
 
 def static_dfs_to_rst(app):
     """Export static code labeling dataframes to RST for inclusion in the documentation."""
-    abs_csv_dir = DOCS_DIR / "data_dictionaries/code_csvs"
-    abs_csv_dir.mkdir(parents=True, exist_ok=True)
-    rel_csv_dir = Path("code_csvs")
+    csv_dir = DOCS_DIR / "data_dictionaries/code_csvs"
+    csv_dir.mkdir(parents=True, exist_ok=True)
     codemetadata = CodeMetadata.from_code_ids(sorted(CODE_METADATA.keys()))
-    codemetadata.to_rst(csv_dir=rel_csv_dir, path=DOCS_DIR / "data_dictionaries/codes_and_labels.rst")
+    codemetadata.to_rst(csv_dir=csv_dir, path=DOCS_DIR / "data_dictionaries/codes_and_labels.rst")
 
 
 def cleanup_rsts(app, exception):
@@ -177,4 +176,4 @@ def setup(app):
     app.connect("builder-inited", metadata_to_rst)
     app.connect("builder-inited", static_dfs_to_rst)
     app.connect("build-finished", cleanup_rsts)
-    app.connect("build-finished", cleanup_csv_dir)
+    # app.connect("build-finished", cleanup_csv_dir)
