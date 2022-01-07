@@ -548,14 +548,15 @@ class Encoder(Base):
         """Construct an Encoder based on looking up the name of a coding table directly in the codes metadata."""
         return cls(**copy.deepcopy(CODE_METADATA[x]))
 
-    def to_rst(self, abs_csv_dir_path: DirectoryPath, rel_csv_dir_path: DirectoryPath) -> String:
+    def to_rst(self, abs_csv_dir_path: DirectoryPath, rel_csv_dir_path: DirectoryPath, is_header: Bool) -> String:
         """Ouput dataframe to a csv for use in jinja template. Then output to an RST file."""
         filename = self.doc_name.replace(" ", "_")
         abs_csv_filepath = Path(abs_csv_dir_path, f"{filename}.csv")
         self.df.to_csv(abs_csv_filepath, index=False)
         rel_csv_filepath = Path(rel_csv_dir_path, f"{filename}.csv")
         template = JINJA_ENVIRONMENT.get_template("codemetadata.rst.jinja")
-        rendered = template.render(Encoder=self, csv_filepath=rel_csv_filepath)
+        rendered = template.render(
+            Encoder=self, csv_filepath=rel_csv_filepath, is_header=is_header)
         return rendered
 
 
@@ -1671,12 +1672,6 @@ class CodeMetadata(Base):
     """
 
     encoder_list: List[Encoder] = []
-    rst_header = """=====================================================================================================
-PUDL Code Metadata
-=====================================================================================================
-*The following tables map from codes used in raw data to labels used in the PUDL database.*
-*Also included is a table of non-standard codes that are mapped to canonical, standardized codes.*
-"""
 
     @classmethod
     def from_code_ids(
@@ -1698,8 +1693,8 @@ PUDL Code Metadata
     def to_rst(self, abs_csv_dir_path: DirectoryPath, rel_csv_dir_path: DirectoryPath, rst_path: str) -> None:
         """Iterate through encoders and output to an RST file."""
         with Path(rst_path).open("w") as f:
-            f.writelines(self.rst_header)
-            for encoder in self.encoder_list:
+            for idx, encoder in enumerate(self.encoder_list):
+                header = (idx == 0)
                 rendered = encoder.to_rst(
-                    abs_csv_dir_path=abs_csv_dir_path, rel_csv_dir_path=rel_csv_dir_path)
+                    abs_csv_dir_path=abs_csv_dir_path, rel_csv_dir_path=rel_csv_dir_path, is_header=header)
                 f.write(rendered)
