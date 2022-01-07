@@ -1,3 +1,4 @@
+
 | **{{ Encoder.doc_name }}**
 | Description\:
   {{ Encoder.description if Encoder.description }}
@@ -8,14 +9,14 @@
   :widths: auto
 
 {% if Encoder.code_fixes %}
-    .. list-table:: Fixed Codes
-    :widths: auto
-    :header-rows: 1
+.. list-table:: Fixed Codes
+  :widths: auto
+  :header-rows: 1
 
-    * - **Non Standard Code**
-      - **Standard Code**
-  {%- for bad_code, good_code in Encoder.code_fixes.items() %}
-    * - {{ bad_code }}
-      - {{ good_code }}
-  {%- endfor %}
+  * - **Non Standard Code**
+    - **Standard Code**
+{%- for bad_code, good_code in Encoder.code_fixes.items() %}
+  * - {{ bad_code }}
+    - {{ good_code }}
+{%- endfor %}
 {% endif %}
