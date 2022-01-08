@@ -421,16 +421,9 @@ class Encoder(Base):
     the result of data entry errors or changes in the stanard codes over time.
     """
 
-    description: String = None
+    name: String = None
     """
-    A description of the code and where it's found in resource documentation.
-    """
-
-    doc_name: String = None
-    """
-    How the code name appears in the documentation of these code dictionaries.
-
-    A cleaned and presentable version of the name.
+    The name of the code.
     """
 
     @pydantic.validator("df")
@@ -546,17 +539,17 @@ class Encoder(Base):
     @classmethod
     def from_code_id(cls, x: str) -> 'Encoder':
         """Construct an Encoder based on looking up the name of a coding table directly in the codes metadata."""
-        return cls(**copy.deepcopy(CODE_METADATA[x]))
+        return cls(**copy.deepcopy(CODE_METADATA[x]), name=x)
 
     def to_rst(self, abs_csv_dir_path: DirectoryPath, rel_csv_dir_path: DirectoryPath, is_header: Bool) -> String:
         """Ouput dataframe to a csv for use in jinja template. Then output to an RST file."""
-        filename = self.doc_name.replace(" ", "_")
-        abs_csv_filepath = Path(abs_csv_dir_path, f"{filename}.csv")
+        abs_csv_filepath = Path(abs_csv_dir_path, f"{self.name}.csv")
         self.df.to_csv(abs_csv_filepath, index=False)
-        rel_csv_filepath = Path(rel_csv_dir_path, f"{filename}.csv")
+        rel_csv_filepath = Path(rel_csv_dir_path, f"{self.name}.csv")
+        description = RESOURCE_METADATA[self.name]["description"]
         template = JINJA_ENVIRONMENT.get_template("codemetadata.rst.jinja")
         rendered = template.render(
-            Encoder=self, csv_filepath=rel_csv_filepath, is_header=is_header)
+            Encoder=self, description=description, csv_filepath=rel_csv_filepath, is_header=is_header)
         return rendered
 
 

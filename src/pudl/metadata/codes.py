@@ -1,11 +1,9 @@
 """Metadata for cleaning, re-encoding, and documenting coded data columns.
 
-These dictionaries are used to create Encoder instances. They contain the following keys (more description in Encoder class)
+These dictionaries are used to create Encoder instances. They contain the following keys:
 'df': A dataframe associating short codes with long descriptions and other information.
 'code_fixes': A dictionary mapping non-standard codes to canonical, standardized codes.
 'ignored_codes': A list of non-standard codes which appear in the data, and will be set to NA.
-'description': A description of the code and where it's found in resource documentation.
-'doc_name': How the code name appears in the documentation of these code dictionaries.
 """
 from typing import Any, Dict
 
@@ -65,8 +63,6 @@ CODE_METADATA: Dict[str, Dict[str, Any]] = {
             'Wholesale Power Marketer': 'W',
         },
         "ignored_codes": [],
-        "doc_name": "EIA Entity Types",
-        "description": """Descriptive labels for EIA entity type and ownership codes. Descriptions taken from the EIA-861 form instructions valid through 2023-05-31."""
     },
 
     "energy_sources_eia": {
@@ -140,9 +136,7 @@ CODE_METADATA: Dict[str, Dict[str, Any]] = {
         },
         "ignored_codes": [
             0, '0', 'OO', 'BM', 'CBL', 'COL', 'N', 'no', 'PL', 'ST',
-        ],
-        "doc_name": "Energy Sources EIA",
-        "description": """Descriptive labels and other metadata for energy sources reported by EIA. This metadata was compiled from Table 28 in the EIA-860 instructions valid through 2023-05-31, Table 8 in the EIA-923 instructions valid through 2023-05-31, and information in the 'file layout' pages in the original Excel spreadsheets containing fuel data."""
+        ]
     },
 
     "fuel_transportation_modes_eia": {
@@ -173,10 +167,7 @@ CODE_METADATA: Dict[str, Dict[str, Any]] = {
             "pl": "PL",
             "rv": "RV",
         },
-        "ignored_codes": ["UN"],
-        "description":
-        "Descriptive labels for fuel transport modes reported in the EIA 923.",
-        "doc_name": "Fuel Transportation Modes EIA"
+        "ignored_codes": ["UN"]
     },
 
     "fuel_types_aer_eia": {
@@ -204,10 +195,7 @@ CODE_METADATA: Dict[str, Dict[str, Any]] = {
             ],
         ).convert_dtypes(),
         "code_fixes": {},
-        "ignored_codes": [],
-        "description":
-        "Descriptive labels for aggregated fuel types used in the Annual Energy Review. See the EIA 923 Fuel Code table (Table 5) for additional information.",
-        "doc_name": "Fuel Types AER EIA"
+        "ignored_codes": []
     },
 
     "contract_types_eia": {
@@ -221,10 +209,7 @@ CODE_METADATA: Dict[str, Dict[str, Any]] = {
             ]
         ).convert_dtypes(),
         "code_fixes": {"N": "NC"},
-        "ignored_codes": [],
-        "description":
-        "Descriptive labels for fuel supply contract type codes reported in EIA 923. The purchase type under which fuel receipts occurred in the reporting month.",
-        "doc_name": "Contract Types EIA"
+        "ignored_codes": []
     },
 
     "prime_movers_eia": {
@@ -259,10 +244,7 @@ CODE_METADATA: Dict[str, Dict[str, Any]] = {
             ],
         ).convert_dtypes(),
         "code_fixes": {},
-        "ignored_codes": [],
-        "description":
-        "Descriptive labels for EIA prime mover codes.",
-        "doc_name": "Prime Movers EIA"
+        "ignored_codes": []
     },
 
     "sector_consolidated_eia": {
@@ -279,9 +261,6 @@ CODE_METADATA: Dict[str, Dict[str, Any]] = {
             ]
         ).convert_dtypes(),
         "code_fixes": {},
-        "ignored_codes": [],
-        "description":
-        "Descriptive labels for EIA consolidated NAICS sector codes. For internal purposes, EIA consolidates NAICS categories into seven groups. These codes and descriptions are listed on Page 7 of EIA Form 923 EIA’s internal consolidated NAICS sectors.",
-        "doc_name": "Sector Consolidated EIA"
+        "ignored_codes": []
     }
 }
