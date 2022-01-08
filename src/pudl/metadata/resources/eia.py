@@ -59,6 +59,15 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
         "encoder": CODE_METADATA['energy_sources_eia'],
         "sources": ["eia860", "eia923"],
     },
+    "entity_types_eia": {
+        "description": "Descriptive labels for EIA entity type and ownership codes, taken from the EIA-861 form instructions, valid through 2023-05-31.",
+        "schema": {
+            "fields": ["code", "label", "description"],
+            "primary_key": ["code"]
+        },
+        "encoder": CODE_METADATA["entity_types_eia"],
+        "sources": ["eia861"]
+    },
     "fuel_transportation_modes_eia": {
         "description": "Long descriptions of the fuel transportation modes reported in the EIA-860 and EIA-923.",
         "schema": {
