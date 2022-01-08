@@ -14,8 +14,7 @@ from pudl.constants import PUDL_TABLES
 from pudl.metadata.enums import (CUSTOMER_CLASSES, FUEL_CLASSES, NERC_REGIONS,
                                  RELIABILITY_STANDARDS, REVENUE_CLASSES,
                                  RTO_CLASSES, TECH_CLASSES)
-from pudl.metadata.labels import (ENTITY_TYPES, ESTIMATED_OR_ACTUAL,
-                                  MOMENTARY_INTERRUPTIONS)
+from pudl.metadata.labels import ESTIMATED_OR_ACTUAL, MOMENTARY_INTERRUPTIONS
 
 logger = logging.getLogger(__name__)
 
@@ -1860,11 +1859,6 @@ def mergers(tfr_dfs):
     """
     Transform the EIA 861 Mergers table.
 
-    Transformations include:
-
-    * Map full spelling onto code values.
-    * Retain preceeding zeros in zipcode field.
-
     Args:
         tfr_dfs (dict): A dictionary of transformed EIA 861 DataFrames, keyed by table
             name. It will be mutated by this function.
@@ -1873,21 +1867,7 @@ def mergers(tfr_dfs):
         dict: A dictionary of transformed EIA 861 dataframes, keyed by table name.
 
     """
-    raw_mergers = tfr_dfs["mergers_eia861"].copy()
-
-    # No data tidying required
-
-    ###########################################################################
-    # Transform Values:
-    # * Turn ownership column from single-letter code to full ownership category.
-    # * Retain preceeding zeros in zip codes
-    ###########################################################################
-
-    transformed_mergers = (
-        raw_mergers.assign(
-            entity_type=lambda x: x.entity_type.map(ENTITY_TYPES),
-        )
-    )
+    transformed_mergers = tfr_dfs["mergers_eia861"].copy()
 
     # No duplicates to speak of but take measures to check just in case
     _check_for_dupes(

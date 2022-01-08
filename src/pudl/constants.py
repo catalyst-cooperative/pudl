@@ -14,8 +14,8 @@ from pudl.metadata.enums import (CUSTOMER_CLASSES, EPACEMS_MEASUREMENT_CODES,
                                  EPACEMS_STATES, FUEL_CLASSES, NERC_REGIONS,
                                  RELIABILITY_STANDARDS, REVENUE_CLASSES,
                                  TECH_CLASSES)
-from pudl.metadata.labels import (COALMINE_TYPES_EIA, ENTITY_TYPES,
-                                  ESTIMATED_OR_ACTUAL, MOMENTARY_INTERRUPTIONS)
+from pudl.metadata.labels import (COALMINE_TYPES_EIA, ESTIMATED_OR_ACTUAL,
+                                  MOMENTARY_INTERRUPTIONS)
 
 ENTITIES: Dict[str, Tuple[List[str], List[str], List[str], Dict[str, str]]] = {
     'plants': (
@@ -413,7 +413,7 @@ COLUMN_DTYPES: Dict[str, Dict[str, Any]] = {
         'energy_source_code_5': pd.StringDtype(),
         'energy_source_code_6': pd.StringDtype(),
         'energy_storage': pd.BooleanDtype(),
-        'entity_type': pd.CategoricalDtype(categories=ENTITY_TYPES.values()),
+        'entity_type': pd.StringDtype(),
         'estimated_or_actual_capacity_data': pd.CategoricalDtype(
             categories=ESTIMATED_OR_ACTUAL.values()
         ),

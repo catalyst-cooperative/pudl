@@ -13,6 +13,61 @@ import numpy as np
 import pandas as pd
 
 CODE_METADATA: Dict[str, Dict[str, Any]] = {
+    "entity_types_eia": {
+        "df": pd.DataFrame(
+            columns=[
+                'code',
+                'label',
+                'description',
+            ],
+            data=[
+                ('A', 'municipal_marketing_authority', 'Municipal Marketing Authority. Voted into existence by the residents of a municipality and given authority for creation by the state government. They are nonprofit organizations'),
+                ('B', 'behind_the_meter', 'Behind the Meter. Entities that install, own, and/or operate a system (usually photovoltaic), and sell, under a long term power purchase agreement (PPA) or lease, all the production from the system to the homeowner or business with which there is a net metering agreement. Third Party Owners (TPOs) of PV solar installations use this ownership code.'),
+                ('C', 'cooperative', 'Cooperative. Member-owned organizations.'),
+                ('COM', 'commercial', 'Commercial facility.'),
+                ('D', 'nonutility_dsm_administrator',
+                 'Non-utility DSM Administrator. Only involved with Demand-Side Management activities.'),
+                ('F', 'federal', 'Federal. Government agencies with the authority to deliver energy to end-use customers.'),
+                ('G', 'community_choice_aggregator', 'Community Choice Aggregator.'),
+                ('I', 'investor_owned',
+                 'Investor-owned Utilities. Entities that are privately owned and provide a public service.'),
+                ('IND', 'industrial', 'Industrial facility.'),
+                ('M', 'municipal', 'Municipal: Entities that are organized under authority of state statute to provide a public service to residents of that area.'),
+                ('O', 'other', 'Other entity type.'),
+                ('P', 'political_subdivision', 'Political Subdivision. (also called "public utility district"): Independent of city or county government and voted into existence by a majority of the residents of any given area for the specific purpose of providing utility service to the voters. State laws provide for the formation of such districts.'),
+                ('PO', 'power_marketer', 'Power marketer.'),
+                ('PR', 'private', 'Private entity.'),
+                ('Q', 'independent_power_producer',
+                 'Independent Power Producer or Qualifying Facility. Entities that own power plants and sell their power into the wholesale market.'),
+                ('R', 'retail_power_marketer',
+                 'Retail Power Marketer or Energy Service Provider: Entities that market power to customers in restructured markets.'),
+                ('S', 'state', 'State entities that own or operate facilities or provide a public service.'),
+                ('T', 'transmission', 'Transmission: Entities that operate or own high voltage transmission wires that provide bulk power services.'),
+                ('U', 'unknown', 'Unknown entity type.'),
+                ('W', 'wholesale_power_marketer',
+                 'Wholesale Power Marketer: Entities that buy and sell power in the wholesale market.'),
+            ]
+        ).convert_dtypes(),
+
+        "code_fixes": {
+            'Behind the Meter': 'B',
+            'Community Choice Aggregator': 'G',
+            'Cooperative': 'C',
+            'Facility': 'Q',
+            'Federal': 'F',
+            'Investor Owned': 'I',
+            'Municipal': 'M',
+            'Political Subdivision': 'P',
+            'Power Marketer': 'PO',
+            'Retail Power Marketer': 'R',
+            'State': 'S',
+            'Unregulated': 'Q',
+            'Wholesale Power Marketer': 'W',
+        },
+        "ignored_codes": [],
+        "doc_name": "EIA Entity Types",
+        "description": """Descriptive labels for EIA entity type and ownership codes. Descriptions taken from the EIA-861 form instructions valid through 2023-05-31."""
+    },
 
     "energy_sources_eia": {
         "df": pd.DataFrame(
@@ -86,9 +141,8 @@ CODE_METADATA: Dict[str, Dict[str, Any]] = {
         "ignored_codes": [
             0, '0', 'OO', 'BM', 'CBL', 'COL', 'N', 'no', 'PL', 'ST',
         ],
-        "description":
-        "Descriptive labels and other metadata for energy sources reported by EIA. This metadata was compiled from Table 28 in the EIA-860 instructions valid through 2023-05-31, Table 8 in the EIA-923 instructions valid through 2023-05-31, and information in the \"file layout\" pages in the original Excel spreadsheets containing fuel data. Prior to 2006 both biogenic and non-biogenic municipal solid waste were lumped together under the MSW code. From 2006 onward these categories were separated into MSB and MSN. The range of heat contents and categorizations of MSB/MSW are not provided by EIA, and represent our best guesses.",
-        "doc_name": "Energy Sources EIA"
+        "doc_name": "Energy Sources EIA",
+        "description": """Descriptive labels and other metadata for energy sources reported by EIA. This metadata was compiled from Table 28 in the EIA-860 instructions valid through 2023-05-31, Table 8 in the EIA-923 instructions valid through 2023-05-31, and information in the 'file layout' pages in the original Excel spreadsheets containing fuel data."""
     },
 
     "fuel_transportation_modes_eia": {

@@ -14,6 +14,7 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
             "primary_key": ["respondent_id_ferc714"],
             "foreign_key_rules": {"fields": [["respodnent_id_ferc714"]]}
         },
+        "sources": ["ferc714"],
     },
     "demand_hourly_pa_ferc714": {
         "description": "Hourly electricity demand by plannting area. FERC Form 714, Part III, Schedule 2a.",
@@ -26,7 +27,8 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
                 "demand_mwh",
             ],
             "primary_key": ["respondent_id_ferc714", "utc_datetime"]
-        }
+        },
+        "sources": ["ferc714"],
     }
 }
 """

@@ -9,7 +9,6 @@ import pudl
 from pudl import constants as pc
 from pudl.constants import PUDL_TABLES
 from pudl.metadata.codes import CODE_METADATA
-from pudl.metadata.labels import ENTITY_TYPES
 
 logger = logging.getLogger(__name__)
 
@@ -584,9 +583,6 @@ def utilities(eia860_dfs, eia860_transformed_dfs):
         u_df.astype({
             "utility_id_eia": "Int64"
         })
-        .assign(
-            entity_type=lambda x: x.entity_type.map(ENTITY_TYPES)
-        )
         .pipe(pudl.helpers.convert_to_date)
         .fillna({'entity_type': pd.NA})
     )
