@@ -541,15 +541,12 @@ class Encoder(Base):
         """Construct an Encoder based on looking up the name of a coding table directly in the codes metadata."""
         return cls(**copy.deepcopy(CODE_METADATA[x]), name=x)
 
-    def to_rst(self, abs_csv_dir_path: DirectoryPath, rel_csv_dir_path: DirectoryPath, is_header: Bool) -> String:
+    def to_rst(self, top_dir: DirectoryPath, csv_subdir: DirectoryPath, is_header: Bool) -> String:
         """Ouput dataframe to a csv for use in jinja template. Then output to an RST file."""
-        abs_csv_filepath = Path(abs_csv_dir_path, f"{self.name}.csv")
-        self.df.to_csv(abs_csv_filepath, index=False)
-        rel_csv_filepath = Path(rel_csv_dir_path, f"{self.name}.csv")
-        description = RESOURCE_METADATA[self.name]["description"]
+        self.df.to_csv(Path(top_dir) / csv_subdir / f"{self.name}.csv", index=False)
         template = JINJA_ENVIRONMENT.get_template("codemetadata.rst.jinja")
         rendered = template.render(
-            Encoder=self, description=description, csv_filepath=rel_csv_filepath, is_header=is_header)
+            Encoder=self, description=RESOURCE_METADATA[self.name]["description"], csv_filepath=(Path('/') / csv_subdir / f"{self.name}.csv"), is_header=is_header)
         return rendered
 
 
@@ -1671,10 +1668,10 @@ class CodeMetadata(Base):
         cls, code_ids: Iterable[str]
     ) -> "CodeMetadata":
         """
-        Construct a dictionary of code dictionaries containing the code name as it appears in the docs, a description, and file path to a CSV of the code label dataframe.
+        Construct a dictionary of code dictionaries containing the code id as it appears in the docs, a description, and file path to a CSV of the code label dataframe.
 
         Args:
-            code_names: A list of Code PUDL identifiers, keys to entries in the CODE_METADATA dictionary.
+            code_ids: A list of Code PUDL identifiers, keys to entries in the CODE_METADATA dictionary.
 
         """
         encoder_list = []
@@ -1683,11 +1680,11 @@ class CodeMetadata(Base):
                 encoder_list.append(Encoder.from_code_id(name))
         return cls(encoder_list=encoder_list)
 
-    def to_rst(self, abs_csv_dir_path: DirectoryPath, rel_csv_dir_path: DirectoryPath, rst_path: str) -> None:
+    def to_rst(self, top_dir: DirectoryPath, csv_subdir: DirectoryPath, rst_path: str) -> None:
         """Iterate through encoders and output to an RST file."""
         with Path(rst_path).open("w") as f:
             for idx, encoder in enumerate(self.encoder_list):
                 header = (idx == 0)
                 rendered = encoder.to_rst(
-                    abs_csv_dir_path=abs_csv_dir_path, rel_csv_dir_path=rel_csv_dir_path, is_header=header)
+                    top_dir=top_dir, csv_subdir=csv_subdir, is_header=header)
                 f.write(rendered)
