@@ -1,10 +1,7 @@
 """Definitions of data tables primarily coming from EIA 860/861/923."""
 from typing import Any, Dict
 
-from pudl.metadata.codes import (CONTRACT_TYPES_EIA, ENERGY_SOURCES_EIA,
-                                 FUEL_TRANSPORTATION_MODES_EIA,
-                                 FUEL_TYPES_AER_EIA, PRIME_MOVERS_EIA,
-                                 SECTOR_CONSOLIDATED_EIA)
+from pudl.metadata.codes import CODE_METADATA
 
 RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
     "boilers_entity_eia": {
@@ -23,7 +20,7 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
             "primary_key": ["code"],
             "foreign_key_rules": {"fields": [["contract_type_code"]]}
         },
-        "encoder": CONTRACT_TYPES_EIA,
+        "encoder": CODE_METADATA["contract_types_eia"],
         "sources": ["eia923"],
     },
     "energy_sources_eia": {
@@ -59,8 +56,17 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
                 ],
             },
         },
-        "encoder": ENERGY_SOURCES_EIA,
+        "encoder": CODE_METADATA['energy_sources_eia'],
         "sources": ["eia860", "eia923"],
+    },
+    "entity_types_eia": {
+        "description": "Descriptive labels for EIA entity type and ownership codes, taken from the EIA-861 form instructions, valid through 2023-05-31.",
+        "schema": {
+            "fields": ["code", "label", "description"],
+            "primary_key": ["code"]
+        },
+        "encoder": CODE_METADATA["entity_types_eia"],
+        "sources": ["eia861"]
     },
     "fuel_transportation_modes_eia": {
         "description": "Long descriptions of the fuel transportation modes reported in the EIA-860 and EIA-923.",
@@ -80,7 +86,7 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
                 ]
             }
         },
-        "encoder": FUEL_TRANSPORTATION_MODES_EIA,
+        "encoder": CODE_METADATA["fuel_transportation_modes_eia"],
         "sources": ["eia860", "eia923"],
     },
     "fuel_types_aer_eia": {
@@ -90,7 +96,7 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
             "primary_key": ["code"],
             "foreign_key_rules": {"fields": [["fuel_type_code_aer"]]},
         },
-        "encoder": FUEL_TYPES_AER_EIA,
+        "encoder": CODE_METADATA["fuel_types_aer_eia"],
         "sources": ["eia923"],
     },
     "generators_entity_eia": {
@@ -184,7 +190,7 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
                 ]
             },
         },
-        "encoder": PRIME_MOVERS_EIA,
+        "encoder": CODE_METADATA["prime_movers_eia"],
         "sources": ["eia923", "eia860"],
     },
     "sector_consolidated_eia": {
@@ -194,7 +200,7 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
             "primary_key": ["code"],
             "foreign_key_rules": {"fields": [["sector_id_eia"]]},
         },
-        "encoder": SECTOR_CONSOLIDATED_EIA,
+        "encoder": CODE_METADATA["sector_consolidated_eia"],
         "sources": ["eia860", "eia923"],
     },
     "utilities_eia": {

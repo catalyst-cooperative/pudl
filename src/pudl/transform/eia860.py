@@ -8,7 +8,7 @@ import pandas as pd
 import pudl
 from pudl import constants as pc
 from pudl.constants import PUDL_TABLES
-from pudl.metadata.codes import ENERGY_SOURCES_EIA
+from pudl.metadata.codes import CODE_METADATA
 
 logger = logging.getLogger(__name__)
 
@@ -332,7 +332,7 @@ def generators(eia860_dfs, eia860_transformed_dfs):
         .str.upper()
         .map(
             pudl.helpers.label_map(
-                ENERGY_SOURCES_EIA["df"],
+                CODE_METADATA["energy_sources_eia"]["df"],
                 from_col="code",
                 to_col="fuel_type_code_pudl",
                 null_value=pd.NA,

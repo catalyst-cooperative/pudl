@@ -14,7 +14,9 @@ import pandas as pd
 import pyarrow as pa
 import pydantic
 import sqlalchemy as sa
+from pydantic.types import DirectoryPath
 
+from .codes import CODE_METADATA
 from .constants import (CONSTRAINT_DTYPES, CONTRIBUTORS,
                         CONTRIBUTORS_BY_SOURCE, FIELD_DTYPES_PANDAS,
                         FIELD_DTYPES_PYARROW, FIELD_DTYPES_SQL,
@@ -395,7 +397,7 @@ class Encoder(Base):
     A table associating short codes with long descriptions and other information.
 
     Each coding table contains at least a ``code`` column containing the standard codes
-    and a ``definition`` column with a human readable explanation of what the code
+    and a ``description`` column with a human readable explanation of what the code
     stands for. Additional metadata pertaining to the codes and their categories may
     also appear in this dataframe, which will be loaded into the PUDL DB as a static
     table. The ``code`` column is a natural primary key and must contain no duplicate
@@ -417,6 +419,11 @@ class Encoder(Base):
     The intended meanings of some non-standard codes are clear, and therefore they can
     be mapped to the standardized, canonical codes with confidence. Sometimes these are
     the result of data entry errors or changes in the stanard codes over time.
+    """
+
+    name: String = None
+    """
+    The name of the code.
     """
 
     @pydantic.validator("df")
@@ -528,6 +535,22 @@ class Encoder(Base):
     def from_id(cls, x: str) -> 'Encoder':
         """Construct an Encoder based on `Resource.name` of a coding table."""
         return cls(**cls.dict_from_id(x))
+
+    @classmethod
+    def from_code_id(cls, x: str) -> 'Encoder':
+        """Construct an Encoder based on looking up the name of a coding table directly in the codes metadata."""
+        return cls(**copy.deepcopy(CODE_METADATA[x]), name=x)
+
+    def to_rst(self, top_dir: DirectoryPath, csv_subdir: DirectoryPath, is_header: Bool) -> String:
+        """Ouput dataframe to a csv for use in jinja template. Then output to an RST file."""
+        self.df.to_csv(Path(top_dir) / csv_subdir / f"{self.name}.csv", index=False)
+        template = JINJA_ENVIRONMENT.get_template("codemetadata.rst.jinja")
+        rendered = template.render(
+            Encoder=self,
+            description=RESOURCE_METADATA[self.name]["description"],
+            csv_filepath=(Path('/') / csv_subdir / f"{self.name}.csv"),
+            is_header=is_header)
+        return rendered
 
 
 class Field(Base):
@@ -1632,3 +1655,39 @@ class Package(Base):
                 check_values=check_values,
             )
         return metadata
+
+
+class CodeMetadata(Base):
+    """
+    A list of Encoders representing standardization and description for reported categorical codes.
+
+    Used to export to documentation.
+    """
+
+    encoder_list: List[Encoder] = []
+
+    @classmethod
+    def from_code_ids(
+        cls, code_ids: Iterable[str]
+    ) -> "CodeMetadata":
+        """
+        Construct a list of encoders from code dictionaries.
+
+        Args:
+            code_ids: A list of Code PUDL identifiers, keys to entries in the CODE_METADATA dictionary.
+
+        """
+        encoder_list = []
+        for name in code_ids:
+            if name in CODE_METADATA:
+                encoder_list.append(Encoder.from_code_id(name))
+        return cls(encoder_list=encoder_list)
+
+    def to_rst(self, top_dir: DirectoryPath, csv_subdir: DirectoryPath, rst_path: str) -> None:
+        """Iterate through encoders and output to an RST file."""
+        with Path(rst_path).open("w") as f:
+            for idx, encoder in enumerate(self.encoder_list):
+                header = (idx == 0)
+                rendered = encoder.to_rst(
+                    top_dir=top_dir, csv_subdir=csv_subdir, is_header=header)
+                f.write(rendered)

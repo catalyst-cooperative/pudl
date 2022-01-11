@@ -7,7 +7,7 @@ import pandas as pd
 
 import pudl
 from pudl.constants import PUDL_TABLES
-from pudl.metadata.codes import ENERGY_SOURCES_EIA
+from pudl.metadata.codes import CODE_METADATA
 from pudl.metadata.labels import COALMINE_TYPES_EIA
 
 logger = logging.getLogger(__name__)
@@ -655,7 +655,7 @@ def generation_fuel(eia923_dfs, eia923_transformed_dfs):
 
     gen_fuel['fuel_type_code_pudl'] = gen_fuel.energy_source_code.map(
         pudl.helpers.label_map(
-            ENERGY_SOURCES_EIA["df"],
+            CODE_METADATA["energy_sources_eia"]["df"],
             from_col="code",
             to_col="fuel_type_code_pudl",
             null_value=pd.NA,
@@ -855,7 +855,7 @@ def boiler_fuel(eia923_dfs, eia923_transformed_dfs):
     # Add a simplified PUDL fuel type
     bf_df['fuel_type_code_pudl'] = bf_df.energy_source_code.map(
         pudl.helpers.label_map(
-            ENERGY_SOURCES_EIA["df"],
+            CODE_METADATA["energy_sources_eia"]["df"],
             from_col="code",
             to_col="fuel_type_code_pudl",
             null_value=pd.NA,
@@ -1126,7 +1126,7 @@ def fuel_receipts_costs(eia923_dfs, eia923_transformed_dfs):
     frc_df["fuel_type_code_pudl"] = (
         frc_df.energy_source_code.map(
             pudl.helpers.label_map(
-                ENERGY_SOURCES_EIA["df"],
+                CODE_METADATA["energy_sources_eia"]["df"],
                 from_col="code",
                 to_col="fuel_type_code_pudl",
                 null_value=pd.NA,
