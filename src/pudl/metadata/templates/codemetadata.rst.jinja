@@ -2,13 +2,17 @@
 =====================================================================================================
 PUDL Code Metadata
 =====================================================================================================
-*The following tables map from codes used in raw data to labels used in the PUDL database.*
-*Also included is a table of non-standard codes that are mapped to canonical, standardized codes.*
+The following tables map from codes used in raw data to labels used in the PUDL database.
+Also included is a table of non-standard codes that are mapped to canonical, standardized codes.
 {% endif %}
 
-| **{{ Encoder.name }}**
-| Description\:
-  {{ description }}
+.. _{{ Encoder.name }}:
+
+---------------------------------------------------------------
+{{ Encoder.name }}
+---------------------------------------------------------------
+
+{{ description }}
 
 .. csv-table:: Code Mappings
   :file: {{ csv_filepath }}
