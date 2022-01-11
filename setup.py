@@ -72,7 +72,7 @@ setup(
             "doc8~=0.9",
             "sphinx~=4.0",
             "sphinx-autoapi~=1.8",
-            "sphinx-issues>=1.2,<3.0",
+            "sphinx-issues>=1.2,<4.0",
             "sphinx-reredirects",
             "sphinx-rtd-dark-mode~=1.2",
             "sphinx-rtd-theme~=1.0",
