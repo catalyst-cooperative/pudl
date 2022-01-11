@@ -546,7 +546,10 @@ class Encoder(Base):
         self.df.to_csv(Path(top_dir) / csv_subdir / f"{self.name}.csv", index=False)
         template = JINJA_ENVIRONMENT.get_template("codemetadata.rst.jinja")
         rendered = template.render(
-            Encoder=self, description=RESOURCE_METADATA[self.name]["description"], csv_filepath=(Path('/') / csv_subdir / f"{self.name}.csv"), is_header=is_header)
+            Encoder=self,
+            description=RESOURCE_METADATA[self.name]["description"],
+            csv_filepath=(Path('/') / csv_subdir / f"{self.name}.csv"),
+            is_header=is_header)
         return rendered
 
 
@@ -1668,7 +1671,7 @@ class CodeMetadata(Base):
         cls, code_ids: Iterable[str]
     ) -> "CodeMetadata":
         """
-        Construct a dictionary of code dictionaries containing the code id as it appears in the docs, a description, and file path to a CSV of the code label dataframe.
+        Construct a list of encoders from code dictionaries.
 
         Args:
             code_ids: A list of Code PUDL identifiers, keys to entries in the CODE_METADATA dictionary.

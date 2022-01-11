@@ -156,7 +156,9 @@ def static_dfs_to_rst(app):
     abs_csv_dir_path = DOCS_DIR / csv_subdir
     abs_csv_dir_path.mkdir(parents=True, exist_ok=True)
     codemetadata = CodeMetadata.from_code_ids(sorted(CODE_METADATA.keys()))
-    codemetadata.to_rst(top_dir=DOCS_DIR, csv_subdir=csv_subdir, rst_path=DOCS_DIR / "data_dictionaries/codes_and_labels.rst")
+    codemetadata.to_rst(top_dir=DOCS_DIR,
+                        csv_subdir=csv_subdir,
+                        rst_path=DOCS_DIR / "data_dictionaries/codes_and_labels.rst")
 
 
 def cleanup_rsts(app, exception):
