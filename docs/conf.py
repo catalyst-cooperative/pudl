@@ -49,8 +49,7 @@ extensions = [
     'sphinx_issues',
     'sphinx_reredirects',
     'sphinx_rtd_dark_mode',
-    'sphinxcontrib.bibtex',
-    'sphinx.ext.autosectionlabel'
+    'sphinxcontrib.bibtex'
 ]
 todo_include_todos = True
 bibtex_bibfiles = [
@@ -100,10 +99,6 @@ templates_path = ['_templates']
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = ['_build']
-
-suppress_warnings = ['autosectionlabel.*']
-# autosectionlabel_prefix_document = True
-# autosectionlabel_maxdepth = 1
 
 # -- Options for HTML output -------------------------------------------------
 
