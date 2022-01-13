@@ -39,7 +39,7 @@ setup(
         "datapackage~=1.11",  # Transition datastore to use frictionless.
         # "email-validator>=1.0.3",  # pydantic[email] dependency
         "fsspec>=2021.7,<2023.0",
-        "gcsfs~=2021.7",
+        "gcsfs>=2021.7,<2023.0",
         "geopandas>=0.9,<0.11",
         "jinja2>=2,<4",
         "matplotlib~=3.0",  # Should make this optional with a "viz" extras
