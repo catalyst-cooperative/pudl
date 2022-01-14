@@ -14,8 +14,8 @@ from pudl.metadata.enums import (CUSTOMER_CLASSES, EPACEMS_MEASUREMENT_CODES,
                                  EPACEMS_STATES, FUEL_CLASSES, NERC_REGIONS,
                                  RELIABILITY_STANDARDS, REVENUE_CLASSES,
                                  TECH_CLASSES)
-from pudl.metadata.labels import (COALMINE_TYPES_EIA, ENTITY_TYPES,
-                                  ESTIMATED_OR_ACTUAL, MOMENTARY_INTERRUPTIONS)
+from pudl.metadata.labels import (COALMINE_TYPES_EIA, ESTIMATED_OR_ACTUAL,
+                                  MOMENTARY_INTERRUPTIONS)
 
 ENTITIES: Dict[str, Tuple[List[str], List[str], List[str], Dict[str, str]]] = {
     'plants': (
@@ -262,6 +262,7 @@ COLUMN_DTYPES: Dict[str, Dict[str, Any]] = {
         "report_year": pd.Int64Dtype(),
         "utility_id_ferc1": pd.Int64Dtype(),
         "utility_id_pudl": pd.Int64Dtype(),
+        "construction_type": pd.StringDtype(),
     },
     "ferc714": {  # INCOMPLETE
         "demand_mwh": float,
@@ -312,8 +313,8 @@ COLUMN_DTYPES: Dict[str, Dict[str, Any]] = {
             categories=EPACEMS_MEASUREMENT_CODES
         ),
         'heat_content_mmbtu': "float32",
-        'facility_id': pd.Int32Dtype(),  # Nullable Integer
-        'unit_id_epa': pd.Int32Dtype(),  # Nullable Integer
+        'facility_id': pd.Int32Dtype(),
+        'unit_id_epa': pd.StringDtype(),
     },
     "eia": {
         'actual_peak_demand_savings_mw': float,  # Added by AES for DR table
@@ -412,7 +413,7 @@ COLUMN_DTYPES: Dict[str, Dict[str, Any]] = {
         'energy_source_code_5': pd.StringDtype(),
         'energy_source_code_6': pd.StringDtype(),
         'energy_storage': pd.BooleanDtype(),
-        'entity_type': pd.CategoricalDtype(categories=ENTITY_TYPES.values()),
+        'entity_type': pd.StringDtype(),
         'estimated_or_actual_capacity_data': pd.CategoricalDtype(
             categories=ESTIMATED_OR_ACTUAL.values()
         ),

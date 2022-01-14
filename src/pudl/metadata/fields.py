@@ -3,15 +3,14 @@ from typing import Any, Dict
 
 from pytz import all_timezones
 
-from .codes import ENERGY_SOURCES_EIA
+from .codes import CODE_METADATA
 from .constants import SOURCES
 from .enums import (CANADA_PROVINCES_TERRITORIES, CUSTOMER_CLASSES,
                     EPACEMS_MEASUREMENT_CODES, EPACEMS_STATES, FUEL_CLASSES,
                     NERC_REGIONS, RELIABILITY_STANDARDS, REVENUE_CLASSES,
                     RTO_CLASSES, TECH_CLASSES, US_STATES_TERRITORIES)
-from .labels import (COALMINE_TYPES_EIA, ENTITY_TYPES, ESTIMATED_OR_ACTUAL,
-                     FUEL_UNITS_EIA, MOMENTARY_INTERRUPTIONS,
-                     POWER_PURCHASE_TYPES_FERC1)
+from .labels import (COALMINE_TYPES_EIA, ESTIMATED_OR_ACTUAL, FUEL_UNITS_EIA,
+                     MOMENTARY_INTERRUPTIONS, POWER_PURCHASE_TYPES_FERC1)
 
 FIELD_METADATA: Dict[str, Dict[str, Any]] = {
     "active": {
@@ -93,7 +92,7 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
     },
     "balancing_authority_code_eia": {
         "type": "string",
-        "description": "The plant's balancing authority code."
+        "description": "EIA short code identifying a balancing authority.",
     },
     "balancing_authority_id_eia": {
         "type": "integer"
@@ -229,7 +228,7 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
         "type": "string",
         "description": "Type of plant construction ('outdoor', 'semioutdoor', or 'conventional'). Categorized by PUDL based on our best guess of intended value in FERC1 freeform strings.",
         "constraints": {
-            "enum": ["", "unknown", "conventional", "outdoor", "semioutdoor"]
+            "enum": ["conventional", "outdoor", "semioutdoor"]
         }
     },
     "construction_year": {
@@ -579,9 +578,6 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
     "entity_type": {
         "type": "string",
         "description": "Entity type of principal owner.",
-        "constraints": {
-            "enum": list(ENTITY_TYPES.values())
-        }
     },
     "estimated_or_actual_capacity_data": {
         "type": "string",
@@ -696,7 +692,7 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
         "type": "string",
         "description": "Original fuel from which this refined fuel was derived.",
         "constraints": {
-            "enum": sorted(set(ENERGY_SOURCES_EIA["df"]["fuel_derived_from"]))
+            "enum": sorted(set(CODE_METADATA["energy_sources_eia"]["df"]["fuel_derived_from"]))
         }
     },
     "fuel_group_code": {
@@ -710,7 +706,7 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
         "type": "string",
         "description": "High level fuel group defined in the 2021-2023 EIA Form 860 instructions, Table 28.",
         "constraints": {
-            "enum": sorted(set(ENERGY_SOURCES_EIA["df"]["fuel_group_eia"]))
+            "enum": sorted(set(CODE_METADATA["energy_sources_eia"]["df"]["fuel_group_eia"]))
         }
     },
     "fuel_mmbtu_per_unit": {
@@ -724,7 +720,7 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
         "type": "string",
         "description": "Physical phase of matter of the fuel.",
         "constraints": {
-            "enum": sorted(set(ENERGY_SOURCES_EIA["df"]["fuel_phase"].dropna()))
+            "enum": sorted(set(CODE_METADATA["energy_sources_eia"]["df"]["fuel_phase"].dropna()))
         }
     },
     "fuel_received_units": {
@@ -744,7 +740,7 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
         "type": "string",
         "description": "Simplified fuel type code used in PUDL",
         "constraints": {
-            "enum": sorted(set(ENERGY_SOURCES_EIA["df"].fuel_type_code_pudl))
+            "enum": sorted(set(CODE_METADATA["energy_sources_eia"]["df"].fuel_type_code_pudl))
         }
     },
     "fuel_units": {
@@ -1077,7 +1073,7 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
         "type": "string",
         "description": "Contract type for natrual gas delivery service:",
         "constraints": {
-            "enum": ["", "firm", "interruptible"]
+            "enum": ["firm", "interruptible"]
         }
     },
     "natural_gas_local_distribution_company": {
@@ -1105,7 +1101,7 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
         "type": "string",
         "description": "Contract type for natural gas transportation service.",
         "constraints": {
-            "enum": ["", "firm", "interruptible"]
+            "enum": ["firm", "interruptible"]
         }
     },
     "nerc_region": {
@@ -2257,6 +2253,10 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
     "winter_peak_demand_mw": {
         "type": "number"
     },
+    "year": {
+        "type": "year",
+        "description": "Year associated with data, for partitioning EPA CEMS.",
+    },
     "zip_code": {
         "type": "string",
         "description": "Five digit US Zip Code."
@@ -2280,7 +2280,37 @@ FIELD_METADATA_BY_GROUP: Dict[str, Dict[str, Any]] = {
             "constraints": {
                 "enum": EPACEMS_STATES
             }
-        }
+        },
+        "gross_load_mw": {
+            "constraints": {
+                "required": True,
+            }
+        },
+        "heat_content_mmbtu": {
+            "constraints": {
+                "required": True,
+            }
+        },
+        "operating_datetime_utc": {
+            "constraints": {
+                "required": True,
+            }
+        },
+        "plant_id_eia": {
+            "constraints": {
+                "required": True,
+            }
+        },
+        "unitid": {
+            "constraints": {
+                "required": True,
+            }
+        },
+        "year": {
+            "constraints": {
+                "required": True,
+            }
+        },
     },
     "eia": {
         "fuel_units": {
@@ -2293,7 +2323,6 @@ FIELD_METADATA_BY_GROUP: Dict[str, Dict[str, Any]] = {
         "fuel_units": {
             "constraints": {
                 "enum": [
-                    "unknown",
                     "mmbtu",
                     "gramsU",
                     "kgU",
@@ -2323,6 +2352,14 @@ FIELD_METADATA_BY_RESOURCE: Dict[str, Dict[str, Any]] = {
     "sector_consolidated_eia": {
         "code": {
             "type": "integer"
+        }
+    },
+    "plants_steam_ferc1": {
+        "plant_type": {
+            "type": "string",
+            "constraints": {
+                "enum": ['steam', 'combustion_turbine', 'combined_cycle', 'nuclear', 'geothermal', 'internal_combustion', 'wind', 'photovoltaic', 'solar_thermal']
+            }
         }
     }
 }

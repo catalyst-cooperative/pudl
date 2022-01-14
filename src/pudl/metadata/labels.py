@@ -1,33 +1,6 @@
 """Descriptive labels for coded field values."""
 from typing import Dict
 
-ENTITY_TYPES: Dict[str, str] = {
-    'M': 'municipal',
-    'C': 'cooperative',
-    'R': 'retail_power_marketer',
-    'I': 'investor_owned',
-    'P': 'political_subdivision',
-    'T': 'transmission',
-    'S': 'state',
-    'W': 'wholesale_power_marketer',
-    'F': 'federal',
-    'A': 'municipal_marketing_authority',
-    'G': 'community_choice_aggregator',
-    'D': 'nonutility_dsm_administrator',
-    'B': 'behind_the_meter',
-    'Q': 'independent_power_producer',
-    'IND': 'industrial',
-    'COM': 'commercial',
-    'PR': 'private',
-    'PO': 'power_marketer',
-    'U': 'unknown',
-    'O': 'other',
-}
-"""
-Descriptive labels for EIA utility legal entity type codes.
-
-"""
-
 ESTIMATED_OR_ACTUAL: Dict[str, str] = {
     'E': 'estimated',
     'A': 'actual'

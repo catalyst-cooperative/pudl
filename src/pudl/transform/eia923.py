@@ -7,11 +7,8 @@ import pandas as pd
 
 import pudl
 from pudl.constants import PUDL_TABLES
-from pudl.metadata import RESOURCE_METADATA
-from pudl.metadata.codes import ENERGY_SOURCES_EIA
+from pudl.metadata.codes import CODE_METADATA
 from pudl.metadata.labels import COALMINE_TYPES_EIA
-
-PUDL_META = pudl.metadata.classes.Package.from_resource_ids(RESOURCE_METADATA)
 
 logger = logging.getLogger(__name__)
 
@@ -650,11 +647,15 @@ def generation_fuel(eia923_dfs, eia923_transformed_dfs):
 
     gen_fuel = _clean_gen_fuel_energy_sources(gen_fuel)
 
-    gen_fuel = PUDL_META.get_resource("generation_fuel_eia923").encode(gen_fuel)
+    gen_fuel = (
+        pudl.metadata.classes.Package.from_resource_ids()
+        .get_resource("generation_fuel_eia923")
+        .encode(gen_fuel)
+    )
 
     gen_fuel['fuel_type_code_pudl'] = gen_fuel.energy_source_code.map(
         pudl.helpers.label_map(
-            ENERGY_SOURCES_EIA["df"],
+            CODE_METADATA["energy_sources_eia"]["df"],
             from_col="code",
             to_col="fuel_type_code_pudl",
             null_value=pd.NA,
@@ -843,14 +844,18 @@ def boiler_fuel(eia923_dfs, eia923_transformed_dfs):
     # Convert Year/Month columns into a single Date column...
     bf_df = pudl.helpers.convert_to_date(bf_df)
 
-    bf_df = PUDL_META.get_resource("boiler_fuel_eia923").encode(bf_df)
+    bf_df = (
+        pudl.metadata.classes.Package.from_resource_ids()
+        .get_resource("boiler_fuel_eia923")
+        .encode(bf_df)
+    )
 
     bf_df = _aggregate_duplicate_boiler_fuel_keys(bf_df)
 
     # Add a simplified PUDL fuel type
     bf_df['fuel_type_code_pudl'] = bf_df.energy_source_code.map(
         pudl.helpers.label_map(
-            ENERGY_SOURCES_EIA["df"],
+            CODE_METADATA["energy_sources_eia"]["df"],
             from_col="code",
             to_col="fuel_type_code_pudl",
             null_value=pd.NA,
@@ -925,7 +930,11 @@ def generation(eia923_dfs, eia923_transformed_dfs):
     dupes = gen_df[gen_df.duplicated(subset=unique_subset, keep=False)]
     gen_df = gen_df.drop(dupes.net_generation_mwh.isna().index)
 
-    gen_df = PUDL_META.get_resource("generation_eia923").encode(gen_df)
+    gen_df = (
+        pudl.metadata.classes.Package.from_resource_ids()
+        .get_resource("generation_eia923")
+        .encode(gen_df)
+    )
 
     eia923_transformed_dfs['generation_eia923'] = gen_df
 
@@ -1005,7 +1014,11 @@ def coalmine(eia923_dfs, eia923_transformed_dfs):
     # then make the id index a column for simpler transferability
     cmi_df = cmi_df.reset_index()
 
-    cmi_df = PUDL_META.get_resource("coalmine_eia923").encode(cmi_df)
+    cmi_df = (
+        pudl.metadata.classes.Package.from_resource_ids()
+        .get_resource("coalmine_eia923")
+        .encode(cmi_df)
+    )
 
     eia923_transformed_dfs['coalmine_eia923'] = cmi_df
 
@@ -1103,13 +1116,17 @@ def fuel_receipts_costs(eia923_dfs, eia923_transformed_dfs):
               'natural_gas_delivery_contract_type_code'],
              [{'firm': ['F'], 'interruptible': ['I']},
               {'firm': ['F'], 'interruptible': ['I']}],
-             unmapped='')
+             unmapped=pd.NA)
     )
-    frc_df = PUDL_META.get_resource("fuel_receipts_costs_eia923").encode(frc_df)
+    frc_df = (
+        pudl.metadata.classes.Package.from_resource_ids()
+        .get_resource("fuel_receipts_costs_eia923")
+        .encode(frc_df)
+    )
     frc_df["fuel_type_code_pudl"] = (
         frc_df.energy_source_code.map(
             pudl.helpers.label_map(
-                ENERGY_SOURCES_EIA["df"],
+                CODE_METADATA["energy_sources_eia"]["df"],
                 from_col="code",
                 to_col="fuel_type_code_pudl",
                 null_value=pd.NA,
