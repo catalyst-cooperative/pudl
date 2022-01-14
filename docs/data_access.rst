@@ -76,7 +76,7 @@ Form 1 databases <https://data.catalyst.coop/ferc1>`__.
 Zenodo Archives
 ---------------------------------------------------------------------------------------
 
-We use Zenodo to archive our fully processed data as a SQLite databasees and
+We use Zenodo to archive our fully processed data as SQLite databases and
 Parquet files. We also archive a Docker image that contains the software environment
 required to use PUDL within Jupyter Notebooks. You can find all our archived data
 products in `the Catalyst Cooperative Community on Zenodo
