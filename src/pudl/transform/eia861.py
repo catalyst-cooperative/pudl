@@ -763,7 +763,12 @@ def _pct_to_mw(df, pct_col):
 
 def _make_yn_bool(df_object):
     """Turn Y/N reporting into True or False boolean statements for df or series."""
-    return df_object.replace({"N": False, "Y": True})
+    return df_object.replace({
+        "Y": True,
+        "y": True,
+        "N": False,
+        "n": False,
+    })
 
 
 def _thousand_to_one(df_object):
@@ -798,8 +803,7 @@ def service_territory(tfr_dfs):
     # No data tidying required
     # There are a few NA values in the county column which get interpreted
     # as floats, which messes up the parsing of counties by addfips.
-    type_compatible_df = tfr_dfs["service_territory_eia861"].astype({
-                                                                    "county": str})
+    type_compatible_df = tfr_dfs["service_territory_eia861"].astype({"county": str})
     # Transform values:
     # * Add state and county fips IDs
     transformed_df = (
@@ -810,6 +814,7 @@ def service_territory(tfr_dfs):
         # Add FIPS IDs based on county & state names:
         .pipe(pudl.helpers.add_fips_ids)
     )
+    transformed_df["short_form"] = _make_yn_bool(transformed_df.short_form)
     tfr_dfs["service_territory_eia861"] = transformed_df
     return tfr_dfs
 
@@ -1136,6 +1141,7 @@ def sales(tfr_dfs):
                 "D": "energy_services",
             }),
             service_type=lambda x: x.service_type.str.lower(),
+            short_form=lambda x: _make_yn_bool(x.short_form),
         )
     )
 
@@ -1182,6 +1188,8 @@ def advanced_metering_infrastructure(tfr_dfs):
         class_type='customer_class',
     )
 
+    tidy_ami["short_form"] = _make_yn_bool(tidy_ami.short_form)
+
     # No duplicates to speak of but take measures to check just in case
     _check_for_dupes(tidy_ami, 'Advanced Metering Infrastructure', idx_cols)
 
@@ -1223,6 +1231,7 @@ def demand_response(tfr_dfs):
     raw_dr['balancing_authority_code_eia'] = (
         raw_dr['balancing_authority_code_eia'].fillna('UNK')
     )
+    raw_dr["short_form"] = _make_yn_bool(raw_dr.short_form)
 
     # Split data into tidy-able and not
     raw_dr_water_heater = raw_dr[idx_cols + ['water_heater']].copy()
@@ -1641,6 +1650,7 @@ def distribution_systems(tfr_dfs):
     raw_ds = (
         tfr_dfs['distribution_systems_eia861'].copy()
     )
+    raw_ds["short_form"] = _make_yn_bool(raw_ds.short_form)
 
     # No duplicates to speak of but take measures to check just in case
     _check_for_dupes(
@@ -1690,6 +1700,7 @@ def dynamic_pricing(tfr_dfs):
         tfr_dfs["dynamic_pricing_eia861"].copy()
         .query("utility_id_eia not in [88888]")
     )
+    raw_dp["short_form"] = _make_yn_bool(raw_dp.short_form)
 
     ###########################################################################
     # Tidy Data:
@@ -1750,6 +1761,8 @@ def energy_efficiency(tfr_dfs):
     ]
 
     raw_ee = tfr_dfs["energy_efficiency_eia861"].copy()
+
+    raw_ee["short_form"] = _make_yn_bool(raw_ee.short_form)
 
     # No duplicates to speak of but take measures to check just in case
     _check_for_dupes(raw_ee, 'Energy Efficiency', idx_cols)
@@ -1914,6 +1927,7 @@ def net_metering(tfr_dfs):
         tfr_dfs["net_metering_eia861"].copy()
         .query("utility_id_eia not in [99999]")
     )
+    raw_nm["short_form"] = _make_yn_bool(raw_nm.short_form)
 
     # Separate customer class data from misc data (in this case just one col: current flow)
     # Could easily add this to tech_class if desired.
@@ -2122,7 +2136,10 @@ def operational_data(tfr_dfs):
         .assign(
             data_observed=lambda x: x.data_observed.replace({
                 "O": True,
-                "I": False}))
+                "I": False
+            }),
+            short_form=lambda x: _make_yn_bool(x.short_form)
+        )
     )
 
     # Split data into 2 tables:
@@ -2223,11 +2240,15 @@ def reliability(tfr_dfs):
     transformed_r = (
         tidy_r.assign(
             outages_recorded_automatically=lambda x: (
-                _make_yn_bool(x.outages_recorded_automatically.str.upper())),
+                _make_yn_bool(x.outages_recorded_automatically)
+            ),
             inactive_accounts_included=lambda x: (
-                _make_yn_bool(x.inactive_accounts_included)),
+                _make_yn_bool(x.inactive_accounts_included)
+            ),
+            short_form=lambda x: _make_yn_bool(x.short_form),
             momentary_interruption_definition=lambda x: (
-                x.momentary_interruption_definition.map(MOMENTARY_INTERRUPTIONS))
+                x.momentary_interruption_definition.map(MOMENTARY_INTERRUPTIONS)
+            )
         )
     )
 
@@ -2282,7 +2303,10 @@ def utility_data(tfr_dfs):
     # * Clean NERC region col
     ##############################################################################
 
-    transformed_ud = _clean_nerc(raw_ud, idx_cols)
+    transformed_ud = (
+        _clean_nerc(raw_ud, idx_cols)
+        .assign(short_form=lambda x: _make_yn_bool(x.short_form))
+    )
 
     # Establish columns that are nerc regions vs. rtos
     nerc_cols = [col for col in raw_ud if 'nerc_region_operation' in col]

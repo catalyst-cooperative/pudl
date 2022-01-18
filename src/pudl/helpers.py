@@ -1003,9 +1003,9 @@ def convert_cols_dtypes(df, data_source, name=None):
         .replace(to_replace="<NA>", value={col: pd.NA for col in string_cols})
     )
 
-    # Zip codes are highly coorelated with datatype. If they datatype gets
+    # Zip codes are highly correlated with datatype. If they datatype gets
     # converted at any point it may mess up the accuracy of the data. For
-    # example: 08401.0 or 8401 are both incorrect versions of 080401 that a
+    # example: 08401.0 or 8401 are both incorrect versions of 08401 that a
     # simple datatype conversion cannot fix. For this reason, we use the
     # zero_pad_zips function.
     if any('zip_code' for col in df.columns):

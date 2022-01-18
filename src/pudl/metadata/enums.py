@@ -200,7 +200,7 @@ RTO_CLASSES: List[str] = [
     'isone',
     'miso',
     'nyiso',
-    'other'
+    'other',
     'pjm',
     'spp',
 ]
