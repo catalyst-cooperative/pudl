@@ -459,14 +459,13 @@ def _coalmine_cleanup(cmi_df):
             # integers or NA values, but for imported coal, there are both
             # 'IMP' and 'IM' string values.
             county_id_fips=lambda x: x.county_id_fips.replace(
-                '[a-zA-Z]+', value=np.nan, regex=True
+                '[a-zA-Z]+', value=pd.NA, regex=True
             )
         )
         .assign(mine_type=lambda x: x.mine_type.map(COALMINE_TYPES_EIA))
         # No leading or trailing whitespace:
         .pipe(pudl.helpers.simplify_strings, columns=["mine_name"])
-        .astype({"county_id_fips": float})
-        .astype({"county_id_fips": pd.Int64Dtype()})
+        .astype({"county_id_fips": pd.StringDtype()})
         .fillna({"mine_type": pd.NA})
         .astype({"mine_type": pd.StringDtype()})
     )
