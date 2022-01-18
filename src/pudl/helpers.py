@@ -26,6 +26,7 @@ import sqlalchemy as sa
 
 from pudl import constants as pc
 from pudl.metadata.classes import Package
+from pudl.metadata.fields import get_pandas_dtypes
 
 logger = logging.getLogger(__name__)
 
@@ -421,7 +422,7 @@ def clean_merge_asof(
 
 def get_pudl_dtype(col, data_source):
     """Look up a column's canonical data type based on its PUDL data source."""
-    return pc.COLUMN_DTYPES[data_source][col]
+    return get_pandas_dtypes(group=data_source)[col]
 
 
 def get_pudl_dtypes(col_source_dict):
@@ -943,22 +944,30 @@ def convert_cols_dtypes(df, data_source, name=None):
 
     """
     # get me all of the columns for the table in the constants dtype dict
-    col_dtypes = {col: col_dtype for col, col_dtype
-                  in pc.COLUMN_DTYPES[data_source].items()
-                  if col in list(df.columns)}
+    col_dtypes = {
+        col: dtype for col, dtype
+        in get_pandas_dtypes(group=data_source).items()
+        if col in list(df.columns)
+    }
 
     # grab only the boolean columns (we only need their names)
-    bool_cols = {col: col_dtype for col, col_dtype
-                 in col_dtypes.items()
-                 if col_dtype == pd.BooleanDtype()}
+    bool_cols = {
+        col: dtype for col, dtype
+        in col_dtypes.items()
+        if dtype == "boolean"
+    }
     # grab all of the non boolean columns
-    non_bool_cols = {col: col_dtype for col, col_dtype
-                     in col_dtypes.items()
-                     if col_dtype != pd.BooleanDtype()}
+    non_bool_cols = {
+        col: dtype for col, dtype
+        in col_dtypes.items()
+        if dtype != "boolean"
+    }
     # Grab only the string columns...
-    string_cols = {col: col_dtype for col, col_dtype
-                   in col_dtypes.items()
-                   if col_dtype == pd.StringDtype()}
+    string_cols = {
+        col: dtype for col, dtype
+        in col_dtypes.items()
+        if dtype == "string"
+    }
 
     # If/when we have the columns exhaustively typed, we can do it like this,
     # but right now we don't have the FERC columns done, so we can't:

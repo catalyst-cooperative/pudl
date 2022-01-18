@@ -234,7 +234,7 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
         }
     },
     "construction_year": {
-        "type": "year",
+        "type": "integer",
         "description": "Year the plant's oldest still operational unit was built.",
     },
     "consumed_by_facility_mwh": {
@@ -910,7 +910,7 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
         "type": "number"
     },
     "installation_year": {
-        "type": "year",
+        "type": "integer",
         "description": "Year the plant's most recently built unit was installed.",
     },
     "intangible_acct301_organization": {
@@ -1700,7 +1700,7 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
         "description": "Date reported."
     },
     "report_year": {
-        "type": "year",
+        "type": "integer",
         "description": "Four-digit year in which the data was reported."
     },
     "reported_as_another_company": {
@@ -2265,7 +2265,7 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
         "type": "number"
     },
     "year": {
-        "type": "year",
+        "type": "integer",
         "description": "Year associated with data, for partitioning EPA CEMS.",
     },
     "zip_code": {
@@ -2369,7 +2369,17 @@ FIELD_METADATA_BY_RESOURCE: Dict[str, Dict[str, Any]] = {
         "plant_type": {
             "type": "string",
             "constraints": {
-                "enum": ['steam', 'combustion_turbine', 'combined_cycle', 'nuclear', 'geothermal', 'internal_combustion', 'wind', 'photovoltaic', 'solar_thermal']
+                "enum": [
+                    'combined_cycle',
+                    'combustion_turbine',
+                    'geothermal',
+                    'internal_combustion',
+                    'nuclear',
+                    'photovoltaic',
+                    'solar_thermal',
+                    'steam',
+                    'wind',
+                ]
             }
         }
     }
@@ -2381,7 +2391,21 @@ def get_pandas_dtypes(
     field_meta: Dict[str, Any] = FIELD_METADATA,
     field_meta_by_group: Dict[str, Any] = FIELD_METADATA_BY_GROUP,
 ) -> Dict[str, str]:
-    """Get pandas dtypes for fields, applying group overrides."""
+    """
+    Get pandas dtypes for fields, applying group overrides.
+
+    Args:
+        group: The data group (e.g. ferc1, eia) to use for overriding the default
+            field types. If None, no overrides are applied and the default types
+            are used.
+        field_meta: Field metadata dictionary which at least describes a "type".
+        field_meta_by_group: Field metadata type overrides to apply based on the data
+            group that the field is part of, if any.
+
+    Returns:
+        A mapping of field names to the string version of their pandas data types.
+
+    """
     field_meta = deepcopy(field_meta)
     dtypes = {}
     for f in field_meta:
