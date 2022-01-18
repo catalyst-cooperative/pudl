@@ -263,6 +263,8 @@ def fuel_receipts_costs_eia923(pudl_engine, freq=None,
     cols_to_drop = ['mine_id_pudl']
     frc_df = frc_df.drop(cols_to_drop, axis=1)
     frc_df = pudl.helpers.convert_cols_dtypes(frc_df, data_source='eia')
+    # disambiguate that county fips applies only to mines not plants
+    frc_df = frc_df.rename(columns={'county_id_fips': 'mine_county_id_fips'})
 
     if fill:
         logger.info('filling in fuel cost NaNs EIA APIs monthly state averages')
