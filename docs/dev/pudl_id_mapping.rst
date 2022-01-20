@@ -66,7 +66,7 @@ Checking for Unmapped Records
 
 With every new year of data comes the possibility of new plants and utilities. Once
 you’ve integrated the new data into PUDL :doc:`(see these instructions)
-<annual_updates>` , you’ll need to check for unmapped utility and plants. To do this,
+<annual_updates>`, you’ll need to check for unmapped utility and plants. To do this,
 run the :mod:`pudl.devtools.ferc1-eia-glue.find_unmapped_plants_utils` script in the
 top-level PUDL directory. You can add the ``--help`` flag for more information.
 
