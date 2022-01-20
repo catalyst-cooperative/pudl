@@ -397,7 +397,7 @@ def clean_merge_asof(
         raise ValueError(f"Left dataframe is missing {missing_right_cols}.")
 
     def cleanup(df, on, by):
-        df = df.astype(get_pudl_dtypes(cols=by, group="eia"))
+        df = df.convert_dtypes(convert_floating=False)
         df.loc[:, on] = pd.to_datetime(df[on])
         df = df.sort_values([on] + by)
         return df

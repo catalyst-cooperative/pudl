@@ -73,11 +73,7 @@ def heat_rate_by_unit(pudl_out):
         )
     )
 
-    return pudl.helpers.convert_cols_dtypes(
-        hr_by_unit,
-        data_source="eia",
-        name="hr_by_unit",
-    )
+    return hr_by_unit.convert_dtypes(convert_floating=False)
 
 
 def heat_rate_by_gen(pudl_out):
@@ -164,11 +160,7 @@ def heat_rate_by_gen(pudl_out):
         by=["plant_id_eia", "generator_id"],
     )
 
-    return pudl.helpers.convert_cols_dtypes(
-        hr_by_gen,
-        data_source="eia",
-        name="hr_by_gen",
-    )
+    return hr_by_gen.convert_dtypes(convert_floating=False)
 
 
 def fuel_cost(pudl_out):
@@ -328,11 +320,7 @@ def fuel_cost(pudl_out):
         .merge(fc, on=['report_date', 'plant_id_eia', 'generator_id'])
     )
 
-    return pudl.helpers.convert_cols_dtypes(
-        out_df,
-        data_source="eia",
-        name="fuel_cost",
-    )
+    return out_df.convert_dtypes(convert_floating=False)
 
 
 def capacity_factor(pudl_out, min_cap_fact=0, max_cap_fact=1.5):
@@ -409,11 +397,7 @@ def capacity_factor(pudl_out, min_cap_fact=0, max_cap_fact=1.5):
         .drop(['hours'], axis=1)
     )
 
-    return pudl.helpers.convert_cols_dtypes(
-        cf,
-        data_source="eia",
-        name="capacity_factor",
-    )
+    return cf.convert_dtypes(convert_floating=False)
 
 
 def mcoe(
@@ -547,12 +531,7 @@ def mcoe(
             'generator_id',
             'report_date',
         ])
-        # Set column data types to canonical values:
-        .pipe(
-            pudl.helpers.convert_cols_dtypes,
-            data_source="eia",
-            name="mcoe",
-        )
+        .convert_dtypes(convert_floating=False)
     )
 
     return mcoe_out

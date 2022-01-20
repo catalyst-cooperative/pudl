@@ -60,17 +60,7 @@ def ownership(eia860_dfs, eia860_transformed_dfs):
 
     # This has to come before the fancy indexing below, otherwise the plant_id_eia
     # is still a float.
-    own_df = own_df.astype(
-        pudl.helpers.get_pudl_dtypes(
-            cols=[
-                "owner_utility_id_eia",
-                "utility_id_eia",
-                "plant_id_eia",
-                "owner_state"
-            ],
-            group="eia",
-        )
-    )
+    own_df = own_df.convert_dtypes(convert_floating=False)
 
     # A small number of generators are reported multiple times in the ownership
     # table due to the use of leading zeroes in their integer generator_id values
