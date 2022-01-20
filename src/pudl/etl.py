@@ -56,7 +56,8 @@ def _read_static_tables_eia() -> Dict[str, pd.DataFrame]:
         'prime_movers_eia': CODE_METADATA["prime_movers_eia"]["df"],
         'sector_consolidated_eia': CODE_METADATA["sector_consolidated_eia"]["df"],
         'fuel_transportation_modes_eia': CODE_METADATA["fuel_transportation_modes_eia"]["df"],
-        'contract_types_eia': CODE_METADATA["contract_types_eia"]["df"]
+        'contract_types_eia': CODE_METADATA["contract_types_eia"]["df"],
+        'coalmine_types_eia': CODE_METADATA["coalmine_types_eia"]["df"],
     }
 
 
@@ -163,6 +164,7 @@ def _read_static_tables_ferc1() -> Dict[str, pd.DataFrame]:
             "line_id",
             "ferc_account_description",
         ]],
+        'power_purchase_types_ferc1': CODE_METADATA["power_purchase_types_ferc1"]["df"],
     }
 
 

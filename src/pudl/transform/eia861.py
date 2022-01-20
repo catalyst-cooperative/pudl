@@ -2251,6 +2251,8 @@ def reliability(tfr_dfs):
                 _make_yn_bool(x.inactive_accounts_included)
             ),
             short_form=lambda x: _make_yn_bool(x.short_form),
+            # This field should be encoded using momentary_interruptions_eia
+            # But the EIA 861 tables aren't fully integrated yet.
             momentary_interruption_definition=lambda x: (
                 x.momentary_interruption_definition.map(MOMENTARY_INTERRUPTIONS)
             )

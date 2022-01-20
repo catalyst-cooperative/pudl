@@ -13,6 +13,16 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
         },
         "sources": ["eia860", "eia923"],
     },
+    "coalmine_types_eia": {
+        "description": "A coding table describing different types of coalmines reported as fuel sources in the EIA-923.",
+        "schema": {
+            "fields": ["code", "label", "description"],
+            "primary_key": ["code"],
+            "foreign_key_rules": {"fields": [["mine_type_code"]]}
+        },
+        "encoder": CODE_METADATA["coalmine_types_eia"],
+        "sources": ["eia923"],
+    },
     "contract_types_eia": {
         "description": "A coding table describing the various types of fuel supply contracts reported in EIA-923.",
         "schema": {
@@ -129,6 +139,16 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
             "foreign_key_rules": {"fields": [["plant_id_eia", "generator_id"]]},
         },
         "sources": ["eia860", "eia923"],
+    },
+    "momentary_interruptions_eia": {
+        "description": "A coding table for utility definitions of momentary service interruptions.",
+        "schema": {
+            "fields": ["code", "label", "description"],
+            "primary_key": ["code"],
+            "foreign_key_rules": {"fields": [["momentary_interruption_definition"]]}
+        },
+        "encoder": CODE_METADATA["momentary_interruptions_eia"],
+        "sources": ["eia861"],
     },
     "plants_eia": {
         "description": "Association between EIA Plant IDs and manually assigned PUDL Plant IDs",

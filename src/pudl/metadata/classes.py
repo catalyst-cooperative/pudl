@@ -404,7 +404,7 @@ class Encoder(Base):
     values.
     """
 
-    ignored_codes: List[Union[Int, String]] = []
+    ignored_codes: List[Union[Int, str]] = []
     """
     A list of non-standard codes which appear in the data, and will be set to NA.
 
