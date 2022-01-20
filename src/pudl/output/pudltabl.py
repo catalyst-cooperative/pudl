@@ -61,7 +61,7 @@ class PudlTabl(object):
         fill_fuel_cost: bool = False,
         roll_fuel_cost: bool = False,
         fill_net_gen: bool = False,
-        backfill_tech_desc: bool = True,
+        fill_tech_desc: bool = True,
         unit_ids: bool = False
     ):
         """
@@ -96,9 +96,10 @@ class PudlTabl(object):
                 generation_fuel_eia923 - which is reported at the
                 plant/fuel/prime mover level and  re-allocated to generators in
                 ``mcoe()``, ``capacity_factor()`` and ``heat_rate_by_unit()``.
-            backfill_tech_desc: If True, fill the technology_description
+            fill_tech_desc: If True, fill the technology_description
                 field to years earlier than 2013 based on plant and
-                energy_source_code_1.
+                energy_source_code_1 and fill in technologies with only one matching
+                code.
             unit_ids: If True, use several heuristics to assign
                 individual generators to functional units. EXPERIMENTAL.
 
@@ -137,7 +138,7 @@ class PudlTabl(object):
         self.roll_fuel_cost: bool = roll_fuel_cost
         self.fill_fuel_cost: bool = fill_fuel_cost
         self.fill_net_gen: bool = fill_net_gen
-        self.backfill_tech_desc = backfill_tech_desc  # only for eia860 table.
+        self.fill_tech_desc = fill_tech_desc  # only for eia860 table.
         self.unit_ids = unit_ids
 
         # Used to persist the output tables. Returns None if they don't exist.
@@ -539,7 +540,7 @@ class PudlTabl(object):
         Pull a dataframe describing generators, as reported in EIA 860.
 
         If you want to fill the technology_description field, recreate
-        the pudl_out object with the parameter backfill_tech_desc = True.
+        the pudl_out object with the parameter fill_tech_desc = True.
 
         Args:
             update (bool): If true, re-calculate the output dataframe, even if
@@ -555,7 +556,7 @@ class PudlTabl(object):
                 start_date=self.start_date,
                 end_date=self.end_date,
                 unit_ids=self.unit_ids,
-                backfill_tech_desc=self.backfill_tech_desc)
+                fill_tech_desc=self.fill_tech_desc)
 
         return self._dfs['gens_eia860']
 

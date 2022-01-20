@@ -221,7 +221,7 @@ def generators_eia860(
     start_date=None,
     end_date=None,
     unit_ids: bool = False,
-    backfill_tech_desc: bool = True,
+    fill_tech_desc: bool = True,
 ) -> pd.DataFrame:
     """Pull all fields reported in the generators_eia860 table.
 
@@ -249,9 +249,9 @@ def generators_eia860(
             records to be pulled.  Dates are inclusive.
         unit_ids: If True, use several heuristics to assign
             individual generators to functional units. EXPERIMENTAL.
-        backfill_tech_desc: If True, backfill the technology_description
+        fill_tech_desc: If True, backfill the technology_description
             field to years earlier than 2013 based on plant and
-            energy_source_code_1.
+            energy_source_code_1 and fill in technologies with only one matching code.
 
     Returns:
         A DataFrame containing all the fields of the EIA 860 Generators table.
@@ -349,7 +349,7 @@ def generators_eia860(
         logger.info("Assigning pudl unit ids")
         out_df = assign_unit_ids(out_df)
 
-    if backfill_tech_desc:
+    if fill_tech_desc:
         logger.info("Backfilling technology type")
         out_df = fill_generator_technology_description(out_df)
 
@@ -427,10 +427,12 @@ def fill_generator_technology_description(gens_df: pd.DataFrame) -> pd.DataFrame
     assert len(out_df) == nrows_orig
 
     # Assert that at least 95 percent of tech desc rows are filled in
+    pct_val = 0.95
     if out_df.technology_description.count() \
         / out_df.technology_description.size \
-            * 100 < 95:
-        raise AssertionError("technology_description filling no longer covering 95%")
+            < pct_val:
+        raise AssertionError(
+            f"technology_description filling no longer covering {pct_val:.0%}")
 
     return out_df
 
