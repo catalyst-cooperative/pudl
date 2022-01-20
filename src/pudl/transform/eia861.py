@@ -240,11 +240,16 @@ BA_ID_NAME_FIXES = (
         "balancing_authority_name_eia",  # We have this
     ])
     .assign(report_date=lambda x: pd.to_datetime(x.report_date))
-    .astype(pudl.helpers.get_pudl_dtypes({
-        "utility_id_eia": "eia",
-        "balancing_authority_id_eia": "eia",
-        "balancing_authority_name_eia": "eia",
-    }))
+    .astype(
+        pudl.helpers.get_pudl_dtypes(
+            cols=[
+                "utility_id_eia",
+                "balancing_authority_id_eia",
+                "balancing_authority_name_eia",
+            ],
+            group="eia",
+        )
+    )
     .dropna(subset=["report_date", "balancing_authority_name_eia", "utility_id_eia"])
     .set_index(["report_date", "balancing_authority_name_eia", "utility_id_eia"])
 )
@@ -499,7 +504,7 @@ def _tidy_class_dfs(df, df_name, idx_cols, class_list, class_type, keep_totals=F
         )
     raw_df = (
         df.dropna(subset=["utility_id_eia"])
-        .astype(pudl.helpers.get_pudl_dtypes({"utility_id_eia": "eia"}))
+        .astype(pudl.helpers.get_pudl_dtypes(cols=["utility_id_eia"], group="eia"))
         .set_index(idx_cols)
     )
     # Split the table into index, data, and "denormalized" columns for processing:
@@ -964,7 +969,7 @@ def balancing_authority_assn(tfr_dfs):
     tfr_dfs["balancing_authority_assn_eia861"] = (
         pd.concat([early_date_ba_util_state, late_date_ba_util_state])
         .dropna(subset=["balancing_authority_id_eia", ])
-        .astype(pudl.helpers.get_pudl_dtypes({"utility_id_eia": "eia"}))
+        .astype(pudl.helpers.get_pudl_dtypes(cols=["utility_id_eia"], group="eia"))
     )
     return tfr_dfs
 

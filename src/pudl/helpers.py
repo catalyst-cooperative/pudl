@@ -326,70 +326,62 @@ def is_doi(doi):
 
 
 def clean_merge_asof(
-    left,
-    right,
-    left_on="report_date",
-    right_on="report_date",
-    by={},
-):
+    left: pd.DataFrame,
+    right: pd.DataFrame,
+    left_on: str = "report_date",
+    right_on: str = "report_date",
+    by: List[str] = [],
+) -> pd.DataFrame:
     """
-    Merge two dataframes having different time report_date frequencies.
+    Merge two dataframes having different ``report_date`` frequencies.
 
-    We often need to bring together data which is reported on a monthly basis,
-    and entity attributes that are reported on an annual basis.  The
-    :func:`pandas.merge_asof` is designed to do this, but requires that
-    dataframes are sorted by the merge keys (``left_on``, ``right_on``, and
-    ``by.keys()`` here). We also need to make sure that all merge keys have
-    identical data types in the two dataframes (e.g. ``plant_id_eia`` needs to
-    be a nullable integer in both dataframes, not a python int in one, and a
-    nullable :func:`pandas.Int64Dtype` in the other).  Note that
-    :func:`pandas.merge_asof` performs a left merge, so the higher frequency
+    We often need to bring together data which is reported on a monthly basis, and
+    entity attributes that are reported on an annual basis.  The
+    :func:`pandas.merge_asof` is designed to do this, but requires that dataframes are
+    sorted by the merge keys (``left_on``, ``right_on``, and ``by`` here). We also need
+    to make sure that all merge keys have identical data types in the two dataframes
+    (e.g. ``plant_id_eia`` needs to be a nullable integer in both dataframes, not a
+    python int in one, and a nullable :func:`pandas.Int64Dtype` in the other).  Note
+    that :func:`pandas.merge_asof` performs a left merge, so the higher frequency
     dataframe **must** be the left dataframe.
 
     We also force both ``left_on`` and ``right_on`` to be a Datetime using
-    :func:`pandas.to_datetime` to allow merging dataframes having integer years
-    with those having datetime columns.
+    :func:`pandas.to_datetime` to allow merging dataframes having integer years with
+    those having datetime columns.
 
-    Because :func:`pandas.merge_asof` searches backwards for the first matching
-    date, this function only works if the less granular dataframe uses the
-    convention of reporting the first date in the time period for which it
-    reports. E.g. annual dataframes need to have January 1st as the date. This
-    is what happens by defualt if only a year or year-month are provided to
-    :func:`pandas.to_datetime` as strings.
+    Because :func:`pandas.merge_asof` searches backwards for the first matching date,
+    this function only works if the less granular dataframe uses the convention of
+    reporting the first date in the time period for which it reports. E.g. annual
+    dataframes need to have January 1st as the date. This is what happens by defualt if
+    only a year or year-month are provided to :func:`pandas.to_datetime` as strings.
 
     Args:
-        left (pandas.DataFrame): The higher frequency "data" dataframe.
-            Typically monthly in our use cases. E.g. ``generation_eia923``. Must
-            contain ``report_date`` and any columns specified in the ``by``
-            argument.
-        right (pandas.DataFrame): The lower frequency "attribute" dataframe.
-            Typically annual in our uses cases. E.g. ``generators_eia860``. Must
-            contain ``report_date`` and any columns specified in the ``by``
-            argument.
-        left_on (str): Column in ``left`` to merge on using merge_asof. Default
+        left: The higher frequency "data" dataframe. Typically monthly in our use
+            cases. E.g. ``generation_eia923``. Must contain ``report_date`` and any
+            columns specified in the ``by`` argument.
+        right: The lower frequency "attribute" dataframe. Typically annual in our uses
+            cases. E.g. ``generators_eia860``. Must contain ``report_date`` and any
+            columns specified in the ``by`` argument.
+        left_on: Column in ``left`` to merge on using merge_asof. Default is
+            ``report_date``. Must be convertible to a Datetime using
+            :func:`pandas.to_datetime`
+        right_on: Column in ``right`` to merge on using :func:`pd.merge_asof`.  Default
             is ``report_date``. Must be convertible to a Datetime using
             :func:`pandas.to_datetime`
-        right_on (str): Column in ``right`` to merge on using merge_asof.
-            Default is ``report_date``. Must be convertible to a Datetime using
-            :func:`pandas.to_datetime`
-        by (dict): A dictionary enumerating any columns to merge on other than
-            ``report_date``. Typically ID columns like ``plant_id_eia``,
-            ``generator_id`` or ``boiler_id``. The keys of the dictionary are
-            the names of the columns, and the values are their data source, as
-            defined in :mod:`pudl.constants` (e.g. ``ferc1`` or ``eia``). The
-            data source is used to look up the column's canonical data type.
+
+        by: Columns to merge on in addition to ``report_date``. Typically ID columns
+            like ``plant_id_eia``, ``generator_id`` or ``boiler_id``.
 
     Returns:
-        pandas.DataFrame: Merged contents of left and right input dataframes.
-        Will be sorted by ``left_on`` and any columns specified in ``by``. See
-        documentation for :func:`pandas.merge_asof` to understand how this kind
-        of merge works.
+        Merged contents of left and right input dataframes.  Will be sorted by
+        ``left_on`` and any columns specified in ``by``. See documentation for
+        :func:`pandas.merge_asof` to understand how this kind of merge works.
 
     Raises:
-        ValueError: if ``left_on`` or ``right_on`` columns are missing from
-            their respective input dataframes.
-        ValueError: if any of the labels referenced in ``by`` are missing from
-            either the left or right dataframes.
+        ValueError: if ``left_on`` or ``right_on`` columns are missing from their
+            respective input dataframes.
+        ValueError: if any of the labels referenced in ``by`` are missing from either
+            the left or right dataframes.
 
     """
     # Make sure we've got all the required inputs...
@@ -405,9 +397,9 @@ def clean_merge_asof(
         raise ValueError(f"Left dataframe is missing {missing_right_cols}.")
 
     def cleanup(df, on, by):
-        df = df.astype(get_pudl_dtypes(by))
+        df = df.astype(get_pudl_dtypes(cols=by, group="eia"))
         df.loc[:, on] = pd.to_datetime(df[on])
-        df = df.sort_values([on] + list(by.keys()))
+        df = df.sort_values([on] + by)
         return df
 
     return pd.merge_asof(
@@ -415,22 +407,15 @@ def clean_merge_asof(
         cleanup(df=right, on=right_on, by=by),
         left_on=left_on,
         right_on=right_on,
-        by=list(by.keys()),
+        by=by,
         tolerance=pd.Timedelta("365 days")  # Should never match across years.
     )
 
 
-def get_pudl_dtype(col, data_source):
-    """Look up a column's canonical data type based on its PUDL data source."""
-    return get_pandas_dtypes(group=data_source)[col]
-
-
-def get_pudl_dtypes(col_source_dict):
+def get_pudl_dtypes(cols: List[str], group: str) -> Dict[str, str]:
     """Look up canonical PUDL data types for columns based on data sources."""
-    return {
-        col: get_pudl_dtype(col, col_source_dict[col])
-        for col in col_source_dict
-    }
+    dtypes = get_pandas_dtypes(group=group)
+    return {col: dtypes[col] for col in cols}
 
 
 def organize_cols(df, cols):

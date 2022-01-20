@@ -175,18 +175,15 @@ def categorize_eia_code(eia_codes, ba_ids, util_ids, priority="balancing_authori
         pd.Series(ba_ids, name="balancing_authority_id_eia")
         .drop_duplicates()
         .astype(
-            pudl.helpers.get_pudl_dtype(
-                col="balancing_authority_id_eia",
-                data_source="eia"
+            pudl.helpers.get_pudl_dtypes(
+                cols=["balancing_authority_id_eia"], group="eia"
             )
         )
     )
     util_ids = (
         pd.Series(util_ids, name="utility_id_eia")
         .drop_duplicates()
-        .astype(
-            pudl.helpers.get_pudl_dtype(col="utility_id_eia", data_source="eia")
-        )
+        .astype(pudl.helpers.get_pudl_dtypes(cols=["utility_id_eia"], group="eia"))
     )
 
     df = (
