@@ -3,15 +3,14 @@ from typing import Any, Dict
 
 from pytz import all_timezones
 
-from .codes import ENERGY_SOURCES_EIA
+from .codes import CODE_METADATA
 from .constants import SOURCES
 from .enums import (CANADA_PROVINCES_TERRITORIES, CUSTOMER_CLASSES,
                     EPACEMS_MEASUREMENT_CODES, EPACEMS_STATES, FUEL_CLASSES,
                     NERC_REGIONS, RELIABILITY_STANDARDS, REVENUE_CLASSES,
                     RTO_CLASSES, TECH_CLASSES, US_STATES_TERRITORIES)
-from .labels import (COALMINE_TYPES_EIA, ENTITY_TYPES, ESTIMATED_OR_ACTUAL,
-                     FUEL_UNITS_EIA, MOMENTARY_INTERRUPTIONS,
-                     POWER_PURCHASE_TYPES_FERC1)
+from .labels import (ESTIMATED_OR_ACTUAL, FUEL_UNITS_EIA,
+                     MOMENTARY_INTERRUPTIONS)
 
 FIELD_METADATA: Dict[str, Dict[str, Any]] = {
     "active": {
@@ -93,7 +92,7 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
     },
     "balancing_authority_code_eia": {
         "type": "string",
-        "description": "The plant's balancing authority code."
+        "description": "EIA short code identifying a balancing authority.",
     },
     "balancing_authority_id_eia": {
         "type": "integer"
@@ -579,9 +578,6 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
     "entity_type": {
         "type": "string",
         "description": "Entity type of principal owner.",
-        "constraints": {
-            "enum": list(ENTITY_TYPES.values())
-        }
     },
     "estimated_or_actual_capacity_data": {
         "type": "string",
@@ -696,7 +692,7 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
         "type": "string",
         "description": "Original fuel from which this refined fuel was derived.",
         "constraints": {
-            "enum": sorted(set(ENERGY_SOURCES_EIA["df"]["fuel_derived_from"]))
+            "enum": sorted(set(CODE_METADATA["energy_sources_eia"]["df"]["fuel_derived_from"]))
         }
     },
     "fuel_group_code": {
@@ -710,7 +706,7 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
         "type": "string",
         "description": "High level fuel group defined in the 2021-2023 EIA Form 860 instructions, Table 28.",
         "constraints": {
-            "enum": sorted(set(ENERGY_SOURCES_EIA["df"]["fuel_group_eia"]))
+            "enum": sorted(set(CODE_METADATA["energy_sources_eia"]["df"]["fuel_group_eia"]))
         }
     },
     "fuel_mmbtu_per_unit": {
@@ -724,7 +720,7 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
         "type": "string",
         "description": "Physical phase of matter of the fuel.",
         "constraints": {
-            "enum": sorted(set(ENERGY_SOURCES_EIA["df"]["fuel_phase"].dropna()))
+            "enum": sorted(set(CODE_METADATA["energy_sources_eia"]["df"]["fuel_phase"].dropna()))
         }
     },
     "fuel_received_units": {
@@ -744,7 +740,7 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
         "type": "string",
         "description": "Simplified fuel type code used in PUDL",
         "constraints": {
-            "enum": sorted(set(ENERGY_SOURCES_EIA["df"].fuel_type_code_pudl))
+            "enum": sorted(set(CODE_METADATA["energy_sources_eia"]["df"].fuel_type_code_pudl))
         }
     },
     "fuel_units": {
@@ -1038,12 +1034,9 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
         "type": "string",
         "description": "Coal mine name."
     },
-    "mine_type": {
+    "mine_type_code": {
         "type": "string",
         "description": "Type of coal mine.",
-        "constraints": {
-            "enum": list(COALMINE_TYPES_EIA.values()),
-        }
     },
     "minimum_load_mw": {
         "type": "number",
@@ -1652,12 +1645,9 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
         "type": "boolean",
         "description": "Indicates whether the generator uses pulverized coal technology"
     },
-    "purchase_type": {
+    "purchase_type_code": {
         "type": "string",
         "description": "Categorization based on the original contractual terms and conditions of the service. Must be one of 'requirements', 'long_firm', 'intermediate_firm', 'short_firm', 'long_unit', 'intermediate_unit', 'electricity_exchange', 'other_service', or 'adjustment'. Requirements service is ongoing high reliability service, with load integrated into system resource planning. 'Long term' means 5+ years. 'Intermediate term' is 1-5 years. 'Short term' is less than 1 year. 'Firm' means not interruptible for economic reasons. 'unit' indicates service from a particular designated generating unit. 'exchange' is an in-kind transaction.",
-        "constraints": {
-            "enum": list(POWER_PURCHASE_TYPES_FERC1.values())
-        }
     },
     "purchased_mwh": {
         "type": "number",
