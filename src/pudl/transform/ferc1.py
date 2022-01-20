@@ -30,7 +30,6 @@ import pudl
 from pudl import constants as pc
 from pudl.constants import PUDL_TABLES
 from pudl.metadata.dfs import FERC_DEPRECIATION_LINES
-from pudl.metadata.labels import POWER_PURCHASE_TYPES_FERC1
 
 logger = logging.getLogger(__name__)
 
@@ -1476,7 +1475,7 @@ def purchased_power(ferc1_raw_dfs, ferc1_transformed_dfs):
         _clean_cols(ferc1_raw_dfs['purchased_power_ferc1'], 'f1_purchased_pwr')
         .rename(columns={
             'athrty_co_name': 'seller_name',
-            'sttstcl_clssfctn': 'purchase_type',
+            'sttstcl_clssfctn': 'purchase_type_code',
             'rtsched_trffnbr': 'tariff',
             'avgmth_bill_dmnd': 'billing_demand_mw',
             'avgmth_ncp_dmnd': 'non_coincident_peak_demand_mw',
@@ -1506,8 +1505,12 @@ def purchased_power(ferc1_raw_dfs, ferc1_transformed_dfs):
         })
     )
 
-    # Replace inscrutable two letter codes with descriptive codes:
-    df['purchase_type'] = df.purchase_type.map(POWER_PURCHASE_TYPES_FERC1)
+    # Reencode the power purchase types:
+    df = (
+        pudl.metadata.classes.Package.from_resource_ids()
+        .get_resource("purchased_power_ferc1")
+        .encode(df)
+    )
 
     # Drop records containing no useful data and also any completely duplicate
     # records -- there are 6 in 1998 for utility 238 for some reason...

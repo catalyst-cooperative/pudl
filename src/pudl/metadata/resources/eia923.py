@@ -32,7 +32,7 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
             "fields": [
                 "mine_id_pudl",
                 "mine_name",
-                "mine_type",
+                "mine_type_code",
                 "state",
                 "county_id_fips",
                 "mine_id_msha",

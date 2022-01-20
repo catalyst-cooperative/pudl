@@ -11,6 +11,64 @@ import numpy as np
 import pandas as pd
 
 CODE_METADATA: Dict[str, Dict[str, Any]] = {
+    "coalmine_types_eia": {
+        "df": pd.DataFrame(
+            columns=['code', 'label', 'description'],
+            data=[
+                ('P', 'preparation_plant', 'A coal preparation plant.'),
+                ('S', 'surface', 'A surface mine.'),
+                ('U', 'underground', 'An underground mine.'),
+                ('US', 'underground_and_surface',
+                 'Both an underground and surface mine with most coal extracted from underground'),
+                ('SU', 'surface_and_underground',
+                 'Both an underground and surface mine with most coal extracted from surface'),
+            ]
+        ).convert_dtypes(),
+        "code_fixes": {
+            'p': 'P',
+            'U/S': 'US',
+            'S/U': 'SU',
+            'Su': 'S',
+        },
+        "ignored_codes": [],
+    },
+
+    "power_purchase_types_ferc1": {
+        "df": pd.DataFrame(
+            columns=['code', 'label', 'description'],
+            data=[
+                ('AD', 'adjustment', 'Out-of-period adjustment. Use this code for any accounting adjustments or "true-ups" for service provided in prior reporting years. Provide an explanation in a footnote for each adjustment.'),
+                ('EX', 'electricity_exchange', 'Exchanges of electricity. Use this category for transactions involving a balancing of debits and credits for energy, capacity, etc.  and any settlements for imbalanced exchanges.'),
+                ('IF', 'intermediate_firm', 'Intermediate-term firm service. The same as LF service expect that "intermediate-term" means longer than one year but less than five years.'),
+                ('IU', 'intermediate_unit', 'Intermediate-term service from a designated generating unit. The same as LU service expect that "intermediate-term" means longer than one year but less than five years.'),
+                ('LF', 'long_firm', 'Long-term firm service. "Long-term" means five years or longer and "firm" means that service cannot be interrupted for economic reasons and is intended to remain reliable even under adverse conditions (e.g., the supplier must attempt to buy emergency energy from third parties to maintain deliveries of LF service). This category should not be used for long-term firm service firm service which meets the definition of RQ service. For all transaction identified as LF, provide in a footnote the termination date of the contract defined as the earliest date that either buyer or seller can unilaterally get out of the contract.'),
+                ('LU', 'long_unit', 'Long-term service from a designated generating unit. "Long-term" means five years or longer. The availability and reliability of service, aside from transmission constraints, must match the availability and reliability of the designated unit.'),
+                ('OS', 'other_service', 'Other service. Use this category only for those services which cannot be placed in the above-defined categories, such as all non-firm service regardless of the Length of the contract and service from designated units of Less than one year. Describe the nature of the service in a footnote for each adjustment.'),
+                ('RQ', 'requirement', 'Requirements service. Requirements service is service which the supplier plans to provide on an ongoing basis (i.e., the supplier includes projects load for this service in its system resource planning). In addition, the reliability of requirement service must be the same as, or second only to, the supplier’s service to its own ultimate consumers.'),
+                ('SF', 'short_firm', 'Short-term service. Use this category for all firm services, where the duration of each period of commitment for service is one year or less.'),
+            ]
+        ).convert_dtypes(),
+        "code_fixes": {},
+        "ignored_codes": [
+            '', 'To', 'A"', 'B"', 'C"', 'ÿ\x16', 'NA', ' -', '-', 'OC', 'N/', 'Pa', '0',
+        ],
+    },
+
+    "momentary_interruptions_eia": {
+        "df": pd.DataFrame(
+            columns=['code', 'label', 'description'],
+            data=[
+                ('L', 'less_than_1_minute',
+                 'Respondent defines a momentary interruption as less than 1 minute.'),
+                ('F', 'less_than_5_minutes',
+                 'Respondent defines a momentary interruption as less than 5 minutes.'),
+                ('O', 'other', 'Respondent defines a momentary interruption using some other criteria.'),
+            ]
+        ).convert_dtypes(),
+        "code_fixes": {},
+        "ignored_codes": [],
+    },
+
     "entity_types_eia": {
         "df": pd.DataFrame(
             columns=[
