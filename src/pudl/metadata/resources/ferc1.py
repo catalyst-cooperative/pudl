@@ -1,6 +1,8 @@
 """Table definitions for the FERC Form 1 data group."""
 from typing import Any, Dict
 
+from pudl.metadata.codes import CODE_METADATA
+
 RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
     "accumulated_depreciation_ferc1": {
         "description": "Balances and changes to FERC Accumulated Provision for Depreciation.",
@@ -342,6 +344,16 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
         },
         "sources": ["ferc1"],
     },
+    "power_purchase_types_ferc1": {
+        "description": "Coding table defining different types of electricity power purchases.",
+        "schema": {
+            "fields": ["code", "label", "description"],
+            "primary_key": ["code"],
+            "foreign_key_rules": {"fields": [["purchase_type_code"]]},
+        },
+        "encoder": CODE_METADATA["power_purchase_types_ferc1"],
+        "sources": ["ferc1"],
+    },
     "purchased_power_ferc1": {
         "description": "Purchased Power (Account 555) including power exchanges (i.e. transactions involving a balancing of debits and credits for energy, capacity, etc.) and any settlements for imbalanced exchanges. Reported on pages 326-327 of FERC Form 1. Extracted from the f1_purchased_pwr table in FERC's FoxPro database.",
         "schema": {
@@ -350,7 +362,7 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
                 "utility_id_ferc1",
                 "report_year",
                 "seller_name",
-                "purchase_type",
+                "purchase_type_code",
                 "tariff",
                 "billing_demand_mw",
                 "non_coincident_peak_demand_mw",
