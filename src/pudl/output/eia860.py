@@ -350,7 +350,7 @@ def generators_eia860(
         out_df = assign_unit_ids(out_df)
 
     if fill_tech_desc:
-        logger.info("Backfilling technology type")
+        logger.info("Filling technology type")
         out_df = fill_generator_technology_description(out_df)
 
     first_cols = [
