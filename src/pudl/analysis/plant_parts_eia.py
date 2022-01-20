@@ -152,32 +152,37 @@ The three main classes which enable the generation of the plant-part table are:
   useful data that is attributable to each of the plant part records. For more
   detail on what a qualifier column is, see :meth:`AddConsistentAttributes.execute`.
 
-Lines needed to generate the plant-parts df:
+**Generating the plant-parts list**
 
-``
-import pudl
-# make the pudl_out object
-pudl_engine = sa.create_engine(pudl.workspace.setup.get_defaults()['pudl_db'])
-pudl_out = pudl.output.pudltabl.PudlTabl(pudl_engine,freq='AS')
-``
+There are two ways to generate the plant-parts table: one directly using the
+:class:`pudl.output.pudltabl.PudlTabl` object and the other using the classes
+from this module. Either option needs a :class:`pudl.output.pudltabl.PudlTabl`
+object.
 
-AND:
-Make the table via pudl_out:
+Create the :class:`pudl.output.pudltabl.PudlTabl` object:
 
-``
-plant_parts_eia = pudl_out.plant_parts_eia()
-``
+.. code-block:: python
 
-OR
-Make the table via objects in this module:
+    import pudl
+    pudl_engine = sa.create_engine(pudl.workspace.setup.get_defaults()['pudl_db'])
+    pudl_out = pudl.output.pudltabl.PudlTabl(pudl_engine,freq='AS')
 
-``
-gens_mega = MakeMegaGenTbl(pudl_out).execute()
-true_grans = LabelTrueGranularities().execute(gens_mega)
+Then make the table via pudl_out:
 
-parts_compiler = MakePlantParts(pudl_out)
-plant_parts_eia = parts_compiler.execute(gens_mega=gens_mega, true_grans=true_grans)
-``
+.. code-block:: python
+
+    plant_parts_eia = pudl_out.plant_parts_eia()
+
+
+OR make the table via objects in this module:
+
+.. code-block:: python
+
+    gens_mega = MakeMegaGenTbl(pudl_out).execute()
+    true_grans = LabelTrueGranularities().execute(gens_mega)
+    parts_compiler = MakePlantParts(pudl_out)
+    plant_parts_eia = parts_compiler.execute(gens_mega=gens_mega, true_grans=true_grans)
+
 
 """
 
@@ -188,6 +193,7 @@ from typing import Dict, List
 
 import numpy as np
 import pandas as pd
+import pytest
 
 import pudl
 
@@ -313,11 +319,22 @@ class MakeMegaGenTbl(object):
     Here is an example of one plant with three generators. We will use
     ``capacity_mw`` as the data column.
 
-    >>> df_mcoe = pd.DataFrame({
+    >>> mcoe = pd.DataFrame({
     ...     'plant_id_eia': [1, 1, 1],
     ...     'generator_id': ['a', 'b', 'c'],
-    ...     'capacity_mw': [100, 100, 200]
-    ... })
+    ...     'unit_id_pudl': [1, 1, 1],
+    ...     'prime_mover_code': ['CT', 'CT', 'CA'],
+    ...     'technology_description': [
+    ...         'Natural Gas Fired Combined Cycle', 'Natural Gas Fired Combined Cycle', 'Natural Gas Fired Combined Cycle'
+    ...     ],
+    ...     'operating_date': ['2000-01-01', '2000-01-01', '2000-01-01', ],
+    ...     'capacity_mw': [50, 50, 100],
+    ... }).astype({'operating_date': "datetime64[ns]"})
+    >>> mcoe
+        plant_id_eia 	generator_id 	unit_id_pudl 	prime_mover_code              technology_description 	operating_date 	capacity_mw
+    0 	           1 	           a 	           1 	              CT    Natural Gas Fired Combined Cycle 	    2000-01-01 	         50
+    1 	           1 	           b 	           1 	              CT    Natural Gas Fired Combined Cycle 	    2000-01-01 	         50
+    2 	           1 	           c 	           1 	              CA    Natural Gas Fired Combined Cycle 	    2000-01-01 	        100
 
     The ownership table from EIA 860 includes one record for every owner of
     each generator. In this example generator ``c`` has two owners.
@@ -333,6 +350,12 @@ class MakeMegaGenTbl(object):
     **Output Mega Generators Table**
 
     The ouptut from this example plant will include two distinct
+
+    >>> pd.options.display.width = 1000
+    >>> pd.options.display.max_columns = 1000
+    >>> pd.options.display.max_rows = 1000
+    >>> pd.options.display.max_columns
+    99999999
 
     >>> gens_mega = pd.DataFrame({
     ...     'generator_id': ['a', 'b', 'c', 'c', 'a', 'b', 'c', 'c',],
@@ -416,6 +439,7 @@ class MakeMegaGenTbl(object):
 
         gens_mega = (
             self.get_gens_mega_table(mcoe)
+            .pipe(self.label_operating_gens)
             .pipe(self.ensure_table_has_required_columns, generation)
             .pipe(self.slice_by_ownership, own_eia860)
         )
@@ -445,7 +469,6 @@ class MakeMegaGenTbl(object):
             )
             .assign(installation_year=lambda x: x.operating_date.dt.year)
             .astype({'installation_year': 'Int64'})
-            .pipe(self.label_operating_gens)
         )
         return all_gens
 
@@ -1112,13 +1135,93 @@ class MakePlantParts(object):
 
 
 class PlantPart(object):
-    """Plant-part table maker."""
+    """
+    Plant-part table maker.
+
+    The coordinating method here is :meth:`execute`.
+
+    **Examples**
+
+    If we have a plant with four generators that looks like this:
+
+    >>> gens_mega = pd.DataFrame({
+    ...     'plant_id_eia': [1, 1, 1, 1],
+    ...     'generator_id': ['a', 'b', 'c', 'd'],
+    ...     'prime_mover_code': ['ST', 'GT', 'CT', 'CA'],
+    ...     'energy_source_code_1': ['BIT', 'NG', 'NG', 'NG'],
+    ...     'capacity_mw': [400, 50, 125, 75]
+    ... })
+    >>> gens_mega
+        plant_id_eia 	generator_id 	prime_mover_code 	energy_source_code_1    capacity_mw
+    0 	           1               a                  ST                     BIT            400
+    1 	           1               b                  GT                      NG             50
+    2 	           1               c                  CT                      NG            125
+    3 	           1               d                  CA                      NG             75
+
+    The ``plant`` output would look something like this:
+
+    >>> plant = pd.DataFrame({
+    ...     'plant_id_eia': [1],
+    ...     'capacity_mw': [600]
+    ... })
+    >>> plant
+        plant_id_eia 	capacity_mw
+    0 	           1            600
+
+    The ``plant_primary_fuel`` output would look something like this:
+
+    >>> plant_fuel = pd.DataFrame({
+    ...     'plant_id_eia': [1, 1],
+    ...     'energy_source_code_1': ['BIT', 'NG'],
+    ...     'capacity_mw': [400, 200]
+    ... })
+    >>> plant_fuel
+        plant_id_eia    energy_source_code_1 	capacity_mw
+    0 	           1                     BIT            400
+    1 	           1                      NG            200
+
+    The ``plant_prime_mover`` output would look something like this:
+
+    >>> plant_prime_mover = pd.DataFrame({
+    ...     'plant_id_eia': [1, 1, 1, 1],
+    ...     'prime_mover_code': ['ST', 'GT', 'CT', 'CA'],
+    ...     'capacity_mw': [400, 50, 125, 75]
+    ... })
+    >>> plant_prime_mover
+        plant_id_eia 	prime_mover_code    capacity_mw
+    0 	           1                  ST            400
+    1 	           1                  GT             50
+    2 	           1                  CT            125
+    3 	           1                  CA             75
+
+    The ``plant_gen`` output would look something like this:
+
+    >>> plant_gen = pd.DataFrame({
+    ...     'plant_id_eia': [1, 1, 1, 1],
+    ...     'prime_mover_code': ['a', 'b', 'c', 'd'],
+    ...     'capacity_mw': [400, 50, 125, 75]
+    ... })
+    >>> plant_gen
+        plant_id_eia   prime_mover_code    capacity_mw
+    0 	           1                  a            400
+    1 	           1                  b             50
+    2 	           1                  c            125
+    3 	           1                  d             75
+
+    You may notice that the outputs for the ``plant_prime_mover`` and
+    ``plant_gen`` are similar records - because they both correspond to the
+    same set of underlying generators. These are the types of records that are
+    identified via :mod:``LabelTrueGranularities``.
+
+    The above examples exclude the duplication of input records based on
+    ownership. The following example is a paired down example to explain
+    ownership.
+
+    """
 
     def __init__(self, part_name):
         """
         Initialize an object which makes a tbl for a specific plant-part.
-
-        The coordinating method here is :meth:`execute`.
 
         Args:
             part_name (str): the name of the part to aggregate to. Names can be
@@ -1132,11 +1235,10 @@ class PlantPart(object):
         """
         Get a table of data aggregated by a specific plant-part.
 
-        This method will use ``gens_mega`` (or generate if it doesn't
-        exist yet) to aggregate the generator records to the level of the
-        plant-part. This is mostly done via :meth:`ag_part_by_own_slice`. Then
-        several additional columns are added and the records are labeled as
-        true or false granularities.
+        This method will take ``gens_mega`` and aggregate the generator records
+        to the level of the plant-part. This is mostly done via
+        :meth:`ag_part_by_own_slice`. Then several additional columns are added
+        and the records are labeled as true or false granularities.
 
         Returns:
             pandas.DataFrame
@@ -1731,3 +1833,10 @@ def assign_record_id_eia(test_df, plant_part_col='plant_part'):
         )
     test_df_ids = pd.concat(dfs)
     return test_df_ids
+
+
+@pytest.fixture(autouse=True, scope='session')
+def pandas_terminal_width():
+    """Set pandas displays for doctests."""
+    pd.options.display.width = 1000
+    pd.options.display.max_columns = 1000
