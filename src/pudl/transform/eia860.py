@@ -9,6 +9,7 @@ import pudl
 from pudl import constants as pc
 from pudl.constants import PUDL_TABLES
 from pudl.metadata.codes import CODE_METADATA
+from pudl.metadata.fields import apply_pudl_dtypes
 
 logger = logging.getLogger(__name__)
 
@@ -60,7 +61,7 @@ def ownership(eia860_dfs, eia860_transformed_dfs):
 
     # This has to come before the fancy indexing below, otherwise the plant_id_eia
     # is still a float.
-    own_df = own_df.convert_dtypes(convert_floating=False)
+    own_df = apply_pudl_dtypes(own_df, group="eia")
 
     # A small number of generators are reported multiple times in the ownership
     # table due to the use of leading zeroes in their integer generator_id values

@@ -28,7 +28,7 @@ import timezonefinder
 
 import pudl
 import pudl.constants as pc
-from pudl.metadata.fields import get_pandas_dtypes
+from pudl.metadata.fields import get_pudl_dtypes
 
 logger = logging.getLogger(__name__)
 
@@ -195,7 +195,7 @@ def _occurrence_consistency(entity_id, compiled_df, col,
     # select only the colums you want and drop the NaNs
     # we want to drop the NaNs because
     col_df = compiled_df[entity_id + ['report_date', col, 'table']].copy()
-    if get_pandas_dtypes(group="eia")[col] == 'string':
+    if get_pudl_dtypes(group="eia")[col] == 'string':
         nan_str_mask = (col_df[col] == "nan").fillna(False)
         col_df.loc[nan_str_mask, col] = pd.NA
     col_df = col_df.dropna()

@@ -174,12 +174,12 @@ def categorize_eia_code(eia_codes, ba_ids, util_ids, priority="balancing_authori
     ba_ids = (
         pd.Series(ba_ids, name="balancing_authority_id_eia")
         .drop_duplicates()
-        .convert_dtypes(convert_floating=False)
+        .convert_dtypes()
     )
     util_ids = (
         pd.Series(util_ids, name="utility_id_eia")
         .drop_duplicates()
-        .convert_dtypes(convert_floating=False)
+        .convert_dtypes()
     )
 
     df = (

@@ -9,6 +9,7 @@ import requests
 import sqlalchemy as sa
 
 import pudl
+from pudl.metadata.fields import apply_pudl_dtypes
 
 logger = logging.getLogger(__name__)
 
@@ -149,7 +150,7 @@ def generation_fuel_eia923(pudl_engine, freq=None,
         # Drop any records where we've failed to get the 860 data merged in...
         .dropna(subset=['plant_id_eia', 'utility_id_eia'])
         .pipe(pudl.helpers.organize_cols, first_cols)
-        .convert_dtypes(convert_floating=False)
+        .pipe(apply_pudl_dtypes, group="eia")
     )
 
     return out_df
@@ -246,7 +247,7 @@ def fuel_receipts_costs_eia923(pudl_engine, freq=None,
         .merge(cmi_df, how='left', on='mine_id_pudl')
         .rename(columns={"state": "mine_state"})
         .drop(['mine_id_pudl'], axis=1)
-        .convert_dtypes(convert_floating=False)
+        .pipe(apply_pudl_dtypes, group="eia")
     )
 
     if fill:
@@ -380,7 +381,7 @@ def fuel_receipts_costs_eia923(pudl_engine, freq=None,
                 'utility_name_eia',
             ]
         )
-        .convert_dtypes(convert_floating=False)
+        .pipe(apply_pudl_dtypes, group="eia")
     )
 
     if freq is None:
@@ -524,7 +525,7 @@ def boiler_fuel_eia923(pudl_engine, freq=None,
             'boiler_id',
             'unit_id_pudl',
         ]
-    ).convert_dtypes(convert_floating=False)
+    ).pipe(apply_pudl_dtypes, group="eia")
 
     return out_df
 
@@ -644,7 +645,7 @@ def denorm_generation_eia923(g_df, pudl_engine, start_date, end_date):
             'utility_name_eia',
             'generator_id',
         ])
-        .convert_dtypes(convert_floating=False)
+        .pipe(apply_pudl_dtypes, group="eia")
     )
     return out_df
 

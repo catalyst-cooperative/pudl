@@ -1,7 +1,8 @@
 """Field metadata."""
 from copy import deepcopy
-from typing import Any, Dict, Literal, Union
+from typing import Any, Dict, Optional
 
+import pandas as pd
 from pytz import all_timezones
 
 from .codes import CODE_METADATA
@@ -2380,13 +2381,14 @@ FIELD_METADATA_BY_RESOURCE: Dict[str, Dict[str, Any]] = {
 }
 
 
-def get_pandas_dtypes(
-    group: Union[str, Literal[None]] = None,
-    field_meta: Dict[str, Any] = FIELD_METADATA,
-    field_meta_by_group: Dict[str, Any] = FIELD_METADATA_BY_GROUP,
-) -> Dict[str, str]:
+def get_pudl_dtypes(
+    group: Optional[str] = None,
+    field_meta: Optional[Dict[str, Any]] = FIELD_METADATA,
+    field_meta_by_group: Optional[Dict[str, Any]] = FIELD_METADATA_BY_GROUP,
+    dtype_map: Optional[Dict[str, Any]] = FIELD_DTYPES_PANDAS,
+) -> Dict[str, Any]:
     """
-    Get pandas dtypes for fields, applying group overrides.
+    Compile a dictionary of field dtypes, applying group overrides.
 
     Args:
         group: The data group (e.g. ferc1, eia) to use for overriding the default
@@ -2395,9 +2397,11 @@ def get_pandas_dtypes(
         field_meta: Field metadata dictionary which at least describes a "type".
         field_meta_by_group: Field metadata type overrides to apply based on the data
             group that the field is part of, if any.
+        dtype_map: Mapping from canonical PUDL data types to some other set of data
+            types. Uses pandas data types by default.
 
     Returns:
-        A mapping of field names to the string version of their pandas data types.
+        A mapping of PUDL field names to their associated data types.
 
     """
     field_meta = deepcopy(field_meta)
@@ -2405,6 +2409,44 @@ def get_pandas_dtypes(
     for f in field_meta:
         if f in field_meta_by_group.get(group, []):
             field_meta[f].update(field_meta_by_group[group][f])
-        dtypes[f] = FIELD_DTYPES_PANDAS[field_meta[f]["type"]]
+        dtypes[f] = dtype_map[field_meta[f]["type"]]
 
     return dtypes
+
+
+def apply_pudl_dtypes(
+    df: pd.DataFrame,
+    group: Optional[str] = None,
+    field_meta: Optional[Dict[str, Any]] = FIELD_METADATA,
+    field_meta_by_group: Optional[Dict[str, Any]] = FIELD_METADATA_BY_GROUP,
+) -> pd.DataFrame:
+    """
+    Apply dtypes to those columns in a dataframe that have PUDL types defined.
+
+    Note at ad-hoc column dtypes can be defined and merged with default PUDL field
+    metadata before it's passed in as `field_meta` if you have module specific column
+    types you need to apply alongside the standard PUDL field types.
+
+    Args:
+        df: The dataframe to apply types to. Not all columns need to have types
+            defined in the PUDL metadata.
+        group: The data group to use for overrides, if any. E.g. "eia", "ferc1".
+        field_meta: A dictionary of field metadata, where each key is a field name
+            and the values are dictionaries which must have a "type" element. By
+            default this is pudl.metadata.fields.FIELD_METADATA.
+        field_meta_by_group: A dictionary of field metadata to use as overrides,
+            based on the value of `group`, if any. By default it uses the overrides
+            defined in pudl.metadata.fields.FIELD_METADATA_BY_GROUP.
+
+    Returns:
+        The input dataframe, but with standard PUDL types applied.
+
+    """
+    dtypes = get_pudl_dtypes(
+        group=group,
+        field_meta=field_meta,
+        field_meta_by_group=field_meta_by_group,
+        dtype_map=FIELD_DTYPES_PANDAS,
+    )
+
+    return df.astype({col: dtypes[col] for col in df.columns if col in dtypes})

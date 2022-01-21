@@ -2,6 +2,7 @@
 import pandas as pd
 
 import pudl
+from pudl.metadata.fields import apply_pudl_dtypes
 
 
 def heat_rate_by_unit(pudl_out):
@@ -73,7 +74,7 @@ def heat_rate_by_unit(pudl_out):
         )
     )
 
-    return hr_by_unit.convert_dtypes(convert_floating=False)
+    return apply_pudl_dtypes(hr_by_unit, group="eia")
 
 
 def heat_rate_by_gen(pudl_out):
@@ -160,7 +161,7 @@ def heat_rate_by_gen(pudl_out):
         by=["plant_id_eia", "generator_id"],
     )
 
-    return hr_by_gen.convert_dtypes(convert_floating=False)
+    return apply_pudl_dtypes(hr_by_gen, group="eia")
 
 
 def fuel_cost(pudl_out):
@@ -320,7 +321,7 @@ def fuel_cost(pudl_out):
         .merge(fc, on=['report_date', 'plant_id_eia', 'generator_id'])
     )
 
-    return out_df.convert_dtypes(convert_floating=False)
+    return apply_pudl_dtypes(out_df, group="eia")
 
 
 def capacity_factor(pudl_out, min_cap_fact=0, max_cap_fact=1.5):
@@ -397,7 +398,7 @@ def capacity_factor(pudl_out, min_cap_fact=0, max_cap_fact=1.5):
         .drop(['hours'], axis=1)
     )
 
-    return cf.convert_dtypes(convert_floating=False)
+    return apply_pudl_dtypes(cf, group="eia")
 
 
 def mcoe(
@@ -531,7 +532,7 @@ def mcoe(
             'generator_id',
             'report_date',
         ])
-        .convert_dtypes(convert_floating=False)
+        .pipe(apply_pudl_dtypes, group="eia")
     )
 
     return mcoe_out

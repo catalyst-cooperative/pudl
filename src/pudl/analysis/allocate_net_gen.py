@@ -89,6 +89,7 @@ import numpy as np
 import pandas as pd
 
 import pudl.helpers
+from pudl.metadata.fields import apply_pudl_dtypes
 
 logger = logging.getLogger(__name__)
 
@@ -213,10 +214,9 @@ def allocate_gen_fuel_by_gen_pm_fuel(gf, gen, gens, drop_interim_cols=True):
             fuel_consumed_mmbtu_gf_tbl=lambda x: x.fuel_consumed_mmbtu,
             fuel_consumed_mmbtu=lambda x: x.fuel_consumed_mmbtu * x.frac
         )
-        .convert_dtypes(convert_floating=False)
+        .pipe(apply_pudl_dtypes, group="eia")
         .dropna(how='all')
         .pipe(_test_gen_pm_fuel_output, gf=gf, gen=gen)
-        .pipe(pudl.helpers.convert_cols_dtypes, 'eia')
     )
     if drop_interim_cols:
         gen_pm_fuel_frac = gen_pm_fuel_frac[

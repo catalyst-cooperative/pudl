@@ -14,6 +14,7 @@ from pudl.constants import PUDL_TABLES
 from pudl.metadata.enums import (CUSTOMER_CLASSES, FUEL_CLASSES, NERC_REGIONS,
                                  RELIABILITY_STANDARDS, REVENUE_CLASSES,
                                  RTO_CLASSES, TECH_CLASSES)
+from pudl.metadata.fields import apply_pudl_dtypes
 from pudl.metadata.labels import ESTIMATED_OR_ACTUAL, MOMENTARY_INTERRUPTIONS
 
 logger = logging.getLogger(__name__)
@@ -240,7 +241,7 @@ BA_ID_NAME_FIXES = (
         "balancing_authority_name_eia",  # We have this
     ])
     .assign(report_date=lambda x: pd.to_datetime(x.report_date))
-    .convert_dtypes()
+    .pipe(apply_pudl_dtypes, group="eia")
     .dropna(subset=["report_date", "balancing_authority_name_eia", "utility_id_eia"])
     .set_index(["report_date", "balancing_authority_name_eia", "utility_id_eia"])
 )
@@ -495,7 +496,7 @@ def _tidy_class_dfs(df, df_name, idx_cols, class_list, class_type, keep_totals=F
         )
     raw_df = (
         df.dropna(subset=["utility_id_eia"])
-        .convert_dtypes(convert_floating=False)
+        .astype({"utility_id_eia": "Int64"})
         .set_index(idx_cols)
     )
     # Split the table into index, data, and "denormalized" columns for processing:
@@ -960,7 +961,7 @@ def balancing_authority_assn(tfr_dfs):
     tfr_dfs["balancing_authority_assn_eia861"] = (
         pd.concat([early_date_ba_util_state, late_date_ba_util_state])
         .dropna(subset=["balancing_authority_id_eia", ])
-        .convert_dtypes(convert_floating=False)
+        .pipe(apply_pudl_dtypes, group="eia")
     )
     return tfr_dfs
 
