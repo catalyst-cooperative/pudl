@@ -21,6 +21,7 @@ import logging
 import pandas as pd
 
 import pudl
+from pudl.metadata.fields import apply_pudl_dtypes
 
 logger = logging.getLogger(__name__)
 
@@ -56,7 +57,7 @@ def grab_n_clean_epa_orignal():
             'generator_id',
             'boiler_id',
         ])
-        .pipe(pudl.helpers.convert_cols_dtypes, 'eia')
+        .pipe(apply_pudl_dtypes, 'eia')
     )
     return eia_epacems_crosswalk
 
