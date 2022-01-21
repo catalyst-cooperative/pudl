@@ -161,10 +161,7 @@ def heat_rate_by_gen(pudl_out):
             'fuel_type_code_pudl',
             'fuel_type_count'
         ]],
-        by={
-            "plant_id_eia": "eia",
-            "generator_id": "eia",
-        }
+        by=["plant_id_eia", "generator_id"],
     )
 
     return pudl.helpers.convert_cols_dtypes(
@@ -239,10 +236,7 @@ def fuel_cost(pudl_out):
     gen_w_ft = pudl.helpers.clean_merge_asof(
         left=hr_by_gen,
         right=gens,
-        by={
-            "plant_id_eia": "eia",
-            "generator_id": "eia",
-        }
+        by=["plant_id_eia", "generator_id"],
     )
 
     one_fuel = gen_w_ft[gen_w_ft.fuel_type_count == 1]
@@ -382,10 +376,7 @@ def capacity_factor(pudl_out, min_cap_fact=0, max_cap_fact=1.5):
     cf = pudl.helpers.clean_merge_asof(
         left=gen,
         right=gens_eia860,
-        by={
-            "plant_id_eia": "eia",
-            "generator_id": "eia",
-        }
+        by=["plant_id_eia", "generator_id"],
     )
     cf = pudl.helpers.calc_capacity_factor(
         cf,

@@ -8,11 +8,13 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 
+import shutil
 from pathlib import Path
 
 import pkg_resources
 
-from pudl.metadata.classes import Package
+from pudl.metadata.classes import CodeMetadata, Package
+from pudl.metadata.codes import CODE_METADATA
 from pudl.metadata.resources import RESOURCE_METADATA
 
 DOCS_DIR = Path(__file__).parent.resolve()
@@ -47,7 +49,7 @@ extensions = [
     'sphinx_issues',
     'sphinx_reredirects',
     'sphinx_rtd_dark_mode',
-    'sphinxcontrib.bibtex',
+    'sphinxcontrib.bibtex'
 ]
 todo_include_todos = True
 bibtex_bibfiles = [
@@ -137,8 +139,8 @@ def metadata_to_rst(app):
     # Create an RST Data Dictionary for the PUDL DB:
     print("Exporting PUDL DB metadata to RST.")
     skip_names = ["datasets", "accumulated_depreciation_ferc1"]
-    names = [name for name in sorted(RESOURCE_METADATA) if name not in skip_names]
-    package = Package.from_resource_ids(names)
+    names = [name for name in RESOURCE_METADATA if name not in skip_names]
+    package = Package.from_resource_ids(resource_ids=tuple(sorted(names)))
     # Sort fields within each resource by name:
     for resource in package.resources:
         resource.schema.fields = sorted(
@@ -147,13 +149,35 @@ def metadata_to_rst(app):
     package.to_rst(path=DOCS_DIR / "data_dictionaries/pudl_db.rst")
 
 
-def cleanup_rst(app, exception):
+def static_dfs_to_rst(app):
+    """Export static code labeling dataframes to RST for inclusion in the documentation."""
+    # Sphinx csv-table directive wants an absolute path relative to source directory, but pandas to_csv wants a true absolute path
+    csv_subdir = "data_dictionaries/code_csvs"
+    abs_csv_dir_path = DOCS_DIR / csv_subdir
+    abs_csv_dir_path.mkdir(parents=True, exist_ok=True)
+    codemetadata = CodeMetadata.from_code_ids(sorted(CODE_METADATA.keys()))
+    codemetadata.to_rst(top_dir=DOCS_DIR,
+                        csv_subdir=csv_subdir,
+                        rst_path=DOCS_DIR / "data_dictionaries/codes_and_labels.rst")
+
+
+def cleanup_rsts(app, exception):
     """Remove generated RST files when the build is finished."""
     (DOCS_DIR / "data_dictionaries/pudl_db.rst").unlink()
+    (DOCS_DIR / "data_dictionaries/codes_and_labels.rst").unlink()
+
+
+def cleanup_csv_dir(app, exception):
+    """Remove generated CSV files when the build is finished."""
+    csv_dir = DOCS_DIR / "data_dictionaries/code_csvs"
+    if csv_dir.exists() and csv_dir.is_dir():
+        shutil.rmtree(csv_dir)
 
 
 def setup(app):
     """Add custom CSS defined in _static/custom.css."""
     app.add_css_file('custom.css')
     app.connect("builder-inited", metadata_to_rst)
-    app.connect("build-finished", cleanup_rst)
+    app.connect("builder-inited", static_dfs_to_rst)
+    app.connect("build-finished", cleanup_rsts)
+    app.connect("build-finished", cleanup_csv_dir)

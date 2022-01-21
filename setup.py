@@ -38,8 +38,8 @@ setup(
         "coloredlogs~=15.0",
         "datapackage~=1.11",  # Transition datastore to use frictionless.
         # "email-validator>=1.0.3",  # pydantic[email] dependency
-        "fsspec~=2021.7",
-        "gcsfs~=2021.7",
+        "fsspec>=2021.7,<2023.0",
+        "gcsfs>=2021.7,<2023.0",
         "geopandas>=0.9,<0.11",
         "jinja2>=2,<4",
         "matplotlib~=3.0",  # Should make this optional with a "viz" extras
@@ -72,7 +72,7 @@ setup(
             "doc8~=0.9",
             "sphinx~=4.0",
             "sphinx-autoapi~=1.8",
-            "sphinx-issues~=1.2",
+            "sphinx-issues>=1.2,<4.0",
             "sphinx-reredirects",
             "sphinx-rtd-dark-mode~=1.2",
             "sphinx-rtd-theme~=1.0",

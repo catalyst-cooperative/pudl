@@ -8,11 +8,7 @@ import pandas as pd
 import pudl
 from pudl import constants as pc
 from pudl.constants import PUDL_TABLES
-from pudl.metadata import RESOURCE_METADATA
-from pudl.metadata.codes import ENERGY_SOURCES_EIA
-from pudl.metadata.labels import ENTITY_TYPES
-
-PUDL_META = pudl.metadata.classes.Package.from_resource_ids(RESOURCE_METADATA)
+from pudl.metadata.codes import CODE_METADATA
 
 logger = logging.getLogger(__name__)
 
@@ -64,12 +60,17 @@ def ownership(eia860_dfs, eia860_transformed_dfs):
 
     # This has to come before the fancy indexing below, otherwise the plant_id_eia
     # is still a float.
-    own_df = own_df.astype(pudl.helpers.get_pudl_dtypes({
-        "owner_utility_id_eia": "eia",
-        "utility_id_eia": "eia",
-        "plant_id_eia": "eia",
-        "owner_state": "eia",
-    }))
+    own_df = own_df.astype(
+        pudl.helpers.get_pudl_dtypes(
+            cols=[
+                "owner_utility_id_eia",
+                "utility_id_eia",
+                "plant_id_eia",
+                "owner_state"
+            ],
+            group="eia",
+        )
+    )
 
     # A small number of generators are reported multiple times in the ownership
     # table due to the use of leading zeroes in their integer generator_id values
@@ -152,7 +153,11 @@ def ownership(eia860_dfs, eia860_transformed_dfs):
         & (own_df.fraction_owned == 1.0)
     )
     own_df.loc[single_owner_operator, "utility_id_eia"] = pd.NA
-    own_df = PUDL_META.get_resource("ownership_eia860").encode(own_df)
+    own_df = (
+        pudl.metadata.classes.Package.from_resource_ids()
+        .get_resource("ownership_eia860")
+        .encode(own_df)
+    )
 
     eia860_transformed_dfs['ownership_eia860'] = own_df
 
@@ -321,14 +326,18 @@ def generators(eia860_dfs, eia860_transformed_dfs):
         .pipe(pudl.helpers.convert_to_date)
     )
 
-    gens_df = PUDL_META.get_resource("generators_eia860").encode(gens_df)
+    gens_df = (
+        pudl.metadata.classes.Package.from_resource_ids()
+        .get_resource("generators_eia860")
+        .encode(gens_df)
+    )
 
     gens_df["fuel_type_code_pudl"] = (
         gens_df.energy_source_code_1
         .str.upper()
         .map(
             pudl.helpers.label_map(
-                ENERGY_SOURCES_EIA["df"],
+                CODE_METADATA["energy_sources_eia"]["df"],
                 from_col="code",
                 to_col="fuel_type_code_pudl",
                 null_value=pd.NA,
@@ -424,7 +433,11 @@ def plants(eia860_dfs, eia860_transformed_dfs):
 
     p_df = pudl.helpers.convert_to_date(p_df)
 
-    p_df = PUDL_META.get_resource("plants_eia860").encode(p_df)
+    p_df = (
+        pudl.metadata.classes.Package.from_resource_ids()
+        .get_resource("plants_eia860")
+        .encode(p_df)
+    )
 
     eia860_transformed_dfs['plants_eia860'] = p_df
 
@@ -575,10 +588,8 @@ def utilities(eia860_dfs, eia860_transformed_dfs):
         u_df.astype({
             "utility_id_eia": "Int64"
         })
-        .assign(
-            entity_type=lambda x: x.entity_type.map(ENTITY_TYPES)
-        )
         .pipe(pudl.helpers.convert_to_date)
+        .fillna({'entity_type': pd.NA})
     )
 
     eia860_transformed_dfs['utilities_eia860'] = u_df

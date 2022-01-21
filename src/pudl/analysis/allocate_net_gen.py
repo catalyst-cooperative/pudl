@@ -213,10 +213,12 @@ def allocate_gen_fuel_by_gen_pm_fuel(gf, gen, gens, drop_interim_cols=True):
             fuel_consumed_mmbtu_gf_tbl=lambda x: x.fuel_consumed_mmbtu,
             fuel_consumed_mmbtu=lambda x: x.fuel_consumed_mmbtu * x.frac
         )
-        .astype(pudl.helpers.get_pudl_dtypes({
-            "plant_id_eia": "eia",
-            "net_generation_mwh": "eia",
-        }))
+        .astype(
+            pudl.helpers.get_pudl_dtypes(
+                cols=["plant_id_eia", "net_generation_mwh"],
+                group="eia",
+            )
+        )
         .dropna(how='all')
         .pipe(_test_gen_pm_fuel_output, gf=gf, gen=gen)
         .pipe(pudl.helpers.convert_cols_dtypes, 'eia')

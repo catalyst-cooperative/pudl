@@ -3,9 +3,10 @@ import datetime
 from typing import Callable, Dict, List, Type
 
 import pandas as pd
+import pyarrow as pa
 import sqlalchemy as sa
 
-FIELD_DTYPES: Dict[str, str] = {
+FIELD_DTYPES_PANDAS: Dict[str, str] = {
     "string": "string",
     "number": "float64",
     "integer": "Int64",
@@ -17,6 +18,17 @@ FIELD_DTYPES: Dict[str, str] = {
 """
 Pandas data type by PUDL field type (Data Package `field.type`).
 """
+
+FIELD_DTYPES_PYARROW: Dict[str, pa.lib.DataType] = {
+    "boolean": pa.bool_(),
+    "date": pa.date32(),
+    # We'll probably need to make the TZ dynamic rather than hard coded...
+    "datetime": pa.timestamp("s", tz="UTC"),
+    "integer": pa.int32(),
+    "number": pa.float32(),
+    "string": pa.string(),
+    "year": pa.int32(),
+}
 
 FIELD_DTYPES_SQL: Dict[str, sa.sql.visitors.VisitableType] = {
     "boolean": sa.Boolean,

@@ -25,19 +25,13 @@ import sqlalchemy as sa
 
 import pudl
 from pudl import constants as pc
-from pudl.metadata import RESOURCE_METADATA
-from pudl.metadata.codes import (CONTRACT_TYPES_EIA, ENERGY_SOURCES_EIA,
-                                 FUEL_TRANSPORTATION_MODES_EIA,
-                                 FUEL_TYPES_AER_EIA, PRIME_MOVERS_EIA,
-                                 SECTOR_CONSOLIDATED_EIA)
+from pudl.metadata.codes import CODE_METADATA
 from pudl.metadata.dfs import FERC_ACCOUNTS, FERC_DEPRECIATION_LINES
 from pudl.settings import (EiaSettings, EpaCemsSettings, EtlSettings,
                            Ferc1Settings, GlueSettings)
 from pudl.workspace.datastore import Datastore
 
 logger = logging.getLogger(__name__)
-
-PUDL_META = pudl.metadata.classes.Package.from_resource_ids(RESOURCE_METADATA)
 
 
 ###############################################################################
@@ -57,12 +51,13 @@ def _read_static_tables_eia() -> Dict[str, pd.DataFrame]:
 
     """
     return {
-        'energy_sources_eia': ENERGY_SOURCES_EIA["df"],
-        'fuel_types_aer_eia': FUEL_TYPES_AER_EIA["df"],
-        'prime_movers_eia': PRIME_MOVERS_EIA["df"],
-        'sector_consolidated_eia': SECTOR_CONSOLIDATED_EIA["df"],
-        'fuel_transportation_modes_eia': FUEL_TRANSPORTATION_MODES_EIA["df"],
-        'contract_types_eia': CONTRACT_TYPES_EIA["df"]
+        'energy_sources_eia': CODE_METADATA["energy_sources_eia"]["df"],
+        'fuel_types_aer_eia': CODE_METADATA["fuel_types_aer_eia"]["df"],
+        'prime_movers_eia': CODE_METADATA["prime_movers_eia"]["df"],
+        'sector_consolidated_eia': CODE_METADATA["sector_consolidated_eia"]["df"],
+        'fuel_transportation_modes_eia': CODE_METADATA["fuel_transportation_modes_eia"]["df"],
+        'contract_types_eia': CODE_METADATA["contract_types_eia"]["df"],
+        'coalmine_types_eia': CODE_METADATA["coalmine_types_eia"]["df"],
     }
 
 
@@ -132,7 +127,11 @@ def _etl_eia(
     # convert types..
     entities_dfs = pudl.helpers.convert_dfs_dict_dtypes(entities_dfs, 'eia')
     for table in entities_dfs:
-        entities_dfs[table] = PUDL_META.get_resource(table).encode(entities_dfs[table])
+        entities_dfs[table] = (
+            pudl.metadata.classes.Package.from_resource_ids()
+            .get_resource(table)
+            .encode(entities_dfs[table])
+        )
 
     out_dfs.update(entities_dfs)
     out_dfs.update(eia_transformed_dfs)
@@ -165,6 +164,7 @@ def _read_static_tables_ferc1() -> Dict[str, pd.DataFrame]:
             "line_id",
             "ferc_account_description",
         ]],
+        'power_purchase_types_ferc1': CODE_METADATA["power_purchase_types_ferc1"]["df"],
     }
 
 
@@ -280,9 +280,11 @@ def etl_epacems(
 
     # run the cems generator dfs through the load step
     for df in epacems_transformed_dfs:
-        pudl.load.parquet.epacems_to_parquet(
+        pudl.load.df_to_parquet(
             df,
+            resource_id="hourly_emissions_epacems",
             root_path=Path(pudl_settings["parquet_dir"]) / "epacems",
+            partition_cols=["year", "state"]
         )
 
     if logger.isEnabledFor(logging.INFO):
@@ -396,7 +398,7 @@ def etl(  # noqa: C901
 
     # Load the ferc1 + eia data directly into the SQLite DB:
     pudl_engine = sa.create_engine(pudl_settings["pudl_db"])
-    pudl.load.sqlite.dfs_to_sqlite(
+    pudl.load.dfs_to_sqlite(
         sqlite_dfs,
         engine=pudl_engine,
         check_foreign_keys=check_foreign_keys,

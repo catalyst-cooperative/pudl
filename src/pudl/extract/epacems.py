@@ -10,7 +10,7 @@ from zipfile import ZipFile
 
 import pandas as pd
 
-import pudl.constants as pc
+from pudl.metadata.fields import get_pandas_dtypes
 from pudl.workspace.datastore import Datastore
 
 logger = logging.getLogger(__name__)
@@ -129,8 +129,8 @@ class EpaCemsDatastore:
             csv (file-like object): data to be read
 
         Returns:
-            pandas.DataFrame: A DataFrame containing the contents of the
-            CSV file.
+            A DataFrame containing the contents of the CSV file.
+
         """
         df = pd.read_csv(
             csv_file,
@@ -139,8 +139,8 @@ class EpaCemsDatastore:
         )
         df = df.rename(columns=RENAME_DICT)
         df = df.astype({
-            col: pc.COLUMN_DTYPES["epacems"][col]
-            for col in pc.COLUMN_DTYPES["epacems"]
+            col: get_pandas_dtypes(group="epacems")[col]
+            for col in get_pandas_dtypes(group="epacems")
             if col in df.columns
         })
         return df

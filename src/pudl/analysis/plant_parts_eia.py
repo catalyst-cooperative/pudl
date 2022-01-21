@@ -199,6 +199,9 @@ import pudl
 
 logger = logging.getLogger(__name__)
 
+pd.options.display.width = 1000
+pd.options.display.max_columns = 1000
+
 PLANT_PARTS: Dict[str, Dict[str, List]] = {
     'plant': {
         'id_cols': ['plant_id_eia'],
@@ -355,7 +358,7 @@ class MakeMegaGenTbl(object):
     >>> pd.options.display.max_columns = 1000
     >>> pd.options.display.max_rows = 1000
     >>> pd.options.display.max_columns
-    99999999
+    1000
 
     >>> gens_mega = pd.DataFrame({
     ...     'generator_id': ['a', 'b', 'c', 'c', 'a', 'b', 'c', 'c',],
