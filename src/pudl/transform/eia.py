@@ -28,7 +28,7 @@ import timezonefinder
 
 import pudl
 import pudl.constants as pc
-from pudl.metadata.fields import get_pudl_dtypes
+from pudl.metadata.fields import apply_pudl_dtypes, get_pudl_dtypes
 
 logger = logging.getLogger(__name__)
 
@@ -1022,7 +1022,7 @@ def _boiler_generator_assn(
             )
         )
 
-    bga_out = pudl.helpers.convert_cols_dtypes(bga_out, "eia")
+    bga_out = apply_pudl_dtypes(bga_out, group="eia")
     eia_transformed_dfs['boiler_generator_assn_eia860'] = bga_out
 
     return eia_transformed_dfs

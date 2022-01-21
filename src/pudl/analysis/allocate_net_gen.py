@@ -238,7 +238,7 @@ def agg_by_generator(gen_pm_fuel):
     gen = (
         gen_pm_fuel.groupby(by=IDX_GENS)
         [data_cols].sum(min_count=1).reset_index()
-        .pipe(pudl.helpers.convert_cols_dtypes, 'eia')
+        .pipe(apply_pudl_dtypes, group="eia")
     )
 
     return gen
@@ -268,7 +268,7 @@ def stack_generators(gens,
         pd.DataFrame(gens.set_index(IDX_GENS)[esc].stack(level=0))
         .reset_index()
         .rename(columns={'level_3': cat_col, 0: stacked_col})
-        .pipe(pudl.helpers.convert_cols_dtypes, 'eia')
+        .pipe(apply_pudl_dtypes, 'eia')
     )
 
     # merge the stacked df back onto the gens table
@@ -324,7 +324,7 @@ def associate_generator_tables(gf, gen, gens):
             .reset_index(),
             on=IDX_FUEL,
         )
-        .pipe(pudl.helpers.convert_cols_dtypes, 'eia')
+        .pipe(apply_pudl_dtypes, 'eia')
         .pipe(_associate_unconnected_records)
         .pipe(_associate_energy_source_only, gf=gf)
     )
@@ -472,7 +472,7 @@ def _associate_energy_source_only(gen_assoc, gf):
 
     gen_assoc = pd.merge(
         gen_assoc,
-        gf_missing_pm.pipe(pudl.helpers.convert_cols_dtypes, 'eia'),
+        gf_missing_pm.pipe(apply_pudl_dtypes, 'eia'),
         how='outer',
         on=IDX_FUEL,
         indicator=True

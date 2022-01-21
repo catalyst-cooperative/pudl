@@ -579,7 +579,7 @@ def _compare_totals(data_cols, idx_cols, class_type, df_name):
         df_name (str): The name of the dataframe.
     """
     # Convert column dtypes so that numeric cols can be adequately summed
-    data_cols = pudl.helpers.convert_cols_dtypes(data_cols, 'eia')
+    data_cols = pudl.helpers.convert_cols_dtypes(data_cols, data_source='eia')
     # Drop data cols that are non numeric (preserve primary keys)
     logger.debug(f'{idx_cols}, {class_type}')
     data_cols = (
@@ -841,7 +841,7 @@ def balancing_authority(tfr_dfs):
     # * Fix data entry errors
     df = (
         tfr_dfs["balancing_authority_eia861"]
-        .pipe(pudl.helpers.convert_cols_dtypes, "eia", "balancing_authority_eia861")
+        .pipe(apply_pudl_dtypes, "eia")
         .set_index(["report_date", "balancing_authority_name_eia", "utility_id_eia"])
     )
 

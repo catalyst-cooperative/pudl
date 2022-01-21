@@ -5,8 +5,8 @@ import re
 import numpy as np
 import pandas as pd
 
-import pudl
 from pudl.constants import PUDL_TABLES
+from pudl.metadata.fields import apply_pudl_dtypes
 
 logger = logging.getLogger(__name__)
 
@@ -636,7 +636,5 @@ def transform(raw_dfs, tables=PUDL_TABLES["ferc714"]):
             .pipe(_early_transform)
         )
         tfr_dfs = tfr_funcs[table](tfr_dfs)
-        tfr_dfs[table] = (
-            pudl.helpers.convert_cols_dtypes(tfr_dfs[table], "ferc714", table)
-        )
+        tfr_dfs[table] = apply_pudl_dtypes(tfr_dfs[table], group="ferc714")
     return tfr_dfs
