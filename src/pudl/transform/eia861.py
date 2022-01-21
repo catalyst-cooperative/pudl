@@ -11,6 +11,7 @@ import pandas as pd
 
 import pudl
 from pudl.constants import PUDL_TABLES
+from pudl.helpers import convert_cols_dtypes
 from pudl.metadata.enums import (CUSTOMER_CLASSES, FUEL_CLASSES, NERC_REGIONS,
                                  RELIABILITY_STANDARDS, REVENUE_CLASSES,
                                  RTO_CLASSES, TECH_CLASSES)
@@ -2475,5 +2476,8 @@ def transform(raw_dfs, eia861_tables=PUDL_TABLES["eia861"]):
     tfr_dfs = balancing_authority_assn(tfr_dfs)
     tfr_dfs = utility_assn(tfr_dfs)
     tfr_dfs = normalize_balancing_authority(tfr_dfs)
-    tfr_dfs = pudl.helpers.convert_dfs_dict_dtypes(tfr_dfs, 'eia')
-    return tfr_dfs
+    # Do some final cleanup and assign types.
+    return {
+        name: convert_cols_dtypes(df, data_source="eia")
+        for name, df in tfr_dfs.items()
+    }

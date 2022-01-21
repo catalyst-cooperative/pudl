@@ -29,6 +29,7 @@ from sklearn.preprocessing import MinMaxScaler, Normalizer, OneHotEncoder
 import pudl
 from pudl import constants as pc
 from pudl.constants import PUDL_TABLES
+from pudl.helpers import convert_cols_dtypes
 from pudl.metadata.dfs import FERC_DEPRECIATION_LINES
 
 logger = logging.getLogger(__name__)
@@ -1581,7 +1582,7 @@ def transform(ferc1_raw_dfs, ferc1_tables=PUDL_TABLES['ferc1']):
         dict: A dictionary of the transformed DataFrames.
 
     """
-    ferc1_transform_functions = {
+    ferc1_tfr_funcs = {
         # fuel must come before steam b/c fuel proportions are used to aid in
         # plant # ID assignment.
         'fuel_ferc1': fuel,
@@ -1594,21 +1595,21 @@ def transform(ferc1_raw_dfs, ferc1_tables=PUDL_TABLES['ferc1']):
         'accumulated_depreciation_ferc1': accumulated_depreciation
     }
     # create an empty ditctionary to fill up through the transform fuctions
-    ferc1_transformed_dfs = {}
+    ferc1_tfr_dfs = {}
 
     # for each ferc table,
-    for table in ferc1_transform_functions:
+    for table in ferc1_tfr_funcs:
         if table in ferc1_tables:
             logger.info(
                 f"Transforming raw FERC Form 1 dataframe for "
                 f"loading into {table}")
-            ferc1_transform_functions[table](
-                ferc1_raw_dfs, ferc1_transformed_dfs)
+            ferc1_tfr_funcs[table](ferc1_raw_dfs, ferc1_tfr_dfs)
 
-    # convert types..
-    ferc1_transformed_dfs = pudl.helpers.convert_dfs_dict_dtypes(
-        ferc1_transformed_dfs, 'ferc1')
-    return ferc1_transformed_dfs
+    # convert types and return:
+    return {
+        name: convert_cols_dtypes(df, data_source="ferc1")
+        for name, df in ferc1_tfr_dfs.items()
+    }
 
 ###############################################################################
 # Identifying FERC Plants

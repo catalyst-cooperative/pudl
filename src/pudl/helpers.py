@@ -987,21 +987,6 @@ def convert_cols_dtypes(
     return df
 
 
-def convert_dfs_dict_dtypes(dfs_dict, data_source):
-    """Convert the data types of a dictionary of dataframes.
-
-    This is a wrapper for :func:`pudl.helpers.convert_cols_dtypes` which loops
-    over an entire dictionary of dataframes, assuming they are all from the
-    specified data source, and appropriately assigning data types to each
-    column based on the data source specific type map stored in pudl.constants
-
-    """
-    cleaned_dfs_dict = {}
-    for name, df in dfs_dict.items():
-        cleaned_dfs_dict[name] = convert_cols_dtypes(df, data_source, name)
-    return cleaned_dfs_dict
-
-
 def generate_rolling_avg(df, group_cols, data_col, window, **kwargs):
     """
     Generate a rolling average.

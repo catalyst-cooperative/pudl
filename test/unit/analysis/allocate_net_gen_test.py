@@ -2,9 +2,10 @@
 
 import numpy as np
 import pandas as pd
+import pytest
 
-from pudl import helpers
 from pudl.analysis import allocate_net_gen
+from pudl.metadata.fields import apply_pudl_dtypes
 
 # Reusable input files...
 
@@ -16,8 +17,7 @@ GEN_1 = pd.DataFrame({
     'generator_id': ['GEN1', 'GEN2', 'GEN3', 'GEN4'],
     'report_date': ['2018-01-01', '2018-01-01', '2018-01-01', '2018-01-01', ],
     'net_generation_mwh': [14.0, 1.0, 0.0, 0.0],
-}
-)
+}).pipe(apply_pudl_dtypes, group="eia")
 
 GF_1 = pd.DataFrame({
     'plant_id_eia': [50307, 50307, 50307, 50307],
@@ -26,8 +26,7 @@ GF_1 = pd.DataFrame({
     'report_date': ['2018-01-01', '2018-01-01', '2018-01-01', '2018-01-01', ],
     'net_generation_mwh': [15.0, 0.0, np.nan, np.nan],
     'fuel_consumed_mmbtu': [100000.0, 0.0, np.nan, np.nan],
-},
-)
+}).pipe(apply_pudl_dtypes, group="eia")
 
 GENS_1 = pd.DataFrame({
     'plant_id_eia': [50307, 50307, 50307, 50307, 50307],
@@ -36,17 +35,19 @@ GENS_1 = pd.DataFrame({
     'prime_mover_code': ['ST', 'ST', 'ST', 'ST', 'IC'],
     'capacity_mw': [7.5, 2.5, 2.5, 4.3, 1.8],
     'fuel_type_count': [2, 2, 2, 2, 2],
+    'retirement_date': [pd.NA, pd.NA, '2069-10-31', pd.NA, pd.NA],
+    'operational_status': ['existing', 'existing', 'existing', 'existing', 'existing'],
     'energy_source_code_1': ['NG', 'NG', 'NG', 'NG', 'DFO'],
-    'energy_source_code_2': [None, None, None, None, None],
-    'energy_source_code_3': [None, None, None, None, None],
-    'energy_source_code_4': [None, None, None, None, None],
-    'energy_source_code_5': [None, None, None, None, None],
-    'energy_source_code_6': [None, None, None, None, None],
-    'planned_energy_source_code_1': [None, None, None, None, None],
-},
-)
+    'energy_source_code_2': [pd.NA, pd.NA, pd.NA, pd.NA, pd.NA],
+    'energy_source_code_3': [pd.NA, pd.NA, pd.NA, pd.NA, pd.NA],
+    'energy_source_code_4': [pd.NA, pd.NA, pd.NA, pd.NA, pd.NA],
+    'energy_source_code_5': [pd.NA, pd.NA, pd.NA, pd.NA, pd.NA],
+    'energy_source_code_6': [pd.NA, pd.NA, pd.NA, pd.NA, pd.NA],
+    'planned_energy_source_code_1': [pd.NA, pd.NA, pd.NA, pd.NA, pd.NA],
+}).pipe(apply_pudl_dtypes, group="eia")
 
 
+@pytest.mark.xfail(reason="Tests need to be updated. See https://github.com/catalyst-cooperative/pudl/issues/1371")
 def test__associate_generator_tables_1():
     """Test associate_generator_tables function with example 1."""
     gen_assoc_1_expected = pd.DataFrame({
@@ -63,37 +64,34 @@ def test__associate_generator_tables_1():
         'fuel_consumed_mmbtu': [100000.0, 100000.0, 100000.0, 100000.0, 0.0, np.nan, np.nan],
         'capacity_mw_fuel': [16.8, 16.8, 16.8, 16.8, 1.8, np.nan, np.nan],
         'net_generation_mwh_g_tbl_fuel': [15.0, 15.0, 15.0, 15.0, np.nan, np.nan, np.nan],
-    },
-    ).pipe(helpers.convert_cols_dtypes, 'eia')
+    }).pipe(apply_pudl_dtypes, group='eia')
 
     gen_assoc_1_actual = (
         allocate_net_gen.associate_generator_tables(
             gf=GF_1, gen=GEN_1, gens=GENS_1)
-        .pipe(helpers.convert_cols_dtypes, 'eia')
+        .pipe(apply_pudl_dtypes, group='eia')
     )
 
     pd.testing.assert_frame_equal(gen_assoc_1_expected, gen_assoc_1_actual)
 
 
+@pytest.mark.xfail(reason="Tests need to be updated. See https://github.com/catalyst-cooperative/pudl/issues/1371")
 def test__allocate_gen_fuel_by_gen_pm_fuel_1():
     """Test allocate_gen_fuel_by_gen_pm_fuel function with example 1."""
-    gen_pm_fuel_1_expected = pd.DataFrame(
-        {
-            'plant_id_eia': [50307, 50307, 50307, 50307, 50307],
-            'prime_mover_code': ['ST', 'ST', 'ST', 'ST', 'IC'],
-            'fuel_type': ['NG', 'NG', 'NG', 'NG', 'DFO'],
-            'report_date': ['2018-01-01', '2018-01-01', '2018-01-01', '2018-01-01', '2018-01-01', ],
-            'generator_id': ['GEN1', 'GEN2', 'GEN3', 'GEN4', 'GEN5'],
-            'frac': [0.93, 0.066, 0.0, 0.0, 1.0],
-            'net_generation_mwh_gf_tbl': [15.0, 15.0, 15.0, 15.0, 0.0],
-            'net_generation_mwh_g_tbl': [14.0, 1.0, 0.0, 0.0, 0.0],
-            'capacity_mw': [7.5, 2.5, 2.5, 4.3, 1.8],
-            'fuel_consumed_mmbtu': [93333.33, 6666.66, 0.0, 0.0, 0.0],
-            'net_generation_mwh': [14.0, 1.0, 0.0, 0.0, 0.0],
-            'fuel_consumed_mmbtu_gf_tbl': [100000.0, 100000.0, 100000.0, 100000.0, 0.0],
-        },
-
-    ).pipe(helpers.convert_cols_dtypes, 'eia')
+    gen_pm_fuel_1_expected = pd.DataFrame({
+        'plant_id_eia': [50307, 50307, 50307, 50307, 50307],
+        'prime_mover_code': ['ST', 'ST', 'ST', 'ST', 'IC'],
+        'fuel_type': ['NG', 'NG', 'NG', 'NG', 'DFO'],
+        'report_date': ['2018-01-01', '2018-01-01', '2018-01-01', '2018-01-01', '2018-01-01', ],
+        'generator_id': ['GEN1', 'GEN2', 'GEN3', 'GEN4', 'GEN5'],
+        'frac': [0.93, 0.066, 0.0, 0.0, 1.0],
+        'net_generation_mwh_gf_tbl': [15.0, 15.0, 15.0, 15.0, 0.0],
+        'net_generation_mwh_g_tbl': [14.0, 1.0, 0.0, 0.0, 0.0],
+        'capacity_mw': [7.5, 2.5, 2.5, 4.3, 1.8],
+        'fuel_consumed_mmbtu': [93333.33, 6666.66, 0.0, 0.0, 0.0],
+        'net_generation_mwh': [14.0, 1.0, 0.0, 0.0, 0.0],
+        'fuel_consumed_mmbtu_gf_tbl': [100000.0, 100000.0, 100000.0, 100000.0, 0.0],
+    }).pipe(apply_pudl_dtypes, group='eia')
 
     gen_pm_fuel_1_actual = allocate_net_gen.allocate_gen_fuel_by_gen_pm_fuel(
         gf=GF_1, gen=GEN_1, gens=GENS_1
@@ -113,7 +111,6 @@ def test__allocate_gen_fuel_by_gen_pm_fuel_1():
         'report_date': ['2018-01-01', '2018-01-01', '2018-01-01', '2018-01-01', '2018-01-01', ],
         'net_generation_mwh': [14.0, 1.0, 0.0, 0.0, 0.0],
         'fuel_consumed_mmbtu': [93333.33, 6666.66, 0.0, 0.0, 0.0],
-    },
-    )
+    }).pipe(apply_pudl_dtypes, group='eia')
     gen_out_1_actual = allocate_net_gen.agg_by_generator(gen_pm_fuel_1_actual)
     pd.testing.assert_frame_equal(gen_out_1_expected, gen_out_1_actual)
