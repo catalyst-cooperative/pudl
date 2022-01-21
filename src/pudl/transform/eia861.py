@@ -801,7 +801,9 @@ def service_territory(tfr_dfs):
     # No data tidying required
     # There are a few NA values in the county column which get interpreted
     # as floats, which messes up the parsing of counties by addfips.
-    type_compatible_df = tfr_dfs["service_territory_eia861"].astype({"county": str})
+    type_compatible_df = (
+        tfr_dfs["service_territory_eia861"].astype({"county": "string"})
+    )
     # Transform values:
     # * Add state and county fips IDs
     transformed_df = (
