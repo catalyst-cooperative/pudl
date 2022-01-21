@@ -199,6 +199,12 @@ import pudl
 
 logger = logging.getLogger(__name__)
 
+# HALP: I need both of these setting set in order for the dfs in the docstrings
+# to pass the doctests. Without them the formatting get all jumbled.
+# but obviously this is the wrong place to do this.
+# I tried adding these into conftest.py in pandas_terminal_width().
+# I tried adding this into __init__.py.
+# I tried adding this into the module docstring.
 pd.options.display.width = 1000
 pd.options.display.max_columns = 1000
 
@@ -353,12 +359,6 @@ class MakeMegaGenTbl(object):
     **Output Mega Generators Table**
 
     The ouptut from this example plant will include two distinct
-
-    >>> pd.options.display.width = 1000
-    >>> pd.options.display.max_columns = 1000
-    >>> pd.options.display.max_rows = 1000
-    >>> pd.options.display.max_columns
-    1000
 
     >>> gens_mega = pd.DataFrame({
     ...     'generator_id': ['a', 'b', 'c', 'c', 'a', 'b', 'c', 'c',],
