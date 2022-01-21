@@ -189,7 +189,7 @@ OR make the table via objects in this module:
 import logging
 import warnings
 from copy import deepcopy
-from typing import Dict, List
+from typing import Dict, List, Literal
 
 import numpy as np
 import pandas as pd
@@ -330,59 +330,57 @@ class MakeMegaGenTbl(object):
 
     >>> mcoe = pd.DataFrame({
     ...     'plant_id_eia': [1, 1, 1],
+    ...     'report_date': ['2020-01-01', '2020-01-01','2020-01-01'],
     ...     'generator_id': ['a', 'b', 'c'],
+    ...     'utility_id_eia': [111, 111, 111],
     ...     'unit_id_pudl': [1, 1, 1],
     ...     'prime_mover_code': ['CT', 'CT', 'CA'],
     ...     'technology_description': [
     ...         'Natural Gas Fired Combined Cycle', 'Natural Gas Fired Combined Cycle', 'Natural Gas Fired Combined Cycle'
     ...     ],
-    ...     'operating_date': ['2000-01-01', '2000-01-01', '2000-01-01', ],
+    ...     'operational_status': ['existing', 'existing','existing'],
+    ...     'retirement_date': [pd.NA, pd.NA, pd.NA],
     ...     'capacity_mw': [50, 50, 100],
-    ... }).astype({'operating_date': "datetime64[ns]"})
+    ... }).astype({
+    ...     'retirement_date': "datetime64[ns]",
+    ...     'report_date': "datetime64[ns]",
+    ... })
     >>> mcoe
-        plant_id_eia 	generator_id 	unit_id_pudl 	prime_mover_code              technology_description 	operating_date 	capacity_mw
-    0 	           1 	           a 	           1 	              CT    Natural Gas Fired Combined Cycle 	    2000-01-01 	         50
-    1 	           1 	           b 	           1 	              CT    Natural Gas Fired Combined Cycle 	    2000-01-01 	         50
-    2 	           1 	           c 	           1 	              CA    Natural Gas Fired Combined Cycle 	    2000-01-01 	        100
+        plant_id_eia    report_date 	generator_id   utility_id_eia 	unit_id_pudl 	prime_mover_code              technology_description   operational_status  retirement_date 	capacity_mw
+    0 	           1     2020-01-01 	           a              111 	           1 	              CT    Natural Gas Fired Combined Cycle             existing               NaT 	         50
+    1 	           1     2020-01-01 	           b              111 	           1 	              CT    Natural Gas Fired Combined Cycle             existing               NaT 	         50
+    2 	           1     2020-01-01 	           c              111 	           1 	              CA    Natural Gas Fired Combined Cycle             existing               NaT 	        100
 
     The ownership table from EIA 860 includes one record for every owner of
     each generator. In this example generator ``c`` has two owners.
 
     >>> df_own_eia860 = pd.DataFrame({
     ...     'plant_id_eia': [1, 1, 1, 1],
+    ...     'report_date': ['2020-01-01', '2020-01-01','2020-01-01', '2020-01-01'],
     ...     'generator_id': ['a', 'b', 'c', 'c'],
     ...     'utility_id_eia': [111, 111, 111, 111],
     ...     'owner_utility_id_eia': [111, 111, 111, 888],
     ...     'fraction_owned': [1, 1, .75, .25]
-    ... })
+    ... }).astype({'report_date': "datetime64[ns]"})
+    >>> df_own_eia860
+        plant_id_eia 	report_date   generator_id 	utility_id_eia 	owner_utility_id_eia  fraction_owned
+    0 	           1 	 2020-01-01 	         a 	           111 	                 111 	        1.00
+    1 	           1 	 2020-01-01 	         b 	           111 	                 111 	        1.00
+    2 	           1 	 2020-01-01 	         c 	           111 	                 111 	        0.75
+    3 	           1 	 2020-01-01 	         c 	           111 	                 888 	        0.25
 
     **Output Mega Generators Table**
 
-    The ouptut from this example plant will include two distinct
-
-    >>> gens_mega = pd.DataFrame({
-    ...     'generator_id': ['a', 'b', 'c', 'c', 'a', 'b', 'c', 'c',],
-    ...     'ownership': [
-    ...         'total', 'total', 'total', 'total',
-    ...         'owned', 'owned', 'owned', 'owned',],
-    ...     'utility_id_eia': [111, 111, 111, 888, 111, 111, 111, 888],
-    ...     'fraction_owned': [
-    ...         1, 1, 1, 1,
-    ...         1, 1, .75, .25],
-    ...     'capacity_mw': [
-    ...         100, 100, 200, 200,
-    ...         100, 100, 150, 50],
-    ... })
-    >>> gens_mega
-        generator_id   ownership   utility_id_eia  fraction_owned  capacity_mw
-    0              a       total              111            1.00          100
-    1              b       total              111            1.00          100
-    2              c       total              111            1.00          200
-    3              c       total              888            1.00          200
-    4              a       owned              111            1.00          100
-    5              b       owned              111            1.00          100
-    6              c       owned              111            0.75          150
-    7              c       owned              888            0.25           50
+    >>> MakeMegaGenTbl().execute(mcoe, df_own_eia860, slice_cols=['capacity_mw'])
+        plant_id_eia    report_date   generator_id 	unit_id_pudl 	prime_mover_code 	          technology_description    operational_status 	retirement_date    capacity_mw 	ferc_acct_name 	operational_status_pudl 	capacity_eoy_mw 	fraction_owned 	utility_id_eia 	ownership
+    0         	   1 	 2020-01-01 	         a   	       1 	              CT 	Natural Gas Fired Combined Cycle 	  	      existing 	            NaT 	      50.0         	 Other 	              operating 	             50 	          1.00 	           111 	    owned
+    1         	   1 	 2020-01-01 	         b   	       1 	              CT 	Natural Gas Fired Combined Cycle 	  	      existing 	            NaT 	      50.0         	 Other 	              operating 	             50 	          1.00 	           111 	    owned
+    2         	   1 	 2020-01-01 	         c   	       1 	              CA 	Natural Gas Fired Combined Cycle 	  	      existing 	            NaT 	      75.0         	 Other 	              operating 	            100 	          0.75 	           111 	    owned
+    3         	   1 	 2020-01-01 	         c   	       1 	              CA 	Natural Gas Fired Combined Cycle 	  	      existing 	            NaT 	      25.0         	 Other 	              operating 	            100 	          0.25 	           888 	    owned
+    0         	   1 	 2020-01-01 	         a   	       1 	              CT 	Natural Gas Fired Combined Cycle 	  	      existing 	            NaT 	      50.0         	 Other 	              operating 	             50 	          1.00 	           111 	    total
+    1         	   1 	 2020-01-01 	         b   	       1 	              CT 	Natural Gas Fired Combined Cycle 	  	      existing 	            NaT 	      50.0         	 Other 	              operating 	             50 	          1.00 	           111 	    total
+    2         	   1 	 2020-01-01 	         c   	       1 	              CA 	Natural Gas Fired Combined Cycle 	  	      existing 	            NaT 	     100.0         	 Other 	              operating 	            100 	          1.00 	           111 	    total
+    3         	   1 	 2020-01-01 	         c   	       1 	              CA 	Natural Gas Fired Combined Cycle 	  	      existing 	            NaT 	     100.0         	 Other 	              operating 	            100 	          1.00 	           888 	    total
 
     This output table ``gens_mega`` includes two main sections: the
     generators with a "total" ownership stake for each of their owners and
@@ -395,7 +393,7 @@ class MakeMegaGenTbl(object):
     of each of the owner utilites - represented by ``fraction_owned``.
     """
 
-    def __init__(self, pudl_out):
+    def __init__(self):
         """
         Initialize object which creates a MEGA generator table.
 
@@ -408,16 +406,16 @@ class MakeMegaGenTbl(object):
         Raises:
             AssertionError: If the frequency of the pudl_out object is not 'AS'
         """
-        self.pudl_out = pudl_out
-        if self.pudl_out.freq != 'AS':
-            raise AssertionError(
-                "The frequency of the pudl_out object must be `AS` for the "
-                f"plant-parts table and we got {self.pudl_out.freq}"
-            )
+        # self.pudl_out = pudl_out
+        # if self.pudl_out.freq != 'AS':
+        #     raise AssertionError(
+        #         "The frequency of the pudl_out object must be `AS` for the "
+        #         f"plant-parts table and we got {self.pudl_out.freq}"
+        #     )
 
         self.id_cols_list = make_id_cols_list()
 
-    def execute(self):
+    def execute(self, mcoe, own_eia860, slice_cols=SUM_COLS):
         """
         Make the mega generators table with ownership integrated.
 
@@ -436,15 +434,13 @@ class MakeMegaGenTbl(object):
         logger.info('Generating the mega generator table with ownership.')
         # pull in the main tables we'll use from the pudl_out object
         # use the all_gens arg bc it merges in all of the possible generators
-        mcoe = self.pudl_out.mcoe(all_gens=True)
-        generation = self.pudl_out.gen_eia923()
-        own_eia860 = self.pudl_out.own_eia860()
+        # mcoe = self.pudl_out.mcoe(all_gens=True)
+        # own_eia860 = self.pudl_out.own_eia860()
 
         gens_mega = (
             self.get_gens_mega_table(mcoe)
             .pipe(self.label_operating_gens)
-            .pipe(self.ensure_table_has_required_columns, generation)
-            .pipe(self.slice_by_ownership, own_eia860)
+            .pipe(self.slice_by_ownership, own_eia860, slice_cols)
         )
         return gens_mega
 
@@ -470,8 +466,6 @@ class MakeMegaGenTbl(object):
                 validate='m:1',
                 how='left'
             )
-            .assign(installation_year=lambda x: x.operating_date.dt.year)
-            .astype({'installation_year': 'Int64'})
         )
         return all_gens
 
@@ -525,40 +519,7 @@ class MakeMegaGenTbl(object):
         )
         return gen_df
 
-    def ensure_table_has_required_columns(self, all_gens, generation):
-        """
-        Ensure the generators table has all the columns we need.
-
-        Check to see if the master gens table has all of the columns we want
-        extract columns from PLANT_PARTS + a few extra.
-        """
-        other_cols = [
-            'plant_name_eia',
-            'installation_year',
-            'utility_id_eia',
-            'fuel_type_code_pudl',
-            'operational_status',
-            'planned_retirement_date',
-            'retirement_date'
-        ]
-        all_cols = (
-            self.id_cols_list + SUM_COLS + list(WTAVG_DICT.keys()) + other_cols
-        )
-
-        missing = [c for c in all_cols if c not in all_gens]
-        if missing:
-            raise AssertionError(
-                f'The main generator table is missing {missing}'
-            )
-        # bb test to ensure that we are getting all of the possible records
-        # w/ net generation
-        assert (
-            len(generation[generation.net_generation_mwh.notnull()]) ==
-            len(all_gens[all_gens.net_generation_mwh.notnull()])
-        )
-        return all_gens[all_cols]
-
-    def slice_by_ownership(self, gens_mega, own_eia860):
+    def slice_by_ownership(self, gens_mega, own_eia860, slice_cols=SUM_COLS):
         """
         Generate proportional data by ownership %s.
 
@@ -622,8 +583,8 @@ class MakeMegaGenTbl(object):
             [gens_mega,
              gens_mega.copy().assign(fraction_owned=1, ownership='total')]
         )
-        gens_mega.loc[:, SUM_COLS] = (
-            gens_mega.loc[:, SUM_COLS]
+        gens_mega.loc[:, slice_cols] = (
+            gens_mega.loc[:, slice_cols]
             .multiply(gens_mega['fraction_owned'], axis='index')
         )
         return gens_mega
@@ -992,9 +953,9 @@ class MakePlantParts(object):
         #  aggreate everything by each plant part
         part_dfs = []
         for part_name in PLANT_PARTS_ORDERED:
+            part_df = PlantPart(part_name).execute(gens_mega)
             part_df = (
-                PlantPart(part_name,)
-                .execute(gens_mega, true_grans)
+                PartTrueGranLabeler(part_name).execute(part_df, true_grans)
             )
             # add in the attributes!
             for attribute_col in CONSISTENT_ATTRIBUTE_COLS:
@@ -1400,6 +1361,8 @@ class PlantPart(object):
         # we want to sort to have the most recent on top
         install = (
             gens_mega
+            .assign(installation_year=lambda x: x.operating_date.dt.year)
+            .astype({'installation_year': 'Int64'})
             [self.id_cols + IDX_TO_ADD + ['installation_year']]
             .sort_values('installation_year', ascending=False)
             .drop_duplicates(subset=self.id_cols, keep='first')
@@ -1412,49 +1375,6 @@ class PlantPart(object):
             f'count of install years for part: {len(install)} \n'
             f'post count of part DataFrame: {len(part_df)}'
         )
-        return part_df
-
-    def assign_true_gran(self, part_df, true_grans):
-        """
-        Merge the true granularity labels into the plant part df.
-
-        Args:
-            part_df (pandas.DataFrame)
-
-        """
-        # get only the columns you need for this part and drop duplicates
-        bool_df = (
-            true_grans[
-                self.id_cols + IDX_TO_ADD + IDX_OWN_TO_ADD +
-                [f'true_gran_{self.part_name}',
-                 f'appro_part_label_{self.part_name}',
-                 f'record_id_eia_{self.part_name}', ]
-            ]
-            .copy()
-            .drop_duplicates()
-        )
-
-        prop_true_len1 = len(
-            bool_df[bool_df[f'true_gran_{self.part_name}']]) / len(bool_df)
-        logger.debug(f'proportion of trues: {prop_true_len1:.02}')
-        logger.debug(f'number of records pre-merge:  {len(part_df)}')
-
-        part_df = (
-            part_df.merge(
-                bool_df,
-                on=self.id_cols + IDX_TO_ADD + IDX_OWN_TO_ADD,
-                how='left',
-            )
-            .rename(columns={
-                f'true_gran_{self.part_name}': 'true_gran',
-                f'appro_part_label_{self.part_name}': 'appro_part_label',
-                f'record_id_eia_{self.part_name}': 'appro_record_id_eia'
-            })
-        )
-
-        prop_true_len2 = len(part_df[part_df.true_gran]) / len(part_df)
-        logger.debug(f'proportion of trues: {prop_true_len2:.02}')
-        logger.debug(f'number of records post-merge: {len(part_df)}')
         return part_df
 
     def add_new_plant_name(self, part_df, gens_mega):
@@ -1502,6 +1422,57 @@ class PlantPart(object):
             part_df.groupby(group_cols, observed=True)
             ['record_id_eia'].transform("count")
         )
+        return part_df
+
+
+class PartTrueGranLabeler:
+    """Label a plant-part as a unique (or not) granularity."""
+
+    def __init__(self, part_name: Literal[PLANT_PARTS_ORDERED]):
+        """Initialize a true granularity labeler."""
+        self.part_name = part_name
+        self.id_cols = PLANT_PARTS[part_name]['id_cols']
+
+    def execute(self, part_df, true_grans):
+        """
+        Merge the true granularity labels into the plant part df.
+
+        Args:
+            part_df (pandas.DataFrame)
+
+        """
+        # get only the columns you need for this part and drop duplicates
+        bool_df = (
+            true_grans[
+                self.id_cols + IDX_TO_ADD + IDX_OWN_TO_ADD +
+                [f'true_gran_{self.part_name}',
+                 f'appro_part_label_{self.part_name}',
+                 f'record_id_eia_{self.part_name}', ]
+            ]
+            .drop_duplicates()
+        )
+
+        prop_true_len1 = len(
+            bool_df[bool_df[f'true_gran_{self.part_name}']]) / len(bool_df)
+        logger.debug(f'proportion of trues: {prop_true_len1:.02}')
+        logger.debug(f'number of records pre-merge:  {len(part_df)}')
+
+        part_df = (
+            part_df.merge(
+                bool_df,
+                on=self.id_cols + IDX_TO_ADD + IDX_OWN_TO_ADD,
+                how='left',
+            )
+            .rename(columns={
+                f'true_gran_{self.part_name}': 'true_gran',
+                f'appro_part_label_{self.part_name}': 'appro_part_label',
+                f'record_id_eia_{self.part_name}': 'appro_record_id_eia'
+            })
+        )
+
+        prop_true_len2 = len(part_df[part_df.true_gran]) / len(part_df)
+        logger.debug(f'proportion of trues: {prop_true_len2:.02}')
+        logger.debug(f'number of records post-merge: {len(part_df)}')
         return part_df
 
 
