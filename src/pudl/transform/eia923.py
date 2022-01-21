@@ -465,10 +465,13 @@ def _coalmine_cleanup(cmi_df):
         .assign(mine_type=lambda x: x.mine_type.map(COALMINE_TYPES_EIA))
         # No leading or trailing whitespace:
         .pipe(pudl.helpers.simplify_strings, columns=["mine_name"])
+        .pipe(pudl.helpers.add_fips_ids, county_col=None)
         .astype({"county_id_fips": pd.StringDtype()})
         .fillna({"mine_type": pd.NA})
         .astype({"mine_type": pd.StringDtype()})
     )
+    # join state and partial county FIPS into five digit county FIPS
+    cmi_df['county_id_fips'] = cmi_df['state_id_fips'] + cmi_df['county_id_fips']
     return cmi_df
 
 ###############################################################################
@@ -1063,6 +1066,7 @@ def fuel_receipts_costs(eia923_dfs, eia923_transformed_dfs):
                     'mine_type',
                     'state',
                     'county_id_fips',
+                    'state_id_fips',
                     'mine_name',
                     'regulated',
                     'reporting_frequency']
