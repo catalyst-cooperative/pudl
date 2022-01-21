@@ -17,7 +17,7 @@ from collections import defaultdict
 from functools import partial
 from importlib import resources
 from io import BytesIO
-from typing import Any, DefaultDict, Dict, List, Literal, Set, Union
+from typing import Any, DefaultDict, Dict, List, Literal, Optional, Set, Union
 
 import addfips
 import numpy as np
@@ -27,7 +27,7 @@ import sqlalchemy as sa
 
 from pudl import constants as pc
 from pudl.metadata.classes import Package
-from pudl.metadata.fields import get_pandas_dtypes
+from pudl.metadata.fields import apply_pudl_dtypes, get_pudl_dtypes
 
 logger = logging.getLogger(__name__)
 
@@ -398,7 +398,7 @@ def clean_merge_asof(
         raise ValueError(f"Left dataframe is missing {missing_right_cols}.")
 
     def cleanup(df, on, by):
-        df = df.astype(get_pudl_dtypes(cols=by, group="eia"))
+        df = apply_pudl_dtypes(df)
         df.loc[:, on] = pd.to_datetime(df[on])
         df = df.sort_values([on] + by)
         return df
@@ -411,12 +411,6 @@ def clean_merge_asof(
         by=by,
         tolerance=pd.Timedelta("365 days")  # Should never match across years.
     )
-
-
-def get_pudl_dtypes(cols: List[str], group: str) -> Dict[str, str]:
-    """Look up canonical PUDL data types for columns based on data sources."""
-    dtypes = get_pandas_dtypes(group=group)
-    return {col: dtypes[col] for col in cols}
 
 
 def organize_cols(df, cols):
@@ -897,7 +891,11 @@ def merge_dicts(list_of_dicts):
     return merge_dict
 
 
-def convert_cols_dtypes(df, data_source, name=None):
+def convert_cols_dtypes(
+    df: pd.DataFrame,
+    data_source: Optional[str] = None,
+    name: Optional[str] = None
+) -> pd.DataFrame:
     """
     Convert the data types for a dataframe.
 
@@ -920,65 +918,41 @@ def convert_cols_dtypes(df, data_source, name=None):
     direct conversion.
 
     Args:
-        df (pandas.DataFrame): dataframe with columns that appear in the PUDL
-            tables.
-        data_source (str): the name of the datasource (eia, ferc1, etc.)
-        name (str): name of the table (for logging only!)
+        df: dataframe with columns that appear in the PUDL tables.
+        data_source: the name of the datasource (eia, ferc1, etc.)
+        name: name of the table (for logging only!)
 
     Returns:
-        pandas.DataFrame: a dataframe with columns as specified by the
-        :mod:`pudl.constants` ``COLUMN_DTYPES`` dictionary.
+        Input dataframe, but with column types as specified by
+        :py:const:`pudl.metadata.fields.FIELD_METADATA`
 
     """
     # get me all of the columns for the table in the constants dtype dict
-    col_dtypes = {
+    dtypes = {
         col: dtype for col, dtype
-        in get_pandas_dtypes(group=data_source).items()
-        if col in list(df.columns)
+        in get_pudl_dtypes(group=data_source).items()
+        if col in df.columns
     }
 
     # grab only the boolean columns (we only need their names)
-    bool_cols = {
-        col: dtype for col, dtype
-        in col_dtypes.items()
-        if dtype == "boolean"
-    }
+    bool_cols = [col for col in dtypes if dtypes[col] == "boolean"]
     # grab all of the non boolean columns
-    non_bool_cols = {
-        col: dtype for col, dtype
-        in col_dtypes.items()
-        if dtype != "boolean"
-    }
+    non_bool_cols = {col: dtypes[col] for col in dtypes if col not in bool_cols}
     # Grab only the string columns...
-    string_cols = {
-        col: dtype for col, dtype
-        in col_dtypes.items()
-        if dtype == "string"
-    }
-
-    # If/when we have the columns exhaustively typed, we can do it like this,
-    # but right now we don't have the FERC columns done, so we can't:
-    # get me all of the columns for the table in the constants dtype dict
-    # col_types = {
-    #    col: pc.COLUMN_DTYPES[data_source][col] for col in df.columns
-    # }
-    # grab only the boolean columns (we only need their names)
-    # bool_cols = {col for col in col_types if col_types[col] is bool}
-    # grab all of the non boolean columns
-    # non_bool_cols = {
-    #    col: col_types[col] for col in col_types if col_types[col] is not bool
-    # }
+    string_cols = [col for col in dtypes if dtypes[col] == "string"]
 
     for col in bool_cols:
         # Bc the og bool values were sometimes coming across as actual bools or
         # strings, for some reason we need to map both types (I'm not sure
         # why!). We use na_action to preserve the og NaN's. I've also added in
         # the string version of a null value bc I am sure it will exist.
-        df[col] = df[col].map({'False': False,
-                               'True': True,
-                               False: False,
-                               True: True,
-                               'nan': pd.NA})
+        df[col] = df[col].map({
+            'False': False,
+            'True': True,
+            False: False,
+            True: True,
+            'nan': pd.NA
+        })
 
     if name:
         logger.debug(f'Converting the dtypes of: {name}')
@@ -994,7 +968,7 @@ def convert_cols_dtypes(df, data_source, name=None):
             df = df.astype({'utility_id_eia': 'float'})
     df = (
         df.astype(non_bool_cols)
-        .astype(bool_cols)
+        .astype({col: "boolean" for col in bool_cols})
         .replace(to_replace="nan", value={col: pd.NA for col in string_cols})
         .replace(to_replace="<NA>", value={col: pd.NA for col in string_cols})
     )
@@ -1013,21 +987,6 @@ def convert_cols_dtypes(df, data_source, name=None):
                 df.loc[:, col] = zero_pad_zips(df[col], 5)
 
     return df
-
-
-def convert_dfs_dict_dtypes(dfs_dict, data_source):
-    """Convert the data types of a dictionary of dataframes.
-
-    This is a wrapper for :func:`pudl.helpers.convert_cols_dtypes` which loops
-    over an entire dictionary of dataframes, assuming they are all from the
-    specified data source, and appropriately assigning data types to each
-    column based on the data source specific type map stored in pudl.constants
-
-    """
-    cleaned_dfs_dict = {}
-    for name, df in dfs_dict.items():
-        cleaned_dfs_dict[name] = convert_cols_dtypes(df, data_source, name)
-    return cleaned_dfs_dict
 
 
 def generate_rolling_avg(df, group_cols, data_col, window, **kwargs):

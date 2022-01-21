@@ -11,9 +11,11 @@ import pandas as pd
 
 import pudl
 from pudl.constants import PUDL_TABLES
+from pudl.helpers import convert_cols_dtypes
 from pudl.metadata.enums import (CUSTOMER_CLASSES, FUEL_CLASSES, NERC_REGIONS,
                                  RELIABILITY_STANDARDS, REVENUE_CLASSES,
                                  RTO_CLASSES, TECH_CLASSES)
+from pudl.metadata.fields import apply_pudl_dtypes
 from pudl.metadata.labels import ESTIMATED_OR_ACTUAL, MOMENTARY_INTERRUPTIONS
 
 logger = logging.getLogger(__name__)
@@ -240,16 +242,7 @@ BA_ID_NAME_FIXES = (
         "balancing_authority_name_eia",  # We have this
     ])
     .assign(report_date=lambda x: pd.to_datetime(x.report_date))
-    .astype(
-        pudl.helpers.get_pudl_dtypes(
-            cols=[
-                "utility_id_eia",
-                "balancing_authority_id_eia",
-                "balancing_authority_name_eia",
-            ],
-            group="eia",
-        )
-    )
+    .pipe(apply_pudl_dtypes, group="eia")
     .dropna(subset=["report_date", "balancing_authority_name_eia", "utility_id_eia"])
     .set_index(["report_date", "balancing_authority_name_eia", "utility_id_eia"])
 )
@@ -504,7 +497,7 @@ def _tidy_class_dfs(df, df_name, idx_cols, class_list, class_type, keep_totals=F
         )
     raw_df = (
         df.dropna(subset=["utility_id_eia"])
-        .astype(pudl.helpers.get_pudl_dtypes(cols=["utility_id_eia"], group="eia"))
+        .astype({"utility_id_eia": "Int64"})
         .set_index(idx_cols)
     )
     # Split the table into index, data, and "denormalized" columns for processing:
@@ -587,7 +580,7 @@ def _compare_totals(data_cols, idx_cols, class_type, df_name):
         df_name (str): The name of the dataframe.
     """
     # Convert column dtypes so that numeric cols can be adequately summed
-    data_cols = pudl.helpers.convert_cols_dtypes(data_cols, 'eia')
+    data_cols = pudl.helpers.convert_cols_dtypes(data_cols, data_source='eia')
     # Drop data cols that are non numeric (preserve primary keys)
     logger.debug(f'{idx_cols}, {class_type}')
     data_cols = (
@@ -808,7 +801,9 @@ def service_territory(tfr_dfs):
     # No data tidying required
     # There are a few NA values in the county column which get interpreted
     # as floats, which messes up the parsing of counties by addfips.
-    type_compatible_df = tfr_dfs["service_territory_eia861"].astype({"county": str})
+    type_compatible_df = (
+        tfr_dfs["service_territory_eia861"].astype({"county": "string"})
+    )
     # Transform values:
     # * Add state and county fips IDs
     transformed_df = (
@@ -849,7 +844,7 @@ def balancing_authority(tfr_dfs):
     # * Fix data entry errors
     df = (
         tfr_dfs["balancing_authority_eia861"]
-        .pipe(pudl.helpers.convert_cols_dtypes, "eia", "balancing_authority_eia861")
+        .pipe(apply_pudl_dtypes, "eia")
         .set_index(["report_date", "balancing_authority_name_eia", "utility_id_eia"])
     )
 
@@ -969,7 +964,7 @@ def balancing_authority_assn(tfr_dfs):
     tfr_dfs["balancing_authority_assn_eia861"] = (
         pd.concat([early_date_ba_util_state, late_date_ba_util_state])
         .dropna(subset=["balancing_authority_id_eia", ])
-        .astype(pudl.helpers.get_pudl_dtypes(cols=["utility_id_eia"], group="eia"))
+        .pipe(apply_pudl_dtypes, group="eia")
     )
     return tfr_dfs
 
@@ -2483,5 +2478,8 @@ def transform(raw_dfs, eia861_tables=PUDL_TABLES["eia861"]):
     tfr_dfs = balancing_authority_assn(tfr_dfs)
     tfr_dfs = utility_assn(tfr_dfs)
     tfr_dfs = normalize_balancing_authority(tfr_dfs)
-    tfr_dfs = pudl.helpers.convert_dfs_dict_dtypes(tfr_dfs, 'eia')
-    return tfr_dfs
+    # Do some final cleanup and assign types.
+    return {
+        name: convert_cols_dtypes(df, data_source="eia")
+        for name, df in tfr_dfs.items()
+    }

@@ -2,6 +2,7 @@
 import pandas as pd
 
 import pudl
+from pudl.metadata.fields import apply_pudl_dtypes
 
 
 def heat_rate_by_unit(pudl_out):
@@ -73,11 +74,7 @@ def heat_rate_by_unit(pudl_out):
         )
     )
 
-    return pudl.helpers.convert_cols_dtypes(
-        hr_by_unit,
-        data_source="eia",
-        name="hr_by_unit",
-    )
+    return apply_pudl_dtypes(hr_by_unit, group="eia")
 
 
 def heat_rate_by_gen(pudl_out):
@@ -164,11 +161,7 @@ def heat_rate_by_gen(pudl_out):
         by=["plant_id_eia", "generator_id"],
     )
 
-    return pudl.helpers.convert_cols_dtypes(
-        hr_by_gen,
-        data_source="eia",
-        name="hr_by_gen",
-    )
+    return apply_pudl_dtypes(hr_by_gen, group="eia")
 
 
 def fuel_cost(pudl_out):
@@ -328,11 +321,7 @@ def fuel_cost(pudl_out):
         .merge(fc, on=['report_date', 'plant_id_eia', 'generator_id'])
     )
 
-    return pudl.helpers.convert_cols_dtypes(
-        out_df,
-        data_source="eia",
-        name="fuel_cost",
-    )
+    return apply_pudl_dtypes(out_df, group="eia")
 
 
 def capacity_factor(pudl_out, min_cap_fact=0, max_cap_fact=1.5):
@@ -385,11 +374,7 @@ def capacity_factor(pudl_out, min_cap_fact=0, max_cap_fact=1.5):
         freq=pudl_out.freq
     )
 
-    return pudl.helpers.convert_cols_dtypes(
-        cf,
-        data_source="eia",
-        name="capacity_factor",
-    )
+    return apply_pudl_dtypes(cf, group="eia")
 
 
 def mcoe(
@@ -523,12 +508,7 @@ def mcoe(
             'generator_id',
             'report_date',
         ])
-        # Set column data types to canonical values:
-        .pipe(
-            pudl.helpers.convert_cols_dtypes,
-            data_source="eia",
-            name="mcoe",
-        )
+        .pipe(apply_pudl_dtypes, group="eia")
     )
 
     return mcoe_out
