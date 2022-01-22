@@ -284,7 +284,7 @@ def _lat_long(dirty_df, clean_df, entity_id_df, entity_id,
     ll_df = ll_df[ll_df[f'{col}_consistent']].drop_duplicates(subset=entity_id)
     logger.debug(f"Clean {col} records: {len(ll_df)}")
     # add the newly cleaned records
-    ll_clean_df = ll_clean_df.append(ll_df,)
+    ll_clean_df = pd.concat([ll_clean_df, ll_df])
     # merge onto the plants df w/ all plant ids
     ll_clean_df = entity_id_df.merge(ll_clean_df, how='outer')
     return ll_clean_df
@@ -354,7 +354,7 @@ def _add_additional_epacems_plants(plants_entity):
     # non-matching columns. It also requires an index, so we set and reset the
     # index as necessary. Also, it only works in-place, so we can't chain.
     plants_entity.update(cems_df, overwrite=True)
-    return plants_entity.append(cems_unmatched).reset_index()
+    return pd.concat([plants_entity, cems_unmatched]).reset_index()
 
 
 def _compile_all_entity_records(entity, eia_transformed_dfs):
@@ -602,10 +602,15 @@ def harvesting(entity,  # noqa: C901
                         f'Harvesting of {col} is too inconsistent at {ratio:.3}.')
         # add to a small df to be used in order to print out the ratio of
         # consistent records
-        consistency = consistency.append({'column': col,
-                                          'consistent_ratio': ratio,
-                                          'wrongos': wrongos,
-                                          'total': total}, ignore_index=True)
+        consistency = pd.concat([
+            consistency,
+            pd.DataFrame({
+                'column': [col],
+                'consistent_ratio': [ratio],
+                'wrongos': [wrongos],
+                'total': [total],
+            })], ignore_index=True
+        )
     mcs = consistency['consistent_ratio'].mean()
     logger.info(
         f"Average consistency of static {entity} values is {mcs:.2%}")
@@ -804,7 +809,7 @@ def _boiler_generator_assn(
     )
 
     bga_compiled_2 = (
-        bga_assn.append(bga_unassn)
+        pd.concat([bga_assn, bga_unassn])
         .fillna({'missing_from_923': True})
     )
 
@@ -832,7 +837,7 @@ def _boiler_generator_assn(
     bga_non_units = bga_compiled_2[bga_compiled_2['unit_id_eia'].isnull()]
 
     # combine the unit compilation and the non units
-    bga_compiled_3 = bga_non_units.append(bga_unit_compilation)
+    bga_compiled_3 = pd.concat([bga_non_units, bga_unit_compilation])
 
     bga_compiled_3 = bga_compiled_3[['plant_id_eia',
                                      'report_date',
@@ -935,7 +940,7 @@ def _boiler_generator_assn(
             nx.set_edge_attributes(
                 unit, name='unit_id_pudl', values=unit_id + 1)
             new_unit_df = nx.to_pandas_edgelist(unit)
-            bga_w_units = bga_w_units.append(new_unit_df)
+            bga_w_units = pd.concat([bga_w_units, new_unit_df])
 
     bga_w_units = bga_w_units.drop(['source', 'target'], axis=1)
 

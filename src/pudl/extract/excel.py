@@ -208,7 +208,7 @@ class GenericExtractor(object):
             if page in self.BLACKLISTED_PAGES:
                 logger.debug(f'Skipping blacklisted page {page}.')
                 continue
-            df = pd.DataFrame()
+            dfs = [pd.DataFrame(), ]
             for partition in pudl.helpers.iterate_multivalue_dict(**partitions):
                 # we are going to skip
                 if self.excel_filename(page, **partition) == '-1':
@@ -229,7 +229,8 @@ class GenericExtractor(object):
                 newdata = pudl.helpers.simplify_columns(newdata)
                 newdata = self.process_raw(newdata, page, **partition)
                 newdata = self.process_renamed(newdata, page, **partition)
-                df = df.append(newdata, sort=True, ignore_index=True)
+                dfs.append(newdata)
+            df = pd.concat(dfs, sort=True, ignore_index=True)
 
             # After all years are loaded, add empty columns that could appear
             # in other years so that df matches the database schema
