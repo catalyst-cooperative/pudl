@@ -490,10 +490,7 @@ def unpack_table(ferc1_df, table_name, data_cols, data_rows):
         rename_dict = {v: k for k, v in dict(row_map.loc[year, :]).items()}
         _ = rename_dict.pop(-1, None)
         df = ferc1_df.loc[ferc1_df.report_year == year].copy()
-        df.loc[:, "row_name"] = (
-            df.loc[:, "row_number"]
-            .replace(rename_dict, value=None)
-        )
+        df.loc[:, "row_name"] = df.loc[:, "row_number"].replace(rename_dict)
         # The concatenate according to row_name
         out_df = pd.concat([out_df, df], axis="index")
 
