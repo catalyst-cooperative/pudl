@@ -386,7 +386,7 @@ def fill_generator_technology_description(gens_df: pd.DataFrame) -> pd.DataFrame
         out_df
         .sort_values("report_date")
         .groupby(["plant_id_eia", "generator_id", "energy_source_code_1"])
-        .technology_description.backfill()
+        .technology_description.bfill()
     )
 
     # Fill in remaining missing technology_descriptions with unique correspondences

@@ -1010,7 +1010,7 @@ def _harvest_associations(dfs, cols):
     assn = pd.DataFrame()
     for df in dfs:
         if set(df.columns).issuperset(set(cols)):
-            assn = assn.append(df[cols])
+            assn = pd.concat([assn, df[cols]])
     assn = assn.dropna().drop_duplicates()
     if assn.empty:
         raise ValueError(
@@ -1555,47 +1555,45 @@ def distributed_generation(tfr_dfs):
     ###########################################################################
 
     # Separate datasets into years with only pct values (pre-2010) and years with only mw values (post-2010)
-    df_pre_2010_tech = raw_dg_tech[raw_dg_tech['report_date'] < '2010-01-01']
-    df_post_2010_tech = raw_dg_tech[raw_dg_tech['report_date'] >= '2010-01-01']
-    df_pre_2010_misc = raw_dg_misc[raw_dg_misc['report_date'] < '2010-01-01']
-    df_post_2010_misc = raw_dg_misc[raw_dg_misc['report_date'] >= '2010-01-01']
+    dg_tech_early = raw_dg_tech[raw_dg_tech['report_date'] < '2010-01-01']
+    dg_tech_late = raw_dg_tech[raw_dg_tech['report_date'] >= '2010-01-01']
+    dg_misc_early = raw_dg_misc[raw_dg_misc['report_date'] < '2010-01-01']
+    dg_misc_late = raw_dg_misc[raw_dg_misc['report_date'] >= '2010-01-01']
 
-    logger.info(
-        'Converting pct values into mw values for distributed generation misc table')
-    transformed_dg_misc = (
-        df_pre_2010_misc.assign(
-            distributed_generation_owned_capacity_mw=lambda x: _pct_to_mw(
-                x, 'distributed_generation_owned_capacity_pct'),
-            backup_capacity_mw=lambda x: _pct_to_mw(x, 'backup_capacity_pct'),
-        ).append(df_post_2010_misc)
-        .drop(['distributed_generation_owned_capacity_pct',
-               'backup_capacity_pct',
-               'total_capacity_mw'], axis=1)
+    logger.info('Converting pct to MW for distributed generation misc table')
+    dg_misc_early = dg_misc_early .assign(
+        distributed_generation_owned_capacity_mw=lambda x: _pct_to_mw(
+            x, 'distributed_generation_owned_capacity_pct'),
+        backup_capacity_mw=lambda x: _pct_to_mw(x, 'backup_capacity_pct'),
     )
+    dg_misc = pd.concat([dg_misc_early, dg_misc_late])
+    dg_misc = dg_misc.drop([
+        'distributed_generation_owned_capacity_pct',
+        'backup_capacity_pct',
+        'total_capacity_mw'
+    ], axis="columns")
 
-    logger.info(
-        'Converting pct values into mw values for distributed generation tech table')
-    transformed_dg_tech = (
-        df_pre_2010_tech.assign(
-            combustion_turbine_capacity_mw=lambda x: (
-                _pct_to_mw(x, 'combustion_turbine_capacity_pct')),
-            hydro_capacity_mw=lambda x: _pct_to_mw(x, 'hydro_capacity_pct'),
-            internal_combustion_capacity_mw=lambda x: (
-                _pct_to_mw(x, 'internal_combustion_capacity_pct')),
-            other_capacity_mw=lambda x: _pct_to_mw(x, 'other_capacity_pct'),
-            steam_capacity_mw=lambda x: _pct_to_mw(x, 'steam_capacity_pct'),
-            wind_capacity_mw=lambda x: _pct_to_mw(x, 'wind_capacity_pct'),
-        ).append(df_post_2010_tech)
-        .drop([
-            'combustion_turbine_capacity_pct',
-            'hydro_capacity_pct',
-            'internal_combustion_capacity_pct',
-            'other_capacity_pct',
-            'steam_capacity_pct',
-            'wind_capacity_pct',
-            'total_capacity_mw'], axis=1
-        )
+    logger.info('Converting pct into MW for distributed generation tech table')
+    dg_tech_early = dg_tech_early.assign(
+        combustion_turbine_capacity_mw=lambda x: (
+            _pct_to_mw(x, 'combustion_turbine_capacity_pct')),
+        hydro_capacity_mw=lambda x: _pct_to_mw(x, 'hydro_capacity_pct'),
+        internal_combustion_capacity_mw=lambda x: (
+            _pct_to_mw(x, 'internal_combustion_capacity_pct')),
+        other_capacity_mw=lambda x: _pct_to_mw(x, 'other_capacity_pct'),
+        steam_capacity_mw=lambda x: _pct_to_mw(x, 'steam_capacity_pct'),
+        wind_capacity_mw=lambda x: _pct_to_mw(x, 'wind_capacity_pct'),
     )
+    dg_tech = pd.concat([dg_tech_early, dg_tech_late])
+    dg_tech = dg_tech.drop([
+        'combustion_turbine_capacity_pct',
+        'hydro_capacity_pct',
+        'internal_combustion_capacity_pct',
+        'other_capacity_pct',
+        'steam_capacity_pct',
+        'wind_capacity_pct',
+        'total_capacity_mw'
+    ], axis="columns")
 
     ###########################################################################
     # Tidy Data
@@ -1603,7 +1601,7 @@ def distributed_generation(tfr_dfs):
 
     logger.info('Tidying Distributed Generation Tech Table')
     tidy_dg_tech, tech_idx_cols = _tidy_class_dfs(
-        df=transformed_dg_tech,
+        df=dg_tech,
         df_name='Distributed Generation Tech Component Capacity',
         idx_cols=idx_cols,
         class_list=TECH_CLASSES,
@@ -1624,7 +1622,7 @@ def distributed_generation(tfr_dfs):
 
     tfr_dfs["distributed_generation_tech_eia861"] = tidy_dg_tech
     tfr_dfs["distributed_generation_fuel_eia861"] = tidy_dg_fuel
-    tfr_dfs["distributed_generation_misc_eia861"] = transformed_dg_misc
+    tfr_dfs["distributed_generation_misc_eia861"] = dg_misc
 
     return tfr_dfs
 
