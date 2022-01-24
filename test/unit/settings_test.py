@@ -6,8 +6,7 @@ from pydantic import ValidationError
 
 from pudl.settings import (DatasetsSettings, Eia860Settings, Eia923Settings,
                            EiaSettings, EpaCemsSettings, Ferc1Settings,
-                           Ferc1ToSqliteSettings, GenericDatasetSettings,
-                           create_dataset_settings)
+                           Ferc1ToSqliteSettings, GenericDatasetSettings)
 
 
 class TestGenericDatasetSettings:
@@ -53,7 +52,7 @@ class TestFerc1Settings:
     def test_duplicate_sort_years(self):
         """Test years are sorted and deduplicated."""
         returned_settings = Ferc1Settings(years=[2001, 2001, 2000])
-        expected_years = [2000, 2001]
+        expected_years = (2000, 2001)
 
         assert expected_years == returned_settings.years
 
@@ -97,7 +96,7 @@ class TestEpaCemsSettings:
         """Test states are sorted and deduplicated."""
         returned_settings = EpaCemsSettings(
             states=["CA", "CA", "AL"])
-        expected_states = ["AL", "CA"]
+        expected_states = ("AL", "CA")
 
         assert expected_states == returned_settings.states
 
@@ -202,12 +201,3 @@ class TestGlobalConfig:
         with pytest.raises(TypeError):
             settings = EiaSettings()
             settings.eia860 = Eia860Settings()
-
-
-class TestCreateDatasetModel:
-    """Test create_dataset_model."""
-
-    def test_missing_dataset(self):
-        """Test a KeyError is raised when a use requests a unavailable dataset."""
-        with pytest.raises(KeyError):
-            create_dataset_settings("oops!")
