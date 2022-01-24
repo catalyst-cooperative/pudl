@@ -454,14 +454,16 @@ def _coalmine_cleanup(cmi_df: pd.DataFrame) -> pd.DataFrame:
             # integers or NA values, but for imported coal, there are both
             # 'IMP' and 'IM' string values.
             county_id_fips=lambda x: x.county_id_fips.replace(
-                '[a-zA-Z]+', value=np.nan, regex=True
+                '[a-zA-Z]+', value=pd.NA, regex=True
             )
         )
         # No leading or trailing whitespace:
         .pipe(pudl.helpers.simplify_strings, columns=["mine_name"])
-        .astype({"county_id_fips": float})
-        .astype({"county_id_fips": pd.Int64Dtype()})
+        .pipe(pudl.helpers.add_fips_ids, county_col=None)
+        .astype({"county_id_fips": pd.StringDtype()})
     )
+    # join state and partial county FIPS into five digit county FIPS
+    cmi_df['county_id_fips'] = cmi_df['state_id_fips'] + cmi_df['county_id_fips']
     cmi_df = (
         pudl.metadata.classes.Package.from_resource_ids()
         .get_resource("coalmine_eia923")
@@ -1061,6 +1063,7 @@ def fuel_receipts_costs(eia923_dfs, eia923_transformed_dfs):
                     'mine_type_code',
                     'state',
                     'county_id_fips',
+                    'state_id_fips',
                     'mine_name',
                     'regulated',
                     'reporting_frequency']
