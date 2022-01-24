@@ -120,11 +120,6 @@ class EpaCemsDatastore:
         """
         Convert a CEMS csv file into a :class:`pandas.DataFrame`.
 
-        Note that some columns are not read. See
-        :mod:`pudl.constants.epacems_columns_to_ignore`. Data types for the columns
-        are specified in :mod:`pudl.constants.epacems_csv_dtypes` and names of the
-        output columns are set by :mod:`pudl.constants.epacems_rename_dict`.
-
         Args:
             csv (file-like object): data to be read
 
