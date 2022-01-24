@@ -211,7 +211,7 @@ Once you have a PUDL DB containing **ALL OF AND ONLY THE EIA DATA** (including t
 year of data), and a cloned FERC 1 DB containing all years of available data, you can
 start associating the plant & utility entities that are reported in the two datasets.
 
-Refer to :doc:`pudl_id_mapping` for further instructions.
+Refer to the :doc:`pudl_id_mapping` page for further instructions.
 
 .. note::
 
