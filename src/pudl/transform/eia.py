@@ -28,6 +28,7 @@ import timezonefinder
 
 import pudl
 import pudl.constants as pc
+from pudl.metadata.fields import apply_pudl_dtypes, get_pudl_dtypes
 
 logger = logging.getLogger(__name__)
 
@@ -194,7 +195,7 @@ def _occurrence_consistency(entity_id, compiled_df, col,
     # select only the colums you want and drop the NaNs
     # we want to drop the NaNs because
     col_df = compiled_df[entity_id + ['report_date', col, 'table']].copy()
-    if pc.COLUMN_DTYPES["eia"][col] == pd.StringDtype():
+    if get_pudl_dtypes(group="eia")[col] == 'string':
         nan_str_mask = (col_df[col] == "nan").fillna(False)
         col_df.loc[nan_str_mask, col] = pd.NA
     col_df = col_df.dropna()
@@ -1021,7 +1022,7 @@ def _boiler_generator_assn(
             )
         )
 
-    bga_out = pudl.helpers.convert_cols_dtypes(bga_out, "eia")
+    bga_out = apply_pudl_dtypes(bga_out, group="eia")
     eia_transformed_dfs['boiler_generator_assn_eia860'] = bga_out
 
     return eia_transformed_dfs

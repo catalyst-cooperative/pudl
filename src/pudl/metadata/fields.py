@@ -1,10 +1,12 @@
 """Field metadata."""
-from typing import Any, Dict
+from copy import deepcopy
+from typing import Any, Dict, Optional
 
+import pandas as pd
 from pytz import all_timezones
 
 from .codes import CODE_METADATA
-from .constants import SOURCES
+from .constants import FIELD_DTYPES_PANDAS, SOURCES
 from .enums import (CANADA_PROVINCES_TERRITORIES, CUSTOMER_CLASSES,
                     EPACEMS_MEASUREMENT_CODES, EPACEMS_STATES, FUEL_CLASSES,
                     NERC_REGIONS, RELIABILITY_STANDARDS, REVENUE_CLASSES,
@@ -95,11 +97,12 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
         "description": "EIA short code identifying a balancing authority.",
     },
     "balancing_authority_id_eia": {
-        "type": "integer"
+        "type": "integer",
+        "description": "EIA balancing authority ID. This is often (but not always!) the same as the utility ID associated with the same legal entity.",
     },
     "balancing_authority_name_eia": {
         "type": "string",
-        "description": "The plant's balancing authority name."
+        "description": "Name of the balancing authority.",
     },
     "bga_source": {
         "type": "string",
@@ -113,7 +116,7 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
         "type": "string",
         "description": "Alphanumeric boiler ID.",
     },
-    "bunded_activity": {
+    "bundled_activity": {
         "type": "boolean"
     },
     "business_model": {
@@ -122,7 +125,7 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
             "enum": ["retail", "energy_services"]
         }
     },
-    "buy_distribution_activity": {
+    "buying_distribution_activity": {
         "type": "boolean"
     },
     "buying_transmission_activity": {
@@ -132,7 +135,7 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
         "type": "boolean",
         "description": "Can this generator operate while bypassing the heat recovery steam generator?"
     },
-    "caidi_w_major_event_dats_minutes": {
+    "caidi_w_major_event_days_minutes": {
         "type": "number"
     },
     "caidi_w_major_event_days_minus_loss_of_service_minutes": {
@@ -232,7 +235,7 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
         }
     },
     "construction_year": {
-        "type": "year",
+        "type": "integer",
         "description": "Year the plant's oldest still operational unit was built.",
     },
     "consumed_by_facility_mwh": {
@@ -278,7 +281,7 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
     },
     "county": {
         "type": "string",
-        "description": "The plant's county."
+        "description": "County name."
     },
     "county_id_fips": {
         "type": "string",
@@ -300,6 +303,7 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
     },
     "customer_class": {
         "type": "string",
+        "description": "High level categorization of customer type.",
         "constraints": {
             "enum": CUSTOMER_CLASSES
         }
@@ -317,13 +321,15 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
         "type": "number"
     },
     "customers": {
+        "description": "Number of customers.",
         "type": "number"
     },
     "daily_digital_access_customers": {
         "type": "integer"
     },
     "data_observed": {
-        "type": "boolean"
+        "type": "boolean",
+        "description": "Is the value observed (True) or imputed (False).",
     },
     "data_source": {
         "type": "string",
@@ -600,7 +606,7 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
     "exchange_energy_delivered_mwh": {
         "type": "number"
     },
-    "exchange_energy_recieved_mwh": {
+    "exchange_energy_received_mwh": {
         "type": "number"
     },
     "experimental_plant_acct103": {
@@ -905,7 +911,7 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
         "type": "number"
     },
     "installation_year": {
-        "type": "year",
+        "type": "integer",
         "description": "Year the plant's most recently built unit was installed.",
     },
     "intangible_acct301_organization": {
@@ -1611,7 +1617,7 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
         "type": "boolean",
         "description": "Indicates whether the generator was previously reported as indefinitely postponed or canceled"
     },
-    "price_responsive_programes": {
+    "price_responsive_programs": {
         "type": "boolean"
     },
     "price_responsiveness_customers": {
@@ -1663,7 +1669,7 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
         "type": "number",
         "description": "Reactive Power Output (MVAr)",
     },
-    "real_time_pricing_program": {
+    "real_time_pricing": {
         "type": "boolean"
     },
     "rec_revenue": {
@@ -1689,7 +1695,7 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
         "description": "Date reported."
     },
     "report_year": {
-        "type": "year",
+        "type": "integer",
         "description": "Four-digit year in which the data was reported."
     },
     "reported_as_another_company": {
@@ -1725,6 +1731,9 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
     "retirement_date": {
         "type": "date",
         "description": "Date of the scheduled or effected retirement of the generator."
+    },
+    "revenue": {
+        "type": "number"
     },
     "revenue_class": {
         "type": "string",
@@ -1774,7 +1783,7 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
             "enum": RTO_CLASSES
         }
     },
-    "saidi_w_major_event_dats_minus_loss_of_service_minutes": {
+    "saidi_w_major_event_days_minus_loss_of_service_minutes": {
         "type": "number"
     },
     "saidi_w_major_event_days_minutes": {
@@ -1799,9 +1808,11 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
         "type": "number"
     },
     "sales_mwh": {
+        "description": "Quantity of electricity sold in MWh.",
         "type": "number"
     },
     "sales_revenue": {
+        "description": "Revenue from electricity sold.",
         "type": "number"
     },
     "sales_to_ultimate_consumers_mwh": {
@@ -1884,6 +1895,7 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
     },
     "state_id_fips": {
         "type": "string",
+        "description": "Two digit state FIPS code.",
         # TODO: add pattern / length constraint.
     },
     "status": {
@@ -2001,7 +2013,7 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
         "type": "string",
         "description": "The minimum amount of time required to bring the unit to full load from shutdown."
     },
-    "time_of_use_pricing_program": {
+    "time_of_use_pricing": {
         "type": "boolean"
     },
     "time_responsive_programs": {
@@ -2197,7 +2209,7 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
         "type": "string",
         # TODO: Standardize with other zip codes and impose pattern constraint.
     },
-    "variable_peak_pricing_program": {
+    "variable_peak_pricing": {
         "type": "boolean"
     },
     "virtual_capacity_mw": {
@@ -2223,7 +2235,7 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
     "wheeled_power_delivered_mwh": {
         "type": "number"
     },
-    "wheeled_power_recieved_mwh": {
+    "wheeled_power_received_mwh": {
         "type": "number"
     },
     "wholesale_marketing_activity": {
@@ -2248,7 +2260,7 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
         "type": "number"
     },
     "year": {
-        "type": "year",
+        "type": "integer",
         "description": "Year associated with data, for partitioning EPA CEMS.",
     },
     "zip_code": {
@@ -2352,8 +2364,89 @@ FIELD_METADATA_BY_RESOURCE: Dict[str, Dict[str, Any]] = {
         "plant_type": {
             "type": "string",
             "constraints": {
-                "enum": ['steam', 'combustion_turbine', 'combined_cycle', 'nuclear', 'geothermal', 'internal_combustion', 'wind', 'photovoltaic', 'solar_thermal']
+                "enum": [
+                    'combined_cycle',
+                    'combustion_turbine',
+                    'geothermal',
+                    'internal_combustion',
+                    'nuclear',
+                    'photovoltaic',
+                    'solar_thermal',
+                    'steam',
+                    'wind',
+                ]
             }
         }
     }
 }
+
+
+def get_pudl_dtypes(
+    group: Optional[str] = None,
+    field_meta: Optional[Dict[str, Any]] = FIELD_METADATA,
+    field_meta_by_group: Optional[Dict[str, Any]] = FIELD_METADATA_BY_GROUP,
+    dtype_map: Optional[Dict[str, Any]] = FIELD_DTYPES_PANDAS,
+) -> Dict[str, Any]:
+    """
+    Compile a dictionary of field dtypes, applying group overrides.
+
+    Args:
+        group: The data group (e.g. ferc1, eia) to use for overriding the default
+            field types. If None, no overrides are applied and the default types
+            are used.
+        field_meta: Field metadata dictionary which at least describes a "type".
+        field_meta_by_group: Field metadata type overrides to apply based on the data
+            group that the field is part of, if any.
+        dtype_map: Mapping from canonical PUDL data types to some other set of data
+            types. Uses pandas data types by default.
+
+    Returns:
+        A mapping of PUDL field names to their associated data types.
+
+    """
+    field_meta = deepcopy(field_meta)
+    dtypes = {}
+    for f in field_meta:
+        if f in field_meta_by_group.get(group, []):
+            field_meta[f].update(field_meta_by_group[group][f])
+        dtypes[f] = dtype_map[field_meta[f]["type"]]
+
+    return dtypes
+
+
+def apply_pudl_dtypes(
+    df: pd.DataFrame,
+    group: Optional[str] = None,
+    field_meta: Optional[Dict[str, Any]] = FIELD_METADATA,
+    field_meta_by_group: Optional[Dict[str, Any]] = FIELD_METADATA_BY_GROUP,
+) -> pd.DataFrame:
+    """
+    Apply dtypes to those columns in a dataframe that have PUDL types defined.
+
+    Note at ad-hoc column dtypes can be defined and merged with default PUDL field
+    metadata before it's passed in as `field_meta` if you have module specific column
+    types you need to apply alongside the standard PUDL field types.
+
+    Args:
+        df: The dataframe to apply types to. Not all columns need to have types
+            defined in the PUDL metadata.
+        group: The data group to use for overrides, if any. E.g. "eia", "ferc1".
+        field_meta: A dictionary of field metadata, where each key is a field name
+            and the values are dictionaries which must have a "type" element. By
+            default this is pudl.metadata.fields.FIELD_METADATA.
+        field_meta_by_group: A dictionary of field metadata to use as overrides,
+            based on the value of `group`, if any. By default it uses the overrides
+            defined in pudl.metadata.fields.FIELD_METADATA_BY_GROUP.
+
+    Returns:
+        The input dataframe, but with standard PUDL types applied.
+
+    """
+    dtypes = get_pudl_dtypes(
+        group=group,
+        field_meta=field_meta,
+        field_meta_by_group=field_meta_by_group,
+        dtype_map=FIELD_DTYPES_PANDAS,
+    )
+
+    return df.astype({col: dtypes[col] for col in df.columns if col in dtypes})

@@ -8,7 +8,7 @@ import pandas as pd
 import pytz
 import sqlalchemy as sa
 
-import pudl
+from pudl.metadata.fields import apply_pudl_dtypes
 
 logger = logging.getLogger(__name__)
 ###############################################################################
@@ -236,10 +236,6 @@ def transform(epacems_raw_dfs, pudl_engine):
             .pipe(fix_up_dates, plant_utc_offset=plant_utc_offset)
             .pipe(add_facility_id_unit_id_epa)
             .pipe(correct_gross_load_mw)
-            .pipe(
-                pudl.helpers.convert_cols_dtypes,
-                "epacems",
-                "hourly_emissions_epacems"
-            )
+            .pipe(apply_pudl_dtypes, group="epacems")
         )
         yield transformed_df

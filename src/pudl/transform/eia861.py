@@ -11,9 +11,11 @@ import pandas as pd
 
 import pudl
 from pudl.constants import PUDL_TABLES
+from pudl.helpers import convert_cols_dtypes
 from pudl.metadata.enums import (CUSTOMER_CLASSES, FUEL_CLASSES, NERC_REGIONS,
                                  RELIABILITY_STANDARDS, REVENUE_CLASSES,
                                  RTO_CLASSES, TECH_CLASSES)
+from pudl.metadata.fields import apply_pudl_dtypes
 from pudl.metadata.labels import ESTIMATED_OR_ACTUAL, MOMENTARY_INTERRUPTIONS
 
 logger = logging.getLogger(__name__)
@@ -240,11 +242,7 @@ BA_ID_NAME_FIXES = (
         "balancing_authority_name_eia",  # We have this
     ])
     .assign(report_date=lambda x: pd.to_datetime(x.report_date))
-    .astype(pudl.helpers.get_pudl_dtypes({
-        "utility_id_eia": "eia",
-        "balancing_authority_id_eia": "eia",
-        "balancing_authority_name_eia": "eia",
-    }))
+    .pipe(apply_pudl_dtypes, group="eia")
     .dropna(subset=["report_date", "balancing_authority_name_eia", "utility_id_eia"])
     .set_index(["report_date", "balancing_authority_name_eia", "utility_id_eia"])
 )
@@ -499,7 +497,7 @@ def _tidy_class_dfs(df, df_name, idx_cols, class_list, class_type, keep_totals=F
         )
     raw_df = (
         df.dropna(subset=["utility_id_eia"])
-        .astype(pudl.helpers.get_pudl_dtypes({"utility_id_eia": "eia"}))
+        .astype({"utility_id_eia": "Int64"})
         .set_index(idx_cols)
     )
     # Split the table into index, data, and "denormalized" columns for processing:
@@ -582,7 +580,7 @@ def _compare_totals(data_cols, idx_cols, class_type, df_name):
         df_name (str): The name of the dataframe.
     """
     # Convert column dtypes so that numeric cols can be adequately summed
-    data_cols = pudl.helpers.convert_cols_dtypes(data_cols, 'eia')
+    data_cols = pudl.helpers.convert_cols_dtypes(data_cols, data_source='eia')
     # Drop data cols that are non numeric (preserve primary keys)
     logger.debug(f'{idx_cols}, {class_type}')
     data_cols = (
@@ -763,7 +761,12 @@ def _pct_to_mw(df, pct_col):
 
 def _make_yn_bool(df_object):
     """Turn Y/N reporting into True or False boolean statements for df or series."""
-    return df_object.replace({"N": False, "Y": True})
+    return df_object.replace({
+        "Y": True,
+        "y": True,
+        "N": False,
+        "n": False,
+    })
 
 
 def _thousand_to_one(df_object):
@@ -798,8 +801,9 @@ def service_territory(tfr_dfs):
     # No data tidying required
     # There are a few NA values in the county column which get interpreted
     # as floats, which messes up the parsing of counties by addfips.
-    type_compatible_df = tfr_dfs["service_territory_eia861"].astype({
-                                                                    "county": str})
+    type_compatible_df = (
+        tfr_dfs["service_territory_eia861"].astype({"county": "string"})
+    )
     # Transform values:
     # * Add state and county fips IDs
     transformed_df = (
@@ -810,6 +814,7 @@ def service_territory(tfr_dfs):
         # Add FIPS IDs based on county & state names:
         .pipe(pudl.helpers.add_fips_ids)
     )
+    transformed_df["short_form"] = _make_yn_bool(transformed_df.short_form)
     tfr_dfs["service_territory_eia861"] = transformed_df
     return tfr_dfs
 
@@ -839,7 +844,7 @@ def balancing_authority(tfr_dfs):
     # * Fix data entry errors
     df = (
         tfr_dfs["balancing_authority_eia861"]
-        .pipe(pudl.helpers.convert_cols_dtypes, "eia", "balancing_authority_eia861")
+        .pipe(apply_pudl_dtypes, "eia")
         .set_index(["report_date", "balancing_authority_name_eia", "utility_id_eia"])
     )
 
@@ -959,7 +964,7 @@ def balancing_authority_assn(tfr_dfs):
     tfr_dfs["balancing_authority_assn_eia861"] = (
         pd.concat([early_date_ba_util_state, late_date_ba_util_state])
         .dropna(subset=["balancing_authority_id_eia", ])
-        .astype(pudl.helpers.get_pudl_dtypes({"utility_id_eia": "eia"}))
+        .pipe(apply_pudl_dtypes, group="eia")
     )
     return tfr_dfs
 
@@ -1136,6 +1141,7 @@ def sales(tfr_dfs):
                 "D": "energy_services",
             }),
             service_type=lambda x: x.service_type.str.lower(),
+            short_form=lambda x: _make_yn_bool(x.short_form),
         )
     )
 
@@ -1182,6 +1188,8 @@ def advanced_metering_infrastructure(tfr_dfs):
         class_type='customer_class',
     )
 
+    tidy_ami["short_form"] = _make_yn_bool(tidy_ami.short_form)
+
     # No duplicates to speak of but take measures to check just in case
     _check_for_dupes(tidy_ami, 'Advanced Metering Infrastructure', idx_cols)
 
@@ -1223,6 +1231,7 @@ def demand_response(tfr_dfs):
     raw_dr['balancing_authority_code_eia'] = (
         raw_dr['balancing_authority_code_eia'].fillna('UNK')
     )
+    raw_dr["short_form"] = _make_yn_bool(raw_dr.short_form)
 
     # Split data into tidy-able and not
     raw_dr_water_heater = raw_dr[idx_cols + ['water_heater']].copy()
@@ -1641,6 +1650,7 @@ def distribution_systems(tfr_dfs):
     raw_ds = (
         tfr_dfs['distribution_systems_eia861'].copy()
     )
+    raw_ds["short_form"] = _make_yn_bool(raw_ds.short_form)
 
     # No duplicates to speak of but take measures to check just in case
     _check_for_dupes(
@@ -1690,6 +1700,7 @@ def dynamic_pricing(tfr_dfs):
         tfr_dfs["dynamic_pricing_eia861"].copy()
         .query("utility_id_eia not in [88888]")
     )
+    raw_dp["short_form"] = _make_yn_bool(raw_dp.short_form)
 
     ###########################################################################
     # Tidy Data:
@@ -1750,6 +1761,8 @@ def energy_efficiency(tfr_dfs):
     ]
 
     raw_ee = tfr_dfs["energy_efficiency_eia861"].copy()
+
+    raw_ee["short_form"] = _make_yn_bool(raw_ee.short_form)
 
     # No duplicates to speak of but take measures to check just in case
     _check_for_dupes(raw_ee, 'Energy Efficiency', idx_cols)
@@ -1914,6 +1927,7 @@ def net_metering(tfr_dfs):
         tfr_dfs["net_metering_eia861"].copy()
         .query("utility_id_eia not in [99999]")
     )
+    raw_nm["short_form"] = _make_yn_bool(raw_nm.short_form)
 
     # Separate customer class data from misc data (in this case just one col: current flow)
     # Could easily add this to tech_class if desired.
@@ -2122,7 +2136,10 @@ def operational_data(tfr_dfs):
         .assign(
             data_observed=lambda x: x.data_observed.replace({
                 "O": True,
-                "I": False}))
+                "I": False
+            }),
+            short_form=lambda x: _make_yn_bool(x.short_form)
+        )
     )
 
     # Split data into 2 tables:
@@ -2223,7 +2240,8 @@ def reliability(tfr_dfs):
     transformed_r = (
         tidy_r.assign(
             outages_recorded_automatically=lambda x: (
-                _make_yn_bool(x.outages_recorded_automatically.str.upper())),
+                _make_yn_bool(x.outages_recorded_automatically)
+            ),
             inactive_accounts_included=lambda x: (
                 _make_yn_bool(x.inactive_accounts_included)
             ),
@@ -2231,7 +2249,8 @@ def reliability(tfr_dfs):
             # This field should be encoded using momentary_interruptions_eia
             # But the EIA 861 tables aren't fully integrated yet.
             momentary_interruption_definition=lambda x: (
-                x.momentary_interruption_definition.map(MOMENTARY_INTERRUPTIONS))
+                x.momentary_interruption_definition.map(MOMENTARY_INTERRUPTIONS)
+            )
         )
     )
 
@@ -2286,7 +2305,10 @@ def utility_data(tfr_dfs):
     # * Clean NERC region col
     ##############################################################################
 
-    transformed_ud = _clean_nerc(raw_ud, idx_cols)
+    transformed_ud = (
+        _clean_nerc(raw_ud, idx_cols)
+        .assign(short_form=lambda x: _make_yn_bool(x.short_form))
+    )
 
     # Establish columns that are nerc regions vs. rtos
     nerc_cols = [col for col in raw_ud if 'nerc_region_operation' in col]
@@ -2456,5 +2478,8 @@ def transform(raw_dfs, eia861_tables=PUDL_TABLES["eia861"]):
     tfr_dfs = balancing_authority_assn(tfr_dfs)
     tfr_dfs = utility_assn(tfr_dfs)
     tfr_dfs = normalize_balancing_authority(tfr_dfs)
-    tfr_dfs = pudl.helpers.convert_dfs_dict_dtypes(tfr_dfs, 'eia')
-    return tfr_dfs
+    # Do some final cleanup and assign types.
+    return {
+        name: convert_cols_dtypes(df, data_source="eia")
+        for name, df in tfr_dfs.items()
+    }

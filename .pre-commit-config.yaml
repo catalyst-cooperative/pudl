@@ -24,7 +24,7 @@ repos:
 
 # Attempt to enforce standardized PEP8 style formatting:
 - repo: https://github.com/pre-commit/mirrors-autopep8
-  rev: v1.5.7
+  rev: v1.6.0
   hooks:
   - id: autopep8
     exclude: ^docs/conf.py$
@@ -35,7 +35,7 @@ repos:
 
 # Make sure import statements are sorted uniformly.
 - repo: https://github.com/pre-commit/mirrors-isort
-  rev: v5.9.3
+  rev: v5.10.1
   hooks:
   - id: isort
 

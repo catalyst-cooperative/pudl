@@ -9,6 +9,7 @@ import requests
 import sqlalchemy as sa
 
 import pudl
+from pudl.metadata.fields import apply_pudl_dtypes
 
 logger = logging.getLogger(__name__)
 
@@ -144,25 +145,13 @@ def generation_fuel_eia923(pudl_engine, freq=None,
         pudl.helpers.clean_merge_asof(
             left=gf_df,
             right=pu_eia,
-            by={"plant_id_eia": "eia"}
+            by=["plant_id_eia"],
         )
         # Drop any records where we've failed to get the 860 data merged in...
-        .dropna(subset=[
-            'plant_id_eia',
-            'utility_id_eia',
-        ])
+        .dropna(subset=['plant_id_eia', 'utility_id_eia'])
         .pipe(pudl.helpers.organize_cols, first_cols)
-        .astype(pudl.helpers.get_pudl_dtypes({
-            "plant_id_eia": "eia",
-            "plant_id_pudl": "eia",
-            "utility_id_eia": "eia",
-            "utility_id_pudl": "eia",
-        }))
+        .pipe(apply_pudl_dtypes, group="eia")
     )
-    if nuclear:
-        out_df = out_df.astype(
-            pudl.helpers.get_pudl_dtypes({"nuclear_unit_id": "eia"})
-        )
 
     return out_df
 
@@ -253,18 +242,14 @@ def fuel_receipts_costs_eia923(pudl_engine, freq=None,
         frc_select = frc_select.where(
             frc_tbl.c.report_date <= end_date)
 
-    frc_df = pd.read_sql(frc_select, pudl_engine)
-
     frc_df = (
-        frc_df.merge(cmi_df, how='left', on='mine_id_pudl')
+        pd.read_sql(frc_select, pudl_engine)
+        .merge(cmi_df, how='left', on='mine_id_pudl')
         .rename(columns={"state": "mine_state"})
+        .drop(['mine_id_pudl'], axis=1)
+        .pipe(apply_pudl_dtypes, group="eia")
+        .rename(columns={'county_id_fips': 'coalmine_county_id_fips'})
     )
-
-    cols_to_drop = ['mine_id_pudl']
-    frc_df = frc_df.drop(cols_to_drop, axis=1)
-    frc_df = pudl.helpers.convert_cols_dtypes(frc_df, data_source='eia')
-    # disambiguate that county fips applies only to mines not plants
-    frc_df = frc_df.rename(columns={'county_id_fips': 'coalmine_county_id_fips'})
 
     if fill:
         logger.info('filling in fuel cost NaNs EIA APIs monthly state averages')
@@ -382,7 +367,7 @@ def fuel_receipts_costs_eia923(pudl_engine, freq=None,
         pudl.helpers.clean_merge_asof(
             left=frc_df,
             right=pu_eia,
-            by={"plant_id_eia": "eia"}
+            by=["plant_id_eia"],
         )
         .dropna(subset=['utility_id_eia'])
         .pipe(
@@ -397,12 +382,7 @@ def fuel_receipts_costs_eia923(pudl_engine, freq=None,
                 'utility_name_eia',
             ]
         )
-        .astype(pudl.helpers.get_pudl_dtypes({
-            "plant_id_eia": "eia",
-            "plant_id_pudl": "eia",
-            "utility_id_eia": "eia",
-            "utility_id_pudl": "eia",
-        }))
+        .pipe(apply_pudl_dtypes, group="eia")
     )
 
     if freq is None:
@@ -513,7 +493,7 @@ def boiler_fuel_eia923(pudl_engine, freq=None,
         pudl.helpers.clean_merge_asof(
             left=bf_df,
             right=pu_eia,
-            by={"plant_id_eia": "eia"},
+            by=["plant_id_eia"],
         )
         .dropna(subset=['plant_id_eia', 'utility_id_eia', 'boiler_id'])
     )
@@ -531,10 +511,7 @@ def boiler_fuel_eia923(pudl_engine, freq=None,
     out_df = pudl.helpers.clean_merge_asof(
         left=out_df,
         right=bga_boilers,
-        by={
-            "plant_id_eia": "eia",
-            "boiler_id": "eia",
-        }
+        by=["plant_id_eia", "boiler_id"],
     )
     out_df = pudl.helpers.organize_cols(
         out_df,
@@ -549,13 +526,7 @@ def boiler_fuel_eia923(pudl_engine, freq=None,
             'boiler_id',
             'unit_id_pudl',
         ]
-    ).astype(pudl.helpers.get_pudl_dtypes({
-        'plant_id_eia': "eia",
-        'plant_id_pudl': "eia",
-        'unit_id_pudl': "eia",
-        'utility_id_eia': "eia",
-        'utility_id_pudl': "eia",
-    }))
+    ).pipe(apply_pudl_dtypes, group="eia")
 
     return out_df
 
@@ -644,7 +615,7 @@ def denorm_generation_eia923(g_df, pudl_engine, start_date, end_date):
         pudl.helpers.clean_merge_asof(
             left=g_df,
             right=pu_eia,
-            by={"plant_id_eia": "eia"}
+            by=["plant_id_eia"],
         )
         .dropna(subset=['plant_id_eia', 'utility_id_eia', 'generator_id'])
     )
@@ -662,10 +633,7 @@ def denorm_generation_eia923(g_df, pudl_engine, start_date, end_date):
     out_df = pudl.helpers.clean_merge_asof(
         left=out_df,
         right=bga_gens,
-        by={
-            "plant_id_eia": "eia",
-            "generator_id": "eia",
-        }
+        by=["plant_id_eia", "generator_id"],
     )
     out_df = (
         out_df.pipe(pudl.helpers.organize_cols, cols=[
@@ -678,12 +646,7 @@ def denorm_generation_eia923(g_df, pudl_engine, start_date, end_date):
             'utility_name_eia',
             'generator_id',
         ])
-        .astype(pudl.helpers.get_pudl_dtypes({
-            "plant_id_eia": "eia",
-            "plant_id_pudl": "eia",
-            "utility_id_eia": "eia",
-            "utility_id_pudl": "eia",
-        }))
+        .pipe(apply_pudl_dtypes, group="eia")
     )
     return out_df
 
