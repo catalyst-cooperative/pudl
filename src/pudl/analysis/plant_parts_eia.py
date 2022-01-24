@@ -193,7 +193,6 @@ from typing import Dict, List, Literal
 
 import numpy as np
 import pandas as pd
-import pytest
 
 import pudl
 
@@ -968,8 +967,8 @@ class MakePlantParts(object):
             .pipe(pudl.helpers.organize_cols, FIRST_COLS)
             .pipe(self._clean_plant_parts)
         )
-        self.test_ownership_for_owned_records(self.plant_parts_eia)
-        test_run_aggregations(self.plant_parts_eia, gens_mega)
+        self.validate_ownership_for_owned_records(self.plant_parts_eia)
+        validate_run_aggregations(self.plant_parts_eia, gens_mega)
         return self.plant_parts_eia
 
     #######################################
@@ -1043,7 +1042,7 @@ class MakePlantParts(object):
     # Testing Methods
     #################
 
-    def test_ownership_for_owned_records(self, plant_parts_eia):
+    def validate_ownership_for_owned_records(self, plant_parts_eia):
         """
         Test ownership - fraction owned for owned records.
 
@@ -1157,7 +1156,7 @@ class PlantPart(object):
     You may notice that the outputs for the ``plant_prime_mover`` and
     ``plant_gen`` are similar records - because they both correspond to the
     same set of underlying generators. These are the types of records that are
-    identified via :mod:``LabelTrueGranularities``.
+    identified via :mod:`LabelTrueGranularities`.
 
     The above examples exclude the duplication of input records based on
     ownership.
@@ -1642,7 +1641,7 @@ class AddPriorityAttribute(AddAttribute):
 #################
 
 
-def test_run_aggregations(plant_parts_eia, gens_mega):
+def validate_run_aggregations(plant_parts_eia, gens_mega):
     """
     Run a test of the aggregated columns.
 
@@ -1804,10 +1803,3 @@ def assign_record_id_eia(test_df, plant_part_col='plant_part'):
         )
     test_df_ids = pd.concat(dfs)
     return test_df_ids
-
-
-@pytest.fixture(autouse=True, scope='session')
-def pandas_terminal_width():
-    """Set pandas displays for doctests."""
-    pd.options.display.width = 1000
-    pd.options.display.max_columns = 1000
