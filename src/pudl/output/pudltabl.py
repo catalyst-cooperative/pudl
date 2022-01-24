@@ -1016,10 +1016,21 @@ class PudlTabl(object):
             MW). The "total" records correspond to the full plant for every
             owner (e.g. using the same 2-owner 100 MW generator as above, each
             owner will have a records with 100 MW).
+
+        Raises:
+            AssertionError: If the frequency of the pudl_out object is not 'AS'
         """
         if update or self._dfs['gens_mega_eia'] is None:
+            if self.freq != 'AS':
+                raise AssertionError(
+                    "The frequency of the pudl_out object must be `AS` for the "
+                    f"plant-parts table and we got {self.freq}"
+                )
             self._dfs['gens_mega_eia'] = (
-                pudl.analysis.plant_parts_eia.MakeMegaGenTbl(self).execute()
+                pudl.analysis.plant_parts_eia.MakeMegaGenTbl().execute(
+                    mcoe=self.mcoe(all_gens=True),
+                    own_eia860=self.own_eia860()
+                )
             )
         return self._dfs['gens_mega_eia']
 

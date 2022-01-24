@@ -178,7 +178,7 @@ OR make the table via objects in this module:
 
 .. code-block:: python
 
-    gens_mega = MakeMegaGenTbl(pudl_out).execute()
+    gens_mega = MakeMegaGenTbl().execute(mcoe, own_eia860)
     true_grans = LabelTrueGranularities().execute(gens_mega)
     parts_compiler = MakePlantParts(pudl_out)
     plant_parts_eia = parts_compiler.execute(gens_mega=gens_mega, true_grans=true_grans)
@@ -399,43 +399,37 @@ class MakeMegaGenTbl(object):
 
         The coordinating function here is :meth:`execute`.
 
-        Args:
-            pudl_out (pudl.output.pudltabl.PudlTabl): An object used to create
-                the tables for EIA and FERC Form 1 analysis.
-
-        Raises:
-            AssertionError: If the frequency of the pudl_out object is not 'AS'
         """
-        # self.pudl_out = pudl_out
-        # if self.pudl_out.freq != 'AS':
-        #     raise AssertionError(
-        #         "The frequency of the pudl_out object must be `AS` for the "
-        #         f"plant-parts table and we got {self.pudl_out.freq}"
-        #     )
-
         self.id_cols_list = make_id_cols_list()
 
-    def execute(self, mcoe, own_eia860, slice_cols=SUM_COLS):
+    def execute(
+            self,
+            mcoe: pd.DataFrame,
+            own_eia860: pd.DataFrame,
+            slice_cols: List[str] = SUM_COLS
+    ) -> pd.DataFrame:
         """
         Make the mega generators table with ownership integrated.
 
+        Args:
+            mcoe: generator-based mcoe table from :meth:`pudl.output.PudlTabl.mcoe()`
+            own_eia860: ownership table from :meth:`pudl.output.PudlTabl.own_eia860()`
+            slice_cols: list of columns to slice by ownership fraction in
+                :meth:`MakeMegaGenTbl.slice_by_ownership`. Default is :py:const:`SUM_COLS`
+
         Returns:
-            pandas.DataFrame: a table of all of the generators with identifying
-            columns and data columns, sliced by ownership which makes
-            "total" and "owned" records for each generator owner. The "owned"
-            records have the generator's data scaled to the ownership percentage
-            (e.g. if a 200 MW generator has a 75% stake owner and a 25% stake
-            owner, this will result in two "owned" records with 150 MW and 50
-            MW). The "total" records correspond to the full plant for every
-            owner (e.g. using the same 2-owner 200 MW generator as above, each
-            owner will have a records with 200 MW).
+            a table of all of the generators with identifying columns and data
+            columns, sliced by ownership which makes "total" and "owned"
+            records for each generator owner. The "owned" records have the
+            generator's data scaled to the ownership percentage (e.g. if a 200
+            MW generator has a 75% stake owner and a 25% stake owner, this will
+            result in two "owned" records with 150 MW and 50 MW). The "total"
+            records correspond to the full plant for every owner (e.g. using
+            the same 2-owner 200 MW generator as above, each owner will have a
+            records with 200 MW).
 
         """
         logger.info('Generating the mega generator table with ownership.')
-        # pull in the main tables we'll use from the pudl_out object
-        # use the all_gens arg bc it merges in all of the possible generators
-        # mcoe = self.pudl_out.mcoe(all_gens=True)
-        # own_eia860 = self.pudl_out.own_eia860()
 
         gens_mega = (
             self.get_gens_mega_table(mcoe)
@@ -446,7 +440,7 @@ class MakeMegaGenTbl(object):
 
     def get_gens_mega_table(self, mcoe):
         """
-        Compile the main generators table that will be used as base of MUL.
+        Compile the main generators table that will be used as base of PPL.
 
         Get a table of all of the generators there ever were and all of the
         data PUDL has to offer about those generators. This generator table
@@ -507,8 +501,6 @@ class MakeMegaGenTbl(object):
             gen_df.loc[:, "operational_status"]
             .mask(operating_mask, "operating")
         )
-
-        # gen_df.loc[~existing_mask, 'capacity_eoy_mw'] = 0
         gen_df.loc[:, 'capacity_eoy_mw'] = (
             gen_df.loc[:, 'capacity_mw'].mask(~existing_mask, 0)
         )
@@ -1106,71 +1098,61 @@ class PlantPart(object):
 
     **Examples**
 
-    If we have a plant with four generators that looks like this:
+    Below are some examples of how the main processing step in this class
+    operates: :meth:`PlantPart.ag_part_by_own_slice`. If we have a plant with
+    four generators that looks like this:
 
     >>> gens_mega = pd.DataFrame({
     ...     'plant_id_eia': [1, 1, 1, 1],
+    ...     'report_date': ['2020-01-01', '2020-01-01', '2020-01-01', '2020-01-01',],
+    ...     'utility_id_eia': [111, 111, 111, 111],
     ...     'generator_id': ['a', 'b', 'c', 'd'],
     ...     'prime_mover_code': ['ST', 'GT', 'CT', 'CA'],
     ...     'energy_source_code_1': ['BIT', 'NG', 'NG', 'NG'],
-    ...     'capacity_mw': [400, 50, 125, 75]
+    ...     'ownership': ['total', 'total', 'total', 'total',],
+    ...     'operational_status_pudl': ['operating', 'operating', 'operating', 'operating'],
+    ...     'capacity_mw': [400, 50, 125, 75],
+    ... }).astype({
+    ...     'report_date': 'datetime64[ns]',
     ... })
     >>> gens_mega
-        plant_id_eia 	generator_id 	prime_mover_code 	energy_source_code_1    capacity_mw
-    0 	           1               a                  ST                     BIT            400
-    1 	           1               b                  GT                      NG             50
-    2 	           1               c                  CT                      NG            125
-    3 	           1               d                  CA                      NG             75
+        plant_id_eia   report_date 	utility_id_eia 	generator_id 	prime_mover_code 	energy_source_code_1 	ownership 	operational_status_pudl 	capacity_mw
+    0 	           1    2020-01-01 	           111 	           a 	              ST 	                 BIT 	    total 	              operating 	        400
+    1 	           1    2020-01-01 	           111 	           b 	              GT 	                  NG 	    total 	              operating 	         50
+    2 	           1    2020-01-01 	           111 	           c 	              CT 	                  NG 	    total 	              operating 	        125
+    3 	           1    2020-01-01 	           111 	           d 	              CA 	                  NG 	    total 	              operating 	         75
 
     The ``plant`` output would look something like this:
 
-    >>> plant = pd.DataFrame({
-    ...     'plant_id_eia': [1],
-    ...     'capacity_mw': [600]
-    ... })
-    >>> plant
-        plant_id_eia 	capacity_mw
-    0 	           1            600
+    >>> # the only data cols we are testing here is capacity_mw
+    >>> PlantPart(part_name='plant').ag_part_by_own_slice(gens_mega, sum_cols=['capacity_mw'], wtavg_dict={})
+        plant_id_eia    report_date    operational_status_pudl    utility_id_eia    ownership    capacity_mw
+    0 	           1 	 2020-01-01 	             operating 	             111 	    total 	       650.0
 
     The ``plant_primary_fuel`` output would look something like this:
 
-    >>> plant_fuel = pd.DataFrame({
-    ...     'plant_id_eia': [1, 1],
-    ...     'energy_source_code_1': ['BIT', 'NG'],
-    ...     'capacity_mw': [400, 200]
-    ... })
-    >>> plant_fuel
-        plant_id_eia    energy_source_code_1 	capacity_mw
-    0 	           1                     BIT            400
-    1 	           1                      NG            200
+    >>> PlantPart(part_name='plant_prime_fuel').ag_part_by_own_slice(gens_mega, sum_cols=['capacity_mw'], wtavg_dict={})
+        plant_id_eia 	energy_source_code_1 	report_date 	operational_status_pudl 	utility_id_eia 	ownership 	capacity_mw
+    0 	           1 	                 BIT 	 2020-01-01 	              operating 	           111 	    total 	      400.0
+    1 	           1 	                  NG 	 2020-01-01 	              operating 	           111 	    total 	      250.0
 
     The ``plant_prime_mover`` output would look something like this:
 
-    >>> plant_prime_mover = pd.DataFrame({
-    ...     'plant_id_eia': [1, 1, 1, 1],
-    ...     'prime_mover_code': ['ST', 'GT', 'CT', 'CA'],
-    ...     'capacity_mw': [400, 50, 125, 75]
-    ... })
-    >>> plant_prime_mover
-        plant_id_eia 	prime_mover_code    capacity_mw
-    0 	           1                  ST            400
-    1 	           1                  GT             50
-    2 	           1                  CT            125
-    3 	           1                  CA             75
+    >>> PlantPart(part_name='plant_prime_mover').ag_part_by_own_slice(gens_mega, sum_cols=['capacity_mw'], wtavg_dict={})
+        plant_id_eia 	prime_mover_code 	report_date 	operational_status_pudl 	utility_id_eia 	ownership 	capacity_mw
+    0 	           1 	              CA 	 2020-01-01 	              operating 	           111 	    total 	       75.0
+    1 	           1 	              CT 	 2020-01-01 	              operating 	           111 	    total 	      125.0
+    2 	           1 	              GT 	 2020-01-01 	              operating 	           111 	    total 	       50.0
+    3 	           1 	              ST 	 2020-01-01 	              operating 	           111 	    total 	      400.0
 
     The ``plant_gen`` output would look something like this:
 
-    >>> plant_gen = pd.DataFrame({
-    ...     'plant_id_eia': [1, 1, 1, 1],
-    ...     'prime_mover_code': ['a', 'b', 'c', 'd'],
-    ...     'capacity_mw': [400, 50, 125, 75]
-    ... })
-    >>> plant_gen
-        plant_id_eia   prime_mover_code    capacity_mw
-    0 	           1                  a            400
-    1 	           1                  b             50
-    2 	           1                  c            125
-    3 	           1                  d             75
+    >>> PlantPart(part_name='plant_gen').ag_part_by_own_slice(gens_mega, sum_cols=['capacity_mw'], wtavg_dict={})
+        plant_id_eia 	generator_id 	report_date 	operational_status_pudl 	utility_id_eia 	ownership 	capacity_mw
+    0 	           1 	           a 	 2020-01-01 	              operating 	           111 	    total 	      400.0
+    1 	           1 	           b 	 2020-01-01 	              operating 	           111 	    total 	       50.0
+    2 	           1 	           c 	 2020-01-01 	              operating 	           111 	    total 	      125.0
+    3 	           1 	           d 	 2020-01-01 	              operating 	           111 	    total 	       75.0
 
     You may notice that the outputs for the ``plant_prime_mover`` and
     ``plant_gen`` are similar records - because they both correspond to the
@@ -1178,7 +1160,6 @@ class PlantPart(object):
     identified via :mod:``LabelTrueGranularities``.
 
     The above examples exclude the duplication of input records based on
-    ownership. The following example is a paired down example to explain
     ownership.
 
     """
@@ -1195,7 +1176,12 @@ class PlantPart(object):
         self.part_name = part_name
         self.id_cols = PLANT_PARTS[part_name]['id_cols']
 
-    def execute(self, gens_mega, true_grans):
+    def execute(
+        self,
+        gens_mega: pd.DataFrame,
+        sum_cols: List[str] = SUM_COLS,
+        wtavg_dict: Dict = WTAVG_DICT
+    ) -> pd.DataFrame:
         """
         Get a table of data aggregated by a specific plant-part.
 
@@ -1205,15 +1191,18 @@ class PlantPart(object):
         and the records are labeled as true or false granularities.
 
         Returns:
-            pandas.DataFrame
+            a table with records that have been aggregated to a plant-part.
 
         """
         part_df = (
-            self.ag_part_by_own_slice(gens_mega)
+            self.ag_part_by_own_slice(
+                gens_mega,
+                sum_cols=sum_cols,
+                wtavg_dict=wtavg_dict
+            )
             .pipe(self.ag_fraction_owned)
             .assign(plant_part=self.part_name)
             .pipe(self.add_install_year, gens_mega)
-            .pipe(self.assign_true_gran, true_grans)
             .pipe(  # add standard record id w/ year
                 add_record_id,
                 id_cols=self.id_cols,
@@ -1231,7 +1220,12 @@ class PlantPart(object):
         )
         return part_df
 
-    def ag_part_by_own_slice(self, gens_mega):
+    def ag_part_by_own_slice(
+        self,
+        gens_mega,
+        sum_cols=SUM_COLS,
+        wtavg_dict=WTAVG_DICT,
+    ) -> pd.DataFrame:
         """
         Aggregate the plant part by seperating ownership types.
 
@@ -1263,8 +1257,8 @@ class PlantPart(object):
         part_own = pudl.helpers.sum_and_weighted_average_agg(
             df_in=part_own,
             by=self.id_cols + IDX_TO_ADD + IDX_OWN_TO_ADD,
-            sum_cols=SUM_COLS,
-            wtavg_dict=WTAVG_DICT
+            sum_cols=sum_cols,
+            wtavg_dict=wtavg_dict
         )
 
         # we want a "total" record for each of the utilities that own any slice
@@ -1284,12 +1278,12 @@ class PlantPart(object):
             pudl.helpers.sum_and_weighted_average_agg(
                 df_in=part_tot_no_utils,
                 by=self.id_cols + IDX_TO_ADD,
-                sum_cols=SUM_COLS,
-                wtavg_dict=WTAVG_DICT
+                sum_cols=sum_cols,
+                wtavg_dict=wtavg_dict
             )
             .pipe(pudl.helpers.convert_cols_dtypes, 'eia')
             .merge(
-                part_tot[self.id_cols + IDX_TO_ADD + IDX_OWN_TO_ADD],
+                part_tot[self.id_cols + IDX_TO_ADD + IDX_OWN_TO_ADD].drop_duplicates(),
                 on=self.id_cols + IDX_TO_ADD,
                 how='left',
                 validate='1:m'
@@ -1320,8 +1314,6 @@ class PlantPart(object):
 
         Args:
             part_ag (pandas.DataFrame):
-            id_cols (list): list of identifying columns (stored as:
-                ``PLANT_PARTS[part_name]['id_cols']``)
         """
         # we must first get the total capacity of the full plant
         # Note: we could simply not include the ownership == "total" records
@@ -1356,7 +1348,12 @@ class PlantPart(object):
         return part_frac
 
     def add_install_year(self, part_df, gens_mega):
-        """Add the install year from the entities table to your plant part."""
+        """
+        Add the install year from the entities table to your plant part.
+
+        TODO: This should be converted into an AddAttribute...  an
+        AddSortedAttribute or something like that.
+        """
         logger.debug(f'pre count of part DataFrame: {len(part_df)}')
         # we want to sort to have the most recent on top
         install = (
