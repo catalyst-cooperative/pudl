@@ -25,8 +25,10 @@ import sqlalchemy as sa
 
 import pudl
 from pudl import constants as pc
+from pudl.helpers import convert_cols_dtypes
 from pudl.metadata.codes import CODE_METADATA
 from pudl.metadata.dfs import FERC_ACCOUNTS, FERC_DEPRECIATION_LINES
+from pudl.metadata.fields import apply_pudl_dtypes
 from pudl.settings import (EiaSettings, EpaCemsSettings, EtlSettings,
                            Ferc1Settings, GlueSettings)
 from pudl.workspace.datastore import Datastore
@@ -114,9 +116,11 @@ def _etl_eia(
     eia_transformed_dfs = eia860_transformed_dfs.copy()
     eia_transformed_dfs.update(eia923_transformed_dfs.copy())
 
-    # convert types..
-    eia_transformed_dfs = pudl.helpers.convert_dfs_dict_dtypes(
-        eia_transformed_dfs, 'eia')
+    # Do some final cleanup and assign appropriate types:
+    eia_transformed_dfs = {
+        name: convert_cols_dtypes(df, data_source="eia")
+        for name, df in eia_transformed_dfs.items()
+    }
 
     entities_dfs, eia_transformed_dfs = pudl.transform.eia.transform(
         eia_transformed_dfs,
@@ -124,8 +128,12 @@ def _etl_eia(
         eia923_years=eia923_years,
         eia860m=eia860m,
     )
-    # convert types..
-    entities_dfs = pudl.helpers.convert_dfs_dict_dtypes(entities_dfs, 'eia')
+    # Assign appropriate types to new entity tables:
+    entities_dfs = {
+        name: apply_pudl_dtypes(df, group="eia")
+        for name, df in entities_dfs.items()
+    }
+
     for table in entities_dfs:
         entities_dfs[table] = (
             pudl.metadata.classes.Package.from_resource_ids()

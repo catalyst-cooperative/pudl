@@ -11,7 +11,6 @@ import warnings
 
 import pandas as pd
 
-from pudl import constants as pc
 from pudl.extract import excel
 from pudl.helpers import fix_leading_zero_gen_ids
 
@@ -59,4 +58,5 @@ class Extractor(excel.GenericExtractor):
         return {
             "Plant ID": pd.Int64Dtype(),
             "Plant Id": pd.Int64Dtype(),
-            "zip_code": pc.COLUMN_DTYPES['eia']['zip_code']}
+            "zip_code": pd.StringDtype(),
+        }

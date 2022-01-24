@@ -2,6 +2,7 @@
 import pandas as pd
 
 import pudl
+from pudl.metadata.fields import apply_pudl_dtypes
 
 
 def heat_rate_by_unit(pudl_out):
@@ -73,11 +74,7 @@ def heat_rate_by_unit(pudl_out):
         )
     )
 
-    return pudl.helpers.convert_cols_dtypes(
-        hr_by_unit,
-        data_source="eia",
-        name="hr_by_unit",
-    )
+    return apply_pudl_dtypes(hr_by_unit, group="eia")
 
 
 def heat_rate_by_gen(pudl_out):
@@ -161,17 +158,10 @@ def heat_rate_by_gen(pudl_out):
             'fuel_type_code_pudl',
             'fuel_type_count'
         ]],
-        by={
-            "plant_id_eia": "eia",
-            "generator_id": "eia",
-        }
+        by=["plant_id_eia", "generator_id"],
     )
 
-    return pudl.helpers.convert_cols_dtypes(
-        hr_by_gen,
-        data_source="eia",
-        name="hr_by_gen",
-    )
+    return apply_pudl_dtypes(hr_by_gen, group="eia")
 
 
 def fuel_cost(pudl_out):
@@ -239,10 +229,7 @@ def fuel_cost(pudl_out):
     gen_w_ft = pudl.helpers.clean_merge_asof(
         left=hr_by_gen,
         right=gens,
-        by={
-            "plant_id_eia": "eia",
-            "generator_id": "eia",
-        }
+        by=["plant_id_eia", "generator_id"],
     )
 
     one_fuel = gen_w_ft[gen_w_ft.fuel_type_count == 1]
@@ -334,11 +321,7 @@ def fuel_cost(pudl_out):
         .merge(fc, on=['report_date', 'plant_id_eia', 'generator_id'])
     )
 
-    return pudl.helpers.convert_cols_dtypes(
-        out_df,
-        data_source="eia",
-        name="fuel_cost",
-    )
+    return apply_pudl_dtypes(out_df, group="eia")
 
 
 def capacity_factor(pudl_out, min_cap_fact=0, max_cap_fact=1.5):
@@ -385,10 +368,7 @@ def capacity_factor(pudl_out, min_cap_fact=0, max_cap_fact=1.5):
     cf = pudl.helpers.clean_merge_asof(
         left=gen,
         right=gens_eia860,
-        by={
-            "plant_id_eia": "eia",
-            "generator_id": "eia",
-        }
+        by=["plant_id_eia", "generator_id"],
     )
 
     # get a unique set of dates to generate the number of hours
@@ -418,11 +398,7 @@ def capacity_factor(pudl_out, min_cap_fact=0, max_cap_fact=1.5):
         .drop(['hours'], axis=1)
     )
 
-    return pudl.helpers.convert_cols_dtypes(
-        cf,
-        data_source="eia",
-        name="capacity_factor",
-    )
+    return apply_pudl_dtypes(cf, group="eia")
 
 
 def mcoe(
@@ -556,12 +532,7 @@ def mcoe(
             'generator_id',
             'report_date',
         ])
-        # Set column data types to canonical values:
-        .pipe(
-            pudl.helpers.convert_cols_dtypes,
-            data_source="eia",
-            name="mcoe",
-        )
+        .pipe(apply_pudl_dtypes, group="eia")
     )
 
     return mcoe_out
