@@ -45,7 +45,7 @@ setup(
         "matplotlib~=3.0",  # Should make this optional with a "viz" extras
         "networkx>=2.2,<3",
         "numpy>=1.18.5,<2",
-        "pandas>=1.3,!=1.3.3,<1.4",  # IntCastingNaNError on v1.3.3 in unit tests
+        "pandas>=1.3,!=1.3.3,<1.5",  # IntCastingNaNError on v1.3.3 in unit tests
         "prefect[viz, gcp]~=0.15.0",
         "pyarrow>=5,<7",
         "pydantic[email]~=1.7",
