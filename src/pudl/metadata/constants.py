@@ -123,6 +123,45 @@ SOURCES: Dict[str, Dict[str, str]] = {
 Source attributes by PUDL identifier.
 """
 
+SOURCE_DESCRIPTIONS: Dict[str, Dict[str, str]] = {
+    "eia860": "US Energy Information Administration (EIA) Form 860 data for electric power "
+    "plants with 1 megawatt or greater combined nameplate capacity.",
+    "eia860m": "US Energy Information Administration (EIA) Form 860 M data for "
+    "electric power plants with 1 megawatt or greater combined nameplate "
+    "capacity. Preliminary Monthly Electric Generator Inventory (based on "
+    "Form EIA-860M as a supplement to Form EIA-860)",
+    "eia861": "EIA Form 861 Annual Electric Power Industry Report, detailed data "
+    "files.",
+    "eia923": "The EIA Form 923 collects detailed monthly and annual "
+    "electric power data on electricity generation, fuel "
+    "consumption, fossil fuel stocks, and receipts at the power plant "
+    "and prime mover level.",
+    "epacems": "US EPA hourly Continuous Emissions Monitoring System "
+    "(CEMS) data, archived from "
+    "ftp://newftp.epa.gov/dmdnload/emissions/hourly/monthly",
+    "ferc1": "The Federal Energy Regulatory Commission (FERC) Form 1 is a comprehensive "
+    "financial and operating report submitted annually for electric rate "
+    "regulation, market oversight analysis, and financial audits by Major "
+    "electric utilities, licensees and others.",
+    "ferc714": "Electric transmitting utilities operating balancing authority areas and "
+    "planning areas with annual peak demand over 200MW are required to "
+    "file Form 714 with the Federal Energy Regulatory Commission (FERC), "
+    "reporting balancing authority area generation, actual and scheduled "
+    "inter-balancing authority area power transfers, and net energy for "
+    "load, summer-winter generation peaks and system lambda.",
+    "epaipm": "EPA National Electric Energy Data System data, archived "
+    "from https://www.epa.gov/airmarkets/"
+    "national-electric-energy-data-system-needs-v6",
+    "ferc2": "The Federal Energy Regulatory Commission (FERC) Form 2 is a "
+    "comprehensive financial and operating report submitted for "
+    "natural gas pipelines rate regulation and financial audits.",
+    "censusdp1tract": "US Census Demographic Profile 1 (DP1) County and Tract "
+    "GeoDatabase.",
+}
+"""
+Source descriptions by PUDL identifier.
+"""
+
 CONTRIBUTORS: Dict[str, Dict[str, str]] = {
     "catalyst-cooperative": {
         "title": "Catalyst Cooperative",
