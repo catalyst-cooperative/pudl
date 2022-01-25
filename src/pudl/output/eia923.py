@@ -248,6 +248,7 @@ def fuel_receipts_costs_eia923(pudl_engine, freq=None,
         .rename(columns={"state": "mine_state"})
         .drop(['mine_id_pudl'], axis=1)
         .pipe(apply_pudl_dtypes, group="eia")
+        .rename(columns={'county_id_fips': 'coalmine_county_id_fips'})
     )
 
     if fill:

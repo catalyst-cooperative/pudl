@@ -285,8 +285,10 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
     },
     "county_id_fips": {
         "type": "string",
-        "description": "County ID from the Federal Information Processing Standard Publication 6-4."
-        # TODO: Add pattern & length constraint.
+        "description": "County ID from the Federal Information Processing Standard Publication 6-4.",
+        "constraints": {
+            "pattern": r'^\d{5}$',
+        }
     },
     "credits_or_adjustments": {
         "type": "number"
@@ -1019,10 +1021,18 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
     "merge_zip_4": {
         "type": "string"
         # TODO Standardize with other zip codes and apply pattern constraint
+        # See: https://github.com/catalyst-cooperative/pudl/issues/550
+        # "constraints": {
+        #    "pattern": r'^\d{4}$',
+        # }
     },
     "merge_zip_5": {
         "type": "string"
         # TODO Standardize with other zip codes and apply pattern constraint
+        # See: https://github.com/catalyst-cooperative/pudl/issues/550
+        # "constraints": {
+        #    "pattern": r'^\d{5}$',
+        # }
     },
     "min_fuel_mmbtu_per_unit": {
         "type": "number",
@@ -1461,8 +1471,12 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
     },
     "owner_zip_code": {
         "type": "string",
-        "description": "Zip code of owner."
+        "description": "Zip code of owner.",
         # TODO Standardize with other zip codes and apply pattern constraint
+        # See: https://github.com/catalyst-cooperative/pudl/issues/550
+        # "constraints": {
+        #    "pattern": r'^\d{5}$',
+        # }
     },
     "ownership_code": {
         "type": "string",
@@ -1896,7 +1910,9 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
     "state_id_fips": {
         "type": "string",
         "description": "Two digit state FIPS code.",
-        # TODO: add pattern / length constraint.
+        "constraints": {
+            "pattern": r'^\d{2}$',
+        }
     },
     "status": {
         "type": "string"
@@ -2208,6 +2224,10 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
     "utility_zip_ext": {
         "type": "string",
         # TODO: Standardize with other zip codes and impose pattern constraint.
+        # See: https://github.com/catalyst-cooperative/pudl/issues/550
+        # "constraints": {
+        #    "pattern": r'^\d{4}$',
+        # }
     },
     "variable_peak_pricing": {
         "type": "boolean"
@@ -2265,13 +2285,21 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
     },
     "zip_code": {
         "type": "string",
-        "description": "Five digit US Zip Code."
+        "description": "Five digit US Zip Code.",
         # TODO Standardize with other zip codes and apply pattern constraint
+        # See: https://github.com/catalyst-cooperative/pudl/issues/550
+        # "constraints": {
+        #     "pattern": r'^\d{5}$',
+        # }
     },
     "zip_code_4": {
         "type": "string",
-        "description": "Four digit US Zip Code suffix."
+        "description": "Four digit US Zip Code suffix.",
         # TODO Standardize with other zip codes and apply pattern constraint
+        # See: https://github.com/catalyst-cooperative/pudl/issues/550
+        # "constraints": {
+        #     "pattern": r'^\d{4}$',
+        # }
     }
 }
 """

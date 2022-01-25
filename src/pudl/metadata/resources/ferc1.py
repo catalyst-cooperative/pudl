@@ -379,7 +379,7 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
         "sources": ["ferc1"],
     },
     "utilities_ferc1": {
-        "description": "This table maps the manually assigned PUDL utility ID to a FERC respondent ID, enabling a connection between the FERC and EIA data sets. It also stores the utility name associated with the FERC respondent ID. Those values originate in the f1_respondent_id table in FERC's FoxPro database, which is stored in a file called F1_1.DBF. This table is generated from a spreadsheet stored in the PUDL repository: results/id_mapping/mapping_eia923_ferc1.xlsx",
+        "description": "This table maps the manually assigned PUDL utility ID to a FERC respondent ID, enabling a connection between the FERC and EIA data sets. It also stores the utility name associated with the FERC respondent ID. Those values originate in the f1_respondent_id table in FERC's FoxPro database, which is stored in a file called F1_1.DBF. This table is generated from a spreadsheet stored in the PUDL repository: src/package_data/glue/pudl_id_mapping.xlsx",
         "schema": {
             "fields": ["utility_id_ferc1", "utility_name_ferc1", "utility_id_pudl"],
             "primary_key": ["utility_id_ferc1"],
