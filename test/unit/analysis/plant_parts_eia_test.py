@@ -4,15 +4,41 @@ import pandas as pd
 import pudl.analysis.plant_parts_eia
 
 
-class PudlTablFake:
-    """Fake PudlTabl class."""
+def test_plant_part():
+    """Test the plant aggregation of the plant-part part list."""
+    gens_mega = pd.DataFrame({
+        'plant_id_eia': [1, 1, 1, 1],
+        'report_date': ['2020-01-01', '2020-01-01', '2020-01-01', '2020-01-01'],
+        'utility_id_eia': [111, 111, 111, 111],
+        'generator_id': ['a', 'b', 'c', 'd'],
+        'prime_mover_code': ['ST', 'GT', 'CT', 'CA'],
+        'energy_source_code_1': ['BIT', 'NG', 'NG', 'NG'],
+        'ownership': ['total', 'total', 'total', 'total', ],
+        'operational_status_pudl': ['operating', 'operating', 'operating', 'operating'],
+        'capacity_mw': [400, 50, 125, 75],
+    }).astype({'report_date': 'datetime64[ns]'})
 
-    freq = 'AS'
+    part_df_plant_out = (
+        pudl.analysis.plant_parts_eia.PlantPart(part_name='plant')
+        .ag_part_by_own_slice(
+            gens_mega, sum_cols=['capacity_mw'], wtavg_dict={})
+        .convert_dtypes()
+    )
+
+    part_df_plant_expected = pd.DataFrame({
+        'plant_id_eia': [1],
+        'report_date': ['2020-01-01'],
+        'operational_status_pudl': ['operating'],
+        'utility_id_eia': [111],
+        'ownership': ['total'],
+        'capacity_mw': [650.0]
+    }).astype({'report_date': 'datetime64[ns]'}).convert_dtypes()
+
+    pd.testing.assert_frame_equal(part_df_plant_out, part_df_plant_expected)
 
 
 def test_slice_by_ownership():
     """Test the slice_by_ownership method."""
-    pu_fake = PudlTablFake()
     dtypes = {
         'report_date': 'datetime64[ns]',
         'utility_id_eia': pd.Int64Dtype()
@@ -43,7 +69,7 @@ def test_slice_by_ownership():
              [10000, 5000],
          'capacity_mw':
              [100, 50],
-         'capacity_mw_eoy':
+         'capacity_eoy_mw':
              [100, 50],
          'total_mmbtu':
              [9000, 7800],
@@ -67,7 +93,7 @@ def test_slice_by_ownership():
          'capacity_mw':
              [100 * .7, 100 * .3, 50 * .1, 50 * .9,
               100, 100, 50, 50, ],
-         'capacity_mw_eoy':
+         'capacity_eoy_mw':
              [100 * .7, 100 * .3, 50 * .1, 50 * .9,
               100, 100, 50, 50, ],
          'total_mmbtu':
@@ -86,10 +112,12 @@ def test_slice_by_ownership():
     ).astype(dtypes)
 
     out = (
-        pudl.analysis.plant_parts_eia.MakeMegaGenTbl(pu_fake)
+        pudl.analysis.plant_parts_eia.MakeMegaGenTbl()
         .slice_by_ownership(
             gens_mega=gens_mega_ex1,
-            own_eia860=own_ex1).reset_index(drop=True)
+            own_eia860=own_ex1
+        )
+        .reset_index(drop=True)
     )
 
     pd.testing.assert_frame_equal(
