@@ -185,7 +185,7 @@ def get_db_plants_ferc1(
         )
 
         # Add all the plants from the current table to our bigger list:
-        all_plants = all_plants.append(
+        db_plants = (
             pd.read_sql(plant_select, ferc1_engine)
             .rename(columns={
                 "respondent_id": "utility_id_ferc1",
@@ -206,6 +206,7 @@ def get_db_plants_ferc1(
                 "plant_table"
             ]]
         )
+        all_plants = pd.concat([all_plants, db_plants])
 
     # We don't want dupes, and sorting makes the whole thing more readable:
     all_plants = (
@@ -556,7 +557,7 @@ def get_unmapped_utils_eia(
     for table in data_tables_eia923:
         query = f"SELECT DISTINCT plant_id_eia FROM {table}"  # nosec
         new_ids = pd.read_sql(query, pudl_engine)
-        plant_ids = plant_ids.append(new_ids["plant_id_eia"])
+        plant_ids = pd.concat([plant_ids, new_ids["plant_id_eia"]])
     plant_ids_in_eia923 = sorted(set(plant_ids))
 
     utils_with_plants = (

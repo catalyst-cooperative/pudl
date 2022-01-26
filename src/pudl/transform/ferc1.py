@@ -490,10 +490,7 @@ def unpack_table(ferc1_df, table_name, data_cols, data_rows):
         rename_dict = {v: k for k, v in dict(row_map.loc[year, :]).items()}
         _ = rename_dict.pop(-1, None)
         df = ferc1_df.loc[ferc1_df.report_year == year].copy()
-        df.loc[:, "row_name"] = (
-            df.loc[:, "row_number"]
-            .replace(rename_dict, value=None)
-        )
+        df.loc[:, "row_name"] = df.loc[:, "row_number"].replace(rename_dict)
         # The concatenate according to row_name
         out_df = pd.concat([out_df, df], axis="index")
 
@@ -697,7 +694,7 @@ def _multiplicative_error_correction(tofix, mask, minval, maxval, mults):
                                           or x > maxval
                                           else x)
     # Add our fixed records back to the complete data series and return it
-    fixed = fixed.append(records_to_fix)
+    fixed = pd.concat([fixed, records_to_fix])
     return fixed
 
 
@@ -881,13 +878,14 @@ def _plants_steam_assign_plant_ids(ferc1_steam_df, ferc1_fuel_df):
 
     # Now we'll iterate through the connected components and assign each of
     # them a FERC Plant ID, and pull the results back out into a dataframe:
-    plants_w_ids = pd.DataFrame()
+    plants_w_ids = []
     for plant_id_ferc1, plant in enumerate(ferc1_plants):
         nx.set_edge_attributes(plant,
                                plant_id_ferc1 + 1,
                                name='plant_id_ferc1')
         new_plant_df = nx.to_pandas_edgelist(plant)
-        plants_w_ids = plants_w_ids.append(new_plant_df)
+        plants_w_ids.append(new_plant_df)
+    plants_w_ids = pd.concat(plants_w_ids)
     logger.info(
         f"Successfully Identified {plant_id_ferc1+1-len(orphan_record_ids)} "
         f"multi-year plant entities.")
@@ -1734,14 +1732,11 @@ class FERCPlantClassifier(BaseEstimator, ClassifierMixin):
             raise RuntimeError(
                 "You must train classifer before predicting data!")
 
-        out_df = pd.DataFrame(
-            data=[],
-            index=pd.Index([], name="seed_id"),
-            columns=self._years)
-        tmp_best = (
-            self._best_of.loc[:, ["record_id"] + list(self._years)]
-            .append(pd.DataFrame(data=[""], index=[-1], columns=["record_id"]))
-        )
+        tmp_best = pd.concat([
+            self._best_of.loc[:, ["record_id"] + list(self._years)],
+            pd.DataFrame(data=[""], index=[-1], columns=["record_id"])
+        ])
+        out_dfs = []
         # For each record_id we've been given:
         for x in X:
             # Find the index associated with the record ID we are predicting
@@ -1785,14 +1780,16 @@ class FERCPlantClassifier(BaseEstimator, ClassifierMixin):
                 new_grp = tmp_best.loc[b_m, "record_id"]
 
                 # Stack the new list of record_ids on our output DataFrame:
-                out_df = out_df.append(
+                out_dfs.append(
                     pd.DataFrame(
                         data=new_grp.values.reshape(1, len(self._years)),
                         index=pd.Index(
                             [tmp_best.loc[idx, "record_id"]],
                             name="seed_id"),
-                        columns=self._years))
-        return out_df
+                        columns=self._years
+                    )
+                )
+        return pd.concat(out_dfs)
 
     def score(self, X, y=None):  # noqa: N803
         """Scores a collection of FERC plant categorizations.

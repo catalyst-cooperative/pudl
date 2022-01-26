@@ -329,7 +329,7 @@ def _aggregate_generation_fuel_duplicates(
 
     # Add the resolved records back to generation_fuel dataframe.
     gen_df = gen_fuel[~is_duplicate].copy()
-    gen_df = gen_df.append(resolved_dupes)
+    gen_df = pd.concat([gen_df, resolved_dupes])
 
     if gen_df[natural_key_fields].isnull().any().any():
         raise AssertionError(
@@ -782,8 +782,10 @@ def _aggregate_duplicate_boiler_fuel_keys(
         _map_prime_mover_sets)
 
     # NOTE: the following method changes the order of the data and resets the index
-    modified_boiler_fuel_df = boiler_fuel_df[~is_duplicate].append(
-        aggregates.reset_index(), ignore_index=True)
+    modified_boiler_fuel_df = pd.concat(
+        [boiler_fuel_df[~is_duplicate], aggregates.reset_index()],
+        ignore_index=True
+    )
 
     return modified_boiler_fuel_df
 
@@ -988,7 +990,7 @@ def coalmine(eia923_dfs, eia923_transformed_dfs):
     cmi_with_msha = cmi_df[cmi_df['mine_id_msha'] > 0]
     cmi_with_msha = cmi_with_msha.drop_duplicates(subset=['mine_id_msha', ])
     cmi_df.drop(cmi_df[cmi_df['mine_id_msha'] > 0].index)
-    cmi_df.append(cmi_with_msha)
+    cmi_df = pd.concat([cmi_df, cmi_with_msha])
 
     cmi_df = cmi_df.drop_duplicates(subset=['mine_name',
                                             'state',
