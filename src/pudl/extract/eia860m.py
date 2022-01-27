@@ -81,6 +81,9 @@ def append_eia860m(eia860_raw_dfs, eia860m_raw_dfs):
     pages_eia860m = meta_eia860m.get_all_pages()
     # page names in 860m and 860 are the same.
     for page in pages_eia860m:
-        eia860_raw_dfs[page] = eia860_raw_dfs[page].append(
-            eia860m_raw_dfs[page], ignore_index=True, sort=True)
+        eia860_raw_dfs[page] = pd.concat(
+            [eia860_raw_dfs[page], eia860m_raw_dfs[page]],
+            ignore_index=True,
+            sort=True,
+        )
     return eia860_raw_dfs

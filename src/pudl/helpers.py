@@ -182,13 +182,20 @@ def download_zip_url(url, save_path, chunk_size=128):
 
 
 def add_fips_ids(df, state_col="state", county_col="county", vintage=2015):
-    """Add State and County FIPS IDs to a dataframe."""
+    """
+    Add State and County FIPS IDs to a dataframe.
+
+    To just add State FIPS IDs, make county_col = None.
+    """
     # force the columns to be the nullable string types so we have a consistent
     # null value to filter out before feeding to addfips
     df = df.astype({
-        state_col: pd.StringDtype(),
-        county_col: pd.StringDtype(),
+        state_col: pd.StringDtype()
     })
+    if county_col:
+        df = df.astype({
+            county_col: pd.StringDtype()
+        })
     af = addfips.AddFIPS(vintage=vintage)
     # Lookup the state and county FIPS IDs and add them to the dataframe:
     df["state_id_fips"] = df.apply(
@@ -196,24 +203,30 @@ def add_fips_ids(df, state_col="state", county_col="county", vintage=2015):
                    if pd.notnull(x[state_col]) else pd.NA),
         axis=1)
 
+    # force the code columns to be nullable strings - the leading zeros are
+    # important
+    df = df.astype({
+        "state_id_fips": pd.StringDtype()
+    })
+
     logger.info(
         f"Assigned state FIPS codes for "
         f"{len(df[df.state_id_fips.notnull()])/len(df):.2%} of records."
     )
-    df["county_id_fips"] = df.apply(
-        lambda x: (af.get_county_fips(state=x[state_col], county=x[county_col])
-                   if pd.notnull(x[county_col]) and pd.notnull(x[state_col]) else pd.NA),
-        axis=1)
-    # force the code columns to be nullable strings - the leading zeros are
-    # important
-    df = df.astype({
-        "county_id_fips": pd.StringDtype(),
-        "state_id_fips": pd.StringDtype(),
-    })
-    logger.info(
-        f"Assigned county FIPS codes for "
-        f"{len(df[df.county_id_fips.notnull()])/len(df):.2%} of records."
-    )
+    if county_col:
+        df["county_id_fips"] = df.apply(
+            lambda x: (af.get_county_fips(state=x[state_col], county=x[county_col])
+                       if pd.notnull(x[county_col]) and pd.notnull(x[state_col]) else pd.NA),
+            axis=1)
+        # force the code columns to be nullable strings - the leading zeros are
+        # important
+        df = df.astype({
+            "county_id_fips": pd.StringDtype()
+        })
+        logger.info(
+            f"Assigned county FIPS codes for "
+            f"{len(df[df.county_id_fips.notnull()])/len(df):.2%} of records."
+        )
     return df
 
 

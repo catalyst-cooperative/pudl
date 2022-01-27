@@ -329,7 +329,7 @@ def _aggregate_generation_fuel_duplicates(
 
     # Add the resolved records back to generation_fuel dataframe.
     gen_df = gen_fuel[~is_duplicate].copy()
-    gen_df = gen_df.append(resolved_dupes)
+    gen_df = pd.concat([gen_df, resolved_dupes])
 
     if gen_df[natural_key_fields].isnull().any().any():
         raise AssertionError(
@@ -454,14 +454,16 @@ def _coalmine_cleanup(cmi_df: pd.DataFrame) -> pd.DataFrame:
             # integers or NA values, but for imported coal, there are both
             # 'IMP' and 'IM' string values.
             county_id_fips=lambda x: x.county_id_fips.replace(
-                '[a-zA-Z]+', value=np.nan, regex=True
+                '[a-zA-Z]+', value=pd.NA, regex=True
             )
         )
         # No leading or trailing whitespace:
         .pipe(pudl.helpers.simplify_strings, columns=["mine_name"])
-        .astype({"county_id_fips": float})
-        .astype({"county_id_fips": pd.Int64Dtype()})
+        .pipe(pudl.helpers.add_fips_ids, county_col=None)
+        .astype({"county_id_fips": pd.StringDtype()})
     )
+    # join state and partial county FIPS into five digit county FIPS
+    cmi_df['county_id_fips'] = cmi_df['state_id_fips'] + cmi_df['county_id_fips']
     cmi_df = (
         pudl.metadata.classes.Package.from_resource_ids()
         .get_resource("coalmine_eia923")
@@ -780,8 +782,10 @@ def _aggregate_duplicate_boiler_fuel_keys(
         _map_prime_mover_sets)
 
     # NOTE: the following method changes the order of the data and resets the index
-    modified_boiler_fuel_df = boiler_fuel_df[~is_duplicate].append(
-        aggregates.reset_index(), ignore_index=True)
+    modified_boiler_fuel_df = pd.concat(
+        [boiler_fuel_df[~is_duplicate], aggregates.reset_index()],
+        ignore_index=True
+    )
 
     return modified_boiler_fuel_df
 
@@ -986,7 +990,7 @@ def coalmine(eia923_dfs, eia923_transformed_dfs):
     cmi_with_msha = cmi_df[cmi_df['mine_id_msha'] > 0]
     cmi_with_msha = cmi_with_msha.drop_duplicates(subset=['mine_id_msha', ])
     cmi_df.drop(cmi_df[cmi_df['mine_id_msha'] > 0].index)
-    cmi_df.append(cmi_with_msha)
+    cmi_df = pd.concat([cmi_df, cmi_with_msha])
 
     cmi_df = cmi_df.drop_duplicates(subset=['mine_name',
                                             'state',
@@ -1061,6 +1065,7 @@ def fuel_receipts_costs(eia923_dfs, eia923_transformed_dfs):
                     'mine_type_code',
                     'state',
                     'county_id_fips',
+                    'state_id_fips',
                     'mine_name',
                     'regulated',
                     'reporting_frequency']
