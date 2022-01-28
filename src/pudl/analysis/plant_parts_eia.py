@@ -1154,7 +1154,8 @@ class PlantPart(object):
     The ``plant`` output would look something like this:
 
     >>> # the only data cols we are testing here is capacity_mw
-    >>> PlantPart(part_name='plant').ag_part_by_own_slice(gens_mega, sum_cols=['capacity_mw'], wtavg_dict={})
+    >>> plant_df = PlantPart(part_name='plant').ag_part_by_own_slice(gens_mega, sum_cols=['capacity_mw'], wtavg_dict={})
+    >>> plant_df
         plant_id_eia    report_date    operational_status_pudl    utility_id_eia    ownership    capacity_mw
     0 	           1 	 2020-01-01 	             operating 	             111        total          650.0
 
