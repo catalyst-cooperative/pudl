@@ -211,7 +211,7 @@ The ``plant`` output would look something like this:
 >>> # the only data cols we are testing here is capacity_mw
 >>> PlantPart(part_name='plant').ag_part_by_own_slice(gens_mega, sum_cols=['capacity_mw'], wtavg_dict={})
     plant_id_eia    report_date    operational_status_pudl    utility_id_eia    ownership    capacity_mw
-0 	           1 	 2020-01-01 	             operating 	             111 	    total 	       650.0
+0 	           1 	 2020-01-01 	             operating 	             111        total          650.0
 
 
 """
@@ -401,15 +401,15 @@ class MakeMegaGenTbl(object):
     **Output Mega Generators Table**
 
     >>> MakeMegaGenTbl().execute(mcoe, df_own_eia860, slice_cols=['capacity_mw'])
-        plant_id_eia    report_date   generator_id 	unit_id_pudl 	prime_mover_code 	          technology_description    operational_status 	retirement_date    capacity_mw 	ferc_acct_name 	operational_status_pudl 	capacity_eoy_mw 	fraction_owned 	utility_id_eia 	ownership
-    0         	   1 	 2020-01-01 	         a   	       1 	              CT 	Natural Gas Fired Combined Cycle 	  	      existing 	            NaT 	      50.0         	 Other 	              operating 	             50 	          1.00 	           111 	    owned
-    1         	   1 	 2020-01-01 	         b   	       1 	              CT 	Natural Gas Fired Combined Cycle 	  	      existing 	            NaT 	      50.0         	 Other 	              operating 	             50 	          1.00 	           111 	    owned
-    2         	   1 	 2020-01-01 	         c   	       1 	              CA 	Natural Gas Fired Combined Cycle 	  	      existing 	            NaT 	      75.0         	 Other 	              operating 	            100 	          0.75 	           111 	    owned
-    3         	   1 	 2020-01-01 	         c   	       1 	              CA 	Natural Gas Fired Combined Cycle 	  	      existing 	            NaT 	      25.0         	 Other 	              operating 	            100 	          0.25 	           888 	    owned
-    0         	   1 	 2020-01-01 	         a   	       1 	              CT 	Natural Gas Fired Combined Cycle 	  	      existing 	            NaT 	      50.0         	 Other 	              operating 	             50 	          1.00 	           111 	    total
-    1         	   1 	 2020-01-01 	         b   	       1 	              CT 	Natural Gas Fired Combined Cycle 	  	      existing 	            NaT 	      50.0         	 Other 	              operating 	             50 	          1.00 	           111 	    total
-    2         	   1 	 2020-01-01 	         c   	       1 	              CA 	Natural Gas Fired Combined Cycle 	  	      existing 	            NaT 	     100.0         	 Other 	              operating 	            100 	          1.00 	           111 	    total
-    3         	   1 	 2020-01-01 	         c   	       1 	              CA 	Natural Gas Fired Combined Cycle 	  	      existing 	            NaT 	     100.0         	 Other 	              operating 	            100 	          1.00 	           888 	    total
+        plant_id_eia    report_date   generator_id 	unit_id_pudl 	prime_mover_code 	          technology_description    operational_status    retirement_date    capacity_mw    ferc_acct_name    operational_status_pudl    capacity_eoy_mw    fraction_owned    utility_id_eia    ownership
+    0         	   1 	 2020-01-01 	         a   	       1 	              CT 	Natural Gas Fired Combined Cycle              existing                NaT           50.0             Other                  operating                 50              1.00               111        owned
+    1         	   1 	 2020-01-01 	         b   	       1 	              CT 	Natural Gas Fired Combined Cycle              existing                NaT           50.0             Other                  operating                 50              1.00               111        owned
+    2         	   1 	 2020-01-01 	         c   	       1 	              CA 	Natural Gas Fired Combined Cycle              existing                NaT           75.0             Other                  operating                100              0.75               111        owned
+    3         	   1 	 2020-01-01 	         c   	       1 	              CA 	Natural Gas Fired Combined Cycle              existing                NaT           25.0             Other                  operating                100              0.25               888        owned
+    0         	   1 	 2020-01-01 	         a   	       1 	              CT 	Natural Gas Fired Combined Cycle              existing                NaT           50.0             Other                  operating                 50              1.00               111        total
+    1         	   1 	 2020-01-01 	         b   	       1 	              CT 	Natural Gas Fired Combined Cycle              existing                NaT           50.0             Other                  operating                 50              1.00               111        total
+    2         	   1 	 2020-01-01 	         c   	       1 	              CA 	Natural Gas Fired Combined Cycle              existing                NaT          100.0             Other                  operating                100              1.00               111        total
+    3         	   1 	 2020-01-01 	         c   	       1 	              CA 	Natural Gas Fired Combined Cycle              existing                NaT          100.0             Other                  operating                100              1.00               888        total
 
     This output table ``gens_mega`` includes two main sections: the
     generators with a "total" ownership stake for each of their owners and
