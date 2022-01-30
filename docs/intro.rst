@@ -2,7 +2,7 @@
 Introduction
 =======================================================================================
 
-PUDL is a data processing pipeline Created by `Catalyst Cooperative
+PUDL is a data processing pipeline created by `Catalyst Cooperative
 <https://catalyst.coop/>`__ that cleans, integrates, and standardizes some of the most
 widely used public energy datasets in the US. The data serve researchers, activists,
 journalists, and policy makers that might not have the technical expertise to access it
@@ -23,7 +23,7 @@ Currently, PUDL has cleaned and integrated data from:
 * :doc:`data_sources/epacems`
 
 
-In addition, we distribute an SQLite databases containing all available years of the
+In addition, we distribute a SQLite database containing all available years of the
 `raw FERC Form 1 data <https://doi.org/10.5281/zenodo.3677547>`__ and an SQLite
 version of the `US Census DP1 geodatabase
 <https://www.census.gov/geographies/mapping-files/2010/geo/tiger-data.html>`__
@@ -166,7 +166,7 @@ Tabular Data Packages are archive friendly and platform independent, but, given 
 size and complexity of the data within PUDL, this format isn't ideal for day to day
 interactive use. In practice, we take the clean, processed data in the data packages
 and use it to populate a local SQLite database. To handle the ~1 billion row EPA CEMS
-hourly time series, we convert the data package into Apache Parquet dataset that are
+hourly time series, we convert the data package into Apache Parquet datasets that are
 partitioned by state and year. For more details on these conversions to SQLite and
 Parquet formats, see :ref:`access-datapackage`.
 
@@ -175,7 +175,7 @@ Denormalized Outputs
 
 We normalized the data to make storage more efficient and avoid data integrity issues,
 but you may want to combine information from more than one of the tables to make the
-data more readable and readily interpretable. For example, PUDL stores name that EIA
+data more readable and readily interpretable. For example, PUDL stores the name that EIA
 uses to refer to a power plant in the :ref:`plants_entity_eia` table in association with
 the plant's unique numeric ID. If you are working with data from the
 :ref:`fuel_receipts_costs_eia923` table, which records monthly per-plant fuel

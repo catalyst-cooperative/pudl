@@ -21,8 +21,8 @@ ferc1_to_sqlite_settings:
 name: pudl-full
 title: PUDL Full ETL
 description: >
-  All available data for FERC 1 and EIA 860/923 (output to SQLite) plus all
-  years of EPA CEMS hourly emissions data (output to Parquet).
+  FERC 1 and EIA 860/923 from 2020 (output to SQLite) plus
+  EPA CEMS hourly emissions data from 2020 (output to Parquet).
 version: 0.1.0
 datasets:
     ferc1:
