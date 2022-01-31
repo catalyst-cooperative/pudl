@@ -9,7 +9,6 @@ from pydantic import BaseModel as PydanticBaseModel
 from pydantic import BaseSettings, root_validator, validator
 
 import pudl
-import pudl.constants as pc
 from pudl.extract.ferc1 import DBF_TABLES_FILENAMES
 from pudl.metadata.enums import EPACEMS_STATES
 

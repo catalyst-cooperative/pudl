@@ -63,8 +63,6 @@ from dbfread import DBF
 from sqlalchemy import or_
 
 import pudl
-from pudl import constants as pc
-from pudl.constants import PUDL_TABLES
 from pudl.workspace.datastore import Datastore
 
 logger = logging.getLogger(__name__)

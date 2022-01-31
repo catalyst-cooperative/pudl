@@ -24,7 +24,6 @@ import pandas as pd
 import requests
 import sqlalchemy as sa
 
-from pudl import constants as pc
 from pudl.metadata.classes import Package
 from pudl.metadata.fields import apply_pudl_dtypes, get_pudl_dtypes
 
@@ -908,12 +907,7 @@ def convert_cols_dtypes(
     name: Optional[str] = None
 ) -> pd.DataFrame:
     """
-    Convert the data types for a dataframe.
-
-    This function will convert a PUDL dataframe's columns to the correct data
-    type. It uses a dictionary in constants.py called COLUMN_DTYPES to assign
-    the right type. Within a given data source (e.g. eia923, ferc1) each column
-    name is assumed to *always* have the same data type whenever it is found.
+    Convert a PUDL dataframe's columns to the correct data type.
 
     Boolean type conversions created a special problem, because null values in
     boolean columns get converted to True (which is bonkers!)... we generally

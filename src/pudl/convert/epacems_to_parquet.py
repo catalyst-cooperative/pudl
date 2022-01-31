@@ -16,7 +16,6 @@ import sys
 import coloredlogs
 
 import pudl
-from pudl import constants as pc
 
 logger = logging.getLogger(__name__)
 

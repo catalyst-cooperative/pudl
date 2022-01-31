@@ -24,7 +24,6 @@ import pandas as pd
 import sqlalchemy as sa
 
 import pudl
-from pudl import constants as pc
 from pudl.helpers import convert_cols_dtypes
 from pudl.metadata.codes import CODE_METADATA
 from pudl.metadata.dfs import FERC_ACCOUNTS, FERC_DEPRECIATION_LINES
@@ -47,9 +46,7 @@ def _read_static_tables_eia() -> Dict[str, pd.DataFrame]:
     constant, but which we need to store for data validation purposes, for use
     as foreign keys.  E.g. the list of valid EIA fuel type codes, or the
     possible state and country codes indicating a coal delivery's location of
-    origin. For now these values are primarily stored in a large collection of
-    lists, dictionaries, and dataframes which are specified in the
-    :mod:`pudl.constants` module.
+    origin.
 
     """
     return {

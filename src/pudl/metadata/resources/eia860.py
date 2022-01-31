@@ -16,8 +16,9 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
             ],
             "primary_key": ["plant_id_eia", "report_date", "generator_id", "boiler_id"],
         },
-        "group": "eia",
+        "field_namespace": "eia",
         "sources": ["eia860", "eia923"],
+        "etl_group": "eia860",
     },
     "generators_eia860": {
         "description": "Annually varying generator attributes compiled from across EIA-860 and EIA-923 data.",
@@ -104,8 +105,9 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
                 ]
             },
         },
-        "group": "eia",
+        "field_namespace": "eia",
         "sources": ["eia860", "eia923"],
+        "etl_group": "eia860",
     },
     "ownership_eia860": {
         "description": "Generator Ownership, reported in EIA-860 Schedule 4. Includes only jointly or third-party owned generators.",
@@ -127,8 +129,9 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
                 "report_date", "plant_id_eia", "generator_id", "owner_utility_id_eia"
             ],
         },
-        "group": "eia",
+        "field_namespace": "eia",
         "sources": ["eia860"],
+        "etl_group": "eia860",
     },
     "plants_eia860": {
         "description": "Annually varying plant attributes, compiled from across all EIA-860 and EIA-923 data.",
@@ -178,8 +181,9 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
                 ]
             },
         },
-        "group": "eia",
+        "field_namespace": "eia",
         "sources": ["eia860", "eia923"],
+        "etl_group": "eia860",
     },
     "utilities_eia860": {
         "description": "Annually varying utility attributes, compiled from all EIA data.",
@@ -221,8 +225,9 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
                 ],
             },
         },
-        "group": "eia",
+        "field_namespace": "eia",
         "sources": ["eia860", "eia923"],
+        "etl_group": "eia860",
     },
 }
 """

@@ -1691,3 +1691,48 @@ class CodeMetadata(Base):
                 rendered = encoder.to_rst(
                     top_dir=top_dir, csv_subdir=csv_subdir, is_header=header)
                 f.write(rendered)
+
+
+class DataSource(Base):
+    """
+    A data source that has been integrated into PUDL.
+
+    This metadata is used for:
+
+    * Generating PUDL documentation.
+    * Annotating long-term archives of the raw input data on Zenodo.
+    * Defining what data partitions can be processed using PUDL.
+
+    """
+
+    name: SnakeCase
+    title: String = None
+    description: String = None
+    keywords: List[str] = []
+    path: HttpUrl = None
+    contributors: List[Contributor] = []  # Or should this be compiled from Resources?
+    license_raw: License = None
+    license_pudl: License = License.from_id("cc-by-4.0")
+    # concept_doi: Doi = None  # Need to define a Doi type?
+    working_partitions: Dict[SnakeCase, Dict[SnakeCase, Any]] = {}
+    # agency: Agency  # needs to be defined
+
+    def get_resource_ids(self, Package) -> List[str]:
+        """Compile list of resoruce IDs associated with this data source."""
+        return [res.data_source for res in Package.resources]
+
+    def raw_datapackage_name(self) -> str:
+        """Construct a datapackage name for the raw data source."""
+        return f"pudl-raw-{self.name}"
+
+    def raw_datapackage_title(self) -> str:
+        """Construct a datapackage title for the raw data source."""
+        return f"PUDL Raw f{self.title}"
+
+    def to_raw_datapackage_json(self) -> pydantic.Json:
+        """Construct a datapackage json descriptor for the raw data source."""
+        pass
+
+    def to_rst(self) -> None:
+        """Output a representation of the data source in RST for documentation."""
+        pass

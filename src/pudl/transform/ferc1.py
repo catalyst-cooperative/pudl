@@ -27,8 +27,6 @@ from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import MinMaxScaler, Normalizer, OneHotEncoder
 
 import pudl
-from pudl import constants as pc
-from pudl.constants import PUDL_TABLES
 from pudl.helpers import convert_cols_dtypes
 from pudl.metadata.dfs import FERC_DEPRECIATION_LINES
 

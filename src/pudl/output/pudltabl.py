@@ -37,7 +37,6 @@ import pandas as pd
 import sqlalchemy as sa
 
 import pudl
-from pudl import constants as pc
 from pudl.workspace.datastore import Datastore
 
 logger = logging.getLogger(__name__)

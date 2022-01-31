@@ -10,6 +10,9 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
             "primary_key": ["plant_id_pudl"],
             "foreign_key_rules": {"fields": [["plant_id_pudl"]]},
         },
+        "etl_group": "glue",
+        "field_namespace": "pudl",
+        "sources": ["pudl"],
     },
     "utilities_pudl": {
         "title": "PUDL Utilities",
@@ -19,12 +22,18 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
             "primary_key": ["utility_id_pudl"],
             "foreign_key_rules": {"fields": [["utility_id_pudl"]]},
         },
+        "etl_group": "glue",
+        "field_namespace": "pudl",
+        "sources": ["pudl"],
     },
     "utility_plant_assn": {
         "schema": {
             "fields": ["utility_id_pudl", "plant_id_pudl"],
             "primary_key": ["utility_id_pudl", "plant_id_pudl"],
         },
+        "etl_group": "glue",
+        "field_namespace": "pudl",
+        "sources": ["pudl"],
     },
 }
 """

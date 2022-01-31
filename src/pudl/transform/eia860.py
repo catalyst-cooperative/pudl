@@ -6,8 +6,6 @@ import numpy as np
 import pandas as pd
 
 import pudl
-from pudl import constants as pc
-from pudl.constants import PUDL_TABLES
 from pudl.metadata.codes import CODE_METADATA
 from pudl.metadata.fields import apply_pudl_dtypes
 
@@ -209,7 +207,7 @@ def generators(eia860_dfs, eia860_transformed_dfs):
     gr_df['operational_status'] = 'retired'
     g_df['operational_status'] = (
         g_df['operational_status_code']
-        .replace({'OP': 'existing',  # could move this dict to constants
+        .replace({'OP': 'existing',  # could move this dict to codes...
                   'SB': 'existing',
                   'OA': 'existing',
                   'OS': 'existing',
