@@ -884,6 +884,7 @@ class Contributor(Base):
         "author", "contributor", "maintainer", "publisher", "wrangler"
     ] = "contributor"
     organization: String = None
+    orcid: String = None
 
     @staticmethod
     def dict_from_id(x: str) -> dict:
@@ -1714,7 +1715,7 @@ class DataSource(Base):
     license_raw: License = None
     license_pudl: License = License.from_id("cc-by-4.0")
     # concept_doi: Doi = None  # Need to define a Doi type?
-    working_partitions: Dict[SnakeCase, Dict[SnakeCase, Any]] = {}
+    working_partitions: Dict[SnakeCase, Any] = {}
     # agency: Agency  # needs to be defined
 
     def get_resource_ids(self, Package) -> List[str]:
@@ -1736,3 +1737,13 @@ class DataSource(Base):
     def to_rst(self) -> None:
         """Output a representation of the data source in RST for documentation."""
         pass
+
+    @staticmethod
+    def dict_from_id(x: str) -> dict:
+        """Look up the source by source name in the metadata."""
+        return {'name': x, **copy.deepcopy(SOURCES[x])}
+
+    @classmethod
+    def from_id(cls, x: str) -> 'DataSource':
+        """Construct Source by source name in the metadata."""
+        return cls(**cls.dict_from_id(x))
