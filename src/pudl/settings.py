@@ -11,6 +11,7 @@ from pydantic import BaseSettings, root_validator, validator
 import pudl
 from pudl.extract.ferc1 import DBF_TABLES_FILENAMES
 from pudl.metadata.enums import EPACEMS_STATES
+from pudl.metadata.classes import DataSource
 
 
 class BaseModel(PydanticBaseModel):
@@ -83,9 +84,7 @@ class Ferc1Settings(GenericDatasetSettings):
         working_tables: List of working tables.
     """
 
-    working_partitions: ClassVar = {
-        "years": tuple(range(1994, 2021))
-    }
+    working_partitions: ClassVar = DataSource.from_id("ferc1").working_partitions
     working_tables: ClassVar = sorted(list(pc.PUDL_TABLES["ferc1"]))
 
     years: List[int] = working_partitions["years"]
@@ -105,10 +104,7 @@ class EpaCemsSettings(GenericDatasetSettings):
         working_tables: List of working tables.
     """
 
-    working_partitions: ClassVar = {
-        "years": tuple(range(1994, 2021)),
-        "states": tuple(sorted(EPACEMS_STATES))
-    }
+    working_partitions: ClassVar = DataSource.from_id("epacems").working_partitions
     working_tables: ClassVar = sorted(list(pc.PUDL_TABLES["epacems"]))
 
     years: List[int] = working_partitions["years"]
@@ -135,9 +131,7 @@ class Eia923Settings(GenericDatasetSettings):
         working_tables: List of working tables.
     """
 
-    working_partitions: ClassVar = {
-        "years": tuple(range(2001, 2021))
-    }
+    working_partitions: ClassVar = DataSource.from_id("eia923").working_partitions
     working_tables: ClassVar = sorted(list(pc.PUDL_TABLES["eia923"]))
 
     years: List[int] = working_partitions["years"]
@@ -159,9 +153,8 @@ class Eia860Settings(GenericDatasetSettings):
         eia860m_date ClassVar[str]: The 860m year to date.
     """
 
-    working_partitions: ClassVar = {
-        "years": tuple(range(2001, 2021))
-    }
+    working_partitions: ClassVar = DataSource.from_id("eia860").working_partitions
+    eia860m_working_partitions: ClassVar[str] = DataSource.from_id("eia860m").working_partitions["year_month"]
     eia860m_date: ClassVar[str] = "2021-08"
     working_tables: ClassVar = sorted(list(pc.PUDL_TABLES["eia860"]))
 
@@ -318,9 +311,9 @@ class DatasetsSettings(BaseModel):
         values["glue"] = GlueSettings(ferc1=ferc1, eia=eia)
         return values
 
-    def get_datasets(cls):  # noqa: N805
+    def get_datasets(self):  # noqa: N805
         """Gets dictionary of dataset settings."""
-        return vars(cls)
+        return vars(self)
 
 
 class Ferc1ToSqliteSettings(GenericDatasetSettings):
