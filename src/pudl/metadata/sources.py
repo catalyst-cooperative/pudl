@@ -1,8 +1,8 @@
 """Metadata and operational constants."""
 from typing import Any, Dict
 
+from pudl.metadata.constants import KEYWORDS, CONTRIBUTORS
 from pudl.metadata.enums import EPACEMS_STATES
-from pudl.metadata.constants import KEYWORDS
 
 SOURCES: Dict[str, Any] = {
     "censusdp1tract": {
@@ -23,11 +23,11 @@ SOURCES: Dict[str, Any] = {
             "capacity."
         ),
         "contributors": [
-            "catalyst-cooperative",
-            "zane-selvans",
-            "christina-gosnell",
-            "steven-winter",
-            "alana-wilson",
+            CONTRIBUTORS["catalyst-cooperative"],
+            CONTRIBUTORS["zane-selvans"],
+            CONTRIBUTORS["christina-gosnell"],
+            CONTRIBUTORS["steven-winter"],
+            CONTRIBUTORS["alana-wilson"],
         ],
         "working_partitions": {
             "years": sorted(set(range(2001, 2021))),
@@ -114,11 +114,11 @@ SOURCES: Dict[str, Any] = {
             "years": sorted(set(range(2001, 2021))),
         },
         "contributors": [
-            "catalyst-cooperative",
-            "zane-selvans",
-            "christina-gosnell",
-            "steven-winter",
-            "katherine-lamb",
+            CONTRIBUTORS["catalyst-cooperative"],
+            CONTRIBUTORS["zane-selvans"],
+            CONTRIBUTORS["christina-gosnell"],
+            CONTRIBUTORS["steven-winter"],
+            CONTRIBUTORS["katherine-lamb"],
         ],
         "keywords": sorted(set(
             [
@@ -150,9 +150,9 @@ SOURCES: Dict[str, Any] = {
             "states": sorted(set(EPACEMS_STATES)),
         },
         "contributors": [
-            "catalyst-cooperative",
-            "karl-dunkle-werner",
-            "zane-selvans",
+            CONTRIBUTORS["catalyst-cooperative"],
+            CONTRIBUTORS["karl-dunkle-werner"],
+            CONTRIBUTORS["zane-selvans"],
         ],
         "keywords": sorted(set(
             [
@@ -181,12 +181,12 @@ SOURCES: Dict[str, Any] = {
             "years": sorted(set(range(1994, 2021))),
         },
         "contributors": [
-            "catalyst-cooperative",
-            "zane-selvans",
-            "christina-gosnell",
-            "steven-winter",
-            "alana-wilson",
-            "austen-sharpe",
+            CONTRIBUTORS["catalyst-cooperative"],
+            CONTRIBUTORS["zane-selvans"],
+            CONTRIBUTORS["christina-gosnell"],
+            CONTRIBUTORS["steven-winter"],
+            CONTRIBUTORS["alana-wilson"],
+            CONTRIBUTORS["austen-sharpe"],
         ],
         "keywords": sorted(set(
             [
@@ -247,10 +247,10 @@ SOURCES: Dict[str, Any] = {
         "description": "",
         "email": "pudl@catalyst.coop",
         "contributors": [
-            "catalyst-cooperative",
-            "zane-selvans",
-            "christina-gosnell",
-            "steven-winter",
+            CONTRIBUTORS["catalyst-cooperative"],
+            CONTRIBUTORS["zane-selvans"],
+            CONTRIBUTORS["christina-gosnell"],
+            CONTRIBUTORS["steven-winter"],
         ],
         "keywords": ["us", "electricity", "open data", "open source"],
     },
