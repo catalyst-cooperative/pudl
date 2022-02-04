@@ -9,6 +9,7 @@ from typing import NamedTuple
 from zipfile import ZipFile
 
 import pandas as pd
+from dagster import DynamicOut, DynamicOutput, Field, op
 
 import pudl.constants as pc
 from pudl.workspace.datastore import Datastore
@@ -146,7 +147,15 @@ class EpaCemsDatastore:
         return df
 
 
-def extract(epacems_years, states, ds: Datastore):
+@op(
+    out=DynamicOut(pd.DataFrame),
+    config_schema={
+        'years': Field(list, description='years', default_value=[2020]),
+        'states': Field(list, default_value=["ID"]),
+    },
+    required_resource_keys={"datastore"}
+)
+def extract(context):
     """
     Coordinate the extraction of EPA CEMS hourly DataFrames.
 
@@ -161,9 +170,9 @@ def extract(epacems_years, states, ds: Datastore):
         pandas.DataFrame: A single state-year of EPA CEMS hourly emissions data.
 
     """
-    ds = EpaCemsDatastore(ds)
-    for year in epacems_years:
-        for state in states:
+    ds = EpaCemsDatastore(context.resources.datastore)
+    for year in context.op_config["years"]:
+        for state in context.op_config["states"]:
             partition = EpaCemsPartition(state=state, year=year)
             logger.info(f"Processing EPA CEMS hourly data for {state}-{year}")
             # We have to assign the reporting year for partitioning purposes
@@ -171,4 +180,4 @@ def extract(epacems_years, states, ds: Datastore):
                 ds.get_data_frame(partition)
                 .assign(year=year)
             )
-            yield df
+            yield DynamicOutput(value=df, mapping_key=f"{state}{year}")

@@ -7,6 +7,7 @@ import numpy as np
 import pandas as pd
 import pytz
 import sqlalchemy as sa
+from dagster import op
 
 import pudl
 
@@ -209,7 +210,10 @@ def correct_gross_load_mw(df):
     return df
 
 
-def transform(epacems_raw_dfs, pudl_engine):
+@op(
+    required_resource_keys={"pudl_settings"}
+)
+def transform(context, raw_df):
     """
     Transform EPA CEMS hourly data and ready it for export to Parquet.
 
@@ -225,21 +229,21 @@ def transform(epacems_raw_dfs, pudl_engine):
     """
     # epacems_raw_dfs is a generator. Pull out one dataframe, run it through
     # a transformation pipeline, and yield it back as another generator.
+    pudl_engine = sa.create_engine(context.resources.pudl_settings["pudl_db"])
     plant_utc_offset = _load_plant_utc_offset(pudl_engine)
-    for raw_df in epacems_raw_dfs:
-        transformed_df = (
-            raw_df.fillna({
-                "gross_load_mw": 0.0,
-                "heat_content_mmbtu": 0.0
-            })
-            .pipe(harmonize_eia_epa_orispl)
-            .pipe(fix_up_dates, plant_utc_offset=plant_utc_offset)
-            .pipe(add_facility_id_unit_id_epa)
-            .pipe(correct_gross_load_mw)
-            .pipe(
-                pudl.helpers.convert_cols_dtypes,
-                "epacems",
-                "hourly_emissions_epacems"
-            )
+    transformed_df = (
+        raw_df.fillna({
+            "gross_load_mw": 0.0,
+            "heat_content_mmbtu": 0.0
+        })
+        .pipe(harmonize_eia_epa_orispl)
+        .pipe(fix_up_dates, plant_utc_offset=plant_utc_offset)
+        .pipe(add_facility_id_unit_id_epa)
+        .pipe(correct_gross_load_mw)
+        .pipe(
+            pudl.helpers.convert_cols_dtypes,
+            "epacems",
+            "hourly_emissions_epacems"
         )
-        yield transformed_df
+    )
+    return transformed_df
