@@ -57,7 +57,7 @@ SOURCES: Dict[str, Any] = {
             "capacity. Preliminary Monthly Electric Generator Inventory (based on "
             "Form EIA-860M as a supplement to Form EIA-860)"
         ),
-        "contributors": "",
+        "contributors": [],
         "working_partitions": {
             "year_month": "2021-08",
         },
