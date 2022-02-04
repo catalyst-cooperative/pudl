@@ -10,7 +10,6 @@ from pydantic import BaseSettings, root_validator, validator
 
 import pudl
 from pudl.extract.ferc1 import DBF_TABLES_FILENAMES
-from pudl.metadata.enums import EPACEMS_STATES
 from pudl.metadata.classes import DataSource
 
 
