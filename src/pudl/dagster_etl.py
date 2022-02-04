@@ -1,6 +1,7 @@
 """Dagster version of EPA CEMS ETL."""
 from pathlib import Path
 
+import sqlalchemy as sa
 from dagster import Field, job, op, resource
 
 import pudl
@@ -25,7 +26,13 @@ def pudl_settings(init_context):
     return pudl.workspace.setup.get_defaults()
 
 
-@resource(config_schema={"gcs_cache_path": Field(str, description='oad datastore resources from Google Cloud Storage.', default_value=""), "use_local_cache": Field(bool, description='If enabled, the local file cache for datastore will be used.', default_value=True), }, required_resource_keys={"pudl_settings"})
+@resource(required_resource_keys={"pudl_settings"})
+def pudl_engine(init_context):
+    """Create a pudl engine Resource."""
+    return sa.create_engine(init_context.resources.pudl_settings["pudl_db"])
+
+
+@resource(config_schema={"gcs_cache_path": Field(str, description='Load datastore resources from Google Cloud Storage.', default_value=""), "use_local_cache": Field(bool, description='If enabled, the local file cache for datastore will be used.', default_value=True), }, required_resource_keys={"pudl_settings"})
 def datastore(init_context):
     """Datastore resource. This can be configured in the dagit UI."""
     ds_kwargs = {}
@@ -38,7 +45,7 @@ def datastore(init_context):
     return Datastore(**ds_kwargs)
 
 
-@job(resource_defs={"pudl_settings": pudl_settings, "datastore": datastore})
+@job(resource_defs={"pudl_settings": pudl_settings, "datastore": datastore, "pudl_engine": pudl_engine})
 def etl_epacems_dagster():
     """Run the full EPA CEMS ETL."""
     partitions = pudl.extract.epacems.gather_partitions()

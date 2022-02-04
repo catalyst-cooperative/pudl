@@ -9,9 +9,11 @@ from typing import NamedTuple
 from zipfile import ZipFile
 
 import pandas as pd
+import sqlalchemy as sa
 from dagster import DynamicOut, DynamicOutput, Field, op
 
 import pudl.constants as pc
+from pudl.settings import EpaCemsSettings
 from pudl.workspace.datastore import Datastore
 
 logger = logging.getLogger(__name__)
@@ -152,12 +154,47 @@ class EpaCemsDatastore:
     config_schema={
         'years': Field(list, description='years', default_value=[2020]),
         'states': Field(list, default_value=["ID"]),
-    }
+    },
+    required_resource_keys={"pudl_engine"}
 )
 def gather_partitions(context):
     """Gather CEMS partitions."""
-    for year in context.op_config["years"]:
-        for state in context.op_config["states"]:
+    # Validate the partitions
+    # Could maybe replace our pydantic settings models with
+    # Dagster Types that check working partitions and tables.
+    # https://docs.dagster.io/concepts/types#defining-a-dagster-type
+    # Might be cumbersome though.
+    years = context.op_config["years"]
+    states = context.op_config["states"]
+    settings = EpaCemsSettings(years=years, states=states)
+
+    # Verify that we have a PUDL DB with plant attributes:
+    pudl_engine = context.resources.pudl_engine
+    inspector = sa.inspect(pudl_engine)
+    if "plants_eia860" not in inspector.get_table_names():
+        raise RuntimeError(
+            "No plants_eia860 available in the PUDL DB! Have you run the ETL? "
+            f"Trying to access PUDL DB: {pudl_engine}"
+        )
+
+    eia_plant_years = pd.read_sql(
+        """
+        SELECT DISTINCT strftime('%Y', report_date)
+        AS year
+        FROM plants_eia860
+        ORDER BY year ASC
+        """, pudl_engine).year.astype(int)
+
+    missing_years = list(set(settings.years) - set(eia_plant_years))
+    if missing_years:
+        logger.info(
+            f"EPA CEMS years with no EIA plant data: {missing_years} "
+            "Some timezones may be estimated based on plant state."
+        )
+
+    # Yield the partitions once everything is validated.
+    for year in settings.years:
+        for state in settings.states:
             yield DynamicOutput(EpaCemsPartition(state=state, year=year), mapping_key=f"{state}{year}")
 
 

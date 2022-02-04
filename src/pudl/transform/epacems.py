@@ -211,7 +211,7 @@ def correct_gross_load_mw(df):
 
 
 @op(
-    required_resource_keys={"pudl_settings"}
+    required_resource_keys={"pudl_engine"}
 )
 def transform(context, raw_df):
     """
@@ -227,9 +227,7 @@ def transform(context, raw_df):
         pandas.Dataframe: A single year-state of EPA CEMS data,
 
     """
-    # epacems_raw_dfs is a generator. Pull out one dataframe, run it through
-    # a transformation pipeline, and yield it back as another generator.
-    pudl_engine = sa.create_engine(context.resources.pudl_settings["pudl_db"])
+    pudl_engine = context.resources.pudl_engine
     plant_utc_offset = _load_plant_utc_offset(pudl_engine)
     transformed_df = (
         raw_df.fillna({
