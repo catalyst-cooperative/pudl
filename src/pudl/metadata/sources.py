@@ -29,7 +29,7 @@ SOURCES: Dict[str, Any] = {
             "steven-winter",
             "alana-wilson",
         ],
-        "working_partitons": {
+        "working_partitions": {
             "years": sorted(set(range(2001, 2021))),
         },
         "keywords": sorted(set(
