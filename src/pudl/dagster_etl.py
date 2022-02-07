@@ -2,7 +2,8 @@
 from pathlib import Path
 
 import sqlalchemy as sa
-from dagster import Field, job, op, resource
+from dagster import (AssetMaterialization, EventMetadata, Field, Output, job,
+                     op, resource)
 
 import pudl
 from pudl.workspace.datastore import Datastore
@@ -11,12 +12,26 @@ from pudl.workspace.datastore import Datastore
 @op(required_resource_keys={"pudl_settings"})
 def load_epacems(context, transformed_df):
     """Load epacems to parquet."""
+    root_path = Path(context.resources.pudl_settings["parquet_dir"]) / "epacems"
+
     pudl.load.df_to_parquet(
         transformed_df,
         resource_id="hourly_emissions_epacems",
-        root_path=Path(context.resources.pudl_settings["parquet_dir"]) / "epacems",
+        root_path=root_path,
         partition_cols=["year", "state"]
     )
+
+    # Format of the mapping key makes it difficult to recreate the final parquet path.
+    yield AssetMaterialization(
+        asset_key=context.get_mapping_key(),
+        description="Persisted result to storage",
+        metadata={
+            "Description": "Parquet file.",
+            "Path": EventMetadata.path(str(root_path)),
+            "DataFrame Size (Bytes)": int(transformed_df.memory_usage().sum())
+        },
+    )
+    yield Output(root_path)
 
 
 @resource
