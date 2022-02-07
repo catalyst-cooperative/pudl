@@ -213,15 +213,12 @@ def correct_gross_load_mw(df):
 @op(
     required_resource_keys={"pudl_engine"}
 )
-def transform(context, raw_df):
+def transform(context, raw_df: pd.DataFrame) -> pd.DataFrame:
     """
     Transform EPA CEMS hourly data and ready it for export to Parquet.
 
     Args:
-        epacems_raw_dfs: a :class:`pandas.Dataframe` generator that yields raw
-            epacems data, one state-year at a time.
-        pudl_engine: a :class:`sqlalchemy.engine.Engine` for connecting to an
-            existing PUDL DB.
+        raw_df: An extracted partition of EPA CEMS data.
 
     Yields:
         pandas.Dataframe: A single year-state of EPA CEMS data,

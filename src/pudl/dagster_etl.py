@@ -1,6 +1,7 @@
 """Dagster version of EPA CEMS ETL."""
 from pathlib import Path
 
+import pandas as pd
 import sqlalchemy as sa
 from dagster import (AssetMaterialization, EventMetadata, Field, Output, job,
                      op, resource)
@@ -10,7 +11,7 @@ from pudl.workspace.datastore import Datastore
 
 
 @op(required_resource_keys={"pudl_settings"})
-def load_epacems(context, transformed_df):
+def load_epacems(context, transformed_df: pd.DataFrame):
     """Load epacems to parquet."""
     root_path = Path(context.resources.pudl_settings["parquet_dir"]) / "epacems"
 

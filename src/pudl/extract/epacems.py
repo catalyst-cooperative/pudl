@@ -199,16 +199,12 @@ def gather_partitions(context):
 
 
 @op(required_resource_keys={"datastore"})
-def extract(context, partition):
+def extract(context, partition: EpaCemsPartition) -> pd.DataFrame:
     """
     Coordinate the extraction of EPA CEMS hourly DataFrames.
 
     Args:
-        epacems_years (list): The years of CEMS data to extract, as 4-digit
-            integers.
-        states (list): The states whose CEMS data we want to extract, indicated
-            by 2-letter US state codes.
-        ds (:class:`Datastore`): Initialized datastore
+        partition: A single EPA CEMS partitions (year, state).
 
     Yields:
         pandas.DataFrame: A single state-year of EPA CEMS hourly emissions data.
