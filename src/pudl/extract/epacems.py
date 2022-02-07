@@ -10,7 +10,7 @@ from zipfile import ZipFile
 
 import pandas as pd
 import sqlalchemy as sa
-from dagster import DynamicOut, DynamicOutput, Field, op
+from dagster import DynamicOut, DynamicOutput, Field, Output, op
 
 import pudl.constants as pc
 from pudl.settings import EpaCemsSettings
@@ -218,4 +218,4 @@ def extract(context, partition: EpaCemsPartition) -> pd.DataFrame:
         ds.get_data_frame(partition)
         .assign(year=partition.year)
     )
-    return df
+    return Output(df, metadata={"Number of Rows": len(df)})

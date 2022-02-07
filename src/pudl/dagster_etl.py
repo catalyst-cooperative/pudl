@@ -28,9 +28,9 @@ def load_epacems(context, transformed_df: pd.DataFrame):
         description="Persisted result to storage",
         partition=context.get_mapping_key(),
         metadata={
-            "Description": "Parquet file.",
+            "Description": f"Parquet file of {context.get_mapping_key()} EPA CEMS data.",
             "Path": EventMetadata.path(str(root_path)),
-            "DataFrame Size (Bytes)": int(transformed_df.memory_usage().sum())
+            "Number of Rows": len(transformed_df)
         },
     )
     yield Output(root_path)

@@ -7,7 +7,7 @@ import numpy as np
 import pandas as pd
 import pytz
 import sqlalchemy as sa
-from dagster import op
+from dagster import Output, op
 
 import pudl
 
@@ -224,6 +224,8 @@ def transform(context, raw_df: pd.DataFrame) -> pd.DataFrame:
         pandas.Dataframe: A single year-state of EPA CEMS data,
 
     """
+    # TODO: Each of these transform functions could be their own
+    # @op within a transform subgraph
     pudl_engine = context.resources.pudl_engine
     plant_utc_offset = _load_plant_utc_offset(pudl_engine)
     transformed_df = (
@@ -241,4 +243,4 @@ def transform(context, raw_df: pd.DataFrame) -> pd.DataFrame:
             "hourly_emissions_epacems"
         )
     )
-    return transformed_df
+    return Output(transformed_df, metadata={"Number of Rows": len(transformed_df)})
