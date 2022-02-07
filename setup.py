@@ -93,7 +93,7 @@ setup(
             "pep8-naming~=0.12",
             "pre-commit~=2.9",
             "pydocstyle>=5.1,<7.0",
-            "pytest~=6.2",
+            "pytest>=6.2,<8.0",
             "pytest-console-scripts~=1.1",
             "pytest-cov>=2.10,<4.0",
             "responses~=0.14",
