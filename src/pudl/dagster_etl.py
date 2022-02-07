@@ -23,8 +23,9 @@ def load_epacems(context, transformed_df):
 
     # Format of the mapping key makes it difficult to recreate the final parquet path.
     yield AssetMaterialization(
-        asset_key=context.get_mapping_key(),
+        asset_key="hourly_emissions_epacems",
         description="Persisted result to storage",
+        partition=context.get_mapping_key(),
         metadata={
             "Description": "Parquet file.",
             "Path": EventMetadata.path(str(root_path)),
