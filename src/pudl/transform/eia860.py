@@ -8,6 +8,7 @@ import pandas as pd
 import pudl
 from pudl.metadata.codes import CODE_METADATA
 from pudl.metadata.fields import apply_pudl_dtypes
+from pudl.settings import Eia860Settings
 
 logger = logging.getLogger(__name__)
 
@@ -45,10 +46,10 @@ def ownership(eia860_dfs, eia860_transformed_dfs):
     )
 
     if (min(own_df.report_date.dt.year)
-            < min(pc.WORKING_PARTITIONS['eia860']['years'])):
+            < min(Eia860Settings.working_partitions['years'])):
         raise ValueError(
             f"EIA 860 transform step is only known to work for "
-            f"year {min(pc.WORKING_PARTITIONS['eia860']['years'])} and later, "
+            f"year {min(Eia860Settings.working_partitions['years'])} and later, "
             f"but found data from year {min(own_df.report_date.dt.year)}."
         )
 

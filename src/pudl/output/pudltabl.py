@@ -38,6 +38,7 @@ import sqlalchemy as sa
 
 import pudl
 from pudl.workspace.datastore import Datastore
+from pudl.metadata.classes import DataSource
 
 logger = logging.getLogger(__name__)
 
@@ -220,7 +221,7 @@ class PudlTabl(object):
 
             eia861_raw_dfs = (
                 pudl.extract.eia861.Extractor(self.ds)
-                .extract(year=pc.WORKING_PARTITIONS["eia861"]["years"])
+                .extract(year=DataSource.from_id("eia861").working_partitions["years"])
             )
             self._dfs.update(pudl.transform.eia861.transform(eia861_raw_dfs))
 

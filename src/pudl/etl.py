@@ -100,7 +100,7 @@ def _etl_eia(
     # if we are trying to add the EIA 860M YTD data, then extract it and append
     if eia860m:
         eia860m_raw_dfs = pudl.extract.eia860m.Extractor(ds).extract(
-            year_month=etl_settings.eia860.eia860m_working_partitions)
+            year_month=etl_settings.eia860.eia860m_date)
         eia860_raw_dfs = pudl.extract.eia860m.append_eia860m(
             eia860_raw_dfs=eia860_raw_dfs, eia860m_raw_dfs=eia860m_raw_dfs)
 

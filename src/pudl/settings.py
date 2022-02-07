@@ -153,8 +153,7 @@ class Eia860Settings(GenericDatasetSettings):
     """
 
     working_partitions: ClassVar = DataSource.from_id("eia860").working_partitions
-    eia860m_working_partitions: ClassVar[str] = DataSource.from_id("eia860m").working_partitions["year_month"]
-    eia860m_date: ClassVar[str] = "2021-08"
+    eia860m_date: ClassVar[str] = DataSource.from_id("eia860m").working_partitions["year_month"]
     working_tables: ClassVar = sorted(list(pc.PUDL_TABLES["eia860"]))
 
     years: List[int] = working_partitions["years"]

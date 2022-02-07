@@ -8,6 +8,7 @@ import dask.dataframe as dd
 import pandas as pd
 
 import pudl
+from pudl.settings import EpaCemsSettings
 
 # TODO: hardcoded data version doesn't belong here, but will defer fixing it until
 # the crosswalk is formally integrated into PUDL. See Issue #1123
@@ -147,7 +148,7 @@ def epacems(
         The requested epacems data
 
     """
-    all_states = pudl.constants.WORKING_PARTITIONS['epacems']['states']
+    all_states = EpaCemsSettings.working_partitions['states']
     if states is None:
         states = all_states  # all states
     else:
@@ -157,7 +158,7 @@ def epacems(
                 f"These input states are not in our dataset: {nonexistent}")
         states = list(states)
 
-    all_years = pudl.constants.WORKING_PARTITIONS['epacems']['years']
+    all_years = EpaCemsSettings['years']
     if years is None:
         years = all_years
     else:
