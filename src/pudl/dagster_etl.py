@@ -41,6 +41,8 @@ def load_epacems(context, transformed_df: pd.DataFrame):
     )
     yield Output(root_path)
 
+# The configurable @resources the ETL depends on.
+
 
 @resource
 def pudl_settings(init_context):
@@ -66,6 +68,8 @@ def datastore(init_context):
         ds_kwargs["local_cache_path"] = Path(
             init_context.resources.pudl_settings["pudl_in"]) / "data"
     return Datastore(**ds_kwargs)
+
+# The @job that links the ETL @ops together
 
 
 @job(resource_defs={"pudl_settings": pudl_settings, "datastore": datastore, "pudl_engine": pudl_engine})

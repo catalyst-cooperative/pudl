@@ -10,7 +10,7 @@ from zipfile import ZipFile
 
 import pandas as pd
 import sqlalchemy as sa
-from dagster import DynamicOut, DynamicOutput, Field, Output, op
+from dagster import Any, DynamicOut, DynamicOutput, Field, Output, op
 
 import pudl.constants as pc
 from pudl.settings import EpaCemsSettings
@@ -152,13 +152,13 @@ class EpaCemsDatastore:
 @op(
     out=DynamicOut(EpaCemsPartition),
     config_schema={
-        'years': Field(list, description='years', default_value=[2020]),
-        'states': Field(list, default_value=["ID"]),
+        'years': Field(Any, description='Years to process.', default_value=list(pc.WORKING_PARTITIONS['epacems']['years'])),
+        'states': Field(Any, description='States to process.', default_value=list(pc.WORKING_PARTITIONS['epacems']['states'])),
     },
     required_resource_keys={"pudl_engine"}
 )
 def gather_partitions(context):
-    """Gather CEMS partitions."""
+    """Gather CEMS partitions, validate settings and PUDL DB plant attributes."""
     # Validate the partitions
     # Could maybe replace our pydantic settings models with
     # Dagster Types that check working partitions and tables.
