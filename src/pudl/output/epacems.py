@@ -158,7 +158,7 @@ def epacems(
                 f"These input states are not in our dataset: {nonexistent}")
         states = list(states)
 
-    all_years = EpaCemsSettings['years']
+    all_years = EpaCemsSettings.working_partitions['years']
     if years is None:
         years = all_years
     else:
