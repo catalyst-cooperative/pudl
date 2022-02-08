@@ -1451,6 +1451,94 @@ class PlantPart(object):
         )
         return part_df
 
+    def match_to_single_plant_part(
+            self,
+            multi_gran_df: pd.DataFrame,
+            ppl: pd.DataFrame,
+            cols_to_keep: List[str] = [],
+            keep_only_record_id=False) -> pd.DataFrame:
+        """
+        Match data with a variety of granularities to a single plant-part.
+
+        This method merges an input dataframe (``multi_gran_df``) containing
+        data that has a heterogeneous set of plant-part granularities with a
+        subset of the EIA plant-part list that has a single granularity.
+        (Currently this single granularity must be generators). In general this
+        will be a one-to-many merge in which values from single records in the
+        input data end up associated with several records from the plant part
+        list.
+        First, we select a subset of the full EIA plant-part list corresponding
+        to the plant-part of the :class:`PlantPart` instance.  (specified
+        by its :attr:`part_name`). In theory this could be the plant,
+        generator, fuel type, etc. Currently only generators are supported.
+        Then, we iterate over all the possible plant parts, selecting the
+        subset of records in ``multi_gran_df`` that have that granularity, and
+        merge the homogeneous subset of the plant part list that we selected
+        above onto that subset of the input data. Each iteration uses a
+        different set of columns to merge on -- the columns which define the
+        primary key for the plant part being merged. Each iteration creates a
+        separate dataframe, corresponding to a particular plant part, and at
+        the end they are all concatenated together and returned.
+
+        Args:
+            multi_gran_df: a data table where all records have been linked to
+                EIA plant-part list but they may be heterogeneous in its
+                plant-part granularities (i.e. some records could be of 'plant'
+                plant-part type while others are 'plant_gen' or
+                'plant_prime_mover').  All of the plant-part list columns need
+                to be present in this table.
+            ppl: the EIA plant-part list.
+            cols_to_keep: columns from the original data ``multi_gran_df`` that
+                you want to show up in the output. These should not be columns
+                that show up in the ``ppl``.
+        Returns:
+            A dataframe in which records correspond to :attr:`part_name` (in
+            the current implementation: the records all correspond to EIA
+            generators!). This is an intermediate table that cannot be used
+            directly for analysis because the data columns from the original
+            dataset are duplicated and still need to be scaled up/down.
+        """
+        # select only the plant-part records that we are trying to scale to
+        ppl_part_df = ppl[ppl.plant_part == self.part_name]
+        # convert the date to year start - this is necessary because the
+        # depreciation data is often reported as EOY and the ppl is always SOY
+        multi_gran_df.loc[:, 'report_date'] = (
+            pd.to_datetime(multi_gran_df.report_date.dt.year, format='%Y')
+        )
+        out_dfs = []
+        for merge_part in PLANT_PARTS_ORDERED:
+            pk_cols = (
+                PLANT_PARTS
+                [merge_part]['id_cols']
+                + IDX_TO_ADD
+                + IDX_OWN_TO_ADD
+            )
+            part_df = pd.merge(
+                (
+                    # select just the records that correspond to merge_part
+                    multi_gran_df[multi_gran_df.plant_part == merge_part]
+                    [pk_cols + ['record_id_eia'] + cols_to_keep]
+                ),
+                ppl_part_df,
+                on=pk_cols,
+                how='left',
+                # this unfortunately needs to be a m:m bc sometimes the df
+                # multi_gran_df has multiple record associated with the same
+                # record_id_eia but are unique records and are not aggregated
+                # in aggregate_duplicate_eia. For instance, the depreciation
+                # data has both PUC and FERC studies.
+                validate='m:m',
+                suffixes=('_og', '')
+            )
+            out_dfs.append(part_df)
+        out_df = pd.concat(out_dfs)
+
+        if keep_only_record_id:
+            out_df = out_df.set_index(
+                ['record_id_eia_og', 'record_id_eia']).index.to_frame(index=False)
+
+        return out_df
+
 
 class PartTrueGranLabeler:
     """Label a plant-part as a unique (or not) granularity."""
