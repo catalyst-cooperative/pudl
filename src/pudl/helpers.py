@@ -1242,3 +1242,12 @@ def convert_df_to_excel_file(df: pd.DataFrame, **kwargs) -> pd.ExcelFile:
     workbook = bio.read()
 
     return pd.ExcelFile(workbook)
+
+
+def compute_dataframe_summary_statistics(df):
+    """Compute dataframe summary stats for dagster runs."""
+    return {
+        "n_rows": len(df),
+        "columns": str(df.columns),
+        "is_na_pct": (df.isna().sum() / len(df)).to_dict()
+    }

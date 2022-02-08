@@ -42,6 +42,7 @@ dependencies:
   # dagster testing
   - dagster~=0.13.0
   - dagit~=0.13.0
+  - dagster-pandas~=0.13.0
 
   # Use pip to install the main PUDL repo / package for development:
   - pip:

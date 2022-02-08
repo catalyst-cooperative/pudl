@@ -9,6 +9,8 @@ from pathlib import Path
 from typing import (Any, Callable, Dict, Iterable, List, Literal, Optional,
                     Tuple, Type, Union)
 
+import dagster
+import dagster_pandas as dp
 import jinja2
 import pandas as pd
 import pyarrow as pa
@@ -18,9 +20,10 @@ from pydantic.types import DirectoryPath
 
 from .codes import CODE_METADATA
 from .constants import (CONSTRAINT_DTYPES, CONTRIBUTORS,
-                        CONTRIBUTORS_BY_SOURCE, FIELD_DTYPES_PANDAS,
-                        FIELD_DTYPES_PYARROW, FIELD_DTYPES_SQL,
-                        KEYWORDS_BY_SOURCE, LICENSES, PERIODS, SOURCES)
+                        CONTRIBUTORS_BY_SOURCE, DAGSTER_DTYPES,
+                        FIELD_DTYPES_PANDAS, FIELD_DTYPES_PYARROW,
+                        FIELD_DTYPES_SQL, KEYWORDS_BY_SOURCE, LICENSES,
+                        PERIODS, SOURCES)
 from .fields import (FIELD_METADATA, FIELD_METADATA_BY_GROUP,
                      FIELD_METADATA_BY_RESOURCE)
 from .helpers import (expand_periodic_column_names, format_errors,
@@ -668,6 +671,14 @@ class Field(Base):
             nullable=(not self.constraints.required),
         )
 
+    def to_dagster(self) -> dp.PandasColumn:
+        """Return a Dagster Type appropriate to the field."""
+        if self.constraints.enum and self.type == "string":
+            return dp.PandasColumn.categorical_column(self.name, categories=set(self.constraints.enum), non_nullable=self.constraints.required, ignore_missing_vals=(not self.constraints.required))
+
+        dagster_type_constructor = DAGSTER_DTYPES[self.type]
+        return dagster_type_constructor(self.name, non_nullable=self.constraints.required, ignore_missing_vals=(not self.constraints.required))
+
     def to_sql(  # noqa: C901
         self,
         dialect: Literal["sqlite"] = "sqlite",
@@ -1192,6 +1203,11 @@ class Resource(Base):
         return pa.schema(
             [field.to_pyarrow() for field in self.schema.fields]
         )
+
+    def to_dagster(self, event_metadata_fn=None) -> dagster.DagsterType:
+        """Construct a DagsterType schema for the resource."""
+        columns = [field.to_dagster() for field in self.schema.fields]
+        return dp.create_dagster_pandas_dataframe_type(name=self.name, columns=columns, event_metadata_fn=event_metadata_fn)
 
     def to_pandas_dtypes(
         self, **kwargs: Any

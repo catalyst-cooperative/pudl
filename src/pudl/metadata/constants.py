@@ -5,6 +5,7 @@ from typing import Callable, Dict, List, Type
 import pandas as pd
 import pyarrow as pa
 import sqlalchemy as sa
+from dagster_pandas import PandasColumn
 
 FIELD_DTYPES_PANDAS: Dict[str, str] = {
     "string": "string",
@@ -55,6 +56,16 @@ CONSTRAINT_DTYPES: Dict[str, Type] = {
 """
 Python types for field constraints by PUDL field type (Data Package `field.type`).
 """
+
+DAGSTER_DTYPES: Dict[str, PandasColumn] = {
+    'string': PandasColumn.string_column,
+    'integer': PandasColumn.integer_column,
+    'year': PandasColumn.integer_column,
+    'number': PandasColumn.float_column,
+    'boolean': PandasColumn.boolean_column,
+    'date': PandasColumn.datetime_column,
+    'datetime': PandasColumn.datetime_column
+}
 
 LICENSES: Dict[str, Dict[str, str]] = {
     "cc-by-4.0": {

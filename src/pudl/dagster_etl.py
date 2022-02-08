@@ -3,14 +3,20 @@ from pathlib import Path
 
 import pandas as pd
 import sqlalchemy as sa
-from dagster import (AssetMaterialization, EventMetadata, Field, Output, job,
-                     op, resource)
+from dagster import (AssetMaterialization, EventMetadata, Field, In, Output,
+                     job, op, resource)
 
 import pudl
+from pudl.helpers import compute_dataframe_summary_statistics
+from pudl.metadata.classes import Resource
 from pudl.workspace.datastore import Datastore
 
+# TODO: how can we associate metadata schemas with specific ops?
+EpaCemsDataFrame = Resource.from_id("hourly_emissions_epacems").to_dagster(
+    event_metadata_fn=compute_dataframe_summary_statistics)
 
-@op(required_resource_keys={"pudl_settings"})
+
+@op(required_resource_keys={"pudl_settings"}, ins={"transformed_df": In(dagster_type=EpaCemsDataFrame)})
 def load_epacems(context, transformed_df: pd.DataFrame):
     """Load epacems to parquet."""
     root_path = Path(context.resources.pudl_settings["parquet_dir"]) / "epacems"
