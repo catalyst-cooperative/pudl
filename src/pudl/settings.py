@@ -58,7 +58,7 @@ class GenericDatasetSettings(BaseModel, abc.ABC):
             if len(partitions_not_working) > 0:
                 raise ValueError(
                     f"'{partitions_not_working}' {name} are not available.")
-            partitions[name] = tuple(sorted(set(partition)))
+            partitions[name] = sorted(set(partition))
         return partitions
 
     @validator("tables")
