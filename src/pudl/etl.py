@@ -189,24 +189,16 @@ def _etl_ferc1(
         data, keyed by table name.
 
     """
-    ferc1_years = etl_settings.years
-    ferc1_tables = etl_settings.tables
-
-    if not ferc1_years or not ferc1_tables:
-        logger.info('Not loading FERC1')
-        return []
-
     # Compile static FERC 1 dataframes
     out_dfs = _read_static_tables_ferc1()
 
     # Extract FERC form 1
     ferc1_raw_dfs = pudl.extract.ferc1.extract(
-        ferc1_tables=ferc1_tables,
-        ferc1_years=ferc1_years,
+        ferc1_settings=etl_settings,
         pudl_settings=pudl_settings)
     # Transform FERC form 1
     ferc1_transformed_dfs = pudl.transform.ferc1.transform(
-        ferc1_raw_dfs, ferc1_tables=ferc1_tables)
+        ferc1_raw_dfs, ferc1_tables=etl_settings.tables)
 
     out_dfs.update(ferc1_transformed_dfs)
     return out_dfs
