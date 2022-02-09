@@ -229,14 +229,6 @@ def etl_epacems(
         dictionary of dataframes.
 
     """
-    epacems_years = etl_settings.years
-    epacems_states = etl_settings.states
-
-    # If we're not doing CEMS, just stop here to avoid printing messages like
-    # "Reading EPA CEMS data...", which could be confusing.
-    if not epacems_states or not epacems_years:
-        logger.info('Not ingesting EPA CEMS.')
-
     pudl_engine = sa.create_engine(pudl_settings["pudl_db"])
 
     # Verify that we have a PUDL DB with plant attributes:
@@ -254,7 +246,7 @@ def etl_epacems(
         FROM plants_eia860
         ORDER BY year ASC
         """, pudl_engine).year.astype(int)
-    missing_years = list(set(epacems_years) - set(eia_plant_years))
+    missing_years = list(set(etl_settings.years) - set(eia_plant_years))
     if missing_years:
         logger.info(
             f"EPA CEMS years with no EIA plant data: {missing_years} "
@@ -263,7 +255,7 @@ def etl_epacems(
 
     # NOTE: This is a generator for raw dataframes
     epacems_raw_dfs = pudl.extract.epacems.extract(
-        epacems_years, epacems_states, Datastore(**ds_kwargs))
+        etl_settings, Datastore(**ds_kwargs))
 
     # NOTE: This is a generator for transformed dataframes
     epacems_transformed_dfs = pudl.transform.epacems.transform(

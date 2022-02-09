@@ -138,15 +138,14 @@ class EpaCemsDatastore:
         )
 
 
-def extract(epacems_years, states, ds: Datastore):
+def extract(epacems_settings, ds: Datastore):
     """
     Coordinate the extraction of EPA CEMS hourly DataFrames.
 
     Args:
-        epacems_years (list): The years of CEMS data to extract, as 4-digit
-            integers.
-        states (list): The states whose CEMS data we want to extract, indicated
-            by 2-letter US state codes.
+        epacems_settings (EpaCemsSettings): Object containing validated settings
+            relevant to EPA CEMS. Contains the years and states to be loaded
+            into PUDL.
         ds (:class:`Datastore`): Initialized datastore
 
     Yields:
@@ -154,8 +153,8 @@ def extract(epacems_years, states, ds: Datastore):
 
     """
     ds = EpaCemsDatastore(ds)
-    for year in epacems_years:
-        for state in states:
+    for year in epacems_settings.years:
+        for state in epacems_settings.states:
             partition = EpaCemsPartition(state=state, year=year)
             logger.info(f"Processing EPA CEMS hourly data for {state}-{year}")
             # We have to assign the reporting year for partitioning purposes
