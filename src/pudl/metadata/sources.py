@@ -22,6 +22,7 @@ SOURCES: Dict[str, Any] = {
             "electric power plants with 1 megawatt or greater combined nameplate "
             "capacity."
         ),
+        "field_namespace": "eia",
         "contributors": [
             CONTRIBUTORS["catalyst-cooperative"],
             CONTRIBUTORS["zane-selvans"],
@@ -57,6 +58,7 @@ SOURCES: Dict[str, Any] = {
             "capacity. Preliminary Monthly Electric Generator Inventory (based on "
             "Form EIA-860M as a supplement to Form EIA-860)"
         ),
+        "field_namespace": "eia",
         "contributors": [],
         "working_partitions": {
             "year_month": "2021-08",
@@ -76,6 +78,7 @@ SOURCES: Dict[str, Any] = {
             "EIA Form 861 Annual Electric Power Industry Report, detailed "
             "data files."
         ),
+        "field_namespace": "eia",
         "working_partitions": {
             "years": sorted(set(range(2001, 2021))),
         },
@@ -110,6 +113,7 @@ SOURCES: Dict[str, Any] = {
             "power data on electricity generation, fuel consumption, fossil fuel "
             "stocks, and receipts at the power plant and prime mover level."
         ),
+        "field_namespace": "eia",
         "working_partitions": {
             "years": sorted(set(range(2001, 2021))),
         },
@@ -145,6 +149,7 @@ SOURCES: Dict[str, Any] = {
         "description": (
             "US EPA hourly Continuous Emissions Monitoring System (CEMS) data."
         ),
+        "field_namespace": "epacems",
         "working_partitions": {
             "years": sorted(set(range(1995, 2021))),
             "states": sorted(set(EPACEMS_STATES)),
@@ -177,6 +182,7 @@ SOURCES: Dict[str, Any] = {
             "electric rate regulation, market oversight analysis, and financial audits "
             "by Major electric utilities, licensees and others."
         ),
+        "field_namespace": "ferc1",
         "working_partitions": {
             "years": sorted(set(range(1994, 2021))),
         },
@@ -209,6 +215,7 @@ SOURCES: Dict[str, Any] = {
             "comprehensive financial and operating report submitted for natural gas "
             "pipelines rate regulation and financial audits."
         ),
+        "field_namespace": "ferc2",
         "working_partitions": {
             "years": [],  # Not yet working!
         }
@@ -224,6 +231,7 @@ SOURCES: Dict[str, Any] = {
             "inter-balancing authority area power transfers, and net energy for load, "
             "summer-winter generation peaks and system lambda."
         ),
+        "field_namespace": "ferc714",
         "working_partitions": {},  # Data is monolitic, one file with all years.
     },
     "ferceqr": {

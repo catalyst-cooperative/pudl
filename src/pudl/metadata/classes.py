@@ -1738,6 +1738,12 @@ class DataSource(Base):
         """Output a representation of the data source in RST for documentation."""
         pass
 
+    @classmethod
+    def from_field_namespace(cls, x: str) -> List['DataSource']:
+        """Return list of DataSource objects by field namespace"""
+        return [cls(**cls.dict_from_id(name)) for name, val in SOURCES.items()
+                if val.get("field_namespace") == x]
+
     @staticmethod
     def dict_from_id(x: str) -> dict:
         """Look up the source by source name in the metadata."""
