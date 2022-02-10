@@ -82,8 +82,8 @@ class Ferc1Settings(GenericDatasetSettings):
         working_partitions: Dictionary of working paritions.
         working_tables: List of working tables.
     """
-
-    working_partitions: ClassVar = DataSource.from_id("ferc1").working_partitions
+    data_source: ClassVar = DataSource.from_id("ferc1")
+    working_partitions: ClassVar = data_source.working_partitions
     working_tables: ClassVar = sorted(list(pc.PUDL_TABLES["ferc1"]))
 
     years: List[int] = working_partitions["years"]
@@ -102,8 +102,8 @@ class EpaCemsSettings(GenericDatasetSettings):
         working_partitions: Dictionary of working paritions.
         working_tables: List of working tables.
     """
-
-    working_partitions: ClassVar = DataSource.from_id("epacems").working_partitions
+    data_source: ClassVar = DataSource.from_id("epacems")
+    working_partitions: ClassVar = data_source.working_partitions
     working_tables: ClassVar = sorted(list(pc.PUDL_TABLES["epacems"]))
 
     years: List[int] = working_partitions["years"]
@@ -129,8 +129,8 @@ class Eia923Settings(GenericDatasetSettings):
         working_partitions ClassVar[Dict[str, Any]]: working paritions.
         working_tables: List of working tables.
     """
-
-    working_partitions: ClassVar = DataSource.from_id("eia923").working_partitions
+    data_source: ClassVar = DataSource.from_id("eia923")
+    working_partitions: ClassVar = data_source.working_partitions
     working_tables: ClassVar = sorted(list(pc.PUDL_TABLES["eia923"]))
 
     years: List[int] = working_partitions["years"]
@@ -151,9 +151,11 @@ class Eia860Settings(GenericDatasetSettings):
         working_tables: List of working tables.
         eia860m_date ClassVar[str]: The 860m year to date.
     """
-
-    working_partitions: ClassVar = DataSource.from_id("eia860").working_partitions
-    eia860m_date: ClassVar[str] = DataSource.from_id("eia860m").working_partitions["year_month"]
+    data_source: ClassVar = DataSource.from_id("eia860")
+    eia860m_data_source: ClassVar = DataSource.from_id("eia860")
+    working_partitions: ClassVar = data_source.working_partitions
+    eia860m_date: ClassVar[str] = eia860m_data_source.working_partitions[
+            "year_month"]
     working_tables: ClassVar = sorted(list(pc.PUDL_TABLES["eia860"]))
 
     years: List[int] = working_partitions["years"]
