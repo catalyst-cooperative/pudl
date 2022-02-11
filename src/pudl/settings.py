@@ -9,8 +9,8 @@ from pydantic import BaseModel as PydanticBaseModel
 from pydantic import BaseSettings, root_validator, validator
 
 import pudl
-from pudl.metadata.constants import DBF_TABLES_FILENAMES
 from pudl.metadata.classes import DataSource
+from pudl.metadata.constants import DBF_TABLES_FILENAMES
 
 
 class BaseModel(PydanticBaseModel):
@@ -92,7 +92,6 @@ class Ferc1Settings(GenericDatasetSettings):
 
 
 class EpaCemsSettings(GenericDatasetSettings):
-
     """
     An immutable pydantic model to validate EPA CEMS settings.
 
@@ -104,6 +103,7 @@ class EpaCemsSettings(GenericDatasetSettings):
         working_partitions: Dictionary of working paritions.
         working_tables: List of working tables.
     """
+
     data_source: ClassVar = DataSource.from_id("epacems")
     working_partitions: ClassVar = data_source.working_partitions
     working_tables: ClassVar = data_source.get_resource_ids()
@@ -159,7 +159,7 @@ class Eia860Settings(GenericDatasetSettings):
     eia860m_data_source: ClassVar = DataSource.from_id("eia860m")
     working_partitions: ClassVar = data_source.working_partitions
     eia860m_date: ClassVar[str] = eia860m_data_source.working_partitions[
-            "year_month"]
+        "year_month"]
     working_tables: ClassVar = data_source.get_resource_ids()
 
     years: List[int] = working_partitions["years"]
@@ -180,7 +180,6 @@ class Eia860Settings(GenericDatasetSettings):
         Raises:
             ValueError: the 860m date is within 860 working years.
         """
-
         eia860m_year = pd.to_datetime(cls.eia860m_date).year
         if eia860m and (eia860m_year != max(cls.working_partitions["years"]) + 1):
             raise AssertionError(

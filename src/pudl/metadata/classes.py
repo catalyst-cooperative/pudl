@@ -17,9 +17,9 @@ import sqlalchemy as sa
 from pydantic.types import DirectoryPath
 
 from .codes import CODE_METADATA
-from .constants import (CONSTRAINT_DTYPES, CONTRIBUTORS,
-                        FIELD_DTYPES_PANDAS, FIELD_DTYPES_PYARROW,
-                        FIELD_DTYPES_SQL, LICENSES, PERIODS)
+from .constants import (CONSTRAINT_DTYPES, CONTRIBUTORS, FIELD_DTYPES_PANDAS,
+                        FIELD_DTYPES_PYARROW, FIELD_DTYPES_SQL, LICENSES,
+                        PERIODS)
 from .fields import (FIELD_METADATA, FIELD_METADATA_BY_GROUP,
                      FIELD_METADATA_BY_RESOURCE)
 from .helpers import (expand_periodic_column_names, format_errors,
@@ -902,7 +902,6 @@ class Contributor(Base):
 
         Allows use of `set()` on a list of Contributor
         """
-
         return hash(str(self))
 
 
@@ -1117,7 +1116,8 @@ class Resource(Base):
     sources: List[DataSource] = []
     keywords: List[String] = []
     encoder: Encoder = None
-    field_namespace: Literal["eia", "epacems", "ferc1", "ferc714", "glue", "pudl"] = None
+    field_namespace: Literal["eia", "epacems",
+                             "ferc1", "ferc714", "glue", "pudl"] = None
     etl_group: String = None
 
     _check_unique = _validator(
