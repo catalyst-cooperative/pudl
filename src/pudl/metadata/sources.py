@@ -7,7 +7,7 @@ from pudl.metadata.enums import EPACEMS_STATES
 SOURCES: Dict[str, Any] = {
     "censusdp1tract": {
         "title": "Census DP1",
-        "path": "",
+        "path": "https://www.census.gov/geographies/mapping-files/2010/geo/tiger-data.html",
         "description": (
             "US Census Demographic Profile 1 (DP1) County and Tract "
             "GeoDatabase."
@@ -51,7 +51,7 @@ SOURCES: Dict[str, Any] = {
     },
     "eia860m": {
         "title": "EIA Form 860m",
-        "path": "",
+        "path": "https://www.eia.gov/electricity/data/eia860m",
         "description": (
             "US Energy Information Administration (EIA) Form 860 M data for "
             "electric power plants with 1 megawatt or greater combined nameplate "
@@ -199,7 +199,7 @@ SOURCES: Dict[str, Any] = {
                 "form 1",
                 "ferc1",
             ]
-            + KEYWORDS["ferc1"]
+            + KEYWORDS["ferc"]
             + KEYWORDS["us_govt"]
             + KEYWORDS["finance"]
             + KEYWORDS["electricity"]
@@ -209,7 +209,7 @@ SOURCES: Dict[str, Any] = {
     },
     "ferc2": {
         "title": "FERC Form 2",
-        "path": "",
+        "path": "https://www.ferc.gov/industries-data/natural-gas/industry-forms/form-2-2a-3-q-gas-historical-vfp-data",
         "description": (
             "The Federal Energy Regulatory Commission (FERC) Form 2 is a "
             "comprehensive financial and operating report submitted for natural gas "
@@ -252,8 +252,13 @@ SOURCES: Dict[str, Any] = {
     "pudl": {
         "title": "The Public Utility Data Liberation (PUDL) Project",
         "path": "https://catalyst.coop/pudl",
-        "description": "",
-        "email": "pudl@catalyst.coop",
+        "description": "PUDL is a data processing pipeline created by Catalyst"
+        "Cooperative that cleans, integrates, and standardizes some of the most"
+        "widely used public energy datasets in the US. The data serve researchers,"
+        "activists, journalists, and policy makers that might not have the"
+        "technical expertise to access it in its raw form, the time to clean and"
+        "prepare the data for bulk analysis, or the means to purchase it from"
+        "existing commercial providers.",
         "contributors": [
             CONTRIBUTORS["catalyst-cooperative"],
             CONTRIBUTORS["zane-selvans"],
