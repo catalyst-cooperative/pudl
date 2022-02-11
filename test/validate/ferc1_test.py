@@ -10,7 +10,7 @@ import pandas as pd
 import pytest
 
 from pudl import validate as pv
-from pudl.constants import PUDL_TABLES
+from pudl.settings import Ferc1Settings
 
 logger = logging.getLogger(__name__)
 
@@ -20,7 +20,7 @@ row_mapped_tables = [
     "plant_in_service_ferc1",
 ]
 unique_record_tables = [
-    t for t in PUDL_TABLES["ferc1"] if t not in row_mapped_tables
+    t for t in Ferc1Settings.tables if t not in row_mapped_tables
 ]
 
 

@@ -52,7 +52,7 @@ class TestFerc1Settings:
     def test_duplicate_sort_years(self):
         """Test years are sorted and deduplicated."""
         returned_settings = Ferc1Settings(years=[2001, 2001, 2000])
-        expected_years = (2000, 2001)
+        expected_years = [2000, 2001]
 
         assert expected_years == returned_settings.years
 
@@ -96,7 +96,7 @@ class TestEpaCemsSettings:
         """Test states are sorted and deduplicated."""
         returned_settings = EpaCemsSettings(
             states=["CA", "CA", "AL"])
-        expected_states = ("AL", "CA")
+        expected_states = ["AL", "CA"]
 
         assert expected_states == returned_settings.states
 
