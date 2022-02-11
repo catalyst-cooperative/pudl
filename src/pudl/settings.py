@@ -9,7 +9,7 @@ from pydantic import BaseModel as PydanticBaseModel
 from pydantic import BaseSettings, root_validator, validator
 
 import pudl
-from pudl.extract.ferc1 import DBF_TABLES_FILENAMES
+from pudl.metadata.constants import DBF_TABLES_FILENAMES
 from pudl.metadata.classes import DataSource
 
 
