@@ -157,7 +157,6 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
         "etl_group": "eia861",
     },
     "demand_side_management_misc_eia861": {
-        "description": "",
         "schema": {
             "fields": [
                 'energy_savings_estimates_independently_verified',
@@ -180,7 +179,6 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
         "etl_group": "eia861",
     },
     "demand_side_management_sales_eia861": {
-        "description": "",
         "schema": {
             "fields": [
                 'nerc_region',
@@ -196,7 +194,6 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
         "etl_group": "eia861",
     },
     "distributed_generation_fuel_eia861": {
-        "description": "",
         "schema": {
             "fields": [
                 'estimated_or_actual_fuel_data',
@@ -212,7 +209,6 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
         "etl_group": "eia861",
     },
     "distributed_generation_misc_eia861": {
-        "description": "",
         "schema": {
             "fields": [
                 'backup_capacity_mw',
@@ -232,7 +228,6 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
         "etl_group": "eia861",
     },
     "distributed_generation_tech_eia861": {
-        "description": "",
         "schema": {
             "fields": [
                 'capacity_mw',
@@ -357,7 +352,6 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
         "etl_group": "eia861",
     },
     "net_metering_customer_fuel_class_eia861": {
-        "description": "",
         "schema": {
             "fields": [
                 'balancing_authority_code_eia',
@@ -379,7 +373,6 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
         "etl_group": "eia861",
     },
     "net_metering_misc_eia861": {
-        "description": "",
         "schema": {
             "fields": [
                 'balancing_authority_code_eia',
@@ -394,7 +387,6 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
         "etl_group": "eia861",
     },
     "non_net_metering_customer_fuel_class_eia861": {
-        "description": "",
         "schema": {
             "fields": [
                 'balancing_authority_code_eia',
@@ -412,7 +404,6 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
         "etl_group": "eia861",
     },
     "non_net_metering_misc_eia861": {
-        "description": "",
         "schema": {
             "fields": [
                 'backup_capacity_mw',
@@ -430,7 +421,6 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
         "etl_group": "eia861",
     },
     "operational_data_misc_eia861": {
-        "description": "",
         "schema": {
             "fields": [
                 'consumed_by_facility_mwh',
@@ -467,7 +457,6 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
         "etl_group": "eia861",
     },
     "operational_data_revenue_eia861": {
-        "description": "",
         "schema": {
             "fields": [
                 'nerc_region',
@@ -483,7 +472,6 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
         "etl_group": "eia861",
     },
     "reliability_eia861": {
-        "description": "",
         "schema": {
             "fields": [
                 'caidi_w_major_event_days_minus_loss_of_service_minutes',
@@ -586,7 +574,6 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
         "etl_group": "eia861",
     },
     "utility_data_misc_eia861": {
-        "description": "",
         "schema": {
             "fields": [
                 'alternative_fuel_vehicle_2_activity',
@@ -614,7 +601,6 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
         "etl_group": "eia861",
     },
     "utility_data_nerc_eia861": {
-        "description": "",
         "schema": {
             "fields": [
                 'nerc_region',
@@ -629,7 +615,6 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
         "etl_group": "eia861",
     },
     "utility_data_rto_eia861": {
-        "description": "",
         "schema": {
             "fields": [
                 'nerc_region',
