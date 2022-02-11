@@ -24,7 +24,7 @@ from .fields import (FIELD_METADATA, FIELD_METADATA_BY_GROUP,
                      FIELD_METADATA_BY_RESOURCE)
 from .helpers import (expand_periodic_column_names, format_errors,
                       groupby_aggregate, most_and_more_frequent, split_period)
-from .resources import FOREIGN_KEYS, RESOURCE_METADATA
+from .resources import FOREIGN_KEYS, RESOURCE_METADATA, eia861
 from .sources import SOURCES
 
 logger = logging.getLogger(__name__)
@@ -932,7 +932,13 @@ class DataSource(Base):
 
     def get_resource_ids(self) -> List[str]:
         """Compile list of resoruce IDs associated with this data source."""
-        return sorted([name for name, value in RESOURCE_METADATA.items()
+        # Temporary check to use eia861.RESOURCE_METADATA directly
+        # eia861 is not currently included in the general RESOURCE_METADATA dict
+        resources = RESOURCE_METADATA
+        if self.name == "eia861":
+            resources = eia861.RESOURCE_METADATA
+
+        return sorted([name for name, value in resources.items()
                        if value.get("etl_group") == self.name])
 
     def raw_datapackage_name(self) -> str:
