@@ -18,14 +18,14 @@ from pydantic.types import DirectoryPath
 
 from .codes import CODE_METADATA
 from .constants import (CONSTRAINT_DTYPES, CONTRIBUTORS,
-                        CONTRIBUTORS_BY_SOURCE, FIELD_DTYPES_PANDAS,
-                        FIELD_DTYPES_PYARROW, FIELD_DTYPES_SQL,
-                        KEYWORDS_BY_SOURCE, LICENSES, PERIODS, SOURCES)
+                        FIELD_DTYPES_PANDAS, FIELD_DTYPES_PYARROW,
+                        FIELD_DTYPES_SQL, LICENSES, PERIODS)
 from .fields import (FIELD_METADATA, FIELD_METADATA_BY_GROUP,
                      FIELD_METADATA_BY_RESOURCE)
 from .helpers import (expand_periodic_column_names, format_errors,
                       groupby_aggregate, most_and_more_frequent, split_period)
 from .resources import FOREIGN_KEYS, RESOURCE_METADATA
+from .sources import SOURCES
 
 logger = logging.getLogger(__name__)
 
@@ -896,6 +896,78 @@ class Contributor(Base):
         """Construct from PUDL identifier."""
         return cls(**cls.dict_from_id(x))
 
+    def __hash__(self):
+        """
+        Implements simple hash method.
+
+        Allows use of `set()` on a list of Contributor
+        """
+
+        return hash(str(self))
+
+
+class DataSource(Base):
+    """
+    A data source that has been integrated into PUDL.
+
+    This metadata is used for:
+
+    * Generating PUDL documentation.
+    * Annotating long-term archives of the raw input data on Zenodo.
+    * Defining what data partitions can be processed using PUDL.
+
+    """
+
+    name: SnakeCase
+    title: String = None
+    description: String = None
+    field_namespace: String = None
+    keywords: List[str] = []
+    path: HttpUrl = None
+    contributors: List[Contributor] = []  # Or should this be compiled from Resources?
+    license_raw: License = None
+    license_pudl: License = License.from_id("cc-by-4.0")
+    # concept_doi: Doi = None  # Need to define a Doi type?
+    working_partitions: Dict[SnakeCase, Any] = {}
+    # agency: Agency  # needs to be defined
+
+    def get_resource_ids(self) -> List[str]:
+        """Compile list of resoruce IDs associated with this data source."""
+        return sorted([name for name, value in RESOURCE_METADATA.items()
+                       if value.get("etl_group") == self.name])
+
+    def raw_datapackage_name(self) -> str:
+        """Construct a datapackage name for the raw data source."""
+        return f"pudl-raw-{self.name}"
+
+    def raw_datapackage_title(self) -> str:
+        """Construct a datapackage title for the raw data source."""
+        return f"PUDL Raw f{self.title}"
+
+    def to_raw_datapackage_json(self) -> pydantic.Json:
+        """Construct a datapackage json descriptor for the raw data source."""
+        pass
+
+    def to_rst(self) -> None:
+        """Output a representation of the data source in RST for documentation."""
+        pass
+
+    @classmethod
+    def from_field_namespace(cls, x: str) -> List['DataSource']:
+        """Return list of DataSource objects by field namespace."""
+        return [cls(**cls.dict_from_id(name)) for name, val in SOURCES.items()
+                if val.get("field_namespace") == x]
+
+    @staticmethod
+    def dict_from_id(x: str) -> dict:
+        """Look up the source by source name in the metadata."""
+        return {'name': x, **copy.deepcopy(SOURCES[x])}
+
+    @classmethod
+    def from_id(cls, x: str) -> 'DataSource':
+        """Construct Source by source name in the metadata."""
+        return cls(**cls.dict_from_id(x))
+
 
 class ResourceHarvest(Base):
     """Resource harvest parameters (`resource.harvest`)."""
@@ -1039,13 +1111,14 @@ class Resource(Base):
     title: String = None
     description: String = None
     harvest: ResourceHarvest = {}
-    group: Literal["eia", "epacems", "ferc1", "ferc714", "glue", "pudl"] = None
     schema_: Schema = pydantic.Field(alias='schema')
     contributors: List[Contributor] = []
     licenses: List[License] = []
-    sources: List[Source] = []
+    sources: List[DataSource] = []
     keywords: List[String] = []
     encoder: Encoder = None
+    field_namespace: Literal["eia", "epacems", "ferc1", "ferc714", "glue", "pudl"] = None
+    etl_group: String = None
 
     _check_unique = _validator(
         "contributors",
@@ -1090,9 +1163,9 @@ class Resource(Base):
                 # Lookup field by name
                 value = Field.dict_from_id(name)
                 # Update with any custom group-level metadata
-                group = obj.get("group")
-                if name in FIELD_METADATA_BY_GROUP.get(group, {}):
-                    value = {**value, **FIELD_METADATA_BY_GROUP[group][name]}
+                namespace = obj.get("field_namespace")
+                if name in FIELD_METADATA_BY_GROUP.get(namespace, {}):
+                    value = {**value, **FIELD_METADATA_BY_GROUP[namespace][name]}
                 # Update with any custom resource-level metadata
                 if name in FIELD_METADATA_BY_RESOURCE.get(x, {}):
                     value = {**value, **FIELD_METADATA_BY_RESOURCE[x][name]}
@@ -1100,7 +1173,8 @@ class Resource(Base):
             schema["fields"] = fields
         # Expand sources
         sources = obj.get("sources", [])
-        obj["sources"] = [Source.dict_from_id(value) for value in sources]
+        obj["sources"] = [DataSource.from_id(value) for value in sources
+                          if value in SOURCES]
         encoder = obj.get("encoder", None)
         obj["encoder"] = encoder
         # Expand licenses (assign CC-BY-4.0 by default)
@@ -1109,16 +1183,18 @@ class Resource(Base):
         # Lookup and insert contributors
         if "contributors" in schema:
             raise ValueError("Resource metadata contains explicit contributors")
-        cids = []
+        contributors = []
         for source in sources:
-            cids.extend(CONTRIBUTORS_BY_SOURCE.get(source, []))
-        obj["contributors"] = [Contributor.dict_from_id(cid) for cid in set(cids)]
+            if source in SOURCES:
+                contributors.extend(DataSource.from_id(source).contributors)
+        obj["contributors"] = set(contributors)
         # Lookup and insert keywords
         if "keywords" in schema:
             raise ValueError("Resource metadata contains explicit keywords")
         keywords = []
         for source in sources:
-            keywords.extend(KEYWORDS_BY_SOURCE.get(source, []))
+            if source in SOURCES:
+                keywords.extend(DataSource.from_id(source).keywords)
         obj["keywords"] = sorted(set(keywords))
         # Insert foreign keys
         if "foreign_keys" in schema:
@@ -1692,64 +1768,3 @@ class CodeMetadata(Base):
                 rendered = encoder.to_rst(
                     top_dir=top_dir, csv_subdir=csv_subdir, is_header=header)
                 f.write(rendered)
-
-
-class DataSource(Base):
-    """
-    A data source that has been integrated into PUDL.
-
-    This metadata is used for:
-
-    * Generating PUDL documentation.
-    * Annotating long-term archives of the raw input data on Zenodo.
-    * Defining what data partitions can be processed using PUDL.
-
-    """
-
-    name: SnakeCase
-    title: String = None
-    description: String = None
-    keywords: List[str] = []
-    path: HttpUrl = None
-    contributors: List[Contributor] = []  # Or should this be compiled from Resources?
-    license_raw: License = None
-    license_pudl: License = License.from_id("cc-by-4.0")
-    # concept_doi: Doi = None  # Need to define a Doi type?
-    working_partitions: Dict[SnakeCase, Any] = {}
-    # agency: Agency  # needs to be defined
-
-    def get_resource_ids(self, Package) -> List[str]:
-        """Compile list of resoruce IDs associated with this data source."""
-        return [res.data_source for res in Package.resources]
-
-    def raw_datapackage_name(self) -> str:
-        """Construct a datapackage name for the raw data source."""
-        return f"pudl-raw-{self.name}"
-
-    def raw_datapackage_title(self) -> str:
-        """Construct a datapackage title for the raw data source."""
-        return f"PUDL Raw f{self.title}"
-
-    def to_raw_datapackage_json(self) -> pydantic.Json:
-        """Construct a datapackage json descriptor for the raw data source."""
-        pass
-
-    def to_rst(self) -> None:
-        """Output a representation of the data source in RST for documentation."""
-        pass
-
-    @classmethod
-    def from_field_namespace(cls, x: str) -> List['DataSource']:
-        """Return list of DataSource objects by field namespace"""
-        return [cls(**cls.dict_from_id(name)) for name, val in SOURCES.items()
-                if val.get("field_namespace") == x]
-
-    @staticmethod
-    def dict_from_id(x: str) -> dict:
-        """Look up the source by source name in the metadata."""
-        return {'name': x, **copy.deepcopy(SOURCES[x])}
-
-    @classmethod
-    def from_id(cls, x: str) -> 'DataSource':
-        """Construct Source by source name in the metadata."""
-        return cls(**cls.dict_from_id(x))

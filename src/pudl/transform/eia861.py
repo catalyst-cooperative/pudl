@@ -10,13 +10,13 @@ import logging
 import pandas as pd
 
 import pudl
-from pudl.constants import PUDL_TABLES
 from pudl.helpers import convert_cols_dtypes
 from pudl.metadata.enums import (CUSTOMER_CLASSES, FUEL_CLASSES, NERC_REGIONS,
                                  RELIABILITY_STANDARDS, REVENUE_CLASSES,
                                  RTO_CLASSES, TECH_CLASSES)
 from pudl.metadata.fields import apply_pudl_dtypes
 from pudl.metadata.labels import ESTIMATED_OR_ACTUAL, MOMENTARY_INTERRUPTIONS
+from pudl.metadata.classes import DataSource
 
 logger = logging.getLogger(__name__)
 
@@ -2418,7 +2418,7 @@ def utility_data(tfr_dfs):
 # Coordinating Transform Function
 ##############################################################################
 
-def transform(raw_dfs, eia861_tables=PUDL_TABLES["eia861"]):
+def transform(raw_dfs, eia861_tables=DataSource.from_id("eia861").get_resource_ids()):
     """
     Transform EIA 861 DataFrames.
 

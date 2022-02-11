@@ -1566,7 +1566,7 @@ def accumulated_depreciation(ferc1_raw_dfs, ferc1_transformed_dfs):
     return ferc1_transformed_dfs
 
 
-def transform(ferc1_raw_dfs, ferc1_tables=PUDL_TABLES['ferc1']):
+def transform(ferc1_raw_dfs, ferc1_tables=Ferc1Settings.working_tables):
     """Transforms FERC 1.
 
     Args:

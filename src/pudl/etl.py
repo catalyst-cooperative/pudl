@@ -157,7 +157,7 @@ def _read_static_tables_ferc1() -> Dict[str, pd.DataFrame]:
     possible state and country codes indicating a coal delivery's location of
     origin. For now these values are primarily stored in a large collection of
     lists, dictionaries, and dataframes which are specified in the
-    pudl.constants module.  This function uses those data structures to
+    pudl.metadata module.  This function uses those data structures to
     populate a bunch of small infrastructural tables within the PUDL DB.
     """
     return {

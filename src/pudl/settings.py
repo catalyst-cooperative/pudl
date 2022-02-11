@@ -82,15 +82,17 @@ class Ferc1Settings(GenericDatasetSettings):
         working_partitions: Dictionary of working paritions.
         working_tables: List of working tables.
     """
+
     data_source: ClassVar = DataSource.from_id("ferc1")
     working_partitions: ClassVar = data_source.working_partitions
-    working_tables: ClassVar = sorted(list(pc.PUDL_TABLES["ferc1"]))
+    working_tables: ClassVar = data_source.get_resource_ids()
 
     years: List[int] = working_partitions["years"]
     tables: List[str] = working_tables
 
 
 class EpaCemsSettings(GenericDatasetSettings):
+
     """
     An immutable pydantic model to validate EPA CEMS settings.
 
@@ -104,7 +106,7 @@ class EpaCemsSettings(GenericDatasetSettings):
     """
     data_source: ClassVar = DataSource.from_id("epacems")
     working_partitions: ClassVar = data_source.working_partitions
-    working_tables: ClassVar = sorted(list(pc.PUDL_TABLES["epacems"]))
+    working_tables: ClassVar = data_source.get_resource_ids()
 
     years: List[int] = working_partitions["years"]
     states: List[str] = working_partitions["states"]
@@ -129,9 +131,10 @@ class Eia923Settings(GenericDatasetSettings):
         working_partitions ClassVar[Dict[str, Any]]: working paritions.
         working_tables: List of working tables.
     """
+
     data_source: ClassVar = DataSource.from_id("eia923")
     working_partitions: ClassVar = data_source.working_partitions
-    working_tables: ClassVar = sorted(list(pc.PUDL_TABLES["eia923"]))
+    working_tables: ClassVar = data_source.get_resource_ids()
 
     years: List[int] = working_partitions["years"]
     tables: List[str] = working_tables
@@ -151,12 +154,13 @@ class Eia860Settings(GenericDatasetSettings):
         working_tables: List of working tables.
         eia860m_date ClassVar[str]: The 860m year to date.
     """
+
     data_source: ClassVar = DataSource.from_id("eia860")
-    eia860m_data_source: ClassVar = DataSource.from_id("eia860")
+    eia860m_data_source: ClassVar = DataSource.from_id("eia860m")
     working_partitions: ClassVar = data_source.working_partitions
     eia860m_date: ClassVar[str] = eia860m_data_source.working_partitions[
             "year_month"]
-    working_tables: ClassVar = sorted(list(pc.PUDL_TABLES["eia860"]))
+    working_tables: ClassVar = data_source.get_resource_ids()
 
     years: List[int] = working_partitions["years"]
     tables: List[str] = working_tables
@@ -176,6 +180,7 @@ class Eia860Settings(GenericDatasetSettings):
         Raises:
             ValueError: the 860m date is within 860 working years.
         """
+
         eia860m_year = pd.to_datetime(cls.eia860m_date).year
         if eia860m and (eia860m_year != max(cls.working_partitions["years"]) + 1):
             raise AssertionError(

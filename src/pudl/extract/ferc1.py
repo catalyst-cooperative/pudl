@@ -858,7 +858,7 @@ def extract(
     return ferc1_raw_dfs
 
 
-def fuel(ferc1_engine, ferc1_years):
+def fuel(ferc1_engine, ferc1_settings):
     """Creates a DataFrame of f1_fuel table records with plant names, >0 fuel.
 
     Args:
@@ -882,7 +882,7 @@ def fuel(ferc1_engine, ferc1_years):
         .where(f1_fuel.c.fuel != '')
         .where(f1_fuel.c.fuel_quantity > 0)
         .where(f1_fuel.c.plant_name != '')
-        .where(f1_fuel.c.report_year.in_(ferc1_years))
+        .where(f1_fuel.c.report_year.in_(ferc1_settings.years))
     )
     # Use the above SELECT to pull those records into a DataFrame:
     return pd.read_sql(f1_fuel_select, ferc1_engine)

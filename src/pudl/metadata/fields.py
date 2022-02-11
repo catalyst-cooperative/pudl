@@ -6,13 +6,14 @@ import pandas as pd
 from pytz import all_timezones
 
 from .codes import CODE_METADATA
-from .constants import FIELD_DTYPES_PANDAS, SOURCES
+from .constants import FIELD_DTYPES_PANDAS
 from .enums import (CANADA_PROVINCES_TERRITORIES, CUSTOMER_CLASSES,
                     EPACEMS_MEASUREMENT_CODES, EPACEMS_STATES, FUEL_CLASSES,
                     NERC_REGIONS, RELIABILITY_STANDARDS, REVENUE_CLASSES,
                     RTO_CLASSES, TECH_CLASSES, US_STATES_TERRITORIES)
 from .labels import (ESTIMATED_OR_ACTUAL, FUEL_UNITS_EIA,
                      MOMENTARY_INTERRUPTIONS)
+from .sources import SOURCES
 
 FIELD_METADATA: Dict[str, Dict[str, Any]] = {
     "active": {

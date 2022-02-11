@@ -6,8 +6,8 @@ import numpy as np
 import pandas as pd
 
 import pudl
-from pudl.constants import PUDL_TABLES
 from pudl.metadata.codes import CODE_METADATA
+from pudl.settings import Eia923Settings
 
 logger = logging.getLogger(__name__)
 
@@ -1146,7 +1146,7 @@ def fuel_receipts_costs(eia923_dfs, eia923_transformed_dfs):
     return eia923_transformed_dfs
 
 
-def transform(eia923_raw_dfs, eia923_tables=PUDL_TABLES['eia923']):
+def transform(eia923_raw_dfs, eia923_tables=Eia923Settings.working_tables):
     """Transforms all the EIA 923 tables.
 
     Args:
