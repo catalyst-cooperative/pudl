@@ -27,8 +27,8 @@ import pandas as pd
 import timezonefinder
 
 import pudl
-from pudl.settings import Eia860Settings, Eia923Settings
 from pudl.metadata.fields import apply_pudl_dtypes, get_pudl_dtypes
+from pudl.metadata.classes import DataSource
 
 from pudl.metadata.resources import ENTITIES
 
@@ -633,8 +633,8 @@ def harvesting(entity,  # noqa: C901
 
 def _boiler_generator_assn(
     eia_transformed_dfs,
-    eia923_years=Eia923Settings.working_partitions['years'],
-    eia860_years=Eia860Settings.working_partitions['years'],
+    eia923_years=DataSource.from_id("eia923").working_partitions['years'],
+    eia860_years=DataSource.from_id("eia860").working_partitions['years'],
     debug=False
 ):
     """
@@ -1039,8 +1039,8 @@ def _boiler_generator_assn(
 
 
 def _restrict_years(df,
-                    eia923_years=Eia923Settings.working_partitions['years'],
-                    eia860_years=Eia860Settings.working_partitions['years']):
+                    eia923_years=DataSource.from_id("eia923").working_partitions['years'],
+                    eia860_years=DataSource.from_id("eia860").working_partitions['years']):
     """Restricts eia years for boiler generator association."""
     bga_years = set(eia860_years) & set(eia923_years)
     df = df[df.report_date.dt.year.isin(bga_years)]
@@ -1048,8 +1048,8 @@ def _restrict_years(df,
 
 
 def transform(eia_transformed_dfs,
-              eia860_years=Eia860Settings.working_partitions['years'],
-              eia923_years=Eia923Settings.working_partitions['years'],
+              eia860_years=DataSource.from_id("eia860").working_partitions['years'],
+              eia923_years=DataSource.from_id("eia923").working_partitions['years'],
               eia860m=False,
               debug=False):
     """Creates DataFrames for EIA Entity tables and modifies EIA tables.

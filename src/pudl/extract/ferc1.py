@@ -66,6 +66,7 @@ import pudl
 from pudl.settings import Ferc1Settings
 from pudl.workspace.datastore import Datastore
 from pudl.metadata.constants import DBF_TABLES_FILENAMES
+from pudl.metadata.classes import DataSource
 
 logger = logging.getLogger(__name__)
 
@@ -236,7 +237,7 @@ def add_sqlite_table(
     sqlite_meta,
     dbc_map,
     ds,
-    refyear=max(Ferc1Settings.working_partitions['years']),
+    refyear=max(DataSource.from_id("ferc1").working_partitions["years"]),
     bad_cols=()
 ):
     """Adds a new Table to the FERC Form 1 database schema.
@@ -420,7 +421,7 @@ def define_sqlite_db(
     dbc_map,
     ds,
     tables=tuple(DBF_TABLES_FILENAMES.keys()),
-    refyear=max(Ferc1Settings.working_partitions['years']),
+    refyear=max(DataSource.from_id("ferc1").working_partitions["years"]),
     bad_cols=()
 ):
     """
@@ -499,7 +500,7 @@ def get_raw_df(
     ds,
     table,
     dbc_map,
-    years=Ferc1Settings.working_partitions['years']
+    years=DataSource.from_id("ferc1").working_partitions["years"]
 ):
     """Combine several years of a given FERC Form 1 DBF table into a dataframe.
 

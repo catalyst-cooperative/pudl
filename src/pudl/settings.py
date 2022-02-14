@@ -32,23 +32,12 @@ class GenericDatasetSettings(BaseModel, abc.ABC):
     """
 
     tables: List
-
-    @property
-    @abc.abstractmethod
-    def working_partitions(cls) -> Dict[str, List[Any]]:  # noqa: N805
-        """Abstract working_partitions property."""
-        return cls.working_partitions
-
-    @property
-    @abc.abstractmethod
-    def working_tables(cls) -> List:  # noqa: N805
-        """Abstract working_tables property."""
-        return cls.working_tables
+    data_source: ClassVar
 
     @root_validator
     def validate_partitions(cls, partitions):  # noqa: N805
         """Validate partitions are available."""
-        for name, working_partitions in cls.working_partitions.items():
+        for name, working_partitions in cls.data_source.working_partitions.items():
             try:
                 partition = partitions[name]
             except KeyError:
@@ -64,7 +53,7 @@ class GenericDatasetSettings(BaseModel, abc.ABC):
     @validator("tables")
     def validate_tables(cls, tables):  # noqa: N805
         """Validate tables are available."""
-        tables_not_working = list(set(tables) - set(cls.working_tables))
+        tables_not_working = list(set(tables) - set(cls.data_source.get_resource_ids()))
         if len(tables_not_working) > 0:
             raise ValueError(
                 f"'{tables_not_working}' tables are not available.")
@@ -76,19 +65,15 @@ class Ferc1Settings(GenericDatasetSettings):
     An immutable pydantic model to validate Ferc1Settings.
 
     Parameters:
+        data_source: DataSource metadata object
         years: List of years to validate.
         tables: List of tables to validate.
-
-        working_partitions: Dictionary of working paritions.
-        working_tables: List of working tables.
     """
 
     data_source: ClassVar = DataSource.from_id("ferc1")
-    working_partitions: ClassVar = data_source.working_partitions
-    working_tables: ClassVar = data_source.get_resource_ids()
 
-    years: List[int] = working_partitions["years"]
-    tables: List[str] = working_tables
+    years: List[int] = data_source.working_partitions["years"]
+    tables: List[str] = data_source.get_resource_ids()
 
 
 class EpaCemsSettings(GenericDatasetSettings):
@@ -96,27 +81,23 @@ class EpaCemsSettings(GenericDatasetSettings):
     An immutable pydantic model to validate EPA CEMS settings.
 
     Parameters:
+        data_source: DataSource metadata object
         years: List of years to validate.
         states: List of states to validate.
         tables: List of tables to validate.
-
-        working_partitions: Dictionary of working paritions.
-        working_tables: List of working tables.
     """
 
     data_source: ClassVar = DataSource.from_id("epacems")
-    working_partitions: ClassVar = data_source.working_partitions
-    working_tables: ClassVar = data_source.get_resource_ids()
 
-    years: List[int] = working_partitions["years"]
-    states: List[str] = working_partitions["states"]
-    tables: List[str] = working_tables
+    years: List[int] = data_source.working_partitions["years"]
+    states: List[str] = data_source.working_partitions["states"]
+    tables: List[str] = data_source.get_resource_ids()
 
     @validator("states")
     def allow_all_keyword(cls, states):  # noqa: N805
         """Allow users to specify ['all'] to get all states."""
         if states == ["all"]:
-            states = cls.working_partitions["states"]
+            states = cls.data_source.working_partitions["states"]
         return states
 
 
@@ -125,19 +106,15 @@ class Eia923Settings(GenericDatasetSettings):
     An immutable pydantic model to validate EIA 923 settings.
 
     Parameters:
+        data_source: DataSource metadata object
         years: List of years to validate.
         tables: List of tables to validate.
-
-        working_partitions ClassVar[Dict[str, Any]]: working paritions.
-        working_tables: List of working tables.
     """
 
     data_source: ClassVar = DataSource.from_id("eia923")
-    working_partitions: ClassVar = data_source.working_partitions
-    working_tables: ClassVar = data_source.get_resource_ids()
 
-    years: List[int] = working_partitions["years"]
-    tables: List[str] = working_tables
+    years: List[int] = data_source.working_partitions["years"]
+    tables: List[str] = data_source.get_resource_ids()
 
 
 class Eia860Settings(GenericDatasetSettings):
@@ -147,23 +124,20 @@ class Eia860Settings(GenericDatasetSettings):
     This model also check 860m settings.
 
     Parameters:
+        data_source: DataSource metadata object
         years: List of years to validate.
         tables: List of tables to validate.
 
-        working_partitions ClassVar[Dict[str, Any]]: working paritions.
-        working_tables: List of working tables.
         eia860m_date ClassVar[str]: The 860m year to date.
     """
 
     data_source: ClassVar = DataSource.from_id("eia860")
     eia860m_data_source: ClassVar = DataSource.from_id("eia860m")
-    working_partitions: ClassVar = data_source.working_partitions
     eia860m_date: ClassVar[str] = eia860m_data_source.working_partitions[
         "year_month"]
-    working_tables: ClassVar = data_source.get_resource_ids()
 
-    years: List[int] = working_partitions["years"]
-    tables: List[str] = working_tables
+    years: List[int] = data_source.working_partitions["years"]
+    tables: List[str] = data_source.get_resource_ids()
     eia860m: bool = False
 
     @validator("eia860m")
@@ -181,11 +155,12 @@ class Eia860Settings(GenericDatasetSettings):
             ValueError: the 860m date is within 860 working years.
         """
         eia860m_year = pd.to_datetime(cls.eia860m_date).year
-        if eia860m and (eia860m_year != max(cls.working_partitions["years"]) + 1):
+        expected_year = max(cls.data_source.working_partitions["years"]) + 1
+        if eia860m and (eia860m_year != expected_year):
             raise AssertionError(
                 """Attempting to integrate an eia860m year"""
                 f"""({eia860m_year}) that is within the eia860 years:"""
-                f"""{cls.working_partitions["years"]}. Consider switching eia860m"""
+                f"""{cls.data_source.working_partitions["years"]}. Consider switching eia860m"""
                 """parameter to False."""
             )
         return eia860m
@@ -329,14 +304,22 @@ class Ferc1ToSqliteSettings(GenericDatasetSettings):
         years: List of years to validate.
     """
 
-    working_partitions: ClassVar = Ferc1Settings.working_partitions
-    working_tables: ClassVar = sorted(list(DBF_TABLES_FILENAMES.keys()))
-
-    years: List[int] = working_partitions["years"]
-    tables: List[str] = working_tables
+    data_source: ClassVar = DataSource.from_id("ferc1")
+    years: List[int] = data_source.working_partitions["years"]
+    tables: List[str] = sorted(list(DBF_TABLES_FILENAMES.keys()))
 
     refyear: ClassVar[int] = max(years)
     bad_cols: tuple = ()
+
+    @validator("tables")
+    def validate_tables(cls, tables):
+        """Validate tables are available."""
+        default_tables = sorted(list(DBF_TABLES_FILENAMES.keys()))
+        tables_not_working = list(set(tables) - set(default_tables))
+        if len(tables_not_working) > 0:
+            raise ValueError(
+                f"'{tables_not_working}' tables are not available.")
+        return sorted(set(tables))
 
 
 class EtlSettings(BaseSettings):

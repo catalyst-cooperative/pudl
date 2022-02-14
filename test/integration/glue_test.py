@@ -7,7 +7,7 @@ from pudl.glue.ferc1_eia import (get_db_plants_ferc1, get_mapped_plants_ferc1,
                                  get_unmapped_plants_ferc1,
                                  get_unmapped_utils_eia,
                                  get_unmapped_utils_ferc1)
-from pudl.settings import Ferc1Settings
+from pudl.metadata.classes import DataSource
 
 logger = logging.getLogger(__name__)
 
@@ -22,7 +22,7 @@ def test_unmapped_plants_ferc1(pudl_settings_fixture, ferc1_engine):
 
     """
     actually_unmapped_plants = get_unmapped_plants_ferc1(
-        pudl_settings_fixture, Ferc1Settings.working_partitions["years"]
+        pudl_settings_fixture, DataSource.from_id("ferc1").working_partitions["years"]
     )
     if not actually_unmapped_plants.empty:
         raise AssertionError(
@@ -35,7 +35,7 @@ def test_unmapped_plants_ferc1(pudl_settings_fixture, ferc1_engine):
     db_plants = (
         get_db_plants_ferc1(
             pudl_settings_fixture,
-            Ferc1Settings.working_partitions["years"]
+            DataSource.from_id("ferc1").working_partitions["years"]
         )
         .set_index(["utility_id_ferc1", "plant_name_ferc1"])
     )
@@ -77,7 +77,7 @@ def test_unmapped_utils_ferc1(pudl_settings_fixture, ferc1_engine):
     # Get all the plants in the FERC 1 DB:
     db_plants = (
         get_db_plants_ferc1(pudl_settings_fixture,
-                            Ferc1Settings.working_partitions["years"]).
+                            DataSource.from_id("ferc1").working_partitions["years"]).
         set_index(["utility_id_ferc1", "plant_name_ferc1"])
     )
     # Read in the mapped plants... but ditch Xcel's Comanche:

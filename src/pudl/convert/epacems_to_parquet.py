@@ -16,7 +16,7 @@ import sys
 import coloredlogs
 
 import pudl
-from pudl.settings import EpaCemsSettings
+from pudl.metadata.classes import DataSource
 
 logger = logging.getLogger(__name__)
 
@@ -42,7 +42,7 @@ def parse_command_line(argv):
         help="""Which years of EPA CEMS data should be converted to Apache
         Parquet format. Default is all available years, ranging from 1995 to
         the present. Note that data is typically incomplete before ~2000.""",
-        default=EpaCemsSettings.working_partitions["years"]
+        default=DataSource.from_id("epacems").working_partitions["years"]
     )
     parser.add_argument(
         '-s',
@@ -52,7 +52,7 @@ def parse_command_line(argv):
         help="""Which states EPA CEMS data should be converted to Apache
         Parquet format, as a list of two letter US state abbreviations. Default
         is everything: all 48 continental US states plus Washington DC.""",
-        default=EpaCemsSettings.working_partitions["states"]
+        default=DataSource.from_id("epacems").working_partitions["states"]
     )
     parser.add_argument(
         '-c',
@@ -91,12 +91,12 @@ def main():
 
     # Make sure the requested years/states are available:
     for year in args.years:
-        if year not in EpaCemsSettings.working_partitions["years"]:
+        if year not in DataSource.from_id("epacems").working_partitions["years"]:
             raise ValueError(
                 f"{year} is not a valid year within the EPA CEMS dataset."
             )
     for state in args.states:
-        if state not in EpaCemsSettings.working_partitions["states"]:
+        if state not in DataSource.from_id("epacems").working_partitions["states"]:
             raise ValueError(
                 f"{state} is not a valid state within the EPA CEMS dataset."
             )

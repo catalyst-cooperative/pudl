@@ -1124,7 +1124,9 @@ class Resource(Base):
     encoder: Encoder = None
     field_namespace: Literal["eia", "epacems",
                              "ferc1", "ferc714", "glue", "pudl"] = None
-    etl_group: String = None
+    etl_group: Literal["eia860", "eia861", "eia923", "entity_eia",
+                       "epacems", "ferc1", "ferc714", "glue", "static",
+                       "static_eia"] = None
 
     _check_unique = _validator(
         "contributors",
