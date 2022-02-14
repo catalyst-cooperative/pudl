@@ -1,7 +1,7 @@
 """Module for validating pudl etl settings."""
 import abc
 import pathlib
-from typing import Any, ClassVar, Dict, List
+from typing import ClassVar, List
 
 import pandas as pd
 import yaml
@@ -312,8 +312,8 @@ class Ferc1ToSqliteSettings(GenericDatasetSettings):
     bad_cols: tuple = ()
 
     @validator("tables")
-    def validate_tables(cls, tables):
-        """Validate tables are available."""
+    def validate_tables(cls, tables):  # noqa: N805
+        """Validate tables."""
         default_tables = sorted(list(DBF_TABLES_FILENAMES.keys()))
         tables_not_working = list(set(tables) - set(default_tables))
         if len(tables_not_working) > 0:
