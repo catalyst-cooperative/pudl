@@ -4,7 +4,7 @@ channels:
   - defaults
 dependencies:
   # Used to set up the environment
-  - pip~=21.0
+  - pip>=21.0,<22
   - python>=3.8,<3.11
   - setuptools<60.0.0
   # These packages are also specified in setup.py
