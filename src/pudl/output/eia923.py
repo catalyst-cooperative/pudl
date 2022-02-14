@@ -13,7 +13,7 @@ from pudl.metadata.fields import apply_pudl_dtypes
 
 logger = logging.getLogger(__name__)
 
-BASE_URL_EIA = "http://api.eia.gov/"
+BASE_URL_EIA = "https://api.eia.gov/"
 
 FUEL_TYPE_EIAAPI_MAP = {
     "COW": "coal",
