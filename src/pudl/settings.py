@@ -27,24 +27,32 @@ class GenericDatasetSettings(BaseModel, abc.ABC):
     """
     An abstract pydantic model for generic datasets.
 
-    Each dataset must specify working tables are partitions.
-    A dataset can have an arbitrary number of partitioins.
+    Each dataset must specify working tables and partitions.
+    A dataset can have an arbitrary number of partitions.
     """
 
-    tables: List
-    data_source: ClassVar
+    tables: List[str]
+    data_source: ClassVar[DataSource]
 
     @root_validator
     def validate_partitions(cls, partitions):  # noqa: N805
-        """Validate partitions are available."""
+        """
+        Validate the requested data partitions.
+
+        Check that all the partitions defined in the ``working_partitions`` of the
+        associated ``data_source`` (e.g. years or states) have been assigned in the
+        definition of the class, and that the requested values are a subset of the
+        allowable values defined by the ``data_source``.
+
+        """
         for name, working_partitions in cls.data_source.working_partitions.items():
             try:
                 partition = partitions[name]
             except KeyError:
-                raise ValueError(f"{cls.__name__} is missing '{name}' field.")
+                raise ValueError(f"{cls.__name__} is missing required '{name}' field.")
 
             partitions_not_working = list(set(partition) - set(working_partitions))
-            if len(partitions_not_working) > 0:
+            if partitions_not_working:
                 raise ValueError(
                     f"'{partitions_not_working}' {name} are not available.")
             partitions[name] = sorted(set(partition))
@@ -54,7 +62,7 @@ class GenericDatasetSettings(BaseModel, abc.ABC):
     def validate_tables(cls, tables):  # noqa: N805
         """Validate tables are available."""
         tables_not_working = list(set(tables) - set(cls.data_source.get_resource_ids()))
-        if len(tables_not_working) > 0:
+        if tables_not_working:
             raise ValueError(
                 f"'{tables_not_working}' tables are not available.")
         return sorted(set(tables))
@@ -141,7 +149,7 @@ class Eia860Settings(GenericDatasetSettings):
     eia860m: bool = False
 
     @validator("eia860m")
-    def check_860m_date(cls, eia860m: bool) -> bool:  # noqa: N805
+    def check_eia860m_date(cls, eia860m: bool) -> bool:  # noqa: N805
         """
         Check 860m date year is exactly one year later than most recent working 860 year.
 
@@ -159,7 +167,7 @@ class Eia860Settings(GenericDatasetSettings):
         if eia860m and (eia860m_year != expected_year):
             raise AssertionError(
                 """Attempting to integrate an eia860m year"""
-                f"""({eia860m_year}) that is within the eia860 years:"""
+                f"""({eia860m_year}) not immediately following the eia860 years:"""
                 f"""{cls.data_source.working_partitions["years"]}. Consider switching eia860m"""
                 """parameter to False."""
             )

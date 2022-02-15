@@ -17,6 +17,7 @@ import coloredlogs
 
 import pudl
 from pudl.metadata.classes import DataSource
+from pudl.settings import EpaCemsSettings
 
 logger = logging.getLogger(__name__)
 
@@ -88,20 +89,9 @@ def main():
     coloredlogs.install(fmt=log_format, level='INFO', logger=pudl_logger)
 
     args = parse_command_line(sys.argv)
-
-    # Make sure the requested years/states are available:
-    for year in args.years:
-        if year not in DataSource.from_id("epacems").working_partitions["years"]:
-            raise ValueError(
-                f"{year} is not a valid year within the EPA CEMS dataset."
-            )
-    for state in args.states:
-        if state not in DataSource.from_id("epacems").working_partitions["states"]:
-            raise ValueError(
-                f"{state} is not a valid state within the EPA CEMS dataset."
-            )
-
     pudl_settings = pudl.workspace.setup.get_defaults()
+    # This also validates the states / years we've been given:
+    epacems_settings = EpaCemsSettings(states=args.states, years=args.years)
 
     # Configure how we want to obtain raw input data:
     ds_kwargs = dict(
@@ -116,16 +106,10 @@ def main():
         clobber=args.clobber,
     )
 
-    # Messy settings arguments used in our main ETL which we should clean up
-    epacems_etl_settings = pudl.settings.EpaCemsBaseSettings(
-        states=args.states,
-        years=args.years,
-    )
-
     pudl.etl.etl_epacems(
-        epacems_etl_settings,
-        pudl_settings,
-        ds_kwargs,
+        epacems_settings=epacems_settings,
+        pudl_settings=pudl_settings,
+        ds_kwargs=ds_kwargs,
     )
 
 

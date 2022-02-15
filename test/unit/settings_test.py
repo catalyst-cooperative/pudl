@@ -12,7 +12,11 @@ class TestGenericDatasetSettings:
     """Test generic dataset behavior."""
 
     def test_missing_field_error(self):
-        """Test GenericDatasetSettings throws error if user forgets to add a field."""
+        """
+        Test GenericDatasetSettings throws error if user forgets to add a field.
+
+        In this case, the required ``data_source`` parameter is missing.
+        """
         with pytest.raises(ValidationError):
             working_partitions = {"years": [2001]}
             working_tables = ["table"]
