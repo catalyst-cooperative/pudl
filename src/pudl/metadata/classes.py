@@ -924,8 +924,8 @@ class DataSource(Base):
     keywords: List[str] = []
     path: HttpUrl = None
     contributors: List[Contributor] = []  # Or should this be compiled from Resources?
-    license_raw: License = None
-    license_pudl: License = License.from_id("cc-by-4.0")
+    license_raw: License
+    license_pudl: License
     # concept_doi: Doi = None  # Need to define a Doi type?
     working_partitions: Dict[SnakeCase, Any] = {}
     # agency: Agency  # needs to be defined
