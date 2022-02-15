@@ -1,7 +1,7 @@
 """Metadata and operational constants."""
 from typing import Any, Dict
 
-from pudl.metadata.constants import KEYWORDS, CONTRIBUTORS
+from pudl.metadata.constants import CONTRIBUTORS, KEYWORDS, LICENSES
 from pudl.metadata.enums import EPACEMS_STATES
 
 SOURCES: Dict[str, Any] = {
@@ -13,6 +13,8 @@ SOURCES: Dict[str, Any] = {
             "GeoDatabase."
         ),
         "working_partitions": {},  # Census DP1 is monolithic.
+        "license_raw": LICENSES["us-govt"],
+        "license_pudl": LICENSES["cc-by-4.0"],
     },
     "eia860": {
         "title": "EIA Form 860",
@@ -48,6 +50,8 @@ SOURCES: Dict[str, Any] = {
             + KEYWORDS["plants"]
             + KEYWORDS["environment"]
         )),
+        "license_raw": LICENSES["us-govt"],
+        "license_pudl": LICENSES["cc-by-4.0"],
     },
     "eia860m": {
         "title": "EIA Form 860m",
@@ -69,7 +73,9 @@ SOURCES: Dict[str, Any] = {
                 "form 860m"
                 "monthly"
             ]
-        ))
+        )),
+        "license_raw": LICENSES["us-govt"],
+        "license_pudl": LICENSES["cc-by-4.0"],
     },
     "eia861": {
         "title": "EIA Form 861: Annual Electric Power Industry Report",
@@ -103,7 +109,9 @@ SOURCES: Dict[str, Any] = {
             + KEYWORDS["eia"]
             + KEYWORDS["us_govt"]
             + KEYWORDS["electricity"]
-        ))
+        )),
+        "license_raw": LICENSES["us-govt"],
+        "license_pudl": LICENSES["cc-by-4.0"],
     },
     "eia923": {
         "title": "EIA Form 923",
@@ -137,11 +145,15 @@ SOURCES: Dict[str, Any] = {
             + KEYWORDS["plants"]
             + KEYWORDS["environment"]
         )),
+        "license_raw": LICENSES["us-govt"],
+        "license_pudl": LICENSES["cc-by-4.0"],
     },
     "eiawater": {
         "title": "EIA Thermoelectric Cooling Water",
         "path": "https://www.eia.gov/electricity/data/water",
         "description": "",
+        "license_raw": LICENSES["us-govt"],
+        "license_pudl": LICENSES["cc-by-4.0"],
     },
     "epacems": {
         "title": "EPA Hourly Continuous Emission Monitoring System (CEMS)",
@@ -172,6 +184,8 @@ SOURCES: Dict[str, Any] = {
             + KEYWORDS["electricity"]
             + KEYWORDS["environment"]
         )),
+        "license_raw": LICENSES["us-govt"],
+        "license_pudl": LICENSES["cc-by-4.0"],
     },
     "ferc1": {
         "title": "FERC Form 1",
@@ -206,6 +220,8 @@ SOURCES: Dict[str, Any] = {
             + KEYWORDS["plants"]
             + KEYWORDS["fuels"]
         )),
+        "license_raw": LICENSES["us-govt"],
+        "license_pudl": LICENSES["cc-by-4.0"],
     },
     "ferc2": {
         "title": "FERC Form 2",
@@ -218,7 +234,9 @@ SOURCES: Dict[str, Any] = {
         "field_namespace": "ferc2",
         "working_partitions": {
             "years": [],  # Not yet working!
-        }
+        },
+        "license_raw": LICENSES["us-govt"],
+        "license_pudl": LICENSES["cc-by-4.0"],
     },
     "ferc714": {
         "title": "FERC Form 714: Annual Electric Balancing Authority Area and Planning Area Report",
@@ -233,21 +251,29 @@ SOURCES: Dict[str, Any] = {
         ),
         "field_namespace": "ferc714",
         "working_partitions": {},  # Data is monolitic, one file with all years.
+        "license_raw": LICENSES["us-govt"],
+        "license_pudl": LICENSES["cc-by-4.0"],
     },
     "ferceqr": {
         "title": "FERC Form 920: Electric Quarterly Report (EQR)",
         "path": "https://www.ferc.gov/industries-data/electric/power-sales-and-markets/electric-quarterly-reports-eqr",
         "description": "",
+        "license_raw": LICENSES["us-govt"],
+        "license_pudl": LICENSES["cc-by-4.0"],
     },
     "msha": {
         "title": "Mine Safety and Health Administration (MSHA)",
         "path": "https://arlweb.msha.gov/OpenGovernmentData/OGIMSHA.asp",
         "description": "",
+        "license_raw": LICENSES["us-govt"],
+        "license_pudl": LICENSES["cc-by-4.0"],
     },
     "phmsa": {
         "title": "Pipelines and Hazardous Materials Safety Administration (PHMSA)",
         "path": "https://www.phmsa.dot.gov/data-and-statistics/pipeline/data-and-statistics-overview",
         "description": "",
+        "license_raw": LICENSES["us-govt"],
+        "license_pudl": LICENSES["cc-by-4.0"],
     },
     "pudl": {
         "title": "The Public Utility Data Liberation (PUDL) Project",
@@ -266,6 +292,7 @@ SOURCES: Dict[str, Any] = {
             CONTRIBUTORS["steven-winter"],
         ],
         "keywords": ["us", "electricity", "open data", "open source"],
+        "license_pudl": LICENSES["cc-by-4.0"],
     },
 }
 """
