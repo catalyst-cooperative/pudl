@@ -278,13 +278,15 @@ SOURCES: Dict[str, Any] = {
     "pudl": {
         "title": "The Public Utility Data Liberation (PUDL) Project",
         "path": "https://catalyst.coop/pudl",
-        "description": "PUDL is a data processing pipeline created by Catalyst"
-        "Cooperative that cleans, integrates, and standardizes some of the most"
-        "widely used public energy datasets in the US. The data serve researchers,"
-        "activists, journalists, and policy makers that might not have the"
-        "technical expertise to access it in its raw form, the time to clean and"
-        "prepare the data for bulk analysis, or the means to purchase it from"
-        "existing commercial providers.",
+        "description": (
+            "PUDL is a data processing pipeline created by Catalyst Cooperative that "
+            "cleans, integrates, and standardizes some of the most widely used public "
+            "energy datasets in the US. The data serve researchers, activists, "
+            "journalists, and policy makers that might not have the technical expertise "
+            "to access it in its raw form, the time to clean and prepare the data for "
+            "bulk analysis, or the means to purchase it from existing commercial "
+            "providers."
+        ),
         "contributors": [
             CONTRIBUTORS["catalyst-cooperative"],
             CONTRIBUTORS["zane-selvans"],
@@ -294,6 +296,7 @@ SOURCES: Dict[str, Any] = {
         "keywords": ["us", "electricity", "open data", "open source"],
         "license_raw": LICENSES["cc-by-4.0"],
         "license_pudl": LICENSES["cc-by-4.0"],
+        "email": "pudl@catalyst.coop",
     },
 }
 """

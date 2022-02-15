@@ -848,28 +848,6 @@ class License(Base):
         return cls(**cls.dict_from_id(x))
 
 
-class Source(Base):
-    """
-    Data source (`package|resource.sources[...]`).
-
-    See https://specs.frictionlessdata.io/data-package/#sources.
-    """
-
-    title: String
-    path: HttpUrl
-    email: Email = None
-
-    @staticmethod
-    def dict_from_id(x: str) -> dict:
-        """Construct dictionary from PUDL identifier."""
-        return copy.deepcopy(SOURCES[x])
-
-    @classmethod
-    def from_id(cls, x: str) -> "Source":
-        """Construct from PUDL identifier."""
-        return cls(**cls.dict_from_id(x))
-
-
 class Contributor(Base):
     """
     Data contributor (`package.contributors[...]`).
@@ -915,6 +893,11 @@ class DataSource(Base):
     * Annotating long-term archives of the raw input data on Zenodo.
     * Defining what data partitions can be processed using PUDL.
 
+    It can also be used to populate the "source" fields of frictionless
+    data packages and data resources (`package|resource.sources[...]`).
+
+    See https://specs.frictionlessdata.io/data-package/#sources.
+
     """
 
     name: SnakeCase
@@ -929,6 +912,7 @@ class DataSource(Base):
     # concept_doi: Doi = None  # Need to define a Doi type?
     working_partitions: Dict[SnakeCase, Any] = {}
     # agency: Agency  # needs to be defined
+    email: Email = None
 
     def get_resource_ids(self) -> List[str]:
         """Compile list of resoruce IDs associated with this data source."""
@@ -1633,7 +1617,7 @@ class Package(Base):
     homepage: HttpUrl = "https://catalyst.coop/pudl"
     created: Datetime = datetime.datetime.utcnow()
     contributors: List[Contributor] = []
-    sources: List[Source] = []
+    sources: List[DataSource] = []
     licenses: List[License] = []
     resources: StrictList(Resource)
 
