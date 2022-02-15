@@ -6,6 +6,7 @@ All transformations include:
 """
 
 import logging
+from typing import Dict, List
 
 import pandas as pd
 
@@ -20,7 +21,73 @@ from pudl.metadata.labels import ESTIMATED_OR_ACTUAL, MOMENTARY_INTERRUPTIONS
 
 logger = logging.getLogger(__name__)
 
-BA_ID_NAME_FIXES = (
+# Tables that always get processed:
+#  - 'balancing_authority_eia861',
+# Association tables that are always generated from the other tables:
+#  - 'balancing_authority_assn_eia861',
+#  - 'utility_assn_eia861',
+TABLE_DEPENDENCIES: Dict[str, List[str]] = {
+    'advanced_metering_infrastructure_eia861': [
+        'advanced_metering_infrastructure_eia861'
+    ],
+    'demand_response_eia861': [
+        'demand_response_eia861',
+        'demand_response_water_heater_eia861',
+    ],
+    'demand_side_management_eia861': [
+        'demand_side_management_ee_dr_eia861',
+        'demand_side_management_misc_eia861',
+        'demand_side_management_sales_eia861',
+    ],
+    'distributed_generation_eia861': [
+        'distributed_generation_fuel_eia861',
+        'distributed_generation_misc_eia861',
+        'distributed_generation_tech_eia861',
+    ],
+    'distribution_systems_eia861': [
+        'distribution_systems_eia861',
+    ],
+    'dynamic_pricing_eia861': [
+        'dynamic_pricing_eia861',
+    ],
+    'energy_efficiency_eia861': [
+        'energy_efficiency_eia861',
+    ],
+    'green_pricing_eia861': [
+        'green_pricing_eia861',
+    ],
+    'mergers_eia861': [
+        'mergers_eia861',
+    ],
+    'net_metering_eia861': [
+        'net_metering_customer_fuel_class_eia861',
+        'net_metering_misc_eia861',
+    ],
+    'non_net_metering_eia861': [
+        'non_net_metering_customer_fuel_class_eia861',
+        'non_net_metering_misc_eia861',
+    ],
+    'operational_data_eia861': [
+        'operational_data_misc_eia861',
+        'operational_data_revenue_eia861',
+    ],
+    'reliability_eia861': [
+        'reliability_eia861',
+    ],
+    'sales_eia861': [
+        'sales_eia861',
+    ],
+    'service_territory_eia861': [
+        'service_territory_eia861',
+    ],
+    'utility_data_eia861': [
+        'utility_data_misc_eia861',
+        'utility_data_nerc_eia861',
+        'utility_data_rto_eia861',
+    ],
+}
+
+BA_ID_NAME_FIXES: pd.DataFrame = (
     pd.DataFrame([
         # report_date, util_id, ba_id, ba_name
         ('2001-01-01', 40577, 99999, 'Multiple Control Areas'),
@@ -247,7 +314,7 @@ BA_ID_NAME_FIXES = (
     .set_index(["report_date", "balancing_authority_name_eia", "utility_id_eia"])
 )
 
-EIA_FIPS_COUNTY_FIXES = pd.DataFrame([
+EIA_FIPS_COUNTY_FIXES: pd.DataFrame = pd.DataFrame([
     ("AK", "Aleutians Ea", "Aleutians East"),
     ("AK", "Aleutian Islands", "Aleutians East"),
     ("AK", "Aleutians East Boro", "Aleutians East Borough"),
@@ -388,7 +455,7 @@ EIA_FIPS_COUNTY_FIXES = pd.DataFrame([
     ("WA", "Wahkiakurn", "Wahkiakum"),
 ], columns=["state", "eia_county", "fips_county"])
 
-BA_NAME_FIXES = pd.DataFrame([
+BA_NAME_FIXES: pd.DataFrame = pd.DataFrame([
     ("Omaha Public Power District", 14127, "OPPD"),
     ("Kansas City Power & Light Co", 10000, "KCPL"),
     ("Toledo Edison Co", 18997, pd.NA),
@@ -400,7 +467,7 @@ BA_NAME_FIXES = pd.DataFrame([
             ]
 )
 
-NERC_SPELLCHECK = {
+NERC_SPELLCHECK: Dict[str, str] = {
     'GUSTAVUSAK': 'ASCC',
     'AK': 'ASCC',
     'HI': 'HICC',
