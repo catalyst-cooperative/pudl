@@ -1,5 +1,4 @@
 """Module for validating pudl etl settings."""
-import abc
 import pathlib
 from typing import ClassVar, List
 
@@ -9,8 +8,10 @@ from pydantic import BaseModel as PydanticBaseModel
 from pydantic import BaseSettings, root_validator, validator
 
 import pudl
+import pudl.workspace.setup
 from pudl.metadata.classes import DataSource
 from pudl.metadata.constants import DBF_TABLES_FILENAMES
+from pudl.metadata.resources.eia861 import TABLE_DEPENDENCIES
 
 
 class BaseModel(PydanticBaseModel):
@@ -23,7 +24,7 @@ class BaseModel(PydanticBaseModel):
         extra = "forbid"
 
 
-class GenericDatasetSettings(BaseModel, abc.ABC):
+class GenericDatasetSettings(BaseModel):
     """
     An abstract pydantic model for generic datasets.
 
@@ -32,7 +33,6 @@ class GenericDatasetSettings(BaseModel, abc.ABC):
     """
 
     tables: List[str]
-    data_source: ClassVar[DataSource]
 
     @root_validator
     def validate_partitions(cls, partitions):  # noqa: N805
@@ -78,7 +78,7 @@ class Ferc1Settings(GenericDatasetSettings):
         tables: List of tables to validate.
     """
 
-    data_source: ClassVar = DataSource.from_id("ferc1")
+    data_source: ClassVar[DataSource] = DataSource.from_id("ferc1")
 
     years: List[int] = data_source.working_partitions["years"]
     tables: List[str] = data_source.get_resource_ids()
@@ -95,7 +95,7 @@ class EpaCemsSettings(GenericDatasetSettings):
         tables: List of tables to validate.
     """
 
-    data_source: ClassVar = DataSource.from_id("epacems")
+    data_source: ClassVar[DataSource] = DataSource.from_id("epacems")
 
     years: List[int] = data_source.working_partitions["years"]
     states: List[str] = data_source.working_partitions["states"]
@@ -119,10 +119,56 @@ class Eia923Settings(GenericDatasetSettings):
         tables: List of tables to validate.
     """
 
-    data_source: ClassVar = DataSource.from_id("eia923")
+    data_source: ClassVar[DataSource] = DataSource.from_id("eia923")
 
     years: List[int] = data_source.working_partitions["years"]
     tables: List[str] = data_source.get_resource_ids()
+
+
+class Eia861Settings(GenericDatasetSettings):
+    """
+    An immutable pydantic model to validate EIA 861 settings.
+
+    Parameters:
+        data_source: DataSource metadata object
+        years: List of years to validate.
+        tables: List of tables to validate.
+        transform_functions: List of transform functions to be applied to eia861
+    """
+
+    data_source: ClassVar[DataSource] = DataSource.from_id("eia861")
+
+    years: List[int] = data_source.working_partitions["years"]
+    tables: List[str] = data_source.get_resource_ids()
+    transform_functions: List[str]
+
+    @root_validator(pre=True)
+    def generate_transform_functions(cls, values):  # noqa: N805
+        """
+        Map tables to transform functions.
+
+        Args:
+            values: eia861 settings.
+
+        Returns:
+            values: eia861 settings.
+        """
+        # balancing_authority_eia861 is always processed
+        transform_functions = ["balancing_authority_eia861"]
+
+        # Defaults to all transformation functions
+        if not values.get("tables"):
+            transform_functions.extend(list(TABLE_DEPENDENCIES))
+        else:
+            for table in values["tables"]:
+                transform_functions.extend(
+                    [tf_func for tf_func, tables in TABLE_DEPENDENCIES.items()
+                        if table in tables]
+                )
+
+        values["transform_functions"] = sorted(set(transform_functions))
+
+        return values
 
 
 class Eia860Settings(GenericDatasetSettings):
@@ -139,8 +185,8 @@ class Eia860Settings(GenericDatasetSettings):
         eia860m_date ClassVar[str]: The 860m year to date.
     """
 
-    data_source: ClassVar = DataSource.from_id("eia860")
-    eia860m_data_source: ClassVar = DataSource.from_id("eia860m")
+    data_source: ClassVar[DataSource] = DataSource.from_id("eia860")
+    eia860m_data_source: ClassVar[DataSource] = DataSource.from_id("eia860m")
     eia860m_date: ClassVar[str] = eia860m_data_source.working_partitions[
         "year_month"]
 
@@ -312,7 +358,7 @@ class Ferc1ToSqliteSettings(GenericDatasetSettings):
         years: List of years to validate.
     """
 
-    data_source: ClassVar = DataSource.from_id("ferc1")
+    data_source: ClassVar[DataSource] = DataSource.from_id("ferc1")
     years: List[int] = data_source.working_partitions["years"]
     tables: List[str] = sorted(list(DBF_TABLES_FILENAMES.keys()))
 

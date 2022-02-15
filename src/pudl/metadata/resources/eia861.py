@@ -1,5 +1,5 @@
 """Definitions of data tables primarily coming from EIA-861."""
-from typing import Any, Dict
+from typing import Any, Dict, List
 
 RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
     "advanced_metering_infrastructure_eia861": {
@@ -628,4 +628,70 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
         "sources": ["eia861"],
         "etl_group": "eia861",
     },
+}
+
+# Tables that always get processed:
+#  - 'balancing_authority_eia861',
+# Association tables that are always generated from the other tables:
+#  - 'balancing_authority_assn_eia861',
+#  - 'utility_assn_eia861',
+TABLE_DEPENDENCIES: Dict[str, List[str]] = {
+    'advanced_metering_infrastructure_eia861': [
+        'advanced_metering_infrastructure_eia861'
+    ],
+    'demand_response_eia861': [
+        'demand_response_eia861',
+        'demand_response_water_heater_eia861',
+    ],
+    'demand_side_management_eia861': [
+        'demand_side_management_ee_dr_eia861',
+        'demand_side_management_misc_eia861',
+        'demand_side_management_sales_eia861',
+    ],
+    'distributed_generation_eia861': [
+        'distributed_generation_fuel_eia861',
+        'distributed_generation_misc_eia861',
+        'distributed_generation_tech_eia861',
+    ],
+    'distribution_systems_eia861': [
+        'distribution_systems_eia861',
+    ],
+    'dynamic_pricing_eia861': [
+        'dynamic_pricing_eia861',
+    ],
+    'energy_efficiency_eia861': [
+        'energy_efficiency_eia861',
+    ],
+    'green_pricing_eia861': [
+        'green_pricing_eia861',
+    ],
+    'mergers_eia861': [
+        'mergers_eia861',
+    ],
+    'net_metering_eia861': [
+        'net_metering_customer_fuel_class_eia861',
+        'net_metering_misc_eia861',
+    ],
+    'non_net_metering_eia861': [
+        'non_net_metering_customer_fuel_class_eia861',
+        'non_net_metering_misc_eia861',
+    ],
+    'operational_data_eia861': [
+        'operational_data_misc_eia861',
+        'operational_data_revenue_eia861',
+    ],
+    'reliability_eia861': [
+        'reliability_eia861',
+    ],
+    'sales_eia861': [
+        'sales_eia861',
+    ],
+    'service_territory_eia861': [
+        'service_territory_eia861',
+    ],
+    'utility_data_eia861': [
+        'utility_data_misc_eia861',
+        'utility_data_nerc_eia861',
+        'utility_data_rto_eia861',
+    ],
 }

@@ -37,8 +37,9 @@ import pandas as pd
 import sqlalchemy as sa
 
 import pudl
-from pudl.workspace.datastore import Datastore
 from pudl.metadata.classes import DataSource
+from pudl.settings import Eia861Settings
+from pudl.workspace.datastore import Datastore
 
 logger = logging.getLogger(__name__)
 
@@ -183,7 +184,11 @@ class PudlTabl(object):
     ###########################################################################
     # EIA 861 Interim Outputs (awaiting full DB integration)
     ###########################################################################
-    def etl_eia861(self, update: bool = False):
+    def etl_eia861(
+        self,
+        eia861_settings: Eia861Settings = Eia861Settings(),
+        update: bool = False
+    ):
         """
         A single function that runs the temporary EIA 861 ETL and sets all DFs.
 
@@ -196,6 +201,7 @@ class PudlTabl(object):
         beyond my knowledge right now.
 
         Args:
+            eia861_settings: Object containing validated settings relevant to EIA 861.
             update: Whether to overwrite the existing dataframes if they exist.
 
         """
@@ -223,149 +229,266 @@ class PudlTabl(object):
                 pudl.extract.eia861.Extractor(self.ds)
                 .extract(year=DataSource.from_id("eia861").working_partitions["years"])
             )
-            self._dfs.update(pudl.transform.eia861.transform(eia861_raw_dfs))
+            self._dfs.update(
+                pudl.transform.eia861.transform(eia861_raw_dfs, eia861_settings))
 
-    def advanced_metering_infrastructure_eia861(self, update=False):
+    def advanced_metering_infrastructure_eia861(
+        self,
+        eia861_settings: Eia861Settings = Eia861Settings(),
+        update=False
+    ):
         """An interim EIA 861 output function."""
         self.etl_eia861(update=update)
         return self._dfs["advanced_metering_infrastructure_eia861"]
 
-    def balancing_authority_eia861(self, update=False):
+    def balancing_authority_eia861(
+        self,
+        eia861_settings: Eia861Settings = Eia861Settings(),
+        update=False
+    ):
         """An interim EIA 861 output function."""
         self.etl_eia861(update=update)
         return self._dfs["balancing_authority_eia861"]
 
-    def balancing_authority_assn_eia861(self, update=False):
+    def balancing_authority_assn_eia861(
+        self,
+        eia861_settings: Eia861Settings = Eia861Settings(),
+        update=False
+    ):
         """An interim EIA 861 output function."""
         self.etl_eia861(update=update)
         return self._dfs["balancing_authority_assn_eia861"]
 
-    def demand_response_eia861(self, update=False):
+    def demand_response_eia861(
+        self,
+        eia861_settings: Eia861Settings = Eia861Settings(),
+        update=False
+    ):
         """An interim EIA 861 output function."""
         self.etl_eia861(update=update)
         return self._dfs["demand_response_eia861"]
 
-    def demand_response_water_heater_eia861(self, update=False):
+    def demand_response_water_heater_eia861(
+        self,
+        eia861_settings: Eia861Settings = Eia861Settings(),
+        update=False
+    ):
         """An interim EIA 861 output function."""
         self.etl_eia861(update=update)
         return self._dfs["demand_response_water_heater_eia861"]
 
-    def demand_side_management_sales_eia861(self, update=False):
+    def demand_side_management_sales_eia861(
+        self,
+        eia861_settings: Eia861Settings = Eia861Settings(),
+        update=False
+    ):
         """An interim EIA 861 output function."""
         self.etl_eia861(update=update)
         return self._dfs["demand_side_management_sales_eia861"]
 
-    def demand_side_management_ee_dr_eia861(self, update=False):
+    def demand_side_management_ee_dr_eia861(
+        self,
+        eia861_settings: Eia861Settings = Eia861Settings(),
+        update=False
+    ):
         """An interim EIA 861 output function."""
         self.etl_eia861(update=update)
         return self._dfs["demand_side_management_ee_dr_eia861"]
 
-    def demand_side_management_misc_eia861(self, update=False):
+    def demand_side_management_misc_eia861(
+        self,
+        eia861_settings: Eia861Settings = Eia861Settings(),
+        update=False
+    ):
         """An interim EIA 861 output function."""
         self.etl_eia861(update=update)
         return self._dfs["demand_side_management_misc_eia861"]
 
-    def distributed_generation_tech_eia861(self, update=False):
+    def distributed_generation_tech_eia861(
+        self,
+        eia861_settings: Eia861Settings = Eia861Settings(),
+        update=False
+    ):
         """An interim EIA 861 output function."""
         self.etl_eia861(update=update)
         return self._dfs["distributed_generation_tech_eia861"]
 
-    def distributed_generation_fuel_eia861(self, update=False):
+    def distributed_generation_fuel_eia861(
+        self,
+        eia861_settings: Eia861Settings = Eia861Settings(),
+        update=False
+    ):
         """An interim EIA 861 output function."""
         self.etl_eia861(update=update)
         return self._dfs["distributed_generation_fuel_eia861"]
 
-    def distributed_generation_misc_eia861(self, update=False):
+    def distributed_generation_misc_eia861(
+        self,
+        eia861_settings: Eia861Settings = Eia861Settings(),
+        update=False
+    ):
         """An interim EIA 861 output function."""
         self.etl_eia861(update=update)
         return self._dfs["distributed_generation_misc_eia861"]
 
-    def distribution_systems_eia861(self, update=False):
+    def distribution_systems_eia861(
+        self,
+        eia861_settings: Eia861Settings = Eia861Settings(),
+        update=False
+    ):
         """An interim EIA 861 output function."""
         self.etl_eia861(update=update)
         return self._dfs["distribution_systems_eia861"]
 
-    def dynamic_pricing_eia861(self, update=False):
+    def dynamic_pricing_eia861(
+        self,
+        eia861_settings: Eia861Settings = Eia861Settings(),
+        update=False
+    ):
         """An interim EIA 861 output function."""
         self.etl_eia861(update=update)
         return self._dfs["dynamic_pricing_eia861"]
 
-    def energy_efficiency_eia861(self, update=False):
+    def energy_efficiency_eia861(
+        self,
+        eia861_settings: Eia861Settings = Eia861Settings(),
+        update=False
+    ):
         """An interim EIA 861 output function."""
         self.etl_eia861(update=update)
         return self._dfs["energy_efficiency_eia861"]
 
-    def green_pricing_eia861(self, update=False):
+    def green_pricing_eia861(
+        self,
+        eia861_settings: Eia861Settings = Eia861Settings(),
+        update=False
+    ):
         """An interim EIA 861 output function."""
         self.etl_eia861(update=update)
         return self._dfs["green_pricing_eia861"]
 
-    def mergers_eia861(self, update=False):
+    def mergers_eia861(
+        self,
+        eia861_settings: Eia861Settings = Eia861Settings(),
+        update=False
+    ):
         """An interim EIA 861 output function."""
         self.etl_eia861(update=update)
         return self._dfs["mergers_eia861"]
 
-    def net_metering_customer_fuel_class_eia861(self, update=False):
+    def net_metering_customer_fuel_class_eia861(
+        self,
+        eia861_settings: Eia861Settings = Eia861Settings(),
+        update=False
+    ):
         """An interim EIA 861 output function."""
         self.etl_eia861(update=update)
         return self._dfs["net_metering_customer_fuel_class_eia861"]
 
-    def net_metering_misc_eia861(self, update=False):
+    def net_metering_misc_eia861(
+        self,
+        eia861_settings: Eia861Settings = Eia861Settings(),
+        update=False
+    ):
         """An interim EIA 861 output function."""
         self.etl_eia861(update=update)
         return self._dfs["net_metering_misc_eia861"]
 
-    def non_net_metering_customer_fuel_class_eia861(self, update=False):
+    def non_net_metering_customer_fuel_class_eia861(
+        self,
+        eia861_settings: Eia861Settings = Eia861Settings(),
+        update=False
+    ):
         """An interim EIA 861 output function."""
         self.etl_eia861(update=update)
         return self._dfs["non_net_metering_customer_fuel_class_eia861"]
 
-    def non_net_metering_misc_eia861(self, update=False):
+    def non_net_metering_misc_eia861(
+        self,
+        eia861_settings: Eia861Settings = Eia861Settings(),
+        update=False
+    ):
         """An interim EIA 861 output function."""
         self.etl_eia861(update=update)
         return self._dfs["non_net_metering_misc_eia861"]
 
-    def operational_data_revenue_eia861(self, update=False):
+    def operational_data_revenue_eia861(
+        self,
+        eia861_settings: Eia861Settings = Eia861Settings(),
+        update=False
+    ):
         """An interim EIA 861 output function."""
         self.etl_eia861(update=update)
         return self._dfs["operational_data_revenue_eia861"]
 
-    def operational_data_misc_eia861(self, update=False):
+    def operational_data_misc_eia861(
+        self,
+        eia861_settings: Eia861Settings = Eia861Settings(),
+        update=False
+    ):
         """An interim EIA 861 output function."""
         self.etl_eia861(update=update)
         return self._dfs["operational_data_misc_eia861"]
 
-    def reliability_eia861(self, update=False):
+    def reliability_eia861(
+        self,
+        eia861_settings: Eia861Settings = Eia861Settings(),
+        update=False
+    ):
         """An interim EIA 861 output function."""
         self.etl_eia861(update=update)
         return self._dfs["reliability_eia861"]
 
-    def sales_eia861(self, update=False):
+    def sales_eia861(
+        self,
+        eia861_settings: Eia861Settings = Eia861Settings(),
+        update=False
+    ):
         """An interim EIA 861 output function."""
         self.etl_eia861(update=update)
         return self._dfs["sales_eia861"]
 
-    def service_territory_eia861(self, update=False):
+    def service_territory_eia861(
+        self,
+        eia861_settings: Eia861Settings = Eia861Settings(),
+        update=False
+    ):
         """An interim EIA 861 output function."""
         self.etl_eia861(update=update)
         return self._dfs["service_territory_eia861"]
 
-    def utility_assn_eia861(self, update=False):
+    def utility_assn_eia861(
+        self,
+        eia861_settings: Eia861Settings = Eia861Settings(),
+        update=False
+    ):
         """An interim EIA 861 output function."""
         self.etl_eia861(update=update)
         return self._dfs["utility_assn_eia861"]
 
-    def utility_data_nerc_eia861(self, update=False):
+    def utility_data_nerc_eia861(
+        self,
+        eia861_settings: Eia861Settings = Eia861Settings(),
+        update=False
+    ):
         """An interim EIA 861 output function."""
         self.etl_eia861(update=update)
         return self._dfs["utility_data_nerc_eia861"]
 
-    def utility_data_rto_eia861(self, update=False):
+    def utility_data_rto_eia861(
+        self,
+        eia861_settings: Eia861Settings = Eia861Settings(),
+        update=False
+    ):
         """An interim EIA 861 output function."""
         self.etl_eia861(update=update)
         return self._dfs["utility_data_rto_eia861"]
 
-    def utility_data_misc_eia861(self, update=False):
+    def utility_data_misc_eia861(
+        self,
+        eia861_settings: Eia861Settings = Eia861Settings(),
+        update=False
+    ):
         """An interim EIA 861 output function."""
         self.etl_eia861(update=update)
         return self._dfs["utility_data_misc_eia861"]
