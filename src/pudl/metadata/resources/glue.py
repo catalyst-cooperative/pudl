@@ -9,7 +9,10 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
                 "plant_id_eia",
                 "unit_id_epa",
             ],
-        }
+        },
+        "field_namespace": "glue",
+        "etl_group": "glue",
+        "sources": ["eia_epa_crosswalk"]
     },
     "assn_plant_id_eia_epa": {
         "schema": {
@@ -17,7 +20,10 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
                 "plant_id_eia",
                 "plant_id_epa",
             ],
-        }
+        },
+        "field_namespace": "glue",
+        "etl_group": "glue",
+        "sources": ["eia_epa_crosswalk"]
     },
     "plant_unit_epa": {
         "schema": {
@@ -25,7 +31,10 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
                 "plant_id_epa",
                 "unit_id_epa",
             ],
-        }
+        },
+        "field_namespace": "glue",
+        "etl_group": "glue",
+        "sources": ["eia_epa_crosswalk"]
     },
 }
 """

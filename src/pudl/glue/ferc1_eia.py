@@ -38,7 +38,7 @@ import pandas as pd
 import sqlalchemy as sa
 
 import pudl
-from pudl import constants as pc
+from pudl.metadata.classes import DataSource
 
 logger = logging.getLogger(__name__)
 
@@ -132,7 +132,7 @@ def get_db_plants_ferc1(
     """
     # Need to be able to use years outside the "valid" range if we're trying
     # to get new plant ID info...
-    unrecognized_years = set(years).difference(pc.WORKING_PARTITIONS['ferc1']['years'])
+    unrecognized_years = set(years).difference(DataSource.from_id("ferc1").working_partitions['years'])
     if unrecognized_years:
         raise ValueError(
             f"Input years {sorted(unrecognized_years)} not available in FERC 1 DB."

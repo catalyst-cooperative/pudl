@@ -24,8 +24,7 @@ import pandas as pd
 import requests
 import sqlalchemy as sa
 
-from pudl import constants as pc
-from pudl.metadata.classes import Package
+from pudl.metadata.classes import Package, DataSource
 from pudl.metadata.fields import apply_pudl_dtypes, get_pudl_dtypes
 
 logger = logging.getLogger(__name__)
@@ -908,12 +907,7 @@ def convert_cols_dtypes(
     name: Optional[str] = None
 ) -> pd.DataFrame:
     """
-    Convert the data types for a dataframe.
-
-    This function will convert a PUDL dataframe's columns to the correct data
-    type. It uses a dictionary in constants.py called COLUMN_DTYPES to assign
-    the right type. Within a given data source (e.g. eia923, ferc1) each column
-    name is assumed to *always* have the same data type whenever it is found.
+    Convert a PUDL dataframe's columns to the correct data type.
 
     Boolean type conversions created a special problem, because null values in
     boolean columns get converted to True (which is bonkers!)... we generally
@@ -1179,15 +1173,14 @@ def iterate_multivalue_dict(**kwargs):
 def get_working_eia_dates():
     """Get all working EIA dates as a DatetimeIndex."""
     dates = pd.DatetimeIndex([])
-    for dataset_name, dataset in pc.WORKING_PARTITIONS.items():
-        if 'eia' in dataset_name:
-            for name, partition in dataset.items():
-                if name == 'years':
-                    dates = dates.append(
-                        pd.to_datetime(partition, format='%Y'))
-                if name == 'year_month':
-                    dates = dates.append(pd.DatetimeIndex(
-                        [pd.to_datetime(partition)]))
+    for data_source in DataSource.from_field_namespace("eia"):
+        working_partitions = data_source.working_partitions
+        if 'years' in working_partitions:
+            dates = dates.append(
+                pd.to_datetime(working_partitions['years'], format='%Y'))
+        if 'year_month' in working_partitions:
+            dates = dates.append(pd.DatetimeIndex(
+                [pd.to_datetime(working_partitions['year_month'])]))
     return dates
 
 
