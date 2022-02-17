@@ -24,7 +24,7 @@ import pandas as pd
 import requests
 import sqlalchemy as sa
 
-from pudl.metadata.classes import Package, DataSource
+from pudl.metadata.classes import DataSource, Package
 from pudl.metadata.fields import apply_pudl_dtypes, get_pudl_dtypes
 
 logger = logging.getLogger(__name__)
@@ -982,14 +982,14 @@ def convert_cols_dtypes(
     # converted at any point it may mess up the accuracy of the data. For
     # example: 08401.0 or 8401 are both incorrect versions of 08401 that a
     # simple datatype conversion cannot fix. For this reason, we use the
-    # zero_pad_zips function.
+    # zero_pad_numeric_string function.
     if any('zip_code' for col in df.columns):
         zip_cols = [col for col in df.columns if 'zip_code' in col]
         for col in zip_cols:
             if '4' in col:
-                df.loc[:, col] = zero_pad_zips(df[col], 4)
+                df.loc[:, col] = zero_pad_numeric_string(df[col], n_digits=4)
             else:
-                df.loc[:, col] = zero_pad_zips(df[col], 5)
+                df.loc[:, col] = zero_pad_numeric_string(df[col], n_digits=5)
 
     return df
 
@@ -1123,33 +1123,54 @@ def cleanstrings_snake(df, cols):
     return df
 
 
-def zero_pad_zips(zip_series, n_digits):
+def zero_pad_numeric_string(
+    col: pd.Series,
+    n_digits: int,
+) -> pd.Series:
     """
-    Retain prefix zeros in zipcodes.
+    Clean up fixed-width leading zero padded numeric (e.g. ZIP, FIPS) codes.
+
+    Often values like ZIP and FIPS codes are stored as integers, or get
+    converted to floating point numbers because there are NA values in the
+    column. Sometimes other non-digit strings are included like Canadian
+    postal codes mixed in with ZIP codes, or IMP (imported) instead of a
+    FIPS county code. This function attempts to manage these irregularities
+    and produce either fixed-width leading zero padded strings of digits
+    having a specified length (n_digits) or NA.
+
+    * Convert the Series to a nullable string.
+    * Remove any decimal point and all digits following it.
+    * Remove any non-digit characters.
+    * Replace any empty strings with NA.
+    * Replace any strings longer than n_digits with NA.
+    * Pad remaining digit-only strings to n_digits length.
+    * Replace (invalid) all-zero codes with NA.
 
     Args:
-        zip_series (pd.Series) : series containing the zipcode values.
-        n_digits(int) : zipcode length (likely 4 or 5 digits).
+        col: The Series to clean. May be numeric, string, object, etc.
+        n_digits: the desired length of the output stringss.
 
     Returns:
-        pandas.Series: a series containing zipcodes with their prefix zeros
-        intact and invalid zipcodes rendered as na.
-
+        A Series of nullable strings, containing only all-numeric strings
+        having length n_digits, padded with leading zeroes if necessary.
     """
-    # Add preceeding zeros where necessary and get rid of decimal zeros
-    def get_rid_of_decimal(series):
-        return series.str.replace(r'[\.]+\d*', '', regex=True)
-
-    zip_series = (
-        zip_series
-        .astype(pd.StringDtype())
-        .replace('nan', np.nan)
-        .fillna("0")
-        .pipe(get_rid_of_decimal)
+    return (
+        col.astype("string")
+        # Remove decimal points and any digits following them.
+        # This turns floating point strings into integer strings
+        .replace(r'[\.]+\d*', '', regex=True)
+        # Remove any whitespace
+        .replace(r'\s+', '', regex=True)
+        # Replace anything that's not entirely digits with NA
+        .replace(r'[^\d]+', pd.NA, regex=True)
+        # Set any string longer than n_digits to NA
+        .replace(f'[\\d]{{{n_digits+1},}}', pd.NA, regex=True)
+        # Pad the numeric string with leading zeroes to n_digits length
         .str.zfill(n_digits)
-        .replace({n_digits * "0": pd.NA})  # All-zero Zip codes aren't valid.
+        # All-zero ZIP & FIPS codes are invalid.
+        # Also catches empty strings that were zero padded.
+        .replace({n_digits * "0": pd.NA})
     )
-    return zip_series
 
 
 def iterate_multivalue_dict(**kwargs):

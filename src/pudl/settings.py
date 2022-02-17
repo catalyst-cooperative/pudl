@@ -192,7 +192,7 @@ class Eia860Settings(GenericDatasetSettings):
 
     years: List[int] = data_source.working_partitions["years"]
     tables: List[str] = data_source.get_resource_ids()
-    eia860m: bool = False
+    eia860m: bool = True
 
     @validator("eia860m")
     def check_eia860m_date(cls, eia860m: bool) -> bool:  # noqa: N805

@@ -6,8 +6,8 @@ import numpy as np
 import pandas as pd
 
 import pudl
-from pudl.metadata.codes import CODE_METADATA
 from pudl.metadata.classes import DataSource
+from pudl.metadata.codes import CODE_METADATA
 
 logger = logging.getLogger(__name__)
 
@@ -453,14 +453,14 @@ def _coalmine_cleanup(cmi_df: pd.DataFrame) -> pd.DataFrame:
             # county_id_fips field (ugh, Excel sheets!).  Mostly these are
             # integers or NA values, but for imported coal, there are both
             # 'IMP' and 'IM' string values.
-            county_id_fips=lambda x: x.county_id_fips.replace(
-                '[a-zA-Z]+', value=pd.NA, regex=True
+            county_id_fips=lambda x: pudl.helpers.zero_pad_numeric_string(
+                x.county_id_fips,
+                n_digits=3,
             )
         )
         # No leading or trailing whitespace:
         .pipe(pudl.helpers.simplify_strings, columns=["mine_name"])
         .pipe(pudl.helpers.add_fips_ids, county_col=None)
-        .astype({"county_id_fips": pd.StringDtype()})
     )
     # join state and partial county FIPS into five digit county FIPS
     cmi_df['county_id_fips'] = cmi_df['state_id_fips'] + cmi_df['county_id_fips']
