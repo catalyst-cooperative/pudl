@@ -6,8 +6,8 @@ import numpy as np
 import pandas as pd
 
 import pudl
-from pudl.metadata.codes import CODE_METADATA
 from pudl.metadata.classes import DataSource
+from pudl.metadata.codes import CODE_METADATA
 
 logger = logging.getLogger(__name__)
 
