@@ -1251,3 +1251,12 @@ def compute_dataframe_summary_statistics(df):
         "columns": str(df.columns),
         "is_na_pct": (df.isna().sum() / len(df)).to_dict()
     }
+
+
+def create_epacems_partitions():
+    """Create tuple partitions of EPA CEMS partitions."""
+    states = pc.WORKING_PARTITIONS['epacems']['states']
+    years = pc.WORKING_PARTITIONS['epacems']['years']
+
+    partitions = itertools.product(years, states)
+    return list(map(lambda par: f"{par[0]}-{par[1]}", partitions))

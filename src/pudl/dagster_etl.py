@@ -4,10 +4,11 @@ from pathlib import Path
 import pandas as pd
 import sqlalchemy as sa
 from dagster import (AssetMaterialization, EventMetadata, Field, In, Output,
-                     job, op, resource)
+                     job, op, resource, static_partitioned_config)
 
 import pudl
-from pudl.helpers import compute_dataframe_summary_statistics
+from pudl.helpers import (compute_dataframe_summary_statistics,
+                          create_epacems_partitions)
 from pudl.metadata.classes import Resource
 from pudl.workspace.datastore import Datastore
 
@@ -72,10 +73,15 @@ def datastore(init_context):
 # The @job that links the ETL @ops together
 
 
-@job(resource_defs={"pudl_settings": pudl_settings, "datastore": datastore, "pudl_engine": pudl_engine})
+@static_partitioned_config(partition_keys=create_epacems_partitions())
+def partition_config(partition_key: str):
+    """EPA CEMS dagster partition config."""
+    return {"ops": {"extract": {"config": {"partition": partition_key}}}}
+
+
+@job(resource_defs={"pudl_settings": pudl_settings, "datastore": datastore, "pudl_engine": pudl_engine}, config=partition_config)
 def etl_epacems_dagster():
     """Run the full EPA CEMS ETL."""
-    partitions = pudl.extract.epacems.gather_partitions()
-    epacems_raw_dfs = partitions.map(pudl.extract.epacems.extract)
-    epacems_transformed_dfs = epacems_raw_dfs.map(pudl.transform.epacems.transform)
-    epacems_transformed_dfs.map(load_epacems)
+    epacems_raw_dfs = pudl.extract.epacems.extract()
+    epacems_transformed_dfs = pudl.transform.epacems.transform(epacems_raw_dfs)
+    load_epacems(epacems_transformed_dfs)

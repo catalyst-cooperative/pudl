@@ -198,8 +198,8 @@ def gather_partitions(context):
             yield DynamicOutput(EpaCemsPartition(state=state, year=year), mapping_key=f"{state}{year}")
 
 
-@op(required_resource_keys={"datastore"})
-def extract(context, partition: EpaCemsPartition) -> pd.DataFrame:
+@op(required_resource_keys={"datastore"}, config_schema={"partition": str})
+def extract(context) -> pd.DataFrame:
     """
     Coordinate the extraction of EPA CEMS hourly DataFrames.
 
@@ -210,6 +210,8 @@ def extract(context, partition: EpaCemsPartition) -> pd.DataFrame:
         pandas.DataFrame: A single state-year of EPA CEMS hourly emissions data.
 
     """
+    year, state = context.op_config["partition"].split("-")
+    partition = EpaCemsPartition(state=state, year=int(year))
     ds = EpaCemsDatastore(context.resources.datastore)
     logger.info(
         f"Processing EPA CEMS hourly data for {partition.state}-{partition.year}")
