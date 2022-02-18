@@ -24,7 +24,7 @@ import pandas as pd
 import requests
 import sqlalchemy as sa
 
-from pudl.metadata.classes import Package, DataSource
+from pudl.metadata.classes import DataSource, Package
 from pudl.metadata.fields import apply_pudl_dtypes, get_pudl_dtypes
 
 logger = logging.getLogger(__name__)

@@ -132,7 +132,8 @@ def get_db_plants_ferc1(
     """
     # Need to be able to use years outside the "valid" range if we're trying
     # to get new plant ID info...
-    unrecognized_years = set(years).difference(DataSource.from_id("ferc1").working_partitions['years'])
+    unrecognized_years = set(years).difference(
+        DataSource.from_id("ferc1").working_partitions['years'])
     if unrecognized_years:
         raise ValueError(
             f"Input years {sorted(unrecognized_years)} not available in FERC 1 DB."
