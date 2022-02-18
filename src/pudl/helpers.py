@@ -24,7 +24,7 @@ import pandas as pd
 import requests
 import sqlalchemy as sa
 
-from pudl.metadata.classes import Package, DataSource
+from pudl.metadata.classes import DataSource, Package
 from pudl.metadata.fields import apply_pudl_dtypes, get_pudl_dtypes
 
 logger = logging.getLogger(__name__)
@@ -422,6 +422,121 @@ def clean_merge_asof(
         by=by,
         tolerance=pd.Timedelta("365 days")  # Should never match across years.
     )
+
+
+def expand_a_table_by_freq(df_to_expand: pd.DataFrame, freq: str) -> pd.DataFrame:
+    """
+    Expand a table by a given time freqency.
+
+    Many times we have tables that are reported in different frequencies.
+    Pandas built-in :func:`pandas.merge_asof` is a left merge onto the more
+    time granular left table. This is not as helpful for us because many of our
+    less time-granular (ususally annual) tables have wider plant/generator
+    coverage.
+
+    What we want: To be able to merge two dataframes together that have
+    different frequencies with a result that includes ALL data from both tables.
+    This necessitates some duplication of the records in the less time-granular
+    table (i.e. if there is a annual table of generators with capacity that we
+    want to merge with monthly net generation, the resulting output will have
+    one record per month with the same capacity in each month).
+
+    This current implementation takes one data table and expands it to a new
+    frequency. This is achieved by creating a date range at the desired
+    frequency. Then we "expand" the date columns - which means we break the
+    report_date column into constitue date columns. Right now, it includes:
+    ``['year', 'quarter', 'month', 'day']``. Then we determine which columns
+    actually have unique information, which is a loose way of determining the
+    freqency of the input table. With the expanded columns of both the input
+    table and the date range we created based on the input freqency, we can
+    determine the shared date information to merge the date range and input
+    table on.
+
+    Note: The internal :func:`drop_non_unqiue_date_cols` is fragile if there
+    is only one year of data being imported! & the date range created lops off
+    the last time increment of the original table (if the og table is annual
+    you won't get the months for the most recent year).
+
+    One option that was explored here: use the internal :func:`assign_date_cols`
+    to expand the date columns of two data tables we'd actually want to merge
+    and then.. merge them! This worked great for the plant/generator records
+    which showed up in the more time-granular table. But the records that
+    didn't show up in the more-time granular table ended up with just one ``AS``
+    record. This was unhelpful for the process in :mod:`pudl.analysis.allocate_net_gen`.
+
+    Args:
+        df_to_expand: a dataframe to expand. Must have ``report_date`` column.
+        freq: Desired frequency of output table. Only ``AS``, ``MS``, ``QS``
+            and ``D`` have been tested. See :ref:`here <timeseries.offset_aliases>`
+            for a list of frequency aliases.
+
+    Returns:
+        a modified version of ``df_to_expand``
+    """
+    # make a date range at the required freqency
+    # HALP: the end parameter here needs a plus one year somehow!
+    date_range = pd.DataFrame(
+        pd.date_range(
+            start=df_to_expand.set_index('report_date').first('D').index[0],
+            end=df_to_expand.set_index('report_date').last('D').index[0],
+            freq=freq
+        ),
+        columns=['report_date']
+    )
+
+    def assign_date_cols(df):
+        df = df.assign(
+            year=lambda x: x.report_date.dt.year,
+            quarter=lambda x: x.report_date.dt.quarter,
+            month=lambda x: x.report_date.dt.month,
+            day=lambda x: x.report_date.dt.day,
+        )
+        return df
+
+    def drop_non_unqiue_date_cols(df, date_cols_all):
+        # drop the columns with non-unique information!
+        for date_col in date_cols_all:
+            if len(df[date_col].unique()) == 1:
+                df = df.drop(columns=[date_col])
+        return df
+
+    # these are the date columns I could imagine wanting to use
+    # they are effectively hard coded into expand_date_cols
+    # it would be ideal if we could use on set of date columns and
+    # confirm that the input frequency is compatible with these
+    # and use them directly in expand_date_cols as well as here
+    date_cols_all = ['report_date', 'year', 'quarter', 'month', 'day']
+    # add the expanded date columns for the date range
+    date_range = (
+        assign_date_cols(date_range)
+        .pipe(drop_non_unqiue_date_cols, date_cols_all)
+    )
+    df_w_date_cols = (
+        assign_date_cols(df_to_expand)
+        .pipe(drop_non_unqiue_date_cols, date_cols_all)
+        .drop(columns=['report_date'])
+    )
+
+    # which columns are
+    date_range_cols = [
+        col for col in date_range if col in date_cols_all]
+    merge_on = [c for c in df_w_date_cols if c in date_range_cols]
+    logger.info(f"The date range for {freq} includes: {date_range_cols}")
+    logger.info(f"Merging date range on {merge_on}")
+
+    # I think we need the annual (or less time granular) df
+    # to be merged into a date range at the right frequency
+    df_at_freq = (
+        pd.merge(
+            date_range,
+            df_w_date_cols,
+            on=merge_on,
+            how='outer'
+        )  # drop all of the non-report date new date cols
+        .drop(columns=[c for c in date_range_cols if c != 'report_date'])
+    )
+
+    return df_at_freq
 
 
 def organize_cols(df, cols):

@@ -140,9 +140,11 @@ def allocate_gen_fuel_by_gen(pudl_out):
                        'operational_status', 'retirement_date']
         + list(pudl_out.gens_eia860().filter(like='energy_source_code'))]
 
+    gens_by_freq = pudl.helpers.expand_a_table_by_freq(gens, freq=pudl_out.freq)
+
     # do the allocation! (this function coordinates the bulk of the work in
     # this module)
-    gen_pm_fuel = allocate_gen_fuel_by_gen_pm_fuel(gf, gen, gens)
+    gen_pm_fuel = allocate_gen_fuel_by_gen_pm_fuel(gf, gen, gens_by_freq)
     # aggregate the gen/pm/fuel records back to generator records
     gen_allocated = agg_by_generator(gen_pm_fuel)
     _test_gen_fuel_allocation(gen, gen_allocated)
