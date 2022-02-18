@@ -27,9 +27,8 @@ import pandas as pd
 import timezonefinder
 
 import pudl
-from pudl.metadata.fields import apply_pudl_dtypes, get_pudl_dtypes
 from pudl.metadata.classes import DataSource
-
+from pudl.metadata.fields import apply_pudl_dtypes, get_pudl_dtypes
 from pudl.metadata.resources import ENTITIES
 
 logger = logging.getLogger(__name__)
@@ -1039,7 +1038,8 @@ def _boiler_generator_assn(
 
 
 def _restrict_years(df,
-                    eia923_years=DataSource.from_id("eia923").working_partitions['years'],
+                    eia923_years=DataSource.from_id(
+                        "eia923").working_partitions['years'],
                     eia860_years=DataSource.from_id("eia860").working_partitions['years']):
     """Restricts eia years for boiler generator association."""
     bga_years = set(eia860_years) & set(eia923_years)
