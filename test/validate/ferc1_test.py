@@ -18,6 +18,7 @@ logger = logging.getLogger(__name__)
 # turned into columns -- so there's no universally unique record ID:
 row_mapped_tables = [
     "plant_in_service_ferc1",
+    "accumulated_depreciation_ferc1",
 ]
 unique_record_tables = [
     t for t in DataSource.from_id("ferc1").get_resource_ids()
