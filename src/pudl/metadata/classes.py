@@ -1760,3 +1760,32 @@ class CodeMetadata(Base):
                 rendered = encoder.to_rst(
                     top_dir=top_dir, csv_subdir=csv_subdir, is_header=header)
                 f.write(rendered)
+
+
+class DatasetteMetadata(Base):
+    """Used to create metadata YAML file to accompany Datasette."""
+
+    datasource_dict: Dict[str, DataSource] = {
+        'pudl': DataSource.from_id('pudl'),
+        'ferc1': DataSource.from_id('ferc1')}
+
+    resource_package: Package = Package.from_resource_ids()
+
+    label_column_dict: Dict[str, str] = {
+        'plants_entity_eia': 'plant_name_eia',
+        'plants_ferc1': 'plant_name_ferc1',
+        'plants_pudl': 'plant_name_pudl',
+        'utilities_entity_eia': 'utlity_name_eia',
+        'utilities_ferc1': 'utility_name_eia',
+        'utilities_pudl': 'utility_name_pudl'
+    }
+
+    def to_yaml(self, path: str) -> None:
+        """Output database, table, and column metadata to YAML file."""
+        template = JINJA_ENVIRONMENT.get_template("metadata.yml.jinja")
+        rendered = template.render(
+            license=LICENSES["cc-by-4.0"],
+            datasources=self.datasource_dict,
+            package=self.resource_package,
+            label_column_dict=self.label_column_dict)
+        Path(path).write_text(rendered)
