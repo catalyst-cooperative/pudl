@@ -1154,7 +1154,7 @@ def zero_pad_numeric_string(
         A Series of nullable strings, containing only all-numeric strings
         having length n_digits, padded with leading zeroes if necessary.
     """
-    return (
+    out_col = (
         col.astype("string")
         # Remove decimal points and any digits following them.
         # This turns floating point strings into integer strings
@@ -1171,6 +1171,11 @@ def zero_pad_numeric_string(
         # Also catches empty strings that were zero padded.
         .replace({n_digits * "0": pd.NA})
     )
+    if not out_col.str.match(f"^[\\d]{{{n_digits}}}$").all():
+        raise ValueError(
+            f"Failed to generate zero-padded numeric strings of length {n_digits}."
+        )
+    return out_col
 
 
 def iterate_multivalue_dict(**kwargs):
