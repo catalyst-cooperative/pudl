@@ -4,7 +4,7 @@ from pathlib import Path
 import pandas as pd
 import sqlalchemy as sa
 from dagster import (AssetMaterialization, EventMetadata, Field, In, Output,
-                     job, multiprocess_executor, op, resource,
+                     in_process_executor, job, op, resource,
                      static_partitioned_config)
 
 import pudl
@@ -80,12 +80,7 @@ def partition_config(partition_key: str):
     return {"ops": {"extract": {"config": {"partition": partition_key}}}}
 
 
-mutliprocess_forserver = multiprocess_executor.configured(
-    {"start_method": {"forkserver": {}}}
-)
-
-
-@job(resource_defs={"pudl_settings": pudl_settings, "datastore": datastore, "pudl_engine": pudl_engine}, config=partition_config, executor_def=mutliprocess_forserver)
+@job(resource_defs={"pudl_settings": pudl_settings, "datastore": datastore, "pudl_engine": pudl_engine}, config=partition_config, executor_def=in_process_executor)
 def etl_epacems_dagster():
     """Run the full EPA CEMS ETL."""
     epacems_raw_dfs = pudl.extract.epacems.extract()
