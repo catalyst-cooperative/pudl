@@ -5,8 +5,8 @@ import re
 import numpy as np
 import pandas as pd
 
-from pudl.metadata.fields import apply_pudl_dtypes
 from pudl.metadata.classes import DataSource
+from pudl.metadata.fields import apply_pudl_dtypes
 
 logger = logging.getLogger(__name__)
 
