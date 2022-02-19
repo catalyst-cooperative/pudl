@@ -57,13 +57,17 @@ databases:
     tables:
     {%- for resource in package.resources %}
       {{ resource.name }}:
-        description_html:|
-        {%- if resource.description is not none %}
+      {%- if resource.description is not none %}
+        description_html: |
           <p>{{ resource.description }}</p>
-        {%- endif %}
+      {%- endif %}
       {%- if resource.name in label_column_dict.keys() %}
         label_column: {{ label_column_dict[resource.name] }}
       {%- endif %}
+        columns:
+        {%- for field in resource.schema.fields %}
+          {{ field.name }}: {{ field.description }}
+        {%- endfor %}
     {%- endfor %}
   ferc1:
     source: Raw FERC Form 1 DBF Files
