@@ -1148,7 +1148,7 @@ def zero_pad_numeric_string(
 
     Args:
         col: The Series to clean. May be numeric, string, object, etc.
-        n_digits: the desired length of the output stringss.
+        n_digits: the desired length of the output strings.
 
     Returns:
         A Series of nullable strings, containing only all-numeric strings
