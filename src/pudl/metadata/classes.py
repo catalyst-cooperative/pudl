@@ -1767,7 +1767,10 @@ class DatasetteMetadata(Base):
 
     datasource_dict: Dict[str, DataSource] = {
         'pudl': DataSource.from_id('pudl'),
-        'ferc1': DataSource.from_id('ferc1')}
+        'ferc1': DataSource.from_id('ferc1'),
+        'eia860': DataSource.from_id('eia860'),
+        'eia860m': DataSource.from_id('eia860m'),
+        'eia923': DataSource.from_id('eia923')}
 
     resource_package: Package = Package.from_resource_ids()
 
@@ -1782,10 +1785,21 @@ class DatasetteMetadata(Base):
 
     def to_yaml(self, path: str) -> None:
         """Output database, table, and column metadata to YAML file."""
+        # get the first and last year for each of the data sources
+        years_dict = {}
+        for name, source in self.datasource_dict.items():
+            if 'years' in source.working_partitions.keys():
+                last_idx = len(source.working_partitions['years']) - 1
+                years_dict[name] = [
+                    source.working_partitions['years'][0],
+                    source.working_partitions['years'][last_idx]]
+            if 'year_month' in source.working_partitions.keys():
+                years_dict[name] = source.working_partitions['year_month']
         template = JINJA_ENVIRONMENT.get_template("metadata.yml.jinja")
         rendered = template.render(
             license=LICENSES["cc-by-4.0"],
             datasources=self.datasource_dict,
+            years=years_dict,
             package=self.resource_package,
             label_column_dict=self.label_column_dict)
         Path(path).write_text(rendered)

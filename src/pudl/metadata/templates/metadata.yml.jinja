@@ -32,10 +32,10 @@ databases:
       <p>{{ datasources['pudl'].description  }}</p>
       <p>This database contains cleaned and normalized data from...
       <ul>
-      <li><a href="https://www.eia.gov/electricity/data/eia860/">EIA Form 860</a> (2001-2020)</li>
-      <li><a href="https://www.eia.gov/electricity/data/eia860m/">EIA Form 860m</a> (through 2021-08)</li>
-      <li><a href="https://www.eia.gov/electricity/data/eia923/">EIA Form 923</a> (2001-2020)</li>
-      <li><a href="https://www.ferc.gov/industries-data/electric/general-information/electric-industry-forms/form-1-electric-utility-annual">FERC Form 1</a> (1994-2020)</li>
+      <li><a href="{{ datasources['eia860'].path }}">{{ datasources['eia860'].title }}</a> ({{ years['eia860'][0] }}-{{ years['eia860'][1] }})</li>
+      <li><a href="{{ datasources['eia860m'].path }}">{{ datasources['eia860m'].title }}</a> (through {{ years['eia860m'] }})</li>
+      <li><a href="{{ datasources['eia923'].path }}">{{ datasources['eia923'].title }}</a> ({{ years['eia923'][0] }}-{{ years['eia923'][1] }})</li>
+      <li><a href="{{ datasources['ferc1'].path }}">{{ datasources['ferc1'].title }}</a> ({{ years['ferc1'][0] }}-{{ years['ferc1'][1] }})</li>
       </ul></p>
       <p>It was produced by
       <a href="https://catalyst.coop">Catalyst Cooperative</a> as part of the
@@ -79,8 +79,8 @@ databases:
     description_html: |
       <p>{{ datasources['ferc1'].description }}</p>
       <p>This database is a concatenation of all the individual annual
-      <a href="https://www.ferc.gov/industries-data/electric/general-information/electric-industry-forms/form-1-electric-utility-annual">FERC Form 1</a> Visual FoxPro
-      databases published between 1994 and 2020. It has been minimally altered
+      <a href="{{ datasources['ferc1'].path }}">{{ datasources['ferc1'].title }}</a> Visual FoxPro
+      databases published between {{ years['ferc1'][0] }} and {{ years['ferc1'][1] }}. It has been minimally altered
       to allow all years of data to coexist in the same database. It contains a
       wealth of data about the operating costs and financial structures of US
       electric utilities, much of which is not publicly available from any
