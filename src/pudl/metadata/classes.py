@@ -576,6 +576,7 @@ class Field(Base):
     ]
     format: Literal["default"] = "default"  # noqa: A003
     description: String = None
+    unit: String = None
     constraints: FieldConstraints = {}
     harvest: FieldHarvest = {}
     encoder: Encoder = None
@@ -1765,6 +1766,7 @@ class CodeMetadata(Base):
 class DatasetteMetadata(Base):
     """Used to create metadata YAML file to accompany Datasette."""
 
+    # probably make a class function and pass in a list of datasource names?
     datasource_dict: Dict[str, DataSource] = {
         'pudl': DataSource.from_id('pudl'),
         'ferc1': DataSource.from_id('ferc1'),
@@ -1786,6 +1788,7 @@ class DatasetteMetadata(Base):
     def to_yaml(self, path: str) -> None:
         """Output database, table, and column metadata to YAML file."""
         # get the first and last year for each of the data sources
+        # or year-month
         years_dict = {}
         for name, source in self.datasource_dict.items():
             if 'years' in source.working_partitions.keys():
