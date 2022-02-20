@@ -1,10 +1,13 @@
 """Unit tests for the :mod:`pudl.helpers` module."""
 
+import numpy as np
 import pandas as pd
-from pandas.testing import assert_frame_equal
+import pytest
+from pandas.testing import assert_frame_equal, assert_series_equal
 
 from pudl.helpers import (convert_df_to_excel_file, convert_to_date,
-                          fix_eia_na, fix_leading_zero_gen_ids)
+                          fix_eia_na, fix_leading_zero_gen_ids,
+                          zero_pad_numeric_string)
 
 
 def test_convert_to_date():
@@ -97,3 +100,52 @@ def test_convert_df_to_excel_file():
     out_df = pd.read_excel(out_excel_file)
 
     assert_frame_equal(out_df, expected_df)
+
+
+@pytest.mark.parametrize(
+    "df,n_digits", [
+        (pd.DataFrame([
+            (512, "512"),
+            (5, "005"),
+            (5.0, "005"),
+            (5.00, "005"),
+            ("5.0", "005"),
+            ("5.", "005"),
+            ("005", "005"),
+            (0, pd.NA),
+            (-5, pd.NA),
+            ("000", pd.NA),
+            ("5000", pd.NA),
+            ("IMP", pd.NA),
+            ("I9P", pd.NA),
+            ("", pd.NA),
+            ("nan", pd.NA),
+            (np.nan, pd.NA),
+        ], columns=["input", "expected"]).convert_dtypes(), 3),
+        (pd.DataFrame([
+            (93657, "93657"),
+            (93657.0, "93657"),
+            ("93657.0", "93657"),
+            (9365.7, "09365"),
+            (9365, "09365"),
+            ("936S7", pd.NA),
+            ("80302-7509", pd.NA),
+            ("B2A X19", pd.NA),
+            ("", pd.NA),
+            ("nan", pd.NA),
+            (np.nan, pd.NA),
+        ], columns=["input", "expected"]).convert_dtypes(), 5),
+    ]
+)
+def test_zero_pad_numeric_string(df, n_digits):
+    """Test zero-padding of numeric codes like ZIP and FIPS."""
+    output = zero_pad_numeric_string(df.input, n_digits)
+    assert_series_equal(
+        output,
+        df.expected,
+        check_names=False,
+    )
+    # Make sure all outputs are the right length
+    assert (output.str.len() == n_digits).all()
+    # Make sure all outputs are entirely numeric
+    assert output.str.match(f"^[\\d]{{{n_digits}}}$").all()

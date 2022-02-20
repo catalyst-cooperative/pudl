@@ -16,7 +16,8 @@ import sys
 import coloredlogs
 
 import pudl
-from pudl import constants as pc
+from pudl.metadata.classes import DataSource
+from pudl.settings import EpaCemsSettings
 
 logger = logging.getLogger(__name__)
 
@@ -42,7 +43,7 @@ def parse_command_line(argv):
         help="""Which years of EPA CEMS data should be converted to Apache
         Parquet format. Default is all available years, ranging from 1995 to
         the present. Note that data is typically incomplete before ~2000.""",
-        default=pc.WORKING_PARTITIONS['epacems']['years']
+        default=DataSource.from_id("epacems").working_partitions["years"]
     )
     parser.add_argument(
         '-s',
@@ -52,7 +53,7 @@ def parse_command_line(argv):
         help="""Which states EPA CEMS data should be converted to Apache
         Parquet format, as a list of two letter US state abbreviations. Default
         is everything: all 48 continental US states plus Washington DC.""",
-        default=pc.WORKING_PARTITIONS["epacems"]["states"]
+        default=DataSource.from_id("epacems").working_partitions["states"]
     )
     parser.add_argument(
         '-c',
@@ -88,20 +89,9 @@ def main():
     coloredlogs.install(fmt=log_format, level='INFO', logger=pudl_logger)
 
     args = parse_command_line(sys.argv)
-
-    # Make sure the requested years/states are available:
-    for year in args.years:
-        if year not in pc.WORKING_PARTITIONS["epacems"]["years"]:
-            raise ValueError(
-                f"{year} is not a valid year within the EPA CEMS dataset."
-            )
-    for state in args.states:
-        if state not in pc.WORKING_PARTITIONS["epacems"]["states"]:
-            raise ValueError(
-                f"{state} is not a valid state within the EPA CEMS dataset."
-            )
-
     pudl_settings = pudl.workspace.setup.get_defaults()
+    # This also validates the states / years we've been given:
+    epacems_settings = EpaCemsSettings(states=args.states, years=args.years)
 
     # Configure how we want to obtain raw input data:
     ds_kwargs = dict(
@@ -116,16 +106,10 @@ def main():
         clobber=args.clobber,
     )
 
-    # Messy settings arguments used in our main ETL which we should clean up
-    epacems_etl_settings = pudl.settings.EpaCemsBaseSettings(
-        states=args.states,
-        years=args.years,
-    )
-
     pudl.etl.etl_epacems(
-        epacems_etl_settings,
-        pudl_settings,
-        ds_kwargs,
+        epacems_settings=epacems_settings,
+        pudl_settings=pudl_settings,
+        ds_kwargs=ds_kwargs,
     )
 
 

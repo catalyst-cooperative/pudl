@@ -6,13 +6,14 @@ import pandas as pd
 from pytz import all_timezones
 
 from .codes import CODE_METADATA
-from .constants import FIELD_DTYPES_PANDAS, SOURCES
+from .constants import FIELD_DTYPES_PANDAS
 from .enums import (CANADA_PROVINCES_TERRITORIES, CUSTOMER_CLASSES,
                     EPACEMS_MEASUREMENT_CODES, EPACEMS_STATES, FUEL_CLASSES,
                     NERC_REGIONS, RELIABILITY_STANDARDS, REVENUE_CLASSES,
                     RTO_CLASSES, TECH_CLASSES, US_STATES_TERRITORIES)
 from .labels import (ESTIMATED_OR_ACTUAL, FUEL_UNITS_EIA,
                      MOMENTARY_INTERRUPTIONS)
+from .sources import SOURCES
 
 FIELD_METADATA: Dict[str, Dict[str, Any]] = {
     "active": {
@@ -1018,22 +1019,6 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
         "description": "Two letter US state abbreviations and three letter ISO-3166-1 country codes for international mines.",
         # TODO: Add ENUM constraint.
     },
-    "merge_zip_4": {
-        "type": "string"
-        # TODO Standardize with other zip codes and apply pattern constraint
-        # See: https://github.com/catalyst-cooperative/pudl/issues/550
-        # "constraints": {
-        #    "pattern": r'^\d{4}$',
-        # }
-    },
-    "merge_zip_5": {
-        "type": "string"
-        # TODO Standardize with other zip codes and apply pattern constraint
-        # See: https://github.com/catalyst-cooperative/pudl/issues/550
-        # "constraints": {
-        #    "pattern": r'^\d{5}$',
-        # }
-    },
     "min_fuel_mmbtu_per_unit": {
         "type": "number",
         "description": "Minimum heat content per physical unit of fuel in MMBtu.",
@@ -1472,11 +1457,9 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
     "owner_zip_code": {
         "type": "string",
         "description": "Zip code of owner.",
-        # TODO Standardize with other zip codes and apply pattern constraint
-        # See: https://github.com/catalyst-cooperative/pudl/issues/550
-        # "constraints": {
-        #    "pattern": r'^\d{5}$',
-        # }
+        "constraints": {
+            "pattern": r'^\d{5}$',
+        }
     },
     "ownership_code": {
         "type": "string",
@@ -2221,14 +2204,6 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
     "utility_pobox": {
         "type": "string"
     },
-    "utility_zip_ext": {
-        "type": "string",
-        # TODO: Standardize with other zip codes and impose pattern constraint.
-        # See: https://github.com/catalyst-cooperative/pudl/issues/550
-        # "constraints": {
-        #    "pattern": r'^\d{4}$',
-        # }
-    },
     "variable_peak_pricing": {
         "type": "boolean"
     },
@@ -2286,20 +2261,16 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
     "zip_code": {
         "type": "string",
         "description": "Five digit US Zip Code.",
-        # TODO Standardize with other zip codes and apply pattern constraint
-        # See: https://github.com/catalyst-cooperative/pudl/issues/550
-        # "constraints": {
-        #     "pattern": r'^\d{5}$',
-        # }
+        "constraints": {
+            "pattern": r'^\d{5}$',
+        }
     },
     "zip_code_4": {
         "type": "string",
         "description": "Four digit US Zip Code suffix.",
-        # TODO Standardize with other zip codes and apply pattern constraint
-        # See: https://github.com/catalyst-cooperative/pudl/issues/550
-        # "constraints": {
-        #     "pattern": r'^\d{4}$',
-        # }
+        "constraints": {
+            "pattern": r'^\d{4}$',
+        }
     }
 }
 """

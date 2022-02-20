@@ -1,5 +1,5 @@
 """Definitions of data tables primarily coming from EIA-861."""
-from typing import Any, Dict
+from typing import Any, Dict, List
 
 RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
     "advanced_metering_infrastructure_eia861": {
@@ -30,8 +30,9 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
                 'utility_id_eia',
             ],
         },
-        "group": "eia",
+        "field_namespace": "eia",
         "sources": ["eia861"],
+        "etl_group": "eia861",
     },
     "balancing_authority_assn_eia861": {
         "description": "Association table showing which combinations of state, balancing authority, and utilities were observed in the data each year.",
@@ -49,8 +50,9 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
                 'state',
             ],
         },
-        "group": "eia",
+        "field_namespace": "eia",
         "sources": ["eia861"],
+        "etl_group": "eia861",
     },
     "balancing_authority_eia861": {
         "description": "Annual entity table for balancing authorities.",
@@ -66,8 +68,9 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
                 'balancing_authority_id_eia',
             ],
         },
-        "group": "eia",
+        "field_namespace": "eia",
         "sources": ["eia861"],
+        "etl_group": "eia861",
     },
     "demand_response_eia861": {
         "description": "The data contain energy demand response programs by state, sector, and balancing authority. We collect data for the number of customers enrolled, energy savings, potential and actual peak savings, and associated costs.",
@@ -95,8 +98,9 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
                 'utility_id_eia',
             ],
         },
-        "group": "eia",
+        "field_namespace": "eia",
         "sources": ["eia861"],
+        "etl_group": "eia861",
     },
     "demand_response_water_heater_eia861": {
         "description": "The number of grid connected water heaters enrolled in demand response programs.",
@@ -115,8 +119,9 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
                 'utility_id_eia',
             ],
         },
-        "group": "eia",
+        "field_namespace": "eia",
         "sources": ["eia861"],
+        "etl_group": "eia861",
     },
     "demand_side_management_ee_dr_eia861": {
         "description": "The data contain energy efficiency incremental data, energy efficiency annual data, load management incremental data, load management annual data, annual costs, and the customer counts of price response and time response programs by sector.",
@@ -147,11 +152,11 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
                 'utility_id_eia'
             ],
         },
-        "group": "eia",
+        "field_namespace": "eia",
         "sources": ["eia861"],
+        "etl_group": "eia861",
     },
     "demand_side_management_misc_eia861": {
-        "description": "",
         "schema": {
             "fields": [
                 'energy_savings_estimates_independently_verified',
@@ -169,11 +174,11 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
                 'utility_name_eia'
             ],
         },
-        "group": "eia",
+        "field_namespace": "eia",
         "sources": ["eia861"],
+        "etl_group": "eia861",
     },
     "demand_side_management_sales_eia861": {
-        "description": "",
         "schema": {
             "fields": [
                 'nerc_region',
@@ -184,11 +189,11 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
                 'utility_id_eia'
             ],
         },
-        "group": "eia",
+        "field_namespace": "eia",
         "sources": ["eia861"],
+        "etl_group": "eia861",
     },
     "distributed_generation_fuel_eia861": {
-        "description": "",
         "schema": {
             "fields": [
                 'estimated_or_actual_fuel_data',
@@ -199,11 +204,11 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
                 'utility_id_eia'
             ],
         },
-        "group": "eia",
+        "field_namespace": "eia",
         "sources": ["eia861"],
+        "etl_group": "eia861",
     },
     "distributed_generation_misc_eia861": {
-        "description": "",
         "schema": {
             "fields": [
                 'backup_capacity_mw',
@@ -218,11 +223,11 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
                 'utility_name_eia'
             ],
         },
-        "group": "eia",
+        "field_namespace": "eia",
         "sources": ["eia861"],
+        "etl_group": "eia861",
     },
     "distributed_generation_tech_eia861": {
-        "description": "",
         "schema": {
             "fields": [
                 'capacity_mw',
@@ -233,8 +238,9 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
                 'utility_id_eia'
             ],
         },
-        "group": "eia",
+        "field_namespace": "eia",
         "sources": ["eia861"],
+        "etl_group": "eia861",
     },
     "distribution_systems_eia861": {
         "description": "The number of distribution circuits and circuits with voltage optimization by state.",
@@ -249,8 +255,9 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
                 'utility_name_eia'
             ],
         },
-        "group": "eia",
+        "field_namespace": "eia",
         "sources": ["eia861"],
+        "etl_group": "eia861",
     },
     "dynamic_pricing_eia861": {
         "description": "The number of customers enrolled in dynamic pricing programs by state, sector, and balancing authority. Respondents check if one or more customers are enrolled in time-of-use pricing, real time pricing, variable peak pricing, critical peak pricing, and critical peak rebates.",
@@ -271,8 +278,9 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
                 'variable_peak_pricing'
             ],
         },
-        "group": "eia",
+        "field_namespace": "eia",
         "sources": ["eia861"],
+        "etl_group": "eia861",
     },
     "energy_efficiency_eia861": {
         "description": "Incremental energy savings, peak demand savings, weighted average life cycle, and associated costs for the reporting year and life cycle of energy efficiency programs.",
@@ -296,8 +304,9 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
                 'weighted_average_life_years'
             ],
         },
-        "group": "eia",
+        "field_namespace": "eia",
         "sources": ["eia861"],
+        "etl_group": "eia861",
     },
     "green_pricing_eia861": {
         "description": "Green pricing program revenue, sales, and customer count by sector and state.",
@@ -315,8 +324,9 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
                 'utility_name_eia'
             ],
         },
-        "group": "eia",
+        "field_namespace": "eia",
         "sources": ["eia861"],
+        "etl_group": "eia861",
     },
     "mergers_eia861": {
         "description": "Information about utility mergers and acquisitions.",
@@ -337,11 +347,11 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
                 'zip_code_4'
             ],
         },
-        "group": "eia",
+        "field_namespace": "eia",
         "sources": ["eia861"],
+        "etl_group": "eia861",
     },
     "net_metering_customer_fuel_class_eia861": {
-        "description": "",
         "schema": {
             "fields": [
                 'balancing_authority_code_eia',
@@ -358,11 +368,11 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
                 'utility_name_eia'
             ],
         },
-        "group": "eia",
+        "field_namespace": "eia",
         "sources": ["eia861"],
+        "etl_group": "eia861",
     },
     "net_metering_misc_eia861": {
-        "description": "",
         "schema": {
             "fields": [
                 'balancing_authority_code_eia',
@@ -372,11 +382,11 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
                 'utility_id_eia'
             ],
         },
-        "group": "eia",
+        "field_namespace": "eia",
         "sources": ["eia861"],
+        "etl_group": "eia861",
     },
     "non_net_metering_customer_fuel_class_eia861": {
-        "description": "",
         "schema": {
             "fields": [
                 'balancing_authority_code_eia',
@@ -389,11 +399,11 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
                 'utility_name_eia'
             ],
         },
-        "group": "eia",
+        "field_namespace": "eia",
         "sources": ["eia861"],
+        "etl_group": "eia861",
     },
     "non_net_metering_misc_eia861": {
-        "description": "",
         "schema": {
             "fields": [
                 'backup_capacity_mw',
@@ -406,11 +416,11 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
                 'utility_owned_capacity_mw'
             ],
         },
-        "group": "eia",
+        "field_namespace": "eia",
         "sources": ["eia861"],
+        "etl_group": "eia861",
     },
     "operational_data_misc_eia861": {
-        "description": "",
         "schema": {
             "fields": [
                 'consumed_by_facility_mwh',
@@ -442,11 +452,11 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
                 'winter_peak_demand_mw'
             ],
         },
-        "group": "eia",
+        "field_namespace": "eia",
         "sources": ["eia861"],
+        "etl_group": "eia861",
     },
     "operational_data_revenue_eia861": {
-        "description": "",
         "schema": {
             "fields": [
                 'nerc_region',
@@ -457,11 +467,11 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
                 'utility_id_eia'
             ],
         },
-        "group": "eia",
+        "field_namespace": "eia",
         "sources": ["eia861"],
+        "etl_group": "eia861",
     },
     "reliability_eia861": {
-        "description": "",
         "schema": {
             "fields": [
                 'caidi_w_major_event_days_minus_loss_of_service_minutes',
@@ -487,8 +497,9 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
                 'utility_name_eia'
             ],
         },
-        "group": "eia",
+        "field_namespace": "eia",
         "sources": ["eia861"],
+        "etl_group": "eia861",
     },
     "sales_eia861": {
         "description": "Annual electricity sales to ultimate customers broken down by utility, balancing authority, state, and customer class.",
@@ -517,8 +528,9 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
                 "customer_class",
             ],
         },
-        "group": "eia",
+        "field_namespace": "eia",
         "sources": ["eia861"],
+        "etl_group": "eia861",
     },
     "service_territory_eia861": {
         "description": "County FIPS codes for counties composing utility service territories.",
@@ -539,8 +551,9 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
                 "county_id_fips",
             ],
         },
-        "group": "eia",
+        "field_namespace": "eia",
         "sources": ["eia861"],
+        "etl_group": "eia861",
     },
     "utility_assn_eia861": {
         "description": "Association table indicating which states each utility reported data for by year.",
@@ -556,11 +569,11 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
                 "state",
             ],
         },
-        "group": "eia",
+        "field_namespace": "eia",
         "sources": ["eia861"],
+        "etl_group": "eia861",
     },
     "utility_data_misc_eia861": {
-        "description": "",
         "schema": {
             "fields": [
                 'alternative_fuel_vehicle_2_activity',
@@ -583,11 +596,11 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
                 'wholesale_marketing_activity'
             ],
         },
-        "group": "eia",
+        "field_namespace": "eia",
         "sources": ["eia861"],
+        "etl_group": "eia861",
     },
     "utility_data_nerc_eia861": {
-        "description": "",
         "schema": {
             "fields": [
                 'nerc_region',
@@ -597,11 +610,11 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
                 'utility_id_eia'
             ],
         },
-        "group": "eia",
+        "field_namespace": "eia",
         "sources": ["eia861"],
+        "etl_group": "eia861",
     },
     "utility_data_rto_eia861": {
-        "description": "",
         "schema": {
             "fields": [
                 'nerc_region',
@@ -611,7 +624,74 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
                 'utility_id_eia'
             ],
         },
-        "group": "eia",
+        "field_namespace": "eia",
         "sources": ["eia861"],
+        "etl_group": "eia861",
     },
+}
+
+# Tables that always get processed:
+#  - 'balancing_authority_eia861',
+# Association tables that are always generated from the other tables:
+#  - 'balancing_authority_assn_eia861',
+#  - 'utility_assn_eia861',
+TABLE_DEPENDENCIES: Dict[str, List[str]] = {
+    'advanced_metering_infrastructure_eia861': [
+        'advanced_metering_infrastructure_eia861'
+    ],
+    'demand_response_eia861': [
+        'demand_response_eia861',
+        'demand_response_water_heater_eia861',
+    ],
+    'demand_side_management_eia861': [
+        'demand_side_management_ee_dr_eia861',
+        'demand_side_management_misc_eia861',
+        'demand_side_management_sales_eia861',
+    ],
+    'distributed_generation_eia861': [
+        'distributed_generation_fuel_eia861',
+        'distributed_generation_misc_eia861',
+        'distributed_generation_tech_eia861',
+    ],
+    'distribution_systems_eia861': [
+        'distribution_systems_eia861',
+    ],
+    'dynamic_pricing_eia861': [
+        'dynamic_pricing_eia861',
+    ],
+    'energy_efficiency_eia861': [
+        'energy_efficiency_eia861',
+    ],
+    'green_pricing_eia861': [
+        'green_pricing_eia861',
+    ],
+    'mergers_eia861': [
+        'mergers_eia861',
+    ],
+    'net_metering_eia861': [
+        'net_metering_customer_fuel_class_eia861',
+        'net_metering_misc_eia861',
+    ],
+    'non_net_metering_eia861': [
+        'non_net_metering_customer_fuel_class_eia861',
+        'non_net_metering_misc_eia861',
+    ],
+    'operational_data_eia861': [
+        'operational_data_misc_eia861',
+        'operational_data_revenue_eia861',
+    ],
+    'reliability_eia861': [
+        'reliability_eia861',
+    ],
+    'sales_eia861': [
+        'sales_eia861',
+    ],
+    'service_territory_eia861': [
+        'service_territory_eia861',
+    ],
+    'utility_data_eia861': [
+        'utility_data_misc_eia861',
+        'utility_data_nerc_eia861',
+        'utility_data_rto_eia861',
+    ],
 }
