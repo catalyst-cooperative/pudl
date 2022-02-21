@@ -7,6 +7,7 @@ import pandas as pd
 import sqlalchemy as sa
 
 import pudl
+from pudl.metadata.fields import apply_pudl_dtypes
 
 logger = logging.getLogger(__name__)
 
@@ -66,10 +67,7 @@ def utilities_eia860(pudl_engine, start_date=None, end_date=None):
     out_df = (
         out_df.assign(report_date=lambda x: pd.to_datetime(x.report_date))
         .dropna(subset=["report_date", "utility_id_eia"])
-        .astype(pudl.helpers.get_pudl_dtypes({
-            "utility_id_eia": "eia",
-            "utility_id_pudl": "eia",
-        }))
+        .pipe(apply_pudl_dtypes, group="eia")
     )
     first_cols = [
         'report_date',
@@ -143,12 +141,7 @@ def plants_eia860(pudl_engine, start_date=None, end_date=None):
     out_df = (
         pd.merge(out_df, utils_eia_df, how='left', on=['utility_id_eia'])
         .dropna(subset=["report_date", "plant_id_eia"])
-        .astype(pudl.helpers.get_pudl_dtypes({
-            "plant_id_eia": "eia",
-            "plant_id_pudl": "eia",
-            "utility_id_eia": "eia",
-            "utility_id_pudl": "eia",
-        }))
+        .pipe(apply_pudl_dtypes, group="eia")
     )
     return out_df
 
@@ -206,12 +199,7 @@ def plants_utils_eia860(pudl_engine, start_date=None, end_date=None):
                        'utility_id_pudl']
                    ]
         .dropna(subset=["report_date", "plant_id_eia", "utility_id_eia"])
-        .astype(pudl.helpers.get_pudl_dtypes({
-            "plant_id_eia": "eia",
-            "plant_id_pudl": "eia",
-            "utility_id_eia": "eia",
-            "utility_id_pudl": "eia",
-        }))
+        .pipe(apply_pudl_dtypes, group="eia")
     )
     return out_df
 
@@ -221,7 +209,7 @@ def generators_eia860(
     start_date=None,
     end_date=None,
     unit_ids: bool = False,
-    backfill_tech_desc: bool = True,
+    fill_tech_desc: bool = True,
 ) -> pd.DataFrame:
     """Pull all fields reported in the generators_eia860 table.
 
@@ -249,9 +237,9 @@ def generators_eia860(
             records to be pulled.  Dates are inclusive.
         unit_ids: If True, use several heuristics to assign
             individual generators to functional units. EXPERIMENTAL.
-        backfill_tech_desc: If True, backfill the technology_description
+        fill_tech_desc: If True, backfill the technology_description
             field to years earlier than 2013 based on plant and
-            energy_source_code_1.
+            energy_source_code_1 and fill in technologies with only one matching code.
 
     Returns:
         A DataFrame containing all the fields of the EIA 860 Generators table.
@@ -336,21 +324,15 @@ def generators_eia860(
         pd.merge(out_df, ft_count, how='left',
                  on=['plant_id_eia', 'report_date'])
         .dropna(subset=["report_date", "plant_id_eia", "generator_id"])
-        .astype(pudl.helpers.get_pudl_dtypes({
-            "plant_id_eia": "eia",
-            "plant_id_pudl": "eia",
-            "unit_id_pudl": "eia",
-            "utility_id_eia": "eia",
-            "utility_id_pudl": "eia",
-        }))
+        .pipe(apply_pudl_dtypes, group="eia")
     )
     # Augment those base unit_id_pudl values using heuristics, see below.
     if unit_ids:
         logger.info("Assigning pudl unit ids")
         out_df = assign_unit_ids(out_df)
 
-    if backfill_tech_desc:
-        logger.info("Backfilling technology type")
+    if fill_tech_desc:
+        logger.info("Filling technology type")
         out_df = fill_generator_technology_description(out_df)
 
     first_cols = [
@@ -368,7 +350,7 @@ def generators_eia860(
     out_df = (
         pudl.helpers.organize_cols(out_df, first_cols)
         .sort_values(['report_date', 'plant_id_eia', 'generator_id'])
-        .pipe(pudl.helpers.convert_cols_dtypes, data_source="eia")
+        .pipe(apply_pudl_dtypes, group="eia")
     )
 
     return out_df
@@ -404,7 +386,7 @@ def fill_generator_technology_description(gens_df: pd.DataFrame) -> pd.DataFrame
         out_df
         .sort_values("report_date")
         .groupby(["plant_id_eia", "generator_id", "energy_source_code_1"])
-        .technology_description.backfill()
+        .technology_description.bfill()
     )
 
     # Fill in remaining missing technology_descriptions with unique correspondences
@@ -425,6 +407,15 @@ def fill_generator_technology_description(gens_df: pd.DataFrame) -> pd.DataFrame
     ] = (out_df.energy_source_code_1.map(static_fuels))
 
     assert len(out_df) == nrows_orig
+
+    # Assert that at least 95 percent of tech desc rows are filled in
+    pct_val = 0.95
+    if out_df.technology_description.count() \
+        / out_df.technology_description.size \
+            < pct_val:
+        raise AssertionError(
+            f"technology_description filling no longer covering {pct_val:.0%}")
+
     return out_df
 
 
@@ -520,12 +511,7 @@ def ownership_eia860(pudl_engine, start_date=None, end_date=None):
             "generator_id",
             "owner_utility_id_eia",
         ])
-        .astype(pudl.helpers.get_pudl_dtypes({
-            "plant_id_eia": "eia",
-            "plant_id_pudl": "eia",
-            "utility_id_eia": "eia",
-            "utility_id_pudl": "eia",
-        }))
+        .pipe(apply_pudl_dtypes, group="eia")
     )
 
     first_cols = [

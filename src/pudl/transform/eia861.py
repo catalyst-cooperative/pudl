@@ -6,20 +6,23 @@ All transformations include:
 """
 
 import logging
+from typing import Dict
 
 import pandas as pd
 
 import pudl
-from pudl.constants import PUDL_TABLES
+from pudl.helpers import convert_cols_dtypes
 from pudl.metadata.enums import (CUSTOMER_CLASSES, FUEL_CLASSES, NERC_REGIONS,
                                  RELIABILITY_STANDARDS, REVENUE_CLASSES,
                                  RTO_CLASSES, TECH_CLASSES)
-from pudl.metadata.labels import (ENTITY_TYPES, ESTIMATED_OR_ACTUAL,
-                                  MOMENTARY_INTERRUPTIONS)
+from pudl.metadata.fields import apply_pudl_dtypes
+from pudl.metadata.labels import ESTIMATED_OR_ACTUAL, MOMENTARY_INTERRUPTIONS
+from pudl.settings import Eia861Settings
 
 logger = logging.getLogger(__name__)
 
-BA_ID_NAME_FIXES = (
+
+BA_ID_NAME_FIXES: pd.DataFrame = (
     pd.DataFrame([
         # report_date, util_id, ba_id, ba_name
         ('2001-01-01', 40577, 99999, 'Multiple Control Areas'),
@@ -241,16 +244,12 @@ BA_ID_NAME_FIXES = (
         "balancing_authority_name_eia",  # We have this
     ])
     .assign(report_date=lambda x: pd.to_datetime(x.report_date))
-    .astype(pudl.helpers.get_pudl_dtypes({
-        "utility_id_eia": "eia",
-        "balancing_authority_id_eia": "eia",
-        "balancing_authority_name_eia": "eia",
-    }))
+    .pipe(apply_pudl_dtypes, group="eia")
     .dropna(subset=["report_date", "balancing_authority_name_eia", "utility_id_eia"])
     .set_index(["report_date", "balancing_authority_name_eia", "utility_id_eia"])
 )
 
-EIA_FIPS_COUNTY_FIXES = pd.DataFrame([
+EIA_FIPS_COUNTY_FIXES: pd.DataFrame = pd.DataFrame([
     ("AK", "Aleutians Ea", "Aleutians East"),
     ("AK", "Aleutian Islands", "Aleutians East"),
     ("AK", "Aleutians East Boro", "Aleutians East Borough"),
@@ -391,7 +390,7 @@ EIA_FIPS_COUNTY_FIXES = pd.DataFrame([
     ("WA", "Wahkiakurn", "Wahkiakum"),
 ], columns=["state", "eia_county", "fips_county"])
 
-BA_NAME_FIXES = pd.DataFrame([
+BA_NAME_FIXES: pd.DataFrame = pd.DataFrame([
     ("Omaha Public Power District", 14127, "OPPD"),
     ("Kansas City Power & Light Co", 10000, "KCPL"),
     ("Toledo Edison Co", 18997, pd.NA),
@@ -403,7 +402,7 @@ BA_NAME_FIXES = pd.DataFrame([
             ]
 )
 
-NERC_SPELLCHECK = {
+NERC_SPELLCHECK: Dict[str, str] = {
     'GUSTAVUSAK': 'ASCC',
     'AK': 'ASCC',
     'HI': 'HICC',
@@ -500,7 +499,7 @@ def _tidy_class_dfs(df, df_name, idx_cols, class_list, class_type, keep_totals=F
         )
     raw_df = (
         df.dropna(subset=["utility_id_eia"])
-        .astype(pudl.helpers.get_pudl_dtypes({"utility_id_eia": "eia"}))
+        .astype({"utility_id_eia": "Int64"})
         .set_index(idx_cols)
     )
     # Split the table into index, data, and "denormalized" columns for processing:
@@ -583,7 +582,7 @@ def _compare_totals(data_cols, idx_cols, class_type, df_name):
         df_name (str): The name of the dataframe.
     """
     # Convert column dtypes so that numeric cols can be adequately summed
-    data_cols = pudl.helpers.convert_cols_dtypes(data_cols, 'eia')
+    data_cols = pudl.helpers.convert_cols_dtypes(data_cols, data_source='eia')
     # Drop data cols that are non numeric (preserve primary keys)
     logger.debug(f'{idx_cols}, {class_type}')
     data_cols = (
@@ -764,7 +763,12 @@ def _pct_to_mw(df, pct_col):
 
 def _make_yn_bool(df_object):
     """Turn Y/N reporting into True or False boolean statements for df or series."""
-    return df_object.replace({"N": False, "Y": True})
+    return df_object.replace({
+        "Y": True,
+        "y": True,
+        "N": False,
+        "n": False,
+    })
 
 
 def _thousand_to_one(df_object):
@@ -799,8 +803,9 @@ def service_territory(tfr_dfs):
     # No data tidying required
     # There are a few NA values in the county column which get interpreted
     # as floats, which messes up the parsing of counties by addfips.
-    type_compatible_df = tfr_dfs["service_territory_eia861"].astype({
-                                                                    "county": str})
+    type_compatible_df = (
+        tfr_dfs["service_territory_eia861"].astype({"county": "string"})
+    )
     # Transform values:
     # * Add state and county fips IDs
     transformed_df = (
@@ -811,6 +816,7 @@ def service_territory(tfr_dfs):
         # Add FIPS IDs based on county & state names:
         .pipe(pudl.helpers.add_fips_ids)
     )
+    transformed_df["short_form"] = _make_yn_bool(transformed_df.short_form)
     tfr_dfs["service_territory_eia861"] = transformed_df
     return tfr_dfs
 
@@ -840,7 +846,7 @@ def balancing_authority(tfr_dfs):
     # * Fix data entry errors
     df = (
         tfr_dfs["balancing_authority_eia861"]
-        .pipe(pudl.helpers.convert_cols_dtypes, "eia", "balancing_authority_eia861")
+        .pipe(apply_pudl_dtypes, "eia")
         .set_index(["report_date", "balancing_authority_name_eia", "utility_id_eia"])
     )
 
@@ -960,7 +966,7 @@ def balancing_authority_assn(tfr_dfs):
     tfr_dfs["balancing_authority_assn_eia861"] = (
         pd.concat([early_date_ba_util_state, late_date_ba_util_state])
         .dropna(subset=["balancing_authority_id_eia", ])
-        .astype(pudl.helpers.get_pudl_dtypes({"utility_id_eia": "eia"}))
+        .pipe(apply_pudl_dtypes, group="eia")
     )
     return tfr_dfs
 
@@ -1006,7 +1012,7 @@ def _harvest_associations(dfs, cols):
     assn = pd.DataFrame()
     for df in dfs:
         if set(df.columns).issuperset(set(cols)):
-            assn = assn.append(df[cols])
+            assn = pd.concat([assn, df[cols]])
     assn = assn.dropna().drop_duplicates()
     if assn.empty:
         raise ValueError(
@@ -1137,6 +1143,7 @@ def sales(tfr_dfs):
                 "D": "energy_services",
             }),
             service_type=lambda x: x.service_type.str.lower(),
+            short_form=lambda x: _make_yn_bool(x.short_form),
         )
     )
 
@@ -1183,6 +1190,8 @@ def advanced_metering_infrastructure(tfr_dfs):
         class_type='customer_class',
     )
 
+    tidy_ami["short_form"] = _make_yn_bool(tidy_ami.short_form)
+
     # No duplicates to speak of but take measures to check just in case
     _check_for_dupes(tidy_ami, 'Advanced Metering Infrastructure', idx_cols)
 
@@ -1224,6 +1233,7 @@ def demand_response(tfr_dfs):
     raw_dr['balancing_authority_code_eia'] = (
         raw_dr['balancing_authority_code_eia'].fillna('UNK')
     )
+    raw_dr["short_form"] = _make_yn_bool(raw_dr.short_form)
 
     # Split data into tidy-able and not
     raw_dr_water_heater = raw_dr[idx_cols + ['water_heater']].copy()
@@ -1547,47 +1557,45 @@ def distributed_generation(tfr_dfs):
     ###########################################################################
 
     # Separate datasets into years with only pct values (pre-2010) and years with only mw values (post-2010)
-    df_pre_2010_tech = raw_dg_tech[raw_dg_tech['report_date'] < '2010-01-01']
-    df_post_2010_tech = raw_dg_tech[raw_dg_tech['report_date'] >= '2010-01-01']
-    df_pre_2010_misc = raw_dg_misc[raw_dg_misc['report_date'] < '2010-01-01']
-    df_post_2010_misc = raw_dg_misc[raw_dg_misc['report_date'] >= '2010-01-01']
+    dg_tech_early = raw_dg_tech[raw_dg_tech['report_date'] < '2010-01-01']
+    dg_tech_late = raw_dg_tech[raw_dg_tech['report_date'] >= '2010-01-01']
+    dg_misc_early = raw_dg_misc[raw_dg_misc['report_date'] < '2010-01-01']
+    dg_misc_late = raw_dg_misc[raw_dg_misc['report_date'] >= '2010-01-01']
 
-    logger.info(
-        'Converting pct values into mw values for distributed generation misc table')
-    transformed_dg_misc = (
-        df_pre_2010_misc.assign(
-            distributed_generation_owned_capacity_mw=lambda x: _pct_to_mw(
-                x, 'distributed_generation_owned_capacity_pct'),
-            backup_capacity_mw=lambda x: _pct_to_mw(x, 'backup_capacity_pct'),
-        ).append(df_post_2010_misc)
-        .drop(['distributed_generation_owned_capacity_pct',
-               'backup_capacity_pct',
-               'total_capacity_mw'], axis=1)
+    logger.info('Converting pct to MW for distributed generation misc table')
+    dg_misc_early = dg_misc_early .assign(
+        distributed_generation_owned_capacity_mw=lambda x: _pct_to_mw(
+            x, 'distributed_generation_owned_capacity_pct'),
+        backup_capacity_mw=lambda x: _pct_to_mw(x, 'backup_capacity_pct'),
     )
+    dg_misc = pd.concat([dg_misc_early, dg_misc_late])
+    dg_misc = dg_misc.drop([
+        'distributed_generation_owned_capacity_pct',
+        'backup_capacity_pct',
+        'total_capacity_mw'
+    ], axis="columns")
 
-    logger.info(
-        'Converting pct values into mw values for distributed generation tech table')
-    transformed_dg_tech = (
-        df_pre_2010_tech.assign(
-            combustion_turbine_capacity_mw=lambda x: (
-                _pct_to_mw(x, 'combustion_turbine_capacity_pct')),
-            hydro_capacity_mw=lambda x: _pct_to_mw(x, 'hydro_capacity_pct'),
-            internal_combustion_capacity_mw=lambda x: (
-                _pct_to_mw(x, 'internal_combustion_capacity_pct')),
-            other_capacity_mw=lambda x: _pct_to_mw(x, 'other_capacity_pct'),
-            steam_capacity_mw=lambda x: _pct_to_mw(x, 'steam_capacity_pct'),
-            wind_capacity_mw=lambda x: _pct_to_mw(x, 'wind_capacity_pct'),
-        ).append(df_post_2010_tech)
-        .drop([
-            'combustion_turbine_capacity_pct',
-            'hydro_capacity_pct',
-            'internal_combustion_capacity_pct',
-            'other_capacity_pct',
-            'steam_capacity_pct',
-            'wind_capacity_pct',
-            'total_capacity_mw'], axis=1
-        )
+    logger.info('Converting pct into MW for distributed generation tech table')
+    dg_tech_early = dg_tech_early.assign(
+        combustion_turbine_capacity_mw=lambda x: (
+            _pct_to_mw(x, 'combustion_turbine_capacity_pct')),
+        hydro_capacity_mw=lambda x: _pct_to_mw(x, 'hydro_capacity_pct'),
+        internal_combustion_capacity_mw=lambda x: (
+            _pct_to_mw(x, 'internal_combustion_capacity_pct')),
+        other_capacity_mw=lambda x: _pct_to_mw(x, 'other_capacity_pct'),
+        steam_capacity_mw=lambda x: _pct_to_mw(x, 'steam_capacity_pct'),
+        wind_capacity_mw=lambda x: _pct_to_mw(x, 'wind_capacity_pct'),
     )
+    dg_tech = pd.concat([dg_tech_early, dg_tech_late])
+    dg_tech = dg_tech.drop([
+        'combustion_turbine_capacity_pct',
+        'hydro_capacity_pct',
+        'internal_combustion_capacity_pct',
+        'other_capacity_pct',
+        'steam_capacity_pct',
+        'wind_capacity_pct',
+        'total_capacity_mw'
+    ], axis="columns")
 
     ###########################################################################
     # Tidy Data
@@ -1595,7 +1603,7 @@ def distributed_generation(tfr_dfs):
 
     logger.info('Tidying Distributed Generation Tech Table')
     tidy_dg_tech, tech_idx_cols = _tidy_class_dfs(
-        df=transformed_dg_tech,
+        df=dg_tech,
         df_name='Distributed Generation Tech Component Capacity',
         idx_cols=idx_cols,
         class_list=TECH_CLASSES,
@@ -1616,7 +1624,7 @@ def distributed_generation(tfr_dfs):
 
     tfr_dfs["distributed_generation_tech_eia861"] = tidy_dg_tech
     tfr_dfs["distributed_generation_fuel_eia861"] = tidy_dg_fuel
-    tfr_dfs["distributed_generation_misc_eia861"] = transformed_dg_misc
+    tfr_dfs["distributed_generation_misc_eia861"] = dg_misc
 
     return tfr_dfs
 
@@ -1642,6 +1650,7 @@ def distribution_systems(tfr_dfs):
     raw_ds = (
         tfr_dfs['distribution_systems_eia861'].copy()
     )
+    raw_ds["short_form"] = _make_yn_bool(raw_ds.short_form)
 
     # No duplicates to speak of but take measures to check just in case
     _check_for_dupes(
@@ -1691,6 +1700,7 @@ def dynamic_pricing(tfr_dfs):
         tfr_dfs["dynamic_pricing_eia861"].copy()
         .query("utility_id_eia not in [88888]")
     )
+    raw_dp["short_form"] = _make_yn_bool(raw_dp.short_form)
 
     ###########################################################################
     # Tidy Data:
@@ -1751,6 +1761,8 @@ def energy_efficiency(tfr_dfs):
     ]
 
     raw_ee = tfr_dfs["energy_efficiency_eia861"].copy()
+
+    raw_ee["short_form"] = _make_yn_bool(raw_ee.short_form)
 
     # No duplicates to speak of but take measures to check just in case
     _check_for_dupes(raw_ee, 'Energy Efficiency', idx_cols)
@@ -1860,11 +1872,6 @@ def mergers(tfr_dfs):
     """
     Transform the EIA 861 Mergers table.
 
-    Transformations include:
-
-    * Map full spelling onto code values.
-    * Retain preceeding zeros in zipcode field.
-
     Args:
         tfr_dfs (dict): A dictionary of transformed EIA 861 DataFrames, keyed by table
             name. It will be mutated by this function.
@@ -1873,21 +1880,7 @@ def mergers(tfr_dfs):
         dict: A dictionary of transformed EIA 861 dataframes, keyed by table name.
 
     """
-    raw_mergers = tfr_dfs["mergers_eia861"].copy()
-
-    # No data tidying required
-
-    ###########################################################################
-    # Transform Values:
-    # * Turn ownership column from single-letter code to full ownership category.
-    # * Retain preceeding zeros in zip codes
-    ###########################################################################
-
-    transformed_mergers = (
-        raw_mergers.assign(
-            entity_type=lambda x: x.entity_type.map(ENTITY_TYPES),
-        )
-    )
+    transformed_mergers = tfr_dfs["mergers_eia861"].copy()
 
     # No duplicates to speak of but take measures to check just in case
     _check_for_dupes(
@@ -1934,6 +1927,7 @@ def net_metering(tfr_dfs):
         tfr_dfs["net_metering_eia861"].copy()
         .query("utility_id_eia not in [99999]")
     )
+    raw_nm["short_form"] = _make_yn_bool(raw_nm.short_form)
 
     # Separate customer class data from misc data (in this case just one col: current flow)
     # Could easily add this to tech_class if desired.
@@ -2142,7 +2136,10 @@ def operational_data(tfr_dfs):
         .assign(
             data_observed=lambda x: x.data_observed.replace({
                 "O": True,
-                "I": False}))
+                "I": False
+            }),
+            short_form=lambda x: _make_yn_bool(x.short_form)
+        )
     )
 
     # Split data into 2 tables:
@@ -2243,11 +2240,17 @@ def reliability(tfr_dfs):
     transformed_r = (
         tidy_r.assign(
             outages_recorded_automatically=lambda x: (
-                _make_yn_bool(x.outages_recorded_automatically.str.upper())),
+                _make_yn_bool(x.outages_recorded_automatically)
+            ),
             inactive_accounts_included=lambda x: (
-                _make_yn_bool(x.inactive_accounts_included)),
+                _make_yn_bool(x.inactive_accounts_included)
+            ),
+            short_form=lambda x: _make_yn_bool(x.short_form),
+            # This field should be encoded using momentary_interruptions_eia
+            # But the EIA 861 tables aren't fully integrated yet.
             momentary_interruption_definition=lambda x: (
-                x.momentary_interruption_definition.map(MOMENTARY_INTERRUPTIONS))
+                x.momentary_interruption_definition.map(MOMENTARY_INTERRUPTIONS)
+            )
         )
     )
 
@@ -2302,7 +2305,10 @@ def utility_data(tfr_dfs):
     # * Clean NERC region col
     ##############################################################################
 
-    transformed_ud = _clean_nerc(raw_ud, idx_cols)
+    transformed_ud = (
+        _clean_nerc(raw_ud, idx_cols)
+        .assign(short_form=lambda x: _make_yn_bool(x.short_form))
+    )
 
     # Establish columns that are nerc regions vs. rtos
     nerc_cols = [col for col in raw_ud if 'nerc_region_operation' in col]
@@ -2414,15 +2420,15 @@ def utility_data(tfr_dfs):
 # Coordinating Transform Function
 ##############################################################################
 
-def transform(raw_dfs, eia861_tables=PUDL_TABLES["eia861"]):
+def transform(raw_dfs, eia861_settings: Eia861Settings = Eia861Settings()):
     """
     Transform EIA 861 DataFrames.
 
     Args:
         raw_dfs (dict): a dictionary of tab names (keys) and DataFrames (values). This
             can be generated by pudl.
-        eia861_tables (tuple): A tuple containing the names of the EIA 861 tables that
-            can be pulled into PUDL.
+        eia861_settings (Eia861Settings): Object containing validated settings
+            relevant to EIA 861.
 
     Returns:
         dict: A dictionary of DataFrame objects in which pages from EIA 861 form (keys)
@@ -2459,18 +2465,19 @@ def transform(raw_dfs, eia861_tables=PUDL_TABLES["eia861"]):
         logger.info(
             "No raw EIA 861 dataframes found. Not transforming EIA 861.")
         return tfr_dfs
-    # for each of the tables, run the respective transform funtction
-    for table in eia861_tables:
-        if table not in tfr_funcs.keys():
-            raise ValueError(f"Unrecognized EIA 861 table: {table}")
-        logger.info(f"Transforming raw EIA 861 DataFrames for {table} "
+    # Run each of the requested transform funtctions
+    for tfr_func in eia861_settings.transform_functions:
+        logger.info(f"Transforming raw EIA 861 DataFrames for {tfr_func} "
                     f"concatenated across all years.")
-        tfr_dfs[table] = _early_transform(raw_dfs[table])
-        tfr_dfs = tfr_funcs[table](tfr_dfs)
+        tfr_dfs[tfr_func] = _early_transform(raw_dfs[tfr_func])
+        tfr_dfs = tfr_funcs[tfr_func](tfr_dfs)
 
     # This is more like harvesting stuff, and should probably be relocated:
     tfr_dfs = balancing_authority_assn(tfr_dfs)
     tfr_dfs = utility_assn(tfr_dfs)
     tfr_dfs = normalize_balancing_authority(tfr_dfs)
-    tfr_dfs = pudl.helpers.convert_dfs_dict_dtypes(tfr_dfs, 'eia')
-    return tfr_dfs
+    # Do some final cleanup and assign types.
+    return {
+        name: convert_cols_dtypes(df, data_source="eia")
+        for name, df in tfr_dfs.items()
+    }

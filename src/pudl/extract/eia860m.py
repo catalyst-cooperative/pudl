@@ -9,7 +9,7 @@ the extracted EIA 860M dataframes to the extracted EIA 860 dataframes. Example
 setup with pre-genrated `eia860_raw_dfs` and datastore as `ds`:
 
 eia860m_raw_dfs = pudl.extract.eia860m.Extractor(ds).extract(
-    pc.WORKING_PARTITIONS['eia860m']['year_month'])
+    Eia860Settings.eia860m_date)
 eia860_raw_dfs = pudl.extract.eia860m.append_eia860m(
     eia860_raw_dfs=eia860_raw_dfs, eia860m_raw_dfs=eia860m_raw_dfs)
 
@@ -81,6 +81,9 @@ def append_eia860m(eia860_raw_dfs, eia860m_raw_dfs):
     pages_eia860m = meta_eia860m.get_all_pages()
     # page names in 860m and 860 are the same.
     for page in pages_eia860m:
-        eia860_raw_dfs[page] = eia860_raw_dfs[page].append(
-            eia860m_raw_dfs[page], ignore_index=True, sort=True)
+        eia860_raw_dfs[page] = pd.concat(
+            [eia860_raw_dfs[page], eia860m_raw_dfs[page]],
+            ignore_index=True,
+            sort=True,
+        )
     return eia860_raw_dfs

@@ -332,7 +332,7 @@ with the construction of that database. For example, the output routines:
 
 .. code-block:: console
 
-  $ pytest --live-dbs test/integration/fast_output_test.py
+  $ pytest --live-dbs test/integration/output_test.py
 
 We also use this option to run the data validations.
 
