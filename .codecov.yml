@@ -1,5 +1,16 @@
 coverage:
-    range:     0..100
-    round:     nearest
+  range: 80..100
+  round: down
+
 codecov:
-    token: 23a7ee04-6ac5-4d1b-9d36-86b0c50d40c5
+  token: 23a7ee04-6ac5-4d1b-9d36-86b0c50d40c5
+  require_ci_to_pass: true
+  notify:
+    after_n_builds: 3
+    wait_for_ci: true
+
+comment:
+  after_n_builds: 3
+
+github_checks:
+  annotations: false
