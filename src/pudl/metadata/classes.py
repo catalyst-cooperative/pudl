@@ -935,7 +935,7 @@ class DataSource(Base):
 
     def raw_datapackage_sources(self) -> List[Dict[str, str]]:
         """Construct datapackage sources for raw data source."""
-        return [{"title": self.title, "name": self.path}]
+        return [{"title": self.title, "path": self.path}]
 
     def to_raw_datapackage_dict(self) -> Dict:
         """Construct a datapackage json descriptor for the raw data source."""
