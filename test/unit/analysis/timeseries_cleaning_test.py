@@ -2,6 +2,7 @@
 from typing import Tuple
 
 import numpy as np
+import pytest
 
 import pudl.analysis.timeseries_cleaning
 
@@ -13,6 +14,7 @@ def simulate_series(
     amplitude_range: Tuple[float, float] = (0.0, 1.0),
     offset_range: Tuple[float, float] = (1.0, 2.0),
     shift_range: Tuple[int, int] = (-3, 3),
+    seed=None,
 ) -> np.ndarray:
     """
     Generate synthetic multivariate series from sin functions.
@@ -28,7 +30,7 @@ def simulate_series(
     Returns:
         Multivariate series with shape (`periods * frequency`, `n`).
     """
-    rng = np.random.default_rng(seed=2010289292)
+    rng = np.random.default_rng(seed=seed)
     t = np.arange(periods * frequency) * (2 * np.pi / frequency)
     amplitudes = rng.uniform(*amplitude_range, size=n)
     offsets = rng.uniform(*offset_range, size=n)
@@ -40,7 +42,10 @@ def simulate_series(
 
 
 def simulate_anomalies(
-    x: np.ndarray, n: int = 100, sigma: float = 1
+    x: np.ndarray,
+    n: int = 100,
+    sigma: float = 1,
+    seed=None,
 ) -> Tuple[np.ndarray, np.ndarray]:
     """
     Simulate anomalies in series.
@@ -54,17 +59,29 @@ def simulate_anomalies(
         Values and flat indices in `x` of the simulated anomalies.
     """
     # nrows, ncols = x.shape
-    rng = np.random.default_rng(seed=1483803282)
+    rng = np.random.default_rng(seed=seed)
     indices = rng.choice(x.size, size=n, replace=False)
     values = rng.normal(scale=sigma, size=n)
     return x.flat[indices] + values, indices
 
 
-def test_flags_and_imputes_anomalies() -> None:
+@pytest.mark.parametrize("series_seed,anomalies_seed", [
+    (16662093832, 741013840),
+    (7088438834, 382046123),
+    (11357816575, 18413484987),
+    (5150844305, 5634704703),
+    (5248964137, 8991153078),
+    (2654087352, 8105685070),
+    (18949329570, 5605034834),
+    (16844944928, 11661181582),
+    (5473292783, 5189943010),
+    (7173817266, 19937484751),
+])
+def test_flags_and_imputes_anomalies(series_seed, anomalies_seed) -> None:
     """Flags and imputes anomalies within modest thresholds of success."""
-    x = simulate_series()
+    x = simulate_series(seed=series_seed)
     # Insert anomalies
-    values, indices = simulate_anomalies(x)
+    values, indices = simulate_anomalies(x, seed=anomalies_seed)
     x.flat[indices] = values
     # Flag anomalies
     s = pudl.analysis.timeseries_cleaning.Timeseries(x)
