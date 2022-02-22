@@ -931,7 +931,7 @@ class DataSource(Base):
 
     def raw_datapackage_title(self) -> str:
         """Construct a datapackage title for the raw data source."""
-        return f"PUDL Raw f{self.title}"
+        return f"PUDL Raw {self.title}"
 
     def raw_datapackage_sources(self) -> List[Dict[str, str]]:
         """Construct datapackage sources for raw data source."""
