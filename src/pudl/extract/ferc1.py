@@ -63,10 +63,10 @@ from dbfread import DBF
 from sqlalchemy import or_
 
 import pudl
+from pudl.metadata.classes import DataSource
+from pudl.metadata.constants import DBF_TABLES_FILENAMES
 from pudl.settings import Ferc1Settings
 from pudl.workspace.datastore import Datastore
-from pudl.metadata.constants import DBF_TABLES_FILENAMES
-from pudl.metadata.classes import DataSource
 
 logger = logging.getLogger(__name__)
 

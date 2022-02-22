@@ -20,7 +20,7 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
             "primary_key": ["utility_id_ferc1", "report_year", "line_id"],
         },
         "sources": ["ferc1"],
-        "etl_group": "ferc1",
+        "etl_group": "ferc1_disabled",
         "field_namespace": "ferc1"
     },
     "ferc_accounts": {

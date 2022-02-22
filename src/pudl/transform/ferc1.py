@@ -28,8 +28,8 @@ from sklearn.preprocessing import MinMaxScaler, Normalizer, OneHotEncoder
 
 import pudl
 from pudl.helpers import convert_cols_dtypes
-from pudl.metadata.dfs import FERC_DEPRECIATION_LINES
 from pudl.metadata.classes import DataSource
+from pudl.metadata.dfs import FERC_DEPRECIATION_LINES
 
 logger = logging.getLogger(__name__)
 

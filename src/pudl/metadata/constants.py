@@ -6,7 +6,6 @@ import pandas as pd
 import pyarrow as pa
 import sqlalchemy as sa
 
-
 FIELD_DTYPES_PANDAS: Dict[str, str] = {
     "string": "string",
     "number": "float64",

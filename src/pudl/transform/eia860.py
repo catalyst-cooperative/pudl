@@ -6,9 +6,9 @@ import numpy as np
 import pandas as pd
 
 import pudl
+from pudl.metadata.classes import DataSource
 from pudl.metadata.codes import CODE_METADATA
 from pudl.metadata.fields import apply_pudl_dtypes
-from pudl.metadata.classes import DataSource
 
 logger = logging.getLogger(__name__)
 
