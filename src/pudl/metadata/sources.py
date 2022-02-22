@@ -151,7 +151,10 @@ SOURCES: Dict[str, Any] = {
     "eiawater": {
         "title": "EIA Thermoelectric Cooling Water",
         "path": "https://www.eia.gov/electricity/data/water",
-        "description": "",
+        "description": (
+            "Monthly cooling water usage by generator and boiler. Data "
+            "collected in conjunction with the EIA-860 and EIA-923."
+        ),
         "license_raw": LICENSES["us-govt"],
         "license_pudl": LICENSES["cc-by-4.0"],
     },
@@ -257,21 +260,38 @@ SOURCES: Dict[str, Any] = {
     "ferceqr": {
         "title": "FERC Form 920: Electric Quarterly Report (EQR)",
         "path": "https://www.ferc.gov/industries-data/electric/power-sales-and-markets/electric-quarterly-reports-eqr",
-        "description": "",
+        "description": (
+            "The EQR contains Seller-provided data summarizing contractual terms and "
+            "conditions in agreements for all jurisdictional services, including "
+            "cost-based sales, market-based rate sales, and transmission service, "
+            "as well as transaction information for short-term and long-term "
+            "market-based power sales and cost-based power sales."
+        ),
         "license_raw": LICENSES["us-govt"],
         "license_pudl": LICENSES["cc-by-4.0"],
     },
-    "msha": {
-        "title": "Mine Safety and Health Administration (MSHA)",
+    "mshamines": {
+        "title": "Mine Safety and Health Administration (MSHA) Mines",
         "path": "https://arlweb.msha.gov/OpenGovernmentData/OGIMSHA.asp",
-        "description": "",
+        "description": (
+            "The Mine dataset lists all Coal and Metal/Non-Metal mines under MSHA's "
+            "jurisdiction. It includes such information as the current status of each "
+            "mine (Active, Abandoned, NonProducing, etc.), the current owner and "
+            "operating company, commodity codes and physical attributes of the mine."
+        ),
         "license_raw": LICENSES["us-govt"],
         "license_pudl": LICENSES["cc-by-4.0"],
     },
-    "phmsa": {
-        "title": "Pipelines and Hazardous Materials Safety Administration (PHMSA)",
-        "path": "https://www.phmsa.dot.gov/data-and-statistics/pipeline/data-and-statistics-overview",
-        "description": "",
+    "phmsagas": {
+        "title": "Pipelines and Hazardous Materials Safety Administration (PHMSA) Annual Natural Gas Report",
+        "path": "https://www.phmsa.dot.gov/data-and-statistics/pipeline/gas-distribution-gas-gathering-gas-transmission-hazardous-liquids",
+        "description": (
+            "Annual reports submitted to PHMSA from gas distribution, gas gathering, "
+            "gas transmission, liquefied natural gas, and underground gas storage "
+            "system operators. Annual reports include information such as total "
+            "pipeline mileage, facilities, commodities transported, miles by material, "
+            "and installation dates."
+        ),
         "license_raw": LICENSES["us-govt"],
         "license_pudl": LICENSES["cc-by-4.0"],
     },
