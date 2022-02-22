@@ -102,7 +102,7 @@ def array_diff(
         True
     """
     if not periods:
-        return x - x  # pragma: no cover
+        return x - x
     dx = np.empty_like(x)
     prepend = slice_axis(x, end=periods, axis=axis)
     append = slice_axis(x, start=periods, axis=axis)
@@ -963,7 +963,7 @@ class Timeseries:
                 next_indices_idx = indices_idx + 1
                 if next_indices_idx[-1] == len(indices):
                     # Drop last index if out of range
-                    next_indices_idx = next_indices_idx[:-1]  # pragma: no cover
+                    next_indices_idx = next_indices_idx[:-1]
                 current = indices[next_indices_idx]
                 # Trim previous values to length of current values
                 previous = previous[flagged][:len(current)]

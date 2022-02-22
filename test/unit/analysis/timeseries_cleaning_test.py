@@ -28,7 +28,7 @@ def simulate_series(
     Returns:
         Multivariate series with shape (`periods * frequency`, `n`).
     """
-    rng = np.random.default_rng()
+    rng = np.random.default_rng(seed=2010289292)
     t = np.arange(periods * frequency) * (2 * np.pi / frequency)
     amplitudes = rng.uniform(*amplitude_range, size=n)
     offsets = rng.uniform(*offset_range, size=n)
@@ -54,7 +54,7 @@ def simulate_anomalies(
         Values and flat indices in `x` of the simulated anomalies.
     """
     # nrows, ncols = x.shape
-    rng = np.random.default_rng()
+    rng = np.random.default_rng(seed=1483803282)
     indices = rng.choice(x.size, size=n, replace=False)
     values = rng.normal(scale=sigma, size=n)
     return x.flat[indices] + values, indices
