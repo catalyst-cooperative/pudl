@@ -45,15 +45,15 @@ setup(
         "matplotlib~=3.0",  # Should make this optional with a "viz" extras
         "networkx>=2.2,<3",
         "numpy>=1.18.5,<2",
-        "pandas>=1.3,!=1.3.3,<1.4",  # IntCastingNaNError on v1.3.3 in unit tests
+        "pandas>=1.3,!=1.3.3,<1.5",  # IntCastingNaNError on v1.3.3 in unit tests
         "prefect[viz, gcp]~=0.15.0",
-        "pyarrow>=5,<7",
+        "pyarrow>=5,<8",
         "pydantic[email]~=1.7",
         "python-snappy>=0.6,<1",
         "pygeos>=0.10,<0.13",
         "pyyaml>=5,<7",
-        "scikit-learn~=1.0",
-        "scipy~=1.6",
+        "scikit-learn>=1.0,<1.1",
+        "scipy>=1.6,<1.9",
         "sqlalchemy>=1.4,<2",
         "timezonefinder~=5.0",
         "xlsxwriter~=3.0",
@@ -93,10 +93,11 @@ setup(
             "pep8-naming~=0.12",
             "pre-commit~=2.9",
             "pydocstyle>=5.1,<7.0",
-            "pytest~=6.2",
+            "pytest>=6.2,<8.0",
             "pytest-console-scripts~=1.1",
             "pytest-cov>=2.10,<4.0",
             "responses~=0.14",
+            "tox~=3.20",
         ],
     },
     classifiers=[

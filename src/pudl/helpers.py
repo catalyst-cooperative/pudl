@@ -25,8 +25,7 @@ import pandas as pd
 import requests
 import sqlalchemy as sa
 
-from pudl import constants as pc
-from pudl.metadata.classes import Package
+from pudl.metadata.classes import DataSource, Package
 from pudl.metadata.fields import apply_pudl_dtypes, get_pudl_dtypes
 
 logger = logging.getLogger(__name__)
@@ -910,12 +909,7 @@ def convert_cols_dtypes(
     name: Optional[str] = None
 ) -> pd.DataFrame:
     """
-    Convert the data types for a dataframe.
-
-    This function will convert a PUDL dataframe's columns to the correct data
-    type. It uses a dictionary in constants.py called COLUMN_DTYPES to assign
-    the right type. Within a given data source (e.g. eia923, ferc1) each column
-    name is assumed to *always* have the same data type whenever it is found.
+    Convert a PUDL dataframe's columns to the correct data type.
 
     Boolean type conversions created a special problem, because null values in
     boolean columns get converted to True (which is bonkers!)... we generally
@@ -990,14 +984,14 @@ def convert_cols_dtypes(
     # converted at any point it may mess up the accuracy of the data. For
     # example: 08401.0 or 8401 are both incorrect versions of 08401 that a
     # simple datatype conversion cannot fix. For this reason, we use the
-    # zero_pad_zips function.
+    # zero_pad_numeric_string function.
     if any('zip_code' for col in df.columns):
         zip_cols = [col for col in df.columns if 'zip_code' in col]
         for col in zip_cols:
             if '4' in col:
-                df.loc[:, col] = zero_pad_zips(df[col], 4)
+                df.loc[:, col] = zero_pad_numeric_string(df[col], n_digits=4)
             else:
-                df.loc[:, col] = zero_pad_zips(df[col], 5)
+                df.loc[:, col] = zero_pad_numeric_string(df[col], n_digits=5)
 
     return df
 
@@ -1131,33 +1125,59 @@ def cleanstrings_snake(df, cols):
     return df
 
 
-def zero_pad_zips(zip_series, n_digits):
+def zero_pad_numeric_string(
+    col: pd.Series,
+    n_digits: int,
+) -> pd.Series:
     """
-    Retain prefix zeros in zipcodes.
+    Clean up fixed-width leading zero padded numeric (e.g. ZIP, FIPS) codes.
+
+    Often values like ZIP and FIPS codes are stored as integers, or get
+    converted to floating point numbers because there are NA values in the
+    column. Sometimes other non-digit strings are included like Canadian
+    postal codes mixed in with ZIP codes, or IMP (imported) instead of a
+    FIPS county code. This function attempts to manage these irregularities
+    and produce either fixed-width leading zero padded strings of digits
+    having a specified length (n_digits) or NA.
+
+    * Convert the Series to a nullable string.
+    * Remove any decimal point and all digits following it.
+    * Remove any non-digit characters.
+    * Replace any empty strings with NA.
+    * Replace any strings longer than n_digits with NA.
+    * Pad remaining digit-only strings to n_digits length.
+    * Replace (invalid) all-zero codes with NA.
 
     Args:
-        zip_series (pd.Series) : series containing the zipcode values.
-        n_digits(int) : zipcode length (likely 4 or 5 digits).
+        col: The Series to clean. May be numeric, string, object, etc.
+        n_digits: the desired length of the output strings.
 
     Returns:
-        pandas.Series: a series containing zipcodes with their prefix zeros
-        intact and invalid zipcodes rendered as na.
-
+        A Series of nullable strings, containing only all-numeric strings
+        having length n_digits, padded with leading zeroes if necessary.
     """
-    # Add preceeding zeros where necessary and get rid of decimal zeros
-    def get_rid_of_decimal(series):
-        return series.str.replace(r'[\.]+\d*', '', regex=True)
-
-    zip_series = (
-        zip_series
-        .astype(pd.StringDtype())
-        .replace('nan', np.nan)
-        .fillna("0")
-        .pipe(get_rid_of_decimal)
+    out_col = (
+        col.astype("string")
+        # Remove decimal points and any digits following them.
+        # This turns floating point strings into integer strings
+        .replace(r'[\.]+\d*', '', regex=True)
+        # Remove any whitespace
+        .replace(r'\s+', '', regex=True)
+        # Replace anything that's not entirely digits with NA
+        .replace(r'[^\d]+', pd.NA, regex=True)
+        # Set any string longer than n_digits to NA
+        .replace(f'[\\d]{{{n_digits+1},}}', pd.NA, regex=True)
+        # Pad the numeric string with leading zeroes to n_digits length
         .str.zfill(n_digits)
-        .replace({n_digits * "0": pd.NA})  # All-zero Zip codes aren't valid.
+        # All-zero ZIP & FIPS codes are invalid.
+        # Also catches empty strings that were zero padded.
+        .replace({n_digits * "0": pd.NA})
     )
-    return zip_series
+    if not out_col.str.match(f"^[\\d]{{{n_digits}}}$").all():
+        raise ValueError(
+            f"Failed to generate zero-padded numeric strings of length {n_digits}."
+        )
+    return out_col
 
 
 def iterate_multivalue_dict(**kwargs):
@@ -1181,15 +1201,14 @@ def iterate_multivalue_dict(**kwargs):
 def get_working_eia_dates():
     """Get all working EIA dates as a DatetimeIndex."""
     dates = pd.DatetimeIndex([])
-    for dataset_name, dataset in pc.WORKING_PARTITIONS.items():
-        if 'eia' in dataset_name:
-            for name, partition in dataset.items():
-                if name == 'years':
-                    dates = dates.append(
-                        pd.to_datetime(partition, format='%Y'))
-                if name == 'year_month':
-                    dates = dates.append(pd.DatetimeIndex(
-                        [pd.to_datetime(partition)]))
+    for data_source in DataSource.from_field_namespace("eia"):
+        working_partitions = data_source.working_partitions
+        if 'years' in working_partitions:
+            dates = dates.append(
+                pd.to_datetime(working_partitions['years'], format='%Y'))
+        if 'year_month' in working_partitions:
+            dates = dates.append(pd.DatetimeIndex(
+                [pd.to_datetime(working_partitions['year_month'])]))
     return dates
 
 

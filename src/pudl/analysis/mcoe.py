@@ -308,7 +308,7 @@ def fuel_cost(pudl_out):
                              'fuel_cost_from_eiaapi', ]]
 
     fc = (
-        one_fuel.append(multi_fuel, sort=True)
+        pd.concat([one_fuel, multi_fuel], sort=True)
         .assign(
             fuel_cost_per_mwh=lambda x: x.fuel_cost_per_mmbtu * x.heat_rate_mmbtu_mwh
         )

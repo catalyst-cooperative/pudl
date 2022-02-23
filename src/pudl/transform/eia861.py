@@ -6,21 +6,23 @@ All transformations include:
 """
 
 import logging
+from typing import Dict
 
 import pandas as pd
 
 import pudl
-from pudl.constants import PUDL_TABLES
 from pudl.helpers import convert_cols_dtypes
 from pudl.metadata.enums import (CUSTOMER_CLASSES, FUEL_CLASSES, NERC_REGIONS,
                                  RELIABILITY_STANDARDS, REVENUE_CLASSES,
                                  RTO_CLASSES, TECH_CLASSES)
 from pudl.metadata.fields import apply_pudl_dtypes
 from pudl.metadata.labels import ESTIMATED_OR_ACTUAL, MOMENTARY_INTERRUPTIONS
+from pudl.settings import Eia861Settings
 
 logger = logging.getLogger(__name__)
 
-BA_ID_NAME_FIXES = (
+
+BA_ID_NAME_FIXES: pd.DataFrame = (
     pd.DataFrame([
         # report_date, util_id, ba_id, ba_name
         ('2001-01-01', 40577, 99999, 'Multiple Control Areas'),
@@ -247,7 +249,7 @@ BA_ID_NAME_FIXES = (
     .set_index(["report_date", "balancing_authority_name_eia", "utility_id_eia"])
 )
 
-EIA_FIPS_COUNTY_FIXES = pd.DataFrame([
+EIA_FIPS_COUNTY_FIXES: pd.DataFrame = pd.DataFrame([
     ("AK", "Aleutians Ea", "Aleutians East"),
     ("AK", "Aleutian Islands", "Aleutians East"),
     ("AK", "Aleutians East Boro", "Aleutians East Borough"),
@@ -388,7 +390,7 @@ EIA_FIPS_COUNTY_FIXES = pd.DataFrame([
     ("WA", "Wahkiakurn", "Wahkiakum"),
 ], columns=["state", "eia_county", "fips_county"])
 
-BA_NAME_FIXES = pd.DataFrame([
+BA_NAME_FIXES: pd.DataFrame = pd.DataFrame([
     ("Omaha Public Power District", 14127, "OPPD"),
     ("Kansas City Power & Light Co", 10000, "KCPL"),
     ("Toledo Edison Co", 18997, pd.NA),
@@ -400,7 +402,7 @@ BA_NAME_FIXES = pd.DataFrame([
             ]
 )
 
-NERC_SPELLCHECK = {
+NERC_SPELLCHECK: Dict[str, str] = {
     'GUSTAVUSAK': 'ASCC',
     'AK': 'ASCC',
     'HI': 'HICC',
@@ -1010,7 +1012,7 @@ def _harvest_associations(dfs, cols):
     assn = pd.DataFrame()
     for df in dfs:
         if set(df.columns).issuperset(set(cols)):
-            assn = assn.append(df[cols])
+            assn = pd.concat([assn, df[cols]])
     assn = assn.dropna().drop_duplicates()
     if assn.empty:
         raise ValueError(
@@ -1555,47 +1557,45 @@ def distributed_generation(tfr_dfs):
     ###########################################################################
 
     # Separate datasets into years with only pct values (pre-2010) and years with only mw values (post-2010)
-    df_pre_2010_tech = raw_dg_tech[raw_dg_tech['report_date'] < '2010-01-01']
-    df_post_2010_tech = raw_dg_tech[raw_dg_tech['report_date'] >= '2010-01-01']
-    df_pre_2010_misc = raw_dg_misc[raw_dg_misc['report_date'] < '2010-01-01']
-    df_post_2010_misc = raw_dg_misc[raw_dg_misc['report_date'] >= '2010-01-01']
+    dg_tech_early = raw_dg_tech[raw_dg_tech['report_date'] < '2010-01-01']
+    dg_tech_late = raw_dg_tech[raw_dg_tech['report_date'] >= '2010-01-01']
+    dg_misc_early = raw_dg_misc[raw_dg_misc['report_date'] < '2010-01-01']
+    dg_misc_late = raw_dg_misc[raw_dg_misc['report_date'] >= '2010-01-01']
 
-    logger.info(
-        'Converting pct values into mw values for distributed generation misc table')
-    transformed_dg_misc = (
-        df_pre_2010_misc.assign(
-            distributed_generation_owned_capacity_mw=lambda x: _pct_to_mw(
-                x, 'distributed_generation_owned_capacity_pct'),
-            backup_capacity_mw=lambda x: _pct_to_mw(x, 'backup_capacity_pct'),
-        ).append(df_post_2010_misc)
-        .drop(['distributed_generation_owned_capacity_pct',
-               'backup_capacity_pct',
-               'total_capacity_mw'], axis=1)
+    logger.info('Converting pct to MW for distributed generation misc table')
+    dg_misc_early = dg_misc_early .assign(
+        distributed_generation_owned_capacity_mw=lambda x: _pct_to_mw(
+            x, 'distributed_generation_owned_capacity_pct'),
+        backup_capacity_mw=lambda x: _pct_to_mw(x, 'backup_capacity_pct'),
     )
+    dg_misc = pd.concat([dg_misc_early, dg_misc_late])
+    dg_misc = dg_misc.drop([
+        'distributed_generation_owned_capacity_pct',
+        'backup_capacity_pct',
+        'total_capacity_mw'
+    ], axis="columns")
 
-    logger.info(
-        'Converting pct values into mw values for distributed generation tech table')
-    transformed_dg_tech = (
-        df_pre_2010_tech.assign(
-            combustion_turbine_capacity_mw=lambda x: (
-                _pct_to_mw(x, 'combustion_turbine_capacity_pct')),
-            hydro_capacity_mw=lambda x: _pct_to_mw(x, 'hydro_capacity_pct'),
-            internal_combustion_capacity_mw=lambda x: (
-                _pct_to_mw(x, 'internal_combustion_capacity_pct')),
-            other_capacity_mw=lambda x: _pct_to_mw(x, 'other_capacity_pct'),
-            steam_capacity_mw=lambda x: _pct_to_mw(x, 'steam_capacity_pct'),
-            wind_capacity_mw=lambda x: _pct_to_mw(x, 'wind_capacity_pct'),
-        ).append(df_post_2010_tech)
-        .drop([
-            'combustion_turbine_capacity_pct',
-            'hydro_capacity_pct',
-            'internal_combustion_capacity_pct',
-            'other_capacity_pct',
-            'steam_capacity_pct',
-            'wind_capacity_pct',
-            'total_capacity_mw'], axis=1
-        )
+    logger.info('Converting pct into MW for distributed generation tech table')
+    dg_tech_early = dg_tech_early.assign(
+        combustion_turbine_capacity_mw=lambda x: (
+            _pct_to_mw(x, 'combustion_turbine_capacity_pct')),
+        hydro_capacity_mw=lambda x: _pct_to_mw(x, 'hydro_capacity_pct'),
+        internal_combustion_capacity_mw=lambda x: (
+            _pct_to_mw(x, 'internal_combustion_capacity_pct')),
+        other_capacity_mw=lambda x: _pct_to_mw(x, 'other_capacity_pct'),
+        steam_capacity_mw=lambda x: _pct_to_mw(x, 'steam_capacity_pct'),
+        wind_capacity_mw=lambda x: _pct_to_mw(x, 'wind_capacity_pct'),
     )
+    dg_tech = pd.concat([dg_tech_early, dg_tech_late])
+    dg_tech = dg_tech.drop([
+        'combustion_turbine_capacity_pct',
+        'hydro_capacity_pct',
+        'internal_combustion_capacity_pct',
+        'other_capacity_pct',
+        'steam_capacity_pct',
+        'wind_capacity_pct',
+        'total_capacity_mw'
+    ], axis="columns")
 
     ###########################################################################
     # Tidy Data
@@ -1603,7 +1603,7 @@ def distributed_generation(tfr_dfs):
 
     logger.info('Tidying Distributed Generation Tech Table')
     tidy_dg_tech, tech_idx_cols = _tidy_class_dfs(
-        df=transformed_dg_tech,
+        df=dg_tech,
         df_name='Distributed Generation Tech Component Capacity',
         idx_cols=idx_cols,
         class_list=TECH_CLASSES,
@@ -1624,7 +1624,7 @@ def distributed_generation(tfr_dfs):
 
     tfr_dfs["distributed_generation_tech_eia861"] = tidy_dg_tech
     tfr_dfs["distributed_generation_fuel_eia861"] = tidy_dg_fuel
-    tfr_dfs["distributed_generation_misc_eia861"] = transformed_dg_misc
+    tfr_dfs["distributed_generation_misc_eia861"] = dg_misc
 
     return tfr_dfs
 
@@ -2420,15 +2420,15 @@ def utility_data(tfr_dfs):
 # Coordinating Transform Function
 ##############################################################################
 
-def transform(raw_dfs, eia861_tables=PUDL_TABLES["eia861"]):
+def transform(raw_dfs, eia861_settings: Eia861Settings = Eia861Settings()):
     """
     Transform EIA 861 DataFrames.
 
     Args:
         raw_dfs (dict): a dictionary of tab names (keys) and DataFrames (values). This
             can be generated by pudl.
-        eia861_tables (tuple): A tuple containing the names of the EIA 861 tables that
-            can be pulled into PUDL.
+        eia861_settings (Eia861Settings): Object containing validated settings
+            relevant to EIA 861.
 
     Returns:
         dict: A dictionary of DataFrame objects in which pages from EIA 861 form (keys)
@@ -2465,14 +2465,12 @@ def transform(raw_dfs, eia861_tables=PUDL_TABLES["eia861"]):
         logger.info(
             "No raw EIA 861 dataframes found. Not transforming EIA 861.")
         return tfr_dfs
-    # for each of the tables, run the respective transform funtction
-    for table in eia861_tables:
-        if table not in tfr_funcs.keys():
-            raise ValueError(f"Unrecognized EIA 861 table: {table}")
-        logger.info(f"Transforming raw EIA 861 DataFrames for {table} "
+    # Run each of the requested transform funtctions
+    for tfr_func in eia861_settings.transform_functions:
+        logger.info(f"Transforming raw EIA 861 DataFrames for {tfr_func} "
                     f"concatenated across all years.")
-        tfr_dfs[table] = _early_transform(raw_dfs[table])
-        tfr_dfs = tfr_funcs[table](tfr_dfs)
+        tfr_dfs[tfr_func] = _early_transform(raw_dfs[tfr_func])
+        tfr_dfs = tfr_funcs[tfr_func](tfr_dfs)
 
     # This is more like harvesting stuff, and should probably be relocated:
     tfr_dfs = balancing_authority_assn(tfr_dfs)

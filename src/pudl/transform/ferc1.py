@@ -27,9 +27,8 @@ from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import MinMaxScaler, Normalizer, OneHotEncoder
 
 import pudl
-from pudl import constants as pc
-from pudl.constants import PUDL_TABLES
 from pudl.helpers import convert_cols_dtypes
+from pudl.metadata.classes import DataSource
 from pudl.metadata.dfs import FERC_DEPRECIATION_LINES
 
 logger = logging.getLogger(__name__)
@@ -490,10 +489,7 @@ def unpack_table(ferc1_df, table_name, data_cols, data_rows):
         rename_dict = {v: k for k, v in dict(row_map.loc[year, :]).items()}
         _ = rename_dict.pop(-1, None)
         df = ferc1_df.loc[ferc1_df.report_year == year].copy()
-        df.loc[:, "row_name"] = (
-            df.loc[:, "row_number"]
-            .replace(rename_dict, value=None)
-        )
+        df.loc[:, "row_name"] = df.loc[:, "row_number"].replace(rename_dict)
         # The concatenate according to row_name
         out_df = pd.concat([out_df, df], axis="index")
 
@@ -697,7 +693,7 @@ def _multiplicative_error_correction(tofix, mask, minval, maxval, mults):
                                           or x > maxval
                                           else x)
     # Add our fixed records back to the complete data series and return it
-    fixed = fixed.append(records_to_fix)
+    fixed = pd.concat([fixed, records_to_fix])
     return fixed
 
 
@@ -777,7 +773,7 @@ def _plants_steam_clean(ferc1_steam_df):
         .pipe(pudl.helpers.cleanstrings, ['construction_type', 'plant_type'], [CONSTRUCTION_TYPE_STRINGS, PLANT_KIND_STRINGS], unmapped=pd.NA)
         .pipe(pudl.helpers.oob_to_nan,
               cols=["construction_year", "installation_year"],
-              lb=1850, ub=max(pc.WORKING_PARTITIONS["ferc1"]["years"]) + 1)
+              lb=1850, ub=max(DataSource.from_id("ferc1").working_partitions["years"]) + 1)
         .assign(
             capex_per_mw=lambda x: 1000.0 * x.capex_per_kw,
             opex_per_mwh=lambda x: 1000.0 * x.opex_per_kwh,
@@ -881,13 +877,14 @@ def _plants_steam_assign_plant_ids(ferc1_steam_df, ferc1_fuel_df):
 
     # Now we'll iterate through the connected components and assign each of
     # them a FERC Plant ID, and pull the results back out into a dataframe:
-    plants_w_ids = pd.DataFrame()
+    plants_w_ids = []
     for plant_id_ferc1, plant in enumerate(ferc1_plants):
         nx.set_edge_attributes(plant,
                                plant_id_ferc1 + 1,
                                name='plant_id_ferc1')
         new_plant_df = nx.to_pandas_edgelist(plant)
-        plants_w_ids = plants_w_ids.append(new_plant_df)
+        plants_w_ids.append(new_plant_df)
+    plants_w_ids = pd.concat(plants_w_ids)
     logger.info(
         f"Successfully Identified {plant_id_ferc1+1-len(orphan_record_ids)} "
         f"multi-year plant entities.")
@@ -1129,7 +1126,7 @@ def plants_small(ferc1_raw_dfs, ferc1_transformed_dfs):
     # set them to NA if they can't be converted. (table has some junk values)
     ferc1_small_df = pudl.helpers.oob_to_nan(
         ferc1_small_df, cols=["yr_constructed"],
-        lb=1850, ub=max(pc.WORKING_PARTITIONS["ferc1"]["years"]) + 1)
+        lb=1850, ub=max(DataSource.from_id("ferc1").working_partitions["years"]) + 1)
 
     # Convert from cents per mmbtu to dollars per mmbtu to be consistent
     # with the f1_fuel table data. Also, let's use a clearer name.
@@ -1240,7 +1237,7 @@ def plants_hydro(ferc1_raw_dfs, ferc1_transformed_dfs):
             # Converting kWh to MWh
             expns_per_mwh=lambda x: x.expns_kwh * 1000.0)
         .pipe(pudl.helpers.oob_to_nan, cols=["yr_const", "yr_installed"],
-              lb=1850, ub=max(pc.WORKING_PARTITIONS["ferc1"]["years"]) + 1)
+              lb=1850, ub=max(DataSource.from_id("ferc1").working_partitions["years"]) + 1)
         .drop(columns=['net_generation', 'cost_per_kw', 'expns_kwh'])
         .rename(columns={
             # FERC1 DB          PUDL DB
@@ -1328,7 +1325,7 @@ def plants_pumped_storage(ferc1_raw_dfs, ferc1_transformed_dfs):
             cost_per_mw=lambda x: x.cost_per_kw * 1000.0,
             expns_per_mwh=lambda x: x.expns_kwh * 1000.0)
         .pipe(pudl.helpers.oob_to_nan, cols=["yr_const", "yr_installed"],
-              lb=1850, ub=max(pc.WORKING_PARTITIONS["ferc1"]["years"]) + 1)
+              lb=1850, ub=max(DataSource.from_id("ferc1").working_partitions["years"]) + 1)
         .drop(columns=['net_generation', 'energy_used', 'net_load',
                        'cost_per_kw', 'expns_kwh'])
         .rename(columns={
@@ -1569,7 +1566,10 @@ def accumulated_depreciation(ferc1_raw_dfs, ferc1_transformed_dfs):
     return ferc1_transformed_dfs
 
 
-def transform(ferc1_raw_dfs, ferc1_tables=PUDL_TABLES['ferc1']):
+def transform(
+    ferc1_raw_dfs,
+    ferc1_tables=DataSource.from_id("ferc1").get_resource_ids()
+):
     """Transforms FERC 1.
 
     Args:
@@ -1734,14 +1734,11 @@ class FERCPlantClassifier(BaseEstimator, ClassifierMixin):
             raise RuntimeError(
                 "You must train classifer before predicting data!")
 
-        out_df = pd.DataFrame(
-            data=[],
-            index=pd.Index([], name="seed_id"),
-            columns=self._years)
-        tmp_best = (
-            self._best_of.loc[:, ["record_id"] + list(self._years)]
-            .append(pd.DataFrame(data=[""], index=[-1], columns=["record_id"]))
-        )
+        tmp_best = pd.concat([
+            self._best_of.loc[:, ["record_id"] + list(self._years)],
+            pd.DataFrame(data=[""], index=[-1], columns=["record_id"])
+        ])
+        out_dfs = []
         # For each record_id we've been given:
         for x in X:
             # Find the index associated with the record ID we are predicting
@@ -1785,14 +1782,16 @@ class FERCPlantClassifier(BaseEstimator, ClassifierMixin):
                 new_grp = tmp_best.loc[b_m, "record_id"]
 
                 # Stack the new list of record_ids on our output DataFrame:
-                out_df = out_df.append(
+                out_dfs.append(
                     pd.DataFrame(
                         data=new_grp.values.reshape(1, len(self._years)),
                         index=pd.Index(
                             [tmp_best.loc[idx, "record_id"]],
                             name="seed_id"),
-                        columns=self._years))
-        return out_df
+                        columns=self._years
+                    )
+                )
+        return pd.concat(out_dfs)
 
     def score(self, X, y=None):  # noqa: N803
         """Scores a collection of FERC plant categorizations.

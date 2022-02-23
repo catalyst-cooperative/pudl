@@ -296,7 +296,7 @@ class Respondents(object):
                 if key not in dfi.index:
                     rows.append({**ref, 'report_date': key[1]})
         # Append to original table
-        df = df.append(pd.DataFrame(rows))
+        df = pd.concat([df, pd.DataFrame(rows)])
         # Remove balancing authorities treated as utilities
         mask = df['balancing_authority_id_eia'].isin([util['id'] for util in UTILITIES])
         return df[~mask]
@@ -329,7 +329,7 @@ class Respondents(object):
                 tables.append(ref.assign(report_date=key[1]))
                 replaced |= mask
         # Append to original table with matching rows removed
-        df = df[~replaced].append(pd.concat(tables))
+        df = pd.concat([df[~replaced], pd.concat(tables)])
         # Remove balancing authorities treated as utilities
         mask = np.zeros(df.shape[0], dtype=bool)
         tables = []
@@ -359,7 +359,7 @@ class Respondents(object):
                 tables.append(table)
                 if 'replace' in util and util['replace']:
                     mask |= is_child
-        return df[~mask].append(pd.concat(tables)).drop_duplicates()
+        return pd.concat([df[~mask], pd.concat(tables)]).drop_duplicates()
 
     @cached_property
     def service_territory_eia861(self) -> pd.DataFrame:
