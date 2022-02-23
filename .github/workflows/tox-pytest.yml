@@ -66,49 +66,24 @@ jobs:
     - name: Upload test coverage report to CodeCov
       uses: codecov/codecov-action@v2.1.0
 
-#   - name: Inform the Codemonkeys
-#     uses: 8398a7/action-slack@v3
-#     with:
-#       status: custom
-#       fields: workflow,job,commit,repo,ref,author,took
-#       custom_payload: |
-#         {
-#           username: 'action-slack',
-#           icon_emoji: ':octocat:',
-#           attachments: [{
-#             color: '${{ job.status }}' === 'success' ? 'good' : '${{ job.status }}' === 'failure' ? 'danger' : 'warning',
-#             text: `${process.env.AS_WORKFLOW}\n${process.env.AS_JOB} (${process.env.AS_COMMIT}) of ${process.env.AS_REPO}@${process.env.AS_REF} by ${process.env.AS_AUTHOR} ${{ job.status }} in ${process.env.AS_TOOK}`,
-#           }]
-#         }
-#     env:
-#       GITHUB_TOKEN: ${{ github.token }} # required
-#       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }} # required
-#       MATRIX_CONTEXT: ${{ toJson(matrix) }} # required
-#     if: ${{ always() && github.actor != 'dependabot[bot]' }}
-
     - name: Inform the Codemonkeys
-      id: slack
-      uses: slackapi/slack-github-action@v1.18.0
+      uses: 8398a7/action-slack@v3
+#     We should figure out how to use the official integration w/ rich message content
+#     uses: slackapi/slack-github-action@v1.18.0
       if: ${{ always() && github.actor != 'dependabot[bot]' }}
       env:
-        SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+        GITHUB_TOKEN: ${{ github.token }} # required
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }} # required
+        MATRIX_CONTEXT: ${{ toJson(matrix) }} # required
       with:
-        # Slack channel id, channel name, or user id to post message.
-        # See also: https://api.slack.com/methods/chat.postMessage#channels
-        channel-id: 'codemonkeys'
-        # For posting a rich message using Block Kit
-        payload: |
+        status: custom
+        fields: workflow,job,commit,repo,ref,author,took
+        custom_payload: |
           {
-            "blocks": [
-              {
-                "type": "section",
-                "color": '${{ job.status }}' === 'success' ? 'good' : '${{ job.status }}' === 'failure' ? 'danger' : 'warning',
-                "text": {
-                  "type": "mrkdwn",
-                  "text": "${{ process.env.AS_WORKFLOW }}\n${{ process.env.AS_JOB }} (${{ process.env.AS_COMMIT }}) of ${{ process.env.AS_REPO }}@${{ process.env.AS_REF }} by ${{ process.env.AS_AUTHOR }} ${{ job.status }} in ${{ process.env.AS_TOOK }}"
-                }
-              }
-            ]
+            username: 'action-slack',
+            icon_emoji: ':octocat:',
+            attachments: [{
+              color: '${{ job.status }}' === 'success' ? 'good' : '${{ job.status }}' === 'failure' ? 'danger' : 'warning',
+              text: `${process.env.AS_WORKFLOW}\n${process.env.AS_JOB} (${process.env.AS_COMMIT}) of ${process.env.AS_REPO}@${process.env.AS_REF} by ${process.env.AS_AUTHOR} ${{ job.status }} in ${process.env.AS_TOOK}`,
+            }]
           }
-#
-#"text": "GitHub Action build result: ${{ job.status }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}"
