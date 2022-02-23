@@ -1798,6 +1798,15 @@ class DatasetteMetadata(Base):
                     source.working_partitions['years'][last_idx]]
             if 'year_month' in source.working_partitions.keys():
                 years_dict[name] = source.working_partitions['year_month']
+
+        # used when units are included in the metadata
+        """
+        resource_has_no_units = {}
+        for resource in self.resource_package.resources:
+            resource_has_no_units[resource.name] = (set([None]) == set(
+                [field.unit for field in resource.schema.fields]))
+        """
+
         template = JINJA_ENVIRONMENT.get_template("metadata.yml.jinja")
         rendered = template.render(
             license=LICENSES["cc-by-4.0"],

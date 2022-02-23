@@ -70,6 +70,14 @@ databases:
           {{ field.name }}: "{{ field.description }}"
           {%- endif %}
         {%- endfor %}
+        {%- if no_units[resource.name] is false%}
+        units:
+        {%- endif %}
+        {%- for field in resource.schema.fields %}
+          {%- if field.unit is not none %}
+          {{ field.name }}: {{ field.unit }}
+          {%- endif %}
+        {%- endfor %}
     {%- endfor %}
   ferc1:
     source: Raw FERC Form 1 DBF Files
