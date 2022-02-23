@@ -89,6 +89,11 @@ jobs:
     - name: Inform the Codemonkeys
       id: slack
       uses: slackapi/slack-github-action@v1.18.0
+      if: ${{ always() && github.actor != 'dependabot[bot]' }}
+      env:
+        SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+        GITHUB_TOKEN: ${{ github.token }} # required
+        MATRIX_CONTEXT: ${{ toJson(matrix) }} # required
       with:
         # Slack channel id, channel name, or user id to post message.
         # See also: https://api.slack.com/methods/chat.postMessage#channels
@@ -99,13 +104,11 @@ jobs:
             "blocks": [
               {
                 "type": "section",
+                "color": '${{ job.status }}' === 'success' ? 'good' : '${{ job.status }}' === 'failure' ? 'danger' : 'warning',
                 "text": {
                   "type": "mrkdwn",
-                  "text": "GitHub Action build result: ${{ job.status }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}"
+                  "text": `${process.env.AS_WORKFLOW}\n${process.env.AS_JOB} (${process.env.AS_COMMIT}) of ${process.env.AS_REPO}@${process.env.AS_REF} by ${process.env.AS_AUTHOR} ${{ job.status }} in ${process.env.AS_TOOK}`,
                 }
               }
             ]
           }
-      env:
-        SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
-      if: ${{ always() && github.actor != 'dependabot[bot]' }}
