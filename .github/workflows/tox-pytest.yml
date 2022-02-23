@@ -58,7 +58,7 @@ jobs:
       env:
         API_KEY_EIA: ${{ secrets.API_KEY_EIA }}
       run: |
-        conda run -n pudl-test tox
+        conda run -n pudl-test tox -e unit
 
     - name: Log post-test Zenodo datastore contents
       run: find ~/pudl-work/data/
@@ -109,3 +109,4 @@ jobs:
           }
       env:
         SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+      if: ${{ always() && github.actor != 'dependabot[bot]' }}
