@@ -1764,54 +1764,55 @@ class CodeMetadata(Base):
 
 
 class DatasetteMetadata(Base):
-    """Used to create metadata YAML file to accompany Datasette."""
+    """
+    A collection of Data Sources and Resources for metadata export.
 
-    # probably make a class function and pass in a list of datasource names?
-    datasource_dict: Dict[str, DataSource] = {
-        'pudl': DataSource.from_id('pudl'),
-        'ferc1': DataSource.from_id('ferc1'),
-        'eia860': DataSource.from_id('eia860'),
-        'eia860m': DataSource.from_id('eia860m'),
-        'eia923': DataSource.from_id('eia923')}
+    Used to create metadata YAML file to accompany Datasette.
+    """
 
+    datasource_dict: Dict[str, DataSource]
     resource_package: Package = Package.from_resource_ids()
+    label_column_dict: Dict[str, str]
+    years_dict: Dict[str, List[int]]
 
-    label_column_dict: Dict[str, str] = {
-        'plants_entity_eia': 'plant_name_eia',
-        'plants_ferc1': 'plant_name_ferc1',
-        'plants_pudl': 'plant_name_pudl',
-        'utilities_entity_eia': 'utlity_name_eia',
-        'utilities_ferc1': 'utility_name_eia',
-        'utilities_pudl': 'utility_name_pudl'
-    }
+    @classmethod
+    def from_data_sources(
+        cls, data_sources: Iterable[str],
+        label_column_dict: Dict[str, str]
+    ) -> "DatasetteMetadata":
+        """
+        Construct a dictionary of DataSources from data source names.
 
-    def to_yaml(self, path: str) -> None:
-        """Output database, table, and column metadata to YAML file."""
-        # get the first and last year for each of the data sources
-        # or year-month
+        Create dictionary of first and last year or year-month for each source.
+
+        Args:
+            data_sources: data sources currently included in Datasette
+            label_column_dict: map from resource to column name for link label
+        """
+        datasource_dict = {}
         years_dict = {}
-        for name, source in self.datasource_dict.items():
+        for ds_id in data_sources:
+            source = DataSource.from_id(ds_id)
+            datasource_dict[ds_id] = source
             if 'years' in source.working_partitions.keys():
                 last_idx = len(source.working_partitions['years']) - 1
-                years_dict[name] = [
+                years_dict[ds_id] = [
                     source.working_partitions['years'][0],
                     source.working_partitions['years'][last_idx]]
             if 'year_month' in source.working_partitions.keys():
-                years_dict[name] = source.working_partitions['year_month']
+                years_dict[ds_id] = source.working_partitions['year_month']
+        return cls(
+            datasource_dict=datasource_dict,
+            label_column_dict=label_column_dict,
+            years_dict=years_dict)
 
-        # used when units are included in the metadata
-        """
-        resource_has_no_units = {}
-        for resource in self.resource_package.resources:
-            resource_has_no_units[resource.name] = (set([None]) == set(
-                [field.unit for field in resource.schema.fields]))
-        """
-
+    def to_yaml(self, path: str) -> None:
+        """Output database, table, and column metadata to YAML file."""
         template = JINJA_ENVIRONMENT.get_template("metadata.yml.jinja")
         rendered = template.render(
             license=LICENSES["cc-by-4.0"],
             datasources=self.datasource_dict,
-            years=years_dict,
+            years=self.years_dict,
             package=self.resource_package,
             label_column_dict=self.label_column_dict)
         Path(path).write_text(rendered)
