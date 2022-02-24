@@ -925,33 +925,6 @@ class DataSource(Base):
         return sorted([name for name, value in resources.items()
                        if value.get("etl_group") == self.name])
 
-    def raw_datapackage_name(self) -> str:
-        """Construct a datapackage name for the raw data source."""
-        return f"pudl-raw-{self.name}"
-
-    def raw_datapackage_title(self) -> str:
-        """Construct a datapackage title for the raw data source."""
-        return f"PUDL Raw {self.title}"
-
-    def raw_datapackage_sources(self) -> List[Dict[str, str]]:
-        """Construct datapackage sources for raw data source."""
-        return [{"title": self.title, "path": self.path}]
-
-    def to_raw_datapackage_dict(self) -> Dict:
-        """Construct a datapackage json descriptor for the raw data source."""
-        base_dict = self.dict(
-            exclude={"field_namespace", "working_partitions", "license_pudl",
-                     "path"})
-
-        base_dict["name"] = self.raw_datapackage_name()
-        base_dict["title"] = self.raw_datapackage_title()
-        base_dict["sources"] = self.raw_datapackage_sources()
-        base_dict["profile"] = "data-package"
-        base_dict["homepage"] = "https://catalyst.coop/pudl/"
-        base_dict["licenses"] = [base_dict.pop("license_raw")]
-
-        return base_dict
-
     def to_rst(self) -> None:
         """Output a representation of the data source in RST for documentation."""
         pass
