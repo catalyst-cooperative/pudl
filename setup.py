@@ -46,7 +46,7 @@ setup(
         "networkx>=2.2,<3",
         "numpy>=1.18.5,<2",
         "pandas>=1.3,!=1.3.3,<1.5",  # IntCastingNaNError on v1.3.3 in unit tests
-        "prefect[viz, gcp]~=0.15.0",
+        "prefect[viz, gcp]>=0.15,<1.1",
         "pyarrow>=5,<8",
         "pydantic[email]~=1.7",
         "python-snappy>=0.6,<1",
