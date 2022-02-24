@@ -13,6 +13,12 @@ SOURCES: Dict[str, Any] = {
             "GeoDatabase."
         ),
         "working_partitions": {},  # Census DP1 is monolithic.
+        "keywords": sorted(set(
+            [
+                "censusdp1tract",
+                "census",
+            ]
+        )),
         "license_raw": LICENSES["us-govt"],
         "license_pudl": LICENSES["cc-by-4.0"],
     },
@@ -254,6 +260,15 @@ SOURCES: Dict[str, Any] = {
         ),
         "field_namespace": "ferc714",
         "working_partitions": {},  # Data is monolitic, one file with all years.
+        "keywords": sorted(set(
+            [
+                "form 714",
+                "ferc714",
+            ]
+            + KEYWORDS["ferc"]
+            + KEYWORDS["us_govt"]
+            + KEYWORDS["electricity"]
+        )),
         "license_raw": LICENSES["us-govt"],
         "license_pudl": LICENSES["cc-by-4.0"],
     },
