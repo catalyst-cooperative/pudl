@@ -925,18 +925,6 @@ class DataSource(Base):
         return sorted([name for name, value in resources.items()
                        if value.get("etl_group") == self.name])
 
-    def raw_datapackage_name(self) -> str:
-        """Construct a datapackage name for the raw data source."""
-        return f"pudl-raw-{self.name}"
-
-    def raw_datapackage_title(self) -> str:
-        """Construct a datapackage title for the raw data source."""
-        return f"PUDL Raw f{self.title}"
-
-    def to_raw_datapackage_json(self) -> pydantic.Json:
-        """Construct a datapackage json descriptor for the raw data source."""
-        pass
-
     def to_rst(self) -> None:
         """Output a representation of the data source in RST for documentation."""
         pass
