@@ -1773,7 +1773,7 @@ class DatasetteMetadata(Base):
     datasource_dict: Dict[str, DataSource]
     resource_package: Package = Package.from_resource_ids()
     label_column_dict: Dict[str, str]
-    years_dict: Dict[str, List[int]]
+    years_dict: Dict[str, Any]
 
     @classmethod
     def from_data_sources(
