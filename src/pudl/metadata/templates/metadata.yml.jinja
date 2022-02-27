@@ -32,10 +32,10 @@ databases:
       <p>{{ data_sources['pudl'].description  }}</p>
       <p>This database contains cleaned and normalized data from...
       <ul>
-      <li><a href="{{ data_sources['eia860'].path }}">{{ data_sources['eia860'].title }}</a> ({{ years['eia860'][0] }}-{{ years['eia860'][1] }})</li>
-      <li><a href="{{ data_sources['eia860m'].path }}">{{ data_sources['eia860m'].title }}</a> (through {{ years['eia860m'] }})</li>
-      <li><a href="{{ data_sources['eia923'].path }}">{{ data_sources['eia923'].title }}</a> ({{ years['eia923'][0] }}-{{ years['eia923'][1] }})</li>
-      <li><a href="{{ data_sources['ferc1'].path }}">{{ data_sources['ferc1'].title }}</a> ({{ years['ferc1'][0] }}-{{ years['ferc1'][1] }})</li>
+      <li><a href="{{ data_sources['eia860'].path }}">{{ data_sources['eia860'].title }}</a> ({{ data_sources['eia860'].get_temporal_coverage() }})</li>
+      <li><a href="{{ data_sources['eia860m'].path }}">{{ data_sources['eia860m'].title }}</a> ({{ data_sources['eia860m'].get_temporal_coverage() }})</li>
+      <li><a href="{{ data_sources['eia923'].path }}">{{ data_sources['eia923'].title }}</a> ({{ data_sources['eia923'].get_temporal_coverage() }})</li>
+      <li><a href="{{ data_sources['ferc1'].path }}">{{ data_sources['ferc1'].title }}</a> ({{ data_sources['ferc1'].get_temporal_coverage() }})</li>
       </ul></p>
       <p>It was produced by
       <a href="https://catalyst.coop">Catalyst Cooperative</a> as part of the
@@ -61,8 +61,8 @@ databases:
         description_html: |
           <p>{{ resource.description }}</p>
       {%- endif %}
-      {%- if resource.name in label_column_dict.keys() %}
-        label_column: {{ label_column_dict[resource.name] }}
+      {%- if resource.name in label_columns %}
+        label_column: {{ label_columns[resource.name] }}
       {%- endif %}
         columns:
         {%- for field in resource.schema.fields %}

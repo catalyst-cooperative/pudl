@@ -926,6 +926,15 @@ class DataSource(Base):
         return sorted([name for name, value in resources.items()
                        if value.get("etl_group") == self.name])
 
+    def get_temporal_coverage(self) -> str:
+        """Return a string describing the time span covered by the data source."""
+        if 'years' in self.working_partitions:
+            return f"{min(self.working_partitions['years'])}-{max(self.working_partitions['years'])}"
+        elif 'year_month' in self.working_partitions:
+            return f"through {self.working_partitions['year_month']}"
+        else:
+            return ""
+
     def to_rst(self) -> None:
         """Output a representation of the data source in RST for documentation."""
         pass
@@ -1760,7 +1769,6 @@ class DatasetteMetadata(Base):
 
     data_sources: Dict[str, DataSource]
     resource_package: Package = Package.from_resource_ids()
-    years: Dict[str, Any]
     label_columns: Dict[str, str]
 
     @classmethod
@@ -1786,22 +1794,11 @@ class DatasetteMetadata(Base):
             data_source_ids: ids of data sources currently included in Datasette
             label_columns: map from resource to column name for link label
         """
-        data_sources = {}
-        years = {}
-        for ds_id in data_source_ids:
-            source = DataSource.from_id(ds_id)
-            data_sources[ds_id] = source
-            if 'years' in source.working_partitions.keys():
-                last_idx = len(source.working_partitions['years']) - 1
-                years[ds_id] = [
-                    source.working_partitions['years'][0],
-                    source.working_partitions['years'][last_idx]]
-            if 'year_month' in source.working_partitions.keys():
-                years[ds_id] = source.working_partitions['year_month']
+        data_sources = {
+            ds_id: DataSource.from_id(ds_id) for ds_id in data_source_ids}
         return cls(
             data_sources=data_sources,
-            label_columns=label_columns,
-            years=years)
+            label_columns=label_columns)
 
     def to_yaml(self, path: str) -> None:
         """Output database, table, and column metadata to YAML file."""
@@ -1809,7 +1806,6 @@ class DatasetteMetadata(Base):
         rendered = template.render(
             license=LICENSES["cc-by-4.0"],
             data_sources=self.data_sources,
-            years=self.years,
             package=self.resource_package,
-            label_column_dict=self.label_column_dict)
+            label_columns=self.label_columns)
         Path(path).write_text(rendered)
