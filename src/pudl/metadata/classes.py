@@ -1796,8 +1796,16 @@ class DatasetteMetadata(Base):
         """
         data_sources = {
             ds_id: DataSource.from_id(ds_id) for ds_id in data_source_ids}
+        ds_namespaces = set(
+            [ds.field_namespace for _, ds in data_sources.items()
+             if ds.field_namespace]
+            + ['glue'])
+        resource_package = Package(name="datasette", resources=[
+            rsrc for rsrc in Package.from_resource_ids().resources
+            if rsrc.field_namespace in ds_namespaces])
         return cls(
             data_sources=data_sources,
+            resource_package=resource_package,
             label_columns=label_columns)
 
     def to_yaml(self, path: str) -> None:
