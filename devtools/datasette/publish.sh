@@ -14,7 +14,7 @@ sqlite-utils index-foreign-keys $SQLITE_DIR/pudl.sqlite
 # Full column and table level descriptions / metadata
 
 # make metadata.yml
-metadata_to_yml -o "$(PWD)/metadata.yml"
+metadata_to_yml -o "metadata.yml"
 
 datasette publish cloudrun \
     --service catalyst-datasette \
