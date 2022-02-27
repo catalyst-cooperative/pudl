@@ -32,10 +32,9 @@ databases:
       <p>{{ data_sources['pudl'].description  }}</p>
       <p>This database contains cleaned and normalized data from...
       <ul>
-      <li><a href="{{ data_sources['eia860'].path }}">{{ data_sources['eia860'].title }}</a> ({{ data_sources['eia860'].get_temporal_coverage() }})</li>
-      <li><a href="{{ data_sources['eia860m'].path }}">{{ data_sources['eia860m'].title }}</a> ({{ data_sources['eia860m'].get_temporal_coverage() }})</li>
-      <li><a href="{{ data_sources['eia923'].path }}">{{ data_sources['eia923'].title }}</a> ({{ data_sources['eia923'].get_temporal_coverage() }})</li>
-      <li><a href="{{ data_sources['ferc1'].path }}">{{ data_sources['ferc1'].title }}</a> ({{ data_sources['ferc1'].get_temporal_coverage() }})</li>
+      {% for ds_id in data_sources if ds_id != 'pudl' -%}
+        <li><a href="{{ data_sources[ds_id].path }}">{{ data_sources[ds_id].title }}</a> ({{ data_sources[ds_id].get_temporal_coverage() }})</li>
+      {% endfor -%}
       </ul></p>
       <p>It was produced by
       <a href="https://catalyst.coop">Catalyst Cooperative</a> as part of the
@@ -82,7 +81,7 @@ databases:
       <p>{{ data_sources['ferc1'].description }}</p>
       <p>This database is a concatenation of all the individual annual
       <a href="{{ data_sources['ferc1'].path }}">{{ data_sources['ferc1'].title }}</a> Visual FoxPro
-      databases published between {{ years['ferc1'][0] }} and {{ years['ferc1'][1] }}. It has been minimally altered
+      databases published from {{ data_sources['ferc1'].get_temporal_coverage() }}. It has been minimally altered
       to allow all years of data to coexist in the same database. It contains a
       wealth of data about the operating costs and financial structures of US
       electric utilities, much of which is not publicly available from any
