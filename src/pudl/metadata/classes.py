@@ -909,8 +909,8 @@ class DataSource(Base):
     keywords: List[str] = []
     path: HttpUrl = None
     contributors: List[Contributor] = []  # Or should this be compiled from Resources?
-    license_raw: License
-    license_pudl: License
+    license_raw: License = None
+    license_pudl: License = None
     # concept_doi: Doi = None  # Need to define a Doi type?
     working_partitions: Dict[SnakeCase, Any] = {}
     # agency: Agency  # needs to be defined
@@ -1780,6 +1780,8 @@ class DatasetteMetadata(Base):
         cls,
         data_source_ids: Iterable[str] = [
             'pudl', 'ferc1', 'eia860', 'eia860m', 'eia923'],
+        extra_etl_groups: Iterable[str] = [
+            'entity_eia', 'glue', 'static_eia', 'static'],
         label_columns: Dict[str, str] = {
             'plants_entity_eia': 'plant_name_eia',
             'plants_ferc1': 'plant_name_ferc1',
@@ -1800,13 +1802,10 @@ class DatasetteMetadata(Base):
         """
         data_sources = {
             ds_id: DataSource.from_id(ds_id) for ds_id in data_source_ids}
-        ds_namespaces = set(
-            [ds.field_namespace for _, ds in data_sources.items()
-             if ds.field_namespace]
-            + ['glue'])
-        resource_package = Package(name="datasette", resources=[
-            rsrc for rsrc in Package.from_resource_ids().resources
-            if rsrc.field_namespace in ds_namespaces])
+        resource_ids = []
+        for name in data_source_ids + extra_etl_groups:
+            resource_ids += DataSource(name=name).get_resource_ids()
+        resource_package = Package.from_resource_ids(tuple(resource_ids))
         return cls(
             data_sources=data_sources,
             resource_package=resource_package,
