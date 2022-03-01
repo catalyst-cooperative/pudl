@@ -11,6 +11,7 @@ from zipfile import ZipFile
 import pandas as pd
 
 from pudl.metadata.fields import apply_pudl_dtypes
+from pudl.settings import EpaCemsSettings
 from pudl.workspace.datastore import Datastore
 
 logger = logging.getLogger(__name__)
@@ -138,7 +139,7 @@ class EpaCemsDatastore:
         )
 
 
-def extract(epacems_settings, ds: Datastore):
+def extract(epacems_settings: EpaCemsSettings, ds: Datastore):
     """
     Coordinate the extraction of EPA CEMS hourly DataFrames.
 

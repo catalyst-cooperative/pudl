@@ -37,7 +37,6 @@ import pandas as pd
 import sqlalchemy as sa
 
 import pudl
-from pudl.metadata.classes import DataSource
 from pudl.settings import Eia861Settings
 from pudl.workspace.datastore import Datastore
 
@@ -227,7 +226,7 @@ class PudlTabl(object):
 
             eia861_raw_dfs = (
                 pudl.extract.eia861.Extractor(self.ds)
-                .extract(year=DataSource.from_id("eia861").working_partitions["years"])
+                .extract(settings=eia861_settings)
             )
             self._dfs.update(
                 pudl.transform.eia861.transform(eia861_raw_dfs, eia861_settings))

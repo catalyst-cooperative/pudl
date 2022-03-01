@@ -30,6 +30,7 @@ import pudl
 from pudl.helpers import convert_cols_dtypes
 from pudl.metadata.classes import DataSource
 from pudl.metadata.dfs import FERC_DEPRECIATION_LINES
+from pudl.settings import Ferc1Settings
 
 logger = logging.getLogger(__name__)
 
@@ -1566,17 +1567,14 @@ def accumulated_depreciation(ferc1_raw_dfs, ferc1_transformed_dfs):
     return ferc1_transformed_dfs
 
 
-def transform(
-    ferc1_raw_dfs,
-    ferc1_tables=DataSource.from_id("ferc1").get_resource_ids()
-):
+def transform(ferc1_raw_dfs, ferc1_settings: Ferc1Settings = Ferc1Settings()):
     """Transforms FERC 1.
 
     Args:
         ferc1_raw_dfs (dict): Each entry in this dictionary of DataFrame objects
             corresponds to a table from the FERC Form 1 DBC database
-        ferc1_tables (tuple): A tuple containing the set of tables which have been
-            successfully integrated into PUDL
+        ferc1_settings (Ferc1Settings): Validated ETL parameters required by
+            this data source.
 
     Returns:
         dict: A dictionary of the transformed DataFrames.
@@ -1599,7 +1597,7 @@ def transform(
 
     # for each ferc table,
     for table in ferc1_tfr_funcs:
-        if table in ferc1_tables:
+        if table in ferc1_settings.tables:
             logger.info(
                 f"Transforming raw FERC Form 1 dataframe for "
                 f"loading into {table}")

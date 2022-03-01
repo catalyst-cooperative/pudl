@@ -685,7 +685,7 @@ def get_ferc1_meta(ferc1_engine):
 
 
 def extract(
-    ferc1_settings=Ferc1Settings(),
+    ferc1_settings: Ferc1Settings = Ferc1Settings(),
     pudl_settings=None,
 ):
     """Coordinates the extraction of all FERC Form 1 tables into PUDL.

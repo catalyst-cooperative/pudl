@@ -13,6 +13,7 @@ import pandas as pd
 
 from pudl.extract import excel
 from pudl.helpers import fix_leading_zero_gen_ids
+from pudl.settings import Eia861Settings
 
 logger = logging.getLogger(__name__)
 
@@ -44,6 +45,19 @@ class Extractor(excel.GenericExtractor):
         self.cols_added = []
         df = fix_leading_zero_gen_ids(df)
         return df
+
+    def extract(self, settings: Eia861Settings = Eia861Settings()):
+        """Extracts dataframes.
+
+        Returns dict where keys are page names and values are
+        DataFrames containing data across given years.
+
+        Args:
+            settings (Eia861Settings): Object containing validated settings
+                relevant to EIA 861. Contains the tables and years to be loaded
+                into PUDL.
+        """
+        return super().extract(year=settings.years)
 
     @staticmethod
     def process_renamed(df, page, **partition):
