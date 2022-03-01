@@ -1780,8 +1780,8 @@ class DatasetteMetadata(Base):
             'plants_entity_eia': 'plant_name_eia',
             'plants_ferc1': 'plant_name_ferc1',
             'plants_pudl': 'plant_name_pudl',
-            'utilities_entity_eia': 'utlity_name_eia',
-            'utilities_ferc1': 'utility_name_eia',
+            'utilities_entity_eia': 'utility_name_eia',
+            'utilities_ferc1': 'utility_name_ferc1',
             'utilities_pudl': 'utility_name_pudl'
         }
     ) -> "DatasetteMetadata":
