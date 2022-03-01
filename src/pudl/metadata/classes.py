@@ -4,6 +4,7 @@ import datetime
 import logging
 import os
 import re
+import sys
 from functools import lru_cache
 from pathlib import Path
 from typing import (Any, Callable, Dict, Iterable, List, Literal, Optional,
@@ -1706,7 +1707,10 @@ class Package(Base):
         """Output to an RST file."""
         template = JINJA_ENVIRONMENT.get_template("package.rst.jinja")
         rendered = template.render(package=self)
-        Path(path).write_text(rendered)
+        if path:
+            Path(path).write_text(rendered)
+        else:
+            sys.stdout.write(rendered)
 
     def to_sql(
         self,
@@ -1816,4 +1820,7 @@ class DatasetteMetadata(Base):
             data_sources=self.data_sources,
             package=self.resource_package,
             label_columns=self.label_columns)
-        Path(path).write_text(rendered)
+        if path:
+            Path(path).write_text(rendered)
+        else:
+            sys.stdout.write(rendered)
