@@ -20,7 +20,7 @@ down into two distinct steps:
    with thousands of fields, covering the time period from 1994 to the
    present.
 #. Pull a subset of the data out of that database for further processing and
-   integration into the PUDL data packages and :mod:`sqlite3` database.
+   integration into the PUDL :mod:`sqlite3` database.
 
 If you want direct access to the original FERC Form 1 database, you can just do
 the database cloning and connect directly to the resulting database. This has
