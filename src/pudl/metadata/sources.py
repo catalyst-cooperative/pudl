@@ -71,14 +71,20 @@ SOURCES: Dict[str, Any] = {
         "field_namespace": "eia",
         "contributors": [],
         "working_partitions": {
-            "year_month": "2021-08",
+            "year_month": "2021-12",
         },
         "keywords": sorted(set(
             [
                 "eia860m",
-                "form 860m"
-                "monthly"
+                "form 860m",
+                "monthly",
             ]
+            + KEYWORDS["eia"]
+            + KEYWORDS["us_govt"]
+            + KEYWORDS["electricity"]
+            + KEYWORDS["fuels"]
+            + KEYWORDS["plants"]
+            + KEYWORDS["environment"]
         )),
         "license_raw": LICENSES["us-govt"],
         "license_pudl": LICENSES["cc-by-4.0"],
@@ -110,7 +116,7 @@ SOURCES: Dict[str, Any] = {
                 "business model",
                 "service territory",
                 "annual",
-                "yearly"
+                "yearly",
             ]
             + KEYWORDS["eia"]
             + KEYWORDS["us_govt"]
@@ -186,7 +192,7 @@ SOURCES: Dict[str, Any] = {
                 "cems",
                 "air markets program data",
                 "ampd",
-                "hourly"
+                "hourly",
             ]
             + KEYWORDS["epa"]
             + KEYWORDS["us_govt"]
