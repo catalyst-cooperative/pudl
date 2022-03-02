@@ -6,6 +6,7 @@ import numpy as np
 import pandas as pd
 
 import pudl
+from pudl.metadata.fields import apply_pudl_dtypes
 
 ASSOCIATIONS: List[Dict[str, Any]] = [
     # MISO: Midwest Indep System Operator
@@ -174,19 +175,12 @@ def categorize_eia_code(eia_codes, ba_ids, util_ids, priority="balancing_authori
     ba_ids = (
         pd.Series(ba_ids, name="balancing_authority_id_eia")
         .drop_duplicates()
-        .astype(
-            pudl.helpers.get_pudl_dtype(
-                col="balancing_authority_id_eia",
-                data_source="eia"
-            )
-        )
+        .convert_dtypes()
     )
     util_ids = (
         pd.Series(util_ids, name="utility_id_eia")
         .drop_duplicates()
-        .astype(
-            pudl.helpers.get_pudl_dtype(col="utility_id_eia", data_source="eia")
-        )
+        .convert_dtypes()
     )
 
     df = (
@@ -302,7 +296,7 @@ class Respondents(object):
                 if key not in dfi.index:
                     rows.append({**ref, 'report_date': key[1]})
         # Append to original table
-        df = df.append(pd.DataFrame(rows))
+        df = pd.concat([df, pd.DataFrame(rows)])
         # Remove balancing authorities treated as utilities
         mask = df['balancing_authority_id_eia'].isin([util['id'] for util in UTILITIES])
         return df[~mask]
@@ -335,7 +329,7 @@ class Respondents(object):
                 tables.append(ref.assign(report_date=key[1]))
                 replaced |= mask
         # Append to original table with matching rows removed
-        df = df[~replaced].append(pd.concat(tables))
+        df = pd.concat([df[~replaced], pd.concat(tables)])
         # Remove balancing authorities treated as utilities
         mask = np.zeros(df.shape[0], dtype=bool)
         tables = []
@@ -365,7 +359,7 @@ class Respondents(object):
                 tables.append(table)
                 if 'replace' in util and util['replace']:
                     mask |= is_child
-        return df[~mask].append(pd.concat(tables)).drop_duplicates()
+        return pd.concat([df[~mask], pd.concat(tables)]).drop_duplicates()
 
     @cached_property
     def service_territory_eia861(self) -> pd.DataFrame:
@@ -428,11 +422,7 @@ class Respondents(object):
             self._annualized = (
                 self.pudl_out.respondent_id_ferc714()
                 .pipe(add_dates, report_dates)
-                .pipe(
-                    pudl.helpers.convert_cols_dtypes,
-                    data_source="ferc714",
-                    name="FERC 714 Respondents Annualized",
-                )
+                .pipe(apply_pudl_dtypes)
             )
         return self._annualized
 
@@ -492,16 +482,7 @@ class Respondents(object):
                     # Uncategorized respondents w/ no respondent_type:
                     categorized[categorized.respondent_type.isnull()]
                 ])
-                .pipe(
-                    pudl.helpers.convert_cols_dtypes,
-                    data_source="ferc714",
-                    name="FERC 714 Respondents Categorized",
-                )
-                .pipe(
-                    pudl.helpers.convert_cols_dtypes,
-                    data_source="eia",
-                    name="FERC 714 Respondents Categorized",
-                )
+                .pipe(apply_pudl_dtypes)
             )
         return self._categorized
 
@@ -545,16 +526,7 @@ class Respondents(object):
             # Merge respondent categorizations into the annual demand
             self._demand_summary = (
                 pd.merge(demand_annual, self.categorize(update=update), how="left")
-                .pipe(
-                    pudl.helpers.convert_cols_dtypes,
-                    data_source="ferc714",
-                    name="FERC 714 Respondents Demand Summary",
-                )
-                .pipe(
-                    pudl.helpers.convert_cols_dtypes,
-                    data_source="eia",
-                    name="FERC 714 Respondents Demand Summary",
-                )
+                .pipe(apply_pudl_dtypes)
             )
         return self._demand_summary
 
@@ -606,16 +578,7 @@ class Respondents(object):
                     util_counties,
                     categorized[categorized.respondent_type.isnull()]
                 ])
-                .pipe(
-                    pudl.helpers.convert_cols_dtypes,
-                    data_source="ferc714",
-                    name="FERC 714 Respondents FIPSified",
-                )
-                .pipe(
-                    pudl.helpers.convert_cols_dtypes,
-                    data_source="eia",
-                    name="FERC 714 Respondents FIPSified",
-                )
+                .pipe(apply_pudl_dtypes)
             )
         return self._fipsified
 
@@ -637,16 +600,7 @@ class Respondents(object):
             self._counties_gdf = (
                 pudl.analysis.service_territory.add_geometries(
                     self.fipsify(update=update), census_gdf=census_counties)
-                .pipe(
-                    pudl.helpers.convert_cols_dtypes,
-                    data_source="ferc714",
-                    name="FERC 714 Respondents with County Geometries",
-                )
-                .pipe(
-                    pudl.helpers.convert_cols_dtypes,
-                    data_source="eia",
-                    name="FERC 714 Respondents with County Geometries",
-                )
+                .pipe(apply_pudl_dtypes)
             )
         return self._counties_gdf
 
@@ -675,15 +629,6 @@ class Respondents(object):
                     dissolve_by=["report_date", "respondent_id_ferc714"])
                 .merge(self.summarize_demand(update=update)[[
                     "report_date", "respondent_id_ferc714", "demand_annual_mwh"]])
-                .pipe(
-                    pudl.helpers.convert_cols_dtypes,
-                    data_source="ferc714",
-                    name="FERC 714 Respondents with Dissolved Geometries",
-                )
-                .pipe(
-                    pudl.helpers.convert_cols_dtypes,
-                    data_source="eia",
-                    name="FERC 714 Respondents with Dissolved Geometries",
-                )
+                .pipe(apply_pudl_dtypes)
             )
         return self._respondents_gdf

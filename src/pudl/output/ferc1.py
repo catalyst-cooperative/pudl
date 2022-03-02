@@ -5,6 +5,7 @@ import numpy as np
 import pandas as pd
 
 import pudl
+from pudl.metadata.fields import apply_pudl_dtypes
 
 logger = logging.getLogger(__name__)
 
@@ -252,8 +253,7 @@ def all_plants_ferc1(pudl_engine):
     logger.info("prepping steam table")
     steam_df = (
         steam_df.rename(columns={'opex_plants': 'opex_plant'})
-        .pipe(pudl.helpers.convert_cols_dtypes,
-              'ferc1', 'ferc1 plant records')
+        .pipe(apply_pudl_dtypes, group="ferc1")
     )
 
     # Prep hydro tables (Add this to the meta data later)

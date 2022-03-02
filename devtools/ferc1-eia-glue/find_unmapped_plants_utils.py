@@ -85,10 +85,10 @@ from pudl.glue.ferc1_eia import (get_lost_plants_eia, get_lost_utils_eia,
 
 logger = logging.getLogger(__name__)
 
-PLANTS_FERC1_PATH = Path("unmapped_plants_ferc1.csv")
-UTILS_FERC1_PATH = Path("unmapped_utils_ferc1.csv")
-PLANTS_EIA_PATH = Path("unmapped_plants_eia.csv")
-UTILS_EIA_PATH = Path("unmapped_utils_eia.csv")
+PLANTS_FERC1_PATH = Path(__file__).parent / "unmapped_plants_ferc1.csv"
+UTILS_FERC1_PATH = Path(__file__).parent / "unmapped_utils_ferc1.csv"
+PLANTS_EIA_PATH = Path(__file__).parent / "unmapped_plants_eia.csv"
+UTILS_EIA_PATH = Path(__file__).parent / "unmapped_utils_eia.csv"
 MIN_PLANT_CAPACITY_MW: float = 5.0
 MAX_LOST_PLANTS_EIA: int = 50
 MAX_LOST_UTILS_EIA: int = 10

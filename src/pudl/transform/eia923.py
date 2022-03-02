@@ -6,12 +6,8 @@ import numpy as np
 import pandas as pd
 
 import pudl
-from pudl.constants import PUDL_TABLES
-from pudl.metadata import RESOURCE_METADATA
-from pudl.metadata.codes import ENERGY_SOURCES_EIA
-from pudl.metadata.labels import COALMINE_TYPES_EIA
-
-PUDL_META = pudl.metadata.classes.Package.from_resource_ids(RESOURCE_METADATA)
+from pudl.metadata.classes import DataSource
+from pudl.metadata.codes import CODE_METADATA
 
 logger = logging.getLogger(__name__)
 
@@ -333,7 +329,7 @@ def _aggregate_generation_fuel_duplicates(
 
     # Add the resolved records back to generation_fuel dataframe.
     gen_df = gen_fuel[~is_duplicate].copy()
-    gen_df = gen_df.append(resolved_dupes)
+    gen_df = pd.concat([gen_df, resolved_dupes])
 
     if gen_df[natural_key_fields].isnull().any().any():
         raise AssertionError(
@@ -409,8 +405,9 @@ def _yearly_to_monthly_records(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-def _coalmine_cleanup(cmi_df):
-    """Cleans up the coalmine_eia923 table.
+def _coalmine_cleanup(cmi_df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Clean up the coalmine_eia923 table.
 
     This function does most of the coalmine_eia923 table transformation. It is separate
     from the coalmine() transform function because of the peculiar way that we are
@@ -428,11 +425,10 @@ def _coalmine_cleanup(cmi_df):
     both the FRC table and the coalmine table.
 
     Args:
-        cmi_df (pandas.DataFrame): A DataFrame to be cleaned, containing coalmine
-            information (e.g. name, county, state)
+        cmi_df: Coal mine information table (e.g. mine name, county, state)
 
     Returns:
-        pandas.DataFrame: A cleaned DataFrame containing coalmine information.
+        A cleaned DataFrame containing coalmine information.
 
     """
     # Because we need to pull the mine_id_msha field into the FRC table,
@@ -448,10 +444,6 @@ def _coalmine_cleanup(cmi_df):
     # up.
     cmi_df = (
         cmi_df.assign(
-            # Map mine type codes, which have changed over the years, to a few
-            # canonical values:
-            mine_type=lambda x: x.mine_type.replace(
-                {'[pP]': 'P', 'U/S': 'US', 'S/U': 'SU', 'Su': 'S'}, regex=True),
             # replace 2-letter country codes w/ ISO 3 letter as appropriate:
             state=lambda x: x.state.replace(COALMINE_COUNTRY_CODES),
             # remove all internal non-alphanumeric characters:
@@ -461,17 +453,21 @@ def _coalmine_cleanup(cmi_df):
             # county_id_fips field (ugh, Excel sheets!).  Mostly these are
             # integers or NA values, but for imported coal, there are both
             # 'IMP' and 'IM' string values.
-            county_id_fips=lambda x: x.county_id_fips.replace(
-                '[a-zA-Z]+', value=np.nan, regex=True
+            county_id_fips=lambda x: pudl.helpers.zero_pad_numeric_string(
+                x.county_id_fips,
+                n_digits=3,
             )
         )
-        .assign(mine_type=lambda x: x.mine_type.map(COALMINE_TYPES_EIA))
         # No leading or trailing whitespace:
         .pipe(pudl.helpers.simplify_strings, columns=["mine_name"])
-        .astype({"county_id_fips": float})
-        .astype({"county_id_fips": pd.Int64Dtype()})
-        .fillna({"mine_type": pd.NA})
-        .astype({"mine_type": pd.StringDtype()})
+        .pipe(pudl.helpers.add_fips_ids, county_col=None)
+    )
+    # join state and partial county FIPS into five digit county FIPS
+    cmi_df['county_id_fips'] = cmi_df['state_id_fips'] + cmi_df['county_id_fips']
+    cmi_df = (
+        pudl.metadata.classes.Package.from_resource_ids()
+        .get_resource("coalmine_eia923")
+        .encode(cmi_df)
     )
     return cmi_df
 
@@ -650,11 +646,15 @@ def generation_fuel(eia923_dfs, eia923_transformed_dfs):
 
     gen_fuel = _clean_gen_fuel_energy_sources(gen_fuel)
 
-    gen_fuel = PUDL_META.get_resource("generation_fuel_eia923").encode(gen_fuel)
+    gen_fuel = (
+        pudl.metadata.classes.Package.from_resource_ids()
+        .get_resource("generation_fuel_eia923")
+        .encode(gen_fuel)
+    )
 
     gen_fuel['fuel_type_code_pudl'] = gen_fuel.energy_source_code.map(
         pudl.helpers.label_map(
-            ENERGY_SOURCES_EIA["df"],
+            CODE_METADATA["energy_sources_eia"]["df"],
             from_col="code",
             to_col="fuel_type_code_pudl",
             null_value=pd.NA,
@@ -782,8 +782,10 @@ def _aggregate_duplicate_boiler_fuel_keys(
         _map_prime_mover_sets)
 
     # NOTE: the following method changes the order of the data and resets the index
-    modified_boiler_fuel_df = boiler_fuel_df[~is_duplicate].append(
-        aggregates.reset_index(), ignore_index=True)
+    modified_boiler_fuel_df = pd.concat(
+        [boiler_fuel_df[~is_duplicate], aggregates.reset_index()],
+        ignore_index=True
+    )
 
     return modified_boiler_fuel_df
 
@@ -843,14 +845,18 @@ def boiler_fuel(eia923_dfs, eia923_transformed_dfs):
     # Convert Year/Month columns into a single Date column...
     bf_df = pudl.helpers.convert_to_date(bf_df)
 
-    bf_df = PUDL_META.get_resource("boiler_fuel_eia923").encode(bf_df)
+    bf_df = (
+        pudl.metadata.classes.Package.from_resource_ids()
+        .get_resource("boiler_fuel_eia923")
+        .encode(bf_df)
+    )
 
     bf_df = _aggregate_duplicate_boiler_fuel_keys(bf_df)
 
     # Add a simplified PUDL fuel type
     bf_df['fuel_type_code_pudl'] = bf_df.energy_source_code.map(
         pudl.helpers.label_map(
-            ENERGY_SOURCES_EIA["df"],
+            CODE_METADATA["energy_sources_eia"]["df"],
             from_col="code",
             to_col="fuel_type_code_pudl",
             null_value=pd.NA,
@@ -925,7 +931,11 @@ def generation(eia923_dfs, eia923_transformed_dfs):
     dupes = gen_df[gen_df.duplicated(subset=unique_subset, keep=False)]
     gen_df = gen_df.drop(dupes.net_generation_mwh.isna().index)
 
-    gen_df = PUDL_META.get_resource("generation_eia923").encode(gen_df)
+    gen_df = (
+        pudl.metadata.classes.Package.from_resource_ids()
+        .get_resource("generation_eia923")
+        .encode(gen_df)
+    )
 
     eia923_transformed_dfs['generation_eia923'] = gen_df
 
@@ -957,7 +967,7 @@ def coalmine(eia923_dfs, eia923_transformed_dfs):
     # These are the columns that we want to keep from FRC for the
     # coal mine info table.
     coalmine_cols = ['mine_name',
-                     'mine_type',
+                     'mine_type_code',
                      'state',
                      'county_id_fips',
                      'mine_id_msha']
@@ -980,12 +990,12 @@ def coalmine(eia923_dfs, eia923_transformed_dfs):
     cmi_with_msha = cmi_df[cmi_df['mine_id_msha'] > 0]
     cmi_with_msha = cmi_with_msha.drop_duplicates(subset=['mine_id_msha', ])
     cmi_df.drop(cmi_df[cmi_df['mine_id_msha'] > 0].index)
-    cmi_df.append(cmi_with_msha)
+    cmi_df = pd.concat([cmi_df, cmi_with_msha])
 
     cmi_df = cmi_df.drop_duplicates(subset=['mine_name',
                                             'state',
                                             'mine_id_msha',
-                                            'mine_type',
+                                            'mine_type_code',
                                             'county_id_fips'])
 
     # drop null values if they occur in vital fields....
@@ -1005,7 +1015,11 @@ def coalmine(eia923_dfs, eia923_transformed_dfs):
     # then make the id index a column for simpler transferability
     cmi_df = cmi_df.reset_index()
 
-    cmi_df = PUDL_META.get_resource("coalmine_eia923").encode(cmi_df)
+    cmi_df = (
+        pudl.metadata.classes.Package.from_resource_ids()
+        .get_resource("coalmine_eia923")
+        .encode(cmi_df)
+    )
 
     eia923_transformed_dfs['coalmine_eia923'] = cmi_df
 
@@ -1048,9 +1062,10 @@ def fuel_receipts_costs(eia923_dfs, eia923_transformed_dfs):
                     'operator_name',
                     'operator_id',
                     'mine_id_msha',
-                    'mine_type',
+                    'mine_type_code',
                     'state',
                     'county_id_fips',
+                    'state_id_fips',
                     'mine_name',
                     'regulated',
                     'reporting_frequency']
@@ -1072,7 +1087,7 @@ def fuel_receipts_costs(eia923_dfs, eia923_transformed_dfs):
         frc_df.pipe(_coalmine_cleanup).
         merge(cmi_df, how='left',
               on=['mine_name', 'state', 'mine_id_msha',
-                  'mine_type', 'county_id_fips']).
+                  'mine_type_code', 'county_id_fips']).
         drop(cols_to_drop, axis=1).
         # Replace the EIA923 NA value ('.') with a real NA value.
         pipe(pudl.helpers.fix_eia_na).
@@ -1103,13 +1118,17 @@ def fuel_receipts_costs(eia923_dfs, eia923_transformed_dfs):
               'natural_gas_delivery_contract_type_code'],
              [{'firm': ['F'], 'interruptible': ['I']},
               {'firm': ['F'], 'interruptible': ['I']}],
-             unmapped='')
+             unmapped=pd.NA)
     )
-    frc_df = PUDL_META.get_resource("fuel_receipts_costs_eia923").encode(frc_df)
+    frc_df = (
+        pudl.metadata.classes.Package.from_resource_ids()
+        .get_resource("fuel_receipts_costs_eia923")
+        .encode(frc_df)
+    )
     frc_df["fuel_type_code_pudl"] = (
         frc_df.energy_source_code.map(
             pudl.helpers.label_map(
-                ENERGY_SOURCES_EIA["df"],
+                CODE_METADATA["energy_sources_eia"]["df"],
                 from_col="code",
                 to_col="fuel_type_code_pudl",
                 null_value=pd.NA,
@@ -1127,7 +1146,10 @@ def fuel_receipts_costs(eia923_dfs, eia923_transformed_dfs):
     return eia923_transformed_dfs
 
 
-def transform(eia923_raw_dfs, eia923_tables=PUDL_TABLES['eia923']):
+def transform(
+    eia923_raw_dfs,
+    eia923_tables=DataSource.from_id("eia923").get_resource_ids()
+):
     """Transforms all the EIA 923 tables.
 
     Args:

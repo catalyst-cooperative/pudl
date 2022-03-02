@@ -16,7 +16,7 @@ import shutil
 from collections import defaultdict
 from functools import partial
 from io import BytesIO
-from typing import Any, DefaultDict, Dict, List, Literal, Set, Union
+from typing import Any, DefaultDict, Dict, List, Literal, Optional, Set, Union
 
 import addfips
 import numpy as np
@@ -24,8 +24,8 @@ import pandas as pd
 import requests
 import sqlalchemy as sa
 
-from pudl import constants as pc
-from pudl.metadata.classes import Package
+from pudl.metadata.classes import DataSource, Package
+from pudl.metadata.fields import apply_pudl_dtypes, get_pudl_dtypes
 
 logger = logging.getLogger(__name__)
 
@@ -124,7 +124,7 @@ def find_foreign_key_errors(dfs: Dict[str, pd.DataFrame]) -> List[Dict[str, Any]
         dataframe that violated the foreign key constraint.
 
     """
-    package = Package.from_resource_ids(dfs)
+    package = Package.from_resource_ids(resource_ids=tuple(sorted(dfs)))
     errors = []
     for resource in package.resources:
         for foreign_key in resource.schema.foreign_keys:
@@ -181,13 +181,20 @@ def download_zip_url(url, save_path, chunk_size=128):
 
 
 def add_fips_ids(df, state_col="state", county_col="county", vintage=2015):
-    """Add State and County FIPS IDs to a dataframe."""
+    """
+    Add State and County FIPS IDs to a dataframe.
+
+    To just add State FIPS IDs, make county_col = None.
+    """
     # force the columns to be the nullable string types so we have a consistent
     # null value to filter out before feeding to addfips
     df = df.astype({
-        state_col: pd.StringDtype(),
-        county_col: pd.StringDtype(),
+        state_col: pd.StringDtype()
     })
+    if county_col:
+        df = df.astype({
+            county_col: pd.StringDtype()
+        })
     af = addfips.AddFIPS(vintage=vintage)
     # Lookup the state and county FIPS IDs and add them to the dataframe:
     df["state_id_fips"] = df.apply(
@@ -195,24 +202,30 @@ def add_fips_ids(df, state_col="state", county_col="county", vintage=2015):
                    if pd.notnull(x[state_col]) else pd.NA),
         axis=1)
 
+    # force the code columns to be nullable strings - the leading zeros are
+    # important
+    df = df.astype({
+        "state_id_fips": pd.StringDtype()
+    })
+
     logger.info(
         f"Assigned state FIPS codes for "
         f"{len(df[df.state_id_fips.notnull()])/len(df):.2%} of records."
     )
-    df["county_id_fips"] = df.apply(
-        lambda x: (af.get_county_fips(state=x[state_col], county=x[county_col])
-                   if pd.notnull(x[county_col]) and pd.notnull(x[state_col]) else pd.NA),
-        axis=1)
-    # force the code columns to be nullable strings - the leading zeros are
-    # important
-    df = df.astype({
-        "county_id_fips": pd.StringDtype(),
-        "state_id_fips": pd.StringDtype(),
-    })
-    logger.info(
-        f"Assigned county FIPS codes for "
-        f"{len(df[df.county_id_fips.notnull()])/len(df):.2%} of records."
-    )
+    if county_col:
+        df["county_id_fips"] = df.apply(
+            lambda x: (af.get_county_fips(state=x[state_col], county=x[county_col])
+                       if pd.notnull(x[county_col]) and pd.notnull(x[state_col]) else pd.NA),
+            axis=1)
+        # force the code columns to be nullable strings - the leading zeros are
+        # important
+        df = df.astype({
+            "county_id_fips": pd.StringDtype()
+        })
+        logger.info(
+            f"Assigned county FIPS codes for "
+            f"{len(df[df.county_id_fips.notnull()])/len(df):.2%} of records."
+        )
     return df
 
 
@@ -325,70 +338,62 @@ def is_doi(doi):
 
 
 def clean_merge_asof(
-    left,
-    right,
-    left_on="report_date",
-    right_on="report_date",
-    by={},
-):
+    left: pd.DataFrame,
+    right: pd.DataFrame,
+    left_on: str = "report_date",
+    right_on: str = "report_date",
+    by: List[str] = [],
+) -> pd.DataFrame:
     """
-    Merge two dataframes having different time report_date frequencies.
+    Merge two dataframes having different ``report_date`` frequencies.
 
-    We often need to bring together data which is reported on a monthly basis,
-    and entity attributes that are reported on an annual basis.  The
-    :func:`pandas.merge_asof` is designed to do this, but requires that
-    dataframes are sorted by the merge keys (``left_on``, ``right_on``, and
-    ``by.keys()`` here). We also need to make sure that all merge keys have
-    identical data types in the two dataframes (e.g. ``plant_id_eia`` needs to
-    be a nullable integer in both dataframes, not a python int in one, and a
-    nullable :func:`pandas.Int64Dtype` in the other).  Note that
-    :func:`pandas.merge_asof` performs a left merge, so the higher frequency
+    We often need to bring together data which is reported on a monthly basis, and
+    entity attributes that are reported on an annual basis.  The
+    :func:`pandas.merge_asof` is designed to do this, but requires that dataframes are
+    sorted by the merge keys (``left_on``, ``right_on``, and ``by`` here). We also need
+    to make sure that all merge keys have identical data types in the two dataframes
+    (e.g. ``plant_id_eia`` needs to be a nullable integer in both dataframes, not a
+    python int in one, and a nullable :func:`pandas.Int64Dtype` in the other).  Note
+    that :func:`pandas.merge_asof` performs a left merge, so the higher frequency
     dataframe **must** be the left dataframe.
 
     We also force both ``left_on`` and ``right_on`` to be a Datetime using
-    :func:`pandas.to_datetime` to allow merging dataframes having integer years
-    with those having datetime columns.
+    :func:`pandas.to_datetime` to allow merging dataframes having integer years with
+    those having datetime columns.
 
-    Because :func:`pandas.merge_asof` searches backwards for the first matching
-    date, this function only works if the less granular dataframe uses the
-    convention of reporting the first date in the time period for which it
-    reports. E.g. annual dataframes need to have January 1st as the date. This
-    is what happens by defualt if only a year or year-month are provided to
-    :func:`pandas.to_datetime` as strings.
+    Because :func:`pandas.merge_asof` searches backwards for the first matching date,
+    this function only works if the less granular dataframe uses the convention of
+    reporting the first date in the time period for which it reports. E.g. annual
+    dataframes need to have January 1st as the date. This is what happens by defualt if
+    only a year or year-month are provided to :func:`pandas.to_datetime` as strings.
 
     Args:
-        left (pandas.DataFrame): The higher frequency "data" dataframe.
-            Typically monthly in our use cases. E.g. ``generation_eia923``. Must
-            contain ``report_date`` and any columns specified in the ``by``
-            argument.
-        right (pandas.DataFrame): The lower frequency "attribute" dataframe.
-            Typically annual in our uses cases. E.g. ``generators_eia860``. Must
-            contain ``report_date`` and any columns specified in the ``by``
-            argument.
-        left_on (str): Column in ``left`` to merge on using merge_asof. Default
+        left: The higher frequency "data" dataframe. Typically monthly in our use
+            cases. E.g. ``generation_eia923``. Must contain ``report_date`` and any
+            columns specified in the ``by`` argument.
+        right: The lower frequency "attribute" dataframe. Typically annual in our uses
+            cases. E.g. ``generators_eia860``. Must contain ``report_date`` and any
+            columns specified in the ``by`` argument.
+        left_on: Column in ``left`` to merge on using merge_asof. Default is
+            ``report_date``. Must be convertible to a Datetime using
+            :func:`pandas.to_datetime`
+        right_on: Column in ``right`` to merge on using :func:`pd.merge_asof`.  Default
             is ``report_date``. Must be convertible to a Datetime using
             :func:`pandas.to_datetime`
-        right_on (str): Column in ``right`` to merge on using merge_asof.
-            Default is ``report_date``. Must be convertible to a Datetime using
-            :func:`pandas.to_datetime`
-        by (dict): A dictionary enumerating any columns to merge on other than
-            ``report_date``. Typically ID columns like ``plant_id_eia``,
-            ``generator_id`` or ``boiler_id``. The keys of the dictionary are
-            the names of the columns, and the values are their data source, as
-            defined in :mod:`pudl.constants` (e.g. ``ferc1`` or ``eia``). The
-            data source is used to look up the column's canonical data type.
+
+        by: Columns to merge on in addition to ``report_date``. Typically ID columns
+            like ``plant_id_eia``, ``generator_id`` or ``boiler_id``.
 
     Returns:
-        pandas.DataFrame: Merged contents of left and right input dataframes.
-        Will be sorted by ``left_on`` and any columns specified in ``by``. See
-        documentation for :func:`pandas.merge_asof` to understand how this kind
-        of merge works.
+        Merged contents of left and right input dataframes.  Will be sorted by
+        ``left_on`` and any columns specified in ``by``. See documentation for
+        :func:`pandas.merge_asof` to understand how this kind of merge works.
 
     Raises:
-        ValueError: if ``left_on`` or ``right_on`` columns are missing from
-            their respective input dataframes.
-        ValueError: if any of the labels referenced in ``by`` are missing from
-            either the left or right dataframes.
+        ValueError: if ``left_on`` or ``right_on`` columns are missing from their
+            respective input dataframes.
+        ValueError: if any of the labels referenced in ``by`` are missing from either
+            the left or right dataframes.
 
     """
     # Make sure we've got all the required inputs...
@@ -404,9 +409,9 @@ def clean_merge_asof(
         raise ValueError(f"Left dataframe is missing {missing_right_cols}.")
 
     def cleanup(df, on, by):
-        df = df.astype(get_pudl_dtypes(by))
+        df = apply_pudl_dtypes(df)
         df.loc[:, on] = pd.to_datetime(df[on])
-        df = df.sort_values([on] + list(by.keys()))
+        df = df.sort_values([on] + by)
         return df
 
     return pd.merge_asof(
@@ -414,22 +419,9 @@ def clean_merge_asof(
         cleanup(df=right, on=right_on, by=by),
         left_on=left_on,
         right_on=right_on,
-        by=list(by.keys()),
+        by=by,
         tolerance=pd.Timedelta("365 days")  # Should never match across years.
     )
-
-
-def get_pudl_dtype(col, data_source):
-    """Look up a column's canonical data type based on its PUDL data source."""
-    return pc.COLUMN_DTYPES[data_source][col]
-
-
-def get_pudl_dtypes(col_source_dict):
-    """Look up canonical PUDL data types for columns based on data sources."""
-    return {
-        col: get_pudl_dtype(col, col_source_dict[col])
-        for col in col_source_dict
-    }
 
 
 def organize_cols(df, cols):
@@ -909,14 +901,13 @@ def merge_dicts(list_of_dicts):
     return merge_dict
 
 
-def convert_cols_dtypes(df, data_source, name=None):
+def convert_cols_dtypes(
+    df: pd.DataFrame,
+    data_source: Optional[str] = None,
+    name: Optional[str] = None
+) -> pd.DataFrame:
     """
-    Convert the data types for a dataframe.
-
-    This function will convert a PUDL dataframe's columns to the correct data
-    type. It uses a dictionary in constants.py called COLUMN_DTYPES to assign
-    the right type. Within a given data source (e.g. eia923, ferc1) each column
-    name is assumed to *always* have the same data type whenever it is found.
+    Convert a PUDL dataframe's columns to the correct data type.
 
     Boolean type conversions created a special problem, because null values in
     boolean columns get converted to True (which is bonkers!)... we generally
@@ -932,57 +923,41 @@ def convert_cols_dtypes(df, data_source, name=None):
     direct conversion.
 
     Args:
-        df (pandas.DataFrame): dataframe with columns that appear in the PUDL
-            tables.
-        data_source (str): the name of the datasource (eia, ferc1, etc.)
-        name (str): name of the table (for logging only!)
+        df: dataframe with columns that appear in the PUDL tables.
+        data_source: the name of the datasource (eia, ferc1, etc.)
+        name: name of the table (for logging only!)
 
     Returns:
-        pandas.DataFrame: a dataframe with columns as specified by the
-        :mod:`pudl.constants` ``COLUMN_DTYPES`` dictionary.
+        Input dataframe, but with column types as specified by
+        :py:const:`pudl.metadata.fields.FIELD_METADATA`
 
     """
     # get me all of the columns for the table in the constants dtype dict
-    col_dtypes = {col: col_dtype for col, col_dtype
-                  in pc.COLUMN_DTYPES[data_source].items()
-                  if col in list(df.columns)}
+    dtypes = {
+        col: dtype for col, dtype
+        in get_pudl_dtypes(group=data_source).items()
+        if col in df.columns
+    }
 
     # grab only the boolean columns (we only need their names)
-    bool_cols = {col: col_dtype for col, col_dtype
-                 in col_dtypes.items()
-                 if col_dtype == pd.BooleanDtype()}
+    bool_cols = [col for col in dtypes if dtypes[col] == "boolean"]
     # grab all of the non boolean columns
-    non_bool_cols = {col: col_dtype for col, col_dtype
-                     in col_dtypes.items()
-                     if col_dtype != pd.BooleanDtype()}
+    non_bool_cols = {col: dtypes[col] for col in dtypes if col not in bool_cols}
     # Grab only the string columns...
-    string_cols = {col: col_dtype for col, col_dtype
-                   in col_dtypes.items()
-                   if col_dtype == pd.StringDtype()}
-
-    # If/when we have the columns exhaustively typed, we can do it like this,
-    # but right now we don't have the FERC columns done, so we can't:
-    # get me all of the columns for the table in the constants dtype dict
-    # col_types = {
-    #    col: pc.COLUMN_DTYPES[data_source][col] for col in df.columns
-    # }
-    # grab only the boolean columns (we only need their names)
-    # bool_cols = {col for col in col_types if col_types[col] is bool}
-    # grab all of the non boolean columns
-    # non_bool_cols = {
-    #    col: col_types[col] for col in col_types if col_types[col] is not bool
-    # }
+    string_cols = [col for col in dtypes if dtypes[col] == "string"]
 
     for col in bool_cols:
         # Bc the og bool values were sometimes coming across as actual bools or
         # strings, for some reason we need to map both types (I'm not sure
         # why!). We use na_action to preserve the og NaN's. I've also added in
         # the string version of a null value bc I am sure it will exist.
-        df[col] = df[col].map({'False': False,
-                               'True': True,
-                               False: False,
-                               True: True,
-                               'nan': pd.NA})
+        df[col] = df[col].map({
+            'False': False,
+            'True': True,
+            False: False,
+            True: True,
+            'nan': pd.NA
+        })
 
     if name:
         logger.debug(f'Converting the dtypes of: {name}')
@@ -998,40 +973,25 @@ def convert_cols_dtypes(df, data_source, name=None):
             df = df.astype({'utility_id_eia': 'float'})
     df = (
         df.astype(non_bool_cols)
-        .astype(bool_cols)
+        .astype({col: "boolean" for col in bool_cols})
         .replace(to_replace="nan", value={col: pd.NA for col in string_cols})
         .replace(to_replace="<NA>", value={col: pd.NA for col in string_cols})
     )
 
-    # Zip codes are highly coorelated with datatype. If they datatype gets
+    # Zip codes are highly correlated with datatype. If they datatype gets
     # converted at any point it may mess up the accuracy of the data. For
-    # example: 08401.0 or 8401 are both incorrect versions of 080401 that a
+    # example: 08401.0 or 8401 are both incorrect versions of 08401 that a
     # simple datatype conversion cannot fix. For this reason, we use the
-    # zero_pad_zips function.
+    # zero_pad_numeric_string function.
     if any('zip_code' for col in df.columns):
         zip_cols = [col for col in df.columns if 'zip_code' in col]
         for col in zip_cols:
             if '4' in col:
-                df.loc[:, col] = zero_pad_zips(df[col], 4)
+                df.loc[:, col] = zero_pad_numeric_string(df[col], n_digits=4)
             else:
-                df.loc[:, col] = zero_pad_zips(df[col], 5)
+                df.loc[:, col] = zero_pad_numeric_string(df[col], n_digits=5)
 
     return df
-
-
-def convert_dfs_dict_dtypes(dfs_dict, data_source):
-    """Convert the data types of a dictionary of dataframes.
-
-    This is a wrapper for :func:`pudl.helpers.convert_cols_dtypes` which loops
-    over an entire dictionary of dataframes, assuming they are all from the
-    specified data source, and appropriately assigning data types to each
-    column based on the data source specific type map stored in pudl.constants
-
-    """
-    cleaned_dfs_dict = {}
-    for name, df in dfs_dict.items():
-        cleaned_dfs_dict[name] = convert_cols_dtypes(df, data_source, name)
-    return cleaned_dfs_dict
 
 
 def generate_rolling_avg(df, group_cols, data_col, window, **kwargs):
@@ -1163,33 +1123,59 @@ def cleanstrings_snake(df, cols):
     return df
 
 
-def zero_pad_zips(zip_series, n_digits):
+def zero_pad_numeric_string(
+    col: pd.Series,
+    n_digits: int,
+) -> pd.Series:
     """
-    Retain prefix zeros in zipcodes.
+    Clean up fixed-width leading zero padded numeric (e.g. ZIP, FIPS) codes.
+
+    Often values like ZIP and FIPS codes are stored as integers, or get
+    converted to floating point numbers because there are NA values in the
+    column. Sometimes other non-digit strings are included like Canadian
+    postal codes mixed in with ZIP codes, or IMP (imported) instead of a
+    FIPS county code. This function attempts to manage these irregularities
+    and produce either fixed-width leading zero padded strings of digits
+    having a specified length (n_digits) or NA.
+
+    * Convert the Series to a nullable string.
+    * Remove any decimal point and all digits following it.
+    * Remove any non-digit characters.
+    * Replace any empty strings with NA.
+    * Replace any strings longer than n_digits with NA.
+    * Pad remaining digit-only strings to n_digits length.
+    * Replace (invalid) all-zero codes with NA.
 
     Args:
-        zip_series (pd.Series) : series containing the zipcode values.
-        n_digits(int) : zipcode length (likely 4 or 5 digits).
+        col: The Series to clean. May be numeric, string, object, etc.
+        n_digits: the desired length of the output strings.
 
     Returns:
-        pandas.Series: a series containing zipcodes with their prefix zeros
-        intact and invalid zipcodes rendered as na.
-
+        A Series of nullable strings, containing only all-numeric strings
+        having length n_digits, padded with leading zeroes if necessary.
     """
-    # Add preceeding zeros where necessary and get rid of decimal zeros
-    def get_rid_of_decimal(series):
-        return series.str.replace(r'[\.]+\d*', '', regex=True)
-
-    zip_series = (
-        zip_series
-        .astype(pd.StringDtype())
-        .replace('nan', np.nan)
-        .fillna("0")
-        .pipe(get_rid_of_decimal)
+    out_col = (
+        col.astype("string")
+        # Remove decimal points and any digits following them.
+        # This turns floating point strings into integer strings
+        .replace(r'[\.]+\d*', '', regex=True)
+        # Remove any whitespace
+        .replace(r'\s+', '', regex=True)
+        # Replace anything that's not entirely digits with NA
+        .replace(r'[^\d]+', pd.NA, regex=True)
+        # Set any string longer than n_digits to NA
+        .replace(f'[\\d]{{{n_digits+1},}}', pd.NA, regex=True)
+        # Pad the numeric string with leading zeroes to n_digits length
         .str.zfill(n_digits)
-        .replace({n_digits * "0": pd.NA})  # All-zero Zip codes aren't valid.
+        # All-zero ZIP & FIPS codes are invalid.
+        # Also catches empty strings that were zero padded.
+        .replace({n_digits * "0": pd.NA})
     )
-    return zip_series
+    if not out_col.str.match(f"^[\\d]{{{n_digits}}}$").all():
+        raise ValueError(
+            f"Failed to generate zero-padded numeric strings of length {n_digits}."
+        )
+    return out_col
 
 
 def iterate_multivalue_dict(**kwargs):
@@ -1213,15 +1199,14 @@ def iterate_multivalue_dict(**kwargs):
 def get_working_eia_dates():
     """Get all working EIA dates as a DatetimeIndex."""
     dates = pd.DatetimeIndex([])
-    for dataset_name, dataset in pc.WORKING_PARTITIONS.items():
-        if 'eia' in dataset_name:
-            for name, partition in dataset.items():
-                if name == 'years':
-                    dates = dates.append(
-                        pd.to_datetime(partition, format='%Y'))
-                if name == 'year_month':
-                    dates = dates.append(pd.DatetimeIndex(
-                        [pd.to_datetime(partition)]))
+    for data_source in DataSource.from_field_namespace("eia"):
+        working_partitions = data_source.working_partitions
+        if 'years' in working_partitions:
+            dates = dates.append(
+                pd.to_datetime(working_partitions['years'], format='%Y'))
+        if 'year_month' in working_partitions:
+            dates = dates.append(pd.DatetimeIndex(
+                [pd.to_datetime(working_partitions['year_month'])]))
     return dates
 
 

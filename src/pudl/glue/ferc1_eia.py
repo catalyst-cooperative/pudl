@@ -38,7 +38,6 @@ import pandas as pd
 import sqlalchemy as sa
 
 import pudl
-from pudl import constants as pc
 
 logger = logging.getLogger(__name__)
 
@@ -57,7 +56,7 @@ DATA_TABLES_EIA923: List[str] = [
 def get_plant_map() -> pd.DataFrame:
     """Read in the manual FERC to EIA plant mapping data."""
     mapping_xlsx = importlib.resources.open_binary(
-        'pudl.package_data.glue', 'mapping_eia923_ferc1.xlsx')
+        'pudl.package_data.glue', 'pudl_id_mapping.xlsx')
 
     return pd.read_excel(
         mapping_xlsx,
@@ -81,7 +80,7 @@ def get_plant_map() -> pd.DataFrame:
 def get_utility_map() -> pd.DataFrame:
     """Read in the manual FERC to EIA utility mapping data."""
     mapping_xlsx = importlib.resources.open_binary(
-        'pudl.package_data.glue', 'mapping_eia923_ferc1.xlsx')
+        'pudl.package_data.glue', 'pudl_id_mapping.xlsx')
 
     return pd.read_excel(
         mapping_xlsx,
@@ -130,13 +129,8 @@ def get_db_plants_ferc1(
         combination of ``utility_id_ferc1`` and ``plant_name``.
 
     """
-    # Need to be able to use years outside the "valid" range if we're trying
-    # to get new plant ID info...
-    unrecognized_years = set(years).difference(pc.WORKING_PARTITIONS['ferc1']['years'])
-    if unrecognized_years:
-        raise ValueError(
-            f"Input years {sorted(unrecognized_years)} not available in FERC 1 DB."
-        )
+    # Validate the input years:
+    _ = pudl.settings.Ferc1Settings(years=list(years))
 
     # Grab the FERC 1 DB metadata so we can query against the DB w/ SQLAlchemy:
     ferc1_engine = sa.create_engine(pudl_settings["ferc1_db"])
@@ -185,7 +179,7 @@ def get_db_plants_ferc1(
         )
 
         # Add all the plants from the current table to our bigger list:
-        all_plants = all_plants.append(
+        db_plants = (
             pd.read_sql(plant_select, ferc1_engine)
             .rename(columns={
                 "respondent_id": "utility_id_ferc1",
@@ -206,6 +200,7 @@ def get_db_plants_ferc1(
                 "plant_table"
             ]]
         )
+        all_plants = pd.concat([all_plants, db_plants])
 
     # We don't want dupes, and sorting makes the whole thing more readable:
     all_plants = (
@@ -556,7 +551,7 @@ def get_unmapped_utils_eia(
     for table in data_tables_eia923:
         query = f"SELECT DISTINCT plant_id_eia FROM {table}"  # nosec
         new_ids = pd.read_sql(query, pudl_engine)
-        plant_ids = plant_ids.append(new_ids["plant_id_eia"])
+        plant_ids = pd.concat([plant_ids, new_ids["plant_id_eia"]])
     plant_ids_in_eia923 = sorted(set(plant_ids))
 
     utils_with_plants = (
@@ -659,7 +654,7 @@ def glue(ferc1=False, eia=False):
     """Generates a dictionary of dataframes for glue tables between FERC1, EIA.
 
     That data is primarily stored in the plant_output and
-    utility_output tabs of package_data/glue/mapping_eia923_ferc1.xlsx in the
+    utility_output tabs of package_data/glue/pudl_id_mapping.xlsx in the
     repository. There are a total of seven relations described in this data:
 
         - utilities: Unique id and name for each utility for use across the

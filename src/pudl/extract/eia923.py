@@ -53,7 +53,10 @@ class Extractor(excel.GenericExtractor):
             df = df.rename(columns={'unnamed_0': 'census_division_and_state'})
         # Drop the fields with plant_id_eia 99999 or 999999.
         # These are state index
+        # Add leading zeros to county FIPS in fuel_receipts_costs
         else:
+            if page == 'fuel_receipts_costs':
+                df.county_id_fips = df.county_id_fips.str.rjust(3, '0')
             df = df[~df.plant_id_eia.isin([99999, 999999])]
         return df
 
@@ -66,8 +69,11 @@ class Extractor(excel.GenericExtractor):
 
     @staticmethod
     def get_dtypes(page, **partition):
-        """Returns dtypes for plant id columns."""
+        """Returns dtypes for plant id columns and county FIPS column."""
         return {
             "Plant ID": pd.Int64Dtype(),
             "Plant Id": pd.Int64Dtype(),
+            "Coalmine County": pd.StringDtype(),
+            "CoalMine_County": pd.StringDtype(),
+            "Coalmine\nCounty": pd.StringDtype()
         }

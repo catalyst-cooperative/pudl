@@ -4,23 +4,28 @@ import datetime
 import logging
 import os
 import re
+from functools import lru_cache
 from pathlib import Path
 from typing import (Any, Callable, Dict, Iterable, List, Literal, Optional,
                     Tuple, Type, Union)
 
 import jinja2
 import pandas as pd
+import pyarrow as pa
 import pydantic
 import sqlalchemy as sa
+from pydantic.types import DirectoryPath
 
-from .constants import (CONSTRAINT_DTYPES, CONTRIBUTORS,
-                        CONTRIBUTORS_BY_SOURCE, FIELD_DTYPES, FIELD_DTYPES_SQL,
-                        KEYWORDS_BY_SOURCE, LICENSES, PERIODS, SOURCES)
+from .codes import CODE_METADATA
+from .constants import (CONSTRAINT_DTYPES, CONTRIBUTORS, FIELD_DTYPES_PANDAS,
+                        FIELD_DTYPES_PYARROW, FIELD_DTYPES_SQL, LICENSES,
+                        PERIODS)
 from .fields import (FIELD_METADATA, FIELD_METADATA_BY_GROUP,
                      FIELD_METADATA_BY_RESOURCE)
 from .helpers import (expand_periodic_column_names, format_errors,
                       groupby_aggregate, most_and_more_frequent, split_period)
-from .resources import FOREIGN_KEYS, RESOURCE_METADATA
+from .resources import FOREIGN_KEYS, RESOURCE_METADATA, eia861
+from .sources import SOURCES
 
 logger = logging.getLogger(__name__)
 
@@ -392,14 +397,14 @@ class Encoder(Base):
     A table associating short codes with long descriptions and other information.
 
     Each coding table contains at least a ``code`` column containing the standard codes
-    and a ``definition`` column with a human readable explanation of what the code
+    and a ``description`` column with a human readable explanation of what the code
     stands for. Additional metadata pertaining to the codes and their categories may
     also appear in this dataframe, which will be loaded into the PUDL DB as a static
     table. The ``code`` column is a natural primary key and must contain no duplicate
     values.
     """
 
-    ignored_codes: List[Union[Int, String]] = []
+    ignored_codes: List[Union[Int, str]] = []
     """
     A list of non-standard codes which appear in the data, and will be set to NA.
 
@@ -414,6 +419,11 @@ class Encoder(Base):
     The intended meanings of some non-standard codes are clear, and therefore they can
     be mapped to the standardized, canonical codes with confidence. Sometimes these are
     the result of data entry errors or changes in the stanard codes over time.
+    """
+
+    name: String = None
+    """
+    The name of the code.
     """
 
     @pydantic.validator("df")
@@ -526,6 +536,22 @@ class Encoder(Base):
         """Construct an Encoder based on `Resource.name` of a coding table."""
         return cls(**cls.dict_from_id(x))
 
+    @classmethod
+    def from_code_id(cls, x: str) -> 'Encoder':
+        """Construct an Encoder based on looking up the name of a coding table directly in the codes metadata."""
+        return cls(**copy.deepcopy(CODE_METADATA[x]), name=x)
+
+    def to_rst(self, top_dir: DirectoryPath, csv_subdir: DirectoryPath, is_header: Bool) -> String:
+        """Ouput dataframe to a csv for use in jinja template. Then output to an RST file."""
+        self.df.to_csv(Path(top_dir) / csv_subdir / f"{self.name}.csv", index=False)
+        template = JINJA_ENVIRONMENT.get_template("codemetadata.rst.jinja")
+        rendered = template.render(
+            Encoder=self,
+            description=RESOURCE_METADATA[self.name]["description"],
+            csv_filepath=(Path('/') / csv_subdir / f"{self.name}.csv"),
+            is_header=is_header)
+        return rendered
+
 
 class Field(Base):
     """
@@ -620,13 +646,27 @@ class Field(Base):
                 return "Int32"
             if self.type == "number":
                 return "float32"
-        return FIELD_DTYPES[self.type]
+        return FIELD_DTYPES_PANDAS[self.type]
 
     def to_sql_dtype(self) -> sa.sql.visitors.VisitableType:
         """Return SQLAlchemy data type."""
         if self.constraints.enum and self.type == "string":
             return sa.Enum(*self.constraints.enum)
         return FIELD_DTYPES_SQL[self.type]
+
+    def to_pyarrow_dtype(self) -> pa.lib.DataType:
+        """Return PyArrow data type."""
+        if self.constraints.enum and self.type == "string":
+            return pa.dictionary(pa.int8(), pa.string(), ordered=False)
+        return FIELD_DTYPES_PYARROW[self.type]
+
+    def to_pyarrow(self) -> pa.Field:
+        """Return a PyArrow Field appropriate to the field."""
+        return pa.field(
+            name=self.name,
+            type=self.to_pyarrow_dtype(),
+            nullable=(not self.constraints.required),
+        )
 
     def to_sql(  # noqa: C901
         self,
@@ -808,28 +848,6 @@ class License(Base):
         return cls(**cls.dict_from_id(x))
 
 
-class Source(Base):
-    """
-    Data source (`package|resource.sources[...]`).
-
-    See https://specs.frictionlessdata.io/data-package/#sources.
-    """
-
-    title: String
-    path: HttpUrl
-    email: Email = None
-
-    @staticmethod
-    def dict_from_id(x: str) -> dict:
-        """Construct dictionary from PUDL identifier."""
-        return copy.deepcopy(SOURCES[x])
-
-    @classmethod
-    def from_id(cls, x: str) -> "Source":
-        """Construct from PUDL identifier."""
-        return cls(**cls.dict_from_id(x))
-
-
 class Contributor(Base):
     """
     Data contributor (`package.contributors[...]`).
@@ -844,6 +862,7 @@ class Contributor(Base):
         "author", "contributor", "maintainer", "publisher", "wrangler"
     ] = "contributor"
     organization: String = None
+    orcid: String = None
 
     @staticmethod
     def dict_from_id(x: str) -> dict:
@@ -853,6 +872,77 @@ class Contributor(Base):
     @classmethod
     def from_id(cls, x: str) -> "Contributor":
         """Construct from PUDL identifier."""
+        return cls(**cls.dict_from_id(x))
+
+    def __hash__(self):
+        """
+        Implements simple hash method.
+
+        Allows use of `set()` on a list of Contributor
+        """
+        return hash(str(self))
+
+
+class DataSource(Base):
+    """
+    A data source that has been integrated into PUDL.
+
+    This metadata is used for:
+
+    * Generating PUDL documentation.
+    * Annotating long-term archives of the raw input data on Zenodo.
+    * Defining what data partitions can be processed using PUDL.
+
+    It can also be used to populate the "source" fields of frictionless
+    data packages and data resources (`package|resource.sources[...]`).
+
+    See https://specs.frictionlessdata.io/data-package/#sources.
+
+    """
+
+    name: SnakeCase
+    title: String = None
+    description: String = None
+    field_namespace: String = None
+    keywords: List[str] = []
+    path: HttpUrl = None
+    contributors: List[Contributor] = []  # Or should this be compiled from Resources?
+    license_raw: License
+    license_pudl: License
+    # concept_doi: Doi = None  # Need to define a Doi type?
+    working_partitions: Dict[SnakeCase, Any] = {}
+    # agency: Agency  # needs to be defined
+    email: Email = None
+
+    def get_resource_ids(self) -> List[str]:
+        """Compile list of resoruce IDs associated with this data source."""
+        # Temporary check to use eia861.RESOURCE_METADATA directly
+        # eia861 is not currently included in the general RESOURCE_METADATA dict
+        resources = RESOURCE_METADATA
+        if self.name == "eia861":
+            resources = eia861.RESOURCE_METADATA
+
+        return sorted([name for name, value in resources.items()
+                       if value.get("etl_group") == self.name])
+
+    def to_rst(self) -> None:
+        """Output a representation of the data source in RST for documentation."""
+        pass
+
+    @classmethod
+    def from_field_namespace(cls, x: str) -> List['DataSource']:
+        """Return list of DataSource objects by field namespace."""
+        return [cls(**cls.dict_from_id(name)) for name, val in SOURCES.items()
+                if val.get("field_namespace") == x]
+
+    @staticmethod
+    def dict_from_id(x: str) -> dict:
+        """Look up the source by source name in the metadata."""
+        return {'name': x, **copy.deepcopy(SOURCES[x])}
+
+    @classmethod
+    def from_id(cls, x: str) -> 'DataSource':
+        """Construct Source by source name in the metadata."""
         return cls(**cls.dict_from_id(x))
 
 
@@ -998,13 +1088,17 @@ class Resource(Base):
     title: String = None
     description: String = None
     harvest: ResourceHarvest = {}
-    group: Literal["eia", "epacems", "ferc1", "ferc714", "glue", "pudl"] = None
     schema_: Schema = pydantic.Field(alias='schema')
     contributors: List[Contributor] = []
     licenses: List[License] = []
-    sources: List[Source] = []
+    sources: List[DataSource] = []
     keywords: List[String] = []
     encoder: Encoder = None
+    field_namespace: Literal["eia", "epacems",
+                             "ferc1", "ferc714", "glue", "pudl"] = None
+    etl_group: Literal["eia860", "eia861", "eia923", "entity_eia",
+                       "epacems", "ferc1", "ferc1_disabled", "ferc714", "glue",
+                       "static", "static_eia"] = None
 
     _check_unique = _validator(
         "contributors",
@@ -1049,9 +1143,9 @@ class Resource(Base):
                 # Lookup field by name
                 value = Field.dict_from_id(name)
                 # Update with any custom group-level metadata
-                group = obj.get("group")
-                if name in FIELD_METADATA_BY_GROUP.get(group, {}):
-                    value = {**value, **FIELD_METADATA_BY_GROUP[group][name]}
+                namespace = obj.get("field_namespace")
+                if name in FIELD_METADATA_BY_GROUP.get(namespace, {}):
+                    value = {**value, **FIELD_METADATA_BY_GROUP[namespace][name]}
                 # Update with any custom resource-level metadata
                 if name in FIELD_METADATA_BY_RESOURCE.get(x, {}):
                     value = {**value, **FIELD_METADATA_BY_RESOURCE[x][name]}
@@ -1059,7 +1153,8 @@ class Resource(Base):
             schema["fields"] = fields
         # Expand sources
         sources = obj.get("sources", [])
-        obj["sources"] = [Source.dict_from_id(value) for value in sources]
+        obj["sources"] = [DataSource.from_id(value) for value in sources
+                          if value in SOURCES]
         encoder = obj.get("encoder", None)
         obj["encoder"] = encoder
         # Expand licenses (assign CC-BY-4.0 by default)
@@ -1068,16 +1163,18 @@ class Resource(Base):
         # Lookup and insert contributors
         if "contributors" in schema:
             raise ValueError("Resource metadata contains explicit contributors")
-        cids = []
+        contributors = []
         for source in sources:
-            cids.extend(CONTRIBUTORS_BY_SOURCE.get(source, []))
-        obj["contributors"] = [Contributor.dict_from_id(cid) for cid in set(cids)]
+            if source in SOURCES:
+                contributors.extend(DataSource.from_id(source).contributors)
+        obj["contributors"] = set(contributors)
         # Lookup and insert keywords
         if "keywords" in schema:
             raise ValueError("Resource metadata contains explicit keywords")
         keywords = []
         for source in sources:
-            keywords.extend(KEYWORDS_BY_SOURCE.get(source, []))
+            if source in SOURCES:
+                keywords.extend(DataSource.from_id(source).keywords)
         obj["keywords"] = sorted(set(keywords))
         # Insert foreign keys
         if "foreign_keys" in schema:
@@ -1086,6 +1183,27 @@ class Resource(Base):
         # Delete foreign key rules
         if "foreign_key_rules" in schema:
             del schema["foreign_key_rules"]
+
+        # Add encoders to columns as appropriate, based on FKs.
+        # Foreign key relationships determine the set of codes to use
+        for fk in obj["schema"]["foreign_keys"]:
+            # Only referenced tables with an associated encoder indicate
+            # that the column we're looking at should have an encoder
+            # attached to it. All of these FK relationships must have simple
+            # single-column keys.
+            encoder = Encoder.dict_from_id(fk["reference"]["resource"])
+            if len(fk["fields"]) != 1 and encoder:
+                raise ValueError(
+                    "Encoder for table with a composite primary key: "
+                    f"{fk['reference']['resource']}"
+                )
+            if len(fk["fields"]) == 1 and encoder:
+                # fk["fields"] is a one element list, get the one element:
+                field = fk["fields"][0]
+                for f in obj["schema"]["fields"]:
+                    if f["name"] == field:
+                        f["encoder"] = encoder
+                        break
 
         return obj
 
@@ -1125,6 +1243,12 @@ class Resource(Base):
         for key in self.schema.foreign_keys:
             constraints.append(key.to_sql())
         return sa.Table(self.name, metadata, *columns, *constraints)
+
+    def to_pyarrow(self) -> pa.Schema:
+        """Construct a PyArrow schema for the resource."""
+        return pa.schema(
+            [field.to_pyarrow() for field in self.schema.fields]
+        )
 
     def to_pandas_dtypes(
         self, **kwargs: Any
@@ -1481,7 +1605,7 @@ class Package(Base):
     homepage: HttpUrl = "https://catalyst.coop/pudl"
     created: Datetime = datetime.datetime.utcnow()
     contributors: List[Contributor] = []
-    sources: List[Source] = []
+    sources: List[DataSource] = []
     licenses: List[License] = []
     resources: StrictList(Resource)
 
@@ -1522,8 +1646,11 @@ class Package(Base):
         return values
 
     @classmethod
-    def from_resource_ids(
-        cls, resource_ids: Iterable[str], resolve_foreign_keys: bool = False
+    @lru_cache
+    def from_resource_ids(  # noqa: C901
+        cls,
+        resource_ids: Tuple[str] = tuple(sorted(RESOURCE_METADATA)),
+        resolve_foreign_keys: bool = False
     ) -> "Package":
         """
         Construct a collection of Resources from PUDL identifiers (`resource.name`).
@@ -1532,8 +1659,13 @@ class Package(Base):
         coding tables defined in :mod:`pudl.metadata.codes` and if so, associate the
         coding table's encoder with those columns for later use cleaning them up.
 
+        The result is cached, since we so often need to generate the metdata for
+        the full collection of PUDL tables.
+
         Args:
-            resource_ids: Resource PUDL identifiers (`resource.name`).
+            resource_ids: Resource PUDL identifiers (`resource.name`). Needs to
+                be a Tuple so that the set of identifiers is hashable, allowing
+                return value caching through lru_cache.
             resolve_foreign_keys: Whether to add resources as needed based on
                 foreign keys.
 
@@ -1552,22 +1684,6 @@ class Package(Base):
                 i = len(resources)
                 if len(names) > i:
                     resources += [Resource.dict_from_id(x) for x in names[i:]]
-
-        # Add per-column encoders for each resource
-        for resource in resources:
-            # Foreign key relationships determine the set of codes to use
-            for fk in resource["schema"]["foreign_keys"]:
-                # Only referenced tables with an associated encoder indicate
-                # that the column we're looking at should have an encoder
-                # attached to it. All of these FK relationships must have simple
-                # single-column keys.
-                encoder = Encoder.dict_from_id(fk["reference"]["resource"])
-                if len(fk["fields"]) == 1 and encoder:
-                    # fk["fields"] is a one element list, get the one element:
-                    field = fk["fields"][0]
-                    field_names = [f["name"] for f in resource["schema"]["fields"]]
-                    idx = field_names.index(field)
-                    resource["schema"]["fields"][idx]["encoder"] = encoder
 
         return cls(name="pudl", resources=resources)
 
@@ -1596,3 +1712,39 @@ class Package(Base):
                 check_values=check_values,
             )
         return metadata
+
+
+class CodeMetadata(Base):
+    """
+    A list of Encoders representing standardization and description for reported categorical codes.
+
+    Used to export to documentation.
+    """
+
+    encoder_list: List[Encoder] = []
+
+    @classmethod
+    def from_code_ids(
+        cls, code_ids: Iterable[str]
+    ) -> "CodeMetadata":
+        """
+        Construct a list of encoders from code dictionaries.
+
+        Args:
+            code_ids: A list of Code PUDL identifiers, keys to entries in the CODE_METADATA dictionary.
+
+        """
+        encoder_list = []
+        for name in code_ids:
+            if name in CODE_METADATA:
+                encoder_list.append(Encoder.from_code_id(name))
+        return cls(encoder_list=encoder_list)
+
+    def to_rst(self, top_dir: DirectoryPath, csv_subdir: DirectoryPath, rst_path: str) -> None:
+        """Iterate through encoders and output to an RST file."""
+        with Path(rst_path).open("w") as f:
+            for idx, encoder in enumerate(self.encoder_list):
+                header = (idx == 0)
+                rendered = encoder.to_rst(
+                    top_dir=top_dir, csv_subdir=csv_subdir, is_header=header)
+                f.write(rendered)

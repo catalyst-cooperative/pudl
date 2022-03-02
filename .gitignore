@@ -26,3 +26,4 @@ devtools/user-requirements.txt
 .vscode/*
 commit.txt
 devtools/profiles/
+notebooks/*.pkl.gz

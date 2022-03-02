@@ -89,6 +89,7 @@ import numpy as np
 import pandas as pd
 
 import pudl.helpers
+from pudl.metadata.fields import apply_pudl_dtypes
 
 logger = logging.getLogger(__name__)
 
@@ -213,13 +214,9 @@ def allocate_gen_fuel_by_gen_pm_fuel(gf, gen, gens, drop_interim_cols=True):
             fuel_consumed_mmbtu_gf_tbl=lambda x: x.fuel_consumed_mmbtu,
             fuel_consumed_mmbtu=lambda x: x.fuel_consumed_mmbtu * x.frac
         )
-        .astype(pudl.helpers.get_pudl_dtypes({
-            "plant_id_eia": "eia",
-            "net_generation_mwh": "eia",
-        }))
+        .pipe(apply_pudl_dtypes, group="eia")
         .dropna(how='all')
         .pipe(_test_gen_pm_fuel_output, gf=gf, gen=gen)
-        .pipe(pudl.helpers.convert_cols_dtypes, 'eia')
     )
     if drop_interim_cols:
         gen_pm_fuel_frac = gen_pm_fuel_frac[
@@ -238,8 +235,11 @@ def agg_by_generator(gen_pm_fuel):
             `allocate_gen_fuel_by_gen_pm_fuel()`
     """
     data_cols = ['net_generation_mwh', 'fuel_consumed_mmbtu']
-    gen = (gen_pm_fuel.groupby(by=IDX_GENS)
-           [data_cols].sum(min_count=1).reset_index())
+    gen = (
+        gen_pm_fuel.groupby(by=IDX_GENS)
+        [data_cols].sum(min_count=1).reset_index()
+        .pipe(apply_pudl_dtypes, group="eia")
+    )
 
     return gen
 
@@ -268,7 +268,7 @@ def stack_generators(gens,
         pd.DataFrame(gens.set_index(IDX_GENS)[esc].stack(level=0))
         .reset_index()
         .rename(columns={'level_3': cat_col, 0: stacked_col})
-        .pipe(pudl.helpers.convert_cols_dtypes, 'eia')
+        .pipe(apply_pudl_dtypes, 'eia')
     )
 
     # merge the stacked df back onto the gens table
@@ -324,7 +324,7 @@ def associate_generator_tables(gf, gen, gens):
             .reset_index(),
             on=IDX_FUEL,
         )
-        .pipe(pudl.helpers.convert_cols_dtypes, 'eia')
+        .pipe(apply_pudl_dtypes, 'eia')
         .pipe(_associate_unconnected_records)
         .pipe(_associate_energy_source_only, gf=gf)
     )
@@ -472,7 +472,7 @@ def _associate_energy_source_only(gen_assoc, gf):
 
     gen_assoc = pd.merge(
         gen_assoc,
-        gf_missing_pm,
+        gf_missing_pm.pipe(apply_pudl_dtypes, 'eia'),
         how='outer',
         on=IDX_FUEL,
         indicator=True

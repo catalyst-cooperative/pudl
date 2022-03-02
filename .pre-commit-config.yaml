@@ -10,7 +10,7 @@ repos:
 
 # Other file formatting, plus common Git mistakes & text file standardization:
 - repo: https://github.com/pre-commit/pre-commit-hooks
-  rev: v4.0.1
+  rev: v4.1.0
   hooks:
   - id: check-added-large-files # Don't accidentally commit giant files.
   - id: check-merge-conflict    # Watch for lingering merge markers.
@@ -24,7 +24,7 @@ repos:
 
 # Attempt to enforce standardized PEP8 style formatting:
 - repo: https://github.com/pre-commit/mirrors-autopep8
-  rev: v1.5.7
+  rev: v1.6.0
   hooks:
   - id: autopep8
     exclude: ^docs/conf.py$
@@ -34,8 +34,8 @@ repos:
       - --max-line-length=88
 
 # Make sure import statements are sorted uniformly.
-- repo: https://github.com/pre-commit/mirrors-isort
-  rev: v5.9.3
+- repo: https://github.com/PyCQA/isort
+  rev: 5.10.1
   hooks:
   - id: isort
 
@@ -59,14 +59,14 @@ repos:
 
 # Check for errors in restructuredtext (.rst) files under the doc hierarchy
 - repo: https://github.com/PyCQA/doc8
-  rev: 0.9.1
+  rev: 0.10.1
   hooks:
   - id: doc8
     args: [--config, tox.ini]
 
 # Check for known security vulnerabilities:
 - repo: https://github.com/PyCQA/bandit
-  rev: 1.7.0
+  rev: 1.7.3
   hooks:
   - id: bandit
     args: [--configfile, .bandit.yml]
@@ -89,3 +89,16 @@ repos:
       pass_filenames: false
       always_run: true
       entry: pytest --doctest-modules src/pudl test/unit
+
+# Configuration for pre-commit.ci
+ci:
+  autofix_commit_msg: |
+    [pre-commit.ci] auto fixes from pre-commit.com hooks
+
+    For more information, see https://pre-commit.ci
+  autofix_prs: true
+  autoupdate_branch: dev
+  autoupdate_commit_msg: '[pre-commit.ci] pre-commit autoupdate'
+  autoupdate_schedule: weekly
+  skip: [unit-tests, nb-output-clear]
+  submodules: false

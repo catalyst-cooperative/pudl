@@ -14,3 +14,9 @@ Data Dictionaries
    :maxdepth: 1
 
    ferc1_db
+
+.. toctree::
+   :caption: Code Descriptions & Metadata
+   :maxdepth: 1
+
+   codes_and_labels
