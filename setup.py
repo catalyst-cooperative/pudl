@@ -74,8 +74,7 @@ setup(
             "sphinx-autoapi~=1.8",
             "sphinx-issues>=1.2,<4.0",
             "sphinx-reredirects",
-            "sphinx-rtd-dark-mode~=1.2",
-            "sphinx-rtd-theme~=1.0",
+            "pydata-sphinx-theme>=0.8",
             "sphinxcontrib_bibtex~=2.4",
         ],
         "test": [

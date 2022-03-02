@@ -8,6 +8,7 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 
+import datetime
 import shutil
 from pathlib import Path
 
@@ -31,7 +32,9 @@ release = pkg_resources.get_distribution('catalystcoop.pudl').version
 # -- Project information -----------------------------------------------------
 
 project = 'PUDL'
-copyright = '2016-2021, Catalyst Cooperative, CC-BY-4.0'  # noqa: A001
+copyright = (  # noqa: A001
+    f"2016-{datetime.date.today().year}, Catalyst Cooperative, CC-BY-4.0"
+)
 author = 'Catalyst Cooperative'
 
 # -- General configuration ---------------------------------------------------
@@ -48,7 +51,6 @@ extensions = [
     'autoapi.extension',
     'sphinx_issues',
     'sphinx_reredirects',
-    'sphinx_rtd_dark_mode',
     'sphinxcontrib.bibtex'
 ]
 todo_include_todos = True
@@ -104,11 +106,8 @@ exclude_patterns = ['_build']
 
 # The theme to use for HTML and HTML Help pages.
 
-# user starts in dark mode
-default_dark_mode = False
-
 master_doc = 'index'
-html_theme = 'sphinx_rtd_theme'
+html_theme = "pydata_sphinx_theme"
 html_logo = '_static/catalyst_logo-200x200.png'
 html_icon = '_static/favicon.ico'
 
