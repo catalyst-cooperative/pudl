@@ -909,8 +909,8 @@ class DataSource(Base):
     keywords: List[str] = []
     path: HttpUrl = None
     contributors: List[Contributor] = []  # Or should this be compiled from Resources?
-    license_raw: License = None
-    license_pudl: License = None
+    license_raw: License
+    license_pudl: License
     # concept_doi: Doi = None  # Need to define a Doi type?
     working_partitions: Dict[SnakeCase, Any] = {}
     # agency: Agency  # needs to be defined
@@ -1804,7 +1804,9 @@ class DatasetteMetadata(Base):
             ds_id: DataSource.from_id(ds_id) for ds_id in data_source_ids}
         resource_ids = []
         for name in data_source_ids + extra_etl_groups:
-            resource_ids += DataSource(name=name).get_resource_ids()
+            resource_ids += DataSource(name=name,
+                                       license_raw=LICENSES["us-govt"],
+                                       license_pudl=LICENSES["cc-by-4.0"]).get_resource_ids()
         resource_package = Package.from_resource_ids(tuple(resource_ids))
         return cls(
             data_sources=data_sources,
