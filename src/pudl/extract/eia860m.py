@@ -59,7 +59,7 @@ class Extractor(excel.GenericExtractor):
         DataFrames containing data across given years.
 
         Args:
-            settings (Eia860Settings): Object containing validated settings
+            settings: Object containing validated settings
                 relevant to EIA 860m. Contains the tables and date to be loaded
                 into PUDL.
         """

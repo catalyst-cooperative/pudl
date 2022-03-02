@@ -691,7 +691,7 @@ def extract(
     """Coordinates the extraction of all FERC Form 1 tables into PUDL.
 
     Args:
-        ferc1_settings (Ferc1Settings): Object containing validated settings
+        ferc1_settings: Object containing validated settings
             relevant to FERC Form 1. Contains the tables and years to be loaded
             into PUDL.
 

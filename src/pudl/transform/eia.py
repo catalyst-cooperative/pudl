@@ -1066,7 +1066,7 @@ def transform(
     Args:
         eia_transformed_dfs (dict): a dictionary of table names (kays) and
             transformed dataframes (values).
-        settings (EiaSettings): Object containing validated settings
+        settings: Object containing validated settings
             relevant to EIA datasets.
         debug (bool): if true, informational columns will be added into
             boiler_generator_assn

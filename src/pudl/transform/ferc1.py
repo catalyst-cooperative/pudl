@@ -1573,7 +1573,7 @@ def transform(ferc1_raw_dfs, ferc1_settings: Ferc1Settings = Ferc1Settings()):
     Args:
         ferc1_raw_dfs (dict): Each entry in this dictionary of DataFrame objects
             corresponds to a table from the FERC Form 1 DBC database
-        ferc1_settings (Ferc1Settings): Validated ETL parameters required by
+        ferc1_settings: Validated ETL parameters required by
             this data source.
 
     Returns:

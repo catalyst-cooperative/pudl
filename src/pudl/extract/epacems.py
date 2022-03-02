@@ -144,7 +144,7 @@ def extract(epacems_settings: EpaCemsSettings, ds: Datastore):
     Coordinate the extraction of EPA CEMS hourly DataFrames.
 
     Args:
-        epacems_settings (EpaCemsSettings): Object containing validated settings
+        epacems_settings: Object containing validated settings
             relevant to EPA CEMS. Contains the years and states to be loaded
             into PUDL.
         ds (:class:`Datastore`): Initialized datastore

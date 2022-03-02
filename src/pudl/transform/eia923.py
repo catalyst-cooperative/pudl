@@ -1152,7 +1152,7 @@ def transform(eia923_raw_dfs, eia923_settings: Eia923Settings = Eia923Settings()
     Args:
         eia923_raw_dfs (dict): a dictionary of tab names (keys) and DataFrames
             (values). Generated from `pudl.extract.eia923.extract()`.
-        settings (Eia923Settings): Object containing validated settings
+        settings: Object containing validated settings
             relevant to EIA 923. Contains the tables and years to be loaded
             into PUDL.
 
