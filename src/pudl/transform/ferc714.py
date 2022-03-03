@@ -5,8 +5,8 @@ import re
 import numpy as np
 import pandas as pd
 
-from pudl.metadata.classes import DataSource
 from pudl.metadata.fields import apply_pudl_dtypes
+from pudl.settings import Ferc714Settings
 
 logger = logging.getLogger(__name__)
 
@@ -591,7 +591,7 @@ def _early_transform(raw_df):
     return out_df
 
 
-def transform(raw_dfs, tables=DataSource.from_id("ferc714").get_resource_ids()):
+def transform(raw_dfs, ferc714_settings: Ferc714Settings = Ferc714Settings()):
     """
     Prepare the raw FERC 714 dataframes for loading into the PUDL database.
 
@@ -623,7 +623,7 @@ def transform(raw_dfs, tables=DataSource.from_id("ferc714").get_resource_ids()):
         "demand_forecast_pa_ferc714": demand_forecast_pa,
     }
     tfr_dfs = {}
-    for table in tables:
+    for table in ferc714_settings.tables:
         logger.info(f"Transforming {table}.")
         tfr_dfs[table] = (
             raw_dfs[table]
