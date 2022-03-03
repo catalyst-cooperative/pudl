@@ -706,6 +706,10 @@ class PudlTabl(object):
         """
         Pull EIA 923 generation and fuel consumption data.
 
+        This includes **both** nuclear generation (from the
+        generation_fuel_nuclear_eia923 table) and non-nuclear generation (from the
+        generation_fuel_eia923 table).
+
         Args:
             update (bool): If true, re-calculate the output dataframe, even if
                 a cached version exists.
@@ -715,11 +719,16 @@ class PudlTabl(object):
 
         """
         if update or self._dfs['gf_eia923'] is None:
-            self._dfs['gf_eia923'] = pudl.output.eia923.generation_fuel_eia923(
+            gf_eia923 = pudl.output.eia923.generation_fuel_eia923(
                 self.pudl_engine,
                 freq=self.freq,
                 start_date=self.start_date,
-                end_date=self.end_date)
+                end_date=self.end_date,
+                nuclear=False,
+            )
+            gfn_eia923 = self.gfn_eia923(update=update)
+            self._dfs['gf_eia923'] = pd.concat([gf_eia923, gfn_eia923])
+
         return self._dfs['gf_eia923']
 
     def gfn_eia923(self, update=False):

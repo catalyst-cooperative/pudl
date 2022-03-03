@@ -36,8 +36,13 @@ See EIA's query browse here:
 """
 
 
-def generation_fuel_eia923(pudl_engine, freq=None,
-                           start_date=None, end_date=None, nuclear: bool = False):
+def generation_fuel_eia923(
+    pudl_engine,
+    freq=None,
+    start_date=None,
+    end_date=None,
+    nuclear: bool = False
+):
     """
     Pull records from the generation_fuel_eia923 table in given date range.
 
