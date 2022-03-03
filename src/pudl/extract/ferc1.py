@@ -420,9 +420,7 @@ def define_sqlite_db(
     sqlite_meta,
     dbc_map,
     ds,
-    tables=tuple(DBF_TABLES_FILENAMES.keys()),
-    refyear=max(DataSource.from_id("ferc1").working_partitions["years"]),
-    bad_cols=()
+    ferc1_to_sqlite_settings: Ferc1ToSqliteSettings = Ferc1ToSqliteSettings()
 ):
     """
     Defines a FERC Form 1 DB structure in a given SQLAlchemy MetaData object.
@@ -440,28 +438,21 @@ def define_sqlite_db(
             returned by get_dbc_map(), describing the table and column names
             stored within the FERC Form 1 FoxPro database files.
         ds (:class:`Ferc1Datastore`): Initialized Ferc1Datastore
-        tables (iterable of strings): List or other iterable of FERC database
-            table names that should be included in the database being defined.
-            e.g. 'f1_fuel' and 'f1_steam'
-        refyear (integer): The year of the FERC Form 1 DB to use as a template
-            for creating the overall multi-year database schema.
-        bad_cols (iterable of 2-tuples): A list or other iterable containing
-            pairs of strings of the form (table_name, column_name), indicating
-            columns (and their parent tables) which should *not* be cloned
-            into the SQLite database for some reason.
+        ferc1_to_sqlite_settings: Object containing Ferc1 to SQLite validated
+            settings.
 
     Returns:
         None: the effects of the function are stored inside sqlite_meta
 
     """
-    for table in tables:
+    for table in ferc1_to_sqlite_settings.tables:
         add_sqlite_table(
             table_name=table,
             sqlite_meta=sqlite_meta,
             dbc_map=dbc_map,
             ds=ds,
-            refyear=refyear,
-            bad_cols=bad_cols
+            refyear=ferc1_to_sqlite_settings.refyear,
+            bad_cols=ferc1_to_sqlite_settings.bad_cols
         )
 
     sqlite_meta.create_all(sqlite_engine)
@@ -591,9 +582,7 @@ def dbf2sqlite(
         sqlite_meta=sqlite_meta,
         dbc_map=dbc_map,
         ds=datastore,
-        tables=ferc1_to_sqlite_settings.tables,
-        refyear=ferc1_to_sqlite_settings.refyear,
-        bad_cols=ferc1_to_sqlite_settings.bad_cols
+        ferc1_to_sqlite_settings=ferc1_to_sqlite_settings
     )
 
     for table in ferc1_to_sqlite_settings.tables:
