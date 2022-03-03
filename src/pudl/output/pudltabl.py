@@ -37,7 +37,7 @@ import pandas as pd
 import sqlalchemy as sa
 
 import pudl
-from pudl.settings import Eia861Settings
+from pudl.settings import Eia861Settings, Ferc714Settings
 from pudl.workspace.datastore import Datastore
 
 logger = logging.getLogger(__name__)
@@ -495,7 +495,11 @@ class PudlTabl(object):
     ###########################################################################
     # FERC 714 Interim Outputs (awaiting full DB integration)
     ###########################################################################
-    def etl_ferc714(self, update: bool = False):
+    def etl_ferc714(
+        self,
+        ferc714_settings: Ferc714Settings = Ferc714Settings(),
+        update: bool = False
+    ):
         """
         A single function that runs the temporary FERC 714 ETL and sets all DFs.
 
@@ -532,8 +536,10 @@ class PudlTabl(object):
 
         if update or self._dfs["respondent_id_ferc714"] is None:
             logger.warning("Running the interim FERC 714 ETL process!")
-            ferc714_raw_dfs = pudl.extract.ferc714.extract(ds=self.ds)
-            ferc714_tfr_dfs = pudl.transform.ferc714.transform(ferc714_raw_dfs)
+            ferc714_raw_dfs = pudl.extract.ferc714.extract(
+                ferc714_settings=ferc714_settings, ds=self.ds)
+            ferc714_tfr_dfs = pudl.transform.ferc714.transform(
+                ferc714_raw_dfs, ferc714_settings=ferc714_settings)
             self._dfs.update(ferc714_tfr_dfs)
 
     def respondent_id_ferc714(self, update=False):
