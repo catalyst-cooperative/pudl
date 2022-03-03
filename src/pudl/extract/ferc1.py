@@ -65,7 +65,7 @@ from sqlalchemy import or_
 import pudl
 from pudl.metadata.classes import DataSource
 from pudl.metadata.constants import DBF_TABLES_FILENAMES
-from pudl.settings import Ferc1Settings
+from pudl.settings import Ferc1Settings, Ferc1ToSqliteSettings
 from pudl.workspace.datastore import Datastore
 
 logger = logging.getLogger(__name__)
@@ -545,20 +545,16 @@ def get_raw_df(
 
 
 def dbf2sqlite(
-    tables,
-    years,
-    refyear,
-    pudl_settings,
-    bad_cols=(),
+    ferc1_to_sqlite_settings: Ferc1ToSqliteSettings = Ferc1ToSqliteSettings(),
+    pudl_settings=None,
     clobber=False,
     datastore=None
 ):
     """Clone the FERC Form 1 Databsae to SQLite.
 
     Args:
-        tables (iterable): What tables should be cloned?
-        years (iterable): Which years of data should be cloned?
-        refyear (int): Which database year to use as a template.
+        ferc1_to_sqlite_settings: Object containing Ferc1 to SQLite validated
+            settings.
         pudl_settings (dict): Dictionary containing paths and database URLs
             used by PUDL.
         bad_cols (iterable of tuples): A list of (table, column) pairs
@@ -586,22 +582,24 @@ def dbf2sqlite(
     sqlite_meta.reflect(sqlite_engine)
 
     # Get the mapping of filenames to table names and fields
-    logger.info(f"Creating a new database schema based on {refyear}.")
+    logger.info(
+        f"Creating a new database schema based on {ferc1_to_sqlite_settings.refyear}.")
     datastore = Ferc1Datastore(datastore)
-    dbc_map = get_dbc_map(datastore, refyear)
+    dbc_map = get_dbc_map(datastore, ferc1_to_sqlite_settings.refyear)
     define_sqlite_db(
         sqlite_engine=sqlite_engine,
         sqlite_meta=sqlite_meta,
         dbc_map=dbc_map,
         ds=datastore,
-        tables=tables,
-        refyear=refyear,
-        bad_cols=bad_cols
+        tables=ferc1_to_sqlite_settings.tables,
+        refyear=ferc1_to_sqlite_settings.refyear,
+        bad_cols=ferc1_to_sqlite_settings.bad_cols
     )
 
-    for table in tables:
+    for table in ferc1_to_sqlite_settings.tables:
         logger.info(f"Pandas: reading {table} into a DataFrame.")
-        new_df = get_raw_df(datastore, table, dbc_map, years=years)
+        new_df = get_raw_df(datastore, table, dbc_map,
+                            years=ferc1_to_sqlite_settings.years)
         # Because this table has no year in it, there would be multiple
         # definitions of respondents if we didn't drop duplicates.
         if table == 'f1_respondent_id':
