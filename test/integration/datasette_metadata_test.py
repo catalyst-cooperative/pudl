@@ -37,6 +37,10 @@ def test_metadata_script(script_runner, pudl_settings_fixture, pudl_engine):
     # Some examples:
     assert set(parsed_metadata['databases']) == set(["pudl", "ferc1"])
     assert parsed_metadata["license"] == "CC-BY-4.0"
+    assert parsed_metadata['databases']['pudl']['source_url'] == 'https://github.com/catalyst-cooperative/pudl'
+    assert parsed_metadata['databases']['pudl']['tables']['plants_entity_eia']['label_column'] == 'plant_name_eia'
+    for tbl_name in parsed_metadata['databases']['pudl']['tables']:
+        assert parsed_metadata['databases']['pudl']['tables'][tbl_name]['columns'] is not None
     # it sounded like Simon was going to add real validation for the Metadata, so
     # hopefully this test will automatically get upgraded to doing that when the change
     # happens, since I imagine it'll be embedded within parse_metadata()
