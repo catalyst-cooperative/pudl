@@ -11,6 +11,3 @@ dependencies:
   - setuptools<60.0.0
   - sqlite>=3.36,<4
   - tox>=3.24,<4
-  # Use pip to install the main PUDL repo / package for development:
-  - pip:
-    - --editable ../[doc,test,dev,datasette]
