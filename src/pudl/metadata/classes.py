@@ -1771,7 +1771,7 @@ class DatasetteMetadata(Base):
     Used to create metadata YAML file to accompany Datasette.
     """
 
-    data_sources: Dict[str, DataSource]
+    data_sources: List[DataSource]
     resources: List[Resource] = Package.from_resource_ids().resources
     label_columns: Dict[str, str] = {
         'plants_entity_eia': 'plant_name_eia',
@@ -1800,8 +1800,7 @@ class DatasetteMetadata(Base):
             extra_etl_groups: ETL groups with resources that should be included
         """
         # Compile a list of DataSource objects for use in the template
-        data_sources = {
-            ds_id: DataSource.from_id(ds_id) for ds_id in data_source_ids}
+        data_sources = [DataSource.from_id(ds_id) for ds_id in data_source_ids]
 
         # Instantiate all possible resources in a Package:
         pkg = Package.from_resource_ids()

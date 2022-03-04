@@ -22,18 +22,19 @@ license: {{ license.name }}
 license_url: {{ license['path'] }}
 databases:
   pudl:
+  {%- for pudl_ds in data_sources if pudl_ds.name == 'pudl' %}
     source: PUDL GitHub Repository
     source_url: https://github.com/catalyst-cooperative/pudl
-    about: {{ data_sources['pudl'].title }}
-    about_url: {{ data_sources['pudl'].path }}
-    license: {{ data_sources['pudl'].license_pudl.name }}
-    license_url: {{ data_sources['pudl'].license_pudl.path }}
+    about: {{ pudl_ds.title }}
+    about_url: {{ pudl_ds.path }}
+    license: {{ pudl_ds.license_pudl.name }}
+    license_url: {{ pudl_ds.license_pudl.path }}
     description_html: |
-      <p>{{ data_sources['pudl'].description  }}</p>
+      <p>{{ pudl_ds.description  }}</p>
       <p>This database contains cleaned and normalized data from...
       <ul>
-      {% for ds_id in data_sources if ds_id != 'pudl' -%}
-        <li><a href="{{ data_sources[ds_id].path }}">{{ data_sources[ds_id].title }}</a> ({{ data_sources[ds_id].get_temporal_coverage() }})</li>
+      {% for ds in data_sources if ds != 'pudl' -%}
+        <li><a href="{{ ds.path }}">{{ ds.title }}</a> ({{ ds.get_temporal_coverage() }})</li>
       {% endfor -%}
       </ul></p>
       <p>It was produced by
@@ -48,11 +49,12 @@ databases:
       <a href="https://github.com/catalyst-cooperative/pudl/issues">make an issue
       on GitHub</a> to let us know.</li>
       <li>You can reach the PUDL team at
-      <a href="mailto:{{ data_sources['pudl'].email }}">{{ data_sources['pudl'].email }}</a>.</li>
+      <a href="mailto:{{ pudl_ds.email }}">{{ pudl_ds.email }}</a>.</li>
       <li>If you find our work useful, please consider
       <a href="https://www.paypal.com/donate/?cmd=_s-xclick&hosted_button_id=PZBZDFNKBJW5E&source=url">making
       a recurring contribution</a> to support it.</li>
       </ul></p>
+  {% endfor -%}
     tables:
     {%- for resource in resources %}
       {{ resource.name }}:
@@ -72,17 +74,18 @@ databases:
         {%- endfor %}
     {%- endfor %}
   ferc1:
+  {%- for ferc_ds in data_sources if ferc_ds.name == 'ferc1' %}
     source: Raw FERC Form 1 DBF Files
     source_url: https://doi.org/10.5281/zenodo.4127044
-    about: {{ data_sources['ferc1'].title }}
-    about_url: {{ data_sources['ferc1'].path }}
-    license: {{ data_sources['ferc1'].license_pudl.name }}
-    license_url: {{ data_sources['ferc1'].license_pudl.path }}
+    about: {{ ferc_ds.title }}
+    about_url: {{ ferc_ds.path }}
+    license: {{ ferc_ds.license_pudl.name }}
+    license_url: {{ ferc_ds.license_pudl.path }}
     description_html: |
-      <p>{{ data_sources['ferc1'].description }}</p>
+      <p>{{ ferc_ds.description }}</p>
       <p>This database is a concatenation of all the individual annual
-      <a href="{{ data_sources['ferc1'].path }}">{{ data_sources['ferc1'].title }}</a> Visual FoxPro
-      databases published from {{ data_sources['ferc1'].get_temporal_coverage() }}. It has been minimally altered
+      <a href="{{ ferc_ds.path }}">{{ ferc_ds.title }}</a> Visual FoxPro
+      databases published from {{ ferc_ds.get_temporal_coverage() }}. It has been minimally altered
       to allow all years of data to coexist in the same database. It contains a
       wealth of data about the operating costs and financial structures of US
       electric utilities, much of which is not publicly available from any
@@ -105,6 +108,7 @@ databases:
       <a href="https://www.paypal.com/donate/?cmd=_s-xclick&hosted_button_id=PZBZDFNKBJW5E&source=url">making
       a recurring contribution</a> to support it.</li>
       </ul></p>
+  {% endfor -%}
     tables:
       f1_respondent_id:
         label_column: respondent_name
