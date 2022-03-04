@@ -54,7 +54,7 @@ databases:
       a recurring contribution</a> to support it.</li>
       </ul></p>
     tables:
-    {%- for resource in package.resources %}
+    {%- for resource in resources %}
       {{ resource.name }}:
       {%- if resource.description is not none %}
         description_html: |

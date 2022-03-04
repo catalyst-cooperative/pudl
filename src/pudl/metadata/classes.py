@@ -1772,8 +1772,15 @@ class DatasetteMetadata(Base):
     """
 
     data_sources: Dict[str, DataSource]
-    resource_package: Package = Package.from_resource_ids()
-    label_columns: Dict[str, str]
+    resources: List[Resource] = Package.from_resource_ids().resources
+    label_columns: Dict[str, str] = {
+        'plants_entity_eia': 'plant_name_eia',
+        'plants_ferc1': 'plant_name_ferc1',
+        'plants_pudl': 'plant_name_pudl',
+        'utilities_entity_eia': 'utility_name_eia',
+        'utilities_ferc1': 'utility_name_ferc1',
+        'utilities_pudl': 'utility_name_pudl'
+    }
 
     @classmethod
     def from_data_source_ids(
@@ -1781,15 +1788,7 @@ class DatasetteMetadata(Base):
         data_source_ids: Iterable[str] = [
             'pudl', 'ferc1', 'eia860', 'eia860m', 'eia923'],
         extra_etl_groups: Iterable[str] = [
-            'entity_eia', 'glue', 'static_eia', 'static'],
-        label_columns: Dict[str, str] = {
-            'plants_entity_eia': 'plant_name_eia',
-            'plants_ferc1': 'plant_name_ferc1',
-            'plants_pudl': 'plant_name_pudl',
-            'utilities_entity_eia': 'utility_name_eia',
-            'utilities_ferc1': 'utility_name_ferc1',
-            'utilities_pudl': 'utility_name_pudl'
-        }
+            'entity_eia', 'glue', 'static_eia', 'static']
     ) -> "DatasetteMetadata":
         """
         Construct a dictionary of DataSources from data source names.
@@ -1798,20 +1797,23 @@ class DatasetteMetadata(Base):
 
         Args:
             data_source_ids: ids of data sources currently included in Datasette
-            label_columns: map from resource to column name for link label
+            extra_etl_groups: ETL groups with resources that should be included
         """
+        # Compile a list of DataSource objects for use in the template
         data_sources = {
             ds_id: DataSource.from_id(ds_id) for ds_id in data_source_ids}
-        resource_ids = []
-        for name in data_source_ids + extra_etl_groups:
-            resource_ids += DataSource(name=name,
-                                       license_raw=LICENSES["us-govt"],
-                                       license_pudl=LICENSES["cc-by-4.0"]).get_resource_ids()
-        resource_package = Package.from_resource_ids(tuple(resource_ids))
+
+        # Instantiate all possible resources in a Package:
+        pkg = Package.from_resource_ids()
+        # Grab a list of just the resources we want to output:
+        resources = [
+            res for res in pkg.resources
+            if res.etl_group in data_source_ids + extra_etl_groups
+        ]
         return cls(
             data_sources=data_sources,
-            resource_package=resource_package,
-            label_columns=label_columns)
+            resources=resources
+        )
 
     def to_yaml(self, path: str) -> None:
         """Output database, table, and column metadata to YAML file."""
@@ -1819,7 +1821,7 @@ class DatasetteMetadata(Base):
         rendered = template.render(
             license=LICENSES["cc-by-4.0"],
             data_sources=self.data_sources,
-            package=self.resource_package,
+            resources=self.resources,
             label_columns=self.label_columns)
         if path:
             Path(path).write_text(rendered)
