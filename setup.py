@@ -99,6 +99,9 @@ setup(
             "responses~=0.14",
             "tox~=3.20",
         ],
+        "datasette": [
+            "datasette~=0.6"
+        ]
     },
     classifiers=[
         "Development Status :: 3 - Alpha",
