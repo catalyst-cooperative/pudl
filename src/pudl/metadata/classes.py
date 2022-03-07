@@ -1109,7 +1109,7 @@ class Resource(Base):
                              "ferc1", "ferc714", "glue", "pudl"] = None
     etl_group: Literal["eia860", "eia861", "eia923", "entity_eia",
                        "epacems", "ferc1", "ferc1_disabled", "ferc714", "glue",
-                       "static", "static_eia"] = None
+                       "static_ferc1", "static_eia"] = None
 
     _check_unique = _validator(
         "contributors",
@@ -1788,7 +1788,7 @@ class DatasetteMetadata(Base):
         data_source_ids: Iterable[str] = [
             'pudl', 'ferc1', 'eia860', 'eia860m', 'eia923'],
         extra_etl_groups: Iterable[str] = [
-            'entity_eia', 'glue', 'static_eia', 'static']
+            'entity_eia', 'glue', 'static_eia', 'static_ferc1']
     ) -> "DatasetteMetadata":
         """
         Construct a dictionary of DataSources from data source names.
