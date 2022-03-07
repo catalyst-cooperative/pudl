@@ -33,7 +33,7 @@ databases:
       <p>{{ pudl_ds.description  }}</p>
       <p>This database contains cleaned and normalized data from...
       <ul>
-      {% for ds in data_sources if ds != 'pudl' -%}
+      {% for ds in data_sources if ds.name != 'pudl' -%}
         <li><a href="{{ ds.path }}">{{ ds.title }}</a> ({{ ds.get_temporal_coverage() }})</li>
       {% endfor -%}
       </ul></p>
