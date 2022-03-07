@@ -328,6 +328,7 @@ SOURCES: Dict[str, Any] = {
             CONTRIBUTORS["christina-gosnell"],
             CONTRIBUTORS["steven-winter"],
         ],
+        "field_namespace": "pudl",
         "keywords": ["us", "electricity", "open data", "open source"],
         "license_raw": LICENSES["cc-by-4.0"],
         "license_pudl": LICENSES["cc-by-4.0"],
