@@ -99,6 +99,9 @@ setup(
             "responses~=0.14",
             "tox~=3.20",
         ],
+        "datasette": [
+            "datasette~=0.60",
+        ]
     },
     classifiers=[
         "Development Status :: 3 - Alpha",
@@ -125,6 +128,7 @@ setup(
             "metadata_to_rst = pudl.convert.metadata_to_rst:main",
             "epacems_to_parquet = pudl.convert.epacems_to_parquet:main",
             "ferc1_to_sqlite = pudl.convert.ferc1_to_sqlite:main",
+            "metadata_to_yml = pudl.convert.metadata_to_yml:main",
             "pudl_datastore = pudl.workspace.datastore:main",
             "pudl_etl = pudl.cli:main",
             "pudl_setup = pudl.workspace.setup_cli:main",
