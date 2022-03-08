@@ -45,9 +45,6 @@ which one is right for you and your use case.
      - Run the PUDL data processing pipeline on your own computer.
        Edit the PUDL source code and run the software tests and data validations.
        Integrate a new data source or newly released data from one of existing sources.
-   * - :ref:`access-datapackage`
-     - Deprecated
-     - For working with our published data prior to v0.4.0
 
 .. _access-datasette:
 
@@ -140,18 +137,3 @@ development environment. This is a bit involved, so it has its
 Most users shouldn't need to do this, and will probably find working with the
 pre-processed data via one of the other access modes easier. But if you want to
 :doc:`contribute to the project <CONTRIBUTING>` please give it a shot!
-
-.. _access-datapackage:
-
----------------------------------------------------------------------------------------
-Data Packages
----------------------------------------------------------------------------------------
-
-Prior to v0.4.0 of PUDL we only published processed data as `tabular data
-packages <https://frictionlessdata.io/specs/tabular-data-package/>`__.  In PUDL
-v0.4.0 we switched to distributing the SQLite databases and Apache Parquet files
-derived from data packages.
-
-As of PUDL v0.5.0 we will generate SQLite and Apache Parquet outputs directly,
-and will no longer be archiving tabular data packages as the format of record.
-See :issue:`1176,1211` for details on the change.

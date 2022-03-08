@@ -96,11 +96,8 @@ def main():  # noqa: C901
 
     pudl_settings["sandbox"] = args.sandbox
     pudl.extract.ferc1.dbf2sqlite(
-        tables=script_settings.tables,
-        years=script_settings.years,
-        refyear=script_settings.refyear,
+        ferc1_to_sqlite_settings=script_settings,
         pudl_settings=pudl_settings,
-        bad_cols=script_settings.bad_cols,
         clobber=args.clobber,
         datastore=Datastore(
             local_cache_path=(Path(pudl_in) / "data"),
