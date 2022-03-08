@@ -105,7 +105,7 @@ def test_plant_part():
     pd.testing.assert_frame_equal(plant_gen_ag_out, plant_gen_ag_expected)
 
 
-def test_mega_gens():
+def test_make_mega_gen_tbl():
     """Test the creation of the mega generator table.
 
     Integrates ownership with generators.
