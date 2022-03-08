@@ -8,6 +8,7 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 
+import datetime
 import shutil
 from pathlib import Path
 
@@ -31,7 +32,9 @@ release = pkg_resources.get_distribution('catalystcoop.pudl').version
 # -- Project information -----------------------------------------------------
 
 project = 'PUDL'
-copyright = '2016-2021, Catalyst Cooperative, CC-BY-4.0'  # noqa: A001
+copyright = (  # noqa: A001
+    f"2016-{datetime.date.today().year}, Catalyst Cooperative, CC-BY-4.0"
+)
 author = 'Catalyst Cooperative'
 
 # -- General configuration ---------------------------------------------------
