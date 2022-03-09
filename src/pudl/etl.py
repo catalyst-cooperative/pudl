@@ -94,21 +94,21 @@ def _etl_eia(
     ds = Datastore(**ds_kwargs)
     # Extract EIA forms 923, 860
     eia923_raw_dfs = pudl.extract.eia923.Extractor(ds).extract(
-        year=eia923_years)
+        settings=eia_settings.eia923)
     eia860_raw_dfs = pudl.extract.eia860.Extractor(ds).extract(
-        year=eia860_years)
+        settings=eia_settings.eia860)
     # if we are trying to add the EIA 860M YTD data, then extract it and append
     if eia860m:
         eia860m_raw_dfs = pudl.extract.eia860m.Extractor(ds).extract(
-            year_month=eia_settings.eia860.eia860m_date)
+            settings=eia_settings.eia860)
         eia860_raw_dfs = pudl.extract.eia860m.append_eia860m(
             eia860_raw_dfs=eia860_raw_dfs, eia860m_raw_dfs=eia860m_raw_dfs)
 
     # Transform EIA forms 923, 860
     eia860_transformed_dfs = pudl.transform.eia860.transform(
-        eia860_raw_dfs, eia860_tables=eia860_tables)
+        eia860_raw_dfs, eia860_settings=eia_settings.eia860)
     eia923_transformed_dfs = pudl.transform.eia923.transform(
-        eia923_raw_dfs, eia923_tables=eia923_tables)
+        eia923_raw_dfs, eia923_settings=eia_settings.eia923)
     # create an eia transformed dfs dictionary
     eia_transformed_dfs = eia860_transformed_dfs.copy()
     eia_transformed_dfs.update(eia923_transformed_dfs.copy())
@@ -121,9 +121,7 @@ def _etl_eia(
 
     entities_dfs, eia_transformed_dfs = pudl.transform.eia.transform(
         eia_transformed_dfs,
-        eia860_years=eia860_years,
-        eia923_years=eia923_years,
-        eia860m=eia860m,
+        eia_settings=eia_settings,
     )
     # Assign appropriate types to new entity tables:
     entities_dfs = {
@@ -198,7 +196,7 @@ def _etl_ferc1(
         pudl_settings=pudl_settings)
     # Transform FERC form 1
     ferc1_transformed_dfs = pudl.transform.ferc1.transform(
-        ferc1_raw_dfs, ferc1_tables=ferc1_settings.tables)
+        ferc1_raw_dfs, ferc1_settings=ferc1_settings)
 
     out_dfs.update(ferc1_transformed_dfs)
     return out_dfs

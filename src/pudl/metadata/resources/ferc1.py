@@ -30,7 +30,7 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
             "primary_key": ["ferc_account_id"],
         },
         "sources": ["ferc1"],
-        "etl_group": "static",
+        "etl_group": "static_ferc1",
         "field_namespace": "ferc1"
     },
     "ferc_depreciation_lines": {
@@ -41,7 +41,7 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
             "foreign_key_rules": {"fields": [["line_id"]]},
         },
         "sources": ["ferc1"],
-        "etl_group": "static",
+        "etl_group": "static_ferc1",
         "field_namespace": "ferc1"
     },
     "fuel_ferc1": {
@@ -373,7 +373,7 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
         },
         "encoder": CODE_METADATA["power_purchase_types_ferc1"],
         "sources": ["ferc1"],
-        "etl_group": "static",
+        "etl_group": "static_ferc1",
         "field_namespace": "ferc1"
     },
     "purchased_power_ferc1": {
