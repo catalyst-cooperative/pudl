@@ -85,6 +85,7 @@ def test_plant_part():
     pd.testing.assert_frame_equal(
         plant_prime_mover_ag_out, plant_prime_mover_ag_expected)
 
+    # test aggregation by plant gen
     plant_gen_ag_out = (
         pudl.analysis.plant_parts_eia.PlantPart(part_name='plant_gen')
         .ag_part_by_own_slice(
