@@ -6,6 +6,7 @@ import logging
 import pkg_resources
 
 import pudl.analysis.allocate_net_gen
+import pudl.analysis.clean_up_ferc1
 import pudl.analysis.mcoe
 import pudl.analysis.service_territory
 import pudl.analysis.spatial

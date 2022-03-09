@@ -13,7 +13,7 @@ In the case of the small generators table, this module will:
 separate for comparison purposes -- plant_type for Zane's manual effort and plant_type_2
 for my programatic scrape).
 4) Extract FERC license number from plant name (and put them in a column called
-ferc_license not to be confused with Zane's manual ferc_license_manual column kept for
+ferc_license_id not to be confused with Zane's manual ferc_license_manual column kept for
 comparison purposes.
 5) Associate notes rows with their respective value rows (this also applies to FERC
 license numbers that appear in the notes. The association is done via the presence of
@@ -22,34 +22,34 @@ footnotes like (a), (b), etc. and therefore does not catch and associate every n
 or not).
 
 For example, this module can take a table that looks like this:
-+-------------------+------------+--------------+
-| plant_name_ferc1  | plant_type | ferc_license |
-+===================+============+==============+
-| HYDRO:            | NA         | NA           |
-+-------------------+------------+--------------+
-| rainbow falls (b) | NA         | NA           |
-+-------------------+------------+--------------+
-| cadyville (a)     | NA         | NA           |
-+-------------------+------------+--------------+
-| keuka (c)         | NA         | NA           |
-+-------------------+------------+--------------+
-| (a) project #2738 | NA         | NA           |
-+-------------------+------------+--------------+
-| (b) project #2835	| NA         | NA           |
-+-------------------+------------+--------------+
-| (c) project #2852 | NA         | NA           |
-+-------------------+------------+--------------+
++-------------------+------------+-----------------+
+| plant_name_ferc1  | plant_type | ferc_license_id |
++===================+============+=================+
+| HYDRO:            | NA         | NA              |
++-------------------+------------+-----------------+
+| rainbow falls (b) | NA         | NA              |
++-------------------+------------+-----------------+
+| cadyville (a)     | NA         | NA              |
++-------------------+------------+-----------------+
+| keuka (c)         | NA         | NA              |
++-------------------+------------+-----------------+
+| (a) project #2738 | NA         | NA              |
++-------------------+------------+-----------------+
+| (b) project #2835	| NA         | NA              |
++-------------------+------------+-----------------+
+| (c) project #2852 | NA         | NA              |
++-------------------+------------+-----------------+
 
 And turn it into this:
-+-------------------+------------+--------------+
-| plant_name_ferc1  | plant_type | ferc_license |
-+===================+============+==============+
-| rainbow falls (b) | hydro      | 2835         |
-+-------------------+------------+--------------+
-| cadyville (a)     | hydro      | 2738         |
-+-------------------+------------+--------------+
-| keuka (c)         | hydro      | 2852         |
-+-------------------+------------+--------------+
++-------------------+------------+-----------------+
+| plant_name_ferc1  | plant_type | ferc_license_id |
++===================+============+=================+
+| rainbow falls (b) | hydro      | 2835            |
++-------------------+------------+-----------------+
+| cadyville (a)     | hydro      | 2738            |
++-------------------+------------+-----------------+
+| keuka (c)         | hydro      | 2852            |
++-------------------+------------+-----------------+
 
 This module is indented as a hub for some of the more drastic cleaning measures
 required to make the data from FERC Form 1 useful.
@@ -233,17 +233,17 @@ def show_removed_rows(df_pre_drop, df_post_drop, cols, message, view=None):
 def remove_bad_rows_sg(sg_df, show_removed=False):
     """Test."""
     # Remove utilities with all NAN rows because these won't contain anything meaningful
-    logger.info("Removing rows where an entire utility has reported NA in key columns")
+    logger.debug("Removing rows where an entire utility has reported NA in key columns")
     sg_clean1 = (
         sg_df.groupby('utility_id_ferc1')
         .filter(lambda x: ~x[NAN_COLS].isna().all().all()))
 
     # Remove rows with three or more dashes for plant name
-    logger.info("Removing rows with three or more dashes for plant name")
+    logger.debug("Removing rows with three or more dashes for plant name")
     sg_clean2 = sg_clean1[~sg_clean1['plant_name_ferc1'].str.contains('---')].copy()
 
     # Remove rows with NA for plant names
-    logger.info("Removing rows with NA for plant name")
+    logger.debug("Removing rows with NA for plant name")
     na_names_list = ['', 'none', 'na', 'n/a', 'not applicable']
     sg_clean3 = sg_clean2[~sg_clean2['plant_name_ferc1'].isin(na_names_list)].copy()
 
@@ -275,7 +275,8 @@ def _label_total_rows_sg(sg_df):
     bad_row = sg_df[
         (sg_df['plant_name_ferc1'].str.contains("amounts are for"))
         & (sg_df['capacity_mw'] > 0)]
-    assert len(bad_row) == 1, 'found more bad rows than expected'
+
+    # assert len(bad_row) == 1, f'found more bad rows than expected: {len(bad_row)}'
 
     sg_df.loc[bad_row.index, num_cols] = sg_df.loc[bad_row.index - 1][num_cols].values
     sg_df.loc[bad_row.index - 1, num_cols] = np.nan
@@ -435,7 +436,7 @@ def _label_notes_rows_sg(sg_df):
                 # then drop it from the idx range
                 if is_middle_clump & is_good_header:
                     idx_range = [x for x in idx_range if x != idx_range.max()]
-                # Label the clump as a clump
+                # Label the clump as a note
                 util_year_group.loc[
                     util_year_group.index.isin(idx_range), 'row_type'] = 'note'
 
@@ -467,7 +468,12 @@ def _map_header_fuels_sg(sg_df, show_unmapped_headers=False):
     """Apply the plant type indicated in the header row to the relevant rows.
 
     This function groups the data by utility, year, and header and forward fills the
-    cleaned plant type based on that.
+    cleaned plant type based on that. As long as each utility year group that uses a
+    header for one plant type also uses headers for other plant types this will work.
+    I.e., if a utility's plant_name_ferc1 column looks like this: [STEAM, coal_plant1,
+    coal_plant2, wind_turbine1], this algorythem will think that wind turbine is steam.
+    Ideally (also usually) if they label one, they will label all. The ideal version is:
+    [STEAM, coal_plant1, coal_plant2, WIND, wind_turbine].
 
     Right now, this function puts the new header plant type into a column called
     plant_type_2. This is so we can compare against the current plant_type column
@@ -559,12 +565,12 @@ def extract_ferc_license_sg(sg_df):
     # Extract all numbers greater than 2 digits from plant_name_ferc1 and put then in a
     # new column as integers. Rename manually collected FERC id column to reflect that.
     sg_lic = (
-        sg_df.assign(
-            ferc_license=lambda x: (
+        sg_df.rename(columns={'ferc_license_id': 'ferc_license_manual'})
+        .assign(
+            ferc_license_id=lambda x: (
                 x.plant_name_ferc1.str.extract(r'(\d{3,})')
                 .astype('float').astype('Int64')),
-            ferc_license_id=lambda x: x.ferc_license_id.astype('Int64'))
-        .rename(columns={'ferc_license_id': 'ferc_license_manual'}))
+            ferc_license_manual=lambda x: x.ferc_license_manual.astype('Int64')))
 
     # Not all of these 3+ digit numbers are FERC licenses. Some are dates, dollar
     # amounts, page numbers, or numbers of wind turbines. These next distinctions help
@@ -579,25 +585,26 @@ def extract_ferc_license_sg(sg_df):
         sg_lic.plant_name_ferc1
         .str.contains(
             r'tomahawk|otter rapids|wausau|alexander|hooksett|north umpqua', regex=True))
-    year_vs_num = (sg_lic['ferc_license'] > 1900) & (sg_lic['ferc_license'] < 2050)
+    year_vs_num = (sg_lic['ferc_license_id'] > 1900) & (
+        sg_lic['ferc_license_id'] < 2050)
     not_hydro = ~sg_lic.plant_type.isin(['hydro', np.nan])  # figure this one out.....
-    extracted_license = sg_lic.ferc_license.notna()
+    extracted_license = sg_lic.ferc_license_id.notna()
 
     # Replace all the non-license numbers with nan
     # figure this one out.....
-    sg_lic.loc[extracted_license & not_hydro, 'ferc_license'] = pd.NA
-    extracted_license = sg_lic.ferc_license.notna()  # reset
-    sg_lic.loc[extracted_license & not_license, 'ferc_license'] = pd.NA
-    extracted_license = sg_lic.ferc_license.notna()  # reset
+    sg_lic.loc[extracted_license & not_hydro, 'ferc_license_id'] = pd.NA
+    extracted_license = sg_lic.ferc_license_id.notna()  # reset
+    sg_lic.loc[extracted_license & not_license, 'ferc_license_id'] = pd.NA
+    extracted_license = sg_lic.ferc_license_id.notna()  # reset
     sg_lic.loc[
         extracted_license
         & year_vs_num
         & ~obvious_license
-        & ~exceptions, 'ferc_license'
+        & ~exceptions, 'ferc_license_id'
     ] = pd.NA
 
     # figure out how not to do this twice....
-    sg_lic['ferc_license'] = sg_lic.ferc_license.astype('Int64')
+    sg_lic['ferc_license_id'] = sg_lic.ferc_license_id.astype('Int64')
 
     return sg_lic
 
@@ -638,16 +645,17 @@ def associate_notes_with_values_sg(sg_df):
                 group[has_note]
                 .groupby('footnote')
                 .agg({'plant_name_ferc1': ', '.join,
-                      'ferc_license': 'first'})
+                      'ferc_license_id': 'first'})
                 .rename(columns={'plant_name_ferc1': 'notes'}))
 
-            # Map these new licnese and note values onto the original df
-            updated_ferc_license_col = group.footnote.map(footnote_df['ferc_license'])
+            # Map these new license and note values onto the original df
+            updated_ferc_license_col = group.footnote.map(
+                footnote_df['ferc_license_id'])
             notes_col = group.footnote.map(footnote_df['notes'])
             # We update the ferc lic col because some were already there from the
             # plant name extraction. However, we want to override with the notes
             # ferc licenses because they are more likely to be accurate.
-            group.ferc_license.update(updated_ferc_license_col)
+            group.ferc_license_id.update(updated_ferc_license_col)
             group.loc[regular_row, 'notes'] = notes_col
 
         return group
@@ -700,7 +708,6 @@ def clean_small_gens(sg_df, keep_totals=True):
 
     """
     logger.info('CLEANING SMALL GENS TABLE...')
-    # sg_df = sg_df.rename(columns={'ferc_license_id': 'ferc_license_manual'})
     sg_clean = (
         sg_df.dropna(subset=['plant_name_ferc1'])
         .pipe(remove_bad_rows_sg)
