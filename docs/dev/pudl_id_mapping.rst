@@ -7,14 +7,14 @@ The Status of FERC 1 and EIA IDs
 
 Many of the same utilities are reporting data to FERC and EIA, but there is no official
 crosswalk file or universal ID to connect the records and obtain information from both
-sources in one table. The EIA uses internally developed IDs to distinguish the utilities
-and plants that report to them over time. These IDs are useful for parsing EIA data, but
-they are not connected to utility and plant data reported elsewhere. FERC Form 1 uses a
+sources in one table. The EIA assigns their own IDs to distinguish the utilities and
+plants that report to them over time. These IDs are useful for parsing EIA data, but
+they are not connected to utility and plant data reported by FERC. FERC Form 1 uses a
 respondent ID to keep track of utilities, but it does not have an ID system in place to
 keep track of unique plants or records over time.
 
-Why is this significant? Without plant IDs, you can’t track plant characteristics over
-time. Without shared plant IDs, you can’t develop a holistic understanding of individual
+Why is this significant? Without plant IDs, you can't track plant characteristics over
+time. Without shared plant IDs, you can't develop a holistic understanding of individual
 plants based on the data they report to different entities. Linking the financial
 information from FERC 1 with the operational data from EIA923 and EIA860 for instance
 helps us cultivate a more complete picture of the marginal cost of electricity.
@@ -25,11 +25,11 @@ PUDL IDs
 To make the data from FERC 1 and EIA more usable and interchangeable, we have developed
 universal ``plant_id_pudl`` and ``utility_id_pudl`` values that are the same across
 datasets. The IDs are assigned via a manual mapping process that is codified in a
-spreadsheet called ``pudl_id_mapping.xlsx`` located in the ``pudl/package_data/glue``
-directory. This spreadsheet contains all unique plant and utility names reported to FERC
-and EIA from the oldest to the newest year of data we’ve collected for each data source.
+spreadsheet located at ``pudl/package_data/glue/pudl_id_mapping.xlsx``. This spreadsheet
+contains all unique plant and utility names reported to FERC and EIA from the oldest to
+the newest year of data we've collected for each data source.
 
-In addition to mapping universal IDs onto plant and utility records, this spreadsheets
+In addition to mapping universal IDs onto plant and utility records, this spreadsheet
 assigns universal plant and utility names to each record.
 
 The spreadsheet has two tabs, one for mapping utilities and one for mapping plants. We
@@ -41,13 +41,13 @@ Plants, as defined by this mapping process, are considered co-located generation
 Records that have the same ``plant_id_eia`` should also have the same ``plant_id_pudl``.
 
 .. warning::
-    PUDL IDs should never be hard-coded into any analysis or transformation
-    functions as they may come to represent different plants or utilities as new records are
-    added and mapped.
+    PUDL IDs should never be hard-coded into any analysis or transformation functions as
+    they may come to represent different plants or utilities as new records are added
+    and mapped.
 
 PUDL IDs are not static. They identify unique plants/utilities in a given iteration of
 the data, but they may not remain exactly the same over time. The spreadsheet assigns
-PUDL IDs based on a record’s position in the spreadsheet, so if you change the PUDL ID
+PUDL IDs based on a record's position in the spreadsheet, so if you change the PUDL ID
 of a record in the middle, it will change the PUDL ID of all those below it (unless they
 are referencing a PUDL ID that already exists)
 
@@ -58,7 +58,7 @@ are referencing a PUDL ID that already exists)
 
 The :mod:`pudl.glue.ferc1_eia` module is where most of the spreadsheet coordination
 happens after the records are manually mapped. It also contains the functions that
-determine whether plants/utilities have or haven’t been mapped.
+determine whether plants/utilities have or haven't been mapped.
 
 
 Checking for Unmapped Records
@@ -67,8 +67,8 @@ Checking for Unmapped Records
 With every new year of data comes the possibility of new plants and utilities. Once
 you’ve integrated the new data into PUDL :doc:`(see these instructions)
 <annual_updates>`, you’ll need to check for unmapped utility and plants. To do this,
-run the :mod:`pudl.devtools.ferc1-eia-glue.find_unmapped_plants_utils` script in the
-top-level PUDL directory. You can add the ``--help`` flag for more information.
+run the ``find_unmapped_plants_utils.py`` script. You can add the ``--help`` flag for
+more information. From the top level directory in the PUDL repository:
 
 .. code-block:: console
 
@@ -76,7 +76,7 @@ top-level PUDL directory. You can add the ``--help`` flag for more information.
 
 This script identifies plants and utilities which exist in the updated FERC 1 and EIA
 datasets that do not yet appear in ``pudl_id_mapping.xlsx``. The script will output four
-CSV’s in the ``devtools/ferc-eia-glue`` directory that correspond to unmapped plants and
+CSVs in the ``devtools/ferc1-eia-glue`` directory that correspond to unmapped plants and
 utilities from FERC 1 and EIA.
 
 
@@ -86,6 +86,12 @@ Assigning PUDL IDs to Unmapped Records
 Here comes the manually intensive part of the process! Now we must ensure that 1) every
 record gets assigned a PUDL ID and 2) that records pertaining to the same plant have the
 same PUDL ID.
+
+.. warning::
+    The ordering of the rows in the mapping spreadsheet is important. **YOU MUST NOT
+    SORT THE PUDL ID MAPPING SPREADSHEET**, as it will change the values of many
+    assigned IDs. If you need to view only a subset of the data in the sheet for ease of
+    mapping you can filter it.
 
 Mapping Plants
 ^^^^^^^^^^^^^^
@@ -101,6 +107,8 @@ columns and paste them at the bottom of the corresponding columns in the plants 
 the ``pudl_id_mapping.xlsx`` spreadsheet. Next drag the auto-incrementing formula in the
 ``plant_id_pudl`` column and the naming formula in the ``plant_name_pudl`` column so
 that all new records are automatically assigned PUDL plant names and unique PUDL IDs.
+You should also drag the ``find_plant_id_eia_matches`` formula down, which we'll use in
+the next step.
 
 In previous iterations of the spreadsheet, matching FERC and EIA records were placed in
 the same row with the FERC version in the FERC columns and the EIA version in the EIA
@@ -119,9 +127,9 @@ and ``Hancock Peaker``), it is not uncommon for multiple records to share a PUDL
 mentioned above, plants with the same EIA ID should also have the same PUDL ID. The cell
 formula that assigns PUDL IDs does not account for this, but there is a column,
 ``find_plant_id_eia_matches``, in the ``pudl_id_mapping`` spreadsheet that will look for
-past instances of the same ``plant_id_eia``. Drag this formula down so that it checks
-all the new records. If it finds a match, update the newer record to have the same PUDL
-ID.
+past instances of the same ``plant_id_eia``. If you haven't already, drag this formula
+down so that it checks all the new records. If it finds a match, update the newer record
+to have the same PUDL ID.
 
 .. note::
     To save time, we’re only linking plants with a capacity of 5 MW or higher. Because
@@ -137,12 +145,14 @@ for a piece can help catch misspellings in the plant name, which are more common
 in the FERC records.
 
     * **If a record has the same plant and utility name as another record:**
-         assign it the same PUDL ID as the other record by referencing the cell location
-         of the other record’s PUDL ID. If the new plant name is similar in that it’s a
-         different unit or a part of a facility that uses a different fuel type (e.g.
-         ``Conemaugh (Steam)`` and ``Conemaugh (CT)``, they should still share the same
-         PUDL ID. That’s because co-located fossil-fueled generators are considered
-         parts of the same plant.
+        assign it the same PUDL ID as the other record **by reference** to the cell in
+        which the first instance of that PUDL ID appears. **Never simply enter the PUDL
+        ID as a number**, as it will not update automatically when IDs change due to
+        re-mapping or other alterations. If the new plant name is similar in that it’s a
+        different unit or a part of a facility that uses a different fuel type (e.g.
+        ``Conemaugh (Steam)`` and ``Conemaugh (CT)``, they should still share the same
+        PUDL ID. That’s because co-located fossil-fueled generators are considered parts
+        of the same plant.
 
     * **If the plant name looks similar but there are discrepancies:**
         such as different operators (e.g. a facility ``keystone`` with operators
@@ -151,6 +161,11 @@ in the FERC records.
         that’s indeterminate, you can Google the plant to see if it has the same
         location or if there is ownership or construction history that helps determine
         if the facilities are the same or co-located.
+
+    * **If co-located EIA plants have distinct plant IDs and no FERC 1 plant:**
+        they should not be lumped under a single PUDL Plant ID, as that artificially
+        reduces the granularity of data without providing any additional linkage to
+        other datasets.
 
 Mapping Utilities
 ^^^^^^^^^^^^^^^^^
@@ -169,7 +184,7 @@ information goes in the right-hand columns.
 
 Next, you'll have to manually assign ``utility_id_pudl`` values to each row. There is no
 formula you can drag down, so just find the largest ``utility_id_pudl`` and create new
-values going up from there. To double check whether a utility has already appeared,
+values incrementing from there. To double check whether a utility has already appeared,
 drag down the formulas in the ``check_utility_id_ferc1`` and ``check_utility_id_eia``
 columns. If there's a match, the correct ``utility_id_pudl`` will show up in the column,
 and you can create a reference to the original ``utility_id_pudl`` assignment above.
@@ -182,11 +197,12 @@ Testing Newly Mapped Records
 
 Before you integrate these newly mapped records into the PUDL database, you'll want to
 run some basic tests in the command line to make sure you've covered all of the unmapped
-entities.
+entities. This command assumes that you have all of the new EIA data loaded into your
+live PUDL DB, and all of the new FERC 1 data loaded into your cloned FERC 1 DB:
 
 .. code-block:: console
 
-    $ pytest test/integration/glue_test.py
+    $ pytest --live-dbs test/integration/glue_test.py
 
 Integrating Newly Mapped Records into PUDL
 ------------------------------------------
