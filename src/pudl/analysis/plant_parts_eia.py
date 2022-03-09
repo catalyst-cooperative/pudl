@@ -184,37 +184,6 @@ OR make the table via objects in this module:
     plant_parts_eia = parts_compiler.execute(gens_mega=gens_mega, true_grans=true_grans)
 
 
-**Test Example**
-
->>> gens_mega = pd.DataFrame({
-...     'plant_id_eia': [1, 1, 1, 1],
-...     'report_date': ['2020-01-01', '2020-01-01', '2020-01-01', '2020-01-01',],
-...     'utility_id_eia': [111, 111, 111, 111],
-...     'generator_id': ['a', 'b', 'c', 'd'],
-...     'prime_mover_code': ['ST', 'GT', 'CT', 'CA'],
-...     'energy_source_code_1': ['BIT', 'NG', 'NG', 'NG'],
-...     'ownership': ['total', 'total', 'total', 'total',],
-...     'operational_status_pudl': ['operating', 'operating', 'operating', 'operating'],
-...     'capacity_mw': [400, 50, 125, 75],
-... }).astype({
-...     'report_date': 'datetime64[ns]',
-... })
->>> gens_mega
-    plant_id_eia   report_date 	utility_id_eia 	generator_id 	prime_mover_code 	energy_source_code_1 	ownership 	operational_status_pudl 	capacity_mw
-0 	           1    2020-01-01 	           111 	           a 	              ST 	                 BIT 	    total 	              operating 	        400
-1 	           1    2020-01-01 	           111 	           b 	              GT 	                  NG 	    total 	              operating 	         50
-2 	           1    2020-01-01 	           111 	           c 	              CT 	                  NG 	    total 	              operating 	        125
-3 	           1    2020-01-01 	           111 	           d 	              CA 	                  NG 	    total 	              operating 	         75
-
-The ``plant`` output would look something like this:
-
-.. code-block:: python
-
-    >>> PlantPart(part_name='plant').ag_part_by_own_slice(gens_mega, sum_cols=['capacity_mw'], wtavg_dict={})
-        plant_id_eia    report_date    operational_status_pudl    utility_id_eia    ownership    capacity_mw
-    0 	           1 	 2020-01-01 	             operating 	             111        total          650.0
-
-
 """
 
 import logging
@@ -401,21 +370,9 @@ class MakeMegaGenTbl(object):
 
     **Output Mega Generators Table**
 
-    .. code-block:: python
-
-        >>> MakeMegaGenTbl().execute(mcoe, df_own_eia860, slice_cols=['capacity_mw'])
-            plant_id_eia    report_date   generator_id 	unit_id_pudl 	prime_mover_code 	          technology_description    operational_status    retirement_date    capacity_mw    ferc_acct_name    operational_status_pudl    capacity_eoy_mw    fraction_owned    utility_id_eia    ownership
-        0         	   1 	 2020-01-01 	         a   	       1 	              CT 	Natural Gas Fired Combined Cycle              existing                NaT           50.0             Other                  operating                 50              1.00               111        owned
-        1         	   1 	 2020-01-01 	         b   	       1 	              CT 	Natural Gas Fired Combined Cycle              existing                NaT           50.0             Other                  operating                 50              1.00               111        owned
-        2         	   1 	 2020-01-01 	         c   	       1 	              CA 	Natural Gas Fired Combined Cycle              existing                NaT           75.0             Other                  operating                100              0.75               111        owned
-        3         	   1 	 2020-01-01 	         c   	       1 	              CA 	Natural Gas Fired Combined Cycle              existing                NaT           25.0             Other                  operating                100              0.25               888        owned
-        0         	   1 	 2020-01-01 	         a   	       1 	              CT 	Natural Gas Fired Combined Cycle              existing                NaT           50.0             Other                  operating                 50              1.00               111        total
-        1         	   1 	 2020-01-01 	         b   	       1 	              CT 	Natural Gas Fired Combined Cycle              existing                NaT           50.0             Other                  operating                 50              1.00               111        total
-        2         	   1 	 2020-01-01 	         c   	       1 	              CA 	Natural Gas Fired Combined Cycle              existing                NaT          100.0             Other                  operating                100              1.00               111        total
-        3         	   1 	 2020-01-01 	         c   	       1 	              CA 	Natural Gas Fired Combined Cycle              existing                NaT          100.0             Other                  operating                100              1.00               888        total
-
-    This output table ``gens_mega`` includes two main sections: the
-    generators with a "total" ownership stake for each of their owners and
+    ``MakeMegaGenTbl().execute(mcoe, df_own_eia860, slice_cols=['capacity_mw'])``
+    produces the output table ``gens_mega`` which includes two main sections:
+    the generators with a "total" ownership stake for each of their owners and
     the generators with an "owned" ownership stake for each of their
     owners. For the generators that are owned 100% by one utility, the
     records are identical except the ``ownership`` column. For the
@@ -423,6 +380,7 @@ class MakeMegaGenTbl(object):
     with 100% of the capacity of that generator - one for each owner - and
     two "owned" records with the capacity scaled to the ownership stake
     of each of the owner utilites - represented by ``fraction_owned``.
+
     """
 
     def __init__(self):
@@ -1154,52 +1112,8 @@ class PlantPart(object):
     2 	           1    2020-01-01 	           111 	           c 	              CT 	                  NG 	    total 	              operating 	        125
     3 	           1    2020-01-01 	           111 	           d 	              CA 	                  NG 	    total 	              operating 	         75
 
-    The ``plant`` output would look something like this:
-
-    .. code-block:: python
-
-        >>> PlantPart(part_name='plant').ag_part_by_own_slice(gens_mega, sum_cols=['capacity_mw'], wtavg_dict={})
-            plant_id_eia    report_date    operational_status_pudl    utility_id_eia    ownership    capacity_mw
-        0 	           1 	 2020-01-01 	             operating 	             111        total          650.0
-
-    The ``plant_primary_fuel`` output would look something like this:
-
-    .. code-block:: python
-
-        >>> PlantPart(part_name='plant_prime_fuel').ag_part_by_own_slice(gens_mega, sum_cols=['capacity_mw'], wtavg_dict={})
-            plant_id_eia 	energy_source_code_1 	report_date 	operational_status_pudl 	utility_id_eia 	ownership 	capacity_mw
-        0 	           1 	                 BIT 	 2020-01-01 	              operating 	           111 	    total 	      400.0
-        1 	           1 	                  NG 	 2020-01-01 	              operating 	           111 	    total 	      250.0
-
-    The ``plant_prime_mover`` output would look something like this:
-
-    .. code-block:: python
-
-        >>> PlantPart(part_name='plant_prime_mover').ag_part_by_own_slice(gens_mega, sum_cols=['capacity_mw'], wtavg_dict={})
-            plant_id_eia 	prime_mover_code 	report_date 	operational_status_pudl 	utility_id_eia 	ownership 	capacity_mw
-        0 	           1 	              CA 	 2020-01-01 	              operating 	           111 	    total 	       75.0
-        1 	           1 	              CT 	 2020-01-01 	              operating 	           111 	    total 	      125.0
-        2 	           1 	              GT 	 2020-01-01 	              operating 	           111 	    total 	       50.0
-        3 	           1 	              ST 	 2020-01-01 	              operating 	           111 	    total 	      400.0
-
-    The ``plant_gen`` output would look something like this:
-
-    .. code-block:: python
-
-        >>> PlantPart(part_name='plant_gen').ag_part_by_own_slice(gens_mega, sum_cols=['capacity_mw'], wtavg_dict={})
-            plant_id_eia 	generator_id 	report_date 	operational_status_pudl 	utility_id_eia 	ownership 	capacity_mw
-        0 	           1 	           a 	 2020-01-01 	              operating 	           111 	    total 	      400.0
-        1 	           1 	           b 	 2020-01-01 	              operating 	           111 	    total 	       50.0
-        2 	           1 	           c 	 2020-01-01 	              operating 	           111 	    total 	      125.0
-        3 	           1 	           d 	 2020-01-01 	              operating 	           111 	    total 	       75.0
-
-    You may notice that the outputs for the ``plant_prime_mover`` and
-    ``plant_gen`` are similar records - because they both correspond to the
-    same set of underlying generators. These are the types of records that are
-    identified via :mod:`LabelTrueGranularities`.
-
-    The above examples exclude the duplication of input records based on
-    ownership.
+    This ``gens_mega`` table can then be aggregated by ``plant``, ``plant_prime_fuel``,
+    ``plant_prime_mover``, or ``plant_gen``.
 
     """
 
