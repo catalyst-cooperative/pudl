@@ -36,6 +36,32 @@ def fast_out(pudl_engine, pudl_datastore_fixture):
     )
 
 
+def nuke_gen_fraction(df):
+    """Calculate the nuclear fraction of net generation."""
+    total_gen = df.net_generation_mwh.sum()
+    nuke_gen = (
+        df[df.fuel_type_code_pudl == "nuclear"]
+        .net_generation_mwh
+        .sum()
+    )
+    return nuke_gen / total_gen
+
+
+@pytest.mark.parametrize(
+    "df_name,expected_nuke_fraction,tolerance", [
+        ("gf_eia923", 0.2, 0.02),
+        ("gf_nonuclear_eia923", 0.0, 0.0),
+        ("gf_nuclear_eia923", 1.0, 0.001),
+    ]
+)
+def test_nuclear_fraction(fast_out, df_name, expected_nuke_fraction, tolerance):
+    """Ensure that overall nuclear generation fractions are as expected."""
+    actual_nuke_fraction = nuke_gen_fraction(
+        fast_out.__getattribute__(df_name)()
+    )
+    assert abs(actual_nuke_fraction - expected_nuke_fraction) <= tolerance
+
+
 @pytest.mark.parametrize(
     "df_name", [
         "all_plants_ferc1",
@@ -72,7 +98,8 @@ def test_ferc1_outputs(fast_out, df_name):
         # gen_allocated_eia923 currently only produces annual results.
         ("gens_eia860", "gen_allocated_eia923", 1 / 1, {}),
         ("gens_eia860", "gf_eia923", 12 / 1, {}),
-        ("gens_eia860", "gfn_eia923", 12 / 1, {}),
+        ("gens_eia860", "gf_nonuclear_eia923", 12 / 1, {}),
+        ("gens_eia860", "gf_nuclear_eia923", 12 / 1, {}),
 
         ("gens_eia860", "hr_by_unit", 12 / 1, {}),
         ("gens_eia860", "hr_by_gen", 12 / 1, {}),
@@ -185,6 +212,23 @@ def fast_out_filled(pudl_engine, pudl_datastore_fixture):
     )
 
 
-def test_mcoe_filled(fast_out_filled):
-    """Ensure the MCOE works with the net generation allocated."""
-    fast_out_filled.mcoe()
+@pytest.mark.parametrize(
+    "df_name,expected_nuke_fraction,tolerance", [
+        ("gf_nuclear_eia923", 1.0, 0.001),
+        ("gf_nonuclear_eia923", 0.0, 0.0),
+        ("gf_eia923", 0.2, 0.02),
+        ("mcoe", 0.2, 0.02),
+    ]
+)
+def test_mcoe_filled(fast_out_filled, df_name, expected_nuke_fraction, tolerance):
+    """
+    Test that the net generation allocation process is working.
+
+    In addition to running the allocation itself, make sure that the nuclear and
+    non-nuclear generation fractions are as we would expect after the net generation has
+    been allocated.
+    """
+    actual_nuke_fraction = nuke_gen_fraction(
+        fast_out_filled.__getattribute__(df_name)()
+    )
+    assert abs(actual_nuke_fraction - expected_nuke_fraction) <= tolerance

@@ -707,46 +707,70 @@ class PudlTabl(object):
                 end_date=self.end_date)
         return self._dfs['own_eia860']
 
-    def gf_eia923(self, update=False):
+    def gf_eia923(self, update: bool = False) -> pd.DataFrame:
         """
-        Pull EIA 923 generation and fuel consumption data.
+        Pull combined nuclear and non-nuclear generation fuel data.
 
         Args:
-            update (bool): If true, re-calculate the output dataframe, even if
+            update: If True, re-calculate the output dataframe, even if
                 a cached version exists.
 
         Returns:
-            pandas.DataFrame: a denormalized table for interactive use.
+            A denormalized table for interactive use.
 
         """
         if update or self._dfs['gf_eia923'] is None:
-            self._dfs['gf_eia923'] = pudl.output.eia923.generation_fuel_eia923(
-                self.pudl_engine,
-                freq=self.freq,
-                start_date=self.start_date,
-                end_date=self.end_date)
+            self._dfs['gf_eia923'] = (
+                pudl.output.eia923.generation_fuel_all_eia923(
+                    gf=self.gf_nonuclear_eia923(update=update),
+                    gfn=self.gf_nuclear_eia923(update=update),
+                )
+            )
         return self._dfs['gf_eia923']
 
-    def gfn_eia923(self, update=False):
+    def gf_nonuclear_eia923(self, update: bool = False) -> pd.DataFrame:
         """
-        Pull EIA 923 generation and fuel consumption data for nuclear units.
+        Pull non-nuclear EIA 923 generation and fuel consumption data.
 
         Args:
-            update (bool): If true, re-calculate the output dataframe, even if
+            update: If True, re-calculate the output dataframe, even if
                 a cached version exists.
 
         Returns:
-            pandas.DataFrame: a denormalized table for interactive use.
+            A denormalized table for interactive use.
 
         """
-        if update or self._dfs['gfn_eia923'] is None:
-            self._dfs['gfn_eia923'] = pudl.output.eia923.generation_fuel_eia923(
+        if update or self._dfs['gf_nonuclear_eia923'] is None:
+            self._dfs['gf_nonuclear_eia923'] = pudl.output.eia923.generation_fuel_eia923(
                 self.pudl_engine,
                 freq=self.freq,
                 start_date=self.start_date,
                 end_date=self.end_date,
-                nuclear=True)
-        return self._dfs['gfn_eia923']
+                nuclear=False,
+            )
+        return self._dfs['gf_nonuclear_eia923']
+
+    def gf_nuclear_eia923(self, update: bool = False) -> pd.DataFrame:
+        """
+        Pull EIA 923 generation and fuel consumption data for nuclear units.
+
+        Args:
+            update: If True, re-calculate the output dataframe, even if a cached version
+                exists.
+
+        Returns:
+            A denormalized table for interactive use.
+
+        """
+        if update or self._dfs['gf_nuclear_eia923'] is None:
+            self._dfs['gf_nuclear_eia923'] = pudl.output.eia923.generation_fuel_eia923(
+                self.pudl_engine,
+                freq=self.freq,
+                start_date=self.start_date,
+                end_date=self.end_date,
+                nuclear=True
+            )
+        return self._dfs['gf_nuclear_eia923']
 
     def frc_eia923(self, update=False):
         """

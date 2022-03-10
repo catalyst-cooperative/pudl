@@ -16,7 +16,8 @@ logger = logging.getLogger(__name__)
         ("gen_eia923", "all"),
         ("gens_eia860", "all"),
         ("gf_eia923", "all"),
-        ("gfn_eia923", "all"),
+        ("gf_nonuclear_eia923", "all"),
+        ("gf_nuclear_eia923", "all"),
         ("own_eia860", "all"),
         ("plants_eia860", "all"),
         ("pu_eia860", "all"),
@@ -38,8 +39,9 @@ def test_no_null_cols_eia(pudl_out_eia, live_dbs, cols, df_name):
         ('frc_eia923', 560_377, 230_063, 22_686),
         ('gen_eia923', 559_570, 559_570, 46_718),
         ('gens_eia860', 490_824, 490_824, 490_824),
-        ('gf_eia923', 2_492_481, 2_492_481, 213_422),
-        ('gfn_eia923', 23_498, 23_498, 1_964),
+        ('gf_eia923', 2_507_870, 2_507_870, 214_709),
+        ('gf_nonuclear_eia923', 2_492_481, 2_492_481, 213_422),
+        ('gf_nuclear_eia923', 23_498, 23_498, 1_964),
         ('own_eia860', 79_311, 79_311, 79_311),
         ('plants_eia860', 171_148, 171_148, 171_148),
         ('pu_eia860', 170_370, 170_370, 170_370),
@@ -110,7 +112,13 @@ def test_minmax_rows(
             "prime_mover_code",
             "energy_source_code"
         ]),
-        ("gfn_eia923", [
+        ("gf_nonuclear_eia923", [
+            "report_date",
+            "plant_id_eia",
+            "prime_mover_code",
+            "energy_source_code"
+        ]),
+        ("gf_nuclear_eia923", [
             "report_date",
             "plant_id_eia",
             "nuclear_unit_id",
