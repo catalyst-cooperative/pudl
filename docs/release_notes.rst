@@ -16,6 +16,18 @@ Data Coverage Changes
 New Analyses
 ^^^^^^^^^^^^
 
+Bug Fixes
+^^^^^^^^^
+* In addressing :issue:`851,1296,1325` the :ref:`generation_fuel_eia923` table was split
+  to create a :ref:`generation_fuel_nuclear_eia923` table since they have different
+  primary keys. This meant that the :meth:`pudl.output.pudltabl.PudlTabl.gf_eia923`
+  method no longer included nuclear generation. This impacted the net generation
+  allocation process and MCOE calculations downstream, which were expecting to have all
+  the reported nuclear generation. This has now been fixed, and the generation fuel
+  output includes both the nuclear and non-nuclear generation, with nuclear generation
+  aggregated across nuclear unit IDs so that it has the same primary key as the rest
+  of the generation fuel table. See :pr:`1518`.
+
 Known Issues
 ^^^^^^^^^^^^
 

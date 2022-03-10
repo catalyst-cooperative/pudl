@@ -191,11 +191,14 @@ def generation_fuel_all_eia923(gf: pd.DataFrame, gfn: pd.DataFrame) -> pd.DataFr
         "fuel_consumed_units",
         "net_generation_mwh",
     ]
-    replace_cols = ["nuclear_unit_id", "fuel_mmbtu_per_unit"]
+    other_cols = [
+        "nuclear_unit_id",  # dropped in the groupby / aggregation.
+        "fuel_mmbtu_per_unit",  # recalculated based on aggregated sum_cols.
+    ]
     # Rather than enumerating all of the non-data columns, identify them by process of
     # elimination, in case they change in the future.
     non_data_cols = list(
-        set(gfn.columns) - set(primary_key + sum_cols + replace_cols)
+        set(gfn.columns) - set(primary_key + sum_cols + other_cols)
     )
 
     gfn_gb = gfn.groupby(primary_key)
@@ -204,19 +207,20 @@ def generation_fuel_all_eia923(gf: pd.DataFrame, gfn: pd.DataFrame) -> pd.DataFr
         raise ValueError(
             "Found inhomogeneous non-data cols while aggregating nuclear generation."
         )
-    agg_dict = dict(
-        **{col: "first" for col in non_data_cols},
-        **{col: "sum" for col in sum_cols},
-    )
-    gfn_agg = (
-        gfn_gb.agg(agg_dict)
-        .assign(fuel_mmbtu_per_unit=lambda x: x.fuel_consumed_mmbtu / x.fuel_consumed_units)
-        .reset_index()
-    )
-    # Nuclear plants don't report units of fuel consumed, so heat rate is infinite.
-    # However, some nuclear plants report using small amounts of DFO. Replace the
-    # infinite heat rates with NA:
-    gfn_agg.loc[np.isinf(gfn_agg.fuel_mmbtu_per_unit), "fuel_mmbtu_per_unit"] = np.nan
+    gfn_agg = pd.concat([
+        gfn_gb[non_data_cols].first(),
+        gfn_gb[sum_cols].sum(),
+    ], axis="columns")
+    # Nuclear plants don't report units of fuel consumed, so fuel heat content ends up
+    # being calculated as infinite. However, some nuclear plants report using small
+    # amounts of DFO. Ensure infite heat contents are set to NA instead:
+    gfn_agg = gfn_agg.assign(
+        fuel_mmbtu_per_unit=np.where(
+            gfn_agg.fuel_consumed_units != 0,
+            gfn_agg.fuel_consumed_mmbtu / gfn_agg.fuel_consumed_units,
+            np.nan,
+        )
+    ).reset_index()
     return (
         pd.concat([gfn_agg, gf])
         .sort_values(primary_key)

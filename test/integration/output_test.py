@@ -48,18 +48,18 @@ def nuke_gen_fraction(df):
 
 
 @pytest.mark.parametrize(
-    "df_name,expected_nuke_fraction,tol", [
+    "df_name,expected_nuke_fraction,tolerance", [
         ("gf_eia923", 0.2, 0.02),
         ("gf_nonuclear_eia923", 0.0, 0.0),
         ("gf_nuclear_eia923", 1.0, 0.001),
     ]
 )
-def test_nuclear_fraction(fast_out, df_name, expected_nuke_fraction, tol):
+def test_nuclear_fraction(fast_out, df_name, expected_nuke_fraction, tolerance):
     """Ensure that overall nuclear generation fractions are as expected."""
     actual_nuke_fraction = nuke_gen_fraction(
         fast_out.__getattribute__(df_name)()
     )
-    assert abs(actual_nuke_fraction - expected_nuke_fraction) <= tol
+    assert abs(actual_nuke_fraction - expected_nuke_fraction) <= tolerance
 
 
 @pytest.mark.parametrize(
@@ -213,15 +213,14 @@ def fast_out_filled(pudl_engine, pudl_datastore_fixture):
 
 
 @pytest.mark.parametrize(
-    "df_name,expected_nuke_fraction,tol", [
+    "df_name,expected_nuke_fraction,tolerance", [
         ("gf_nuclear_eia923", 1.0, 0.001),
         ("gf_nonuclear_eia923", 0.0, 0.0),
         ("gf_eia923", 0.2, 0.02),
-        # ("gen_eia923", 0.2, 0.02),  # No fuel source info here...
         ("mcoe", 0.2, 0.02),
     ]
 )
-def test_mcoe_filled(fast_out_filled, df_name, expected_nuke_fraction, tol):
+def test_mcoe_filled(fast_out_filled, df_name, expected_nuke_fraction, tolerance):
     """
     Test that the net generation allocation process is working.
 
@@ -232,4 +231,4 @@ def test_mcoe_filled(fast_out_filled, df_name, expected_nuke_fraction, tol):
     actual_nuke_fraction = nuke_gen_fraction(
         fast_out_filled.__getattribute__(df_name)()
     )
-    assert abs(actual_nuke_fraction - expected_nuke_fraction) <= tol
+    assert abs(actual_nuke_fraction - expected_nuke_fraction) <= tolerance
