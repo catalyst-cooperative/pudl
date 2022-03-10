@@ -209,7 +209,7 @@ def generation_fuel_all_eia923(gf: pd.DataFrame, gfn: pd.DataFrame) -> pd.DataFr
         )
     gfn_agg = pd.concat([
         gfn_gb[non_data_cols].first(),
-        gfn_gb[sum_cols].sum(),
+        gfn_gb[sum_cols].sum(min_count=1),
     ], axis="columns")
     # Nuclear plants don't report units of fuel consumed, so fuel heat content ends up
     # being calculated as infinite. However, some nuclear plants report using small
