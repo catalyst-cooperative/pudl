@@ -2,6 +2,8 @@
 """Functions for pulling EIA 923 data out of the PUDl DB."""
 import logging
 import os
+from datetime import date, datetime
+from typing import Literal, Union
 
 import numpy as np
 import pandas as pd
@@ -38,9 +40,9 @@ See EIA's query browse here:
 
 def generation_fuel_eia923(
     pudl_engine,
-    freq=None,
-    start_date=None,
-    end_date=None,
+    freq: Literal["AS", "MS", None] = None,
+    start_date: Union[str, date, datetime, pd.Timestamp] = None,
+    end_date: Union[str, date, datetime, pd.Timestamp] = None,
     nuclear: bool = False
 ):
     """
@@ -69,22 +71,18 @@ def generation_fuel_eia923(
     860 tables.
 
     Args:
-        pudl_engine (sqlalchemy.engine.Engine): SQLAlchemy connection engine
-            for the PUDL DB.
-        freq (str): a pandas timeseries offset alias. The original data is
-            reported monthly, so the best time frequencies to use here are
-            probably month start (freq='MS') and year start (freq='YS').
-        start_date (date-like): date-like object, including a string of the
+        pudl_engine: SQLAlchemy connection engine for the PUDL DB.
+        freq: a pandas timeseries offset alias (either "MS" or "AS") or None.
+        start_date: date-like object, including a string of the
             form 'YYYY-MM-DD' which will be used to specify the date range of
             records to be pulled.  Dates are inclusive.
-        end_date (date-like): date-like object, including a string of the
+        end_date: date-like object, including a string of the
             form 'YYYY-MM-DD' which will be used to specify the date range of
             records to be pulled.  Dates are inclusive.
         nuclear: If True, return generation_fuel_nuclear_eia923 table.
 
     Returns:
-        pandas.DataFrame: A DataFrame containing all records from the EIA 923
-        Generation Fuel table.
+        A DataFrame containing records from the EIA 923 Generation Fuel table.
 
     """
     pt = pudl.output.pudltabl.get_table_meta(pudl_engine)
@@ -161,9 +159,79 @@ def generation_fuel_eia923(
     return out_df
 
 
-def fuel_receipts_costs_eia923(pudl_engine, freq=None,
-                               start_date=None, end_date=None,
-                               fill=False, roll=False):
+def generation_fuel_all_eia923(gf: pd.DataFrame, gfn: pd.DataFrame) -> pd.DataFrame:
+    """
+    Combine nuclear and non-nuclear generation fuel tables into a single output.
+
+    The nuclear and non-nuclear generation fuel data are reported at different
+    granularities. For non-nuclear generation, each row is a unique combination of date,
+    plant ID, prime mover, and fuel type. Nuclear generation is additionally split out
+    by nuclear_unit_id (which happens to be the same as generator_id).
+
+    This function aggregates the nuclear data across all nuclear units within a plant so
+    that it is structurally the same as the non-nuclear data and can be treated
+    identically in subsequent analyses. Then the nuclear and non-nuclear data are
+    concatenated into a single dataframe and returned.
+
+    Args:
+        gf: non-nuclear generation fuel dataframe.
+        gfn: nuclear generation fuel dataframe.
+
+    """
+    primary_key = [
+        "report_date",
+        "plant_id_eia",
+        "prime_mover_code",
+        "energy_source_code",
+    ]
+    sum_cols = [
+        "fuel_consumed_for_electricity_mmbtu",
+        "fuel_consumed_for_electricity_units",
+        "fuel_consumed_mmbtu",
+        "fuel_consumed_units",
+        "net_generation_mwh",
+    ]
+    replace_cols = ["nuclear_unit_id", "fuel_mmbtu_per_unit"]
+    # Rather than enumerating all of the non-data columns, identify them by process of
+    # elimination, in case they change in the future.
+    non_data_cols = list(
+        set(gfn.columns) - set(primary_key + sum_cols + replace_cols)
+    )
+
+    gfn_gb = gfn.groupby(primary_key)
+    # Ensure that all non-data columns are homogeneous within groups
+    if not (gfn_gb[non_data_cols].nunique() == 1).all(axis=None):
+        raise ValueError(
+            "Found inhomogeneous non-data cols while aggregating nuclear generation."
+        )
+    agg_dict = dict(
+        **{col: "first" for col in non_data_cols},
+        **{col: "sum" for col in sum_cols},
+    )
+    gfn_agg = (
+        gfn_gb.agg(agg_dict)
+        .assign(fuel_mmbtu_per_unit=lambda x: x.fuel_consumed_mmbtu / x.fuel_consumed_units)
+        .reset_index()
+    )
+    # Nuclear plants don't report units of fuel consumed, so heat rate is infinite.
+    # However, some nuclear plants report using small amounts of DFO. Replace the
+    # infinite heat rates with NA:
+    gfn_agg.loc[np.isinf(gfn_agg.fuel_mmbtu_per_unit), "fuel_mmbtu_per_unit"] = np.nan
+    return (
+        pd.concat([gfn_agg, gf])
+        .sort_values(primary_key)
+        .reset_index(drop=True)
+    )
+
+
+def fuel_receipts_costs_eia923(
+    pudl_engine,
+    freq: Literal["AS", "MS", None] = None,
+    start_date: Union[str, date, datetime, pd.Timestamp] = None,
+    end_date: Union[str, date, datetime, pd.Timestamp] = None,
+    fill: bool = False,
+    roll: bool = False,
+) -> pd.DataFrame:
     """
     Pull records from ``fuel_receipts_costs_eia923`` table in given date range.
 
@@ -205,27 +273,22 @@ def fuel_receipts_costs_eia923(pudl_engine, freq=None,
 
 
     Args:
-        pudl_engine (sqlalchemy.engine.Engine): SQLAlchemy connection engine
-            for the PUDL DB.
-        freq (str): a pandas timeseries offset alias. The original data is
-            reported monthly, so the best time frequencies to use here are
-            probably month start (freq='MS') and year start (freq='YS').
-        start_date (date-like): date-like object, including a string of the
-            form 'YYYY-MM-DD' which will be used to specify the date range of
-            records to be pulled.  Dates are inclusive.
-        end_date (date-like): date-like object, including a string of the
-            form 'YYYY-MM-DD' which will be used to specify the date range of
-            records to be pulled.  Dates are inclusive.
-        fill (boolean): if set to True, fill in missing coal, gas and oil fuel
-            cost per mmbtu from EIA's API. This fills with montly state-level
-            averages.
-        roll (boolean): if set to True, apply a rolling average to a
-            subset of output table's columns (currently only
-            'fuel_cost_per_mmbtu' for the frc table).
+        pudl_engine: SQLAlchemy connection engine for the PUDL DB.
+        freq: a pandas timeseries offset alias ("MS" or "AS") or None. The original data
+            is reported monthly.
+        start_date: date-like object, including a string of the form 'YYYY-MM-DD' which
+            will be used to specify the date range of records to be pulled. Dates are
+            inclusive.
+        end_date: date-like object, including a string of the form 'YYYY-MM-DD' which
+            will be used to specify the date range of records to be pulled.  Dates are
+            inclusive.
+        fill: if set to True, fill in missing coal, gas and oil fuel cost per mmbtu from
+            EIA's API. This fills with montly state-level averages.
+        roll: if set to True, apply a rolling average to a subset of output table's
+            columns (currently only 'fuel_cost_per_mmbtu' for the frc table).
 
     Returns:
-        pandas.DataFrame: A DataFrame containing all records from the EIA 923
-        Fuel Receipts and Costs table.
+        A DataFrame containing records from the EIA 923 Fuel Receipts and Costs table.
 
     """
     if fill:
