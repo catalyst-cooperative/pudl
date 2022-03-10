@@ -36,6 +36,19 @@ def fast_out(pudl_engine, pudl_datastore_fixture):
     )
 
 
+@pytest.fixture(scope="module")
+def fast_out_annual(pudl_engine, pudl_datastore_fixture):
+    """A PUDL output object for use in CI."""
+    return pudl.output.pudltabl.PudlTabl(
+        pudl_engine,
+        ds=pudl_datastore_fixture,
+        freq="AS",
+        fill_fuel_cost=True,
+        roll_fuel_cost=True,
+        fill_net_gen=True,
+    )
+
+
 def nuke_gen_fraction(df):
     """Calculate the nuclear fraction of net generation."""
     total_gen = df.net_generation_mwh.sum()
@@ -197,6 +210,11 @@ def test_ferc714_respondents_georef_counties(ferc714_out):
     ferc714_gdf = ferc714_out.georef_counties()
     assert isinstance(ferc714_gdf, gpd.GeoDataFrame), "ferc714_gdf not a GeoDataFrame!"
     assert not ferc714_gdf.empty, "ferc714_gdf is empty!"
+
+
+def test_plant_parts_eia_filled(fast_out_annual):
+    """Ensure the EIA plant-parts list can be generated."""
+    fast_out_annual.plant_parts_eia()
 
 
 @pytest.fixture(scope="module")
