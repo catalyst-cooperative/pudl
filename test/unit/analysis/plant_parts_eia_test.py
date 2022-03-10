@@ -3,32 +3,29 @@ import pandas as pd
 
 import pudl.analysis.plant_parts_eia
 
+GENS_MEGA = pd.DataFrame({
+    'plant_id_eia': [1, 1, 1, 1],
+    'report_date': ['2020-01-01', '2020-01-01', '2020-01-01', '2020-01-01'],
+    'utility_id_eia': [111, 111, 111, 111],
+    'generator_id': ['a', 'b', 'c', 'd'],
+    'prime_mover_code': ['ST', 'GT', 'CT', 'CA'],
+    'energy_source_code_1': ['BIT', 'NG', 'NG', 'NG'],
+    'ownership': ['total', 'total', 'total', 'total', ],
+    'operational_status_pudl': ['operating', 'operating', 'operating', 'operating'],
+    'capacity_mw': [400, 50, 125, 75],
+}).astype({'report_date': 'datetime64[ns]'})
 
-def test_plant_part():
-    """Test the different aggregations of the plant-part part list.
+
+def test_plant_ag():
+    """Test aggregation of the plant-part part list by plant.
 
     The only data col we are testing here is capacity_mw.
-
-    The below tests exclude the duplication of input records based on
-    ownership.
     """
-    gens_mega = pd.DataFrame({
-        'plant_id_eia': [1, 1, 1, 1],
-        'report_date': ['2020-01-01', '2020-01-01', '2020-01-01', '2020-01-01'],
-        'utility_id_eia': [111, 111, 111, 111],
-        'generator_id': ['a', 'b', 'c', 'd'],
-        'prime_mover_code': ['ST', 'GT', 'CT', 'CA'],
-        'energy_source_code_1': ['BIT', 'NG', 'NG', 'NG'],
-        'ownership': ['total', 'total', 'total', 'total', ],
-        'operational_status_pudl': ['operating', 'operating', 'operating', 'operating'],
-        'capacity_mw': [400, 50, 125, 75],
-    }).astype({'report_date': 'datetime64[ns]'})
-
     # test aggregation by plant
     plant_ag_out = (
         pudl.analysis.plant_parts_eia.PlantPart(part_name='plant')
         .ag_part_by_own_slice(
-            gens_mega, sum_cols=['capacity_mw'], wtavg_dict={})
+            GENS_MEGA, sum_cols=['capacity_mw'], wtavg_dict={})
         .convert_dtypes()
     )
 
@@ -43,11 +40,17 @@ def test_plant_part():
 
     pd.testing.assert_frame_equal(plant_ag_out, plant_ag_expected)
 
+
+def test_prime_fuel_ag():
+    """Test aggregation of the plant-part part list by prime fuel.
+
+    The only data col we are testing here is capacity_mw.
+    """
     # test aggregation by plant prime fuel
     plant_primary_fuel_ag_out = (
         pudl.analysis.plant_parts_eia.PlantPart(part_name='plant_prime_fuel')
         .ag_part_by_own_slice(
-            gens_mega, sum_cols=['capacity_mw'], wtavg_dict={})
+            GENS_MEGA, sum_cols=['capacity_mw'], wtavg_dict={})
         .convert_dtypes()
     )
 
@@ -64,11 +67,17 @@ def test_plant_part():
     pd.testing.assert_frame_equal(
         plant_primary_fuel_ag_out, plant_primary_fuel_ag_expected)
 
+
+def test_prime_mover_ag():
+    """Test aggregation of the plant-part part list by prime mover.
+
+    The only data col we are testing here is capacity_mw.
+    """
     # test aggregation by plant prime mover
     plant_prime_mover_ag_out = (
         pudl.analysis.plant_parts_eia.PlantPart(part_name='plant_prime_mover')
         .ag_part_by_own_slice(
-            gens_mega, sum_cols=['capacity_mw'], wtavg_dict={})
+            GENS_MEGA, sum_cols=['capacity_mw'], wtavg_dict={})
         .convert_dtypes()
     )
 
@@ -85,11 +94,17 @@ def test_plant_part():
     pd.testing.assert_frame_equal(
         plant_prime_mover_ag_out, plant_prime_mover_ag_expected)
 
+
+def test_plant_gen_ag():
+    """Test aggregation of the plant-part part list by generator.
+
+    The only data col we are testing here is capacity_mw.
+    """
     # test aggregation by plant gen
     plant_gen_ag_out = (
         pudl.analysis.plant_parts_eia.PlantPart(part_name='plant_gen')
         .ag_part_by_own_slice(
-            gens_mega, sum_cols=['capacity_mw'], wtavg_dict={})
+            GENS_MEGA, sum_cols=['capacity_mw'], wtavg_dict={})
         .convert_dtypes()
     )
 
