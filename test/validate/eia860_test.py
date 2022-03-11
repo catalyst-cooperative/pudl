@@ -189,7 +189,7 @@ def test_nuclear_units_are_generators(pudl_out_eia, live_dbs):
 
     # Drop all nuclear units that don't have a nuclear_unit_id.
     all_nuke_gf = (
-        pudl_out_eia.gfn_eia923()[[
+        pudl_out_eia.gf_nuclear_eia923()[[
             "plant_id_eia",
             "nuclear_unit_id",
             "energy_source_code",

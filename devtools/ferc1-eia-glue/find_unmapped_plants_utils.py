@@ -82,6 +82,7 @@ from pudl.glue.ferc1_eia import (get_lost_plants_eia, get_lost_utils_eia,
                                  get_unmapped_plants_ferc1,
                                  get_unmapped_utils_eia,
                                  get_unmapped_utils_ferc1)
+from pudl.metadata.classes import DataSource
 
 logger = logging.getLogger(__name__)
 
@@ -134,7 +135,7 @@ def main():
     )
     ferc1_years = list(ferc1_years.report_year)
     pudl_logger.info(f"Examining FERC 1 data for {min(ferc1_years)}-{max(ferc1_years)}")
-    all_ferc1_years = pudl.constants.WORKING_PARTITIONS["ferc1"]["years"]
+    all_ferc1_years = DataSource.from_id("ferc1").working_partitions["years"]
     missing_ferc1_years = set(all_ferc1_years).difference(ferc1_years)
     if missing_ferc1_years:
         raise AssertionError(
@@ -151,7 +152,7 @@ def main():
     )
     eia_years = list(eia_years.report_date.dt.year)
     pudl_logger.info(f"Examining EIA data for {min(eia_years)}-{max(eia_years)}")
-    all_eia_years = pudl.constants.WORKING_PARTITIONS["eia860"]["years"]
+    all_eia_years = DataSource.from_id("eia860").working_partitions["years"]
     missing_eia_years = set(all_eia_years).difference(eia_years)
     if missing_eia_years:
         raise AssertionError(

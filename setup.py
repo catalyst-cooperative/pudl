@@ -36,27 +36,27 @@ setup(
         "addfips~=0.3.1",
         "catalystcoop.dbfread~=3.0",
         "coloredlogs~=15.0",
+        "dask~=2021.8",
         "datapackage~=1.11",  # Transition datastore to use frictionless.
         # "email-validator>=1.0.3",  # pydantic[email] dependency
         "fsspec>=2021.7,<2023.0",
         "gcsfs>=2021.7,<2023.0",
         "geopandas>=0.9,<0.11",
         "jinja2>=2,<4",
-        "matplotlib~=3.0",  # Should make this optional with a "viz" extras
+        "matplotlib>=3.3,<4",  # Should make this optional with a "viz" extras
         "networkx>=2.2,<3",
         "numpy>=1.18.5,<2",
         "pandas>=1.3,!=1.3.3,<1.5",  # IntCastingNaNError on v1.3.3 in unit tests
-        "prefect[viz, gcp]~=0.15.0",
         "pyarrow>=5,<8",
-        "pydantic[email]~=1.7",
+        "pydantic[email]>=1.7,<2",
         "python-snappy>=0.6,<1",
         "pygeos>=0.10,<0.13",
         "pyyaml>=5,<7",
         "scikit-learn>=1.0,<1.1",
         "scipy>=1.6,<1.9",
         "sqlalchemy>=1.4,<2",
-        "timezonefinder~=5.0",
-        "xlsxwriter~=3.0",
+        "timezonefinder>=5,<6",
+        "xlsxwriter>=3,<4",
     ],
     extras_require={
         "dev": [
@@ -99,6 +99,9 @@ setup(
             "responses~=0.14",
             "tox~=3.20",
         ],
+        "datasette": [
+            "datasette~=0.60",
+        ]
     },
     classifiers=[
         "Development Status :: 3 - Alpha",
@@ -125,6 +128,7 @@ setup(
             "metadata_to_rst = pudl.convert.metadata_to_rst:main",
             "epacems_to_parquet = pudl.convert.epacems_to_parquet:main",
             "ferc1_to_sqlite = pudl.convert.ferc1_to_sqlite:main",
+            "metadata_to_yml = pudl.convert.metadata_to_yml:main",
             "pudl_datastore = pudl.workspace.datastore:main",
             "pudl_etl = pudl.cli:main",
             "pudl_setup = pudl.workspace.setup_cli:main",

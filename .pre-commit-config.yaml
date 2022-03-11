@@ -34,8 +34,8 @@ repos:
       - --max-line-length=88
 
 # Make sure import statements are sorted uniformly.
-- repo: https://github.com/pre-commit/mirrors-isort
-  rev: v5.10.1
+- repo: https://github.com/PyCQA/isort
+  rev: 5.10.1
   hooks:
   - id: isort
 
@@ -66,7 +66,7 @@ repos:
 
 # Check for known security vulnerabilities:
 - repo: https://github.com/PyCQA/bandit
-  rev: 1.7.1
+  rev: 1.7.4
   hooks:
   - id: bandit
     args: [--configfile, .bandit.yml]
