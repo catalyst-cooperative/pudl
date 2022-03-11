@@ -42,21 +42,20 @@ setup(
         "gcsfs>=2021.7,<2023.0",
         "geopandas>=0.9,<0.11",
         "jinja2>=2,<4",
-        "matplotlib~=3.0",  # Should make this optional with a "viz" extras
+        "matplotlib>=3.3,<4",  # Should make this optional with a "viz" extras
         "networkx>=2.2,<3",
         "numpy>=1.18.5,<2",
         "pandas>=1.3,!=1.3.3,<1.5",  # IntCastingNaNError on v1.3.3 in unit tests
-        "prefect[viz, gcp]>=0.15,<1.1",
         "pyarrow>=5,<8",
-        "pydantic[email]~=1.7",
+        "pydantic[email]>=1.7,<2",
         "python-snappy>=0.6,<1",
         "pygeos>=0.10,<0.13",
         "pyyaml>=5,<7",
         "scikit-learn>=1.0,<1.1",
         "scipy>=1.6,<1.9",
         "sqlalchemy>=1.4,<2",
-        "timezonefinder~=5.0",
-        "xlsxwriter~=3.0",
+        "timezonefinder>=5,<6",
+        "xlsxwriter>=3,<4",
     ],
     extras_require={
         "dev": [
