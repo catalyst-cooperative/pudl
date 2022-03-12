@@ -938,7 +938,7 @@ class DataSource(Base):
 
     def to_rst(self, path, source_resources, extra_resources) -> None:
         """Output a representation of the data source in RST for documentation."""
-        template = JINJA_ENVIRONMENT.get_template(f"{self.name}.rst.jinja")
+        template = JINJA_ENVIRONMENT.get_template(f"data_sources/{self.name}.rst.jinja")
         rendered = template.render(source=self,
                                    source_resources=source_resources,
                                    extra_resources=extra_resources)
