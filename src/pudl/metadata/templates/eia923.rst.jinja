@@ -1,5 +1,5 @@
 ===============================================================================
-EIA Form 923
+{{ source.title }}
 ===============================================================================
 
 .. list-table::
@@ -8,9 +8,9 @@ EIA Form 923
    :stub-columns: 1
 
    * - Source URL
-     - https://www.eia.gov/electricity/data/eia923
+     - {{ source.path }}
    * - Source Description
-     - The EIA Form 923 collects detailed monthly and annual electric power data on electricity generation, fuel consumption, fossil fuel stocks, and receipts at the power plant and prime mover level.
+     - {{ source.description }}
    * - Respondents
      - Electric, CHP plants, and sometimes fuel transfer terminals with
        either 1MW+ or the ability to receive and deliver power to the grid.
@@ -21,9 +21,9 @@ EIA Form 923
    * - Size (Download)
      - 256 MB
    * - PUDL Code
-     - ``eia923``
+     - ``{{ source.name }}``
    * - Years Liberated
-     - 2001-2020
+     - {{ source.get_temporal_coverage() }}
    * - Records Liberated
      - ~5 million
    * - Issues
@@ -79,7 +79,7 @@ What does the original data look like?
 Once the respondents have submitted their responses, the EIA creates a series of
 spreadsheets that reflect themes within the form. These spreadsheets have changed over
 the years as the form itself evolves. They are accessible on the `EIA website
-<https://www.eia.gov/electricity/data/eia923>`__ as downloadable ZIP files categorized
+<{{ source.path }}>`__ as downloadable ZIP files categorized
 by year. The internal data are organized into excel spreadsheets. To gain greater
 insight into year-to-year nuances of the form, we recommend downloading multiple years
 of EIA-923 ZIP files and comparing both the Form and the Form Instructions files.
@@ -140,18 +140,10 @@ These tables contain the bulk data reported in the EIA-923.
 
    * - Data Dictionary
      - Browse Online
-   * - :ref: `boiler_fuel_eia923`
-     - https://data.catalyst.coop/pudl/boiler_fuel_eia923
-   * - :ref: `coalmine_eia923`
-     - https://data.catalyst.coop/pudl/coalmine_eia923
-   * - :ref: `fuel_receipts_costs_eia923`
-     - https://data.catalyst.coop/pudl/fuel_receipts_costs_eia923
-   * - :ref: `generation_eia923`
-     - https://data.catalyst.coop/pudl/generation_eia923
-   * - :ref: `generation_fuel_eia923`
-     - https://data.catalyst.coop/pudl/generation_fuel_eia923
-   * - :ref: `generation_fuel_nuclear_eia923`
-     - https://data.catalyst.coop/pudl/generation_fuel_nuclear_eia923
+   {%- for resource in source_resources %}
+   * - :ref: `{{ resource.name }}`
+     - https://data.catalyst.coop/pudl/{{ resource.name }}
+   {%- endfor %}
 
 
 PUDL Data Transformations

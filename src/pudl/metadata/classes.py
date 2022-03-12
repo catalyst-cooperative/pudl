@@ -936,9 +936,16 @@ class DataSource(Base):
         else:
             return ""
 
-    def to_rst(self) -> None:
+    def to_rst(self, path, source_resources, extra_resources) -> None:
         """Output a representation of the data source in RST for documentation."""
-        pass
+        template = JINJA_ENVIRONMENT.get_template(f"{self.name}.rst.jinja")
+        rendered = template.render(source=self,
+                                   source_resources=source_resources,
+                                   extra_resources=extra_resources)
+        if path:
+            Path(path).write_text(rendered)
+        else:
+            sys.stdout.write(rendered)
 
     @classmethod
     def from_field_namespace(cls, x: str) -> List['DataSource']:

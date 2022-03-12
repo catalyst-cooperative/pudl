@@ -14,9 +14,10 @@ from pathlib import Path
 
 import pkg_resources
 
-from pudl.metadata.classes import CodeMetadata, Package
+from pudl.metadata.classes import CodeMetadata, DataSource, Package
 from pudl.metadata.codes import CODE_METADATA
 from pudl.metadata.resources import RESOURCE_METADATA
+from pudl.metadata.sources import SOURCES
 
 DOCS_DIR = Path(__file__).parent.resolve()
 
@@ -137,10 +138,10 @@ html_static_path = ['_static']
 
 
 # -- Custom build operations -------------------------------------------------
-def metadata_to_rst(app):
-    """Export metadata structures to RST for inclusion in the documentation."""
+def data_dictionary_metadata_to_rst(app):
+    """Export data dictionary metadata to RST for inclusion in the documentation."""
     # Create an RST Data Dictionary for the PUDL DB:
-    print("Exporting PUDL DB metadata to RST.")
+    print("Exporting PUDL DB data dictionary metadata to RST.")
     skip_names = ["datasets", "accumulated_depreciation_ferc1"]
     names = [name for name in RESOURCE_METADATA if name not in skip_names]
     package = Package.from_resource_ids(resource_ids=tuple(sorted(names)))
@@ -150,6 +151,28 @@ def metadata_to_rst(app):
             resource.schema.fields, key=lambda x: x.name
         )
     package.to_rst(path=DOCS_DIR / "data_dictionaries/pudl_db.rst")
+
+
+def data_sources_metadata_to_rst(app):
+    """Export data sources metadata to RST for inclusion in the documentation."""
+    print("Exporting data sources metadata to RST.")
+    included_sources = ["eia860", "eia923"]
+    package = Package.from_resource_ids()
+    extra_etl_groups = {
+        "eia860": "entity_eia"
+    }
+    for name in SOURCES:
+        if name in included_sources:
+            source = DataSource.from_id(name)
+            source_resources = [
+                res for res in package.resources if res.etl_group == name]
+            extra_resources = [
+                res for res in package.resources
+                if name in extra_etl_groups
+                and res.etl_group == extra_etl_groups[name]]
+            source.to_rst(path=DOCS_DIR / f"data_sources/{name}.rst",
+                          source_resources=source_resources,
+                          extra_resources=extra_resources)
 
 
 def static_dfs_to_rst(app):
@@ -180,7 +203,8 @@ def cleanup_csv_dir(app, exception):
 def setup(app):
     """Add custom CSS defined in _static/custom.css."""
     app.add_css_file('custom.css')
-    app.connect("builder-inited", metadata_to_rst)
+    app.connect("builder-inited", data_dictionary_metadata_to_rst)
+    app.connect("builder-inited", data_sources_metadata_to_rst)
     app.connect("builder-inited", static_dfs_to_rst)
     app.connect("build-finished", cleanup_rsts)
     app.connect("build-finished", cleanup_csv_dir)

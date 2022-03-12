@@ -1,5 +1,5 @@
 ===============================================================================
-EIA Form 860
+{{ source.title }}
 ===============================================================================
 
 .. list-table::
@@ -8,9 +8,9 @@ EIA Form 860
    :stub-columns: 1
 
    * - Source URL
-     - https://www.eia.gov/electricity/data/eia860
+     - {{ source.path }}
    * - Source Description
-     - US Energy Information Administration (EIA) Form 860 data for electric power plants with 1 megawatt or greater combined nameplate capacity.
+     - {{ source.description }}
    * - Respondents
      - Utilities
    * - Source Format
@@ -20,9 +20,9 @@ EIA Form 860
    * - Size (Download)
      - 182 MB
    * - PUDL Code
-     - ``eia860``
+     - ``{{ source.name }}``
    * - Years Liberated
-     - 2001-2020
+     - {{ source.get_temporal_coverage() }}
    * - Records Liberated
      - ~1 million
    * - Issues
@@ -73,7 +73,7 @@ Approximately a year after respondents submit their form, the EIA publishes the 
 a series of spreadsheets that reflect the thematic contents of the form. These
 spreadsheets can change year-to-year as the questions in the form are updated or as EIA
 adopts new formatting standards for their outputs. They are accessible on the `EIA
-website <https://www.eia.gov/electricity/data/eia860>`__ as downloadable ZIP files
+website <{{ source.path }}>`__ as downloadable ZIP files
 categorized by year. To gain greater insight into year-to-year nuances of the form, we
 recommend downloading multiple years of EIA-860 ZIP files and comparing both the Form
 and the Form Instructions files. See below for our description of notable irregularities
@@ -122,16 +122,10 @@ the names and descriptions of each of its fields.
 
    * - Data Dictionary
      - Browse Online
-   * - :ref: `boiler_generator_assn_eia860`
-     - https://data.catalyst.coop/pudl/boiler_generator_assn_eia860
-   * - :ref: `generators_eia860`
-     - https://data.catalyst.coop/pudl/generators_eia860
-   * - :ref: `ownership_eia860`
-     - https://data.catalyst.coop/pudl/ownership_eia860
-   * - :ref: `plants_eia860`
-     - https://data.catalyst.coop/pudl/plants_eia860
-   * - :ref: `utilities_eia860`
-     - https://data.catalyst.coop/pudl/utilities_eia860
+   {%- for resource in source_resources %}
+   * - :ref: `{{ resource.name }}`
+     - https://data.catalyst.coop/pudl/{{ resource.name }}
+   {%- endfor %}
 
 We've also created the following entity tables modeled after EIA data collected from
 multiple tables.
@@ -142,14 +136,10 @@ multiple tables.
 
    * - Data Dictionary
      - Browse Online
-   * - :ref: `boilers_entity_eia`
-     - https://data.catalyst.coop/pudl/boilers_entity_eia
-   * - :ref: `generators_entity_eia`
-     - https://data.catalyst.coop/pudl/generators_entity_eia
-   * - :ref: `plants_entity_eia`
-     - https://data.catalyst.coop/pudl/plants_entity_eia
-   * - :ref: `utilities_entity_eia`
-     - https://data.catalyst.coop/pudl/utilities_entity_eia
+   {%- for resource in extra_resources %}
+   * - :ref: `{{ resource.name }}`
+     - https://data.catalyst.coop/pudl/{{ resource.name }}
+   {%- endfor %}
 
 
 PUDL Data Transformations
