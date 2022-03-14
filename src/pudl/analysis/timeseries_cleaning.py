@@ -45,7 +45,7 @@ import scipy.stats
 
 def slice_axis(
     x: np.ndarray, start: int = None, end: int = None, step: int = None, axis: int = 0
-) -> Tuple:
+) -> Tuple[slice, ...]:
     """
     Return an index that slices an array along an axis.
 

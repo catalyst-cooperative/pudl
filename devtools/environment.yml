@@ -2,36 +2,40 @@ name: pudl-dev
 channels:
   - conda-forge
   - defaults
-  - intake
 dependencies:
   # Used to set up the environment
-  - pip~=21.0
-  - python>=3.8,<3.10
+  - pip>=21.0,<22
+  - python>=3.8,<3.11
+  - setuptools<60.0.0
   # These packages are also specified in setup.py
   # However, they depend on or benefit from binary libraries
   # which conda can install.
-  - geopandas~=0.9.0
-  - pygeos~=0.9.0  # Python wrappers for the GEOS spatial libraries
-  - python-snappy~=0.6.0
+  - geopandas>=0.9,<0.11
+  - pygeos>=0.10,<0.13  # Python wrappers for the GEOS spatial libraries
+  - python-snappy>=0.6,<1
+  - sqlite>=3.36,<4
   # These libraries aren't directly specified in setup.py as
   # dependencies, but they are helpful and provide binaries
-  - numba~=0.53  # First numba version that's compatible with Python 3.9
-  - python-graphviz
+  - numba>=0.55.1,<0.56  # First numba version that's compatible with Python 3.10
 
    # These are not normal Python packages available on PyPI
   - nodejs  # Useful for Jupyter
   - pandoc  # Useful for rendering RST files in Atom
 
   # Packages related to current projects but not the core package
-  - dask~=2021.2 # For processing CEMS and eventually Prefect cloud ETL
-  - pysal  # Used for making maps in LBL / GridLab work
   - recordlinkage~=0.14.0 # Used for fuzzy merge between FERC/EIA for RMI
 
   # Jupyter notebook specific packages:
-  - dask-labextension~=5.0
+  - dask-labextension~=5.1
   - jupyter-resource-usage~=0.5.0
-  - jupyterlab~=3.0
+  - jupyter_contrib_nbextensions~=0.5.1
+  - seaborn~=0.11.0
+  - jupyterlab~=3.2
+  - nbdime~=3.1.0
+
+  # Helpful for profiling PUDL
+  - py-spy
 
   # Use pip to install the main PUDL repo / package for development:
   - pip:
-    - --editable ../[doc,test,dev]
+    - --editable ../[doc,test,dev,datasette]

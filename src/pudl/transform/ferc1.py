@@ -12,6 +12,7 @@ import importlib.resources
 import logging
 import re
 from difflib import SequenceMatcher
+from typing import Dict, List
 
 # NetworkX is used to knit incomplete ferc plant time series together.
 import networkx as nx
@@ -26,20 +27,23 @@ from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import MinMaxScaler, Normalizer, OneHotEncoder
 
 import pudl
-from pudl import constants as pc
+from pudl.helpers import convert_cols_dtypes
+from pudl.metadata.classes import DataSource
+from pudl.metadata.dfs import FERC_DEPRECIATION_LINES
+from pudl.settings import Ferc1Settings
 
 logger = logging.getLogger(__name__)
 
 ##############################################################################
 # Dicts for categorizing freeform strings ####################################
 ##############################################################################
-FUEL_STRINGS = {
+FUEL_STRINGS: Dict[str, List[str]] = {
     "coal": [
         'coal', 'coal-subbit', 'lignite', 'coal(sb)', 'coal (sb)', 'coal-lignite',
         'coke', 'coa', 'lignite/coal', 'coal - subbit', 'coal-subb', 'coal-sub',
         'coal-lig', 'coal-sub bit', 'coals', 'ciak', 'petcoke', 'coal.oil', 'coal/gas',
         'bit coal', 'coal-unit #3', 'coal-subbitum', 'coal tons', 'coal mcf',
-        'coal unit #3', 'pet. coke', 'coal-u3', 'coal&coke', 'tons'
+        'coal unit #3', 'pet. coke', 'coal-u3', 'coal&coke', 'tons',
     ],
     "oil": [
         'oil', '#6 oil', '#2 oil', 'fuel oil', 'jet', 'no. 2 oil', 'no.2 oil',
@@ -56,7 +60,9 @@ FUEL_STRINGS = {
         'diesel/compos', 'oil-8', 'oil {6}', 'oil-unit #1', 'bbl.', 'oil.',  # noqa: FS003
         'oil #6', 'oil (6)', 'oil(#2)', 'oil-unit1&2', 'oil-6', '#2 fue oil',
         'dielel oil', 'dielsel oil', '#6 & used', 'barrels', 'oil un 1 & 2',
-        'jet oil', 'oil-u1&2', 'oiul', 'pil', 'oil - 2', '#6 & used', 'oial'
+        'jet oil', 'oil-u1&2', 'oiul', 'pil', 'oil - 2', '#6 & used', 'oial',
+        'diesel fuel', 'diesel/compo', 'oil (used)',
+
     ],
     "gas": [
         'gas', 'gass', 'methane', 'natural gas', 'blast gas', 'gas mcf',
@@ -74,15 +80,15 @@ FUEL_STRINGS = {
         'nuclear', 'grams of uran', 'grams of', 'grams of  ura',
         'grams', 'nucleur', 'nulear', 'nucl', 'nucleart', 'nucelar',
         'gr.uranium', 'grams of urm', 'nuclear (9)', 'nulcear', 'nuc',
-        'gr. uranium', 'nuclear mw da', 'grams of ura'
+        'gr. uranium', 'nuclear mw da', 'grams of ura', 'nucvlear',
     ],
     "waste": [
         'tires', 'tire', 'refuse', 'switchgrass', 'wood waste', 'woodchips',
         'biomass', 'wood', 'wood chips', 'rdf', 'tires/refuse', 'tire refuse',
-        'waste oil', 'waste', 'woodships', 'tire chips'
+        'waste oil', 'waste', 'woodships', 'tire chips', 'tdf',
     ],
-    "unknown": [
-        'steam', 'purch steam', 'all', 'tdf', 'n/a', 'purch. steam', 'other',
+    "other": [
+        'steam', 'purch steam', 'all', 'n/a', 'purch. steam', 'other',
         'composite', 'composit', 'mbtus', 'total', 'avg', 'avg.', 'blo',
         'all fuel', 'comb.', 'alt. fuels', 'na', 'comb', '/#=2\x80â\x91?',
         'kã\xadgv¸\x9d?', "mbtu's", 'gas, oil', 'rrm', '3\x9c', 'average',
@@ -91,15 +97,16 @@ FUEL_STRINGS = {
         'lime', 'all fuels', 'at right', '20', '1', 'comp oil/gas', 'all fuels to',
         'the right are', 'c omposite', 'all fuels are', 'total pr crk',
         'all fuels =', 'total pc', 'comp', 'alternative', 'alt. fuel', 'bio fuel',
-        'total prairie', ''
+        'total prairie', '', 'kã\xadgv¸?', 'm', 'waste heat', '/#=2â?', '3',
     ],
 }
-"""dict: A mapping a canonical fuel name to a list of strings which are used
-to represent that fuel in the FERC Form 1 Reporting. Case is ignored, as all fuel
-strings are converted to a lower case in the data set.
+"""
+A mapping a canonical fuel name to a list of strings which are used to represent that
+fuel in the FERC Form 1 Reporting. Case is ignored, as all fuel strings are converted to
+a lower case in the data set.
 """
 
-FUEL_UNIT_STRINGS = {
+FUEL_UNIT_STRINGS: Dict[str, List[str]] = {
     "ton": [
         'toms', 'taons', 'tones', 'col-tons', 'toncoaleq', 'coal', 'tons coal eq',
         'coal-tons', 'ton', 'tons', 'tons coal', 'coal-ton', 'tires-tons',
@@ -110,7 +117,7 @@ FUEL_UNIT_STRINGS = {
     "mcf": [
         'mcf', "mcf's", 'mcfs', 'mcf.', 'gas mcf', '"gas" mcf', 'gas-mcf',
         'mfc', 'mct', ' mcf', 'msfs', 'mlf', 'mscf', 'mci', 'mcl', 'mcg',
-        'm.cu.ft.', 'kcf', '(mcf)', 'mcf *(4)', 'mcf00', 'm.cu.ft..',
+        'm.cu.ft.', 'kcf', '(mcf)', 'mcf *(4)', 'mcf00', 'm.cu.ft..', '1000 c.f',
     ],
     "bbl": [
         'barrel', 'bbls', 'bbl', 'barrels', 'bbrl', 'bbl.', 'bbls.', 'oil 42 gal',
@@ -122,14 +129,19 @@ FUEL_UNIT_STRINGS = {
         'bsrrels', "bbl's", '*barrels', 'oil - barrels', 'oil 42 gal ba', 'bll',
         'boiler barrel', 'gas barrel', '"boiler" barr', '"gas" barrel',
         '"boiler"barre', '"boiler barre', 'barrels .', 'bariel', 'brrels', 'oil barrel',
+        'barreks', 'oil-bbls', 'oil-bbs',
     ],
     "gal": ['gallons', 'gal.', 'gals', 'gals.', 'gallon', 'gal', 'galllons'],
-    "kgal": ['oil(1000 gal)', 'oil(1000)', 'oil (1000)', 'oil(1000', 'oil(1000ga)'],
+    "kgal": [
+        'oil(1000 gal)', 'oil(1000)', 'oil (1000)', 'oil(1000', 'oil(1000ga)',
+        '1000 gals', '1000 gal',
+    ],
     "gramsU": [
         'gram', 'grams', 'gm u', 'grams u235', 'grams u-235', 'grams of uran',
         'grams: u-235', 'grams:u-235', 'grams:u235', 'grams u308', 'grams: u235',
         'grams of', 'grams - n/a', 'gms uran', 's e uo2 grams', 'gms uranium',
         'grams of urm', 'gms. of uran', 'grams (100%)', 'grams v-235', 'se uo2 grams',
+        'grams u',
     ],
     "kgU": [
         'kg of uranium', 'kg uranium', 'kilg. u-235', 'kg u-235', 'kilograms-u23',
@@ -137,7 +149,7 @@ FUEL_UNIT_STRINGS = {
         'kilogr. u235', 'uranium kg', 'kg uranium25', 'kilogr. u-235',
         'kg uranium 25', 'kilgr. u-235', 'kguranium 25', 'kg-u235', 'kgm',
     ],
-    "klbs": ['k lbs.', 'k lbs'],
+    "klbs": ['k lbs.', 'k lbs', '1000 / lbs', '1000 lbs', ],
     "mmbtu": [
         'mmbtu', 'mmbtus', 'mbtus', '(mmbtu)', "mmbtu's", 'nuclear-mmbtu',
         'nuclear-mmbt', 'mmbtul',
@@ -165,15 +177,15 @@ FUEL_UNIT_STRINGS = {
         'oil-mcf', '3303671', '929', '7182175', '319', '1490442', '10881', '1363663',
         '7171', '1726497', '4783', '7800', '12559', '2398', 'creek fuels',
         'propane-barre', '509', 'barrels/mcf', 'propane-bar', '4853325', '4069628',
-        '1431536', '708903', 'mcf/oil (1000',
+        '1431536', '708903', 'mcf/oil (1000', '344', 'å?"', 'mcf / gallen',
     ],
 }
 """
-dict: A dictionary linking fuel units (keys) to lists of various strings
-    representing those fuel units (values)
+A dictionary linking fuel units (keys) to lists of various strings representing those
+fuel units (values)
 """
 
-PLANT_KIND_STRINGS = {
+PLANT_KIND_STRINGS: Dict[str, List[str]] = {
     "steam": [
         'coal', 'steam', 'steam units 1 2 3', 'steam units 4 5',
         'steam fossil', 'steam turbine', 'steam a', 'steam 100',
@@ -187,7 +199,7 @@ PLANT_KIND_STRINGS = {
         'steam (note 1)', 'steam (retired)', 'steam (leased)', 'coal-fired steam',
         'oil-fired steam', 'steam/fossil', 'steam (a,b)', 'steam (a)', 'stean',
         'steam-internal comb', 'steam (see notes)', 'steam units 4 & 6',
-        'resp share stm note3' 'mpc50% share steam', 'mpc40%share steam',
+        'resp share stm note3', 'mpc50% share steam', 'mpc40%share steam',
         'steam - 64%', 'steam - 100%', 'steam (1) & (2)', 'resp share st note3',
         'mpc 50% shares steam', 'steam-64%', 'steam-100%', 'steam (see note 1)',
         'mpc 50% share steam', 'steam units 1, 2, 3', 'steam units 4, 5',
@@ -195,6 +207,7 @@ PLANT_KIND_STRINGS = {
         'steam- 72%', 'steam;retired - 2013', "respondent's sh.-st.",
         "respondent's sh-st", '40% share steam', 'resp share stm note3',
         'mpc50% share steam', 'resp share st note 3', '\x02steam (1)',
+        'coal fired steam tur', 'steam- 64%',
     ],
     "combustion_turbine": [
         'combustion turbine', 'gt', 'gas turbine',
@@ -229,6 +242,7 @@ PLANT_KIND_STRINGS = {
         'gas turb, int. comb.', 'gas turb, diesel', 'gas turb, int. comb',
         'i.c.e/gas turbine', 'diesel turbine', 'comubstion turbine',
         'i.c.e. /gas turbine', 'i.c.e/ gas turbine', 'i.c.e./gas tubine',
+        'gas turbine; retired',
     ],
     "combined_cycle": [
         'Combined cycle', 'combined cycle', 'combined', 'gas & steam turbine',
@@ -249,7 +263,7 @@ PLANT_KIND_STRINGS = {
         'gas turb/cumbus cycl', 'gas turb/comb cycle', 'gasturb/comb cycle',
         'gas turb/cumb. cyc', 'igcc/gas turbine', 'gas / steam', 'ctg/steam-gas',
         'ctg/steam -gas', 'gas fired cc turbine', 'combinedcycle', 'comb cycle gas turb',
-        'combined cycle opern', 'comb. cycle gas turb',
+        'combined cycle opern', 'comb. cycle gas turb', 'ngcc',
     ],
     "nuclear": [
         'nuclear', 'nuclear (3)', 'steam(nuclear)', 'nuclear(see note4)'
@@ -270,10 +284,11 @@ PLANT_KIND_STRINGS = {
         'internal combust.', 'int. combustion (1)', '*int combustion (1)',
         "*internal combust'n", 'internal', 'internal comb.', 'steam internal comb',
         'combustion', 'int. combustion', 'int combust (note1)', 'int. combustine',
-        'internl combustion', '*int. combustion (1)'
+        'internl combustion', '*int. combustion (1)', 'internal conbustion',
     ],
     "wind": [
-        'wind', 'wind energy', 'wind turbine', 'wind - turbine', 'wind generation'
+        'wind', 'wind energy', 'wind turbine', 'wind - turbine', 'wind generation',
+        'wind turbin',
     ],
     "photovoltaic": ['solar photovoltaic', 'photovoltaic', 'solar', 'solar project'],
     "solar_thermal": ['solar thermal'],
@@ -299,15 +314,15 @@ PLANT_KIND_STRINGS = {
     ],
 }
 """
-dict: A mapping from canonical plant kinds (keys) to the associated freeform strings
-    (values) identified as being associated with that kind of plant in the FERC Form 1
-    raw data. There are many strings that weren't categorized, Solar and Solar
-    Project were not classified as these do not indicate if they are solar thermal or
-    photovoltaic. Variants on Steam (e.g. "steam 72" and "steam and gas") were
-    classified based on additional research of the plants on the Internet.
+A mapping from canonical plant kinds (keys) to the associated freeform strings (values)
+identified as being associated with that kind of plant in the FERC Form 1 raw data.
+There are many strings that weren't categorized, Solar and Solar Project were not
+classified as these do not indicate if they are solar thermal or photovoltaic. Variants
+on Steam (e.g. "steam 72" and "steam and gas") were classified based on additional
+research of the plants on the Internet.
 """
 
-CONSTRUCTION_TYPE_STRINGS = {
+CONSTRUCTION_TYPE_STRINGS: Dict[str, List[str]] = {
     "outdoor": [
         'outdoor', 'outdoor boiler', 'full outdoor', 'outdoor boiler',
         'outdoor boilers', 'outboilers', 'fuel outdoor', 'full outdoor',
@@ -331,7 +346,7 @@ CONSTRUCTION_TYPE_STRINGS = {
         'outodoor (auto oper)', 'outdoor steel encl.', 'full outoor',
         'boiler & outdoor ful', 'otdr. blr. & f. otdr', 'f.otdr & otdr.blr.',
         'oudoor (auto oper)', 'outdoor constructin', 'f. otdr. & otdr. blr',
-        'outdoor boiler & fue',
+        'outdoor boiler & fue', 'outdoor boiler &fuel',
     ],
     "semioutdoor": [
         'more than 50% outdoo', 'more than 50% outdos', 'over 50% outdoor',
@@ -384,10 +399,12 @@ CONSTRUCTION_TYPE_STRINGS = {
         'conventionsl', 'conventiional', 'convntl steam plants', 'indoor const.',
         'full indoor', 'indoor', 'indoor automatic', 'indoor boiler',
         '(peak load) indoor', 'conventionl,indoor', 'conventionl, indoor',
-        'conventional, indoor', 'comb. cycle indoor', '3 indoor boiler',
+        'conventional, indoor', 'conventional;outdoor', 'conven./outdoor',
+        'conventional;semi-ou', 'comb. cycle indoor', '3 indoor boiler',
         '2 indoor boilers', '1 indoor boiler', '2 indoor boiler',
         '3 indoor boilers', 'fully contained', 'conv - b', 'conventional/boiler',
         'cnventional', 'comb. cycle indooor', 'sonventional', 'ind enclosures',
+        'conentional', 'conventional - boilr', 'indoor boiler and st',
     ],
     "unknown": [
         '', 'automatic operation', 'comb. turb. installn', 'comb. turb. instaln',
@@ -413,18 +430,20 @@ CONSTRUCTION_TYPE_STRINGS = {
         'tower -10 unit', 'tower - 101 unit', '3 on 1 gas turbine', 'tower - 10 units',
         'tower - 165 units', 'wind turbine', 'fixed tilt pv', 'tracking pv', 'o',
         'wind trubine', 'subcritical', 'sucritical', 'simple cycle',
-        'simple & reciprocat'
+        'simple & reciprocat', 'solar', 'pre-fab power plant', 'prefab power plant',
+        'prefab. power plant', 'pump storage', 'underground', 'see page 402',
+        'conv. underground', 'conven. underground', 'conventional (a)', 'non-applicable',
     ],
 }
-"""dict: A dictionary of construction types (keys) and lists of construction type
-    strings associated with each type (values) from FERC Form 1.
+"""
+A dictionary of construction types (keys) and lists of construction type strings
+associated with each type (values) from FERC Form 1.
 
-    There are many strings that weren't categorized, including crosses between
-    conventional and outdoor, PV, wind, combined cycle, and internal combustion. The
-    lists are broken out into the two types specified in Form 1: conventional and
-    outdoor. These lists are inclusive so that variants of conventional (e.g.
-    "conventional full") and outdoor (e.g. "outdoor full" and "outdoor hrsg") are
-    included.
+There are many strings that weren't categorized, including crosses between conventional
+and outdoor, PV, wind, combined cycle, and internal combustion. The lists are broken out
+into the two types specified in Form 1: conventional and outdoor. These lists are
+inclusive so that variants of conventional (e.g.  "conventional full") and outdoor (e.g.
+"outdoor full" and "outdoor hrsg") are included.
 """
 
 ##############################################################################
@@ -457,7 +476,7 @@ def unpack_table(ferc1_df, table_name, data_cols, data_rows):
     row_map = (
         pd.read_csv(
             importlib.resources.open_text(
-                "pudl.package_data.meta.ferc1_row_maps", f"{table_name}.csv"),
+                "pudl.package_data.ferc1.row_maps", f"{table_name}.csv"),
             index_col=0, comment="#")
         .copy().transpose()
         .rename_axis(index="year_index", columns=None)
@@ -471,10 +490,7 @@ def unpack_table(ferc1_df, table_name, data_cols, data_rows):
         rename_dict = {v: k for k, v in dict(row_map.loc[year, :]).items()}
         _ = rename_dict.pop(-1, None)
         df = ferc1_df.loc[ferc1_df.report_year == year].copy()
-        df.loc[:, "row_name"] = (
-            df.loc[:, "row_number"]
-            .replace(rename_dict, value=None)
-        )
+        df.loc[:, "row_name"] = df.loc[:, "row_number"].replace(rename_dict)
         # The concatenate according to row_name
         out_df = pd.concat([out_df, df], axis="index")
 
@@ -678,7 +694,7 @@ def _multiplicative_error_correction(tofix, mask, minval, maxval, mults):
                                           or x > maxval
                                           else x)
     # Add our fixed records back to the complete data series and return it
-    fixed = fixed.append(records_to_fix)
+    fixed = pd.concat([fixed, records_to_fix])
     return fixed
 
 
@@ -708,6 +724,8 @@ def plants_steam(ferc1_raw_dfs, ferc1_transformed_dfs):
              ferc1_transformed_dfs['fuel_ferc1'])
     )
     plants_steam_validate_ids(ferc1_steam_df)
+    ferc1_steam_df = ferc1_steam_df.replace(
+        {'construction_type': 'unknown', 'plant_type': 'unknown'}, pd.NA)
     ferc1_transformed_dfs['plants_steam_ferc1'] = ferc1_steam_df
     return ferc1_transformed_dfs
 
@@ -753,13 +771,10 @@ def _plants_steam_clean(ferc1_steam_df):
             "expns_kwh": 'opex_per_kwh'})
         .pipe(_clean_cols, "f1_steam")
         .pipe(pudl.helpers.simplify_strings, ['plant_name_ferc1'])
-        .pipe(pudl.helpers.cleanstrings,
-              ['construction_type', 'plant_type'],
-              [CONSTRUCTION_TYPE_STRINGS, PLANT_KIND_STRINGS],
-              unmapped='')
+        .pipe(pudl.helpers.cleanstrings, ['construction_type', 'plant_type'], [CONSTRUCTION_TYPE_STRINGS, PLANT_KIND_STRINGS], unmapped=pd.NA)
         .pipe(pudl.helpers.oob_to_nan,
               cols=["construction_year", "installation_year"],
-              lb=1850, ub=max(pc.working_partitions["ferc1"]["years"]) + 1)
+              lb=1850, ub=max(DataSource.from_id("ferc1").working_partitions["years"]) + 1)
         .assign(
             capex_per_mw=lambda x: 1000.0 * x.capex_per_kw,
             opex_per_mwh=lambda x: 1000.0 * x.opex_per_kwh,
@@ -768,6 +783,11 @@ def _plants_steam_clean(ferc1_steam_df):
         .drop(columns=["capex_per_kw", "opex_per_kwh", "net_generation_kwh"])
     )
 
+    for col in ['construction_type', 'plant_type']:
+        if ferc1_steam_df[col].isnull().any():
+            raise AssertionError(
+                f"NA values found in {col} column during FERC 1 steam clean, add string to dictionary for this column"
+            )
     return ferc1_steam_df
 
 
@@ -858,13 +878,14 @@ def _plants_steam_assign_plant_ids(ferc1_steam_df, ferc1_fuel_df):
 
     # Now we'll iterate through the connected components and assign each of
     # them a FERC Plant ID, and pull the results back out into a dataframe:
-    plants_w_ids = pd.DataFrame()
+    plants_w_ids = []
     for plant_id_ferc1, plant in enumerate(ferc1_plants):
         nx.set_edge_attributes(plant,
                                plant_id_ferc1 + 1,
                                name='plant_id_ferc1')
         new_plant_df = nx.to_pandas_edgelist(plant)
-        plants_w_ids = plants_w_ids.append(new_plant_df)
+        plants_w_ids.append(new_plant_df)
+    plants_w_ids = pd.concat(plants_w_ids)
     logger.info(
         f"Successfully Identified {plant_id_ferc1+1-len(orphan_record_ids)} "
         f"multi-year plant entities.")
@@ -976,7 +997,7 @@ def fuel(ferc1_raw_dfs, ferc1_transformed_dfs):
         # imperfect:
         pipe(pudl.helpers.cleanstrings, ['fuel', 'fuel_unit'],
              [FUEL_STRINGS, FUEL_UNIT_STRINGS],
-             unmapped='').
+             unmapped=pd.NA).
         # Fuel cost per kWh is a per-unit value that doesn't make sense to
         # report for a single fuel that may be only a small part of the fuel
         # consumed. "fuel generaton" is heat rate, but as it's based only on
@@ -992,12 +1013,18 @@ def fuel(ferc1_raw_dfs, ferc1_transformed_dfs):
             # FERC 1 DB Name      PUDL DB Name
             "plant_name": "plant_name_ferc1",
             'fuel': 'fuel_type_code_pudl',
+            'fuel_unit': 'fuel_units',
             'fuel_avg_mmbtu_per_unit': 'fuel_mmbtu_per_unit',
-            'fuel_quantity': 'fuel_qty_burned',
+            'fuel_quantity': 'fuel_consumed_units',
             'fuel_cost_burned': 'fuel_cost_per_unit_burned',
             'fuel_cost_delvd': 'fuel_cost_per_unit_delivered',
             'fuel_cost_btu': 'fuel_cost_per_mmbtu'})
     )
+
+    if fuel_ferc1_df['fuel_units'].isnull().any():
+        raise AssertionError(
+            "NA values found in fuel_units column during FERC 1 fuel clean, add string to dictionary"
+        )
 
     #########################################################################
     # CORRECT DATA ENTRY ERRORS #############################################
@@ -1058,6 +1085,8 @@ def fuel(ferc1_raw_dfs, ferc1_transformed_dfs):
     # (for example) a "Total" line w/ only fuel_mmbtu_per_kwh on it. Grr.
     fuel_ferc1_df.dropna(inplace=True)
 
+    # Replace "unkown" fuel unit with NAs - this comes after we drop missing data with NAs
+    fuel_ferc1_df = fuel_ferc1_df.replace({'fuel_units': 'unknown'}, pd.NA)
     ferc1_transformed_dfs['fuel_ferc1'] = fuel_ferc1_df
 
     return ferc1_transformed_dfs
@@ -1098,7 +1127,7 @@ def plants_small(ferc1_raw_dfs, ferc1_transformed_dfs):
     # set them to NA if they can't be converted. (table has some junk values)
     ferc1_small_df = pudl.helpers.oob_to_nan(
         ferc1_small_df, cols=["yr_constructed"],
-        lb=1850, ub=max(pc.working_partitions["ferc1"]["years"]) + 1)
+        lb=1850, ub=max(DataSource.from_id("ferc1").working_partitions["years"]) + 1)
 
     # Convert from cents per mmbtu to dollars per mmbtu to be consistent
     # with the f1_fuel table data. Also, let's use a clearer name.
@@ -1115,7 +1144,7 @@ def plants_small(ferc1_raw_dfs, ferc1_transformed_dfs):
     # in this table. It's been done manually for 2004-2015, and the results
     # get merged in in the following section.
     small_types_file = importlib.resources.open_binary(
-        'pudl.package_data.ferc.form1', 'small_plants_2004-2016.xlsx')
+        'pudl.package_data.ferc1', 'small_plants_2004-2016.xlsx')
     small_types_df = pd.read_excel(small_types_file)
 
     # Only rows with plant_type set will give us novel information.
@@ -1160,8 +1189,7 @@ def plants_small(ferc1_raw_dfs, ferc1_transformed_dfs):
 
     ferc1_small_df.rename(columns={
         # FERC 1 DB Name      PUDL DB Name
-        'plant_name': 'plant_name_original',
-        'plant_name_clean': 'plant_name_ferc1',
+        'plant_name': 'plant_name_ferc1',
         'ferc_license': 'ferc_license_id',
         'yr_constructed': 'construction_year',
         'capacity_rating': 'capacity_mw',
@@ -1201,7 +1229,7 @@ def plants_hydro(ferc1_raw_dfs, ferc1_transformed_dfs):
         # white space -- necesary b/c plant_name is part of many foreign keys.
         .pipe(pudl.helpers.simplify_strings, ['plant_name'])
         .pipe(pudl.helpers.cleanstrings, ['plant_const'],
-              [CONSTRUCTION_TYPE_STRINGS], unmapped='')
+              [CONSTRUCTION_TYPE_STRINGS], unmapped=pd.NA)
         .assign(
             # Converting kWh to MWh
             net_generation_mwh=lambda x: x.net_generation / 1000.0,
@@ -1210,7 +1238,7 @@ def plants_hydro(ferc1_raw_dfs, ferc1_transformed_dfs):
             # Converting kWh to MWh
             expns_per_mwh=lambda x: x.expns_kwh * 1000.0)
         .pipe(pudl.helpers.oob_to_nan, cols=["yr_const", "yr_installed"],
-              lb=1850, ub=max(pc.working_partitions["ferc1"]["years"]) + 1)
+              lb=1850, ub=max(DataSource.from_id("ferc1").working_partitions["years"]) + 1)
         .drop(columns=['net_generation', 'cost_per_kw', 'expns_kwh'])
         .rename(columns={
             # FERC1 DB          PUDL DB
@@ -1257,7 +1285,11 @@ def plants_hydro(ferc1_raw_dfs, ferc1_transformed_dfs):
                     "capacity_mw"],
             keep=False)
     )
-
+    if ferc1_hydro_df['construction_type'].isnull().any():
+        raise AssertionError(
+            "NA values found in construction_type column during FERC1 hydro clean, add string to CONSTRUCTION_TYPE_STRINGS"
+        )
+    ferc1_hydro_df = ferc1_hydro_df.replace({'construction_type': 'unknown'}, pd.NA)
     ferc1_transformed_dfs['plants_hydro_ferc1'] = ferc1_hydro_df
     return ferc1_transformed_dfs
 
@@ -1285,7 +1317,7 @@ def plants_pumped_storage(ferc1_raw_dfs, ferc1_transformed_dfs):
         .pipe(pudl.helpers.simplify_strings, ['plant_name'])
         # Clean up the messy plant construction type column:
         .pipe(pudl.helpers.cleanstrings, ['plant_kind'],
-              [CONSTRUCTION_TYPE_STRINGS], unmapped='')
+              [CONSTRUCTION_TYPE_STRINGS], unmapped=pd.NA)
         .assign(
             # Converting from kW/kWh to MW/MWh
             net_generation_mwh=lambda x: x.net_generation / 1000.0,
@@ -1294,7 +1326,7 @@ def plants_pumped_storage(ferc1_raw_dfs, ferc1_transformed_dfs):
             cost_per_mw=lambda x: x.cost_per_kw * 1000.0,
             expns_per_mwh=lambda x: x.expns_kwh * 1000.0)
         .pipe(pudl.helpers.oob_to_nan, cols=["yr_const", "yr_installed"],
-              lb=1850, ub=max(pc.working_partitions["ferc1"]["years"]) + 1)
+              lb=1850, ub=max(DataSource.from_id("ferc1").working_partitions["years"]) + 1)
         .drop(columns=['net_generation', 'energy_used', 'net_load',
                        'cost_per_kw', 'expns_kwh'])
         .rename(columns={
@@ -1344,7 +1376,11 @@ def plants_pumped_storage(ferc1_raw_dfs, ferc1_transformed_dfs):
                     "capacity_mw"],
             keep=False)
     )
-
+    if ferc1_pump_df['construction_type'].isnull().any():
+        raise AssertionError(
+            "NA values found in construction_type column during FERC 1 pumped storage clean, add string to CONSTRUCTION_TYPE_STRINGS"
+        )
+    ferc1_pump_df = ferc1_pump_df.replace({'construction_type': 'unknown'}, pd.NA)
     ferc1_transformed_dfs['plants_pumped_storage_ferc1'] = ferc1_pump_df
     return ferc1_transformed_dfs
 
@@ -1434,44 +1470,46 @@ def purchased_power(ferc1_raw_dfs, ferc1_transformed_dfs):
         dict: The dictionary of the transformed DataFrames.
     """
     # grab table from dictionary of dfs
-    df = (_clean_cols(ferc1_raw_dfs['purchased_power_ferc1'], 'f1_purchased_pwr')
-          .rename(columns={
-              'athrty_co_name': 'seller_name',
-              'sttstcl_clssfctn': 'purchase_type',
-              'rtsched_trffnbr': 'tariff',
-              'avgmth_bill_dmnd': 'billing_demand_mw',
-              'avgmth_ncp_dmnd': 'non_coincident_peak_demand_mw',
-              'avgmth_cp_dmnd': 'coincident_peak_demand_mw',
-              'mwh_purchased': 'purchased_mwh',
-              'mwh_recv': 'received_mwh',
-              'mwh_delvd': 'delivered_mwh',
-              'dmnd_charges': 'demand_charges',
-              'erg_charges': 'energy_charges',
-              'othr_charges': 'other_charges',
-              'settlement_tot': 'total_settlement'})
-          .assign(  # Require these columns to numeric, or NaN
-        billing_demand_mw=lambda x: pd.to_numeric(
-            x.billing_demand_mw, errors="coerce"),
-        non_coincident_peak_demand_mw=lambda x: pd.to_numeric(
-            x.non_coincident_peak_demand_mw, errors="coerce"),
-        coincident_peak_demand_mw=lambda x: pd.to_numeric(
-            x.coincident_peak_demand_mw, errors="coerce"))
-          .fillna({  # Replace blanks w/ 0.0 in data columns.
-              "purchased_mwh": 0.0,
-              "received_mwh": 0.0,
-              "delivered_mwh": 0.0,
-              "demand_charges": 0.0,
-              "energy_charges": 0.0,
-              "other_charges": 0.0,
-              "total_settlement": 0.0}))
+    df = (
+        _clean_cols(ferc1_raw_dfs['purchased_power_ferc1'], 'f1_purchased_pwr')
+        .rename(columns={
+            'athrty_co_name': 'seller_name',
+            'sttstcl_clssfctn': 'purchase_type_code',
+            'rtsched_trffnbr': 'tariff',
+            'avgmth_bill_dmnd': 'billing_demand_mw',
+            'avgmth_ncp_dmnd': 'non_coincident_peak_demand_mw',
+            'avgmth_cp_dmnd': 'coincident_peak_demand_mw',
+            'mwh_purchased': 'purchased_mwh',
+            'mwh_recv': 'received_mwh',
+            'mwh_delvd': 'delivered_mwh',
+            'dmnd_charges': 'demand_charges',
+            'erg_charges': 'energy_charges',
+            'othr_charges': 'other_charges',
+            'settlement_tot': 'total_settlement'})
+        .assign(  # Require these columns to numeric, or NaN
+            billing_demand_mw=lambda x: pd.to_numeric(
+                x.billing_demand_mw, errors="coerce"),
+            non_coincident_peak_demand_mw=lambda x: pd.to_numeric(
+                x.non_coincident_peak_demand_mw, errors="coerce"),
+            coincident_peak_demand_mw=lambda x: pd.to_numeric(
+                x.coincident_peak_demand_mw, errors="coerce"))
+        .fillna({  # Replace blanks w/ 0.0 in data columns.
+            "purchased_mwh": 0.0,
+            "received_mwh": 0.0,
+            "delivered_mwh": 0.0,
+            "demand_charges": 0.0,
+            "energy_charges": 0.0,
+            "other_charges": 0.0,
+            "total_settlement": 0.0,
+        })
+    )
 
-    # Replace any invalid purchase types with the empty string
-    bad_rows = (~df.purchase_type.isin(pc.ferc1_power_purchase_type.keys()))
-    df.loc[bad_rows, 'purchase_type'] = ""
-
-    # Replace inscrutable two letter codes with descriptive codes:
-    df['purchase_type'] = df.purchase_type.replace(
-        pc.ferc1_power_purchase_type)
+    # Reencode the power purchase types:
+    df = (
+        pudl.metadata.classes.Package.from_resource_ids()
+        .get_resource("purchased_power_ferc1")
+        .encode(df)
+    )
 
     # Drop records containing no useful data and also any completely duplicate
     # records -- there are 6 in 1998 for utility 238 for some reason...
@@ -1509,7 +1547,7 @@ def accumulated_depreciation(ferc1_raw_dfs, ferc1_transformed_dfs):
     # grab table from dictionary of dfs
     ferc1_apd_df = ferc1_raw_dfs['accumulated_depreciation_ferc1']
 
-    ferc1_acct_apd = pc.ferc_accumulated_depreciation.drop(
+    ferc1_acct_apd = FERC_DEPRECIATION_LINES.drop(
         ['ferc_account_description'], axis=1)
     ferc1_acct_apd.dropna(inplace=True)
     ferc1_acct_apd['row_number'] = ferc1_acct_apd['row_number'].astype(int)
@@ -1529,20 +1567,20 @@ def accumulated_depreciation(ferc1_raw_dfs, ferc1_transformed_dfs):
     return ferc1_transformed_dfs
 
 
-def transform(ferc1_raw_dfs, ferc1_tables=pc.pudl_tables['ferc1']):
+def transform(ferc1_raw_dfs, ferc1_settings: Ferc1Settings = Ferc1Settings()):
     """Transforms FERC 1.
 
     Args:
         ferc1_raw_dfs (dict): Each entry in this dictionary of DataFrame objects
             corresponds to a table from the FERC Form 1 DBC database
-        ferc1_tables (tuple): A tuple containing the set of tables which have been
-            successfully integrated into PUDL
+        ferc1_settings: Validated ETL parameters required by
+            this data source.
 
     Returns:
         dict: A dictionary of the transformed DataFrames.
 
     """
-    ferc1_transform_functions = {
+    ferc1_tfr_funcs = {
         # fuel must come before steam b/c fuel proportions are used to aid in
         # plant # ID assignment.
         'fuel_ferc1': fuel,
@@ -1555,21 +1593,21 @@ def transform(ferc1_raw_dfs, ferc1_tables=pc.pudl_tables['ferc1']):
         'accumulated_depreciation_ferc1': accumulated_depreciation
     }
     # create an empty ditctionary to fill up through the transform fuctions
-    ferc1_transformed_dfs = {}
+    ferc1_tfr_dfs = {}
 
     # for each ferc table,
-    for table in ferc1_transform_functions:
-        if table in ferc1_tables:
+    for table in ferc1_tfr_funcs:
+        if table in ferc1_settings.tables:
             logger.info(
                 f"Transforming raw FERC Form 1 dataframe for "
                 f"loading into {table}")
-            ferc1_transform_functions[table](
-                ferc1_raw_dfs, ferc1_transformed_dfs)
+            ferc1_tfr_funcs[table](ferc1_raw_dfs, ferc1_tfr_dfs)
 
-    # convert types..
-    ferc1_transformed_dfs = pudl.helpers.convert_dfs_dict_dtypes(
-        ferc1_transformed_dfs, 'ferc1')
-    return ferc1_transformed_dfs
+    # convert types and return:
+    return {
+        name: convert_cols_dtypes(df, data_source="ferc1")
+        for name, df in ferc1_tfr_dfs.items()
+    }
 
 ###############################################################################
 # Identifying FERC Plants
@@ -1694,14 +1732,11 @@ class FERCPlantClassifier(BaseEstimator, ClassifierMixin):
             raise RuntimeError(
                 "You must train classifer before predicting data!")
 
-        out_df = pd.DataFrame(
-            data=[],
-            index=pd.Index([], name="seed_id"),
-            columns=self._years)
-        tmp_best = (
-            self._best_of.loc[:, ["record_id"] + list(self._years)]
-            .append(pd.DataFrame(data=[""], index=[-1], columns=["record_id"]))
-        )
+        tmp_best = pd.concat([
+            self._best_of.loc[:, ["record_id"] + list(self._years)],
+            pd.DataFrame(data=[""], index=[-1], columns=["record_id"])
+        ])
+        out_dfs = []
         # For each record_id we've been given:
         for x in X:
             # Find the index associated with the record ID we are predicting
@@ -1745,14 +1780,16 @@ class FERCPlantClassifier(BaseEstimator, ClassifierMixin):
                 new_grp = tmp_best.loc[b_m, "record_id"]
 
                 # Stack the new list of record_ids on our output DataFrame:
-                out_df = out_df.append(
+                out_dfs.append(
                     pd.DataFrame(
                         data=new_grp.values.reshape(1, len(self._years)),
                         index=pd.Index(
                             [tmp_best.loc[idx, "record_id"]],
                             name="seed_id"),
-                        columns=self._years))
-        return out_df
+                        columns=self._years
+                    )
+                )
+        return pd.concat(out_dfs)
 
     def score(self, X, y=None):  # noqa: N803
         """Scores a collection of FERC plant categorizations.
@@ -1977,7 +2014,7 @@ def fuel_by_plant_ferc1(fuel_df, thresh=0.5):
         'utility_id_ferc1',  # key
         'plant_name_ferc1',  # key
         'fuel_type_code_pudl',  # pivot
-        'fuel_qty_burned',  # value
+        'fuel_consumed_units',  # value
         'fuel_mmbtu_per_unit',  # value
         'fuel_cost_per_unit_burned',  # value
     ]
@@ -1995,10 +2032,10 @@ def fuel_by_plant_ferc1(fuel_df, thresh=0.5):
         # bug somewhere that introduces them into the fuel_ferc1 table.
         fuel_df[keep_cols].drop_duplicates().
         # Calculate totals for each record based on per-unit values:
-        assign(fuel_mmbtu=lambda x: x.fuel_qty_burned * x.fuel_mmbtu_per_unit).
-        assign(fuel_cost=lambda x: x.fuel_qty_burned * x.fuel_cost_per_unit_burned).
+        assign(fuel_mmbtu=lambda x: x.fuel_consumed_units * x.fuel_mmbtu_per_unit).
+        assign(fuel_cost=lambda x: x.fuel_consumed_units * x.fuel_cost_per_unit_burned).
         # Drop the ratios and heterogeneous fuel "units"
-        drop(['fuel_mmbtu_per_unit', 'fuel_cost_per_unit_burned', 'fuel_qty_burned'], axis=1).
+        drop(['fuel_mmbtu_per_unit', 'fuel_cost_per_unit_burned', 'fuel_consumed_units'], axis=1).
         # Group by the keys and fuel type, and sum:
         groupby(['utility_id_ferc1', 'plant_name_ferc1', 'report_year', 'fuel_type_code_pudl']).
         agg(sum).reset_index().
@@ -2006,6 +2043,9 @@ def fuel_by_plant_ferc1(fuel_df, thresh=0.5):
         set_index(['utility_id_ferc1', 'plant_name_ferc1', 'report_year']).
         pivot(columns='fuel_type_code_pudl').fillna(0.0)
     )
+
+    # undo pivot. Could refactor this old function but out of scope for now (fixing a pandas API deprecation)
+    plant_year_totals = df.stack('fuel_type_code_pudl').groupby(level=[0, 1, 2]).sum()
 
     # Calculate total heat content burned for each plant, and divide it out
     mmbtu_group = (
@@ -2016,7 +2056,7 @@ def fuel_by_plant_ferc1(fuel_df, thresh=0.5):
             df.loc[:, 'fuel_mmbtu'].div(
                 df.loc[:, 'fuel_mmbtu'].sum(axis=1), axis='rows'),
             # Merge that same total into the dataframe separately as well.
-            df.sum(level=0, axis=1).loc[:, 'fuel_mmbtu'],
+            plant_year_totals.loc[:, 'fuel_mmbtu'],
             right_index=True, left_index=True).
         rename(columns=lambda x: re.sub(r'$', '_fraction_mmbtu', x)).
         rename(columns=lambda x: re.sub(r'_mmbtu_fraction_mmbtu$', '_mmbtu', x))
@@ -2031,7 +2071,8 @@ def fuel_by_plant_ferc1(fuel_df, thresh=0.5):
             df.loc[:, 'fuel_cost'].div(
                 df.loc[:, 'fuel_cost'].sum(axis=1), axis='rows'),
             # Merge that same total into the dataframe separately as well.
-            df.sum(level=0, axis=1).loc[:, 'fuel_cost'], right_index=True, left_index=True).
+            plant_year_totals.loc[:, 'fuel_cost'],
+            right_index=True, left_index=True).
         rename(columns=lambda x: re.sub(r'$', '_fraction_cost', x)).
         rename(columns=lambda x: re.sub(r'_cost_fraction_cost$', '_cost', x))
     )

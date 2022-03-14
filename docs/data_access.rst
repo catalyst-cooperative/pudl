@@ -37,7 +37,7 @@ which one is right for you and your use case.
        Access the SQLite DB and Parquet files directly using any toolset.
    * - :ref:`access-jupyterhub`
      - New Python User, Notebook Analyst
-     - Work through the PUDL example notebooks ithout any downloads or setup.
+     - Work through the PUDL example notebooks without any downloads or setup.
        Perform your own notebook-based analyses using PUDL data and limited
        computational resources.
    * - :ref:`access-development`
@@ -45,9 +45,6 @@ which one is right for you and your use case.
      - Run the PUDL data processing pipeline on your own computer.
        Edit the PUDL source code and run the software tests and data validations.
        Integrate a new data source or newly released data from one of existing sources.
-   * - :ref:`access-datapackage`
-     - Deprecated
-     - For working with our published data prior to v0.4.0
 
 .. _access-datasette:
 
@@ -62,10 +59,10 @@ Datasette is an open source tool that wraps SQLite databases in an interactive
 front-end. It allows users to browse database tables, select portions of them using
 dropdown menus, build their own SQL queries, and download data to CSVs. It also
 creates a REST API allowing the data in the database to be queried programmatically.
-All the query parameters are stored in the URL, so you can also share links to the
+All the query parameters are stored in the URL so you can also share links to the
 data you've selected.
 
-Note that only data which has been fully integrated into the SQLite databases are
+Note that only data that has been fully integrated into the SQLite databases are
 available here. Currently this includes `the core PUDL database
 <https://data.catalyst.coop/pudl>`__ and our concatenation of `all historical FERC
 Form 1 databases <https://data.catalyst.coop/ferc1>`__.
@@ -76,14 +73,14 @@ Form 1 databases <https://data.catalyst.coop/ferc1>`__.
 Zenodo Archives
 ---------------------------------------------------------------------------------------
 
-We use Zenodo to archive our fully processed data as a SQLite databasees and
+We use Zenodo to archive our fully processed data as SQLite databases and
 Parquet files. We also archive a Docker image that contains the software environment
 required to use PUDL within Jupyter Notebooks. You can find all our archived data
 products in `the Catalyst Cooperative Community on Zenodo
 <https://zenodo.org/communities/catalyst-cooperative/>`__.
 
-* The current (beta) version of the archived data and Docker container can be
-  downloaded from `This Zenodo archive <https://sandbox.zenodo.org/record/764417>`__
+* The current version of the archived data and Docker container can be
+  downloaded from `This Zenodo archive <https://doi.org/10.5281/zenodo.3653158>`__
 * Detailed instructions on how to access the archived PUDL data using a Docker
   container can be found in our `PUDL Examples repository
   <https://github.com/catalyst-cooperative/pudl-examples/>`__.
@@ -108,7 +105,7 @@ JupyterHub
 ---------------------------------------------------------------------------------------
 
 We've set up a `JupyterHub <https://jupyter.org/hub>`__ in collaboration with
-`2i2c.org <https://2i2c.org>`__ which provides access to all of the processed PUDL
+`2i2c.org <https://2i2c.org>`__ to provide access to all of the processed PUDL
 data and the software environment required to work with it. You don't have to
 download or install anything to use it, but we do need to create an account for you.
 
@@ -140,79 +137,3 @@ development environment. This is a bit involved, so it has its
 Most users shouldn't need to do this, and will probably find working with the
 pre-processed data via one of the other access modes easier. But if you want to
 :doc:`contribute to the project <CONTRIBUTING>` please give it a shot!
-
-.. _access-datapackage:
-
----------------------------------------------------------------------------------------
-Data Packages
----------------------------------------------------------------------------------------
-
-.. note::
-
-    Prior to v0.4.0 of PUDL we only published processed data as `tabular data
-    packages <https://frictionlessdata.io/specs/tabular-data-package/>`__. As of
-    v0.4.0 we are will distribute the SQLite databases and Apache Parquet files
-    alongside a set of data packages. As of PUDL v0.5.0 we will be generating SQLite
-    and Apache Parquet outputs directly, and will no longer be archiving tabular data
-    packages as the format of record, and the format conversions described below will
-    no longer be necessary.
-
-Archived Data Packages
-^^^^^^^^^^^^^^^^^^^^^^
-
-We periodically publish data packages containing the full outputs from the PUDL ETL
-pipeline on `Zenodo <https://zenodo.org>`__, and open data archiving service provided
-by CERN. The most recent release can always be found through this concept DOI:
-`10.5281/zenodo.3653158 <https://doi.org/10.5281/zenodo.3653158>`__. Each individual
-version of the data releases will be assigned its own unique DOI.
-
-All of our archived products can be found in the `Catalyst Cooperative Community on
-Zenodo <https://zenodo.org/communities/catalyst-cooperative/>`__. These archives and
-the DOIs associated with them should be permanently accessible, and are suitable for
-use as references in academic and other publications.
-
-Once you've downloaded or generated your own tabular data packages you will probably
-want to convert them into a more analysis oriented file format. We typically use
-SQLite for the core FERC and EIA data, and Apache Parquet files for the very long
-tables like EPA CEMS.
-
-Converting to SQLite
-^^^^^^^^^^^^^^^^^^^^
-
-If you want to access the data via SQL, we have provided a script that loads several
-data packages into a local :mod:`sqlite3` database. Note that these data packages
-**must** have all been generated by the **same** ETL run, or they will be considered
-incompatible by the script. For example, to load three data packages generated by our
-example ETL configuration into your local SQLite DB, you could run the following
-command from within your PUDL workspace:
-
-.. code-block:: console
-
-    $ datapkg_to_sqlite \
-        datapkg/pudl-example/ferc1-example/datapackage.json \
-        datapkg/pudl-example/eia-example/datapackage.json \
-
-Run ``datapkg_to_sqlite --help`` for more details.
-
-Converting to Apache Parquet
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-The :doc:`data_sources/epacems` data approaches 100 GB in size uncompressed, which is
-too large to work with directly in memory on most systems, and take a very long time
-to load into SQLite. Instead, we recommend converting the Hourly Emissions table into
-an `Apache Parquet <https://parquet.apache.org>`__ dataset which is stored on disk
-locally, and either reading in only parts of it using pandas, or using `Dask
-dataframes <https://dask.org>`__, to serialize or distribute your analysis tasks.
-Dask can also speed up processing for in-memory tasks, especially if you have a
-powerful system with multiple cores, a solid state disk, and plenty of memory.
-
-If you have generated an EPA CEMS data package, you can use the
-``epacems_to_parquet`` script to convert the hourly emissions table like this:
-
-.. code-block:: console
-
-    $ epacems_to_parquet datapkg/pudl-example/epacems-eia-example/datapackage.json
-
-The script will automatically generate a Parquet Dataset which is partitioned
-by year and state in the ``parquet/epacems`` directory within your workspace.
-Run ``epacems_to_parquet --help`` for more details.

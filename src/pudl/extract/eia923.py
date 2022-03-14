@@ -12,6 +12,7 @@ import pandas as pd
 
 from pudl.extract import excel
 from pudl.helpers import fix_leading_zero_gen_ids
+from pudl.settings import Eia923Settings
 
 logger = logging.getLogger(__name__)
 
@@ -46,6 +47,19 @@ class Extractor(excel.GenericExtractor):
         df = fix_leading_zero_gen_ids(df)
         return df
 
+    def extract(self, settings: Eia923Settings = Eia923Settings()):
+        """Extracts dataframes.
+
+        Returns dict where keys are page names and values are
+        DataFrames containing data across given years.
+
+        Args:
+            settings: Object containing validated settings
+                relevant to EIA 923. Contains the tables and years to be loaded
+                into PUDL.
+        """
+        return super().extract(year=settings.years)
+
     @staticmethod
     def process_renamed(df, page, **partition):
         """Cleans up unnamed_0 column in stocks page, drops invalid plan_id_eia rows."""
@@ -53,7 +67,10 @@ class Extractor(excel.GenericExtractor):
             df = df.rename(columns={'unnamed_0': 'census_division_and_state'})
         # Drop the fields with plant_id_eia 99999 or 999999.
         # These are state index
-        if page != 'stocks':
+        # Add leading zeros to county FIPS in fuel_receipts_costs
+        else:
+            if page == 'fuel_receipts_costs':
+                df.county_id_fips = df.county_id_fips.str.rjust(3, '0')
             df = df[~df.plant_id_eia.isin([99999, 999999])]
         return df
 
@@ -66,8 +83,11 @@ class Extractor(excel.GenericExtractor):
 
     @staticmethod
     def get_dtypes(page, **partition):
-        """Returns dtypes for plant id columns."""
+        """Returns dtypes for plant id columns and county FIPS column."""
         return {
             "Plant ID": pd.Int64Dtype(),
             "Plant Id": pd.Int64Dtype(),
+            "Coalmine County": pd.StringDtype(),
+            "CoalMine_County": pd.StringDtype(),
+            "Coalmine\nCounty": pd.StringDtype()
         }
