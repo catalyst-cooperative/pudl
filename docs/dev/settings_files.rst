@@ -26,84 +26,67 @@ Setttings for ferc1_to_sqlite
 
    * - Parameter
      - Description
-   * - ``ferc1_to_sqlite_refyear``
-     - A single 4-digit year to use as the reference for inferring FERC Form 1
-       database's structure. Typically, the most recent year of available data.
-   * - ``ferc1_to_sqlite_years``
+   * - ``years``
      - A list of years to be included in the cloned FERC Form 1 database. You
        should only use a continuous range of years. 1994 is the earliest year
        available.
-   * - ``ferc1_to_sqlite_tables``
+   * - ``tables``
      - A list of strings indicating what tables to load. The list of acceptable
        tables can be found in the the example settings file and corresponds to
-       the values found in the ``ferc1_dbf2tbl`` dictionary in
-       :mod:`pudl.constants`.
+       the keys of :py:const:`pudl.extract.ferc1.DBF_TABLES_FILENAMES`.
 
 -------------------------------------------------------------------------------
 Settings for pudl_etl
 -------------------------------------------------------------------------------
 
-The ``pudl_etl`` script requires a YAML settings file. In the repository this
-example file is lives in ``src/pudl/package_data/settings``. This example file
-(``etl_example.yml``) is deployed onto a user's system in the
-``settings`` directory within the PUDL workspace when the ``pudl_setup`` script
-is run. Once this file is in the settings directory, users can copy it and
-modify it as appropriate for their own use.
-
-This settings file allows users to determine the scope of the integrated by
-PUDL. Most datasets can be used to generate stand-alone data packages. If you
-only want to use FERC Form 1, you can remove the other data package
-specifications or alter their parameters such that none of their data is
-processed (e.g. by setting the list of years to be an empty list). The settings
-are verified early on in the ETL process, so if you got something wrong, you
-should get an assertion error quickly.
+The ``pudl_etl`` script requires a YAML settings file. In the repository we
+provide two example files, which live in ``src/pudl/package_data/settings``.
+Both the ``etl_fast.yml`` and ``etl_full.yml`` examples are deployed onto a
+user's system in the ``settings`` directory within the PUDL workspace when the
+``pudl_setup`` script is run. Once this file is in the settings directory, users
+can copy it and modify it as appropriate for their own use. See
+:doc:`run_the_etl` for more details
 
 While PUDL largely keeps datasets disentangled for ETL purposes (enabling
 stand-alone ETL), the EPA CEMS and EIA datasets are exceptions. EPA CEMS cannot
-be loaded without EIA because it relies on IDs that come from EIA 860.
-Similarly, EIA Forms 860 and 923 are very tightly related. You can load only
-EIA 860, but the settings verification will automatically add in a few 923
-tables that are needed to generate the complete list of plants and generators.
+be loaded without having the EIA data available because it relies on IDs that
+come from EIA 860. However, EPA CEMS can be loaded without EIA if you have an existing
+PUDL database. Similarly, EIA Forms 860 and 923 are very tightly related.
+You can load only EIA 860, but the settings verification will automatically add
+in a few 923 tables that are needed to generate the complete list of plants and
+generators. The settings verification will also automatically add all 860 tables
+if only 923 is specified.
 
 .. warning::
 
     If you are processing the EIA 860/923 data, we **strongly recommend**
-    including the same years in both datasets. We only test two combinations
-    of inputs:
-
-    * That **all** available years of EIA 860/923 can be processed together, and
-    * That the most recent year of both datasets can be processed together.
-
-    Other combinations of years may yield unexpected results.
+    including the same years in both datasets. We only test two combinations of
+    inputs, as specified by the ``etl_fast.yml`` and ``etl_full.yml`` settings
+    distributed with the package.  Other combinations of years may yield
+    unexpected results.
 
 Structure of the pudl_etl Settings File
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The general structure of the settings file and the names of the keys of the
 dictionaries should not be changed, but the values of those dictionaries
-can be edited. There are two high-level elements of the settings file which
-pertain to the entire bundle of tabular data packages which will be generated:
-``datapkg_bundle_name`` and ``datapkg_bundle_settings``. The
-``datapkg_bundle_name`` determines which directory the data packages are
-written into. The elements and structure of the ``datapkg_bundle_settings``
+can be edited. The elements and structure of the ETL settings
 are described below::
 
-    datapkg_bundle_settings
-      ├── name : unique name identifying the data package
-      │   title : short human readable title for the data package
-      │   description : a longer description of the data package
-      │   datasets
-      │    ├── dataset name
-      │    │    ├── dataset etl parameter (e.g. states) : list of states
-      │    │    └── dataset etl parameter (e.g. years) : list of years
-      │    └── dataset name
-      │    │    ├── dataset etl parameter (e.g. states) : list of states
-      │    │    └── dataset etl parameter (e.g. years) : list of years
-      └── another data package...
+    name : unique name identifying the etl outputs
+    title : short human readable title for the etl outputs
+    description : a longer description of the etl outputs
+    datasets
+      ├── dataset name
+      │    ├── dataset etl parameter (e.g. states) : list of states
+      │    └── dataset etl parameter (e.g. years) : list of years
+      └── dataset name
+      │    ├── dataset etl parameter (e.g. states) : list of states
+      │    └── dataset etl parameter (e.g. years) : list of years
 
 The dataset names must not be changed. The dataset names enabled include:
 ``eia`` (which includes Forms 860/923 only for now), ``ferc1``, and ``epacems``.
-Any other dataset name will result in an assertion error.
+Any other dataset name will result in an validation error.
 
 .. note::
 
@@ -116,4 +99,4 @@ Dataset ETL parameters (like years, states, tables) will only register if they
 are a part of the correct dataset. If you put some FERC Form 1 ETL parameter in
 an EIA dataset specification, FERC Form 1 will not be loaded as a part of that
 dataset. For an exhaustive listing of the available parameters, see the
-``etl_example.yml`` file.
+``etl_full.yml`` file.

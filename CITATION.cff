@@ -1,0 +1,25 @@
+cff-version: 1.1.0
+message: "If you use PUDL, please cite it as indicated below."
+authors:
+  - family-names: Selvans
+    given-names: Zane
+    orcid: https://orcid.org/0000-0002-9961-7208
+  - family-names: Gosnell
+    given-names: Christina
+  - family-names: Sharpe
+    given-names: Austen
+  - family-names: Winter
+    given-names: Steven
+  - family-names: Rousik
+    given-names: Jan
+  - family-names: Welty
+    given-names: Ethan
+    orcid: https://orcid.org/0000-0001-8046-2210
+  - family-names: Bush
+    given-names: Trenton
+  - family-names: Norman
+    given-names: Bennett
+title: "The Public Utility Data Liberation (PUDL) Project"
+version: 0.5.0
+doi: 10.5281/zenodo.5677623
+date-released: 2020-11-11

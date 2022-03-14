@@ -10,6 +10,8 @@ from zipfile import ZipFile
 
 import pandas as pd
 
+from pudl.metadata.fields import apply_pudl_dtypes
+from pudl.settings import EpaCemsSettings
 from pudl.workspace.datastore import Datastore
 
 logger = logging.getLogger(__name__)
@@ -70,50 +72,6 @@ IGNORE_COLS = {
 }
 """set: The set of EPA CEMS columns to ignore when reading data."""
 
-# Specify dtypes to for reading the CEMS CSVs
-CSV_DTYPES = {
-    "STATE": pd.StringDtype(),
-    # "FACILITY_NAME": str,  # Not reading from CSV
-    "ORISPL_CODE": pd.Int64Dtype(),
-    "UNITID": pd.StringDtype(),
-    # These op_date, op_hour, and op_time variables get converted to
-    # operating_date, operating_datetime and operating_time_interval in
-    # transform/epacems.py
-    "OP_DATE": pd.StringDtype(),
-    "OP_HOUR": pd.Int64Dtype(),
-    "OP_TIME": float,
-    "GLOAD (MW)": float,
-    "GLOAD": float,
-    "SLOAD (1000 lbs)": float,
-    "SLOAD (1000lb/hr)": float,
-    "SLOAD": float,
-    "SO2_MASS (lbs)": float,
-    "SO2_MASS": float,
-    "SO2_MASS_MEASURE_FLG": pd.StringDtype(),
-    # "SO2_RATE (lbs/mmBtu)": float,  # Not reading from CSV
-    # "SO2_RATE": float,  # Not reading from CSV
-    # "SO2_RATE_MEASURE_FLG": str,  # Not reading from CSV
-    "NOX_RATE (lbs/mmBtu)": float,
-    "NOX_RATE": float,
-    "NOX_RATE_MEASURE_FLG": pd.StringDtype(),
-    "NOX_MASS (lbs)": float,
-    "NOX_MASS": float,
-    "NOX_MASS_MEASURE_FLG": pd.StringDtype(),
-    "CO2_MASS (tons)": float,
-    "CO2_MASS": float,
-    "CO2_MASS_MEASURE_FLG": pd.StringDtype(),
-    # "CO2_RATE (tons/mmBtu)": float,  # Not reading from CSV
-    # "CO2_RATE": float,  # Not reading from CSV
-    # "CO2_RATE_MEASURE_FLG": str,  # Not reading from CSV
-    "HEAT_INPUT (mmBtu)": float,
-    "HEAT_INPUT": float,
-    "FAC_ID": pd.Int64Dtype(),
-    "UNIT_ID": pd.Int64Dtype(),
-}
-"""dict: A dictionary containing column names (keys) and data types (values)
-for EPA CEMS.
-"""
-
 
 class EpaCemsPartition(NamedTuple):
     """Represents EpaCems partition identifying unique resource file."""
@@ -163,58 +121,46 @@ class EpaCemsDatastore:
         """
         Convert a CEMS csv file into a :class:`pandas.DataFrame`.
 
-        Note that some columns are not read. See
-        :mod:`pudl.constants.epacems_columns_to_ignore`. Data types for the columns
-        are specified in :mod:`pudl.constants.epacems_csv_dtypes` and names of the
-        output columns are set by :mod:`pudl.constants.epacems_rename_dict`.
-
         Args:
             csv (file-like object): data to be read
 
         Returns:
-            pandas.DataFrame: A DataFrame containing the contents of the
-            CSV file.
+            A DataFrame containing the contents of the CSV file.
+
         """
-        df = pd.read_csv(
-            csv_file,
-            index_col=False,
-            usecols=lambda col: col not in IGNORE_COLS,
-        )
         return (
-            df.astype({col: CSV_DTYPES[col] for col in CSV_DTYPES if col in df.columns})
+            pd.read_csv(
+                csv_file,
+                index_col=False,
+                usecols=lambda col: col not in IGNORE_COLS,
+            )
             .rename(columns=RENAME_DICT)
+            .pipe(apply_pudl_dtypes, group="epacems")
         )
 
 
-def extract(epacems_years, states, ds: Datastore):
+def extract(epacems_settings: EpaCemsSettings, ds: Datastore):
     """
     Coordinate the extraction of EPA CEMS hourly DataFrames.
 
     Args:
-        epacems_years (list): The years of CEMS data to extract, as 4-digit
-            integers.
-        states (list): The states whose CEMS data we want to extract, indicated
-            by 2-letter US state codes.
+        epacems_settings: Object containing validated settings
+            relevant to EPA CEMS. Contains the years and states to be loaded
+            into PUDL.
         ds (:class:`Datastore`): Initialized datastore
 
     Yields:
-        dict: a dictionary with a single EPA CEMS tabular data resource name as
-        the key, having the form "hourly_emissions_epacems_YEAR_STATE" where
-        YEAR is a 4 digit number and STATE is a lower case 2-letter code for a
-        US state. The value is a :class:`pandas.DataFrame` containing all the
-        raw EPA CEMS hourly emissions data for the indicated state and year.
+        pandas.DataFrame: A single state-year of EPA CEMS hourly emissions data.
+
     """
     ds = EpaCemsDatastore(ds)
-    for year in epacems_years:
-        # The keys of the us_states dictionary are the state abbrevs
-        for state in states:
+    for year in epacems_settings.years:
+        for state in epacems_settings.states:
             partition = EpaCemsPartition(state=state, year=year)
-            logger.info(f"Performing ETL for EPA CEMS hourly {state}-{year}")
-            # Return a dictionary where the key identifies this dataset
-            # (just like the other extract functions), but unlike the
-            # others, this is yielded as a generator (and it's a one-item
-            # dictionary).
-            yield {
-                ("hourly_emissions_epacems_" + str(year) + "_" + state.lower()):
-                    ds.get_data_frame(partition)
-            }
+            logger.info(f"Processing EPA CEMS hourly data for {state}-{year}")
+            # We have to assign the reporting year for partitioning purposes
+            df = (
+                ds.get_data_frame(partition)
+                .assign(year=year)
+            )
+            yield df

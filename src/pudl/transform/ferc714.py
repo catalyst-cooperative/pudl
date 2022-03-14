@@ -5,8 +5,8 @@ import re
 import numpy as np
 import pandas as pd
 
-import pudl
-from pudl import constants as pc
+from pudl.metadata.fields import apply_pudl_dtypes
+from pudl.settings import Ferc714Settings
 
 logger = logging.getLogger(__name__)
 
@@ -54,7 +54,10 @@ OFFSET_CODE_FIXES = {
     153: {np.nan: "MST"},
     154: {np.nan: "MST"},
     156: {np.nan: "CST"},
-    157: {"DST": "EDT"},
+    157: {
+        "DST": "EDT",
+        "EPT": "EST",
+    },
     161: {"CPT": "CST"},
     163: {"CPT": "CST"},
     164: {np.nan: "CST"},
@@ -102,7 +105,10 @@ OFFSET_CODE_FIXES = {
     },
     226: {"DST": "CDT"},
     230: {"EPT": "EST"},
-    233: {"DST": "EDT"},
+    233: {
+        "DST": "EDT",
+        "EPT": "EST",
+    },
     234: {
         "1": "EST",
         "2": "EDT",
@@ -585,9 +591,9 @@ def _early_transform(raw_df):
     return out_df
 
 
-def transform(raw_dfs, tables=pc.pudl_tables["ferc714"]):
+def transform(raw_dfs, ferc714_settings: Ferc714Settings = Ferc714Settings()):
     """
-    Transform the raw FERC 714 dataframes into datapackage ready ouputs.
+    Prepare the raw FERC 714 dataframes for loading into the PUDL database.
 
     Args:
         raw_dfs (dict): A dictionary of raw pandas.DataFrame objects, as read out of
@@ -617,12 +623,7 @@ def transform(raw_dfs, tables=pc.pudl_tables["ferc714"]):
         "demand_forecast_pa_ferc714": demand_forecast_pa,
     }
     tfr_dfs = {}
-    for table in tables:
-        if table not in pc.pudl_tables["ferc714"]:
-            raise ValueError(
-                f"No transform function found for requested FERC Form 714 "
-                f"data table {table}!"
-            )
+    for table in ferc714_settings.tables:
         logger.info(f"Transforming {table}.")
         tfr_dfs[table] = (
             raw_dfs[table]
@@ -630,7 +631,5 @@ def transform(raw_dfs, tables=pc.pudl_tables["ferc714"]):
             .pipe(_early_transform)
         )
         tfr_dfs = tfr_funcs[table](tfr_dfs)
-        tfr_dfs[table] = (
-            pudl.helpers.convert_cols_dtypes(tfr_dfs[table], "ferc714", table)
-        )
+        tfr_dfs[table] = apply_pudl_dtypes(tfr_dfs[table], group="ferc714")
     return tfr_dfs

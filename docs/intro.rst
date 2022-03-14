@@ -2,7 +2,7 @@
 Introduction
 =======================================================================================
 
-PUDL is a data processing pipeline Created by `Catalyst Cooperative
+PUDL is a data processing pipeline created by `Catalyst Cooperative
 <https://catalyst.coop/>`__ that cleans, integrates, and standardizes some of the most
 widely used public energy datasets in the US. The data serve researchers, activists,
 journalists, and policy makers that might not have the technical expertise to access it
@@ -23,7 +23,7 @@ Currently, PUDL has cleaned and integrated data from:
 * :doc:`data_sources/epacems`
 
 
-In addition, we distribute an SQLite databases containing all available years of the
+In addition, we distribute a SQLite database containing all available years of the
 `raw FERC Form 1 data <https://doi.org/10.5281/zenodo.3677547>`__ and an SQLite
 version of the `US Census DP1 geodatabase
 <https://www.census.gov/geographies/mapping-files/2010/geo/tiger-data.html>`__
@@ -51,7 +51,7 @@ To enable programmatic access to individual partitions of the data (by year, sta
 etc.), we archive the raw inputs as `Frictionless Data Packages
 <https://specs.frictionlessdata.io/data-package/>`__. The data packages contain both the
 raw data in their originally published format (CSVs, Excel spreadsheets, and Visual
-FoxPro database (DBF) files) and metadata that depicts how each the
+FoxPro database (DBF) files) and metadata that describes how each the
 dataset is partitioned.
 
 The PUDL software will download a copy of the appropriate raw inputs automatically as
@@ -137,19 +137,14 @@ consistently reported, it may also be set to N/A.
 Load
 ^^^^
 
-At the end of the Transform step, we have collections of DataFrames that correspond to
-database tables. These are written out to ("loaded" into) platform independent `tabular
-data packages <https://specs.frictionlessdata.io/tabular-data-package/>`__ where the
-data is stored as CSV files and the metadata is stored as JSON. These static,
-text-based output formats are archive-friendly and can be used to populate a database
-or read with Python, R, and many other tools. See the :doc:`data_dictionary` page for a
-list of the normalized database tables and their contents.
+At the end of the Transform step, we have collections of :class:`pandas.DataFrame`s that
+correspond to database tables. These are loaded into an SQLite database.
+To handle the ~1 billion row :doc:`data_sources/epacems`, we load the dataframes into
+an Apache Parquet dataset that is partitioned by state and year.
 
-.. note::
-
-    Starting with v0.5.0 of PUDL, we will begin generating SQLite database and Apache
-    Parquet file outputs directly and using those formats to distribute the
-    processed data.
+These outputs can be accessed via Python, R, and many other tools. See the
+:doc:`data_dictionaries/pudl_db` page for a list of the normalized database tables and
+their contents.
 
 .. seealso::
 
@@ -158,23 +153,15 @@ list of the normalized database tables and their contents.
 .. _db-and-outputs:
 
 ---------------------------------------------------------------------------------------
-Database & Output Tables
+Output Tables
 ---------------------------------------------------------------------------------------
-
-Tabular Data Packages are archive friendly and platform independent, but, given the
-size and complexity of the data within PUDL, this format isn't ideal for day to day
-interactive use. In practice, we take the clean, processed data in the data packages
-and use it to populate a local SQLite database. To handle the ~1 billion row EPA CEMS
-hourly time series, we convert the data package into Apache Parquet dataset that are
-partitioned by state and year. For more details on these conversions to SQLite and
-Parquet formats, see :ref:`access-datapackage`.
 
 Denormalized Outputs
 ^^^^^^^^^^^^^^^^^^^^
 
-We normalized the data to make storage more efficient and avoid data integrity issues,
+We normalize the data to make storage more efficient and avoid data integrity issues,
 but you may want to combine information from more than one of the tables to make the
-data more readable and readily interpretable. For example, PUDL stores name that EIA
+data more readable and readily interpretable. For example, PUDL stores the name that EIA
 uses to refer to a power plant in the :ref:`plants_entity_eia` table in association with
 the plant's unique numeric ID. If you are working with data from the
 :ref:`fuel_receipts_costs_eia923` table, which records monthly per-plant fuel

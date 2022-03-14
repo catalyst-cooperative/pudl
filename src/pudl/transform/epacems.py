@@ -2,12 +2,13 @@
 
 import datetime
 import logging
-import pathlib
 
 import numpy as np
 import pandas as pd
+import pytz
+import sqlalchemy as sa
 
-import pudl
+from pudl.metadata.fields import apply_pudl_dtypes
 
 logger = logging.getLogger(__name__)
 ###############################################################################
@@ -67,32 +68,35 @@ def fix_up_dates(df, plant_utc_offset):
     return df
 
 
-def _load_plant_utc_offset(datapkg_dir):
+def _load_plant_utc_offset(pudl_engine):
     """Load the UTC offset each EIA plant.
 
-    CEMS times don't change for DST, so we get get the UTC offset by using the offset
-    for the plants' timezones in January.
+    CEMS times don't change for DST, so we get get the UTC offset by using the
+    offset for the plants' timezones in January.
 
     Args:
-        datapkg_dir (path-like) : Path to the directory of the datapackage which is
-            currently being assembled.
+        pudl_engine (sqlalchemy.engine.Engine): A database connection engine for
+            an existing PUDL DB.
 
     Returns:
         pandas.DataFrame: With columns plant_id_eia and utc_offset.
 
     """
-    import pytz
-
-    jan1 = datetime.datetime(2011, 1, 1)  # year doesn't matter
+    # Verify that we have a PUDL DB with plant attributes:
+    inspector = sa.inspect(pudl_engine)
+    if "plants_entity_eia" not in inspector.get_table_names():
+        raise RuntimeError(
+            "No plants_entity_eia available in the PUDL DB! Have you run the ETL? "
+            f"Trying to access PUDL DB: {pudl_engine}"
+        )
     timezones = (
-        pd.read_csv(
-            pathlib.Path(datapkg_dir, 'data/plants_entity_eia.csv'),
-            usecols=["plant_id_eia", "timezone"],
-            dtype={"plant_id_eia": "Int64", "timezone": pd.StringDtype()})
-        .replace(to_replace="None", value=pd.NA)
+        pd.read_sql(
+            sql="SELECT plant_id_eia, timezone FROM plants_entity_eia",
+            con=pudl_engine
+        )
         .dropna()
     )
-
+    jan1 = datetime.datetime(2011, 1, 1)  # year doesn't matter
     timezones["utc_offset"] = (
         timezones["timezone"]
         .apply(lambda tz: pytz.timezone(tz).localize(jan1).utcoffset())
@@ -132,8 +136,9 @@ def add_facility_id_unit_id_epa(df):
     """
     Harmonize columns that are added later.
 
-    The datapackage validation checks for consistent column names, and these two columns
-    aren't present before August 2008, so this adds them in.
+    The Parquet schema requires consistent column names across all partitions and
+    ``facility_id`` and ``unit_id_epa`` aren't present before August 2008, so this
+    function adds them in.
 
     Args:
         df (pandas.DataFrame): A CEMS dataframe
@@ -204,34 +209,33 @@ def correct_gross_load_mw(df):
     return df
 
 
-def transform(epacems_raw_dfs, datapkg_dir):
+def transform(epacems_raw_dfs, pudl_engine):
     """
-    Transform EPA CEMS hourly data for use in datapackage export.
+    Transform EPA CEMS hourly data and ready it for export to Parquet.
 
-    Todo:
-        Incomplete docstring.
+    Args:
+        epacems_raw_dfs: a :class:`pandas.Dataframe` generator that yields raw
+            epacems data, one state-year at a time.
+        pudl_engine: a :class:`sqlalchemy.engine.Engine` for connecting to an
+            existing PUDL DB.
+
+    Yields:
+        pandas.Dataframe: A single year-state of EPA CEMS data,
 
     """
     # epacems_raw_dfs is a generator. Pull out one dataframe, run it through
     # a transformation pipeline, and yield it back as another generator.
-    plant_utc_offset = _load_plant_utc_offset(datapkg_dir)
-    for raw_df_dict in epacems_raw_dfs:
-        # There's currently only one dataframe in this dict at a time, but
-        # that could be changed if you want.
-        # Also, the type conversion is being done here so that it happens
-        # inside the generator -- rather than following the same pattern as
-        # in the EIA type conversions.
-        for yr_st, raw_df in raw_df_dict.items():
-            df = (
-                raw_df.fillna({
-                    "gross_load_mw": 0.0,
-                    "heat_content_mmbtu": 0.0
-                })
-                .pipe(harmonize_eia_epa_orispl)
-                .pipe(fix_up_dates, plant_utc_offset=plant_utc_offset)
-                .pipe(add_facility_id_unit_id_epa)
-                .pipe(correct_gross_load_mw)
-                .pipe(pudl.helpers.convert_cols_dtypes,
-                      "epacems", "hourly_emissions_epacems")
-            )
-            yield {yr_st: df}
+    plant_utc_offset = _load_plant_utc_offset(pudl_engine)
+    for raw_df in epacems_raw_dfs:
+        transformed_df = (
+            raw_df.fillna({
+                "gross_load_mw": 0.0,
+                "heat_content_mmbtu": 0.0
+            })
+            .pipe(harmonize_eia_epa_orispl)
+            .pipe(fix_up_dates, plant_utc_offset=plant_utc_offset)
+            .pipe(add_facility_id_unit_id_epa)
+            .pipe(correct_gross_load_mw)
+            .pipe(apply_pudl_dtypes, group="epacems")
+        )
+        yield transformed_df
