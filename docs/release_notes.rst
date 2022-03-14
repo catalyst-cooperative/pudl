@@ -2,6 +2,116 @@
 PUDL Release Notes
 =======================================================================================
 
+.. _release-v0-6-0:
+
+---------------------------------------------------------------------------------------
+0.6.0 (2022-03-11)
+---------------------------------------------------------------------------------------
+
+Data Coverage
+^^^^^^^^^^^^^
+* :doc:`data_sources/eia860` monthly updates (``eia860m``) up to the end of 2021.
+  :pr:`1510`
+
+New Analyses
+^^^^^^^^^^^^
+* For the purposes of linking EIA and FERC Form 1 records, we (mostly :user:`cmgosnell`)
+  have created a new output called the Plant Parts List in
+  :mod:`pudl.analysis.plant_parts_eia` which combines many different sub-parts of the
+  EIA generators based on their fuel type, prime movers, ownership, etc. This allows a
+  huge range of hypothiecally possible FERC Form 1 plant records to be synthesized, so
+  that we can identify exactly what data in EIA should be associated with what data in
+  FERC using a variety of record linkage & entity matching techniques. This is still a
+  work in progress, both with our partners at RMI, and in collaboration with the
+  `Chu Data Lab at Georgia Tech <https://chu-data-lab.cc.gatech.edu/>`__, through work
+  funded by a
+  `CCAI Innovation Grant <https://www.climatechange.ai/calls/innovation_grants>`__.
+  :pr:`1157`
+
+Metadata
+^^^^^^^^
+* Column data types for our database and Apache Parquet outputs, as well as pandas
+  dataframes are all based on the same underlying schemas, and should be much more
+  consistent. :pr:`1370,1377,1408`
+* Defined a data source metadata class :class:`pudl.metadata.classes.DataSource` using
+  Pydantic to store information and procedures specific to each data source (e.g.
+  :doc:`data_sources/ferc1`, :doc:`data_sources/eia923`). :pr:`1446`
+* Use the data source metadata classes to automatically export rich metadata for use
+  with our Datasette deployement. :pr:`1479`
+* Use the data source metadata classes to store rich metadata for use with our
+  `Zenodo raw data archives <https://github.com/catalyst-cooperative/pudl-zenodo-storage/>`__
+  so that information is no longer duplicated and liable to get out of sync.
+  :pr:`1475`
+* Added static tables and metadata structures that store definitions and additional
+  information related to the many coded categorical columns in the database. These
+  tables are exported directly into the documentation (See
+  :doc:`data_dictionaries/codes_and_labels`). The metadata structures also document all
+  of the non-standard values that we've identified in the raw data, and the standard
+  codes that they are mapped to. :pr:`1388`
+* As a result of all these metadata improvements we were finally able to close
+  :issue:`52` and delete the ``pudl.constants`` junk-drawer module... after 5 years.
+
+Data Cleaning
+^^^^^^^^^^^^^
+* Fixed a few inaccurately hand-mapped PUDL Plant & Utility IDs. :pr:`1458,1480`
+* We are now using the coding table metadata mentioned above and the foreign key
+  relationships that are part of the database schema to automatically recode any column
+  that refers to the codes defined in the coding table. This results in much more
+  uniformity across the whole database, especially in the EIA ``energy_source_code``
+  columns. :pr:`1416`
+* In the raw input data, often NULL values will be represented by the empty string or
+  other not really NULL values. We went through and cleaned these up in all of the
+  categorical / coded columns so that their values can be validated based on either an
+  ENUM constraint in the database, or a foreign key constraint linking them to the
+  static coding tables. Now they should primarily use the pandas NA value, or numpy.nan
+  in the case of floats. :pr:`1376`
+* Many FIPS and ZIP codes that appear in the raw data are stored as integers rather than
+  strings, meaning that they lose their leading zeros, rendering them invalid in many
+  contexts. We use the same method to clean them all up now, and enforce a uniform
+  field width with leading zero padding. This also allows us to enforce a regex pattern
+  constraint on these fields in the database outputs. :pr:`1405,1476`
+* We're now able to fill in missing values in the very useful :ref:`generators_eia860`
+  ``technology_description`` field. Currently this is optionally available in the output
+  layer, but we want to put more of this kind of data repair into the core database
+  gong forward. :pr:`1075`
+
+Miscellaneous
+^^^^^^^^^^^^^
+* Created a simple script that allows our SQLite DB to be loaded into Google's CloudSQL
+  hosted PostgreSQL service `pgloader <https://pgloader.io/>`__ and
+  `pg_dump <https://www.postgresql.org/docs/14/app-pgdump.html>`__. :pr:`1361`
+* Made better use of our
+  `Pydantic settings classes <https://pydantic-docs.helpmanual.io/usage/settings/>`__ to
+  validate and manage the ETL settings that are read in from YAML files and passed
+  around throughout the functions that orchestrate the ETL process. :pr:`1506`
+* PUDL now works with pandas 1.4 (:pr:`1421`) and Python 3.10 (:pr:`1373`).
+* Addressed a bunch of deprecation warnings being raised by :mod:`geopandas`. :pr:`1444`
+* Integrated the `pre-commit.ci <https://pre-commit.ci>`__ service into our GitHub CI
+  in order to automatically apply a variety of code formatting & checks to all commits.
+  :pr:`1482`
+* Fixed random seeds to avoid stochastic test coverage changes in the
+  :mod:`pudl.analysis.timeseries_cleaning` module. :pr:`1483`
+* Silenced a bunch of 3rd party module warnings in the tests. See :pr:`1476`
+
+Bug Fixes
+^^^^^^^^^
+* In addressing :issue:`851,1296,1325` the :ref:`generation_fuel_eia923` table was split
+  to create a :ref:`generation_fuel_nuclear_eia923` table since they have different
+  primary keys. This meant that the :meth:`pudl.output.pudltabl.PudlTabl.gf_eia923`
+  method no longer included nuclear generation. This impacted the net generation
+  allocation process and MCOE calculations downstream, which were expecting to have all
+  the reported nuclear generation. This has now been fixed, and the generation fuel
+  output includes both the nuclear and non-nuclear generation, with nuclear generation
+  aggregated across nuclear unit IDs so that it has the same primary key as the rest
+  of the generation fuel table. :pr:`1518`
+* EIA changed the URL of their API to only accept connections over HTTPS, but we had
+  a hard-coded HTTP URL, meaning the historical fuel price filling that uses the API
+  broke. This has been fixed.
+
+Known Issues
+^^^^^^^^^^^^
+* Everything is fiiiiiine.
+
 .. _release-v0-5-0:
 
 ---------------------------------------------------------------------------------------

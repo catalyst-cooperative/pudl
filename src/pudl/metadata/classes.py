@@ -4,6 +4,7 @@ import datetime
 import logging
 import os
 import re
+import sys
 from functools import lru_cache
 from pathlib import Path
 from typing import (Any, Callable, Dict, Iterable, List, Literal, Optional,
@@ -576,6 +577,7 @@ class Field(Base):
     ]
     format: Literal["default"] = "default"  # noqa: A003
     description: String = None
+    unit: String = None
     constraints: FieldConstraints = {}
     harvest: FieldHarvest = {}
     encoder: Encoder = None
@@ -925,17 +927,14 @@ class DataSource(Base):
         return sorted([name for name, value in resources.items()
                        if value.get("etl_group") == self.name])
 
-    def raw_datapackage_name(self) -> str:
-        """Construct a datapackage name for the raw data source."""
-        return f"pudl-raw-{self.name}"
-
-    def raw_datapackage_title(self) -> str:
-        """Construct a datapackage title for the raw data source."""
-        return f"PUDL Raw f{self.title}"
-
-    def to_raw_datapackage_json(self) -> pydantic.Json:
-        """Construct a datapackage json descriptor for the raw data source."""
-        pass
+    def get_temporal_coverage(self) -> str:
+        """Return a string describing the time span covered by the data source."""
+        if 'years' in self.working_partitions:
+            return f"{min(self.working_partitions['years'])}-{max(self.working_partitions['years'])}"
+        elif 'year_month' in self.working_partitions:
+            return f"through {self.working_partitions['year_month']}"
+        else:
+            return ""
 
     def to_rst(self) -> None:
         """Output a representation of the data source in RST for documentation."""
@@ -1110,7 +1109,7 @@ class Resource(Base):
                              "ferc1", "ferc714", "glue", "pudl"] = None
     etl_group: Literal["eia860", "eia861", "eia923", "entity_eia",
                        "epacems", "ferc1", "ferc1_disabled", "ferc714", "glue",
-                       "static", "static_eia"] = None
+                       "static_ferc1", "static_eia"] = None
 
     _check_unique = _validator(
         "contributors",
@@ -1708,7 +1707,10 @@ class Package(Base):
         """Output to an RST file."""
         template = JINJA_ENVIRONMENT.get_template("package.rst.jinja")
         rendered = template.render(package=self)
-        Path(path).write_text(rendered)
+        if path:
+            Path(path).write_text(rendered)
+        else:
+            sys.stdout.write(rendered)
 
     def to_sql(
         self,
@@ -1760,3 +1762,67 @@ class CodeMetadata(Base):
                 rendered = encoder.to_rst(
                     top_dir=top_dir, csv_subdir=csv_subdir, is_header=header)
                 f.write(rendered)
+
+
+class DatasetteMetadata(Base):
+    """
+    A collection of Data Sources and Resources for metadata export.
+
+    Used to create metadata YAML file to accompany Datasette.
+    """
+
+    data_sources: List[DataSource]
+    resources: List[Resource] = Package.from_resource_ids().resources
+    label_columns: Dict[str, str] = {
+        'plants_entity_eia': 'plant_name_eia',
+        'plants_ferc1': 'plant_name_ferc1',
+        'plants_pudl': 'plant_name_pudl',
+        'utilities_entity_eia': 'utility_name_eia',
+        'utilities_ferc1': 'utility_name_ferc1',
+        'utilities_pudl': 'utility_name_pudl'
+    }
+
+    @classmethod
+    def from_data_source_ids(
+        cls,
+        data_source_ids: Iterable[str] = [
+            'pudl', 'ferc1', 'eia860', 'eia860m', 'eia923'],
+        extra_etl_groups: Iterable[str] = [
+            'entity_eia', 'glue', 'static_eia', 'static_ferc1']
+    ) -> "DatasetteMetadata":
+        """
+        Construct a dictionary of DataSources from data source names.
+
+        Create dictionary of first and last year or year-month for each source.
+
+        Args:
+            data_source_ids: ids of data sources currently included in Datasette
+            extra_etl_groups: ETL groups with resources that should be included
+        """
+        # Compile a list of DataSource objects for use in the template
+        data_sources = [DataSource.from_id(ds_id) for ds_id in data_source_ids]
+
+        # Instantiate all possible resources in a Package:
+        pkg = Package.from_resource_ids()
+        # Grab a list of just the resources we want to output:
+        resources = [
+            res for res in pkg.resources
+            if res.etl_group in data_source_ids + extra_etl_groups
+        ]
+        return cls(
+            data_sources=data_sources,
+            resources=resources
+        )
+
+    def to_yaml(self, path: str) -> None:
+        """Output database, table, and column metadata to YAML file."""
+        template = JINJA_ENVIRONMENT.get_template("metadata.yml.jinja")
+        rendered = template.render(
+            license=LICENSES["cc-by-4.0"],
+            data_sources=self.data_sources,
+            resources=self.resources,
+            label_columns=self.label_columns)
+        if path:
+            Path(path).write_text(rendered)
+        else:
+            sys.stdout.write(rendered)

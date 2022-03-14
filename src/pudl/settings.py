@@ -84,6 +84,20 @@ class Ferc1Settings(GenericDatasetSettings):
     tables: List[str] = data_source.get_resource_ids()
 
 
+class Ferc714Settings(GenericDatasetSettings):
+    """
+    An immutable pydantic model to validate Ferc714Settings.
+
+    Parameters:
+        data_source: DataSource metadata object
+        tables: List of tables to validate.
+    """
+
+    data_source: ClassVar[DataSource] = DataSource.from_id("ferc714")
+
+    tables: List[str] = data_source.get_resource_ids()
+
+
 class EpaCemsSettings(GenericDatasetSettings):
     """
     An immutable pydantic model to validate EPA CEMS settings.

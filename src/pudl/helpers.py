@@ -15,6 +15,7 @@ import re
 import shutil
 from collections import defaultdict
 from functools import partial
+from importlib import resources
 from io import BytesIO
 from typing import Any, DefaultDict, Dict, List, Literal, Optional, Set, Union
 
@@ -844,7 +845,8 @@ def fix_leading_zero_gen_ids(df):
         )
         num_fixes = len(
             df.loc[df["generator_id"].astype(str) != fixed_generator_id])
-        logger.debug("Fixed %s EIA generator IDs with leading zeros.", num_fixes)
+        logger.debug(
+            "Fixed %s EIA generator IDs with leading zeros.", num_fixes)
         df = (
             df.drop("generator_id", axis="columns")
             .assign(generator_id=fixed_generator_id)
@@ -1212,7 +1214,7 @@ def count_records(df, cols, new_count_col_name):
     """
     return (
         df.assign(count_me=1)
-        .groupby(cols)
+        .groupby(cols, observed=True)
         .count_me.count()
         .reset_index()
         .rename(columns={'count_me': new_count_col_name})
@@ -1323,6 +1325,185 @@ def get_working_eia_dates():
             dates = dates.append(pd.DatetimeIndex(
                 [pd.to_datetime(working_partitions['year_month'])]))
     return dates
+
+
+def dedupe_on_category(dedup_df, base_cols, category_name, sorter):
+    """
+    Deduplicate a df using a sorted category to retain prefered values.
+
+    Use a sorted category column to retain your prefered values when a
+    dataframe is deduplicated.
+
+    Args:
+        dedup_df (pandas.DataFrame): the dataframe with the record
+        base_cols (list) : list of columns to use when dropping duplicates
+        category_name (string) : name of categorical column
+        sorter (list): sorted list of category options
+    """
+    dedup_df.loc[:, category_name] = (
+        dedup_df.loc[:, category_name]
+        .astype(pd.CategoricalDtype(categories=sorter, ordered=True))
+    )
+
+    return dedup_df.drop_duplicates(subset=base_cols, keep='first')
+
+
+def calc_capacity_factor(df, freq, min_cap_fact=None, max_cap_fact=None):
+    """
+    Calculate capacity factor.
+
+    Capacity factor is calcuated from the capcity, the net generation over a
+    time period and the hours in that same time period. The dates from that
+    dataframe are pulled out to determine the hours in each period based on
+    the frequency. The number of hours is used in calculating the capacity
+    factor. Then records with capacity factors outside the range specified by
+    `min_cap_fact` and `max_cap_fact` are dropped.
+
+    Args:
+        df (pandas.DataFrame): table with components of capacity factor (
+            `report_date`, `net_generation_mwh` and `capacity_mw`)
+        min_cap_fact (float): Lower bound, below which values are set to NaN.
+            If None, don't use a lower bound. Default is None.
+        max_cap_fact (float): Upper bound, below which values are set to NaN.
+            If None, don't use an upper bound. Default is None.
+        freq (str): String describing time frequency at which to aggregate
+            the reported data, such as 'MS' (month start) or 'AS' (annual
+            start).
+
+    Returns:
+        pandas.DataFrame: modified version of input `df` with one additional
+        column (`capacity_factor`).
+    """
+    # get a unique set of dates to generate the number of hours
+    dates = df['report_date'].drop_duplicates()
+    dates_to_hours = pd.DataFrame(data={
+        'report_date': dates,
+        'hours': dates.apply(
+            lambda d: (
+                pd.date_range(d, periods=2, freq=freq)[1] -
+                pd.date_range(d, periods=2, freq=freq)[0]) /
+            pd.Timedelta(hours=1))
+    })
+
+    df = (
+        # merge in the hours for the calculation
+        df.merge(dates_to_hours, on=['report_date'])
+        # actually calculate capacity factor wooo!
+        .assign(
+            capacity_factor=lambda x: x.net_generation_mwh / \
+                (x.capacity_mw * x.hours)
+        )
+        # Replace unrealistic capacity factors with NaN
+        .pipe(
+            oob_to_nan,
+            ['capacity_factor'],
+            lb=min_cap_fact,
+            ub=max_cap_fact
+        )
+        .drop(['hours'], axis=1)
+    )
+    return df
+
+
+def weighted_average(df, data_col, weight_col, by):
+    """
+    Generate a weighted average.
+
+    Args:
+        df (pandas.DataFrame): A DataFrame containing, at minimum, the columns
+            specified in the other parameters data_col and weight_col.
+        data_col (string): column name of data column to average
+        weight_col (string): column name to weight on
+        by (list): A list of the columns to group by when calcuating
+            the weighted average value.
+
+    Returns:
+        pandas.DataFrame: a table with ``by`` columns as the index and the
+        weighted ``data_col``.
+    """
+    df['_data_times_weight'] = df[data_col] * df[weight_col]
+    df['_weight_where_notnull'] = df.loc[df[data_col].notnull(), weight_col]
+    g = df.groupby(by, observed=True)
+    result = (
+        g['_data_times_weight'].sum(min_count=1)
+        / g['_weight_where_notnull'].sum(min_count=1)
+    )
+    del df['_data_times_weight'], df['_weight_where_notnull']
+    return result.to_frame(name=data_col)  # .reset_index()
+
+
+def sum_and_weighted_average_agg(
+        df_in: pd.DataFrame,
+        by: list,
+        sum_cols: list,
+        wtavg_dict: Dict[str, str],
+) -> pd.DataFrame:
+    """
+    Aggregate dataframe by summing and using weighted averages.
+
+    Many times we want to aggreate a data table using the same groupby columns
+    but with different aggregation methods. This function combines two of our
+    most common aggregation methods (summing and applying a weighted average)
+    into one function. Because pandas does not have a built-in weighted average
+    method for groupby we use :func:``weighted_average``.
+
+    Args:
+        df_in (pandas.DataFrame): input table to aggregate. Must have columns
+            in ``id_cols``, ``sum_cols`` and keys from ``wtavg_dict``.
+        by (list): columns to group/aggregate based on. These columns
+            will be passed as an argument into grouby as ``by`` arg.
+        sum_cols (list): columns to sum.
+        wtavg_dict (dictionary): dictionary of columns to average (keys) and
+            columns to weight by (values).
+
+    Returns:
+        table with join of columns from ``by``, ``sum_cols`` and keys of
+        ``wtavg_dict``. Primary key of table will be ``by``.
+
+    """
+    logger.debug(f'grouping by {by}')
+    # we are keeping the index here for easy merging of the weighted cols below
+    df_out = (
+        df_in.groupby(by=by, as_index=True, observed=True)
+        [sum_cols]
+        .sum(min_count=1)
+    )
+    for data_col, weight_col in wtavg_dict.items():
+        df_out.loc[:, data_col] = weighted_average(
+            df_in,
+            data_col=data_col,
+            weight_col=weight_col,
+            by=by
+        )[data_col]
+    return df_out.reset_index()
+
+
+def get_eia_ferc_acct_map():
+    """
+    Get map of EIA technology_description/pm codes <> ferc accounts.
+
+    Returns:
+        pandas.DataFrame: table which maps the combination of EIA's technology
+            description and prime mover code to FERC Uniform System of Accounts
+            (USOA) accouting names. Read more about USOA `here <https://www.ferc.gov/enforcement-legal/enforcement/accounting-matters>`_
+            The output table has the following columns:
+            `['technology_description', 'prime_mover_code', 'ferc_acct_name']`
+    """
+    eia_ferc_acct_map = (
+        pd.read_csv(
+            resources.open_text(
+                'pudl.package_data.glue',
+                'ferc_acct_to_pm_tech_map.csv'
+            )
+        )
+    )
+    return eia_ferc_acct_map
+
+
+def dedupe_n_flatten_list_of_lists(mega_list):
+    """Flatten a list of lists and remove duplicates."""
+    return list(set(
+        [item for sublist in mega_list for item in sublist]))
 
 
 def convert_df_to_excel_file(df: pd.DataFrame, **kwargs) -> pd.ExcelFile:

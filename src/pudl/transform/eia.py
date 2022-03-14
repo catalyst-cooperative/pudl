@@ -30,6 +30,7 @@ import pudl
 from pudl.metadata.classes import DataSource
 from pudl.metadata.fields import apply_pudl_dtypes, get_pudl_dtypes
 from pudl.metadata.resources import ENTITIES
+from pudl.settings import EiaSettings
 
 logger = logging.getLogger(__name__)
 
@@ -1037,21 +1038,22 @@ def _boiler_generator_assn(
     return eia_transformed_dfs
 
 
-def _restrict_years(df,
-                    eia923_years=DataSource.from_id(
-                        "eia923").working_partitions['years'],
-                    eia860_years=DataSource.from_id("eia860").working_partitions['years']):
+def _restrict_years(
+    df,
+    eia923_years=DataSource.from_id("eia923").working_partitions['years'],
+    eia860_years=DataSource.from_id("eia860").working_partitions['years']
+):
     """Restricts eia years for boiler generator association."""
     bga_years = set(eia860_years) & set(eia923_years)
     df = df[df.report_date.dt.year.isin(bga_years)]
     return df
 
 
-def transform(eia_transformed_dfs,
-              eia860_years=DataSource.from_id("eia860").working_partitions['years'],
-              eia923_years=DataSource.from_id("eia923").working_partitions['years'],
-              eia860m=False,
-              debug=False):
+def transform(
+    eia_transformed_dfs,
+    eia_settings: EiaSettings = EiaSettings(),
+    debug=False
+):
     """Creates DataFrames for EIA Entity tables and modifies EIA tables.
 
     This function coordinates two main actions: generating the entity tables
@@ -1064,12 +1066,8 @@ def transform(eia_transformed_dfs,
     Args:
         eia_transformed_dfs (dict): a dictionary of table names (kays) and
             transformed dataframes (values).
-        eia860_years (list): a list of years for EIA 860, must be continuous,
-            and only include working years.
-        eia923_years (list): a list of years for EIA 923, must be continuous,
-            and include only working years.
-        eia860m (boolean): if True, the etl run is attempting to include
-            year-to-date updated from EIA 860M.
+        settings: Object containing validated settings
+            relevant to EIA datasets.
         debug (bool): if true, informational columns will be added into
             boiler_generator_assn
 
@@ -1078,10 +1076,6 @@ def transform(eia_transformed_dfs,
         dataframes as values for the entity tables transformed EIA dataframes
 
     """
-    if not eia923_years and not eia860_years:
-        logger.info('Not ingesting EIA')
-        return None
-
     # create the empty entities df to fill up
     entities_dfs = {}
 
@@ -1092,11 +1086,11 @@ def transform(eia_transformed_dfs,
                     f"for EIA {entity}")
 
         harvesting(entity, eia_transformed_dfs, entities_dfs,
-                   debug=debug, eia860m=eia860m)
+                   debug=debug, eia860m=eia_settings.eia860.eia860m)
 
     _boiler_generator_assn(eia_transformed_dfs,
-                           eia923_years=eia923_years,
-                           eia860_years=eia860_years,
+                           eia923_years=eia_settings.eia923.years,
+                           eia860_years=eia_settings.eia860.years,
                            debug=debug)
 
     # get rid of the original annual dfs in the transformed dict
