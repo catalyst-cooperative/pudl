@@ -82,12 +82,10 @@ in the data.
 How much of the data is accessible through PUDL?
 ------------------------------------------------
 
-EIA-860 data stretches back to 2001, and PUDL currently covers all years starting from
-2004. The prior years are published as DBF files and need a special process to read and
-extract. We intend to include these older years as soon as we can.
-
-PUDL does not currently include the files pertaining to specific renewable energy
-resources or interconnection.
+PUDL currently includes all EIA-860 data stretching back to 2001, the earliest year for
+which the data is available. We also periodically integrate the monthly updates to the
+generators table published in the EIA-860M. However, we do not currently include the
+files pertaining to specific renewable energy resources or interconnection.
 
 Notable Irregularities
 ^^^^^^^^^^^^^^^^^^^^^^

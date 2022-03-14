@@ -119,6 +119,15 @@ in the :ref:`generation_eia923` and :ref:`generation_fuel_eia923` tables. The
 table includes only ~55% of the reported MWh), but the :ref:`generation_eia923` table
 is more granular (it is reported at the generator level).
 
+Adding to the complexity, nuclear units reporting in the Generation and Fuel table
+report each ``nuclear_unit_id`` (the same as the associated ``generator_id``)
+separately, while all other generation is broken down by ``report_date``,
+``plant_id_eia``, ``prime_mover_code``, and ``energy_source_code``. This means that the
+natural primary key for the nuclear records is different from all the other records. To
+keep the data well normalized and ensure that we can use the real primary keys for
+enforcing database structural constraints, we've thus split out a new
+:ref:`generation_fuel_nuclear_eia923` table.
+
 Data Estimates
 --------------
 Plants that did not respond or reported unverified data were recorded as estimates
