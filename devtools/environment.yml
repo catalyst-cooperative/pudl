@@ -17,14 +17,12 @@ dependencies:
   # These libraries aren't directly specified in setup.py as
   # dependencies, but they are helpful and provide binaries
   - numba>=0.55.1,<0.56  # First numba version that's compatible with Python 3.10
-  - python-graphviz  # For visualizing DAGs from Prefect
 
    # These are not normal Python packages available on PyPI
   - nodejs  # Useful for Jupyter
   - pandoc  # Useful for rendering RST files in Atom
 
   # Packages related to current projects but not the core package
-  - dask~=2021.8 # For processing CEMS and eventually Prefect cloud ETL
   - recordlinkage~=0.14.0 # Used for fuzzy merge between FERC/EIA for RMI
 
   # Jupyter notebook specific packages:
@@ -40,4 +38,4 @@ dependencies:
 
   # Use pip to install the main PUDL repo / package for development:
   - pip:
-    - --editable ../[doc,test,dev]
+    - --editable ../[doc,test,dev,datasette]

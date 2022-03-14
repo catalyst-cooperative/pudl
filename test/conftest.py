@@ -134,9 +134,7 @@ def ferc1_sql_engine(
     """
     if not live_dbs:
         pudl.extract.ferc1.dbf2sqlite(
-            tables=ferc1_etl_settings.tables,
-            years=ferc1_etl_settings.years,
-            refyear=ferc1_etl_settings.refyear,
+            ferc1_to_sqlite_settings=ferc1_etl_settings,
             pudl_settings=pudl_settings_fixture,
             clobber=False,
             datastore=pudl_datastore_fixture

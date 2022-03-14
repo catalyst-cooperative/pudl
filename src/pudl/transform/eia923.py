@@ -6,8 +6,8 @@ import numpy as np
 import pandas as pd
 
 import pudl
-from pudl.metadata.classes import DataSource
 from pudl.metadata.codes import CODE_METADATA
+from pudl.settings import Eia923Settings
 
 logger = logging.getLogger(__name__)
 
@@ -1146,16 +1146,14 @@ def fuel_receipts_costs(eia923_dfs, eia923_transformed_dfs):
     return eia923_transformed_dfs
 
 
-def transform(
-    eia923_raw_dfs,
-    eia923_tables=DataSource.from_id("eia923").get_resource_ids()
-):
+def transform(eia923_raw_dfs, eia923_settings: Eia923Settings = Eia923Settings()):
     """Transforms all the EIA 923 tables.
 
     Args:
         eia923_raw_dfs (dict): a dictionary of tab names (keys) and DataFrames
             (values). Generated from `pudl.extract.eia923.extract()`.
-        eia923_tables (tuple): A tuple containing the EIA923 tables that can be pulled
+        settings: Object containing validated settings
+            relevant to EIA 923. Contains the tables and years to be loaded
             into PUDL.
 
     Returns:
@@ -1180,7 +1178,7 @@ def transform(
         return eia923_transformed_dfs
 
     for table in eia923_transform_functions:
-        if table in eia923_tables:
+        if table in eia923_settings.tables:
             logger.info(
                 f"Transforming raw EIA 923 DataFrames for {table} "
                 f"concatenated across all years.")
