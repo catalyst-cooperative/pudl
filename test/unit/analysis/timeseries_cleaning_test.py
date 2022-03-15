@@ -35,10 +35,12 @@ def simulate_series(
     amplitudes = rng.uniform(*amplitude_range, size=n)
     offsets = rng.uniform(*offset_range, size=n)
     shifts = rng.integers(*shift_range, size=n)
-    return np.column_stack([
-        offset + np.roll(amplitude * np.sin(t), shift)
-        for amplitude, offset, shift in zip(amplitudes, offsets, shifts)
-    ])
+    return np.column_stack(
+        [
+            offset + np.roll(amplitude * np.sin(t), shift)
+            for amplitude, offset, shift in zip(amplitudes, offsets, shifts)
+        ]
+    )
 
 
 def simulate_anomalies(
@@ -65,18 +67,21 @@ def simulate_anomalies(
     return x.flat[indices] + values, indices
 
 
-@pytest.mark.parametrize("series_seed,anomalies_seed", [
-    (16662093832, 741013840),
-    (7088438834, 382046123),
-    (11357816575, 18413484987),
-    (5150844305, 5634704703),
-    (5248964137, 8991153078),
-    (2654087352, 8105685070),
-    (18949329570, 5605034834),
-    (16844944928, 11661181582),
-    (5473292783, 5189943010),
-    (7173817266, 19937484751),
-])
+@pytest.mark.parametrize(
+    "series_seed,anomalies_seed",
+    [
+        (16662093832, 741013840),
+        (7088438834, 382046123),
+        (11357816575, 18413484987),
+        (5150844305, 5634704703),
+        (5248964137, 8991153078),
+        (2654087352, 8105685070),
+        (18949329570, 5605034834),
+        (16844944928, 11661181582),
+        (5473292783, 5189943010),
+        (7173817266, 19937484751),
+    ],
+)
 def test_flags_and_imputes_anomalies(series_seed, anomalies_seed) -> None:
     """Flags and imputes anomalies within modest thresholds of success."""
     x = simulate_series(seed=series_seed)
@@ -88,12 +93,12 @@ def test_flags_and_imputes_anomalies(series_seed, anomalies_seed) -> None:
     s.flag_ruggles()
     flag_indices = np.flatnonzero(~np.equal(s.flags, None))
     # Flag summary table has the right flag count
-    assert s.summarize_flags()['count'].sum() == flag_indices.size
+    assert s.summarize_flags()["count"].sum() == flag_indices.size
     # Flagged values are 90%+ inserted anomalous values
     assert np.isin(flag_indices, indices).sum() > 0.9 * flag_indices.size
     # Add additional null values alongside nulled anomalies
     mask = s.simulate_nulls()
-    for method in 'tubal', 'tnn':
+    for method in "tubal", "tnn":
         # Impute null values
         imputed0 = s.impute(mask=mask, method=method, rho0=1, maxiter=1)
         imputed = s.impute(mask=mask, method=method, rho0=1, maxiter=10)
@@ -101,4 +106,4 @@ def test_flags_and_imputes_anomalies(series_seed, anomalies_seed) -> None:
         fit0 = s.summarize_imputed(imputed0, mask)
         fit = s.summarize_imputed(imputed, mask)
         # Mean MAPE (mean absolute percent error) is converging
-        assert fit['mape'].mean() < fit0['mape'].mean()
+        assert fit["mape"].mean() < fit0["mape"].mean()

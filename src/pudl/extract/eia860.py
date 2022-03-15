@@ -26,7 +26,7 @@ class Extractor(excel.GenericExtractor):
         Args:
             ds (:class:datastore.Datastore): Initialized datastore.
         """
-        self.METADATA = excel.Metadata('eia860')
+        self.METADATA = excel.Metadata("eia860")
         self.cols_added = []
         super().__init__(*args, **kwargs)
 
@@ -40,17 +40,16 @@ class Extractor(excel.GenericExtractor):
         * Fix any generator_id values with leading zeroes.
 
         """
-        df = df.rename(
-            columns=self._metadata.get_column_map(page, **partition))
-        if 'report_year' not in df.columns:
-            df['report_year'] = list(partition.values())[0]
-        self.cols_added = ['report_year']
+        df = df.rename(columns=self._metadata.get_column_map(page, **partition))
+        if "report_year" not in df.columns:
+            df["report_year"] = list(partition.values())[0]
+        self.cols_added = ["report_year"]
         # if this is one of the EIA860M pages, add data_source
-        meta_eia860m = excel.Metadata('eia860m')
+        meta_eia860m = excel.Metadata("eia860m")
         pages_eia860m = meta_eia860m.get_all_pages()
         if page in pages_eia860m:
-            df = df.assign(data_source='eia860')
-            self.cols_added.append('data_source')
+            df = df.assign(data_source="eia860")
+            self.cols_added.append("data_source")
         df = fix_leading_zero_gen_ids(df)
         return df
 

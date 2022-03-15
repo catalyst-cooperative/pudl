@@ -28,7 +28,7 @@ class Extractor(excel.GenericExtractor):
         Args:
             ds (:class:datastore.Datastore): Initialized datastore.
         """
-        self.METADATA = excel.Metadata('eia861')
+        self.METADATA = excel.Metadata("eia861")
         self.cols_added = []
         super().__init__(*args, **kwargs)
 
@@ -40,8 +40,13 @@ class Extractor(excel.GenericExtractor):
         )
         column_map_numeric = self._metadata.get_column_map(page, **partition)
         df = df.rename(
-            columns=dict(zip(df.columns[list(column_map_numeric.keys())],
-                             list(column_map_numeric.values()))))
+            columns=dict(
+                zip(
+                    df.columns[list(column_map_numeric.keys())],
+                    list(column_map_numeric.values()),
+                )
+            )
+        )
         self.cols_added = []
         df = fix_leading_zero_gen_ids(df)
         return df
@@ -62,8 +67,8 @@ class Extractor(excel.GenericExtractor):
     @staticmethod
     def process_renamed(df, page, **partition):
         """Adds report_year column if missing."""
-        if 'report_year' not in df.columns:
-            df['report_year'] = list(partition.values())[0]
+        if "report_year" not in df.columns:
+            df["report_year"] = list(partition.values())[0]
         return df
 
     @staticmethod

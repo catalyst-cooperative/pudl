@@ -71,20 +71,20 @@ from pudl.workspace.datastore import Datastore
 logger = logging.getLogger(__name__)
 
 DBF_TYPES = {
-    'C': sa.String,
-    'D': sa.Date,
-    'F': sa.Float,
-    'I': sa.Integer,
-    'L': sa.Boolean,
-    'M': sa.Text,  # 10 digit .DBT block number, stored as a string...
-    'N': sa.Float,
-    'T': sa.DateTime,
-    '0': sa.Integer,  # based on dbf2sqlite mapping
-    'B': 'XXX',  # .DBT block number, binary string
-    '@': 'XXX',  # Timestamp... Date = Julian Day, Time is in milliseconds?
-    '+': 'XXX',  # Autoincrement (e.g. for IDs)
-    'O': 'XXX',  # Double, 8 bytes
-    'G': 'XXX',  # OLE 10 digit/byte number of a .DBT block, stored as string
+    "C": sa.String,
+    "D": sa.Date,
+    "F": sa.Float,
+    "I": sa.Integer,
+    "L": sa.Boolean,
+    "M": sa.Text,  # 10 digit .DBT block number, stored as a string...
+    "N": sa.Float,
+    "T": sa.DateTime,
+    "0": sa.Integer,  # based on dbf2sqlite mapping
+    "B": "XXX",  # .DBT block number, binary string
+    "@": "XXX",  # Timestamp... Date = Julian Day, Time is in milliseconds?
+    "+": "XXX",  # Autoincrement (e.g. for IDs)
+    "O": "XXX",  # Double, 8 bytes
+    "G": "XXX",  # OLE 10 digit/byte number of a .DBT block, stored as string
 }
 """dict: A mapping of DBF field types to SQLAlchemy Column types.
 
@@ -134,14 +134,14 @@ def missing_respondents(reported, observed, identified):
             records.append(
                 {
                     "respondent_id": rid,
-                    "respondent_name": f"{identified[rid]} (PUDL determined)"
+                    "respondent_name": f"{identified[rid]} (PUDL determined)",
                 },
             )
         else:
             records.append(
                 {
                     "respondent_id": rid,
-                    "respondent_name": f"Missing Respondent {rid}"
+                    "respondent_name": f"Missing Respondent {rid}",
                 },
             )
     return records
@@ -167,8 +167,13 @@ def observed_respondents(ferc1_engine: sa.engine.Engine) -> Set[int]:
     observed = set([])
     for table in f1_table_meta.values():
         if "respondent_id" in table.columns:
-            observed = observed.union(set(pd.read_sql_table(
-                table.name, ferc1_engine, columns=["respondent_id"]).respondent_id))
+            observed = observed.union(
+                set(
+                    pd.read_sql_table(
+                        table.name, ferc1_engine, columns=["respondent_id"]
+                    ).respondent_id
+                )
+            )
     return observed
 
 
@@ -238,7 +243,7 @@ def add_sqlite_table(
     dbc_map,
     ds,
     refyear=max(DataSource.from_id("ferc1").working_partitions["years"]),
-    bad_cols=()
+    bad_cols=(),
 ):
     """Adds a new Table to the FERC Form 1 database schema.
 
@@ -274,14 +279,12 @@ def add_sqlite_table(
     filedata = ds.get_file(refyear, dbf_filename)
 
     ferc1_dbf = dbfread.DBF(
-        dbf_filename,
-        ignore_missing_memofile=True,
-        filedata=filedata
+        dbf_filename, ignore_missing_memofile=True, filedata=filedata
     )
 
     # Add Columns to the table
     for field in ferc1_dbf.fields:
-        if field.name == '_NullFlags':
+        if field.name == "_NullFlags":
             continue
         col_name = dbc_map[table_name][field.name]
         if (table_name, col_name) in bad_cols:
@@ -293,18 +296,18 @@ def add_sqlite_table(
 
     col_names = [c.name for c in new_table.columns]
 
-    if table_name == 'f1_respondent_id':
+    if table_name == "f1_respondent_id":
         new_table.append_constraint(
-            sa.PrimaryKeyConstraint(
-                'respondent_id', sqlite_on_conflict='REPLACE'
-            )
+            sa.PrimaryKeyConstraint("respondent_id", sqlite_on_conflict="REPLACE")
         )
 
-    if (('respondent_id' in col_names) and (table_name != 'f1_respondent_id')):
+    if ("respondent_id" in col_names) and (table_name != "f1_respondent_id"):
         new_table.append_constraint(
             sa.ForeignKeyConstraint(
-                columns=['respondent_id', ],
-                refcolumns=['f1_respondent_id.respondent_id']
+                columns=[
+                    "respondent_id",
+                ],
+                refcolumns=["f1_respondent_id.respondent_id"],
             )
         )
 
@@ -395,8 +398,9 @@ def get_dbc_map(ds, year, min_length=4):
             continue
 
         dbf_fields = dbfread.DBF(
-            "", filedata=dbc, ignore_missing_memofile=True).field_names
-        dbf_fields = [f for f in dbf_fields if f != '_NullFlags']
+            "", filedata=dbc, ignore_missing_memofile=True
+        ).field_names
+        dbf_fields = [f for f in dbf_fields if f != "_NullFlags"]
         dbc_map[table] = dict(zip(dbf_fields, tf_dict[table]))
         if len(tf_dict[table]) != len(dbf_fields):
             raise ValueError(
@@ -420,7 +424,7 @@ def define_sqlite_db(
     sqlite_meta,
     dbc_map,
     ds,
-    ferc1_to_sqlite_settings: Ferc1ToSqliteSettings = Ferc1ToSqliteSettings()
+    ferc1_to_sqlite_settings: Ferc1ToSqliteSettings = Ferc1ToSqliteSettings(),
 ):
     """
     Defines a FERC Form 1 DB structure in a given SQLAlchemy MetaData object.
@@ -452,7 +456,7 @@ def define_sqlite_db(
             dbc_map=dbc_map,
             ds=ds,
             refyear=ferc1_to_sqlite_settings.refyear,
-            bad_cols=ferc1_to_sqlite_settings.bad_cols
+            bad_cols=ferc1_to_sqlite_settings.bad_cols,
         )
 
     sqlite_meta.create_all(sqlite_engine)
@@ -480,18 +484,15 @@ class FERC1FieldParser(dbfread.FieldParser):
 
         """
         # Strip whitespace, null characters, and zeroes
-        data = data.strip().strip(b'*\x00').lstrip(b'0')
+        data = data.strip().strip(b"*\x00").lstrip(b"0")
         # Replace bare periods (which are non-numeric) with zero.
-        if data == b'.':
-            data = b'0'
+        if data == b".":
+            data = b"0"
         return super(FERC1FieldParser, self).parseN(field, data)
 
 
 def get_raw_df(
-    ds,
-    table,
-    dbc_map,
-    years=DataSource.from_id("ferc1").working_partitions["years"]
+    ds, table, dbc_map, years=DataSource.from_id("ferc1").working_partitions["years"]
 ):
     """Combine several years of a given FERC Form 1 DBF table into a dataframe.
 
@@ -520,18 +521,25 @@ def get_raw_df(
             continue
 
         new_df = pd.DataFrame(
-            iter(dbfread.DBF(dbf_filename,
-                             encoding='latin1',
-                             parserclass=FERC1FieldParser,
-                             ignore_missing_memofile=True,
-                             filedata=filedata)))
-        raw_dfs = raw_dfs + [new_df, ]
+            iter(
+                dbfread.DBF(
+                    dbf_filename,
+                    encoding="latin1",
+                    parserclass=FERC1FieldParser,
+                    ignore_missing_memofile=True,
+                    filedata=filedata,
+                )
+            )
+        )
+        raw_dfs = raw_dfs + [
+            new_df,
+        ]
 
     if raw_dfs:
         return (
-            pd.concat(raw_dfs, sort=True).
-            drop('_NullFlags', axis=1, errors='ignore').
-            rename(dbc_map[table], axis=1)
+            pd.concat(raw_dfs, sort=True)
+            .drop("_NullFlags", axis=1, errors="ignore")
+            .rename(dbc_map[table], axis=1)
         )
 
 
@@ -539,7 +547,7 @@ def dbf2sqlite(
     ferc1_to_sqlite_settings: Ferc1ToSqliteSettings = Ferc1ToSqliteSettings(),
     pudl_settings=None,
     clobber=False,
-    datastore=None
+    datastore=None,
 ):
     """Clone the FERC Form 1 Databsae to SQLite.
 
@@ -574,7 +582,8 @@ def dbf2sqlite(
 
     # Get the mapping of filenames to table names and fields
     logger.info(
-        f"Creating a new database schema based on {ferc1_to_sqlite_settings.refyear}.")
+        f"Creating a new database schema based on {ferc1_to_sqlite_settings.refyear}."
+    )
     datastore = Ferc1Datastore(datastore)
     dbc_map = get_dbc_map(datastore, ferc1_to_sqlite_settings.refyear)
     define_sqlite_db(
@@ -582,18 +591,18 @@ def dbf2sqlite(
         sqlite_meta=sqlite_meta,
         dbc_map=dbc_map,
         ds=datastore,
-        ferc1_to_sqlite_settings=ferc1_to_sqlite_settings
+        ferc1_to_sqlite_settings=ferc1_to_sqlite_settings,
     )
 
     for table in ferc1_to_sqlite_settings.tables:
         logger.info(f"Pandas: reading {table} into a DataFrame.")
-        new_df = get_raw_df(datastore, table, dbc_map,
-                            years=ferc1_to_sqlite_settings.years)
+        new_df = get_raw_df(
+            datastore, table, dbc_map, years=ferc1_to_sqlite_settings.years
+        )
         # Because this table has no year in it, there would be multiple
         # definitions of respondents if we didn't drop duplicates.
-        if table == 'f1_respondent_id':
-            new_df = new_df.drop_duplicates(
-                subset='respondent_id', keep='last')
+        if table == "f1_respondent_id":
+            new_df = new_df.drop_duplicates(subset="respondent_id", keep="last")
         n_recs = len(new_df)
         logger.debug(f"    {table}: N = {n_recs}")
         # Only try and load the table if there are some actual records:
@@ -610,33 +619,25 @@ def dbf2sqlite(
         new_df.to_sql(
             table,
             sqlite_engine,
-            if_exists='append',
+            if_exists="append",
             chunksize=100000,
             dtype=coltypes,
-            index=False
+            index=False,
         )
 
     # add the missing respondents into the respondent_id table.
-    reported_ids = (
-        pd.read_sql_table("f1_respondent_id", sqlite_engine)
-        .respondent_id
-        .unique()
-    )
+    reported_ids = pd.read_sql_table(
+        "f1_respondent_id", sqlite_engine
+    ).respondent_id.unique()
     observed_ids = observed_respondents(sqlite_engine)
     missing = missing_respondents(
         reported=reported_ids,
         observed=observed_ids,
         identified=PUDL_RIDS,
     )
-    logger.info(
-        f"Inserting {len(missing)} missing IDs into f1_respondent_id table."
-    )
+    logger.info(f"Inserting {len(missing)} missing IDs into f1_respondent_id table.")
     with sqlite_engine.begin() as conn:
-        conn.execute(
-            sqlite_meta.tables['f1_respondent_id']
-            .insert()
-            .values(missing)
-        )
+        conn.execute(sqlite_meta.tables["f1_respondent_id"].insert().values(missing))
 
 
 ###########################################################################
@@ -665,9 +666,7 @@ def get_ferc1_meta(ferc1_engine):
     ferc1_meta = sa.MetaData()
     ferc1_meta.reflect(ferc1_engine)
     if not ferc1_meta.tables:
-        raise ValueError(
-            "No FERC Form 1 tables found. Is the SQLite DB initialized?"
-        )
+        raise ValueError("No FERC Form 1 tables found. Is the SQLite DB initialized?")
     return ferc1_meta
 
 
@@ -707,7 +706,7 @@ def extract(
         "plants_pumped_storage_ferc1": plants_pumped_storage,
         "plant_in_service_ferc1": plant_in_service,
         "purchased_power_ferc1": purchased_power,
-        "accumulated_depreciation_ferc1": accumulated_depreciation
+        "accumulated_depreciation_ferc1": accumulated_depreciation,
     }
 
     ferc1_raw_dfs = {}
@@ -719,7 +718,8 @@ def extract(
             )
         logger.info(
             f"Converting extracted FERC Form 1 table {pudl_table} into a "
-            f"pandas DataFrame.")
+            f"pandas DataFrame."
+        )
         ferc1_raw_dfs[pudl_table] = ferc1_extract_functions[pudl_table](
             ferc1_engine=sa.create_engine(pudl_settings["ferc1_db"]),
             ferc1_settings=ferc1_settings,
@@ -749,9 +749,9 @@ def fuel(ferc1_engine, ferc1_settings):
     # but only gets records with plant names and non-zero fuel amounts:
     f1_fuel_select = (
         sa.sql.select(f1_fuel)
-        .where(f1_fuel.c.fuel != '')
+        .where(f1_fuel.c.fuel != "")
         .where(f1_fuel.c.fuel_quantity > 0)
-        .where(f1_fuel.c.plant_name != '')
+        .where(f1_fuel.c.plant_name != "")
         .where(f1_fuel.c.report_year.in_(ferc1_settings.years))
     )
     # Use the above SELECT to pull those records into a DataFrame:
@@ -781,7 +781,7 @@ def plants_steam(ferc1_engine, ferc1_settings):
     f1_steam_select = (
         sa.sql.select(f1_steam)
         .where(f1_steam.c.report_year.in_(ferc1_settings.years))
-        .where(f1_steam.c.plant_name != '')
+        .where(f1_steam.c.plant_name != "")
         .where(f1_steam.c.tot_capacity > 0.0)
     )
 
@@ -807,16 +807,20 @@ def plants_small(ferc1_engine, ferc1_settings):
     f1_small_select = (
         sa.sql.select(f1_small)
         .where(f1_small.c.report_year.in_(ferc1_settings.years))
-        .where(f1_small.c.plant_name != '')
-        .where(or_((f1_small.c.capacity_rating != 0),
-                   (f1_small.c.net_demand != 0),
-                   (f1_small.c.net_generation != 0),
-                   (f1_small.c.plant_cost != 0),
-                   (f1_small.c.plant_cost_mw != 0),
-                   (f1_small.c.operation != 0),
-                   (f1_small.c.expns_fuel != 0),
-                   (f1_small.c.expns_maint != 0),
-                   (f1_small.c.fuel_cost != 0)))
+        .where(f1_small.c.plant_name != "")
+        .where(
+            or_(
+                (f1_small.c.capacity_rating != 0),
+                (f1_small.c.net_demand != 0),
+                (f1_small.c.net_generation != 0),
+                (f1_small.c.plant_cost != 0),
+                (f1_small.c.plant_cost_mw != 0),
+                (f1_small.c.operation != 0),
+                (f1_small.c.expns_fuel != 0),
+                (f1_small.c.expns_maint != 0),
+                (f1_small.c.fuel_cost != 0),
+            )
+        )
     )
 
     return pd.read_sql(f1_small_select, ferc1_engine)
@@ -841,7 +845,7 @@ def plants_hydro(ferc1_engine, ferc1_settings):
 
     f1_hydro_select = (
         sa.sql.select(f1_hydro)
-        .where(f1_hydro.c.plant_name != '')
+        .where(f1_hydro.c.plant_name != "")
         .where(f1_hydro.c.report_year.in_(ferc1_settings.years))
     )
 
@@ -869,7 +873,7 @@ def plants_pumped_storage(ferc1_engine, ferc1_settings):
     # This reduces the entries for 2015 from 272 records to 27.
     f1_pumped_storage_select = (
         sa.sql.select(f1_pumped_storage)
-        .where(f1_pumped_storage.c.plant_name != '')
+        .where(f1_pumped_storage.c.plant_name != "")
         .where(f1_pumped_storage.c.report_year.in_(ferc1_settings.years))
     )
 
@@ -892,9 +896,8 @@ def plant_in_service(ferc1_engine, ferc1_settings):
     """
     ferc1_meta = get_ferc1_meta(ferc1_engine)
     f1_plant_in_srvce = ferc1_meta.tables["f1_plant_in_srvce"]
-    f1_plant_in_srvce_select = (
-        sa.sql.select(f1_plant_in_srvce)
-        .where(f1_plant_in_srvce.c.report_year.in_(ferc1_settings.years))
+    f1_plant_in_srvce_select = sa.sql.select(f1_plant_in_srvce).where(
+        f1_plant_in_srvce.c.report_year.in_(ferc1_settings.years)
     )
 
     return pd.read_sql(f1_plant_in_srvce_select, ferc1_engine)
@@ -916,9 +919,8 @@ def purchased_power(ferc1_engine, ferc1_settings):
     """
     ferc1_meta = get_ferc1_meta(ferc1_engine)
     f1_purchased_pwr = ferc1_meta.tables["f1_purchased_pwr"]
-    f1_purchased_pwr_select = (
-        sa.sql.select(f1_purchased_pwr)
-        .where(f1_purchased_pwr.c.report_year.in_(ferc1_settings.years))
+    f1_purchased_pwr_select = sa.sql.select(f1_purchased_pwr).where(
+        f1_purchased_pwr.c.report_year.in_(ferc1_settings.years)
     )
 
     return pd.read_sql(f1_purchased_pwr_select, ferc1_engine)
@@ -940,9 +942,8 @@ def accumulated_depreciation(ferc1_engine, ferc1_settings):
     """
     ferc1_meta = get_ferc1_meta(ferc1_engine)
     f1_accumdepr_prvsn = ferc1_meta.tables["f1_accumdepr_prvsn"]
-    f1_accumdepr_prvsn_select = (
-        sa.sql.select(f1_accumdepr_prvsn)
-        .where(f1_accumdepr_prvsn.c.report_year.in_(ferc1_settings.years))
+    f1_accumdepr_prvsn_select = sa.sql.select(f1_accumdepr_prvsn).where(
+        f1_accumdepr_prvsn.c.report_year.in_(ferc1_settings.years)
     )
 
     return pd.read_sql(f1_accumdepr_prvsn_select, ferc1_engine)

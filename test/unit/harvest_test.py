@@ -31,9 +31,9 @@ STANDARD: Dict[str, Any] = {
             {"name": "i", "type": "integer", "harvest": {"aggregate": most_frequent}},
             {"name": "j", "type": "integer", "harvest": {"aggregate": most_frequent}},
             {"name": "x", "type": "integer", "harvest": {"aggregate": most_frequent}},
-            {"name": "y", "type": "integer", "harvest": {"aggregate": most_frequent}}
+            {"name": "y", "type": "integer", "harvest": {"aggregate": most_frequent}},
         ],
-        "primary_key": ["i", "j"]
+        "primary_key": ["i", "j"],
     },
 }
 
@@ -47,10 +47,13 @@ def test_resource_ignores_input_with_different_name() -> None:
     assert result.empty
 
 
-@pytest.mark.parametrize("df", [
-    pd.DataFrame([{"x": 1, "y": 1}]),  # no key fields
-    pd.DataFrame([{"i": 1, "x": 1, "y": 1}]),  # missing key fields
-])
+@pytest.mark.parametrize(
+    "df",
+    [
+        pd.DataFrame([{"x": 1, "y": 1}]),  # no key fields
+        pd.DataFrame([{"i": 1, "x": 1, "y": 1}]),  # missing key fields
+    ],
+)
 def test_resource_ignores_input_with_missing_key_fields(df: pd.DataFrame) -> None:
     """Harvest resources ignore inputs with missing primary key fields."""
     dfs = {0: df}
@@ -250,7 +253,7 @@ FIELD_DTYPES: Dict[str, str] = {
     "report_month": "date",
     "capacity_mw": "number",
     "sales": "number",
-    "net_generation_mwh": "number"
+    "net_generation_mwh": "number",
 }
 
 RESOURCES: List[Dict[str, Any]] = [
@@ -371,7 +374,7 @@ EXPECTED_DFS: Dict[str, pd.DataFrame] = dict(
         columns=["utility_id_eia", "utility_name_eia"],
         data=[
             (195, "Alabama Power Co"),
-            (3989, "City of Colorado Springs - (CO)")
+            (3989, "City of Colorado Springs - (CO)"),
         ],
     ),
     utility_assn_eia=pd.DataFrame(

@@ -56,23 +56,24 @@ DATA_TABLES_EIA923: List[str] = [
 def get_plant_map() -> pd.DataFrame:
     """Read in the manual FERC to EIA plant mapping data."""
     mapping_xlsx = importlib.resources.open_binary(
-        'pudl.package_data.glue', 'pudl_id_mapping.xlsx')
+        "pudl.package_data.glue", "pudl_id_mapping.xlsx"
+    )
 
     return pd.read_excel(
         mapping_xlsx,
-        sheet_name='plants_output',
-        na_values='',
+        sheet_name="plants_output",
+        na_values="",
         keep_default_na=False,
         converters={
-            'plant_id_pudl': int,
-            'plant_name_pudl': str,
-            'utility_id_ferc1': int,
-            'utility_name_ferc1': str,
-            'plant_name_ferc1': str,
-            'plant_id_eia': int,
-            'plant_name_eia': str,
-            'utility_name_eia': str,
-            'utility_id_eia': int
+            "plant_id_pudl": int,
+            "plant_name_pudl": str,
+            "utility_id_ferc1": int,
+            "utility_name_ferc1": str,
+            "plant_name_ferc1": str,
+            "plant_id_eia": int,
+            "plant_name_eia": str,
+            "utility_name_eia": str,
+            "utility_id_eia": int,
         },
     )
 
@@ -80,27 +81,27 @@ def get_plant_map() -> pd.DataFrame:
 def get_utility_map() -> pd.DataFrame:
     """Read in the manual FERC to EIA utility mapping data."""
     mapping_xlsx = importlib.resources.open_binary(
-        'pudl.package_data.glue', 'pudl_id_mapping.xlsx')
+        "pudl.package_data.glue", "pudl_id_mapping.xlsx"
+    )
 
     return pd.read_excel(
         mapping_xlsx,
-        sheet_name='utilities_output',
-        na_values='',
+        sheet_name="utilities_output",
+        na_values="",
         keep_default_na=False,
         converters={
-            'utility_id_pudl': int,
-            'utility_name_pudl': str,
-            'utility_id_ferc1': int,
-            'utility_name_ferc1': str,
-            'utility_id_eia': int,
-            'utility_name_eia': str
+            "utility_id_pudl": int,
+            "utility_name_pudl": str,
+            "utility_id_ferc1": int,
+            "utility_name_ferc1": str,
+            "utility_id_eia": int,
+            "utility_name_eia": str,
         },
     )
 
 
 def get_db_plants_ferc1(
-    pudl_settings: Dict[str, str],
-    years: Iterable[int]
+    pudl_settings: Dict[str, str], years: Iterable[int]
 ) -> pd.DataFrame:
     """
     Pull a dataframe of all plants in the FERC Form 1 DB for the given years.
@@ -137,21 +138,16 @@ def get_db_plants_ferc1(
     ferc1_tables = pudl.output.pudltabl.get_table_meta(ferc1_engine)
 
     # This table contains the utility names and IDs:
-    respondent_table = ferc1_tables['f1_respondent_id']
+    respondent_table = ferc1_tables["f1_respondent_id"]
     # These are all the tables we're gathering "plants" from:
-    plant_tables = [
-        'f1_steam',
-        'f1_gnrt_plant',
-        'f1_hydro',
-        'f1_pumped_storage'
-    ]
+    plant_tables = ["f1_steam", "f1_gnrt_plant", "f1_hydro", "f1_pumped_storage"]
     # FERC doesn't use the sme column names for the same values across all of
     # Their tables... but all of these are cpacity in MW.
     capacity_cols = {
-        'f1_steam': 'tot_capacity',
-        'f1_gnrt_plant': 'capacity_rating',
-        'f1_hydro': 'tot_capacity',
-        'f1_pumped_storage': 'tot_capacity'
+        "f1_steam": "tot_capacity",
+        "f1_gnrt_plant": "capacity_rating",
+        "f1_hydro": "tot_capacity",
+        "f1_pumped_storage": "tot_capacity",
     }
 
     # Generate a list of all combinations of utility ID, utility name, and
@@ -166,14 +162,15 @@ def get_db_plants_ferc1(
                 ferc1_tables[tbl].c.respondent_id,
                 ferc1_tables[tbl].c.plant_name,
                 ferc1_tables[tbl].columns[capacity_cols[tbl]],
-                respondent_table.c.respondent_name
+                respondent_table.c.respondent_name,
             )
             .distinct()
             .where(
                 sa.and_(
-                    ferc1_tables[tbl].c.respondent_id == respondent_table.c.respondent_id,
-                    ferc1_tables[tbl].c.plant_name != '',
-                    ferc1_tables[tbl].c.report_year.in_(years)
+                    ferc1_tables[tbl].c.respondent_id
+                    == respondent_table.c.respondent_id,
+                    ferc1_tables[tbl].c.plant_name != "",
+                    ferc1_tables[tbl].c.report_year.in_(years),
                 )
             )
         )
@@ -181,32 +178,36 @@ def get_db_plants_ferc1(
         # Add all the plants from the current table to our bigger list:
         db_plants = (
             pd.read_sql(plant_select, ferc1_engine)
-            .rename(columns={
-                "respondent_id": "utility_id_ferc1",
-                "respondent_name": "utility_name_ferc1",
-                "plant_name": "plant_name_ferc1",
-                capacity_cols[tbl]: "capacity_mw"
-            })
+            .rename(
+                columns={
+                    "respondent_id": "utility_id_ferc1",
+                    "respondent_name": "utility_name_ferc1",
+                    "plant_name": "plant_name_ferc1",
+                    capacity_cols[tbl]: "capacity_mw",
+                }
+            )
             .pipe(
                 pudl.helpers.simplify_strings,
-                columns=["plant_name_ferc1", "utility_name_ferc1"]
+                columns=["plant_name_ferc1", "utility_name_ferc1"],
             )
             .assign(plant_table=tbl)
-            .loc[:, [
-                "utility_id_ferc1",
-                "utility_name_ferc1",
-                "plant_name_ferc1",
-                "capacity_mw",
-                "plant_table"
-            ]]
+            .loc[
+                :,
+                [
+                    "utility_id_ferc1",
+                    "utility_name_ferc1",
+                    "plant_name_ferc1",
+                    "capacity_mw",
+                    "plant_table",
+                ],
+            ]
         )
         all_plants = pd.concat([all_plants, db_plants])
 
     # We don't want dupes, and sorting makes the whole thing more readable:
-    all_plants = (
-        all_plants.drop_duplicates(["utility_id_ferc1", "plant_name_ferc1"]).
-        sort_values(["utility_id_ferc1", "plant_name_ferc1"])
-    )
+    all_plants = all_plants.drop_duplicates(
+        ["utility_id_ferc1", "plant_name_ferc1"]
+    ).sort_values(["utility_id_ferc1", "plant_name_ferc1"])
     return all_plants
 
 
@@ -247,11 +248,7 @@ def get_mapped_plants_ferc1() -> pd.DataFrame:
         .dropna(subset=["utility_id_ferc1"])
         .pipe(
             pudl.helpers.simplify_strings,
-            columns=[
-                "utility_id_ferc1",
-                "utility_name_ferc1",
-                "plant_name_ferc1"
-            ]
+            columns=["utility_id_ferc1", "utility_name_ferc1", "plant_name_ferc1"],
         )
         .astype({"utility_id_ferc1": int})
         .drop_duplicates(["utility_id_ferc1", "plant_name_ferc1"])
@@ -278,8 +275,10 @@ def get_mapped_utils_ferc1():
         pudl.glue.ferc1_eia.get_utility_map()
         .loc[:, ["utility_id_ferc1", "utility_name_ferc1"]]
         .dropna(subset=["utility_id_ferc1"])
-        .pipe(pudl.helpers.simplify_strings,
-              columns=["utility_id_ferc1", "utility_name_ferc1"])
+        .pipe(
+            pudl.helpers.simplify_strings,
+            columns=["utility_id_ferc1", "utility_name_ferc1"],
+        )
         .drop_duplicates(["utility_id_ferc1", "utility_name_ferc1"])
         .astype({"utility_id_ferc1": int, "utility_name_ferc1": str})
         .sort_values(["utility_id_ferc1"])
@@ -310,13 +309,11 @@ def get_unmapped_plants_ferc1(
         the list of manually mapped plants.
 
     """
-    db_plants = (
-        get_db_plants_ferc1(pudl_settings, years).
-        set_index(["utility_id_ferc1", "plant_name_ferc1"])
+    db_plants = get_db_plants_ferc1(pudl_settings, years).set_index(
+        ["utility_id_ferc1", "plant_name_ferc1"]
     )
-    mapped_plants = (
-        get_mapped_plants_ferc1().
-        set_index(["utility_id_ferc1", "plant_name_ferc1"])
+    mapped_plants = get_mapped_plants_ferc1().set_index(
+        ["utility_id_ferc1", "plant_name_ferc1"]
     )
     new_plants_index = db_plants.index.difference(mapped_plants.index)
     unmapped_plants = db_plants.loc[new_plants_index].reset_index()
@@ -340,10 +337,12 @@ def get_unmapped_utils_ferc1(ferc1_engine):
     """
     all_utils_ferc1 = (
         pd.read_sql_table("f1_respondent_id", ferc1_engine)
-        .rename(columns={
-            "respondent_id": "utility_id_ferc1",
-            "respondent_name": "utility_name_ferc1",
-        })
+        .rename(
+            columns={
+                "respondent_id": "utility_id_ferc1",
+                "respondent_name": "utility_name_ferc1",
+            }
+        )
         .pipe(pudl.helpers.simplify_strings, ["utility_name_ferc1"])
         .set_index(["utility_id_ferc1", "utility_name_ferc1"])
     )
@@ -353,10 +352,7 @@ def get_unmapped_utils_ferc1(ferc1_engine):
         .set_index(["utility_id_ferc1", "utility_name_ferc1"])
     )
     unmapped_utils_ferc1 = (
-        all_utils_ferc1.loc[
-            all_utils_ferc1.index
-            .difference(mapped_utils_ferc1.index)
-        ]
+        all_utils_ferc1.loc[all_utils_ferc1.index.difference(mapped_utils_ferc1.index)]
         .reset_index()
         .loc[:, ["utility_id_ferc1", "utility_name_ferc1"]]
     )
@@ -384,12 +380,12 @@ def get_db_plants_eia(pudl_engine):
 
     """
     db_plants_eia = (
-        pd.read_sql("plants_entity_eia", pudl_engine).
-        loc[:, ["plant_id_eia", "plant_name_eia", "state"]].
-        pipe(pudl.helpers.simplify_strings, columns=["plant_name_eia"]).
-        astype({"plant_id_eia": int}).
-        drop_duplicates("plant_id_eia").
-        sort_values("plant_id_eia")
+        pd.read_sql("plants_entity_eia", pudl_engine)
+        .loc[:, ["plant_id_eia", "plant_name_eia", "state"]]
+        .pipe(pudl.helpers.simplify_strings, columns=["plant_name_eia"])
+        .astype({"plant_id_eia": int})
+        .drop_duplicates("plant_id_eia")
+        .sort_values("plant_id_eia")
     )
     return db_plants_eia
 
@@ -411,13 +407,13 @@ def get_mapped_plants_eia():
 
     """
     mapped_plants_eia = (
-        pudl.glue.ferc1_eia.get_plant_map().
-        loc[:, ["plant_id_eia", "plant_name_eia"]].
-        dropna(subset=["plant_id_eia"]).
-        pipe(pudl.helpers.simplify_strings, columns=["plant_name_eia"]).
-        astype({"plant_id_eia": int}).
-        drop_duplicates("plant_id_eia").
-        sort_values("plant_id_eia")
+        pudl.glue.ferc1_eia.get_plant_map()
+        .loc[:, ["plant_id_eia", "plant_name_eia"]]
+        .dropna(subset=["plant_id_eia"])
+        .pipe(pudl.helpers.simplify_strings, columns=["plant_name_eia"])
+        .astype({"plant_id_eia": int})
+        .drop_duplicates("plant_id_eia")
+        .sort_values("plant_id_eia")
     )
     return mapped_plants_eia
 
@@ -427,13 +423,15 @@ def get_unmapped_plants_eia(pudl_engine):
     plants_utils_eia = (
         pd.read_sql(
             "SELECT DISTINCT plant_id_eia, utility_id_eia FROM plants_eia860;",
-            pudl_engine
+            pudl_engine,
         )
         .dropna()
-        .astype({
-            "plant_id_eia": int,
-            "utility_id_eia": int,
-        })
+        .astype(
+            {
+                "plant_id_eia": int,
+                "utility_id_eia": int,
+            }
+        )
         .drop_duplicates()
         # Need to get the name of the utility, to merge with the ID
         .merge(
@@ -443,7 +441,8 @@ def get_unmapped_plants_eia(pudl_engine):
     )
     plant_capacity_mw = (
         pd.read_sql("SELECT * FROM generators_eia860;", pudl_engine)
-        .groupby(["plant_id_eia"])[["capacity_mw"]].agg(sum)
+        .groupby(["plant_id_eia"])[["capacity_mw"]]
+        .agg(sum)
         .reset_index()
     )
     db_plants_eia = get_db_plants_eia(pudl_engine).set_index("plant_id_eia")
@@ -453,9 +452,17 @@ def get_unmapped_plants_eia(pudl_engine):
         db_plants_eia.loc[unmapped_plants_idx]
         .merge(plants_utils_eia, how="left", on="plant_id_eia")
         .merge(plant_capacity_mw, how="left", on="plant_id_eia")
-        .loc[:, ["plant_id_eia", "plant_name_eia",
-                 "utility_id_eia", "utility_name_eia",
-                 "state", "capacity_mw"]]
+        .loc[
+            :,
+            [
+                "plant_id_eia",
+                "plant_name_eia",
+                "utility_id_eia",
+                "utility_name_eia",
+                "state",
+                "capacity_mw",
+            ],
+        ]
         .astype({"utility_id_eia": "Int32"})  # Woo! Nullable Integers FTW!
         .set_index("plant_id_eia")
     )
@@ -492,11 +499,11 @@ def get_utility_most_recent_capacity(pudl_engine) -> pd.DataFrame:
         con=pudl_engine,
         parse_dates=["report_date"],
     )
-    gen_caps['utility_id_eia'] = gen_caps['utility_id_eia'].astype("Int64")
+    gen_caps["utility_id_eia"] = gen_caps["utility_id_eia"].astype("Int64")
 
     most_recent_gens_idx = (
-        gen_caps.groupby("utility_id_eia")["report_date"]
-        .transform(max) == gen_caps["report_date"]
+        gen_caps.groupby("utility_id_eia")["report_date"].transform(max)
+        == gen_caps["report_date"]
     )
     most_recent_gens = gen_caps.loc[most_recent_gens_idx]
     utility_caps = most_recent_gens.groupby("utility_id_eia").sum()
@@ -544,7 +551,7 @@ def get_unmapped_utils_eia(
         get_utility_most_recent_capacity(pudl_engine),
         on="utility_id_eia",
         how="left",
-        validate="1:1"
+        validate="1:1",
     )
 
     plant_ids = pd.Series(dtype="Int64")
@@ -555,25 +562,27 @@ def get_unmapped_utils_eia(
     plant_ids_in_eia923 = sorted(set(plant_ids))
 
     utils_with_plants = (
-        pd.read_sql("SELECT utility_id_eia, plant_id_eia FROM plants_eia860", pudl_engine)
+        pd.read_sql(
+            "SELECT utility_id_eia, plant_id_eia FROM plants_eia860", pudl_engine
+        )
         .astype("Int64")
         .drop_duplicates()
         .dropna()
     )
     utils_with_data_in_eia923 = utils_with_plants.loc[
-        utils_with_plants.plant_id_eia.isin(plant_ids_in_eia923),
-        "utility_id_eia"].to_frame()
+        utils_with_plants.plant_id_eia.isin(plant_ids_in_eia923), "utility_id_eia"
+    ].to_frame()
 
     # Most unmapped utilities have no EIA 923 data and so don't need to be linked:
     unmapped_utils_eia["link_to_ferc1"] = False
     # Any utility ID that's both unmapped and has EIA 923 data should get linked:
     idx_to_link = unmapped_utils_eia.index.intersection(
-        utils_with_data_in_eia923.utility_id_eia)
+        utils_with_data_in_eia923.utility_id_eia
+    )
     unmapped_utils_eia.loc[idx_to_link, "link_to_ferc1"] = True
 
     unmapped_utils_eia = unmapped_utils_eia.sort_values(
-        by="capacity_mw",
-        ascending=False
+        by="capacity_mw", ascending=False
     )
 
     return unmapped_utils_eia
@@ -585,44 +594,31 @@ def get_unmapped_utils_with_plants_eia(pudl_engine):
 
     utils_idx = ["utility_id_eia", "report_date"]
     plants_idx = ["plant_id_eia", "report_date"]
-    own_idx = ["plant_id_eia", "generator_id",
-               "owner_utility_id_eia", "report_date"]
+    own_idx = ["plant_id_eia", "generator_id", "owner_utility_id_eia", "report_date"]
 
-    utils_eia860 = (
-        pudl_out.utils_eia860()
-        .dropna(subset=utils_idx)
-        .set_index(utils_idx)
-    )
+    utils_eia860 = pudl_out.utils_eia860().dropna(subset=utils_idx).set_index(utils_idx)
     plants_eia860 = (
-        pudl_out.plants_eia860()
-        .dropna(subset=plants_idx)
-        .set_index(plants_idx)
+        pudl_out.plants_eia860().dropna(subset=plants_idx).set_index(plants_idx)
     )
-    own_eia860 = (
-        pudl_out.own_eia860()
-        .dropna(subset=own_idx)
-        .set_index(own_idx)
-    )
+    own_eia860 = pudl_out.own_eia860().dropna(subset=own_idx).set_index(own_idx)
 
     own_miss_utils = set(
-        own_eia860[own_eia860.utility_id_pudl.isnull()]
-        .utility_id_eia.unique()
+        own_eia860[own_eia860.utility_id_pudl.isnull()].utility_id_eia.unique()
     )
     plants_miss_utils = set(
-        plants_eia860[plants_eia860.utility_id_pudl.isnull()]
-        .utility_id_eia.unique()
+        plants_eia860[plants_eia860.utility_id_pudl.isnull()].utility_id_eia.unique()
     )
 
     utils_eia860 = utils_eia860.reset_index()
     miss_utils = utils_eia860[
-        (utils_eia860.utility_id_pudl.isna()) &
-        (
-            (utils_eia860.plants_reported_owner == "True") |
-            (utils_eia860.plants_reported_asset_manager == "True") |
-            (utils_eia860.plants_reported_operator == "True") |
-            (utils_eia860.plants_reported_other_relationship == "True") |
-            (utils_eia860.utility_id_eia.isin(own_miss_utils)) |
-            (utils_eia860.utility_id_eia.isin(plants_miss_utils))
+        (utils_eia860.utility_id_pudl.isna())
+        & (
+            (utils_eia860.plants_reported_owner == "True")
+            | (utils_eia860.plants_reported_asset_manager == "True")
+            | (utils_eia860.plants_reported_operator == "True")
+            | (utils_eia860.plants_reported_other_relationship == "True")
+            | (utils_eia860.utility_id_eia.isin(own_miss_utils))
+            | (utils_eia860.utility_id_eia.isin(plants_miss_utils))
         )
     ]
 
@@ -635,9 +631,9 @@ def get_unmapped_utils_with_plants_eia(pudl_engine):
     # Get the most recent total capacity for the unmapped utils.
     utils_recent_capacity = get_utility_most_recent_capacity(pudl_engine)
     miss_utils = miss_utils.merge(
-        utils_recent_capacity, on="utility_id_eia", how="left", validate="1:1")
-    miss_utils = miss_utils.sort_values(
-        by="capacity_mw", ascending=False)
+        utils_recent_capacity, on="utility_id_eia", how="left", validate="1:1"
+    )
+    miss_utils = miss_utils.sort_values(by="capacity_mw", ascending=False)
     return miss_utils
 
 
@@ -698,48 +694,43 @@ def glue(ferc1=False, eia=False):
     # or trailing white space... since this field is being used as a key in
     # many cases. This also needs to be done any time plant_name is pulled in
     # from other tables.
-    plant_map = (
-        get_plant_map()
-        .pipe(pudl.helpers.simplify_strings, ['plant_name_ferc1'])
+    plant_map = get_plant_map().pipe(
+        pudl.helpers.simplify_strings, ["plant_name_ferc1"]
     )
 
     plants_pudl = (
-        plant_map
-        .loc[:, ['plant_id_pudl', 'plant_name_pudl']]
-        .drop_duplicates('plant_id_pudl')
+        plant_map.loc[:, ["plant_id_pudl", "plant_name_pudl"]]
+        .drop_duplicates("plant_id_pudl")
         .dropna(how="all")
     )
     plants_eia = (
-        plant_map
-        .loc[:, ['plant_id_eia', 'plant_name_eia', 'plant_id_pudl']]
+        plant_map.loc[:, ["plant_id_eia", "plant_name_eia", "plant_id_pudl"]]
         .drop_duplicates("plant_id_eia")
         .dropna(subset=["plant_id_eia"])
     )
     plants_ferc1 = (
-        plant_map
-        .loc[:, ['plant_name_ferc1', 'utility_id_ferc1', 'plant_id_pudl']]
-        .drop_duplicates(['plant_name_ferc1', 'utility_id_ferc1'])
+        plant_map.loc[:, ["plant_name_ferc1", "utility_id_ferc1", "plant_id_pudl"]]
+        .drop_duplicates(["plant_name_ferc1", "utility_id_ferc1"])
         .dropna(subset=["utility_id_ferc1", "plant_name_ferc1"])
     )
 
     utility_map = get_utility_map()
     utilities_pudl = (
-        utility_map
-        .loc[:, ['utility_id_pudl', 'utility_name_pudl']]
-        .drop_duplicates('utility_id_pudl')
+        utility_map.loc[:, ["utility_id_pudl", "utility_name_pudl"]]
+        .drop_duplicates("utility_id_pudl")
         .dropna(how="all")
     )
     utilities_eia = (
-        utility_map
-        .loc[:, ['utility_id_eia', 'utility_name_eia', 'utility_id_pudl']]
-        .drop_duplicates('utility_id_eia')
-        .dropna(subset=['utility_id_eia'])
+        utility_map.loc[:, ["utility_id_eia", "utility_name_eia", "utility_id_pudl"]]
+        .drop_duplicates("utility_id_eia")
+        .dropna(subset=["utility_id_eia"])
     )
     utilities_ferc1 = (
-        utility_map
-        .loc[:, ['utility_id_ferc1', 'utility_name_ferc1', 'utility_id_pudl']]
-        .drop_duplicates('utility_id_ferc1')
-        .dropna(subset=['utility_id_ferc1'])
+        utility_map.loc[
+            :, ["utility_id_ferc1", "utility_name_ferc1", "utility_id_pudl"]
+        ]
+        .drop_duplicates("utility_id_ferc1")
+        .dropna(subset=["utility_id_ferc1"])
     )
 
     # Now we need to create a table that indicates which plants are associated
@@ -747,15 +738,11 @@ def glue(ferc1=False, eia=False):
 
     # These dataframes map our plant_id to FERC respondents and EIA
     # operators -- the equivalents of our "utilities"
-    plants_utilities_ferc1 = (
-        plant_map
-        .loc[:, ['plant_id_pudl', 'utility_id_ferc1']]
-        .dropna(subset=['utility_id_ferc1'])
-    )
-    plants_utilities_eia = (
-        plant_map
-        .loc[:, ['plant_id_pudl', 'utility_id_eia']]
-        .dropna(subset=['utility_id_eia'])
+    plants_utilities_ferc1 = plant_map.loc[
+        :, ["plant_id_pudl", "utility_id_ferc1"]
+    ].dropna(subset=["utility_id_ferc1"])
+    plants_utilities_eia = plant_map.loc[:, ["plant_id_pudl", "utility_id_eia"]].dropna(
+        subset=["utility_id_eia"]
     )
 
     # Here we treat the dataframes like database tables, and join on the
@@ -763,21 +750,16 @@ def glue(ferc1=False, eia=False):
     # Now we can concatenate the two dataframes, and get rid of all the columns
     # except for plant_id and utility_id (which determine the  utility to plant
     # association), and get rid of any duplicates or lingering NaN values...
-    utility_plant_assn = (
-        pd.concat(
-            [pd.merge(utilities_eia,
-                      plants_utilities_eia,
-                      on='utility_id_eia'),
-             pd.merge(utilities_ferc1,
-                      plants_utilities_ferc1,
-                      on='utility_id_ferc1')],
-            sort=True
-        )
+    utility_plant_assn = pd.concat(
+        [
+            pd.merge(utilities_eia, plants_utilities_eia, on="utility_id_eia"),
+            pd.merge(utilities_ferc1, plants_utilities_ferc1, on="utility_id_ferc1"),
+        ],
+        sort=True,
     )
 
     utility_plant_assn = (
-        utility_plant_assn
-        .loc[:, ['plant_id_pudl', 'utility_id_pudl']]
+        utility_plant_assn.loc[:, ["plant_id_pudl", "utility_id_pudl"]]
         .dropna()
         .drop_duplicates()
     )
@@ -791,12 +773,13 @@ def glue(ferc1=False, eia=False):
     # we're harvesting IDs for, with no names?
     for df, df_n in zip(
         [plants_eia, plants_ferc1, utilities_eia, utilities_ferc1],
-        ['plants_eia', 'plants_ferc1', 'utilities_eia', 'utilities_ferc1']
+        ["plants_eia", "plants_ferc1", "utilities_eia", "utilities_ferc1"],
     ):
         if df[pd.isnull(df).any(axis="columns")].shape[0] > 1:
             logger.warning(
                 f"FERC to EIA glue breaking in {df_n}. There are too many null "
-                "fields. Check the mapping spreadhseet.")
+                "fields. Check the mapping spreadhseet."
+            )
         df = df.dropna()
 
     # Before we start inserting records into the database, let's do some basic
@@ -819,11 +802,11 @@ def glue(ferc1=False, eia=False):
 
     # if we're not ingesting eia, exclude eia only tables
     if not eia:
-        del glue_dfs['utilities_eia']
-        del glue_dfs['plants_eia']
+        del glue_dfs["utilities_eia"]
+        del glue_dfs["plants_eia"]
     # if we're not ingesting ferc, exclude ferc1 only tables
     if not ferc1:
-        del glue_dfs['utilities_ferc1']
-        del glue_dfs['plants_ferc1']
+        del glue_dfs["utilities_ferc1"]
+        del glue_dfs["plants_ferc1"]
 
     return glue_dfs

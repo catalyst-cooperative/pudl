@@ -12,7 +12,7 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
                 "eia_code",
             ],
             "primary_key": ["respondent_id_ferc714"],
-            "foreign_key_rules": {"fields": [["respodnent_id_ferc714"]]}
+            "foreign_key_rules": {"fields": [["respodnent_id_ferc714"]]},
         },
         "sources": ["ferc714"],
         "field_namespace": "ferc714",
@@ -28,12 +28,12 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
                 "timezone",
                 "demand_mwh",
             ],
-            "primary_key": ["respondent_id_ferc714", "utc_datetime"]
+            "primary_key": ["respondent_id_ferc714", "utc_datetime"],
         },
         "sources": ["ferc714"],
         "field_namespace": "ferc714",
         "etl_group": "ferc714",
-    }
+    },
 }
 """
 FERC Form 714 resource attributes by PUDL identifier (``resource.name``).
