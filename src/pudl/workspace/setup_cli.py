@@ -60,8 +60,7 @@ logger = logging.getLogger(__name__)
 def initialize_parser():
     """Parse command line arguments for the pudl_setup script."""
     parser = argparse.ArgumentParser(
-        description=__doc__,
-        formatter_class=argparse.RawDescriptionHelpFormatter
+        description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
     )
     parser.add_argument(
         "pudl_dir",
@@ -70,7 +69,7 @@ def initialize_parser():
         help="""Directory where all the PUDL inputs and outputs should be
         located. If unspecified, the current directory will be used. If pudl_in
         or pudl_out are provided, they will be used instead of this directory
-        for their respective purposes."""
+        for their respective purposes.""",
     )
     parser.add_argument(
         "--pudl_in",
@@ -82,7 +81,7 @@ def initialize_parser():
     )
     parser.add_argument(
         "--pudl_out",
-        '-o',
+        "-o",
         type=str,
         dest="pudl_out",
         help="""Directory where the PUDL outputs, notebooks, and example
@@ -90,13 +89,13 @@ def initialize_parser():
         pudl_dir if both are provided.""",
     )
     parser.add_argument(
-        '--clobber',
-        '-c',
-        action='store_true',
+        "--clobber",
+        "-c",
+        action="store_true",
         help="""Replace existing settings files, notebooks, etc. with fresh
         copies of the examples distributed with the PUDL Python package. This
         will also update your default PUDL workspace, if you have one.""",
-        default=False
+        default=False,
     )
     return parser
 
@@ -105,8 +104,8 @@ def main():
     """Set up a new default PUDL workspace."""
     # Display logged output from the PUDL package:
     pudl_logger = logging.getLogger("pudl")
-    log_format = '%(asctime)s [%(levelname)8s] %(name)s:%(lineno)s %(message)s'
-    coloredlogs.install(fmt=log_format, level='INFO', logger=pudl_logger)
+    log_format = "%(asctime)s [%(levelname)8s] %(name)s:%(lineno)s %(message)s"
+    coloredlogs.install(fmt=log_format, level="INFO", logger=pudl_logger)
 
     parser = initialize_parser()
     args = parser.parse_args(sys.argv[1:])
@@ -119,13 +118,11 @@ def main():
     # Given pudl_in and pudl_out, create a user settings file.
     pudl_in = pathlib.Path(args.pudl_in).expanduser().resolve()
     if not pathlib.Path.is_dir(pudl_in):
-        raise FileNotFoundError(
-            f"Directory not found: {pudl_in}")
+        raise FileNotFoundError(f"Directory not found: {pudl_in}")
 
     pudl_out = pathlib.Path(args.pudl_out).expanduser().resolve()
     if not pathlib.Path.is_dir(pudl_out):
-        raise FileNotFoundError(
-            f"Directory not found: {pudl_out}")
+        raise FileNotFoundError(f"Directory not found: {pudl_out}")
 
     pudl_defaults_file = pathlib.Path.home() / ".pudl.yml"
 
@@ -134,15 +131,13 @@ def main():
     if not pudl_defaults_file.exists() or args.clobber is True:
         logger.info(f"Setting default pudl_in: {pudl_in}")
         logger.info(f"Setting default pudl_out: {pudl_out}")
-        logger.info(f"You can update these default values by editing "
-                    f"{pudl_defaults_file}")
-        pudl.workspace.setup.set_defaults(pudl_in, pudl_out,
-                                          clobber=args.clobber)
+        logger.info(
+            f"You can update these default values by editing {pudl_defaults_file}"
+        )
+        pudl.workspace.setup.set_defaults(pudl_in, pudl_out, clobber=args.clobber)
 
-    pudl.workspace.setup.init(pudl_in=pudl_in,
-                              pudl_out=pudl_out,
-                              clobber=args.clobber)
+    pudl.workspace.setup.init(pudl_in=pudl_in, pudl_out=pudl_out, clobber=args.clobber)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     sys.exit(main())

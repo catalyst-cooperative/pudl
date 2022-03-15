@@ -9,16 +9,17 @@ SOURCES: Dict[str, Any] = {
         "title": "Census DP1",
         "path": "https://www.census.gov/geographies/mapping-files/2010/geo/tiger-data.html",
         "description": (
-            "US Census Demographic Profile 1 (DP1) County and Tract "
-            "GeoDatabase."
+            "US Census Demographic Profile 1 (DP1) County and Tract " "GeoDatabase."
         ),
         "working_partitions": {},  # Census DP1 is monolithic.
-        "keywords": sorted(set(
-            [
-                "censusdp1tract",
-                "census",
-            ]
-        )),
+        "keywords": sorted(
+            set(
+                [
+                    "censusdp1tract",
+                    "census",
+                ]
+            )
+        ),
         "license_raw": LICENSES["us-govt"],
         "license_pudl": LICENSES["cc-by-4.0"],
     },
@@ -41,21 +42,23 @@ SOURCES: Dict[str, Any] = {
         "working_partitions": {
             "years": sorted(set(range(2001, 2021))),
         },
-        "keywords": sorted(set(
-            [
-                "eia860",
-                "form 860",
-                "ownership",
-                "annual",
-                "yearly",
-            ]
-            + KEYWORDS["eia"]
-            + KEYWORDS["us_govt"]
-            + KEYWORDS["electricity"]
-            + KEYWORDS["fuels"]
-            + KEYWORDS["plants"]
-            + KEYWORDS["environment"]
-        )),
+        "keywords": sorted(
+            set(
+                [
+                    "eia860",
+                    "form 860",
+                    "ownership",
+                    "annual",
+                    "yearly",
+                ]
+                + KEYWORDS["eia"]
+                + KEYWORDS["us_govt"]
+                + KEYWORDS["electricity"]
+                + KEYWORDS["fuels"]
+                + KEYWORDS["plants"]
+                + KEYWORDS["environment"]
+            )
+        ),
         "license_raw": LICENSES["us-govt"],
         "license_pudl": LICENSES["cc-by-4.0"],
     },
@@ -73,19 +76,21 @@ SOURCES: Dict[str, Any] = {
         "working_partitions": {
             "year_month": "2021-12",
         },
-        "keywords": sorted(set(
-            [
-                "eia860m",
-                "form 860m",
-                "monthly",
-            ]
-            + KEYWORDS["eia"]
-            + KEYWORDS["us_govt"]
-            + KEYWORDS["electricity"]
-            + KEYWORDS["fuels"]
-            + KEYWORDS["plants"]
-            + KEYWORDS["environment"]
-        )),
+        "keywords": sorted(
+            set(
+                [
+                    "eia860m",
+                    "form 860m",
+                    "monthly",
+                ]
+                + KEYWORDS["eia"]
+                + KEYWORDS["us_govt"]
+                + KEYWORDS["electricity"]
+                + KEYWORDS["fuels"]
+                + KEYWORDS["plants"]
+                + KEYWORDS["environment"]
+            )
+        ),
         "license_raw": LICENSES["us-govt"],
         "license_pudl": LICENSES["cc-by-4.0"],
     },
@@ -101,27 +106,29 @@ SOURCES: Dict[str, Any] = {
             "years": sorted(set(range(2001, 2021))),
         },
         "contributors": [],
-        "keywords": sorted(set(
-            [
-                "eia861",
-                "form 861",
-                "balancing authority",
-                "advanced metering infrastructure",
-                "customer class",
-                "green pricing",
-                "energy efficiency",
-                "demand side management",
-                "demand response",
-                "net metering",
-                "business model",
-                "service territory",
-                "annual",
-                "yearly",
-            ]
-            + KEYWORDS["eia"]
-            + KEYWORDS["us_govt"]
-            + KEYWORDS["electricity"]
-        )),
+        "keywords": sorted(
+            set(
+                [
+                    "eia861",
+                    "form 861",
+                    "balancing authority",
+                    "advanced metering infrastructure",
+                    "customer class",
+                    "green pricing",
+                    "energy efficiency",
+                    "demand side management",
+                    "demand response",
+                    "net metering",
+                    "business model",
+                    "service territory",
+                    "annual",
+                    "yearly",
+                ]
+                + KEYWORDS["eia"]
+                + KEYWORDS["us_govt"]
+                + KEYWORDS["electricity"]
+            )
+        ),
         "license_raw": LICENSES["us-govt"],
         "license_pudl": LICENSES["cc-by-4.0"],
     },
@@ -144,19 +151,21 @@ SOURCES: Dict[str, Any] = {
             CONTRIBUTORS["steven-winter"],
             CONTRIBUTORS["katherine-lamb"],
         ],
-        "keywords": sorted(set(
-            [
-                "eia923",
-                "form 923",
-                "monthly",
-            ]
-            + KEYWORDS["eia"]
-            + KEYWORDS["us_govt"]
-            + KEYWORDS["electricity"]
-            + KEYWORDS["fuels"]
-            + KEYWORDS["plants"]
-            + KEYWORDS["environment"]
-        )),
+        "keywords": sorted(
+            set(
+                [
+                    "eia923",
+                    "form 923",
+                    "monthly",
+                ]
+                + KEYWORDS["eia"]
+                + KEYWORDS["us_govt"]
+                + KEYWORDS["electricity"]
+                + KEYWORDS["fuels"]
+                + KEYWORDS["plants"]
+                + KEYWORDS["environment"]
+            )
+        ),
         "license_raw": LICENSES["us-govt"],
         "license_pudl": LICENSES["cc-by-4.0"],
     },
@@ -186,19 +195,21 @@ SOURCES: Dict[str, Any] = {
             CONTRIBUTORS["karl-dunkle-werner"],
             CONTRIBUTORS["zane-selvans"],
         ],
-        "keywords": sorted(set(
-            [
-                "continuous emissions monitoring system",
-                "cems",
-                "air markets program data",
-                "ampd",
-                "hourly",
-            ]
-            + KEYWORDS["epa"]
-            + KEYWORDS["us_govt"]
-            + KEYWORDS["electricity"]
-            + KEYWORDS["environment"]
-        )),
+        "keywords": sorted(
+            set(
+                [
+                    "continuous emissions monitoring system",
+                    "cems",
+                    "air markets program data",
+                    "ampd",
+                    "hourly",
+                ]
+                + KEYWORDS["epa"]
+                + KEYWORDS["us_govt"]
+                + KEYWORDS["electricity"]
+                + KEYWORDS["environment"]
+            )
+        ),
         "license_raw": LICENSES["us-govt"],
         "license_pudl": LICENSES["cc-by-4.0"],
     },
@@ -223,18 +234,20 @@ SOURCES: Dict[str, Any] = {
             CONTRIBUTORS["alana-wilson"],
             CONTRIBUTORS["austen-sharpe"],
         ],
-        "keywords": sorted(set(
-            [
-                "form 1",
-                "ferc1",
-            ]
-            + KEYWORDS["ferc"]
-            + KEYWORDS["us_govt"]
-            + KEYWORDS["finance"]
-            + KEYWORDS["electricity"]
-            + KEYWORDS["plants"]
-            + KEYWORDS["fuels"]
-        )),
+        "keywords": sorted(
+            set(
+                [
+                    "form 1",
+                    "ferc1",
+                ]
+                + KEYWORDS["ferc"]
+                + KEYWORDS["us_govt"]
+                + KEYWORDS["finance"]
+                + KEYWORDS["electricity"]
+                + KEYWORDS["plants"]
+                + KEYWORDS["fuels"]
+            )
+        ),
         "license_raw": LICENSES["us-govt"],
         "license_pudl": LICENSES["cc-by-4.0"],
     },
@@ -266,15 +279,17 @@ SOURCES: Dict[str, Any] = {
         ),
         "field_namespace": "ferc714",
         "working_partitions": {},  # Data is monolitic, one file with all years.
-        "keywords": sorted(set(
-            [
-                "form 714",
-                "ferc714",
-            ]
-            + KEYWORDS["ferc"]
-            + KEYWORDS["us_govt"]
-            + KEYWORDS["electricity"]
-        )),
+        "keywords": sorted(
+            set(
+                [
+                    "form 714",
+                    "ferc714",
+                ]
+                + KEYWORDS["ferc"]
+                + KEYWORDS["us_govt"]
+                + KEYWORDS["electricity"]
+            )
+        ),
         "license_raw": LICENSES["us-govt"],
         "license_pudl": LICENSES["cc-by-4.0"],
     },

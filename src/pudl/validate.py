@@ -82,13 +82,8 @@ def check_date_freq(df1, df2, mult):
             column named ``report_date``
 
     """
-    if (
-        ("report_date" not in df1.columns)
-        or ("report_date" not in df2.columns)
-    ):
-        raise ValueError(
-            "Missing report_date column in one or both input DataFrames"
-        )
+    if ("report_date" not in df1.columns) or ("report_date" not in df2.columns):
+        raise ValueError("Missing report_date column in one or both input DataFrames")
 
     idx1 = pd.DatetimeIndex(df1.report_date.unique())
     idx2 = pd.DatetimeIndex(df2.report_date.unique())
@@ -132,9 +127,7 @@ def no_null_rows(df, cols="all", df_name="", thresh=0.9):
 
     null_rows = df[cols].isna().sum(axis="columns") / len(cols) > thresh
     if null_rows.any():
-        raise ValueError(
-            f"Found {null_rows.sum(axis='rows')} Null rows in {df_name}."
-        )
+        raise ValueError(f"Found {null_rows.sum(axis='rows')} Null rows in {df_name}.")
 
     return df
 
@@ -223,8 +216,7 @@ def check_unique_rows(df, subset=None, df_name=""):
     """
     n_dupes = len(df[df.duplicated(subset=subset)])
     if n_dupes != 0:
-        raise ValueError(
-            f"Found {n_dupes} dupes of {subset} in dataframe {df_name}")
+        raise ValueError(f"Found {n_dupes} dupes of {subset} in dataframe {df_name}")
 
     return df
 
@@ -253,9 +245,8 @@ def weighted_quantile(data, weights, quantile):
         quantile. If there are no values in the data, return :mod:`numpy.na`.
 
     """
-    if ((quantile < 0) or (quantile > 1)):
-        raise ValueError(
-            "quantile must have a value between 0 and 1.")
+    if (quantile < 0) or (quantile > 1):
+        raise ValueError("quantile must have a value between 0 and 1.")
     if len(data) != len(weights):
         raise ValueError("data and weights must have the same length")
     df = (
@@ -304,17 +295,28 @@ def historical_distribution(df, data_col, weight_col, quantile):
     dist = []
     for year in report_years:
         dist = dist + [
-            weighted_quantile(df[df.report_year == year][data_col],
-                              df[df.report_year == year][weight_col],
-                              quantile)
+            weighted_quantile(
+                df[df.report_year == year][data_col],
+                df[df.report_year == year][weight_col],
+                quantile,
+            )
         ]
     # these values can be NaN, if there were no values in that column for some
     # years in the data:
     return [d for d in dist if not np.isnan(d)]
 
 
-def vs_bounds(df, data_col, weight_col, query="", title="",
-              low_q=False, low_bound=False, hi_q=False, hi_bound=False):
+def vs_bounds(
+    df,
+    data_col,
+    weight_col,
+    query="",
+    title="",
+    low_q=False,
+    low_bound=False,
+    hi_q=False,
+    hi_bound=False,
+):
     """Test a distribution against an upper bound, lower bound, or both."""
     # These assignments allow 0.0 to be used as a bound...
     low_bool = low_bound is not False
@@ -342,8 +344,7 @@ def vs_bounds(df, data_col, weight_col, query="", title="",
         weight_col = "ones"
     if low_q >= 0 and low_bool:
         low_test = weighted_quantile(df[data_col], df[weight_col], low_q)
-        logger.info(f"{data_col} ({low_q:.0%}): "
-                    f"{low_test:.6} >= {low_bound:.6}")
+        logger.info(f"{data_col} ({low_q:.0%}): {low_test:.6} >= {low_bound:.6}")
         if low_test < low_bound:
             raise ValueError(
                 f"{low_q:.0%} quantile ({low_test}) "
@@ -361,8 +362,9 @@ def vs_bounds(df, data_col, weight_col, query="", title="",
             )
 
 
-def vs_self(df, data_col, weight_col, query="", title="",
-            low_q=0.05, mid_q=0.5, hi_q=0.95):
+def vs_self(
+    df, data_col, weight_col, query="", title="", low_q=0.05, mid_q=0.5, hi_q=0.95
+):
     """
     Test a distribution against its own historical range.
 
@@ -374,14 +376,30 @@ def vs_self(df, data_col, weight_col, query="", title="",
     if weight_col is None or weight_col == "":
         df["ones"] = 1.0
         weight_col = "ones"
-    vs_historical(df, df, data_col, weight_col, query=query,
-                  low_q=low_q, mid_q=mid_q, hi_q=hi_q,
-                  title=title)
+    vs_historical(
+        df,
+        df,
+        data_col,
+        weight_col,
+        query=query,
+        low_q=low_q,
+        mid_q=mid_q,
+        hi_q=hi_q,
+        title=title,
+    )
 
 
-def vs_historical(orig_df, test_df, data_col, weight_col, query="",  # noqa: C901
-                  low_q=0.05, mid_q=0.5, hi_q=0.95,
-                  title=""):
+def vs_historical(  # noqa: C901
+    orig_df,
+    test_df,
+    data_col,
+    weight_col,
+    query="",
+    low_q=0.05,
+    mid_q=0.5,
+    hi_q=0.95,
+    title="",
+):
     """Validate aggregated distributions against original data."""
     if query != "":
         orig_df = orig_df.copy().query(query)
@@ -393,12 +411,9 @@ def vs_historical(orig_df, test_df, data_col, weight_col, query="",  # noqa: C90
         test_df["ones"] = 1.0
         weight_col = "ones"
     if low_q:
-        low_range = historical_distribution(
-            orig_df, data_col, weight_col, low_q)
-        low_test = weighted_quantile(
-            test_df[data_col], test_df[weight_col], low_q)
-        logger.info(
-            f"{data_col} ({low_q:.0%}): {low_test:.6} >= {min(low_range):.6}")
+        low_range = historical_distribution(orig_df, data_col, weight_col, low_q)
+        low_test = weighted_quantile(test_df[data_col], test_df[weight_col], low_q)
+        logger.info(f"{data_col} ({low_q:.0%}): {low_test:.6} >= {min(low_range):.6}")
         if low_test < min(low_range):
             raise ValueError(
                 f"Lower value {low_test} below lower limit {min(low_range)} "
@@ -406,13 +421,12 @@ def vs_historical(orig_df, test_df, data_col, weight_col, query="",  # noqa: C90
             )
 
     if mid_q:
-        mid_range = historical_distribution(
-            orig_df, data_col, weight_col, mid_q)
-        mid_test = weighted_quantile(
-            test_df[data_col], test_df[weight_col], mid_q)
+        mid_range = historical_distribution(orig_df, data_col, weight_col, mid_q)
+        mid_test = weighted_quantile(test_df[data_col], test_df[weight_col], mid_q)
         logger.info(
             f"{data_col} ({mid_q:.0%}): {min(mid_range):.6} <= {mid_test:.6} "
-            f"<= {max(mid_range):.6}")
+            f"<= {max(mid_range):.6}"
+        )
         if mid_test < min(mid_range):
             raise ValueError(
                 f"Middle value {mid_test} below lower limit {min(mid_range)} "
@@ -425,12 +439,9 @@ def vs_historical(orig_df, test_df, data_col, weight_col, query="",  # noqa: C90
             )
 
     if hi_q:
-        hi_range = historical_distribution(
-            orig_df, data_col, weight_col, hi_q)
-        hi_test = weighted_quantile(
-            test_df[data_col], test_df[weight_col], hi_q)
-        logger.info(
-            f"{data_col} ({hi_q:.0%}): {hi_test:.6} <= {max(hi_range):.6}.")
+        hi_range = historical_distribution(orig_df, data_col, weight_col, hi_q)
+        hi_test = weighted_quantile(test_df[data_col], test_df[weight_col], hi_q)
+        logger.info(f"{data_col} ({hi_q:.0%}): {hi_test:.6} <= {max(hi_range):.6}.")
         if hi_test > max(hi_range):
             raise ValueError(
                 f"Upper value {hi_test} above upper limit {max(hi_range)} "
@@ -438,9 +449,9 @@ def vs_historical(orig_df, test_df, data_col, weight_col, query="",  # noqa: C90
             )
 
 
-def bounds_histogram(df, data_col, weight_col, query,
-                     low_q, hi_q, low_bound, hi_bound,
-                     title=""):
+def bounds_histogram(
+    df, data_col, weight_col, query, low_q, hi_q, low_bound, hi_bound, title=""
+):
     """Plot a weighted histogram showing acceptable bounds/actual values."""
     if query != "":
         df = df.copy().query(query)
@@ -453,20 +464,35 @@ def bounds_histogram(df, data_col, weight_col, query,
     xmin = weighted_quantile(df[data_col], df[weight_col], 0.01)
     xmax = weighted_quantile(df[data_col], df[weight_col], 0.99)
 
-    plt.hist(df[data_col], weights=df[weight_col],
-             range=(xmin, xmax), bins=50, color="black", label=data_col)
+    plt.hist(
+        df[data_col],
+        weights=df[weight_col],
+        range=(xmin, xmax),
+        bins=50,
+        color="black",
+        label=data_col,
+    )
 
     if low_bound:
-        plt.axvline(low_bound, lw=3, ls='--', color='red',
-                    label=f"lower bound for {low_q:.0%}")
+        plt.axvline(
+            low_bound, lw=3, ls="--", color="red", label=f"lower bound for {low_q:.0%}"
+        )
         plt.axvline(
             weighted_quantile(df[data_col], df[weight_col], low_q),
-            lw=3, color="red", label=f"actual {low_q:.0%}")
+            lw=3,
+            color="red",
+            label=f"actual {low_q:.0%}",
+        )
     if hi_bound:
-        plt.axvline(hi_bound, lw=3, ls='--', color='blue',
-                    label=f"upper bound for {hi_q:.0%}")
-        plt.axvline(weighted_quantile(df[data_col], df[weight_col], hi_q),
-                    lw=3, color="blue", label=f"actual {hi_q:.0%}")
+        plt.axvline(
+            hi_bound, lw=3, ls="--", color="blue", label=f"upper bound for {hi_q:.0%}"
+        )
+        plt.axvline(
+            weighted_quantile(df[data_col], df[weight_col], hi_q),
+            lw=3,
+            color="blue",
+            label=f"actual {hi_q:.0%}",
+        )
 
     plt.title(title)
     plt.xlabel(data_col)
@@ -475,10 +501,19 @@ def bounds_histogram(df, data_col, weight_col, query,
     plt.show()
 
 
-def historical_histogram(orig_df, test_df, data_col, weight_col, query="",
-                         low_q=0.05, mid_q=0.5, hi_q=0.95,
-                         low_bound=None, hi_bound=None,
-                         title=""):
+def historical_histogram(
+    orig_df,
+    test_df,
+    data_col,
+    weight_col,
+    query="",
+    low_q=0.05,
+    mid_q=0.5,
+    hi_q=0.95,
+    low_bound=None,
+    hi_bound=None,
+    title="",
+):
     """Weighted histogram comparing distribution with historical subsamples."""
     if query != "":
         orig_df = orig_df.copy().query(query)
@@ -489,16 +524,12 @@ def historical_histogram(orig_df, test_df, data_col, weight_col, query="",
             test_df["ones"] = 1.0
         weight_col = "ones"
 
-    orig_df = orig_df[
-        np.isfinite(orig_df[data_col]) &
-        np.isfinite(orig_df[weight_col])
-    ]
+    orig_df = orig_df[np.isfinite(orig_df[data_col]) & np.isfinite(orig_df[weight_col])]
 
     if test_df is not None:
         test_df = test_df.copy().query(query)
         test_df = test_df[
-            np.isfinite(test_df[data_col]) &
-            np.isfinite(test_df[weight_col])
+            np.isfinite(test_df[data_col]) & np.isfinite(test_df[weight_col])
         ]
 
     xmin = weighted_quantile(orig_df[data_col], orig_df[weight_col], 0.01)
@@ -506,43 +537,72 @@ def historical_histogram(orig_df, test_df, data_col, weight_col, query="",
 
     test_alpha = 1.0
     if test_df is not None:
-        plt.hist(test_df[data_col], weights=test_df[weight_col],
-                 range=(xmin, xmax), bins=50, color="yellow", alpha=0.5,
-                 label="Test Distribution")
+        plt.hist(
+            test_df[data_col],
+            weights=test_df[weight_col],
+            range=(xmin, xmax),
+            bins=50,
+            color="yellow",
+            alpha=0.5,
+            label="Test Distribution",
+        )
         test_alpha = 0.5
     else:
         test_df = orig_df
-    plt.hist(orig_df[data_col], weights=orig_df[weight_col],
-             range=(xmin, xmax), bins=50, color="black", alpha=test_alpha,
-             label="Original Distribution")
+    plt.hist(
+        orig_df[data_col],
+        weights=orig_df[weight_col],
+        range=(xmin, xmax),
+        bins=50,
+        color="black",
+        alpha=test_alpha,
+        label="Original Distribution",
+    )
 
     if low_q:
-        low_range = historical_distribution(
-            orig_df, data_col, weight_col, low_q)
-        plt.axvspan(min(low_range), max(low_range),
-                    color="red", alpha=0.2,
-                    label=f"Historical range of {low_q:.0%}")
+        low_range = historical_distribution(orig_df, data_col, weight_col, low_q)
+        plt.axvspan(
+            min(low_range),
+            max(low_range),
+            color="red",
+            alpha=0.2,
+            label=f"Historical range of {low_q:.0%}",
+        )
         plt.axvline(
             weighted_quantile(test_df[data_col], test_df[weight_col], low_q),
-            color="red", label=f"Tested {low_q:.0%}")
+            color="red",
+            label=f"Tested {low_q:.0%}",
+        )
 
     if mid_q:
-        mid_range = historical_distribution(
-            orig_df, data_col, weight_col, mid_q)
-        plt.axvspan(min(mid_range), max(mid_range), color="green",
-                    alpha=0.2, label=f"historical range of {mid_q:.0%}")
+        mid_range = historical_distribution(orig_df, data_col, weight_col, mid_q)
+        plt.axvspan(
+            min(mid_range),
+            max(mid_range),
+            color="green",
+            alpha=0.2,
+            label=f"historical range of {mid_q:.0%}",
+        )
         plt.axvline(
             weighted_quantile(test_df[data_col], test_df[weight_col], mid_q),
-            color="green", label=f"Tested {mid_q:.0%}")
+            color="green",
+            label=f"Tested {mid_q:.0%}",
+        )
 
     if hi_q:
-        high_range = historical_distribution(
-            orig_df, data_col, weight_col, hi_q)
-        plt.axvspan(min(high_range), max(high_range), color="blue",
-                    alpha=0.2, label=f"Historical range of {hi_q:.0%}")
+        high_range = historical_distribution(orig_df, data_col, weight_col, hi_q)
+        plt.axvspan(
+            min(high_range),
+            max(high_range),
+            color="blue",
+            alpha=0.2,
+            label=f"Historical range of {hi_q:.0%}",
+        )
         plt.axvline(
             weighted_quantile(test_df[data_col], test_df[weight_col], hi_q),
-            color="blue", label=f"Tested {hi_q:.0%}")
+            color="blue",
+            label=f"Tested {hi_q:.0%}",
+        )
 
     plt.title(title)
     plt.xlabel(data_col)
@@ -585,6 +645,7 @@ def plot_vs_agg(orig_df, agg_df, validation_cases):
             warnings.warn("ERROR: Validation Failed")
 
         historical_histogram(orig_df, agg_df, **args)
+
 
 ###############################################################################
 ###############################################################################
@@ -2590,7 +2651,7 @@ mcoe_gas_capacity_factor = [
         "low_q": 0.15,
         "low_bound": 0.01,
         "hi_q": 0.95,
-        "hi_bound": .95,
+        "hi_bound": 0.95,
         "data_col": "capacity_factor",
         "weight_col": "capacity_mw",
     },
@@ -2614,7 +2675,7 @@ mcoe_coal_capacity_factor = [
         "low_q": 0.10,
         "low_bound": 0.04,
         "hi_q": 0.95,
-        "hi_bound": .95,
+        "hi_bound": 0.95,
         "data_col": "capacity_factor",
         "weight_col": "capacity_mw",
     },
@@ -2875,17 +2936,18 @@ gens_eia860_vs_bound = [
         "hi_bound": 250.0,
         "data_col": "capacity_mw",
         "weight_col": "",
-    }, ]
+    },
+]
 
 gens_eia860_self = [
     {
         "title": "All Capacity test...",
-        "query": 'ilevel_0 in ilevel_0',
+        "query": "ilevel_0 in ilevel_0",
         "low_q": 0.55,
         "mid_q": 0.70,
         "hi_q": 0.95,
         "data_col": "capacity_mw",
-        "weight_col": ""
+        "weight_col": "",
     },
     {
         "title": "Nuclear Capacity test...",
@@ -2894,7 +2956,7 @@ gens_eia860_self = [
         "mid_q": 0.50,
         "hi_q": 0.95,
         "data_col": "capacity_mw",
-        "weight_col": ""
+        "weight_col": "",
     },
     {
         "title": "All Coal Capacity test...",
@@ -2903,7 +2965,7 @@ gens_eia860_self = [
         "mid_q": 0.50,
         "hi_q": 0.95,
         "data_col": "capacity_mw",
-        "weight_col": ""
+        "weight_col": "",
     },
     {
         "title": "Subbituminous and Lignite Coal Capacity test...",
@@ -2912,7 +2974,7 @@ gens_eia860_self = [
         "mid_q": 0.50,
         "hi_q": 0.95,
         "data_col": "capacity_mw",
-        "weight_col": ""
+        "weight_col": "",
     },
     {
         "title": "Natural Gas Capacity test...",
@@ -2921,7 +2983,7 @@ gens_eia860_self = [
         "mid_q": 0.50,
         "hi_q": 0.95,
         "data_col": "capacity_mw",
-        "weight_col": ""
+        "weight_col": "",
     },
     {
         "title": "Nameplate power factor",
@@ -2930,7 +2992,8 @@ gens_eia860_self = [
         "mid_q": 0.50,
         "hi_q": 0.95,
         "data_col": "nameplate_power_factor",
-        "weight_col": ""}
+        "weight_col": "",
+    },
 ]
 
 ###############################################################################

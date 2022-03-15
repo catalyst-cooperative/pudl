@@ -12,7 +12,9 @@ from pudl.settings import EpaCemsSettings
 
 # TODO: hardcoded data version doesn't belong here, but will defer fixing it until
 # the crosswalk is formally integrated into PUDL. See Issue #1123
-EPA_CROSSWALK_RELEASE = "https://github.com/USEPA/camd-eia-crosswalk/releases/download/v0.2.1/"
+EPA_CROSSWALK_RELEASE = (
+    "https://github.com/USEPA/camd-eia-crosswalk/releases/download/v0.2.1/"
+)
 
 
 def epa_crosswalk() -> pd.DataFrame:
@@ -62,9 +64,19 @@ def year_state_filter(years=(), states=()):
     state_filters = [("state", "=", state.upper()) for state in states]
 
     if states and not years:
-        filters = [[tuple(x), ] for x in state_filters]
+        filters = [
+            [
+                tuple(x),
+            ]
+            for x in state_filters
+        ]
     elif years and not states:
-        filters = [[tuple(x), ] for x in year_filters]
+        filters = [
+            [
+                tuple(x),
+            ]
+            for x in year_filters
+        ]
     elif years and states:
         filters = [list(x) for x in product(year_filters, state_filters)]
     else:
@@ -93,9 +105,7 @@ def get_plant_states(plant_ids, pudl_out):
 
     """
     return list(
-        pudl_out.plants_eia860()
-        .query("plant_id_eia in @plant_ids")
-        .state.unique()
+        pudl_out.plants_eia860().query("plant_id_eia in @plant_ids").state.unique()
     )
 
 
