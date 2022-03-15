@@ -110,7 +110,7 @@ def explode(gdf: gpd.GeoDataFrame, ratios: Iterable[str] = None) -> gpd.GeoDataF
         union_area = gdf.geometry[is_mpoly].apply(shapely.ops.unary_union).area
         if (union_area != gdf.geometry[is_mpoly].area).any():
             raise ValueError("Geometry contains self-intersecting MultiPolygon")
-    result = gdf.explode().droplevel(1)
+    result = gdf.explode(index_parts=False)
     if ratios:
         fraction = result.geometry.area.values / gdf.geometry.area[result.index].values
         result[ratios] = result[ratios].multiply(fraction, axis="index")
@@ -152,7 +152,12 @@ def self_union(gdf: gpd.GeoDataFrame, ratios: Iterable[str] = None) -> gpd.GeoDa
     polygons = gpd.GeoSeries(shapely.ops.polygonize(boundaries))
     # Determine origin of each polygon by a spatial join on representative points
     points = gpd.GeoDataFrame(geometry=polygons.representative_point())
-    oids = gpd.sjoin(points, gdf[["geometry"]], how="left", op="within")["index_right"]
+    oids = gpd.sjoin(
+        points,
+        gdf[["geometry"]],
+        how="left",
+        predicate="within",
+    )["index_right"]
     # Build new dataframe
     columns = get_data_columns(gdf)
     df = gpd.GeoDataFrame(

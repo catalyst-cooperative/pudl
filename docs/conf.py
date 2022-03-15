@@ -8,6 +8,7 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 
+import datetime
 import shutil
 from pathlib import Path
 
@@ -31,7 +32,9 @@ release = pkg_resources.get_distribution('catalystcoop.pudl').version
 # -- Project information -----------------------------------------------------
 
 project = 'PUDL'
-copyright = '2016-2021, Catalyst Cooperative, CC-BY-4.0'  # noqa: A001
+copyright = (  # noqa: A001
+    f"2016-{datetime.date.today().year}, Catalyst Cooperative, CC-BY-4.0"
+)
 author = 'Catalyst Cooperative'
 
 # -- General configuration ---------------------------------------------------
@@ -79,17 +82,17 @@ issues_github_path = "catalyst-cooperative/pudl"
 intersphinx_mapping = {
     'arrow': ('https://arrow.apache.org/docs/', None),
     'dask': ('https://docs.dask.org/en/latest/', None),
-    'geopandas': ('https://geopandas.org/', None),
+    'geopandas': ('https://geopandas.org/en/stable/', None),
     'networkx': ('https://networkx.org/documentation/stable/', None),
     'numpy': ('https://numpy.org/doc/stable/', None),
     'pandas': ('https://pandas.pydata.org/pandas-docs/stable', None),
     'pytest': ('https://docs.pytest.org/en/latest/', None),
     'python': ('https://docs.python.org/3', None),
-    'scipy': ('https://docs.scipy.org/doc/scipy/reference', None),
+    'scipy': ('https://docs.scipy.org/doc/scipy/', None),
     'setuptools': ('https://setuptools.pypa.io/en/latest/', None),
     'sklearn': ('https://scikit-learn.org/stable', None),
     'sqlalchemy': ('https://docs.sqlalchemy.org/en/latest/', None),
-    'tox': ('https://tox.readthedocs.io/en/latest/', None),
+    'tox': ('https://tox.wiki/en/latest/', None),
 }
 
 # Add any paths that contain templates here, relative to this directory.

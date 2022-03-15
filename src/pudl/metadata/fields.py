@@ -6,13 +6,14 @@ import pandas as pd
 from pytz import all_timezones
 
 from .codes import CODE_METADATA
-from .constants import FIELD_DTYPES_PANDAS, SOURCES
+from .constants import FIELD_DTYPES_PANDAS
 from .enums import (CANADA_PROVINCES_TERRITORIES, CUSTOMER_CLASSES,
                     EPACEMS_MEASUREMENT_CODES, EPACEMS_STATES, FUEL_CLASSES,
                     NERC_REGIONS, RELIABILITY_STANDARDS, REVENUE_CLASSES,
                     RTO_CLASSES, TECH_CLASSES, US_STATES_TERRITORIES)
 from .labels import (ESTIMATED_OR_ACTUAL, FUEL_UNITS_EIA,
                      MOMENTARY_INTERRUPTIONS)
+from .sources import SOURCES
 
 FIELD_METADATA: Dict[str, Dict[str, Any]] = {
     "active": {
@@ -20,7 +21,8 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
         "description": "Indicates whether or not the dataset has been pulled into PUDL by the extract transform load process."
     },
     "actual_peak_demand_savings_mw": {
-        "type": "number"
+        "type": "number",
+        "unit": "MW"
     },
     "address_2": {
         "type": "string"
@@ -49,10 +51,12 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
         }
     },
     "annual_indirect_program_cost": {
-        "type": "number"
+        "type": "number",
+        "unit": "USD"
     },
     "annual_total_cost": {
-        "type": "number"
+        "type": "number",
+        "unit": "USD"
     },
     "ash_content_pct": {
         "type": "number",
@@ -74,7 +78,8 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
     },
     "asset_retirement_cost": {
         "type": "number",
-        "description": "Asset retirement cost (USD)."
+        "description": "Asset retirement cost (USD).",
+        "unit": "USD"
     },
     "associated_combined_heat_power": {
         "type": "boolean",
@@ -90,7 +95,8 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
         "type": "number"
     },
     "backup_capacity_mw": {
-        "type": "number"
+        "type": "number",
+        "unit": "MW"
     },
     "balancing_authority_code_eia": {
         "type": "string",
@@ -110,7 +116,8 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
     },
     "billing_demand_mw": {
         "type": "number",
-        "description": "Monthly average billing demand (for requirements purchases, and any transactions involving demand charges). In megawatts."
+        "description": "Monthly average billing demand (for requirements purchases, and any transactions involving demand charges). In megawatts.",
+        "unit": "MW"
     },
     "boiler_id": {
         "type": "string",
@@ -136,66 +143,81 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
         "description": "Can this generator operate while bypassing the heat recovery steam generator?"
     },
     "caidi_w_major_event_days_minutes": {
-        "type": "number"
+        "type": "number",
+        "unit": "min"
     },
     "caidi_w_major_event_days_minus_loss_of_service_minutes": {
-        "type": "number"
+        "type": "number",
+        "unit": "min"
     },
     "caidi_wo_major_event_days_minutes": {
-        "type": "number"
+        "type": "number",
+        "unit": "min"
     },
     "capacity_mw": {
         "type": "number",
         "description": "Total installed (nameplate) capacity, in megawatts.",
+        "unit": "MW",
         # TODO: Disambiguate if necessary. Does this mean different things in
         # different tables? It shows up in a lot of places.
     },
     "capex_equipment": {
         "type": "number",
-        "description": "Cost of plant: equipment (USD)."
+        "description": "Cost of plant: equipment (USD).",
+        "unit": "USD"
     },
     "capex_equipment_electric": {
         "type": "number",
-        "description": "Cost of plant: accessory electric equipment (USD)."
+        "description": "Cost of plant: accessory electric equipment (USD).",
+        "unit": "USD"
     },
     "capex_equipment_misc": {
         "type": "number",
-        "description": "Cost of plant: miscellaneous power plant equipment (USD)."
+        "description": "Cost of plant: miscellaneous power plant equipment (USD).",
+        "unit": "USD"
     },
     "capex_facilities": {
         "type": "number",
-        "description": "Cost of plant: reservoirs, dams, and waterways (USD)."
+        "description": "Cost of plant: reservoirs, dams, and waterways (USD).",
+        "unit": "USD"
     },
     "capex_land": {
         "type": "number",
-        "description": "Cost of plant: land and land rights (USD)."
+        "description": "Cost of plant: land and land rights (USD).",
+        "unit": "USD"
     },
     "capex_per_mw": {
         "type": "number",
         "description": "Cost of plant per megawatt of installed (nameplate) capacity. Nominal USD.",
+        "unit": "USD_per_MW"
     },
     "capex_roads": {
         "type": "number",
-        "description": "Cost of plant: roads, railroads, and bridges (USD)."
+        "description": "Cost of plant: roads, railroads, and bridges (USD).",
+        "unit": "USD"
     },
     "capex_structures": {
         "type": "number",
-        "description": "Cost of plant: structures and improvements (USD)."
+        "description": "Cost of plant: structures and improvements (USD).",
+        "unit": "USD"
     },
     "capex_total": {
         "type": "number",
-        "description": "Total cost of plant (USD)."
+        "description": "Total cost of plant (USD).",
+        "unit": "USD"
     },
     "capex_wheels_turbines_generators": {
         "type": "number",
-        "description": "Cost of plant: water wheels, turbines, and generators (USD)."
+        "description": "Cost of plant: water wheels, turbines, and generators (USD).",
+        "unit": "USD"
     },
     "carbon_capture": {
         "type": "boolean",
         "description": "Indicates whether the generator uses carbon capture technology."
     },
     "chlorine_content_ppm": {
-        "type": "number"
+        "type": "number",
+        "unit": "ppm"
     },
     "circuits_with_voltage_optimization": {
         "type": "integer"
@@ -213,7 +235,8 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
     },
     "co2_mass_tons": {
         "type": "number",
-        "description": "Carbon dioxide emissions in short tons."
+        "description": "Carbon dioxide emissions in short tons.",
+        "unit": "short_ton"
     },
     "code": {
         "type": "string",
@@ -225,7 +248,8 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
     },
     "coincident_peak_demand_mw": {
         "type": "number",
-        "description": "Average monthly coincident peak (CP) demand (for requirements purchases, and any transactions involving demand charges). Monthly CP demand is the metered demand during the hour (60-minute integration) in which the supplier's system reaches its monthly peak. In megawatts."
+        "description": "Average monthly coincident peak (CP) demand (for requirements purchases, and any transactions involving demand charges). Monthly CP demand is the metered demand during the hour (60-minute integration) in which the supplier's system reaches its monthly peak. In megawatts.",
+        "unit": "MW"
     },
     "construction_type": {
         "type": "string",
@@ -239,10 +263,12 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
         "description": "Year the plant's oldest still operational unit was built.",
     },
     "consumed_by_facility_mwh": {
-        "type": "number"
+        "type": "number",
+        "unit": "MWh"
     },
     "consumed_by_respondent_without_charge_mwh": {
-        "type": "number"
+        "type": "number",
+        "unit": "MWh"
     },
     "contact_firstname": {
         "type": "string",
@@ -357,20 +383,24 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
     },
     "delivered_mwh": {
         "type": "number",
-        "description": "Gross megawatt-hours delivered in power exchanges and used as the basis for settlement."
+        "description": "Gross megawatt-hours delivered in power exchanges and used as the basis for settlement.",
+        "unit": "MWh"
     },
     "delivery_customers": {
         "type": "number"
     },
     "demand_annual_mwh": {
-        "type": "number"
+        "type": "number",
+        "unit": "MWh"
     },
     "demand_charges": {
         "type": "number",
-        "description": "Demand charges (USD)."
+        "description": "Demand charges (USD).",
+        "unit": "USD"
     },
     "demand_mwh": {
-        "type": "number"
+        "type": "number",
+        "unit": "MWh"
     },
     "description": {
         "type": "string",
@@ -387,7 +417,8 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
         "description": "Whether the generator is considered distributed generation",
     },
     "distributed_generation_owned_capacity_mw": {
-        "type": "number"
+        "type": "number",
+        "unit": "MW"
     },
     "distribution_acct360_land": {
         "type": "number",
@@ -468,7 +499,8 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
     },
     "electric_plant": {
         "type": "number",
-        "description": "Electric Plant In Service (USD)."
+        "description": "Electric Plant In Service (USD).",
+        "unit": "USD"
     },
     "electric_plant_in_service_total": {
         "type": "number",
@@ -484,28 +516,34 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
     },
     "energy_charges": {
         "type": "number",
-        "description": "Energy charges (USD)."
+        "description": "Energy charges (USD).",
+        "unit": "USD"
     },
     "energy_displaced_mwh": {
-        "type": "number"
+        "type": "number",
+        "unit": "MWh"
     },
     "energy_efficiency_annual_actual_peak_reduction_mw": {
-        "type": "number"
+        "type": "number",
+        "unit": "MW"
     },
     "energy_efficiency_annual_cost": {
         "type": "number"
     },
     "energy_efficiency_annual_effects_mwh": {
-        "type": "number"
+        "type": "number",
+        "unit": "MWh"
     },
     "energy_efficiency_annual_incentive_payment": {
         "type": "number"
     },
     "energy_efficiency_incremental_actual_peak_reduction_mw": {
-        "type": "number"
+        "type": "number",
+        "unit": "MW"
     },
     "energy_efficiency_incremental_effects_mwh": {
-        "type": "number"
+        "type": "number",
+        "unit": "MWh"
     },
     "energy_savings_estimates_independently_verified": {
         "type": "boolean"
@@ -514,10 +552,12 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
         "type": "boolean"
     },
     "energy_savings_mwh": {
-        "type": "number"
+        "type": "number",
+        "unit": "MWh"
     },
     "energy_served_ami_mwh": {
-        "type": "number"
+        "type": "number",
+        "unit": "MWh"
     },
     "energy_source": {
         "type": "string"
@@ -581,7 +621,8 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
     },
     "energy_used_for_pumping_mwh": {
         "type": "number",
-        "description": "Energy used for pumping, in megawatt-hours."
+        "description": "Energy used for pumping, in megawatt-hours.",
+        "unit": "MWh"
     },
     "entity_type": {
         "type": "string",
@@ -606,10 +647,12 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
         }
     },
     "exchange_energy_delivered_mwh": {
-        "type": "number"
+        "type": "number",
+        "unit": "MWh"
     },
     "exchange_energy_received_mwh": {
-        "type": "number"
+        "type": "number",
+        "unit": "MWh"
     },
     "experimental_plant_acct103": {
         "type": "number",
@@ -670,7 +713,8 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
     },
     "fuel_consumed_for_electricity_mmbtu": {
         "type": "number",
-        "description": "Total consumption of fuel to produce electricity, in physical units, year to date."
+        "description": "Total consumption of fuel to produce electricity, in physical units, year to date.",
+        "unit": "MMBtu"
     },
     "fuel_consumed_for_electricity_units": {
         "type": "number",
@@ -678,7 +722,8 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
     },
     "fuel_consumed_mmbtu": {
         "type": "number",
-        "description": "Total consumption of fuel in physical units, year to date. Note: this is the total quantity consumed for both electricity and, in the case of combined heat and power plants, process steam production."
+        "description": "Total consumption of fuel in physical units, year to date. Note: this is the total quantity consumed for both electricity and, in the case of combined heat and power plants, process steam production.",
+        "unit": "MMBtu"
     },
     "fuel_consumed_units": {
         "type": "number",
@@ -687,14 +732,17 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
     "fuel_cost_per_mmbtu": {
         "type": "number",
         "description": "Average fuel cost per mmBTU of heat content in nominal USD.",
+        "unit": "USD_per_MMBtu"
     },
     "fuel_cost_per_unit_burned": {
         "type": "number",
-        "description": "Average cost of fuel consumed in the report year per reported fuel unit (USD)."
+        "description": "Average cost of fuel consumed in the report year per reported fuel unit (USD).",
+        "unit": "USD"
     },
     "fuel_cost_per_unit_delivered": {
         "type": "number",
-        "description": "Average cost of fuel delivered in the report year per reported fuel unit (USD)."
+        "description": "Average cost of fuel delivered in the report year per reported fuel unit (USD).",
+        "unit": "USD"
     },
     "fuel_derived_from": {
         "type": "string",
@@ -720,6 +768,7 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
     "fuel_mmbtu_per_unit": {
         "type": "number",
         "description": "Heat content of the fuel in millions of Btus per physical unit.",
+        "unit": "MMBtu_per_unit"
     },
     "fuel_pct": {
         "type": "number"
@@ -757,11 +806,13 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
         # Note: Different ENUM constraints are applied below on EIA vs. FERC1
     },
     "furnished_without_charge_mwh": {
-        "type": "number"
+        "type": "number",
+        "unit": "MWh"
     },
     "future_plant": {
         "type": "number",
-        "description": "Electric Plant Held for Future Use (USD)."
+        "description": "Electric Plant Held for Future Use (USD).",
+        "unit": "USD"
     },
     "general_acct389_land": {
         "type": "number",
@@ -827,36 +878,44 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
         "description": "Generator ID is usually numeric, but sometimes includes letters. Make sure you treat it as a string!",
     },
     "generators_num_less_1_mw": {
-        "type": "number"
+        "type": "number",
+        "unit": "MW"
     },
     "generators_number": {
         "type": "number"
     },
     "green_pricing_revenue": {
-        "type": "number"
+        "type": "number",
+        "unit": "USD"
     },
     "grid_voltage_2_kv": {
         "type": "number",
-        "description": "Plant's grid voltage at point of interconnection to transmission or distibution facilities"
+        "description": "Plant's grid voltage at point of interconnection to transmission or distibution facilities",
+        "unit": "kV"
     },
     "grid_voltage_3_kv": {
         "type": "number",
-        "description": "Plant's grid voltage at point of interconnection to transmission or distibution facilities"
+        "description": "Plant's grid voltage at point of interconnection to transmission or distibution facilities",
+        "unit": "kV"
     },
     "grid_voltage_kv": {
         "type": "number",
-        "description": "Plant's grid voltage at point of interconnection to transmission or distibution facilities"
+        "description": "Plant's grid voltage at point of interconnection to transmission or distibution facilities",
+        "unit": "kV"
     },
     "gross_load_mw": {
         "type": "number",
-        "description": "Average power in megawatts delivered during time interval measured."
+        "description": "Average power in megawatts delivered during time interval measured.",
+        "unit": "MW"
     },
     "heat_content_mmbtu": {
         "type": "number",
-        "description": "The energy contained in fuel burned, measured in million BTU."
+        "description": "The energy contained in fuel burned, measured in million BTU.",
+        "unit": "MMBtu"
     },
     "highest_distribution_voltage_kv": {
-        "type": "number"
+        "type": "number",
+        "unit": "kV"
     },
     "home_area_network": {
         "type": "integer"
@@ -901,16 +960,20 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
         "type": "boolean"
     },
     "incremental_energy_savings_mwh": {
-        "type": "number"
+        "type": "number",
+        "unit": "MWh"
     },
     "incremental_life_cycle_energy_savings_mwh": {
-        "type": "number"
+        "type": "number",
+        "unit": "MWh"
     },
     "incremental_life_cycle_peak_reduction_mwh": {
-        "type": "number"
+        "type": "number",
+        "unit": "MWh"
     },
     "incremental_peak_reduction_mw": {
-        "type": "number"
+        "type": "number",
+        "unit": "MW"
     },
     "installation_year": {
         "type": "integer",
@@ -946,7 +1009,8 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
     },
     "leased_plant": {
         "type": "number",
-        "description": "Electric Plant Leased to Others (USD)."
+        "description": "Electric Plant Leased to Others (USD).",
+        "unit": "USD"
     },
     "line_id": {
         "type": "string",
@@ -959,28 +1023,34 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
         # TODO: Is this really boolean? Or do we have non-null strings that mean False?
     },
     "load_management_annual_actual_peak_reduction_mw": {
-        "type": "number"
+        "type": "number",
+        "unit": "MW"
     },
     "load_management_annual_cost": {
         "type": "number"
     },
     "load_management_annual_effects_mwh": {
-        "type": "number"
+        "type": "number",
+        "unit": "MWh"
     },
     "load_management_annual_incentive_payment": {
         "type": "number"
     },
     "load_management_annual_potential_peak_reduction_mw": {
-        "type": "number"
+        "type": "number",
+        "unit": "MW"
     },
     "load_management_incremental_actual_peak_reduction_mw": {
-        "type": "number"
+        "type": "number",
+        "unit": "MW"
     },
     "load_management_incremental_effects_mwh": {
-        "type": "number"
+        "type": "number",
+        "unit": "MWh"
     },
     "load_management_incremental_potential_peak_reduction_mw": {
-        "type": "number"
+        "type": "number",
+        "unit": "MW"
     },
     "longitude": {
         "type": "number",
@@ -996,10 +1066,12 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
     "max_fuel_mmbtu_per_unit": {
         "type": "number",
         "description": "Maximum heat content per physical unit of fuel in MMBtu.",
+        "unit": "MMBtu"
     },
     "mercury_content_ppm": {
         "type": "number",
-        "description": "Mercury content in parts per million (ppm) to the nearest 0.001 ppm."
+        "description": "Mercury content in parts per million (ppm) to the nearest 0.001 ppm.",
+        "unit": "ppm"
     },
     "merge_address": {
         "type": "string"
@@ -1018,25 +1090,10 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
         "description": "Two letter US state abbreviations and three letter ISO-3166-1 country codes for international mines.",
         # TODO: Add ENUM constraint.
     },
-    "merge_zip_4": {
-        "type": "string"
-        # TODO Standardize with other zip codes and apply pattern constraint
-        # See: https://github.com/catalyst-cooperative/pudl/issues/550
-        # "constraints": {
-        #    "pattern": r'^\d{4}$',
-        # }
-    },
-    "merge_zip_5": {
-        "type": "string"
-        # TODO Standardize with other zip codes and apply pattern constraint
-        # See: https://github.com/catalyst-cooperative/pudl/issues/550
-        # "constraints": {
-        #    "pattern": r'^\d{5}$',
-        # }
-    },
     "min_fuel_mmbtu_per_unit": {
         "type": "number",
         "description": "Minimum heat content per physical unit of fuel in MMBtu.",
+        "unit": "MMBtu"
     },
     "mine_id_msha": {
         "type": "integer",
@@ -1056,7 +1113,8 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
     },
     "minimum_load_mw": {
         "type": "number",
-        "description": "The minimum load at which the generator can operate at continuosuly."
+        "description": "The minimum load at which the generator can operate at continuosuly.",
+        "unit": "MW"
     },
     "fuel_transportation_mode": {
         "type": "string"
@@ -1132,22 +1190,26 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
     },
     "net_capacity_adverse_conditions_mw": {
         "type": "number",
-        "description": "Net plant capability under the least favorable operating conditions, in megawatts."
+        "description": "Net plant capability under the least favorable operating conditions, in megawatts.",
+        "unit": "MW"
     },
     "net_capacity_favorable_conditions_mw": {
         "type": "number",
-        "description": "Net plant capability under the most favorable operating conditions, in megawatts."
+        "description": "Net plant capability under the most favorable operating conditions, in megawatts.",
+        "unit": "MW"
     },
     "net_generation_mwh": {
         "type": "number",
         "description": "Net electricity generation for the specified period in megawatt-hours (MWh).",
+        "unit": "MWh",
         # TODO: disambiguate as this column means something different in
         # generation_fuel_eia923:
         # "description": "Net generation, year to date in megawatthours (MWh). This is total electrical output net of station service.  In the case of combined heat and power plants, this value is intended to include internal consumption of electricity for the purposes of a production process, as well as power put on the grid.",
     },
     "net_load_mwh": {
         "type": "number",
-        "description": "Net output for load (net generation - energy used for pumping) in megawatt-hours."
+        "description": "Net output for load (net generation - energy used for pumping) in megawatt-hours.",
+        "unit": "MWh"
     },
     "net_metering": {
         "type": "boolean",
@@ -1155,10 +1217,12 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
         # TODO: Is this really boolean? Or do we have non-null strings that mean False?
     },
     "net_power_exchanged_mwh": {
-        "type": "number"
+        "type": "number",
+        "unit": "MWh"
     },
     "net_wheeled_power_mwh": {
-        "type": "number"
+        "type": "number",
+        "unit": "MWh"
     },
     "new_parent": {
         "type": "string"
@@ -1168,15 +1232,18 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
     },
     "non_coincident_peak_demand_mw": {
         "type": "number",
-        "description": "Average monthly non-coincident peak (NCP) demand (for requirements purhcases, and any transactions involving demand charges). Monthly NCP demand is the maximum metered hourly (60-minute integration) demand in a month. In megawatts."
+        "description": "Average monthly non-coincident peak (NCP) demand (for requirements purhcases, and any transactions involving demand charges). Monthly NCP demand is the maximum metered hourly (60-minute integration) demand in a month. In megawatts.",
+        "unit": "MW"
     },
     "not_water_limited_capacity_mw": {
         "type": "number",
-        "description": "Plant capacity in MW when not limited by condenser water."
+        "description": "Plant capacity in MW when not limited by condenser water.",
+        "unit": "MW"
     },
     "nox_mass_lbs": {
         "type": "number",
-        "description": "NOx emissions in pounds."
+        "description": "NOx emissions in pounds.",
+        "unit": "lb"
     },
     "nox_mass_measurement_code": {
         "type": "string",
@@ -1187,7 +1254,8 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
     },
     "nox_rate_lbs_mmbtu": {
         "type": "number",
-        "description": "The average rate at which NOx was emitted during a given time period."
+        "description": "The average rate at which NOx was emitted during a given time period.",
+        "unit": "lb_per_MMBtu"
     },
     "nox_rate_measurement_code": {
         "type": "string",
@@ -1222,7 +1290,8 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
     },
     "nuclear_acct326_asset_retirement": {
         "type": "number",
-        "description": "FERC Account 326: Asset Retirement Costs for Nuclear Production."
+        "description": "FERC Account 326: Asset Retirement Costs for Nuclear Production.",
+        "unit": "USD"
     },
     "nuclear_total": {
         "type": "number",
@@ -1249,7 +1318,8 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
     },
     "operating_time_hours": {
         "type": "number",
-        "description": "Length of time interval measured."
+        "description": "Length of time interval measured.",
+        "unit": "hr"
     },
     "operational_status": {
         "type": "string",
@@ -1261,107 +1331,133 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
     },
     "opex_allowances": {
         "type": "number",
-        "description": "Allowances."
+        "description": "Allowances.",
+        "unit": "USD"
     },
     "opex_boiler": {
         "type": "number",
-        "description": "Maintenance of boiler (or reactor) plant."
+        "description": "Maintenance of boiler (or reactor) plant.",
+        "unit": "USD"
     },
     "opex_coolants": {
         "type": "number",
-        "description": "Cost of coolants and water (nuclear plants only)"
+        "description": "Cost of coolants and water (nuclear plants only)",
+        "unit": "USD"
     },
     "opex_dams": {
         "type": "number",
-        "description": "Production expenses: maintenance of reservoirs, dams, and waterways (USD)."
+        "description": "Production expenses: maintenance of reservoirs, dams, and waterways (USD).",
+        "unit": "USD"
     },
     "opex_electric": {
         "type": "number",
-        "description": "Production expenses: electric expenses (USD)."
+        "description": "Production expenses: electric expenses (USD).",
+        "unit": "USD"
     },
     "opex_engineering": {
         "type": "number",
-        "description": "Production expenses: maintenance, supervision, and engineering (USD)."
+        "description": "Production expenses: maintenance, supervision, and engineering (USD).",
+        "unit": "USD"
     },
     "opex_fuel": {
         "type": "number",
-        "description": "Production expenses: fuel (USD)."
+        "description": "Production expenses: fuel (USD).",
+        "unit": "USD"
     },
     "opex_generation_misc": {
         "type": "number",
-        "description": "Production expenses: miscellaneous power generation expenses (USD)."
+        "description": "Production expenses: miscellaneous power generation expenses (USD).",
+        "unit": "USD"
     },
     "opex_hydraulic": {
         "type": "number",
-        "description": "Production expenses: hydraulic expenses (USD)."
+        "description": "Production expenses: hydraulic expenses (USD).",
+        "unit": "USD"
     },
     "opex_maintenance": {
         "type": "number",
-        "description": "Production expenses: Maintenance (USD)."
+        "description": "Production expenses: Maintenance (USD).",
+        "unit": "USD"
     },
     "opex_misc_plant": {
         "type": "number",
-        "description": "Production expenses: maintenance of miscellaneous hydraulic plant (USD)."
+        "description": "Production expenses: maintenance of miscellaneous hydraulic plant (USD).",
+        "unit": "USD"
     },
     "opex_misc_power": {
         "type": "number",
-        "description": "Miscellaneous steam (or nuclear) expenses."
+        "description": "Miscellaneous steam (or nuclear) expenses.",
+        "unit": "USD"
     },
     "opex_misc_steam": {
         "type": "number",
-        "description": "Maintenance of miscellaneous steam (or nuclear) plant."
+        "description": "Maintenance of miscellaneous steam (or nuclear) plant.",
+        "unit": "USD"
     },
     "opex_operations": {
         "type": "number",
-        "description": "Production expenses: operations, supervision, and engineering (USD)."
+        "description": "Production expenses: operations, supervision, and engineering (USD).",
+        "unit": "USD"
     },
     "opex_per_mwh": {
         "type": "number",
-        "description": "Total production expenses (USD per MWh generated)."
+        "description": "Total production expenses (USD per MWh generated).",
+        "unit": "USD per MWh"
     },
     "opex_plant": {
         "type": "number",
-        "description": "Production expenses: maintenance of electric plant (USD)."
+        "description": "Production expenses: maintenance of electric plant (USD).",
+        "unit": "USD"
     },
     "opex_plants": {
         "type": "number",
-        "description": "Maintenance of electrical plant."
+        "description": "Maintenance of electrical plant.",
+        "unit": "USD"
     },
     "opex_production_before_pumping": {
         "type": "number",
-        "description": "Total production expenses before pumping (USD)."
+        "description": "Total production expenses before pumping (USD).",
+        "unit": "USD"
     },
     "opex_production_total": {
         "type": "number",
-        "description": "Total operating epxenses."
+        "description": "Total operating expenses.",
+        "unit": "USD"
     },
     "opex_pumped_storage": {
         "type": "number",
-        "description": "Production expenses: pumped storage (USD)."
+        "description": "Production expenses: pumped storage (USD).",
+        "unit": "USD"
     },
     "opex_pumping": {
         "type": "number",
-        "description": "Production expenses: We are here to PUMP YOU UP! (USD)."
+        "description": "Production expenses: We are here to PUMP YOU UP! (USD).",
+        "unit": "USD"
     },
     "opex_rents": {
         "type": "number",
-        "description": "Production expenses: rents (USD)."
+        "description": "Production expenses: rents (USD).",
+        "unit": "USD"
     },
     "opex_steam": {
         "type": "number",
-        "description": "Steam expenses."
+        "description": "Steam expenses.",
+        "unit": "USD"
     },
     "opex_steam_other": {
         "type": "number",
-        "description": "Steam from other sources."
+        "description": "Steam from other sources.",
+        "unit": "USD"
     },
     "opex_structures": {
         "type": "number",
-        "description": "Production expenses: maintenance of structures (USD)."
+        "description": "Production expenses: maintenance of structures (USD).",
+        "unit": "USD"
     },
     "opex_total": {
         "type": "number",
-        "description": "Total production expenses, excluding fuel (USD)."
+        "description": "Total production expenses, excluding fuel (USD).",
+        "unit": "USD"
     },
     "opex_transfer": {
         "type": "number",
@@ -1369,7 +1465,8 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
     },
     "opex_water_for_power": {
         "type": "number",
-        "description": "Production expenses: water for power (USD)."
+        "description": "Production expenses: water for power (USD).",
+        "unit": "USD"
     },
     "original_planned_operating_date": {
         "type": "date",
@@ -1408,21 +1505,25 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
     },
     "other_acct347_asset_retirement": {
         "type": "number",
-        "description": "FERC Account 347: Asset Retirement Costs for Other Production."
+        "description": "FERC Account 347: Asset Retirement Costs for Other Production.",
+        "unit": "USD"
     },
     "other_charges": {
         "type": "number",
-        "description": "Other charges, including out-of-period adjustments (USD)."
+        "description": "Other charges, including out-of-period adjustments (USD).",
+        "unit": "USD"
     },
     "other_combustion_tech": {
         "type": "boolean",
         "description": "Indicates whether the generator uses other combustion technologies"
     },
     "other_costs": {
-        "type": "number"
+        "type": "number",
+        "unit": "USD"
     },
     "other_costs_incremental_cost": {
-        "type": "number"
+        "type": "number",
+        "unit": "USD"
     },
     "other_modifications_date": {
         "type": "date",
@@ -1472,11 +1573,9 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
     "owner_zip_code": {
         "type": "string",
         "description": "Zip code of owner.",
-        # TODO Standardize with other zip codes and apply pattern constraint
-        # See: https://github.com/catalyst-cooperative/pudl/issues/550
-        # "constraints": {
-        #    "pattern": r'^\d{5}$',
-        # }
+        "constraints": {
+            "pattern": r'^\d{5}$',
+        }
     },
     "ownership_code": {
         "type": "string",
@@ -1484,15 +1583,18 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
     },
     "peak_demand_mw": {
         "type": "number",
+        "unit": "MW",
         "description": "Net peak demand for 60 minutes. Note: in some cases peak demand for other time periods may have been reported instead, if hourly peak demand was unavailable.",
         # TODO Disambiguate column names. Usually this is over 60 minutes, but in
         # other tables it's not specified.
     },
     "peak_demand_summer_mw": {
-        "type": "number"
+        "type": "number",
+        "unit": "MW"
     },
     "peak_demand_winter_mw": {
-        "type": "number"
+        "type": "number",
+        "unit": "MW"
     },
     "phone_extension": {
         "type": "string",
@@ -1528,23 +1630,28 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
     },
     "planned_net_summer_capacity_derate_mw": {
         "type": "number",
-        "description": "Decrease in summer capacity expected to be realized from the derate modification to the equipment."
+        "description": "Decrease in summer capacity expected to be realized from the derate modification to the equipment.",
+        "unit": "MW"
     },
     "planned_net_summer_capacity_uprate_mw": {
         "type": "number",
-        "description": "Increase in summer capacity expected to be realized from the modification to the equipment."
+        "description": "Increase in summer capacity expected to be realized from the modification to the equipment.",
+        "unit": "MW"
     },
     "planned_net_winter_capacity_derate_mw": {
         "type": "number",
-        "description": "Decrease in winter capacity expected to be realized from the derate modification to the equipment."
+        "description": "Decrease in winter capacity expected to be realized from the derate modification to the equipment.",
+        "unit": "MW"
     },
     "planned_net_winter_capacity_uprate_mw": {
         "type": "number",
-        "description": "Increase in winter capacity expected to be realized from the uprate modification to the equipment."
+        "description": "Increase in winter capacity expected to be realized from the uprate modification to the equipment.",
+        "unit": "MW"
     },
     "planned_new_capacity_mw": {
         "type": "number",
-        "description": "The expected new namplate capacity for the generator."
+        "description": "The expected new namplate capacity for the generator.",
+        "unit": "MW"
     },
     "planned_new_prime_mover_code": {
         "type": "string",
@@ -1565,10 +1672,12 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
     "plant_capability_mw": {
         "type": "number",
         "description": "Net plant capability in megawatts.",
+        "unit": "MW"
     },
     "plant_hours_connected_while_generating": {
         "type": "number",
         "description": "Hours the plant was connected to load while generating in the report year.",
+        "unit": "hr",
         # TODO Add min/max constraint. 0 <= X <= 8784
     },
     "plant_id_eia": {
@@ -1625,7 +1734,8 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
         "description": "Is the reporting entity an owner of power plants reported on Schedule 2 of the form?"
     },
     "potential_peak_demand_savings_mw": {
-        "type": "number"
+        "type": "number",
+        "unit": "MW"
     },
     "previously_canceled": {
         "type": "boolean",
@@ -1671,7 +1781,8 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
     },
     "purchased_mwh": {
         "type": "number",
-        "description": "Megawatt-hours shown on bills rendered to the respondent."
+        "description": "Megawatt-hours shown on bills rendered to the respondent.",
+        "unit": "MWh"
     },
     "pv_current_flow_type": {
         "type": "string",
@@ -1682,19 +1793,23 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
     "reactive_power_output_mvar": {
         "type": "number",
         "description": "Reactive Power Output (MVAr)",
+        "unit": "MVAr"
     },
     "real_time_pricing": {
         "type": "boolean"
     },
     "rec_revenue": {
-        "type": "number"
+        "type": "number",
+        "unit": "USD"
     },
     "rec_sales_mwh": {
-        "type": "number"
+        "type": "number",
+        "unit": "MWh"
     },
     "received_mwh": {
         "type": "number",
-        "description": "Gross megawatt-hours received in power exchanges and used as the basis for settlement."
+        "description": "Gross megawatt-hours received in power exchanges and used as the basis for settlement.",
+        "unit": "MWh"
     },
     "record_id": {
         "type": "string",
@@ -1740,14 +1855,16 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
         "type": "number"
     },
     "retail_sales_mwh": {
-        "type": "number"
+        "type": "number",
+        "unit": "MWh"
     },
     "retirement_date": {
         "type": "date",
         "description": "Date of the scheduled or effected retirement of the generator."
     },
     "revenue": {
-        "type": "number"
+        "type": "number",
+        "unit": "USD"
     },
     "revenue_class": {
         "type": "string",
@@ -1798,13 +1915,16 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
         }
     },
     "saidi_w_major_event_days_minus_loss_of_service_minutes": {
-        "type": "number"
+        "type": "number",
+        "unit": "min"
     },
     "saidi_w_major_event_days_minutes": {
-        "type": "number"
+        "type": "number",
+        "unit": "min"
     },
     "saidi_wo_major_event_days_minutes": {
-        "type": "number"
+        "type": "number",
+        "unit": "min"
     },
     "saifi_w_major_event_days_customers": {
         "type": "number"
@@ -1819,18 +1939,22 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
         "type": "number"
     },
     "sales_for_resale_mwh": {
-        "type": "number"
+        "type": "number",
+        "unit": "MWh"
     },
     "sales_mwh": {
         "description": "Quantity of electricity sold in MWh.",
-        "type": "number"
+        "type": "number",
+        "unit": "MWh"
     },
     "sales_revenue": {
         "description": "Revenue from electricity sold.",
-        "type": "number"
+        "type": "number",
+        "unit": "USD"
     },
     "sales_to_ultimate_consumers_mwh": {
-        "type": "number"
+        "type": "number",
+        "unit": "MWh"
     },
     "secondary_transportation_mode_code": {
         "type": "string",
@@ -1863,7 +1987,8 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
     },
     "so2_mass_lbs": {
         "type": "number",
-        "description": "Sulfur dioxide emissions in pounds."
+        "description": "Sulfur dioxide emissions in pounds.",
+        "unit": "lb"
     },
     "so2_mass_measurement_code": {
         "type": "string",
@@ -1873,7 +1998,8 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
         }
     },
     "sold_to_utility_mwh": {
-        "type": "number"
+        "type": "number",
+        "unit": "MWh"
     },
     "solid_fuel_gasification": {
         "type": "boolean",
@@ -1948,11 +2074,13 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
     },
     "steam_acct317_asset_retirement": {
         "type": "number",
-        "description": "FERC Account 317: Asset Retirement Costs for Steam Production."
+        "description": "FERC Account 317: Asset Retirement Costs for Steam Production.",
+        "unit": "USD"
     },
     "steam_load_1000_lbs": {
         "type": "number",
-        "description": "Total steam pressure produced by a unit during the reported hour."
+        "description": "Total steam pressure produced by a unit during the reported hour.",
+        "unit": "lb"
     },
     "steam_total": {
         "type": "number",
@@ -1963,7 +2091,8 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
         "description": "Indicates whether the generator uses stoker technology"
     },
     "storage_capacity_mw": {
-        "type": "number"
+        "type": "number",
+        "unit": "MW"
     },
     "storage_customers": {
         "type": "integer"
@@ -1986,14 +2115,17 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
     },
     "summer_capacity_mw": {
         "type": "number",
-        "description": "The net summer capacity."
+        "description": "The net summer capacity.",
+        "unit": "MW"
     },
     "summer_estimated_capability_mw": {
         "type": "number",
-        "description": "EIA estimated summer capacity (in MWh)."
+        "description": "EIA estimated summer capacity (in MWh).",
+        "unit": "MWh"
     },
     "summer_peak_demand_mw": {
-        "type": "number"
+        "type": "number",
+        "unit": "MW"
     },
     "supercritical_tech": {
         "type": "boolean",
@@ -2051,30 +2183,38 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
     },
     "total": {
         "type": "number",
-        "description": "Total of Electric Plant In Service, Electric Plant Held for Future Use, and Electric Plant Leased to Others (USD)."
+        "description": "Total of Electric Plant In Service, Electric Plant Held for Future Use, and Electric Plant Leased to Others (USD).",
+        "unit": "USD"
     },
     "total_capacity_less_1_mw": {
-        "type": "number"
+        "type": "number",
+        "unit": "MW"
     },
     "total_cost_of_plant": {
         "type": "number",
-        "description": "Total cost of plant (USD)."
+        "description": "Total cost of plant (USD).",
+        "unit": "USD"
     },
     "total_disposition_mwh": {
-        "type": "number"
+        "type": "number",
+        "unit": "MWh"
     },
     "total_energy_losses_mwh": {
-        "type": "number"
+        "type": "number",
+        "unit": "MWh"
     },
     "total_meters": {
-        "type": "integer"
+        "type": "integer",
+        "unit": "m"
     },
     "total_settlement": {
         "type": "number",
-        "description": "Sum of demand, energy, and other charges (USD). For power exchanges, the settlement amount for the net receipt of energy. If more energy was delivered than received, this amount is negative."
+        "description": "Sum of demand, energy, and other charges (USD). For power exchanges, the settlement amount for the net receipt of energy. If more energy was delivered than received, this amount is negative.",
+        "unit": "USD"
     },
     "total_sources_mwh": {
-        "type": "number"
+        "type": "number",
+        "unit": "MWh"
     },
     "transmission": {
         "type": "number"
@@ -2113,7 +2253,8 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
     },
     "transmission_acct359_1_asset_retirement": {
         "type": "number",
-        "description": "FERC Account 359.1: Asset Retirement Costs for Transmission Plant."
+        "description": "FERC Account 359.1: Asset Retirement Costs for Transmission Plant.",
+        "unit": "USD"
     },
     "transmission_acct359_roads_trails": {
         "type": "number",
@@ -2123,7 +2264,8 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
         "type": "boolean"
     },
     "transmission_by_other_losses_mwh": {
-        "type": "number"
+        "type": "number",
+        "unit": "MWh"
     },
     "transmission_distribution_owner_id": {
         "type": "integer",
@@ -2154,7 +2296,8 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
         "description": "Indicates whether the generator uses ultra-supercritical technology"
     },
     "unbundled_revenues": {
-        "type": "number"
+        "type": "number",
+        "unit": "USD"
     },
     "unit_id_eia": {
         "type": "string",
@@ -2216,24 +2359,18 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
         "description": "Utility name, chosen arbitrarily from the several possible utility names available in the utility matching process. Included for human readability only."
     },
     "utility_owned_capacity_mw": {
-        "type": "number"
+        "type": "number",
+        "unit": "MW"
     },
     "utility_pobox": {
         "type": "string"
-    },
-    "utility_zip_ext": {
-        "type": "string",
-        # TODO: Standardize with other zip codes and impose pattern constraint.
-        # See: https://github.com/catalyst-cooperative/pudl/issues/550
-        # "constraints": {
-        #    "pattern": r'^\d{4}$',
-        # }
     },
     "variable_peak_pricing": {
         "type": "boolean"
     },
     "virtual_capacity_mw": {
-        "type": "number"
+        "type": "number",
+        "unit": "MW"
     },
     "virtual_customers": {
         "type": "integer"
@@ -2243,7 +2380,8 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
     },
     "water_limited_capacity_mw": {
         "type": "number",
-        "description": "Plant capacity in MW when limited by condenser water."
+        "description": "Plant capacity in MW when limited by condenser water.",
+        "unit": "MW"
     },
     "water_source": {
         "type": "string",
@@ -2253,16 +2391,19 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
         "type": "number"
     },
     "wheeled_power_delivered_mwh": {
-        "type": "number"
+        "type": "number",
+        "unit": "MWh"
     },
     "wheeled_power_received_mwh": {
-        "type": "number"
+        "type": "number",
+        "unit": "MWh"
     },
     "wholesale_marketing_activity": {
         "type": "boolean"
     },
     "wholesale_power_purchases_mwh": {
-        "type": "number"
+        "type": "number",
+        "unit": "MWh"
     },
     "winter_capacity_estimate": {
         "type": "boolean",
@@ -2270,14 +2411,17 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
     },
     "winter_capacity_mw": {
         "type": "number",
-        "description": "The net winter capacity."
+        "description": "The net winter capacity.",
+        "unit": "MW"
     },
     "winter_estimated_capability_mw": {
         "type": "number",
-        "description": "EIA estimated winter capacity (in MWh)."
+        "description": "EIA estimated winter capacity (in MWh).",
+        "unit": "MWh"
     },
     "winter_peak_demand_mw": {
-        "type": "number"
+        "type": "number",
+        "unit": "MW"
     },
     "year": {
         "type": "integer",
@@ -2286,20 +2430,16 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
     "zip_code": {
         "type": "string",
         "description": "Five digit US Zip Code.",
-        # TODO Standardize with other zip codes and apply pattern constraint
-        # See: https://github.com/catalyst-cooperative/pudl/issues/550
-        # "constraints": {
-        #     "pattern": r'^\d{5}$',
-        # }
+        "constraints": {
+            "pattern": r'^\d{5}$',
+        }
     },
     "zip_code_4": {
         "type": "string",
         "description": "Four digit US Zip Code suffix.",
-        # TODO Standardize with other zip codes and apply pattern constraint
-        # See: https://github.com/catalyst-cooperative/pudl/issues/550
-        # "constraints": {
-        #     "pattern": r'^\d{4}$',
-        # }
+        "constraints": {
+            "pattern": r'^\d{4}$',
+        }
     }
 }
 """

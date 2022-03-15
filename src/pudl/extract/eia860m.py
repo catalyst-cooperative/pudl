@@ -9,7 +9,7 @@ the extracted EIA 860M dataframes to the extracted EIA 860 dataframes. Example
 setup with pre-genrated `eia860_raw_dfs` and datastore as `ds`:
 
 eia860m_raw_dfs = pudl.extract.eia860m.Extractor(ds).extract(
-    pc.WORKING_PARTITIONS['eia860m']['year_month'])
+    Eia860Settings.eia860m_date)
 eia860_raw_dfs = pudl.extract.eia860m.append_eia860m(
     eia860_raw_dfs=eia860_raw_dfs, eia860m_raw_dfs=eia860m_raw_dfs)
 
@@ -21,6 +21,7 @@ import pandas as pd
 
 from pudl.extract import excel
 from pudl.helpers import fix_leading_zero_gen_ids
+from pudl.settings import Eia860Settings
 
 logger = logging.getLogger(__name__)
 
@@ -50,6 +51,19 @@ class Extractor(excel.GenericExtractor):
         self.cols_added = ['data_source', 'report_year']
         df = fix_leading_zero_gen_ids(df)
         return df
+
+    def extract(self, settings: Eia860Settings = Eia860Settings()):
+        """Extracts dataframes.
+
+        Returns dict where keys are page names and values are
+        DataFrames containing data across given years.
+
+        Args:
+            settings: Object containing validated settings
+                relevant to EIA 860m. Contains the tables and date to be loaded
+                into PUDL.
+        """
+        return super().extract(year_month=settings.eia860m_date)
 
     @staticmethod
     def get_dtypes(page, **partition):
@@ -81,6 +95,9 @@ def append_eia860m(eia860_raw_dfs, eia860m_raw_dfs):
     pages_eia860m = meta_eia860m.get_all_pages()
     # page names in 860m and 860 are the same.
     for page in pages_eia860m:
-        eia860_raw_dfs[page] = eia860_raw_dfs[page].append(
-            eia860m_raw_dfs[page], ignore_index=True, sort=True)
+        eia860_raw_dfs[page] = pd.concat(
+            [eia860_raw_dfs[page], eia860m_raw_dfs[page]],
+            ignore_index=True,
+            sort=True,
+        )
     return eia860_raw_dfs

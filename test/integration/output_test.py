@@ -37,19 +37,6 @@ def fast_out(pudl_engine, pudl_datastore_fixture):
 
 
 @pytest.fixture(scope="module")
-def fast_out_filled(pudl_engine, pudl_datastore_fixture):
-    """A PUDL output object for use in CI with net generation filled."""
-    return pudl.output.pudltabl.PudlTabl(
-        pudl_engine,
-        ds=pudl_datastore_fixture,
-        freq="MS",
-        fill_fuel_cost=FILL_FUEL_COST,
-        roll_fuel_cost=True,
-        fill_net_gen=True,
-    )
-
-
-@pytest.fixture(scope="module")
 def fast_out_annual(pudl_engine, pudl_datastore_fixture):
     """A PUDL output object for use in CI."""
     return pudl.output.pudltabl.PudlTabl(
@@ -60,6 +47,32 @@ def fast_out_annual(pudl_engine, pudl_datastore_fixture):
         roll_fuel_cost=True,
         fill_net_gen=True,
     )
+
+
+def nuke_gen_fraction(df):
+    """Calculate the nuclear fraction of net generation."""
+    total_gen = df.net_generation_mwh.sum()
+    nuke_gen = (
+        df[df.fuel_type_code_pudl == "nuclear"]
+        .net_generation_mwh
+        .sum()
+    )
+    return nuke_gen / total_gen
+
+
+@pytest.mark.parametrize(
+    "df_name,expected_nuke_fraction,tolerance", [
+        ("gf_eia923", 0.2, 0.02),
+        ("gf_nonuclear_eia923", 0.0, 0.0),
+        ("gf_nuclear_eia923", 1.0, 0.001),
+    ]
+)
+def test_nuclear_fraction(fast_out, df_name, expected_nuke_fraction, tolerance):
+    """Ensure that overall nuclear generation fractions are as expected."""
+    actual_nuke_fraction = nuke_gen_fraction(
+        fast_out.__getattribute__(df_name)()
+    )
+    assert abs(actual_nuke_fraction - expected_nuke_fraction) <= tolerance
 
 
 @pytest.mark.parametrize(
@@ -98,7 +111,8 @@ def test_ferc1_outputs(fast_out, df_name):
         # gen_allocated_eia923 currently only produces annual results.
         ("gens_eia860", "gen_allocated_eia923", 1 / 1, {}),
         ("gens_eia860", "gf_eia923", 12 / 1, {}),
-        ("gens_eia860", "gfn_eia923", 12 / 1, {}),
+        ("gens_eia860", "gf_nonuclear_eia923", 12 / 1, {}),
+        ("gens_eia860", "gf_nuclear_eia923", 12 / 1, {}),
 
         ("gens_eia860", "hr_by_unit", 12 / 1, {}),
         ("gens_eia860", "hr_by_gen", 12 / 1, {}),
@@ -198,11 +212,41 @@ def test_ferc714_respondents_georef_counties(ferc714_out):
     assert not ferc714_gdf.empty, "ferc714_gdf is empty!"
 
 
-def test_mcoe_filled(fast_out_filled):
-    """Ensure the MCOE works with the net generation allocated."""
-    fast_out_filled.mcoe()
-
-
 def test_plant_parts_eia_filled(fast_out_annual):
     """Ensure the EIA plant-parts list can be generated."""
     fast_out_annual.plant_parts_eia()
+
+
+@pytest.fixture(scope="module")
+def fast_out_filled(pudl_engine, pudl_datastore_fixture):
+    """A PUDL output object for use in CI with net generation filled."""
+    return pudl.output.pudltabl.PudlTabl(
+        pudl_engine,
+        ds=pudl_datastore_fixture,
+        freq="MS",
+        fill_fuel_cost=FILL_FUEL_COST,
+        roll_fuel_cost=True,
+        fill_net_gen=True,
+    )
+
+
+@pytest.mark.parametrize(
+    "df_name,expected_nuke_fraction,tolerance", [
+        ("gf_nuclear_eia923", 1.0, 0.001),
+        ("gf_nonuclear_eia923", 0.0, 0.0),
+        ("gf_eia923", 0.2, 0.02),
+        ("mcoe", 0.2, 0.02),
+    ]
+)
+def test_mcoe_filled(fast_out_filled, df_name, expected_nuke_fraction, tolerance):
+    """
+    Test that the net generation allocation process is working.
+
+    In addition to running the allocation itself, make sure that the nuclear and
+    non-nuclear generation fractions are as we would expect after the net generation has
+    been allocated.
+    """
+    actual_nuke_fraction = nuke_gen_fraction(
+        fast_out_filled.__getattribute__(df_name)()
+    )
+    assert abs(actual_nuke_fraction - expected_nuke_fraction) <= tolerance

@@ -63,130 +63,12 @@ from dbfread import DBF
 from sqlalchemy import or_
 
 import pudl
-from pudl import constants as pc
-from pudl.constants import PUDL_TABLES
+from pudl.metadata.classes import DataSource
+from pudl.metadata.constants import DBF_TABLES_FILENAMES
+from pudl.settings import Ferc1Settings, Ferc1ToSqliteSettings
 from pudl.workspace.datastore import Datastore
 
 logger = logging.getLogger(__name__)
-
-DBF_TABLES_FILENAMES = {
-    'f1_respondent_id': 'F1_1.DBF',
-    'f1_acb_epda': 'F1_2.DBF',
-    'f1_accumdepr_prvsn': 'F1_3.DBF',
-    'f1_accumdfrrdtaxcr': 'F1_4.DBF',
-    'f1_adit_190_detail': 'F1_5.DBF',
-    'f1_adit_190_notes': 'F1_6.DBF',
-    'f1_adit_amrt_prop': 'F1_7.DBF',
-    'f1_adit_other': 'F1_8.DBF',
-    'f1_adit_other_prop': 'F1_9.DBF',
-    'f1_allowances': 'F1_10.DBF',
-    'f1_bal_sheet_cr': 'F1_11.DBF',
-    'f1_capital_stock': 'F1_12.DBF',
-    'f1_cash_flow': 'F1_13.DBF',
-    'f1_cmmn_utlty_p_e': 'F1_14.DBF',
-    'f1_comp_balance_db': 'F1_15.DBF',
-    'f1_construction': 'F1_16.DBF',
-    'f1_control_respdnt': 'F1_17.DBF',
-    'f1_co_directors': 'F1_18.DBF',
-    'f1_cptl_stk_expns': 'F1_19.DBF',
-    'f1_csscslc_pcsircs': 'F1_20.DBF',
-    'f1_dacs_epda': 'F1_21.DBF',
-    'f1_dscnt_cptl_stk': 'F1_22.DBF',
-    'f1_edcfu_epda': 'F1_23.DBF',
-    'f1_elctrc_erg_acct': 'F1_24.DBF',
-    'f1_elctrc_oper_rev': 'F1_25.DBF',
-    'f1_elc_oper_rev_nb': 'F1_26.DBF',
-    'f1_elc_op_mnt_expn': 'F1_27.DBF',
-    'f1_electric': 'F1_28.DBF',
-    'f1_envrnmntl_expns': 'F1_29.DBF',
-    'f1_envrnmntl_fclty': 'F1_30.DBF',
-    'f1_fuel': 'F1_31.DBF',
-    'f1_general_info': 'F1_32.DBF',
-    'f1_gnrt_plant': 'F1_33.DBF',
-    'f1_important_chg': 'F1_34.DBF',
-    'f1_incm_stmnt_2': 'F1_35.DBF',
-    'f1_income_stmnt': 'F1_36.DBF',
-    'f1_miscgen_expnelc': 'F1_37.DBF',
-    'f1_misc_dfrrd_dr': 'F1_38.DBF',
-    'f1_mthly_peak_otpt': 'F1_39.DBF',
-    'f1_mtrl_spply': 'F1_40.DBF',
-    'f1_nbr_elc_deptemp': 'F1_41.DBF',
-    'f1_nonutility_prop': 'F1_42.DBF',
-    'f1_note_fin_stmnt': 'F1_43.DBF',
-    'f1_nuclear_fuel': 'F1_44.DBF',
-    'f1_officers_co': 'F1_45.DBF',
-    'f1_othr_dfrrd_cr': 'F1_46.DBF',
-    'f1_othr_pd_in_cptl': 'F1_47.DBF',
-    'f1_othr_reg_assets': 'F1_48.DBF',
-    'f1_othr_reg_liab': 'F1_49.DBF',
-    'f1_overhead': 'F1_50.DBF',
-    'f1_pccidica': 'F1_51.DBF',
-    'f1_plant_in_srvce': 'F1_52.DBF',
-    'f1_pumped_storage': 'F1_53.DBF',
-    'f1_purchased_pwr': 'F1_54.DBF',
-    'f1_reconrpt_netinc': 'F1_55.DBF',
-    'f1_reg_comm_expn': 'F1_56.DBF',
-    'f1_respdnt_control': 'F1_57.DBF',
-    'f1_retained_erng': 'F1_58.DBF',
-    'f1_r_d_demo_actvty': 'F1_59.DBF',
-    'f1_sales_by_sched': 'F1_60.DBF',
-    'f1_sale_for_resale': 'F1_61.DBF',
-    'f1_sbsdry_totals': 'F1_62.DBF',
-    'f1_schedules_list': 'F1_63.DBF',
-    'f1_security_holder': 'F1_64.DBF',
-    'f1_slry_wg_dstrbtn': 'F1_65.DBF',
-    'f1_substations': 'F1_66.DBF',
-    'f1_taxacc_ppchrgyr': 'F1_67.DBF',
-    'f1_unrcvrd_cost': 'F1_68.DBF',
-    'f1_utltyplnt_smmry': 'F1_69.DBF',
-    'f1_work': 'F1_70.DBF',
-    'f1_xmssn_adds': 'F1_71.DBF',
-    'f1_xmssn_elc_bothr': 'F1_72.DBF',
-    'f1_xmssn_elc_fothr': 'F1_73.DBF',
-    'f1_xmssn_line': 'F1_74.DBF',
-    'f1_xtraordnry_loss': 'F1_75.DBF',
-    'f1_codes_val': 'F1_76.DBF',
-    'f1_sched_lit_tbl': 'F1_77.DBF',
-    'f1_audit_log': 'F1_78.DBF',
-    'f1_col_lit_tbl': 'F1_79.DBF',
-    'f1_load_file_names': 'F1_80.DBF',
-    'f1_privilege': 'F1_81.DBF',
-    'f1_sys_error_log': 'F1_82.DBF',
-    'f1_unique_num_val': 'F1_83.DBF',
-    'f1_row_lit_tbl': 'F1_84.DBF',
-    'f1_footnote_data': 'F1_85.DBF',
-    'f1_hydro': 'F1_86.DBF',
-    'f1_footnote_tbl': 'F1_87.DBF',
-    'f1_ident_attsttn': 'F1_88.DBF',
-    'f1_steam': 'F1_89.DBF',
-    'f1_leased': 'F1_90.DBF',
-    'f1_sbsdry_detail': 'F1_91.DBF',
-    'f1_plant': 'F1_92.DBF',
-    'f1_long_term_debt': 'F1_93.DBF',
-    'f1_106_2009': 'F1_106_2009.DBF',
-    'f1_106a_2009': 'F1_106A_2009.DBF',
-    'f1_106b_2009': 'F1_106B_2009.DBF',
-    'f1_208_elc_dep': 'F1_208_ELC_DEP.DBF',
-    'f1_231_trn_stdycst': 'F1_231_TRN_STDYCST.DBF',
-    'f1_324_elc_expns': 'F1_324_ELC_EXPNS.DBF',
-    'f1_325_elc_cust': 'F1_325_ELC_CUST.DBF',
-    'f1_331_transiso': 'F1_331_TRANSISO.DBF',
-    'f1_338_dep_depl': 'F1_338_DEP_DEPL.DBF',
-    'f1_397_isorto_stl': 'F1_397_ISORTO_STL.DBF',
-    'f1_398_ancl_ps': 'F1_398_ANCL_PS.DBF',
-    'f1_399_mth_peak': 'F1_399_MTH_PEAK.DBF',
-    'f1_400_sys_peak': 'F1_400_SYS_PEAK.DBF',
-    'f1_400a_iso_peak': 'F1_400A_ISO_PEAK.DBF',
-    'f1_429_trans_aff': 'F1_429_TRANS_AFF.DBF',
-    'f1_allowances_nox': 'F1_ALLOWANCES_NOX.DBF',
-    'f1_cmpinc_hedge_a': 'F1_CMPINC_HEDGE_A.DBF',
-    'f1_cmpinc_hedge': 'F1_CMPINC_HEDGE.DBF',
-    'f1_email': 'F1_EMAIL.DBF',
-    'f1_rg_trn_srv_rev': 'F1_RG_TRN_SRV_REV.DBF',
-    'f1_s0_checks': 'F1_S0_CHECKS.DBF',
-    'f1_s0_filing_log': 'F1_S0_FILING_LOG.DBF',
-    'f1_security': 'F1_SECURITY.DBF'
-}
 
 DBF_TYPES = {
     'C': sa.String,
@@ -355,7 +237,7 @@ def add_sqlite_table(
     sqlite_meta,
     dbc_map,
     ds,
-    refyear=max(pc.WORKING_PARTITIONS['ferc1']['years']),
+    refyear=max(DataSource.from_id("ferc1").working_partitions["years"]),
     bad_cols=()
 ):
     """Adds a new Table to the FERC Form 1 database schema.
@@ -538,9 +420,7 @@ def define_sqlite_db(
     sqlite_meta,
     dbc_map,
     ds,
-    tables=tuple(DBF_TABLES_FILENAMES.keys()),
-    refyear=max(pc.WORKING_PARTITIONS['ferc1']['years']),
-    bad_cols=()
+    ferc1_to_sqlite_settings: Ferc1ToSqliteSettings = Ferc1ToSqliteSettings()
 ):
     """
     Defines a FERC Form 1 DB structure in a given SQLAlchemy MetaData object.
@@ -558,28 +438,21 @@ def define_sqlite_db(
             returned by get_dbc_map(), describing the table and column names
             stored within the FERC Form 1 FoxPro database files.
         ds (:class:`Ferc1Datastore`): Initialized Ferc1Datastore
-        tables (iterable of strings): List or other iterable of FERC database
-            table names that should be included in the database being defined.
-            e.g. 'f1_fuel' and 'f1_steam'
-        refyear (integer): The year of the FERC Form 1 DB to use as a template
-            for creating the overall multi-year database schema.
-        bad_cols (iterable of 2-tuples): A list or other iterable containing
-            pairs of strings of the form (table_name, column_name), indicating
-            columns (and their parent tables) which should *not* be cloned
-            into the SQLite database for some reason.
+        ferc1_to_sqlite_settings: Object containing Ferc1 to SQLite validated
+            settings.
 
     Returns:
         None: the effects of the function are stored inside sqlite_meta
 
     """
-    for table in tables:
+    for table in ferc1_to_sqlite_settings.tables:
         add_sqlite_table(
             table_name=table,
             sqlite_meta=sqlite_meta,
             dbc_map=dbc_map,
             ds=ds,
-            refyear=refyear,
-            bad_cols=bad_cols
+            refyear=ferc1_to_sqlite_settings.refyear,
+            bad_cols=ferc1_to_sqlite_settings.bad_cols
         )
 
     sqlite_meta.create_all(sqlite_engine)
@@ -618,7 +491,7 @@ def get_raw_df(
     ds,
     table,
     dbc_map,
-    years=pc.WORKING_PARTITIONS['ferc1']['years']
+    years=DataSource.from_id("ferc1").working_partitions["years"]
 ):
     """Combine several years of a given FERC Form 1 DBF table into a dataframe.
 
@@ -663,20 +536,16 @@ def get_raw_df(
 
 
 def dbf2sqlite(
-    tables,
-    years,
-    refyear,
-    pudl_settings,
-    bad_cols=(),
+    ferc1_to_sqlite_settings: Ferc1ToSqliteSettings = Ferc1ToSqliteSettings(),
+    pudl_settings=None,
     clobber=False,
     datastore=None
 ):
     """Clone the FERC Form 1 Databsae to SQLite.
 
     Args:
-        tables (iterable): What tables should be cloned?
-        years (iterable): Which years of data should be cloned?
-        refyear (int): Which database year to use as a template.
+        ferc1_to_sqlite_settings: Object containing Ferc1 to SQLite validated
+            settings.
         pudl_settings (dict): Dictionary containing paths and database URLs
             used by PUDL.
         bad_cols (iterable of tuples): A list of (table, column) pairs
@@ -704,22 +573,22 @@ def dbf2sqlite(
     sqlite_meta.reflect(sqlite_engine)
 
     # Get the mapping of filenames to table names and fields
-    logger.info(f"Creating a new database schema based on {refyear}.")
+    logger.info(
+        f"Creating a new database schema based on {ferc1_to_sqlite_settings.refyear}.")
     datastore = Ferc1Datastore(datastore)
-    dbc_map = get_dbc_map(datastore, refyear)
+    dbc_map = get_dbc_map(datastore, ferc1_to_sqlite_settings.refyear)
     define_sqlite_db(
         sqlite_engine=sqlite_engine,
         sqlite_meta=sqlite_meta,
         dbc_map=dbc_map,
         ds=datastore,
-        tables=tables,
-        refyear=refyear,
-        bad_cols=bad_cols
+        ferc1_to_sqlite_settings=ferc1_to_sqlite_settings
     )
 
-    for table in tables:
+    for table in ferc1_to_sqlite_settings.tables:
         logger.info(f"Pandas: reading {table} into a DataFrame.")
-        new_df = get_raw_df(datastore, table, dbc_map, years=years)
+        new_df = get_raw_df(datastore, table, dbc_map,
+                            years=ferc1_to_sqlite_settings.years)
         # Because this table has no year in it, there would be multiple
         # definitions of respondents if we didn't drop duplicates.
         if table == 'f1_respondent_id':
@@ -803,19 +672,15 @@ def get_ferc1_meta(ferc1_engine):
 
 
 def extract(
-    ferc1_tables=PUDL_TABLES['ferc1'],
-    ferc1_years=pc.WORKING_PARTITIONS['ferc1']['years'],
+    ferc1_settings: Ferc1Settings = Ferc1Settings(),
     pudl_settings=None,
 ):
     """Coordinates the extraction of all FERC Form 1 tables into PUDL.
 
     Args:
-        ferc1_tables (iterable of strings): List of the FERC 1 database tables
-            to be loaded into PUDL. These are the names of the tables in the
-            PUDL database, not the FERC Form 1 database.
-        ferc1_years (iterable of ints): List of years for which FERC Form 1
-            data should be loaded into PUDL. Note that not all years for which
-            FERC data is available may have been integrated into PUDL yet.
+        ferc1_settings: Object containing validated settings
+            relevant to FERC Form 1. Contains the tables and years to be loaded
+            into PUDL.
 
     Returns:
         dict: A dictionary of pandas DataFrames, with the names of PUDL
@@ -831,33 +696,8 @@ def extract(
         ValueError: If the FERC table requested is not integrated into PUDL
 
     """
-    if (not ferc1_tables) or (not ferc1_years):
-        return {}
     if pudl_settings is None:
         pudl_settings = pudl.workspace.setup.get_defaults()
-
-    for year in ferc1_years:
-        if year not in pc.WORKING_PARTITIONS["ferc1"]["years"]:
-            raise ValueError(
-                f"FERC Form 1 data from the year {year} was requested but it "
-                f"has not yet been integrated into PUDL. "
-                f"If you'd like to contribute the necessary cleaning "
-                f"functions, come find us on GitHub: "
-                f"{pudl.__downloadurl__}"
-                f"For now, the years which PUDL has integrated are: "
-                f"{' '.join(str(year) for item in pc.WORKING_PARTITIONS['ferc1']['years'])}."
-            )
-    for table in ferc1_tables:
-        if table not in PUDL_TABLES["ferc1"]:
-            raise ValueError(
-                f"FERC Form 1 table {table} was requested but it has not yet "
-                f"been integreated into PUDL. Heck, it might not even exist! "
-                f"If you'd like to contribute the necessary cleaning "
-                f"functions, come find us on GitHub: "
-                f"{pudl.__downloadurl__}"
-                f"For now, the tables which PUDL has integrated are: "
-                f"{' '.join(str(year) for item in PUDL_TABLES['ferc1'])}"
-            )
 
     ferc1_extract_functions = {
         "fuel_ferc1": fuel,
@@ -871,7 +711,7 @@ def extract(
     }
 
     ferc1_raw_dfs = {}
-    for pudl_table in ferc1_tables:
+    for pudl_table in ferc1_settings.tables:
         if pudl_table not in ferc1_extract_functions:
             raise ValueError(
                 f"No extract function found for requested FERC Form 1 data "
@@ -882,19 +722,20 @@ def extract(
             f"pandas DataFrame.")
         ferc1_raw_dfs[pudl_table] = ferc1_extract_functions[pudl_table](
             ferc1_engine=sa.create_engine(pudl_settings["ferc1_db"]),
-            ferc1_years=ferc1_years,
+            ferc1_settings=ferc1_settings,
         )
 
     return ferc1_raw_dfs
 
 
-def fuel(ferc1_engine, ferc1_years):
+def fuel(ferc1_engine, ferc1_settings):
     """Creates a DataFrame of f1_fuel table records with plant names, >0 fuel.
 
     Args:
         ferc1_engine (sqlalchemy.engine.Engine): An SQL Alchemy connection
             engine for the FERC Form 1 database.
-        ferc1_years (list): The range of years from which to read data.
+        ferc1_settings (Ferc1Settings): Object containing validated settings
+            relevant to FERC Form 1.
 
     Returns:
         :class:`pandas.DataFrame`: A DataFrame containing f1_fuel records that
@@ -911,13 +752,13 @@ def fuel(ferc1_engine, ferc1_years):
         .where(f1_fuel.c.fuel != '')
         .where(f1_fuel.c.fuel_quantity > 0)
         .where(f1_fuel.c.plant_name != '')
-        .where(f1_fuel.c.report_year.in_(ferc1_years))
+        .where(f1_fuel.c.report_year.in_(ferc1_settings.years))
     )
     # Use the above SELECT to pull those records into a DataFrame:
     return pd.read_sql(f1_fuel_select, ferc1_engine)
 
 
-def plants_steam(ferc1_engine, ferc1_years):
+def plants_steam(ferc1_engine, ferc1_settings):
     """
     Create a :class:`pandas.DataFrame` containing valid raw f1_steam records.
 
@@ -927,7 +768,8 @@ def plants_steam(ferc1_engine, ferc1_years):
     Args:
         ferc1_engine (sqlalchemy.engine.Engine): An SQL Alchemy connection
             engine for the FERC Form 1 database.
-        ferc1_years (list): The range of years from which to read data.
+        ferc1_settings (Ferc1Settings): Object containing validated settings
+            relevant to FERC Form 1.
 
     Returns:
         pandas.DataFrame: A DataFrame containing f1_steam records that have
@@ -938,7 +780,7 @@ def plants_steam(ferc1_engine, ferc1_years):
     f1_steam = ferc1_meta.tables["f1_steam"]
     f1_steam_select = (
         sa.sql.select(f1_steam)
-        .where(f1_steam.c.report_year.in_(ferc1_years))
+        .where(f1_steam.c.report_year.in_(ferc1_settings.years))
         .where(f1_steam.c.plant_name != '')
         .where(f1_steam.c.tot_capacity > 0.0)
     )
@@ -946,13 +788,14 @@ def plants_steam(ferc1_engine, ferc1_years):
     return pd.read_sql(f1_steam_select, ferc1_engine)
 
 
-def plants_small(ferc1_engine, ferc1_years):
+def plants_small(ferc1_engine, ferc1_settings):
     """Creates a DataFrame of f1_small for records with minimum data criteria.
 
     Args:
         ferc1_engine (sqlalchemy.engine.Engine): An SQL Alchemy connection
             engine for the FERC Form 1 database.
-        ferc1_years (list): The range of years from which to read data.
+        ferc1_settings (Ferc1Settings): Object containing validated settings
+            relevant to FERC Form 1.
 
     Returns:
         pandas.DataFrame: A DataFrame containing f1_small records that have
@@ -963,7 +806,7 @@ def plants_small(ferc1_engine, ferc1_years):
     f1_small = ferc1_meta.tables["f1_gnrt_plant"]
     f1_small_select = (
         sa.sql.select(f1_small)
-        .where(f1_small.c.report_year.in_(ferc1_years))
+        .where(f1_small.c.report_year.in_(ferc1_settings.years))
         .where(f1_small.c.plant_name != '')
         .where(or_((f1_small.c.capacity_rating != 0),
                    (f1_small.c.net_demand != 0),
@@ -979,13 +822,14 @@ def plants_small(ferc1_engine, ferc1_years):
     return pd.read_sql(f1_small_select, ferc1_engine)
 
 
-def plants_hydro(ferc1_engine, ferc1_years):
+def plants_hydro(ferc1_engine, ferc1_settings):
     """Creates a DataFrame of f1_hydro for records that have plant names.
 
     Args:
         ferc1_engine (sqlalchemy.engine.Engine): An SQL Alchemy connection
             engine for the FERC Form 1 database.
-        ferc1_years (list): The range of years from which to read data.
+        ferc1_settings (Ferc1Settings): Object containing validated settings
+            relevant to FERC Form 1.
 
     Returns:
         pandas.DataFrame: A DataFrame containing f1_hydro records that have
@@ -998,19 +842,20 @@ def plants_hydro(ferc1_engine, ferc1_years):
     f1_hydro_select = (
         sa.sql.select(f1_hydro)
         .where(f1_hydro.c.plant_name != '')
-        .where(f1_hydro.c.report_year.in_(ferc1_years))
+        .where(f1_hydro.c.report_year.in_(ferc1_settings.years))
     )
 
     return pd.read_sql(f1_hydro_select, ferc1_engine)
 
 
-def plants_pumped_storage(ferc1_engine, ferc1_years):
+def plants_pumped_storage(ferc1_engine, ferc1_settings):
     """Creates a DataFrame of f1_plants_pumped_storage records with plant names.
 
     Args:
         ferc1_engine (sqlalchemy.engine.Engine): An SQL Alchemy connection
             engine for the FERC Form 1 database.
-        ferc1_years (list): The range of years from which to read data.
+        ferc1_settings (Ferc1Settings): Object containing validated settings
+            relevant to FERC Form 1.
 
     Returns:
         pandas.DataFrame: A DataFrame containing f1_plants_pumped_storage
@@ -1025,19 +870,20 @@ def plants_pumped_storage(ferc1_engine, ferc1_years):
     f1_pumped_storage_select = (
         sa.sql.select(f1_pumped_storage)
         .where(f1_pumped_storage.c.plant_name != '')
-        .where(f1_pumped_storage.c.report_year.in_(ferc1_years))
+        .where(f1_pumped_storage.c.report_year.in_(ferc1_settings.years))
     )
 
     return pd.read_sql(f1_pumped_storage_select, ferc1_engine)
 
 
-def plant_in_service(ferc1_engine, ferc1_years):
+def plant_in_service(ferc1_engine, ferc1_settings):
     """Creates a DataFrame of the fields of plant_in_service_ferc1.
 
     Args:
         ferc1_engine (sqlalchemy.engine.Engine): An SQL Alchemy connection
             engine for the FERC Form 1 database.
-        ferc1_years (list): The range of years from which to read data.
+        ferc1_settings (Ferc1Settings): Object containing validated settings
+            relevant to FERC Form 1.
 
     Returns:
         pandas.DataFrame: A DataFrame containing all plant_in_service_ferc1
@@ -1048,19 +894,20 @@ def plant_in_service(ferc1_engine, ferc1_years):
     f1_plant_in_srvce = ferc1_meta.tables["f1_plant_in_srvce"]
     f1_plant_in_srvce_select = (
         sa.sql.select(f1_plant_in_srvce)
-        .where(f1_plant_in_srvce.c.report_year.in_(ferc1_years))
+        .where(f1_plant_in_srvce.c.report_year.in_(ferc1_settings.years))
     )
 
     return pd.read_sql(f1_plant_in_srvce_select, ferc1_engine)
 
 
-def purchased_power(ferc1_engine, ferc1_years):
+def purchased_power(ferc1_engine, ferc1_settings):
     """Creates a DataFrame the fields of purchased_power_ferc1.
 
     Args:
         ferc1_engine (sqlalchemy.engine.Engine): An SQL Alchemy connection
             engine for the FERC Form 1 database.
-        ferc1_years (list): The range of years from which to read data.
+        ferc1_settings (Ferc1Settings): Object containing validated settings
+            relevant to FERC Form 1.
 
     Returns:
         pandas.DataFrame: A DataFrame containing all purchased_power_ferc1
@@ -1071,19 +918,20 @@ def purchased_power(ferc1_engine, ferc1_years):
     f1_purchased_pwr = ferc1_meta.tables["f1_purchased_pwr"]
     f1_purchased_pwr_select = (
         sa.sql.select(f1_purchased_pwr)
-        .where(f1_purchased_pwr.c.report_year.in_(ferc1_years))
+        .where(f1_purchased_pwr.c.report_year.in_(ferc1_settings.years))
     )
 
     return pd.read_sql(f1_purchased_pwr_select, ferc1_engine)
 
 
-def accumulated_depreciation(ferc1_engine, ferc1_years):
+def accumulated_depreciation(ferc1_engine, ferc1_settings):
     """Creates a DataFrame of the fields of accumulated_depreciation_ferc1.
 
     Args:
         ferc1_engine (sqlalchemy.engine.Engine): An SQL Alchemy connection
             engine for the FERC Form 1 database.
-        ferc1_years (list): The range of years from which to read data.
+        ferc1_settings (Ferc1Settings): Object containing validated settings
+            relevant to FERC Form 1.
 
     Returns:
         :class:`pandas.DataFrame`: A DataFrame containing all
@@ -1094,7 +942,7 @@ def accumulated_depreciation(ferc1_engine, ferc1_years):
     f1_accumdepr_prvsn = ferc1_meta.tables["f1_accumdepr_prvsn"]
     f1_accumdepr_prvsn_select = (
         sa.sql.select(f1_accumdepr_prvsn)
-        .where(f1_accumdepr_prvsn.c.report_year.in_(ferc1_years))
+        .where(f1_accumdepr_prvsn.c.report_year.in_(ferc1_settings.years))
     )
 
     return pd.read_sql(f1_accumdepr_prvsn_select, ferc1_engine)

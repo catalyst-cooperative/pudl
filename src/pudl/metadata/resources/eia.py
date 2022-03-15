@@ -12,6 +12,8 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
             "foreign_key_rules": {"fields": [["plant_id_eia", "boiler_id"]]},
         },
         "sources": ["eia860", "eia923"],
+        "etl_group": "entity_eia",
+        "field_namespace": "eia",
     },
     "coalmine_types_eia": {
         "description": "A coding table describing different types of coalmines reported as fuel sources in the EIA-923.",
@@ -22,6 +24,8 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
         },
         "encoder": CODE_METADATA["coalmine_types_eia"],
         "sources": ["eia923"],
+        "etl_group": "static_eia",
+        "field_namespace": "eia",
     },
     "contract_types_eia": {
         "description": "A coding table describing the various types of fuel supply contracts reported in EIA-923.",
@@ -32,6 +36,8 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
         },
         "encoder": CODE_METADATA["contract_types_eia"],
         "sources": ["eia923"],
+        "etl_group": "static_eia",
+        "field_namespace": "eia",
     },
     "energy_sources_eia": {
         "description": "Codes and metadata pertaining to energy sources reported to EIA. Compiled from EIA-860 instructions and EIA-923 file layout spreadsheets.",
@@ -68,6 +74,8 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
         },
         "encoder": CODE_METADATA['energy_sources_eia'],
         "sources": ["eia860", "eia923"],
+        "etl_group": "static_eia",
+        "field_namespace": "eia",
     },
     "entity_types_eia": {
         "description": "Descriptive labels for EIA entity type and ownership codes, taken from the EIA-861 form instructions, valid through 2023-05-31.",
@@ -76,7 +84,9 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
             "primary_key": ["code"]
         },
         "encoder": CODE_METADATA["entity_types_eia"],
-        "sources": ["eia861"]
+        "sources": ["eia861"],
+        "etl_group": "static_eia",
+        "field_namespace": "eia",
     },
     "fuel_transportation_modes_eia": {
         "description": "Long descriptions of the fuel transportation modes reported in the EIA-860 and EIA-923.",
@@ -98,6 +108,8 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
         },
         "encoder": CODE_METADATA["fuel_transportation_modes_eia"],
         "sources": ["eia860", "eia923"],
+        "etl_group": "static_eia",
+        "field_namespace": "eia",
     },
     "fuel_types_aer_eia": {
         "description": "Descriptive labels for aggregated fuel types used in the Annual Energy Review. See EIA-923 Fuel Code table for additional information.",
@@ -108,6 +120,8 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
         },
         "encoder": CODE_METADATA["fuel_types_aer_eia"],
         "sources": ["eia923"],
+        "etl_group": "static_eia",
+        "field_namespace": "eia",
     },
     "generators_entity_eia": {
         "description": "Static generator attributes compiled from across the EIA-860 and EIA-923 data.",
@@ -139,6 +153,8 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
             "foreign_key_rules": {"fields": [["plant_id_eia", "generator_id"]]},
         },
         "sources": ["eia860", "eia923"],
+        "etl_group": "entity_eia",
+        "field_namespace": "eia",
     },
     "momentary_interruptions_eia": {
         "description": "A coding table for utility definitions of momentary service interruptions.",
@@ -149,6 +165,8 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
         },
         "encoder": CODE_METADATA["momentary_interruptions_eia"],
         "sources": ["eia861"],
+        "etl_group": "static_eia",
+        "field_namespace": "eia",
     },
     "plants_eia": {
         "description": "Association between EIA Plant IDs and manually assigned PUDL Plant IDs",
@@ -157,6 +175,8 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
             "primary_key": ["plant_id_eia"],
         },
         "sources": ["eia860", "eia923"],
+        "etl_group": "glue",
+        "field_namespace": "eia",
     },
     "plants_entity_eia": {
         "description": "Static plant attributes, compiled from across all EIA-860 and EIA-923 data.",
@@ -197,6 +217,8 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
             },
         },
         "sources": ["eia860", "eia923"],
+        "etl_group": "entity_eia",
+        "field_namespace": "eia",
     },
     "prime_movers_eia": {
         "description": "Long descriptions explaining the short prime mover codes reported in the EIA-860 and EIA-923.",
@@ -212,6 +234,8 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
         },
         "encoder": CODE_METADATA["prime_movers_eia"],
         "sources": ["eia923", "eia860"],
+        "etl_group": "static_eia",
+        "field_namespace": "eia",
     },
     "sector_consolidated_eia": {
         "description": "Long descriptions for the EIA consolidated NAICS sector codes. Codes and descriptions taken from the EIA-923 File Layout spreadsheet.",
@@ -222,6 +246,8 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
         },
         "encoder": CODE_METADATA["sector_consolidated_eia"],
         "sources": ["eia860", "eia923"],
+        "etl_group": "static_eia",
+        "field_namespace": "eia",
     },
     "utilities_eia": {
         "description": "Associations between the EIA Utility IDs and the manually assigned PUDL Utility IDs.",
@@ -230,6 +256,8 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
             "primary_key": ["utility_id_eia"],
         },
         "sources": ["eia860", "eia923"],
+        "etl_group": "glue",
+        "field_namespace": "eia",
     },
     "utilities_entity_eia": {
         "description": "Static attributes of utilities, compiled from all EIA data.",
@@ -253,6 +281,8 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
             },
         },
         "sources": ["eia860", "eia923"],
+        "etl_group": "entity_eia",
+        "field_namespace": "eia",
     },
 }
 """

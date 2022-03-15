@@ -70,8 +70,7 @@ Make Tidy Data
 The best practices in data organization go by different names in data science,
 statistics, and database design, but they all try to minimize data duplication
 and ensure an easy to transform uniform structure that can be used for a wide
-variety of purposes -- at least in the source data (i.e. database tables or the
-published data packages).
+variety of purposes.
 
 * Each column in a table represents a single, homogeneous variable.
 * Each row in a table represents a single observation -- i.e. all of the

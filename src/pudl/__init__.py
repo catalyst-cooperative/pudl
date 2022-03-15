@@ -13,7 +13,6 @@ import pudl.analysis.spatial
 import pudl.analysis.state_demand
 import pudl.analysis.timeseries_cleaning
 import pudl.cli
-import pudl.constants
 import pudl.convert.censusdp1tract_to_sqlite
 import pudl.convert.epacems_to_parquet
 import pudl.convert.ferc1_to_sqlite

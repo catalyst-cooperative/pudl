@@ -3,7 +3,6 @@ import logging
 import os
 from pathlib import Path
 
-import pandas as pd
 import pytest
 import sqlalchemy as sa
 import yaml
@@ -135,9 +134,7 @@ def ferc1_sql_engine(
     """
     if not live_dbs:
         pudl.extract.ferc1.dbf2sqlite(
-            tables=ferc1_etl_settings.tables,
-            years=ferc1_etl_settings.years,
-            refyear=ferc1_etl_settings.refyear,
+            ferc1_to_sqlite_settings=ferc1_etl_settings,
             pudl_settings=pudl_settings_fixture,
             clobber=False,
             datastore=pudl_datastore_fixture
@@ -247,10 +244,3 @@ def pudl_datastore(pudl_settings_fixture, request):
             pudl_settings_fixture["pudl_in"]) / "data",
         gcs_cache_path=gcs_cache,
         sandbox=pudl_settings_fixture["sandbox"])
-
-
-@pytest.fixture(autouse=True, scope='session')
-def pandas_terminal_width():
-    """Set pandas displays for doctests."""
-    pd.options.display.width = 1000
-    pd.options.display.max_columns = 1000
