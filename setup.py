@@ -36,27 +36,27 @@ setup(
         "addfips~=0.3.1",
         "catalystcoop.dbfread~=3.0",
         "coloredlogs~=15.0",
+        "dask>=2021.8,<2023.0",
         "datapackage~=1.11",  # Transition datastore to use frictionless.
         # "email-validator>=1.0.3",  # pydantic[email] dependency
-        "fsspec>=2021.7,<2023.0",
-        "gcsfs>=2021.7,<2023.0",
+        "fsspec>=2021.7,<2023.0",  # For caching datastore on GCS
+        "gcsfs>=2021.7,<2023.0",  # For caching datastore on GCS
         "geopandas>=0.9,<0.11",
         "jinja2>=2,<4",
-        "matplotlib~=3.0",  # Should make this optional with a "viz" extras
+        "matplotlib>=3.3,<4",  # Should make this optional with a "viz" extras
         "networkx>=2.2,<3",
         "numpy>=1.18.5,<2",
-        "pandas>=1.3,!=1.3.3,<1.5",  # IntCastingNaNError on v1.3.3 in unit tests
-        "prefect[viz, gcp]>=0.15,<1.1",
+        "pandas>=1.4,<1.5",
         "pyarrow>=5,<8",
-        "pydantic[email]~=1.7",
+        "pydantic[email]>=1.7,<2",
         "python-snappy>=0.6,<1",
         "pygeos>=0.10,<0.13",
         "pyyaml>=5,<7",
         "scikit-learn>=1.0,<1.1",
         "scipy>=1.6,<1.9",
         "sqlalchemy>=1.4,<2",
-        "timezonefinder~=5.0",
-        "xlsxwriter~=3.0",
+        "timezonefinder>=5,<6",
+        "xlsxwriter>=3,<4",
     ],
     extras_require={
         "dev": [
@@ -107,10 +107,12 @@ setup(
         "Development Status :: 3 - Alpha",
         "Environment :: Console",
         "Intended Audience :: Science/Research",
-        "Intended Audience :: Developers",
         "License :: OSI Approved :: MIT License",
         "Natural Language :: English",
         "Operating System :: OS Independent",
+        "Programming Language :: Python",
+        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3 :: Only",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",

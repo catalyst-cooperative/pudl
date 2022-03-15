@@ -1,0 +1,60 @@
+technology_description,prime_mover_code,ferc_acct_name
+All Other,ST,Steam
+All Other,CA,Other
+All Other,OT,Other
+All Other,GT,Other
+Batteries,BA,Other
+Coal Integrated Gasification Combined Cycle,CT,Steam
+Coal Integrated Gasification Combined Cycle,CA,Steam
+Conventional Hydroelectric,HY,Hydraulic
+Conventional Steam Coal,ST,Steam
+Flywheels,FW,Other
+Geothermal,ST,Other
+Geothermal,BT,Other
+Hydroelectric Pumped Storage,PS,Hydraulic
+Landfill Gas,IC,Other
+Landfill Gas,GT,Other
+Landfill Gas,FC,Other
+Landfill Gas,CT,Other
+Landfill Gas,CA,Other
+Landfill Gas,ST,Steam
+Municipal Solid Waste,ST,Other
+Natural Gas Fired Combined Cycle,CT,Other
+Natural Gas Fired Combined Cycle,CA,Other
+Natural Gas Fired Combined Cycle,CS,Other
+Natural Gas Fired Combined Cycle,CC,Other
+Natural Gas Fired Combustion Turbine,GT,Other
+Natural Gas Internal Combustion Engine,IC,Other
+Natural Gas Steam Turbine,ST,Steam
+Natural Gas with Compressed Air Storage,CE,Steam
+Nuclear,ST,Nuclear
+Offshore Wind Turbine,WS,Other
+Onshore Wind Turbine,WT,Other
+Other Gases,ST,Steam
+Other Gases,OT,Other
+Other Gases,GT,Other
+Other Gases,IC,Other
+Other Gases,CA,Other
+Other Gases,CT,Other
+Other Natural Gas,FC,Other
+Other Natural Gas,OT,Other
+Other Waste Biomass,IC,Other
+Other Waste Biomass,ST,Steam
+Other Waste Biomass,GT,Other
+Other Waste Biomass,FC,Other
+Other Waste Biomass,CA,Other
+Other Waste Biomass,CT,Other
+Petroleum Coke,ST,Steam
+Petroleum Coke,OT,Other
+Petroleum Coke,CA,Other
+Petroleum Liquids,IC,Other
+Petroleum Liquids,GT,Other
+Petroleum Liquids,ST,Steam
+Petroleum Liquids,CT,Other
+Petroleum Liquids,CA,Other
+Solar Photovoltaic,PV,Other
+Solar Thermal with Energy Storage,CP,Other
+Solar Thermal without Energy Storage,ST,Steam
+Solar Thermal without Energy Storage,OT,Other
+Wood/Wood Waste Biomass,ST,Steam
+Wood/Wood Waste Biomass,OT,Other

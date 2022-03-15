@@ -707,46 +707,70 @@ class PudlTabl(object):
                 end_date=self.end_date)
         return self._dfs['own_eia860']
 
-    def gf_eia923(self, update=False):
+    def gf_eia923(self, update: bool = False) -> pd.DataFrame:
         """
-        Pull EIA 923 generation and fuel consumption data.
+        Pull combined nuclear and non-nuclear generation fuel data.
 
         Args:
-            update (bool): If true, re-calculate the output dataframe, even if
+            update: If True, re-calculate the output dataframe, even if
                 a cached version exists.
 
         Returns:
-            pandas.DataFrame: a denormalized table for interactive use.
+            A denormalized table for interactive use.
 
         """
         if update or self._dfs['gf_eia923'] is None:
-            self._dfs['gf_eia923'] = pudl.output.eia923.generation_fuel_eia923(
-                self.pudl_engine,
-                freq=self.freq,
-                start_date=self.start_date,
-                end_date=self.end_date)
+            self._dfs['gf_eia923'] = (
+                pudl.output.eia923.generation_fuel_all_eia923(
+                    gf=self.gf_nonuclear_eia923(update=update),
+                    gfn=self.gf_nuclear_eia923(update=update),
+                )
+            )
         return self._dfs['gf_eia923']
 
-    def gfn_eia923(self, update=False):
+    def gf_nonuclear_eia923(self, update: bool = False) -> pd.DataFrame:
         """
-        Pull EIA 923 generation and fuel consumption data for nuclear units.
+        Pull non-nuclear EIA 923 generation and fuel consumption data.
 
         Args:
-            update (bool): If true, re-calculate the output dataframe, even if
+            update: If True, re-calculate the output dataframe, even if
                 a cached version exists.
 
         Returns:
-            pandas.DataFrame: a denormalized table for interactive use.
+            A denormalized table for interactive use.
 
         """
-        if update or self._dfs['gfn_eia923'] is None:
-            self._dfs['gfn_eia923'] = pudl.output.eia923.generation_fuel_eia923(
+        if update or self._dfs['gf_nonuclear_eia923'] is None:
+            self._dfs['gf_nonuclear_eia923'] = pudl.output.eia923.generation_fuel_eia923(
                 self.pudl_engine,
                 freq=self.freq,
                 start_date=self.start_date,
                 end_date=self.end_date,
-                nuclear=True)
-        return self._dfs['gfn_eia923']
+                nuclear=False,
+            )
+        return self._dfs['gf_nonuclear_eia923']
+
+    def gf_nuclear_eia923(self, update: bool = False) -> pd.DataFrame:
+        """
+        Pull EIA 923 generation and fuel consumption data for nuclear units.
+
+        Args:
+            update: If True, re-calculate the output dataframe, even if a cached version
+                exists.
+
+        Returns:
+            A denormalized table for interactive use.
+
+        """
+        if update or self._dfs['gf_nuclear_eia923'] is None:
+            self._dfs['gf_nuclear_eia923'] = pudl.output.eia923.generation_fuel_eia923(
+                self.pudl_engine,
+                freq=self.freq,
+                start_date=self.start_date,
+                end_date=self.end_date,
+                nuclear=True
+            )
+        return self._dfs['gf_nuclear_eia923']
 
     def frc_eia923(self, update=False):
         """
@@ -819,9 +843,11 @@ class PudlTabl(object):
                     'to the generator level instead of using the less complete '
                     'generation_eia923 table.'
                 )
-                self._dfs['gen_eia923'] = self.gen_allocated_eia923(update=update)
+                self._dfs['gen_eia923'] = self.gen_allocated_eia923(
+                    update=update)
             else:
-                self._dfs['gen_eia923'] = self.gen_original_eia923(update=update)
+                self._dfs['gen_eia923'] = self.gen_original_eia923(
+                    update=update)
         return self._dfs['gen_eia923']
 
     def gen_original_eia923(self, update=False):
@@ -1124,6 +1150,73 @@ class PudlTabl(object):
                 all_gens=all_gens,
             )
         return self._dfs['mcoe']
+
+    def gens_mega_eia(self, update=False):
+        """
+        Generate and return a generators table with ownership integrated.
+
+        Args:
+            update (boolean): If true, re-calculate the output dataframe, even
+                if a cached version exists. Defualt is `False`.
+
+        Returns:
+            pandas.DataFrame: a table of all of the generators with identifying
+            columns and data columns, sliced by ownership which makes
+            "total" and "owned" records for each generator owner. The "owned"
+            records have the generator's data scaled to the ownership percentage
+            (e.g. if a 100 MW generator has a 75% stake owner and a 25% stake
+            owner, this will result in two "owned" records with 75 MW and 25
+            MW). The "total" records correspond to the full plant for every
+            owner (e.g. using the same 2-owner 100 MW generator as above, each
+            owner will have a records with 100 MW).
+
+        Raises:
+            AssertionError: If the frequency of the pudl_out object is not 'AS'
+        """
+        if update or self._dfs['gens_mega_eia'] is None:
+            if self.freq != 'AS':
+                raise AssertionError(
+                    "The frequency of the pudl_out object must be `AS` for the "
+                    f"plant-parts table and we got {self.freq}"
+                )
+            self._dfs['gens_mega_eia'] = (
+                pudl.analysis.plant_parts_eia.MakeMegaGenTbl().execute(
+                    mcoe=self.mcoe(all_gens=True),
+                    own_eia860=self.own_eia860()
+                )
+            )
+        return self._dfs['gens_mega_eia']
+
+    def plant_parts_eia(self, update=False, update_gens_mega=False, update_true_gran=False):
+        """
+        Generate and return master plant-parts EIA.
+
+        Args:
+            update (boolean): If true, re-calculate the output dataframe, even
+                if a cached version exists. Defualt is `False`.
+            deep_update (boolean): If True, re-calculate both the output
+                dataframe and its inputs. Defualt is `False`.
+        """
+        # generate the true_gran table
+        # the true_gran table is really not helpful on it's own
+        if update_true_gran or self._dfs['true_grans_eia'] is None:
+            self._dfs['true_grans_eia'] = (
+                pudl.analysis.plant_parts_eia.LabelTrueGranularities()
+                .execute(self.gens_mega_eia())
+            )
+
+        update_any = any([update, update_gens_mega, update_true_gran])
+        if update_any or self._dfs['plant_parts_eia'] is None:
+            # make the plant-parts objects
+            self.parts_compiler = pudl.analysis.plant_parts_eia.MakePlantParts(
+                self)
+            # make the plant-parts df!
+            self._dfs['plant_parts_eia'] = self.parts_compiler.execute(
+                gens_mega=self.gens_mega_eia(update=update_gens_mega),
+                true_grans=self._dfs['true_grans_eia']
+            )
+
+        return self._dfs['plant_parts_eia']
 
 
 def get_table_meta(pudl_engine):
