@@ -78,109 +78,111 @@ logger = logging.getLogger(__name__)
 ########################################################################################
 # If these columns are nan, we can assume it is either a header row or isn't useful
 NAN_COLS = [
-    'construction_year',
-    'net_generation_mwh',
-    'total_cost_of_plant',
-    'capex_per_mw',
-    'opex_total',
-    'opex_fuel',
-    'opex_maintenance',
-    'fuel_cost_per_mmbtu'
+    "construction_year",
+    "net_generation_mwh",
+    "total_cost_of_plant",
+    "capex_per_mw",
+    "opex_total",
+    "opex_fuel",
+    "opex_maintenance",
+    "fuel_cost_per_mmbtu",
 ]
 
 # If a potential header column has these strings, it's probably a useful header
 HEADER_STRINGS = [
-    'hydro',
-    'hyrdo',
-    'internal',
-    'wind',
-    'solar',
-    'gas',
-    'diesel',
-    'diesal',
-    'steam',
-    'other',
-    'combustion',
-    'combustine',
-    'fuel cell',
-    'hydraulic',
-    'waste',
-    'landfill',
-    'photovoltaic',
-    'nuclear',
-    'oil',
-    'renewable',
-    'facilities',
-    'combined cycle'
+    "hydro",
+    "hyrdo",
+    "internal",
+    "wind",
+    "solar",
+    "gas",
+    "diesel",
+    "diesal",
+    "steam",
+    "other",
+    "combustion",
+    "combustine",
+    "fuel cell",
+    "hydraulic",
+    "waste",
+    "landfill",
+    "photovoltaic",
+    "nuclear",
+    "oil",
+    "renewable",
+    "facilities",
+    "combined cycle",
 ]
 
 # If a potential header has these strings, it is not a header...
 EXCLUDE = [
-    '#',
-    r'\*',
-    'pg',
-    'solargenix',
-    'solargennix',
-    r'\@',
-    'rockton',
-    'albany steam'
+    "#",
+    r"\*",
+    "pg",
+    "solargenix",
+    "solargennix",
+    r"\@",
+    "rockton",
+    "albany steam",
 ]
 
 # ...unless it also has one of these strings
 EXCEPTIONS = [
-    'hydro plants: licensed proj. no.',
-    'hydro license no.',
-    'hydro: license no.',
-    'hydro plants: licensed proj no.'
+    "hydro plants: licensed proj. no.",
+    "hydro license no.",
+    "hydro: license no.",
+    "hydro plants: licensed proj no.",
 ]
 
 # plants with two fuel names in the plant_name...not currently used
-TWO_FUEL_NAMES_DICT = {
-    'las vegas solar': 'solar_pv',
-    'solar centaur': 'gas_turbine'
-}
+TWO_FUEL_NAMES_DICT = {"las vegas solar": "solar_pv", "solar centaur": "gas_turbine"}
 
 # What we will rename the headers once we remove them as rows
 NEW_HEADER_LABELS = {
-    'hydroelectric': ['hydro', 'hyrdo'],
-    'internal combustion': ['internal', 'interal', 'international combustion'],
-    'combustion turbine': ['combustion turbine'],
-    'combined cycle': ['combined cycle'],
-    'gas turbine': ['gas'],
-    'petroleum liquids': ['oil', 'diesel', 'diesal'],
-    'solar': ['solar', 'photovoltaic'],
-    'wind': ['wind'],
-    'geothermal': ['geothermal'],
-    'waste': ['waste', 'landfill'],
-    'steam': ['steam'],
-    'nuclear': ['nuclear'],
-    'fuel_cell': ['fuel cell'],
-    'other': ['other'],
-    'renewables': ['renewables'],
+    "hydroelectric": ["hydro", "hyrdo"],
+    "internal combustion": ["internal", "interal", "international combustion"],
+    "combustion turbine": ["combustion turbine"],
+    "combined cycle": ["combined cycle"],
+    "gas turbine": ["gas"],
+    "petroleum liquids": ["oil", "diesel", "diesal"],
+    "solar": ["solar", "photovoltaic"],
+    "wind": ["wind"],
+    "geothermal": ["geothermal"],
+    "waste": ["waste", "landfill"],
+    "steam": ["steam"],
+    "nuclear": ["nuclear"],
+    "fuel_cell": ["fuel cell"],
+    "other": ["other"],
+    "renewables": ["renewables"],
 }
 
 # Header names that match the one's that zane used in his manual mapping (so we can
 # compare processes)
 ZANE_HEADER_LABELS = {
-    'solar_pv': ['solar', 'photovoltaic'],
-    'wind': ['wind'],
-    'hydro': ['hydro', 'hyrdo'],
-    'internal_combustion': ['internal', 'interal', 'international combustion', ],
-    'combustion_turbine': ['combustion turbine', 'combustine turbine'],
-    'combined_cycle': ['combined cycle'],
-    'diesel_turbine': ['oil', 'diesel', 'diesal'],
-    'gas_turbine': ['gas'],
-    'geothermal': ['geothermal'],
-    'waste_heat': ['waste', 'landfill'],
-    'steam_heat': ['steam'],
-    'nuclear': ['nuclear'],
-    'fuel_cell': ['fuel cell'],
+    "solar_pv": ["solar", "photovoltaic"],
+    "wind": ["wind"],
+    "hydro": ["hydro", "hyrdo"],
+    "internal_combustion": [
+        "internal",
+        "interal",
+        "international combustion",
+    ],
+    "combustion_turbine": ["combustion turbine", "combustine turbine"],
+    "combined_cycle": ["combined cycle"],
+    "diesel_turbine": ["oil", "diesel", "diesal"],
+    "gas_turbine": ["gas"],
+    "geothermal": ["geothermal"],
+    "waste_heat": ["waste", "landfill"],
+    "steam_heat": ["steam"],
+    "nuclear": ["nuclear"],
+    "fuel_cell": ["fuel cell"],
 }
 
 
 ########################################################################################
 # Helper Functions
 ########################################################################################
+
 
 def expand_dict(dic):
     """Change format of header_labels.
@@ -215,45 +217,59 @@ def show_removed_rows(df_pre_drop, df_post_drop, cols, message, view=None):
             want to see
 
     """
-    assert view in ['info', 'value_counts'], 'view must be info or value_counts'
-    removed_rows = (
-        pd.concat([df_pre_drop, df_post_drop])
-        .drop_duplicates(keep=False))
-    if view == 'info':
-        print('\n', message, '\n')
-        print(removed_rows[cols].info(), '\n')
-    if view == 'value_counts':
-        print('\n', message, '\n\n', removed_rows[cols].value_counts(), '\n')
+    assert view in ["info", "value_counts"], "view must be info or value_counts"
+    removed_rows = pd.concat([df_pre_drop, df_post_drop]).drop_duplicates(keep=False)
+    if view == "info":
+        print("\n", message, "\n")
+        print(removed_rows[cols].info(), "\n")
+    if view == "value_counts":
+        print("\n", message, "\n\n", removed_rows[cols].value_counts(), "\n")
 
 
 ########################################################################################
 # Analysis Functions
 ########################################################################################
 
+
 def remove_bad_rows_sg(sg_df, show_removed=False):
     """Test."""
     # Remove utilities with all NAN rows because these won't contain anything meaningful
     logger.debug("Removing rows where an entire utility has reported NA in key columns")
-    sg_clean1 = (
-        sg_df.groupby('utility_id_ferc1')
-        .filter(lambda x: ~x[NAN_COLS].isna().all().all()))
+    sg_clean1 = sg_df.groupby("utility_id_ferc1").filter(
+        lambda x: ~x[NAN_COLS].isna().all().all()
+    )
 
     # Remove rows with three or more dashes for plant name
     logger.debug("Removing rows with three or more dashes for plant name")
-    sg_clean2 = sg_clean1[~sg_clean1['plant_name_ferc1'].str.contains('---')].copy()
+    sg_clean2 = sg_clean1[~sg_clean1["plant_name_ferc1"].str.contains("---")].copy()
 
     # Remove rows with NA for plant names
     logger.debug("Removing rows with NA for plant name")
-    na_names_list = ['', 'none', 'na', 'n/a', 'not applicable']
-    sg_clean3 = sg_clean2[~sg_clean2['plant_name_ferc1'].isin(na_names_list)].copy()
+    na_names_list = ["", "none", "na", "n/a", "not applicable"]
+    sg_clean3 = sg_clean2[~sg_clean2["plant_name_ferc1"].isin(na_names_list)].copy()
 
     if show_removed:
-        show_removed_rows(sg_df, sg_clean1, NAN_COLS,
-                          'REMOVED NAN VALUES:', view='info',)
-        show_removed_rows(sg_clean1, sg_clean2, ['plant_name_ferc1'],
-                          'REMOVED DASH NAMES:', view='value_counts')
-        show_removed_rows(sg_clean2, sg_clean3, ['plant_name_ferc1'],
-                          'REMOVED NA NAMES:', view='value_counts')
+        show_removed_rows(
+            sg_df,
+            sg_clean1,
+            NAN_COLS,
+            "REMOVED NAN VALUES:",
+            view="info",
+        )
+        show_removed_rows(
+            sg_clean1,
+            sg_clean2,
+            ["plant_name_ferc1"],
+            "REMOVED DASH NAMES:",
+            view="value_counts",
+        )
+        show_removed_rows(
+            sg_clean2,
+            sg_clean3,
+            ["plant_name_ferc1"],
+            "REMOVED NA NAMES:",
+            view="value_counts",
+        )
 
     return sg_clean3
 
@@ -261,7 +277,7 @@ def remove_bad_rows_sg(sg_df, show_removed=False):
 def _label_total_rows_sg(sg_df):
     """Label total rows."""
     logger.info("Labeling total rows")
-    sg_df.loc[sg_df['plant_name_ferc1'].str.contains('total'), 'row_type'] = 'total'
+    sg_df.loc[sg_df["plant_name_ferc1"].str.contains("total"), "row_type"] = "total"
 
     # Now deal with some outliers:
 
@@ -270,11 +286,14 @@ def _label_total_rows_sg(sg_df):
     # the total row values that are reported as notes to correct row above and nulls the
     # values in the notes row.
     num_cols = [
-        x for x in sg_df.select_dtypes(include=['float', 'Int64']).columns.tolist()
-        if x not in ['utility_id_ferc1', 'report_year', 'ferc_license_id']]
+        x
+        for x in sg_df.select_dtypes(include=["float", "Int64"]).columns.tolist()
+        if x not in ["utility_id_ferc1", "report_year", "ferc_license_id"]
+    ]
     bad_row = sg_df[
-        (sg_df['plant_name_ferc1'].str.contains("amounts are for"))
-        & (sg_df['capacity_mw'] > 0)]
+        (sg_df["plant_name_ferc1"].str.contains("amounts are for"))
+        & (sg_df["capacity_mw"] > 0)
+    ]
 
     # assert len(bad_row) == 1, f'found more bad rows than expected: {len(bad_row)}'
 
@@ -298,15 +317,15 @@ def _label_header_rows_sg(sg_df):
     logger.info("Labeling header rows")
 
     # Label possible header rows (based on the nan cols specified above)
-    sg_df.loc[sg_df.filter(NAN_COLS).isna().all(1), 'possible_header'] = True
+    sg_df.loc[sg_df.filter(NAN_COLS).isna().all(1), "possible_header"] = True
 
     # Label good header rows (based on whether they contain key strings)
-    possible_header = sg_df['possible_header']
-    good_header = sg_df['plant_name_ferc1'].str.contains('|'.join(HEADER_STRINGS))
-    not_bad = ~sg_df['plant_name_ferc1'].str.contains('|'.join(EXCLUDE))
+    possible_header = sg_df["possible_header"]
+    good_header = sg_df["plant_name_ferc1"].str.contains("|".join(HEADER_STRINGS))
+    not_bad = ~sg_df["plant_name_ferc1"].str.contains("|".join(EXCLUDE))
 
-    sg_df.loc[possible_header & good_header & not_bad, 'row_type'] = 'header'
-    sg_df.loc[sg_df['plant_name_ferc1'].isin(EXCEPTIONS), 'row_type'] = 'header'
+    sg_df.loc[possible_header & good_header & not_bad, "row_type"] = "header"
+    sg_df.loc[sg_df["plant_name_ferc1"].isin(EXCEPTIONS), "row_type"] = "header"
 
     return sg_df
 
@@ -339,13 +358,16 @@ def _find_header_clumps_sg(group, group_col):
 
     """
     # Make groups based on consecutive sections where the group_col is alike.
-    header_groups = group.groupby((group[f'{group_col}'].shift() !=
-                                   group[f'{group_col}']).cumsum(), as_index=False)
+    header_groups = group.groupby(
+        (group[f"{group_col}"].shift() != group[f"{group_col}"]).cumsum(),
+        as_index=False,
+    )
 
     # Identify the first (and only) group_col value for each group and count how many
     # rows are in each group.
     header_groups_df = header_groups.agg(
-        header=(f'{group_col}', 'first'), val_count=(f'{group_col}', 'count'))
+        header=(f"{group_col}", "first"), val_count=(f"{group_col}", "count")
+    )
 
     return header_groups, header_groups_df
 
@@ -370,7 +392,7 @@ def _label_notes_rows_sg(sg_df):
     """
     logger.info("Labeling notes rows")
 
-    util_groups = sg_df.groupby(['utility_id_ferc1', 'report_year'])
+    util_groups = sg_df.groupby(["utility_id_ferc1", "report_year"])
 
     def _label_notes_rows_group(util_year_group):
         """Find an label notes rows in a designated sub-group of the sg table.
@@ -395,16 +417,18 @@ def _label_notes_rows_sg(sg_df):
         # adjecent, equal values for a given column. Ex: a column of True, True, True,
         # False, True, False, False, will appear as True, False, True, False with value
         # counts for each
-        group, header_count = _find_header_clumps_sg(
-            util_year_group, 'possible_header')
+        group, header_count = _find_header_clumps_sg(util_year_group, "possible_header")
 
         # Used later to enable exceptions
         max_df_val = util_year_group.index.max()
 
         # Create a list of the index values that comprise each of the header clumps
         # It's only considered a clump if it is greater than 1.
-        idx_list = list(header_count[
-            (header_count['header']) & (header_count['val_count'] > 1)].index)
+        idx_list = list(
+            header_count[
+                (header_count["header"]) & (header_count["val_count"] > 1)
+            ].index
+        )
 
         # If the last row is not a clump (i.e. there is just one value) but it is a
         # header (i.e. has nan values) then also include it in the index values to be
@@ -412,7 +436,7 @@ def _label_notes_rows_sg(sg_df):
         # there is no chance it can actually be a useful header because there are no
         # value rows below it.
         last_row = header_count.tail(1)
-        if (last_row['header'].item()) & (last_row['val_count'].item() == 1):
+        if (last_row["header"].item()) & (last_row["val_count"].item() == 1):
             idx_list = idx_list + list(last_row.index)
         # If there are any clumped/end headers:
         if idx_list:
@@ -428,17 +452,20 @@ def _label_notes_rows_sg(sg_df):
                 is_middle_clump = group.groups[idx + 1].max() < max_df_val
                 is_good_header = (
                     util_year_group.loc[
-                        util_year_group.index.isin(group.groups[idx + 1])]
-                    .tail(1)['plant_name_ferc1']
-                    .str.contains('|'.join(HEADER_STRINGS))
-                    .all())
+                        util_year_group.index.isin(group.groups[idx + 1])
+                    ]
+                    .tail(1)["plant_name_ferc1"]
+                    .str.contains("|".join(HEADER_STRINGS))
+                    .all()
+                )
                 # If the clump is in the middle and the last row looks like a header,
                 # then drop it from the idx range
                 if is_middle_clump & is_good_header:
                     idx_range = [x for x in idx_range if x != idx_range.max()]
                 # Label the clump as a note
                 util_year_group.loc[
-                    util_year_group.index.isin(idx_range), 'row_type'] = 'note'
+                    util_year_group.index.isin(idx_range), "row_type"
+                ] = "note"
 
         return util_year_group
 
@@ -451,15 +478,16 @@ def label_row_type_sg(sg_df):
     This function coordinates all of the row labeling functions.
     """
     # Add some new helper columns
-    sg_df.insert(3, 'possible_header', False)
-    sg_df.insert(3, 'row_type', np.nan)
+    sg_df.insert(3, "possible_header", False)
+    sg_df.insert(3, "row_type", np.nan)
 
     # Label the row types
     sg_labeled = (
         sg_df.pipe(_label_header_rows_sg)
         .pipe(_label_total_rows_sg)
         .pipe(_label_notes_rows_sg)
-        .drop(columns=['possible_header']))
+        .drop(columns=["possible_header"])
+    )
 
     return sg_labeled
 
@@ -483,28 +511,33 @@ def _map_header_fuels_sg(sg_df, show_unmapped_headers=False):
     logger.info("Mapping header fuels to relevant rows")
 
     # Clean header names
-    sg_df['header_clean'] = np.nan
+    sg_df["header_clean"] = np.nan
     d = expand_dict(ZANE_HEADER_LABELS)
 
     # Map cleaned header names onto df in a new column
-    sg_df.loc[sg_df['row_type'] == 'header', 'header_clean'] = (
-        sg_df['plant_name_ferc1']
-        .str.extract(fr"({'|'.join(d.keys())})", expand=False)
-        .map(d))
+    sg_df.loc[sg_df["row_type"] == "header", "header_clean"] = (
+        sg_df["plant_name_ferc1"]
+        .str.extract(rf"({'|'.join(d.keys())})", expand=False)
+        .map(d)
+    )
 
     # Make groups based on utility, year, and header
     header_groups = sg_df.groupby(
-        ['utility_id_ferc1', 'report_year', (sg_df['row_type'] == 'header').cumsum()])
+        ["utility_id_ferc1", "report_year", (sg_df["row_type"] == "header").cumsum()]
+    )
 
     # Forward fill based on headers
-    sg_df['plant_type_2'] = np.nan
-    sg_df.loc[sg_df['row_type'] != 'note', 'plant_type_2'] = (
-        header_groups.header_clean.ffill())
+    sg_df["plant_type_2"] = np.nan
+    sg_df.loc[
+        sg_df["row_type"] != "note", "plant_type_2"
+    ] = header_groups.header_clean.ffill()
 
     if show_unmapped_headers:
-        print(sg_df[(sg_df['row_type'] == 'header')
-                    & (sg_df['header_clean'].isna())]
-              .plant_name_ferc1.value_counts())
+        print(
+            sg_df[
+                (sg_df["row_type"] == "header") & (sg_df["header_clean"].isna())
+            ].plant_name_ferc1.value_counts()
+        )
 
     return sg_df
 
@@ -523,16 +556,17 @@ def _map_plant_name_fuels_sg(sg_df, show_labels=False):
 
     # Check for non-labeled hydro in name
     non_labeled_hydro = sg_df[
-        (sg_df['plant_type_2'] != 'hydro')
-        & (sg_df['plant_type'] != 'hydro')
-        & (sg_df['row_type'] != 'note')
-        & (sg_df['plant_name_ferc1'].str.contains('hydro'))]
+        (sg_df["plant_type_2"] != "hydro")
+        & (sg_df["plant_type"] != "hydro")
+        & (sg_df["row_type"] != "note")
+        & (sg_df["plant_name_ferc1"].str.contains("hydro"))
+    ]
 
     if not non_labeled_hydro.empty:
         # Fill in hydro
-        not_note = sg_df['row_type'] != 'note'
-        contains_hydro = sg_df['plant_name_ferc1'].str.contains('hydro')
-        sg_df.loc[not_note & contains_hydro, 'plant_type_2'] = 'hydro'
+        not_note = sg_df["row_type"] != "note"
+        contains_hydro = sg_df["plant_name_ferc1"].str.contains("hydro")
+        sg_df.loc[not_note & contains_hydro, "plant_type_2"] = "hydro"
 
     if show_labels:
         print(non_labeled_hydro.plant_name_ferc1.value_counts())
@@ -545,7 +579,8 @@ def improve_plant_type_sg(sg_df):
     sg_fuel = (
         sg_df.pipe(_map_header_fuels_sg)
         .pipe(_map_plant_name_fuels_sg)
-        .drop(columns=['header_clean']))
+        .drop(columns=["header_clean"])
+    )
 
     return sg_fuel
 
@@ -564,47 +599,44 @@ def extract_ferc_license_sg(sg_df):
 
     # Extract all numbers greater than 2 digits from plant_name_ferc1 and put then in a
     # new column as integers. Rename manually collected FERC id column to reflect that.
-    sg_lic = (
-        sg_df.rename(columns={'ferc_license_id': 'ferc_license_manual'})
-        .assign(
-            ferc_license_id=lambda x: (
-                x.plant_name_ferc1.str.extract(r'(\d{3,})')
-                .astype('float').astype('Int64')),
-            ferc_license_manual=lambda x: x.ferc_license_manual.astype('Int64')))
+    sg_lic = sg_df.rename(columns={"ferc_license_id": "ferc_license_manual"}).assign(
+        ferc_license_id=lambda x: (
+            x.plant_name_ferc1.str.extract(r"(\d{3,})").astype("float").astype("Int64")
+        ),
+        ferc_license_manual=lambda x: x.ferc_license_manual.astype("Int64"),
+    )
 
     # Not all of these 3+ digit numbers are FERC licenses. Some are dates, dollar
     # amounts, page numbers, or numbers of wind turbines. These next distinctions help
     # to weed out the non-licesnse values and keep the good ones.
-    obvious_license = (
-        sg_lic.plant_name_ferc1
-        .str.contains(r'no\.|license|ferc|project', regex=True))
-    not_license = (
-        sg_lic.plant_name_ferc1
-        .str.contains(r'page|pg|\$|wind|nonutility|units|surrendered', regex=True))
-    exceptions = (
-        sg_lic.plant_name_ferc1
-        .str.contains(
-            r'tomahawk|otter rapids|wausau|alexander|hooksett|north umpqua', regex=True))
-    year_vs_num = (sg_lic['ferc_license_id'] > 1900) & (
-        sg_lic['ferc_license_id'] < 2050)
-    not_hydro = ~sg_lic.plant_type.isin(['hydro', np.nan])  # figure this one out.....
+    obvious_license = sg_lic.plant_name_ferc1.str.contains(
+        r"no\.|license|ferc|project", regex=True
+    )
+    not_license = sg_lic.plant_name_ferc1.str.contains(
+        r"page|pg|\$|wind|nonutility|units|surrendered", regex=True
+    )
+    exceptions = sg_lic.plant_name_ferc1.str.contains(
+        r"tomahawk|otter rapids|wausau|alexander|hooksett|north umpqua", regex=True
+    )
+    year_vs_num = (sg_lic["ferc_license_id"] > 1900) & (
+        sg_lic["ferc_license_id"] < 2050
+    )
+    not_hydro = ~sg_lic.plant_type.isin(["hydro", np.nan])  # figure this one out.....
     extracted_license = sg_lic.ferc_license_id.notna()
 
     # Replace all the non-license numbers with nan
     # figure this one out.....
-    sg_lic.loc[extracted_license & not_hydro, 'ferc_license_id'] = pd.NA
+    sg_lic.loc[extracted_license & not_hydro, "ferc_license_id"] = pd.NA
     extracted_license = sg_lic.ferc_license_id.notna()  # reset
-    sg_lic.loc[extracted_license & not_license, 'ferc_license_id'] = pd.NA
+    sg_lic.loc[extracted_license & not_license, "ferc_license_id"] = pd.NA
     extracted_license = sg_lic.ferc_license_id.notna()  # reset
     sg_lic.loc[
-        extracted_license
-        & year_vs_num
-        & ~obvious_license
-        & ~exceptions, 'ferc_license_id'
+        extracted_license & year_vs_num & ~obvious_license & ~exceptions,
+        "ferc_license_id",
     ] = pd.NA
 
     # figure out how not to do this twice....
-    sg_lic['ferc_license_id'] = sg_lic.ferc_license_id.astype('Int64')
+    sg_lic["ferc_license_id"] = sg_lic.ferc_license_id.astype("Int64")
 
     return sg_lic
 
@@ -633,8 +665,8 @@ def associate_notes_with_values_sg(sg_df):
         utility-year groups.
 
         """
-        regular_row = group['row_type'].isna()
-        has_note = group['row_type'] == 'note'
+        regular_row = group["row_type"].isna()
+        has_note = group["row_type"] == "note"
         # has_footnote = group.plant_name_ferc1.str.contains(footnote_pattern)
 
         # Shorten execution time by only looking at groups with discernable footnotes
@@ -643,34 +675,36 @@ def associate_notes_with_values_sg(sg_df):
             # Make a df that combines notes and ferc license with the same footnote
             footnote_df = (
                 group[has_note]
-                .groupby('footnote')
-                .agg({'plant_name_ferc1': ', '.join,
-                      'ferc_license_id': 'first'})
-                .rename(columns={'plant_name_ferc1': 'notes'}))
+                .groupby("footnote")
+                .agg({"plant_name_ferc1": ", ".join, "ferc_license_id": "first"})
+                .rename(columns={"plant_name_ferc1": "notes"})
+            )
 
             # Map these new license and note values onto the original df
             updated_ferc_license_col = group.footnote.map(
-                footnote_df['ferc_license_id'])
-            notes_col = group.footnote.map(footnote_df['notes'])
+                footnote_df["ferc_license_id"]
+            )
+            notes_col = group.footnote.map(footnote_df["notes"])
             # We update the ferc lic col because some were already there from the
             # plant name extraction. However, we want to override with the notes
             # ferc licenses because they are more likely to be accurate.
             group.ferc_license_id.update(updated_ferc_license_col)
-            group.loc[regular_row, 'notes'] = notes_col
+            group.loc[regular_row, "notes"] = notes_col
 
         return group
 
-    footnote_pattern = r'(\(\d?[a-z]?[A-Z]?\))'
-    sg_df['notes'] = pd.NA
-    sg_df['footnote'] = pd.NA
+    footnote_pattern = r"(\(\d?[a-z]?[A-Z]?\))"
+    sg_df["notes"] = pd.NA
+    sg_df["footnote"] = pd.NA
     # Create new footnote column
-    sg_df.loc[:, 'footnote'] = sg_df.plant_name_ferc1.str.extract(
-        footnote_pattern, expand=False)
+    sg_df.loc[:, "footnote"] = sg_df.plant_name_ferc1.str.extract(
+        footnote_pattern, expand=False
+    )
     # Group by year and utility and run footnote association
-    groups = sg_df.groupby(['report_year', 'utility_id_ferc1'])
+    groups = sg_df.groupby(["report_year", "utility_id_ferc1"])
     sg_notes = groups.apply(lambda x: associate_notes_with_values_group(x))
     # Remove footnote column now that rows are associated
-    sg_notes = sg_notes.drop(columns=['footnote'])
+    sg_notes = sg_notes.drop(columns=["footnote"])
 
     return sg_notes
 
@@ -682,11 +716,10 @@ def remove_header_note_rows_sg(sg_df):
     and labeled particular rows.
 
     """
-    clean_sg = sg_df[
-        (sg_df['row_type'] != 'header') &
-        (sg_df['row_type'] != 'note')]
+    clean_sg = sg_df[(sg_df["row_type"] != "header") & (sg_df["row_type"] != "note")]
 
     return clean_sg
+
 
 ########################################################################################
 # **************************************************************************************
@@ -707,20 +740,19 @@ def clean_small_gens(sg_df, keep_totals=True):
             duplicate information.
 
     """
-    logger.info('CLEANING SMALL GENS TABLE...')
+    logger.info("CLEANING SMALL GENS TABLE...")
     sg_clean = (
-        sg_df.dropna(subset=['plant_name_ferc1'])
+        sg_df.dropna(subset=["plant_name_ferc1"])
         .pipe(remove_bad_rows_sg)
         .pipe(label_row_type_sg)
         .pipe(improve_plant_type_sg)
         .pipe(extract_ferc_license_sg)
         .pipe(associate_notes_with_values_sg)
-        .pipe(remove_header_note_rows_sg))
+        .pipe(remove_header_note_rows_sg)
+    )
 
     if not keep_totals:
-        logger.info('Removing known total rows')
-        sg_clean = (
-            sg_clean[sg_clean['row_type'].isna()]
-            .drop(columns=['row_type']))
+        logger.info("Removing known total rows")
+        sg_clean = sg_clean[sg_clean["row_type"].isna()].drop(columns=["row_type"])
 
     return sg_clean
