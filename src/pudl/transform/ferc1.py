@@ -1847,8 +1847,8 @@ def _plants_steam_assign_plant_ids(ferc1_steam_df, ferc1_fuel_df):
     edges_df = pd.concat([edges_df, orphan_df], sort=True)
 
     # Use the data frame we've compiled to create a graph
-    G = nx.from_pandas_edgelist(
-        edges_df, source="source", target="target"  # noqa: N806
+    G = nx.from_pandas_edgelist(  # noqa: N806
+        edges_df, source="source", target="target"
     )
     # Find the connected components of the graph
     ferc1_plants = (G.subgraph(c) for c in nx.connected_components(G))

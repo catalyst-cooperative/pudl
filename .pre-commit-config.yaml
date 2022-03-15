@@ -40,7 +40,7 @@ repos:
       - pydocstyle
       - flake8-builtins
       - mccabe
-      - naming
+      - pep8-naming
       - pycodestyle
       - pyflakes
       - flake8-rst-docstrings
