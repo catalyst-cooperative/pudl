@@ -35,28 +35,23 @@ def fix_up_dates(df, plant_utc_offset):
         and the op_date and op_hour columns removed.
 
     """
-    df = (
-        df.assign(
-            # Convert op_date and op_hour from string and integer to datetime:
-            # Note that doing this conversion, rather than reading the CSV with
-            # `parse_dates=True`, is >10x faster.
-            op_datetime_naive=lambda x:
-            # Read the date as a datetime, so all the dates are midnight
-            # Mark as UTC (it's not true yet, but it will be once we add
-            # utc_offsets, and it's easier to do here)
-            pd.to_datetime(x.op_date, format=r"%m-%d-%Y",
-                           exact=True, cache=True, utc=True) +
-            # Add the hour
-            pd.to_timedelta(x.op_hour, unit="h")
+    df = df.assign(
+        # Convert op_date and op_hour from string and integer to datetime:
+        # Note that doing this conversion, rather than reading the CSV with
+        # `parse_dates=True`, is >10x faster.
+        # Read the date as a datetime, so all the dates are midnight
+        # Mark as UTC (it's not true yet, but it will be once we add
+        # utc_offsets, and it's easier to do here)
+        op_datetime_naive=lambda x: pd.to_datetime(
+            x.op_date, format=r"%m-%d-%Y", exact=True, cache=True, utc=True
         )
-        .merge(plant_utc_offset, how="left", on="plant_id_eia")
-    )
+        + pd.to_timedelta(x.op_hour, unit="h")  # Add the hour
+    ).merge(plant_utc_offset, how="left", on="plant_id_eia")
 
     # Some of the timezones in the plants_entity_eia table may be missing,
     # but none of the CEMS plants should be.
     if not df["utc_offset"].notna().all():
-        missing_plants = df.loc[df["utc_offset"].isna(),
-                                "plant_id_eia"].unique()
+        missing_plants = df.loc[df["utc_offset"].isna(), "plant_id_eia"].unique()
         raise ValueError(
             f"utc_offset should never be missing for CEMS plants, but was "
             f"missing for these: {str(list(missing_plants))}"
@@ -89,17 +84,12 @@ def _load_plant_utc_offset(pudl_engine):
             "No plants_entity_eia available in the PUDL DB! Have you run the ETL? "
             f"Trying to access PUDL DB: {pudl_engine}"
         )
-    timezones = (
-        pd.read_sql(
-            sql="SELECT plant_id_eia, timezone FROM plants_entity_eia",
-            con=pudl_engine
-        )
-        .dropna()
-    )
+    timezones = pd.read_sql(
+        sql="SELECT plant_id_eia, timezone FROM plants_entity_eia", con=pudl_engine
+    ).dropna()
     jan1 = datetime.datetime(2011, 1, 1)  # year doesn't matter
-    timezones["utc_offset"] = (
-        timezones["timezone"]
-        .apply(lambda tz: pytz.timezone(tz).localize(jan1).utcoffset())
+    timezones["utc_offset"] = timezones["timezone"].apply(
+        lambda tz: pytz.timezone(tz).localize(jan1).utcoffset()
     )
     del timezones["timezone"]
     return timezones
@@ -228,10 +218,7 @@ def transform(epacems_raw_dfs, pudl_engine):
     plant_utc_offset = _load_plant_utc_offset(pudl_engine)
     for raw_df in epacems_raw_dfs:
         transformed_df = (
-            raw_df.fillna({
-                "gross_load_mw": 0.0,
-                "heat_content_mmbtu": 0.0
-            })
+            raw_df.fillna({"gross_load_mw": 0.0, "heat_content_mmbtu": 0.0})
             .pipe(harmonize_eia_epa_orispl)
             .pipe(fix_up_dates, plant_utc_offset=plant_utc_offset)
             .pipe(add_facility_id_unit_id_epa)

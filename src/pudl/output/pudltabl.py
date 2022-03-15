@@ -62,7 +62,7 @@ class PudlTabl(object):
         roll_fuel_cost: bool = False,
         fill_net_gen: bool = False,
         fill_tech_desc: bool = True,
-        unit_ids: bool = False
+        unit_ids: bool = False,
     ):
         """
         Initialize the PUDL output object.
@@ -156,12 +156,11 @@ class PudlTabl(object):
             pandas.DataFrame: a denormalized table for interactive use.
 
         """
-        if update or self._dfs['pu_eia'] is None:
-            self._dfs['pu_eia'] = pudl.output.eia860.plants_utils_eia860(
-                self.pudl_engine,
-                start_date=self.start_date,
-                end_date=self.end_date)
-        return self._dfs['pu_eia']
+        if update or self._dfs["pu_eia"] is None:
+            self._dfs["pu_eia"] = pudl.output.eia860.plants_utils_eia860(
+                self.pudl_engine, start_date=self.start_date, end_date=self.end_date
+            )
+        return self._dfs["pu_eia"]
 
     def pu_ferc1(self, update=False):
         """
@@ -175,18 +174,17 @@ class PudlTabl(object):
             pandas.DataFrame: a denormalized table for interactive use.
 
         """
-        if update or self._dfs['pu_ferc1'] is None:
-            self._dfs['pu_ferc1'] = pudl.output.ferc1.plants_utils_ferc1(
-                self.pudl_engine)
-        return self._dfs['pu_ferc1']
+        if update or self._dfs["pu_ferc1"] is None:
+            self._dfs["pu_ferc1"] = pudl.output.ferc1.plants_utils_ferc1(
+                self.pudl_engine
+            )
+        return self._dfs["pu_ferc1"]
 
     ###########################################################################
     # EIA 861 Interim Outputs (awaiting full DB integration)
     ###########################################################################
     def etl_eia861(
-        self,
-        eia861_settings: Eia861Settings = Eia861Settings(),
-        update: bool = False
+        self, eia861_settings: Eia861Settings = Eia861Settings(), update: bool = False
     ):
         """
         A single function that runs the temporary EIA 861 ETL and sets all DFs.
@@ -224,269 +222,211 @@ class PudlTabl(object):
         if update or self._dfs["balancing_authority_eia861"] is None:
             logger.warning("Running the interim EIA 861 ETL process!")
 
-            eia861_raw_dfs = (
-                pudl.extract.eia861.Extractor(self.ds)
-                .extract(settings=eia861_settings)
+            eia861_raw_dfs = pudl.extract.eia861.Extractor(self.ds).extract(
+                settings=eia861_settings
             )
             self._dfs.update(
-                pudl.transform.eia861.transform(eia861_raw_dfs, eia861_settings))
+                pudl.transform.eia861.transform(eia861_raw_dfs, eia861_settings)
+            )
 
     def advanced_metering_infrastructure_eia861(
-        self,
-        eia861_settings: Eia861Settings = Eia861Settings(),
-        update=False
+        self, eia861_settings: Eia861Settings = Eia861Settings(), update=False
     ):
         """An interim EIA 861 output function."""
         self.etl_eia861(update=update)
         return self._dfs["advanced_metering_infrastructure_eia861"]
 
     def balancing_authority_eia861(
-        self,
-        eia861_settings: Eia861Settings = Eia861Settings(),
-        update=False
+        self, eia861_settings: Eia861Settings = Eia861Settings(), update=False
     ):
         """An interim EIA 861 output function."""
         self.etl_eia861(update=update)
         return self._dfs["balancing_authority_eia861"]
 
     def balancing_authority_assn_eia861(
-        self,
-        eia861_settings: Eia861Settings = Eia861Settings(),
-        update=False
+        self, eia861_settings: Eia861Settings = Eia861Settings(), update=False
     ):
         """An interim EIA 861 output function."""
         self.etl_eia861(update=update)
         return self._dfs["balancing_authority_assn_eia861"]
 
     def demand_response_eia861(
-        self,
-        eia861_settings: Eia861Settings = Eia861Settings(),
-        update=False
+        self, eia861_settings: Eia861Settings = Eia861Settings(), update=False
     ):
         """An interim EIA 861 output function."""
         self.etl_eia861(update=update)
         return self._dfs["demand_response_eia861"]
 
     def demand_response_water_heater_eia861(
-        self,
-        eia861_settings: Eia861Settings = Eia861Settings(),
-        update=False
+        self, eia861_settings: Eia861Settings = Eia861Settings(), update=False
     ):
         """An interim EIA 861 output function."""
         self.etl_eia861(update=update)
         return self._dfs["demand_response_water_heater_eia861"]
 
     def demand_side_management_sales_eia861(
-        self,
-        eia861_settings: Eia861Settings = Eia861Settings(),
-        update=False
+        self, eia861_settings: Eia861Settings = Eia861Settings(), update=False
     ):
         """An interim EIA 861 output function."""
         self.etl_eia861(update=update)
         return self._dfs["demand_side_management_sales_eia861"]
 
     def demand_side_management_ee_dr_eia861(
-        self,
-        eia861_settings: Eia861Settings = Eia861Settings(),
-        update=False
+        self, eia861_settings: Eia861Settings = Eia861Settings(), update=False
     ):
         """An interim EIA 861 output function."""
         self.etl_eia861(update=update)
         return self._dfs["demand_side_management_ee_dr_eia861"]
 
     def demand_side_management_misc_eia861(
-        self,
-        eia861_settings: Eia861Settings = Eia861Settings(),
-        update=False
+        self, eia861_settings: Eia861Settings = Eia861Settings(), update=False
     ):
         """An interim EIA 861 output function."""
         self.etl_eia861(update=update)
         return self._dfs["demand_side_management_misc_eia861"]
 
     def distributed_generation_tech_eia861(
-        self,
-        eia861_settings: Eia861Settings = Eia861Settings(),
-        update=False
+        self, eia861_settings: Eia861Settings = Eia861Settings(), update=False
     ):
         """An interim EIA 861 output function."""
         self.etl_eia861(update=update)
         return self._dfs["distributed_generation_tech_eia861"]
 
     def distributed_generation_fuel_eia861(
-        self,
-        eia861_settings: Eia861Settings = Eia861Settings(),
-        update=False
+        self, eia861_settings: Eia861Settings = Eia861Settings(), update=False
     ):
         """An interim EIA 861 output function."""
         self.etl_eia861(update=update)
         return self._dfs["distributed_generation_fuel_eia861"]
 
     def distributed_generation_misc_eia861(
-        self,
-        eia861_settings: Eia861Settings = Eia861Settings(),
-        update=False
+        self, eia861_settings: Eia861Settings = Eia861Settings(), update=False
     ):
         """An interim EIA 861 output function."""
         self.etl_eia861(update=update)
         return self._dfs["distributed_generation_misc_eia861"]
 
     def distribution_systems_eia861(
-        self,
-        eia861_settings: Eia861Settings = Eia861Settings(),
-        update=False
+        self, eia861_settings: Eia861Settings = Eia861Settings(), update=False
     ):
         """An interim EIA 861 output function."""
         self.etl_eia861(update=update)
         return self._dfs["distribution_systems_eia861"]
 
     def dynamic_pricing_eia861(
-        self,
-        eia861_settings: Eia861Settings = Eia861Settings(),
-        update=False
+        self, eia861_settings: Eia861Settings = Eia861Settings(), update=False
     ):
         """An interim EIA 861 output function."""
         self.etl_eia861(update=update)
         return self._dfs["dynamic_pricing_eia861"]
 
     def energy_efficiency_eia861(
-        self,
-        eia861_settings: Eia861Settings = Eia861Settings(),
-        update=False
+        self, eia861_settings: Eia861Settings = Eia861Settings(), update=False
     ):
         """An interim EIA 861 output function."""
         self.etl_eia861(update=update)
         return self._dfs["energy_efficiency_eia861"]
 
     def green_pricing_eia861(
-        self,
-        eia861_settings: Eia861Settings = Eia861Settings(),
-        update=False
+        self, eia861_settings: Eia861Settings = Eia861Settings(), update=False
     ):
         """An interim EIA 861 output function."""
         self.etl_eia861(update=update)
         return self._dfs["green_pricing_eia861"]
 
     def mergers_eia861(
-        self,
-        eia861_settings: Eia861Settings = Eia861Settings(),
-        update=False
+        self, eia861_settings: Eia861Settings = Eia861Settings(), update=False
     ):
         """An interim EIA 861 output function."""
         self.etl_eia861(update=update)
         return self._dfs["mergers_eia861"]
 
     def net_metering_customer_fuel_class_eia861(
-        self,
-        eia861_settings: Eia861Settings = Eia861Settings(),
-        update=False
+        self, eia861_settings: Eia861Settings = Eia861Settings(), update=False
     ):
         """An interim EIA 861 output function."""
         self.etl_eia861(update=update)
         return self._dfs["net_metering_customer_fuel_class_eia861"]
 
     def net_metering_misc_eia861(
-        self,
-        eia861_settings: Eia861Settings = Eia861Settings(),
-        update=False
+        self, eia861_settings: Eia861Settings = Eia861Settings(), update=False
     ):
         """An interim EIA 861 output function."""
         self.etl_eia861(update=update)
         return self._dfs["net_metering_misc_eia861"]
 
     def non_net_metering_customer_fuel_class_eia861(
-        self,
-        eia861_settings: Eia861Settings = Eia861Settings(),
-        update=False
+        self, eia861_settings: Eia861Settings = Eia861Settings(), update=False
     ):
         """An interim EIA 861 output function."""
         self.etl_eia861(update=update)
         return self._dfs["non_net_metering_customer_fuel_class_eia861"]
 
     def non_net_metering_misc_eia861(
-        self,
-        eia861_settings: Eia861Settings = Eia861Settings(),
-        update=False
+        self, eia861_settings: Eia861Settings = Eia861Settings(), update=False
     ):
         """An interim EIA 861 output function."""
         self.etl_eia861(update=update)
         return self._dfs["non_net_metering_misc_eia861"]
 
     def operational_data_revenue_eia861(
-        self,
-        eia861_settings: Eia861Settings = Eia861Settings(),
-        update=False
+        self, eia861_settings: Eia861Settings = Eia861Settings(), update=False
     ):
         """An interim EIA 861 output function."""
         self.etl_eia861(update=update)
         return self._dfs["operational_data_revenue_eia861"]
 
     def operational_data_misc_eia861(
-        self,
-        eia861_settings: Eia861Settings = Eia861Settings(),
-        update=False
+        self, eia861_settings: Eia861Settings = Eia861Settings(), update=False
     ):
         """An interim EIA 861 output function."""
         self.etl_eia861(update=update)
         return self._dfs["operational_data_misc_eia861"]
 
     def reliability_eia861(
-        self,
-        eia861_settings: Eia861Settings = Eia861Settings(),
-        update=False
+        self, eia861_settings: Eia861Settings = Eia861Settings(), update=False
     ):
         """An interim EIA 861 output function."""
         self.etl_eia861(update=update)
         return self._dfs["reliability_eia861"]
 
     def sales_eia861(
-        self,
-        eia861_settings: Eia861Settings = Eia861Settings(),
-        update=False
+        self, eia861_settings: Eia861Settings = Eia861Settings(), update=False
     ):
         """An interim EIA 861 output function."""
         self.etl_eia861(update=update)
         return self._dfs["sales_eia861"]
 
     def service_territory_eia861(
-        self,
-        eia861_settings: Eia861Settings = Eia861Settings(),
-        update=False
+        self, eia861_settings: Eia861Settings = Eia861Settings(), update=False
     ):
         """An interim EIA 861 output function."""
         self.etl_eia861(update=update)
         return self._dfs["service_territory_eia861"]
 
     def utility_assn_eia861(
-        self,
-        eia861_settings: Eia861Settings = Eia861Settings(),
-        update=False
+        self, eia861_settings: Eia861Settings = Eia861Settings(), update=False
     ):
         """An interim EIA 861 output function."""
         self.etl_eia861(update=update)
         return self._dfs["utility_assn_eia861"]
 
     def utility_data_nerc_eia861(
-        self,
-        eia861_settings: Eia861Settings = Eia861Settings(),
-        update=False
+        self, eia861_settings: Eia861Settings = Eia861Settings(), update=False
     ):
         """An interim EIA 861 output function."""
         self.etl_eia861(update=update)
         return self._dfs["utility_data_nerc_eia861"]
 
     def utility_data_rto_eia861(
-        self,
-        eia861_settings: Eia861Settings = Eia861Settings(),
-        update=False
+        self, eia861_settings: Eia861Settings = Eia861Settings(), update=False
     ):
         """An interim EIA 861 output function."""
         self.etl_eia861(update=update)
         return self._dfs["utility_data_rto_eia861"]
 
     def utility_data_misc_eia861(
-        self,
-        eia861_settings: Eia861Settings = Eia861Settings(),
-        update=False
+        self, eia861_settings: Eia861Settings = Eia861Settings(), update=False
     ):
         """An interim EIA 861 output function."""
         self.etl_eia861(update=update)
@@ -498,7 +438,7 @@ class PudlTabl(object):
     def etl_ferc714(
         self,
         ferc714_settings: Ferc714Settings = Ferc714Settings(),
-        update: bool = False
+        update: bool = False,
     ):
         """
         A single function that runs the temporary FERC 714 ETL and sets all DFs.
@@ -537,9 +477,11 @@ class PudlTabl(object):
         if update or self._dfs["respondent_id_ferc714"] is None:
             logger.warning("Running the interim FERC 714 ETL process!")
             ferc714_raw_dfs = pudl.extract.ferc714.extract(
-                ferc714_settings=ferc714_settings, ds=self.ds)
+                ferc714_settings=ferc714_settings, ds=self.ds
+            )
             ferc714_tfr_dfs = pudl.transform.ferc714.transform(
-                ferc714_raw_dfs, ferc714_settings=ferc714_settings)
+                ferc714_raw_dfs, ferc714_settings=ferc714_settings
+            )
             self._dfs.update(ferc714_tfr_dfs)
 
     def respondent_id_ferc714(self, update=False):
@@ -618,12 +560,11 @@ class PudlTabl(object):
             pandas.DataFrame: a denormalized table for interactive use.
 
         """
-        if update or self._dfs['utils_eia860'] is None:
-            self._dfs['utils_eia860'] = pudl.output.eia860.utilities_eia860(
-                self.pudl_engine,
-                start_date=self.start_date,
-                end_date=self.end_date)
-        return self._dfs['utils_eia860']
+        if update or self._dfs["utils_eia860"] is None:
+            self._dfs["utils_eia860"] = pudl.output.eia860.utilities_eia860(
+                self.pudl_engine, start_date=self.start_date, end_date=self.end_date
+            )
+        return self._dfs["utils_eia860"]
 
     def bga_eia860(self, update=False):
         """
@@ -637,12 +578,11 @@ class PudlTabl(object):
             pandas.DataFrame: a denormalized table for interactive use.
 
         """
-        if update or self._dfs['bga_eia860'] is None:
-            self._dfs['bga_eia860'] = pudl.output.eia860.boiler_generator_assn_eia860(
-                self.pudl_engine,
-                start_date=self.start_date,
-                end_date=self.end_date)
-        return self._dfs['bga_eia860']
+        if update or self._dfs["bga_eia860"] is None:
+            self._dfs["bga_eia860"] = pudl.output.eia860.boiler_generator_assn_eia860(
+                self.pudl_engine, start_date=self.start_date, end_date=self.end_date
+            )
+        return self._dfs["bga_eia860"]
 
     def plants_eia860(self, update=False):
         """
@@ -656,12 +596,13 @@ class PudlTabl(object):
             pandas.DataFrame: a denormalized table for interactive use.
 
         """
-        if update or self._dfs['plants_eia860'] is None:
-            self._dfs['plants_eia860'] = pudl.output.eia860.plants_eia860(
+        if update or self._dfs["plants_eia860"] is None:
+            self._dfs["plants_eia860"] = pudl.output.eia860.plants_eia860(
                 self.pudl_engine,
                 start_date=self.start_date,
-                end_date=self.end_date,)
-        return self._dfs['plants_eia860']
+                end_date=self.end_date,
+            )
+        return self._dfs["plants_eia860"]
 
     def gens_eia860(self, update=False):
         """
@@ -678,15 +619,16 @@ class PudlTabl(object):
             pandas.DataFrame: a denormalized table for interactive use.
 
         """
-        if update or self._dfs['gens_eia860'] is None:
-            self._dfs['gens_eia860'] = pudl.output.eia860.generators_eia860(
+        if update or self._dfs["gens_eia860"] is None:
+            self._dfs["gens_eia860"] = pudl.output.eia860.generators_eia860(
                 self.pudl_engine,
                 start_date=self.start_date,
                 end_date=self.end_date,
                 unit_ids=self.unit_ids,
-                fill_tech_desc=self.fill_tech_desc)
+                fill_tech_desc=self.fill_tech_desc,
+            )
 
-        return self._dfs['gens_eia860']
+        return self._dfs["gens_eia860"]
 
     def own_eia860(self, update=False):
         """
@@ -700,12 +642,11 @@ class PudlTabl(object):
             pandas.DataFrame: a denormalized table for interactive use.
 
         """
-        if update or self._dfs['own_eia860'] is None:
-            self._dfs['own_eia860'] = pudl.output.eia860.ownership_eia860(
-                self.pudl_engine,
-                start_date=self.start_date,
-                end_date=self.end_date)
-        return self._dfs['own_eia860']
+        if update or self._dfs["own_eia860"] is None:
+            self._dfs["own_eia860"] = pudl.output.eia860.ownership_eia860(
+                self.pudl_engine, start_date=self.start_date, end_date=self.end_date
+            )
+        return self._dfs["own_eia860"]
 
     def gf_eia923(self, update: bool = False) -> pd.DataFrame:
         """
@@ -719,14 +660,12 @@ class PudlTabl(object):
             A denormalized table for interactive use.
 
         """
-        if update or self._dfs['gf_eia923'] is None:
-            self._dfs['gf_eia923'] = (
-                pudl.output.eia923.generation_fuel_all_eia923(
-                    gf=self.gf_nonuclear_eia923(update=update),
-                    gfn=self.gf_nuclear_eia923(update=update),
-                )
+        if update or self._dfs["gf_eia923"] is None:
+            self._dfs["gf_eia923"] = pudl.output.eia923.generation_fuel_all_eia923(
+                gf=self.gf_nonuclear_eia923(update=update),
+                gfn=self.gf_nuclear_eia923(update=update),
             )
-        return self._dfs['gf_eia923']
+        return self._dfs["gf_eia923"]
 
     def gf_nonuclear_eia923(self, update: bool = False) -> pd.DataFrame:
         """
@@ -740,15 +679,17 @@ class PudlTabl(object):
             A denormalized table for interactive use.
 
         """
-        if update or self._dfs['gf_nonuclear_eia923'] is None:
-            self._dfs['gf_nonuclear_eia923'] = pudl.output.eia923.generation_fuel_eia923(
+        if update or self._dfs["gf_nonuclear_eia923"] is None:
+            self._dfs[
+                "gf_nonuclear_eia923"
+            ] = pudl.output.eia923.generation_fuel_eia923(
                 self.pudl_engine,
                 freq=self.freq,
                 start_date=self.start_date,
                 end_date=self.end_date,
                 nuclear=False,
             )
-        return self._dfs['gf_nonuclear_eia923']
+        return self._dfs["gf_nonuclear_eia923"]
 
     def gf_nuclear_eia923(self, update: bool = False) -> pd.DataFrame:
         """
@@ -762,15 +703,15 @@ class PudlTabl(object):
             A denormalized table for interactive use.
 
         """
-        if update or self._dfs['gf_nuclear_eia923'] is None:
-            self._dfs['gf_nuclear_eia923'] = pudl.output.eia923.generation_fuel_eia923(
+        if update or self._dfs["gf_nuclear_eia923"] is None:
+            self._dfs["gf_nuclear_eia923"] = pudl.output.eia923.generation_fuel_eia923(
                 self.pudl_engine,
                 freq=self.freq,
                 start_date=self.start_date,
                 end_date=self.end_date,
-                nuclear=True
+                nuclear=True,
             )
-        return self._dfs['gf_nuclear_eia923']
+        return self._dfs["gf_nuclear_eia923"]
 
     def frc_eia923(self, update=False):
         """
@@ -784,15 +725,16 @@ class PudlTabl(object):
             pandas.DataFrame: a denormalized table for interactive use.
 
         """
-        if update or self._dfs['frc_eia923'] is None:
-            self._dfs['frc_eia923'] = pudl.output.eia923.fuel_receipts_costs_eia923(
+        if update or self._dfs["frc_eia923"] is None:
+            self._dfs["frc_eia923"] = pudl.output.eia923.fuel_receipts_costs_eia923(
                 self.pudl_engine,
                 freq=self.freq,
                 start_date=self.start_date,
                 end_date=self.end_date,
                 fill=self.fill_fuel_cost,
-                roll=self.roll_fuel_cost)
-        return self._dfs['frc_eia923']
+                roll=self.roll_fuel_cost,
+            )
+        return self._dfs["frc_eia923"]
 
     def bf_eia923(self, update=False):
         """
@@ -806,13 +748,14 @@ class PudlTabl(object):
             pandas.DataFrame: a denormalized table for interactive use.
 
         """
-        if update or self._dfs['bf_eia923'] is None:
-            self._dfs['bf_eia923'] = pudl.output.eia923.boiler_fuel_eia923(
+        if update or self._dfs["bf_eia923"] is None:
+            self._dfs["bf_eia923"] = pudl.output.eia923.boiler_fuel_eia923(
                 self.pudl_engine,
                 freq=self.freq,
                 start_date=self.start_date,
-                end_date=self.end_date)
-        return self._dfs['bf_eia923']
+                end_date=self.end_date,
+            )
+        return self._dfs["bf_eia923"]
 
     def gen_eia923(self, update=False):
         """
@@ -836,37 +779,36 @@ class PudlTabl(object):
             pandas.DataFrame: a denormalized table for interactive use.
 
         """
-        if update or self._dfs['gen_eia923'] is None:
+        if update or self._dfs["gen_eia923"] is None:
             if self.fill_net_gen:
                 logger.info(
-                    'Allocating net generation from the generation_fuel_eia923 '
-                    'to the generator level instead of using the less complete '
-                    'generation_eia923 table.'
+                    "Allocating net generation from the generation_fuel_eia923 "
+                    "to the generator level instead of using the less complete "
+                    "generation_eia923 table."
                 )
-                self._dfs['gen_eia923'] = self.gen_allocated_eia923(
-                    update=update)
+                self._dfs["gen_eia923"] = self.gen_allocated_eia923(update=update)
             else:
-                self._dfs['gen_eia923'] = self.gen_original_eia923(
-                    update=update)
-        return self._dfs['gen_eia923']
+                self._dfs["gen_eia923"] = self.gen_original_eia923(update=update)
+        return self._dfs["gen_eia923"]
 
     def gen_original_eia923(self, update=False):
         """Pull the original EIA 923 net generation data by generator."""
-        if update or self._dfs['gen_og_eia923'] is None:
-            self._dfs['gen_og_eia923'] = pudl.output.eia923.generation_eia923(
+        if update or self._dfs["gen_og_eia923"] is None:
+            self._dfs["gen_og_eia923"] = pudl.output.eia923.generation_eia923(
                 self.pudl_engine,
                 freq=self.freq,
                 start_date=self.start_date,
-                end_date=self.end_date)
-        return self._dfs['gen_og_eia923']
+                end_date=self.end_date,
+            )
+        return self._dfs["gen_og_eia923"]
 
     def gen_allocated_eia923(self, update=False):
         """Net generation from gen fuel table allocated to generators."""
-        if update or self._dfs['gen_allocated_eia923'] is None:
-            self._dfs['gen_allocated_eia923'] = (
-                pudl.analysis.allocate_net_gen.allocate_gen_fuel_by_gen(self)
-            )
-        return self._dfs['gen_allocated_eia923']
+        if update or self._dfs["gen_allocated_eia923"] is None:
+            self._dfs[
+                "gen_allocated_eia923"
+            ] = pudl.analysis.allocate_net_gen.allocate_gen_fuel_by_gen(self)
+        return self._dfs["gen_allocated_eia923"]
 
     ###########################################################################
     # FERC FORM 1 OUTPUTS
@@ -883,10 +825,11 @@ class PudlTabl(object):
             pandas.DataFrame: a denormalized table for interactive use.
 
         """
-        if update or self._dfs['plants_steam_ferc1'] is None:
-            self._dfs['plants_steam_ferc1'] = pudl.output.ferc1.plants_steam_ferc1(
-                self.pudl_engine)
-        return self._dfs['plants_steam_ferc1']
+        if update or self._dfs["plants_steam_ferc1"] is None:
+            self._dfs["plants_steam_ferc1"] = pudl.output.ferc1.plants_steam_ferc1(
+                self.pudl_engine
+            )
+        return self._dfs["plants_steam_ferc1"]
 
     def fuel_ferc1(self, update=False):
         """
@@ -900,10 +843,9 @@ class PudlTabl(object):
             pandas.DataFrame: a denormalized table for interactive use.
 
         """
-        if update or self._dfs['fuel_ferc1'] is None:
-            self._dfs['fuel_ferc1'] = pudl.output.ferc1.fuel_ferc1(
-                self.pudl_engine)
-        return self._dfs['fuel_ferc1']
+        if update or self._dfs["fuel_ferc1"] is None:
+            self._dfs["fuel_ferc1"] = pudl.output.ferc1.fuel_ferc1(self.pudl_engine)
+        return self._dfs["fuel_ferc1"]
 
     def fbp_ferc1(self, update=False):
         """
@@ -917,10 +859,11 @@ class PudlTabl(object):
             pandas.DataFrame: a denormalized table for interactive use.
 
         """
-        if update or self._dfs['fbp_ferc1'] is None:
-            self._dfs['fbp_ferc1'] = pudl.output.ferc1.fuel_by_plant_ferc1(
-                self.pudl_engine)
-        return self._dfs['fbp_ferc1']
+        if update or self._dfs["fbp_ferc1"] is None:
+            self._dfs["fbp_ferc1"] = pudl.output.ferc1.fuel_by_plant_ferc1(
+                self.pudl_engine
+            )
+        return self._dfs["fbp_ferc1"]
 
     def plants_small_ferc1(self, update=False):
         """
@@ -934,10 +877,11 @@ class PudlTabl(object):
             pandas.DataFrame: a denormalized table for interactive use.
 
         """
-        if update or self._dfs['plants_small_ferc1'] is None:
-            self._dfs['plants_small_ferc1'] = pudl.output.ferc1.plants_small_ferc1(
-                self.pudl_engine)
-        return self._dfs['plants_small_ferc1']
+        if update or self._dfs["plants_small_ferc1"] is None:
+            self._dfs["plants_small_ferc1"] = pudl.output.ferc1.plants_small_ferc1(
+                self.pudl_engine
+            )
+        return self._dfs["plants_small_ferc1"]
 
     def plants_hydro_ferc1(self, update=False):
         """
@@ -951,10 +895,11 @@ class PudlTabl(object):
             pandas.DataFrame: a denormalized table for interactive use.
 
         """
-        if update or self._dfs['plants_hydro_ferc1'] is None:
-            self._dfs['plants_hydro_ferc1'] = pudl.output.ferc1.plants_hydro_ferc1(
-                self.pudl_engine)
-        return self._dfs['plants_hydro_ferc1']
+        if update or self._dfs["plants_hydro_ferc1"] is None:
+            self._dfs["plants_hydro_ferc1"] = pudl.output.ferc1.plants_hydro_ferc1(
+                self.pudl_engine
+            )
+        return self._dfs["plants_hydro_ferc1"]
 
     def plants_pumped_storage_ferc1(self, update=False):
         """
@@ -968,10 +913,11 @@ class PudlTabl(object):
             pandas.DataFrame: a denormalized table for interactive use.
 
         """
-        if update or self._dfs['plants_pumped_storage_ferc1'] is None:
-            self._dfs['plants_pumped_storage_ferc1'] = pudl.output.ferc1.plants_pumped_storage_ferc1(
-                self.pudl_engine)
-        return self._dfs['plants_pumped_storage_ferc1']
+        if update or self._dfs["plants_pumped_storage_ferc1"] is None:
+            self._dfs[
+                "plants_pumped_storage_ferc1"
+            ] = pudl.output.ferc1.plants_pumped_storage_ferc1(self.pudl_engine)
+        return self._dfs["plants_pumped_storage_ferc1"]
 
     def purchased_power_ferc1(self, update=False):
         """
@@ -985,10 +931,11 @@ class PudlTabl(object):
             pandas.DataFrame: a denormalized table for interactive use.
 
         """
-        if update or self._dfs['purchased_power_ferc1'] is None:
-            self._dfs['purchased_power_ferc1'] = pudl.output.ferc1.purchased_power_ferc1(
-                self.pudl_engine)
-        return self._dfs['purchased_power_ferc1']
+        if update or self._dfs["purchased_power_ferc1"] is None:
+            self._dfs[
+                "purchased_power_ferc1"
+            ] = pudl.output.ferc1.purchased_power_ferc1(self.pudl_engine)
+        return self._dfs["purchased_power_ferc1"]
 
     def plant_in_service_ferc1(self, update=False):
         """
@@ -1002,10 +949,11 @@ class PudlTabl(object):
             pandas.DataFrame: a denormalized table for interactive use.
 
         """
-        if update or self._dfs['plant_in_service_ferc1'] is None:
-            self._dfs['plant_in_service_ferc1'] = pudl.output.ferc1.plant_in_service_ferc1(
-                self.pudl_engine)
-        return self._dfs['plant_in_service_ferc1']
+        if update or self._dfs["plant_in_service_ferc1"] is None:
+            self._dfs[
+                "plant_in_service_ferc1"
+            ] = pudl.output.ferc1.plant_in_service_ferc1(self.pudl_engine)
+        return self._dfs["plant_in_service_ferc1"]
 
     def all_plants_ferc1(self, update=False):
         """
@@ -1019,10 +967,11 @@ class PudlTabl(object):
             pandas.DataFrame: a denormalized table for interactive use.
 
         """
-        if update or self._dfs['all_plants_ferc1'] is None:
-            self._dfs['all_plants_ferc1'] = pudl.output.ferc1.all_plants_ferc1(
-                self.pudl_engine)
-        return self._dfs['all_plants_ferc1']
+        if update or self._dfs["all_plants_ferc1"] is None:
+            self._dfs["all_plants_ferc1"] = pudl.output.ferc1.all_plants_ferc1(
+                self.pudl_engine
+            )
+        return self._dfs["all_plants_ferc1"]
 
     ###########################################################################
     # EIA MCOE OUTPUTS
@@ -1039,9 +988,9 @@ class PudlTabl(object):
             pandas.DataFrame: a denormalized table for interactive use.
 
         """
-        if update or self._dfs['hr_by_gen'] is None:
-            self._dfs['hr_by_gen'] = pudl.analysis.mcoe.heat_rate_by_gen(self)
-        return self._dfs['hr_by_gen']
+        if update or self._dfs["hr_by_gen"] is None:
+            self._dfs["hr_by_gen"] = pudl.analysis.mcoe.heat_rate_by_gen(self)
+        return self._dfs["hr_by_gen"]
 
     def hr_by_unit(self, update=False):
         """
@@ -1055,11 +1004,9 @@ class PudlTabl(object):
             pandas.DataFrame: a denormalized table for interactive use.
 
         """
-        if update or self._dfs['hr_by_unit'] is None:
-            self._dfs['hr_by_unit'] = (
-                pudl.analysis.mcoe.heat_rate_by_unit(self)
-            )
-        return self._dfs['hr_by_unit']
+        if update or self._dfs["hr_by_unit"] is None:
+            self._dfs["hr_by_unit"] = pudl.analysis.mcoe.heat_rate_by_unit(self)
+        return self._dfs["hr_by_unit"]
 
     def fuel_cost(self, update=False):
         """
@@ -1073,9 +1020,9 @@ class PudlTabl(object):
             pandas.DataFrame: a denormalized table for interactive use.
 
         """
-        if update or self._dfs['fuel_cost'] is None:
-            self._dfs['fuel_cost'] = pudl.analysis.mcoe.fuel_cost(self)
-        return self._dfs['fuel_cost']
+        if update or self._dfs["fuel_cost"] is None:
+            self._dfs["fuel_cost"] = pudl.analysis.mcoe.fuel_cost(self)
+        return self._dfs["fuel_cost"]
 
     def capacity_factor(self, update=False, min_cap_fact=None, max_cap_fact=None):
         """
@@ -1089,12 +1036,11 @@ class PudlTabl(object):
             pandas.DataFrame: a denormalized table for interactive use.
 
         """
-        if update or self._dfs['capacity_factor'] is None:
-            self._dfs['capacity_factor'] = (
-                pudl.analysis.mcoe.capacity_factor(
-                    self, min_cap_fact=min_cap_fact, max_cap_fact=max_cap_fact)
+        if update or self._dfs["capacity_factor"] is None:
+            self._dfs["capacity_factor"] = pudl.analysis.mcoe.capacity_factor(
+                self, min_cap_fact=min_cap_fact, max_cap_fact=max_cap_fact
             )
-        return self._dfs['capacity_factor']
+        return self._dfs["capacity_factor"]
 
     def mcoe(
         self,
@@ -1140,8 +1086,8 @@ class PudlTabl(object):
             including fuel costs per MWh.
 
         """
-        if update or self._dfs['mcoe'] is None:
-            self._dfs['mcoe'] = pudl.analysis.mcoe.mcoe(
+        if update or self._dfs["mcoe"] is None:
+            self._dfs["mcoe"] = pudl.analysis.mcoe.mcoe(
                 self,
                 min_heat_rate=min_heat_rate,
                 min_fuel_cost_per_mwh=min_fuel_cost_per_mwh,
@@ -1149,7 +1095,7 @@ class PudlTabl(object):
                 max_cap_fact=max_cap_fact,
                 all_gens=all_gens,
             )
-        return self._dfs['mcoe']
+        return self._dfs["mcoe"]
 
     def gens_mega_eia(self, update=False):
         """
@@ -1173,21 +1119,22 @@ class PudlTabl(object):
         Raises:
             AssertionError: If the frequency of the pudl_out object is not 'AS'
         """
-        if update or self._dfs['gens_mega_eia'] is None:
-            if self.freq != 'AS':
+        if update or self._dfs["gens_mega_eia"] is None:
+            if self.freq != "AS":
                 raise AssertionError(
                     "The frequency of the pudl_out object must be `AS` for the "
                     f"plant-parts table and we got {self.freq}"
                 )
-            self._dfs['gens_mega_eia'] = (
-                pudl.analysis.plant_parts_eia.MakeMegaGenTbl().execute(
-                    mcoe=self.mcoe(all_gens=True),
-                    own_eia860=self.own_eia860()
-                )
+            self._dfs[
+                "gens_mega_eia"
+            ] = pudl.analysis.plant_parts_eia.MakeMegaGenTbl().execute(
+                mcoe=self.mcoe(all_gens=True), own_eia860=self.own_eia860()
             )
-        return self._dfs['gens_mega_eia']
+        return self._dfs["gens_mega_eia"]
 
-    def plant_parts_eia(self, update=False, update_gens_mega=False, update_true_gran=False):
+    def plant_parts_eia(
+        self, update=False, update_gens_mega=False, update_true_gran=False
+    ):
         """
         Generate and return master plant-parts EIA.
 
@@ -1199,24 +1146,24 @@ class PudlTabl(object):
         """
         # generate the true_gran table
         # the true_gran table is really not helpful on it's own
-        if update_true_gran or self._dfs['true_grans_eia'] is None:
-            self._dfs['true_grans_eia'] = (
-                pudl.analysis.plant_parts_eia.LabelTrueGranularities()
-                .execute(self.gens_mega_eia())
+        if update_true_gran or self._dfs["true_grans_eia"] is None:
+            self._dfs[
+                "true_grans_eia"
+            ] = pudl.analysis.plant_parts_eia.LabelTrueGranularities().execute(
+                self.gens_mega_eia()
             )
 
         update_any = any([update, update_gens_mega, update_true_gran])
-        if update_any or self._dfs['plant_parts_eia'] is None:
+        if update_any or self._dfs["plant_parts_eia"] is None:
             # make the plant-parts objects
-            self.parts_compiler = pudl.analysis.plant_parts_eia.MakePlantParts(
-                self)
+            self.parts_compiler = pudl.analysis.plant_parts_eia.MakePlantParts(self)
             # make the plant-parts df!
-            self._dfs['plant_parts_eia'] = self.parts_compiler.execute(
+            self._dfs["plant_parts_eia"] = self.parts_compiler.execute(
                 gens_mega=self.gens_mega_eia(update=update_gens_mega),
-                true_grans=self._dfs['true_grans_eia']
+                true_grans=self._dfs["true_grans_eia"],
             )
 
-        return self._dfs['plant_parts_eia']
+        return self._dfs["plant_parts_eia"]
 
 
 def get_table_meta(pudl_engine):

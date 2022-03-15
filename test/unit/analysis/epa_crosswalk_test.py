@@ -21,8 +21,7 @@ def df_from_product(inputs: Dict[str, Sequence], as_index=True) -> pd.DataFrame:
         df (pd.DataFrame): cartesian product dataframe
     """
     names, iterables = zip(*inputs.items())
-    df = pd.MultiIndex.from_product(
-        iterables, names=names).to_frame(index=as_index)
+    df = pd.MultiIndex.from_product(iterables, names=names).to_frame(index=as_index)
 
     return df
 
@@ -44,16 +43,33 @@ def mock_crosswalk():
     7             10            c                 2           asdf
     """
     columns = ["CAMD_PLANT_ID", "CAMD_UNIT_ID", "EIA_GENERATOR_ID"]
-    one_to_one = pd.DataFrame(dict(zip(columns, [[10, ], ['a', ], [0, ]])))
-    many_to_one = pd.DataFrame(
-        dict(zip(columns, [[11, 11], ['a', 'b'], [0, 0]])))
-    one_to_many = pd.DataFrame(
-        dict(zip(columns, [[12, 12], ['a', 'a'], [0, 1]])))
+    one_to_one = pd.DataFrame(
+        dict(
+            zip(
+                columns,
+                [
+                    [
+                        10,
+                    ],
+                    [
+                        "a",
+                    ],
+                    [
+                        0,
+                    ],
+                ],
+            )
+        )
+    )
+    many_to_one = pd.DataFrame(dict(zip(columns, [[11, 11], ["a", "b"], [0, 0]])))
+    one_to_many = pd.DataFrame(dict(zip(columns, [[12, 12], ["a", "a"], [0, 1]])))
     many_to_many = pd.DataFrame(
-        dict(zip(columns, [[10, 10, 10], ['b', 'c', 'c'], [1, 1, 2]])))
-    crosswalk = pd.concat([one_to_one, one_to_many, many_to_one,
-                          many_to_many], axis=0, ignore_index=True)
-    crosswalk["MATCH_TYPE_GEN"] = 'asdf'
+        dict(zip(columns, [[10, 10, 10], ["b", "c", "c"], [1, 1, 2]]))
+    )
+    crosswalk = pd.concat(
+        [one_to_one, one_to_many, many_to_one, many_to_many], axis=0, ignore_index=True
+    )
+    crosswalk["MATCH_TYPE_GEN"] = "asdf"
 
     return crosswalk
 
@@ -77,18 +93,15 @@ def mock_cems_extended():
     inputs = dict(
         unit_id_epa=range(6),
         operating_datetime_utc=pd.date_range(
-            start="2019-12-31 22:00",
-            end="2019-12-31 23:00",
-            freq="h",
-            tz='UTC'
+            start="2019-12-31 22:00", end="2019-12-31 23:00", freq="h", tz="UTC"
         ),
     )
     cems = df_from_product(inputs, as_index=False)
     # add composite keys
     # (duplicate each entry for other timestamp)
-    cems['plant_id_eia'] = [10, 10, 10, 10, 10, 10, 11, 11, 11, 11, 12, 12]
-    cems['unitid'] = ['a', 'a', 'b', 'b', 'c', 'c', 'a', 'a', 'b', 'b', 'a', 'a']
-    cems['gross_load_mw'] = 0  # not needed for crosswalk testing
+    cems["plant_id_eia"] = [10, 10, 10, 10, 10, 10, 11, 11, 11, 11, 12, 12]
+    cems["unitid"] = ["a", "a", "b", "b", "c", "c", "a", "a", "b", "b", "a", "a"]
+    cems["gross_load_mw"] = 0  # not needed for crosswalk testing
 
     cems = cems.set_index(["unit_id_epa", "operating_datetime_utc"], drop=False)
     return cems
@@ -97,7 +110,8 @@ def mock_cems_extended():
 def test__get_unique_keys(mock_cems_extended):
     """Test that dask and pandas dataframes give the same unique keys."""
     mock_cems_extended = mock_cems_extended.reset_index(
-        drop=True)  # this func is used before index is set. Dask doesn't support MultiIndex
+        drop=True
+    )  # this func is used before index is set. Dask doesn't support MultiIndex
     # sensititve to column order
     expected = mock_cems_extended[::2][["plant_id_eia", "unitid", "unit_id_epa"]]
     actual = cw._get_unique_keys(mock_cems_extended)
@@ -124,30 +138,35 @@ def test__convert_global_id_to_composite_id(mock_crosswalk, mock_cems_extended):
     7                   3            0  ...             12            a                 1  ...
     """
     cols = ["plant_id_eia", "unitid", "unit_id_epa"]
-    uniques = mock_cems_extended.loc[pd.IndexSlice[:,
-                                                   "2019-12-31 22:00:00+00:00"], cols].copy()
+    uniques = mock_cems_extended.loc[
+        pd.IndexSlice[:, "2019-12-31 22:00:00+00:00"], cols
+    ].copy()
 
     # simulate join by duplicating rows as appropriate
     one_to_many = uniques.query('plant_id_eia == 12 and unitid == "a"')
     many_to_many = uniques.query('plant_id_eia == 10 and unitid == "c"')
-    expected = pd.concat([uniques, one_to_many, many_to_many]
-                         ).sort_index().reset_index(drop=True)
+    expected = (
+        pd.concat([uniques, one_to_many, many_to_many])
+        .sort_index()
+        .reset_index(drop=True)
+    )
 
     expected = expected.assign(
-        CAMD_PLANT_ID=expected['plant_id_eia'],
-        CAMD_UNIT_ID=expected['unitid'],
+        CAMD_PLANT_ID=expected["plant_id_eia"],
+        CAMD_UNIT_ID=expected["unitid"],
         EIA_GENERATOR_ID=[0, 1, 1, 2, 0, 0, 0, 1],
-        MATCH_TYPE_GEN='asdf',
+        MATCH_TYPE_GEN="asdf",
         global_subplant_id=[0, 1, 1, 1, 2, 2, 3, 3],
-        subplant_id=[0, 1, 1, 1, 0, 0, 0, 0]
+        subplant_id=[0, 1, 1, 1, 0, 0, 0, 0],
     )
     # fix column order
-    expected = expected[cols + [
-        "CAMD_PLANT_ID", "CAMD_UNIT_ID", "EIA_GENERATOR_ID", "MATCH_TYPE_GEN"
-    ] + ["global_subplant_id", 'subplant_id']
+    expected = expected[
+        cols
+        + ["CAMD_PLANT_ID", "CAMD_UNIT_ID", "EIA_GENERATOR_ID", "MATCH_TYPE_GEN"]
+        + ["global_subplant_id", "subplant_id"]
     ]
 
-    input_ = expected.drop(columns=['subplant_id'])
+    input_ = expected.drop(columns=["subplant_id"])
     actual = cw._convert_global_id_to_composite_id(input_)
     assert_frame_equal(actual, expected)
 
@@ -169,25 +188,32 @@ def test_make_subplant_ids(mock_crosswalk, mock_cems_extended):
     7            0  ...             12            a                 1  ...
     """
     cols = ["plant_id_eia", "unitid", "unit_id_epa"]
-    uniques = mock_cems_extended.loc[pd.IndexSlice[:,
-                                                   "2019-12-31 22:00:00+00:00"], cols].copy()
+    uniques = mock_cems_extended.loc[
+        pd.IndexSlice[:, "2019-12-31 22:00:00+00:00"], cols
+    ].copy()
 
     # simulate join by duplicating rows as appropriate
     one_to_many = uniques.query('plant_id_eia == 12 and unitid == "a"')
     many_to_many = uniques.query('plant_id_eia == 10 and unitid == "c"')
-    expected = pd.concat([uniques, one_to_many, many_to_many]
-                         ).sort_index().reset_index(drop=True)
+    expected = (
+        pd.concat([uniques, one_to_many, many_to_many])
+        .sort_index()
+        .reset_index(drop=True)
+    )
 
     expected = expected.assign(
-        CAMD_PLANT_ID=expected['plant_id_eia'],
-        CAMD_UNIT_ID=expected['unitid'],
+        CAMD_PLANT_ID=expected["plant_id_eia"],
+        CAMD_UNIT_ID=expected["unitid"],
         EIA_GENERATOR_ID=[0, 1, 1, 2, 0, 0, 0, 1],
-        MATCH_TYPE_GEN='asdf',
-        subplant_id=[0, 1, 1, 1, 0, 0, 0, 0]
+        MATCH_TYPE_GEN="asdf",
+        subplant_id=[0, 1, 1, 1, 0, 0, 0, 0],
     )
     # fix column order
-    expected = expected[["subplant_id"] + cols + ["CAMD_PLANT_ID",
-                                                  "CAMD_UNIT_ID", "EIA_GENERATOR_ID", "MATCH_TYPE_GEN"]]
+    expected = expected[
+        ["subplant_id"]
+        + cols
+        + ["CAMD_PLANT_ID", "CAMD_UNIT_ID", "EIA_GENERATOR_ID", "MATCH_TYPE_GEN"]
+    ]
 
     # should be two separate tests but I ran out of time
     actual = cw.filter_crosswalk(mock_crosswalk, mock_cems_extended)

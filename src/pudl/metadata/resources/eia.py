@@ -20,7 +20,7 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
         "schema": {
             "fields": ["code", "label", "description"],
             "primary_key": ["code"],
-            "foreign_key_rules": {"fields": [["mine_type_code"]]}
+            "foreign_key_rules": {"fields": [["mine_type_code"]]},
         },
         "encoder": CODE_METADATA["coalmine_types_eia"],
         "sources": ["eia923"],
@@ -32,7 +32,7 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
         "schema": {
             "fields": ["code", "label", "description"],
             "primary_key": ["code"],
-            "foreign_key_rules": {"fields": [["contract_type_code"]]}
+            "foreign_key_rules": {"fields": [["contract_type_code"]]},
         },
         "encoder": CODE_METADATA["contract_types_eia"],
         "sources": ["eia923"],
@@ -72,17 +72,14 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
                 ],
             },
         },
-        "encoder": CODE_METADATA['energy_sources_eia'],
+        "encoder": CODE_METADATA["energy_sources_eia"],
         "sources": ["eia860", "eia923"],
         "etl_group": "static_eia",
         "field_namespace": "eia",
     },
     "entity_types_eia": {
         "description": "Descriptive labels for EIA entity type and ownership codes, taken from the EIA-861 form instructions, valid through 2023-05-31.",
-        "schema": {
-            "fields": ["code", "label", "description"],
-            "primary_key": ["code"]
-        },
+        "schema": {"fields": ["code", "label", "description"], "primary_key": ["code"]},
         "encoder": CODE_METADATA["entity_types_eia"],
         "sources": ["eia861"],
         "etl_group": "static_eia",
@@ -104,7 +101,7 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
                     ["primary_transportation_mode_code"],
                     ["secondary_transportation_mode_code"],
                 ]
-            }
+            },
         },
         "encoder": CODE_METADATA["fuel_transportation_modes_eia"],
         "sources": ["eia860", "eia923"],
@@ -161,7 +158,7 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
         "schema": {
             "fields": ["code", "label", "description"],
             "primary_key": ["code"],
-            "foreign_key_rules": {"fields": [["momentary_interruption_definition"]]}
+            "foreign_key_rules": {"fields": [["momentary_interruption_definition"]]},
         },
         "encoder": CODE_METADATA["momentary_interruptions_eia"],
         "sources": ["eia861"],

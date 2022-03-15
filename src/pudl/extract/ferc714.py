@@ -43,9 +43,7 @@ TABLE_ENCODING = {
 
 
 def extract(
-    ferc714_settings: Ferc714Settings = Ferc714Settings(),
-    pudl_settings=None,
-    ds=None
+    ferc714_settings: Ferc714Settings = Ferc714Settings(), pudl_settings=None, ds=None
 ):
     """
     Extract the raw FERC Form 714 dataframes from their original CSV files.
@@ -70,6 +68,8 @@ def extract(
     raw_dfs = {}
     for table in ferc714_settings.tables:
         logger.info(f"Extracting {table} from CSV into pandas DataFrame.")
-        with ds.get_zipfile_resource("ferc714", name="ferc714.zip").open(TABLE_FNAME[table]) as f:
+        with ds.get_zipfile_resource("ferc714", name="ferc714.zip").open(
+            TABLE_FNAME[table]
+        ) as f:
             raw_dfs[table] = pd.read_csv(f, encoding=TABLE_ENCODING[table])
     return raw_dfs
