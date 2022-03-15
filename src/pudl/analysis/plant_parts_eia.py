@@ -1359,11 +1359,12 @@ class PlantPart(object):
         return part_df
 
     def match_to_single_plant_part(
-            self,
-            multi_gran_df: pd.DataFrame,
-            ppl: pd.DataFrame,
-            cols_to_keep: List[str] = [],
-            keep_only_record_id=False) -> pd.DataFrame:
+        self,
+        multi_gran_df: pd.DataFrame,
+        ppl: pd.DataFrame,
+        cols_to_keep: List[str] = [],
+        keep_only_record_id=False,
+    ) -> pd.DataFrame:
         """
         Match data with a variety of granularities to a single plant-part.
 
@@ -1409,40 +1410,37 @@ class PlantPart(object):
         ppl_part_df = ppl[ppl.plant_part == self.part_name]
         # convert the date to year start - this is necessary because the
         # depreciation data is often reported as EOY and the ppl is always SOY
-        multi_gran_df.loc[:, 'report_date'] = (
-            pd.to_datetime(multi_gran_df.report_date.dt.year, format='%Y')
+        multi_gran_df.loc[:, "report_date"] = pd.to_datetime(
+            multi_gran_df.report_date.dt.year, format="%Y"
         )
         out_dfs = []
         for merge_part in PLANT_PARTS_ORDERED:
-            pk_cols = (
-                PLANT_PARTS
-                [merge_part]['id_cols']
-                + IDX_TO_ADD
-                + IDX_OWN_TO_ADD
-            )
+            pk_cols = PLANT_PARTS[merge_part]["id_cols"] + IDX_TO_ADD + IDX_OWN_TO_ADD
             part_df = pd.merge(
                 (
                     # select just the records that correspond to merge_part
-                    multi_gran_df[multi_gran_df.plant_part == merge_part]
-                    [pk_cols + ['record_id_eia'] + cols_to_keep]
+                    multi_gran_df[multi_gran_df.plant_part == merge_part][
+                        pk_cols + ["record_id_eia"] + cols_to_keep
+                    ]
                 ),
                 ppl_part_df,
                 on=pk_cols,
-                how='left',
+                how="left",
                 # this unfortunately needs to be a m:m bc sometimes the df
                 # multi_gran_df has multiple record associated with the same
                 # record_id_eia but are unique records and are not aggregated
                 # in aggregate_duplicate_eia. For instance, the depreciation
                 # data has both PUC and FERC studies.
-                validate='m:m',
-                suffixes=('_og', '')
+                validate="m:m",
+                suffixes=("_og", ""),
             )
             out_dfs.append(part_df)
         out_df = pd.concat(out_dfs)
 
         if keep_only_record_id:
             out_df = out_df.set_index(
-                ['record_id_eia_og', 'record_id_eia']).index.to_frame(index=False)
+                ["record_id_eia_og", "record_id_eia"]
+            ).index.to_frame(index=False)
 
         return out_df
 
