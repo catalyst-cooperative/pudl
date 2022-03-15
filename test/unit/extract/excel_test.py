@@ -13,22 +13,23 @@ class TestMetadata(unittest.TestCase):
 
     def setUp(self):
         """Cosntructs test metadata instance for testing."""
-        self._metadata = excel.Metadata('test')
+        self._metadata = excel.Metadata("test")
 
     def test_basics(self):
         """Test that basic API method return expected results."""
-        self.assertEqual('test', self._metadata.get_dataset_name())
+        self.assertEqual("test", self._metadata.get_dataset_name())
         self.assertListEqual(
-            ['books', 'boxes', 'shoes'],
-            self._metadata.get_all_pages())
+            ["books", "boxes", "shoes"], self._metadata.get_all_pages()
+        )
         self.assertListEqual(
-            ['author', 'pages', 'title'],
-            self._metadata.get_all_columns('books'))
+            ["author", "pages", "title"], self._metadata.get_all_columns("books")
+        )
         self.assertDictEqual(
-            {'book_title': 'title', 'name': 'author', 'pages': 'pages'},
-            self._metadata.get_column_map('books', year=2010))
-        self.assertEqual(10, self._metadata.get_skiprows('boxes', year=2011))
-        self.assertEqual(1, self._metadata.get_sheet_name('boxes', year=2011))
+            {"book_title": "title", "name": "author", "pages": "pages"},
+            self._metadata.get_column_map("books", year=2010),
+        )
+        self.assertEqual(10, self._metadata.get_skiprows("boxes", year=2011))
+        self.assertEqual(1, self._metadata.get_sheet_name("boxes", year=2011))
 
 
 class FakeExtractor(excel.GenericExtractor):
@@ -36,8 +37,8 @@ class FakeExtractor(excel.GenericExtractor):
 
     def __init__(self, *args, **kwargs):
         """It's a Fake extractor.  Good thing flake demanded this."""
-        self.METADATA = excel.Metadata('test')
-        self.BLACKLISTED_PAGES = ['shoes']
+        self.METADATA = excel.Metadata("test")
+        self.BLACKLISTED_PAGES = ["shoes"]
         super().__init__(ds=None)
 
     def load_excel_file(self, page, **partition):
@@ -51,14 +52,22 @@ def _fake_data_frames(page_name, **kwargs):
     This is suitable mock for pd.read_excel method when used together with FakeExtractor.
     """
     fake_data = {
-        'books-2010': pd.DataFrame.from_dict(
-            {'book_title': ['Tao Te Ching'], 'name': ['Laozi'], 'pages': [0]}),
-        'books-2011': pd.DataFrame.from_dict(
-            {'title_of_book': ['The Tao of Pooh'], 'author': ['Benjamin Hoff'], 'pages': [158]}),
-        'boxes-2010': pd.DataFrame.from_dict(
-            {'composition': ['cardboard'], 'size_inches': [10]}),
-        'boxes-2011': pd.DataFrame.from_dict(
-            {'composition': ['metal'], 'size_cm': [99]}),
+        "books-2010": pd.DataFrame.from_dict(
+            {"book_title": ["Tao Te Ching"], "name": ["Laozi"], "pages": [0]}
+        ),
+        "books-2011": pd.DataFrame.from_dict(
+            {
+                "title_of_book": ["The Tao of Pooh"],
+                "author": ["Benjamin Hoff"],
+                "pages": [158],
+            }
+        ),
+        "boxes-2010": pd.DataFrame.from_dict(
+            {"composition": ["cardboard"], "size_inches": [10]}
+        ),
+        "boxes-2011": pd.DataFrame.from_dict(
+            {"composition": ["metal"], "size_cm": [99]}
+        ),
     }
     return fake_data[page_name]
 
@@ -67,17 +76,17 @@ class TestGenericExtractor(unittest.TestCase):
     """Test operation of the excel.GenericExtractor class."""
 
     @staticmethod
-    @patch('pudl.extract.excel.pd.read_excel')
+    @patch("pudl.extract.excel.pd.read_excel")
     def test_read_excel_calls(mock_read_excel):
         """Verifies that read_excel method is called with expected arguments."""
         mock_read_excel.return_value = pd.DataFrame()
 
-        FakeExtractor('/blah').extract(year=[2010, 2011])
+        FakeExtractor("/blah").extract(year=[2010, 2011])
         expected_calls = [
-            mock.call('books-2010', sheet_name=0, skiprows=0, skipfooter=0, dtype={}),
-            mock.call('books-2011', sheet_name=0, skiprows=1, skipfooter=1, dtype={}),
-            mock.call('boxes-2010', sheet_name=1, skiprows=0, skipfooter=0, dtype={}),
-            mock.call('boxes-2011', sheet_name=1, skiprows=10, skipfooter=10, dtype={})
+            mock.call("books-2010", sheet_name=0, skiprows=0, skipfooter=0, dtype={}),
+            mock.call("books-2011", sheet_name=0, skiprows=1, skipfooter=1, dtype={}),
+            mock.call("boxes-2010", sheet_name=1, skiprows=0, skipfooter=0, dtype={}),
+            mock.call("boxes-2011", sheet_name=1, skiprows=10, skipfooter=10, dtype={}),
         ]
         mock_read_excel.assert_has_calls(expected_calls, any_order=True)
 

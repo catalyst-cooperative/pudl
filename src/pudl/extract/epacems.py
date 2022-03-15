@@ -108,12 +108,15 @@ class EpaCemsDatastore:
     def get_data_frame(self, partition: EpaCemsPartition) -> pd.DataFrame:
         """Constructs dataframe holding data for a given (year, state) partition."""
         archive = self.datastore.get_zipfile_resource(
-            "epacems", **partition.get_filters())
+            "epacems", **partition.get_filters()
+        )
         dfs = []
         for month in range(1, 13):
             mf = partition.get_monthly_file(month)
             with archive.open(str(mf.with_suffix(".zip")), "r") as mzip:
-                with ZipFile(mzip, "r").open(str(mf.with_suffix(".csv")), "r") as csv_file:
+                with ZipFile(mzip, "r").open(
+                    str(mf.with_suffix(".csv")), "r"
+                ) as csv_file:
                     dfs.append(self._csv_to_dataframe(csv_file))
         return pd.concat(dfs, sort=True, copy=False, ignore_index=True)
 
@@ -159,8 +162,5 @@ def extract(epacems_settings: EpaCemsSettings, ds: Datastore):
             partition = EpaCemsPartition(state=state, year=year)
             logger.info(f"Processing EPA CEMS hourly data for {state}-{year}")
             # We have to assign the reporting year for partitioning purposes
-            df = (
-                ds.get_data_frame(partition)
-                .assign(year=year)
-            )
+            df = ds.get_data_frame(partition).assign(year=year)
             yield df

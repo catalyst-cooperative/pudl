@@ -20,7 +20,7 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
                 "plant_id_eia",
                 "boiler_id",
                 "energy_source_code",
-                "report_date"
+                "report_date",
             ],
         },
         "field_namespace": "eia",
@@ -112,7 +112,7 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
                 "plant_id_eia",
                 "report_date",
                 "energy_source_code",
-                "prime_mover_code"
+                "prime_mover_code",
             ],
         },
         "field_namespace": "eia",
@@ -142,7 +142,7 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
                 "report_date",
                 "nuclear_unit_id",
                 "energy_source_code",
-                "prime_mover_code"
+                "prime_mover_code",
             ],
         },
         "field_namespace": "eia",

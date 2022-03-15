@@ -24,16 +24,16 @@ def parse_command_line(argv):
     """
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
-        '--skip',
+        "--skip",
         help="List of table names that should be skipped and excluded from RST output.",
         nargs="*",
         default=[],
     )
     parser.add_argument(
-        '-o',
-        '--output',
+        "-o",
+        "--output",
         help="Path to the file where the RST output should be written.",
-        default=False
+        default=False,
     )
     arguments = parser.parse_args(argv[1:])
     return arguments
@@ -42,8 +42,8 @@ def parse_command_line(argv):
 def main():
     """Run conversion from json to rst."""
     pudl_logger = logging.getLogger("pudl")
-    log_format = '%(asctime)s [%(levelname)8s] %(name)s:%(lineno)s %(message)s'
-    coloredlogs.install(fmt=log_format, level='INFO', logger=pudl_logger)
+    log_format = "%(asctime)s [%(levelname)8s] %(name)s:%(lineno)s %(message)s"
+    coloredlogs.install(fmt=log_format, level="INFO", logger=pudl_logger)
 
     args = parse_command_line(sys.argv)
     logger.info(f"Exporting PUDL metadata to: {args.output}")
@@ -51,11 +51,9 @@ def main():
     package = Package.from_resource_ids(resource_ids=tuple(sorted(resource_ids)))
     # Sort fields within each resource by name:
     for resource in package.resources:
-        resource.schema.fields = sorted(
-            resource.schema.fields, key=lambda x: x.name
-        )
+        resource.schema.fields = sorted(resource.schema.fields, key=lambda x: x.name)
     package.to_rst(path=args.output)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     sys.exit(main())

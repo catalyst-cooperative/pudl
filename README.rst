@@ -24,13 +24,17 @@ The Public Utility Data Liberation Project (PUDL)
    :target: https://pypi.org/project/catalystcoop.pudl/
    :alt: PyPI Latest Version
 
+.. image:: https://img.shields.io/conda/vn/conda-forge/catalystcoop.pudl
+   :target: https://anaconda.org/conda-forge/catalystcoop.pudl
+   :alt: conda-forge Version
+
 .. image:: https://img.shields.io/pypi/pyversions/catalystcoop.pudl
    :target: https://pypi.org/project/catalystcoop.pudl/
    :alt: PyPI - Supported Python Versions
 
-.. image:: https://img.shields.io/conda/vn/conda-forge/catalystcoop.pudl
-   :target: https://anaconda.org/conda-forge/catalystcoop.pudl
-   :alt: conda-forge Version
+.. image:: https://img.shields.io/badge/code%20style-black-000000.svg
+   :target: https://github.com/psf/black
+   :alt: Any color you want, so long as it's black.
 
 .. image:: https://zenodo.org/badge/80646423.svg
    :target: https://zenodo.org/badge/latestdoi/80646423
