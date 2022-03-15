@@ -479,11 +479,11 @@ def expand_a_table_by_freq(df_to_expand: pd.DataFrame, freq: str) -> pd.DataFram
     # HALP: the end parameter here needs a plus one year somehow!
     date_range = pd.DataFrame(
         pd.date_range(
-            start=df_to_expand.set_index('report_date').first('D').index[0],
-            end=df_to_expand.set_index('report_date').last('D').index[0],
-            freq=freq
+            start=df_to_expand.set_index("report_date").first("D").index[0],
+            end=df_to_expand.set_index("report_date").last("D").index[0],
+            freq=freq,
         ),
-        columns=['report_date']
+        columns=["report_date"],
     )
 
     def assign_date_cols(df):
@@ -507,35 +507,29 @@ def expand_a_table_by_freq(df_to_expand: pd.DataFrame, freq: str) -> pd.DataFram
     # it would be ideal if we could use on set of date columns and
     # confirm that the input frequency is compatible with these
     # and use them directly in expand_date_cols as well as here
-    date_cols_all = ['report_date', 'year', 'quarter', 'month', 'day']
+    date_cols_all = ["report_date", "year", "quarter", "month", "day"]
     # add the expanded date columns for the date range
-    date_range = (
-        assign_date_cols(date_range)
-        .pipe(drop_non_unqiue_date_cols, date_cols_all)
+    date_range = assign_date_cols(date_range).pipe(
+        drop_non_unqiue_date_cols, date_cols_all
     )
     df_w_date_cols = (
         assign_date_cols(df_to_expand)
         .pipe(drop_non_unqiue_date_cols, date_cols_all)
-        .drop(columns=['report_date'])
+        .drop(columns=["report_date"])
     )
 
     # which columns are
-    date_range_cols = [
-        col for col in date_range if col in date_cols_all]
+    date_range_cols = [col for col in date_range if col in date_cols_all]
     merge_on = [c for c in df_w_date_cols if c in date_range_cols]
     logger.info(f"The date range for {freq} includes: {date_range_cols}")
     logger.info(f"Merging date range on {merge_on}")
 
     # I think we need the annual (or less time granular) df
     # to be merged into a date range at the right frequency
-    df_at_freq = (
-        pd.merge(
-            date_range,
-            df_w_date_cols,
-            on=merge_on,
-            how='outer'
-        )  # drop all of the non-report date new date cols
-        .drop(columns=[c for c in date_range_cols if c != 'report_date'])
+    df_at_freq = pd.merge(
+        date_range, df_w_date_cols, on=merge_on, how="outer"
+    ).drop(  # drop all of the non-report date new date cols
+        columns=[c for c in date_range_cols if c != "report_date"]
     )
 
     return df_at_freq
