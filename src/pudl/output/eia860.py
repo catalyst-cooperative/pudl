@@ -1,11 +1,13 @@
 """Functions for pulling data primarily from the EIA's Form 860."""
 
 import logging
+from collections import defaultdict
 
 import pandas as pd
 import sqlalchemy as sa
 
 import pudl
+from pudl.metadata.fields import apply_pudl_dtypes
 
 logger = logging.getLogger(__name__)
 
@@ -31,12 +33,12 @@ def utilities_eia860(pudl_engine, start_date=None, end_date=None):
     pt = pudl.output.pudltabl.get_table_meta(pudl_engine)
     # grab the entity table
     utils_eia_tbl = pt['utilities_entity_eia']
-    utils_eia_select = sa.sql.select([utils_eia_tbl])
+    utils_eia_select = sa.sql.select(utils_eia_tbl)
     utils_eia_df = pd.read_sql(utils_eia_select, pudl_engine)
 
     # grab the annual eia entity table
     utils_eia860_tbl = pt['utilities_eia860']
-    utils_eia860_select = sa.sql.select([utils_eia860_tbl])
+    utils_eia860_select = sa.sql.select(utils_eia860_tbl)
 
     if start_date is not None:
         start_date = pd.to_datetime(start_date)
@@ -52,10 +54,10 @@ def utilities_eia860(pudl_engine, start_date=None, end_date=None):
 
     # grab the glue table for the utility_id_pudl
     utils_g_eia_tbl = pt['utilities_eia']
-    utils_g_eia_select = sa.sql.select([
+    utils_g_eia_select = sa.sql.select(
         utils_g_eia_tbl.c.utility_id_eia,
         utils_g_eia_tbl.c.utility_id_pudl,
-    ])
+    )
     utils_g_eia_df = pd.read_sql(utils_g_eia_select, pudl_engine)
 
     out_df = pd.merge(utils_eia_df, utils_eia860_df,
@@ -65,11 +67,7 @@ def utilities_eia860(pudl_engine, start_date=None, end_date=None):
     out_df = (
         out_df.assign(report_date=lambda x: pd.to_datetime(x.report_date))
         .dropna(subset=["report_date", "utility_id_eia"])
-        .astype({
-            "utility_id_eia": "Int64",
-            "utility_id_pudl": "Int64",
-        })
-        .drop(['id'], axis='columns')
+        .pipe(apply_pudl_dtypes, group="eia")
     )
     first_cols = [
         'report_date',
@@ -103,12 +101,12 @@ def plants_eia860(pudl_engine, start_date=None, end_date=None):
     pt = pudl.output.pudltabl.get_table_meta(pudl_engine)
     # grab the entity table
     plants_eia_tbl = pt['plants_entity_eia']
-    plants_eia_select = sa.sql.select([plants_eia_tbl])
+    plants_eia_select = sa.sql.select(plants_eia_tbl)
     plants_eia_df = pd.read_sql(plants_eia_select, pudl_engine)
 
     # grab the annual table select
     plants_eia860_tbl = pt['plants_eia860']
-    plants_eia860_select = sa.sql.select([plants_eia860_tbl])
+    plants_eia860_select = sa.sql.select(plants_eia860_tbl)
     if start_date is not None:
         start_date = pd.to_datetime(start_date)
         plants_eia860_select = plants_eia860_select.where(
@@ -126,10 +124,10 @@ def plants_eia860(pudl_engine, start_date=None, end_date=None):
 
     # plant glue table
     plants_g_eia_tbl = pt['plants_eia']
-    plants_g_eia_select = sa.sql.select([
+    plants_g_eia_select = sa.sql.select(
         plants_g_eia_tbl.c.plant_id_eia,
         plants_g_eia_tbl.c.plant_id_pudl,
-    ])
+    )
     plants_g_eia_df = pd.read_sql(plants_g_eia_select, pudl_engine)
 
     out_df = pd.merge(
@@ -137,19 +135,13 @@ def plants_eia860(pudl_engine, start_date=None, end_date=None):
     out_df = pd.merge(out_df, plants_g_eia_df, how='left', on=['plant_id_eia'])
 
     utils_eia_tbl = pt['utilities_eia']
-    utils_eia_select = sa.sql.select([utils_eia_tbl])
+    utils_eia_select = sa.sql.select(utils_eia_tbl)
     utils_eia_df = pd.read_sql(utils_eia_select, pudl_engine)
 
     out_df = (
         pd.merge(out_df, utils_eia_df, how='left', on=['utility_id_eia'])
-        .drop(['id'], axis='columns')
         .dropna(subset=["report_date", "plant_id_eia"])
-        .astype({
-            "plant_id_eia": "Int64",
-            "plant_id_pudl": "Int64",
-            "utility_id_eia": "Int64",
-            "utility_id_pudl": "Int64",
-        })
+        .pipe(apply_pudl_dtypes, group="eia")
     )
     return out_df
 
@@ -207,22 +199,18 @@ def plants_utils_eia860(pudl_engine, start_date=None, end_date=None):
                        'utility_id_pudl']
                    ]
         .dropna(subset=["report_date", "plant_id_eia", "utility_id_eia"])
-        .astype({
-            "plant_id_eia": "Int64",
-            "plant_id_pudl": "Int64",
-            "utility_id_eia": "Int64",
-            "utility_id_pudl": "Int64",
-        })
+        .pipe(apply_pudl_dtypes, group="eia")
     )
     return out_df
 
 
 def generators_eia860(
-    pudl_engine,
+    pudl_engine: sa.engine.Engine,
     start_date=None,
     end_date=None,
-    unit_ids=False,
-):
+    unit_ids: bool = False,
+    fill_tech_desc: bool = True,
+) -> pd.DataFrame:
     """Pull all fields reported in the generators_eia860 table.
 
     Merge in other useful fields including the latitude & longitude of the
@@ -235,38 +223,38 @@ def generators_eia860(
     one year on after the reported data (since there should at most be a one
     year lag between EIA923 and EIA860 reporting)
 
+    This also fills the ``technology_description`` field according to matching
+    ``energy_source_code_1`` values. It will only do so if the ``energy_source_code_1``
+    is consistent throughout years for a given plant.
+
     Args:
-        pudl_engine (sqlalchemy.engine.Engine): SQLAlchemy connection engine
-            for the PUDL DB.
+        pudl_engine: SQLAlchemy connection engine for the PUDL DB.
         start_date (date-like): date-like object, including a string of the
             form 'YYYY-MM-DD' which will be used to specify the date range of
             records to be pulled.  Dates are inclusive.
         end_date (date-like): date-like object, including a string of the
             form 'YYYY-MM-DD' which will be used to specify the date range of
             records to be pulled.  Dates are inclusive.
-        pudl_unit_ids (bool): If True, use several heuristics to assign
+        unit_ids: If True, use several heuristics to assign
             individual generators to functional units. EXPERIMENTAL.
+        fill_tech_desc: If True, backfill the technology_description
+            field to years earlier than 2013 based on plant and
+            energy_source_code_1 and fill in technologies with only one matching code.
 
     Returns:
-        pandas.DataFrame: A DataFrame containing all the fields of the EIA 860
-        Generators table.
+        A DataFrame containing all the fields of the EIA 860 Generators table.
 
     """
     pt = pudl.output.pudltabl.get_table_meta(pudl_engine)
     # Almost all the info we need will come from here.
     gens_eia860_tbl = pt['generators_eia860']
-    gens_eia860_select = sa.sql.select([gens_eia860_tbl, ])
+    gens_eia860_select = sa.sql.select(gens_eia860_tbl)
     # To get plant age
     generators_entity_eia_tbl = pt['generators_entity_eia']
-    generators_entity_eia_select = sa.sql.select([
-        generators_entity_eia_tbl,
-        # generators_entity_eia_tbl.c.report_date
-    ])
+    generators_entity_eia_select = sa.sql.select(generators_entity_eia_tbl)
     # To get the Lat/Lon coordinates
     plants_entity_eia_tbl = pt['plants_entity_eia']
-    plants_entity_eia_select = sa.sql.select([
-        plants_entity_eia_tbl,
-    ])
+    plants_entity_eia_select = sa.sql.select(plants_entity_eia_tbl)
 
     if start_date is not None:
         start_date = pd.to_datetime(start_date)
@@ -303,9 +291,6 @@ def generators_eia860(
                       on=['report_date', 'plant_id_eia'],
                       how="left")
 
-    # Drop a few extraneous fields...
-    out_df = out_df.drop(['id'], axis='columns')
-
     # Merge in the unit_id_pudl assigned to each generator in the BGA process
     # Pull the BGA table and make it unit-generator only:
     out_df = pd.merge(
@@ -339,17 +324,16 @@ def generators_eia860(
         pd.merge(out_df, ft_count, how='left',
                  on=['plant_id_eia', 'report_date'])
         .dropna(subset=["report_date", "plant_id_eia", "generator_id"])
-        .astype({
-            "plant_id_eia": "Int64",
-            "plant_id_pudl": "Int64",
-            "unit_id_pudl": "Int64",
-            "utility_id_eia": "Int64",
-            "utility_id_pudl": "Int64",
-        })
+        .pipe(apply_pudl_dtypes, group="eia")
     )
     # Augment those base unit_id_pudl values using heuristics, see below.
     if unit_ids:
+        logger.info("Assigning pudl unit ids")
         out_df = assign_unit_ids(out_df)
+
+    if fill_tech_desc:
+        logger.info("Filling technology type")
+        out_df = fill_generator_technology_description(out_df)
 
     first_cols = [
         'report_date',
@@ -366,8 +350,71 @@ def generators_eia860(
     out_df = (
         pudl.helpers.organize_cols(out_df, first_cols)
         .sort_values(['report_date', 'plant_id_eia', 'generator_id'])
-        .pipe(pudl.helpers.convert_cols_dtypes, data_source="eia")
+        .pipe(apply_pudl_dtypes, group="eia")
     )
+
+    return out_df
+
+
+def fill_generator_technology_description(gens_df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Fill in missing ``technology_description`` based on generator and energy source.
+
+    Prior to 2014, the EIA 860 did not report ``technology_description``. This
+    function backfills those early years within groups defined by ``plant_id_eia``,
+    ``generator_id`` and ``energy_source_code_1``. Some remaining missing values are
+    then filled in using the consistent, unique mappings that are observed between
+    ``energy_source_code_1`` and ``technology_type`` across all years and generators.
+
+    As a result, more than 95% of all generator records end up having a
+    ``technology_description`` associated with them.
+
+    Parameters:
+        gens_df: A generators_eia860 dataframe containing at least the columns
+            ``report_date``, ``plant_id_eia``, ``generator_id``,
+            ``energy_source_code_1``, and ``technology_description``.
+
+    Returns:
+        A copy of the input dataframe, with ``technology_description`` filled in.
+
+    """
+    nrows_orig = len(gens_df)
+    out_df = gens_df.copy()
+
+    # Backfill within generator-energy_source groups:
+    out_df["technology_description"] = (
+        out_df
+        .sort_values("report_date")
+        .groupby(["plant_id_eia", "generator_id", "energy_source_code_1"])
+        .technology_description.bfill()
+    )
+
+    # Fill in remaining missing technology_descriptions with unique correspondences
+    # between energy_source_code_1 where possible. Use a default value of pd.NA
+    # for any technology_description that isn't uniquely identified by energy source
+    static_fuels = defaultdict(
+        lambda: pd.NA,
+        gens_df.dropna(subset=['technology_description'])
+        .drop_duplicates(subset=['energy_source_code_1', 'technology_description'])
+        .drop_duplicates(subset=['energy_source_code_1'], keep=False)
+        .set_index('energy_source_code_1')
+        ['technology_description'].to_dict()
+    )
+
+    out_df.loc[
+        out_df.technology_description.isna(),
+        "technology_description"
+    ] = (out_df.energy_source_code_1.map(static_fuels))
+
+    assert len(out_df) == nrows_orig
+
+    # Assert that at least 95 percent of tech desc rows are filled in
+    pct_val = 0.95
+    if out_df.technology_description.count() \
+        / out_df.technology_description.size \
+            < pct_val:
+        raise AssertionError(
+            f"technology_description filling no longer covering {pct_val:.0%}")
 
     return out_df
 
@@ -392,7 +439,7 @@ def boiler_generator_assn_eia860(pudl_engine, start_date=None, end_date=None):
     """
     pt = pudl.output.pudltabl.get_table_meta(pudl_engine)
     bga_eia860_tbl = pt['boiler_generator_assn_eia860']
-    bga_eia860_select = sa.sql.select([bga_eia860_tbl])
+    bga_eia860_select = sa.sql.select(bga_eia860_tbl)
 
     if start_date is not None:
         start_date = pd.to_datetime(start_date)
@@ -407,7 +454,6 @@ def boiler_generator_assn_eia860(pudl_engine, start_date=None, end_date=None):
     out_df = (
         pd.read_sql(bga_eia860_select, pudl_engine)
         .assign(report_date=lambda x: pd.to_datetime(x.report_date))
-        .drop(['id'], axis='columns')
     )
     return out_df
 
@@ -430,10 +476,9 @@ def ownership_eia860(pudl_engine, start_date=None, end_date=None):
         to the EIA 860 Ownership table.
 
     """
-    # breakpoint()
     pt = pudl.output.pudltabl.get_table_meta(pudl_engine)
     own_eia860_tbl = pt["ownership_eia860"]
-    own_eia860_select = sa.sql.select([own_eia860_tbl])
+    own_eia860_select = sa.sql.select(own_eia860_tbl)
 
     if start_date is not None:
         start_date = pd.to_datetime(start_date)
@@ -447,7 +492,6 @@ def ownership_eia860(pudl_engine, start_date=None, end_date=None):
         )
     own_eia860_df = (
         pd.read_sql(own_eia860_select, pudl_engine)
-        .drop(['id'], axis='columns')
         .assign(report_date=lambda x: pd.to_datetime(x["report_date"]))
     )
 
@@ -467,12 +511,7 @@ def ownership_eia860(pudl_engine, start_date=None, end_date=None):
             "generator_id",
             "owner_utility_id_eia",
         ])
-        .astype({
-            "plant_id_eia": "Int64",
-            "plant_id_pudl": "Int64",
-            "utility_id_eia": "Int64",
-            "utility_id_pudl": "Int64",
-        })
+        .pipe(apply_pudl_dtypes, group="eia")
     )
 
     first_cols = [

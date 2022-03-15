@@ -9,8 +9,8 @@ import logging
 import pandas as pd
 import pytest
 
-from pudl import constants as pc
 from pudl import validate as pv
+from pudl.metadata.classes import DataSource
 
 logger = logging.getLogger(__name__)
 
@@ -20,7 +20,8 @@ row_mapped_tables = [
     "plant_in_service_ferc1",
 ]
 unique_record_tables = [
-    t for t in pc.pudl_tables["ferc1"] if t not in row_mapped_tables
+    t for t in DataSource.from_id("ferc1").get_resource_ids()
+    if t not in row_mapped_tables
 ]
 
 
@@ -40,15 +41,16 @@ def test_record_id_dupes(pudl_engine, table_name):
 
 @pytest.mark.parametrize(
     "df_name,cols", [
-        ("pu_ferc1", "all"),
-        ("fuel_ferc1", "all"),
-        ("plants_steam_ferc1", "all"),
+        ("all_plants_ferc1", "all"),
         ("fbp_ferc1", "all"),
-        ("plants_small_ferc1", "all"),
+        ("fuel_ferc1", "all"),
+        ("plant_in_service_ferc1", "all"),
         ("plants_hydro_ferc1", "all",),
         ("plants_pumped_storage_ferc1", "all"),
+        ("plants_small_ferc1", "all"),
+        ("plants_steam_ferc1", "all"),
+        ("pu_ferc1", "all"),
         ("purchased_power_ferc1", "all"),
-        ("plant_in_service_ferc1", "all"),
     ])
 def test_no_null_cols_ferc1(pudl_out_ferc1, live_dbs, cols, df_name):
     """Verify that output DataFrames have no entirely NULL columns."""
@@ -61,16 +63,18 @@ def test_no_null_cols_ferc1(pudl_out_ferc1, live_dbs, cols, df_name):
 
 @pytest.mark.parametrize(
     "df_name,expected_rows", [
-        ("fuel_ferc1", 30_403),
-        ("fbp_ferc1", 19_967),
-        ("plants_steam_ferc1", 27_470),
-        ("plants_small_ferc1", 14_878),
-        ("plants_hydro_ferc1", 6550),
-        ("plants_pumped_storage_ferc1", 689),
-        ("plant_in_service_ferc1", 25_931),
-        ("purchased_power_ferc1", 183_583),
-        ("pu_ferc1", 6798),
-    ])
+        ('all_plants_ferc1', 51_456),
+        ('fbp_ferc1', 20_573),
+        ('fuel_ferc1', 31_265),
+        ('plant_in_service_ferc1', 26_933),
+        ('plants_hydro_ferc1', 6_782),
+        ('plants_pumped_storage_ferc1', 710),
+        ('plants_small_ferc1', 15_584),
+        ('plants_steam_ferc1', 28_380),
+        ('pu_ferc1', 6_946),
+        ('purchased_power_ferc1', 190_228)
+    ]
+)
 def test_minmax_rows(pudl_out_ferc1, live_dbs, expected_rows, df_name):
     """Verify that output DataFrames don't have too many or too few rows.
 
@@ -98,14 +102,30 @@ def test_minmax_rows(pudl_out_ferc1, live_dbs, expected_rows, df_name):
 @pytest.mark.parametrize(
     "df_name,unique_subset", [
         ("pu_ferc1", ["utility_id_ferc1", "plant_name_ferc1"]),
-        ("fbp_ferc1", ["report_year", "utility_id_ferc1", "plant_name_ferc1"]),
-        ("plants_hydro_ferc1",
-         ["report_year", "utility_id_ferc1", "plant_name_ferc1", "capacity_mw"]),
-        ("plants_pumped_storage_ferc1",
-         ["report_year", "utility_id_ferc1", "plant_name_ferc1", "capacity_mw"]),
-        ("plant_in_service_ferc1",
-         ["report_year", "utility_id_ferc1", "amount_type"]),
-    ])
+        ("fbp_ferc1", [
+            "report_year",
+            "utility_id_ferc1",
+            "plant_name_ferc1"
+        ]),
+        ("plants_hydro_ferc1", [
+            "report_year",
+            "utility_id_ferc1",
+            "plant_name_ferc1",
+            "capacity_mw"  # Why does having capacity here make sense???
+        ]),
+        ("plants_pumped_storage_ferc1", [
+            "report_year",
+            "utility_id_ferc1",
+            "plant_name_ferc1",
+            "capacity_mw"  # Why does having capacity here make sense???
+        ]),
+        ("plant_in_service_ferc1", [
+            "report_year",
+            "utility_id_ferc1",
+            "amount_type"
+        ]),
+    ]
+)
 def test_unique_rows_ferc1(pudl_out_ferc1, live_dbs, df_name, unique_subset):
     """Test whether dataframe has unique records within a subset of columns."""
     if not live_dbs:

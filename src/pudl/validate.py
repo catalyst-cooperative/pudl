@@ -106,6 +106,39 @@ def check_date_freq(df1, df2, mult):
         )
 
 
+def no_null_rows(df, cols="all", df_name="", thresh=0.9):
+    """
+    Check for rows filled with NA values indicating bad merges.
+
+    Sum up the number of NA values in each row and the columns specified by
+    ``cols``. If the NA values make up more than ``thresh`` of the columns
+    overall, the row is considered Null and the check fails.
+
+    Args:
+        df (pandas.DataFrame): DataFrame to check for null rows.
+        cols (iterable or "all"): The labels of columns to check for
+            all-null values. If "all" check all columns.
+
+    Returns:
+        pandas.DataFrame: The input DataFrame, for use with DataFrame.pipe().
+
+    Raises:
+        ValueError: If the fraction of NA values in any row is greater than
+        ``thresh``.
+
+    """
+    if cols == "all":
+        cols = df.columns
+
+    null_rows = df[cols].isna().sum(axis="columns") / len(cols) > thresh
+    if null_rows.any():
+        raise ValueError(
+            f"Found {null_rows.sum(axis='rows')} Null rows in {df_name}."
+        )
+
+    return df
+
+
 def no_null_cols(df, cols="all", df_name=""):
     """Check that a dataframe has no all-NaN columns.
 
@@ -130,9 +163,9 @@ def no_null_cols(df, cols="all", df_name=""):
     if cols == "all":
         cols = df.columns
 
-    for c in cols:
-        if df[c].isna().all():
-            raise ValueError(f"Null column: {c} found in dataframe {df_name}")
+    null_cols = [c for c in cols if c in df.columns and df[c].isna().all()]
+    if null_cols:
+        raise ValueError(f"Null columns found in {df_name}: {null_cols}")
 
     return df
 
@@ -141,11 +174,15 @@ def check_max_rows(df, expected_rows=np.inf, margin=0.05, df_name=""):
     """Validate that a dataframe has less than a maximum number of rows."""
     len_df = len(df)
     max_rows = expected_rows * (1 + margin)
+    pct_off = (len_df - expected_rows) / expected_rows
+    msg = (
+        f"{df_name}: found {len_df} rows, expected {expected_rows}. "
+        f"Off by {pct_off:.3%}, allowed margin of {margin:.3%}"
+    )
+
     if len_df > max_rows:
-        raise ValueError(
-            f"Too many records ({len_df}>{max_rows}) in dataframe {df_name}")
-    logger.info(f"{df_name}: expected {expected_rows} rows, "
-                f"found {len_df} rows.")
+        raise ValueError(msg)
+    logger.info(msg)
 
     return df
 
@@ -154,11 +191,15 @@ def check_min_rows(df, expected_rows=0, margin=0.05, df_name=""):
     """Validate that a dataframe has a certain minimum number of rows."""
     len_df = len(df)
     min_rows = expected_rows / (1 + margin)
+    pct_off = (len_df - expected_rows) / expected_rows
+    msg = (
+        f"{df_name}: found {len_df} rows, expected {expected_rows}. "
+        f"Off by {pct_off:.3%}, allowed margin of {margin:.3%}"
+    )
+
     if len_df < min_rows:
-        raise ValueError(
-            f"Too few records ({len_df}<{min_rows}) in dataframe {df_name}")
-    logger.info(f"{df_name}: expected {expected_rows} rows, "
-                f"found {len_df} rows.")
+        raise ValueError(msg)
+    logger.info(msg)
 
     return df
 
@@ -888,7 +929,7 @@ fuel_ferc1_self = [
         "mid_q": 0.5,
         "hi_q": 0.95,
         "data_col": "fuel_mmbtu_per_unit",
-        "weight_col": "fuel_qty_burned",
+        "weight_col": "fuel_consumed_units",
     },
     {
         "title": "mmbtu per unit (Oil)",
@@ -897,7 +938,7 @@ fuel_ferc1_self = [
         "mid_q": 0.5,
         "hi_q": 0.95,
         "data_col": "fuel_mmbtu_per_unit",
-        "weight_col": "fuel_qty_burned",
+        "weight_col": "fuel_consumed_units",
     },
     {
         "title": "mmbtu per unit (Gas)",
@@ -906,7 +947,7 @@ fuel_ferc1_self = [
         "mid_q": 0.5,
         "hi_q": 0.95,
         "data_col": "fuel_mmbtu_per_unit",
-        "weight_col": "fuel_qty_burned",
+        "weight_col": "fuel_consumed_units",
     },
     {
         "title": "Cost per mmbtu (Coal)",
@@ -942,7 +983,7 @@ fuel_ferc1_self = [
         "mid_q": 0.5,
         "hi_q": 0.95,
         "data_col": "fuel_cost_per_unit_burned",
-        "weight_col": "fuel_qty_burned",
+        "weight_col": "fuel_consumed_units",
     },
     {
         "title": "Cost per unit burned (Oil)",
@@ -951,7 +992,7 @@ fuel_ferc1_self = [
         "mid_q": 0.5,
         "hi_q": 0.95,
         "data_col": "fuel_cost_per_unit_burned",
-        "weight_col": "fuel_qty_burned",
+        "weight_col": "fuel_consumed_units",
     },
     {
         "title": "Cost per unit burned (Gas)",
@@ -960,7 +1001,7 @@ fuel_ferc1_self = [
         "mid_q": 0.5,
         "hi_q": 0.95,
         "data_col": "fuel_cost_per_unit_burned",
-        "weight_col": "fuel_qty_burned",
+        "weight_col": "fuel_consumed_units",
     },
 ]
 fuel_ferc1_coal_mmbtu_per_unit_bounds = [
@@ -972,7 +1013,7 @@ fuel_ferc1_coal_mmbtu_per_unit_bounds = [
         "hi_q": 0.95,
         "hi_bound": 26.0,
         "data_col": "fuel_mmbtu_per_unit",
-        "weight_col": "fuel_qty_burned",
+        "weight_col": "fuel_consumed_units",
     },
 ]
 fuel_ferc1_oil_mmbtu_per_unit_bounds = [
@@ -984,7 +1025,7 @@ fuel_ferc1_oil_mmbtu_per_unit_bounds = [
         "hi_q": 0.95,
         "hi_bound": 6.8,
         "data_col": "fuel_mmbtu_per_unit",
-        "weight_col": "fuel_qty_burned",
+        "weight_col": "fuel_consumed_units",
     },
 ]
 fuel_ferc1_gas_mmbtu_per_unit_bounds = [
@@ -996,7 +1037,7 @@ fuel_ferc1_gas_mmbtu_per_unit_bounds = [
         "hi_q": 0.95,
         "hi_bound": 1.08,
         "data_col": "fuel_mmbtu_per_unit",
-        "weight_col": "fuel_qty_burned",
+        "weight_col": "fuel_consumed_units",
     },
 ]
 fuel_ferc1_coal_cost_per_mmbtu_bounds = [
@@ -1044,7 +1085,7 @@ fuel_ferc1_coal_cost_per_unit_bounds = [
         "hi_q": 0.95,
         "hi_bound": 100.0,
         "data_col": "fuel_cost_per_unit_burned",
-        "weight_col": "fuel_qty_burned",
+        "weight_col": "fuel_consumed_units",
     },
 ]
 fuel_ferc1_oil_cost_per_unit_bounds = [
@@ -1056,7 +1097,7 @@ fuel_ferc1_oil_cost_per_unit_bounds = [
         "hi_q": 0.95,
         "hi_bound": 140.0,
         "data_col": "fuel_cost_per_unit_burned",
-        "weight_col": "fuel_qty_burned",
+        "weight_col": "fuel_consumed_units",
     },
 ]
 fuel_ferc1_gas_cost_per_unit_bounds = [
@@ -1068,7 +1109,7 @@ fuel_ferc1_gas_cost_per_unit_bounds = [
         "hi_q": 0.95,
         "hi_bound": 12.0,
         "data_col": "fuel_cost_per_unit_burned",
-        "weight_col": "fuel_qty_burned",
+        "weight_col": "fuel_consumed_units",
     },
 ]
 
@@ -1307,7 +1348,7 @@ gf_eia923_agg = [
 bf_eia923_coal_heat_content = [
     {
         "title": "Bituminous coal heat content (middle)",
-        "query": "fuel_type_code=='BIT'",
+        "query": "energy_source_code=='BIT'",
         "low_q": 0.50,
         "low_bound": 20.5,
         "hi_q": 0.50,
@@ -1317,7 +1358,7 @@ bf_eia923_coal_heat_content = [
     },
     {
         "title": "Bituminous coal heat content (tails)",
-        "query": "fuel_type_code=='BIT'",
+        "query": "energy_source_code=='BIT'",
         "low_q": 0.05,
         "low_bound": 17.0,
         "hi_q": 0.95,
@@ -1327,7 +1368,7 @@ bf_eia923_coal_heat_content = [
     },
     {
         "title": "Sub-bituminous coal heat content (middle)",
-        "query": "fuel_type_code=='SUB'",
+        "query": "energy_source_code=='SUB'",
         "low_q": 0.50,
         "low_bound": 16.5,
         "hi_q": 0.50,
@@ -1337,7 +1378,7 @@ bf_eia923_coal_heat_content = [
     },
     {
         "title": "Sub-bituminous coal heat content (tails)",
-        "query": "fuel_type_code=='SUB'",
+        "query": "energy_source_code=='SUB'",
         "low_q": 0.05,
         "low_bound": 15.0,
         "hi_q": 0.95,
@@ -1347,7 +1388,7 @@ bf_eia923_coal_heat_content = [
     },
     {
         "title": "Lignite heat content (middle)",
-        "query": "fuel_type_code=='LIG'",
+        "query": "energy_source_code=='LIG'",
         "low_q": 0.50,
         "low_bound": 12.0,
         "hi_q": 0.50,
@@ -1357,7 +1398,7 @@ bf_eia923_coal_heat_content = [
     },
     {
         "title": "Lignite heat content (tails)",
-        "query": "fuel_type_code=='LIG'",
+        "query": "energy_source_code=='LIG'",
         "low_q": 0.05,
         "low_bound": 10.0,
         "hi_q": 0.95,
@@ -1381,7 +1422,7 @@ bf_eia923_coal_heat_content = [
 bf_eia923_oil_heat_content = [
     {
         "title": "Diesel Fuel Oil heat content (tails)",
-        "query": "fuel_type_code=='DFO'",
+        "query": "energy_source_code=='DFO'",
         "low_q": 0.05,
         "low_bound": 5.5,
         "hi_q": 0.95,
@@ -1391,7 +1432,7 @@ bf_eia923_oil_heat_content = [
     },
     {
         "title": "Diesel Fuel Oil heat content (middle)",
-        "query": "fuel_type_code=='DFO'",
+        "query": "energy_source_code=='DFO'",
         "low_q": 0.50,
         "low_bound": 5.75,
         "hi_q": 0.50,
@@ -1449,7 +1490,7 @@ to be an off-by-10x error, possibly due to reporting error in units used.
 bf_eia923_coal_ash_content = [
     {
         "title": "Bituminous coal ash content (middle)",
-        "query": "fuel_type_code=='BIT'",
+        "query": "energy_source_code=='BIT'",
         "low_q": 0.50,
         "low_bound": 6.0,
         "hi_q": 0.50,
@@ -1459,7 +1500,7 @@ bf_eia923_coal_ash_content = [
     },
     {
         "title": "Sub-bituminous coal ash content (middle)",
-        "query": "fuel_type_code=='SUB'",
+        "query": "energy_source_code=='SUB'",
         "low_q": 0.50,
         "low_bound": 4.5,
         "hi_q": 0.50,
@@ -1469,7 +1510,7 @@ bf_eia923_coal_ash_content = [
     },
     {
         "title": "Lignite ash content (middle)",
-        "query": "fuel_type_code=='LIG'",
+        "query": "energy_source_code=='LIG'",
         "low_q": 0.50,
         "low_bound": 7.0,
         "hi_q": 0.50,
@@ -1513,7 +1554,7 @@ Based on historically reported values in EIA 923 Fuel Receipts and Costs.
 bf_eia923_self = [
     {
         "title": "Bituminous coal ash content",
-        "query": "fuel_type_code=='BIT'",
+        "query": "energy_source_code=='BIT'",
         "low_q": 0.05,
         "mid_q": 0.25,
         "hi_q": 0.95,
@@ -1522,7 +1563,7 @@ bf_eia923_self = [
     },
     {
         "title": "Subbituminous coal ash content",
-        "query": "fuel_type_code=='SUB'",
+        "query": "energy_source_code=='SUB'",
         "low_q": 0.05,
         "mid_q": 0.50,
         "hi_q": 0.95,
@@ -1531,7 +1572,7 @@ bf_eia923_self = [
     },
     {
         "title": "Lignite coal ash content",
-        "query": "fuel_type_code=='LIG'",
+        "query": "energy_source_code=='LIG'",
         "low_q": 0.05,
         "mid_q": 0.50,
         "hi_q": 0.95,
@@ -1540,7 +1581,7 @@ bf_eia923_self = [
     },
     {
         "title": "Bituminous coal heat content",
-        "query": "fuel_type_code=='BIT'",
+        "query": "energy_source_code=='BIT'",
         "low_q": 0.07,
         "mid_q": 0.5,
         "hi_q": 0.98,
@@ -1549,7 +1590,7 @@ bf_eia923_self = [
     },
     {
         "title": "Subbituminous coal heat content",
-        "query": "fuel_type_code=='SUB'",
+        "query": "energy_source_code=='SUB'",
         "low_q": 0.05,
         "mid_q": 0.5,
         "hi_q": 0.90,
@@ -1558,7 +1599,7 @@ bf_eia923_self = [
     },
     {
         "title": "Lignite heat content",
-        "query": "fuel_type_code=='LIG'",
+        "query": "energy_source_code=='LIG'",
         "low_q": 0.10,
         "mid_q": 0.5,
         "hi_q": 0.95,
@@ -1567,7 +1608,7 @@ bf_eia923_self = [
     },
     {
         "title": "Diesel Fuel Oil heat content",
-        "query": "fuel_type_code=='DFO'",
+        "query": "energy_source_code=='DFO'",
         "low_q": 0.05,
         "mid_q": 0.50,
         "hi_q": 0.95,
@@ -1641,8 +1682,8 @@ frc_eia923_coal_ant_heat_content = [
         "low_bound": 20.5,
         "hi_q": 0.50,
         "hi_bound": 26.5,
-        "data_col": "heat_content_mmbtu_per_unit",
-        "weight_col": "fuel_qty_units",
+        "data_col": "fuel_mmbtu_per_unit",
+        "weight_col": "fuel_received_units",
     },
     {
         "title": "Anthracite coal heat content (tails)",
@@ -1651,8 +1692,8 @@ frc_eia923_coal_ant_heat_content = [
         "low_bound": 22.0,
         "hi_q": 0.95,
         "hi_bound": 29.0,
-        "data_col": "heat_content_mmbtu_per_unit",
-        "weight_col": "fuel_qty_units",
+        "data_col": "fuel_mmbtu_per_unit",
+        "weight_col": "fuel_received_units",
     },
 ]
 """
@@ -1670,8 +1711,8 @@ frc_eia923_coal_bit_heat_content = [
         "low_bound": 20.5,
         "hi_q": 0.50,
         "hi_bound": 26.5,
-        "data_col": "heat_content_mmbtu_per_unit",
-        "weight_col": "fuel_qty_units",
+        "data_col": "fuel_mmbtu_per_unit",
+        "weight_col": "fuel_received_units",
     },
     {
         "title": "Bituminous coal heat content (tails)",
@@ -1680,8 +1721,8 @@ frc_eia923_coal_bit_heat_content = [
         "low_bound": 18.0,
         "hi_q": 0.95,
         "hi_bound": 29.0,
-        "data_col": "heat_content_mmbtu_per_unit",
-        "weight_col": "fuel_qty_units",
+        "data_col": "fuel_mmbtu_per_unit",
+        "weight_col": "fuel_received_units",
     },
 ]
 """
@@ -1699,8 +1740,8 @@ frc_eia923_coal_sub_heat_content = [
         "low_bound": 16.5,
         "hi_q": 0.50,
         "hi_bound": 18.0,
-        "data_col": "heat_content_mmbtu_per_unit",
-        "weight_col": "fuel_qty_units",
+        "data_col": "fuel_mmbtu_per_unit",
+        "weight_col": "fuel_received_units",
     },
     {
         "title": "Sub-bituminous coal heat content (tails)",
@@ -1709,8 +1750,8 @@ frc_eia923_coal_sub_heat_content = [
         "low_bound": 15.0,
         "hi_q": 0.95,
         "hi_bound": 20.0,
-        "data_col": "heat_content_mmbtu_per_unit",
-        "weight_col": "fuel_qty_units",
+        "data_col": "fuel_mmbtu_per_unit",
+        "weight_col": "fuel_received_units",
     },
 ]
 """
@@ -1728,8 +1769,8 @@ frc_eia923_coal_lig_heat_content = [
         "low_bound": 12.0,
         "hi_q": 0.50,
         "hi_bound": 14.0,
-        "data_col": "heat_content_mmbtu_per_unit",
-        "weight_col": "fuel_qty_units",
+        "data_col": "fuel_mmbtu_per_unit",
+        "weight_col": "fuel_received_units",
     },
     {
         "title": "Lignite heat content (tails)",
@@ -1738,8 +1779,8 @@ frc_eia923_coal_lig_heat_content = [
         "low_bound": 10.0,
         "hi_q": 0.95,
         "hi_bound": 15.0,
-        "data_col": "heat_content_mmbtu_per_unit",
-        "weight_col": "fuel_qty_units",
+        "data_col": "fuel_mmbtu_per_unit",
+        "weight_col": "fuel_received_units",
     },
 ]
 """
@@ -1757,8 +1798,8 @@ frc_eia923_coal_cc_heat_content = [
         "low_bound": 6.5,
         "hi_q": 0.95,
         "hi_bound": 16.0,
-        "data_col": "heat_content_mmbtu_per_unit",
-        "weight_col": "fuel_qty_units",
+        "data_col": "fuel_mmbtu_per_unit",
+        "weight_col": "fuel_received_units",
     },
 ]
 """
@@ -1776,8 +1817,8 @@ frc_eia923_coal_wc_heat_content = [
         "low_bound": 6.5,
         "hi_q": 0.95,
         "hi_bound": 16.0,
-        "data_col": "heat_content_mmbtu_per_unit",
-        "weight_col": "fuel_qty_units",
+        "data_col": "fuel_mmbtu_per_unit",
+        "weight_col": "fuel_received_units",
     },
 ]
 """
@@ -1795,8 +1836,8 @@ frc_eia923_oil_dfo_heat_content = [
         "low_bound": 5.5,
         "hi_q": 0.95,
         "hi_bound": 6.0,
-        "data_col": "heat_content_mmbtu_per_unit",
-        "weight_col": "fuel_qty_units",
+        "data_col": "fuel_mmbtu_per_unit",
+        "weight_col": "fuel_received_units",
     },
     {
         "title": "Diesel Fuel Oil heat content (middle)",
@@ -1805,8 +1846,8 @@ frc_eia923_oil_dfo_heat_content = [
         "low_bound": 5.75,
         "hi_q": 0.50,
         "hi_bound": 5.85,
-        "data_col": "heat_content_mmbtu_per_unit",
-        "weight_col": "fuel_qty_units",
+        "data_col": "fuel_mmbtu_per_unit",
+        "weight_col": "fuel_received_units",
     },
 ]
 """
@@ -1824,8 +1865,8 @@ frc_eia923_gas_sgc_heat_content = [
         "low_bound": 0.2,
         "hi_q": 0.95,
         "hi_bound": 0.3,
-        "data_col": "heat_content_mmbtu_per_unit",
-        "weight_col": "fuel_qty_units",
+        "data_col": "fuel_mmbtu_per_unit",
+        "weight_col": "fuel_received_units",
     },
 ]
 """
@@ -1843,8 +1884,8 @@ frc_eia923_oil_jf_heat_content = [
         "low_bound": 5.0,
         "hi_q": 0.95,
         "hi_bound": 6.0,
-        "data_col": "heat_content_mmbtu_per_unit",
-        "weight_col": "fuel_qty_units",
+        "data_col": "fuel_mmbtu_per_unit",
+        "weight_col": "fuel_received_units",
     },
 ]
 """
@@ -1862,8 +1903,8 @@ frc_eia923_oil_ker_heat_content = [
         "low_bound": 5.4,
         "hi_q": 0.95,
         "hi_bound": 6.1,
-        "data_col": "heat_content_mmbtu_per_unit",
-        "weight_col": "fuel_qty_units",
+        "data_col": "fuel_mmbtu_per_unit",
+        "weight_col": "fuel_received_units",
     },
 ]
 """
@@ -1881,8 +1922,8 @@ frc_eia923_petcoke_heat_content = [
         "low_bound": 24.0,
         "hi_q": 0.95,
         "hi_bound": 30.0,
-        "data_col": "heat_content_mmbtu_per_unit",
-        "weight_col": "fuel_qty_units",
+        "data_col": "fuel_mmbtu_per_unit",
+        "weight_col": "fuel_received_units",
     },
 ]
 """
@@ -1900,8 +1941,8 @@ frc_eia923_rfo_heat_content = [
         "low_bound": 5.7,
         "hi_q": 0.95,
         "hi_bound": 6.9,
-        "data_col": "heat_content_mmbtu_per_unit",
-        "weight_col": "fuel_qty_units",
+        "data_col": "fuel_mmbtu_per_unit",
+        "weight_col": "fuel_received_units",
     },
 ]
 """
@@ -1919,8 +1960,8 @@ frc_eia923_propane_heat_content = [
         "low_bound": 2.5,
         "hi_q": 0.95,
         "hi_bound": 2.75,
-        "data_col": "heat_content_mmbtu_per_unit",
-        "weight_col": "fuel_qty_units",
+        "data_col": "fuel_mmbtu_per_unit",
+        "weight_col": "fuel_received_units",
     },
 ]
 """
@@ -1938,8 +1979,8 @@ frc_eia923_petcoke_syngas_heat_content = [
         "low_bound": 0.2,
         "hi_q": 0.95,
         "hi_bound": 1.1,
-        "data_col": "heat_content_mmbtu_per_unit",
-        "weight_col": "fuel_qty_units",
+        "data_col": "fuel_mmbtu_per_unit",
+        "weight_col": "fuel_received_units",
     },
 ]
 """
@@ -1957,8 +1998,8 @@ frc_eia923_waste_oil_heat_content = [
         "low_bound": 3.0,
         "hi_q": 0.95,
         "hi_bound": 5.9,
-        "data_col": "heat_content_mmbtu_per_unit",
-        "weight_col": "fuel_qty_units",
+        "data_col": "fuel_mmbtu_per_unit",
+        "weight_col": "fuel_received_units",
     },
 ]
 """
@@ -1976,8 +2017,8 @@ frc_eia923_blast_furnace_gas_heat_content = [
         "low_bound": 0.07,
         "hi_q": 0.95,
         "hi_bound": 0.12,
-        "data_col": "heat_content_mmbtu_per_unit",
-        "weight_col": "fuel_qty_units",
+        "data_col": "fuel_mmbtu_per_unit",
+        "weight_col": "fuel_received_units",
     },
 ]
 """
@@ -1995,8 +2036,8 @@ frc_eia923_natural_gas_heat_content = [
         "low_bound": 0.8,
         "hi_q": 0.95,
         "hi_bound": 1.2,
-        "data_col": "heat_content_mmbtu_per_unit",
-        "weight_col": "fuel_qty_units",
+        "data_col": "fuel_mmbtu_per_unit",
+        "weight_col": "fuel_received_units",
     },
 ]
 """
@@ -2014,8 +2055,8 @@ frc_eia923_other_gas_heat_content = [
         "low_bound": 0.07,
         "hi_q": 0.95,
         "hi_bound": 3.3,
-        "data_col": "heat_content_mmbtu_per_unit",
-        "weight_col": "fuel_qty_units",
+        "data_col": "fuel_mmbtu_per_unit",
+        "weight_col": "fuel_received_units",
     },
 ]
 """
@@ -2035,8 +2076,8 @@ frc_eia923_ag_byproduct_heat_content = [
         "low_bound": 7.0,
         "hi_q": 0.95,
         "hi_bound": 18.0,
-        "data_col": "heat_content_mmbtu_per_unit",
-        "weight_col": "fuel_qty_units",
+        "data_col": "fuel_mmbtu_per_unit",
+        "weight_col": "fuel_received_units",
     },
 ]
 """
@@ -2054,8 +2095,8 @@ frc_eia923_muni_solids_heat_content = [
         "low_bound": 9.0,
         "hi_q": 0.95,
         "hi_bound": 12.0,
-        "data_col": "heat_content_mmbtu_per_unit",
-        "weight_col": "fuel_qty_units",
+        "data_col": "fuel_mmbtu_per_unit",
+        "weight_col": "fuel_received_units",
     },
 ]
 """
@@ -2073,8 +2114,8 @@ frc_eia923_biomass_solids_heat_content = [
         "low_bound": 8.0,
         "hi_q": 0.95,
         "hi_bound": 25.0,
-        "data_col": "heat_content_mmbtu_per_unit",
-        "weight_col": "fuel_qty_units",
+        "data_col": "fuel_mmbtu_per_unit",
+        "weight_col": "fuel_received_units",
     },
 ]
 """
@@ -2092,8 +2133,8 @@ frc_eia923_wood_solids_heat_content = [
         "low_bound": 7.0,
         "hi_q": 0.95,
         "hi_bound": 18.0,
-        "data_col": "heat_content_mmbtu_per_unit",
-        "weight_col": "fuel_qty_units",
+        "data_col": "fuel_mmbtu_per_unit",
+        "weight_col": "fuel_received_units",
     },
 ]
 """
@@ -2111,8 +2152,8 @@ frc_eia923_biomass_liquids_heat_content = [
         "low_bound": 3.5,
         "hi_q": 0.95,
         "hi_bound": 4.0,
-        "data_col": "heat_content_mmbtu_per_unit",
-        "weight_col": "fuel_qty_units",
+        "data_col": "fuel_mmbtu_per_unit",
+        "weight_col": "fuel_received_units",
     },
 ]
 """
@@ -2130,8 +2171,8 @@ frc_eia923_sludge_heat_content = [
         "low_bound": 10.0,
         "hi_q": 0.95,
         "hi_bound": 16.0,
-        "data_col": "heat_content_mmbtu_per_unit",
-        "weight_col": "fuel_qty_units",
+        "data_col": "fuel_mmbtu_per_unit",
+        "weight_col": "fuel_received_units",
     },
 ]
 """
@@ -2149,8 +2190,8 @@ frc_eia923_black_liquor_heat_content = [
         "low_bound": 10.0,
         "hi_q": 0.95,
         "hi_bound": 14.0,
-        "data_col": "heat_content_mmbtu_per_unit",
-        "weight_col": "fuel_qty_units",
+        "data_col": "fuel_mmbtu_per_unit",
+        "weight_col": "fuel_received_units",
     },
 ]
 """
@@ -2168,8 +2209,8 @@ frc_eia923_wood_liquids_heat_content = [
         "low_bound": 8.0,
         "hi_q": 0.95,
         "hi_bound": 14.0,
-        "data_col": "heat_content_mmbtu_per_unit",
-        "weight_col": "fuel_qty_units",
+        "data_col": "fuel_mmbtu_per_unit",
+        "weight_col": "fuel_received_units",
     },
 ]
 """
@@ -2187,8 +2228,8 @@ frc_eia923_landfill_gas_heat_content = [
         "low_bound": 0.3,
         "hi_q": 0.95,
         "hi_bound": 0.6,
-        "data_col": "heat_content_mmbtu_per_unit",
-        "weight_col": "fuel_qty_units",
+        "data_col": "fuel_mmbtu_per_unit",
+        "weight_col": "fuel_received_units",
     },
 ]
 """
@@ -2206,8 +2247,8 @@ frc_eia923_biomass_gas_heat_content = [
         "low_bound": 0.36,
         "hi_q": 0.95,
         "hi_bound": 1.6,
-        "data_col": "heat_content_mmbtu_per_unit",
-        "weight_col": "fuel_qty_units",
+        "data_col": "fuel_mmbtu_per_unit",
+        "weight_col": "fuel_received_units",
     },
 ]
 """
@@ -2226,7 +2267,7 @@ frc_eia923_coal_ash_content = [
         "hi_q": 0.50,
         "hi_bound": 15.0,
         "data_col": "ash_content_pct",
-        "weight_col": "fuel_qty_units",
+        "weight_col": "fuel_received_units",
     },
     {
         "title": "Sub-bituminous coal ash content (middle)",
@@ -2236,7 +2277,7 @@ frc_eia923_coal_ash_content = [
         "hi_q": 0.50,
         "hi_bound": 7.0,
         "data_col": "ash_content_pct",
-        "weight_col": "fuel_qty_units",
+        "weight_col": "fuel_received_units",
     },
     {
         "title": "Lignite ash content (middle)",
@@ -2246,7 +2287,7 @@ frc_eia923_coal_ash_content = [
         "hi_q": 0.50,
         "hi_bound": 30.0,
         "data_col": "ash_content_pct",
-        "weight_col": "fuel_qty_units",
+        "weight_col": "fuel_received_units",
     },
     {
         "title": "All coal ash content (middle)",
@@ -2256,7 +2297,7 @@ frc_eia923_coal_ash_content = [
         "hi_q": 0.50,
         "hi_bound": 20.0,
         "data_col": "ash_content_pct",
-        "weight_col": "fuel_qty_units",
+        "weight_col": "fuel_received_units",
     },
 ]
 """Valid coal ash content (%). Based on historical reporting in EIA 923."""
@@ -2270,7 +2311,7 @@ frc_eia923_coal_sulfur_content = [
         "low_q": 0.05,
         "low_bound": 0.15,
         "data_col": "sulfur_content_pct",
-        "weight_col": "fuel_qty_units",
+        "weight_col": "fuel_received_units",
     },
 ]
 """
@@ -2288,7 +2329,7 @@ frc_eia923_coal_mercury_content = [
         "hi_q": 0.95,
         "hi_bound": 0.125,
         "data_col": "mercury_content_ppm",
-        "weight_col": "fuel_qty_units",
+        "weight_col": "fuel_received_units",
     },
     {  # Based on USGS FS095-01 https://pubs.usgs.gov/fs/fs095-01/fs095-01.html
         "title": "Coal mercury content (middle)",
@@ -2298,7 +2339,7 @@ frc_eia923_coal_mercury_content = [
         "hi_q": 0.50,
         "hi_bound": 0.1,
         "data_col": "mercury_content_ppm",
-        "weight_col": "fuel_qty_units",
+        "weight_col": "fuel_received_units",
     },
 ]
 """
@@ -2318,7 +2359,7 @@ frc_eia923_coal_moisture_content = [
         "hi_q": 0.50,
         "hi_bound": 16.5,
         "data_col": "moisture_content_pct",
-        "weight_col": "fuel_qty_units",
+        "weight_col": "fuel_received_units",
     },
     {
         "title": "Sub-bituminous coal moisture content (middle)",
@@ -2328,7 +2369,7 @@ frc_eia923_coal_moisture_content = [
         "hi_q": 0.50,
         "hi_bound": 32.5,
         "data_col": "moisture_content_pct",
-        "weight_col": "fuel_qty_units",
+        "weight_col": "fuel_received_units",
     },
     {
         "title": "Lignite moisture content (middle)",
@@ -2338,7 +2379,7 @@ frc_eia923_coal_moisture_content = [
         "hi_q": 0.50,
         "hi_bound": 45.0,
         "data_col": "moisture_content_pct",
-        "weight_col": "fuel_qty_units",
+        "weight_col": "fuel_received_units",
     },
     {
         "title": "All coal moisture content (middle)",
@@ -2348,7 +2389,7 @@ frc_eia923_coal_moisture_content = [
         "hi_q": 0.50,
         "hi_bound": 40.0,
         "data_col": "moisture_content_pct",
-        "weight_col": "fuel_qty_units",
+        "weight_col": "fuel_received_units",
     },
 ]
 """Valid coal moisture content, based on historical EIA 923 reporting."""
@@ -2364,7 +2405,7 @@ frc_eia923_self = [
         "mid_q": 0.25,
         "hi_q": 0.95,
         "data_col": "ash_content_pct",
-        "weight_col": "fuel_qty_units",
+        "weight_col": "fuel_received_units",
     },
     {
         "title": "Subbituminous coal ash content",
@@ -2373,7 +2414,7 @@ frc_eia923_self = [
         "mid_q": 0.50,
         "hi_q": 0.95,
         "data_col": "ash_content_pct",
-        "weight_col": "fuel_qty_units",
+        "weight_col": "fuel_received_units",
     },
     {
         "title": "Lignite coal ash content",
@@ -2382,7 +2423,7 @@ frc_eia923_self = [
         "mid_q": 0.50,
         "hi_q": 0.95,
         "data_col": "ash_content_pct",
-        "weight_col": "fuel_qty_units",
+        "weight_col": "fuel_received_units",
     },
     {
         "title": "Bituminous coal heat content",
@@ -2390,8 +2431,8 @@ frc_eia923_self = [
         "low_q": 0.07,
         "mid_q": 0.5,
         "hi_q": 0.98,
-        "data_col": "heat_content_mmbtu_per_unit",
-        "weight_col": "fuel_qty_units",
+        "data_col": "fuel_mmbtu_per_unit",
+        "weight_col": "fuel_received_units",
     },
     {
         "title": "Subbituminous coal heat content",
@@ -2399,8 +2440,8 @@ frc_eia923_self = [
         "low_q": 0.05,
         "mid_q": 0.5,
         "hi_q": 0.90,
-        "data_col": "heat_content_mmbtu_per_unit",
-        "weight_col": "fuel_qty_units",
+        "data_col": "fuel_mmbtu_per_unit",
+        "weight_col": "fuel_received_units",
     },
     {
         "title": "Lignite heat content",
@@ -2408,8 +2449,8 @@ frc_eia923_self = [
         "low_q": 0.10,
         "mid_q": 0.5,
         "hi_q": 0.95,
-        "data_col": "heat_content_mmbtu_per_unit",
-        "weight_col": "fuel_qty_units",
+        "data_col": "fuel_mmbtu_per_unit",
+        "weight_col": "fuel_received_units",
     },
     {
         "title": "Diesel Fuel Oil heat content",
@@ -2417,8 +2458,8 @@ frc_eia923_self = [
         "low_q": 0.05,
         "mid_q": 0.50,
         "hi_q": 0.95,
-        "data_col": "heat_content_mmbtu_per_unit",
-        "weight_col": "fuel_qty_units",
+        "data_col": "fuel_mmbtu_per_unit",
+        "weight_col": "fuel_received_units",
     },
     {
         "title": "Bituminous coal moisture content",
@@ -2427,7 +2468,7 @@ frc_eia923_self = [
         "mid_q": 0.5,
         "hi_q": 0.95,
         "data_col": "moisture_content_pct",
-        "weight_col": "fuel_qty_units",
+        "weight_col": "fuel_received_units",
     },
     {
         "title": "Subbituminous coal moisture content",
@@ -2436,7 +2477,7 @@ frc_eia923_self = [
         "mid_q": 0.5,
         "hi_q": 0.95,
         "data_col": "moisture_content_pct",
-        "weight_col": "fuel_qty_units",
+        "weight_col": "fuel_received_units",
     },
     {
         "title": "Lignite moisture content",
@@ -2445,7 +2486,7 @@ frc_eia923_self = [
         "mid_q": 0.5,
         "hi_q": 1.0,
         "data_col": "moisture_content_pct",
-        "weight_col": "fuel_qty_units",
+        "weight_col": "fuel_received_units",
     },
 ]
 """EIA923 fuel receipts & costs data validation against itself."""
@@ -2461,7 +2502,7 @@ frc_eia923_agg = [
         "mid_q": 0.7,
         "hi_q": 0.95,
         "data_col": "ash_content_pct",
-        "weight_col": "fuel_qty_units",
+        "weight_col": "fuel_received_units",
     },
     {  # Only 1 year of data, mostly zero, a few big outliers. Not useful
         "title": "Coal chlorine content",
@@ -2470,7 +2511,7 @@ frc_eia923_agg = [
         "mid_q": False,
         "hi_q": False,
         "data_col": "chlorine_content_ppm",
-        "weight_col": "fuel_qty_units",
+        "weight_col": "fuel_received_units",
     },
     {
         "title": "Coal fuel costs",
@@ -2479,7 +2520,7 @@ frc_eia923_agg = [
         "mid_q": 0.5,
         "hi_q": 0.95,
         "data_col": "fuel_cost_per_mmbtu",
-        "weight_col": "fuel_qty_units",
+        "weight_col": "fuel_received_units",
     },
     {  # Coal sulfur content is one-sided. Needs an absolute test.
         "title": "Coal sulfur content",
@@ -2488,7 +2529,7 @@ frc_eia923_agg = [
         "mid_q": False,
         "hi_q": False,
         "data_col": "sulfur_content_pct",
-        "weight_col": "fuel_qty_units",
+        "weight_col": "fuel_received_units",
     },
     {  # Weird little population of ~5% at 1/10th correct heat content
         "title": "Gas heat content",
@@ -2496,8 +2537,8 @@ frc_eia923_agg = [
         "low_q": 0.10,
         "mid_q": 0.50,
         "hi_q": 0.95,
-        "data_col": "heat_content_mmbtu_per_unit",
-        "weight_col": "fuel_qty_units",
+        "data_col": "fuel_mmbtu_per_unit",
+        "weight_col": "fuel_received_units",
     },
     {  # Gas fuel costs are *extremely* variable.
         "title": "Gas fuel costs",
@@ -2506,7 +2547,7 @@ frc_eia923_agg = [
         "mid_q": 0.50,
         "hi_q": False,
         "data_col": "fuel_cost_per_mmbtu",
-        "weight_col": "fuel_qty_units",
+        "weight_col": "fuel_received_units",
     },
     {
         "title": "Petroleum fuel cost",
@@ -2515,7 +2556,7 @@ frc_eia923_agg = [
         "mid_q": 0.50,
         "hi_q": False,
         "data_col": "fuel_cost_per_mmbtu",
-        "weight_col": "fuel_qty_units",
+        "weight_col": "fuel_received_units",
     },
     {
         "title": "Petroleum heat content",
@@ -2523,8 +2564,8 @@ frc_eia923_agg = [
         "low_q": 0.10,
         "mid_q": 0.50,
         "hi_q": 0.95,
-        "data_col": "heat_content_mmbtu_per_unit",
-        "weight_col": "fuel_qty_units",
+        "data_col": "fuel_mmbtu_per_unit",
+        "weight_col": "fuel_received_units",
     },
 ]
 """EIA923 fuel receipts & costs data validation against aggregated data."""
@@ -2707,7 +2748,7 @@ mcoe_fuel_cost_per_mmbtu = [
         "title": "Natural Gas Fuel Costs (tails, 2015+)",
         "query": "fuel_type_code_pudl=='gas' and report_date>='2015-01-01'",
         "low_q": 0.05,
-        "low_bound": 1.75,
+        "low_bound": 1.65,
         "hi_q": 0.95,
         "hi_bound": 6.7,
         "data_col": "fuel_cost_per_mmbtu",
@@ -2895,14 +2936,5 @@ gens_eia860_self = [
 ###############################################################################
 # Naming issues...
 ###############################################################################
-# Differences between tables for *very* similar columns:
-#  * fuel_type_code (BF) vs. energy_source_code (FRC)
-#  * fuel_qty_units (FRC) vs. fuel_consumed_units (BF)
-#  * fuel_mmbtu_per_unit (BF) vs. heat_content_mmbtu_per_unit (BF)
-#
-# Codes that could be expanded for readability:
-#  * fuel_type_code (BF) => fuel_type
-#  * energy_source_code (FRC) => energy_source
-#
 # Columns that don't conform to the naming conventions:
-#  * fuel_type_code_pudl isn'ta code -- should be just fuel_type_pudl
+#  * fuel_type_code_pudl isn't a code -- should be just fuel_type_pudl
