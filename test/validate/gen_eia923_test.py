@@ -12,5 +12,4 @@ def test_gen_eia923(pudl_out_eia, live_dbs):
     if not live_dbs:
         pytest.skip("Data validation only works with a live PUDL DB.")
     logger.info("Reading EIA 923 Generation data...")
-    logger.info(
-        f"Successfully pulled {len(pudl_out_eia.gen_eia923())} records.")
+    logger.info(f"Successfully pulled {len(pudl_out_eia.gen_eia923())} records.")

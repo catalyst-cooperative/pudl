@@ -46,10 +46,16 @@ def get_all_utils(pudl_out):
 
     """
     return (
-        pd.concat([
-            pudl_out.utils_eia860()[["utility_id_eia", "utility_name_eia"]],
-            pudl_out.service_territory_eia861()[["utility_id_eia", "utility_name_eia"]],
-        ]).dropna(subset=["utility_id_eia"]).drop_duplicates(subset=["utility_id_eia"])
+        pd.concat(
+            [
+                pudl_out.utils_eia860()[["utility_id_eia", "utility_name_eia"]],
+                pudl_out.service_territory_eia861()[
+                    ["utility_id_eia", "utility_name_eia"]
+                ],
+            ]
+        )
+        .dropna(subset=["utility_id_eia"])
+        .drop_duplicates(subset=["utility_id_eia"])
     )
 
 
@@ -93,11 +99,17 @@ def get_territory_fips(ids, assn, assn_col, st_eia861, limit_by_state=True):
 
     return (
         pd.merge(assn, st_eia861, how="inner")
-        .loc[:, [
-            "report_date", assn_col,
-            "state", "county",
-            "state_id_fips", "county_id_fips"
-        ]]
+        .loc[
+            :,
+            [
+                "report_date",
+                assn_col,
+                "state",
+                "county",
+                "state_id_fips",
+                "county_id_fips",
+            ],
+        ]
         .drop_duplicates()
     )
 
@@ -129,47 +141,52 @@ def add_geometries(df, census_gdf, dissolve=False, dissolve_by=None):
     """
     out_gdf = (
         census_gdf[["geoid10", "namelsad10", "dp0010001", "geometry"]]
-        .rename(columns={
-            "geoid10": "county_id_fips",
-            "namelsad10": "county_name_census",
-            "dp0010001": "population",
-        })
+        .rename(
+            columns={
+                "geoid10": "county_id_fips",
+                "namelsad10": "county_name_census",
+                "dp0010001": "population",
+            }
+        )
         # Calculate county areas using cylindrical equal area projection:
         .assign(area_km2=lambda x: x.geometry.to_crs(epsg=6933).area / 1e6)
         .merge(df, how="right")
     )
     if dissolve is True:
         # Don't double-count duplicated counties, if any.
-        out_gdf = out_gdf.drop_duplicates(subset=dissolve_by + ["county_id_fips", ])
+        out_gdf = out_gdf.drop_duplicates(
+            subset=dissolve_by
+            + [
+                "county_id_fips",
+            ]
+        )
         # Sum these numerical columns so we can merge with dissolved geometries
         summed = (
-            out_gdf.groupby(dissolve_by)[["population", "area_km2"]]
-            .sum().reset_index()
+            out_gdf.groupby(dissolve_by)[["population", "area_km2"]].sum().reset_index()
         )
         out_gdf = (
             out_gdf.dissolve(by=dissolve_by)
-            .drop([
-                "county_id_fips",
-                "county",
-                "county_name_census",
-                "state",
-                "state_id_fips",
-                "population",
-                "area_km2",
-            ], axis="columns")
+            .drop(
+                [
+                    "county_id_fips",
+                    "county",
+                    "county_name_census",
+                    "state",
+                    "state_id_fips",
+                    "population",
+                    "area_km2",
+                ],
+                axis="columns",
+            )
             .reset_index()
             .merge(summed)
         )
     return out_gdf
 
 
-def get_territory_geometries(ids,
-                             assn,
-                             assn_col,
-                             st_eia861,
-                             census_gdf,
-                             limit_by_state=True,
-                             dissolve=False):
+def get_territory_geometries(
+    ids, assn, assn_col, st_eia861, census_gdf, limit_by_state=True, dissolve=False
+):
     """
     Compile service territory geometries based on county_id_fips.
 
@@ -213,29 +230,28 @@ def get_territory_geometries(ids,
         geopandas.GeoDataFrame
 
     """
-    return (
-        get_territory_fips(
-            ids=ids,
-            assn=assn,
-            assn_col=assn_col,
-            st_eia861=st_eia861,
-            limit_by_state=limit_by_state,
-        )
-        .pipe(
-            add_geometries,
-            census_gdf,
-            dissolve=dissolve,
-            dissolve_by=["report_date", assn_col]
-        )
+    return get_territory_fips(
+        ids=ids,
+        assn=assn,
+        assn_col=assn_col,
+        st_eia861=st_eia861,
+        limit_by_state=limit_by_state,
+    ).pipe(
+        add_geometries,
+        census_gdf,
+        dissolve=dissolve,
+        dissolve_by=["report_date", assn_col],
     )
 
 
-def compile_geoms(pudl_out,
-                  census_counties,
-                  entity_type,  # "ba" or "util"
-                  dissolve=False,
-                  limit_by_state=True,
-                  save=True):
+def compile_geoms(
+    pudl_out,
+    census_counties,
+    entity_type,  # "ba" or "util"
+    dissolve=False,
+    limit_by_state=True,
+    save=True,
+):
     """
     Compile all available utility or balancing authority geometries.
 
@@ -261,7 +277,9 @@ def compile_geoms(pudl_out,
     """
     logger.info(
         "Compiling %s geometries with dissolve=%s and limit_by_state=%s.",
-        entity_type, dissolve, limit_by_state
+        entity_type,
+        dissolve,
+        limit_by_state,
     )
 
     if entity_type == "ba":
@@ -290,7 +308,7 @@ def compile_geoms(pudl_out,
             geom,
             entity_type=entity_type,
             dissolve=dissolve,
-            limit_by_state=limit_by_state
+            limit_by_state=limit_by_state,
         )
 
     return geom
@@ -347,11 +365,11 @@ def plot_historical_territory(gdf, id_col, id_val):
     entity_gdf = gdf[gdf[id_col] == id_val]
     if "county_id_fips" in entity_gdf.columns:
         entity_gdf = entity_gdf.drop_duplicates(
-            subset=["report_date", "county_id_fips"])
+            subset=["report_date", "county_id_fips"]
+        )
     entity_gdf["report_year"] = entity_gdf.report_date.dt.year
     logger.info(
-        "Plotting service territories of %s %s records.",
-        len(entity_gdf), id_col
+        "Plotting service territories of %s %s records.", len(entity_gdf), id_col
     )
 
     # Create a grid of subplots sufficient to hold all the years:
@@ -359,8 +377,13 @@ def plot_historical_territory(gdf, id_col, id_val):
     ncols = 5
     nrows = math.ceil(len(years) / ncols)
     fig, axes = plt.subplots(
-        ncols=ncols, nrows=nrows, figsize=(15, 3 * nrows),
-        sharex=True, sharey=True, facecolor="white")
+        ncols=ncols,
+        nrows=nrows,
+        figsize=(15, 3 * nrows),
+        sharex=True,
+        sharey=True,
+        facecolor="white",
+    )
     fig.suptitle(f"{id_col} == {id_val}")
 
     for year, ax in zip(years, axes.flat):
@@ -414,7 +437,7 @@ def plot_all_territories(
         306,  # PJM Dupe
     )
     if isinstance(respondent_type, str):
-        respondent_type = (respondent_type, )
+        respondent_type = (respondent_type,)
 
     plot_gdf = (
         gdf.query("report_date==@report_date")
@@ -458,12 +481,12 @@ def main():
     """Compile historical utility and balancing area territories."""
     # Display logged output from the PUDL package:
     pudl_logger = logging.getLogger("pudl")
-    log_format = '%(asctime)s [%(levelname)8s] %(name)s:%(lineno)s %(message)s'
-    coloredlogs.install(fmt=log_format, level='INFO', logger=pudl_logger)
+    log_format = "%(asctime)s [%(levelname)8s] %(name)s:%(lineno)s %(message)s"
+    coloredlogs.install(fmt=log_format, level="INFO", logger=pudl_logger)
 
     args = parse_command_line(sys.argv)
     pudl_settings = pudl.workspace.setup.get_defaults()
-    pudl_engine = sa.create_engine(pudl_settings['pudl_db'])
+    pudl_engine = sa.create_engine(pudl_settings["pudl_db"])
     pudl_out = pudl.output.pudltabl.PudlTabl(pudl_engine)
     # Load the US Census DP1 county data:
     county_gdf = pudl.output.censusdp1tract.get_layer(
