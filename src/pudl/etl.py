@@ -28,8 +28,13 @@ from pudl.helpers import convert_cols_dtypes
 from pudl.metadata.codes import CODE_METADATA
 from pudl.metadata.dfs import FERC_ACCOUNTS, FERC_DEPRECIATION_LINES
 from pudl.metadata.fields import apply_pudl_dtypes
-from pudl.settings import (EiaSettings, EpaCemsSettings, EtlSettings,
-                           Ferc1Settings, GlueSettings)
+from pudl.settings import (
+    EiaSettings,
+    EpaCemsSettings,
+    EtlSettings,
+    Ferc1Settings,
+    GlueSettings,
+)
 from pudl.workspace.datastore import Datastore
 
 logger = logging.getLogger(__name__)
@@ -38,6 +43,7 @@ logger = logging.getLogger(__name__)
 ###############################################################################
 # EIA EXPORT FUNCTIONS
 ###############################################################################
+
 
 def _read_static_tables_eia() -> Dict[str, pd.DataFrame]:
     """Build dataframes of static EIA tables for use as foreign key constraints.
@@ -50,19 +56,20 @@ def _read_static_tables_eia() -> Dict[str, pd.DataFrame]:
 
     """
     return {
-        'energy_sources_eia': CODE_METADATA["energy_sources_eia"]["df"],
-        'fuel_types_aer_eia': CODE_METADATA["fuel_types_aer_eia"]["df"],
-        'prime_movers_eia': CODE_METADATA["prime_movers_eia"]["df"],
-        'sector_consolidated_eia': CODE_METADATA["sector_consolidated_eia"]["df"],
-        'fuel_transportation_modes_eia': CODE_METADATA["fuel_transportation_modes_eia"]["df"],
-        'contract_types_eia': CODE_METADATA["contract_types_eia"]["df"],
-        'coalmine_types_eia': CODE_METADATA["coalmine_types_eia"]["df"],
+        "energy_sources_eia": CODE_METADATA["energy_sources_eia"]["df"],
+        "fuel_types_aer_eia": CODE_METADATA["fuel_types_aer_eia"]["df"],
+        "prime_movers_eia": CODE_METADATA["prime_movers_eia"]["df"],
+        "sector_consolidated_eia": CODE_METADATA["sector_consolidated_eia"]["df"],
+        "fuel_transportation_modes_eia": CODE_METADATA["fuel_transportation_modes_eia"][
+            "df"
+        ],
+        "contract_types_eia": CODE_METADATA["contract_types_eia"]["df"],
+        "coalmine_types_eia": CODE_METADATA["coalmine_types_eia"]["df"],
     }
 
 
 def _etl_eia(
-    eia_settings: EiaSettings,
-    ds_kwargs: Dict[str, Any]
+    eia_settings: EiaSettings, ds_kwargs: Dict[str, Any]
 ) -> Dict[str, pd.DataFrame]:
     """Extract, transform and load CSVs for the EIA datasets.
 
@@ -81,11 +88,10 @@ def _etl_eia(
     eia923_tables = eia_settings.eia923.tables
     eia923_years = eia_settings.eia923.years
 
-    if (
-        (not eia923_tables or not eia923_years)
-        and (not eia860_tables or not eia860_years)
+    if (not eia923_tables or not eia923_years) and (
+        not eia860_tables or not eia860_years
     ):
-        logger.info('Not loading EIA.')
+        logger.info("Not loading EIA.")
         return []
 
     # generate dataframes for the static EIA tables
@@ -94,21 +100,27 @@ def _etl_eia(
     ds = Datastore(**ds_kwargs)
     # Extract EIA forms 923, 860
     eia923_raw_dfs = pudl.extract.eia923.Extractor(ds).extract(
-        settings=eia_settings.eia923)
+        settings=eia_settings.eia923
+    )
     eia860_raw_dfs = pudl.extract.eia860.Extractor(ds).extract(
-        settings=eia_settings.eia860)
+        settings=eia_settings.eia860
+    )
     # if we are trying to add the EIA 860M YTD data, then extract it and append
     if eia860m:
         eia860m_raw_dfs = pudl.extract.eia860m.Extractor(ds).extract(
-            settings=eia_settings.eia860)
+            settings=eia_settings.eia860
+        )
         eia860_raw_dfs = pudl.extract.eia860m.append_eia860m(
-            eia860_raw_dfs=eia860_raw_dfs, eia860m_raw_dfs=eia860m_raw_dfs)
+            eia860_raw_dfs=eia860_raw_dfs, eia860m_raw_dfs=eia860m_raw_dfs
+        )
 
     # Transform EIA forms 923, 860
     eia860_transformed_dfs = pudl.transform.eia860.transform(
-        eia860_raw_dfs, eia860_settings=eia_settings.eia860)
+        eia860_raw_dfs, eia860_settings=eia_settings.eia860
+    )
     eia923_transformed_dfs = pudl.transform.eia923.transform(
-        eia923_raw_dfs, eia923_settings=eia_settings.eia923)
+        eia923_raw_dfs, eia923_settings=eia_settings.eia923
+    )
     # create an eia transformed dfs dictionary
     eia_transformed_dfs = eia860_transformed_dfs.copy()
     eia_transformed_dfs.update(eia923_transformed_dfs.copy())
@@ -125,8 +137,7 @@ def _etl_eia(
     )
     # Assign appropriate types to new entity tables:
     entities_dfs = {
-        name: apply_pudl_dtypes(df, group="eia")
-        for name, df in entities_dfs.items()
+        name: apply_pudl_dtypes(df, group="eia") for name, df in entities_dfs.items()
     }
 
     for table in entities_dfs:
@@ -159,15 +170,19 @@ def _read_static_tables_ferc1() -> Dict[str, pd.DataFrame]:
     populate a bunch of small infrastructural tables within the PUDL DB.
     """
     return {
-        'ferc_accounts': FERC_ACCOUNTS[[
-            "ferc_account_id",
-            "ferc_account_description",
-        ]],
-        'ferc_depreciation_lines': FERC_DEPRECIATION_LINES[[
-            "line_id",
-            "ferc_account_description",
-        ]],
-        'power_purchase_types_ferc1': CODE_METADATA["power_purchase_types_ferc1"]["df"],
+        "ferc_accounts": FERC_ACCOUNTS[
+            [
+                "ferc_account_id",
+                "ferc_account_description",
+            ]
+        ],
+        "ferc_depreciation_lines": FERC_DEPRECIATION_LINES[
+            [
+                "line_id",
+                "ferc_account_description",
+            ]
+        ],
+        "power_purchase_types_ferc1": CODE_METADATA["power_purchase_types_ferc1"]["df"],
     }
 
 
@@ -192,11 +207,12 @@ def _etl_ferc1(
 
     # Extract FERC form 1
     ferc1_raw_dfs = pudl.extract.ferc1.extract(
-        ferc1_settings=ferc1_settings,
-        pudl_settings=pudl_settings)
+        ferc1_settings=ferc1_settings, pudl_settings=pudl_settings
+    )
     # Transform FERC form 1
     ferc1_transformed_dfs = pudl.transform.ferc1.transform(
-        ferc1_raw_dfs, ferc1_settings=ferc1_settings)
+        ferc1_raw_dfs, ferc1_settings=ferc1_settings
+    )
 
     out_dfs.update(ferc1_transformed_dfs)
     return out_dfs
@@ -243,7 +259,9 @@ def etl_epacems(
         AS year
         FROM plants_eia860
         ORDER BY year ASC
-        """, pudl_engine).year.astype(int)
+        """,
+        pudl_engine,
+    ).year.astype(int)
     missing_years = list(set(epacems_settings.years) - set(eia_plant_years))
     if missing_years:
         logger.info(
@@ -253,7 +271,8 @@ def etl_epacems(
 
     # NOTE: This is a generator for raw dataframes
     epacems_raw_dfs = pudl.extract.epacems.extract(
-        epacems_settings, Datastore(**ds_kwargs))
+        epacems_settings, Datastore(**ds_kwargs)
+    )
 
     # NOTE: This is a generator for transformed dataframes
     epacems_transformed_dfs = pudl.transform.epacems.transform(
@@ -271,12 +290,11 @@ def etl_epacems(
             df,
             resource_id="hourly_emissions_epacems",
             root_path=Path(pudl_settings["parquet_dir"]) / "epacems",
-            partition_cols=["year", "state"]
+            partition_cols=["year", "state"],
         )
 
     if logger.isEnabledFor(logging.INFO):
-        delta_t = time.strftime("%H:%M:%S", time.gmtime(
-            time.monotonic() - start_time))
+        delta_t = time.strftime("%H:%M:%S", time.gmtime(time.monotonic() - start_time))
         time_message = f"Processing EPA CEMS took {delta_t}"
         logger.info(time_message)
         start_time = time.monotonic()
@@ -285,6 +303,7 @@ def etl_epacems(
 ###############################################################################
 # GLUE EXPORT FUNCTIONS
 ###############################################################################
+
 
 def _etl_glue(glue_settings: GlueSettings) -> Dict[str, pd.DataFrame]:
     """Extract, transform and load CSVs for the Glue tables.
@@ -314,6 +333,7 @@ def _etl_glue(glue_settings: GlueSettings) -> Dict[str, pd.DataFrame]:
 ###############################################################################
 # Coordinating functions
 ###############################################################################
+
 
 def etl(  # noqa: C901
     etl_settings: EtlSettings,
@@ -358,8 +378,7 @@ def etl(  # noqa: C901
 
     # Configure how we want to obtain raw input data:
     ds_kwargs = dict(
-        gcs_cache_path=gcs_cache_path,
-        sandbox=pudl_settings.get("sandbox", False)
+        gcs_cache_path=gcs_cache_path, sandbox=pudl_settings.get("sandbox", False)
     )
     if use_local_cache:
         ds_kwargs["local_cache_path"] = Path(pudl_settings["pudl_in"]) / "data"

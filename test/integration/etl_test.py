@@ -52,8 +52,7 @@ def test_ferc1_schema(ferc1_etl_settings, pudl_ferc1datastore_fixture):
     ds = pudl_ferc1datastore_fixture
     current_dbc_map = pudl.extract.ferc1.get_dbc_map(ds, year=refyear)
     current_tables = list(current_dbc_map.keys())
-    logger.info(f"Checking for new, unrecognized FERC1 "
-                f"tables in {refyear}.")
+    logger.info(f"Checking for new, unrecognized FERC1 tables in {refyear}.")
     for table in current_tables:
         # First make sure there are new tables in refyear:
         if table not in DBF_TABLES_FILENAMES:
@@ -129,7 +128,7 @@ class TestFerc1Datastore:
             "ROW_NUMBER": "row_number",
             "ROW_PRVLG": "row_prvlg",
             "ROW_SEQ": "row_seq",
-            "SPPLMNT_NU": "spplmnt_num"
+            "SPPLMNT_NU": "spplmnt_num",
         }
 
 
@@ -149,27 +148,24 @@ class TestExcelExtractor:
         extractor = pudl.extract.eia860.Extractor(pudl_datastore_fixture)
         self.expected_file_name(
             extractor=extractor,
-            page='boiler_generator_assn',
+            page="boiler_generator_assn",
             year=2011,
-            expected_name="EnviroAssocY2011.xlsx"
+            expected_name="EnviroAssocY2011.xlsx",
         )
         self.expected_file_name(
             extractor=extractor,
-            page='generator_retired',
+            page="generator_retired",
             year=2016,
-            expected_name="3_1_Generator_Y2016.xlsx"
+            expected_name="3_1_Generator_Y2016.xlsx",
         )
         self.expected_file_name(
             extractor=extractor,
-            page='utility',
+            page="utility",
             year=2018,
-            expected_name="1___Utility_Y2018.xlsx"
+            expected_name="1___Utility_Y2018.xlsx",
         )
         self.expected_file_name(
-            extractor=extractor,
-            page='plant',
-            year=2003,
-            expected_name="PLANTY03.DBF"
+            extractor=extractor, page="plant", year=2003, expected_name="PLANTY03.DBF"
         )
 
     def test_excel_filename_eia923(self, pudl_datastore_fixture):
@@ -177,41 +173,41 @@ class TestExcelExtractor:
         extractor = pudl.extract.eia923.Extractor(pudl_datastore_fixture)
         self.expected_file_name(
             extractor=extractor,
-            page='generation_fuel',
+            page="generation_fuel",
             year=2009,
-            expected_name="EIA923 SCHEDULES 2_3_4_5 M Final 2009 REVISED 05252011.XLS"
+            expected_name="EIA923 SCHEDULES 2_3_4_5 M Final 2009 REVISED 05252011.XLS",
         )
         self.expected_file_name(
             extractor=extractor,
-            page='fuel_receipts_costs',
+            page="fuel_receipts_costs",
             year=2019,
-            expected_name="EIA923_Schedules_2_3_4_5_M_12_2019_Final_Revision.xlsx"
+            expected_name="EIA923_Schedules_2_3_4_5_M_12_2019_Final_Revision.xlsx",
         )
         self.expected_file_name(
             extractor=extractor,
-            page='boiler_fuel',
+            page="boiler_fuel",
             year=2012,
-            expected_name="EIA923_Schedules_2_3_4_5_M_12_2012_Final_Revision.xlsx"
+            expected_name="EIA923_Schedules_2_3_4_5_M_12_2012_Final_Revision.xlsx",
         )
 
     def test_extract_eia860(self, pudl_datastore_fixture):
         """Spot check extraction of eia860 excel files."""
         extractor = pudl.extract.eia860.Extractor(pudl_datastore_fixture)
-        page = 'ownership'
+        page = "ownership"
         year = 2018
-        if "Ownership" not in extractor.load_excel_file(
-                page="ownership", year=2018).sheet_names:
-            raise AssertionError(
-                f"page {page} not found in datastore for {year}"
-            )
+        if (
+            "Ownership"
+            not in extractor.load_excel_file(page="ownership", year=2018).sheet_names
+        ):
+            raise AssertionError(f"page {page} not found in datastore for {year}")
 
     def test_extract_eia923(self, pudl_datastore_fixture):
         """Spot check extraction eia923 excel files."""
         extractor = pudl.extract.eia923.Extractor(pudl_datastore_fixture)
-        page = 'stocks'
+        page = "stocks"
         year = 2018
-        if "Page 3 Boiler Fuel Data" not in extractor.load_excel_file(
-                page=page, year=year).sheet_names:
-            raise AssertionError(
-                f"page {page} not found in datastore for {year}"
-            )
+        if (
+            "Page 3 Boiler Fuel Data"
+            not in extractor.load_excel_file(page=page, year=year).sheet_names
+        ):
+            raise AssertionError(f"page {page} not found in datastore for {year}")

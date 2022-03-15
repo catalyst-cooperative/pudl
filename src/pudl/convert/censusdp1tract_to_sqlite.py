@@ -78,8 +78,7 @@ def censusdp1tract_to_sqlite(pudl_settings=None, year=2010):
         logger.info("extract_root = %s", extract_root)
         logger.info("out_path = %s", out_path)
         subprocess.run(  # nosec: B603 Trying to use absolute paths.
-            [ogr2ogr, str(out_path), str(extract_root)],
-            check=True
+            [ogr2ogr, str(out_path), str(extract_root)], check=True
         )
 
 
@@ -102,8 +101,8 @@ def parse_command_line(argv):
 def main():
     """Convert the Census DP1 GeoDatabase into an SQLite Database."""
     pudl_logger = logging.getLogger("pudl")
-    log_format = '%(asctime)s [%(levelname)8s] %(name)s:%(lineno)s %(message)s'
-    coloredlogs.install(fmt=log_format, level='INFO', logger=pudl_logger)
+    log_format = "%(asctime)s [%(levelname)8s] %(name)s:%(lineno)s %(message)s"
+    coloredlogs.install(fmt=log_format, level="INFO", logger=pudl_logger)
 
     # Currently have no arguments, but want to generate a usage message.
     _ = parse_command_line(sys.argv)
@@ -111,5 +110,5 @@ def main():
     censusdp1tract_to_sqlite()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     sys.exit(main())

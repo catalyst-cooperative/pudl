@@ -63,7 +63,9 @@ def _get_unique_keys(epacems: Union[pd.DataFrame, dd.DataFrame]) -> pd.DataFrame
     return ids
 
 
-def filter_crosswalk_by_epacems(crosswalk: pd.DataFrame, epacems: Union[pd.DataFrame, dd.DataFrame]) -> pd.DataFrame:
+def filter_crosswalk_by_epacems(
+    crosswalk: pd.DataFrame, epacems: Union[pd.DataFrame, dd.DataFrame]
+) -> pd.DataFrame:
     """Inner join unique CEMS units with the EPA crosswalk.
 
     This is essentially an empirical filter on EPA units. Instead of filtering by construction/retirement dates
@@ -111,7 +113,8 @@ def filter_out_boiler_rows(crosswalk: pd.DataFrame) -> pd.DataFrame:
         pd.DataFrame: the EPA crosswalk with boiler rows (many/one-to-many) removed
     """
     crosswalk = crosswalk.drop_duplicates(
-        subset=["CAMD_PLANT_ID", "CAMD_UNIT_ID", "EIA_GENERATOR_ID"])
+        subset=["CAMD_PLANT_ID", "CAMD_UNIT_ID", "EIA_GENERATOR_ID"]
+    )
     return crosswalk
 
 
@@ -127,7 +130,8 @@ def _prep_for_networkx(crosswalk: pd.DataFrame) -> pd.DataFrame:
     prepped = crosswalk.copy()
     # networkx can't handle composite keys, so make surrogates
     prepped["combustor_id"] = prepped.groupby(
-        by=["CAMD_PLANT_ID", "CAMD_UNIT_ID"]).ngroup()
+        by=["CAMD_PLANT_ID", "CAMD_UNIT_ID"]
+    ).ngroup()
     # node IDs can't overlap so add (max + 1)
     prepped["generator_id"] = (
         prepped.groupby(by=["CAMD_PLANT_ID", "EIA_GENERATOR_ID"]).ngroup()
@@ -161,7 +165,9 @@ def _subplant_ids_from_prepped_crosswalk(prepped: pd.DataFrame) -> pd.DataFrame:
     return nx.to_pandas_edgelist(graph)
 
 
-def _convert_global_id_to_composite_id(crosswalk_with_ids: pd.DataFrame) -> pd.DataFrame:
+def _convert_global_id_to_composite_id(
+    crosswalk_with_ids: pd.DataFrame,
+) -> pd.DataFrame:
     """Convert global_subplant_id to an equivalent composite key (CAMD_PLANT_ID, subplant_id).
 
     The composite key will be much more stable (though not fully stable!) in time.
@@ -182,22 +188,22 @@ def _convert_global_id_to_composite_id(crosswalk_with_ids: pd.DataFrame) -> pd.D
     """
     if isinstance(crosswalk_with_ids.index, pd.MultiIndex):
         raise ValueError(
-            f"Input crosswalk must have single level index. Given levels: {crosswalk_with_ids.index.names}")
+            f"Input crosswalk must have single level index. Given levels: {crosswalk_with_ids.index.names}"
+        )
 
     reindexed = crosswalk_with_ids.reset_index()  # copy
     idx_name = crosswalk_with_ids.index.name
     if idx_name is None:
         # Indices with no name (None) are set to a pandas default name ('index'), which
         # could (though probably won't) change.
-        idx_col = reindexed.columns.symmetric_difference(
-            crosswalk_with_ids.columns)[0]  # get index name
+        idx_col = reindexed.columns.symmetric_difference(crosswalk_with_ids.columns)[
+            0
+        ]  # get index name
     else:
         idx_col = idx_name
 
-    composite_key: pd.Series = (
-        reindexed
-        .groupby('CAMD_PLANT_ID', as_index=False)
-        .apply(lambda x: x.groupby('global_subplant_id').ngroup())
+    composite_key: pd.Series = reindexed.groupby("CAMD_PLANT_ID", as_index=False).apply(
+        lambda x: x.groupby("global_subplant_id").ngroup()
     )
 
     # Recombine. Could use index join but I chose to reindex, sort and assign.
@@ -206,14 +212,16 @@ def _convert_global_id_to_composite_id(crosswalk_with_ids: pd.DataFrame) -> pd.D
     # drop the outer group, leave the reindexed row index
     composite_key.reset_index(level=0, drop=True, inplace=True)
     composite_key.sort_index(inplace=True)  # put back in same order as reindexed
-    reindexed['subplant_id'] = composite_key
+    reindexed["subplant_id"] = composite_key
     # restore original index
     reindexed.set_index(idx_col, inplace=True)  # restore values
     reindexed.index.rename(idx_name, inplace=True)  # restore original name
     return reindexed
 
 
-def filter_crosswalk(crosswalk: pd.DataFrame, epacems: Union[pd.DataFrame, dd.DataFrame]) -> pd.DataFrame:
+def filter_crosswalk(
+    crosswalk: pd.DataFrame, epacems: Union[pd.DataFrame, dd.DataFrame]
+) -> pd.DataFrame:
     """Remove crosswalk rows that do not correspond to an EIA facility or are duplicated due to many-to-many boiler relationships.
 
     Args:
@@ -225,8 +233,7 @@ def filter_crosswalk(crosswalk: pd.DataFrame, epacems: Union[pd.DataFrame, dd.Da
     """
     filtered_crosswalk = filter_out_unmatched(crosswalk)
     filtered_crosswalk = filter_out_boiler_rows(filtered_crosswalk)
-    key_map = filter_crosswalk_by_epacems(
-        filtered_crosswalk, epacems)
+    key_map = filter_crosswalk_by_epacems(filtered_crosswalk, epacems)
     return key_map
 
 
