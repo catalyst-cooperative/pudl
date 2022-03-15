@@ -13,19 +13,20 @@ logger = logging.getLogger(__name__)
 # Tests validating data against physically reasonable boundary values:
 ###############################################################################
 
+
 @pytest.mark.parametrize(
-    "cases", [
+    "cases",
+    [
         pytest.param(pv.bf_eia923_coal_heat_content, id="coal_heat_content"),
         pytest.param(pv.bf_eia923_oil_heat_content, id="oil_heat_content"),
         pytest.param(
             pv.bf_eia923_gas_heat_content,
             id="gas_heat_content",
-            marks=pytest.mark.xfail(reason="EIA 923 Reporting Errors?")
+            marks=pytest.mark.xfail(reason="EIA 923 Reporting Errors?"),
         ),
         pytest.param(pv.bf_eia923_coal_ash_content, id="coal_ash_content"),
-        pytest.param(
-            pv.bf_eia923_coal_sulfur_content, id="coal_sulfur_content")
-    ]
+        pytest.param(pv.bf_eia923_coal_sulfur_content, id="coal_sulfur_content"),
+    ],
 )
 def test_vs_bounds(pudl_out_eia, live_dbs, cases):
     """Validate data reported in bf_eia923 against static boundaries."""
@@ -62,6 +63,6 @@ def test_agg_vs_historical(pudl_out_orig, pudl_out_eia, live_dbs):
         pytest.skip("Only run if pudl_out_eia != pudl_out_orig.")
 
     for args in pudl.validate.bf_eia923_agg:
-        pudl.validate.vs_historical(pudl_out_orig.bf_eia923(),
-                                    pudl_out_eia.bf_eia923(),
-                                    **args)
+        pudl.validate.vs_historical(
+            pudl_out_orig.bf_eia923(), pudl_out_eia.bf_eia923(), **args
+        )

@@ -74,10 +74,7 @@ def slice_axis(
 
 
 def array_diff(
-    x: np.ndarray,
-    periods: int = 1,
-    axis: int = 0,
-    fill: Any = np.nan
+    x: np.ndarray, periods: int = 1, axis: int = 0, fill: Any = np.nan
 ) -> np.ndarray:
     """
     First discrete difference of array elements.
@@ -115,9 +112,7 @@ def array_diff(
     return dx
 
 
-def encode_run_length(
-    x: Union[Sequence, np.ndarray]
-) -> Tuple[np.ndarray, np.ndarray]:
+def encode_run_length(x: Union[Sequence, np.ndarray]) -> Tuple[np.ndarray, np.ndarray]:
     """
     Encode vector with run-length encoding.
 
@@ -276,7 +271,7 @@ def insert_run_length(  # noqa: C901
         offset = rng.integers(0, run_lengths[idx] - length, endpoint=True)
         start = run_starts[idx] + offset
         # Insert value
-        x[start:start + length] = value
+        x[start : start + length] = value
         if intersect:
             continue
         # Update runs
@@ -301,9 +296,7 @@ def _mat2ten(matrix: np.ndarray, shape: np.ndarray, mode: int) -> np.ndarray:
     """Fold matrix into a tensor."""
     index = [mode] + [i for i in range(len(shape)) if i != mode]
     return np.moveaxis(
-        np.reshape(matrix, newshape=shape[index], order='F'),
-        source=0,
-        destination=mode
+        np.reshape(matrix, newshape=shape[index], order="F"), source=0, destination=mode
     )
 
 
@@ -312,7 +305,7 @@ def _ten2mat(tensor: np.ndarray, mode: int) -> np.ndarray:
     return np.reshape(
         np.moveaxis(tensor, source=mode, destination=0),
         newshape=(tensor.shape[mode], -1),
-        order='F'
+        order="F",
     )
 
 
@@ -324,7 +317,7 @@ def _svt_tnn(matrix: np.ndarray, tau: float, theta: int) -> np.ndarray:
         s = np.sqrt(s)
         idx = np.sum(s > tau)
         mid = np.zeros(idx)
-        mid[: theta] = 1
+        mid[:theta] = 1
         mid[theta:idx] = (s[theta:idx] - tau) / s[theta:idx]
         return (u[:, :idx] @ np.diag(mid)) @ (u[:, :idx].T @ matrix)
     if m > 2 * n:
@@ -344,7 +337,7 @@ def impute_latc_tnn(
     lambda0: float = 2e-7,
     theta: int = 20,
     epsilon: float = 1e-7,
-    maxiter: int = 300
+    maxiter: int = 300,
 ) -> np.ndarray:
     """
     Impute tensor values with LATC-TNN method by Chen and Sun (2020).
@@ -386,7 +379,7 @@ def impute_latc_tnn(
     for i in range(d):
         ind[i, :] = np.arange(max_lag - lags[i], dim_time - lags[i])
     last_mat = mat.copy()
-    snorm = np.linalg.norm(mat, 'fro')
+    snorm = np.linalg.norm(mat, "fro")
     rho = rho0
     while True:
         rho = min(rho * 1.05, 1e5)
@@ -395,12 +388,12 @@ def impute_latc_tnn(
                 _svt_tnn(
                     _ten2mat(_mat2ten(z, shape=dim, mode=0) - t[k] / rho, mode=k),
                     tau=alpha[k] / rho,
-                    theta=theta
+                    theta=theta,
                 ),
                 shape=dim,
-                mode=k
+                mode=k,
             )
-        tensor_hat = np.einsum('k, kmnt -> mnt', alpha, x)
+        tensor_hat = np.einsum("k, kmnt -> mnt", alpha, x)
         mat_hat = _ten2mat(tensor_hat, 0)
         mat0 = np.zeros((dim[0], dim_time - max_lag))
         if lambda0 > 0:
@@ -412,14 +405,14 @@ def impute_latc_tnn(
             z[pos_missing] = np.append(
                 (mat1[:, :max_lag] / rho),
                 (mat1[:, max_lag:] + lambda0 * mat0) / (rho + lambda0),
-                axis=1
+                axis=1,
             )[pos_missing]
         else:
             z[pos_missing] = (_ten2mat(np.mean(x + t / rho, axis=0), 0))[pos_missing]
-        t = t + rho * (x - np.broadcast_to(
-            _mat2ten(z, dim, 0), np.insert(dim, 0, len(dim))
-        ))
-        tol = np.linalg.norm((mat_hat - last_mat), 'fro') / snorm
+        t = t + rho * (
+            x - np.broadcast_to(_mat2ten(z, dim, 0), np.insert(dim, 0, len(dim)))
+        )
+        tol = np.linalg.norm((mat_hat - last_mat), "fro") / snorm
         last_mat = mat_hat.copy()
         it += 1
         print(f"Iteration: {it}", end="\r")
@@ -433,15 +426,15 @@ def _tsvt(tensor: np.ndarray, phi: np.ndarray, tau: float) -> np.ndarray:
     """Tensor singular value thresholding (TSVT)."""
     dim = tensor.shape
     x = np.zeros(dim)
-    tensor = np.einsum('kt, ijk -> ijt', phi, tensor)
+    tensor = np.einsum("kt, ijk -> ijt", phi, tensor)
     for t in range(dim[2]):
         u, s, v = np.linalg.svd(tensor[:, :, t], full_matrices=False)
         r = len(np.where(s > tau)[0])
         if r >= 1:
             s = s[:r]
-            s[: r] = s[:r] - tau
+            s[:r] = s[:r] - tau
             x[:, :, t] = u[:, :r] @ np.diag(s) @ v[:r, :]
-    return np.einsum('kt, ijt -> ijk', phi, x)
+    return np.einsum("kt, ijt -> ijk", phi, x)
 
 
 def impute_latc_tubal(  # noqa: C901
@@ -450,7 +443,7 @@ def impute_latc_tubal(  # noqa: C901
     rho0: float = 1e-7,
     lambda0: float = 2e-7,
     epsilon: float = 1e-7,
-    maxiter: int = 300
+    maxiter: int = 300,
 ) -> np.ndarray:
     """
     Impute tensor values with LATC-Tubal method by Chen, Chen and Sun (2020).
@@ -490,7 +483,7 @@ def impute_latc_tubal(  # noqa: C901
     for i in range(d):
         ind[i, :] = np.arange(max_lag - lags[i], dim_time - lags[i])
     last_mat = mat.copy()
-    snorm = np.linalg.norm(mat, 'fro')
+    snorm = np.linalg.norm(mat, "fro")
     rho = rho0
     temp1 = _ten2mat(_mat2ten(z, dim, 0), 2)
     _, phi = np.linalg.eig(temp1 @ temp1.T)
@@ -521,12 +514,13 @@ def impute_latc_tubal(  # noqa: C901
                     mat0[m, :] = qm @ a[m, :]
             z[pos_missing] = np.append(
                 (temp2[:, :max_lag] / rho),
-                (temp2[:, max_lag:] + lambda0 * mat0) / (rho + lambda0), axis=1
+                (temp2[:, max_lag:] + lambda0 * mat0) / (rho + lambda0),
+                axis=1,
             )[pos_missing]
         else:
             z[pos_missing] = temp2[pos_missing] / rho
         t = t + rho * (x - _mat2ten(z, dim, 0))
-        tol = np.linalg.norm((mat_hat - last_mat), 'fro') / snorm
+        tol = np.linalg.norm((mat_hat - last_mat), "fro") / snorm
         last_mat = mat_hat.copy()
         it += 1
         if not np.mod(it, 10):
@@ -613,7 +607,7 @@ class Timeseries:
         # Clear cached metrics
         for name in dir(self):
             attr = getattr(self, name)
-            if hasattr(attr, 'cache_clear'):
+            if hasattr(attr, "cache_clear"):
                 attr.cache_clear()
 
     def unflag(self, flags: Iterable[str] = None) -> None:
@@ -711,9 +705,7 @@ class Timeseries:
         return self.x - self.rolling_median(window=window)
 
     def median_of_rolling_median_offset(
-        self,
-        window: int = 48,
-        shifts: Sequence[int] = range(-240, 241, 24)
+        self, window: int = 48, shifts: Sequence[int] = range(-240, 241, 24)
     ) -> np.ndarray:
         """
         Median of the offset from the rolling median.
@@ -747,9 +739,7 @@ class Timeseries:
             return np.nanmedian(shifted, axis=0)
 
     def rolling_iqr_of_rolling_median_offset(
-        self,
-        window: int = 48,
-        iqr_window: int = 240
+        self, window: int = 48, iqr_window: int = 240
     ) -> np.ndarray:
         """
         Rolling interquartile range (IQR) of rolling median offset.
@@ -770,7 +760,7 @@ class Timeseries:
         self,
         window: int = 48,
         shifts: Sequence[int] = range(-240, 241, 24),
-        long_window: int = 480
+        long_window: int = 480,
     ) -> np.ndarray:
         """
         Values predicted from local and regional rolling medians.
@@ -787,7 +777,8 @@ class Timeseries:
         """
         # RUGGLES: hourly_median_dem_dev (multiplied by rollingDem)
         return self.rolling_median(window=window) * (
-            1 + self.median_of_rolling_median_offset(window=window, shifts=shifts)
+            1
+            + self.median_of_rolling_median_offset(window=window, shifts=shifts)
             / self.rolling_median(window=long_window)
         )
 
@@ -797,7 +788,7 @@ class Timeseries:
         shifts: Sequence[int] = range(-240, 241, 24),
         long_window: int = 480,
         iqr_window: int = 240,
-        multiplier: Tuple[float, float] = (3.5, 2.5)
+        multiplier: Tuple[float, float] = (3.5, 2.5),
     ) -> None:
         """
         Flag local outliers (LOCAL_OUTLIER_HIGH, LOCAL_OUTLIER_LOW).
@@ -855,9 +846,7 @@ class Timeseries:
         rolling = df.rolling(window, min_periods=1, center=True)
         return (rolling.quantile(0.75) - rolling.quantile(0.25)).values
 
-    def flag_double_delta(
-        self, iqr_window: int = 240, multiplier: float = 2
-    ) -> None:
+    def flag_double_delta(self, iqr_window: int = 240, multiplier: float = 2) -> None:
         """
         Flag values very different from their neighbors on either side (DOUBLE_DELTA).
 
@@ -901,7 +890,7 @@ class Timeseries:
         """
         # RUGGLES: iqr_relative_deltas
         diff = array_diff(self.relative_median_prediction(**kwargs), shift)
-        return scipy.stats.iqr(diff, nan_policy='omit', axis=0)
+        return scipy.stats.iqr(diff, nan_policy="omit", axis=0)
 
     def _find_single_delta(
         self,
@@ -909,19 +898,19 @@ class Timeseries:
         relative_median_prediction_long: np.ndarray,
         rolling_iqr_of_diff: np.ndarray,
         iqr_of_diff_of_relative_median_prediction: np.ndarray,
-        reverse: bool = False
+        reverse: bool = False,
     ) -> np.ndarray:
         not_nan = ~np.isnan(self.x)
         mask = np.zeros(self.x.shape, dtype=bool)
         for col in range(self.x.shape[1]):
-            indices = np.flatnonzero(not_nan[:, col])[::(-1 if reverse else 1)]
+            indices = np.flatnonzero(not_nan[:, col])[:: (-1 if reverse else 1)]
             previous, current = indices[:-1], indices[1:]
             while len(current):
                 # Evaluate value pairs
                 diff = np.abs(self.x[current, col] - self.x[previous, col])
                 diff_relative_median_prediction = np.abs(
-                    relative_median_prediction[current, col] -
-                    relative_median_prediction[previous, col]
+                    relative_median_prediction[current, col]
+                    - relative_median_prediction[previous, col]
                 )
                 # Compare max deviation across short and long rolling median
                 # to catch when outliers pull short median towards themselves.
@@ -934,12 +923,12 @@ class Timeseries:
                     np.abs(1 - relative_median_prediction_long[current, col]),
                 )
                 flagged = (
-                    (diff > rolling_iqr_of_diff[current, col]) &
-                    (
-                        diff_relative_median_prediction >
-                        iqr_of_diff_of_relative_median_prediction[col]
-                    ) &
-                    (current_max > previous_max)
+                    (diff > rolling_iqr_of_diff[current, col])
+                    & (
+                        diff_relative_median_prediction
+                        > iqr_of_diff_of_relative_median_prediction[col]
+                    )
+                    & (current_max > previous_max)
                 )
                 flagged_indices = current[flagged]
                 if not flagged_indices.size:
@@ -947,10 +936,10 @@ class Timeseries:
                 # Find position of flagged indices in index
                 if reverse:
                     indices_idx = indices.size - (
-                        indices[::-1].searchsorted(flagged_indices, side='right')
+                        indices[::-1].searchsorted(flagged_indices, side="right")
                     )
                 else:
-                    indices_idx = indices.searchsorted(flagged_indices, side='left')
+                    indices_idx = indices.searchsorted(flagged_indices, side="left")
                 # Only flag first of consecutive flagged indices
                 # TODO: May not be necessary after first iteration
                 unflagged = np.concatenate(([False], np.diff(indices_idx) == 1))
@@ -966,7 +955,7 @@ class Timeseries:
                     next_indices_idx = next_indices_idx[:-1]
                 current = indices[next_indices_idx]
                 # Trim previous values to length of current values
-                previous = previous[flagged][:len(current)]
+                previous = previous[flagged][: len(current)]
                 # Delete flagged indices
                 indices = np.delete(indices, indices_idx)
         return mask
@@ -978,7 +967,7 @@ class Timeseries:
         long_window: int = 480,
         iqr_window: int = 240,
         multiplier: float = 5,
-        rel_multiplier: float = 15
+        rel_multiplier: float = 15,
     ) -> None:
         """
         Flag values very different from the nearest unflagged value (SINGLE_DELTA).
@@ -1028,7 +1017,7 @@ class Timeseries:
             relative_median_prediction_long,
             rolling_iqr_of_diff,
             iqr_of_diff_of_relative_median_prediction,
-            reverse=False
+            reverse=False,
         )
         self.flag(mask, "SINGLE_DELTA")
         # Repeat in reverse to get all options.
@@ -1038,13 +1027,11 @@ class Timeseries:
             relative_median_prediction_long,
             rolling_iqr_of_diff,
             iqr_of_diff_of_relative_median_prediction,
-            reverse=True
+            reverse=True,
         )
         self.flag(mask, "SINGLE_DELTA")
 
-    def flag_anomalous_region(
-        self, window: int = 48, threshold: float = 0.15
-    ) -> None:
+    def flag_anomalous_region(self, window: int = 48, threshold: float = 0.15) -> None:
         """
         Flag values surrounded by flagged values (ANOMALOUS_REGION).
 
@@ -1133,12 +1120,12 @@ class Timeseries:
             stats[self.columns[col]] = (
                 pd.Series(self.xi[:, col])
                 .groupby(self.flags[:, col])
-                .agg(['count', 'median'])
+                .agg(["count", "median"])
             )
-        df = pd.concat(stats, names=['column', 'flag']).reset_index()
+        df = pd.concat(stats, names=["column", "flag"]).reset_index()
         # Sort flags by flagged order
-        ordered = df['flag'].astype(pd.CategoricalDtype(pd.unique(self.flagged)))
-        return df.assign(flag=ordered).sort_values(['column', 'flag'])
+        ordered = df["flag"].astype(pd.CategoricalDtype(pd.unique(self.flagged)))
+        return df.assign(flag=ordered).sort_values(["column", "flag"])
 
     def plot_flags(self, name: Any = 0) -> None:
         """
@@ -1150,17 +1137,17 @@ class Timeseries:
         if name not in self.columns:
             name = self.columns[name]
         col = list(self.columns).index(name)
-        plt.plot(self.index, self.x[:, col], color='lightgrey', marker='.', zorder=1)
+        plt.plot(self.index, self.x[:, col], color="lightgrey", marker=".", zorder=1)
         colors = {
-            'NEGATIVE_OR_ZERO': 'pink',
-            'IDENTICAL_RUN': 'blue',
-            'GLOBAL_OUTLIER': 'brown',
-            'GLOBAL_OUTLIER_NEIGHBOR': 'brown',
-            'LOCAL_OUTLIER_HIGH': 'purple',
-            'LOCAL_OUTLIER_LOW': 'purple',
-            'DOUBLE_DELTA': 'green',
-            'SINGLE_DELTA': 'red',
-            'ANOMALOUS_REGION': 'orange',
+            "NEGATIVE_OR_ZERO": "pink",
+            "IDENTICAL_RUN": "blue",
+            "GLOBAL_OUTLIER": "brown",
+            "GLOBAL_OUTLIER_NEIGHBOR": "brown",
+            "LOCAL_OUTLIER_HIGH": "purple",
+            "LOCAL_OUTLIER_LOW": "purple",
+            "DOUBLE_DELTA": "green",
+            "SINGLE_DELTA": "red",
+            "ANOMALOUS_REGION": "orange",
         }
         for flag in colors:
             mask = self.flags[:, col] == flag
@@ -1216,7 +1203,7 @@ class Timeseries:
                 lengths=run_lengths,
                 mask=None if overlap else ~is_null,
                 padding=0 if overlap else padding,
-                intersect=intersect
+                intersect=intersect,
             )
             if overlap:
                 is_new_null &= ~is_null
@@ -1256,15 +1243,15 @@ class Timeseries:
 
         Performs the reverse of :meth:`fold_tensor`.
         """
-        return tensor.T.reshape(self.x.shape, order='F')
+        return tensor.T.reshape(self.x.shape, order="F")
 
     def impute(
         self,
         mask: np.ndarray = None,
         periods: int = 24,
         blocks: int = 1,
-        method: str = 'tubal',
-        **kwargs: Any
+        method: str = "tubal",
+        **kwargs: Any,
     ) -> np.ndarray:
         """
         Impute null values.
@@ -1291,7 +1278,7 @@ class Timeseries:
         Raises:
             ValueError: Zero values present. Replace with very small value.
         """
-        imputer = {'tubal': impute_latc_tubal, 'tnn': impute_latc_tnn}[method]
+        imputer = {"tubal": impute_latc_tubal, "tnn": impute_latc_tnn}[method]
         if mask is None:
             x = self.x.copy()
         else:
@@ -1308,11 +1295,7 @@ class Timeseries:
             tensor[idx] = imputer(tensor[idx], **kwargs)
         return self.unfold_tensor(tensor)
 
-    def summarize_imputed(
-        self,
-        imputed: np.ndarray,
-        mask: np.ndarray
-    ) -> pd.DataFrame:
+    def summarize_imputed(self, imputed: np.ndarray, mask: np.ndarray) -> pd.DataFrame:
         """
         Summarize the fit of imputed values to actual values.
 
@@ -1338,10 +1321,12 @@ class Timeseries:
                 continue
             pe = (x - imputed[mask[:, col], col]) / x
             pe = pe[~np.isnan(pe)]
-            stats.append({
-                'column': self.columns[col],
-                'count': x.size,
-                'mpe': np.mean(pe),
-                'mape': np.mean(np.abs(pe)),
-            })
+            stats.append(
+                {
+                    "column": self.columns[col],
+                    "count": x.size,
+                    "mpe": np.mean(pe),
+                    "mape": np.mean(np.abs(pe)),
+                }
+            )
         return pd.DataFrame(stats)

@@ -16,8 +16,9 @@ def test_fuel_for_electricity(pudl_out_eia, live_dbs):
 
     gf_eia923 = pudl_out_eia.gf_eia923()
 
-    excess_fuel = \
+    excess_fuel = (
         gf_eia923.fuel_consumed_for_electricity_mmbtu > gf_eia923.fuel_consumed_mmbtu
+    )
 
     if excess_fuel.any():
         raise ValueError(
@@ -26,10 +27,11 @@ def test_fuel_for_electricity(pudl_out_eia, live_dbs):
 
 
 @pytest.mark.parametrize(
-    "cases", [
+    "cases",
+    [
         pytest.param(pv.gf_eia923_coal_heat_content, id="coal_heat_content"),
         pytest.param(pv.gf_eia923_oil_heat_content, id="oil_heat_content"),
-    ]
+    ],
 )
 def test_vs_bounds(pudl_out_eia, live_dbs, cases):
     """Verify that report fuel heat content per unit is reasonable."""
@@ -60,6 +62,6 @@ def test_agg_vs_historical(pudl_out_orig, pudl_out_eia, live_dbs):
         pytest.skip("Only run if pudl_out_eia != pudl_out_orig.")
 
     for args in pudl.validate.gf_eia923_agg:
-        pudl.validate.vs_historical(pudl_out_orig.gf_eia923(),
-                                    pudl_out_eia.gf_eia923(),
-                                    **args)
+        pudl.validate.vs_historical(
+            pudl_out_orig.gf_eia923(), pudl_out_eia.gf_eia923(), **args
+        )

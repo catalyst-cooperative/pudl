@@ -47,11 +47,12 @@ def dfs_to_sqlite(
         if isinstance(dbapi_connection, SQLite3Connection):
             cursor = dbapi_connection.cursor()
             cursor.execute(
-                f"PRAGMA foreign_keys={'ON' if check_foreign_keys else 'OFF'};")
+                f"PRAGMA foreign_keys={'ON' if check_foreign_keys else 'OFF'};"
+            )
             cursor.close()
 
-    bad_sqlite_version = (
-        version.parse(sqlite_version) < version.parse(MINIMUM_SQLITE_VERSION)
+    bad_sqlite_version = version.parse(sqlite_version) < version.parse(
+        MINIMUM_SQLITE_VERSION
     )
     if bad_sqlite_version and check_types:
         check_types = False
@@ -62,9 +63,8 @@ def dfs_to_sqlite(
         )
 
     # Generate a SQLAlchemy MetaData object from dataframe names:
-    md = (
-        Package.from_resource_ids(resource_ids=tuple(sorted(dfs)))
-        .to_sql(check_types=check_types, check_values=check_values)
+    md = Package.from_resource_ids(resource_ids=tuple(sorted(dfs))).to_sql(
+        check_types=check_types, check_values=check_values
     )
     # Delete any existing tables, and create them anew:
     md.drop_all(engine)
