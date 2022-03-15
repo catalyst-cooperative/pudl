@@ -78,11 +78,13 @@ def _parse_foreign_key_rule(rule: dict, name: str, key: List[str]) -> List[dict]
     rules = []
     for fields in rule["fields"]:
         exclude = rule.get("exclude", [])
-        rules.append({
-            "fields": fields,
-            "reference": {"resource": name, "fields": key},
-            "exclude": [name] + exclude
-        })
+        rules.append(
+            {
+                "fields": fields,
+                "reference": {"resource": name, "fields": key},
+                "exclude": [name] + exclude,
+            }
+        )
     return rules
 
 
@@ -109,9 +111,11 @@ def _build_foreign_key_tree(
     for name, meta in resources.items():
         if "foreign_key_rules" in meta["schema"]:
             rule = meta["schema"]["foreign_key_rules"]
-            rules.extend(_parse_foreign_key_rule(
-                rule, name=name, key=meta["schema"]["primary_key"]
-            ))
+            rules.extend(
+                _parse_foreign_key_rule(
+                    rule, name=name, key=meta["schema"]["primary_key"]
+                )
+            )
     # Build foreign key tree
     # [local_name][local_fields] => (reference_name, reference_fields)
     tree = defaultdict(dict)
@@ -125,9 +129,7 @@ def _build_foreign_key_tree(
 
 
 def _traverse_foreign_key_tree(
-    tree: Dict[str, Dict[Tuple[str, ...], dict]],
-    name: str,
-    fields: Tuple[str, ...]
+    tree: Dict[str, Dict[Tuple[str, ...], dict]], name: str, fields: Tuple[str, ...]
 ) -> List[Dict[str, Any]]:
     """
     Traverse foreign key tree.
@@ -275,7 +277,7 @@ def expand_periodic_column_names(names: Iterable[str]) -> List[str]:
     for name in names:
         base, period = split_period(name)
         if period in periods:
-            results += [f"{base}_{p}" for p in periods[periods.index(period) + 1:]]
+            results += [f"{base}_{p}" for p in periods[periods.index(period) + 1 :]]
     return results
 
 
@@ -348,7 +350,9 @@ def as_dict(x: pd.Series) -> Dict[Any, list]:
 
 
 def try_aggfunc(  # noqa: C901
-    func: Callable, raised: bool = True, error: Union[str, Callable] = None,
+    func: Callable,
+    raised: bool = True,
+    error: Union[str, Callable] = None,
 ) -> Callable:
     """
     Wrap aggregate function in a try-except for error handling.
@@ -392,7 +396,7 @@ def try_aggfunc(  # noqa: C901
             try:
                 return func(x)
             except AggregationError as e:
-                e.args = error.format(x=x, e=e),  # noqa: FS002
+                e.args = (error.format(x=x, e=e),)  # noqa: FS002
                 raise e
 
     elif not raised and error is None:
@@ -409,7 +413,7 @@ def try_aggfunc(  # noqa: C901
             try:
                 return func(x)
             except AggregationError as e:
-                e.args = error(x, e),
+                e.args = (error(x, e),)
                 return e
 
     return wrapped
@@ -575,7 +579,7 @@ def groupby_aggregate(  # noqa: C901
         col: try_aggfunc(
             func,
             raised=raised,
-            error=f"Could not aggregate {col}: {{e}}" if raised else error
+            error=f"Could not aggregate {col}: {{e}}" if raised else error,
         )
         for col, func in aggfuncs.items()
     }

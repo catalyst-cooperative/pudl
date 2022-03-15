@@ -102,7 +102,7 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
                     "fuel_receipts_costs_eia923",
                     "generation_eia923",
                     "generation_fuel_eia923",
-                ]
+                ],
             },
         },
         "field_namespace": "eia",
@@ -126,7 +126,10 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
                 "fraction_owned",
             ],
             "primary_key": [
-                "report_date", "plant_id_eia", "generator_id", "owner_utility_id_eia"
+                "report_date",
+                "plant_id_eia",
+                "generator_id",
+                "owner_utility_id_eia",
             ],
         },
         "field_namespace": "eia",
@@ -178,7 +181,7 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
                     "generation_eia923",
                     "generation_fuel_eia923",
                     "generation_fuel_nuclear_eia923",
-                ]
+                ],
             },
         },
         "field_namespace": "eia",
