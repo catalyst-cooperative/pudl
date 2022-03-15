@@ -54,7 +54,8 @@ class GenericDatasetSettings(BaseModel):
             partitions_not_working = list(set(partition) - set(working_partitions))
             if partitions_not_working:
                 raise ValueError(
-                    f"'{partitions_not_working}' {name} are not available.")
+                    f"'{partitions_not_working}' {name} are not available."
+                )
             partitions[name] = sorted(set(partition))
         return partitions
 
@@ -63,8 +64,7 @@ class GenericDatasetSettings(BaseModel):
         """Validate tables are available."""
         tables_not_working = list(set(tables) - set(cls.data_source.get_resource_ids()))
         if tables_not_working:
-            raise ValueError(
-                f"'{tables_not_working}' tables are not available.")
+            raise ValueError(f"'{tables_not_working}' tables are not available.")
         return sorted(set(tables))
 
 
@@ -176,8 +176,11 @@ class Eia861Settings(GenericDatasetSettings):
         else:
             for table in values["tables"]:
                 transform_functions.extend(
-                    [tf_func for tf_func, tables in TABLE_DEPENDENCIES.items()
-                        if table in tables]
+                    [
+                        tf_func
+                        for tf_func, tables in TABLE_DEPENDENCIES.items()
+                        if table in tables
+                    ]
                 )
 
         values["transform_functions"] = sorted(set(transform_functions))
@@ -201,8 +204,7 @@ class Eia860Settings(GenericDatasetSettings):
 
     data_source: ClassVar[DataSource] = DataSource.from_id("eia860")
     eia860m_data_source: ClassVar[DataSource] = DataSource.from_id("eia860m")
-    eia860m_date: ClassVar[str] = eia860m_data_source.working_partitions[
-        "year_month"]
+    eia860m_date: ClassVar[str] = eia860m_data_source.working_partitions["year_month"]
 
     years: List[int] = data_source.working_partitions["years"]
     tables: List[str] = data_source.get_resource_ids()
@@ -295,14 +297,11 @@ class EiaSettings(BaseModel):
         eia860 = values.get("eia860")
         if not eia923 and eia860:
             values["eia923"] = Eia923Settings(
-                tables=['boiler_fuel_eia923', 'generation_eia923'],
-                years=eia860.years
+                tables=["boiler_fuel_eia923", "generation_eia923"], years=eia860.years
             )
 
         if eia923 and not eia860:
-            values["eia860"] = Eia860Settings(
-                years=eia923.years
-            )
+            values["eia860"] = Eia860Settings(years=eia923.years)
         return values
 
 
@@ -385,8 +384,7 @@ class Ferc1ToSqliteSettings(GenericDatasetSettings):
         default_tables = sorted(list(DBF_TABLES_FILENAMES.keys()))
         tables_not_working = list(set(tables) - set(default_tables))
         if len(tables_not_working) > 0:
-            raise ValueError(
-                f"'{tables_not_working}' tables are not available.")
+            raise ValueError(f"'{tables_not_working}' tables are not available.")
         return sorted(set(tables))
 
 

@@ -21,7 +21,7 @@ class PudlResourceKey(NamedTuple):
 
     def __repr__(self) -> str:
         """Returns string representation of PudlResourceKey."""
-        return f'Resource({self.dataset}/{self.doi}/{self.name})'
+        return f"Resource({self.dataset}/{self.doi}/{self.name})"
 
     def get_local_path(self) -> Path:
         """Returns (relative) path that should be used when caching this resource."""
@@ -116,7 +116,7 @@ class GoogleCloudStorageCache(AbstractCache):
 
     def _blob(self, resource: PudlResourceKey) -> Blob:
         """Retrieve Blob object associated with given resource."""
-        p = (self._path_prefix / resource.get_local_path()).as_posix().lstrip('/')
+        p = (self._path_prefix / resource.get_local_path()).as_posix().lstrip("/")
         return self._bucket.blob(p)
 
     def get(self, resource: PudlResourceKey) -> bytes:
@@ -170,7 +170,8 @@ class LayeredCache(AbstractCache):
         for i, cache in enumerate(self._caches):
             if cache.contains(resource):
                 logger.debug(
-                    f"get:{resource} found in {i}-th layer ({cache.__class__.__name__}).")
+                    f"get:{resource} found in {i}-th layer ({cache.__class__.__name__})."
+                )
                 return cache.get(resource)
         logger.debug(f"get:{resource} not found in the layered cache.")
         raise KeyError(f"{resource} not found in the layered cache")
@@ -202,7 +203,8 @@ class LayeredCache(AbstractCache):
         for i, cache in enumerate(self._caches):
             if cache.contains(resource):
                 logger.debug(
-                    f"contains: {resource} found in {i}-th layer ({cache.__class__.__name__}).")
+                    f"contains: {resource} found in {i}-th layer ({cache.__class__.__name__})."
+                )
                 return True
         logger.debug(f"contains: {resource} not found in layered cache.")
 

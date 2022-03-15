@@ -77,11 +77,14 @@ import pandas as pd
 import sqlalchemy as sa
 
 import pudl
-from pudl.glue.ferc1_eia import (get_lost_plants_eia, get_lost_utils_eia,
-                                 get_unmapped_plants_eia,
-                                 get_unmapped_plants_ferc1,
-                                 get_unmapped_utils_eia,
-                                 get_unmapped_utils_ferc1)
+from pudl.glue.ferc1_eia import (
+    get_lost_plants_eia,
+    get_lost_utils_eia,
+    get_unmapped_plants_eia,
+    get_unmapped_plants_ferc1,
+    get_unmapped_utils_eia,
+    get_unmapped_utils_ferc1,
+)
 from pudl.metadata.classes import DataSource
 
 logger = logging.getLogger(__name__)
@@ -119,8 +122,8 @@ def parse_command_line(argv: str) -> argparse.Namespace:
 def main():
     """Identify unmapped plant and utility IDs in FERC 1 and EIA data."""
     pudl_logger = logging.getLogger("pudl")
-    log_format = '%(asctime)s [%(levelname)8s] %(name)s:%(lineno)s %(message)s'
-    coloredlogs.install(fmt=log_format, level='INFO', logger=pudl_logger)
+    log_format = "%(asctime)s [%(levelname)8s] %(name)s:%(lineno)s %(message)s"
+    coloredlogs.install(fmt=log_format, level="INFO", logger=pudl_logger)
 
     _ = parse_command_line(sys.argv)
 
@@ -131,7 +134,7 @@ def main():
     # Get and check FERC1 Years:
     ferc1_years = pd.read_sql(
         "SELECT DISTINCT report_year FROM f1_steam ORDER BY report_year ASC",
-        ferc1_engine
+        ferc1_engine,
     )
     ferc1_years = list(ferc1_years.report_year)
     pudl_logger.info(f"Examining FERC 1 data for {min(ferc1_years)}-{max(ferc1_years)}")
@@ -148,7 +151,7 @@ def main():
     eia_years = pd.read_sql(
         "SELECT DISTINCT report_date FROM plants_eia860 ORDER BY report_date ASC",
         pudl_engine,
-        parse_dates=["report_date"]
+        parse_dates=["report_date"],
     )
     eia_years = list(eia_years.report_date.dt.year)
     pudl_logger.info(f"Examining EIA data for {min(eia_years)}-{max(eia_years)}")
@@ -206,11 +209,12 @@ def main():
     # ==========================
     # Unmapped EIA Plants
     # ==========================
-    unmapped_plants_eia = (
-        get_unmapped_plants_eia(pudl_engine)
-        .sort_values("capacity_mw", ascending=False)
+    unmapped_plants_eia = get_unmapped_plants_eia(pudl_engine).sort_values(
+        "capacity_mw", ascending=False
     )
-    unmapped_plants_eia["link_to_ferc1"] = unmapped_plants_eia.capacity_mw >= MIN_PLANT_CAPACITY_MW
+    unmapped_plants_eia["link_to_ferc1"] = (
+        unmapped_plants_eia.capacity_mw >= MIN_PLANT_CAPACITY_MW
+    )
     pudl_logger.info(
         f"Found {len(unmapped_plants_eia)} unmapped EIA plants in "
         f"{min(eia_years)}-{max(eia_years)}."

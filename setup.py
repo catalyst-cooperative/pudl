@@ -27,9 +27,24 @@ setup(
     },
     license="MIT",
     keywords=[
-        "electricity", "energy", "data", "analysis", "mcoe", "climate change",
-        "finance", "eia 923", "eia 860", "ferc", "form 1", "epa ampd",
-        "epa cems", "coal", "natural gas", "eia 861", "ferc 714"],
+        "electricity",
+        "energy",
+        "data",
+        "analysis",
+        "mcoe",
+        "climate change",
+        "finance",
+        "eia 923",
+        "eia 860",
+        "ferc",
+        "form 1",
+        "epa ampd",
+        "epa cems",
+        "coal",
+        "natural gas",
+        "eia 861",
+        "ferc 714",
+    ],
     python_requires=">=3.8,<3.11",
     setup_requires=["setuptools_scm"],
     install_requires=[
@@ -60,7 +75,7 @@ setup(
     ],
     extras_require={
         "dev": [
-            "autopep8~=1.5",
+            "black>=22,<23",
             "ipdb~=0.13.4",
             "isort~=5.0",
             "jedi~=0.18",
@@ -100,7 +115,7 @@ setup(
         ],
         "datasette": [
             "datasette~=0.60",
-        ]
+        ],
     },
     classifiers=[
         "Development Status :: 3 - Alpha",

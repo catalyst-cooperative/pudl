@@ -24,10 +24,7 @@ def test_all_excluded_resources_exist() -> None:
     for name, meta in RESOURCE_METADATA.items():
         rule = meta.get("schema", {}).get("foreign_key_rules")
         if rule:
-            missing = [
-                x for x in rule.get("exclude", [])
-                if x not in RESOURCE_METADATA
-            ]
+            missing = [x for x in rule.get("exclude", []) if x not in RESOURCE_METADATA]
             if missing:
                 errors.append(f"{name}: {missing}")
     if errors:

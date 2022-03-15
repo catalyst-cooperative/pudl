@@ -36,19 +36,19 @@ class Extractor(excel.GenericExtractor):
         Args:
             ds (:class:datastore.Datastore): Initialized datastore.
         """
-        self.METADATA = excel.Metadata('eia860m')
+        self.METADATA = excel.Metadata("eia860m")
         self.cols_added = []
         super().__init__(*args, **kwargs)
 
     def process_raw(self, df, page, **partition):
         """Adds source column and report_year column if missing."""
-        df = df.rename(
-            columns=self._metadata.get_column_map(page, **partition))
-        if 'report_year' not in df.columns:
-            df['report_year'] = datetime.strptime(
-                list(partition.values())[0], "%Y-%m").year
-        df = df.assign(data_source='eia860m')
-        self.cols_added = ['data_source', 'report_year']
+        df = df.rename(columns=self._metadata.get_column_map(page, **partition))
+        if "report_year" not in df.columns:
+            df["report_year"] = datetime.strptime(
+                list(partition.values())[0], "%Y-%m"
+            ).year
+        df = df.assign(data_source="eia860m")
+        self.cols_added = ["data_source", "report_year"]
         df = fix_leading_zero_gen_ids(df)
         return df
 
@@ -91,7 +91,7 @@ def append_eia860m(eia860_raw_dfs, eia860m_raw_dfs):
         counterpart.
 
     """
-    meta_eia860m = excel.Metadata('eia860m')
+    meta_eia860m = excel.Metadata("eia860m")
     pages_eia860m = meta_eia860m.get_all_pages()
     # page names in 860m and 860 are the same.
     for page in pages_eia860m:
