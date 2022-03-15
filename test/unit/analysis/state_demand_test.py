@@ -8,11 +8,12 @@ import pytest
 
 from pudl.analysis.state_demand import lookup_state
 
-AK_FIPS = {'name': 'Alaska', 'code': 'AK', 'fips': '02'}
+AK_FIPS = {"name": "Alaska", "code": "AK", "fips": "02"}
 
 
 @pytest.mark.parametrize(
-    "state,expected", [
+    "state,expected",
+    [
         ("Alaska", AK_FIPS),
         ("alaska", AK_FIPS),
         ("ALASKA", AK_FIPS),
@@ -30,10 +31,10 @@ AK_FIPS = {'name': 'Alaska', 'code': 'AK', 'fips': '02'}
         pytest.param(pd.NA, {}, marks=pytest.mark.xfail),
         pytest.param("", {}, marks=pytest.mark.xfail),
         pytest.param(None, {}, marks=pytest.mark.xfail),
-    ]
+    ],
 )
 def test_lookup_state(
-        state: Union[str, int],
-        expected: Dict[str, Union[str, int]]) -> None:
+    state: Union[str, int], expected: Dict[str, Union[str, int]]
+) -> None:
     """Check that various kinds of state lookups work."""
     assert lookup_state(state) == expected

@@ -24,10 +24,10 @@ def parse_command_line(argv):
     """
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
-        '-o',
-        '--output',
+        "-o",
+        "--output",
         help="Path to the file where the YAML output should be written.",
-        default=False
+        default=False,
     )
     arguments = parser.parse_args(argv[1:])
     return arguments
@@ -36,8 +36,8 @@ def parse_command_line(argv):
 def main():
     """Convert metadata to YAML."""
     pudl_logger = logging.getLogger("pudl")
-    log_format = '%(asctime)s [%(levelname)8s] %(name)s:%(lineno)s %(message)s'
-    coloredlogs.install(fmt=log_format, level='INFO', logger=pudl_logger)
+    log_format = "%(asctime)s [%(levelname)8s] %(name)s:%(lineno)s %(message)s"
+    coloredlogs.install(fmt=log_format, level="INFO", logger=pudl_logger)
 
     args = parse_command_line(sys.argv)
     logger.info(f"Exporting metadata to: {args.output}")
@@ -46,5 +46,5 @@ def main():
     dm.to_yaml(path=args.output)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     sys.exit(main())

@@ -3,9 +3,16 @@ import pytest
 from pydantic import ValidationError
 
 from pudl.metadata.classes import DataSource
-from pudl.settings import (DatasetsSettings, Eia860Settings, Eia923Settings,
-                           EiaSettings, EpaCemsSettings, Ferc1Settings,
-                           Ferc1ToSqliteSettings, GenericDatasetSettings)
+from pudl.settings import (
+    DatasetsSettings,
+    Eia860Settings,
+    Eia923Settings,
+    EiaSettings,
+    EpaCemsSettings,
+    Ferc1Settings,
+    Ferc1ToSqliteSettings,
+    GenericDatasetSettings,
+)
 
 
 class TestGenericDatasetSettings:
@@ -23,9 +30,9 @@ class TestGenericDatasetSettings:
 
             class Test(GenericDatasetSettings):
                 data_source: DataSource(
-                    working_partitions=working_partitions,
-                    working_tables=working_tables
+                    working_partitions=working_partitions, working_tables=working_tables
                 )
+
             Test()
 
 
@@ -72,7 +79,12 @@ class TestFerc1Settings:
     def test_duplicate_sort_tables(self):
         """Test tables are sorted and deduplicated."""
         returned_settings = Ferc1Settings(
-            tables=["plants_pumped_storage_ferc1", "plant_in_service_ferc1", "plant_in_service_ferc1"])
+            tables=[
+                "plants_pumped_storage_ferc1",
+                "plant_in_service_ferc1",
+                "plant_in_service_ferc1",
+            ]
+        )
         expected_tables = ["plant_in_service_ferc1", "plants_pumped_storage_ferc1"]
 
         assert expected_tables == returned_settings.tables
@@ -95,8 +107,7 @@ class TestEpaCemsSettings:
 
     def test_duplicate_sort_states(self):
         """Test states are sorted and deduplicated."""
-        returned_settings = EpaCemsSettings(
-            states=["CA", "CA", "AL"])
+        returned_settings = EpaCemsSettings(states=["CA", "CA", "AL"])
         expected_states = ["AL", "CA"]
 
         assert expected_states == returned_settings.states
@@ -151,7 +162,7 @@ class TestEiaSettings:
         eia860_settings = Eia860Settings()
         settings = EiaSettings(eia860=eia860_settings)
 
-        expected_tables = ['boiler_fuel_eia923', 'generation_eia923']
+        expected_tables = ["boiler_fuel_eia923", "generation_eia923"]
 
         assert settings.eia923.tables == expected_tables
         assert settings.eia923.years == eia860_settings.years
