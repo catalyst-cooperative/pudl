@@ -409,13 +409,14 @@ def mixed_temporal_gran_merge(
 
     # add rows with an extra year for each unique group of rows, will be dropped
     # this fixes an off by one issue with upsampling
+    # need to change offset interval based on gran argument
     if report_time_in_period == "first":
         extra_year_df = (
             right.groupby(on_cols)[right_date_col].max() + pd.offsets.YearBegin()
         )
     else:
         extra_year_df = (
-            right.groupby(on_cols)[right_date_col].min() - pd.offsets.YearBegin()
+            right.groupby(on_cols)[right_date_col].min() - pd.offsets.YearEnd()
         )
     extra_year_df = extra_year_df.reset_index()
     extra_year_df["is_extra_row"] = True
