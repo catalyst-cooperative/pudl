@@ -407,6 +407,28 @@ def mixed_temporal_gran_merge(
         )
         return df
 
+    def drop_non_unique_date_cols(df, all_date_cols):
+        # drop the columns with non-unique information
+        unique_cols = [
+            date_col for date_col in all_date_cols if len(df[date_col].unique()) == 1
+        ]
+        df = df.drop(columns=unique_cols)
+        return df
+
+    # still need to add functionality for back filling
+    # maybe still have the off by one year issue? check this
+    all_date_cols = ["year", "quarter", "month", "day"]
+    right = assign_date_cols(right, right_date_col).drop(right_date_col, axis=1)
+    right = drop_non_unique_date_cols(right, all_date_cols)
+    left = assign_date_cols(left, left_date_col).drop(left_date_col, axis=1)
+    left = drop_non_unique_date_cols(left, all_date_cols)
+    # get the granularity of the less granular dataframe
+    # these columns are used to merge with the more granular dataframe
+    merge_on = [col for col in right if col in all_date_cols] + on_cols
+    out = left.merge(right, on=merge_on, how=merge_type)
+
+    """
+    # OLD VERSION
     # add rows with an extra year for each unique group of rows, will be dropped
     # this fixes an off by one issue with upsampling
     # need to change offset interval based on gran argument
@@ -423,9 +445,19 @@ def mixed_temporal_gran_merge(
     right = pd.concat([right, extra_year_df])
     # upsample to higher granularity
     if report_time_in_period == "first":
-        right = right.set_index(right_date_col).groupby(on_cols).resample(gran).ffill()
+        right = (
+            right.set_index(right_date_col)
+            .groupby(on_cols, as_index=False)
+            .resample(gran)
+            .ffill()
+        )
     else:
-        right = right.set_index(right_date_col).groupby(on_cols).resample(gran).bfill()
+        right = (
+            right.set_index(right_date_col)
+            .groupby(on_cols, as_index=False)
+            .resample(gran)
+            .bfill()
+        )
     # drop extra year rows and is_extra_row column
     right = right[right.is_extra_row.isnull()].drop("is_extra_row", axis=1)
     right = right.drop(on_cols, axis=1).reset_index()
@@ -437,6 +469,7 @@ def mixed_temporal_gran_merge(
     out = left.merge(
         right, how=merge_type, on=(on_cols + ["year", "quarter", "month", "day"])
     )
+    """
 
     return out
 
