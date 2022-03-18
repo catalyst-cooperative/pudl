@@ -339,6 +339,107 @@ def is_doi(doi):
     return bool(re.match(doi_regex, doi))
 
 
+def mixed_temporal_gran_merge(
+    left: pd.DataFrame,
+    right: pd.DataFrame,
+    left_date_col: str = "report_date",
+    right_date_col: str = "report_date",
+    on_cols: List[str] = [],
+    gran: str = "MS",
+    report_time_in_period: str = "first",
+    merge_type: str = "left",
+) -> pd.DataFrame:
+    """
+    Merge two dataframes having different ``report_date`` frequencies.
+
+    We often need to bring together data that is reported at different
+    temporal granularities e.g. monthly basis versus annual basis.
+    Here, the left dataframe is the higher granular data. The right dataframe
+    is broadcast to the desired higher granularity. Then, the date columns of both
+    dataframes are separated into year, quarter, month, and day columns.
+    The dataframes are merged according to ``merge_type`` on these new temporal
+    columns as well as additional columns specified by the ``on_cols`` argument.
+
+    Args:
+        left: The higher frequency "data" dataframe. Typically monthly in our use
+            cases. E.g. ``generation_eia923``. Must contain columns specified by
+            ``left_date_col`` and ``on_cols`` argument.
+        right: The lower frequency "attribute" dataframe. Typically annual in our uses
+            cases. E.g. ``generators_eia860``. Must contain columns specified by
+            ``right_date_col`` and ``on_cols`` argument.
+        left_date_col: Column in ``left`` containing datetime like data. Default is
+            ``report_date``. Must be convertible to a Datetime using
+            :func:`pandas.to_datetime`
+        right_date_col: Column in ``right`` containing datetime like data. Default is
+            ``report_date``. Must be convertible to a Datetime using
+            :func:`pandas.to_datetime`
+        on_cols: Columns to merge on in addition to newly created temporal columns. Typically
+            ID columns like ``plant_id_eia``, ``generator_id`` or ``boiler_id``.
+        gran: The desired granularity that the less granular dataframe should be
+            broadcast to. For now, this is the granularity of the more granular
+            dataframe.
+        report_time_in_period: When data is reported in the less granular dataframe.
+            When equal to "first" this means data in the right dataframe is reported
+            on the first date in the time period. E.g. annual dataframes have January
+            1st as the date. This is what happens by defualt if only a year or year-month
+            are provided to :func:`pandas.to_datetime` as strings.
+        merge_type: How the dataframes should be merged.
+
+
+    Returns:
+        Merged contents of left and right input dataframes.
+
+    Raises:
+        ValueError: if ``left_date_col`` or ``right_date_col`` columns are missing from their
+            respective input dataframes.
+        ValueError: if any of the labels referenced in ``on_cols`` are missing from either
+            the left or right dataframes.
+
+    """
+    # function breaks up a datetime column into separate columns
+    def assign_date_cols(df, date_col_name):
+        df[f"{date_col_name}"] = pd.to_datetime(df[f"{date_col_name}"])
+        df = df.assign(
+            year=lambda x: x[f"{date_col_name}"].dt.year,
+            quarter=lambda x: x[f"{date_col_name}"].dt.quarter,
+            month=lambda x: x[f"{date_col_name}"].dt.month,
+            day=lambda x: x[f"{date_col_name}"].dt.day,
+        )
+        return df
+
+    # add rows with an extra year for each unique group of rows, will be dropped
+    # this fixes an off by one issue with upsampling
+    if report_time_in_period == "first":
+        extra_year_df = (
+            right.groupby(on_cols)[right_date_col].max() + pd.offsets.YearBegin()
+        )
+    else:
+        extra_year_df = (
+            right.groupby(on_cols)[right_date_col].min() - pd.offsets.YearBegin()
+        )
+    extra_year_df = extra_year_df.reset_index()
+    extra_year_df["is_extra_row"] = True
+    right = pd.concat([right, extra_year_df])
+    # upsample to higher granularity
+    if report_time_in_period == "first":
+        right = right.set_index(right_date_col).groupby(on_cols).resample(gran).ffill()
+    else:
+        right = right.set_index(right_date_col).groupby(on_cols).resample(gran).bfill()
+    # drop extra year rows and is_extra_row column
+    right = right[right.is_extra_row.isnull()].drop("is_extra_row", axis=1)
+    right = right.drop(on_cols, axis=1).reset_index()
+
+    # break up date columns into separate columns
+    right = assign_date_cols(right, right_date_col)
+    left = assign_date_cols(left, left_date_col)
+
+    out = left.merge(
+        right, how=merge_type, on=(on_cols + ["year", "quarter", "month", "day"])
+    )
+
+    return out
+
+
 def clean_merge_asof(
     left: pd.DataFrame,
     right: pd.DataFrame,
