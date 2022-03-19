@@ -345,8 +345,7 @@ def mixed_temporal_gran_merge(
     left_date_col: str = "report_date",
     right_date_col: str = "report_date",
     on_cols: List[str] = [],
-    gran: str = "MS",
-    report_time_in_period: str = "first",
+    right_gran: str = "A",
     merge_type: str = "left",
 ) -> pd.DataFrame:
     """
@@ -375,14 +374,8 @@ def mixed_temporal_gran_merge(
             :func:`pandas.to_datetime`
         on_cols: Columns to merge on in addition to newly created temporal columns. Typically
             ID columns like ``plant_id_eia``, ``generator_id`` or ``boiler_id``.
-        gran: The desired granularity that the less granular dataframe should be
-            broadcast to. For now, this is the granularity of the more granular
-            dataframe.
-        report_time_in_period: When data is reported in the less granular dataframe.
-            When equal to "first" this means data in the right dataframe is reported
-            on the first date in the time period. E.g. annual dataframes have January
-            1st as the date. This is what happens by defualt if only a year or year-month
-            are provided to :func:`pandas.to_datetime` as strings.
+        right_gran: The granularity of the right (less granular) dataframe. Values are
+            "A", "Q", "M", "D"
         merge_type: How the dataframes should be merged.
 
 
@@ -396,8 +389,16 @@ def mixed_temporal_gran_merge(
             the left or right dataframes.
 
     """
-    # function breaks up a datetime column into separate columns
+    # columns to merge on based on the granularity of right dataframe
+    merge_cols = {
+        "A": ["year"],
+        "Q": ["year", "quarter"],
+        "M": ["year", "quarter", "month"],
+        "D": ["year", "quarter", "month", "day"],
+    }
+
     def assign_date_cols(df, date_col_name):
+        # break up datetime column into separate columns
         df[f"{date_col_name}"] = pd.to_datetime(df[f"{date_col_name}"])
         df = df.assign(
             year=lambda x: x[f"{date_col_name}"].dt.year,
@@ -407,6 +408,7 @@ def mixed_temporal_gran_merge(
         )
         return df
 
+    """
     def drop_non_unique_date_cols(df, all_date_cols):
         # drop the columns with non-unique information
         unique_cols = [
@@ -414,18 +416,15 @@ def mixed_temporal_gran_merge(
         ]
         df = df.drop(columns=unique_cols)
         return df
+    """
 
-    # still need to add functionality for back filling
-    # maybe still have the off by one year issue? check this
-    all_date_cols = ["year", "quarter", "month", "day"]
     right = assign_date_cols(right, right_date_col).drop(right_date_col, axis=1)
-    right = drop_non_unique_date_cols(right, all_date_cols)
+    # right = drop_non_unique_date_cols(right, all_date_cols)
     left = assign_date_cols(left, left_date_col).drop(left_date_col, axis=1)
-    left = drop_non_unique_date_cols(left, all_date_cols)
-    # get the granularity of the less granular dataframe
+    # left = drop_non_unique_date_cols(left, all_date_cols)
     # these columns are used to merge with the more granular dataframe
-    merge_on = [col for col in right if col in all_date_cols] + on_cols
-    out = left.merge(right, on=merge_on, how=merge_type)
+    on_cols += merge_cols[right_gran]
+    out = left.merge(right, on=on_cols, how=merge_type)
 
     """
     # OLD VERSION
