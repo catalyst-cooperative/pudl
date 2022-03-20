@@ -345,7 +345,7 @@ def mixed_temporal_gran_merge(
     left_date_col: str = "report_date",
     right_date_col: str = "report_date",
     on_cols: List[str] = [],
-    lesser_gran: str = "A",
+    lesser_freq: Literal["AS", "MS", "A", "Q", "M", "D"] = "A",
     merge_type: str = "inner",
     **kwargs,
 ) -> pd.DataFrame:
@@ -375,8 +375,9 @@ def mixed_temporal_gran_merge(
             :func:`pandas.to_datetime`
         on_cols: Columns to merge on in addition to newly created temporal columns. Typically
             ID columns like ``plant_id_eia``, ``generator_id`` or ``boiler_id``.
-        lesser_gran: The granularity of the lesser granular dataframe. Values are
-            ["A", "Q", "M", "D"] corresponding to annual, quarterly, monthly, or daily.
+        lesser_freq: The frequency of the lesser granular dataframe.
+            Frequencies are annually, quarterly, monthly, or daily. "AS" and "MS" are included
+            so the frequency of a ``pudl_out`` object can be passed in.
         merge_type: How the dataframes should be merged.
             Values are ["left", "right", "outer", "inner", "cross"].
             See :func:`pandas.DataFrame.merge`.
@@ -417,7 +418,7 @@ def mixed_temporal_gran_merge(
     right = assign_date_cols(right, right_date_col).drop(right_date_col, axis=1)
     left = assign_date_cols(left, left_date_col).drop(left_date_col, axis=1)
     # these columns are used to merge with the more granular dataframe
-    on_cols += merge_cols[lesser_gran]
+    on_cols += merge_cols[lesser_freq]
     out = left.merge(right, on=on_cols, how=merge_type, **kwargs)
 
     return out
