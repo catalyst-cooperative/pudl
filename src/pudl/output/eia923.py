@@ -576,10 +576,12 @@ def boiler_fuel_eia923(pudl_engine, freq=None, start_date=None, end_date=None):
     pu_eia = pudl.output.eia860.plants_utils_eia860(
         pudl_engine, start_date=start_date, end_date=end_date
     )
-    out_df = pudl.helpers.clean_merge_asof(
+    out_df = pudl.helpers.mixed_temporal_gran_merge(
         left=bf_df,
         right=pu_eia,
-        by=["plant_id_eia"],
+        on_cols=["plant_id_eia"],
+        lesser_freq="A",
+        merge_type="left",
     ).dropna(subset=["plant_id_eia", "utility_id_eia", "boiler_id"])
     # Merge in the unit_id_pudl assigned to each generator in the BGA process
     # Pull the BGA table and make it unit-boiler only:
@@ -590,10 +592,12 @@ def boiler_fuel_eia923(pudl_engine, freq=None, start_date=None, end_date=None):
         .loc[:, ["report_date", "plant_id_eia", "boiler_id", "unit_id_pudl"]]
         .drop_duplicates()
     )
-    out_df = pudl.helpers.clean_merge_asof(
+    out_df = pudl.helpers.mixed_temporal_gran_merge(
         left=out_df,
         right=bga_boilers,
-        by=["plant_id_eia", "boiler_id"],
+        on_cols=["plant_id_eia", "boiler_id"],
+        lesser_freq="A",
+        merge_type="left",
     )
     out_df = pudl.helpers.organize_cols(
         out_df,

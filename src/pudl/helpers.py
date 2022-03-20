@@ -345,7 +345,7 @@ def mixed_temporal_gran_merge(
     left_date_col: str = "report_date",
     right_date_col: str = "report_date",
     on_cols: List[str] = [],
-    lesser_freq: Literal["AS", "MS", "A", "Q", "M", "D"] = "A",
+    lesser_freq: Literal["AS", "YS", "MS", "A", "Q", "M", "D"] = "A",
     merge_type: str = "inner",
     **kwargs,
 ) -> pd.DataFrame:
@@ -398,6 +398,7 @@ def mixed_temporal_gran_merge(
     merge_cols = {
         "A": ["year"],
         "AS": ["year"],
+        "YS": ["year"],
         "Q": ["year", "quarter"],
         "M": ["year", "quarter", "month"],
         "MS": ["year", "quarter", "month"],
