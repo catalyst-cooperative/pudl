@@ -345,27 +345,28 @@ def mixed_temporal_gran_merge(
     left_date_col: str = "report_date",
     right_date_col: str = "report_date",
     on_cols: List[str] = [],
-    right_gran: str = "A",
-    merge_type: str = "left",
+    lesser_gran: str = "A",
+    merge_type: str = "inner",
+    **kwargs,
 ) -> pd.DataFrame:
     """
-    Merge two dataframes having different ``report_date`` frequencies.
+    Merge two dataframes having different report date frequencies.
 
     We often need to bring together data that is reported at different
-    temporal granularities e.g. monthly basis versus annual basis.
-    Here, the left dataframe is the higher granular data. The right dataframe
-    is broadcast to the desired higher granularity. Then, the date columns of both
-    dataframes are separated into year, quarter, month, and day columns.
-    The dataframes are merged according to ``merge_type`` on these new temporal
-    columns as well as additional columns specified by the ``on_cols`` argument.
+    temporal granularities e.g. monthly basis versus annual basis. This function
+    acts as a wrapper on a pandas merge to allow merging at different temporal
+    granularities. The date columns of both dataframes are separated into
+    year, quarter, month, and day columns. The dataframes are merged according
+    to ``merge_type`` on these new temporal columns as well as additional columns
+    specified by the ``on_cols`` argument.
 
     Args:
-        left: The higher frequency "data" dataframe. Typically monthly in our use
-            cases. E.g. ``generation_eia923``. Must contain columns specified by
-            ``left_date_col`` and ``on_cols`` argument.
-        right: The lower frequency "attribute" dataframe. Typically annual in our uses
-            cases. E.g. ``generators_eia860``. Must contain columns specified by
-            ``right_date_col`` and ``on_cols`` argument.
+        left: The left dataframe in the merge. Typically monthly in our use
+            cases if doing a left merge E.g. ``generation_eia923``.
+            Must contain columns specified by ``left_date_col`` and ``on_cols`` argument.
+        right: The right dataframe in the merge. Typically annual in our uses
+            cases if doing a left merge E.g. ``generators_eia860``.
+            Must contain columns specified by ``right_date_col`` and ``on_cols`` argument.
         left_date_col: Column in ``left`` containing datetime like data. Default is
             ``report_date``. Must be convertible to a Datetime using
             :func:`pandas.to_datetime`
@@ -374,9 +375,12 @@ def mixed_temporal_gran_merge(
             :func:`pandas.to_datetime`
         on_cols: Columns to merge on in addition to newly created temporal columns. Typically
             ID columns like ``plant_id_eia``, ``generator_id`` or ``boiler_id``.
-        right_gran: The granularity of the right (less granular) dataframe. Values are
-            "A", "Q", "M", "D"
+        lesser_gran: The granularity of the lesser granular dataframe. Values are
+            ["A", "Q", "M", "D"] corresponding to annual, quarterly, monthly, or daily.
         merge_type: How the dataframes should be merged.
+            Values are ["left", "right", "outer", "inner", "cross"].
+            See :func:`pandas.DataFrame.merge`.
+        kwargs : Additional arguments to pass to :func:`pandas.DataFrame.merge`.
 
 
     Returns:
@@ -392,8 +396,10 @@ def mixed_temporal_gran_merge(
     # columns to merge on based on the granularity of right dataframe
     merge_cols = {
         "A": ["year"],
+        "AS": ["year"],
         "Q": ["year", "quarter"],
         "M": ["year", "quarter", "month"],
+        "MS": ["year", "quarter", "month"],
         "D": ["year", "quarter", "month", "day"],
     }
 
@@ -411,8 +417,8 @@ def mixed_temporal_gran_merge(
     right = assign_date_cols(right, right_date_col).drop(right_date_col, axis=1)
     left = assign_date_cols(left, left_date_col).drop(left_date_col, axis=1)
     # these columns are used to merge with the more granular dataframe
-    on_cols += merge_cols[right_gran]
-    out = left.merge(right, on=on_cols, how=merge_type)
+    on_cols += merge_cols[lesser_gran]
+    out = left.merge(right, on=on_cols, how=merge_type, **kwargs)
 
     return out
 
