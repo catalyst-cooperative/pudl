@@ -408,67 +408,11 @@ def mixed_temporal_gran_merge(
         )
         return df
 
-    """
-    def drop_non_unique_date_cols(df, all_date_cols):
-        # drop the columns with non-unique information
-        unique_cols = [
-            date_col for date_col in all_date_cols if len(df[date_col].unique()) == 1
-        ]
-        df = df.drop(columns=unique_cols)
-        return df
-    """
-
     right = assign_date_cols(right, right_date_col).drop(right_date_col, axis=1)
-    # right = drop_non_unique_date_cols(right, all_date_cols)
     left = assign_date_cols(left, left_date_col).drop(left_date_col, axis=1)
-    # left = drop_non_unique_date_cols(left, all_date_cols)
     # these columns are used to merge with the more granular dataframe
     on_cols += merge_cols[right_gran]
     out = left.merge(right, on=on_cols, how=merge_type)
-
-    """
-    # OLD VERSION
-    # add rows with an extra year for each unique group of rows, will be dropped
-    # this fixes an off by one issue with upsampling
-    # need to change offset interval based on gran argument
-    if report_time_in_period == "first":
-        extra_year_df = (
-            right.groupby(on_cols)[right_date_col].max() + pd.offsets.YearBegin()
-        )
-    else:
-        extra_year_df = (
-            right.groupby(on_cols)[right_date_col].min() - pd.offsets.YearEnd()
-        )
-    extra_year_df = extra_year_df.reset_index()
-    extra_year_df["is_extra_row"] = True
-    right = pd.concat([right, extra_year_df])
-    # upsample to higher granularity
-    if report_time_in_period == "first":
-        right = (
-            right.set_index(right_date_col)
-            .groupby(on_cols, as_index=False)
-            .resample(gran)
-            .ffill()
-        )
-    else:
-        right = (
-            right.set_index(right_date_col)
-            .groupby(on_cols, as_index=False)
-            .resample(gran)
-            .bfill()
-        )
-    # drop extra year rows and is_extra_row column
-    right = right[right.is_extra_row.isnull()].drop("is_extra_row", axis=1)
-    right = right.drop(on_cols, axis=1).reset_index()
-
-    # break up date columns into separate columns
-    right = assign_date_cols(right, right_date_col)
-    left = assign_date_cols(left, left_date_col)
-
-    out = left.merge(
-        right, how=merge_type, on=(on_cols + ["year", "quarter", "month", "day"])
-    )
-    """
 
     return out
 
