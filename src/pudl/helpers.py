@@ -416,12 +416,26 @@ def mixed_temporal_gran_merge(
         )
         return df
 
-    right = assign_date_cols(right, right_date_col).drop(right_date_col, axis=1)
-    left = assign_date_cols(left, left_date_col).drop(left_date_col, axis=1)
+    right = assign_date_cols(right, right_date_col)
+    left = assign_date_cols(left, left_date_col)
     # these columns are used to merge with the more granular dataframe
     on_cols += merge_cols[lesser_freq]
     out = left.merge(right, on=on_cols, how=merge_type, **kwargs)
-
+    # not the best, but just an attempt to deal with the report_date column
+    if left_date_col == right_date_col:
+        if merge_type == "left" or merge_type == "inner":
+            out = left.merge(
+                right, on=on_cols, how=merge_type, suffixes=(None, "_y"), **kwargs
+            )
+        elif merge_type == "right":
+            out = left.merge(
+                right, on=on_cols, how=merge_type, suffixes=("_x", None), **kwargs
+            )
+        else:
+            # not sure what to do with "outer" and "cross"
+            out = left.merge(right, on=on_cols, how=merge_type, **kwargs)
+    else:
+        out = left.merge(right, on=on_cols, how=merge_type, **kwargs)
     return out
 
 
