@@ -309,6 +309,10 @@ PRIORITY_ATTRIBUTES_DICT = {
     "operational_status": ["existing", "proposed", "retired"],
 }
 
+SORTED_ATTRIBUTES_DICT = {
+    "installation_year": {"installation_year": lambda x: x.operating_date.dt.year},
+    "construction_year": {"construction_year": lambda x: x.operating_date.dt.year},
+}
 
 FIRST_COLS = [
     "plant_id_eia",
@@ -1150,7 +1154,16 @@ class PlantPart(object):
             )
             .pipe(self.ag_fraction_owned)
             .assign(plant_part=self.part_name)
-            .pipe(self.add_install_year, gens_mega)
+            .pipe(
+                AddSortedAttribute("installation_year", self.part_name).execute,
+                gens_mega,
+                get_max=True,
+            )
+            .pipe(
+                AddSortedAttribute("construction_year", self.part_name).execute,
+                gens_mega,
+                get_max=False,
+            )
             .pipe(  # add standard record id w/ year
                 add_record_id,
                 id_cols=self.id_cols,
@@ -1421,13 +1434,14 @@ class AddAttribute(object):
         Args:
             attribute_col (string): name of qualifer record that you want added.
                 Must be in :py:const:`CONSISTENT_ATTRIBUTE_COLS` or a key in
-                :py:const:`PRIORITY_ATTRIBUTES_DICT`.
+                :py:const:`PRIORITY_ATTRIBUTES_DICT`
+                or :py:const:`SORTED_ATTRIBUTES_DICT`.
             part_name (str): the name of the part to aggregate to. Names can be
                 only those in :py:const:`PLANT_PARTS`
         """
         assert attribute_col in CONSISTENT_ATTRIBUTE_COLS + list(
             PRIORITY_ATTRIBUTES_DICT.keys()
-        )
+        ) + list(SORTED_ATTRIBUTES_DICT.keys())
         self.attribute_col = attribute_col
         # the base columns will be the id columns, plus the other two main ids
         self.part_name = part_name
@@ -1564,6 +1578,54 @@ class AddPriorityAttribute(AddAttribute):
             PRIORITY_ATTRIBUTES_DICT[attribute_col],
         )
         part_df = part_df.merge(consistent_records, on=self.base_cols, how="left")
+        return part_df
+
+
+class AddSortedAttribute(AddAttribute):
+    """
+    Add Attributes based on the maximum or minimum value of a sorted attribute.
+
+    This object adds an attribute based on the maximum or minimum of another
+    attribute within a group of plant parts uniquely identified by their ID columns.
+    """
+
+    # should this function be able to add a max and min attribute at the same time?
+    # e.g. construction_year and installation_year at the same time
+    # is that actually more efficient?
+    def execute(self, part_df, gens_mega, get_max=True):
+        """
+        Add the attribute to the plant part df based on sorting of another attribute.
+
+        Args:
+            part_df (pandas.DataFrame): dataframe containing records associated
+                with one plant part.
+            gens_mega (pandas.DataFrame): a table of all of the generators with
+                identifying columns and data columns, sliced by ownership which
+                makes "total" and "owned" records for each generator owner.
+            get_max (Boolean): whether to get the maximum or minimum value
+                of the sorted attribute
+        """
+        attribute_col = self.attribute_col
+        if attribute_col in part_df.columns:
+            logger.debug(f"{attribute_col} already here.. ")
+            return part_df
+
+        logger.debug(f"pre count of part DataFrame: {len(part_df)}")
+        keep_first_or_last = "first" if get_max else "last"
+        install = (
+            gens_mega.assign(**SORTED_ATTRIBUTES_DICT[attribute_col])
+            .astype({attribute_col: "Int64"})[self.id_cols + [attribute_col]]
+            # does this make sense for construction_year too?
+            .loc[gens_mega.operational_status_pudl == "operating"]
+            .sort_values(attribute_col, ascending=False)
+            .drop_duplicates(subset=self.id_cols, keep=keep_first_or_last)
+            .dropna(subset=self.id_cols)
+        )
+        part_df = part_df.merge(install, how="left", on=self.id_cols, validate="m:1")
+        logger.debug(
+            f"count of install years for part: {len(install)} \n"
+            f"post count of part DataFrame: {len(part_df)}"
+        )
         return part_df
 
 
