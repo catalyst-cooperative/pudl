@@ -1157,12 +1157,12 @@ class PlantPart(object):
             .pipe(
                 AddSortedAttribute("installation_year", self.part_name).execute,
                 gens_mega,
-                get_max=True,
+                keep="first",
             )
             .pipe(
                 AddSortedAttribute("construction_year", self.part_name).execute,
                 gens_mega,
-                get_max=False,
+                keep="last",
             )
             .pipe(  # add standard record id w/ year
                 add_record_id,
@@ -1592,7 +1592,7 @@ class AddSortedAttribute(AddAttribute):
     # should this function be able to add a max and min attribute at the same time?
     # e.g. construction_year and installation_year at the same time
     # is that actually more efficient?
-    def execute(self, part_df, gens_mega, get_max=True):
+    def execute(self, part_df, gens_mega, keep: Literal["first", "last", None]):
         """
         Add the attribute to the plant part df based on sorting of another attribute.
 
@@ -1602,8 +1602,10 @@ class AddSortedAttribute(AddAttribute):
             gens_mega (pandas.DataFrame): a table of all of the generators with
                 identifying columns and data columns, sliced by ownership which
                 makes "total" and "owned" records for each generator owner.
-            get_max (Boolean): whether to get the maximum or minimum value
-                of the sorted attribute
+            keep (Literal): ``keep`` parameter passed into
+                :func:`pandas.DataFrame.drop_duplicates`. Equal to "first" when the
+                maximum value in a grouping is desired and "last" when the
+                minimum value is desired.
         """
         attribute_col = self.attribute_col
         if attribute_col in part_df.columns:
@@ -1611,17 +1613,16 @@ class AddSortedAttribute(AddAttribute):
             return part_df
 
         logger.debug(f"pre count of part DataFrame: {len(part_df)}")
-        keep_first_or_last = "first" if get_max else "last"
         install = (
             gens_mega.assign(**SORTED_ATTRIBUTES_DICT[attribute_col])
             .astype({attribute_col: "Int64"})[self.id_cols + [attribute_col]]
             # does this make sense for construction_year too?
             .loc[gens_mega.operational_status_pudl == "operating"]
             .sort_values(attribute_col, ascending=False)
-            .drop_duplicates(subset=self.id_cols, keep=keep_first_or_last)
-            .dropna(subset=self.id_cols)
+            .drop_duplicates(subset=self.base_cols, keep=keep)
+            .dropna(subset=self.base_cols)
         )
-        part_df = part_df.merge(install, how="left", on=self.id_cols, validate="m:1")
+        part_df = part_df.merge(install, how="left", on=self.base_cols, validate="m:1")
         logger.debug(
             f"count of install years for part: {len(install)} \n"
             f"post count of part DataFrame: {len(part_df)}"
