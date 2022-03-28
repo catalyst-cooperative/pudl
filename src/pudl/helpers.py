@@ -344,9 +344,11 @@ def mixed_temporal_gran_merge(
     right: pd.DataFrame,
     left_date_col: str = "report_date",
     right_date_col: str = "report_date",
-    on_cols: List[str] = [],
-    lesser_freq: Literal["AS", "YS", "MS", "A", "Q", "M", "D"] = "A",
+    new_date_col: str = "report_date",
+    shared_merge_cols: List[str] = [],
+    temporal_merge_cols: Literal["year", "quarter", "month", "day"] = "year",
     merge_type: str = "inner",
+    report_at_start=True,
     **kwargs,
 ) -> pd.DataFrame:
     """
@@ -356,31 +358,41 @@ def mixed_temporal_gran_merge(
     temporal granularities e.g. monthly basis versus annual basis. This function
     acts as a wrapper on a pandas merge to allow merging at different temporal
     granularities. The date columns of both dataframes are separated into
-    year, quarter, month, and day columns. The dataframes are merged according
-    to ``merge_type`` on these new temporal columns as well as additional columns
-    specified by the ``on_cols`` argument.
+    year, quarter, month, and day columns. Then, the dataframes are merged according
+    to ``merge_type`` on the columns specified by the ``shared_merge_cols``
+    and ``temporal_merge_cols`` argument, which list the new temporal columns
+    to merge on as well any additional shared columns. Finally, the datetime
+    column is reconstructed in the output dataframe and named according to the
+    ``new_date_col`` parameter.
 
     Args:
         left: The left dataframe in the merge. Typically monthly in our use
             cases if doing a left merge E.g. ``generation_eia923``.
-            Must contain columns specified by ``left_date_col`` and ``on_cols`` argument.
+            Must contain columns specified by ``left_date_col`` and
+            ``shared_merge_cols`` argument.
         right: The right dataframe in the merge. Typically annual in our uses
             cases if doing a left merge E.g. ``generators_eia860``.
-            Must contain columns specified by ``right_date_col`` and ``on_cols`` argument.
+            Must contain columns specified by ``right_date_col`` and and
+            ``shared_merge_cols`` argument.
         left_date_col: Column in ``left`` containing datetime like data. Default is
             ``report_date``. Must be convertible to a Datetime using
             :func:`pandas.to_datetime`
+        new_date_col: Name of the reconstructed datetime column in the output dataframe.
         right_date_col: Column in ``right`` containing datetime like data. Default is
             ``report_date``. Must be convertible to a Datetime using
-            :func:`pandas.to_datetime`
-        on_cols: Columns to merge on in addition to newly created temporal columns. Typically
-            ID columns like ``plant_id_eia``, ``generator_id`` or ``boiler_id``.
-        lesser_freq: The frequency of the lesser granular dataframe.
-            Frequencies are annually, quarterly, monthly, or daily. "AS" and "MS" are included
-            so the frequency of a ``pudl_out`` object can be passed in.
+            :func:`pandas.to_datetime`.
+        shared_merge_cols: The columns to merge on that are shared between both
+            dataframes. Typically ID columns like ``plant_id_eia``, ``generator_id``
+            or ``boiler_id``.
+        temporal_merge_cols: The temporal columns to merge on
+            (``year``, ``quarter``, ``month``, ``day``). E.g. if an annually reported
+            dataframe is being merged onto a monthly reported dataframe, then the merge
+            would be performed on ``year``.
         merge_type: How the dataframes should be merged.
             Values are ["left", "right", "outer", "inner", "cross"].
             See :func:`pandas.DataFrame.merge`.
+        report_at_start: Whether the data in the less granular dataframe is reported
+            at the start of the time period.
         kwargs : Additional arguments to pass to :func:`pandas.DataFrame.merge`.
 
 
@@ -390,52 +402,39 @@ def mixed_temporal_gran_merge(
     Raises:
         ValueError: if ``left_date_col`` or ``right_date_col`` columns are missing from their
             respective input dataframes.
-        ValueError: if any of the labels referenced in ``on_cols`` are missing from either
+        ValueError: if any of the labels referenced in ``shared_merge_cols`` are missing from either
             the left or right dataframes.
 
     """
-    # columns to merge on based on the granularity of right dataframe
-    merge_cols = {
-        "A": ["year"],
-        "AS": ["year"],
-        "YS": ["year"],
-        "Q": ["year", "quarter"],
-        "M": ["year", "quarter", "month"],
-        "MS": ["year", "quarter", "month"],
-        "D": ["year", "quarter", "month", "day"],
-    }
 
-    def assign_date_cols(df, date_col_name):
+    def separate_date_cols(df, date_col_name):
         # break up datetime column into separate columns
-        df[f"{date_col_name}"] = pd.to_datetime(df[f"{date_col_name}"])
-        df = df.assign(
-            year=lambda x: x[f"{date_col_name}"].dt.year,
-            quarter=lambda x: x[f"{date_col_name}"].dt.quarter,
-            month=lambda x: x[f"{date_col_name}"].dt.month,
-            day=lambda x: x[f"{date_col_name}"].dt.day,
-        )
+        df[date_col_name] = pd.to_datetime(df[date_col_name])
+        df.loc[:, "year"] = df[date_col_name].dt.year
+        df.loc[:, "quarter"] = df[date_col_name].dt.quarter
+        df.loc[:, "month"] = df[date_col_name].dt.month
+        df.loc[:, "day"] = df[date_col_name].dt.day
+        df = df.drop(date_col_name, axis=1)
         return df
 
-    right = assign_date_cols(right, right_date_col)
-    left = assign_date_cols(left, left_date_col)
-    # these columns are used to merge with the more granular dataframe
-    on_cols += merge_cols[lesser_freq]
-    out = left.merge(right, on=on_cols, how=merge_type, **kwargs)
-    # not the best, but just an attempt to deal with the report_date column
-    if left_date_col == right_date_col:
-        if merge_type == "left" or merge_type == "inner":
-            out = left.merge(
-                right, on=on_cols, how=merge_type, suffixes=(None, "_y"), **kwargs
-            )
-        elif merge_type == "right":
-            out = left.merge(
-                right, on=on_cols, how=merge_type, suffixes=("_x", None), **kwargs
-            )
-        else:
-            # not sure what to do with "outer" and "cross"
-            out = left.merge(right, on=on_cols, how=merge_type, **kwargs)
-    else:
-        out = left.merge(right, on=on_cols, how=merge_type, **kwargs)
+    right = separate_date_cols(right, right_date_col)
+    left = separate_date_cols(left, left_date_col)
+    merge_cols = temporal_merge_cols + shared_merge_cols
+    out = left.merge(right, on=merge_cols, how=merge_type, **kwargs)
+    # reconstruct the report_date column
+    # by taking the max (if report date is at start of time period)
+    # then the more granular date is reconstructed for all merge types
+    # for an outer merge, nans are ignored and the non-nan temporal
+    # columns are used to construct the datetime
+    # Note: not sure if this works for "cross" merge
+    for col in ["year", "month", "day"]:
+        if col not in out:
+            # TO DO: check for a prefix in kwargs
+            if report_at_start:
+                out.loc[:, col] = out[[col + "_x", col + "_y"]].max(axis=1)
+            else:
+                out.loc[:, col] = out[[col + "_x", col + "_y"]].min(axis=1)
+    out.loc[:, new_date_col] = pd.to_datetime(out[["year", "month", "day"]])
     return out
 
 
