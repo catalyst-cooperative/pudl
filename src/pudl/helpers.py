@@ -339,6 +339,40 @@ def is_doi(doi):
     return bool(re.match(doi_regex, doi))
 
 
+def full_timeseries_mixed_temporal_merge(
+    left: pd.DataFrame,
+    right: pd.DataFrame,
+    left_date_col: str = "report_date",
+    right_date_col: str = "report_date",
+    new_date_col: str = "report_date",
+    shared_merge_cols: List[str] = [],
+    temporal_merge_cols: Literal["year", "quarter", "month", "day"] = "year",
+    merge_type: str = "inner",
+    report_at_start=True,
+    freq: Literal["AS", "QS", "MS", "D"] = "MS",
+    fillin=False,
+    **kwargs,
+):
+    """
+    Merge dataframes with different date frequencies and expand to a full timeseries.
+
+    Arguments: see arguments for ``mexed_temporal_gran_merge`` and ``expand_timeseries``
+    """
+    out = mixed_temporal_gran_merge(
+        left,
+        right,
+        left_date_col,
+        right_date_col,
+        shared_merge_cols,
+        temporal_merge_cols,
+        merge_type,
+        report_at_start,
+        **kwargs,
+    )
+    out = expand_timeseries(out, new_date_col, freq, fillin)
+    return out
+
+
 def mixed_temporal_gran_merge(
     left: pd.DataFrame,
     right: pd.DataFrame,
@@ -352,7 +386,7 @@ def mixed_temporal_gran_merge(
     **kwargs,
 ) -> pd.DataFrame:
     """
-    Merge two dataframes having different report date frequencies.
+    Merge two dataframes that have different report date frequencies.
 
     We often need to bring together data that is reported at different
     temporal granularities e.g. monthly basis versus annual basis. This function
@@ -421,20 +455,66 @@ def mixed_temporal_gran_merge(
     left = separate_date_cols(left, left_date_col)
     merge_cols = temporal_merge_cols + shared_merge_cols
     out = left.merge(right, on=merge_cols, how=merge_type, **kwargs)
-    # reconstruct the report_date column
+    # reconstruct the report_date column and do some column cleanup
     # by taking the max (if report date is at start of time period)
     # then the more granular date is reconstructed for all merge types
     # for an outer merge, nans are ignored and the non-nan temporal
     # columns are used to construct the datetime
     # Note: not sure if this works for "cross" merge
+    if "suffixes" in kwargs:
+        suffixes = kwargs["suffixes"]
+    else:
+        suffixes = ["_x", "_y"]
+    cols_to_drop = ["year", "month", "day"]
+    if "quarter" in out:
+        cols_to_drop.append("quarter")
+    else:
+        cols_to_drop += ["quarter" + suffixes[0], "quarter" + suffixes[1]]
     for col in ["year", "month", "day"]:
         if col not in out:
-            # TO DO: check for a prefix in kwargs
+            left_right_cols = [col + suffixes[0], col + suffixes[1]]
             if report_at_start:
-                out.loc[:, col] = out[[col + "_x", col + "_y"]].max(axis=1)
+                out.loc[:, col] = out[left_right_cols].max(axis=1)
             else:
-                out.loc[:, col] = out[[col + "_x", col + "_y"]].min(axis=1)
+                out.loc[:, col] = out[left_right_cols].min(axis=1)
+            cols_to_drop += left_right_cols
     out.loc[:, new_date_col] = pd.to_datetime(out[["year", "month", "day"]])
+    out = out.drop(cols_to_drop, axis=1)
+
+    return out
+
+
+def expand_timeseries(
+    df: pd.DataFrame,
+    date_col: str = "report_date",
+    freq: Literal["AS", "QS", "MS", "D"] = "MS",
+    fillin=False,
+):
+    """
+    Expand a dataframe to a include a full time series at a given frequency.
+
+    Arguments:
+        df: The dataframe to expand. Must have ``date_col`` in columns.
+        date_col: Name of the datetime column being expanded into a full timeseries.
+        freq: The frequency of the time series to expand the data to. Values are
+            ["AS", "QS", "MS", "D"].
+        fillin: Whether to broadcast the data so it's filled in for the whole
+            timeseries e.g. if annual data is expanded over a monthly timeseries
+            then the data for each year is broadcast to all months in that year.
+    """
+    if not fillin:
+        date_range = pd.DataFrame(
+            pd.date_range(
+                start=df[date_col].min(),
+                end=df[date_col].max(),  # TO DO: round to end of calendar year
+                freq=freq,
+            ),
+            columns=[date_col],
+        )
+        out = date_range.merge(df, how="left", on=date_col)
+    else:
+        pass
+        # upsample the dataframe to fill in for the whole timeseries
     return out
 
 
