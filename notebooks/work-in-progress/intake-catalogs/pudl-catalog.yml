@@ -1,0 +1,51 @@
+plugins:
+  source:
+    - module: intake_parquet
+
+sources:
+
+  epacems_one_file:
+    metadata:
+      title: EPA CEMS Hourly Emissions in one file
+      description: |
+        Hourly EPA CEMS emissions data in a single Parquet file.
+      type: application/parquet
+      license: Creative Commons Attribution 4.0 International
+    driver: parquet
+    args:
+      urlpath: '{{ env(INTAKE_PATH) }}/hourly_emissions_epacems.parquet'
+
+  epacems_multi_file:
+    metadata:
+      title: EPA CEMS Hourly Emissions split out by state and year.
+      description: |
+        Hourly EPA CEMS emissions data in many Parquet state-year files.
+      type: application/parquet
+      license: Creative Commons Attribution 4.0 International
+    driver: parquet
+    args:
+      urlpath: '{{ env(INTAKE_PATH) }}/hourly_emissions_epacems/epacems*.parquet'
+
+
+# Not read for using parameters yet...
+#  parameters:
+#     year:
+#       description: Four digit year in which data was collected.
+#       type: int
+#       default: 2020
+#       allowed: [
+#         1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004,
+#         2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014,
+#         2015, 2016, 2017, 2018, 2019, 2020,
+#       ]
+#     state:
+#       description: Two letter US state or territory abbreviation.
+#       type: str
+#       default: 'ID'
+#       allowed: [
+#         'AL', 'AR', 'AZ', 'CA', 'CO', 'CT', 'DE', 'FL', 'GA', 'IA',
+#         'ID', 'IL', 'IN', 'KS', 'KY', 'LA', 'MA', 'MD', 'ME', 'MI',
+#         'MN', 'MO', 'MS', 'MT', 'NC', 'ND', 'NE', 'NH', 'NJ', 'NM',
+#         'NV', 'NY', 'OH', 'OK', 'OR', 'PA', 'RI', 'SC', 'SD', 'TN',
+#         'TX', 'UT', 'VA', 'VT', 'WA', 'WI', 'WV', 'WY', 'DC',
+#       ]
