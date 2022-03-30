@@ -674,7 +674,7 @@ class Field(Base):
     def to_pyarrow_dtype(self) -> pa.lib.DataType:
         """Return PyArrow data type."""
         if self.constraints.enum and self.type == "string":
-            return pa.dictionary(pa.int8(), pa.string(), ordered=False)
+            return pa.dictionary(pa.int32(), pa.string(), ordered=False)
         return FIELD_DTYPES_PYARROW[self.type]
 
     def to_pyarrow(self) -> pa.Field:
