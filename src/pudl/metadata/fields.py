@@ -1675,10 +1675,11 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
         "description": "The code representing the first, second, third or fourth start-up and flame stabilization energy source used by the combustion unit(s) associated with this generator.",
     },
     "state": {
-        "type": "string"
+        "type": "string",
         # TODO: disambiguate the column name. State means different things in
         # different tables. E.g. state of the utility's HQ address vs. state that a
         # plant is located in vs. state in which a utility provides service.
+        "description": "Two letter US state abbreviation.",
     },
     "state_id_fips": {
         "type": "string",
@@ -1989,7 +1990,7 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
     "winter_peak_demand_mw": {"type": "number", "unit": "MW"},
     "year": {
         "type": "integer",
-        "description": "Year associated with data, for partitioning EPA CEMS.",
+        "description": "Year the data was reported in, used for partitioning EPA CEMS.",
     },
     "zip_code": {
         "type": "string",

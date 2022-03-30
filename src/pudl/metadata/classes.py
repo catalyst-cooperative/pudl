@@ -1284,7 +1284,10 @@ class Resource(Base):
 
     def to_pyarrow(self) -> pa.Schema:
         """Construct a PyArrow schema for the resource."""
-        return pa.schema([field.to_pyarrow() for field in self.schema.fields])
+        return pa.schema(
+            fields=[field.to_pyarrow() for field in self.schema.fields],
+            metadata={field.name: field.description for field in self.schema.fields},
+        )
 
     def to_pandas_dtypes(
         self, **kwargs: Any
