@@ -28,7 +28,6 @@ dependencies:
   # Jupyter notebook specific packages:
   - dask-labextension~=5.1
   - jupyter-resource-usage~=0.5.0
-  # - jupyter_contrib_nbextensions~=0.5.1
   - nbconvert>=6,<7
   - seaborn~=0.11.0
   - jupyterlab~=3.2
