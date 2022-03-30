@@ -25,6 +25,7 @@ import sqlalchemy as sa
 
 import pudl
 from pudl.helpers import convert_cols_dtypes
+from pudl.metadata.classes import Resource
 from pudl.metadata.codes import CODE_METADATA
 from pudl.metadata.dfs import FERC_ACCOUNTS, FERC_DEPRECIATION_LINES
 from pudl.metadata.fields import apply_pudl_dtypes
@@ -243,6 +244,9 @@ def etl_epacems(
         dictionary of dataframes.
 
     """
+    import pyarrow as pa
+    import pyarrow.parquet as pq
+
     pudl_engine = sa.create_engine(pudl_settings["pudl_db"])
 
     # Verify that we have a PUDL DB with plant attributes:
@@ -269,29 +273,29 @@ def etl_epacems(
             "Some timezones may be estimated based on plant state."
         )
 
-    # NOTE: This is a generator for raw dataframes
-    epacems_raw_dfs = pudl.extract.epacems.extract(
-        epacems_settings, Datastore(**ds_kwargs)
-    )
-
-    # NOTE: This is a generator for transformed dataframes
-    epacems_transformed_dfs = pudl.transform.epacems.transform(
-        epacems_raw_dfs=epacems_raw_dfs,
-        pudl_engine=pudl_engine,
-    )
-
     logger.info("Processing EPA CEMS data and writing it to Apache Parquet.")
     if logger.isEnabledFor(logging.INFO):
         start_time = time.monotonic()
 
-    # run the cems generator dfs through the load step
-    for df in epacems_transformed_dfs:
-        pudl.load.df_to_parquet(
-            df,
-            resource_id="hourly_emissions_epacems",
-            root_path=Path(pudl_settings["parquet_dir"]) / "epacems",
-            partition_cols=["year", "state"],
-        )
+    ds = Datastore(**ds_kwargs)
+    schema = Resource.from_id("hourly_emissions_epacems").to_pyarrow()
+    for year in epacems_settings.years:
+        for state in epacems_settings.states:
+            logger.info(f"Processing EPA CEMS hourly data for {year}-{state}")
+            df = pudl.extract.epacems.extract(year=year, state=state, ds=ds)
+            df = pudl.transform.epacems.transform(df, pudl_engine=pudl_engine)
+            epacems_path = Path(
+                pudl_settings["parquet_dir"], f"epacems/epacems-{year}-{state}.parquet"
+            )
+            with pq.ParquetWriter(
+                where=str(epacems_path),
+                schema=schema,
+                compression="snappy",
+                version="2.6",
+            ) as pqwriter:
+                pqwriter.write_table(
+                    pa.Table.from_pandas(df, schema=schema, preserve_index=False)
+                )
 
     if logger.isEnabledFor(logging.INFO):
         delta_t = time.strftime("%H:%M:%S", time.gmtime(time.monotonic() - start_time))
