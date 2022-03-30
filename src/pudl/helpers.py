@@ -487,7 +487,7 @@ def mixed_temporal_gran_merge(
 def expand_timeseries(
     df: pd.DataFrame,
     date_col: str = "report_date",
-    freq: Literal["AS", "QS", "MS", "D"] = "MS",
+    freq="MS",
     fillin=False,
 ):
     """
@@ -496,17 +496,19 @@ def expand_timeseries(
     Arguments:
         df: The dataframe to expand. Must have ``date_col`` in columns.
         date_col: Name of the datetime column being expanded into a full timeseries.
-        freq: The frequency of the time series to expand the data to. Values are
-            ["AS", "QS", "MS", "D"].
+        freq: The frequency of the time series to expand the data to.
+            See :ref:`here <timeseries.offset_aliases>` for a list of
+            frequency aliases.
         fillin: Whether to broadcast the data so it's filled in for the whole
             timeseries e.g. if annual data is expanded over a monthly timeseries
             then the data for each year is broadcast to all months in that year.
     """
     if not fillin:
+        # TO DO: have option to round the end date to end of calendar year
         date_range = pd.DataFrame(
             pd.date_range(
                 start=df[date_col].min(),
-                end=df[date_col].max(),  # TO DO: round to end of calendar year
+                end=df[date_col].max(),
                 freq=freq,
             ),
             columns=[date_col],
