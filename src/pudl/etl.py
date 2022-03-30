@@ -15,6 +15,7 @@ data from:
    - Continuous Emissions Monitory System (epacems)
 
 """
+import itertools
 import logging
 import time
 from pathlib import Path
@@ -279,23 +280,25 @@ def etl_epacems(
 
     ds = Datastore(**ds_kwargs)
     schema = Resource.from_id("hourly_emissions_epacems").to_pyarrow()
-    for year in epacems_settings.years:
-        for state in epacems_settings.states:
+    epacems_path = Path(
+        pudl_settings["parquet_dir"], "epacems/hourly_emissions_epacems.parquet"
+    )
+
+    with pq.ParquetWriter(
+        where=str(epacems_path),
+        schema=schema,
+        compression="snappy",
+        version="2.6",
+    ) as pqwriter:
+        for year, state in itertools.product(
+            epacems_settings.years, epacems_settings.states
+        ):
             logger.info(f"Processing EPA CEMS hourly data for {year}-{state}")
             df = pudl.extract.epacems.extract(year=year, state=state, ds=ds)
             df = pudl.transform.epacems.transform(df, pudl_engine=pudl_engine)
-            epacems_path = Path(
-                pudl_settings["parquet_dir"], f"epacems/epacems-{year}-{state}.parquet"
+            pqwriter.write_table(
+                pa.Table.from_pandas(df, schema=schema, preserve_index=False)
             )
-            with pq.ParquetWriter(
-                where=str(epacems_path),
-                schema=schema,
-                compression="snappy",
-                version="2.6",
-            ) as pqwriter:
-                pqwriter.write_table(
-                    pa.Table.from_pandas(df, schema=schema, preserve_index=False)
-                )
 
     if logger.isEnabledFor(logging.INFO):
         delta_t = time.strftime("%H:%M:%S", time.gmtime(time.monotonic() - start_time))
@@ -307,17 +310,15 @@ def etl_epacems(
 ###############################################################################
 # GLUE EXPORT FUNCTIONS
 ###############################################################################
-
-
 def _etl_glue(glue_settings: GlueSettings) -> Dict[str, pd.DataFrame]:
     """Extract, transform and load CSVs for the Glue tables.
 
     Args:
-        glue_settings (GlueSettings): Validated ETL parameters required by this data source.
+        glue_settings: Validated ETL parameters required by this data source.
 
     Returns:
-        dict: A dictionary of :class:`pandas.Dataframe` whose keys are the names
-        of the corresponding database table.
+        A dictionary of DataFrames whose keys are the names of the corresponding
+        database table.
 
     """
     # grab the glue tables for ferc1 & eia
