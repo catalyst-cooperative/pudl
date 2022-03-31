@@ -212,13 +212,11 @@ def transform(raw_df: pd.DataFrame, pudl_engine: sa.engine.Engine) -> pd.DataFra
         A single year-state of EPA CEMS data
 
     """
-    plant_utc_offset = _load_plant_utc_offset(pudl_engine)
-    tfr_df = (
+    return (
         raw_df.fillna({"gross_load_mw": 0.0, "heat_content_mmbtu": 0.0})
         .pipe(harmonize_eia_epa_orispl)
-        .pipe(fix_up_dates, plant_utc_offset=plant_utc_offset)
+        .pipe(fix_up_dates, plant_utc_offset=_load_plant_utc_offset(pudl_engine))
         .pipe(add_facility_id_unit_id_epa)
         .pipe(correct_gross_load_mw)
         .pipe(apply_pudl_dtypes, group="epacems")
     )
-    return tfr_df
