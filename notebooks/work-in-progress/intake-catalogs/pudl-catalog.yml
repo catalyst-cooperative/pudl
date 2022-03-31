@@ -1,3 +1,7 @@
+metadata:
+  description: This is the catalog level description right?
+  version: 1
+
 plugins:
   source:
     - module: intake_parquet
@@ -5,23 +9,25 @@ plugins:
 sources:
 
   epacems_one_file:
+    driver: parquet
+    description: Hourly EPA CEMS emissions data in a single Parquet file.
     metadata:
       title: EPA CEMS Hourly Emissions in one file
-      description: |
-        Hourly EPA CEMS emissions data in a single Parquet file.
       type: application/parquet
       license: Creative Commons Attribution 4.0 International
-    driver: parquet
+      license_url: https://creativecommons.org/licenses/by/4.0/
     args:
+      engine: 'pyarrow'
       urlpath: '{{ env(INTAKE_PATH) }}/hourly_emissions_epacems.parquet'
 
   epacems_multi_file:
+    driver: parquet
+    description: Hourly EPA CEMS emissions data in many Parquet state-year files.
     metadata:
-      title: EPA CEMS Hourly Emissions split out by state and year.
-      description: |
-        Hourly EPA CEMS emissions data in many Parquet state-year files.
+      title: EPA CEMS Hourly Emissions organized by state and year.
       type: application/parquet
       license: Creative Commons Attribution 4.0 International
-    driver: parquet
+      license_url: https://creativecommons.org/licenses/by/4.0/
     args:
+      engine: 'pyarrow'
       urlpath: '{{ env(INTAKE_PATH) }}/hourly_emissions_epacems/epacems*.parquet'
