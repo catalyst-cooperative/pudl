@@ -1,5 +1,8 @@
+description: A catalog of open energy system data for use by climate advocates,
+  policymakers, journalists, researchers, and other members of civil society.
+
 metadata:
-  description: This is the catalog level description right?
+  description: Description in the metadata section.
   version: 1
 
 plugins:
