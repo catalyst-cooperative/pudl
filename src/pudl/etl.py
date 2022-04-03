@@ -18,10 +18,13 @@ data from:
 import itertools
 import logging
 import time
+from concurrent.futures import ProcessPoolExecutor
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any, Dict, List
 
 import pandas as pd
+import pyarrow as pa
+import pyarrow.parquet as pq
 import sqlalchemy as sa
 
 import pudl
@@ -223,6 +226,31 @@ def _etl_ferc1(
 ###############################################################################
 # EPA CEMS EXPORT FUNCTIONS
 ###############################################################################
+def _etl_one_year_epacems(
+    year: int,
+    states: List[str],
+    pudl_db: str,
+    out_dir: str,
+    ds_kwargs: Dict[str, Any],
+) -> None:
+    """Process one year of EPA CEMS and output year-state paritioned Parquet files."""
+    pudl_engine = sa.create_engine(pudl_db)
+    ds = Datastore(**ds_kwargs)
+    schema = Resource.from_id("hourly_emissions_epacems").to_pyarrow()
+
+    for state in states:
+        with pq.ParquetWriter(
+            where=Path(out_dir) / f"epacems-{year}-{state}.parquet",
+            schema=schema,
+            compression="snappy",
+            version="2.6",
+        ) as pqwriter:
+            logger.info(f"Processing EPA CEMS hourly data for {year}-{state}")
+            df = pudl.extract.epacems.extract(year=year, state=state, ds=ds)
+            df = pudl.transform.epacems.transform(df, pudl_engine=pudl_engine)
+            pqwriter.write_table(
+                pa.Table.from_pandas(df, schema=schema, preserve_index=False)
+            )
 
 
 def etl_epacems(
@@ -230,7 +258,8 @@ def etl_epacems(
     pudl_settings: Dict[str, Any],
     ds_kwargs: Dict[str, Any],
 ) -> None:
-    """Extract, transform and load CSVs for EPA CEMS.
+    """
+    Extract, transform and load CSVs for EPA CEMS.
 
     Args:
         epacems_settings: Validated ETL parameters required by this data source.
@@ -245,9 +274,6 @@ def etl_epacems(
         dictionary of dataframes.
 
     """
-    import pyarrow as pa
-    import pyarrow.parquet as pq
-
     pudl_engine = sa.create_engine(pudl_settings["pudl_db"])
 
     # Verify that we have a PUDL DB with plant attributes:
@@ -278,27 +304,42 @@ def etl_epacems(
     if logger.isEnabledFor(logging.INFO):
         start_time = time.monotonic()
 
-    ds = Datastore(**ds_kwargs)
-    schema = Resource.from_id("hourly_emissions_epacems").to_pyarrow()
-    epacems_path = Path(
-        pudl_settings["parquet_dir"], "epacems/hourly_emissions_epacems.parquet"
-    )
-
-    with pq.ParquetWriter(
-        where=str(epacems_path),
-        schema=schema,
-        compression="snappy",
-        version="2.6",
-    ) as pqwriter:
-        for year, state in itertools.product(
-            epacems_settings.years, epacems_settings.states
-        ):
-            logger.info(f"Processing EPA CEMS hourly data for {year}-{state}")
-            df = pudl.extract.epacems.extract(year=year, state=state, ds=ds)
-            df = pudl.transform.epacems.transform(df, pudl_engine=pudl_engine)
-            pqwriter.write_table(
-                pa.Table.from_pandas(df, schema=schema, preserve_index=False)
+    if epacems_settings.partition:
+        n_yrs = len(epacems_settings.years)
+        epacems_dir = Path(pudl_settings["parquet_dir"]) / "epacems"
+        with ProcessPoolExecutor() as executor:
+            _ = list(  # Convert results of map() to list to force execution
+                executor.map(
+                    _etl_one_year_epacems,
+                    epacems_settings.years,
+                    itertools.repeat(epacems_settings.states, n_yrs),
+                    itertools.repeat(pudl_settings["pudl_db"], n_yrs),
+                    itertools.repeat(epacems_dir, n_yrs),
+                    itertools.repeat(ds_kwargs, n_yrs),
+                )
             )
+
+    else:
+        ds = Datastore(**ds_kwargs)
+        schema = Resource.from_id("hourly_emissions_epacems").to_pyarrow()
+        epacems_path = Path(
+            pudl_settings["parquet_dir"], "epacems/hourly_emissions_epacems.parquet"
+        )
+        with pq.ParquetWriter(
+            where=str(epacems_path),
+            schema=schema,
+            compression="snappy",
+            version="2.6",
+        ) as pqwriter:
+            for year, state in itertools.product(
+                epacems_settings.years, epacems_settings.states
+            ):
+                logger.info(f"Processing EPA CEMS hourly data for {year}-{state}")
+                df = pudl.extract.epacems.extract(year=year, state=state, ds=ds)
+                df = pudl.transform.epacems.transform(df, pudl_engine=pudl_engine)
+                pqwriter.write_table(
+                    pa.Table.from_pandas(df, schema=schema, preserve_index=False)
+                )
 
     if logger.isEnabledFor(logging.INFO):
         delta_t = time.strftime("%H:%M:%S", time.gmtime(time.monotonic() - start_time))
