@@ -55,7 +55,7 @@ repos:
 
 # Check for errors in restructuredtext (.rst) files under the doc hierarchy
 - repo: https://github.com/PyCQA/doc8
-  rev: 0.10.1
+  rev: 0.11.1
   hooks:
   - id: doc8
     args: [--config, tox.ini]
