@@ -350,7 +350,7 @@ def full_timeseries_mixed_temporal_merge(
     merge_type: str = "inner",
     report_at_start=True,
     freq: Literal["AS", "QS", "MS", "D"] = "MS",
-    fillin=False,
+    fill=True,
     **kwargs,
 ):
     """
@@ -369,7 +369,7 @@ def full_timeseries_mixed_temporal_merge(
         report_at_start,
         **kwargs,
     )
-    out = expand_timeseries(out, new_date_col, freq, fillin)
+    out = expand_timeseries(out, new_date_col, freq, shared_merge_cols, fill)
     return out
 
 
@@ -380,7 +380,7 @@ def mixed_temporal_gran_merge(
     right_date_col: str = "report_date",
     new_date_col: str = "report_date",
     shared_merge_cols: List[str] = [],
-    temporal_merge_cols: Literal["year", "quarter", "month", "day"] = "year",
+    temporal_merge_cols: List[str] = ["year"],
     merge_type: str = "inner",
     report_at_start=True,
     **kwargs,
@@ -418,8 +418,8 @@ def mixed_temporal_gran_merge(
         shared_merge_cols: The columns to merge on that are shared between both
             dataframes. Typically ID columns like ``plant_id_eia``, ``generator_id``
             or ``boiler_id``.
-        temporal_merge_cols: The temporal columns to merge on
-            (``year``, ``quarter``, ``month``, ``day``). E.g. if an annually reported
+        temporal_merge_cols: The temporal columns to merge on. Values must be
+            [``year``, ``quarter``, ``month``, ``day``]. E.g. if an annually reported
             dataframe is being merged onto a monthly reported dataframe, then the merge
             would be performed on ``year``.
         merge_type: How the dataframes should be merged.
@@ -478,7 +478,9 @@ def mixed_temporal_gran_merge(
             else:
                 out.loc[:, col] = out[left_right_cols].min(axis=1)
             cols_to_drop += left_right_cols
-    out.loc[:, new_date_col] = pd.to_datetime(out[["year", "month", "day"]])
+    out.insert(
+        loc=0, column=new_date_col, value=pd.to_datetime(out[["year", "month", "day"]])
+    )
     out = out.drop(cols_to_drop, axis=1)
 
     return out
@@ -488,7 +490,8 @@ def expand_timeseries(
     df: pd.DataFrame,
     date_col: str = "report_date",
     freq="MS",
-    fillin=False,
+    id_cols: List = [],
+    fill=True,
 ):
     """
     Expand a dataframe to a include a full time series at a given frequency.
@@ -499,24 +502,41 @@ def expand_timeseries(
         freq: The frequency of the time series to expand the data to.
             See :ref:`here <timeseries.offset_aliases>` for a list of
             frequency aliases.
-        fillin: Whether to broadcast the data so it's filled in for the whole
+        id_cols: Additional columns to merge on. There will be a full timeseries
+            expanded for each grouping of these ID columns.
+        fill: Whether to broadcast the data so it's filled in for the whole
             timeseries e.g. if annual data is expanded over a monthly timeseries
             then the data for each year is broadcast to all months in that year.
     """
-    if not fillin:
-        # TO DO: have option to round the end date to end of calendar year
-        date_range = pd.DataFrame(
-            pd.date_range(
-                start=df[date_col].min(),
-                end=df[date_col].max(),
-                freq=freq,
-            ),
-            columns=[date_col],
+    # TO DO: have option to round the end date to end of calendar year
+    # maybe should be able to pass in a min and max date or take
+    # min and max of both dataframes
+    date_range = pd.DataFrame(
+        pd.date_range(
+            start=df[date_col].min(),
+            end=df[date_col].max(),
+            freq=freq,
+        ),
+        columns=[date_col],
+    )
+    ind_cols = [date_range[date_col]] + [df[id_col].unique() for id_col in id_cols]
+    date_range_id = pd.DataFrame(
+        list(itertools.product(*ind_cols)),
+        columns=[date_col] + id_cols,
+    )
+    if fill:
+        cols = [col for col in df.columns if col not in id_cols and col != date_col]
+        out = date_range_id.merge(df, how="left", on=[date_col] + id_cols).sort_values(
+            id_cols + [date_col]
         )
-        out = date_range.merge(df, how="left", on=date_col)
+        out[cols] = out.groupby(id_cols)[cols].ffill()
+        out = out.reset_index(drop=True)
     else:
-        pass
-        # upsample the dataframe to fill in for the whole timeseries
+        out = (
+            date_range_id.merge(df, how="left", on=[date_col] + id_cols)
+            .sort_values(id_cols + [date_col])
+            .reset_index(drop=True)
+        )
     return out
 
 
