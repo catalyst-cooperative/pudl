@@ -339,7 +339,7 @@ def is_doi(doi):
     return bool(re.match(doi_regex, doi))
 
 
-def full_timeseries_mixed_temporal_merge(
+def full_timeseries_temporal_merge(
     left: pd.DataFrame,
     right: pd.DataFrame,
     left_date_col: str = "report_date",
@@ -349,6 +349,8 @@ def full_timeseries_mixed_temporal_merge(
     temporal_merge_cols: Literal["year", "quarter", "month", "day"] = "year",
     merge_type: str = "inner",
     report_at_start=True,
+    start: str = None,
+    end: str = None,
     freq: Literal["AS", "QS", "MS", "D"] = "MS",
     fill=True,
     **kwargs,
@@ -369,7 +371,15 @@ def full_timeseries_mixed_temporal_merge(
         report_at_start,
         **kwargs,
     )
-    out = expand_timeseries(out, new_date_col, freq, shared_merge_cols, fill)
+    out = expand_timeseries(
+        df=out,
+        date_col=new_date_col,
+        start=start,
+        end=end,
+        freq=freq,
+        id_cols=shared_merge_cols,
+        fill=fill,
+    )
     return out
 
 
@@ -442,7 +452,6 @@ def mixed_temporal_gran_merge(
     """
 
     def separate_date_cols(df, date_col_name):
-        # break up datetime column into separate columns
         df[date_col_name] = pd.to_datetime(df[date_col_name])
         df.loc[:, "year"] = df[date_col_name].dt.year
         df.loc[:, "quarter"] = df[date_col_name].dt.quarter
@@ -451,15 +460,14 @@ def mixed_temporal_gran_merge(
         df = df.drop(date_col_name, axis=1)
         return df
 
+    right = right.copy()
+    left = left.copy()
     right = separate_date_cols(right, right_date_col)
     left = separate_date_cols(left, left_date_col)
     merge_cols = temporal_merge_cols + shared_merge_cols
     out = left.merge(right, on=merge_cols, how=merge_type, **kwargs)
+
     # reconstruct the report_date column and do some column cleanup
-    # by taking the max (if report date is at start of time period)
-    # then the more granular date is reconstructed for all merge types
-    # for an outer merge, nans are ignored and the non-nan temporal
-    # columns are used to construct the datetime
     # Note: not sure if this works for "cross" merge
     if "suffixes" in kwargs:
         suffixes = kwargs["suffixes"]
@@ -489,6 +497,8 @@ def mixed_temporal_gran_merge(
 def expand_timeseries(
     df: pd.DataFrame,
     date_col: str = "report_date",
+    start: str = None,
+    end: str = None,
     freq="MS",
     id_cols: List = [],
     fill=True,
@@ -499,6 +509,10 @@ def expand_timeseries(
     Arguments:
         df: The dataframe to expand. Must have ``date_col`` in columns.
         date_col: Name of the datetime column being expanded into a full timeseries.
+        start: Start date of the timeseries. Pass in string date with format "YYYY-MM-DD".
+            If no start date is passed in, the oldest date in ``df[date_col]`` is used.
+        end: End date of the timeseries. Pass in string date with format "YYYY-MM-DD".
+            If no end date is passed in, the oldest date in ``df[date_col]`` is used.
         freq: The frequency of the time series to expand the data to.
             See :ref:`here <timeseries.offset_aliases>` for a list of
             frequency aliases.
@@ -508,13 +522,19 @@ def expand_timeseries(
             timeseries e.g. if annual data is expanded over a monthly timeseries
             then the data for each year is broadcast to all months in that year.
     """
-    # TO DO: have option to round the end date to end of calendar year
-    # maybe should be able to pass in a min and max date or take
-    # min and max of both dataframes
+    if start:
+        start = pd.Timestamp(start)
+    else:
+        start = df[date_col].min()
+    if end:
+        end = pd.Timestamp(end)
+    else:
+        end = df[date_col].max()
+
     date_range = pd.DataFrame(
         pd.date_range(
-            start=df[date_col].min(),
-            end=df[date_col].max(),
+            start=start,
+            end=end,
             freq=freq,
         ),
         columns=[date_col],

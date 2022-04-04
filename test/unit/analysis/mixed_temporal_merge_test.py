@@ -224,29 +224,11 @@ def test_same_temporal_gran():
 
     In this case, this yields the same results as ``pd.merge``.
     """
-    out_expected = pd.DataFrame(
-        {
-            "report_date": [
-                "2019-12-01",
-                "2020-10-01",
-                "2019-01-01",
-                "2019-06-01",
-                "2018-07-01",
-            ],
-            "plant_id_eia": [2, 2, 3, 3, 3],
-            "prime_mover_code": ["HY", "ST", "HY", "CT", "HY"],
-            "fuel_consumed_units": [0.0, 98085.0, 0.0, 4800000.0, 0.0],
-            "energy_source_code": [None, "WND", "WND", None, None],
-        }
-    ).astype({"report_date": "datetime64[ns]"})
-
-    """
     out_expected = MONTHLY_GEN_FUEL.merge(
         MONTHLY_OTHER,
         how="left",
         on=["report_date", "plant_id_eia"],
     )
-    """
 
     out = pudl.helpers.mixed_temporal_gran_merge(
         left=MONTHLY_GEN_FUEL,
@@ -278,6 +260,7 @@ def test_timeseries_fillin():
     expected_out = pd.DataFrame(
         {
             "report_date": [
+                "2019-01-01",
                 "2019-02-01",
                 "2019-03-01",
                 "2019-04-01",
@@ -293,10 +276,12 @@ def test_timeseries_fillin():
                 "2020-02-01",
             ]
             * 2,
-            "plant_id_eia": [1] * 13 + [2] * 13,
-            "data": [2] + [3] * 10 + [1] + [2] + [None] * 8 + [10] * 4 + [2],
+            "plant_id_eia": [1] * 14 + [2] * 14,
+            "data": [None] + [2] + [3] * 10 + [1] + [2] + [None] * 9 + [10] * 4 + [2],
         }
     ).astype({"report_date": "datetime64[ns]"})
 
-    out = pudl.helpers.expand_timeseries(input_df, id_cols=["plant_id_eia"])
+    out = pudl.helpers.expand_timeseries(
+        input_df, start="2019-01-01", id_cols=["plant_id_eia"]
+    )
     pd.testing.assert_frame_equal(expected_out, out)
