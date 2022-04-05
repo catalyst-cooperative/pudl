@@ -428,15 +428,15 @@ def mixed_temporal_gran_merge(
         shared_merge_cols: The columns to merge on that are shared between both
             dataframes. Typically ID columns like ``plant_id_eia``, ``generator_id``
             or ``boiler_id``.
-        temporal_merge_cols: The temporal columns to merge on. Values must be
-            [``year``, ``quarter``, ``month``, ``day``]. E.g. if an annually reported
-            dataframe is being merged onto a monthly reported dataframe, then the merge
-            would be performed on ``year``.
+        temporal_merge_cols: The temporal columns to merge on. Values in this list
+            of columns must be [``year``, ``quarter``, ``month``, ``day``].
+            E.g. if a monthly reported dataframe is being merged onto a daily reported
+            dataframe, then the merge would be performed on ``["year", "month"]``.
         merge_type: How the dataframes should be merged.
             Values are ["left", "right", "outer", "inner", "cross"].
             See :func:`pandas.DataFrame.merge`.
         report_at_start: Whether the data in the less granular dataframe is reported
-            at the start of the time period.
+            at the start or end of the time period e.g. January 1st for annual data.
         kwargs : Additional arguments to pass to :func:`pandas.DataFrame.merge`.
 
 

@@ -1,5 +1,6 @@
 """Tests for merging datasets at different temporal frequencies."""
 import pandas as pd
+from pandas.tseries.offsets import BYearEnd
 
 import pudl.helpers
 
@@ -228,7 +229,7 @@ def test_same_temporal_gran():
         MONTHLY_OTHER,
         how="left",
         on=["report_date", "plant_id_eia"],
-    )
+    ).astype({"report_date": "datetime64[ns]"})
 
     out = pudl.helpers.mixed_temporal_gran_merge(
         left=MONTHLY_GEN_FUEL,
@@ -236,7 +237,40 @@ def test_same_temporal_gran():
         shared_merge_cols=["plant_id_eia"],
         temporal_merge_cols=["year", "month"],
         merge_type="left",
+    )
+    pd.testing.assert_frame_equal(out, out_expected)
+
+
+def test_end_of_report_period():
+    """Test merging tables repeated at the end of the report period."""
+    eoy_plants_util = ANNUAL_PLANTS_UTIL.copy()
+    eoy_plants_util.loc[:, "report_date"] = eoy_plants_util.report_date + BYearEnd()
+
+    out_expected = pd.DataFrame(
+        {
+            "report_date": [
+                "2019-12-01",
+                "2020-10-01",
+                "2019-01-01",
+                "2019-06-01",
+                "2018-07-01",
+            ],
+            "plant_id_eia": [2, 2, 3, 3, 3],
+            "prime_mover_code": ["HY", "ST", "HY", "CT", "HY"],
+            "fuel_consumed_units": [0.0, 98085.0, 0.0, 4800000.0, 0.0],
+            "plant_name_eia": ["Bankhead Dam", "Bankhead", "Barry", "Barry", "Barry"],
+            "utility_id_eia": [195, 195, 16, 16, 16],
+        }
     ).astype({"report_date": "datetime64[ns]"})
+
+    out = pudl.helpers.mixed_temporal_gran_merge(
+        MONTHLY_GEN_FUEL,
+        eoy_plants_util,
+        shared_merge_cols=["plant_id_eia"],
+        merge_type="left",
+        report_at_start=False,
+    )
+
     pd.testing.assert_frame_equal(out, out_expected)
 
 
