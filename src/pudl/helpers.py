@@ -435,8 +435,10 @@ def mixed_temporal_gran_merge(
         merge_type: How the dataframes should be merged.
             Values are ["left", "right", "outer", "inner", "cross"].
             See :func:`pandas.DataFrame.merge`.
-        report_at_start: Whether the data in the less granular dataframe is reported
-            at the start or end of the time period e.g. January 1st for annual data.
+        report_at_start: Whether the data in the dataframe whose report date is not being
+            kept in the merged output (in most cases the less frequently reported dataframe)
+            is reported at the start or end of the time period e.g. January 1st
+            for annual data.
         kwargs : Additional arguments to pass to :func:`pandas.DataFrame.merge`.
 
 

@@ -274,6 +274,43 @@ def test_end_of_report_period():
     pd.testing.assert_frame_equal(out, out_expected)
 
 
+def test_less_granular_merge():
+    """Test merging a more granular table onto a less granular table."""
+    out_expected = pd.DataFrame(
+        {
+            "report_date": [
+                "2020-01-01",
+                "2020-01-01",
+                "2019-01-01",
+                "2018-01-01",
+                "2020-01-01",
+            ],
+            "plant_id_eia": [1, 2, 2, 2, 3],
+            "plant_name_eia": [
+                "Sand Point",
+                "Bankhead",
+                "Bankhead Dam",
+                "Bankhead Dam",
+                "Barry",
+            ],
+            "utility_id_eia": [63560, 195, 195, 195, 16],
+            "prime_mover_code": [None, "ST", "HY", None, None],
+            "fuel_consumed_units": [None, 98085.0, 0.0, None, None],
+        }
+    ).astype({"report_date": "datetime64[ns]"})
+
+    out = pudl.helpers.mixed_temporal_gran_merge(
+        ANNUAL_PLANTS_UTIL[:5],
+        MONTHLY_GEN_FUEL,
+        shared_merge_cols=["plant_id_eia"],
+        temporal_merge_cols=["year"],
+        merge_type="left",
+        report_at_start=False,
+    )
+
+    pd.testing.assert_frame_equal(out, out_expected)
+
+
 def test_timeseries_fillin():
     """Test filling in tables to a full timeseries."""
     input_df = pd.DataFrame(
