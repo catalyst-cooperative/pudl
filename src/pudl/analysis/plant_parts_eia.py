@@ -1425,9 +1425,7 @@ class AddAttribute(object):
         # the base columns will be the id columns, plus the other two main ids
         self.part_name = part_name
         self.id_cols = PLANT_PARTS[part_name]["id_cols"]
-        # why no util id? otoh does ownership need to be here at all?
-        # qualifiers should be independent of ownership
-        self.base_cols = self.id_cols + IDX_TO_ADD + ["ownership"]
+        self.base_cols = self.id_cols + IDX_TO_ADD
 
 
 class AddConsistentAttributes(AddAttribute):
