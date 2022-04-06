@@ -823,6 +823,35 @@ class PudlTabl(object):
             )
         return self._dfs["gen_allocated_eia923"]
 
+    def gen_pm_fuel_ownership(self, update=False):
+        """
+        WIP.
+
+        This is what is needed to generate a ownership scaled output at the
+        generator/prime_mover/fuel level... But this shouldn't really live here.
+        """
+        if update or self._dfs["gen_pm_fuel_own"] is None:
+            idx_gens = pudl.analysis.allocate_net_gen.IDX_GENS
+            self._dfs[
+                "gen_pm_fuel_own"
+            ] = pudl.analysis.plant_parts_eia.MakeMegaGenTbl().slice_by_ownership(
+                gens_mega=pd.merge(
+                    self.gen_pm_fuel_allocated_eia923(),
+                    self.gens_eia860()[idx_gens + ["utility_id_eia", "capacity_mw"]],
+                    on=idx_gens,
+                    validate="m:1",
+                    how="left",
+                ),
+                own_eia860=self.own_eia860(),
+                slice_cols=[
+                    "net_generation_mwh",
+                    "fuel_consumed_mmbtu",
+                    "capacity_mw",
+                ],
+                validate="m:m",
+            )
+        return self._dfs["gen_pm_fuel_own"]
+
     ###########################################################################
     # FERC FORM 1 OUTPUTS
     ###########################################################################
