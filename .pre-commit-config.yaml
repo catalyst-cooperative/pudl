@@ -48,14 +48,14 @@ repos:
 
 # Format the code
 - repo: https://github.com/psf/black
-  rev: 22.1.0
+  rev: 22.3.0
   hooks:
   - id: black
     language_version: python3.10
 
 # Check for errors in restructuredtext (.rst) files under the doc hierarchy
 - repo: https://github.com/PyCQA/doc8
-  rev: 0.10.1
+  rev: 0.11.1
   hooks:
   - id: doc8
     args: [--config, tox.ini]
