@@ -407,6 +407,7 @@ class MakeMegaGenTbl(object):
         mcoe: pd.DataFrame,
         own_eia860: pd.DataFrame,
         slice_cols: List[str] = SUM_COLS,
+        validate_own_merge: Literal["1:1", "1:m", "m:m"] = "1:m",
     ) -> pd.DataFrame:
         """
         Make the mega generators table with ownership integrated.
@@ -434,7 +435,7 @@ class MakeMegaGenTbl(object):
         gens_mega = (
             self.get_gens_mega_table(mcoe)
             .pipe(self.label_operating_gens)
-            .pipe(self.slice_by_ownership, own_eia860, slice_cols)
+            .pipe(self.slice_by_ownership, own_eia860, slice_cols, validate_own_merge)
         )
         return gens_mega
 
@@ -509,7 +510,9 @@ class MakeMegaGenTbl(object):
         )
         return gen_df
 
-    def slice_by_ownership(self, gens_mega, own_eia860, slice_cols=SUM_COLS):
+    def slice_by_ownership(
+        self, gens_mega, own_eia860, slice_cols=SUM_COLS, validate="1:m"
+    ):
         """
         Generate proportional data by ownership %s.
 
@@ -554,7 +557,7 @@ class MakeMegaGenTbl(object):
                 own860,
                 how="left",
                 on=["plant_id_eia", "generator_id", "report_date"],
-                validate="1:m",
+                validate=validate,
             )
             .assign(  # assume gens that don't show up in the own table have one 100% owner
                 fraction_owned=lambda x: x.fraction_owned.fillna(value=1),
