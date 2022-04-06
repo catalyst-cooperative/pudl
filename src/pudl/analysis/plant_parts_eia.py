@@ -312,12 +312,12 @@ PRIORITY_ATTRIBUTES_DICT = {
 MAX_MIN_ATTRIBUTES_DICT = {
     "installation_year": {
         "assign_cols": {"installation_year": lambda x: x.operating_date.dt.year},
-        "d_types": {"installation_year": "Int64"},
+        "dtype": "Int64",
         "keep": "first",
     },
     "construction_year": {
         "assign_cols": {"construction_year": lambda x: x.operating_date.dt.year},
-        "d_types": {"construction_year": "Int64"},
+        "dtype": "Int64",
         "keep": "last",
     },
 }
@@ -958,6 +958,13 @@ class MakePlantParts(object):
                 part_df = AddPriorityAttribute(attribute_col, part_name).execute(
                     part_df, gens_mega
                 )
+            for attribute_col in MAX_MIN_ATTRIBUTES_DICT.keys():
+                part_df = AddMaxMinAttribute(attribute_col, part_name).execute(
+                    part_df,
+                    gens_mega,
+                    MAX_MIN_ATTRIBUTES_DICT[attribute_col]["dtype"],
+                    MAX_MIN_ATTRIBUTES_DICT[attribute_col]["keep"],
+                )
             part_dfs.append(part_df)
         plant_parts_eia = pd.concat(part_dfs)
         # clean up, add additional columns
@@ -1162,14 +1169,6 @@ class PlantPart(object):
             )
             .pipe(self.ag_fraction_owned)
             .assign(plant_part=self.part_name)
-            .pipe(
-                AddMaxMinAttribute("installation_year", self.part_name).execute,
-                gens_mega,
-            )
-            .pipe(
-                AddMaxMinAttribute("construction_year", self.part_name).execute,
-                gens_mega,
-            )
             .pipe(  # add standard record id w/ year
                 add_record_id,
                 id_cols=self.id_cols,
@@ -1570,7 +1569,13 @@ class AddMaxMinAttribute(AddAttribute):
     # should this function be able to add a max and min attribute at the same time?
     # e.g. construction_year and installation_year at the same time
     # is that actually more efficient?
-    def execute(self, part_df, gens_mega):
+    def execute(
+        self,
+        part_df,
+        gens_mega,
+        att_dtype: str,
+        keep: Literal["first", "last"] = "first",
+    ):
         """
         Add the attribute to the plant part df based on sorting of another attribute.
 
@@ -1580,6 +1585,11 @@ class AddMaxMinAttribute(AddAttribute):
             gens_mega (pandas.DataFrame): a table of all of the generators with
                 identifying columns and data columns, sliced by ownership which
                 makes "total" and "owned" records for each generator owner.
+            att_dtype (string): Pandas data type of the new attribute
+            keep (string): Whether to keep the first or last record in a sorted
+                grouping of attributes. Passing in "first" indicates the new
+                attribute is a maximum attribute.
+                See :func:`pandas.drop_duplicates`.
         """
         attribute_col = self.attribute_col
         if attribute_col in part_df.columns:
@@ -1587,12 +1597,11 @@ class AddMaxMinAttribute(AddAttribute):
             return part_df
 
         logger.debug(f"pre count of part DataFrame: {len(part_df)}")
-        attribute_params = MAX_MIN_ATTRIBUTES_DICT[attribute_col]
         new_attribute_df = (
-            gens_mega.assign(**attribute_params["assign_cols"])
-            .astype(attribute_params["d_types"])[self.base_cols + [attribute_col]]
+            gens_mega.assign(**MAX_MIN_ATTRIBUTES_DICT[attribute_col])
+            .astype({attribute_col: att_dtype})[self.base_cols + [attribute_col]]
             .sort_values(attribute_col, ascending=False)
-            .drop_duplicates(subset=self.base_cols, keep=attribute_params["keep"])
+            .drop_duplicates(subset=self.base_cols, keep=keep)
             .dropna(subset=self.base_cols)
         )
         part_df = part_df.merge(
