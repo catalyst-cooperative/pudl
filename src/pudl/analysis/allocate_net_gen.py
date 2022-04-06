@@ -332,7 +332,6 @@ def associate_generator_tables(gf, gen, gens):
         )
         .pipe(apply_pudl_dtypes, "eia")
         .pipe(_associate_unconnected_records)
-        .pipe(_associate_energy_source_only, gf=gf)
     )
     return gen_assoc
 
@@ -459,96 +458,6 @@ def _associate_unconnected_records(eia_generators_merged):
     return eia_generators
 
 
-def _associate_energy_source_only(gen_assoc, gf):
-    """
-    Associate the records w/o prime movers with fuel cost.
-
-    The 2001 and 2002 generation fuel table does not include any prime mover
-    codes. Because of this, we need to associated these records via their fuel
-    types.
-
-    Note: 2001 and 2002 eia years are not currently integrated into PUDL.
-    """
-    # first fine the gf records that have no PM.
-    gf_grouped = gf.groupby(by=IDX_PM_FUEL, dropna=False).sum(min_count=1).reset_index()
-    gf_missing_pm = (
-        gf_grouped[gf_grouped[IDX_PM_FUEL].isnull().any(axis=1)]
-        .drop(columns=["prime_mover_code"])
-        .set_index(IDX_FUEL)
-        .add_suffix("_fuel")
-        .reset_index()
-        .astype({"plant_id_eia": pd.Int64Dtype()})
-    )
-
-    gen_assoc = pd.merge(
-        gen_assoc,
-        gf_missing_pm.pipe(apply_pudl_dtypes, "eia"),
-        how="outer",
-        on=IDX_FUEL,
-        indicator=True,
-    )
-
-    gen_assoc = _associate_energy_source_only_wo_matching_energy_source(gen_assoc)
-
-    if gf_missing_pm.empty:
-        logger.info("No records found with fuel-only records. This is expected.")
-    else:
-        logger.info(
-            f"{len(gf_missing_pm)/len(gen_assoc):.02%} records w/o prime movers now"
-            f" associated for: {gf_missing_pm.report_date.dt.year.unique()}"
-        )
-    return gen_assoc
-
-
-def _associate_energy_source_only_wo_matching_energy_source(gen_assoc):
-    """
-    Associate the missing-pm records that don't have matching fuel types.
-
-    There are some generation fuel table records which don't associate with
-    any of the energy_source_code's reported in for the generators. For these
-    records, we need to take a step back and associate these records with the
-    full plant.
-    """
-    idx_plant = ["plant_id_eia", "report_date"]
-    gen_assoc = pd.merge(
-        gen_assoc,
-        gen_assoc.groupby(by=idx_plant, dropna=False)[["capacity_mw"]]
-        .sum(min_count=1)
-        .add_suffix("_plant")
-        .reset_index(),
-        on=idx_plant,
-        how="left",
-    )
-
-    gen_assoc_w_unassociated = (
-        pd.merge(
-            gen_assoc[(gen_assoc._merge != "right_only") | (gen_assoc._merge.isnull())],
-            (
-                gen_assoc[gen_assoc._merge == "right_only"]
-                .groupby(idx_plant)[
-                    ["net_generation_mwh_fuel", "fuel_consumed_mmbtu_fuel"]
-                ]
-                .sum(min_count=1)
-            ),
-            on=idx_plant,
-            how="left",
-            suffixes=("", "_missing_pm"),
-        )
-        .assign(
-            net_generation_mwh_gf_tbl=lambda x: x.net_generation_mwh_gf_tbl.fillna(
-                x.net_generation_mwh_fuel  # TODO: what is this?
-                + x.net_generation_mwh_fuel_missing_pm.fillna(0)
-            ),
-            fuel_consumed_mmbtu=lambda x: x.fuel_consumed_mmbtu.fillna(
-                x.fuel_consumed_mmbtu_fuel
-                + x.fuel_consumed_mmbtu_fuel_missing_pm.fillna(0)
-            ),
-        )
-        .drop(columns=["_merge"])
-    )
-    return gen_assoc_w_unassociated
-
-
 def prep_alloction_fraction(gen_assoc):
     """
     Make flags and aggregations to prepare for the `calc_allocation_ratios()`.
@@ -630,7 +539,6 @@ def calc_allocation_fraction(gen_pm_fuel, drop_interim_cols=True):
         generators_eia860 table.
       * "gf only": generators of plants which do not report at all to the
         generators_eia860 table.
-      * "no pm": generators that have missing prime movers.
 
     Each different type of generator needs to be treated slightly differently,
     but all will end up with a `frac` column that can be used to allocate
@@ -646,22 +554,17 @@ def calc_allocation_fraction(gen_pm_fuel, drop_interim_cols=True):
 
     """
     # break out the table into these four different generator types.
-    no_pm_mask = gen_pm_fuel.net_generation_mwh_fuel_missing_pm.notnull()
-    no_pm = gen_pm_fuel[no_pm_mask]
-    all_gen = gen_pm_fuel.loc[gen_pm_fuel.in_g_tbl_all & ~no_pm_mask]
-    some_gen = gen_pm_fuel.loc[
-        gen_pm_fuel.in_g_tbl_any & ~gen_pm_fuel.in_g_tbl_all & ~no_pm_mask
-    ]
-    gf_only = gen_pm_fuel.loc[~gen_pm_fuel.in_g_tbl_any & ~no_pm_mask]
+    all_gen = gen_pm_fuel.loc[gen_pm_fuel.in_g_tbl_all]
+    some_gen = gen_pm_fuel.loc[gen_pm_fuel.in_g_tbl_any & ~gen_pm_fuel.in_g_tbl_all]
+    gf_only = gen_pm_fuel.loc[~gen_pm_fuel.in_g_tbl_any]
 
     logger.info(
         "Ratio calc types: \n"
         f"   All gens w/in generation table:  {len(all_gen)}#, {all_gen.capacity_mw.sum():.2} MW\n"
         f"   Some gens w/in generation table: {len(some_gen)}#, {some_gen.capacity_mw.sum():.2} MW\n"
-        f"   No gens w/in generation table:   {len(gf_only)}#, {gf_only.capacity_mw.sum():.2} MW\n"
-        f"   GF table records have no PM:     {len(no_pm)}#"
+        f"   No gens w/in generation table:   {len(gf_only)}#, {gf_only.capacity_mw.sum():.2} MW"
     )
-    if len(gen_pm_fuel) != len(all_gen) + len(some_gen) + len(gf_only) + len(no_pm):
+    if len(gen_pm_fuel) != len(all_gen) + len(some_gen) + len(gf_only):
         raise AssertionError(
             "Error in splitting the gens between records showing up fully, "
             "partially, or not at all in the generation table."
@@ -719,21 +622,8 @@ def calc_allocation_fraction(gen_pm_fuel, drop_interim_cols=True):
     )
     # _ = _test_frac(gf_only)
 
-    no_pm = no_pm.assign(
-        # ratio for the records with a missing prime mover that are
-        # assocaited at the plant fuel level
-        frac_net_gen_fuel=lambda x: x.net_generation_mwh_gf_tbl
-        / x.net_generation_mwh_g_tbl_fuel,
-        frac_cap_fuel=lambda x: x.capacity_mw / x.capacity_mw_fuel,
-        frac=lambda x: np.where(
-            x.frac_net_gen_fuel.notnull() | x.frac_net_gen_fuel != 0,
-            x.frac_net_gen_fuel,
-            x.frac_cap_fuel,
-        ),
-    )
-
     # squish all of these methods back together.
-    gen_pm_fuel_ratio = pd.concat([all_gen, some_gen, gf_only, no_pm])
+    gen_pm_fuel_ratio = pd.concat([all_gen, some_gen, gf_only])
     # null out the inf's
     gen_pm_fuel_ratio.loc[abs(gen_pm_fuel_ratio.frac) == np.inf] = np.NaN
     _ = _test_frac(gen_pm_fuel_ratio)
@@ -757,27 +647,10 @@ def calc_allocation_fraction(gen_pm_fuel, drop_interim_cols=True):
 
 def _test_frac(gen_pm_fuel):
     # test! Check if each of the IDX_PM_FUEL groups frac's add up to 1
-    ratio_test_pm_fuel = (
+    frac_test = (
         gen_pm_fuel.groupby(IDX_PM_FUEL)[["frac", "net_generation_mwh_g_tbl"]]
         .sum(min_count=1)
         .reset_index()
-    )
-
-    ratio_test_fuel = (
-        gen_pm_fuel.groupby(IDX_FUEL)[["frac", "net_generation_mwh_fuel"]]
-        .sum(min_count=1)
-        .reset_index()
-    )
-
-    frac_test = pd.merge(
-        ratio_test_pm_fuel, ratio_test_fuel, on=IDX_FUEL, suffixes=("", "_fuel")
-    ).assign(
-        frac_pm_fuel=lambda x: x.frac,
-        frac=lambda x: np.where(
-            x.frac_pm_fuel.notnull(),
-            x.frac_pm_fuel,
-            x.frac_fuel,
-        ),
     )
 
     frac_test_bad = frac_test[~np.isclose(frac_test.frac, 1) & frac_test.frac.notnull()]
