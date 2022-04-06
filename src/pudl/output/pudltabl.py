@@ -802,12 +802,25 @@ class PudlTabl(object):
             )
         return self._dfs["gen_og_eia923"]
 
+    def gen_pm_fuel_allocated_eia923(self, update=False):
+        """Net generation from gen fuel table allocated to generator/prime_mover/fuel."""
+        if update or self._dfs["gen_pm_fuel_eia923"] is None:
+            self._dfs[
+                "gen_pm_fuel_eia923"
+            ] = pudl.analysis.allocate_net_gen.allocate_gen_fuel_by_gen_pm_fuel(
+                pudl_out=self
+            )
+        return self._dfs["gen_pm_fuel_eia923"]
+
     def gen_allocated_eia923(self, update=False):
         """Net generation from gen fuel table allocated to generators."""
         if update or self._dfs["gen_allocated_eia923"] is None:
             self._dfs[
                 "gen_allocated_eia923"
-            ] = pudl.analysis.allocate_net_gen.allocate_gen_fuel_by_gen(self)
+            ] = pudl.analysis.allocate_net_gen.allocate_gen_fuel_by_gen(
+                pudl_out=self,
+                gen_pm_fuel=self.gen_pm_fuel_allocated_eia923(update=update),
+            )
         return self._dfs["gen_allocated_eia923"]
 
     ###########################################################################
