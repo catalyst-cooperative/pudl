@@ -311,12 +311,12 @@ PRIORITY_ATTRIBUTES_DICT = {
 
 MAX_MIN_ATTRIBUTES_DICT = {
     "installation_year": {
-        "assign_cols": {"installation_year": lambda x: x.operating_date.dt.year},
+        "assign_col": {"installation_year": lambda x: x.operating_date.dt.year},
         "dtype": "Int64",
         "keep": "first",
     },
     "construction_year": {
-        "assign_cols": {"construction_year": lambda x: x.operating_date.dt.year},
+        "assign_col": {"construction_year": lambda x: x.operating_date.dt.year},
         "dtype": "Int64",
         "keep": "last",
     },
@@ -959,11 +959,17 @@ class MakePlantParts(object):
                     part_df, gens_mega
                 )
             for attribute_col in MAX_MIN_ATTRIBUTES_DICT.keys():
-                part_df = AddMaxMinAttribute(attribute_col, part_name).execute(
+                part_df = AddMaxMinAttribute(
+                    attribute_col,
+                    part_name,
+                    assign_col_dict=MAX_MIN_ATTRIBUTES_DICT[attribute_col][
+                        "assign_col"
+                    ],
+                ).execute(
                     part_df,
                     gens_mega,
-                    MAX_MIN_ATTRIBUTES_DICT[attribute_col]["dtype"],
-                    MAX_MIN_ATTRIBUTES_DICT[attribute_col]["keep"],
+                    att_dtype=MAX_MIN_ATTRIBUTES_DICT[attribute_col]["dtype"],
+                    keep=MAX_MIN_ATTRIBUTES_DICT[attribute_col]["keep"],
                 )
             part_dfs.append(part_df)
         plant_parts_eia = pd.concat(part_dfs)
@@ -1405,7 +1411,7 @@ class PartTrueGranLabeler:
 class AddAttribute(object):
     """Base class for adding attributes to plant-part tables."""
 
-    def __init__(self, attribute_col, part_name):
+    def __init__(self, attribute_col, part_name, assign_col_dict=None):
         """
         Initialize a attribute adder.
 
@@ -1425,6 +1431,14 @@ class AddAttribute(object):
         self.part_name = part_name
         self.id_cols = PLANT_PARTS[part_name]["id_cols"]
         self.base_cols = self.id_cols + IDX_TO_ADD
+        self.assign_col_dict = assign_col_dict
+
+    def assign_col(self, gens_mega):
+        """Add a new column to gens_mega."""
+        if self.assign_col_func is not None:
+            return gens_mega.assign(self.assign_col_dict)
+        else:
+            return gens_mega
 
 
 class AddConsistentAttributes(AddAttribute):
@@ -1471,6 +1485,7 @@ class AddConsistentAttributes(AddAttribute):
             return part_df
 
         record_df = gens_mega.copy()
+        record_df = self.assign_col(record_df)
 
         consistent_records = self.get_consistent_qualifiers(record_df)
 
@@ -1546,6 +1561,7 @@ class AddPriorityAttribute(AddAttribute):
             logger.debug(f"{attribute_col} already here.. ")
             return part_df
 
+        gens_mega = self.assign_col(gens_mega)
         logger.debug(f"getting max {attribute_col}")
         consistent_records = pudl.helpers.dedupe_on_category(
             gens_mega.copy()[self.base_cols + [attribute_col]],
@@ -1566,9 +1582,6 @@ class AddMaxMinAttribute(AddAttribute):
     ID columns.
     """
 
-    # should this function be able to add a max and min attribute at the same time?
-    # e.g. construction_year and installation_year at the same time
-    # is that actually more efficient?
     def execute(
         self,
         part_df,
@@ -1597,9 +1610,11 @@ class AddMaxMinAttribute(AddAttribute):
             return part_df
 
         logger.debug(f"pre count of part DataFrame: {len(part_df)}")
+        gens_mega = self.assign_col(gens_mega)
         new_attribute_df = (
-            gens_mega.assign(**MAX_MIN_ATTRIBUTES_DICT[attribute_col])
-            .astype({attribute_col: att_dtype})[self.base_cols + [attribute_col]]
+            gens_mega.astype({attribute_col: att_dtype})[
+                self.base_cols + [attribute_col]
+            ]
             .sort_values(attribute_col, ascending=False)
             .drop_duplicates(subset=self.base_cols, keep=keep)
             .dropna(subset=self.base_cols)
