@@ -407,7 +407,7 @@ class MakeMegaGenTbl(object):
         mcoe: pd.DataFrame,
         own_eia860: pd.DataFrame,
         slice_cols: List[str] = SUM_COLS,
-        validate_own_merge: Literal["1:1", "1:m", "m:m"] = "1:m",
+        validate_own_merge: str = "1:m",
     ) -> pd.DataFrame:
         """
         Make the mega generators table with ownership integrated.
@@ -417,6 +417,10 @@ class MakeMegaGenTbl(object):
             own_eia860: ownership table from :meth:`pudl.output.PudlTabl.own_eia860()`
             slice_cols: list of columns to slice by ownership fraction in
                 :meth:`MakeMegaGenTbl.slice_by_ownership`. Default is :py:const:`SUM_COLS`
+            validate_own_merge: how the merge between ``mcoe`` and ``owm_eia860``
+                is to be validated via ``pd.merge``. If there should be one
+                record for each plant/generator/date in ``mcoe`` then the default
+                `1:m` should be used.
 
         Returns:
             a table of all of the generators with identifying columns and data
