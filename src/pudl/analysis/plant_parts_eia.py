@@ -1435,8 +1435,8 @@ class AddAttribute(object):
 
     def assign_col(self, gens_mega):
         """Add a new column to gens_mega."""
-        if self.assign_col_func is not None:
-            return gens_mega.assign(self.assign_col_dict)
+        if self.assign_col_dict is not None:
+            return gens_mega.assign(**self.assign_col_dict)
         else:
             return gens_mega
 
