@@ -229,6 +229,12 @@ PLANT_PARTS: Dict[str, Dict[str, List]] = {
     "plant_ferc_acct": {
         "id_cols": ["plant_id_eia", "ferc_acct_name"],
     },
+    "plant_installation_year": {
+        "id_cols": ["plant_id_eia", "installation_year"],
+    },
+    "plant_construction_year": {
+        "id_cols": ["plant_id_eia", "construction_year"],
+    },
 }
 """
 dict: this dictionary contains a key for each of the 'plant parts' that should
