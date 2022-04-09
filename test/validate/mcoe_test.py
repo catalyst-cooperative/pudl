@@ -52,8 +52,7 @@ def pudl_out_mcoe(pudl_out_eia, live_dbs):
 # of some records in the past...
 ###############################################################################
 @pytest.mark.parametrize(
-    "df_name",
-    ["hr_by_unit", "hr_by_gen", "fuel_cost", "capacity_factor", "mcoe"]
+    "df_name", ["hr_by_unit", "hr_by_gen", "fuel_cost", "capacity_factor", "mcoe"]
 )
 def test_no_null_cols_mcoe(pudl_out_mcoe, live_dbs, df_name):
     """Verify that output DataFrames have no entirely NULL columns."""
@@ -65,17 +64,17 @@ def test_no_null_cols_mcoe(pudl_out_mcoe, live_dbs, df_name):
     # These are columns that only exist in 2006 and older data, beyond the time
     # for which we can calculate the MCOE:
     deprecated_cols = [
-        'distributed_generation',
-        'energy_source_1_transport_1',
-        'energy_source_1_transport_2',
-        'energy_source_1_transport_3',
-        'energy_source_2_transport_1',
-        'energy_source_2_transport_2',
-        'energy_source_2_transport_3',
-        'owned_by_non_utility',
-        'reactive_power_output_mvar',
-        'summer_capacity_estimate',
-        'winter_capacity_estimate'
+        "distributed_generation",
+        "energy_source_1_transport_1",
+        "energy_source_1_transport_2",
+        "energy_source_1_transport_3",
+        "energy_source_2_transport_1",
+        "energy_source_2_transport_2",
+        "energy_source_2_transport_3",
+        "owned_by_non_utility",
+        "reactive_power_output_mvar",
+        "summer_capacity_estimate",
+        "winter_capacity_estimate",
     ]
     df = pudl_out_mcoe.__getattribute__(df_name)()
     cols = [col for col in df.columns if col not in deprecated_cols]
@@ -83,9 +82,10 @@ def test_no_null_cols_mcoe(pudl_out_mcoe, live_dbs, df_name):
 
 
 @pytest.mark.parametrize(
-    "df_name,thresh", [
+    "df_name,thresh",
+    [
         ("mcoe", 0.8),
-    ]
+    ],
 )
 def test_no_null_rows_mcoe(pudl_out_mcoe, live_dbs, df_name, thresh):
     """
@@ -109,21 +109,16 @@ def test_no_null_rows_mcoe(pudl_out_mcoe, live_dbs, df_name, thresh):
 
 
 @pytest.mark.parametrize(
-    "df_name,monthly_rows,annual_rows", [
-        ('hr_by_unit', 341_681, 28_560),
-        ('hr_by_gen', 514_647, 42_963),
-        ('fuel_cost', 514_642, 42_958),
-        ('capacity_factor', 559_570, 46_718),
+    "df_name,monthly_rows,annual_rows",
+    [
+        ("hr_by_unit", 341_681, 28_560),
+        ("hr_by_gen", 514_647, 42_963),
+        ("fuel_cost", 514_642, 42_958),
+        ("capacity_factor", 559_570, 46_718),
         ("mcoe", 559_618, 46_718),
-    ]
+    ],
 )
-def test_minmax_rows_mcoe(
-    pudl_out_mcoe,
-    live_dbs,
-    monthly_rows,
-    annual_rows,
-    df_name
-):
+def test_minmax_rows_mcoe(pudl_out_mcoe, live_dbs, monthly_rows, annual_rows, df_name):
     """Verify that output DataFrames don't have too many or too few rows."""
     if not live_dbs:
         pytest.skip("Data validation only works with a live PUDL DB.")
@@ -136,21 +131,25 @@ def test_minmax_rows_mcoe(
         expected_rows = annual_rows
     _ = (
         pudl_out_mcoe.__getattribute__(df_name)()
-        .pipe(pv.check_min_rows, expected_rows=expected_rows,
-              margin=0.0, df_name=df_name)
-        .pipe(pv.check_max_rows, expected_rows=expected_rows,
-              margin=0.0, df_name=df_name)
+        .pipe(
+            pv.check_min_rows, expected_rows=expected_rows, margin=0.0, df_name=df_name
+        )
+        .pipe(
+            pv.check_max_rows, expected_rows=expected_rows, margin=0.0, df_name=df_name
+        )
     )
 
 
 @pytest.mark.parametrize(
-    "df_name,unique_subset", [
+    "df_name,unique_subset",
+    [
         ("hr_by_unit", ["report_date", "plant_id_eia", "unit_id_pudl"]),
         ("hr_by_gen", ["report_date", "plant_id_eia", "generator_id"]),
         ("fuel_cost", ["report_date", "plant_id_eia", "generator_id"]),
         ("capacity_factor", ["report_date", "plant_id_eia", "generator_id"]),
         ("mcoe", ["report_date", "plant_id_eia", "generator_id"]),
-    ])
+    ],
+)
 def test_unique_rows_mcoe(pudl_out_mcoe, live_dbs, unique_subset, df_name):
     """Test whether dataframe has unique records within a subset of columns."""
     if not live_dbs:
@@ -158,15 +157,16 @@ def test_unique_rows_mcoe(pudl_out_mcoe, live_dbs, unique_subset, df_name):
     if pudl_out_mcoe.freq is None:
         pytest.skip()
     pv.check_unique_rows(
-        pudl_out_mcoe.__getattribute__(df_name)(),
-        subset=unique_subset, df_name=df_name)
+        pudl_out_mcoe.__getattribute__(df_name)(), subset=unique_subset, df_name=df_name
+    )
+
 
 ###############################################################################
 # Tests that look at distributions of MCOE calculation outputs.
 ###############################################################################
 
 
-@pytest.mark.parametrize("fuel,max_idle", [('gas', 0.15), ('coal', 0.075)])
+@pytest.mark.parametrize("fuel,max_idle", [("gas", 0.15), ("coal", 0.075)])
 def test_idle_capacity(fuel, max_idle, pudl_out_mcoe, live_dbs):
     """Validate that idle capacity isn't tooooo high."""
     if not live_dbs:

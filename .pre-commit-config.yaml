@@ -22,17 +22,6 @@ repos:
   - id: trailing-whitespace     # Remove trailing whitespace.
   - id: name-tests-test         # Follow PyTest naming convention.
 
-# Attempt to enforce standardized PEP8 style formatting:
-- repo: https://github.com/pre-commit/mirrors-autopep8
-  rev: v1.6.0
-  hooks:
-  - id: autopep8
-    exclude: ^docs/conf.py$
-    args:
-      - --global-config=tox.ini
-      - --in-place
-      - --max-line-length=88
-
 # Make sure import statements are sorted uniformly.
 - repo: https://github.com/PyCQA/isort
   rev: 5.10.1
@@ -51,15 +40,22 @@ repos:
       - pydocstyle
       - flake8-builtins
       - mccabe
-      - naming
+      - pep8-naming
       - pycodestyle
       - pyflakes
       - flake8-rst-docstrings
       - flake8-use-fstring
 
+# Format the code
+- repo: https://github.com/psf/black
+  rev: 22.3.0
+  hooks:
+  - id: black
+    language_version: python3.10
+
 # Check for errors in restructuredtext (.rst) files under the doc hierarchy
 - repo: https://github.com/PyCQA/doc8
-  rev: 0.10.1
+  rev: 0.11.1
   hooks:
   - id: doc8
     args: [--config, tox.ini]

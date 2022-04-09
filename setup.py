@@ -27,26 +27,41 @@ setup(
     },
     license="MIT",
     keywords=[
-        "electricity", "energy", "data", "analysis", "mcoe", "climate change",
-        "finance", "eia 923", "eia 860", "ferc", "form 1", "epa ampd",
-        "epa cems", "coal", "natural gas", "eia 861", "ferc 714"],
+        "electricity",
+        "energy",
+        "data",
+        "analysis",
+        "mcoe",
+        "climate change",
+        "finance",
+        "eia 923",
+        "eia 860",
+        "ferc",
+        "form 1",
+        "epa ampd",
+        "epa cems",
+        "coal",
+        "natural gas",
+        "eia 861",
+        "ferc 714",
+    ],
     python_requires=">=3.8,<3.11",
     setup_requires=["setuptools_scm"],
     install_requires=[
         "addfips~=0.3.1",
         "catalystcoop.dbfread~=3.0",
         "coloredlogs~=15.0",
-        "dask~=2021.8",
+        "dask>=2021.8,<2023.0",
         "datapackage~=1.11",  # Transition datastore to use frictionless.
         # "email-validator>=1.0.3",  # pydantic[email] dependency
-        "fsspec>=2021.7,<2023.0",
-        "gcsfs>=2021.7,<2023.0",
+        "fsspec>=2021.7,<2023.0",  # For caching datastore on GCS
+        "gcsfs>=2021.7,<2023.0",  # For caching datastore on GCS
         "geopandas>=0.9,<0.11",
         "jinja2>=2,<4",
         "matplotlib>=3.3,<4",  # Should make this optional with a "viz" extras
         "networkx>=2.2,<3",
         "numpy>=1.18.5,<2",
-        "pandas>=1.3,!=1.3.3,<1.5",  # IntCastingNaNError on v1.3.3 in unit tests
+        "pandas>=1.4,<1.5",
         "pyarrow>=5,<8",
         "pydantic[email]>=1.7,<2",
         "python-snappy>=0.6,<1",
@@ -60,13 +75,13 @@ setup(
     ],
     extras_require={
         "dev": [
-            "autopep8~=1.5",
+            "black>=22,<23",
             "ipdb~=0.13.4",
             "isort~=5.0",
             "jedi~=0.18",
             "lxml~=4.6",
             "tox~=3.20",
-            "twine~=3.3",
+            "twine>=3.3,<5.0",
         ],
         "doc": [
             "doc8~=0.9",
@@ -101,16 +116,18 @@ setup(
         ],
         "datasette": [
             "datasette~=0.60",
-        ]
+        ],
     },
     classifiers=[
         "Development Status :: 3 - Alpha",
         "Environment :: Console",
         "Intended Audience :: Science/Research",
-        "Intended Audience :: Developers",
         "License :: OSI Approved :: MIT License",
         "Natural Language :: English",
         "Operating System :: OS Independent",
+        "Programming Language :: Python",
+        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3 :: Only",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",

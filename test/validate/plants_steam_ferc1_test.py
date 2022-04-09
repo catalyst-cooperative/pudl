@@ -15,32 +15,28 @@ logger = logging.getLogger(__name__)
 
 
 @pytest.mark.parametrize(
-    "cases", [
+    "cases",
+    [
         pytest.param(pv.plants_steam_ferc1_capacity, id="capacity"),
         pytest.param(pv.plants_steam_ferc1_expenses, id="expenses"),
-        pytest.param(
-            pv.plants_steam_ferc1_capacity_ratios,
-            id="capacity_ratios"
-        ),
+        pytest.param(pv.plants_steam_ferc1_capacity_ratios, id="capacity_ratios"),
         pytest.param(
             pv.plants_steam_ferc1_connected_hours,
             id="connected_hours",
-            marks=pytest.mark.xfail(reason="FERC 1 data reporting errors.")
+            marks=pytest.mark.xfail(reason="FERC 1 data reporting errors."),
         ),
-    ]
+    ],
 )
 def test_vs_bounds(pudl_out_ferc1, live_dbs, cases):
     """Test distributions of reported plants_steam_ferc1 columns."""
     if not live_dbs:
         pytest.skip("Data validation only works with a live PUDL DB.")
-    validate_df = (
-        pudl_out_ferc1.plants_steam_ferc1().
-        assign(
-            water_limited_ratio=lambda x: x.water_limited_capacity_mw / x.capacity_mw,
-            not_water_limited_ratio=lambda x: x.not_water_limited_capacity_mw / x.capacity_mw,
-            peak_demand_ratio=lambda x: x.peak_demand_mw / x.capacity_mw,
-            capability_ratio=lambda x: x.plant_capability_mw / x.capacity_mw,
-        )
+    validate_df = pudl_out_ferc1.plants_steam_ferc1().assign(
+        water_limited_ratio=lambda x: x.water_limited_capacity_mw / x.capacity_mw,
+        not_water_limited_ratio=lambda x: x.not_water_limited_capacity_mw
+        / x.capacity_mw,
+        peak_demand_ratio=lambda x: x.peak_demand_mw / x.capacity_mw,
+        capability_ratio=lambda x: x.plant_capability_mw / x.capacity_mw,
     )
     for case in cases:
         pudl.validate.vs_bounds(validate_df, **case)
@@ -50,14 +46,12 @@ def test_self_vs_historical(pudl_out_ferc1, live_dbs):
     """Validate..."""
     if not live_dbs:
         pytest.skip("Data validation only works with a live PUDL DB.")
-    validate_df = (
-        pudl_out_ferc1.plants_steam_ferc1().
-        assign(
-            water_limited_ratio=lambda x: x.water_limited_capacity_mw / x.capacity_mw,
-            not_water_limited_ratio=lambda x: x.not_water_limited_capacity_mw / x.capacity_mw,
-            peak_demand_ratio=lambda x: x.peak_demand_mw / x.capacity_mw,
-            capability_ratio=lambda x: x.plant_capability_mw / x.capacity_mw,
-        )
+    validate_df = pudl_out_ferc1.plants_steam_ferc1().assign(
+        water_limited_ratio=lambda x: x.water_limited_capacity_mw / x.capacity_mw,
+        not_water_limited_ratio=lambda x: x.not_water_limited_capacity_mw
+        / x.capacity_mw,
+        peak_demand_ratio=lambda x: x.peak_demand_mw / x.capacity_mw,
+        capability_ratio=lambda x: x.plant_capability_mw / x.capacity_mw,
     )
     for args in pv.plants_steam_ferc1_self:
         pudl.validate.vs_self(validate_df, **args)
@@ -74,22 +68,22 @@ def test_dupe_years_in_plant_id_ferc1(pudl_out_ferc1):
     """
     steam_df = pudl_out_ferc1.plants_steam_ferc1()
     year_dupes = (
-        steam_df.
-        groupby(['plant_id_ferc1', 'report_year'])['utility_id_ferc1'].
-        count().
-        reset_index().
-        rename(columns={'utility_id_ferc1': 'year_dupes'}).
-        query('year_dupes>1')
+        steam_df.groupby(["plant_id_ferc1", "report_year"])["utility_id_ferc1"]
+        .count()
+        .reset_index()
+        .rename(columns={"utility_id_ferc1": "year_dupes"})
+        .query("year_dupes>1")
     )
     for dupe in year_dupes.itertuples():
         logger.error(
             "Found report_year=%s %s times in plant_id_ferc1=%s",
-            dupe.report_year, dupe.year_dups, dupe.plant_id_ferc1
+            dupe.report_year,
+            dupe.year_dups,
+            dupe.plant_id_ferc1,
         )
     if len(year_dupes) != 0:
         raise AssertionError(
-            f"Found {len(year_dupes)} duplicate years in FERC1 "
-            f"plant ID time series"
+            f"Found {len(year_dupes)} duplicate years in FERC1 plant ID time series"
         )
 
 
@@ -104,23 +98,23 @@ def test_plant_id_clash(pudl_out_ferc1):
     """
     steam_df = pudl_out_ferc1.plants_steam_ferc1()
     bad_plant_ids_ferc1 = (
-        steam_df[['plant_id_pudl', 'plant_id_ferc1']].
-        drop_duplicates().
-        groupby('plant_id_ferc1').
-        count().
-        rename(columns={'plant_id_pudl': 'pudl_id_count'}).
-        query('pudl_id_count>1').
-        reset_index().
-        plant_id_ferc1.values.tolist()
+        steam_df[["plant_id_pudl", "plant_id_ferc1"]]
+        .drop_duplicates()
+        .groupby("plant_id_ferc1")
+        .count()
+        .rename(columns={"plant_id_pudl": "pudl_id_count"})
+        .query("pudl_id_count>1")
+        .reset_index()
+        .plant_id_ferc1.values.tolist()
     )
     if bad_plant_ids_ferc1:
-        bad_records = steam_df[steam_df.plant_id_ferc1.
-                               isin(bad_plant_ids_ferc1)]
+        bad_records = steam_df[steam_df.plant_id_ferc1.isin(bad_plant_ids_ferc1)]
         bad_plant_ids_pudl = bad_records.plant_id_pudl.unique().tolist()
         msg = (
             f"Found {len(bad_plant_ids_ferc1)} plant_id_ferc1 values "
             f"associated with {len(bad_plant_ids_pudl)} non-unique "
             f"plant_id_pudl values.\nplant_id_ferc1: {bad_plant_ids_ferc1}\n"
-            f"plant_id_pudl: {bad_plant_ids_pudl}.")
+            f"plant_id_pudl: {bad_plant_ids_pudl}."
+        )
         logger.info(msg)
         raise AssertionError(msg)

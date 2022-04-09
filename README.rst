@@ -24,13 +24,17 @@ The Public Utility Data Liberation Project (PUDL)
    :target: https://pypi.org/project/catalystcoop.pudl/
    :alt: PyPI Latest Version
 
+.. image:: https://img.shields.io/conda/vn/conda-forge/catalystcoop.pudl
+   :target: https://anaconda.org/conda-forge/catalystcoop.pudl
+   :alt: conda-forge Version
+
 .. image:: https://img.shields.io/pypi/pyversions/catalystcoop.pudl
    :target: https://pypi.org/project/catalystcoop.pudl/
    :alt: PyPI - Supported Python Versions
 
-.. image:: https://img.shields.io/conda/vn/conda-forge/catalystcoop.pudl
-   :target: https://anaconda.org/conda-forge/catalystcoop.pudl
-   :alt: conda-forge Version
+.. image:: https://img.shields.io/badge/code%20style-black-000000.svg
+   :target: https://github.com/psf/black
+   :alt: Any color you want, so long as it's black.
 
 .. image:: https://zenodo.org/badge/80646423.svg
    :target: https://zenodo.org/badge/latestdoi/80646423
@@ -53,7 +57,7 @@ What data is available?
 PUDL currently integrates data from:
 
 * `EIA Form 860 <https://www.eia.gov/electricity/data/eia860/>`__ (2001-2020)
-* `EIA Form 860m <https://www.eia.gov/electricity/data/eia860m/>`__ (to 2021-08)
+* `EIA Form 860m <https://www.eia.gov/electricity/data/eia860m/>`__ (to 2021-12)
 * `EIA Form 861 <https://www.eia.gov/electricity/data/eia861/>`__ (2001-2020)
 * `EIA Form 923 <https://www.eia.gov/electricity/data/eia923/>`__ (2001-2020)
 * `EPA Continuous Emissions Monitoring System (CEMS) <https://ampd.epa.gov/ampd/>`__ (1995-2020)
