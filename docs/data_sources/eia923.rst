@@ -159,7 +159,7 @@ These tables contain the bulk data reported in the EIA-923.
      - https://data.catalyst.coop/pudl/generation_eia923
    * - :ref: `generation_fuel_eia923`
      - https://data.catalyst.coop/pudl/generation_fuel_eia923
-   * - :ref:`generation_fuel_eia923`
+   * - :ref: `generation_fuel_nuclear_eia923`
      - https://data.catalyst.coop/pudl/generation_fuel_nuclear_eia923
 
 
