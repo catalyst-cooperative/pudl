@@ -196,7 +196,8 @@ def cleanup_rsts(app, exception):
     """Remove generated RST files when the build is finished."""
     (DOCS_DIR / "data_dictionaries/pudl_db.rst").unlink()
     (DOCS_DIR / "data_dictionaries/codes_and_labels.rst").unlink()
-    (DOCS_DIR / "data_sources/*.rst").unlink()
+    for file in DOCS_DIR / "data_sources/*.rst":
+        file.unlink()
 
 
 def cleanup_csv_dir(app, exception):
