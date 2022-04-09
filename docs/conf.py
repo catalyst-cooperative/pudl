@@ -109,7 +109,7 @@ exclude_patterns = ["_build"]
 # The theme to use for HTML and HTML Help pages.
 
 master_doc = "index"
-html_theme = "pydata_sphinx_theme"
+html_theme = "sphinx_book_theme"
 html_logo = "_static/catalyst_logo-200x200.png"
 html_icon = "_static/favicon.ico"
 
@@ -126,6 +126,13 @@ html_context = {
 # documentation.
 html_theme_options = {
     "collapse_navigation": True,
+    "repository_url": "https://github.com/catalyst-cooperative/pudl",
+    "use_repository_button": True,
+    "use_issues_button": True,
+    "use_edit_page_button": True,
+    "repository_branch": "main",
+    "path_to_docs": "docs",
+    "use_download_button": True,
 }
 
 # Add any paths that contain custom static files (such as style sheets) here,
