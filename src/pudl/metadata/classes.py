@@ -140,6 +140,11 @@ JINJA_ENVIRONMENT: jinja2.Environment = jinja2.Environment(
     autoescape=True,
 )
 
+JINJA_DOCS_ENVIRONMENT: jinja2.Environment = jinja2.Environment(
+    loader=jinja2.FileSystemLoader(Path(__file__).parents[3] / "docs/templates"),
+    autoescape=True,
+)
+
 
 # ---- Base ---- #
 
@@ -561,7 +566,7 @@ class Encoder(Base):
     ) -> String:
         """Ouput dataframe to a csv for use in jinja template. Then output to an RST file."""
         self.df.to_csv(Path(top_dir) / csv_subdir / f"{self.name}.csv", index=False)
-        template = JINJA_ENVIRONMENT.get_template("codemetadata.rst.jinja")
+        template = JINJA_DOCS_ENVIRONMENT.get_template("codemetadata.rst.jinja")
         rendered = template.render(
             Encoder=self,
             description=RESOURCE_METADATA[self.name]["description"],
@@ -956,7 +961,7 @@ class DataSource(Base):
 
     def to_rst(self, path, source_resources, extra_resources) -> None:
         """Output a representation of the data source in RST for documentation."""
-        template = JINJA_ENVIRONMENT.get_template(f"data_sources/{self.name}.rst.jinja")
+        template = JINJA_DOCS_ENVIRONMENT.get_template(f"{self.name}.rst.jinja")
         rendered = template.render(
             source=self,
             source_resources=source_resources,
