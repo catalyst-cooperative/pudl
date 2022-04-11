@@ -416,7 +416,7 @@ class MakeMegaGenTbl(object):
             mcoe: generator-based mcoe table from :meth:`pudl.output.PudlTabl.mcoe()`
             own_eia860: ownership table from :meth:`pudl.output.PudlTabl.own_eia860()`
             slice_cols: list of columns to slice by ownership fraction in
-                :meth:`MakeMegaGenTbl.slice_by_ownership`. Default is :py:const:`SUM_COLS`
+                :meth:`MakeMegaGenTbl.scale_by_ownership`. Default is :py:const:`SUM_COLS`
             validate_own_merge: how the merge between ``mcoe`` and ``owm_eia860``
                 is to be validated via ``pd.merge``. If there should be one
                 record for each plant/generator/date in ``mcoe`` then the default
@@ -439,7 +439,7 @@ class MakeMegaGenTbl(object):
         gens_mega = (
             self.get_gens_mega_table(mcoe)
             .pipe(self.label_operating_gens)
-            .pipe(self.slice_by_ownership, own_eia860, slice_cols, validate_own_merge)
+            .pipe(self.scale_by_ownership, own_eia860, slice_cols, validate_own_merge)
         )
         return gens_mega
 
@@ -514,8 +514,8 @@ class MakeMegaGenTbl(object):
         )
         return gen_df
 
-    def slice_by_ownership(
-        self, gens_mega, own_eia860, slice_cols=SUM_COLS, validate="1:m"
+    def scale_by_ownership(
+        self, gens_mega, own_eia860, scale_cols=SUM_COLS, validate="1:m"
     ):
         """
         Generate proportional data by ownership %s.
@@ -583,7 +583,7 @@ class MakeMegaGenTbl(object):
         gens_mega = pd.concat(
             [gens_mega, gens_mega.copy().assign(fraction_owned=1, ownership="total")]
         )
-        gens_mega.loc[:, slice_cols] = gens_mega.loc[:, slice_cols].multiply(
+        gens_mega.loc[:, scale_cols] = gens_mega.loc[:, scale_cols].multiply(
             gens_mega["fraction_owned"], axis="index"
         )
         return gens_mega
@@ -1067,7 +1067,7 @@ class MakePlantParts(object):
                 "Hello friend, you did a bad. It happens... There are "
                 f"{len(owned_one_frac)} rows where fraction_owned does not sum "
                 "to 100% for the owned records. "
-                "Check cached `owned_one_frac` & `test_own_df` and `slice_by_ownership()`"
+                "Check cached `owned_one_frac` & `test_own_df` and `scale_by_ownership()`"
             )
 
         no_frac_n_cap = test_own_df[
@@ -1189,7 +1189,7 @@ class PlantPart(object):
         ownership slice is now grouped and aggregated as a single version of the
         full plant and then the utilities are merged back. The "owned"
         ownership slice is grouped and aggregated with the utility_id_eia, so
-        the portions of generators created by slice_by_ownership will be
+        the portions of generators created by scale_by_ownership will be
         appropriately aggregated to each plant part level.
 
         Returns:

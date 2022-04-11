@@ -37,6 +37,11 @@ import pandas as pd
 import sqlalchemy as sa
 
 import pudl
+from pudl.analysis.allocate_net_gen import (
+    aggregate_generation_fuel_by_generator,
+    allocate_generation_fuel_by_generator_fuel_type,
+    scale_allocated_net_gen_by_ownership,
+)
 from pudl.settings import Eia861Settings, Ferc714Settings
 from pudl.workspace.datastore import Datastore
 
@@ -802,22 +807,18 @@ class PudlTabl(object):
             )
         return self._dfs["gen_og_eia923"]
 
-    def gen_pm_fuel_allocated_eia923(self, update=False):
+    def gen_fuel_allocated_generator_fuel_type_eia923(self, update=False):
         """Net generation from gen fuel table allocated to generator/prime_mover/fuel."""
         if update or self._dfs["gen_pm_fuel_eia923"] is None:
             self._dfs[
                 "gen_pm_fuel_eia923"
-            ] = pudl.analysis.allocate_net_gen.allocate_gen_fuel_by_gen_pm_fuel(
-                pudl_out=self
-            )
+            ] = allocate_generation_fuel_by_generator_fuel_type(pudl_out=self)
         return self._dfs["gen_pm_fuel_eia923"]
 
     def gen_allocated_eia923(self, update=False):
         """Net generation from gen fuel table allocated to generators."""
         if update or self._dfs["gen_allocated_eia923"] is None:
-            self._dfs[
-                "gen_allocated_eia923"
-            ] = pudl.analysis.allocate_net_gen.allocate_gen_fuel_by_gen(
+            self._dfs["gen_allocated_eia923"] = aggregate_generation_fuel_by_generator(
                 pudl_out=self,
                 gen_pm_fuel=self.gen_pm_fuel_allocated_eia923(update=update),
             )
@@ -831,24 +832,10 @@ class PudlTabl(object):
         generator/prime_mover/fuel level... But this shouldn't really live here.
         """
         if update or self._dfs["gen_pm_fuel_own"] is None:
-            idx_gens = pudl.analysis.allocate_net_gen.IDX_GENS
-            self._dfs[
-                "gen_pm_fuel_own"
-            ] = pudl.analysis.plant_parts_eia.MakeMegaGenTbl().slice_by_ownership(
-                gens_mega=pd.merge(
-                    self.gen_pm_fuel_allocated_eia923(),
-                    self.gens_eia860()[idx_gens + ["utility_id_eia", "capacity_mw"]],
-                    on=idx_gens,
-                    validate="m:1",
-                    how="left",
-                ),
+            self._dfs["gen_pm_fuel_own"] = scale_allocated_net_gen_by_ownership(
+                gen_pm_fuel=self.gen_pm_fuel_allocated_eia923(),
+                gens=self.gens_eia860(),
                 own_eia860=self.own_eia860(),
-                slice_cols=[
-                    "net_generation_mwh",
-                    "fuel_consumed_mmbtu",
-                    "capacity_mw",
-                ],
-                validate="m:m",
             )
         return self._dfs["gen_pm_fuel_own"]
 
