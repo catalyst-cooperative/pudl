@@ -15,16 +15,21 @@ data from:
    - Continuous Emissions Monitory System (epacems)
 
 """
+import itertools
 import logging
 import time
+from concurrent.futures import ProcessPoolExecutor
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any, Dict, List
 
 import pandas as pd
+import pyarrow as pa
+import pyarrow.parquet as pq
 import sqlalchemy as sa
 
 import pudl
 from pudl.helpers import convert_cols_dtypes
+from pudl.metadata.classes import Resource
 from pudl.metadata.codes import CODE_METADATA
 from pudl.metadata.dfs import FERC_ACCOUNTS, FERC_DEPRECIATION_LINES
 from pudl.metadata.fields import apply_pudl_dtypes
@@ -221,6 +226,31 @@ def _etl_ferc1(
 ###############################################################################
 # EPA CEMS EXPORT FUNCTIONS
 ###############################################################################
+def _etl_one_year_epacems(
+    year: int,
+    states: List[str],
+    pudl_db: str,
+    out_dir: str,
+    ds_kwargs: Dict[str, Any],
+) -> None:
+    """Process one year of EPA CEMS and output year-state paritioned Parquet files."""
+    pudl_engine = sa.create_engine(pudl_db)
+    ds = Datastore(**ds_kwargs)
+    schema = Resource.from_id("hourly_emissions_epacems").to_pyarrow()
+
+    for state in states:
+        with pq.ParquetWriter(
+            where=Path(out_dir) / f"epacems-{year}-{state}.parquet",
+            schema=schema,
+            compression="snappy",
+            version="2.6",
+        ) as pqwriter:
+            logger.info(f"Processing EPA CEMS hourly data for {year}-{state}")
+            df = pudl.extract.epacems.extract(year=year, state=state, ds=ds)
+            df = pudl.transform.epacems.transform(df, pudl_engine=pudl_engine)
+            pqwriter.write_table(
+                pa.Table.from_pandas(df, schema=schema, preserve_index=False)
+            )
 
 
 def etl_epacems(
@@ -228,7 +258,8 @@ def etl_epacems(
     pudl_settings: Dict[str, Any],
     ds_kwargs: Dict[str, Any],
 ) -> None:
-    """Extract, transform and load CSVs for EPA CEMS.
+    """
+    Extract, transform and load CSVs for EPA CEMS.
 
     Args:
         epacems_settings: Validated ETL parameters required by this data source.
@@ -269,29 +300,46 @@ def etl_epacems(
             "Some timezones may be estimated based on plant state."
         )
 
-    # NOTE: This is a generator for raw dataframes
-    epacems_raw_dfs = pudl.extract.epacems.extract(
-        epacems_settings, Datastore(**ds_kwargs)
-    )
-
-    # NOTE: This is a generator for transformed dataframes
-    epacems_transformed_dfs = pudl.transform.epacems.transform(
-        epacems_raw_dfs=epacems_raw_dfs,
-        pudl_engine=pudl_engine,
-    )
-
     logger.info("Processing EPA CEMS data and writing it to Apache Parquet.")
     if logger.isEnabledFor(logging.INFO):
         start_time = time.monotonic()
 
-    # run the cems generator dfs through the load step
-    for df in epacems_transformed_dfs:
-        pudl.load.df_to_parquet(
-            df,
-            resource_id="hourly_emissions_epacems",
-            root_path=Path(pudl_settings["parquet_dir"]) / "epacems",
-            partition_cols=["year", "state"],
+    if epacems_settings.partition:
+        n_yrs = len(epacems_settings.years)
+        epacems_dir = Path(pudl_settings["parquet_dir"]) / "epacems"
+        with ProcessPoolExecutor() as executor:
+            _ = list(  # Convert results of map() to list to force execution
+                executor.map(
+                    _etl_one_year_epacems,
+                    epacems_settings.years,
+                    itertools.repeat(epacems_settings.states, n_yrs),
+                    itertools.repeat(pudl_settings["pudl_db"], n_yrs),
+                    itertools.repeat(epacems_dir, n_yrs),
+                    itertools.repeat(ds_kwargs, n_yrs),
+                )
+            )
+
+    else:
+        ds = Datastore(**ds_kwargs)
+        schema = Resource.from_id("hourly_emissions_epacems").to_pyarrow()
+        epacems_path = Path(
+            pudl_settings["parquet_dir"], "epacems/hourly_emissions_epacems.parquet"
         )
+        with pq.ParquetWriter(
+            where=str(epacems_path),
+            schema=schema,
+            compression="snappy",
+            version="2.6",
+        ) as pqwriter:
+            for year, state in itertools.product(
+                epacems_settings.years, epacems_settings.states
+            ):
+                logger.info(f"Processing EPA CEMS hourly data for {year}-{state}")
+                df = pudl.extract.epacems.extract(year=year, state=state, ds=ds)
+                df = pudl.transform.epacems.transform(df, pudl_engine=pudl_engine)
+                pqwriter.write_table(
+                    pa.Table.from_pandas(df, schema=schema, preserve_index=False)
+                )
 
     if logger.isEnabledFor(logging.INFO):
         delta_t = time.strftime("%H:%M:%S", time.gmtime(time.monotonic() - start_time))
@@ -303,17 +351,15 @@ def etl_epacems(
 ###############################################################################
 # GLUE EXPORT FUNCTIONS
 ###############################################################################
-
-
 def _etl_glue(glue_settings: GlueSettings) -> Dict[str, pd.DataFrame]:
     """Extract, transform and load CSVs for the Glue tables.
 
     Args:
-        glue_settings (GlueSettings): Validated ETL parameters required by this data source.
+        glue_settings: Validated ETL parameters required by this data source.
 
     Returns:
-        dict: A dictionary of :class:`pandas.Dataframe` whose keys are the names
-        of the corresponding database table.
+        A dictionary of DataFrames whose keys are the names of the corresponding
+        database table.
 
     """
     # grab the glue tables for ferc1 & eia

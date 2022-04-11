@@ -107,6 +107,8 @@ class EpaCemsSettings(GenericDatasetSettings):
         years: List of years to validate.
         states: List of states to validate.
         tables: List of tables to validate.
+        partition: Whether to output year-state partitioned Parquet files. If True,
+            all available threads / CPUs will be used in parallel.
     """
 
     data_source: ClassVar[DataSource] = DataSource.from_id("epacems")
@@ -114,6 +116,7 @@ class EpaCemsSettings(GenericDatasetSettings):
     years: List[int] = data_source.working_partitions["years"]
     states: List[str] = data_source.working_partitions["states"]
     tables: List[str] = data_source.get_resource_ids()
+    partition: bool = False
 
     @validator("states")
     def allow_all_keyword(cls, states):  # noqa: N805

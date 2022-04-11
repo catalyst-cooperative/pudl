@@ -76,6 +76,13 @@ def parse_command_line(argv):
         default=False,
         help="If enabled, the local file cache for datastore will not be used.",
     )
+    parser.add_argument(
+        "--partition",
+        action="store_true",
+        default=False,
+        help="If set, output year-state partitioned Parquet files and process data "
+        "in parallel using all available threads / CPUs.",
+    )
 
     arguments = parser.parse_args(argv[1:])
     return arguments
@@ -91,7 +98,9 @@ def main():
     args = parse_command_line(sys.argv)
     pudl_settings = pudl.workspace.setup.get_defaults()
     # This also validates the states / years we've been given:
-    epacems_settings = EpaCemsSettings(states=args.states, years=args.years)
+    epacems_settings = EpaCemsSettings(
+        states=args.states, years=args.years, partition=args.partition
+    )
 
     # Configure how we want to obtain raw input data:
     ds_kwargs = dict(
