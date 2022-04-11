@@ -309,6 +309,18 @@ PRIORITY_ATTRIBUTES_DICT = {
     "operational_status": ["existing", "proposed", "retired"],
 }
 
+MAX_MIN_ATTRIBUTES_DICT = {
+    "installation_year": {
+        "assign_col": {"installation_year": lambda x: x.operating_date.dt.year},
+        "dtype": "Int64",
+        "keep": "first",
+    },
+    "construction_year": {
+        "assign_col": {"construction_year": lambda x: x.operating_date.dt.year},
+        "dtype": "Int64",
+        "keep": "last",
+    },
+}
 
 FIRST_COLS = [
     "plant_id_eia",
@@ -946,6 +958,19 @@ class MakePlantParts(object):
                 part_df = AddPriorityAttribute(attribute_col, part_name).execute(
                     part_df, gens_mega
                 )
+            for attribute_col in MAX_MIN_ATTRIBUTES_DICT.keys():
+                part_df = AddMaxMinAttribute(
+                    attribute_col,
+                    part_name,
+                    assign_col_dict=MAX_MIN_ATTRIBUTES_DICT[attribute_col][
+                        "assign_col"
+                    ],
+                ).execute(
+                    part_df,
+                    gens_mega,
+                    att_dtype=MAX_MIN_ATTRIBUTES_DICT[attribute_col]["dtype"],
+                    keep=MAX_MIN_ATTRIBUTES_DICT[attribute_col]["keep"],
+                )
             part_dfs.append(part_df)
         plant_parts_eia = pd.concat(part_dfs)
         # clean up, add additional columns
@@ -1150,7 +1175,6 @@ class PlantPart(object):
             )
             .pipe(self.ag_fraction_owned)
             .assign(plant_part=self.part_name)
-            .pipe(self.add_install_year, gens_mega)
             .pipe(  # add standard record id w/ year
                 add_record_id,
                 id_cols=self.id_cols,
@@ -1286,33 +1310,6 @@ class PlantPart(object):
         )
         return part_frac
 
-    def add_install_year(self, part_df, gens_mega):
-        """
-        Add the install year from the entities table to your plant part.
-
-        TODO: This should be converted into an AddAttribute...  an
-        AddSortedAttribute or something like that.
-        """
-        logger.debug(f"pre count of part DataFrame: {len(part_df)}")
-        # we want to sort to have the most recent on top
-        install = (
-            gens_mega.assign(installation_year=lambda x: x.operating_date.dt.year)
-            .astype({"installation_year": "Int64"})[
-                self.id_cols + IDX_TO_ADD + ["installation_year"]
-            ]
-            .sort_values("installation_year", ascending=False)
-            .drop_duplicates(subset=self.id_cols, keep="first")
-            .dropna(subset=self.id_cols)
-        )
-        part_df = part_df.merge(
-            install, how="left", on=self.id_cols + IDX_TO_ADD, validate="m:1"
-        )
-        logger.debug(
-            f"count of install years for part: {len(install)} \n"
-            f"post count of part DataFrame: {len(part_df)}"
-        )
-        return part_df
-
     def add_new_plant_name(self, part_df, gens_mega):
         """
         Add plants names into the compiled plant part df.
@@ -1414,27 +1411,34 @@ class PartTrueGranLabeler:
 class AddAttribute(object):
     """Base class for adding attributes to plant-part tables."""
 
-    def __init__(self, attribute_col, part_name):
+    def __init__(self, attribute_col, part_name, assign_col_dict=None):
         """
         Initialize a attribute adder.
 
         Args:
             attribute_col (string): name of qualifer record that you want added.
                 Must be in :py:const:`CONSISTENT_ATTRIBUTE_COLS` or a key in
-                :py:const:`PRIORITY_ATTRIBUTES_DICT`.
+                :py:const:`PRIORITY_ATTRIBUTES_DICT`
+                or :py:const:`MAX_MIN_ATTRIBUTES_DICT`.
             part_name (str): the name of the part to aggregate to. Names can be
                 only those in :py:const:`PLANT_PARTS`
         """
         assert attribute_col in CONSISTENT_ATTRIBUTE_COLS + list(
             PRIORITY_ATTRIBUTES_DICT.keys()
-        )
+        ) + list(MAX_MIN_ATTRIBUTES_DICT.keys())
         self.attribute_col = attribute_col
         # the base columns will be the id columns, plus the other two main ids
         self.part_name = part_name
         self.id_cols = PLANT_PARTS[part_name]["id_cols"]
-        # why no util id? otoh does ownership need to be here at all?
-        # qualifiers should be independent of ownership
-        self.base_cols = self.id_cols + IDX_TO_ADD + ["ownership"]
+        self.base_cols = self.id_cols + IDX_TO_ADD
+        self.assign_col_dict = assign_col_dict
+
+    def assign_col(self, gens_mega):
+        """Add a new column to gens_mega."""
+        if self.assign_col_dict is not None:
+            return gens_mega.assign(**self.assign_col_dict)
+        else:
+            return gens_mega
 
 
 class AddConsistentAttributes(AddAttribute):
@@ -1481,6 +1485,7 @@ class AddConsistentAttributes(AddAttribute):
             return part_df
 
         record_df = gens_mega.copy()
+        record_df = self.assign_col(record_df)
 
         consistent_records = self.get_consistent_qualifiers(record_df)
 
@@ -1556,6 +1561,7 @@ class AddPriorityAttribute(AddAttribute):
             logger.debug(f"{attribute_col} already here.. ")
             return part_df
 
+        gens_mega = self.assign_col(gens_mega)
         logger.debug(f"getting max {attribute_col}")
         consistent_records = pudl.helpers.dedupe_on_category(
             gens_mega.copy()[self.base_cols + [attribute_col]],
@@ -1564,6 +1570,59 @@ class AddPriorityAttribute(AddAttribute):
             PRIORITY_ATTRIBUTES_DICT[attribute_col],
         )
         part_df = part_df.merge(consistent_records, on=self.base_cols, how="left")
+        return part_df
+
+
+class AddMaxMinAttribute(AddAttribute):
+    """
+    Add Attributes based on the maximum or minimum value of a sorted attribute.
+
+    This object adds an attribute based on the maximum or minimum of another
+    attribute within a group of plant parts uniquely identified by their base
+    ID columns.
+    """
+
+    def execute(
+        self,
+        part_df,
+        gens_mega,
+        att_dtype: str,
+        keep: Literal["first", "last"] = "first",
+    ):
+        """
+        Add the attribute to the plant part df based on sorting of another attribute.
+
+        Args:
+            part_df (pandas.DataFrame): dataframe containing records associated
+                with one plant part.
+            gens_mega (pandas.DataFrame): a table of all of the generators with
+                identifying columns and data columns, sliced by ownership which
+                makes "total" and "owned" records for each generator owner.
+            att_dtype (string): Pandas data type of the new attribute
+            keep (string): Whether to keep the first or last record in a sorted
+                grouping of attributes. Passing in "first" indicates the new
+                attribute is a maximum attribute.
+                See :func:`pandas.drop_duplicates`.
+        """
+        attribute_col = self.attribute_col
+        if attribute_col in part_df.columns:
+            logger.debug(f"{attribute_col} already here.. ")
+            return part_df
+
+        logger.debug(f"pre count of part DataFrame: {len(part_df)}")
+        gens_mega = self.assign_col(gens_mega)
+        new_attribute_df = (
+            gens_mega.astype({attribute_col: att_dtype})[
+                self.base_cols + [attribute_col]
+            ]
+            .sort_values(attribute_col, ascending=False)
+            .drop_duplicates(subset=self.base_cols, keep=keep)
+            .dropna(subset=self.base_cols)
+        )
+        part_df = part_df.merge(
+            new_attribute_df, how="left", on=self.base_cols, validate="m:1"
+        )
+        logger.debug(f"post count of part DataFrame: {len(part_df)}")
         return part_df
 
 
