@@ -83,10 +83,7 @@ def heat_rate_by_gen(pudl_out):
 
     To combine the (potentially) more granular temporal information from the
     per-unit heat rates with annual generator level attributes, we have to do
-    a many-to-many merge. This can't be done easily with merge_asof(), so we
-    treat the year and month fields as categorial variables, and do a normal
-    inner merge that broadcasts monthly dates in one direction, and generator
-    IDs in the other.
+    a many-to-many merge.
 
     Returns:
         pandas.DataFrame: with columns report_date, plant_id_eia, unit_id_pudl,
@@ -108,44 +105,27 @@ def heat_rate_by_gen(pudl_out):
         pudl_out.bga_eia860()
         .loc[:, ["report_date", "plant_id_eia", "unit_id_pudl", "generator_id"]]
         .drop_duplicates()
-        .assign(year=lambda x: x.report_date.dt.year)
-        .drop("report_date", axis="columns")
     )
-
-    hr_by_unit = (
-        pudl_out.hr_by_unit()
-        .assign(year=lambda x: x.report_date.dt.year)
-        .loc[
-            :,
-            [
-                "year",
-                "report_date",
-                "plant_id_eia",
-                "unit_id_pudl",
-                "heat_rate_mmbtu_mwh",
-            ],
-        ]
-    )
-
-    hr_by_gen = pd.merge(
-        bga_gens,
-        hr_by_unit,
-        on=["year", "plant_id_eia", "unit_id_pudl"],
-        how="inner",
-        validate="many_to_many",
-    ).loc[
+    hr_by_unit = pudl_out.hr_by_unit().loc[
         :,
         [
             "report_date",
             "plant_id_eia",
             "unit_id_pudl",
-            "generator_id",
             "heat_rate_mmbtu_mwh",
         ],
     ]
 
+    hr_by_gen = pudl.helpers.mixed_temporal_gran_merge(
+        left=bga_gens,
+        right=hr_by_unit,
+        shared_merge_cols=["plant_id_eia", "unit_id_pudl"],
+        temporal_merge_cols=["year"],
+        merge_type="inner",
+    )
+
     # Bring in generator specific fuel type & fuel count.
-    hr_by_gen = pudl.helpers.clean_merge_asof(
+    hr_by_gen = pudl.helpers.mixed_temporal_gran_merge(
         left=hr_by_gen,
         right=pudl_out.gens_eia860()[
             [
@@ -156,7 +136,9 @@ def heat_rate_by_gen(pudl_out):
                 "fuel_type_count",
             ]
         ],
-        by=["plant_id_eia", "generator_id"],
+        shared_merge_cols=["plant_id_eia", "generator_id"],
+        temporal_merge_cols=["year"],
+        merge_type="left",
     )
 
     return apply_pudl_dtypes(hr_by_gen, group="eia")
