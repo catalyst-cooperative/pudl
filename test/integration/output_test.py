@@ -128,6 +128,22 @@ def test_eia_outputs(fast_out, df1_name, df2_name, mult, kwargs):
 
 
 @pytest.mark.parametrize(
+    "df_name",
+    [
+        "gen_fuel_allocated_generator_fuel_type_eia923",
+        "gen_allocated_eia923",
+        "gen_pm_fuel_ownership",
+    ],
+)
+def test_annual_eia_outputs(fast_out, df_name):
+    """Check that the annual EIA 1 output functions work."""
+    logger.info(f"Running fast_out.{df_name}()")
+    df = fast_out.__getattribute__(df_name)()
+    logger.info(f"Found {len(df)} rows in {df_name}")
+    assert not df.empty
+
+
+@pytest.mark.parametrize(
     "df_name,thresh",
     [
         ("mcoe", 0.9),
