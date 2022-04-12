@@ -4,7 +4,9 @@ from pathlib import Path
 import dask.dataframe as dd
 import pytest
 
-from pudl.output.epacems import epacems
+from pudl.etl import etl_epacems
+from pudl.output.epacems import epacems, year_state_filter
+from pudl.settings import EpaCemsSettings
 
 
 @pytest.fixture(scope="module")
@@ -75,3 +77,17 @@ def test_epacems_subset_input_validation(epacems_year_and_state, epacems_parquet
     for combo in combos:
         with pytest.raises(ValueError):
             epacems(epacems_path=path, **combo)
+
+
+def test_epacems_parallel(pudl_settings_fixture, pudl_ds_kwargs):
+    """Test that we can run the EPA CEMS ETL in parallel."""
+    epacems_settings = EpaCemsSettings(
+        years=[2019, 2020], states=["ID", "WY"], partition=True
+    )
+    etl_epacems(epacems_settings, pudl_settings_fixture, pudl_ds_kwargs)
+    df = dd.read_parquet(
+        Path(pudl_settings_fixture["parquet_dir"]) / "epacems",
+        filters=year_state_filter(years=[2019], states=["WY"]),
+        index=False,
+    ).compute()
+    assert df.shape == (219000, 19)

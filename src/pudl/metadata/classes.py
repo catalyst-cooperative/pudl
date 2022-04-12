@@ -674,7 +674,7 @@ class Field(Base):
     def to_pyarrow_dtype(self) -> pa.lib.DataType:
         """Return PyArrow data type."""
         if self.constraints.enum and self.type == "string":
-            return pa.dictionary(pa.int8(), pa.string(), ordered=False)
+            return pa.dictionary(pa.int32(), pa.string(), ordered=False)
         return FIELD_DTYPES_PYARROW[self.type]
 
     def to_pyarrow(self) -> pa.Field:
@@ -683,6 +683,7 @@ class Field(Base):
             name=self.name,
             type=self.to_pyarrow_dtype(),
             nullable=(not self.constraints.required),
+            metadata={"description": self.description},
         )
 
     def to_sql(  # noqa: C901
@@ -1284,7 +1285,12 @@ class Resource(Base):
 
     def to_pyarrow(self) -> pa.Schema:
         """Construct a PyArrow schema for the resource."""
-        return pa.schema([field.to_pyarrow() for field in self.schema.fields])
+        fields = [field.to_pyarrow() for field in self.schema.fields]
+        metadata = {
+            "description": self.description,
+            "primary_key": ",".join(self.schema.primary_key),
+        }
+        return pa.schema(fields=fields, metadata=metadata)
 
     def to_pandas_dtypes(
         self, **kwargs: Any

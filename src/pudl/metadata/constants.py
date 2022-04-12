@@ -22,8 +22,7 @@ Pandas data type by PUDL field type (Data Package `field.type`).
 FIELD_DTYPES_PYARROW: Dict[str, pa.lib.DataType] = {
     "boolean": pa.bool_(),
     "date": pa.date32(),
-    # We'll probably need to make the TZ dynamic rather than hard coded...
-    "datetime": pa.timestamp("s", tz="UTC"),
+    "datetime": pa.timestamp("ms", tz="UTC"),
     "integer": pa.int32(),
     "number": pa.float32(),
     "string": pa.string(),
