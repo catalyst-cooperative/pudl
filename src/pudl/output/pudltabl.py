@@ -820,7 +820,9 @@ class PudlTabl(object):
         if update or self._dfs["gen_allocated_eia923"] is None:
             self._dfs["gen_allocated_eia923"] = aggregate_generation_fuel_by_generator(
                 pudl_out=self,
-                gen_pm_fuel=self.gen_pm_fuel_allocated_eia923(update=update),
+                gen_pm_fuel=self.gen_fuel_allocated_generator_fuel_type_eia923(
+                    update=update
+                ),
             )
         return self._dfs["gen_allocated_eia923"]
 
@@ -833,7 +835,7 @@ class PudlTabl(object):
         """
         if update or self._dfs["gen_pm_fuel_own"] is None:
             self._dfs["gen_pm_fuel_own"] = scale_allocated_net_gen_by_ownership(
-                gen_pm_fuel=self.gen_pm_fuel_allocated_eia923(),
+                gen_pm_fuel=self.gen_fuel_allocated_generator_fuel_type_eia923(),
                 gens=self.gens_eia860(),
                 own_eia860=self.own_eia860(),
             )

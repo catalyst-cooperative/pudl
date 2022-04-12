@@ -195,8 +195,8 @@ def allocate_generation_fuel_by_generator_fuel_type(pudl_out, drop_interim_cols=
                 "fuel_consumed_mmbtu",
             ]
         ]
-    _test_gen_fuel_allocation(gen, gen_pm_fuel)
-    return gen_pm_fuel
+    _test_gen_fuel_allocation(gen, gen_pm_fuel_frac)
+    return gen_pm_fuel_frac
 
 
 def aggregate_generation_fuel_by_generator(
