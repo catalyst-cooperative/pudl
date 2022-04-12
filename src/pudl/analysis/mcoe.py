@@ -202,13 +202,12 @@ def fuel_cost(pudl_out):
         ],
     ]
 
-    # We are inner merging here, which means that we don't get every generator
-    # in this output... we only get the ones that show up in hr_by_gen.
-    # See Issue #608
-    gen_w_ft = pudl.helpers.clean_merge_asof(
+    gen_w_ft = pudl.helpers.mixed_temporal_gran_merge(
         left=hr_by_gen,
         right=gens,
-        by=["plant_id_eia", "generator_id"],
+        shared_merge_cols=["plant_id_eia", "generator_id"],
+        temporal_merge_cols=["year"],
+        merge_type="left",
     )
 
     one_fuel = gen_w_ft[gen_w_ft.fuel_type_count == 1]
@@ -359,10 +358,12 @@ def capacity_factor(pudl_out, min_cap_fact=0, max_cap_fact=1.5):
     ]
 
     # merge the generation and capacity to calculate capacity factor
-    cf = pudl.helpers.clean_merge_asof(
+    cf = pudl.helpers.mixed_temporal_gran_merge(
         left=gen,
         right=gens_eia860,
-        by=["plant_id_eia", "generator_id"],
+        shared_merge_cols=["plant_id_eia", "generator_id"],
+        temporal_merge_cols=["year"],
+        merge_type="left",
     )
     cf = pudl.helpers.calc_capacity_factor(
         cf, min_cap_fact=min_cap_fact, max_cap_fact=max_cap_fact, freq=pudl_out.freq
