@@ -427,9 +427,9 @@ class MakeMegaGenTbl(object):
         Args:
             mcoe: generator-based mcoe table from :meth:`pudl.output.PudlTabl.mcoe()`
             own_eia860: ownership table from :meth:`pudl.output.PudlTabl.own_eia860()`
-            slice_cols: list of columns to slice by ownership fraction in
+            scale_cols: list of columns to slice by ownership fraction in
                 :meth:`MakeMegaGenTbl.scale_by_ownership`. Default is :py:const:`SUM_COLS`
-            validate_own_merge: how the merge between ``mcoe`` and ``owm_eia860``
+            validate_own_merge: how the merge between ``mcoe`` and ``own_eia860``
                 is to be validated via ``pd.merge``. If there should be one
                 record for each plant/generator/date in ``mcoe`` then the default
                 `1:m` should be used.
