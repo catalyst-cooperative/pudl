@@ -38,8 +38,8 @@ import sqlalchemy as sa
 
 import pudl
 from pudl.analysis.allocate_net_gen import (
-    aggregate_generation_fuel_by_generator,
-    allocate_generation_fuel_by_generator_fuel_type,
+    aggregate_gen_fuel_by_generator,
+    allocate_gen_fuel_by_generator_energy_source,
     scale_allocated_net_gen_by_ownership,
 )
 from pudl.settings import Eia861Settings, Ferc714Settings
@@ -791,7 +791,9 @@ class PudlTabl(object):
                     "to the generator level instead of using the less complete "
                     "generation_eia923 table."
                 )
-                self._dfs["gen_eia923"] = self.gen_allocated_eia923(update=update)
+                self._dfs["gen_eia923"] = self.gen_fuel_allocated_by_generator_eia923(
+                    update=update
+                )
             else:
                 self._dfs["gen_eia923"] = self.gen_original_eia923(update=update)
         return self._dfs["gen_eia923"]
@@ -807,39 +809,40 @@ class PudlTabl(object):
             )
         return self._dfs["gen_og_eia923"]
 
-    def gen_fuel_allocated_generator_fuel_type_eia923(self, update=False):
-        """Net generation from gen fuel table allocated to generator/prime_mover/fuel."""
-        if update or self._dfs["gen_pm_fuel_eia923"] is None:
-            self._dfs[
-                "gen_pm_fuel_eia923"
-            ] = allocate_generation_fuel_by_generator_fuel_type(pudl_out=self)
-        return self._dfs["gen_pm_fuel_eia923"]
+    def gen_fuel_by_generator_energy_source_eia923(self, update=False):
+        """
+        Net generation and fuel data allocated to generator/energy_source_code.
 
-    def gen_allocated_eia923(self, update=False):
+        Net generation and fuel data originally reported in the gen fuel table
+        """
+        if update or self._dfs["gen_fuel_by_genid_esc_eia923"] is None:
+            self._dfs[
+                "gen_fuel_by_genid_esc_eia923"
+            ] = allocate_gen_fuel_by_generator_energy_source(pudl_out=self)
+        return self._dfs["gen_fuel_by_genid_esc_eia923"]
+
+    def gen_fuel_allocated_by_generator_eia923(self, update=False):
         """Net generation from gen fuel table allocated to generators."""
-        if update or self._dfs["gen_allocated_eia923"] is None:
-            self._dfs["gen_allocated_eia923"] = aggregate_generation_fuel_by_generator(
+        if update or self._dfs["gen_fuel_allocated_eia923"] is None:
+            self._dfs["gen_fuel_allocated_eia923"] = aggregate_gen_fuel_by_generator(
                 pudl_out=self,
-                gen_pm_fuel=self.gen_fuel_allocated_generator_fuel_type_eia923(
+                gen_pm_fuel=self.gen_fuel_by_generator_energy_source_eia923(
                     update=update
                 ),
             )
-        return self._dfs["gen_allocated_eia923"]
+        return self._dfs["gen_fuel_allocated_eia923"]
 
-    def gen_pm_fuel_ownership(self, update=False):
-        """
-        WIP.
-
-        This is what is needed to generate a ownership scaled output at the
-        generator/prime_mover/fuel level... But this shouldn't really live here.
-        """
-        if update or self._dfs["gen_pm_fuel_own"] is None:
-            self._dfs["gen_pm_fuel_own"] = scale_allocated_net_gen_by_ownership(
-                gen_pm_fuel=self.gen_fuel_allocated_generator_fuel_type_eia923(),
+    def gen_fuel_by_generator_energy_source_owner_eia923(self, update=False):
+        """Generation and fuel consumption at the generator/energy_source_code/owner level."""
+        if update or self._dfs["gen_fuel_by_genid_esc_own"] is None:
+            self._dfs[
+                "gen_fuel_by_genid_esc_own"
+            ] = scale_allocated_net_gen_by_ownership(
+                gen_pm_fuel=self.gen_fuel_by_generator_energy_source_eia923(),
                 gens=self.gens_eia860(),
                 own_eia860=self.own_eia860(),
             )
-        return self._dfs["gen_pm_fuel_own"]
+        return self._dfs["gen_fuel_by_genid_esc_own"]
 
     ###########################################################################
     # FERC FORM 1 OUTPUTS
