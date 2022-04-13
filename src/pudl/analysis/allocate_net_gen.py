@@ -84,6 +84,7 @@ generation is not reported).
 
 import logging
 import warnings
+from typing import List
 
 # Useful high-level external modules.
 import numpy as np
@@ -101,10 +102,6 @@ IDX_PM_ESC = ["report_date", "plant_id_eia", "prime_mover_code", "energy_source_
 """Id columns for plant, prime mover & fuel type records."""
 
 IDX_ESC = ["report_date", "plant_id_eia", "energy_source_code"]
-
-DATA_COLS = ["net_generation_mwh", "fuel_consumed_mmbtu"]
-"""Data columns from generation_fuel_eia923 that are being allocated."""
-
 
 # Two top-level functions (allocate & aggregate)
 
@@ -221,8 +218,8 @@ def aggregate_gen_fuel_by_generator(
             /fuel type. Result of :func:`allocate_gen_fuel_by_generator_energy_source`
 
     Returns:
-        table with columns :py:const:`IDX_GENS` and :py:const:`DATA_COLS`. The
-        :py:const:`DATA_COLS` will be scaled to the level of the :py:const:`IDX_GENS`.
+        table with columns :py:const:`IDX_GENS` and net generation and fuel
+        consumption scaled to the level of the :py:const:`IDX_GENS`.
 
     """
     # aggregate the gen/pm/fuel records back to generator records
@@ -279,15 +276,22 @@ def scale_allocated_net_gen_by_ownership(
 # Internal functions for allocate_gen_fuel_by_generator_energy_source
 
 
-def agg_by_generator(gen_pm_fuel):
+def agg_by_generator(
+    gen_pm_fuel: pd.DataFrame,
+    by_cols: List[str] = IDX_GENS,
+    sum_cols: List[str] = ["net_generation_mwh", "fuel_consumed_mmbtu"],
+) -> pd.DataFrame:
     """
     Aggreate the allocated gen fuel data to the generator level.
 
     Args:
-        gen_pm_fuel (pandas.DataFrame): result of :func:`allocate_gen_fuel_by_generator_energy_source()`
+        gen_pm_fuel: result of :func:`allocate_gen_fuel_by_generator_energy_source()`
+        by_cols: list of columns to use as ``pandas.groupby`` arg ``by``
+        sum_cols: Data columns from that are being aggregated via a
+            ``pandas.groupby.sum()``.
     """
     gen = (
-        gen_pm_fuel.groupby(by=IDX_GENS)[DATA_COLS]
+        gen_pm_fuel.groupby(by=IDX_GENS)[sum_cols]
         .sum(min_count=1)
         .reset_index()
         .pipe(apply_pudl_dtypes, group="eia")
