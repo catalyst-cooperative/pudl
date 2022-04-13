@@ -235,12 +235,17 @@ def pudl_ferc1datastore_fixture(pudl_datastore_fixture):
     return pudl.extract.ferc1.Ferc1Datastore(pudl_datastore_fixture)
 
 
-@pytest.fixture(scope="session", name="pudl_datastore_fixture")  # noqa: C901
-def pudl_datastore(pudl_settings_fixture, request):
-    """Produce a :class:pudl.workspace.datastore.Datastore."""
-    gcs_cache = request.config.getoption("--gcs-cache-path")
-    return pudl.workspace.datastore.Datastore(
+@pytest.fixture(scope="session", name="pudl_ds_kwargs")
+def ds_kwargs(pudl_settings_fixture, request):
+    """Return a dictionary of keyword args for creating a PUDL datastore."""
+    return dict(
+        gcs_cache_path=request.config.getoption("--gcs-cache-path"),
         local_cache_path=Path(pudl_settings_fixture["pudl_in"]) / "data",
-        gcs_cache_path=gcs_cache,
         sandbox=pudl_settings_fixture["sandbox"],
     )
+
+
+@pytest.fixture(scope="session", name="pudl_datastore_fixture")  # noqa: C901
+def pudl_datastore(pudl_ds_kwargs):
+    """Produce a :class:pudl.workspace.datastore.Datastore."""
+    return pudl.workspace.datastore.Datastore(**pudl_ds_kwargs)
