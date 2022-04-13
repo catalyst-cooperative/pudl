@@ -105,8 +105,8 @@ def test_ferc1_outputs(fast_out, df_name):
         ("gens_eia860", "bf_eia923", 12 / 1, {}),
         ("gens_eia860", "frc_eia923", 12 / 1, {}),
         ("gens_eia860", "gen_eia923", 12 / 1, {}),
-        # gen_allocated_eia923 currently only produces annual results.
-        ("gens_eia860", "gen_allocated_eia923", 1 / 1, {}),
+        # gen_fuel_allocated_by_generator_eia923 currently only produces annual results.
+        ("gens_eia860", "gen_fuel_allocated_by_generator_eia923", 1 / 1, {}),
         ("gens_eia860", "gf_eia923", 12 / 1, {}),
         ("gens_eia860", "gf_nonuclear_eia923", 12 / 1, {}),
         ("gens_eia860", "gf_nuclear_eia923", 12 / 1, {}),
