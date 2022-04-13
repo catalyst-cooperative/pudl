@@ -147,12 +147,12 @@ def generation_fuel_eia923(
         first_cols = first_cols + ["nuclear_unit_id"]
 
     out_df = (
-        pudl.helpers.mixed_temporal_gran_merge(
+        pudl.helpers.date_merge(
             left=gf_df,
             right=pu_eia,
-            shared_merge_cols=["plant_id_eia"],
-            temporal_merge_cols=["year"],
-            merge_type="left",
+            on=["plant_id_eia"],
+            date_on=["year"],
+            how="left",
         )
         # Drop any records where we've failed to get the 860 data merged in...
         .dropna(subset=["plant_id_eia", "utility_id_eia"])
@@ -449,12 +449,12 @@ def fuel_receipts_costs_eia923(
     )
 
     out_df = (
-        pudl.helpers.mixed_temporal_gran_merge(
+        pudl.helpers.date_merge(
             left=frc_df,
             right=pu_eia,
-            shared_merge_cols=["plant_id_eia"],
-            temporal_merge_cols=["year"],
-            merge_type="left",
+            on=["plant_id_eia"],
+            date_on=["year"],
+            how="left",
         )
         .dropna(subset=["utility_id_eia"])
         .pipe(
@@ -581,12 +581,12 @@ def boiler_fuel_eia923(pudl_engine, freq=None, start_date=None, end_date=None):
         pudl_engine, start_date=start_date, end_date=end_date
     )
 
-    out_df = pudl.helpers.mixed_temporal_gran_merge(
+    out_df = pudl.helpers.date_merge(
         left=bf_df,
         right=pu_eia,
-        shared_merge_cols=["plant_id_eia"],
-        temporal_merge_cols=["year"],
-        merge_type="left",
+        on=["plant_id_eia"],
+        date_on=["year"],
+        how="left",
     ).dropna(subset=["plant_id_eia", "utility_id_eia", "boiler_id"])
     # Merge in the unit_id_pudl assigned to each generator in the BGA process
     # Pull the BGA table and make it unit-boiler only:
@@ -598,12 +598,12 @@ def boiler_fuel_eia923(pudl_engine, freq=None, start_date=None, end_date=None):
         .drop_duplicates()
     )
 
-    out_df = pudl.helpers.mixed_temporal_gran_merge(
+    out_df = pudl.helpers.date_merge(
         left=out_df,
         right=bga_boilers,
-        shared_merge_cols=["plant_id_eia", "boiler_id"],
-        temporal_merge_cols=["year"],
-        merge_type="left",
+        on=["plant_id_eia", "boiler_id"],
+        date_on=["year"],
+        how="left",
     )
     out_df = pudl.helpers.organize_cols(
         out_df,
@@ -693,12 +693,12 @@ def denorm_generation_eia923(g_df, pudl_engine, start_date, end_date):
     )
 
     # Merge annual plant/utility data in with the more granular dataframe
-    out_df = pudl.helpers.mixed_temporal_gran_merge(
+    out_df = pudl.helpers.date_merge(
         left=g_df,
         right=pu_eia,
-        shared_merge_cols=["plant_id_eia"],
-        temporal_merge_cols=["year"],
-        merge_type="left",
+        on=["plant_id_eia"],
+        date_on=["year"],
+        how="left",
     ).dropna(subset=["plant_id_eia", "utility_id_eia", "generator_id"])
 
     # Merge in the unit_id_pudl assigned to each generator in the BGA process
@@ -710,12 +710,12 @@ def denorm_generation_eia923(g_df, pudl_engine, start_date, end_date):
         .loc[:, ["report_date", "plant_id_eia", "generator_id", "unit_id_pudl"]]
         .drop_duplicates()
     )
-    out_df = pudl.helpers.mixed_temporal_gran_merge(
+    out_df = pudl.helpers.date_merge(
         left=out_df,
         right=bga_gens,
-        shared_merge_cols=["plant_id_eia", "generator_id"],
-        temporal_merge_cols=["year"],
-        merge_type="left",
+        on=["plant_id_eia", "generator_id"],
+        date_on=["year"],
+        how="left",
     )
     out_df = out_df.pipe(
         pudl.helpers.organize_cols,

@@ -339,35 +339,35 @@ def is_doi(doi):
     return bool(re.match(doi_regex, doi))
 
 
-def full_timeseries_temporal_merge(
+def full_timeseries_date_merge(
     left: pd.DataFrame,
     right: pd.DataFrame,
     left_date_col: str = "report_date",
     right_date_col: str = "report_date",
     new_date_col: str = "report_date",
-    shared_merge_cols: List[str] = [],
-    temporal_merge_cols: Literal["year", "quarter", "month", "day"] = "year",
-    merge_type: str = "inner",
-    report_at_start=True,
+    on: List[str] = [],
+    date_on: Literal["year", "quarter", "month", "day"] = "year",
+    how: Literal["inner", "outer", "left", "right", "cross"] = "inner",
+    report_at_start: bool = True,
     start: str = None,
     end: str = None,
     freq: Literal["AS", "QS", "MS", "D"] = "MS",
-    fill=True,
+    fill: bool = True,
     **kwargs,
 ):
     """
     Merge dataframes with different date frequencies and expand to a full timeseries.
 
-    Arguments: see arguments for ``mexed_temporal_gran_merge`` and ``expand_timeseries``
+    Arguments: see arguments for ``date_merge`` and ``expand_timeseries``
     """
-    out = mixed_temporal_gran_merge(
+    out = date_merge(
         left,
         right,
         left_date_col,
         right_date_col,
-        shared_merge_cols,
-        temporal_merge_cols,
-        merge_type,
+        on,
+        date_on,
+        how,
         report_at_start,
         **kwargs,
     )
@@ -377,21 +377,24 @@ def full_timeseries_temporal_merge(
         start=start,
         end=end,
         freq=freq,
-        id_cols=shared_merge_cols,
+        id_cols=on,
         fill=fill,
     )
     return out
 
 
-def mixed_temporal_gran_merge(
+DateOnCol = Literal["year", "month", "quarter", "day"]
+
+
+def date_merge(
     left: pd.DataFrame,
     right: pd.DataFrame,
     left_date_col: str = "report_date",
     right_date_col: str = "report_date",
     new_date_col: str = "report_date",
-    shared_merge_cols: List[str] = [],
-    temporal_merge_cols: List[str] = ["year"],
-    merge_type: str = "inner",
+    on: List[str] = [],
+    date_on: List[DateOnCol] = ["year"],
+    how: Literal["inner", "outer", "left", "right", "cross"] = "inner",
     report_at_start=True,
     **kwargs,
 ) -> pd.DataFrame:
@@ -403,8 +406,8 @@ def mixed_temporal_gran_merge(
     acts as a wrapper on a pandas merge to allow merging at different temporal
     granularities. The date columns of both dataframes are separated into
     year, quarter, month, and day columns. Then, the dataframes are merged according
-    to ``merge_type`` on the columns specified by the ``shared_merge_cols``
-    and ``temporal_merge_cols`` argument, which list the new temporal columns
+    to ``how`` on the columns specified by the ``on``
+    and ``date_on`` argument, which list the new temporal columns
     to merge on as well any additional shared columns. Finally, the datetime
     column is reconstructed in the output dataframe and named according to the
     ``new_date_col`` parameter.
@@ -413,11 +416,11 @@ def mixed_temporal_gran_merge(
         left: The left dataframe in the merge. Typically monthly in our use
             cases if doing a left merge E.g. ``generation_eia923``.
             Must contain columns specified by ``left_date_col`` and
-            ``shared_merge_cols`` argument.
+            ``on`` argument.
         right: The right dataframe in the merge. Typically annual in our uses
             cases if doing a left merge E.g. ``generators_eia860``.
             Must contain columns specified by ``right_date_col`` and and
-            ``shared_merge_cols`` argument.
+            ``on`` argument.
         left_date_col: Column in ``left`` containing datetime like data. Default is
             ``report_date``. Must be convertible to a Datetime using
             :func:`pandas.to_datetime`
@@ -425,16 +428,14 @@ def mixed_temporal_gran_merge(
         right_date_col: Column in ``right`` containing datetime like data. Default is
             ``report_date``. Must be convertible to a Datetime using
             :func:`pandas.to_datetime`.
-        shared_merge_cols: The columns to merge on that are shared between both
+        on: The columns to merge on that are shared between both
             dataframes. Typically ID columns like ``plant_id_eia``, ``generator_id``
             or ``boiler_id``.
-        temporal_merge_cols: The temporal columns to merge on. Values in this list
+        date_on: The temporal columns to merge on. Values in this list
             of columns must be [``year``, ``quarter``, ``month``, ``day``].
             E.g. if a monthly reported dataframe is being merged onto a daily reported
             dataframe, then the merge would be performed on ``["year", "month"]``.
-        merge_type: How the dataframes should be merged.
-            Values are ["left", "right", "outer", "inner", "cross"].
-            See :func:`pandas.DataFrame.merge`.
+        how: How the dataframes should be merged. See :func:`pandas.DataFrame.merge`.
         report_at_start: Whether the data in the dataframe whose report date is not being
             kept in the merged output (in most cases the less frequently reported dataframe)
             is reported at the start or end of the time period e.g. January 1st
@@ -448,7 +449,7 @@ def mixed_temporal_gran_merge(
     Raises:
         ValueError: if ``left_date_col`` or ``right_date_col`` columns are missing from their
             respective input dataframes.
-        ValueError: if any of the labels referenced in ``shared_merge_cols`` are missing from either
+        ValueError: if any of the labels referenced in ``on`` are missing from either
             the left or right dataframes.
 
     """
@@ -466,8 +467,8 @@ def mixed_temporal_gran_merge(
     left = left.copy()
     right = separate_date_cols(right, right_date_col)
     left = separate_date_cols(left, left_date_col)
-    merge_cols = temporal_merge_cols + shared_merge_cols
-    out = left.merge(right, on=merge_cols, how=merge_type, **kwargs)
+    merge_cols = date_on + on
+    out = left.merge(right, on=merge_cols, how=how, **kwargs)
 
     # reconstruct the report_date column and do some column cleanup
     # Note: not sure if this works for "cross" merge

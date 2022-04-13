@@ -88,11 +88,11 @@ def test_annual_attribute_merge():
         }
     ).astype({"report_date": "datetime64[ns]"})
 
-    out_left = pudl.helpers.mixed_temporal_gran_merge(
+    out_left = pudl.helpers.date_merge(
         left=MONTHLY_GEN_FUEL,
         right=ANNUAL_PLANTS_UTIL,
-        shared_merge_cols=["plant_id_eia"],
-        merge_type="left",
+        on=["plant_id_eia"],
+        how="left",
     )
 
     pd.testing.assert_frame_equal(out_left, out_expected_left)
@@ -114,11 +114,11 @@ def test_annual_attribute_merge():
         }
     ).astype({"report_date": "datetime64[ns]"})
 
-    out_right = pudl.helpers.mixed_temporal_gran_merge(
+    out_right = pudl.helpers.date_merge(
         left=ANNUAL_PLANTS_UTIL,
         right=MONTHLY_GEN_FUEL,
-        shared_merge_cols=["plant_id_eia"],
-        merge_type="right",
+        on=["plant_id_eia"],
+        how="right",
     )
 
     pd.testing.assert_frame_equal(out_right, out_expected_right)
@@ -140,11 +140,11 @@ def test_annual_attribute_merge():
         }
     ).astype({"report_date": "datetime64[ns]"})
 
-    out_inner = pudl.helpers.mixed_temporal_gran_merge(
+    out_inner = pudl.helpers.date_merge(
         left=MONTHLY_GEN_FUEL,
         right=ANNUAL_PLANTS_UTIL,
-        shared_merge_cols=["plant_id_eia"],
-        merge_type="inner",
+        on=["plant_id_eia"],
+        how="inner",
     )
 
     pd.testing.assert_frame_equal(out_inner, out_expected_inner)
@@ -187,11 +187,11 @@ def test_annual_attribute_merge():
         }
     ).astype({"report_date": "datetime64[ns]"})
 
-    out_outer = pudl.helpers.mixed_temporal_gran_merge(
+    out_outer = pudl.helpers.date_merge(
         left=MONTHLY_GEN_FUEL,
         right=ANNUAL_PLANTS_UTIL,
-        shared_merge_cols=["plant_id_eia"],
-        merge_type="outer",
+        on=["plant_id_eia"],
+        how="outer",
     )
 
     pd.testing.assert_frame_equal(out_outer, out_expected_outer)
@@ -208,13 +208,13 @@ def test_monthly_attribute_merge():
         }
     ).astype({"report_date": "datetime64[ns]"})
 
-    out = pudl.helpers.mixed_temporal_gran_merge(
+    out = pudl.helpers.date_merge(
         left=DAILY_DATA,
         right=MONTHLY_OTHER,
         left_date_col="date",
-        shared_merge_cols=["plant_id_eia"],
-        temporal_merge_cols=["year", "month"],
-        merge_type="left",
+        on=["plant_id_eia"],
+        date_on=["year", "month"],
+        how="left",
     )
 
     pd.testing.assert_frame_equal(out, out_expected)
@@ -231,12 +231,12 @@ def test_same_temporal_gran():
         on=["report_date", "plant_id_eia"],
     ).astype({"report_date": "datetime64[ns]"})
 
-    out = pudl.helpers.mixed_temporal_gran_merge(
+    out = pudl.helpers.date_merge(
         left=MONTHLY_GEN_FUEL,
         right=MONTHLY_OTHER,
-        shared_merge_cols=["plant_id_eia"],
-        temporal_merge_cols=["year", "month"],
-        merge_type="left",
+        on=["plant_id_eia"],
+        date_on=["year", "month"],
+        how="left",
     )
     pd.testing.assert_frame_equal(out, out_expected)
 
@@ -263,11 +263,11 @@ def test_end_of_report_period():
         }
     ).astype({"report_date": "datetime64[ns]"})
 
-    out = pudl.helpers.mixed_temporal_gran_merge(
+    out = pudl.helpers.date_merge(
         MONTHLY_GEN_FUEL,
         eoy_plants_util,
-        shared_merge_cols=["plant_id_eia"],
-        merge_type="left",
+        on=["plant_id_eia"],
+        how="left",
         report_at_start=False,
     )
 
@@ -299,12 +299,12 @@ def test_less_granular_merge():
         }
     ).astype({"report_date": "datetime64[ns]"})
 
-    out = pudl.helpers.mixed_temporal_gran_merge(
+    out = pudl.helpers.date_merge(
         ANNUAL_PLANTS_UTIL[:5],
         MONTHLY_GEN_FUEL,
-        shared_merge_cols=["plant_id_eia"],
-        temporal_merge_cols=["year"],
-        merge_type="left",
+        on=["plant_id_eia"],
+        date_on=["year"],
+        how="left",
         report_at_start=False,
     )
 

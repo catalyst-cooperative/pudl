@@ -116,16 +116,16 @@ def heat_rate_by_gen(pudl_out):
         ],
     ]
 
-    hr_by_gen = pudl.helpers.mixed_temporal_gran_merge(
+    hr_by_gen = pudl.helpers.date_merge(
         left=bga_gens,
         right=hr_by_unit,
-        shared_merge_cols=["plant_id_eia", "unit_id_pudl"],
-        temporal_merge_cols=["year"],
-        merge_type="inner",
+        on=["plant_id_eia", "unit_id_pudl"],
+        date_on=["year"],
+        how="inner",
     )
 
     # Bring in generator specific fuel type & fuel count.
-    hr_by_gen = pudl.helpers.mixed_temporal_gran_merge(
+    hr_by_gen = pudl.helpers.date_merge(
         left=hr_by_gen,
         right=pudl_out.gens_eia860()[
             [
@@ -136,9 +136,9 @@ def heat_rate_by_gen(pudl_out):
                 "fuel_type_count",
             ]
         ],
-        shared_merge_cols=["plant_id_eia", "generator_id"],
-        temporal_merge_cols=["year"],
-        merge_type="left",
+        on=["plant_id_eia", "generator_id"],
+        date_on=["year"],
+        how="left",
     )
 
     return apply_pudl_dtypes(hr_by_gen, group="eia")
@@ -202,12 +202,12 @@ def fuel_cost(pudl_out):
         ],
     ]
 
-    gen_w_ft = pudl.helpers.mixed_temporal_gran_merge(
+    gen_w_ft = pudl.helpers.date_merge(
         left=hr_by_gen,
         right=gens,
-        shared_merge_cols=["plant_id_eia", "generator_id"],
-        temporal_merge_cols=["year"],
-        merge_type="left",
+        on=["plant_id_eia", "generator_id"],
+        date_on=["year"],
+        how="left",
     )
 
     one_fuel = gen_w_ft[gen_w_ft.fuel_type_count == 1]
@@ -358,12 +358,12 @@ def capacity_factor(pudl_out, min_cap_fact=0, max_cap_fact=1.5):
     ]
 
     # merge the generation and capacity to calculate capacity factor
-    cf = pudl.helpers.mixed_temporal_gran_merge(
+    cf = pudl.helpers.date_merge(
         left=gen,
         right=gens_eia860,
-        shared_merge_cols=["plant_id_eia", "generator_id"],
-        temporal_merge_cols=["year"],
-        merge_type="left",
+        on=["plant_id_eia", "generator_id"],
+        date_on=["year"],
+        how="left",
     )
     cf = pudl.helpers.calc_capacity_factor(
         cf, min_cap_fact=min_cap_fact, max_cap_fact=max_cap_fact, freq=pudl_out.freq
