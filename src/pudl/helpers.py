@@ -419,15 +419,14 @@ def date_merge(
             ``on`` argument.
         right: The right dataframe in the merge. Typically annual in our uses
             cases if doing a left merge E.g. ``generators_eia860``.
-            Must contain columns specified by ``right_date_col`` and and
-            ``on`` argument.
+            Must contain columns specified by ``right_date_col`` and ``on`` argument.
         left_date_col: Column in ``left`` containing datetime like data. Default is
             ``report_date``. Must be convertible to a Datetime using
             :func:`pandas.to_datetime`
-        new_date_col: Name of the reconstructed datetime column in the output dataframe.
         right_date_col: Column in ``right`` containing datetime like data. Default is
             ``report_date``. Must be convertible to a Datetime using
             :func:`pandas.to_datetime`.
+        new_date_col: Name of the reconstructed datetime column in the output dataframe.
         on: The columns to merge on that are shared between both
             dataframes. Typically ID columns like ``plant_id_eia``, ``generator_id``
             or ``boiler_id``.
@@ -454,46 +453,43 @@ def date_merge(
 
     """
 
-    def separate_date_cols(df, date_col_name):
+    def separate_date_cols(df, date_col_name, date_on):
         df[date_col_name] = pd.to_datetime(df[date_col_name])
-        df.loc[:, "year"] = df[date_col_name].dt.year
-        df.loc[:, "quarter"] = df[date_col_name].dt.quarter
-        df.loc[:, "month"] = df[date_col_name].dt.month
-        df.loc[:, "day"] = df[date_col_name].dt.day
-        df = df.drop(date_col_name, axis=1)
+        if "year" in date_on:
+            df.loc[:, "year"] = df[date_col_name].dt.year
+        if "quarter" in date_on:
+            df.loc[:, "quarter"] = df[date_col_name].dt.quarter
+        if "month" in date_on:
+            df.loc[:, "month"] = df[date_col_name].dt.month
+        if "day" in date_on:
+            df.loc[:, "day"] = df[date_col_name].dt.day
         return df
 
     right = right.copy()
     left = left.copy()
-    right = separate_date_cols(right, right_date_col)
-    left = separate_date_cols(left, left_date_col)
+    right = separate_date_cols(right, right_date_col, date_on)
+    left = separate_date_cols(left, left_date_col, date_on)
     merge_cols = date_on + on
     out = left.merge(right, on=merge_cols, how=how, **kwargs)
 
-    # reconstruct the report_date column and do some column cleanup
-    # Note: not sure if this works for "cross" merge
-    if "suffixes" in kwargs:
-        suffixes = kwargs["suffixes"]
+    if left_date_col == right_date_col:
+        if "suffixes" in kwargs:
+            suffixes = kwargs["suffixes"]
+        else:
+            suffixes = ["_x", "_y"]
     else:
-        suffixes = ["_x", "_y"]
-    cols_to_drop = ["year", "month", "day"]
-    if "quarter" in out:
-        cols_to_drop.append("quarter")
+        suffixes = ["", ""]
+    # reconstruct the new report date column and clean up columns
+    left_right_date_col = [left_date_col + suffixes[0], right_date_col + suffixes[1]]
+    if report_at_start:
+        # keep the later of the two report dates when determining
+        # the new report date for each row
+        reconstructed_date = out[left_right_date_col].max(axis=1)
     else:
-        cols_to_drop += ["quarter" + suffixes[0], "quarter" + suffixes[1]]
-    for col in ["year", "month", "day"]:
-        if col not in out:
-            left_right_cols = [col + suffixes[0], col + suffixes[1]]
-            if report_at_start:
-                out.loc[:, col] = out[left_right_cols].max(axis=1)
-            else:
-                out.loc[:, col] = out[left_right_cols].min(axis=1)
-            cols_to_drop += left_right_cols
-    out.insert(
-        loc=0, column=new_date_col, value=pd.to_datetime(out[["year", "month", "day"]])
-    )
-    out = out.drop(cols_to_drop, axis=1)
-
+        # keep the earlier of the two report dates
+        reconstructed_date = out[left_right_date_col].min(axis=1)
+    out = out.drop(left_right_date_col + date_on, axis=1)
+    out.insert(loc=0, column=new_date_col, value=reconstructed_date)
     return out
 
 
