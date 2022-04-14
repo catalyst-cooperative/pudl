@@ -233,8 +233,8 @@ def test_make_mega_gen_tbl():
     pd.testing.assert_frame_equal(out, out_expected)
 
 
-def test_slice_by_ownership():
-    """Test the slice_by_ownership method."""
+def test_scale_by_ownership():
+    """Test the scale_by_ownership method."""
     dtypes = {"report_date": "datetime64[ns]", "utility_id_eia": pd.Int64Dtype()}
     own_ex1 = pd.DataFrame(
         {
@@ -369,7 +369,7 @@ def test_slice_by_ownership():
 
     out = (
         pudl.analysis.plant_parts_eia.MakeMegaGenTbl()
-        .slice_by_ownership(gens_mega=gens_mega_ex1, own_eia860=own_ex1)
+        .scale_by_ownership(gens_mega=gens_mega_ex1, own_eia860=own_ex1)
         .reset_index(drop=True)
     )
 
