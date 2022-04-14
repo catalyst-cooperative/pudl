@@ -791,7 +791,7 @@ class PudlTabl(object):
                     "to the generator level instead of using the less complete "
                     "generation_eia923 table."
                 )
-                self._dfs["gen_eia923"] = self.gen_fuel_allocated_by_generator_eia923(
+                self._dfs["gen_eia923"] = self.gen_fuel_by_generator_eia923(
                     update=update
                 )
             else:
@@ -821,7 +821,7 @@ class PudlTabl(object):
             ] = allocate_gen_fuel_by_generator_energy_source(pudl_out=self)
         return self._dfs["gen_fuel_by_genid_esc_eia923"]
 
-    def gen_fuel_allocated_by_generator_eia923(self, update=False):
+    def gen_fuel_by_generator_eia923(self, update=False):
         """Net generation from gen fuel table allocated to generators."""
         if update or self._dfs["gen_fuel_allocated_eia923"] is None:
             self._dfs["gen_fuel_allocated_eia923"] = aggregate_gen_fuel_by_generator(
