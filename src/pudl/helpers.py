@@ -521,12 +521,17 @@ def expand_timeseries(
     date_col: str = "report_date",
     start: str = None,
     end: str = None,
-    freq="MS",
+    freq: str = "MS",
     key_cols: List[str] = [],
     fill: bool = True,
 ) -> pd.DataFrame:
     """
     Expand a dataframe to a include a full time series at a given frequency.
+
+    This function adds a full timeseries specified by the ``start`` and ``end``
+    arguments to the given dataframe. If ``fill`` is true, then the data in the
+    timeseries will be filled with the next previous chronological observation
+    for a group of primary key columns specified by ``key_cols``.
 
     Arguments:
         df: The dataframe to expand. Must have ``date_col`` in columns.
