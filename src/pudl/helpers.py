@@ -339,6 +339,27 @@ def is_doi(doi):
     return bool(re.match(doi_regex, doi))
 
 
+def convert_col_to_datetime(df, date_col_name):
+    """Convert a column in a dataframe to a datetime.
+
+    If the column isn't a datetime, it needs to be converted to a string type
+    first so that integer years are formatted correctly.
+
+    Args:
+        df (pandas.DataFrame): Dataframe wiht column to convert.
+        date_col_name (string): name of the column to convert.
+
+    Returns:
+        Dataframe with the converted datetime column.
+    """
+    if pd.api.types.is_datetime64_ns_dtype(df[date_col_name]) is False:
+        logger.warning(
+            f"{date_col_name} is {df[date_col_name].dtype} column. Converting to datetime."
+        )
+        df[date_col_name] = pd.to_datetime(df[date_col_name].astype("string"))
+    return df
+
+
 def full_timeseries_date_merge(
     left: pd.DataFrame,
     right: pd.DataFrame,
@@ -406,11 +427,10 @@ def date_merge(
     acts as a wrapper on a pandas merge to allow merging at different temporal
     granularities. The date columns of both dataframes are separated into
     year, quarter, month, and day columns. Then, the dataframes are merged according
-    to ``how`` on the columns specified by the ``on``
-    and ``date_on`` argument, which list the new temporal columns
-    to merge on as well any additional shared columns. Finally, the datetime
-    column is reconstructed in the output dataframe and named according to the
-    ``new_date_col`` parameter.
+    to ``how`` on the columns specified by the ``on`` and ``date_on`` argument,
+    which list the new temporal columns to merge on as well any additional shared columns.
+    Finally, the datetime column is reconstructed in the output dataframe and
+    named according to the ``new_date_col`` parameter.
 
     Args:
         left: The left dataframe in the merge. Typically monthly in our use
@@ -421,10 +441,10 @@ def date_merge(
             cases if doing a left merge E.g. ``generators_eia860``.
             Must contain columns specified by ``right_date_col`` and ``on`` argument.
         left_date_col: Column in ``left`` containing datetime like data. Default is
-            ``report_date``. Must be convertible to a Datetime using
+            ``report_date``. Must be a Datetime or convertible to a Datetime using
             :func:`pandas.to_datetime`
         right_date_col: Column in ``right`` containing datetime like data. Default is
-            ``report_date``. Must be convertible to a Datetime using
+            ``report_date``. Must be a Datetime or convertible to a Datetime using
             :func:`pandas.to_datetime`.
         new_date_col: Name of the reconstructed datetime column in the output dataframe.
         on: The columns to merge on that are shared between both
@@ -434,6 +454,9 @@ def date_merge(
             of columns must be [``year``, ``quarter``, ``month``, ``day``].
             E.g. if a monthly reported dataframe is being merged onto a daily reported
             dataframe, then the merge would be performed on ``["year", "month"]``.
+            If one of these temporal columns already exists in the dataframe it will not
+            be clobbered by the merge, as the suffix "_temp_for_merge" is added when
+            expanding the datetime column into year, quarter, month, and day.
         how: How the dataframes should be merged. See :func:`pandas.DataFrame.merge`.
         report_at_start: Whether the data in the dataframe whose report date is not being
             kept in the merged output (in most cases the less frequently reported dataframe)
@@ -455,30 +478,30 @@ def date_merge(
 
     def separate_date_cols(df, date_col_name, date_on):
         df[date_col_name] = pd.to_datetime(df[date_col_name])
-        if "year" in date_on:
-            df.loc[:, "year"] = df[date_col_name].dt.year
-        if "quarter" in date_on:
-            df.loc[:, "quarter"] = df[date_col_name].dt.quarter
-        if "month" in date_on:
-            df.loc[:, "month"] = df[date_col_name].dt.month
-        if "day" in date_on:
-            df.loc[:, "day"] = df[date_col_name].dt.day
+        if "year_temp_for_merge" in date_on:
+            df.loc[:, "year_temp_for_merge"] = df[date_col_name].dt.year
+        if "quarter_temp_for_merge" in date_on:
+            df.loc[:, "quarter_temp_for_merge"] = df[date_col_name].dt.quarter
+        if "month_temp_for_merge" in date_on:
+            df.loc[:, "month_temp_for_merge"] = df[date_col_name].dt.month
+        if "day_temp_for_merge" in date_on:
+            df.loc[:, "day_temp_for_merge"] = df[date_col_name].dt.day
         return df
 
-    right = right.copy()
-    left = left.copy()
+    right = convert_col_to_datetime(right, right_date_col)
+    left = convert_col_to_datetime(left, left_date_col)
+    date_on = [col + "_temp_for_merge" for col in date_on]
     right = separate_date_cols(right, right_date_col, date_on)
     left = separate_date_cols(left, left_date_col, date_on)
     merge_cols = date_on + on
     out = left.merge(right, on=merge_cols, how=how, **kwargs)
 
+    suffixes = ["", ""]
     if left_date_col == right_date_col:
         if "suffixes" in kwargs:
             suffixes = kwargs["suffixes"]
         else:
             suffixes = ["_x", "_y"]
-    else:
-        suffixes = ["", ""]
     # reconstruct the new report date column and clean up columns
     left_right_date_col = [left_date_col + suffixes[0], right_date_col + suffixes[1]]
     if report_at_start:

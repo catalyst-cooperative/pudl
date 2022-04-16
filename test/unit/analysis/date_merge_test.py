@@ -17,7 +17,7 @@ MONTHLY_GEN_FUEL = pd.DataFrame(
         "prime_mover_code": ["HY", "ST", "HY", "CT", "HY"],
         "fuel_consumed_units": [0.0, 98085.0, 0.0, 4800000.0, 0.0],
     }
-).astype({"report_date": "datetime64[ns]"})
+)
 
 ANNUAL_PLANTS_UTIL = pd.DataFrame(
     {
@@ -50,7 +50,7 @@ MONTHLY_OTHER = pd.DataFrame(
         "plant_id_eia": [2, 2, 3, 3],
         "energy_source_code": ["DFO", "WND", "WND", "DFO"],
     }
-).astype({"report_date": "datetime64[ns]"})
+)
 
 DAILY_DATA = pd.DataFrame(
     {
@@ -89,8 +89,8 @@ def test_annual_attribute_merge():
     ).astype({"report_date": "datetime64[ns]"})
 
     out_left = pudl.helpers.date_merge(
-        left=MONTHLY_GEN_FUEL,
-        right=ANNUAL_PLANTS_UTIL,
+        left=MONTHLY_GEN_FUEL.copy(),
+        right=ANNUAL_PLANTS_UTIL.copy(),
         on=["plant_id_eia"],
         how="left",
     )
@@ -115,8 +115,8 @@ def test_annual_attribute_merge():
     ).astype({"report_date": "datetime64[ns]"})
 
     out_right = pudl.helpers.date_merge(
-        left=ANNUAL_PLANTS_UTIL,
-        right=MONTHLY_GEN_FUEL,
+        left=ANNUAL_PLANTS_UTIL.copy(),
+        right=MONTHLY_GEN_FUEL.copy(),
         on=["plant_id_eia"],
         how="right",
     )
@@ -141,8 +141,8 @@ def test_annual_attribute_merge():
     ).astype({"report_date": "datetime64[ns]"})
 
     out_inner = pudl.helpers.date_merge(
-        left=MONTHLY_GEN_FUEL,
-        right=ANNUAL_PLANTS_UTIL,
+        left=MONTHLY_GEN_FUEL.copy(),
+        right=ANNUAL_PLANTS_UTIL.copy(),
         on=["plant_id_eia"],
         how="inner",
     )
@@ -188,8 +188,8 @@ def test_annual_attribute_merge():
     ).astype({"report_date": "datetime64[ns]"})
 
     out_outer = pudl.helpers.date_merge(
-        left=MONTHLY_GEN_FUEL,
-        right=ANNUAL_PLANTS_UTIL,
+        left=MONTHLY_GEN_FUEL.copy(),
+        right=ANNUAL_PLANTS_UTIL.copy(),
         on=["plant_id_eia"],
         how="outer",
     )
@@ -209,8 +209,8 @@ def test_monthly_attribute_merge():
     ).astype({"report_date": "datetime64[ns]"})
 
     out = pudl.helpers.date_merge(
-        left=DAILY_DATA,
-        right=MONTHLY_OTHER,
+        left=DAILY_DATA.copy(),
+        right=MONTHLY_OTHER.copy(),
         left_date_col="date",
         on=["plant_id_eia"],
         date_on=["year", "month"],
@@ -232,8 +232,8 @@ def test_same_temporal_gran():
     ).astype({"report_date": "datetime64[ns]"})
 
     out = pudl.helpers.date_merge(
-        left=MONTHLY_GEN_FUEL,
-        right=MONTHLY_OTHER,
+        left=MONTHLY_GEN_FUEL.copy(),
+        right=MONTHLY_OTHER.copy(),
         on=["plant_id_eia"],
         date_on=["year", "month"],
         how="left",
@@ -264,7 +264,7 @@ def test_end_of_report_period():
     ).astype({"report_date": "datetime64[ns]"})
 
     out = pudl.helpers.date_merge(
-        MONTHLY_GEN_FUEL,
+        MONTHLY_GEN_FUEL.copy(),
         eoy_plants_util,
         on=["plant_id_eia"],
         how="left",
@@ -300,8 +300,8 @@ def test_less_granular_merge():
     ).astype({"report_date": "datetime64[ns]"})
 
     out = pudl.helpers.date_merge(
-        ANNUAL_PLANTS_UTIL[:5],
-        MONTHLY_GEN_FUEL,
+        ANNUAL_PLANTS_UTIL[:5].copy(),
+        MONTHLY_GEN_FUEL.copy(),
         on=["plant_id_eia"],
         date_on=["year"],
         how="left",
