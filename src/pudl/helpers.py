@@ -398,7 +398,7 @@ def full_timeseries_date_merge(
         start=start,
         end=end,
         freq=freq,
-        id_cols=on,
+        key_cols=on,
         fill=fill,
     )
     return out
@@ -522,7 +522,7 @@ def expand_timeseries(
     start: str = None,
     end: str = None,
     freq="MS",
-    id_cols: List[str] = [],
+    key_cols: List[str] = [],
     fill: bool = True,
 ) -> pd.DataFrame:
     """
@@ -538,8 +538,9 @@ def expand_timeseries(
         freq: The frequency of the time series to expand the data to.
             See :ref:`here <timeseries.offset_aliases>` for a list of
             frequency aliases.
-        id_cols: Additional columns to merge on. There will be a full timeseries
-            expanded for each grouping of these ID columns.
+        key_cols: Column names of the non-date primary key columns in the dataframe.
+            The resulting dataframe will have a full timeseries expanded for each
+            unique group of these ID columns that are present in the dataframe.
         fill: Whether to broadcast the data so it's filled in for the whole
             timeseries e.g. if annual data is expanded over a monthly timeseries
             then the data for each year is broadcast to all months in that year.
@@ -561,24 +562,27 @@ def expand_timeseries(
         ),
         columns=[date_col],
     )
-    ind_cols = [date_range[date_col]] + [df[id_col].unique() for id_col in id_cols]
-    date_range_id = pd.DataFrame(
-        list(itertools.product(*ind_cols)),
-        columns=[date_col] + id_cols,
+    # create a dataframe of the unique combinations of non-date primary key columns
+    unique_key = df[key_cols].drop_duplicates(keep="first")
+    # copy each of these combinations for every date in the full timeseries
+    repeated_key = (
+        pd.concat([unique_key] * len(date_range)).sort_index().reset_index(drop=True)
+    )
+    # copy the full timeseries for each of the primary key combinations
+    repeated_date_range = pd.concat([date_range] * len(unique_key)).reset_index(
+        drop=True
+    )
+    # concatenate these dataframes to get a new index for the full timeseries
+    date_range_idx = pd.concat([repeated_date_range, repeated_key], axis=1)
+
+    out = date_range_idx.merge(df, how="left", on=[date_col] + key_cols).sort_values(
+        key_cols + [date_col]
     )
     if fill:
-        cols = [col for col in df.columns if col not in id_cols and col != date_col]
-        out = date_range_id.merge(df, how="left", on=[date_col] + id_cols).sort_values(
-            id_cols + [date_col]
-        )
-        out[cols] = out.groupby(id_cols)[cols].ffill()
-        out = out.reset_index(drop=True)
-    else:
-        out = (
-            date_range_id.merge(df, how="left", on=[date_col] + id_cols)
-            .sort_values(id_cols + [date_col])
-            .reset_index(drop=True)
-        )
+        cols = [col for col in df.columns if col not in key_cols and col != date_col]
+        out[cols] = out.groupby(key_cols)[cols].ffill()
+
+    out = out.reset_index(drop=True)
     return out
 
 

@@ -324,6 +324,7 @@ def test_timeseries_fillin():
                 "2020-02-01",
             ],
             "plant_id_eia": [1, 1, 1, 1, 2, 2],
+            "gen_id_eia": [1, 2, 1, 1, 3, 3],
             "data": [2, 1, 2, 3, 10, 2],
         }
     ).astype({"report_date": "datetime64[ns]"})
@@ -346,13 +347,22 @@ def test_timeseries_fillin():
                 "2020-01-01",
                 "2020-02-01",
             ]
-            * 2,
-            "plant_id_eia": [1] * 14 + [2] * 14,
-            "data": [None] + [2] + [3] * 10 + [1] + [2] + [None] * 9 + [10] * 4 + [2],
+            * 3,
+            "plant_id_eia": [1] * 28 + [2] * 14,
+            "gen_id_eia": [1] * 14 + [2] * 14 + [3] * 14,
+            "data": [None]
+            + [2]
+            + [3] * 11
+            + [2]
+            + [None] * 12
+            + [1] * 2
+            + [None] * 9
+            + [10] * 4
+            + [2],
         }
     ).astype({"report_date": "datetime64[ns]"})
 
     out = pudl.helpers.expand_timeseries(
-        input_df, start="2019-01-01", id_cols=["plant_id_eia"]
+        input_df, start="2019-01-01", key_cols=["plant_id_eia", "gen_id_eia"]
     )
     pd.testing.assert_frame_equal(expected_out, out)
