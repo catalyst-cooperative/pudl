@@ -416,7 +416,7 @@ def date_merge(
     on: List[str] = [],
     date_on: List[DateOnCol] = ["year"],
     how: Literal["inner", "outer", "left", "right", "cross"] = "inner",
-    report_at_start=True,
+    report_at_start: bool = True,
     **kwargs,
 ) -> pd.DataFrame:
     """
@@ -522,9 +522,9 @@ def expand_timeseries(
     start: str = None,
     end: str = None,
     freq="MS",
-    id_cols: List = [],
-    fill=True,
-):
+    id_cols: List[str] = [],
+    fill: bool = True,
+) -> pd.DataFrame:
     """
     Expand a dataframe to a include a full time series at a given frequency.
 
