@@ -19,7 +19,7 @@ coverage.xml
 .coverage
 .coverage.*
 codecov.sh
-.env_pudl/
+.env_tox/
 *wheel-metadata
 dask-worker-space*
 devtools/user-requirements.txt
