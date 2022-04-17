@@ -26,7 +26,7 @@ import requests
 import sqlalchemy as sa
 
 from pudl.metadata.classes import DataSource, Package
-from pudl.metadata.fields import apply_pudl_dtypes, get_pudl_dtypes
+from pudl.metadata.fields import get_pudl_dtypes
 
 logger = logging.getLogger(__name__)
 
@@ -372,7 +372,7 @@ def full_timeseries_date_merge(
     report_at_start: bool = True,
     start: str = None,
     end: str = None,
-    freq: Literal["AS", "QS", "MS", "D"] = "MS",
+    freq: str = "MS",
     fill: bool = True,
     **kwargs,
 ):
@@ -559,6 +559,14 @@ def expand_timeseries(
     else:
         end = df[date_col].max()
 
+    try:
+        pd.tseries.frequencies.to_offset(freq)
+    except ValueError:
+        logger.exception(
+            f"Frequency string {freq} is not valid. \
+            See Pandas Timeseries Offset Aliases docs for valid strings."
+        )
+
     date_range = pd.DataFrame(
         pd.date_range(
             start=start,
@@ -589,93 +597,6 @@ def expand_timeseries(
 
     out = out.reset_index(drop=True)
     return out
-
-
-def clean_merge_asof(
-    left: pd.DataFrame,
-    right: pd.DataFrame,
-    left_on: str = "report_date",
-    right_on: str = "report_date",
-    by: List[str] = [],
-) -> pd.DataFrame:
-    """
-    Merge two dataframes having different ``report_date`` frequencies.
-
-    We often need to bring together data which is reported on a monthly basis, and
-    entity attributes that are reported on an annual basis.  The
-    :func:`pandas.merge_asof` is designed to do this, but requires that dataframes are
-    sorted by the merge keys (``left_on``, ``right_on``, and ``by`` here). We also need
-    to make sure that all merge keys have identical data types in the two dataframes
-    (e.g. ``plant_id_eia`` needs to be a nullable integer in both dataframes, not a
-    python int in one, and a nullable :func:`pandas.Int64Dtype` in the other).  Note
-    that :func:`pandas.merge_asof` performs a left merge, so the higher frequency
-    dataframe **must** be the left dataframe.
-
-    We also force both ``left_on`` and ``right_on`` to be a Datetime using
-    :func:`pandas.to_datetime` to allow merging dataframes having integer years with
-    those having datetime columns.
-
-    Because :func:`pandas.merge_asof` searches backwards for the first matching date,
-    this function only works if the less granular dataframe uses the convention of
-    reporting the first date in the time period for which it reports. E.g. annual
-    dataframes need to have January 1st as the date. This is what happens by defualt if
-    only a year or year-month are provided to :func:`pandas.to_datetime` as strings.
-
-    Args:
-        left: The higher frequency "data" dataframe. Typically monthly in our use
-            cases. E.g. ``generation_eia923``. Must contain ``report_date`` and any
-            columns specified in the ``by`` argument.
-        right: The lower frequency "attribute" dataframe. Typically annual in our uses
-            cases. E.g. ``generators_eia860``. Must contain ``report_date`` and any
-            columns specified in the ``by`` argument.
-        left_on: Column in ``left`` to merge on using merge_asof. Default is
-            ``report_date``. Must be convertible to a Datetime using
-            :func:`pandas.to_datetime`
-        right_on: Column in ``right`` to merge on using :func:`pd.merge_asof`.  Default
-            is ``report_date``. Must be convertible to a Datetime using
-            :func:`pandas.to_datetime`
-
-        by: Columns to merge on in addition to ``report_date``. Typically ID columns
-            like ``plant_id_eia``, ``generator_id`` or ``boiler_id``.
-
-    Returns:
-        Merged contents of left and right input dataframes.  Will be sorted by
-        ``left_on`` and any columns specified in ``by``. See documentation for
-        :func:`pandas.merge_asof` to understand how this kind of merge works.
-
-    Raises:
-        ValueError: if ``left_on`` or ``right_on`` columns are missing from their
-            respective input dataframes.
-        ValueError: if any of the labels referenced in ``by`` are missing from either
-            the left or right dataframes.
-
-    """
-    # Make sure we've got all the required inputs...
-    if left_on not in left.columns:
-        raise ValueError(f"Left dataframe has no column {left_on}.")
-    if right_on not in right.columns:
-        raise ValueError(f"Right dataframe has no {right_on}.")
-    missing_left_cols = [col for col in by if col not in left.columns]
-    if missing_left_cols:
-        raise ValueError(f"Left dataframe is missing {missing_left_cols}.")
-    missing_right_cols = [col for col in by if col not in right.columns]
-    if missing_right_cols:
-        raise ValueError(f"Left dataframe is missing {missing_right_cols}.")
-
-    def cleanup(df, on, by):
-        df = apply_pudl_dtypes(df)
-        df.loc[:, on] = pd.to_datetime(df[on])
-        df = df.sort_values([on] + by)
-        return df
-
-    return pd.merge_asof(
-        cleanup(df=left, on=left_on, by=by),
-        cleanup(df=right, on=right_on, by=by),
-        left_on=left_on,
-        right_on=right_on,
-        by=by,
-        tolerance=pd.Timedelta("365 days"),  # Should never match across years.
-    )
 
 
 def organize_cols(df, cols):
