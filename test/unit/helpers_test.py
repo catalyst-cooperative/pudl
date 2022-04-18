@@ -56,6 +56,14 @@ ANNUAL_PLANTS_UTIL = pd.DataFrame(
     }
 ).astype({"report_date": "datetime64[ns]"})
 
+QUARTERLY_DATA = pd.DataFrame(
+    {
+        "report_date": ["2020-01-01", "2020-10-01", "2019-04-01", "2019-01-01"],
+        "plant_id_eia": [2, 2, 3, 3],
+        "data": [1, 4, 2, 1],
+    }
+)
+
 MONTHLY_OTHER = pd.DataFrame(
     {
         "report_date": ["2019-10-01", "2020-10-01", "2019-01-01", "2018-02-01"],
@@ -226,6 +234,38 @@ def test_monthly_attribute_merge():
         left_date_col="date",
         on=["plant_id_eia"],
         date_on=["year", "month"],
+        how="left",
+    )
+
+    assert_frame_equal(out, out_expected)
+
+
+def test_quarterly_attribute_merge():
+    """Test merging quarterly attributes onto monthly data.
+
+    This should probably be updated once we need a quarterly merge for FERC data.
+    """
+    out_expected = pd.DataFrame(
+        {
+            "report_date": [
+                "2019-12-01",
+                "2020-10-01",
+                "2019-01-01",
+                "2019-06-01",
+                "2018-07-01",
+            ],
+            "plant_id_eia": [2, 2, 3, 3, 3],
+            "prime_mover_code": ["HY", "ST", "HY", "CT", "HY"],
+            "fuel_consumed_units": [0.0, 98085.0, 0.0, 4800000.0, 0.0],
+            "data": [None, 4.0, 1.0, 2.0, None],
+        }
+    ).astype({"report_date": "datetime64[ns]"})
+
+    out = date_merge(
+        left=MONTHLY_GEN_FUEL.copy(),
+        right=QUARTERLY_DATA.copy(),
+        on=["plant_id_eia"],
+        date_on=["year", "quarter"],
         how="left",
     )
 
