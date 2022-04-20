@@ -60,8 +60,9 @@ repos:
   - id: doc8
     args: [--config, tox.ini]
 
+# Lint any RST files and embedded code blocks for syntax / formatting errors
 - repo: https://github.com/myint/rstcheck
-  rev: v5.0.0  # Use the sha / tag you want to point at
+  rev: v5.0.0
   hooks:
   - id: rstcheck
     additional_dependencies: [sphinx]
