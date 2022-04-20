@@ -60,6 +60,13 @@ repos:
   - id: doc8
     args: [--config, tox.ini]
 
+- repo: https://github.com/myint/rstcheck
+  rev: v5.0.0  # Use the sha / tag you want to point at
+  hooks:
+  - id: rstcheck
+    additional_dependencies: [sphinx]
+    args: [--config, tox.ini]
+
 # Check for known security vulnerabilities:
 - repo: https://github.com/PyCQA/bandit
   rev: 1.7.4
