@@ -2,7 +2,7 @@
 
 from itertools import product
 from pathlib import Path
-from typing import Optional, Sequence
+from typing import Iterable, List, Optional, Sequence, Tuple, Union
 
 import dask.dataframe as dd
 import pandas as pd
@@ -29,7 +29,9 @@ def epa_crosswalk() -> pd.DataFrame:
     return pd.read_csv(EPA_CROSSWALK_RELEASE + "epa_eia_crosswalk.csv")
 
 
-def year_state_filter(years=(), states=()):
+def year_state_filter(
+    years: Iterable[int] = None, states: Iterable[str] = None
+) -> List[List[Tuple[Union[str, int]]]]:
     """
     Create filters to read given years and states from partitioned parquet dataset.
 
@@ -50,18 +52,20 @@ def year_state_filter(years=(), states=()):
     result in getting 2018 and 2019 data for CO, as well as 2018 and 2019 data for CA.
 
     Args:
-        years (iterable): 4-digit integers indicating the years of data you would like
-            to read. By default it includes all years.
-        states (iterable): 2-letter state abbreviations indicating what states you would
-            like to include. By default it includes all states.
+        years: 4-digit integers indicating the years of data you would like
+            to read. By default it includes all available years.
+        states: 2-letter state abbreviations indicating what states you would
+            like to include. By default it includes all available states.
 
     Returns:
-        list: A list of lists of tuples, suitable for use as a filter in the
-        read_parquet method of pandas and dask dataframes.
+        A list of lists of tuples, suitable for use as a filter in the
+        read_parquet() method of pandas and dask dataframes.
 
     """
-    year_filters = [("year", "=", year) for year in years]
-    state_filters = [("state", "=", state.upper()) for state in states]
+    if years is not None:
+        year_filters = [("year", "=", year) for year in years]
+    if states is not None:
+        state_filters = [("state", "=", state.upper()) for state in states]
 
     if states and not years:
         filters = [
