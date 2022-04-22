@@ -21,6 +21,7 @@ import logging
 import pandas as pd
 
 import pudl
+from pudl.metadata.fields import apply_pudl_dtypes
 
 logger = logging.getLogger(__name__)
 
@@ -35,28 +36,31 @@ def grab_n_clean_epa_orignal():
             accessible.
     """
     logger.info("grabbing original crosswalk")
-    eia_epacems_crosswalk_csv = (
-        importlib.resources.open_text(
-            'pudl.package_data.glue',
-            'epa_eia_crosswalk_from_epa.csv')
+    eia_epacems_crosswalk_csv = importlib.resources.open_text(
+        "pudl.package_data.glue", "epa_eia_crosswalk_from_epa.csv"
     )
     eia_epacems_crosswalk = (
         pd.read_csv(eia_epacems_crosswalk_csv)
         .pipe(pudl.helpers.simplify_columns)
-        # .pipe(pudl.helpers.convert_cols_dtypes, 'eia')
-        .rename(columns={
-            'oris_code': 'plant_id_epa',
-            'eia_oris': 'plant_id_eia',
-            'unit_id': 'unit_id_epa',
-            'facility_name': 'plant_name_eia'})
-        .filter([
-            'plant_name_eia',
-            'plant_id_eia',
-            'plant_id_epa',
-            'unit_id_epa',
-            'generator_id',
-            'boiler_id',
-        ])
+        .rename(
+            columns={
+                "oris_code": "plant_id_epa",
+                "eia_oris": "plant_id_eia",
+                "unit_id": "unit_id_epa",
+                "facility_name": "plant_name_eia",
+            }
+        )
+        .filter(
+            [
+                "plant_name_eia",
+                "plant_id_eia",
+                "plant_id_epa",
+                "unit_id_epa",
+                "generator_id",
+                "boiler_id",
+            ]
+        )
+        .pipe(apply_pudl_dtypes, "eia")
     )
     return eia_epacems_crosswalk
 
@@ -76,25 +80,23 @@ def split_tables(df):
     """
     logger.info("splitting crosswalk into three normalized tables")
     epa_df = (
-        df.filter(['plant_id_epa', 'unit_id_epa']).copy()
-        .drop_duplicates()
-        .dropna()
+        df.filter(["plant_id_epa", "unit_id_epa"]).copy().drop_duplicates().dropna()
     )
     plants_eia_epa = (
-        df.filter(['plant_id_eia', 'plant_id_epa']).copy()
-        .drop_duplicates()
-        .dropna()
+        df.filter(["plant_id_eia", "plant_id_epa"]).copy().drop_duplicates().dropna()
     )
     gen_unit_df = (
-        df.filter(['plant_id_eia', 'generator_id', 'unit_id_epa']).copy()
+        df.filter(["plant_id_eia", "generator_id", "unit_id_epa"])
+        .copy()
         .drop_duplicates()
         .dropna()
     )
 
     return {
-        'plant_unit_epa': epa_df,
-        'assn_plant_id_eia_epa': plants_eia_epa,
-        'assn_gen_eia_unit_epa': gen_unit_df}
+        "plant_unit_epa": epa_df,
+        "assn_plant_id_eia_epa": plants_eia_epa,
+        "assn_gen_eia_unit_epa": gen_unit_df,
+    }
 
 
 def grab_clean_split():
@@ -107,10 +109,6 @@ def grab_clean_split():
         id to EIA plant id; and EIA plant id to EIA generator id to EPA unit
         id.
     """
-    crosswalk = (
-        grab_n_clean_epa_orignal()
-        .reset_index()
-        .dropna()
-    )
+    crosswalk = grab_n_clean_epa_orignal().reset_index().dropna()
 
     return split_tables(crosswalk)

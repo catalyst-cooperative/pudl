@@ -6,28 +6,29 @@ import numpy as np
 import pandas as pd
 
 import pudl
+from pudl.metadata.fields import apply_pudl_dtypes
 
 ASSOCIATIONS: List[Dict[str, Any]] = [
     # MISO: Midwest Indep System Operator
-    {'id': 56669, 'from': 2011, 'to': [2009, 2010]},
+    {"id": 56669, "from": 2011, "to": [2009, 2010]},
     # SWPP: Southwest Power Pool
-    {'id': 59504, 'from': 2014, 'to': [2006, 2009], 'exclude': ['NE']},
-    {'id': 59504, 'from': 2014, 'to': [2010, 2013]},
+    {"id": 59504, "from": 2014, "to": [2006, 2009], "exclude": ["NE"]},
+    {"id": 59504, "from": 2014, "to": [2010, 2013]},
     # LGEE: LG&E and KU Services Company
-    {'id': 11249, 'from': 2014, 'to': [2006, 2013]},
+    {"id": 11249, "from": 2014, "to": [2006, 2013]},
     # (no code): Entergy
-    {'id': 12506, 'from': 2012, 'to': [2013, 2013]},
+    {"id": 12506, "from": 2012, "to": [2013, 2013]},
     # (no code): American Electric Power Co Inc
-    {'id': 829, 'from': 2008, 'to': [2009, 2013]},
+    {"id": 829, "from": 2008, "to": [2009, 2013]},
     # PJM: PJM Interconnection LLC
-    {'id': 14725, 'from': 2011, 'to': [2006, 2010]},
+    {"id": 14725, "from": 2011, "to": [2006, 2010]},
     # BANC: Balancing Authority of Northern California
-    {'id': 16534, 'from': 2013, 'to': [2012, 2012]},
+    {"id": 16534, "from": 2013, "to": [2012, 2012]},
     # SPS: Southwestern Public Service
-    {'id': 17718, 'from': 2010, 'to': [2006, 2009]},
+    {"id": 17718, "from": 2010, "to": [2006, 2009]},
     # Nevada Power Company
-    {'id': 13407, 'from': 2009, 'to': [2006, 2008]},
-    {'id': 13407, 'from': 2013, 'to': [2014, 2019]},
+    {"id": 13407, "from": 2009, "to": [2006, 2008]},
+    {"id": 13407, "from": 2013, "to": [2014, 2019]},
 ]
 """
 Adjustments to balancing authority-utility associations from EIA 861.
@@ -49,15 +50,15 @@ The changes are applied locally to EIA 861 tables.
 
 UTILITIES: List[Dict[str, Any]] = [
     # (no code): Pacific Gas & Electric Co
-    {'id': 14328, 'reassign': True},
+    {"id": 14328, "reassign": True},
     # (no code): San Diego Gas & Electric Co
-    {'id': 16609, 'reassign': True},
+    {"id": 16609, "reassign": True},
     # (no code): Dayton Power & Light Co
-    {'id': 4922, 'reassign': True},
+    {"id": 4922, "reassign": True},
     # (no code): Consumers Energy Company
     # NOTE: 2003-2006 parent to 40211, which is never child to parent BA (12427),
     # (and 40211 never reports in service_territory_eia861) so don't reassign.
-    {'id': 4254},
+    {"id": 4254},
 ]
 """
 Balancing authorities to treat as utilities in associations from EIA 861.
@@ -102,14 +103,12 @@ def add_dates(rids_ferc714, report_dates):
     if "report_date" in rids_ferc714.columns:
         raise ValueError("report_date already present, can't be added again!")
     # Create DataFrame with all report_date and respondent_id_ferc714 combos
-    dates_rids_df = (
-        pd.DataFrame(
-            index=pd.MultiIndex.from_product([
-                report_dates, rids_ferc714.respondent_id_ferc714.unique()],
-                names=["report_date", "respondent_id_ferc714"]
-            )
-        ).reset_index()
-    )
+    dates_rids_df = pd.DataFrame(
+        index=pd.MultiIndex.from_product(
+            [report_dates, rids_ferc714.respondent_id_ferc714.unique()],
+            names=["report_date", "respondent_id_ferc714"],
+        )
+    ).reset_index()
     return pd.merge(rids_ferc714, dates_rids_df, on="respondent_id_ferc714")
 
 
@@ -174,27 +173,23 @@ def categorize_eia_code(eia_codes, ba_ids, util_ids, priority="balancing_authori
     ba_ids = (
         pd.Series(ba_ids, name="balancing_authority_id_eia")
         .drop_duplicates()
-        .astype(pd.Int64Dtype())
+        .convert_dtypes()
     )
     util_ids = (
-        pd.Series(util_ids, name="utility_id_eia")
-        .drop_duplicates()
-        .astype(pd.Int64Dtype())
+        pd.Series(util_ids, name="utility_id_eia").drop_duplicates().convert_dtypes()
     )
 
-    df = (
-        eia_codes
-        .merge(ba_ids, left_on="eia_code", right_on="balancing_authority_id_eia", how="left")
-        .merge(util_ids, left_on="eia_code", right_on="utility_id_eia", how="left")
-    )
+    df = eia_codes.merge(
+        ba_ids, left_on="eia_code", right_on="balancing_authority_id_eia", how="left"
+    ).merge(util_ids, left_on="eia_code", right_on="utility_id_eia", how="left")
     df.loc[df[f"{primary}_id_eia"].notnull(), "respondent_type"] = primary
     df.loc[
-        (df[f"{secondary}_id_eia"].notnull())
-        & (df[f"{primary}_id_eia"].isnull()), "respondent_type"] = secondary
-    df = (
-        df.astype({"respondent_type": pd.StringDtype()})
-        .loc[:, ["eia_code", "respondent_type"]]
-    )
+        (df[f"{secondary}_id_eia"].notnull()) & (df[f"{primary}_id_eia"].isnull()),
+        "respondent_type",
+    ] = secondary
+    df = df.astype({"respondent_type": pd.StringDtype()}).loc[
+        :, ["eia_code", "respondent_type"]
+    ]
     return df
 
 
@@ -255,16 +250,14 @@ class Respondents(object):
 
         if ba_ids is None:
             ba_ids = (
-                self.balancing_authority_eia861
-                .balancing_authority_id_eia.dropna().unique()
+                self.balancing_authority_eia861.balancing_authority_id_eia.dropna().unique()
             )
         self.ba_ids = ba_ids
 
         if util_ids is None:
-            util_ids = (
-                pudl.analysis.service_territory
-                .get_all_utils(self.pudl_out).utility_id_eia
-            )
+            util_ids = pudl.analysis.service_territory.get_all_utils(
+                self.pudl_out
+            ).utility_id_eia
         self.util_ids = util_ids
 
         self.priority = priority
@@ -280,24 +273,24 @@ class Respondents(object):
     def balancing_authority_eia861(self) -> pd.DataFrame:
         """Modified balancing_authority_eia861 table."""
         df = self.pudl_out.balancing_authority_eia861()
-        index = ['balancing_authority_id_eia', 'report_date']
+        index = ["balancing_authority_id_eia", "report_date"]
         dfi = df.set_index(index)
         # Prepare reference rows
-        keys = [(fix['id'], pd.Timestamp(fix['from'], 1, 1)) for fix in ASSOCIATIONS]
-        refs = dfi.loc[keys].reset_index().to_dict('records')
+        keys = [(fix["id"], pd.Timestamp(fix["from"], 1, 1)) for fix in ASSOCIATIONS]
+        refs = dfi.loc[keys].reset_index().to_dict("records")
         # Build table of new rows
         # Insert row for each target balancing authority-year pair
         # missing from the original table, using the reference year as a template.
         rows = []
         for ref, fix in zip(refs, ASSOCIATIONS):
-            for year in range(fix['to'][0], fix['to'][1] + 1):
-                key = (fix['id'], pd.Timestamp(year, 1, 1))
+            for year in range(fix["to"][0], fix["to"][1] + 1):
+                key = (fix["id"], pd.Timestamp(year, 1, 1))
                 if key not in dfi.index:
-                    rows.append({**ref, 'report_date': key[1]})
+                    rows.append({**ref, "report_date": key[1]})
         # Append to original table
-        df = df.append(pd.DataFrame(rows))
+        df = pd.concat([df, pd.DataFrame(rows)])
         # Remove balancing authorities treated as utilities
-        mask = df['balancing_authority_id_eia'].isin([util['id'] for util in UTILITIES])
+        mask = df["balancing_authority_id_eia"].isin([util["id"] for util in UTILITIES])
         return df[~mask]
 
     @cached_property
@@ -307,12 +300,12 @@ class Respondents(object):
         # Prepare reference rows
         refs = []
         for fix in ASSOCIATIONS:
-            mask = df['balancing_authority_id_eia'].eq(fix['id']).to_numpy(bool)
-            mask[mask] = df['report_date'][mask].eq(pd.Timestamp(fix['from'], 1, 1))
+            mask = df["balancing_authority_id_eia"].eq(fix["id"]).to_numpy(bool)
+            mask[mask] = df["report_date"][mask].eq(pd.Timestamp(fix["from"], 1, 1))
             ref = df[mask]
-            if 'exclude' in fix:
+            if "exclude" in fix:
                 # Exclude utilities by state
-                mask = ~ref['state'].isin(fix['exclude'])
+                mask = ~ref["state"].isin(fix["exclude"])
                 ref = ref[mask]
             refs.append(ref)
         # Buid table of new rows
@@ -321,82 +314,89 @@ class Respondents(object):
         replaced = np.zeros(df.shape[0], dtype=bool)
         tables = []
         for ref, fix in zip(refs, ASSOCIATIONS):
-            for year in range(fix['to'][0], fix['to'][1] + 1):
-                key = fix['id'], pd.Timestamp(year, 1, 1)
-                mask = df['balancing_authority_id_eia'].eq(key[0]).to_numpy(bool)
-                mask[mask] = df['report_date'][mask].eq(key[1])
+            for year in range(fix["to"][0], fix["to"][1] + 1):
+                key = fix["id"], pd.Timestamp(year, 1, 1)
+                mask = df["balancing_authority_id_eia"].eq(key[0]).to_numpy(bool)
+                mask[mask] = df["report_date"][mask].eq(key[1])
                 tables.append(ref.assign(report_date=key[1]))
                 replaced |= mask
         # Append to original table with matching rows removed
-        df = df[~replaced].append(pd.concat(tables))
+        df = pd.concat([df[~replaced], pd.concat(tables)])
         # Remove balancing authorities treated as utilities
         mask = np.zeros(df.shape[0], dtype=bool)
         tables = []
         for util in UTILITIES:
-            is_parent = df['balancing_authority_id_eia'].eq(util['id'])
+            is_parent = df["balancing_authority_id_eia"].eq(util["id"])
             mask |= is_parent
             # Associated utilities are reassigned to parent balancing authorities
-            if 'reassign' in util and util['reassign']:
+            if "reassign" in util and util["reassign"]:
                 # Ignore when entity is child to itself
-                is_child = ~is_parent & df['utility_id_eia'].eq(util['id'])
+                is_child = ~is_parent & df["utility_id_eia"].eq(util["id"])
                 # Build table associating parents to children of entity
-                table = df[is_child].merge(
-                    df[is_parent & ~df['utility_id_eia'].eq(util['id'])],
-                    left_on=['report_date', 'utility_id_eia'],
-                    right_on=['report_date', 'balancing_authority_id_eia']
-                ).drop(
-                    columns=[
-                        'utility_id_eia_x', 'state_x', 'balancing_authority_id_eia_y'
-                    ]
-                ).rename(
-                    columns={
-                        'balancing_authority_id_eia_x': 'balancing_authority_id_eia',
-                        'utility_id_eia_y': 'utility_id_eia',
-                        'state_y': 'state'
-                    }
+                table = (
+                    df[is_child]
+                    .merge(
+                        df[is_parent & ~df["utility_id_eia"].eq(util["id"])],
+                        left_on=["report_date", "utility_id_eia"],
+                        right_on=["report_date", "balancing_authority_id_eia"],
+                    )
+                    .drop(
+                        columns=[
+                            "utility_id_eia_x",
+                            "state_x",
+                            "balancing_authority_id_eia_y",
+                        ]
+                    )
+                    .rename(
+                        columns={
+                            "balancing_authority_id_eia_x": "balancing_authority_id_eia",
+                            "utility_id_eia_y": "utility_id_eia",
+                            "state_y": "state",
+                        }
+                    )
                 )
                 tables.append(table)
-                if 'replace' in util and util['replace']:
+                if "replace" in util and util["replace"]:
                     mask |= is_child
-        return df[~mask].append(pd.concat(tables)).drop_duplicates()
+        return pd.concat([df[~mask], pd.concat(tables)]).drop_duplicates()
 
     @cached_property
     def service_territory_eia861(self) -> pd.DataFrame:
         """Modified service_territory_eia861 table."""
-        index = ['utility_id_eia', 'state', 'report_date']
+        index = ["utility_id_eia", "state", "report_date"]
         # Select relevant balancing authority-utility associations
         assn = self.balancing_authority_assn_eia861
         selected = np.zeros(assn.shape[0], dtype=bool)
         for fix in ASSOCIATIONS:
-            years = [fix['from'], *range(fix['to'][0], fix['to'][1] + 1)]
+            years = [fix["from"], *range(fix["to"][0], fix["to"][1] + 1)]
             dates = [pd.Timestamp(year, 1, 1) for year in years]
-            mask = assn['balancing_authority_id_eia'].eq(fix['id']).to_numpy(bool)
-            mask[mask] = assn['report_date'][mask].isin(dates)
+            mask = assn["balancing_authority_id_eia"].eq(fix["id"]).to_numpy(bool)
+            mask[mask] = assn["report_date"][mask].isin(dates)
             selected |= mask
         # Reformat as unique utility-state-year
         assn = assn[selected][index].drop_duplicates()
         # Select relevant service territories
         df = self.pudl_out.service_territory_eia861()
-        mdf = assn.merge(df, how='left')
+        mdf = assn.merge(df, how="left")
         # Drop utility-state with no counties for all years
-        grouped = mdf.groupby(['utility_id_eia', 'state'])['county_id_fips']
-        mdf = mdf[grouped.transform('count').gt(0)]
+        grouped = mdf.groupby(["utility_id_eia", "state"])["county_id_fips"]
+        mdf = mdf[grouped.transform("count").gt(0)]
         # Fill missing utility-state-year with nearest year with counties
-        grouped = mdf.groupby(index)['county_id_fips']
-        missing = mdf[grouped.transform('count').eq(0)].to_dict('records')
-        has_county = mdf['county_id_fips'].notna()
+        grouped = mdf.groupby(index)["county_id_fips"]
+        missing = mdf[grouped.transform("count").eq(0)].to_dict("records")
+        has_county = mdf["county_id_fips"].notna()
         tables = []
         for row in missing:
             mask = (
-                mdf['utility_id_eia'].eq(row['utility_id_eia']) &
-                mdf['state'].eq(row['state']) &
-                has_county
+                mdf["utility_id_eia"].eq(row["utility_id_eia"])
+                & mdf["state"].eq(row["state"])
+                & has_county
             )
-            years = mdf['report_date'][mask].drop_duplicates()
+            years = mdf["report_date"][mask].drop_duplicates()
             # Match to nearest year
-            idx = (years - row['report_date']).abs().idxmin()
-            mask &= mdf['report_date'].eq(years[idx])
-            tables.append(mdf[mask].assign(report_date=row['report_date']))
+            idx = (years - row["report_date"]).abs().idxmin()
+            mask &= mdf["report_date"].eq(years[idx])
+            tables.append(mdf[mask].assign(report_date=row["report_date"]))
         return pd.concat([df] + tables)
 
     def annualize(self, update=False):
@@ -414,18 +414,11 @@ class Respondents(object):
         """
         if update or self._annualized is None:
             # Calculate the total demand per respondent, per year:
-            report_dates = (
-                self.pudl_out.demand_hourly_pa_ferc714()
-                .report_date.unique()
-            )
+            report_dates = self.pudl_out.demand_hourly_pa_ferc714().report_date.unique()
             self._annualized = (
                 self.pudl_out.respondent_id_ferc714()
                 .pipe(add_dates, report_dates)
-                .pipe(
-                    pudl.helpers.convert_cols_dtypes,
-                    data_source="ferc714",
-                    name="FERC 714 Respondents Annualized",
-                )
+                .pipe(apply_pudl_dtypes)
             )
         return self._annualized
 
@@ -441,14 +434,12 @@ class Respondents(object):
         """
         if update or self._categorized is None:
             rids_ferc714 = self.pudl_out.respondent_id_ferc714()
-            categorized = (
-                categorize_eia_code(
-                    rids_ferc714.eia_code.dropna().unique(),
-                    ba_ids=self.ba_ids,
-                    util_ids=self.util_ids,
-                    priority=self.priority)
-                .merge(self.annualize(update=update), how="right")
-            )
+            categorized = categorize_eia_code(
+                rids_ferc714.eia_code.dropna().unique(),
+                ba_ids=self.ba_ids,
+                util_ids=self.util_ids,
+                priority=self.priority,
+            ).merge(self.annualize(update=update), how="right")
             # Names, ids, and codes for BAs identified as FERC 714 respondents
             # NOTE: this is not *strictly* correct, because the EIA BAs are not
             # eternal and unchanging.  There's at least one case in which the BA
@@ -457,45 +448,39 @@ class Respondents(object):
             # addition to the balancing_authority_id_eia / eia_code fields ensures
             # that all years are populated for all BAs, which keeps them analogous
             # to the Utiliies in structure. Sooo.... it's fine for now.
-            ba_respondents = (
-                categorized.query("respondent_type=='balancing_authority'")
-                .merge(
-                    self.balancing_authority_eia861[[
+            ba_respondents = categorized.query(
+                "respondent_type=='balancing_authority'"
+            ).merge(
+                self.balancing_authority_eia861[
+                    [
                         "balancing_authority_id_eia",
                         "balancing_authority_code_eia",
                         "balancing_authority_name_eia",
-                    ]].drop_duplicates(subset=["balancing_authority_id_eia", ]),
-                    how="left",
-                    left_on="eia_code",
-                    right_on="balancing_authority_id_eia",
-                )
+                    ]
+                ].drop_duplicates(
+                    subset=[
+                        "balancing_authority_id_eia",
+                    ]
+                ),
+                how="left",
+                left_on="eia_code",
+                right_on="balancing_authority_id_eia",
             )
             # Names and ids for Utils identified as FERC 714 respondents
-            util_respondents = (
-                categorized.query("respondent_type=='utility'")
-                .merge(
-                    pudl.analysis.service_territory.get_all_utils(self.pudl_out),
-                    how="left", left_on="eia_code", right_on="utility_id_eia"
-                )
+            util_respondents = categorized.query("respondent_type=='utility'").merge(
+                pudl.analysis.service_territory.get_all_utils(self.pudl_out),
+                how="left",
+                left_on="eia_code",
+                right_on="utility_id_eia",
             )
-            self._categorized = (
-                pd.concat([
+            self._categorized = pd.concat(
+                [
                     ba_respondents,
                     util_respondents,
                     # Uncategorized respondents w/ no respondent_type:
-                    categorized[categorized.respondent_type.isnull()]
-                ])
-                .pipe(
-                    pudl.helpers.convert_cols_dtypes,
-                    data_source="ferc714",
-                    name="FERC 714 Respondents Categorized",
-                )
-                .pipe(
-                    pudl.helpers.convert_cols_dtypes,
-                    data_source="eia",
-                    name="FERC 714 Respondents Categorized",
-                )
-            )
+                    categorized[categorized.respondent_type.isnull()],
+                ]
+            ).pipe(apply_pudl_dtypes)
         return self._categorized
 
     def summarize_demand(self, update=False):
@@ -516,9 +501,11 @@ class Respondents(object):
             demand_annual = (
                 pd.merge(
                     self.annualize(update=update),
-                    self.pudl_out.demand_hourly_pa_ferc714()
-                    .loc[:, ["report_date", "respondent_id_ferc714", "demand_mwh"]],
-                    how="left")
+                    self.pudl_out.demand_hourly_pa_ferc714().loc[
+                        :, ["report_date", "respondent_id_ferc714", "demand_mwh"]
+                    ],
+                    how="left",
+                )
                 .groupby(["report_date", "respondent_id_ferc714"])
                 .agg({"demand_mwh": sum})
                 .rename(columns={"demand_mwh": "demand_annual_mwh"})
@@ -526,29 +513,20 @@ class Respondents(object):
                 .merge(
                     self.georef_counties(update=update)
                     .groupby(["report_date", "respondent_id_ferc714"])
-                    .agg({"population": sum,
-                          "area_km2": sum})
-                    .reset_index())
+                    .agg({"population": sum, "area_km2": sum})
+                    .reset_index()
+                )
                 .assign(
                     population_density_km2=lambda x: x.population / x.area_km2,
-                    demand_annual_per_capita_mwh=lambda x: x.demand_annual_mwh / x.population,
+                    demand_annual_per_capita_mwh=lambda x: x.demand_annual_mwh
+                    / x.population,
                     demand_density_mwh_km2=lambda x: x.demand_annual_mwh / x.area_km2,
                 )
             )
             # Merge respondent categorizations into the annual demand
-            self._demand_summary = (
-                pd.merge(demand_annual, self.categorize(update=update), how="left")
-                .pipe(
-                    pudl.helpers.convert_cols_dtypes,
-                    data_source="ferc714",
-                    name="FERC 714 Respondents Demand Summary",
-                )
-                .pipe(
-                    pudl.helpers.convert_cols_dtypes,
-                    data_source="eia",
-                    name="FERC 714 Respondents Demand Summary",
-                )
-            )
+            self._demand_summary = pd.merge(
+                demand_annual, self.categorize(update=update), how="left"
+            ).pipe(apply_pudl_dtypes)
         return self._demand_summary
 
     def fipsify(self, update=False):
@@ -576,7 +554,8 @@ class Respondents(object):
                     assn=self.balancing_authority_assn_eia861,
                     assn_col="balancing_authority_id_eia",
                     st_eia861=self.service_territory_eia861,
-                    limit_by_state=self.limit_by_state),
+                    limit_by_state=self.limit_by_state,
+                ),
                 on=["report_date", "balancing_authority_id_eia"],
                 how="left",
             )
@@ -593,23 +572,13 @@ class Respondents(object):
                 on=["report_date", "utility_id_eia"],
                 how="left",
             )
-            self._fipsified = (
-                pd.concat([
+            self._fipsified = pd.concat(
+                [
                     ba_counties,
                     util_counties,
-                    categorized[categorized.respondent_type.isnull()]
-                ])
-                .pipe(
-                    pudl.helpers.convert_cols_dtypes,
-                    data_source="ferc714",
-                    name="FERC 714 Respondents FIPSified",
-                )
-                .pipe(
-                    pudl.helpers.convert_cols_dtypes,
-                    data_source="eia",
-                    name="FERC 714 Respondents FIPSified",
-                )
-            )
+                    categorized[categorized.respondent_type.isnull()],
+                ]
+            ).pipe(apply_pudl_dtypes)
         return self._fipsified
 
     def georef_counties(self, update=False):
@@ -625,22 +594,12 @@ class Respondents(object):
         """
         if update or self._counties_gdf is None:
             census_counties = pudl.output.censusdp1tract.get_layer(
-                layer="county", pudl_settings=self.pudl_settings,
+                layer="county",
+                pudl_settings=self.pudl_settings,
             )
-            self._counties_gdf = (
-                pudl.analysis.service_territory.add_geometries(
-                    self.fipsify(update=update), census_gdf=census_counties)
-                .pipe(
-                    pudl.helpers.convert_cols_dtypes,
-                    data_source="ferc714",
-                    name="FERC 714 Respondents with County Geometries",
-                )
-                .pipe(
-                    pudl.helpers.convert_cols_dtypes,
-                    data_source="eia",
-                    name="FERC 714 Respondents with County Geometries",
-                )
-            )
+            self._counties_gdf = pudl.analysis.service_territory.add_geometries(
+                self.fipsify(update=update), census_gdf=census_counties
+            ).pipe(apply_pudl_dtypes)
         return self._counties_gdf
 
     def georef_respondents(self, update=False):
@@ -658,25 +617,21 @@ class Respondents(object):
         """
         if update or self._respondents_gdf is None:
             census_counties = pudl.output.censusdp1tract.get_layer(
-                layer="county", pudl_settings=self.pudl_settings,
+                layer="county",
+                pudl_settings=self.pudl_settings,
             )
             self._respondents_gdf = (
                 pudl.analysis.service_territory.add_geometries(
                     self.fipsify(update=update),
                     census_gdf=census_counties,
                     dissolve=True,
-                    dissolve_by=["report_date", "respondent_id_ferc714"])
-                .merge(self.summarize_demand(update=update)[[
-                    "report_date", "respondent_id_ferc714", "demand_annual_mwh"]])
-                .pipe(
-                    pudl.helpers.convert_cols_dtypes,
-                    data_source="ferc714",
-                    name="FERC 714 Respondents with Dissolved Geometries",
+                    dissolve_by=["report_date", "respondent_id_ferc714"],
                 )
-                .pipe(
-                    pudl.helpers.convert_cols_dtypes,
-                    data_source="eia",
-                    name="FERC 714 Respondents with Dissolved Geometries",
+                .merge(
+                    self.summarize_demand(update=update)[
+                        ["report_date", "respondent_id_ferc714", "demand_annual_mwh"]
+                    ]
                 )
+                .pipe(apply_pudl_dtypes)
             )
         return self._respondents_gdf

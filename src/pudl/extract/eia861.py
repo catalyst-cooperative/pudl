@@ -11,9 +11,9 @@ import warnings
 
 import pandas as pd
 
-from pudl import constants as pc
 from pudl.extract import excel
 from pudl.helpers import fix_leading_zero_gen_ids
+from pudl.settings import Eia861Settings
 
 logger = logging.getLogger(__name__)
 
@@ -28,7 +28,7 @@ class Extractor(excel.GenericExtractor):
         Args:
             ds (:class:datastore.Datastore): Initialized datastore.
         """
-        self.METADATA = excel.Metadata('eia861')
+        self.METADATA = excel.Metadata("eia861")
         self.cols_added = []
         super().__init__(*args, **kwargs)
 
@@ -40,17 +40,35 @@ class Extractor(excel.GenericExtractor):
         )
         column_map_numeric = self._metadata.get_column_map(page, **partition)
         df = df.rename(
-            columns=dict(zip(df.columns[list(column_map_numeric.keys())],
-                             list(column_map_numeric.values()))))
+            columns=dict(
+                zip(
+                    df.columns[list(column_map_numeric.keys())],
+                    list(column_map_numeric.values()),
+                )
+            )
+        )
         self.cols_added = []
         df = fix_leading_zero_gen_ids(df)
         return df
 
+    def extract(self, settings: Eia861Settings = Eia861Settings()):
+        """Extracts dataframes.
+
+        Returns dict where keys are page names and values are
+        DataFrames containing data across given years.
+
+        Args:
+            settings: Object containing validated settings
+                relevant to EIA 861. Contains the tables and years to be loaded
+                into PUDL.
+        """
+        return super().extract(year=settings.years)
+
     @staticmethod
     def process_renamed(df, page, **partition):
         """Adds report_year column if missing."""
-        if 'report_year' not in df.columns:
-            df['report_year'] = list(partition.values())[0]
+        if "report_year" not in df.columns:
+            df["report_year"] = list(partition.values())[0]
         return df
 
     @staticmethod
@@ -59,4 +77,5 @@ class Extractor(excel.GenericExtractor):
         return {
             "Plant ID": pd.Int64Dtype(),
             "Plant Id": pd.Int64Dtype(),
-            "zip_code": pc.column_dtypes['eia']['zip_code']}
+            "zip_code": pd.StringDtype(),
+        }

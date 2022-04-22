@@ -19,19 +19,153 @@ found in :func:`pudl.transform.eia._boiler_generator_assn`.
 
 import importlib.resources
 import logging
+from typing import Dict
 
 import networkx as nx
 import numpy as np
 import pandas as pd
+import timezonefinder
 
 import pudl
-from pudl import constants as pc
+from pudl.metadata.classes import DataSource
+from pudl.metadata.fields import apply_pudl_dtypes, get_pudl_dtypes
+from pudl.metadata.resources import ENTITIES
+from pudl.settings import EiaSettings
 
 logger = logging.getLogger(__name__)
 
+TZ_FINDER = timezonefinder.TimezoneFinder()
+"""A global TimezoneFinder to cache geographies in memory for faster access."""
 
-def _occurrence_consistency(entity_id, compiled_df, col,
-                            cols_to_consit, strictness=.7):
+APPROXIMATE_TIMEZONES: Dict[str, str] = {
+    "AK": "America/Anchorage",  # Alaska
+    "AL": "America/Chicago",  # Alabama
+    "AR": "America/Chicago",  # Arkansas
+    "AS": "Pacific/Pago_Pago",  # American Samoa; Not in CEMS
+    "AZ": "America/Phoenix",  # Arizona
+    "CA": "America/Los_Angeles",  # California
+    "CO": "America/Denver",  # Colorado
+    "CT": "America/New_York",  # Connecticut
+    "DC": "America/New_York",  # District of Columbia
+    "DE": "America/New_York",  # Delaware
+    "FL": "America/New_York",  # Florida (split state)
+    "GA": "America/New_York",  # Georgia
+    "GU": "Pacific/Guam",  # Guam; Not in CEMS
+    "HI": "Pacific/Honolulu",  # Hawaii; Not in CEMS
+    "IA": "America/Chicago",  # Iowa
+    "ID": "America/Denver",  # Idaho (split state)
+    "IL": "America/Chicago",  # Illinois
+    "IN": "America/New_York",  # Indiana (split state)
+    "KS": "America/Chicago",  # Kansas (split state)
+    "KY": "America/New_York",  # Kentucky (split state)
+    "LA": "America/Chicago",  # Louisiana
+    "MA": "America/New_York",  # Massachusetts
+    "MD": "America/New_York",  # Maryland
+    "ME": "America/New_York",  # Maine
+    "MI": "America/Detroit",  # Michigan (split state)
+    "MN": "America/Chicago",  # Minnesota
+    "MO": "America/Chicago",  # Missouri
+    "MP": "Pacific/Guam",  # Northern Mariana Islands; Not in CEMS
+    "MS": "America/Chicago",  # Mississippi
+    "MT": "America/Denver",  # Montana
+    "NC": "America/New_York",  # North Carolina
+    "ND": "America/Chicago",  # North Dakota (split state)
+    "NE": "America/Chicago",  # Nebraska (split state)
+    "NH": "America/New_York",  # New Hampshire
+    "NJ": "America/New_York",  # New Jersey
+    "NM": "America/Denver",  # New Mexico
+    "NV": "America/Los_Angeles",  # Nevada
+    "NY": "America/New_York",  # New York
+    "OH": "America/New_York",  # Ohio
+    "OK": "America/Chicago",  # Oklahoma
+    "OR": "America/Los_Angeles",  # Oregon (split state)
+    "PA": "America/New_York",  # Pennsylvania
+    "PR": "America/Puerto_Rico",  # Puerto Rico; Not in CEMS
+    "RI": "America/New_York",  # Rhode Island
+    "SC": "America/New_York",  # South Carolina
+    "SD": "America/Chicago",  # South Dakota (split state)
+    "TN": "America/Chicago",  # Tennessee
+    "TX": "America/Chicago",  # Texas
+    "UT": "America/Denver",  # Utah
+    "VA": "America/New_York",  # Virginia
+    "VI": "America/Port_of_Spain",  # Virgin Islands; Not in CEMS
+    "VT": "America/New_York",  # Vermont
+    "WA": "America/Los_Angeles",  # Washington
+    "WI": "America/Chicago",  # Wisconsin
+    "WV": "America/New_York",  # West Virginia
+    "WY": "America/Denver",  # Wyoming
+    # Canada (none of these are in CEMS)
+    "AB": "America/Edmonton",  # Alberta
+    "BC": "America/Vancouver",  # British Columbia (split province)
+    "MB": "America/Winnipeg",  # Manitoba
+    "NB": "America/Moncton",  # New Brunswick
+    "NS": "America/Halifax",  # Nova Scotia
+    "NL": "America/St_Johns",  # Newfoundland and Labrador (split province)
+    "NT": "America/Yellowknife",  # Northwest Territories (split province)
+    "NU": "America/Iqaluit",  # Nunavut (split province)
+    "ON": "America/Toronto",  # Ontario (split province)
+    "PE": "America/Halifax",  # Prince Edwards Island
+    "QC": "America/Montreal",  # Quebec (split province)
+    "SK": "America/Regina",  # Saskatchewan  (split province)
+    "YT": "America/Whitehorse",  # Yukon Territory
+}
+"""
+Approximate mapping of US & Canadian jurisdictions to canonical timezones
+
+This is imperfect for states that have split timezones. See:
+https://en.wikipedia.org/wiki/List_of_time_offsets_by_U.S._state_and_territory
+For states that are split, the timezone that has more people in it.
+List of timezones in pytz.common_timezones
+Canada: https://en.wikipedia.org/wiki/Time_in_Canada#IANA_time_zone_database
+"""
+
+
+def find_timezone(*, lng=None, lat=None, state=None, strict=True):
+    """Find the timezone associated with the a specified input location.
+
+    Note that this function requires named arguments. The names are lng, lat,
+    and state.  lng and lat must be provided, but they may be NA. state isn't
+    required, and isn't used unless lng/lat are NA or timezonefinder can't find
+    a corresponding timezone.
+
+    Timezones based on states are imprecise, so it's far better to use lng/lat
+    if possible. If `strict` is True, state will not be used.
+    More on state-to-timezone conversion here:
+    https://en.wikipedia.org/wiki/List_of_time_offsets_by_U.S._state_and_territory
+
+    Args:
+        lng (int or float in [-180,180]): Longitude, in decimal degrees
+        lat (int or float in [-90, 90]): Latitude, in decimal degrees
+        state (str): Abbreviation for US state or Canadian province
+        strict (bool): Raise an error if no timezone is found?
+
+    Returns:
+        str: The timezone (as an IANA string) for that location.
+
+    Todo:
+        Update docstring.
+
+    """
+    try:
+        tz = TZ_FINDER.timezone_at(lng=lng, lat=lat)
+        if tz is None:  # Try harder
+            # Could change the search radius as well
+            tz = TZ_FINDER.closest_timezone_at(lng=lng, lat=lat)
+    # For some reason w/ Python 3.6 we get a ValueError here, but with
+    # Python 3.7 we get an OverflowError...
+    except (OverflowError, ValueError):
+        # If we're being strict, only use lng/lat, not state
+        if strict:
+            raise ValueError(
+                f"Can't find timezone for: lng={lng}, lat={lat}, state={state}"
+            )
+        tz = APPROXIMATE_TIMEZONES.get(state, None)
+    return tz
+
+
+def _occurrence_consistency(
+    entity_id, compiled_df, col, cols_to_consit, strictness=0.7
+):
     """
     Find the occurence of plants & the consistency of records.
 
@@ -63,26 +197,24 @@ def _occurrence_consistency(entity_id, compiled_df, col,
     """
     # select only the colums you want and drop the NaNs
     # we want to drop the NaNs because
-    # breakpoint()
-    col_df = compiled_df[entity_id + ['report_date', col, 'table']].copy()
-    if pc.column_dtypes["eia"][col] == pd.StringDtype():
+    col_df = compiled_df[entity_id + ["report_date", col, "table"]].copy()
+    if get_pudl_dtypes(group="eia")[col] == "string":
         nan_str_mask = (col_df[col] == "nan").fillna(False)
         col_df.loc[nan_str_mask, col] = pd.NA
     col_df = col_df.dropna()
 
     if len(col_df) == 0:
-        col_df[f'{col}_consistent'] = pd.NA
-        col_df[f'{col}_consistent_rate'] = pd.NA
-        col_df['entity_occurences'] = pd.NA
-        col_df = col_df.drop(columns=['table'])
+        col_df[f"{col}_consistent"] = pd.NA
+        col_df[f"{col}_consistent_rate"] = pd.NA
+        col_df["entity_occurences"] = pd.NA
+        col_df = col_df.drop(columns=["table"])
         return col_df
     # determine how many times each entity occurs in col_df
     occur = (
-        col_df.
-        groupby(by=cols_to_consit).
-        agg({'table': "count"}).
-        reset_index().
-        rename(columns={'table': 'entity_occurences'})
+        col_df.groupby(by=cols_to_consit, observed=True)
+        .agg({"table": "count"})
+        .reset_index()
+        .rename(columns={"table": "entity_occurences"})
     )
 
     # add the occurances into the main dataframe
@@ -90,29 +222,29 @@ def _occurrence_consistency(entity_id, compiled_df, col,
 
     # determine how many instances of each of the records in col exist
     consist_df = (
-        col_df.
-        groupby(by=cols_to_consit + [col]).
-        agg({'table': 'count'}).
-        reset_index().
-        rename(columns={'table': 'record_occurences'})
+        col_df.groupby(by=cols_to_consit + [col], observed=True)
+        .agg({"table": "count"})
+        .reset_index()
+        .rename(columns={"table": "record_occurences"})
     )
     # now in col_df we have # of times an entity occurred accross the tables
     # and we are going to merge in the # of times each value occured for each
     # entity record. When we merge the consistency in with the occurances, we
     # can determine if the records are more than 70% consistent across the
     # occurances of the entities.
-    col_df = col_df.merge(consist_df, how='outer').drop(columns=['table'])
+    col_df = col_df.merge(consist_df, how="outer").drop(columns=["table"])
     # change all of the fully consistent records to True
-    col_df[f'{col}_consistent_rate'] = (
-        col_df['record_occurences'] / col_df['entity_occurences'])
-    col_df[f'{col}_consistent'] = (
-        col_df[f'{col}_consistent_rate'] > strictness)
-    col_df = col_df.sort_values(f'{col}_consistent_rate')
+    col_df[f"{col}_consistent_rate"] = (
+        col_df["record_occurences"] / col_df["entity_occurences"]
+    )
+    col_df[f"{col}_consistent"] = col_df[f"{col}_consistent_rate"] > strictness
+    col_df = col_df.sort_values(f"{col}_consistent_rate")
     return col_df
 
 
-def _lat_long(dirty_df, clean_df, entity_id_df, entity_id,
-              col, cols_to_consit, round_to=2):
+def _lat_long(
+    dirty_df, clean_df, entity_id_df, entity_id, col, cols_to_consit, round_to=2
+):
     """Harvests more complete lat/long in special cases.
 
     For all of the entities were there is not a consistent enough reported
@@ -146,37 +278,36 @@ def _lat_long(dirty_df, clean_df, entity_id_df, entity_id,
     # grab the dirty plant records, round and get a new consistency
     ll_df = dirty_df.round(decimals={col: round_to})
     logger.debug(f"Dirty {col} records: {len(ll_df)}")
-    ll_df['table'] = 'special_case'
+    ll_df["table"] = "special_case"
     ll_df = _occurrence_consistency(entity_id, ll_df, col, cols_to_consit)
     # grab the clean plants
     ll_clean_df = clean_df.dropna()
     # find the new clean plant records by selecting the True consistent records
-    ll_df = ll_df[ll_df[f'{col}_consistent']].drop_duplicates(subset=entity_id)
+    ll_df = ll_df[ll_df[f"{col}_consistent"]].drop_duplicates(subset=entity_id)
     logger.debug(f"Clean {col} records: {len(ll_df)}")
     # add the newly cleaned records
-    ll_clean_df = ll_clean_df.append(ll_df,)
+    ll_clean_df = pd.concat([ll_clean_df, ll_df])
     # merge onto the plants df w/ all plant ids
-    ll_clean_df = entity_id_df.merge(ll_clean_df, how='outer')
+    ll_clean_df = entity_id_df.merge(ll_clean_df, how="outer")
     return ll_clean_df
 
 
-def _add_timezone(plants_entity):
-    """Adds plant IANA timezones from lat / lon.
+def _add_timezone(plants_entity: pd.DataFrame) -> pd.DataFrame:
+    """
+    Add plant IANA timezone based on lat/lon or state if lat/lon is unavailable.
 
     Args:
-        plants_entity (pandas.DataFrame): Plant entity table, including columns
-            named "latitude", "longitude", and optionally "state"
+        plants_entity: Plant entity table, including columns named "latitude",
+            "longitude", and optionally "state"
 
     Returns:
-        :class:`pandas.DataFrame`: A DataFrame containing the same table, with a
-        "timezone" column added. Timezone may be missing if lat / lon is
-        missing or invalid.
+        A DataFrame containing the same table, with a "timezone" column added.
+        Timezone may be missing if lat / lon is missing or invalid.
 
     """
     plants_entity["timezone"] = plants_entity.apply(
-        lambda row: pudl.helpers.find_timezone(
-            lng=row["longitude"], lat=row["latitude"],
-            state=row["state"], strict=False
+        lambda row: find_timezone(
+            lng=row["longitude"], lat=row["latitude"], state=row["state"], strict=False
         ),
         axis=1,
     )
@@ -212,11 +343,10 @@ def _add_additional_epacems_plants(plants_entity):
     # See also: https://github.com/pandas-dev/pandas/issues/22812
     cems_df = pd.read_csv(
         importlib.resources.open_text(
-            'pudl.package_data.epa.cems',
-            'plant_info_for_additional_cems_plants.csv'),
+            "pudl.package_data.epacems", "additional_epacems_plants.csv"
+        ),
         index_col=["plant_id_eia"],
-        usecols=["plant_id_eia", "plant_name_eia",
-                 "state", "latitude", "longitude"],
+        usecols=["plant_id_eia", "plant_name_eia", "state", "latitude", "longitude"],
     )
     plants_entity = plants_entity.set_index("plant_id_eia")
     cems_unmatched = cems_df.loc[~cems_df.index.isin(plants_entity.index)]
@@ -224,7 +354,7 @@ def _add_additional_epacems_plants(plants_entity):
     # non-matching columns. It also requires an index, so we set and reset the
     # index as necessary. Also, it only works in-place, so we can't chain.
     plants_entity.update(cems_df, overwrite=True)
-    return plants_entity.append(cems_unmatched).reset_index()
+    return pd.concat([plants_entity, cems_unmatched]).reset_index()
 
 
 def _compile_all_entity_records(entity, eia_transformed_dfs):
@@ -232,13 +362,13 @@ def _compile_all_entity_records(entity, eia_transformed_dfs):
     Compile all of the entity records from each table they appear in.
 
     Comb through each of the dataframes in the eia_transformed_dfs dictionary
-    to pull out ever instance of the entity id.
+    to pull out every instance of the entity id.
     """
     # we know these columns must be in the dfs
-    entity_id = pc.entities[entity][0]
-    static_cols = pc.entities[entity][1]
-    annual_cols = pc.entities[entity][2]
-    base_cols = pc.entities[entity][0] + ['report_date']
+    id_cols = ENTITIES[entity]["id_cols"]
+    static_cols = ENTITIES[entity]["static_cols"]
+    annual_cols = ENTITIES[entity]["annual_cols"]
+    base_cols = id_cols + ["report_date"]
 
     # empty list for dfs to be added to for each table below
     dfs = []
@@ -247,7 +377,7 @@ def _compile_all_entity_records(entity, eia_transformed_dfs):
         # inside of main() we are going to be adding items into
         # eia_transformed_dfs with the name 'annual'. We don't want to harvest
         # from our newly harvested tables.
-        if 'annual' not in table_name:
+        if "annual" not in table_name:
             # if the df contains the desired columns the grab those columns
             if set(base_cols).issubset(transformed_df.columns):
                 logger.debug(f"        {table_name}...")
@@ -260,63 +390,69 @@ def _compile_all_entity_records(entity, eia_transformed_dfs):
                     if column in df.columns:
                         cols.append(column)
                 df = df[(base_cols + cols)]
-                df = df.dropna(subset=entity_id)
+                df = df.dropna(subset=id_cols)
                 # add a column with the table name so we know its origin
-                df['table'] = table_name
+                df["table"] = table_name
                 dfs.append(df)
 
                 # remove the static columns, with an exception
-                if ((entity in ('generators', 'plants'))
-                    and (table_name in ('ownership_eia860',
-                                        'utilities_eia860',
-                                        'generators_eia860'))):
-                    cols.remove('utility_id_eia')
+                if (entity in ("generators", "plants")) and (
+                    table_name
+                    in (
+                        "generators_eia860",
+                        "ownership_eia860",
+                        "plants_eia860",
+                        "utilities_eia860",
+                    )
+                ):
+                    cols.remove("utility_id_eia")
                 transformed_df = transformed_df.drop(columns=cols)
                 eia_transformed_dfs[table_name] = transformed_df
 
     # add those records to the compliation
     compiled_df = pd.concat(dfs, axis=0, ignore_index=True, sort=True)
     # strip the month and day from the date so we can have annual records
-    compiled_df['report_date'] = compiled_df['report_date'].dt.year
+    compiled_df["report_date"] = compiled_df["report_date"].dt.year
     # convert the year back into a date_time object
-    year = compiled_df['report_date']
-    compiled_df['report_date'] = pd.to_datetime({'year': year,
-                                                 'month': 1,
-                                                 'day': 1})
+    year = compiled_df["report_date"]
+    compiled_df["report_date"] = pd.to_datetime({"year": year, "month": 1, "day": 1})
 
-    logger.debug('    Casting harvested IDs to correct data types')
+    logger.debug("    Casting harvested IDs to correct data types")
     # most columns become objects (ack!), so assign types
-    compiled_df = compiled_df.astype(pc.entities[entity][3])
+    compiled_df = apply_pudl_dtypes(compiled_df, group="eia")
     return compiled_df
 
 
-def _manage_strictness(col, eia860_ytd):
+def _manage_strictness(col, eia860m):
     """
     Manage the strictness level for each column.
 
     Args:
         col (str): name of column
-        eia860_ytd (boolean): if True, the etl run is attempting to include
+        eia860m (boolean): if True, the etl run is attempting to include
             year-to-date updated from EIA 860M.
     """
-    strictness_default = .7
+    strictness_default = 0.7
     # the longitude column is very different in the ytd 860M data (it appears
     # to have an additional decimal point) bc it shows up in the generator
     # table but it is a plant level data point, it mucks up the consistency
     strictness_cols = {
-        'plant_name_eia': 0,
-        'utility_name_eia': 0,
-        'longitude': 0 if eia860_ytd else .7,
+        "plant_name_eia": 0,
+        "utility_name_eia": 0,
+        "longitude": 0 if eia860m else 0.7,
     }
     return strictness_cols.get(col, strictness_default)
 
 
-def harvesting(entity,  # noqa: C901
-               eia_transformed_dfs,
-               entities_dfs,
-               eia860_ytd=False,
-               debug=False):
-    """Compiles consistent records for various entities.
+def harvesting(  # noqa: C901
+    entity: str,
+    eia_transformed_dfs: Dict[str, pd.DataFrame],
+    entities_dfs: Dict[str, pd.DataFrame],
+    eia860m: bool = False,
+    debug: bool = False,
+) -> tuple:
+    """
+    Compile consistent records for various entities.
 
     For each entity(plants, generators, boilers, utilties), this function
     finds all the harvestable columns from any table that they show up
@@ -343,14 +479,14 @@ def harvesting(entity,  # noqa: C901
     the real world.
 
     Args:
-        entity (str): plants, generators, boilers, utilties
-        eia_transformed_dfs (dict): A dictionary of tbl names (keys) and
+        entity: plants, generators, boilers, utilties
+        eia_transformed_dfs: A dictionary of tbl names (keys) and
             transformed dfs (values)
-        entities_dfs(dict): A dictionary of entity table names (keys) and
+        entities_dfs: A dictionary of entity table names (keys) and
             entity dfs (values)
-        eia860_ytd (boolean): if True, the etl run is attempting to include
+        eia860m: if True, the etl run is attempting to include
             year-to-date updated from EIA 860M.
-        debug (bool): If True, this function will also return an additional
+        debug: If True, this function will also return an additional
             dictionary of dataframes that includes the pre-deduplicated
             compiled records with the number of occurances of the entity and
             the record to see consistency of reported values.
@@ -372,46 +508,45 @@ def harvesting(entity,  # noqa: C901
 
     """
     # we know these columns must be in the dfs
-    entity_id = pc.entities[entity][0]
-    static_cols = pc.entities[entity][1]
-    annual_cols = pc.entities[entity][2]
+    id_cols = ENTITIES[entity]["id_cols"]
+    static_cols = ENTITIES[entity]["static_cols"]
+    annual_cols = ENTITIES[entity]["annual_cols"]
 
     logger.debug("    compiling plants for entity tables from:")
 
     compiled_df = _compile_all_entity_records(entity, eia_transformed_dfs)
 
     # compile annual ids
-    annual_id_df = compiled_df[
-        ['report_date'] + entity_id].copy().drop_duplicates()
-    annual_id_df.sort_values(['report_date'] + entity_id,
-                             inplace=True, ascending=False)
+    annual_id_df = compiled_df[["report_date"] + id_cols].copy().drop_duplicates()
+    annual_id_df.sort_values(["report_date"] + id_cols, inplace=True, ascending=False)
 
     # create the annual and entity dfs
-    entity_id_df = annual_id_df.drop(
-        ['report_date'], axis=1).drop_duplicates(subset=entity_id)
+    entity_id_df = annual_id_df.drop(["report_date"], axis=1).drop_duplicates(
+        subset=id_cols
+    )
 
     entity_df = entity_id_df.copy()
     annual_df = annual_id_df.copy()
-    special_case_cols = {'latitude': [_lat_long, 1],
-                         'longitude': [_lat_long, 1]}
-    consistency = pd.DataFrame(columns=['column', 'consistent_ratio',
-                                        'wrongos', 'total'])
+    special_case_cols = {"latitude": [_lat_long, 1], "longitude": [_lat_long, 1]}
+    consistency = pd.DataFrame(
+        columns=["column", "consistent_ratio", "wrongos", "total"]
+    )
     col_dfs = {}
     # determine how many times each of the columns occur
     for col in static_cols + annual_cols:
         if col in annual_cols:
-            cols_to_consit = entity_id + ['report_date']
+            cols_to_consit = id_cols + ["report_date"]
         if col in static_cols:
-            cols_to_consit = entity_id
+            cols_to_consit = id_cols
 
-        strictness = _manage_strictness(col, eia860_ytd)
+        strictness = _manage_strictness(col, eia860m)
         col_df = _occurrence_consistency(
-            entity_id, compiled_df, col, cols_to_consit, strictness=strictness)
+            id_cols, compiled_df, col, cols_to_consit, strictness=strictness
+        )
 
         # pull the correct values out of the df and merge w/ the plant ids
-        col_correct_df = (
-            col_df[col_df[f'{col}_consistent']].
-            drop_duplicates(subset=(cols_to_consit + [f'{col}_consistent']))
+        col_correct_df = col_df[col_df[f"{col}_consistent"]].drop_duplicates(
+            subset=(cols_to_consit + [f"{col}_consistent"])
         )
 
         # we need this to be an empty df w/ columns bc we are going to use it
@@ -419,28 +554,32 @@ def harvesting(entity,  # noqa: C901
             col_correct_df = pd.DataFrame(columns=col_df.columns)
 
         if col in static_cols:
-            clean_df = entity_id_df.merge(
-                col_correct_df, on=entity_id, how='left')
-            clean_df = clean_df[entity_id + [col]]
-            entity_df = entity_df.merge(clean_df, on=entity_id)
+            clean_df = entity_id_df.merge(col_correct_df, on=id_cols, how="left")
+            clean_df = clean_df[id_cols + [col]]
+            entity_df = entity_df.merge(clean_df, on=id_cols)
 
         if col in annual_cols:
             clean_df = annual_id_df.merge(
-                col_correct_df, on=(entity_id + ['report_date']), how='left')
-            clean_df = clean_df[entity_id + ['report_date', col]]
-            annual_df = annual_df.merge(
-                clean_df, on=(entity_id + ['report_date']))
+                col_correct_df, on=(id_cols + ["report_date"]), how="left"
+            )
+            clean_df = clean_df[id_cols + ["report_date", col]]
+            annual_df = annual_df.merge(clean_df, on=(id_cols + ["report_date"]))
 
         # get the still dirty records by using the cleaned ids w/null values
         # we need the plants that have no 'correct' value so
         # we can't just use the col_df records when the consistency is not True
-        dirty_df = col_df.merge(
-            clean_df[clean_df[col].isnull()][entity_id])
+        dirty_df = col_df.merge(clean_df[clean_df[col].isnull()][id_cols])
 
         if col in special_case_cols.keys():
             clean_df = special_case_cols[col][0](
-                dirty_df, clean_df, entity_id_df, entity_id, col,
-                cols_to_consit, special_case_cols[col][1])
+                dirty_df,
+                clean_df,
+                entity_id_df,
+                id_cols,
+                col,
+                cols_to_consit,
+                special_case_cols[col][1],
+            )
 
         if debug:
             col_dfs[col] = col_df
@@ -454,8 +593,12 @@ def harvesting(entity,  # noqa: C901
             logger.debug(f"       Zero records found for {col}")
         if total > 0:
             ratio = (
-                len(col_df[(col_df[f'{col}_consistent'])].
-                    drop_duplicates(subset=cols_to_consit)) / total
+                len(
+                    col_df[(col_df[f"{col}_consistent"])].drop_duplicates(
+                        subset=cols_to_consit
+                    )
+                )
+                / total
             )
             wrongos = (1 - ratio) * total
             logger.debug(
@@ -465,35 +608,47 @@ def harvesting(entity,  # noqa: C901
             )
             if ratio < 0.9:
                 if debug:
-                    logger.error(f'{col} has low consistency: {ratio:.3}.')
+                    logger.error(f"{col} has low consistency: {ratio:.3}.")
                 else:
                     raise AssertionError(
-                        f'Harvesting of {col} is too inconsistent at {ratio:.3}.')
+                        f"Harvesting of {col} is too inconsistent at {ratio:.3}."
+                    )
         # add to a small df to be used in order to print out the ratio of
         # consistent records
-        consistency = consistency.append({'column': col,
-                                          'consistent_ratio': ratio,
-                                          'wrongos': wrongos,
-                                          'total': total}, ignore_index=True)
-    mcs = consistency['consistent_ratio'].mean()
-    logger.info(
-        f"Average consistency of static {entity} values is {mcs:.2%}")
+        consistency = pd.concat(
+            [
+                consistency,
+                pd.DataFrame(
+                    {
+                        "column": [col],
+                        "consistent_ratio": [ratio],
+                        "wrongos": [wrongos],
+                        "total": [total],
+                    }
+                ),
+            ],
+            ignore_index=True,
+        )
+    mcs = consistency["consistent_ratio"].mean()
+    logger.info(f"Average consistency of static {entity} values is {mcs:.2%}")
 
     if entity == "plants":
         entity_df = _add_additional_epacems_plants(entity_df)
         entity_df = _add_timezone(entity_df)
 
-    eia_transformed_dfs[f'{entity}_annual_eia'] = annual_df
-    entities_dfs[f'{entity}_entity_eia'] = entity_df
+    eia_transformed_dfs[f"{entity}_annual_eia"] = annual_df
+    entities_dfs[f"{entity}_entity_eia"] = entity_df
     if debug:
         return entities_dfs, eia_transformed_dfs, col_dfs
     return (entities_dfs, eia_transformed_dfs)
 
 
-def _boiler_generator_assn(eia_transformed_dfs,
-                           eia923_years=pc.working_partitions['eia923']['years'],
-                           eia860_years=pc.working_partitions['eia860']['years'],
-                           debug=False):
+def _boiler_generator_assn(
+    eia_transformed_dfs,
+    eia923_years=DataSource.from_id("eia923").working_partitions["years"],
+    eia860_years=DataSource.from_id("eia860").working_partitions["years"],
+    debug=False,
+):
     """
     Creates a set of more complete boiler generator associations.
 
@@ -545,190 +700,246 @@ def _boiler_generator_assn(eia_transformed_dfs,
     """
     # if you're not ingesting both 860 and 923, the bga is not compilable
     if not (eia860_years and eia923_years):
-        return
+        return pd.DataFrame()
     # compile and scrub all the parts
     logger.info("Inferring complete EIA boiler-generator associations.")
-    bga_eia860 = (eia_transformed_dfs['boiler_generator_assn_eia860'].copy().
-                  pipe(_restrict_years, eia923_years, eia860_years).
-                  astype({'generator_id': str,
-                          'boiler_id': str}))
+    bga_eia860 = (
+        eia_transformed_dfs["boiler_generator_assn_eia860"]
+        .copy()
+        .pipe(_restrict_years, eia923_years, eia860_years)
+        .astype(
+            {
+                "generator_id": pd.StringDtype(),
+                "boiler_id": pd.StringDtype(),
+                "plant_id_eia": int,
+            }
+        )
+    )
     # grab the generation_eia923 table, group annually, generate a new tag
-    gen_eia923 = eia_transformed_dfs['generation_eia923'].copy()
+    gen_eia923 = eia_transformed_dfs["generation_eia923"].copy()
     gen_eia923 = gen_eia923.set_index(pd.DatetimeIndex(gen_eia923.report_date))
-    gen_eia923 = (_restrict_years(gen_eia923, eia923_years, eia860_years).
-                  astype({'generator_id': str}).
-                  groupby([pd.Grouper(freq='AS'), 'plant_id_eia', 'generator_id']).
-                  agg({'net_generation_mwh': 'sum'}).
-                  reset_index())
-    gen_eia923['missing_from_923'] = False
+    gen_eia923 = (
+        _restrict_years(gen_eia923, eia923_years, eia860_years)
+        .astype(
+            {
+                "generator_id": pd.StringDtype(),
+                "plant_id_eia": int,
+            }
+        )
+        .groupby([pd.Grouper(freq="AS"), "plant_id_eia", "generator_id"])
+        .net_generation_mwh.sum()
+        .reset_index()
+        .assign(missing_from_923=False)
+    )
 
     # compile all of the generators
-    gens_eia860 = eia_transformed_dfs['generators_eia860'].copy()
-    gens_eia860 = _restrict_years(gens_eia860, eia923_years, eia860_years)
-    gens_eia860['generator_id'] = gens_eia860.generator_id.astype(str)
-    gens = pd.merge(gen_eia923, gens_eia860,
-                    on=['plant_id_eia', 'report_date', 'generator_id'],
-                    how='outer')
+    gens_eia860 = (
+        eia_transformed_dfs["generators_eia860"]
+        .copy()
+        .pipe(_restrict_years, eia923_years, eia860_years)
+        .astype(
+            {
+                "generator_id": pd.StringDtype(),
+                "plant_id_eia": int,
+            }
+        )
+    )
+    gens = pd.merge(
+        gen_eia923,
+        gens_eia860,
+        on=["plant_id_eia", "report_date", "generator_id"],
+        how="outer",
+    )
 
-    gens = (gens[['plant_id_eia',
-                  'report_date',
-                  'generator_id',
-                  'unit_id_eia',
-                  'net_generation_mwh',
-                  'missing_from_923']].
-            drop_duplicates().
-            astype({'generator_id': str}))
+    gens = (
+        gens[
+            [
+                "plant_id_eia",
+                "report_date",
+                "generator_id",
+                "unit_id_eia",
+                "net_generation_mwh",
+                "missing_from_923",
+            ]
+        ]
+        .drop_duplicates()
+        .astype(
+            {
+                "generator_id": pd.StringDtype(),
+                "plant_id_eia": int,
+            }
+        )
+    )
 
     # create the beginning of a bga compilation w/ the generators as the
     # background
-    bga_compiled_1 = pd.merge(gens, bga_eia860,
-                              on=['plant_id_eia', 'generator_id',
-                                  'report_date'],
-                              how='outer')
+    bga_compiled_1 = pd.merge(
+        gens,
+        bga_eia860,
+        on=["plant_id_eia", "generator_id", "report_date"],
+        how="outer",
+    )
 
     # Create a set of bga's that are linked, directly from bga8
-    bga_assn = bga_compiled_1[bga_compiled_1['boiler_id'].notnull()].copy()
-    bga_assn['bga_source'] = 'eia860_org'
+    bga_assn = bga_compiled_1[bga_compiled_1["boiler_id"].notnull()].copy()
+    bga_assn.loc[:, "bga_source"] = "eia860_org"
 
     # Create a set of bga's that were not linked directly through bga8
-    bga_unassn = bga_compiled_1[bga_compiled_1['boiler_id'].isnull()].copy()
-    bga_unassn = bga_unassn.drop(['boiler_id'], axis=1)
+    bga_unassn = bga_compiled_1[bga_compiled_1["boiler_id"].isnull()].copy()
+    bga_unassn = bga_unassn.drop(["boiler_id"], axis=1)
 
     # Side note: there are only 6 generators that appear in bga8 that don't
     # apear in gens9 or gens8 (must uncomment-out the og_tag creation above)
     # bga_compiled_1[bga_compiled_1['og_tag'].isnull()]
 
-    bf_eia923 = eia_transformed_dfs['boiler_fuel_eia923'].copy()
-    bf_eia923 = _restrict_years(bf_eia923, eia923_years, eia860_years)
-    bf_eia923['boiler_id'] = bf_eia923.boiler_id.astype(str)
-    bf_eia923['total_heat_content_mmbtu'] = bf_eia923['fuel_consumed_units'] * \
-        bf_eia923['fuel_mmbtu_per_unit']
-    bf_eia923 = bf_eia923.set_index(pd.DatetimeIndex(bf_eia923.report_date))
-    bf_eia923_gb = bf_eia923.groupby(
-        [pd.Grouper(freq='AS'), 'plant_id_eia', 'boiler_id'])
-    bf_eia923 = bf_eia923_gb.agg({
-        'total_heat_content_mmbtu': pudl.helpers.sum_na,
-    }).reset_index()
-
-    bf_eia923.drop_duplicates(
-        subset=['plant_id_eia', 'report_date', 'boiler_id'], inplace=True)
+    bf_eia923 = (
+        eia_transformed_dfs["boiler_fuel_eia923"]
+        .copy()
+        .pipe(_restrict_years, eia923_years, eia860_years)
+        .astype(
+            {
+                "boiler_id": pd.StringDtype(),
+                "plant_id_eia": int,
+            }
+        )
+        .assign(
+            total_heat_content_mmbtu=lambda x: x.fuel_consumed_units
+            * x.fuel_mmbtu_per_unit
+        )
+    )
+    bf_eia923 = (
+        bf_eia923.set_index(pd.DatetimeIndex(bf_eia923.report_date))
+        .groupby([pd.Grouper(freq="AS"), "plant_id_eia", "boiler_id"])
+        .agg({"total_heat_content_mmbtu": pudl.helpers.sum_na})
+        .reset_index()
+        .drop_duplicates(subset=["plant_id_eia", "report_date", "boiler_id"])
+    )
 
     # Create a list of boilers that were not in bga8
-    bf9_bga = bf_eia923.merge(bga_compiled_1,
-                              on=['plant_id_eia', 'boiler_id', 'report_date'],
-                              how='outer',
-                              indicator=True)
-    bf9_not_in_bga = bf9_bga[bf9_bga['_merge'] == 'left_only']
-    bf9_not_in_bga = bf9_not_in_bga.drop(['_merge'], axis=1)
+    bf9_bga = bf_eia923.merge(
+        bga_compiled_1,
+        on=["plant_id_eia", "boiler_id", "report_date"],
+        how="outer",
+        indicator=True,
+    )
+    bf9_not_in_bga = bf9_bga[bf9_bga["_merge"] == "left_only"]
+    bf9_not_in_bga = bf9_not_in_bga.drop(["_merge"], axis=1)
 
     # Match the unassociated generators with unassociated boilers
     # This method is assuming that some the strings of the generators and the
     # boilers are the same
-    bga_unassn = bga_unassn.merge(bf9_not_in_bga[['plant_id_eia',
-                                                  'boiler_id',
-                                                  'report_date']],
-                                  how='left',
-                                  left_on=['report_date',
-                                           'plant_id_eia',
-                                           'generator_id'],
-                                  right_on=['report_date',
-                                            'plant_id_eia',
-                                            'boiler_id'])
-    bga_unassn.sort_values(['report_date', 'plant_id_eia'], inplace=True)
-    bga_unassn['bga_source'] = None
-    bga_unassn.loc[bga_unassn.boiler_id.notnull(),
-                   'bga_source'] = 'string_assn'
+    bga_unassn = bga_unassn.merge(
+        bf9_not_in_bga[["plant_id_eia", "boiler_id", "report_date"]],
+        how="left",
+        left_on=["report_date", "plant_id_eia", "generator_id"],
+        right_on=["report_date", "plant_id_eia", "boiler_id"],
+    )
+    bga_unassn["bga_source"] = np.where(
+        bga_unassn.boiler_id.notnull(), "string_assn", pd.NA
+    )
 
-    bga_compiled_2 = (bga_assn.append(bga_unassn).
-                      sort_values(['plant_id_eia', 'report_date']).
-                      fillna({'missing_from_923': True}))
+    bga_compiled_2 = pd.concat([bga_assn, bga_unassn]).fillna(
+        {"missing_from_923": True}
+    )
 
     # Connect the gens and boilers in units
-    bga_compiled_units = bga_compiled_2.loc[
-        bga_compiled_2['unit_id_eia'].notnull()]
-    bga_gen_units = bga_compiled_units.drop(['boiler_id'], axis=1)
-    bga_boil_units = bga_compiled_units[['plant_id_eia',
-                                         'report_date',
-                                         'boiler_id',
-                                         'unit_id_eia']].copy()
-    bga_boil_units.dropna(subset=['boiler_id'], inplace=True)
+    bga_compiled_units = bga_compiled_2.loc[bga_compiled_2["unit_id_eia"].notnull()]
+    bga_gen_units = bga_compiled_units.drop(["boiler_id"], axis=1)
+    bga_boil_units = bga_compiled_units[
+        ["plant_id_eia", "report_date", "boiler_id", "unit_id_eia"]
+    ].copy()
+    bga_boil_units.dropna(subset=["boiler_id"], inplace=True)
 
     # merge the units with the boilers
-    bga_unit_compilation = bga_gen_units.merge(bga_boil_units,
-                                               how='outer',
-                                               on=['plant_id_eia',
-                                                   'report_date',
-                                                   'unit_id_eia'],
-                                               indicator=True)
+    bga_unit_compilation = bga_gen_units.merge(
+        bga_boil_units,
+        how="outer",
+        on=["plant_id_eia", "report_date", "unit_id_eia"],
+        indicator=True,
+    )
     # label the bga_source
-    bga_unit_compilation. \
-        loc[bga_unit_compilation['bga_source'].isnull(),
-            'bga_source'] = 'unit_connection'
-    bga_unit_compilation.drop(['_merge'], axis=1, inplace=True)
-    bga_non_units = bga_compiled_2[bga_compiled_2['unit_id_eia'].isnull()]
+    bga_unit_compilation.loc[
+        bga_unit_compilation["bga_source"].isnull(), "bga_source"
+    ] = "unit_connection"
+    bga_unit_compilation.drop(["_merge"], axis=1, inplace=True)
+    bga_non_units = bga_compiled_2[bga_compiled_2["unit_id_eia"].isnull()]
 
     # combine the unit compilation and the non units
-    bga_compiled_3 = bga_non_units.append(bga_unit_compilation)
+    bga_compiled_3 = pd.concat([bga_non_units, bga_unit_compilation])
 
-    # resort the records and the columns
-    bga_compiled_3.sort_values(['plant_id_eia', 'report_date'], inplace=True)
-    bga_compiled_3 = bga_compiled_3[['plant_id_eia',
-                                     'report_date',
-                                     'generator_id',
-                                     'boiler_id',
-                                     'unit_id_eia',
-                                     'bga_source',
-                                     'net_generation_mwh',
-                                     'missing_from_923']]
+    bga_compiled_3 = bga_compiled_3[
+        [
+            "plant_id_eia",
+            "report_date",
+            "generator_id",
+            "boiler_id",
+            "unit_id_eia",
+            "bga_source",
+            "net_generation_mwh",
+            "missing_from_923",
+        ]
+    ]
 
     # label plants that have 'bad' generator records (generators that have MWhs
     # in gens9 but don't have connected boilers) create a df with just the bad
     # plants by searching for the 'bad' generators
-    bad_plants = bga_compiled_3[(bga_compiled_3['boiler_id'].isnull()) &
-                                (bga_compiled_3['net_generation_mwh'] > 0)].\
-        drop_duplicates(subset=['plant_id_eia', 'report_date'])
-    bad_plants = bad_plants[['plant_id_eia', 'report_date']]
+    bad_plants = bga_compiled_3[
+        (bga_compiled_3["boiler_id"].isnull())
+        & (bga_compiled_3["net_generation_mwh"] > 0)
+    ].drop_duplicates(subset=["plant_id_eia", "report_date"])
+    bad_plants = bad_plants[["plant_id_eia", "report_date"]]
 
     # merge the 'bad' plants back into the larger frame
-    bga_compiled_3 = bga_compiled_3.merge(bad_plants,
-                                          how='outer',
-                                          on=['plant_id_eia', 'report_date'],
-                                          indicator=True)
+    bga_compiled_3 = bga_compiled_3.merge(
+        bad_plants, how="outer", on=["plant_id_eia", "report_date"], indicator=True
+    )
 
     # use the indicator to create labels
-    bga_compiled_3['plant_w_bad_generator'] = np.where(
-        bga_compiled_3._merge == 'both', True, False)
+    bga_compiled_3["plant_w_bad_generator"] = np.where(
+        bga_compiled_3["_merge"] == "both", True, False
+    )
     # Note: At least one gen has reported MWh in 923, but could not be
     # programmatically mapped to a boiler
 
     # we don't need this one anymore
-    bga_compiled_3 = bga_compiled_3.drop(['_merge'], axis=1)
+    bga_compiled_3 = bga_compiled_3.drop(["_merge"], axis=1)
 
     # create a label for generators that are unmapped but in 923
-    bga_compiled_3['unmapped_but_in_923'] = np.where((bga_compiled_3.boiler_id.isnull()) &
-                                                     ~bga_compiled_3.missing_from_923 &
-                                                     (bga_compiled_3.net_generation_mwh == 0),
-                                                     True,
-                                                     False)
+    bga_compiled_3["unmapped_but_in_923"] = np.where(
+        (bga_compiled_3.boiler_id.isnull())
+        & ~bga_compiled_3.missing_from_923
+        & (bga_compiled_3.net_generation_mwh == 0),
+        True,
+        False,
+    )
 
     # create a label for generators that are unmapped
-    bga_compiled_3['unmapped'] = np.where(bga_compiled_3.boiler_id.isnull(),
-                                          True,
-                                          False)
-    bga_out = bga_compiled_3.drop('net_generation_mwh', axis=1)
-    bga_out.loc[bga_out.unit_id_eia.isnull(), 'unit_id_eia'] = None
+    bga_compiled_3["unmapped"] = np.where(
+        bga_compiled_3.boiler_id.isnull(), True, False
+    )
+    bga_out = bga_compiled_3.drop("net_generation_mwh", axis=1)
+    bga_out.loc[bga_out.unit_id_eia.isnull(), "unit_id_eia"] = pd.NA
 
-    bga_for_nx = bga_out[['plant_id_eia', 'report_date', 'generator_id',
-                          'boiler_id', 'unit_id_eia']]
+    bga_for_nx = bga_out[
+        ["plant_id_eia", "report_date", "generator_id", "boiler_id", "unit_id_eia"]
+    ]
     # If there's no boiler... there's no boiler-generator association
-    bga_for_nx = bga_for_nx.dropna(subset=['boiler_id']).drop_duplicates()
+    bga_for_nx = bga_for_nx.dropna(subset=["boiler_id"]).drop_duplicates()
 
     # Need boiler & generator specific ID strings, or they look like
     # the same node to NX
-    bga_for_nx['generators'] = 'p' + bga_for_nx.plant_id_eia.astype(str) + \
-        '_g' + bga_for_nx.generator_id.astype(str)
-    bga_for_nx['boilers'] = 'p' + bga_for_nx.plant_id_eia.astype(str) + \
-        '_b' + bga_for_nx.boiler_id.astype(str)
+    bga_for_nx["generators"] = (
+        "p"
+        + bga_for_nx.plant_id_eia.astype(int).astype(str)
+        + "_g"
+        + bga_for_nx.generator_id.astype(pd.StringDtype())
+    )
+    bga_for_nx["boilers"] = (
+        "p"
+        + bga_for_nx.plant_id_eia.astype(int).astype(str)
+        + "_b"
+        + bga_for_nx.boiler_id.astype(pd.StringDtype())
+    )
 
     # dataframe to accumulate the unit_ids in
     bga_w_units = pd.DataFrame()
@@ -740,15 +951,18 @@ def _boiler_generator_assn(eia_transformed_dfs,
         # multi-graph, meaning the same nodes can be connected by more than one
         # edge -- this allows us to preserve multiple years worth of boiler
         # generator association information for later inspection if need be:
-        bga_graph = nx.from_pandas_edgelist(bga_byplant,
-                                            source='generators',
-                                            target='boilers',
-                                            edge_attr=True,
-                                            create_using=nx.MultiGraph())
+        bga_graph = nx.from_pandas_edgelist(
+            bga_byplant,
+            source="generators",
+            target="boilers",
+            edge_attr=True,
+            create_using=nx.MultiGraph(),
+        )
 
         # Each connected sub-graph is a generation unit:
-        gen_units = [bga_graph.subgraph(c).copy()
-                     for c in nx.connected_components(bga_graph)]
+        gen_units = [
+            bga_graph.subgraph(c).copy() for c in nx.connected_components(bga_graph)
+        ]
 
         # Assign a unit_id to each subgraph, and extract edges into a dataframe
         for unit_id, unit in zip(range(len(gen_units)), gen_units):
@@ -760,90 +974,110 @@ def _boiler_generator_assn(eia_transformed_dfs,
                     f"Non-bipartite generation unit graph found."
                     f"plant_id_eia={pid}, unit_id_pudl={unit_id}."
                 )
-            nx.set_edge_attributes(
-                unit, name='unit_id_pudl', values=unit_id + 1)
+            nx.set_edge_attributes(unit, name="unit_id_pudl", values=unit_id + 1)
             new_unit_df = nx.to_pandas_edgelist(unit)
-            bga_w_units = bga_w_units.append(new_unit_df)
+            bga_w_units = pd.concat([bga_w_units, new_unit_df])
 
-    bga_w_units = bga_w_units.sort_values(['plant_id_eia', 'unit_id_pudl',
-                                           'generator_id', 'boiler_id'])
-    bga_w_units = bga_w_units.drop(['source', 'target'], axis=1)
+    bga_w_units = bga_w_units.drop(["source", "target"], axis=1)
 
     # Check whether the PUDL unit_id values we've inferred conflict with
     # the unit_id_eia values that were reported to EIA. Are there any PUDL
     # unit_id values that have more than 1 EIA unit_id_eia within them?
-    bga_unit_id_eia_counts = bga_w_units.groupby(['plant_id_eia', 'unit_id_pudl'])['unit_id_eia'].\
-        nunique().to_frame().reset_index()
+    bga_unit_id_eia_counts = (
+        bga_w_units.groupby(["plant_id_eia", "unit_id_pudl"])["unit_id_eia"]
+        .nunique()
+        .to_frame()
+        .reset_index()
+    )
     bga_unit_id_eia_counts = bga_unit_id_eia_counts.rename(
-        columns={'unit_id_eia': 'unit_id_eia_count'})
-    bga_unit_id_eia_counts = pd.merge(bga_w_units, bga_unit_id_eia_counts,
-                                      on=['plant_id_eia', 'unit_id_pudl'])
-    too_many_codes = bga_unit_id_eia_counts[bga_unit_id_eia_counts.unit_id_eia_count > 1]
-    too_many_codes = too_many_codes[~too_many_codes.unit_id_eia.isnull()].\
-        groupby(['plant_id_eia', 'unit_id_pudl'])['unit_id_eia'].unique()
+        columns={"unit_id_eia": "unit_id_eia_count"}
+    )
+    bga_unit_id_eia_counts = pd.merge(
+        bga_w_units, bga_unit_id_eia_counts, on=["plant_id_eia", "unit_id_pudl"]
+    )
+    too_many_codes = bga_unit_id_eia_counts[
+        bga_unit_id_eia_counts.unit_id_eia_count > 1
+    ]
+    too_many_codes = (
+        too_many_codes[~too_many_codes.unit_id_eia.isnull()]
+        .groupby(["plant_id_eia", "unit_id_pudl"])["unit_id_eia"]
+        .unique()
+    )
     for row in too_many_codes.iteritems():
-        logger.warning(f"Multiple EIA unit codes:"
-                       f"plant_id_eia={row[0][0]}, "
-                       f"unit_id_pudl={row[0][1]}, "
-                       f"unit_id_eia={row[1]}")
-    bga_w_units = bga_w_units.drop('unit_id_eia', axis=1)
+        logger.warning(
+            f"Multiple EIA unit codes:"
+            f"plant_id_eia={row[0][0]}, "
+            f"unit_id_pudl={row[0][1]}, "
+            f"unit_id_eia={row[1]}"
+        )
+    bga_w_units = bga_w_units.drop("unit_id_eia", axis=1)
 
     # These assertions test that all boilers and generators ended up in the
     # same unit_id across all the years of reporting:
-    pgu_gb = bga_w_units.groupby(
-        ['plant_id_eia', 'generator_id'])['unit_id_pudl']
-    if not (pgu_gb.nunique() == 1).all():
-        raise AssertionError("Inconsistent inter-annual BGA assignment!")
-    pbu_gb = bga_w_units.groupby(
-        ['plant_id_eia', 'boiler_id'])['unit_id_pudl']
-    if not (pbu_gb.nunique() == 1).all():
-        raise AssertionError("Inconsistent inter-annual BGA assignment!")
+    pgu_gb = bga_w_units.groupby(["plant_id_eia", "generator_id"])["unit_id_pudl"]
+    if not (pgu_gb.nunique() <= 1).all():
+        # raise AssertionError("Inconsistent inter-annual BGA assignment!")
+        logger.error("Inconsistent inter-annual plant-generator-units!")
+    pbu_gb = bga_w_units.groupby(["plant_id_eia", "boiler_id"])["unit_id_pudl"]
+    if not (pbu_gb.nunique() <= 1).all():
+        # raise AssertionError("Inconsistent inter-annual BGA assignment!")
+        logger.error("Inconsistent inter-annual plant-boiler-units!")
 
-    bga_w_units = bga_w_units.drop('report_date', axis=1)
-    bga_w_units = bga_w_units[['plant_id_eia', 'unit_id_pudl',
-                               'generator_id', 'boiler_id']].drop_duplicates()
-    bga_out = pd.merge(bga_out, bga_w_units, how='left',
-                       on=['plant_id_eia', 'generator_id', 'boiler_id'])
-    bga_out['unit_id_pudl'] = (
-        bga_out['unit_id_pudl'].
-        fillna(value=0).
-        astype(int)
+    bga_w_units = (
+        bga_w_units.drop("report_date", axis=1)
+        .loc[:, ["plant_id_eia", "unit_id_pudl", "generator_id", "boiler_id"]]
+        .drop_duplicates()
     )
 
+    bga_out = pd.merge(
+        left=bga_out,
+        right=bga_w_units,
+        how="left",
+        on=["plant_id_eia", "generator_id", "boiler_id"],
+    ).astype({"unit_id_pudl": pd.Int64Dtype()})
+
     if not debug:
-        bga_out = bga_out[~bga_out.missing_from_923 &
-                          ~bga_out.plant_w_bad_generator &
-                          ~bga_out.unmapped_but_in_923 &
-                          ~bga_out.unmapped]
+        bga_out = (
+            bga_out[
+                ~bga_out.missing_from_923
+                & ~bga_out.plant_w_bad_generator
+                & ~bga_out.unmapped_but_in_923
+                & ~bga_out.unmapped
+            ]
+            .drop(
+                [
+                    "missing_from_923",
+                    "plant_w_bad_generator",
+                    "unmapped_but_in_923",
+                    "unmapped",
+                ],
+                axis=1,
+            )
+            .drop_duplicates(
+                subset=["report_date", "plant_id_eia", "boiler_id", "generator_id"]
+            )
+        )
 
-        bga_out = bga_out.drop(['missing_from_923',
-                                'plant_w_bad_generator',
-                                'unmapped_but_in_923',
-                                'unmapped'], axis=1)
-        bga_out = bga_out.drop_duplicates(subset=['report_date',
-                                                  'plant_id_eia',
-                                                  'boiler_id',
-                                                  'generator_id'])
-
-    eia_transformed_dfs['boiler_generator_assn_eia860'] = bga_out
+    bga_out = apply_pudl_dtypes(bga_out, group="eia")
+    eia_transformed_dfs["boiler_generator_assn_eia860"] = bga_out
 
     return eia_transformed_dfs
 
 
-def _restrict_years(df,
-                    eia923_years=pc.working_partitions['eia923']['years'],
-                    eia860_years=pc.working_partitions['eia860']['years']):
+def _restrict_years(
+    df,
+    eia923_years=DataSource.from_id("eia923").working_partitions["years"],
+    eia860_years=DataSource.from_id("eia860").working_partitions["years"],
+):
     """Restricts eia years for boiler generator association."""
     bga_years = set(eia860_years) & set(eia923_years)
     df = df[df.report_date.dt.year.isin(bga_years)]
     return df
 
 
-def transform(eia_transformed_dfs,
-              eia860_years=pc.working_partitions['eia860']['years'],
-              eia923_years=pc.working_partitions['eia923']['years'],
-              eia860_ytd=False,
-              debug=False):
+def transform(
+    eia_transformed_dfs, eia_settings: EiaSettings = EiaSettings(), debug=False
+):
     """Creates DataFrames for EIA Entity tables and modifies EIA tables.
 
     This function coordinates two main actions: generating the entity tables
@@ -856,12 +1090,8 @@ def transform(eia_transformed_dfs,
     Args:
         eia_transformed_dfs (dict): a dictionary of table names (kays) and
             transformed dataframes (values).
-        eia860_years (list): a list of years for EIA 860, must be continuous,
-            and only include working years.
-        eia923_years (list): a list of years for EIA 923, must be continuous,
-            and include only working years.
-        eia860_ytd (boolean): if True, the etl run is attempting to include
-            year-to-date updated from EIA 860M.
+        settings: Object containing validated settings
+            relevant to EIA datasets.
         debug (bool): if true, informational columns will be added into
             boiler_generator_assn
 
@@ -870,32 +1100,37 @@ def transform(eia_transformed_dfs,
         dataframes as values for the entity tables transformed EIA dataframes
 
     """
-    if not eia923_years and not eia860_years:
-        logger.info('Not ingesting EIA')
-        return None
-
     # create the empty entities df to fill up
     entities_dfs = {}
 
     # for each of the entities, harvest the static and annual columns.
     # the order of the entities matter! the
-    for entity in pc.entities.keys():
-        logger.info(f"Harvesting IDs & consistently static attributes "
-                    f"for EIA {entity}")
+    for entity in ENTITIES:
+        logger.info(f"Harvesting IDs & consistently static attributes for EIA {entity}")
 
-        harvesting(entity, eia_transformed_dfs, entities_dfs,
-                   debug=debug, eia860_ytd=eia860_ytd)
+        harvesting(
+            entity,
+            eia_transformed_dfs,
+            entities_dfs,
+            debug=debug,
+            eia860m=eia_settings.eia860.eia860m,
+        )
 
-    _boiler_generator_assn(eia_transformed_dfs,
-                           eia923_years=eia923_years,
-                           eia860_years=eia860_years,
-                           debug=debug)
+    _boiler_generator_assn(
+        eia_transformed_dfs,
+        eia923_years=eia_settings.eia923.years,
+        eia860_years=eia_settings.eia860.years,
+        debug=debug,
+    )
 
     # get rid of the original annual dfs in the transformed dict
-    remove = ['generators', 'plants', 'utilities']
+    remove = ["generators", "plants", "utilities"]
     for entity in remove:
-        eia_transformed_dfs[f'{entity}_eia860'] = eia_transformed_dfs.pop(
-            f'{entity}_annual_eia', f'{entity}_annual_eia')
+        eia_transformed_dfs[f"{entity}_eia860"] = eia_transformed_dfs.pop(
+            f"{entity}_annual_eia", f"{entity}_annual_eia"
+        )
     # remove the boilers annual table bc it has no columns
-    eia_transformed_dfs.pop('boilers_annual_eia',)
+    eia_transformed_dfs.pop(
+        "boilers_annual_eia",
+    )
     return entities_dfs, eia_transformed_dfs

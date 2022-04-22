@@ -70,8 +70,7 @@ Make Tidy Data
 The best practices in data organization go by different names in data science,
 statistics, and database design, but they all try to minimize data duplication
 and ensure an easy to transform uniform structure that can be used for a wide
-variety of purposes -- at least in the source data (i.e. database tables or the
-published data packages).
+variety of purposes.
 
 * Each column in a table represents a single, homogeneous variable.
 * Each row in a table represents a single observation -- i.e. all of the
@@ -103,20 +102,6 @@ Reading on Tidy Data
   A classic 1983 rundown of database normalization. Concise, informal, and
   understandable, with a few good illustrative examples. Bonus points for the
   ASCII art.
-
--------------------------------------------------------------------------------
-Use Simple Data Types
--------------------------------------------------------------------------------
-The Frictionless Data
-`TableSchema <https://frictionlessdata.io/specs/table-schema/>`__
-standard includes a modest selection of data types that are meant to be very
-widely usable in other contexts. Make sure that whatever data type you're using
-is included within that specification, but also be as specific as possible
-within that collection of options.
-
-This is one aspect of a broader "least common denominator" strategy that is
-common within the open data. This strategy is also behind our decision to
-distribute the processed data as CSV files (with metadata stored as JSON).
 
 -------------------------------------------------------------------------------
 Use Consistent Units

@@ -11,6 +11,7 @@ import pandas as pd
 
 from pudl.extract import excel
 from pudl.helpers import fix_leading_zero_gen_ids
+from pudl.settings import Eia860Settings
 
 logger = logging.getLogger(__name__)
 
@@ -25,7 +26,7 @@ class Extractor(excel.GenericExtractor):
         Args:
             ds (:class:datastore.Datastore): Initialized datastore.
         """
-        self.METADATA = excel.Metadata('eia860')
+        self.METADATA = excel.Metadata("eia860")
         self.cols_added = []
         super().__init__(*args, **kwargs)
 
@@ -39,19 +40,31 @@ class Extractor(excel.GenericExtractor):
         * Fix any generator_id values with leading zeroes.
 
         """
-        df = df.rename(
-            columns=self._metadata.get_column_map(page, **partition))
-        if 'report_year' not in df.columns:
-            df['report_year'] = list(partition.values())[0]
-        self.cols_added = ['report_year']
+        df = df.rename(columns=self._metadata.get_column_map(page, **partition))
+        if "report_year" not in df.columns:
+            df["report_year"] = list(partition.values())[0]
+        self.cols_added = ["report_year"]
         # if this is one of the EIA860M pages, add data_source
-        meta_eia860m = excel.Metadata('eia860m')
+        meta_eia860m = excel.Metadata("eia860m")
         pages_eia860m = meta_eia860m.get_all_pages()
         if page in pages_eia860m:
-            df = df.assign(data_source='eia860')
-            self.cols_added.append('data_source')
+            df = df.assign(data_source="eia860")
+            self.cols_added.append("data_source")
         df = fix_leading_zero_gen_ids(df)
         return df
+
+    def extract(self, settings: Eia860Settings = Eia860Settings()):
+        """Extracts dataframes.
+
+        Returns dict where keys are page names and values are
+        DataFrames containing data across given years.
+
+        Args:
+            settings: Object containing validated settings
+                relevant to EIA 860. Contains the tables and years to be loaded
+                into PUDL.
+        """
+        return super().extract(year=settings.years)
 
     @staticmethod
     def get_dtypes(page, **partition):

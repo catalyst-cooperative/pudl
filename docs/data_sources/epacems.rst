@@ -18,13 +18,13 @@ EPA CEMS Hourly
    * - Source Years
      - 1995-2020
    * - Size (Download)
-     - 8.7 GB
+     - 8.1 GB
    * - PUDL Code
      - ``epacems``
    * - Years Liberated
      - 1995-2020
    * - Records Liberated
-     - ~1 billion
+     - ~800 million
    * - Issues
      - `Open EPA CEMS issues <https://github.com/catalyst-cooperative/pudl/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aopen+label%3Aepacems>`__
 

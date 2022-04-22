@@ -6,35 +6,43 @@ The Public Utility Data Liberation Project (PUDL)
 
 .. image:: https://www.repostatus.org/badges/latest/active.svg
    :target: https://www.repostatus.org/#active
-   :alt: Project Status: Active – The project has reached a stable, usable state and is being actively developed.
+   :alt: Project Status: Active
 
 .. image:: https://github.com/catalyst-cooperative/pudl/workflows/tox-pytest/badge.svg
    :target: https://github.com/catalyst-cooperative/pudl/actions?query=workflow%3Atox-pytest
    :alt: Tox-PyTest Status
 
-.. image:: https://img.shields.io/readthedocs/catalystcoop-pudl
-   :target: https://catalystcoop-pudl.readthedocs.io/en/latest/
-   :alt: Read the Docs Build Status
-
-.. image:: https://img.shields.io/codecov/c/github/catalyst-cooperative/pudl
+.. image:: https://img.shields.io/codecov/c/github/catalyst-cooperative/pudl?style=flat&logo=codecov
    :target: https://codecov.io/gh/catalyst-cooperative/pudl
    :alt: Codecov Test Coverage
+
+.. image:: https://img.shields.io/readthedocs/catalystcoop-pudl?style=flat&logo=readthedocs
+   :target: https://catalystcoop-pudl.readthedocs.io/en/latest/
+   :alt: Read the Docs Build Status
 
 .. image:: https://img.shields.io/pypi/v/catalystcoop.pudl
    :target: https://pypi.org/project/catalystcoop.pudl/
    :alt: PyPI Latest Version
 
-.. image:: https://img.shields.io/pypi/pyversions/catalystcoop.pudl
-   :target: https://pypi.org/project/catalystcoop.pudl/
-   :alt: PyPI - Supported Python Versions
-
 .. image:: https://img.shields.io/conda/vn/conda-forge/catalystcoop.pudl
    :target: https://anaconda.org/conda-forge/catalystcoop.pudl
    :alt: conda-forge Version
 
+.. image:: https://img.shields.io/pypi/pyversions/catalystcoop.pudl
+   :target: https://pypi.org/project/catalystcoop.pudl/
+   :alt: Supported Python Versions
+
+.. image:: https://img.shields.io/badge/code%20style-black-000000.svg
+   :target: https://github.com/psf/black
+   :alt: Any color you want, so long as it's black.
+
 .. image:: https://zenodo.org/badge/80646423.svg
    :target: https://zenodo.org/badge/latestdoi/80646423
    :alt: Zenodo DOI
+
+.. image:: https://img.shields.io/badge/calend.ly-officehours-darkgreen
+   :target: https://calend.ly/catalyst-cooperative/pudl-office-hours
+   :alt: Schedule a 1-on-1 chat with us about PUDL.
 
 What is PUDL?
 -------------
@@ -52,13 +60,13 @@ What data is available?
 
 PUDL currently integrates data from:
 
-* `EIA Form 860 <https://www.eia.gov/electricity/data/eia860/>`__ (2004-2019)
-* `EIA Form 860m <https://www.eia.gov/electricity/data/eia860m/>`__ (2020-2021)
-* `EIA Form 861 <https://www.eia.gov/electricity/data/eia861/>`__ (2001-2019)
-* `EIA Form 923 <https://www.eia.gov/electricity/data/eia923/>`__ (2001-2019)
+* `EIA Form 860 <https://www.eia.gov/electricity/data/eia860/>`__ (2001-2020)
+* `EIA Form 860m <https://www.eia.gov/electricity/data/eia860m/>`__ (to 2021-12)
+* `EIA Form 861 <https://www.eia.gov/electricity/data/eia861/>`__ (2001-2020)
+* `EIA Form 923 <https://www.eia.gov/electricity/data/eia923/>`__ (2001-2020)
 * `EPA Continuous Emissions Monitoring System (CEMS) <https://ampd.epa.gov/ampd/>`__ (1995-2020)
-* `FERC Form 1 <https://www.ferc.gov/industries-data/electric/general-information/electric-industry-forms/form-1-electric-utility-annual>`__ (1994-2019)
-* `FERC Form 714 <https://www.ferc.gov/industries-data/electric/general-information/electric-industry-forms/form-no-714-annual-electric/data>`__ (2006-2019)
+* `FERC Form 1 <https://www.ferc.gov/industries-data/electric/general-information/electric-industry-forms/form-1-electric-utility-annual>`__ (1994-2020)
+* `FERC Form 714 <https://www.ferc.gov/industries-data/electric/general-information/electric-industry-forms/form-no-714-annual-electric/data>`__ (2006-2020)
 * `US Census Demographic Profile 1 Geodatabase <https://www.census.gov/geographies/mapping-files/2010/geo/tiger-data.html>`__ (2010)
 
 Thanks to support from the `Alfred P. Sloan Foundation Energy & Environment
@@ -183,16 +191,21 @@ anybody, for any purpose, so long as you give us credit for the work we've done.
 Contact Us
 ----------
 
-* For user support, bug reports and anything else that could be useful or interesting
-  to other users, please make a
-  `GitHub issue <https://github.com/catalyst-cooperative/pudl/issues>`__.
+* For bug reports, feature requests, and other software or data issues please make a
+  `GitHub Issue <https://github.com/catalyst-cooperative/pudl/issues>`__.
+* For more general support, questions, or other conversations around the project
+  that might be of interest to others, check out the
+  `GitHub Discussions <https://github.com/catalyst-cooperative/pudl/discussions>`__
+* If you'd like to get occasional updates about the project
+  `sign up for our email list <https://catalyst.coop/updates/>`__.
+* Want to schedule a time to chat with us one-on-one about your PUDL use case, ideas
+  for improvement, or get some personalized support? Join us for
+  `Office Hours <https://calend.ly/catalyst-cooperative/pudl-office-hours>`__
+* Follow us on Twitter: `@CatalystCoop <https://twitter.com/CatalystCoop>`__
+* More info on our website: https://catalyst.coop
 * For private communication about the project or to hire us to provide customized data
   extraction and analysis, you can email the maintainers:
   `pudl@catalyst.coop <mailto:pudl@catalyst.coop>`__
-* If you'd like to get occasional updates about the project
-  `sign up for our email list <https://catalyst.coop/updates/>`__.
-* Follow us on Twitter: `@CatalystCoop <https://twitter.com/CatalystCoop>`__
-* More info on our website: https://catalyst.coop
 
 About Catalyst Cooperative
 --------------------------

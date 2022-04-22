@@ -20,19 +20,17 @@ def test__yearly_to_monthly_records__normal_values():
     101         3           1           4
     101         3           6           5
     """
-    test_df = pd.DataFrame([[0, 1, 2],
-                            [3, 4, 5]],
-                           columns=['other_col', 'value_january', 'value_june'],
-                           index=[100, 101]
-                           )
+    test_df = pd.DataFrame(
+        [[0, 1, 2], [3, 4, 5]],
+        columns=["other_col", "value_january", "value_june"],
+        index=[100, 101],
+    )
     actual = eia923._yearly_to_monthly_records(test_df)
-    expected = pd.DataFrame([[0, 1, 1],
-                             [0, 6, 2],
-                             [3, 1, 4],
-                             [3, 6, 5]],
-                            columns=['other_col', 'report_month', 'value'],
-                            index=[100, 100, 101, 101]
-                            )
+    expected = pd.DataFrame(
+        [[0, 1, 1], [0, 6, 2], [3, 1, 4], [3, 6, 5]],
+        columns=["other_col", "report_month", "value"],
+        index=[100, 100, 101, 101],
+    )
     pd.testing.assert_frame_equal(expected, actual)
 
 
@@ -48,11 +46,17 @@ def test__yearly_to_monthly_records__empty_frame():
     <empty>
     """
     # empty dfs initialize with Index by default, so need to specify RangeIndex
-    test_df = pd.DataFrame([], columns=['other_col', 'value_january', 'value_june'],
-                           index=pd.RangeIndex(start=0, stop=0, step=1))
+    test_df = pd.DataFrame(
+        [],
+        columns=["other_col", "value_january", "value_june"],
+        index=pd.RangeIndex(start=0, stop=0, step=1),
+    )
     actual = eia923._yearly_to_monthly_records(test_df)
-    expected = pd.DataFrame([], columns=['other_col', 'report_month', 'value'],
-                            index=pd.RangeIndex(start=0, stop=0, step=1))
+    expected = pd.DataFrame(
+        [],
+        columns=["other_col", "report_month", "value"],
+        index=pd.RangeIndex(start=0, stop=0, step=1),
+    )
     # report_month dtype changes from object to int64
     # but only because they are empty and get sent to default types during df.stack()
     pd.testing.assert_frame_equal(expected, actual, check_dtype=False)

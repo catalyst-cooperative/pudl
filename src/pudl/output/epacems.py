@@ -1,9 +1,37 @@
 """Routines that provide user-friendly access to the partitioned EPA CEMS dataset."""
 
-import itertools
+from itertools import product
+from pathlib import Path
+from typing import Iterable, List, Optional, Sequence, Tuple, Union
+
+import dask.dataframe as dd
+import pandas as pd
+
+import pudl
+from pudl.settings import EpaCemsSettings
+
+# TODO: hardcoded data version doesn't belong here, but will defer fixing it until
+# the crosswalk is formally integrated into PUDL. See Issue #1123
+EPA_CROSSWALK_RELEASE = (
+    "https://github.com/USEPA/camd-eia-crosswalk/releases/download/v0.2.1/"
+)
 
 
-def year_state_filter(years=(), states=()):
+def epa_crosswalk() -> pd.DataFrame:
+    # TODO: formally integrate this into PUDL. See Issue #1123
+    """Read EPA/EIA crosswalk from EPA github repo.
+
+    See https://github.com/USEPA/camd-eia-crosswalk for details and data dictionary
+
+    Returns:
+        pd.Dataframe: EPA/EIA crosswalk
+    """
+    return pd.read_csv(EPA_CROSSWALK_RELEASE + "epa_eia_crosswalk.csv")
+
+
+def year_state_filter(
+    years: Iterable[int] = None, states: Iterable[str] = None
+) -> List[List[Tuple[Union[str, int]]]]:
     """
     Create filters to read given years and states from partitioned parquet dataset.
 
@@ -24,25 +52,37 @@ def year_state_filter(years=(), states=()):
     result in getting 2018 and 2019 data for CO, as well as 2018 and 2019 data for CA.
 
     Args:
-        years (iterable): 4-digit integers indicating the years of data you would like
-            to read. By default it includes all years.
-        states (iterable): 2-letter state abbreviations indicating what states you would
-            like to include. By default it includes all states.
+        years: 4-digit integers indicating the years of data you would like
+            to read. By default it includes all available years.
+        states: 2-letter state abbreviations indicating what states you would
+            like to include. By default it includes all available states.
 
     Returns:
-        list: A list of lists of tuples, suitable for use as a filter in the
-        read_parquet method of pandas and dask dataframes.
+        A list of lists of tuples, suitable for use as a filter in the
+        read_parquet() method of pandas and dask dataframes.
 
     """
-    year_filters = [("year", "=", year) for year in years]
-    state_filters = [("state", "=", state.upper()) for state in states]
+    if years is not None:
+        year_filters = [("year", "=", year) for year in years]
+    if states is not None:
+        state_filters = [("state", "=", state.upper()) for state in states]
 
     if states and not years:
-        filters = [[tuple(x), ] for x in state_filters]
+        filters = [
+            [
+                tuple(x),
+            ]
+            for x in state_filters
+        ]
     elif years and not states:
-        filters = [[tuple(x), ] for x in year_filters]
+        filters = [
+            [
+                tuple(x),
+            ]
+            for x in year_filters
+        ]
     elif years and states:
-        filters = [list(x) for x in itertools.product(year_filters, state_filters)]
+        filters = [list(x) for x in product(year_filters, state_filters)]
     else:
         filters = None
 
@@ -69,9 +109,7 @@ def get_plant_states(plant_ids, pudl_out):
 
     """
     return list(
-        pudl_out.plants_eia860()
-        .query("plant_id_eia in @plant_ids")
-        .state.unique()
+        pudl_out.plants_eia860().query("plant_id_eia in @plant_ids").state.unique()
     )
 
 
@@ -103,3 +141,46 @@ def get_plant_years(plant_ids, pudl_out):
         .query("plant_id_eia in @plant_ids")
         .report_date.dt.year.unique()
     )
+
+
+def epacems(
+    states: Optional[Sequence[str]] = None,
+    years: Optional[Sequence[int]] = None,
+    columns: Optional[Sequence[str]] = None,
+    epacems_path: Optional[Path] = None,
+) -> dd.DataFrame:
+    """Load EPA CEMS data from PUDL with optional subsetting.
+
+    Args:
+        states: subset by state abbreviation.  Defaults to None (which gets all states).
+        years: subset by year. Defaults to None (which gets all years).
+        columns: subset by column. Defaults to None (which gets all columns).
+        epacems_path: path to parquet dir. By default it automatically loads the path
+            from :mod:`pudl.workspace`
+
+    Returns:
+        The requested epacems data
+
+    """
+    epacems_settings = EpaCemsSettings(states=states, years=years)
+
+    # columns=None is handled by dd.read_parquet; gives all columns
+    if columns is not None:
+        # nonexistent columns are handled by dd.read_parquet; raises ValueError
+        columns = list(columns)
+
+    if epacems_path is None:
+        pudl_settings = pudl.workspace.setup.get_defaults()
+        epacems_path = Path(pudl_settings["parquet_dir"]) / "epacems"
+
+    epacems = dd.read_parquet(
+        epacems_path,
+        use_nullable_dtypes=True,
+        columns=columns,
+        filters=year_state_filter(
+            states=epacems_settings.states,
+            years=epacems_settings.years,
+        ),
+    )
+
+    return epacems

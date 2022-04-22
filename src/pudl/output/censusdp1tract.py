@@ -38,9 +38,7 @@ def get_layer(
 
     """
     if not isinstance(layer, str):
-        raise TypeError(
-            f"Argument 'layer' must be a string, got arg of type {layer}."
-        )
+        raise TypeError(f"Argument 'layer' must be a string, got arg of type {layer}.")
     layer = layer.lower()
     if layer not in ["state", "county", "tract"]:
         raise ValueError(
@@ -57,7 +55,8 @@ def get_layer(
     dp1_engine = sa.create_engine(pudl_settings["censusdp1tract_db"])
 
     table_name = f"{layer}_2010census_dp1"
-    df = pd.read_sql("""
+    df = pd.read_sql(
+        """
 SELECT geom_cols.f_table_name as table_name,
        geom_cols.f_geometry_column as geom_col,
        crs.auth_name as auth_name,
@@ -66,7 +65,10 @@ SELECT geom_cols.f_table_name as table_name,
  INNER JOIN spatial_ref_sys crs
     ON geom_cols.srid = crs.srid
  WHERE table_name = ?
-""", dp1_engine, params=[table_name, ])
+""",
+        dp1_engine,
+        params=[table_name],
+    )
     if len(df) != 1:
         raise AssertionError(
             f"Expected exactly 1 geometry description, but found {len(df)}"

@@ -1,7 +1,9 @@
 """Load excel metadata CSV files form a python data package."""
 import importlib.resources
 import logging
+import pathlib
 
+import dbfread
 import pandas as pd
 
 import pudl
@@ -19,8 +21,7 @@ class Metadata(object):
     column names.
 
     When metadata object is instantiated, it is given ${dataset} name and it
-    will attempt to load csv files from pudl.package_data.meta.xlsx_maps.${dataset}
-    package.
+    will attempt to load csv files from pudl.package_data.${dataset} package.
 
     It expects the following kinds of files:
 
@@ -28,7 +29,7 @@ class Metadata(object):
       data for given (partition, page).
     * skipfooter.csv tells us how many bottom rows should be skipped when
       loading data for given partition (partition, page).
-    * tab_map.csv tells us what is the excel sheet name that should be read
+    * page_map.csv tells us what is the excel sheet name that should be read
       when loading data for given (partition, page)
     * column_map/${page}.csv currently informs us how to translate input column
       names to standardized pudl names for given (partition, input_col_name).
@@ -39,25 +40,26 @@ class Metadata(object):
     # existing records for each (year, page) -> sheet_name, (year, page) -> skiprows
     # and for all (year, page) -> column map
 
-    def __init__(self, dataset_name):
+    def __init__(self, dataset_name: str):
         """Create Metadata object and load metadata from python package.
 
         Args:
             dataset_name: Name of the package/dataset to load the metadata from.
-            Files will be loaded from pudl.package_data.meta.xlsx_meta.${dataset_name}.
+            Files will be loaded from pudl.package_data.${dataset_name}
+
         """
-        pkg = f'pudl.package_data.meta.xlsx_maps.{dataset_name}'
+        pkg = f"pudl.package_data.{dataset_name}"
         self._dataset_name = dataset_name
-        self._skiprows = self._load_csv(pkg, 'skiprows.csv')
-        self._skipfooter = self._load_csv(pkg, 'skipfooter.csv')
-        self._sheet_name = self._load_csv(pkg, 'tab_map.csv')
-        self._file_name = self._load_csv(pkg, 'file_map.csv')
-        column_map_pkg = pkg + '.column_maps'
+        self._skiprows = self._load_csv(pkg, "skiprows.csv")
+        self._skipfooter = self._load_csv(pkg, "skipfooter.csv")
+        self._sheet_name = self._load_csv(pkg, "page_map.csv")
+        self._file_name = self._load_csv(pkg, "file_map.csv")
+        column_map_pkg = pkg + ".column_maps"
         self._column_map = {}
         for res in importlib.resources.contents(column_map_pkg):
             # res is expected to be ${page}.csv
-            parts = res.split('.')
-            if len(parts) != 2 or parts[1] != 'csv':
+            parts = res.split(".")
+            if len(parts) != 2 or parts[1] != "csv":
                 continue
             column_map = self._load_csv(column_map_pkg, res)
             self._column_map[parts[0]] = column_map
@@ -84,7 +86,14 @@ class Metadata(object):
 
     def get_column_map(self, page, **partition):
         """Returns the dictionary mapping input columns to pudl columns for given partition and page."""
-        return {v: k for k, v in self._column_map[page].T.loc[str(self._get_partition_key(partition))].to_dict().items() if v != -1}
+        return {
+            v: k
+            for k, v in self._column_map[page]
+            .T.loc[str(self._get_partition_key(partition))]
+            .to_dict()
+            .items()
+            if v != -1
+        }
 
     def get_all_columns(self, page):
         """Returns list of all pudl (standardized) columns for a given page (across all partition)."""
@@ -97,15 +106,17 @@ class Metadata(object):
     @staticmethod
     def _load_csv(package, filename):
         """Load metadata from a filename that is found in a package."""
-        return pd.read_csv(importlib.resources.open_text(package, filename),
-                           index_col=0, comment='#')
+        return pd.read_csv(
+            importlib.resources.open_text(package, filename), index_col=0, comment="#"
+        )
 
     @staticmethod
     def _get_partition_key(partition):
         """Grab the partition key."""
         if len(partition) != 1:
             raise AssertionError(
-                f"Expecting exactly one partition attribute (found: {partition})")
+                f"Expecting exactly one partition attribute (found: {partition})"
+            )
         return list(partition.values())[0]
 
 
@@ -158,7 +169,7 @@ class GenericExtractor(object):
             ds (datastore.Datastore): An initialized datastore, or subclass
         """
         if not self.METADATA:
-            raise NotImplementedError('self.METADATA must be set.')
+            raise NotImplementedError("self.METADATA must be set.")
         self._metadata = self.METADATA
         self._dataset_name = self._metadata.get_dataset_name()
         self._file_cache = {}
@@ -198,49 +209,64 @@ class GenericExtractor(object):
         raw_dfs = {}
         if not partitions:
             logger.warning(
-                f'No partitions were given. Not extracting {self._dataset_name} spreadsheet data.')
+                f"No partitions were given. Not extracting {self._dataset_name} spreadsheet data."
+            )
             return raw_dfs
-        logger.info(f'Extracting {self._dataset_name} spreadsheet data.')
+        logger.info(f"Extracting {self._dataset_name} spreadsheet data.")
 
         for page in self._metadata.get_all_pages():
             if page in self.BLACKLISTED_PAGES:
-                logger.debug(f'Skipping blacklisted page {page}.')
+                logger.debug(f"Skipping blacklisted page {page}.")
                 continue
-            df = pd.DataFrame()
+            dfs = [
+                pd.DataFrame(),
+            ]
             for partition in pudl.helpers.iterate_multivalue_dict(**partitions):
                 # we are going to skip
-                if self.excel_filename(page, **partition) == '-1':
-                    logger.debug(
-                        f'No page for {self._dataset_name} {page} {partition}')
+                if self.excel_filename(page, **partition) == "-1":
+                    logger.debug(f"No page for {self._dataset_name} {page} {partition}")
                     continue
                 logger.debug(
-                    f'Loading dataframe for {self._dataset_name} {page} {partition}')
+                    f"Loading dataframe for {self._dataset_name} {page} {partition}"
+                )
                 newdata = pd.read_excel(
                     self.load_excel_file(page, **partition),
-                    sheet_name=self._metadata.get_sheet_name(
-                        page, **partition),
+                    sheet_name=self._metadata.get_sheet_name(page, **partition),
                     skiprows=self._metadata.get_skiprows(page, **partition),
-                    skipfooter=self._metadata.get_skipfooter(
-                        page, **partition),
-                    dtype=self.get_dtypes(page, **partition))
+                    skipfooter=self._metadata.get_skipfooter(page, **partition),
+                    dtype=self.get_dtypes(page, **partition),
+                )
+
                 newdata = pudl.helpers.simplify_columns(newdata)
                 newdata = self.process_raw(newdata, page, **partition)
                 newdata = self.process_renamed(newdata, page, **partition)
-                df = df.append(newdata, sort=True, ignore_index=True)
+                dfs.append(newdata)
+            df = pd.concat(dfs, sort=True, ignore_index=True)
 
-            # After all years are loaded, consolidate missing columns
-            missing_cols = set(self._metadata.get_all_columns(
-                page)).difference(df.columns)
-            empty_cols = pd.DataFrame(columns=missing_cols)
-            df = pd.concat([df, empty_cols], sort=True)
-            if (len(self.METADATA._column_map[page].index)
-                    + len(self.cols_added)) != len(df.columns):
-                # raise AssertionError(
-                logger.warning(
-                    f'Columns for {page} are off: should be '
-                    f'{len(self.METADATA._column_map[page].index)} but got '
-                    f'{len(df.columns)}'
-                )
+            # After all years are loaded, add empty columns that could appear
+            # in other years so that df matches the database schema
+            missing_cols = set(self._metadata.get_all_columns(page)).difference(
+                df.columns
+            )
+            df = pd.concat([df, pd.DataFrame(columns=missing_cols)], sort=True)
+
+            mapped_cols = set(self.METADATA._column_map[page].index)
+            expected_cols = mapped_cols.union(self.cols_added)
+
+            if set(df.columns) != expected_cols:
+                # TODO (bendnorman): Enforce canonical fields for all raw fields?
+                extra_raw_cols = set(df.columns).difference(expected_cols)
+                missing_raw_cols = set(expected_cols).difference(df.columns)
+                if extra_raw_cols:
+                    logger.warning(
+                        f"Extra columns found in page {page}: {extra_raw_cols}"
+                    )
+                if missing_raw_cols:
+                    logger.warning(
+                        f"Columns found missing from page {page}: "
+                        f"{missing_raw_cols}"
+                    )
+
             raw_dfs[page] = self.process_final_page(df, page)
         return raw_dfs
 
@@ -258,6 +284,7 @@ class GenericExtractor(object):
             pd.ExcelFile instance with the parsed excel spreadsheet frame
         """
         xlsx_filename = self.excel_filename(page, **partition)
+
         if xlsx_filename not in self._file_cache:
             excel_file = None
             try:
@@ -269,11 +296,22 @@ class GenericExtractor(object):
                 # TODO(rousik): if we can make it so, it would be useful to normalize
                 # the eia860m and zip the xlsx files. Then we could simplify this code.
                 res = self.ds.get_unique_resource(
-                    self._dataset_name, name=xlsx_filename)
+                    self._dataset_name, name=xlsx_filename
+                )
                 excel_file = pd.ExcelFile(res)
             except KeyError:
                 zf = self.ds.get_zipfile_resource(self._dataset_name, **partition)
-                excel_file = pd.ExcelFile(zf.read(xlsx_filename))
+
+                # If loading the excel file from the zip fails then try to open a dbf file.
+                extension = pathlib.Path(xlsx_filename).suffix.lower()
+                if extension == ".dbf":
+                    dbf_filepath = zf.open(xlsx_filename)
+                    df = pd.DataFrame(
+                        iter(dbfread.DBF(xlsx_filename, filedata=dbf_filepath))
+                    )
+                    excel_file = pudl.helpers.convert_df_to_excel_file(df, index=False)
+                else:
+                    excel_file = pd.ExcelFile(zf.read(xlsx_filename))
             finally:
                 self._file_cache[xlsx_filename] = excel_file
         # TODO(rousik): this _file_cache could be replaced with @cache or @memoize annotations
