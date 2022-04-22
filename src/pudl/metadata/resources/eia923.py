@@ -20,11 +20,12 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
                 "plant_id_eia",
                 "boiler_id",
                 "energy_source_code",
-                "report_date"
+                "report_date",
             ],
         },
-        "group": "eia",
+        "field_namespace": "eia",
         "sources": ["eia923"],
+        "etl_group": "eia923",
     },
     "coalmine_eia923": {
         "description": "Coal mine attributes originally reported within the Fuel Receipts and Costs table via EIA-923 Schedule 2, Part C.",
@@ -40,8 +41,9 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
             "primary_key": ["mine_id_pudl"],
             "foreign_key_rules": {"fields": [["mine_id_pudl"]]},
         },
-        "group": "eia",
+        "field_namespace": "eia",
         "sources": ["eia923"],
+        "etl_group": "eia923",
     },
     "fuel_receipts_costs_eia923": {
         "description": "Monthly fuel contract information, purchases, and costs reported in EIA-923 Schedule 2, Part A.",
@@ -70,8 +72,9 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
                 "chlorine_content_ppm",
             ],
         },
-        "group": "eia",
+        "field_namespace": "eia",
         "sources": ["eia923"],
+        "etl_group": "eia923",
     },
     "generation_eia923": {
         "description": "EIA-923 Monthly Generating Unit Net Generation Time Series. From EIA-923 Schedule 3.",
@@ -84,8 +87,9 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
             ],
             "primary_key": ["plant_id_eia", "generator_id", "report_date"],
         },
-        "group": "eia",
+        "field_namespace": "eia",
         "sources": ["eia923"],
+        "etl_group": "eia923",
     },
     "generation_fuel_eia923": {
         "description": "EIA-923 Monthly Generation and Fuel Consumption Time Series. From EIA-923 Schedule 3. Monthly electricity generation and fuel consumption reported for each combination of fuel and prime mover within a plant. This table does not include data from nuclear plants as they report at the generation unit level, rather than the plant level. See the generation_fuel_nuclear_eia923 table for nuclear electricity generation and fuel consumption.",
@@ -108,11 +112,12 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
                 "plant_id_eia",
                 "report_date",
                 "energy_source_code",
-                "prime_mover_code"
+                "prime_mover_code",
             ],
         },
-        "group": "eia",
+        "field_namespace": "eia",
         "sources": ["eia923"],
+        "etl_group": "eia923",
     },
     "generation_fuel_nuclear_eia923": {
         "description": "EIA-923 Monthly Generation and Fuel Consumption Time Series. From EIA-923 Schedule 3. Monthly electricity generation and fuel consumption reported for each combination of fuel and prime mover within a nuclear generation unit.",
@@ -137,11 +142,12 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
                 "report_date",
                 "nuclear_unit_id",
                 "energy_source_code",
-                "prime_mover_code"
+                "prime_mover_code",
             ],
         },
-        "group": "eia",
+        "field_namespace": "eia",
         "sources": ["eia923"],
+        "etl_group": "eia923",
     },
 }
 """

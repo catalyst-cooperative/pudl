@@ -13,7 +13,6 @@ import pudl.analysis.spatial
 import pudl.analysis.state_demand
 import pudl.analysis.timeseries_cleaning
 import pudl.cli
-import pudl.constants
 import pudl.convert.censusdp1tract_to_sqlite
 import pudl.convert.epacems_to_parquet
 import pudl.convert.ferc1_to_sqlite
@@ -37,6 +36,7 @@ import pudl.metadata.fields
 import pudl.metadata.helpers
 import pudl.metadata.labels
 import pudl.metadata.resources
+
 # Output modules by data source:
 import pudl.output.censusdp1tract
 import pudl.output.eia860
@@ -45,6 +45,7 @@ import pudl.output.epacems
 import pudl.output.ferc1
 import pudl.output.ferc714
 import pudl.output.pudltabl
+
 # Transformation functions, organized by data source:
 import pudl.transform.eia
 import pudl.transform.eia860
@@ -53,8 +54,10 @@ import pudl.transform.eia923
 import pudl.transform.epacems
 import pudl.transform.ferc1
 import pudl.transform.ferc714
+
 # Data validation tools and test cases:
 import pudl.validate
+
 # Deployed data & workspace management
 import pudl.workspace.datastore
 import pudl.workspace.setup  # noqa: F401 WTF is this showing up as unused?

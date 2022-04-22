@@ -2,16 +2,19 @@
 
 from itertools import product
 from pathlib import Path
-from typing import Optional, Sequence
+from typing import Iterable, List, Optional, Sequence, Tuple, Union
 
 import dask.dataframe as dd
 import pandas as pd
 
 import pudl
+from pudl.settings import EpaCemsSettings
 
 # TODO: hardcoded data version doesn't belong here, but will defer fixing it until
 # the crosswalk is formally integrated into PUDL. See Issue #1123
-EPA_CROSSWALK_RELEASE = "https://github.com/USEPA/camd-eia-crosswalk/releases/download/v0.2.1/"
+EPA_CROSSWALK_RELEASE = (
+    "https://github.com/USEPA/camd-eia-crosswalk/releases/download/v0.2.1/"
+)
 
 
 def epa_crosswalk() -> pd.DataFrame:
@@ -26,7 +29,9 @@ def epa_crosswalk() -> pd.DataFrame:
     return pd.read_csv(EPA_CROSSWALK_RELEASE + "epa_eia_crosswalk.csv")
 
 
-def year_state_filter(years=(), states=()):
+def year_state_filter(
+    years: Iterable[int] = None, states: Iterable[str] = None
+) -> List[List[Tuple[Union[str, int]]]]:
     """
     Create filters to read given years and states from partitioned parquet dataset.
 
@@ -47,23 +52,35 @@ def year_state_filter(years=(), states=()):
     result in getting 2018 and 2019 data for CO, as well as 2018 and 2019 data for CA.
 
     Args:
-        years (iterable): 4-digit integers indicating the years of data you would like
-            to read. By default it includes all years.
-        states (iterable): 2-letter state abbreviations indicating what states you would
-            like to include. By default it includes all states.
+        years: 4-digit integers indicating the years of data you would like
+            to read. By default it includes all available years.
+        states: 2-letter state abbreviations indicating what states you would
+            like to include. By default it includes all available states.
 
     Returns:
-        list: A list of lists of tuples, suitable for use as a filter in the
-        read_parquet method of pandas and dask dataframes.
+        A list of lists of tuples, suitable for use as a filter in the
+        read_parquet() method of pandas and dask dataframes.
 
     """
-    year_filters = [("year", "=", year) for year in years]
-    state_filters = [("state", "=", state.upper()) for state in states]
+    if years is not None:
+        year_filters = [("year", "=", year) for year in years]
+    if states is not None:
+        state_filters = [("state", "=", state.upper()) for state in states]
 
     if states and not years:
-        filters = [[tuple(x), ] for x in state_filters]
+        filters = [
+            [
+                tuple(x),
+            ]
+            for x in state_filters
+        ]
     elif years and not states:
-        filters = [[tuple(x), ] for x in year_filters]
+        filters = [
+            [
+                tuple(x),
+            ]
+            for x in year_filters
+        ]
     elif years and states:
         filters = [list(x) for x in product(year_filters, state_filters)]
     else:
@@ -92,9 +109,7 @@ def get_plant_states(plant_ids, pudl_out):
 
     """
     return list(
-        pudl_out.plants_eia860()
-        .query("plant_id_eia in @plant_ids")
-        .state.unique()
+        pudl_out.plants_eia860().query("plant_id_eia in @plant_ids").state.unique()
     )
 
 
@@ -147,24 +162,7 @@ def epacems(
         The requested epacems data
 
     """
-    all_states = pudl.constants.WORKING_PARTITIONS['epacems']['states']
-    if states is None:
-        states = all_states  # all states
-    else:
-        nonexistent = [state for state in states if state not in all_states]
-        if nonexistent:
-            raise ValueError(
-                f"These input states are not in our dataset: {nonexistent}")
-        states = list(states)
-
-    all_years = pudl.constants.WORKING_PARTITIONS['epacems']['years']
-    if years is None:
-        years = all_years
-    else:
-        nonexistent = [year for year in years if year not in all_years]
-        if nonexistent:
-            raise ValueError(f"These input years are not in our dataset: {nonexistent}")
-        years = list(years)
+    epacems_settings = EpaCemsSettings(states=states, years=years)
 
     # columns=None is handled by dd.read_parquet; gives all columns
     if columns is not None:
@@ -180,8 +178,8 @@ def epacems(
         use_nullable_dtypes=True,
         columns=columns,
         filters=year_state_filter(
-            states=states,
-            years=years,
+            states=epacems_settings.states,
+            years=epacems_settings.years,
         ),
     )
 

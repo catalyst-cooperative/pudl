@@ -5,8 +5,8 @@ import re
 import numpy as np
 import pandas as pd
 
-from pudl.constants import PUDL_TABLES
 from pudl.metadata.fields import apply_pudl_dtypes
+from pudl.settings import Ferc714Settings
 
 logger = logging.getLogger(__name__)
 
@@ -150,26 +150,10 @@ OFFSET_CODE_FIXES = {
 }
 
 OFFSET_CODE_FIXES_BY_YEAR = [
-    {
-        "respondent_id_ferc714": 139,
-        "report_year": 2006,
-        "utc_offset_code": "PST"
-    },
-    {
-        "respondent_id_ferc714": 235,
-        "report_year": 2015,
-        "utc_offset_code": "MST"
-    },
-    {
-        "respondent_id_ferc714": 289,
-        "report_year": 2011,
-        "utc_offset_code": "CST"
-    },
-    {
-        "respondent_id_ferc714": 292,
-        "report_year": 2011,
-        "utc_offset_code": "CST"
-    },
+    {"respondent_id_ferc714": 139, "report_year": 2006, "utc_offset_code": "PST"},
+    {"respondent_id_ferc714": 235, "report_year": 2015, "utc_offset_code": "MST"},
+    {"respondent_id_ferc714": 289, "report_year": 2011, "utc_offset_code": "CST"},
+    {"respondent_id_ferc714": 292, "report_year": 2011, "utc_offset_code": "CST"},
 ]
 
 BAD_RESPONDENTS = [
@@ -347,8 +331,9 @@ def _standardize_offset_codes(df, offset_fixes):
     is_blank = df["utc_offset_code"] == ""
     code = df["utc_offset_code"].mask(is_blank)
     # Apply specific fixes on a per-respondent basis:
-    return code.groupby(df['respondent_id_ferc714']).apply(
-        lambda x: x.replace(offset_fixes[x.name]) if x.name in offset_fixes else x)
+    return code.groupby(df["respondent_id_ferc714"]).apply(
+        lambda x: x.replace(offset_fixes[x.name]) if x.name in offset_fixes else x
+    )
 
 
 def _log_dupes(df, dupe_cols):
@@ -378,14 +363,14 @@ def respondent_id(tfr_dfs):
     df = (
         tfr_dfs["respondent_id_ferc714"].assign(
             respondent_name_ferc714=lambda x: x.respondent_name_ferc714.str.strip(),
-            eia_code=lambda x: x.eia_code.replace(to_replace=0, value=pd.NA))
+            eia_code=lambda x: x.eia_code.replace(to_replace=0, value=pd.NA),
+        )
         # These excludes fake Test IDs -- not real planning areas
         .query("respondent_id_ferc714 not in @BAD_RESPONDENTS")
     )
     # There are a few utilities that seem mappable, but missing:
     for rid in EIA_CODE_FIXES:
-        df.loc[df.respondent_id_ferc714 == rid,
-               "eia_code"] = EIA_CODE_FIXES[rid]
+        df.loc[df.respondent_id_ferc714 == rid, "eia_code"] = EIA_CODE_FIXES[rid]
     tfr_dfs["respondent_id_ferc714"] = df
     return tfr_dfs
 
@@ -426,19 +411,19 @@ def demand_hourly_pa(tfr_dfs):
         year: set(pd.date_range(f"{year}-01-01", f"{year}-12-31", freq="1D"))
         for year in range(df["report_year"].min(), df["report_year"].max() + 1)
     }
-    assert df.groupby(["respondent_id_ferc714", "report_year"]).apply(
-        lambda x: set(x["report_date"]) == all_dates[x.name[1]]
-    ).all()
+    assert (
+        df.groupby(["respondent_id_ferc714", "report_year"])
+        .apply(lambda x: set(x["report_date"]) == all_dates[x.name[1]])
+        .all()
+    )
 
     # Clean UTC offset codes
     df["utc_offset_code"] = df["utc_offset_code"].str.strip().str.upper()
-    df["utc_offset_code"] = df.pipe(
-        _standardize_offset_codes, OFFSET_CODE_FIXES)
+    df["utc_offset_code"] = df.pipe(_standardize_offset_codes, OFFSET_CODE_FIXES)
     # NOTE: Assumes constant timezone for entire year
     for fix in OFFSET_CODE_FIXES_BY_YEAR:
-        mask = (
-            (df["report_year"] == fix["report_year"]) &
-            (df["respondent_id_ferc714"] == fix["respondent_id_ferc714"])
+        mask = (df["report_year"] == fix["report_year"]) & (
+            df["respondent_id_ferc714"] == fix["respondent_id_ferc714"]
         )
         df.loc[mask, "utc_offset_code"] = fix["utc_offset_code"]
 
@@ -454,9 +439,8 @@ def demand_hourly_pa(tfr_dfs):
     # Melt daily rows with 24 demands to hourly rows with single demand
     logger.debug("Melting daily FERC 714 records into hourly records.")
     df.rename(
-        columns=lambda x: int(re.sub(r"^hour", "", x)) -
-        1 if "hour" in x else x,
-        inplace=True
+        columns=lambda x: int(re.sub(r"^hour", "", x)) - 1 if "hour" in x else x,
+        inplace=True,
     )
     df = df.melt(
         id_vars=[
@@ -468,7 +452,7 @@ def demand_hourly_pa(tfr_dfs):
         ],
         value_vars=range(24),
         var_name="hour",
-        value_name="demand_mwh"
+        value_name="demand_mwh",
     )
 
     # Assert that all records missing UTC offset have zero demand
@@ -488,20 +472,16 @@ def demand_hourly_pa(tfr_dfs):
     # There should be less than 10 of these,
     # resulting from changes to a planning area's reporting timezone.
     duplicated = df.duplicated(["respondent_id_ferc714", "utc_datetime"])
-    logger.debug(
-        f"Found {np.count_nonzero(duplicated)} duplicate UTC datetimes.")
+    logger.debug(f"Found {np.count_nonzero(duplicated)} duplicate UTC datetimes.")
     df.query("~@duplicated", inplace=True)
 
     # Flip the sign on sections of demand which were reported as negative
     mask = (
-        (
-            df["report_year"].isin([2006, 2007, 2008, 2009]) &
-            (df["respondent_id_ferc714"] == 156)
-        ) |
-        (
-            df["report_year"].isin([2006, 2007, 2008, 2009, 2010]) &
-            (df["respondent_id_ferc714"] == 289)
-        )
+        df["report_year"].isin([2006, 2007, 2008, 2009])
+        & (df["respondent_id_ferc714"] == 156)
+    ) | (
+        df["report_year"].isin([2006, 2007, 2008, 2009, 2010])
+        & (df["respondent_id_ferc714"] == 289)
     )
     df.loc[mask, "demand_mwh"] *= -1
 
@@ -514,7 +494,7 @@ def demand_hourly_pa(tfr_dfs):
         "report_date",
         "utc_datetime",
         "timezone",
-        "demand_mwh"
+        "demand_mwh",
     ]
     df.drop(columns=set(df.columns) - set(columns), inplace=True)
     tfr_dfs["demand_hourly_pa_ferc714"] = df[columns]
@@ -584,14 +564,13 @@ def _early_transform(raw_df):
 
     out_df = (
         raw_df.filter(regex=r"^(?!.*_f$).*")
-        .drop(["report_prd", "spplmnt_num", "row_num"],
-              axis="columns", errors="ignore")
+        .drop(["report_prd", "spplmnt_num", "row_num"], axis="columns", errors="ignore")
         .query("respondent_id_ferc714 not in @BAD_RESPONDENTS")
     )
     return out_df
 
 
-def transform(raw_dfs, tables=PUDL_TABLES["ferc714"]):
+def transform(raw_dfs, ferc714_settings: Ferc714Settings = Ferc714Settings()):
     """
     Prepare the raw FERC 714 dataframes for loading into the PUDL database.
 
@@ -623,17 +602,10 @@ def transform(raw_dfs, tables=PUDL_TABLES["ferc714"]):
         "demand_forecast_pa_ferc714": demand_forecast_pa,
     }
     tfr_dfs = {}
-    for table in tables:
-        if table not in PUDL_TABLES["ferc714"]:
-            raise ValueError(
-                f"No transform function found for requested FERC Form 714 "
-                f"data table {table}!"
-            )
+    for table in ferc714_settings.tables:
         logger.info(f"Transforming {table}.")
         tfr_dfs[table] = (
-            raw_dfs[table]
-            .rename(columns=RENAME_COLS[table])
-            .pipe(_early_transform)
+            raw_dfs[table].rename(columns=RENAME_COLS[table]).pipe(_early_transform)
         )
         tfr_dfs = tfr_funcs[table](tfr_dfs)
         tfr_dfs[table] = apply_pudl_dtypes(tfr_dfs[table], group="ferc714")

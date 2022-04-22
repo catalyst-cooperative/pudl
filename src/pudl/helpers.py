@@ -25,8 +25,7 @@ import pandas as pd
 import requests
 import sqlalchemy as sa
 
-from pudl import constants as pc
-from pudl.metadata.classes import Package
+from pudl.metadata.classes import DataSource, Package
 from pudl.metadata.fields import apply_pudl_dtypes, get_pudl_dtypes
 
 logger = logging.getLogger(__name__)
@@ -45,10 +44,7 @@ rates.
 
 
 def label_map(
-    df: pd.DataFrame,
-    from_col: str = "code",
-    to_col: str = "label",
-    null_value=pd.NA
+    df: pd.DataFrame, from_col: str = "code", to_col: str = "label", null_value=pd.NA
 ) -> DefaultDict[str, Union[str, Literal[pd.NA]]]:
     """
     Build a mapping dictionary from two columns of a labeling / coding dataframe.
@@ -101,8 +97,9 @@ def find_new_ferc1_strings(
 
     """
     all_strings = set(
-        pd.read_sql(f"SELECT {field} FROM {table};", ferc1_engine)  # nosec
-        .pipe(simplify_strings, columns=[field])[field]
+        pd.read_sql(f"SELECT {field} FROM {table};", ferc1_engine).pipe(  # nosec
+            simplify_strings, columns=[field]
+        )[field]
     )
     old_strings = set.union(*[set(strings) for strings in strdict.values()])
     return all_strings.difference(old_strings)
@@ -140,15 +137,17 @@ def find_foreign_key_errors(dfs: Dict[str, pd.DataFrame]) -> List[Dict[str, Any]
                 invalid = ~(xx[0].isin(yy[0]) | xx[0].isna())
             else:
                 invalid = ~(
-                    pd.concat([yy, xx]).duplicated().iloc[len(yy):] |
-                    xx.isna().any(axis=1)
+                    pd.concat([yy, xx]).duplicated().iloc[len(yy) :]
+                    | xx.isna().any(axis=1)
                 )
             if invalid.any():
-                errors.append({
-                    'resource': resource.name,
-                    'foreign_key': foreign_key,
-                    'invalid': x[invalid]
-                })
+                errors.append(
+                    {
+                        "resource": resource.name,
+                        "foreign_key": foreign_key,
+                        "invalid": x[invalid],
+                    }
+                )
     return errors
 
 
@@ -169,15 +168,15 @@ def download_zip_url(url, save_path, chunk_size=128):
     """
     # This is a temporary hack to avoid being filtered as a bot:
     headers = {
-        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:77.0) Gecko/20100101 Firefox/77.0',
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-        'Accept-Language': 'en-US,en;q=0.5',
-        'DNT': '1',
-        'Connection': 'keep-alive',
-        'Upgrade-Insecure-Requests': '1',
+        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:77.0) Gecko/20100101 Firefox/77.0",
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+        "Accept-Language": "en-US,en;q=0.5",
+        "DNT": "1",
+        "Connection": "keep-alive",
+        "Upgrade-Insecure-Requests": "1",
     }
     r = requests.get(url, stream=True, headers=headers)
-    with save_path.open(mode='wb') as fd:
+    with save_path.open(mode="wb") as fd:
         for chunk in r.iter_content(chunk_size=chunk_size):
             fd.write(chunk)
 
@@ -190,25 +189,21 @@ def add_fips_ids(df, state_col="state", county_col="county", vintage=2015):
     """
     # force the columns to be the nullable string types so we have a consistent
     # null value to filter out before feeding to addfips
-    df = df.astype({
-        state_col: pd.StringDtype()
-    })
+    df = df.astype({state_col: pd.StringDtype()})
     if county_col:
-        df = df.astype({
-            county_col: pd.StringDtype()
-        })
+        df = df.astype({county_col: pd.StringDtype()})
     af = addfips.AddFIPS(vintage=vintage)
     # Lookup the state and county FIPS IDs and add them to the dataframe:
     df["state_id_fips"] = df.apply(
-        lambda x: (af.get_state_fips(state=x[state_col])
-                   if pd.notnull(x[state_col]) else pd.NA),
-        axis=1)
+        lambda x: (
+            af.get_state_fips(state=x[state_col]) if pd.notnull(x[state_col]) else pd.NA
+        ),
+        axis=1,
+    )
 
     # force the code columns to be nullable strings - the leading zeros are
     # important
-    df = df.astype({
-        "state_id_fips": pd.StringDtype()
-    })
+    df = df.astype({"state_id_fips": pd.StringDtype()})
 
     logger.info(
         f"Assigned state FIPS codes for "
@@ -216,14 +211,16 @@ def add_fips_ids(df, state_col="state", county_col="county", vintage=2015):
     )
     if county_col:
         df["county_id_fips"] = df.apply(
-            lambda x: (af.get_county_fips(state=x[state_col], county=x[county_col])
-                       if pd.notnull(x[county_col]) and pd.notnull(x[state_col]) else pd.NA),
-            axis=1)
+            lambda x: (
+                af.get_county_fips(state=x[state_col], county=x[county_col])
+                if pd.notnull(x[county_col]) and pd.notnull(x[state_col])
+                else pd.NA
+            ),
+            axis=1,
+        )
         # force the code columns to be nullable strings - the leading zeros are
         # important
-        df = df.astype({
-            "county_id_fips": pd.StringDtype()
-        })
+        df = df.astype({"county_id_fips": pd.StringDtype()})
         logger.info(
             f"Assigned county FIPS codes for "
             f"{len(df[df.county_id_fips.notnull()])/len(df):.2%} of records."
@@ -235,7 +232,8 @@ def clean_eia_counties(df, fixes, state_col="state", county_col="county"):
     """Replace non-standard county names with county nmes from US Census."""
     df = df.copy()
     df[county_col] = (
-        df[county_col].str.strip()
+        df[county_col]
+        .str.strip()
         # Condense multiple whitespace chars.
         .str.replace(r"\s+", " ", regex=True)
         .str.replace(r"^St ", "St. ", regex=True)  # Standardize abbreviation.
@@ -245,14 +243,16 @@ def clean_eia_counties(df, fixes, state_col="state", county_col="county"):
         # Fix ordering, remove comma
         .str.replace("Borough, Kodiak Island", "Kodiak Island Borough")
         # Turn comma-separated counties into lists
-        .str.replace(r",$", "", regex=True).str.split(',')
+        .str.replace(r",$", "", regex=True)
+        .str.split(",")
     )
     # Create new records for each county in a multi-valued record
     df = df.explode(county_col)
     df[county_col] = df[county_col].str.strip()
     # Yellowstone county is in MT, not WY
-    df.loc[(df[state_col] == "WY") &
-           (df[county_col] == "Yellowstone"), state_col] = "MT"
+    df.loc[
+        (df[state_col] == "WY") & (df[county_col] == "Yellowstone"), state_col
+    ] = "MT"
     # Replace individual bad county names with identified correct names in fixes:
     for fix in fixes.itertuples():
         state_mask = df[state_col] == fix.state
@@ -311,8 +311,7 @@ def prep_dir(dir_path, clobber=False):
         if clobber:
             shutil.rmtree(dir_path)
         else:
-            raise FileExistsError(
-                f'{dir_path} exists and clobber is {clobber}')
+            raise FileExistsError(f"{dir_path} exists and clobber is {clobber}")
     dir_path.mkdir(parents=True)
     return dir_path
 
@@ -333,8 +332,9 @@ def is_doi(doi):
 
     """
     doi_regex = re.compile(
-        r'(doi:\s*|(?:https?://)?(?:dx\.)?doi\.org/)?(10\.\d+(.\d+)*/.+)$',
-        re.IGNORECASE | re.UNICODE)
+        r"(doi:\s*|(?:https?://)?(?:dx\.)?doi\.org/)?(10\.\d+(.\d+)*/.+)$",
+        re.IGNORECASE | re.UNICODE,
+    )
 
     return bool(re.match(doi_regex, doi))
 
@@ -422,7 +422,7 @@ def clean_merge_asof(
         left_on=left_on,
         right_on=right_on,
         by=by,
-        tolerance=pd.Timedelta("365 days")  # Should never match across years.
+        tolerance=pd.Timedelta("365 days"),  # Should never match across years.
     )
 
 
@@ -480,7 +480,7 @@ def simplify_strings(df, columns):
                 .str.replace(r"[\x00-\x1f\x7f-\x9f]", "", regex=True)
                 .str.strip()
                 .str.lower()
-                .str.replace(r'\s+', ' ', regex=True)
+                .str.replace(r"\s+", " ", regex=True)
             )
     return out_df
 
@@ -509,14 +509,10 @@ def cleanstrings_series(col, str_map, unmapped=None, simplify=True):
     """
     if simplify:
         col = (
-            col.astype(str).
-            str.strip().
-            str.lower().
-            str.replace(r'\s+', ' ', regex=True)
+            col.astype(str).str.strip().str.lower().str.replace(r"\s+", " ", regex=True)
         )
         for k in str_map:
-            str_map[k] = [re.sub(r'\s+', ' ', s.lower().strip())
-                          for s in str_map[k]]
+            str_map[k] = [re.sub(r"\s+", " ", s.lower().strip()) for s in str_map[k]]
 
     for k in str_map:
         if str_map[k]:
@@ -574,12 +570,13 @@ def cleanstrings(df, columns, stringmaps, unmapped=None, simplify=True):
     out_df = df.copy()
     for col, str_map in zip(columns, stringmaps):
         out_df[col] = cleanstrings_series(
-            out_df[col], str_map, unmapped=unmapped, simplify=simplify)
+            out_df[col], str_map, unmapped=unmapped, simplify=simplify
+        )
 
     return out_df
 
 
-def fix_int_na(df, columns, float_na=np.nan, int_na=-1, str_na=''):
+def fix_int_na(df, columns, float_na=np.nan, int_na=-1, str_na=""):
     """Convert NA containing integer columns from float to string.
 
     Numpy doesn't have a real NA value for integers. When pandas stores integer
@@ -615,9 +612,9 @@ def fix_int_na(df, columns, float_na=np.nan, int_na=-1, str_na=''):
     """
     return (
         df.replace({c: float_na for c in columns}, int_na)
-          .astype({c: int for c in columns})
-          .astype({c: str for c in columns})
-          .replace({c: str(int_na) for c in columns}, str_na)
+        .astype({c: int for c in columns})
+        .astype({c: str for c in columns})
+        .replace({c: str(int_na) for c in columns}, str_na)
     )
 
 
@@ -656,8 +653,8 @@ def month_year_to_date(df):
     year_cols = list(df.filter(regex=year_regex).columns)
 
     # Base column names that don't include the month or year pattern
-    months_base = [re.sub(month_regex, '', m) for m in month_cols]
-    years_base = [re.sub(year_regex, '', y) for y in year_cols]
+    months_base = [re.sub(month_regex, "", m) for m in month_cols]
+    years_base = [re.sub(year_regex, "", y) for y in year_cols]
 
     # We only want to retain columns that have BOTH month and year
     # matches -- otherwise there's no point in creating a Date.
@@ -669,30 +666,29 @@ def month_year_to_date(df):
     # to create a corresponding Date column named [BASE]_date
     month_year_date = []
     for base in date_base:
-        base_month_regex = f'^{base}{month_regex}'
+        base_month_regex = f"^{base}{month_regex}"
         month_col = list(df.filter(regex=base_month_regex).columns)
         if not len(month_col) == 1:
             raise AssertionError()
         month_col = month_col[0]
-        base_year_regex = f'^{base}{year_regex}'
+        base_year_regex = f"^{base}{year_regex}"
         year_col = list(df.filter(regex=base_year_regex).columns)
         if not len(year_col) == 1:
             raise AssertionError()
         year_col = year_col[0]
-        date_col = f'{base}_date'
+        date_col = f"{base}_date"
         month_year_date.append((month_col, year_col, date_col))
 
     for month_col, year_col, date_col in month_year_date:
         df = fix_int_na(df, columns=[year_col, month_col])
 
-        date_mask = (df[year_col] != '') & (df[month_col] != '')
+        date_mask = (df[year_col] != "") & (df[month_col] != "")
         years = df.loc[date_mask, year_col]
         months = df.loc[date_mask, month_col]
 
-        df.loc[date_mask, date_col] = pd.to_datetime({
-            'year': years,
-            'month': months,
-            'day': 1}, errors='coerce')
+        df.loc[date_mask, date_col] = pd.to_datetime(
+            {"year": years, "month": months, "day": 1}, errors="coerce"
+        )
 
         # Now that we've replaced these fields with a date, we drop them.
         df = df.drop([month_col, year_col], axis=1)
@@ -727,26 +723,25 @@ def fix_leading_zero_gen_ids(df):
         fixed_generator_id = (
             df["generator_id"]
             .astype(str)
-            .apply(lambda x: re.sub(r'^0+(\d+$)', r'\1', x))
+            .apply(lambda x: re.sub(r"^0+(\d+$)", r"\1", x))
         )
-        num_fixes = len(
-            df.loc[df["generator_id"].astype(str) != fixed_generator_id])
-        logger.debug(
-            "Fixed %s EIA generator IDs with leading zeros.", num_fixes)
-        df = (
-            df.drop("generator_id", axis="columns")
-            .assign(generator_id=fixed_generator_id)
+        num_fixes = len(df.loc[df["generator_id"].astype(str) != fixed_generator_id])
+        logger.debug("Fixed %s EIA generator IDs with leading zeros.", num_fixes)
+        df = df.drop("generator_id", axis="columns").assign(
+            generator_id=fixed_generator_id
         )
     return df
 
 
-def convert_to_date(df,
-                    date_col="report_date",
-                    year_col="report_year",
-                    month_col="report_month",
-                    day_col="report_day",
-                    month_value=1,
-                    day_value=1):
+def convert_to_date(
+    df,
+    date_col="report_date",
+    year_col="report_year",
+    month_col="report_month",
+    day_col="report_day",
+    month_value=1,
+    day_value=1,
+):
     """
     Convert specified year, month or day columns into a datetime object.
 
@@ -788,11 +783,8 @@ def convert_to_date(df,
     else:
         day = df[day_col]
 
-    df[date_col] = pd.to_datetime({'year': year,
-                                   'month': month,
-                                   'day': day})
-    cols_to_drop = [x for x in [
-        day_col, year_col, month_col] if x in df.columns]
+    df[date_col] = pd.to_datetime({"year": year, "month": month, "day": day})
+    cols_to_drop = [x for x in [day_col, year_col, month_col] if x in df.columns]
     df.drop(cols_to_drop, axis="columns", inplace=True)
 
     return df
@@ -814,11 +806,11 @@ def fix_eia_na(df):
     """
     return df.replace(
         to_replace=[
-            r'^\.$',  # Nothing but a decimal point
-            r'^\s*$',  # The empty string and entirely whitespace strings
+            r"^\.$",  # Nothing but a decimal point
+            r"^\s*$",  # The empty string and entirely whitespace strings
         ],
         value=np.nan,
-        regex=True
+        regex=True,
     )
 
 
@@ -844,12 +836,11 @@ def simplify_columns(df):
 
     """
     df.columns = (
-        df.columns.
-        str.replace(r'[^0-9a-zA-Z]+', ' ', regex=True).
-        str.strip().
-        str.lower().
-        str.replace(r'\s+', ' ', regex=True).
-        str.replace(' ', '_')
+        df.columns.str.replace(r"[^0-9a-zA-Z]+", " ", regex=True)
+        .str.strip()
+        .str.lower()
+        .str.replace(r"\s+", " ", regex=True)
+        .str.replace(" ", "_")
     )
     return df
 
@@ -877,7 +868,8 @@ def drop_tables(engine, clobber=False):
     insp = sa.inspect(engine)
     if len(insp.get_table_names()) > 0 and not clobber:
         raise AssertionError(
-            f'You are attempting to drop your database without setting clobber to {clobber}')
+            f"You are attempting to drop your database without setting clobber to {clobber}"
+        )
     md.drop_all(engine)
     conn = engine.connect()
     conn.exec_driver_sql("VACUUM")
@@ -905,17 +897,10 @@ def merge_dicts(list_of_dicts):
 
 
 def convert_cols_dtypes(
-    df: pd.DataFrame,
-    data_source: Optional[str] = None,
-    name: Optional[str] = None
+    df: pd.DataFrame, data_source: Optional[str] = None, name: Optional[str] = None
 ) -> pd.DataFrame:
     """
-    Convert the data types for a dataframe.
-
-    This function will convert a PUDL dataframe's columns to the correct data
-    type. It uses a dictionary in constants.py called COLUMN_DTYPES to assign
-    the right type. Within a given data source (e.g. eia923, ferc1) each column
-    name is assumed to *always* have the same data type whenever it is found.
+    Convert a PUDL dataframe's columns to the correct data type.
 
     Boolean type conversions created a special problem, because null values in
     boolean columns get converted to True (which is bonkers!)... we generally
@@ -942,8 +927,8 @@ def convert_cols_dtypes(
     """
     # get me all of the columns for the table in the constants dtype dict
     dtypes = {
-        col: dtype for col, dtype
-        in get_pudl_dtypes(group=data_source).items()
+        col: dtype
+        for col, dtype in get_pudl_dtypes(group=data_source).items()
         if col in df.columns
     }
 
@@ -959,26 +944,28 @@ def convert_cols_dtypes(
         # strings, for some reason we need to map both types (I'm not sure
         # why!). We use na_action to preserve the og NaN's. I've also added in
         # the string version of a null value bc I am sure it will exist.
-        df[col] = df[col].map({
-            'False': False,
-            'True': True,
-            False: False,
-            True: True,
-            'nan': pd.NA
-        })
+        df[col] = df[col].map(
+            {
+                "False": False,
+                "True": True,
+                False: False,
+                True: True,
+                "nan": pd.NA,
+            }
+        )
 
     if name:
-        logger.debug(f'Converting the dtypes of: {name}')
+        logger.debug(f"Converting the dtypes of: {name}")
     # unfortunately, the pd.Int32Dtype() doesn't allow a conversion from object
     # columns to this nullable int type column. `utility_id_eia` shows up as a
     # column of strings (!) of numbers so it is an object column, and therefor
     # needs to be converted beforehand.
-    if 'utility_id_eia' in df.columns:
+    if "utility_id_eia" in df.columns:
         # we want to be able to use this dtype cleaning at many stages, and
         # sometimes this column has been converted to a float and therefor
         # we need to skip this conversion
-        if df.utility_id_eia.dtypes is np.dtype('object'):
-            df = df.astype({'utility_id_eia': 'float'})
+        if df.utility_id_eia.dtypes is np.dtype("object"):
+            df = df.astype({"utility_id_eia": "float"})
     df = (
         df.astype(non_bool_cols)
         .astype({col: "boolean" for col in bool_cols})
@@ -990,14 +977,14 @@ def convert_cols_dtypes(
     # converted at any point it may mess up the accuracy of the data. For
     # example: 08401.0 or 8401 are both incorrect versions of 08401 that a
     # simple datatype conversion cannot fix. For this reason, we use the
-    # zero_pad_zips function.
-    if any('zip_code' for col in df.columns):
-        zip_cols = [col for col in df.columns if 'zip_code' in col]
+    # zero_pad_numeric_string function.
+    if any("zip_code" for col in df.columns):
+        zip_cols = [col for col in df.columns if "zip_code" in col]
         for col in zip_cols:
-            if '4' in col:
-                df.loc[:, col] = zero_pad_zips(df[col], 4)
+            if "4" in col:
+                df.loc[:, col] = zero_pad_numeric_string(df[col], n_digits=4)
             else:
-                df.loc[:, col] = zero_pad_zips(df[col], 5)
+                df.loc[:, col] = zero_pad_numeric_string(df[col], n_digits=5)
 
     return df
 
@@ -1022,36 +1009,39 @@ def generate_rolling_avg(df, group_cols, data_col, window, **kwargs):
         pandas.DataFrame
 
     """
-    df = df.astype({'report_date': 'datetime64[ns]'})
+    df = df.astype({"report_date": "datetime64[ns]"})
     # create a full date range for this df
-    date_range = (pd.DataFrame(pd.date_range(
-        start=min(df['report_date']),
-        end=max(df['report_date']), freq='MS',
-        name='report_date')).
-        # assiging a temp column to merge on
-        assign(tmp=1))
-    groups = (df[group_cols + ['report_date']].
-              drop_duplicates().
-              # assiging a temp column to merge on
-              assign(tmp=1))
+    date_range = pd.DataFrame(
+        pd.date_range(
+            start=min(df["report_date"]),
+            end=max(df["report_date"]),
+            freq="MS",
+            name="report_date",
+        )
+    ).assign(
+        tmp=1
+    )  # assiging a temp column to merge on
+    groups = (
+        df[group_cols + ["report_date"]]
+        .drop_duplicates()
+        .assign(tmp=1)  # assiging a temp column to merge on
+    )
     # merge the date range and the groups together
     # to get the backbone/complete date range/groups
-    bones = (date_range.merge(groups).
-             # drop the temp column
-             drop('tmp', axis=1).
-             # then merge the actual data onto the
-             merge(df, on=group_cols + ['report_date']).
-             set_index(group_cols + ['report_date']).
-             groupby(by=group_cols + ['report_date']).
-             mean())
+    bones = (
+        date_range.merge(groups)
+        .drop("tmp", axis=1)  # drop the temp column
+        .merge(df, on=group_cols + ["report_date"])
+        .set_index(group_cols + ["report_date"])
+        .groupby(by=group_cols + ["report_date"])
+        .mean()
+    )
     # with the aggregated data, get a rolling average
-    roll = (bones.rolling(window=window, center=True, **kwargs).
-            agg({data_col: 'mean'})
-            )
+    roll = bones.rolling(window=window, center=True, **kwargs).agg({data_col: "mean"})
     # return the merged
-    return bones.merge(roll,
-                       on=group_cols + ['report_date'],
-                       suffixes=('', '_rolling')).reset_index()
+    return bones.merge(
+        roll, on=group_cols + ["report_date"], suffixes=("", "_rolling")
+    ).reset_index()
 
 
 def fillna_w_rolling_avg(df_og, group_cols, data_col, window=12, **kwargs):
@@ -1074,18 +1064,17 @@ def fillna_w_rolling_avg(df_og, group_cols, data_col, window=12, **kwargs):
         pandas.DataFrame: dataframe with nulls filled in.
 
     """
-    df_og = df_og.astype({'report_date': 'datetime64[ns]'})
-    df_roll = generate_rolling_avg(df_og, group_cols, data_col,
-                                   window, **kwargs)
-    df_roll[data_col] = df_roll[data_col].fillna(
-        df_roll[f'{data_col}_rolling'])
-    df_new = df_og.merge(df_roll,
-                         how='left',
-                         on=group_cols + ['report_date'],
-                         suffixes=('', '_rollfilled'))
-    df_new[data_col] = df_new[data_col].fillna(
-        df_new[f'{data_col}_rollfilled'])
-    return df_new.drop(columns=[f'{data_col}_rollfilled', f'{data_col}_rolling'])
+    df_og = df_og.astype({"report_date": "datetime64[ns]"})
+    df_roll = generate_rolling_avg(df_og, group_cols, data_col, window, **kwargs)
+    df_roll[data_col] = df_roll[data_col].fillna(df_roll[f"{data_col}_rolling"])
+    df_new = df_og.merge(
+        df_roll,
+        how="left",
+        on=group_cols + ["report_date"],
+        suffixes=("", "_rollfilled"),
+    )
+    df_new[data_col] = df_new[data_col].fillna(df_new[f"{data_col}_rollfilled"])
+    return df_new.drop(columns=[f"{data_col}_rollfilled", f"{data_col}_rolling"])
 
 
 def count_records(df, cols, new_count_col_name):
@@ -1108,7 +1097,7 @@ def count_records(df, cols, new_count_col_name):
         .groupby(cols, observed=True)
         .count_me.count()
         .reset_index()
-        .rename(columns={'count_me': new_count_col_name})
+        .rename(columns={"count_me": new_count_col_name})
     )
 
 
@@ -1123,53 +1112,84 @@ def cleanstrings_snake(df, cols):
     """
     for col in cols:
         df.loc[:, col] = (
-            df[col].astype(str).
-            str.strip().
-            str.lower().
-            str.replace(r'\s+', '_', regex=True)
+            df[col]
+            .astype(str)
+            .str.strip()
+            .str.lower()
+            .str.replace(r"\s+", "_", regex=True)
         )
     return df
 
 
-def zero_pad_zips(zip_series, n_digits):
+def zero_pad_numeric_string(
+    col: pd.Series,
+    n_digits: int,
+) -> pd.Series:
     """
-    Retain prefix zeros in zipcodes.
+    Clean up fixed-width leading zero padded numeric (e.g. ZIP, FIPS) codes.
+
+    Often values like ZIP and FIPS codes are stored as integers, or get
+    converted to floating point numbers because there are NA values in the
+    column. Sometimes other non-digit strings are included like Canadian
+    postal codes mixed in with ZIP codes, or IMP (imported) instead of a
+    FIPS county code. This function attempts to manage these irregularities
+    and produce either fixed-width leading zero padded strings of digits
+    having a specified length (n_digits) or NA.
+
+    * Convert the Series to a nullable string.
+    * Remove any decimal point and all digits following it.
+    * Remove any non-digit characters.
+    * Replace any empty strings with NA.
+    * Replace any strings longer than n_digits with NA.
+    * Pad remaining digit-only strings to n_digits length.
+    * Replace (invalid) all-zero codes with NA.
 
     Args:
-        zip_series (pd.Series) : series containing the zipcode values.
-        n_digits(int) : zipcode length (likely 4 or 5 digits).
+        col: The Series to clean. May be numeric, string, object, etc.
+        n_digits: the desired length of the output strings.
 
     Returns:
-        pandas.Series: a series containing zipcodes with their prefix zeros
-        intact and invalid zipcodes rendered as na.
-
+        A Series of nullable strings, containing only all-numeric strings
+        having length n_digits, padded with leading zeroes if necessary.
     """
-    # Add preceeding zeros where necessary and get rid of decimal zeros
-    def get_rid_of_decimal(series):
-        return series.str.replace(r'[\.]+\d*', '', regex=True)
-
-    zip_series = (
-        zip_series
-        .astype(pd.StringDtype())
-        .replace('nan', np.nan)
-        .fillna("0")
-        .pipe(get_rid_of_decimal)
+    out_col = (
+        col.astype("string")
+        # Remove decimal points and any digits following them.
+        # This turns floating point strings into integer strings
+        .replace(r"[\.]+\d*", "", regex=True)
+        # Remove any whitespace
+        .replace(r"\s+", "", regex=True)
+        # Replace anything that's not entirely digits with NA
+        .replace(r"[^\d]+", pd.NA, regex=True)
+        # Set any string longer than n_digits to NA
+        .replace(f"[\\d]{{{n_digits+1},}}", pd.NA, regex=True)
+        # Pad the numeric string with leading zeroes to n_digits length
         .str.zfill(n_digits)
-        .replace({n_digits * "0": pd.NA})  # All-zero Zip codes aren't valid.
+        # All-zero ZIP & FIPS codes are invalid.
+        # Also catches empty strings that were zero padded.
+        .replace({n_digits * "0": pd.NA})
     )
-    return zip_series
+    if not out_col.str.match(f"^[\\d]{{{n_digits}}}$").all():
+        raise ValueError(
+            f"Failed to generate zero-padded numeric strings of length {n_digits}."
+        )
+    return out_col
 
 
 def iterate_multivalue_dict(**kwargs):
     """Make dicts from dict with main dict key and one value of main dict."""
-    single_valued = {k: v for k,
-                     v in kwargs.items()
-                     if not (isinstance(v, list) or isinstance(v, tuple))}
+    single_valued = {
+        k: v
+        for k, v in kwargs.items()
+        if not (isinstance(v, list) or isinstance(v, tuple))
+    }
 
     # Transform multi-valued {k: vlist} into {k1: [{k1: v1}, {k1: v2}, ...], k2: [...], ...}
-    multi_valued = {k: [{k: v} for v in vlist]
-                    for k, vlist in kwargs.items()
-                    if (isinstance(vlist, list) or isinstance(vlist, tuple))}
+    multi_valued = {
+        k: [{k: v} for v in vlist]
+        for k, vlist in kwargs.items()
+        if (isinstance(vlist, list) or isinstance(vlist, tuple))
+    }
 
     for value_assignments in itertools.product(*multi_valued.values()):
         result = dict(single_valued)
@@ -1181,15 +1201,16 @@ def iterate_multivalue_dict(**kwargs):
 def get_working_eia_dates():
     """Get all working EIA dates as a DatetimeIndex."""
     dates = pd.DatetimeIndex([])
-    for dataset_name, dataset in pc.WORKING_PARTITIONS.items():
-        if 'eia' in dataset_name:
-            for name, partition in dataset.items():
-                if name == 'years':
-                    dates = dates.append(
-                        pd.to_datetime(partition, format='%Y'))
-                if name == 'year_month':
-                    dates = dates.append(pd.DatetimeIndex(
-                        [pd.to_datetime(partition)]))
+    for data_source in DataSource.from_field_namespace("eia"):
+        working_partitions = data_source.working_partitions
+        if "years" in working_partitions:
+            dates = dates.append(
+                pd.to_datetime(working_partitions["years"], format="%Y")
+            )
+        if "year_month" in working_partitions:
+            dates = dates.append(
+                pd.DatetimeIndex([pd.to_datetime(working_partitions["year_month"])])
+            )
     return dates
 
 
@@ -1206,12 +1227,11 @@ def dedupe_on_category(dedup_df, base_cols, category_name, sorter):
         category_name (string) : name of categorical column
         sorter (list): sorted list of category options
     """
-    dedup_df.loc[:, category_name] = (
-        dedup_df.loc[:, category_name]
-        .astype(pd.CategoricalDtype(categories=sorter, ordered=True))
+    dedup_df.loc[:, category_name] = dedup_df.loc[:, category_name].astype(
+        pd.CategoricalDtype(categories=sorter, ordered=True)
     )
 
-    return dedup_df.drop_duplicates(subset=base_cols, keep='first')
+    return dedup_df.drop_duplicates(subset=base_cols, keep="first")
 
 
 def calc_capacity_factor(df, freq, min_cap_fact=None, max_cap_fact=None):
@@ -1241,32 +1261,31 @@ def calc_capacity_factor(df, freq, min_cap_fact=None, max_cap_fact=None):
         column (`capacity_factor`).
     """
     # get a unique set of dates to generate the number of hours
-    dates = df['report_date'].drop_duplicates()
-    dates_to_hours = pd.DataFrame(data={
-        'report_date': dates,
-        'hours': dates.apply(
-            lambda d: (
-                pd.date_range(d, periods=2, freq=freq)[1] -
-                pd.date_range(d, periods=2, freq=freq)[0]) /
-            pd.Timedelta(hours=1))
-    })
+    dates = df["report_date"].drop_duplicates()
+    dates_to_hours = pd.DataFrame(
+        data={
+            "report_date": dates,
+            "hours": dates.apply(
+                lambda d: (
+                    pd.date_range(d, periods=2, freq=freq)[1]
+                    - pd.date_range(d, periods=2, freq=freq)[0]
+                )
+                / pd.Timedelta(hours=1)
+            ),
+        }
+    )
 
     df = (
         # merge in the hours for the calculation
-        df.merge(dates_to_hours, on=['report_date'])
+        df.merge(dates_to_hours, on=["report_date"])
         # actually calculate capacity factor wooo!
         .assign(
-            capacity_factor=lambda x: x.net_generation_mwh / \
-                (x.capacity_mw * x.hours)
+            capacity_factor=lambda x: x.net_generation_mwh / (x.capacity_mw * x.hours)
         )
         # Replace unrealistic capacity factors with NaN
-        .pipe(
-            oob_to_nan,
-            ['capacity_factor'],
-            lb=min_cap_fact,
-            ub=max_cap_fact
+        .pipe(oob_to_nan, ["capacity_factor"], lb=min_cap_fact, ub=max_cap_fact).drop(
+            ["hours"], axis=1
         )
-        .drop(['hours'], axis=1)
     )
     return df
 
@@ -1287,22 +1306,21 @@ def weighted_average(df, data_col, weight_col, by):
         pandas.DataFrame: a table with ``by`` columns as the index and the
         weighted ``data_col``.
     """
-    df['_data_times_weight'] = df[data_col] * df[weight_col]
-    df['_weight_where_notnull'] = df.loc[df[data_col].notnull(), weight_col]
+    df["_data_times_weight"] = df[data_col] * df[weight_col]
+    df["_weight_where_notnull"] = df.loc[df[data_col].notnull(), weight_col]
     g = df.groupby(by, observed=True)
-    result = (
-        g['_data_times_weight'].sum(min_count=1)
-        / g['_weight_where_notnull'].sum(min_count=1)
+    result = g["_data_times_weight"].sum(min_count=1) / g["_weight_where_notnull"].sum(
+        min_count=1
     )
-    del df['_data_times_weight'], df['_weight_where_notnull']
+    del df["_data_times_weight"], df["_weight_where_notnull"]
     return result.to_frame(name=data_col)  # .reset_index()
 
 
 def sum_and_weighted_average_agg(
-        df_in: pd.DataFrame,
-        by: list,
-        sum_cols: list,
-        wtavg_dict: Dict[str, str],
+    df_in: pd.DataFrame,
+    by: list,
+    sum_cols: list,
+    wtavg_dict: Dict[str, str],
 ) -> pd.DataFrame:
     """
     Aggregate dataframe by summing and using weighted averages.
@@ -1327,19 +1345,14 @@ def sum_and_weighted_average_agg(
         ``wtavg_dict``. Primary key of table will be ``by``.
 
     """
-    logger.debug(f'grouping by {by}')
+    logger.debug(f"grouping by {by}")
     # we are keeping the index here for easy merging of the weighted cols below
-    df_out = (
-        df_in.groupby(by=by, as_index=True, observed=True)
-        [sum_cols]
-        .sum(min_count=1)
+    df_out = df_in.groupby(by=by, as_index=True, observed=True)[sum_cols].sum(
+        min_count=1
     )
     for data_col, weight_col in wtavg_dict.items():
         df_out.loc[:, data_col] = weighted_average(
-            df_in,
-            data_col=data_col,
-            weight_col=weight_col,
-            by=by
+            df_in, data_col=data_col, weight_col=weight_col, by=by
         )[data_col]
     return df_out.reset_index()
 
@@ -1351,25 +1364,22 @@ def get_eia_ferc_acct_map():
     Returns:
         pandas.DataFrame: table which maps the combination of EIA's technology
             description and prime mover code to FERC Uniform System of Accounts
-            (USOA) accouting names. Read more about USOA `here <https://www.ferc.gov/enforcement-legal/enforcement/accounting-matters>`_
-            The output table has the following columns:
-            `['technology_description', 'prime_mover_code', 'ferc_acct_name']`
+            (USOA) accouting names. Read more about USOA
+            `here
+            <https://www.ferc.gov/enforcement-legal/enforcement/accounting-matters>`__
+            The output table has the following columns: `['technology_description',
+            'prime_mover_code', 'ferc_acct_name']`
+
     """
-    eia_ferc_acct_map = (
-        pd.read_csv(
-            resources.open_text(
-                'pudl.package_data.glue',
-                'ferc_acct_to_pm_tech_map.csv'
-            )
-        )
+    eia_ferc_acct_map = pd.read_csv(
+        resources.open_text("pudl.package_data.glue", "ferc_acct_to_pm_tech_map.csv")
     )
     return eia_ferc_acct_map
 
 
 def dedupe_n_flatten_list_of_lists(mega_list):
     """Flatten a list of lists and remove duplicates."""
-    return list(set(
-        [item for sublist in mega_list for item in sublist]))
+    return list(set([item for sublist in mega_list for item in sublist]))
 
 
 def convert_df_to_excel_file(df: pd.DataFrame, **kwargs) -> pd.ExcelFile:
@@ -1380,7 +1390,7 @@ def convert_df_to_excel_file(df: pd.DataFrame, **kwargs) -> pd.ExcelFile:
     """
     bio = BytesIO()
 
-    writer = pd.ExcelWriter(bio, engine='xlsxwriter')
+    writer = pd.ExcelWriter(bio, engine="xlsxwriter")
     df.to_excel(writer, **kwargs)
 
     writer.save()

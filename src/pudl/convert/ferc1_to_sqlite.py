@@ -36,31 +36,28 @@ def parse_command_line(argv):
     """
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
-        "settings_file",
-        type=str,
-        default='',
-        help="path to YAML settings file."
+        "settings_file", type=str, default="", help="path to YAML settings file."
     )
     parser.add_argument(
         "--logfile",
         default=None,
         type=str,
-        help="If specified, write logs to this file."
+        help="If specified, write logs to this file.",
     )
     parser.add_argument(
-        '-c',
-        '--clobber',
-        action='store_true',
+        "-c",
+        "--clobber",
+        action="store_true",
         help="""Clobber existing sqlite database if it exists. If clobber is
         not included but the sqlite databse already exists the _build will
         fail.""",
-        default=False
+        default=False,
     )
     parser.add_argument(
         "--sandbox",
         action="store_true",
         default=False,
-        help="Use the Zenodo sandbox rather than production"
+        help="Use the Zenodo sandbox rather than production",
     )
 
     arguments = parser.parse_args(argv[1:])
@@ -71,8 +68,8 @@ def main():  # noqa: C901
     """Clone the FERC Form 1 FoxPro database into SQLite."""
     # Display logged output from the PUDL package:
     pudl_logger = logging.getLogger("pudl")
-    log_format = '%(asctime)s [%(levelname)8s] %(name)s:%(lineno)s %(message)s'
-    coloredlogs.install(fmt=log_format, level='INFO', logger=pudl_logger)
+    log_format = "%(asctime)s [%(levelname)8s] %(name)s:%(lineno)s %(message)s"
+    coloredlogs.install(fmt=log_format, level="INFO", logger=pudl_logger)
 
     args = parse_command_line(sys.argv)
     if args.logfile:
@@ -87,25 +84,23 @@ def main():  # noqa: C901
     pudl_out = script_settings.get("pudl_out", defaults["pudl_out"])
 
     pudl_settings = pudl.workspace.setup.derive_paths(
-        pudl_in=pudl_in,
-        pudl_out=pudl_out
+        pudl_in=pudl_in, pudl_out=pudl_out
     )
 
     script_settings = Ferc1ToSqliteSettings().parse_obj(
-        script_settings["ferc1_to_sqlite_settings"])
+        script_settings["ferc1_to_sqlite_settings"]
+    )
 
     pudl_settings["sandbox"] = args.sandbox
     pudl.extract.ferc1.dbf2sqlite(
-        tables=script_settings.tables,
-        years=script_settings.years,
-        refyear=script_settings.refyear,
+        ferc1_to_sqlite_settings=script_settings,
         pudl_settings=pudl_settings,
-        bad_cols=script_settings.bad_cols,
         clobber=args.clobber,
         datastore=Datastore(
-            local_cache_path=(Path(pudl_in) / "data"),
-            sandbox=args.sandbox))
+            local_cache_path=(Path(pudl_in) / "data"), sandbox=args.sandbox
+        ),
+    )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     sys.exit(main())

@@ -32,12 +32,12 @@ def utilities_eia860(pudl_engine, start_date=None, end_date=None):
     """
     pt = pudl.output.pudltabl.get_table_meta(pudl_engine)
     # grab the entity table
-    utils_eia_tbl = pt['utilities_entity_eia']
+    utils_eia_tbl = pt["utilities_entity_eia"]
     utils_eia_select = sa.sql.select(utils_eia_tbl)
     utils_eia_df = pd.read_sql(utils_eia_select, pudl_engine)
 
     # grab the annual eia entity table
-    utils_eia860_tbl = pt['utilities_eia860']
+    utils_eia860_tbl = pt["utilities_eia860"]
     utils_eia860_select = sa.sql.select(utils_eia860_tbl)
 
     if start_date is not None:
@@ -53,27 +53,25 @@ def utilities_eia860(pudl_engine, start_date=None, end_date=None):
     utils_eia860_df = pd.read_sql(utils_eia860_select, pudl_engine)
 
     # grab the glue table for the utility_id_pudl
-    utils_g_eia_tbl = pt['utilities_eia']
+    utils_g_eia_tbl = pt["utilities_eia"]
     utils_g_eia_select = sa.sql.select(
         utils_g_eia_tbl.c.utility_id_eia,
         utils_g_eia_tbl.c.utility_id_pudl,
     )
     utils_g_eia_df = pd.read_sql(utils_g_eia_select, pudl_engine)
 
-    out_df = pd.merge(utils_eia_df, utils_eia860_df,
-                      how='left', on=['utility_id_eia'])
-    out_df = pd.merge(out_df, utils_g_eia_df,
-                      how='left', on=['utility_id_eia'])
+    out_df = pd.merge(utils_eia_df, utils_eia860_df, how="left", on=["utility_id_eia"])
+    out_df = pd.merge(out_df, utils_g_eia_df, how="left", on=["utility_id_eia"])
     out_df = (
         out_df.assign(report_date=lambda x: pd.to_datetime(x.report_date))
         .dropna(subset=["report_date", "utility_id_eia"])
         .pipe(apply_pudl_dtypes, group="eia")
     )
     first_cols = [
-        'report_date',
-        'utility_id_eia',
-        'utility_id_pudl',
-        'utility_name_eia',
+        "report_date",
+        "utility_id_eia",
+        "utility_id_pudl",
+        "utility_name_eia",
     ]
 
     out_df = pudl.helpers.organize_cols(out_df, first_cols)
@@ -100,12 +98,12 @@ def plants_eia860(pudl_engine, start_date=None, end_date=None):
     """
     pt = pudl.output.pudltabl.get_table_meta(pudl_engine)
     # grab the entity table
-    plants_eia_tbl = pt['plants_entity_eia']
+    plants_eia_tbl = pt["plants_entity_eia"]
     plants_eia_select = sa.sql.select(plants_eia_tbl)
     plants_eia_df = pd.read_sql(plants_eia_select, pudl_engine)
 
     # grab the annual table select
-    plants_eia860_tbl = pt['plants_eia860']
+    plants_eia860_tbl = pt["plants_eia860"]
     plants_eia860_select = sa.sql.select(plants_eia860_tbl)
     if start_date is not None:
         start_date = pd.to_datetime(start_date)
@@ -117,29 +115,27 @@ def plants_eia860(pudl_engine, start_date=None, end_date=None):
         plants_eia860_select = plants_eia860_select.where(
             plants_eia860_tbl.c.report_date <= end_date
         )
-    plants_eia860_df = (
-        pd.read_sql(plants_eia860_select, pudl_engine)
-        .assign(report_date=lambda x: pd.to_datetime(x.report_date))
+    plants_eia860_df = pd.read_sql(plants_eia860_select, pudl_engine).assign(
+        report_date=lambda x: pd.to_datetime(x.report_date)
     )
 
     # plant glue table
-    plants_g_eia_tbl = pt['plants_eia']
+    plants_g_eia_tbl = pt["plants_eia"]
     plants_g_eia_select = sa.sql.select(
         plants_g_eia_tbl.c.plant_id_eia,
         plants_g_eia_tbl.c.plant_id_pudl,
     )
     plants_g_eia_df = pd.read_sql(plants_g_eia_select, pudl_engine)
 
-    out_df = pd.merge(
-        plants_eia_df, plants_eia860_df, how='left', on=['plant_id_eia'])
-    out_df = pd.merge(out_df, plants_g_eia_df, how='left', on=['plant_id_eia'])
+    out_df = pd.merge(plants_eia_df, plants_eia860_df, how="left", on=["plant_id_eia"])
+    out_df = pd.merge(out_df, plants_g_eia_df, how="left", on=["plant_id_eia"])
 
-    utils_eia_tbl = pt['utilities_eia']
+    utils_eia_tbl = pt["utilities_eia"]
     utils_eia_select = sa.sql.select(utils_eia_tbl)
     utils_eia_df = pd.read_sql(utils_eia_select, pudl_engine)
 
     out_df = (
-        pd.merge(out_df, utils_eia_df, how='left', on=['utility_id_eia'])
+        pd.merge(out_df, utils_eia_df, how="left", on=["utility_id_eia"])
         .dropna(subset=["report_date", "plant_id_eia"])
         .pipe(apply_pudl_dtypes, group="eia")
     )
@@ -176,28 +172,39 @@ def plants_utils_eia860(pudl_engine, start_date=None, end_date=None):
     # Contains the one-to-one mapping of EIA plants to their operators
     plants_eia = (
         plants_eia860(pudl_engine, start_date=start_date, end_date=end_date)
-        .drop(['utility_id_pudl', 'city', 'state',  # Avoid dupes in merge
-               'zip_code', 'street_address', 'utility_name_eia'],
-              axis='columns')
+        .drop(
+            [
+                "utility_id_pudl",
+                "city",
+                "state",  # Avoid dupes in merge
+                "zip_code",
+                "street_address",
+                "utility_name_eia",
+            ],
+            axis="columns",
+        )
         .dropna(subset=["utility_id_eia"])  # Drop unmergable records
     )
-    utils_eia = utilities_eia860(pudl_engine,
-                                 start_date=start_date,
-                                 end_date=end_date)
+    utils_eia = utilities_eia860(pudl_engine, start_date=start_date, end_date=end_date)
 
     # to avoid duplicate columns on the merge...
-    out_df = pd.merge(plants_eia, utils_eia,
-                      how='left', on=['report_date', 'utility_id_eia'])
+    out_df = pd.merge(
+        plants_eia, utils_eia, how="left", on=["report_date", "utility_id_eia"]
+    )
 
     out_df = (
-        out_df.loc[:, ['report_date',
-                       'plant_id_eia',
-                       'plant_name_eia',
-                       'plant_id_pudl',
-                       'utility_id_eia',
-                       'utility_name_eia',
-                       'utility_id_pudl']
-                   ]
+        out_df.loc[
+            :,
+            [
+                "report_date",
+                "plant_id_eia",
+                "plant_name_eia",
+                "plant_id_pudl",
+                "utility_id_eia",
+                "utility_name_eia",
+                "utility_id_pudl",
+            ],
+        ]
         .dropna(subset=["report_date", "plant_id_eia", "utility_id_eia"])
         .pipe(apply_pudl_dtypes, group="eia")
     )
@@ -247,13 +254,13 @@ def generators_eia860(
     """
     pt = pudl.output.pudltabl.get_table_meta(pudl_engine)
     # Almost all the info we need will come from here.
-    gens_eia860_tbl = pt['generators_eia860']
+    gens_eia860_tbl = pt["generators_eia860"]
     gens_eia860_select = sa.sql.select(gens_eia860_tbl)
     # To get plant age
-    generators_entity_eia_tbl = pt['generators_entity_eia']
+    generators_entity_eia_tbl = pt["generators_entity_eia"]
     generators_entity_eia_select = sa.sql.select(generators_entity_eia_tbl)
     # To get the Lat/Lon coordinates
-    plants_entity_eia_tbl = pt['plants_entity_eia']
+    plants_entity_eia_tbl = pt["plants_entity_eia"]
     plants_entity_eia_select = sa.sql.select(plants_entity_eia_tbl)
 
     if start_date is not None:
@@ -269,27 +276,27 @@ def generators_eia860(
         )
 
     gens_eia860 = pd.read_sql(gens_eia860_select, pudl_engine)
-    generators_entity_eia_df = pd.read_sql(
-        generators_entity_eia_select, pudl_engine)
+    generators_entity_eia_df = pd.read_sql(generators_entity_eia_select, pudl_engine)
 
     plants_entity_eia_df = pd.read_sql(plants_entity_eia_select, pudl_engine)
 
-    out_df = pd.merge(gens_eia860, plants_entity_eia_df,
-                      how='left', on=['plant_id_eia'])
-    out_df = pd.merge(out_df, generators_entity_eia_df,
-                      how='left', on=['plant_id_eia', 'generator_id'])
+    out_df = pd.merge(
+        gens_eia860, plants_entity_eia_df, how="left", on=["plant_id_eia"]
+    )
+    out_df = pd.merge(
+        out_df,
+        generators_entity_eia_df,
+        how="left",
+        on=["plant_id_eia", "generator_id"],
+    )
 
     out_df.report_date = pd.to_datetime(out_df.report_date)
 
     # Bring in some generic plant & utility information:
-    pu_eia = (
-        plants_utils_eia860(
-            pudl_engine, start_date=start_date, end_date=end_date)
-        .drop(["plant_name_eia", "utility_id_eia"], axis="columns")
-    )
-    out_df = pd.merge(out_df, pu_eia,
-                      on=['report_date', 'plant_id_eia'],
-                      how="left")
+    pu_eia = plants_utils_eia860(
+        pudl_engine, start_date=start_date, end_date=end_date
+    ).drop(["plant_name_eia", "utility_id_eia"], axis="columns")
+    out_df = pd.merge(out_df, pu_eia, on=["report_date", "plant_id_eia"], how="left")
 
     # Merge in the unit_id_pudl assigned to each generator in the BGA process
     # Pull the BGA table and make it unit-generator only:
@@ -297,13 +304,15 @@ def generators_eia860(
         out_df,
         boiler_generator_assn_eia860(
             pudl_engine, start_date=start_date, end_date=end_date
-        )[[
-            "report_date",
-            "plant_id_eia",
-            "generator_id",
-            "unit_id_pudl",
-            "bga_source",
-        ]].drop_duplicates(),
+        )[
+            [
+                "report_date",
+                "plant_id_eia",
+                "generator_id",
+                "unit_id_pudl",
+                "bga_source",
+            ]
+        ].drop_duplicates(),
         on=["report_date", "plant_id_eia", "generator_id"],
         how="left",
         validate="m:1",
@@ -315,14 +324,16 @@ def generators_eia860(
     # lumping of an entire plant's fuel & generation if its primary fuels
     # are homogeneous, and split out fuel & generation by fuel if it is
     # hetereogeneous.
-    ft_count = out_df[['plant_id_eia', 'fuel_type_code_pudl', 'report_date']].\
-        drop_duplicates().groupby(['plant_id_eia', 'report_date']).count()
+    ft_count = (
+        out_df[["plant_id_eia", "fuel_type_code_pudl", "report_date"]]
+        .drop_duplicates()
+        .groupby(["plant_id_eia", "report_date"])
+        .count()
+    )
     ft_count = ft_count.reset_index()
-    ft_count = ft_count.rename(
-        columns={'fuel_type_code_pudl': 'fuel_type_count'})
+    ft_count = ft_count.rename(columns={"fuel_type_code_pudl": "fuel_type_count"})
     out_df = (
-        pd.merge(out_df, ft_count, how='left',
-                 on=['plant_id_eia', 'report_date'])
+        pd.merge(out_df, ft_count, how="left", on=["plant_id_eia", "report_date"])
         .dropna(subset=["report_date", "plant_id_eia", "generator_id"])
         .pipe(apply_pudl_dtypes, group="eia")
     )
@@ -336,20 +347,20 @@ def generators_eia860(
         out_df = fill_generator_technology_description(out_df)
 
     first_cols = [
-        'report_date',
-        'plant_id_eia',
-        'plant_id_pudl',
-        'plant_name_eia',
-        'utility_id_eia',
-        'utility_id_pudl',
-        'utility_name_eia',
-        'generator_id',
+        "report_date",
+        "plant_id_eia",
+        "plant_id_pudl",
+        "plant_name_eia",
+        "utility_id_eia",
+        "utility_id_pudl",
+        "utility_name_eia",
+        "generator_id",
     ]
 
     # Re-arrange the columns for easier readability:
     out_df = (
         pudl.helpers.organize_cols(out_df, first_cols)
-        .sort_values(['report_date', 'plant_id_eia', 'generator_id'])
+        .sort_values(["report_date", "plant_id_eia", "generator_id"])
         .pipe(apply_pudl_dtypes, group="eia")
     )
 
@@ -383,10 +394,9 @@ def fill_generator_technology_description(gens_df: pd.DataFrame) -> pd.DataFrame
 
     # Backfill within generator-energy_source groups:
     out_df["technology_description"] = (
-        out_df
-        .sort_values("report_date")
+        out_df.sort_values("report_date")
         .groupby(["plant_id_eia", "generator_id", "energy_source_code_1"])
-        .technology_description.backfill()
+        .technology_description.bfill()
     )
 
     # Fill in remaining missing technology_descriptions with unique correspondences
@@ -394,27 +404,28 @@ def fill_generator_technology_description(gens_df: pd.DataFrame) -> pd.DataFrame
     # for any technology_description that isn't uniquely identified by energy source
     static_fuels = defaultdict(
         lambda: pd.NA,
-        gens_df.dropna(subset=['technology_description'])
-        .drop_duplicates(subset=['energy_source_code_1', 'technology_description'])
-        .drop_duplicates(subset=['energy_source_code_1'], keep=False)
-        .set_index('energy_source_code_1')
-        ['technology_description'].to_dict()
+        gens_df.dropna(subset=["technology_description"])
+        .drop_duplicates(subset=["energy_source_code_1", "technology_description"])
+        .drop_duplicates(subset=["energy_source_code_1"], keep=False)
+        .set_index("energy_source_code_1")["technology_description"]
+        .to_dict(),
     )
 
     out_df.loc[
-        out_df.technology_description.isna(),
-        "technology_description"
-    ] = (out_df.energy_source_code_1.map(static_fuels))
+        out_df.technology_description.isna(), "technology_description"
+    ] = out_df.energy_source_code_1.map(static_fuels)
 
     assert len(out_df) == nrows_orig
 
     # Assert that at least 95 percent of tech desc rows are filled in
     pct_val = 0.95
-    if out_df.technology_description.count() \
-        / out_df.technology_description.size \
-            < pct_val:
+    if (
+        out_df.technology_description.count() / out_df.technology_description.size
+        < pct_val
+    ):
         raise AssertionError(
-            f"technology_description filling no longer covering {pct_val:.0%}")
+            f"technology_description filling no longer covering {pct_val:.0%}"
+        )
 
     return out_df
 
@@ -438,7 +449,7 @@ def boiler_generator_assn_eia860(pudl_engine, start_date=None, end_date=None):
 
     """
     pt = pudl.output.pudltabl.get_table_meta(pudl_engine)
-    bga_eia860_tbl = pt['boiler_generator_assn_eia860']
+    bga_eia860_tbl = pt["boiler_generator_assn_eia860"]
     bga_eia860_select = sa.sql.select(bga_eia860_tbl)
 
     if start_date is not None:
@@ -451,9 +462,8 @@ def boiler_generator_assn_eia860(pudl_engine, start_date=None, end_date=None):
         bga_eia860_select = bga_eia860_select.where(
             bga_eia860_tbl.c.report_date <= end_date
         )
-    out_df = (
-        pd.read_sql(bga_eia860_select, pudl_engine)
-        .assign(report_date=lambda x: pd.to_datetime(x.report_date))
+    out_df = pd.read_sql(bga_eia860_select, pudl_engine).assign(
+        report_date=lambda x: pd.to_datetime(x.report_date)
     )
     return out_df
 
@@ -490,47 +500,52 @@ def ownership_eia860(pudl_engine, start_date=None, end_date=None):
         own_eia860_select = own_eia860_select.where(
             own_eia860_tbl.c.report_date <= end_date
         )
-    own_eia860_df = (
-        pd.read_sql(own_eia860_select, pudl_engine)
-        .assign(report_date=lambda x: pd.to_datetime(x["report_date"]))
+    own_eia860_df = pd.read_sql(own_eia860_select, pudl_engine).assign(
+        report_date=lambda x: pd.to_datetime(x["report_date"])
     )
 
-    pu_eia = (
-        plants_utils_eia860(
-            pudl_engine, start_date=start_date, end_date=end_date)
-        .loc[:, ['plant_id_eia', 'plant_id_pudl', 'plant_name_eia',
-                 'utility_name_eia', 'utility_id_pudl', 'report_date']]
-    )
+    pu_eia = plants_utils_eia860(
+        pudl_engine, start_date=start_date, end_date=end_date
+    ).loc[
+        :,
+        [
+            "plant_id_eia",
+            "plant_id_pudl",
+            "plant_name_eia",
+            "utility_name_eia",
+            "utility_id_pudl",
+            "report_date",
+        ],
+    ]
 
     out_df = (
-        pd.merge(own_eia860_df, pu_eia,
-                 how='left', on=['report_date', 'plant_id_eia'])
-        .dropna(subset=[
-            "report_date",
-            "plant_id_eia",
-            "generator_id",
-            "owner_utility_id_eia",
-        ])
+        pd.merge(own_eia860_df, pu_eia, how="left", on=["report_date", "plant_id_eia"])
+        .dropna(
+            subset=[
+                "report_date",
+                "plant_id_eia",
+                "generator_id",
+                "owner_utility_id_eia",
+            ]
+        )
         .pipe(apply_pudl_dtypes, group="eia")
     )
 
     first_cols = [
-        'report_date',
-        'plant_id_eia',
-        'plant_id_pudl',
-        'plant_name_eia',
-        'utility_id_eia',
-        'utility_id_pudl',
-        'utility_name_eia',
-        'generator_id',
-        'owner_utility_id_eia',
-        'owner_name',
+        "report_date",
+        "plant_id_eia",
+        "plant_id_pudl",
+        "plant_name_eia",
+        "utility_id_eia",
+        "utility_id_pudl",
+        "utility_name_eia",
+        "generator_id",
+        "owner_utility_id_eia",
+        "owner_name",
     ]
 
     # Re-arrange the columns for easier readability:
-    out_df = (
-        pudl.helpers.organize_cols(out_df, first_cols)
-    )
+    out_df = pudl.helpers.organize_cols(out_df, first_cols)
 
     return out_df
 
@@ -591,10 +606,7 @@ def assign_unit_ids(gens_df):
         # For whole-combined cycle (CC) and single-shaft combined cycle (CS)
         # units, we give each generator their own unit ID. We do the same for
         # internal combustion and simple-cycle gas combustion turbines.
-        .pipe(
-            assign_single_gen_unit_ids,
-            prime_mover_codes=["CC", "CS", "GT", "IC"]
-        )
+        .pipe(assign_single_gen_unit_ids, prime_mover_codes=["CC", "CS", "GT", "IC"])
         # Nuclear units don't report in boiler_fuel_eia923 or generation_eia923
         # Their fuel consumption is reported as mmbtu in generation_fuel_eia923
         # Their net generation also only shows up in generation_fuel_eia923
@@ -624,31 +636,30 @@ def assign_unit_ids(gens_df):
         .pipe(
             assign_prime_fuel_unit_ids,
             prime_mover_code="ST",
-            fuel_type_code_pudl="coal"
+            fuel_type_code_pudl="coal",
+        )
+        .pipe(
+            assign_prime_fuel_unit_ids, prime_mover_code="ST", fuel_type_code_pudl="oil"
+        )
+        .pipe(
+            assign_prime_fuel_unit_ids, prime_mover_code="ST", fuel_type_code_pudl="gas"
         )
         .pipe(
             assign_prime_fuel_unit_ids,
             prime_mover_code="ST",
-            fuel_type_code_pudl="oil"
-        )
-        .pipe(
-            assign_prime_fuel_unit_ids,
-            prime_mover_code="ST",
-            fuel_type_code_pudl="gas"
-        )
-        .pipe(
-            assign_prime_fuel_unit_ids,
-            prime_mover_code="ST",
-            fuel_type_code_pudl="waste"
+            fuel_type_code_pudl="waste",
         )
         # Retain only the merge keys and output columns
-        .loc[:, [
-            "plant_id_eia",  # Merge key
-            "generator_id",  # Merge key
-            "report_date",   # Merge key
-            "unit_id_pudl",  # Output column
-            "bga_source"     # Output column
-        ]]
+        .loc[
+            :,
+            [
+                "plant_id_eia",  # Merge key
+                "generator_id",  # Merge key
+                "report_date",  # Merge key
+                "unit_id_pudl",  # Output column
+                "bga_source",  # Output column
+            ],
+        ]
     )
     # Check that each generator is only ever associated with a single unit,
     # at least within the codes that we've just assigned -- the Unit IDs that
@@ -659,7 +670,8 @@ def assign_unit_ids(gens_df):
     gens_have_unique_unit = (
         unit_ids[~unit_ids.bga_source.isin(old_codes)]
         .groupby(["plant_id_eia", "generator_id"])["unit_id_pudl"]
-        .nunique() <= 1  # nunique() == 0 when there are only NA values.
+        .nunique()
+        <= 1  # nunique() == 0 when there are only NA values.
     ).all()
     if not gens_have_unique_unit:
         errstr = "Some generators are associated with more than one unit_id_pudl."
@@ -676,18 +688,17 @@ def assign_unit_ids(gens_df):
     # being used for plant_id_eia at this point, fml. Really this should just
     # be assert_index_equal() for the two df indices:
     pd.testing.assert_frame_equal(
-        unit_ids.reset_index()[gens_idx],
-        gens_df.reset_index()[gens_idx]
+        unit_ids.reset_index()[gens_idx], gens_df.reset_index()[gens_idx]
     )
     # Verify that anywhere out_df has a unit_id_pudl, it's identical in unit_ids
     pd.testing.assert_series_equal(
         gens_df.unit_id_pudl.dropna(),
-        unit_ids.unit_id_pudl.loc[gens_df.unit_id_pudl.dropna().index]
+        unit_ids.unit_id_pudl.loc[gens_df.unit_id_pudl.dropna().index],
     )
     # Verify that anywhere out_df has a bga_source, it's identical in unit_ids
     pd.testing.assert_series_equal(
         gens_df.bga_source.dropna(),
-        unit_ids.bga_source.loc[gens_df.bga_source.dropna().index]
+        unit_ids.bga_source.loc[gens_df.bga_source.dropna().index],
     )
     # We know that the indices are identical
     # We know that we aren't going to overwrite anything that isn't NA
@@ -778,7 +789,8 @@ def max_unit_id_by_plant(gens_df):
     return (
         gens_df[["plant_id_eia", "unit_id_pudl"]]
         .drop_duplicates()
-        .groupby("plant_id_eia").agg({"unit_id_pudl": max})
+        .groupby("plant_id_eia")
+        .agg({"unit_id_pudl": max})
         .fillna(0)
         .rename(columns={"unit_id_pudl": "max_unit_id_pudl"})
         .reset_index()
@@ -822,10 +834,7 @@ def _append_masked_units(gens_df, row_mask, unit_ids, on):
 
 
 def assign_single_gen_unit_ids(
-    gens_df,
-    prime_mover_codes,
-    fuel_type_code_pudl=None,
-    label_prefix="single"
+    gens_df, prime_mover_codes, fuel_type_code_pudl=None, label_prefix="single"
 ):
     """
     Assign a unique PUDL Unit ID to each generator of a given prime mover type.
@@ -878,7 +887,9 @@ def assign_single_gen_unit_ids(
 
     logger.info(
         "Selected %s %s records lacking Unit IDs from %s records overall. ",
-        row_mask.sum(), prime_mover_codes, len(gens_df)
+        row_mask.sum(),
+        prime_mover_codes,
+        len(gens_df),
     )
 
     unit_ids = (
@@ -893,8 +904,9 @@ def assign_single_gen_unit_ids(
         # Assign new unit_id_pudl values based on number of distinct generators:
         .assign(
             unit_id_pudl=lambda x: (
-                x.groupby("plant_id_eia")["generator_id"]
-                .cumcount() + x.max_unit_id_pudl + 1
+                x.groupby("plant_id_eia")["generator_id"].cumcount()
+                + x.max_unit_id_pudl
+                + 1
             ),
             bga_source=lambda x: label_prefix + "_" + x.prime_mover_code.str.lower(),
         )
@@ -939,15 +951,16 @@ def assign_cc_unit_ids(gens_df):
     max_unit_ids = max_unit_id_by_plant(gens_df)
 
     cc_missing_units = gens_df[
-        (gens_df.unit_id_pudl.isna())
-        & gens_df.prime_mover_code.isin(["CT", "CA"])
+        (gens_df.unit_id_pudl.isna()) & gens_df.prime_mover_code.isin(["CT", "CA"])
     ]
     # On a per-plant, per-year basis, count up the number of CT and CA generators.
     # Only look at those which don't already have a unit ID assigned:
     cc_pm_counts = (
-        cc_missing_units
-        .groupby(["plant_id_eia", "report_date"])["prime_mover_code"]
-        .value_counts().unstack(fill_value=0).astype(int).reset_index()
+        cc_missing_units.groupby(["plant_id_eia", "report_date"])["prime_mover_code"]
+        .value_counts()
+        .unstack(fill_value=0)
+        .astype(int)
+        .reset_index()
     )
     cc_pm_counts.columns.name = None
 
@@ -955,20 +968,16 @@ def assign_cc_unit_ids(gens_df):
     # assign based on them. We're using the cc_missing_units and a temporary
     # dataframe here to avoid interference from the CT & CA generators
     # that do already have unit IDs assigned to them in gens_df.
-    tmp_df = (
-        cc_missing_units
-        .merge(
-            max_unit_ids,
-            on="plant_id_eia",
-            how="left",
-            validate="many_to_one",
-        )
-        .merge(
-            cc_pm_counts,
-            on=["plant_id_eia", "report_date"],
-            how="left",
-            validate="many_to_one",
-        )
+    tmp_df = cc_missing_units.merge(
+        max_unit_ids,
+        on="plant_id_eia",
+        how="left",
+        validate="many_to_one",
+    ).merge(
+        cc_pm_counts,
+        on=["plant_id_eia", "report_date"],
+        how="left",
+        validate="many_to_one",
     )
 
     # Assign the new Unit IDs.
@@ -984,20 +993,25 @@ def assign_cc_unit_ids(gens_df):
     assert (tmp_df.loc[tmp_df.bga_source == "orphan_ca", "CA"] > 0).all()
 
     # Assign flags for various arrangements of CA and CT generators
-    tmp_df.loc[((tmp_df.CT == 1) & (tmp_df.CA == 1)),
-               "bga_source"] = "one_ct_one_ca_inferred"
-    tmp_df.loc[((tmp_df.CT == 1) & (tmp_df.CA > 1)),
-               "bga_source"] = "one_ct_many_ca_inferred"
-    tmp_df.loc[((tmp_df.CT > 1) & (tmp_df.CA == 1)),
-               "bga_source"] = "many_ct_one_ca_inferred"
-    tmp_df.loc[((tmp_df.CT > 1) & (tmp_df.CA > 1)),
-               "bga_source"] = "many_ct_many_ca_inferred"
+    tmp_df.loc[
+        ((tmp_df.CT == 1) & (tmp_df.CA == 1)), "bga_source"
+    ] = "one_ct_one_ca_inferred"
+    tmp_df.loc[
+        ((tmp_df.CT == 1) & (tmp_df.CA > 1)), "bga_source"
+    ] = "one_ct_many_ca_inferred"
+    tmp_df.loc[
+        ((tmp_df.CT > 1) & (tmp_df.CA == 1)), "bga_source"
+    ] = "many_ct_one_ca_inferred"
+    tmp_df.loc[
+        ((tmp_df.CT > 1) & (tmp_df.CA > 1)), "bga_source"
+    ] = "many_ct_many_ca_inferred"
 
     # Align the indices of the two dataframes so we can assign directly
     tmp_df = tmp_df.set_index(["plant_id_eia", "generator_id", "report_date"])
     out_df = gens_df.set_index(["plant_id_eia", "generator_id", "report_date"])
-    out_df.loc[tmp_df.index, ["unit_id_pudl", "bga_source"]
-               ] = tmp_df[["unit_id_pudl", "bga_source"]]
+    out_df.loc[tmp_df.index, ["unit_id_pudl", "bga_source"]] = tmp_df[
+        ["unit_id_pudl", "bga_source"]
+    ]
 
     return out_df.reset_index()
 
@@ -1039,8 +1053,9 @@ def assign_prime_fuel_unit_ids(gens_df, prime_mover_code, fuel_type_code_pudl):
     """
     # Find generators with a consistent fuel_type_code_pudl across all years.
     consistent_fuel = (
-        gens_df.groupby(["plant_id_eia", "generator_id"])["fuel_type_code_pudl"]
-        .transform(lambda x: x.nunique())
+        gens_df.groupby(["plant_id_eia", "generator_id"])[
+            "fuel_type_code_pudl"
+        ].transform(lambda x: x.nunique())
     ) == 1
     # This mask defines the generators generators we are going to alter:
     row_mask = (
@@ -1055,7 +1070,10 @@ def assign_prime_fuel_unit_ids(gens_df, prime_mover_code, fuel_type_code_pudl):
 
     logger.info(
         "Selected %s %s records lacking Unit IDs burning %s from %s records overall.",
-        row_mask.sum(), prime_mover_code, fuel_type_code_pudl, len(gens_df)
+        row_mask.sum(),
+        prime_mover_code,
+        fuel_type_code_pudl,
+        len(gens_df),
     )
 
     unit_ids = (
@@ -1083,8 +1101,9 @@ def assign_prime_fuel_unit_ids(gens_df, prime_mover_code, fuel_type_code_pudl):
 
     # Find generators with inconsistent fuel_type_code_pudl so we can label them
     inconsistent_fuel = (
-        out_df.groupby(["plant_id_eia", "generator_id"])["fuel_type_code_pudl"]
-        .transform(lambda x: x.nunique())
+        out_df.groupby(["plant_id_eia", "generator_id"])[
+            "fuel_type_code_pudl"
+        ].transform(lambda x: x.nunique())
     ) > 1
 
     inconsistent_fuel_mask = (

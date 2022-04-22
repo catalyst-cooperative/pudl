@@ -5,7 +5,7 @@ import warnings
 import pandas as pd
 
 import pudl
-from pudl.constants import PUDL_TABLES
+from pudl.settings import Ferc714Settings
 
 logger = logging.getLogger(__name__)
 
@@ -42,12 +42,15 @@ TABLE_ENCODING = {
 """Dictionary describing the character encodings of the FERC 714 CSV files."""
 
 
-def extract(tables=PUDL_TABLES["ferc714"], pudl_settings=None, ds=None):
+def extract(
+    ferc714_settings: Ferc714Settings = Ferc714Settings(), pudl_settings=None, ds=None
+):
     """
     Extract the raw FERC Form 714 dataframes from their original CSV files.
 
     Args:
-        ferc714_tables (iterable): The set of tables to be extracted.
+        ferc714_settings: Object containing validated settings relevant to
+            FERC Form 714.
         pudl_settings (dict): A PUDL settings dictionary.
         ds (Datastore): instance of the datastore
 
@@ -63,13 +66,10 @@ def extract(tables=PUDL_TABLES["ferc714"], pudl_settings=None, ds=None):
     if pudl_settings is None:
         pudl_settings = pudl.workspace.setup.get_defaults()
     raw_dfs = {}
-    for table in tables:
-        if table not in PUDL_TABLES["ferc714"]:
-            raise ValueError(
-                f"No extract function found for requested FERC Form 714 data "
-                f"table {table}!"
-            )
+    for table in ferc714_settings.tables:
         logger.info(f"Extracting {table} from CSV into pandas DataFrame.")
-        with ds.get_zipfile_resource("ferc714", name="ferc714.zip").open(TABLE_FNAME[table]) as f:
+        with ds.get_zipfile_resource("ferc714", name="ferc714.zip").open(
+            TABLE_FNAME[table]
+        ) as f:
             raw_dfs[table] = pd.read_csv(f, encoding=TABLE_ENCODING[table])
     return raw_dfs

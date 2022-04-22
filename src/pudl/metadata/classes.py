@@ -4,10 +4,21 @@ import datetime
 import logging
 import os
 import re
+import sys
 from functools import lru_cache
 from pathlib import Path
-from typing import (Any, Callable, Dict, Iterable, List, Literal, Optional,
-                    Tuple, Type, Union)
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    Iterable,
+    List,
+    Literal,
+    Optional,
+    Tuple,
+    Type,
+    Union,
+)
 
 import jinja2
 import pandas as pd
@@ -17,15 +28,25 @@ import sqlalchemy as sa
 from pydantic.types import DirectoryPath
 
 from .codes import CODE_METADATA
-from .constants import (CONSTRAINT_DTYPES, CONTRIBUTORS,
-                        CONTRIBUTORS_BY_SOURCE, FIELD_DTYPES_PANDAS,
-                        FIELD_DTYPES_PYARROW, FIELD_DTYPES_SQL,
-                        KEYWORDS_BY_SOURCE, LICENSES, PERIODS, SOURCES)
-from .fields import (FIELD_METADATA, FIELD_METADATA_BY_GROUP,
-                     FIELD_METADATA_BY_RESOURCE)
-from .helpers import (expand_periodic_column_names, format_errors,
-                      groupby_aggregate, most_and_more_frequent, split_period)
-from .resources import FOREIGN_KEYS, RESOURCE_METADATA
+from .constants import (
+    CONSTRAINT_DTYPES,
+    CONTRIBUTORS,
+    FIELD_DTYPES_PANDAS,
+    FIELD_DTYPES_PYARROW,
+    FIELD_DTYPES_SQL,
+    LICENSES,
+    PERIODS,
+)
+from .fields import FIELD_METADATA, FIELD_METADATA_BY_GROUP, FIELD_METADATA_BY_RESOURCE
+from .helpers import (
+    expand_periodic_column_names,
+    format_errors,
+    groupby_aggregate,
+    most_and_more_frequent,
+    split_period,
+)
+from .resources import FOREIGN_KEYS, RESOURCE_METADATA, eia861
+from .sources import SOURCES
 
 logger = logging.getLogger(__name__)
 
@@ -116,7 +137,7 @@ JINJA_ENVIRONMENT: jinja2.Environment = jinja2.Environment(
     loader=jinja2.FileSystemLoader(
         os.path.join(os.path.dirname(__file__), "templates")
     ),
-    autoescape=True
+    autoescape=True,
 )
 
 
@@ -148,7 +169,7 @@ class Base(pydantic.BaseModel):
 
         validate_all: bool = True
         validate_assignment: bool = True
-        extra: str = 'forbid'
+        extra: str = "forbid"
         arbitrary_types_allowed = True
 
     def dict(self, *args, by_alias=True, **kwargs) -> dict:  # noqa: A003
@@ -449,9 +470,7 @@ class Encoder(Base):
         errors = []
         overlap = set(values["df"]["code"]).intersection(ignored_codes)
         if overlap:
-            errors.append(
-                f"Overlap found between good and ignored codes: {overlap}."
-            )
+            errors.append(f"Overlap found between good and ignored codes: {overlap}.")
         if errors:
             raise ValueError(format_errors(*errors, pydantic=True))
         return ignored_codes
@@ -464,9 +483,7 @@ class Encoder(Base):
         errors = []
         overlap = set(values["df"]["code"]).intersection(code_fixes)
         if overlap:
-            errors.append(
-                f"Overlap found between good and fixable codes: {overlap}"
-            )
+            errors.append(f"Overlap found between good and fixable codes: {overlap}")
         if errors:
             raise ValueError(format_errors(*errors, pydantic=True))
         return code_fixes
@@ -479,9 +496,7 @@ class Encoder(Base):
         errors = []
         overlap = set(code_fixes).intersection(values["ignored_codes"])
         if overlap:
-            errors.append(
-                f"Overlap found between fixable and ignored codes: {overlap}"
-            )
+            errors.append(f"Overlap found between fixable and ignored codes: {overlap}")
         if errors:
             raise ValueError(format_errors(*errors, pydantic=True))
         return code_fixes
@@ -532,24 +547,27 @@ class Encoder(Base):
         return copy.deepcopy(RESOURCE_METADATA[x]).get("encoder", None)
 
     @classmethod
-    def from_id(cls, x: str) -> 'Encoder':
+    def from_id(cls, x: str) -> "Encoder":
         """Construct an Encoder based on `Resource.name` of a coding table."""
         return cls(**cls.dict_from_id(x))
 
     @classmethod
-    def from_code_id(cls, x: str) -> 'Encoder':
+    def from_code_id(cls, x: str) -> "Encoder":
         """Construct an Encoder based on looking up the name of a coding table directly in the codes metadata."""
         return cls(**copy.deepcopy(CODE_METADATA[x]), name=x)
 
-    def to_rst(self, top_dir: DirectoryPath, csv_subdir: DirectoryPath, is_header: Bool) -> String:
+    def to_rst(
+        self, top_dir: DirectoryPath, csv_subdir: DirectoryPath, is_header: Bool
+    ) -> String:
         """Ouput dataframe to a csv for use in jinja template. Then output to an RST file."""
         self.df.to_csv(Path(top_dir) / csv_subdir / f"{self.name}.csv", index=False)
         template = JINJA_ENVIRONMENT.get_template("codemetadata.rst.jinja")
         rendered = template.render(
             Encoder=self,
             description=RESOURCE_METADATA[self.name]["description"],
-            csv_filepath=(Path('/') / csv_subdir / f"{self.name}.csv"),
-            is_header=is_header)
+            csv_filepath=(Path("/") / csv_subdir / f"{self.name}.csv"),
+            is_header=is_header,
+        )
         return rendered
 
 
@@ -576,6 +594,7 @@ class Field(Base):
     ]
     format: Literal["default"] = "default"  # noqa: A003
     description: String = None
+    unit: String = None
     constraints: FieldConstraints = {}
     harvest: FieldHarvest = {}
     encoder: Encoder = None
@@ -622,16 +641,14 @@ class Field(Base):
     @staticmethod
     def dict_from_id(x: str) -> dict:
         """Construct dictionary from PUDL identifier (`Field.name`)."""
-        return {'name': x, **copy.deepcopy(FIELD_METADATA[x])}
+        return {"name": x, **copy.deepcopy(FIELD_METADATA[x])}
 
     @classmethod
-    def from_id(cls, x: str) -> 'Field':
+    def from_id(cls, x: str) -> "Field":
         """Construct from PUDL identifier (`Field.name`)."""
         return cls(**cls.dict_from_id(x))
 
-    def to_pandas_dtype(
-        self, compact: bool = False
-    ) -> Union[str, pd.CategoricalDtype]:
+    def to_pandas_dtype(self, compact: bool = False) -> Union[str, pd.CategoricalDtype]:
         """
         Return Pandas data type.
 
@@ -657,7 +674,7 @@ class Field(Base):
     def to_pyarrow_dtype(self) -> pa.lib.DataType:
         """Return PyArrow data type."""
         if self.constraints.enum and self.type == "string":
-            return pa.dictionary(pa.int8(), pa.string(), ordered=False)
+            return pa.dictionary(pa.int32(), pa.string(), ordered=False)
         return FIELD_DTYPES_PYARROW[self.type]
 
     def to_pyarrow(self) -> pa.Field:
@@ -666,6 +683,7 @@ class Field(Base):
             name=self.name,
             type=self.to_pyarrow_dtype(),
             nullable=(not self.constraints.required),
+            metadata={"description": self.description},
         )
 
     def to_sql(  # noqa: C901
@@ -692,7 +710,8 @@ class Field(Base):
             elif self.type == "boolean":
                 # Just IN (0, 1) accepts floats equal to 0, 1 (0.0, 1.0)
                 checks.append(
-                    f"{prefix}(TYPEOF({name}) = 'integer' AND {name} IN (0, 1))")
+                    f"{prefix}(TYPEOF({name}) = 'integer' AND {name} IN (0, 1))"
+                )
             elif self.type == "date":
                 checks.append(f"{name} IS DATE({name})")
             elif self.type == "datetime":
@@ -721,16 +740,13 @@ class Field(Base):
             *[sa.CheckConstraint(check) for check in checks],
             nullable=not self.constraints.required,
             unique=self.constraints.unique,
-            comment=self.description
+            comment=self.description,
         )
 
-    def encode(
-        self,
-        col: pd.Series,
-        dtype: Union[type, None] = None
-    ) -> pd.Series:
+    def encode(self, col: pd.Series, dtype: Union[type, None] = None) -> pd.Series:
         """Recode the Field if it has an associated encoder."""
         return self.encoder.encode(col, dtype=dtype) if self.encoder else col
+
 
 # ---- Classes: Resource ---- #
 
@@ -775,7 +791,7 @@ class ForeignKey(Base):
         """Return equivalent SQL Foreign Key."""
         return sa.ForeignKeyConstraint(
             self.fields,
-            [f"{self.reference.resource}.{field}" for field in self.reference.fields]
+            [f"{self.reference.resource}.{field}" for field in self.reference.fields],
         )
 
 
@@ -804,11 +820,11 @@ class Schema(Base):
     def _check_primary_key_in_fields(cls, value, values):  # noqa: N805
         if value is not None and "fields_" in values:
             missing = []
-            names = [f.name for f in values['fields_']]
+            names = [f.name for f in values["fields_"]]
             for name in value:
                 if name in names:
                     # Flag primary key fields as required
-                    field = values['fields_'][names.index(name)]
+                    field = values["fields_"][names.index(name)]
                     field.constraints.required = True
                 else:
                     missing.append(field.name)
@@ -819,7 +835,7 @@ class Schema(Base):
     @pydantic.validator("foreign_keys", each_item=True)
     def _check_foreign_key_in_fields(cls, value, values):  # noqa: N805
         if value and "fields_" in values:
-            names = [f.name for f in values['fields_']]
+            names = [f.name for f in values["fields_"]]
             missing = [x for x in value.fields if x not in names]
             if missing:
                 raise ValueError(f"names {missing} missing from fields")
@@ -848,28 +864,6 @@ class License(Base):
         return cls(**cls.dict_from_id(x))
 
 
-class Source(Base):
-    """
-    Data source (`package|resource.sources[...]`).
-
-    See https://specs.frictionlessdata.io/data-package/#sources.
-    """
-
-    title: String
-    path: HttpUrl
-    email: Email = None
-
-    @staticmethod
-    def dict_from_id(x: str) -> dict:
-        """Construct dictionary from PUDL identifier."""
-        return copy.deepcopy(SOURCES[x])
-
-    @classmethod
-    def from_id(cls, x: str) -> "Source":
-        """Construct from PUDL identifier."""
-        return cls(**cls.dict_from_id(x))
-
-
 class Contributor(Base):
     """
     Data contributor (`package.contributors[...]`).
@@ -884,6 +878,7 @@ class Contributor(Base):
         "author", "contributor", "maintainer", "publisher", "wrangler"
     ] = "contributor"
     organization: String = None
+    orcid: String = None
 
     @staticmethod
     def dict_from_id(x: str) -> dict:
@@ -893,6 +888,94 @@ class Contributor(Base):
     @classmethod
     def from_id(cls, x: str) -> "Contributor":
         """Construct from PUDL identifier."""
+        return cls(**cls.dict_from_id(x))
+
+    def __hash__(self):
+        """
+        Implements simple hash method.
+
+        Allows use of `set()` on a list of Contributor
+        """
+        return hash(str(self))
+
+
+class DataSource(Base):
+    """
+    A data source that has been integrated into PUDL.
+
+    This metadata is used for:
+
+    * Generating PUDL documentation.
+    * Annotating long-term archives of the raw input data on Zenodo.
+    * Defining what data partitions can be processed using PUDL.
+
+    It can also be used to populate the "source" fields of frictionless
+    data packages and data resources (`package|resource.sources[...]`).
+
+    See https://specs.frictionlessdata.io/data-package/#sources.
+
+    """
+
+    name: SnakeCase
+    title: String = None
+    description: String = None
+    field_namespace: String = None
+    keywords: List[str] = []
+    path: HttpUrl = None
+    contributors: List[Contributor] = []  # Or should this be compiled from Resources?
+    license_raw: License
+    license_pudl: License
+    # concept_doi: Doi = None  # Need to define a Doi type?
+    working_partitions: Dict[SnakeCase, Any] = {}
+    # agency: Agency  # needs to be defined
+    email: Email = None
+
+    def get_resource_ids(self) -> List[str]:
+        """Compile list of resoruce IDs associated with this data source."""
+        # Temporary check to use eia861.RESOURCE_METADATA directly
+        # eia861 is not currently included in the general RESOURCE_METADATA dict
+        resources = RESOURCE_METADATA
+        if self.name == "eia861":
+            resources = eia861.RESOURCE_METADATA
+
+        return sorted(
+            [
+                name
+                for name, value in resources.items()
+                if value.get("etl_group") == self.name
+            ]
+        )
+
+    def get_temporal_coverage(self) -> str:
+        """Return a string describing the time span covered by the data source."""
+        if "years" in self.working_partitions:
+            return f"{min(self.working_partitions['years'])}-{max(self.working_partitions['years'])}"
+        elif "year_month" in self.working_partitions:
+            return f"through {self.working_partitions['year_month']}"
+        else:
+            return ""
+
+    def to_rst(self) -> None:
+        """Output a representation of the data source in RST for documentation."""
+        pass
+
+    @classmethod
+    def from_field_namespace(cls, x: str) -> List["DataSource"]:
+        """Return list of DataSource objects by field namespace."""
+        return [
+            cls(**cls.dict_from_id(name))
+            for name, val in SOURCES.items()
+            if val.get("field_namespace") == x
+        ]
+
+    @staticmethod
+    def dict_from_id(x: str) -> dict:
+        """Look up the source by source name in the metadata."""
+        return {"name": x, **copy.deepcopy(SOURCES[x])}
+
+    @classmethod
+    def from_id(cls, x: str) -> "DataSource":
+        """Construct Source by source name in the metadata."""
         return cls(**cls.dict_from_id(x))
 
 
@@ -1038,20 +1121,31 @@ class Resource(Base):
     title: String = None
     description: String = None
     harvest: ResourceHarvest = {}
-    group: Literal["eia", "epacems", "ferc1", "ferc714", "glue", "pudl"] = None
-    schema_: Schema = pydantic.Field(alias='schema')
+    schema_: Schema = pydantic.Field(alias="schema")
     contributors: List[Contributor] = []
     licenses: List[License] = []
-    sources: List[Source] = []
+    sources: List[DataSource] = []
     keywords: List[String] = []
     encoder: Encoder = None
+    field_namespace: Literal[
+        "eia", "epacems", "ferc1", "ferc714", "glue", "pudl"
+    ] = None
+    etl_group: Literal[
+        "eia860",
+        "eia861",
+        "eia923",
+        "entity_eia",
+        "epacems",
+        "ferc1",
+        "ferc1_disabled",
+        "ferc714",
+        "glue",
+        "static_ferc1",
+        "static_eia",
+    ] = None
 
     _check_unique = _validator(
-        "contributors",
-        "keywords",
-        "licenses",
-        "sources",
-        fn=_check_unique
+        "contributors", "keywords", "licenses", "sources", fn=_check_unique
     )
 
     @pydantic.validator("schema_")
@@ -1089,9 +1183,9 @@ class Resource(Base):
                 # Lookup field by name
                 value = Field.dict_from_id(name)
                 # Update with any custom group-level metadata
-                group = obj.get("group")
-                if name in FIELD_METADATA_BY_GROUP.get(group, {}):
-                    value = {**value, **FIELD_METADATA_BY_GROUP[group][name]}
+                namespace = obj.get("field_namespace")
+                if name in FIELD_METADATA_BY_GROUP.get(namespace, {}):
+                    value = {**value, **FIELD_METADATA_BY_GROUP[namespace][name]}
                 # Update with any custom resource-level metadata
                 if name in FIELD_METADATA_BY_RESOURCE.get(x, {}):
                     value = {**value, **FIELD_METADATA_BY_RESOURCE[x][name]}
@@ -1099,7 +1193,9 @@ class Resource(Base):
             schema["fields"] = fields
         # Expand sources
         sources = obj.get("sources", [])
-        obj["sources"] = [Source.dict_from_id(value) for value in sources]
+        obj["sources"] = [
+            DataSource.from_id(value) for value in sources if value in SOURCES
+        ]
         encoder = obj.get("encoder", None)
         obj["encoder"] = encoder
         # Expand licenses (assign CC-BY-4.0 by default)
@@ -1108,16 +1204,18 @@ class Resource(Base):
         # Lookup and insert contributors
         if "contributors" in schema:
             raise ValueError("Resource metadata contains explicit contributors")
-        cids = []
+        contributors = []
         for source in sources:
-            cids.extend(CONTRIBUTORS_BY_SOURCE.get(source, []))
-        obj["contributors"] = [Contributor.dict_from_id(cid) for cid in set(cids)]
+            if source in SOURCES:
+                contributors.extend(DataSource.from_id(source).contributors)
+        obj["contributors"] = set(contributors)
         # Lookup and insert keywords
         if "keywords" in schema:
             raise ValueError("Resource metadata contains explicit keywords")
         keywords = []
         for source in sources:
-            keywords.extend(KEYWORDS_BY_SOURCE.get(source, []))
+            if source in SOURCES:
+                keywords.extend(DataSource.from_id(source).keywords)
         obj["keywords"] = sorted(set(keywords))
         # Insert foreign keys
         if "foreign_keys" in schema:
@@ -1159,9 +1257,7 @@ class Resource(Base):
         """Return field with the given name if it's part of the Resources."""
         names = [field.name for field in self.schema.fields]
         if name not in names:
-            raise KeyError(
-                f"The field {name} is not part of the {self.name} schema."
-            )
+            raise KeyError(f"The field {name} is not part of the {self.name} schema.")
         return self.schema.fields[names.index(name)]
 
     def to_sql(
@@ -1189,9 +1285,12 @@ class Resource(Base):
 
     def to_pyarrow(self) -> pa.Schema:
         """Construct a PyArrow schema for the resource."""
-        return pa.schema(
-            [field.to_pyarrow() for field in self.schema.fields]
-        )
+        fields = [field.to_pyarrow() for field in self.schema.fields]
+        metadata = {
+            "description": self.description,
+            "primary_key": ",".join(self.schema.primary_key),
+        }
+        return pa.schema(fields=fields, metadata=metadata)
 
     def to_pandas_dtypes(
         self, **kwargs: Any
@@ -1306,9 +1405,9 @@ class Resource(Base):
         # Cast integer year fields to datetime
         for field in self.schema.fields:
             if (
-                field.type == "year" and
-                field.name in df and
-                pd.api.types.is_integer_dtype(df[field.name])
+                field.type == "year"
+                and field.name in df
+                and pd.api.types.is_integer_dtype(df[field.name])
             ):
                 df[field.name] = pd.to_datetime(df[field.name], format="%Y")
         df = (
@@ -1439,7 +1538,7 @@ class Resource(Base):
         dfs: Dict[str, pd.DataFrame],
         aggregate: bool = None,
         aggregate_kwargs: Dict[str, Any] = {},
-        format_kwargs: Dict[str, Any] = {}
+        format_kwargs: Dict[str, Any] = {},
     ) -> Tuple[pd.DataFrame, dict]:
         """
         Harvest from named dataframes.
@@ -1505,10 +1604,10 @@ class Resource(Base):
             if field.encoder:
                 logger.info(f"Recoding {self.name}.{field.name}")
                 df[field.name] = field.encoder.encode(
-                    col=df[field.name],
-                    dtype=field.to_pandas_dtype()
+                    col=df[field.name], dtype=field.to_pandas_dtype()
                 )
         return df
+
 
 # ---- Package ---- #
 
@@ -1548,7 +1647,7 @@ class Package(Base):
     homepage: HttpUrl = "https://catalyst.coop/pudl"
     created: Datetime = datetime.datetime.utcnow()
     contributors: List[Contributor] = []
-    sources: List[Source] = []
+    sources: List[DataSource] = []
     licenses: List[License] = []
     resources: StrictList(Resource)
 
@@ -1568,7 +1667,8 @@ class Package(Base):
                     errors.append(f"{tag}: Reference missing primary key")
                     continue
                 missing = [
-                    x for x in foreign_key.reference.fields
+                    x
+                    for x in foreign_key.reference.fields
                     if x not in reference.schema.primary_key
                 ]
                 if missing:
@@ -1581,10 +1681,9 @@ class Package(Base):
 
     @pydantic.root_validator(skip_on_failure=True)
     def _populate_from_resources(cls, values):  # noqa: N805
-        for key in ('keywords', 'contributors', 'sources', 'licenses'):
+        for key in ("keywords", "contributors", "sources", "licenses"):
             values[key] = _unique(
-                values[key],
-                *[getattr(r, key) for r in values['resources']]
+                values[key], *[getattr(r, key) for r in values["resources"]]
             )
         return values
 
@@ -1593,7 +1692,7 @@ class Package(Base):
     def from_resource_ids(  # noqa: C901
         cls,
         resource_ids: Tuple[str] = tuple(sorted(RESOURCE_METADATA)),
-        resolve_foreign_keys: bool = False
+        resolve_foreign_keys: bool = False,
     ) -> "Package":
         """
         Construct a collection of Resources from PUDL identifiers (`resource.name`).
@@ -1639,7 +1738,10 @@ class Package(Base):
         """Output to an RST file."""
         template = JINJA_ENVIRONMENT.get_template("package.rst.jinja")
         rendered = template.render(package=self)
-        Path(path).write_text(rendered)
+        if path:
+            Path(path).write_text(rendered)
+        else:
+            sys.stdout.write(rendered)
 
     def to_sql(
         self,
@@ -1667,9 +1769,7 @@ class CodeMetadata(Base):
     encoder_list: List[Encoder] = []
 
     @classmethod
-    def from_code_ids(
-        cls, code_ids: Iterable[str]
-    ) -> "CodeMetadata":
+    def from_code_ids(cls, code_ids: Iterable[str]) -> "CodeMetadata":
         """
         Construct a list of encoders from code dictionaries.
 
@@ -1683,11 +1783,86 @@ class CodeMetadata(Base):
                 encoder_list.append(Encoder.from_code_id(name))
         return cls(encoder_list=encoder_list)
 
-    def to_rst(self, top_dir: DirectoryPath, csv_subdir: DirectoryPath, rst_path: str) -> None:
+    def to_rst(
+        self, top_dir: DirectoryPath, csv_subdir: DirectoryPath, rst_path: str
+    ) -> None:
         """Iterate through encoders and output to an RST file."""
         with Path(rst_path).open("w") as f:
             for idx, encoder in enumerate(self.encoder_list):
-                header = (idx == 0)
+                header = idx == 0
                 rendered = encoder.to_rst(
-                    top_dir=top_dir, csv_subdir=csv_subdir, is_header=header)
+                    top_dir=top_dir, csv_subdir=csv_subdir, is_header=header
+                )
                 f.write(rendered)
+
+
+class DatasetteMetadata(Base):
+    """
+    A collection of Data Sources and Resources for metadata export.
+
+    Used to create metadata YAML file to accompany Datasette.
+    """
+
+    data_sources: List[DataSource]
+    resources: List[Resource] = Package.from_resource_ids().resources
+    label_columns: Dict[str, str] = {
+        "plants_entity_eia": "plant_name_eia",
+        "plants_ferc1": "plant_name_ferc1",
+        "plants_pudl": "plant_name_pudl",
+        "utilities_entity_eia": "utility_name_eia",
+        "utilities_ferc1": "utility_name_ferc1",
+        "utilities_pudl": "utility_name_pudl",
+    }
+
+    @classmethod
+    def from_data_source_ids(
+        cls,
+        data_source_ids: Iterable[str] = [
+            "pudl",
+            "ferc1",
+            "eia860",
+            "eia860m",
+            "eia923",
+        ],
+        extra_etl_groups: Iterable[str] = [
+            "entity_eia",
+            "glue",
+            "static_eia",
+            "static_ferc1",
+        ],
+    ) -> "DatasetteMetadata":
+        """
+        Construct a dictionary of DataSources from data source names.
+
+        Create dictionary of first and last year or year-month for each source.
+
+        Args:
+            data_source_ids: ids of data sources currently included in Datasette
+            extra_etl_groups: ETL groups with resources that should be included
+        """
+        # Compile a list of DataSource objects for use in the template
+        data_sources = [DataSource.from_id(ds_id) for ds_id in data_source_ids]
+
+        # Instantiate all possible resources in a Package:
+        pkg = Package.from_resource_ids()
+        # Grab a list of just the resources we want to output:
+        resources = [
+            res
+            for res in pkg.resources
+            if res.etl_group in data_source_ids + extra_etl_groups
+        ]
+        return cls(data_sources=data_sources, resources=resources)
+
+    def to_yaml(self, path: str) -> None:
+        """Output database, table, and column metadata to YAML file."""
+        template = JINJA_ENVIRONMENT.get_template("metadata.yml.jinja")
+        rendered = template.render(
+            license=LICENSES["cc-by-4.0"],
+            data_sources=self.data_sources,
+            resources=self.resources,
+            label_columns=self.label_columns,
+        )
+        if path:
+            Path(path).write_text(rendered)
+        else:
+            sys.stdout.write(rendered)

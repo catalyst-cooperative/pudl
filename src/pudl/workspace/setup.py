@@ -31,7 +31,7 @@ def set_defaults(pudl_in, pudl_out, clobber=False):
         None
 
     """
-    settings_file = pathlib.Path.home() / '.pudl.yml'
+    settings_file = pathlib.Path.home() / ".pudl.yml"
     if settings_file.exists():
         if clobber:
             logger.info(f"{settings_file} exists: clobbering.")
@@ -39,7 +39,7 @@ def set_defaults(pudl_in, pudl_out, clobber=False):
             logger.info(f"{settings_file} exists: not clobbering.")
             return
 
-    with settings_file.open(mode='w') as f:
+    with settings_file.open(mode="w") as f:
         f.write(f"pudl_in: {pudl_in.expanduser().resolve()}\n")
         f.write(f"pudl_out: {pudl_out.expanduser().resolve()}\n")
 
@@ -57,7 +57,7 @@ def get_defaults():
         the ``$HOME/.pudl.yml`` file does not exist, set these paths to None.
 
     """
-    settings_file = pathlib.Path.home() / '.pudl.yml'
+    settings_file = pathlib.Path.home() / ".pudl.yml"
 
     try:
         with pathlib.Path(settings_file).open(encoding="utf8") as f:
@@ -69,16 +69,8 @@ def get_defaults():
 
     # Ensure that no matter what the user has put in this file, we get fully
     # specified absolute paths out when we read it:
-    pudl_in = (
-        pathlib.Path(default_workspace["pudl_in"]).
-        expanduser().
-        resolve()
-    )
-    pudl_out = (
-        pathlib.Path(default_workspace["pudl_out"]).
-        expanduser().
-        resolve()
-    )
+    pudl_in = pathlib.Path(default_workspace["pudl_in"]).expanduser().resolve()
+    pudl_out = pathlib.Path(default_workspace["pudl_out"]).expanduser().resolve()
     return derive_paths(pudl_in, pudl_out)
 
 
@@ -125,14 +117,16 @@ def derive_paths(pudl_in, pudl_out):
     for fmt in ["sqlite", "parquet"]:
         pudl_settings[f"{fmt}_dir"] = str(pudl_out / fmt)
 
-    ferc1_db_file = pathlib.Path(pudl_settings['sqlite_dir'], 'ferc1.sqlite')
-    pudl_settings['ferc1_db'] = "sqlite:///" + str(ferc1_db_file.resolve())
+    ferc1_db_file = pathlib.Path(pudl_settings["sqlite_dir"], "ferc1.sqlite")
+    pudl_settings["ferc1_db"] = "sqlite:///" + str(ferc1_db_file.resolve())
 
-    pudl_settings['pudl_db'] = "sqlite:///" + str(pathlib.Path(
-        pudl_settings['sqlite_dir'], 'pudl.sqlite'))
+    pudl_settings["pudl_db"] = "sqlite:///" + str(
+        pathlib.Path(pudl_settings["sqlite_dir"], "pudl.sqlite")
+    )
 
-    pudl_settings['censusdp1tract_db'] = "sqlite:///" + str(pathlib.Path(
-        pudl_settings['sqlite_dir'], 'censusdp1tract.sqlite'))
+    pudl_settings["censusdp1tract_db"] = "sqlite:///" + str(
+        pathlib.Path(pudl_settings["sqlite_dir"], "censusdp1tract.sqlite")
+    )
     return pudl_settings
 
 
@@ -165,10 +159,10 @@ def init(pudl_in, pudl_out, clobber=False):
 
     # These are files that may exist in the package_data directory, but that
     # we do not want to deploy into a user workspace:
-    ignore_files = ['__init__.py', '.gitignore']
+    ignore_files = ["__init__.py", ".gitignore"]
 
     # Make a settings directory in the workspace, and deploy settings files:
-    settings_dir = pathlib.Path(pudl_settings['settings_dir'])
+    settings_dir = pathlib.Path(pudl_settings["settings_dir"])
     settings_dir.mkdir(parents=True, exist_ok=True)
     settings_pkg = "pudl.package_data.settings"
     deploy(settings_pkg, settings_dir, ignore_files, clobber=clobber)
@@ -199,10 +193,9 @@ def deploy(pkg_path, deploy_dir, ignore_files, clobber=False):
 
     """
     files = [
-        file for file in
-        importlib.resources.contents(pkg_path)
-        if importlib.resources.is_resource(pkg_path, file)
-        and file not in ignore_files
+        file
+        for file in importlib.resources.contents(pkg_path)
+        if importlib.resources.is_resource(pkg_path, file) and file not in ignore_files
     ]
     for file in files:
         with importlib.resources.path(pkg_path, file) as f:

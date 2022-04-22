@@ -3,11 +3,11 @@
 # data environment.
 
 # Name of the directory to create the data release archive in
-RELEASE_DIR=pudl-v0.5.0-2021-11-14
+RELEASE_DIR=pudl-v0.6.0-2022-03-12
 # The PUDL working directory where we'll find the data to archive:
 PUDL_IN=$HOME/code/catalyst/pudl-work
 # Reference to an existing Docker image to pull
-DOCKER_TAG="2021.11.14"
+DOCKER_TAG="2022.03.12"
 
 echo "Started:" `date`
 # Start with a clean slate:

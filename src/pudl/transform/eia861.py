@@ -6,416 +6,424 @@ All transformations include:
 """
 
 import logging
+from typing import Dict
 
 import pandas as pd
 
 import pudl
-from pudl.constants import PUDL_TABLES
 from pudl.helpers import convert_cols_dtypes
-from pudl.metadata.enums import (CUSTOMER_CLASSES, FUEL_CLASSES, NERC_REGIONS,
-                                 RELIABILITY_STANDARDS, REVENUE_CLASSES,
-                                 RTO_CLASSES, TECH_CLASSES)
+from pudl.metadata.enums import (
+    CUSTOMER_CLASSES,
+    FUEL_CLASSES,
+    NERC_REGIONS,
+    RELIABILITY_STANDARDS,
+    REVENUE_CLASSES,
+    RTO_CLASSES,
+    TECH_CLASSES,
+)
 from pudl.metadata.fields import apply_pudl_dtypes
 from pudl.metadata.labels import ESTIMATED_OR_ACTUAL, MOMENTARY_INTERRUPTIONS
+from pudl.settings import Eia861Settings
 
 logger = logging.getLogger(__name__)
 
-BA_ID_NAME_FIXES = (
-    pd.DataFrame([
-        # report_date, util_id, ba_id, ba_name
-        ('2001-01-01', 40577, 99999, 'Multiple Control Areas'),
 
-        ('2002-01-01', 40577, 99999, 'Multiple Control Areas'),
-        ('2002-01-01', 2759, 13781, 'Xcel Energy'),
-        ('2002-01-01', 1004, 40604, 'Heartland Consumer Power Dist.'),
-        ('2002-01-01', 5659, 20847, 'Wisconsin Electric Power'),
-        ('2002-01-01', 5588, 9417, 'Interstate Power & Light'),
-        ('2002-01-01', 6112, 9417, 'INTERSTATE POWER & LIGHT'),
-        ('2002-01-01', 6138, 13781, 'Xcel Energy'),
-        ('2002-01-01', 6276, pd.NA, 'Vectren Energy Delivery'),
-        ('2002-01-01', 6501, 9417, 'Interstate Power and Light'),
-        ('2002-01-01', 6579, 4716, 'Dairyland Power Coop'),
-        ('2002-01-01', 6848, pd.NA, pd.NA),
-        ('2002-01-01', 7140, 18195, 'Southern Co Services Inc'),
-        ('2002-01-01', 7257, 22500, 'Westar Energy'),
-        ('2002-01-01', 7444, 14232, 'Minnkota Power Cooperative'),
-        ('2002-01-01', 8490, 22500, 'Westar'),
-        ('2002-01-01', 8632, 12825, 'NorthWestern Energy'),
-        ('2002-01-01', 8770, 22500, 'Westar Energy'),
-        ('2002-01-01', 8796, 13434, 'ISO New England'),
-        ('2002-01-01', 9699, pd.NA, 'Tri-State G&T'),
-        ('2002-01-01', 10040, 13781, 'Xcel Energy'),
-        ('2002-01-01', 10171, 56669, 'Midwest Indep System Operator'),
-        ('2002-01-01', 11053, 9417, 'INTERSTATE POWER & LIGHT'),
-        ('2002-01-01', 11148, 2775, 'California ISO'),
-        ('2002-01-01', 11522, 1, 'Maritimes-Canada'),
-        ('2002-01-01', 11731, 13781, 'XCEL Energy'),
-        ('2002-01-01', 11788, 9417, 'Interstate Power & Light'),
-        ('2002-01-01', 12301, 14232, 'Minnkota Power Cooperative'),
-        ('2002-01-01', 12698, 20391, 'Aquila Networks - MPS'),
-        ('2002-01-01', 12706, 18195, 'Southern Co Services Inc'),
-        ('2002-01-01', 3258, 9417, 'Interstate Power & Light'),
-        ('2002-01-01', 3273, 15473, 'Public Regulatory Commission'),
-        ('2002-01-01', 3722, 9417, 'Interstate Power and Light'),
-        ('2002-01-01', 1417, 12825, 'NorthWestern Energy'),
-        ('2002-01-01', 1683, 12825, 'Northwestern Energy'),
-        ('2002-01-01', 1890, 5416, 'Duke Energy Corporation'),
-        ('2002-01-01', 4319, 20447, 'Okla. Municipal Pwr. Authority'),
-        ('2002-01-01', 18446, 9417, 'Interstate Power and Light'),
-        ('2002-01-01', 19108, pd.NA, 'NC Rural Electrification Auth.'),
-        ('2002-01-01', 19545, 28503, 'Western Area Power Admin'),
-        ('2002-01-01', 12803, 18195, 'Southern Illinois Power'),
-        ('2002-01-01', 13382, 8283, 'Harrison County Rural Electric'),
-        ('2002-01-01', 13423, 829, 'Town of New Carlisle'),
-        ('2002-01-01', 13815, 13781, 'Xcel Energy'),
-        ('2002-01-01', 14649, 18195, 'GSOC (Georgia System Operation'),
-        ('2002-01-01', 15672, 924, 'Associated Electric Coop Inc'),
-        ('2002-01-01', 16023, 9417, 'Interstate Power and Light'),
-        ('2002-01-01', 16463, pd.NA, 'Central Louisiana Electric Co.'),
-        ('2002-01-01', 16922, 22500, 'Westar Energy'),
-        ('2002-01-01', 16992, 9417, 'Interstate Power and Light'),
-        ('2002-01-01', 17643, 924, 'Associated Electric Coop Inc'),
-        ('2002-01-01', 17706, 9417, 'Interstate Power & Light'),
-        ('2002-01-01', 20811, 19876, 'Dominion NC Power'),
-        ('2002-01-01', 3227, 15466, 'Xcel Energy'),
-        ('2002-01-01', 20227, 14063, 'OG&E'),
-        ('2002-01-01', 17787, 13337, 'Mun. Energy Agcy of Nebraska'),
-        ('2002-01-01', 19264, 17718, 'Excel Energy'),
-        ('2002-01-01', 11701, 19578, 'We Energies'),
-        ('2002-01-01', 28802, 14725, 'PJM Interconnection'),
-        ('2002-01-01', 20546, 1692, 'Big Rivers Electric Corp.'),
-        ('2002-01-01', 6223, 1, 'Maritimes-Canada'),
-        ('2002-01-01', 14405, 19876, 'VA Power'),
-        ('2002-01-01', 14405, 14725, 'PJM'),
-        ('2002-01-01', 12698, 20391, 'Aquila Networks - L&P'),
-        ('2002-01-01', 16267, 12698, 'Aquila'),
-        ('2002-01-01', 15871, 5723, 'ERC of Texas'),
-        ('2002-01-01', 6753, 28503, 'Regional Office'),
-        ('2002-01-01', 5571, 14328, 'Pacific Gas and Electric Co.'),
-        ('2002-01-01', 367, pd.NA, 'Western Area Power Admin'),
-        ('2002-01-01', 3247, 13501, 'NYISO'),
-        ('2002-01-01', 11014, 5723, 'Ercot'),
-        ('2002-01-01', 20845, 12427, 'Michigan Power Pool 12427'),
-        ('2002-01-01', 17267, pd.NA, 'Watertown, SD'),
-        ('2002-01-01', 12811, pd.NA, 'First Energy Corp.'),
-        ('2002-01-01', 17368, 13501, 'NYISO'),
-        ('2002-01-01', 5877, 13501, 'NYISO'),
-        ('2002-01-01', 3240, pd.NA, 'Pacific NW Generating Cooperat'),
-        ('2002-01-01', 3037, pd.NA, 'Trans Electric'),
-        ('2002-01-01', 12199, 28503, 'WAPA-Rocky Mountain'),
-        ('2002-01-01', 8936, 14378, 'Pacificorp'),
-        ('2002-01-01', 40604, pd.NA, 'Watertown, SD Office'),
-        ('2002-01-01', 19108, pd.NA, 'USDA- Rural Utility Service'),
-        ('2002-01-01', 8199, 20391, 'Aquila'),
-        ('2002-01-01', 12698, 20391, 'Aquila Networks - WPC'),
-        ('2002-01-01', 12698, 20391, 'Aquila Networks - WPK'),
-        ('2002-01-01', 20387, 14725, 'PJM West'),
-        ('2002-01-01', 588, 20447, 'Western Farmers Elec Coop Inc'),
-        ('2002-01-01', 17561, 5723, 'ERCOT ISO'),
-        ('2002-01-01', 17320, 13781, 'Xcel Energy'),
-        ('2002-01-01', 13676, 17716, 'Southwestern Power Admin.'),
-        ('2002-01-01', 5703, 13501, 'NTISO'),
-        ('2002-01-01', 113, 13501, 'NYISO'),
-        ('2002-01-01', 4486, pd.NA, 'REMC of Western Indiana'),
-        ('2002-01-01', 1039, 13501, 'NYISO'),
-        ('2002-01-01', 5609, pd.NA, 'NMISA'),
-        ('2002-01-01', 3989, pd.NA, 'WAPA'),
-        ('2002-01-01', 13539, 13501, 'NY Independent System Operator'),
-        ('2002-01-01', 15263, 14725, 'PJM West'),
-        ('2002-01-01', 12796, 14725, 'PJM West'),
-        ('2002-01-01', 3539, 13434, 'ISO New England'),
-        ('2002-01-01', 3575, 13434, 'ISO New England'),
-        ('2002-01-01', 3559, 13434, 'ISO New England'),
-        ('2002-01-01', 18193, pd.NA, pd.NA),
-        ('2002-01-01', 838, 3413, 'Chelan PUD'),
-        ('2002-01-01', 1049, 1738, 'Bonneville'),
-        ('2002-01-01', 9248, 14725, 'PJM'),
-        ('2002-01-01', 15026, 803, 'APS Control Area'),
-        ('2002-01-01', 798, 16572, 'Salt River Project'),
-        ('2002-01-01', 5603, 13501, 'ISO - NEW YORK'),
-        ('2002-01-01', 12260, 19876, 'Dominion Virginia Power'),
-        ('2002-01-01', 14788, 17716, 'Southwest Power Administration'),
-        ('2002-01-01', 12909, 22500, 'Westar Energy'),
-        ('2002-01-01', 5605, 9417, 'Interstate Power and Light'),
-        ('2002-01-01', 10908, 9417, 'Interstate Power and Light'),
-
-        ('2003-01-01', 3258, 9417, 'Interstate Power & Light'),
-        ('2003-01-01', 6501, 9417, 'Interstate Power & Light'),
-        ('2003-01-01', 10650, 9417, 'Interstate Power & Light'),
-        ('2003-01-01', 16992, 9417, 'Interstate Power & Light'),
-        ('2003-01-01', 3722, 9417, 'Interstate Power & Light'),
-        ('2003-01-01', 11788, 9417, 'Interstate Power & Light'),
-        ('2003-01-01', 5588, 9417, 'Interstate Power & Light'),
-        ('2003-01-01', 11053, 9417, 'Interstate Power & Light'),
-        ('2003-01-01', 16023, 9417, 'Interstate Power & Light'),
-        ('2003-01-01', 17706, 9417, 'Interstate Power & Light'),
-        ('2003-01-01', 18446, 9417, 'Interstate Power & Light'),
-        ('2004-01-01', 5309, 18195, 'Southern Company Services Inc'),
-        ('2004-01-01', 192, 192, 'Ryant T. Rose'),
-        ('2004-01-01', 6501, 9417, 'Interstate Power & Light'),
-        ('2004-01-01', 16992, 9417, 'Interstate Power & Light'),
-        ('2004-01-01', 8192, 14725, 'PJM-West'),
-        ('2004-01-01', 192, 192, 'Phillip K. Peter, Sr.'),
-        ('2004-01-01', 192, 192, 'Nelson Kinegak'),
-        ('2004-01-01', 1004, 40604, 'Heartland Consumer Power Dist.'),
-        ('2004-01-01', 3258, 9417, 'Interstate Power & Light'),
-        ('2004-01-01', 3722, 9417, 'Interstate Power & Light'),
-        ('2004-01-01', 19879, pd.NA, 'Kevin Smalls St Croix Districe'),
-        ('2004-01-01', 11788, 9417, 'Interstate Power & Light'),
-        ('2004-01-01', 4191, 13434, 'NEISO'),
-        ('2004-01-01', 10650, 9417, 'Interstate Power & Light'),
-        ('2004-01-01', 11053, 9417, 'Interstate Power & Light'),
-        ('2004-01-01', 18446, 9417, 'Interstate Power & Light'),
-        ('2004-01-01', 27000, pd.NA, 'Multiple Operators'),
-        ('2004-01-01', 19879, pd.NA, 'Corey Hodge - St Thomass/St Jo'),
-        ('2004-01-01', 13382, 8283, 'Harrison County Rural Electric'),
-        ('2004-01-01', 10784, pd.NA, 'Hawkeye Tri-county REC'),
-        ('2004-01-01', 16922, pd.NA, 'The Brown Atchison Electric Co'),
-        ('2004-01-01', 15026, 803, 'APS Control Area'),
-        ('2005-01-01', 192, 192, 'Ryant T. Rose'),
-        ('2005-01-01', 192, 192, 'Phillip K. Peter, Sr.'),
-        ('2005-01-01', 192, 182, 'Nelson Kinegak'),
-        ('2005-01-01', 3258, 9417, 'Interstate Power & Light'),
-        ('2005-01-01', 1004, 40604, 'Heartland Consumer Power Dist.'),
-        ('2005-01-01', 5309, 18195, 'Southern Company Services Inc'),
-        ('2005-01-01', 6501, 9417, 'Interstate Power & Light'),
-        ('2005-01-01', 10623, 6455, 'Florida Power Corp'),
-        ('2005-01-01', 10650, 9417, 'Interstate Power & Light'),
-        ('2005-01-01', 13382, 8283, 'Harrison County Rural Electric'),
-        ('2005-01-01', 16922, pd.NA, 'The Brown Atchison Electric Co'),
-        ('2005-01-01', 3722, 9417, 'Interstate Power & Light'),
-        ('2005-01-01', 4191, 13434, 'NEISO'),
-        ('2005-01-01', 11788, 9417, 'Interstate Power & Light'),
-        ('2005-01-01', 8192, 14725, 'PJM-West'),
-        ('2005-01-01', 11053, 9417, 'Interstate Power & Light'),
-        ('2005-01-01', 13815, 13781, 'Northern States Power Co'),
-        ('2005-01-01', 15026, 803, 'APS Control Area'),
-        ('2005-01-01', 18446, 9417, 'Interstate Power & Light'),
-        ('2005-01-01', 19879, pd.NA, 'Kevin Smalls St Croix Districe'),
-        ('2005-01-01', 19879, pd.NA, 'Corey Hodge - St Thomass/St Jo'),
-        ('2005-01-01', 27000, pd.NA, 'Multiple Operators'),
-        ('2005-01-01', 10610, 13501, 'ISO New York'),
-
-        ('2006-01-01', 10610, 13501, 'ISO New York'),
-
-        ('2008-01-01', 10610, 13501, 'ISO New York'),
-
-        ('2009-01-01', 10610, 13501, 'ISO New York'),
-
-        ('2010-01-01', 6389, 3755, 'Cleveland Electric Illum Co'),
-        ('2010-01-01', 6389, 13998, 'Ohio Edison Co'),
-        ('2010-01-01', 6389, 18997, 'Toledo Edison Co'),
-        ('2010-01-01', 6949, 10000, 'Kansas City Power & Light Co'),
-        ('2010-01-01', 14127, 14127, 'Omaha Public Power District'),
-        ('2010-01-01', 11196, 13434, 'ISO New England'),
-        ('2010-01-01', 97, 56669, 'Midwest Independent System Operator'),
-        ('2010-01-01', 3258, 56669, 'Midwest Independent System Operator'),
-        ('2010-01-01', 3405, 56669, 'Midwest Independent System Operator'),
-        ('2010-01-01', 3755, 56669, 'Midwest Independent System Operator'),
-        ('2010-01-01', 7292, 56669, 'Midwest Independent System Operator'),
-        ('2010-01-01', 8847, 56669, 'Midwest Independent System Operator'),
-        ('2010-01-01', 11701, 56669, 'Midwest Independent System Operator'),
-        ('2010-01-01', 13032, 56669, 'Midwest Independent System Operator'),
-        ('2010-01-01', 13998, 56669, 'Midwest Independent System Operator'),
-        ('2010-01-01', 14716, 56669, 'Midwest Independent System Operator'),
-        ('2010-01-01', 17141, 56669, 'Midwest Independent System Operator'),
-        ('2010-01-01', 18997, 56669, 'Midwest Independent System Operator'),
-        ('2010-01-01', 21249, 56669, 'Midwest Independent System Operator'),
-        ('2010-01-01', 40582, 56669, 'Midwest Independent System Operator'),
-        ('2010-01-01', 54862, 56669, 'Midwest Independent System Operator'),
-        ('2010-01-01', 56162, 56669, 'Midwest Independent System Operator'),
-        ('2010-01-01', 56496, 56669, 'Midwest Independent System Operator'),
-        ('2010-01-01', 10610, 13501, 'ISO New York'),
-
-        ('2011-01-01', 1968, 56669, 'Midwest Independent System Operator'),
-        ('2011-01-01', 20806, 56669, 'Midwest Independent System Operator'),
-        ('2011-01-01', 29296, 56669, 'Midwest Independent System Operator'),
-
-        ('2012-01-01', 1968, 56669, 'Midwest Independent System Operator'),
-        ('2012-01-01', 20806, 56669, 'Midwest Independent System Operator'),
-        ('2012-01-01', 29296, 56669, 'Midwest Independent System Operator'),
-
-    ], columns=[
-        "report_date",  # We have this
-        "utility_id_eia",  # We have this
-        "balancing_authority_id_eia",  # We need to set this
-        "balancing_authority_name_eia",  # We have this
-    ])
+BA_ID_NAME_FIXES: pd.DataFrame = (
+    pd.DataFrame(
+        [
+            # report_date, util_id, ba_id, ba_name
+            ("2001-01-01", 40577, 99999, "Multiple Control Areas"),
+            ("2002-01-01", 40577, 99999, "Multiple Control Areas"),
+            ("2002-01-01", 2759, 13781, "Xcel Energy"),
+            ("2002-01-01", 1004, 40604, "Heartland Consumer Power Dist."),
+            ("2002-01-01", 5659, 20847, "Wisconsin Electric Power"),
+            ("2002-01-01", 5588, 9417, "Interstate Power & Light"),
+            ("2002-01-01", 6112, 9417, "INTERSTATE POWER & LIGHT"),
+            ("2002-01-01", 6138, 13781, "Xcel Energy"),
+            ("2002-01-01", 6276, pd.NA, "Vectren Energy Delivery"),
+            ("2002-01-01", 6501, 9417, "Interstate Power and Light"),
+            ("2002-01-01", 6579, 4716, "Dairyland Power Coop"),
+            ("2002-01-01", 6848, pd.NA, pd.NA),
+            ("2002-01-01", 7140, 18195, "Southern Co Services Inc"),
+            ("2002-01-01", 7257, 22500, "Westar Energy"),
+            ("2002-01-01", 7444, 14232, "Minnkota Power Cooperative"),
+            ("2002-01-01", 8490, 22500, "Westar"),
+            ("2002-01-01", 8632, 12825, "NorthWestern Energy"),
+            ("2002-01-01", 8770, 22500, "Westar Energy"),
+            ("2002-01-01", 8796, 13434, "ISO New England"),
+            ("2002-01-01", 9699, pd.NA, "Tri-State G&T"),
+            ("2002-01-01", 10040, 13781, "Xcel Energy"),
+            ("2002-01-01", 10171, 56669, "Midwest Indep System Operator"),
+            ("2002-01-01", 11053, 9417, "INTERSTATE POWER & LIGHT"),
+            ("2002-01-01", 11148, 2775, "California ISO"),
+            ("2002-01-01", 11522, 1, "Maritimes-Canada"),
+            ("2002-01-01", 11731, 13781, "XCEL Energy"),
+            ("2002-01-01", 11788, 9417, "Interstate Power & Light"),
+            ("2002-01-01", 12301, 14232, "Minnkota Power Cooperative"),
+            ("2002-01-01", 12698, 20391, "Aquila Networks - MPS"),
+            ("2002-01-01", 12706, 18195, "Southern Co Services Inc"),
+            ("2002-01-01", 3258, 9417, "Interstate Power & Light"),
+            ("2002-01-01", 3273, 15473, "Public Regulatory Commission"),
+            ("2002-01-01", 3722, 9417, "Interstate Power and Light"),
+            ("2002-01-01", 1417, 12825, "NorthWestern Energy"),
+            ("2002-01-01", 1683, 12825, "Northwestern Energy"),
+            ("2002-01-01", 1890, 5416, "Duke Energy Corporation"),
+            ("2002-01-01", 4319, 20447, "Okla. Municipal Pwr. Authority"),
+            ("2002-01-01", 18446, 9417, "Interstate Power and Light"),
+            ("2002-01-01", 19108, pd.NA, "NC Rural Electrification Auth."),
+            ("2002-01-01", 19545, 28503, "Western Area Power Admin"),
+            ("2002-01-01", 12803, 18195, "Southern Illinois Power"),
+            ("2002-01-01", 13382, 8283, "Harrison County Rural Electric"),
+            ("2002-01-01", 13423, 829, "Town of New Carlisle"),
+            ("2002-01-01", 13815, 13781, "Xcel Energy"),
+            ("2002-01-01", 14649, 18195, "GSOC (Georgia System Operation"),
+            ("2002-01-01", 15672, 924, "Associated Electric Coop Inc"),
+            ("2002-01-01", 16023, 9417, "Interstate Power and Light"),
+            ("2002-01-01", 16463, pd.NA, "Central Louisiana Electric Co."),
+            ("2002-01-01", 16922, 22500, "Westar Energy"),
+            ("2002-01-01", 16992, 9417, "Interstate Power and Light"),
+            ("2002-01-01", 17643, 924, "Associated Electric Coop Inc"),
+            ("2002-01-01", 17706, 9417, "Interstate Power & Light"),
+            ("2002-01-01", 20811, 19876, "Dominion NC Power"),
+            ("2002-01-01", 3227, 15466, "Xcel Energy"),
+            ("2002-01-01", 20227, 14063, "OG&E"),
+            ("2002-01-01", 17787, 13337, "Mun. Energy Agcy of Nebraska"),
+            ("2002-01-01", 19264, 17718, "Excel Energy"),
+            ("2002-01-01", 11701, 19578, "We Energies"),
+            ("2002-01-01", 28802, 14725, "PJM Interconnection"),
+            ("2002-01-01", 20546, 1692, "Big Rivers Electric Corp."),
+            ("2002-01-01", 6223, 1, "Maritimes-Canada"),
+            ("2002-01-01", 14405, 19876, "VA Power"),
+            ("2002-01-01", 14405, 14725, "PJM"),
+            ("2002-01-01", 12698, 20391, "Aquila Networks - L&P"),
+            ("2002-01-01", 16267, 12698, "Aquila"),
+            ("2002-01-01", 15871, 5723, "ERC of Texas"),
+            ("2002-01-01", 6753, 28503, "Regional Office"),
+            ("2002-01-01", 5571, 14328, "Pacific Gas and Electric Co."),
+            ("2002-01-01", 367, pd.NA, "Western Area Power Admin"),
+            ("2002-01-01", 3247, 13501, "NYISO"),
+            ("2002-01-01", 11014, 5723, "Ercot"),
+            ("2002-01-01", 20845, 12427, "Michigan Power Pool 12427"),
+            ("2002-01-01", 17267, pd.NA, "Watertown, SD"),
+            ("2002-01-01", 12811, pd.NA, "First Energy Corp."),
+            ("2002-01-01", 17368, 13501, "NYISO"),
+            ("2002-01-01", 5877, 13501, "NYISO"),
+            ("2002-01-01", 3240, pd.NA, "Pacific NW Generating Cooperat"),
+            ("2002-01-01", 3037, pd.NA, "Trans Electric"),
+            ("2002-01-01", 12199, 28503, "WAPA-Rocky Mountain"),
+            ("2002-01-01", 8936, 14378, "Pacificorp"),
+            ("2002-01-01", 40604, pd.NA, "Watertown, SD Office"),
+            ("2002-01-01", 19108, pd.NA, "USDA- Rural Utility Service"),
+            ("2002-01-01", 8199, 20391, "Aquila"),
+            ("2002-01-01", 12698, 20391, "Aquila Networks - WPC"),
+            ("2002-01-01", 12698, 20391, "Aquila Networks - WPK"),
+            ("2002-01-01", 20387, 14725, "PJM West"),
+            ("2002-01-01", 588, 20447, "Western Farmers Elec Coop Inc"),
+            ("2002-01-01", 17561, 5723, "ERCOT ISO"),
+            ("2002-01-01", 17320, 13781, "Xcel Energy"),
+            ("2002-01-01", 13676, 17716, "Southwestern Power Admin."),
+            ("2002-01-01", 5703, 13501, "NTISO"),
+            ("2002-01-01", 113, 13501, "NYISO"),
+            ("2002-01-01", 4486, pd.NA, "REMC of Western Indiana"),
+            ("2002-01-01", 1039, 13501, "NYISO"),
+            ("2002-01-01", 5609, pd.NA, "NMISA"),
+            ("2002-01-01", 3989, pd.NA, "WAPA"),
+            ("2002-01-01", 13539, 13501, "NY Independent System Operator"),
+            ("2002-01-01", 15263, 14725, "PJM West"),
+            ("2002-01-01", 12796, 14725, "PJM West"),
+            ("2002-01-01", 3539, 13434, "ISO New England"),
+            ("2002-01-01", 3575, 13434, "ISO New England"),
+            ("2002-01-01", 3559, 13434, "ISO New England"),
+            ("2002-01-01", 18193, pd.NA, pd.NA),
+            ("2002-01-01", 838, 3413, "Chelan PUD"),
+            ("2002-01-01", 1049, 1738, "Bonneville"),
+            ("2002-01-01", 9248, 14725, "PJM"),
+            ("2002-01-01", 15026, 803, "APS Control Area"),
+            ("2002-01-01", 798, 16572, "Salt River Project"),
+            ("2002-01-01", 5603, 13501, "ISO - NEW YORK"),
+            ("2002-01-01", 12260, 19876, "Dominion Virginia Power"),
+            ("2002-01-01", 14788, 17716, "Southwest Power Administration"),
+            ("2002-01-01", 12909, 22500, "Westar Energy"),
+            ("2002-01-01", 5605, 9417, "Interstate Power and Light"),
+            ("2002-01-01", 10908, 9417, "Interstate Power and Light"),
+            ("2003-01-01", 3258, 9417, "Interstate Power & Light"),
+            ("2003-01-01", 6501, 9417, "Interstate Power & Light"),
+            ("2003-01-01", 10650, 9417, "Interstate Power & Light"),
+            ("2003-01-01", 16992, 9417, "Interstate Power & Light"),
+            ("2003-01-01", 3722, 9417, "Interstate Power & Light"),
+            ("2003-01-01", 11788, 9417, "Interstate Power & Light"),
+            ("2003-01-01", 5588, 9417, "Interstate Power & Light"),
+            ("2003-01-01", 11053, 9417, "Interstate Power & Light"),
+            ("2003-01-01", 16023, 9417, "Interstate Power & Light"),
+            ("2003-01-01", 17706, 9417, "Interstate Power & Light"),
+            ("2003-01-01", 18446, 9417, "Interstate Power & Light"),
+            ("2004-01-01", 5309, 18195, "Southern Company Services Inc"),
+            ("2004-01-01", 192, 192, "Ryant T. Rose"),
+            ("2004-01-01", 6501, 9417, "Interstate Power & Light"),
+            ("2004-01-01", 16992, 9417, "Interstate Power & Light"),
+            ("2004-01-01", 8192, 14725, "PJM-West"),
+            ("2004-01-01", 192, 192, "Phillip K. Peter, Sr."),
+            ("2004-01-01", 192, 192, "Nelson Kinegak"),
+            ("2004-01-01", 1004, 40604, "Heartland Consumer Power Dist."),
+            ("2004-01-01", 3258, 9417, "Interstate Power & Light"),
+            ("2004-01-01", 3722, 9417, "Interstate Power & Light"),
+            ("2004-01-01", 19879, pd.NA, "Kevin Smalls St Croix Districe"),
+            ("2004-01-01", 11788, 9417, "Interstate Power & Light"),
+            ("2004-01-01", 4191, 13434, "NEISO"),
+            ("2004-01-01", 10650, 9417, "Interstate Power & Light"),
+            ("2004-01-01", 11053, 9417, "Interstate Power & Light"),
+            ("2004-01-01", 18446, 9417, "Interstate Power & Light"),
+            ("2004-01-01", 27000, pd.NA, "Multiple Operators"),
+            ("2004-01-01", 19879, pd.NA, "Corey Hodge - St Thomass/St Jo"),
+            ("2004-01-01", 13382, 8283, "Harrison County Rural Electric"),
+            ("2004-01-01", 10784, pd.NA, "Hawkeye Tri-county REC"),
+            ("2004-01-01", 16922, pd.NA, "The Brown Atchison Electric Co"),
+            ("2004-01-01", 15026, 803, "APS Control Area"),
+            ("2005-01-01", 192, 192, "Ryant T. Rose"),
+            ("2005-01-01", 192, 192, "Phillip K. Peter, Sr."),
+            ("2005-01-01", 192, 182, "Nelson Kinegak"),
+            ("2005-01-01", 3258, 9417, "Interstate Power & Light"),
+            ("2005-01-01", 1004, 40604, "Heartland Consumer Power Dist."),
+            ("2005-01-01", 5309, 18195, "Southern Company Services Inc"),
+            ("2005-01-01", 6501, 9417, "Interstate Power & Light"),
+            ("2005-01-01", 10623, 6455, "Florida Power Corp"),
+            ("2005-01-01", 10650, 9417, "Interstate Power & Light"),
+            ("2005-01-01", 13382, 8283, "Harrison County Rural Electric"),
+            ("2005-01-01", 16922, pd.NA, "The Brown Atchison Electric Co"),
+            ("2005-01-01", 3722, 9417, "Interstate Power & Light"),
+            ("2005-01-01", 4191, 13434, "NEISO"),
+            ("2005-01-01", 11788, 9417, "Interstate Power & Light"),
+            ("2005-01-01", 8192, 14725, "PJM-West"),
+            ("2005-01-01", 11053, 9417, "Interstate Power & Light"),
+            ("2005-01-01", 13815, 13781, "Northern States Power Co"),
+            ("2005-01-01", 15026, 803, "APS Control Area"),
+            ("2005-01-01", 18446, 9417, "Interstate Power & Light"),
+            ("2005-01-01", 19879, pd.NA, "Kevin Smalls St Croix Districe"),
+            ("2005-01-01", 19879, pd.NA, "Corey Hodge - St Thomass/St Jo"),
+            ("2005-01-01", 27000, pd.NA, "Multiple Operators"),
+            ("2005-01-01", 10610, 13501, "ISO New York"),
+            ("2006-01-01", 10610, 13501, "ISO New York"),
+            ("2008-01-01", 10610, 13501, "ISO New York"),
+            ("2009-01-01", 10610, 13501, "ISO New York"),
+            ("2010-01-01", 6389, 3755, "Cleveland Electric Illum Co"),
+            ("2010-01-01", 6389, 13998, "Ohio Edison Co"),
+            ("2010-01-01", 6389, 18997, "Toledo Edison Co"),
+            ("2010-01-01", 6949, 10000, "Kansas City Power & Light Co"),
+            ("2010-01-01", 14127, 14127, "Omaha Public Power District"),
+            ("2010-01-01", 11196, 13434, "ISO New England"),
+            ("2010-01-01", 97, 56669, "Midwest Independent System Operator"),
+            ("2010-01-01", 3258, 56669, "Midwest Independent System Operator"),
+            ("2010-01-01", 3405, 56669, "Midwest Independent System Operator"),
+            ("2010-01-01", 3755, 56669, "Midwest Independent System Operator"),
+            ("2010-01-01", 7292, 56669, "Midwest Independent System Operator"),
+            ("2010-01-01", 8847, 56669, "Midwest Independent System Operator"),
+            ("2010-01-01", 11701, 56669, "Midwest Independent System Operator"),
+            ("2010-01-01", 13032, 56669, "Midwest Independent System Operator"),
+            ("2010-01-01", 13998, 56669, "Midwest Independent System Operator"),
+            ("2010-01-01", 14716, 56669, "Midwest Independent System Operator"),
+            ("2010-01-01", 17141, 56669, "Midwest Independent System Operator"),
+            ("2010-01-01", 18997, 56669, "Midwest Independent System Operator"),
+            ("2010-01-01", 21249, 56669, "Midwest Independent System Operator"),
+            ("2010-01-01", 40582, 56669, "Midwest Independent System Operator"),
+            ("2010-01-01", 54862, 56669, "Midwest Independent System Operator"),
+            ("2010-01-01", 56162, 56669, "Midwest Independent System Operator"),
+            ("2010-01-01", 56496, 56669, "Midwest Independent System Operator"),
+            ("2010-01-01", 10610, 13501, "ISO New York"),
+            ("2011-01-01", 1968, 56669, "Midwest Independent System Operator"),
+            ("2011-01-01", 20806, 56669, "Midwest Independent System Operator"),
+            ("2011-01-01", 29296, 56669, "Midwest Independent System Operator"),
+            ("2012-01-01", 1968, 56669, "Midwest Independent System Operator"),
+            ("2012-01-01", 20806, 56669, "Midwest Independent System Operator"),
+            ("2012-01-01", 29296, 56669, "Midwest Independent System Operator"),
+        ],
+        columns=[
+            "report_date",  # We have this
+            "utility_id_eia",  # We have this
+            "balancing_authority_id_eia",  # We need to set this
+            "balancing_authority_name_eia",  # We have this
+        ],
+    )
     .assign(report_date=lambda x: pd.to_datetime(x.report_date))
     .pipe(apply_pudl_dtypes, group="eia")
     .dropna(subset=["report_date", "balancing_authority_name_eia", "utility_id_eia"])
     .set_index(["report_date", "balancing_authority_name_eia", "utility_id_eia"])
 )
 
-EIA_FIPS_COUNTY_FIXES = pd.DataFrame([
-    ("AK", "Aleutians Ea", "Aleutians East"),
-    ("AK", "Aleutian Islands", "Aleutians East"),
-    ("AK", "Aleutians East Boro", "Aleutians East Borough"),
-    ("AK", "Prince of Wales Ketchikan", "Prince of Wales-Hyder"),
-    ("AK", "Prince Wales", "Prince of Wales-Hyder"),
-    ("AK", "Ketchikan Gateway Bo", "Ketchikan Gateway Borough"),
-    ("AK", "Prince of Wale", "Prince of Wales-Hyder"),
-    ("AK", "Wrangell Petersburg", "Wrangell"),
-    ("AK", "Wrangell Pet", "Wrangell"),
-    ("AK", "Borough, Kodiak Island", "Kodiak Island Borough"),
-    ("AK", "Matanuska Susitna Borough", "Matanuska-Susitna"),
-    ("AK", "Matanuska Susitna", "Matanuska-Susitna"),
-    ("AK", "Skagway-Yakutat", "Skagway"),
-    ("AK", "Skagway Yaku", "Skagway"),
-    ("AK", "Skagway Hoonah Angoon", "Hoonah-Angoon"),
-    ("AK", "Angoon", "Hoonah-Angoon"),
-    ("AK", "Hoonah", "Hoonah-Angoon"),
-    ("AK", "Yukon Koyukuk", "Yukon-Koyukuk"),
-    ("AK", "Yukon Koyuku", "Yukon-Koyukuk"),
-    ("AK", "Yukon-Koyuku", "Yukon-Koyukuk"),
-    ("AK", "Valdez Cordova", "Valdez-Cordova"),
-    ("AK", "Cordova", "Valdez-Cordova"),
-    ("AK", "Valdez Cordo", "Valdez-Cordova"),
-    ("AK", "Lake and Pen", "Lake and Peninsula"),
-    ("AK", "Lake & Peninsula Borough", "Lake and Peninsula"),
-    ("AK", "Kodiak Islan", "Kodiak Island"),
-    ("AK", "Kenai Penins", "Kenai Peninsula"),
-    ("AK", "NW Arctic Borough", "Northwest Arctic"),
-    ("AL", "De Kalb", "DeKalb"),
-    ("AR", "Saint Franci", "St. Francis"),
-    ("CA", "San Bernadino", "San Bernardino"),
-    ("CA", "San Bernardi", "San Bernardino"),
-    ("CT", "Shelton", "Fairfield"),
-    ("FL", "De Soto", "DeSoto"),
-    ("FL", "Miami Dade", "Miami-Dade"),
-    ("FL", "Dade", "Miami-Dade"),
-    ("FL", "St. Lucic", "St. Lucie"),
-    ("FL", "St. Loucie", "St. Lucie"),
-    ("GA", "De Kalb", "DeKalb"),
-    ("GA", "Chattahooche", "Chattahoochee"),
-    ("IA", "Pottawattami", "Pottawattamie"),
-    ("IA", "Kossuh", "Kossuth"),
-    ("IA", "Lousia", "Louisa"),
-    ("IA", "Poweshick", "Poweshiek"),
-    ("IA", "Humbolt", "Humboldt"),
-    ("IA", "Harris", "Harrison"),
-    ("IA", "O Brien", "O'Brien"),
-    ("IL", "JoDavies", "Jo Daviess"),
-    ("IL", "La Salle", "LaSalle"),
-    ("IL", "Green", "Greene"),
-    ("IL", "DeWitt", "De Witt"),
-    ("IL", "Dewitt", "De Witt"),
-    ("IL", "Du Page", "DuPage"),
-    ("IL", "Burke", "Christian"),
-    ("IL", "McCoupin", "Macoupin"),
-    ("IN", "De Kalb County", "DeKalb County"),
-    ("IN", "De Kalb", "DeKalb County"),
-    ("IN", "La Porte", "LaPorte"),
-    ("IN", "Putman", "Putnam"),
-    ("IN", "Pyke", "Pike"),
-    ("IN", "Sulliva", "Sullivan"),
-    ("KS", "Leaveworth", "Leavenworth"),
-    ("KY", "Spenser", "Spencer"),
-    ("LA", "Jefferson Da", "Jefferson Davis"),
-    ("LA", "Pointe Coupe", "Pointe Coupee"),
-    ("LA", "West Baton R", "West Baton Rouge"),
-    ("LA", "DeSoto", "De Soto"),
-    ("LA", "Burke", "Iberia"),
-    ("LA", "West Feleciana", "West Feliciana"),
-    ("MA", "North Essex", "Essex"),
-    ("MI", "Grand Traver", "Grand Traverse"),
-    ("MI", "Antim", "Antrim"),
-    ("MD", "Balto. City", "Baltimore City"),
-    ("MD", "Prince Georg", "Prince George's County"),
-    ("MD", "Worchester", "Worcester"),
-    ("MN", "Fairbault", "Faribault"),
-    ("MN", "Lac Qui Parl", "Lac Qui Parle"),
-    ("MN", "Lake of The", "Lake of the Woods"),
-    ("MN", "Ottertail", "Otter Tail"),
-    ("MN", "Yellow Medic", "Yellow Medicine"),
-    ("MO", "De Kalb", "DeKalb"),
-    ("MO", "Cape Girarde", "Cape Girardeau"),
-    ("MS", "Clark", "Clarke"),
-    ("MS", "Clark", "Clarke"),
-    ("MS", "De Soto", "DeSoto"),
-    ("MS", "Jefferson Da", "Jefferson Davis"),
-    ("MS", "Homoshitto", "Amite"),
-    ("MT", "Anaconda-Dee", "Deer Lodge"),
-    ("MT", "Butte-Silver", "Silver Bow"),
-    ("MT", "Golden Valle", "Golden Valley"),
-    ("MT", "Lewis and Cl", "Lewis and Clark"),
-    ("NC", "Hartford", "Hertford"),
-    ("NC", "Gilford", "Guilford"),
-    ("NC", "North Hampton", "Northampton"),
-    ("ND", "La Moure", "LaMoure"),
-    ("NH", "Plaquemines", "Coos"),
-    ("NH", "New Hampshire", "Coos"),
-    ("OK", "Cimmaron", "Cimarron"),
-    ("NY", "Westcherster", "Westchester"),
-    ("OR", "Unioin", "Union"),
-    ("PA", "Northumberla", "Northumberland"),
-    ("PR", "Aquadilla", "Aguadilla"),
-    ("PR", "Sabana Grand", "Sabana Grande"),
-    ("PR", "San Sebastia", "San Sebastian"),
-    ("PR", "Trujillo Alt", "Trujillo Alto"),
-    ("RI", "Portsmouth", "Newport"),
-    ("TX", "Collingswort", "Collingsworth"),
-    ("TX", "De Witt", "DeWitt"),
-    ("TX", "Hayes", "Hays"),
-    ("TX", "San Augustin", "San Augustine"),
-    ("VA", "Alexandria C", "Alexandria City"),
-    ("VA", "City of Suff", "Suffolk City"),
-    ("VA", "City of Manassas", "Manassas City"),
-    ("VA", "Charlottesvi", "Charlottesville City"),
-    ("VA", "Chesapeake C", "Chesapeake City"),
-    ("VA", "Clifton Forg", "Alleghany"),
-    ("VA", "Colonial Hei", "Colonial Heights City"),
-    ("VA", "Covington Ci", "Covington City"),
-    ("VA", "Fredericksbu", "Fredericksburg City"),
-    ("VA", "Hopewell Cit", "Hopewell City"),
-    ("VA", "Isle of Wigh", "Isle of Wight"),
-    ("VA", "King and Que", "King and Queen"),
-    ("VA", "Lexington Ci", "Lexington City"),
-    ("VA", "Manassas Cit", "Manassas City"),
-    ("VA", "Manassas Par", "Manassas Park City"),
-    ("VA", "Northumberla", "Northumberland"),
-    ("VA", "Petersburg C", "Petersburg City"),
-    ("VA", "Poquoson Cit", "Poquoson City"),
-    ("VA", "Portsmouth C", "Portsmouth City"),
-    ("VA", "Prince Edwar", "Prince Edward"),
-    ("VA", "Prince Georg", "Prince George"),
-    ("VA", "Prince Willi", "Prince William"),
-    ("VA", "Richmond Cit", "Richmond City"),
-    ("VA", "Staunton Cit", "Staunton City"),
-    ("VA", "Virginia Bea", "Virginia Beach City"),
-    ("VA", "Waynesboro C", "Waynesboro City"),
-    ("VA", "Winchester C", "Winchester City"),
-    ("WA", "Wahkiakurn", "Wahkiakum"),
-], columns=["state", "eia_county", "fips_county"])
-
-BA_NAME_FIXES = pd.DataFrame([
-    ("Omaha Public Power District", 14127, "OPPD"),
-    ("Kansas City Power & Light Co", 10000, "KCPL"),
-    ("Toledo Edison Co", 18997, pd.NA),
-    ("Ohio Edison Co", 13998, pd.NA),
-    ("Cleveland Electric Illum Co", 3755, pd.NA),
-], columns=["balancing_authority_name_eia",
-            "balancing_authority_id_eia",
-            "balancing_authority_code_eia",
-            ]
+EIA_FIPS_COUNTY_FIXES: pd.DataFrame = pd.DataFrame(
+    [
+        ("AK", "Aleutians Ea", "Aleutians East"),
+        ("AK", "Aleutian Islands", "Aleutians East"),
+        ("AK", "Aleutians East Boro", "Aleutians East Borough"),
+        ("AK", "Prince of Wales Ketchikan", "Prince of Wales-Hyder"),
+        ("AK", "Prince Wales", "Prince of Wales-Hyder"),
+        ("AK", "Ketchikan Gateway Bo", "Ketchikan Gateway Borough"),
+        ("AK", "Prince of Wale", "Prince of Wales-Hyder"),
+        ("AK", "Wrangell Petersburg", "Wrangell"),
+        ("AK", "Wrangell Pet", "Wrangell"),
+        ("AK", "Borough, Kodiak Island", "Kodiak Island Borough"),
+        ("AK", "Matanuska Susitna Borough", "Matanuska-Susitna"),
+        ("AK", "Matanuska Susitna", "Matanuska-Susitna"),
+        ("AK", "Skagway-Yakutat", "Skagway"),
+        ("AK", "Skagway Yaku", "Skagway"),
+        ("AK", "Skagway Hoonah Angoon", "Hoonah-Angoon"),
+        ("AK", "Angoon", "Hoonah-Angoon"),
+        ("AK", "Hoonah", "Hoonah-Angoon"),
+        ("AK", "Yukon Koyukuk", "Yukon-Koyukuk"),
+        ("AK", "Yukon Koyuku", "Yukon-Koyukuk"),
+        ("AK", "Yukon-Koyuku", "Yukon-Koyukuk"),
+        ("AK", "Valdez Cordova", "Valdez-Cordova"),
+        ("AK", "Cordova", "Valdez-Cordova"),
+        ("AK", "Valdez Cordo", "Valdez-Cordova"),
+        ("AK", "Lake and Pen", "Lake and Peninsula"),
+        ("AK", "Lake & Peninsula Borough", "Lake and Peninsula"),
+        ("AK", "Kodiak Islan", "Kodiak Island"),
+        ("AK", "Kenai Penins", "Kenai Peninsula"),
+        ("AK", "NW Arctic Borough", "Northwest Arctic"),
+        ("AL", "De Kalb", "DeKalb"),
+        ("AR", "Saint Franci", "St. Francis"),
+        ("CA", "San Bernadino", "San Bernardino"),
+        ("CA", "San Bernardi", "San Bernardino"),
+        ("CT", "Shelton", "Fairfield"),
+        ("FL", "De Soto", "DeSoto"),
+        ("FL", "Miami Dade", "Miami-Dade"),
+        ("FL", "Dade", "Miami-Dade"),
+        ("FL", "St. Lucic", "St. Lucie"),
+        ("FL", "St. Loucie", "St. Lucie"),
+        ("GA", "De Kalb", "DeKalb"),
+        ("GA", "Chattahooche", "Chattahoochee"),
+        ("IA", "Pottawattami", "Pottawattamie"),
+        ("IA", "Kossuh", "Kossuth"),
+        ("IA", "Lousia", "Louisa"),
+        ("IA", "Poweshick", "Poweshiek"),
+        ("IA", "Humbolt", "Humboldt"),
+        ("IA", "Harris", "Harrison"),
+        ("IA", "O Brien", "O'Brien"),
+        ("IL", "JoDavies", "Jo Daviess"),
+        ("IL", "La Salle", "LaSalle"),
+        ("IL", "Green", "Greene"),
+        ("IL", "DeWitt", "De Witt"),
+        ("IL", "Dewitt", "De Witt"),
+        ("IL", "Du Page", "DuPage"),
+        ("IL", "Burke", "Christian"),
+        ("IL", "McCoupin", "Macoupin"),
+        ("IN", "De Kalb County", "DeKalb County"),
+        ("IN", "De Kalb", "DeKalb County"),
+        ("IN", "La Porte", "LaPorte"),
+        ("IN", "Putman", "Putnam"),
+        ("IN", "Pyke", "Pike"),
+        ("IN", "Sulliva", "Sullivan"),
+        ("KS", "Leaveworth", "Leavenworth"),
+        ("KY", "Spenser", "Spencer"),
+        ("LA", "Jefferson Da", "Jefferson Davis"),
+        ("LA", "Pointe Coupe", "Pointe Coupee"),
+        ("LA", "West Baton R", "West Baton Rouge"),
+        ("LA", "DeSoto", "De Soto"),
+        ("LA", "Burke", "Iberia"),
+        ("LA", "West Feleciana", "West Feliciana"),
+        ("MA", "North Essex", "Essex"),
+        ("MI", "Grand Traver", "Grand Traverse"),
+        ("MI", "Antim", "Antrim"),
+        ("MD", "Balto. City", "Baltimore City"),
+        ("MD", "Prince Georg", "Prince George's County"),
+        ("MD", "Worchester", "Worcester"),
+        ("MN", "Fairbault", "Faribault"),
+        ("MN", "Lac Qui Parl", "Lac Qui Parle"),
+        ("MN", "Lake of The", "Lake of the Woods"),
+        ("MN", "Ottertail", "Otter Tail"),
+        ("MN", "Yellow Medic", "Yellow Medicine"),
+        ("MO", "De Kalb", "DeKalb"),
+        ("MO", "Cape Girarde", "Cape Girardeau"),
+        ("MS", "Clark", "Clarke"),
+        ("MS", "Clark", "Clarke"),
+        ("MS", "De Soto", "DeSoto"),
+        ("MS", "Jefferson Da", "Jefferson Davis"),
+        ("MS", "Homoshitto", "Amite"),
+        ("MT", "Anaconda-Dee", "Deer Lodge"),
+        ("MT", "Butte-Silver", "Silver Bow"),
+        ("MT", "Golden Valle", "Golden Valley"),
+        ("MT", "Lewis and Cl", "Lewis and Clark"),
+        ("NC", "Hartford", "Hertford"),
+        ("NC", "Gilford", "Guilford"),
+        ("NC", "North Hampton", "Northampton"),
+        ("ND", "La Moure", "LaMoure"),
+        ("NH", "Plaquemines", "Coos"),
+        ("NH", "New Hampshire", "Coos"),
+        ("OK", "Cimmaron", "Cimarron"),
+        ("NY", "Westcherster", "Westchester"),
+        ("OR", "Unioin", "Union"),
+        ("PA", "Northumberla", "Northumberland"),
+        ("PR", "Aquadilla", "Aguadilla"),
+        ("PR", "Sabana Grand", "Sabana Grande"),
+        ("PR", "San Sebastia", "San Sebastian"),
+        ("PR", "Trujillo Alt", "Trujillo Alto"),
+        ("RI", "Portsmouth", "Newport"),
+        ("TX", "Collingswort", "Collingsworth"),
+        ("TX", "De Witt", "DeWitt"),
+        ("TX", "Hayes", "Hays"),
+        ("TX", "San Augustin", "San Augustine"),
+        ("VA", "Alexandria C", "Alexandria City"),
+        ("VA", "City of Suff", "Suffolk City"),
+        ("VA", "City of Manassas", "Manassas City"),
+        ("VA", "Charlottesvi", "Charlottesville City"),
+        ("VA", "Chesapeake C", "Chesapeake City"),
+        ("VA", "Clifton Forg", "Alleghany"),
+        ("VA", "Colonial Hei", "Colonial Heights City"),
+        ("VA", "Covington Ci", "Covington City"),
+        ("VA", "Fredericksbu", "Fredericksburg City"),
+        ("VA", "Hopewell Cit", "Hopewell City"),
+        ("VA", "Isle of Wigh", "Isle of Wight"),
+        ("VA", "King and Que", "King and Queen"),
+        ("VA", "Lexington Ci", "Lexington City"),
+        ("VA", "Manassas Cit", "Manassas City"),
+        ("VA", "Manassas Par", "Manassas Park City"),
+        ("VA", "Northumberla", "Northumberland"),
+        ("VA", "Petersburg C", "Petersburg City"),
+        ("VA", "Poquoson Cit", "Poquoson City"),
+        ("VA", "Portsmouth C", "Portsmouth City"),
+        ("VA", "Prince Edwar", "Prince Edward"),
+        ("VA", "Prince Georg", "Prince George"),
+        ("VA", "Prince Willi", "Prince William"),
+        ("VA", "Richmond Cit", "Richmond City"),
+        ("VA", "Staunton Cit", "Staunton City"),
+        ("VA", "Virginia Bea", "Virginia Beach City"),
+        ("VA", "Waynesboro C", "Waynesboro City"),
+        ("VA", "Winchester C", "Winchester City"),
+        ("WA", "Wahkiakurn", "Wahkiakum"),
+    ],
+    columns=["state", "eia_county", "fips_county"],
 )
 
-NERC_SPELLCHECK = {
-    'GUSTAVUSAK': 'ASCC',
-    'AK': 'ASCC',
-    'HI': 'HICC',
-    'ERCTO': 'ERCOT',
-    'RFO': 'RFC',
-    'RF': 'RFC',
-    'SSP': 'SPP',
-    'VACAR': 'SERC',  # VACAR is a subregion of SERC
-    'GATEWAY': 'SERC',  # GATEWAY is a subregion of SERC
-    'TERR': 'GU',
-    25470: 'MRO',
-    'TX': 'TRE',
-    'NY': 'NPCC',
-    'NEW': 'NPCC',
-    'YORK': 'NPCC',
+BA_NAME_FIXES: pd.DataFrame = pd.DataFrame(
+    [
+        ("Omaha Public Power District", 14127, "OPPD"),
+        ("Kansas City Power & Light Co", 10000, "KCPL"),
+        ("Toledo Edison Co", 18997, pd.NA),
+        ("Ohio Edison Co", 13998, pd.NA),
+        ("Cleveland Electric Illum Co", 3755, pd.NA),
+    ],
+    columns=[
+        "balancing_authority_name_eia",
+        "balancing_authority_id_eia",
+        "balancing_authority_code_eia",
+    ],
+)
+
+NERC_SPELLCHECK: Dict[str, str] = {
+    "GUSTAVUSAK": "ASCC",
+    "AK": "ASCC",
+    "HI": "HICC",
+    "ERCTO": "ERCOT",
+    "RFO": "RFC",
+    "RF": "RFC",
+    "SSP": "SPP",
+    "VACAR": "SERC",  # VACAR is a subregion of SERC
+    "GATEWAY": "SERC",  # GATEWAY is a subregion of SERC
+    "TERR": "GU",
+    25470: "MRO",
+    "TX": "TRE",
+    "NY": "NPCC",
+    "NEW": "NPCC",
+    "YORK": "NPCC",
 }
 
 
@@ -454,46 +462,49 @@ def _ba_code_backfill(df):
     start_nas = len(df.loc[df.balancing_authority_code_eia.isnull()])
     logger.info(
         f"Started with {start_nas} missing BA Codes out of {start_len} "
-        f"records ({start_nas/start_len:.2%})")
+        f"records ({start_nas/start_len:.2%})"
+    )
     ba_ids = (
-        df[["balancing_authority_id_eia",
-            "balancing_authority_code_eia",
-            "report_date"]]
+        df[
+            [
+                "balancing_authority_id_eia",
+                "balancing_authority_code_eia",
+                "report_date",
+            ]
+        ]
         .drop_duplicates()
         .sort_values(["balancing_authority_id_eia", "report_date"])
     )
-    ba_ids["ba_code_filled"] = (
-        ba_ids.groupby("balancing_authority_id_eia")[
-            "balancing_authority_code_eia"].fillna(method="bfill")
-    )
+    ba_ids["ba_code_filled"] = ba_ids.groupby("balancing_authority_id_eia")[
+        "balancing_authority_code_eia"
+    ].fillna(method="bfill")
     ba_eia861_filled = df.merge(ba_ids, how="left")
-    ba_eia861_filled = (
-        ba_eia861_filled.assign(
-            balancing_authority_code_eia=lambda x: x.ba_code_filled)
-        .drop("ba_code_filled", axis="columns")
-    )
+    ba_eia861_filled = ba_eia861_filled.assign(
+        balancing_authority_code_eia=lambda x: x.ba_code_filled
+    ).drop("ba_code_filled", axis="columns")
     end_len = len(ba_eia861_filled)
     if start_len != end_len:
         raise AssertionError(
             f"Number of rows in the dataframe changed {start_len}!={end_len}!"
         )
     end_nas = len(
-        ba_eia861_filled.loc[ba_eia861_filled.balancing_authority_code_eia.isnull()])
+        ba_eia861_filled.loc[ba_eia861_filled.balancing_authority_code_eia.isnull()]
+    )
     logger.info(
         f"Ended with {end_nas} missing BA Codes out of {end_len} "
-        f"records ({end_nas/end_len:.2%})")
+        f"records ({end_nas/end_len:.2%})"
+    )
     return ba_eia861_filled
 
 
 def _tidy_class_dfs(df, df_name, idx_cols, class_list, class_type, keep_totals=False):
     # Clean up values just enough to use primary key columns as a multi-index:
-    logger.debug(
-        f"Cleaning {df_name} table index columns so we can tidy data.")
-    if 'balancing_authority_code_eia' in idx_cols:
-        df = (
-            df.assign(
-                balancing_authority_code_eia=(
-                    lambda x: x.balancing_authority_code_eia.fillna("UNK")))
+    logger.debug(f"Cleaning {df_name} table index columns so we can tidy data.")
+    if "balancing_authority_code_eia" in idx_cols:
+        df = df.assign(
+            balancing_authority_code_eia=(
+                lambda x: x.balancing_authority_code_eia.fillna("UNK")
+            )
         )
     raw_df = (
         df.dropna(subset=["utility_id_eia"])
@@ -511,24 +522,20 @@ def _tidy_class_dfs(df, df_name, idx_cols, class_list, class_type, keep_totals=F
     # underscores. Final string looks like: '(?<=customer_test)_|(?<=unbundled)_'
     # This ensures that the underscore AFTER the desired string (that can also include
     # underscores) is where the column headers are split, not just the first underscore.
-    class_list_regex = '|'.join(['(?<=' + col + ')_' for col in class_list])
+    class_list_regex = "|".join(["(?<=" + col + ")_" for col in class_list])
 
-    data_cols.columns = (
-        data_cols.columns.str.split(fr"{class_list_regex}", n=1, expand=True)
-        .set_names([class_type, None])
-    )
+    data_cols.columns = data_cols.columns.str.split(
+        rf"{class_list_regex}", n=1, expand=True
+    ).set_names([class_type, None])
     # Now stack the customer classes into their own categorical column,
-    data_cols = (
-        data_cols.stack(level=0, dropna=False)
-        .reset_index()
-    )
+    data_cols = data_cols.stack(level=0, dropna=False).reset_index()
     denorm_cols = _filter_non_class_cols(raw_df, class_list).reset_index()
 
     # Merge the index, data, and denormalized columns back together
     tidy_df = pd.merge(denorm_cols, data_cols, on=idx_cols)
 
     # Compare reported totals with sum of component columns
-    if 'total' in class_list:
+    if "total" in class_list:
         _compare_totals(data_cols, idx_cols, class_type, df_name)
     if keep_totals is False:
         tidy_df = tidy_df.query(f"{class_type}!='total'")
@@ -549,10 +556,7 @@ def _drop_dupes(df, df_name, subset):
 
 
 def _check_for_dupes(df, df_name, subset):
-    dupes = (
-        df.duplicated(
-            subset=subset, keep=False)
-    )
+    dupes = df.duplicated(subset=subset, keep=False)
     if dupes.any():
         raise AssertionError(
             f"Found {len(df[dupes])} duplicate rows in the {df_name} table, "
@@ -580,44 +584,45 @@ def _compare_totals(data_cols, idx_cols, class_type, df_name):
         df_name (str): The name of the dataframe.
     """
     # Convert column dtypes so that numeric cols can be adequately summed
-    data_cols = pudl.helpers.convert_cols_dtypes(data_cols, data_source='eia')
+    data_cols = pudl.helpers.convert_cols_dtypes(data_cols, data_source="eia")
     # Drop data cols that are non numeric (preserve primary keys)
-    logger.debug(f'{idx_cols}, {class_type}')
+    logger.debug(f"{idx_cols}, {class_type}")
     data_cols = (
         data_cols.set_index(idx_cols + [class_type])
-        .select_dtypes('number')
+        .select_dtypes("number")
         .reset_index()
     )
-    logger.debug(f'{data_cols.columns.tolist()}')
+    logger.debug(f"{data_cols.columns.tolist()}")
     # Create list of data columns to be summed
     # (may include non-numeric that will be excluded)
-    data_col_list = set(data_cols.columns.tolist()) - \
-        set(idx_cols + [class_type])
-    logger.debug(f'{data_col_list}')
+    data_col_list = set(data_cols.columns.tolist()) - set(idx_cols + [class_type])
+    logger.debug(f"{data_col_list}")
     # Distinguish reported totals from segments
-    data_totals_df = data_cols.loc[data_cols[class_type] == 'total']
-    data_no_tots_df = data_cols.loc[data_cols[class_type] != 'total']
+    data_totals_df = data_cols.loc[data_cols[class_type] == "total"]
+    data_no_tots_df = data_cols.loc[data_cols[class_type] != "total"]
     # Calculate sum of segments for comparison against reported total
-    data_sums_df = data_no_tots_df.groupby(
-        idx_cols + [class_type], observed=True).sum()
-    sum_total_df = pd.merge(data_totals_df, data_sums_df, on=idx_cols,
-                            how='outer', suffixes=('_total', '_sum'))
+    data_sums_df = data_no_tots_df.groupby(idx_cols + [class_type], observed=True).sum()
+    sum_total_df = pd.merge(
+        data_totals_df,
+        data_sums_df,
+        on=idx_cols,
+        how="outer",
+        suffixes=("_total", "_sum"),
+    )
     # Check each data column's calculated sum against the reported total
     for col in data_col_list:
-        col_df = (sum_total_df.loc[sum_total_df[col + '_total'].notnull()])
+        col_df = sum_total_df.loc[sum_total_df[col + "_total"].notnull()]
         if len(col_df) > 0:
-            col_df = (
-                col_df.assign(
-                    compare_totals=lambda x: (x[col + '_total'] == x[col + '_sum']))
+            col_df = col_df.assign(
+                compare_totals=lambda x: (x[col + "_total"] == x[col + "_sum"])
             )
-            bad_math = (col_df['compare_totals']).sum() / len(col_df)
+            bad_math = (col_df["compare_totals"]).sum() / len(col_df)
             logger.debug(
                 f"{df_name}: for column {col}, {bad_math:.0%} "
                 "of non-null reported totals = the sum of parts."
             )
         else:
-            logger.debug(
-                f'{df_name}: for column {col} all total values are NaN')
+            logger.debug(f"{df_name}: for column {col} all total values are NaN")
 
 
 def _clean_nerc(df, idx_cols):
@@ -638,41 +643,40 @@ def _clean_nerc(df, idx_cols):
 
     """
     idx_no_nerc = idx_cols.copy()
-    if 'nerc_region' in idx_no_nerc:
-        idx_no_nerc.remove('nerc_region')
+    if "nerc_region" in idx_no_nerc:
+        idx_no_nerc.remove("nerc_region")
 
     # Split raw df into primary keys plus nerc region and other value cols
     nerc_df = df[idx_cols].copy()
-    other_df = df.drop('nerc_region', axis=1).set_index(idx_no_nerc)
+    other_df = df.drop("nerc_region", axis=1).set_index(idx_no_nerc)
 
     # Make all values upper-case
     # Replace all NA values with UNK
     # Make nerc values into lists to see how many separate values are stuffed into one row (ex: 'SPP & ERCOT' --> ['SPP', 'ERCOT'])
-    nerc_df = (
-        nerc_df.assign(
-            nerc_region=(lambda x: (
-                x.nerc_region
-                .str.upper()
-                .fillna('UNK')
-                .str.findall(r'[A-Z]+')))
+    nerc_df = nerc_df.assign(
+        nerc_region=(
+            lambda x: (x.nerc_region.str.upper().fillna("UNK").str.findall(r"[A-Z]+"))
         )
     )
 
     # Record a list of the reported nerc regions not included in the recognized regions list (these eventually become UNK)
-    nerc_col = nerc_df['nerc_region'].tolist()
+    nerc_col = nerc_df["nerc_region"].tolist()
     nerc_list = list(set([item for sublist in nerc_col for item in sublist]))
     non_nerc_list = [
-        nerc_entity for nerc_entity in nerc_list
-        if nerc_entity not in NERC_REGIONS + list(NERC_SPELLCHECK.keys())]
+        nerc_entity
+        for nerc_entity in nerc_list
+        if nerc_entity not in NERC_REGIONS + list(NERC_SPELLCHECK.keys())
+    ]
     print(
-        f'The following reported NERC regions are not currently recognized and become \
-        UNK values: {non_nerc_list}')
+        f"The following reported NERC regions are not currently recognized and become \
+        UNK values: {non_nerc_list}"
+    )
 
     # Function to turn instances of 'SPP_UNK' or 'SPP_SPP' into 'SPP'
     def _remove_nerc_duplicates(entity_list):
         if len(entity_list) > 1:
-            if 'UNK' in entity_list:
-                entity_list.remove('UNK')
+            if "UNK" in entity_list:
+                entity_list.remove("UNK")
             if all(x == entity_list[0] for x in entity_list):
                 entity_list = [entity_list[0]]
         return entity_list
@@ -680,15 +684,19 @@ def _clean_nerc(df, idx_cols):
     # Go through the nerc regions, spellcheck errors, delete those that aren't
     # recognized, and piece them back together (with _ separator if more than one
     # recognized)
-    nerc_df['nerc_region'] = (
-        nerc_df['nerc_region']
-        .apply(lambda x: (
-            [i if i not in NERC_SPELLCHECK.keys()
-             else NERC_SPELLCHECK[i] for i in x]))
-        .apply(lambda x: sorted(
-            [i if i in NERC_REGIONS else 'UNK' for i in x]))
+    nerc_df["nerc_region"] = (
+        nerc_df["nerc_region"]
+        .apply(
+            lambda x: (
+                [
+                    i if i not in NERC_SPELLCHECK.keys() else NERC_SPELLCHECK[i]
+                    for i in x
+                ]
+            )
+        )
+        .apply(lambda x: sorted([i if i in NERC_REGIONS else "UNK" for i in x]))
         .apply(lambda x: _remove_nerc_duplicates(x))
-        .str.join('_')
+        .str.join("_")
     )
 
     # Merge all data back together
@@ -721,52 +729,54 @@ def _compare_nerc_physical_w_nerc_operational(df):
 
     """
     # Set NA states to UNK
-    df['state'] = df['state'].fillna('UNK')
+    df["state"] = df["state"].fillna("UNK")
 
     # Create column indicating whether the nerc region matches the nerc region of
     # operation (TRUE)
-    df['nerc_match'] = df['nerc_region'] == df['nerc_regions_of_operation']
+    df["nerc_match"] = df["nerc_region"] == df["nerc_regions_of_operation"]
 
     # Group by utility, state, and report date to see which groups have at least one
     # TRUE value
     grouped_nerc_match_bools = (
-        df.groupby(['utility_id_eia', 'state', 'report_date'])
-        [['nerc_match']].any()
+        df.groupby(["utility_id_eia", "state", "report_date"])[["nerc_match"]]
+        .any()
         .reset_index()
-        .rename(columns={'nerc_match': 'nerc_group_match'})
+        .rename(columns={"nerc_match": "nerc_group_match"})
     )
 
     # Merge back with original df to show cases where there are multiple non-matching
     # nerc values per utility id, year, and state.
-    expanded_nerc_match_bools = (
-        pd.merge(df,
-                 grouped_nerc_match_bools,
-                 on=['utility_id_eia', 'state', 'report_date'],
-                 how='left')
+    expanded_nerc_match_bools = pd.merge(
+        df,
+        grouped_nerc_match_bools,
+        on=["utility_id_eia", "state", "report_date"],
+        how="left",
     )
 
     # Keep only rows where there are no matches for the whole group.
-    expanded_nerc_match_bools_false = (
-        expanded_nerc_match_bools[~expanded_nerc_match_bools['nerc_group_match']]
-    )
+    expanded_nerc_match_bools_false = expanded_nerc_match_bools[
+        ~expanded_nerc_match_bools["nerc_group_match"]
+    ]
 
     return expanded_nerc_match_bools_false
 
 
 def _pct_to_mw(df, pct_col):
     """Turn pct col into mw capacity using total capacity col."""
-    mw_value = df['total_capacity_mw'] * df[pct_col] / 100
+    mw_value = df["total_capacity_mw"] * df[pct_col] / 100
     return mw_value
 
 
 def _make_yn_bool(df_object):
     """Turn Y/N reporting into True or False boolean statements for df or series."""
-    return df_object.replace({
-        "Y": True,
-        "y": True,
-        "N": False,
-        "n": False,
-    })
+    return df_object.replace(
+        {
+            "Y": True,
+            "y": True,
+            "N": False,
+            "n": False,
+        }
+    )
 
 
 def _thousand_to_one(df_object):
@@ -801,16 +811,14 @@ def service_territory(tfr_dfs):
     # No data tidying required
     # There are a few NA values in the county column which get interpreted
     # as floats, which messes up the parsing of counties by addfips.
-    type_compatible_df = (
-        tfr_dfs["service_territory_eia861"].astype({"county": "string"})
+    type_compatible_df = tfr_dfs["service_territory_eia861"].astype(
+        {"county": "string"}
     )
     # Transform values:
     # * Add state and county fips IDs
     transformed_df = (
         # Ensure that we have the canonical US Census county names:
-        pudl.helpers.clean_eia_counties(
-            type_compatible_df,
-            fixes=EIA_FIPS_COUNTY_FIXES)
+        pudl.helpers.clean_eia_counties(type_compatible_df, fixes=EIA_FIPS_COUNTY_FIXES)
         # Add FIPS IDs based on county & state names:
         .pipe(pudl.helpers.add_fips_ids)
     )
@@ -849,22 +857,23 @@ def balancing_authority(tfr_dfs):
     )
 
     # Fill in BA IDs based on date, utility ID, and BA Name:
-    df.loc[BA_ID_NAME_FIXES.index,
-           "balancing_authority_id_eia"] = BA_ID_NAME_FIXES.balancing_authority_id_eia
+    df.loc[
+        BA_ID_NAME_FIXES.index, "balancing_authority_id_eia"
+    ] = BA_ID_NAME_FIXES.balancing_authority_id_eia
 
     # Backfill BA Codes based on BA IDs:
     df = df.reset_index().pipe(_ba_code_backfill)
     # Typo: NEVP, BA ID is 13407, but in 2014-2015 in UT, entered as 13047
     df.loc[
-        (df.balancing_authority_code_eia == "NEVP") &
-        (df.balancing_authority_id_eia == 13047),
-        "balancing_authority_id_eia"
+        (df.balancing_authority_code_eia == "NEVP")
+        & (df.balancing_authority_id_eia == 13047),
+        "balancing_authority_id_eia",
     ] = 13407
     # Typo: Turlock Irrigation District is TIDC, not TID.
     df.loc[
-        (df.balancing_authority_code_eia == "TID") &
-        (df.balancing_authority_id_eia == 19281),
-        "balancing_authority_code_eia"
+        (df.balancing_authority_code_eia == "TID")
+        & (df.balancing_authority_id_eia == 19281),
+        "balancing_authority_code_eia",
     ] = "TIDC"
 
     tfr_dfs["balancing_authority_eia861"] = df
@@ -907,8 +916,7 @@ def balancing_authority_assn(tfr_dfs):
     ]
 
     # The dataframes from which to compile BA-Util-State associations
-    data_dfs = [tfr_dfs[table]
-                for table in tfr_dfs if table not in non_data_dfs]
+    data_dfs = [tfr_dfs[table] for table in tfr_dfs if table not in non_data_dfs]
 
     logger.info("Building an EIA 861 BA-Util-State association table.")
 
@@ -920,50 +928,50 @@ def balancing_authority_assn(tfr_dfs):
 
     # The old BA table lists utilities directly, but has no state information.
     early_date_ba_util = _harvest_associations(
-        dfs=[tfr_dfs["balancing_authority_eia861"].query(early_years), ],
-        cols=["report_date",
-              "balancing_authority_id_eia",
-              "utility_id_eia"],
+        dfs=[
+            tfr_dfs["balancing_authority_eia861"].query(early_years),
+        ],
+        cols=["report_date", "balancing_authority_id_eia", "utility_id_eia"],
     )
     # State-utility associations are brought in from observations in data_dfs
     early_date_util_state = _harvest_associations(
         dfs=early_dfs,
-        cols=["report_date",
-              "utility_id_eia",
-              "state"],
+        cols=["report_date", "utility_id_eia", "state"],
     )
-    early_date_ba_util_state = (
-        early_date_ba_util
-        .merge(early_date_util_state, how="outer")
-        .drop_duplicates()
-    )
+    early_date_ba_util_state = early_date_ba_util.merge(
+        early_date_util_state, how="outer"
+    ).drop_duplicates()
 
     # New BA table has no utility information, but has BA Codes...
     late_ba_code_id = _harvest_associations(
-        dfs=[tfr_dfs["balancing_authority_eia861"].query(late_years), ],
-        cols=["report_date",
-              "balancing_authority_code_eia",
-              "balancing_authority_id_eia"],
+        dfs=[
+            tfr_dfs["balancing_authority_eia861"].query(late_years),
+        ],
+        cols=[
+            "report_date",
+            "balancing_authority_code_eia",
+            "balancing_authority_id_eia",
+        ],
     )
     # BA Code allows us to bring in utility+state data from data_dfs:
     late_date_ba_code_util_state = _harvest_associations(
         dfs=late_dfs,
-        cols=["report_date",
-              "balancing_authority_code_eia",
-              "utility_id_eia",
-              "state"],
+        cols=["report_date", "balancing_authority_code_eia", "utility_id_eia", "state"],
     )
     # We merge on ba_code then drop it, b/c only BA ID exists in all years consistently:
     late_date_ba_util_state = (
-        late_date_ba_code_util_state
-        .merge(late_ba_code_id, how="outer")
+        late_date_ba_code_util_state.merge(late_ba_code_id, how="outer")
         .drop("balancing_authority_code_eia", axis="columns")
         .drop_duplicates()
     )
 
     tfr_dfs["balancing_authority_assn_eia861"] = (
         pd.concat([early_date_ba_util_state, late_date_ba_util_state])
-        .dropna(subset=["balancing_authority_id_eia", ])
+        .dropna(
+            subset=[
+                "balancing_authority_id_eia",
+            ]
+        )
         .pipe(apply_pudl_dtypes, group="eia")
     )
     return tfr_dfs
@@ -977,12 +985,12 @@ def utility_assn(tfr_dfs):
         "service_territory_eia861",
     ]
     # The dataframes from which to compile BA-Util-State associations
-    data_dfs = [tfr_dfs[table]
-                for table in tfr_dfs if table not in non_data_dfs]
+    data_dfs = [tfr_dfs[table] for table in tfr_dfs if table not in non_data_dfs]
 
     logger.info("Building an EIA 861 Util-State-Date association table.")
     tfr_dfs["utility_assn_eia861"] = _harvest_associations(
-        data_dfs, ["report_date", "utility_id_eia", "state"])
+        data_dfs, ["report_date", "utility_id_eia", "state"]
+    )
     return tfr_dfs
 
 
@@ -1010,12 +1018,11 @@ def _harvest_associations(dfs, cols):
     assn = pd.DataFrame()
     for df in dfs:
         if set(df.columns).issuperset(set(cols)):
-            assn = assn.append(df[cols])
+            assn = pd.concat([assn, df[cols]])
     assn = assn.dropna().drop_duplicates()
     if assn.empty:
         raise ValueError(
-            "These dataframes contain no associations for the columns: "
-            f"{cols}"
+            f"These dataframes contain no associations for the columns: {cols}"
         )
     return assn
 
@@ -1035,12 +1042,15 @@ def normalize_balancing_authority(tfr_dfs):
     logger.info("Completing normalization of balancing_authority_eia861.")
     ba_eia861_normed = (
         tfr_dfs["balancing_authority_eia861"]
-        .loc[:, [
-            "report_date",
-            "balancing_authority_id_eia",
-            "balancing_authority_code_eia",
-            "balancing_authority_name_eia",
-        ]]
+        .loc[
+            :,
+            [
+                "report_date",
+                "balancing_authority_id_eia",
+                "balancing_authority_code_eia",
+                "balancing_authority_name_eia",
+            ],
+        ]
         .drop_duplicates(subset=["report_date", "balancing_authority_id_eia"])
     )
 
@@ -1048,13 +1058,14 @@ def normalize_balancing_authority(tfr_dfs):
     ba_ids_missing_codes = (
         ba_eia861_normed.loc[
             ba_eia861_normed.balancing_authority_code_eia.isnull(),
-            "balancing_authority_id_eia"]
+            "balancing_authority_id_eia",
+        ]
         .drop_duplicates()
         .dropna()
     )
     fillable_ba_codes = ba_eia861_normed[
-        (ba_eia861_normed.balancing_authority_id_eia.isin(ba_ids_missing_codes)) &
-        (ba_eia861_normed.balancing_authority_code_eia.notnull())
+        (ba_eia861_normed.balancing_authority_id_eia.isin(ba_ids_missing_codes))
+        & (ba_eia861_normed.balancing_authority_code_eia.notnull())
     ]
     if len(fillable_ba_codes) != 0:
         raise ValueError(
@@ -1087,8 +1098,7 @@ def sales(tfr_dfs):
 
     # Pre-tidy clean specific to sales table
     raw_sales = (
-        tfr_dfs["sales_eia861"].copy()
-        .query("utility_id_eia not in (88888, 99999)")
+        tfr_dfs["sales_eia861"].copy().query("utility_id_eia not in (88888, 99999)")
     )
 
     ###########################################################################
@@ -1098,10 +1108,10 @@ def sales(tfr_dfs):
     logger.info("Tidying the EIA 861 Sales table.")
     tidy_sales, idx_cols = _tidy_class_dfs(
         raw_sales,
-        df_name='Sales',
+        df_name="Sales",
         idx_cols=idx_cols,
         class_list=CUSTOMER_CLASSES,
-        class_type='customer_class',
+        class_type="customer_class",
     )
 
     # remove duplicates on the primary key columns + customer_class -- there
@@ -1109,11 +1119,7 @@ def sales(tfr_dfs):
     # Many of them include different values and are therefore impossible to tell
     # which are "correct". The following function drops all but the first of
     # these duplicate entries.
-    deduped_sales = _drop_dupes(
-        df=tidy_sales,
-        df_name='Sales',
-        subset=idx_cols
-    )
+    deduped_sales = _drop_dupes(df=tidy_sales, df_name="Sales", subset=idx_cols)
 
     ###########################################################################
     # Transform Values:
@@ -1127,22 +1133,24 @@ def sales(tfr_dfs):
     #   part of the primary key for the table.
     ###########################################################################
     logger.info("Performing value transformations on EIA 861 Sales table.")
-    transformed_sales = (
-        deduped_sales.assign(
-            sales_revenue=lambda x: _thousand_to_one(x.sales_revenue),
-            data_observed=lambda x: x.data_observed.replace({
+    transformed_sales = deduped_sales.assign(
+        sales_revenue=lambda x: _thousand_to_one(x.sales_revenue),
+        data_observed=lambda x: x.data_observed.replace(
+            {
                 "O": True,
                 "I": False,
-            }),
-            business_model=lambda x: x.business_model.replace({
+            }
+        ),
+        business_model=lambda x: x.business_model.replace(
+            {
                 "A": "retail",
                 "B": "retail",
                 "C": "retail",
                 "D": "energy_services",
-            }),
-            service_type=lambda x: x.service_type.str.lower(),
-            short_form=lambda x: _make_yn_bool(x.short_form),
-        )
+            }
+        ),
+        service_type=lambda x: x.service_type.str.lower(),
+        short_form=lambda x: _make_yn_bool(x.short_form),
     )
 
     tfr_dfs["sales_eia861"] = transformed_sales
@@ -1182,19 +1190,19 @@ def advanced_metering_infrastructure(tfr_dfs):
     logger.info("Tidying the EIA 861 Advanced Metering Infrastructure table.")
     tidy_ami, idx_cols = _tidy_class_dfs(
         raw_ami,
-        df_name='Advanced Metering Infrastructure',
+        df_name="Advanced Metering Infrastructure",
         idx_cols=idx_cols,
         class_list=CUSTOMER_CLASSES,
-        class_type='customer_class',
+        class_type="customer_class",
     )
 
     tidy_ami["short_form"] = _make_yn_bool(tidy_ami.short_form)
 
     # No duplicates to speak of but take measures to check just in case
-    _check_for_dupes(tidy_ami, 'Advanced Metering Infrastructure', idx_cols)
+    _check_for_dupes(tidy_ami, "Advanced Metering Infrastructure", idx_cols)
 
     # Drop total_meters col
-    tidy_ami = tidy_ami.drop(['total_meters'], axis=1)
+    tidy_ami = tidy_ami.drop(["total_meters"], axis=1)
 
     tfr_dfs["advanced_metering_infrastructure_eia861"] = tidy_ami
     return tfr_dfs
@@ -1228,19 +1236,17 @@ def demand_response(tfr_dfs):
 
     raw_dr = tfr_dfs["demand_response_eia861"].copy()
     # fill na BA values with 'UNK'
-    raw_dr['balancing_authority_code_eia'] = (
-        raw_dr['balancing_authority_code_eia'].fillna('UNK')
-    )
+    raw_dr["balancing_authority_code_eia"] = raw_dr[
+        "balancing_authority_code_eia"
+    ].fillna("UNK")
     raw_dr["short_form"] = _make_yn_bool(raw_dr.short_form)
 
     # Split data into tidy-able and not
-    raw_dr_water_heater = raw_dr[idx_cols + ['water_heater']].copy()
+    raw_dr_water_heater = raw_dr[idx_cols + ["water_heater"]].copy()
     raw_dr_water_heater = _drop_dupes(
-        df=raw_dr_water_heater,
-        df_name='Demand Response Water Heater',
-        subset=idx_cols
+        df=raw_dr_water_heater, df_name="Demand Response Water Heater", subset=idx_cols
     )
-    raw_dr = raw_dr.drop(['water_heater'], axis=1)
+    raw_dr = raw_dr.drop(["water_heater"], axis=1)
 
     ###########################################################################
     # Tidy Data:
@@ -1249,35 +1255,28 @@ def demand_response(tfr_dfs):
     logger.info("Tidying the EIA 861 Demand Response table.")
     tidy_dr, idx_cols = _tidy_class_dfs(
         raw_dr,
-        df_name='Demand Response',
+        df_name="Demand Response",
         idx_cols=idx_cols,
         class_list=CUSTOMER_CLASSES,
-        class_type='customer_class',
+        class_type="customer_class",
     )
 
     # shouldn't be duplicates but there are some strange values from IN.
     # these values have Nan BA values and should be deleted earlier.
     # thinking this might have to do with DR table weirdness between 2012 and 2013
     # will come back to this after working on the DSM table. Dropping dupes for now.
-    deduped_dr = _drop_dupes(
-        df=tidy_dr,
-        df_name='Demand Response',
-        subset=idx_cols
-    )
+    deduped_dr = _drop_dupes(df=tidy_dr, df_name="Demand Response", subset=idx_cols)
 
     ###########################################################################
     # Transform Values:
     # * Turn 1000s of dollars back into dollars
     ###########################################################################
-    logger.info(
-        "Performing value transformations on EIA 861 Demand Response table.")
-    transformed_dr = (
-        deduped_dr.assign(
-            customer_incentives_cost=lambda x: (
-                _thousand_to_one(x.customer_incentives_cost)),
-            other_costs=lambda x: (
-                _thousand_to_one(x.other_costs))
-        )
+    logger.info("Performing value transformations on EIA 861 Demand Response table.")
+    transformed_dr = deduped_dr.assign(
+        customer_incentives_cost=lambda x: (
+            _thousand_to_one(x.customer_incentives_cost)
+        ),
+        other_costs=lambda x: (_thousand_to_one(x.other_costs)),
     )
 
     tfr_dfs["demand_response_eia861"] = transformed_dr
@@ -1319,36 +1318,33 @@ def demand_side_management(tfr_dfs):
 
     """
     idx_cols = [
-        'utility_id_eia',
-        'state',
-        'nerc_region',
-        'report_date',
+        "utility_id_eia",
+        "state",
+        "nerc_region",
+        "report_date",
     ]
 
-    sales_cols = [
-        'sales_for_resale_mwh',
-        'sales_to_ultimate_consumers_mwh'
-    ]
+    sales_cols = ["sales_for_resale_mwh", "sales_to_ultimate_consumers_mwh"]
 
     bool_cols = [
-        'energy_savings_estimates_independently_verified',
-        'energy_savings_independently_verified',
-        'major_program_changes',
-        'price_responsive_programs',
-        'short_form',
-        'time_responsive_programs',
+        "energy_savings_estimates_independently_verified",
+        "energy_savings_independently_verified",
+        "major_program_changes",
+        "price_responsive_programs",
+        "short_form",
+        "time_responsive_programs",
     ]
 
     cost_cols = [
-        'annual_indirect_program_cost',
-        'annual_total_cost',
-        'energy_efficiency_annual_cost',
-        'energy_efficiency_annual_incentive_payment',
-        'load_management_annual_cost',
-        'load_management_annual_incentive_payment',
+        "annual_indirect_program_cost",
+        "annual_total_cost",
+        "energy_efficiency_annual_cost",
+        "energy_efficiency_annual_incentive_payment",
+        "load_management_annual_cost",
+        "load_management_annual_incentive_payment",
     ]
 
-    raw_dsm = tfr_dfs['demand_side_management_eia861'].copy()
+    raw_dsm = tfr_dfs["demand_side_management_eia861"].copy()
 
     ###########################################################################
     # Transform Data Round 1 (must be done to avoid issues with nerc_region col in
@@ -1359,7 +1355,7 @@ def demand_side_management(tfr_dfs):
 
     transformed_dsm1 = (
         _clean_nerc(raw_dsm, idx_cols)
-        .drop(['demand_side_management', 'data_status'], axis=1)
+        .drop(["demand_side_management", "data_status"], axis=1)
         .query("utility_id_eia not in [88888]")
     )
 
@@ -1371,15 +1367,13 @@ def demand_side_management(tfr_dfs):
     # Tidy Data:
     ###########################################################################
 
-    tidy_dsm, dsm_idx_cols = (
-        pudl.transform.eia861._tidy_class_dfs(
-            dsm_ee_dr,
-            df_name='Demand Side Management',
-            idx_cols=idx_cols,
-            class_list=CUSTOMER_CLASSES,
-            class_type='customer_class',
-            keep_totals=True
-        )
+    tidy_dsm, dsm_idx_cols = pudl.transform.eia861._tidy_class_dfs(
+        dsm_ee_dr,
+        df_name="Demand Side Management",
+        idx_cols=idx_cols,
+        class_list=CUSTOMER_CLASSES,
+        class_type="customer_class",
+        keep_totals=True,
     )
 
     ###########################################################################
@@ -1389,17 +1383,9 @@ def demand_side_management(tfr_dfs):
     ###########################################################################
 
     # Split tidy dsm data into transformable chunks
-    tidy_dsm_bool = (
-        tidy_dsm[dsm_idx_cols + bool_cols].copy()
-        .set_index(dsm_idx_cols)
-    )
-    tidy_dsm_cost = (
-        tidy_dsm[dsm_idx_cols + cost_cols].copy()
-        .set_index(dsm_idx_cols)
-    )
-    tidy_dsm_ee_dr = (
-        tidy_dsm.drop(bool_cols + cost_cols, axis=1)
-    )
+    tidy_dsm_bool = tidy_dsm[dsm_idx_cols + bool_cols].copy().set_index(dsm_idx_cols)
+    tidy_dsm_cost = tidy_dsm[dsm_idx_cols + cost_cols].copy().set_index(dsm_idx_cols)
+    tidy_dsm_ee_dr = tidy_dsm.drop(bool_cols + cost_cols, axis=1)
 
     # Calculate transformations for each chunk
     transformed_dsm2_bool = (
@@ -1410,49 +1396,36 @@ def demand_side_management(tfr_dfs):
     transformed_dsm2_cost = _thousand_to_one(tidy_dsm_cost).reset_index()
 
     # Merge transformed chunks back together
-    transformed_dsm2 = (
-        pd.merge(transformed_dsm2_bool, transformed_dsm2_cost,
-                 on=dsm_idx_cols, how='outer')
+    transformed_dsm2 = pd.merge(
+        transformed_dsm2_bool, transformed_dsm2_cost, on=dsm_idx_cols, how="outer"
     )
-    transformed_dsm2 = (
-        pd.merge(transformed_dsm2, tidy_dsm_ee_dr,
-                 on=dsm_idx_cols, how='outer')
+    transformed_dsm2 = pd.merge(
+        transformed_dsm2, tidy_dsm_ee_dr, on=dsm_idx_cols, how="outer"
     )
 
     # Split into final tables
-    ee_cols = [col for col in transformed_dsm2 if 'energy_efficiency' in col]
-    dr_cols = [col for col in transformed_dsm2 if 'load_management' in col]
-    program_cols = ['price_responsiveness_customers',
-                    'time_responsiveness_customers']
-    total_cost_cols = ['annual_indirect_program_cost', 'annual_total_cost']
+    ee_cols = [col for col in transformed_dsm2 if "energy_efficiency" in col]
+    dr_cols = [col for col in transformed_dsm2 if "load_management" in col]
+    program_cols = ["price_responsiveness_customers", "time_responsiveness_customers"]
+    total_cost_cols = ["annual_indirect_program_cost", "annual_total_cost"]
 
-    dsm_ee_dr = (
-        transformed_dsm2[
-            dsm_idx_cols
-            + ee_cols
-            + dr_cols
-            + program_cols
-            + total_cost_cols].copy()
-    )
-    dsm_misc = (
-        transformed_dsm2.drop(
-            ee_cols
-            + dr_cols
-            + program_cols
-            + total_cost_cols
-            + ['customer_class'], axis=1)
+    dsm_ee_dr = transformed_dsm2[
+        dsm_idx_cols + ee_cols + dr_cols + program_cols + total_cost_cols
+    ].copy()
+    dsm_misc = transformed_dsm2.drop(
+        ee_cols + dr_cols + program_cols + total_cost_cols + ["customer_class"], axis=1
     )
     dsm_misc = _drop_dupes(
         df=dsm_misc,
-        df_name='Demand Side Management Misc.',
-        subset=['utility_id_eia', 'state', 'nerc_region', 'report_date']
+        df_name="Demand Side Management Misc.",
+        subset=["utility_id_eia", "state", "nerc_region", "report_date"],
     )
 
-    del tfr_dfs['demand_side_management_eia861']
+    del tfr_dfs["demand_side_management_eia861"]
 
-    tfr_dfs['demand_side_management_sales_eia861'] = dsm_sales
-    tfr_dfs['demand_side_management_ee_dr_eia861'] = dsm_ee_dr
-    tfr_dfs['demand_side_management_misc_eia861'] = dsm_misc
+    tfr_dfs["demand_side_management_sales_eia861"] = dsm_sales
+    tfr_dfs["demand_side_management_ee_dr_eia861"] = dsm_ee_dr
+    tfr_dfs["demand_side_management_misc_eia861"] = dsm_misc
 
     return tfr_dfs
 
@@ -1478,64 +1451,68 @@ def distributed_generation(tfr_dfs):
 
     """
     idx_cols = [
-        'utility_id_eia',
-        'state',
-        'report_date',
+        "utility_id_eia",
+        "state",
+        "report_date",
     ]
 
     misc_cols = [
-        'backup_capacity_mw',
-        'backup_capacity_pct',
-        'distributed_generation_owned_capacity_mw',
-        'distributed_generation_owned_capacity_pct',
-        'estimated_or_actual_capacity_data',
-        'generators_number',
-        'generators_num_less_1_mw',
-        'total_capacity_mw',
-        'total_capacity_less_1_mw',
-        'utility_name_eia',
+        "backup_capacity_mw",
+        "backup_capacity_pct",
+        "distributed_generation_owned_capacity_mw",
+        "distributed_generation_owned_capacity_pct",
+        "estimated_or_actual_capacity_data",
+        "generators_number",
+        "generators_num_less_1_mw",
+        "total_capacity_mw",
+        "total_capacity_less_1_mw",
+        "utility_name_eia",
     ]
 
     tech_cols = [
-        'all_storage_capacity_mw',
-        'combustion_turbine_capacity_mw',
-        'combustion_turbine_capacity_pct',
-        'estimated_or_actual_tech_data',
-        'hydro_capacity_mw',
-        'hydro_capacity_pct',
-        'internal_combustion_capacity_mw',
-        'internal_combustion_capacity_pct',
-        'other_capacity_mw',
-        'other_capacity_pct',
-        'pv_capacity_mw',
-        'steam_capacity_mw',
-        'steam_capacity_pct',
-        'total_capacity_mw',
-        'wind_capacity_mw',
-        'wind_capacity_pct',
+        "all_storage_capacity_mw",
+        "combustion_turbine_capacity_mw",
+        "combustion_turbine_capacity_pct",
+        "estimated_or_actual_tech_data",
+        "hydro_capacity_mw",
+        "hydro_capacity_pct",
+        "internal_combustion_capacity_mw",
+        "internal_combustion_capacity_pct",
+        "other_capacity_mw",
+        "other_capacity_pct",
+        "pv_capacity_mw",
+        "steam_capacity_mw",
+        "steam_capacity_pct",
+        "total_capacity_mw",
+        "wind_capacity_mw",
+        "wind_capacity_pct",
     ]
 
     fuel_cols = [
-        'oil_fuel_pct',
-        'estimated_or_actual_fuel_data',
-        'gas_fuel_pct',
-        'other_fuel_pct',
-        'renewable_fuel_pct',
-        'water_fuel_pct',
-        'wind_fuel_pct',
-        'wood_fuel_pct',
+        "oil_fuel_pct",
+        "estimated_or_actual_fuel_data",
+        "gas_fuel_pct",
+        "other_fuel_pct",
+        "renewable_fuel_pct",
+        "water_fuel_pct",
+        "wind_fuel_pct",
+        "wood_fuel_pct",
     ]
 
     # Pre-tidy transform: set estimated or actual A/E values to 'Acutal'/'Estimated'
     raw_dg = (
-        tfr_dfs['distributed_generation_eia861'].copy()
+        tfr_dfs["distributed_generation_eia861"]
+        .copy()
         .assign(
             estimated_or_actual_capacity_data=lambda x: (
-                x.estimated_or_actual_capacity_data.map(ESTIMATED_OR_ACTUAL)),
+                x.estimated_or_actual_capacity_data.map(ESTIMATED_OR_ACTUAL)
+            ),
             estimated_or_actual_fuel_data=lambda x: (
-                x.estimated_or_actual_fuel_data.map(ESTIMATED_OR_ACTUAL)),
+                x.estimated_or_actual_fuel_data.map(ESTIMATED_OR_ACTUAL)
+            ),
             estimated_or_actual_tech_data=lambda x: (
-                x.estimated_or_actual_tech_data.map(ESTIMATED_OR_ACTUAL))
+                x.estimated_or_actual_tech_data.map(ESTIMATED_OR_ACTUAL)
+            ),
         )
     )
 
@@ -1555,76 +1532,83 @@ def distributed_generation(tfr_dfs):
     ###########################################################################
 
     # Separate datasets into years with only pct values (pre-2010) and years with only mw values (post-2010)
-    df_pre_2010_tech = raw_dg_tech[raw_dg_tech['report_date'] < '2010-01-01']
-    df_post_2010_tech = raw_dg_tech[raw_dg_tech['report_date'] >= '2010-01-01']
-    df_pre_2010_misc = raw_dg_misc[raw_dg_misc['report_date'] < '2010-01-01']
-    df_post_2010_misc = raw_dg_misc[raw_dg_misc['report_date'] >= '2010-01-01']
+    dg_tech_early = raw_dg_tech[raw_dg_tech["report_date"] < "2010-01-01"]
+    dg_tech_late = raw_dg_tech[raw_dg_tech["report_date"] >= "2010-01-01"]
+    dg_misc_early = raw_dg_misc[raw_dg_misc["report_date"] < "2010-01-01"]
+    dg_misc_late = raw_dg_misc[raw_dg_misc["report_date"] >= "2010-01-01"]
 
-    logger.info(
-        'Converting pct values into mw values for distributed generation misc table')
-    transformed_dg_misc = (
-        df_pre_2010_misc.assign(
-            distributed_generation_owned_capacity_mw=lambda x: _pct_to_mw(
-                x, 'distributed_generation_owned_capacity_pct'),
-            backup_capacity_mw=lambda x: _pct_to_mw(x, 'backup_capacity_pct'),
-        ).append(df_post_2010_misc)
-        .drop(['distributed_generation_owned_capacity_pct',
-               'backup_capacity_pct',
-               'total_capacity_mw'], axis=1)
+    logger.info("Converting pct to MW for distributed generation misc table")
+    dg_misc_early = dg_misc_early.assign(
+        distributed_generation_owned_capacity_mw=lambda x: _pct_to_mw(
+            x, "distributed_generation_owned_capacity_pct"
+        ),
+        backup_capacity_mw=lambda x: _pct_to_mw(x, "backup_capacity_pct"),
+    )
+    dg_misc = pd.concat([dg_misc_early, dg_misc_late])
+    dg_misc = dg_misc.drop(
+        [
+            "distributed_generation_owned_capacity_pct",
+            "backup_capacity_pct",
+            "total_capacity_mw",
+        ],
+        axis="columns",
     )
 
-    logger.info(
-        'Converting pct values into mw values for distributed generation tech table')
-    transformed_dg_tech = (
-        df_pre_2010_tech.assign(
-            combustion_turbine_capacity_mw=lambda x: (
-                _pct_to_mw(x, 'combustion_turbine_capacity_pct')),
-            hydro_capacity_mw=lambda x: _pct_to_mw(x, 'hydro_capacity_pct'),
-            internal_combustion_capacity_mw=lambda x: (
-                _pct_to_mw(x, 'internal_combustion_capacity_pct')),
-            other_capacity_mw=lambda x: _pct_to_mw(x, 'other_capacity_pct'),
-            steam_capacity_mw=lambda x: _pct_to_mw(x, 'steam_capacity_pct'),
-            wind_capacity_mw=lambda x: _pct_to_mw(x, 'wind_capacity_pct'),
-        ).append(df_post_2010_tech)
-        .drop([
-            'combustion_turbine_capacity_pct',
-            'hydro_capacity_pct',
-            'internal_combustion_capacity_pct',
-            'other_capacity_pct',
-            'steam_capacity_pct',
-            'wind_capacity_pct',
-            'total_capacity_mw'], axis=1
-        )
+    logger.info("Converting pct into MW for distributed generation tech table")
+    dg_tech_early = dg_tech_early.assign(
+        combustion_turbine_capacity_mw=lambda x: (
+            _pct_to_mw(x, "combustion_turbine_capacity_pct")
+        ),
+        hydro_capacity_mw=lambda x: _pct_to_mw(x, "hydro_capacity_pct"),
+        internal_combustion_capacity_mw=lambda x: (
+            _pct_to_mw(x, "internal_combustion_capacity_pct")
+        ),
+        other_capacity_mw=lambda x: _pct_to_mw(x, "other_capacity_pct"),
+        steam_capacity_mw=lambda x: _pct_to_mw(x, "steam_capacity_pct"),
+        wind_capacity_mw=lambda x: _pct_to_mw(x, "wind_capacity_pct"),
+    )
+    dg_tech = pd.concat([dg_tech_early, dg_tech_late])
+    dg_tech = dg_tech.drop(
+        [
+            "combustion_turbine_capacity_pct",
+            "hydro_capacity_pct",
+            "internal_combustion_capacity_pct",
+            "other_capacity_pct",
+            "steam_capacity_pct",
+            "wind_capacity_pct",
+            "total_capacity_mw",
+        ],
+        axis="columns",
     )
 
     ###########################################################################
     # Tidy Data
     ###########################################################################
 
-    logger.info('Tidying Distributed Generation Tech Table')
+    logger.info("Tidying Distributed Generation Tech Table")
     tidy_dg_tech, tech_idx_cols = _tidy_class_dfs(
-        df=transformed_dg_tech,
-        df_name='Distributed Generation Tech Component Capacity',
+        df=dg_tech,
+        df_name="Distributed Generation Tech Component Capacity",
         idx_cols=idx_cols,
         class_list=TECH_CLASSES,
-        class_type='tech_class',
+        class_type="tech_class",
     )
 
-    logger.info('Tidying Distributed Generation Fuel Table')
+    logger.info("Tidying Distributed Generation Fuel Table")
     tidy_dg_fuel, fuel_idx_cols = _tidy_class_dfs(
         df=raw_dg_fuel,
-        df_name='Distributed Generation Fuel Percent',
+        df_name="Distributed Generation Fuel Percent",
         idx_cols=idx_cols,
         class_list=FUEL_CLASSES,
-        class_type='fuel_class',
+        class_type="fuel_class",
     )
 
     # Drop original distributed generation table from tfr_dfs
-    del tfr_dfs['distributed_generation_eia861']
+    del tfr_dfs["distributed_generation_eia861"]
 
     tfr_dfs["distributed_generation_tech_eia861"] = tidy_dg_tech
     tfr_dfs["distributed_generation_fuel_eia861"] = tidy_dg_fuel
-    tfr_dfs["distributed_generation_misc_eia861"] = transformed_dg_misc
+    tfr_dfs["distributed_generation_misc_eia861"] = dg_misc
 
     return tfr_dfs
 
@@ -1647,16 +1631,12 @@ def distribution_systems(tfr_dfs):
     """
     # No data tidying or transformation required
 
-    raw_ds = (
-        tfr_dfs['distribution_systems_eia861'].copy()
-    )
+    raw_ds = tfr_dfs["distribution_systems_eia861"].copy()
     raw_ds["short_form"] = _make_yn_bool(raw_ds.short_form)
 
     # No duplicates to speak of but take measures to check just in case
     _check_for_dupes(
-        raw_ds,
-        'Distribution Systems',
-        ["utility_id_eia", "state", "report_date"]
+        raw_ds, "Distribution Systems", ["utility_id_eia", "state", "report_date"]
     )
 
     tfr_dfs["distribution_systems_eia861"] = raw_ds
@@ -1689,16 +1669,15 @@ def dynamic_pricing(tfr_dfs):
     ]
 
     class_attributes = [
-        'critical_peak_pricing',
-        'critical_peak_rebate',
-        'real_time_pricing',
-        'time_of_use_pricing',
-        'variable_peak_pricing'
+        "critical_peak_pricing",
+        "critical_peak_rebate",
+        "real_time_pricing",
+        "time_of_use_pricing",
+        "variable_peak_pricing",
     ]
 
     raw_dp = (
-        tfr_dfs["dynamic_pricing_eia861"].copy()
-        .query("utility_id_eia not in [88888]")
+        tfr_dfs["dynamic_pricing_eia861"].copy().query("utility_id_eia not in [88888]")
     )
     raw_dp["short_form"] = _make_yn_bool(raw_dp.short_form)
 
@@ -1709,25 +1688,25 @@ def dynamic_pricing(tfr_dfs):
     logger.info("Tidying the EIA 861 Dynamic Pricing table.")
     tidy_dp, idx_cols = _tidy_class_dfs(
         raw_dp,
-        df_name='Dynamic Pricing',
+        df_name="Dynamic Pricing",
         idx_cols=idx_cols,
         class_list=CUSTOMER_CLASSES,
-        class_type='customer_class',
+        class_type="customer_class",
     )
 
     # No duplicates to speak of but take measures to check just in case
-    _check_for_dupes(tidy_dp, 'Dynamic Pricing', idx_cols)
+    _check_for_dupes(tidy_dp, "Dynamic Pricing", idx_cols)
 
     ###########################################################################
     # Transform Values:
     # * Make Y/N's into booleans and X values into pd.NA
     ###########################################################################
 
-    logger.info(
-        "Performing value transformations on EIA 861 Dynamic Pricing table.")
+    logger.info("Performing value transformations on EIA 861 Dynamic Pricing table.")
     for col in class_attributes:
         tidy_dp[col] = (
-            tidy_dp[col].replace({'Y': True, 'N': False})
+            tidy_dp[col]
+            .replace({"Y": True, "N": False})
             .apply(lambda x: x if x in [True, False] else pd.NA)
         )
 
@@ -1754,10 +1733,10 @@ def energy_efficiency(tfr_dfs):
 
     """
     idx_cols = [
-        'utility_id_eia',
-        'state',
-        'balancing_authority_code_eia',
-        'report_date',
+        "utility_id_eia",
+        "state",
+        "balancing_authority_code_eia",
+        "report_date",
     ]
 
     raw_ee = tfr_dfs["energy_efficiency_eia861"].copy()
@@ -1765,7 +1744,7 @@ def energy_efficiency(tfr_dfs):
     raw_ee["short_form"] = _make_yn_bool(raw_ee.short_form)
 
     # No duplicates to speak of but take measures to check just in case
-    _check_for_dupes(raw_ee, 'Energy Efficiency', idx_cols)
+    _check_for_dupes(raw_ee, "Energy Efficiency", idx_cols)
 
     ###########################################################################
     # Tidy Data:
@@ -1776,11 +1755,11 @@ def energy_efficiency(tfr_dfs):
     # wide-to-tall by customer class (must be done before wide-to-tall by fuel class)
     tidy_ee, _ = pudl.transform.eia861._tidy_class_dfs(
         raw_ee,
-        df_name='Energy Efficiency',
+        df_name="Energy Efficiency",
         idx_cols=idx_cols,
         class_list=CUSTOMER_CLASSES,
-        class_type='customer_class',
-        keep_totals=True
+        class_type="customer_class",
+        keep_totals=True,
     )
 
     ###########################################################################
@@ -1791,18 +1770,20 @@ def energy_efficiency(tfr_dfs):
 
     logger.info("Transforming the EIA 861 Energy Efficiency table.")
 
-    transformed_ee = (
-        tidy_ee.assign(
-            customer_incentives_incremental_cost=lambda x: (
-                _thousand_to_one(x.customer_incentives_incremental_cost)),
-            customer_incentives_incremental_life_cycle_cost=lambda x: (
-                _thousand_to_one(x.customer_incentives_incremental_life_cycle_cost)),
-            customer_other_costs_incremental_life_cycle_cost=lambda x: (
-                _thousand_to_one(x.customer_other_costs_incremental_life_cycle_cost)),
-            other_costs_incremental_cost=lambda x: (
-                _thousand_to_one(x.other_costs_incremental_cost)),
-        ).drop(['website'], axis=1)
-    )
+    transformed_ee = tidy_ee.assign(
+        customer_incentives_incremental_cost=lambda x: (
+            _thousand_to_one(x.customer_incentives_incremental_cost)
+        ),
+        customer_incentives_incremental_life_cycle_cost=lambda x: (
+            _thousand_to_one(x.customer_incentives_incremental_life_cycle_cost)
+        ),
+        customer_other_costs_incremental_life_cycle_cost=lambda x: (
+            _thousand_to_one(x.customer_other_costs_incremental_life_cycle_cost)
+        ),
+        other_costs_incremental_cost=lambda x: (
+            _thousand_to_one(x.other_costs_incremental_cost)
+        ),
+    ).drop(["website"], axis=1)
 
     tfr_dfs["energy_efficiency_eia861"] = transformed_ee
     return tfr_dfs
@@ -1840,27 +1821,22 @@ def green_pricing(tfr_dfs):
     logger.info("Tidying the EIA 861 Green Pricing table.")
     tidy_gp, idx_cols = _tidy_class_dfs(
         raw_gp,
-        df_name='Green Pricing',
+        df_name="Green Pricing",
         idx_cols=idx_cols,
         class_list=CUSTOMER_CLASSES,
-        class_type='customer_class',
+        class_type="customer_class",
     )
 
-    _check_for_dupes(tidy_gp, 'Green Pricing', idx_cols)
+    _check_for_dupes(tidy_gp, "Green Pricing", idx_cols)
 
     ###########################################################################
     # Transform Values:
     # * Turn 1000s of dollars back into dollars
     ###########################################################################
-    logger.info(
-        "Performing value transformations on EIA 861 Green Pricing table.")
-    transformed_gp = (
-        tidy_gp.assign(
-            green_pricing_revenue=lambda x: (
-                _thousand_to_one(x.green_pricing_revenue)),
-            rec_revenue=lambda x: (
-                _thousand_to_one(x.rec_revenue))
-        )
+    logger.info("Performing value transformations on EIA 861 Green Pricing table.")
+    transformed_gp = tidy_gp.assign(
+        green_pricing_revenue=lambda x: (_thousand_to_one(x.green_pricing_revenue)),
+        rec_revenue=lambda x: (_thousand_to_one(x.rec_revenue)),
     )
 
     tfr_dfs["green_pricing_eia861"] = transformed_gp
@@ -1884,9 +1860,7 @@ def mergers(tfr_dfs):
 
     # No duplicates to speak of but take measures to check just in case
     _check_for_dupes(
-        transformed_mergers,
-        'Mergers',
-        ["utility_id_eia", "state", "report_date"]
+        transformed_mergers, "Mergers", ["utility_id_eia", "state", "report_date"]
     )
 
     tfr_dfs["mergers_eia861"] = transformed_mergers
@@ -1912,31 +1886,27 @@ def net_metering(tfr_dfs):
 
     """
     idx_cols = [
-        'utility_id_eia',
-        'state',
-        'balancing_authority_code_eia',
-        'report_date',
+        "utility_id_eia",
+        "state",
+        "balancing_authority_code_eia",
+        "report_date",
     ]
 
-    misc_cols = [
-        'pv_current_flow_type'
-    ]
+    misc_cols = ["pv_current_flow_type"]
 
     # Pre-tidy clean specific to net_metering table
     raw_nm = (
-        tfr_dfs["net_metering_eia861"].copy()
-        .query("utility_id_eia not in [99999]")
+        tfr_dfs["net_metering_eia861"].copy().query("utility_id_eia not in [99999]")
     )
     raw_nm["short_form"] = _make_yn_bool(raw_nm.short_form)
 
     # Separate customer class data from misc data (in this case just one col: current flow)
     # Could easily add this to tech_class if desired.
-    raw_nm_customer_fuel_class = (
-        raw_nm.drop(misc_cols, axis=1).copy())
+    raw_nm_customer_fuel_class = raw_nm.drop(misc_cols, axis=1).copy()
     raw_nm_misc = raw_nm[idx_cols + misc_cols].copy()
 
     # Check for duplicates before idx cols get changed
-    _check_for_dupes(raw_nm_misc, 'Net Metering Current Flow Type PV', idx_cols)
+    _check_for_dupes(raw_nm_misc, "Net Metering Current Flow Type PV", idx_cols)
 
     ###########################################################################
     # Tidy Data:
@@ -1946,30 +1916,31 @@ def net_metering(tfr_dfs):
     # wide-to-tall by customer class (must be done before wide-to-tall by fuel class)
     tidy_nm_customer_class, idx_cols = _tidy_class_dfs(
         raw_nm_customer_fuel_class,
-        df_name='Net Metering',
+        df_name="Net Metering",
         idx_cols=idx_cols,
         class_list=CUSTOMER_CLASSES,
-        class_type='customer_class',
+        class_type="customer_class",
     )
 
     # wide-to-tall by fuel class
     tidy_nm_customer_fuel_class, idx_cols = _tidy_class_dfs(
         tidy_nm_customer_class,
-        df_name='Net Metering',
+        df_name="Net Metering",
         idx_cols=idx_cols,
         class_list=TECH_CLASSES,
-        class_type='tech_class',
+        class_type="tech_class",
         keep_totals=True,
     )
 
     # No duplicates to speak of but take measures to check just in case
     _check_for_dupes(
-        tidy_nm_customer_fuel_class, 'Net Metering Customer & Fuel Class', idx_cols)
+        tidy_nm_customer_fuel_class, "Net Metering Customer & Fuel Class", idx_cols
+    )
 
     # No transformation needed
 
     # Drop original net_metering_eia861 table from tfr_dfs
-    del tfr_dfs['net_metering_eia861']
+    del tfr_dfs["net_metering_eia861"]
 
     tfr_dfs["net_metering_customer_fuel_class_eia861"] = tidy_nm_customer_fuel_class
     tfr_dfs["net_metering_misc_eia861"] = raw_nm_misc
@@ -1997,42 +1968,41 @@ def non_net_metering(tfr_dfs):
 
     """
     idx_cols = [
-        'utility_id_eia',
-        'state',
-        'balancing_authority_code_eia',
-        'report_date',
+        "utility_id_eia",
+        "state",
+        "balancing_authority_code_eia",
+        "report_date",
     ]
 
     misc_cols = [
-        'backup_capacity_mw',
-        'generators_number',
-        'pv_current_flow_type',
-        'utility_owned_capacity_mw'
+        "backup_capacity_mw",
+        "generators_number",
+        "pv_current_flow_type",
+        "utility_owned_capacity_mw",
     ]
 
     # Pre-tidy clean specific to non_net_metering table
     raw_nnm = (
-        tfr_dfs["non_net_metering_eia861"].copy()
-        .query("utility_id_eia not in '99999'")
+        tfr_dfs["non_net_metering_eia861"].copy().query("utility_id_eia not in '99999'")
     )
 
     # there are ~80 fully duplicate records in the 2018 table. We need to
     # remove those duplicates
     og_len = len(raw_nnm)
-    raw_nnm = raw_nnm.drop_duplicates(keep='first')
+    raw_nnm = raw_nnm.drop_duplicates(keep="first")
     diff_len = og_len - len(raw_nnm)
     if diff_len > 100:
         raise ValueError(
             f"""Too many duplicate dropped records in raw non-net metering
-    table: {diff_len}""")
+    table: {diff_len}"""
+        )
 
     # Separate customer class data from misc data
     raw_nnm_customer_fuel_class = raw_nnm.drop(misc_cols, axis=1).copy()
     raw_nnm_misc = (raw_nnm[idx_cols + misc_cols]).copy()
 
     # Check for duplicates before idx cols get changed
-    _check_for_dupes(
-        raw_nnm_misc, 'Non Net Metering Misc.', idx_cols)
+    _check_for_dupes(raw_nnm_misc, "Non Net Metering Misc.", idx_cols)
 
     ###########################################################################
     # Tidy Data:
@@ -2043,42 +2013,42 @@ def non_net_metering(tfr_dfs):
     # wide-to-tall by customer class (must be done before wide-to-tall by fuel class)
     tidy_nnm_customer_class, idx_cols = _tidy_class_dfs(
         raw_nnm_customer_fuel_class,
-        df_name='Non Net Metering',
+        df_name="Non Net Metering",
         idx_cols=idx_cols,
         class_list=CUSTOMER_CLASSES,
-        class_type='customer_class',
-        keep_totals=True
+        class_type="customer_class",
+        keep_totals=True,
     )
 
     # wide-to-tall by fuel class
     tidy_nnm_customer_fuel_class, idx_cols = _tidy_class_dfs(
         tidy_nnm_customer_class,
-        df_name='Non Net Metering',
+        df_name="Non Net Metering",
         idx_cols=idx_cols,
         class_list=TECH_CLASSES,
-        class_type='tech_class',
-        keep_totals=True
+        class_type="tech_class",
+        keep_totals=True,
     )
 
     # No duplicates to speak of (deleted 2018 duplicates above) but take measures to
     # check just in case
     _check_for_dupes(
-        tidy_nnm_customer_fuel_class,
-        'Non Net Metering Customer & Fuel Class', idx_cols)
+        tidy_nnm_customer_fuel_class, "Non Net Metering Customer & Fuel Class", idx_cols
+    )
 
     # Delete total_capacity_mw col for redundancy (must delete x not y)
-    tidy_nnm_customer_fuel_class = (
-        tidy_nnm_customer_fuel_class.drop(columns='capacity_mw_x')
-        .rename(columns={'capacity_mw_y': 'capacity_mw'})
-    )
+    tidy_nnm_customer_fuel_class = tidy_nnm_customer_fuel_class.drop(
+        columns="capacity_mw_x"
+    ).rename(columns={"capacity_mw_y": "capacity_mw"})
 
     # No transformation needed
 
     # Drop original net_metering_eia861 table from tfr_dfs
-    del tfr_dfs['non_net_metering_eia861']
+    del tfr_dfs["non_net_metering_eia861"]
 
-    tfr_dfs["non_net_metering_customer_fuel_class_eia861"] = (
-        tidy_nnm_customer_fuel_class)
+    tfr_dfs[
+        "non_net_metering_customer_fuel_class_eia861"
+    ] = tidy_nnm_customer_fuel_class
     tfr_dfs["non_net_metering_misc_eia861"] = raw_nnm_misc
 
     return tfr_dfs
@@ -2106,18 +2076,17 @@ def operational_data(tfr_dfs):
 
     """
     idx_cols = [
-        'utility_id_eia',
-        'state',
-        'nerc_region',
-        'report_date',
+        "utility_id_eia",
+        "state",
+        "nerc_region",
+        "report_date",
     ]
 
     # Pre-tidy clean specific to operational data table
     raw_od = tfr_dfs["operational_data_eia861"].copy()
-    raw_od = (  # removed (raw_od['utility_id_eia'].notnull()) for RMI
-        raw_od[(raw_od['utility_id_eia'] != 88888) &
-               (raw_od['utility_id_eia'].notnull())]
-    )
+    raw_od = raw_od[  # removed (raw_od['utility_id_eia'].notnull()) for RMI
+        (raw_od["utility_id_eia"] != 88888) & (raw_od["utility_id_eia"].notnull())
+    ]
 
     ###########################################################################
     # Transform Data Round 1:
@@ -2131,33 +2100,25 @@ def operational_data(tfr_dfs):
     #   * I="imputed" => False
     ###########################################################################
 
-    transformed_od = (
-        _clean_nerc(raw_od, idx_cols)
-        .assign(
-            data_observed=lambda x: x.data_observed.replace({
-                "O": True,
-                "I": False
-            }),
-            short_form=lambda x: _make_yn_bool(x.short_form)
-        )
+    transformed_od = _clean_nerc(raw_od, idx_cols).assign(
+        data_observed=lambda x: x.data_observed.replace({"O": True, "I": False}),
+        short_form=lambda x: _make_yn_bool(x.short_form),
     )
 
     # Split data into 2 tables:
     #  * Revenue (wide-to-tall)
     #  * Misc. (other)
-    revenue_cols = [col for col in transformed_od if 'revenue' in col]
-    transformed_od_misc = (transformed_od.drop(revenue_cols, axis=1))
-    transformed_od_rev = (transformed_od[idx_cols + revenue_cols].copy())
+    revenue_cols = [col for col in transformed_od if "revenue" in col]
+    transformed_od_misc = transformed_od.drop(revenue_cols, axis=1)
+    transformed_od_rev = transformed_od[idx_cols + revenue_cols].copy()
 
     # Wide-to-tall revenue columns
-    tidy_od_rev, idx_cols = (
-        _tidy_class_dfs(
-            transformed_od_rev,
-            df_name='Operational Data Revenue',
-            idx_cols=idx_cols,
-            class_list=REVENUE_CLASSES,
-            class_type='revenue_class'
-        )
+    tidy_od_rev, idx_cols = _tidy_class_dfs(
+        transformed_od_rev,
+        df_name="Operational Data Revenue",
+        idx_cols=idx_cols,
+        class_list=REVENUE_CLASSES,
+        class_type="revenue_class",
     )
 
     ###########################################################################
@@ -2166,14 +2127,12 @@ def operational_data(tfr_dfs):
     ###########################################################################
 
     # Transform revenue 1000s into dollars
-    transformed_od_rev = (
-        tidy_od_rev.assign(revenue=lambda x: (
-            _thousand_to_one(x.revenue))
-        )
+    transformed_od_rev = tidy_od_rev.assign(
+        revenue=lambda x: (_thousand_to_one(x.revenue))
     )
 
     # Drop original operational_data_eia861 table from tfr_dfs
-    del tfr_dfs['operational_data_eia861']
+    del tfr_dfs["operational_data_eia861"]
 
     tfr_dfs["operational_data_revenue_eia861"] = transformed_od_rev
     tfr_dfs["operational_data_misc_eia861"] = transformed_od_misc
@@ -2200,11 +2159,7 @@ def reliability(tfr_dfs):
         dict: A dictionary of transformed EIA 861 dataframes, keyed by table name.
 
     """
-    idx_cols = [
-        'utility_id_eia',
-        'state',
-        'report_date'
-    ]
+    idx_cols = ["utility_id_eia", "state", "report_date"]
 
     # Pre-tidy clean specific to operational data table
     raw_r = tfr_dfs["reliability_eia861"].copy()
@@ -2218,10 +2173,10 @@ def reliability(tfr_dfs):
     # wide-to-tall by standards
     tidy_r, idx_cols = _tidy_class_dfs(
         df=raw_r,
-        df_name='Reliability',
+        df_name="Reliability",
         idx_cols=idx_cols,
         class_list=RELIABILITY_STANDARDS,
-        class_type='standard',
+        class_type="standard",
         keep_totals=False,
     )
 
@@ -2237,28 +2192,24 @@ def reliability(tfr_dfs):
     #   * 'O' => 'Other'
     ###########################################################################
 
-    transformed_r = (
-        tidy_r.assign(
-            outages_recorded_automatically=lambda x: (
-                _make_yn_bool(x.outages_recorded_automatically)
-            ),
-            inactive_accounts_included=lambda x: (
-                _make_yn_bool(x.inactive_accounts_included)
-            ),
-            short_form=lambda x: _make_yn_bool(x.short_form),
-            # This field should be encoded using momentary_interruptions_eia
-            # But the EIA 861 tables aren't fully integrated yet.
-            momentary_interruption_definition=lambda x: (
-                x.momentary_interruption_definition.map(MOMENTARY_INTERRUPTIONS)
-            )
-        )
+    transformed_r = tidy_r.assign(
+        outages_recorded_automatically=lambda x: (
+            _make_yn_bool(x.outages_recorded_automatically)
+        ),
+        inactive_accounts_included=lambda x: (
+            _make_yn_bool(x.inactive_accounts_included)
+        ),
+        short_form=lambda x: _make_yn_bool(x.short_form),
+        # This field should be encoded using momentary_interruptions_eia
+        # But the EIA 861 tables aren't fully integrated yet.
+        momentary_interruption_definition=lambda x: (
+            x.momentary_interruption_definition.map(MOMENTARY_INTERRUPTIONS)
+        ),
     )
 
     # Drop duplicate entries for utilities 13027, 3408 and 9697
     transformed_r = _drop_dupes(
-        df=transformed_r,
-        df_name='Reliability',
-        subset=idx_cols
+        df=transformed_r, df_name="Reliability", subset=idx_cols
     )
 
     tfr_dfs["reliability_eia861"] = transformed_r
@@ -2286,17 +2237,11 @@ def utility_data(tfr_dfs):
         dict: A dictionary of transformed EIA 861 dataframes, keyed by table name.
 
     """
-    idx_cols = [
-        'utility_id_eia',
-        'state',
-        'report_date',
-        'nerc_region'
-    ]
+    idx_cols = ["utility_id_eia", "state", "report_date", "nerc_region"]
 
     # Pre-tidy clean specific to operational data table
     raw_ud = (
-        tfr_dfs["utility_data_eia861"].copy()
-        .query("utility_id_eia not in [88888]")
+        tfr_dfs["utility_data_eia861"].copy().query("utility_id_eia not in [88888]")
     )
 
     ##############################################################################
@@ -2305,14 +2250,13 @@ def utility_data(tfr_dfs):
     # * Clean NERC region col
     ##############################################################################
 
-    transformed_ud = (
-        _clean_nerc(raw_ud, idx_cols)
-        .assign(short_form=lambda x: _make_yn_bool(x.short_form))
+    transformed_ud = _clean_nerc(raw_ud, idx_cols).assign(
+        short_form=lambda x: _make_yn_bool(x.short_form)
     )
 
     # Establish columns that are nerc regions vs. rtos
-    nerc_cols = [col for col in raw_ud if 'nerc_region_operation' in col]
-    rto_cols = [col for col in raw_ud if 'rto_operation' in col]
+    nerc_cols = [col for col in raw_ud if "nerc_region_operation" in col]
+    rto_cols = [col for col in raw_ud if "rto_operation" in col]
 
     # Make separate tables for nerc vs. rto vs. misc data
     raw_ud_nerc = transformed_ud[idx_cols + nerc_cols].copy()
@@ -2327,18 +2271,18 @@ def utility_data(tfr_dfs):
 
     tidy_ud_nerc, _ = _tidy_class_dfs(
         df=raw_ud_nerc,
-        df_name='Utility Data NERC Regions',
+        df_name="Utility Data NERC Regions",
         idx_cols=idx_cols,
         class_list=[x.lower() for x in NERC_REGIONS],
-        class_type='nerc_regions_of_operation',
+        class_type="nerc_regions_of_operation",
     )
 
     tidy_ud_rto, _ = _tidy_class_dfs(
         df=raw_ud_rto,
-        df_name='Utility Data RTOs',
+        df_name="Utility Data RTOs",
         idx_cols=idx_cols,
         class_list=RTO_CLASSES,
-        class_type='rtos_of_operation'
+        class_type="rtos_of_operation",
     )
 
     ###########################################################################
@@ -2351,63 +2295,50 @@ def utility_data(tfr_dfs):
     ###########################################################################
 
     # Transform NERC region table
-    transformed_ud_nerc = (
-        tidy_ud_nerc.assign(
-            nerc_region_operation=lambda x: (
-                _make_yn_bool(x.nerc_region_operation.fillna(False))),
-            nerc_regions_of_operation=lambda x: (
-                x.nerc_regions_of_operation.str.upper()
-            )
-        )
+    transformed_ud_nerc = tidy_ud_nerc.assign(
+        nerc_region_operation=lambda x: (
+            _make_yn_bool(x.nerc_region_operation.fillna(False))
+        ),
+        nerc_regions_of_operation=lambda x: (x.nerc_regions_of_operation.str.upper()),
     )
 
     # Only keep true values and drop bool col
-    transformed_ud_nerc = (
-        transformed_ud_nerc[transformed_ud_nerc.nerc_region_operation]
-        .drop(['nerc_region_operation'], axis=1)
-    )
+    transformed_ud_nerc = transformed_ud_nerc[
+        transformed_ud_nerc.nerc_region_operation
+    ].drop(["nerc_region_operation"], axis=1)
 
     # Transform RTO table
-    transformed_ud_rto = (
-        tidy_ud_rto.assign(
-            rto_operation=lambda x: (
-                x.rto_operation
-                .fillna(False)
-                .replace({"N": False, "Y": True})),
-            rtos_of_operation=lambda x: (
-                x.rtos_of_operation.str.upper()
-            )
-        )
+    transformed_ud_rto = tidy_ud_rto.assign(
+        rto_operation=lambda x: (
+            x.rto_operation.fillna(False).replace({"N": False, "Y": True})
+        ),
+        rtos_of_operation=lambda x: (x.rtos_of_operation.str.upper()),
     )
 
     # Only keep true values and drop bool col
-    transformed_ud_rto = (
-        transformed_ud_rto[transformed_ud_rto.rto_operation]
-        .drop(['rto_operation'], axis=1)
+    transformed_ud_rto = transformed_ud_rto[transformed_ud_rto.rto_operation].drop(
+        ["rto_operation"], axis=1
     )
 
     # Transform MISC table by first separating bool cols from non bool cols
     # and then making them into boolean values.
     transformed_ud_misc_bool = (
-        raw_ud_misc
-        .drop(['entity_type', 'utility_name_eia'], axis=1)
+        raw_ud_misc.drop(["entity_type", "utility_name_eia"], axis=1)
         .set_index(idx_cols)
         .fillna(False)
         .replace({"N": False, "Y": True})
     )
 
     # Merge misc. bool cols back together with misc. non bool cols
-    transformed_ud_misc = (
-        pd.merge(
-            raw_ud_misc[idx_cols + ['entity_type', 'utility_name_eia']],
-            transformed_ud_misc_bool,
-            on=idx_cols,
-            how='outer'
-        )
+    transformed_ud_misc = pd.merge(
+        raw_ud_misc[idx_cols + ["entity_type", "utility_name_eia"]],
+        transformed_ud_misc_bool,
+        on=idx_cols,
+        how="outer",
     )
 
     # Drop original operational_data_eia861 table from tfr_dfs
-    del tfr_dfs['utility_data_eia861']
+    del tfr_dfs["utility_data_eia861"]
 
     tfr_dfs["utility_data_nerc_eia861"] = transformed_ud_nerc
     tfr_dfs["utility_data_rto_eia861"] = transformed_ud_rto
@@ -2420,15 +2351,16 @@ def utility_data(tfr_dfs):
 # Coordinating Transform Function
 ##############################################################################
 
-def transform(raw_dfs, eia861_tables=PUDL_TABLES["eia861"]):
+
+def transform(raw_dfs, eia861_settings: Eia861Settings = Eia861Settings()):
     """
     Transform EIA 861 DataFrames.
 
     Args:
         raw_dfs (dict): a dictionary of tab names (keys) and DataFrames (values). This
             can be generated by pudl.
-        eia861_tables (tuple): A tuple containing the names of the EIA 861 tables that
-            can be pulled into PUDL.
+        eia861_settings: Object containing validated settings
+            relevant to EIA 861.
 
     Returns:
         dict: A dictionary of DataFrame objects in which pages from EIA 861 form (keys)
@@ -2454,7 +2386,6 @@ def transform(raw_dfs, eia861_tables=PUDL_TABLES["eia861"]):
         "operational_data_eia861": operational_data,
         "reliability_eia861": reliability,
         "utility_data_eia861": utility_data,
-
     }
 
     # Dictionary for transformed dataframes and pre-transformed dataframes.
@@ -2462,17 +2393,16 @@ def transform(raw_dfs, eia861_tables=PUDL_TABLES["eia861"]):
     tfr_dfs = {}
 
     if not raw_dfs:
-        logger.info(
-            "No raw EIA 861 dataframes found. Not transforming EIA 861.")
+        logger.info("No raw EIA 861 dataframes found. Not transforming EIA 861.")
         return tfr_dfs
-    # for each of the tables, run the respective transform funtction
-    for table in eia861_tables:
-        if table not in tfr_funcs.keys():
-            raise ValueError(f"Unrecognized EIA 861 table: {table}")
-        logger.info(f"Transforming raw EIA 861 DataFrames for {table} "
-                    f"concatenated across all years.")
-        tfr_dfs[table] = _early_transform(raw_dfs[table])
-        tfr_dfs = tfr_funcs[table](tfr_dfs)
+    # Run each of the requested transform funtctions
+    for tfr_func in eia861_settings.transform_functions:
+        logger.info(
+            f"Transforming raw EIA 861 DataFrames for {tfr_func} "
+            f"concatenated across all years."
+        )
+        tfr_dfs[tfr_func] = _early_transform(raw_dfs[tfr_func])
+        tfr_dfs = tfr_funcs[tfr_func](tfr_dfs)
 
     # This is more like harvesting stuff, and should probably be relocated:
     tfr_dfs = balancing_authority_assn(tfr_dfs)
@@ -2480,6 +2410,5 @@ def transform(raw_dfs, eia861_tables=PUDL_TABLES["eia861"]):
     tfr_dfs = normalize_balancing_authority(tfr_dfs)
     # Do some final cleanup and assign types.
     return {
-        name: convert_cols_dtypes(df, data_source="eia")
-        for name, df in tfr_dfs.items()
+        name: convert_cols_dtypes(df, data_source="eia") for name, df in tfr_dfs.items()
     }

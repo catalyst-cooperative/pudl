@@ -13,6 +13,9 @@ sqlite-utils index-foreign-keys $SQLITE_DIR/pudl.sqlite
 # Enable full text search on plant and utility name and other text columns
 # Full column and table level descriptions / metadata
 
+# make metadata.yml
+metadata_to_yml -o "metadata.yml"
+
 datasette publish cloudrun \
     --service catalyst-datasette \
     --memory 4Gi \

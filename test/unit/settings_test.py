@@ -1,31 +1,38 @@
 """Tests for settings validation."""
-from typing import ClassVar
-
 import pytest
 from pydantic import ValidationError
 
-from pudl.settings import (DatasetsSettings, Eia860Settings, Eia923Settings,
-                           EiaSettings, EpaCemsSettings, Ferc1Settings,
-                           Ferc1ToSqliteSettings, GenericDatasetSettings,
-                           create_dataset_settings)
+from pudl.metadata.classes import DataSource
+from pudl.settings import (
+    DatasetsSettings,
+    Eia860Settings,
+    Eia923Settings,
+    EiaSettings,
+    EpaCemsSettings,
+    Ferc1Settings,
+    Ferc1ToSqliteSettings,
+    GenericDatasetSettings,
+)
 
 
 class TestGenericDatasetSettings:
     """Test generic dataset behavior."""
 
-    def test_abstract_property_error(self):
-        """Test GenericDatasetSettings forces you to add working tables, years."""
-        with pytest.raises(TypeError):
-            class Test(GenericDatasetSettings):
-                pass
-            Test()
-
     def test_missing_field_error(self):
-        """Test GenericDatasetSettings throws error if user forgets to add a field."""
+        """
+        Test GenericDatasetSettings throws error if user forgets to add a field.
+
+        In this case, the required ``data_source`` parameter is missing.
+        """
         with pytest.raises(ValidationError):
+            working_partitions = {"years": [2001]}
+            working_tables = ["table"]
+
             class Test(GenericDatasetSettings):
-                working_partitions: ClassVar = {"years": [2001]}
-                working_tables: ClassVar = ["table"]
+                data_source: DataSource(
+                    working_partitions=working_partitions, working_tables=working_tables
+                )
+
             Test()
 
 
@@ -61,7 +68,7 @@ class TestFerc1Settings:
         """Test all years are used as default."""
         returned_settings = Ferc1Settings()
 
-        expected_years = Ferc1Settings.working_partitions["years"]
+        expected_years = DataSource.from_id("ferc1").working_partitions["years"]
         assert expected_years == returned_settings.years
 
     def test_not_working_table(self):
@@ -72,7 +79,12 @@ class TestFerc1Settings:
     def test_duplicate_sort_tables(self):
         """Test tables are sorted and deduplicated."""
         returned_settings = Ferc1Settings(
-            tables=["plants_pumped_storage_ferc1", "plant_in_service_ferc1", "plant_in_service_ferc1"])
+            tables=[
+                "plants_pumped_storage_ferc1",
+                "plant_in_service_ferc1",
+                "plant_in_service_ferc1",
+            ]
+        )
         expected_tables = ["plant_in_service_ferc1", "plants_pumped_storage_ferc1"]
 
         assert expected_tables == returned_settings.tables
@@ -81,7 +93,7 @@ class TestFerc1Settings:
         """Test all tables are used as default."""
         returned_settings = Ferc1Settings()
 
-        expected_tables = Ferc1Settings.working_tables
+        expected_tables = DataSource.from_id("ferc1").get_resource_ids()
         assert expected_tables == returned_settings.tables
 
 
@@ -95,8 +107,7 @@ class TestEpaCemsSettings:
 
     def test_duplicate_sort_states(self):
         """Test states are sorted and deduplicated."""
-        returned_settings = EpaCemsSettings(
-            states=["CA", "CA", "AL"])
+        returned_settings = EpaCemsSettings(states=["CA", "CA", "AL"])
         expected_states = ["AL", "CA"]
 
         assert expected_states == returned_settings.states
@@ -105,14 +116,14 @@ class TestEpaCemsSettings:
         """Test all states are used as default."""
         returned_settings = EpaCemsSettings()
 
-        expected_states = EpaCemsSettings.working_partitions["states"]
+        expected_states = DataSource.from_id("epacems").working_partitions["states"]
         assert expected_states == returned_settings.states
 
     def test_all_states(self):
         """Test all states are used as default."""
         returned_settings = EpaCemsSettings(states=["all"])
 
-        expected_states = EpaCemsSettings.working_partitions["states"]
+        expected_states = DataSource.from_id("epacems").working_partitions["states"]
         assert expected_states == returned_settings.states
 
 
@@ -139,18 +150,19 @@ class TestEiaSettings:
         """Test 860 is added if 923 is specified and 860 is not."""
         eia923_settings = Eia923Settings()
         settings = EiaSettings(eia923=eia923_settings)
+        data_source = DataSource.from_id("eia860")
 
         assert settings.eia860
 
-        assert settings.eia860.years == Eia860Settings.working_partitions["years"]
-        assert settings.eia860.tables == Eia860Settings.working_tables
+        assert settings.eia860.years == data_source.working_partitions["years"]
+        assert settings.eia860.tables == data_source.get_resource_ids()
 
     def test_eia860_dependency(self):
         """Test 923 tables are added to eia860 if 923 is not specified."""
         eia860_settings = Eia860Settings()
         settings = EiaSettings(eia860=eia860_settings)
 
-        expected_tables = ['boiler_fuel_eia923', 'generation_eia923']
+        expected_tables = ["boiler_fuel_eia923", "generation_eia923"]
 
         assert settings.eia923.tables == expected_tables
         assert settings.eia923.years == eia860_settings.years
@@ -162,12 +174,13 @@ class TestDatasetsSettings:
     def test_default_behavior(self):
         """Make sure all of the years and tables are added if nothing is specified."""
         settings = DatasetsSettings()
+        data_source = DataSource.from_id("ferc1")
 
-        expected_years = Ferc1Settings.working_partitions["years"]
+        expected_years = data_source.working_partitions["years"]
         returned_years = settings.ferc1.years
         assert expected_years == returned_years
 
-        expected_tables = Ferc1Settings.working_tables
+        expected_tables = data_source.get_resource_ids()
         returned_tables = settings.ferc1.tables
         assert expected_tables == returned_tables
 
@@ -202,12 +215,3 @@ class TestGlobalConfig:
         with pytest.raises(TypeError):
             settings = EiaSettings()
             settings.eia860 = Eia860Settings()
-
-
-class TestCreateDatasetModel:
-    """Test create_dataset_model."""
-
-    def test_missing_dataset(self):
-        """Test a KeyError is raised when a use requests a unavailable dataset."""
-        with pytest.raises(KeyError):
-            create_dataset_settings("oops!")

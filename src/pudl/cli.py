@@ -39,33 +39,30 @@ def parse_command_line(argv):
     """
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
-        dest='settings_file',
-        type=str,
-        default='',
-        help="path to ETL settings file."
+        dest="settings_file", type=str, default="", help="path to ETL settings file."
     )
     parser.add_argument(
-        '--ignore-foreign-key-constraints',
-        action='store_true',
+        "--ignore-foreign-key-constraints",
+        action="store_true",
         default=False,
         help="Ignore foreign key constraints when loading into SQLite.",
     )
     parser.add_argument(
-        '--ignore-type-constraints',
-        action='store_true',
+        "--ignore-type-constraints",
+        action="store_true",
         default=False,
         help="Ignore column data type constraints when loading into SQLite.",
     )
     parser.add_argument(
-        '--ignore-value-constraints',
-        action='store_true',
+        "--ignore-value-constraints",
+        action="store_true",
         default=False,
         help="Ignore column value constraints when loading into SQLite.",
     )
     parser.add_argument(
-        '-c',
-        '--clobber',
-        action='store_true',
+        "-c",
+        "--clobber",
+        action="store_true",
         default=False,
         help="Clobber existing PUDL SQLite and Parquet outputs if they exist.",
     )
@@ -100,8 +97,8 @@ def main():
     """Parse command line and initialize PUDL DB."""
     # Display logged output from the PUDL package:
     pudl_logger = logging.getLogger("pudl")
-    log_format = '%(asctime)s [%(levelname)8s] %(name)s:%(lineno)s %(message)s'
-    coloredlogs.install(fmt=log_format, level='INFO', logger=pudl_logger)
+    log_format = "%(asctime)s [%(levelname)8s] %(name)s:%(lineno)s %(message)s"
+    coloredlogs.install(fmt=log_format, level="INFO", logger=pudl_logger)
 
     args = parse_command_line(sys.argv)
     if args.logfile:
@@ -112,13 +109,12 @@ def main():
     etl_settings = EtlSettings.from_yaml(args.settings_file)
 
     pudl_settings = pudl.workspace.setup.derive_paths(
-        pudl_in=etl_settings.pudl_in,
-        pudl_out=etl_settings.pudl_out
+        pudl_in=etl_settings.pudl_in, pudl_out=etl_settings.pudl_out
     )
     pudl_settings["sandbox"] = args.sandbox
 
-    bad_sqlite_version = (
-        version.parse(sqlite_version) < version.parse(MINIMUM_SQLITE_VERSION)
+    bad_sqlite_version = version.parse(sqlite_version) < version.parse(
+        MINIMUM_SQLITE_VERSION
     )
     if bad_sqlite_version and not args.ignore_type_constraints:
         args.ignore_type_constraints = False
