@@ -35,10 +35,10 @@ def year_state_filter(
     """
     Create filters to read given years and states from partitioned parquet dataset.
 
-    A subset of an Apache Parquet dataset can be read in more efficiently if files
-    which don't need to be queried are avoideed. Some datasets are partitioned based
-    on the values of columns to make this easier. The EPA CEMS dataset which we
-    publish is partitioned by state and report year.
+    A subset of an Apache Parquet dataset can be read in more efficiently if files which
+    don't need to be queried are avoideed. Some datasets are partitioned based on the
+    values of columns to make this easier. The EPA CEMS dataset which we publish is
+    partitioned by state and report year.
 
     However, the way the filters are specified can be unintuitive. They use DNF
     (disjunctive normal form) See this blog post for more details:
@@ -68,19 +68,9 @@ def year_state_filter(
         state_filters = [("state", "=", state.upper()) for state in states]
 
     if states and not years:
-        filters = [
-            [
-                tuple(x),
-            ]
-            for x in state_filters
-        ]
+        filters = [[tuple(x)] for x in state_filters]
     elif years and not states:
-        filters = [
-            [
-                tuple(x),
-            ]
-            for x in year_filters
-        ]
+        filters = [[tuple(x)] for x in year_filters]
     elif years and states:
         filters = [list(x) for x in product(year_filters, state_filters)]
     else:
@@ -177,6 +167,7 @@ def epacems(
         epacems_path,
         use_nullable_dtypes=True,
         columns=columns,
+        engine="pyarrow",
         filters=year_state_filter(
             states=epacems_settings.states,
             years=epacems_settings.years,
