@@ -176,12 +176,7 @@ def _read_static_tables_ferc1() -> Dict[str, pd.DataFrame]:
     populate a bunch of small infrastructural tables within the PUDL DB.
     """
     return {
-        "ferc_accounts": FERC_ACCOUNTS[
-            [
-                "ferc_account_id",
-                "ferc_account_description",
-            ]
-        ],
+        "ferc_accounts": FERC_ACCOUNTS[["ferc_account_id", "ferc_account_description"]],
         "ferc_depreciation_lines": FERC_DEPRECIATION_LINES[
             ["line_id", "ferc_account_description"]
         ],
