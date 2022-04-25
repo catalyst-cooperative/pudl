@@ -943,19 +943,18 @@ class MakePlantParts(object):
         # for all of the plant parts
         self.id_cols_list = make_id_cols_list()
 
-    def execute(self, gens_mega, true_grans):
+    def execute(self, gens_mega):
         """
-        Aggreate and slice data points by each plant part.
+        Aggregate and slice data points by each plant part.
 
         Returns:
-            pandas.DataFrame:
+            pandas.DataFrame: The complete plant parts list
 
         """
-        #  aggreate everything by each plant part
+        #  aggregate everything by each plant part
         part_dfs = []
         for part_name in PLANT_PARTS_ORDERED:
             part_df = PlantPart(part_name).execute(gens_mega)
-            part_df = PartTrueGranLabeler(part_name).execute(part_df, true_grans)
             # add in the attributes!
             for attribute_col in CONSISTENT_ATTRIBUTE_COLS:
                 part_df = AddConsistentAttributes(attribute_col, part_name).execute(
@@ -980,6 +979,7 @@ class MakePlantParts(object):
                 )
             part_dfs.append(part_df)
         plant_parts_eia = pd.concat(part_dfs)
+        plant_parts_eia = TrueGranLabeler.execute(plant_parts_eia)
         # clean up, add additional columns
         self.plant_parts_eia = (
             self.add_additonal_cols(plant_parts_eia)
@@ -1363,11 +1363,12 @@ class PlantPart(object):
         return part_df
 
     def match_to_single_plant_part(
-            self,
-            multi_gran_df: pd.DataFrame,
-            ppl: pd.DataFrame,
-            cols_to_keep: List[str] = [],
-            keep_only_record_id=False) -> pd.DataFrame:
+        self,
+        multi_gran_df: pd.DataFrame,
+        ppl: pd.DataFrame,
+        cols_to_keep: List[str] = [],
+        keep_only_record_id: bool = False,
+    ) -> pd.DataFrame:
         """
         Match data with a variety of granularities to a single plant-part.
 
@@ -1402,6 +1403,9 @@ class PlantPart(object):
             cols_to_keep: columns from the original data ``multi_gran_df`` that
                 you want to show up in the output. These should not be columns
                 that show up in the ``ppl``.
+            keep_only_record_id: keep only the two record ID columns and return
+                a two column dataframe matching records to the plant parts.
+
         Returns:
             A dataframe in which records correspond to :attr:`part_name` (in
             the current implementation: the records all correspond to EIA
@@ -1413,40 +1417,37 @@ class PlantPart(object):
         ppl_part_df = ppl[ppl.plant_part == self.part_name]
         # convert the date to year start - this is necessary because the
         # depreciation data is often reported as EOY and the ppl is always SOY
-        multi_gran_df.loc[:, 'report_date'] = (
-            pd.to_datetime(multi_gran_df.report_date.dt.year, format='%Y')
+        multi_gran_df.loc[:, "report_date"] = pd.to_datetime(
+            multi_gran_df.report_date.dt.year, format="%Y"
         )
         out_dfs = []
         for merge_part in PLANT_PARTS_ORDERED:
-            pk_cols = (
-                PLANT_PARTS
-                [merge_part]['id_cols']
-                + IDX_TO_ADD
-                + IDX_OWN_TO_ADD
-            )
+            pk_cols = PLANT_PARTS[merge_part]["id_cols"] + IDX_TO_ADD + IDX_OWN_TO_ADD
             part_df = pd.merge(
                 (
                     # select just the records that correspond to merge_part
-                    multi_gran_df[multi_gran_df.plant_part == merge_part]
-                    [pk_cols + ['record_id_eia'] + cols_to_keep]
+                    multi_gran_df[multi_gran_df.plant_part == merge_part][
+                        pk_cols + ["record_id_eia"] + cols_to_keep
+                    ]
                 ),
                 ppl_part_df,
                 on=pk_cols,
-                how='left',
+                how="left",
                 # this unfortunately needs to be a m:m bc sometimes the df
                 # multi_gran_df has multiple record associated with the same
                 # record_id_eia but are unique records and are not aggregated
                 # in aggregate_duplicate_eia. For instance, the depreciation
                 # data has both PUC and FERC studies.
-                validate='m:m',
-                suffixes=('_og', '')
+                validate="m:m",
+                suffixes=("_og", ""),
             )
             out_dfs.append(part_df)
         out_df = pd.concat(out_dfs)
 
         if keep_only_record_id:
             out_df = out_df.set_index(
-                ['record_id_eia_og', 'record_id_eia']).index.to_frame(index=False)
+                ["record_id_eia_og", "record_id_eia"]
+            ).index.to_frame(index=False)
 
         return out_df
 
@@ -1501,6 +1502,55 @@ class PartTrueGranLabeler:
         logger.debug(f"proportion of trues: {prop_true_len2:.02}")
         logger.debug(f"number of records post-merge: {len(part_df)}")
         return part_df
+
+
+class TrueGranLabeler:
+    """Label the plant-part table records with their true granularity."""
+
+    def execute(self, ppl):
+        """Merge the true granularity labels onto the plant part df.
+
+        First the plant part list records are matched to generators. Then
+        the matched records are sorted by PLANT_PARTS_ORDERED and the
+        highest granularity record for each generator is marked as the true
+        granularity. The appropriate true granular part label and record id
+        is then merged on to get the plant part table with true granularity labels.
+
+        Arguments:
+            ppl: (pd.DataFrame) The plant parts list
+        """
+        # What type of merge do we want to do in the match_to_single_part? Outer merge?
+        # i think something is wrong because of ownership dupes in gens_mega?
+        parts_to_gens = PlantPart(part_name="plant_gen").match_to_single_plant_part(
+            multi_gran_df=ppl, ppl=ppl, cols_to_keep=["plant_part"]
+        )
+        # categorical columns allow sorting by PLANT_PARTS_ORDERED
+        parts_to_gens["plant_part_og"] = pd.Categorical(
+            parts_to_gens["plant_part_og"], PLANT_PARTS_ORDERED
+        )
+        ppl_true_gran = parts_to_gens.sort_values("plant_part_og")
+        # find duplicate generators and mark all as duplicates except the
+        # highest granularity record according to PLANT_PARTS_ORDERED
+        dupes = ppl_true_gran.duplicated(subset=["record_id_eia"], keep="first")
+        ppl_true_gran.loc[:, "true_gran"] = ~(dupes)
+        # where true_gran is true make a dataframe with record_id_eia
+        # associated with true gran part label and true gran record id
+        true_gran_df = ppl_true_gran[ppl_true_gran.true_gran][
+            ["record_id_eia", "record_id_eia_og", "plant_part_og"]
+        ].rename(
+            {
+                "plant_part_og": "appro_part_label",
+                "record_id_eia_og": "appro_record_id_eia",
+            }
+        )
+        ppl_true_gran = ppl_true_gran.merge(
+            true_gran_df, how="left", on="record_id_eia", validate="m:1"
+        )
+        ppl_true_gran = ppl_true_gran.drop(
+            ["plant_part_og", "record_id_eia_og"], axis=1
+        )
+
+        return ppl_true_gran
 
 
 class AddAttribute(object):
