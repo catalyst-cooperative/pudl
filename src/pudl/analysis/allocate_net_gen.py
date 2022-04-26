@@ -120,7 +120,7 @@ def allocate_gen_fuel_by_generator_energy_source(pudl_out, drop_interim_cols=Tru
 
      The association process happens via `associate_generator_tables()`.
 
-     The allocation process (via `calc_allocation_fraction()`) entails
+     The allocation process (via `allocate_net_gen_by_gen_esc()`) entails
      generating a fraction for each record within a ``IDX_PM_ESC`` group. We
      have two data points for generating this ratio: the net generation in the
      generation_eia923 table and the capacity from the generators_eia860 table.
@@ -179,7 +179,7 @@ def allocate_gen_fuel_by_generator_energy_source(pudl_out, drop_interim_cols=Tru
     gen_pm_fuel = prep_alloction_fraction(gen_assoc)
 
     # Net gen allocation
-    net_gen_alloc = calc_allocation_fraction(gen_pm_fuel).pipe(
+    net_gen_alloc = allocate_net_gen_by_gen_esc(gen_pm_fuel).pipe(
         _test_gen_pm_fuel_output, gf=gf, gen=gen
     )
 
@@ -198,9 +198,7 @@ def allocate_gen_fuel_by_generator_energy_source(pudl_out, drop_interim_cols=Tru
         ]
 
     # fuel allocation
-    fuel_alloc = allocate_fuel_by_gen_esc(
-        gen_pm_fuel, gf=gf, bf=bf, drop_interim_cols=drop_interim_cols
-    )
+    fuel_alloc = allocate_fuel_by_gen_esc(gen_pm_fuel, gf=gf, bf=bf)
     if drop_interim_cols:
         fuel_alloc = fuel_alloc.loc[
             :,
@@ -634,9 +632,9 @@ def prep_alloction_fraction(gen_assoc):
     return gen_pm_fuel
 
 
-def calc_allocation_fraction(gen_pm_fuel, drop_interim_cols=True):
+def allocate_net_gen_by_gen_esc(gen_pm_fuel):
     """
-    Make `frac` column to allocate net gen from the generation fuel table.
+    Allocate net generation to generators/energy_source_code via three methods.
 
     There are three main types of generators:
       * "all gen": generators of plants which fully report to the
@@ -647,16 +645,11 @@ def calc_allocation_fraction(gen_pm_fuel, drop_interim_cols=True):
         generators_eia860 table.
 
     Each different type of generator needs to be treated slightly differently,
-    but all will end up with a `frac` column that can be used to allocate
-    the `net_generation_mwh_gf_tbl`.
+    but all will end up with a ``frac`` column that can be used to allocate
+    the ``net_generation_mwh_gf_tbl``.
 
     Args:
-        gen_pm_fuel (pandas.DataFrame): output of `prep_alloction_fraction()`.
-        drop_interim_cols (boolean): True/False flag for dropping interim
-            columns which are used to generate the `frac` column (they are
-            mostly interim frac columns and totals of net generataion from
-            various groupings of generators) that are useful for debugging.
-            Default is False.
+        gen_pm_fuel (pandas.DataFrame): output of :func:``prep_alloction_fraction()``.
 
     """
     # break out the table into these four different generator types.
@@ -911,7 +904,7 @@ def group_msw_codes(df: pd.DataFrame, idx: List[str]):
     return df_out
 
 
-def allocate_fuel_by_gen_esc(gen_pm_fuel, gf, bf, drop_interim_cols):
+def allocate_fuel_by_gen_esc(gen_pm_fuel, gf, bf):
     """Allocate fuel consumption by generator/energy_source_code."""
     not_in_bf_tbl = gen_pm_fuel.loc[~gen_pm_fuel.in_bf_tbl]
     # we still need to develop a process for the gens that do show up in the BF table
