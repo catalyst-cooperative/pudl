@@ -864,7 +864,7 @@ def _test_gen_fuel_allocation(gen, gen_pm_fuel, ratio=0.05):
 ###########################
 
 
-def remove_bf_nulls(bf):
+def remove_bf_nulls(bf: pd.DataFrame):
     """
     Remove nulls in the unit_id_pudl and nulls or 0's in fuel_consumed_mmbtu.
 
@@ -885,7 +885,7 @@ def remove_bf_nulls(bf):
     return bf
 
 
-def group_msw_codes(df, idx):
+def group_msw_codes(df: pd.DataFrame, idx: List[str]):
     """
     Group the municipal solid waste codes as ``MSW``.
 
