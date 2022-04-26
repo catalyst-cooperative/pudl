@@ -1367,6 +1367,7 @@ class PlantPart(object):
         multi_gran_df: pd.DataFrame,
         ppl: pd.DataFrame,
         cols_to_keep: List[str] = [],
+        merge_how: Literal["left", "right", "inner", "outer", "cross"] = "left",
         keep_only_record_id: bool = False,
     ) -> pd.DataFrame:
         """
@@ -1403,6 +1404,7 @@ class PlantPart(object):
             cols_to_keep: columns from the original data ``multi_gran_df`` that
                 you want to show up in the output. These should not be columns
                 that show up in the ``ppl``.
+            merge_how: what type of merge to do. See :func:`pandas.merge`.
             keep_only_record_id: keep only the two record ID columns and return
                 a two column dataframe matching records to the plant parts.
 
@@ -1432,7 +1434,7 @@ class PlantPart(object):
                 ),
                 ppl_part_df,
                 on=pk_cols,
-                how="left",
+                how=merge_how,
                 # this unfortunately needs to be a m:m bc sometimes the df
                 # multi_gran_df has multiple record associated with the same
                 # record_id_eia but are unique records and are not aggregated
@@ -1533,18 +1535,18 @@ class TrueGranLabeler:
         # highest granularity record according to PLANT_PARTS_ORDERED
         dupes = ppl_true_gran.duplicated(subset=["record_id_eia"], keep="first")
         ppl_true_gran.loc[:, "true_gran"] = ~(dupes)
-        # where true_gran is true make a dataframe with record_id_eia
+        # for the true grans make a dataframe with record_id_eia
         # associated with true gran part label and true gran record id
-        true_gran_df = ppl_true_gran[ppl_true_gran.true_gran][
+        true_gran_records = ppl_true_gran[ppl_true_gran.true_gran][
             ["record_id_eia", "record_id_eia_og", "plant_part_og"]
         ].rename(
-            {
+            columns={
                 "plant_part_og": "appro_part_label",
                 "record_id_eia_og": "appro_record_id_eia",
             }
         )
         ppl_true_gran = ppl_true_gran.merge(
-            true_gran_df, how="left", on="record_id_eia", validate="m:1"
+            true_gran_records, how="left", on="record_id_eia", validate="m:1"
         )
         ppl_true_gran = ppl_true_gran.drop(
             ["plant_part_og", "record_id_eia_og"], axis=1
