@@ -98,14 +98,12 @@ logger = logging.getLogger(__name__)
 IDX_GENS = ["report_date", "plant_id_eia", "generator_id"]
 """Id columns for generators."""
 
-IDX_PM_ESC = ["report_date", "plant_id_eia", "prime_mover_code", "energy_source_code"]
+IDX_PM_ESC = ["report_date", "plant_id_eia", "energy_source_code", "prime_mover_code"]
 """Id columns for plant, prime mover & fuel type records."""
 
 IDX_ESC = ["report_date", "plant_id_eia", "energy_source_code"]
 
-IDX_U_ESC = ["plant_id_eia", "unit_id_pudl", "energy_source_code", "report_date"]
-
-IDX_PM = ["plant_id_eia", "prime_mover_code", "report_date"]
+IDX_U_ESC = ["report_date", "plant_id_eia", "energy_source_code", "unit_id_pudl"]
 
 """Data columns from generation_fuel_eia923 that are being allocated."""
 
@@ -142,9 +140,11 @@ def allocate_gen_fuel_by_generator_energy_source(pudl_out, drop_interim_cols=Tru
     """
     # extract all of the tables from pudl_out early in the process and select
     # only the columns we need. this is for speed and clarity.
-    gf = pudl_out.gf_eia923().loc[
-        :, IDX_PM_ESC + ["net_generation_mwh", "fuel_consumed_mmbtu"]
-    ]
+    gf = (
+        pudl_out.gf_eia923()
+        .loc[:, IDX_PM_ESC + ["net_generation_mwh", "fuel_consumed_mmbtu"]]
+        .pipe(group_msw_codes, IDX_PM_ESC)
+    )
     gen = (
         pudl_out.gen_original_eia923().loc[:, IDX_GENS + ["net_generation_mwh"]]
         # removes 4 records with NaN generator_id as of pudl v0.5
@@ -155,6 +155,7 @@ def allocate_gen_fuel_by_generator_energy_source(pudl_out, drop_interim_cols=Tru
         IDX_GENS
         + [
             "prime_mover_code",
+            "unit_id_pudl",
             "capacity_mw",
             "fuel_type_count",
             "operational_status",
@@ -162,8 +163,13 @@ def allocate_gen_fuel_by_generator_energy_source(pudl_out, drop_interim_cols=Tru
         ]
         + list(pudl_out.gens_eia860().filter(like="energy_source_code")),
     ]
-    bf = pudl_out.bf_eia923()
-    bf = bf[bf.fuel_consumed_mmbtu != 0].copy()
+    bf = (
+        pudl_out.bf_eia923()
+        .loc[:, IDX_U_ESC + ["fuel_consumed_mmbtu"]]
+        .pipe(remove_bf_nulls)
+        .pipe(group_msw_codes, IDX_U_ESC)
+    )
+
     # do the association!
     gen_assoc = associate_generator_tables(gf=gf, gen=gen, gens=gens, bf=bf)
 
@@ -172,38 +178,49 @@ def allocate_gen_fuel_by_generator_energy_source(pudl_out, drop_interim_cols=Tru
     # to allocate net generation from the gf table for each `IDX_PM_ESC` group
     gen_pm_fuel = prep_alloction_fraction(gen_assoc)
 
-    # everything below here is effectively only for net generation...
-    gen_pm_fuel_frac = calc_allocation_fraction(gen_pm_fuel)
-
-    # do the allocating-ing!
-    gen_pm_fuel_frac = (
-        gen_pm_fuel_frac.assign(
-            # we could x.net_generation_mwh_g_tbl.fillna here if we wanted to
-            # take the net gen
-            net_generation_mwh=lambda x: x.net_generation_mwh_gf_tbl * x.frac,
-            # let's preserve the gf version of fuel consumption (it didn't show
-            # up in the tables we pulled together in associate_generator_tables()).
-            # TODO: THIS IS A HACK! We need to generate a proper fraction for
-            # allocating fuel consumption based on the boiler_fuel_eia923 tbl
-            # fuel_consumed_mmbtu_gf_tbl=lambda x: x.fuel_consumed_mmbtu,
-            # fuel_consumed_mmbtu=lambda x: x.fuel_consumed_mmbtu * x.frac,
-        )
-        .pipe(apply_pudl_dtypes, group="eia")
-        .dropna(how="all")
-        .pipe(_test_gen_pm_fuel_output, gf=gf, gen=gen)
+    # Net gen allocation
+    net_gen_alloc = calc_allocation_fraction(gen_pm_fuel).pipe(
+        _test_gen_pm_fuel_output, gf=gf, gen=gen
     )
+
+    _test_gen_fuel_allocation(gen, net_gen_alloc)
+
+    # drop all of the columns we needed to get to the `frac` column
     if drop_interim_cols:
-        gen_pm_fuel_frac = gen_pm_fuel_frac[
-            IDX_PM_ESC
+        net_gen_alloc = net_gen_alloc.loc[
+            :,
+            IDX_ESC
             + [
                 "generator_id",
                 "energy_source_code_num",
                 "net_generation_mwh",
-                "fuel_consumed_mmbtu",
-            ]
+            ],
         ]
-    _test_gen_fuel_allocation(gen, gen_pm_fuel_frac)
-    return gen_pm_fuel_frac
+
+    # fuel allocation
+    fuel_alloc = allocate_fuel_by_gen_esc(
+        gen_pm_fuel, gf=gf, bf=bf, drop_interim_cols=drop_interim_cols
+    )
+    if drop_interim_cols:
+        fuel_alloc = fuel_alloc.loc[
+            :,
+            IDX_ESC
+            + [
+                "generator_id",
+                "energy_source_code_num",
+                "fuel_consumed_mmbtu",
+            ],
+        ]
+
+    # squish net gen and fuel allocation together
+    net_gen_fuel_alloc = pd.merge(
+        net_gen_alloc,
+        fuel_alloc,
+        on=IDX_ESC + ["generator_id", "energy_source_code_num"],
+        how="outer",
+        validate="1:1",
+    ).sort_values(IDX_ESC + ["generator_id", "energy_source_code_num"])
+    return net_gen_fuel_alloc
 
 
 def aggregate_gen_fuel_by_generator(
@@ -393,7 +410,6 @@ def associate_generator_tables(gf, gen, gens, bf):
             on=IDX_ESC,
             how="left",
             validate="m:1",
-            # suffixes=("_g_tbl", "_gf_tbl"),
         )
     )
     # calculate the total capacity in every fuel group
@@ -516,18 +532,18 @@ def _associate_unconnected_records(eia_generators_merged):
                 + x.net_generation_mwh_gf_tbl_unconnected.fillna(0),
                 np.nan,
             ),
-            fuel_consumed_mmbtu=lambda x: np.where(
-                x.fuel_consumed_mmbtu.notnull()
-                | x.fuel_consumed_mmbtu_unconnected.notnull(),
-                x.fuel_consumed_mmbtu.fillna(0)
-                + x.fuel_consumed_mmbtu_unconnected.fillna(0),
+            fuel_consumed_mmbtu_gf_tbl=lambda x: np.where(
+                x.fuel_consumed_mmbtu_gf_tbl.notnull()
+                | x.fuel_consumed_mmbtu_gf_tbl_unconnected.notnull(),
+                x.fuel_consumed_mmbtu_gf_tbl.fillna(0)
+                + x.fuel_consumed_mmbtu_gf_tbl_unconnected.fillna(0),
                 np.nan,
             ),
         )  # we no longer need these _unconnected columns
         .drop(
             columns=[
                 "net_generation_mwh_gf_tbl_unconnected",
-                "fuel_consumed_mmbtu_unconnected",
+                "fuel_consumed_mmbtu_gf_tbl_unconnected",
             ]
         )
     )
@@ -713,27 +729,24 @@ def calc_allocation_fraction(gen_pm_fuel, drop_interim_cols=True):
     # _ = _test_frac(gf_only)
 
     # squish all of these methods back together.
-    gen_pm_fuel_ratio = pd.concat([all_gen, some_gen, gf_only])
+    net_gen_alloc = pd.concat([all_gen, some_gen, gf_only])
     # null out the inf's
-    gen_pm_fuel_ratio.loc[abs(gen_pm_fuel_ratio.frac) == np.inf] = np.NaN
-    _ = _test_frac(gen_pm_fuel_ratio)
+    net_gen_alloc.loc[abs(net_gen_alloc.frac) == np.inf] = np.NaN
+    _ = _test_frac(net_gen_alloc)
 
-    # drop all of the columns we needed to get to the `frac` column
-    if drop_interim_cols:
-        gen_pm_fuel_ratio = gen_pm_fuel_ratio[
-            IDX_PM_ESC
-            + [
-                "generator_id",
-                "energy_source_code_num",
-                "frac",
-                "net_generation_mwh_gf_tbl",
-                "net_generation_mwh_g_tbl",
-                "capacity_mw",
-                "fuel_consumed_mmbtu_gf_tbl",
-                "fuel_consumed_mmbtu_bf_tbl",
-            ]
-        ]
-    return gen_pm_fuel_ratio
+    # do the allocating-ing!
+    net_gen_alloc = (
+        net_gen_alloc.assign(
+            # we could x.net_generation_mwh_g_tbl.fillna here if we wanted to
+            # take the net gen
+            net_generation_mwh=lambda x: x.net_generation_mwh_gf_tbl
+            * x.frac,
+        )
+        .pipe(apply_pudl_dtypes, group="eia")
+        .dropna(how="all")
+    )
+
+    return net_gen_alloc
 
 
 def _test_frac(gen_pm_fuel):
@@ -801,7 +814,7 @@ def _test_gen_pm_fuel_output(gen_pm_fuel, gf, gen):
         logger.info(f"Warning: {len(no_cap_gen)} records have no capacity or net gen")
     # remove the junk/corrective plants
     fuel_net_gen = gf[gf.plant_id_eia != "99999"].net_generation_mwh.sum()
-    fuel_consumed = gf[gf.plant_id_eia != "99999"].fuel_consumed_mmbtu.sum()
+    # fuel_consumed = gf[gf.plant_id_eia != "99999"].fuel_consumed_mmbtu.sum()
     logger.info(
         "gen v fuel table net gen diff:      "
         f"{(gen.net_generation_mwh.sum())/fuel_net_gen:.1%}"
@@ -810,10 +823,10 @@ def _test_gen_pm_fuel_output(gen_pm_fuel, gf, gen):
         "new v fuel table net gen diff:      "
         f"{(gen_pm_fuel_test.net_generation_mwh.sum())/fuel_net_gen:.1%}"
     )
-    logger.info(
-        "new v fuel table fuel (mmbtu) diff: "
-        f"{(gen_pm_fuel_test.fuel_consumed_mmbtu.sum())/fuel_consumed:.1%}"
-    )
+    # logger.info(
+    #     "new v fuel table fuel (mmbtu) diff: "
+    #     f"{(gen_pm_fuel_test.fuel_consumed_mmbtu.sum())/fuel_consumed:.1%}"
+    # )
 
     gen_pm_fuel_test = gen_pm_fuel_test.drop(
         columns=["net_generation_mwh_test", "net_generation_mwh_diff"]
@@ -823,7 +836,7 @@ def _test_gen_pm_fuel_output(gen_pm_fuel, gf, gen):
 
 def _test_gen_fuel_allocation(gen, gen_pm_fuel, ratio=0.05):
     gens_test = pd.merge(
-        agg_by_generator(gen_pm_fuel),
+        agg_by_generator(gen_pm_fuel, sum_cols=["net_generation_mwh"]),
         gen,
         on=IDX_GENS,
         suffixes=("_new", "_og"),
@@ -849,6 +862,81 @@ def _test_gen_fuel_allocation(gen, gen_pm_fuel, ratio=0.05):
 ###########################
 # Fuel Allocation Functions
 ###########################
+
+
+def remove_bf_nulls(bf):
+    """
+    Remove nulls in the unit_id_pudl and nulls or 0's in fuel_consumed_mmbtu.
+
+    We need to drop some nulls and zero's here. drop the fuel 0's/nulls bc
+    there will be nothing to allocate to/go off. drop the null units bc there
+    is ~5% of bf records w/o units and the association happend on the units.
+
+    Returns:
+        a copy of ``bf``
+    """
+    if len(bf[bf.unit_id_pudl.isnull()]) / len(bf) > 0.06:
+        raise AssertionError("There are more than ")
+    bf = (
+        bf[(bf.fuel_consumed_mmbtu != 0) | bf.fuel_consumed_mmbtu.isnull()]
+        .dropna(subset=["unit_id_pudl"])
+        .copy()
+    )
+    return bf
+
+
+def group_msw_codes(df, idx):
+    """
+    Group the municipal solid waste codes as ``MSW``.
+
+    The generators table does not contain the energy_source_code's ``MSB``
+    (municipal_solid_waste_biogenic) or ``MSN`` (municipal_solid_nonbiogenic).
+    Group these codes with the more generic ``MSW`` so we can associate the
+    records with the generators.
+    """
+    mask_msw = df.energy_source_code.isin(["MSN", "MSB", "MSW"])
+    new_nsw = (
+        df.loc[mask_msw]
+        .replace({"energy_source_code": {"MSN": "MSW", "MSB": "MSW"}})
+        .groupby(idx, as_index=False, dropna=False)
+        .sum(min_count=1)
+    )
+    df_out = pd.concat(
+        [df.loc[~mask_msw], new_nsw],
+        axis=0,
+    )
+    logger.info(
+        f"Replaced {1-len(df_out)/len(df):.1%} MSN and MSB energy_source_codes w/ MSW"
+    )
+    return df_out
+
+
+def allocate_fuel_by_gen_esc(gen_pm_fuel, gf, bf, drop_interim_cols):
+    """Allocate fuel consumption by generator/energy_source_code."""
+    not_in_bf_tbl = gen_pm_fuel.loc[~gen_pm_fuel.in_bf_tbl]
+    # we still need to develop a process for the gens that do show up in the BF table
+    in_bf_tbl = gen_pm_fuel.loc[gen_pm_fuel.in_bf_tbl]
+
+    not_in_bf_tbl = allocate_fuel_for_non_bf_gens(not_in_bf_tbl, debug=False)
+    in_bf_tbl = allocate_fuel_for_in_bf_gens(in_bf_tbl, debug=False)
+
+    # log coverage of
+    not_in_bf_fuel_sum = gf.fuel_consumed_mmbtu.sum() - bf.fuel_consumed_mmbtu.sum()
+    logger.info(
+        f"{not_in_bf_tbl.fuel_consumed_mmbtu.sum()/ not_in_bf_fuel_sum:.02%}"
+        "of the fuel from the gf table has been allocated to records not in the bf table"
+    )
+    logger.info(
+        f"{in_bf_tbl.fuel_consumed_mmbtu.sum() / bf.fuel_consumed_mmbtu.sum():.02%} "
+        "of the fuel from the bf table has been allocated"
+    )
+    # squish the two methods together
+    fuel_alloc = pd.concat([in_bf_tbl, not_in_bf_tbl]).sort_values(IDX_U_ESC)
+    logger.info(
+        f"{fuel_alloc.fuel_consumed_mmbtu.sum() / gf.fuel_consumed_mmbtu.sum():.02%} "
+        "of the fuel from the gf table has been allocated"
+    )
+    return fuel_alloc
 
 
 def allocate_fuel_for_in_bf_gens(in_bf_tbl, debug=False):
@@ -922,7 +1010,7 @@ def allocate_fuel_for_non_bf_gens(not_in_bf_tbl, debug=False):
         ),
         # Get the frac_cap (used for allocating within gens that don't report
         # to bf). Portion of capacity for each PM_FUEL group
-        frac_cap=lambda x: x.capacity_mw / x.capacity_mw_in_bf_tbl_group,
+        frac_cap=lambda x: x.capacity_mw / x.capacity_mw_fuel_in_bf_tbl_group,
         # frac_cap * fuel_consumed_mmbtu_not_in_bf
         fuel_consumed_mmbtu=lambda x: x.frac_cap * x.fuel_consumed_mmbtu_not_in_bf,
     )
@@ -941,16 +1029,16 @@ def test_frac_cap_not_in_bf(not_in_bf_tbl):
 
     Raises:
         AssertionError: if the `frac_cap` column sums to any number other
-            than 1 for each `IDX_PM_ESC` group.
+            than 1 for each `IDX_U_ESC` group.
     """
-    frac_cap_test = not_in_bf_tbl.groupby(IDX_PM_ESC)[["frac_cap"]].sum(min_count=1)
+    frac_cap_test = not_in_bf_tbl.groupby(IDX_U_ESC)[["frac_cap"]].sum(min_count=1)
     non_one_frac_cap = frac_cap_test[
-        frac_cap_test.frac_cap.notnull() & frac_cap_test.frac_cap != 1
+        frac_cap_test.frac_cap.notnull() & ~np.isclose(frac_cap_test.frac_cap, 1)
     ]
     if not non_one_frac_cap.empty:
         raise AssertionError(
             "The `frac_cap` column should always add up to one for each "
-            f"group of: {IDX_PM_ESC}. We got {len(non_one_frac_cap)}."
+            f"group of: {IDX_U_ESC}. We got {len(non_one_frac_cap)}."
         )
     logger.info(
         "Yay you passed the test for the `frac_cap` column for the not_in_bf "
@@ -966,7 +1054,7 @@ def test_not_bf_fuel_totals(not_in_bf_tbl, debug=False):
         AssertionError: If any
     """
     not_in_bf_tbl["fuel_consumed_mmbtu_gf_tbl_test"] = not_in_bf_tbl.groupby(
-        IDX_PM_ESC, dropna=False
+        IDX_U_ESC, dropna=False
     )[["fuel_consumed_mmbtu"]].transform(sum, min_count=1)
     fuel_test = not_in_bf_tbl[
         (
