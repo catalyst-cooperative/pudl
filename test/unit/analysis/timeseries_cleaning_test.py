@@ -1,5 +1,5 @@
 """Tests for timeseries anomalies detection and imputation."""
-from typing import Tuple
+from __future__ import annotations
 
 import numpy as np
 import pytest
@@ -11,9 +11,9 @@ def simulate_series(
     n: int = 10,
     periods: int = 20,
     frequency: int = 24,
-    amplitude_range: Tuple[float, float] = (0.0, 1.0),
-    offset_range: Tuple[float, float] = (1.0, 2.0),
-    shift_range: Tuple[int, int] = (-3, 3),
+    amplitude_range: tuple[float, float] = (0.0, 1.0),
+    offset_range: tuple[float, float] = (1.0, 2.0),
+    shift_range: tuple[int, int] = (-3, 3),
     seed=None,
 ) -> np.ndarray:
     """Generate synthetic multivariate series from sin functions.
@@ -47,7 +47,7 @@ def simulate_anomalies(
     n: int = 100,
     sigma: float = 1,
     seed=None,
-) -> Tuple[np.ndarray, np.ndarray]:
+) -> tuple[np.ndarray, np.ndarray]:
     """Simulate anomalies in series.
 
     Args:

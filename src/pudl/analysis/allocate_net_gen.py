@@ -80,10 +80,10 @@ be porporational to each generator's net generation (if it's reported) or capaci
 generation is not reported).
 
 """
+from __future__ import annotations
 
 import logging
 import warnings
-from typing import List
 
 # Useful high-level external modules.
 import numpy as np
@@ -275,8 +275,8 @@ def scale_allocated_net_gen_by_ownership(
 
 def agg_by_generator(
     gen_pm_fuel: pd.DataFrame,
-    by_cols: List[str] = IDX_GENS,
-    sum_cols: List[str] = ["net_generation_mwh", "fuel_consumed_mmbtu"],
+    by_cols: list[str] = IDX_GENS,
+    sum_cols: list[str] = ["net_generation_mwh", "fuel_consumed_mmbtu"],
 ) -> pd.DataFrame:
     """Aggreate the allocated gen fuel data to the generator level.
 

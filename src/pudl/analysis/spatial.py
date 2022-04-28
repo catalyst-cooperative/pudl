@@ -1,7 +1,10 @@
 """Spatial operations for demand allocation."""
+from __future__ import annotations
+
 import itertools
 import warnings
-from typing import Callable, Iterable, Literal, Union
+from collections.abc import Callable, Iterable
+from typing import Literal, Union
 
 import geopandas as gpd
 import pandas as pd

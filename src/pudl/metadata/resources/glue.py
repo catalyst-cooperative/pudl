@@ -1,7 +1,9 @@
 """Definitions for the glue/crosswalk tables that connect data groups."""
-from typing import Any, Dict
+from __future__ import annotations
 
-RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
+from typing import Any
+
+RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     "assn_gen_eia_unit_epa": {
         "schema": {
             "fields": [

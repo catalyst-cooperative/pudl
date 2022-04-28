@@ -1,10 +1,12 @@
 """Metadata and operational constants."""
-from typing import Any, Dict
+from __future__ import annotations
+
+from typing import Any
 
 from pudl.metadata.constants import CONTRIBUTORS, KEYWORDS, LICENSES
 from pudl.metadata.enums import EPACEMS_STATES
 
-SOURCES: Dict[str, Any] = {
+SOURCES: dict[str, Any] = {
     "censusdp1tract": {
         "title": "Census DP1",
         "path": "https://www.census.gov/geographies/mapping-files/2010/geo/tiger-data.html",

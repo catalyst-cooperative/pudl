@@ -7,6 +7,8 @@ scenarios, it should probably live here. There are lost of transform type
 functions in here that help with cleaning and restructing dataframes.
 
 """
+from __future__ import annotations
+
 import itertools
 import logging
 import pathlib
@@ -16,7 +18,7 @@ from collections import defaultdict
 from functools import partial
 from importlib import resources
 from io import BytesIO
-from typing import Any, DefaultDict, Dict, List, Optional, Set, Union
+from typing import Any, Optional, Union
 
 import addfips
 import numpy as np
@@ -46,7 +48,7 @@ def label_map(
     from_col: str = "code",
     to_col: str = "label",
     null_value: Union[str, type(pd.NA)] = pd.NA,
-) -> DefaultDict[str, Union[str, type(pd.NA)]]:
+) -> defaultdict[str, Union[str, type(pd.NA)]]:
     """Build a mapping dictionary from two columns of a labeling / coding dataframe.
 
     These dataframes document the meanings of the codes that show up in much of the
@@ -78,9 +80,9 @@ def label_map(
 def find_new_ferc1_strings(
     table: str,
     field: str,
-    strdict: Dict[str, List[str]],
+    strdict: dict[str, list[str]],
     ferc1_engine: sa.engine.Engine,
-) -> Set[str]:
+) -> set[str]:
     """Identify as-of-yet uncategorized freeform strings in FERC Form 1.
 
     Args:
@@ -104,7 +106,7 @@ def find_new_ferc1_strings(
     return all_strings.difference(old_strings)
 
 
-def find_foreign_key_errors(dfs: Dict[str, pd.DataFrame]) -> List[Dict[str, Any]]:
+def find_foreign_key_errors(dfs: dict[str, pd.DataFrame]) -> list[dict[str, Any]]:
     """Report foreign key violations from a dictionary of dataframes.
 
     The database schema to check against is generated based on the names of the
@@ -337,7 +339,7 @@ def clean_merge_asof(
     right: pd.DataFrame,
     left_on: str = "report_date",
     right_on: str = "report_date",
-    by: List[str] = [],
+    by: list[str] = [],
 ) -> pd.DataFrame:
     """Merge two dataframes having different ``report_date`` frequencies.
 
@@ -1296,7 +1298,7 @@ def sum_and_weighted_average_agg(
     df_in: pd.DataFrame,
     by: list,
     sum_cols: list,
-    wtavg_dict: Dict[str, str],
+    wtavg_dict: dict[str, str],
 ) -> pd.DataFrame:
     """Aggregate dataframe by summing and using weighted averages.
 

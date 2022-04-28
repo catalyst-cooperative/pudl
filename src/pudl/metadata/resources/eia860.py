@@ -1,7 +1,9 @@
 """Definitions of data tables primarily coming from EIA-860."""
-from typing import Any, Dict
+from __future__ import annotations
 
-RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
+from typing import Any
+
+RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     "boiler_generator_assn_eia860": {
         "description": "Associations between boilers and generators as reported in EIA-860 Schedule 6, Part A. Augmented with various heuristics within PUDL.",
         "schema": {

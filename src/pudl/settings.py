@@ -1,6 +1,8 @@
 """Module for validating pudl etl settings."""
+from __future__ import annotations
+
 import pathlib
-from typing import ClassVar, List
+from typing import ClassVar
 
 import pandas as pd
 import yaml
@@ -31,7 +33,7 @@ class GenericDatasetSettings(BaseModel):
     A dataset can have an arbitrary number of partitions.
     """
 
-    tables: List[str]
+    tables: list[str]
 
     @root_validator
     def validate_partitions(cls, partitions):  # noqa: N805
@@ -77,8 +79,8 @@ class Ferc1Settings(GenericDatasetSettings):
 
     data_source: ClassVar[DataSource] = DataSource.from_id("ferc1")
 
-    years: List[int] = data_source.working_partitions["years"]
-    tables: List[str] = data_source.get_resource_ids()
+    years: list[int] = data_source.working_partitions["years"]
+    tables: list[str] = data_source.get_resource_ids()
 
 
 class Ferc714Settings(GenericDatasetSettings):
@@ -91,7 +93,7 @@ class Ferc714Settings(GenericDatasetSettings):
 
     data_source: ClassVar[DataSource] = DataSource.from_id("ferc714")
 
-    tables: List[str] = data_source.get_resource_ids()
+    tables: list[str] = data_source.get_resource_ids()
 
 
 class EpaCemsSettings(GenericDatasetSettings):
@@ -108,9 +110,9 @@ class EpaCemsSettings(GenericDatasetSettings):
 
     data_source: ClassVar[DataSource] = DataSource.from_id("epacems")
 
-    years: List[int] = data_source.working_partitions["years"]
-    states: List[str] = data_source.working_partitions["states"]
-    tables: List[str] = data_source.get_resource_ids()
+    years: list[int] = data_source.working_partitions["years"]
+    states: list[str] = data_source.working_partitions["states"]
+    tables: list[str] = data_source.get_resource_ids()
     partition: bool = False
 
     @validator("states")
@@ -132,8 +134,8 @@ class Eia923Settings(GenericDatasetSettings):
 
     data_source: ClassVar[DataSource] = DataSource.from_id("eia923")
 
-    years: List[int] = data_source.working_partitions["years"]
-    tables: List[str] = data_source.get_resource_ids()
+    years: list[int] = data_source.working_partitions["years"]
+    tables: list[str] = data_source.get_resource_ids()
 
 
 class Eia861Settings(GenericDatasetSettings):
@@ -148,9 +150,9 @@ class Eia861Settings(GenericDatasetSettings):
 
     data_source: ClassVar[DataSource] = DataSource.from_id("eia861")
 
-    years: List[int] = data_source.working_partitions["years"]
-    tables: List[str] = data_source.get_resource_ids()
-    transform_functions: List[str]
+    years: list[int] = data_source.working_partitions["years"]
+    tables: list[str] = data_source.get_resource_ids()
+    transform_functions: list[str]
 
     @root_validator(pre=True)
     def generate_transform_functions(cls, values):  # noqa: N805
@@ -200,8 +202,8 @@ class Eia860Settings(GenericDatasetSettings):
     eia860m_data_source: ClassVar[DataSource] = DataSource.from_id("eia860m")
     eia860m_date: ClassVar[str] = eia860m_data_source.working_partitions["year_month"]
 
-    years: List[int] = data_source.working_partitions["years"]
-    tables: List[str] = data_source.get_resource_ids()
+    years: list[int] = data_source.working_partitions["years"]
+    tables: list[str] = data_source.get_resource_ids()
     eia860m: bool = True
 
     @validator("eia860m")
@@ -358,8 +360,8 @@ class Ferc1ToSqliteSettings(GenericDatasetSettings):
     """
 
     data_source: ClassVar[DataSource] = DataSource.from_id("ferc1")
-    years: List[int] = data_source.working_partitions["years"]
-    tables: List[str] = sorted(list(DBF_TABLES_FILENAMES.keys()))
+    years: list[int] = data_source.working_partitions["years"]
+    tables: list[str] = sorted(list(DBF_TABLES_FILENAMES.keys()))
 
     refyear: ClassVar[int] = max(years)
     bad_cols: tuple = ()

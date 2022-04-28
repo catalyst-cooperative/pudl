@@ -1,6 +1,9 @@
 """Functions for manipulating metadata constants."""
+from __future__ import annotations
+
 from collections import defaultdict
-from typing import Any, Callable, Dict, Iterable, List, Optional, Tuple, Union
+from collections.abc import Callable, Iterable
+from typing import Any, Optional, Union
 
 import numpy as np
 import pandas as pd
@@ -44,7 +47,7 @@ def format_errors(*errors: str, title: str = None, pydantic: bool = False) -> st
 # --- Foreign keys --- #
 
 
-def _parse_field_names(fields: List[Union[str, dict]]) -> List[str]:
+def _parse_field_names(fields: list[Union[str, dict]]) -> list[str]:
     """Parse field names.
 
     Args:
@@ -56,7 +59,7 @@ def _parse_field_names(fields: List[Union[str, dict]]) -> List[str]:
     return [field if isinstance(field, str) else field["name"] for field in fields]
 
 
-def _parse_foreign_key_rule(rule: dict, name: str, key: List[str]) -> List[dict]:
+def _parse_foreign_key_rule(rule: dict, name: str, key: list[str]) -> list[dict]:
     """Parse foreign key rule from resource descriptor.
 
     Args:
@@ -86,8 +89,8 @@ def _parse_foreign_key_rule(rule: dict, name: str, key: List[str]) -> List[dict]
 
 
 def _build_foreign_key_tree(
-    resources: Dict[str, dict]
-) -> Dict[str, Dict[Tuple[str, ...], dict]]:
+    resources: dict[str, dict]
+) -> dict[str, dict[tuple[str, ...], dict]]:
     """Build foreign key tree.
 
     Args:
@@ -125,8 +128,8 @@ def _build_foreign_key_tree(
 
 
 def _traverse_foreign_key_tree(
-    tree: Dict[str, Dict[Tuple[str, ...], dict]], name: str, fields: Tuple[str, ...]
-) -> List[Dict[str, Any]]:
+    tree: dict[str, dict[tuple[str, ...], dict]], name: str, fields: tuple[str, ...]
+) -> list[dict[str, Any]]:
     """Traverse foreign key tree.
 
     Args:
@@ -159,9 +162,9 @@ def _traverse_foreign_key_tree(
 
 
 def build_foreign_keys(
-    resources: Dict[str, dict],
+    resources: dict[str, dict],
     prune: bool = True,
-) -> Dict[str, List[dict]]:
+) -> dict[str, list[dict]]:
     """Build foreign keys for each resource.
 
     A resource's `foreign_key_rules` (if present) determines which other resources will
@@ -228,7 +231,7 @@ def build_foreign_keys(
 # --- Harvest --- #
 
 
-def split_period(name: str) -> Tuple[str, Optional[str]]:
+def split_period(name: str) -> tuple[str, Optional[str]]:
     """Split the time period from a column name.
 
     Args:
@@ -251,7 +254,7 @@ def split_period(name: str) -> Tuple[str, Optional[str]]:
     return parts[0], parts[1]
 
 
-def expand_periodic_column_names(names: Iterable[str]) -> List[str]:
+def expand_periodic_column_names(names: Iterable[str]) -> list[str]:
     """Add smaller periods to a list of column names.
 
     Args:
@@ -330,7 +333,7 @@ def unique(x: pd.Series) -> Any:
     raise AggregationError("Not unique.")
 
 
-def as_dict(x: pd.Series) -> Dict[Any, list]:
+def as_dict(x: pd.Series) -> dict[Any, list]:
     """Return dictionary of values, listed by index."""
     result = {}
     x = x.dropna()
@@ -414,10 +417,10 @@ def try_aggfunc(  # noqa: C901
 def groupby_apply(  # noqa: C901
     df: pd.DataFrame,
     by: Iterable,
-    aggfuncs: Dict[Any, Callable],
+    aggfuncs: dict[Any, Callable],
     raised: bool = True,
     error: Callable = None,
-) -> Tuple[pd.DataFrame, Dict[Any, pd.Series]]:
+) -> tuple[pd.DataFrame, dict[Any, pd.Series]]:
     """Aggregate dataframe and capture errors (using apply).
 
     Args:
@@ -500,10 +503,10 @@ def groupby_apply(  # noqa: C901
 def groupby_aggregate(  # noqa: C901
     df: pd.DataFrame,
     by: Iterable,
-    aggfuncs: Dict[Any, Callable],
+    aggfuncs: dict[Any, Callable],
     raised: bool = True,
     error: Callable = None,
-) -> Tuple[pd.DataFrame, Dict[Any, pd.Series]]:
+) -> tuple[pd.DataFrame, dict[Any, pd.Series]]:
     """Aggregate dataframe and capture errors (using aggregate).
 
     Although faster than :func:`groupby_apply`, it has some limitations:

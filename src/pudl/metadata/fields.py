@@ -1,6 +1,8 @@
 """Field metadata."""
+from __future__ import annotations
+
 from copy import deepcopy
-from typing import Any, Dict, Optional
+from typing import Any, Optional
 
 import pandas as pd
 from pytz import all_timezones
@@ -23,7 +25,7 @@ from .enums import (
 from .labels import ESTIMATED_OR_ACTUAL, FUEL_UNITS_EIA, MOMENTARY_INTERRUPTIONS
 from .sources import SOURCES
 
-FIELD_METADATA: Dict[str, Dict[str, Any]] = {
+FIELD_METADATA: dict[str, dict[str, Any]] = {
     "active": {
         "type": "boolean",
         "description": "Indicates whether or not the dataset has been pulled into PUDL by the extract transform load process.",
@@ -2012,7 +2014,7 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
 Keys are in alphabetical order.
 """
 
-FIELD_METADATA_BY_GROUP: Dict[str, Dict[str, Any]] = {
+FIELD_METADATA_BY_GROUP: dict[str, dict[str, Any]] = {
     "epacems": {
         "state": {"constraints": {"enum": EPACEMS_STATES}},
         "gross_load_mw": {
@@ -2075,7 +2077,7 @@ and has distinct metadata in those groups, this is the place to specify the
 override. Only those elements which should be overridden need to be specified.
 """
 
-FIELD_METADATA_BY_RESOURCE: Dict[str, Dict[str, Any]] = {
+FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
     "sector_consolidated_eia": {"code": {"type": "integer"}},
     "plants_steam_ferc1": {
         "plant_type": {
@@ -2100,10 +2102,10 @@ FIELD_METADATA_BY_RESOURCE: Dict[str, Dict[str, Any]] = {
 
 def get_pudl_dtypes(
     group: Optional[str] = None,
-    field_meta: Optional[Dict[str, Any]] = FIELD_METADATA,
-    field_meta_by_group: Optional[Dict[str, Any]] = FIELD_METADATA_BY_GROUP,
-    dtype_map: Optional[Dict[str, Any]] = FIELD_DTYPES_PANDAS,
-) -> Dict[str, Any]:
+    field_meta: Optional[dict[str, Any]] = FIELD_METADATA,
+    field_meta_by_group: Optional[dict[str, Any]] = FIELD_METADATA_BY_GROUP,
+    dtype_map: Optional[dict[str, Any]] = FIELD_DTYPES_PANDAS,
+) -> dict[str, Any]:
     """Compile a dictionary of field dtypes, applying group overrides.
 
     Args:
@@ -2133,8 +2135,8 @@ def get_pudl_dtypes(
 def apply_pudl_dtypes(
     df: pd.DataFrame,
     group: Optional[str] = None,
-    field_meta: Optional[Dict[str, Any]] = FIELD_METADATA,
-    field_meta_by_group: Optional[Dict[str, Any]] = FIELD_METADATA_BY_GROUP,
+    field_meta: Optional[dict[str, Any]] = FIELD_METADATA,
+    field_meta_by_group: Optional[dict[str, Any]] = FIELD_METADATA_BY_GROUP,
 ) -> pd.DataFrame:
     """Apply dtypes to those columns in a dataframe that have PUDL types defined.
 

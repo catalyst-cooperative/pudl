@@ -1,7 +1,9 @@
 """Table definitions for the EPA CEMS data group."""
-from typing import Any, Dict
+from __future__ import annotations
 
-RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
+from typing import Any
+
+RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     "hourly_emissions_epacems": {
         "description": "Hourly emissions and plant operational data reported via Continuous Emissions Monitoring Systems as required by 40 CFR Part 75.",
         "schema": {

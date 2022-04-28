@@ -4,9 +4,9 @@ All transformations include:
 - Replace . values with NA.
 
 """
+from __future__ import annotations
 
 import logging
-from typing import Dict
 
 import pandas as pd
 
@@ -408,7 +408,7 @@ BA_NAME_FIXES: pd.DataFrame = pd.DataFrame(
     ],
 )
 
-NERC_SPELLCHECK: Dict[str, str] = {
+NERC_SPELLCHECK: dict[str, str] = {
     "GUSTAVUSAK": "ASCC",
     "AK": "ASCC",
     "HI": "HICC",
