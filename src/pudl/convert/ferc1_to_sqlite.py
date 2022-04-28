@@ -1,5 +1,4 @@
-"""
-A script for cloning the FERC Form 1 database into SQLite.
+"""A script for cloning the FERC Form 1 database into SQLite.
 
 This script generates a SQLite database that is a clone/mirror of the original
 FERC Form1 database. We use this cloned database as the starting point for the
@@ -24,8 +23,7 @@ logger = logging.getLogger(__name__)
 
 
 def parse_command_line(argv):
-    """
-    Parse command line arguments. See the -h option.
+    """Parse command line arguments. See the -h option.
 
     Args:
         argv (str): Command line arguments, including caller filename.

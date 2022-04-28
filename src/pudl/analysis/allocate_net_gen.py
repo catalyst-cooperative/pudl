@@ -1,5 +1,4 @@
-"""
-Allocate data from generation_fuel_eia923 table to generator level.
+"""Allocate data from generation_fuel_eia923 table to generator level.
 
 Net electricity generation and fuel consumption are reported in mutiple ways in the EIA
 923. The generation_fuel_eia923 table reports both generation and fuel consumption, and
@@ -107,8 +106,7 @@ IDX_ESC = ["report_date", "plant_id_eia", "energy_source_code"]
 
 
 def allocate_gen_fuel_by_generator_energy_source(pudl_out, drop_interim_cols=True):
-    """
-    Proportionally allocate net gen from gen_fuel table to the generator/energy_source_code level.
+    """Allocate net gen from gen_fuel table to the generator/energy_source_code level.
 
     Three main steps here:
      * grab the three input tables from `pudl_out` with only the needed columns
@@ -200,8 +198,7 @@ def allocate_gen_fuel_by_generator_energy_source(pudl_out, drop_interim_cols=Tru
 def aggregate_gen_fuel_by_generator(
     pudl_out, gen_pm_fuel: pd.DataFrame
 ) -> pd.DataFrame:
-    """
-    Aggregate gen fuel data columns to generators.
+    """Aggregate gen fuel data columns to generators.
 
     The generation_fuel_eia923 table includes net generation and fuel
     consumption data at the plant/fuel type/prime mover level. The most
@@ -237,8 +234,7 @@ def aggregate_gen_fuel_by_generator(
 def scale_allocated_net_gen_by_ownership(
     gen_pm_fuel: pd.DataFrame, gens: pd.DataFrame, own_eia860: pd.DataFrame
 ) -> pd.DataFrame:
-    """
-    Scale the allocated net generation at the generator/energy_source_code level by ownership.
+    """Scale allocated net gen at the generator/energy_source_code level by ownership.
 
     It can be helpful to have a table of net generation and fuel consumption
     at the generator/fuel-type level (i.e. the result of :func:`allocate_gen_fuel_by_generator_energy_source`)
@@ -257,6 +253,7 @@ def scale_allocated_net_gen_by_ownership(
         gens: `generators_eia860` table with cols: :const:``IDX_GENS``, `capacity_mw`
             and `utility_id_eia`
         own_eia860: `ownership_eia860` table.
+
     """
     gen_pm_fuel_own = pudl.analysis.plant_parts_eia.MakeMegaGenTbl().scale_by_ownership(
         gens_mega=pd.merge(
@@ -281,8 +278,7 @@ def agg_by_generator(
     by_cols: List[str] = IDX_GENS,
     sum_cols: List[str] = ["net_generation_mwh", "fuel_consumed_mmbtu"],
 ) -> pd.DataFrame:
-    """
-    Aggreate the allocated gen fuel data to the generator level.
+    """Aggreate the allocated gen fuel data to the generator level.
 
     Args:
         gen_pm_fuel: result of :func:`allocate_gen_fuel_by_generator_energy_source()`
@@ -302,8 +298,7 @@ def agg_by_generator(
 def stack_generators(
     gens, cat_col="energy_source_code_num", stacked_col="energy_source_code"
 ):
-    """
-    Stack the generator table with a set of columns.
+    """Stack the generator table with a set of columns.
 
     Args:
         gens (pandas.DataFrame): generators_eia860 table with cols: ``IDX_GENS``
@@ -335,8 +330,7 @@ def stack_generators(
 
 
 def associate_generator_tables(gf, gen, gens):
-    """
-    Associate the three tables needed to assign net gen to generators.
+    """Associate the three tables needed to assign net gen to generators.
 
     Args:
         gf (pandas.DataFrame): generator_fuel_eia923 table with columns:
@@ -379,8 +373,7 @@ def associate_generator_tables(gf, gen, gens):
 
 
 def remove_retired_generators(gen_assoc):
-    """
-    Remove the retired generators.
+    """Remove the retired generators.
 
     We don't want to associate net generation to generators that are retired
     (or proposed! or any other `operational_status` besides `existing`).
@@ -425,9 +418,8 @@ def remove_retired_generators(gen_assoc):
     return gen_assoc_removed
 
 
-def _associate_unconnected_records(eia_generators_merged):
-    """
-    Associate unassociated gen_fuel table records on idx_pm.
+def _associate_unconnected_records(eia_generators_merged: pd.DataFrame):
+    """Associate unassociated gen_fuel table records on idx_pm.
 
     There are a subset of generation_fuel_eia923 records which do not
     merge onto the stacked generator table on ``IDX_PM_ESC``. These records
@@ -437,9 +429,9 @@ def _associate_unconnected_records(eia_generators_merged):
     the prime mover only.
 
     Args:
-        eia_generators_merged (pandas.DataFrame)
+        eia_generators_merged:
 
-    """
+    """  # noqa: D417
     # we're associating on the plant/pm level... but we only want to associated
     # these unassocaited records w/ the primary fuel type from stack_generators
     # so we're going to merge on energy_source_code_num and
@@ -501,8 +493,7 @@ def _associate_unconnected_records(eia_generators_merged):
 
 
 def prep_alloction_fraction(gen_assoc):
-    """
-    Make flags and aggregations to prepare for the `calc_allocation_ratios()`.
+    """Make flags and aggregations to prepare for the `calc_allocation_ratios()`.
 
     In `calc_allocation_ratios()`, we will break the generators out into four
     types - see `calc_allocation_ratios()` docs for details. This function adds
@@ -569,8 +560,7 @@ def prep_alloction_fraction(gen_assoc):
 
 
 def calc_allocation_fraction(gen_pm_fuel, drop_interim_cols=True):
-    """
-    Make `frac` column to allocate net gen from the generation fuel table.
+    """Make `frac` column to allocate net gen from the generation fuel table.
 
     There are three main types of generators:
       * "all gen": generators of plants which fully report to the

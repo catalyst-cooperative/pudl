@@ -18,8 +18,7 @@ def get_layer(
     layer: Literal["state", "county", "tract"],
     pudl_settings=None,
 ) -> gpd.GeoDataFrame:
-    """
-    Select one layer from the Census DP1 database.
+    """Select one layer from the Census DP1 database.
 
     Uses information within the Census DP1 database to set the coordinate
     reference system and to identify the column containing the geometry. The
