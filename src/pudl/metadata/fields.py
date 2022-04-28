@@ -2007,8 +2007,7 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
         },
     },
 }
-"""
-Field attributes by PUDL identifier (`field.name`).
+"""Field attributes by PUDL identifier (`field.name`).
 
 Keys are in alphabetical order.
 """
@@ -2069,8 +2068,7 @@ FIELD_METADATA_BY_GROUP: Dict[str, Dict[str, Any]] = {
         }
     },
 }
-"""
-Field attributes by resource group (`resource.group`) and PUDL identifier.
+"""Field attributes by resource group (`resource.group`) and PUDL identifier.
 
 If a field exists in more than one data group (e.g. both ``eia`` and ``ferc1``)
 and has distinct metadata in those groups, this is the place to specify the
@@ -2106,8 +2104,7 @@ def get_pudl_dtypes(
     field_meta_by_group: Optional[Dict[str, Any]] = FIELD_METADATA_BY_GROUP,
     dtype_map: Optional[Dict[str, Any]] = FIELD_DTYPES_PANDAS,
 ) -> Dict[str, Any]:
-    """
-    Compile a dictionary of field dtypes, applying group overrides.
+    """Compile a dictionary of field dtypes, applying group overrides.
 
     Args:
         group: The data group (e.g. ferc1, eia) to use for overriding the default
@@ -2139,8 +2136,7 @@ def apply_pudl_dtypes(
     field_meta: Optional[Dict[str, Any]] = FIELD_METADATA,
     field_meta_by_group: Optional[Dict[str, Any]] = FIELD_METADATA_BY_GROUP,
 ) -> pd.DataFrame:
-    """
-    Apply dtypes to those columns in a dataframe that have PUDL types defined.
+    """Apply dtypes to those columns in a dataframe that have PUDL types defined.
 
     Note at ad-hoc column dtypes can be defined and merged with default PUDL field
     metadata before it's passed in as `field_meta` if you have module specific column

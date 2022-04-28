@@ -42,8 +42,7 @@ class DatapackageDescriptor:
     """A simple wrapper providing access to datapackage.json contents."""
 
     def __init__(self, datapackage_json: dict, dataset: str, doi: str):
-        """
-        Constructs DatapackageDescriptor.
+        """Constructs DatapackageDescriptor.
 
         Args:
           datapackage_json (dict): parsed datapackage.json describing this datapackage.
@@ -104,7 +103,7 @@ class DatapackageDescriptor:
 
     def get_partitions(self, name: str = None) -> Dict[str, Set[str]]:
         """Returns mapping of all known partition keys to the set of its known values."""
-        partitions = defaultdict(set)  # type: Dict[str, Set[str]]
+        partitions: Dict[str, Set[str]] = defaultdict(set)
         for res in self.datapackage_json["resources"]:
             if name and res["name"] != name:
                 continue
@@ -177,7 +176,7 @@ class ZenodoFetcher:
         self._api_root = self.API_ROOT[backend]
         self._token = self.TOKEN[backend]
         self._dataset_to_doi = self.DOI[backend]
-        self._descriptor_cache = {}  # type: Dict[str, DatapackageDescriptor]
+        self._descriptor_cache: Dict[str, DatapackageDescriptor] = {}
 
         self.timeout = timeout
         retries = Retry(
@@ -261,8 +260,7 @@ class Datastore:
         timeout: float = 15,
     ):
         # TODO(rousik): figure out an efficient way to configure datastore caching
-        """
-        Datastore manages file retrieval for PUDL datasets.
+        """Datastore manages file retrieval for PUDL datasets.
 
         Args:
             local_cache_path (Path): if provided, LocalFileCache pointed at the data

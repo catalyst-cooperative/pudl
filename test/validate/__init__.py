@@ -1,5 +1,4 @@
-"""
-A collection of tests that check the compiled PUDL data for validity.
+"""A collection of tests that check the compiled PUDL data for validity.
 
 It's easy to accidentally mess up the data compilation in a way that results
 in bad results, but code that doesn't fail. This suite of sanity checks tries

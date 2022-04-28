@@ -45,8 +45,7 @@ TABLE_ENCODING = {
 def extract(
     ferc714_settings: Ferc714Settings = Ferc714Settings(), pudl_settings=None, ds=None
 ):
-    """
-    Extract the raw FERC Form 714 dataframes from their original CSV files.
+    """Extract the raw FERC Form 714 dataframes from their original CSV files.
 
     Args:
         ferc714_settings: Object containing validated settings relevant to

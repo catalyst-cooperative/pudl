@@ -1,5 +1,4 @@
-"""
-Retrieves data from EIA Form 923 spreadsheets for analysis.
+"""Retrieves data from EIA Form 923 spreadsheets for analysis.
 
 This modules pulls data from EIA's published Excel spreadsheets.
 
@@ -21,8 +20,7 @@ class Extractor(excel.GenericExtractor):
     """Extractor for EIA form 923."""
 
     def __init__(self, *args, **kwargs):
-        """
-        Initialize the module.
+        """Initialize the module.
 
         Args:
             ds (:class:datastore.Datastore): Initialized datastore.

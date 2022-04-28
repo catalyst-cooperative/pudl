@@ -1,5 +1,4 @@
-"""
-Run the PUDL ETL Pipeline.
+"""Run the PUDL ETL Pipeline.
 
 The PUDL project integrates several different public datasets into a well
 normalized relational database allowing easier access and interaction between all
@@ -251,8 +250,7 @@ def etl_epacems(
     pudl_settings: Dict[str, Any],
     ds_kwargs: Dict[str, Any],
 ) -> None:
-    """
-    Extract, transform and load CSVs for EPA CEMS.
+    """Extract, transform and load CSVs for EPA CEMS.
 
     Args:
         epacems_settings: Validated ETL parameters required by this data source.
@@ -382,8 +380,7 @@ def etl(  # noqa: C901
     check_types: bool = True,
     check_values: bool = True,
 ):
-    """
-    Run the PUDL Extract, Transform, and Load data pipeline.
+    """Run the PUDL Extract, Transform, and Load data pipeline.
 
     First we validate the settings, and then process data destined for loading
     into SQLite, which includes The FERC Form 1 and the EIA Forms 860 and 923.

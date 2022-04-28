@@ -6,8 +6,7 @@ from pudl.metadata.fields import apply_pudl_dtypes
 
 
 def heat_rate_by_unit(pudl_out):
-    """
-    Calculate heat rates (mmBTU/MWh) within separable generation units.
+    """Calculate heat rates (mmBTU/MWh) within separable generation units.
 
     Assumes a "good" Boiler Generator Association (bga) i.e. one that only
     contains boilers and generators which have been completely associated at
@@ -72,8 +71,7 @@ def heat_rate_by_unit(pudl_out):
 
 
 def heat_rate_by_gen(pudl_out):
-    """
-    Convert per-unit heat rate to by-generator, adding fuel type & count.
+    """Convert per-unit heat rate to by-generator, adding fuel type & count.
 
     Heat rates really only make sense at the unit level, since input fuel and
     output electricity are comingled at the unit level, but it is useful in
@@ -163,8 +161,7 @@ def heat_rate_by_gen(pudl_out):
 
 
 def fuel_cost(pudl_out):
-    """
-    Calculate fuel costs per MWh on a per generator basis for MCOE.
+    """Calculate fuel costs per MWh on a per generator basis for MCOE.
 
     Fuel costs are reported on a per-plant basis, but we want to estimate them
     at the generator level. This is complicated by the fact that some plants
@@ -352,8 +349,7 @@ def fuel_cost(pudl_out):
 
 
 def capacity_factor(pudl_out, min_cap_fact=0, max_cap_fact=1.5):
-    """
-    Calculate the capacity factor for each generator.
+    """Calculate the capacity factor for each generator.
 
     Capacity Factor is calculated by using the net generation from eia923 and
     the nameplate capacity from eia860. The net gen and capacity are pulled
@@ -397,8 +393,7 @@ def mcoe(
     max_cap_fact=1.5,
     all_gens=True,
 ):
-    """
-    Compile marginal cost of electricity (MCOE) at the generator level.
+    """Compile marginal cost of electricity (MCOE) at the generator level.
 
     Use data from EIA 923, EIA 860, and (someday) FERC Form 1 to estimate
     the MCOE of individual generating units. The calculation is performed over
