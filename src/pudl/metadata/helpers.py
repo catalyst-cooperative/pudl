@@ -8,7 +8,7 @@ from typing import Any, Optional, Union
 import numpy as np
 import pandas as pd
 
-from .constants import PERIODS
+from pudl.metadata.constants import PERIODS
 
 
 def format_errors(*errors: str, title: str = None, pydantic: bool = False) -> str:
