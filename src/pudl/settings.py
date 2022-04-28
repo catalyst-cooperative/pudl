@@ -391,7 +391,7 @@ class EtlSettings(BaseSettings):
     pudl_out: str = pudl.workspace.setup.get_defaults()["pudl_out"]
 
     @classmethod
-    def from_yaml(cls, path: str) -> "EtlSettings":
+    def from_yaml(cls, path: str) -> EtlSettings:
         """Create an EtlSettings instance from a yaml_file path.
 
         Args:

@@ -56,11 +56,11 @@ repos:
     args: ['--futures=true']
 
 # Replace older Python syntax with new syntaxes that supercede them.
-#- repo: https://github.com/asottile/pyupgrade
-#  rev: 'v2.32.0'
-#  hooks:
-#  - id: pyupgrade
-#    args: ['--py_38']
+- repo: https://github.com/asottile/pyupgrade
+  rev: 'v2.32.0'
+  hooks:
+  - id: pyupgrade
+    args: ['--py38-plus']
 
 # Remove f-string prefix when there's nothing in the string to format.
 - repo: https://github.com/dannysepler/rm_unneeded_f_str

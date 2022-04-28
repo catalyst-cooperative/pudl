@@ -11,7 +11,7 @@ import pudl
 logger = logging.getLogger(__name__)
 
 
-class Metadata(object):
+class Metadata:
     """Load Excel metadata from Python package data.
 
     Excel sheet files may contain many different tables. When we load those
@@ -120,7 +120,7 @@ class Metadata(object):
         return list(partition.values())[0]
 
 
-class GenericExtractor(object):
+class GenericExtractor:
     """Contains logic for extracting panda.DataFrames from excel spreadsheets.
 
     This class implements the generic dataset agnostic logic to load data

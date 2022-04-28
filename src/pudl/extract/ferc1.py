@@ -162,7 +162,7 @@ def observed_respondents(ferc1_engine: sa.engine.Engine) -> set[int]:
 
     """
     f1_table_meta = pudl.output.pudltabl.get_table_meta(ferc1_engine)
-    observed = set([])
+    observed = set()
     for table in f1_table_meta.values():
         if "respondent_id" in table.columns:
             observed = observed.union(
@@ -482,7 +482,7 @@ class FERC1FieldParser(dbfread.FieldParser):
         # Replace bare periods (which are non-numeric) with zero.
         if data == b".":
             data = b"0"
-        return super(FERC1FieldParser, self).parseN(field, data)
+        return super().parseN(field, data)
 
 
 def get_raw_df(

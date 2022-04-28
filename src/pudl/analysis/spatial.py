@@ -4,7 +4,7 @@ from __future__ import annotations
 import itertools
 import warnings
 from collections.abc import Callable, Iterable
-from typing import Literal, Union
+from typing import Literal
 
 import geopandas as gpd
 import pandas as pd
@@ -51,7 +51,7 @@ def check_gdf(gdf: gpd.GeoDataFrame) -> None:
                 )
 
 
-def polygonize(geom: BaseGeometry) -> Union[Polygon, MultiPolygon]:
+def polygonize(geom: BaseGeometry) -> Polygon | MultiPolygon:
     """Convert geometry to (Multi)Polygon.
 
     Args:
@@ -176,10 +176,10 @@ def self_union(gdf: gpd.GeoDataFrame, ratios: Iterable[str] = None) -> gpd.GeoDa
 def dissolve(
     gdf: gpd.GeoDataFrame,
     by: Iterable[str],
-    func: Union[Callable, str, list, dict],
-    how: Union[
-        Literal["union", "first"], Callable[[gpd.GeoSeries], BaseGeometry]
-    ] = "union",
+    func: Callable | str | list | dict,
+    how: (
+        Literal["union", "first"] | Callable[[gpd.GeoSeries], BaseGeometry]
+    ) = "union",
 ) -> gpd.GeoDataFrame:
     """Dissolve layer by aggregating features based on common attributes.
 
@@ -249,9 +249,9 @@ def overlay(
         ratios = []
     # Check for duplicate non-geometry column names
     seen = set()
-    duplicates = set(
+    duplicates = {
         c for df in gdfs for c in get_data_columns(df) if c in seen or seen.add(c)
-    )
+    }
     if duplicates:
         raise ValueError(f"Duplicate column names in layers: {duplicates}")
     # Drop index columns and replace with default index of known name

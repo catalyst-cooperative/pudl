@@ -10,7 +10,7 @@ import sys
 from collections.abc import Callable, Iterable
 from functools import lru_cache
 from pathlib import Path
-from typing import Any, Literal, Optional, Union
+from typing import Any, Literal
 
 import jinja2
 import pandas as pd
@@ -285,7 +285,7 @@ def StrictList(item_type: type = Any) -> pydantic.ConstrainedList:  # noqa: N802
 # ---- Class attribute validators ---- #
 
 
-def _check_unique(value: list = None) -> Optional[list]:
+def _check_unique(value: list = None) -> list | None:
     """Check that input list has unique values."""
     if value:
         for i in range(len(value)):
@@ -325,11 +325,11 @@ class FieldConstraints(Base):
     unique: Bool = False
     min_length: PositiveInt = None
     max_length: PositiveInt = None
-    minimum: Union[Int, Float, Date, Datetime] = None
-    maximum: Union[Int, Float, Date, Datetime] = None
+    minimum: Int | Float | Date | Datetime = None
+    maximum: Int | Float | Date | Datetime = None
     pattern: Pattern = None
     # TODO: Replace with String (min_length=1) once "" removed from enums
-    enum: StrictList(Union[pydantic.StrictStr, Int, Float, Bool, Date, Datetime]) = None
+    enum: StrictList(pydantic.StrictStr | Int | Float | Bool | Date | Datetime) = None
 
     _check_unique = _validator("enum", fn=_check_unique)
 
@@ -413,14 +413,14 @@ class Encoder(Base):
     values.
     """
 
-    ignored_codes: list[Union[Int, str]] = []
+    ignored_codes: list[Int | str] = []
     """A list of non-standard codes which appear in the data, and will be set to NA.
 
     These codes may be the result of data entry errors, and we are unable to map them
     to the appropriate canonical code. They are discarded from the raw input data.
     """
 
-    code_fixes: dict[Union[Int, String], Union[Int, String]] = {}
+    code_fixes: dict[Int | String, Int | String] = {}
     """A dictionary mapping non-standard codes to canonical, standardized codes.
 
     The intended meanings of some non-standard codes are clear, and therefore they can
@@ -501,7 +501,7 @@ class Encoder(Base):
         return code_fixes
 
     @property
-    def code_map(self) -> dict[str, Union[str, type(pd.NA)]]:
+    def code_map(self) -> dict[str, str | type(pd.NA)]:
         """A mapping of all known codes to their standardized values, or NA."""
         code_map = {code: code for code in self.df["code"]}
         code_map.update(self.code_fixes)
@@ -511,7 +511,7 @@ class Encoder(Base):
     def encode(
         self,
         col: pd.Series,
-        dtype: Union[type, None] = None,
+        dtype: type | None = None,
     ) -> pd.Series:
         """Apply the stored code mapping to an input Series."""
         # Every value in the Series should appear in the map. If that's not the
@@ -531,12 +531,12 @@ class Encoder(Base):
         return copy.deepcopy(RESOURCE_METADATA[x]).get("encoder", None)
 
     @classmethod
-    def from_id(cls, x: str) -> "Encoder":
+    def from_id(cls, x: str) -> Encoder:
         """Construct an Encoder based on `Resource.name` of a coding table."""
         return cls(**cls.dict_from_id(x))
 
     @classmethod
-    def from_code_id(cls, x: str) -> "Encoder":
+    def from_code_id(cls, x: str) -> Encoder:
         """Construct an Encoder based on looking up the name of a coding table directly in the codes metadata."""
         return cls(**copy.deepcopy(CODE_METADATA[x]), name=x)
 
@@ -627,11 +627,11 @@ class Field(Base):
         return {"name": x, **copy.deepcopy(FIELD_METADATA[x])}
 
     @classmethod
-    def from_id(cls, x: str) -> "Field":
+    def from_id(cls, x: str) -> Field:
         """Construct from PUDL identifier (`Field.name`)."""
         return cls(**cls.dict_from_id(x))
 
-    def to_pandas_dtype(self, compact: bool = False) -> Union[str, pd.CategoricalDtype]:
+    def to_pandas_dtype(self, compact: bool = False) -> str | pd.CategoricalDtype:
         """Return Pandas data type.
 
         Args:
@@ -725,7 +725,7 @@ class Field(Base):
             comment=self.description,
         )
 
-    def encode(self, col: pd.Series, dtype: Union[type, None] = None) -> pd.Series:
+    def encode(self, col: pd.Series, dtype: type | None = None) -> pd.Series:
         """Recode the Field if it has an associated encoder."""
         return self.encoder.encode(col, dtype=dtype) if self.encoder else col
 
@@ -837,7 +837,7 @@ class License(Base):
         return copy.deepcopy(LICENSES[x])
 
     @classmethod
-    def from_id(cls, x: str) -> "License":
+    def from_id(cls, x: str) -> License:
         """Construct from PUDL identifier."""
         return cls(**cls.dict_from_id(x))
 
@@ -863,7 +863,7 @@ class Contributor(Base):
         return copy.deepcopy(CONTRIBUTORS[x])
 
     @classmethod
-    def from_id(cls, x: str) -> "Contributor":
+    def from_id(cls, x: str) -> Contributor:
         """Construct from PUDL identifier."""
         return cls(**cls.dict_from_id(x))
 
@@ -914,11 +914,9 @@ class DataSource(Base):
             resources = eia861.RESOURCE_METADATA
 
         return sorted(
-            [
-                name
-                for name, value in resources.items()
-                if value.get("etl_group") == self.name
-            ]
+            name
+            for name, value in resources.items()
+            if value.get("etl_group") == self.name
         )
 
     def get_temporal_coverage(self) -> str:
@@ -935,7 +933,7 @@ class DataSource(Base):
         pass
 
     @classmethod
-    def from_field_namespace(cls, x: str) -> list["DataSource"]:
+    def from_field_namespace(cls, x: str) -> list[DataSource]:
         """Return list of DataSource objects by field namespace."""
         return [
             cls(**cls.dict_from_id(name))
@@ -949,7 +947,7 @@ class DataSource(Base):
         return {"name": x, **copy.deepcopy(SOURCES[x])}
 
     @classmethod
-    def from_id(cls, x: str) -> "DataSource":
+    def from_id(cls, x: str) -> DataSource:
         """Construct Source by source name in the metadata."""
         return cls(**cls.dict_from_id(x))
 
@@ -1221,7 +1219,7 @@ class Resource(Base):
         return obj
 
     @classmethod
-    def from_id(cls, x: str) -> "Resource":
+    def from_id(cls, x: str) -> Resource:
         """Construct from PUDL identifier (`resource.name`)."""
         return cls(**cls.dict_from_id(x))
 
@@ -1264,9 +1262,7 @@ class Resource(Base):
         }
         return pa.schema(fields=fields, metadata=metadata)
 
-    def to_pandas_dtypes(
-        self, **kwargs: Any
-    ) -> dict[str, Union[str, pd.CategoricalDtype]]:
+    def to_pandas_dtypes(self, **kwargs: Any) -> dict[str, str | pd.CategoricalDtype]:
         """Return Pandas data type of each field by field name.
 
         Args:
@@ -1274,7 +1270,7 @@ class Resource(Base):
         """
         return {f.name: f.to_pandas_dtype(**kwargs) for f in self.schema.fields}
 
-    def match_primary_key(self, names: Iterable[str]) -> Optional[dict[str, str]]:
+    def match_primary_key(self, names: Iterable[str]) -> dict[str, str] | None:
         """Match primary key fields to input field names.
 
         An exact match is required unless :attr:`harvest` .`harvest=True`,
@@ -1487,7 +1483,7 @@ class Resource(Base):
                 "stats": stats,
                 "errors": errors.get(field.name, None),
             }
-        nerrors = sum([not f["valid"] for f in freports.values()])
+        nerrors = sum(not f["valid"] for f in freports.values())
         stats = {
             "all": ncols,
             "invalid": nerrors,
@@ -1658,7 +1654,7 @@ class Package(Base):
         cls,
         resource_ids: tuple[str] = tuple(sorted(RESOURCE_METADATA)),
         resolve_foreign_keys: bool = False,
-    ) -> "Package":
+    ) -> Package:
         """Construct a collection of Resources from PUDL identifiers (`resource.name`).
 
         Identify any fields that have foreign key relationships referencing the
@@ -1732,7 +1728,7 @@ class CodeMetadata(Base):
     encoder_list: list[Encoder] = []
 
     @classmethod
-    def from_code_ids(cls, code_ids: Iterable[str]) -> "CodeMetadata":
+    def from_code_ids(cls, code_ids: Iterable[str]) -> CodeMetadata:
         """Construct a list of encoders from code dictionaries.
 
         Args:
@@ -1791,7 +1787,7 @@ class DatasetteMetadata(Base):
             "static_eia",
             "static_ferc1",
         ],
-    ) -> "DatasetteMetadata":
+    ) -> DatasetteMetadata:
         """Construct a dictionary of DataSources from data source names.
 
         Create dictionary of first and last year or year-month for each source.

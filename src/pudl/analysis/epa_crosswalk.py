@@ -38,21 +38,21 @@ epa_crosswalk_df = pudl.output.epacems.epa_crosswalk()
 filtered_crosswalk = filter_crosswalk(epa_crosswalk_df, epacems)
 crosswalk_with_subplant_ids = make_subplant_ids(filtered_crosswalk)
 """
-from typing import Union
+from __future__ import annotations
 
 import dask.dataframe as dd
 import networkx as nx
 import pandas as pd
 
 
-def _get_unique_keys(epacems: Union[pd.DataFrame, dd.DataFrame]) -> pd.DataFrame:
+def _get_unique_keys(epacems: pd.DataFrame | dd.DataFrame) -> pd.DataFrame:
     """Get unique unit IDs from CEMS data.
 
     Args:
-        epacems (Union[pd.DataFrame, dd.DataFrame]): epacems dataset from pudl.output.epacems.epacems
+        epacems: epacems dataset from :func:`pudl.output.epacems.epacems`
 
     Returns:
-        pd.DataFrame: unique keys from the epacems dataset
+        Unique keys from the epacems dataset.
 
     """
     # The purpose of this function is mostly to resolve the
@@ -64,7 +64,7 @@ def _get_unique_keys(epacems: Union[pd.DataFrame, dd.DataFrame]) -> pd.DataFrame
 
 
 def filter_crosswalk_by_epacems(
-    crosswalk: pd.DataFrame, epacems: Union[pd.DataFrame, dd.DataFrame]
+    crosswalk: pd.DataFrame, epacems: pd.DataFrame | dd.DataFrame
 ) -> pd.DataFrame:
     """Inner join unique CEMS units with the EPA crosswalk.
 
@@ -223,13 +223,13 @@ def _convert_global_id_to_composite_id(
 
 
 def filter_crosswalk(
-    crosswalk: pd.DataFrame, epacems: Union[pd.DataFrame, dd.DataFrame]
+    crosswalk: pd.DataFrame, epacems: pd.DataFrame | dd.DataFrame
 ) -> pd.DataFrame:
     """Remove crosswalk rows that do not correspond to an EIA facility or are duplicated due to many-to-many boiler relationships.
 
     Args:
-        crosswalk (pd.DataFrame): The EPA/EIA crosswalk, as from pudl.output.epacems.epa_crosswalk()
-        epacems (Union[pd.DataFrame, dd.DataFrame]): Emissions data. Must contain columns named ["plant_id_eia", "unitid", "unit_id_epa"]
+        crosswalk: The EPA/EIA crosswalk, as from pudl.output.epacems.epa_crosswalk()
+        epacems: Emissions data. Must contain columns named ["plant_id_eia", "unitid", "unit_id_epa"]
 
     Returns:
         pd.DataFrame: A filtered copy of EPA crosswalk
@@ -251,10 +251,10 @@ def make_subplant_ids(crosswalk: pd.DataFrame) -> pd.DataFrame:
     crosswalk_with_subplant_ids = make_subplant_ids(filtered_crosswalk)
 
     Args:
-        crosswalk (pd.DataFrame): The EPA/EIA crosswalk, as from pudl.output.epacems.epa_crosswalk()
+        crosswalk: The EPA/EIA crosswalk, as from pudl.output.epacems.epa_crosswalk()
 
     Returns:
-        pd.DataFrame: An edge list connecting EPA units to EIA generators, with connected pieces issued a subplant_id
+        An edge list connecting EPA units to EIA generators, with connected pieces issued a subplant_id
     """
     edge_list = _prep_for_networkx(crosswalk)
     edge_list = _subplant_ids_from_prepped_crosswalk(edge_list)

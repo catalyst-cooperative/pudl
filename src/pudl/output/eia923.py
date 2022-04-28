@@ -1,8 +1,10 @@
 """Functions for pulling EIA 923 data out of the PUDl DB."""
+from __future__ import annotations
+
 import logging
 import os
 from datetime import date, datetime
-from typing import Literal, Union
+from typing import Literal
 
 import numpy as np
 import pandas as pd
@@ -39,8 +41,8 @@ See EIA's query browse here:
 def generation_fuel_eia923(
     pudl_engine,
     freq: Literal["AS", "MS", None] = None,
-    start_date: Union[str, date, datetime, pd.Timestamp] = None,
-    end_date: Union[str, date, datetime, pd.Timestamp] = None,
+    start_date: str | date | datetime | pd.Timestamp = None,
+    end_date: str | date | datetime | pd.Timestamp = None,
     nuclear: bool = False,
 ):
     """Pull records from the generation_fuel_eia923 table in given date range.
@@ -227,8 +229,8 @@ def generation_fuel_all_eia923(gf: pd.DataFrame, gfn: pd.DataFrame) -> pd.DataFr
 def fuel_receipts_costs_eia923(
     pudl_engine,
     freq: Literal["AS", "MS", None] = None,
-    start_date: Union[str, date, datetime, pd.Timestamp] = None,
-    end_date: Union[str, date, datetime, pd.Timestamp] = None,
+    start_date: str | date | datetime | pd.Timestamp = None,
+    end_date: str | date | datetime | pd.Timestamp = None,
     fill: bool = False,
     roll: bool = False,
 ) -> pd.DataFrame:

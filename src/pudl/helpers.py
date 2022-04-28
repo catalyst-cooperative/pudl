@@ -18,7 +18,7 @@ from collections import defaultdict
 from functools import partial
 from importlib import resources
 from io import BytesIO
-from typing import Any, Optional, Union
+from typing import Any
 
 import addfips
 import numpy as np
@@ -47,8 +47,8 @@ def label_map(
     df: pd.DataFrame,
     from_col: str = "code",
     to_col: str = "label",
-    null_value: Union[str, type(pd.NA)] = pd.NA,
-) -> defaultdict[str, Union[str, type(pd.NA)]]:
+    null_value: str | type(pd.NA) = pd.NA,
+) -> defaultdict[str, str | type(pd.NA)]:
     """Build a mapping dictionary from two columns of a labeling / coding dataframe.
 
     These dataframes document the meanings of the codes that show up in much of the
@@ -439,7 +439,7 @@ def organize_cols(df, cols):
     """
     # Generate a list of all the columns in the dataframe that are not
     # included in cols
-    data_cols = sorted([c for c in df.columns.tolist() if c not in cols])
+    data_cols = sorted(c for c in df.columns.tolist() if c not in cols)
     organized_cols = cols + data_cols
     return df[organized_cols]
 
@@ -884,7 +884,9 @@ def merge_dicts(list_of_dicts):
 
 
 def convert_cols_dtypes(
-    df: pd.DataFrame, data_source: Optional[str] = None, name: Optional[str] = None
+    df: pd.DataFrame,
+    data_source: str | None = None,
+    name: str | None = None,
 ) -> pd.DataFrame:
     """Convert a PUDL dataframe's columns to the correct data type.
 
@@ -1355,7 +1357,7 @@ def get_eia_ferc_acct_map():
 
 def dedupe_n_flatten_list_of_lists(mega_list):
     """Flatten a list of lists and remove duplicates."""
-    return list(set([item for sublist in mega_list for item in sublist]))
+    return list({item for sublist in mega_list for item in sublist})
 
 
 def convert_df_to_excel_file(df: pd.DataFrame, **kwargs) -> pd.ExcelFile:

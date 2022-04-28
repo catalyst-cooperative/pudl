@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from collections import defaultdict
 from collections.abc import Callable, Iterable
-from typing import Any, Optional, Union
+from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -47,7 +47,7 @@ def format_errors(*errors: str, title: str = None, pydantic: bool = False) -> st
 # --- Foreign keys --- #
 
 
-def _parse_field_names(fields: list[Union[str, dict]]) -> list[str]:
+def _parse_field_names(fields: list[str | dict]) -> list[str]:
     """Parse field names.
 
     Args:
@@ -231,7 +231,7 @@ def build_foreign_keys(
 # --- Harvest --- #
 
 
-def split_period(name: str) -> tuple[str, Optional[str]]:
+def split_period(name: str) -> tuple[str, str | None]:
     """Split the time period from a column name.
 
     Args:
@@ -345,7 +345,7 @@ def as_dict(x: pd.Series) -> dict[Any, list]:
 def try_aggfunc(  # noqa: C901
     func: Callable,
     raised: bool = True,
-    error: Union[str, Callable] = None,
+    error: str | Callable = None,
 ) -> Callable:
     """Wrap aggregate function in a try-except for error handling.
 
