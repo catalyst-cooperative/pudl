@@ -89,7 +89,7 @@ setup(
             "sphinx-autoapi~=1.8",
             "sphinx-issues>=1.2,<4.0",
             "sphinx-reredirects",
-            "pydata-sphinx-theme @ git+https://github.com/pydata/pydata-sphinx-theme.git@master",
+            "sphinx-book-theme>=0.3.2",
             "sphinxcontrib_bibtex~=2.4",
         ],
         "test": [
