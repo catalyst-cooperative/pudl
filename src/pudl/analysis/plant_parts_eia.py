@@ -729,6 +729,8 @@ class MakePlantParts(object):
                 ["record_id_eia", "appro_record_id_eia"],
             )
             # we'll eventually take this out... once Issue #20
+            # I think this is no longer needed? with the new labeling
+            # of true grans there aren't any duplicate record_id_eia
             .drop_duplicates(subset=["record_id_eia"])
             .set_index("record_id_eia")
         )
