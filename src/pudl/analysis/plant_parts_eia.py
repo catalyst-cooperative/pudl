@@ -1521,35 +1521,49 @@ class TrueGranLabeler:
         Arguments:
             ppl: (pd.DataFrame) The plant parts list
         """
-        # What type of merge do we want to do in the match_to_single_part? Outer merge?
-        # i think something is wrong because of ownership dupes in gens_mega?
-        parts_to_gens = PlantPart(part_name="plant_gen").match_to_single_plant_part(
-            multi_gran_df=ppl, ppl=ppl, cols_to_keep=["plant_part"]
+        parts_to_gens = (
+            PlantPart(part_name="plant_gen")
+            .match_to_single_plant_part(
+                multi_gran_df=ppl, ppl=ppl, cols_to_keep=["plant_part"]
+            )[["record_id_eia_og", "record_id_eia", "plant_part_og"]]
+            .rename(
+                columns={
+                    "record_id_eia": "gen_id",
+                    "record_id_eia_og": "record_id_eia",
+                    "plant_part_og": "plant_part",
+                }
+            )
         )
+        combos = (
+            parts_to_gens.groupby(["record_id_eia"])["gen_id"]
+            .apply(lambda x: ",".join(x))
+            .rename("gens_combo")
+        )
+        parts_to_gens = parts_to_gens.merge(
+            combos, how="left", left_on="record_id_eia", right_index=True
+        )
+
         # categorical columns allow sorting by PLANT_PARTS_ORDERED
-        parts_to_gens["plant_part_og"] = pd.Categorical(
-            parts_to_gens["plant_part_og"], PLANT_PARTS_ORDERED
+        parts_to_gens["plant_part"] = pd.Categorical(
+            parts_to_gens["plant_part"], PLANT_PARTS_ORDERED
         )
-        ppl_true_gran = parts_to_gens.sort_values("plant_part_og")
-        # find duplicate generators and mark all as duplicates except the
-        # highest granularity record according to PLANT_PARTS_ORDERED
-        dupes = ppl_true_gran.duplicated(subset=["record_id_eia"], keep="first")
-        ppl_true_gran.loc[:, "true_gran"] = ~(dupes)
-        # for the true grans make a dataframe with record_id_eia
-        # associated with true gran part label and true gran record id
-        true_gran_records = ppl_true_gran[ppl_true_gran.true_gran][
-            ["record_id_eia", "record_id_eia_og", "plant_part_og"]
+        parts_to_gens = parts_to_gens.sort_values("plant_part")
+        dupes = parts_to_gens.duplicated(subset=["gens_combo"], keep="first")
+        parts_to_gens.loc[:, "true_gran"] = ~(dupes)
+        parts_to_gens = parts_to_gens.drop_duplicates(subset=["record_id_eia"])
+        true_grans = parts_to_gens[parts_to_gens.true_gran][
+            ["record_id_eia", "plant_part", "gens_combo"]
         ].rename(
             columns={
-                "plant_part_og": "appro_part_label",
-                "record_id_eia_og": "appro_record_id_eia",
+                "record_id_eia": "appro_record_id_eia",
+                "plant_part": "appro_plant_part",
             }
         )
-        ppl_true_gran = ppl_true_gran.merge(
-            true_gran_records, how="left", on="record_id_eia", validate="m:1"
-        )
-        ppl_true_gran = ppl_true_gran.drop(
-            ["plant_part_og", "record_id_eia_og"], axis=1
+        ppl_true_gran = parts_to_gens.merge(
+            true_grans, on="gens_combo", how="left", validate="m:1"
+        ).drop(["plant_part", "gens_combo", "gen_id"], axis=1)
+        ppl_true_gran = ppl.merge(
+            ppl_true_gran, how="left", on="record_id_eia", validate="1:1"
         )
 
         return ppl_true_gran
