@@ -419,6 +419,7 @@ def fill_generator_technology_description(gens_df: pd.DataFrame) -> pd.DataFrame
         out_df[no_tech_mask].drop(columns=["technology_description"]),
         esc_pm_to_tech,
         on=["energy_source_code_1", "prime_mover_code"],
+        how="left",
         validate="m:1",
     )
     out_df = pd.concat([has_tech, no_tech])
