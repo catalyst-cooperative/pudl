@@ -1,5 +1,4 @@
-"""
-Modules providing programmatic analyses that make use of PUDL data.
+"""Modules providing programmatic analyses that make use of PUDL data.
 
 The :mod:`pudl.analysis` subpackage is a collection of modules which implement various
 systematic analyses using the data compiled by PUDL. Over time this should grow into a

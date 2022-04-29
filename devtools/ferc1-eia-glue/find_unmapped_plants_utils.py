@@ -1,6 +1,5 @@
 #!/usr/bin/env python
-"""
-Identify all unmapped plant and utility IDs in FERC 1 and EIA data.
+"""Identify all unmapped plant and utility IDs in FERC 1 and EIA data.
 
 This script identifies plants and utilities which exist in the FERC 1 and EIA data that
 do not yet appear in our manually compiled mapping between the two datasets.
@@ -101,8 +100,7 @@ PUDL_SETTINGS: Dict[str, str] = pudl.workspace.setup.get_defaults()
 
 
 def parse_command_line(argv: str) -> argparse.Namespace:
-    """
-    Parse command line arguments. See the -h option.
+    """Parse command line arguments. See the -h option.
 
     Args:
         argv: Command line arguments, including caller filename.

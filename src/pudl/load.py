@@ -26,8 +26,7 @@ def dfs_to_sqlite(
     check_types: bool = True,
     check_values: bool = True,
 ) -> None:
-    """
-    Load a dictionary of dataframes into the PUDL SQLite DB.
+    """Load a dictionary of dataframes into the PUDL SQLite DB.
 
     Args:
         dfs: Dictionary mapping table names to dataframes.

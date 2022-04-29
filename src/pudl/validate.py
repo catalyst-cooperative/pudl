@@ -1,5 +1,4 @@
-"""
-PUDL data validation functions and test case specifications.
+"""PUDL data validation functions and test case specifications.
 
 What defines a data validation?
   * What data are we checking?
@@ -22,8 +21,7 @@ logger = logging.getLogger(__name__)
 
 
 def intersect_indexes(indexes):
-    """
-    Calculate the intersection of a collection of pandas Indexes.
+    """Calculate the intersection of a collection of pandas Indexes.
 
     Args:
         indexes (iterable of pandas.Index objects):
@@ -40,8 +38,7 @@ def intersect_indexes(indexes):
 
 
 def check_date_freq(df1, df2, mult):
-    """
-    Verify an expected relationship between time frequencies of two dataframes.
+    """Verify an expected relationship between time frequencies of two dataframes.
 
     Identify all distinct values of ``report_date`` in each of the input
     dataframes and check that the number of distinct ``report_date`` values in
@@ -102,8 +99,7 @@ def check_date_freq(df1, df2, mult):
 
 
 def no_null_rows(df, cols="all", df_name="", thresh=0.9):
-    """
-    Check for rows filled with NA values indicating bad merges.
+    """Check for rows filled with NA values indicating bad merges.
 
     Sum up the number of NA values in each row and the columns specified by
     ``cols``. If the NA values make up more than ``thresh`` of the columns
@@ -222,8 +218,7 @@ def check_unique_rows(df, subset=None, df_name=""):
 
 
 def weighted_quantile(data, weights, quantile):
-    """
-    Calculate the weighted quantile of a Series or DataFrame column.
+    """Calculate the weighted quantile of a Series or DataFrame column.
 
     This function allows us to take two columns from a
     :class:`pandas.DataFrame` one of which contains an observed value (data)
@@ -365,8 +360,7 @@ def vs_bounds(
 def vs_self(
     df, data_col, weight_col, query="", title="", low_q=0.05, mid_q=0.5, hi_q=0.95
 ):
-    """
-    Test a distribution against its own historical range.
+    """Test a distribution against its own historical range.
 
     This is a special case of the :func:`pudl.validate.vs_historical` function,
     in which both the ``orig_df`` and ``test_df`` are the same. Mostly it
@@ -1292,8 +1286,7 @@ gf_eia923_coal_heat_content = [
         "weight_col": "fuel_consumed_units",
     },
 ]
-"""
-Valid coal heat content values (all coal types).
+"""Valid coal heat content values (all coal types).
 
 The Generation Fuel table does not break different coal types out separately,
 so we can only test the validity of the entire suite of coal records.
@@ -1321,8 +1314,7 @@ gf_eia923_gas_heat_content = [
         "weight_col": "fuel_consumed_units",
     },
 ]
-"""
-Valid natural gas heat content values.
+"""Valid natural gas heat content values.
 
 Focuses on natural gas proper. Lower bound excludes other types of gaseous
 fuels intentionally.
@@ -1360,8 +1352,7 @@ gf_eia923_oil_heat_content = [
         "weight_col": "fuel_consumed_units",
     },
 ]
-"""
-Valid petroleum based fuel heat content values.
+"""Valid petroleum based fuel heat content values.
 
 Based on historically reported values in EIA 923 Fuel Receipts and Costs.
 """
@@ -1512,8 +1503,7 @@ bf_eia923_oil_heat_content = [
         "weight_col": "fuel_consumed_units",
     },
 ]
-"""
-Valid petroleum based fuel heat content values.
+"""Valid petroleum based fuel heat content values.
 
 Based on historically reported values in EIA 923 Fuel Receipts and Costs.
 """
@@ -1540,8 +1530,7 @@ bf_eia923_gas_heat_content = [
         "weight_col": "fuel_consumed_units",
     },
 ]
-"""
-Valid natural gas heat content values.
+"""Valid natural gas heat content values.
 
 Based on historically reported values in EIA 923 Fuel Receipts and Costs. May
 fail because of a population of bad data around 0.1 mmbtu/unit. This appears
@@ -1604,8 +1593,7 @@ bf_eia923_coal_sulfur_content = [
         "weight_col": "fuel_consumed_units",
     },
 ]
-"""
-Valid coal sulfur content values.
+"""Valid coal sulfur content values.
 
 Based on historically reported values in EIA 923 Fuel Receipts and Costs.
 """
@@ -1757,8 +1745,7 @@ frc_eia923_coal_ant_heat_content = [
         "weight_col": "fuel_received_units",
     },
 ]
-"""
-Check for reasonable anthracite coal heat content.
+"""Check for reasonable anthracite coal heat content.
 
 Based on values given in the EIA 923 instructions:
 https://www.eia.gov/survey/form/eia_923/instructions.pdf
@@ -1786,8 +1773,7 @@ frc_eia923_coal_bit_heat_content = [
         "weight_col": "fuel_received_units",
     },
 ]
-"""
-Check for reasonable bituminous coal heat content.
+"""Check for reasonable bituminous coal heat content.
 
 Based on values given in the EIA 923 instructions:
 https://www.eia.gov/survey/form/eia_923/instructions.pdf
@@ -1815,8 +1801,7 @@ frc_eia923_coal_sub_heat_content = [
         "weight_col": "fuel_received_units",
     },
 ]
-"""
-Check for reasonable Sub-bituminous coal heat content.
+"""Check for reasonable Sub-bituminous coal heat content.
 
 Based on values given in the EIA 923 instructions:
 https://www.eia.gov/survey/form/eia_923/instructions.pdf
@@ -1844,8 +1829,7 @@ frc_eia923_coal_lig_heat_content = [
         "weight_col": "fuel_received_units",
     },
 ]
-"""
-Check for reasonable lignite coal heat content.
+"""Check for reasonable lignite coal heat content.
 
 Based on values given in the EIA 923 instructions:
 https://www.eia.gov/survey/form/eia_923/instructions.pdf
@@ -1863,8 +1847,7 @@ frc_eia923_coal_cc_heat_content = [
         "weight_col": "fuel_received_units",
     },
 ]
-"""
-Check for reasonable refined coal heat content.
+"""Check for reasonable refined coal heat content.
 
 Based on values given in the EIA 923 instructions:
 https://www.eia.gov/survey/form/eia_923/instructions.pdf
@@ -1882,8 +1865,7 @@ frc_eia923_coal_wc_heat_content = [
         "weight_col": "fuel_received_units",
     },
 ]
-"""
-Check for reasonable waste coal heat content.
+"""Check for reasonable waste coal heat content.
 
 Based on values given in the EIA 923 instructions:
 https://www.eia.gov/survey/form/eia_923/instructions.pdf
@@ -1911,8 +1893,7 @@ frc_eia923_oil_dfo_heat_content = [
         "weight_col": "fuel_received_units",
     },
 ]
-"""
-Check for reasonable diesel fuel oil heat contents.
+"""Check for reasonable diesel fuel oil heat contents.
 
 Based on values given in the EIA 923 instructions:
 https://www.eia.gov/survey/form/eia_923/instructions.pdf
@@ -1930,8 +1911,7 @@ frc_eia923_gas_sgc_heat_content = [
         "weight_col": "fuel_received_units",
     },
 ]
-"""
-Check for reasonable coal syngas heat contents.
+"""Check for reasonable coal syngas heat contents.
 
 Based on values given in the EIA 923 instructions:
 https://www.eia.gov/survey/form/eia_923/instructions.pdf
@@ -1949,8 +1929,7 @@ frc_eia923_oil_jf_heat_content = [
         "weight_col": "fuel_received_units",
     },
 ]
-"""
-Check for reasonable jet fuel heat contents.
+"""Check for reasonable jet fuel heat contents.
 
 Based on values given in the EIA 923 instructions:
 https://www.eia.gov/survey/form/eia_923/instructions.pdf
@@ -1968,8 +1947,7 @@ frc_eia923_oil_ker_heat_content = [
         "weight_col": "fuel_received_units",
     },
 ]
-"""
-Check for reasonable kerosene heat contents.
+"""Check for reasonable kerosene heat contents.
 
 Based on values given in the EIA 923 instructions:
 https://www.eia.gov/survey/form/eia_923/instructions.pdf
@@ -1987,8 +1965,7 @@ frc_eia923_petcoke_heat_content = [
         "weight_col": "fuel_received_units",
     },
 ]
-"""
-Check for reasonable petroleum coke heat contents.
+"""Check for reasonable petroleum coke heat contents.
 
 Based on values given in the EIA 923 instructions:
 https://www.eia.gov/survey/form/eia_923/instructions.pdf
@@ -2006,8 +1983,7 @@ frc_eia923_rfo_heat_content = [
         "weight_col": "fuel_received_units",
     },
 ]
-"""
-Check for reasonable residual fuel oil heat contents.
+"""Check for reasonable residual fuel oil heat contents.
 
 Based on values given in the EIA 923 instructions:
 https://www.eia.gov/survey/form/eia_923/instructions.pdf
@@ -2025,8 +2001,7 @@ frc_eia923_propane_heat_content = [
         "weight_col": "fuel_received_units",
     },
 ]
-"""
-Check for reasonable propane heat contents.
+"""Check for reasonable propane heat contents.
 
 Based on values given in the EIA 923 instructions:
 https://www.eia.gov/survey/form/eia_923/instructions.pdf
@@ -2044,8 +2019,7 @@ frc_eia923_petcoke_syngas_heat_content = [
         "weight_col": "fuel_received_units",
     },
 ]
-"""
-Check for reasonable petcoke syngas heat contents.
+"""Check for reasonable petcoke syngas heat contents.
 
 Based on values given in the EIA 923 instructions:
 https://www.eia.gov/survey/form/eia_923/instructions.pdf
@@ -2063,8 +2037,7 @@ frc_eia923_waste_oil_heat_content = [
         "weight_col": "fuel_received_units",
     },
 ]
-"""
-Check for reasonable waste oil heat contents.
+"""Check for reasonable waste oil heat contents.
 
 Based on values given in the EIA 923 instructions:
 https://www.eia.gov/survey/form/eia_923/instructions.pdf
@@ -2082,8 +2055,7 @@ frc_eia923_blast_furnace_gas_heat_content = [
         "weight_col": "fuel_received_units",
     },
 ]
-"""
-Check for reasonable blast furnace gas heat contents.
+"""Check for reasonable blast furnace gas heat contents.
 
 Based on values given in the EIA 923 instructions:
 https://www.eia.gov/survey/form/eia_923/instructions.pdf
@@ -2101,8 +2073,7 @@ frc_eia923_natural_gas_heat_content = [
         "weight_col": "fuel_received_units",
     },
 ]
-"""
-Check for reasonable natural gas heat contents.
+"""Check for reasonable natural gas heat contents.
 
 Based on values given in the EIA 923 instructions:
 https://www.eia.gov/survey/form/eia_923/instructions.pdf
@@ -2120,8 +2091,7 @@ frc_eia923_other_gas_heat_content = [
         "weight_col": "fuel_received_units",
     },
 ]
-"""
-Check for reasonable other gas heat contents.
+"""Check for reasonable other gas heat contents.
 
 Based on values given in the EIA 923 instructions, but with the lower bound
 set by the expected lower bound of heat content on blast furnace gas (since
@@ -2141,8 +2111,7 @@ frc_eia923_ag_byproduct_heat_content = [
         "weight_col": "fuel_received_units",
     },
 ]
-"""
-Check for reasonable agricultural byproduct heat contents.
+"""Check for reasonable agricultural byproduct heat contents.
 
 Based on values given in the EIA 923 instructions:
 https://www.eia.gov/survey/form/eia_923/instructions.pdf
@@ -2160,8 +2129,7 @@ frc_eia923_muni_solids_heat_content = [
         "weight_col": "fuel_received_units",
     },
 ]
-"""
-Check for reasonable municipal solid waste heat contents.
+"""Check for reasonable municipal solid waste heat contents.
 
 Based on values given in the EIA 923 instructions:
 https://www.eia.gov/survey/form/eia_923/instructions.pdf
@@ -2179,8 +2147,7 @@ frc_eia923_biomass_solids_heat_content = [
         "weight_col": "fuel_received_units",
     },
 ]
-"""
-Check for reasonable other biomass solids heat contents.
+"""Check for reasonable other biomass solids heat contents.
 
 Based on values given in the EIA 923 instructions:
 https://www.eia.gov/survey/form/eia_923/instructions.pdf
@@ -2198,8 +2165,7 @@ frc_eia923_wood_solids_heat_content = [
         "weight_col": "fuel_received_units",
     },
 ]
-"""
-Check for reasonable wood solids heat contents.
+"""Check for reasonable wood solids heat contents.
 
 Based on values given in the EIA 923 instructions:
 https://www.eia.gov/survey/form/eia_923/instructions.pdf
@@ -2217,8 +2183,7 @@ frc_eia923_biomass_liquids_heat_content = [
         "weight_col": "fuel_received_units",
     },
 ]
-"""
-Check for reasonable other biomass liquids heat contents.
+"""Check for reasonable other biomass liquids heat contents.
 
 Based on values given in the EIA 923 instructions:
 https://www.eia.gov/survey/form/eia_923/instructions.pdf
@@ -2236,8 +2201,7 @@ frc_eia923_sludge_heat_content = [
         "weight_col": "fuel_received_units",
     },
 ]
-"""
-Check for reasonable sludget waste heat contents.
+"""Check for reasonable sludget waste heat contents.
 
 Based on values given in the EIA 923 instructions:
 https://www.eia.gov/survey/form/eia_923/instructions.pdf
@@ -2255,8 +2219,7 @@ frc_eia923_black_liquor_heat_content = [
         "weight_col": "fuel_received_units",
     },
 ]
-"""
-Check for reasonable black liquor heat contents.
+"""Check for reasonable black liquor heat contents.
 
 Based on values given in the EIA 923 instructions:
 https://www.eia.gov/survey/form/eia_923/instructions.pdf
@@ -2274,8 +2237,7 @@ frc_eia923_wood_liquids_heat_content = [
         "weight_col": "fuel_received_units",
     },
 ]
-"""
-Check for reasonable wood waste liquids heat contents.
+"""Check for reasonable wood waste liquids heat contents.
 
 Based on values given in the EIA 923 instructions:
 https://www.eia.gov/survey/form/eia_923/instructions.pdf
@@ -2293,8 +2255,7 @@ frc_eia923_landfill_gas_heat_content = [
         "weight_col": "fuel_received_units",
     },
 ]
-"""
-Check for reasonable landfill gas heat contents.
+"""Check for reasonable landfill gas heat contents.
 
 Based on values given in the EIA 923 instructions:
 https://www.eia.gov/survey/form/eia_923/instructions.pdf
@@ -2312,8 +2273,7 @@ frc_eia923_biomass_gas_heat_content = [
         "weight_col": "fuel_received_units",
     },
 ]
-"""
-Check for reasonable other biomass gas heat contents.
+"""Check for reasonable other biomass gas heat contents.
 
 Based on values given in the EIA 923 instructions:
 https://www.eia.gov/survey/form/eia_923/instructions.pdf
@@ -2375,8 +2335,7 @@ frc_eia923_coal_sulfur_content = [
         "weight_col": "fuel_received_units",
     },
 ]
-"""
-Valid coal sulfur content values.
+"""Valid coal sulfur content values.
 
 Based on historically reported values in EIA 923 Fuel Receipts and Costs.
 """
@@ -2403,8 +2362,7 @@ frc_eia923_coal_mercury_content = [
         "weight_col": "fuel_received_units",
     },
 ]
-"""
-Valid coal mercury content limits.
+"""Valid coal mercury content limits.
 
 Based on USGS FS095-01: https://pubs.usgs.gov/fs/fs095-01/fs095-01.html
 Upper tail may fail because of a population of extremely high mercury content
