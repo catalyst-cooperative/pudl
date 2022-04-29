@@ -1,7 +1,6 @@
 """Functions for pulling data primarily from the EIA's Form 860."""
 
 import logging
-from collections import defaultdict
 
 import pandas as pd
 import sqlalchemy as sa
@@ -369,13 +368,15 @@ def generators_eia860(
 
 def fill_generator_technology_description(gens_df: pd.DataFrame) -> pd.DataFrame:
     """
-    Fill in missing ``technology_description`` based on generator and energy source.
+    Fill in missing ``technology_description`` based by backfilling & unquie mapping.
 
     Prior to 2014, the EIA 860 did not report ``technology_description``. This
     function backfills those early years within groups defined by ``plant_id_eia``,
-    ``generator_id`` and ``energy_source_code_1``. Some remaining missing values are
-    then filled in using the consistent, unique mappings that are observed between
-    ``energy_source_code_1`` and ``technology_type`` across all years and generators.
+    ``generator_id`` and ``energy_source_code_1``.
+
+    Some remaining missing values are then filled in using the consistent,
+    unique mappings that are observed between ``energy_source_code_1``,
+    ``prime_mover_code`` and ``technology_type`` across all years and generators.
 
     As a result, more than 95% of all generator records end up having a
     ``technology_description`` associated with them.
@@ -400,20 +401,28 @@ def fill_generator_technology_description(gens_df: pd.DataFrame) -> pd.DataFrame
     )
 
     # Fill in remaining missing technology_descriptions with unique correspondences
-    # between energy_source_code_1 where possible. Use a default value of pd.NA
-    # for any technology_description that isn't uniquely identified by energy source
-    static_fuels = defaultdict(
-        lambda: pd.NA,
-        gens_df.dropna(subset=["technology_description"])
-        .drop_duplicates(subset=["energy_source_code_1", "technology_description"])
-        .drop_duplicates(subset=["energy_source_code_1"], keep=False)
-        .set_index("energy_source_code_1")["technology_description"]
-        .to_dict(),
+    # between energy_source_code_1 and prime_mover_code where possible.
+    # get a unique map between ESC/PM and technology_description
+    esc_pm_to_tech = (
+        out_df.loc[
+            :, ["energy_source_code_1", "prime_mover_code", "technology_description"]
+        ]
+        .dropna(how="any")
+        .drop_duplicates(keep="first")
+        .drop_duplicates(  # if there are any duplicates w/in esc/pm combo.. it's gotta go
+            subset=["energy_source_code_1", "prime_mover_code"], keep=False
+        )
     )
 
-    out_df.loc[
-        out_df.technology_description.isna(), "technology_description"
-    ] = out_df.energy_source_code_1.map(static_fuels)
+    no_tech_mask = out_df.technology_description.isnull()
+    has_tech = out_df[~no_tech_mask]
+    no_tech = pd.merge(
+        out_df[no_tech_mask].drop(columns=["technology_description"]),
+        esc_pm_to_tech,
+        on=["energy_source_code_1", "prime_mover_code"],
+        validate="m:1",
+    )
+    out_df = pd.concat([has_tech, no_tech])
 
     assert len(out_df) == nrows_orig
 
