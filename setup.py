@@ -111,6 +111,7 @@ setup(
             "pytest-console-scripts~=1.1",
             "pytest-cov>=2.10,<4.0",
             "responses~=0.14",
+            "rstcheck[sphinx]>=5,<6",
             "tox~=3.20",
         ],
         "datasette": [
