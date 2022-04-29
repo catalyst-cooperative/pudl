@@ -32,8 +32,7 @@ def epa_crosswalk() -> pd.DataFrame:
 def year_state_filter(
     years: Iterable[int] = None, states: Iterable[str] = None
 ) -> List[List[Tuple[Union[str, int]]]]:
-    """
-    Create filters to read given years and states from partitioned parquet dataset.
+    """Create filters to read given years and states from partitioned parquet dataset.
 
     A subset of an Apache Parquet dataset can be read in more efficiently if files which
     don't need to be queried are avoideed. Some datasets are partitioned based on the
@@ -80,8 +79,7 @@ def year_state_filter(
 
 
 def get_plant_states(plant_ids, pudl_out):
-    """
-    Determine what set of states a given set of EIA plant IDs are within.
+    """Determine what set of states a given set of EIA plant IDs are within.
 
     If you only want to select data about a particular set of power plants from the EPA
     CEMS data, this is useful for identifying which patitions of the Parquet dataset
@@ -104,8 +102,7 @@ def get_plant_states(plant_ids, pudl_out):
 
 
 def get_plant_years(plant_ids, pudl_out):
-    """
-    Determine which years a given set of EIA plant IDs appear in.
+    """Determine which years a given set of EIA plant IDs appear in.
 
     If you only want to select data about a particular set of power plants from the EPA
     CEMS data, this is useful for identifying which patitions of the Parquet dataset

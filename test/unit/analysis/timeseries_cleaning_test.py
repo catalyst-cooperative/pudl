@@ -16,8 +16,7 @@ def simulate_series(
     shift_range: Tuple[int, int] = (-3, 3),
     seed=None,
 ) -> np.ndarray:
-    """
-    Generate synthetic multivariate series from sin functions.
+    """Generate synthetic multivariate series from sin functions.
 
     Args:
         n: Number of variables.
@@ -49,8 +48,7 @@ def simulate_anomalies(
     sigma: float = 1,
     seed=None,
 ) -> Tuple[np.ndarray, np.ndarray]:
-    """
-    Simulate anomalies in series.
+    """Simulate anomalies in series.
 
     Args:
         x: Multivariate series with shape (m observations, n variables).

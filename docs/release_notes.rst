@@ -203,8 +203,8 @@ database schema, which will probably affect some users.
 * The columns that indicate the mode of transport for various fuels now contain short
   codes rather than longer labels, and are defined in / constrained by the static
   :ref:`fuel_transportation_modes_eia` table.
-* In the simplified FERC 1 fuel type categories, we're now using `other` instead of
-  `unknown`.
+* In the simplified FERC 1 fuel type categories, we're now using ``other`` instead of
+  ``unknown``.
 * Several columns have been renamed to harmonize meanings between different tables and
   datasets, including:
 
@@ -215,7 +215,7 @@ database schema, which will probably affect some users.
   * ``fuel_qty_burned`` is now ``fuel_consumed_units``
   * ``fuel_qty_units`` is now ``fuel_received_units``
   * ``heat_content_mmbtu_per_unit`` is now ``fuel_mmbtu_per_unit``
-  * ``sector_name` and `sector_id` are now ``sector_name_eia`` and ``sector_id_eia``
+  * ``sector_name`` and ``sector_id`` are now ``sector_name_eia`` and ``sector_id_eia``
   * ``primary_purpose_naics_id`` is now ``primary_purpose_id_naics``
   * ``mine_type_code`` is now ``mine_type`` (a human readable label, not a code).
 

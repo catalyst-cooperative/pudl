@@ -1,5 +1,4 @@
-"""
-Retrieve data from EIA Form 861 spreadsheets for analysis.
+"""Retrieve data from EIA Form 861 spreadsheets for analysis.
 
 This modules pulls data from EIA's published Excel spreadsheets.
 
@@ -22,8 +21,7 @@ class Extractor(excel.GenericExtractor):
     """Extractor for the excel dataset EIA861."""
 
     def __init__(self, *args, **kwargs):
-        """
-        Initialize the module.
+        """Initialize the module.
 
         Args:
             ds (:class:datastore.Datastore): Initialized datastore.

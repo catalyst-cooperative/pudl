@@ -1,5 +1,4 @@
-"""
-Tools for integrating & reconciling different PUDL datasets with each other.
+"""Tools for integrating & reconciling different PUDL datasets with each other.
 
 Many of the datasets integrated by PUDL report related information, but it's
 often not easy to programmatically relate the datasets to each other. The glue
