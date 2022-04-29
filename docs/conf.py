@@ -132,7 +132,9 @@ html_theme_options = {
     "use_repository_button": True,
     "use_edit_page_button": True,
     "repository_branch": "main",
-    "path_to_docs": "docs",
+    "path_to_docs": "docs/",
+    "use_fullscreen_button": False,
+    "use_download_button": False,
     # Is there not some way to get the Tweets up in there?
     # "icon_links": [
     #     {
