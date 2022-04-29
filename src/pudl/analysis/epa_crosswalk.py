@@ -19,18 +19,17 @@ But by analyzing the relationships between combustors and generators,
 as provided in the EPA/EIA crosswalk, we can identify distinct power plants.
 These are the smallest coherent units of aggregation.
 
-In graph analysis terminology, the crosswalk is a list of edges between
-nodes (combustors and generators) in a bipartite graph. The networkx python
-package provides functions to analyze this edge list and extract
-disjoint subgraphs (groups of combustors and generators that are connected to each other).
-These are the distinct power plants. To avoid a name collision
-with plant_id, we term these collections 'subplants', and identify them with a subplant_id
-that is unique within each plant_id. Subplants are thus identified with the composite key
-(plant_id, subplant_id).
+In graph analysis terminology, the crosswalk is a list of edges between nodes
+(combustors and generators) in a bipartite graph. The networkx python package provides
+functions to analyze this edge list and extract disjoint subgraphs (groups of combustors
+and generators that are connected to each other).  These are the distinct power plants.
+To avoid a name collision with plant_id, we term these collections 'subplants', and
+identify them with a subplant_id that is unique within each plant_id. Subplants are thus
+identified with the composite key (plant_id, subplant_id).
 
-Through this analysis, we found that 56% of plant_ids contain multiple distinct subplants,
-and 11% contain subplants with different technology types, such as
-a gas boiler and gas turbine (not in a combined cycle).
+Through this analysis, we found that 56% of plant_ids contain multiple distinct
+subplants, and 11% contain subplants with different technology types, such as a gas
+boiler and gas turbine (not in a combined cycle).
 
 Usage Example:
 
@@ -54,6 +53,7 @@ def _get_unique_keys(epacems: Union[pd.DataFrame, dd.DataFrame]) -> pd.DataFrame
 
     Returns:
         pd.DataFrame: unique keys from the epacems dataset
+
     """
     # The purpose of this function is mostly to resolve the
     # ambiguity between dask and pandas dataframes
@@ -68,15 +68,18 @@ def filter_crosswalk_by_epacems(
 ) -> pd.DataFrame:
     """Inner join unique CEMS units with the EPA crosswalk.
 
-    This is essentially an empirical filter on EPA units. Instead of filtering by construction/retirement dates
-    in the crosswalk (thus assuming they are accurate), use the presence/absence of CEMS data to filter the units.
+    This is essentially an empirical filter on EPA units. Instead of filtering by
+    construction/retirement dates in the crosswalk (thus assuming they are accurate),
+    use the presence/absence of CEMS data to filter the units.
 
     Args:
-        crosswalk (pd.DataFrame): the EPA crosswalk, as from pudl.output.epacems.epa_crosswalk()
+        crosswalk: the EPA crosswalk, as from pudl.output.epacems.epa_crosswalk()
         unique_epacems_ids (pd.DataFrame): unique ids from _get_unique_keys
 
     Returns:
-        pd.DataFrame: the inner join of the EPA crosswalk and unique epacems units. Adds the global ID column unit_id_epa.
+        The inner join of the EPA crosswalk and unique epacems units. Adds
+        the global ID column unit_id_epa.
+
     """
     unique_epacems_ids = _get_unique_keys(epacems)
     key_map = unique_epacems_ids.merge(

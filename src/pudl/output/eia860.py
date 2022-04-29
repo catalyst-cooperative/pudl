@@ -368,8 +368,7 @@ def generators_eia860(
 
 
 def fill_generator_technology_description(gens_df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Fill in missing ``technology_description`` based on generator and energy source.
+    """Fill in missing ``technology_description`` based on generator and energy source.
 
     Prior to 2014, the EIA 860 did not report ``technology_description``. This
     function backfills those early years within groups defined by ``plant_id_eia``,
@@ -380,7 +379,7 @@ def fill_generator_technology_description(gens_df: pd.DataFrame) -> pd.DataFrame
     As a result, more than 95% of all generator records end up having a
     ``technology_description`` associated with them.
 
-    Parameters:
+    Args:
         gens_df: A generators_eia860 dataframe containing at least the columns
             ``report_date``, ``plant_id_eia``, ``generator_id``,
             ``energy_source_code_1``, and ``technology_description``.
@@ -557,8 +556,7 @@ def ownership_eia860(pudl_engine, start_date=None, end_date=None):
 # unit_id_pudl values derived from the BGA table and other heuristics.
 ################################################################################
 def assign_unit_ids(gens_df):
-    """
-    Group generators into operational units using various heuristics.
+    """Group generators into operational units using various heuristics.
 
     Splits a few columns off from the big generator dataframe and uses several
     heuristic functions to fill in missing unit_id_pudl values beyond those that
@@ -710,8 +708,7 @@ def assign_unit_ids(gens_df):
 
 
 def fill_unit_ids(gens_df):
-    """
-    Back and forward fill Unit IDs for each plant / gen combination.
+    """Back and forward fill Unit IDs for each plant / gen combination.
 
     This routine assumes that the mapping of generators to units is constant
     over time, and extends those mappings into years where no boilers have
@@ -766,8 +763,7 @@ def fill_unit_ids(gens_df):
 
 
 def max_unit_id_by_plant(gens_df):
-    """
-    Identify the largest unit ID associated with each plant so we don't overlap.
+    """Identify the largest unit ID associated with each plant so we don't overlap.
 
     The PUDL Unit IDs are sequentially assigned integers. To assign a new ID, we
     need to know the largest existing Unit ID within a plant. This function
@@ -798,8 +794,7 @@ def max_unit_id_by_plant(gens_df):
 
 
 def _append_masked_units(gens_df, row_mask, unit_ids, on):
-    """
-    Replace rows with new PUDL Unit IDs in the original dataframe.
+    """Replace rows with new PUDL Unit IDs in the original dataframe.
 
     Merges the newly assigned Unit IDs found in ``unit_ids`` into the
     ``gens_df`` dataframe, but only for those rows which are selected by the
@@ -836,8 +831,7 @@ def _append_masked_units(gens_df, row_mask, unit_ids, on):
 def assign_single_gen_unit_ids(
     gens_df, prime_mover_codes, fuel_type_code_pudl=None, label_prefix="single"
 ):
-    """
-    Assign a unique PUDL Unit ID to each generator of a given prime mover type.
+    """Assign a unique PUDL Unit ID to each generator of a given prime mover type.
 
     Calculate the maximum pre-existing PUDL Unit ID within each plant, and
     assign each as of yet unidentified distinct generator within each plant
@@ -920,8 +914,7 @@ def assign_single_gen_unit_ids(
 
 
 def assign_cc_unit_ids(gens_df):
-    """
-    Assign PUDL Unit IDs for combined cycle generation units.
+    """Assign PUDL Unit IDs for combined cycle generation units.
 
     This applies only to combined cycle units reported as a combination of CT
     and CA prime movers. All CT and CA generators within a plant that do not
@@ -1017,8 +1010,7 @@ def assign_cc_unit_ids(gens_df):
 
 
 def assign_prime_fuel_unit_ids(gens_df, prime_mover_code, fuel_type_code_pudl):
-    """
-    Assign a PUDL Unit ID to all generators with a given prime mover and fuel.
+    """Assign a PUDL Unit ID to all generators with a given prime mover and fuel.
 
     Within each plant, assign a Unit ID to all generators that don't have one,
     and that share the same `fuel_type_code_pudl` and `prime_mover_code`. This
