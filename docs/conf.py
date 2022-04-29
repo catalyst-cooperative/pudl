@@ -109,12 +109,13 @@ exclude_patterns = ["_build"]
 # The theme to use for HTML and HTML Help pages.
 
 master_doc = "index"
-html_theme = "sphinx_book_theme"
+html_theme = "pydata_sphinx_theme"
 html_logo = "_static/catalyst_logo-200x200.png"
 html_icon = "_static/favicon.ico"
 
 html_context = {
     "display_github": True,  # Integrate GitHub
+    "default_mode": "dark",
     "github_user": "catalyst-cooperative",  # Username
     "github_repo": "pudl",  # Repo name
     "github_version": "main",  # Version
@@ -125,14 +126,34 @@ html_context = {
 # further.  For a list of options available for each theme, see the
 # documentation.
 html_theme_options = {
-    "collapse_navigation": True,
-    "repository_url": "https://github.com/catalyst-cooperative/pudl",
-    "use_repository_button": True,
-    "use_issues_button": True,
-    "use_edit_page_button": True,
-    "repository_branch": "main",
-    "path_to_docs": "docs",
-    "use_download_button": True,
+    "logo_link": "https://catalyst.coop/pudl",
+    "icon_links": [
+        {
+            "name": "GitHub",
+            "url": "https://github.com/catalyst-cooperative/pudl",
+            "icon": "fab fa-github-square",
+        },
+        {
+            "name": "Twitter",
+            "url": "https://twitter.com/CatalystCoop>",
+            "icon": "fab fa-twitter-square",
+        },
+    ],
+    "external_links": [
+        {"name": "Catalyst Cooperative", "url": "https://catalyst.coop"},
+    ],
+    "switcher": {
+        "json_url": "https://catalystcoop-pudl.readthedocs.io/en/latest/_static/switcher.json",
+    },
+    # Link to GitHub Issues
+    # Link to GitHub Discussions
+    # Link to Datasette
+    # Other repos:
+    # - pudl-examples
+    # - pudl-catalog
+    # - pudl-query-library
+    # - pudl-scrapers
+    # - pudl-zenodo-storage
 }
 
 # Add any paths that contain custom static files (such as style sheets) here,
