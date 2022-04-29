@@ -5,9 +5,9 @@ from typing import Any, Dict, Optional
 import pandas as pd
 from pytz import all_timezones
 
-from .codes import CODE_METADATA
-from .constants import FIELD_DTYPES_PANDAS
-from .enums import (
+from pudl.metadata.codes import CODE_METADATA
+from pudl.metadata.constants import FIELD_DTYPES_PANDAS
+from pudl.metadata.enums import (
     CANADA_PROVINCES_TERRITORIES,
     CUSTOMER_CLASSES,
     EPACEMS_MEASUREMENT_CODES,
@@ -20,8 +20,12 @@ from .enums import (
     TECH_CLASSES,
     US_STATES_TERRITORIES,
 )
-from .labels import ESTIMATED_OR_ACTUAL, FUEL_UNITS_EIA, MOMENTARY_INTERRUPTIONS
-from .sources import SOURCES
+from pudl.metadata.labels import (
+    ESTIMATED_OR_ACTUAL,
+    FUEL_UNITS_EIA,
+    MOMENTARY_INTERRUPTIONS,
+)
+from pudl.metadata.sources import SOURCES
 
 FIELD_METADATA: Dict[str, Dict[str, Any]] = {
     "active": {

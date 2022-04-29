@@ -27,8 +27,8 @@ import pydantic
 import sqlalchemy as sa
 from pydantic.types import DirectoryPath
 
-from .codes import CODE_METADATA
-from .constants import (
+from pudl.metadata.codes import CODE_METADATA
+from pudl.metadata.constants import (
     CONSTRAINT_DTYPES,
     CONTRIBUTORS,
     FIELD_DTYPES_PANDAS,
@@ -37,16 +37,20 @@ from .constants import (
     LICENSES,
     PERIODS,
 )
-from .fields import FIELD_METADATA, FIELD_METADATA_BY_GROUP, FIELD_METADATA_BY_RESOURCE
-from .helpers import (
+from pudl.metadata.fields import (
+    FIELD_METADATA,
+    FIELD_METADATA_BY_GROUP,
+    FIELD_METADATA_BY_RESOURCE,
+)
+from pudl.metadata.helpers import (
     expand_periodic_column_names,
     format_errors,
     groupby_aggregate,
     most_and_more_frequent,
     split_period,
 )
-from .resources import FOREIGN_KEYS, RESOURCE_METADATA, eia861
-from .sources import SOURCES
+from pudl.metadata.resources import FOREIGN_KEYS, RESOURCE_METADATA, eia861
+from pudl.metadata.sources import SOURCES
 
 logger = logging.getLogger(__name__)
 
