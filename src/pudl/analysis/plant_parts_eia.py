@@ -1506,17 +1506,16 @@ def match_to_single_plant_part(
     This method merges an input dataframe (``multi_gran_df``) containing
     data that has a heterogeneous set of plant-part granularities with a
     subset of the EIA plant-part list that has a single granularity.
-    (Currently this single granularity must be generators). In general this
-    will be a one-to-many merge in which values from single records in the
-    input data end up associated with several records from the plant part
-    list.
+    Currently this is only tested where the single granularity is generators.
+    In general this will be a one-to-many merge in which values from single
+    records in the input data end up associated with several records from
+    the plant part list.
     First, we select a subset of the full EIA plant-part list corresponding
-    to the plant-part of the :class:`PlantPart` instance.  (specified
-    by its :attr:`part_name`). In theory this could be the plant,
-    generator, fuel type, etc. Currently only generators are supported.
-    Then, we iterate over all the possible plant parts, selecting the
-    subset of records in ``multi_gran_df`` that have that granularity, and
-    merge the homogeneous subset of the plant part list that we selected
+    to the plant part specified by the ``part_name`` argument. In theory
+    this could be the plant, generator, fuel type, etc. Currently only
+    generators are supported. Then, we iterate over all the possible plant
+    parts, selecting the subset of records in ``multi_gran_df`` that have
+    that granularity, and merge the homogeneous subset of the plant part list that we selected
     above onto that subset of the input data. Each iteration uses a
     different set of columns to merge on -- the columns which define the
     primary key for the plant part being merged. Each iteration creates a
