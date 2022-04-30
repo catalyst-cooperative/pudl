@@ -1496,7 +1496,7 @@ def assign_record_id_eia(test_df: pd.DataFrame, plant_part_col: str = "plant_par
 def match_to_single_plant_part(
     multi_gran_df: pd.DataFrame,
     ppl: pd.DataFrame,
-    part_name: str = "plant_gen",
+    part_name: Literal[tuple(PLANT_PARTS.keys())] = "plant_gen",
     cols_to_keep: List[str] = [],
     merge_how: Literal["left", "right", "inner", "outer", "cross"] = "left",
     keep_only_record_id: bool = False,
