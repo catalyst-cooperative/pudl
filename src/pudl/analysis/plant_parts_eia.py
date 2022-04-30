@@ -1515,9 +1515,9 @@ def match_to_single_plant_part(
     this could be the plant, generator, fuel type, etc. Currently only
     generators are supported. Then, we iterate over all the possible plant
     parts, selecting the subset of records in ``multi_gran_df`` that have
-    that granularity, and merge the homogeneous subset of the plant part list that we selected
-    above onto that subset of the input data. Each iteration uses a
-    different set of columns to merge on -- the columns which define the
+    that granularity, and merge the homogeneous subset of the plant part list
+    that we selected above onto that subset of the input data. Each iteration
+    uses a different set of columns to merge on -- the columns which define the
     primary key for the plant part being merged. Each iteration creates a
     separate dataframe, corresponding to a particular plant part, and at
     the end they are all concatenated together and returned.
