@@ -6,7 +6,7 @@ dependencies:
   # Used to set up the environment
   - pip>=21,<23
   - python>=3.8,<3.11
-  - setuptools<62
+  - setuptools<63
   # These packages are also specified in setup.py
   # However, they depend on or benefit from binary libraries
   # which conda can install.
@@ -23,7 +23,7 @@ dependencies:
   - pandoc  # Useful for rendering RST files in Atom
 
   # Packages related to current projects but not the core package
-  - recordlinkage~=0.14.0 # Used for fuzzy merge between FERC/EIA for RMI
+  - recordlinkage>=0.14,<0.16 # Used for fuzzy merge between FERC/EIA for RMI
 
   # Jupyter notebook specific packages:
   - dask-labextension~=5.1

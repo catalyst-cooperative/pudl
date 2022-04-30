@@ -1,5 +1,4 @@
-"""
-Tools for extracting data from the FERC Form 1 FoxPro database for use in PUDL.
+"""Tools for extracting data from the FERC Form 1 FoxPro database for use in PUDL.
 
 FERC distributes the annual responses to Form 1 as binary FoxPro database
 files. This format is no longer widely supported, and so our first challenge in
@@ -107,8 +106,7 @@ PUDL_RIDS = {
 
 
 def missing_respondents(reported, observed, identified):
-    """
-    Fill in missing respondents for the f1_respondent_id table.
+    """Fill in missing respondents for the f1_respondent_id table.
 
     Args:
         reported (iterable): Respondent IDs appearing in f1_respondent_id.
@@ -148,8 +146,7 @@ def missing_respondents(reported, observed, identified):
 
 
 def observed_respondents(ferc1_engine: sa.engine.Engine) -> Set[int]:
-    """
-    Compile the set of all observed respondent IDs found in the FERC 1 database.
+    """Compile the set of all observed respondent IDs found in the FERC 1 database.
 
     A significant number of FERC 1 respondent IDs appear in the data tables, but not
     in the f1_respondent_id table. In order to construct a self-consistent database with
@@ -185,8 +182,8 @@ class Ferc1Datastore:
     def __init__(self, datastore: Datastore):
         """Instantiate datastore wrapper for ferc1 resources."""
         self.datastore = datastore
-        self._cache = {}  # type: Dict[int, io.BytesIO]
-        self.dbc_path = {}  # type: Dict[int, Path]
+        self._cache: Dict[int, io.BytesIO] = {}
+        self.dbc_path: Dict[int, Path] = {}
 
         with importlib.resources.open_text(self.PACKAGE_PATH, "file_map.csv") as f:
             for row in csv.DictReader(f):
@@ -313,11 +310,11 @@ def add_sqlite_table(
 
 
 def get_fields(filedata):
-    """
-    Produce the expected table names and fields from a DBC file.
+    """Produce the expected table names and fields from a DBC file.
 
     Args:
         filedata: Contents of the DBC file from which to extract.
+
     Returns:
         dict of table_name: [fields]
     """
@@ -355,8 +352,7 @@ def get_fields(filedata):
 
 
 def get_dbc_map(ds, year, min_length=4):
-    """
-    Extract names of all tables and fields from a FERC Form 1 DBC file.
+    """Extract names of all tables and fields from a FERC Form 1 DBC file.
 
     Read the DBC file associated with the FERC Form 1 database for the given
     ``year``, and extract all printable strings longer than ``min_lengh``.
@@ -426,8 +422,7 @@ def define_sqlite_db(
     ds,
     ferc1_to_sqlite_settings: Ferc1ToSqliteSettings = Ferc1ToSqliteSettings(),
 ):
-    """
-    Defines a FERC Form 1 DB structure in a given SQLAlchemy MetaData object.
+    """Defines a FERC Form 1 DB structure in a given SQLAlchemy MetaData object.
 
     Given a template from an existing year of FERC data, and a list of target
     tables to be cloned, convert that information into table and column names,
@@ -466,8 +461,7 @@ class FERC1FieldParser(dbfread.FieldParser):
     """A custom DBF parser to deal with bad FERC Form 1 data types."""
 
     def parseN(self, field, data):  # noqa: N802
-        """
-        Augments the Numeric DBF parser to account for bad FERC data.
+        """Augments the Numeric DBF parser to account for bad FERC data.
 
         There are a small number of bad entries in the backlog of FERC Form 1
         data. They take the form of leading/trailing zeroes or null characters
@@ -478,11 +472,10 @@ class FERC1FieldParser(dbfread.FieldParser):
         all these fields to be cast to numeric values.
 
         Args:
-            self ():
             field ():
             data ():
 
-        """
+        """  # noqa: D417
         # Strip whitespace, null characters, and zeroes
         data = data.strip().strip(b"*\x00").lstrip(b"0")
         # Replace bare periods (which are non-numeric) with zero.
@@ -759,8 +752,7 @@ def fuel(ferc1_engine, ferc1_settings):
 
 
 def plants_steam(ferc1_engine, ferc1_settings):
-    """
-    Create a :class:`pandas.DataFrame` containing valid raw f1_steam records.
+    """Create a :class:`pandas.DataFrame` containing valid raw f1_steam records.
 
     Selected records must indicate a plant capacity greater than 0, and include
     a non-null plant name.

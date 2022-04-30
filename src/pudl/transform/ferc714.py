@@ -179,8 +179,7 @@ OFFSET_CODES = {
     "AKDT": pd.Timedelta(-9, unit="hours"),  # Alaska Daylight
     "HST": pd.Timedelta(-10, unit="hours"),  # Hawaii Standard
 }
-"""
-A mapping of timezone offset codes to Timedelta offsets from UTC.
+"""A mapping of timezone offset codes to Timedelta offsets from UTC.
 
 from one year to the next, and these result in duplicate records, which are Note that
 the FERC 714 instructions state that all hourly demand is to be reported in STANDARD
@@ -293,8 +292,7 @@ RENAME_COLS = {
 
 
 def _standardize_offset_codes(df, offset_fixes):
-    """
-    Convert to standardized UTC offset abbreviations.
+    """Convert to standardized UTC offset abbreviations.
 
     This function ensures that all of the 3-4 letter abbreviations used to indicate a
     timestamp's localized offset from UTC are standardized, so that they can be used to
@@ -343,8 +341,7 @@ def _log_dupes(df, dupe_cols):
 
 
 def respondent_id(tfr_dfs):
-    """
-    Transform the FERC 714 respondent IDs, names, and EIA utility IDs.
+    """Transform the FERC 714 respondent IDs, names, and EIA utility IDs.
 
     This consists primarily of dropping test respondents and manually assigning EIA
     utility IDs to a few FERC Form 714 respondents that report planning area demand, but
@@ -376,8 +373,7 @@ def respondent_id(tfr_dfs):
 
 
 def demand_hourly_pa(tfr_dfs):
-    """
-    Transform the hourly demand time series by Planning Area.
+    """Transform the hourly demand time series by Planning Area.
 
     Transformations include:
 
@@ -552,8 +548,7 @@ def demand_forecast_pa(tfr_dfs):
 
 
 def _early_transform(raw_df):
-    """
-    A simple transform function for until the real ones are written.
+    """A simple transform function for until the real ones are written.
 
     * Removes footnotes columns ending with _f
     * Drops report_prd, spplmnt_num, and row_num columns
@@ -571,8 +566,7 @@ def _early_transform(raw_df):
 
 
 def transform(raw_dfs, ferc714_settings: Ferc714Settings = Ferc714Settings()):
-    """
-    Prepare the raw FERC 714 dataframes for loading into the PUDL database.
+    """Prepare the raw FERC 714 dataframes for loading into the PUDL database.
 
     Args:
         raw_dfs (dict): A dictionary of raw pandas.DataFrame objects, as read out of

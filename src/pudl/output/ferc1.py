@@ -11,8 +11,7 @@ logger = logging.getLogger(__name__)
 
 
 def plants_utils_ferc1(pudl_engine):
-    """
-    Build a dataframe of useful FERC Plant & Utility information.
+    """Build a dataframe of useful FERC Plant & Utility information.
 
     Args:
         pudl_engine (sqlalchemy.engine.Engine): Engine for connecting to the

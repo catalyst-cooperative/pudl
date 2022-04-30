@@ -1,5 +1,4 @@
-"""
-General utility functions that are used in a variety of contexts.
+"""General utility functions that are used in a variety of contexts.
 
 The functions in this module are used in various stages of the ETL and post-etl
 processes. They are usually not dataset specific, but not always. If a function
@@ -31,8 +30,7 @@ from pudl.metadata.fields import get_pudl_dtypes
 logger = logging.getLogger(__name__)
 
 sum_na = partial(pd.Series.sum, skipna=False)
-"""
-A sum function that returns NA if the Series includes any NA values.
+"""A sum function that returns NA if the Series includes any NA values.
 
 In many of our aggregations we need to override the default behavior of treating
 NA values as if they were zero. E.g. when calculating the heat rates of
@@ -44,10 +42,12 @@ rates.
 
 
 def label_map(
-    df: pd.DataFrame, from_col: str = "code", to_col: str = "label", null_value=pd.NA
-) -> DefaultDict[str, Union[str, Literal[pd.NA]]]:
-    """
-    Build a mapping dictionary from two columns of a labeling / coding dataframe.
+    df: pd.DataFrame,
+    from_col: str = "code",
+    to_col: str = "label",
+    null_value: Union[str, type(pd.NA)] = pd.NA,
+) -> DefaultDict[str, Union[str, type(pd.NA)]]:
+    """Build a mapping dictionary from two columns of a labeling / coding dataframe.
 
     These dataframes document the meanings of the codes that show up in much of the
     originally reported data. They're defined in :mod:`pudl.metadata.codes`.  This
@@ -81,8 +81,7 @@ def find_new_ferc1_strings(
     strdict: Dict[str, List[str]],
     ferc1_engine: sa.engine.Engine,
 ) -> Set[str]:
-    """
-    Identify as-of-yet uncategorized freeform strings in FERC Form 1.
+    """Identify as-of-yet uncategorized freeform strings in FERC Form 1.
 
     Args:
         table: Name of the FERC Form 1 DB to search.
@@ -106,8 +105,7 @@ def find_new_ferc1_strings(
 
 
 def find_foreign_key_errors(dfs: Dict[str, pd.DataFrame]) -> List[Dict[str, Any]]:
-    """
-    Report foreign key violations from a dictionary of dataframes.
+    """Report foreign key violations from a dictionary of dataframes.
 
     The database schema to check against is generated based on the names of the
     dataframes (keys of the dictionary) and the PUDL metadata structures.
@@ -152,8 +150,7 @@ def find_foreign_key_errors(dfs: Dict[str, pd.DataFrame]) -> List[Dict[str, Any]
 
 
 def download_zip_url(url, save_path, chunk_size=128):
-    """
-    Download and save a Zipfile locally.
+    """Download and save a Zipfile locally.
 
     Useful for acquiring and storing non-PUDL data locally.
 
@@ -182,8 +179,7 @@ def download_zip_url(url, save_path, chunk_size=128):
 
 
 def add_fips_ids(df, state_col="state", county_col="county", vintage=2015):
-    """
-    Add State and County FIPS IDs to a dataframe.
+    """Add State and County FIPS IDs to a dataframe.
 
     To just add State FIPS IDs, make county_col = None.
     """
@@ -262,8 +258,7 @@ def clean_eia_counties(df, fixes, state_col="state", county_col="county"):
 
 
 def oob_to_nan(df, cols, lb=None, ub=None):
-    """
-    Set non-numeric values and those outside of a given rage to NaN.
+    """Set non-numeric values and those outside of a given rage to NaN.
 
     Args:
         df (pandas.DataFrame): The dataframe containing values to be altered.
@@ -290,8 +285,7 @@ def oob_to_nan(df, cols, lb=None, ub=None):
 
 
 def prep_dir(dir_path, clobber=False):
-    """
-    Create (or delete and recreate) a directory.
+    """Create (or delete and recreate) a directory.
 
     Args:
         dir_path (path-like): path to the directory that you are trying to
@@ -317,8 +311,7 @@ def prep_dir(dir_path, clobber=False):
 
 
 def is_doi(doi):
-    """
-    Determine if a string is a valid digital object identifier (DOI).
+    """Determine if a string is a valid digital object identifier (DOI).
 
     Function simply checks whether the offered string matches a regular
     expresssion -- it doesn't check whether the DOI is actually registered
@@ -376,8 +369,7 @@ def full_timeseries_date_merge(
     fill: bool = True,
     **kwargs,
 ):
-    """
-    Merge dataframes with different date frequencies and expand to a full timeseries.
+    """Merge dataframes with different date frequencies and expand to a full timeseries.
 
     Arguments: see arguments for ``date_merge`` and ``expand_timeseries``
     """
@@ -419,8 +411,7 @@ def date_merge(
     report_at_start: bool = True,
     **kwargs,
 ) -> pd.DataFrame:
-    """
-    Merge two dataframes that have different report date frequencies.
+    """Merge two dataframes that have different report date frequencies.
 
     We often need to bring together data that is reported at different
     temporal granularities e.g. monthly basis versus annual basis. This function
@@ -525,8 +516,7 @@ def expand_timeseries(
     key_cols: List[str] = [],
     fill: bool = True,
 ) -> pd.DataFrame:
-    """
-    Expand a dataframe to a include a full time series at a given frequency.
+    """Expand a dataframe to a include a full time series at a given frequency.
 
     This function adds a full timeseries specified by the ``start`` and ``end``
     arguments to the given dataframe. If ``fill`` is true, then the data in the
@@ -600,8 +590,7 @@ def expand_timeseries(
 
 
 def organize_cols(df, cols):
-    """
-    Organize columns into key ID & name fields & alphabetical data columns.
+    """Organize columns into key ID & name fields & alphabetical data columns.
 
     For readability, it's nice to group a few key columns at the beginning
     of the dataframe (e.g. report_year or report_date, plant_id...) and then
@@ -625,8 +614,7 @@ def organize_cols(df, cols):
 
 
 def simplify_strings(df, columns):
-    """
-    Simplify the strings contained in a set of dataframe columns.
+    """Simplify the strings contained in a set of dataframe columns.
 
     Performs several operations to simplify strings for comparison and parsing purposes.
     These include removing Unicode control characters, stripping leading and trailing
@@ -870,8 +858,7 @@ def month_year_to_date(df):
 
 
 def fix_leading_zero_gen_ids(df):
-    """
-    Remove leading zeros from EIA generator IDs which are numeric strings.
+    """Remove leading zeros from EIA generator IDs which are numeric strings.
 
     If the DataFrame contains a column named ``generator_id`` then that column
     will be cast to a string, and any all numeric value with leading zeroes
@@ -915,8 +902,7 @@ def convert_to_date(
     month_value=1,
     day_value=1,
 ):
-    """
-    Convert specified year, month or day columns into a datetime object.
+    """Convert specified year, month or day columns into a datetime object.
 
     If the input ``date_col`` already exists in the input dataframe, then no
     conversion is applied, and the original dataframe is returned unchanged.
@@ -964,8 +950,7 @@ def convert_to_date(
 
 
 def fix_eia_na(df):
-    """
-    Replace common ill-posed EIA NA spreadsheet values with np.nan.
+    """Replace common ill-posed EIA NA spreadsheet values with np.nan.
 
     Currently replaces empty string, single decimal points with no numbers,
     and any single whitespace character with np.nan.
@@ -988,8 +973,7 @@ def fix_eia_na(df):
 
 
 def simplify_columns(df):
-    """
-    Simplify column labels for use as snake_case database fields.
+    """Simplify column labels for use as snake_case database fields.
 
     All columns will be re-labeled by:
     * Replacing all non-alphanumeric characters with spaces.
@@ -1050,8 +1034,7 @@ def drop_tables(engine, clobber=False):
 
 
 def merge_dicts(list_of_dicts):
-    """
-    Merge multipe dictionaries together.
+    """Merge multipe dictionaries together.
 
     Given any number of dicts, shallow copy and merge into a new dict,
     precedence goes to key value pairs in latter dicts.
@@ -1072,8 +1055,7 @@ def merge_dicts(list_of_dicts):
 def convert_cols_dtypes(
     df: pd.DataFrame, data_source: Optional[str] = None, name: Optional[str] = None
 ) -> pd.DataFrame:
-    """
-    Convert a PUDL dataframe's columns to the correct data type.
+    """Convert a PUDL dataframe's columns to the correct data type.
 
     Boolean type conversions created a special problem, because null values in
     boolean columns get converted to True (which is bonkers!)... we generally
@@ -1163,8 +1145,7 @@ def convert_cols_dtypes(
 
 
 def generate_rolling_avg(df, group_cols, data_col, window, **kwargs):
-    """
-    Generate a rolling average.
+    """Generate a rolling average.
 
     For a given dataframe with a ``report_date`` column, generate a monthly
     rolling average and use this rolling average to impute missing values.
@@ -1218,8 +1199,7 @@ def generate_rolling_avg(df, group_cols, data_col, window, **kwargs):
 
 
 def fillna_w_rolling_avg(df_og, group_cols, data_col, window=12, **kwargs):
-    """
-    Filling NaNs with a rolling average.
+    """Filling NaNs with a rolling average.
 
     Imputes null values from a dataframe on a rolling monthly average. To note,
     this was designed to work with the PudlTabl object's tables.
@@ -1251,8 +1231,7 @@ def fillna_w_rolling_avg(df_og, group_cols, data_col, window=12, **kwargs):
 
 
 def count_records(df, cols, new_count_col_name):
-    """
-    Count the number of unique records in group in a dataframe.
+    """Count the number of unique records in group in a dataframe.
 
     Args:
         df (panda.DataFrame) : dataframe you would like to groupby and count.
@@ -1275,8 +1254,7 @@ def count_records(df, cols, new_count_col_name):
 
 
 def cleanstrings_snake(df, cols):
-    """
-    Clean the strings in a columns in a dataframe with snake case.
+    """Clean the strings in a columns in a dataframe with snake case.
 
     Args:
         df (panda.DataFrame) : original dataframe.
@@ -1298,8 +1276,7 @@ def zero_pad_numeric_string(
     col: pd.Series,
     n_digits: int,
 ) -> pd.Series:
-    """
-    Clean up fixed-width leading zero padded numeric (e.g. ZIP, FIPS) codes.
+    """Clean up fixed-width leading zero padded numeric (e.g. ZIP, FIPS) codes.
 
     Often values like ZIP and FIPS codes are stored as integers, or get
     converted to floating point numbers because there are NA values in the
@@ -1388,8 +1365,7 @@ def get_working_eia_dates():
 
 
 def dedupe_on_category(dedup_df, base_cols, category_name, sorter):
-    """
-    Deduplicate a df using a sorted category to retain prefered values.
+    """Deduplicate a df using a sorted category to retain prefered values.
 
     Use a sorted category column to retain your prefered values when a
     dataframe is deduplicated.
@@ -1408,8 +1384,7 @@ def dedupe_on_category(dedup_df, base_cols, category_name, sorter):
 
 
 def calc_capacity_factor(df, freq, min_cap_fact=None, max_cap_fact=None):
-    """
-    Calculate capacity factor.
+    """Calculate capacity factor.
 
     Capacity factor is calcuated from the capcity, the net generation over a
     time period and the hours in that same time period. The dates from that
@@ -1464,8 +1439,7 @@ def calc_capacity_factor(df, freq, min_cap_fact=None, max_cap_fact=None):
 
 
 def weighted_average(df, data_col, weight_col, by):
-    """
-    Generate a weighted average.
+    """Generate a weighted average.
 
     Args:
         df (pandas.DataFrame): A DataFrame containing, at minimum, the columns
@@ -1495,8 +1469,7 @@ def sum_and_weighted_average_agg(
     sum_cols: list,
     wtavg_dict: Dict[str, str],
 ) -> pd.DataFrame:
-    """
-    Aggregate dataframe by summing and using weighted averages.
+    """Aggregate dataframe by summing and using weighted averages.
 
     Many times we want to aggreate a data table using the same groupby columns
     but with different aggregation methods. This function combines two of our
@@ -1531,8 +1504,7 @@ def sum_and_weighted_average_agg(
 
 
 def get_eia_ferc_acct_map():
-    """
-    Get map of EIA technology_description/pm codes <> ferc accounts.
+    """Get map of EIA technology_description/pm codes <> ferc accounts.
 
     Returns:
         pandas.DataFrame: table which maps the combination of EIA's technology
@@ -1556,8 +1528,7 @@ def dedupe_n_flatten_list_of_lists(mega_list):
 
 
 def convert_df_to_excel_file(df: pd.DataFrame, **kwargs) -> pd.ExcelFile:
-    """
-    Converts a pandas dataframe to a pandas ExcelFile object.
+    """Converts a pandas dataframe to a pandas ExcelFile object.
 
     You can pass parameters for pandas.to_excel() function.
     """

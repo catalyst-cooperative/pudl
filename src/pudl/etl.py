@@ -1,5 +1,4 @@
-"""
-Run the PUDL ETL Pipeline.
+"""Run the PUDL ETL Pipeline.
 
 The PUDL project integrates several different public datasets into a well
 normalized relational database allowing easier access and interaction between all
@@ -19,6 +18,7 @@ import itertools
 import logging
 import time
 from concurrent.futures import ProcessPoolExecutor
+from functools import partial
 from pathlib import Path
 from typing import Any, Dict, List
 
@@ -175,17 +175,9 @@ def _read_static_tables_ferc1() -> Dict[str, pd.DataFrame]:
     populate a bunch of small infrastructural tables within the PUDL DB.
     """
     return {
-        "ferc_accounts": FERC_ACCOUNTS[
-            [
-                "ferc_account_id",
-                "ferc_account_description",
-            ]
-        ],
+        "ferc_accounts": FERC_ACCOUNTS[["ferc_account_id", "ferc_account_description"]],
         "ferc_depreciation_lines": FERC_DEPRECIATION_LINES[
-            [
-                "line_id",
-                "ferc_account_description",
-            ]
+            ["line_id", "ferc_account_description"]
         ],
         "power_purchase_types_ferc1": CODE_METADATA["power_purchase_types_ferc1"]["df"],
     }
@@ -258,8 +250,7 @@ def etl_epacems(
     pudl_settings: Dict[str, Any],
     ds_kwargs: Dict[str, Any],
 ) -> None:
-    """
-    Extract, transform and load CSVs for EPA CEMS.
+    """Extract, transform and load CSVs for EPA CEMS.
 
     Args:
         epacems_settings: Validated ETL parameters required by this data source.
@@ -305,19 +296,17 @@ def etl_epacems(
         start_time = time.monotonic()
 
     if epacems_settings.partition:
-        n_yrs = len(epacems_settings.years)
         epacems_dir = Path(pudl_settings["parquet_dir"]) / "epacems"
+        do_one_year = partial(
+            _etl_one_year_epacems,
+            states=epacems_settings.states,
+            pudl_db=pudl_settings["pudl_db"],
+            out_dir=epacems_dir,
+            ds_kwargs=ds_kwargs,
+        )
         with ProcessPoolExecutor() as executor:
-            _ = list(  # Convert results of map() to list to force execution
-                executor.map(
-                    _etl_one_year_epacems,
-                    epacems_settings.years,
-                    itertools.repeat(epacems_settings.states, n_yrs),
-                    itertools.repeat(pudl_settings["pudl_db"], n_yrs),
-                    itertools.repeat(epacems_dir, n_yrs),
-                    itertools.repeat(ds_kwargs, n_yrs),
-                )
-            )
+            # Convert results of map() to list to force execution
+            _ = list(executor.map(do_one_year, epacems_settings.years))
 
     else:
         ds = Datastore(**ds_kwargs)
@@ -391,8 +380,7 @@ def etl(  # noqa: C901
     check_types: bool = True,
     check_values: bool = True,
 ):
-    """
-    Run the PUDL Extract, Transform, and Load data pipeline.
+    """Run the PUDL Extract, Transform, and Load data pipeline.
 
     First we validate the settings, and then process data destined for loading
     into SQLite, which includes The FERC Form 1 and the EIA Forms 860 and 923.

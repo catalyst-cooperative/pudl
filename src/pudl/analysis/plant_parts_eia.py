@@ -1,5 +1,4 @@
-"""
-Aggregate plant parts to make an EIA master plant-part table.
+"""Aggregate plant parts to make an EIA master plant-part table.
 
 Practically speaking, a plant is a collection of generator(s). There are many
 attributes of generators (i.e. prime mover, primary fuel source, technology
@@ -183,13 +182,12 @@ OR make the table via objects in this module:
     parts_compiler = MakePlantParts(pudl_out)
     plant_parts_eia = parts_compiler.execute(gens_mega=gens_mega, true_grans=true_grans)
 
-
 """
 
 import logging
 import warnings
 from copy import deepcopy
-from typing import Dict, List, Literal
+from typing import Dict, List, Literal, Optional
 
 import numpy as np
 import pandas as pd
@@ -275,9 +273,7 @@ SUM_COLS: List[str] = [
     "capacity_eoy_mw",
     "total_mmbtu",
 ]
-"""
-list: list of columns to sum when aggregating a table.
-"""
+"""list: list of columns to sum when aggregating a table."""
 
 WTAVG_DICT = {
     "fuel_cost_per_mwh": "capacity_mw",
@@ -286,8 +282,8 @@ WTAVG_DICT = {
 }
 """
 dict: a dictionary of columns (keys) to perform weighted averages on and
-the weight column (values)"""
-
+the weight column (values)
+"""
 
 CONSISTENT_ATTRIBUTE_COLS = [
     "fuel_type_code_pudl",
@@ -339,8 +335,7 @@ FIRST_COLS = [
 
 
 class MakeMegaGenTbl(object):
-    """
-    Compiler for a MEGA generator table with ownership integrated.
+    """Compiler for a MEGA generator table with ownership integrated.
 
     Examples
     --------
@@ -406,8 +401,7 @@ class MakeMegaGenTbl(object):
     """
 
     def __init__(self):
-        """
-        Initialize object which creates a MEGA generator table.
+        """Initialize object which creates a MEGA generator table.
 
         The coordinating function here is :meth:`execute`.
 
@@ -421,8 +415,7 @@ class MakeMegaGenTbl(object):
         slice_cols: List[str] = SUM_COLS,
         validate_own_merge: str = "1:m",
     ) -> pd.DataFrame:
-        """
-        Make the mega generators table with ownership integrated.
+        """Make the mega generators table with ownership integrated.
 
         Args:
             mcoe: generator-based mcoe table from :meth:`pudl.output.PudlTabl.mcoe()`
@@ -456,8 +449,7 @@ class MakeMegaGenTbl(object):
         return gens_mega
 
     def get_gens_mega_table(self, mcoe):
-        """
-        Compile the main generators table that will be used as base of PPL.
+        """Compile the main generators table that will be used as base of PPL.
 
         Get a table of all of the generators there ever were and all of the
         data PUDL has to offer about those generators. This generator table
@@ -479,8 +471,7 @@ class MakeMegaGenTbl(object):
         return all_gens
 
     def label_operating_gens(self, gen_df: pd.DataFrame) -> pd.DataFrame:
-        """
-        Label the operating generators.
+        """Label the operating generators.
 
         We want to distinguish between "operating" generators (those that
         report as "existing" and those that retire mid-year) and everything
@@ -529,8 +520,7 @@ class MakeMegaGenTbl(object):
     def scale_by_ownership(
         self, gens_mega, own_eia860, scale_cols=SUM_COLS, validate="1:m"
     ):
-        """
-        Generate proportional data by ownership %s.
+        """Generate proportional data by ownership %s.
 
         Why do we have to do this at all? Sometimes generators are owned by
         many different utility owners that own slices of that generator. EIA
@@ -605,8 +595,7 @@ class LabelTrueGranularities(object):
     """True Granularity Labeler."""
 
     def __init__(self):
-        """
-        Initialize the true granulary labeler.
+        """Initialize the true granulary labeler.
 
         The coordinating function here is :meth``execute``.
         """
@@ -616,8 +605,7 @@ class LabelTrueGranularities(object):
         {v: k for k, v in self.parts_to_ids.items()}
 
     def execute(self, gens_mega: pd.DataFrame, drop_extra_cols: bool = True):
-        """
-        Prep the table that denotes true_gran for all generators.
+        """Prep the table that denotes true_gran for all generators.
 
         This method will generate a dataframe based on ``gens_mega``
         that has boolean columns that denotes whether each plant-part is a true
@@ -663,8 +651,7 @@ class LabelTrueGranularities(object):
         return true_gran_labels
 
     def get_parts_to_parent_parts(self):
-        """
-        Make a dictionary of each plant-part's parent parts.
+        """Make a dictionary of each plant-part's parent parts.
 
         We have imposed a hierarchy on the plant-parts with the
         :py:const:`PLANT_PARTS_ORDERED` list and this method generates a
@@ -678,8 +665,7 @@ class LabelTrueGranularities(object):
         return parts_to_parent_parts
 
     def make_all_the_counts(self, gens_mega: pd.DataFrame) -> pd.DataFrame:
-        """
-        For each plant-part, count the unique child and parent parts.
+        """For each plant-part, count the unique child and parent parts.
 
         All plant-part's are situated within a hierarchy that is defined within
         :py:const:`PLANT_PARTS_ORDERED`. Child parts are plant-parts that are
@@ -754,8 +740,7 @@ class LabelTrueGranularities(object):
         return all_the_counts
 
     def make_all_the_bools(self, counts):
-        """
-        Make booleans to indicate whether a cooresponding plant-part is consistent.
+        """Make booleans to indicate whether a cooresponding plant-part is consistent.
 
         We've counted all of the child- and parent-parts contained within a
         plant-part in :meth:. If there is only one cooresponding plant-part
@@ -791,8 +776,7 @@ class LabelTrueGranularities(object):
         return counts
 
     def label_true_grans_by_part(self, part_bools):
-        """
-        Label the true/false granularies for each part/parent-part combo.
+        """Label the true/false granularies for each part/parent-part combo.
 
         This method uses the indicator columns which let us know whether or not
         there are more than one unique value for both the parent and child
@@ -814,7 +798,7 @@ class LabelTrueGranularities(object):
         Args:
             part_bools (pandas.DataFrame): result of :meth:`make_all_the_bools`
 
-        TODO:
+        Todo:
             This function results in warning: ``PerformanceWarning: DataFrame
             is highly fragmented...`` I expect this is because of the number of
             columns that are being assigned here via ``.loc[:, col_to_assign]``.
@@ -850,8 +834,7 @@ class LabelTrueGranularities(object):
         return part_bools
 
     def label_true_id_by_part(self, part_trues):
-        """
-        Label the appropriate plant-part.
+        """Label the appropriate plant-part.
 
         For each plant-part, we need to make a label which indicates what the
         "true" unique plant-part is.. if a gen vs a unit is a non-unique set a
@@ -905,8 +888,7 @@ class LabelTrueGranularities(object):
 
 
 class MakePlantParts(object):
-    """
-    Compile the plant parts for the master unit list.
+    """Compile the plant parts for the master unit list.
 
     This object generates a master list of different "plant-parts", which
     are various collections of generators - i.e. units, fuel-types, whole
@@ -928,8 +910,7 @@ class MakePlantParts(object):
     """
 
     def __init__(self, pudl_out):
-        """
-        Initialize instance of :class:`MakePlantParts`.
+        """Initialize instance of :class:`MakePlantParts`.
 
         Args:
             pudl_out (pudl.output.pudltabl.PudlTabl): An object used to create
@@ -944,8 +925,7 @@ class MakePlantParts(object):
         self.id_cols_list = make_id_cols_list()
 
     def execute(self, gens_mega, true_grans):
-        """
-        Aggreate and slice data points by each plant part.
+        """Aggreate and slice data points by each plant part.
 
         Returns:
             pandas.DataFrame:
@@ -995,8 +975,7 @@ class MakePlantParts(object):
     #######################################
 
     def add_additonal_cols(self, plant_parts_eia):
-        """
-        Add additonal data and id columns.
+        """Add additonal data and id columns.
 
         This method adds a set of either calculated columns or PUDL ID columns.
 
@@ -1061,8 +1040,7 @@ class MakePlantParts(object):
     #################
 
     def validate_ownership_for_owned_records(self, plant_parts_eia):
-        """
-        Test ownership - fraction owned for owned records.
+        """Test ownership - fraction owned for owned records.
 
         This test can be run at the end of or with the result of
         :meth:`MakePlantParts.execute`. It tests a few aspects of the the
@@ -1110,8 +1088,7 @@ class MakePlantParts(object):
 
 
 class PlantPart(object):
-    """
-    Plant-part table maker.
+    """Plant-part table maker.
 
     The coordinating method here is :meth:`execute`.
 
@@ -1147,8 +1124,7 @@ class PlantPart(object):
     """
 
     def __init__(self, part_name):
-        """
-        Initialize an object which makes a tbl for a specific plant-part.
+        """Initialize an object which makes a tbl for a specific plant-part.
 
         Args:
             part_name (str): the name of the part to aggregate to. Names can be
@@ -1164,8 +1140,7 @@ class PlantPart(object):
         sum_cols: List[str] = SUM_COLS,
         wtavg_dict: Dict = WTAVG_DICT,
     ) -> pd.DataFrame:
-        """
-        Get a table of data aggregated by a specific plant-part.
+        """Get a table of data aggregated by a specific plant-part.
 
         This method will take ``gens_mega`` and aggregate the generator records
         to the level of the plant-part. This is mostly done via
@@ -1205,8 +1180,7 @@ class PlantPart(object):
         sum_cols=SUM_COLS,
         wtavg_dict=WTAVG_DICT,
     ) -> pd.DataFrame:
-        """
-        Aggregate the plant part by seperating ownership types.
+        """Aggregate the plant part by seperating ownership types.
 
         There are total records and owned records in this master unit list.
         Those records need to be aggregated differently to scale. The "total"
@@ -1271,9 +1245,8 @@ class PlantPart(object):
 
         return part_ag
 
-    def ag_fraction_owned(self, part_ag):
-        """
-        Calculate the fraction owned for a plant-part df.
+    def ag_fraction_owned(self, part_ag: pd.DataFrame):
+        """Calculate the fraction owned for a plant-part df.
 
         This method takes a dataframe of records that are aggregated to the
         level of a plant-part (with certain ``id_cols``) and appends a
@@ -1288,8 +1261,8 @@ class PlantPart(object):
         This method is meant to be run after :meth:`ag_part_by_own_slice`.
 
         Args:
-            part_ag (pandas.DataFrame):
-        """
+            part_ag:
+        """  # noqa: D417
         # we must first get the total capacity of the full plant
         # Note: we could simply not include the ownership == "total" records
         # We are automatically assign fraction_owned == 1 to them, but it seems
@@ -1318,8 +1291,7 @@ class PlantPart(object):
         return part_frac
 
     def add_new_plant_name(self, part_df, gens_mega):
-        """
-        Add plants names into the compiled plant part df.
+        """Add plants names into the compiled plant part df.
 
         Args:
             part_df (pandas.DataFrame):  dataframe containing records associated
@@ -1344,8 +1316,7 @@ class PlantPart(object):
         return part_df
 
     def add_record_count_per_plant(self, part_df: pd.DataFrame) -> pd.DataFrame:
-        """
-        Add a record count for each set of plant part records in each plant.
+        """Add a record count for each set of plant part records in each plant.
 
         Args:
             part_df: dataframe containing records associated
@@ -1371,14 +1342,14 @@ class PartTrueGranLabeler:
         self.part_name = part_name
         self.id_cols = PLANT_PARTS[part_name]["id_cols"]
 
-    def execute(self, part_df, true_grans):
-        """
-        Merge the true granularity labels into the plant part df.
+    def execute(self, part_df: pd.DataFrame, true_grans):
+        """Merge the true granularity labels into the plant part df.
 
         Args:
-            part_df (pandas.DataFrame)
+            part_df:
+            true_grans:
 
-        """
+        """  # noqa: D417
         # get only the columns you need for this part and drop duplicates
         bool_df = true_grans[
             self.id_cols
@@ -1418,9 +1389,13 @@ class PartTrueGranLabeler:
 class AddAttribute(object):
     """Base class for adding attributes to plant-part tables."""
 
-    def __init__(self, attribute_col, part_name, assign_col_dict=None):
-        """
-        Initialize a attribute adder.
+    def __init__(
+        self,
+        attribute_col: str,
+        part_name: str,
+        assign_col_dict: Optional[Dict[str, str]] = None,
+    ):
+        """Initialize a attribute adder.
 
         Args:
             attribute_col (string): name of qualifer record that you want added.
@@ -1429,7 +1404,7 @@ class AddAttribute(object):
                 or :py:const:`MAX_MIN_ATTRIBUTES_DICT`.
             part_name (str): the name of the part to aggregate to. Names can be
                 only those in :py:const:`PLANT_PARTS`
-        """
+        """  # noqa: D417
         assert attribute_col in CONSISTENT_ATTRIBUTE_COLS + list(
             PRIORITY_ATTRIBUTES_DICT.keys()
         ) + list(MAX_MIN_ATTRIBUTES_DICT.keys())
@@ -1452,8 +1427,7 @@ class AddConsistentAttributes(AddAttribute):
     """Adder of attributes records to a plant-part table."""
 
     def execute(self, part_df, gens_mega):
-        """
-        Get qualifier records.
+        """Get qualifier records.
 
         For an individual dataframe of one plant part (e.g. only
         "plant_prime_mover" plant part records), we typically have identifying
@@ -1501,8 +1475,7 @@ class AddConsistentAttributes(AddAttribute):
         return part_df.merge(consistent_records, how="left")
 
     def get_consistent_qualifiers(self, record_df):
-        """
-        Get fully consistent qualifier records.
+        """Get fully consistent qualifier records.
 
         When data is a qualifer column is identical for every record in a
         plant part, we associate this data point with the record. If the data
@@ -1539,8 +1512,7 @@ class AddConsistentAttributes(AddAttribute):
 
 
 class AddPriorityAttribute(AddAttribute):
-    """
-    Add Attributes based on a priority sorting from :py:const:`PRIORITY_ATTRIBUTES`.
+    """Add Attributes based on a priority sorting from :py:const:`PRIORITY_ATTRIBUTES`.
 
     This object associates one attribute from the generators that make up a
     plant-part based on a sorted list within :py:const:`PRIORITY_ATTRIBUTES`.
@@ -1553,8 +1525,7 @@ class AddPriorityAttribute(AddAttribute):
     """
 
     def execute(self, part_df, gens_mega):
-        """
-        Add the attribute to the plant-part df based on priority.
+        """Add the attribute to the plant-part df based on priority.
 
         Args:
             part_df (pandas.DataFrame): dataframe containing records associated
@@ -1581,8 +1552,7 @@ class AddPriorityAttribute(AddAttribute):
 
 
 class AddMaxMinAttribute(AddAttribute):
-    """
-    Add Attributes based on the maximum or minimum value of a sorted attribute.
+    """Add Attributes based on the maximum or minimum value of a sorted attribute.
 
     This object adds an attribute based on the maximum or minimum of another
     attribute within a group of plant parts uniquely identified by their base
@@ -1596,8 +1566,7 @@ class AddMaxMinAttribute(AddAttribute):
         att_dtype: str,
         keep: Literal["first", "last"] = "first",
     ):
-        """
-        Add the attribute to the plant part df based on sorting of another attribute.
+        """Add the attribute to the plant part df based on sorting of another attribute.
 
         Args:
             part_df (pandas.DataFrame): dataframe containing records associated
@@ -1639,8 +1608,7 @@ class AddMaxMinAttribute(AddAttribute):
 
 
 def validate_run_aggregations(plant_parts_eia, gens_mega):
-    """
-    Run a test of the aggregated columns.
+    """Run a test of the aggregated columns.
 
     This test will used the plant_parts_eia, re-run groubys and check
     similarity.
@@ -1697,8 +1665,7 @@ def _test_prep_merge(part_name, plant_parts_eia, gens_mega):
 
 
 def make_id_cols_list():
-    """
-    Get a list of the id columns (primary keys) for all of the plant parts.
+    """Get a list of the id columns (primary keys) for all of the plant parts.
 
     Returns:
         list: a list of the ID columns for all of the plant-parts, including
@@ -1711,8 +1678,7 @@ def make_id_cols_list():
 
 
 def make_parts_to_ids_dict():
-    """
-    Make dict w/ plant-part names (keys) to the main id column (values).
+    """Make dict w/ plant-part names (keys) to the main id column (values).
 
     All plant-parts have 1 or 2 ID columns in :py:const:`PLANT_PARTS` plant_id_eia and
     a secondary column (with the exception of the "plant" plant-part). The
@@ -1730,8 +1696,7 @@ def make_parts_to_ids_dict():
 
 
 def add_record_id(part_df, id_cols, plant_part_col="plant_part", year=True):
-    """
-    Add a record id to a compiled part df.
+    """Add a record id to a compiled part df.
 
     We need a standardized way to refer to these compiled records that
     contains enough information in the id itself that in theory we could
@@ -1777,22 +1742,21 @@ def add_record_id(part_df, id_cols, plant_part_col="plant_part", year=True):
     return part_df
 
 
-def assign_record_id_eia(test_df, plant_part_col="plant_part"):
-    """
-    Assign record ids to a df with a mix of plant parts.
+def assign_record_id_eia(test_df: pd.DataFrame, plant_part_col: str = "plant_part"):
+    """Assign record ids to a df with a mix of plant parts.
 
     Args:
-        test_df (pandas.DataFrame):
-        plant_part_col (string):
+        test_df:
+        plant_part_col:
 
-    TODO:
+    Todo:
         This function results in warning: ``PerformanceWarning: DataFrame is
         highly fragmented...`` I'm honestly not sure if this is happening because of
         this function specifically or is a result from all of the column
         assignments in :meth:`label_true_id_by_part` or :meth:`label_true_grans_by_part`
         where we are also getting this warning.
 
-    """
+    """  # noqa: D417
     dfs = []
     for part in PLANT_PARTS:
         dfs.append(

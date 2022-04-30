@@ -41,8 +41,8 @@ def test_epacems_subset(epacems_year_and_state, epacems_parquet_path):
     actual = epacems(
         columns=["gross_load_mw"], epacems_path=path, years=years, states=states
     )
-    assert isinstance(actual, dd.DataFrame)
-    assert actual.shape[0].compute() > 0  # n rows
+    assert isinstance(actual, dd.DataFrame)  # nosec: B101
+    assert actual.shape[0].compute() > 0  # nosec: B101  n rows
 
 
 def test_epacems_subset_input_validation(epacems_year_and_state, epacems_parquet_path):
@@ -58,21 +58,9 @@ def test_epacems_subset_input_validation(epacems_year_and_state, epacems_parquet
     invalid_year = 1775
     invalid_column = "clean_coal"
     combos = [
-        dict(
-            years=[valid_year],
-            states=[valid_state],
-            columns=[invalid_column],
-        ),
-        dict(
-            years=[valid_year],
-            states=[invalid_state],
-            columns=[valid_column],
-        ),
-        dict(
-            years=[invalid_year],
-            states=[valid_state],
-            columns=[valid_column],
-        ),
+        dict(years=[valid_year], states=[valid_state], columns=[invalid_column]),
+        dict(years=[valid_year], states=[invalid_state], columns=[valid_column]),
+        dict(years=[invalid_year], states=[valid_state], columns=[valid_column]),
     ]
     for combo in combos:
         with pytest.raises(ValueError):
@@ -90,4 +78,4 @@ def test_epacems_parallel(pudl_settings_fixture, pudl_ds_kwargs):
         filters=year_state_filter(years=[2019], states=["WY"]),
         index=False,
     ).compute()
-    assert df.shape == (219000, 19)
+    assert df.shape == (219000, 19)  # nosec: B101

@@ -25,8 +25,7 @@ class BaseModel(PydanticBaseModel):
 
 
 class GenericDatasetSettings(BaseModel):
-    """
-    An abstract pydantic model for generic datasets.
+    """An abstract pydantic model for generic datasets.
 
     Each dataset must specify working tables and partitions.
     A dataset can have an arbitrary number of partitions.
@@ -36,8 +35,7 @@ class GenericDatasetSettings(BaseModel):
 
     @root_validator
     def validate_partitions(cls, partitions):  # noqa: N805
-        """
-        Validate the requested data partitions.
+        """Validate the requested data partitions.
 
         Check that all the partitions defined in the ``working_partitions`` of the
         associated ``data_source`` (e.g. years or states) have been assigned in the
@@ -69,10 +67,9 @@ class GenericDatasetSettings(BaseModel):
 
 
 class Ferc1Settings(GenericDatasetSettings):
-    """
-    An immutable pydantic model to validate Ferc1Settings.
+    """An immutable pydantic model to validate Ferc1Settings.
 
-    Parameters:
+    Args:
         data_source: DataSource metadata object
         years: List of years to validate.
         tables: List of tables to validate.
@@ -85,10 +82,9 @@ class Ferc1Settings(GenericDatasetSettings):
 
 
 class Ferc714Settings(GenericDatasetSettings):
-    """
-    An immutable pydantic model to validate Ferc714Settings.
+    """An immutable pydantic model to validate Ferc714Settings.
 
-    Parameters:
+    Args:
         data_source: DataSource metadata object
         tables: List of tables to validate.
     """
@@ -99,10 +95,9 @@ class Ferc714Settings(GenericDatasetSettings):
 
 
 class EpaCemsSettings(GenericDatasetSettings):
-    """
-    An immutable pydantic model to validate EPA CEMS settings.
+    """An immutable pydantic model to validate EPA CEMS settings.
 
-    Parameters:
+    Args:
         data_source: DataSource metadata object
         years: List of years to validate.
         states: List of states to validate.
@@ -127,10 +122,9 @@ class EpaCemsSettings(GenericDatasetSettings):
 
 
 class Eia923Settings(GenericDatasetSettings):
-    """
-    An immutable pydantic model to validate EIA 923 settings.
+    """An immutable pydantic model to validate EIA 923 settings.
 
-    Parameters:
+    Args:
         data_source: DataSource metadata object
         years: List of years to validate.
         tables: List of tables to validate.
@@ -143,10 +137,9 @@ class Eia923Settings(GenericDatasetSettings):
 
 
 class Eia861Settings(GenericDatasetSettings):
-    """
-    An immutable pydantic model to validate EIA 861 settings.
+    """An immutable pydantic model to validate EIA 861 settings.
 
-    Parameters:
+    Args:
         data_source: DataSource metadata object
         years: List of years to validate.
         tables: List of tables to validate.
@@ -161,8 +154,7 @@ class Eia861Settings(GenericDatasetSettings):
 
     @root_validator(pre=True)
     def generate_transform_functions(cls, values):  # noqa: N805
-        """
-        Map tables to transform functions.
+        """Map tables to transform functions.
 
         Args:
             values: eia861 settings.
@@ -192,12 +184,11 @@ class Eia861Settings(GenericDatasetSettings):
 
 
 class Eia860Settings(GenericDatasetSettings):
-    """
-    An immutable pydantic model to validate EIA 860 settings.
+    """An immutable pydantic model to validate EIA 860 settings.
 
     This model also check 860m settings.
 
-    Parameters:
+    Args:
         data_source: DataSource metadata object
         years: List of years to validate.
         tables: List of tables to validate.
@@ -215,8 +206,7 @@ class Eia860Settings(GenericDatasetSettings):
 
     @validator("eia860m")
     def check_eia860m_date(cls, eia860m: bool) -> bool:  # noqa: N805
-        """
-        Check 860m date year is exactly one year later than most recent working 860 year.
+        """Check 860m date year is exactly one year later than most recent working 860 year.
 
         Args:
             eia860m: True if 860m is requested.
@@ -240,10 +230,9 @@ class Eia860Settings(GenericDatasetSettings):
 
 
 class GlueSettings(BaseModel):
-    """
-    An immutable pydantic model to validate Glue settings.
+    """An immutable pydantic model to validate Glue settings.
 
-    Parameters:
+    Args:
         eia: Include eia in glue settings.
         ferc1: Include ferc1 in glue settings.
     """
@@ -253,10 +242,9 @@ class GlueSettings(BaseModel):
 
 
 class EiaSettings(BaseModel):
-    """
-    An immutable pydantic model to validate EIA datasets settings.
+    """An immutable pydantic model to validate EIA datasets settings.
 
-    Parameters:
+    Args:
         eia860: Immutable pydantic model to validate eia860 settings.
         eia923: Immutable pydantic model to validate eia923 settings.
     """
@@ -266,8 +254,7 @@ class EiaSettings(BaseModel):
 
     @root_validator(pre=True)
     def default_load_all(cls, values):  # noqa: N805
-        """
-        If no datasets are specified default to all.
+        """If no datasets are specified default to all.
 
         Args:
             values (Dict[str, BaseModel]): dataset settings.
@@ -283,8 +270,7 @@ class EiaSettings(BaseModel):
 
     @root_validator
     def check_eia_dependencies(cls, values):  # noqa: N805
-        """
-        Make sure the dependencies between the eia datasets are satisfied.
+        """Make sure the dependencies between the eia datasets are satisfied.
 
         Dependencies:
         * eia860 requires eia923.boiler_fuel_eia923 and eia923.generation_eia923.
@@ -309,10 +295,9 @@ class EiaSettings(BaseModel):
 
 
 class DatasetsSettings(BaseModel):
-    """
-    An immutable pydantic model to validate PUDL Dataset settings.
+    """An immutable pydantic model to validate PUDL Dataset settings.
 
-    Parameters:
+    Args:
         ferc1: Immutable pydantic model to validate ferc1 settings.
         eia: Immutable pydantic model to validate eia(860, 923) settings.
         glue: Immutable pydantic model to validate glue settings.
@@ -326,8 +311,7 @@ class DatasetsSettings(BaseModel):
 
     @root_validator(pre=True)
     def default_load_all(cls, values):  # noqa: N805
-        """
-        If no datasets are specified default to all.
+        """If no datasets are specified default to all.
 
         Args:
             values (Dict[str, BaseModel]): dataset settings.
@@ -345,8 +329,7 @@ class DatasetsSettings(BaseModel):
 
     @root_validator
     def add_glue_settings(cls, values):  # noqa: N805
-        """
-        Add glue settings if ferc1 and eia data are both requested.
+        """Add glue settings if ferc1 and eia data are both requested.
 
         Args:
             values (Dict[str, BaseModel]): dataset settings.
@@ -366,12 +349,12 @@ class DatasetsSettings(BaseModel):
 
 
 class Ferc1ToSqliteSettings(GenericDatasetSettings):
-    """
-    An immutable pydantic nodel to validate Ferc1 to SQLite settings.
+    """An immutable pydantic nodel to validate Ferc1 to SQLite settings.
 
-    Parameters:
+    Args:
         tables: List of tables to validate.
         years: List of years to validate.
+
     """
 
     data_source: ClassVar[DataSource] = DataSource.from_id("ferc1")
@@ -406,15 +389,15 @@ class EtlSettings(BaseSettings):
     pudl_out: str = pudl.workspace.setup.get_defaults()["pudl_out"]
 
     @classmethod
-    def from_yaml(cls, path: str):
-        """
-        Create an EtlSettings instance from a yaml_file path.
+    def from_yaml(cls, path: str) -> "EtlSettings":
+        """Create an EtlSettings instance from a yaml_file path.
 
-        Parameters:
+        Args:
             path: path to a yaml file.
 
         Returns:
-            EtlSettings: etl settings object.
+            An ETL settings object.
+
         """
         with pathlib.Path(path).open() as f:
             yaml_file = yaml.safe_load(f)

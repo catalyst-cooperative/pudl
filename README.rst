@@ -6,19 +6,19 @@ The Public Utility Data Liberation Project (PUDL)
 
 .. image:: https://www.repostatus.org/badges/latest/active.svg
    :target: https://www.repostatus.org/#active
-   :alt: Project Status: Active – The project has reached a stable, usable state and is being actively developed.
+   :alt: Project Status: Active
 
 .. image:: https://github.com/catalyst-cooperative/pudl/workflows/tox-pytest/badge.svg
    :target: https://github.com/catalyst-cooperative/pudl/actions?query=workflow%3Atox-pytest
    :alt: Tox-PyTest Status
 
-.. image:: https://img.shields.io/readthedocs/catalystcoop-pudl
-   :target: https://catalystcoop-pudl.readthedocs.io/en/latest/
-   :alt: Read the Docs Build Status
-
-.. image:: https://img.shields.io/codecov/c/github/catalyst-cooperative/pudl
+.. image:: https://img.shields.io/codecov/c/github/catalyst-cooperative/pudl?style=flat&logo=codecov
    :target: https://codecov.io/gh/catalyst-cooperative/pudl
    :alt: Codecov Test Coverage
+
+.. image:: https://img.shields.io/readthedocs/catalystcoop-pudl?style=flat&logo=readthedocs
+   :target: https://catalystcoop-pudl.readthedocs.io/en/latest/
+   :alt: Read the Docs Build Status
 
 .. image:: https://img.shields.io/pypi/v/catalystcoop.pudl
    :target: https://pypi.org/project/catalystcoop.pudl/
