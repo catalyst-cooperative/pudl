@@ -10,9 +10,13 @@ jobs:
     name: Push Docker image to Docker Hub
     runs-on: ubuntu-latest
     steps:
-#     - name: Checkout Code
-#       uses: actions/checkout@v3
+      - name: Checkout Code
+        uses: actions/checkout@v3
 
+      - name: List directory contents
+        run: ls -la
+
+# In theory this isn't required any more with buildx
 #     - name: Retrieve history and tags for SCM version to work
 #       run: |
 #         git fetch --prune --unshallow
