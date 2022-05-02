@@ -12,11 +12,8 @@ jobs:
     name: Build Docker image and push to Docker Hub
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Code
+      - name: Checkout Repository
         uses: actions/checkout@v3
-
-      - name: List directory contents
-        run: ls -la
 
 #     - name: Retrieve history and tags for SCM version to work
 #       run: |
@@ -24,7 +21,7 @@ jobs:
 #         git fetch --depth=1 origin +refs/tags/*:refs/tags/*
 
       - name: Docker Metadata
-        id: docker-metadata
+        id: docker_metadata
         uses: docker/metadata-action@v3.8.0
         with:
           images: catalystcoop/pudl-etl
@@ -45,5 +42,5 @@ jobs:
           context: .
           file: docker/Dockerfile
           push: ${{ github.event_name != 'pull_request' }}
-          tags: ${{ steps.docker_meta.outputs.tags }}
-          labels: ${{ steps.docker_meta.outputs.labels }}
+          tags: ${{ steps.docker_metadata.outputs.tags }}
+          labels: ${{ steps.docker_metadata.outputs.labels }}
