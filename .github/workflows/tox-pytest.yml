@@ -1,9 +1,13 @@
 name: tox-pytest
-
-on: [push, pull_request]
-branches:
-- main
-- dev
+on:
+  push:
+    branches:
+    - main
+    - dev
+  pull_request:
+    branches:
+    - main
+    - dev
 
 jobs:
   build:
