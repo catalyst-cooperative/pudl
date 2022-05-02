@@ -16,7 +16,6 @@ jobs:
       - name: List directory contents
         run: ls -la
 
-# In theory this isn't required any more with buildx
 #     - name: Retrieve history and tags for SCM version to work
 #       run: |
 #         git fetch --prune --unshallow
