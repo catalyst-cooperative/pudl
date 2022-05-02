@@ -107,24 +107,24 @@ repos:
 ########################################################################################
 # Our own pre-commit hooks, which don't come from the pre-commit project
 ########################################################################################
-- repo: local
-  hooks:
-    - id: nb-output-clear
-      name: nb-output-clear
-      stages: [commit]
-      language: system
-      verbose: false
-      pass_filenames: false
-      always_run: true
-      entry: find devtools \( -name \*.ipynb -not -name \*checkpoint.ipynb \) -type f -exec jupyter nbconvert --clear-output {} \;
-    - id: unit-tests
-      name: unit-tests
-      stages: [commit]
-      language: system
-      verbose: false
-      pass_filenames: false
-      always_run: true
-      entry: pytest --doctest-modules src/pudl test/unit
+#- repo: local
+#  hooks:
+#    - id: nb-output-clear
+#      name: nb-output-clear
+#      stages: [commit]
+#      language: system
+#      verbose: false
+#      pass_filenames: false
+#      always_run: true
+#      entry: find devtools \( -name \*.ipynb -not -name \*checkpoint.ipynb \) -type f -exec jupyter nbconvert --clear-output {} \;
+#    - id: unit-tests
+#      name: unit-tests
+#      stages: [commit]
+#      language: system
+#      verbose: false
+#      pass_filenames: false
+#      always_run: true
+#      entry: pytest --doctest-modules src/pudl test/unit
 
 # Configuration for pre-commit.ci
 ci:
@@ -136,5 +136,5 @@ ci:
   autoupdate_branch: dev
   autoupdate_commit_msg: '[pre-commit.ci] pre-commit autoupdate'
   autoupdate_schedule: weekly
-  skip: [unit-tests, nb-output-clear]
+#  skip: [unit-tests, nb-output-clear]
   submodules: false
