@@ -41,6 +41,7 @@ jobs:
       - name: Build image and push to Docker Hub
         uses: docker/build-push-action@v2.10.0
         with:
+          context: .
           file: docker/Dockerfile
           tags: catalystcoop/pudl-etl:latest
           push: ${{ github.event_name != 'pull_request' }}
