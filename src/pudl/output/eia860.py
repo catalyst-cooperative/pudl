@@ -367,15 +367,18 @@ def generators_eia860(
 
 
 def fill_generator_technology_description(gens_df: pd.DataFrame) -> pd.DataFrame:
-    """Fill in missing ``technology_description`` based by backfilling & unquie mapping.
+    """Fill in missing ``technology_description`` based by unique mapping & backfilling.
 
-    Prior to 2014, the EIA 860 did not report ``technology_description``. This
-    function backfills those early years within groups defined by ``plant_id_eia``,
-    ``generator_id`` and ``energy_source_code_1``.
+    Prior to 2014, the EIA 860 did not report ``technology_description``.
 
-    Some remaining missing values are then filled in using the consistent,
+    This function fills in missing values are then filled in using the consistent,
     unique mappings that are observed between ``energy_source_code_1``,
     ``prime_mover_code`` and ``technology_type`` across all years and generators.
+
+    Then function backfills those early years within groups defined by ``plant_id_eia``,
+    ``generator_id`` and ``energy_source_code_1``. The backfilling is employed
+    second and without the ``prime_mover_code`` because there are some generators
+    without ``prime_mover_code``'s, but have consistent ``technology_description``'s.
 
     As a result, more than 95% of all generator records end up having a
     ``technology_description`` associated with them.
@@ -392,22 +395,15 @@ def fill_generator_technology_description(gens_df: pd.DataFrame) -> pd.DataFrame
     nrows_orig = len(gens_df)
     out_df = gens_df.copy()
 
-    # Backfill within generator-energy_source groups:
-    out_df["technology_description"] = (
-        out_df.sort_values("report_date")
-        .groupby(["plant_id_eia", "generator_id", "energy_source_code_1"])
-        .technology_description.bfill()
-    )
-
-    # Fill in remaining missing technology_descriptions with unique correspondences
-    # between energy_source_code_1 and prime_mover_code where possible.
-    # get a unique map between ESC/PM and technology_description
+    # Fill in missing technology_descriptions with unique correspondences
+    # between energy_source_code_1 and prime_mover_code when there has always
+    # been a unique map between ESC/PM and technology_description
     esc_pm_to_tech = (
-        out_df.loc[
+        gens_df.loc[
             :, ["energy_source_code_1", "prime_mover_code", "technology_description"]
         ]
-        .dropna(how="any")
-        .drop_duplicates(keep="first")
+        .dropna(how="any")  # if anything is null, we can't use it, so drop
+        .drop_duplicates(keep="first")  # keep one of each (doesn't matter which)
         .drop_duplicates(  # if there are any duplicates w/in esc/pm combo.. it's gotta go
             subset=["energy_source_code_1", "prime_mover_code"], keep=False
         )
@@ -422,20 +418,27 @@ def fill_generator_technology_description(gens_df: pd.DataFrame) -> pd.DataFrame
         how="left",
         validate="m:1",
     )
-    out_df = pd.concat([has_tech, no_tech])
+    out_df = pd.concat([has_tech, no_tech]).reset_index(drop=True)
+
+    # Backfill within generator-energy_source groups:
+    out_df["technology_description"] = (
+        out_df.sort_values("report_date")
+        .groupby(["plant_id_eia", "generator_id", "energy_source_code_1"])
+        .technology_description.bfill()
+    )
 
     assert len(out_df) == nrows_orig
 
     # Assert that at least 95 percent of tech desc rows are filled in
     pct_val = 0.95
     if (
-        out_df.technology_description.count() / out_df.technology_description.size
-        < pct_val
-    ):
+        pct_cov := out_df.technology_description.count()
+        / out_df.technology_description.size
+    ) < pct_val:
         raise AssertionError(
             f"technology_description filling no longer covering {pct_val:.0%}"
         )
-
+    logger.info(f"Filled technology_type coverage now at {pct_cov:.1%}")
     return out_df
 
 
