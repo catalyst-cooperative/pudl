@@ -5,6 +5,11 @@ RUN useradd -Ums /bin/bash catalyst
 
 # Copy the cloned pudl repository into the user's home directory
 COPY . /home/catalyst/pudl
+# We need information from .git to get version with setuptools_scm
+COPY .git /home/catalyst/pudl/.git
+# This is another way to do it, but I don't understand it yet
+#RUN --mount=source=.git,target=.git,type=bind && \
+#    pip install --no-cache-dir -e .
 
 # Make sure the user owns everything in their home directory
 RUN chown -R catalyst:catalyst /home/catalyst
