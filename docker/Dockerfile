@@ -14,8 +14,8 @@ WORKDIR /home/catalyst/pudl
 # We need information from .git to get version with setuptools_scm so we mount that
 # directory without copying it into the image.
 RUN --mount=type=bind,source=.git,target=/home/catalyst/pudl/.git \
-#   mamba create --name pudl-etl --yes --file docker/requirements-pudl-etl.txt && \
-    mamba env create --name pudl-etl --yes --file devtools/ci-environment.yml && \
+    mamba create --name pudl-etl --yes python=3.10 && \
+    mamba env update --name pudl-etl --yes --file devtools/ci-environment.yml && \
     conda clean -afy && \
     conda run --name pudl-etl pip install --no-cache-dir -e './[dev,doc,test]'
 
