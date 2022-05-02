@@ -22,7 +22,7 @@ jobs:
 #       id: docker_meta
 #       uses: docker/metadata-action@v3.8.0
 #       with:
-#         images: catalystcoop/pudl_etl
+#         images: catalystcoop/pudl-etl
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1.7.0
@@ -39,7 +39,7 @@ jobs:
         with:
           file: docker/Dockerfile
           push: true
-          tags: catalystcoop/pudl_etl:latest
+          tags: catalystcoop/pudl-etl:latest
 #         push: ${{ github.event_name != 'pull_request' }}
 #         tags: ${{ steps.docker_meta.outputs.tags }}
 #         labels: ${{ steps.docker_meta.outputs.labels }}

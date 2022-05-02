@@ -16,6 +16,8 @@ WORKDIR /home/catalyst/pudl
 # Create a conda environment based on the specification in the repo
 RUN mamba create --name pudl-etl --yes --file docker/requirements-pudl-etl.txt && \
     conda clean -afy && \
+    ls -la && \
+    find .git -type f && \
     conda run --name pudl-etl pip install './[dev,doc,test]'
 
 # Run the unit tests:
