@@ -1088,13 +1088,17 @@ class TrueGranLabeler:
         parts_to_gens.loc[:, "true_gran"] = ~(dupes)
         # drop duplicate record ids so there is one row for each record
         parts_to_gens = parts_to_gens.drop_duplicates(subset=["record_id_eia"])
-        true_grans = parts_to_gens[parts_to_gens.true_gran][
-            ["record_id_eia", "plant_part", "gens_combo"]
-        ].rename(
-            columns={
-                "record_id_eia": "appro_record_id_eia",
-                "plant_part": "appro_part_label",
-            }
+        true_grans = (
+            parts_to_gens[parts_to_gens.true_gran][
+                ["record_id_eia", "plant_part", "gens_combo"]
+            ]
+            .rename(
+                columns={
+                    "record_id_eia": "appro_record_id_eia",
+                    "plant_part": "appro_part_label",
+                }
+            )
+            .astype({"appro_part_label": "object"})
         )
         # merge the true gran cols onto the parts to gens dataframe
         # drop cols to get a table with just record id and true gran cols
