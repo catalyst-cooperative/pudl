@@ -6,7 +6,7 @@ RUN useradd -Ums /bin/bash catalyst
 # Copy the cloned pudl repository into the user's home directory
 COPY --chown=catalyst:catalyst . /home/catalyst/pudl
 # We need information from .git to get version with setuptools_scm
-COPY --chown=catalyst:catalyst ./.git/ /home/catalyst/pudl/.git/
+COPY --chown=catalyst:catalyst .git /home/catalyst/pudl
 
 # Switch to being the catalyst user and go into the copied repo
 USER catalyst
