@@ -1,15 +1,19 @@
-version: "3.8"
 services:
-  release:
+  pudl-etl:
+#   image: catalystcoop/pudl-etl:hello-docker
     build:
-      context: .
-      dockerfile: release/Dockerfile.local
-    work_dir: /pudl/src
+      context: ../
+      dockerfile: docker/Dockerfile
     volumes:
-      - .:/pudl/src
-      - ./build-datapkg:/pudl/outputs/datapkg
-      - pudldata:/pudl/inputs/data
-    command: /pudl/src/release/data-release.sh
-  # TODO(rousik): create validate service that validates stuff under build/
-volumes:
-  pudldata: {}
+      - type: bind
+        source: ${PUDL_IN}
+        target: /home/catalyst/pudl_in
+        consistency: delegated
+      - type: bind
+        source: ${PUDL_OUT}
+        target: /home/catalyst/pudl_out
+        consistency: delegated
+    environment:
+      - API_KEY_EIA
+    container_name: pudl_etl
+    command: cat /home/catalyst/.pudl.yml

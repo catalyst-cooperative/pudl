@@ -20,7 +20,8 @@ RUN --mount=type=bind,source=.git,target=/home/catalyst/pudl/.git \
     # Then we can use mamba env update, which can parse the environment.yml file:
     mamba env update --name pudl-etl --file devtools/ci-environment.yml && \
     conda clean -afy && \
-    conda run --name pudl-etl pip install --no-cache-dir -e './[dev,doc,test]'
+    conda run --name pudl-etl pip install --no-cache-dir -e './[dev,doc,test]' && \
+    conda run pudl_setup --pudl_in /home/catalyst/pudl_in --pudl_out /home/catalyst/pudl_out
 
 # Run the unit tests:
 CMD ["conda", "run", "--name", "pudl-etl", "pytest", "test/unit"]
