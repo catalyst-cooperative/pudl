@@ -15,7 +15,7 @@ WORKDIR /home/catalyst/pudl
 # directory without copying it into the image.
 RUN --mount=type=bind,source=.git,target=/home/catalyst/pudl/.git \
     mamba create --name pudl-etl --yes python=3.10 && \
-    mamba env update --name pudl-etl --yes --file devtools/ci-environment.yml && \
+    mamba env update --name pudl-etl --file devtools/ci-environment.yml && \
     conda clean -afy && \
     conda run --name pudl-etl pip install --no-cache-dir -e './[dev,doc,test]'
 
