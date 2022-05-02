@@ -98,6 +98,12 @@ repos:
     additional_dependencies: [sphinx]
     args: ['--config', 'tox.ini']
 
+# Lint Dockerfiles for errors and to ensure best practices
+- repo: https://github.com/AleksaC/hadolint-py
+  rev: v2.10.0
+  hooks:
+  - id: hadolint
+
 ########################################################################################
 # Our own pre-commit hooks, which don't come from the pre-commit project
 ########################################################################################
