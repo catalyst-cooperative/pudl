@@ -1503,7 +1503,6 @@ def match_to_single_plant_part(
     part_name: Literal[tuple(PLANT_PARTS.keys())] = "plant_gen",
     cols_to_keep: List[str] = [],
     merge_how: Literal["left", "right", "inner", "outer", "cross"] = "left",
-    keep_only_record_id: bool = False,
 ) -> pd.DataFrame:
     """Match data with a variety of granularities to a single plant-part.
 
@@ -1540,8 +1539,6 @@ def match_to_single_plant_part(
             you want to show up in the output. These should not be columns
             that show up in the ``ppl``.
         merge_how: what type of merge to do. See :func:`pandas.merge`.
-        keep_only_record_id: keep only the two record ID columns and return
-            a two column dataframe matching records to the plant parts.
 
     Returns:
         A dataframe in which records correspond to :attr:`part_name` (in
@@ -1580,10 +1577,5 @@ def match_to_single_plant_part(
         )
         out_dfs.append(part_df)
     out_df = pd.concat(out_dfs)
-
-    if keep_only_record_id:
-        out_df = out_df.set_index(["record_id_eia_og", "record_id_eia"]).index.to_frame(
-            index=False
-        )
 
     return out_df
