@@ -10,7 +10,7 @@ COPY . /home/catalyst/pudl
 RUN mamba create --yes --file /home/catalyst/pudl/docker/requirements-pudl-etl.txt --name pudl-etl && conda clean -afy
 
 # Install the catalystcoop.pudl package from /pudl using pip
-RUN conda run --name pudl-etl -m pip install '/home/catalyst/pudl[dev,doc,test]'
+RUN conda run --name pudl-etl python -m pip install '/home/catalyst/pudl[dev,doc,test]'
 
 # Run the unit tests:
 WORKDIR /home/catalyst/pudl
