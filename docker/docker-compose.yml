@@ -1,9 +1,9 @@
 services:
   pudl-etl:
-#   image: catalystcoop/pudl-etl:hello-docker
-    build:
-      context: ../
-      dockerfile: docker/Dockerfile
+    image: catalystcoop/pudl-etl:hello-docker
+#   build:
+#     context: ../
+#     dockerfile: docker/Dockerfile
     volumes:
       - type: bind
         source: ${PUDL_IN}
@@ -16,4 +16,4 @@ services:
     environment:
       - API_KEY_EIA
     container_name: pudl_etl
-    command: cat /home/catalyst/.pudl.yml
+    command: conda run --name pudl-etl tox
