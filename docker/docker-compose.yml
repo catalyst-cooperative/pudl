@@ -1,19 +1,41 @@
 services:
   pudl-etl:
+    environment:
+      - PYTHONUNBUFFERED=1
+      - API_KEY_EIA
     image: catalystcoop/pudl-etl:hello-docker
 #   build:
 #     context: ../
 #     dockerfile: docker/Dockerfile
     volumes:
+      # This should point to your existing PUDL_IN. See the .env file
       - type: bind
         source: ${PUDL_IN}
         target: /home/catalyst/pudl_in
         consistency: delegated
+      # A real empty dir to avoid clobbering your existing outputs. See the .env file
       - type: bind
         source: ${PUDL_OUT}
         target: /home/catalyst/pudl_out
         consistency: delegated
-    environment:
-      - API_KEY_EIA
     container_name: pudl_etl
-    command: conda run --name pudl-etl tox
+    logging:
+      driver: local
+# This command produces a warning about the variable being unset:
+#   command: echo $PYTHONUNBUFFERED
+# This command demonstrates that the Docker logging does happen in realtime:
+#   command: bash -c "echo one; sleep 1; echo two; sleep 2; echo three; sleep 3"
+# This command successfully creates the pudl-etl.log file on the host machine, so
+# clearly it has write access.
+    command: >
+      conda run --prefix /home/catalyst/env
+      ferc1_to_sqlite --clobber
+      --logfile /home/catalyst/pudl_out/pudl-etl.log
+      src/pudl/package_data/settings/etl_fast.yml
+
+# Expected behavior when running the following is that you'd see one line at a time
+# of logs, from cloning the FERC 1 DB. It should take like 15 seconds total.
+# Actual behavior: it fails because it can't find the right PUDL_OUT file.
+# If you remove the PUDL_OUT mount, then it runs, but provides no output until
+# the container shuts down.
+# docker compose up -d && docker logs -f pudl_etl
