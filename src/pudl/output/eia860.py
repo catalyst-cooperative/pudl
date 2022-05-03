@@ -10,6 +10,53 @@ from pudl.metadata.fields import apply_pudl_dtypes
 
 logger = logging.getLogger(__name__)
 
+PMC_TO_FIX = (
+    pd.DataFrame(
+        [
+            # plant_id_eia, generator_id, prim_mover_code
+            (
+                50489,
+                "C1",
+                "GT",
+            ),  # https://www.power-technology.com/marketdata/ppg-powerhouse-c-generating-facility-us/
+            (50489, "C2", "GT"),
+            (50489, "C3", "ST"),
+            (50489, "C4", "GT"),
+            (50489, "C5", "GT"),
+            (50628, "GEN1", "GT"),
+            (50628, "GEN2", "ST"),
+            (50628, "GEN3", "ST"),
+            (55088, "GT 1", "GT"),
+            (55088, "GT2", "GT"),
+            (55088, "GTP1", "GT"),
+            (52168, "GEN2", "ST"),
+            (52168, "GEN3", "GT"),
+            (52168, "GEN4", "GT"),
+            (55096, "GT", "GT"),
+            (55096, "ST", "ST"),
+            (54262, "4", "ST"),
+            (7887, "4", "GT"),
+            (6474, "GT1", "GT"),
+            (6474, "GT2", "GT"),
+            (10884, "CTC1", "GT"),
+            (10884, "CTC2", "GT"),
+            (58946, "ENG1", "IC"),
+            (58946, "ENG2", "IC"),
+            (58946, "ENG3", "IC"),
+            (60610, "1", "OT"),
+            (7854, "1", "IC"),
+            (7854, "2", "IC"),
+        ],
+        columns=[
+            "plant_id_eia",
+            "generator_id",
+            "prime_mover_code",
+        ],
+    )
+    .pipe(apply_pudl_dtypes, group="eia")
+    .set_index(["plant_id_eia", "generator_id"])
+)
+
 
 def utilities_eia860(pudl_engine, start_date=None, end_date=None):
     """Pull all fields from the EIA860 Utilities table.
@@ -364,6 +411,28 @@ def generators_eia860(
     )
 
     return out_df
+
+
+def manually_fix_prime_movers(
+    gens: pd.DataFrame, pms_to_fix: pd.DataFrame = PMC_TO_FIX
+) -> pd.DataFrame:
+    """Fix ``prim_mover_code``'s of from mannually compiled maps of plant/gen to pm code.
+
+    The prime mover identified in the generators_entity table does not always match the
+    prime mover identified in the generators file for a specific year
+    This is currently a temporary patch until this issue can be more broadly resolved
+    See https://github.com/catalyst-cooperative/pudl/issues/1585
+    """
+    if not pms_to_fix.index.is_unique:
+        raise AssertionError(
+            "Index of plant/gens to fix must be unique \n"
+            f"Found {pms_to_fix[pms_to_fix.index.duplicated(keep=False)]}"
+        )
+
+    gens = gens.set_index(["plant_id_eia", "generator_id"])
+    gens.loc[pms_to_fix.index, "prime_mover_code"] = pms_to_fix.prime_mover_code
+    gens = gens.reset_index()
+    return gens
 
 
 def fill_generator_technology_description(gens_df: pd.DataFrame) -> pd.DataFrame:
