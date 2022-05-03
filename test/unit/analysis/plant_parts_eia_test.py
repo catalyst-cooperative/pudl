@@ -434,7 +434,7 @@ def test_label_true_grans():
                 "plant",
             ],
         }
-    )
+    ).astype({"appro_part_label": "string"})
 
     expected_out = pd.concat([plant_part_list_input, true_grans], axis=1)
 

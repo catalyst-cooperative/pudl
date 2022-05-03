@@ -728,10 +728,6 @@ class MakePlantParts(object):
                 pudl.helpers.cleanstrings_snake,
                 ["record_id_eia", "appro_record_id_eia"],
             )
-            # we'll eventually take this out... once Issue #20
-            # I think this is no longer needed? with the new labeling
-            # of true grans there aren't any duplicate record_id_eia
-            .drop_duplicates(subset=["record_id_eia"])
             .set_index("record_id_eia")
         )
 
@@ -1070,7 +1066,8 @@ class TrueGranLabeler:
         )
         # concatenate the gen id's to get the combo of gens for each record
         combos = (
-            parts_to_gens.groupby(["record_id_eia"])["gen_id"]
+            parts_to_gens.sort_values(["gen_id"])
+            .groupby(["record_id_eia"])["gen_id"]
             .apply(lambda x: ",".join(x))
             .rename("gens_combo")
         )
@@ -1098,7 +1095,7 @@ class TrueGranLabeler:
                     "plant_part": "appro_part_label",
                 }
             )
-            .astype({"appro_part_label": "object"})
+            .astype({"appro_part_label": "string"})
         )
         # merge the true gran cols onto the parts to gens dataframe
         # drop cols to get a table with just record id and true gran cols
@@ -1469,38 +1466,10 @@ def add_record_id(part_df, id_cols, plant_part_col="plant_part", year=True):
     return part_df
 
 
-def assign_record_id_eia(test_df: pd.DataFrame, plant_part_col: str = "plant_part"):
-    """Assign record ids to a df with a mix of plant parts.
-
-    Args:
-        test_df:
-        plant_part_col:
-
-    Todo:
-        This function results in warning: ``PerformanceWarning: DataFrame is
-        highly fragmented...`` I'm honestly not sure if this is happening because of
-        this function specifically or is a result from all of the column
-        assignments in :meth:`label_true_id_by_part` or :meth:`label_true_grans_by_part`
-        where we are also getting this warning.
-
-    """  # noqa: D417
-    dfs = []
-    for part in PLANT_PARTS:
-        dfs.append(
-            add_record_id(
-                part_df=test_df[test_df[plant_part_col] == part],
-                id_cols=PLANT_PARTS[part]["id_cols"],
-                plant_part_col=plant_part_col,
-            )
-        )
-    test_df_ids = pd.concat(dfs)
-    return test_df_ids
-
-
 def match_to_single_plant_part(
     multi_gran_df: pd.DataFrame,
     ppl: pd.DataFrame,
-    part_name: Literal[tuple(PLANT_PARTS.keys())] = "plant_gen",
+    part_name: Literal[PLANT_PARTS_ORDERED] = "plant_gen",
     cols_to_keep: List[str] = [],
     merge_how: Literal["left", "right", "inner", "outer", "cross"] = "left",
 ) -> pd.DataFrame:
