@@ -1469,7 +1469,15 @@ def add_record_id(part_df, id_cols, plant_part_col="plant_part", year=True):
     return part_df
 
 
-PLANT_PARTS_LITERAL = Literal["plant", "plant_gen"]
+PLANT_PARTS_LITERAL = Literal[
+    "plant",
+    "plant_unit",
+    "plant_prime_mover",
+    "plant_technology",
+    "plant_prime_fuel",
+    "plant_ferc_acct",
+    "plant_gen",
+]
 
 
 def match_to_single_plant_part(
