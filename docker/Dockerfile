@@ -38,4 +38,4 @@ RUN --mount=type=bind,source=.git,target=${PUDL_REPO}/.git \
     --pudl_out ${CONTAINER_PUDL_OUT}
 
 # Run the unit tests:
-ENTRYPOINT ["conda", "run", "--no-capture-output", "--prefix", "${CONDA_PREFIX}", "pytest", "test/unit"]
+CMD ["conda", "run", "--no-capture-output", "--prefix", "${CONDA_PREFIX}", "pytest", "test/unit"]
