@@ -3,30 +3,39 @@ FROM condaforge/mambaforge:4.12.0-0
 # Create a non-root user inside the container
 RUN useradd -Ums /bin/bash catalyst
 
+ENV CONTAINER_HOME=/home/catalyst
+
 # Copy the cloned pudl repository into the user's home directory
-COPY --chown=catalyst:catalyst . /home/catalyst/pudl
+COPY --chown=catalyst:catalyst . ${CONTAINER_HOME}
 
 # Switch to being the catalyst user and go into the copied repo
 USER catalyst
-WORKDIR /home/catalyst/pudl
+WORKDIR ${CONTAINER_HOME}
+
+ENV CONDA_PREFIX=${CONTAINER_HOME}/env
+ENV PUDL_REPO=${CONTAINER_HOME}/pudl
+ENV CONDA_RUN="conda run --no-capture-output --prefix ${CONDA_PREFIX}"
+ENV PYTHON_VERSION="3.10"
+ENV CONTAINER_PUDL_IN=${CONTAINER_HOME}/pudl_in
+ENV CONTAINER_PUDL_OUT=${CONTAINER_HOME}/pudl_out
 
 # Create a conda environment based on the specification in the repo
 # We need information from .git to get version with setuptools_scm so we mount that
 # directory without copying it into the image.
-RUN --mount=type=bind,source=.git,target=/home/catalyst/pudl/.git \
+RUN --mount=type=bind,source=.git,target=${PUDL_REPO}/.git \
     # mamba create can't read environment.yml, and mamba env isn't installed yet,
     # so we create a bare py3.10 env first:
-    mamba create --copy --prefix /home/catalyst/env --yes python=3.10 && \
+    mamba create --copy --prefix ${CONDA_PREFIX} --yes python=${PYTHON_VERSION} && \
     # Then we can use mamba env update, which can parse the environment.yml file:
-    mamba env update --prefix /home/catalyst/env --file devtools/ci-environment.yml && \
+    mamba env update --prefix ${CONDA_PREFIX} --file devtools/ci-environment.yml && \
     conda clean -afy && \
-    conda run --prefix /home/catalyst/env \
-        pip install --no-cache-dir -e './[dev,doc,test]' && \
+    ${CONDA_RUN} pip install --no-cache-dir -e './[dev,doc,test]' && \
     # Create data input/output directories
-    mkdir /home/catalyst/pudl_in && mkdir /home/catalyst/pudl_out && \
+    mkdir ${CONTAINER_PUDL_IN} && mkdir ${CONTAINER_PUDL_OUT} && \
     # Run the PUDL setup script so we know where to read and write data
-    conda run --prefix /home/catalyst/env \
-        pudl_setup --pudl_in /home/catalyst/pudl_in --pudl_out /home/catalyst/pudl_out
+    ${CONDA_RUN} pudl_setup \
+        --pudl_in ${CONTAINER_PUDL_IN} \
+        --pudl_out ${CONTAINER_PUDL_OUT}
 
 # Run the unit tests:
-CMD ["conda", "run", "--prefix", "/home/catalyst/env", "pytest", "test/unit"]
+CMD ["conda", "run", "--no-capture-output", "--prefix", "${CONDA_PREFIX}", "pytest", "test/unit"]
