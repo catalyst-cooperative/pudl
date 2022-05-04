@@ -1,5 +1,14 @@
 name: docker-build-push
-on: [push, pull_request]
+on:
+  push:
+    branches:
+      - gce-deploy # for testing purposes
+
+env:
+  PROJECT_ID: ${{ secrets.GCE_PROJECT }}
+  GCARTIFACT_REPOSITORY: gce-github-action-test # TODO: update to Artifact Repository name
+  GCE_INSTANCE: gce-github-action-test # TODO: update to instance name
+  GCE_INSTANCE_ZONE: us-central1-a # TODO: update to instance zone
 
 jobs:
   push_to_registry:
@@ -38,3 +47,17 @@ jobs:
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.docker_metadata.outputs.tags }}
           labels: ${{ steps.docker_metadata.outputs.labels }}
+
+  deploy_to_gce:
+    name: Deploy the image to a GCE VM
+    runs-on: ubuntu-latest
+    steps:
+      # Setup gcloud CLI
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v0
+
+      # Authentication via credentials json
+      - id: "auth"
+        uses: "google-github-actions/auth@v0"
+        with:
+          credentials_json: "${{ secrets.GCE_SA_KEY }}"
