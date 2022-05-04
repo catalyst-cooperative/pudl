@@ -1081,7 +1081,10 @@ class TrueGranLabeler:
         )
         parts_to_gens = parts_to_gens.sort_values("plant_part")
         # get the true gran records by finding duplicate gen combos
+        # this marks duplicate grans as True except for the first occurrence
+        # non-duplicated granularities (unique records) are also marked False
         dupes = parts_to_gens.duplicated(subset=["gens_combo"], keep="first")
+        # the False (non duplicated) granularities are now True in true_gran
         parts_to_gens.loc[:, "true_gran"] = ~(dupes)
         # drop duplicate record ids so there is one row for each record
         parts_to_gens = parts_to_gens.drop_duplicates(subset=["record_id_eia"])
