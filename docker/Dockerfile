@@ -34,8 +34,8 @@ RUN --mount=type=bind,source=.git,target=${PUDL_REPO}/.git \
     mkdir ${CONTAINER_PUDL_IN} && mkdir ${CONTAINER_PUDL_OUT} && \
     # Run the PUDL setup script so we know where to read and write data
     ${CONDA_RUN} pudl_setup \
-        --pudl_in ${CONTAINER_PUDL_IN} \
-        --pudl_out ${CONTAINER_PUDL_OUT}
+    --pudl_in ${CONTAINER_PUDL_IN} \
+    --pudl_out ${CONTAINER_PUDL_OUT}
 
 # Run the unit tests:
-CMD ["conda", "run", "--no-capture-output", "--prefix", "${CONDA_PREFIX}", "pytest", "test/unit"]
+ENTRYPOINT ["conda", "run", "--no-capture-output", "--prefix", "${CONDA_PREFIX}", "pytest", "test/unit"]
