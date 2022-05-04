@@ -1469,10 +1469,13 @@ def add_record_id(part_df, id_cols, plant_part_col="plant_part", year=True):
     return part_df
 
 
+PLANT_PARTS_LITERAL = Literal["plant", "plant_gen"]
+
+
 def match_to_single_plant_part(
     multi_gran_df: pd.DataFrame,
     ppl: pd.DataFrame,
-    part_name: Literal[PLANT_PARTS_ORDERED] = "plant_gen",
+    part_name: PLANT_PARTS_LITERAL = "plant_gen",
     cols_to_keep: List[str] = [],
     merge_how: Literal["left", "right", "inner", "outer", "cross"] = "left",
 ) -> pd.DataFrame:
