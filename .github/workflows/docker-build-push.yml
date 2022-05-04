@@ -6,8 +6,7 @@ on:
 
 env:
   PROJECT_ID: ${{ secrets.GCE_PROJECT }}
-  GCARTIFACT_REPOSITORY: gce-github-action-test # TODO: update to Artifact Repository name
-  GCE_INSTANCE: gce-github-action-test # TODO: update to instance name
+  GCE_INSTANCE: deploy-pudl-vm # TODO: update to instance name
   GCE_INSTANCE_ZONE: us-central1-a # TODO: update to instance zone
 
 jobs:
