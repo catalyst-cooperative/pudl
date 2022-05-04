@@ -141,7 +141,8 @@ def allocate_gen_fuel_by_generator_energy_source(pudl_out, drop_interim_cols=Tru
     # extract all of the tables from pudl_out early in the process and select
     # only the columns we need. this is for speed and clarity.
     gf = (
-        pudl_out.gf_eia923().loc[
+        pudl_out.gf_eia923()
+        .loc[
             :,
             IDX_PM_ESC
             + [
@@ -152,6 +153,7 @@ def allocate_gen_fuel_by_generator_energy_source(pudl_out, drop_interim_cols=Tru
         ]
         # TODO: we may not want to group MSW codes since these have different emissions
         .pipe(group_msw_codes, IDX_PM_ESC)
+        .pipe(manually_fix_energy_source_codes)
     )
     gen = (
         pudl_out.gen_original_eia923().loc[:, IDX_GENS + ["net_generation_mwh"]]
@@ -456,9 +458,9 @@ def associate_generator_tables(gf, gen, gens, bf):
 
     gen_assoc = (
         pd.merge(stack_gens, gen, on=IDX_GENS, how="outer")
-        .pipe(remove_inactive_generators)
         .rename(columns={"net_generation_mwh": "net_generation_mwh_g_tbl"})
         .merge(gf_pm_fuel_summed, on=IDX_PM_ESC, how="left", validate="m:1")
+        .pipe(remove_inactive_generators)
         .merge(bf_summed, on=IDX_PM_ESC, how="left", validate="m:1")
         .merge(
             gf_fuel_summed,
@@ -515,12 +517,17 @@ def remove_inactive_generators(gen_assoc):
     # specific data
     retiring = gen_assoc.loc[
         (gen_assoc.operational_status == "retired")
-        & (gen_assoc.report_date <= gen_assoc.retirement_date)
-        & (gen_assoc.net_generation_mwh.notnull())
+        & (
+            (gen_assoc.report_date <= gen_assoc.retirement_date)
+            | (gen_assoc.net_generation_mwh_g_tbl.notnull())
+        )
     ]
     new = gen_assoc.loc[
         (gen_assoc.operational_status == "proposed")
-        & (gen_assoc.net_generation_mwh.notnull())
+        & (
+            gen_assoc.net_generation_mwh_g_tbl.notnull()
+            | gen_assoc.net_generation_mwh_gf_tbl.notnull()
+        )
     ]
 
     gen_assoc_removed = pd.concat([existing, retiring, new])
@@ -1155,6 +1162,17 @@ def create_monthly_gens_records(gens):
         month += 1
 
     return gens
+
+
+def manually_fix_energy_source_codes(gf):
+    """Patch: reassigns fuel codes in the gf table that don't match the fuel code in the gens table."""
+    # plant 10204 should be waste heat instead of other
+    gf.loc[
+        (gf["plant_id_eia"] == 10204) & (gf["energy_source_code"] == "OTH"),
+        "energy_source_code",
+    ] = "WH"
+
+    return gf
 
 
 def manually_fix_prime_movers(gens):
