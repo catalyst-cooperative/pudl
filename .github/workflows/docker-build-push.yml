@@ -11,12 +11,12 @@ env:
   GCE_INSTANCE_ZONE: us-central1-a # TODO: update to instance zone
 
 jobs:
-  # push_to_registry:
-  #   name: Build Docker image and push to Docker Hub
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Checkout Repository
-  #       uses: actions/checkout@v3
+  push_to_registry:
+    name: Build Docker image and push to Docker Hub
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
 
   #     - name: Docker Metadata
   #       id: docker_metadata
@@ -51,7 +51,7 @@ jobs:
   deploy_to_gce:
     name: Deploy the image to a GCE VM
     runs-on: ubuntu-latest
-    # needs: push_to_registry
+    needs: push_to_registry
     steps:
       # Setup gcloud CLI
       - name: Set up Cloud SDK
