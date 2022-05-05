@@ -85,4 +85,4 @@ jobs:
             --container-image "docker.io/catalystcoop/pudl-etl:gce-deploy" \
             --container-mount-host-path mount-path=$CONTAINER_PUDL_IN,host-path=$HOST_PUDL_IN,mode=rw  \
             --container-mount-host-path mount-path=$CONTAINER_PUDL_OUT,host-path=$HOST_PUDL_OUT,mode=rw \
-            --container-command ${CONDA_RUN} bash ./docker/pudl_etl.sh \
+            --container-command "${CONDA_RUN} bash ./docker/pudl_etl.sh" \
