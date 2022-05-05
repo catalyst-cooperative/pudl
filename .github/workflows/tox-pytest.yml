@@ -23,7 +23,7 @@ jobs:
         channel-priority: true
         python-version: ${{ matrix.python-version }}
         activate-environment: pudl-test
-        environment-file: devtools/ci-environment.yml
+        environment-file: test/test-environment.yml
     - shell: bash -l {0}
       run: |
         conda info
