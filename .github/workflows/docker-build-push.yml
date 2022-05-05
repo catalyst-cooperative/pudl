@@ -9,8 +9,8 @@ env:
   GCE_INSTANCE: deploy-pudl-vm
   GCE_INSTANCE_ZONE: us-central1-a
 
-  HOST_PUDL_IN: ./pudl_in
-  HOST_PUDL_OUT: ./pudl_out
+  HOST_PUDL_IN: /home/chronos/pudl_in
+  HOST_PUDL_OUT: /home/chronos/pudl_out
   CONTAINER_HOME: /home/catalyst
   CONTAINER_PUDL_IN: /home/catalyst/pudl_in
   CONTAINER_PUDL_OUT: /home/catalyst/pudl_out
