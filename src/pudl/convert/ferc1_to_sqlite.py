@@ -57,7 +57,17 @@ def parse_command_line(argv):
         default=False,
         help="Use the Zenodo sandbox rather than production",
     )
-
+    parser.add_argument(
+        "--gcs-cache-path",
+        type=str,
+        help="Load datastore resources from Google Cloud Storage. Should be gs://bucket[/path_prefix]",
+    )
+    parser.add_argument(
+        "--bypass-local-cache",
+        action="store_true",
+        default=False,
+        help="If enabled, the local file cache for datastore will not be used.",
+    )
     arguments = parser.parse_args(argv[1:])
     return arguments
 
@@ -89,14 +99,19 @@ def main():  # noqa: C901
         script_settings["ferc1_to_sqlite_settings"]
     )
 
+    # Configure how we want to obtain raw input data:
+    ds_kwargs = dict(
+        gcs_cache_path=args.gcs_cache_path, sandbox=pudl_settings.get("sandbox", False)
+    )
+    if not args.bypass_local_cache:
+        ds_kwargs["local_cache_path"] = Path(pudl_settings["pudl_in"]) / "data"
+
     pudl_settings["sandbox"] = args.sandbox
     pudl.extract.ferc1.dbf2sqlite(
         ferc1_to_sqlite_settings=script_settings,
         pudl_settings=pudl_settings,
         clobber=args.clobber,
-        datastore=Datastore(
-            local_cache_path=(Path(pudl_in) / "data"), sandbox=args.sandbox
-        ),
+        datastore=Datastore(**ds_kwargs),
     )
 
 
