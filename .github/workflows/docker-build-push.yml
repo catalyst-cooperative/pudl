@@ -63,7 +63,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      # Alternative option - authentication via credentials json
+      # Authentication via credentials json
       - id: "auth"
         uses: "google-github-actions/auth@v0"
         with:
@@ -72,12 +72,13 @@ jobs:
       # Setup gcloud CLI
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v0
-      # Change docker tab to steps.docker_metadata.outputs.tags
+
+      # Deploy PUDL image to GCE
       - name: Deploy
         run: |-
           gcloud compute instances update-container "$GCE_INSTANCE" \
             --zone "$GCE_INSTANCE_ZONE" \
-            --container-image "docker.io/catalystcoop/pudl-etl:${{needs.push_to_registry.outputs.docker_tags}}" \
+            --container-image "docker.io/${{needs.push_to_registry.outputs.docker_tags}}" \
             --container-command "conda" \
             --container-arg="run" \
             --container-arg="--no-capture-output" \
