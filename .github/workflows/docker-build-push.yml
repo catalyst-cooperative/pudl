@@ -9,55 +9,48 @@ env:
   GCE_INSTANCE: deploy-pudl-vm
   GCE_INSTANCE_ZONE: us-central1-a
 
-  HOST_PUDL_IN: /home/chronos/pudl_in
-  HOST_PUDL_OUT: /home/chronos/pudl_out
-  CONTAINER_HOME: /home/catalyst
-  CONTAINER_PUDL_IN: /home/catalyst/pudl_in
-  CONTAINER_PUDL_OUT: /home/catalyst/pudl_out
-  CONDA_RUN: "conda run --no-capture-output --prefix /home/catalyst/env"
-
 jobs:
-  # push_to_registry:
-  #   name: Build Docker image and push to Docker Hub
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Checkout Repository
-  #       uses: actions/checkout@v3
+  push_to_registry:
+    name: Build Docker image and push to Docker Hub
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
 
-  #     - name: Docker Metadata
-  #       id: docker_metadata
-  #       uses: docker/metadata-action@v3.8.0
-  #       with:
-  #         images: catalystcoop/pudl-etl
-  #         flavor: |
-  #           latest=auto
-  #         tags: |
-  #           type=ref,event=branch
-  #           type=ref,event=tag
+      - name: Docker Metadata
+        id: docker_metadata
+        uses: docker/metadata-action@v3.8.0
+        with:
+          images: catalystcoop/pudl-etl
+          flavor: |
+            latest=auto
+          tags: |
+            type=ref,event=branch
+            type=ref,event=tag
 
-  #     - name: Set up Docker Buildx
-  #       uses: docker/setup-buildx-action@v1.7.0
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1.7.0
 
-  #     - name: Login to DockerHub
-  #       if: github.event_name != 'pull_request'
-  #       uses: docker/login-action@v1.14.1
-  #       with:
-  #         username: ${{ secrets.DOCKERHUB_USERNAME }}
-  #         password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Login to DockerHub
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v1.14.1
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-  #     - name: Build image and push to Docker Hub
-  #       uses: docker/build-push-action@v2.10.0
-  #       with:
-  #         context: .
-  #         file: docker/Dockerfile
-  #         push: ${{ github.event_name != 'pull_request' }}
-  #         tags: ${{ steps.docker_metadata.outputs.tags }}
-  #         labels: ${{ steps.docker_metadata.outputs.labels }}
+      - name: Build image and push to Docker Hub
+        uses: docker/build-push-action@v2.10.0
+        with:
+          context: .
+          file: docker/Dockerfile
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.docker_metadata.outputs.tags }}
+          labels: ${{ steps.docker_metadata.outputs.labels }}
 
   deploy_to_gce:
     name: Deploy the image to a GCE VM
     runs-on: ubuntu-latest
-    # needs: push_to_registry
+    needs: push_to_registry
 
     # Add "id-token" with the intended permissions.
     permissions:
@@ -82,7 +75,7 @@ jobs:
         run: |-
           gcloud compute instances update-container "$GCE_INSTANCE" \
             --zone "$GCE_INSTANCE_ZONE" \
-            --container-image "docker.io/catalystcoop/pudl-etl:${{ steps.docker_metadata.outputs.tags }}" \
+            --container-image "docker.io/catalystcoop/pudl-etl:${{ jobs.push_to_registry.steps.docker_metadata.outputs.tags }}" \
             --container-command "conda" \
             --container-arg="run" \
             --container-arg="--no-capture-output" \
