@@ -126,7 +126,6 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
             "fields": [
                 "plant_id_eia",
                 "generator_id",
-                "prime_mover_code",
                 "duct_burners",
                 "operating_date",
                 "topping_bottoming_code",
