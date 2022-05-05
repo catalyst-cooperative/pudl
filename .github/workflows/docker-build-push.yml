@@ -6,8 +6,15 @@ on:
 
 env:
   PROJECT_ID: ${{ secrets.GCE_PROJECT }}
-  GCE_INSTANCE: deploy-pudl-vm # TODO: update to instance name
-  GCE_INSTANCE_ZONE: us-central1-a # TODO: update to instance zone
+  GCE_INSTANCE: deploy-pudl-vm
+  GCE_INSTANCE_ZONE: us-central1-a
+
+  HOST_PUDL_IN: ./pudl_in
+  HOST_PUDL_OUT: ./pudl_out
+  CONTAINER_HOME: /home/catalyst
+  CONTAINER_PUDL_IN: /home/catalyst/pudl_in
+  CONTAINER_PUDL_OUT: /home/catalyst/pudl_out
+  CONDA_RUN: "conda run --no-capture-output --prefix /home/catalyst/env"
 
 jobs:
   push_to_registry:
@@ -67,3 +74,6 @@ jobs:
           gcloud compute instances update-container "$GCE_INSTANCE" \
             --zone "$GCE_INSTANCE_ZONE" \
             --container-image "docker.io/catalystcoop/pudl-etl:gce-deploy"
+            --container-mount-host-path mount-path=$CONTAINER_PUDL_IN,host-path=$HOST_PUDL_IN,mode=rw
+            --container-mount-host-path mount-path=$CONTAINER_PUDL_OUT,host-path=$HOST_PUDL_OUT,mode=rw
+            --container-command ${CONDA_RUN} bash ./docker/pudl_etl.sh
