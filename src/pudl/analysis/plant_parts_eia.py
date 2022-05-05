@@ -231,7 +231,7 @@ PLANT_PARTS: Dict[str, Dict[str, List]] = {
 }
 """
 dict: this dictionary contains a key for each of the 'plant parts' that should
-end up in the mater unit list. The top-level value for each key is another
+end up in the plant parts list. The top-level value for each key is another
 dictionary, which contains keys:
 
 * id_cols (the primary key type id columns for this plant part). The
@@ -246,6 +246,8 @@ PLANT_PARTS_ORDERED: List[str] = [
     "plant_technology",
     "plant_prime_fuel",
     "plant_ferc_acct",
+    "plant_installation_year",
+    "plant_construction_year",
     "plant_gen",
 ]
 
