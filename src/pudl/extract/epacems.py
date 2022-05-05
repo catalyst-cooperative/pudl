@@ -1,5 +1,4 @@
-"""
-Retrieve data from EPA CEMS hourly zipped CSVs.
+"""Retrieve data from EPA CEMS hourly zipped CSVs.
 
 This modules pulls data from EPA's published CSV files.
 """
@@ -10,8 +9,6 @@ from zipfile import ZipFile
 
 import pandas as pd
 
-from pudl.metadata.fields import apply_pudl_dtypes
-from pudl.settings import EpaCemsSettings
 from pudl.workspace.datastore import Datastore
 
 logger = logging.getLogger(__name__)
@@ -121,8 +118,7 @@ class EpaCemsDatastore:
         return pd.concat(dfs, sort=True, copy=False, ignore_index=True)
 
     def _csv_to_dataframe(self, csv_file) -> pd.DataFrame:
-        """
-        Convert a CEMS csv file into a :class:`pandas.DataFrame`.
+        """Convert a CEMS csv file into a :class:`pandas.DataFrame`.
 
         Args:
             csv (file-like object): data to be read
@@ -131,36 +127,26 @@ class EpaCemsDatastore:
             A DataFrame containing the contents of the CSV file.
 
         """
-        return (
-            pd.read_csv(
-                csv_file,
-                index_col=False,
-                usecols=lambda col: col not in IGNORE_COLS,
-            )
-            .rename(columns=RENAME_DICT)
-            .pipe(apply_pudl_dtypes, group="epacems")
-        )
+        return pd.read_csv(
+            csv_file,
+            index_col=False,
+            usecols=lambda col: col not in IGNORE_COLS,
+            low_memory=False,
+        ).rename(columns=RENAME_DICT)
 
 
-def extract(epacems_settings: EpaCemsSettings, ds: Datastore):
-    """
-    Coordinate the extraction of EPA CEMS hourly DataFrames.
+def extract(year: int, state: str, ds: Datastore):
+    """Coordinate the extraction of EPA CEMS hourly DataFrames.
 
     Args:
-        epacems_settings: Object containing validated settings
-            relevant to EPA CEMS. Contains the years and states to be loaded
-            into PUDL.
-        ds (:class:`Datastore`): Initialized datastore
+        year: report year of the data to extract
+        ds: Initialized datastore
 
     Yields:
         pandas.DataFrame: A single state-year of EPA CEMS hourly emissions data.
 
     """
     ds = EpaCemsDatastore(ds)
-    for year in epacems_settings.years:
-        for state in epacems_settings.states:
-            partition = EpaCemsPartition(state=state, year=year)
-            logger.info(f"Processing EPA CEMS hourly data for {state}-{year}")
-            # We have to assign the reporting year for partitioning purposes
-            df = ds.get_data_frame(partition).assign(year=year)
-            yield df
+    partition = EpaCemsPartition(state=state, year=year)
+    # We have to assign the reporting year for partitioning purposes
+    return ds.get_data_frame(partition).assign(year=year)

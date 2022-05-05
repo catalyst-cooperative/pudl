@@ -155,7 +155,7 @@ class LayeredCache(AbstractCache):
               of decreasing priority.
         """
         super().__init__(**kwargs)
-        self._caches = list(caches)  # type: List[AbstractCache]
+        self._caches: List[AbstractCache] = list(caches)
 
     def add_cache_layer(self, cache: AbstractCache):
         """Adds caching layer. The priority is below all other."""

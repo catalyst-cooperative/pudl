@@ -30,8 +30,7 @@ ASSOCIATIONS: List[Dict[str, Any]] = [
     {"id": 13407, "from": 2009, "to": [2006, 2008]},
     {"id": 13407, "from": 2013, "to": [2014, 2019]},
 ]
-"""
-Adjustments to balancing authority-utility associations from EIA 861.
+"""Adjustments to balancing authority-utility associations from EIA 861.
 
 The changes are applied locally to EIA 861 tables.
 
@@ -60,8 +59,7 @@ UTILITIES: List[Dict[str, Any]] = [
     # (and 40211 never reports in service_territory_eia861) so don't reassign.
     {"id": 4254},
 ]
-"""
-Balancing authorities to treat as utilities in associations from EIA 861.
+"""Balancing authorities to treat as utilities in associations from EIA 861.
 
 The changes are applied locally to EIA 861 tables.
 
@@ -81,8 +79,7 @@ The changes are applied locally to EIA 861 tables.
 
 
 def add_dates(rids_ferc714, report_dates):
-    """
-    Broadcast respondent data across dates.
+    """Broadcast respondent data across dates.
 
     Args:
         rids_ferc714 (pandas.DataFrame): A simple FERC 714 Respondent ID dataframe,
@@ -113,8 +110,7 @@ def add_dates(rids_ferc714, report_dates):
 
 
 def categorize_eia_code(eia_codes, ba_ids, util_ids, priority="balancing_authority"):
-    """
-    Categorize FERC 714 ``eia_codes`` as either balancing authority or utility IDs.
+    """Categorize FERC 714 ``eia_codes`` as either balancing authority or utility IDs.
 
     Most FERC 714 respondent IDs are associated with an ``eia_code`` which refers to
     either a ``balancing_authority_id_eia`` or a ``utility_id_eia`` but no indication
@@ -194,8 +190,7 @@ def categorize_eia_code(eia_codes, ba_ids, util_ids, priority="balancing_authori
 
 
 class Respondents(object):
-    """
-    A class coordinating compilation of data related to FERC 714 Respondents.
+    """A class coordinating compilation of data related to FERC 714 Respondents.
 
     The FERC 714 Respondents themselves are not complex as they are reported, but
     various ambiguities and the need to associate service territories with them mean
@@ -400,8 +395,7 @@ class Respondents(object):
         return pd.concat([df] + tables)
 
     def annualize(self, update=False):
-        """
-        Broadcast respondent data across all years with reported demand.
+        """Broadcast respondent data across all years with reported demand.
 
         The FERC 714 Respondent IDs and names are reported in their own table,
         without any refence to individual years, but much of the information we are
@@ -423,8 +417,7 @@ class Respondents(object):
         return self._annualized
 
     def categorize(self, update=False):
-        """
-        Annualized respondents with ``respondent_type`` assigned if possible.
+        """Annualized respondents with ``respondent_type`` assigned if possible.
 
         Categorize each respondent as either a ``utility`` or a ``balancing_authority``
         using the parameters stored in the instance of the class. While categorization
@@ -484,8 +477,7 @@ class Respondents(object):
         return self._categorized
 
     def summarize_demand(self, update=False):
-        """
-        Compile annualized, categorized respondents and summarize values.
+        """Compile annualized, categorized respondents and summarize values.
 
         Calculated summary values include:
         * Total reported electricity demand per respondent (``demand_annual_mwh``)
@@ -530,8 +522,7 @@ class Respondents(object):
         return self._demand_summary
 
     def fipsify(self, update=False):
-        """
-        Annual respondents with the county FIPS IDs for their service territories.
+        """Annual respondents with the county FIPS IDs for their service territories.
 
         Given the ``respondent_type`` associated with each respondent (either
         ``utility`` or ``balancing_authority``) compile a list of counties that are part
@@ -582,8 +573,7 @@ class Respondents(object):
         return self._fipsified
 
     def georef_counties(self, update=False):
-        """
-        Annual respondents with all associated county-level geometries.
+        """Annual respondents with all associated county-level geometries.
 
         Given the county FIPS codes associated with each respondent in each year,
         pull in associated geometries from the US Census DP1 dataset, so we can do
@@ -603,8 +593,7 @@ class Respondents(object):
         return self._counties_gdf
 
     def georef_respondents(self, update=False):
-        """
-        Annual respondents with a single all-encompassing geometry for each year.
+        """Annual respondents with a single all-encompassing geometry for each year.
 
         Given the county FIPS codes associated with each responent in each year, compile
         a geometry for the respondent's entire service territory annually. This results

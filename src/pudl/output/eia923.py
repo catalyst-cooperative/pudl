@@ -23,8 +23,7 @@ FUEL_TYPE_EIAAPI_MAP = {
 }
 
 FUEL_COST_CATEGORIES_EIAAPI = [41696, 41762, 41740]
-"""
-The category ids for fuel costs by fuel for electricity for coal, gas and oil.
+"""The category ids for fuel costs by fuel for electricity for coal, gas and oil.
 
 Each category id is a peice of a query to EIA's API. Each query here contains
 a set of state-level child series which contain fuel cost data.
@@ -44,8 +43,7 @@ def generation_fuel_eia923(
     end_date: Union[str, date, datetime, pd.Timestamp] = None,
     nuclear: bool = False,
 ):
-    """
-    Pull records from the generation_fuel_eia923 table in given date range.
+    """Pull records from the generation_fuel_eia923 table in given date range.
 
     Optionally, aggregate the records over some timescale -- monthly, yearly,
     quarterly, etc. as well as by fuel type within a plant.
@@ -162,8 +160,7 @@ def generation_fuel_eia923(
 
 
 def generation_fuel_all_eia923(gf: pd.DataFrame, gfn: pd.DataFrame) -> pd.DataFrame:
-    """
-    Combine nuclear and non-nuclear generation fuel tables into a single output.
+    """Combine nuclear and non-nuclear generation fuel tables into a single output.
 
     The nuclear and non-nuclear generation fuel data are reported at different
     granularities. For non-nuclear generation, each row is a unique combination of date,
@@ -235,8 +232,7 @@ def fuel_receipts_costs_eia923(
     fill: bool = False,
     roll: bool = False,
 ) -> pd.DataFrame:
-    """
-    Pull records from ``fuel_receipts_costs_eia923`` table in given date range.
+    """Pull records from ``fuel_receipts_costs_eia923`` table in given date range.
 
     Optionally, aggregate the records at a monthly or longer timescale, as well
     as by fuel type within a plant, by setting freq to something other than
@@ -476,8 +472,7 @@ def fuel_receipts_costs_eia923(
 
 
 def boiler_fuel_eia923(pudl_engine, freq=None, start_date=None, end_date=None):
-    """
-    Pull records from the boiler_fuel_eia923 table in a given data range.
+    """Pull records from the boiler_fuel_eia923 table in a given data range.
 
     Optionally, aggregate the records over some timescale -- monthly, yearly,
     quarterly, etc. as well as by fuel type within a plant.
@@ -614,8 +609,7 @@ def boiler_fuel_eia923(pudl_engine, freq=None, start_date=None, end_date=None):
 
 
 def generation_eia923(pudl_engine, freq=None, start_date=None, end_date=None):
-    """
-    Pull records from the boiler_fuel_eia923 table in a given data range.
+    """Pull records from the boiler_fuel_eia923 table in a given data range.
 
     Args:
         pudl_engine (sqlalchemy.engine.Engine): SQLAlchemy connection engine
@@ -661,8 +655,7 @@ def generation_eia923(pudl_engine, freq=None, start_date=None, end_date=None):
 
 
 def denorm_generation_eia923(g_df, pudl_engine, start_date, end_date):
-    """
-    Denomralize generation_eia923 table.
+    """Denomralize generation_eia923 table.
 
     Args:
         g_df (pandas.DataFrame): generation_eia923 table. Should have columns:
@@ -719,8 +712,7 @@ def denorm_generation_eia923(g_df, pudl_engine, start_date, end_date):
 
 
 def make_url_cat_eiaapi(category_id):
-    """
-    Generate a url for a category from EIA's API.
+    """Generate a url for a category from EIA's API.
 
     Requires an environment variable named ``API_KEY_EIA`` be set, containing
     a valid EIA API key, which you can obtain from:
@@ -736,8 +728,7 @@ def make_url_cat_eiaapi(category_id):
 
 
 def make_url_series_eiaapi(series_id):
-    """
-    Generate a url for a series EIA's API.
+    """Generate a url for a series EIA's API.
 
     Requires an environment variable named ``API_KEY_EIA`` be set, containing
     a valid EIA API key, which you can obtain from:
@@ -785,8 +776,7 @@ def get_response(url):
 
 
 def grab_fuel_state_monthly(cat_id):
-    """
-    Grab an API response for monthly fuel costs for one fuel category.
+    """Grab an API response for monthly fuel costs for one fuel category.
 
     The data we want from EIA is in monthly, state-level series for each fuel
     type. For each fuel category, there are at least 51 embeded child series.
@@ -819,8 +809,7 @@ def grab_fuel_state_monthly(cat_id):
 
 
 def convert_cost_json_to_df(response_fuel_state_annual):
-    """
-    Convert a fuel-type/state response into a clean dataframe.
+    """Convert a fuel-type/state response into a clean dataframe.
 
     Args:
         response_fuel_state_annual (api response): an EIA API response which
@@ -869,8 +858,7 @@ def convert_cost_json_to_df(response_fuel_state_annual):
 
 
 def get_fuel_cost_avg_eiaapi(fuel_cost_cat_ids):
-    """
-    Get a dataframe of state-level average fuel costs for EIA's API.
+    """Get a dataframe of state-level average fuel costs for EIA's API.
 
     Args:
         fuel_cost_cat_ids (list): list of category ids. Known/testing working
