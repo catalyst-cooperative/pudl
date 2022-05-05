@@ -89,4 +89,5 @@ jobs:
             --container-arg="-p" \
             --container-arg="/home/catalyst/env" \
             --container-arg="bash" \
-            --container-arg="./docker/pudl_etl.sh"
+            --container-arg="./docker/pudl_etl.sh" \
+            --container-env-file="./docker/.env"
