@@ -17,12 +17,12 @@ env:
   CONDA_RUN: "conda run --no-capture-output --prefix /home/catalyst/env"
 
 jobs:
-  push_to_registry:
-    name: Build Docker image and push to Docker Hub
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v3
+  # push_to_registry:
+  #   name: Build Docker image and push to Docker Hub
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout Repository
+  #       uses: actions/checkout@v3
 
   #     - name: Docker Metadata
   #       id: docker_metadata
@@ -57,23 +57,32 @@ jobs:
   deploy_to_gce:
     name: Deploy the image to a GCE VM
     runs-on: ubuntu-latest
-    needs: push_to_registry
-    steps:
-      # Setup gcloud CLI
-      - name: Set up Cloud SDK
-        uses: google-github-actions/setup-gcloud@v0
+    # needs: push_to_registry
 
-      # Authentication via credentials json
+    # Add "id-token" with the intended permissions.
+    permissions:
+      contents: "read"
+      id-token: "write"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      # Alternative option - authentication via credentials json
       - id: "auth"
         uses: "google-github-actions/auth@v0"
         with:
           credentials_json: "${{ secrets.GCE_SA_KEY }}"
+
+      # Setup gcloud CLI
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v0
       # Change docker tab to steps.docker_metadata.outputs.tags
       - name: Deploy
         run: |-
           gcloud compute instances update-container "$GCE_INSTANCE" \
             --zone "$GCE_INSTANCE_ZONE" \
-            --container-image "docker.io/catalystcoop/pudl-etl:gce-deploy"
-            --container-mount-host-path mount-path=$CONTAINER_PUDL_IN,host-path=$HOST_PUDL_IN,mode=rw
-            --container-mount-host-path mount-path=$CONTAINER_PUDL_OUT,host-path=$HOST_PUDL_OUT,mode=rw
-            --container-command ${CONDA_RUN} bash ./docker/pudl_etl.sh
+            --container-image "docker.io/catalystcoop/pudl-etl:gce-deploy" \
+            --container-mount-host-path mount-path=$CONTAINER_PUDL_IN,host-path=$HOST_PUDL_IN,mode=rw  \
+            --container-mount-host-path mount-path=$CONTAINER_PUDL_OUT,host-path=$HOST_PUDL_OUT,mode=rw \
+            --container-command ${CONDA_RUN} bash ./docker/pudl_etl.sh \
