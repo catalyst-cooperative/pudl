@@ -2,6 +2,22 @@
 PUDL Release Notes
 =======================================================================================
 
+.. _release-v0-7-0:
+
+---------------------------------------------------------------------------------------
+0.7.0 (2022-XX-XX)
+---------------------------------------------------------------------------------------
+
+Database Schema Changes
+^^^^^^^^^^^^^^^^^^^^^^^
+
+* After learning that generators' prime movers do very occasionally change over
+  time, we recategorized the ``prime_mover_code`` column in our entity resolution
+  process to enable the rare but real variability over time. We moved the
+  ``prime_mover_code`` column from the statically harvested/normalized data
+  column to an annually harvested data column (i.e. from :ref:`generators_entity_eia`
+  to :ref:`generators_eia860`) :pr:`1600`. See :issue:`1585` for more details.
+
 .. _release-v0-6-0:
 
 ---------------------------------------------------------------------------------------
