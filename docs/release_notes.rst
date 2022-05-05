@@ -32,6 +32,20 @@ Plant Parts List Module Changes
   columns, ``installation_year`` and ``construction_year`` are now levels that the EIA
   generators are aggregated to.
 
+Bug Fixes
+^^^^^^^^^
+
+* `Dask v2022.4.2 <https://docs.dask.org/en/stable/changelog.html#v2022-04-2>`__
+  introduced breaking changes into :meth:`dask.dataframe.read_parquet`.  However, we
+  didn't catch this when it happened because it's only a problem when there's more than
+  one row-group. Now we're processing 2019-2020 data for both ID and ME (two of the
+  smallest states) in the tests. Also restricted the allowed Dask versions in our
+  ``setup.py`` so that we get notified by the dependabot any time even a minor update.
+  happens to any of the packages we depend on that use calendar versioning. See
+  :pr:`1618`.
+* Fixed a testing bug where the partitioned EPA CEMS outputs generated using parallel
+  processing were getting output in the same output directory as the real ETL, which
+  should never happen. See :pr:`1618`.
 
 .. _release-v0-6-0:
 
