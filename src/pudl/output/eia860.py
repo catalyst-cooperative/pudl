@@ -1,7 +1,6 @@
 """Functions for pulling data primarily from the EIA's Form 860."""
 
 import logging
-from collections import defaultdict
 
 import pandas as pd
 import sqlalchemy as sa
@@ -368,19 +367,21 @@ def generators_eia860(
 
 
 def fill_generator_technology_description(gens_df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Fill in missing ``technology_description`` based on generator and energy source.
+    """Fill in missing ``technology_description`` based by unique mapping & backfilling.
 
-    Prior to 2014, the EIA 860 did not report ``technology_description``. This
-    function backfills those early years within groups defined by ``plant_id_eia``,
-    ``generator_id`` and ``energy_source_code_1``. Some remaining missing values are
-    then filled in using the consistent, unique mappings that are observed between
-    ``energy_source_code_1`` and ``technology_type`` across all years and generators.
+    Prior to 2014, the EIA 860 did not report ``technology_description``.
+
+    This function fills in missing values are then filled in using the consistent,
+    unique mappings that are observed between ``energy_source_code_1``,
+    ``prime_mover_code`` and ``technology_type`` across all years and generators.
+
+    Then function backfills those early years within groups defined by ``plant_id_eia``,
+    ``generator_id``, ``energy_source_code_1`` and ``prime_mover_code``.
 
     As a result, more than 95% of all generator records end up having a
     ``technology_description`` associated with them.
 
-    Parameters:
+    Args:
         gens_df: A generators_eia860 dataframe containing at least the columns
             ``report_date``, ``plant_id_eia``, ``generator_id``,
             ``energy_source_code_1``, and ``technology_description``.
@@ -392,37 +393,47 @@ def fill_generator_technology_description(gens_df: pd.DataFrame) -> pd.DataFrame
     nrows_orig = len(gens_df)
     out_df = gens_df.copy()
 
+    # Fill in missing technology_descriptions with unique correspondences
+    # between energy_source_code_1 and prime_mover_code when there has always
+    # been a unique map between ESC/PM and technology_description
+    esc_pm_to_tech = (
+        out_df.loc[
+            :, ["energy_source_code_1", "prime_mover_code", "technology_description"]
+        ]
+        .dropna(how="any")  # if anything is null, we can't use it, so drop
+        .drop_duplicates(keep="first")  # keep one of each (doesn't matter which)
+        .drop_duplicates(  # if there are any duplicates w/in esc/pm combo.. it's gotta go
+            subset=["energy_source_code_1", "prime_mover_code"], keep=False
+        )
+    )
+
+    no_tech_mask = out_df.technology_description.isnull()
+    has_tech = out_df[~no_tech_mask]
+    no_tech = pd.merge(
+        out_df[no_tech_mask].drop(columns=["technology_description"]),
+        esc_pm_to_tech,
+        on=["energy_source_code_1", "prime_mover_code"],
+        how="left",
+        validate="m:1",
+    )
+    out_df = pd.concat([has_tech, no_tech]).reset_index(drop=True)
+
     # Backfill within generator-energy_source groups:
     out_df["technology_description"] = (
         out_df.sort_values("report_date")
-        .groupby(["plant_id_eia", "generator_id", "energy_source_code_1"])
+        .groupby(
+            ["plant_id_eia", "generator_id", "energy_source_code_1", "prime_mover_code"]
+        )
         .technology_description.bfill()
     )
-
-    # Fill in remaining missing technology_descriptions with unique correspondences
-    # between energy_source_code_1 where possible. Use a default value of pd.NA
-    # for any technology_description that isn't uniquely identified by energy source
-    static_fuels = defaultdict(
-        lambda: pd.NA,
-        gens_df.dropna(subset=["technology_description"])
-        .drop_duplicates(subset=["energy_source_code_1", "technology_description"])
-        .drop_duplicates(subset=["energy_source_code_1"], keep=False)
-        .set_index("energy_source_code_1")["technology_description"]
-        .to_dict(),
-    )
-
-    out_df.loc[
-        out_df.technology_description.isna(), "technology_description"
-    ] = out_df.energy_source_code_1.map(static_fuels)
 
     assert len(out_df) == nrows_orig
 
     # Assert that at least 95 percent of tech desc rows are filled in
+    pct_cov = out_df.technology_description.count() / out_df.technology_description.size
+    logger.info(f"Filled technology_type coverage now at {pct_cov:.1%}")
     pct_val = 0.95
-    if (
-        out_df.technology_description.count() / out_df.technology_description.size
-        < pct_val
-    ):
+    if pct_cov < pct_val:
         raise AssertionError(
             f"technology_description filling no longer covering {pct_val:.0%}"
         )
@@ -557,8 +568,7 @@ def ownership_eia860(pudl_engine, start_date=None, end_date=None):
 # unit_id_pudl values derived from the BGA table and other heuristics.
 ################################################################################
 def assign_unit_ids(gens_df):
-    """
-    Group generators into operational units using various heuristics.
+    """Group generators into operational units using various heuristics.
 
     Splits a few columns off from the big generator dataframe and uses several
     heuristic functions to fill in missing unit_id_pudl values beyond those that
@@ -710,8 +720,7 @@ def assign_unit_ids(gens_df):
 
 
 def fill_unit_ids(gens_df):
-    """
-    Back and forward fill Unit IDs for each plant / gen combination.
+    """Back and forward fill Unit IDs for each plant / gen combination.
 
     This routine assumes that the mapping of generators to units is constant
     over time, and extends those mappings into years where no boilers have
@@ -766,8 +775,7 @@ def fill_unit_ids(gens_df):
 
 
 def max_unit_id_by_plant(gens_df):
-    """
-    Identify the largest unit ID associated with each plant so we don't overlap.
+    """Identify the largest unit ID associated with each plant so we don't overlap.
 
     The PUDL Unit IDs are sequentially assigned integers. To assign a new ID, we
     need to know the largest existing Unit ID within a plant. This function
@@ -798,8 +806,7 @@ def max_unit_id_by_plant(gens_df):
 
 
 def _append_masked_units(gens_df, row_mask, unit_ids, on):
-    """
-    Replace rows with new PUDL Unit IDs in the original dataframe.
+    """Replace rows with new PUDL Unit IDs in the original dataframe.
 
     Merges the newly assigned Unit IDs found in ``unit_ids`` into the
     ``gens_df`` dataframe, but only for those rows which are selected by the
@@ -836,8 +843,7 @@ def _append_masked_units(gens_df, row_mask, unit_ids, on):
 def assign_single_gen_unit_ids(
     gens_df, prime_mover_codes, fuel_type_code_pudl=None, label_prefix="single"
 ):
-    """
-    Assign a unique PUDL Unit ID to each generator of a given prime mover type.
+    """Assign a unique PUDL Unit ID to each generator of a given prime mover type.
 
     Calculate the maximum pre-existing PUDL Unit ID within each plant, and
     assign each as of yet unidentified distinct generator within each plant
@@ -920,8 +926,7 @@ def assign_single_gen_unit_ids(
 
 
 def assign_cc_unit_ids(gens_df):
-    """
-    Assign PUDL Unit IDs for combined cycle generation units.
+    """Assign PUDL Unit IDs for combined cycle generation units.
 
     This applies only to combined cycle units reported as a combination of CT
     and CA prime movers. All CT and CA generators within a plant that do not
@@ -1017,8 +1022,7 @@ def assign_cc_unit_ids(gens_df):
 
 
 def assign_prime_fuel_unit_ids(gens_df, prime_mover_code, fuel_type_code_pudl):
-    """
-    Assign a PUDL Unit ID to all generators with a given prime mover and fuel.
+    """Assign a PUDL Unit ID to all generators with a given prime mover and fuel.
 
     Within each plant, assign a Unit ID to all generators that don't have one,
     and that share the same `fuel_type_code_pudl` and `prime_mover_code`. This

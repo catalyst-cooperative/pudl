@@ -19,8 +19,7 @@ class TestGenericDatasetSettings:
     """Test generic dataset behavior."""
 
     def test_missing_field_error(self):
-        """
-        Test GenericDatasetSettings throws error if user forgets to add a field.
+        """Test GenericDatasetSettings throws error if user forgets to add a field.
 
         In this case, the required ``data_source`` parameter is missing.
         """
@@ -46,8 +45,7 @@ class TestFerc1ToSqliteSettings:
 
 
 class TestFerc1Settings:
-    """
-    Test Ferc1 settings validation.
+    """Test Ferc1 settings validation.
 
     EIA860 and EIA923 use the same validation functions.
     """
@@ -128,8 +126,7 @@ class TestEpaCemsSettings:
 
 
 class TestEIA860Settings:
-    """
-    Test EIA860 setting validation.
+    """Test EIA860 setting validation.
 
     Most of the validation is covered in TestFerc1Settings.
     """

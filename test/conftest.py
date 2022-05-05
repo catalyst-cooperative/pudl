@@ -127,8 +127,7 @@ def ferc1_sql_engine(
     ferc1_etl_settings,
     pudl_datastore_fixture,
 ):
-    """
-    Grab a connection to the FERC Form 1 DB clone.
+    """Grab a connection to the FERC Form 1 DB clone.
 
     If we are using the test database, we initialize it from scratch first.
     If we're using the live database, then we just yield a conneciton to it.
@@ -152,8 +151,7 @@ def pudl_sql_engine(
     pudl_settings_fixture,
     etl_settings,
 ):
-    """
-    Grab a connection to the PUDL Database.
+    """Grab a connection to the PUDL Database.
 
     If we are using the test database, we initialize the PUDL DB from scratch.
     If we're using the live database, then we just make a conneciton to it.

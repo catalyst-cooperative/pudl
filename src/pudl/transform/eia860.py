@@ -15,8 +15,7 @@ logger = logging.getLogger(__name__)
 
 
 def ownership(eia860_dfs, eia860_transformed_dfs):
-    """
-    Pull and transform the ownership table.
+    """Pull and transform the ownership table.
 
     Transformations include:
 
@@ -154,8 +153,7 @@ def ownership(eia860_dfs, eia860_transformed_dfs):
 
 
 def generators(eia860_dfs, eia860_transformed_dfs):
-    """
-    Pull and transform the generators table.
+    """Pull and transform the generators table.
 
     There are three tabs that the generator records come from (proposed, existing,
     retired). Pre 2009, the existing and retired data are lumped together under a single
@@ -310,6 +308,9 @@ def generators(eia860_dfs, eia860_transformed_dfs):
         )
         .pipe(pudl.helpers.convert_to_date)
     )
+    # there is literally one 'ic' from 2002... which breaks the enums!
+    gens_df.loc[:, "prime_mover_code"] = gens_df.loc[:, "prime_mover_code"].str.upper()
+    # gens_df.loc[gens_df.prime_mover_code == "ic", "prime_mover_code"] == "IC"
 
     gens_df = (
         pudl.metadata.classes.Package.from_resource_ids()
@@ -332,8 +333,7 @@ def generators(eia860_dfs, eia860_transformed_dfs):
 
 
 def plants(eia860_dfs, eia860_transformed_dfs):
-    """
-    Pull and transform the plants table.
+    """Pull and transform the plants table.
 
     Much of the static plant information is reported repeatedly, and scattered across
     several different pages of EIA 923. The data frame which this function uses is
@@ -427,8 +427,7 @@ def plants(eia860_dfs, eia860_transformed_dfs):
 
 
 def boiler_generator_assn(eia860_dfs, eia860_transformed_dfs):
-    """
-    Pull and transform the boilder generator association table.
+    """Pull and transform the boilder generator association table.
 
     Transformations include:
 
@@ -485,8 +484,7 @@ def boiler_generator_assn(eia860_dfs, eia860_transformed_dfs):
 
 
 def utilities(eia860_dfs, eia860_transformed_dfs):
-    """
-    Pull and transform the utilities table.
+    """Pull and transform the utilities table.
 
     Transformations include:
 
@@ -581,8 +579,7 @@ def utilities(eia860_dfs, eia860_transformed_dfs):
 
 
 def transform(eia860_raw_dfs, eia860_settings: Eia860Settings = Eia860Settings()):
-    """
-    Transform EIA 860 DataFrames.
+    """Transform EIA 860 DataFrames.
 
     Args:
         eia860_raw_dfs (dict): a dictionary of tab names (keys) and DataFrames

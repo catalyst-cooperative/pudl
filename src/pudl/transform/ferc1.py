@@ -1,5 +1,4 @@
-"""
-Routines for transforming FERC Form 1 data before loading into the PUDL DB.
+"""Routines for transforming FERC Form 1 data before loading into the PUDL DB.
 
 This module provides a variety of functions that are used in cleaning up the FERC Form 1
 data prior to loading into our database. This includes adopting standardized units and
@@ -1405,8 +1404,7 @@ inclusive so that variants of conventional (e.g.  "conventional full") and outdo
 
 
 def unpack_table(ferc1_df, table_name, data_cols, data_rows):
-    """
-    Normalize a row-and-column based FERC Form 1 table.
+    """Normalize a row-and-column based FERC Form 1 table.
 
     Pulls the named database table from the FERC Form 1 DB and uses the corresponding
     ferc1_row_map to unpack the row_number coded data.
@@ -1471,8 +1469,7 @@ def unpack_table(ferc1_df, table_name, data_cols, data_rows):
 
 
 def cols_to_cats(df, cat_name, col_cats):
-    """
-    Turn top-level MultiIndex columns into a categorial column.
+    """Turn top-level MultiIndex columns into a categorial column.
 
     In some cases FERC Form 1 data comes with many different types of related values
     interleaved in the same table -- e.g. current year and previous year income -- this
@@ -2697,8 +2694,7 @@ class FERCPlantClassifier(BaseEstimator, ClassifierMixin):
     """
 
     def __init__(self, min_sim=0.75, plants_df=None):
-        """
-        Initialize the classifier.
+        """Initialize the classifier.
 
         Args:
             min_sim : Number between 0.0 and 1.0, indicating the minimum value of
@@ -2719,8 +2715,7 @@ class FERCPlantClassifier(BaseEstimator, ClassifierMixin):
         self._years = self.plants_df.report_year.unique()
 
     def fit(self, X, y=None):  # noqa: N803 Canonical capital letter...
-        """
-        Use weighted FERC plant features to group records into time series.
+        """Use weighted FERC plant features to group records into time series.
 
         The fit method takes the vectorized, normalized, weighted FERC plant
         features (X) as input, calculates the pairwise cosine similarity matrix
@@ -2752,8 +2747,7 @@ class FERCPlantClassifier(BaseEstimator, ClassifierMixin):
         return self
 
     def predict(self, X, y=None):  # noqa: N803
-        """
-        Identify time series of similar records to input record_ids.
+        """Identify time series of similar records to input record_ids.
 
         Given a one-dimensional dataframe X, containing FERC record IDs, return
         a dataframe in which each row corresponds to one of the input record_id
@@ -2765,7 +2759,7 @@ class FERCPlantClassifier(BaseEstimator, ClassifierMixin):
 
         Row index is the seed record IDs. Column index is years.
 
-        TODO:
+        Todo:
         * This method is hideously inefficient. It should be vectorized.
         * There's a line that throws a FutureWarning that needs to be fixed.
 
@@ -2906,8 +2900,7 @@ def make_ferc1_clf(
     utility_id_ferc1_wt=1.0,
     fuel_fraction_wt=1.0,
 ):
-    """
-    Create a FERC Plant Classifier using several weighted features.
+    """Create a FERC Plant Classifier using several weighted features.
 
     Given a FERC steam plants dataframe plants_df, which also includes fuel consumption
     information, transform a selection of useful columns into features suitable for use

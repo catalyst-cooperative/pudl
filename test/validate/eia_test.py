@@ -4,6 +4,7 @@ import logging
 import pytest
 
 from pudl import validate as pv
+from pudl.output.pudltabl import PudlTabl
 
 logger = logging.getLogger(__name__)
 
@@ -52,15 +53,21 @@ def test_no_null_cols_eia(pudl_out_eia, live_dbs, cols, df_name):
     ],
 )
 def test_minmax_rows(
-    pudl_out_eia, live_dbs, raw_rows, annual_rows, monthly_rows, df_name
+    pudl_out_eia: PudlTabl,
+    live_dbs: bool,
+    raw_rows: int,
+    annual_rows: int,
+    monthly_rows: int,
+    df_name: str,
 ):
     """Verify that output DataFrames don't have too many or too few rows.
 
     Args:
         pudl_out_eia: A PudlTabl output object.
         live_dbs (bool): Whether we're using a live or testing DB.
-        min_rows (int): Minimum number of rows that the dataframe should
-            contain when all data is loaded and is output without aggregation.
+        raw_rows: The expected original number of rows, without aggregation.
+        annual_rows: The expected number of rows when using annual aggregation.
+        monthly_rows: The expected number of rows when using monthly aggregation.
         df_name (str): Shorthand name identifying the dataframe, corresponding
             to the name of the function used to pull it from the PudlTabl
             output object.

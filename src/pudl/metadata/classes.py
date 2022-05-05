@@ -27,8 +27,8 @@ import pydantic
 import sqlalchemy as sa
 from pydantic.types import DirectoryPath
 
-from .codes import CODE_METADATA
-from .constants import (
+from pudl.metadata.codes import CODE_METADATA
+from pudl.metadata.constants import (
     CONSTRAINT_DTYPES,
     CONTRIBUTORS,
     FIELD_DTYPES_PANDAS,
@@ -37,16 +37,20 @@ from .constants import (
     LICENSES,
     PERIODS,
 )
-from .fields import FIELD_METADATA, FIELD_METADATA_BY_GROUP, FIELD_METADATA_BY_RESOURCE
-from .helpers import (
+from pudl.metadata.fields import (
+    FIELD_METADATA,
+    FIELD_METADATA_BY_GROUP,
+    FIELD_METADATA_BY_RESOURCE,
+)
+from pudl.metadata.helpers import (
     expand_periodic_column_names,
     format_errors,
     groupby_aggregate,
     most_and_more_frequent,
     split_period,
 )
-from .resources import FOREIGN_KEYS, RESOURCE_METADATA, eia861
-from .sources import SOURCES
+from pudl.metadata.resources import FOREIGN_KEYS, RESOURCE_METADATA, eia861
+from pudl.metadata.sources import SOURCES
 
 logger = logging.getLogger(__name__)
 
@@ -54,8 +58,7 @@ logger = logging.getLogger(__name__)
 
 
 def _unique(*args: Iterable) -> list:
-    """
-    Return a list of all unique values, in order of first appearance.
+    """Return a list of all unique values, in order of first appearance.
 
     Args:
         args: Iterables of values.
@@ -75,8 +78,7 @@ def _unique(*args: Iterable) -> list:
 
 
 def _format_for_sql(x: Any, identifier: bool = False) -> str:  # noqa: C901
-    """
-    Format value for use in raw SQL(ite).
+    """Format value for use in raw SQL(ite).
 
     Args:
         x: Value to format.
@@ -145,8 +147,7 @@ JINJA_ENVIRONMENT: jinja2.Environment = jinja2.Environment(
 
 
 class Base(pydantic.BaseModel):
-    """
-    Custom Pydantic base class.
+    """Custom Pydantic base class.
 
     It overrides :meth:`fields` and :meth:`schema` to allow properties with those names.
     To use them in a class, use an underscore prefix and an alias.
@@ -281,8 +282,7 @@ class Pattern(BaseType):
 
 
 def StrictList(item_type: Type = Any) -> pydantic.ConstrainedList:  # noqa: N802
-    """
-    Non-empty :class:`list`.
+    """Non-empty :class:`list`.
 
     Allows :class:`list`, :class:`tuple`, :class:`set`, :class:`frozenset`,
     :class:`collections.deque`, or generators and casts to a :class:`list`.
@@ -303,8 +303,7 @@ def _check_unique(value: list = None) -> Optional[list]:
 
 
 def _validator(*names, fn: Callable) -> Callable:
-    """
-    Construct reusable Pydantic validator.
+    """Construct reusable Pydantic validator.
 
     Args:
         names: Names of attributes to validate.
@@ -325,8 +324,7 @@ def _validator(*names, fn: Callable) -> Callable:
 
 
 class FieldConstraints(Base):
-    """
-    Field constraints (`resource.schema.fields[...].constraints`).
+    """Field constraints (`resource.schema.fields[...].constraints`).
 
     See https://specs.frictionlessdata.io/table-schema/#constraints.
     """
@@ -378,8 +376,7 @@ class FieldHarvest(Base):
 
 
 class Encoder(Base):
-    """
-    A class that allows us to standardize reported categorical codes.
+    """A class that allows us to standardize reported categorical codes.
 
     Often the original data we are integrating uses short codes to indicate a
     categorical value, like ``ST`` in place of "steam turbine" or ``LIG`` in place of
@@ -414,8 +411,7 @@ class Encoder(Base):
     """
 
     df: pd.DataFrame
-    """
-    A table associating short codes with long descriptions and other information.
+    """A table associating short codes with long descriptions and other information.
 
     Each coding table contains at least a ``code`` column containing the standard codes
     and a ``description`` column with a human readable explanation of what the code
@@ -426,16 +422,14 @@ class Encoder(Base):
     """
 
     ignored_codes: List[Union[Int, str]] = []
-    """
-    A list of non-standard codes which appear in the data, and will be set to NA.
+    """A list of non-standard codes which appear in the data, and will be set to NA.
 
     These codes may be the result of data entry errors, and we are unable to map them
     to the appropriate canonical code. They are discarded from the raw input data.
     """
 
     code_fixes: Dict[Union[Int, String], Union[Int, String]] = {}
-    """
-    A dictionary mapping non-standard codes to canonical, standardized codes.
+    """A dictionary mapping non-standard codes to canonical, standardized codes.
 
     The intended meanings of some non-standard codes are clear, and therefore they can
     be mapped to the standardized, canonical codes with confidence. Sometimes these are
@@ -443,9 +437,7 @@ class Encoder(Base):
     """
 
     name: String = None
-    """
-    The name of the code.
-    """
+    """The name of the code. """
 
     @pydantic.validator("df")
     def _df_is_encoding_table(cls, df):  # noqa: N805
@@ -572,8 +564,7 @@ class Encoder(Base):
 
 
 class Field(Base):
-    """
-    Field (`resource.schema.fields[...]`).
+    """Field (`resource.schema.fields[...]`).
 
     See https://specs.frictionlessdata.io/table-schema/#field-descriptors.
 
@@ -649,8 +640,7 @@ class Field(Base):
         return cls(**cls.dict_from_id(x))
 
     def to_pandas_dtype(self, compact: bool = False) -> Union[str, pd.CategoricalDtype]:
-        """
-        Return Pandas data type.
+        """Return Pandas data type.
 
         Args:
             compact: Whether to return a low-memory data type
@@ -752,8 +742,7 @@ class Field(Base):
 
 
 class ForeignKeyReference(Base):
-    """
-    Foreign key reference (`resource.schema.foreign_keys[...].reference`).
+    """Foreign key reference (`resource.schema.foreign_keys[...].reference`).
 
     See https://specs.frictionlessdata.io/table-schema/#foreign-keys.
     """
@@ -765,8 +754,7 @@ class ForeignKeyReference(Base):
 
 
 class ForeignKey(Base):
-    """
-    Foreign key (`resource.schema.foreign_keys[...]`).
+    """Foreign key (`resource.schema.foreign_keys[...]`).
 
     See https://specs.frictionlessdata.io/table-schema/#foreign-keys.
     """
@@ -796,8 +784,7 @@ class ForeignKey(Base):
 
 
 class Schema(Base):
-    """
-    Table schema (`resource.schema`).
+    """Table schema (`resource.schema`).
 
     See https://specs.frictionlessdata.io/table-schema.
     """
@@ -843,8 +830,7 @@ class Schema(Base):
 
 
 class License(Base):
-    """
-    Data license (`package|resource.licenses[...]`).
+    """Data license (`package|resource.licenses[...]`).
 
     See https://specs.frictionlessdata.io/data-package/#licenses.
     """
@@ -865,8 +851,7 @@ class License(Base):
 
 
 class Contributor(Base):
-    """
-    Data contributor (`package.contributors[...]`).
+    """Data contributor (`package.contributors[...]`).
 
     See https://specs.frictionlessdata.io/data-package/#contributors.
     """
@@ -891,8 +876,7 @@ class Contributor(Base):
         return cls(**cls.dict_from_id(x))
 
     def __hash__(self):
-        """
-        Implements simple hash method.
+        """Implements simple hash method.
 
         Allows use of `set()` on a list of Contributor
         """
@@ -900,8 +884,7 @@ class Contributor(Base):
 
 
 class DataSource(Base):
-    """
-    A data source that has been integrated into PUDL.
+    """A data source that has been integrated into PUDL.
 
     This metadata is used for:
 
@@ -983,8 +966,7 @@ class ResourceHarvest(Base):
     """Resource harvest parameters (`resource.harvest`)."""
 
     harvest: Bool = False
-    """
-    Whether to harvest from dataframes based on field names.
+    """Whether to harvest from dataframes based on field names.
 
     If `False`, the dataframe with the same name is used
     and the process is limited to dropping unwanted fields.
@@ -995,8 +977,7 @@ class ResourceHarvest(Base):
 
 
 class Resource(Base):
-    """
-    Tabular data resource (`package.resources[...]`).
+    """Tabular data resource (`package.resources[...]`).
 
     See https://specs.frictionlessdata.io/tabular-data-resource.
 
@@ -1157,8 +1138,7 @@ class Resource(Base):
 
     @staticmethod
     def dict_from_id(x: str) -> dict:  # noqa: C901
-        """
-        Construct dictionary from PUDL identifier (`resource.name`).
+        """Construct dictionary from PUDL identifier (`resource.name`).
 
         * `schema.fields`
 
@@ -1295,8 +1275,7 @@ class Resource(Base):
     def to_pandas_dtypes(
         self, **kwargs: Any
     ) -> Dict[str, Union[str, pd.CategoricalDtype]]:
-        """
-        Return Pandas data type of each field by field name.
+        """Return Pandas data type of each field by field name.
 
         Args:
             kwargs: Arguments to :meth:`Field.to_pandas_dtype`.
@@ -1304,8 +1283,7 @@ class Resource(Base):
         return {f.name: f.to_pandas_dtype(**kwargs) for f in self.schema.fields}
 
     def match_primary_key(self, names: Iterable[str]) -> Optional[Dict[str, str]]:
-        """
-        Match primary key fields to input field names.
+        """Match primary key fields to input field names.
 
         An exact match is required unless :attr:`harvest` .`harvest=True`,
         in which case periodic names may also match a basename with a smaller period.
@@ -1379,8 +1357,7 @@ class Resource(Base):
         return matches if len(matches) == len(keys) else None
 
     def format_df(self, df: pd.DataFrame = None, **kwargs: Any) -> pd.DataFrame:
-        """
-        Format a dataframe.
+        """Format a dataframe.
 
         Args:
             df: Dataframe to format.
@@ -1426,8 +1403,7 @@ class Resource(Base):
     def aggregate_df(
         self, df: pd.DataFrame, raised: bool = False, error: Callable = None
     ) -> Tuple[pd.DataFrame, dict]:
-        """
-        Aggregate dataframe by primary key.
+        """Aggregate dataframe by primary key.
 
         The dataframe is grouped by primary key fields
         and aggregated with the aggregate function of each field
@@ -1492,8 +1468,7 @@ class Resource(Base):
         return df, report
 
     def _build_aggregation_report(self, df: pd.DataFrame, errors: dict) -> dict:
-        """
-        Build report from aggregation errors.
+        """Build report from aggregation errors.
 
         Args:
             df: Harvested dataframe (see :meth:`harvest_dfs`).
@@ -1540,8 +1515,7 @@ class Resource(Base):
         aggregate_kwargs: Dict[str, Any] = {},
         format_kwargs: Dict[str, Any] = {},
     ) -> Tuple[pd.DataFrame, dict]:
-        """
-        Harvest from named dataframes.
+        """Harvest from named dataframes.
 
         For standard resources (:attr:`harvest`. `harvest=False`), the columns
         matching all primary key fields and any data fields are extracted from
@@ -1613,8 +1587,7 @@ class Resource(Base):
 
 
 class Package(Base):
-    """
-    Tabular data package.
+    """Tabular data package.
 
     See https://specs.frictionlessdata.io/data-package.
 
@@ -1694,8 +1667,7 @@ class Package(Base):
         resource_ids: Tuple[str] = tuple(sorted(RESOURCE_METADATA)),
         resolve_foreign_keys: bool = False,
     ) -> "Package":
-        """
-        Construct a collection of Resources from PUDL identifiers (`resource.name`).
+        """Construct a collection of Resources from PUDL identifiers (`resource.name`).
 
         Identify any fields that have foreign key relationships referencing the
         coding tables defined in :mod:`pudl.metadata.codes` and if so, associate the
@@ -1760,8 +1732,7 @@ class Package(Base):
 
 
 class CodeMetadata(Base):
-    """
-    A list of Encoders representing standardization and description for reported categorical codes.
+    """A list of Encoders representing standardization and description for reported categorical codes.
 
     Used to export to documentation.
     """
@@ -1770,8 +1741,7 @@ class CodeMetadata(Base):
 
     @classmethod
     def from_code_ids(cls, code_ids: Iterable[str]) -> "CodeMetadata":
-        """
-        Construct a list of encoders from code dictionaries.
+        """Construct a list of encoders from code dictionaries.
 
         Args:
             code_ids: A list of Code PUDL identifiers, keys to entries in the CODE_METADATA dictionary.
@@ -1797,8 +1767,7 @@ class CodeMetadata(Base):
 
 
 class DatasetteMetadata(Base):
-    """
-    A collection of Data Sources and Resources for metadata export.
+    """A collection of Data Sources and Resources for metadata export.
 
     Used to create metadata YAML file to accompany Datasette.
     """
@@ -1831,8 +1800,7 @@ class DatasetteMetadata(Base):
             "static_ferc1",
         ],
     ) -> "DatasetteMetadata":
-        """
-        Construct a dictionary of DataSources from data source names.
+        """Construct a dictionary of DataSources from data source names.
 
         Create dictionary of first and last year or year-month for each source.
 

@@ -1,5 +1,4 @@
-"""
-Tools for converting datasets between various formats in bulk.
+"""Tools for converting datasets between various formats in bulk.
 
 It's often useful to be able to convert entire datasets in bulk from one format
 to another, both independent of and within the context of the ETL pipeline.
@@ -11,4 +10,5 @@ original raw data as organized by the :mod:`pudl.workspace` package (e.g.
 :mod:`pudl.convert.ferc1_to_sqlite` or :mod:`pudl.convert.epacems_to_parquet`),
 and others convert metadata into RST for use in documentation
 (e.g. :mod:`pudl.convert.metadata_to_rst`).
+
 """
