@@ -231,40 +231,10 @@ CODE_METADATA: Dict[str, Dict[str, Any]] = {
         },
         "ignored_codes": [],
     },
-    "operational_status_code": {
+    "operational_status_eia": {
         "df": pd.DataFrame(
             columns=["code", "label", "description", "operational_status"],
             data=[
-                (
-                    "OP",
-                    "operating",
-                    "In service (commercial operation) and producing some electricity. Includes peaking units that are run on an as needed (intermittent or seasonal) basis.",
-                    "existing",
-                ),
-                (
-                    "SB",
-                    "standby",
-                    "Standby/Backup. Available for service but not normally used (has little or no generation during the year) for this reporting period. Includes old code BU from 2004-2006.",
-                    "existing",
-                ),
-                (
-                    "OS",
-                    "out_of_service_permanently",
-                    "Was not used for some or all of the reporting period and is NOT expected to be returned to service in the next calendar year.",
-                    "existing",
-                ),
-                (
-                    "OA",
-                    "out_of_service_temporarily",
-                    "Was not used for some or all of the reporting period but is expected to be returned to service in the next calendar year.",
-                    "existing",
-                ),
-                (
-                    "RE",
-                    "retired",
-                    "No longer in service and not expected to be returned to service.",
-                    "retired",
-                ),
                 (
                     "CN",
                     "cancelled",
@@ -278,9 +248,33 @@ CODE_METADATA: Dict[str, Dict[str, Any]] = {
                     "proposed",
                 ),
                 (
-                    "TS",
-                    "construction_complete",
-                    "Construction complete, but not yet in commercial operation (including low power testing of nuclear units)",
+                    "L",
+                    "planned_approvals_pending",
+                    "Not under construction but site preparation could be underway",
+                    "proposed",
+                ),
+                (
+                    "OA",
+                    "out_of_service_short_term",
+                    "Was not used for some or all of the reporting period but is expected to be returned to service in the next calendar year.",
+                    "existing",
+                ),
+                (
+                    "OP",
+                    "operating",
+                    "In service (commercial operation) and producing some electricity. Includes peaking units that are run on an as needed (intermittent or seasonal) basis.",
+                    "existing",
+                ),
+                (
+                    "OS",
+                    "out_of_service_long_term",
+                    "Was not used for some or all of the reporting period and is NOT expected to be returned to service in the next calendar year.",
+                    "existing",
+                ),
+                (
+                    "OT",
+                    "other",
+                    "proposed",
                     "proposed",
                 ),
                 (
@@ -290,15 +284,27 @@ CODE_METADATA: Dict[str, Dict[str, Any]] = {
                     "proposed",
                 ),
                 (
-                    "L",
-                    "planned_approvals_pending",
-                    "Not under construction but site preparation could be underway",
-                    "proposed",
+                    "RE",
+                    "retired",
+                    "No longer in service and not expected to be returned to service.",
+                    "retired",
+                ),
+                (
+                    "SB",
+                    "standby",
+                    "Standby/Backup. Available for service but not normally used (has little or no generation during the year) for this reporting period. Includes old code BU from 2004-2006.",
+                    "existing",
                 ),
                 (
                     "T",
                     "planned_approvals_received",
                     "Regulatory approvals received. Not under construction but site preparation could be underway",
+                    "proposed",
+                ),
+                (
+                    "TS",
+                    "construction_complete",
+                    "Construction complete, but not yet in commercial operation (including low power testing of nuclear units)",
                     "proposed",
                 ),
                 (
@@ -311,12 +317,6 @@ CODE_METADATA: Dict[str, Dict[str, Any]] = {
                     "V",
                     "under_construction_more_than_half_complete",
                     "Under construction, more than 50 percent complete (based on construction time to date of operation)",
-                    "proposed",
-                ),
-                (
-                    "OT",
-                    "other",
-                    "proposed",
                     "proposed",
                 ),
             ],

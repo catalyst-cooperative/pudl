@@ -39,7 +39,7 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
         "etl_group": "static_eia",
         "field_namespace": "eia",
     },
-    "operational_status_code": {
+    "operational_status_eia": {
         "description": "Codes and metadata pertaining to operational status reported to EIA. Compiled from EIA-860 instructions and EIA-923 file layout spreadsheets.",
         "schema": {
             "fields": [
@@ -53,7 +53,7 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
                 "fields": [["operational_status_code"]],
             },
         },
-        "encoder": CODE_METADATA["operational_status_code"],
+        "encoder": CODE_METADATA["operational_status_eia"],
         "sources": ["eia860", "eia923"],
         "etl_group": "static_eia",
         "field_namespace": "eia",

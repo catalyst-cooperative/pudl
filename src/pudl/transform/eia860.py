@@ -319,7 +319,7 @@ def generators(eia860_dfs, eia860_transformed_dfs):
 
     gens_df["operational_status"] = gens_df.operational_status_code.str.upper().map(
         pudl.helpers.label_map(
-            CODE_METADATA["operational_status_code"]["df"],
+            CODE_METADATA["operational_status_eia"]["df"],
             from_col="code",
             to_col="operational_status",
             null_value=pd.NA,
