@@ -103,6 +103,7 @@ repos:
   rev: v2.10.0
   hooks:
   - id: hadolint
+    args: [--config, ".hadolint.yml"]
 
 ########################################################################################
 # Our own pre-commit hooks, which don't come from the pre-commit project

@@ -1,5 +1,8 @@
 FROM condaforge/mambaforge:4.12.0-0
 
+# Install curl and js
+RUN apt-get update; apt-get install --no-install-recommends -y curl jq
+
 # Create a non-root user inside the container
 RUN useradd -Ums /bin/bash catalyst
 
