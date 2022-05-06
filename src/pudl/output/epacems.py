@@ -165,6 +165,8 @@ def epacems(
         use_nullable_dtypes=True,
         columns=columns,
         engine="pyarrow",
+        index=False,
+        split_row_groups=True,
         filters=year_state_filter(
             states=epacems_settings.states,
             years=epacems_settings.years,
