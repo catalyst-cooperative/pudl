@@ -1,6 +1,7 @@
 """Metadata for cleaning, re-encoding, and documenting coded data columns.
 
 These dictionaries are used to create Encoder instances. They contain the following keys:
+
 * 'df': A dataframe associating short codes with long descriptions and other information.
   Each dataframe needs at least three standard columns: "code", "label", "description".
   The codes and lables must be unique. By convention, the "label"'s are snake case.
@@ -8,6 +9,7 @@ These dictionaries are used to create Encoder instances. They contain the follow
   codes.
 * 'ignored_codes': A list of non-standard codes which appear in the data, and will
   be set to NA.
+
 """
 from typing import Any, Dict
 
