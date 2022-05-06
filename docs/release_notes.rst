@@ -17,6 +17,10 @@ Database Schema Changes
   ``prime_mover_code`` column from the statically harvested/normalized data
   column to an annually harvested data column (i.e. from :ref:`generators_entity_eia`
   to :ref:`generators_eia860`) :pr:`1600`. See :issue:`1585` for more details.
+* Created :ref:`operational_status_eia` into our static metadata tables (See
+  :doc:`data_dictionaries/codes_and_labels`). Used these standard codes and code
+  fixes to clean ``operational_status_code`` in the :ref:`generators_entity_eia`
+  table. :pr:`1624`
 
 Bug Fixes
 ^^^^^^^^^

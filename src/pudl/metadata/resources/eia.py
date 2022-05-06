@@ -39,6 +39,25 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
         "etl_group": "static_eia",
         "field_namespace": "eia",
     },
+    "operational_status_eia": {
+        "description": "Codes and metadata pertaining to operational status reported to EIA. Compiled from EIA-860 instructions and EIA-923 file layout spreadsheets.",
+        "schema": {
+            "fields": [
+                "code",
+                "label",
+                "description",
+                "operational_status",
+            ],
+            "primary_key": ["code"],
+            "foreign_key_rules": {
+                "fields": [["operational_status_code"]],
+            },
+        },
+        "encoder": CODE_METADATA["operational_status_eia"],
+        "sources": ["eia860", "eia923"],
+        "etl_group": "static_eia",
+        "field_namespace": "eia",
+    },
     "energy_sources_eia": {
         "description": "Codes and metadata pertaining to energy sources reported to EIA. Compiled from EIA-860 instructions and EIA-923 file layout spreadsheets.",
         "schema": {
