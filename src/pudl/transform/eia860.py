@@ -308,6 +308,9 @@ def generators(eia860_dfs, eia860_transformed_dfs):
         )
         .pipe(pudl.helpers.convert_to_date)
     )
+    # there is literally one 'ic' from 2002... which breaks the enums!
+    gens_df.loc[:, "prime_mover_code"] = gens_df.loc[:, "prime_mover_code"].str.upper()
+    # gens_df.loc[gens_df.prime_mover_code == "ic", "prime_mover_code"] == "IC"
 
     gens_df = (
         pudl.metadata.classes.Package.from_resource_ids()

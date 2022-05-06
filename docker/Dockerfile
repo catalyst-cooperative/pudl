@@ -27,7 +27,7 @@ RUN --mount=type=bind,source=.git,target=${PUDL_REPO}/.git \
     # so we create a bare py3.10 env first:
     mamba create --copy --prefix ${CONDA_PREFIX} --yes python=${PYTHON_VERSION} && \
     # Then we can use mamba env update, which can parse the environment.yml file:
-    mamba env update --prefix ${CONDA_PREFIX} --file devtools/ci-environment.yml && \
+    mamba env update --prefix ${CONDA_PREFIX} --file test/test-environment.yml && \
     conda clean -afy && \
     ${CONDA_RUN} pip install --no-cache-dir -e './[dev,doc,test]' && \
     # Create data input/output directories

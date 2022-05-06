@@ -77,7 +77,6 @@ ENTITIES: Dict[str, Dict[str, List[str]]] = {
     "generators": {
         "id_cols": ["plant_id_eia", "generator_id"],
         "static_cols": [
-            "prime_mover_code",
             "duct_burners",
             "operating_date",
             "topping_bottoming_code",
@@ -112,6 +111,7 @@ ENTITIES: Dict[str, Dict[str, List[str]]] = {
             "distributed_generation",
             "technology_description",
             "reactive_power_output_mvar",
+            "prime_mover_code",
             "energy_source_code_1",
             "energy_source_code_2",
             "energy_source_code_3",

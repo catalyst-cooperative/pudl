@@ -374,3 +374,70 @@ def test_scale_by_ownership():
     )
 
     pd.testing.assert_frame_equal(out_ex1, out)
+
+
+def test_label_true_grans():
+    """Test the labeling of true granularities in the plant part list."""
+    plant_part_list_input = pd.DataFrame(
+        {
+            "report_date": ["2020-01-01"] * 7,
+            "record_id_eia": [
+                "plant_3",
+                "unit_a",
+                "unit_b",
+                "gen_1",
+                "gen_2",
+                "gen_3",
+                "tech_nat_gas",
+            ],
+            "plant_id_eia": [3] * 7,
+            "plant_part": [
+                "plant",
+                "plant_unit",
+                "plant_unit",
+                "plant_gen",
+                "plant_gen",
+                "plant_gen",
+                "plant_technology",
+            ],
+            "generator_id": [None, None, None, 1, 2, 3, None],
+            "unit_id_pudl": [None, "A", "B", "A", "B", "B", None],
+            "technology_description": ["nat_gas"] * 7,
+            "operational_status_pudl": [None] * 7,
+            "utility_id_eia": [None] * 7,
+            "ownership": [None] * 7,
+            "prime_mover_code": [None] * 7,
+            "ferc_acct_name": [None] * 7,
+            "energy_source_code_1": [None] * 7,
+        }
+    ).astype({"report_date": "datetime64[ns]"})
+
+    true_grans = pd.DataFrame(
+        {
+            "true_gran": [True, True, True, False, True, True, False],
+            "appro_record_id_eia": [
+                "plant_3",
+                "unit_a",
+                "unit_b",
+                "unit_a",
+                "gen_2",
+                "gen_3",
+                "plant_3",
+            ],
+            "appro_part_label": [
+                "plant",
+                "plant_unit",
+                "plant_unit",
+                "plant_unit",
+                "plant_gen",
+                "plant_gen",
+                "plant",
+            ],
+        }
+    ).astype({"appro_part_label": "string"})
+
+    expected_out = pd.concat([plant_part_list_input, true_grans], axis=1)
+
+    out = pudl.analysis.plant_parts_eia.TrueGranLabeler().execute(plant_part_list_input)
+
+    pd.testing.assert_frame_equal(expected_out, out)

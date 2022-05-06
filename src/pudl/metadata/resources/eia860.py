@@ -36,6 +36,7 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
                 "summer_capacity_estimate",
                 "winter_capacity_mw",
                 "winter_capacity_estimate",
+                "prime_mover_code",
                 "energy_source_code_1",
                 "energy_source_code_2",
                 "energy_source_code_3",
