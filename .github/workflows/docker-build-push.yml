@@ -73,6 +73,10 @@ jobs:
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v0
 
+      # Make sure the VM is up
+      - name: Start the deploy-pudl-vm
+        run: gcloud compute instances start "$GCE_INSTANCE" --zone="$GCE_INSTANCE_ZONE"
+
       # Deploy PUDL image to GCE
       - name: Deploy
         run: |-
