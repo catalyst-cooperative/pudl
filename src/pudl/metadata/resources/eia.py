@@ -44,14 +44,13 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
         "schema": {
             "fields": [
                 "code",
-                "operational_status",
+                "label",
                 "description",
+                "operational_status",
             ],
             "primary_key": ["code"],
             "foreign_key_rules": {
-                "fields": [
-                    ["operational_status_code"],
-                ],
+                "fields": [["operational_status_code"]],
             },
         },
         "encoder": CODE_METADATA["operational_status_code"],

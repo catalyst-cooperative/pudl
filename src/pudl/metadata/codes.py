@@ -1,9 +1,13 @@
 """Metadata for cleaning, re-encoding, and documenting coded data columns.
 
 These dictionaries are used to create Encoder instances. They contain the following keys:
-'df': A dataframe associating short codes with long descriptions and other information.
-'code_fixes': A dictionary mapping non-standard codes to canonical, standardized codes.
-'ignored_codes': A list of non-standard codes which appear in the data, and will be set to NA.
+* 'df': A dataframe associating short codes with long descriptions and other information.
+  Each dataframe needs at least three standard columns: "code", "label", "description".
+  The codes and lables must be unique. By convention, the "label"'s are snake case.
+* 'code_fixes': A dictionary mapping non-standard codes to canonical, standardized
+  codes.
+* 'ignored_codes': A list of non-standard codes which appear in the data, and will
+  be set to NA.
 """
 from typing import Any, Dict
 
@@ -227,77 +231,91 @@ CODE_METADATA: Dict[str, Dict[str, Any]] = {
     },
     "operational_status_code": {
         "df": pd.DataFrame(
-            columns=["code", "operational_status", "description"],
+            columns=["code", "label", "description", "operational_status"],
             data=[
                 (
                     "OP",
+                    "operating",
+                    "In service (commercial operation) and producing some electricity. Includes peaking units that are run on an as needed (intermittent or seasonal) basis.",
                     "existing",
-                    "Operating - in service (commercial operation) and producing some electricity. Includes peaking units that are run on an as needed (intermittent or seasonal) basis.",
                 ),
                 (
                     "SB",
+                    "standby",
+                    "Standby/Backup. Available for service but not normally used (has little or no generation during the year) for this reporting period. Includes old code BU from 2004-2006.",
                     "existing",
-                    "Standby/Backup - available for service but not normally used (has little or no generation during the year) for this reporting period. Includes old code BU from 2004-2006.",
                 ),
                 (
                     "OS",
+                    "out_of_service_permanently",
+                    "Was not used for some or all of the reporting period and is NOT expected to be returned to service in the next calendar year.",
                     "existing",
-                    "Out of service – was not used for some or all of the reporting period and is NOT expected to be returned to service in the next calendar year.",
                 ),
                 (
                     "OA",
+                    "out_of_service_temporarily",
+                    "Was not used for some or all of the reporting period but is expected to be returned to service in the next calendar year.",
                     "existing",
-                    "Out of service – was not used for some or all of the reporting period but is expected to be returned to service in the next calendar year.",
                 ),
                 (
                     "RE",
                     "retired",
-                    "Retired - no longer in service and not expected to be returned to service.",
+                    "No longer in service and not expected to be returned to service.",
+                    "retired",
                 ),
                 (
                     "CN",
+                    "cancelled",
+                    "Cancelled, but previously reported as 'planned'",
                     "proposed",
-                    "Cancelled (previously reported as “planned”)",
                 ),
                 (
                     "IP",
-                    "proposed",
+                    "indefinitely_postponed",
                     "Planned new indefinitely postponed, or no longer in resource plan",
+                    "proposed",
                 ),
                 (
                     "TS",
-                    "proposed",
+                    "construction_complete",
                     "Construction complete, but not yet in commercial operation (including low power testing of nuclear units)",
+                    "proposed",
                 ),
                 (
                     "P",
-                    "proposed",
+                    "planned_approvals_not_initiated",
                     "Planned for installation but regulatory approvals not initiated; Not under construction",
+                    "proposed",
                 ),
                 (
                     "L",
+                    "planned_approvals_pending",
+                    "Not under construction but site preparation could be underway",
                     "proposed",
-                    "Regulatory approvals pending. Not under construction but site preparation could be underway",
                 ),
                 (
                     "T",
-                    "proposed",
+                    "planned_approvals_received",
                     "Regulatory approvals received. Not under construction but site preparation could be underway",
+                    "proposed",
                 ),
                 (
                     "U",
-                    "proposed",
+                    "under_construction_less_than_half_complete",
                     "Under construction, less than or equal to 50 percent complete (based on construction time to date of operation)",
+                    "proposed",
                 ),
                 (
                     "V",
-                    "proposed",
+                    "under_construction_more_than_half_complete",
                     "Under construction, more than 50 percent complete (based on construction time to date of operation)",
+                    "proposed",
                 ),
                 (
                     "OT",
+                    "other",
                     "proposed",
-                    "Other.",
+                    "proposed",
                 ),
             ],
         ).convert_dtypes(),
