@@ -225,6 +225,97 @@ CODE_METADATA: Dict[str, Dict[str, Any]] = {
         },
         "ignored_codes": [],
     },
+    "operational_status_code": {
+        "df": pd.DataFrame(
+            columns=["code", "operational_status", "description"],
+            data=[
+                (
+                    "OP",
+                    "existing",
+                    "Operating - in service (commercial operation) and producing some electricity. Includes peaking units that are run on an as needed (intermittent or seasonal) basis.",
+                ),
+                (
+                    "SB",
+                    "existing",
+                    "Standby/Backup - available for service but not normally used (has little or no generation during the year) for this reporting period. Includes old code BU from 2004-2006.",
+                ),
+                (
+                    "OS",
+                    "existing",
+                    "Out of service – was not used for some or all of the reporting period and is NOT expected to be returned to service in the next calendar year.",
+                ),
+                (
+                    "OA",
+                    "existing",
+                    "Out of service – was not used for some or all of the reporting period but is expected to be returned to service in the next calendar year.",
+                ),
+                (
+                    "RE",
+                    "retired",
+                    "Retired - no longer in service and not expected to be returned to service.",
+                ),
+                (
+                    "CN",
+                    "proposed",
+                    "Cancelled (previously reported as “planned”)",
+                ),
+                (
+                    "IP",
+                    "proposed",
+                    "Planned new indefinitely postponed, or no longer in resource plan",
+                ),
+                (
+                    "TS",
+                    "proposed",
+                    "Construction complete, but not yet in commercial operation (including low power testing of nuclear units)",
+                ),
+                (
+                    "P",
+                    "proposed",
+                    "Planned for installation but regulatory approvals not initiated; Not under construction",
+                ),
+                (
+                    "L",
+                    "proposed",
+                    "Regulatory approvals pending. Not under construction but site preparation could be underway",
+                ),
+                (
+                    "T",
+                    "proposed",
+                    "Regulatory approvals received. Not under construction but site preparation could be underway",
+                ),
+                (
+                    "U",
+                    "proposed",
+                    "Under construction, less than or equal to 50 percent complete (based on construction time to date of operation)",
+                ),
+                (
+                    "V",
+                    "proposed",
+                    "Under construction, more than 50 percent complete (based on construction time to date of operation)",
+                ),
+                (
+                    "OT",
+                    "proposed",
+                    "Other.",
+                ),
+            ],
+        ).convert_dtypes(),
+        "code_fixes": {
+            "(L) Regulatory approvals pending. Not under construction": "L",
+            "(OA) Out of service but expected to return to service in next calendar year": "OA",
+            "(OP) Operating": "OP",
+            "(OS) Out of service and NOT expected to return to service in next calendar year": "OS",
+            "(OT) Other": "OT",
+            "(P) Planned for installation, but regulatory approvals not initiated": "P",
+            "(SB) Standby/Backup: available for service but not normally used": "SB",
+            "(T) Regulatory approvals received. Not under construction": "T",
+            "(TS) Construction complete, but not yet in commercial operation": "TS",
+            "(U) Under construction, less than or equal to 50 percent complete": "U",
+            "(V) Under construction, more than 50 percent complete": "V",
+            "BU": "SB",
+        },
+    },
     "energy_sources_eia": {
         "df": pd.DataFrame(
             columns=[
@@ -961,7 +1052,7 @@ CODE_METADATA: Dict[str, Dict[str, Any]] = {
                 ("WT", "wind_onshore", "Wind Turbine, Onshore"),
             ],
         ).convert_dtypes(),
-        "code_fixes": {},
+        "code_fixes": {"ic": "IC"},  # there is literally one 'ic' from 2002.
         "ignored_codes": [],
     },
     "sector_consolidated_eia": {
