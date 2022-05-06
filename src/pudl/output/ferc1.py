@@ -177,6 +177,7 @@ def plants_small_ferc1(pudl_engine):
             on=["utility_id_ferc1", "plant_name_ferc1"],
             how="left",
         )
+        .assign(opex_nonfuel=lambda x: x.opex_total - x.opex_fuel)
         .pipe(
             pudl.helpers.organize_cols,
             [
@@ -203,7 +204,8 @@ def plants_hydro_ferc1(pudl_engine):
             how="left",
         )
         .assign(
-            capacity_factor=lambda x: (x.net_generation_mwh / (8760 * x.capacity_mw))
+            capacity_factor=lambda x: (x.net_generation_mwh / (8760 * x.capacity_mw)),
+            opex_nonfuel=lambda x: x.opex_total,
         )
         .pipe(
             pudl.helpers.organize_cols,
@@ -229,7 +231,10 @@ def plants_pumped_storage_ferc1(pudl_engine):
             on=["utility_id_ferc1", "plant_name_ferc1"],
             how="left",
         )
-        .assign(capacity_factor=lambda x: x.net_generation_mwh / (8760 * x.capacity_mw))
+        .assign(
+            capacity_factor=lambda x: x.net_generation_mwh / (8760 * x.capacity_mw),
+            opex_nonfuel=lambda x: x.opex_total,
+        )
         .pipe(
             pudl.helpers.organize_cols,
             [
@@ -306,22 +311,10 @@ def all_plants_ferc1(pudl_engine):
         apply_pudl_dtypes, group="ferc1"
     )
 
-    # Prep small gens table
-    # Add an opex_nonfuel so it can be compared to the steam table and used
-    # as Total O&M Cost.
-    logger.debug("prepping small gens table")
-    small_df = small_df.assign(opex_nonfuel=lambda x: x.opex_total - x.opex_fuel)
-
     # Prep hydro tables (Add this to the meta data later)
-    # Add an opex_nonfuel so it can be compared to the steam table and used
-    # as Total O&M Cost.
     logger.debug("prepping hydro tables")
-    hydro_df = hydro_df.rename(columns={"project_num": "ferc_license_id"}).assign(
-        opex_nonfuel=lambda x: x.opex_total
-    )
-    pump_df = pump_df.rename(columns={"project_num": "ferc_license_id"}).assign(
-        opex_nonfuel=lambda x: x.opex_total
-    )
+    hydro_df = hydro_df.rename(columns={"project_num": "ferc_license_id"})
+    pump_df = pump_df.rename(columns={"project_num": "ferc_license_id"})
 
     # Combine all the tables together
     logger.debug("combining all tables")
