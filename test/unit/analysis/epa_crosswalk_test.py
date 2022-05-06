@@ -76,8 +76,7 @@ def mock_crosswalk():
 
 @pytest.fixture()
 def mock_cems_extended():
-    """
-    EPA CEMS with more units. Needed to cover all the cases in graph analysis.
+    """EPA CEMS with more units. Needed to cover all the cases in graph analysis.
 
     Timestamps are reduced to 2 for this test.
 

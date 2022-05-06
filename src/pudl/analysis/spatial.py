@@ -11,8 +11,7 @@ from shapely.geometry.base import BaseGeometry
 
 
 def check_gdf(gdf: gpd.GeoDataFrame) -> None:
-    """
-    Check that GeoDataFrame contains (Multi)Polygon geometries with non-zero area.
+    """Check that GeoDataFrame contains (Multi)Polygon geometries with non-zero area.
 
     Args:
         gdf: GeoDataFrame.
@@ -50,8 +49,7 @@ def check_gdf(gdf: gpd.GeoDataFrame) -> None:
 
 
 def polygonize(geom: BaseGeometry) -> Union[Polygon, MultiPolygon]:
-    """
-    Convert geometry to (Multi)Polygon.
+    """Convert geometry to (Multi)Polygon.
 
     Args:
         geom: Geometry to convert to (Multi)Polygon.
@@ -85,8 +83,7 @@ def polygonize(geom: BaseGeometry) -> Union[Polygon, MultiPolygon]:
 
 
 def explode(gdf: gpd.GeoDataFrame, ratios: Iterable[str] = None) -> gpd.GeoDataFrame:
-    """
-    Explode MultiPolygon to multiple Polygon geometries.
+    """Explode MultiPolygon to multiple Polygon geometries.
 
     Args:
         gdf: GeoDataFrame with non-zero-area (Multi)Polygon geometries.
@@ -118,8 +115,7 @@ def explode(gdf: gpd.GeoDataFrame, ratios: Iterable[str] = None) -> gpd.GeoDataF
 
 
 def self_union(gdf: gpd.GeoDataFrame, ratios: Iterable[str] = None) -> gpd.GeoDataFrame:
-    """
-    Calculate the geometric union of a feature layer with itself.
+    """Calculate the geometric union of a feature layer with itself.
 
     Areas of overlap are split into two or more geometrically-identical features:
     one for each of the original overlapping features.
@@ -182,8 +178,7 @@ def dissolve(
         Literal["union", "first"], Callable[[gpd.GeoSeries], BaseGeometry]
     ] = "union",
 ) -> gpd.GeoDataFrame:
-    """
-    Dissolve layer by aggregating features based on common attributes.
+    """Dissolve layer by aggregating features based on common attributes.
 
     Args:
         gdf: GeoDataFrame with non-empty (Multi)Polygon geometries.
@@ -217,8 +212,7 @@ def overlay(
     ] = "intersection",
     ratios: Iterable[str] = None,
 ) -> gpd.GeoDataFrame:
-    """
-    Overlay multiple layers incrementally.
+    """Overlay multiple layers incrementally.
 
     When a feature from one layer overlaps the feature of another layer,
     the area of overlap is split into two geometrically-identical features:

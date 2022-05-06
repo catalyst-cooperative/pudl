@@ -12,8 +12,7 @@ logger = logging.getLogger(__name__)
 
 
 def parse_command_line(argv):
-    """
-    Parse command line arguments. See the -h option.
+    """Parse command line arguments. See the -h option.
 
     Args:
         argv (str): Command line arguments, including caller filename.

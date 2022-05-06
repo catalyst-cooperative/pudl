@@ -19,10 +19,12 @@ coverage.xml
 .coverage
 .coverage.*
 codecov.sh
+.env_tox/
 .env_pudl/
 *wheel-metadata
 dask-worker-space*
 devtools/user-requirements.txt
+devtools/user-environment.yml
 .vscode/*
 commit.txt
 devtools/profiles/

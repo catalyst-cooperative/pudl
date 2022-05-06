@@ -5,9 +5,9 @@ from typing import Any, Dict, Optional
 import pandas as pd
 from pytz import all_timezones
 
-from .codes import CODE_METADATA
-from .constants import FIELD_DTYPES_PANDAS
-from .enums import (
+from pudl.metadata.codes import CODE_METADATA
+from pudl.metadata.constants import FIELD_DTYPES_PANDAS
+from pudl.metadata.enums import (
     CANADA_PROVINCES_TERRITORIES,
     CUSTOMER_CLASSES,
     EPACEMS_MEASUREMENT_CODES,
@@ -20,8 +20,12 @@ from .enums import (
     TECH_CLASSES,
     US_STATES_TERRITORIES,
 )
-from .labels import ESTIMATED_OR_ACTUAL, FUEL_UNITS_EIA, MOMENTARY_INTERRUPTIONS
-from .sources import SOURCES
+from pudl.metadata.labels import (
+    ESTIMATED_OR_ACTUAL,
+    FUEL_UNITS_EIA,
+    MOMENTARY_INTERRUPTIONS,
+)
+from pudl.metadata.sources import SOURCES
 
 FIELD_METADATA: Dict[str, Dict[str, Any]] = {
     "active": {
@@ -1675,10 +1679,11 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
         "description": "The code representing the first, second, third or fourth start-up and flame stabilization energy source used by the combustion unit(s) associated with this generator.",
     },
     "state": {
-        "type": "string"
+        "type": "string",
         # TODO: disambiguate the column name. State means different things in
         # different tables. E.g. state of the utility's HQ address vs. state that a
         # plant is located in vs. state in which a utility provides service.
+        "description": "Two letter US state abbreviation.",
     },
     "state_id_fips": {
         "type": "string",
@@ -1989,7 +1994,7 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
     "winter_peak_demand_mw": {"type": "number", "unit": "MW"},
     "year": {
         "type": "integer",
-        "description": "Year associated with data, for partitioning EPA CEMS.",
+        "description": "Year the data was reported in, used for partitioning EPA CEMS.",
     },
     "zip_code": {
         "type": "string",
@@ -2006,8 +2011,7 @@ FIELD_METADATA: Dict[str, Dict[str, Any]] = {
         },
     },
 }
-"""
-Field attributes by PUDL identifier (`field.name`).
+"""Field attributes by PUDL identifier (`field.name`).
 
 Keys are in alphabetical order.
 """
@@ -2068,8 +2072,7 @@ FIELD_METADATA_BY_GROUP: Dict[str, Dict[str, Any]] = {
         }
     },
 }
-"""
-Field attributes by resource group (`resource.group`) and PUDL identifier.
+"""Field attributes by resource group (`resource.group`) and PUDL identifier.
 
 If a field exists in more than one data group (e.g. both ``eia`` and ``ferc1``)
 and has distinct metadata in those groups, this is the place to specify the
@@ -2105,8 +2108,7 @@ def get_pudl_dtypes(
     field_meta_by_group: Optional[Dict[str, Any]] = FIELD_METADATA_BY_GROUP,
     dtype_map: Optional[Dict[str, Any]] = FIELD_DTYPES_PANDAS,
 ) -> Dict[str, Any]:
-    """
-    Compile a dictionary of field dtypes, applying group overrides.
+    """Compile a dictionary of field dtypes, applying group overrides.
 
     Args:
         group: The data group (e.g. ferc1, eia) to use for overriding the default
@@ -2138,8 +2140,7 @@ def apply_pudl_dtypes(
     field_meta: Optional[Dict[str, Any]] = FIELD_METADATA,
     field_meta_by_group: Optional[Dict[str, Any]] = FIELD_METADATA_BY_GROUP,
 ) -> pd.DataFrame:
-    """
-    Apply dtypes to those columns in a dataframe that have PUDL types defined.
+    """Apply dtypes to those columns in a dataframe that have PUDL types defined.
 
     Note at ad-hoc column dtypes can be defined and merged with default PUDL field
     metadata before it's passed in as `field_meta` if you have module specific column

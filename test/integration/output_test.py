@@ -105,8 +105,8 @@ def test_ferc1_outputs(fast_out, df_name):
         ("gens_eia860", "bf_eia923", 12 / 1, {}),
         ("gens_eia860", "frc_eia923", 12 / 1, {}),
         ("gens_eia860", "gen_eia923", 12 / 1, {}),
-        # gen_allocated_eia923 currently only produces annual results.
-        ("gens_eia860", "gen_allocated_eia923", 1 / 1, {}),
+        # gen_fuel_by_generator_eia923 currently only produces annual results.
+        ("gens_eia860", "gen_fuel_by_generator_eia923", 1 / 1, {}),
         ("gens_eia860", "gf_eia923", 12 / 1, {}),
         ("gens_eia860", "gf_nonuclear_eia923", 12 / 1, {}),
         ("gens_eia860", "gf_nuclear_eia923", 12 / 1, {}),
@@ -125,6 +125,22 @@ def test_eia_outputs(fast_out, df1_name, df2_name, mult, kwargs):
     logger.info(f"Found {len(df2)} rows in {df2_name}")
     logger.info(f"Checking {df2_name} date frequency relative to {df1_name}.")
     pv.check_date_freq(df1, df2, mult)
+
+
+@pytest.mark.parametrize(
+    "df_name",
+    [
+        "gen_fuel_by_generator_energy_source_eia923",
+        "gen_fuel_by_generator_eia923",
+        "gen_fuel_by_generator_energy_source_owner_eia923",
+    ],
+)
+def test_annual_eia_outputs(fast_out, df_name):
+    """Check that the annual EIA 1 output functions work."""
+    logger.info(f"Running fast_out.{df_name}()")
+    df = fast_out.__getattribute__(df_name)()
+    logger.info(f"Found {len(df)} rows in {df_name}")
+    assert not df.empty
 
 
 @pytest.mark.parametrize(
@@ -197,8 +213,7 @@ def test_ferc714_outputs(ferc714_out, df_name):
     reason="Test relies on ogr2ogr being installed via GDAL.",
 )
 def test_ferc714_respondents_georef_counties(ferc714_out):
-    """
-    Test FERC 714 respondent county FIPS associations.
+    """Test FERC 714 respondent county FIPS associations.
 
     This test works with the Census DP1 data, which is converted into
     SQLite using the GDAL command line tool ogr2ogr. That tools is easy
@@ -240,8 +255,7 @@ def fast_out_filled(pudl_engine, pudl_datastore_fixture):
     ],
 )
 def test_mcoe_filled(fast_out_filled, df_name, expected_nuke_fraction, tolerance):
-    """
-    Test that the net generation allocation process is working.
+    """Test that the net generation allocation process is working.
 
     In addition to running the allocation itself, make sure that the nuclear and
     non-nuclear generation fractions are as we would expect after the net generation has
