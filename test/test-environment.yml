@@ -1,7 +1,6 @@
 name: pudl-test
 channels:
   - conda-forge
-  - defaults
 dependencies:
   - geopandas>=0.9,<11
   - numba>=0.55.1,<0.56
