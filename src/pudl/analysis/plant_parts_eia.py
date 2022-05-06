@@ -246,8 +246,6 @@ PLANT_PARTS_ORDERED: List[str] = [
     "plant_technology",
     "plant_prime_fuel",
     "plant_ferc_acct",
-    "plant_installation_year",
-    "plant_construction_year",
     "plant_gen",
 ]
 
