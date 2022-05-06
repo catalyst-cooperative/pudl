@@ -308,9 +308,14 @@ def generators(eia860_dfs, eia860_transformed_dfs):
         )
         .pipe(pudl.helpers.convert_to_date)
     )
-    # there is literally one 'ic' from 2002... which breaks the enums!
-    gens_df.loc[:, "prime_mover_code"] = gens_df.loc[:, "prime_mover_code"].str.upper()
-    # gens_df.loc[gens_df.prime_mover_code == "ic", "prime_mover_code"] == "IC"
+
+    # there are occassionally eia860m operational_status_code's that include
+    # the short 1-2 letter code in parenthesize with a long description after
+    # extract just the codes for the operational_status_code column
+    pareth_mask = gens_df.operational_status_code.str.contains("(", regex=False)
+    gens_df.loc[pareth_mask, "operational_status_code"] = gens_df.loc[
+        pareth_mask, "operational_status_code"
+    ].str.extract(r"\(([A-Z]{1,2})\)", expand=True)
 
     gens_df = (
         pudl.metadata.classes.Package.from_resource_ids()
