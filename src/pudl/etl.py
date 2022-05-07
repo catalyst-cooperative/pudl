@@ -62,6 +62,7 @@ def _read_static_tables_eia() -> Dict[str, pd.DataFrame]:
     """
     return {
         "energy_sources_eia": CODE_METADATA["energy_sources_eia"]["df"],
+        "operational_status_eia": CODE_METADATA["operational_status_eia"]["df"],
         "fuel_types_aer_eia": CODE_METADATA["fuel_types_aer_eia"]["df"],
         "prime_movers_eia": CODE_METADATA["prime_movers_eia"]["df"],
         "sector_consolidated_eia": CODE_METADATA["sector_consolidated_eia"]["df"],
