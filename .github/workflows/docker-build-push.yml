@@ -26,9 +26,11 @@ jobs:
           images: catalystcoop/pudl-etl
           flavor: |
             latest=auto
+          # edge is for testing purposes
           tags: |
             type=ref,event=branch
             type=ref,event=tag
+            type=edge,branch=gcp-deploy
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2.0.0
