@@ -409,6 +409,7 @@ def test_label_true_grans():
             "prime_mover_code": [None] * 7,
             "ferc_acct_name": [None] * 7,
             "energy_source_code_1": [None] * 7,
+            "operating_year": [None] * 7,
             "installation_year": [None] * 7,
             "construction_year": [None] * 7,
         }

@@ -222,11 +222,8 @@ PLANT_PARTS: Dict[str, Dict[str, List]] = {
     "plant_ferc_acct": {
         "id_cols": ["plant_id_eia", "ferc_acct_name"],
     },
-    "plant_installation_year": {
-        "id_cols": ["plant_id_eia", "installation_year"],
-    },
-    "plant_construction_year": {
-        "id_cols": ["plant_id_eia", "construction_year"],
+    "plant_operating_year": {
+        "id_cols": ["plant_id_eia", "operating_year"],
     },
 }
 """
@@ -247,6 +244,7 @@ PLANT_PARTS_ORDERED: List[str] = [
     "plant_prime_fuel",
     "plant_ferc_acct",
     "plant_gen",
+    "plant_operating_year",
 ]
 
 
@@ -308,12 +306,12 @@ PRIORITY_ATTRIBUTES_DICT = {
 
 MAX_MIN_ATTRIBUTES_DICT = {
     "installation_year": {
-        "assign_col": {"installation_year": lambda x: x.operating_date.dt.year},
+        "assign_col": {"installation_year": lambda x: x.operating_year},
         "dtype": "Int64",
         "keep": "first",
     },
     "construction_year": {
-        "assign_col": {"construction_year": lambda x: x.operating_date.dt.year},
+        "assign_col": {"construction_year": lambda x: x.operating_year},
         "dtype": "Int64",
         "keep": "last",
     },
@@ -635,6 +633,8 @@ class MakePlantParts(object):
             pandas.DataFrame: The complete plant parts list
 
         """
+        # add in operating_year as a plant part level for aggregation
+        gens_mega.loc[:, "operating_year"] = gens_mega["operating_date"].dt.year
         #  aggregate everything by each plant part
         part_dfs = []
         for part_name in PLANT_PARTS_ORDERED:
@@ -723,7 +723,7 @@ class MakePlantParts(object):
         return plant_parts_eia
 
     def _clean_plant_parts(self, plant_parts_eia):
-        return (
+        plant_parts_eia = (
             plant_parts_eia.assign(
                 report_year=lambda x: x.report_date.dt.year,
                 plant_id_report_year=lambda x: x.plant_id_pudl.astype(str)
@@ -736,6 +736,7 @@ class MakePlantParts(object):
             )
             .set_index("record_id_eia")
         )
+        return plant_parts_eia[~plant_parts_eia.index.duplicated(keep="first")]
 
     #################
     # Testing Methods
