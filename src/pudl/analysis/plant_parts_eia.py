@@ -243,8 +243,8 @@ PLANT_PARTS_ORDERED: List[str] = [
     "plant_technology",
     "plant_prime_fuel",
     "plant_ferc_acct",
-    "plant_gen",
     "plant_operating_year",
+    "plant_gen",
 ]
 
 
@@ -294,6 +294,7 @@ CONSISTENT_ATTRIBUTE_COLS = [
     "energy_source_code_1",
     "prime_mover_code",
     "ferc_acct_name",
+    "operating_year",
 ]
 """
 list: a list of column names to add as attributes when they are consistent into
@@ -445,6 +446,8 @@ class MakeMegaGenTbl(object):
             .pipe(self.label_operating_gens)
             .pipe(self.scale_by_ownership, own_eia860, slice_cols, validate_own_merge)
         )
+        gens_mega.loc[:, "operating_year"] = gens_mega["operating_date"].dt.year
+        gens_mega = gens_mega.astype({"operating_year": "Int64"})
         return gens_mega
 
     def get_gens_mega_table(self, mcoe):
@@ -633,9 +636,7 @@ class MakePlantParts(object):
             pandas.DataFrame: The complete plant parts list
 
         """
-        # add in operating_year as a plant part level for aggregation
-        gens_mega.loc[:, "operating_year"] = gens_mega["operating_date"].dt.year
-        #  aggregate everything by each plant part
+        # aggregate everything by each plant part
         part_dfs = []
         for part_name in PLANT_PARTS_ORDERED:
             part_df = PlantPart(part_name).execute(gens_mega)
@@ -1483,6 +1484,7 @@ PLANT_PARTS_LITERAL = Literal[
     "plant_technology",
     "plant_prime_fuel",
     "plant_ferc_acct",
+    "plant_operating_year",
     "plant_gen",
 ]
 

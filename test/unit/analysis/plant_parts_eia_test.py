@@ -168,11 +168,13 @@ def test_make_mega_gen_tbl():
             "operational_status": "existing",
             "retirement_date": pd.NA,
             "capacity_mw": [50, 50, 100],
+            "operating_date": "2001-12-01",
         }
     ).astype(
         {
             "retirement_date": "datetime64[ns]",
             "report_date": "datetime64[ns]",
+            "operating_date": "datetime64[ns]",
         }
     )
     # one record for every owner of each generator
@@ -203,6 +205,7 @@ def test_make_mega_gen_tbl():
                 "operational_status": "existing",
                 "retirement_date": pd.NaT,
                 "capacity_mw": [50.0, 50.0, 75.0, 25.0, 50.0, 50.0, 100.0, 100.0],
+                "operating_date": "2001-12-01",
                 "ferc_acct_name": "Other",
                 "operational_status_pudl": "operating",
                 "capacity_eoy_mw": [50, 50, 100, 100, 50, 50, 100, 100],
@@ -218,13 +221,16 @@ def test_make_mega_gen_tbl():
                     "total",
                     "total",
                 ],
+                "operating_year": 2001,
             }
         )
         .astype(
             {
                 "retirement_date": "datetime64[ns]",
                 "report_date": "datetime64[ns]",
+                "operating_date": "datetime64[ns]",
                 "utility_id_eia": "Int64",  # convert to pandas Int64 instead of numpy int64
+                "operating_year": "Int64",
             }
         )
         .set_index([[0, 1, 2, 3, 0, 1, 2, 3]])
