@@ -1494,7 +1494,6 @@ def match_to_single_plant_part(
     ppl: pd.DataFrame,
     part_name: PLANT_PARTS_LITERAL = "plant_gen",
     cols_to_keep: List[str] = [],
-    merge_how: Literal["left", "right", "inner", "outer", "cross"] = "left",
 ) -> pd.DataFrame:
     """Match data with a variety of granularities to a single plant-part.
 
@@ -1530,7 +1529,6 @@ def match_to_single_plant_part(
         cols_to_keep: columns from the original data ``multi_gran_df`` that
             you want to show up in the output. These should not be columns
             that show up in the ``ppl``.
-        merge_how: what type of merge to do. See :func:`pandas.merge`.
 
     Returns:
         A dataframe in which records correspond to :attr:`part_name` (in
@@ -1558,7 +1556,7 @@ def match_to_single_plant_part(
             ),
             ppl_part_df,
             on=pk_cols,
-            how=merge_how,
+            how="left",
             # this unfortunately needs to be a m:m bc sometimes the df
             # multi_gran_df has multiple record associated with the same
             # record_id_eia but are unique records and are not aggregated
@@ -1567,6 +1565,8 @@ def match_to_single_plant_part(
             validate="m:m",
             suffixes=("_og", ""),
         )
+        # there should be no records without a matching generator
+        assert ~(part_df.record_id_eia.isnull().values.any())
         out_dfs.append(part_df)
     out_df = pd.concat(out_dfs)
 
