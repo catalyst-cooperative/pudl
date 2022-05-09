@@ -458,23 +458,16 @@ def mcoe(
     )
 
     # Combine MCOE derived values with all the generator attributes:
-    mcoe_out = (
-        pd.merge(
-            left=(
-                pudl_out.gens_eia860()
-                .assign(year=lambda x: x.report_date.dt.year)
-                .drop("report_date", axis="columns")
-            ),
-            right=mcoe_out.assign(year=lambda x: x.report_date.dt.year),
-            # This "how" determines whether MCOE or gens_eia860 is the backbone
-            how="left" if all_gens else "right",
-            on=["year", "plant_id_eia", "generator_id"],
-        )
-        .astype({"year": str})
-        .assign(report_date=lambda x: x.report_date.fillna(pd.to_datetime(x.year)))
-        .drop("year", axis="columns")
-        .pipe(pudl.validate.no_null_rows, df_name="mcoe_all_gens", thresh=0.9)
-    )
+    mcoe_out = pudl.helpers.full_timeseries_date_merge(
+        left=pudl_out.gens_eia860(),
+        right=mcoe_out,
+        on=["plant_id_eia", "generator_id"],
+        date_on=["year"],
+        how="outer" if all_gens else "right",
+        start=pudl_out.start_date,
+        end=pudl_out.end_date,
+        freq=pudl_out.freq,
+    ).pipe(pudl.validate.no_null_rows, df_name="mcoe_all_gens", thresh=0.9)
 
     # Organize the dataframe for easier legibility
     mcoe_out = (
