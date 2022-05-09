@@ -463,7 +463,7 @@ def mcoe(
         right=mcoe_out,
         on=["plant_id_eia", "generator_id"],
         date_on=["year"],
-        how="outer" if all_gens else "right",
+        how="left" if all_gens else "right",
         start=pudl_out.start_date,
         end=pudl_out.end_date,
         freq=pudl_out.freq,

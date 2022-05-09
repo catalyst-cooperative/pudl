@@ -339,7 +339,7 @@ def convert_col_to_datetime(df, date_col_name):
     first so that integer years are formatted correctly.
 
     Args:
-        df (pandas.DataFrame): Dataframe wiht column to convert.
+        df (pandas.DataFrame): Dataframe with column to convert.
         date_col_name (string): name of the column to convert.
 
     Returns:
