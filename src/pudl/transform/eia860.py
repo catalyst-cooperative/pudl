@@ -200,18 +200,11 @@ def generators(eia860_dfs, eia860_transformed_dfs):
     ge_df = eia860_dfs["generator_existing"].copy()
     gr_df = eia860_dfs["generator_retired"].copy()
     g_df = eia860_dfs["generator"].copy()
-    gp_df["operational_status"] = "proposed"
-    ge_df["operational_status"] = "existing"
-    gr_df["operational_status"] = "retired"
-    g_df["operational_status"] = g_df["operational_status_code"].replace(
-        {
-            "OP": "existing",  # could move this dict to codes...
-            "SB": "existing",
-            "OA": "existing",
-            "OS": "existing",
-            "RE": "retired",
-        }
-    )
+    # the retired tab of eia860 does not have a operational_status_code column.
+    # we still want these gens to have a code (and subsequently a
+    # operational_status). We could do this by fillna w/ the retirement_date, but
+    # this way seems more straightforward.
+    gr_df["operational_status_code"] = gr_df["operational_status_code"].fillna("RE")
 
     gens_df = (
         pd.concat([ge_df, gp_df, gr_df, g_df], sort=True)
@@ -320,6 +313,15 @@ def generators(eia860_dfs, eia860_transformed_dfs):
             CODE_METADATA["energy_sources_eia"]["df"],
             from_col="code",
             to_col="fuel_type_code_pudl",
+            null_value=pd.NA,
+        )
+    )
+
+    gens_df["operational_status"] = gens_df.operational_status_code.str.upper().map(
+        pudl.helpers.label_map(
+            CODE_METADATA["operational_status_eia"]["df"],
+            from_col="code",
+            to_col="operational_status",
             null_value=pd.NA,
         )
     )

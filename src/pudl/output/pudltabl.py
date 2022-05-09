@@ -1138,7 +1138,6 @@ class PudlTabl(object):
         self,
         update: bool = False,
         update_gens_mega: bool = False,
-        update_true_gran: bool = False,
     ) -> pd.DataFrame:
         """Generate and return master plant-parts EIA.
 
@@ -1146,26 +1145,14 @@ class PudlTabl(object):
             update: If true, re-calculate the output dataframe, even
                 if a cached version exists.
             update_gens_mega: If True, update the gigantic Gens Mega table.
-            update_true_gran: If True, regenerate the True Granularities.
-
         """
-        # generate the true_gran table
-        # the true_gran table is really not helpful on it's own
-        if update_true_gran or self._dfs["true_grans_eia"] is None:
-            self._dfs[
-                "true_grans_eia"
-            ] = pudl.analysis.plant_parts_eia.LabelTrueGranularities().execute(
-                self.gens_mega_eia()
-            )
-
-        update_any = any([update, update_gens_mega, update_true_gran])
+        update_any = any([update, update_gens_mega])
         if update_any or self._dfs["plant_parts_eia"] is None:
             # make the plant-parts objects
             self.parts_compiler = pudl.analysis.plant_parts_eia.MakePlantParts(self)
             # make the plant-parts df!
             self._dfs["plant_parts_eia"] = self.parts_compiler.execute(
-                gens_mega=self.gens_mega_eia(update=update_gens_mega),
-                true_grans=self._dfs["true_grans_eia"],
+                gens_mega=self.gens_mega_eia(update=update_gens_mega)
             )
 
         return self._dfs["plant_parts_eia"]
