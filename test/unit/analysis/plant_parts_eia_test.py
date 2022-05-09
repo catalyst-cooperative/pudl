@@ -207,6 +207,7 @@ def test_make_mega_gen_tbl():
                 "capacity_mw": [50.0, 50.0, 75.0, 25.0, 50.0, 50.0, 100.0, 100.0],
                 "operating_date": "2001-12-01",
                 "ferc_acct_name": "Other",
+                "operating_year": 2001,
                 "operational_status_pudl": "operating",
                 "capacity_eoy_mw": [50, 50, 100, 100, 50, 50, 100, 100],
                 "fraction_owned": [1.00, 1.00, 0.75, 0.25, 1.00, 1.00, 1.00, 1.00],
@@ -221,7 +222,6 @@ def test_make_mega_gen_tbl():
                     "total",
                     "total",
                 ],
-                "operating_year": 2001,
             }
         )
         .astype(
@@ -229,8 +229,8 @@ def test_make_mega_gen_tbl():
                 "retirement_date": "datetime64[ns]",
                 "report_date": "datetime64[ns]",
                 "operating_date": "datetime64[ns]",
-                "utility_id_eia": "Int64",  # convert to pandas Int64 instead of numpy int64
                 "operating_year": "Int64",
+                "utility_id_eia": "Int64",  # convert to pandas Int64 instead of numpy int64
             }
         )
         .set_index([[0, 1, 2, 3, 0, 1, 2, 3]])

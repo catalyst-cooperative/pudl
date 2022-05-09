@@ -446,8 +446,6 @@ class MakeMegaGenTbl(object):
             .pipe(self.label_operating_gens)
             .pipe(self.scale_by_ownership, own_eia860, slice_cols, validate_own_merge)
         )
-        gens_mega.loc[:, "operating_year"] = gens_mega["operating_date"].dt.year
-        gens_mega = gens_mega.astype({"operating_year": "Int64"})
         return gens_mega
 
     def get_gens_mega_table(self, mcoe):
@@ -470,6 +468,8 @@ class MakeMegaGenTbl(object):
             validate="m:1",
             how="left",
         )
+        all_gens.loc[:, "operating_year"] = all_gens["operating_date"].dt.year
+        all_gens = all_gens.astype({"operating_year": "Int64"})
         return all_gens
 
     def label_operating_gens(self, gen_df: pd.DataFrame) -> pd.DataFrame:
