@@ -70,7 +70,7 @@ setup(
         "scikit-learn>=1.0,<1.1",
         "scipy>=1.6,<1.9",
         "sqlalchemy>=1.4,<2",
-        "timezonefinder>=5,<6",
+        "timezonefinder>=5,<7",
         "xlsxwriter>=3,<4",
     ],
     extras_require={
