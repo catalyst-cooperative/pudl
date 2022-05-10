@@ -374,14 +374,15 @@ def full_timeseries_date_merge(
     Arguments: see arguments for ``date_merge`` and ``expand_timeseries``
     """
     out = date_merge(
-        left,
-        right,
-        left_date_col,
-        right_date_col,
-        on,
-        date_on,
-        how,
-        report_at_start,
+        left=left,
+        right=right,
+        left_date_col=left_date_col,
+        right_date_col=right_date_col,
+        new_date_col=new_date_col,
+        on=on,
+        date_on=date_on,
+        how=how,
+        report_at_start=report_at_start,
         **kwargs,
     )
     out = expand_timeseries(
@@ -485,7 +486,7 @@ def date_merge(
     right = separate_date_cols(right, right_date_col, date_on)
     left = separate_date_cols(left, left_date_col, date_on)
     merge_cols = date_on + on
-    out = left.merge(right, on=merge_cols, how=how, **kwargs)
+    out = pd.merge(left, right, on=merge_cols, how=how, **kwargs)
 
     suffixes = ["", ""]
     if left_date_col == right_date_col:
