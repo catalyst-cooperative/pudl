@@ -247,6 +247,17 @@ PLANT_PARTS_ORDERED: List[str] = [
     "plant_gen",
 ]
 
+PLANT_PARTS_LITERAL = Literal[
+    "plant",
+    "plant_unit",
+    "plant_prime_mover",
+    "plant_technology",
+    "plant_prime_fuel",
+    "plant_ferc_acct",
+    "plant_operating_year",
+    "plant_gen",
+]
+
 
 IDX_TO_ADD: List[str] = ["report_date", "operational_status_pudl"]
 """
@@ -298,7 +309,8 @@ CONSISTENT_ATTRIBUTE_COLS = [
 ]
 """
 list: a list of column names to add as attributes when they are consistent into
-the aggregated plant-part records.
+the aggregated plant-part records. All the plant part ID columns must be in
+consistent attributes.
 """
 
 PRIORITY_ATTRIBUTES_DICT = {
@@ -662,6 +674,10 @@ class MakePlantParts(object):
                     att_dtype=MAX_MIN_ATTRIBUTES_DICT[attribute_col]["dtype"],
                     keep=MAX_MIN_ATTRIBUTES_DICT[attribute_col]["keep"],
                 )
+            # assert that all the plant part ID columns are now in part_df
+            assert set(
+                [col for part in PLANT_PARTS for col in PLANT_PARTS[part]["id_cols"]]
+            ).issubset(part_df.columns)
             part_dfs.append(part_df)
         plant_parts_eia = pd.concat(part_dfs)
         plant_parts_eia = TrueGranLabeler().execute(plant_parts_eia)
@@ -827,7 +843,7 @@ class PlantPart(object):
 
     """
 
-    def __init__(self, part_name):
+    def __init__(self, part_name: PLANT_PARTS_LITERAL):
         """Initialize an object which makes a tbl for a specific plant-part.
 
         Args:
@@ -1475,18 +1491,6 @@ def add_record_id(part_df, id_cols, plant_part_col="plant_part", year=True):
     else:
         part_df = part_df.rename(columns={"record_id_eia_temp": "plant_part_id_eia"})
     return part_df
-
-
-PLANT_PARTS_LITERAL = Literal[
-    "plant",
-    "plant_unit",
-    "plant_prime_mover",
-    "plant_technology",
-    "plant_prime_fuel",
-    "plant_ferc_acct",
-    "plant_operating_year",
-    "plant_gen",
-]
 
 
 def match_to_single_plant_part(
