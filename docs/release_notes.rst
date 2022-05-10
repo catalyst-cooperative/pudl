@@ -32,9 +32,8 @@ Plant Parts List Module Changes
   The labeling of different aggregations of EIA generators as the true granularity was
   sped up, resulting in faster generation of the final plant parts list. In addition,
   the generation of the ``installation_year`` column in the plant parts list was fixed
-  and a ``construction_year`` column was also added. With the addition of these new
-  columns, ``installation_year`` and ``construction_year`` are now levels that the EIA
-  generators are aggregated to.
+  and a ``construction_year`` column was also added. Finally, ``operating_year`` was
+  added as a level that the EIA generators are now aggregated to.
 
 Bug Fixes
 ^^^^^^^^^
