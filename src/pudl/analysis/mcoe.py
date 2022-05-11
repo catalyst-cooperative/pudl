@@ -464,8 +464,6 @@ def mcoe(
         on=["plant_id_eia", "generator_id"],
         date_on=["year"],
         how="left" if all_gens else "right",
-        start=pudl_out.start_date,
-        end=pudl_out.end_date,
         freq=pudl_out.freq,
     ).pipe(pudl.validate.no_null_rows, df_name="mcoe_all_gens", thresh=0.9)
 

@@ -363,10 +363,7 @@ def full_timeseries_date_merge(
     date_on: Literal["year", "quarter", "month", "day"] = "year",
     how: Literal["inner", "outer", "left", "right", "cross"] = "inner",
     report_at_start: bool = True,
-    start: str = None,
-    end: str = None,
     freq: str = "MS",
-    fill: bool = True,
     **kwargs,
 ):
     """Merge dataframes with different date frequencies and expand to a full timeseries.
