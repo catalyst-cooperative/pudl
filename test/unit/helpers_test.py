@@ -383,8 +383,9 @@ def test_timeseries_fillin():
 
     expected_out = pd.DataFrame(
         {
+            "plant_id_eia": [1] * 14 + [2] * 5,
+            "gen_id_eia": [1] * 13 + [2] * 1 + [3] * 5,
             "report_date": [
-                "2019-01-01",
                 "2019-02-01",
                 "2019-03-01",
                 "2019-04-01",
@@ -398,25 +399,18 @@ def test_timeseries_fillin():
                 "2019-12-01",
                 "2020-01-01",
                 "2020-02-01",
-            ]
-            * 3,
-            "plant_id_eia": [1] * 28 + [2] * 14,
-            "gen_id_eia": [1] * 14 + [2] * 14 + [3] * 14,
-            "data": [None]
-            + [2]
-            + [3] * 11
-            + [2]
-            + [None] * 12
-            + [1] * 2
-            + [None] * 9
-            + [10] * 4
-            + [2],
+                "2020-01-01",
+                "2019-10-01",
+                "2019-11-01",
+                "2019-12-01",
+                "2020-01-01",
+                "2020-02-01",
+            ],
+            "data": [2] + [3] * 11 + [2] + [1] + [10] * 4 + [2],
         }
     ).astype({"report_date": "datetime64[ns]"})
 
-    out = expand_timeseries(
-        input_df, start="2019-01-01", key_cols=["plant_id_eia", "gen_id_eia"]
-    )
+    out = expand_timeseries(input_df, key_cols=["plant_id_eia", "gen_id_eia"])
     assert_frame_equal(expected_out, out)
 
 

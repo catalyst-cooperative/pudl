@@ -388,11 +388,8 @@ def full_timeseries_date_merge(
     out = expand_timeseries(
         df=out,
         date_col=new_date_col,
-        start=start,
-        end=end,
         freq=freq,
         key_cols=on,
-        fill=fill,
     )
     return out
 
@@ -511,45 +508,26 @@ def date_merge(
 def expand_timeseries(
     df: pd.DataFrame,
     date_col: str = "report_date",
-    start: str = None,
-    end: str = None,
     freq: str = "MS",
     key_cols: List[str] = [],
-    fill: bool = True,
 ) -> pd.DataFrame:
     """Expand a dataframe to a include a full time series at a given frequency.
 
-    This function adds a full timeseries specified by the ``start`` and ``end``
-    arguments to the given dataframe. If ``fill`` is true, then the data in the
-    timeseries will be filled with the next previous chronological observation
-    for a group of primary key columns specified by ``key_cols``.
+    This function adds a full timeseries to the given dataframe for each group
+    of columns specified by ``key_cols``. The data in the timeseries will be filled
+    with the next previous chronological observation for a group of primary key columns
+    specified by ``key_cols``.
 
     Arguments:
         df: The dataframe to expand. Must have ``date_col`` in columns.
         date_col: Name of the datetime column being expanded into a full timeseries.
-        start: Start date of the timeseries. Pass in string date with format "YYYY-MM-DD".
-            If no start date is passed in, the oldest date in ``df[date_col]`` is used.
-        end: End date of the timeseries. Pass in string date with format "YYYY-MM-DD".
-            If no end date is passed in, the oldest date in ``df[date_col]`` is used.
         freq: The frequency of the time series to expand the data to.
             See :ref:`here <timeseries.offset_aliases>` for a list of
             frequency aliases.
         key_cols: Column names of the non-date primary key columns in the dataframe.
             The resulting dataframe will have a full timeseries expanded for each
             unique group of these ID columns that are present in the dataframe.
-        fill: Whether to broadcast the data so it's filled in for the whole
-            timeseries e.g. if annual data is expanded over a monthly timeseries
-            then the data for each year is broadcast to all months in that year.
     """
-    if start:
-        start = pd.Timestamp(start)
-    else:
-        start = df[date_col].min()
-    if end:
-        end = pd.Timestamp(end)
-    else:
-        end = df[date_col].max()
-
     try:
         pd.tseries.frequencies.to_offset(freq)
     except ValueError:
@@ -557,37 +535,14 @@ def expand_timeseries(
             f"Frequency string {freq} is not valid. \
             See Pandas Timeseries Offset Aliases docs for valid strings."
         )
-
-    date_range = pd.DataFrame(
-        pd.date_range(
-            start=start,
-            end=end,
-            freq=freq,
-        ),
-        columns=[date_col],
+    return (
+        df.set_index(date_col)
+        .groupby(key_cols)
+        .resample(freq)
+        .ffill()
+        .drop(key_cols, axis=1)
+        .reset_index()
     )
-    # create a dataframe of the unique combinations of non-date primary key columns
-    unique_key = df[key_cols].drop_duplicates(keep="first")
-    # copy each of these combinations for every date in the full timeseries
-    repeated_key = (
-        pd.concat([unique_key] * len(date_range)).sort_index().reset_index(drop=True)
-    )
-    # copy the full timeseries for each of the primary key combinations
-    repeated_date_range = pd.concat([date_range] * len(unique_key)).reset_index(
-        drop=True
-    )
-    # concatenate these dataframes to get a new index for the full timeseries
-    date_range_idx = pd.concat([repeated_date_range, repeated_key], axis=1)
-
-    out = date_range_idx.merge(df, how="left", on=[date_col] + key_cols).sort_values(
-        key_cols + [date_col]
-    )
-    if fill:
-        cols = [col for col in df.columns if col not in key_cols and col != date_col]
-        out[cols] = out.groupby(key_cols)[cols].ffill()
-
-    out = out.reset_index(drop=True)
-    return out
 
 
 def organize_cols(df, cols):
