@@ -1,5 +1,4 @@
-"""
-Retrieve data from EIA Form 860M spreadsheets for analysis.
+"""Retrieve data from EIA Form 860M spreadsheets for analysis.
 
 This modules pulls data from EIA's published Excel spreadsheets.
 
@@ -30,8 +29,7 @@ class Extractor(excel.GenericExtractor):
     """Extractor for the excel dataset EIA860M."""
 
     def __init__(self, *args, **kwargs):
-        """
-        Initialize the module.
+        """Initialize the module.
 
         Args:
             ds (:class:datastore.Datastore): Initialized datastore.
@@ -74,8 +72,7 @@ class Extractor(excel.GenericExtractor):
 
 
 def append_eia860m(eia860_raw_dfs, eia860m_raw_dfs):
-    """
-    Append EIA 860M to the pages to.
+    """Append EIA 860M to the pages to.
 
     Args:
         eia860_raw_dfs (dictionary): dictionary of pandas.Dataframe's from EIA

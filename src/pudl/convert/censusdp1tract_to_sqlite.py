@@ -1,5 +1,4 @@
-"""
-Convert the US Census DP1 ESRI GeoDatabase into an SQLite Database.
+"""Convert the US Census DP1 ESRI GeoDatabase into an SQLite Database.
 
 This is a thin wrapper around the GDAL ogr2ogr command line tool. We use it
 to convert the Census DP1 data which is distributed as an ESRI GeoDB into an
@@ -33,8 +32,7 @@ logger = logging.getLogger(__name__)
 
 
 def censusdp1tract_to_sqlite(pudl_settings=None, year=2010):
-    """
-    Use GDAL's ogr2ogr utility to convert the Census DP1 GeoDB to an SQLite DB.
+    """Use GDAL's ogr2ogr utility to convert the Census DP1 GeoDB to an SQLite DB.
 
     The Census DP1 GeoDB is read from the datastore, where it is stored as a
     zipped archive. This archive is unzipped into a temporary directory so
@@ -83,8 +81,7 @@ def censusdp1tract_to_sqlite(pudl_settings=None, year=2010):
 
 
 def parse_command_line(argv):
-    """
-    Parse command line arguments. See the -h option.
+    """Parse command line arguments. See the -h option.
 
     Args:
         argv (str): Command line arguments, including caller filename.

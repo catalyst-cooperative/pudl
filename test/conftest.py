@@ -127,8 +127,7 @@ def ferc1_sql_engine(
     ferc1_etl_settings,
     pudl_datastore_fixture,
 ):
-    """
-    Grab a connection to the FERC Form 1 DB clone.
+    """Grab a connection to the FERC Form 1 DB clone.
 
     If we are using the test database, we initialize it from scratch first.
     If we're using the live database, then we just yield a conneciton to it.
@@ -152,8 +151,7 @@ def pudl_sql_engine(
     pudl_settings_fixture,
     etl_settings,
 ):
-    """
-    Grab a connection to the PUDL Database.
+    """Grab a connection to the PUDL Database.
 
     If we are using the test database, we initialize the PUDL DB from scratch.
     If we're using the live database, then we just make a conneciton to it.
@@ -235,12 +233,17 @@ def pudl_ferc1datastore_fixture(pudl_datastore_fixture):
     return pudl.extract.ferc1.Ferc1Datastore(pudl_datastore_fixture)
 
 
-@pytest.fixture(scope="session", name="pudl_datastore_fixture")  # noqa: C901
-def pudl_datastore(pudl_settings_fixture, request):
-    """Produce a :class:pudl.workspace.datastore.Datastore."""
-    gcs_cache = request.config.getoption("--gcs-cache-path")
-    return pudl.workspace.datastore.Datastore(
+@pytest.fixture(scope="session", name="pudl_ds_kwargs")
+def ds_kwargs(pudl_settings_fixture, request):
+    """Return a dictionary of keyword args for creating a PUDL datastore."""
+    return dict(
+        gcs_cache_path=request.config.getoption("--gcs-cache-path"),
         local_cache_path=Path(pudl_settings_fixture["pudl_in"]) / "data",
-        gcs_cache_path=gcs_cache,
         sandbox=pudl_settings_fixture["sandbox"],
     )
+
+
+@pytest.fixture(scope="session", name="pudl_datastore_fixture")  # noqa: C901
+def pudl_datastore(pudl_ds_kwargs):
+    """Produce a :class:pudl.workspace.datastore.Datastore."""
+    return pudl.workspace.datastore.Datastore(**pudl_ds_kwargs)

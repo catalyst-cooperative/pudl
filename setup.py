@@ -51,18 +51,18 @@ setup(
         "addfips~=0.3.1",
         "catalystcoop.dbfread~=3.0",
         "coloredlogs~=15.0",
-        "dask>=2021.8,<2023.0",
+        "dask>=2021.8,<2022.5.1",
         "datapackage~=1.11",  # Transition datastore to use frictionless.
         # "email-validator>=1.0.3",  # pydantic[email] dependency
-        "fsspec>=2021.7,<2023.0",  # For caching datastore on GCS
-        "gcsfs>=2021.7,<2023.0",  # For caching datastore on GCS
+        "fsspec>=2021.7,<2022.3.1",  # For caching datastore on GCS
+        "gcsfs>=2021.7,<2022.3.1",  # For caching datastore on GCS
         "geopandas>=0.9,<0.11",
         "jinja2>=2,<4",
         "matplotlib>=3.3,<4",  # Should make this optional with a "viz" extras
         "networkx>=2.2,<3",
         "numpy>=1.18.5,<2",
         "pandas>=1.4,<1.5",
-        "pyarrow>=5,<8",
+        "pyarrow>=5,<9",
         "pydantic[email]>=1.7,<2",
         "python-snappy>=0.6,<1",
         "pygeos>=0.10,<0.13",
@@ -70,7 +70,7 @@ setup(
         "scikit-learn>=1.0,<1.1",
         "scipy>=1.6,<1.9",
         "sqlalchemy>=1.4,<2",
-        "timezonefinder>=5,<6",
+        "timezonefinder>=5,<7",
         "xlsxwriter>=3,<4",
     ],
     extras_require={
@@ -112,6 +112,7 @@ setup(
             "pytest-console-scripts~=1.1",
             "pytest-cov>=2.10,<4.0",
             "responses~=0.14",
+            "rstcheck[sphinx]>=5,<6",
             "tox~=3.20",
         ],
         "datasette": [

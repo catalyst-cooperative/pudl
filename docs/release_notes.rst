@@ -2,6 +2,54 @@
 PUDL Release Notes
 =======================================================================================
 
+.. _release-v0-7-0:
+
+---------------------------------------------------------------------------------------
+0.7.0 (2022-XX-XX)
+---------------------------------------------------------------------------------------
+
+Database Schema Changes
+^^^^^^^^^^^^^^^^^^^^^^^
+* After learning that generators' prime movers do very occasionally change over
+  time, we recategorized the ``prime_mover_code`` column in our entity resolution
+  process to enable the rare but real variability over time. We moved the
+  ``prime_mover_code`` column from the statically harvested/normalized data
+  column to an annually harvested data column (i.e. from :ref:`generators_entity_eia`
+  to :ref:`generators_eia860`) :pr:`1600`. See :issue:`1585` for more details.
+* Created :ref:`operational_status_eia` into our static metadata tables (See
+  :doc:`data_dictionaries/codes_and_labels`). Used these standard codes and code
+  fixes to clean ``operational_status_code`` in the :ref:`generators_entity_eia`
+  table. :pr:`1624`
+
+Plant Parts List Module Changes
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+* We refactored a couple components of the Plant Parts List module in preparation
+  for the next round of entity matching of EIA and FERC Form 1 records with the
+  Panda model developed by the
+  `Chu Data Lab at Georgia Tech <https://chu-data-lab.cc.gatech.edu/>`__, through work
+  funded by a
+  `CCAI Innovation Grant <https://www.climatechange.ai/calls/innovation_grants>`__.
+  The labeling of different aggregations of EIA generators as the true granularity was
+  sped up, resulting in faster generation of the final plant parts list. In addition,
+  the generation of the ``installation_year`` column in the plant parts list was fixed
+  and a ``construction_year`` column was also added. Finally, ``operating_year`` was
+  added as a level that the EIA generators are now aggregated to.
+
+Bug Fixes
+^^^^^^^^^
+
+* `Dask v2022.4.2 <https://docs.dask.org/en/stable/changelog.html#v2022-04-2>`__
+  introduced breaking changes into :meth:`dask.dataframe.read_parquet`.  However, we
+  didn't catch this when it happened because it's only a problem when there's more than
+  one row-group. Now we're processing 2019-2020 data for both ID and ME (two of the
+  smallest states) in the tests. Also restricted the allowed Dask versions in our
+  ``setup.py`` so that we get notified by the dependabot any time even a minor update.
+  happens to any of the packages we depend on that use calendar versioning. See
+  :pr:`1618`.
+* Fixed a testing bug where the partitioned EPA CEMS outputs generated using parallel
+  processing were getting output in the same output directory as the real ETL, which
+  should never happen. See :pr:`1618`.
+
 .. _release-v0-6-0:
 
 ---------------------------------------------------------------------------------------
@@ -203,8 +251,8 @@ database schema, which will probably affect some users.
 * The columns that indicate the mode of transport for various fuels now contain short
   codes rather than longer labels, and are defined in / constrained by the static
   :ref:`fuel_transportation_modes_eia` table.
-* In the simplified FERC 1 fuel type categories, we're now using `other` instead of
-  `unknown`.
+* In the simplified FERC 1 fuel type categories, we're now using ``other`` instead of
+  ``unknown``.
 * Several columns have been renamed to harmonize meanings between different tables and
   datasets, including:
 
@@ -215,7 +263,7 @@ database schema, which will probably affect some users.
   * ``fuel_qty_burned`` is now ``fuel_consumed_units``
   * ``fuel_qty_units`` is now ``fuel_received_units``
   * ``heat_content_mmbtu_per_unit`` is now ``fuel_mmbtu_per_unit``
-  * ``sector_name` and `sector_id` are now ``sector_name_eia`` and ``sector_id_eia``
+  * ``sector_name`` and ``sector_id`` are now ``sector_name_eia`` and ``sector_id_eia``
   * ``primary_purpose_naics_id`` is now ``primary_purpose_id_naics``
   * ``mine_type_code`` is now ``mine_type`` (a human readable label, not a code).
 

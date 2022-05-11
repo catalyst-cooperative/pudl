@@ -2,20 +2,17 @@
 
 import logging
 import sys
-from pathlib import Path
 from sqlite3 import Connection as SQLite3Connection
 from sqlite3 import sqlite_version
-from typing import Dict, List, Literal, Union
+from typing import Dict
 
 import pandas as pd
-import pyarrow as pa
 import sqlalchemy as sa
 from packaging import version
-from pyarrow import parquet as pq
 from sqlalchemy.exc import IntegrityError
 
 from pudl.helpers import find_foreign_key_errors
-from pudl.metadata.classes import Package, Resource
+from pudl.metadata.classes import Package
 
 logger = logging.getLogger(__name__)
 
@@ -29,8 +26,7 @@ def dfs_to_sqlite(
     check_types: bool = True,
     check_values: bool = True,
 ) -> None:
-    """
-    Load a dictionary of dataframes into the PUDL SQLite DB.
+    """Load a dictionary of dataframes into the PUDL SQLite DB.
 
     Args:
         dfs: Dictionary mapping table names to dataframes.
@@ -86,35 +82,3 @@ def dfs_to_sqlite(
             logger.info(find_foreign_key_errors(dfs))
             logger.info(err)
             sys.exit(1)
-
-
-def df_to_parquet(
-    df: pd.DataFrame,
-    resource_id: str,
-    root_path: Union[str, Path],
-    partition_cols: Union[List[str], Literal[None]] = None,
-) -> None:
-    """
-    Write a PUDL table out to a partitioned Parquet dataset.
-
-    Uses the name of the table to look up appropriate metadata and construct
-    a PyArrow schema.
-
-    Args:
-        df: The tabular data to be written to a Parquet dataset.
-        resource_id: Name of the table that's being written to Parquet.
-        root_path: Top level directory for the partitioned dataset.
-        partition_cols: Columns to use to partition the Parquet dataset. For
-            EPA CEMS we use ["year", "state"].
-
-    """
-    pq.write_to_dataset(
-        pa.Table.from_pandas(
-            df,
-            schema=Resource.from_id(resource_id).to_pyarrow(),
-            preserve_index=False,
-        ),
-        root_path=root_path,
-        partition_cols=partition_cols,
-        compression="snappy",
-    )
