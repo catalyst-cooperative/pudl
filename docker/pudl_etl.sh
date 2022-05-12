@@ -1,5 +1,5 @@
 #!/usr/bin/bash
-echo "Image updated"
+echo "A new message from PUDL"
 
 pudl_setup \
     --pudl_in $CONTAINER_PUDL_IN \
