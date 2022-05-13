@@ -15,8 +15,6 @@ jobs:
   push_to_registry:
     name: Build Docker image and push to Docker Hub
     runs-on: ubuntu-latest
-    outputs:
-      docker_tags: ${{ steps.docker_metadata.outputs.tags }}
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
@@ -85,7 +83,7 @@ jobs:
         run: |-
           gcloud compute instances update-container "$GCE_INSTANCE" \
             --zone "$GCE_INSTANCE_ZONE" \
-            --container-image "docker.io/${{needs.push_to_registry.outputs.docker_tags}}" \
+            --container-image "docker.io/catalystcoop/pudl-etl:${{github.ref_name}}" \
             --container-command "conda" \
             --container-arg="run" \
             --container-arg="--no-capture-output" \
