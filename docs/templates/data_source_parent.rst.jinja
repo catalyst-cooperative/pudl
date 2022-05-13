@@ -50,10 +50,11 @@ How much of the data is accessible through PUDL?
 
 PUDL Database Tables
 ^^^^^^^^^^^^^^^^^^^^
-
-We've segmented the processed {{ source.title }} data into the following normalized data tables.
+{% block database_text %}
+We've segmented the processed data into the following normalized data tables.
 Clicking on the links will show you a description of the table as well as
 the names and descriptions of each of its fields.
+{% endblock %}
 
 .. list-table::
    :header-rows: 1
@@ -63,17 +64,15 @@ the names and descriptions of each of its fields.
      - Browse Online
    {%- for resource in source_resources %}
    * - :ref:`{{ resource.name }}`
-   {%- if source.name != "epacems" %}
-     - https://data.catalyst.coop/pudl/{{ resource.name }}
-     {%- else %}
-     - Available via Intake catalog
-     {%- endif %}
+     {% block browse_online scoped %}- https://data.catalyst.coop/pudl/{{ resource.name }}{% endblock %}
    {%- endfor %}
 
-{%- if extra_resources -%}
+{% if extra_resources -%}
 
+{% block extra_table_text %}
 We've also created the following tables modeled after data collected from
 existing tables.
+{% endblock %}
 
 .. list-table::
    :header-rows: 1
@@ -83,7 +82,9 @@ existing tables.
      - Browse Online
    {%- for resource in extra_resources %}
    * - :ref:`{{ resource.name }}`
+   {% block browse_extra_online scoped %}
      - https://data.catalyst.coop/pudl/{{ resource.name }}
+   {% endblock %}
    {%- endfor -%}
 {%- endif %}
 

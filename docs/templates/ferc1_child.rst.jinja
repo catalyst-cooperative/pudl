@@ -4,8 +4,7 @@
     financial and operating data for major utilities and licensees. Much of it is not
     publicly available anywhere else.
 
-    * :download:`A diagram of the 2015 FERC Form 1 Database (PDF)
-    <../{{ source.name }}/{{ source.name }}_db_diagram_2015.pdf>`
+    * :download:`A diagram of the 2015 FERC Form 1 Database (PDF) <../{{ source.name }}/{{ source.name }}_db_diagram_2015.pdf>`
     * :download:`Blank FERC Form 1 (PDF, to 2005-03-31) <../{{ source.name }}/{{ source.name }}_blank_2005-03-31.pdf>`
     * :download:`Blank FERC Form 1 (PDF, to 2007-06-30) <../{{ source.name }}/{{ source.name }}_blank_2007-06-30.pdf>`
     * :download:`Blank FERC Form 1 (PDF, to 2008-07-31) <../{{ source.name }}/{{ source.name }}_blank_2008-07-31.pdf>`
@@ -17,18 +16,18 @@
 {% endblock %}
 
 {% block fill_out_form %}
-    As outlined in the Commission's Uniform System of Accounts Prescribed for Public
-    Utilities and Licensees Subject To the Provisions of The Federal Power Act (18 C.F.R.
-    Part 101), to qualify as a respondent, entities must exceed at least one of the
-    following criteria for three consecutive years prior to reporting:
+As outlined in the Commission's Uniform System of Accounts Prescribed for Public
+Utilities and Licensees Subject To the Provisions of The Federal Power Act (18 C.F.R.
+Part 101), to qualify as a respondent, entities must exceed at least one of the
+following criteria for three consecutive years prior to reporting:
 
-    * 1 million MWh of total sales
-    * 100MWh of annual sales for resale
-    * 500MWh of annual power exchanges delivered
-    * 500MWh of annual wheeling for others (deliveries plus losses)
+* 1 million MWh of total sales
+* 100MWh of annual sales for resale
+* 500MWh of annual power exchanges delivered
+* 500MWh of annual wheeling for others (deliveries plus losses)
 
-    Annual responses are due in April of the following year. FERC typically releases the
-    new data in October.
+Annual responses are due in April of the following year. FERC typically releases the
+new data in October.
 {% endblock %}
 
 {% block original_data %}
@@ -59,7 +58,12 @@ expenses, and fuel consumption; however, we have the tools required to pull
 just about any other table in as well.
 {% endblock %}
 
-{% notable_irregularities %}
+{% block extra_table_text %}
+We've also created the following tables mapping mannually assigned PUDL IDs to FERC
+respondent IDs, enabling a connection between the FERC and EIA data sets.
+{% endblock %}
+
+{% block notable_irregularities %}
 Sadly, the FERC Form 1 database is not particularly... relational. The only
 foreign key relationships that exist map ``respondent_id`` fields in the
 individual data tables back to ``f1_respondent_id``. In theory, most of the

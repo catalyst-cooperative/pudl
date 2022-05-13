@@ -22,7 +22,7 @@ Who is required to install CEMS and report to EPA?
 --------------------------------------------------
 {% endblock %}
 {% block fill_out_form %}
-    `Part 75 <https://www.ecfr.gov/cgi-bin/retrieveECFR?gp=&SID=d20546b42dd4ea978d0de7eabe15cbf4&mc=true&n=pt40.18.75&r=PART&ty=HTML#se40.18.75_12>`__
+`Part 75 <https://www.ecfr.gov/cgi-bin/retrieveECFR?gp=&SID=d20546b42dd4ea978d0de7eabe15cbf4&mc=true&n=pt40.18.75&r=PART&ty=HTML#se40.18.75_12>`__
 of the Federal Code of Regulations (FRC), the backbone of the Clean Air Act Title IV and
 Acid Rain Program, requires coal and other solid-combusting units (see §72.2) to install
 and use CEMS (see §75.2, §72.6). Certain low-sulfur fueled gas and oil units (see §72.2)
@@ -51,7 +51,15 @@ Thanks to `Karl Dunkle Werner <https://github.com/karldw>`__ for contributing
 much of the EPA CEMS Hourly ETL code!
 {% endblock %}
 
-{% notable_irregularities %}
+{% block database_text %}
+Clicking on the links will show you a description of the table as well as
+the names and descriptions of each of its fields. You can access the data via the
+EPACEMS Intake catalog.
+{% endblock %}
+
+{% block browse_online %}- Available via Intake catalog{% endblock %}
+
+{% block notable_irregularities %}
 CEMS is by far the largest dataset in PUDL at the moment with hourly records for
 thousands of plants spanning decades. Note that the ETL process can easily take all
 day for the full dataset. PUDL also provides a script that converts the raw EPA CEMS
