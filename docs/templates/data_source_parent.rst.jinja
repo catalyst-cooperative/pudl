@@ -1,0 +1,102 @@
+===============================================================================
+{{ source.title }}
+===============================================================================
+
+.. list-table::
+   :widths: auto
+   :header-rows: 0
+   :stub-columns: 1
+
+   * - Source URL
+     - {{ source.path }}
+   {%- for field, description in source.description.items() %}
+   * - {{ field.replace("_", " ").title() }}
+     - {{ description }}
+   {%- endfor %}
+   * - Years Liberated
+     - {{ source.get_temporal_coverage() }}
+   * - Source Format
+     - {{ source.source_files.format }}
+   * - Source Years
+     - {{ source.get_temporal_coverage(get_source=True) }}
+   * - Size (Download)
+     - {{ source.source_files.download_size_mb }} MB
+   * - PUDL Code
+     - ``{{ source.name }}``
+   * - Issues
+     - `Open {{ source.title }} issues <https://github.com/catalyst-cooperative/pudl/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aopen+label%3A{{ source.name }}>`__
+
+Background
+^^^^^^^^^^
+{% block background %}{% endblock %}
+
+{% block fill_out_form_title %}
+Who is required to fill out the form?
+-------------------------------------
+{% endblock %}
+{% block fill_out_form %}{% endblock %}
+
+{% block original_data_title %}
+What does the original data look like?
+--------------------------------------
+{% endblock %}
+{% block original_data %}{% endblock %}
+
+{% block accessible_title %}
+How much of the data is accessible through PUDL?
+------------------------------------------------
+{% endblock %}
+{% block accessible %}{% endblock %}
+
+PUDL Database Tables
+^^^^^^^^^^^^^^^^^^^^
+
+We've segmented the processed {{ source.title }} data into the following normalized data tables.
+Clicking on the links will show you a description of the table as well as
+the names and descriptions of each of its fields.
+
+.. list-table::
+   :header-rows: 1
+   :widths: auto
+
+   * - Data Dictionary
+     - Browse Online
+   {%- for resource in source_resources %}
+   * - :ref:`{{ resource.name }}`
+   {%- if source.name != "epacems" %}
+     - https://data.catalyst.coop/pudl/{{ resource.name }}
+     {%- else %}
+     - Available via Intake catalog
+     {%- endif %}
+   {%- endfor %}
+
+{%- if extra_resources -%}
+
+We've also created the following tables modeled after data collected from
+existing tables.
+
+.. list-table::
+   :header-rows: 1
+   :widths: auto
+
+   * - Data Dictionary
+     - Browse Online
+   {%- for resource in extra_resources %}
+   * - :ref:`{{ resource.name }}`
+     - https://data.catalyst.coop/pudl/{{ resource.name }}
+   {%- endfor -%}
+{%- endif %}
+
+PUDL Data Transformations
+-------------------------
+
+The PUDL transformation process cleans the input data so that it is adjusted for
+uniformity, corrected for errors, and ready for bulk programmatic use.
+
+To see the transformations applied to the data in each table, you can read the
+doc-strings for :mod:`pudl.transform.{{ source.name }}` created for each tables' respective
+transform function.
+
+Notable Irregularities
+^^^^^^^^^^^^^^^^^^^^^^
+{% block notable_irregularities %}{% endblock %}

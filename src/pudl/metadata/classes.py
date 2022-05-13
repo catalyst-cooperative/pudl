@@ -906,7 +906,7 @@ class DataSource(Base):
 
     name: SnakeCase
     title: String = None
-    description: String = None
+    description: Dict[SnakeCase, Any] = {}
     field_namespace: String = None
     keywords: List[str] = []
     path: HttpUrl = None
@@ -915,6 +915,7 @@ class DataSource(Base):
     license_pudl: License
     # concept_doi: Doi = None  # Need to define a Doi type?
     working_partitions: Dict[SnakeCase, Any] = {}
+    source_files: Dict[SnakeCase, Any] = {}
     # agency: Agency  # needs to be defined
     email: Email = None
 
@@ -934,25 +935,34 @@ class DataSource(Base):
             ]
         )
 
-    def get_temporal_coverage(self) -> str:
+    def get_temporal_coverage(self, get_source=False) -> str:
         """Return a string describing the time span covered by the data source."""
-        if "years" in self.working_partitions:
-            return f"{min(self.working_partitions['years'])}-{max(self.working_partitions['years'])}"
-        elif "year_month" in self.working_partitions:
-            return f"through {self.working_partitions['year_month']}"
+        if get_source:
+            date_dict = self.source_files
+        else:
+            date_dict = self.working_partitions
+        if "years" in date_dict:
+            return f"{min(date_dict['years'])}-{max(date_dict['years'])}"
+        elif "year_month" in date_dict:
+            return f"through {date_dict['year_month']}"
         else:
             return ""
 
-    def to_rst(self, path, source_resources, extra_resources) -> None:
+    def to_rst(
+        self,
+        source_resources: List,
+        extra_resources: List,
+        output_path: str = None,
+    ) -> None:
         """Output a representation of the data source in RST for documentation."""
-        template = JINJA_DOCS_ENVIRONMENT.get_template(f"{self.name}.rst.jinja")
+        template = JINJA_DOCS_ENVIRONMENT.get_template(f"{self.name}_child.rst.jinja")
         rendered = template.render(
             source=self,
             source_resources=source_resources,
             extra_resources=extra_resources,
         )
-        if path:
-            Path(path).write_text(rendered)
+        if output_path:
+            Path(output_path).write_text(rendered)
         else:
             sys.stdout.write(rendered)
 
