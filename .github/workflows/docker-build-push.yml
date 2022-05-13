@@ -3,6 +3,8 @@ on:
   push:
     branches:
       - gce-deploy # for testing purposes
+    tags:
+      - "v*"
 
 env:
   PROJECT_ID: ${{ secrets.GCE_PROJECT }}
