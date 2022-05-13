@@ -3,6 +3,9 @@ FROM condaforge/mambaforge:4.12.0-0
 # Install curl and js
 RUN apt-get update; apt-get install --no-install-recommends -y curl jq
 
+# Configure gsutil authentication
+RUN echo '[GoogleCompute]\nservice_account = default' > /etc/boto.cfg
+
 # Create a non-root user inside the container
 RUN useradd -Ums /bin/bash catalyst
 
