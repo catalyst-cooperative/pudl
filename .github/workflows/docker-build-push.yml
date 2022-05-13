@@ -4,7 +4,7 @@ on:
     branches:
       - gce-deploy # for testing purposes
     tags:
-      - "v*"
+      - "v**"
 
 env:
   PROJECT_ID: ${{ secrets.GCE_PROJECT }}
