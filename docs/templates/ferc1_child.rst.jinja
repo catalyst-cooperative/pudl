@@ -35,6 +35,12 @@ new data in October.
 
     Explore the full FERC Form 1 dataset at: https://data.catalyst.coop/{{ source.name }}
 
+As of early 2021, the data is published as a collection of XBRL filings. The data remains
+difficult to access and we are in the process of understanding the underlying data and
+integrating this new format into PUDL.
+
+Previously the data was strutured as follows:
+
 The data is published as a collection of Visual FoxPro databases: one per year
 beginning in 1994. The databases all share a very similar structure and contain a total
 of 116 data tables and ~8GB of raw data (though 90% of that data is in 3 tables
@@ -52,10 +58,11 @@ documentation on a table-by-table basis, look at
 {% endblock %}
 
 {% block accessible %}
-Thus far, we have integrated 7 tables into the full PUDL ETL pipeline. We
-focused on the tables pertaining to power plants, their capital & operating
-expenses, and fuel consumption; however, we have the tools required to pull
-just about any other table in as well.
+With the new XBRL format we are in the process of integrating the data into
+the full PUDL ETL pipeline. Previously, with the Visual FoxPro filings we had
+integrated 7 tables into the pipeline. We focused on the tables pertaining to
+power plants, their capital & operating expenses, and fuel consumption. We hope
+to soon be able to pull just about any other table.
 {% endblock %}
 
 {% block extra_table_text %}
