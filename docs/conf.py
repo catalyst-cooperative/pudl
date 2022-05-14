@@ -158,7 +158,6 @@ def data_sources_metadata_to_rst(app):
     included_sources = ["eia860", "eia923", "ferc1", "epacems"]
     package = Package.from_resource_ids()
     extra_etl_groups = {"eia860": ["entity_eia"], "ferc1": ["glue"]}
-    (DOCS_DIR / "data_sources/data_source_rsts").mkdir()
     for name in included_sources:
         source = DataSource.from_id(name)
         source_resources = [res for res in package.resources if res.etl_group == name]
@@ -172,7 +171,7 @@ def data_sources_metadata_to_rst(app):
                 and name in [src.name for src in res.sources]
             ]
         source.to_rst(
-            output_path=DOCS_DIR / f"data_sources/data_source_rsts/{name}.rst",
+            output_path=DOCS_DIR / f"data_sources/{name}.rst",
             source_resources=source_resources,
             extra_resources=extra_resources,
         )
@@ -197,9 +196,10 @@ def cleanup_rsts(app, exception):
     """Remove generated RST files when the build is finished."""
     (DOCS_DIR / "data_dictionaries/pudl_db.rst").unlink()
     (DOCS_DIR / "data_dictionaries/codes_and_labels.rst").unlink()
-    rst_dir = DOCS_DIR / "data_sources/data_source_rsts"
-    if rst_dir.exists() and rst_dir.is_dir():
-        shutil.rmtree(rst_dir)
+    (DOCS_DIR / "data_sources/eia860.rst").unlink()
+    (DOCS_DIR / "data_sources/eia923.rst").unlink()
+    (DOCS_DIR / "data_sources/ferc1.rst").unlink()
+    (DOCS_DIR / "data_sources/epacems.rst").unlink()
 
 
 def cleanup_csv_dir(app, exception):
