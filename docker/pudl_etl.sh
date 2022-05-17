@@ -27,10 +27,25 @@ function shutdown_vm() {
     curl -X POST -H "Content-Length: 0" -H "Authorization: Bearer ${ACCESS_TOKEN}" https://compute.googleapis.com/compute/v1/projects/catalyst-cooperative-pudl/zones/us-central1-a/instances/deploy-pudl-vm/stop
 }
 
+function notify_slack() {
+    # Notify pudl-builds slack channel of deployment status
+    if [ $1 = "success" ]; then
+        message=":large_green_circle: Deployment Succeeded\n\n "
+    elif [ $1 = "failure" ]; then
+        message=":large_red_square: Deployment Failed\n\n "
+    else
+        echo "Invalid deployment status"
+        exit 1
+    fi
+    message+="See gs://pudl-etl-logs/$GITHUB_SHA-$GITHUB_REF for logs and outputs."
+
+    curl -X POST -H "Content-type: application/json" -H "Authorization: Bearer ${SLACK_TOKEN}" https://slack.com/api/chat.postMessage --data "{\"channel\": \"C03FHB9N0PQ\", \"text\": \"$message\"}"
+}
+
 # Run ETL. Copy outputs to GCS and shutdown VM if ETL succeeds or fails
 { # try
-    run_pudl_etl 2> $LOGFILE && shutdown_vm
+    run_pudl_etl 2> $LOGFILE && notify_slack success && shutdown_vm
 
 } || { # catch
-    shutdown_vm
+    notify_slack failure && shutdown_vm
 }
