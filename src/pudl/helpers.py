@@ -532,7 +532,15 @@ def expand_timeseries(
             f"Frequency string {freq} is not valid. \
             See Pandas Timeseries Offset Aliases docs for valid strings."
         )
-    return (
+    # for each group of ID columns add a dummy record with the date column
+    # equal to Jan 1 of the year after the last real record in the group
+    # this allows records to be filled through the end of the last reported year
+    end_dates = df.groupby(key_cols).agg({date_col: "max"})
+    end_dates.loc[:, date_col] = end_dates[date_col].dt.year + 1
+    end_dates = convert_col_to_datetime(end_dates, date_col)
+    end_dates["drop_row"] = True
+    df = pd.concat([df, end_dates.reset_index()])
+    df = (
         df.set_index(date_col)
         .groupby(key_cols)
         .resample(freq)
@@ -540,6 +548,8 @@ def expand_timeseries(
         .drop(key_cols, axis=1)
         .reset_index()
     )
+    df = df[df.drop_row.isnull()].drop("drop_row", axis=1).reset_index(drop=True)
+    return df
 
 
 def organize_cols(df, cols):
