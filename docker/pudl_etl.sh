@@ -20,11 +20,11 @@ function shutdown_vm() {
     gsutil -m cp -r $CONTAINER_PUDL_OUT "gs://pudl-etl-logs/$GITHUB_SHA-$GITHUB_REF"
 
     # # Shut down the deploy-pudl-vm instance when the etl is done.
-    ACCESS_TOKEN=`curl \
-        "http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token" \
-        -H "Metadata-Flavor: Google" | jq -r '.access_token'`
+    # ACCESS_TOKEN=`curl \
+    #     "http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token" \
+    #     -H "Metadata-Flavor: Google" | jq -r '.access_token'`
 
-    curl -X POST -H "Content-Length: 0" -H "Authorization: Bearer ${ACCESS_TOKEN}" https://compute.googleapis.com/compute/v1/projects/catalyst-cooperative-pudl/zones/us-central1-a/instances/deploy-pudl-vm/stop
+    # curl -X POST -H "Content-Length: 0" -H "Authorization: Bearer ${ACCESS_TOKEN}" https://compute.googleapis.com/compute/v1/projects/catalyst-cooperative-pudl/zones/us-central1-a/instances/deploy-pudl-vm/stop
 }
 
 function notify_slack() {
