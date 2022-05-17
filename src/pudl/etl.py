@@ -119,7 +119,7 @@ def _etl_eia(
         eia860_raw_dfs = pudl.extract.eia860m.append_eia860m(
             eia860_raw_dfs=eia860_raw_dfs, eia860m_raw_dfs=eia860m_raw_dfs
         )
-
+    assert False
     # Transform EIA forms 923, 860
     eia860_transformed_dfs = pudl.transform.eia860.transform(
         eia860_raw_dfs, eia860_settings=eia_settings.eia860
