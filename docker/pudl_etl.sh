@@ -17,6 +17,8 @@ function run_pudl_etl() {
 
 function shutdown_vm() {
     # Create a log bucket for the deployment
+    echo "Google Cloud Project:"
+    echo $GOOGLE_CLOUD_PROJECT
     gsutil -m cp -r $CONTAINER_PUDL_OUT "gs://pudl-etl-logs/$GITHUB_SHA-$GITHUB_REF"
 
     # # Shut down the deploy-pudl-vm instance when the etl is done.
