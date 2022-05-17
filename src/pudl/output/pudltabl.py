@@ -1054,6 +1054,7 @@ class PudlTabl(object):
         min_cap_fact=0.0,
         max_cap_fact=1.5,
         all_gens=True,
+        extra_gens_cols=[],
     ):
         """Calculate and return generator level MCOE based on EIA data.
 
@@ -1083,6 +1084,11 @@ class PudlTabl(object):
             all_gens (bool): Controls whether the output contains records for
                 all generators in the :ref:`generators_eia860` table, or only
                 those generators with associated MCOE data. True by default.
+            extra_gens_cols (List): list of names of column attributes to
+                include from the :ref:`generators_eia860` table in addition to the
+                list of defined `default_gens_cols`. By default, no extra columns will
+                be included, only the `default_gens_cols` will be merged into the final
+                MCOE output.
 
         Returns:
             :class:`pandas.DataFrame`: a compilation of generator attributes,
@@ -1097,6 +1103,7 @@ class PudlTabl(object):
                 min_cap_fact=min_cap_fact,
                 max_cap_fact=max_cap_fact,
                 all_gens=all_gens,
+                extra_gens_cols=extra_gens_cols,
             )
         return self._dfs["mcoe"]
 

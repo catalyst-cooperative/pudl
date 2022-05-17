@@ -375,6 +375,7 @@ def mcoe(
     min_cap_fact=0.0,
     max_cap_fact=1.5,
     all_gens=True,
+    extra_gens_cols=[],
 ):
     """Compile marginal cost of electricity (MCOE) at the generator level.
 
@@ -400,6 +401,11 @@ def mcoe(
         all_gens (bool): if True, include attributes of all generators in the
             :ref:`generators_eia860` table, rather than just the generators
             which have records in the derived MCOE values. True by default.
+        extra_gens_cols (List): list of names of column attributes to
+            include from the :ref:`generators_eia860` table in addition to the
+            list of defined `default_gens_cols`. By default, no extra columns will
+            be included, only the `default_gens_cols` will be merged into the final
+            MCOE output.
 
     Returns:
         pandas.DataFrame: a dataframe organized by date and generator,
@@ -457,9 +463,20 @@ def mcoe(
         .pipe(pudl.validate.no_null_cols, df_name="fuel_cost + capacity_factor")
     )
 
-    # Combine MCOE derived values with all the generator attributes:
+    # Combine MCOE derived values with generator attributes
+    default_gens_cols = [
+        "plant_id_eia",
+        "generator_id",
+        "report_date",
+        "unit_id_pudl",
+        "plant_id_pudl",
+        "plant_name_eia",
+        "utility_id_eia",
+        "utility_id_pudl",
+        "utility_name_eia",
+    ]
     mcoe_out = pudl.helpers.full_timeseries_date_merge(
-        left=pudl_out.gens_eia860(),
+        left=pudl_out.gens_eia860()[default_gens_cols + extra_gens_cols],
         right=mcoe_out,
         on=["plant_id_eia", "generator_id"],
         date_on=["year"],
@@ -471,17 +488,7 @@ def mcoe(
     mcoe_out = (
         mcoe_out.pipe(
             pudl.helpers.organize_cols,
-            [
-                "plant_id_eia",
-                "generator_id",
-                "report_date",
-                "unit_id_pudl",
-                "plant_id_pudl",
-                "plant_name_eia",
-                "utility_id_eia",
-                "utility_id_pudl",
-                "utility_name_eia",
-            ],
+            default_gens_cols,
         )
         .sort_values(
             [
