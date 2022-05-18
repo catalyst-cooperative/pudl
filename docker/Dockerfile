@@ -5,7 +5,6 @@ RUN apt-get update; apt-get install --no-install-recommends -y curl jq
 
 # Configure gsutil authentication
 RUN echo '[GoogleCompute]\nservice_account = default' > /etc/boto.cfg
-RUN gcloud config set project catalyst-cooperative-pudl
 
 # Create a non-root user inside the container
 RUN useradd -Ums /bin/bash catalyst

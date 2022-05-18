@@ -1,5 +1,6 @@
 #!/usr/bin/bash
 function run_pudl_etl() {
+    gcloud config set project catalyst-cooperative-pudl
     pudl_setup \
         --pudl_in $CONTAINER_PUDL_IN \
         --pudl_out $CONTAINER_PUDL_OUT
