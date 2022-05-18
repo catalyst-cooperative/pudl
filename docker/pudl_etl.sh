@@ -39,7 +39,7 @@ function notify_slack() {
         echo "Invalid deployment status"
         exit 1
     fi
-    message+="See gs://pudl-etl-logs/$GITHUB_SHA-$GITHUB_REF for logs and outputs."
+    message+="See https://console.cloud.google.com/storage/browser/pudl-etl-logs/$GITHUB_SHA-$GITHUB_REF for logs and outputs."
 
     curl -X POST -H "Content-type: application/json" -H "Authorization: Bearer ${SLACK_TOKEN}" https://slack.com/api/chat.postMessage --data "{\"channel\": \"C03FHB9N0PQ\", \"text\": \"$message\"}"
 }
