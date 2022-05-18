@@ -1,5 +1,10 @@
 #!/usr/bin/bash
+function send_slack_msg() {
+    curl -X POST -H "Content-type: application/json" -H "Authorization: Bearer ${SLACK_TOKEN}" https://slack.com/api/chat.postMessage --data "{\"channel\": \"C03FHB9N0PQ\", \"text\": \"$1\"}"
+}
+
 function run_pudl_etl() {
+    send_slack_msg ":large_yellow_circle: Deployment started for $GITHUB_SHA-$GITHUB_REF"
     # Set the default gcloud project id so the zenodo-cache bucket
     # knows what project to bill for egress
     gcloud config set project catalyst-cooperative-pudl
@@ -16,6 +21,7 @@ function run_pudl_etl() {
         --gcs-cache-path gs://zenodo-cache.catalyst.coop \
         --bypass-local-cache \
         $PUDL_SETTINGS_YML
+    pytest --live-dbs
 }
 
 function shutdown_vm() {
@@ -44,7 +50,7 @@ function notify_slack() {
     fi
     message+="See https://console.cloud.google.com/storage/browser/pudl-etl-logs/$GITHUB_SHA-$GITHUB_REF for logs and outputs."
 
-    curl -X POST -H "Content-type: application/json" -H "Authorization: Bearer ${SLACK_TOKEN}" https://slack.com/api/chat.postMessage --data "{\"channel\": \"C03FHB9N0PQ\", \"text\": \"$message\"}"
+    send_slack_msg $message
 }
 
 # Run ETL. Copy outputs to GCS and shutdown VM if ETL succeeds or fails
