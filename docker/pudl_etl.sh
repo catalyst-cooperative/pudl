@@ -1,5 +1,7 @@
 #!/usr/bin/bash
 function run_pudl_etl() {
+    # Set the default gcloud project id so the zenodo-cache bucket
+    # knows what project to bill for egress
     gcloud config set project catalyst-cooperative-pudl
     pudl_setup \
         --pudl_in $CONTAINER_PUDL_IN \
@@ -47,7 +49,7 @@ function notify_slack() {
 
 # Run ETL. Copy outputs to GCS and shutdown VM if ETL succeeds or fails
 { # try
-    run_pudl_etl 2> $LOGFILE && notify_slack success && shutdown_vm
+    run_pudl_etl 2>&1 | tee $LOGFILE && notify_slack success && shutdown_vm
 
 } || { # catch
     notify_slack failure && shutdown_vm
