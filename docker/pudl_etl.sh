@@ -21,7 +21,7 @@ function run_pudl_etl() {
         --gcs-cache-path gs://zenodo-cache.catalyst.coop \
         --bypass-local-cache \
         $PUDL_SETTINGS_YML
-    pytest test/unit
+    pytest --live-dbs
 }
 
 function shutdown_vm() {
@@ -50,7 +50,7 @@ function notify_slack() {
     fi
     message+="See https://console.cloud.google.com/storage/browser/pudl-etl-logs/$GITHUB_SHA-$GITHUB_REF for logs and outputs."
 
-    send_slack_msg $message
+    send_slack_msg "$message"
 }
 
 # Run ETL. Copy outputs to GCS and shutdown VM if ETL succeeds or fails
