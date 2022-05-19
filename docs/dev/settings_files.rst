@@ -4,20 +4,25 @@
 Settings Files
 ===============================================================================
 
-Several of the scripts provided as part of PUDL require more arguments than can be
-easily managed on the command line. It's also useful to preserve a record of how the
-data processing pipeline was run in one instance so that it can be re-run in exactly the
-same way. We have these scripts read their settings from YAML files, examples of
-which are included in the distribution.
+Before running any of PUDL's core scripts (like the ETL!), it's important to know how
+to manage them.
 
-There are two example files that are deployed into a users workspace with the
-``pudl_setup`` script (see: :ref:`install-workspace`). The two settings files direct
-PUDL to process 1 year ("fast") and all years ("full") of data respectively. Each
-file contains parameters for both the ``ferc1_to_sqlite`` and the ``pudl_etl``
-scripts.
+Several PUDL scripts require more arguments than can be easily managed on the
+command line. It's also useful to preserve a record of how the data processing pipeline
+was run in one instance so that it can be re-run in exactly the same way. We have these
+scripts read their settings from YAML files, examples of which are deployed into a
+users workspace with the ``pudl_setup`` script (see: :ref:`install-workspace`).
+
+The two example settings files that get deployed direct PUDL to process 1 year ("fast")
+and all years ("full") of data respectively. Each file contains parameters for both the
+``ferc1_to_sqlite`` and the ``pudl_etl`` scripts.
+
+These scripts central to PUDL. If you're confused, hop over to :doc:`run_the_etl` for
+some context, and return to learn about the specific settings for each script before
+running them.
 
 -------------------------------------------------------------------------------
-Setttings for ferc1_to_sqlite
+Settings for ferc1_to_sqlite
 -------------------------------------------------------------------------------
 
 .. list-table::

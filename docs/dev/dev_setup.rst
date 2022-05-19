@@ -28,25 +28,25 @@ or Linux) and are already familiar with ``git``, GitHub, and the Unix shell.
     * `Cloning a Repository <https://help.github.com/articles/cloning-a-repository/>`__
 
 ------------------------------------------------------------------------------
-Install conda
+Install mambaforge
 ------------------------------------------------------------------------------
-We use the ``conda`` package manager to specify and update our development
+We use the ``mamba`` package manager to specify and update our development
 environment, preferentially installing packages from the community maintained
 `conda-forge <https://conda-forge.org>`__ distribution channel. We recommend
-using `miniconda <https://docs.conda.io/en/latest/miniconda.html>`__ rather
-than the large pre-defined collection of scientific packages bundled together
-in the Anaconda Python distribution. You may also want to consider using
-`mamba <https://github.com/mamba-org/mamba>`__ -- a faster drop-in replacement for
-``conda`` written in C++.
+using `mambaforge <https://github.com/conda-forge/miniforge#mambaforge>`__ rather than
+it's ``conda`` equivalent
+`miniconda <https://docs.conda.io/en/latest/miniconda.html>`__ or the large pre-defined
+collection of scientific packages bundled together in the Anaconda Python distribution
+because it's faster.
 
-After a conda package manager, make sure it's configured to use
+After installing your package manager, make sure it's configured to use
 `strict channel priority <https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-channels.html#>`__
 with the following commands:
 
 .. code-block:: console
 
-    $ conda update conda
-    $ conda config --set channel_priority strict
+    $ mamba update mamba
+    $ mamba config --set channel_priority strict
 
 ------------------------------------------------------------------------------
 Fork and Clone the PUDL Repository
