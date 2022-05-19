@@ -10,26 +10,24 @@ function run_pudl_etl() {
     gcloud config set project catalyst-cooperative-pudl
     pudl_setup \
         --pudl_in $CONTAINER_PUDL_IN \
-        --pudl_out $CONTAINER_PUDL_OUT
-    ferc1_to_sqlite \
+        --pudl_out $CONTAINER_PUDL_OUT \
+    && ferc1_to_sqlite \
         --clobber \
         --gcs-cache-path gs://zenodo-cache.catalyst.coop \
         --bypass-local-cache \
-        $PUDL_SETTINGS_YML
-    pudl_etl \
+        $PUDL_SETTINGS_YML \
+    && pudl_etl \
         --clobber \
         --gcs-cache-path gs://zenodo-cache.catalyst.coop \
         --bypass-local-cache \
-        $PUDL_SETTINGS_YML
-    pytest --live-dbs
+        $PUDL_SETTINGS_YML \
+    && pytest test/unit
 }
 
 function shutdown_vm() {
-    # Create a log bucket for the deployment
-    echo "Google Cloud Project:"
-    echo $GOOGLE_CLOUD_PROJECT
     gsutil -m cp -r $CONTAINER_PUDL_OUT "gs://pudl-etl-logs/$GITHUB_SHA-$GITHUB_REF"
 
+    echo "Shutting down VM."
     # # Shut down the deploy-pudl-vm instance when the etl is done.
     # ACCESS_TOKEN=`curl \
     #     "http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token" \
@@ -54,9 +52,12 @@ function notify_slack() {
 }
 
 # Run ETL. Copy outputs to GCS and shutdown VM if ETL succeeds or fails
-{ # try
-    run_pudl_etl 2>&1 | tee $LOGFILE && notify_slack success && shutdown_vm
+run_pudl_etl 2>&1 | tee $LOGFILE
 
-} || { # catch
-    notify_slack failure && shutdown_vm
-}
+if [[ ${PIPESTATUS[0]} == 0 ]]; then
+    send_slack_msg "success"
+else
+    send_slack_msg "failure"
+fi
+
+shutdown_vm
