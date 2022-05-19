@@ -1,5 +1,5 @@
 ###########################################################################
-# FERC FORM 1 DB CLONE SETTINGS
+# Settings for ferc1_to_sqlite script
 ###########################################################################
 ferc1_to_sqlite_settings:
     # What years of original FERC data should be cloned into the SQLite DB?

@@ -1,5 +1,5 @@
 ###########################################################################
-# FERC FORM 1 DB CLONE SETTINGS
+# Settings for ferc1_to_sqlite script
 ###########################################################################
 ferc1_to_sqlite_settings:
     # What years of original FERC data should be cloned into the SQLite DB?
@@ -131,7 +131,7 @@ ferc1_to_sqlite_settings:
     # - f1_freeze   # private database table, not publicly distributed
 
 ###########################################################################
-# PUDL ETL SETTINGS
+# Settings for pudl_etl script
 ###########################################################################
 name: pudl-full
 title: PUDL Full ETL
