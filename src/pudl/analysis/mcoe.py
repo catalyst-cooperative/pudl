@@ -375,6 +375,7 @@ def mcoe(
     min_cap_fact=0.0,
     max_cap_fact=1.5,
     all_gens=True,
+    all_gens_cols=False,
     extra_gens_cols=[],
 ):
     """Compile marginal cost of electricity (MCOE) at the generator level.
@@ -401,6 +402,9 @@ def mcoe(
         all_gens (bool): if True, include attributes of all generators in the
             :ref:`generators_eia860` table, rather than just the generators
             which have records in the derived MCOE values. True by default.
+        all_gens_cols (bool): if True, include all attributes from generators in the
+            :ref:`generators_eia860` table, rather than just the attributes in
+            `default_gens_cols` and the list of extra_gens_cols.
         extra_gens_cols (List): list of names of column attributes to
             include from the :ref:`generators_eia860` table in addition to the
             list of defined `default_gens_cols`. By default, no extra columns will
@@ -475,8 +479,13 @@ def mcoe(
         "utility_id_pudl",
         "utility_name_eia",
     ]
+    if all_gens_cols:
+        gens = pudl_out.gens_eia860()
+    else:
+        gens = pudl_out.gens_eia860()[default_gens_cols + extra_gens_cols]
+
     mcoe_out = pudl.helpers.full_timeseries_date_merge(
-        left=pudl_out.gens_eia860()[default_gens_cols + extra_gens_cols],
+        left=gens,
         right=mcoe_out,
         on=["plant_id_eia", "generator_id"],
         date_on=["year"],

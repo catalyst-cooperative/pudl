@@ -1054,6 +1054,7 @@ class PudlTabl(object):
         min_cap_fact=0.0,
         max_cap_fact=1.5,
         all_gens=True,
+        all_gens_cols=False,
         extra_gens_cols=[],
     ):
         """Calculate and return generator level MCOE based on EIA data.
@@ -1104,15 +1105,32 @@ class PudlTabl(object):
                 max_cap_fact=max_cap_fact,
                 all_gens=all_gens,
                 extra_gens_cols=extra_gens_cols,
+                all_gens_cols=all_gens_cols,
             )
         return self._dfs["mcoe"]
 
-    def gens_mega_eia(self, update: bool = False) -> pd.DataFrame:
+    def gens_mega_eia(
+        self,
+        update: bool = False,
+        extra_gens_cols=[
+            "technology_description",
+            "energy_source_code_1",
+            "prime_mover_code",
+            "operating_date",
+            "retirement_date",
+            "operational_status",
+            "capacity_mw",
+        ],
+        all_gens_cols=False,
+    ) -> pd.DataFrame:
         """Generate and return a generators table with ownership integrated.
 
         Args:
             update: If True, re-calculate the output dataframe, even
                 if a cached version exists.
+            extra_gens_cols: list of additional column attributes to include
+                from the EIA 860 generators table in the output mega gens table
+            all_gens_cols: whether to include all the generator attributes
 
         Returns:
             A table of all of the generators with identifying
@@ -1137,7 +1155,12 @@ class PudlTabl(object):
             self._dfs[
                 "gens_mega_eia"
             ] = pudl.analysis.plant_parts_eia.MakeMegaGenTbl().execute(
-                mcoe=self.mcoe(all_gens=True), own_eia860=self.own_eia860()
+                mcoe=self.mcoe(
+                    all_gens=True,
+                    extra_gens_cols=extra_gens_cols,
+                    all_gens_cols=all_gens_cols,
+                ),
+                own_eia860=self.own_eia860(),
             )
         return self._dfs["gens_mega_eia"]
 
@@ -1145,6 +1168,18 @@ class PudlTabl(object):
         self,
         update: bool = False,
         update_gens_mega: bool = False,
+        extra_gens_cols=[
+            "technology_description",
+            "energy_source_code_1",
+            "prime_mover_code",
+            "operating_date",
+            "retirement_date",
+            "operational_status",
+            "capacity_mw",
+            "fuel_type_code_pudl",
+            "planned_retirement_date",
+        ],
+        all_gens_cols=False,
     ) -> pd.DataFrame:
         """Generate and return master plant-parts EIA.
 
@@ -1152,6 +1187,10 @@ class PudlTabl(object):
             update: If true, re-calculate the output dataframe, even
                 if a cached version exists.
             update_gens_mega: If True, update the gigantic Gens Mega table.
+            extra_gens_cols: list of additional column attributes to include
+                from the EIA 860 generators table in the output plant parts table
+            all_gens_cols: whether to include all the generator attributes from the
+                EIA 860 generators table in the output plant parts table
         """
         update_any = any([update, update_gens_mega])
         if update_any or self._dfs["plant_parts_eia"] is None:
@@ -1159,7 +1198,11 @@ class PudlTabl(object):
             self.parts_compiler = pudl.analysis.plant_parts_eia.MakePlantParts(self)
             # make the plant-parts df!
             self._dfs["plant_parts_eia"] = self.parts_compiler.execute(
-                gens_mega=self.gens_mega_eia(update=update_gens_mega)
+                gens_mega=self.gens_mega_eia(
+                    update=update_gens_mega,
+                    extra_gens_cols=extra_gens_cols,
+                    all_gens_cols=all_gens_cols,
+                )
             )
 
         return self._dfs["plant_parts_eia"]
