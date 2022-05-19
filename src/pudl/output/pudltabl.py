@@ -1055,7 +1055,7 @@ class PudlTabl(object):
         max_cap_fact=1.5,
         all_gens=True,
         all_gens_cols=False,
-        extra_gens_cols=[],
+        extra_gens_cols=["fuel_type_code_pudl"],
     ):
         """Calculate and return generator level MCOE based on EIA data.
 
