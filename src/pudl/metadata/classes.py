@@ -135,15 +135,17 @@ def _format_for_sql(x: Any, identifier: bool = False) -> str:  # noqa: C901
     return f"'{x}'"
 
 
+def _get_docs_jinja_environment(docs_dir):
+    return jinja2.Environment(
+        loader=jinja2.FileSystemLoader(docs_dir / "templates"),
+        autoescape=True,
+    )
+
+
 JINJA_ENVIRONMENT: jinja2.Environment = jinja2.Environment(
     loader=jinja2.FileSystemLoader(
         os.path.join(os.path.dirname(__file__), "templates")
     ),
-    autoescape=True,
-)
-
-JINJA_DOCS_ENVIRONMENT: jinja2.Environment = jinja2.Environment(
-    loader=jinja2.FileSystemLoader(Path(__file__).parents[3] / "docs/templates"),
     autoescape=True,
 )
 
@@ -558,7 +560,9 @@ class Encoder(Base):
     ) -> String:
         """Ouput dataframe to a csv for use in jinja template. Then output to an RST file."""
         self.df.to_csv(Path(top_dir) / csv_subdir / f"{self.name}.csv", index=False)
-        template = JINJA_DOCS_ENVIRONMENT.get_template("codemetadata.rst.jinja")
+        template = _get_docs_jinja_environment(top_dir).get_template(
+            "codemetadata.rst.jinja"
+        )
         rendered = template.render(
             Encoder=self,
             description=RESOURCE_METADATA[self.name]["description"],
@@ -950,12 +954,15 @@ class DataSource(Base):
 
     def to_rst(
         self,
+        docs_dir: DirectoryPath,
         source_resources: List,
         extra_resources: List,
         output_path: str = None,
     ) -> None:
         """Output a representation of the data source in RST for documentation."""
-        template = JINJA_DOCS_ENVIRONMENT.get_template(f"{self.name}_child.rst.jinja")
+        template = _get_docs_jinja_environment(docs_dir).get_template(
+            f"{self.name}_child.rst.jinja"
+        )
         rendered = template.render(
             source=self,
             source_resources=source_resources,
