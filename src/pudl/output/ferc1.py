@@ -290,7 +290,7 @@ def plant_in_service_ferc1(pudl_engine):
     return pis_df
 
 
-def all_plants_ferc1(pudl_engine):
+def plants_all_ferc1(pudl_engine):
     """Combine the steam, small generators, hydro, and pumped storage tables.
 
     While this table may have many purposes, the main one is to prepare it for
@@ -318,7 +318,7 @@ def all_plants_ferc1(pudl_engine):
 
     # Combine all the tables together
     logger.debug("combining all tables")
-    all_plants_df = (
+    all_df = (
         pd.concat([steam_df, small_df, hydro_df, pump_df])
         .rename(
             columns={
@@ -331,4 +331,4 @@ def all_plants_ferc1(pudl_engine):
         .replace({"": np.nan})
     )
 
-    return all_plants_df
+    return all_df

@@ -73,7 +73,7 @@ def test_nuclear_fraction(fast_out, df_name, expected_nuke_fraction, tolerance):
 @pytest.mark.parametrize(
     "df_name",
     [
-        "all_plants_ferc1",
+        "plants_all_ferc1",
         "fbp_ferc1",
         "fuel_ferc1",
         "plant_in_service_ferc1",
