@@ -71,9 +71,9 @@ main repository directory by running:
 
 .. code-block:: console
 
-    $ conda update conda
-    $ conda env create --name pudl-dev --file devtools/environment.yml
-    $ conda activate pudl-dev
+    $ mamba update mamba
+    $ mamba env create --name pudl-dev --file devtools/environment.yml
+    $ mamba activate pudl-dev
 
 This environment installs the ``catalystcoop.pudl`` package directly using the code in
 your cloned repository so that it can be edited during development. It also installs all
@@ -94,9 +94,9 @@ reactivate the environment:
 
 .. code-block:: console
 
-    $ conda activate pudl-dev
-    $ conda env config vars set API_KEY_EIA='your_api_key_here'
-    $ conda activate pudl-dev
+    $ mamba activate pudl-dev
+    $ mamba env config vars set API_KEY_EIA='your_api_key_here'
+    $ mamba activate pudl-dev
 
 -------------------------------------------------------------------------------
 Updating the PUDL Dev Environment
@@ -123,34 +123,11 @@ repository you would do:
 
     $ git checkout new-feature
     $ git pull
-    $ conda deactivate
-    $ conda update conda
-    $ conda env remove --name pudl-dev
-    $ conda env create --name pudl-dev --file devtools/environment.yml
-    $ conda activate pudl-dev
-
-If you find yourself recreating the environment frequently, and are
-frustrated by how long it takes ``conda`` to solve the dependencies, we
-recommend using the `mamba <https://github.com/mamba-org/mamba>`__ solver.
-You'll want to install it in your ``base`` conda environment -- i.e. with no
-conda environment activated):
-
-.. code-block:: console
-
-    $ conda deactivate
-    $ conda install mamba
-
-Then the above development environment update process would become:
-
-.. code-block:: console
-
-    $ git checkout new-feature
-    $ git pull
-    $ conda deactivate
+    $ mamba deactivate
     $ mamba update mamba
     $ mamba env remove --name pudl-dev
     $ mamba env create --name pudl-dev --file devtools/environment.yml
-    $ conda activate pudl-dev
+    $ mamba activate pudl-dev
 
 If you are working with locally processed data and there have been changes to
 the expectations about that data in the PUDL software, you may also need to
