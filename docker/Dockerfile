@@ -35,7 +35,7 @@ RUN --mount=type=bind,source=.git,target=${PUDL_REPO}/.git \
     # Then we can use mamba env update, which can parse the environment.yml file:
     mamba env update --prefix ${CONDA_PREFIX} --file test/test-environment.yml && \
     conda clean -afy && \
-    ${CONDA_RUN} pip install --no-cache-dir -e './[dev,doc,test]' && \
+    ${CONDA_RUN} pip install --no-cache-dir -e './[dev,doc,test,datasette]' && \
     # Create data input/output directories
     mkdir ${CONTAINER_PUDL_IN} && mkdir ${CONTAINER_PUDL_OUT} && \
     # Run the PUDL setup script so we know where to read and write data
