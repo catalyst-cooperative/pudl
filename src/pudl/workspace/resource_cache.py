@@ -115,8 +115,8 @@ class GoogleCloudStorageCache(AbstractCache):
         self._path_prefix = Path(parsed_url.path)
         # Get GCP credentials and billing project id
         # A billing project is now required because zenodo-cache is requester pays.
-        _, project_id = google.auth.default()
-        self._bucket = storage.Client().bucket(
+        credentials, project_id = google.auth.default()
+        self._bucket = storage.Client(credentials=credentials).bucket(
             parsed_url.netloc, user_project=project_id
         )
 

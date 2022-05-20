@@ -3,12 +3,20 @@ function send_slack_msg() {
     curl -X POST -H "Content-type: application/json" -H "Authorization: Bearer ${SLACK_TOKEN}" https://slack.com/api/chat.postMessage --data "{\"channel\": \"C03FHB9N0PQ\", \"text\": \"$1\"}"
 }
 
-function run_pudl_etl() {
-    send_slack_msg ":large_yellow_circle: Deployment started for $GITHUB_SHA-$GITHUB_REF"
+function authenticate_gcp() {
+    GOOGLE_ACCOUNT=$(gcloud config get account)
+    if [[ $GOOGLE_ACCOUNT = "" ]]; then
+        GOOGLE_APPLICATION_CREDENTIALS=/tmp/keys/service_account_key.json
+    fi
     # Set the default gcloud project id so the zenodo-cache bucket
     # knows what project to bill for egress
-    gcloud config set project catalyst-cooperative-pudl
-    pudl_setup \
+    gcloud config set project $GCLOUD_BILLING_PROJECT
+}
+
+function run_pudl_etl() {
+    send_slack_msg ":large_yellow_circle: Deployment started for $GITHUB_SHA-$GITHUB_REF"
+    authenticate_gcp \
+    && pudl_setup \
         --pudl_in $CONTAINER_PUDL_IN \
         --pudl_out $CONTAINER_PUDL_OUT \
     && ferc1_to_sqlite \
