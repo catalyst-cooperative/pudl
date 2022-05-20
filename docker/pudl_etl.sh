@@ -66,9 +66,9 @@ function notify_slack() {
 run_pudl_etl 2>&1 | tee $LOGFILE
 
 if [[ ${PIPESTATUS[0]} == 0 ]]; then
-    send_slack_msg "success"
+    notify_slack "success"
 else
-    send_slack_msg "failure"
+    notify_slack "failure"
 fi
 
 shutdown_vm
