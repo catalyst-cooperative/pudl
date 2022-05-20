@@ -20,7 +20,6 @@ services:
         source: ${HOST_PUDL_OUT}
         target: ${CONTAINER_PUDL_OUT}
         consistency: delegated
-      - ${GOOGLE_APPLICATION_CREDENTIALS}:/tmp/keys/service_account_key.json:ro
     logging:
       driver: local
     command: ${CONDA_RUN} bash ./docker/pudl_etl.sh

@@ -4,13 +4,6 @@ function send_slack_msg() {
 }
 
 function authenticate_gcp() {
-    # If the google account is not set, use the mounted service account key.
-    # The account is and credentials is infered on the VM but requires
-    # a service account key when working locally.
-    GOOGLE_ACCOUNT=$(gcloud config get account)
-    if [[ $GOOGLE_ACCOUNT = "" ]]; then
-        GOOGLE_APPLICATION_CREDENTIALS=/tmp/keys/service_account_key.json
-    fi
     # Set the default gcloud project id so the zenodo-cache bucket
     # knows what project to bill for egress
     gcloud config set project $GCLOUD_BILLING_PROJECT
