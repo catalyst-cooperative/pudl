@@ -36,11 +36,7 @@ SOURCES: Dict[str, Any] = {
             ),
             "respondents": "Utilities",
             "records_liberated": "~1 million",
-        },
-        "source_files": {
-            "format": "Microsoft Excel (.xls/.xlsx)",
-            "download_size_mb": 182,
-            "years": sorted(range(2001, 2021)),
+            "source_format": "Microsoft Excel (.xls/.xlsx)",
         },
         "field_namespace": "eia",
         "contributors": [
@@ -161,11 +157,7 @@ SOURCES: Dict[str, Any] = {
                 "either 1MW+ or the ability to receive and deliver power to the grid."
             ),
             "records_liberated": "~5 million",
-        },
-        "source_files": {
-            "format": "Microsoft Excel (.xls/.xlsx)",
-            "download_size_mb": 256,
-            "years": sorted(range(2001, 2021)),
+            "source_format": "Microsoft Excel (.xls/.xlsx)",
         },
         "field_namespace": "eia",
         "working_partitions": {
@@ -218,11 +210,7 @@ SOURCES: Dict[str, Any] = {
             ),
             "respondents": "Coal and high-sulfur fueled plants",
             "records_liberated": "~800 million",
-        },
-        "source_files": {
-            "format": "Comma Separated Value (.csv)",
-            "download_size_mb": 8100,
-            "years": sorted(range(1995, 2021)),
+            "source_format": "Comma Separated Value (.csv)",
         },
         "field_namespace": "epacems",
         "working_partitions": {
@@ -264,11 +252,7 @@ SOURCES: Dict[str, Any] = {
             ),
             "respondents": "Major electric utilities and licenses.",
             "records_liberated": "~13.2 million (116 raw tables), ~307,000 (7 clean tables)",
-        },
-        "source_files": {
-            "format": "XBRL (.XBRL)",
-            "download_size_mb": 1600,
-            "years": sorted(range(1994, 2021)),
+            "source_format": "XBRL (.XBRL)",
         },
         "field_namespace": "ferc1",
         "working_partitions": {

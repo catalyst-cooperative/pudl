@@ -51,6 +51,7 @@ from pudl.metadata.helpers import (
 )
 from pudl.metadata.resources import FOREIGN_KEYS, RESOURCE_METADATA, eia861
 from pudl.metadata.sources import SOURCES
+from pudl.workspace.datastore import Datastore
 
 logger = logging.getLogger(__name__)
 
@@ -135,19 +136,15 @@ def _format_for_sql(x: Any, identifier: bool = False) -> str:  # noqa: C901
     return f"'{x}'"
 
 
-def _get_docs_jinja_environment(docs_dir):
+def _get_jinja_environment(template_dir: DirectoryPath = None):
+    if template_dir:
+        path = template_dir / "templates"
+    else:
+        path = os.path.join(os.path.dirname(__file__), "templates")
     return jinja2.Environment(
-        loader=jinja2.FileSystemLoader(docs_dir / "templates"),
+        loader=jinja2.FileSystemLoader(path),
         autoescape=True,
     )
-
-
-JINJA_ENVIRONMENT: jinja2.Environment = jinja2.Environment(
-    loader=jinja2.FileSystemLoader(
-        os.path.join(os.path.dirname(__file__), "templates")
-    ),
-    autoescape=True,
-)
 
 
 # ---- Base ---- #
@@ -560,7 +557,7 @@ class Encoder(Base):
     ) -> String:
         """Ouput dataframe to a csv for use in jinja template. Then output to an RST file."""
         self.df.to_csv(Path(top_dir) / csv_subdir / f"{self.name}.csv", index=False)
-        template = _get_docs_jinja_environment(top_dir).get_template(
+        template = _get_jinja_environment(top_dir).get_template(
             "codemetadata.rst.jinja"
         )
         rendered = template.render(
@@ -919,7 +916,7 @@ class DataSource(Base):
     license_pudl: License
     # concept_doi: Doi = None  # Need to define a Doi type?
     working_partitions: Dict[SnakeCase, Any] = {}
-    source_files: Dict[SnakeCase, Any] = {}
+    source_file_dict: Dict[SnakeCase, Any] = {}
     # agency: Agency  # needs to be defined
     email: Email = None
 
@@ -939,18 +936,28 @@ class DataSource(Base):
             ]
         )
 
-    def get_temporal_coverage(self, get_source=False) -> str:
+    def get_temporal_coverage(self, partitions: Dict = None) -> str:
         """Return a string describing the time span covered by the data source."""
-        if get_source:
-            date_dict = self.source_files
-        else:
-            date_dict = self.working_partitions
-        if "years" in date_dict:
-            return f"{min(date_dict['years'])}-{max(date_dict['years'])}"
-        elif "year_month" in date_dict:
-            return f"through {date_dict['year_month']}"
+        if partitions is None:
+            partitions = self.working_partitions
+        if "years" in partitions:
+            return f"{min(partitions['years'])}-{max(partitions['years'])}"
+        elif "year_month" in partitions:
+            return f"through {partitions['year_month']}"
         else:
             return ""
+
+    def get_datastore_metadata(self) -> Dict:
+        """Get source file metadata from the datastore."""
+        dp_desc = Datastore(sandbox=False).get_datapackage_descriptor(self.name)
+        source_dict = {}
+        partitions = dp_desc.get_partitions()
+        if "year" in partitions:
+            source_dict["years"] = partitions["year"]
+        elif "year_month" in partitions:
+            source_dict["year_month"] = max(partitions["year_month"])
+        source_dict["download_size_mb"] = dp_desc.get_download_size()
+        return source_dict
 
     def to_rst(
         self,
@@ -960,7 +967,8 @@ class DataSource(Base):
         output_path: str = None,
     ) -> None:
         """Output a representation of the data source in RST for documentation."""
-        template = _get_docs_jinja_environment(docs_dir).get_template(
+        self.source_file_dict = self.get_datastore_metadata()
+        template = _get_jinja_environment(docs_dir).get_template(
             f"{self.name}_child.rst.jinja"
         )
         rendered = template.render(
@@ -1599,7 +1607,7 @@ class Resource(Base):
 
     def to_rst(self, path: str) -> None:
         """Output to an RST file."""
-        template = JINJA_ENVIRONMENT.get_template("resource.rst.jinja")
+        template = _get_jinja_environment().get_template("resource.rst.jinja")
         rendered = template.render(resource=self)
         Path(path).write_text(rendered)
 
@@ -1739,7 +1747,7 @@ class Package(Base):
 
     def to_rst(self, path: str) -> None:
         """Output to an RST file."""
-        template = JINJA_ENVIRONMENT.get_template("package.rst.jinja")
+        template = _get_jinja_environment().get_template("package.rst.jinja")
         rendered = template.render(package=self)
         if path:
             Path(path).write_text(rendered)
@@ -1854,7 +1862,7 @@ class DatasetteMetadata(Base):
 
     def to_yaml(self, path: str) -> None:
         """Output database, table, and column metadata to YAML file."""
-        template = JINJA_ENVIRONMENT.get_template("metadata.yml.jinja")
+        template = _get_jinja_environment().get_template("metadata.yml.jinja")
         rendered = template.render(
             license=LICENSES["cc-by-4.0"],
             data_sources=self.data_sources,

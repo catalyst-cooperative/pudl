@@ -15,12 +15,10 @@
    {%- endfor %}
    * - Years Liberated
      - {{ source.get_temporal_coverage() }}
-   * - Source Format
-     - {{ source.source_files.format }}
-   * - Source Years
-     - {{ source.get_temporal_coverage(get_source=True) }}
+   * - Source Temporal Coverage
+     - {{ source.get_temporal_coverage(partitions=source.source_file_dict) }}
    * - Size (Download)
-     - {{ source.source_files.download_size_mb }} MB
+     - {{ source.source_file_dict.download_size_mb }} MB
    * - PUDL Code
      - ``{{ source.name }}``
    * - Issues
