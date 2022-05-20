@@ -4,6 +4,9 @@ function send_slack_msg() {
 }
 
 function authenticate_gcp() {
+    # If the google account is not set, use the mounted service account key.
+    # The account is and credentials is infered on the VM but requires
+    # a service account key when working locally.
     GOOGLE_ACCOUNT=$(gcloud config get account)
     if [[ $GOOGLE_ACCOUNT = "" ]]; then
         GOOGLE_APPLICATION_CREDENTIALS=/tmp/keys/service_account_key.json
@@ -29,7 +32,7 @@ function run_pudl_etl() {
         --gcs-cache-path gs://zenodo-cache.catalyst.coop \
         --bypass-local-cache \
         $PUDL_SETTINGS_YML \
-    && pytest test/unit
+    && pytest --live-dbs
 }
 
 function shutdown_vm() {
