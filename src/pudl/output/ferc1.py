@@ -59,7 +59,7 @@ def plants_steam_ferc1(pudl_engine):
         .assign(
             capacity_factor=lambda x: x.net_generation_mwh / (8760 * x.capacity_mw),
             opex_fuel_per_mwh=lambda x: x.opex_fuel / x.net_generation_mwh,
-            opex_nonfuel=lambda x: x.opex_production_total - x.opex_fuel,
+            opex_nonfuel=lambda x: x.opex_production_total - x.opex_fuel.fillna(0),
             opex_nonfuel_per_mwh=lambda x: np.where(
                 x.net_generation_mwh > 0, x.opex_nonfuel / x.net_generation_mwh, pd.NA
             ),
@@ -177,7 +177,7 @@ def plants_small_ferc1(pudl_engine):
             on=["utility_id_ferc1", "plant_name_ferc1"],
             how="left",
         )
-        .assign(opex_nonfuel=lambda x: x.opex_total - x.opex_fuel)
+        .assign(opex_nonfuel=lambda x: x.opex_total - x.opex_fuel.fillna(0))
         .pipe(
             pudl.helpers.organize_cols,
             [
