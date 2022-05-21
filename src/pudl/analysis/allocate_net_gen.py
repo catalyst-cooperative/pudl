@@ -524,10 +524,7 @@ def remove_inactive_generators(gen_assoc):
     ]
     new = gen_assoc.loc[
         (gen_assoc.operational_status == "proposed")
-        & (
-            gen_assoc.net_generation_mwh_g_tbl.notnull()
-            | gen_assoc.net_generation_mwh_gf_tbl.notnull()
-        )
+        & (gen_assoc.net_generation_mwh_g_tbl.notnull())
     ]
 
     gen_assoc_removed = pd.concat([existing, retiring, new])
