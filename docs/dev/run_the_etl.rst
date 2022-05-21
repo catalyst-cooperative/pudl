@@ -110,7 +110,7 @@ There are a few notable dependencies to be wary of when fiddling with these
 settings:
 
 - EPA CEMS cannot be loaded without EIA data unless you have existing PUDL database
-  containing EIA. This is because CEMS because it relies on IDs from EIA860
+  containing EIA. This is because CEMS relies on IDs from EIA860
 
 - EIA Forms 860 and 923 are very tightly related. You can load only EIA 860, but the
   settings verification will automatically add in a few 923 tables that are needed
