@@ -46,7 +46,7 @@ with the following commands:
 .. code-block:: console
 
     $ mamba update mamba
-    $ mamba config --set channel_priority strict
+    $ conda config --set channel_priority strict
 
 ------------------------------------------------------------------------------
 Fork and Clone the PUDL Repository
