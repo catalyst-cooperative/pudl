@@ -3,7 +3,7 @@ name: tox-pytest
 on: [ push, pull_request ]
 
 jobs:
-  ci-tests:
+  ci-test:
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -66,9 +66,9 @@ jobs:
     - name: Upload test coverage report to CodeCov
       uses: codecov/codecov-action@v3
 
-  notify:
+  ci-notify:
     runs-on: ubuntu-latest
-    needs: ci-tests
+    needs: ci-test
     steps:
     - name: Inform the Codemonkeys
       uses: 8398a7/action-slack@v3
@@ -80,8 +80,8 @@ jobs:
             username: 'action-slack',
             icon_emoji: ':octocat:',
             attachments: [{
-              color: '${{ needs.ci-tests.conclusion }}' === 'success' ? 'good' : '${{ needs.ci-tests.conclusion }}' === 'failure' ? 'danger' : 'warning',
-              text: `${process.env.AS_WORKFLOW}\n${process.env.AS_JOB} (${process.env.AS_COMMIT}) of ${process.env.AS_REPO}@${process.env.AS_REF} by ${process.env.AS_AUTHOR} ${{ job.status }} in ${process.env.AS_TOOK}`,
+              color: '${{ needs.ci-test.status }}' === 'success' ? 'good' : '${{ needs.ci-test.status }}' === 'failure' ? 'danger' : 'warning',
+              text: `${process.env.AS_WORKFLOW}\n${process.env.AS_JOB} (${process.env.AS_COMMIT}) of ${process.env.AS_REPO}@${process.env.AS_REF} by ${process.env.AS_AUTHOR} ${{ needs.ci-test.status }} in ${process.env.AS_TOOK}`,
             }]
           }
       env:
@@ -91,11 +91,11 @@ jobs:
 
   dependabot-auto-merge:
     runs-on: ubuntu-latest
-    needs: ci-tests
+    needs: ci-test
     if: ${{ github.actor == 'dependabot[bot]' }}
     steps:
       - name: Automerge passing dependabot PR
-        if: ${{ needs.ci-tests.conclusion == 'success' }}
+        if: ${{ needs.ci-test.status == 'success' }}
         run: gh pr merge --auto --merge "$PR_URL"
         env:
           PR_URL: ${{ github.event.pull_request.html_url }}
