@@ -94,3 +94,5 @@ jobs:
             --container-env-file="./docker/.env" \
             --container-env GITHUB_SHA=${GITHUB_SHA} \
             --container-env GITHUB_REF=${{github.ref_name}}
+            --container-env API_KEY_EIA=${{ secrets.API_KEY_EIA }}
+            --container-env SLACK_TOKEN=${{ secrets.PUDL_DEPLOY_SLACK_TOKEN }}
