@@ -80,8 +80,8 @@ jobs:
             username: 'action-slack',
             icon_emoji: ':octocat:',
             attachments: [{
-              color: '${{ needs.ci-test.status }}' === 'success' ? 'good' : '${{ needs.ci-test.status }}' === 'failure' ? 'danger' : 'warning',
-              text: `${process.env.AS_WORKFLOW}\n${process.env.AS_JOB} (${process.env.AS_COMMIT}) of ${process.env.AS_REPO}@${process.env.AS_REF} by ${process.env.AS_AUTHOR} ${{ needs.ci-test.status }} in ${process.env.AS_TOOK}`,
+              color: '${{ needs.ci-test.result }}' === 'success' ? 'good' : '${{ needs.ci-test.result }}' === 'failure' ? 'danger' : 'warning',
+              text: `${process.env.AS_WORKFLOW}\n${process.env.AS_JOB} (${process.env.AS_COMMIT}) of ${process.env.AS_REPO}@${process.env.AS_REF} by ${process.env.AS_AUTHOR} ${{ needs.ci-test.result }}`,
             }]
           }
       env:
@@ -95,7 +95,7 @@ jobs:
     if: ${{ github.actor == 'dependabot[bot]' }}
     steps:
       - name: Automerge passing dependabot PR
-        if: ${{ needs.ci-test.status == 'success' }}
+        if: ${{ needs.ci-test.result == 'success' }}
         run: gh pr merge --auto --merge "$PR_URL"
         env:
           PR_URL: ${{ github.event.pull_request.html_url }}
