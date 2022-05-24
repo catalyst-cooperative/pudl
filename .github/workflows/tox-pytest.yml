@@ -69,6 +69,7 @@ jobs:
   ci-notify:
     runs-on: ubuntu-latest
     needs: ci-test
+    if: ${{ always() }}
     steps:
     - name: Inform the Codemonkeys
       uses: 8398a7/action-slack@v3
