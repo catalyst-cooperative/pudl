@@ -17,11 +17,13 @@ function run_pudl_etl() {
         --pudl_out $CONTAINER_PUDL_OUT \
     && ferc1_to_sqlite \
         --clobber \
+        --logfile $LOGFILE \
         --gcs-cache-path gs://zenodo-cache.catalyst.coop \
         --bypass-local-cache \
         $PUDL_SETTINGS_YML \
     && pudl_etl \
         --clobber \
+        --logfile $LOGFILE \
         --gcs-cache-path gs://zenodo-cache.catalyst.coop \
         --bypass-local-cache \
         $PUDL_SETTINGS_YML \
@@ -55,10 +57,12 @@ function notify_slack() {
     send_slack_msg "$message"
 }
 
-# Run ETL. Copy outputs to GCS and shutdown VM if ETL succeeds or fails
-run_pudl_etl 2>&1 | tee $LOGFILE
+# # Run ETL. Copy outputs to GCS and shutdown VM if ETL succeeds or fails
+# run_pudl_etl 2>&1 | tee $LOGFILE
 
-if [[ ${PIPESTATUS[0]} == 0 ]]; then
+run_pudl_etl
+
+if [[ $? == 0 ]]; then
     notify_slack "success"
 else
     notify_slack "failure"
