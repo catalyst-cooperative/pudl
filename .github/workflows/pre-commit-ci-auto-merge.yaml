@@ -2,10 +2,9 @@ name: pre-commit-ci-auto-merge
 
 on:
   workflow_run:
-    types:
-    - completed
-    workflows:
-    - 'tox-pytest'
+    branches: [dev, main]
+    types: [completed]
+    workflows: ['tox-pytest']
 
 jobs:
   bot-auto-merge:
