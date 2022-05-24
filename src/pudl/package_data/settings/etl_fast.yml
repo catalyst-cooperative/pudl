@@ -1,7 +1,7 @@
+###########################################################################
+# Settings for ferc1_to_sqlite script
+###########################################################################
 ferc1_to_sqlite_settings:
-###########################################################################
-# FERC FORM 1 DB CLONE SETTINGS
-###########################################################################
     # What years of original FERC data should be cloned into the SQLite DB?
     years: [
         2020
@@ -18,6 +18,9 @@ ferc1_to_sqlite_settings:
       - f1_pumped_storage
       - f1_purchased_pwr
 
+###########################################################################
+# Settings for pudl_etl script
+###########################################################################
 name: pudl-full
 title: PUDL Full ETL
 description: >

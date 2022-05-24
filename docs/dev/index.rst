@@ -6,7 +6,6 @@ Development
   :maxdepth: 2
 
   dev_setup
-  settings_files
   run_the_etl
   project_management
   testing
