@@ -68,6 +68,7 @@ jobs:
 
   ci-notify:
     runs-on: ubuntu-latest
+    if: ${{ always() }}
     needs: ci-test
     steps:
     - name: Inform the Codemonkeys
