@@ -70,6 +70,7 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ always() }}
     needs: ci-test
+    if: ${{ always() }}
     steps:
     - name: Inform the Codemonkeys
       uses: 8398a7/action-slack@v3
