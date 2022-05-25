@@ -1,14 +1,13 @@
 {% extends "data_source_parent.rst.jinja" %}
+{% block extra_table_text %}
+We’ve also created the following entity tables modeled after EIA data collected from multiple tables.
+{% endblock %}
+
 {% block background %}
 The Form EIA-860 collects utility, owner, plant, and generator-level data from existing
 and planned entities with one or more megawatt of capacity. The form also contains
 information regarding environmental control equipment and construction cost data from
 2013-2018.
-
-    * :download:`EIA-860 Instructions (PDF, to 2013-10-31) <{{ source.name }}/{{ source.name }}_instructions_2013-10-31.pdf>`
-    * :download:`EIA-860 Instructions (PDF, to 2017-05-31) <{{ source.name }}/{{ source.name }}_instructions_2017-05-31.pdf>`
-    * :download:`EIA-860 Instructions (PDF, to 2020-03-31) <{{ source.name }}/{{ source.name }}_instructions_2020-03-31.pdf>`
-    * :download:`EIA-860 Instructions (PDF, to 2023-05-31) <{{ source.name }}/{{ source.name }}_instructions_2020-03-31.pdf>`
 
 As of 2019, the EIA-860 Form is organized into the following schedules:
 
@@ -19,6 +18,20 @@ As of 2019, the EIA-860 Form is organized into the following schedules:
     * **Schedule 6:** Boiler information
 
 (Schedule 5 contained generator construction cost information)
+{% endblock %}
+
+{% block downloadable_pdfs %}
+{% for filename in instruction_files %}
+    * :download:`{{ filename.split("/")[-1].replace("_", " ")[:-4].title() }} (PDF) <{{ filename }}>`
+{% endfor %}
+{% endblock %}
+
+{% block accessible %}
+EIA-860 data stretches back to 2001, and PUDL currently covers all years starting from 2004. The prior years are published as DBF files and need a special process to read and
+extract. We intend to include these older years as soon as we can.
+
+PUDL does not currently include the files pertaining to specific renewable energy
+resources or interconnection.
 {% endblock %}
 
 {% block fill_out_form %}
@@ -39,18 +52,6 @@ categorized by year. To gain greater insight into year-to-year nuances of the fo
 recommend downloading multiple years of EIA-860 ZIP files and comparing both the Form
 and the Form Instructions files. See below for our description of notable irregularities
 in the data.
-{% endblock %}
-
-{% block accessible %}
-EIA-860 data stretches back to 2001, and PUDL currently covers all years starting from 2004. The prior years are published as DBF files and need a special process to read and
-extract. We intend to include these older years as soon as we can.
-
-PUDL does not currently include the files pertaining to specific renewable energy
-resources or interconnection.
-{% endblock %}
-
-{% block extra_table_text %}
-We’ve also created the following entity tables modeled after EIA data collected from multiple tables.
 {% endblock %}
 
 {% block notable_irregularities %}

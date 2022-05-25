@@ -906,7 +906,7 @@ class DataSource(Base):
 
     name: SnakeCase
     title: String = None
-    description: Dict[SnakeCase, Any] = {}
+    description: String = None
     field_namespace: String = None
     keywords: List[str] = []
     path: HttpUrl = None
@@ -946,17 +946,16 @@ class DataSource(Base):
         else:
             return ""
 
-    def get_datastore_metadata(self) -> Dict:
+    def add_datastore_metadata(self) -> None:
         """Get source file metadata from the datastore."""
         dp_desc = Datastore(sandbox=False).get_datapackage_descriptor(self.name)
-        source_dict = {}
         partitions = dp_desc.get_partitions()
         if "year" in partitions:
-            source_dict["years"] = partitions["year"]
+            partitions["years"] = partitions["year"]
         elif "year_month" in partitions:
-            source_dict["year_month"] = max(partitions["year_month"])
-        source_dict["download_size_mb"] = dp_desc.get_download_size()
-        return source_dict
+            partitions["year_month"] = max(partitions["year_month"])
+        self.source_file_dict["source_years"] = self.get_temporal_coverage(partitions)
+        self.source_file_dict["download_size"] = dp_desc.get_download_size()
 
     def to_rst(
         self,
@@ -966,14 +965,23 @@ class DataSource(Base):
         output_path: str = None,
     ) -> None:
         """Output a representation of the data source in RST for documentation."""
-        self.source_file_dict = self.get_datastore_metadata()
+        self.add_datastore_metadata()
         template = _get_jinja_environment(docs_dir).get_template(
             f"{self.name}_child.rst.jinja"
         )
+        pdfs = (docs_dir / f"data_sources/{self.name}").glob("*.pdf")
+        instruction_files_absolute = [x for x in pdfs if x.is_file()]
+        # make these paths relative to docs/data_sources dir instead of absolute
+        instruction_files = [
+            "/".join(str(abs_path).split("/")[-2:])
+            for abs_path in instruction_files_absolute
+        ]
+        instruction_files = sorted(instruction_files)
         rendered = template.render(
             source=self,
             source_resources=source_resources,
             extra_resources=extra_resources,
+            instruction_files=instruction_files,
         )
         if output_path:
             Path(output_path).write_text(rendered)

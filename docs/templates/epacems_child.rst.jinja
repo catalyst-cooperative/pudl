@@ -1,4 +1,12 @@
 {% extends "data_source_parent.rst.jinja" %}
+{% block database_text %}
+Clicking on the links will show you a description of the table as well as
+the names and descriptions of each of its fields. You can access the data via the
+EPACEMS Intake catalog.
+{% endblock %}
+
+{% block browse_online %}- Available via `PUDL Data Catalog <https://github.com/catalyst-cooperative/pudl-catalog>`__{% endblock %}
+
 {% block background %}
 As depicted by the EPA, `Continuous Emissions Monitoring Systems (CEMS)
 <https://www.epa.gov/emc/emc-continuous-emission-monitoring-systems>`__ are the
@@ -15,6 +23,13 @@ that maps the EPA’s ``unitid`` onto EIA’s ``boiler_id``, ``generator_id``, a
 The EPA `Clean Air Markets Division (CAMD) <https://www.epa.gov/airmarkets>`__ has
 collected emissions data from CEMS units stretching back to 1995. Among the data
 included in CEMS are hourly SO2, CO2, NOx emission and gross load.
+{% endblock %}
+
+{% block accessible %}
+All of it! Data is currently available via the `PUDL Data Catalog <https://github.com/catalyst-cooperative/pudl-catalog>`__.
+
+Thanks to `Karl Dunkle Werner <https://github.com/karldw>`__ for contributing
+much of the EPA CEMS Hourly ETL code!
 {% endblock %}
 
 {% block fill_out_form_title %}
@@ -43,21 +58,6 @@ EPA CAMD publishes the CEMS data in an online `data portal <https://ampd.epa.gov
 or `FTP site <ftp://newftp.epa.gov/DMDnLoad>`__ with each downloadable zip file
 encompassing a year of data.
 {% endblock %}
-
-{% block accessible %}
-All of it! Data is currently available via the `PUDL Data Catalog <https://github.com/catalyst-cooperative/pudl-catalog>`__.
-
-Thanks to `Karl Dunkle Werner <https://github.com/karldw>`__ for contributing
-much of the EPA CEMS Hourly ETL code!
-{% endblock %}
-
-{% block database_text %}
-Clicking on the links will show you a description of the table as well as
-the names and descriptions of each of its fields. You can access the data via the
-EPACEMS Intake catalog.
-{% endblock %}
-
-{% block browse_online %}- Available via `PUDL Data Catalog <https://github.com/catalyst-cooperative/pudl-catalog>`__{% endblock %}
 
 {% block notable_irregularities %}
 CEMS is by far the largest dataset in PUDL at the moment with hourly records for

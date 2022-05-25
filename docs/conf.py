@@ -153,8 +153,8 @@ def data_dictionary_metadata_to_rst(app):
 
 
 def data_sources_metadata_to_rst(app):
-    """Export data sources metadata to RST for inclusion in the documentation."""
-    print("Exporting data sources metadata to RST.")
+    """Export data source metadata to RST for inclusion in the documentation."""
+    print("Exporting data source metadata to RST.")
     included_sources = ["eia860", "eia923", "ferc1", "epacems"]
     package = Package.from_resource_ids()
     extra_etl_groups = {"eia860": ["entity_eia"], "ferc1": ["glue"]}
