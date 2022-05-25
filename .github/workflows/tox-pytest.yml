@@ -3,7 +3,7 @@ name: tox-pytest
 on: [ push, pull_request ]
 
 jobs:
-  build:
+  ci-test:
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -66,6 +66,11 @@ jobs:
     - name: Upload test coverage report to CodeCov
       uses: codecov/codecov-action@v3
 
+  ci-notify:
+    runs-on: ubuntu-latest
+    if: ${{ always() }}
+    needs: ci-test
+    steps:
     - name: Inform the Codemonkeys
       uses: 8398a7/action-slack@v3
       with:
@@ -76,12 +81,22 @@ jobs:
             username: 'action-slack',
             icon_emoji: ':octocat:',
             attachments: [{
-              color: '${{ job.status }}' === 'success' ? 'good' : '${{ job.status }}' === 'failure' ? 'danger' : 'warning',
-              text: `${process.env.AS_WORKFLOW}\n${process.env.AS_JOB} (${process.env.AS_COMMIT}) of ${process.env.AS_REPO}@${process.env.AS_REF} by ${process.env.AS_AUTHOR} ${{ job.status }} in ${process.env.AS_TOOK}`,
+              color: '${{ needs.ci-test.result }}' === 'success' ? 'good' : '${{ needs.ci-test.result }}' === 'failure' ? 'danger' : 'warning',
+              text: `${process.env.AS_REPO}@${process.env.AS_REF}\n ${process.env.AS_WORKFLOW} (${process.env.AS_COMMIT})\n by ${process.env.AS_AUTHOR}\n Status: ${{ needs.ci-test.result }}`,
             }]
           }
       env:
         GITHUB_TOKEN: ${{ github.token }} # required
         SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }} # required
         MATRIX_CONTEXT: ${{ toJson(matrix) }} # required
-      if: ${{ always() }}
+
+  dependabot-auto-merge:
+    runs-on: ubuntu-latest
+    needs: ci-test
+    if: ${{ needs.ci-test.result == 'success' }}
+    steps:
+      - name: Automerge passing dependabot PR
+        uses: ridedott/merge-me-action@v2
+        with:
+          GITHUB_LOGIN: dependabot  # For clarity only. dependabot is default.
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

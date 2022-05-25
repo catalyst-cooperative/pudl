@@ -4,7 +4,7 @@ This script cordinates the PUDL ETL process, based on parameters provided via a 
 settings file.
 
 If the settings for a dataset has empty parameters (meaning there are no years or tables
-included), no outputs will be generated. See :doc:`/dev/settings_files` for details.
+included), no outputs will be generated. See :doc:`/dev/run_the_etl` for details.
 
 The output SQLite and Parquet files will be stored in ``PUDL_OUT`` in directories named
 ``sqlite`` and ``parquet``.  To setup your default ``PUDL_IN`` and ``PUDL_OUT``
