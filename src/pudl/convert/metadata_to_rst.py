@@ -3,6 +3,7 @@
 import argparse
 import logging
 import sys
+from pathlib import Path
 
 import coloredlogs
 
@@ -51,7 +52,8 @@ def main():
     # Sort fields within each resource by name:
     for resource in package.resources:
         resource.schema.fields = sorted(resource.schema.fields, key=lambda x: x.name)
-    package.to_rst(path=args.output)
+    docs_dir = Path(__file__).parent[3].resolve() / "docs"
+    package.to_rst(docs_dir=docs_dir, path=args.output)
 
 
 if __name__ == "__main__":

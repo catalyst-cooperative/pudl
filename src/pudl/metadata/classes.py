@@ -2,7 +2,6 @@
 import copy
 import datetime
 import logging
-import os
 import re
 import sys
 from functools import lru_cache
@@ -140,7 +139,7 @@ def _get_jinja_environment(template_dir: DirectoryPath = None):
     if template_dir:
         path = template_dir / "templates"
     else:
-        path = os.path.join(os.path.dirname(__file__), "templates")
+        path = Path(__file__) / "templates"
     return jinja2.Environment(
         loader=jinja2.FileSystemLoader(path),
         autoescape=True,
@@ -1605,9 +1604,9 @@ class Resource(Base):
             return self.aggregate_df(df, **aggregate_kwargs)
         return df, {}
 
-    def to_rst(self, path: str) -> None:
+    def to_rst(self, docs_dir: DirectoryPath, path: str) -> None:
         """Output to an RST file."""
-        template = _get_jinja_environment().get_template("resource.rst.jinja")
+        template = _get_jinja_environment(docs_dir).get_template("resource.rst.jinja")
         rendered = template.render(resource=self)
         Path(path).write_text(rendered)
 
@@ -1745,9 +1744,9 @@ class Package(Base):
         names = [resource.name for resource in self.resources]
         return self.resources[names.index(name)]
 
-    def to_rst(self, path: str) -> None:
+    def to_rst(self, docs_dir: DirectoryPath, path: str) -> None:
         """Output to an RST file."""
-        template = _get_jinja_environment().get_template("package.rst.jinja")
+        template = _get_jinja_environment(docs_dir).get_template("package.rst.jinja")
         rendered = template.render(package=self)
         if path:
             Path(path).write_text(rendered)

@@ -149,7 +149,7 @@ def data_dictionary_metadata_to_rst(app):
     # Sort fields within each resource by name:
     for resource in package.resources:
         resource.schema.fields = sorted(resource.schema.fields, key=lambda x: x.name)
-    package.to_rst(path=DOCS_DIR / "data_dictionaries/pudl_db.rst")
+    package.to_rst(docs_dir=DOCS_DIR, path=DOCS_DIR / "data_dictionaries/pudl_db.rst")
 
 
 def data_sources_metadata_to_rst(app):
