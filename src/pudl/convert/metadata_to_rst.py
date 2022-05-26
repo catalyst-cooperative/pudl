@@ -35,6 +35,11 @@ def parse_command_line(argv):
         help="Path to the file where the RST output should be written.",
         default=False,
     )
+    parser.add_argument(
+        "--docs_dir",
+        help="Absolute path to docs directory.",
+        default=Path().resolve() / "docs",
+    )
     arguments = parser.parse_args(argv[1:])
     return arguments
 
@@ -52,8 +57,7 @@ def main():
     # Sort fields within each resource by name:
     for resource in package.resources:
         resource.schema.fields = sorted(resource.schema.fields, key=lambda x: x.name)
-    docs_dir = Path(__file__).parent[3].resolve() / "docs"
-    package.to_rst(docs_dir=docs_dir, path=args.output)
+    package.to_rst(docs_dir=args.docs_dir, path=args.output)
 
 
 if __name__ == "__main__":
