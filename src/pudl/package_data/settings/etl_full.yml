@@ -267,7 +267,7 @@ datasets:
     # Note that the CEMS data relies on EIA 860 data for plant locations,
     # so if you're loading CEMS data for a particular year, you should
     # also load the EIA 860 data for that year if possible
-    states: [ID]
+    states: [all]
     years:
       [
         1995,
