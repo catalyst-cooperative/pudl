@@ -176,10 +176,23 @@ def allocate_gen_fuel_by_generator_energy_source(pudl_out, drop_interim_cols=Tru
     ]
     # add any startup energy source codes to the list of energy source codes
     gens = add_startup_energy_sources_to_esc_columns(gens)
+    # fix prime mover codes in gens so that they match the codes in the gf table
+    missing_pm = gens[gens["prime_mover_code"].isna()]
+    if not missing_pm.empty:
+        warnings.warn(
+            f"{len(missing_pm)} generators are missing prime mover codes in gens_eia860. "
+            "This will result in incorrect allocation."
+        )
+    gens = manually_fix_prime_movers(gens)
+    missing_pm = gens[gens["prime_mover_code"].isna()]
+    if not missing_pm.empty:
+        warnings.warn(
+            f"After manual cleaning, {len(missing_pm)} generators are still missing prime mover codes in gens_eia860. "
+            "This will result in incorrect allocation."
+        )
     # duplicate each entry 12 times to create an entry for each month of the year
     gens = create_monthly_gens_records(gens)
-    # fix prime mover codes in gens so that they match the codes in the gf table
-    gens = manually_fix_prime_movers(gens)
+
     # the gen table is missing some generator ids. Let's fill this using the gens table, leaving a missing value for net generation
     gen = gen.merge(
         gens[["plant_id_eia", "generator_id", "report_date"]],
@@ -1266,6 +1279,15 @@ def manually_fix_prime_movers(gens):
         (gens["plant_id_eia"] == 6474) & (gens["generator_id"] == "GT2"),
         "prime_mover_code",
     ] = "GT"
+
+    gens.loc[
+        (gens["plant_id_eia"] == 160) & (gens["generator_id"] == "GT1"),
+        "prime_mover_code",
+    ] = "GT"
+    gens.loc[
+        (gens["plant_id_eia"] == 160) & (gens["generator_id"] == "ST1"),
+        "prime_mover_code",
+    ] = "ST"
 
     return gens
 
