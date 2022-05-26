@@ -1868,7 +1868,7 @@ class DatasetteMetadata(Base):
 
     def to_yaml(self, path: str = None) -> None:
         """Output database, table, and column metadata to YAML file."""
-        template = _get_jinja_environment().get_template("metadata.yml.jinja")
+        template = _get_jinja_environment().get_template("datasette-metadata.yml.jinja")
         rendered = template.render(
             license=LICENSES["cc-by-4.0"],
             data_sources=self.data_sources,
