@@ -139,7 +139,7 @@ def _get_jinja_environment(template_dir: DirectoryPath = None):
     if template_dir:
         path = template_dir / "templates"
     else:
-        path = Path(__file__) / "templates"
+        path = Path(__file__).parent.resolve() / "templates"
     return jinja2.Environment(
         loader=jinja2.FileSystemLoader(path),
         autoescape=True,
@@ -969,19 +969,18 @@ class DataSource(Base):
         template = _get_jinja_environment(docs_dir).get_template(
             f"{self.name}_child.rst.jinja"
         )
-        pdfs = (docs_dir / f"data_sources/{self.name}").glob("*.pdf")
-        instruction_files_absolute = [x for x in pdfs if x.is_file()]
-        # make these paths relative to docs/data_sources dir instead of absolute
-        instruction_files = [
-            "/".join(str(abs_path).split("/")[-2:])
-            for abs_path in instruction_files_absolute
+        data_source_dir = docs_dir / "data_sources"
+        download_paths = [
+            path.relative_to(data_source_dir)
+            for path in (data_source_dir / self.name).glob("*.pdf")
+            if path.is_file()
         ]
-        instruction_files = sorted(instruction_files)
+        download_paths = sorted(download_paths)
         rendered = template.render(
             source=self,
             source_resources=source_resources,
             extra_resources=extra_resources,
-            instruction_files=instruction_files,
+            download_paths=download_paths,
         )
         if output_path:
             Path(output_path).write_text(rendered)

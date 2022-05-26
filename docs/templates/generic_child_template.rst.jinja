@@ -51,7 +51,7 @@ This block discusses any irregularities about the dataset that could be helpful 
 {% endblock %}
 
 
-{% for filename in instruction_files %}
+{% for filename in download_paths %}
     * :download:`{{ filename.split("/")[-1].replace("_", " ")[:-4].title() }} (PDF) <{{ filename }}>`
 {% endfor %}
 
