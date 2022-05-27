@@ -363,7 +363,7 @@ def test_less_granular_merge():
     assert_frame_equal(out, out_expected)
 
 
-def test_timeseries_fillin():
+def test_timeseries_fillin(test_dir):
     """Test filling in tables to a full timeseries."""
     input_df = pd.DataFrame(
         {
@@ -381,67 +381,12 @@ def test_timeseries_fillin():
         }
     ).astype({"report_date": "datetime64[ns]"})
 
-    # expect_path = test_dir / "data/ferc1/f1_2018/get_fields.json"
-    # expected_out = pd.read_csv().astype({"report_date": "datetime64[ns]", "data": "float64"})
-    expected_out = pd.DataFrame(
-        {
-            "plant_id_eia": [1] * 35 + [2] * 15,
-            "generator_id": [1] * 23 + [2] * 12 + [3] * 15,
-            "report_date": [
-                "2019-02-01",
-                "2019-03-01",
-                "2019-04-01",
-                "2019-05-01",
-                "2019-06-01",
-                "2019-07-01",
-                "2019-08-01",
-                "2019-09-01",
-                "2019-10-01",
-                "2019-11-01",
-                "2019-12-01",
-                "2020-01-01",
-                "2020-02-01",
-                "2020-03-01",
-                "2020-04-01",
-                "2020-05-01",
-                "2020-06-01",
-                "2020-07-01",
-                "2020-08-01",
-                "2020-09-01",
-                "2020-10-01",
-                "2020-11-01",
-                "2020-12-01",
-                "2020-01-01",
-                "2020-02-01",
-                "2020-03-01",
-                "2020-04-01",
-                "2020-05-01",
-                "2020-06-01",
-                "2020-07-01",
-                "2020-08-01",
-                "2020-09-01",
-                "2020-10-01",
-                "2020-11-01",
-                "2020-12-01",
-                "2019-10-01",
-                "2019-11-01",
-                "2019-12-01",
-                "2020-01-01",
-                "2020-02-01",
-                "2020-03-01",
-                "2020-04-01",
-                "2020-05-01",
-                "2020-06-01",
-                "2020-07-01",
-                "2020-08-01",
-                "2020-09-01",
-                "2020-10-01",
-                "2020-11-01",
-                "2020-12-01",
-            ],
-            "data": [2] + [3] * 11 + [2] * 11 + [1] * 12 + [10] * 4 + [2] * 11,
-        }
-    ).astype({"report_date": "datetime64[ns]", "data": "float64"})
+    expected_out_path = (
+        test_dir / "data/date_merge_unit_test/timeseries_fillin_expected_out.csv"
+    )
+    expected_out = pd.read_csv(expected_out_path).astype(
+        {"report_date": "datetime64[ns]", "data": "float64"}
+    )
 
     out = expand_timeseries(input_df, key_cols=["plant_id_eia", "generator_id"])
     assert_frame_equal(expected_out, out)
