@@ -381,6 +381,8 @@ def test_timeseries_fillin():
         }
     ).astype({"report_date": "datetime64[ns]"})
 
+    # expect_path = test_dir / "data/ferc1/f1_2018/get_fields.json"
+    # expected_out = pd.read_csv().astype({"report_date": "datetime64[ns]", "data": "float64"})
     expected_out = pd.DataFrame(
         {
             "plant_id_eia": [1] * 35 + [2] * 15,
