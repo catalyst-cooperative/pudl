@@ -2,7 +2,6 @@
 import copy
 import datetime
 import logging
-import os
 import re
 import sys
 from functools import lru_cache
@@ -51,6 +50,7 @@ from pudl.metadata.helpers import (
 )
 from pudl.metadata.resources import FOREIGN_KEYS, RESOURCE_METADATA, eia861
 from pudl.metadata.sources import SOURCES
+from pudl.workspace.datastore import Datastore
 
 logger = logging.getLogger(__name__)
 
@@ -135,12 +135,15 @@ def _format_for_sql(x: Any, identifier: bool = False) -> str:  # noqa: C901
     return f"'{x}'"
 
 
-JINJA_ENVIRONMENT: jinja2.Environment = jinja2.Environment(
-    loader=jinja2.FileSystemLoader(
-        os.path.join(os.path.dirname(__file__), "templates")
-    ),
-    autoescape=True,
-)
+def _get_jinja_environment(template_dir: DirectoryPath = None):
+    if template_dir:
+        path = template_dir / "templates"
+    else:
+        path = Path(__file__).parent.resolve() / "templates"
+    return jinja2.Environment(
+        loader=jinja2.FileSystemLoader(path),
+        autoescape=True,
+    )
 
 
 # ---- Base ---- #
@@ -553,7 +556,9 @@ class Encoder(Base):
     ) -> String:
         """Ouput dataframe to a csv for use in jinja template. Then output to an RST file."""
         self.df.to_csv(Path(top_dir) / csv_subdir / f"{self.name}.csv", index=False)
-        template = JINJA_ENVIRONMENT.get_template("codemetadata.rst.jinja")
+        template = _get_jinja_environment(top_dir).get_template(
+            "codemetadata.rst.jinja"
+        )
         rendered = template.render(
             Encoder=self,
             description=RESOURCE_METADATA[self.name]["description"],
@@ -910,6 +915,7 @@ class DataSource(Base):
     license_pudl: License
     # concept_doi: Doi = None  # Need to define a Doi type?
     working_partitions: Dict[SnakeCase, Any] = {}
+    source_file_dict: Dict[SnakeCase, Any] = {}
     # agency: Agency  # needs to be defined
     email: Email = None
 
@@ -929,18 +935,57 @@ class DataSource(Base):
             ]
         )
 
-    def get_temporal_coverage(self) -> str:
+    def get_temporal_coverage(self, partitions: Dict = None) -> str:
         """Return a string describing the time span covered by the data source."""
-        if "years" in self.working_partitions:
-            return f"{min(self.working_partitions['years'])}-{max(self.working_partitions['years'])}"
-        elif "year_month" in self.working_partitions:
-            return f"through {self.working_partitions['year_month']}"
+        if partitions is None:
+            partitions = self.working_partitions
+        if "years" in partitions:
+            return f"{min(partitions['years'])}-{max(partitions['years'])}"
+        elif "year_month" in partitions:
+            return f"through {partitions['year_month']}"
         else:
             return ""
 
-    def to_rst(self) -> None:
+    def add_datastore_metadata(self) -> None:
+        """Get source file metadata from the datastore."""
+        dp_desc = Datastore(sandbox=False).get_datapackage_descriptor(self.name)
+        partitions = dp_desc.get_partitions()
+        if "year" in partitions:
+            partitions["years"] = partitions["year"]
+        elif "year_month" in partitions:
+            partitions["year_month"] = max(partitions["year_month"])
+        self.source_file_dict["source_years"] = self.get_temporal_coverage(partitions)
+        self.source_file_dict["download_size"] = dp_desc.get_download_size()
+
+    def to_rst(
+        self,
+        docs_dir: DirectoryPath,
+        source_resources: List,
+        extra_resources: List,
+        output_path: str = None,
+    ) -> None:
         """Output a representation of the data source in RST for documentation."""
-        pass
+        self.add_datastore_metadata()
+        template = _get_jinja_environment(docs_dir).get_template(
+            f"{self.name}_child.rst.jinja"
+        )
+        data_source_dir = docs_dir / "data_sources"
+        download_paths = [
+            path.relative_to(data_source_dir)
+            for path in (data_source_dir / self.name).glob("*.pdf")
+            if path.is_file()
+        ]
+        download_paths = sorted(download_paths)
+        rendered = template.render(
+            source=self,
+            source_resources=source_resources,
+            extra_resources=extra_resources,
+            download_paths=download_paths,
+        )
+        if output_path:
+            Path(output_path).write_text(rendered)
+        else:
+            sys.stdout.write(rendered)
 
     @classmethod
     def from_field_namespace(cls, x: str) -> List["DataSource"]:
@@ -1566,9 +1611,9 @@ class Resource(Base):
             return self.aggregate_df(df, **aggregate_kwargs)
         return df, {}
 
-    def to_rst(self, path: str) -> None:
+    def to_rst(self, docs_dir: DirectoryPath, path: str) -> None:
         """Output to an RST file."""
-        template = JINJA_ENVIRONMENT.get_template("resource.rst.jinja")
+        template = _get_jinja_environment(docs_dir).get_template("resource.rst.jinja")
         rendered = template.render(resource=self)
         Path(path).write_text(rendered)
 
@@ -1706,9 +1751,9 @@ class Package(Base):
         names = [resource.name for resource in self.resources]
         return self.resources[names.index(name)]
 
-    def to_rst(self, path: str) -> None:
+    def to_rst(self, docs_dir: DirectoryPath, path: str) -> None:
         """Output to an RST file."""
-        template = JINJA_ENVIRONMENT.get_template("package.rst.jinja")
+        template = _get_jinja_environment(docs_dir).get_template("package.rst.jinja")
         rendered = template.render(package=self)
         if path:
             Path(path).write_text(rendered)
@@ -1821,9 +1866,9 @@ class DatasetteMetadata(Base):
         ]
         return cls(data_sources=data_sources, resources=resources)
 
-    def to_yaml(self, path: str) -> None:
+    def to_yaml(self, path: str = None) -> None:
         """Output database, table, and column metadata to YAML file."""
-        template = JINJA_ENVIRONMENT.get_template("metadata.yml.jinja")
+        template = _get_jinja_environment().get_template("datasette-metadata.yml.jinja")
         rendered = template.render(
             license=LICENSES["cc-by-4.0"],
             data_sources=self.data_sources,

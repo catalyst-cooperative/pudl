@@ -1,0 +1,102 @@
+===============================================================================
+{{ source.title }}
+===============================================================================
+
+.. list-table::
+   :widths: auto
+   :header-rows: 0
+   :stub-columns: 1
+
+   * - Source URL
+     - {{ source.path }}
+   * - Source Description
+     - {{ source.description }}
+   {%- for field, description in source.source_file_dict.items() %}
+   * - {{ field.replace("_", " ").title() }}
+     - {{ description }}{% if field == "download_size" %} MB{% endif %}
+   {%- endfor %}
+   * - Years Liberated
+     - {{ source.get_temporal_coverage() }}
+   * - PUDL Code
+     - ``{{ source.name }}``
+   * - Issues
+     - `Open {{ source.title }} issues <https://github.com/catalyst-cooperative/pudl/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aopen+label%3A{{ source.name }}>`__
+
+PUDL Database Tables
+^^^^^^^^^^^^^^^^^^^^
+{% block database_text %}
+We've segmented the processed data into the following normalized data tables.
+Clicking on the links will show you a description of the table as well as
+the names and descriptions of each of its fields.
+{% endblock %}
+
+.. list-table::
+   :header-rows: 1
+   :widths: auto
+
+   * - Data Dictionary
+     - Browse Online
+   {%- for resource in source_resources %}
+   * - :ref:`{{ resource.name }}`
+     {% block browse_online scoped %}- https://data.catalyst.coop/pudl/{{ resource.name }}{% endblock %}
+   {%- endfor %}
+
+{% if extra_resources -%}
+
+{% block extra_table_text %}
+We've also created the following tables modeled after data collected from
+existing tables.
+{% endblock %}
+
+.. list-table::
+   :header-rows: 1
+   :widths: auto
+
+   * - Data Dictionary
+     - Browse Online
+   {%- for resource in extra_resources %}
+   * - :ref:`{{ resource.name }}`
+   {% block browse_extra_online scoped %}
+     - https://data.catalyst.coop/pudl/{{ resource.name }}
+   {% endblock %}
+   {%- endfor -%}
+{%- endif %}
+
+Background
+^^^^^^^^^^
+{% block background %}{% endblock %}
+
+Download the following files for further context:
+{% block downloadable_pdfs %}{% endblock %}
+
+{% block accessible_title %}
+How much of the data is accessible through PUDL?
+------------------------------------------------
+{% endblock %}
+{% block accessible %}{% endblock %}
+
+{% block fill_out_form_title %}
+Who is required to fill out the form?
+-------------------------------------
+{% endblock %}
+{% block fill_out_form %}{% endblock %}
+
+{% block original_data_title %}
+What does the original data look like?
+--------------------------------------
+{% endblock %}
+{% block original_data %}{% endblock %}
+
+Notable Irregularities
+^^^^^^^^^^^^^^^^^^^^^^
+{% block notable_irregularities %}{% endblock %}
+
+PUDL Data Transformations
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The PUDL transformation process cleans the input data so that it is adjusted for
+uniformity, corrected for errors, and ready for bulk programmatic use.
+
+To see the transformations applied to the data in each table, you can read the
+doc-strings for :mod:`pudl.transform.{{ source.name }}` created for each tables' respective
+transform function.
