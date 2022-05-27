@@ -7,6 +7,7 @@ import pandas as pd
 
 import pudl
 from pudl.metadata.fields import apply_pudl_dtypes
+from pudl.workspace.datastore import Datastore
 
 ASSOCIATIONS: List[Dict[str, Any]] = [
     # MISO: Midwest Indep System Operator
@@ -235,9 +236,11 @@ class Respondents(object):
         util_ids=None,
         priority="balancing_authority",
         limit_by_state=True,
+        ds=Datastore(),
     ):
         """Set respondent compilation parameters."""
         self.pudl_out = pudl_out
+        self.ds = ds
 
         if pudl_settings is None:
             pudl_settings = pudl.workspace.setup.get_defaults()
@@ -584,8 +587,7 @@ class Respondents(object):
         """
         if update or self._counties_gdf is None:
             census_counties = pudl.output.censusdp1tract.get_layer(
-                layer="county",
-                pudl_settings=self.pudl_settings,
+                layer="county", pudl_settings=self.pudl_settings, ds=self.ds
             )
             self._counties_gdf = pudl.analysis.service_territory.add_geometries(
                 self.fipsify(update=update), census_gdf=census_counties

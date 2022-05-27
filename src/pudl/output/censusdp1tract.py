@@ -10,13 +10,13 @@ import sqlalchemy as sa
 
 import pudl
 from pudl.convert.censusdp1tract_to_sqlite import censusdp1tract_to_sqlite
+from pudl.workspace.datastore import Datastore
 
 logger = logging.getLogger(__name__)
 
 
 def get_layer(
-    layer: Literal["state", "county", "tract"],
-    pudl_settings=None,
+    layer: Literal["state", "county", "tract"], pudl_settings=None, ds=Datastore()
 ) -> gpd.GeoDataFrame:
     """Select one layer from the Census DP1 database.
 
@@ -49,7 +49,7 @@ def get_layer(
     # Check if we have the Census DP1 database. If not, create it.
     if not Path(pudl_settings["sqlite_dir"], "censusdp1tract.sqlite").exists():
         logger.info("Census DP1 SQLite DB is missing. Creating it.")
-        censusdp1tract_to_sqlite(pudl_settings=pudl_settings)
+        censusdp1tract_to_sqlite(pudl_settings=pudl_settings, ds=ds)
 
     dp1_engine = sa.create_engine(pudl_settings["censusdp1tract_db"])
 
