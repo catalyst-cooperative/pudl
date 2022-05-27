@@ -37,8 +37,9 @@ def parse_command_line(argv):
     )
     parser.add_argument(
         "--docs_dir",
-        help="Absolute path to docs directory.",
-        default=Path().resolve() / "docs",
+        help="Path to docs directory.",
+        type=lambda x: Path(x).resolve(),
+        default=Path().cwd() / "docs",
     )
     arguments = parser.parse_args(argv[1:])
     return arguments
