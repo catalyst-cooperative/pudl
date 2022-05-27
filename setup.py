@@ -51,11 +51,11 @@ setup(
         "addfips~=0.3.1",
         "catalystcoop.dbfread~=3.0",
         "coloredlogs~=15.0",
-        "dask>=2021.8,<2022.5.1",
+        "dask>=2021.8,<2022.5.3",
         "datapackage~=1.11",  # Transition datastore to use frictionless.
         # "email-validator>=1.0.3",  # pydantic[email] dependency
-        "fsspec>=2021.7,<2022.3.1",  # For caching datastore on GCS
-        "gcsfs>=2021.7,<2022.3.1",  # For caching datastore on GCS
+        "fsspec>=2021.7,<2022.5.1",  # For caching datastore on GCS
+        "gcsfs>=2021.7,<2022.5.1",  # For caching datastore on GCS
         "geopandas>=0.9,<0.11",
         "jinja2>=2,<4",
         "matplotlib>=3.3,<4",  # Should make this optional with a "viz" extras
@@ -146,7 +146,7 @@ setup(
             "metadata_to_rst = pudl.convert.metadata_to_rst:main",
             "epacems_to_parquet = pudl.convert.epacems_to_parquet:main",
             "ferc1_to_sqlite = pudl.convert.ferc1_to_sqlite:main",
-            "metadata_to_yml = pudl.convert.metadata_to_yml:main",
+            "datasette_metadata_to_yml = pudl.convert.datasette_metadata_to_yml:main",
             "pudl_datastore = pudl.workspace.datastore:main",
             "pudl_etl = pudl.cli:main",
             "pudl_setup = pudl.workspace.setup_cli:main",
