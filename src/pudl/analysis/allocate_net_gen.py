@@ -151,9 +151,16 @@ def allocate_gen_fuel_by_generator_energy_source(pudl_out, drop_interim_cols=Tru
                 "fuel_consumed_for_electricity_mmbtu",
             ],
         ]
-        # TODO: we may not want to group MSW codes since these have different emissions
-        .pipe(group_msw_codes, IDX_PM_ESC)
         .pipe(manually_fix_energy_source_codes)
+    )
+    bf = (
+        pudl_out.bf_eia923()
+        .merge(
+            pd.read_sql("boilers_entity_eia", pudl_out.pudl_engine),
+            how="left",
+            on=["plant_id_eia", "boiler_id"],
+        )
+        .loc[:, IDX_PM_ESC + ["fuel_consumed_mmbtu"]]
     )
     gen = (
         pudl_out.gen_original_eia923().loc[:, IDX_GENS + ["net_generation_mwh"]]
@@ -175,19 +182,13 @@ def allocate_gen_fuel_by_generator_energy_source(pudl_out, drop_interim_cols=Tru
         + list(pudl_out.gens_eia860().filter(like="startup_source_code")),
     ]
     # add any startup energy source codes to the list of energy source codes
-    gens = add_startup_energy_sources_to_esc_columns(gens)
+    # fix MSW codes
+    gens = adjust_energy_source_codes(gens, gf, bf)
     # fix prime mover codes in gens so that they match the codes in the gf table
     missing_pm = gens[gens["prime_mover_code"].isna()]
     if not missing_pm.empty:
         warnings.warn(
             f"{len(missing_pm)} generators are missing prime mover codes in gens_eia860. "
-            "This will result in incorrect allocation."
-        )
-    gens = manually_fix_prime_movers(gens)
-    missing_pm = gens[gens["prime_mover_code"].isna()]
-    if not missing_pm.empty:
-        warnings.warn(
-            f"After manual cleaning, {len(missing_pm)} generators are still missing prime mover codes in gens_eia860. "
             "This will result in incorrect allocation."
         )
     # duplicate each entry 12 times to create an entry for each month of the year
@@ -198,17 +199,6 @@ def allocate_gen_fuel_by_generator_energy_source(pudl_out, drop_interim_cols=Tru
         gens[["plant_id_eia", "generator_id", "report_date"]],
         how="outer",
         on=["plant_id_eia", "generator_id", "report_date"],
-    )
-    bf = (
-        pudl_out.bf_eia923()
-        .merge(
-            pd.read_sql("boilers_entity_eia", pudl_out.pudl_engine),
-            how="left",
-            on=["plant_id_eia", "boiler_id"],
-        )
-        .loc[:, IDX_PM_ESC + ["fuel_consumed_mmbtu"]]
-        # .pipe(remove_bf_nulls) # NOTE: removed because this was causing an issue with allocation
-        .pipe(group_msw_codes, IDX_PM_ESC)
     )
 
     # do the association!
@@ -1096,32 +1086,6 @@ def remove_bf_nulls(bf: pd.DataFrame):
     return bf
 
 
-def group_msw_codes(df: pd.DataFrame, idx: List[str]):
-    """
-    Group the municipal solid waste codes as ``MSW``.
-
-    The generators table does not contain the energy_source_code's ``MSB``
-    (municipal_solid_waste_biogenic) or ``MSN`` (municipal_solid_nonbiogenic).
-    Group these codes with the more generic ``MSW`` so we can associate the
-    records with the generators.
-    """
-    mask_msw = df.energy_source_code.isin(["MSN", "MSB", "MSW"])
-    new_nsw = (
-        df.loc[mask_msw]
-        .replace({"energy_source_code": {"MSN": "MSW", "MSB": "MSW"}})
-        .groupby(idx, as_index=False, dropna=False)
-        .sum(min_count=1)
-    )
-    df_out = pd.concat(
-        [df.loc[~mask_msw], new_nsw],
-        axis=0,
-    )
-    logger.info(
-        f"Replaced {1-len(df_out)/len(df):.1%} MSN and MSB energy_source_codes w/ MSW"
-    )
-    return df_out
-
-
 def test_frac_cap_in_bf(in_bf_tbl, debug=False):
     """
     Test the frac_cap column for records w/ BF data.
@@ -1206,98 +1170,25 @@ def manually_fix_prime_movers(gens):
             "prime_mover_code",
         ] = "ST"
 
-    # fix missing code
-    gens.loc[(gens["plant_id_eia"] == 50489), "prime_mover_code"] = "GT"
-    gens.loc[
-        (gens["plant_id_eia"] == 50489) & (gens["generator_id"] == "C3"),
-        "prime_mover_code",
-    ] = "ST"
-
-    gens.loc[(gens["plant_id_eia"] == 10884), "prime_mover_code"] = "GT"
-
-    gens.loc[(gens["plant_id_eia"] == 58946), "prime_mover_code"] = "IC"
-
-    gens.loc[(gens["plant_id_eia"] == 60610), "prime_mover_code"] = "OT"
-
-    gens.loc[(gens["plant_id_eia"] == 7854), "prime_mover_code"] = "IC"
-
-    gens.loc[
-        (gens["plant_id_eia"] == 50628) & (gens["generator_id"] == "GEN1"),
-        "prime_mover_code",
-    ] = "GT"
-    gens.loc[
-        (gens["plant_id_eia"] == 50628) & (gens["generator_id"] == "GEN2"),
-        "prime_mover_code",
-    ] = "ST"
-    gens.loc[
-        (gens["plant_id_eia"] == 50628) & (gens["generator_id"] == "GEN3"),
-        "prime_mover_code",
-    ] = "ST"
-
-    gens.loc[
-        (gens["plant_id_eia"] == 55088) & ~(gens["generator_id"] == "ST1"),
-        "prime_mover_code",
-    ] = "GT"
-
-    gens.loc[
-        (gens["plant_id_eia"] == 52168) & (gens["generator_id"] == "GEN2"),
-        "prime_mover_code",
-    ] = "ST"
-    gens.loc[
-        (gens["plant_id_eia"] == 52168) & (gens["generator_id"] == "GEN3"),
-        "prime_mover_code",
-    ] = "GT"
-    gens.loc[
-        (gens["plant_id_eia"] == 52168) & (gens["generator_id"] == "GEN4"),
-        "prime_mover_code",
-    ] = "GT"
-
-    gens.loc[
-        (gens["plant_id_eia"] == 55096) & (gens["generator_id"] == "GT"),
-        "prime_mover_code",
-    ] = "GT"
-    gens.loc[
-        (gens["plant_id_eia"] == 55096) & (gens["generator_id"] == "ST"),
-        "prime_mover_code",
-    ] = "ST"
-
-    gens.loc[
-        (gens["plant_id_eia"] == 54262) & (gens["generator_id"] == "4"),
-        "prime_mover_code",
-    ] = "ST"
-
-    gens.loc[
-        (gens["plant_id_eia"] == 7887) & (gens["generator_id"] == "4"),
-        "prime_mover_code",
-    ] = "GT"
-
-    gens.loc[
-        (gens["plant_id_eia"] == 6474) & (gens["generator_id"] == "GT1"),
-        "prime_mover_code",
-    ] = "GT"
-    gens.loc[
-        (gens["plant_id_eia"] == 6474) & (gens["generator_id"] == "GT2"),
-        "prime_mover_code",
-    ] = "GT"
-
-    gens.loc[
-        (gens["plant_id_eia"] == 160) & (gens["generator_id"] == "GT1"),
-        "prime_mover_code",
-    ] = "GT"
-    gens.loc[
-        (gens["plant_id_eia"] == 160) & (gens["generator_id"] == "ST1"),
-        "prime_mover_code",
-    ] = "ST"
-
     return gens
 
 
-def add_startup_energy_sources_to_esc_columns(gens):
+def adjust_energy_source_codes(gens, gf, bf):
     """
-    Adds startup fuels to the list of energy source codes.
+    Adds startup fuels to the list of energy source codes and adjusts MSW codes.
 
     Adds the energy source code of any startup fuels to the energy source
     columns so that any fuel burned in startup can be allocated to the generator
+
+    Adjust the MSW codes in gens to match those used in gf and bf.
+
+    In recent years, EIA-923 started splitting out the ``MSW`` (municipal_solid_waste)
+    into its consitituent components``MSB`` (municipal_solid_waste_biogenic) and
+    ``MSN`` (municipal_solid_nonbiogenic). However, the EIA-860 Generators table still
+    only uses the ``MSW`` code.
+
+    This function identifies which MSW codes are used in teh gf and bf tables and creates records
+    to match these.
     """
     # drop the planned energy source code column
     gens = gens.drop(columns=["planned_energy_source_code_1"])
@@ -1308,6 +1199,32 @@ def add_startup_energy_sources_to_esc_columns(gens):
         ",".join((fuel for fuel in list(dict.fromkeys(fuels)) if pd.notnull(fuel)))
         for fuels in gens.filter(like="source_code").values
     ]
+
+    # Adjust any energy source codes related to municipal solid waste
+    # get a list of all of the MSW-related codes used in gf and bf
+    msw_codes_in_gf = set(
+        list(
+            gf.loc[
+                gf["energy_source_code"].isin(["MSW", "MSB", "MSN"]),
+                "energy_source_code",
+            ].unique()
+        )
+    )
+    msw_codes_in_bf = set(
+        list(
+            bf.loc[
+                bf["energy_source_code"].isin(["MSW", "MSB", "MSN"]),
+                "energy_source_code",
+            ].unique()
+        )
+    )
+    msw_codes_used = list(msw_codes_in_gf | msw_codes_in_bf)
+    # join these codes into a string that will be used to replace the MSW code
+    replacement_codes = ",".join(msw_codes_used)
+    # replace any MSW codes with the codes used in bf and gf
+    gens.loc[gens["unique_esc"].str.contains("MSW"), "unique_esc"] = gens.loc[
+        gens["unique_esc"].str.contains("MSW"), "unique_esc"
+    ].str.replace("MSW", replacement_codes)
 
     # we need to create numbered energy source code columns for each fuel
     # first, we need to identify the maximum number of fuel codes that exist for a single generator
