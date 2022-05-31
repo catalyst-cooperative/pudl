@@ -28,6 +28,7 @@ function run_pudl_etl() {
     && pytest \
         --gcs-cache-path gs://zenodo-cache.catalyst.coop \
         --bypass-local-cache \
+        --etl-settings src/pudl/package_data/settings/etl_full.yml \
         --live-dbs test
 }
 
