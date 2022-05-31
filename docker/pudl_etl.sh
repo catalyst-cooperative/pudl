@@ -10,7 +10,7 @@ function authenticate_gcp() {
 }
 
 function run_pudl_etl() {
-    send_slack_msg ":large_yellow_circle: Deployment started for $GITHUB_SHA-$GITHUB_REF"
+    send_slack_msg ":large_yellow_circle: Deployment started for $GITHUB_SHA-$GITHUB_REF :floppy_disk:"
     authenticate_gcp \
     && pudl_setup \
         --pudl_in $CONTAINER_PUDL_IN \
@@ -47,9 +47,9 @@ function shutdown_vm() {
 function notify_slack() {
     # Notify pudl-builds slack channel of deployment status
     if [ $1 = "success" ]; then
-        message=":large_green_circle: Deployment Succeeded\n\n "
+        message=":large_green_circle: :sunglasses: :unicorn_face: :rainbow: The deployment succeeded!! :rainbow: :unicorn_face: :sunglasses: :large_green_circle:\n\n "
     elif [ $1 = "failure" ]; then
-        message=":large_red_square: Deployment Failed\n\n "
+        message=":large_red_square: Oh bummer the deployment failed :smiling_face_with_tear:\n\n "
     else
         echo "Invalid deployment status"
         exit 1
