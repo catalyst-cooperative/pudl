@@ -31,9 +31,7 @@ from pudl.workspace.datastore import Datastore
 logger = logging.getLogger(__name__)
 
 
-def censusdp1tract_to_sqlite(
-    pudl_settings=None, year=2010, ds=Datastore(), clobber=False
-):
+def censusdp1tract_to_sqlite(pudl_settings=None, year=2010, ds=None, clobber=False):
     """Use GDAL's ogr2ogr utility to convert the Census DP1 GeoDB to an SQLite DB.
 
     The Census DP1 GeoDB is read from the datastore, where it is stored as a
@@ -50,6 +48,8 @@ def censusdp1tract_to_sqlite(
         None
 
     """
+    if ds is None:
+        ds = Datastore()
     # If we're in a conda environment, use the version of ogr2ogr that has been
     # installed by conda. Otherwise, try and use a system installed version
     # at /usr/bin/ogr2ogr  This allows us to avoid simply running whatever

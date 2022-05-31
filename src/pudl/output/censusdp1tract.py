@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 
 
 def get_layer(
-    layer: Literal["state", "county", "tract"], pudl_settings=None, ds=Datastore()
+    layer: Literal["state", "county", "tract"], pudl_settings=None, ds=None
 ) -> gpd.GeoDataFrame:
     """Select one layer from the Census DP1 database.
 
@@ -46,6 +46,8 @@ def get_layer(
         )
     if pudl_settings is None:
         pudl_settings = pudl.workspace.setup.get_defaults()
+    if ds is None:
+        ds = Datastore()
     # Check if we have the Census DP1 database. If not, create it.
     if not Path(pudl_settings["sqlite_dir"], "censusdp1tract.sqlite").exists():
         logger.info("Census DP1 SQLite DB is missing. Creating it.")

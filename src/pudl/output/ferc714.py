@@ -236,7 +236,7 @@ class Respondents(object):
         util_ids=None,
         priority="balancing_authority",
         limit_by_state=True,
-        ds=Datastore(),
+        ds=None,
     ):
         """Set respondent compilation parameters."""
         self.pudl_out = pudl_out
@@ -245,7 +245,8 @@ class Respondents(object):
         if pudl_settings is None:
             pudl_settings = pudl.workspace.setup.get_defaults()
         self.pudl_settings = pudl_settings
-
+        if ds is None:
+            ds = Datastore()
         if ba_ids is None:
             ba_ids = (
                 self.balancing_authority_eia861.balancing_authority_id_eia.dropna().unique()
