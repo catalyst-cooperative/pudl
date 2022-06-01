@@ -4,6 +4,7 @@ from typing import ClassVar, List
 
 import pandas as pd
 import yaml
+from pydantic import AnyHttpUrl
 from pydantic import BaseModel as PydanticBaseModel
 from pydantic import BaseSettings, root_validator, validator
 
@@ -348,7 +349,7 @@ class DatasetsSettings(BaseModel):
         return vars(self)
 
 
-class Ferc1ToSqliteSettings(GenericDatasetSettings):
+class Ferc1DbfToSqliteSettings(GenericDatasetSettings):
     """An immutable pydantic nodel to validate Ferc1 to SQLite settings.
 
     Args:
@@ -358,7 +359,9 @@ class Ferc1ToSqliteSettings(GenericDatasetSettings):
     """
 
     data_source: ClassVar[DataSource] = DataSource.from_id("ferc1")
-    years: List[int] = data_source.working_partitions["years"]
+    years: List[int] = [
+        year for year in data_source.working_partitions["years"] if year < 2021
+    ]
     tables: List[str] = sorted(list(DBF_TABLES_FILENAMES.keys()))
 
     refyear: ClassVar[int] = max(years)
@@ -374,10 +377,28 @@ class Ferc1ToSqliteSettings(GenericDatasetSettings):
         return sorted(set(tables))
 
 
+class Ferc1XbrlToSqliteSettings(GenericDatasetSettings):
+    """An immutable pydantic nodel to validate Ferc1 to SQLite settings.
+
+    Args:
+        taxonomy: URL of taxonomy used to .
+        years: List of years to validate.
+
+    """
+
+    data_source: ClassVar[DataSource] = DataSource.from_id("ferc1")
+    years: List[int] = [
+        year for year in data_source.working_partitions["years"] if year >= 2021
+    ]
+    taxonomy: AnyHttpUrl = "https://eCollection.ferc.gov/taxonomy/form1/2022-01-01/form/form1/form-1_2022-01-01.xsd"
+    tables: List[str] = []
+
+
 class EtlSettings(BaseSettings):
     """Main settings validation class."""
 
-    ferc1_to_sqlite_settings: Ferc1ToSqliteSettings = None
+    ferc1_dbf_to_sqlite_settings: Ferc1DbfToSqliteSettings = None
+    ferc1_xbrl_to_sqlite_settings: Ferc1XbrlToSqliteSettings = None
     datasets: DatasetsSettings = None
 
     name: str = None

@@ -224,7 +224,7 @@ SOURCES: Dict[str, Any] = {
         ),
         "field_namespace": "ferc1",
         "working_partitions": {
-            "years": sorted(set(range(1994, 2021))),
+            "years": sorted(set(range(1994, 2022))),
         },
         "contributors": [
             CONTRIBUTORS["catalyst-cooperative"],

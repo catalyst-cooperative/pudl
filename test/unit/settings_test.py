@@ -9,8 +9,8 @@ from pudl.settings import (
     Eia923Settings,
     EiaSettings,
     EpaCemsSettings,
+    Ferc1DbfToSqliteSettings,
     Ferc1Settings,
-    Ferc1ToSqliteSettings,
     GenericDatasetSettings,
 )
 
@@ -35,13 +35,13 @@ class TestGenericDatasetSettings:
             Test()
 
 
-class TestFerc1ToSqliteSettings:
-    """Test Ferc1ToSqliteSettings."""
+class TestFerc1DbfToSqliteSettings:
+    """Test Ferc1DbfToSqliteSettings."""
 
     def test_ref_year(self):
         """Test reference year is within working years."""
         with pytest.raises(ValidationError):
-            Ferc1ToSqliteSettings(ferc1_to_sqlite_refyear=1990)
+            Ferc1DbfToSqliteSettings(ferc1_to_sqlite_refyear=1990)
 
 
 class TestFerc1Settings:

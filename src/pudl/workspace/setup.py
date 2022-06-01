@@ -117,6 +117,9 @@ def derive_paths(pudl_in, pudl_out):
     ferc1_db_file = pathlib.Path(pudl_settings["sqlite_dir"], "ferc1.sqlite")
     pudl_settings["ferc1_db"] = "sqlite:///" + str(ferc1_db_file.resolve())
 
+    ferc1_db_file = pathlib.Path(pudl_settings["sqlite_dir"], "ferc1_xbrl.sqlite")
+    pudl_settings["ferc1_xbrl_db"] = "sqlite:///" + str(ferc1_db_file.resolve())
+
     pudl_settings["pudl_db"] = "sqlite:///" + str(
         pathlib.Path(pudl_settings["sqlite_dir"], "pudl.sqlite")
     )
