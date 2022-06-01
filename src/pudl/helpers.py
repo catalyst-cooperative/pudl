@@ -360,7 +360,7 @@ def full_timeseries_date_merge(
     right_date_col: str = "report_date",
     new_date_col: str = "report_date",
     on: List[str] = [],
-    date_on: Literal["year", "quarter", "month", "day"] = "year",
+    date_on: List[str] = ["year"],
     how: Literal["inner", "outer", "left", "right", "cross"] = "inner",
     report_at_start: bool = True,
     freq: str = "MS",
@@ -391,7 +391,16 @@ def full_timeseries_date_merge(
     return out
 
 
-DateOnCol = Literal["year", "month", "quarter", "day"]
+def _add_suffix_to_date_on(date_on):
+    """Check date_on list is valid and add _temp_for_merge suffix."""
+    date_on_suffix = []
+    for col in date_on:
+        if col not in ["year", "month", "quarter", "day"]:
+            raise AssertionError(
+                logger.error(f"{col} is not a valid string in date_on column list.")
+            )
+        date_on_suffix.append(col + "_temp_for_merge")
+    return date_on_suffix
 
 
 def date_merge(
@@ -401,7 +410,7 @@ def date_merge(
     right_date_col: str = "report_date",
     new_date_col: str = "report_date",
     on: List[str] = [],
-    date_on: List[DateOnCol] = ["year"],
+    date_on: List[str] = ["year"],
     how: Literal["inner", "outer", "left", "right", "cross"] = "inner",
     report_at_start: bool = True,
     **kwargs,
@@ -476,7 +485,7 @@ def date_merge(
 
     right = convert_col_to_datetime(right, right_date_col)
     left = convert_col_to_datetime(left, left_date_col)
-    date_on = [col + "_temp_for_merge" for col in date_on]
+    date_on = _add_suffix_to_date_on(date_on)
     right = separate_date_cols(right, right_date_col, date_on)
     left = separate_date_cols(left, left_date_col, date_on)
     merge_cols = date_on + on
