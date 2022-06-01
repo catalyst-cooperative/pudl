@@ -9,7 +9,7 @@ SOURCES: Dict[str, Any] = {
         "title": "Census DP1",
         "path": "https://www.census.gov/geographies/mapping-files/2010/geo/tiger-data.html",
         "description": (
-            "US Census Demographic Profile 1 (DP1) County and Tract " "GeoDatabase."
+            "US Census Demographic Profile 1 (DP1) County and Tract GeoDatabase."
         ),
         "working_partitions": {},  # Census DP1 is monolithic.
         "keywords": sorted(
@@ -31,6 +31,11 @@ SOURCES: Dict[str, Any] = {
             "electric power plants with 1 megawatt or greater combined nameplate "
             "capacity."
         ),
+        "source_file_dict": {
+            "respondents": "Utilities",
+            "records_liberated": "~1 million",
+            "source_format": "Microsoft Excel (.xls/.xlsx)",
+        },
         "field_namespace": "eia",
         "contributors": [
             CONTRIBUTORS["catalyst-cooperative"],
@@ -140,6 +145,14 @@ SOURCES: Dict[str, Any] = {
             "power data on electricity generation, fuel consumption, fossil fuel "
             "stocks, and receipts at the power plant and prime mover level."
         ),
+        "source_file_dict": {
+            "respondents": (
+                "Electric, CHP plants, and sometimes fuel transfer termianls with "
+                "either 1MW+ or the ability to receive and deliver power to the grid."
+            ),
+            "records_liberated": "~5 million",
+            "source_format": "Microsoft Excel (.xls/.xlsx)",
+        },
         "field_namespace": "eia",
         "working_partitions": {
             "years": sorted(set(range(2001, 2021))),
@@ -184,7 +197,13 @@ SOURCES: Dict[str, Any] = {
         "path": "https://ampd.epa.gov/ampd",
         "description": (
             "US EPA hourly Continuous Emissions Monitoring System (CEMS) data."
+            "Hourly CO2, SO2, NOx emissions and gross load."
         ),
+        "source_file_dict": {
+            "respondents": "Coal and high-sulfur fueled plants",
+            "records_liberated": "~800 million",
+            "source_format": "Comma Separated Value (.csv)",
+        },
         "field_namespace": "epacems",
         "working_partitions": {
             "years": sorted(set(range(1995, 2021))),
@@ -222,6 +241,11 @@ SOURCES: Dict[str, Any] = {
             "electric rate regulation, market oversight analysis, and financial audits "
             "by Major electric utilities, licensees and others."
         ),
+        "source_file_dict": {
+            "respondents": "Major electric utilities and licenses.",
+            "records_liberated": "~13.2 million (116 raw tables), ~307,000 (7 clean tables)",
+            "source_format": "XBRL (.XBRL) and Visual FoxPro Database (.DBC/.DBF)",
+        },
         "field_namespace": "ferc1",
         "working_partitions": {
             "years": sorted(set(range(1994, 2022))),
