@@ -62,9 +62,9 @@ import dbfread
 import pandas as pd
 import sqlalchemy as sa
 from dbfread import DBF
+from ferc_xbrl_extractor import xbrl
+from ferc_xbrl_extractor.instance import Instance
 from sqlalchemy import or_
-from xbrl_extract import xbrl
-from xbrl_extract.instance import Instance
 
 import pudl
 from pudl.metadata.classes import DataSource
