@@ -1,4 +1,6 @@
 """A module with functions to aid generating MCOE."""
+from typing import Any
+
 import pandas as pd
 
 import pudl
@@ -370,13 +372,12 @@ def capacity_factor(pudl_out, min_cap_fact=0, max_cap_fact=1.5):
 
 def mcoe(
     pudl_out,
-    min_heat_rate=5.5,
-    min_fuel_cost_per_mwh=0.0,
-    min_cap_fact=0.0,
-    max_cap_fact=1.5,
-    all_gens=True,
-    all_gens_cols=False,
-    extra_gens_cols=[],
+    min_heat_rate: float = 5.5,
+    min_fuel_cost_per_mwh: float = 0.0,
+    min_cap_fact: float = 0.0,
+    max_cap_fact: float = 1.5,
+    all_gens: bool = True,
+    extra_gens_cols: Any = None,
 ):
     """Compile marginal cost of electricity (MCOE) at the generator level.
 
@@ -385,30 +386,28 @@ def mcoe(
     the range of times and at the time resolution of the input pudl_out object.
 
     Args:
-        pudl_out (pudl.output.pudltable.PudlTabl): a PUDL output object
+        pudl_out (pudl.output.pudltabl.PudlTabl): a PUDL output object
             specifying the time resolution and date range for which the
             calculations should be performed.
-        min_heat_rate (float): lowest plausible heat rate, in mmBTU/MWh. Any
+        min_heat_rate: lowest plausible heat rate, in mmBTU/MWh. Any
             MCOE records with lower heat rates are presumed to be invalid, and
             are discarded before returning.
-        min_cap_fact, max_cap_fact (float): minimum & maximum generator capacity
+        min_cap_fact, max_cap_fact: minimum & maximum generator capacity
             factor. Generator records with a lower capacity factor will be
             filtered out before returning. This allows the user to exclude
             generators that aren't being used enough to have valid.
-        min_fuel_cost_per_mwh (float): minimum fuel cost on a per MWh basis that
+        min_fuel_cost_per_mwh: minimum fuel cost on a per MWh basis that
             is required for a generator record to be considered valid. For some
             reason there are now a large number of $0 fuel cost records, which
             previously would have been NaN.
-        all_gens (bool): if True, include attributes of all generators in the
+        all_gens: if True, include attributes of all generators in the
             :ref:`generators_eia860` table, rather than just the generators
             which have records in the derived MCOE values. True by default.
-        all_gens_cols (bool): if True, include all attributes from generators in the
-            :ref:`generators_eia860` table, rather than just the attributes in
-            `default_gens_cols` and the list of extra_gens_cols.
-        extra_gens_cols (List): list of names of column attributes to
-            include from the :ref:`generators_eia860` table in addition to the
-            list of defined `default_gens_cols`. By default, no extra columns will
-            be included, only the `default_gens_cols` will be merged into the final
+        extra_gens_cols: equal to the string "all", None, or a list of names of
+            column attributes to include from the :ref:`generators_eia860` table in
+            addition to the list of defined `default_gens_cols`. If "all", all columns
+            from the generators table will be included. By default, no extra columns
+            will be included, only the `default_gens_cols` will be merged into the final
             MCOE output.
 
     Returns:
@@ -479,8 +478,10 @@ def mcoe(
         "utility_id_pudl",
         "utility_name_eia",
     ]
-    if all_gens_cols:
+    if extra_gens_cols == "all":
         gens = pudl_out.gens_eia860()
+    elif extra_gens_cols is None:
+        gens = pudl_out.gens_eia860()[default_gens_cols]
     else:
         gens = pudl_out.gens_eia860()[default_gens_cols + extra_gens_cols]
 
