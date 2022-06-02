@@ -1,14 +1,11 @@
-name: docker-build-push
+name: build-deploy-dev
 on:
-  push:
-    branches:
-      - gce-deploy # for testing purposes
-    tags:
-      - "v**"
+  schedule:
+    - cron: "0 6 * * 1-5" # Weekdays at midnight on MST
 
 env:
   PROJECT_ID: ${{ secrets.GCE_PROJECT }}
-  GCE_INSTANCE: deploy-pudl-vm
+  GCE_INSTANCE: pudl-deployment-tag
   GCE_INSTANCE_ZONE: us-central1-a
 
 jobs:
@@ -18,6 +15,8 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
+        with:
+          ref: dev
 
       - name: Docker Metadata
         id: docker_metadata
@@ -95,4 +94,5 @@ jobs:
             --container-env GITHUB_SHA=${GITHUB_SHA} \
             --container-env GITHUB_REF=${{github.ref_name}} \
             --container-env API_KEY_EIA=${{ secrets.API_KEY_EIA }} \
-            --container-env SLACK_TOKEN=${{ secrets.PUDL_DEPLOY_SLACK_TOKEN }}
+            --container-env SLACK_TOKEN=${{ secrets.PUDL_DEPLOY_SLACK_TOKEN }} \
+            --container-env GCE_INSTANCE=${{ GCE_INSTANCE }}
