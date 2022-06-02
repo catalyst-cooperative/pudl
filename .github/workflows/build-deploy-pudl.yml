@@ -1,6 +1,8 @@
 name: build-deploy-pudl
 on:
   push:
+    branches:
+      - gce-deploy # for testing purposes
     tags:
       - "v**"
   schedule:
