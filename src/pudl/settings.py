@@ -11,7 +11,7 @@ from pydantic import BaseSettings, root_validator, validator
 import pudl
 import pudl.workspace.setup
 from pudl.metadata.classes import DataSource
-from pudl.metadata.constants import DBF_TABLES_FILENAMES
+from pudl.metadata.constants import DBF_TABLES_FILENAMES, XBRL_TABLES
 from pudl.metadata.resources.eia861 import TABLE_DEPENDENCIES
 
 
@@ -360,7 +360,7 @@ class Ferc1DbfToSqliteSettings(GenericDatasetSettings):
 
     data_source: ClassVar[DataSource] = DataSource.from_id("ferc1")
     years: List[int] = [
-        year for year in data_source.working_partitions["years"] if year < 2021
+        year for year in data_source.working_partitions["years"] if year <= 2020
     ]
     tables: List[str] = sorted(list(DBF_TABLES_FILENAMES.keys()))
 
@@ -391,7 +391,7 @@ class Ferc1XbrlToSqliteSettings(GenericDatasetSettings):
         year for year in data_source.working_partitions["years"] if year >= 2021
     ]
     taxonomy: AnyHttpUrl = "https://eCollection.ferc.gov/taxonomy/form1/2022-01-01/form/form1/form-1_2022-01-01.xsd"
-    tables: List[str] = []
+    tables: List[str] = XBRL_TABLES
 
 
 class EtlSettings(BaseSettings):
