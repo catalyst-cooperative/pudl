@@ -10,7 +10,7 @@ on:
 
 env:
   PROJECT_ID: ${{ secrets.GCE_PROJECT }}
-  CHECKOUT_BRANCH: main
+  CHECKOUT_BRANCH: ${{ github.ref_name }}
   GCE_INSTANCE: pudl-deployment-tag
   GCE_INSTANCE_ZONE: us-central1-a
 
