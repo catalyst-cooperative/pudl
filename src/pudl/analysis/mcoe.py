@@ -6,6 +6,18 @@ import pandas as pd
 import pudl
 from pudl.metadata.fields import apply_pudl_dtypes
 
+DEFAULT_GENS_COLS = [
+    "plant_id_eia",
+    "generator_id",
+    "report_date",
+    "unit_id_pudl",
+    "plant_id_pudl",
+    "plant_name_eia",
+    "utility_id_eia",
+    "utility_id_pudl",
+    "utility_name_eia",
+]
+
 
 def heat_rate_by_unit(pudl_out):
     """Calculate heat rates (mmBTU/MWh) within separable generation units.
@@ -377,7 +389,7 @@ def mcoe(
     min_cap_fact: float = 0.0,
     max_cap_fact: float = 1.5,
     all_gens: bool = True,
-    extra_gens_cols: Any = None,
+    gens_cols: Any = None,
 ):
     """Compile marginal cost of electricity (MCOE) at the generator level.
 
@@ -403,11 +415,11 @@ def mcoe(
         all_gens: if True, include attributes of all generators in the
             :ref:`generators_eia860` table, rather than just the generators
             which have records in the derived MCOE values. True by default.
-        extra_gens_cols: equal to the string "all", None, or a list of names of
+        gens_cols: equal to the string "all", None, or a list of names of
             column attributes to include from the :ref:`generators_eia860` table in
-            addition to the list of defined `default_gens_cols`. If "all", all columns
+            addition to the list of defined `DEFAULT_GENS_COLS`. If "all", all columns
             from the generators table will be included. By default, no extra columns
-            will be included, only the `default_gens_cols` will be merged into the final
+            will be included, only the `DEFAULT_GENS_COLS` will be merged into the final
             MCOE output.
 
     Returns:
@@ -467,23 +479,12 @@ def mcoe(
     )
 
     # Combine MCOE derived values with generator attributes
-    default_gens_cols = [
-        "plant_id_eia",
-        "generator_id",
-        "report_date",
-        "unit_id_pudl",
-        "plant_id_pudl",
-        "plant_name_eia",
-        "utility_id_eia",
-        "utility_id_pudl",
-        "utility_name_eia",
-    ]
-    if extra_gens_cols == "all":
+    if gens_cols == "all":
         gens = pudl_out.gens_eia860()
-    elif extra_gens_cols is None:
-        gens = pudl_out.gens_eia860()[default_gens_cols]
+    elif gens_cols is None:
+        gens = pudl_out.gens_eia860()[DEFAULT_GENS_COLS]
     else:
-        gens = pudl_out.gens_eia860()[default_gens_cols + extra_gens_cols]
+        gens = pudl_out.gens_eia860()[list(set(DEFAULT_GENS_COLS + gens_cols))]
 
     mcoe_out = pudl.helpers.full_timeseries_date_merge(
         left=gens,
@@ -498,7 +499,7 @@ def mcoe(
     mcoe_out = (
         mcoe_out.pipe(
             pudl.helpers.organize_cols,
-            default_gens_cols,
+            DEFAULT_GENS_COLS,
         )
         .sort_values(
             [

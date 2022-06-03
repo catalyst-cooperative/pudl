@@ -1054,7 +1054,7 @@ class PudlTabl(object):
         min_cap_fact: float = 0.0,
         max_cap_fact: float = 1.5,
         all_gens: bool = True,
-        extra_gens_cols: Any = None,
+        gens_cols: Any = None,
     ):
         """Calculate and return generator level MCOE based on EIA data.
 
@@ -1084,12 +1084,13 @@ class PudlTabl(object):
             all_gens: Controls whether the output contains records for
                 all generators in the :ref:`generators_eia860` table, or only
                 those generators with associated MCOE data. True by default.
-            extra_gens_cols: equal to the string "all", None, or a list of names of
+            gens_cols: equal to the string "all", None, or a list of names of
                 column attributes to include from the :ref:`generators_eia860` table in
-                addition to the list of defined `default_gens_cols`. If "all", all columns
-                from the generators table will be included. By default, the
-                `fuel_type_code_pudl` column as well as the `default_gens_cols` from the
-                MCOE analysis function will be merged into the final MCOE output.
+                addition to the list of defined `DEFAULT_GENS_COLS` in the MCOE analysis
+                module. If "all", all columns from the generators table will be included.
+                By default, the `fuel_type_code_pudl` column as well as the
+                `DEFAULT_GENS_COLS` from the MCOE analysis module will be merged into the
+                final MCOE output.
 
         Returns:
             :class:`pandas.DataFrame`: a compilation of generator attributes,
@@ -1097,8 +1098,16 @@ class PudlTabl(object):
 
         """
         if update or self._dfs["mcoe"] is None:
-            if extra_gens_cols is None:
-                extra_gens_cols = ["fuel_type_code_pudl"]  # default column to include
+            if gens_cols is None:
+                gens_cols = [
+                    "unit_id_pudl",
+                    "plant_id_pudl",
+                    "plant_name_eia",
+                    "utility_id_eia",
+                    "utility_id_pudl",
+                    "utility_name_eia",
+                    "fuel_type_code_pudl",
+                ]  # default column to include
             self._dfs["mcoe"] = pudl.analysis.mcoe.mcoe(
                 self,
                 min_heat_rate=min_heat_rate,
@@ -1106,21 +1115,21 @@ class PudlTabl(object):
                 min_cap_fact=min_cap_fact,
                 max_cap_fact=max_cap_fact,
                 all_gens=all_gens,
-                extra_gens_cols=extra_gens_cols,
+                gens_cols=gens_cols,
             )
         return self._dfs["mcoe"]
 
     def gens_mega_eia(
         self,
         update: bool = False,
-        extra_gens_cols: Any = None,
+        gens_cols: Any = None,
     ) -> pd.DataFrame:
         """Generate and return a generators table with ownership integrated.
 
         Args:
             update: If True, re-calculate the output dataframe, even
                 if a cached version exists.
-            extra_gens_cols: equal to the string "all", None, or a list of
+            gens_cols: equal to the string "all", None, or a list of
                 additional column attributes to include from the EIA 860 generators table
                 in the output mega gens table. By default all columns necessary to create
                 the EIA plant part list are included.
@@ -1145,8 +1154,8 @@ class PudlTabl(object):
                     "The frequency of the pudl_out object must be `AS` for the "
                     f"plant-parts table and we got {self.freq}"
                 )
-            if extra_gens_cols is None:
-                extra_gens_cols = [
+            if gens_cols is None:
+                gens_cols = [
                     "technology_description",
                     "energy_source_code_1",
                     "prime_mover_code",
@@ -1158,7 +1167,7 @@ class PudlTabl(object):
             self._dfs[
                 "gens_mega_eia"
             ] = pudl.analysis.plant_parts_eia.MakeMegaGenTbl().execute(
-                mcoe=self.mcoe(all_gens=True, extra_gens_cols=extra_gens_cols),
+                mcoe=self.mcoe(all_gens=True, gens_cols=gens_cols),
                 own_eia860=self.own_eia860(),
             )
         return self._dfs["gens_mega_eia"]
@@ -1167,7 +1176,7 @@ class PudlTabl(object):
         self,
         update: bool = False,
         update_gens_mega: bool = False,
-        extra_gens_cols: Any = None,
+        gens_cols: Any = None,
     ) -> pd.DataFrame:
         """Generate and return master plant-parts EIA.
 
@@ -1175,7 +1184,7 @@ class PudlTabl(object):
             update: If true, re-calculate the output dataframe, even
                 if a cached version exists.
             update_gens_mega: If True, update the gigantic Gens Mega table.
-            extra_gens_cols: equal to the string "all", None, or a list of
+            gens_cols: equal to the string "all", None, or a list of
                 additional column attributes to include from the EIA 860 generators table
                 in the output mega gens table. By default all columns necessary to create
                 the EIA plant part list are included.
@@ -1183,8 +1192,8 @@ class PudlTabl(object):
         update_any = any([update, update_gens_mega])
         if update_any or self._dfs["plant_parts_eia"] is None:
             # default columns needed to create plant part list
-            if extra_gens_cols is None:
-                extra_gens_cols = [
+            if gens_cols is None:
+                gens_cols = [
                     "technology_description",
                     "energy_source_code_1",
                     "prime_mover_code",
@@ -1199,7 +1208,7 @@ class PudlTabl(object):
             self._dfs["plant_parts_eia"] = self.parts_compiler.execute(
                 gens_mega=self.gens_mega_eia(
                     update=update_gens_mega,
-                    extra_gens_cols=extra_gens_cols,
+                    gens_cols=gens_cols,
                 )
             )
 
