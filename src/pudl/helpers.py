@@ -356,10 +356,10 @@ def convert_col_to_datetime(df, date_col_name):
 def full_timeseries_date_merge(
     left: pd.DataFrame,
     right: pd.DataFrame,
+    on: List[str],
     left_date_col: str = "report_date",
     right_date_col: str = "report_date",
     new_date_col: str = "report_date",
-    on: List[str] = [],
     date_on: List[str] = ["year"],
     how: Literal["inner", "outer", "left", "right", "cross"] = "inner",
     report_at_start: bool = True,
@@ -393,6 +393,8 @@ def full_timeseries_date_merge(
 
 def _add_suffix_to_date_on(date_on):
     """Check date_on list is valid and add _temp_for_merge suffix."""
+    if date_on is None:
+        date_on = ["year"]
     date_on_suffix = []
     for col in date_on:
         if col not in ["year", "month", "quarter", "day"]:
@@ -406,11 +408,11 @@ def _add_suffix_to_date_on(date_on):
 def date_merge(
     left: pd.DataFrame,
     right: pd.DataFrame,
+    on: List[str],
     left_date_col: str = "report_date",
     right_date_col: str = "report_date",
     new_date_col: str = "report_date",
-    on: List[str] = [],
-    date_on: List[str] = ["year"],
+    date_on: List[str] = None,
     how: Literal["inner", "outer", "left", "right", "cross"] = "inner",
     report_at_start: bool = True,
     **kwargs,
@@ -435,6 +437,9 @@ def date_merge(
         right: The right dataframe in the merge. Typically annual in our uses
             cases if doing a left merge E.g. ``generators_eia860``.
             Must contain columns specified by ``right_date_col`` and ``on`` argument.
+        on: The columns to merge on that are shared between both
+            dataframes. Typically ID columns like ``plant_id_eia``, ``generator_id``
+            or ``boiler_id``.
         left_date_col: Column in ``left`` containing datetime like data. Default is
             ``report_date``. Must be a Datetime or convertible to a Datetime using
             :func:`pandas.to_datetime`
@@ -442,16 +447,14 @@ def date_merge(
             ``report_date``. Must be a Datetime or convertible to a Datetime using
             :func:`pandas.to_datetime`.
         new_date_col: Name of the reconstructed datetime column in the output dataframe.
-        on: The columns to merge on that are shared between both
-            dataframes. Typically ID columns like ``plant_id_eia``, ``generator_id``
-            or ``boiler_id``.
         date_on: The temporal columns to merge on. Values in this list
             of columns must be [``year``, ``quarter``, ``month``, ``day``].
             E.g. if a monthly reported dataframe is being merged onto a daily reported
             dataframe, then the merge would be performed on ``["year", "month"]``.
             If one of these temporal columns already exists in the dataframe it will not
             be clobbered by the merge, as the suffix "_temp_for_merge" is added when
-            expanding the datetime column into year, quarter, month, and day.
+            expanding the datetime column into year, quarter, month, and day. By default,
+            `date_on` will just include year.
         how: How the dataframes should be merged. See :func:`pandas.DataFrame.merge`.
         report_at_start: Whether the data in the dataframe whose report date is not being
             kept in the merged output (in most cases the less frequently reported dataframe)
@@ -513,10 +516,10 @@ def date_merge(
 
 def expand_timeseries(
     df: pd.DataFrame,
+    key_cols: List[str],
     date_col: str = "report_date",
     freq: str = "MS",
     fill_through_freq: Literal["year", "month", "day"] = "year",
-    key_cols: List[str] = [],
 ) -> pd.DataFrame:
     """Expand a dataframe to a include a full time series at a given frequency.
 
@@ -527,6 +530,9 @@ def expand_timeseries(
 
     Arguments:
         df: The dataframe to expand. Must have ``date_col`` in columns.
+        key_cols: Column names of the non-date primary key columns in the dataframe.
+            The resulting dataframe will have a full timeseries expanded for each
+            unique group of these ID columns that are present in the dataframe.
         date_col: Name of the datetime column being expanded into a full timeseries.
         freq: The frequency of the time series to expand the data to.
             See :ref:`here <timeseries.offset_aliases>` for a list of
@@ -535,9 +541,6 @@ def expand_timeseries(
             example, if equal to "year" the data will be filled in through the end of
             the last reported year for each grouping of `key_cols`. Valid frequencies
             are only year, month, or day.
-        key_cols: Column names of the non-date primary key columns in the dataframe.
-            The resulting dataframe will have a full timeseries expanded for each
-            unique group of these ID columns that are present in the dataframe.
     """
     try:
         pd.tseries.frequencies.to_offset(freq)
