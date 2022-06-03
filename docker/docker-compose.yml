@@ -20,6 +20,10 @@ services:
         source: ${HOST_PUDL_OUT}
         target: ${CONTAINER_PUDL_OUT}
         consistency: delegated
+      - type: bind
+        source: ${SA_KEY_PATH}
+        target: /tmp/keys/service_account_key.json
+        consistency: delegated
     logging:
       driver: local
-    command: ${CONDA_RUN} bash ./docker/pudl_etl.sh
+    command: ${CONDA_RUN} bash ./docker/local_pudl_etl.sh

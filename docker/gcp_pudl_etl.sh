@@ -10,7 +10,7 @@ function authenticate_gcp() {
 }
 
 function run_pudl_etl() {
-    send_slack_msg ":large_yellow_circle: Deployment started for $GITHUB_SHA-$GITHUB_REF :floppy_disk:"
+    send_slack_msg ":large_yellow_circle: Deployment started for $ACTION_SHA-$GITHUB_REF :floppy_disk:"
     authenticate_gcp \
     && pudl_setup \
         --pudl_in $CONTAINER_PUDL_IN \
@@ -33,7 +33,7 @@ function run_pudl_etl() {
 }
 
 function shutdown_vm() {
-    gsutil -m cp -r $CONTAINER_PUDL_OUT "gs://pudl-etl-logs/$GITHUB_SHA-$GITHUB_REF"
+    gsutil -m cp -r $CONTAINER_PUDL_OUT "gs://pudl-etl-logs/$ACTION_SHA-$GITHUB_REF"
 
     echo "Shutting down VM."
     # # Shut down the vm instance when the etl is done.
@@ -54,7 +54,7 @@ function notify_slack() {
         echo "Invalid deployment status"
         exit 1
     fi
-    message+="See https://console.cloud.google.com/storage/browser/pudl-etl-logs/$GITHUB_SHA-$GITHUB_REF for logs and outputs."
+    message+="See https://console.cloud.google.com/storage/browser/pudl-etl-logs/$ACTION_SHA-$GITHUB_REF for logs and outputs."
 
     send_slack_msg "$message"
 }
