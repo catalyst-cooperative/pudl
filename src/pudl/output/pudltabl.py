@@ -1099,15 +1099,7 @@ class PudlTabl(object):
         """
         if update or self._dfs["mcoe"] is None:
             if gens_cols is None:
-                gens_cols = [
-                    "unit_id_pudl",
-                    "plant_id_pudl",
-                    "plant_name_eia",
-                    "utility_id_eia",
-                    "utility_id_pudl",
-                    "utility_name_eia",
-                    "fuel_type_code_pudl",
-                ]  # default column to include
+                gens_cols = ["fuel_type_code_pudl"]  # default column to include
             self._dfs["mcoe"] = pudl.analysis.mcoe.mcoe(
                 self,
                 min_heat_rate=min_heat_rate,
@@ -1201,6 +1193,8 @@ class PudlTabl(object):
                     "retirement_date",
                     "operational_status",
                     "capacity_mw",
+                    "fuel_type_code_pudl",
+                    "planned_retirement_date",
                 ]
             # make the plant-parts objects
             self.parts_compiler = pudl.analysis.plant_parts_eia.MakePlantParts(self)
