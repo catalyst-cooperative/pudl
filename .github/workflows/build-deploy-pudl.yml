@@ -34,7 +34,7 @@ jobs:
       - name: Get HEAD of the branch (main or dev)
         run: |
           echo "ACTION_SHA=$(git rev-parse HEAD)" >> $GITHUB_ENV \
-          echo "Using git SHA: $ACTION_SHA"
+          echo "Using git SHA: {{ env.ACTION_SHA }}"
 
       - name: Docker Metadata
         id: docker_metadata
@@ -109,7 +109,7 @@ jobs:
             --container-arg="bash" \
             --container-arg="./docker/gcp_pudl_etl.sh" \
             --container-env-file="./docker/.env" \
-            --container-env ACTION_SHA=$ACTION_SHA \
+            --container-env ACTION_SHA={{ env.ACTION_SHA }} \
             --container-env GITHUB_REF=${{ github.ref_name }} \
             --container-env API_KEY_EIA=${{ secrets.API_KEY_EIA }} \
             --container-env SLACK_TOKEN=${{ secrets.PUDL_DEPLOY_SLACK_TOKEN }} \
