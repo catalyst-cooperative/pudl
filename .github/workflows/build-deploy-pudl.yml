@@ -37,8 +37,8 @@ jobs:
 
       - name: Print action vars
         run: |
-          echo "ACTION_SHA: $ACTION_SHA" \
-          echo "CHECKOUT_BRANCH: $CHECKOUT_BRANCH" \
+          echo "ACTION_SHA: $ACTION_SHA" && \
+          echo "CHECKOUT_BRANCH: $CHECKOUT_BRANCH" && \
           echo "GCE_INSTANCE: $GCE_INSTANCE"
 
       - name: Docker Metadata
