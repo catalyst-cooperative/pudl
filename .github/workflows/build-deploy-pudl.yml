@@ -113,3 +113,4 @@ jobs:
             --container-env API_KEY_EIA=${{ secrets.API_KEY_EIA }} \
             --container-env SLACK_TOKEN=${{ secrets.PUDL_DEPLOY_SLACK_TOKEN }} \
             --container-env GCE_INSTANCE=${{ $GCE_INSTANCE }}
+            --container-env GCLOUD_BILLING_PROJECT=${{ secrets.GCE_PROJECT }}

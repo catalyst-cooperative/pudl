@@ -3,7 +3,7 @@ function authenticate_gcp() {
     export GOOGLE_APPLICATION_CREDENTIALS=/tmp/keys/service_account_key.json
     # Set the default gcloud project id so the zenodo-cache bucket
     # knows what project to bill for egress
-    gcloud config set project $GCLOUD_BILLING_PROJECT
+    gcloud config set project ${GCLOUD_BILLING_PROJECT:?err}
 }
 
 function run_pudl_etl() {

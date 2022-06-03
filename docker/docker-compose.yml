@@ -5,6 +5,7 @@ services:
   pudl-etl:
     environment:
       - API_KEY_EIA
+      - GCLOUD_BILLING_PROJECT
     env_file:
       - .env
     build:
@@ -21,7 +22,7 @@ services:
         target: ${CONTAINER_PUDL_OUT}
         consistency: delegated
       - type: bind
-        source: ${SA_KEY_PATH}
+        source: ${SA_KEY_PATH:?err}
         target: /tmp/keys/service_account_key.json
         consistency: delegated
     logging:
