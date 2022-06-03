@@ -388,7 +388,42 @@ def test_timeseries_fillin(test_dir):
         {"report_date": "datetime64[ns]", "data": "float64"}
     )
 
-    out = expand_timeseries(input_df, key_cols=["plant_id_eia", "generator_id"])
+    out = expand_timeseries(
+        input_df, fill_through_freq="year", key_cols=["plant_id_eia", "generator_id"]
+    )
+    assert_frame_equal(expected_out, out)
+
+
+def test_timeseries_fillin_through_month(test_dir):
+    """Test filling in full timeseries through the end of last reported month."""
+    input_df = pd.DataFrame(
+        {
+            "report_date": [
+                "2019-12-30",
+                "2020-01-02",
+                "2020-01-25",
+                "2020-02-27",
+                "2020-03-01",
+            ],
+            "plant_id_eia": [1, 1, 1, 2, 2],
+            "generator_id": [1, 1, 2, 1, 1],
+            "data": [1, 2, 1, 3, 4],
+        }
+    )
+
+    expected_out_path = (
+        test_dir
+        / "data/date_merge_unit_test/timeseries_fillin_through_month_expected_out.csv"
+    )
+    expected_out = pd.read_csv(expected_out_path).astype(
+        {"report_date": "datetime64[ns]", "data": "float64"}
+    )
+    out = expand_timeseries(
+        input_df,
+        freq="D",
+        fill_through_freq="month",
+        key_cols=["plant_id_eia", "generator_id"],
+    )
     assert_frame_equal(expected_out, out)
 
 

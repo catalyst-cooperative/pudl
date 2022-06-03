@@ -515,6 +515,7 @@ def expand_timeseries(
     df: pd.DataFrame,
     date_col: str = "report_date",
     freq: str = "MS",
+    fill_through_freq: Literal["year", "month", "day"] = "year",
     key_cols: List[str] = [],
 ) -> pd.DataFrame:
     """Expand a dataframe to a include a full time series at a given frequency.
@@ -530,6 +531,10 @@ def expand_timeseries(
         freq: The frequency of the time series to expand the data to.
             See :ref:`here <timeseries.offset_aliases>` for a list of
             frequency aliases.
+        fill_through_freq: The frequency in which to fill in the data through. For
+            example, if equal to "year" the data will be filled in through the end of
+            the last reported year for each grouping of `key_cols`. Valid frequencies
+            are only year, month, or day.
         key_cols: Column names of the non-date primary key columns in the dataframe.
             The resulting dataframe will have a full timeseries expanded for each
             unique group of these ID columns that are present in the dataframe.
@@ -541,12 +546,42 @@ def expand_timeseries(
             f"Frequency string {freq} is not valid. \
             See Pandas Timeseries Offset Aliases docs for valid strings."
         )
-    # for each group of ID columns add a dummy record with the date column
-    # equal to Jan 1 of the year after the last real record in the group
-    # this allows records to be filled through the end of the last reported year
+
+    # For each group of ID columns add a dummy record with the date column
+    # equal to one increment higher than the last record in the group for the
+    # desired fill_through_freq.
+    # This allows records to be filled through the end of the last reported period
+    # and then this dummy record is dropped
+    df = convert_col_to_datetime(df, date_col)
     end_dates = df.groupby(key_cols).agg({date_col: "max"})
-    end_dates.loc[:, date_col] = end_dates[date_col].dt.year + 1
-    end_dates = convert_col_to_datetime(end_dates, date_col)
+    if fill_through_freq == "year":
+        end_dates.loc[:, date_col] = pd.to_datetime(
+            {
+                "year": end_dates[date_col].dt.year + 1,
+                "month": 1,
+                "day": 1,
+            }
+        )
+    elif fill_through_freq == "month":
+        end_dates.loc[:, date_col] = pd.to_datetime(
+            {
+                "year": end_dates[date_col].dt.year,
+                "month": end_dates[date_col].dt.month + 1,
+                "day": 1,
+            }
+        )
+    elif fill_through_freq == "day":
+        end_dates.loc[:, date_col] = pd.to_datetime(
+            {
+                "year": end_dates[date_col].dt.year,
+                "month": end_dates[date_col].dt.month,
+                "day": end_dates[date_col].dt.day + 1,
+            }
+        )
+    else:
+        raise AssertionError(
+            f"{fill_through_freq} is not a valid frequency to fill through."
+        )
     end_dates["drop_row"] = True
     df = pd.concat([df, end_dates.reset_index()])
     df = (
