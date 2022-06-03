@@ -105,7 +105,7 @@ setup(
             "flake8-use-fstring>=1.0,<1.4",
             "mccabe>=0.6,<0.8",
             "nbval>=0.9,<0.10",
-            "pep8-naming>=0.12,<0.13",
+            "pep8-naming>=0.12,<0.14",
             "pre-commit>=2.9,<2.20",
             "pydocstyle>=5.1,<6.2",
             "pytest>=6.2,<7.2",
