@@ -68,18 +68,24 @@ def parse_command_line(argv):
         default=False,
         help="If enabled, the local file cache for datastore will not be used.",
     )
+    parser.add_argument(
+        "--loglevel",
+        help="Set logging level (DEBUG, INFO, WARNING, ERROR, or CRITICAL).",
+        default="INFO",
+    )
     arguments = parser.parse_args(argv[1:])
     return arguments
 
 
 def main():  # noqa: C901
     """Clone the FERC Form 1 FoxPro database into SQLite."""
+    args = parse_command_line(sys.argv)
+
     # Display logged output from the PUDL package:
     pudl_logger = logging.getLogger("pudl")
     log_format = "%(asctime)s [%(levelname)8s] %(name)s:%(lineno)s %(message)s"
-    coloredlogs.install(fmt=log_format, level="INFO", logger=pudl_logger)
+    coloredlogs.install(fmt=log_format, level=args.loglevel, logger=pudl_logger)
 
-    args = parse_command_line(sys.argv)
     if args.logfile:
         file_logger = logging.FileHandler(args.logfile)
         file_logger.setFormatter(logging.Formatter(log_format))

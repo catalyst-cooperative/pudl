@@ -15,8 +15,8 @@ env:
   GCE_INSTANCE_ZONE: us-central1-a
 
 jobs:
-  build_and_push_to_dockerhub:
-    name: Build Docker image and push to Docker Hub
+  build_and_deploy_pudl:
+    name: Build Docker image, push to Docker Hub and deploy to a GCE VM
     runs-on: ubuntu-latest
     steps:
       - name: Set GCE_INSTANCE and branch to dev if running on a schedule

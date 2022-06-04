@@ -17,11 +17,13 @@ function run_pudl_etl() {
         --pudl_out $CONTAINER_PUDL_OUT \
     && ferc1_to_sqlite \
         --clobber \
+        --loglevel DEBUG \
         --gcs-cache-path gs://zenodo-cache.catalyst.coop \
         --bypass-local-cache \
         $PUDL_SETTINGS_YML \
     && pudl_etl \
         --clobber \
+        --loglevel DEBUG \
         --gcs-cache-path gs://zenodo-cache.catalyst.coop \
         --bypass-local-cache \
         $PUDL_SETTINGS_YML \
