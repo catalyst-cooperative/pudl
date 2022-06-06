@@ -77,7 +77,7 @@ def etl_parameters(request, test_dir):
 @pytest.fixture(scope="session", name="ferc1_etl_settings")
 def ferc1_etl_parameters(etl_settings):
     """Read ferc1_to_sqlite parameters out of test settings dictionary."""
-    return etl_settings.ferc1_to_sqlite_settings
+    return etl_settings.ferc1_dbf_to_sqlite_settings
 
 
 @pytest.fixture(scope="session", name="pudl_etl_settings")
