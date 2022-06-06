@@ -236,10 +236,10 @@ SOURCES: Dict[str, Any] = {
         "title": "EPA-EIA Crosswalk",
         "path": "https://github.com/USEPA/camd-eia-crosswalk",
         "description": (
-            "A file created collaboratively by EPA and EIA that connects EPA CEMS"
-            "smokestacks (unitids) with cooresponding EIA plant part ids reported in"
-            "EIA Forms 860 and 923 (plant_id_eia, boiler_id, generator_id). This"
-            "one-to-many connection is necessary because pollutants from various plant"
+            "A file created collaboratively by EPA and EIA that connects EPA CEMS "
+            "smokestacks (unitids) with cooresponding EIA plant part ids reported in "
+            "EIA Forms 860 and 923 (plant_id_eia, boiler_id, generator_id). This "
+            "one-to-many connection is necessary because pollutants from various plant "
             "parts are collecitvely emitted and measured from one point-source."
         ),
         "source_file_dict": {
