@@ -35,6 +35,11 @@ Plant Parts List Module Changes
   and a ``construction_year`` column was also added. Finally, ``operating_year`` was
   added as a level that the EIA generators are now aggregated to.
 
+Metadata
+^^^^^^^^
+* Used the data source metadata class added in release 0.6.0 to dynamically generate
+  the data source documentation (See :doc:`data_sources/index`).
+
 Bug Fixes
 ^^^^^^^^^
 

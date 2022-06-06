@@ -67,6 +67,13 @@ class DatapackageDescriptor:
                 return res
         raise KeyError(f"Resource {name} not found for {self.dataset}/{self.doi}")
 
+    def get_download_size(self) -> int:
+        """Returns the total download size of all the resources in MB."""
+        total_bytes = 0
+        for res in self.datapackage_json["resources"]:
+            total_bytes += res["bytes"]
+        return int(total_bytes / 1000000)
+
     def validate_checksum(self, name: str, content: str) -> bool:
         """Returns True if content matches checksum for given named resource."""
         expected_checksum = self._get_resource_metadata(name)["hash"]
