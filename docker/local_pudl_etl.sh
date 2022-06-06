@@ -23,6 +23,12 @@ function run_pudl_etl() {
         --gcs-cache-path gs://zenodo-cache.catalyst.coop \
         --bypass-local-cache \
         $PUDL_SETTINGS_YML \
+    && epacems_to_parquet \
+        --partition \
+        --clobber \
+        --loglevel DEBUG \
+        --gcs-cache-path gs://zenodo-cache.catalyst.coop \
+        --bypass-local-cache \
     && pytest \
         --gcs-cache-path gs://zenodo-cache.catalyst.coop \
         --bypass-local-cache \

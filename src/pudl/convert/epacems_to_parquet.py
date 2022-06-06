@@ -82,19 +82,24 @@ def parse_command_line(argv):
         help="If set, output year-state partitioned Parquet files and process data "
         "in parallel using all available threads / CPUs.",
     )
-
+    parser.add_argument(
+        "--loglevel",
+        help="Set logging level (DEBUG, INFO, WARNING, ERROR, or CRITICAL).",
+        default="INFO",
+    )
     arguments = parser.parse_args(argv[1:])
     return arguments
 
 
 def main():
     """Convert zipped EPA CEMS Hourly data to Apache Parquet format."""
+    args = parse_command_line(sys.argv)
+
     # Display logged output from the PUDL package:
     pudl_logger = logging.getLogger("pudl")
     log_format = "%(asctime)s [%(levelname)8s] %(name)s:%(lineno)s %(message)s"
-    coloredlogs.install(fmt=log_format, level="INFO", logger=pudl_logger)
+    coloredlogs.install(fmt=log_format, level=args.loglevel, logger=pudl_logger)
 
-    args = parse_command_line(sys.argv)
     pudl_settings = pudl.workspace.setup.get_defaults()
     # This also validates the states / years we've been given:
     epacems_settings = EpaCemsSettings(
