@@ -861,14 +861,14 @@ class Contributor(Base):
     See https://specs.frictionlessdata.io/data-package/#contributors.
     """
 
-    name: String
-    # path: HttpUrl = None
-    # email: Email = None
-    # role: Literal[
-    #     "author", "contributor", "maintainer", "publisher", "wrangler"
-    # ] = "contributor"
-    affiliation: String = None
-    # orcid: String = None
+    title: String
+    path: HttpUrl = None
+    email: Email = None
+    role: Literal[
+        "author", "contributor", "maintainer", "publisher", "wrangler"
+    ] = "contributor"
+    organization: String = None
+    orcid: String = None
 
     @staticmethod
     def dict_from_id(x: str) -> dict:
