@@ -178,12 +178,8 @@ def plants_small_ferc1(pudl_engine):
             how="left",
         )
         .assign(
-            opex_nonfuel=lambda x: (
-                # This is because opex_total is not acutally the sum, need to add maint.
-                x.opex_total
-                - x.opex_fuel.fillna(0)
-                + x.opex_maintenance
-            )
+            opex_total=lambda x: (x.opex_fuel + x.opex_maintenance + x.opex_operations),
+            opex_nonfuel=lambda x: (x.opex_total - x.opex_fuel.fillna(0)),
         )
         .pipe(
             pudl.helpers.organize_cols,
