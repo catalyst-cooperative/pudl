@@ -390,6 +390,7 @@ def mcoe(
     max_cap_fact: float = 1.5,
     all_gens: bool = True,
     gens_cols: Any = None,
+    timeseries_fillin: bool = False,
 ):
     """Compile marginal cost of electricity (MCOE) at the generator level.
 
@@ -421,6 +422,9 @@ def mcoe(
             from the generators table will be included. By default, no extra columns
             will be included, only the `DEFAULT_GENS_COLS` will be merged into the final
             MCOE output.
+        timeseries_fillin: if True, fill in the full timeseries for each generator in
+            the output dataframe. The data in the timeseries will be filled
+            with the data from the next previous chronological record.
 
     Returns:
         pandas.DataFrame: a dataframe organized by date and generator,
@@ -486,14 +490,23 @@ def mcoe(
     else:
         gens = pudl_out.gens_eia860()[list(set(DEFAULT_GENS_COLS + gens_cols))]
 
-    mcoe_out = pudl.helpers.full_timeseries_date_merge(
-        left=gens,
-        right=mcoe_out,
-        on=["plant_id_eia", "generator_id"],
-        date_on=["year"],
-        how="left" if all_gens else "right",
-        freq=pudl_out.freq,
-    ).pipe(pudl.validate.no_null_rows, df_name="mcoe_all_gens", thresh=0.9)
+    if timeseries_fillin:
+        mcoe_out = pudl.helpers.full_timeseries_date_merge(
+            left=gens,
+            right=mcoe_out,
+            on=["plant_id_eia", "generator_id"],
+            date_on=["year"],
+            how="left" if all_gens else "right",
+            freq=pudl_out.freq,
+        ).pipe(pudl.validate.no_null_rows, df_name="mcoe_all_gens", thresh=0.9)
+    else:
+        mcoe_out = pudl.helpers.date_merge(
+            left=gens,
+            right=mcoe_out,
+            on=["plant_id_eia", "generator_id"],
+            date_on=["year"],
+            how="left" if all_gens else "right",
+        ).pipe(pudl.validate.no_null_rows, df_name="mcoe_all_gens", thresh=0.9)
 
     # Organize the dataframe for easier legibility
     mcoe_out = (
