@@ -303,7 +303,7 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
                 "net_generation_mwh",
                 "total_cost_of_plant",
                 "capex_per_mw",
-                "opex_total",
+                "opex_operations",
                 "opex_fuel",
                 "opex_maintenance",
                 "fuel_type",
