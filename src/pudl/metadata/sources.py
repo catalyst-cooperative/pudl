@@ -232,8 +232,8 @@ SOURCES: Dict[str, Any] = {
         "license_raw": LICENSES["us-govt"],
         "license_pudl": LICENSES["cc-by-4.0"],
     },
-    "epa_eia_crosswalk": {
-        "title": "EPA-EIA Crosswalk",
+    "epacems_unitid_eia_plant_crosswalk": {
+        "title": "EPA CEMS unitid to EIA Plant Crosswalk",
         "path": "https://github.com/USEPA/camd-eia-crosswalk",
         "description": (
             "A file created collaboratively by EPA and EIA that connects EPA CEMS "
