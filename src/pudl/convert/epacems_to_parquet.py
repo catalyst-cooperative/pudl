@@ -113,15 +113,14 @@ def main():
     if not args.bypass_local_cache:
         ds_kwargs["local_cache_path"] = pathlib.Path(pudl_settings["pudl_in"]) / "data"
 
-    _ = pudl.helpers.prep_dir(
-        pathlib.Path(pudl_settings["parquet_dir"]) / "epacems",
-        clobber=args.clobber,
-    )
+    epacems_pq_path = pathlib.Path(pudl_settings["parquet_dir"]) / "epacems"
+    epacems_pq_path.mkdir(exist_ok=True)
 
     pudl.etl.etl_epacems(
         epacems_settings=epacems_settings,
         pudl_settings=pudl_settings,
         ds_kwargs=ds_kwargs,
+        clobber=args.clobber,
     )
 
 

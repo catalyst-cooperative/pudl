@@ -249,6 +249,7 @@ def etl_epacems(
     epacems_settings: EpaCemsSettings,
     pudl_settings: Dict[str, Any],
     ds_kwargs: Dict[str, Any],
+    clobber: str = False,
 ) -> None:
     """Extract, transform and load CSVs for EPA CEMS.
 
@@ -258,6 +259,8 @@ def etl_epacems(
             various resources and outputs.
         ds_kwargs: Keyword arguments for instantiating a PUDL datastore, so that the ETL
             can access the raw input data.
+        clobber: If True and there is already a hourly_emissions_epacems parquer file
+            or directory it will be deleted and a new one will be created.
 
     Returns:
         Unlike the other ETL functions, the EPACEMS writes its output to Parquet as it
@@ -296,7 +299,10 @@ def etl_epacems(
         start_time = time.monotonic()
 
     if epacems_settings.partition:
-        epacems_dir = Path(pudl_settings["parquet_dir"]) / "epacems"
+        epacems_dir = (
+            Path(pudl_settings["parquet_dir"]) / "epacems" / "hourly_emissions_epacems"
+        )
+        _ = pudl.helpers.prep_dir(epacems_dir, clobber=clobber)
         do_one_year = partial(
             _etl_one_year_epacems,
             states=epacems_settings.states,
@@ -314,6 +320,12 @@ def etl_epacems(
         epacems_path = Path(
             pudl_settings["parquet_dir"], "epacems/hourly_emissions_epacems.parquet"
         )
+        if epacems_path.exists() and not clobber:
+            raise SystemExit(
+                "The EPA CEMS parquet file already exists, and we don't want to clobber it.\n"
+                f"Move {epacems_path} aside or set clobber=True and try again."
+            )
+
         with pq.ParquetWriter(
             where=str(epacems_path),
             schema=schema,
@@ -425,7 +437,7 @@ def etl(  # noqa: C901
     datasets = validated_etl_settings.get_datasets()
     if "epacems" in datasets.keys():
         epacems_pq_path = Path(pudl_settings["parquet_dir"]) / "epacems"
-        _ = pudl.helpers.prep_dir(epacems_pq_path, clobber=clobber)
+        epacems_pq_path.mkdir(exist_ok=True)
 
     sqlite_dfs = {}
     # This could be cleaner if we simplified the settings file format:
@@ -448,4 +460,4 @@ def etl(  # noqa: C901
 
     # Parquet Outputs:
     if datasets.get("epacems", False):
-        etl_epacems(datasets["epacems"], pudl_settings, ds_kwargs)
+        etl_epacems(datasets["epacems"], pudl_settings, ds_kwargs, clobber=clobber)
