@@ -1088,9 +1088,8 @@ class PudlTabl(object):
                 column attributes to include from the :ref:`generators_eia860` table in
                 addition to the list of defined `DEFAULT_GENS_COLS` in the MCOE analysis
                 module. If "all", all columns from the generators table will be included.
-                By default, the `fuel_type_code_pudl` column as well as the
-                `DEFAULT_GENS_COLS` from the MCOE analysis module will be merged into the
-                final MCOE output.
+                By default, the `DEFAULT_GENS_COLS` defined in the MCOE analysis module
+                will be merged into the final MCOE output.
 
         Returns:
             :class:`pandas.DataFrame`: a compilation of generator attributes,
@@ -1098,8 +1097,6 @@ class PudlTabl(object):
 
         """
         if update or self._dfs["mcoe"] is None:
-            if gens_cols is None:
-                gens_cols = ["fuel_type_code_pudl"]  # default column to include
             self._dfs["mcoe"] = pudl.analysis.mcoe.mcoe(
                 self,
                 min_heat_rate=min_heat_rate,
@@ -1124,7 +1121,7 @@ class PudlTabl(object):
             gens_cols: equal to the string "all", None, or a list of
                 additional column attributes to include from the EIA 860 generators table
                 in the output mega gens table. By default all columns necessary to create
-                the EIA plant part list are included.
+                the mega generators table are included.
 
         Returns:
             A table of all of the generators with identifying
@@ -1147,7 +1144,9 @@ class PudlTabl(object):
                     f"plant-parts table and we got {self.freq}"
                 )
             if gens_cols is None:
-                gens_cols = [
+                gens_cols = []
+            if gens_cols != "all":
+                default_cols = [
                     "technology_description",
                     "energy_source_code_1",
                     "prime_mover_code",
@@ -1156,6 +1155,7 @@ class PudlTabl(object):
                     "operational_status",
                     "capacity_mw",
                 ]
+                gens_cols = list(set(gens_cols + default_cols))
             self._dfs[
                 "gens_mega_eia"
             ] = pudl.analysis.plant_parts_eia.MakeMegaGenTbl().execute(
@@ -1185,7 +1185,9 @@ class PudlTabl(object):
         if update_any or self._dfs["plant_parts_eia"] is None:
             # default columns needed to create plant part list
             if gens_cols is None:
-                gens_cols = [
+                gens_cols = []
+            if gens_cols != "all":
+                default_cols = [
                     "technology_description",
                     "energy_source_code_1",
                     "prime_mover_code",
@@ -1196,6 +1198,7 @@ class PudlTabl(object):
                     "fuel_type_code_pudl",
                     "planned_retirement_date",
                 ]
+                gens_cols = list(set(gens_cols + default_cols))
             # make the plant-parts objects
             self.parts_compiler = pudl.analysis.plant_parts_eia.MakePlantParts(self)
             # make the plant-parts df!
