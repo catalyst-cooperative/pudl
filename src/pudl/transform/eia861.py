@@ -856,9 +856,23 @@ def balancing_authority(tfr_dfs):
     )
 
     # Fill in BA IDs based on date, utility ID, and BA Name:
-    df.loc[
-        BA_ID_NAME_FIXES.index, "balancing_authority_id_eia"
-    ] = BA_ID_NAME_FIXES.balancing_authority_id_eia
+    # using merge and then reverse backfilling balancing_authority_id_eia means
+    # that this will work even if not all years are requested
+    df = (  # this replaces the previous process to address #828
+        df.merge(
+            BA_ID_NAME_FIXES,
+            on=["report_date", "balancing_authority_name_eia", "utility_id_eia"],
+            how="left",
+            validate="m:1",
+            suffixes=(None, "_"),
+        )
+        .assign(
+            balancing_authority_id_eia=lambda x: x.balancing_authority_id_eia_.fillna(
+                x.balancing_authority_id_eia
+            )
+        )
+        .drop(columns=["balancing_authority_id_eia_"])
+    )
 
     # Backfill BA Codes based on BA IDs:
     df = df.reset_index().pipe(_ba_code_backfill)
