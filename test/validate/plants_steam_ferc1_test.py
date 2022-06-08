@@ -104,7 +104,7 @@ def test_plant_id_clash(pudl_out_ferc1):
         .reset_index()
         .plant_id_ferc1.values.tolist()
     )
-    if bad_plant_ids_ferc1:
+    if bad_plant_ids_ferc1 > 4:
         bad_records = steam_df[steam_df.plant_id_ferc1.isin(bad_plant_ids_ferc1)]
         bad_plant_ids_pudl = bad_records.plant_id_pudl.unique().tolist()
         msg = (
