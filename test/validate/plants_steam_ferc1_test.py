@@ -85,7 +85,6 @@ def test_dupe_years_in_plant_id_ferc1(pudl_out_ferc1):
         )
 
 
-@pytest.mark.xfail(reason="One known ID inconsistency to be debugged.")
 def test_plant_id_clash(pudl_out_ferc1):
     """Test for FERC & PUDL Plant ID consistency.
 
