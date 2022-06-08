@@ -87,6 +87,9 @@ jobs:
       # Deploy PUDL image to GCE
       - name: Deploy
         run: |-
+          gcloud compute instances add-metadata "$GCE_INSTANCE" \
+            --zone "$GCE_INSTANCE_ZONE" \
+            --metadata-from-file startup-script=./docker/vm_startup_script.sh
           gcloud compute instances update-container "$GCE_INSTANCE" \
             --zone "$GCE_INSTANCE_ZONE" \
             --container-image "docker.io/catalystcoop/pudl-etl:${{github.ref_name}}" \
