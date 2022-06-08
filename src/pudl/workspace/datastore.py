@@ -152,7 +152,7 @@ class ZenodoFetcher:
             "eia861": "10.5072/zenodo.687052",
             "eia923": "10.5072/zenodo.926301",
             "epacems": "10.5072/zenodo.672963",
-            "ferc1": "10.5072/zenodo.926302",
+            "ferc1": "10.5072/zenodo.1070868",
             "ferc714": "10.5072/zenodo.926660",
         },
         "production": {
