@@ -393,6 +393,15 @@ class Ferc1XbrlToSqliteSettings(GenericDatasetSettings):
     taxonomy: AnyHttpUrl = "https://eCollection.ferc.gov/taxonomy/form1/2022-01-01/form/form1/form-1_2022-01-01.xsd"
     tables: List[str] = XBRL_TABLES
 
+    @validator("tables")
+    def validate_tables(cls, tables):  # noqa: N805
+        """Validate tables."""
+        default_tables = sorted(list(XBRL_TABLES))
+        tables_not_working = list(set(tables) - set(default_tables))
+        if len(tables_not_working) > 0:
+            raise ValueError(f"'{tables_not_working}' tables are not available.")
+        return sorted(set(tables))
+
 
 class EtlSettings(BaseSettings):
     """Main settings validation class."""
