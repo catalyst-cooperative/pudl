@@ -89,10 +89,6 @@ def main():  # noqa: C901
         script_settings["ferc1_dbf_to_sqlite_settings"]
     )
 
-    xbrl_settings = Ferc1XbrlToSqliteSettings().parse_obj(
-        script_settings["ferc1_xbrl_to_sqlite_settings"]
-    )
-
     pudl_settings["sandbox"] = args.sandbox
     pudl.extract.ferc1.dbf2sqlite(
         ferc1_to_sqlite_settings=dbf_settings,
@@ -101,6 +97,10 @@ def main():  # noqa: C901
         datastore=Datastore(
             local_cache_path=(Path(pudl_in) / "data"), sandbox=args.sandbox
         ),
+    )
+
+    xbrl_settings = Ferc1XbrlToSqliteSettings().parse_obj(
+        script_settings["ferc1_xbrl_to_sqlite_settings"]
     )
 
     pudl.extract.ferc1.xbrl2sqlite(
