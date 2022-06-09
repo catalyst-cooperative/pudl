@@ -1,0 +1,103 @@
+{% extends "data_source_parent.rst.jinja" %}
+{% block extra_table_text %}
+We've also created the following tables mapping mannually assigned PUDL IDs to FERC
+respondent IDs, enabling a connection between the FERC and EIA data sets.
+{% endblock %}
+
+{% block background %}
+    The FERC Form 1, otherwise known as the **Electric Utility Annual Report**, contains
+    financial and operating data for major utilities and licensees. Much of it is not
+    publicly available anywhere else.
+{% endblock %}
+
+{% block downloadable_pdfs %}
+{% for filename in download_paths %}
+    * :download:`{{ filename.stem.replace("_", " ").title() }} (PDF) <{{ filename }}>`
+{% endfor %}
+{% endblock %}
+
+{% block accessible %}
+With the new XBRL format we are in the process of integrating the data into
+the full PUDL ETL pipeline. Previously, with the Visual FoxPro filings we had
+integrated 7 tables into the pipeline. We focused on the tables pertaining to
+power plants, their capital & operating expenses, and fuel consumption. We hope
+to soon be able to pull just about any other table.
+{% endblock %}
+
+{% block fill_out_form %}
+As outlined in the Commission's Uniform System of Accounts Prescribed for Public
+Utilities and Licensees Subject To the Provisions of The Federal Power Act (18 C.F.R.
+Part 101), to qualify as a respondent, entities must exceed at least one of the
+following criteria for three consecutive years prior to reporting:
+
+* 1 million MWh of total sales
+* 100MWh of annual sales for resale
+* 500MWh of annual power exchanges delivered
+* 500MWh of annual wheeling for others (deliveries plus losses)
+
+Annual responses are due in April of the following year. FERC typically releases the
+new data in October.
+{% endblock %}
+
+{% block original_data %}
+.. seealso::
+
+    Explore the full FERC Form 1 dataset at: https://data.catalyst.coop/{{ source.name }}
+
+As of early 2021, the data is now published as a collection of XBRL filings. Previous data
+remains in Visual FoxPro databases. The new data remains
+difficult to access and we are in the process of understanding the underlying data and
+integrating this new format into PUDL.
+
+Previously the data was strutured as follows:
+
+The data is published as a collection of Visual FoxPro databases: one per year
+beginning in 1994. The databases all share a very similar structure and contain a total
+of 116 data tables and ~8GB of raw data (though 90% of that data is in 3 tables
+containing binary data). The `final release of Visual FoxPro was v9.0 in 2007
+<https://en.wikipedia.org/wiki/Visual_FoxPro>`__. Its `extended support period ended
+in 2015 <https://www.foxpro.co.uk/foxpro-end-of-life-and-you/>`__. The bridge
+application which allowed this database to be used in Microsoft Access has been
+discontinued. FERC's use of this database format creates a significant
+barrier to data access.
+
+New data is released as a collection of XBRL filings and we are in the process of integrating
+this data into PUDL.
+
+The FERC 1 database is poorly normalized and the data itself does not appear
+to be subject to much quality control. For more detailed context and
+documentation on a table-by-table basis, look at
+:doc:`/data_dictionaries/ferc1_db`.
+{% endblock %}
+
+{% block notable_irregularities %}
+Sadly, the FERC Form 1 database is not particularly... relational. The only
+foreign key relationships that exist map ``respondent_id`` fields in the
+individual data tables back to ``f1_respondent_id``. In theory, most of the
+data tables use ``report_year``, ``respondent_id``, ``row_number``,
+``spplmnt_num`` and ``report_prd`` as a composite primary key.
+
+In practice, there are several thousand records (out of ~12 million), including some
+in almost every table, that violate the uniqueness constraint on those primary keys.
+Since there aren't many meaningful foreign key relationships anyway, rather than
+dropping the records with non-unique natural composite keys, we chose to preserve all
+of the records and use surrogate auto-incrementing primary keys in the cloned SQLite
+database.
+
+Lots of the data included in the FERC tables is extraneous and difficult to parse. None
+of the tables have record identification and they sometimes contain multiple rows
+pertaining to the same plant or portion of a plant. For example, a utility might report
+values for individual plants as well as the sum total, rendering any aggregations
+performed on the column inaccurate. Sometimes there are values reported for the total
+rows and not the individual plants making them difficult to simply remove. Moreover,
+these duplicate rows are incredibly difficult to identify.
+
+To improve their usability, we have developed a complex system of regional mapping in
+order to create ids for each of the plants that can then be compared to PUDL ids and
+used for integration with EIA and other data. We also remove many of the duplicate rows
+and are in the midst of executing a more thorough review of the extraneous rows.
+
+Over time we will pull in and clean up additional FERC Form 1 tables. If there's data
+you need from Form 1 in bulk, you can `hire us <https://catalyst.coop/hire-catalyst/>`__
+to liberate it first.
+{% endblock %}

@@ -12,13 +12,13 @@ logger = logging.getLogger(__name__)
 
 
 @pytest.mark.script_launch_mode("inprocess")
-def test_metadata_script(script_runner, pudl_settings_fixture):
-    """Run metadata_to_yml for testing."""
+def test_datasette_metadata_script(script_runner, pudl_settings_fixture):
+    """Run datasette_metadata_to_yml for testing."""
     metadata_yml = Path(pudl_settings_fixture["pudl_out"], "metadata.yml")
     logger.info(f"Writing Datasette Metadata to {metadata_yml}")
 
     ret = script_runner.run(
-        "metadata_to_yml",
+        "datasette_metadata_to_yml",
         "-o",
         str(metadata_yml),
         print_result=False,

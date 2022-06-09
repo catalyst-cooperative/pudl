@@ -177,6 +177,7 @@ def plants_small_ferc1(pudl_engine):
             on=["utility_id_ferc1", "plant_name_ferc1"],
             how="left",
         )
+        .assign(opex_nonfuel=lambda x: x.opex_total - x.opex_fuel)
         .pipe(
             pudl.helpers.organize_cols,
             [
@@ -203,7 +204,8 @@ def plants_hydro_ferc1(pudl_engine):
             how="left",
         )
         .assign(
-            capacity_factor=lambda x: (x.net_generation_mwh / (8760 * x.capacity_mw))
+            capacity_factor=lambda x: (x.net_generation_mwh / (8760 * x.capacity_mw)),
+            opex_nonfuel=lambda x: x.opex_total,
         )
         .pipe(
             pudl.helpers.organize_cols,
@@ -229,7 +231,10 @@ def plants_pumped_storage_ferc1(pudl_engine):
             on=["utility_id_ferc1", "plant_name_ferc1"],
             how="left",
         )
-        .assign(capacity_factor=lambda x: x.net_generation_mwh / (8760 * x.capacity_mw))
+        .assign(
+            capacity_factor=lambda x: x.net_generation_mwh / (8760 * x.capacity_mw),
+            opex_nonfuel=lambda x: x.opex_total,
+        )
         .pipe(
             pudl.helpers.organize_cols,
             [
@@ -295,28 +300,24 @@ def all_plants_ferc1(pudl_engine):
     both with each other and the EIA MUL.
 
     """
-    logger.info("loading steam table")
     steam_df = plants_steam_ferc1(pudl_engine)
-    logger.info("loading small gens table")
     small_df = plants_small_ferc1(pudl_engine)
-    logger.info("loading hydro table")
     hydro_df = plants_hydro_ferc1(pudl_engine)
-    logger.info("loading pumped storage table")
     pump_df = plants_pumped_storage_ferc1(pudl_engine)
 
     # Prep steam table
-    logger.info("prepping steam table")
+    logger.debug("prepping steam table")
     steam_df = steam_df.rename(columns={"opex_plants": "opex_plant"}).pipe(
         apply_pudl_dtypes, group="ferc1"
     )
 
     # Prep hydro tables (Add this to the meta data later)
-    logger.info("prepping hydro tables")
+    logger.debug("prepping hydro tables")
     hydro_df = hydro_df.rename(columns={"project_num": "ferc_license_id"})
     pump_df = pump_df.rename(columns={"project_num": "ferc_license_id"})
 
     # Combine all the tables together
-    logger.info("combining all tables")
+    logger.debug("combining all tables")
     all_plants_df = (
         pd.concat([steam_df, small_df, hydro_df, pump_df])
         .rename(

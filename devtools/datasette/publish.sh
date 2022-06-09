@@ -9,7 +9,7 @@ echo "Indexing PUDL DB FKs"
 sqlite-utils index-foreign-keys $SQLITE_DIR/pudl.sqlite
 
 # make metadata.yml
-metadata_to_yml -o "metadata.yml"
+datasette_metadata_to_yml -o "metadata.yml"
 
 datasette publish cloudrun \
     --service catalyst-datasette \

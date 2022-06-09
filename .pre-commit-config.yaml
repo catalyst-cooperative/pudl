@@ -85,14 +85,14 @@ repos:
 
 # Check for errors in restructuredtext (.rst) files under the doc hierarchy
 - repo: https://github.com/PyCQA/doc8
-  rev: 0.11.1
+  rev: 0.11.2
   hooks:
   - id: doc8
     args: ['--config', 'tox.ini']
 
 # Lint any RST files and embedded code blocks for syntax / formatting errors
 - repo: https://github.com/myint/rstcheck
-  rev: v5.0.0
+  rev: v6.0.0.post1
   hooks:
   - id: rstcheck
     additional_dependencies: [sphinx]

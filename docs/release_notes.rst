@@ -10,7 +10,6 @@ PUDL Release Notes
 
 Database Schema Changes
 ^^^^^^^^^^^^^^^^^^^^^^^
-
 * After learning that generators' prime movers do very occasionally change over
   time, we recategorized the ``prime_mover_code`` column in our entity resolution
   process to enable the rare but real variability over time. We moved the
@@ -21,6 +20,25 @@ Database Schema Changes
   :doc:`data_dictionaries/codes_and_labels`). Used these standard codes and code
   fixes to clean ``operational_status_code`` in the :ref:`generators_entity_eia`
   table. :pr:`1624`
+
+Plant Parts List Module Changes
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+* We refactored a couple components of the Plant Parts List module in preparation
+  for the next round of entity matching of EIA and FERC Form 1 records with the
+  Panda model developed by the
+  `Chu Data Lab at Georgia Tech <https://chu-data-lab.cc.gatech.edu/>`__, through work
+  funded by a
+  `CCAI Innovation Grant <https://www.climatechange.ai/calls/innovation_grants>`__.
+  The labeling of different aggregations of EIA generators as the true granularity was
+  sped up, resulting in faster generation of the final plant parts list. In addition,
+  the generation of the ``installation_year`` column in the plant parts list was fixed
+  and a ``construction_year`` column was also added. Finally, ``operating_year`` was
+  added as a level that the EIA generators are now aggregated to.
+
+Metadata
+^^^^^^^^
+* Used the data source metadata class added in release 0.6.0 to dynamically generate
+  the data source documentation (See :doc:`data_sources/index`).
 
 Bug Fixes
 ^^^^^^^^^
