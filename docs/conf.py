@@ -51,7 +51,6 @@ extensions = [
     "autoapi.extension",
     "sphinx_issues",
     "sphinx_reredirects",
-    "sphinx_rtd_dark_mode",
     "sphinxcontrib.bibtex",
 ]
 todo_include_todos = True
@@ -109,27 +108,16 @@ exclude_patterns = ["_build"]
 
 # The theme to use for HTML and HTML Help pages.
 
-# user starts in dark mode
-default_dark_mode = False
-
 master_doc = "index"
-html_theme = "sphinx_rtd_theme"
+html_theme = "furo"
 html_logo = "_static/catalyst_logo-200x200.png"
 html_icon = "_static/favicon.ico"
-
-html_context = {
-    "display_github": True,  # Integrate GitHub
-    "github_user": "catalyst-cooperative",  # Username
-    "github_repo": "pudl",  # Repo name
-    "github_version": "main",  # Version
-    "conf_py_path": "/docs/",  # Path in the checkout to the docs root
-}
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
 # documentation.
 html_theme_options = {
-    "collapse_navigation": True,
+    "navigation_with_keys": True,
 }
 
 # Add any paths that contain custom static files (such as style sheets) here,

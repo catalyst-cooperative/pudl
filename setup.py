@@ -85,12 +85,11 @@ setup(
         ],
         "doc": [
             "doc8>=0.9,<0.12",
+            "furo>=2022.4.7",
             "sphinx>=4,<6.0",
             "sphinx-autoapi>=1.8,<1.9",
             "sphinx-issues>=1.2,<3.1",
             "sphinx-reredirects",
-            "sphinx-rtd-dark-mode>=1.2,<1.3",
-            "sphinx-rtd-theme>=1.0,<1.1",
             "sphinxcontrib_bibtex>=2.4,<2.5",
         ],
         "test": [
