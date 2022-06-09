@@ -107,7 +107,6 @@ exclude_patterns = ["_build"]
 # -- Options for HTML output -------------------------------------------------
 
 # The theme to use for HTML and HTML Help pages.
-
 master_doc = "index"
 html_theme = "furo"
 html_logo = "_static/catalyst_logo-200x200.png"

@@ -38,11 +38,10 @@ Plant Parts List Module Changes
 Metadata
 ^^^^^^^^
 * Used the data source metadata class added in release 0.6.0 to dynamically generate
-  the data source documentation (See :doc:`data_sources/index`).
+  the data source documentation (See :doc:`data_sources/index`). :pr:`1532`
 
 Bug Fixes
 ^^^^^^^^^
-
 * `Dask v2022.4.2 <https://docs.dask.org/en/stable/changelog.html#v2022-04-2>`__
   introduced breaking changes into :meth:`dask.dataframe.read_parquet`.  However, we
   didn't catch this when it happened because it's only a problem when there's more than
@@ -54,6 +53,21 @@ Bug Fixes
 * Fixed a testing bug where the partitioned EPA CEMS outputs generated using parallel
   processing were getting output in the same output directory as the real ETL, which
   should never happen. See :pr:`1618`.
+* Changed the way fixes to the EIA-861 balancing authority names and IDs are applied,
+  so that they still work when only some years of data are being processed. See
+  :pr:`1671` and :issue:`828`.
+
+Dependencies / Environment
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+* In conjunction with getting the :user:`dependabot` set up to merge its own PRs if CI
+  passes, we tightened the version constraints on a lot of our dependencies. This should
+  reduce the frequency with which we get surprised by changes breaking things after
+  release. See :pr:`1655`
+* We are also moving toward treating PUDL like an application rather than a library, and
+  may start pinning both our direct and indirect dependencies to exact version soon. See
+  :issue:`1669`.
+* We've switched to using `mambaforge <https://github.com/conda-forge/miniforge>`__ to
+  manage our environments internally, and are recommending that users use it as well.
 
 .. _release-v0-6-0:
 
