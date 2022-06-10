@@ -64,7 +64,7 @@ def plants_steam_ferc1(pudl_engine):
             opex_nonfuel_per_mwh=lambda x: np.where(
                 x.net_generation_mwh > 0,
                 x.opex_total_nonfuel / x.net_generation_mwh,
-                pd.NA,
+                np.nan,
             ),
         )
         .pipe(
