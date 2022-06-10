@@ -618,7 +618,7 @@ def organize_cols(df, cols):
     """
     # Generate a list of all the columns in the dataframe that are not
     # included in cols
-    data_cols = sorted([c for c in df.columns.tolist() if c not in cols])
+    data_cols = sorted(c for c in df.columns.tolist() if c not in cols)
     organized_cols = cols + data_cols
     return df[organized_cols]
 
@@ -1534,7 +1534,7 @@ def get_eia_ferc_acct_map():
 
 def dedupe_n_flatten_list_of_lists(mega_list):
     """Flatten a list of lists and remove duplicates."""
-    return list(set([item for sublist in mega_list for item in sublist]))
+    return list({item for sublist in mega_list for item in sublist})
 
 
 def convert_df_to_excel_file(df: pd.DataFrame, **kwargs) -> pd.ExcelFile:

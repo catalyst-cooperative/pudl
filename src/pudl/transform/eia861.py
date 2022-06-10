@@ -659,7 +659,7 @@ def _clean_nerc(df, idx_cols):
 
     # Record a list of the reported nerc regions not included in the recognized regions list (these eventually become UNK)
     nerc_col = nerc_df["nerc_region"].tolist()
-    nerc_list = list(set([item for sublist in nerc_col for item in sublist]))
+    nerc_list = list({item for sublist in nerc_col for item in sublist})
     non_nerc_list = [
         nerc_entity
         for nerc_entity in nerc_list
@@ -692,7 +692,7 @@ def _clean_nerc(df, idx_cols):
                 ]
             )
         )
-        .apply(lambda x: sorted([i if i in NERC_REGIONS else "UNK" for i in x]))
+        .apply(lambda x: sorted(i if i in NERC_REGIONS else "UNK" for i in x))
         .apply(lambda x: _remove_nerc_duplicates(x))
         .str.join("_")
     )

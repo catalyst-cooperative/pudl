@@ -13,12 +13,10 @@ SOURCES: dict[str, Any] = {
         ),
         "working_partitions": {},  # Census DP1 is monolithic.
         "keywords": sorted(
-            set(
-                [
-                    "censusdp1tract",
-                    "census",
-                ]
-            )
+            {
+                "censusdp1tract",
+                "census",
+            }
         ),
         "license_raw": LICENSES["us-govt"],
         "license_pudl": LICENSES["cc-by-4.0"],

@@ -247,9 +247,9 @@ def overlay(
         ratios = []
     # Check for duplicate non-geometry column names
     seen = set()
-    duplicates = set(
+    duplicates = {
         c for df in gdfs for c in get_data_columns(df) if c in seen or seen.add(c)
-    )
+    }
     if duplicates:
         raise ValueError(f"Duplicate column names in layers: {duplicates}")
     # Drop index columns and replace with default index of known name

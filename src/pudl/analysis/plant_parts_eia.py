@@ -675,9 +675,9 @@ class MakePlantParts(object):
                     keep=MAX_MIN_ATTRIBUTES_DICT[attribute_col]["keep"],
                 )
             # assert that all the plant part ID columns are now in part_df
-            assert set(
-                [col for part in PLANT_PARTS for col in PLANT_PARTS[part]["id_cols"]]
-            ).issubset(part_df.columns)
+            assert {
+                col for part in PLANT_PARTS for col in PLANT_PARTS[part]["id_cols"]
+            }.issubset(part_df.columns)
             part_dfs.append(part_df)
         plant_parts_eia = pd.concat(part_dfs)
         plant_parts_eia = TrueGranLabeler().execute(plant_parts_eia)

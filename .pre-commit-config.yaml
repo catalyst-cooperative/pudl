@@ -60,6 +60,12 @@ repos:
   hooks:
   - id: upgrade-type-hints
 
+# Update Python language constructs to modern standards
+- repo: https://github.com/asottile/pyupgrade
+  rev: v2.32.1
+  hooks:
+  - id: pyupgrade
+
 ########################################################################################
 # Linters: hooks that check but don't alter Python and documentation files
 ########################################################################################

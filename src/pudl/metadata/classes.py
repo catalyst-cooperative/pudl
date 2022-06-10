@@ -918,11 +918,9 @@ class DataSource(Base):
             resources = eia861.RESOURCE_METADATA
 
         return sorted(
-            [
-                name
-                for name, value in resources.items()
-                if value.get("etl_group") == self.name
-            ]
+            name
+            for name, value in resources.items()
+            if value.get("etl_group") == self.name
         )
 
     def get_temporal_coverage(self, partitions: dict = None) -> str:
@@ -1530,7 +1528,7 @@ class Resource(Base):
                 "stats": stats,
                 "errors": errors.get(field.name, None),
             }
-        nerrors = sum([not f["valid"] for f in freports.values()])
+        nerrors = sum(not f["valid"] for f in freports.values())
         stats = {
             "all": ncols,
             "invalid": nerrors,
