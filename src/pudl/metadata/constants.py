@@ -1,12 +1,12 @@
 """Metadata and operational constants."""
 import datetime
-from typing import Callable, Dict, List, Type
+from collections.abc import Callable
 
 import pandas as pd
 import pyarrow as pa
 import sqlalchemy as sa
 
-FIELD_DTYPES_PANDAS: Dict[str, str] = {
+FIELD_DTYPES_PANDAS: dict[str, str] = {
     "string": "string",
     "number": "float64",
     "integer": "Int64",
@@ -19,7 +19,7 @@ FIELD_DTYPES_PANDAS: Dict[str, str] = {
 Pandas data type by PUDL field type (Data Package `field.type`).
 """
 
-FIELD_DTYPES_PYARROW: Dict[str, pa.lib.DataType] = {
+FIELD_DTYPES_PYARROW: dict[str, pa.lib.DataType] = {
     "boolean": pa.bool_(),
     "date": pa.date32(),
     "datetime": pa.timestamp("ms", tz="UTC"),
@@ -29,7 +29,7 @@ FIELD_DTYPES_PYARROW: Dict[str, pa.lib.DataType] = {
     "year": pa.int32(),
 }
 
-FIELD_DTYPES_SQL: Dict[str, sa.sql.visitors.VisitableType] = {
+FIELD_DTYPES_SQL: dict[str, sa.sql.visitors.VisitableType] = {
     "boolean": sa.Boolean,
     "date": sa.Date,
     "datetime": sa.DateTime,
@@ -42,7 +42,7 @@ FIELD_DTYPES_SQL: Dict[str, sa.sql.visitors.VisitableType] = {
 SQLAlchemy column types by PUDL field type (Data Package `field.type`).
 """
 
-CONSTRAINT_DTYPES: Dict[str, Type] = {
+CONSTRAINT_DTYPES: dict[str, type] = {
     "string": str,
     "integer": int,
     "year": int,
@@ -55,7 +55,7 @@ CONSTRAINT_DTYPES: Dict[str, Type] = {
 Python types for field constraints by PUDL field type (Data Package `field.type`).
 """
 
-LICENSES: Dict[str, Dict[str, str]] = {
+LICENSES: dict[str, dict[str, str]] = {
     "cc-by-4.0": {
         "name": "CC-BY-4.0",
         "title": "Creative Commons Attribution 4.0",
@@ -71,7 +71,7 @@ LICENSES: Dict[str, Dict[str, str]] = {
 License attributes.
 """
 
-PERIODS: Dict[str, Callable[[pd.Series], pd.Series]] = {
+PERIODS: dict[str, Callable[[pd.Series], pd.Series]] = {
     "year": lambda x: x.astype("datetime64[Y]"),
     "quarter": lambda x: x.apply(
         pd.tseries.offsets.QuarterBegin(startingMonth=1).rollback
@@ -83,7 +83,7 @@ PERIODS: Dict[str, Callable[[pd.Series], pd.Series]] = {
 Functions converting datetimes to period start times, by time period.
 """
 
-CONTRIBUTORS: Dict[str, Dict[str, str]] = {
+CONTRIBUTORS: dict[str, dict[str, str]] = {
     "catalyst-cooperative": {
         "title": "Catalyst Cooperative",
         "email": "pudl@catalyst.coop",
@@ -165,7 +165,7 @@ CONTRIBUTORS: Dict[str, Dict[str, str]] = {
 PUDL Contributors for attribution.
 """
 
-KEYWORDS: Dict[str, List[str]] = {
+KEYWORDS: dict[str, list[str]] = {
     "electricity": [
         "electricity",
         "electric",

@@ -29,7 +29,7 @@ Todo:
 import logging
 from collections import defaultdict
 from datetime import date, datetime
-from typing import Any, Literal, Union
+from typing import Any, Literal
 
 # Useful high-level external modules.
 import pandas as pd
@@ -52,16 +52,16 @@ logger = logging.getLogger(__name__)
 ###############################################################################
 
 
-class PudlTabl(object):
+class PudlTabl:
     """A class for compiling common useful tabular outputs from the PUDL DB."""
 
     def __init__(
         self,
         pudl_engine: sa.engine.Engine,
-        ds: Union[Datastore, None] = None,
+        ds: Datastore | None = None,
         freq: Literal["AS", "MS", None] = None,
-        start_date: Union[str, date, datetime, pd.Timestamp] = None,
-        end_date: Union[str, date, datetime, pd.Timestamp] = None,
+        start_date: str | date | datetime | pd.Timestamp = None,
+        end_date: str | date | datetime | pd.Timestamp = None,
         fill_fuel_cost: bool = False,
         roll_fuel_cost: bool = False,
         fill_net_gen: bool = False,
@@ -109,7 +109,7 @@ class PudlTabl(object):
         """
         # Validating ds is deferred to the etl_eia861 & etl_ferc714 methods
         # because those are the only places a datastore is required.
-        self.ds: Union[Datastore, None] = ds
+        self.ds: Datastore | None = ds
         if not isinstance(pudl_engine, sa.engine.base.Engine):
             raise TypeError(
                 "PudlTabl needs pudl_engine to be a SQLAlchemy Engine, but we "

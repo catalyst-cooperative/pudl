@@ -182,7 +182,7 @@ OR make the table via objects in this module:
 import logging
 import warnings
 from copy import deepcopy
-from typing import Dict, List, Literal, Optional
+from typing import Literal
 
 import numpy as np
 import pandas as pd
@@ -200,7 +200,7 @@ logger = logging.getLogger(__name__)
 pd.options.display.width = 1000
 pd.options.display.max_columns = 1000
 
-PLANT_PARTS: Dict[str, Dict[str, List]] = {
+PLANT_PARTS: dict[str, dict[str, list]] = {
     "plant": {
         "id_cols": ["plant_id_eia"],
     },
@@ -236,7 +236,7 @@ dictionary, which contains keys:
 
 """
 
-PLANT_PARTS_ORDERED: List[str] = [
+PLANT_PARTS_ORDERED: list[str] = [
     "plant",
     "plant_unit",
     "plant_prime_mover",
@@ -259,7 +259,7 @@ PLANT_PARTS_LITERAL = Literal[
 ]
 
 
-IDX_TO_ADD: List[str] = ["report_date", "operational_status_pudl"]
+IDX_TO_ADD: list[str] = ["report_date", "operational_status_pudl"]
 """
 list: list of additional columns to add to the id_cols in :py:const:`PLANT_PARTS`.
 The id_cols are the base columns that we need to aggregate on, but we also need
@@ -268,7 +268,7 @@ operational_status_pudl to separate the operating plant-parts from the
 non-operating plant-parts.
 """
 
-IDX_OWN_TO_ADD: List[str] = ["utility_id_eia", "ownership"]
+IDX_OWN_TO_ADD: list[str] = ["utility_id_eia", "ownership"]
 """
 list: list of additional columns beyond the :py:const:`IDX_TO_ADD` to add to the
 id_cols in :py:const:`PLANT_PARTS` when we are dealing with plant-part records
@@ -276,7 +276,7 @@ that have been broken out into "owned" and "total" records for each of their
 owners.
 """
 
-SUM_COLS: List[str] = [
+SUM_COLS: list[str] = [
     "total_fuel_cost",
     "net_generation_mwh",
     "capacity_mw",
@@ -346,7 +346,7 @@ FIRST_COLS = [
 ]
 
 
-class MakeMegaGenTbl(object):
+class MakeMegaGenTbl:
     """Compiler for a MEGA generator table with ownership integrated.
 
     Examples
@@ -424,7 +424,7 @@ class MakeMegaGenTbl(object):
         self,
         mcoe: pd.DataFrame,
         own_eia860: pd.DataFrame,
-        slice_cols: List[str] = SUM_COLS,
+        slice_cols: list[str] = SUM_COLS,
         validate_own_merge: str = "1:m",
     ) -> pd.DataFrame:
         """Make the mega generators table with ownership integrated.
@@ -605,7 +605,7 @@ class MakeMegaGenTbl(object):
         return gens_mega
 
 
-class MakePlantParts(object):
+class MakePlantParts:
     """Compile the plant parts for the master unit list.
 
     This object generates a master list of different "plant-parts", which
@@ -675,9 +675,9 @@ class MakePlantParts(object):
                     keep=MAX_MIN_ATTRIBUTES_DICT[attribute_col]["keep"],
                 )
             # assert that all the plant part ID columns are now in part_df
-            assert set(
-                [col for part in PLANT_PARTS for col in PLANT_PARTS[part]["id_cols"]]
-            ).issubset(part_df.columns)
+            assert {
+                col for part in PLANT_PARTS for col in PLANT_PARTS[part]["id_cols"]
+            }.issubset(part_df.columns)
             part_dfs.append(part_df)
         plant_parts_eia = pd.concat(part_dfs)
         plant_parts_eia = TrueGranLabeler().execute(plant_parts_eia)
@@ -807,7 +807,7 @@ class MakePlantParts(object):
             )
 
 
-class PlantPart(object):
+class PlantPart:
     """Plant-part table maker.
 
     The coordinating method here is :meth:`execute`.
@@ -857,8 +857,8 @@ class PlantPart(object):
     def execute(
         self,
         gens_mega: pd.DataFrame,
-        sum_cols: List[str] = SUM_COLS,
-        wtavg_dict: Dict = WTAVG_DICT,
+        sum_cols: list[str] = SUM_COLS,
+        wtavg_dict: dict = WTAVG_DICT,
     ) -> pd.DataFrame:
         """Get a table of data aggregated by a specific plant-part.
 
@@ -1137,14 +1137,14 @@ class TrueGranLabeler:
         return ppl_true_gran
 
 
-class AddAttribute(object):
+class AddAttribute:
     """Base class for adding attributes to plant-part tables."""
 
     def __init__(
         self,
         attribute_col: str,
         part_name: str,
-        assign_col_dict: Optional[Dict[str, str]] = None,
+        assign_col_dict: dict[str, str] | None = None,
     ):
         """Initialize a attribute adder.
 
@@ -1497,7 +1497,7 @@ def match_to_single_plant_part(
     multi_gran_df: pd.DataFrame,
     ppl: pd.DataFrame,
     part_name: PLANT_PARTS_LITERAL = "plant_gen",
-    cols_to_keep: List[str] = [],
+    cols_to_keep: list[str] = [],
 ) -> pd.DataFrame:
     """Match data with a variety of granularities to a single plant-part.
 

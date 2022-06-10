@@ -45,7 +45,7 @@ setup(
         "eia 861",
         "ferc 714",
     ],
-    python_requires=">=3.8,<3.11",
+    python_requires=">=3.10,<3.11",
     setup_requires=["setuptools_scm"],
     install_requires=[
         "addfips>=0.3.1,<0.4.0",
@@ -128,8 +128,6 @@ setup(
         "Programming Language :: Python",
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3 :: Only",
-        "Programming Language :: Python :: 3.8",
-        "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
         "Topic :: Scientific/Engineering",
     ],

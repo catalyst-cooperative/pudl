@@ -1,19 +1,18 @@
 """Descriptive labels for coded field values."""
-from typing import Dict
 
-ESTIMATED_OR_ACTUAL: Dict[str, str] = {"E": "estimated", "A": "actual"}
+ESTIMATED_OR_ACTUAL: dict[str, str] = {"E": "estimated", "A": "actual"}
 """
 Descriptive labels for EIA estimated or actual codes.
 """
 
-MOMENTARY_INTERRUPTIONS: Dict[str, str] = {
+MOMENTARY_INTERRUPTIONS: dict[str, str] = {
     "L": "less_than_1_minute",
     "F": "less_than_5_minutes",
     "O": "other",
 }
 """Descriptive labels for EIA momentary interruption codes."""
 
-POWER_PURCHASE_TYPES_FERC1: Dict[str, str] = {
+POWER_PURCHASE_TYPES_FERC1: dict[str, str] = {
     "RQ": "requirement",
     "LF": "long_firm",
     "IF": "intermediate_firm",
@@ -26,7 +25,7 @@ POWER_PURCHASE_TYPES_FERC1: Dict[str, str] = {
 }
 """Descriptive labels for FERC 1 power purchase type codes."""
 
-COALMINE_TYPES_EIA: Dict[str, str] = {
+COALMINE_TYPES_EIA: dict[str, str] = {
     "P": "preparation_plant",
     "S": "surface",
     "U": "underground",
@@ -39,7 +38,7 @@ Descriptive labels for coal mine type codes used in EIA 923 reporting.
 These codes and descriptions come from Page 7 of the EIA 923.
 """
 
-CENSUS_REGIONS: Dict[str, str] = {
+CENSUS_REGIONS: dict[str, str] = {
     "NEW": "New England",
     "MAT": "Middle Atlantic",
     "SAT": "South Atlantic",
@@ -57,7 +56,7 @@ Descriptive labels for Census Region codes.
 Not currently being used.
 """
 
-RTO_ISO: Dict[str, str] = {
+RTO_ISO: dict[str, str] = {
     "CAISO": "California ISO",
     "ERCOT": "Electric Reliability Council of Texas",
     "ISONE": "ISO New England",
@@ -72,7 +71,7 @@ Descriptive labels for RTO/ISO short codes.
 Not currently being used.
 """
 
-FUEL_UNITS_EIA: Dict[str, str] = {
+FUEL_UNITS_EIA: dict[str, str] = {
     "mcf": "Thousands of cubic feet (for gases)",
     "short_tons": "Short tons (for solids)",
     "barrels": "Barrels (for liquids)",

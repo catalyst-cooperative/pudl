@@ -1,8 +1,8 @@
 """Tables definitions for data coming from the FERC Form 714."""
 
-from typing import Any, Dict
+from typing import Any
 
-RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
+RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     "respondent_id_ferc714": {
         "description": "Respondent identification. FERC Form 714, Part I, Schedule 1.",
         "schema": {

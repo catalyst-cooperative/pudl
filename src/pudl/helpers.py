@@ -16,7 +16,7 @@ from collections import defaultdict
 from functools import partial
 from importlib import resources
 from io import BytesIO
-from typing import Any, DefaultDict, Dict, List, Literal, Optional, Set, Union
+from typing import Any, Literal
 
 import addfips
 import numpy as np
@@ -45,8 +45,8 @@ def label_map(
     df: pd.DataFrame,
     from_col: str = "code",
     to_col: str = "label",
-    null_value: Union[str, type(pd.NA)] = pd.NA,
-) -> DefaultDict[str, Union[str, type(pd.NA)]]:
+    null_value: str | type(pd.NA) = pd.NA,
+) -> defaultdict[str, str | type(pd.NA)]:
     """Build a mapping dictionary from two columns of a labeling / coding dataframe.
 
     These dataframes document the meanings of the codes that show up in much of the
@@ -78,9 +78,9 @@ def label_map(
 def find_new_ferc1_strings(
     table: str,
     field: str,
-    strdict: Dict[str, List[str]],
+    strdict: dict[str, list[str]],
     ferc1_engine: sa.engine.Engine,
-) -> Set[str]:
+) -> set[str]:
     """Identify as-of-yet uncategorized freeform strings in FERC Form 1.
 
     Args:
@@ -104,7 +104,7 @@ def find_new_ferc1_strings(
     return all_strings.difference(old_strings)
 
 
-def find_foreign_key_errors(dfs: Dict[str, pd.DataFrame]) -> List[Dict[str, Any]]:
+def find_foreign_key_errors(dfs: dict[str, pd.DataFrame]) -> list[dict[str, Any]]:
     """Report foreign key violations from a dictionary of dataframes.
 
     The database schema to check against is generated based on the names of the
@@ -356,11 +356,11 @@ def convert_col_to_datetime(df, date_col_name):
 def full_timeseries_date_merge(
     left: pd.DataFrame,
     right: pd.DataFrame,
-    on: List[str],
+    on: list[str],
     left_date_col: str = "report_date",
     right_date_col: str = "report_date",
     new_date_col: str = "report_date",
-    date_on: List[str] = ["year"],
+    date_on: list[str] = ["year"],
     how: Literal["inner", "outer", "left", "right", "cross"] = "inner",
     report_at_start: bool = True,
     freq: str = "MS",
@@ -408,11 +408,11 @@ def _add_suffix_to_date_on(date_on):
 def date_merge(
     left: pd.DataFrame,
     right: pd.DataFrame,
-    on: List[str],
+    on: list[str],
     left_date_col: str = "report_date",
     right_date_col: str = "report_date",
     new_date_col: str = "report_date",
-    date_on: List[str] = None,
+    date_on: list[str] = None,
     how: Literal["inner", "outer", "left", "right", "cross"] = "inner",
     report_at_start: bool = True,
     **kwargs,
@@ -516,7 +516,7 @@ def date_merge(
 
 def expand_timeseries(
     df: pd.DataFrame,
-    key_cols: List[str],
+    key_cols: list[str],
     date_col: str = "report_date",
     freq: str = "MS",
     fill_through_freq: Literal["year", "month", "day"] = "year",
@@ -618,7 +618,7 @@ def organize_cols(df, cols):
     """
     # Generate a list of all the columns in the dataframe that are not
     # included in cols
-    data_cols = sorted([c for c in df.columns.tolist() if c not in cols])
+    data_cols = sorted(c for c in df.columns.tolist() if c not in cols)
     organized_cols = cols + data_cols
     return df[organized_cols]
 
@@ -1063,7 +1063,7 @@ def merge_dicts(list_of_dicts):
 
 
 def convert_cols_dtypes(
-    df: pd.DataFrame, data_source: Optional[str] = None, name: Optional[str] = None
+    df: pd.DataFrame, data_source: str | None = None, name: str | None = None
 ) -> pd.DataFrame:
     """Convert a PUDL dataframe's columns to the correct data type.
 
@@ -1477,7 +1477,7 @@ def sum_and_weighted_average_agg(
     df_in: pd.DataFrame,
     by: list,
     sum_cols: list,
-    wtavg_dict: Dict[str, str],
+    wtavg_dict: dict[str, str],
 ) -> pd.DataFrame:
     """Aggregate dataframe by summing and using weighted averages.
 
@@ -1534,7 +1534,7 @@ def get_eia_ferc_acct_map():
 
 def dedupe_n_flatten_list_of_lists(mega_list):
     """Flatten a list of lists and remove duplicates."""
-    return list(set([item for sublist in mega_list for item in sublist]))
+    return list({item for sublist in mega_list for item in sublist})
 
 
 def convert_df_to_excel_file(df: pd.DataFrame, **kwargs) -> pd.ExcelFile:

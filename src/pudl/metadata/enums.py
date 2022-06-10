@@ -1,7 +1,6 @@
 """Enumerations of valid field values."""
-from typing import Dict, List
 
-US_STATES: Dict[str, str] = {
+US_STATES: dict[str, str] = {
     "AK": "Alaska",
     "AL": "Alabama",
     "AR": "Arkansas",
@@ -55,7 +54,7 @@ US_STATES: Dict[str, str] = {
 }
 """Mapping of US state abbreviations to their full names."""
 
-US_TERRITORIES: Dict[str, str] = {
+US_TERRITORIES: dict[str, str] = {
     "AS": "American Samoa",
     "DC": "District of Columbia",
     "GU": "Guam",
@@ -65,9 +64,9 @@ US_TERRITORIES: Dict[str, str] = {
 }
 """Mapping of US territory abbreviations to their full names."""
 
-US_STATES_TERRITORIES: Dict[str, str] = {**US_STATES, **US_TERRITORIES}
+US_STATES_TERRITORIES: dict[str, str] = {**US_STATES, **US_TERRITORIES}
 
-EPACEMS_STATES: List[str] = [
+EPACEMS_STATES: list[str] = [
     state
     for state in US_STATES_TERRITORIES
     # AK and PR have data but only a few years, and that breaks the Datastore.
@@ -76,7 +75,7 @@ EPACEMS_STATES: List[str] = [
 ]
 """The US states and territories that are present in the EPA CEMS dataset."""
 
-CANADA_PROVINCES_TERRITORIES: Dict[str, str] = {
+CANADA_PROVINCES_TERRITORIES: dict[str, str] = {
     "AB": "Alberta",
     "BC": "British Columbia",
     "CN": "Canada",
@@ -94,7 +93,7 @@ CANADA_PROVINCES_TERRITORIES: Dict[str, str] = {
 }
 """Mapping of Canadian province and territory abbreviations to their full names"""
 
-NERC_REGIONS: List[str] = [
+NERC_REGIONS: list[str] = [
     "BASN",  # ASSESSMENT AREA Basin (WECC)
     "CALN",  # ASSESSMENT AREA California (WECC)
     "CALS",  # ASSESSMENT AREA California (WECC)
@@ -142,7 +141,7 @@ North American Reliability Corporation (NERC) regions.
 See https://www.eia.gov/electricity/data/eia411/#tabs_NERC-3.
 """
 
-CUSTOMER_CLASSES: List[str] = [
+CUSTOMER_CLASSES: list[str] = [
     "commercial",
     "industrial",
     "direct_connection",
@@ -152,7 +151,7 @@ CUSTOMER_CLASSES: List[str] = [
     "transportation",
 ]
 
-TECH_CLASSES: List[str] = [
+TECH_CLASSES: list[str] = [
     "backup",  # WHERE Is this used? because removed from DG table b/c not a real component
     "chp_cogen",
     "combustion_turbine",
@@ -169,7 +168,7 @@ TECH_CLASSES: List[str] = [
     "wind",
 ]
 
-REVENUE_CLASSES: List[str] = [
+REVENUE_CLASSES: list[str] = [
     "credits_or_adjustments",
     "delivery_customers",
     "other",
@@ -180,9 +179,9 @@ REVENUE_CLASSES: List[str] = [
     "unbundled",
 ]
 
-RELIABILITY_STANDARDS: List[str] = ["ieee_standard", "other_standard"]
+RELIABILITY_STANDARDS: list[str] = ["ieee_standard", "other_standard"]
 
-FUEL_CLASSES: List[str] = [
+FUEL_CLASSES: list[str] = [
     "gas",
     "oil",
     "other",
@@ -192,7 +191,7 @@ FUEL_CLASSES: List[str] = [
     "wood",
 ]
 
-RTO_CLASSES: List[str] = [
+RTO_CLASSES: list[str] = [
     "caiso",
     "ercot",
     "isone",
@@ -203,7 +202,7 @@ RTO_CLASSES: List[str] = [
     "spp",
 ]
 
-EPACEMS_MEASUREMENT_CODES: List[str] = [
+EPACEMS_MEASUREMENT_CODES: list[str] = [
     "Calculated",
     "LME",
     "Measured",

@@ -19,7 +19,6 @@ found in :func:`pudl.transform.eia._boiler_generator_assn`.
 
 import importlib.resources
 import logging
-from typing import Dict
 
 import networkx as nx
 import numpy as np
@@ -37,7 +36,7 @@ logger = logging.getLogger(__name__)
 TZ_FINDER = timezonefinder.TimezoneFinder()
 """A global TimezoneFinder to cache geographies in memory for faster access."""
 
-APPROXIMATE_TIMEZONES: Dict[str, str] = {
+APPROXIMATE_TIMEZONES: dict[str, str] = {
     "AK": "America/Anchorage",  # Alaska
     "AL": "America/Chicago",  # Alabama
     "AR": "America/Chicago",  # Arkansas
@@ -443,8 +442,8 @@ def _manage_strictness(col, eia860m):
 
 def harvesting(  # noqa: C901
     entity: str,
-    eia_transformed_dfs: Dict[str, pd.DataFrame],
-    entities_dfs: Dict[str, pd.DataFrame],
+    eia_transformed_dfs: dict[str, pd.DataFrame],
+    entities_dfs: dict[str, pd.DataFrame],
     eia860m: bool = False,
     debug: bool = False,
 ) -> tuple:
