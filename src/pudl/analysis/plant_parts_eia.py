@@ -182,7 +182,7 @@ OR make the table via objects in this module:
 import logging
 import warnings
 from copy import deepcopy
-from typing import Literal, Optional
+from typing import Literal
 
 import numpy as np
 import pandas as pd
@@ -346,7 +346,7 @@ FIRST_COLS = [
 ]
 
 
-class MakeMegaGenTbl(object):
+class MakeMegaGenTbl:
     """Compiler for a MEGA generator table with ownership integrated.
 
     Examples
@@ -605,7 +605,7 @@ class MakeMegaGenTbl(object):
         return gens_mega
 
 
-class MakePlantParts(object):
+class MakePlantParts:
     """Compile the plant parts for the master unit list.
 
     This object generates a master list of different "plant-parts", which
@@ -807,7 +807,7 @@ class MakePlantParts(object):
             )
 
 
-class PlantPart(object):
+class PlantPart:
     """Plant-part table maker.
 
     The coordinating method here is :meth:`execute`.
@@ -1137,14 +1137,14 @@ class TrueGranLabeler:
         return ppl_true_gran
 
 
-class AddAttribute(object):
+class AddAttribute:
     """Base class for adding attributes to plant-part tables."""
 
     def __init__(
         self,
         attribute_col: str,
         part_name: str,
-        assign_col_dict: Optional[dict[str, str]] = None,
+        assign_col_dict: dict[str, str] | None = None,
     ):
         """Initialize a attribute adder.
 

@@ -189,7 +189,7 @@ def categorize_eia_code(eia_codes, ba_ids, util_ids, priority="balancing_authori
     return df
 
 
-class Respondents(object):
+class Respondents:
     """A class coordinating compilation of data related to FERC 714 Respondents.
 
     The FERC 714 Respondents themselves are not complex as they are reported, but

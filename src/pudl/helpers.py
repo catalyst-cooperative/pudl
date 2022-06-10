@@ -16,7 +16,7 @@ from collections import defaultdict
 from functools import partial
 from importlib import resources
 from io import BytesIO
-from typing import Any, Literal, Optional, Union
+from typing import Any, Literal
 
 import addfips
 import numpy as np
@@ -45,8 +45,8 @@ def label_map(
     df: pd.DataFrame,
     from_col: str = "code",
     to_col: str = "label",
-    null_value: Union[str, type(pd.NA)] = pd.NA,
-) -> defaultdict[str, Union[str, type(pd.NA)]]:
+    null_value: str | type(pd.NA) = pd.NA,
+) -> defaultdict[str, str | type(pd.NA)]:
     """Build a mapping dictionary from two columns of a labeling / coding dataframe.
 
     These dataframes document the meanings of the codes that show up in much of the
@@ -1063,7 +1063,7 @@ def merge_dicts(list_of_dicts):
 
 
 def convert_cols_dtypes(
-    df: pd.DataFrame, data_source: Optional[str] = None, name: Optional[str] = None
+    df: pd.DataFrame, data_source: str | None = None, name: str | None = None
 ) -> pd.DataFrame:
     """Convert a PUDL dataframe's columns to the correct data type.
 

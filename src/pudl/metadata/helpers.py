@@ -1,7 +1,7 @@
 """Functions for manipulating metadata constants."""
 from collections import defaultdict
 from collections.abc import Callable, Iterable
-from typing import Any, Optional, Union
+from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -45,7 +45,7 @@ def format_errors(*errors: str, title: str = None, pydantic: bool = False) -> st
 # --- Foreign keys --- #
 
 
-def _parse_field_names(fields: list[Union[str, dict]]) -> list[str]:
+def _parse_field_names(fields: list[str | dict]) -> list[str]:
     """Parse field names.
 
     Args:
@@ -168,9 +168,9 @@ def build_foreign_keys(
     A resource's `foreign_key_rules` (if present) determines which other resources will
     be assigned a foreign key (`foreign_keys`) to the reference's primary key:
 
-    * `fields` (List[List[str]]): Sets of field names for which to create a foreign key.
+    * `fields` (list[list[str]]): Sets of field names for which to create a foreign key.
       These are assumed to match the order of the reference's primary key fields.
-    * `exclude` (Optional[List[str]]): Names of resources to exclude.
+    * `exclude` (Optional[list[str]]): Names of resources to exclude.
 
     Args:
         resources: Resource descriptors by name.
@@ -179,9 +179,9 @@ def build_foreign_keys(
     Returns:
         Foreign keys for each resource (if any), by resource name.
 
-        * `fields` (List[str]): Field names.
+        * `fields` (list[str]): Field names.
         * `reference['resource']` (str): Reference resource name.
-        * `reference['fields']` (List[str]): Reference resource field names.
+        * `reference['fields']` (list[str]): Reference resource field names.
 
     Examples:
         >>> resources = {
@@ -229,7 +229,7 @@ def build_foreign_keys(
 # --- Harvest --- #
 
 
-def split_period(name: str) -> tuple[str, Optional[str]]:
+def split_period(name: str) -> tuple[str, str | None]:
     """Split the time period from a column name.
 
     Args:
@@ -343,7 +343,7 @@ def as_dict(x: pd.Series) -> dict[Any, list]:
 def try_aggfunc(  # noqa: C901
     func: Callable,
     raised: bool = True,
-    error: Union[str, Callable] = None,
+    error: str | Callable = None,
 ) -> Callable:
     """Wrap aggregate function in a try-except for error handling.
 

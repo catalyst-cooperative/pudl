@@ -2,7 +2,6 @@
 from collections.abc import Iterable, Sequence
 from itertools import product
 from pathlib import Path
-from typing import Optional, Union
 
 import dask.dataframe as dd
 import pandas as pd
@@ -31,7 +30,7 @@ def epa_crosswalk() -> pd.DataFrame:
 
 def year_state_filter(
     years: Iterable[int] = None, states: Iterable[str] = None
-) -> list[list[tuple[Union[str, int]]]]:
+) -> list[list[tuple[str | int]]]:
     """Create filters to read given years and states from partitioned parquet dataset.
 
     A subset of an Apache Parquet dataset can be read in more efficiently if files which
@@ -131,10 +130,10 @@ def get_plant_years(plant_ids, pudl_out):
 
 
 def epacems(
-    states: Optional[Sequence[str]] = None,
-    years: Optional[Sequence[int]] = None,
-    columns: Optional[Sequence[str]] = None,
-    epacems_path: Optional[Path] = None,
+    states: Sequence[str] | None = None,
+    years: Sequence[int] | None = None,
+    columns: Sequence[str] | None = None,
+    epacems_path: Path | None = None,
 ) -> dd.DataFrame:
     """Load EPA CEMS data from PUDL with optional subsetting.
 

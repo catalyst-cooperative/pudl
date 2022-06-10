@@ -28,7 +28,7 @@ import logging
 import pathlib
 import sys
 from collections.abc import Iterable
-from typing import Any, Union
+from typing import Any
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -45,7 +45,7 @@ logger = logging.getLogger(__name__)
 # --- Constants --- #
 
 
-STATES: list[dict[str, Union[str, int]]] = [
+STATES: list[dict[str, str | int]] = [
     {"name": "Alabama", "code": "AL", "fips": "01"},
     {"name": "Alaska", "code": "AK", "fips": "02"},
     {"name": "Arizona", "code": "AZ", "fips": "04"},
@@ -151,7 +151,7 @@ Time zones are either standard or daylight-savings time zone abbreviations (e.g.
 # --- Helpers --- #
 
 
-def lookup_state(state: Union[str, int]) -> dict:
+def lookup_state(state: str | int) -> dict:
     """Lookup US state by state identifier.
 
     Args:

@@ -1,6 +1,6 @@
 """Field metadata."""
 from copy import deepcopy
-from typing import Any, Optional
+from typing import Any
 
 import pandas as pd
 from pytz import all_timezones
@@ -2103,10 +2103,10 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
 
 
 def get_pudl_dtypes(
-    group: Optional[str] = None,
-    field_meta: Optional[dict[str, Any]] = FIELD_METADATA,
-    field_meta_by_group: Optional[dict[str, Any]] = FIELD_METADATA_BY_GROUP,
-    dtype_map: Optional[dict[str, Any]] = FIELD_DTYPES_PANDAS,
+    group: str | None = None,
+    field_meta: dict[str, Any] | None = FIELD_METADATA,
+    field_meta_by_group: dict[str, Any] | None = FIELD_METADATA_BY_GROUP,
+    dtype_map: dict[str, Any] | None = FIELD_DTYPES_PANDAS,
 ) -> dict[str, Any]:
     """Compile a dictionary of field dtypes, applying group overrides.
 
@@ -2136,9 +2136,9 @@ def get_pudl_dtypes(
 
 def apply_pudl_dtypes(
     df: pd.DataFrame,
-    group: Optional[str] = None,
-    field_meta: Optional[dict[str, Any]] = FIELD_METADATA,
-    field_meta_by_group: Optional[dict[str, Any]] = FIELD_METADATA_BY_GROUP,
+    group: str | None = None,
+    field_meta: dict[str, Any] | None = FIELD_METADATA,
+    field_meta_by_group: dict[str, Any] | None = FIELD_METADATA_BY_GROUP,
 ) -> pd.DataFrame:
     """Apply dtypes to those columns in a dataframe that have PUDL types defined.
 

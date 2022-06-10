@@ -10,7 +10,7 @@ import zipfile
 from collections import defaultdict
 from collections.abc import Iterator
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 import coloredlogs
 import datapackage
@@ -261,8 +261,8 @@ class Datastore:
 
     def __init__(
         self,
-        local_cache_path: Optional[Path] = None,
-        gcs_cache_path: Optional[str] = None,
+        local_cache_path: Path | None = None,
+        gcs_cache_path: str | None = None,
         sandbox: bool = False,
         timeout: float = 15,
     ):

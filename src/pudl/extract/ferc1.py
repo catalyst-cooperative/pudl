@@ -480,7 +480,7 @@ class FERC1FieldParser(dbfread.FieldParser):
         # Replace bare periods (which are non-numeric) with zero.
         if data == b".":
             data = b"0"
-        return super(FERC1FieldParser, self).parseN(field, data)
+        return super().parseN(field, data)
 
 
 def get_raw_df(

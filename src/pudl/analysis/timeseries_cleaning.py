@@ -32,7 +32,7 @@ And described at:
 import functools
 import warnings
 from collections.abc import Iterable, Sequence
-from typing import Any, Union
+from typing import Any
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -109,7 +109,7 @@ def array_diff(
     return dx
 
 
-def encode_run_length(x: Union[Sequence, np.ndarray]) -> tuple[np.ndarray, np.ndarray]:
+def encode_run_length(x: Sequence | np.ndarray) -> tuple[np.ndarray, np.ndarray]:
     """Encode vector with run-length encoding.
 
     Args:
@@ -144,8 +144,8 @@ def encode_run_length(x: Union[Sequence, np.ndarray]) -> tuple[np.ndarray, np.nd
 
 
 def insert_run_length(  # noqa: C901
-    x: Union[Sequence, np.ndarray],
-    values: Union[Sequence, np.ndarray],
+    x: Sequence | np.ndarray,
+    values: Sequence | np.ndarray,
     lengths: Sequence[int],
     mask: Sequence[bool] = None,
     padding: int = 0,
@@ -543,7 +543,7 @@ class Timeseries:
         columns: Column names.
     """
 
-    def __init__(self, x: Union[np.ndarray, pd.DataFrame]) -> None:
+    def __init__(self, x: np.ndarray | pd.DataFrame) -> None:
         """Initialize a multivariate timeseries.
 
         Args:

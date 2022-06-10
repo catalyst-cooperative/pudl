@@ -2,7 +2,7 @@
 import itertools
 import warnings
 from collections.abc import Callable, Iterable
-from typing import Literal, Union
+from typing import Literal
 
 import geopandas as gpd
 import pandas as pd
@@ -49,7 +49,7 @@ def check_gdf(gdf: gpd.GeoDataFrame) -> None:
                 )
 
 
-def polygonize(geom: BaseGeometry) -> Union[Polygon, MultiPolygon]:
+def polygonize(geom: BaseGeometry) -> Polygon | MultiPolygon:
     """Convert geometry to (Multi)Polygon.
 
     Args:
@@ -174,10 +174,10 @@ def self_union(gdf: gpd.GeoDataFrame, ratios: Iterable[str] = None) -> gpd.GeoDa
 def dissolve(
     gdf: gpd.GeoDataFrame,
     by: Iterable[str],
-    func: Union[Callable, str, list, dict],
-    how: Union[
-        Literal["union", "first"], Callable[[gpd.GeoSeries], BaseGeometry]
-    ] = "union",
+    func: Callable | str | list | dict,
+    how: (
+        Literal["union", "first"] | Callable[[gpd.GeoSeries], BaseGeometry]
+    ) = "union",
 ) -> gpd.GeoDataFrame:
     """Dissolve layer by aggregating features based on common attributes.
 

@@ -65,6 +65,7 @@ repos:
   rev: v2.32.1
   hooks:
   - id: pyupgrade
+    args: ['--py310-plus']
 
 ########################################################################################
 # Linters: hooks that check but don't alter Python and documentation files
