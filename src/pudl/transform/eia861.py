@@ -6,7 +6,6 @@ All transformations include:
 """
 
 import logging
-from typing import Dict
 
 import pandas as pd
 
@@ -408,7 +407,7 @@ BA_NAME_FIXES: pd.DataFrame = pd.DataFrame(
     ],
 )
 
-NERC_SPELLCHECK: Dict[str, str] = {
+NERC_SPELLCHECK: dict[str, str] = {
     "GUSTAVUSAK": "ASCC",
     "AK": "ASCC",
     "HI": "HICC",

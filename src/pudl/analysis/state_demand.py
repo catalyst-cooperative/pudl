@@ -22,13 +22,13 @@ available, and outputs the results as a CSV in
 PUDL_DIR/local/state-demand/demand.csv
 
 """
-
 import argparse
 import datetime
 import logging
 import pathlib
 import sys
-from typing import Any, Dict, Iterable, List, Tuple, Union
+from collections.abc import Iterable
+from typing import Any, Union
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -45,7 +45,7 @@ logger = logging.getLogger(__name__)
 # --- Constants --- #
 
 
-STATES: List[Dict[str, Union[str, int]]] = [
+STATES: list[dict[str, Union[str, int]]] = [
     {"name": "Alabama", "code": "AL", "fips": "01"},
     {"name": "Alaska", "code": "AK", "fips": "02"},
     {"name": "Arizona", "code": "AZ", "fips": "04"},
@@ -111,7 +111,7 @@ STATES: List[Dict[str, Union[str, int]]] = [
 """
 
 
-STANDARD_UTC_OFFSETS: Dict[str, str] = {
+STANDARD_UTC_OFFSETS: dict[str, str] = {
     "Pacific/Honolulu": -10,
     "America/Anchorage": -9,
     "America/Los_Angeles": -8,
@@ -127,7 +127,7 @@ Time zones are canonical names (e.g. 'America/Denver') from tzdata
 """
 
 
-UTC_OFFSETS: Dict[str, int] = {
+UTC_OFFSETS: dict[str, int] = {
     "HST": -10,
     "AKST": -9,
     "AKDT": -8,
@@ -324,7 +324,7 @@ def load_ventyx_hourly_state_demand(path: str) -> pd.DataFrame:
 
 def load_ferc714_hourly_demand_matrix(
     pudl_out: pudl.output.pudltabl.PudlTabl,
-) -> Tuple[pd.DataFrame, pd.DataFrame]:
+) -> tuple[pd.DataFrame, pd.DataFrame]:
     """Read and format FERC 714 hourly demand into matrix form.
 
     Args:

@@ -53,7 +53,6 @@ import importlib
 import io
 import logging
 from pathlib import Path
-from typing import Dict, Set
 
 import dbfread
 import pandas as pd
@@ -145,7 +144,7 @@ def missing_respondents(reported, observed, identified):
     return records
 
 
-def observed_respondents(ferc1_engine: sa.engine.Engine) -> Set[int]:
+def observed_respondents(ferc1_engine: sa.engine.Engine) -> set[int]:
     """Compile the set of all observed respondent IDs found in the FERC 1 database.
 
     A significant number of FERC 1 respondent IDs appear in the data tables, but not
@@ -182,8 +181,8 @@ class Ferc1Datastore:
     def __init__(self, datastore: Datastore):
         """Instantiate datastore wrapper for ferc1 resources."""
         self.datastore = datastore
-        self._cache: Dict[int, io.BytesIO] = {}
-        self.dbc_path: Dict[int, Path] = {}
+        self._cache: dict[int, io.BytesIO] = {}
+        self.dbc_path: dict[int, Path] = {}
 
         with importlib.resources.open_text(self.PACKAGE_PATH, "file_map.csv") as f:
             for row in csv.DictReader(f):

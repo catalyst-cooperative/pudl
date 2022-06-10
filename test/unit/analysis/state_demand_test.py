@@ -1,6 +1,6 @@
 """Tests for timeseries anomalies detection and imputation."""
 
-from typing import Dict, Union
+from typing import Union
 
 import numpy as np
 import pandas as pd
@@ -34,7 +34,7 @@ AK_FIPS = {"name": "Alaska", "code": "AK", "fips": "02"}
     ],
 )
 def test_lookup_state(
-    state: Union[str, int], expected: Dict[str, Union[str, int]]
+    state: Union[str, int], expected: dict[str, Union[str, int]]
 ) -> None:
     """Check that various kinds of state lookups work."""
     assert lookup_state(state) == expected

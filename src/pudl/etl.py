@@ -20,7 +20,7 @@ import time
 from concurrent.futures import ProcessPoolExecutor
 from functools import partial
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any
 
 import pandas as pd
 import pyarrow as pa
@@ -50,7 +50,7 @@ logger = logging.getLogger(__name__)
 ###############################################################################
 
 
-def _read_static_tables_eia() -> Dict[str, pd.DataFrame]:
+def _read_static_tables_eia() -> dict[str, pd.DataFrame]:
     """Build dataframes of static EIA tables for use as foreign key constraints.
 
     There are many values specified within the data that are essentially
@@ -75,8 +75,8 @@ def _read_static_tables_eia() -> Dict[str, pd.DataFrame]:
 
 
 def _etl_eia(
-    eia_settings: EiaSettings, ds_kwargs: Dict[str, Any]
-) -> Dict[str, pd.DataFrame]:
+    eia_settings: EiaSettings, ds_kwargs: dict[str, Any]
+) -> dict[str, pd.DataFrame]:
     """Extract, transform and load CSVs for the EIA datasets.
 
     Args:
@@ -163,7 +163,7 @@ def _etl_eia(
 ###############################################################################
 
 
-def _read_static_tables_ferc1() -> Dict[str, pd.DataFrame]:
+def _read_static_tables_ferc1() -> dict[str, pd.DataFrame]:
     """Populate static PUDL tables with constants for use as foreign keys.
 
     There are many values specified within the data that are essentially
@@ -186,8 +186,8 @@ def _read_static_tables_ferc1() -> Dict[str, pd.DataFrame]:
 
 def _etl_ferc1(
     ferc1_settings: Ferc1Settings,
-    pudl_settings: Dict[str, Any],
-) -> Dict[str, pd.DataFrame]:
+    pudl_settings: dict[str, Any],
+) -> dict[str, pd.DataFrame]:
     """Extract, transform and load CSVs for FERC Form 1.
 
     Args:
@@ -221,10 +221,10 @@ def _etl_ferc1(
 ###############################################################################
 def _etl_one_year_epacems(
     year: int,
-    states: List[str],
+    states: list[str],
     pudl_db: str,
     out_dir: str,
-    ds_kwargs: Dict[str, Any],
+    ds_kwargs: dict[str, Any],
 ) -> None:
     """Process one year of EPA CEMS and output year-state paritioned Parquet files."""
     pudl_engine = sa.create_engine(pudl_db)
@@ -248,8 +248,8 @@ def _etl_one_year_epacems(
 
 def etl_epacems(
     epacems_settings: EpaCemsSettings,
-    pudl_settings: Dict[str, Any],
-    ds_kwargs: Dict[str, Any],
+    pudl_settings: dict[str, Any],
+    ds_kwargs: dict[str, Any],
 ) -> None:
     """Extract, transform and load CSVs for EPA CEMS.
 
@@ -341,7 +341,7 @@ def etl_epacems(
 ###############################################################################
 # GLUE EXPORT FUNCTIONS
 ###############################################################################
-def _etl_glue(glue_settings: GlueSettings) -> Dict[str, pd.DataFrame]:
+def _etl_glue(glue_settings: GlueSettings) -> dict[str, pd.DataFrame]:
     """Extract, transform and load CSVs for the Glue tables.
 
     Args:
@@ -373,7 +373,7 @@ def _etl_glue(glue_settings: GlueSettings) -> Dict[str, pd.DataFrame]:
 
 def etl(  # noqa: C901
     etl_settings: EtlSettings,
-    pudl_settings: Dict,
+    pudl_settings: dict,
     clobber: bool = False,
     use_local_cache: bool = True,
     gcs_cache_path: str = None,

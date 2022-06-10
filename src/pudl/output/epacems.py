@@ -1,8 +1,8 @@
 """Routines that provide user-friendly access to the partitioned EPA CEMS dataset."""
-
+from collections.abc import Iterable, Sequence
 from itertools import product
 from pathlib import Path
-from typing import Iterable, List, Optional, Sequence, Tuple, Union
+from typing import Optional, Union
 
 import dask.dataframe as dd
 import pandas as pd
@@ -31,7 +31,7 @@ def epa_crosswalk() -> pd.DataFrame:
 
 def year_state_filter(
     years: Iterable[int] = None, states: Iterable[str] = None
-) -> List[List[Tuple[Union[str, int]]]]:
+) -> list[list[tuple[Union[str, int]]]]:
     """Create filters to read given years and states from partitioned parquet dataset.
 
     A subset of an Apache Parquet dataset can be read in more efficiently if files which

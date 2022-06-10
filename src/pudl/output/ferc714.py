@@ -1,6 +1,6 @@
 """Functions & classes for compiling derived aspects of the FERC Form 714 data."""
 from functools import cached_property
-from typing import Any, Dict, List
+from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -8,7 +8,7 @@ import pandas as pd
 import pudl
 from pudl.metadata.fields import apply_pudl_dtypes
 
-ASSOCIATIONS: List[Dict[str, Any]] = [
+ASSOCIATIONS: list[dict[str, Any]] = [
     # MISO: Midwest Indep System Operator
     {"id": 56669, "from": 2011, "to": [2009, 2010]},
     # SWPP: Southwest Power Pool
@@ -47,7 +47,7 @@ The changes are applied locally to EIA 861 tables.
   Rows are excluded from `balancing_authority_assn_eia861` with target year and state.
 """
 
-UTILITIES: List[Dict[str, Any]] = [
+UTILITIES: list[dict[str, Any]] = [
     # (no code): Pacific Gas & Electric Co
     {"id": 14328, "reassign": True},
     # (no code): San Diego Gas & Electric Co

@@ -16,7 +16,7 @@ from collections import defaultdict
 from functools import partial
 from importlib import resources
 from io import BytesIO
-from typing import Any, DefaultDict, Dict, List, Literal, Optional, Set, Union
+from typing import Any, Literal, Optional, Union
 
 import addfips
 import numpy as np
@@ -46,7 +46,7 @@ def label_map(
     from_col: str = "code",
     to_col: str = "label",
     null_value: Union[str, type(pd.NA)] = pd.NA,
-) -> DefaultDict[str, Union[str, type(pd.NA)]]:
+) -> defaultdict[str, Union[str, type(pd.NA)]]:
     """Build a mapping dictionary from two columns of a labeling / coding dataframe.
 
     These dataframes document the meanings of the codes that show up in much of the
@@ -78,9 +78,9 @@ def label_map(
 def find_new_ferc1_strings(
     table: str,
     field: str,
-    strdict: Dict[str, List[str]],
+    strdict: dict[str, list[str]],
     ferc1_engine: sa.engine.Engine,
-) -> Set[str]:
+) -> set[str]:
     """Identify as-of-yet uncategorized freeform strings in FERC Form 1.
 
     Args:
@@ -104,7 +104,7 @@ def find_new_ferc1_strings(
     return all_strings.difference(old_strings)
 
 
-def find_foreign_key_errors(dfs: Dict[str, pd.DataFrame]) -> List[Dict[str, Any]]:
+def find_foreign_key_errors(dfs: dict[str, pd.DataFrame]) -> list[dict[str, Any]]:
     """Report foreign key violations from a dictionary of dataframes.
 
     The database schema to check against is generated based on the names of the
@@ -356,11 +356,11 @@ def convert_col_to_datetime(df, date_col_name):
 def full_timeseries_date_merge(
     left: pd.DataFrame,
     right: pd.DataFrame,
-    on: List[str],
+    on: list[str],
     left_date_col: str = "report_date",
     right_date_col: str = "report_date",
     new_date_col: str = "report_date",
-    date_on: List[str] = ["year"],
+    date_on: list[str] = ["year"],
     how: Literal["inner", "outer", "left", "right", "cross"] = "inner",
     report_at_start: bool = True,
     freq: str = "MS",
@@ -408,11 +408,11 @@ def _add_suffix_to_date_on(date_on):
 def date_merge(
     left: pd.DataFrame,
     right: pd.DataFrame,
-    on: List[str],
+    on: list[str],
     left_date_col: str = "report_date",
     right_date_col: str = "report_date",
     new_date_col: str = "report_date",
-    date_on: List[str] = None,
+    date_on: list[str] = None,
     how: Literal["inner", "outer", "left", "right", "cross"] = "inner",
     report_at_start: bool = True,
     **kwargs,
@@ -516,7 +516,7 @@ def date_merge(
 
 def expand_timeseries(
     df: pd.DataFrame,
-    key_cols: List[str],
+    key_cols: list[str],
     date_col: str = "report_date",
     freq: str = "MS",
     fill_through_freq: Literal["year", "month", "day"] = "year",
@@ -1477,7 +1477,7 @@ def sum_and_weighted_average_agg(
     df_in: pd.DataFrame,
     by: list,
     sum_cols: list,
-    wtavg_dict: Dict[str, str],
+    wtavg_dict: dict[str, str],
 ) -> pd.DataFrame:
     """Aggregate dataframe by summing and using weighted averages.
 

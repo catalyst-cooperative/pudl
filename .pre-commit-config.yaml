@@ -54,6 +54,12 @@ repos:
   hooks:
   - id: rm-unneeded-f-str
 
+# Use built-in types for annotations as per PEP585
+- repo: https://github.com/sondrelg/pep585-upgrade
+  rev: 'v1.0'
+  hooks:
+  - id: upgrade-type-hints
+
 ########################################################################################
 # Linters: hooks that check but don't alter Python and documentation files
 ########################################################################################
