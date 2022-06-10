@@ -2,10 +2,10 @@
 PUDL Release Notes
 =======================================================================================
 
-.. _release-v0-7-0:
+.. _release-v2022.06.XX:
 
 ---------------------------------------------------------------------------------------
-0.7.0 (2022-XX-XX)
+2022.06.XX
 ---------------------------------------------------------------------------------------
 
 Database Schema Changes
@@ -63,11 +63,18 @@ Dependencies / Environment
   passes, we tightened the version constraints on a lot of our dependencies. This should
   reduce the frequency with which we get surprised by changes breaking things after
   release. See :pr:`1655`
-* We are also moving toward treating PUDL like an application rather than a library, and
-  may start pinning both our direct and indirect dependencies to exact version soon. See
-  :issue:`1669`.
 * We've switched to using `mambaforge <https://github.com/conda-forge/miniforge>`__ to
   manage our environments internally, and are recommending that users use it as well.
+* We're moving toward treating PUDL like an application rather than a library, and part
+  of that is no longer trying to be compatible with a wide range of versions of our
+  dependencies, instead focusing on a single reproducible environment that is associated
+  with each release, using lockfiles, etc. See :issue:`1669`
+* As an "application" PUDL is now only supporting the most recent major version of
+  Python (curently 3.10). We used
+  `pyupgrade <https://github.com/asottile/pyupgrade>`__ and
+  `pep585-upgrade <https://github.com/snok/pep585-upgrade>`__ to update the syntax of
+  to use Python 3.10 norms, and are now using those packages as pre-commit hooks as
+  well. See :pr:`1685`
 
 .. _release-v0-6-0:
 
