@@ -220,7 +220,7 @@ def allocate_gen_fuel_by_generator_energy_source(pudl_out, drop_interim_cols=Tru
     if drop_interim_cols:
         net_gen_alloc = net_gen_alloc.loc[
             :,
-            IDX_ESC
+            IDX_PM_ESC
             + [
                 "generator_id",
                 "energy_source_code_num",
@@ -233,7 +233,7 @@ def allocate_gen_fuel_by_generator_energy_source(pudl_out, drop_interim_cols=Tru
     if drop_interim_cols:
         fuel_alloc = fuel_alloc.loc[
             :,
-            IDX_ESC
+            IDX_PM_ESC
             + [
                 "generator_id",
                 "energy_source_code_num",
@@ -246,10 +246,10 @@ def allocate_gen_fuel_by_generator_energy_source(pudl_out, drop_interim_cols=Tru
     net_gen_fuel_alloc = pd.merge(
         net_gen_alloc,
         fuel_alloc,
-        on=IDX_ESC + ["generator_id", "energy_source_code_num"],
+        on=IDX_PM_ESC + ["generator_id", "energy_source_code_num"],
         how="outer",
         validate="1:1",
-    ).sort_values(IDX_ESC + ["generator_id", "energy_source_code_num"])
+    ).sort_values(IDX_PM_ESC + ["generator_id", "energy_source_code_num"])
     return net_gen_fuel_alloc
 
 
