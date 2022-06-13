@@ -1,7 +1,6 @@
 """Metadata data classes."""
 import copy
 import datetime
-import logging
 import re
 import sys
 from functools import lru_cache
@@ -26,6 +25,7 @@ import pydantic
 import sqlalchemy as sa
 from pydantic.types import DirectoryPath
 
+from pudl.helpers import get_logger
 from pudl.metadata.codes import CODE_METADATA
 from pudl.metadata.constants import (
     CONSTRAINT_DTYPES,
@@ -52,7 +52,7 @@ from pudl.metadata.resources import FOREIGN_KEYS, RESOURCE_METADATA, eia861
 from pudl.metadata.sources import SOURCES
 from pudl.workspace.datastore import Datastore
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 # ---- Helpers ---- #
 

@@ -84,4 +84,4 @@ on climate.
 __projecturl__ = "https://catalyst.coop/pudl/"
 __downloadurl__ = "https://github.com/catalyst-cooperative/pudl/"
 
-logging.getLogger(__name__).addHandler(logging.NullHandler())
+logging.getLogger("catalystcoop").addHandler(logging.NullHandler())

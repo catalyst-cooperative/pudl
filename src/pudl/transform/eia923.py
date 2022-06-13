@@ -1,15 +1,15 @@
 """Module to perform data cleaning functions on EIA923 data tables."""
-import logging
 from typing import Dict
 
 import numpy as np
 import pandas as pd
 
 import pudl
+from pudl.helpers import get_logger
 from pudl.metadata.codes import CODE_METADATA
 from pudl.settings import Eia923Settings
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 COALMINE_COUNTRY_CODES: Dict[str, str] = {
     "AU": "AUS",  # Australia

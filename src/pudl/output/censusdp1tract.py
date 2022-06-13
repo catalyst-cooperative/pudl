@@ -1,6 +1,5 @@
 """Functions for reading data out of the Census DP1 SQLite Database."""
 
-import logging
 from pathlib import Path
 from typing import Literal
 
@@ -10,8 +9,9 @@ import sqlalchemy as sa
 
 import pudl
 from pudl.convert.censusdp1tract_to_sqlite import censusdp1tract_to_sqlite
+from pudl.helpers import get_logger
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 def get_layer(

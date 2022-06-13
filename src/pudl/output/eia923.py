@@ -1,5 +1,4 @@
 """Functions for pulling EIA 923 data out of the PUDl DB."""
-import logging
 import os
 from datetime import date, datetime
 from typing import Literal, Union
@@ -10,9 +9,10 @@ import requests
 import sqlalchemy as sa
 
 import pudl
+from pudl.helpers import get_logger
 from pudl.metadata.fields import apply_pudl_dtypes
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 BASE_URL_EIA = "https://api.eia.gov/"
 

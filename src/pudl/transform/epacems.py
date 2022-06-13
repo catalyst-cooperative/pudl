@@ -1,16 +1,16 @@
 """Module to perform data cleaning functions on EPA CEMS data tables."""
 
 import datetime
-import logging
 
 import numpy as np
 import pandas as pd
 import pytz
 import sqlalchemy as sa
 
+from pudl.helpers import get_logger
 from pudl.metadata.fields import apply_pudl_dtypes
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 ###############################################################################
 ###############################################################################
 # DATATABLE TRANSFORM FUNCTIONS

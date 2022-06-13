@@ -10,14 +10,15 @@ What defines a data validation?
     * A hard-coded external standard (e.g. heat rates, fuel heat content)
 
 """
-import logging
 import warnings
 
 import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
 
-logger = logging.getLogger(__name__)
+from pudl.helpers import get_logger
+
+logger = get_logger(__name__)
 
 
 def intersect_indexes(indexes):

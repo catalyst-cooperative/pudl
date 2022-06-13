@@ -1,14 +1,13 @@
 """Functions for pulling data primarily from the EIA's Form 860."""
 
-import logging
-
 import pandas as pd
 import sqlalchemy as sa
 
 import pudl
+from pudl.helpers import get_logger
 from pudl.metadata.fields import apply_pudl_dtypes
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 def utilities_eia860(pudl_engine, start_date=None, end_date=None):

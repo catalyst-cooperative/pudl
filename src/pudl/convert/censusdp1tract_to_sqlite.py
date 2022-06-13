@@ -26,9 +26,10 @@ from tempfile import TemporaryDirectory
 import coloredlogs
 
 import pudl
+from pudl.helpers import get_logger
 from pudl.workspace.datastore import Datastore
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 def censusdp1tract_to_sqlite(pudl_settings=None, year=2010):

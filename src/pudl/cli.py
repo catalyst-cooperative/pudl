@@ -12,18 +12,17 @@ directories see ``pudl_setup --help``.
 
 """
 import argparse
-import logging
 import sys
 from sqlite3 import sqlite_version
 
-import coloredlogs
 from packaging import version
 
 import pudl
+from pudl.helpers import configure_root_logger, get_logger
 from pudl.load import MINIMUM_SQLITE_VERSION
 from pudl.settings import EtlSettings
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 def parse_command_line(argv):
@@ -95,15 +94,10 @@ def parse_command_line(argv):
 def main():
     """Parse command line and initialize PUDL DB."""
     # Display logged output from the PUDL package:
-    pudl_logger = logging.getLogger("pudl")
-    log_format = "%(asctime)s [%(levelname)8s] %(name)s:%(lineno)s %(message)s"
-    coloredlogs.install(fmt=log_format, level="INFO", logger=pudl_logger)
-
     args = parse_command_line(sys.argv)
-    if args.logfile:
-        file_logger = logging.FileHandler(args.logfile)
-        file_logger.setFormatter(logging.Formatter(log_format))
-        pudl_logger.addHandler(file_logger)
+
+    configure_root_logger(args.logfile)
+    pudl_logger = get_logger("pudl")
 
     etl_settings = EtlSettings.from_yaml(args.settings_file)
 

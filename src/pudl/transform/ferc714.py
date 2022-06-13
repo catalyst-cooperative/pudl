@@ -1,14 +1,14 @@
 """Transformation of the FERC Form 714 data."""
-import logging
 import re
 
 import numpy as np
 import pandas as pd
 
+from pudl.helpers import get_logger
 from pudl.metadata.fields import apply_pudl_dtypes
 from pudl.settings import Ferc714Settings
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 ##############################################################################
 # Constants required for transforming FERC 714

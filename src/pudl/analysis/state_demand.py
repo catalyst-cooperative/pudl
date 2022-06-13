@@ -25,7 +25,6 @@ PUDL_DIR/local/state-demand/demand.csv
 
 import argparse
 import datetime
-import logging
 import pathlib
 import sys
 from typing import Any, Dict, Iterable, List, Tuple, Union
@@ -38,8 +37,9 @@ import sqlalchemy as sa
 import pudl.analysis.timeseries_cleaning
 import pudl.output.pudltabl
 import pudl.workspace.setup
+from pudl.helpers import configure_root_logger, get_logger
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 # --- Constants --- #
@@ -775,16 +775,7 @@ def parse_command_line(argv):
 def main():
     """Predict state demand."""
     # --- Connect to PUDL logger --- #
-
-    logger = logging.getLogger("pudl")
-    handler = logging.StreamHandler()
-    handler.setFormatter(
-        logging.Formatter(
-            "%(asctime)s [%(levelname)8s] %(name)s:%(lineno)s %(message)s"
-        )
-    )
-    logger.addHandler(handler)
-    logger.setLevel(logging.INFO)
+    configure_root_logger()
 
     # --- Parse command line args --- #
     _ = parse_command_line(sys.argv)

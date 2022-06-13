@@ -15,15 +15,15 @@ in some of the gaps are not included in this version of the module.
 https://github.com/grgmiller/EPA-EIA-Unit-Crosswalk
 """
 import importlib
-import logging
 from typing import Dict
 
 import pandas as pd
 
 import pudl
+from pudl.helpers import get_logger
 from pudl.metadata.fields import apply_pudl_dtypes
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 def grab_n_clean_epa_orignal():

@@ -19,15 +19,13 @@ from io import BytesIO
 from typing import Any, DefaultDict, Dict, List, Optional, Set, Union
 
 import addfips
+import coloredlogs
 import numpy as np
 import pandas as pd
 import requests
 import sqlalchemy as sa
 
-from pudl.metadata.classes import DataSource, Package
 from pudl.metadata.fields import apply_pudl_dtypes, get_pudl_dtypes
-
-logger = logging.getLogger(__name__)
 
 sum_na = partial(pd.Series.sum, skipna=False)
 """A sum function that returns NA if the Series includes any NA values.
@@ -39,6 +37,14 @@ as NA, but electricity generation is reported normally, then the fuel
 consumption for the year needs to be NA, otherwise we'll get unrealistic heat
 rates.
 """
+
+
+def get_logger(name: str):
+    """Helper function to append 'catalystcoop' to logger name and return logger."""
+    return logging.getLogger(f"catalystcoop.{name}")
+
+
+logger = get_logger(__name__)
 
 
 def label_map(
@@ -121,7 +127,11 @@ def find_foreign_key_errors(dfs: Dict[str, pd.DataFrame]) -> List[Dict[str, Any]
         dataframe that violated the foreign key constraint.
 
     """
-    package = Package.from_resource_ids(resource_ids=tuple(sorted(dfs)))
+    import pudl.metadata.classes
+
+    package = pudl.metadata.classes.Package.from_resource_ids(
+        resource_ids=tuple(sorted(dfs))
+    )
     errors = []
     for resource in package.resources:
         for foreign_key in resource.schema.foreign_keys:
@@ -1179,8 +1189,10 @@ def iterate_multivalue_dict(**kwargs):
 
 def get_working_eia_dates():
     """Get all working EIA dates as a DatetimeIndex."""
+    import pudl.metadata.classes
+
     dates = pd.DatetimeIndex([])
-    for data_source in DataSource.from_field_namespace("eia"):
+    for data_source in pudl.metadata.classes.DataSource.from_field_namespace("eia"):
         working_partitions = data_source.working_partitions
         if "years" in working_partitions:
             dates = dates.append(
@@ -1372,3 +1384,19 @@ def convert_df_to_excel_file(df: pd.DataFrame, **kwargs) -> pd.ExcelFile:
     workbook = bio.read()
 
     return pd.ExcelFile(workbook)
+
+
+def configure_root_logger(logfile: Optional[str] = None):
+    """Configure the root catalystcoop logger.
+
+    Args:
+        logfile: Path to logfile or None.
+    """
+    logger = logging.getLogger("catalystcoop")
+    log_format = "%(asctime)s [%(levelname)8s] %(name)s:%(lineno)s %(message)s"
+    coloredlogs.install(fmt=log_format, level="INFO", logger=logger)
+
+    if logfile is not None:
+        file_logger = logging.FileHandler(logfile)
+        file_logger.setFormatter(logging.Formatter(log_format))
+        logger.addHandler(file_logger)

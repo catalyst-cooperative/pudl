@@ -8,7 +8,6 @@ bad data, or replacing it with the appropriate NA values.
 
 """
 import importlib.resources
-import logging
 import re
 from difflib import SequenceMatcher
 from typing import Dict, List
@@ -27,12 +26,12 @@ from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import MinMaxScaler, Normalizer, OneHotEncoder
 
 import pudl
-from pudl.helpers import convert_cols_dtypes
+from pudl.helpers import convert_cols_dtypes, get_logger
 from pudl.metadata.classes import DataSource
 from pudl.metadata.dfs import FERC_DEPRECIATION_LINES
 from pudl.settings import Ferc1Settings
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 ##############################################################################
 # Dicts for categorizing freeform strings ####################################

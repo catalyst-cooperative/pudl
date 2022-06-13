@@ -1,14 +1,12 @@
 """Export metadata to YAML for Datasette."""
 
 import argparse
-import logging
 import sys
 
-import coloredlogs
-
+from pudl.helpers import configure_root_logger, get_logger
 from pudl.metadata.classes import DatasetteMetadata
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 def parse_command_line(argv):
@@ -34,9 +32,7 @@ def parse_command_line(argv):
 
 def main():
     """Convert metadata to YAML."""
-    pudl_logger = logging.getLogger("pudl")
-    log_format = "%(asctime)s [%(levelname)8s] %(name)s:%(lineno)s %(message)s"
-    coloredlogs.install(fmt=log_format, level="INFO", logger=pudl_logger)
+    configure_root_logger()
 
     args = parse_command_line(sys.argv)
     logger.info(f"Exporting Datasette metadata to: {args.output}")

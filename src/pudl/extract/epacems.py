@@ -2,16 +2,16 @@
 
 This modules pulls data from EPA's published CSV files.
 """
-import logging
 from pathlib import Path
 from typing import NamedTuple
 from zipfile import ZipFile
 
 import pandas as pd
 
+from pudl.helpers import get_logger
 from pudl.workspace.datastore import Datastore
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 # EPA CEMS constants #####
 RENAME_DICT = {

@@ -6,20 +6,19 @@ main PUDL ETL process. The underlying work in the script is being done in
 :mod:`pudl.extract.ferc1`.
 """
 import argparse
-import logging
 import pathlib
 import sys
 from pathlib import Path
 
-import coloredlogs
 import yaml
 
 import pudl
+from pudl.helpers import configure_root_logger, get_logger
 from pudl.settings import Ferc1DbfToSqliteSettings, Ferc1XbrlToSqliteSettings
 from pudl.workspace.datastore import Datastore
 
 # Create a logger to output any messages we might have...
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 def parse_command_line(argv):
@@ -65,15 +64,9 @@ def parse_command_line(argv):
 def main():  # noqa: C901
     """Clone the FERC Form 1 FoxPro database into SQLite."""
     # Display logged output from the PUDL package:
-    pudl_logger = logging.getLogger("pudl")
-    log_format = "%(asctime)s [%(levelname)8s] %(name)s:%(lineno)s %(message)s"
-    coloredlogs.install(fmt=log_format, level="INFO", logger=pudl_logger)
-
     args = parse_command_line(sys.argv)
-    if args.logfile:
-        file_logger = logging.FileHandler(args.logfile)
-        file_logger.setFormatter(logging.Formatter(log_format))
-        pudl_logger.addHandler(file_logger)
+    configure_root_logger(args.logfile)
+
     with pathlib.Path(args.settings_file).open() as f:
         script_settings = yaml.safe_load(f)
 

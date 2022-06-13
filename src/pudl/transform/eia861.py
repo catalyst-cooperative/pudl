@@ -5,13 +5,12 @@ All transformations include:
 
 """
 
-import logging
 from typing import Dict
 
 import pandas as pd
 
 import pudl
-from pudl.helpers import convert_cols_dtypes
+from pudl.helpers import convert_cols_dtypes, get_logger
 from pudl.metadata.enums import (
     CUSTOMER_CLASSES,
     FUEL_CLASSES,
@@ -25,7 +24,7 @@ from pudl.metadata.fields import apply_pudl_dtypes
 from pudl.metadata.labels import ESTIMATED_OR_ACTUAL, MOMENTARY_INTERRUPTIONS
 from pudl.settings import Eia861Settings
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 BA_ID_NAME_FIXES: pd.DataFrame = (

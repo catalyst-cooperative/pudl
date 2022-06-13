@@ -179,7 +179,6 @@ OR make the table via objects in this module:
 
 """
 
-import logging
 import warnings
 from copy import deepcopy
 from typing import Dict, List, Literal, Optional
@@ -188,8 +187,9 @@ import numpy as np
 import pandas as pd
 
 import pudl
+from pudl.helpers import get_logger
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 # HALP: I need both of these setting set in order for the dfs in the docstrings
 # to pass the doctests. Without them the formatting get all jumbled.

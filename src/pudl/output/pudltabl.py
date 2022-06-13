@@ -26,7 +26,6 @@ Todo:
 
 """
 
-import logging
 from collections import defaultdict
 from datetime import date, datetime
 from typing import Literal, Union
@@ -41,10 +40,11 @@ from pudl.analysis.allocate_net_gen import (
     allocate_gen_fuel_by_generator_energy_source,
     scale_allocated_net_gen_by_ownership,
 )
+from pudl.helpers import get_logger
 from pudl.settings import Eia861Settings, Ferc714Settings
 from pudl.workspace.datastore import Datastore
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 ###############################################################################

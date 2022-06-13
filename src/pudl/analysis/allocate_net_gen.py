@@ -81,7 +81,6 @@ generation is not reported).
 
 """
 
-import logging
 import warnings
 from typing import List
 
@@ -90,9 +89,10 @@ import numpy as np
 import pandas as pd
 
 import pudl.helpers
+from pudl.helpers import get_logger
 from pudl.metadata.fields import apply_pudl_dtypes
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 IDX_GENS = ["report_date", "plant_id_eia", "generator_id"]
 """Id columns for generators."""

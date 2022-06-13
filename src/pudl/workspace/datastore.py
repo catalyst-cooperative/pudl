@@ -4,7 +4,6 @@ import argparse
 import hashlib
 import io
 import json
-import logging
 import re
 import sys
 import zipfile
@@ -12,17 +11,17 @@ from collections import defaultdict
 from pathlib import Path
 from typing import Any, Dict, Iterator, List, Optional, Set, Tuple
 
-import coloredlogs
 import datapackage
 import requests
 import yaml
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
 
+from pudl.helpers import configure_root_logger, get_logger
 from pudl.workspace import resource_cache
 from pudl.workspace.resource_cache import PudlResourceKey
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 # The Zenodo tokens recorded here should have read-only access to our archives.
 # Including them here is correct in order to allow public use of this tool, so
@@ -534,9 +533,7 @@ def main():
     """Cache datasets."""
     args = parse_command_line()
 
-    pudl_logger = logging.getLogger("pudl")
-    log_format = "%(asctime)s [%(levelname)8s] %(name)s:%(lineno)s %(message)s"
-    coloredlogs.install(fmt=log_format, level="INFO", logger=pudl_logger)
+    configure_root_logger()
 
     logger.setLevel(args.loglevel)
 

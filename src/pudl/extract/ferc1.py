@@ -52,7 +52,6 @@ import csv
 import importlib
 import io
 import json
-import logging
 import time
 from datetime import datetime
 from pathlib import Path
@@ -67,6 +66,7 @@ from ferc_xbrl_extractor.instance import Instance
 from sqlalchemy import or_
 
 import pudl
+from pudl.helpers import get_logger
 from pudl.metadata.classes import DataSource
 from pudl.metadata.constants import DBF_TABLES_FILENAMES
 from pudl.settings import (
@@ -76,7 +76,7 @@ from pudl.settings import (
 )
 from pudl.workspace.datastore import Datastore
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 DBF_TYPES = {
     "C": sa.String,

@@ -18,7 +18,6 @@ found in :func:`pudl.transform.eia._boiler_generator_assn`.
 """
 
 import importlib.resources
-import logging
 from typing import Dict
 
 import networkx as nx
@@ -27,12 +26,13 @@ import pandas as pd
 import timezonefinder
 
 import pudl
+from pudl.helpers import get_logger
 from pudl.metadata.classes import DataSource
 from pudl.metadata.fields import apply_pudl_dtypes, get_pudl_dtypes
 from pudl.metadata.resources import ENTITIES
 from pudl.settings import EiaSettings
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 TZ_FINDER = timezonefinder.TimezoneFinder()
 """A global TimezoneFinder to cache geographies in memory for faster access."""

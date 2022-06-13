@@ -7,18 +7,17 @@ the resulting geometries for use in other applications.
 
 """
 import argparse
-import logging
 import math
 import sys
 
-import coloredlogs
 import pandas as pd
 import sqlalchemy as sa
 from matplotlib import pyplot as plt
 
 import pudl
+from pudl.helpers import configure_root_logger, get_logger
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 ################################################################################
 # Coordinate Reference Systems used in different contexts
@@ -471,9 +470,7 @@ def parse_command_line(argv):
 def main():
     """Compile historical utility and balancing area territories."""
     # Display logged output from the PUDL package:
-    pudl_logger = logging.getLogger("pudl")
-    log_format = "%(asctime)s [%(levelname)8s] %(name)s:%(lineno)s %(message)s"
-    coloredlogs.install(fmt=log_format, level="INFO", logger=pudl_logger)
+    configure_root_logger()
 
     args = parse_command_line(sys.argv)
     pudl_settings = pudl.workspace.setup.get_defaults()

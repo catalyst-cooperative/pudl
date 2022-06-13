@@ -30,15 +30,15 @@ implications of using a co-located set of plant infrastructure as an id.
 
 """
 import importlib
-import logging
 from typing import Dict, Iterable, List
 
 import pandas as pd
 import sqlalchemy as sa
 
 import pudl
+from pudl.helpers import get_logger
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 # Identify only those utilities assocaited with plants that reported data
 # at some point in the EIA 923 -- these are the ones we might need to link

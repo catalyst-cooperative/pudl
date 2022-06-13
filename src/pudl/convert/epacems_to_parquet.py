@@ -9,17 +9,15 @@ available on your system.
 
 """
 import argparse
-import logging
 import pathlib
 import sys
 
-import coloredlogs
-
 import pudl
+from pudl.helpers import configure_root_logger, get_logger
 from pudl.metadata.classes import DataSource
 from pudl.settings import EpaCemsSettings
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 def parse_command_line(argv):
@@ -90,9 +88,7 @@ def parse_command_line(argv):
 def main():
     """Convert zipped EPA CEMS Hourly data to Apache Parquet format."""
     # Display logged output from the PUDL package:
-    pudl_logger = logging.getLogger("pudl")
-    log_format = "%(asctime)s [%(levelname)8s] %(name)s:%(lineno)s %(message)s"
-    coloredlogs.install(fmt=log_format, level="INFO", logger=pudl_logger)
+    configure_root_logger()
 
     args = parse_command_line(sys.argv)
     pudl_settings = pudl.workspace.setup.get_defaults()
