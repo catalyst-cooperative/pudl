@@ -14,7 +14,7 @@ repos:
 
 # Other file formatting, plus common Git mistakes & text file standardization:
 - repo: https://github.com/pre-commit/pre-commit-hooks
-  rev: v4.2.0
+  rev: v4.3.0
   hooks:
   - id: check-added-large-files # Don't accidentally commit giant files.
   - id: check-merge-conflict    # Watch for lingering merge markers.
@@ -62,7 +62,7 @@ repos:
 
 # Update Python language constructs to modern standards
 - repo: https://github.com/asottile/pyupgrade
-  rev: v2.32.1
+  rev: v2.34.0
   hooks:
   - id: pyupgrade
     args: ['--py310-plus']
