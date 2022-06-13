@@ -45,13 +45,13 @@ setup(
         "eia 861",
         "ferc 714",
     ],
-    python_requires=">=3.8,<3.11",
+    python_requires=">=3.10,<3.11",
     setup_requires=["setuptools_scm"],
     install_requires=[
         "addfips>=0.3.1,<0.4.0",
         "catalystcoop.dbfread>=3.0,<3.1",
         "coloredlogs>=15.0,<15.1",
-        "dask>=2021.8,<2022.5.3",
+        "dask>=2021.8,<2022.6.1",
         "datapackage>=1.11,<1.16",  # Transition datastore to use frictionless.
         # "email-validator>=1.0.3",  # pydantic[email] dependency
         "fsspec>=2021.7,<2022.5.1",  # For caching datastore on GCS
@@ -85,12 +85,11 @@ setup(
         ],
         "doc": [
             "doc8>=0.9,<0.12",
+            "furo>=2022.4.7",
             "sphinx>=4,<6.0",
             "sphinx-autoapi>=1.8,<1.9",
             "sphinx-issues>=1.2,<3.1",
             "sphinx-reredirects",
-            "sphinx-rtd-dark-mode>=1.2,<1.3",
-            "sphinx-rtd-theme>=1.0,<1.1",
             "sphinxcontrib_bibtex>=2.4,<2.5",
         ],
         "test": [
@@ -129,8 +128,6 @@ setup(
         "Programming Language :: Python",
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3 :: Only",
-        "Programming Language :: Python :: 3.8",
-        "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
         "Topic :: Scientific/Engineering",
     ],

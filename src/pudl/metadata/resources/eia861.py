@@ -1,7 +1,7 @@
 """Definitions of data tables primarily coming from EIA-861."""
-from typing import Any, Dict, List
+from typing import Any
 
-RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
+RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     "advanced_metering_infrastructure_eia861": {
         "description": "The data contain number of meters from automated meter readings (AMR) and advanced metering infrastructure (AMI) by state, sector, and balancing authority. The energy served (in megawatthours) for AMI systems is provided. Form EIA-861 respondents also report the number of standard meters (non AMR/AMI) in their system. Historical Changes: We started collecting the number of standard meters in 2013. The monthly survey collected these data from January 2011 to January 2017.",
         "schema": {
@@ -635,7 +635,7 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
 # Association tables that are always generated from the other tables:
 #  - 'balancing_authority_assn_eia861',
 #  - 'utility_assn_eia861',
-TABLE_DEPENDENCIES: Dict[str, List[str]] = {
+TABLE_DEPENDENCIES: dict[str, list[str]] = {
     "advanced_metering_infrastructure_eia861": [
         "advanced_metering_infrastructure_eia861"
     ],

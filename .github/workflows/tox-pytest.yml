@@ -6,8 +6,6 @@ jobs:
   ci-test:
     runs-on: ubuntu-latest
     strategy:
-      matrix:
-        python-version: ["3.8", "3.9", "3.10"]
       fail-fast: false
 
     steps:
@@ -21,7 +19,7 @@ jobs:
         mamba-version: "*"
         channels: conda-forge,defaults
         channel-priority: true
-        python-version: ${{ matrix.python-version }}
+        python-version: "3.10"
         activate-environment: pudl-test
         environment-file: test/test-environment.yml
     - shell: bash -l {0}

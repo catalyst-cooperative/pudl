@@ -54,6 +54,19 @@ repos:
   hooks:
   - id: rm-unneeded-f-str
 
+# Use built-in types for annotations as per PEP585
+- repo: https://github.com/sondrelg/pep585-upgrade
+  rev: 'v1.0'
+  hooks:
+  - id: upgrade-type-hints
+
+# Update Python language constructs to modern standards
+- repo: https://github.com/asottile/pyupgrade
+  rev: v2.32.1
+  hooks:
+  - id: pyupgrade
+    args: ['--py310-plus']
+
 ########################################################################################
 # Linters: hooks that check but don't alter Python and documentation files
 ########################################################################################
@@ -92,7 +105,7 @@ repos:
 
 # Lint any RST files and embedded code blocks for syntax / formatting errors
 - repo: https://github.com/myint/rstcheck
-  rev: v6.0.0rc3
+  rev: v6.0.0.post1
   hooks:
   - id: rstcheck
     additional_dependencies: [sphinx]
