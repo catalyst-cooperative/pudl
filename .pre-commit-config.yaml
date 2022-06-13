@@ -4,27 +4,27 @@ repos:
   - repo: https://github.com/pre-commit/pygrep-hooks
     rev: v1.9.0
     hooks:
-      - id: python-check-blanket-noqa # Prohibit overly broad QA exclusions.
-      - id: python-no-eval # Never use eval() it's dangerous.
-      - id: python-no-log-warn # logger.warning(), not old .warn()
-      - id: rst-backticks # Find single rather than double backticks
-      - id: rst-directive-colons # Missing double-colons after directives
-      - id: rst-inline-touching-normal # Inline code should never touch normal text
-      - id: python-use-type-annotations # Use annotations not old-style type comments
+      - id: python-check-blanket-noqa  # Prohibit overly broad QA exclusions.
+      - id: python-no-eval  # Never use eval() it's dangerous.
+      - id: python-no-log-warn  # logger.warning(), not old .warn()
+      - id: rst-backticks  # Find single rather than double backticks
+      - id: rst-directive-colons  # Missing double-colons after directives
+      - id: rst-inline-touching-normal  # Inline code should never touch normal text
+      - id: python-use-type-annotations  # Use annotations not old-style type comments
 
   # Other file formatting, plus common Git mistakes & text file standardization:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.2.0
     hooks:
-      - id: check-added-large-files # Don't accidentally commit giant files.
-      - id: check-merge-conflict # Watch for lingering merge markers.
-      - id: check-yaml # Validate all YAML files.
-      - id: check-case-conflict # Avoid case sensitivity in file names.
-      - id: debug-statements # Watch for lingering debugger calls.
-      - id: end-of-file-fixer # Ensure there's a newline at EOF.
-      - id: mixed-line-ending # Only newlines, no line-feeds.
-      - id: trailing-whitespace # Remove trailing whitespace.
-      - id: name-tests-test # Follow PyTest naming convention.
+      - id: check-added-large-files  # Don't accidentally commit giant files.
+      - id: check-merge-conflict  # Watch for lingering merge markers.
+      - id: check-yaml  # Validate all YAML files.
+      - id: check-case-conflict  # Avoid case sensitivity in file names.
+      - id: debug-statements  # Watch for lingering debugger calls.
+      - id: end-of-file-fixer  # Ensure there's a newline at EOF.
+      - id: mixed-line-ending  # Only newlines, no line-feeds.
+      - id: trailing-whitespace  # Remove trailing whitespace.
+      - id: name-tests-test  # Follow PyTest naming convention.
 
   ########################################################################################
   # Formatters: hooks that re-write Python & documentation files
@@ -112,11 +112,10 @@ repos:
         args: [--config, tox.ini]
 
   # Format yaml files
-  - repo: https://github.com/jumanjihouse/pre-commit-hook-yamlfmt
-    rev: 0.2.1
+  - repo: https://github.com/lyz-code/yamlfix/
+    rev: master
     hooks:
-      - id: yamlfmt
-        args: [--mapping, '4', --sequence, '4', --offset, '2', --colons, --width, '150']
+      - id: yamlfix
 
   ########################################################################################
   # Our own pre-commit hooks, which don't come from the pre-commit project
@@ -130,7 +129,8 @@ repos:
         verbose: false
         pass_filenames: false
         always_run: true
-        entry: find devtools \( -name \*.ipynb -not -name \*checkpoint.ipynb \) -type f -exec jupyter nbconvert --clear-output {} \;
+        entry: find devtools \( -name \*.ipynb -not -name \*checkpoint.ipynb \) -type
+          f -exec jupyter nbconvert --clear-output {} \;
       - id: unit-tests
         name: unit-tests
         stages: [commit]
@@ -141,14 +141,14 @@ repos:
         entry: pytest --doctest-modules src/pudl test/unit
 
 # Configuration for pre-commit.ci
-ci   :
-    autofix_commit_msg: |
-        [pre-commit.ci] auto fixes from pre-commit.com hooks
+ci:
+  autofix_commit_msg: |
+    [pre-commit.ci] auto fixes from pre-commit.com hooks
 
-        For more information, see https://pre-commit.ci
-    autofix_prs: true
-    autoupdate_branch: dev
-    autoupdate_commit_msg: '[pre-commit.ci] pre-commit autoupdate'
-    autoupdate_schedule: weekly
-    skip: [unit-tests, nb-output-clear]
-    submodules: false
+    For more information, see https://pre-commit.ci
+  autofix_prs: true
+  autoupdate_branch: dev
+  autoupdate_commit_msg: '[pre-commit.ci] pre-commit autoupdate'
+  autoupdate_schedule: weekly
+  skip: [unit-tests, nb-output-clear]
+  submodules: false
