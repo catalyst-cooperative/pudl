@@ -5,20 +5,26 @@
 # Required
 version: 2
 
+# Set the version of Python and other tools you might need
+build:
+  os: ubuntu-22.04
+  tools:
+    python: mambaforge-4.10
+
+# Define the python environment using conda / mamba
+conda:
+  environment: docs/docs-environment.yml
+
 # Build documentation in the docs/ directory with Sphinx
 sphinx:
-    configuration: docs/conf.py
-
-build:
-  image: testing
-  apt_packages:
-    - libsnappy-dev
+  configuration: docs/conf.py
+  builder: html
+  fail_on_warning: true
 
 # Set the version of Python and requirements required to build your docs
 python:
-  version: "3.9"
   install:
-    - method: pip
-      path: .
-      extra_requirements:
-          - doc
+  - method: pip
+    path: .
+    extra_requirements:
+    - doc

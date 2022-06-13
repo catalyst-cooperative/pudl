@@ -2,15 +2,14 @@
 PUDL Release Notes
 =======================================================================================
 
-.. _release-v0-7-0:
+.. _release-v2022.06.XX:
 
 ---------------------------------------------------------------------------------------
-0.7.0 (2022-XX-XX)
+2022.06.XX
 ---------------------------------------------------------------------------------------
 
 Database Schema Changes
 ^^^^^^^^^^^^^^^^^^^^^^^
-
 * After learning that generators' prime movers do very occasionally change over
   time, we recategorized the ``prime_mover_code`` column in our entity resolution
   process to enable the rare but real variability over time. We moved the
@@ -22,9 +21,27 @@ Database Schema Changes
   fixes to clean ``operational_status_code`` in the :ref:`generators_entity_eia`
   table. :pr:`1624`
 
+Plant Parts List Module Changes
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+* We refactored a couple components of the Plant Parts List module in preparation
+  for the next round of entity matching of EIA and FERC Form 1 records with the
+  Panda model developed by the
+  `Chu Data Lab at Georgia Tech <https://chu-data-lab.cc.gatech.edu/>`__, through work
+  funded by a
+  `CCAI Innovation Grant <https://www.climatechange.ai/calls/innovation_grants>`__.
+  The labeling of different aggregations of EIA generators as the true granularity was
+  sped up, resulting in faster generation of the final plant parts list. In addition,
+  the generation of the ``installation_year`` column in the plant parts list was fixed
+  and a ``construction_year`` column was also added. Finally, ``operating_year`` was
+  added as a level that the EIA generators are now aggregated to.
+
+Metadata
+^^^^^^^^
+* Used the data source metadata class added in release 0.6.0 to dynamically generate
+  the data source documentation (See :doc:`data_sources/index`). :pr:`1532`
+
 Bug Fixes
 ^^^^^^^^^
-
 * `Dask v2022.4.2 <https://docs.dask.org/en/stable/changelog.html#v2022-04-2>`__
   introduced breaking changes into :meth:`dask.dataframe.read_parquet`.  However, we
   didn't catch this when it happened because it's only a problem when there's more than
@@ -36,6 +53,28 @@ Bug Fixes
 * Fixed a testing bug where the partitioned EPA CEMS outputs generated using parallel
   processing were getting output in the same output directory as the real ETL, which
   should never happen. See :pr:`1618`.
+* Changed the way fixes to the EIA-861 balancing authority names and IDs are applied,
+  so that they still work when only some years of data are being processed. See
+  :pr:`1671` and :issue:`828`.
+
+Dependencies / Environment
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+* In conjunction with getting the :user:`dependabot` set up to merge its own PRs if CI
+  passes, we tightened the version constraints on a lot of our dependencies. This should
+  reduce the frequency with which we get surprised by changes breaking things after
+  release. See :pr:`1655`
+* We've switched to using `mambaforge <https://github.com/conda-forge/miniforge>`__ to
+  manage our environments internally, and are recommending that users use it as well.
+* We're moving toward treating PUDL like an application rather than a library, and part
+  of that is no longer trying to be compatible with a wide range of versions of our
+  dependencies, instead focusing on a single reproducible environment that is associated
+  with each release, using lockfiles, etc. See :issue:`1669`
+* As an "application" PUDL is now only supporting the most recent major version of
+  Python (curently 3.10). We used
+  `pyupgrade <https://github.com/asottile/pyupgrade>`__ and
+  `pep585-upgrade <https://github.com/snok/pep585-upgrade>`__ to update the syntax of
+  to use Python 3.10 norms, and are now using those packages as pre-commit hooks as
+  well. See :pr:`1685`
 
 .. _release-v0-6-0:
 

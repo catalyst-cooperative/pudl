@@ -1,6 +1,5 @@
 """Module to perform data cleaning functions on EIA923 data tables."""
 import logging
-from typing import Dict
 
 import numpy as np
 import pandas as pd
@@ -11,7 +10,7 @@ from pudl.settings import Eia923Settings
 
 logger = logging.getLogger(__name__)
 
-COALMINE_COUNTRY_CODES: Dict[str, str] = {
+COALMINE_COUNTRY_CODES: dict[str, str] = {
     "AU": "AUS",  # Australia
     "CL": "COL",  # Colombia
     "CN": "CAN",  # Canada
@@ -42,7 +41,7 @@ three letter country codes: https://en.wikipedia.org/wiki/ISO_3166-1_alpha-3
 ###############################################################################
 
 
-def _get_plant_nuclear_unit_id_map(nuc_fuel: pd.DataFrame) -> Dict[int, str]:
+def _get_plant_nuclear_unit_id_map(nuc_fuel: pd.DataFrame) -> dict[int, str]:
     """Get a plant_id -> nuclear_unit_id mapping for all plants with one nuclear unit.
 
     Args:
@@ -115,7 +114,7 @@ def _backfill_nuclear_unit_id(nuc_fuel: pd.DataFrame) -> pd.DataFrame:
     return nuc_fuel
 
 
-def _get_plant_prime_mover_map(gen_fuel: pd.DataFrame) -> Dict[int, str]:
+def _get_plant_prime_mover_map(gen_fuel: pd.DataFrame) -> dict[int, str]:
     """Get a plant_id -> prime_mover_code mapping for all plants with one prime mover.
 
     Args:
@@ -198,7 +197,7 @@ def _backfill_prime_mover_code(gen_fuel: pd.DataFrame) -> pd.DataFrame:
     return gen_fuel
 
 
-def _get_most_frequent_energy_source_map(gen_fuel: pd.DataFrame) -> Dict[str, str]:
+def _get_most_frequent_energy_source_map(gen_fuel: pd.DataFrame) -> dict[str, str]:
     """Get the a mapping of the most common energy_source for each fuel_type_code_aer.
 
     Args:

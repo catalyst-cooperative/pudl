@@ -11,12 +11,12 @@ These dictionaries are used to create Encoder instances. They contain the follow
   be set to NA.
 
 """
-from typing import Any, Dict
+from typing import Any
 
 import numpy as np
 import pandas as pd
 
-CODE_METADATA: Dict[str, Dict[str, Any]] = {
+CODE_METADATA: dict[str, dict[str, Any]] = {
     "coalmine_types_eia": {
         "df": pd.DataFrame(
             columns=["code", "label", "description"],

@@ -1,5 +1,4 @@
 """Datastore manages file retrieval for PUDL datasets."""
-
 import argparse
 import hashlib
 import io
@@ -9,8 +8,9 @@ import re
 import sys
 import zipfile
 from collections import defaultdict
+from collections.abc import Iterator
 from pathlib import Path
-from typing import Any, Dict, Iterator, List, Optional, Set, Tuple
+from typing import Any
 
 import coloredlogs
 import datapackage
@@ -67,6 +67,13 @@ class DatapackageDescriptor:
                 return res
         raise KeyError(f"Resource {name} not found for {self.dataset}/{self.doi}")
 
+    def get_download_size(self) -> int:
+        """Returns the total download size of all the resources in MB."""
+        total_bytes = 0
+        for res in self.datapackage_json["resources"]:
+            total_bytes += res["bytes"]
+        return int(total_bytes / 1000000)
+
     def validate_checksum(self, name: str, content: str) -> bool:
         """Returns True if content matches checksum for given named resource."""
         expected_checksum = self._get_resource_metadata(name)["hash"]
@@ -101,9 +108,9 @@ class DatapackageDescriptor:
                     dataset=self.dataset, doi=self.doi, name=res["name"]
                 )
 
-    def get_partitions(self, name: str = None) -> Dict[str, Set[str]]:
+    def get_partitions(self, name: str = None) -> dict[str, set[str]]:
         """Returns mapping of all known partition keys to the set of its known values."""
-        partitions: Dict[str, Set[str]] = defaultdict(set)
+        partitions: dict[str, set[str]] = defaultdict(set)
         for res in self.datapackage_json["resources"]:
             if name and res["name"] != name:
                 continue
@@ -176,7 +183,7 @@ class ZenodoFetcher:
         self._api_root = self.API_ROOT[backend]
         self._token = self.TOKEN[backend]
         self._dataset_to_doi = self.DOI[backend]
-        self._descriptor_cache: Dict[str, DatapackageDescriptor] = {}
+        self._descriptor_cache: dict[str, DatapackageDescriptor] = {}
 
         self.timeout = timeout
         retries = Retry(
@@ -244,7 +251,7 @@ class ZenodoFetcher:
         desc.validate_checksum(res.name, content)
         return content
 
-    def get_known_datasets(self) -> List[str]:
+    def get_known_datasets(self) -> list[str]:
         """Returns list of supported datasets."""
         return sorted(self._dataset_to_doi)
 
@@ -254,8 +261,8 @@ class Datastore:
 
     def __init__(
         self,
-        local_cache_path: Optional[Path] = None,
-        gcs_cache_path: Optional[str] = None,
+        local_cache_path: Path | None = None,
+        gcs_cache_path: str | None = None,
         sandbox: bool = False,
         timeout: float = 15,
     ):
@@ -276,7 +283,7 @@ class Datastore:
 
         """
         self._cache = resource_cache.LayeredCache()
-        self._datapackage_descriptors: Dict[str, DatapackageDescriptor] = {}
+        self._datapackage_descriptors: dict[str, DatapackageDescriptor] = {}
 
         if local_cache_path:
             self._cache.add_cache_layer(resource_cache.LocalFileCache(local_cache_path))
@@ -287,7 +294,7 @@ class Datastore:
 
         self._zenodo_fetcher = ZenodoFetcher(sandbox=sandbox, timeout=timeout)
 
-    def get_known_datasets(self) -> List[str]:
+    def get_known_datasets(self) -> list[str]:
         """Returns list of supported datasets."""
         return self._zenodo_fetcher.get_known_datasets()
 
@@ -314,7 +321,7 @@ class Datastore:
         cached_only: bool = False,
         skip_optimally_cached: bool = False,
         **filters: Any,
-    ) -> Iterator[Tuple[PudlResourceKey, bytes]]:
+    ) -> Iterator[tuple[PudlResourceKey, bytes]]:
         """Return content of the matching resources.
 
         Args:
@@ -475,7 +482,7 @@ def _create_datastore(args: dict) -> Datastore:
     )
 
 
-def print_partitions(dstore: Datastore, datasets: List[str]) -> None:
+def print_partitions(dstore: Datastore, datasets: list[str]) -> None:
     """Prints known partition keys and its values for each of the datasets."""
     for single_ds in datasets:
         parts = dstore.get_datapackage_descriptor(single_ds).get_partitions()
@@ -488,7 +495,7 @@ def print_partitions(dstore: Datastore, datasets: List[str]) -> None:
 
 
 def validate_cache(
-    dstore: Datastore, datasets: List[str], args: argparse.Namespace
+    dstore: Datastore, datasets: list[str], args: argparse.Namespace
 ) -> None:
     """Validate elements in the datastore cache. Delete invalid entires from cache."""
     for single_ds in datasets:
@@ -513,7 +520,7 @@ def validate_cache(
 
 
 def fetch_resources(
-    dstore: Datastore, datasets: List[str], args: argparse.Namespace
+    dstore: Datastore, datasets: list[str], args: argparse.Namespace
 ) -> None:
     """Retrieve all matching resources and store them in the cache."""
     for single_ds in datasets:

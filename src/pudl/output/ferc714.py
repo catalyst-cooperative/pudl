@@ -1,6 +1,6 @@
 """Functions & classes for compiling derived aspects of the FERC Form 714 data."""
 from functools import cached_property
-from typing import Any, Dict, List
+from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -9,7 +9,7 @@ import pudl
 from pudl.metadata.fields import apply_pudl_dtypes
 from pudl.workspace.datastore import Datastore
 
-ASSOCIATIONS: List[Dict[str, Any]] = [
+ASSOCIATIONS: list[dict[str, Any]] = [
     # MISO: Midwest Indep System Operator
     {"id": 56669, "from": 2011, "to": [2009, 2010]},
     # SWPP: Southwest Power Pool
@@ -48,7 +48,7 @@ The changes are applied locally to EIA 861 tables.
   Rows are excluded from `balancing_authority_assn_eia861` with target year and state.
 """
 
-UTILITIES: List[Dict[str, Any]] = [
+UTILITIES: list[dict[str, Any]] = [
     # (no code): Pacific Gas & Electric Co
     {"id": 14328, "reassign": True},
     # (no code): San Diego Gas & Electric Co
@@ -190,7 +190,7 @@ def categorize_eia_code(eia_codes, ba_ids, util_ids, priority="balancing_authori
     return df
 
 
-class Respondents(object):
+class Respondents:
     """A class coordinating compilation of data related to FERC 714 Respondents.
 
     The FERC 714 Respondents themselves are not complex as they are reported, but

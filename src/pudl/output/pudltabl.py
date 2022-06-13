@@ -29,7 +29,7 @@ Todo:
 import logging
 from collections import defaultdict
 from datetime import date, datetime
-from typing import Literal, Union
+from typing import Any, Literal
 
 # Useful high-level external modules.
 import pandas as pd
@@ -52,16 +52,16 @@ logger = logging.getLogger(__name__)
 ###############################################################################
 
 
-class PudlTabl(object):
+class PudlTabl:
     """A class for compiling common useful tabular outputs from the PUDL DB."""
 
     def __init__(
         self,
         pudl_engine: sa.engine.Engine,
-        ds: Union[Datastore, None] = None,
+        ds: Datastore | None = None,
         freq: Literal["AS", "MS", None] = None,
-        start_date: Union[str, date, datetime, pd.Timestamp] = None,
-        end_date: Union[str, date, datetime, pd.Timestamp] = None,
+        start_date: str | date | datetime | pd.Timestamp = None,
+        end_date: str | date | datetime | pd.Timestamp = None,
         fill_fuel_cost: bool = False,
         roll_fuel_cost: bool = False,
         fill_net_gen: bool = False,
@@ -109,7 +109,7 @@ class PudlTabl(object):
         """
         # Validating ds is deferred to the etl_eia861 & etl_ferc714 methods
         # because those are the only places a datastore is required.
-        self.ds: Union[Datastore, None] = ds
+        self.ds: Datastore | None = ds
         if not isinstance(pudl_engine, sa.engine.base.Engine):
             raise TypeError(
                 "PudlTabl needs pudl_engine to be a SQLAlchemy Engine, but we "
@@ -1048,12 +1048,13 @@ class PudlTabl(object):
 
     def mcoe(
         self,
-        update=False,
-        min_heat_rate=5.5,
-        min_fuel_cost_per_mwh=0.0,
-        min_cap_fact=0.0,
-        max_cap_fact=1.5,
-        all_gens=True,
+        update: bool = False,
+        min_heat_rate: float = 5.5,
+        min_fuel_cost_per_mwh: float = 0.0,
+        min_cap_fact: float = 0.0,
+        max_cap_fact: float = 1.5,
+        all_gens: bool = True,
+        gens_cols: Any = None,
     ):
         """Calculate and return generator level MCOE based on EIA data.
 
@@ -1063,7 +1064,7 @@ class PudlTabl(object):
         rates and fuel costs.
 
         Args:
-            update (bool): If true, re-calculate the output dataframe, even if
+            update: If true, re-calculate the output dataframe, even if
                 a cached version exists.
             min_heat_rate: lowest plausible heat rate, in mmBTU/MWh. Any MCOE
                 records with lower heat rates are presumed to be invalid, and
@@ -1080,9 +1081,15 @@ class PudlTabl(object):
                 with a lower capacity factor will be filtered out before
                 returning. This allows the user to exclude generators that
                 aren't being used enough to have valid.
-            all_gens (bool): Controls whether the output contains records for
+            all_gens: Controls whether the output contains records for
                 all generators in the :ref:`generators_eia860` table, or only
                 those generators with associated MCOE data. True by default.
+            gens_cols: equal to the string "all", None, or a list of names of
+                column attributes to include from the :ref:`generators_eia860` table in
+                addition to the list of defined `DEFAULT_GENS_COLS` in the MCOE analysis
+                module. If "all", all columns from the generators table will be included.
+                By default, the `DEFAULT_GENS_COLS` defined in the MCOE analysis module
+                will be merged into the final MCOE output.
 
         Returns:
             :class:`pandas.DataFrame`: a compilation of generator attributes,
@@ -1097,15 +1104,24 @@ class PudlTabl(object):
                 min_cap_fact=min_cap_fact,
                 max_cap_fact=max_cap_fact,
                 all_gens=all_gens,
+                gens_cols=gens_cols,
             )
         return self._dfs["mcoe"]
 
-    def gens_mega_eia(self, update: bool = False) -> pd.DataFrame:
+    def gens_mega_eia(
+        self,
+        update: bool = False,
+        gens_cols: Any = None,
+    ) -> pd.DataFrame:
         """Generate and return a generators table with ownership integrated.
 
         Args:
             update: If True, re-calculate the output dataframe, even
                 if a cached version exists.
+            gens_cols: equal to the string "all", None, or a list of
+                additional column attributes to include from the EIA 860 generators table
+                in the output mega gens table. By default all columns necessary to create
+                the mega generators table are included.
 
         Returns:
             A table of all of the generators with identifying
@@ -1127,10 +1143,24 @@ class PudlTabl(object):
                     "The frequency of the pudl_out object must be `AS` for the "
                     f"plant-parts table and we got {self.freq}"
                 )
+            if gens_cols is None:
+                gens_cols = []
+            if gens_cols != "all":
+                default_cols = [
+                    "technology_description",
+                    "energy_source_code_1",
+                    "prime_mover_code",
+                    "operating_date",
+                    "retirement_date",
+                    "operational_status",
+                    "capacity_mw",
+                ]
+                gens_cols = list(set(gens_cols + default_cols))
             self._dfs[
                 "gens_mega_eia"
             ] = pudl.analysis.plant_parts_eia.MakeMegaGenTbl().execute(
-                mcoe=self.mcoe(all_gens=True), own_eia860=self.own_eia860()
+                mcoe=self.mcoe(all_gens=True, gens_cols=gens_cols),
+                own_eia860=self.own_eia860(),
             )
         return self._dfs["gens_mega_eia"]
 
@@ -1138,6 +1168,7 @@ class PudlTabl(object):
         self,
         update: bool = False,
         update_gens_mega: bool = False,
+        gens_cols: Any = None,
     ) -> pd.DataFrame:
         """Generate and return master plant-parts EIA.
 
@@ -1145,14 +1176,37 @@ class PudlTabl(object):
             update: If true, re-calculate the output dataframe, even
                 if a cached version exists.
             update_gens_mega: If True, update the gigantic Gens Mega table.
+            gens_cols: equal to the string "all", None, or a list of
+                additional column attributes to include from the EIA 860 generators table
+                in the output mega gens table. By default all columns necessary to create
+                the EIA plant part list are included.
         """
         update_any = any([update, update_gens_mega])
         if update_any or self._dfs["plant_parts_eia"] is None:
+            # default columns needed to create plant part list
+            if gens_cols is None:
+                gens_cols = []
+            if gens_cols != "all":
+                default_cols = [
+                    "technology_description",
+                    "energy_source_code_1",
+                    "prime_mover_code",
+                    "operating_date",
+                    "retirement_date",
+                    "operational_status",
+                    "capacity_mw",
+                    "fuel_type_code_pudl",
+                    "planned_retirement_date",
+                ]
+                gens_cols = list(set(gens_cols + default_cols))
             # make the plant-parts objects
             self.parts_compiler = pudl.analysis.plant_parts_eia.MakePlantParts(self)
             # make the plant-parts df!
             self._dfs["plant_parts_eia"] = self.parts_compiler.execute(
-                gens_mega=self.gens_mega_eia(update=update_gens_mega)
+                gens_mega=self.gens_mega_eia(
+                    update=update_gens_mega,
+                    gens_cols=gens_cols,
+                )
             )
 
         return self._dfs["plant_parts_eia"]

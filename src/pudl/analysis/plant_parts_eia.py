@@ -182,7 +182,7 @@ OR make the table via objects in this module:
 import logging
 import warnings
 from copy import deepcopy
-from typing import Dict, List, Literal, Optional
+from typing import Literal
 
 import numpy as np
 import pandas as pd
@@ -200,7 +200,7 @@ logger = logging.getLogger(__name__)
 pd.options.display.width = 1000
 pd.options.display.max_columns = 1000
 
-PLANT_PARTS: Dict[str, Dict[str, List]] = {
+PLANT_PARTS: dict[str, dict[str, list]] = {
     "plant": {
         "id_cols": ["plant_id_eia"],
     },
@@ -222,10 +222,13 @@ PLANT_PARTS: Dict[str, Dict[str, List]] = {
     "plant_ferc_acct": {
         "id_cols": ["plant_id_eia", "ferc_acct_name"],
     },
+    "plant_operating_year": {
+        "id_cols": ["plant_id_eia", "operating_year"],
+    },
 }
 """
 dict: this dictionary contains a key for each of the 'plant parts' that should
-end up in the mater unit list. The top-level value for each key is another
+end up in the plant parts list. The top-level value for each key is another
 dictionary, which contains keys:
 
 * id_cols (the primary key type id columns for this plant part). The
@@ -233,18 +236,30 @@ dictionary, which contains keys:
 
 """
 
-PLANT_PARTS_ORDERED: List[str] = [
+PLANT_PARTS_ORDERED: list[str] = [
     "plant",
     "plant_unit",
     "plant_prime_mover",
     "plant_technology",
     "plant_prime_fuel",
     "plant_ferc_acct",
+    "plant_operating_year",
+    "plant_gen",
+]
+
+PLANT_PARTS_LITERAL = Literal[
+    "plant",
+    "plant_unit",
+    "plant_prime_mover",
+    "plant_technology",
+    "plant_prime_fuel",
+    "plant_ferc_acct",
+    "plant_operating_year",
     "plant_gen",
 ]
 
 
-IDX_TO_ADD: List[str] = ["report_date", "operational_status_pudl"]
+IDX_TO_ADD: list[str] = ["report_date", "operational_status_pudl"]
 """
 list: list of additional columns to add to the id_cols in :py:const:`PLANT_PARTS`.
 The id_cols are the base columns that we need to aggregate on, but we also need
@@ -253,7 +268,7 @@ operational_status_pudl to separate the operating plant-parts from the
 non-operating plant-parts.
 """
 
-IDX_OWN_TO_ADD: List[str] = ["utility_id_eia", "ownership"]
+IDX_OWN_TO_ADD: list[str] = ["utility_id_eia", "ownership"]
 """
 list: list of additional columns beyond the :py:const:`IDX_TO_ADD` to add to the
 id_cols in :py:const:`PLANT_PARTS` when we are dealing with plant-part records
@@ -261,7 +276,7 @@ that have been broken out into "owned" and "total" records for each of their
 owners.
 """
 
-SUM_COLS: List[str] = [
+SUM_COLS: list[str] = [
     "total_fuel_cost",
     "net_generation_mwh",
     "capacity_mw",
@@ -290,10 +305,12 @@ CONSISTENT_ATTRIBUTE_COLS = [
     "energy_source_code_1",
     "prime_mover_code",
     "ferc_acct_name",
+    "operating_year",
 ]
 """
 list: a list of column names to add as attributes when they are consistent into
-the aggregated plant-part records.
+the aggregated plant-part records. All the plant part ID columns must be in
+consistent attributes.
 """
 
 PRIORITY_ATTRIBUTES_DICT = {
@@ -302,12 +319,12 @@ PRIORITY_ATTRIBUTES_DICT = {
 
 MAX_MIN_ATTRIBUTES_DICT = {
     "installation_year": {
-        "assign_col": {"installation_year": lambda x: x.operating_date.dt.year},
+        "assign_col": {"installation_year": lambda x: x.operating_year},
         "dtype": "Int64",
         "keep": "first",
     },
     "construction_year": {
-        "assign_col": {"construction_year": lambda x: x.operating_date.dt.year},
+        "assign_col": {"construction_year": lambda x: x.operating_year},
         "dtype": "Int64",
         "keep": "last",
     },
@@ -329,7 +346,7 @@ FIRST_COLS = [
 ]
 
 
-class MakeMegaGenTbl(object):
+class MakeMegaGenTbl:
     """Compiler for a MEGA generator table with ownership integrated.
 
     Examples
@@ -407,7 +424,7 @@ class MakeMegaGenTbl(object):
         self,
         mcoe: pd.DataFrame,
         own_eia860: pd.DataFrame,
-        slice_cols: List[str] = SUM_COLS,
+        slice_cols: list[str] = SUM_COLS,
         validate_own_merge: str = "1:m",
     ) -> pd.DataFrame:
         """Make the mega generators table with ownership integrated.
@@ -463,6 +480,8 @@ class MakeMegaGenTbl(object):
             validate="m:1",
             how="left",
         )
+        all_gens.loc[:, "operating_year"] = all_gens["operating_date"].dt.year
+        all_gens = all_gens.astype({"operating_year": "Int64"})
         return all_gens
 
     def label_operating_gens(self, gen_df: pd.DataFrame) -> pd.DataFrame:
@@ -586,7 +605,7 @@ class MakeMegaGenTbl(object):
         return gens_mega
 
 
-class MakePlantParts(object):
+class MakePlantParts:
     """Compile the plant parts for the master unit list.
 
     This object generates a master list of different "plant-parts", which
@@ -629,7 +648,7 @@ class MakePlantParts(object):
             pandas.DataFrame: The complete plant parts list
 
         """
-        #  aggregate everything by each plant part
+        # aggregate everything by each plant part
         part_dfs = []
         for part_name in PLANT_PARTS_ORDERED:
             part_df = PlantPart(part_name).execute(gens_mega)
@@ -655,6 +674,10 @@ class MakePlantParts(object):
                     att_dtype=MAX_MIN_ATTRIBUTES_DICT[attribute_col]["dtype"],
                     keep=MAX_MIN_ATTRIBUTES_DICT[attribute_col]["keep"],
                 )
+            # assert that all the plant part ID columns are now in part_df
+            assert {
+                col for part in PLANT_PARTS for col in PLANT_PARTS[part]["id_cols"]
+            }.issubset(part_df.columns)
             part_dfs.append(part_df)
         plant_parts_eia = pd.concat(part_dfs)
         plant_parts_eia = TrueGranLabeler().execute(plant_parts_eia)
@@ -717,7 +740,7 @@ class MakePlantParts(object):
         return plant_parts_eia
 
     def _clean_plant_parts(self, plant_parts_eia):
-        return (
+        plant_parts_eia = (
             plant_parts_eia.assign(
                 report_year=lambda x: x.report_date.dt.year,
                 plant_id_report_year=lambda x: x.plant_id_pudl.astype(str)
@@ -730,6 +753,7 @@ class MakePlantParts(object):
             )
             .set_index("record_id_eia")
         )
+        return plant_parts_eia[~plant_parts_eia.index.duplicated(keep="first")]
 
     #################
     # Testing Methods
@@ -783,7 +807,7 @@ class MakePlantParts(object):
             )
 
 
-class PlantPart(object):
+class PlantPart:
     """Plant-part table maker.
 
     The coordinating method here is :meth:`execute`.
@@ -819,7 +843,7 @@ class PlantPart(object):
 
     """
 
-    def __init__(self, part_name):
+    def __init__(self, part_name: PLANT_PARTS_LITERAL):
         """Initialize an object which makes a tbl for a specific plant-part.
 
         Args:
@@ -833,8 +857,8 @@ class PlantPart(object):
     def execute(
         self,
         gens_mega: pd.DataFrame,
-        sum_cols: List[str] = SUM_COLS,
-        wtavg_dict: Dict = WTAVG_DICT,
+        sum_cols: list[str] = SUM_COLS,
+        wtavg_dict: dict = WTAVG_DICT,
     ) -> pd.DataFrame:
         """Get a table of data aggregated by a specific plant-part.
 
@@ -1113,14 +1137,14 @@ class TrueGranLabeler:
         return ppl_true_gran
 
 
-class AddAttribute(object):
+class AddAttribute:
     """Base class for adding attributes to plant-part tables."""
 
     def __init__(
         self,
         attribute_col: str,
         part_name: str,
-        assign_col_dict: Optional[Dict[str, str]] = None,
+        assign_col_dict: dict[str, str] | None = None,
     ):
         """Initialize a attribute adder.
 
@@ -1469,23 +1493,11 @@ def add_record_id(part_df, id_cols, plant_part_col="plant_part", year=True):
     return part_df
 
 
-PLANT_PARTS_LITERAL = Literal[
-    "plant",
-    "plant_unit",
-    "plant_prime_mover",
-    "plant_technology",
-    "plant_prime_fuel",
-    "plant_ferc_acct",
-    "plant_gen",
-]
-
-
 def match_to_single_plant_part(
     multi_gran_df: pd.DataFrame,
     ppl: pd.DataFrame,
     part_name: PLANT_PARTS_LITERAL = "plant_gen",
-    cols_to_keep: List[str] = [],
-    merge_how: Literal["left", "right", "inner", "outer", "cross"] = "left",
+    cols_to_keep: list[str] = [],
 ) -> pd.DataFrame:
     """Match data with a variety of granularities to a single plant-part.
 
@@ -1521,7 +1533,6 @@ def match_to_single_plant_part(
         cols_to_keep: columns from the original data ``multi_gran_df`` that
             you want to show up in the output. These should not be columns
             that show up in the ``ppl``.
-        merge_how: what type of merge to do. See :func:`pandas.merge`.
 
     Returns:
         A dataframe in which records correspond to :attr:`part_name` (in
@@ -1549,7 +1560,7 @@ def match_to_single_plant_part(
             ),
             ppl_part_df,
             on=pk_cols,
-            how=merge_how,
+            how="left",
             # this unfortunately needs to be a m:m bc sometimes the df
             # multi_gran_df has multiple record associated with the same
             # record_id_eia but are unique records and are not aggregated
@@ -1558,6 +1569,8 @@ def match_to_single_plant_part(
             validate="m:m",
             suffixes=("_og", ""),
         )
+        # there should be no records without a matching generator
+        assert ~(part_df.record_id_eia.isnull().values.any())
         out_dfs.append(part_df)
     out_df = pd.concat(out_dfs)
 

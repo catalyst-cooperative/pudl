@@ -1,9 +1,9 @@
 """Table definitions for the FERC Form 1 data group."""
-from typing import Any, Dict
+from typing import Any
 
 from pudl.metadata.codes import CODE_METADATA
 
-RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
+RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     "accumulated_depreciation_ferc1": {
         "description": "Balances and changes to FERC Accumulated Provision for Depreciation.",
         "schema": {

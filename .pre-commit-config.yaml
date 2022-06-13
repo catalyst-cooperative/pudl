@@ -75,6 +75,23 @@ repos:
           - flake8-rst-docstrings
           - flake8-use-fstring
 
+  # Use built-in types for annotations as per PEP585
+  - repo: https://github.com/sondrelg/pep585-upgrade
+    rev: "v1.0"
+    hooks:
+      - id: upgrade-type-hints
+
+  # Update Python language constructs to modern standards
+  - repo: https://github.com/asottile/pyupgrade
+    rev: v2.32.1
+    hooks:
+      - id: pyupgrade
+        args: ["--py310-plus"]
+
+  ########################################################################################
+  # Linters: hooks that check but don't alter Python and documentation files
+  ########################################################################################
+
   # Check for known security vulnerabilities:
   - repo: https://github.com/PyCQA/bandit
     rev: 1.7.4
@@ -89,41 +106,48 @@ repos:
       - id: doc8
         args: ["--config", "tox.ini"]
 
-  # Lint any RST files and embedded code blocks for syntax / formatting errors
-  - repo: https://github.com/myint/rstcheck
-    rev: v5.0.0
-    hooks:
-      - id: rstcheck
-        additional_dependencies: [sphinx]
-        args: ["--config", "tox.ini"]
-
   # Lint Dockerfiles for errors and to ensure best practices
   - repo: https://github.com/AleksaC/hadolint-py
     rev: v2.10.0
     hooks:
       - id: hadolint
 
-########################################################################################
-# Our own pre-commit hooks, which don't come from the pre-commit project
-########################################################################################
-#- repo: local
-#  hooks:
-#    - id: nb-output-clear
-#      name: nb-output-clear
-#      stages: [commit]
-#      language: system
-#      verbose: false
-#      pass_filenames: false
-#      always_run: true
-#      entry: find devtools \( -name \*.ipynb -not -name \*checkpoint.ipynb \) -type f -exec jupyter nbconvert --clear-output {} \;
-#    - id: unit-tests
-#      name: unit-tests
-#      stages: [commit]
-#      language: system
-#      verbose: false
-#      pass_filenames: false
-#      always_run: true
-#      entry: pytest --doctest-modules src/pudl test/unit
+  # Check for errors in restructuredtext (.rst) files under the doc hierarchy
+  - repo: https://github.com/PyCQA/doc8
+    rev: 0.11.2
+    hooks:
+      - id: doc8
+        args: ["--config", "tox.ini"]
+
+  # Lint any RST files and embedded code blocks for syntax / formatting errors
+  - repo: https://github.com/myint/rstcheck
+    rev: v6.0.0.post1
+    hooks:
+      - id: rstcheck
+        additional_dependencies: [sphinx]
+        args: ["--config", "tox.ini"]
+
+  ########################################################################################
+  # Our own pre-commit hooks, which don't come from the pre-commit project
+  ########################################################################################
+  - repo: local
+    hooks:
+      - id: nb-output-clear
+        name: nb-output-clear
+        stages: [commit]
+        language: system
+        verbose: false
+        pass_filenames: false
+        always_run: true
+        entry: find devtools \( -name \*.ipynb -not -name \*checkpoint.ipynb \) -type f -exec jupyter nbconvert --clear-output {} \;
+      - id: unit-tests
+        name: unit-tests
+        stages: [commit]
+        language: system
+        verbose: false
+        pass_filenames: false
+        always_run: true
+        entry: pytest --doctest-modules src/pudl test/unit
 
 # Configuration for pre-commit.ci
 ci:
