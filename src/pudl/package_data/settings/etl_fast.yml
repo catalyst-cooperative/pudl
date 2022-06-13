@@ -406,17 +406,24 @@ description: >
 version: 0.1.0
 datasets:
     ferc1:
-      tables:
-      - fuel_ferc1 # requires plants_steam_ferc1 to load properly
-      - plants_steam_ferc1
-      - plants_small_ferc1
-      - plants_hydro_ferc1
-      - plants_pumped_storage_ferc1
-      - plant_in_service_ferc1
-      - purchased_power_ferc1
-      years: [
-          2020
-      ]
+      ferc1_dbf_settings:
+        tables:
+          - fuel_ferc1 # requires plants_steam_ferc1 to load properly
+          - plants_steam_ferc1
+          - plants_small_ferc1
+          - plants_hydro_ferc1
+          - plants_pumped_storage_ferc1
+          - plant_in_service_ferc1
+          - purchased_power_ferc1
+        years: [
+            2020
+        ]
+      ferc1_xbrl_settings:
+        tables:
+          - steam_electric_generating_plant_statistics_large_plants_fuel_statistics_402_duration
+        years: [
+            2021
+        ]
     eia:
       eia923:
         tables:
