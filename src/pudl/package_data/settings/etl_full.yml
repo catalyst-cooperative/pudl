@@ -3,10 +3,37 @@
 # Settings for ferc1_to_sqlite script
 ###########################################################################
 ferc1_to_sqlite_settings:
-    # What years of original FERC data should be cloned into the SQLite DB?
-  years: [1994, 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005,
-    2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018,
-    2019, 2020]
+  # What years of original FERC data should be cloned into the SQLite DB?
+  years:
+    [
+      1994,
+      1995,
+      1996,
+      1997,
+      1998,
+      1999,
+      2000,
+      2001,
+      2002,
+      2003,
+      2004,
+      2005,
+      2006,
+      2007,
+      2008,
+      2009,
+      2010,
+      2011,
+      2012,
+      2013,
+      2014,
+      2015,
+      2016,
+      2017,
+      2018,
+      2019,
+      2020,
+    ]
     # A list of tables to be loaded into the local SQLite database. These are
     # the table names as they appear in the 2015 FERC Form 1 database.
   tables:
@@ -141,26 +168,74 @@ version: 0.1.0
 datasets:
   ferc1:
     tables:
-      - fuel_ferc1    # requires plants_steam_ferc1 to load properly
+      - fuel_ferc1 # requires plants_steam_ferc1 to load properly
       - plants_steam_ferc1
       - plants_small_ferc1
       - plants_hydro_ferc1
       - plants_pumped_storage_ferc1
       - plant_in_service_ferc1
       - purchased_power_ferc1
-    years: [1994, 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005,
-      2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018,
-      2019, 2020]
+    years:
+      [
+        1994,
+        1995,
+        1996,
+        1997,
+        1998,
+        1999,
+        2000,
+        2001,
+        2002,
+        2003,
+        2004,
+        2005,
+        2006,
+        2007,
+        2008,
+        2009,
+        2010,
+        2011,
+        2012,
+        2013,
+        2014,
+        2015,
+        2016,
+        2017,
+        2018,
+        2019,
+        2020,
+      ]
   eia:
     eia923:
       tables:
         - generation_fuel_eia923
         - boiler_fuel_eia923
         - generation_eia923
-        - coalmine_eia923    # REQUIRES fuel_receipts_costs_eia923
+        - coalmine_eia923 # REQUIRES fuel_receipts_costs_eia923
         - fuel_receipts_costs_eia923
-      years: [2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012,
-        2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020]
+      years:
+        [
+          2001,
+          2002,
+          2003,
+          2004,
+          2005,
+          2006,
+          2007,
+          2008,
+          2009,
+          2010,
+          2011,
+          2012,
+          2013,
+          2014,
+          2015,
+          2016,
+          2017,
+          2018,
+          2019,
+          2020,
+        ]
     eia860:
       tables:
         - boiler_generator_assn_eia860
@@ -168,14 +243,61 @@ datasets:
         - plants_eia860
         - generators_eia860
         - ownership_eia860
-      years: [2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012,
-        2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020]
+      years:
+        [
+          2001,
+          2002,
+          2003,
+          2004,
+          2005,
+          2006,
+          2007,
+          2008,
+          2009,
+          2010,
+          2011,
+          2012,
+          2013,
+          2014,
+          2015,
+          2016,
+          2017,
+          2018,
+          2019,
+          2020,
+        ]
       eia860m: true
   epacems:
-      # Note that the CEMS data relies on EIA 860 data for plant locations,
-      # so if you're loading CEMS data for a particular year, you should
-      # also load the EIA 860 data for that year if possible
+    # Note that the CEMS data relies on EIA 860 data for plant locations,
+    # so if you're loading CEMS data for a particular year, you should
+    # also load the EIA 860 data for that year if possible
     states: [all]
-    years: [1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006,
-      2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019,
-      2020]
+    years:
+      [
+        1995,
+        1996,
+        1997,
+        1998,
+        1999,
+        2000,
+        2001,
+        2002,
+        2003,
+        2004,
+        2005,
+        2006,
+        2007,
+        2008,
+        2009,
+        2010,
+        2011,
+        2012,
+        2013,
+        2014,
+        2015,
+        2016,
+        2017,
+        2018,
+        2019,
+        2020,
+      ]

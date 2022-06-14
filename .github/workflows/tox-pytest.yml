@@ -17,10 +17,10 @@ jobs:
       - name: Set up conda environment for testing
         uses: conda-incubator/setup-miniconda@v2.1.1
         with:
-          mamba-version: '*'
+          mamba-version: "*"
           channels: conda-forge,defaults
           channel-priority: true
-          python-version: '3.10'
+          python-version: "3.10"
           activate-environment: pudl-test
           environment-file: test/test-environment.yml
       - shell: bash -l {0}
@@ -32,7 +32,8 @@ jobs:
           printenv | sort
 
       - name: Compile Zenodo datastore DOIs for cache invalidation
-        run: grep -e '.*10\.\(5281\|5072\)/zenodo\..*' src/pudl/workspace/datastore.py
+        run:
+          grep -e '.*10\.\(5281\|5072\)/zenodo\..*' src/pudl/workspace/datastore.py
           | sed -e 's/",*$//g' | sed -e 's/^.*"//g' | sort > datastore-dois.txt
 
       - name: Restore Zenodo datastore from cache if possible
@@ -86,9 +87,9 @@ jobs:
               }]
             }
         env:
-          GITHUB_TOKEN: ${{ github.token }}  # required
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}  # required
-          MATRIX_CONTEXT: ${{ toJson(matrix) }}  # required
+          GITHUB_TOKEN: ${{ github.token }} # required
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }} # required
+          MATRIX_CONTEXT: ${{ toJson(matrix) }} # required
 
   dependabot-auto-merge:
     runs-on: ubuntu-latest
@@ -98,5 +99,5 @@ jobs:
       - name: Automerge passing dependabot PR
         uses: ridedott/merge-me-action@v2
         with:
-          GITHUB_LOGIN: dependabot  # For clarity only. dependabot is default.
+          GITHUB_LOGIN: dependabot # For clarity only. dependabot is default.
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

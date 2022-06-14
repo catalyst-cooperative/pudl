@@ -3,8 +3,9 @@
 # Settings for ferc1_to_sqlite script
 ###########################################################################
 ferc1_to_sqlite_settings:
-    # What years of original FERC data should be cloned into the SQLite DB?
-  years: [2020]
+  # What years of original FERC data should be cloned into the SQLite DB?
+  years:
+    [2020]
     # A list of tables to be loaded into the local SQLite database. These are
     # the table names as they appear in the 2015 FERC Form 1 database.
   tables:
@@ -29,7 +30,7 @@ version: 0.1.0
 datasets:
   ferc1:
     tables:
-      - fuel_ferc1  # requires plants_steam_ferc1 to load properly
+      - fuel_ferc1 # requires plants_steam_ferc1 to load properly
       - plants_steam_ferc1
       - plants_small_ferc1
       - plants_hydro_ferc1
@@ -43,7 +44,7 @@ datasets:
         - generation_fuel_eia923
         - boiler_fuel_eia923
         - generation_eia923
-        - coalmine_eia923    # REQUIRES fuel_receipts_costs_eia923
+        - coalmine_eia923 # REQUIRES fuel_receipts_costs_eia923
         - fuel_receipts_costs_eia923
       years: [2020]
     eia860:
@@ -56,8 +57,8 @@ datasets:
       years: [2020]
       eia860m: true
   epacems:
-      # Note that the CEMS data relies on EIA 860 data for plant locations,
-      # so if you're loading CEMS data for a particular year, you should
-      # also load the EIA 860 data for that year if possible
+    # Note that the CEMS data relies on EIA 860 data for plant locations,
+    # so if you're loading CEMS data for a particular year, you should
+    # also load the EIA 860 data for that year if possible
     states: [ID, ME]
     years: [2019, 2020]

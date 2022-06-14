@@ -3,8 +3,9 @@
 # Settings for ferc1_to_sqlite script
 ###########################################################################
 ferc1_to_sqlite_settings:
-    # What years of original FERC data should be cloned into the SQLite DB?
-  years: [2020]
+  # What years of original FERC data should be cloned into the SQLite DB?
+  years:
+    [2020]
     # A list of tables to be loaded into the local SQLite database. These are
     # the table names as they appear in the 2015 FERC Form 1 database.
   tables:
@@ -21,6 +22,6 @@ version: 0.1.0
 datasets:
   ferc1:
     tables:
-      - fuel_ferc1  # requires plants_steam_ferc1 to load properly
+      - fuel_ferc1 # requires plants_steam_ferc1 to load properly
       - plants_steam_ferc1
     years: [2020]
