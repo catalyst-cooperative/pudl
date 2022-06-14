@@ -129,7 +129,7 @@ def get_db_plants_ferc1(
 
     """
     # Validate the input years:
-    _ = pudl.settings.Ferc1Settings(years=list(years))
+    _ = pudl.settings.Ferc1DbfSettings(years=list(years))
 
     # Grab the FERC 1 DB metadata so we can query against the DB w/ SQLAlchemy:
     ferc1_engine = sa.create_engine(pudl_settings["ferc1_db"])
