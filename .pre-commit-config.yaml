@@ -159,5 +159,5 @@ ci:
   autoupdate_branch: dev
   autoupdate_commit_msg: "[pre-commit.ci] pre-commit autoupdate"
   autoupdate_schedule: weekly
-  #  skip: [unit-tests, nb-output-clear]
+  skip: [unit-tests, nb-output-clear]
   submodules: false
