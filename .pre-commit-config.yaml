@@ -60,18 +60,18 @@ repos:
     hooks:
       - id: upgrade-type-hints
 
-  # Update Python language constructs to modern standards
-  - repo: https://github.com/asottile/pyupgrade
-    rev: v2.32.1
-    hooks:
-      - id: pyupgrade
-        args: [--py310-plus]
-
   - repo: https://github.com/pre-commit/mirrors-prettier
     rev: v2.7.0
     hooks:
       - id: prettier
         types_or: [yaml]
+
+  # Update Python language constructs to modern standards
+  - repo: https://github.com/asottile/pyupgrade
+    rev: v2.34.0
+    hooks:
+      - id: pyupgrade
+        args: ["--py310-plus"]
 
   ########################################################################################
   # Linters: hooks that check but don't alter Python and documentation files
