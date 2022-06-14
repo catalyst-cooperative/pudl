@@ -1,3 +1,4 @@
+---
 repos:
   # Quick content checks based on grepping for python specific patterns:
   - repo: https://github.com/pre-commit/pygrep-hooks
@@ -53,6 +54,25 @@ repos:
     hooks:
       - id: rm-unneeded-f-str
 
+  # Use built-in types for annotations as per PEP585
+  - repo: https://github.com/sondrelg/pep585-upgrade
+    rev: v1.0
+    hooks:
+      - id: upgrade-type-hints
+
+  - repo: https://github.com/pre-commit/mirrors-prettier
+    rev: v2.7.0
+    hooks:
+      - id: prettier
+        types_or: [yaml]
+
+  # Update Python language constructs to modern standards
+  - repo: https://github.com/asottile/pyupgrade
+    rev: v2.34.0
+    hooks:
+      - id: pyupgrade
+        args: ["--py310-plus"]
+
   ########################################################################################
   # Linters: hooks that check but don't alter Python and documentation files
   ########################################################################################
@@ -62,7 +82,7 @@ repos:
     rev: 4.0.1
     hooks:
       - id: flake8
-        args: ["--config", "tox.ini"]
+        args: [--config, tox.ini]
         additional_dependencies:
           - flake8-docstrings
           - flake8-colors
@@ -75,23 +95,6 @@ repos:
           - flake8-rst-docstrings
           - flake8-use-fstring
 
-  # Use built-in types for annotations as per PEP585
-  - repo: https://github.com/sondrelg/pep585-upgrade
-    rev: "v1.0"
-    hooks:
-      - id: upgrade-type-hints
-
-  # Update Python language constructs to modern standards
-  - repo: https://github.com/asottile/pyupgrade
-    rev: v2.32.1
-    hooks:
-      - id: pyupgrade
-        args: ["--py310-plus"]
-
-  ########################################################################################
-  # Linters: hooks that check but don't alter Python and documentation files
-  ########################################################################################
-
   # Check for known security vulnerabilities:
   - repo: https://github.com/PyCQA/bandit
     rev: 1.7.4
@@ -99,25 +102,17 @@ repos:
       - id: bandit
         args: ["--configfile", ".bandit.yml"]
 
-  # Check for errors in restructuredtext (.rst) files under the doc hierarchy
-  - repo: https://github.com/PyCQA/doc8
-    rev: 0.11.1
-    hooks:
-      - id: doc8
-        args: ["--config", "tox.ini"]
-
   # Lint Dockerfiles for errors and to ensure best practices
   - repo: https://github.com/AleksaC/hadolint-py
     rev: v2.10.0
     hooks:
       - id: hadolint
-
   # Check for errors in restructuredtext (.rst) files under the doc hierarchy
   - repo: https://github.com/PyCQA/doc8
     rev: 0.11.2
     hooks:
       - id: doc8
-        args: ["--config", "tox.ini"]
+        args: [--config, tox.ini]
 
   # Lint any RST files and embedded code blocks for syntax / formatting errors
   - repo: https://github.com/myint/rstcheck
@@ -125,7 +120,7 @@ repos:
     hooks:
       - id: rstcheck
         additional_dependencies: [sphinx]
-        args: ["--config", "tox.ini"]
+        args: [--config, tox.ini]
 
   ########################################################################################
   # Our own pre-commit hooks, which don't come from the pre-commit project
@@ -139,7 +134,9 @@ repos:
         verbose: false
         pass_filenames: false
         always_run: true
-        entry: find devtools \( -name \*.ipynb -not -name \*checkpoint.ipynb \) -type f -exec jupyter nbconvert --clear-output {} \;
+        entry:
+          find devtools \( -name \*.ipynb -not -name \*checkpoint.ipynb \) -type
+          f -exec jupyter nbconvert --clear-output {} \;
       - id: unit-tests
         name: unit-tests
         stages: [commit]

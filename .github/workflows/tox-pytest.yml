@@ -1,3 +1,4 @@
+---
 name: tox-pytest
 
 on: [push, pull_request]
@@ -31,7 +32,9 @@ jobs:
           printenv | sort
 
       - name: Compile Zenodo datastore DOIs for cache invalidation
-        run: grep -e '.*10\.\(5281\|5072\)/zenodo\..*' src/pudl/workspace/datastore.py | sed -e 's/",*$//g' | sed -e 's/^.*"//g' | sort > datastore-dois.txt
+        run:
+          grep -e '.*10\.\(5281\|5072\)/zenodo\..*' src/pudl/workspace/datastore.py
+          | sed -e 's/",*$//g' | sed -e 's/^.*"//g' | sort > datastore-dois.txt
 
       - name: Restore Zenodo datastore from cache if possible
         uses: actions/cache@v3
