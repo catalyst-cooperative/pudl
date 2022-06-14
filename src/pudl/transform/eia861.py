@@ -5,7 +5,6 @@ All transformations include:
 
 """
 
-from typing import Dict
 
 import pandas as pd
 
@@ -407,7 +406,7 @@ BA_NAME_FIXES: pd.DataFrame = pd.DataFrame(
     ],
 )
 
-NERC_SPELLCHECK: Dict[str, str] = {
+NERC_SPELLCHECK: dict[str, str] = {
     "GUSTAVUSAK": "ASCC",
     "AK": "ASCC",
     "HI": "HICC",
@@ -659,7 +658,7 @@ def _clean_nerc(df, idx_cols):
 
     # Record a list of the reported nerc regions not included in the recognized regions list (these eventually become UNK)
     nerc_col = nerc_df["nerc_region"].tolist()
-    nerc_list = list(set([item for sublist in nerc_col for item in sublist]))
+    nerc_list = list({item for sublist in nerc_col for item in sublist})
     non_nerc_list = [
         nerc_entity
         for nerc_entity in nerc_list
@@ -692,7 +691,7 @@ def _clean_nerc(df, idx_cols):
                 ]
             )
         )
-        .apply(lambda x: sorted([i if i in NERC_REGIONS else "UNK" for i in x]))
+        .apply(lambda x: sorted(i if i in NERC_REGIONS else "UNK" for i in x))
         .apply(lambda x: _remove_nerc_duplicates(x))
         .str.join("_")
     )
@@ -855,9 +854,23 @@ def balancing_authority(tfr_dfs):
     )
 
     # Fill in BA IDs based on date, utility ID, and BA Name:
-    df.loc[
-        BA_ID_NAME_FIXES.index, "balancing_authority_id_eia"
-    ] = BA_ID_NAME_FIXES.balancing_authority_id_eia
+    # using merge and then reverse backfilling balancing_authority_id_eia means
+    # that this will work even if not all years are requested
+    df = (  # this replaces the previous process to address #828
+        df.merge(
+            BA_ID_NAME_FIXES,
+            on=["report_date", "balancing_authority_name_eia", "utility_id_eia"],
+            how="left",
+            validate="m:1",
+            suffixes=(None, "_"),
+        )
+        .assign(
+            balancing_authority_id_eia=lambda x: x.balancing_authority_id_eia_.fillna(
+                x.balancing_authority_id_eia
+            )
+        )
+        .drop(columns=["balancing_authority_id_eia_"])
+    )
 
     # Backfill BA Codes based on BA IDs:
     df = df.reset_index().pipe(_ba_code_backfill)

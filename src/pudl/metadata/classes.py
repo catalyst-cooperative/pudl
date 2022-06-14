@@ -3,20 +3,10 @@ import copy
 import datetime
 import re
 import sys
+from collections.abc import Callable, Iterable
 from functools import lru_cache
 from pathlib import Path
-from typing import (
-    Any,
-    Callable,
-    Dict,
-    Iterable,
-    List,
-    Literal,
-    Optional,
-    Tuple,
-    Type,
-    Union,
-)
+from typing import Any, Literal
 
 import jinja2
 import pandas as pd
@@ -157,7 +147,7 @@ class Base(pydantic.BaseModel):
 
     Examples:
         >>> class Class(Base):
-        ...     fields_: List[str] = pydantic.Field(alias="fields")
+        ...     fields_: list[str] = pydantic.Field(alias="fields")
         >>> m = Class(fields=['x'])
         >>> m
         Class(fields=['x'])
@@ -196,7 +186,7 @@ class Base(pydantic.BaseModel):
             name = f"{name}_"
         super().__setattr__(name, value)
 
-    def __repr_args__(self) -> List[Tuple[str, Any]]:
+    def __repr_args__(self) -> list[tuple[str, Any]]:
         """Returns the attributes to show in __str__, __repr__, and __pretty__."""
         return [
             (a[:-1] if a in ("fields_", "schema_") else a, v)
@@ -284,7 +274,7 @@ class Pattern(BaseType):
         return value
 
 
-def StrictList(item_type: Type = Any) -> pydantic.ConstrainedList:  # noqa: N802
+def StrictList(item_type: type = Any) -> pydantic.ConstrainedList:  # noqa: N802
     """Non-empty :class:`list`.
 
     Allows :class:`list`, :class:`tuple`, :class:`set`, :class:`frozenset`,
@@ -296,7 +286,7 @@ def StrictList(item_type: Type = Any) -> pydantic.ConstrainedList:  # noqa: N802
 # ---- Class attribute validators ---- #
 
 
-def _check_unique(value: list = None) -> Optional[list]:
+def _check_unique(value: list = None) -> list | None:
     """Check that input list has unique values."""
     if value:
         for i in range(len(value)):
@@ -336,11 +326,11 @@ class FieldConstraints(Base):
     unique: Bool = False
     min_length: PositiveInt = None
     max_length: PositiveInt = None
-    minimum: Union[Int, Float, Date, Datetime] = None
-    maximum: Union[Int, Float, Date, Datetime] = None
+    minimum: Int | Float | Date | Datetime = None
+    maximum: Int | Float | Date | Datetime = None
     pattern: Pattern = None
     # TODO: Replace with String (min_length=1) once "" removed from enums
-    enum: StrictList(Union[pydantic.StrictStr, Int, Float, Bool, Date, Datetime]) = None
+    enum: StrictList(pydantic.StrictStr | Int | Float | Bool | Date | Datetime) = None
 
     _check_unique = _validator("enum", fn=_check_unique)
 
@@ -424,14 +414,14 @@ class Encoder(Base):
     values.
     """
 
-    ignored_codes: List[Union[Int, str]] = []
+    ignored_codes: list[Int | str] = []
     """A list of non-standard codes which appear in the data, and will be set to NA.
 
     These codes may be the result of data entry errors, and we are unable to map them
     to the appropriate canonical code. They are discarded from the raw input data.
     """
 
-    code_fixes: Dict[Union[Int, String], Union[Int, String]] = {}
+    code_fixes: dict[Int | String, Int | String] = {}
     """A dictionary mapping non-standard codes to canonical, standardized codes.
 
     The intended meanings of some non-standard codes are clear, and therefore they can
@@ -512,7 +502,7 @@ class Encoder(Base):
         return code_fixes
 
     @property
-    def code_map(self) -> Dict[str, Union[str, type(pd.NA)]]:
+    def code_map(self) -> dict[str, str | type(pd.NA)]:
         """A mapping of all known codes to their standardized values, or NA."""
         code_map = {code: code for code in self.df["code"]}
         code_map.update(self.code_fixes)
@@ -522,7 +512,7 @@ class Encoder(Base):
     def encode(
         self,
         col: pd.Series,
-        dtype: Union[type, None] = None,
+        dtype: type | None = None,
     ) -> pd.Series:
         """Apply the stored code mapping to an input Series."""
         # Every value in the Series should appear in the map. If that's not the
@@ -644,7 +634,7 @@ class Field(Base):
         """Construct from PUDL identifier (`Field.name`)."""
         return cls(**cls.dict_from_id(x))
 
-    def to_pandas_dtype(self, compact: bool = False) -> Union[str, pd.CategoricalDtype]:
+    def to_pandas_dtype(self, compact: bool = False) -> str | pd.CategoricalDtype:
         """Return Pandas data type.
 
         Args:
@@ -738,7 +728,7 @@ class Field(Base):
             comment=self.description,
         )
 
-    def encode(self, col: pd.Series, dtype: Union[type, None] = None) -> pd.Series:
+    def encode(self, col: pd.Series, dtype: type | None = None) -> pd.Series:
         """Recode the Field if it has an associated encoder."""
         return self.encoder.encode(col, dtype=dtype) if self.encoder else col
 
@@ -795,9 +785,9 @@ class Schema(Base):
     """
 
     fields_: StrictList(Field) = pydantic.Field(alias="fields")
-    missing_values: List[pydantic.StrictStr] = [""]
+    missing_values: list[pydantic.StrictStr] = [""]
     primary_key: StrictList(SnakeCase) = None
-    foreign_keys: List[ForeignKey] = []
+    foreign_keys: list[ForeignKey] = []
 
     _check_unique = _validator(
         "missing_values", "primary_key", "foreign_keys", fn=_check_unique
@@ -908,18 +898,18 @@ class DataSource(Base):
     title: String = None
     description: String = None
     field_namespace: String = None
-    keywords: List[str] = []
+    keywords: list[str] = []
     path: HttpUrl = None
-    contributors: List[Contributor] = []  # Or should this be compiled from Resources?
+    contributors: list[Contributor] = []  # Or should this be compiled from Resources?
     license_raw: License
     license_pudl: License
     # concept_doi: Doi = None  # Need to define a Doi type?
-    working_partitions: Dict[SnakeCase, Any] = {}
-    source_file_dict: Dict[SnakeCase, Any] = {}
+    working_partitions: dict[SnakeCase, Any] = {}
+    source_file_dict: dict[SnakeCase, Any] = {}
     # agency: Agency  # needs to be defined
     email: Email = None
 
-    def get_resource_ids(self) -> List[str]:
+    def get_resource_ids(self) -> list[str]:
         """Compile list of resoruce IDs associated with this data source."""
         # Temporary check to use eia861.RESOURCE_METADATA directly
         # eia861 is not currently included in the general RESOURCE_METADATA dict
@@ -928,14 +918,12 @@ class DataSource(Base):
             resources = eia861.RESOURCE_METADATA
 
         return sorted(
-            [
-                name
-                for name, value in resources.items()
-                if value.get("etl_group") == self.name
-            ]
+            name
+            for name, value in resources.items()
+            if value.get("etl_group") == self.name
         )
 
-    def get_temporal_coverage(self, partitions: Dict = None) -> str:
+    def get_temporal_coverage(self, partitions: dict = None) -> str:
         """Return a string describing the time span covered by the data source."""
         if partitions is None:
             partitions = self.working_partitions
@@ -960,8 +948,8 @@ class DataSource(Base):
     def to_rst(
         self,
         docs_dir: DirectoryPath,
-        source_resources: List,
-        extra_resources: List,
+        source_resources: list,
+        extra_resources: list,
         output_path: str = None,
     ) -> None:
         """Output a representation of the data source in RST for documentation."""
@@ -988,7 +976,7 @@ class DataSource(Base):
             sys.stdout.write(rendered)
 
     @classmethod
-    def from_field_namespace(cls, x: str) -> List["DataSource"]:
+    def from_field_namespace(cls, x: str) -> list["DataSource"]:
         """Return list of DataSource objects by field namespace."""
         return [
             cls(**cls.dict_from_id(name))
@@ -1148,10 +1136,10 @@ class Resource(Base):
     description: String = None
     harvest: ResourceHarvest = {}
     schema_: Schema = pydantic.Field(alias="schema")
-    contributors: List[Contributor] = []
-    licenses: List[License] = []
-    sources: List[DataSource] = []
-    keywords: List[String] = []
+    contributors: list[Contributor] = []
+    licenses: list[License] = []
+    sources: list[DataSource] = []
+    keywords: list[String] = []
     encoder: Encoder = None
     field_namespace: Literal[
         "eia", "epacems", "ferc1", "ferc714", "glue", "pudl"
@@ -1317,9 +1305,7 @@ class Resource(Base):
         }
         return pa.schema(fields=fields, metadata=metadata)
 
-    def to_pandas_dtypes(
-        self, **kwargs: Any
-    ) -> Dict[str, Union[str, pd.CategoricalDtype]]:
+    def to_pandas_dtypes(self, **kwargs: Any) -> dict[str, str | pd.CategoricalDtype]:
         """Return Pandas data type of each field by field name.
 
         Args:
@@ -1327,7 +1313,7 @@ class Resource(Base):
         """
         return {f.name: f.to_pandas_dtype(**kwargs) for f in self.schema.fields}
 
-    def match_primary_key(self, names: Iterable[str]) -> Optional[Dict[str, str]]:
+    def match_primary_key(self, names: Iterable[str]) -> dict[str, str] | None:
         """Match primary key fields to input field names.
 
         An exact match is required unless :attr:`harvest` .`harvest=True`,
@@ -1447,7 +1433,7 @@ class Resource(Base):
 
     def aggregate_df(
         self, df: pd.DataFrame, raised: bool = False, error: Callable = None
-    ) -> Tuple[pd.DataFrame, dict]:
+    ) -> tuple[pd.DataFrame, dict]:
         """Aggregate dataframe by primary key.
 
         The dataframe is grouped by primary key fields
@@ -1540,7 +1526,7 @@ class Resource(Base):
                 "stats": stats,
                 "errors": errors.get(field.name, None),
             }
-        nerrors = sum([not f["valid"] for f in freports.values()])
+        nerrors = sum(not f["valid"] for f in freports.values())
         stats = {
             "all": ncols,
             "invalid": nerrors,
@@ -1555,11 +1541,11 @@ class Resource(Base):
 
     def harvest_dfs(
         self,
-        dfs: Dict[str, pd.DataFrame],
+        dfs: dict[str, pd.DataFrame],
         aggregate: bool = None,
-        aggregate_kwargs: Dict[str, Any] = {},
-        format_kwargs: Dict[str, Any] = {},
-    ) -> Tuple[pd.DataFrame, dict]:
+        aggregate_kwargs: dict[str, Any] = {},
+        format_kwargs: dict[str, Any] = {},
+    ) -> tuple[pd.DataFrame, dict]:
         """Harvest from named dataframes.
 
         For standard resources (:attr:`harvest`. `harvest=False`), the columns
@@ -1661,12 +1647,12 @@ class Package(Base):
     name: String
     title: String = None
     description: String = None
-    keywords: List[String] = []
+    keywords: list[String] = []
     homepage: HttpUrl = "https://catalyst.coop/pudl"
     created: Datetime = datetime.datetime.utcnow()
-    contributors: List[Contributor] = []
-    sources: List[DataSource] = []
-    licenses: List[License] = []
+    contributors: list[Contributor] = []
+    sources: list[DataSource] = []
+    licenses: list[License] = []
     resources: StrictList(Resource)
 
     @pydantic.validator("resources")
@@ -1709,7 +1695,7 @@ class Package(Base):
     @lru_cache
     def from_resource_ids(  # noqa: C901
         cls,
-        resource_ids: Tuple[str] = tuple(sorted(RESOURCE_METADATA)),
+        resource_ids: tuple[str] = tuple(sorted(RESOURCE_METADATA)),
         resolve_foreign_keys: bool = False,
     ) -> "Package":
         """Construct a collection of Resources from PUDL identifiers (`resource.name`).
@@ -1782,7 +1768,7 @@ class CodeMetadata(Base):
     Used to export to documentation.
     """
 
-    encoder_list: List[Encoder] = []
+    encoder_list: list[Encoder] = []
 
     @classmethod
     def from_code_ids(cls, code_ids: Iterable[str]) -> "CodeMetadata":
@@ -1817,9 +1803,9 @@ class DatasetteMetadata(Base):
     Used to create metadata YAML file to accompany Datasette.
     """
 
-    data_sources: List[DataSource]
-    resources: List[Resource] = Package.from_resource_ids().resources
-    label_columns: Dict[str, str] = {
+    data_sources: list[DataSource]
+    resources: list[Resource] = Package.from_resource_ids().resources
+    label_columns: dict[str, str] = {
         "plants_entity_eia": "plant_name_eia",
         "plants_ferc1": "plant_name_ferc1",
         "plants_pudl": "plant_name_pudl",

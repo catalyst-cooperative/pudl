@@ -1,6 +1,6 @@
 """Module for validating pudl etl settings."""
 import pathlib
-from typing import ClassVar, List
+from typing import ClassVar
 
 import pandas as pd
 import yaml
@@ -32,7 +32,7 @@ class GenericDatasetSettings(BaseModel):
     A dataset can have an arbitrary number of partitions.
     """
 
-    tables: List[str]
+    tables: list[str]
 
     @root_validator
     def validate_partitions(cls, partitions):  # noqa: N805
@@ -72,16 +72,16 @@ class Ferc1DbfSettings(GenericDatasetSettings):
 
     Args:
         data_source: DataSource metadata object
-        years: List of years to validate.
-        tables: List of tables to validate.
+        years: list of years to validate.
+        tables: list of tables to validate.
     """
 
     data_source: ClassVar[DataSource] = DataSource.from_id("ferc1")
 
-    years: List[int] = [
+    years: list[int] = [
         year for year in data_source.working_partitions["years"] if year <= 2020
     ]
-    tables: List[str] = data_source.get_resource_ids()
+    tables: list[str] = data_source.get_resource_ids()
 
 
 class Ferc1XbrlSettings(GenericDatasetSettings):
@@ -89,16 +89,16 @@ class Ferc1XbrlSettings(GenericDatasetSettings):
 
     Args:
         data_source: DataSource metadata object
-        years: List of years to validate.
-        tables: List of tables to validate.
+        years: list of years to validate.
+        tables: list of tables to validate.
     """
 
     data_source: ClassVar[DataSource] = DataSource.from_id("ferc1")
 
-    years: List[int] = [
+    years: list[int] = [
         year for year in data_source.working_partitions["years"] if year >= 2021
     ]
-    tables: List[str] = XBRL_TABLES
+    tables: list[str] = XBRL_TABLES
 
     @validator("tables")
     def validate_tables(cls, tables):  # noqa: N805
@@ -143,12 +143,12 @@ class Ferc714Settings(GenericDatasetSettings):
 
     Args:
         data_source: DataSource metadata object
-        tables: List of tables to validate.
+        tables: list of tables to validate.
     """
 
     data_source: ClassVar[DataSource] = DataSource.from_id("ferc714")
 
-    tables: List[str] = data_source.get_resource_ids()
+    tables: list[str] = data_source.get_resource_ids()
 
 
 class EpaCemsSettings(GenericDatasetSettings):
@@ -156,18 +156,18 @@ class EpaCemsSettings(GenericDatasetSettings):
 
     Args:
         data_source: DataSource metadata object
-        years: List of years to validate.
-        states: List of states to validate.
-        tables: List of tables to validate.
+        years: list of years to validate.
+        states: list of states to validate.
+        tables: list of tables to validate.
         partition: Whether to output year-state partitioned Parquet files. If True,
             all available threads / CPUs will be used in parallel.
     """
 
     data_source: ClassVar[DataSource] = DataSource.from_id("epacems")
 
-    years: List[int] = data_source.working_partitions["years"]
-    states: List[str] = data_source.working_partitions["states"]
-    tables: List[str] = data_source.get_resource_ids()
+    years: list[int] = data_source.working_partitions["years"]
+    states: list[str] = data_source.working_partitions["states"]
+    tables: list[str] = data_source.get_resource_ids()
     partition: bool = False
 
     @validator("states")
@@ -183,14 +183,14 @@ class Eia923Settings(GenericDatasetSettings):
 
     Args:
         data_source: DataSource metadata object
-        years: List of years to validate.
-        tables: List of tables to validate.
+        years: list of years to validate.
+        tables: list of tables to validate.
     """
 
     data_source: ClassVar[DataSource] = DataSource.from_id("eia923")
 
-    years: List[int] = data_source.working_partitions["years"]
-    tables: List[str] = data_source.get_resource_ids()
+    years: list[int] = data_source.working_partitions["years"]
+    tables: list[str] = data_source.get_resource_ids()
 
 
 class Eia861Settings(GenericDatasetSettings):
@@ -198,16 +198,16 @@ class Eia861Settings(GenericDatasetSettings):
 
     Args:
         data_source: DataSource metadata object
-        years: List of years to validate.
-        tables: List of tables to validate.
-        transform_functions: List of transform functions to be applied to eia861
+        years: list of years to validate.
+        tables: list of tables to validate.
+        transform_functions: list of transform functions to be applied to eia861
     """
 
     data_source: ClassVar[DataSource] = DataSource.from_id("eia861")
 
-    years: List[int] = data_source.working_partitions["years"]
-    tables: List[str] = data_source.get_resource_ids()
-    transform_functions: List[str]
+    years: list[int] = data_source.working_partitions["years"]
+    tables: list[str] = data_source.get_resource_ids()
+    transform_functions: list[str]
 
     @root_validator(pre=True)
     def generate_transform_functions(cls, values):  # noqa: N805
@@ -247,8 +247,8 @@ class Eia860Settings(GenericDatasetSettings):
 
     Args:
         data_source: DataSource metadata object
-        years: List of years to validate.
-        tables: List of tables to validate.
+        years: list of years to validate.
+        tables: list of tables to validate.
 
         eia860m_date ClassVar[str]: The 860m year to date.
     """
@@ -257,8 +257,8 @@ class Eia860Settings(GenericDatasetSettings):
     eia860m_data_source: ClassVar[DataSource] = DataSource.from_id("eia860m")
     eia860m_date: ClassVar[str] = eia860m_data_source.working_partitions["year_month"]
 
-    years: List[int] = data_source.working_partitions["years"]
-    tables: List[str] = data_source.get_resource_ids()
+    years: list[int] = data_source.working_partitions["years"]
+    tables: list[str] = data_source.get_resource_ids()
     eia860m: bool = True
 
     @validator("eia860m")
@@ -409,16 +409,16 @@ class Ferc1DbfToSqliteSettings(GenericDatasetSettings):
     """An immutable pydantic nodel to validate Ferc1 to SQLite settings.
 
     Args:
-        tables: List of tables to validate.
-        years: List of years to validate.
+        tables: list of tables to validate.
+        years: list of years to validate.
 
     """
 
     data_source: ClassVar[DataSource] = DataSource.from_id("ferc1")
-    years: List[int] = [
+    years: list[int] = [
         year for year in data_source.working_partitions["years"] if year <= 2020
     ]
-    tables: List[str] = sorted(list(DBF_TABLES_FILENAMES.keys()))
+    tables: list[str] = sorted(list(DBF_TABLES_FILENAMES.keys()))
 
     refyear: ClassVar[int] = max(years)
     bad_cols: tuple = ()
@@ -438,16 +438,16 @@ class Ferc1XbrlToSqliteSettings(GenericDatasetSettings):
 
     Args:
         taxonomy: URL of taxonomy used to .
-        years: List of years to validate.
+        years: list of years to validate.
 
     """
 
     data_source: ClassVar[DataSource] = DataSource.from_id("ferc1")
-    years: List[int] = [
+    years: list[int] = [
         year for year in data_source.working_partitions["years"] if year >= 2021
     ]
     taxonomy: AnyHttpUrl = "https://eCollection.ferc.gov/taxonomy/form1/2022-01-01/form/form1/form-1_2022-01-01.xsd"
-    tables: List[str] = XBRL_TABLES
+    tables: list[str] = XBRL_TABLES
 
     @validator("tables")
     def validate_tables(cls, tables):  # noqa: N805

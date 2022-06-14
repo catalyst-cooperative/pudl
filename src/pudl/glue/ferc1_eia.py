@@ -30,7 +30,7 @@ implications of using a co-located set of plant infrastructure as an id.
 
 """
 import importlib
-from typing import Dict, Iterable, List
+from collections.abc import Iterable
 
 import pandas as pd
 import sqlalchemy as sa
@@ -43,7 +43,7 @@ logger = get_logger(__name__)
 # Identify only those utilities assocaited with plants that reported data
 # at some point in the EIA 923 -- these are the ones we might need to link
 # to the FERC Form 1 utilities:
-DATA_TABLES_EIA923: List[str] = [
+DATA_TABLES_EIA923: list[str] = [
     "boiler_fuel_eia923",
     "fuel_receipts_costs_eia923",
     "generation_eia923",
@@ -100,7 +100,7 @@ def get_utility_map() -> pd.DataFrame:
 
 
 def get_db_plants_ferc1(
-    pudl_settings: Dict[str, str], years: Iterable[int]
+    pudl_settings: dict[str, str], years: Iterable[int]
 ) -> pd.DataFrame:
     """Pull a dataframe of all plants in the FERC Form 1 DB for the given years.
 
@@ -283,7 +283,7 @@ def get_mapped_utils_ferc1():
 
 
 def get_unmapped_plants_ferc1(
-    pudl_settings: Dict[str, str],
+    pudl_settings: dict[str, str],
     years: Iterable[int],
 ) -> pd.DataFrame:
     """Generate a DataFrame of all unmapped FERC plants in the given years.
@@ -519,7 +519,7 @@ def get_mapped_utils_eia() -> pd.DataFrame:
 
 def get_unmapped_utils_eia(
     pudl_engine: sa.engine.Engine,
-    data_tables_eia923: List[str] = DATA_TABLES_EIA923,
+    data_tables_eia923: list[str] = DATA_TABLES_EIA923,
 ) -> pd.DataFrame:
     """Get a list of all the EIA Utilities in the PUDL DB without PUDL IDs.
 

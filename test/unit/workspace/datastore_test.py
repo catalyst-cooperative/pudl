@@ -3,7 +3,6 @@
 import json
 import re
 import unittest
-from typing import Dict
 
 import responses
 
@@ -86,7 +85,7 @@ class MockableZenodoFetcher(datastore.ZenodoFetcher):
     """
 
     def __init__(
-        self, descriptors: Dict[str, datastore.DatapackageDescriptor], **kwargs
+        self, descriptors: dict[str, datastore.DatapackageDescriptor], **kwargs
     ):
         """Constructs test-friendly ZenodoFetcher that has given descriptors pre-loaded."""
         super().__init__(**kwargs)

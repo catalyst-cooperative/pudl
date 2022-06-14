@@ -68,7 +68,7 @@ def etl_parameters(request, test_dir):
         etl_settings_yml = Path(
             test_dir.parent / "src/pudl/package_data/settings/etl_fast.yml"
         )
-    with open(etl_settings_yml, mode="r", encoding="utf8") as settings_file:
+    with open(etl_settings_yml, encoding="utf8") as settings_file:
         etl_settings_out = yaml.safe_load(settings_file)
     etl_settings = EtlSettings().parse_obj(etl_settings_out)
     return etl_settings

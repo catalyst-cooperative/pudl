@@ -1,10 +1,10 @@
 """Metadata and operational constants."""
-from typing import Any, Dict
+from typing import Any
 
 from pudl.metadata.constants import CONTRIBUTORS, KEYWORDS, LICENSES
 from pudl.metadata.enums import EPACEMS_STATES
 
-SOURCES: Dict[str, Any] = {
+SOURCES: dict[str, Any] = {
     "censusdp1tract": {
         "title": "Census DP1",
         "path": "https://www.census.gov/geographies/mapping-files/2010/geo/tiger-data.html",
@@ -13,12 +13,10 @@ SOURCES: Dict[str, Any] = {
         ),
         "working_partitions": {},  # Census DP1 is monolithic.
         "keywords": sorted(
-            set(
-                [
-                    "censusdp1tract",
-                    "census",
-                ]
-            )
+            {
+                "censusdp1tract",
+                "census",
+            }
         ),
         "license_raw": LICENSES["us-govt"],
         "license_pudl": LICENSES["cc-by-4.0"],
@@ -227,6 +225,48 @@ SOURCES: Dict[str, Any] = {
                 + KEYWORDS["us_govt"]
                 + KEYWORDS["electricity"]
                 + KEYWORDS["environment"]
+            )
+        ),
+        "license_raw": LICENSES["us-govt"],
+        "license_pudl": LICENSES["cc-by-4.0"],
+    },
+    "epacems_unitid_eia_plant_crosswalk": {
+        "title": "EPA CEMS unitid to EIA Plant Crosswalk",
+        "path": "https://github.com/USEPA/camd-eia-crosswalk",
+        "description": (
+            "A file created collaboratively by EPA and EIA that connects EPA CEMS "
+            "smokestacks (unitids) with cooresponding EIA plant part ids reported in "
+            "EIA Forms 860 and 923 (plant_id_eia, boiler_id, generator_id). This "
+            "one-to-many connection is necessary because pollutants from various plant "
+            "parts are collecitvely emitted and measured from one point-source."
+        ),
+        "source_file_dict": {
+            "records_liberated": "~7000",
+            "source_format": "Microsoft Excel (.xlsx)",
+        },
+        "field_namespace": "glue",
+        "working_partitions": {},
+        "contributors": [
+            CONTRIBUTORS["catalyst-cooperative"],
+            CONTRIBUTORS["austen-sharpe"],
+        ],
+        "keywords": sorted(
+            set(
+                [
+                    "continuous emissions monitoring system",
+                    "cems",
+                    "air markets program data",
+                    "ampd",
+                    "hourly",
+                    "eia",
+                    "crosswalk",
+                ]
+                + KEYWORDS["epa"]
+                + KEYWORDS["us_govt"]
+                + KEYWORDS["electricity"]
+                + KEYWORDS["environment"]
+                + KEYWORDS["eia"]
+                + KEYWORDS["plants"]
             )
         ),
         "license_raw": LICENSES["us-govt"],

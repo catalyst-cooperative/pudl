@@ -1,7 +1,7 @@
 """Functions for pulling EIA 923 data out of the PUDl DB."""
 import os
 from datetime import date, datetime
-from typing import Literal, Union
+from typing import Literal
 
 import numpy as np
 import pandas as pd
@@ -39,8 +39,8 @@ See EIA's query browse here:
 def generation_fuel_eia923(
     pudl_engine,
     freq: Literal["AS", "MS", None] = None,
-    start_date: Union[str, date, datetime, pd.Timestamp] = None,
-    end_date: Union[str, date, datetime, pd.Timestamp] = None,
+    start_date: str | date | datetime | pd.Timestamp = None,
+    end_date: str | date | datetime | pd.Timestamp = None,
     nuclear: bool = False,
 ):
     """Pull records from the generation_fuel_eia923 table in given date range.
@@ -145,10 +145,12 @@ def generation_fuel_eia923(
         first_cols = first_cols + ["nuclear_unit_id"]
 
     out_df = (
-        pudl.helpers.clean_merge_asof(
+        pudl.helpers.date_merge(
             left=gf_df,
             right=pu_eia,
-            by=["plant_id_eia"],
+            on=["plant_id_eia"],
+            date_on=["year"],
+            how="left",
         )
         # Drop any records where we've failed to get the 860 data merged in...
         .dropna(subset=["plant_id_eia", "utility_id_eia"])
@@ -227,8 +229,8 @@ def generation_fuel_all_eia923(gf: pd.DataFrame, gfn: pd.DataFrame) -> pd.DataFr
 def fuel_receipts_costs_eia923(
     pudl_engine,
     freq: Literal["AS", "MS", None] = None,
-    start_date: Union[str, date, datetime, pd.Timestamp] = None,
-    end_date: Union[str, date, datetime, pd.Timestamp] = None,
+    start_date: str | date | datetime | pd.Timestamp = None,
+    end_date: str | date | datetime | pd.Timestamp = None,
     fill: bool = False,
     roll: bool = False,
 ) -> pd.DataFrame:
@@ -443,10 +445,12 @@ def fuel_receipts_costs_eia923(
     )
 
     out_df = (
-        pudl.helpers.clean_merge_asof(
+        pudl.helpers.date_merge(
             left=frc_df,
             right=pu_eia,
-            by=["plant_id_eia"],
+            on=["plant_id_eia"],
+            date_on=["year"],
+            how="left",
         )
         .dropna(subset=["utility_id_eia"])
         .pipe(
@@ -571,10 +575,13 @@ def boiler_fuel_eia923(pudl_engine, freq=None, start_date=None, end_date=None):
     pu_eia = pudl.output.eia860.plants_utils_eia860(
         pudl_engine, start_date=start_date, end_date=end_date
     )
-    out_df = pudl.helpers.clean_merge_asof(
+
+    out_df = pudl.helpers.date_merge(
         left=bf_df,
         right=pu_eia,
-        by=["plant_id_eia"],
+        on=["plant_id_eia"],
+        date_on=["year"],
+        how="left",
     ).dropna(subset=["plant_id_eia", "utility_id_eia", "boiler_id"])
     # Merge in the unit_id_pudl assigned to each generator in the BGA process
     # Pull the BGA table and make it unit-boiler only:
@@ -585,10 +592,13 @@ def boiler_fuel_eia923(pudl_engine, freq=None, start_date=None, end_date=None):
         .loc[:, ["report_date", "plant_id_eia", "boiler_id", "unit_id_pudl"]]
         .drop_duplicates()
     )
-    out_df = pudl.helpers.clean_merge_asof(
+
+    out_df = pudl.helpers.date_merge(
         left=out_df,
         right=bga_boilers,
-        by=["plant_id_eia", "boiler_id"],
+        on=["plant_id_eia", "boiler_id"],
+        date_on=["year"],
+        how="left",
     )
     out_df = pudl.helpers.organize_cols(
         out_df,
@@ -676,11 +686,14 @@ def denorm_generation_eia923(g_df, pudl_engine, start_date, end_date):
     )
 
     # Merge annual plant/utility data in with the more granular dataframe
-    out_df = pudl.helpers.clean_merge_asof(
+    out_df = pudl.helpers.date_merge(
         left=g_df,
         right=pu_eia,
-        by=["plant_id_eia"],
+        on=["plant_id_eia"],
+        date_on=["year"],
+        how="left",
     ).dropna(subset=["plant_id_eia", "utility_id_eia", "generator_id"])
+
     # Merge in the unit_id_pudl assigned to each generator in the BGA process
     # Pull the BGA table and make it unit-generator only:
     bga_gens = (
@@ -690,10 +703,12 @@ def denorm_generation_eia923(g_df, pudl_engine, start_date, end_date):
         .loc[:, ["report_date", "plant_id_eia", "generator_id", "unit_id_pudl"]]
         .drop_duplicates()
     )
-    out_df = pudl.helpers.clean_merge_asof(
+    out_df = pudl.helpers.date_merge(
         left=out_df,
         right=bga_gens,
-        by=["plant_id_eia", "generator_id"],
+        on=["plant_id_eia", "generator_id"],
+        date_on=["year"],
+        how="left",
     )
     out_df = out_df.pipe(
         pudl.helpers.organize_cols,

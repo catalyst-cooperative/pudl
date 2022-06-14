@@ -15,7 +15,6 @@ in some of the gaps are not included in this version of the module.
 https://github.com/grgmiller/EPA-EIA-Unit-Crosswalk
 """
 import importlib
-from typing import Dict
 
 import pandas as pd
 
@@ -64,7 +63,7 @@ def grab_n_clean_epa_orignal():
     return eia_epacems_crosswalk
 
 
-def split_tables(df: pd.DataFrame) -> Dict[str, pd.DataFrame]:
+def split_tables(df: pd.DataFrame) -> dict[str, pd.DataFrame]:
     """Split the cleaned EIA-EPA crosswalk table into three normalized tables.
 
     Args:
@@ -98,7 +97,7 @@ def split_tables(df: pd.DataFrame) -> Dict[str, pd.DataFrame]:
     }
 
 
-def grab_clean_split() -> Dict[str, pd.DataFrame]:
+def grab_clean_split() -> dict[str, pd.DataFrame]:
     """Clean raw crosswalk data, drop nans, and return split tables.
 
     Returns:

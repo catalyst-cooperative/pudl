@@ -1,8 +1,23 @@
 """A module with functions to aid generating MCOE."""
+from typing import Any
+
 import pandas as pd
 
 import pudl
 from pudl.metadata.fields import apply_pudl_dtypes
+
+DEFAULT_GENS_COLS = [
+    "plant_id_eia",
+    "generator_id",
+    "report_date",
+    "unit_id_pudl",
+    "plant_id_pudl",
+    "plant_name_eia",
+    "utility_id_eia",
+    "utility_id_pudl",
+    "utility_name_eia",
+    "fuel_type_code_pudl",
+]
 
 
 def heat_rate_by_unit(pudl_out):
@@ -81,10 +96,7 @@ def heat_rate_by_gen(pudl_out):
 
     To combine the (potentially) more granular temporal information from the
     per-unit heat rates with annual generator level attributes, we have to do
-    a many-to-many merge. This can't be done easily with merge_asof(), so we
-    treat the year and month fields as categorial variables, and do a normal
-    inner merge that broadcasts monthly dates in one direction, and generator
-    IDs in the other.
+    a many-to-many merge.
 
     Returns:
         pandas.DataFrame: with columns report_date, plant_id_eia, unit_id_pudl,
@@ -106,44 +118,27 @@ def heat_rate_by_gen(pudl_out):
         pudl_out.bga_eia860()
         .loc[:, ["report_date", "plant_id_eia", "unit_id_pudl", "generator_id"]]
         .drop_duplicates()
-        .assign(year=lambda x: x.report_date.dt.year)
-        .drop("report_date", axis="columns")
     )
-
-    hr_by_unit = (
-        pudl_out.hr_by_unit()
-        .assign(year=lambda x: x.report_date.dt.year)
-        .loc[
-            :,
-            [
-                "year",
-                "report_date",
-                "plant_id_eia",
-                "unit_id_pudl",
-                "heat_rate_mmbtu_mwh",
-            ],
-        ]
-    )
-
-    hr_by_gen = pd.merge(
-        bga_gens,
-        hr_by_unit,
-        on=["year", "plant_id_eia", "unit_id_pudl"],
-        how="inner",
-        validate="many_to_many",
-    ).loc[
+    hr_by_unit = pudl_out.hr_by_unit().loc[
         :,
         [
             "report_date",
             "plant_id_eia",
             "unit_id_pudl",
-            "generator_id",
             "heat_rate_mmbtu_mwh",
         ],
     ]
 
+    hr_by_gen = pudl.helpers.date_merge(
+        left=bga_gens,
+        right=hr_by_unit,
+        on=["plant_id_eia", "unit_id_pudl"],
+        date_on=["year"],
+        how="inner",
+    )
+
     # Bring in generator specific fuel type & fuel count.
-    hr_by_gen = pudl.helpers.clean_merge_asof(
+    hr_by_gen = pudl.helpers.date_merge(
         left=hr_by_gen,
         right=pudl_out.gens_eia860()[
             [
@@ -154,7 +149,9 @@ def heat_rate_by_gen(pudl_out):
                 "fuel_type_count",
             ]
         ],
-        by=["plant_id_eia", "generator_id"],
+        on=["plant_id_eia", "generator_id"],
+        date_on=["year"],
+        how="left",
     )
 
     return apply_pudl_dtypes(hr_by_gen, group="eia")
@@ -217,13 +214,12 @@ def fuel_cost(pudl_out):
         ],
     ]
 
-    # We are inner merging here, which means that we don't get every generator
-    # in this output... we only get the ones that show up in hr_by_gen.
-    # See Issue #608
-    gen_w_ft = pudl.helpers.clean_merge_asof(
+    gen_w_ft = pudl.helpers.date_merge(
         left=hr_by_gen,
         right=gens,
-        by=["plant_id_eia", "generator_id"],
+        on=["plant_id_eia", "generator_id"],
+        date_on=["year"],
+        how="left",
     )
 
     one_fuel = gen_w_ft[gen_w_ft.fuel_type_count == 1]
@@ -373,10 +369,12 @@ def capacity_factor(pudl_out, min_cap_fact=0, max_cap_fact=1.5):
     ]
 
     # merge the generation and capacity to calculate capacity factor
-    cf = pudl.helpers.clean_merge_asof(
+    cf = pudl.helpers.date_merge(
         left=gen,
         right=gens_eia860,
-        by=["plant_id_eia", "generator_id"],
+        on=["plant_id_eia", "generator_id"],
+        date_on=["year"],
+        how="left",
     )
     cf = pudl.helpers.calc_capacity_factor(
         cf, min_cap_fact=min_cap_fact, max_cap_fact=max_cap_fact, freq=pudl_out.freq
@@ -387,11 +385,13 @@ def capacity_factor(pudl_out, min_cap_fact=0, max_cap_fact=1.5):
 
 def mcoe(
     pudl_out,
-    min_heat_rate=5.5,
-    min_fuel_cost_per_mwh=0.0,
-    min_cap_fact=0.0,
-    max_cap_fact=1.5,
-    all_gens=True,
+    min_heat_rate: float = 5.5,
+    min_fuel_cost_per_mwh: float = 0.0,
+    min_cap_fact: float = 0.0,
+    max_cap_fact: float = 1.5,
+    all_gens: bool = True,
+    gens_cols: Any = None,
+    timeseries_fillin: bool = False,
 ):
     """Compile marginal cost of electricity (MCOE) at the generator level.
 
@@ -400,23 +400,32 @@ def mcoe(
     the range of times and at the time resolution of the input pudl_out object.
 
     Args:
-        pudl_out (pudl.output.pudltable.PudlTabl): a PUDL output object
+        pudl_out (pudl.output.pudltabl.PudlTabl): a PUDL output object
             specifying the time resolution and date range for which the
             calculations should be performed.
-        min_heat_rate (float): lowest plausible heat rate, in mmBTU/MWh. Any
+        min_heat_rate: lowest plausible heat rate, in mmBTU/MWh. Any
             MCOE records with lower heat rates are presumed to be invalid, and
             are discarded before returning.
-        min_cap_fact, max_cap_fact (float): minimum & maximum generator capacity
+        min_cap_fact, max_cap_fact: minimum & maximum generator capacity
             factor. Generator records with a lower capacity factor will be
             filtered out before returning. This allows the user to exclude
             generators that aren't being used enough to have valid.
-        min_fuel_cost_per_mwh (float): minimum fuel cost on a per MWh basis that
+        min_fuel_cost_per_mwh: minimum fuel cost on a per MWh basis that
             is required for a generator record to be considered valid. For some
             reason there are now a large number of $0 fuel cost records, which
             previously would have been NaN.
-        all_gens (bool): if True, include attributes of all generators in the
+        all_gens: if True, include attributes of all generators in the
             :ref:`generators_eia860` table, rather than just the generators
             which have records in the derived MCOE values. True by default.
+        gens_cols: equal to the string "all", None, or a list of names of
+            column attributes to include from the :ref:`generators_eia860` table in
+            addition to the list of defined `DEFAULT_GENS_COLS`. If "all", all columns
+            from the generators table will be included. By default, no extra columns
+            will be included, only the `DEFAULT_GENS_COLS` will be merged into the final
+            MCOE output.
+        timeseries_fillin: if True, fill in the full timeseries for each generator in
+            the output dataframe. The data in the timeseries will be filled
+            with the data from the next previous chronological record.
 
     Returns:
         pandas.DataFrame: a dataframe organized by date and generator,
@@ -474,40 +483,37 @@ def mcoe(
         .pipe(pudl.validate.no_null_cols, df_name="fuel_cost + capacity_factor")
     )
 
-    # Combine MCOE derived values with all the generator attributes:
-    mcoe_out = (
-        pd.merge(
-            left=(
-                pudl_out.gens_eia860()
-                .assign(year=lambda x: x.report_date.dt.year)
-                .drop("report_date", axis="columns")
-            ),
-            right=mcoe_out.assign(year=lambda x: x.report_date.dt.year),
-            # This "how" determines whether MCOE or gens_eia860 is the backbone
+    # Combine MCOE derived values with generator attributes
+    if gens_cols == "all":
+        gens = pudl_out.gens_eia860()
+    elif gens_cols is None:
+        gens = pudl_out.gens_eia860()[DEFAULT_GENS_COLS]
+    else:
+        gens = pudl_out.gens_eia860()[list(set(DEFAULT_GENS_COLS + gens_cols))]
+
+    if timeseries_fillin:
+        mcoe_out = pudl.helpers.full_timeseries_date_merge(
+            left=gens,
+            right=mcoe_out,
+            on=["plant_id_eia", "generator_id"],
+            date_on=["year"],
             how="left" if all_gens else "right",
-            on=["year", "plant_id_eia", "generator_id"],
-        )
-        .astype({"year": str})
-        .assign(report_date=lambda x: x.report_date.fillna(pd.to_datetime(x.year)))
-        .drop("year", axis="columns")
-        .pipe(pudl.validate.no_null_rows, df_name="mcoe_all_gens", thresh=0.9)
-    )
+            freq=pudl_out.freq,
+        ).pipe(pudl.validate.no_null_rows, df_name="mcoe_all_gens", thresh=0.9)
+    else:
+        mcoe_out = pudl.helpers.date_merge(
+            left=gens,
+            right=mcoe_out,
+            on=["plant_id_eia", "generator_id"],
+            date_on=["year"],
+            how="left" if all_gens else "right",
+        ).pipe(pudl.validate.no_null_rows, df_name="mcoe_all_gens", thresh=0.9)
 
     # Organize the dataframe for easier legibility
     mcoe_out = (
         mcoe_out.pipe(
             pudl.helpers.organize_cols,
-            [
-                "plant_id_eia",
-                "generator_id",
-                "report_date",
-                "unit_id_pudl",
-                "plant_id_pudl",
-                "plant_name_eia",
-                "utility_id_eia",
-                "utility_id_pudl",
-                "utility_name_eia",
-            ],
+            DEFAULT_GENS_COLS,
         )
         .sort_values(
             [

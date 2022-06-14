@@ -10,7 +10,6 @@ bad data, or replacing it with the appropriate NA values.
 import importlib.resources
 import re
 from difflib import SequenceMatcher
-from typing import Dict, List
 
 # NetworkX is used to knit incomplete ferc plant time series together.
 import networkx as nx
@@ -36,7 +35,7 @@ logger = get_logger(__name__)
 ##############################################################################
 # Dicts for categorizing freeform strings ####################################
 ##############################################################################
-FUEL_STRINGS: Dict[str, List[str]] = {
+FUEL_STRINGS: dict[str, list[str]] = {
     "coal": [
         "coal",
         "coal-subbit",
@@ -318,7 +317,7 @@ fuel in the FERC Form 1 Reporting. Case is ignored, as all fuel strings are conv
 a lower case in the data set.
 """
 
-FUEL_UNIT_STRINGS: Dict[str, List[str]] = {
+FUEL_UNIT_STRINGS: dict[str, list[str]] = {
     "ton": [
         "toms",
         "taons",
@@ -630,7 +629,7 @@ A dictionary linking fuel units (keys) to lists of various strings representing 
 fuel units (values)
 """
 
-PLANT_KIND_STRINGS: Dict[str, List[str]] = {
+PLANT_KIND_STRINGS: dict[str, list[str]] = {
     "steam": [
         "coal",
         "steam",
@@ -1021,7 +1020,7 @@ on Steam (e.g. "steam 72" and "steam and gas") were classified based on addition
 research of the plants on the Internet.
 """
 
-CONSTRUCTION_TYPE_STRINGS: Dict[str, List[str]] = {
+CONSTRUCTION_TYPE_STRINGS: dict[str, list[str]] = {
     "outdoor": [
         "outdoor",
         "outdoor boiler",

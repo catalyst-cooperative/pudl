@@ -3,7 +3,7 @@
 import logging
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Any, List, NamedTuple
+from typing import Any, NamedTuple
 from urllib.parse import urlparse
 
 from google.cloud import storage
@@ -147,7 +147,7 @@ class LayeredCache(AbstractCache):
     layers are read-only (get).
     """
 
-    def __init__(self, *caches: List[AbstractCache], **kwargs: Any):
+    def __init__(self, *caches: list[AbstractCache], **kwargs: Any):
         """Creates layered cache consisting of given cache layers.
 
         Args:
@@ -155,7 +155,7 @@ class LayeredCache(AbstractCache):
               of decreasing priority.
         """
         super().__init__(**kwargs)
-        self._caches: List[AbstractCache] = list(caches)
+        self._caches: list[AbstractCache] = list(caches)
 
     def add_cache_layer(self, cache: AbstractCache):
         """Adds caching layer. The priority is below all other."""
