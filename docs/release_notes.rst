@@ -2,10 +2,10 @@
 PUDL Release Notes
 =======================================================================================
 
-.. _release-v0-7-0:
+.. _release-v2022.06.XX:
 
 ---------------------------------------------------------------------------------------
-0.7.0 (2022-XX-XX)
+2022.06.XX
 ---------------------------------------------------------------------------------------
 
 Database Schema Changes
@@ -21,6 +21,23 @@ Database Schema Changes
   fixes to clean ``operational_status_code`` in the :ref:`generators_entity_eia`
   table. :pr:`1624`
 
+Date Merge Helper Function
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+* Replaced the PUDL helper function ``clean_merge_asof`` that merged two dataframes
+  reported on different temporal granularities, for example monthly vs yearly data.
+  The reworked function, :mod:`pudl.helpers.date_merge`, is more encapsulating and
+  faster and replaces ``clean_merge_asof`` in the MCOE table and EIA 923 tables. See
+  :pr:`1103,1550`
+* The helper function :mod:`pudl.helpers.expand_timeseries` was also added, which
+  expands a dataframe to include a full timeseries of data at a certain frequency.
+  The coordinating function :mod:`pudl.helpers.full_timeseries_date_merge` first calls
+  :mod:`pudl.helpers.date_merge` to merge two dataframes of different temporal
+  granularities, and then calls :mod:`pudl.helpers.expand_timeseries` to expand the
+  merged dataframe to a full timeseries. The added ``timeseries_fillin`` argument,
+  makes this function optionally used to generate the MCOE table that includes a full
+  monthly timeseries even in years when annually reported generators don't have
+  matching monthly data. See :pr:`1550`
+
 Plant Parts List Module Changes
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 * We refactored a couple components of the Plant Parts List module in preparation
@@ -34,6 +51,14 @@ Plant Parts List Module Changes
   the generation of the ``installation_year`` column in the plant parts list was fixed
   and a ``construction_year`` column was also added. Finally, ``operating_year`` was
   added as a level that the EIA generators are now aggregated to.
+* The mega generators table and in turn the plant parts list requires the MCOE table
+  to generate. The MCOE table is now created with the new :mod:`pudl.helpers.date_merge`
+  helper function (described above). As a result, now by default only columns from the
+  EIA 860 generators table that are necessary for the creation of the plant parts list
+  will be included in the MCOE table. This list of columns is defined by the global
+  :mod:`pudl.analysis.mcoe.DEFAULT_GENS_COLS`. If additional columns that are not part
+  of the default list are needed from the EIA 860 generators table, these columns can be
+  passed in with the ``gens_cols`` argument.  See :pr:`1550`
 
 Metadata
 ^^^^^^^^
@@ -63,11 +88,18 @@ Dependencies / Environment
   passes, we tightened the version constraints on a lot of our dependencies. This should
   reduce the frequency with which we get surprised by changes breaking things after
   release. See :pr:`1655`
-* We are also moving toward treating PUDL like an application rather than a library, and
-  may start pinning both our direct and indirect dependencies to exact version soon. See
-  :issue:`1669`.
 * We've switched to using `mambaforge <https://github.com/conda-forge/miniforge>`__ to
   manage our environments internally, and are recommending that users use it as well.
+* We're moving toward treating PUDL like an application rather than a library, and part
+  of that is no longer trying to be compatible with a wide range of versions of our
+  dependencies, instead focusing on a single reproducible environment that is associated
+  with each release, using lockfiles, etc. See :issue:`1669`
+* As an "application" PUDL is now only supporting the most recent major version of
+  Python (curently 3.10). We used
+  `pyupgrade <https://github.com/asottile/pyupgrade>`__ and
+  `pep585-upgrade <https://github.com/snok/pep585-upgrade>`__ to update the syntax of
+  to use Python 3.10 norms, and are now using those packages as pre-commit hooks as
+  well. See :pr:`1685`
 
 .. _release-v0-6-0:
 
