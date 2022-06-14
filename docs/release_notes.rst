@@ -26,7 +26,8 @@ Date Merge Helper Function
 * Replaced the PUDL helper function ``clean_merge_asof`` that merged two dataframes
   reported on different temporal granularities, for example monthly vs yearly data.
   The reworked function, :mod:`pudl.helpers.date_merge`, is more encapsulating and
-  faster and replaces ``clean_merge_asof`` in the MCOE table and EIA 923 tables.
+  faster and replaces ``clean_merge_asof`` in the MCOE table and EIA 923 tables. See
+  :pr:`1103,1550`
 * The helper function :mod:`pudl.helpers.expand_timeseries` was also added, which
   expands a dataframe to include a full timeseries of data at a certain frequency.
   The coordinating function :mod:`pudl.helpers.full_timeseries_date_merge` first calls
@@ -35,7 +36,7 @@ Date Merge Helper Function
   merged dataframe to a full timeseries. The added ``timeseries_fillin`` argument,
   makes this function optionally used to generate the MCOE table that includes a full
   monthly timeseries even in years when annually reported generators don't have
-  matching monthly data.
+  matching monthly data. See :pr:`1550`
 
 Plant Parts List Module Changes
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -54,18 +55,10 @@ Plant Parts List Module Changes
   to generate. The MCOE table is now created with the new :mod:`pudl.helpers.date_merge`
   helper function (described above). As a result, now by default only columns from the
   EIA 860 generators table that are necessary for the creation of the plant parts list
-  will be included in the MCOE table. If additional columns that are not part of the
-  default list are needed from the EIA 860 generators table, these columns can be passed
-  in with the ``gens_cols`` argument.
-
-MCOE Default Generator Columns Change
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-* As is described above in :ref:`Plant Parts List Module Changes`, in addition to the
-  MCOE table now being created with the new :mod:`pudl.helpers.date_merge` function, it
-  also by default only includes certain columns from the EIA 860 generator table. This
-  list of columns is defined by the global :mod:`pudl.analysis.mcoe.DEFAULT_GENS_COLS`.
-  If additional columns are needed from the generators table, they can be specified with
-  the ``gens_cols`` argument.
+  will be included in the MCOE table. This list of columns is defined by the global
+  :mod:`pudl.analysis.mcoe.DEFAULT_GENS_COLS`. If additional columns that are not part
+  of the default list are needed from the EIA 860 generators table, these columns can be
+  passed in with the ``gens_cols`` argument.  See :pr:`1550`
 
 Metadata
 ^^^^^^^^
