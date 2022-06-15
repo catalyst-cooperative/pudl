@@ -1,3 +1,4 @@
+---
 ###########################################################################
 # FERC FORM 1 DB CLONE SETTINGS
 ###########################################################################
@@ -8,7 +9,8 @@ ferc1_to_sqlite_refyear: 2019
 ferc1_to_sqlite_years: [2018, 2019]
 # A list of tables to be loaded into the local SQLite database. These are
 # the table names as they appear in the 2015 FERC Form 1 database.
-ferc1_to_sqlite_tables: [
+ferc1_to_sqlite_tables:
+  [
     f1_respondent_id,
     f1_acb_epda,
     f1_accumdepr_prvsn,
@@ -122,12 +124,7 @@ ferc1_to_sqlite_tables: [
     f1_s0_checks,
     f1_s0_filing_log,
     f1_security,
-#   f1_note_fin_stmnt, # Huge junk table, 52% of the data by MB
-#   f1_footnote_tbl,   # Huge junk table, 37% of DB
-#   f1_footnote_data,  # Only useful with f1_footnote_tbl
-#   f1_pins,    # private database table, not publicly distributed
-#   f1_freeze,  # private database table, not publicly distributed
-]
+  ]
 
 ###########################################################################
 # Top level data package bundle settings:
@@ -135,31 +132,38 @@ ferc1_to_sqlite_tables: [
 datapkg_bundle_name: test-pudl-data-release
 datapkg_bundle_doi: 10.5281/zenodo.3672068
 datapkg_bundle_settings:
-###########################################################################
-# FERC FORM 1 ETL SETTINGS
-###########################################################################
+  ###########################################################################
+  # FERC FORM 1 ETL SETTINGS
+  ###########################################################################
   - name: pudl-ferc1
     title: FERC Form 1
-    description: A subset of the data available from FERC Form 1, that has been cleaned and organized for release as part of Catalyst Cooperative's Public Utility Data Liberation (PUDL) project.
+    description:
+      A subset of the data available from FERC Form 1, that has been cleaned
+      and organized for release as part of Catalyst Cooperative's Public Utility Data
+      Liberation (PUDL) project.
     version: 1.1.0
     datasets:
       - ferc1:
           ferc1_tables:
-           - fuel_ferc1 # fuel_ferc1 requires plants_steam_ferc1 to load
-           - plants_steam_ferc1
-           - plants_small_ferc1
-           - plants_hydro_ferc1
-           - plants_pumped_storage_ferc1
-           - plant_in_service_ferc1
-           - purchased_power_ferc1
+            - fuel_ferc1 # fuel_ferc1 requires plants_steam_ferc1 to load
+            - plants_steam_ferc1
+            - plants_small_ferc1
+            - plants_hydro_ferc1
+            - plants_pumped_storage_ferc1
+            - plant_in_service_ferc1
+            - purchased_power_ferc1
           ferc1_years: [2018, 2019]
 
-###########################################################################
-# EIA FORM 923 & 860 ETL SETTINGS
-###########################################################################
+  ###########################################################################
+  # EIA FORM 923 & 860 ETL SETTINGS
+  ###########################################################################
   - name: test-pudl-eia860-eia923
-    title: Data published by EIA in forms 860 and 923, cleaned and organized for release as part of Catalyst Cooperative's Public Utility Data Liberation (PUDL) project.
-    description: Data pertaining primarily to US thermal plants, fuel consumption, electricity output, fuel costs, and plant and generator attributes.
+    title:
+      Data published by EIA in forms 860 and 923, cleaned and organized for release
+      as part of Catalyst Cooperative's Public Utility Data Liberation (PUDL) project.
+    description:
+      Data pertaining primarily to US thermal plants, fuel consumption,
+      electricity output, fuel costs, and plant and generator attributes.
     version: 2.0.0
     datasets:
       - eia:
@@ -179,12 +183,16 @@ datapkg_bundle_settings:
             - ownership_eia860
           eia860_years: [2018, 2019]
 
-###########################################################################
-# EPA CEMS HOURLY ETL SETTINGS
-###########################################################################
+  ###########################################################################
+  # EPA CEMS HOURLY ETL SETTINGS
+  ###########################################################################
   - name: test-pudl-eia860-eia923-epacems
     title: EPA CEMS Hourly
-    description: Hourly emissions, power output, heat rates, and other data for most US fossil fuel plants, compiled by the US EPA as part of their Air Market Program Data, integrated with EIA 860 and 923 for release as part of Catalyst Cooperative's Public Utility Data Liberation (PUDL) project.
+    description:
+      Hourly emissions, power output, heat rates, and other data for most
+      US fossil fuel plants, compiled by the US EPA as part of their Air Market Program
+      Data, integrated with EIA 860 and 923 for release as part of Catalyst Cooperative's
+      Public Utility Data Liberation (PUDL) project.
     version: 2.0.0
     datasets:
       - eia:
