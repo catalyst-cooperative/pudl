@@ -56,6 +56,20 @@ def parse_command_line(argv):
         default=False,
         help="Use the Zenodo sandbox rather than production",
     )
+    parser.add_argument(
+        "-b",
+        "--batch-size",
+        default=50,
+        type=int,
+        help="Specify number of XBRL instances to be processed at a time (defaults to 50)",
+    )
+    parser.add_argument(
+        "-w",
+        "--workers",
+        default=None,
+        type=int,
+        help="Specify number of worker processes for parsing XBRL filings.",
+    )
 
     arguments = parser.parse_args(argv[1:])
     return arguments
@@ -101,6 +115,8 @@ def main():  # noqa: C901
         pudl_settings=pudl_settings,
         clobber=args.clobber,
         datastore=Datastore(local_cache_path=(Path(pudl_in) / "data"), sandbox=True),
+        batch_size=args.batch_size,
+        workers=args.workers,
     )
 
 

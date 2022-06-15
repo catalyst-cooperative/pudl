@@ -587,6 +587,8 @@ def xbrl2sqlite(
     pudl_settings=None,
     clobber=False,
     datastore=None,
+    batch_size: int | None = None,
+    workers: int | None = None,
 ):
     """Clone the FERC Form 1 Databsae to SQLite.
 
@@ -617,6 +619,8 @@ def xbrl2sqlite(
             datastore.get_filings(year),
             sqlite_engine,
             ferc1_to_sqlite_settings.taxonomy,
+            batch_size=batch_size,
+            workers=workers,
         )
 
 
