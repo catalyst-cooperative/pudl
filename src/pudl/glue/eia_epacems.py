@@ -21,8 +21,25 @@ import pandas as pd
 
 import pudl
 from pudl.metadata.fields import apply_pudl_dtypes
+from pudl.workspace.datastore import Datastore
 
 logger = logging.getLogger(__name__)
+
+
+def extract(ds: Datastore) -> pd.DataFrame:
+    """Extract the EPACEMS-EIA Crosswalk from the Datastore."""
+    with ds.get_zipfile_resource(
+        "epacems_unitid_eia_plant_crosswalk",
+        name="epacems_unitid_eia_plant_crosswalk.zip",
+    ).open("camd-eia-crosswalk-master/epa_eia_crosswalk.csv") as f:
+        return pd.read_csv(f)
+
+
+def transform(epa_eia_crosswalk: pd.DataFrame) -> pd.DataFrame:
+    """Clean up the EPACEMS-EIA Crosswalk file."""
+    epa_eia_crosswalk_clean = epa_eia_crosswalk.pipe(pudl.helpers.simplify_columns)
+
+    return epa_eia_crosswalk_clean
 
 
 def grab_n_clean_epa_orignal():
