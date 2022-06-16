@@ -6,7 +6,7 @@ function send_slack_msg() {
 function authenticate_gcp() {
     # Set the default gcloud project id so the zenodo-cache bucket
     # knows what project to bill for egress
-    gcloud config set project $GCLOUD_BILLING_PROJECT
+    gcloud config set project $GCP_BILLING_PROJECT
 }
 
 function run_pudl_etl() {
@@ -54,8 +54,8 @@ function shutdown_vm() {
 
 function copy_outputs_to_intake_bucket() {
     echo "Copying outputs to intake bucket"
-    gsutil -m -u $GCLOUD_BILLING_PROJECT cp -r "$CONTAINER_PUDL_OUT/sqlite/*" "gs://intake.catalyst.coop/$GITHUB_REF"
-    gsutil -m -u $GCLOUD_BILLING_PROJECT cp -r "$CONTAINER_PUDL_OUT/parquet/epacems/*" "gs://intake.catalyst.coop/$GITHUB_REF"
+    gsutil -m -u $GCP_BILLING_PROJECT cp -r "$CONTAINER_PUDL_OUT/sqlite/*" "gs://intake.catalyst.coop/$GITHUB_REF"
+    gsutil -m -u $GCP_BILLING_PROJECT cp -r "$CONTAINER_PUDL_OUT/parquet/epacems/*" "gs://intake.catalyst.coop/$GITHUB_REF"
 }
 
 function notify_slack() {

@@ -1,17 +1,15 @@
 name: build-deploy-pudl
 on:
   push:
-    branches:
-      - gce-deploy # for testing purposes
     tags:
       - "v**"
   schedule:
     - cron: "0 6 * * 1-5" # Weekdays at midnight on MST
 
 env:
-  PROJECT_ID: ${{ secrets.GCE_PROJECT }}
-  CHECKOUT_BRANCH: ${{ github.ref_name }}
-  GCE_INSTANCE: pudl-deployment-tag
+  GCP_BILLING_PROJECT: ${{ secrets.GCP_BILLING_PROJECT }}
+  CHECKOUT_BRANCH: ${{ github.ref_name }} # This is changed to dev if running on a schedule
+  GCE_INSTANCE: pudl-deployment-tag # This is changed to pudl-deployment-tag if running on a schedule
   GCE_INSTANCE_ZONE: us-central1-a
 
 jobs:
@@ -19,7 +17,7 @@ jobs:
     name: Build Docker image, push to Docker Hub and deploy to a GCE VM
     runs-on: ubuntu-latest
     steps:
-      - name: Set GCE_INSTANCE and branch to dev if running on a schedule
+      - name: Use pudl-deployment-dev vm and dev branch if running on a schedule
         if: github.event.schedule!=''
         run: |
           echo "This action was triggered by a schedule." && echo "GCE_INSTANCE=pudl-deployment-dev" >> $GITHUB_ENV && echo "CHECKOUT_BRANCH=dev" >> $GITHUB_ENV
@@ -46,7 +44,6 @@ jobs:
           images: catalystcoop/pudl-etl
           flavor: |
             latest=auto
-          # edge is for testing purposes
           tags: |
             type=ref,event=branch
             type=ref,event=tag
@@ -102,7 +99,7 @@ jobs:
             --container-env API_KEY_EIA=${{ secrets.API_KEY_EIA }} \
             --container-env SLACK_TOKEN=${{ secrets.PUDL_DEPLOY_SLACK_TOKEN }} \
             --container-env GCE_INSTANCE=${{ env.GCE_INSTANCE }} \
-            --container-env GCLOUD_BILLING_PROJECT=${{ secrets.GCE_PROJECT }}
+            --container-env GCP_BILLING_PROJECT=${{ secrets.GCP_BILLING_PROJECT }}
 
       # Start the VM
       - name: Start the deploy-pudl-vm

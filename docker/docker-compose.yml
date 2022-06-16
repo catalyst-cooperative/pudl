@@ -5,7 +5,7 @@ services:
   pudl-etl:
     environment:
       - API_KEY_EIA
-      - GCLOUD_BILLING_PROJECT
+      - GCP_BILLING_PROJECT
     env_file:
       - .env
     build:
