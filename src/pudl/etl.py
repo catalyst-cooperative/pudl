@@ -361,7 +361,7 @@ def _etl_glue(glue_settings: GlueSettings) -> dict[str, pd.DataFrame]:
     # Add the EPA to EIA crosswalk, but only if the eia data is being processed.
     # Otherwise the foreign key references will have nothing to point at:
     if glue_settings.eia:
-        glue_dfs.update(pudl.glue.eia_epacems.grab_clean_split())
+        glue_dfs.update(pudl.glue.epacems_unitid_eia_plant_crosswalk.grab_clean_split())
 
     return glue_dfs
 
