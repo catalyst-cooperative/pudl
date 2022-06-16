@@ -2,19 +2,11 @@
 
 This module defines functions that read the raw EPA-EIA crosswalk file, clean
 up the column names, and separate it into three distinctive normalize tables
-for integration in the database. There are many gaps in the mapping of EIA
-plant and generator ids to EPA plant and unit ids, so, for the time being these
-tables are sparse.
+for integration in the database.
 
-The EPA, in conjunction with the EIA, plans to relase an crosswalk with fewer
-gaps at the beginning of 2021. Until then, this module reads and cleans the
-currently available crosswalk.
-
-The raw crosswalk file was obtained from Greg Schivley. His methods for filling
-in some of the gaps are not included in this version of the module.
-https://github.com/grgmiller/EPA-EIA-Unit-Crosswalk
+The crosswalk file was a joint effort on behalf on EPA and EIA and is published on the
+EPA's github account at www.github.com/USEPA".
 """
-import importlib
 import logging
 
 import pandas as pd
@@ -37,47 +29,21 @@ def extract(ds: Datastore) -> pd.DataFrame:
 
 def transform(epa_eia_crosswalk: pd.DataFrame) -> pd.DataFrame:
     """Clean up the EPACEMS-EIA Crosswalk file."""
-    epa_eia_crosswalk_clean = epa_eia_crosswalk.pipe(pudl.helpers.simplify_columns)
-
-    return epa_eia_crosswalk_clean
-
-
-def grab_n_clean_epa_orignal():
-    """Retrieve and clean column names for the original EPA-EIA crosswalk file.
-
-    Returns:
-        pandas.DataFrame: a version of the EPA-EIA crosswalk containing only
-            relevant columns. Columns names are clear and programatically
-            accessible.
-    """
-    logger.info("grabbing original crosswalk")
-    eia_epacems_crosswalk_csv = importlib.resources.open_text(
-        "pudl.package_data.glue", "epa_eia_crosswalk_from_epa.csv"
-    )
-    eia_epacems_crosswalk = (
-        pd.read_csv(eia_epacems_crosswalk_csv)
-        .pipe(pudl.helpers.simplify_columns)
-        .rename(
-            columns={
-                "oris_code": "plant_id_epa",
-                "eia_oris": "plant_id_eia",
-                "unit_id": "unit_id_epa",
-                "facility_name": "plant_name_eia",
-            }
-        )
-        .filter(
-            [
-                "plant_name_eia",
-                "plant_id_eia",
-                "plant_id_epa",
-                "unit_id_epa",
-                "generator_id",
-                "boiler_id",
-            ]
-        )
+    logger.info("Cleaning up the epacems-eia crosswalk")
+    column_rename = {
+        "camd_unit_id": "unit_id_epa",
+        "camd_plant_id": "plant_id_epa",
+        "eia_plant_name": "plant_name_eia",
+        "eia_plant_id": "plant_id_eia",
+        "eia_generator_id": "generator_id_eia",
+    }
+    epa_eia_crosswalk_clean = (
+        epa_eia_crosswalk.pipe(pudl.helpers.simplify_columns)
+        .rename(columns=column_rename)
+        .filter(list(column_rename.values()))
         .pipe(apply_pudl_dtypes, "eia")
     )
-    return eia_epacems_crosswalk
+    return epa_eia_crosswalk_clean
 
 
 def split_tables(df: pd.DataFrame) -> dict[str, pd.DataFrame]:
@@ -85,7 +51,7 @@ def split_tables(df: pd.DataFrame) -> dict[str, pd.DataFrame]:
 
     Args:
         df: a DataFrame of relevant, readible columns from the
-            EIA-EPA crosswalk. Output of grab_n_clean_epa_original().
+            EIA-EPA crosswalk. Output of transform() defined above.
 
     Returns:
         A dictionary of three normalized DataFrames comprised of the data
@@ -94,18 +60,13 @@ def split_tables(df: pd.DataFrame) -> dict[str, pd.DataFrame]:
         id. Includes no nan values.
     """
     logger.info("splitting crosswalk into three normalized tables")
-    epa_df = (
-        df.filter(["plant_id_epa", "unit_id_epa"]).copy().drop_duplicates().dropna()
-    )
-    plants_eia_epa = (
-        df.filter(["plant_id_eia", "plant_id_epa"]).copy().drop_duplicates().dropna()
-    )
-    gen_unit_df = (
-        df.filter(["plant_id_eia", "generator_id", "unit_id_epa"])
-        .copy()
-        .drop_duplicates()
-        .dropna()
-    )
+
+    def drop_n_reset(df, cols):
+        return df.filter(cols).copy().dropna()
+
+    epa_df = drop_n_reset(df, ["plant_id_epa", "unit_id_epa"])
+    plants_eia_epa = drop_n_reset(df, ["plant_id_eia", "plant_id_epa"])
+    gen_unit_df = drop_n_reset(df, ["plant_id_eia", "generator_id_eia", "unit_id_epa"])
 
     return {
         "plant_unit_epa": epa_df,
@@ -114,8 +75,11 @@ def split_tables(df: pd.DataFrame) -> dict[str, pd.DataFrame]:
     }
 
 
-def grab_clean_split() -> dict[str, pd.DataFrame]:
+def grab_clean_split(ds: Datastore) -> dict[str, pd.DataFrame]:
     """Clean raw crosswalk data, drop nans, and return split tables.
+
+    Args:
+        ds (:class:datastore.Datastore): Initialized datastore.
 
     Returns:
         A dictionary of three normalized DataFrames comprised of the data
@@ -123,6 +87,6 @@ def grab_clean_split() -> dict[str, pd.DataFrame]:
         id to EIA plant id; and EIA plant id to EIA generator id to EPA unit
         id.
     """
-    crosswalk = grab_n_clean_epa_orignal().reset_index().dropna()
+    crosswalk = transform(extract(ds))
 
     return split_tables(crosswalk)
