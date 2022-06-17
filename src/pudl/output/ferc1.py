@@ -59,9 +59,12 @@ def plants_steam_ferc1(pudl_engine):
         .assign(
             capacity_factor=lambda x: x.net_generation_mwh / (8760 * x.capacity_mw),
             opex_fuel_per_mwh=lambda x: x.opex_fuel / x.net_generation_mwh,
-            opex_nonfuel=lambda x: x.opex_production_total - x.opex_fuel,
+            opex_total_nonfuel=lambda x: x.opex_production_total
+            - x.opex_fuel.fillna(0),
             opex_nonfuel_per_mwh=lambda x: np.where(
-                x.net_generation_mwh > 0, x.opex_nonfuel / x.net_generation_mwh, pd.NA
+                x.net_generation_mwh > 0,
+                x.opex_total_nonfuel / x.net_generation_mwh,
+                np.nan,
             ),
         )
         .pipe(
@@ -177,7 +180,14 @@ def plants_small_ferc1(pudl_engine):
             on=["utility_id_ferc1", "plant_name_ferc1"],
             how="left",
         )
-        .assign(opex_nonfuel=lambda x: x.opex_total - x.opex_fuel)
+        .assign(
+            opex_total=lambda x: (
+                x[["opex_fuel", "opex_maintenance", "opex_operations"]]
+                .fillna(0)
+                .sum(axis=1)
+            ),
+            opex_total_nonfuel=lambda x: (x.opex_total - x.opex_fuel.fillna(0)),
+        )
         .pipe(
             pudl.helpers.organize_cols,
             [
@@ -205,7 +215,7 @@ def plants_hydro_ferc1(pudl_engine):
         )
         .assign(
             capacity_factor=lambda x: (x.net_generation_mwh / (8760 * x.capacity_mw)),
-            opex_nonfuel=lambda x: x.opex_total,
+            opex_total_nonfuel=lambda x: x.opex_total,
         )
         .pipe(
             pudl.helpers.organize_cols,
@@ -233,7 +243,7 @@ def plants_pumped_storage_ferc1(pudl_engine):
         )
         .assign(
             capacity_factor=lambda x: x.net_generation_mwh / (8760 * x.capacity_mw),
-            opex_nonfuel=lambda x: x.opex_total,
+            opex_total_nonfuel=lambda x: x.opex_total,
         )
         .pipe(
             pudl.helpers.organize_cols,
@@ -290,7 +300,7 @@ def plant_in_service_ferc1(pudl_engine):
     return pis_df
 
 
-def all_plants_ferc1(pudl_engine):
+def plants_all_ferc1(pudl_engine):
     """Combine the steam, small generators, hydro, and pumped storage tables.
 
     While this table may have many purposes, the main one is to prepare it for
@@ -318,7 +328,7 @@ def all_plants_ferc1(pudl_engine):
 
     # Combine all the tables together
     logger.debug("combining all tables")
-    all_plants_df = (
+    all_df = (
         pd.concat([steam_df, small_df, hydro_df, pump_df])
         .rename(
             columns={
@@ -331,4 +341,4 @@ def all_plants_ferc1(pudl_engine):
         .replace({"": np.nan})
     )
 
-    return all_plants_df
+    return all_df
