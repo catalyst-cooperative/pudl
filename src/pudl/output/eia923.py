@@ -1,8 +1,9 @@
 """Functions for pulling EIA 923 data out of the PUDl DB."""
 import logging
 import os
+from collections import OrderedDict
 from datetime import date, datetime
-from typing import Literal
+from typing import Literal, TypedDict
 
 import numpy as np
 import pandas as pd
@@ -10,6 +11,7 @@ import requests
 import sqlalchemy as sa
 
 import pudl
+from pudl.metadata.enums import STATE_TO_CENSUS_REGION
 from pudl.metadata.fields import apply_pudl_dtypes
 
 logger = logging.getLogger(__name__)
@@ -34,6 +36,61 @@ See EIA's query browse here:
  - Oil: https://www.eia.gov/opendata/qb.php?category=41740
 
 """
+
+
+class FuelPriceAgg(TypedDict):
+    """A data structure for storing fuel price aggregation arguments."""
+
+    agg_cols: list[str]
+    fuel_group_code: str
+
+
+FUEL_PRICE_AGGS: OrderedDict[str, FuelPriceAgg] = OrderedDict(
+    {
+        # The most precise estimator we have right now
+        "state_esc_month": {
+            "agg_cols": ["state", "energy_source_code", "report_date"],
+            "fuel_group_code": "all",
+        },
+        # Good for coal, since price varies much more with location than time
+        "state_esc_year": {
+            "agg_cols": ["state", "energy_source_code", "report_year"],
+            "fuel_group_code": "coal",
+        },
+        # Good for oil products, because prices are consistent geographically
+        "region_esc_month": {
+            "agg_cols": ["census_region", "energy_source_code", "report_date"],
+            "fuel_group_code": "petroleum",
+        },
+        # Less fuel specificity, but still precise date and location
+        "state_fgc_month": {
+            "agg_cols": ["state", "fuel_group_code", "report_date"],
+            "fuel_group_code": "all",
+        },
+        # Less location and fuel specificity
+        "region_fgc_month": {
+            "agg_cols": ["census_region", "fuel_group_code", "report_date"],
+            "fuel_group_code": "all",
+        },
+        "region_fgc_year": {
+            "agg_cols": ["census_region", "fuel_group_code", "report_year"],
+            "fuel_group_code": "all",
+        },
+        "national_esc_month": {
+            "agg_cols": ["energy_source_code", "report_date"],
+            "fuel_group_code": "all",
+        },
+        "national_fgc_month": {
+            "agg_cols": ["fuel_group_code", "report_date"],
+            "fuel_group_code": "all",
+        },
+        "national_fgc_year": {
+            "agg_cols": ["fuel_group_code", "report_year"],
+            "fuel_group_code": "all",
+        },
+    }
+)
+"""Fuel price aggregations ordered by precedence for filling missing values."""
 
 
 def generation_fuel_eia923(
@@ -309,30 +366,60 @@ def fuel_receipts_costs_eia923(
     if end_date is not None:
         frc_select = frc_select.where(frc_tbl.c.report_date <= end_date)
 
+    plant_states = pd.read_sql(
+        "SELECT plant_id_eia, state FROM plants_entity_eia;", pudl_engine
+    )
     frc_df = (
         pd.read_sql(frc_select, pudl_engine)
         .merge(cmi_df, how="left", on="mine_id_pudl")
         .rename(columns={"state": "mine_state"})
         .drop(["mine_id_pudl"], axis=1)
+        .merge(plant_states, on="plant_id_eia", how="left")
         .pipe(apply_pudl_dtypes, group="eia")
         .rename(columns={"county_id_fips": "coalmine_county_id_fips"})
     )
 
     if fill:
-        logger.info("filling in fuel cost NaNs EIA APIs monthly state averages")
-        fuel_costs_avg_eiaapi = get_fuel_cost_avg_eiaapi(FUEL_COST_CATEGORIES_EIAAPI)
-        # Merge to bring in states associated with each plant:
-        plant_states = pd.read_sql(
-            "SELECT plant_id_eia, state FROM plants_entity_eia;", pudl_engine
+        logger.info("Filling in missing fuel prices using aggregated median values.")
+        frc_df = frc_df.assign(
+            report_year=lambda x: x.report_date.dt.year,
+            census_region=lambda x: x.state.map(STATE_TO_CENSUS_REGION),
+            fuel_cost_per_mmbtu=lambda x: x.fuel_cost_per_mmbtu.replace(0.0, np.nan),
+            filled=lambda x: x.fuel_cost_per_mmbtu,
         )
-        frc_df = frc_df.merge(plant_states, on="plant_id_eia", how="left")
+        frc_df["filled_by"] = pd.NA
+        frc_df.loc[frc_df.fuel_cost_per_mmbtu.notna(), ["filled_by"]] = "original"
 
+        for agg in FUEL_PRICE_AGGS:
+            agg_cols = FUEL_PRICE_AGGS[agg]["agg_cols"]
+            fgc = FUEL_PRICE_AGGS[agg]["fuel_group_code"]
+            frc_df[agg] = frc_df.groupby(agg_cols)["fuel_cost_per_mmbtu"].transform(
+                "median"
+            )  # Use weighted median to avoid right-skew
+            frc_df[agg + "_err"] = (
+                frc_df[agg] - frc_df.fuel_cost_per_mmbtu
+            ) / frc_df.fuel_cost_per_mmbtu
+            mask = (
+                (frc_df.filled.isna())
+                & (frc_df[agg].notna())
+                & (True if fgc == "all" else frc_df.fuel_group_code == fgc)
+            )
+            frc_df.loc[mask, "filled_by"] = agg
+            frc_df.loc[mask, "filled"] = frc_df.loc[mask, agg]
+            logger.info(
+                f"Filled in {sum(mask)} missing fuel prices with {agg} "
+                f"aggregation for fuel group {fgc}."
+            )
+
+        logger.info("Filling in missing fuel prices using the EIA API.")
+        fuel_costs_avg_eiaapi = get_fuel_cost_avg_eiaapi(FUEL_COST_CATEGORIES_EIAAPI)
         # Merge in monthly per-state fuel costs from EIA based on fuel type.
         frc_df = frc_df.merge(
             fuel_costs_avg_eiaapi,
             on=["report_date", "state", "fuel_type_code_pudl"],
             how="left",
         )
+        frc_df["fuel_cost_per_mmbtu"] = frc_df.fuel_cost_per_mmbtu.replace(0.0, np.nan)
         frc_df = frc_df.assign(
             # add a flag column to note if we are using the api data
             fuel_cost_from_eiaapi=lambda x: np.where(
@@ -346,9 +433,14 @@ def fuel_receipts_costs_eia923(
                 x.fuel_cost_per_mmbtu,
             ),
         )
-    # add the flag column to note that we didn't fill in with API data
+
+        frc_df["fuel_cost_per_mmbtu_eiaapi"] = frc_df["fuel_cost_per_mmbtu"].copy()
+        frc_df["fuel_cost_per_mmbtu"] = frc_df["filled"].copy()
+
     else:
+        # add the flag column to note that we didn't fill in with API data
         frc_df = frc_df.assign(fuel_cost_from_eiaapi=False)
+
     # this next step smoothes fuel_cost_per_mmbtu as a rolling monthly average.
     # for each month where there is any data make weighted averages of each
     # plant/fuel/month.
@@ -790,7 +882,7 @@ def get_response(url):
     return response
 
 
-def grab_fuel_state_monthly(cat_id):
+def grab_fuel_state_monthly(cat_id: int):
     """Grab an API response for monthly fuel costs for one fuel category.
 
     The data we want from EIA is in monthly, state-level series for each fuel
@@ -802,6 +894,7 @@ def grab_fuel_state_monthly(cat_id):
 
     Args:
         cat_id (int): category id for one fuel type. Known to be
+
     """
     _check_eia_api_key()
     # we are going to compile a string of series ids to put into one request
@@ -810,7 +903,7 @@ def grab_fuel_state_monthly(cat_id):
     try:
         for child in fuel_level_cat.json()["category"]["childseries"]:
             # get only the monthly... the f in the childseries seems to refer
-            # the recporting to frequency
+            # to the reporting frequency
             if child["f"] == "M":
                 logger.debug(f"    {child['series_id']}")
                 series_all = series_all + ";" + str(child["series_id"])
@@ -872,19 +965,19 @@ def convert_cost_json_to_df(response_fuel_state_annual):
     return cost_df
 
 
-def get_fuel_cost_avg_eiaapi(fuel_cost_cat_ids):
-    """Get a dataframe of state-level average fuel costs for EIA's API.
+def get_fuel_cost_avg_eiaapi(fuel_cost_cat_ids: list[int]) -> pd.DataFrame:
+    """Get a dataframe of state-level average fuel costs from EIA's API.
 
     Args:
-        fuel_cost_cat_ids (list): list of category ids. Known/testing working
-            ids are stored in FUEL_COST_CATEGORIES_EIAAPI.
+        fuel_cost_cat_ids: list of category ids. Known/testing working ids are stored in
+            FUEL_COST_CATEGORIES_EIAAPI.
 
     Returns:
-        pandas.DataFrame: a dataframe containing state-level montly fuel cost.
-        The table contains the following columns, some of which are refernce
-        columns: 'report_date', 'fuel_cost_per_unit', 'state',
-        'fuel_type_code_pudl', 'units' (ref), 'series_id' (ref),
-        'name' (ref).
+        DataFrame containing state-level monthly fuel prices.  The table contains the
+        following columns, some of which are refernce columns: 'report_date',
+        'fuel_cost_per_unit', 'state', 'fuel_type_code_pudl', 'units' (ref), 'series_id'
+        (ref), 'name' (ref).
+
     """
     # grab_fuel_state_monthly compiles childseries for us to make larger
     # requests, but we can request up to 100 series from EIA but each

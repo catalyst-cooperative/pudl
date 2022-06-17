@@ -93,6 +93,25 @@ CANADA_PROVINCES_TERRITORIES: dict[str, str] = {
 }
 """Mapping of Canadian province and territory abbreviations to their full names"""
 
+CENSUS_REGIONS: dict[str, list[str]] = {
+    "ENC": ["WI", "MI", "IL", "IN", "OH"],
+    "ESC": ["KY", "TN", "MS", "AL"],
+    "MAT": ["NY", "PA", "NJ"],
+    "MTN": ["MT", "ID", "WY", "NV", "UT", "CO", "AZ", "NM"],
+    "NEW": ["ME", "VT", "NH", "MA", "CT", "RI"],
+    "PCC": ["CA", "OR", "WA"],
+    "PCN": ["AK", "HI"],
+    "SAT": ["WV", "MD", "DE", "DC", "VA", "NC", "SC", "GA", "FL"],
+    "WNC": ["ND", "SD", "MN", "IA", "NE", "KS", "MO"],
+    "WSC": ["OK", "AR", "TX", "LA"],
+}
+"""Mapping of US Census regions to lists of the states they encompass."""
+
+STATE_TO_CENSUS_REGION: dict[str, str] = {
+    state: region for region, states in CENSUS_REGIONS.items() for state in states
+}
+"""A one-to-one mapping of states to the US census regions they are part of."""
+
 NERC_REGIONS: list[str] = [
     "BASN",  # ASSESSMENT AREA Basin (WECC)
     "CALN",  # ASSESSMENT AREA California (WECC)

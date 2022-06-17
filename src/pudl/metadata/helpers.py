@@ -424,23 +424,21 @@ def groupby_apply(  # noqa: C901
     Args:
         df: Dataframe to aggregate.
         by: Columns names to use to group rows (see :meth:`pandas.DataFrame.groupby`).
-        aggfuncs: Aggregation functions for columns not in `by`.
-        raised: Whether :class:`AggregationError` errors are raised or
-          replaced with :obj:`np.nan` and returned in an error report.
+        aggfuncs: Aggregation functions for columns not in ``by``.
+        raised: Whether :class:`AggregationError` errors are raised or replaced with
+            :obj:`np.nan` and returned in an error report.
         error: A function with signature `f(x, e) -> Tuple[Any, Any]`,
-          where `x` is the original input and `e` is the original error,
-          used when `raised=False`.
-          The first and second value of the returned tuple are used as the
-          index and values, respectively,
-          of the :class:`pandas.Series` returned for each column.
-          By default, the first value is `x.name`
-          (the values of columns `by` for that row group),
-          and the second is the original error.
+            where ``x`` is the original input and ``e`` is the original error, used when
+            ``raised=False``.  The first and second value of the returned tuple are used
+            as the index and values, respectively, of the :class:`pandas.Series`
+            returned for each column.  By default, the first value is ``x.name`` (the
+            values of columns ``by`` for that row group), and the second is the original
+            error.
 
     Returns:
-        Aggregated dataframe with `by` columns set as the index and
-        an error report with (if `raised=False`)
-        a :class:`pandas.Series` for each column where errors occured.
+        Aggregated dataframe with ``by`` columns set as the index and an error report with
+        (if ``raised=False``) a :class:`pandas.Series` for each column where errors
+        occured.
 
     Examples:
         >>> df = pd.DataFrame({'x': [0, 0, 1, 1], 'y': pd.Series([2, 2, 2, 3], dtype='Int64')})
@@ -518,7 +516,7 @@ def groupby_aggregate(  # noqa: C901
         by: Columns names to use to group rows (see :meth:`pandas.DataFrame.groupby`).
         aggfuncs: Aggregation functions for columns not in `by`.
         raised: Whether :class:`AggregationError` errors are raised or
-          replaced with :obj:`np.nan` and returned in an error report.
+            replaced with :obj:`np.nan` and returned in an error report.
         error: A function with signature `f(x, e) -> Any`,
             where `x` is the original input and `e` is the original error,
             used when `raised=False`.

@@ -1,4 +1,18 @@
-"""Module for validating pudl etl settings."""
+"""Pydantic models to contain and validate the PUDL ETL settings.
+
+These classes encapsulate logic related to the PUDL Settings. They're used to validate
+the settings read in from YAML files, and standardize their contents. For example, if
+a user supplies ``states: all`` in the EPA CEMS settings, the Pydantic class will
+replace that special value with a list of all the state abbreviations for which the EPA
+CEMS dataset contains data. They also make sure that input values are valid, e.g.
+by prohibiting non-contiguous sets of years. They also provide default values for some
+settings, if they aren't explicitly provided by the user.
+
+Each individual dataset has its own settings class, and these are sometimes composed
+together into larger collections of settings, as in the case of the ``eia860``
+and ``eia923`` settings.
+
+"""
 import pathlib
 from typing import ClassVar
 
