@@ -62,11 +62,11 @@ class PudlTabl:
         freq: Literal["AS", "MS", None] = None,
         start_date: str | date | datetime | pd.Timestamp = None,
         end_date: str | date | datetime | pd.Timestamp = None,
-        fill_fuel_cost: bool = False,
-        roll_fuel_cost: bool = False,
+        fill_fuel_cost: bool = True,
         fill_net_gen: bool = False,
         fill_tech_desc: bool = True,
         unit_ids: bool = False,
+        debug: bool = False,
     ):
         """Initialize the PUDL output object.
 
@@ -91,10 +91,8 @@ class PudlTabl:
             end_date: End date for data to pull from the PUDL DB. If a string,
                 it should use the ISO 8601 ``YYYY-MM-DD`` format.
             fill_fuel_cost: if True, fill in missing ``frc_eia923()`` fuel cost
-                data with state-level averages obtained from EIA's API.
-            roll_fuel_cost: if True, apply a rolling average to a subset of
-                output table's columns (currently only ``fuel_cost_per_mmbtu``
-                for the ``fuel_receipts_costs_eia923`` table.)
+                data with median values of temporal, spatial, and fuel group
+                aggregations.
             fill_net_gen: if True, use the net generation from the
                 generation_fuel_eia923 - which is reported at the
                 plant/fuel/prime mover level and  re-allocated to generators in
@@ -105,6 +103,8 @@ class PudlTabl:
                 code.
             unit_ids: If True, use several heuristics to assign
                 individual generators to functional units. EXPERIMENTAL.
+            debug: If True, retain intermediate diagnostic columns in the generated
+                dataframes.
 
         """
         # Validating ds is deferred to the etl_eia861 & etl_ferc714 methods
@@ -138,11 +138,11 @@ class PudlTabl:
             # Make sure it's a date... and not a string.
             self.end_date = pd.to_datetime(end_date)
 
-        self.roll_fuel_cost: bool = roll_fuel_cost
         self.fill_fuel_cost: bool = fill_fuel_cost
         self.fill_net_gen: bool = fill_net_gen
         self.fill_tech_desc = fill_tech_desc  # only for eia860 table.
         self.unit_ids = unit_ids
+        self.debug = debug
 
         # Used to persist the output tables. Returns None if they don't exist.
         self._dfs = defaultdict(lambda: None)
@@ -705,15 +705,15 @@ class PudlTabl:
             )
         return self._dfs["gf_nuclear_eia923"]
 
-    def frc_eia923(self, update=False):
+    def frc_eia923(self, update: bool = False) -> pd.DataFrame:
         """Pull EIA 923 fuel receipts and costs data.
 
         Args:
-            update (bool): If true, re-calculate the output dataframe, even if
-                a cached version exists.
+            update: If true, re-calculate the output dataframe, even if a cached version
+                exists.
 
         Returns:
-            pandas.DataFrame: a denormalized table for interactive use.
+            A denormalized fuel_receipts_costs_eia923 table for interactive use.
 
         """
         if update or self._dfs["frc_eia923"] is None:
@@ -723,7 +723,7 @@ class PudlTabl:
                 start_date=self.start_date,
                 end_date=self.end_date,
                 fill=self.fill_fuel_cost,
-                roll=self.roll_fuel_cost,
+                debug=self.debug,
             )
         return self._dfs["frc_eia923"]
 

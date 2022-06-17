@@ -56,8 +56,6 @@ jobs:
           conda run -n pudl-test sqlite3 --version
 
       - name: Run PyTest with Tox
-        env:
-          API_KEY_EIA: ${{ secrets.API_KEY_EIA }}
         run: |
           conda run -n pudl-test tox
 
