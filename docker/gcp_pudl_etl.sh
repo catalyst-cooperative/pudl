@@ -1,4 +1,6 @@
 #!/usr/bin/bash
+# This script runs the entire ETL and validation tests in a docker container on a Google Compute Engin instance.
+# This script won't work locally because it needs adequate GCP permissions.
 function send_slack_msg() {
     curl -X POST -H "Content-type: application/json" -H "Authorization: Bearer ${SLACK_TOKEN}" https://slack.com/api/chat.postMessage --data "{\"channel\": \"C03FHB9N0PQ\", \"text\": \"$1\"}"
 }
