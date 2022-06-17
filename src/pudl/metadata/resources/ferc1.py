@@ -303,7 +303,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "net_generation_mwh",
                 "total_cost_of_plant",
                 "capex_per_mw",
-                "opex_total",
+                "opex_operations",
                 "opex_fuel",
                 "opex_maintenance",
                 "fuel_type",
