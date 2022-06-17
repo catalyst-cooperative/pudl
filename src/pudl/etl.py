@@ -341,7 +341,9 @@ def etl_epacems(
 ###############################################################################
 # GLUE EXPORT FUNCTIONS
 ###############################################################################
-def _etl_glue(glue_settings: GlueSettings) -> dict[str, pd.DataFrame]:
+def _etl_glue(
+    glue_settings: GlueSettings, ds_kwargs: dict[str, Any]
+) -> dict[str, pd.DataFrame]:
     """Extract, transform and load CSVs for the Glue tables.
 
     Args:
@@ -360,8 +362,11 @@ def _etl_glue(glue_settings: GlueSettings) -> dict[str, pd.DataFrame]:
 
     # Add the EPA to EIA crosswalk, but only if the eia data is being processed.
     # Otherwise the foreign key references will have nothing to point at:
+    ds = Datastore(**ds_kwargs)
     if glue_settings.eia:
-        glue_dfs.update(pudl.glue.epacems_unitid_eia_plant_crosswalk.grab_clean_split())
+        glue_dfs.update(
+            pudl.glue.epacems_unitid_eia_plant_crosswalk.grab_clean_split(ds)
+        )
 
     return glue_dfs
 
@@ -435,7 +440,7 @@ def etl(  # noqa: C901
     if datasets.get("eia", False):
         sqlite_dfs.update(_etl_eia(datasets["eia"], ds_kwargs))
     if datasets.get("glue", False):
-        sqlite_dfs.update(_etl_glue(datasets["glue"]))
+        sqlite_dfs.update(_etl_glue(datasets["glue"], ds_kwargs))
 
     # Load the ferc1 + eia data directly into the SQLite DB:
     pudl_engine = sa.create_engine(pudl_settings["pudl_db"])
