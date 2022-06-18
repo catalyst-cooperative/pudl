@@ -19,7 +19,7 @@ class FuelPriceAgg(TypedDict):
     """A data structure for storing fuel price aggregation arguments."""
 
     agg_cols: list[str]
-    fuel_group_code: Literal[
+    fuel_group_eiaepm: Literal[
         "all",
         "coal",
         "natural_gas",
@@ -34,43 +34,43 @@ FUEL_PRICE_AGGS: OrderedDict[str, FuelPriceAgg] = OrderedDict(
         # The most precise estimator we have right now
         "state_esc_month": {
             "agg_cols": ["state", "energy_source_code", "report_date"],
-            "fuel_group_code": "all",
+            "fuel_group_eiaepm": "all",
         },
         # Good for coal, since price varies much more with location than time
         "state_esc_year": {
             "agg_cols": ["state", "energy_source_code", "report_year"],
-            "fuel_group_code": "coal",
+            "fuel_group_eiaepm": "coal",
         },
         # Good for oil products, because prices are consistent geographically
         "region_esc_month": {
             "agg_cols": ["census_region", "energy_source_code", "report_date"],
-            "fuel_group_code": "petroleum",
+            "fuel_group_eiaepm": "petroleum",
         },
         # Less fuel specificity, but still precise date and location
         "state_fgc_month": {
-            "agg_cols": ["state", "fuel_group_code", "report_date"],
-            "fuel_group_code": "all",
+            "agg_cols": ["state", "fuel_group_eiaepm", "report_date"],
+            "fuel_group_eiaepm": "all",
         },
         # Less location and fuel specificity
         "region_fgc_month": {
-            "agg_cols": ["census_region", "fuel_group_code", "report_date"],
-            "fuel_group_code": "all",
+            "agg_cols": ["census_region", "fuel_group_eiaepm", "report_date"],
+            "fuel_group_eiaepm": "all",
         },
         "region_fgc_year": {
-            "agg_cols": ["census_region", "fuel_group_code", "report_year"],
-            "fuel_group_code": "all",
+            "agg_cols": ["census_region", "fuel_group_eiaepm", "report_year"],
+            "fuel_group_eiaepm": "all",
         },
         "national_esc_month": {
             "agg_cols": ["energy_source_code", "report_date"],
-            "fuel_group_code": "all",
+            "fuel_group_eiaepm": "all",
         },
         "national_fgc_month": {
-            "agg_cols": ["fuel_group_code", "report_date"],
-            "fuel_group_code": "all",
+            "agg_cols": ["fuel_group_eiaepm", "report_date"],
+            "fuel_group_eiaepm": "all",
         },
         "national_fgc_year": {
-            "agg_cols": ["fuel_group_code", "report_year"],
-            "fuel_group_code": "all",
+            "agg_cols": ["fuel_group_eiaepm", "report_year"],
+            "fuel_group_eiaepm": "all",
         },
     }
 )
@@ -340,7 +340,11 @@ def fuel_receipts_costs_eia923(
         frc_select = frc_select.where(frc_tbl.c.report_date <= end_date)
 
     plant_states = pd.read_sql(
-        "SELECT plant_id_eia, state FROM plants_entity_eia;", pudl_engine
+        "SELECT plant_id_eia, state FROM plants_entity_eia", pudl_engine
+    )
+    fuel_group_eiaepm = pd.read_sql(
+        "SELECT code AS energy_source_code, fuel_group_eiaepm FROM energy_sources_eia",
+        pudl_engine,
     )
     frc_df = (
         pd.read_sql(frc_select, pudl_engine)
@@ -348,6 +352,7 @@ def fuel_receipts_costs_eia923(
         .rename(columns={"state": "mine_state"})
         .drop(["mine_id_pudl"], axis=1)
         .merge(plant_states, on="plant_id_eia", how="left")
+        .merge(fuel_group_eiaepm, on="energy_source_code", how="left")
         .pipe(apply_pudl_dtypes, group="eia")
         .rename(columns={"county_id_fips": "coalmine_county_id_fips"})
         .assign(filled_by=pd.NA)
@@ -364,20 +369,20 @@ def fuel_receipts_costs_eia923(
 
         for agg in FUEL_PRICE_AGGS:
             agg_cols = FUEL_PRICE_AGGS[agg]["agg_cols"]
-            fgc = FUEL_PRICE_AGGS[agg]["fuel_group_code"]
+            fgc = FUEL_PRICE_AGGS[agg]["fuel_group_eiaepm"]
             frc_df[agg] = frc_df.groupby(agg_cols)["fuel_cost_per_mmbtu"].transform(
                 "median"
-            )  # Use weighted median to avoid right-skew
+            )  # could switch to weighted median to avoid right-skew
             frc_df[agg + "_err"] = (
                 frc_df[agg] - frc_df.fuel_cost_per_mmbtu
             ) / frc_df.fuel_cost_per_mmbtu
             mask = (
                 (frc_df.fuel_cost_per_mmbtu.isna())
                 & (frc_df[agg].notna())
-                & (True if fgc == "all" else frc_df.fuel_group_code == fgc)
+                & (True if fgc == "all" else frc_df.fuel_group_eiaepm == fgc)
             )
             frc_df.loc[mask, "filled_by"] = agg
-            frc_df.loc[mask, "fuel_cost_by_mmbtu"] = frc_df.loc[mask, agg]
+            frc_df.loc[mask, "fuel_cost_per_mmbtu"] = frc_df.loc[mask, agg]
             logger.info(
                 f"Filled in {sum(mask)} missing fuel prices with {agg} "
                 f"aggregation for fuel group {fgc}."
@@ -494,10 +499,8 @@ def fuel_receipts_costs_eia923(
     )
 
     if freq is None:
-        # There are a couple of invalid records with no specified fuel.
-        # This seems weird -- we should be able to infer fuel_group_code from
-        # energy_source_code
-        out_df = out_df.dropna(subset=["fuel_group_code"])
+        # There are a couple of records with no energy_source_code specified.
+        out_df = out_df.dropna(subset=["fuel_group_eiaepm"])
 
     return out_df
 

@@ -68,6 +68,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "min_fuel_mmbtu_per_unit",
                 "max_fuel_mmbtu_per_unit",
                 "fuel_group_eia",
+                "fuel_group_eiaepm",
                 "fuel_derived_from",
                 "fuel_phase",
                 "fuel_type_code_pudl",

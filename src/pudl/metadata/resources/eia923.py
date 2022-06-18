@@ -55,7 +55,6 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "contract_expiration_date",
                 "energy_source_code",
                 "fuel_type_code_pudl",
-                "fuel_group_code",
                 "mine_id_pudl",
                 "supplier_name",
                 "fuel_received_units",

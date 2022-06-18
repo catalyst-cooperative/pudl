@@ -1095,6 +1095,7 @@ def fuel_receipts_costs(eia923_dfs, eia923_transformed_dfs):
         "mine_name",
         "regulated",
         "reporting_frequency",
+        "fuel_group_eiaepm",
     ]
 
     cmi_df = (
@@ -1138,9 +1139,6 @@ def fuel_receipts_costs(eia923_dfs, eia923_transformed_dfs):
         )
         .assign(
             fuel_cost_per_mmbtu=lambda x: x.fuel_cost_per_mmbtu / 100,
-            fuel_group_code=lambda x: (
-                x.fuel_group_code.str.lower().str.replace(" ", "_")
-            ),
             contract_expiration_month=lambda x: x.contract_expiration_date.apply(
                 lambda y: y[:-2] if y != "" else y
             ),

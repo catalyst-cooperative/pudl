@@ -616,19 +616,25 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             )
         },
     },
-    "fuel_group_code": {
-        "type": "string",
-        "description": "Fuel groups used in the Electric Power Monthly",
-        "constraints": {
-            "enum": ["petroleum", "other_gas", "petroleum_coke", "natural_gas", "coal"]
-        },
-    },
     "fuel_group_eia": {
         "type": "string",
         "description": "High level fuel group defined in the 2021-2023 EIA Form 860 instructions, Table 28.",
         "constraints": {
             "enum": sorted(
                 set(CODE_METADATA["energy_sources_eia"]["df"]["fuel_group_eia"])
+            )
+        },
+    },
+    "fuel_group_eiaepm": {
+        "type": "string",
+        "description": "Fuel groups used in the EIA's Electric Power Monthly reports.",
+        "constraints": {
+            "enum": sorted(
+                set(
+                    CODE_METADATA["energy_sources_eia"]["df"][
+                        "fuel_group_eiaepm"
+                    ].dropna()
+                )
             )
         },
     },
