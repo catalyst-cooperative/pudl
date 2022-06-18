@@ -17,6 +17,7 @@ DEFAULT_GENS_COLS = [
     "utility_id_pudl",
     "utility_name_eia",
     "fuel_type_code_pudl",
+    "capacity_mw",
 ]
 
 
