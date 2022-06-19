@@ -240,7 +240,7 @@ def ds_kwargs(pudl_settings_fixture, request):
         gcs_cache_path = os.getenv("ZENODO_CACHE_PATH")
     return dict(
         gcs_cache_path=gcs_cache_path,
-        local_cache_path=Path(pudl_settings_fixture["pudl_in"]) / "data",
+        # local_cache_path=Path(pudl_settings_fixture["pudl_in"]) / "data",
         sandbox=pudl_settings_fixture["sandbox"],
     )
 
