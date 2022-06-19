@@ -39,6 +39,7 @@ jobs:
         uses: "google-github-actions/auth@v0"
         with:
           credentials_json: ${{ secrets.ZENODO_CACHE_MANAGER_KEY}}
+          project_id: catalyst-cooperative-pudl
 
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v0
