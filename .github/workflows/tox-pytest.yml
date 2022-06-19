@@ -45,7 +45,7 @@ jobs:
         uses: google-github-actions/setup-gcloud@v0
 
       - name: List contents of Zenodo cache
-        run: gsutil ls -u catalyst-cooperative-pudl "$ZENODO_CACHE_PATH"
+        run: gsutil -u catalyst-cooperative-pudl ls "$ZENODO_CACHE_PATH"
 
       - name: Compile Zenodo datastore DOIs for cache invalidation
         run:
