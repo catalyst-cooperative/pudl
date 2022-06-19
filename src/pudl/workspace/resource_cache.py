@@ -1,6 +1,7 @@
 """Implementations of datastore resource caches."""
 
 import logging
+import os
 from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import Any, NamedTuple
@@ -112,7 +113,9 @@ class GoogleCloudStorageCache(AbstractCache):
         if parsed_url.scheme != "gs":
             raise ValueError(f"gsc_path should start with gs:// (found: {gcs_path})")
         self._path_prefix = Path(parsed_url.path)
-        self._bucket = storage.Client().bucket(parsed_url.netloc)
+        self._bucket = storage.Client().bucket(
+            parsed_url.netloc, user_project=os.getenv("GOOGLE_CLOUD_PROJECT")
+        )
 
     def _blob(self, resource: PudlResourceKey) -> Blob:
         """Retrieve Blob object associated with given resource."""
