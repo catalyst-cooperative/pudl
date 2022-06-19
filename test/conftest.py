@@ -107,7 +107,6 @@ def pudl_out_eia(live_dbs, pudl_engine, request):
         pudl_engine=pudl_engine,
         freq=request.param,
         fill_fuel_cost=True,
-        roll_fuel_cost=True,
         fill_net_gen=False,
     )
 
@@ -236,8 +235,11 @@ def pudl_ferc1datastore_fixture(pudl_datastore_fixture):
 @pytest.fixture(scope="session", name="pudl_ds_kwargs")
 def ds_kwargs(pudl_settings_fixture, request):
     """Return a dictionary of keyword args for creating a PUDL datastore."""
+    gcs_cache_path = request.config.getoption("--gcs-cache-path")
+    if os.getenv("CI"):
+        gcs_cache_path = os.getenv("ZENODO_CACHE_PATH")
     return dict(
-        gcs_cache_path=request.config.getoption("--gcs-cache-path"),
+        gcs_cache_path=gcs_cache_path,
         local_cache_path=Path(pudl_settings_fixture["pudl_in"]) / "data",
         sandbox=pudl_settings_fixture["sandbox"],
     )

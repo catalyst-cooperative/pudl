@@ -3,6 +3,9 @@ name: tox-pytest
 
 on: [push, pull_request]
 
+env:
+  ZENODO_CACHE_PATH: gs://zenodo-cache.catalyst.coop
+
 jobs:
   ci-test:
     runs-on: ubuntu-latest
@@ -30,6 +33,18 @@ jobs:
           conda config --show-sources
           conda config --show
           printenv | sort
+
+      - id: "auth"
+        name: Authenticate as the Zenodo Cache Manager on GCP
+        uses: "google-github-actions/auth@v0"
+        with:
+          credentials_json: ${{ secrets.ZENODO_CACHE_MANAGER_KEY}}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v0
+
+      - name: List contents of Zenodo cache
+        run: gsutil ls "$ZENODO_CACHE_PATH"
 
       - name: Compile Zenodo datastore DOIs for cache invalidation
         run:
