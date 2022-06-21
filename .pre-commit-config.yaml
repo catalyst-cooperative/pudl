@@ -100,8 +100,13 @@ repos:
     rev: 1.7.4
     hooks:
       - id: bandit
-        args: [--configfile, .bandit.yml]
+        args: ["--configfile", ".bandit.yml"]
 
+  # Lint Dockerfiles for errors and to ensure best practices
+  - repo: https://github.com/AleksaC/hadolint-py
+    rev: v2.10.0
+    hooks:
+      - id: hadolint
   # Check for errors in restructuredtext (.rst) files under the doc hierarchy
   - repo: https://github.com/PyCQA/doc8
     rev: 0.11.2
