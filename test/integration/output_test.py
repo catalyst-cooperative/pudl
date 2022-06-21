@@ -243,7 +243,7 @@ def fast_out_filled(pudl_engine, pudl_datastore_fixture):
         ("mcoe", 0.2, 0.02),
     ],
 )
-def test_mcoe_unfilled(fast_out_filled, df_name, expected_nuke_fraction, tolerance):
+def test_mcoe_filled(fast_out_filled, df_name, expected_nuke_fraction, tolerance):
     """Test that net generation allocation process works.
 
     In addition to running the allocation itself, make sure that the nuclear and

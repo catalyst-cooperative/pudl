@@ -168,13 +168,12 @@ def aggregate_price_median(
     if agg_mod_zscore is None:
         agg_mod_zscore = ["report_year", "fuel_group_eiaepm"]
 
-    logger.info("Filling in missing fuel prices using aggregated median values.")
+    logger.info("Filling in missing fuel prices using weighted median values.")
 
     frc = frc.assign(
         report_year=lambda x: x.report_date.dt.year,
         census_region=lambda x: x.state.map(STATE_TO_CENSUS_REGION),
         fuel_cost_per_mmbtu=lambda x: x.fuel_cost_per_mmbtu.replace(0.0, np.nan),
-        filled_by=np.where(frc.fuel_cost_per_mmbtu.notna(), "original", pd.NA),
         fuel_mmbtu_total=lambda x: x.fuel_received_units * x.fuel_mmbtu_per_unit,
     )
 
@@ -186,6 +185,19 @@ def aggregate_price_median(
     frc["mod_zscore"] = mod_zscore
     frc["outlier"] = np.where(frc["mod_zscore"] > max_mod_zscore, True, False)
     frc.loc[frc["outlier"], "fuel_cost_per_mmbtu"] = np.nan
+    frc["filled_by"] = np.where(frc["fuel_cost_per_mmbtu"].notna(), "original", pd.NA)
+
+    n_outliers = sum(frc.outlier)
+    n_samples = len(frc)
+    frac_out = n_outliers / n_samples
+    logger.info(
+        f"Labeled {n_outliers}/{n_samples} fuel price records ({frac_out:0.2%}) as "
+        f"outliers with mod_zscore > {max_mod_zscore}"
+    )
+    frac_mmbtu_out = (
+        frc.loc[frc.outlier, "fuel_mmbtu_total"].sum() / frc.fuel_mmbtu_total.sum()
+    )
+    logger.info(f"Outliers account for {frac_mmbtu_out:0.2%} of all delivered MMBTU.")
 
     for agg in aggs:
         agg_cols = aggs[agg]["agg_cols"]
