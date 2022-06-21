@@ -342,12 +342,19 @@ def etl_epacems(
 # GLUE EXPORT FUNCTIONS
 ###############################################################################
 def _etl_glue(
-    glue_settings: GlueSettings, ds_kwargs: dict[str, Any]
+    glue_settings: GlueSettings,
+    ds_kwargs: dict[str, Any],
+    generators_entity_eia: pd.DataFrame,
 ) -> dict[str, pd.DataFrame]:
     """Extract, transform and load CSVs for the Glue tables.
 
     Args:
         glue_settings: Validated ETL parameters required by this data source.
+        ds_kwargs: Keyword arguments for instantiating a PUDL datastore, so that the ETL
+            can access the raw input data.
+        generators_entity_eia: the EIA generators entity table. Used to create subsets
+            of the crosswalk for use with specific year subsets of eia data. Necessary
+            to pass the tests.
 
     Returns:
         A dictionary of DataFrames whose keys are the names of the corresponding
@@ -365,7 +372,9 @@ def _etl_glue(
     ds = Datastore(**ds_kwargs)
     if glue_settings.eia:
         glue_dfs.update(
-            pudl.glue.epacems_unitid_eia_plant_crosswalk.grab_clean_split(ds)
+            pudl.glue.epacems_unitid_eia_plant_crosswalk.grab_clean_split(
+                ds, generators_entity_eia
+            )
         )
 
     return glue_dfs
@@ -440,7 +449,9 @@ def etl(  # noqa: C901
     if datasets.get("eia", False):
         sqlite_dfs.update(_etl_eia(datasets["eia"], ds_kwargs))
     if datasets.get("glue", False):
-        sqlite_dfs.update(_etl_glue(datasets["glue"], ds_kwargs))
+        sqlite_dfs.update(
+            _etl_glue(datasets["glue"], ds_kwargs, sqlite_dfs["generators_entity_eia"])
+        )
 
     # Load the ferc1 + eia data directly into the SQLite DB:
     pudl_engine = sa.create_engine(pudl_settings["pudl_db"])

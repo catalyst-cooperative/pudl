@@ -27,11 +27,14 @@ def extract(ds: Datastore) -> pd.DataFrame:
         return pd.read_csv(f)
 
 
-def transform(epa_eia_crosswalk: pd.DataFrame) -> dict[str, pd.DataFrame]:
+def transform(
+    epa_eia_crosswalk: pd.DataFrame, generators_entity_eia: pd.DataFrame
+) -> dict[str, pd.DataFrame]:
     """Clean up the EPACEMS-EIA Crosswalk file and split it into normalized tables.
 
     Args:
         epa_eia_crosswalk: The result of running this module's extract() function.
+        generators_entity_eia: The generators_entity_eia table.
 
     Returns:
         A dictionary of three normalized DataFrames comprised of the data
@@ -48,6 +51,7 @@ def transform(epa_eia_crosswalk: pd.DataFrame) -> dict[str, pd.DataFrame]:
         "eia_plant_id": "plant_id_eia",
         "eia_generator_id": "generator_id",
     }
+
     # Basic column rename, selection, and dtype alignment.
     crosswalk_clean = (
         epa_eia_crosswalk.pipe(pudl.helpers.simplify_columns)
@@ -55,6 +59,19 @@ def transform(epa_eia_crosswalk: pd.DataFrame) -> dict[str, pd.DataFrame]:
         .filter(list(column_rename.values()))
         .pipe(apply_pudl_dtypes, "eia")
     )
+
+    # The crosswalk is a static file: there is no year field. The plant_id_eia and
+    # generator_id fields, however, are foreign keys from an annualized table. If the
+    # fast ETL is run (on one year of data) the test will break because the crosswalk
+    # tables with plant_id_eia and generator_id contain values from various years. To
+    # keep the crosswalk in alignment with the available eia data, we'll restrict it
+    # based on the generator entity table which has plant id and generator id.
+    crosswalk_clean = crosswalk_clean.merge(
+        generators_entity_eia[["plant_id_eia", "generator_id"]],
+        on=["plant_id_eia", "generator_id"],
+        how="inner",
+    )
+
     # There are some eia generator_id values in the crosswalk that don't match the eia
     # generator_id values in the generators_eia860 table where the foreign keys are
     # stored. All of them appear to have preceeding zeros. I.e.: 0010 should be 10.
@@ -63,6 +80,8 @@ def transform(epa_eia_crosswalk: pd.DataFrame) -> dict[str, pd.DataFrame]:
     crosswalk_clean.loc[
         crosswalk_clean.generator_id.str.contains(r"^0+\d+$"), "generator_id"
     ] = crosswalk_clean.generator_id.replace({r"^0+": ""}, regex=True)
+
+    # NOTE: still need to see whether unit_id matches up with the values in EPA well!
 
     logger.info("Splitting crosswalk into three normalized tables")
 
@@ -82,11 +101,14 @@ def transform(epa_eia_crosswalk: pd.DataFrame) -> dict[str, pd.DataFrame]:
     }
 
 
-def grab_clean_split(ds: Datastore) -> dict[str, pd.DataFrame]:
+def grab_clean_split(
+    ds: Datastore, generators_entity_eia: pd.DataFrame
+) -> dict[str, pd.DataFrame]:
     """Clean raw crosswalk data, drop nans, and return split tables.
 
     Args:
-        ds (:class:datastore.Datastore): Initialized datastore.
+        ds: Initialized datastore.
+        generators_entity_eia: The generators_entity_eia table.
 
     Returns:
         A dictionary of three normalized DataFrames comprised of the data
@@ -94,4 +116,4 @@ def grab_clean_split(ds: Datastore) -> dict[str, pd.DataFrame]:
         id to EIA plant id; and EIA plant id to EIA generator id to EPA unit
         id.
     """
-    return transform(extract(ds))
+    return transform(extract(ds), generators_entity_eia)
