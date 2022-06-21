@@ -80,9 +80,69 @@ normalized difference between the estimate and the reported value:
 """
 
 
+def weighted_median(df: pd.DataFrame, data: str, weights: str, dropna=True) -> float:
+    """Calculate the median of the data column, weighted by the weights column.
+
+    Suitable for use with df.groupby().apply().
+
+    Args:
+        df: DataFrame containing both the data whose weighted median we want to
+            calculate, and the weights to use.
+        data: Label of the column containing the data.
+        weights: Label of the column containing the weights.
+        dropna: If True, ignore rows where either data or weights are NA. If False, any
+            NA value in either data or weights means the weighted median is also NA.
+
+    Returns:
+        A single weighted median value, or NA.
+    """
+    if dropna:
+        df = df.dropna(subset=[data, weights])
+    if df.empty | df[[data, weights]].isna().any(axis=None):
+        return np.nan
+    s_data, s_weights = map(np.array, zip(*sorted(zip(df[data], df[weights]))))
+    midpoint = 0.5 * sum(s_weights)
+    if any(df[weights] > midpoint):
+        w_median = df.loc[df[weights].idxmax(), data]
+    else:
+        cs_weights = np.cumsum(s_weights)
+        idx = np.where(cs_weights <= midpoint)[0][-1]
+        if cs_weights[idx] == midpoint:
+            w_median = np.mean(s_data[idx : idx + 2])
+        else:
+            w_median = s_data[idx + 1]
+    return w_median
+
+
+def weighted_modified_zscore(
+    df: pd.DataFrame,
+    data: str,
+    weights: str,
+    dropna: bool = True,
+) -> pd.Series:
+    """Calculate the modified z-score using a weighted median.
+
+    Args:
+        df: DataFrame containing the data whose weighted modified z-score we want to
+            calculate, and the weights to use when calculating median values.
+        data: Label of the column containing the data.
+        weights: Label of the column containing the weights.
+        dropna: Whether to drop NA values when calculating medians. Passed through
+            to :func:`weighted_median`
+
+    Returns:
+        Series with the same index as the input DataFrame,
+    """
+    wm = weighted_median(df, data=data, weights=weights, dropna=dropna)
+    delta = (df[data] - wm).abs()
+    return (0.6745 * delta) / delta.median()
+
+
 def aggregate_price_median(
     frc: pd.DataFrame,
     aggs: OrderedDict[FuelPriceAgg] | None = None,
+    agg_mod_zscore: list[str] | None = None,
+    max_mod_zscore: float = 5.0,
     debug: bool = False,
 ) -> pd.DataFrame:
     """Fill in missing fuel prices with median values using various aggregations.
@@ -93,15 +153,21 @@ def aggregate_price_median(
     Args:
         frc: a Fuel Receipts and Costs dataframe from EIA 923.
         aggs: Ordered sequence of fuel price aggregations to apply.
-        debug: If True, retain intermediate columns used in the calculation for later
-            inspection.
+        mod_zscore_agg: Columns to group by when identifying fuel, location, or time
+            period specific outlying fuel prices.
+        max_mod_zscore: The modified z-score beyond which a fuel price will be
+            considered an outlier, get removed, and be filled in.
+        debug: If True, retain intermediate columns used in the calculation.
 
     Returns:
         A Fuel Receipts and Costs table that includes fuel price estimates for all
-        missing records.
+        missing records and replaced outliers.
     """
     if aggs is None:
         aggs = FUEL_PRICE_AGGS
+    if agg_mod_zscore is None:
+        agg_mod_zscore = ["report_year", "fuel_group_eiaepm"]
+
     logger.info("Filling in missing fuel prices using aggregated median values.")
 
     frc = frc.assign(
@@ -109,14 +175,28 @@ def aggregate_price_median(
         census_region=lambda x: x.state.map(STATE_TO_CENSUS_REGION),
         fuel_cost_per_mmbtu=lambda x: x.fuel_cost_per_mmbtu.replace(0.0, np.nan),
         filled_by=np.where(frc.fuel_cost_per_mmbtu.notna(), "original", pd.NA),
+        fuel_mmbtu_total=lambda x: x.fuel_received_units * x.fuel_mmbtu_per_unit,
     )
+
+    # Identify outlying fuel prices using modified z-score and set them to NA
+    mod_zscore = frc.groupby(agg_mod_zscore).apply(
+        weighted_modified_zscore, data="fuel_cost_per_mmbtu", weights="fuel_mmbtu_total"
+    )
+    mod_zscore.index = mod_zscore.index.droplevel(level=agg_mod_zscore)
+    frc["mod_zscore"] = mod_zscore
+    frc["outlier"] = np.where(frc["mod_zscore"] > max_mod_zscore, True, False)
+    frc.loc[frc["outlier"], "fuel_cost_per_mmbtu"] = np.nan
 
     for agg in aggs:
         agg_cols = aggs[agg]["agg_cols"]
         fgc = aggs[agg]["fuel_group_eiaepm"]
-        frc[agg] = frc.groupby(agg_cols)["fuel_cost_per_mmbtu"].transform(
-            "median"
-        )  # could switch to weighted median to avoid right-skew
+        wm = frc.groupby(agg_cols).apply(
+            weighted_median, data="fuel_cost_per_mmbtu", weights="fuel_mmbtu_total"
+        )
+        wm.name = agg
+        frc = frc.merge(
+            wm.to_frame().reset_index(), how="left", on=agg_cols, validate="many_to_one"
+        )
         frc[agg + "_err"] = (
             frc[agg] - frc.fuel_cost_per_mmbtu
         ) / frc.fuel_cost_per_mmbtu

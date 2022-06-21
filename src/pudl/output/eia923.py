@@ -8,7 +8,7 @@ import pandas as pd
 import sqlalchemy as sa
 
 import pudl
-from pudl.analysis.estimate_fuel_prices import aggregate_price_median
+from pudl.analysis.fuel_price import aggregate_price_median
 from pudl.metadata.fields import apply_pudl_dtypes
 
 logger = logging.getLogger(__name__)
@@ -378,8 +378,6 @@ def fuel_receipts_costs_eia923(
         pudl_engine, start_date=start_date, end_date=end_date
     )
 
-    logger.info(f"Pre date merge: {len(frc_df)} records")
-    logger.info(f"{frc_df.filled_by.value_counts()}")
     out_df = (
         pudl.helpers.date_merge(
             left=frc_df,
@@ -403,12 +401,10 @@ def fuel_receipts_costs_eia923(
         )
         .pipe(apply_pudl_dtypes, group="eia")
     )
-    logger.info(f"Post date merge: {len(out_df)} records")
-    logger.info(f"{out_df.filled_by.value_counts()}")
 
     if freq is None:
-        # There are a couple of records with no energy_source_code specified.
-        out_df = out_df.dropna(subset=["fuel_group_eiaepm"])
+        # There's one lonely record with no energy_source_code specified.
+        out_df = out_df.dropna(subset=["energy_source_code"])
 
     return out_df
 
