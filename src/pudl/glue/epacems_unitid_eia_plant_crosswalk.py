@@ -48,17 +48,26 @@ def transform(epa_eia_crosswalk: pd.DataFrame) -> dict[str, pd.DataFrame]:
         "eia_plant_id": "plant_id_eia",
         "eia_generator_id": "generator_id",
     }
+    # Basic column rename, selection, and dtype alignment.
     crosswalk_clean = (
         epa_eia_crosswalk.pipe(pudl.helpers.simplify_columns)
         .rename(columns=column_rename)
         .filter(list(column_rename.values()))
         .pipe(apply_pudl_dtypes, "eia")
     )
+    # There are some eia generator_id values in the crosswalk that don't match the eia
+    # generator_id values in the generators_eia860 table where the foreign keys are
+    # stored. All of them appear to have preceeding zeros. I.e.: 0010 should be 10.
+    # This makes sure to nix preceeding zeros on crosswalk generator ids that are all
+    # numeric. I.e.: 00A10 will stay 00A10 but 0010 will become 10.
+    crosswalk_clean.loc[
+        crosswalk_clean.generator_id.str.contains(r"^0+\d+$"), "generator_id"
+    ] = crosswalk_clean.generator_id.replace({r"^0+": ""}, regex=True)
 
     logger.info("Splitting crosswalk into three normalized tables")
 
     def drop_n_reset(df, cols):
-        return df.filter(cols).copy().dropna()
+        return df.filter(cols).copy().dropna().drop_duplicates()
 
     epa_df = drop_n_reset(crosswalk_clean, ["plant_id_epa", "unit_id_epa"])
     plants_eia_epa_df = drop_n_reset(crosswalk_clean, ["plant_id_eia", "plant_id_epa"])
