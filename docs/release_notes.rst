@@ -8,6 +8,24 @@ PUDL Release Notes
 2022.06.XX
 ---------------------------------------------------------------------------------------
 
+Nightly Data Builds
+^^^^^^^^^^^^^^^^^^^
+* We added infrastructure to run the entire ETL and all tests nightly
+  so we can catch data errors when they are merged into ``dev``. This allows us
+  to automatically update the `PUDL Intake data catalogs <https://github.com/catalyst-cooperative/pudl-catalog>`__
+  when there are new code releases. See :issue:`1177` for more details.
+* Created a `docker image <https://hub.docker.com/r/catalystcoop/pudl-etl>`__
+  that installs PUDL and it's depedencies. The ``build-deploy-pudl.yaml`` GitHub
+  Action builds and pushes the image to Docker Hub and deploys the image on
+  a Google Compute Engine instance. The ETL outputs are then loaded to Google
+  Cloud buckets for the data catalogs to access.
+* Added ``GoogleCloudStorageCache`` support to ``ferc1_to_sqlite`` and
+  ``censusdp1tract_to_sqlite`` commands and pytest.
+* Allow users to create monolithic and partitioned EPA CEMS outputs without having
+  to clobber or move any existing CEMS outputs.
+* ``GoogleCloudStorageCache`` now supports accessing requester pays buckets.
+* Added a ``--loglevel`` arg to the package entrypoint commands.
+
 Database Schema Changes
 ^^^^^^^^^^^^^^^^^^^^^^^
 * After learning that generators' prime movers do very occasionally change over

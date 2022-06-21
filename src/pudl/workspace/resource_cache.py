@@ -1,12 +1,12 @@
 """Implementations of datastore resource caches."""
 
 import logging
-import os
 from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import Any, NamedTuple
 from urllib.parse import urlparse
 
+import google.auth
 from google.cloud import storage
 from google.cloud.storage.blob import Blob
 
@@ -113,8 +113,11 @@ class GoogleCloudStorageCache(AbstractCache):
         if parsed_url.scheme != "gs":
             raise ValueError(f"gsc_path should start with gs:// (found: {gcs_path})")
         self._path_prefix = Path(parsed_url.path)
-        self._bucket = storage.Client().bucket(
-            parsed_url.netloc, user_project=os.getenv("GOOGLE_CLOUD_PROJECT")
+        # Get GCP credentials and billing project id
+        # A billing project is now required because zenodo-cache is requester pays.
+        credentials, project_id = google.auth.default()
+        self._bucket = storage.Client(credentials=credentials).bucket(
+            parsed_url.netloc, user_project=project_id
         )
 
     def _blob(self, resource: PudlResourceKey) -> Blob:

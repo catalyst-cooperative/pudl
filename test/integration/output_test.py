@@ -172,11 +172,10 @@ def test_ferc714_etl(fast_out):
 
 
 @pytest.fixture(scope="module")
-def ferc714_out(fast_out, pudl_settings_fixture):
+def ferc714_out(fast_out, pudl_settings_fixture, pudl_datastore_fixture):
     """A FERC 714 Respondents output object for use in CI."""
     return pudl.output.ferc714.Respondents(
-        fast_out,
-        pudl_settings=pudl_settings_fixture,
+        fast_out, pudl_settings=pudl_settings_fixture, ds=pudl_datastore_fixture
     )
 
 
