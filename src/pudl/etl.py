@@ -344,7 +344,7 @@ def etl_epacems(
 def _etl_glue(
     glue_settings: GlueSettings,
     ds_kwargs: dict[str, Any],
-    generators_entity_eia: pd.DataFrame,
+    sqlite_dfs: dict[str, pd.DataFrame],
 ) -> dict[str, pd.DataFrame]:
     """Extract, transform and load CSVs for the Glue tables.
 
@@ -373,7 +373,7 @@ def _etl_glue(
     if glue_settings.eia:
         glue_dfs.update(
             pudl.glue.epacems_unitid_eia_plant_crosswalk.grab_clean_split(
-                ds, generators_entity_eia
+                ds, sqlite_dfs["generators_entity_eia"]
             )
         )
 
@@ -448,10 +448,9 @@ def etl(  # noqa: C901
         sqlite_dfs.update(_etl_ferc1(datasets["ferc1"], pudl_settings))
     if datasets.get("eia", False):
         sqlite_dfs.update(_etl_eia(datasets["eia"], ds_kwargs))
+    logger.info(sqlite_dfs.keys())
     if datasets.get("glue", False):
-        sqlite_dfs.update(
-            _etl_glue(datasets["glue"], ds_kwargs, sqlite_dfs["generators_entity_eia"])
-        )
+        sqlite_dfs.update(_etl_glue(datasets["glue"], ds_kwargs, sqlite_dfs))
 
     # Load the ferc1 + eia data directly into the SQLite DB:
     pudl_engine = sa.create_engine(pudl_settings["pudl_db"])
