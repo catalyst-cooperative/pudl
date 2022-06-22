@@ -1,0 +1,107 @@
+name: build-deploy-pudl
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "v**"
+  schedule:
+    - cron: "0 6 * * 1-5" # Weekdays at midnight on MST
+
+env:
+  GCP_BILLING_PROJECT: ${{ secrets.GCP_BILLING_PROJECT }}
+  CHECKOUT_BRANCH: ${{ github.ref_name }} # This is changed to dev if running on a schedule
+  GCE_INSTANCE: pudl-deployment-tag # This is changed to pudl-deployment-tag if running on a schedule
+  GCE_INSTANCE_ZONE: us-central1-a
+
+jobs:
+  build_and_deploy_pudl:
+    name: Build Docker image, push to Docker Hub and deploy to a GCE VM
+    runs-on: ubuntu-latest
+    steps:
+      - name: Use pudl-deployment-dev vm and dev branch if running on a schedule or manually triggered
+        if: ${{ (github.event_name == 'schedule') || (github.event_name == 'workflow_dispatch') }}
+        run: |
+          echo "This action was triggered by a schedule." && echo "GCE_INSTANCE=pudl-deployment-dev" >> $GITHUB_ENV && echo "CHECKOUT_BRANCH=dev" >> $GITHUB_ENV
+
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ env.CHECKOUT_BRANCH }}
+
+      - name: Get HEAD of the branch (main or dev)
+        run: |
+          echo "ACTION_SHA=$(git rev-parse HEAD)" >> $GITHUB_ENV
+
+      - name: Print action vars
+        run: |
+          echo "ACTION_SHA: $ACTION_SHA" && \
+          echo "CHECKOUT_BRANCH: $CHECKOUT_BRANCH" && \
+          echo "GCE_INSTANCE: $GCE_INSTANCE"
+
+      - name: Docker Metadata
+        id: docker_metadata
+        uses: docker/metadata-action@v4.0.1
+        with:
+          images: catalystcoop/pudl-etl
+          flavor: |
+            latest=auto
+          tags: |
+            type=ref,event=branch
+            type=ref,event=tag
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2.0.0
+
+      - name: Login to DockerHub
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v2.0.0
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build image and push to Docker Hub
+        uses: docker/build-push-action@v3.0.0
+        with:
+          context: .
+          file: docker/Dockerfile
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.docker_metadata.outputs.tags }}
+          labels: ${{ steps.docker_metadata.outputs.labels }}
+
+      # Authentication via credentials json
+      - id: "auth"
+        uses: "google-github-actions/auth@v0"
+        with:
+          credentials_json: "${{ secrets.GCE_SA_KEY }}"
+
+      # Setup gcloud CLI
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v0
+
+      # Deploy PUDL image to GCE
+      - name: Deploy
+        run: |-
+          gcloud compute instances add-metadata "$GCE_INSTANCE" \
+            --zone "$GCE_INSTANCE_ZONE" \
+            --metadata-from-file startup-script=./docker/vm_startup_script.sh
+          gcloud compute instances update-container "$GCE_INSTANCE" \
+            --zone "$GCE_INSTANCE_ZONE" \
+            --container-image "docker.io/catalystcoop/pudl-etl:${{github.ref_name}}" \
+            --container-command "conda" \
+            --container-arg="run" \
+            --container-arg="--no-capture-output" \
+            --container-arg="-p" \
+            --container-arg="/home/catalyst/env" \
+            --container-arg="bash" \
+            --container-arg="./docker/gcp_pudl_etl.sh" \
+            --container-env-file="./docker/.env" \
+            --container-env ACTION_SHA=$ACTION_SHA \
+            --container-env GITHUB_REF=${{ github.ref_name }} \
+            --container-env API_KEY_EIA=${{ secrets.API_KEY_EIA }} \
+            --container-env SLACK_TOKEN=${{ secrets.PUDL_DEPLOY_SLACK_TOKEN }} \
+            --container-env GCE_INSTANCE=${{ env.GCE_INSTANCE }} \
+            --container-env GCP_BILLING_PROJECT=${{ secrets.GCP_BILLING_PROJECT }}
+
+      # Start the VM
+      - name: Start the deploy-pudl-vm
+        run: gcloud compute instances start "$GCE_INSTANCE" --zone="$GCE_INSTANCE_ZONE"
