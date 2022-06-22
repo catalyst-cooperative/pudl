@@ -352,9 +352,14 @@ def _etl_glue(
         glue_settings: Validated ETL parameters required by this data source.
         ds_kwargs: Keyword arguments for instantiating a PUDL datastore, so that the ETL
             can access the raw input data.
-        generators_entity_eia: the EIA generators entity table. Used to create subsets
-            of the crosswalk for use with specific year subsets of eia data. Necessary
-            to pass the tests.
+        sqlite_dfs: The dictionary of dataframes to be loaded into the pudl database.
+            We pass the dictionary though because the EPACEMS-EIA crosswalk needs to
+            know which EIA plants and generators are being loaded into the database
+            (based on whether we run the full or fast etl). The tests will break if we
+            pass the generators_entity_eia table as an argument because of the
+            ferc1_solo test (where no eia tables are in the sqlite_dfs dict). Passing
+            the whole dict avoids this because the crosswalk will only load if there
+            are eia tables in the dict, but the dict will always be there.
 
     Returns:
         A dictionary of DataFrames whose keys are the names of the corresponding
