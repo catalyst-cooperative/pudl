@@ -100,18 +100,36 @@ def weighted_median(df: pd.DataFrame, data: str, weights: str, dropna=True) -> f
         df = df.dropna(subset=[data, weights])
     if df.empty | df[[data, weights]].isna().any(axis=None):
         return np.nan
-    s_data, s_weights = map(np.array, zip(*sorted(zip(df[data], df[weights]))))
-    midpoint = 0.5 * sum(s_weights)
-    if any(df[weights] > midpoint):
+    df = df.loc[:, [data, weights]].sort_values(data)
+    midpoint = 0.5 * df[weights].sum()
+    if (df[weights] > midpoint).any():
         w_median = df.loc[df[weights].idxmax(), data]
     else:
-        cs_weights = np.cumsum(s_weights)
+        cs_weights = df[weights].cumsum()
         idx = np.where(cs_weights <= midpoint)[0][-1]
-        if cs_weights[idx] == midpoint:
-            w_median = np.mean(s_data[idx : idx + 2])
+        if cs_weights.iloc[idx] == midpoint:
+            w_median = df[data].iloc[idx : idx + 2].mean()
         else:
-            w_median = s_data[idx + 1]
+            w_median = df[data].iloc[idx + 1]
     return w_median
+
+    # Old slow version (we hope)
+    # if dropna:
+    #    df = df.dropna(subset=[data, weights])
+    # if df.empty | df[[data, weights]].isna().any(axis=None):
+    #    return np.nan
+    # s_data, s_weights = map(np.array, zip(*sorted(zip(df[data], df[weights]))))
+    # midpoint = 0.5 * sum(s_weights)
+    # if any(df[weights] > midpoint):
+    #    w_median = df.loc[df[weights].idxmax(), data]
+    # else:
+    #    cs_weights = np.cumsum(s_weights)
+    #    idx = np.where(cs_weights <= midpoint)[0][-1]
+    #    if cs_weights[idx] == midpoint:
+    #        w_median = np.mean(s_data[idx : idx + 2])
+    #    else:
+    #        w_median = s_data[idx + 1]
+    # return w_median
 
 
 def weighted_modified_zscore(
