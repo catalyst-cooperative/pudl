@@ -46,7 +46,7 @@ jobs:
           flavor: |
             latest=auto
           tags: |
-            type=ref,event=branch
+            type=raw,value=${{ env.GITHUB_REF }}
             type=ref,event=tag
 
       - name: Set up Docker Buildx
