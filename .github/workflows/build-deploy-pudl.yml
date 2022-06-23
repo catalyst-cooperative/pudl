@@ -9,7 +9,7 @@ on:
 
 env:
   GCP_BILLING_PROJECT: ${{ secrets.GCP_BILLING_PROJECT }}
-  CHECKOUT_BRANCH: ${{ github.ref_name }} # This is changed to dev if running on a schedule
+  GITHUB_REF: ${{ github.ref_name }} # This is changed to dev if running on a schedule
   GCE_INSTANCE: pudl-deployment-tag # This is changed to pudl-deployment-tag if running on a schedule
   GCE_INSTANCE_ZONE: us-central1-a
 
@@ -21,12 +21,12 @@ jobs:
       - name: Use pudl-deployment-dev vm and dev branch if running on a schedule or manually triggered
         if: ${{ (github.event_name == 'schedule') || (github.event_name == 'workflow_dispatch') }}
         run: |
-          echo "This action was triggered by a schedule." && echo "GCE_INSTANCE=pudl-deployment-dev" >> $GITHUB_ENV && echo "CHECKOUT_BRANCH=dev" >> $GITHUB_ENV
+          echo "This action was triggered by a schedule." && echo "GCE_INSTANCE=pudl-deployment-dev" >> $GITHUB_ENV && echo "GITHUB_REF=dev" >> $GITHUB_ENV
 
       - name: Checkout Repository
         uses: actions/checkout@v3
         with:
-          ref: ${{ env.CHECKOUT_BRANCH }}
+          ref: ${{ env.GITHUB_REF }}
 
       - name: Get HEAD of the branch (main or dev)
         run: |
@@ -35,7 +35,7 @@ jobs:
       - name: Print action vars
         run: |
           echo "ACTION_SHA: $ACTION_SHA" && \
-          echo "CHECKOUT_BRANCH: $CHECKOUT_BRANCH" && \
+          echo "GITHUB_REF: $GITHUB_REF" && \
           echo "GCE_INSTANCE: $GCE_INSTANCE"
 
       - name: Docker Metadata
@@ -46,7 +46,7 @@ jobs:
           flavor: |
             latest=auto
           tags: |
-            type=ref,event=branch
+            type=raw,value=${{ env.GITHUB_REF }}
             type=ref,event=tag
 
       - name: Set up Docker Buildx
@@ -86,7 +86,7 @@ jobs:
             --metadata-from-file startup-script=./docker/vm_startup_script.sh
           gcloud compute instances update-container "$GCE_INSTANCE" \
             --zone "$GCE_INSTANCE_ZONE" \
-            --container-image "docker.io/catalystcoop/pudl-etl:${{github.ref_name}}" \
+            --container-image "docker.io/catalystcoop/pudl-etl:${{ env.GITHUB_REF }}" \
             --container-command "conda" \
             --container-arg="run" \
             --container-arg="--no-capture-output" \
@@ -96,7 +96,7 @@ jobs:
             --container-arg="./docker/gcp_pudl_etl.sh" \
             --container-env-file="./docker/.env" \
             --container-env ACTION_SHA=$ACTION_SHA \
-            --container-env GITHUB_REF=${{ github.ref_name }} \
+            --container-env GITHUB_REF=${{ env.GITHUB_REF }} \
             --container-env API_KEY_EIA=${{ secrets.API_KEY_EIA }} \
             --container-env SLACK_TOKEN=${{ secrets.PUDL_DEPLOY_SLACK_TOKEN }} \
             --container-env GCE_INSTANCE=${{ env.GCE_INSTANCE }} \
