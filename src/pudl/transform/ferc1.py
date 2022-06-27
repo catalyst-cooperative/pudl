@@ -38,7 +38,7 @@ TABLES_LITERAL = Literal[
     "fuel_ferc1",
 ]
 
-COLUMN_RENAME: dict[TABLES_LITERAL, dict[Literal["dbf":"xbrl"], dict[str, str]]] = {
+COLUMN_RENAME: dict[TABLES_LITERAL, dict[Literal["dbf", "xbrl"], dict[str, str]]] = {
     "plants_steam_ferc1": {
         "dbf": {
             "plant_name": "plant_name_ferc1",
@@ -792,6 +792,7 @@ PLANT_KIND_STRINGS: dict[str, list[str]] = {
         "resp share st note 3",
         "\x02steam (1)",
         "coal fired steam tur",
+        "coal fired steam turbine",
         "steam- 64%",
     ],
     "combustion_turbine": [
@@ -921,6 +922,8 @@ PLANT_KIND_STRINGS: dict[str, list[str]] = {
         "ctg steam gas",
         "steam comb cycle",
         "gas/steam comb. cycl",
+        "gas/steam",
+        "gas turbine-combined cycle",
         "steam (comb. cycle)" "gas turbine/steam",
         "steam & gas turbine",
         "gas trb & heat rec",
@@ -989,7 +992,8 @@ PLANT_KIND_STRINGS: dict[str, list[str]] = {
         "ic",
         "internal combustion",
         "internal comb.",
-        "internl combustion" "diesel turbine",
+        "internl combustion",
+        "diesel turbine",
         "int combust (note 1)",
         "int. combust (note1)",
         "int.combustine",
@@ -1001,6 +1005,7 @@ PLANT_KIND_STRINGS: dict[str, list[str]] = {
         "int combust - note 1",
         "int. combust - note1",
         "internal comb recip",
+        "internal combustion reciprocating",
         "reciprocating engine",
         "comb. turbine",
         "internal combust.",
@@ -1035,6 +1040,8 @@ PLANT_KIND_STRINGS: dict[str, list[str]] = {
         "see pgs 403.1-403.9",
         "respondent's share",
         "--",
+        "—",
+        "footnote",
         "(see note 7)",
         "other",
         "not applicable",
@@ -1096,6 +1103,7 @@ PLANT_KIND_STRINGS: dict[str, list[str]] = {
         "other generation plt",
         "combined heat/power",
         "oil",
+        "fuel oil",
     ],
 }
 """
@@ -1185,6 +1193,7 @@ CONSTRUCTION_TYPE_STRINGS: dict[str, list[str]] = {
         "outdoor boiler &fuel",
     ],
     "semioutdoor": [
+        "more than 50% outdoors",
         "more than 50% outdoo",
         "more than 50% outdos",
         "over 50% outdoor",
@@ -1283,6 +1292,7 @@ CONSTRUCTION_TYPE_STRINGS: dict[str, list[str]] = {
         "con sem outdoor",
         "cnvntl, outdr, boilr",
         "less than 50% outdoo",
+        "less than 50% outdoors",
         "under 50% outdoor",
         "under 50% outdoors",
         "1cnvntnl/2odboilers",
@@ -1305,6 +1315,7 @@ CONSTRUCTION_TYPE_STRINGS: dict[str, list[str]] = {
         "conventional",
         "conventional",
         "conventional boiler",
+        "conventional - boiler",
         "conv-b",
         "conventionall",
         "convention",
@@ -1336,6 +1347,7 @@ CONSTRUCTION_TYPE_STRINGS: dict[str, list[str]] = {
         "indoor",
         "indoor automatic",
         "indoor boiler",
+        "indoor boiler and steam turbine",
         "(peak load) indoor",
         "conventionl,indoor",
         "conventionl, indoor",
@@ -1344,6 +1356,7 @@ CONSTRUCTION_TYPE_STRINGS: dict[str, list[str]] = {
         "conven./outdoor",
         "conventional;semi-ou",
         "comb. cycle indoor",
+        "comb cycle indoor",
         "3 indoor boiler",
         "2 indoor boilers",
         "1 indoor boiler",
@@ -1421,6 +1434,7 @@ CONSTRUCTION_TYPE_STRINGS: dict[str, list[str]] = {
         "automatic oper.",
         "pakage",
         "---",
+        "—",
         "n/a (ct)",
         "comb turb instain",
         "ind encloures",
@@ -1455,6 +1469,7 @@ CONSTRUCTION_TYPE_STRINGS: dict[str, list[str]] = {
         "tracking pv",
         "o",
         "wind trubine",
+        "wind generator",
         "subcritical",
         "sucritical",
         "simple cycle",
@@ -1470,6 +1485,9 @@ CONSTRUCTION_TYPE_STRINGS: dict[str, list[str]] = {
         "conven. underground",
         "conventional (a)",
         "non-applicable",
+        "duct burner",
+        "see footnote",
+        "simple and reciprocat",
     ],
 }
 """
@@ -1786,7 +1804,7 @@ def _multiplicative_error_correction(tofix, mask, minval, maxval, mults):
 
 
 def rename_table(
-    raw_table: pd.DataFrame, table_name: str, source: Literal["xbrl":"dbf"]
+    raw_table: pd.DataFrame, table_name: str, source: Literal["xbrl", "dbf"]
 ) -> pd.DataFrame:
     """Rename FERC1 table based on table name and source."""
     return raw_table.rename(columns=COLUMN_RENAME[table_name][source])
@@ -1879,8 +1897,31 @@ def plants_steam(ferc1_dbf_raw_dfs, ferc1_xbrl_raw_dfs, ferc1_transformed_dfs):
     """
     plants_steam_dbf = pre_concat_dbf_plants_steam(ferc1_dbf_raw_dfs)
     plants_steam_xbrl = pre_concat_xbrl_plants_steam(ferc1_xbrl_raw_dfs)
-    plants_steam = pd.concat([plants_steam_dbf, plants_steam_xbrl])
-    return plants_steam
+
+    plants_steam_combo = (
+        pd.concat([plants_steam_dbf, plants_steam_xbrl])
+        .pipe(pudl.helpers.simplify_strings, ["plant_name_ferc1"])
+        .pipe(
+            pudl.helpers.cleanstrings,
+            ["construction_type", "plant_type"],
+            [CONSTRUCTION_TYPE_STRINGS, PLANT_KIND_STRINGS],
+            unmapped=pd.NA,
+        )
+        .pipe(
+            pudl.helpers.oob_to_nan,
+            cols=["construction_year", "installation_year"],
+            lb=1850,
+            ub=max(DataSource.from_id("ferc1").working_partitions["years"]) + 1,
+        )
+        .assign(
+            capex_per_mw=lambda x: 1000.0 * x.capex_per_kw,
+            opex_per_mwh=lambda x: 1000.0 * x.opex_per_kwh,
+            net_generation_mwh=lambda x: x.net_generation_kwh / 1000.0,
+        )
+        .drop(columns=["capex_per_kw", "opex_per_kwh", "net_generation_kwh"])
+        .pipe(convert_cols_dtypes, data_source="ferc1")
+    )
+    return plants_steam_combo
 
 
 def pre_concat_dbf_plants_steam(ferc1_dbf_raw_dfs):
