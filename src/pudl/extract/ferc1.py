@@ -839,6 +839,8 @@ def extract_xbrl(
 
     ferc1_extract_functions = {
         "steam_electric_generating_plant_statistics_large_plants_fuel_statistics_402_duration": fuel_xbrl,
+        "steam_electric_generating_plant_statistics_large_plants_402_duration": steam_xbrl,
+        "steam_electric_generating_plant_statistics_large_plants_402_instant": steam_instant_xbrl,
     }
 
     ferc1_raw_dfs = {}
@@ -858,6 +860,54 @@ def extract_xbrl(
         )
 
     return ferc1_raw_dfs
+
+
+def steam_xbrl(
+    ferc1_engine: sa.engine.Engine, ferc1_settings: Ferc1XbrlSettings
+) -> pd.DataFrame:
+    """Creates a of DataFrame of steam_electric_generating_plant_statistics_large_plants_402_duration.
+
+    Args:
+        ferc1_engine: An SQL Alchemy connection engine for the FERC Form 1 database.
+        ferc1_settings: Object containing validated settings relevant to FERC Form 1.
+    """
+    ferc1_meta = get_ferc1_meta(ferc1_engine)
+    fuel_stats = ferc1_meta.tables[
+        "steam_electric_generating_plant_statistics_large_plants_402_duration"
+    ]
+    identification = ferc1_meta.tables["identification_001_duration"]
+
+    fuel_select = (
+        sa.sql.select(fuel_stats)
+        .join(identification, fuel_stats.c.filing_name == identification.c.filing_name)
+        .where(identification.c.ReportYear.in_(ferc1_settings.years))
+    )
+    # Use the above SELECT to pull those records into a DataFrame:
+    return pd.read_sql(fuel_select, ferc1_engine, index_col=["index"])
+
+
+def steam_instant_xbrl(
+    ferc1_engine: sa.engine.Engine, ferc1_settings: Ferc1XbrlSettings
+) -> pd.DataFrame:
+    """Creates a of DataFrame of steam_electric_generating_plant_statistics_large_plants_402_instant.
+
+    Args:
+        ferc1_engine: An SQL Alchemy connection engine for the FERC Form 1 database.
+        ferc1_settings: Object containing validated settings relevant to FERC Form 1.
+    """
+    ferc1_meta = get_ferc1_meta(ferc1_engine)
+    fuel_stats = ferc1_meta.tables[
+        "steam_electric_generating_plant_statistics_large_plants_402_instant"
+    ]
+    # identification = ferc1_meta.tables["identification_001_duration"]
+
+    fuel_select = (
+        sa.sql.select(fuel_stats)
+        # .join(identification, fuel_stats.c.filing_name == identification.c.filing_name)
+        # .where(identification.c.ReportYear.in_(ferc1_settings.years))
+    )
+    # Use the above SELECT to pull those records into a DataFrame:
+    return pd.read_sql(fuel_select, ferc1_engine, index_col=["index"])
 
 
 def fuel_xbrl(ferc1_engine: sa.engine.Engine, ferc1_settings: Ferc1XbrlSettings):
