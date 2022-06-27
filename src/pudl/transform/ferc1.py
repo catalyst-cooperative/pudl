@@ -1910,7 +1910,7 @@ def pre_concat_xbrl_plants_steam(ferc1_xbrl_raw_dfs):
             table_name="plants_steam_ferc1",
             source="xbrl",
         )
-        .assign(report_year=lambda x: pd.to_datetime(x.start_date.dt.year))
+        .assign(report_year=lambda x: pd.to_datetime(x.start_date).dt.year)
         .pipe(
             assign_record_id_xbrl,
             table_name="plants_steam_ferc1",
