@@ -23,6 +23,7 @@ import numpy as np
 import pandas as pd
 import requests
 import sqlalchemy as sa
+from pandas._libs.missing import NAType
 
 from pudl.metadata.classes import DataSource, Package
 from pudl.metadata.fields import get_pudl_dtypes
@@ -45,8 +46,8 @@ def label_map(
     df: pd.DataFrame,
     from_col: str = "code",
     to_col: str = "label",
-    null_value: str | type(pd.NA) = pd.NA,
-) -> defaultdict[str, str | type(pd.NA)]:
+    null_value: str | NAType = pd.NA,
+) -> defaultdict[str, str | NAType]:
     """Build a mapping dictionary from two columns of a labeling / coding dataframe.
 
     These dataframes document the meanings of the codes that show up in much of the
