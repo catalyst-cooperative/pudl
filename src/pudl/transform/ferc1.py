@@ -1714,26 +1714,17 @@ def assign_record_id_xbrl(
             f"Null field found in ferc1 table {table_name}. \n{df[idx_cols].isnull().any()}"
         )
 
-    date_cols = [col for col in idx_cols if "_date" in col]
-    if date_cols:
-        logger.debug(
-            f"Converting {date_cols} into report_year for record_id assignment"
-        )
-        assert len(date_cols) == 1
-        date_col = date_cols[0]
-        df = df.assign(report_year=lambda x: pd.to_datetime(x[date_col]).dt.year)
-        idx_cols = [col if col != date_col else "report_year" for col in idx_cols]
     df = df.assign(
         temp=table_name,
         record_id=lambda x: x.temp.str.cat(x[idx_cols].astype(str), sep="_"),
-    ).drop(columns=["temp"] + ["report_year"] if date_cols else [])
+    ).drop(columns=["temp"])
 
     df.record_id = df.record_id.str.lower()
     if df.record_id.duplicated().any():
         raise AssertionError(
             "Record id column cannot result in duplicates. Columns are not "
             f"unique primary keys: {idx_cols}. \nNon-unqiue records:\n"
-            f"{df[df.record_id.duplicated()]}"
+            f"{df[df.record_id.duplicated()][['record_id'] + idx_cols]}"
         )
     return df
 
@@ -1919,10 +1910,11 @@ def pre_concat_xbrl_plants_steam(ferc1_xbrl_raw_dfs):
             table_name="plants_steam_ferc1",
             source="xbrl",
         )
+        .assign(report_year=lambda x: pd.to_datetime(x.start_date.dt.year))
         .pipe(
             assign_record_id_xbrl,
             table_name="plants_steam_ferc1",
-            idx_cols=["plant_name_ferc1", "entity_id", "start_date"],
+            idx_cols=["plant_name_ferc1", "entity_id", "report_year"],
         )
     )
     return plants_steam_xbrl
