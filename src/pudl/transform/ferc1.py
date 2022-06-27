@@ -10,6 +10,7 @@ bad data, or replacing it with the appropriate NA values.
 import importlib.resources
 import re
 from difflib import SequenceMatcher
+from typing import Literal
 
 # NetworkX is used to knit incomplete ferc plant time series together.
 import networkx as nx
@@ -31,6 +32,92 @@ from pudl.metadata.dfs import FERC_DEPRECIATION_LINES
 from pudl.settings import Ferc1DbfSettings
 
 logger = get_logger(__name__)
+
+TABLES_LITERAL = Literal[
+    "plants_steam_ferc1",
+    "fuel_ferc1",
+]
+
+COLUMN_RENAME: dict[TABLES_LITERAL, dict[Literal["dbf":"xbrl"], dict[str, str]]] = {
+    "plants_steam_ferc1": {
+        "dbf": {
+            "plant_name": "plant_name_ferc1",
+            "yr_const": "construction_year",
+            "plant_kind": "plant_type",
+            "type_const": "construction_type",
+            "asset_retire_cost": "asset_retirement_cost",
+            "yr_installed": "installation_year",
+            "tot_capacity": "capacity_mw",
+            "peak_demand": "peak_demand_mw",
+            "plant_hours": "plant_hours_connected_while_generating",
+            "plnt_capability": "plant_capability_mw",
+            "when_limited": "water_limited_capacity_mw",
+            "when_not_limited": "not_water_limited_capacity_mw",
+            "avg_num_of_emp": "avg_num_employees",
+            "net_generation": "net_generation_kwh",
+            "cost_land": "capex_land",
+            "cost_structure": "capex_structures",
+            "cost_equipment": "capex_equipment",
+            "cost_of_plant_to": "capex_total",
+            "cost_per_kw": "capex_per_kw",
+            "expns_operations": "opex_operations",
+            "expns_fuel": "opex_fuel",
+            "expns_coolants": "opex_coolants",
+            "expns_steam": "opex_steam",
+            "expns_steam_othr": "opex_steam_other",
+            "expns_transfer": "opex_transfer",
+            "expns_electric": "opex_electric",
+            "expns_misc_power": "opex_misc_power",
+            "expns_rents": "opex_rents",
+            "expns_allowances": "opex_allowances",
+            "expns_engnr": "opex_engineering",
+            "expns_structures": "opex_structures",
+            "expns_boiler": "opex_boiler",
+            "expns_plants": "opex_plants",
+            "expns_misc_steam": "opex_misc_steam",
+            "tot_prdctn_expns": "opex_production_total",
+            "expns_kwh": "opex_per_kwh",
+        },
+        "xbrl": {
+            "PlantName": "plant_name_ferc1",
+            "YearPlantOriginallyConstructed": "construction_year",
+            "PlantKind": "plant_type",
+            "PlantConstructionType": "construction_type",
+            "AssetRetirementCostsSteamProduction": "asset_retirement_cost",
+            "YearLastUnitOfPlantInstalled": "installation_year",
+            "InstalledCapacityOfPlant": "capacity_mw",
+            "NetPeakDemandOnPlant": "peak_demand_mw",
+            "PlantHoursConnectedToLoad": "plant_hours_connected_while_generating",
+            "NetContinuousPlantCapability": "plant_capability_mw",
+            "NetContinuousPlantCapabilityLimitedByCondenserWater": "water_limited_capacity_mw",
+            "NetContinuousPlantCapabilityNotLimitedByCondenserWater": "not_water_limited_capacity_mw",
+            "PlantAverageNumberOfEmployees": "avg_num_employees",
+            "NetGenerationExcludingPlantUse": "net_generation_kwh",
+            "CostOfLandAndLandRightsSteamProduction": "capex_land",
+            "CostOfStructuresAndImprovementsSteamProduction": "capex_structures",
+            "CostOfEquipmentSteamProduction": "capex_equipment",
+            "CostOfPlant": "capex_total",
+            "CostPerKilowattOfInstalledCapacity": "capex_per_kw",
+            "OperationSupervisionAndEngineeringExpense": "opex_operations",
+            "FuelSteamPowerGeneration": "opex_fuel",
+            "CoolantsAndWater": "opex_coolants",
+            "SteamExpensesSteamPowerGeneration": "opex_steam",
+            "SteamFromOtherSources": "opex_steam_other",
+            "SteamTransferredCredit": "opex_transfer",
+            "ElectricExpensesSteamPowerGeneration": "opex_electric",
+            "MiscellaneousSteamPowerExpenses": "opex_misc_power",
+            "RentsSteamPowerGeneration": "opex_rents",
+            "Allowances": "opex_allowances",
+            "MaintenanceSupervisionAndEngineeringSteamPowerGeneration": "opex_engineering",
+            "MaintenanceOfStructuresSteamPowerGeneration": "opex_structures",
+            "MaintenanceOfBoilerPlantSteamPowerGeneration": "opex_boiler",
+            "MaintenanceOfElectricPlantSteamPowerGeneration": "opex_plants",
+            "MaintenanceOfMiscellaneousSteamPlant": "opex_misc_steam",
+            "PowerProductionExpensesSteamPower": "opex_production_total",
+            "ExpensesPerNetKilowattHour": "opex_per_kwh",
+        },
+    }
+}
 
 ##############################################################################
 # Dicts for categorizing freeform strings ####################################
@@ -1581,7 +1668,9 @@ def _clean_cols(df, table_name):
                 f"{n_dupes} duplicate record_id values found "
                 f"in pre-transform table {table_name}: {dupe_ids}."
             )
-
+    # May want to replace this with a [COLUMN_RENAME[table_name][source].values()]
+    # at the end of the transform step (or in rename_table if we don't need any
+    # temp columns)
     # Drop any _f columns... since we're not using the FERC Footnotes...
     # Drop columns and don't complain about it if they don't exist:
     no_f = [c for c in df.columns if not re.match(".*_f$", c)]
@@ -1602,6 +1691,50 @@ def _clean_cols(df, table_name):
         )
         .rename(columns={"respondent_id": "utility_id_ferc1"})
     )
+    return df
+
+
+def assign_record_id_xbrl(
+    df: pd.DataFrame, table_name: TABLES_LITERAL, idx_cols: list[str]
+) -> pd.DataFrame:
+    """Assign a record ID for a XBRL table.
+
+    Note: I added the ``idx_cols`` here which makes it a bit different than the
+    dbf record_id which was standardized. Should we use something else like a
+    hash instead of creating these composite keys?
+
+    Args:
+        df: table which has all of ``idx_cols`` as columns
+        table_name: name of table
+        idx_cols: columns that can be combinded to be a composite primary key.
+
+    """
+    if df[idx_cols].isnull().any().any():
+        raise AssertionError(
+            f"Null field found in ferc1 table {table_name}. \n{df[idx_cols].isnull().any()}"
+        )
+
+    date_cols = [col for col in idx_cols if "_date" in col]
+    if date_cols:
+        logger.debug(
+            f"Converting {date_cols} into report_year for record_id assignment"
+        )
+        assert len(date_cols) == 1
+        date_col = date_cols[0]
+        df = df.assign(report_year=lambda x: pd.to_datetime(x[date_col]).dt.year)
+        idx_cols = [col if col != date_col else "report_year" for col in idx_cols]
+    df = df.assign(
+        temp=table_name,
+        record_id=lambda x: x.temp.str.cat(x[idx_cols].astype(str), sep="_"),
+    ).drop(columns=["temp"] + ["report_year"] if date_cols else [])
+
+    df.record_id = df.record_id.str.lower()
+    if df.record_id.duplicated().any():
+        raise AssertionError(
+            "Record id column cannot result in duplicates. Columns are not "
+            f"unique primary keys: {idx_cols}. \nNon-unqiue records:\n"
+            f"{df[df.record_id.duplicated()]}"
+        )
     return df
 
 
@@ -1661,10 +1794,60 @@ def _multiplicative_error_correction(tofix, mask, minval, maxval, mults):
     return fixed
 
 
+def rename_table(
+    raw_table: pd.DataFrame, table_name: str, source: Literal["xbrl":"dbf"]
+) -> pd.DataFrame:
+    """Rename FERC1 table based on table name and source."""
+    return raw_table.rename(columns=COLUMN_RENAME[table_name][source])
+
+
+def merge_instant_and_duration_tables(
+    duration: pd.DataFrame, instant: pd.DataFrame, merge_on: list[str]
+) -> pd.DataFrame:
+    """Merge the XBRL instand and duration tables.
+
+    FERC1 XBRL instant period signifies that it is true as of the reported date,
+    while a duration fact is true for the specified time period. The ``date``
+    column for an instant fact is effectively equivalent to the ``end_date``
+    column of a duration fact.
+
+    Args:
+        duration: XBRL duration table.
+        instant: XBRL instant table.
+        merge_on: columns to merge on besides the date columns.
+
+    Returns:
+        one unified table that is a combination of the duration and instant
+        input tables. Any overlapping columns (besides the ``merge_on`` columns)
+        will be consolidated by filling the duration columns with the instant
+        columns.
+    """
+    table = pd.merge(
+        duration,
+        instant,
+        how="outer",
+        left_on=["end_date"] + merge_on,
+        right_on=["date"] + merge_on,
+        validate="1:1",
+        suffixes=("_duration", "_instant"),
+    )
+    # now we have to consolidate any non-merge_on columns
+    # we are assuming that the duration columns are the most complete/best
+    overlap_cols = [x for x in table if "_duration" in x or "_instant" in x]
+    out_cols = [x.replace("_duration", "") for x in table if "_duration" in x]
+    logger.info(
+        f"Combining overlapping columns from duration and instant XBRL tables: {out_cols}"
+    )
+    for col in out_cols:
+        table[col] = table[f"{col}_duration"].fillna(table[f"{col}_instant"])
+    table = table.drop(columns=overlap_cols)
+    return table
+
+
 ##############################################################################
 # DATABASE TABLE SPECIFIC PROCEDURES ##########################################
 ##############################################################################
-def plants_steam(ferc1_raw_dfs, ferc1_transformed_dfs):
+def plants_steam_old(ferc1_raw_dfs, ferc1_transformed_dfs):
     """Transforms FERC Form 1 plant_steam data for loading into PUDL Database.
 
     This includes converting to our preferred units of MWh and MW, as well as
@@ -1691,6 +1874,58 @@ def plants_steam(ferc1_raw_dfs, ferc1_transformed_dfs):
     )
     ferc1_transformed_dfs["plants_steam_ferc1"] = ferc1_steam_df
     return ferc1_transformed_dfs
+
+
+def plants_steam(ferc1_dbf_raw_dfs, ferc1_xbrl_raw_dfs, ferc1_transformed_dfs):
+    """Transforms FERC Form 1 plant_steam data for loading into PUDL Database.
+
+    Args:
+        ferc1_dbf_raw_dfs: Each entry in this dictionary of DataFrame objects
+            corresponds to a table from the  FERC Form 1 DBC database.
+        ferc1_xbrl_raw_dfs: Each entry in this dictionary of DataFrame objects
+            corresponds to a table from the  FERC Form 1 XBRL database.
+        ferc1_transformed_dfs: A dictionary of DataFrames to be transformed.
+    """
+    plants_steam_dbf = pre_concat_dbf_plants_steam(ferc1_dbf_raw_dfs)
+    plants_steam_xbrl = pre_concat_xbrl_plants_steam(ferc1_xbrl_raw_dfs)
+    plants_steam = pd.concat([plants_steam_dbf, plants_steam_xbrl])
+    return plants_steam
+
+
+def pre_concat_dbf_plants_steam(ferc1_dbf_raw_dfs):
+    """Modifications of the dbf plants_steam_ferc1 table before concat w/ xbrl."""
+    plants_steam_dbf = rename_table(
+        ferc1_dbf_raw_dfs["plants_steam_ferc1"],
+        table_name="plants_steam_ferc1",
+        source="dbf",
+    ).pipe(_clean_cols, "f1_steam")
+    return plants_steam_dbf
+
+
+def pre_concat_xbrl_plants_steam(ferc1_xbrl_raw_dfs):
+    """Modifications of the xbrl plants_steam_ferc1 table before concat w/ xbrl."""
+    plants_steam_xbrl = (
+        merge_instant_and_duration_tables(
+            duration=ferc1_xbrl_raw_dfs[
+                "steam_electric_generating_plant_statistics_large_plants_402_duration"
+            ],
+            instant=ferc1_xbrl_raw_dfs[
+                "steam_electric_generating_plant_statistics_large_plants_402_instant"
+            ],
+            merge_on=["PlantNameAxis", "entity_id"],
+        )
+        .pipe(
+            rename_table,
+            table_name="plants_steam_ferc1",
+            source="xbrl",
+        )
+        .pipe(
+            assign_record_id_xbrl,
+            table_name="plants_steam_ferc1",
+            idx_cols=["plant_name_ferc1", "entity_id", "start_date"],
+        )
+    )
+    return plants_steam_xbrl
 
 
 def _plants_steam_clean(ferc1_steam_df):
@@ -2623,7 +2858,7 @@ def transform_dbf(ferc1_raw_dfs, ferc1_settings: Ferc1DbfSettings = Ferc1DbfSett
         # fuel must come before steam b/c fuel proportions are used to aid in
         # plant # ID assignment.
         "fuel_ferc1": fuel,
-        "plants_steam_ferc1": plants_steam,
+        "plants_steam_ferc1": plants_steam_old,
         "plants_small_ferc1": plants_small,
         "plants_hydro_ferc1": plants_hydro,
         "plants_pumped_storage_ferc1": plants_pumped_storage,
