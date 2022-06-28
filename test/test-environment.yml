@@ -11,3 +11,4 @@ dependencies:
   - setuptools<63
   - sqlite>=3.36,<4
   - tox>=3.24,<4
+  - google-cloud-sdk~=386.0.0

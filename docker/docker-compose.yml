@@ -1,0 +1,30 @@
+# To rebuild and run this container:
+# docker compose build && docker compose up -d && docker logs -f pudl_etl
+
+services:
+  pudl-etl:
+    environment:
+      - API_KEY_EIA
+      - GCP_BILLING_PROJECT
+    env_file:
+      - .env
+    build:
+      context: ../
+      dockerfile: docker/Dockerfile
+    image: catalystcoop/pudl-etl:hello-docker
+    volumes:
+      - type: bind
+        source: ${HOST_PUDL_IN}
+        target: ${CONTAINER_PUDL_IN}
+        consistency: delegated
+      - type: bind
+        source: ${HOST_PUDL_OUT}
+        target: ${CONTAINER_PUDL_OUT}
+        consistency: delegated
+      - type: bind
+        source: ${SA_KEY_PATH:?err}
+        target: /tmp/keys/service_account_key.json
+        consistency: delegated
+    logging:
+      driver: local
+    command: ${CONDA_RUN} bash ./docker/local_pudl_etl.sh
