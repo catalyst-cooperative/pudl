@@ -19,7 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Use pudl-deployment-dev vm and dev branch if running on a schedule or manually triggered
-        if: ${{ (github.event_name == 'schedule') || (github.event_name == 'workflow_dispatch') }}
+        if: ${{ (github.event_name == 'schedule') }}
         run: |
           echo "This action was triggered by a schedule." && echo "GCE_INSTANCE=pudl-deployment-dev" >> $GITHUB_ENV && echo "GITHUB_REF=dev" >> $GITHUB_ENV
 
