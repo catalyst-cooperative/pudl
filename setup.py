@@ -50,7 +50,9 @@ setup(
     install_requires=[
         "addfips>=0.3.1,<0.4.0",
         "catalystcoop.dbfread>=3.0,<3.1",
-        "coloredlogs>=15.0,<15.1",
+        "coloredlogs<=14.0",
+        "dagster~=0.15.2",
+        "dagit~=0.15.2",
         "dask>=2021.8,<2022.6.1",
         "datapackage>=1.11,<1.16",  # Transition datastore to use frictionless.
         # "email-validator>=1.0.3",  # pydantic[email] dependency
