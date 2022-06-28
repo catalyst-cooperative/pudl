@@ -5,8 +5,11 @@ from typing import Literal, TypedDict
 
 import numpy as np
 import pandas as pd
+import sqlalchemy as sa
 
+from pudl.helpers import add_fips_ids
 from pudl.metadata.enums import STATE_TO_CENSUS_REGION
+from pudl.metadata.fields import apply_pudl_dtypes
 
 logger = logging.getLogger(__name__)
 
@@ -80,6 +83,16 @@ normalized difference between the estimate and the reported value:
 """
 
 
+def haversine(lon1, lat1, lon2, lat2):
+    """Calculate angular distance in radians between two points on a sphere."""
+    lon1, lat1, lon2, lat2 = map(np.radians, [lon1, lat1, lon2, lat2])
+    hav = (
+        np.sin((lat2 - lat1) / 2.0) ** 2
+        + np.cos(lat1) * np.cos(lat2) * np.sin((lon2 - lon1) / 2.0) ** 2
+    )
+    return 2 * np.arcsin(np.sqrt(hav))
+
+
 def weighted_median(df: pd.DataFrame, data: str, weights: str, dropna=True) -> float:
     """Calculate the median of the data column, weighted by the weights column.
 
@@ -112,24 +125,6 @@ def weighted_median(df: pd.DataFrame, data: str, weights: str, dropna=True) -> f
         else:
             w_median = df[data].iloc[idx + 1]
     return w_median
-
-    # Old slow version (we hope)
-    # if dropna:
-    #    df = df.dropna(subset=[data, weights])
-    # if df.empty | df[[data, weights]].isna().any(axis=None):
-    #    return np.nan
-    # s_data, s_weights = map(np.array, zip(*sorted(zip(df[data], df[weights]))))
-    # midpoint = 0.5 * sum(s_weights)
-    # if any(df[weights] > midpoint):
-    #    w_median = df.loc[df[weights].idxmax(), data]
-    # else:
-    #    cs_weights = np.cumsum(s_weights)
-    #    idx = np.where(cs_weights <= midpoint)[0][-1]
-    #    if cs_weights[idx] == midpoint:
-    #        w_median = np.mean(s_data[idx : idx + 2])
-    #    else:
-    #        w_median = s_data[idx + 1]
-    # return w_median
 
 
 def weighted_modified_zscore(
@@ -191,7 +186,8 @@ def aggregate_price_median(
     frc = frc.assign(
         report_year=lambda x: x.report_date.dt.year,
         census_region=lambda x: x.state.map(STATE_TO_CENSUS_REGION),
-        fuel_cost_per_mmbtu=lambda x: x.fuel_cost_per_mmbtu.replace(0.0, np.nan),
+        # fuel_cost_per_mmbtu_wm=lambda x: x.fuel_cost_per_mmbtu.replace(0.0, np.nan),
+        fuel_cost_per_mmbtu_wm=np.nan,
         fuel_mmbtu_total=lambda x: x.fuel_received_units * x.fuel_mmbtu_per_unit,
     )
 
@@ -232,7 +228,7 @@ def aggregate_price_median(
         ) / frc.fuel_cost_per_mmbtu
         mask = (
             # Only apply estimates to fuel prices that are still missing
-            (frc.fuel_cost_per_mmbtu.isna())
+            (frc.fuel_cost_per_mmbtu_wm.isna())
             # Using records where the current aggregation has a value
             & (frc[agg].notna())
             # Selectively apply to a single fuel group, if specified:
@@ -241,7 +237,7 @@ def aggregate_price_median(
         # Label that record with the aggregation used to fill it:
         frc.loc[mask, "filled_by"] = agg
         # Finally, fill in the value:
-        frc.loc[mask, "fuel_cost_per_mmbtu"] = frc.loc[mask, agg]
+        frc.loc[mask, "fuel_cost_per_mmbtu_wm"] = frc.loc[mask, agg]
         logger.info(
             f"Filled in {sum(mask)} missing fuel prices with {agg} "
             f"aggregation for fuel group {fgc}."
@@ -252,5 +248,140 @@ def aggregate_price_median(
         cols_to_drop += list(c + "_err" for c in cols_to_drop)
         cols_to_drop += ["report_year", "census_region"]
         frc = frc.drop(columns=cols_to_drop)
+
+    return frc
+
+
+def create_features(
+    pudl_engine: sa.engine.Engine, dp1_engine: sa.engine.Engine
+) -> pd.DataFrame:
+    """Construct features for fuel price prediction model."""
+    sql_select = """
+        -- SQLite
+ required_cols = [
+    "report_year",
+    "fuel_group_eiaepm",
+    "fuel_cost_per_mmbtu",
+    "state",
+    "fuel_received_units",
+    "fuel_mmbtu_per_unit",
+    "energy_source_code",
+]
+       SELECT
+            frc.plant_id_eia,
+            frc.report_date,
+            frc.contract_type_code,
+            frc.contract_expiration_date,
+            frc.energy_source_code,
+            frc.supplier_name, -- Messy
+            frc.fuel_received_units,
+            frc.fuel_mmbtu_per_unit,
+            frc.sulfur_content_pct,
+            frc.ash_content_pct,
+            frc.mercury_content_ppm,
+            frc.moisture_content_pct,
+            frc.chlorine_content_ppm,
+            frc.fuel_cost_per_mmbtu,
+            frc.primary_transportation_mode_code,
+            frc.secondary_transportation_mode_code,
+            frc.natural_gas_transport_code,
+            frc.natural_gas_delivery_contract_type_code,
+
+            mine.mine_name, -- Messy string
+            mine.mine_type_code,
+            mine.county_id_fips as mine_county_id_fips,
+            mine.state as mine_state,
+            mine.mine_id_msha,
+
+            entity.iso_rto_code,
+            entity.latitude,
+            entity.longitude,
+            entity.state,
+            entity.county, -- Add county FIPS code, convert to lat/lon for distance
+            entity.sector_name_eia,
+
+            esc.fuel_group_eiaepm
+
+        FROM fuel_receipts_costs_eia923 as frc
+        LEFT JOIN coalmine_eia923 as mine
+            USING (mine_id_pudl)
+        LEFT JOIN plants_entity_eia as entity
+            USING (plant_id_eia)
+        LEFT JOIN energy_sources_eia as esc
+               ON esc.code = frc.energy_source_code
+        ;
+    """
+
+    logger.info("Query mine locations by county from Census DP1.")
+    mine_locations = (
+        pd.read_sql(
+            "county_2010census_dp1",
+            dp1_engine,
+            columns=["geoid10", "intptlat10", "intptlon10"],
+        )
+        .assign(
+            mine_longitude=lambda x: pd.to_numeric(x.intptlon10),
+            mine_latitude=lambda x: pd.to_numeric(x.intptlat10),
+        )
+        .rename(columns={"geoid10": "mine_county_id_fips"})
+        .drop(columns=["intptlon10", "intptlat10"])
+        .convert_dtypes(convert_floating=False)
+    )
+
+    logger.info("Query data from the PUDL DB.")
+    frc = (
+        pd.read_sql(sql_select, pudl_engine)
+        .pipe(apply_pudl_dtypes, group="eia")
+        .pipe(add_fips_ids)
+        .assign(
+            # Remove 225 totally ridiculous outliers that skew the results
+            fuel_cost_per_mmbtu=lambda x: np.where(
+                ((x.fuel_cost_per_mmbtu < 0.001) | (x.fuel_cost_per_mmbtu > 1000)),
+                np.nan,
+                x.fuel_cost_per_mmbtu,
+            ),
+            # Numerical representation of elapsed time
+            elapsed_days=lambda x: (x.report_date - x.report_date.min()).dt.days,
+            # Time until current contract expires
+            remaining_contract_days=lambda x: (
+                x.contract_expiration_date - x.report_date
+            ).dt.days,
+            # Categorical months, to capture cyclical seasonal variability
+            report_month=lambda x: x.report_date.dt.month,
+            # Larger geographic area more likely to have lots of records
+            census_region=lambda x: x.state.map(STATE_TO_CENSUS_REGION),
+            # Need the total MMBTU for weighting the importance of the record
+            # May also be predictive: small deliveries seem more likely to be expensive
+            fuel_received_mmbtu=lambda x: x.fuel_received_units * x.fuel_mmbtu_per_unit,
+            mine_plant_same_state=lambda x: (x.state == x.mine_state).fillna(False),
+            mine_plant_same_county=lambda x: (
+                x.county_id_fips == x.mine_county_id_fips
+            ).fillna(False),
+        )
+        .merge(mine_locations, on="mine_county_id_fips", how="left")
+        .assign(
+            mine_distance_km=lambda x: haversine(
+                x.longitude, x.latitude, x.mine_longitude, x.mine_latitude
+            )
+        )
+        .convert_dtypes(convert_floating=False, convert_integer=False)
+        .astype(
+            {
+                "mine_id_msha": float,
+                "plant_id_eia": int,
+            }
+        )
+    )
+
+    # The HistGBR model and OrdinalEncoder are supposedly fine with NA values but...
+    string_cols = frc.select_dtypes("string").columns
+    frc.loc[:, string_cols] = frc[string_cols].fillna("NULL")
+
+    # There are too many FIPS codes to treat them like categories
+    bad_categories = ["county_id_fips", "mine_county_id_fips"]
+    category_cols = {
+        col: "category" for col in string_cols if col not in bad_categories
+    }
+    frc = frc.astype(category_cols)
 
     return frc
