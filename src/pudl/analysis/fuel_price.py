@@ -1,17 +1,19 @@
 """Methods for estimating redacted EIA-923 fuel price information."""
+from __future__ import annotations
+
 import logging
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional
 
 import numpy as np
 import pandas as pd
+import sqlalchemy as sa
 from sklearn.compose import make_column_selector, make_column_transformer
 from sklearn.ensemble import HistGradientBoostingRegressor
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OrdinalEncoder
-import sqlalchemy as sa
 
+from pudl.helpers import add_fips_ids, date_merge
 from pudl.metadata.enums import STATE_TO_CENSUS_REGION
-from pudl.helpers import date_merge, add_fips_ids
 
 logger = logging.getLogger(__name__)
 
@@ -77,7 +79,7 @@ def load_pudl_features(engine: sa.engine.Engine) -> pd.DataFrame:
         regulatory_status_code,
         water_source
     FROM plants_eia860
-    ;        
+    ;
     """
     plant_info = pd.read_sql(annual_query, engine)
     frc = date_merge(left=frc, right=plant_info, on=["plant_id_eia"], how="left")
@@ -96,14 +98,20 @@ def _add_features(frc: pd.DataFrame) -> pd.DataFrame:
         frc.pipe(add_fips_ids)
         .assign(
             # Remove 225 totally ridiculous outliers that skew the results
-            fuel_cost_per_mmbtu_clipped=lambda x: x.fuel_cost_per_mmbtu.clip(lower=0, upper=1000),
+            fuel_cost_per_mmbtu_clipped=lambda x: x.fuel_cost_per_mmbtu.clip(
+                lower=0, upper=1000
+            ),
             # avoid confusion with fuel_cost_per_mmbtu_clipped, will drop original
             fuel_cost_per_mmbtu_raw=lambda x: x.fuel_cost_per_mmbtu,
             # Numerical representation of elapsed time
             elapsed_days=lambda x: (x.report_date - x.report_date.min()).dt.days,
-            contract_expiration_date=lambda x: pd.to_datetime(x.contract_expiration_date),
+            contract_expiration_date=lambda x: pd.to_datetime(
+                x.contract_expiration_date
+            ),
             # Time until current contract expires
-            remaining_contract_days=lambda x: (x.contract_expiration_date - x.report_date).dt.days,
+            remaining_contract_days=lambda x: (
+                x.contract_expiration_date - x.report_date
+            ).dt.days,
             # Categorical months, to capture cyclical seasonal variability
             report_month=lambda x: x.report_date.dt.month,
             # Larger geographic area more likely to have lots of records
@@ -112,9 +120,13 @@ def _add_features(frc: pd.DataFrame) -> pd.DataFrame:
             # May also be predictive -- small deliveries seem more likely to be expensive
             fuel_received_mmbtu=lambda x: x.fuel_received_units * x.fuel_mmbtu_per_unit,
             mine_plant_same_state=lambda x: (x.state == x.mine_state).fillna(False),
-            mine_plant_same_county=lambda x: (x.county_id_fips == x.mine_county_id_fips).fillna(False),
+            mine_plant_same_county=lambda x: (
+                x.county_id_fips == x.mine_county_id_fips
+            ).fillna(False),
         )
-        .drop(columns="fuel_cost_per_mmbtu")  # avoid confusion with _clipped. Still available as _raw
+        .drop(
+            columns="fuel_cost_per_mmbtu"
+        )  # avoid confusion with _clipped. Still available as _raw
         .astype(
             {
                 "plant_id_eia": int,
@@ -128,13 +140,13 @@ def _add_features(frc: pd.DataFrame) -> pd.DataFrame:
     return out
 
 
-class FRCImputer(object):
+class FRCImputer:
     def __init__(
         self,
-        features: Optional[List[str]] = None,
+        features: list[str] | None = None,
         target_col: str = "fuel_cost_per_mmbtu_clipped",
         weight_col: str = "fuel_received_mmbtu",
-        regressor_kwargs: Optional[Dict[str, Any]] = None,
+        regressor_kwargs: dict[str, Any] | None = None,
     ) -> None:
         if regressor_kwargs is None:
             self._regressor_kwargs = dict(
@@ -162,7 +174,9 @@ class FRCImputer(object):
     def _make_pipeline(self):
         ord_enc = make_column_transformer(
             (
-                OrdinalEncoder(handle_unknown="use_encoded_value", unknown_value=np.nan),
+                OrdinalEncoder(
+                    handle_unknown="use_encoded_value", unknown_value=np.nan
+                ),
                 make_column_selector(dtype_include=["category", "string"]),
             ),
             remainder="passthrough",
@@ -182,7 +196,9 @@ class FRCImputer(object):
         sample_weight = frc.loc[~self._to_impute, self._weight_col]
 
         if "categorical_features" not in self._regressor_kwargs.keys():
-            self._regressor_kwargs["categorical_features"] = X.columns.get_indexer(X.select_dtypes("category").columns)
+            self._regressor_kwargs["categorical_features"] = X.columns.get_indexer(
+                X.select_dtypes("category").columns
+            )
         if self.estimator is None:
             self._make_pipeline()
 
@@ -194,10 +210,13 @@ class FRCImputer(object):
 
     def impute(self, frc: pd.DataFrame) -> pd.DataFrame:
         self._train_model(frc)
-        prediction = pd.Series(self.estimator.predict(frc.loc[:, self._features]), index=frc.index)
+        prediction = pd.Series(
+            self.estimator.predict(frc.loc[:, self._features]), index=frc.index
+        )
         out = pd.DataFrame(
             {
-                self._target_col + "_filled": frc.loc[:, self._target_col].fillna(prediction),
+                self._target_col
+                + "_filled": frc.loc[:, self._target_col].fillna(prediction),
                 self._target_col + "_is_imputed": self._to_impute,
                 self._target_col + "_imputed_values": prediction,
             },
