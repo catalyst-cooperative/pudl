@@ -105,3 +105,12 @@ jobs:
       # Start the VM
       - name: Start the deploy-pudl-vm
         run: gcloud compute instances start "$GCE_INSTANCE" --zone="$GCE_INSTANCE_ZONE"
+
+      - name: Post to a pudl-deployments channel
+        id: slack
+        uses: slackapi/slack-github-action@v1.19.0
+        with:
+          channel-id: "C03FHB9N0PQ"
+          slack-message: "build-deploy-pudl status: ${{ job.status }}\n$ACTION_SHA-$CHECKOUT_BRANCH"
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.PUDL_DEPLOY_SLACK_TOKEN }}
