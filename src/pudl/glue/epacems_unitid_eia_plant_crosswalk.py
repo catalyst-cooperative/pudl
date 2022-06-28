@@ -93,10 +93,9 @@ def transform(
     # generator_id values in the generators_eia860 table where the foreign keys are
     # stored. All of them appear to have preceeding zeros. I.e.: 0010 should be 10.
     # This makes sure to nix preceeding zeros on crosswalk generator ids that are all
-    # numeric. I.e.: 00A10 will stay 00A10 but 0010 will become 10.
-    crosswalk_clean.loc[
-        crosswalk_clean.generator_id.str.contains(r"^0+\d+$"), "generator_id"
-    ] = crosswalk_clean.generator_id.replace({r"^0+": ""}, regex=True)
+    # numeric. I.e.: 00A10 will stay 00A10 but 0010 will become 10. This same method
+    # is applied to the EIA data.
+    crosswalk_clean = pudl.helpers.fix_leading_zero_gen_ids(crosswalk_clean)
 
     # NOTE: still need to see whether unit_id matches up with the values in EPA well!
 
