@@ -22,7 +22,7 @@ def load(name):
     print(f"Loading {name}")
 
 
-@graph()
+@graph(out={"steam": GraphOut(), "hydro": GraphOut()})
 def transform(raw_dfs):
     transformed_dfs = {}
     ferc1_tfr_funcs = {"steam": transform_steam, "hydro": transform_hydro}
