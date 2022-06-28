@@ -345,6 +345,7 @@ def _etl_glue(
     glue_settings: GlueSettings,
     ds_kwargs: dict[str, Any],
     sqlite_dfs: dict[str, pd.DataFrame],
+    processing_all_eia_years: bool,
 ) -> dict[str, pd.DataFrame]:
     """Extract, transform and load CSVs for the Glue tables.
 
@@ -360,6 +361,10 @@ def _etl_glue(
             ferc1_solo test (where no eia tables are in the sqlite_dfs dict). Passing
             the whole dict avoids this because the crosswalk will only load if there
             are eia tables in the dict, but the dict will always be there.
+        processing_all_eia_years: A boolean indicating whether the settings file has
+            prompted the etl to process all years of available eia data or not. If not,
+            the EPACEMS-EIA crosswalk will get restricted via th generators_entity_eia
+            table accessed above.
 
     Returns:
         A dictionary of DataFrames whose keys are the names of the corresponding
@@ -377,8 +382,8 @@ def _etl_glue(
     ds = Datastore(**ds_kwargs)
     if glue_settings.eia:
         glue_dfs.update(
-            pudl.glue.epacems_unitid_eia_plant_crosswalk.grab_clean_split(
-                ds, sqlite_dfs["generators_entity_eia"]
+            pudl.glue.epacems_unitid_eia_plant_crosswalk.crosswalk_et(
+                ds, sqlite_dfs["generators_entity_eia"], processing_all_eia_years
             )
         )
 
@@ -455,7 +460,15 @@ def etl(  # noqa: C901
         sqlite_dfs.update(_etl_eia(datasets["eia"], ds_kwargs))
     logger.info(sqlite_dfs.keys())
     if datasets.get("glue", False):
-        sqlite_dfs.update(_etl_glue(datasets["glue"], ds_kwargs, sqlite_dfs))
+        # Check to see whether the settings file indicates the processing of all
+        # available EIA years.
+        processing_all_eia_years = (
+            datasets["eia"].eia860.years
+            == datasets["eia"].eia860.data_source.working_partitions["years"]
+        )
+        sqlite_dfs.update(
+            _etl_glue(datasets["glue"], ds_kwargs, sqlite_dfs, processing_all_eia_years)
+        )
 
     # Load the ferc1 + eia data directly into the SQLite DB:
     pudl_engine = sa.create_engine(pudl_settings["pudl_db"])

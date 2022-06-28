@@ -12,6 +12,8 @@ import logging
 import pandas as pd
 
 import pudl
+
+# from typing import Boolean
 from pudl.metadata.fields import apply_pudl_dtypes
 from pudl.workspace.datastore import Datastore
 
@@ -28,13 +30,19 @@ def extract(ds: Datastore) -> pd.DataFrame:
 
 
 def transform(
-    epa_eia_crosswalk: pd.DataFrame, generators_entity_eia: pd.DataFrame
+    epa_eia_crosswalk: pd.DataFrame,
+    generators_entity_eia: pd.DataFrame,
+    processing_all_eia_years: bool,
 ) -> dict[str, pd.DataFrame]:
     """Clean up the EPACEMS-EIA Crosswalk file and split it into normalized tables.
 
     Args:
         epa_eia_crosswalk: The result of running this module's extract() function.
         generators_entity_eia: The generators_entity_eia table.
+        processing_all_years: A boolean indicating whether the years from the
+            Eia860Settings object match the EIA860 working partitions. This indicates
+            whether or not to restrict the crosswalk data so the tests don't fail on
+            foreign key restraints.
 
     Returns:
         A dictionary of three normalized DataFrames comprised of the data
@@ -65,12 +73,21 @@ def transform(
     # fast ETL is run (on one year of data) the test will break because the crosswalk
     # tables with plant_id_eia and generator_id contain values from various years. To
     # keep the crosswalk in alignment with the available eia data, we'll restrict it
-    # based on the generator entity table which has plant id and generator id.
-    crosswalk_clean = crosswalk_clean.merge(
-        generators_entity_eia[["plant_id_eia", "generator_id"]],
-        on=["plant_id_eia", "generator_id"],
-        how="inner",
-    )
+    # based on the generator entity table which has plant id and generator id so long
+    # as it's not using the full suite of avilable years. If it is, we don't want to
+    # restrict the crosswalk so we can get warnings and errors from any foreign key
+    # discrepancies.
+    if not processing_all_eia_years:
+        logger.info(
+            "Selected subset of avilable EIA years--restricting EIA-EPA Crosswalk to \
+            chosen subset of EIA years"
+        )
+        crosswalk_clean = pd.merge(
+            crosswalk_clean.dropna(subset=["plant_id_eia"]),
+            generators_entity_eia[["plant_id_eia", "generator_id"]].drop_duplicates(),
+            on=["plant_id_eia", "generator_id"],
+            how="inner",
+        )
 
     # There are some eia generator_id values in the crosswalk that don't match the eia
     # generator_id values in the generators_eia860 table where the foreign keys are
@@ -101,14 +118,18 @@ def transform(
     }
 
 
-def grab_clean_split(
-    ds: Datastore, generators_entity_eia: pd.DataFrame
+def crosswalk_et(
+    ds: Datastore, generators_entity_eia: pd.DataFrame, processing_all_eia_years: bool
 ) -> dict[str, pd.DataFrame]:
     """Clean raw crosswalk data, drop nans, and return split tables.
 
     Args:
         ds: Initialized datastore.
         generators_entity_eia: The generators_entity_eia table.
+        processing_all_eia_years: A boolean indicating whether the years from the
+            Eia860Settings object match the EIA860 working partitions. This tell the
+            function whether to restrict the crosswalk data so the tests don't fail on
+            foreign key restraints.
 
     Returns:
         A dictionary of three normalized DataFrames comprised of the data
@@ -116,4 +137,4 @@ def grab_clean_split(
         id to EIA plant id; and EIA plant id to EIA generator id to EPA unit
         id.
     """
-    return transform(extract(ds), generators_entity_eia)
+    return transform(extract(ds), generators_entity_eia, processing_all_eia_years)
