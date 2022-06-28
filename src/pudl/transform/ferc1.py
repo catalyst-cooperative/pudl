@@ -79,7 +79,7 @@ COLUMN_RENAME: dict[TABLES_LITERAL, dict[Literal["dbf", "xbrl"], dict[str, str]]
             "expns_kwh": "opex_per_kwh",
         },
         "xbrl": {
-            "PlantName": "plant_name_ferc1",
+            "PlantNameAxis": "plant_name_ferc1",
             "YearPlantOriginallyConstructed": "construction_year",
             "PlantKind": "plant_type",
             "PlantConstructionType": "construction_type",
@@ -116,8 +116,47 @@ COLUMN_RENAME: dict[TABLES_LITERAL, dict[Literal["dbf", "xbrl"], dict[str, str]]
             "PowerProductionExpensesSteamPower": "opex_production_total",
             "ExpensesPerNetKilowattHour": "opex_per_kwh",
         },
-    }
+    },
+    "fuel_ferc1": {
+        "dbf": {
+            "plant_name": "plant_name_ferc1",
+            "fuel": "fuel_type_code_pudl",
+            "fuel_unit": "fuel_units",
+            "fuel_avg_mmbtu_per_unit": "fuel_mmbtu_per_unit",
+            "fuel_quantity": "fuel_consumed_units",
+            "fuel_cost_burned": "fuel_cost_per_unit_burned",
+            "fuel_cost_delvd": "fuel_cost_per_unit_delivered",
+            "fuel_cost_btu": "fuel_cost_per_mmbtu",
+        },
+        "xbrl": {
+            "PlantNameAxis": "plant_name_ferc1",
+            "FuelKindAxis": "fuel_type_code_pudl",
+            "FuelUnit": "fuel_units",
+            "FuelBurnedAverageHeatContent": "fuel_mmbtu_per_unit",
+            "QuantityOfFuelBurned": "fuel_consumed_units",
+            "AverageCostOfFuelPerUnitBurned": "fuel_cost_per_unit_burned",
+            "AverageCostOfFuelPerUnitAsDelivered": "fuel_cost_per_unit_delivered",
+            "AverageCostOfFuelBurnedPerMillionBritishThermalUnit": "fuel_cost_per_mmbtu",
+            "AverageCostOfFuelBurnedPerKilowattHourNetGeneration": "fuel_cost_per_kwh",
+            "AverageBritishThermalUnitPerKilowattHourNetGeneration": "fuel_mmbtu_per_kwh",
+        },
+    },
 }
+
+TABLE_PKS_XBRL: dict[TABLES_LITERAL, list] = {
+    table_name: [  # pudl column names if "Axis" is at the end of the xbrl name
+        pudl_col
+        for (xbrl_col, pudl_col) in rename_dicts["xbrl"].items()
+        if "Axis" in xbrl_col
+    ]
+    + ["entity_id", "report_year"]  # other primary keys
+    for (table_name, rename_dicts) in COLUMN_RENAME.items()
+}
+"""A dictionary of table names (keys) to list of primary keys (values). This is
+derived from the :py:const:`COLUMN_RENAME` dictionary by grabbing the list of pudl
+column names when the xbrl column name has 'Axis' at the end. XBRL uses 'Axis'
+as an indicator for primary keys. We also add 'entity_id' and 'report_date' to
+the primary keys."""
 
 ##############################################################################
 # Dicts for categorizing freeform strings ####################################
@@ -143,6 +182,9 @@ FUEL_STRINGS: dict[str, list[str]] = {
         "petcoke",
         "coal.oil",
         "coal/gas",
+        "coal. gas",
+        "coal & oil",
+        "coal bit",
         "bit coal",
         "coal-unit #3",
         "coal-subbitum",
@@ -287,6 +329,8 @@ FUEL_STRINGS: dict[str, list[str]] = {
         "# 6 gas",
         "#6 gas",
         "coke oven gas",
+        "gas & oil",
+        "gas/fuel oil",
     ],
     "solar": [],
     "wind": [],
@@ -308,9 +352,11 @@ FUEL_STRINGS: dict[str, list[str]] = {
         "nulcear",
         "nuc",
         "gr. uranium",
+        "uranium",
         "nuclear mw da",
         "grams of ura",
         "nucvlear",
+        "nuclear (1)",
     ],
     "waste": [
         "tires",
@@ -396,6 +442,7 @@ FUEL_STRINGS: dict[str, list[str]] = {
         "waste heat",
         "/#=2â?",
         "3",
+        "—",
     ],
 }
 """
@@ -433,6 +480,7 @@ FUEL_UNIT_STRINGS: dict[str, list[str]] = {
         "coal tons - 2",
         "c. t.",
         "c.t.",
+        "t",
         "toncoalequiv",
     ],
     "mcf": [
@@ -440,6 +488,7 @@ FUEL_UNIT_STRINGS: dict[str, list[str]] = {
         "mcf's",
         "mcfs",
         "mcf.",
+        "mcfe",
         "gas mcf",
         '"gas" mcf',
         "gas-mcf",
@@ -523,7 +572,9 @@ FUEL_UNIT_STRINGS: dict[str, list[str]] = {
         "barreks",
         "oil-bbls",
         "oil-bbs",
+        "boe",
     ],
+    "mmbbl": ["mmbbls"],
     "gal": ["gallons", "gal.", "gals", "gals.", "gallon", "gal", "galllons"],
     "kgal": [
         "oil(1000 gal)",
@@ -557,6 +608,8 @@ FUEL_UNIT_STRINGS: dict[str, list[str]] = {
         "grams v-235",
         "se uo2 grams",
         "grams u",
+        "g",
+        "grams of uranium",
     ],
     "kgU": [
         "kg of uranium",
@@ -709,6 +762,8 @@ FUEL_UNIT_STRINGS: dict[str, list[str]] = {
         "344",
         'å?"',
         "mcf / gallen",
+        "none",
+        "—",
     ],
 }
 """
@@ -1501,6 +1556,50 @@ inclusive so that variants of conventional (e.g.  "conventional full") and outdo
 "outdoor full" and "outdoor hrsg") are included.
 """
 
+COLUMN_CONDENSING_PRE_STRING_CLEAN: dict[
+    TABLES_LITERAL,
+    dict[str, dict[Literal["keep_records", "remove_records"], dict[str, tuple]]],
+] = {
+    "fuel_ferc1": {
+        "fuel_mmbtu_per_kwh": {
+            "keep_records": (
+                [
+                    "Columbia 1",
+                    "Columbia 2",
+                    "Columbia Total",
+                    "West Campus",
+                ],
+                [
+                    "Coal",
+                    "Coal",
+                    "Coal",
+                    "Gas",
+                ],
+                ["C002498", "C002498", "C002498", "C002498"],
+                [2021, 2021, 2021, 2021],
+            ),
+            "remove_records": (
+                [
+                    "Columbia 1",
+                    "Columbia 2",
+                    "Columbia Total",
+                    "West Campus",
+                ],
+                [
+                    "Coal & Oil",
+                    "Coal & Oil",
+                    "Coal & Oil",
+                    "Gas & Oil",
+                ],
+                ["C002498", "C002498", "C002498", "C002498"],
+                [2021, 2021, 2021, 2021],
+            ),
+        }
+    }
+}
+"""There are several instances in which we have two records and almost all of
+the content in the records is in one while another record has one """
+
 ##############################################################################
 # FERC TRANSFORM HELPER FUNCTIONS ############################################
 ##############################################################################
@@ -1687,7 +1786,7 @@ def _clean_cols(df, table_name):
                 f"in pre-transform table {table_name}: {dupe_ids}."
             )
     # May want to replace this with a [COLUMN_RENAME[table_name][source].values()]
-    # at the end of the transform step (or in rename_table if we don't need any
+    # at the end of the transform step (or in rename_columns if we don't need any
     # temp columns)
     # Drop any _f columns... since we're not using the FERC Footnotes...
     # Drop columns and don't complain about it if they don't exist:
@@ -1709,6 +1808,12 @@ def _clean_cols(df, table_name):
         )
         .rename(columns={"respondent_id": "utility_id_ferc1"})
     )
+    return df
+
+
+def add_report_year_column(df):
+    """Add a report date column."""
+    df = df.assign(report_year=lambda x: pd.to_datetime(x.start_date).dt.year)
     return df
 
 
@@ -1803,10 +1908,15 @@ def _multiplicative_error_correction(tofix, mask, minval, maxval, mults):
     return fixed
 
 
-def rename_table(
+def rename_columns(
     raw_table: pd.DataFrame, table_name: str, source: Literal["xbrl", "dbf"]
 ) -> pd.DataFrame:
-    """Rename FERC1 table based on table name and source."""
+    """Rename the columns in a FERC1 table based on table name and source.
+
+    This function is a light wrapper around ``pandas.rename``, mostly used to
+    grab the appropriate dictionary of old columns (keys) to new columns (values)
+    from :py:const:`COLUMN_RENAME` based on the table and the FERC1 source.
+    """
     return raw_table.rename(columns=COLUMN_RENAME[table_name][source])
 
 
@@ -1851,6 +1961,51 @@ def merge_instant_and_duration_tables(
         table[col] = table[f"{col}_duration"].fillna(table[f"{col}_instant"])
     table = table.drop(columns=overlap_cols)
     return table
+
+
+def condense_sets_of_records_with_one_datapoint_in_second_record(
+    df: pd.DataFrame,
+    pk_cols: list[str],
+    table_column_condensing_dict,
+):
+    """Condense two records with one datapoint in one column.
+
+    There are instances in which FERC records are semi-duplicated with almost
+    all the information in one record (the "keep_records") and another record
+    with one column containing data (the "remove_records") that we want to move
+    into the more fleshed out record. This function uses the information in
+    `table_column_condensing_dict` to move contents from our "keep_records"
+    into our "remove_records" and then we drop the "remove_records".
+
+    Args:
+        df: input dataframe.
+        pk_cols: list of primary key columns.
+        table_column_condensing_dict: dictionary with list of column names (keys)
+            to a dictionary of record-types (records to keep and records to merge
+            in and then remove) (sub-keys) with tuples containing multi-index
+            contents.
+    """
+    df = df.set_index(pk_cols).sort_index()
+    for column, fixes in table_column_condensing_dict.items():
+        df.loc[fixes["keep_records"], column] = df.loc[fixes["remove_records"], column]
+        df = df.drop(index=df.loc[fixes["remove_records"]].index)
+    df = df.reset_index()
+    return df
+
+
+def condense_records_pre_string_clean(
+    df: pd.DataFrame, table_name: TABLES_LITERAL
+) -> pd.DataFrame:
+    """Condense two records with one datapoint before _string_clean.
+
+    Light wrapper function around :func:`condense_sets_of_records_with_one_datapoint_in_second_record`
+    employing the :py:const:`COLUMN_CONDENSING_PRE_STRING_CLEAN`.
+    """
+    return condense_sets_of_records_with_one_datapoint_in_second_record(
+        df=df,
+        pk_cols=TABLE_PKS_XBRL[table_name],
+        table_column_condensing_dict=COLUMN_CONDENSING_PRE_STRING_CLEAN[table_name],
+    )
 
 
 ##############################################################################
@@ -1926,8 +2081,8 @@ def plants_steam(ferc1_dbf_raw_dfs, ferc1_xbrl_raw_dfs, ferc1_transformed_dfs):
 
 def pre_concat_dbf_plants_steam(ferc1_dbf_raw_dfs):
     """Modifications of the dbf plants_steam_ferc1 table before concat w/ xbrl."""
-    plants_steam_dbf = rename_table(
-        ferc1_dbf_raw_dfs["plants_steam_ferc1"],
+    plants_steam_dbf = rename_columns(
+        raw_table=ferc1_dbf_raw_dfs["plants_steam_ferc1"],
         table_name="plants_steam_ferc1",
         source="dbf",
     ).pipe(_clean_cols, "f1_steam")
@@ -1947,11 +2102,11 @@ def pre_concat_xbrl_plants_steam(ferc1_xbrl_raw_dfs):
             merge_on=["PlantNameAxis", "entity_id"],
         )
         .pipe(
-            rename_table,
+            rename_columns,
             table_name="plants_steam_ferc1",
             source="xbrl",
         )
-        .assign(report_year=lambda x: pd.to_datetime(x.start_date).dt.year)
+        .pipe(add_report_year_column)
         .pipe(
             assign_record_id_xbrl,
             table_name="plants_steam_ferc1",
@@ -2327,6 +2482,48 @@ def fuel(ferc1_raw_dfs, ferc1_transformed_dfs):
     ferc1_transformed_dfs["fuel_ferc1"] = fuel_ferc1_df
 
     return ferc1_transformed_dfs
+
+
+def pre_concat_dbf_fuel(ferc1_dbf_raw_dfs):
+    """Modifications of the dbf fuel_ferc1 table before concat w/ xbrl."""
+    fuel_dbf = rename_columns(
+        raw_table=ferc1_dbf_raw_dfs["fuel_ferc1"],
+        table_name="fuel_ferc1",
+        source="dbf",
+    ).pipe(_clean_cols, "f1_fuel")
+    return fuel_dbf
+
+
+def pre_concat_xbrl_fuel(ferc1_xbrl_raw_dfs):
+    """Modifications of the xbrl fuel_ferc1 table before concat w/ dbf."""
+    fuel_xbrl = (
+        rename_columns(
+            raw_table=ferc1_xbrl_raw_dfs[
+                "steam_electric_generating_plant_statistics_large_plants_fuel_statistics_402_duration"
+            ],
+            table_name="fuel_ferc1",
+            source="xbrl",
+        )
+        .pipe(add_report_year_column)
+        .pipe(condense_records_pre_string_clean, "fuel_ferc1")
+        .pipe(
+            pudl.helpers.cleanstrings,
+            ["fuel_type_code_pudl", "fuel_units"],
+            [FUEL_STRINGS, FUEL_UNIT_STRINGS],
+            unmapped=pd.NA,
+        )
+        # .pipe(
+        #     assign_record_id_xbrl,
+        #     table_name="plants_steam_ferc1",
+        #     idx_cols=[
+        #         "plant_name_ferc1",
+        #         "fuel_type_code_pudl",
+        #         "entity_id",
+        #         "report_year",
+        #     ],
+        # )
+    )
+    return fuel_xbrl
 
 
 def plants_small(ferc1_raw_dfs, ferc1_transformed_dfs):
