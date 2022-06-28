@@ -22,10 +22,12 @@ def load(name):
     print(f"Loading {name}")
 
 
-@graph(out={"steam": GraphOut(), "hydro": GraphOut()})
+ferc1_tfr_funcs = {"steam": transform_steam, "hydro": transform_hydro}
+
+
+@graph(out={name: GraphOut() for name in ferc1_tfr_funcs})
 def transform(raw_dfs):
     transformed_dfs = {}
-    ferc1_tfr_funcs = {"steam": transform_steam, "hydro": transform_hydro}
     for table in ferc1_tfr_funcs:
         transformed_dfs[table] = ferc1_tfr_funcs[table](raw_dfs)
     return transformed_dfs
