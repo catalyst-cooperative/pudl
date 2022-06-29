@@ -1,15 +1,18 @@
 """Methods for estimating redacted EIA-923 fuel price information."""
 import logging
 from collections import OrderedDict
-from typing import Literal, TypedDict
+from typing import Any, Literal, TypedDict
 
 import numpy as np
 import pandas as pd
 import sqlalchemy as sa
+from sklearn.compose import make_column_selector, make_column_transformer
+from sklearn.ensemble import HistGradientBoostingRegressor
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import OrdinalEncoder
 
-from pudl.helpers import add_fips_ids
+from pudl.helpers import add_fips_ids, date_merge
 from pudl.metadata.enums import STATE_TO_CENSUS_REGION
-from pudl.metadata.fields import apply_pudl_dtypes
 
 logger = logging.getLogger(__name__)
 
@@ -81,16 +84,6 @@ normalized difference between the estimate and the reported value:
 
 (estimated fuel price - reported fuel price) / reported_fuel_price
 """
-
-
-def haversine(lon1, lat1, lon2, lat2):
-    """Calculate angular distance in radians between two points on a sphere."""
-    lon1, lat1, lon2, lat2 = map(np.radians, [lon1, lat1, lon2, lat2])
-    hav = (
-        np.sin((lat2 - lat1) / 2.0) ** 2
-        + np.cos(lat1) * np.cos(lat2) * np.sin((lon2 - lon1) / 2.0) ** 2
-    )
-    return 2 * np.arcsin(np.sqrt(hav))
 
 
 def weighted_median(df: pd.DataFrame, data: str, weights: str, dropna=True) -> float:
@@ -186,7 +179,6 @@ def aggregate_price_median(
     frc = frc.assign(
         report_year=lambda x: x.report_date.dt.year,
         census_region=lambda x: x.state.map(STATE_TO_CENSUS_REGION),
-        # fuel_cost_per_mmbtu_wm=lambda x: x.fuel_cost_per_mmbtu.replace(0.0, np.nan),
         fuel_cost_per_mmbtu_wm=np.nan,
         fuel_mmbtu_total=lambda x: x.fuel_received_units * x.fuel_mmbtu_per_unit,
     )
@@ -252,67 +244,85 @@ def aggregate_price_median(
     return frc
 
 
-def create_features(
+################################################################################
+# scikit-learn approach with Hist Gradient Boosted Regressor
+################################################################################
+
+
+def load_pudl_features(
     pudl_engine: sa.engine.Engine, dp1_engine: sa.engine.Engine
 ) -> pd.DataFrame:
-    """Construct features for fuel price prediction model."""
-    sql_select = """
-        -- SQLite
- required_cols = [
-    "report_year",
-    "fuel_group_eiaepm",
-    "fuel_cost_per_mmbtu",
-    "state",
-    "fuel_received_units",
-    "fuel_mmbtu_per_unit",
-    "energy_source_code",
-]
-       SELECT
-            frc.plant_id_eia,
-            frc.report_date,
-            frc.contract_type_code,
-            frc.contract_expiration_date,
-            frc.energy_source_code,
-            frc.supplier_name, -- Messy
-            frc.fuel_received_units,
-            frc.fuel_mmbtu_per_unit,
-            frc.sulfur_content_pct,
-            frc.ash_content_pct,
-            frc.mercury_content_ppm,
-            frc.moisture_content_pct,
-            frc.chlorine_content_ppm,
-            frc.fuel_cost_per_mmbtu,
-            frc.primary_transportation_mode_code,
-            frc.secondary_transportation_mode_code,
-            frc.natural_gas_transport_code,
-            frc.natural_gas_delivery_contract_type_code,
+    """Assemble a dataframe of information relevant to fuel price imputation."""
+    monthly_query = """
+    -- SQLite
+    SELECT
+        frc.plant_id_eia,
+        frc.report_date,
+        frc.contract_type_code,
+        frc.contract_expiration_date,
+        frc.energy_source_code,
+        frc.fuel_type_code_pudl,
+        frc.mine_id_pudl,
+        frc.supplier_name,
+        frc.fuel_received_units,
+        frc.fuel_mmbtu_per_unit,
+        frc.sulfur_content_pct,
+        frc.ash_content_pct,
+        frc.mercury_content_ppm,
+        frc.fuel_cost_per_mmbtu,
+        frc.primary_transportation_mode_code,
+        frc.secondary_transportation_mode_code,
+        frc.natural_gas_transport_code,
+        frc.natural_gas_delivery_contract_type_code,
+        frc.moisture_content_pct,
+        frc.chlorine_content_ppm,
 
-            mine.mine_name, -- Messy string
-            mine.mine_type_code,
-            mine.county_id_fips as mine_county_id_fips,
-            mine.state as mine_state,
-            mine.mine_id_msha,
+        mine.mine_name,
+        mine.mine_type_code,
+        mine.mine_id_msha,
+        mine.county_id_fips as mine_county_id_fips,
+        mine.state as mine_state,
 
-            entity.iso_rto_code,
-            entity.latitude,
-            entity.longitude,
-            entity.state,
-            entity.county, -- Add county FIPS code, convert to lat/lon for distance
-            entity.sector_name_eia,
+        sources.fuel_group_eiaepm,
 
-            esc.fuel_group_eiaepm
-
-        FROM fuel_receipts_costs_eia923 as frc
-        LEFT JOIN coalmine_eia923 as mine
-            USING (mine_id_pudl)
-        LEFT JOIN plants_entity_eia as entity
-            USING (plant_id_eia)
-        LEFT JOIN energy_sources_eia as esc
-               ON esc.code = frc.energy_source_code
-        ;
+        entity.ferc_cogen_status,
+        entity.ferc_exempt_wholesale_generator,
+        entity.ferc_small_power_producer,
+        entity.iso_rto_code,
+        entity.latitude,
+        entity.longitude,
+        entity.state,
+        entity.county,
+        entity.sector_name_eia
+    FROM fuel_receipts_costs_eia923 as frc
+    LEFT JOIN coalmine_eia923 as mine
+        USING (mine_id_pudl)
+    LEFT JOIN energy_sources_eia as sources
+        on sources.code = frc.energy_source_code
+    LEFT JOIN plants_entity_eia as entity
+        USING (plant_id_eia)
+    ;
     """
+    logger.info("Loading monthly fuel receipts and costs data.")
+    frc = pd.read_sql(monthly_query, pudl_engine)
 
-    logger.info("Query mine locations by county from Census DP1.")
+    annual_query = """
+    SELECT
+        plant_id_eia,
+        report_date,
+        natural_gas_pipeline_name_1,
+        natural_gas_pipeline_name_2,
+        natural_gas_pipeline_name_3,
+        regulatory_status_code,
+        water_source
+    FROM plants_eia860
+    ;
+    """
+    logger.info("Loading annual plant attributes.")
+    plant_info = pd.read_sql(annual_query, pudl_engine)
+    frc = date_merge(left=frc, right=plant_info, on=["plant_id_eia"], how="left")
+
+    logger.info("Inferring coal mine locations via Census DP1.")
     mine_locations = (
         pd.read_sql(
             "county_2010census_dp1",
@@ -327,21 +337,43 @@ def create_features(
         .drop(columns=["intptlon10", "intptlat10"])
         .convert_dtypes(convert_floating=False)
     )
+    frc = frc.merge(mine_locations, on="mine_county_id_fips", how="left")
 
-    logger.info("Query data from the PUDL DB.")
-    frc = (
-        pd.read_sql(sql_select, pudl_engine)
-        .pipe(apply_pudl_dtypes, group="eia")
-        .pipe(add_fips_ids)
+    return frc
+
+
+def haversine(lon1, lat1, lon2, lat2):
+    """Calculate angular distance in radians between two points on a sphere."""
+    lon1, lat1, lon2, lat2 = map(np.radians, [lon1, lat1, lon2, lat2])
+    hav = (
+        np.sin((lat2 - lat1) / 2.0) ** 2
+        + np.cos(lat1) * np.cos(lat2) * np.sin((lon2 - lon1) / 2.0) ** 2
+    )
+    return 2 * np.arcsin(np.sqrt(hav))
+
+
+def _cast_categorical(df: pd.DataFrame, max_cardinality=2**8) -> pd.DataFrame:
+    categorical_cols = df.select_dtypes("object").nunique() < max_cardinality
+    categorical_cols = list(categorical_cols[categorical_cols].index)
+    df.loc[:, categorical_cols] = df.loc[:, categorical_cols].astype("category")
+    return None
+
+
+def _add_features(frc: pd.DataFrame) -> pd.DataFrame:
+    out = (
+        frc.pipe(add_fips_ids)
         .assign(
             # Remove 225 totally ridiculous outliers that skew the results
-            fuel_cost_per_mmbtu=lambda x: np.where(
-                ((x.fuel_cost_per_mmbtu < 0.001) | (x.fuel_cost_per_mmbtu > 1000)),
-                np.nan,
-                x.fuel_cost_per_mmbtu,
+            fuel_cost_per_mmbtu_clipped=lambda x: x.fuel_cost_per_mmbtu.clip(
+                lower=0, upper=1000
             ),
+            # avoid confusion with fuel_cost_per_mmbtu_clipped, will drop original
+            fuel_cost_per_mmbtu_raw=lambda x: x.fuel_cost_per_mmbtu,
             # Numerical representation of elapsed time
             elapsed_days=lambda x: (x.report_date - x.report_date.min()).dt.days,
+            contract_expiration_date=lambda x: pd.to_datetime(
+                x.contract_expiration_date
+            ),
             # Time until current contract expires
             remaining_contract_days=lambda x: (
                 x.contract_expiration_date - x.report_date
@@ -351,19 +383,19 @@ def create_features(
             # Larger geographic area more likely to have lots of records
             census_region=lambda x: x.state.map(STATE_TO_CENSUS_REGION),
             # Need the total MMBTU for weighting the importance of the record
-            # May also be predictive: small deliveries seem more likely to be expensive
+            # May also be predictive -- small deliveries seem more likely to be expensive
             fuel_received_mmbtu=lambda x: x.fuel_received_units * x.fuel_mmbtu_per_unit,
             mine_plant_same_state=lambda x: (x.state == x.mine_state).fillna(False),
             mine_plant_same_county=lambda x: (
                 x.county_id_fips == x.mine_county_id_fips
             ).fillna(False),
-        )
-        .merge(mine_locations, on="mine_county_id_fips", how="left")
-        .assign(
             mine_distance_km=lambda x: haversine(
                 x.longitude, x.latitude, x.mine_longitude, x.mine_latitude
-            )
+            ),
         )
+        .drop(
+            columns="fuel_cost_per_mmbtu"
+        )  # avoid confusion with _clipped. Still available as _raw
         .convert_dtypes(convert_floating=False, convert_integer=False)
         .astype(
             {
@@ -373,15 +405,104 @@ def create_features(
         )
     )
 
-    # The HistGBR model and OrdinalEncoder are supposedly fine with NA values but...
-    string_cols = frc.select_dtypes("string").columns
-    frc.loc[:, string_cols] = frc[string_cols].fillna("NULL")
+    # sklearn doesn't like pd.StringDType
+    str_cols = list(out.select_dtypes("string").columns)
+    out.loc[:, str_cols] = out.loc[:, str_cols].astype("object").replace(pd.NA, np.nan)
+    _cast_categorical(out)
+    return out
 
-    # There are too many FIPS codes to treat them like categories
-    bad_categories = ["county_id_fips", "mine_county_id_fips"]
-    category_cols = {
-        col: "category" for col in string_cols if col not in bad_categories
-    }
-    frc = frc.astype(category_cols)
 
-    return frc
+class FRCImputer:
+    """A class to impute EIA fuel prices with a Gradient Boosting Regressor."""
+
+    def __init__(
+        self,
+        features: list[str] | None = None,
+        target_col: str = "fuel_cost_per_mmbtu_clipped",
+        weight_col: str = "fuel_received_mmbtu",
+        regressor_kwargs: dict[str, Any] | None = None,
+    ) -> None:
+        """Initialize the imputer with good-enough hyperparameters."""
+        if regressor_kwargs is None:
+            self._regressor_kwargs = dict(
+                loss="absolute_error",
+                random_state=42,
+                # hyperparams
+                max_iter=1000,
+                learning_rate=0.1,
+                max_depth=7,
+                max_leaf_nodes=2**7,
+                min_samples_leaf=25,
+            )
+        else:
+            self._regressor_kwargs = regressor_kwargs
+        if features is None:
+            self._features = ["asdf"]
+        else:
+            self._features = features
+        self.estimator = None
+        self._target_col = target_col
+        self._weight_col = weight_col
+        self._to_impute = None
+        return
+
+    def _make_pipeline(self):
+        ord_enc = make_column_transformer(
+            (
+                OrdinalEncoder(
+                    handle_unknown="use_encoded_value", unknown_value=np.nan
+                ),
+                make_column_selector(dtype_include=["category", "string"]),
+            ),
+            remainder="passthrough",
+        )
+        self.estimator = Pipeline(
+            [
+                ("ord_enc", ord_enc),
+                ("hist_gbr", HistGradientBoostingRegressor(**self._regressor_kwargs)),
+            ]
+        )
+        return
+
+    def _train_model(self, frc: pd.DataFrame) -> None:
+        self._to_impute = frc.loc[:, self._target_col].isna()
+        X = frc.loc[~self._to_impute, self._features]  # noqa: N806
+        y = frc.loc[~self._to_impute, self._target_col]
+        sample_weight = frc.loc[~self._to_impute, self._weight_col]
+
+        if "categorical_features" not in self._regressor_kwargs.keys():
+            self._regressor_kwargs["categorical_features"] = X.columns.get_indexer(
+                X.select_dtypes("category").columns
+            )
+        if self.estimator is None:
+            self._make_pipeline()
+
+        self.estimator.fit(
+            X=X,
+            y=y,
+            hist_gbr__sample_weight=sample_weight,
+        )
+
+    def impute(self, frc: pd.DataFrame) -> pd.DataFrame:
+        """Train the model on input data and return predictions."""
+        self._train_model(frc)
+        prediction = pd.Series(
+            self.estimator.predict(frc.loc[:, self._features]), index=frc.index
+        )
+        out = pd.DataFrame(
+            {
+                self._target_col
+                + "_filled": frc.loc[:, self._target_col].fillna(prediction),
+                self._target_col + "_is_imputed": self._to_impute,
+                self._target_col + "_imputed_values": prediction,
+            },
+            index=frc.index,
+        )
+        return out
+
+
+def add_error_cols(df: pd.DataFrame, *, target_col: str, prediction_col: str) -> None:
+    """Add absolute and relative error metrics to the dataframe for evaluation."""
+    df["error"] = df.loc[:, prediction_col] - df.loc[:, target_col]
+    df["rel_error"] = df.loc[:, "error"] / df.loc[:, target_col]
+    return

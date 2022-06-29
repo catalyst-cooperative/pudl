@@ -8,7 +8,6 @@ import pandas as pd
 import sqlalchemy as sa
 
 import pudl
-from pudl.analysis.fuel_price import aggregate_price_median
 from pudl.metadata.fields import apply_pudl_dtypes
 
 logger = logging.getLogger(__name__)
@@ -295,7 +294,7 @@ def fuel_receipts_costs_eia923(
     )
 
     if fill:
-        frc_df = aggregate_price_median(frc_df, debug=debug)
+        raise NotImplementedError
 
     # Calculate a few totals that are commonly needed:
     frc_df["fuel_consumed_mmbtu"] = (
