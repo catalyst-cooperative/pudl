@@ -1915,7 +1915,7 @@ def rename_columns(
 
 
 def merge_instant_and_duration_tables(
-    duration: pd.DataFrame, instant: pd.DataFrame, merge_on: list[str]
+    duration: pd.DataFrame, instant: pd.DataFrame, table_name: TABLES_LITERAL
 ) -> pd.DataFrame:
     """Merge the XBRL instand and duration tables.
 
@@ -1927,7 +1927,7 @@ def merge_instant_and_duration_tables(
     Args:
         duration: XBRL duration table.
         instant: XBRL instant table.
-        merge_on: columns to merge on besides the date columns.
+        table_name: table name
 
     Returns:
         one unified table that is a combination of the duration and instant
@@ -1935,12 +1935,15 @@ def merge_instant_and_duration_tables(
         will be consolidated by filling the duration columns with the instant
         columns.
     """
+    non_date_merge_on_cols = [
+        c for c in TABLE_PKS_XBRL[table_name] if c != "report_year"
+    ]
     table = pd.merge(
         duration,
         instant,
         how="outer",
-        left_on=["end_date"] + merge_on,
-        right_on=["date"] + merge_on,
+        left_on=["end_date"] + non_date_merge_on_cols,
+        right_on=["date"] + non_date_merge_on_cols,
         validate="1:1",
         suffixes=("_duration", "_instant"),
     )
