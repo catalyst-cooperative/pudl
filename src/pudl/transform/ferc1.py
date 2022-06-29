@@ -1817,37 +1817,31 @@ def add_report_year_column(df):
     return df
 
 
-def assign_record_id_xbrl(
-    df: pd.DataFrame, table_name: TABLES_LITERAL, idx_cols: list[str]
-) -> pd.DataFrame:
+def assign_record_id_xbrl(df: pd.DataFrame, table_name: TABLES_LITERAL) -> pd.DataFrame:
     """Assign a record ID for a XBRL table.
 
-    Note: I added the ``idx_cols`` here which makes it a bit different than the
-    dbf record_id which was standardized. Should we use something else like a
-    hash instead of creating these composite keys?
-
     Args:
-        df: table which has all of ``idx_cols`` as columns
+        df: table to assign `record_id` to
         table_name: name of table
-        idx_cols: columns that can be combinded to be a composite primary key.
 
     """
-    if df[idx_cols].isnull().any().any():
+    pk_cols = TABLE_PKS_XBRL[table_name]
+    if df[pk_cols].isnull().any().any():
         raise AssertionError(
-            f"Null field found in ferc1 table {table_name}. \n{df[idx_cols].isnull().any()}"
+            f"Null field found in ferc1 table {table_name}. \n{df[pk_cols].isnull().any()}"
         )
 
     df = df.assign(
         temp=table_name,
-        record_id=lambda x: x.temp.str.cat(x[idx_cols].astype(str), sep="_"),
+        record_id=lambda x: x.temp.str.cat(x[pk_cols].astype(str), sep="_"),
     ).drop(columns=["temp"])
 
     df.record_id = df.record_id.str.lower()
     if df.record_id.duplicated().any():
         raise AssertionError(
             "Record id column cannot result in duplicates. Columns are not "
-            f"unique primary keys: {idx_cols}. \nNon-unqiue records:\n"
-            f"{df[df.record_id.duplicated()][['record_id'] + idx_cols]}"
+            f"unique primary keys: {pk_cols}. \nNon-unqiue records:\n"
+            f"{df[df.record_id.duplicated()][['record_id'] + pk_cols]}"
         )
     return df
 
@@ -2110,7 +2104,6 @@ def pre_concat_xbrl_plants_steam(ferc1_xbrl_raw_dfs):
         .pipe(
             assign_record_id_xbrl,
             table_name="plants_steam_ferc1",
-            idx_cols=["plant_name_ferc1", "entity_id", "report_year"],
         )
     )
     return plants_steam_xbrl
@@ -2512,18 +2505,60 @@ def pre_concat_xbrl_fuel(ferc1_xbrl_raw_dfs):
             [FUEL_STRINGS, FUEL_UNIT_STRINGS],
             unmapped=pd.NA,
         )
-        # .pipe(
-        #     assign_record_id_xbrl,
-        #     table_name="plants_steam_ferc1",
-        #     idx_cols=[
-        #         "plant_name_ferc1",
-        #         "fuel_type_code_pudl",
-        #         "entity_id",
-        #         "report_year",
-        #     ],
-        # )
+        .pipe(aggregate_fuel_dupes)
+        .pipe(assign_record_id_xbrl, table_name="fuel_ferc1")
     )
     return fuel_xbrl
+
+
+def aggregate_fuel_dupes(fuel_xbrl):
+    """Aggregate the duplicate fuel records with a duplicate primary key."""
+    pk_cols = TABLE_PKS_XBRL["fuel_ferc1"]
+    fuel_xbrl.loc[:, "fuel_units_count"] = fuel_xbrl.groupby(pk_cols, dropna=False)[
+        "fuel_units"
+    ].transform("nunique")
+
+    # split
+    dupe_mask = fuel_xbrl.duplicated(subset=pk_cols, keep=False)
+    multi_unit_mask = fuel_xbrl.fuel_units_count != 1
+
+    fuel_pk_dupes = fuel_xbrl[dupe_mask & ~multi_unit_mask].copy()
+    fuel_multi_unit = fuel_xbrl[multi_unit_mask].copy()
+    fuel_non_dupes = fuel_xbrl[~dupe_mask & ~multi_unit_mask]
+    logger.info(
+        f"Aggregating {len(fuel_pk_dupes)} PK duplicates and nulling/dropping "
+        f"{len(fuel_multi_unit)} fuel unit records from the fuel_ferc1 table "
+        f"out of {len(fuel_xbrl)}"
+    )
+    if (
+        fuel_to_agg := ((len(fuel_pk_dupes) + len(fuel_multi_unit)) / len(fuel_xbrl))
+        > 0.15
+    ):
+        raise AssertionError(
+            f"Too many fuel table primary key duplicates ({fuel_to_agg:.0%})"
+        )
+    data_cols = [
+        "fuel_consumed_units",
+        "fuel_mmbtu_per_unit",
+        "fuel_cost_per_unit_delivered",
+        "fuel_cost_per_unit_burned",
+        "fuel_cost_per_mmbtu",
+        "fuel_cost_per_kwh",
+        "fuel_mmbtu_per_kwh",
+    ]
+    # apply
+    fuel_pk_dupes = pudl.helpers.sum_and_weighted_average_agg(
+        df_in=fuel_pk_dupes,
+        by=pk_cols + ["filing_name", "start_date", "end_date", "fuel_units"],
+        sum_cols=["fuel_consumed_units"],
+        wtavg_dict={
+            k: "fuel_consumed_units" for k in data_cols if k != "fuel_consumed_units"
+        },
+    )
+    fuel_multi_unit.loc[:, data_cols] = pd.NA
+    fuel_multi_unit = fuel_multi_unit.drop_duplicates(subset=pk_cols, keep="first")
+    # combine
+    return pd.concat([fuel_non_dupes, fuel_pk_dupes, fuel_multi_unit])
 
 
 def plants_small(ferc1_raw_dfs, ferc1_transformed_dfs):
