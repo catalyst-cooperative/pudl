@@ -127,6 +127,7 @@ COLUMN_RENAME: dict[TABLES_LITERAL, dict[Literal["dbf", "xbrl"], dict[str, str]]
             "fuel_cost_burned": "fuel_cost_per_unit_burned",
             "fuel_cost_delvd": "fuel_cost_per_unit_delivered",
             "fuel_cost_btu": "fuel_cost_per_mmbtu",
+            "fuel_generaton": "fuel_mmbtu_per_kwh",
         },
         "xbrl": {
             "PlantNameAxis": "plant_name_ferc1",
@@ -151,8 +152,8 @@ TABLE_AXIS_COLS_XBRL = {
 }
 
 TABLE_PKS_XBRL: dict[TABLES_LITERAL, list] = {
-    table_name: [COLUMN_RENAME[table_name]["xbrl"][axis_col] for axis_col in axis_cols]
-    + ["entity_id", "report_year"]  # other primary keys
+    table_name: ["report_year", "entity_id"]  # other primary keys
+    + [COLUMN_RENAME[table_name]["xbrl"][axis_col] for axis_col in axis_cols]
     for (table_name, axis_cols) in TABLE_AXIS_COLS_XBRL.items()
 }
 """A dictionary of table names (keys) to list of primary keys (values). This is
@@ -1566,9 +1567,14 @@ TABLE_CLEAN_STRINGS_COLS: dict[TABLES_LITERAL, dict] = {
         "stringmaps": [CONSTRUCTION_TYPE_STRINGS, PLANT_KIND_STRINGS],
     },
     "fuel_ferc1": {
-        "columns": ["fuel", "fuel_unit"],
+        "columns": ["fuel_type_code_pudl", "fuel_units"],
         "stringmaps": [FUEL_STRINGS, FUEL_UNIT_STRINGS],
     },
+}
+
+TABLE_SIMPLIFY_STRINGS_COLS: dict[TABLES_LITERAL, list] = {
+    "plants_steam_ferc1": ["plant_name_ferc1"],
+    "fuel_ferc1": ["plant_name_ferc1"],
 }
 
 TABLE_UNIT_CONVERSIONS: dict[TABLES_LITERAL, dict] = {
@@ -1637,7 +1643,7 @@ COLUMN_CONDENSING_PRE_STRING_CLEAN: dict[
     }
 }
 """There are several instances in which we have two records and almost all of
-the content in the records is in one while another record has one """
+the content in the records is in one while another record has one datapoint."""
 
 ##############################################################################
 # FERC TRANSFORM HELPER FUNCTIONS ############################################
@@ -1767,6 +1773,11 @@ def _clean_cols(df, table_name):
     row_prvlg, row_seq, item, record_number (a temporary column used in plants_small)
     and all the footnote columns, which end in "_f".
 
+    TODO: remove in xbrl transition. migrated this functionality into
+    ``assign_record_id()``. The last chunk of this function that removes the "_f"
+    columns should be abandoned in favor of using the metadata to ensure the
+    tables have all/only the correct columns.
+
     Args:
         df (pandas.DataFrame): The DataFrame in which the function looks for columns
             for the unique identification of FERC records, and ensures that those
@@ -1824,7 +1835,7 @@ def _clean_cols(df, table_name):
                 f"{n_dupes} duplicate record_id values found "
                 f"in pre-transform table {table_name}: {dupe_ids}."
             )
-    # May want to replace this with a [COLUMN_RENAME[table_name][source].values()]
+    # May want to replace this with always constraining the cols to the metadata cols
     # at the end of the transform step (or in rename_columns if we don't need any
     # temp columns)
     # Drop any _f columns... since we're not using the FERC Footnotes...
@@ -1856,15 +1867,46 @@ def add_report_year_column(df):
     return df
 
 
-def assign_record_id_xbrl(df: pd.DataFrame, table_name: TABLES_LITERAL) -> pd.DataFrame:
-    """Assign a record ID for a XBRL table.
+def assign_record_id(
+    df: pd.DataFrame, table_name: TABLES_LITERAL, source_ferc1: Literal["dbf", "xbrl"]
+) -> pd.DataFrame:
+    """Assign a record ID column from either XBRL or DBF ferc1 source table.
+
+    It is often useful to be able to tell exactly which record in the FERC Form 1
+    database a given record within the PUDL database came from.
+
+    Within each FERC Form 1 DBF table, each record is supposed to be uniquely
+    identified by the combination of:
+    report_year, report_prd, respondent_id, spplmnt_num, row_number.
+
+    The FERC Form 1 XBRL tables do not have these supplement and row number
+    columns, so we construct an id based on:
+    report_year, entity_id, and the primary key columns of the XBRL table
 
     Args:
         df: table to assign `record_id` to
         table_name: name of table
+        source_ferc1: data source of raw ferc1 database.
 
+    Raises:
+        AssertionError: If the resulting `record_id` column is non-unique.
     """
-    pk_cols = TABLE_PKS_XBRL[table_name]
+    if source_ferc1 == "xbrl":
+        pk_cols = TABLE_PKS_XBRL[table_name]
+    elif source_ferc1 == "dbf":
+        pk_cols = [
+            "report_year",
+            "report_prd",
+            "respondent_id",
+            "spplmnt_num",
+            "row_number",
+        ]
+        # for the dbf years, we used the original "f1_" table names for the id
+        # table_name = pudl_tables_to_dbf_tables.get(table_name)
+    else:
+        raise ValueError(
+            f"source_ferc1 must be either `xbrl` or `dbf`. Got {source_ferc1}"
+        )
     if df[pk_cols].isnull().any().any():
         raise AssertionError(
             f"Null field found in ferc1 table {table_name}. \n{df[pk_cols].isnull().any()}"
@@ -1875,7 +1917,7 @@ def assign_record_id_xbrl(df: pd.DataFrame, table_name: TABLES_LITERAL) -> pd.Da
         record_id=lambda x: x.temp.str.cat(x[pk_cols].astype(str), sep="_"),
     ).drop(columns=["temp"])
 
-    df.record_id = df.record_id.str.lower()
+    df = pudl.helpers.simplify_strings(df, ["record_id"])
     if df.record_id.duplicated().any():
         raise AssertionError(
             "Record id column cannot result in duplicates. Columns are not "
@@ -1959,9 +2001,13 @@ def convert_units(df, column_name_new, column_name_old, conversion):
     return df.drop(columns=[column_name_old])
 
 
-def convert_units_in_table(df, table_name):
-    """Convert the units of a table based on."""
-    for column, col_info in TABLE_UNIT_CONVERSIONS[table_name].items():
+def convert_units_in_table(df: pd.DataFrame, table_name: TABLES_LITERAL):
+    """Convert the units of a table based on.
+
+    If a table does not have any units to convert, the original table will be
+    returned.
+    """
+    for column, col_info in TABLE_UNIT_CONVERSIONS.get(table_name, {}).items():
         df = convert_units(
             df=df,
             column_name_new=column,
@@ -2071,7 +2117,19 @@ def condense_records_pre_string_clean(
     )
 
 
-def clean_strings_for_table(df, table_name):
+def simplify_strings_for_table(
+    df: pd.DataFrame, table_name: TABLES_LITERAL
+) -> pd.DataFrame:
+    """Apply ``pudl.helpers.simplify_strings`` to a ferc1 table."""
+    df = pudl.helpers.simplify_strings(
+        df, columns=TABLE_SIMPLIFY_STRINGS_COLS.get(table_name, [])
+    )
+    return df
+
+
+def clean_strings_for_table(
+    df: pd.DataFrame, table_name: TABLES_LITERAL
+) -> pd.DataFrame:
     """Apply ``pudl.helpers.cleanstrings`` to a ferc1 table."""
     df = pudl.helpers.cleanstrings(
         df=df,
@@ -2102,6 +2160,8 @@ def plants_steam_old(ferc1_raw_dfs, ferc1_transformed_dfs):
 
     This includes converting to our preferred units of MWh and MW, as well as
     standardizing the strings describing the kind of plant and construction.
+
+    TODO: Delete post xbrl.
 
     Args:
         ferc1_raw_dfs (dict): Each entry in this dictionary of DataFrame objects
@@ -2141,7 +2201,7 @@ def plants_steam(ferc1_dbf_raw_dfs, ferc1_xbrl_raw_dfs, fuel_df):
 
     plants_steam_combo = (
         pd.concat([plants_steam_dbf, plants_steam_xbrl])
-        .pipe(pudl.helpers.simplify_strings, ["plant_name_ferc1"])
+        .pipe(simplify_strings_for_table, "plants_steam_ferc1")
         .pipe(clean_strings_for_table, table_name="plants_steam_ferc1")
         .pipe(
             pudl.helpers.oob_to_nan,
@@ -2163,7 +2223,7 @@ def pre_concat_dbf_plants_steam(ferc1_dbf_raw_dfs):
         raw_table=ferc1_dbf_raw_dfs["plants_steam_ferc1"],
         table_name="plants_steam_ferc1",
         source="dbf",
-    ).pipe(_clean_cols, "f1_steam")
+    ).pipe(assign_record_id, table_name="plants_steam_ferc1", source_ferc1="dbf")
     return plants_steam_dbf
 
 
@@ -2185,16 +2245,14 @@ def pre_concat_xbrl_plants_steam(ferc1_xbrl_raw_dfs):
             source="xbrl",
         )
         .pipe(add_report_year_column)
-        .pipe(
-            assign_record_id_xbrl,
-            table_name="plants_steam_ferc1",
-        )
+        .pipe(assign_record_id, table_name="plants_steam_ferc1", source_ferc1="xbrl")
         .pipe(assign_utility_id_ferc1_xbrl)
     )
     return plants_steam_xbrl
 
 
 def _plants_steam_clean(ferc1_steam_df):
+    """TODO: Delete post xbrl."""
     ferc1_steam_df = (
         ferc1_steam_df.rename(
             columns={
@@ -2445,6 +2503,8 @@ def fuel_old(ferc1_raw_dfs, ferc1_transformed_dfs):
     cleanstrings() function and string cleaning dictionaries found above (FUEL_STRINGS,
     etc.)
 
+    TODO: Delete post xbrl.
+
     Args:
         ferc1_raw_dfs (dict): Each entry in this dictionary of DataFrame objects
             corresponds to a table from the  FERC Form 1 DBC database.
@@ -2571,6 +2631,7 @@ def fuel(ferc1_dbf_raw_dfs, ferc1_xbrl_raw_dfs):
     fuel_df = (
         pd.concat([fuel_dbf, fuel_xbrl])
         .reset_index(drop=True)
+        .pipe(simplify_strings_for_table, "fuel_ferc1")
         .pipe(fuel_correct_data_errors)
         .pipe(fuel_drop_bad)
         .pipe(convert_float_nulls)
@@ -2587,14 +2648,8 @@ def pre_concat_dbf_fuel(ferc1_dbf_raw_dfs):
             table_name="fuel_ferc1",
             source="dbf",
         )
-        .pipe(_clean_cols, "f1_fuel")
-        .pipe(pudl.helpers.simplify_strings, ["plant_name"])
-        .pipe(
-            pudl.helpers.cleanstrings,
-            ["fuel_type_code_pudl", "fuel_units"],
-            [FUEL_STRINGS, FUEL_UNIT_STRINGS],
-            unmapped=pd.NA,
-        )
+        .pipe(assign_record_id, table_name="fuel_ferc1", source_ferc1="dbf")
+        .pipe(clean_strings_for_table, table_name="fuel_ferc1")
         .pipe(convert_units_in_table, "fuel_ferc1")
     )
     return fuel_dbf
@@ -2612,15 +2667,10 @@ def pre_concat_xbrl_fuel(ferc1_xbrl_raw_dfs):
         )
         .pipe(add_report_year_column)
         .pipe(condense_records_pre_string_clean, "fuel_ferc1")
-        .pipe(pudl.helpers.simplify_strings, ["plant_name"])
-        .pipe(  # clean the strings before the record_id assignment bc pk and pk adjacent
-            pudl.helpers.cleanstrings,
-            ["fuel_type_code_pudl", "fuel_units"],
-            [FUEL_STRINGS, FUEL_UNIT_STRINGS],
-            unmapped=pd.NA,
-        )
+        # clean the strings b4 the record_id assignment bc cols are pk/pk adjacent
+        .pipe(clean_strings_for_table, table_name="fuel_ferc1")
         .pipe(aggregate_fuel_dupes)
-        .pipe(assign_record_id_xbrl, table_name="fuel_ferc1")
+        .pipe(assign_record_id, table_name="fuel_ferc1", source_ferc1="xbrl")
         .pipe(assign_utility_id_ferc1_xbrl)
     )
     return fuel_xbrl
