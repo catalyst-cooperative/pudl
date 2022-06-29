@@ -164,6 +164,7 @@ the primary keys."""
 ##############################################################################
 # Dicts for categorizing freeform strings ####################################
 ##############################################################################
+
 FUEL_STRINGS: dict[str, list[str]] = {
     "coal": [
         "coal",
@@ -1559,6 +1560,17 @@ inclusive so that variants of conventional (e.g.  "conventional full") and outdo
 "outdoor full" and "outdoor hrsg") are included.
 """
 
+TABLE_CLEAN_STRINGS_COLS: dict[TABLES_LITERAL, dict] = {
+    "plants_steam_ferc1": {
+        "columns": ["construction_type", "plant_type"],
+        "stringmaps": [CONSTRUCTION_TYPE_STRINGS, PLANT_KIND_STRINGS],
+    },
+    "fuel_ferc1": {
+        "columns": ["fuel", "fuel_unit"],
+        "stringmaps": [FUEL_STRINGS, FUEL_UNIT_STRINGS],
+    },
+}
+
 TABLE_UNIT_CONVERSIONS: dict[TABLES_LITERAL, dict] = {
     "plants_steam_ferc1": {
         "capex_per_mw": {
@@ -1873,6 +1885,18 @@ def assign_record_id_xbrl(df: pd.DataFrame, table_name: TABLES_LITERAL) -> pd.Da
     return df
 
 
+def assign_utility_id_ferc1_xbrl(df: pd.DataFrame) -> pd.DataFrame:
+    """Assign utility_id_ferc1.
+
+    This is a shell rn. Issue #1705
+    """
+    return df.assign(
+        utility_id_ferc1=lambda x: x.entity_id.str.replace("C", "")
+        .str.lstrip("0")
+        .astype("Int64")
+    )
+
+
 def _multiplicative_error_correction(tofix, mask, minval, maxval, mults):
     """Corrects data entry errors where data being multiplied by a factor.
 
@@ -2006,7 +2030,7 @@ def condense_sets_of_records_with_one_datapoint_in_second_record(
     df: pd.DataFrame,
     pk_cols: list[str],
     table_column_condensing_dict,
-):
+) -> pd.DataFrame:
     """Condense two records with one datapoint in one column.
 
     There are instances in which FERC records are semi-duplicated with almost
@@ -2047,6 +2071,29 @@ def condense_records_pre_string_clean(
     )
 
 
+def clean_strings_for_table(df, table_name):
+    """Apply ``pudl.helpers.cleanstrings`` to a ferc1 table."""
+    df = pudl.helpers.cleanstrings(
+        df=df,
+        columns=TABLE_CLEAN_STRINGS_COLS.get(table_name).get("columns"),
+        stringmaps=TABLE_CLEAN_STRINGS_COLS.get(table_name).get("stringmaps"),
+        unmapped=TABLE_CLEAN_STRINGS_COLS.get(table_name).get("unmapped", pd.NA),
+    )
+    return df
+
+
+def replace_unknown_w_nulls(df, table_name):
+    """Replace the ``unknown``'s from ``cleanstrings`` with nulls."""
+    df = df.replace(
+        {
+            column: "unknown"
+            for column in TABLE_CLEAN_STRINGS_COLS.get(table_name).get("columns")
+        },
+        pd.NA,
+    )
+    return df
+
+
 ##############################################################################
 # DATABASE TABLE SPECIFIC PROCEDURES ##########################################
 ##############################################################################
@@ -2079,7 +2126,7 @@ def plants_steam_old(ferc1_raw_dfs, ferc1_transformed_dfs):
     return ferc1_transformed_dfs
 
 
-def plants_steam(ferc1_dbf_raw_dfs, ferc1_xbrl_raw_dfs, ferc1_transformed_dfs):
+def plants_steam(ferc1_dbf_raw_dfs, ferc1_xbrl_raw_dfs, fuel_df):
     """Transforms FERC Form 1 plant_steam data for loading into PUDL Database.
 
     Args:
@@ -2087,7 +2134,7 @@ def plants_steam(ferc1_dbf_raw_dfs, ferc1_xbrl_raw_dfs, ferc1_transformed_dfs):
             corresponds to a table from the  FERC Form 1 DBC database.
         ferc1_xbrl_raw_dfs: Each entry in this dictionary of DataFrame objects
             corresponds to a table from the  FERC Form 1 XBRL database.
-        ferc1_transformed_dfs: A dictionary of DataFrames to be transformed.
+        fuel_df: fuel_ferc1 table
     """
     plants_steam_dbf = pre_concat_dbf_plants_steam(ferc1_dbf_raw_dfs)
     plants_steam_xbrl = pre_concat_xbrl_plants_steam(ferc1_xbrl_raw_dfs)
@@ -2095,12 +2142,7 @@ def plants_steam(ferc1_dbf_raw_dfs, ferc1_xbrl_raw_dfs, ferc1_transformed_dfs):
     plants_steam_combo = (
         pd.concat([plants_steam_dbf, plants_steam_xbrl])
         .pipe(pudl.helpers.simplify_strings, ["plant_name_ferc1"])
-        .pipe(
-            pudl.helpers.cleanstrings,
-            ["construction_type", "plant_type"],
-            [CONSTRUCTION_TYPE_STRINGS, PLANT_KIND_STRINGS],
-            unmapped=pd.NA,
-        )
+        .pipe(clean_strings_for_table, table_name="plants_steam_ferc1")
         .pipe(
             pudl.helpers.oob_to_nan,
             cols=["construction_year", "installation_year"],
@@ -2109,7 +2151,9 @@ def plants_steam(ferc1_dbf_raw_dfs, ferc1_xbrl_raw_dfs, ferc1_transformed_dfs):
         )
         .pipe(convert_units_in_table, "plants_steam_ferc1")
         .pipe(convert_cols_dtypes, data_source="ferc1")
+        .pipe(_plants_steam_assign_plant_ids, ferc1_fuel_df=fuel_df)
     )
+    plants_steam_validate_ids(plants_steam_combo)
     return plants_steam_combo
 
 
@@ -2145,6 +2189,7 @@ def pre_concat_xbrl_plants_steam(ferc1_xbrl_raw_dfs):
             assign_record_id_xbrl,
             table_name="plants_steam_ferc1",
         )
+        .pipe(assign_utility_id_ferc1_xbrl)
     )
     return plants_steam_xbrl
 
@@ -2508,6 +2553,8 @@ def fuel_old(ferc1_raw_dfs, ferc1_transformed_dfs):
     # Drop any records that are missing data. This is a blunt instrument, to
     # be sure. In some cases we lose data here, because some utilities have
     # (for example) a "Total" line w/ only fuel_mmbtu_per_kwh on it. Grr.
+    # CG Note: I am pretty stumped about this... the fuel_mmbtu_per_kwh does
+    # not exist in this table.
     fuel_ferc1_df.dropna(inplace=True)
 
     # Replace "unkown" fuel unit with NAs - this comes after we drop missing data with NAs
@@ -2521,7 +2568,15 @@ def fuel(ferc1_dbf_raw_dfs, ferc1_xbrl_raw_dfs):
     """Transforms FERC Form 1 fuel data for loading into PUDL Database."""
     fuel_dbf = pre_concat_dbf_fuel(ferc1_dbf_raw_dfs)
     fuel_xbrl = pre_concat_xbrl_fuel(ferc1_xbrl_raw_dfs)
-    return pd.concat([fuel_dbf, fuel_xbrl])
+    fuel_df = (
+        pd.concat([fuel_dbf, fuel_xbrl])
+        .reset_index(drop=True)
+        .pipe(fuel_correct_data_errors)
+        .pipe(fuel_drop_bad)
+        .pipe(convert_float_nulls)
+        .pipe(convert_cols_dtypes, data_source="ferc1")
+    )
+    return fuel_df
 
 
 def pre_concat_dbf_fuel(ferc1_dbf_raw_dfs):
@@ -2566,11 +2621,12 @@ def pre_concat_xbrl_fuel(ferc1_xbrl_raw_dfs):
         )
         .pipe(aggregate_fuel_dupes)
         .pipe(assign_record_id_xbrl, table_name="fuel_ferc1")
+        .pipe(assign_utility_id_ferc1_xbrl)
     )
     return fuel_xbrl
 
 
-def aggregate_fuel_dupes(fuel_xbrl):
+def aggregate_fuel_dupes(fuel_xbrl: pd.DataFrame) -> pd.DataFrame:
     """Aggregate the duplicate fuel records with a duplicate primary key."""
     pk_cols = TABLE_PKS_XBRL["fuel_ferc1"]
     fuel_xbrl.loc[:, "fuel_units_count"] = fuel_xbrl.groupby(pk_cols, dropna=False)[
@@ -2621,6 +2677,101 @@ def aggregate_fuel_dupes(fuel_xbrl):
         columns=["fuel_units_count"]
     )
     return fuel_deduped
+
+
+def fuel_correct_data_errors(fuel_ferc1_df):
+    """Correct data errors for the fuel table.
+
+    Note: this is a direct copy/paste from fuel_old. Still need to do extensive
+    data testing on the xbrl fuel table to see if these corrections are similarly
+    applicable.
+    """
+    coal_mask = fuel_ferc1_df["fuel_type_code_pudl"] == "coal"
+    gas_mask = fuel_ferc1_df["fuel_type_code_pudl"] == "gas"
+    oil_mask = fuel_ferc1_df["fuel_type_code_pudl"] == "oil"
+
+    corrections = [
+        # mult = 2000: reported in units of lbs instead of short tons
+        # mult = 1e6:  reported BTUs instead of mmBTUs
+        # minval and maxval of 10 and 29 mmBTUs are the range of values
+        # specified by EIA 923 instructions at:
+        # https://www.eia.gov/survey/form/eia_923/instructions.pdf
+        ["fuel_mmbtu_per_unit", coal_mask, 10.0, 29.0, (2e3, 1e6)],
+        # mult = 1e-2: reported cents/mmBTU instead of USD/mmBTU
+        # minval and maxval of .5 and 7.5 dollars per mmBTUs are the
+        # end points of the primary distribution of EIA 923 fuel receipts
+        # and cost per mmBTU data weighted by quantity delivered
+        ["fuel_cost_per_mmbtu", coal_mask, 0.5, 7.5, (1e-2,)],
+        # mult = 1e3: reported fuel quantity in cubic feet, not mcf
+        # mult = 1e6: reported fuel quantity in BTU, not mmBTU
+        # minval and maxval of .8 and 1.2 mmBTUs are the range of values
+        # specified by EIA 923 instructions
+        ["fuel_mmbtu_per_unit", gas_mask, 0.8, 1.2, (1e3, 1e6)],
+        # mult = 1e-2: reported in cents/mmBTU instead of USD/mmBTU
+        # minval and maxval of 1 and 35 dollars per mmBTUs are the
+        # end points of the primary distribution of EIA 923 fuel receipts
+        # and cost per mmBTU data weighted by quantity delivered
+        ["fuel_cost_per_mmbtu", gas_mask, 1, 35, (1e-2,)],
+        # mult = 42: reported fuel quantity in gallons, not barrels
+        # mult = 1e6: reported fuel quantity in BTU, not mmBTU
+        # minval and maxval of 3 and 6.9 mmBTUs are the range of values
+        # specified by EIA 923 instructions
+        ["fuel_mmbtu_per_unit", oil_mask, 3, 6.9, (42,)],
+        # mult = 1e-2: reported in cents/mmBTU instead of USD/mmBTU
+        # minval and maxval of 5 and 33 dollars per mmBTUs are the
+        # end points of the primary distribution of EIA 923 fuel receipts
+        # and cost per mmBTU data weighted by quantity delivered
+        ["fuel_cost_per_mmbtu", oil_mask, 5, 33, (1e-2,)],
+    ]
+
+    for (coltofix, mask, minval, maxval, mults) in corrections:
+        fuel_ferc1_df[coltofix] = _multiplicative_error_correction(
+            fuel_ferc1_df[coltofix], mask, minval, maxval, mults
+        )
+    return fuel_ferc1_df
+
+
+def fuel_drop_bad(fuel_df: pd.DataFrame) -> pd.DataFrame:
+    """Drop known to be bad fuel records.
+
+    If all of the data columns are null excpet one (`fuel_mmbtu_per_kwh`) which
+    is known to be a column that shows up for FERC's weird total records.
+    """
+    data_cols = [
+        "fuel_consumed_units",
+        "fuel_mmbtu_per_unit",
+        "fuel_cost_per_unit_delivered",
+        "fuel_cost_per_unit_burned",
+        "fuel_cost_per_mmbtu",
+        "fuel_cost_per_kwh",
+        "fuel_mmbtu_per_kwh",
+    ]
+    probably_totals_index = fuel_df[
+        fuel_df[[col for col in data_cols if col != "fuel_mmbtu_per_kwh"]]
+        .isnull()
+        .all(axis="columns")
+        & fuel_df.fuel_mmbtu_per_kwh.notnull()
+        & (fuel_df.fuel_type_code_pudl == "other")
+        & (fuel_df.fuel_units == "unknown")
+    ].index
+
+    fuel_df = fuel_df.drop(index=probably_totals_index)
+    return fuel_df
+
+
+def convert_float_nulls(df):
+    """Convert the nulls of float columns in a table.
+
+    Note: WHY THOUGH! I kept getting this error via convert_cols_dtypes:
+    TypeError: float() argument must be a string or a real number, not 'NAType'
+    """
+    float_cols = [
+        col
+        for col, dtype in pudl.helpers.get_pudl_dtypes(group="ferc1").items()
+        if col in df.columns and "float" in dtype
+    ]
+    df.loc[df.fuel_consumed_units.isnull(), float_cols] = np.nan
+    return df
 
 
 def plants_small(ferc1_raw_dfs, ferc1_transformed_dfs):
@@ -3290,7 +3441,7 @@ class FERCPlantClassifier(BaseEstimator, ClassifierMixin):
         """
         self.min_sim = min_sim
         self.plants_df = plants_df
-        self._years = self.plants_df.report_year.unique()
+        self._years = self.plants_df.report_year.unique()  # could we list() here?
 
     def fit(self, X, y=None):  # noqa: N803 Canonical capital letter...
         """Use weighted FERC plant features to group records into time series.
@@ -3316,7 +3467,9 @@ class FERCPlantClassifier(BaseEstimator, ClassifierMixin):
         self._cossim_df = pd.DataFrame(cosine_similarity(X))
         self._best_of = self._best_by_year()
         # Make the best match indices integers rather than floats w/ NA values.
-        self._best_of[self._years] = self._best_of[self._years].fillna(-1).astype(int)
+        self._best_of[list(self._years)] = (
+            self._best_of[list(self._years)].fillna(-1).astype(int)
+        )
 
         return self
 
