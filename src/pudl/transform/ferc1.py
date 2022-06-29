@@ -143,14 +143,17 @@ COLUMN_RENAME: dict[TABLES_LITERAL, dict[Literal["dbf", "xbrl"], dict[str, str]]
     },
 }
 
-TABLE_PKS_XBRL: dict[TABLES_LITERAL, list] = {
+TABLE_AXIS_COLS_XBRL = {
     table_name: [  # pudl column names if "Axis" is at the end of the xbrl name
-        pudl_col
-        for (xbrl_col, pudl_col) in rename_dicts["xbrl"].items()
-        if "Axis" in xbrl_col
+        xbrl_col for xbrl_col in rename_dicts["xbrl"].keys() if "Axis" in xbrl_col
     ]
-    + ["entity_id", "report_year"]  # other primary keys
     for (table_name, rename_dicts) in COLUMN_RENAME.items()
+}
+
+TABLE_PKS_XBRL: dict[TABLES_LITERAL, list] = {
+    table_name: [COLUMN_RENAME[table_name]["xbrl"][axis_col] for axis_col in axis_cols]
+    + ["entity_id", "report_year"]  # other primary keys
+    for (table_name, axis_cols) in TABLE_AXIS_COLS_XBRL.items()
 }
 """A dictionary of table names (keys) to list of primary keys (values). This is
 derived from the :py:const:`COLUMN_RENAME` dictionary by grabbing the list of pudl
@@ -1564,11 +1567,11 @@ TABLE_UNIT_CONVERSIONS: dict[TABLES_LITERAL, dict] = {
         },
         "opex_per_mwh": {
             "column_name_old": "opex_per_kwh",
-            "converstion": 1000.0,
+            "conversion": 1000.0,
         },
         "net_generation_mwh": {
             "column_name_old": "net_generation_kwh",
-            "converstion": 1000.0,
+            "conversion": 1000.0,
         },
     },
     "fuel_ferc1": {
@@ -1977,15 +1980,12 @@ def merge_instant_and_duration_tables(
         will be consolidated by filling the duration columns with the instant
         columns.
     """
-    non_date_merge_on_cols = [
-        c for c in TABLE_PKS_XBRL[table_name] if c != "report_year"
-    ]
     table = pd.merge(
         duration,
         instant,
         how="outer",
-        left_on=["end_date"] + non_date_merge_on_cols,
-        right_on=["date"] + non_date_merge_on_cols,
+        left_on=["end_date", "entity_id"] + TABLE_AXIS_COLS_XBRL[table_name],
+        right_on=["date", "entity_id"] + TABLE_AXIS_COLS_XBRL[table_name],
         validate="1:1",
         suffixes=("_duration", "_instant"),
     )
@@ -2133,7 +2133,7 @@ def pre_concat_xbrl_plants_steam(ferc1_xbrl_raw_dfs):
             instant=ferc1_xbrl_raw_dfs[
                 "steam_electric_generating_plant_statistics_large_plants_402_instant"
             ],
-            merge_on=["PlantNameAxis", "entity_id"],
+            table_name="plants_steam_ferc1",
         )
         .pipe(
             rename_columns,
@@ -2582,7 +2582,7 @@ def aggregate_fuel_dupes(fuel_xbrl):
     multi_unit_mask = fuel_xbrl.fuel_units_count != 1
 
     fuel_pk_dupes = fuel_xbrl[dupe_mask & ~multi_unit_mask].copy()
-    fuel_multi_unit = fuel_xbrl[multi_unit_mask].copy()
+    fuel_multi_unit = fuel_xbrl[dupe_mask & multi_unit_mask].copy()
     fuel_non_dupes = fuel_xbrl[~dupe_mask & ~multi_unit_mask]
     logger.info(
         f"Aggregating {len(fuel_pk_dupes)} PK duplicates and nulling/dropping "
@@ -2617,7 +2617,10 @@ def aggregate_fuel_dupes(fuel_xbrl):
     fuel_multi_unit.loc[:, data_cols] = pd.NA
     fuel_multi_unit = fuel_multi_unit.drop_duplicates(subset=pk_cols, keep="first")
     # combine
-    return pd.concat([fuel_non_dupes, fuel_pk_dupes, fuel_multi_unit])
+    fuel_deduped = pd.concat([fuel_non_dupes, fuel_pk_dupes, fuel_multi_unit]).drop(
+        columns=["fuel_units_count"]
+    )
+    return fuel_deduped
 
 
 def plants_small(ferc1_raw_dfs, ferc1_transformed_dfs):
