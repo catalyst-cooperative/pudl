@@ -2086,22 +2086,8 @@ def pre_concat_clean_and_concat_dbf_xbrl(
     It assumes the format for the name of the table-specific pre-concat function
     is: "pre_concat_{source of FERC1 ("xbrl" or "dbf")}_{``table_name``}"
     """
-    pre_concat_funcs = {
-        "plants_steam_ferc1": {
-            "dbf": pre_concat_dbf_plants_steam_ferc1,
-            "xbrl": pre_concat_xbrl_plants_steam_ferc1,
-        },
-        "fuel_ferc1": {
-            "dbf": pre_concat_dbf_fuel_ferc1,
-            "xbrl": pre_concat_xbrl_fuel_ferc1,
-        },
-    }
-    dbf_df = pre_concat_funcs.get(table_name).get("dbf")(ferc1_dbf_raw_dfs)
-    xbrl_df = pre_concat_funcs.get(table_name).get("xbrl")(ferc1_xbrl_raw_dfs)
-    # WHY ISNT THIS WORKING!?!? (it works in a notebook fine... but I get
-    # TypeError: 'NoneType' object is not callable)
-    # dbf_df = locals().get(f"pre_concat_dbf_{table_name}")(ferc1_dbf_raw_dfs)
-    # xbrl_df = locals().get(f"pre_concat_xbrl_{table_name}")(ferc1_xbrl_raw_dfs)
+    dbf_df = globals().get(f"pre_concat_dbf_{table_name}")(ferc1_dbf_raw_dfs)
+    xbrl_df = globals().get(f"pre_concat_xbrl_{table_name}")(ferc1_xbrl_raw_dfs)
     df_concat = pd.concat([dbf_df, xbrl_df]).reset_index(drop=True)
     return df_concat
 
