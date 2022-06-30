@@ -207,18 +207,15 @@ def _etl_ferc1(
     ferc1_dbf_raw_dfs = pudl.extract.ferc1.extract_dbf(
         ferc1_settings=ferc1_settings.ferc1_dbf_settings, pudl_settings=pudl_settings
     )
-    # Transform FERC form 1
-    ferc1_transformed_dfs = pudl.transform.ferc1.transform_dbf(
-        ferc1_dbf_raw_dfs, ferc1_settings=ferc1_settings.ferc1_dbf_settings
-    )
-
     # Extract FERC form 1 XBRL data
     ferc1_xbrl_raw_dfs = pudl.extract.ferc1.extract_xbrl(
         ferc1_settings=ferc1_settings.ferc1_xbrl_settings, pudl_settings=pudl_settings
     )
-    # Transform FERC form 1 XBRL data
-    _ = pudl.transform.ferc1.transform_xbrl(
-        ferc1_xbrl_raw_dfs, ferc1_settings=ferc1_settings.ferc1_xbrl_settings
+    # Transform FERC form 1
+    ferc1_transformed_dfs = pudl.transform.ferc1.transform(
+        ferc1_dbf_raw_dfs=ferc1_dbf_raw_dfs,
+        ferc1_xbrl_raw_dfs=ferc1_xbrl_raw_dfs,
+        ferc1_settings=ferc1_settings.ferc1_dbf_settings,
     )
 
     out_dfs.update(ferc1_transformed_dfs)
