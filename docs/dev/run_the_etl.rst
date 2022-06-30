@@ -16,6 +16,7 @@ There are two main scripts involved in the PUDL processing pipeline:
 1. ``ferc1_to_sqlite`` :doc:`converts the FERC Form 1 DBF files <clone_ferc1>` into a
    single large `SQLite <https://sqlite.org>`__ database so that the data is easier
    to extract, and so all of the raw FERC Form 1 data is available in a modern format.
+   You must run this script before you can run ``pudl_etl``.
 2. ``pudl_etl`` coordinates the "Extract, Transform, Load" process that processes
    20+ years worth of data from the FERC Form 1 database, dozens of EIA spreadsheets,
    and the thousands of CSV files that make up the EPA CEMS hourly emissions data into
