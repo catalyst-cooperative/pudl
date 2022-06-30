@@ -45,7 +45,7 @@ setup(
         "eia 861",
         "ferc 714",
     ],
-    python_requires=">=3.10,<3.11",
+    python_requires=">=3.9,<3.11",
     setup_requires=["setuptools_scm"],
     install_requires=[
         "addfips>=0.3.1,<0.4.0",
