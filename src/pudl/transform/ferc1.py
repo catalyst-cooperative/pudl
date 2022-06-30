@@ -1603,6 +1603,14 @@ TABLE_UNIT_CONVERSIONS: dict[TABLES_LITERAL, dict] = {
 }
 """Table conversions."""
 
+TABLE_OOB_TO_NAN = {
+    "plants_steam_ferc1": {
+        "columns": ["construction_year", "installation_year"],
+        "lower_bound": 1850,
+        "upper_bound": max(DataSource.from_id("ferc1").working_partitions["years"]) + 1,
+    }
+}
+
 COLUMN_CONDENSING_PRE_STRING_CLEAN: dict[
     TABLES_LITERAL,
     dict[str, dict[Literal["keep_records", "remove_records"], dict[str, tuple]]],
@@ -2172,6 +2180,18 @@ def replace_unknown_w_nulls(df, table_name):
     return df
 
 
+def oob_to_nan_for_table(df, table_name):
+    """Apply ``pudl.helpers.oob_to_nan`` to a ferc1 table."""
+    oob_to_nan_inputs = TABLE_OOB_TO_NAN.get(table_name)
+    df = pudl.helpers.oob_to_nan(
+        df=df,
+        cols=oob_to_nan_inputs.get("columns"),
+        lb=oob_to_nan_inputs.get("lower_bound"),
+        ub=oob_to_nan_inputs.get("upper_bound"),
+    )
+    return df
+
+
 ##############################################################################
 # DATABASE TABLE SPECIFIC PROCEDURES ##########################################
 ##############################################################################
@@ -2195,12 +2215,7 @@ def plants_steam_ferc1(ferc1_dbf_raw_dfs, ferc1_xbrl_raw_dfs, ferc1_transformed_
         )
         .pipe(simplify_strings_for_table, "plants_steam_ferc1")
         .pipe(clean_strings_for_table, table_name="plants_steam_ferc1")
-        .pipe(
-            pudl.helpers.oob_to_nan,
-            cols=["construction_year", "installation_year"],
-            lb=1850,
-            ub=max(DataSource.from_id("ferc1").working_partitions["years"]) + 1,
-        )
+        .pipe(oob_to_nan_for_table, table_name="plants_steam_ferc1")
         .pipe(convert_units_in_table, "plants_steam_ferc1")
         .pipe(convert_cols_dtypes, data_source="ferc1")
         .pipe(
