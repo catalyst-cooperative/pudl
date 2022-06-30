@@ -179,6 +179,8 @@ PUDL DB with the appropriate EIA files in order for the script to work.
 This script does not have a YAML settings file, so you must specify which years and
 states to include via command line arguments. Run ``epacems_to_parquet --help`` to
 verify your options. Changing CEMS settings in a YAML file will not inform this script!
+Running the script without any arguments will automatically process all states and
+years.
 
 .. warning::
 
