@@ -2632,10 +2632,10 @@ def fuel(ferc1_dbf_raw_dfs, ferc1_xbrl_raw_dfs):
         pd.concat([fuel_dbf, fuel_xbrl])
         .reset_index(drop=True)
         .pipe(simplify_strings_for_table, "fuel_ferc1")
-        .pipe(fuel_correct_data_errors)
-        .pipe(fuel_drop_bad)
         .pipe(convert_float_nulls)
         .pipe(convert_cols_dtypes, data_source="ferc1")
+        .pipe(fuel_correct_data_errors)
+        .pipe(fuel_drop_bad)
     )
     return fuel_df
 
