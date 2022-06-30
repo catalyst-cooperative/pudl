@@ -222,13 +222,15 @@ Creating a Workspace
 
 PUDL needs to know where to store its big piles of inputs and outputs. It also comes
 with some example configuration files. The ``pudl_setup`` script lets PUDL know where
-all this stuff should go. We call this a "PUDL workspace":
+all this stuff should go. We call this a "PUDL workspace". The script will not create
+a new directory based on your arguemnts, so make sure whatever directory path you
+pass as <PUDL_DIR> already exists.
 
 .. code-block:: console
 
     $ pudl_setup <PUDL_DIR>
 
-Here <PUDL_DIR> is the path to the directory where you want PUDL to do its
+<PUDL_DIR> is the path to the directory where you want PUDL to do its
 business -- this is where the datastore will be located and where any outputs
 that are generated end up. The script will also put a configuration file called
 ``.pudl.yml`` in your home directory that records the location of this
