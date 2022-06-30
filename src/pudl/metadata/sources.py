@@ -1,10 +1,10 @@
 """Metadata and operational constants."""
-from typing import Any, Dict
+from typing import Any
 
 from pudl.metadata.constants import CONTRIBUTORS, KEYWORDS, LICENSES
 from pudl.metadata.enums import EPACEMS_STATES
 
-SOURCES: Dict[str, Any] = {
+SOURCES: dict[str, Any] = {
     "censusdp1tract": {
         "title": "Census DP1",
         "path": "https://www.census.gov/geographies/mapping-files/2010/geo/tiger-data.html",
@@ -13,12 +13,10 @@ SOURCES: Dict[str, Any] = {
         ),
         "working_partitions": {},  # Census DP1 is monolithic.
         "keywords": sorted(
-            set(
-                [
-                    "censusdp1tract",
-                    "census",
-                ]
-            )
+            {
+                "censusdp1tract",
+                "census",
+            }
         ),
         "license_raw": LICENSES["us-govt"],
         "license_pudl": LICENSES["cc-by-4.0"],

@@ -1,9 +1,9 @@
 """Definitions of data tables primarily coming from EIA 860/861/923."""
-from typing import Any, Dict
+from typing import Any
 
 from pudl.metadata.codes import CODE_METADATA
 
-RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
+RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     "boilers_entity_eia": {
         "description": "Static boiler attributes compiled from the EIA-860 and EIA-923 data.",
         "schema": {

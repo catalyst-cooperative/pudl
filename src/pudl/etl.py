@@ -20,7 +20,7 @@ import time
 from concurrent.futures import ProcessPoolExecutor
 from functools import partial
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any
 
 import pandas as pd
 import pyarrow as pa
@@ -50,7 +50,7 @@ logger = logging.getLogger(__name__)
 ###############################################################################
 
 
-def _read_static_tables_eia() -> Dict[str, pd.DataFrame]:
+def _read_static_tables_eia() -> dict[str, pd.DataFrame]:
     """Build dataframes of static EIA tables for use as foreign key constraints.
 
     There are many values specified within the data that are essentially
@@ -75,8 +75,8 @@ def _read_static_tables_eia() -> Dict[str, pd.DataFrame]:
 
 
 def _etl_eia(
-    eia_settings: EiaSettings, ds_kwargs: Dict[str, Any]
-) -> Dict[str, pd.DataFrame]:
+    eia_settings: EiaSettings, ds_kwargs: dict[str, Any]
+) -> dict[str, pd.DataFrame]:
     """Extract, transform and load CSVs for the EIA datasets.
 
     Args:
@@ -119,7 +119,6 @@ def _etl_eia(
         eia860_raw_dfs = pudl.extract.eia860m.append_eia860m(
             eia860_raw_dfs=eia860_raw_dfs, eia860m_raw_dfs=eia860m_raw_dfs
         )
-
     # Transform EIA forms 923, 860
     eia860_transformed_dfs = pudl.transform.eia860.transform(
         eia860_raw_dfs, eia860_settings=eia_settings.eia860
@@ -163,7 +162,7 @@ def _etl_eia(
 ###############################################################################
 
 
-def _read_static_tables_ferc1() -> Dict[str, pd.DataFrame]:
+def _read_static_tables_ferc1() -> dict[str, pd.DataFrame]:
     """Populate static PUDL tables with constants for use as foreign keys.
 
     There are many values specified within the data that are essentially
@@ -186,8 +185,8 @@ def _read_static_tables_ferc1() -> Dict[str, pd.DataFrame]:
 
 def _etl_ferc1(
     ferc1_settings: Ferc1Settings,
-    pudl_settings: Dict[str, Any],
-) -> Dict[str, pd.DataFrame]:
+    pudl_settings: dict[str, Any],
+) -> dict[str, pd.DataFrame]:
     """Extract, transform and load CSVs for FERC Form 1.
 
     Args:
@@ -221,10 +220,10 @@ def _etl_ferc1(
 ###############################################################################
 def _etl_one_year_epacems(
     year: int,
-    states: List[str],
+    states: list[str],
     pudl_db: str,
     out_dir: str,
-    ds_kwargs: Dict[str, Any],
+    ds_kwargs: dict[str, Any],
 ) -> None:
     """Process one year of EPA CEMS and output year-state paritioned Parquet files."""
     pudl_engine = sa.create_engine(pudl_db)
@@ -248,8 +247,9 @@ def _etl_one_year_epacems(
 
 def etl_epacems(
     epacems_settings: EpaCemsSettings,
-    pudl_settings: Dict[str, Any],
-    ds_kwargs: Dict[str, Any],
+    pudl_settings: dict[str, Any],
+    ds_kwargs: dict[str, Any],
+    clobber: str = False,
 ) -> None:
     """Extract, transform and load CSVs for EPA CEMS.
 
@@ -259,6 +259,8 @@ def etl_epacems(
             various resources and outputs.
         ds_kwargs: Keyword arguments for instantiating a PUDL datastore, so that the ETL
             can access the raw input data.
+        clobber: If True and there is already a hourly_emissions_epacems parquer file
+            or directory it will be deleted and a new one will be created.
 
     Returns:
         Unlike the other ETL functions, the EPACEMS writes its output to Parquet as it
@@ -297,7 +299,10 @@ def etl_epacems(
         start_time = time.monotonic()
 
     if epacems_settings.partition:
-        epacems_dir = Path(pudl_settings["parquet_dir"]) / "epacems"
+        epacems_dir = (
+            Path(pudl_settings["parquet_dir"]) / "epacems" / "hourly_emissions_epacems"
+        )
+        _ = pudl.helpers.prep_dir(epacems_dir, clobber=clobber)
         do_one_year = partial(
             _etl_one_year_epacems,
             states=epacems_settings.states,
@@ -315,6 +320,12 @@ def etl_epacems(
         epacems_path = Path(
             pudl_settings["parquet_dir"], "epacems/hourly_emissions_epacems.parquet"
         )
+        if epacems_path.exists() and not clobber:
+            raise SystemExit(
+                "The EPA CEMS parquet file already exists, and we don't want to clobber it.\n"
+                f"Move {epacems_path} aside or set clobber=True and try again."
+            )
+
         with pq.ParquetWriter(
             where=str(epacems_path),
             schema=schema,
@@ -341,7 +352,7 @@ def etl_epacems(
 ###############################################################################
 # GLUE EXPORT FUNCTIONS
 ###############################################################################
-def _etl_glue(glue_settings: GlueSettings) -> Dict[str, pd.DataFrame]:
+def _etl_glue(glue_settings: GlueSettings) -> dict[str, pd.DataFrame]:
     """Extract, transform and load CSVs for the Glue tables.
 
     Args:
@@ -373,7 +384,7 @@ def _etl_glue(glue_settings: GlueSettings) -> Dict[str, pd.DataFrame]:
 
 def etl(  # noqa: C901
     etl_settings: EtlSettings,
-    pudl_settings: Dict,
+    pudl_settings: dict,
     clobber: bool = False,
     use_local_cache: bool = True,
     gcs_cache_path: str = None,
@@ -426,7 +437,7 @@ def etl(  # noqa: C901
     datasets = validated_etl_settings.get_datasets()
     if "epacems" in datasets.keys():
         epacems_pq_path = Path(pudl_settings["parquet_dir"]) / "epacems"
-        _ = pudl.helpers.prep_dir(epacems_pq_path, clobber=clobber)
+        epacems_pq_path.mkdir(exist_ok=True)
 
     sqlite_dfs = {}
     # This could be cleaner if we simplified the settings file format:
@@ -449,4 +460,4 @@ def etl(  # noqa: C901
 
     # Parquet Outputs:
     if datasets.get("epacems", False):
-        etl_epacems(datasets["epacems"], pudl_settings, ds_kwargs)
+        etl_epacems(datasets["epacems"], pudl_settings, ds_kwargs, clobber=clobber)

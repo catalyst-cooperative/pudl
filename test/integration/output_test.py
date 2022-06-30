@@ -73,10 +73,10 @@ def test_nuclear_fraction(fast_out, df_name, expected_nuke_fraction, tolerance):
 @pytest.mark.parametrize(
     "df_name",
     [
-        "all_plants_ferc1",
         "fbp_ferc1",
         "fuel_ferc1",
         "plant_in_service_ferc1",
+        "plants_all_ferc1",
         "plants_hydro_ferc1",
         "plants_pumped_storage_ferc1",
         "plants_small_ferc1",
@@ -182,11 +182,10 @@ def test_ferc714_etl(fast_out):
 
 
 @pytest.fixture(scope="module")
-def ferc714_out(fast_out, pudl_settings_fixture):
+def ferc714_out(fast_out, pudl_settings_fixture, pudl_datastore_fixture):
     """A FERC 714 Respondents output object for use in CI."""
     return pudl.output.ferc714.Respondents(
-        fast_out,
-        pudl_settings=pudl_settings_fixture,
+        fast_out, pudl_settings=pudl_settings_fixture, ds=pudl_datastore_fixture
     )
 
 

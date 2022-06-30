@@ -1,5 +1,5 @@
 """Unit tests for the :mod:`pudl.analysis.epa_crosswalk` module."""
-from typing import Dict, Sequence
+from collections.abc import Sequence
 
 import dask.dataframe as dd
 import pandas as pd
@@ -9,7 +9,7 @@ from pandas.testing import assert_frame_equal
 import pudl.analysis.epa_crosswalk as cw
 
 
-def df_from_product(inputs: Dict[str, Sequence], as_index=True) -> pd.DataFrame:
+def df_from_product(inputs: dict[str, Sequence], as_index=True) -> pd.DataFrame:
     """Make a dataframe from cartesian product of input sequences.
 
     Args:

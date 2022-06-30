@@ -40,6 +40,12 @@ def pytest_addoption(parser):
         help="If set, use this GCS path as a datastore cache layer.",
     )
     parser.addoption(
+        "--bypass-local-cache",
+        action="store_true",
+        default=False,
+        help="If enabled, the local file cache for datastore will not be used.",
+    )
+    parser.addoption(
         "--sandbox",
         action="store_true",
         default=False,
@@ -68,7 +74,7 @@ def etl_parameters(request, test_dir):
         etl_settings_yml = Path(
             test_dir.parent / "src/pudl/package_data/settings/etl_fast.yml"
         )
-    with open(etl_settings_yml, mode="r", encoding="utf8") as settings_file:
+    with open(etl_settings_yml, encoding="utf8") as settings_file:
         etl_settings_out = yaml.safe_load(settings_file)
     etl_settings = EtlSettings().parse_obj(etl_settings_out)
     return etl_settings
@@ -150,6 +156,7 @@ def pudl_sql_engine(
     live_dbs,
     pudl_settings_fixture,
     etl_settings,
+    request,
 ):
     """Grab a connection to the PUDL Database.
 
@@ -166,6 +173,8 @@ def pudl_sql_engine(
             check_foreign_keys=True,
             check_types=True,
             check_values=True,
+            use_local_cache=not request.config.getoption("--bypass-local-cache"),
+            gcs_cache_path=request.config.getoption("--gcs-cache-path"),
         )
     # Grab a connection to the freshly populated PUDL DB, and hand it off.
     # All the hard work here is being done by the datapkg and
@@ -222,6 +231,7 @@ def pudl_settings_dict(request, live_dbs, tmpdir_factory):  # noqa: C901
         pudl_settings["parquet_dir"] = pudl.workspace.setup.get_defaults()[
             "parquet_dir"
         ]
+        pudl_settings["sqlite_dir"] = pudl.workspace.setup.get_defaults()["sqlite_dir"]
 
     logger.info("pudl_settings being used: %s", pudl_settings)
     return pudl_settings
@@ -236,11 +246,16 @@ def pudl_ferc1datastore_fixture(pudl_datastore_fixture):
 @pytest.fixture(scope="session", name="pudl_ds_kwargs")
 def ds_kwargs(pudl_settings_fixture, request):
     """Return a dictionary of keyword args for creating a PUDL datastore."""
-    return dict(
+    kwargs = dict(
         gcs_cache_path=request.config.getoption("--gcs-cache-path"),
-        local_cache_path=Path(pudl_settings_fixture["pudl_in"]) / "data",
         sandbox=pudl_settings_fixture["sandbox"],
     )
+
+    use_local_cache = not request.config.getoption("--bypass-local-cache")
+    if use_local_cache:
+        kwargs["local_cache_path"] = Path(pudl_settings_fixture["pudl_in"]) / "data"
+
+    return kwargs
 
 
 @pytest.fixture(scope="session", name="pudl_datastore_fixture")  # noqa: C901

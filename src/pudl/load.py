@@ -4,7 +4,6 @@ import logging
 import sys
 from sqlite3 import Connection as SQLite3Connection
 from sqlite3 import sqlite_version
-from typing import Dict
 
 import pandas as pd
 import sqlalchemy as sa
@@ -20,7 +19,7 @@ MINIMUM_SQLITE_VERSION = "3.32.0"
 
 
 def dfs_to_sqlite(
-    dfs: Dict[str, pd.DataFrame],
+    dfs: dict[str, pd.DataFrame],
     engine: sa.engine.Engine,
     check_foreign_keys: bool = True,
     check_types: bool = True,
