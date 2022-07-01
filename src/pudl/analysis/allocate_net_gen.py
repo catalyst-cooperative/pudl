@@ -922,6 +922,12 @@ def allocate_net_gen_by_gen_esc(gen_pm_fuel):
     net_gen_alloc.loc[abs(net_gen_alloc.frac) == np.inf] = np.NaN
     _ = _test_frac(net_gen_alloc)
 
+    # replace the placeholder 0.001 values with zero before allocating
+    # since some of these may have been aggregated, well, flag any values less than 0.01
+    net_gen_alloc.loc[
+        net_gen_alloc["net_generation_mwh_gf_tbl"] < 0.01, "net_generation_mwh_gf_tbl"
+    ] = 0
+
     # do the allocating-ing!
     net_gen_alloc = (
         net_gen_alloc.assign(
@@ -1033,6 +1039,16 @@ def allocate_fuel_by_gen_esc(gen_pm_fuel):
     # null out the inf's
     fuel_alloc.loc[abs(fuel_alloc.frac) == np.inf] = np.NaN
     _ = _test_frac(fuel_alloc)
+
+    # replace the placeholder 0.001 values with zero before allocating
+    # since some of these may have been aggregated, well, flag any values less than 0.01
+    fuel_alloc.loc[
+        fuel_alloc["fuel_consumed_mmbtu_gf_tbl"] < 0.01, "fuel_consumed_mmbtu_gf_tbl"
+    ] = 0
+    fuel_alloc.loc[
+        fuel_alloc["fuel_consumed_for_electricity_mmbtu_gf_tbl"] < 0.01,
+        "fuel_consumed_for_electricity_mmbtu_gf_tbl",
+    ] = 0
 
     # do the allocating-ing!
     fuel_alloc = (
