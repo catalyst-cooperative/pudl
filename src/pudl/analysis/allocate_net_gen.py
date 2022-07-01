@@ -431,9 +431,6 @@ def associate_generator_tables(gf, gen, gens, bf):
         .add_suffix("_bf_tbl")
         .reset_index()
         .pipe(pudl.helpers.convert_cols_dtypes, "eia")
-        .replace(
-            0, 0.001
-        )  # replace zeros with small number to avoid div by zero errors when calculating allocation fraction
     )
     gf_pm_fuel_summed = (
         gf.groupby(by=IDX_PM_ESC)
@@ -446,9 +443,6 @@ def associate_generator_tables(gf, gen, gens, bf):
         ]
         .add_suffix("_gf_tbl")
         .reset_index()
-        .replace(
-            0, 0.001
-        )  # replace zeros with small number to avoid div by zero errors when calculating allocation fraction
     )
     gf_fuel_summed = (
         gf.groupby(by=IDX_ESC)
@@ -472,12 +466,18 @@ def associate_generator_tables(gf, gen, gens, bf):
             validate="m:1",
         )
     )
-    # TODO: Check if I need to do this replacement at the base net generation data
-    gen_assoc["net_generation_mwh_g_tbl"] = gen_assoc[
-        "net_generation_mwh_g_tbl"
-    ].replace(
-        0, 0.001
-    )  # replace zeros with small number to avoid div by zero errors when calculating allocation fraction
+    # replace zeros with small number to avoid div by zero errors when calculating allocation fraction
+    data_columns = [
+        "net_generation_mwh_g_tbl",
+        "fuel_consumed_mmbtu_gf_tbl",
+        "fuel_consumed_for_electricity_mmbtu_gf_tbl",
+        "net_generation_mwh_gf_tbl",
+        "fuel_consumed_mmbtu_bf_tbl",
+        "fuel_consumed_mmbtu_gf_tbl_fuel",
+        "fuel_consumed_for_electricity_mmbtu_gf_tbl_fuel",
+    ]
+    gen_assoc[data_columns] = gen_assoc[data_columns].replace(0, 0.001)
+
     # calculate the total capacity in every fuel group
     gen_assoc = (
         pd.merge(
@@ -525,12 +525,55 @@ def remove_inactive_generators(gen_assoc):
             | (gen_assoc.net_generation_mwh_g_tbl.notnull())
         )
     ]
-    new = gen_assoc.loc[
+    # sometimes a plant will report generation data before its proposed operating date
+    # we want to keep any data that is reported for proposed generators
+    proposed_generators = gen_assoc.loc[
         (gen_assoc.operational_status == "proposed")
         & (gen_assoc.net_generation_mwh_g_tbl.notnull())
     ]
 
-    gen_assoc_removed = pd.concat([existing, retiring, new])
+    # when we do not have generator-specific generation for a proposed generator, we can also
+    # look at whether there is generation reported from the gf table. However, if a proposed
+    # generator is part of an existing plant, it is possible that this gf generation belongs
+    # to one of the other existing generators. Thus, we want to identify those proposed generators
+    # where the entire plant is proposed (since the gf-reported generation could only come from
+    # one of the new generators).
+
+    # Get a list of all of the plants that have a proposed generator with non-null and non-zero gf generation
+    proposed_with_gf = list(
+        gen_assoc.loc[
+            (gen_assoc.operational_status == "proposed")
+            & (gen_assoc.net_generation_mwh_gf_tbl.notnull())
+            & (gen_assoc.net_generation_mwh_gf_tbl != 0),
+            "plant_id_eia",
+        ].unique()
+    )
+
+    # create a table for all of these plants that identifies all of the unique operational statuses
+    plants_with_proposed_generators = gen_assoc.loc[
+        gen_assoc["plant_id_eia"].isin(proposed_with_gf),
+        ["plant_id_eia", "operational_status"],
+    ].drop_duplicates()
+
+    # filter this list to those plant ids where the only operational status is "proposed"
+    # i.e. where the entire plant is new
+    entirely_new_plants = plants_with_proposed_generators[
+        (~plants_with_proposed_generators.duplicated(subset="plant_id_eia", keep=False))
+        & (plants_with_proposed_generators["operational_status"] == "proposed")
+    ]
+    # convert this table into a list of these plant ids
+    entirely_new_plants = list(entirely_new_plants["plant_id_eia"].unique())
+
+    # keep data for these proposed plants in months where there is reported data
+    proposed_plants = gen_assoc[
+        gen_assoc["plant_id_eia"].isin(entirely_new_plants)
+        & gen_assoc["net_generation_mwh_gf_tbl"].notnull()
+    ]
+
+    gen_assoc_removed = pd.concat(
+        [existing, retiring, proposed_generators, proposed_plants]
+    )
+
     return gen_assoc_removed
 
 
