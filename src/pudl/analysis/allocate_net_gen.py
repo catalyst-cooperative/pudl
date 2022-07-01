@@ -202,7 +202,9 @@ def allocate_gen_fuel_by_generator_energy_source(pudl_out, drop_interim_cols=Tru
     )
 
     # do the association!
-    gen_assoc = associate_generator_tables(gf=gf, gen=gen, gens=gens, bf=bf)
+    gen_assoc = associate_generator_tables(
+        gf=gf, gen=gen, gens=gens, bf=bf, pudl_out=pudl_out
+    )
 
     # Generate a fraction to use to allocate net generation by.
     # These two methods create a column called `frac`, which will be a fraction
@@ -406,7 +408,7 @@ def stack_generators(
     return gens_stack
 
 
-def associate_generator_tables(gf, gen, gens, bf):
+def associate_generator_tables(gf, gen, gens, bf, pudl_out):
     """
     Associate the three tables needed to assign net gen to generators.
 
@@ -457,7 +459,7 @@ def associate_generator_tables(gf, gen, gens, bf):
         pd.merge(stack_gens, gen, on=IDX_GENS, how="outer")
         .rename(columns={"net_generation_mwh": "net_generation_mwh_g_tbl"})
         .merge(gf_pm_fuel_summed, on=IDX_PM_ESC, how="left", validate="m:1")
-        .pipe(remove_inactive_generators)
+        .pipe(remove_inactive_generators, pudl_out=pudl_out)
         .merge(bf_summed, on=IDX_PM_ESC, how="left", validate="m:1")
         .merge(
             gf_fuel_summed,
@@ -494,7 +496,7 @@ def associate_generator_tables(gf, gen, gens, bf):
     return gen_assoc
 
 
-def remove_inactive_generators(gen_assoc):
+def remove_inactive_generators(gen_assoc, pudl_out):
     """
     Remove the retired generators.
 
@@ -518,13 +520,62 @@ def remove_inactive_generators(gen_assoc):
     existing = gen_assoc.loc[(gen_assoc.operational_status == "existing")]
     # keep the gens that retired mid-report-year that have generator
     # specific data
-    retiring = gen_assoc.loc[
+    retiring_generators = gen_assoc.loc[
         (gen_assoc.operational_status == "retired")
         & (
             (gen_assoc.report_date <= gen_assoc.retirement_date)
             | (gen_assoc.net_generation_mwh_g_tbl.notnull())
         )
     ]
+
+    # Get a list of all of the plants with a retired generator and non-null/non-zero gf generation data reported after the retirement date
+    retired_with_gf = list(
+        gen_assoc.loc[
+            (gen_assoc.operational_status == "retired")
+            & (gen_assoc.report_date > gen_assoc.retirement_date)
+            & (gen_assoc.net_generation_mwh_gf_tbl.notnull())
+            & (gen_assoc.net_generation_mwh_g_tbl.isnull())
+            & (gen_assoc.net_generation_mwh_gf_tbl != 0),
+            "plant_id_eia",
+        ].unique()
+    )
+
+    # create a table for all of these plants that identifies all of the unique operational statuses
+    plants_with_retired_generators = gen_assoc.loc[
+        gen_assoc["plant_id_eia"].isin(retired_with_gf),
+        ["plant_id_eia", "operational_status", "retirement_date"],
+    ].drop_duplicates()
+
+    # remove plants that have operational statuses other than retired
+    plants_with_nonretired_generators = list(
+        plants_with_retired_generators.loc[
+            (plants_with_retired_generators["operational_status"] != "retired"),
+            "plant_id_eia",
+        ].unique()
+    )
+    plants_with_retired_generators = plants_with_retired_generators[
+        ~plants_with_retired_generators["plant_id_eia"].isin(
+            plants_with_nonretired_generators
+        )
+    ]
+
+    # only keep the plants where all retirement dates are before the current year
+    plants_retiring_after_start_date = list(
+        plants_with_retired_generators.loc[
+            plants_with_retired_generators["retirement_date"] >= pudl_out.start_date,
+            "plant_id_eia",
+        ].unique()
+    )
+    entirely_retired_plants = plants_with_retired_generators[
+        ~plants_with_retired_generators["plant_id_eia"].isin(
+            plants_retiring_after_start_date
+        )
+    ]
+
+    entirely_retired_plants = list(entirely_retired_plants["plant_id_eia"].unique())
+
+    retired_plants = gen_assoc[gen_assoc["plant_id_eia"].isin(entirely_retired_plants)]
+
     # sometimes a plant will report generation data before its proposed operating date
     # we want to keep any data that is reported for proposed generators
     proposed_generators = gen_assoc.loc[
@@ -571,7 +622,13 @@ def remove_inactive_generators(gen_assoc):
     ]
 
     gen_assoc_removed = pd.concat(
-        [existing, retiring, proposed_generators, proposed_plants]
+        [
+            existing,
+            retiring_generators,
+            retired_plants,
+            proposed_generators,
+            proposed_plants,
+        ]
     )
 
     return gen_assoc_removed
