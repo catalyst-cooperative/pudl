@@ -1,7 +1,8 @@
 FROM condaforge/mambaforge:4.12.0-0
 
 # Install curl and js
-RUN apt-get update && apt-get install --no-install-recommends -y curl=7.68.0-1ubuntu2.11 jq=1.6-1ubuntu0.20.04.1 \
+# hadolint ignore=DL3008
+RUN apt-get update && apt-get install --no-install-recommends -y curl jq \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
