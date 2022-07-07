@@ -1,5 +1,4 @@
-"""
-Extract, clean, and normalize the EPA-EIA crosswalk.
+"""Extract, clean, and normalize the EPA-EIA crosswalk.
 
 This module defines functions that read the raw EPA-EIA crosswalk file, clean
 up the column names, and separate it into three distinctive normalize tables
@@ -27,8 +26,7 @@ logger = logging.getLogger(__name__)
 
 
 def grab_n_clean_epa_orignal():
-    """
-    Retrieve and clean column names for the original EPA-EIA crosswalk file.
+    """Retrieve and clean column names for the original EPA-EIA crosswalk file.
 
     Returns:
         pandas.DataFrame: a version of the EPA-EIA crosswalk containing only
@@ -65,15 +63,15 @@ def grab_n_clean_epa_orignal():
     return eia_epacems_crosswalk
 
 
-def split_tables(df):
-    """
-    Split the cleaned EIA-EPA crosswalk table into three normalized tables.
+def split_tables(df: pd.DataFrame) -> dict[str, pd.DataFrame]:
+    """Split the cleaned EIA-EPA crosswalk table into three normalized tables.
 
     Args:
-        pandas.DataFrame: a DataFrame of relevant, readible columns from the
+        df: a DataFrame of relevant, readible columns from the
             EIA-EPA crosswalk. Output of grab_n_clean_epa_original().
+
     Returns:
-        dict: a dictionary of three normalized DataFrames comprised of the data
+        A dictionary of three normalized DataFrames comprised of the data
         in the original crosswalk file. EPA plant id to EPA unit id; EPA plant
         id to EIA plant id; and EIA plant id to EIA generator id to EPA unit
         id. Includes no nan values.
@@ -99,12 +97,11 @@ def split_tables(df):
     }
 
 
-def grab_clean_split():
-    """
-    Clean raw crosswalk data, drop nans, and return split tables.
+def grab_clean_split() -> dict[str, pd.DataFrame]:
+    """Clean raw crosswalk data, drop nans, and return split tables.
 
     Returns:
-        dict: a dictionary of three normalized DataFrames comprised of the data
+        A dictionary of three normalized DataFrames comprised of the data
         in the original crosswalk file. EPA plant id to EPA unit id; EPA plant
         id to EIA plant id; and EIA plant id to EIA generator id to EPA unit
         id.

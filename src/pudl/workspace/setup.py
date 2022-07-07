@@ -10,8 +10,7 @@ logger = logging.getLogger(__name__)
 
 
 def set_defaults(pudl_in, pudl_out, clobber=False):
-    """
-    Set default user input and output locations in ``$HOME/.pudl.yml``.
+    """Set default user input and output locations in ``$HOME/.pudl.yml``.
 
     Create a user settings file for future reference, that defines the default
     PUDL input and output directories. If this file already exists, behavior
@@ -45,8 +44,7 @@ def set_defaults(pudl_in, pudl_out, clobber=False):
 
 
 def get_defaults():
-    """
-    Read paths to default PUDL input/output dirs from user's $HOME/.pudl.yml.
+    """Read paths to default PUDL input/output dirs from user's $HOME/.pudl.yml.
 
     Args:
         None
@@ -75,8 +73,7 @@ def get_defaults():
 
 
 def derive_paths(pudl_in, pudl_out):
-    """
-    Derive PUDL paths based on given input and output paths.
+    """Derive PUDL paths based on given input and output paths.
 
     If no configuration file path is provided, attempt to read in the user
     configuration from a file called .pudl.yml in the user's HOME directory.
@@ -131,8 +128,7 @@ def derive_paths(pudl_in, pudl_out):
 
 
 def init(pudl_in, pudl_out, clobber=False):
-    """
-    Set up a new PUDL working environment based on the user settings.
+    """Set up a new PUDL working environment based on the user settings.
 
     Args:
         pudl_in (os.PathLike): Path to the directory containing the PUDL input
@@ -174,8 +170,7 @@ def init(pudl_in, pudl_out, clobber=False):
 
 
 def deploy(pkg_path, deploy_dir, ignore_files, clobber=False):
-    """
-    Deploy all files from a package_data directory into a workspace.
+    """Deploy all files from a package_data directory into a workspace.
 
     Args:
         pkg_path (str): Dotted module path to the subpackage inside of

@@ -1,5 +1,4 @@
-"""
-Modules implementing the "Transform" step of the PUDL ETL pipeline.
+"""Modules implementing the "Transform" step of the PUDL ETL pipeline.
 
 Each module in this subpackage transforms the tabular data associated with a single data
 source from the PUDL :ref:`data-sources`. This process begins with a dictionary of

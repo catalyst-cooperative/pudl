@@ -1,13 +1,14 @@
+---
 name: pudl-test
 channels:
   - conda-forge
-  - defaults
 dependencies:
   - geopandas>=0.9,<11
   - numba>=0.55.1,<0.56
-  - pip>=21.0,<22
+  - pip>=22,<23
   - pygeos>=0.10,<0.13
   - python-snappy>=0.6,<1
-  - setuptools<60.0.0
+  - setuptools<63
   - sqlite>=3.36,<4
   - tox>=3.24,<4
+  - google-cloud-sdk~=386.0.0

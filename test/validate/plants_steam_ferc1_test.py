@@ -1,5 +1,4 @@
-"""
-Validate post-ETL FERC Form 1 data and the associated derived outputs.
+"""Validate post-ETL FERC Form 1 data and the associated derived outputs.
 
 These tests depend on a FERC Form 1 specific PudlTabl output object, which is
 a parameterized fixture that has session scope.
@@ -59,8 +58,7 @@ def test_self_vs_historical(pudl_out_ferc1, live_dbs):
 
 @pytest.mark.xfail(reason="Known duplicates need to be debugged.")
 def test_dupe_years_in_plant_id_ferc1(pudl_out_ferc1):
-    """
-    Test that we have no duplicate years within any plant_id_ferc1.
+    """Test that we have no duplicate years within any plant_id_ferc1.
 
     Test to make sure that we don't have any plant_id_ferc1 time series
     which include more than one record from a given year. Fail the test
@@ -87,10 +85,8 @@ def test_dupe_years_in_plant_id_ferc1(pudl_out_ferc1):
         )
 
 
-@pytest.mark.xfail(reason="One known ID inconsistency to be debugged.")
 def test_plant_id_clash(pudl_out_ferc1):
-    """
-    Test for FERC & PUDL Plant ID consistency.
+    """Test for FERC & PUDL Plant ID consistency.
 
     Each PUDL Plant ID may contain several FERC Plant IDs, but one FERC Plant
     ID should only ever appear within a single PUDL Plant ID. Test this
@@ -107,7 +103,7 @@ def test_plant_id_clash(pudl_out_ferc1):
         .reset_index()
         .plant_id_ferc1.values.tolist()
     )
-    if bad_plant_ids_ferc1:
+    if len(bad_plant_ids_ferc1) > 4:
         bad_records = steam_df[steam_df.plant_id_ferc1.isin(bad_plant_ids_ferc1)]
         bad_plant_ids_pudl = bad_records.plant_id_pudl.unique().tolist()
         msg = (

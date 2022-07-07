@@ -2,7 +2,6 @@
 
 import importlib
 import pkgutil
-from typing import Dict, List
 
 from pudl.metadata.helpers import build_foreign_keys
 
@@ -14,14 +13,14 @@ for module_info in pkgutil.iter_modules(__path__):
     resources = module.RESOURCE_METADATA
     RESOURCE_METADATA.update(resources)
 
-FOREIGN_KEYS: Dict[str, List[dict]] = build_foreign_keys(RESOURCE_METADATA)
+FOREIGN_KEYS: dict[str, list[dict]] = build_foreign_keys(RESOURCE_METADATA)
 """
 Generated foreign key constraints by resource name.
 
 See :func:`pudl.metadata.helpers.build_foreign_keys`.
 """
 
-ENTITIES: Dict[str, Dict[str, List[str]]] = {
+ENTITIES: dict[str, dict[str, list[str]]] = {
     "plants": {
         "id_cols": ["plant_id_eia"],
         "static_cols": [
@@ -77,7 +76,6 @@ ENTITIES: Dict[str, Dict[str, List[str]]] = {
     "generators": {
         "id_cols": ["plant_id_eia", "generator_id"],
         "static_cols": [
-            "prime_mover_code",
             "duct_burners",
             "operating_date",
             "topping_bottoming_code",
@@ -112,6 +110,7 @@ ENTITIES: Dict[str, Dict[str, List[str]]] = {
             "distributed_generation",
             "technology_description",
             "reactive_power_output_mvar",
+            "prime_mover_code",
             "energy_source_code_1",
             "energy_source_code_2",
             "energy_source_code_3",

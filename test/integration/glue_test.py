@@ -16,8 +16,7 @@ logger = logging.getLogger(__name__)
 
 
 def test_unmapped_plants_ferc1(pudl_settings_fixture, ferc1_engine):
-    """
-    Test that we can correctly identify unmapped FERC Form 1 DB plants.
+    """Test that we can correctly identify unmapped FERC Form 1 DB plants.
 
     This test replicates :func:`pudl.glue.ferc1_eia.get_unmapped_plants_ferc1`
     but deletes a plant from the raw FERC 1 DB contents, which should then be

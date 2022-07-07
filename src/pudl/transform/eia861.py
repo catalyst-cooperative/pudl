@@ -6,7 +6,6 @@ All transformations include:
 """
 
 import logging
-from typing import Dict
 
 import pandas as pd
 
@@ -408,7 +407,7 @@ BA_NAME_FIXES: pd.DataFrame = pd.DataFrame(
     ],
 )
 
-NERC_SPELLCHECK: Dict[str, str] = {
+NERC_SPELLCHECK: dict[str, str] = {
     "GUSTAVUSAK": "ASCC",
     "AK": "ASCC",
     "HI": "HICC",
@@ -441,8 +440,7 @@ def _filter_non_class_cols(df, class_list):
 
 
 def _ba_code_backfill(df):
-    """
-    Backfill Balancing Authority Codes based on codes in later years.
+    """Backfill Balancing Authority Codes based on codes in later years.
 
     Note:
         The BA Code to ID mapping can change from year to year. If a Balancing Authority
@@ -661,7 +659,7 @@ def _clean_nerc(df, idx_cols):
 
     # Record a list of the reported nerc regions not included in the recognized regions list (these eventually become UNK)
     nerc_col = nerc_df["nerc_region"].tolist()
-    nerc_list = list(set([item for sublist in nerc_col for item in sublist]))
+    nerc_list = list({item for sublist in nerc_col for item in sublist})
     non_nerc_list = [
         nerc_entity
         for nerc_entity in nerc_list
@@ -694,7 +692,7 @@ def _clean_nerc(df, idx_cols):
                 ]
             )
         )
-        .apply(lambda x: sorted([i if i in NERC_REGIONS else "UNK" for i in x]))
+        .apply(lambda x: sorted(i if i in NERC_REGIONS else "UNK" for i in x))
         .apply(lambda x: _remove_nerc_duplicates(x))
         .str.join("_")
     )
@@ -705,8 +703,8 @@ def _clean_nerc(df, idx_cols):
     return full_df
 
 
-def _compare_nerc_physical_w_nerc_operational(df):
-    """Show df rows where physical nerc region does not match operational region.
+def _compare_nerc_physical_w_nerc_operational(df: pd.DataFrame) -> pd.DataFrame:
+    """Show df rows where physical NERC region does not match operational region.
 
     In the Utility Data table, there is the 'nerc_region' index column, otherwise
     interpreted as nerc region in which the utility is physically located and the
@@ -720,10 +718,11 @@ def _compare_nerc_physical_w_nerc_operational(df):
     year where there is a match between the cols.
 
     Args:
-        df (pandas.DataFrame): The utility_data_nerc_eia861 table output from the
+        df: The utility_data_nerc_eia861 table output from the
             utility_data() function.
+
     Returns:
-        pandas.DataFrame: A DataFrame with rows for utilities where NO listed operating
+        A DataFrame with rows for utilities where NO listed operating
         nerc region matches the "physical location" nerc region column that's a part of
         the index.
 
@@ -828,8 +827,7 @@ def service_territory(tfr_dfs):
 
 
 def balancing_authority(tfr_dfs):
-    """
-    Transform the EIA 861 Balancing Authority table.
+    """Transform the EIA 861 Balancing Authority table.
 
     Transformations include:
 
@@ -857,9 +855,23 @@ def balancing_authority(tfr_dfs):
     )
 
     # Fill in BA IDs based on date, utility ID, and BA Name:
-    df.loc[
-        BA_ID_NAME_FIXES.index, "balancing_authority_id_eia"
-    ] = BA_ID_NAME_FIXES.balancing_authority_id_eia
+    # using merge and then reverse backfilling balancing_authority_id_eia means
+    # that this will work even if not all years are requested
+    df = (  # this replaces the previous process to address #828
+        df.merge(
+            BA_ID_NAME_FIXES,
+            on=["report_date", "balancing_authority_name_eia", "utility_id_eia"],
+            how="left",
+            validate="m:1",
+            suffixes=(None, "_"),
+        )
+        .assign(
+            balancing_authority_id_eia=lambda x: x.balancing_authority_id_eia_.fillna(
+                x.balancing_authority_id_eia
+            )
+        )
+        .drop(columns=["balancing_authority_id_eia_"])
+    )
 
     # Backfill BA Codes based on BA IDs:
     df = df.reset_index().pipe(_ba_code_backfill)
@@ -881,8 +893,7 @@ def balancing_authority(tfr_dfs):
 
 
 def balancing_authority_assn(tfr_dfs):
-    """
-    Compile a balancing authority, utility, state association table.
+    """Compile a balancing authority, utility, state association table.
 
     For the years up through 2012, the only BA-Util information that's available comes
     from the balancing_authority_eia861 table, and it does not include any state-level
@@ -995,8 +1006,7 @@ def utility_assn(tfr_dfs):
 
 
 def _harvest_associations(dfs, cols):
-    """
-    Compile all unique, non-null combinations of values ``cols`` within ``dfs``.
+    """Compile all unique, non-null combinations of values ``cols`` within ``dfs``.
 
     Find all unique, non-null combinations of the columns ``cols`` in the dataframes
     ``dfs`` within records that are selected by ``query``. All of ``cols`` must be
@@ -1028,8 +1038,7 @@ def _harvest_associations(dfs, cols):
 
 
 def normalize_balancing_authority(tfr_dfs):
-    """
-    Finish the normalization of the balancing_authority_eia861 table.
+    """Finish the normalization of the balancing_authority_eia861 table.
 
     The balancing_authority_assn_eia861 table depends on information that is only
     available in the UN-normalized form of the balancing_authority_eia861 table, so
@@ -1158,8 +1167,7 @@ def sales(tfr_dfs):
 
 
 def advanced_metering_infrastructure(tfr_dfs):
-    """
-    Transform the EIA 861 Advanced Metering Infrastructure table.
+    """Transform the EIA 861 Advanced Metering Infrastructure table.
 
     Transformations include:
 
@@ -1209,8 +1217,7 @@ def advanced_metering_infrastructure(tfr_dfs):
 
 
 def demand_response(tfr_dfs):
-    """
-    Transform the EIA 861 Demand Response table.
+    """Transform the EIA 861 Demand Response table.
 
     Transformations include:
 
@@ -1286,8 +1293,7 @@ def demand_response(tfr_dfs):
 
 
 def demand_side_management(tfr_dfs):
-    """
-    Transform the EIA 861 Demand Side Management table.
+    """Transform the EIA 861 Demand Side Management table.
 
     In 2013, the EIA changed the contents of the 861 form so that information pertaining
     to demand side management was no longer housed in a single table, but rather two
@@ -1431,8 +1437,7 @@ def demand_side_management(tfr_dfs):
 
 
 def distributed_generation(tfr_dfs):
-    """
-    Transform the EIA 861 Distributed Generation table.
+    """Transform the EIA 861 Distributed Generation table.
 
     Transformations include:
 
@@ -1614,8 +1619,7 @@ def distributed_generation(tfr_dfs):
 
 
 def distribution_systems(tfr_dfs):
-    """
-    Transform the EIA 861 Distribution Systems table.
+    """Transform the EIA 861 Distribution Systems table.
 
     Transformations include:
 
@@ -1645,8 +1649,7 @@ def distribution_systems(tfr_dfs):
 
 
 def dynamic_pricing(tfr_dfs):
-    """
-    Transform the EIA 861 Dynamic Pricing table.
+    """Transform the EIA 861 Dynamic Pricing table.
 
     Transformations include:
 
@@ -1715,8 +1718,7 @@ def dynamic_pricing(tfr_dfs):
 
 
 def energy_efficiency(tfr_dfs):
-    """
-    Transform the EIA 861 Energy Efficiency table.
+    """Transform the EIA 861 Energy Efficiency table.
 
     Transformations include:
 
@@ -1790,8 +1792,7 @@ def energy_efficiency(tfr_dfs):
 
 
 def green_pricing(tfr_dfs):
-    """
-    Transform the EIA 861 Green Pricing table.
+    """Transform the EIA 861 Green Pricing table.
 
     Transformations include:
 
@@ -1845,8 +1846,7 @@ def green_pricing(tfr_dfs):
 
 
 def mergers(tfr_dfs):
-    """
-    Transform the EIA 861 Mergers table.
+    """Transform the EIA 861 Mergers table.
 
     Args:
         tfr_dfs (dict): A dictionary of transformed EIA 861 DataFrames, keyed by table
@@ -1868,8 +1868,7 @@ def mergers(tfr_dfs):
 
 
 def net_metering(tfr_dfs):
-    """
-    Transform the EIA 861 Net Metering table.
+    """Transform the EIA 861 Net Metering table.
 
     Transformations include:
 
@@ -1949,8 +1948,7 @@ def net_metering(tfr_dfs):
 
 
 def non_net_metering(tfr_dfs):
-    """
-    Transform the EIA 861 Non-Net Metering table.
+    """Transform the EIA 861 Non-Net Metering table.
 
     Transformations include:
 
@@ -2055,8 +2053,7 @@ def non_net_metering(tfr_dfs):
 
 
 def operational_data(tfr_dfs):
-    """
-    Transform the EIA 861 Operational Data table.
+    """Transform the EIA 861 Operational Data table.
 
     Transformations include:
 
@@ -2141,8 +2138,7 @@ def operational_data(tfr_dfs):
 
 
 def reliability(tfr_dfs):
-    """
-    Transform the EIA 861 Reliability table.
+    """Transform the EIA 861 Reliability table.
 
     Transformations include:
 
@@ -2218,8 +2214,7 @@ def reliability(tfr_dfs):
 
 
 def utility_data(tfr_dfs):
-    """
-    Transform the EIA 861 Utility Data table.
+    """Transform the EIA 861 Utility Data table.
 
     Transformations include:
 
@@ -2353,8 +2348,7 @@ def utility_data(tfr_dfs):
 
 
 def transform(raw_dfs, eia861_settings: Eia861Settings = Eia861Settings()):
-    """
-    Transform EIA 861 DataFrames.
+    """Transform EIA 861 DataFrames.
 
     Args:
         raw_dfs (dict): a dictionary of tab names (keys) and DataFrames (values). This

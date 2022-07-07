@@ -1,5 +1,4 @@
-"""
-Screen timeseries for anomalies and impute missing and anomalous values.
+"""Screen timeseries for anomalies and impute missing and anomalous values.
 
 The screening methods were originally designed to identify unrealistic data in the
 electricity demand timeseries reported to EIA on Form 930, and have also been
@@ -30,10 +29,10 @@ And described at:
 * https://github.com/xinychen/tensor-learning
 
 """
-
 import functools
 import warnings
-from typing import Any, Iterable, List, Sequence, Tuple, Union
+from collections.abc import Iterable, Sequence
+from typing import Any
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -45,9 +44,8 @@ import scipy.stats
 
 def slice_axis(
     x: np.ndarray, start: int = None, end: int = None, step: int = None, axis: int = 0
-) -> Tuple[slice, ...]:
-    """
-    Return an index that slices an array along an axis.
+) -> tuple[slice, ...]:
+    """Return an index that slices an array along an axis.
 
     Args:
         x: Array to slice.
@@ -76,8 +74,7 @@ def slice_axis(
 def array_diff(
     x: np.ndarray, periods: int = 1, axis: int = 0, fill: Any = np.nan
 ) -> np.ndarray:
-    """
-    First discrete difference of array elements.
+    """First discrete difference of array elements.
 
     This is a fast numpy implementation of :meth:`pd.DataFrame.diff`.
 
@@ -112,9 +109,8 @@ def array_diff(
     return dx
 
 
-def encode_run_length(x: Union[Sequence, np.ndarray]) -> Tuple[np.ndarray, np.ndarray]:
-    """
-    Encode vector with run-length encoding.
+def encode_run_length(x: Sequence | np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+    """Encode vector with run-length encoding.
 
     Args:
         x: Vector to encode.
@@ -148,15 +144,14 @@ def encode_run_length(x: Union[Sequence, np.ndarray]) -> Tuple[np.ndarray, np.nd
 
 
 def insert_run_length(  # noqa: C901
-    x: Union[Sequence, np.ndarray],
-    values: Union[Sequence, np.ndarray],
+    x: Sequence | np.ndarray,
+    values: Sequence | np.ndarray,
     lengths: Sequence[int],
     mask: Sequence[bool] = None,
     padding: int = 0,
     intersect: bool = False,
 ) -> np.ndarray:
-    """
-    Insert run-length encoded values into a vector.
+    """Insert run-length encoded values into a vector.
 
     Args:
         x: Vector to insert values into.
@@ -339,8 +334,7 @@ def impute_latc_tnn(
     epsilon: float = 1e-7,
     maxiter: int = 300,
 ) -> np.ndarray:
-    """
-    Impute tensor values with LATC-TNN method by Chen and Sun (2020).
+    """Impute tensor values with LATC-TNN method by Chen and Sun (2020).
 
     Uses low-rank autoregressive tensor completion (LATC) with
     truncated nuclear norm (TNN) minimization.
@@ -445,8 +439,7 @@ def impute_latc_tubal(  # noqa: C901
     epsilon: float = 1e-7,
     maxiter: int = 300,
 ) -> np.ndarray:
-    """
-    Impute tensor values with LATC-Tubal method by Chen, Chen and Sun (2020).
+    """Impute tensor values with LATC-Tubal method by Chen, Chen and Sun (2020).
 
     Uses low-tubal-rank autoregressive tensor completion (LATC-Tubal).
     It is much faster than :func:`impute_latc_tnn` for very large datasets,
@@ -538,8 +531,7 @@ def impute_latc_tubal(  # noqa: C901
 
 
 class Timeseries:
-    """
-    Multivariate timeseries for anomalies detection and imputation.
+    """Multivariate timeseries for anomalies detection and imputation.
 
     Attributes:
         xi: Reference to the original values (can be null).
@@ -551,9 +543,8 @@ class Timeseries:
         columns: Column names.
     """
 
-    def __init__(self, x: Union[np.ndarray, pd.DataFrame]) -> None:
-        """
-        Initialize a multivariate timeseries.
+    def __init__(self, x: np.ndarray | pd.DataFrame) -> None:
+        """Initialize a multivariate timeseries.
 
         Args:
             x: Timeseries with shape (n observations, m variables).
@@ -575,11 +566,10 @@ class Timeseries:
             self.columns = pd.RangeIndex(x.shape[1])
         self.x: np.ndarray = self.xi.copy()
         self.flags: np.ndarray = np.empty(self.x.shape, dtype=object)
-        self.flagged: List[str] = []
+        self.flagged: list[str] = []
 
     def to_dataframe(self, array: np.ndarray = None, copy: bool = True) -> pd.DataFrame:
-        """
-        Return multivariate timeseries as a :class:`pandas.DataFrame`.
+        """Return multivariate timeseries as a :class:`pandas.DataFrame`.
 
         Args:
             array: Two-dimensional array to use. If `None`, uses :attr:`x`.
@@ -589,8 +579,7 @@ class Timeseries:
         return pd.DataFrame(x, columns=self.columns, index=self.index, copy=copy)
 
     def flag(self, mask: np.ndarray, flag: str) -> None:
-        """
-        Flag values.
+        """Flag values.
 
         Flags values (if not already flagged) and nulls flagged values.
 
@@ -611,8 +600,7 @@ class Timeseries:
                 attr.cache_clear()
 
     def unflag(self, flags: Iterable[str] = None) -> None:
-        """
-        Unflag values.
+        """Unflag values.
 
         Unflags values by restoring their original values and removing their flag.
 
@@ -630,8 +618,7 @@ class Timeseries:
         self.flag(mask, "NEGATIVE_OR_ZERO")
 
     def flag_identical_run(self, length: int = 3) -> None:
-        """
-        Flag the last values in identical runs (IDENTICAL_RUN).
+        """Flag the last values in identical runs (IDENTICAL_RUN).
 
         Args:
             length: Run length to flag.
@@ -649,8 +636,7 @@ class Timeseries:
         self.flag(mask, "IDENTICAL_RUN")
 
     def flag_global_outlier(self, medians: float = 9) -> None:
-        """
-        Flag values greater or less than n times the global median (GLOBAL_OUTLIER).
+        """Flag values greater or less than n times the global median (GLOBAL_OUTLIER).
 
         Args:
             medians: Number of times the median the value must exceed the median.
@@ -660,8 +646,7 @@ class Timeseries:
         self.flag(mask, "GLOBAL_OUTLIER")
 
     def flag_global_outlier_neighbor(self, neighbors: int = 1) -> None:
-        """
-        Flag values neighboring global outliers (GLOBAL_OUTLIER_NEIGHBOR).
+        """Flag values neighboring global outliers (GLOBAL_OUTLIER_NEIGHBOR).
 
         Args:
             neighbors: Number of neighbors to flag on either side of each outlier.
@@ -682,8 +667,7 @@ class Timeseries:
 
     @functools.lru_cache(maxsize=2)
     def rolling_median(self, window: int = 48) -> np.ndarray:
-        """
-        Rolling median of values.
+        """Rolling median of values.
 
         Args:
             window: Number of values in the moving window.
@@ -693,8 +677,7 @@ class Timeseries:
         return df.rolling(window, min_periods=1, center=True).median().values
 
     def rolling_median_offset(self, window: int = 48) -> np.ndarray:
-        """
-        Values minus the rolling median.
+        """Values minus the rolling median.
 
         Estimates the local cycle in cyclical data by removing longterm trends.
 
@@ -707,8 +690,7 @@ class Timeseries:
     def median_of_rolling_median_offset(
         self, window: int = 48, shifts: Sequence[int] = range(-240, 241, 24)
     ) -> np.ndarray:
-        """
-        Median of the offset from the rolling median.
+        """Median of the offset from the rolling median.
 
         Calculated by shifting the rolling median offset (:meth:`rolling_median_offset`)
         by different numbers of values, then taking the median at each position.
@@ -741,8 +723,7 @@ class Timeseries:
     def rolling_iqr_of_rolling_median_offset(
         self, window: int = 48, iqr_window: int = 240
     ) -> np.ndarray:
-        """
-        Rolling interquartile range (IQR) of rolling median offset.
+        """Rolling interquartile range (IQR) of rolling median offset.
 
         Estimates the spread of the local cycles in cyclical data.
 
@@ -762,8 +743,7 @@ class Timeseries:
         shifts: Sequence[int] = range(-240, 241, 24),
         long_window: int = 480,
     ) -> np.ndarray:
-        """
-        Values predicted from local and regional rolling medians.
+        """Values predicted from local and regional rolling medians.
 
         Calculated as `{ local median } +
         { median of local median offset } * { local median } / { regional median }`.
@@ -788,10 +768,9 @@ class Timeseries:
         shifts: Sequence[int] = range(-240, 241, 24),
         long_window: int = 480,
         iqr_window: int = 240,
-        multiplier: Tuple[float, float] = (3.5, 2.5),
+        multiplier: tuple[float, float] = (3.5, 2.5),
     ) -> None:
-        """
-        Flag local outliers (LOCAL_OUTLIER_HIGH, LOCAL_OUTLIER_LOW).
+        """Flag local outliers (LOCAL_OUTLIER_HIGH, LOCAL_OUTLIER_LOW).
 
         Flags values which are above or below the :meth:`median_prediction` by more than
         a `multiplier` times the :meth:`rolling_iqr_of_rolling_median_offset`.
@@ -822,8 +801,7 @@ class Timeseries:
         self.flag(mask, "LOCAL_OUTLIER_LOW")
 
     def diff(self, shift: int = 1) -> np.ndarray:
-        """
-        Values minus the value of their neighbor.
+        """Values minus the value of their neighbor.
 
         Args:
             shift: Positions to shift for calculating the difference.
@@ -833,8 +811,7 @@ class Timeseries:
         return array_diff(self.x, shift)
 
     def rolling_iqr_of_diff(self, shift: int = 1, window: int = 240) -> np.ndarray:
-        """
-        Rolling interquartile range (IQR) of the difference between neighboring values.
+        """Rolling interquartile range (IQR) of difference between neighboring values.
 
         Args:
             shift: Positions to shift for calculating the difference.
@@ -847,8 +824,7 @@ class Timeseries:
         return (rolling.quantile(0.75) - rolling.quantile(0.25)).values
 
     def flag_double_delta(self, iqr_window: int = 240, multiplier: float = 2) -> None:
-        """
-        Flag values very different from their neighbors on either side (DOUBLE_DELTA).
+        """Flag values very different from neighbors on either side (DOUBLE_DELTA).
 
         Flags values whose differences to both neighbors on either side exceeds a
         `multiplier` times the rolling interquartile range (IQR) of neighbor difference.
@@ -868,8 +844,7 @@ class Timeseries:
 
     @functools.lru_cache(maxsize=2)
     def relative_median_prediction(self, **kwargs: Any) -> np.ndarray:
-        """
-        Values divided by their value predicted from medians.
+        """Values divided by their value predicted from medians.
 
         Args:
             kwargs: Arguments to :meth:`median_prediction`.
@@ -880,8 +855,7 @@ class Timeseries:
     def iqr_of_diff_of_relative_median_prediction(
         self, shift: int = 1, **kwargs: Any
     ) -> np.ndarray:
-        """
-        Interquartile range of the running difference of the relative median prediction.
+        """Interquartile range of running difference of relative median prediction.
 
         Args:
             shift: Positions to shift for calculating the difference.
@@ -969,8 +943,7 @@ class Timeseries:
         multiplier: float = 5,
         rel_multiplier: float = 15,
     ) -> None:
-        """
-        Flag values very different from the nearest unflagged value (SINGLE_DELTA).
+        """Flag values very different from the nearest unflagged value (SINGLE_DELTA).
 
         Flags values whose difference to the nearest unflagged value,
         with respect to value and relative median prediction,
@@ -1032,13 +1005,12 @@ class Timeseries:
         self.flag(mask, "SINGLE_DELTA")
 
     def flag_anomalous_region(self, window: int = 48, threshold: float = 0.15) -> None:
-        """
-        Flag values surrounded by flagged values (ANOMALOUS_REGION).
+        """Flag values surrounded by flagged values (ANOMALOUS_REGION).
 
         Original null values are not considered flagged values.
 
         Args:
-            width: Width of regions.
+            window: Width of regions.
             threshold: Fraction of flagged values required for a region to be flagged.
         """
         # Check whether unflagged
@@ -1075,8 +1047,7 @@ class Timeseries:
         self.flag(mask, "ANOMALOUS_REGION")
 
     def flag_ruggles(self) -> None:
-        """
-        Flag values following the method of Ruggles and others (2020).
+        """Flag values following the method of Ruggles and others (2020).
 
         Assumes values are hourly electricity demand.
 
@@ -1128,8 +1099,7 @@ class Timeseries:
         return df.assign(flag=ordered).sort_values(["column", "flag"])
 
     def plot_flags(self, name: Any = 0) -> None:
-        """
-        Plot cleaned series and anomalous values colored by flag.
+        """Plot cleaned series and anomalous values colored by flag.
 
         Args:
             name: Series to plot, as either an integer index or name in :attr:`columns`.
@@ -1163,8 +1133,7 @@ class Timeseries:
         intersect: bool = False,
         overlap: bool = False,
     ) -> np.ndarray:
-        """
-        Find non-null values to null to match a run-length distribution.
+        """Find non-null values to null to match a run-length distribution.
 
         Args:
             length: Length of null runs to simulate for each series.
@@ -1211,8 +1180,7 @@ class Timeseries:
         return new_nulls
 
     def fold_tensor(self, x: np.ndarray = None, periods: int = 24) -> np.ndarray:
-        """
-        Fold into a 3-dimensional tensor representation.
+        """Fold into a 3-dimensional tensor representation.
 
         Folds the series `x` (number of observations, number of series)
         into a 3-d tensor (number of series, number of groups, number of periods),
@@ -1238,8 +1206,7 @@ class Timeseries:
         return x.T.reshape(tensor_shape)
 
     def unfold_tensor(self, tensor: np.ndarray) -> np.ndarray:
-        """
-        Unfold a 3-dimensional tensor representation.
+        """Unfold a 3-dimensional tensor representation.
 
         Performs the reverse of :meth:`fold_tensor`.
         """
@@ -1253,8 +1220,7 @@ class Timeseries:
         method: str = "tubal",
         **kwargs: Any,
     ) -> np.ndarray:
-        """
-        Impute null values.
+        """Impute null values.
 
         .. note::
             The imputation method requires that nulls be replaced by zeros,
@@ -1296,8 +1262,7 @@ class Timeseries:
         return self.unfold_tensor(tensor)
 
     def summarize_imputed(self, imputed: np.ndarray, mask: np.ndarray) -> pd.DataFrame:
-        """
-        Summarize the fit of imputed values to actual values.
+        """Summarize the fit of imputed values to actual values.
 
         Summarizes the agreement between actual and imputed values with the
         following statistics:

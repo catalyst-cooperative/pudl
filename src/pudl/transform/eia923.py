@@ -1,6 +1,5 @@
 """Module to perform data cleaning functions on EIA923 data tables."""
 import logging
-from typing import Dict
 
 import numpy as np
 import pandas as pd
@@ -11,7 +10,7 @@ from pudl.settings import Eia923Settings
 
 logger = logging.getLogger(__name__)
 
-COALMINE_COUNTRY_CODES: Dict[str, str] = {
+COALMINE_COUNTRY_CODES: dict[str, str] = {
     "AU": "AUS",  # Australia
     "CL": "COL",  # Colombia
     "CN": "CAN",  # Canada
@@ -23,8 +22,7 @@ COALMINE_COUNTRY_CODES: Dict[str, str] = {
     "OT": "other_country",
     "IM": "unknown",
 }
-"""
-A mapping of EIA foreign coal mine country codes to 3-letter ISO-3166-1 codes.
+"""A mapping of EIA foreign coal mine country codes to 3-letter ISO-3166-1 codes.
 
 The EIA-923 lists the US state of origin for coal deliveries using standard
 2-letter US state abbreviations. However, foreign countries are also included
@@ -43,10 +41,10 @@ three letter country codes: https://en.wikipedia.org/wiki/ISO_3166-1_alpha-3
 ###############################################################################
 
 
-def _get_plant_nuclear_unit_id_map(nuc_fuel: pd.DataFrame) -> Dict[int, str]:
+def _get_plant_nuclear_unit_id_map(nuc_fuel: pd.DataFrame) -> dict[int, str]:
     """Get a plant_id -> nuclear_unit_id mapping for all plants with one nuclear unit.
 
-    Parameters:
+    Args:
         nuc_fuel: dataframe of nuclear unit fuels.
 
     Returns:
@@ -92,7 +90,7 @@ def _backfill_nuclear_unit_id(nuc_fuel: pd.DataFrame) -> pd.DataFrame:
     plants with one nuclear unit. nuclear_unit_id is filled with 'UNK' if the
     nuclear_unit_id can't be recovered.
 
-    Parameters:
+    Params:
         nuc_fuel: nuclear fuels dataframe.
 
     Returns:
@@ -116,10 +114,10 @@ def _backfill_nuclear_unit_id(nuc_fuel: pd.DataFrame) -> pd.DataFrame:
     return nuc_fuel
 
 
-def _get_plant_prime_mover_map(gen_fuel: pd.DataFrame) -> Dict[int, str]:
+def _get_plant_prime_mover_map(gen_fuel: pd.DataFrame) -> dict[int, str]:
     """Get a plant_id -> prime_mover_code mapping for all plants with one prime mover.
 
-    Parameters:
+    Args:
         gen_fuel: dataframe of generation fuels.
 
     Returns:
@@ -165,7 +163,7 @@ def _backfill_prime_mover_code(gen_fuel: pd.DataFrame) -> pd.DataFrame:
     with one prime mover. prime_mover_code is set to 'UNK' if future plants
     have multiple prime movers.
 
-    Parameters:
+    Args:
         gen_fuel: generation fuels dataframe.
 
     Returns:
@@ -199,10 +197,10 @@ def _backfill_prime_mover_code(gen_fuel: pd.DataFrame) -> pd.DataFrame:
     return gen_fuel
 
 
-def _get_most_frequent_energy_source_map(gen_fuel: pd.DataFrame) -> Dict[str, str]:
+def _get_most_frequent_energy_source_map(gen_fuel: pd.DataFrame) -> dict[str, str]:
     """Get the a mapping of the most common energy_source for each fuel_type_code_aer.
 
-    Parameters:
+    Args:
         gen_fuel: generation_fuel dataframe.
 
     Returns:
@@ -225,15 +223,14 @@ def _get_most_frequent_energy_source_map(gen_fuel: pd.DataFrame) -> Dict[str, st
 
 
 def _clean_gen_fuel_energy_sources(gen_fuel: pd.DataFrame) -> pd.DataFrame:
-    """
-    Clean the generator_fuel_eia923.energy_source_code field specifically.
+    """Clean the generator_fuel_eia923.energy_source_code field specifically.
 
     Transformations include:
 
     * Remap MSW to biogenic and non biogenic fuel types.
     * Fill missing energy_source_code using most common code for each AER fuel codes.
 
-    Parameters:
+    Args:
         gen_fuel: generation fuels dataframe.
 
     Returns:
@@ -286,7 +283,7 @@ def _aggregate_generation_fuel_duplicates(
     or duplicates exist in the raw table. We resolve these be aggregate the variable
     fields.
 
-    Parameters:
+    Args:
         gen_fuel: generation fuels dataframe.
         nuclear: adds nuclear_unit_id to list of natural key fields.
 
@@ -417,8 +414,7 @@ def _yearly_to_monthly_records(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def _coalmine_cleanup(cmi_df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Clean up the coalmine_eia923 table.
+    """Clean up the coalmine_eia923 table.
 
     This function does most of the coalmine_eia923 table transformation. It is separate
     from the coalmine() transform function because of the peculiar way that we are
@@ -565,7 +561,7 @@ def gen_fuel_nuclear(gen_fuel_nuke: pd.DataFrame) -> pd.DataFrame:
     * Set all prime_mover_codes to 'ST'.
     * Aggregate remaining duplicate units.
 
-    Parameters:
+    Args:
         gen_fuel_nuke: dataframe of nuclear unit fuels.
 
     Returns:

@@ -1,5 +1,4 @@
-"""
-Predict state-level electricity demand.
+"""Predict state-level electricity demand.
 
 Using hourly electricity demand reported at the balancing authority and utility
 level in the FERC 714, and service territories for utilities and balancing
@@ -23,13 +22,13 @@ available, and outputs the results as a CSV in
 PUDL_DIR/local/state-demand/demand.csv
 
 """
-
 import argparse
 import datetime
 import logging
 import pathlib
 import sys
-from typing import Any, Dict, Iterable, List, Tuple, Union
+from collections.abc import Iterable
+from typing import Any
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -46,7 +45,7 @@ logger = logging.getLogger(__name__)
 # --- Constants --- #
 
 
-STATES: List[Dict[str, Union[str, int]]] = [
+STATES: list[dict[str, str | int]] = [
     {"name": "Alabama", "code": "AL", "fips": "01"},
     {"name": "Alaska", "code": "AK", "fips": "02"},
     {"name": "Arizona", "code": "AZ", "fips": "04"},
@@ -104,8 +103,7 @@ STATES: List[Dict[str, Union[str, int]]] = [
     {"name": "Puerto Rico", "code": "PR", "fips": "72"},
     {"name": "Virgin Islands", "code": "VI", "fips": "78"},
 ]
-"""
-Attributes of US states and territories.
+"""Attributes of US states and territories.
 
 * `name` (str): Full name.
 * `code` (str): US Postal Service (USPS) two-letter alphabetic code.
@@ -113,7 +111,7 @@ Attributes of US states and territories.
 """
 
 
-STANDARD_UTC_OFFSETS: Dict[str, str] = {
+STANDARD_UTC_OFFSETS: dict[str, str] = {
     "Pacific/Honolulu": -10,
     "America/Anchorage": -9,
     "America/Los_Angeles": -8,
@@ -122,15 +120,14 @@ STANDARD_UTC_OFFSETS: Dict[str, str] = {
     "America/New_York": -5,
     "America/Halifax": -4,
 }
-"""
-Hour offset from Coordinated Universal Time (UTC) by time zone.
+"""Hour offset from Coordinated Universal Time (UTC) by time zone.
 
 Time zones are canonical names (e.g. 'America/Denver') from tzdata
 (https://www.iana.org/time-zones) mapped to their standard-time UTC offset.
 """
 
 
-UTC_OFFSETS: Dict[str, int] = {
+UTC_OFFSETS: dict[str, int] = {
     "HST": -10,
     "AKST": -9,
     "AKDT": -8,
@@ -145,8 +142,7 @@ UTC_OFFSETS: Dict[str, int] = {
     "AST": -4,
     "ADT": -3,
 }
-"""
-Hour offset from Coordinated Universal Time (UTC) by time zone.
+"""Hour offset from Coordinated Universal Time (UTC) by time zone.
 
 Time zones are either standard or daylight-savings time zone abbreviations (e.g. 'MST').
 """
@@ -155,9 +151,8 @@ Time zones are either standard or daylight-savings time zone abbreviations (e.g.
 # --- Helpers --- #
 
 
-def lookup_state(state: Union[str, int]) -> dict:
-    """
-    Lookup US state by state identifier.
+def lookup_state(state: str | int) -> dict:
+    """Lookup US state by state identifier.
 
     Args:
         state: State name, two-letter abbreviation, or FIPS code.
@@ -187,8 +182,7 @@ def lookup_state(state: Union[str, int]) -> dict:
 
 
 def local_to_utc(local: pd.Series, tz: Iterable, **kwargs: Any) -> pd.Series:
-    """
-    Convert local times to UTC.
+    """Convert local times to UTC.
 
     Args:
         local: Local times (tz-naive `datetime64[ns]`).
@@ -221,8 +215,7 @@ def local_to_utc(local: pd.Series, tz: Iterable, **kwargs: Any) -> pd.Series:
 
 
 def utc_to_local(utc: pd.Series, tz: Iterable) -> pd.Series:
-    """
-    Convert UTC times to local.
+    """Convert UTC times to local.
 
     Args:
         utc: UTC times (tz-naive `datetime64[ns]` or `datetime64[ns, UTC]`).
@@ -258,8 +251,7 @@ def utc_to_local(utc: pd.Series, tz: Iterable) -> pd.Series:
 
 
 def load_ventyx_hourly_state_demand(path: str) -> pd.DataFrame:
-    """
-    Read and format Ventyx hourly state-level demand.
+    """Read and format Ventyx hourly state-level demand.
 
     After manual corrections of the listed time zone, ambiguous time zone issues remain.
     Below is a list of transmission zones (by `Transmission Zone ID`)
@@ -332,9 +324,8 @@ def load_ventyx_hourly_state_demand(path: str) -> pd.DataFrame:
 
 def load_ferc714_hourly_demand_matrix(
     pudl_out: pudl.output.pudltabl.PudlTabl,
-) -> Tuple[pd.DataFrame, pd.DataFrame]:
-    """
-    Read and format FERC 714 hourly demand into matrix form.
+) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """Read and format FERC 714 hourly demand into matrix form.
 
     Args:
         pudl_out: Used to access
@@ -365,8 +356,7 @@ def load_ferc714_hourly_demand_matrix(
 
 
 def clean_ferc714_hourly_demand_matrix(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Detect and null anomalous values in FERC 714 hourly demand matrix.
+    """Detect and null anomalous values in FERC 714 hourly demand matrix.
 
     .. note::
         Takes about 10 minutes.
@@ -388,8 +378,7 @@ def filter_ferc714_hourly_demand_matrix(
     min_data: int = 100,
     min_data_fraction: float = 0.9,
 ) -> pd.DataFrame:
-    """
-    Filter incomplete years from FERC 714 hourly demand matrix.
+    """Filter incomplete years from FERC 714 hourly demand matrix.
 
     Nulls respondent-years with too few data and
     drops respondents with no data across all years.
@@ -442,8 +431,7 @@ def filter_ferc714_hourly_demand_matrix(
 
 
 def impute_ferc714_hourly_demand_matrix(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Impute null values in FERC 714 hourly demand matrix.
+    """Impute null values in FERC 714 hourly demand matrix.
 
     Imputation is performed separately for each year,
     with only the respondents reporting data in that year.
@@ -471,8 +459,7 @@ def impute_ferc714_hourly_demand_matrix(df: pd.DataFrame) -> pd.DataFrame:
 def melt_ferc714_hourly_demand_matrix(
     df: pd.DataFrame, tz: pd.DataFrame
 ) -> pd.DataFrame:
-    """
-    Melt FERC 714 hourly demand matrix to long format.
+    """Melt FERC 714 hourly demand matrix to long format.
 
     Args:
         df: FERC 714 hourly demand matrix,
@@ -501,8 +488,7 @@ def melt_ferc714_hourly_demand_matrix(
 def load_ferc714_county_assignments(
     pudl_out: pudl.output.pudltabl.PudlTabl,
 ) -> pd.DataFrame:
-    """
-    Load FERC 714 county assignments.
+    """Load FERC 714 county assignments.
 
     Args:
         pudl_out: PUDL database extractor.
@@ -526,8 +512,7 @@ def load_ferc714_county_assignments(
 def load_counties(
     pudl_out: pudl.output.pudltabl.PudlTabl, pudl_settings: dict
 ) -> pd.DataFrame:
-    """
-    Load county attributes.
+    """Load county attributes.
 
     Args:
         pudl_out: PUDL database extractor.
@@ -548,8 +533,7 @@ def load_counties(
 def load_eia861_state_total_sales(
     pudl_out: pudl.output.pudltabl.PudlTabl,
 ) -> pd.DataFrame:
-    """
-    Read and format EIA 861 sales by state and year.
+    """Read and format EIA 861 sales by state and year.
 
     Args:
         pudl_out: Used to access
@@ -578,8 +562,7 @@ def predict_state_hourly_demand(
     state_totals: pd.DataFrame = None,
     mean_overlaps: bool = False,
 ) -> pd.DataFrame:
-    """
-    Predict state hourly demand.
+    """Predict state hourly demand.
 
     Args:
         demand: Hourly demand timeseries, with columns
@@ -658,8 +641,7 @@ def plot_demand_timeseries(
     title: str = None,
     path: str = None,
 ) -> None:
-    """
-    Make a timeseries plot of predicted and reference demand.
+    """Make a timeseries plot of predicted and reference demand.
 
     Args:
         a: Predicted demand with columns `utc_datetime` and any of
@@ -704,8 +686,7 @@ def plot_demand_scatter(
     title: str = None,
     path: str = None,
 ) -> None:
-    """
-    Make a scatter plot comparing predicted and reference demand.
+    """Make a scatter plot comparing predicted and reference demand.
 
     Args:
         a: Predicted demand with columns `utc_datetime` and any of
@@ -747,8 +728,7 @@ def plot_demand_scatter(
 def compare_state_demand(
     a: pd.DataFrame, b: pd.DataFrame, scaled: bool = True
 ) -> pd.DataFrame:
-    """
-    Compute statistics comparing predicted and reference demand.
+    """Compute statistics comparing predicted and reference demand.
 
     Statistics are computed for each year.
 

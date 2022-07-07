@@ -6,7 +6,6 @@ Development
   :maxdepth: 2
 
   dev_setup
-  settings_files
   run_the_etl
   project_management
   testing
@@ -18,3 +17,4 @@ Development
   naming_conventions
   data_guidelines
   packaging
+  nightly_data_builds

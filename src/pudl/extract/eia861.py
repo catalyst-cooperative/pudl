@@ -1,5 +1,4 @@
-"""
-Retrieve data from EIA Form 861 spreadsheets for analysis.
+"""Retrieve data from EIA Form 861 spreadsheets for analysis.
 
 This modules pulls data from EIA's published Excel spreadsheets.
 
@@ -22,8 +21,7 @@ class Extractor(excel.GenericExtractor):
     """Extractor for the excel dataset EIA861."""
 
     def __init__(self, *args, **kwargs):
-        """
-        Initialize the module.
+        """Initialize the module.
 
         Args:
             ds (:class:datastore.Datastore): Initialized datastore.
@@ -31,13 +29,13 @@ class Extractor(excel.GenericExtractor):
         self.METADATA = excel.Metadata("eia861")
         self.cols_added = []
         super().__init__(*args, **kwargs)
-
-    def process_raw(self, df, page, **partition):
-        """Rename columns with location."""
         warnings.warn(
             "Integration of EIA 861 into PUDL is still experimental and incomplete.\n"
             "The data has not yet been validated, and the structure may change."
         )
+
+    def process_raw(self, df, page, **partition):
+        """Rename columns with location."""
         column_map_numeric = self._metadata.get_column_map(page, **partition)
         df = df.rename(
             columns=dict(

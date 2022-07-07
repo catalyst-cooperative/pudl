@@ -1,9 +1,9 @@
 """Definitions of data tables primarily coming from EIA 860/861/923."""
-from typing import Any, Dict
+from typing import Any
 
 from pudl.metadata.codes import CODE_METADATA
 
-RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
+RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     "boilers_entity_eia": {
         "description": "Static boiler attributes compiled from the EIA-860 and EIA-923 data.",
         "schema": {
@@ -36,6 +36,25 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
         },
         "encoder": CODE_METADATA["contract_types_eia"],
         "sources": ["eia923"],
+        "etl_group": "static_eia",
+        "field_namespace": "eia",
+    },
+    "operational_status_eia": {
+        "description": "Codes and metadata pertaining to operational status reported to EIA. Compiled from EIA-860 instructions and EIA-923 file layout spreadsheets.",
+        "schema": {
+            "fields": [
+                "code",
+                "label",
+                "description",
+                "operational_status",
+            ],
+            "primary_key": ["code"],
+            "foreign_key_rules": {
+                "fields": [["operational_status_code"]],
+            },
+        },
+        "encoder": CODE_METADATA["operational_status_eia"],
+        "sources": ["eia860", "eia923"],
         "etl_group": "static_eia",
         "field_namespace": "eia",
     },
@@ -126,7 +145,6 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
             "fields": [
                 "plant_id_eia",
                 "generator_id",
-                "prime_mover_code",
                 "duct_burners",
                 "operating_date",
                 "topping_bottoming_code",
