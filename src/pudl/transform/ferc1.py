@@ -49,7 +49,10 @@ COLUMN_RENAME: dict[TABLES_LITERAL, dict[str, dict[Literal["dbf", "xbrl"], str]]
             "dbf": "expns_misc_power",
             "xbrl": "MiscellaneousSteamPowerExpenses",
         },
-        "plant_name_ferc1": {"dbf": "plant_name", "xbrl": "PlantNameAxis"},
+        "plant_name_ferc1": {
+            "dbf": "plant_name",
+            "xbrl": "PlantNameAxis",
+        },
         "plant_capability_mw": {
             "dbf": "plnt_capability",
             "xbrl": "NetContinuousPlantCapability",
@@ -78,7 +81,10 @@ COLUMN_RENAME: dict[TABLES_LITERAL, dict[str, dict[Literal["dbf", "xbrl"], str]]
             "dbf": "expns_steam_othr",
             "xbrl": "SteamFromOtherSources",
         },
-        "opex_transfer": {"dbf": "expns_transfer", "xbrl": "SteamTransferredCredit"},
+        "opex_transfer": {
+            "dbf": "expns_transfer",
+            "xbrl": "SteamTransferredCredit",
+        },
         "opex_engineering": {
             "dbf": "expns_engnr",
             "xbrl": "MaintenanceSupervisionAndEngineeringSteamPowerGeneration",
@@ -87,14 +93,25 @@ COLUMN_RENAME: dict[TABLES_LITERAL, dict[str, dict[Literal["dbf", "xbrl"], str]]
             "dbf": "avg_num_of_emp",
             "xbrl": "PlantAverageNumberOfEmployees",
         },
-        "capex_total": {"dbf": "cost_of_plant_to", "xbrl": "CostOfPlant"},
-        "opex_rents": {"dbf": "expns_rents", "xbrl": "RentsSteamPowerGeneration"},
+        "capex_total": {
+            "dbf": "cost_of_plant_to",
+            "xbrl": "CostOfPlant",
+        },
+        "opex_rents": {
+            "dbf": "expns_rents",
+            "xbrl": "RentsSteamPowerGeneration",
+        },
         "opex_production_total": {
             "dbf": "tot_prdctn_expns",
             "xbrl": "PowerProductionExpensesSteamPower",
         },
-        "plant_type": {"dbf": "plant_kind", "xbrl": "PlantKind"},
-        "utility_id_ferc1": {"dbf": "respondent_id"},
+        "plant_type": {
+            "dbf": "plant_kind",
+            "xbrl": "PlantKind",
+        },
+        "utility_id_ferc1": {
+            "dbf": "respondent_id",
+        },
         "opex_operations": {
             "dbf": "expns_operations",
             "xbrl": "OperationSupervisionAndEngineeringExpense",
@@ -103,19 +120,34 @@ COLUMN_RENAME: dict[TABLES_LITERAL, dict[str, dict[Literal["dbf", "xbrl"], str]]
             "dbf": "cost_equipment",
             "xbrl": "CostOfEquipmentSteamProduction",
         },
-        "construction_type": {"dbf": "type_const", "xbrl": "PlantConstructionType"},
+        "construction_type": {
+            "dbf": "type_const",
+            "xbrl": "PlantConstructionType",
+        },
         "plant_hours_connected_while_generating": {
             "dbf": "plant_hours",
             "xbrl": "PlantHoursConnectedToLoad",
         },
-        "opex_coolants": {"dbf": "expns_coolants", "xbrl": "CoolantsAndWater"},
-        "opex_fuel": {"dbf": "expns_fuel", "xbrl": "FuelSteamPowerGeneration"},
+        "opex_coolants": {
+            "dbf": "expns_coolants",
+            "xbrl": "CoolantsAndWater",
+        },
+        "opex_fuel": {
+            "dbf": "expns_fuel",
+            "xbrl": "FuelSteamPowerGeneration",
+        },
         "water_limited_capacity_mw": {
             "dbf": "when_limited",
             "xbrl": "NetContinuousPlantCapabilityLimitedByCondenserWater",
         },
-        "opex_per_kwh": {"dbf": "expns_kwh", "xbrl": "ExpensesPerNetKilowattHour"},
-        "opex_allowances": {"dbf": "expns_allowances", "xbrl": "Allowances"},
+        "opex_per_kwh": {
+            "dbf": "expns_kwh",
+            "xbrl": "ExpensesPerNetKilowattHour",
+        },
+        "opex_allowances": {
+            "dbf": "expns_allowances",
+            "xbrl": "Allowances",
+        },
         "opex_steam": {
             "dbf": "expns_steam",
             "xbrl": "SteamExpensesSteamPowerGeneration",
@@ -132,12 +164,18 @@ COLUMN_RENAME: dict[TABLES_LITERAL, dict[str, dict[Literal["dbf", "xbrl"], str]]
             "dbf": "expns_boiler",
             "xbrl": "MaintenanceOfBoilerPlantSteamPowerGeneration",
         },
-        "peak_demand_mw": {"dbf": "peak_demand", "xbrl": "NetPeakDemandOnPlant"},
+        "peak_demand_mw": {
+            "dbf": "peak_demand",
+            "xbrl": "NetPeakDemandOnPlant",
+        },
         "capex_land": {
             "dbf": "cost_land",
             "xbrl": "CostOfLandAndLandRightsSteamProduction",
         },
-        "capacity_mw": {"dbf": "tot_capacity", "xbrl": "InstalledCapacityOfPlant"},
+        "capacity_mw": {
+            "dbf": "tot_capacity",
+            "xbrl": "InstalledCapacityOfPlant",
+        },
         "net_generation_kwh": {
             "dbf": "net_generation",
             "xbrl": "NetGenerationExcludingPlantUse",
@@ -1595,7 +1633,7 @@ associated with each type (values) from FERC Form 1.
 There are many strings that weren't categorized, including crosses between conventional
 and outdoor, PV, wind, combined cycle, and internal combustion. The lists are broken out
 into the two types specified in Form 1: conventional and outdoor. These lists are
-inclusive so that variants of conventional (e.g.  "conventional full") and outdoor (e.g.
+inclusive so that variants of conventional (e.g. "conventional full") and outdoor (e.g.
 "outdoor full" and "outdoor hrsg") are included.
 """
 
@@ -2286,7 +2324,7 @@ class GenericTransformer(BaseModel):
 class PlantsSteamFerc1(GenericTransformer):
     """Transformer class for the plants_steam_ferc1 table."""
 
-    def exectue(self, ferc1_dbf_raw_dfs, ferc1_xbrl_raw_dfs, ferc1_transformed_dfs):
+    def execute(self, ferc1_dbf_raw_dfs, ferc1_xbrl_raw_dfs, ferc1_transformed_dfs):
         """Perform table transformations for the plants_steam_ferc1 table.
 
         Args:
@@ -2528,7 +2566,7 @@ class PlantsSteamFerc1(GenericTransformer):
 class FuelFerc1(GenericTransformer):
     """Transformer class for the fuel_ferc1 table."""
 
-    def exectue(self, ferc1_dbf_raw_dfs, ferc1_xbrl_raw_dfs, ferc1_transformed_dfs):
+    def execute(self, ferc1_dbf_raw_dfs, ferc1_xbrl_raw_dfs, ferc1_transformed_dfs):
         """Transforms FERC Form 1 fuel data for loading into PUDL Database."""
         fuel_df = (
             self.pre_concat_clean_and_concat_dbf_xbrl(
