@@ -3279,8 +3279,10 @@ def transform(
     """Transforms FERC 1.
 
     Args:
-        ferc1_raw_dfs (dict): Each entry in this dictionary of DataFrame objects
-            corresponds to a table from the FERC Form 1 DBC database
+        ferc1_dbf_raw_dfs (dict): Dictionary pudl table names (keys) and raw DBF
+            dataframes (values).
+        ferc1_xbrl_raw_dfs (dict): Dictionary pudl table names with `_instant`
+            or `_duration` (keys) and raw XRBL dataframes (values).
         ferc1_settings: Validated ETL parameters required by
             this data source.
 
@@ -3288,7 +3290,7 @@ def transform(
         dict: A dictionary of the transformed DataFrames.
 
     """
-    ferc1_tfr_funcs = {
+    ferc1_tfr_classes = {
         # fuel must come before steam b/c fuel proportions are used to aid in
         # plant # ID assignment.
         "fuel_ferc1": FuelFerc1,
@@ -3303,13 +3305,13 @@ def transform(
     ferc1_transformed_dfs = {}
 
     # for each ferc table,
-    for table in ferc1_tfr_funcs:
+    for table in ferc1_tfr_classes:
         if table in ferc1_settings.tables:
             logger.info(
                 f"Transforming raw FERC Form 1 dataframe for loading into {table}"
             )
 
-            ferc1_transformed_dfs[table] = ferc1_tfr_funcs[table](
+            ferc1_transformed_dfs[table] = ferc1_tfr_classes[table](
                 table_name=table
             ).execute(
                 raw_dbf=ferc1_dbf_raw_dfs.get(table),
