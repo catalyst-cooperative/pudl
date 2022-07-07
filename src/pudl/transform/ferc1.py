@@ -2289,7 +2289,7 @@ class GenericTransformer(BaseModel):
 class PlantsSteamFerc1(GenericTransformer):
     """Transformer class for the plants_steam_ferc1 table."""
 
-    def exectue(
+    def execute(
         self,
         raw_dbf: pd.DataFrame,
         raw_xbrl_instant: pd.DataFrame,
@@ -2522,7 +2522,7 @@ class PlantsSteamFerc1(GenericTransformer):
 class FuelFerc1(GenericTransformer):
     """Transformer class for the fuel_ferc1 table."""
 
-    def exectue(
+    def execute(
         self,
         raw_dbf: pd.DataFrame,
         raw_xbrl_instant: None,
@@ -3322,7 +3322,7 @@ def transform(
     if "plants_steam_ferc1" in ferc1_settings.tables:
         ferc1_transformed_dfs["plants_steam_ferc1"] = PlantsSteamFerc1(
             table_name="plants_steam_ferc"
-        ).excute(
+        ).execute(
             raw_dbf=ferc1_dbf_raw_dfs.get(table),
             raw_xbrl_instant=ferc1_xbrl_raw_dfs.get(f"{table}_instant", None),
             raw_xbrl_duration=ferc1_xbrl_raw_dfs.get(f"{table}_duration", None),
