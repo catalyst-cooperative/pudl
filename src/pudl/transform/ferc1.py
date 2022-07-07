@@ -2314,10 +2314,10 @@ class PlantsSteamFerc1(GenericTransformer):
         self.plants_steam_validate_ids(plants_steam_combo)
         return plants_steam_combo
 
-    def pre_concat_dbf(self, ferc1_dbf_raw_dfs):
+    def pre_concat_dbf(self, raw_dbf):
         """Modifications of the dbf plants_steam_ferc1 table before concat w/ xbrl."""
         plants_steam_dbf = self.rename_columns(
-            raw_table=ferc1_dbf_raw_dfs["plants_steam_ferc1"],
+            raw_table=raw_dbf,
             source="dbf",
         ).pipe(self.assign_record_id, source_ferc1="dbf")
         return plants_steam_dbf
@@ -2541,11 +2541,11 @@ class FuelFerc1(GenericTransformer):
         )
         return fuel_df
 
-    def pre_concat_dbf(self, ferc1_dbf_raw_dfs):
+    def pre_concat_dbf(self, raw_dbf):
         """Modifications of the dbf fuel_ferc1 table before concat w/ xbrl."""
         fuel_dbf = (
             self.rename_columns(
-                raw_table=ferc1_dbf_raw_dfs["fuel_ferc1"],
+                raw_table=raw_dbf,
                 source="dbf",
             )
             .pipe(self.assign_record_id, source_ferc1="dbf")
