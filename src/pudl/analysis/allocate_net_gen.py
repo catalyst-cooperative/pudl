@@ -1265,30 +1265,6 @@ def manually_fix_energy_source_codes(gf):
     return gf
 
 
-def manually_fix_prime_movers(gens):
-    """
-    Patch: Ensures prime movers assigned in 2020 match.
-
-    The prime mover identified in the generators_entity table does not always match the
-    prime mover identified in the generators file for a specific year
-    This is currently a temporary patch until this issue can be more broadly resolved
-    See https://github.com/catalyst-cooperative/pudl/issues/1585
-    """
-    # fix cogeneration issues
-    plant_ids = [2465, 50150, 54268, 54410, 54262]
-    for plant_id in plant_ids:
-        gens.loc[
-            (gens["plant_id_eia"] == plant_id) & (gens["prime_mover_code"] == "CT"),
-            "prime_mover_code",
-        ] = "GT"
-        gens.loc[
-            (gens["plant_id_eia"] == plant_id) & (gens["prime_mover_code"] == "CA"),
-            "prime_mover_code",
-        ] = "ST"
-
-    return gens
-
-
 def adjust_energy_source_codes(gens, gf, bf):
     """
     Adds startup fuels to the list of energy source codes and adjusts MSW codes.
