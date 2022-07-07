@@ -2352,10 +2352,10 @@ class PlantsSteamFerc1(GenericTransformer):
         self.plants_steam_validate_ids(plants_steam_combo)
         return plants_steam_combo
 
-    def pre_concat_dbf(self, ferc1_dbf_raw_dfs):
+    def pre_concat_dbf(self, raw_dbf):
         """Modifications of the dbf plants_steam_ferc1 table before concat w/ xbrl."""
         plants_steam_dbf = self.rename_columns(
-            raw_table=ferc1_dbf_raw_dfs["plants_steam_ferc1"],
+            raw_table=raw_dbf,
             source="dbf",
         ).pipe(self.assign_record_id, source_ferc1="dbf")
         return plants_steam_dbf
@@ -2579,11 +2579,11 @@ class FuelFerc1(GenericTransformer):
         )
         return fuel_df
 
-    def pre_concat_dbf(self, ferc1_dbf_raw_dfs):
+    def pre_concat_dbf(self, raw_dbf):
         """Modifications of the dbf fuel_ferc1 table before concat w/ xbrl."""
         fuel_dbf = (
             self.rename_columns(
-                raw_table=ferc1_dbf_raw_dfs["fuel_ferc1"],
+                raw_table=raw_dbf,
                 source="dbf",
             )
             .pipe(self.assign_record_id, source_ferc1="dbf")
@@ -3317,8 +3317,10 @@ def transform(
     """Transforms FERC 1.
 
     Args:
-        ferc1_raw_dfs (dict): Each entry in this dictionary of DataFrame objects
-            corresponds to a table from the FERC Form 1 DBC database
+        ferc1_dbf_raw_dfs (dict): Dictionary pudl table names (keys) and raw DBF
+            dataframes (values).
+        ferc1_xbrl_raw_dfs (dict): Dictionary pudl table names with `_instant`
+            or `_duration` (keys) and raw XRBL dataframes (values).
         ferc1_settings: Validated ETL parameters required by
             this data source.
 
@@ -3326,7 +3328,7 @@ def transform(
         dict: A dictionary of the transformed DataFrames.
 
     """
-    ferc1_tfr_funcs = {
+    ferc1_tfr_classes = {
         # fuel must come before steam b/c fuel proportions are used to aid in
         # plant # ID assignment.
         "fuel_ferc1": FuelFerc1,
@@ -3341,13 +3343,13 @@ def transform(
     ferc1_transformed_dfs = {}
 
     # for each ferc table,
-    for table in ferc1_tfr_funcs:
+    for table in ferc1_tfr_classes:
         if table in ferc1_settings.tables:
             logger.info(
                 f"Transforming raw FERC Form 1 dataframe for loading into {table}"
             )
 
-            ferc1_transformed_dfs[table] = ferc1_tfr_funcs[table](
+            ferc1_transformed_dfs[table] = ferc1_tfr_classes[table](
                 table_name=table
             ).execute(
                 raw_dbf=ferc1_dbf_raw_dfs.get(table),
