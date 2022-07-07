@@ -19,8 +19,7 @@ logger = logging.getLogger(__name__)
 
 
 def fix_up_dates(df: pd.DataFrame, plant_utc_offset: pd.DataFrame) -> pd.DataFrame:
-    """
-    Fix the dates for the CEMS data.
+    """Fix the dates for the CEMS data.
 
     Transformations include:
 
@@ -97,8 +96,7 @@ def _load_plant_utc_offset(pudl_engine):
 
 
 def harmonize_eia_epa_orispl(df):
-    """
-    Harmonize the ORISPL code to match the EIA data -- NOT YET IMPLEMENTED.
+    """Harmonize the ORISPL code to match the EIA data -- NOT YET IMPLEMENTED.
 
     The EIA plant IDs and CEMS ORISPL codes almost match, but not quite. EPA has
     compiled a crosswalk that maps one set of IDs to the other, but we haven't
@@ -124,8 +122,7 @@ def harmonize_eia_epa_orispl(df):
 
 
 def add_facility_id_unit_id_epa(df):
-    """
-    Harmonize columns that are added later.
+    """Harmonize columns that are added later.
 
     The Parquet schema requires consistent column names across all partitions and
     ``facility_id`` and ``unit_id_epa`` aren't present before August 2008, so this
@@ -151,8 +148,7 @@ def add_facility_id_unit_id_epa(df):
 
 
 def _all_na_or_values(series, values):
-    """
-    Test whether every element in the series is either missing or in values.
+    """Test whether every element in the series is either missing or in values.
 
     This is fiddly because isin() changes behavior if the series is totally NaN (because
     of type issues).
@@ -178,8 +174,7 @@ def _all_na_or_values(series, values):
 
 
 def correct_gross_load_mw(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Fix values of gross load that are wrong by orders of magnitude.
+    """Fix values of gross load that are wrong by orders of magnitude.
 
     Args:
         df: A CEMS dataframe
@@ -201,8 +196,7 @@ def correct_gross_load_mw(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def transform(raw_df: pd.DataFrame, pudl_engine: sa.engine.Engine) -> pd.DataFrame:
-    """
-    Transform EPA CEMS hourly data and ready it for export to Parquet.
+    """Transform EPA CEMS hourly data and ready it for export to Parquet.
 
     Args:
         raw_df: An extracted by not yet transformed state-year of EPA CEMS data.

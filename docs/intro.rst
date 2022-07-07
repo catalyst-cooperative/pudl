@@ -137,8 +137,8 @@ consistently reported, it may also be set to N/A.
 Load
 ^^^^
 
-At the end of the Transform step, we have collections of :class:`pandas.DataFrame`s that
-correspond to database tables. These are loaded into an SQLite database.
+At the end of the Transform step, we have collections of :class:`pandas.DataFrame` that
+correspond to database tables. These are loaded into a SQLite database.
 To handle the ~1 billion row :doc:`data_sources/epacems`, we load the dataframes into
 an Apache Parquet dataset that is partitioned by state and year.
 

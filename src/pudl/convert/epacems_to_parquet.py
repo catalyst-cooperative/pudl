@@ -23,8 +23,7 @@ logger = logging.getLogger(__name__)
 
 
 def parse_command_line(argv):
-    """
-    Parse command line arguments. See the -h option.
+    """Parse command line arguments. See the -h option.
 
     Args:
         argv (str): Command line arguments, including caller filename.
@@ -83,19 +82,24 @@ def parse_command_line(argv):
         help="If set, output year-state partitioned Parquet files and process data "
         "in parallel using all available threads / CPUs.",
     )
-
+    parser.add_argument(
+        "--loglevel",
+        help="Set logging level (DEBUG, INFO, WARNING, ERROR, or CRITICAL).",
+        default="INFO",
+    )
     arguments = parser.parse_args(argv[1:])
     return arguments
 
 
 def main():
     """Convert zipped EPA CEMS Hourly data to Apache Parquet format."""
+    args = parse_command_line(sys.argv)
+
     # Display logged output from the PUDL package:
     pudl_logger = logging.getLogger("pudl")
     log_format = "%(asctime)s [%(levelname)8s] %(name)s:%(lineno)s %(message)s"
-    coloredlogs.install(fmt=log_format, level="INFO", logger=pudl_logger)
+    coloredlogs.install(fmt=log_format, level=args.loglevel, logger=pudl_logger)
 
-    args = parse_command_line(sys.argv)
     pudl_settings = pudl.workspace.setup.get_defaults()
     # This also validates the states / years we've been given:
     epacems_settings = EpaCemsSettings(
@@ -109,15 +113,14 @@ def main():
     if not args.bypass_local_cache:
         ds_kwargs["local_cache_path"] = pathlib.Path(pudl_settings["pudl_in"]) / "data"
 
-    _ = pudl.helpers.prep_dir(
-        pathlib.Path(pudl_settings["parquet_dir"]) / "epacems",
-        clobber=args.clobber,
-    )
+    epacems_pq_path = pathlib.Path(pudl_settings["parquet_dir"]) / "epacems"
+    epacems_pq_path.mkdir(exist_ok=True)
 
     pudl.etl.etl_epacems(
         epacems_settings=epacems_settings,
         pudl_settings=pudl_settings,
         ds_kwargs=ds_kwargs,
+        clobber=args.clobber,
     )
 
 

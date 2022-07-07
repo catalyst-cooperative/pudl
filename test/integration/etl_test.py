@@ -1,5 +1,4 @@
-"""
-PyTest based testing of the FERC Database & PUDL data package initializations.
+"""PyTest based testing of the FERC Database & PUDL data package initializations.
 
 This module also contains fixtures for returning connections to the databases.
 These connections can be either to the live databases for post-ETL testing or
@@ -28,8 +27,7 @@ def test_pudl_engine(pudl_engine):
 
 
 def test_ferc1_etl(ferc1_engine):
-    """
-    Create a fresh FERC Form 1 SQLite DB and attempt to access it.
+    """Create a fresh FERC Form 1 SQLite DB and attempt to access it.
 
     Nothing needs to be in the body of this "test" because the database
     connections are created by the ferc1_engine fixture defined in conftest.py
@@ -39,8 +37,7 @@ def test_ferc1_etl(ferc1_engine):
 
 
 def test_ferc1_schema(ferc1_etl_settings, pudl_ferc1datastore_fixture):
-    """
-    Check to make sure we aren't missing any old FERC Form 1 tables or fields.
+    """Check to make sure we aren't missing any old FERC Form 1 tables or fields.
 
     Exhaustively enumerate all historical sets of FERC Form 1 database tables
     and their constituent fields. Check to make sure that the current database

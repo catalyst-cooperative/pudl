@@ -1,5 +1,4 @@
-"""
-Modules implementing the "Extract" step of the PUDL ETL pipeline.
+"""Modules implementing the "Extract" step of the PUDL ETL pipeline.
 
 Each module in this subpackage implements data extraction for a single data
 source from the PUDL :ref:`data-sources`. This process begins with

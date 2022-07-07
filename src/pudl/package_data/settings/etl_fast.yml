@@ -1,23 +1,26 @@
+---
+###########################################################################
+# Settings for ferc1_to_sqlite script
+###########################################################################
 ferc1_to_sqlite_settings:
-###########################################################################
-# FERC FORM 1 DB CLONE SETTINGS
-###########################################################################
-    # What years of original FERC data should be cloned into the SQLite DB?
-    years: [
-        2020
-    ]
+  # What years of original FERC data should be cloned into the SQLite DB?
+  years:
+    [2020]
     # A list of tables to be loaded into the local SQLite database. These are
     # the table names as they appear in the 2015 FERC Form 1 database.
-    tables:
-      - f1_respondent_id
-      - f1_gnrt_plant
-      - f1_steam
-      - f1_fuel
-      - f1_plant_in_srvce
-      - f1_hydro
-      - f1_pumped_storage
-      - f1_purchased_pwr
+  tables:
+    - f1_respondent_id
+    - f1_gnrt_plant
+    - f1_steam
+    - f1_fuel
+    - f1_plant_in_srvce
+    - f1_hydro
+    - f1_pumped_storage
+    - f1_purchased_pwr
 
+###########################################################################
+# Settings for pudl_etl script
+###########################################################################
 name: pudl-full
 title: PUDL Full ETL
 description: >
@@ -25,8 +28,8 @@ description: >
   EPA CEMS hourly emissions data from 2020 (output to Parquet).
 version: 0.1.0
 datasets:
-    ferc1:
-      tables:
+  ferc1:
+    tables:
       - fuel_ferc1 # requires plants_steam_ferc1 to load properly
       - plants_steam_ferc1
       - plants_small_ferc1
@@ -34,37 +37,28 @@ datasets:
       - plants_pumped_storage_ferc1
       - plant_in_service_ferc1
       - purchased_power_ferc1
-      years: [
-          2020
-      ]
-    eia:
-      eia923:
-        tables:
-          - generation_fuel_eia923
-          - boiler_fuel_eia923
-          - generation_eia923
-          - coalmine_eia923 # REQUIRES fuel_receipts_costs_eia923
-          - fuel_receipts_costs_eia923
-        years: [
-            2020
-        ]
-      eia860:
-        tables:
-          - boiler_generator_assn_eia860
-          - utilities_eia860
-          - plants_eia860
-          - generators_eia860
-          - ownership_eia860
-        years: [
-            2020
-        ]
-        eia860m: True
-    epacems:
-      # Note that the CEMS data relies on EIA 860 data for plant locations,
-      # so if you're loading CEMS data for a particular year, you should
-      # also load the EIA 860 data for that year if possible
-      # Just Idaho, because it is tiny:
-      states: [ID]
-      years: [
-          2020
-      ]
+    years: [2020]
+  eia:
+    eia923:
+      tables:
+        - generation_fuel_eia923
+        - boiler_fuel_eia923
+        - generation_eia923
+        - coalmine_eia923 # REQUIRES fuel_receipts_costs_eia923
+        - fuel_receipts_costs_eia923
+      years: [2020]
+    eia860:
+      tables:
+        - boiler_generator_assn_eia860
+        - utilities_eia860
+        - plants_eia860
+        - generators_eia860
+        - ownership_eia860
+      years: [2020]
+      eia860m: true
+  epacems:
+    # Note that the CEMS data relies on EIA 860 data for plant locations,
+    # so if you're loading CEMS data for a particular year, you should
+    # also load the EIA 860 data for that year if possible
+    states: [ID, ME]
+    years: [2019, 2020]

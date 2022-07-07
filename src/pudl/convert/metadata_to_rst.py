@@ -3,6 +3,7 @@
 import argparse
 import logging
 import sys
+from pathlib import Path
 
 import coloredlogs
 
@@ -12,8 +13,7 @@ logger = logging.getLogger(__name__)
 
 
 def parse_command_line(argv):
-    """
-    Parse command line arguments. See the -h option.
+    """Parse command line arguments. See the -h option.
 
     Args:
         argv (str): Command line arguments, including caller filename.
@@ -35,6 +35,12 @@ def parse_command_line(argv):
         help="Path to the file where the RST output should be written.",
         default=False,
     )
+    parser.add_argument(
+        "--docs_dir",
+        help="Path to docs directory.",
+        type=lambda x: Path(x).resolve(),
+        default=Path().cwd() / "docs",
+    )
     arguments = parser.parse_args(argv[1:])
     return arguments
 
@@ -52,7 +58,7 @@ def main():
     # Sort fields within each resource by name:
     for resource in package.resources:
         resource.schema.fields = sorted(resource.schema.fields, key=lambda x: x.name)
-    package.to_rst(path=args.output)
+    package.to_rst(docs_dir=args.docs_dir, path=args.output)
 
 
 if __name__ == "__main__":

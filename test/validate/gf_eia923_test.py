@@ -45,13 +45,13 @@ def test_vs_bounds(pudl_out_eia, live_dbs, cases):
         pudl.validate.vs_bounds(pudl_out_eia.gf_eia923(), **args)
 
 
-###############################################################################
-# Tests validating distributions against historical subsamples of themselves
-# Note that all of the fields we're testing in this table are the
-# fuel_type_code_pudl fields which are simplified lumpings of the other fuel
-# types, and aren't as useful to test against their historical selves. So we're
-# only testing the aggregation (i.e. there's no test_self_vs_historical() here)
-################################################################################
+#######################################################################################
+# Tests validating distributions against historical subsamples of themselves Note that
+# all of the fields we're testing in this table are the fuel_type_code_pudl fields which
+# are simplified lumpings of the other fuel types, and aren't as useful to test against
+# their historical selves. So we're only testing the aggregation (i.e. there's no
+# test_self_vs_historical() here)
+#######################################################################################
 
 
 def test_agg_vs_historical(pudl_out_orig, pudl_out_eia, live_dbs):

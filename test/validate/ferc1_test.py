@@ -1,5 +1,4 @@
-"""
-Validate post-ETL FERC Form 1 data and the associated derived outputs.
+"""Validate post-ETL FERC Form 1 data and the associated derived outputs.
 
 These tests depend on a FERC Form 1 specific PudlTabl output object, which is
 a parameterized fixture that has session scope.
@@ -42,14 +41,11 @@ def test_record_id_dupes(pudl_engine, table_name):
 @pytest.mark.parametrize(
     "df_name,cols",
     [
-        ("all_plants_ferc1", "all"),
         ("fbp_ferc1", "all"),
         ("fuel_ferc1", "all"),
         ("plant_in_service_ferc1", "all"),
-        (
-            "plants_hydro_ferc1",
-            "all",
-        ),
+        ("plants_all_ferc1", "all"),
+        ("plants_hydro_ferc1", "all"),
         ("plants_pumped_storage_ferc1", "all"),
         ("plants_small_ferc1", "all"),
         ("plants_steam_ferc1", "all"),
@@ -69,10 +65,10 @@ def test_no_null_cols_ferc1(pudl_out_ferc1, live_dbs, cols, df_name):
 @pytest.mark.parametrize(
     "df_name,expected_rows",
     [
-        ("all_plants_ferc1", 51_456),
         ("fbp_ferc1", 20_573),
         ("fuel_ferc1", 31_265),
         ("plant_in_service_ferc1", 26_933),
+        ("plants_all_ferc1", 51_456),
         ("plants_hydro_ferc1", 6_782),
         ("plants_pumped_storage_ferc1", 710),
         ("plants_small_ferc1", 15_584),

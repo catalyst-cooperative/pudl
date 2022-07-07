@@ -4,6 +4,7 @@ import logging
 import pytest
 
 from pudl import validate as pv
+from pudl.output.pudltabl import PudlTabl
 
 logger = logging.getLogger(__name__)
 
@@ -37,13 +38,13 @@ def test_no_null_cols_eia(pudl_out_eia, live_dbs, cols, df_name):
 @pytest.mark.parametrize(
     "df_name,raw_rows,monthly_rows,annual_rows",
     [
-        ("bf_eia923", 1_309_942, 1_309_942, 109_807),
+        ("bf_eia923", 1_309_908, 1_309_908, 109_773),
         ("bga_eia860", 117_930, 117_930, 117_930),
-        ("frc_eia923", 560_377, 230_063, 22_686),
-        ("gen_eia923", 559_570, 559_570, 46_718),
+        ("frc_eia923", 560_360, 230_057, 22_679),
+        ("gen_eia923", 559_546, 559_546, 46_694),
         ("gens_eia860", 491_469, 491_469, 491_469),
-        ("gf_eia923", 2_507_870, 2_507_870, 214_709),
-        ("gf_nonuclear_eia923", 2_492_481, 2_492_481, 213_422),
+        ("gf_eia923", 2_507_830, 2_507_830, 214_669),
+        ("gf_nonuclear_eia923", 2_492_441, 2_492_441, 213_382),
         ("gf_nuclear_eia923", 23_498, 23_498, 1_964),
         ("own_eia860", 79_311, 79_311, 79_311),
         ("plants_eia860", 171_570, 171_570, 171_570),
@@ -52,15 +53,21 @@ def test_no_null_cols_eia(pudl_out_eia, live_dbs, cols, df_name):
     ],
 )
 def test_minmax_rows(
-    pudl_out_eia, live_dbs, raw_rows, annual_rows, monthly_rows, df_name
+    pudl_out_eia: PudlTabl,
+    live_dbs: bool,
+    raw_rows: int,
+    annual_rows: int,
+    monthly_rows: int,
+    df_name: str,
 ):
     """Verify that output DataFrames don't have too many or too few rows.
 
     Args:
         pudl_out_eia: A PudlTabl output object.
         live_dbs (bool): Whether we're using a live or testing DB.
-        min_rows (int): Minimum number of rows that the dataframe should
-            contain when all data is loaded and is output without aggregation.
+        raw_rows: The expected original number of rows, without aggregation.
+        annual_rows: The expected number of rows when using annual aggregation.
+        monthly_rows: The expected number of rows when using monthly aggregation.
         df_name (str): Shorthand name identifying the dataframe, corresponding
             to the name of the function used to pull it from the PudlTabl
             output object.

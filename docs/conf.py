@@ -14,7 +14,7 @@ from pathlib import Path
 
 import pkg_resources
 
-from pudl.metadata.classes import CodeMetadata, Package
+from pudl.metadata.classes import CodeMetadata, DataSource, Package
 from pudl.metadata.codes import CODE_METADATA
 from pudl.metadata.resources import RESOURCE_METADATA
 
@@ -51,7 +51,6 @@ extensions = [
     "autoapi.extension",
     "sphinx_issues",
     "sphinx_reredirects",
-    "sphinx_rtd_dark_mode",
     "sphinxcontrib.bibtex",
 ]
 todo_include_todos = True
@@ -108,28 +107,16 @@ exclude_patterns = ["_build"]
 # -- Options for HTML output -------------------------------------------------
 
 # The theme to use for HTML and HTML Help pages.
-
-# user starts in dark mode
-default_dark_mode = False
-
 master_doc = "index"
-html_theme = "sphinx_rtd_theme"
+html_theme = "furo"
 html_logo = "_static/catalyst_logo-200x200.png"
 html_icon = "_static/favicon.ico"
-
-html_context = {
-    "display_github": True,  # Integrate GitHub
-    "github_user": "catalyst-cooperative",  # Username
-    "github_repo": "pudl",  # Repo name
-    "github_version": "main",  # Version
-    "conf_py_path": "/docs/",  # Path in the checkout to the docs root
-}
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
 # documentation.
 html_theme_options = {
-    "collapse_navigation": True,
+    "navigation_with_keys": True,
 }
 
 # Add any paths that contain custom static files (such as style sheets) here,
@@ -139,22 +126,49 @@ html_static_path = ["_static"]
 
 
 # -- Custom build operations -------------------------------------------------
-def metadata_to_rst(app):
-    """Export metadata structures to RST for inclusion in the documentation."""
+def data_dictionary_metadata_to_rst(app):
+    """Export data dictionary metadata to RST for inclusion in the documentation."""
     # Create an RST Data Dictionary for the PUDL DB:
-    print("Exporting PUDL DB metadata to RST.")
+    print("Exporting PUDL DB data dictionary metadata to RST.")
     skip_names = ["datasets", "accumulated_depreciation_ferc1"]
     names = [name for name in RESOURCE_METADATA if name not in skip_names]
     package = Package.from_resource_ids(resource_ids=tuple(sorted(names)))
     # Sort fields within each resource by name:
     for resource in package.resources:
         resource.schema.fields = sorted(resource.schema.fields, key=lambda x: x.name)
-    package.to_rst(path=DOCS_DIR / "data_dictionaries/pudl_db.rst")
+    package.to_rst(docs_dir=DOCS_DIR, path=DOCS_DIR / "data_dictionaries/pudl_db.rst")
+
+
+def data_sources_metadata_to_rst(app):
+    """Export data source metadata to RST for inclusion in the documentation."""
+    print("Exporting data source metadata to RST.")
+    included_sources = ["eia860", "eia923", "ferc1", "epacems"]
+    package = Package.from_resource_ids()
+    extra_etl_groups = {"eia860": ["entity_eia"], "ferc1": ["glue"]}
+    for name in included_sources:
+        source = DataSource.from_id(name)
+        source_resources = [res for res in package.resources if res.etl_group == name]
+        extra_resources = None
+        if name in extra_etl_groups:
+            # get resources for this source from extra etl groups
+            extra_resources = [
+                res
+                for res in package.resources
+                if res.etl_group in extra_etl_groups[name]
+                and name in [src.name for src in res.sources]
+            ]
+        source.to_rst(
+            docs_dir=DOCS_DIR,
+            output_path=DOCS_DIR / f"data_sources/{name}.rst",
+            source_resources=source_resources,
+            extra_resources=extra_resources,
+        )
 
 
 def static_dfs_to_rst(app):
     """Export static code labeling dataframes to RST for inclusion in the documentation."""
-    # Sphinx csv-table directive wants an absolute path relative to source directory, but pandas to_csv wants a true absolute path
+    # Sphinx csv-table directive wants an absolute path relative to source directory,
+    # but pandas to_csv wants a true absolute path
     csv_subdir = "data_dictionaries/code_csvs"
     abs_csv_dir_path = DOCS_DIR / csv_subdir
     abs_csv_dir_path.mkdir(parents=True, exist_ok=True)
@@ -170,6 +184,10 @@ def cleanup_rsts(app, exception):
     """Remove generated RST files when the build is finished."""
     (DOCS_DIR / "data_dictionaries/pudl_db.rst").unlink()
     (DOCS_DIR / "data_dictionaries/codes_and_labels.rst").unlink()
+    (DOCS_DIR / "data_sources/eia860.rst").unlink()
+    (DOCS_DIR / "data_sources/eia923.rst").unlink()
+    (DOCS_DIR / "data_sources/ferc1.rst").unlink()
+    (DOCS_DIR / "data_sources/epacems.rst").unlink()
 
 
 def cleanup_csv_dir(app, exception):
@@ -182,7 +200,8 @@ def cleanup_csv_dir(app, exception):
 def setup(app):
     """Add custom CSS defined in _static/custom.css."""
     app.add_css_file("custom.css")
-    app.connect("builder-inited", metadata_to_rst)
+    app.connect("builder-inited", data_dictionary_metadata_to_rst)
+    app.connect("builder-inited", data_sources_metadata_to_rst)
     app.connect("builder-inited", static_dfs_to_rst)
     app.connect("build-finished", cleanup_rsts)
     app.connect("build-finished", cleanup_csv_dir)

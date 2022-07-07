@@ -25,14 +25,14 @@ The directory structure set up for PUDL looks like this:
 PUDL_IN
   └── data
       ├── censusdp1tract
-      ├── eia860
+      ├── eia860
       ├── eia860m
       ├── eia861
       ├── eia923
       ├── epacems
       ├── ferc1
       ├── ferc714
-      └── tmp
+      └── tmp
 
 PUDL_OUT
   ├── parquet

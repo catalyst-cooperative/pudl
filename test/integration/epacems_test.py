@@ -58,36 +58,34 @@ def test_epacems_subset_input_validation(epacems_year_and_state, epacems_parquet
     invalid_year = 1775
     invalid_column = "clean_coal"
     combos = [
-        dict(
-            years=[valid_year],
-            states=[valid_state],
-            columns=[invalid_column],
-        ),
-        dict(
-            years=[valid_year],
-            states=[invalid_state],
-            columns=[valid_column],
-        ),
-        dict(
-            years=[invalid_year],
-            states=[valid_state],
-            columns=[valid_column],
-        ),
+        dict(years=[valid_year], states=[valid_state], columns=[invalid_column]),
+        dict(years=[valid_year], states=[invalid_state], columns=[valid_column]),
+        dict(years=[invalid_year], states=[valid_state], columns=[valid_column]),
     ]
     for combo in combos:
         with pytest.raises(ValueError):
             epacems(epacems_path=path, **combo)
 
 
-def test_epacems_parallel(pudl_settings_fixture, pudl_ds_kwargs):
+def test_epacems_parallel(pudl_settings_fixture, pudl_ds_kwargs, tmpdir_factory):
     """Test that we can run the EPA CEMS ETL in parallel."""
     epacems_settings = EpaCemsSettings(
-        years=[2019, 2020], states=["ID", "WY"], partition=True
+        years=[2019, 2020], states=["ID", "ME"], partition=True
     )
-    etl_epacems(epacems_settings, pudl_settings_fixture, pudl_ds_kwargs)
+    # We need a temporary output directory to avoid dropping the ID/ME 2019/2020
+    # parallel outputs in the real output directory and interfering with the normal
+    # monolithic outputs.
+    parquet_tmp = tmpdir_factory.mktemp("parquet_tmp")
+    epacems_tmp = Path(parquet_tmp, "epacems")
+    epacems_tmp.mkdir()
+    settings_tmp = {k: v for k, v in pudl_settings_fixture.items()}
+    settings_tmp["parquet_dir"] = parquet_tmp
+    etl_epacems(epacems_settings, settings_tmp, pudl_ds_kwargs)
     df = dd.read_parquet(
-        Path(pudl_settings_fixture["parquet_dir"]) / "epacems",
-        filters=year_state_filter(years=[2019], states=["WY"]),
+        epacems_tmp,
+        filters=year_state_filter(years=[2019], states=["ME"]),
         index=False,
+        engine="pyarrow",
+        split_row_groups=True,
     ).compute()
-    assert df.shape == (219000, 19)  # nosec: B101
+    assert df.shape == (96_360, 19)  # nosec: B101

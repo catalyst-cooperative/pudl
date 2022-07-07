@@ -1,5 +1,4 @@
-"""
-Extract and transform glue tables between FERC Form 1 and EIA 860/923.
+"""Extract and transform glue tables between FERC Form 1 and EIA 860/923.
 
 FERC1 and EIA report on many of the same plants and utilities, but have no
 embedded connection. We have combed through the FERC and EIA plants and
@@ -32,7 +31,7 @@ implications of using a co-located set of plant infrastructure as an id.
 """
 import importlib
 import logging
-from typing import Dict, Iterable, List
+from collections.abc import Iterable
 
 import pandas as pd
 import sqlalchemy as sa
@@ -44,7 +43,7 @@ logger = logging.getLogger(__name__)
 # Identify only those utilities assocaited with plants that reported data
 # at some point in the EIA 923 -- these are the ones we might need to link
 # to the FERC Form 1 utilities:
-DATA_TABLES_EIA923: List[str] = [
+DATA_TABLES_EIA923: list[str] = [
     "boiler_fuel_eia923",
     "fuel_receipts_costs_eia923",
     "generation_eia923",
@@ -101,10 +100,9 @@ def get_utility_map() -> pd.DataFrame:
 
 
 def get_db_plants_ferc1(
-    pudl_settings: Dict[str, str], years: Iterable[int]
+    pudl_settings: dict[str, str], years: Iterable[int]
 ) -> pd.DataFrame:
-    """
-    Pull a dataframe of all plants in the FERC Form 1 DB for the given years.
+    """Pull a dataframe of all plants in the FERC Form 1 DB for the given years.
 
     This function looks in the f1_steam, f1_gnrt_plant, f1_hydro and
     f1_pumped_storage tables, and generates a dataframe containing every unique
@@ -212,8 +210,7 @@ def get_db_plants_ferc1(
 
 
 def get_mapped_plants_ferc1() -> pd.DataFrame:
-    """
-    Generate a dataframe containing all previously mapped FERC 1 plants.
+    """Generate a dataframe containing all previously mapped FERC 1 plants.
 
     Many plants are reported in FERC Form 1 with different versions of the same
     name in different years. Because FERC provides no unique ID for plants,
@@ -258,8 +255,7 @@ def get_mapped_plants_ferc1() -> pd.DataFrame:
 
 
 def get_mapped_utils_ferc1():
-    """
-    Read in the list of manually mapped utilities for FERC Form 1.
+    """Read in the list of manually mapped utilities for FERC Form 1.
 
     Unless a new utility has appeared in the database, this should be identical
     to the full list of utilities available in the FERC Form 1 database.
@@ -287,11 +283,10 @@ def get_mapped_utils_ferc1():
 
 
 def get_unmapped_plants_ferc1(
-    pudl_settings: Dict[str, str],
+    pudl_settings: dict[str, str],
     years: Iterable[int],
 ) -> pd.DataFrame:
-    """
-    Generate a DataFrame of all unmapped FERC plants in the given years.
+    """Generate a DataFrame of all unmapped FERC plants in the given years.
 
     Pulls all plants from the FERC Form 1 DB for the given years, and compares that list
     against the already mapped plants. Any plants found in the database but not in the
@@ -321,8 +316,7 @@ def get_unmapped_plants_ferc1(
 
 
 def get_unmapped_utils_ferc1(ferc1_engine):
-    """
-    Generate a list of as-of-yet unmapped utilities from the FERC Form 1 DB.
+    """Generate a list of as-of-yet unmapped utilities from the FERC Form 1 DB.
 
     Find any utilities which do exist in the cloned FERC Form 1 DB,
     but which do not show up in the already mapped FERC respondents.
@@ -360,8 +354,7 @@ def get_unmapped_utils_ferc1(ferc1_engine):
 
 
 def get_db_plants_eia(pudl_engine):
-    """
-    Get a list of all EIA plants appearing in the PUDL DB.
+    """Get a list of all EIA plants appearing in the PUDL DB.
 
     This list of plants is used to determine which plants need to be added to
     the FERC 1 / EIA plant mappings, where we assign PUDL Plant IDs. Unless a
@@ -391,8 +384,7 @@ def get_db_plants_eia(pudl_engine):
 
 
 def get_mapped_plants_eia():
-    """
-    Get a list of all EIA plants that have been assigned PUDL Plant IDs.
+    """Get a list of all EIA plants that have been assigned PUDL Plant IDs.
 
     Read in the list of already mapped EIA plants from the FERC 1 / EIA plant
     and utility mapping spreadsheet kept in the package_data.
@@ -527,10 +519,9 @@ def get_mapped_utils_eia() -> pd.DataFrame:
 
 def get_unmapped_utils_eia(
     pudl_engine: sa.engine.Engine,
-    data_tables_eia923: List[str] = DATA_TABLES_EIA923,
+    data_tables_eia923: list[str] = DATA_TABLES_EIA923,
 ) -> pd.DataFrame:
-    """
-    Get a list of all the EIA Utilities in the PUDL DB without PUDL IDs.
+    """Get a list of all the EIA Utilities in the PUDL DB without PUDL IDs.
 
     Identify any EIA Utility that appears in the data but does not have a
     utility_id_pudl associated with it in our ID mapping spreadsheet. Label some

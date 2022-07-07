@@ -12,8 +12,7 @@ logger = logging.getLogger(__name__)
 
 
 def parse_command_line(argv):
-    """
-    Parse command line arguments. See the -h option.
+    """Parse command line arguments. See the -h option.
 
     Args:
         argv (str): Command line arguments, including absolute path to output filename.
@@ -40,7 +39,7 @@ def main():
     coloredlogs.install(fmt=log_format, level="INFO", logger=pudl_logger)
 
     args = parse_command_line(sys.argv)
-    logger.info(f"Exporting metadata to: {args.output}")
+    logger.info(f"Exporting Datasette metadata to: {args.output}")
 
     dm = DatasetteMetadata.from_data_source_ids()
     dm.to_yaml(path=args.output)

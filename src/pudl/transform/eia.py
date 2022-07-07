@@ -1,5 +1,4 @@
-"""
-Code for transforming EIA data that pertains to more than one EIA Form.
+"""Code for transforming EIA data that pertains to more than one EIA Form.
 
 This module helps normalize EIA datasets and infers additonal connections
 between EIA entities (i.e. utilities, plants, units, generators...). This
@@ -15,11 +14,11 @@ includes:
 The boiler generator association inferrence (bga) takes the associations
 provided by the EIA 860, and expands on it using several methods which can be
 found in :func:`pudl.transform.eia._boiler_generator_assn`.
+
 """
 
 import importlib.resources
 import logging
-from typing import Dict
 
 import networkx as nx
 import numpy as np
@@ -37,7 +36,7 @@ logger = logging.getLogger(__name__)
 TZ_FINDER = timezonefinder.TimezoneFinder()
 """A global TimezoneFinder to cache geographies in memory for faster access."""
 
-APPROXIMATE_TIMEZONES: Dict[str, str] = {
+APPROXIMATE_TIMEZONES: dict[str, str] = {
     "AK": "America/Anchorage",  # Alaska
     "AL": "America/Chicago",  # Alabama
     "AR": "America/Chicago",  # Arkansas
@@ -109,8 +108,7 @@ APPROXIMATE_TIMEZONES: Dict[str, str] = {
     "SK": "America/Regina",  # Saskatchewan  (split province)
     "YT": "America/Whitehorse",  # Yukon Territory
 }
-"""
-Approximate mapping of US & Canadian jurisdictions to canonical timezones
+"""Approximate mapping of US & Canadian jurisdictions to canonical timezones
 
 This is imperfect for states that have split timezones. See:
 https://en.wikipedia.org/wiki/List_of_time_offsets_by_U.S._state_and_territory
@@ -166,8 +164,7 @@ def find_timezone(*, lng=None, lat=None, state=None, strict=True):
 def _occurrence_consistency(
     entity_id, compiled_df, col, cols_to_consit, strictness=0.7
 ):
-    """
-    Find the occurence of plants & the consistency of records.
+    """Find the occurence of plants & the consistency of records.
 
     We need to determine how consistent a reported value is in the records
     across all of the years or tables that the value is being reported, so we
@@ -268,6 +265,7 @@ def _lat_long(
             depending on whether the entity is static or annual.
         round_to (integer): This is the number of decimals places we want to
             preserve while rounding down.
+
     Returns:
         pandas.DataFrame: a dataframe with all of the entity ids. some will
         have harvested records from the clean_df. some will have harvested
@@ -293,8 +291,7 @@ def _lat_long(
 
 
 def _add_timezone(plants_entity: pd.DataFrame) -> pd.DataFrame:
-    """
-    Add plant IANA timezone based on lat/lon or state if lat/lon is unavailable.
+    """Add plant IANA timezone based on lat/lon or state if lat/lon is unavailable.
 
     Args:
         plants_entity: Plant entity table, including columns named "latitude",
@@ -332,6 +329,7 @@ def _add_additional_epacems_plants(plants_entity):
     Args:
         plants_entity (pandas.DataFrame) The plant entity table that will be
             appended to
+
     Returns:
         pandas.DataFrame: The same plants_entity table, with the addition of
         some missing EPA CEMS plants.
@@ -358,8 +356,7 @@ def _add_additional_epacems_plants(plants_entity):
 
 
 def _compile_all_entity_records(entity, eia_transformed_dfs):
-    """
-    Compile all of the entity records from each table they appear in.
+    """Compile all of the entity records from each table they appear in.
 
     Comb through each of the dataframes in the eia_transformed_dfs dictionary
     to pull out every instance of the entity id.
@@ -424,8 +421,7 @@ def _compile_all_entity_records(entity, eia_transformed_dfs):
 
 
 def _manage_strictness(col, eia860m):
-    """
-    Manage the strictness level for each column.
+    """Manage the strictness level for each column.
 
     Args:
         col (str): name of column
@@ -446,13 +442,12 @@ def _manage_strictness(col, eia860m):
 
 def harvesting(  # noqa: C901
     entity: str,
-    eia_transformed_dfs: Dict[str, pd.DataFrame],
-    entities_dfs: Dict[str, pd.DataFrame],
+    eia_transformed_dfs: dict[str, pd.DataFrame],
+    entities_dfs: dict[str, pd.DataFrame],
     eia860m: bool = False,
     debug: bool = False,
 ) -> tuple:
-    """
-    Compile consistent records for various entities.
+    """Compile consistent records for various entities.
 
     For each entity(plants, generators, boilers, utilties), this function
     finds all the harvestable columns from any table that they show up
@@ -649,8 +644,7 @@ def _boiler_generator_assn(
     eia860_years=DataSource.from_id("eia860").working_partitions["years"],
     debug=False,
 ):
-    """
-    Creates a set of more complete boiler generator associations.
+    """Creates a set of more complete boiler generator associations.
 
     Creates a unique unit_id_pudl for each collection of boilers and generators
     within a plant that have ever been associated with each other, based on
