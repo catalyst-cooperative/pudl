@@ -1,5 +1,4 @@
-"""
-Retrieve data from EPA CEMS hourly zipped CSVs.
+"""Retrieve data from EPA CEMS hourly zipped CSVs.
 
 This modules pulls data from EPA's published CSV files.
 """
@@ -119,8 +118,7 @@ class EpaCemsDatastore:
         return pd.concat(dfs, sort=True, copy=False, ignore_index=True)
 
     def _csv_to_dataframe(self, csv_file) -> pd.DataFrame:
-        """
-        Convert a CEMS csv file into a :class:`pandas.DataFrame`.
+        """Convert a CEMS csv file into a :class:`pandas.DataFrame`.
 
         Args:
             csv (file-like object): data to be read
@@ -138,8 +136,7 @@ class EpaCemsDatastore:
 
 
 def extract(year: int, state: str, ds: Datastore):
-    """
-    Coordinate the extraction of EPA CEMS hourly DataFrames.
+    """Coordinate the extraction of EPA CEMS hourly DataFrames.
 
     Args:
         year: report year of the data to extract

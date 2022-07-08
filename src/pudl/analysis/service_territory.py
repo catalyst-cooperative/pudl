@@ -1,5 +1,4 @@
-"""
-Compile historical utility and balancing area territories.
+"""Compile historical utility and balancing area territories.
 
 Use the mapping of utilities to counties, and balancing areas to utilities, available
 within the EIA 861, in conjunction with the US Census geometries for counties, to
@@ -29,8 +28,7 @@ CALC_CRS = "ESRI:102003"  # For accurate area calculations
 
 
 def get_all_utils(pudl_out):
-    """
-    Compile IDs and Names of all known EIA Utilities.
+    """Compile IDs and Names of all known EIA Utilities.
 
     Grab all EIA utility names and IDs from both the EIA 861 Service Territory table and
     the EIA 860 Utility entity table. This is a temporary function that's only needed
@@ -63,8 +61,7 @@ def get_all_utils(pudl_out):
 # Functions that compile geometries based on EIA 861 data tables:
 ################################################################################
 def get_territory_fips(ids, assn, assn_col, st_eia861, limit_by_state=True):
-    """
-    Compile county FIPS codes associated with an entity's service territory.
+    """Compile county FIPS codes associated with an entity's service territory.
 
     For each entity identified by ids, look up the set of counties associated
     with that entity on an annual basis. Optionally limit the set of counties
@@ -115,8 +112,7 @@ def get_territory_fips(ids, assn, assn_col, st_eia861, limit_by_state=True):
 
 
 def add_geometries(df, census_gdf, dissolve=False, dissolve_by=None):
-    """
-    Merge census geometries into dataframe on county_id_fips, optionally dissolving.
+    """Merge census geometries into dataframe on county_id_fips, optionally dissolving.
 
     Merge the US Census county-level geospatial information into the DataFrame df
     based on the the column county_id_fips (in df), which corresponds to the column
@@ -187,8 +183,7 @@ def add_geometries(df, census_gdf, dissolve=False, dissolve_by=None):
 def get_territory_geometries(
     ids, assn, assn_col, st_eia861, census_gdf, limit_by_state=True, dissolve=False
 ):
-    """
-    Compile service territory geometries based on county_id_fips.
+    """Compile service territory geometries based on county_id_fips.
 
     Calls ``get_territory_fips`` to generate the list of counties associated with
     each entity identified by ``ids``, and then merges in the corresponding county
@@ -252,8 +247,7 @@ def compile_geoms(
     limit_by_state=True,
     save=True,
 ):
-    """
-    Compile all available utility or balancing authority geometries.
+    """Compile all available utility or balancing authority geometries.
 
     Args:
         pudl_out (pudl.output.pudltabl.PudlTabl): A PUDL output object, which will
@@ -336,8 +330,7 @@ def _save_geoparquet(gdf, entity_type, dissolve, limit_by_state):
 # Functions for visualizing the service territory geometries
 ################################################################################
 def plot_historical_territory(gdf, id_col, id_val):
-    """
-    Plot all the historical geometries defined for the specified entity.
+    """Plot all the historical geometries defined for the specified entity.
 
     This is useful for exploring how a particular entity's service territory has evolved
     over time, or for identifying individual missing or inaccurate territories.
@@ -402,8 +395,7 @@ def plot_all_territories(
     color="black",
     alpha=0.25,
 ):
-    """
-    Plot all of the planning areas of a given type for a given report date.
+    """Plot all of the planning areas of a given type for a given report date.
 
     Todo:
         This function needs to be made more general purpose, and less
@@ -454,8 +446,7 @@ def plot_all_territories(
 # Functions that provide a CLI to the service territory module
 ################################################################################
 def parse_command_line(argv):
-    """
-    Parse script command line arguments. See the -h option.
+    """Parse script command line arguments. See the -h option.
 
     Args:
         argv (list): command line arguments including caller file name.

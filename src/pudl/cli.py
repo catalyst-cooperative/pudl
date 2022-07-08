@@ -4,7 +4,7 @@ This script cordinates the PUDL ETL process, based on parameters provided via a 
 settings file.
 
 If the settings for a dataset has empty parameters (meaning there are no years or tables
-included), no outputs will be generated. See :doc:`/dev/settings_files` for details.
+included), no outputs will be generated. See :doc:`/dev/run_the_etl` for details.
 
 The output SQLite and Parquet files will be stored in ``PUDL_OUT`` in directories named
 ``sqlite`` and ``parquet``.  To setup your default ``PUDL_IN`` and ``PUDL_OUT``
@@ -27,8 +27,7 @@ logger = logging.getLogger(__name__)
 
 
 def parse_command_line(argv):
-    """
-    Parse script command line arguments. See the -h option.
+    """Parse script command line arguments. See the -h option.
 
     Args:
         argv (list): command line arguments including caller file name.
@@ -88,19 +87,24 @@ def parse_command_line(argv):
         default=False,
         help="If enabled, the local file cache for datastore will not be used.",
     )
-
+    parser.add_argument(
+        "--loglevel",
+        help="Set logging level (DEBUG, INFO, WARNING, ERROR, or CRITICAL).",
+        default="INFO",
+    )
     arguments = parser.parse_args(argv[1:])
     return arguments
 
 
 def main():
     """Parse command line and initialize PUDL DB."""
+    args = parse_command_line(sys.argv)
+
     # Display logged output from the PUDL package:
     pudl_logger = logging.getLogger("pudl")
     log_format = "%(asctime)s [%(levelname)8s] %(name)s:%(lineno)s %(message)s"
-    coloredlogs.install(fmt=log_format, level="INFO", logger=pudl_logger)
+    coloredlogs.install(fmt=log_format, level=args.loglevel, logger=pudl_logger)
 
-    args = parse_command_line(sys.argv)
     if args.logfile:
         file_logger = logging.FileHandler(args.logfile)
         file_logger.setFormatter(logging.Formatter(log_format))

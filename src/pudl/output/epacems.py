@@ -1,8 +1,7 @@
 """Routines that provide user-friendly access to the partitioned EPA CEMS dataset."""
-
+from collections.abc import Iterable, Sequence
 from itertools import product
 from pathlib import Path
-from typing import Iterable, List, Optional, Sequence, Tuple, Union
 
 import dask.dataframe as dd
 import pandas as pd
@@ -31,14 +30,13 @@ def epa_crosswalk() -> pd.DataFrame:
 
 def year_state_filter(
     years: Iterable[int] = None, states: Iterable[str] = None
-) -> List[List[Tuple[Union[str, int]]]]:
-    """
-    Create filters to read given years and states from partitioned parquet dataset.
+) -> list[list[tuple[str | int]]]:
+    """Create filters to read given years and states from partitioned parquet dataset.
 
-    A subset of an Apache Parquet dataset can be read in more efficiently if files
-    which don't need to be queried are avoideed. Some datasets are partitioned based
-    on the values of columns to make this easier. The EPA CEMS dataset which we
-    publish is partitioned by state and report year.
+    A subset of an Apache Parquet dataset can be read in more efficiently if files which
+    don't need to be queried are avoideed. Some datasets are partitioned based on the
+    values of columns to make this easier. The EPA CEMS dataset which we publish is
+    partitioned by state and report year.
 
     However, the way the filters are specified can be unintuitive. They use DNF
     (disjunctive normal form) See this blog post for more details:
@@ -68,19 +66,9 @@ def year_state_filter(
         state_filters = [("state", "=", state.upper()) for state in states]
 
     if states and not years:
-        filters = [
-            [
-                tuple(x),
-            ]
-            for x in state_filters
-        ]
+        filters = [[tuple(x)] for x in state_filters]
     elif years and not states:
-        filters = [
-            [
-                tuple(x),
-            ]
-            for x in year_filters
-        ]
+        filters = [[tuple(x)] for x in year_filters]
     elif years and states:
         filters = [list(x) for x in product(year_filters, state_filters)]
     else:
@@ -90,8 +78,7 @@ def year_state_filter(
 
 
 def get_plant_states(plant_ids, pudl_out):
-    """
-    Determine what set of states a given set of EIA plant IDs are within.
+    """Determine what set of states a given set of EIA plant IDs are within.
 
     If you only want to select data about a particular set of power plants from the EPA
     CEMS data, this is useful for identifying which patitions of the Parquet dataset
@@ -114,8 +101,7 @@ def get_plant_states(plant_ids, pudl_out):
 
 
 def get_plant_years(plant_ids, pudl_out):
-    """
-    Determine which years a given set of EIA plant IDs appear in.
+    """Determine which years a given set of EIA plant IDs appear in.
 
     If you only want to select data about a particular set of power plants from the EPA
     CEMS data, this is useful for identifying which patitions of the Parquet dataset
@@ -144,10 +130,10 @@ def get_plant_years(plant_ids, pudl_out):
 
 
 def epacems(
-    states: Optional[Sequence[str]] = None,
-    years: Optional[Sequence[int]] = None,
-    columns: Optional[Sequence[str]] = None,
-    epacems_path: Optional[Path] = None,
+    states: Sequence[str] | None = None,
+    years: Sequence[int] | None = None,
+    columns: Sequence[str] | None = None,
+    epacems_path: Path | None = None,
 ) -> dd.DataFrame:
     """Load EPA CEMS data from PUDL with optional subsetting.
 
@@ -177,6 +163,9 @@ def epacems(
         epacems_path,
         use_nullable_dtypes=True,
         columns=columns,
+        engine="pyarrow",
+        index=False,
+        split_row_groups=True,
         filters=year_state_filter(
             states=epacems_settings.states,
             years=epacems_settings.years,

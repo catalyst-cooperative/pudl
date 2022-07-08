@@ -1,5 +1,4 @@
-"""
-Test MCOE (marginal cost of electricity) module functionality.
+"""Test MCOE (marginal cost of electricity) module functionality.
 
 This set of test attempts to exercise all of the functions which are used in
 the calculation of the marginal cost of electricity (MCOE), based on fuel
@@ -21,8 +20,7 @@ logger = logging.getLogger(__name__)
 
 @pytest.fixture(scope="module")
 def pudl_out_mcoe(pudl_out_eia, live_dbs):
-    """
-    A fixture to calculate MCOE appropriately for testing.
+    """A fixture to calculate MCOE appropriately for testing.
 
     By default, the MCOE calculation drops rows with "unreasonable" values for
     heat rate, fuel costs, and capacity factors. However, for the purposes of
@@ -88,8 +86,7 @@ def test_no_null_cols_mcoe(pudl_out_mcoe, live_dbs, df_name):
     ],
 )
 def test_no_null_rows_mcoe(pudl_out_mcoe, live_dbs, df_name, thresh):
-    """
-    Verify that output DataFrames have no overly NULL rows.
+    """Verify that output DataFrames have no overly NULL rows.
 
     Currently we only test the MCOE dataframe because it has lots of columns
     and some complicated merges. For tables with fewer columns, the "index"
@@ -111,11 +108,11 @@ def test_no_null_rows_mcoe(pudl_out_mcoe, live_dbs, df_name, thresh):
 @pytest.mark.parametrize(
     "df_name,monthly_rows,annual_rows",
     [
-        ("hr_by_unit", 341_681, 28_560),
-        ("hr_by_gen", 514_647, 42_963),
-        ("fuel_cost", 514_642, 42_958),
-        ("capacity_factor", 559_570, 46_718),
-        ("mcoe", 559_618, 46_718),
+        ("hr_by_unit", 341_640, 28_519),
+        ("hr_by_gen", 514_619, 42_935),
+        ("fuel_cost", 514_619, 42_935),
+        ("capacity_factor", 559_546, 46_694),
+        ("mcoe", 559_594, 46_694),
     ],
 )
 def test_minmax_rows_mcoe(pudl_out_mcoe, live_dbs, monthly_rows, annual_rows, df_name):

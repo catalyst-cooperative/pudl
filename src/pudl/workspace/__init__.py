@@ -1,5 +1,4 @@
-"""
-Tools for acquiring PUDL's original input data and organizing it locally.
+"""Tools for acquiring PUDL's original input data and organizing it locally.
 
 The datastore subpackage takes care of downloading original data form various
 public sources, organizing it locally, and providing a programmatic interface

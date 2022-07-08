@@ -11,7 +11,7 @@ import pudl
 logger = logging.getLogger(__name__)
 
 
-class Metadata(object):
+class Metadata:
     """Load Excel metadata from Python package data.
 
     Excel sheet files may contain many different tables. When we load those
@@ -120,7 +120,7 @@ class Metadata(object):
         return list(partition.values())[0]
 
 
-class GenericExtractor(object):
+class GenericExtractor:
     """Contains logic for extracting panda.DataFrames from excel spreadsheets.
 
     This class implements the generic dataset agnostic logic to load data
@@ -162,8 +162,7 @@ class GenericExtractor(object):
     """List of supported pages that should not be extracted."""
 
     def __init__(self, ds):
-        """
-        Create new extractor object and load metadata.
+        """Create new extractor object and load metadata.
 
         Args:
             ds (datastore.Datastore): An initialized datastore, or subclass
@@ -271,8 +270,7 @@ class GenericExtractor(object):
         return raw_dfs
 
     def load_excel_file(self, page, **partition):
-        """
-        Produce the ExcelFile object for the given (partition, page).
+        """Produce the ExcelFile object for the given (partition, page).
 
         Args:
             page (str): pudl name for the dataset contents, eg
@@ -318,14 +316,14 @@ class GenericExtractor(object):
         return self._file_cache[xlsx_filename]
 
     def excel_filename(self, page, **partition):
-        """
-        Produce the xlsx document file name as it will appear in the archive.
+        """Produce the xlsx document file name as it will appear in the archive.
 
         Args:
             page: pudl name for the dataset contents, eg
                   "boiler_generator_assn" or "coal_stocks"
             partition: partition to load. (ex: 2009 for year partition or
                 "2020-08" for year_month partition)
+
         Return:
             string name of the xlsx file
         """

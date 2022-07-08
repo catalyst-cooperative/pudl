@@ -1,16 +1,22 @@
 """Metadata for cleaning, re-encoding, and documenting coded data columns.
 
 These dictionaries are used to create Encoder instances. They contain the following keys:
-'df': A dataframe associating short codes with long descriptions and other information.
-'code_fixes': A dictionary mapping non-standard codes to canonical, standardized codes.
-'ignored_codes': A list of non-standard codes which appear in the data, and will be set to NA.
+
+* 'df': A dataframe associating short codes with long descriptions and other information.
+  Each dataframe needs at least three standard columns: "code", "label", "description".
+  The codes and lables must be unique. By convention, the "label"'s are snake case.
+* 'code_fixes': A dictionary mapping non-standard codes to canonical, standardized
+  codes.
+* 'ignored_codes': A list of non-standard codes which appear in the data, and will
+  be set to NA.
+
 """
-from typing import Any, Dict
+from typing import Any
 
 import numpy as np
 import pandas as pd
 
-CODE_METADATA: Dict[str, Dict[str, Any]] = {
+CODE_METADATA: dict[str, dict[str, Any]] = {
     "coalmine_types_eia": {
         "df": pd.DataFrame(
             columns=["code", "label", "description"],
@@ -224,6 +230,111 @@ CODE_METADATA: Dict[str, Dict[str, Any]] = {
             "Wholesale Power Marketer": "W",
         },
         "ignored_codes": [],
+    },
+    "operational_status_eia": {
+        "df": pd.DataFrame(
+            columns=["code", "label", "description", "operational_status"],
+            data=[
+                (
+                    "CN",
+                    "cancelled",
+                    "Cancelled, but previously reported as 'planned'",
+                    "proposed",
+                ),
+                (
+                    "IP",
+                    "indefinitely_postponed",
+                    "Planned new indefinitely postponed, or no longer in resource plan",
+                    "proposed",
+                ),
+                (
+                    "L",
+                    "planned_approvals_pending",
+                    "Not under construction but site preparation could be underway",
+                    "proposed",
+                ),
+                (
+                    "OA",
+                    "out_of_service_short_term",
+                    "Was not used for some or all of the reporting period but is expected to be returned to service in the next calendar year.",
+                    "existing",
+                ),
+                (
+                    "OP",
+                    "operating",
+                    "In service (commercial operation) and producing some electricity. Includes peaking units that are run on an as needed (intermittent or seasonal) basis.",
+                    "existing",
+                ),
+                (
+                    "OS",
+                    "out_of_service_long_term",
+                    "Was not used for some or all of the reporting period and is NOT expected to be returned to service in the next calendar year.",
+                    "existing",
+                ),
+                (
+                    "OT",
+                    "other",
+                    "proposed",
+                    "proposed",
+                ),
+                (
+                    "P",
+                    "planned_approvals_not_initiated",
+                    "Planned for installation but regulatory approvals not initiated; Not under construction",
+                    "proposed",
+                ),
+                (
+                    "RE",
+                    "retired",
+                    "No longer in service and not expected to be returned to service.",
+                    "retired",
+                ),
+                (
+                    "SB",
+                    "standby",
+                    "Standby/Backup. Available for service but not normally used (has little or no generation during the year) for this reporting period. Includes old code BU from 2004-2006.",
+                    "existing",
+                ),
+                (
+                    "T",
+                    "planned_approvals_received",
+                    "Regulatory approvals received. Not under construction but site preparation could be underway",
+                    "proposed",
+                ),
+                (
+                    "TS",
+                    "construction_complete",
+                    "Construction complete, but not yet in commercial operation (including low power testing of nuclear units)",
+                    "proposed",
+                ),
+                (
+                    "U",
+                    "under_construction_less_than_half_complete",
+                    "Under construction, less than or equal to 50 percent complete (based on construction time to date of operation)",
+                    "proposed",
+                ),
+                (
+                    "V",
+                    "under_construction_more_than_half_complete",
+                    "Under construction, more than 50 percent complete (based on construction time to date of operation)",
+                    "proposed",
+                ),
+            ],
+        ).convert_dtypes(),
+        "code_fixes": {
+            "(L) Regulatory approvals pending. Not under construction": "L",
+            "(OA) Out of service but expected to return to service in next calendar year": "OA",
+            "(OP) Operating": "OP",
+            "(OS) Out of service and NOT expected to return to service in next calendar year": "OS",
+            "(OT) Other": "OT",
+            "(P) Planned for installation, but regulatory approvals not initiated": "P",
+            "(SB) Standby/Backup: available for service but not normally used": "SB",
+            "(T) Regulatory approvals received. Not under construction": "T",
+            "(TS) Construction complete, but not yet in commercial operation": "TS",
+            "(U) Under construction, less than or equal to 50 percent complete": "U",
+            "(V) Under construction, more than 50 percent complete": "V",
+            "BU": "SB",
+        },
     },
     "energy_sources_eia": {
         "df": pd.DataFrame(
@@ -961,7 +1072,7 @@ CODE_METADATA: Dict[str, Dict[str, Any]] = {
                 ("WT", "wind_onshore", "Wind Turbine, Onshore"),
             ],
         ).convert_dtypes(),
-        "code_fixes": {},
+        "code_fixes": {"ic": "IC"},  # there is literally one 'ic' from 2002.
         "ignored_codes": [],
     },
     "sector_consolidated_eia": {

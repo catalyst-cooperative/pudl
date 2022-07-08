@@ -98,8 +98,7 @@ def test_own_eia860(pudl_out_eia, live_dbs):
 
 @pytest.mark.xfail(reason="There are 730 generators that report multiple operators")
 def test_unique_operator_id(pudl_out_eia, live_dbs):
-    """
-    Test that each generator in the ownership table has a unique operator ID.
+    """Test that each generator in the ownership table has a unique operator ID.
 
     The ``utility_id_eia`` column is supposed to be the operator, which should only be
     one utility for each generator in each report year, while ``owner_utility_id_eia``
@@ -133,8 +132,7 @@ def test_unique_operator_id(pudl_out_eia, live_dbs):
 
 @pytest.mark.xfail(reason="There are 40 known inconsistent generator IDs.")
 def test_generator_id_consistency(pudl_out_eia, live_dbs):
-    """
-    Check if there are any plants that report inconsistent generator IDs.
+    """Check if there are any plants that report inconsistent generator IDs.
 
     There are some instances in which a plant will report generator IDs
     differently in different years, such that the IDs differ only in terms of

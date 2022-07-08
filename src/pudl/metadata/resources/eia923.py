@@ -1,7 +1,7 @@
 """Definitions of data tables primarily coming from EIA-923."""
-from typing import Any, Dict
+from typing import Any
 
-RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
+RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     "boiler_fuel_eia923": {
         "description": "EIA-923 Monthly Boiler Fuel Consumption and Emissions Time Series. From EIA-923 Schedule 3.",
         "schema": {

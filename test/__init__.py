@@ -1,5 +1,4 @@
-"""
-Testing infrastructure for PUDL.
+"""Testing infrastructure for PUDL.
 
 Right now this "package" really only exists to create a test specific logger.
 

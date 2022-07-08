@@ -1,5 +1,5 @@
 """Tests for Resource harvesting methods."""
-from typing import Any, Dict, List
+from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -23,7 +23,7 @@ def _assert_frame_equal(a: pd.DataFrame, b: pd.DataFrame, **kwargs: Any) -> None
 # ---- Unit tests ---- #
 
 
-STANDARD: Dict[str, Any] = {
+STANDARD: dict[str, Any] = {
     "name": "r",
     "harvest": {"harvest": False},
     "schema": {
@@ -37,7 +37,7 @@ STANDARD: Dict[str, Any] = {
     },
 }
 
-HARVEST: Dict[str, Any] = {**STANDARD, "harvest": {"harvest": True}}
+HARVEST: dict[str, Any] = {**STANDARD, "harvest": {"harvest": True}}
 
 
 def test_resource_ignores_input_with_different_name() -> None:
@@ -83,7 +83,7 @@ def test_resource_harvests_input_with_only_key_fields() -> None:
         },
     ],
 )
-def test_resource_harvests_inputs(dfs: Dict[Any, pd.DataFrame]) -> None:
+def test_resource_harvests_inputs(dfs: dict[Any, pd.DataFrame]) -> None:
     """Resource harvests inputs."""
     resource = Resource(**HARVEST)
     expected = (
@@ -111,7 +111,7 @@ def test_resource_with_only_key_fields_harvests() -> None:
 
 # ---- EIA example ---- #
 
-INPUT_DFS: Dict[str, pd.DataFrame] = dict(
+INPUT_DFS: dict[str, pd.DataFrame] = dict(
     service_territory_eia861=pd.DataFrame(
         columns=[
             "utility_id_eia",
@@ -238,7 +238,7 @@ INPUT_DFS: Dict[str, pd.DataFrame] = dict(
     ),
 )
 
-FIELD_DTYPES: Dict[str, str] = {
+FIELD_DTYPES: dict[str, str] = {
     "balancing_authority_code_eia": "string",
     "utility_id_eia": "integer",
     "plant_id_eia": "integer",
@@ -256,7 +256,7 @@ FIELD_DTYPES: Dict[str, str] = {
     "net_generation_mwh": "number",
 }
 
-RESOURCES: List[Dict[str, Any]] = [
+RESOURCES: list[dict[str, Any]] = [
     {
         "name": "plant_entity_eia860",
         "harvest": {"harvest": True},
@@ -340,7 +340,7 @@ for i, d in enumerate(RESOURCES):
     ]
     RESOURCES[i] = Resource(**d)
 
-EXPECTED_DFS: Dict[str, pd.DataFrame] = dict(
+EXPECTED_DFS: dict[str, pd.DataFrame] = dict(
     plant_entity_eia860=pd.DataFrame(
         columns=["plant_id_eia", "state", "balancing_authority_code_eia"],
         data=[(3, "AL", "SOCO"), (4, np.nan, np.nan)],

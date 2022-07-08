@@ -2,6 +2,123 @@
 PUDL Release Notes
 =======================================================================================
 
+.. _release-v2022.06.XX:
+
+---------------------------------------------------------------------------------------
+2022.06.XX
+---------------------------------------------------------------------------------------
+
+Nightly Data Builds
+^^^^^^^^^^^^^^^^^^^
+* We added infrastructure to run the entire ETL and all tests nightly
+  so we can catch data errors when they are merged into ``dev``. This allows us
+  to automatically update the `PUDL Intake data catalogs <https://github.com/catalyst-cooperative/pudl-catalog>`__
+  when there are new code releases. See :issue:`1177` for more details.
+* Created a `docker image <https://hub.docker.com/r/catalystcoop/pudl-etl>`__
+  that installs PUDL and it's depedencies. The ``build-deploy-pudl.yaml`` GitHub
+  Action builds and pushes the image to Docker Hub and deploys the image on
+  a Google Compute Engine instance. The ETL outputs are then loaded to Google
+  Cloud buckets for the data catalogs to access.
+* Added ``GoogleCloudStorageCache`` support to ``ferc1_to_sqlite`` and
+  ``censusdp1tract_to_sqlite`` commands and pytest.
+* Allow users to create monolithic and partitioned EPA CEMS outputs without having
+  to clobber or move any existing CEMS outputs.
+* ``GoogleCloudStorageCache`` now supports accessing requester pays buckets.
+* Added a ``--loglevel`` arg to the package entrypoint commands.
+
+Database Schema Changes
+^^^^^^^^^^^^^^^^^^^^^^^
+* After learning that generators' prime movers do very occasionally change over
+  time, we recategorized the ``prime_mover_code`` column in our entity resolution
+  process to enable the rare but real variability over time. We moved the
+  ``prime_mover_code`` column from the statically harvested/normalized data
+  column to an annually harvested data column (i.e. from :ref:`generators_entity_eia`
+  to :ref:`generators_eia860`) :pr:`1600`. See :issue:`1585` for more details.
+* Created :ref:`operational_status_eia` into our static metadata tables (See
+  :doc:`data_dictionaries/codes_and_labels`). Used these standard codes and code
+  fixes to clean ``operational_status_code`` in the :ref:`generators_entity_eia`
+  table. :pr:`1624`
+
+Date Merge Helper Function
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+* Replaced the PUDL helper function ``clean_merge_asof`` that merged two dataframes
+  reported on different temporal granularities, for example monthly vs yearly data.
+  The reworked function, :mod:`pudl.helpers.date_merge`, is more encapsulating and
+  faster and replaces ``clean_merge_asof`` in the MCOE table and EIA 923 tables. See
+  :pr:`1103,1550`
+* The helper function :mod:`pudl.helpers.expand_timeseries` was also added, which
+  expands a dataframe to include a full timeseries of data at a certain frequency.
+  The coordinating function :mod:`pudl.helpers.full_timeseries_date_merge` first calls
+  :mod:`pudl.helpers.date_merge` to merge two dataframes of different temporal
+  granularities, and then calls :mod:`pudl.helpers.expand_timeseries` to expand the
+  merged dataframe to a full timeseries. The added ``timeseries_fillin`` argument,
+  makes this function optionally used to generate the MCOE table that includes a full
+  monthly timeseries even in years when annually reported generators don't have
+  matching monthly data. See :pr:`1550`
+
+Plant Parts List Module Changes
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+* We refactored a couple components of the Plant Parts List module in preparation
+  for the next round of entity matching of EIA and FERC Form 1 records with the
+  Panda model developed by the
+  `Chu Data Lab at Georgia Tech <https://chu-data-lab.cc.gatech.edu/>`__, through work
+  funded by a
+  `CCAI Innovation Grant <https://www.climatechange.ai/calls/innovation_grants>`__.
+  The labeling of different aggregations of EIA generators as the true granularity was
+  sped up, resulting in faster generation of the final plant parts list. In addition,
+  the generation of the ``installation_year`` column in the plant parts list was fixed
+  and a ``construction_year`` column was also added. Finally, ``operating_year`` was
+  added as a level that the EIA generators are now aggregated to.
+* The mega generators table and in turn the plant parts list requires the MCOE table
+  to generate. The MCOE table is now created with the new :mod:`pudl.helpers.date_merge`
+  helper function (described above). As a result, now by default only columns from the
+  EIA 860 generators table that are necessary for the creation of the plant parts list
+  will be included in the MCOE table. This list of columns is defined by the global
+  :mod:`pudl.analysis.mcoe.DEFAULT_GENS_COLS`. If additional columns that are not part
+  of the default list are needed from the EIA 860 generators table, these columns can be
+  passed in with the ``gens_cols`` argument.  See :pr:`1550`
+
+Metadata
+^^^^^^^^
+* Used the data source metadata class added in release 0.6.0 to dynamically generate
+  the data source documentation (See :doc:`data_sources/index`). :pr:`1532`
+
+Bug Fixes
+^^^^^^^^^
+* `Dask v2022.4.2 <https://docs.dask.org/en/stable/changelog.html#v2022-04-2>`__
+  introduced breaking changes into :meth:`dask.dataframe.read_parquet`.  However, we
+  didn't catch this when it happened because it's only a problem when there's more than
+  one row-group. Now we're processing 2019-2020 data for both ID and ME (two of the
+  smallest states) in the tests. Also restricted the allowed Dask versions in our
+  ``setup.py`` so that we get notified by the dependabot any time even a minor update.
+  happens to any of the packages we depend on that use calendar versioning. See
+  :pr:`1618`.
+* Fixed a testing bug where the partitioned EPA CEMS outputs generated using parallel
+  processing were getting output in the same output directory as the real ETL, which
+  should never happen. See :pr:`1618`.
+* Changed the way fixes to the EIA-861 balancing authority names and IDs are applied,
+  so that they still work when only some years of data are being processed. See
+  :pr:`1671` and :issue:`828`.
+
+Dependencies / Environment
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+* In conjunction with getting the :user:`dependabot` set up to merge its own PRs if CI
+  passes, we tightened the version constraints on a lot of our dependencies. This should
+  reduce the frequency with which we get surprised by changes breaking things after
+  release. See :pr:`1655`
+* We've switched to using `mambaforge <https://github.com/conda-forge/miniforge>`__ to
+  manage our environments internally, and are recommending that users use it as well.
+* We're moving toward treating PUDL like an application rather than a library, and part
+  of that is no longer trying to be compatible with a wide range of versions of our
+  dependencies, instead focusing on a single reproducible environment that is associated
+  with each release, using lockfiles, etc. See :issue:`1669`
+* As an "application" PUDL is now only supporting the most recent major version of
+  Python (curently 3.10). We used
+  `pyupgrade <https://github.com/asottile/pyupgrade>`__ and
+  `pep585-upgrade <https://github.com/snok/pep585-upgrade>`__ to update the syntax of
+  to use Python 3.10 norms, and are now using those packages as pre-commit hooks as
+  well. See :pr:`1685`
+
 .. _release-v0-6-0:
 
 ---------------------------------------------------------------------------------------
@@ -203,8 +320,8 @@ database schema, which will probably affect some users.
 * The columns that indicate the mode of transport for various fuels now contain short
   codes rather than longer labels, and are defined in / constrained by the static
   :ref:`fuel_transportation_modes_eia` table.
-* In the simplified FERC 1 fuel type categories, we're now using `other` instead of
-  `unknown`.
+* In the simplified FERC 1 fuel type categories, we're now using ``other`` instead of
+  ``unknown``.
 * Several columns have been renamed to harmonize meanings between different tables and
   datasets, including:
 
@@ -215,7 +332,7 @@ database schema, which will probably affect some users.
   * ``fuel_qty_burned`` is now ``fuel_consumed_units``
   * ``fuel_qty_units`` is now ``fuel_received_units``
   * ``heat_content_mmbtu_per_unit`` is now ``fuel_mmbtu_per_unit``
-  * ``sector_name` and `sector_id` are now ``sector_name_eia`` and ``sector_id_eia``
+  * ``sector_name`` and ``sector_id`` are now ``sector_name_eia`` and ``sector_id_eia``
   * ``primary_purpose_naics_id`` is now ``primary_purpose_id_naics``
   * ``mine_type_code`` is now ``mine_type`` (a human readable label, not a code).
 

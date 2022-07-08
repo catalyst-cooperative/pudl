@@ -1,5 +1,4 @@
-"""
-Routines for transforming FERC Form 1 data before loading into the PUDL DB.
+"""Routines for transforming FERC Form 1 data before loading into the PUDL DB.
 
 This module provides a variety of functions that are used in cleaning up the FERC Form 1
 data prior to loading into our database. This includes adopting standardized units and
@@ -12,7 +11,6 @@ import importlib.resources
 import logging
 import re
 from difflib import SequenceMatcher
-from typing import Dict, List
 
 # NetworkX is used to knit incomplete ferc plant time series together.
 import networkx as nx
@@ -38,7 +36,7 @@ logger = logging.getLogger(__name__)
 ##############################################################################
 # Dicts for categorizing freeform strings ####################################
 ##############################################################################
-FUEL_STRINGS: Dict[str, List[str]] = {
+FUEL_STRINGS: dict[str, list[str]] = {
     "coal": [
         "coal",
         "coal-subbit",
@@ -320,7 +318,7 @@ fuel in the FERC Form 1 Reporting. Case is ignored, as all fuel strings are conv
 a lower case in the data set.
 """
 
-FUEL_UNIT_STRINGS: Dict[str, List[str]] = {
+FUEL_UNIT_STRINGS: dict[str, list[str]] = {
     "ton": [
         "toms",
         "taons",
@@ -632,7 +630,7 @@ A dictionary linking fuel units (keys) to lists of various strings representing 
 fuel units (values)
 """
 
-PLANT_KIND_STRINGS: Dict[str, List[str]] = {
+PLANT_KIND_STRINGS: dict[str, list[str]] = {
     "steam": [
         "coal",
         "steam",
@@ -1023,7 +1021,7 @@ on Steam (e.g. "steam 72" and "steam and gas") were classified based on addition
 research of the plants on the Internet.
 """
 
-CONSTRUCTION_TYPE_STRINGS: Dict[str, List[str]] = {
+CONSTRUCTION_TYPE_STRINGS: dict[str, list[str]] = {
     "outdoor": [
         "outdoor",
         "outdoor boiler",
@@ -1405,8 +1403,7 @@ inclusive so that variants of conventional (e.g.  "conventional full") and outdo
 
 
 def unpack_table(ferc1_df, table_name, data_cols, data_rows):
-    """
-    Normalize a row-and-column based FERC Form 1 table.
+    """Normalize a row-and-column based FERC Form 1 table.
 
     Pulls the named database table from the FERC Form 1 DB and uses the corresponding
     ferc1_row_map to unpack the row_number coded data.
@@ -1471,8 +1468,7 @@ def unpack_table(ferc1_df, table_name, data_cols, data_rows):
 
 
 def cols_to_cats(df, cat_name, col_cats):
-    """
-    Turn top-level MultiIndex columns into a categorial column.
+    """Turn top-level MultiIndex columns into a categorial column.
 
     In some cases FERC Form 1 data comes with many different types of related values
     interleaved in the same table -- e.g. current year and previous year income -- this
@@ -2190,7 +2186,7 @@ def plants_small(ferc1_raw_dfs, ferc1_transformed_dfs):
             "net_generation": "net_generation_mwh",
             "plant_cost": "total_cost_of_plant",
             "plant_cost_mw": "capex_per_mw",
-            "operation": "opex_total",
+            "operation": "opex_operations",
             "expns_fuel": "opex_fuel",
             "expns_maint": "opex_maintenance",
             "kind_of_fuel": "fuel_type",
@@ -2697,8 +2693,7 @@ class FERCPlantClassifier(BaseEstimator, ClassifierMixin):
     """
 
     def __init__(self, min_sim=0.75, plants_df=None):
-        """
-        Initialize the classifier.
+        """Initialize the classifier.
 
         Args:
             min_sim : Number between 0.0 and 1.0, indicating the minimum value of
@@ -2719,8 +2714,7 @@ class FERCPlantClassifier(BaseEstimator, ClassifierMixin):
         self._years = self.plants_df.report_year.unique()
 
     def fit(self, X, y=None):  # noqa: N803 Canonical capital letter...
-        """
-        Use weighted FERC plant features to group records into time series.
+        """Use weighted FERC plant features to group records into time series.
 
         The fit method takes the vectorized, normalized, weighted FERC plant
         features (X) as input, calculates the pairwise cosine similarity matrix
@@ -2752,8 +2746,7 @@ class FERCPlantClassifier(BaseEstimator, ClassifierMixin):
         return self
 
     def predict(self, X, y=None):  # noqa: N803
-        """
-        Identify time series of similar records to input record_ids.
+        """Identify time series of similar records to input record_ids.
 
         Given a one-dimensional dataframe X, containing FERC record IDs, return
         a dataframe in which each row corresponds to one of the input record_id
@@ -2765,7 +2758,7 @@ class FERCPlantClassifier(BaseEstimator, ClassifierMixin):
 
         Row index is the seed record IDs. Column index is years.
 
-        TODO:
+        Todo:
         * This method is hideously inefficient. It should be vectorized.
         * There's a line that throws a FutureWarning that needs to be fixed.
 
@@ -2906,8 +2899,7 @@ def make_ferc1_clf(
     utility_id_ferc1_wt=1.0,
     fuel_fraction_wt=1.0,
 ):
-    """
-    Create a FERC Plant Classifier using several weighted features.
+    """Create a FERC Plant Classifier using several weighted features.
 
     Given a FERC steam plants dataframe plants_df, which also includes fuel consumption
     information, transform a selection of useful columns into features suitable for use
