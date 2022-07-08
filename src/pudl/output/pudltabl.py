@@ -964,7 +964,7 @@ class PudlTabl:
             ] = pudl.output.ferc1.plant_in_service_ferc1(self.pudl_engine)
         return self._dfs["plant_in_service_ferc1"]
 
-    def all_plants_ferc1(self, update=False):
+    def plants_all_ferc1(self, update=False):
         """Pull the FERC Form 1 all plants table.
 
         Args:
@@ -975,11 +975,11 @@ class PudlTabl:
             pandas.DataFrame: a denormalized table for interactive use.
 
         """
-        if update or self._dfs["all_plants_ferc1"] is None:
-            self._dfs["all_plants_ferc1"] = pudl.output.ferc1.all_plants_ferc1(
+        if update or self._dfs["plants_all_ferc1"] is None:
+            self._dfs["plants_all_ferc1"] = pudl.output.ferc1.plants_all_ferc1(
                 self.pudl_engine
             )
-        return self._dfs["all_plants_ferc1"]
+        return self._dfs["plants_all_ferc1"]
 
     ###########################################################################
     # EIA MCOE OUTPUTS

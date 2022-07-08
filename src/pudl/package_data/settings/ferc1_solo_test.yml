@@ -1,17 +1,16 @@
+---
 ###########################################################################
 # Settings for ferc1_to_sqlite script
 ###########################################################################
 ferc1_dbf_to_sqlite_settings:
-    # What years of original FERC data should be cloned into the SQLite DB?
-    years: [
-        2020
-    ]
-    # A list of tables to be loaded into the local SQLite database. These are
-    # the table names as they appear in the 2015 FERC Form 1 database.
-    tables:
-      - f1_respondent_id
-      - f1_steam
-      - f1_fuel
+  # What years of original FERC data should be cloned into the SQLite DB?
+  years: [2020]
+  # A list of tables to be loaded into the local SQLite database. These are
+  # the table names as they appear in the 2015 FERC Form 1 database.
+  tables:
+    - f1_respondent_id
+    - f1_steam
+    - f1_fuel
 
 name: ferc1-solo
 title: FERC Form 1 Solo ETL
@@ -20,13 +19,13 @@ description: >
   independently of all other datasets. One year, fuel and steam tables.
 version: 0.1.0
 datasets:
-    ferc1:
-      ferc1_dbf_settings:
-        tables:
-          - fuel_ferc1 # requires plants_steam_ferc1 to load properly
-          - plants_steam_ferc1
-        years: [2020]
-      ferc1_xbrl_settings:
-        tables:
-          - steam_electric_generating_plant_statistics_large_plants_fuel_statistics_402_duration
-        years: [2021]
+  ferc1:
+    ferc1_dbf_settings:
+      tables:
+        - fuel_ferc1 # requires plants_steam_ferc1 to load properly
+        - plants_steam_ferc1
+      years: [2020]
+    ferc1_xbrl_settings:
+      tables:
+        - steam_electric_generating_plant_statistics_large_plants_fuel_statistics_402_duration
+      years: [2021]
