@@ -413,6 +413,8 @@ def associate_generator_tables(gf, gen, gens, bf, pudl_out):
         gens (pandas.DataFrame): generators_eia860 table with cols: ``IDX_GENS``
             and all of the `energy_source_code` columns
         bf (pandas.DataFrame): boiler_fuel_eia923 table
+        pudl_out (pudl.output.pudltabl.PudlTabl): An object used to create the
+            tables for EIA and FERC Form 1 analysis.
 
     TODO: Convert these groupby/merges into transforms.
     """
@@ -508,6 +510,8 @@ def remove_inactive_generators(gen_assoc, pudl_out):
             types and broadcasted net generation data from the
             generation_eia923 and generation_fuel_eia923 tables. Output of
             `associate_generator_tables()`.
+        pudl_out (pudl.output.pudltabl.PudlTabl): An object used to create the
+            tables for EIA and FERC Form 1 analysis.
     """
     existing = gen_assoc.loc[(gen_assoc.operational_status == "existing")]
     # keep the gens that retired mid-report-year that have generator
@@ -933,8 +937,7 @@ def allocate_net_gen_by_gen_esc(gen_pm_fuel):
 
 
 def allocate_fuel_by_gen_esc(gen_pm_fuel):
-    """
-    Allocate fuel_consumption to generators/energy_source_code via three methods.
+    """Allocate fuel_consumption to generators/energy_source_code via three methods.
 
     There are three main types of generators:
       * "all gen": generators of plants which fully report to the
@@ -1253,8 +1256,7 @@ def manually_fix_energy_source_codes(gf):
 
 
 def adjust_energy_source_codes(gens, gf, bf):
-    """
-    Adds startup fuels to the list of energy source codes and adjusts MSW codes.
+    """Adds startup fuels to the list of energy source codes and adjusts MSW codes.
 
     Adds the energy source code of any startup fuels to the energy source
     columns so that any fuel burned in startup can be allocated to the generator
@@ -1275,7 +1277,7 @@ def adjust_energy_source_codes(gens, gf, bf):
     # create a column of all unique fuels in the order in which they appear (ESC 1-6, startup fuel 1-6)
     # this column will have each fuel code separated by a comma
     gens["unique_esc"] = [
-        ",".join((fuel for fuel in list(dict.fromkeys(fuels)) if pd.notnull(fuel)))
+        ",".join(fuel for fuel in list(dict.fromkeys(fuels)) if pd.notnull(fuel))
         for fuels in gens.filter(like="source_code").values
     ]
 
