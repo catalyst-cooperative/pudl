@@ -86,16 +86,20 @@ def parse_command_line(argv):
         default=False,
         help="If enabled, the local file cache for datastore will not be used.",
     )
-
+    parser.add_argument(
+        "--loglevel",
+        help="Set logging level (DEBUG, INFO, WARNING, ERROR, or CRITICAL).",
+        default="INFO",
+    )
     arguments = parser.parse_args(argv[1:])
     return arguments
 
 
 def main():
     """Parse command line and initialize PUDL DB."""
-    # Display logged output from the PUDL package:
     args = parse_command_line(sys.argv)
 
+    # Display logged output from the PUDL package:
     configure_root_logger(args.logfile)
     pudl_logger = get_logger("pudl")
 

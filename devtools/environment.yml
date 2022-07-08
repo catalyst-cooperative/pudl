@@ -1,3 +1,4 @@
+---
 name: pudl-dev
 channels:
   - conda-forge
@@ -5,22 +6,23 @@ channels:
 dependencies:
   # Used to set up the environment
   - pip>=21,<23
-  - python>=3.8,<3.11
+  - python>=3.10,<3.11
   - setuptools<63
   # These packages are also specified in setup.py
   # However, they depend on or benefit from binary libraries
   # which conda can install.
   - geopandas>=0.9,<0.11
-  - pygeos>=0.10,<0.13  # Python wrappers for the GEOS spatial libraries
+  - pygeos>=0.10,<0.13 # Python wrappers for the GEOS spatial libraries
   - python-snappy>=0.6,<1
   - sqlite>=3.36,<4
   # These libraries aren't directly specified in setup.py as
   # dependencies, but they are helpful and provide binaries
-  - numba>=0.55.1,<0.56  # First numba version that's compatible with Python 3.10
+  - numba>=0.55.1,<0.56 # First numba version that's compatible with Python 3.10
 
-   # These are not normal Python packages available on PyPI
-  - nodejs  # Useful for Jupyter
-  - pandoc  # Useful for rendering RST files in Atom
+
+    # These are not normal Python packages available on PyPI
+  - nodejs # Useful for Jupyter
+  - pandoc # Useful for rendering RST files in Atom
 
   # Packages related to current projects but not the core package
   - recordlinkage>=0.14,<0.16 # Used for fuzzy merge between FERC/EIA for RMI
@@ -32,4 +34,4 @@ dependencies:
 
   # Use pip to install the main PUDL repo / package for development:
   - pip:
-    - --editable ../[doc,test,dev,datasette]
+      - --editable ../[doc,test,dev,datasette]

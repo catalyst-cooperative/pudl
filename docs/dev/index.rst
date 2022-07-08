@@ -17,3 +17,4 @@ Development
   naming_conventions
   data_guidelines
   packaging
+  nightly_data_builds

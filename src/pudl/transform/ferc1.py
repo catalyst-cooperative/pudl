@@ -2884,7 +2884,7 @@ def plants_small(ferc1_dbf_raw_dfs, ferc1_xbrl_raw_dfs, ferc1_transformed_dfs):
             "net_generation": "net_generation_mwh",
             "plant_cost": "total_cost_of_plant",
             "plant_cost_mw": "capex_per_mw",
-            "operation": "opex_total",
+            "operation": "opex_operations",
             "expns_fuel": "opex_fuel",
             "expns_maint": "opex_maintenance",
             "kind_of_fuel": "fuel_type",
