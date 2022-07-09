@@ -255,7 +255,11 @@ def allocate_gen_fuel_by_generator_energy_source(pudl_out, drop_interim_cols=Tru
 def aggregate_gen_fuel_by_generator(
     pudl_out,
     net_gen_fuel_alloc: pd.DataFrame,
-    sum_cols,
+    sum_cols: list[str] = [
+        "net_generation_mwh",
+        "fuel_consumed_mmbtu",
+        "fuel_consumed_for_electricity_mmbtu",
+    ],
 ) -> pd.DataFrame:
     """Aggregate gen fuel data columns to generators.
 

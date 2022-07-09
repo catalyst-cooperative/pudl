@@ -809,9 +809,10 @@ class PudlTabl:
         if update or self._dfs["gen_fuel_allocated_eia923"] is None:
             self._dfs["gen_fuel_allocated_eia923"] = aggregate_gen_fuel_by_generator(
                 pudl_out=self,
-                gen_pm_fuel=self.gen_fuel_by_generator_energy_source_eia923(
+                net_gen_fuel_alloc=self.gen_fuel_by_generator_energy_source_eia923(
                     update=update
                 ),
+                sum_cols=["net_generation_mwh"],
             )
         return self._dfs["gen_fuel_allocated_eia923"]
 
