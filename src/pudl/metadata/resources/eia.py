@@ -213,8 +213,6 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "latitude",
                 "longitude",
                 "primary_purpose_id_naics",
-                "sector_name_eia",
-                "sector_id_eia",
                 "state",
                 "street_address",
                 "zip_code",

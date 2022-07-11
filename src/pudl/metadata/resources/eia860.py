@@ -162,6 +162,8 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "pipeline_notes",
                 "regulatory_status_code",
                 "respondent_frequency",
+                "sector_id_eia",
+                "sector_name_eia",
                 "service_area",
                 "transmission_distribution_owner_id",
                 "transmission_distribution_owner_name",
