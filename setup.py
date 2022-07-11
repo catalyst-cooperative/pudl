@@ -60,7 +60,7 @@ setup(
         "jinja2>=2,<3.2",
         "matplotlib>=3.3,<3.6",  # Should make this optional with a "viz" extras
         "networkx>=2.2,<2.9",
-        "numpy>=1.18.5,<1.23",
+        "numpy>=1.18.5,<1.24,!=1.23.0",
         "pandas>=1.4,<1.4.4",
         "pyarrow>=5,<8.1",
         "pydantic[email]>=1.7,<2",
