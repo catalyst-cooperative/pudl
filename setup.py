@@ -105,7 +105,7 @@ setup(
             "mccabe>=0.6,<0.8",
             "nbval>=0.9,<0.10",
             "pep8-naming>=0.12,<0.14",
-            "pre-commit>=2.9,<2.20",
+            "pre-commit>=2.9,<2.21",
             "pydocstyle>=5.1,<6.2",
             "pytest>=6.2,<7.2",
             "pytest-console-scripts>=1.1,<1.4",
