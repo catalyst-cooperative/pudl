@@ -442,13 +442,15 @@ Available Sandbox Datasets:
     parser.add_argument(
         "--gcs-cache-path",
         type=str,
-        help="Load datastore resources from Google Cloud Storage. Should be gs://bucket[/path_prefix]",
+        help="""Load datastore resources from Google Cloud Storage. Should be gs://bucket[/path_prefix].
+                If specified without --bypass-local-cache, the local cache will be populated from the GCS cache.
+                If specified with --bypass-local-cache, the GCS cache will be populated by Zenodo.""",
     )
     parser.add_argument(
         "--bypass-local-cache",
         action="store_true",
         default=False,
-        help="If enabled, the local file cache for datastore will not be used.",
+        help="""If enabled, the local file cache for datastore will not be used.""",
     )
     parser.add_argument(
         "--partition",
@@ -481,7 +483,6 @@ def _create_datastore(args: dict) -> Datastore:
     ds_kwargs = dict(gcs_cache_path=args.gcs_cache_path, sandbox=args.sandbox)
     if not args.bypass_local_cache:
         ds_kwargs["local_cache_path"] = _get_pudl_in(args) / "data"
-
     return Datastore(**ds_kwargs)
 
 
@@ -527,10 +528,14 @@ def fetch_resources(
 ) -> None:
     """Retrieve all matching resources and store them in the cache."""
     for single_ds in datasets:
-        for res, _ in dstore.get_resources(
+        for res, contents in dstore.get_resources(
             single_ds, skip_optimally_cached=True, **args.partition
         ):
             logger.info(f"Retrieved {res}.")
+            # If the gcs_cache_path is specified and we don't want
+            # to bypass the local cache, populate the local cache.
+            if args.gcs_cache_path and not args.bypass_local_cache:
+                dstore._cache.add(res, contents)
 
 
 def main():

@@ -191,6 +191,9 @@ class LayeredCache(AbstractCache):
             if cache_layer.is_read_only():
                 continue
             cache_layer.add(resource, value)
+            logger.debug(
+                f"Add {resource} to cache layer {cache_layer.__class__.__name__})"
+            )
             break
 
     def delete(self, resource: PudlResourceKey):
@@ -219,4 +222,7 @@ class LayeredCache(AbstractCache):
         for cache_layer in self._caches:
             if cache_layer.is_read_only():
                 continue
+            logger.debug(
+                f"{resource} optimally cached in {cache_layer.__class__.__name__}"
+            )
             return cache_layer.contains(resource)
