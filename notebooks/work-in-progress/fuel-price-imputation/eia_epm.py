@@ -1,9 +1,10 @@
-import requests
-from typing import Dict, Generator
-import pandas as pd
+from collections.abc import Generator
+import re
 from pathlib import Path
 from zipfile import ZipFile
-import re
+
+import pandas as pd
+import requests
 
 # caused attribute errors on import???
 # from pudl.helpers import download_zip_url
@@ -70,7 +71,7 @@ def generate_links() -> Generator[str, None, None]:
         yield f"{URL_BASE}/{month}{2022}.zip"
 
 
-class Extractor(object):
+class Extractor:
     FILENAMES = {  # monthly by fuel. Two values due to naming convention change
         "coal": ("Table_4_10_A.xlsx", "epmxlfile4_10_a.xls"),
         "oil": ("Table_4_11_A.xlsx", "epmxlfile4_11_a.xls"),
@@ -86,13 +87,17 @@ class Extractor(object):
         assert dir_with_zips.exists()
         self.root = dir_with_zips
 
-    def extract(self) -> Dict[str, pd.DataFrame]:
+    def extract(self) -> dict[str, pd.DataFrame]:
         zip_files = self.root.glob("*.zip")
         monthly_dfs = {key: [] for key in Extractor.FILENAMES.keys()}
         for zip_file in zip_files:
             with ZipFile(zip_file, "r") as archive:
                 # look for occasional nested subdirectory
-                prefix = archive.filelist[0].filename if archive.filelist[0].filename.endswith("/") else None
+                prefix = (
+                    archive.filelist[0].filename
+                    if archive.filelist[0].filename.endswith("/")
+                    else None
+                )
                 for fuel, file_names in Extractor.FILENAMES.items():
                     for i, file_name in enumerate(file_names):
                         if prefix is not None:
@@ -106,15 +111,19 @@ class Extractor(object):
                             else:
                                 raise err
                         break
-                    is_ytd = file_name.rsplit(".")[0][-1].lower() == "b"  # last character is 'b'
+                    is_ytd = (
+                        file_name.rsplit(".")[0][-1].lower() == "b"
+                    )  # last character is 'b'
                     df = _read_state_month_excel(file, is_ytd=is_ytd)
                     file.close()
                     monthly_dfs[fuel].append(df)
-        monthly_dfs = {key: pd.concat(dfs, axis=0).sort_index() for key, dfs in monthly_dfs.items()}
+        monthly_dfs = {
+            key: pd.concat(dfs, axis=0).sort_index() for key, dfs in monthly_dfs.items()
+        }
         return monthly_dfs
 
 
-def _parse_dates_from_old_ytd_files(raw_df: pd.DataFrame) -> Dict[int, pd.Timestamp]:
+def _parse_dates_from_old_ytd_files(raw_df: pd.DataFrame) -> dict[int, pd.Timestamp]:
     title_row = raw_df[raw_df[0].str.match("^Table 4.1[0123].B").fillna(False)].index[0]
     title_text = raw_df.at[title_row, 0]
     regex = r".+ (?P<month>\w+) (?P<last_year>\d{4}) and (?P<first_year>\d{4})$"
@@ -147,7 +156,12 @@ def _read_state_month_excel(file, is_ytd: bool) -> pd.DataFrame:
     else:
         dates = df.iloc[1, :].replace(date_replace_dict)
     cols = pd.MultiIndex.from_frame(
-        pd.DataFrame({"sector": df.iloc[0, :].fillna(method="ffill"), "date": pd.to_datetime(dates)})
+        pd.DataFrame(
+            {
+                "sector": df.iloc[0, :].fillna(method="ffill"),
+                "date": pd.to_datetime(dates),
+            }
+        )
     )
     df.columns = cols
     df = df.iloc[2:, :]  # drop rows that became column index
@@ -163,11 +177,13 @@ def _read_state_month_excel(file, is_ytd: bool) -> pd.DataFrame:
     return out
 
 
-def transform(extracted_dfs: Dict[str, pd.DataFrame]) -> Dict[str, pd.DataFrame]:
+def transform(extracted_dfs: dict[str, pd.DataFrame]) -> dict[str, pd.DataFrame]:
     pass
 
 
-def add_fuel_cols_and_combine(extracted_dfs: Dict[str, pd.DataFrame]) -> Dict[str, pd.DataFrame]:
+def add_fuel_cols_and_combine(
+    extracted_dfs: dict[str, pd.DataFrame]
+) -> dict[str, pd.DataFrame]:
     # add fuel column
     monthly = []
     ytd = []
@@ -211,7 +227,7 @@ So I decided to use EIA EPM instead, even though it comes in a cumbersome format
 - won't return more than 5k rows (check value "total" in response)
 - use route /data to get column info.
     - Add &data[]=<col_name> to get actual data (append multiple to get more columns)
-    - Leave /data out to get table metadata. 
+    - Leave /data out to get table metadata.
 - use route /facet/<name> to get subset metadata. See available facets in metadata
     - for getting data, append &facets[stateid][]=CO, for example
     - use &frequency=monthly (or other freq. Check the metadata)
