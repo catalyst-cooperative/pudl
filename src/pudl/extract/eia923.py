@@ -10,7 +10,7 @@ import logging
 import pandas as pd
 
 from pudl.extract import excel
-from pudl.helpers import fix_leading_zero_gen_ids
+from pudl.helpers import remove_leading_zeros_from_numeric_strings
 from pudl.settings import Eia923Settings
 
 logger = logging.getLogger(__name__)
@@ -41,7 +41,7 @@ class Extractor(excel.GenericExtractor):
         df.drop(to_drop, axis=1, inplace=True)
         df = df.rename(columns=self._metadata.get_column_map(page, **partition))
         self.cols_added = []
-        df = fix_leading_zero_gen_ids(df)
+        df = remove_leading_zeros_from_numeric_strings(df, "generator_id")
         return df
 
     def extract(self, settings: Eia923Settings = Eia923Settings()):

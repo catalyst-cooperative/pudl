@@ -9,7 +9,7 @@ import logging
 import pandas as pd
 
 from pudl.extract import excel
-from pudl.helpers import fix_leading_zero_gen_ids
+from pudl.helpers import remove_leading_zeros_from_numeric_strings
 from pudl.settings import Eia860Settings
 
 logger = logging.getLogger(__name__)
@@ -47,7 +47,7 @@ class Extractor(excel.GenericExtractor):
         if page in pages_eia860m:
             df = df.assign(data_source="eia860")
             self.cols_added.append("data_source")
-        df = fix_leading_zero_gen_ids(df)
+        df = remove_leading_zeros_from_numeric_strings(df, "generator_id")
         return df
 
     def extract(self, settings: Eia860Settings = Eia860Settings()):
