@@ -443,8 +443,9 @@ Available Sandbox Datasets:
         "--gcs-cache-path",
         type=str,
         help="""Load datastore resources from Google Cloud Storage. Should be gs://bucket[/path_prefix].
-                If specified without --bypass-local-cache, the local cache will be populated from the GCS cache.
-                If specified with --bypass-local-cache, the GCS cache will be populated by Zenodo.""",
+The main zenodo cache bucket is gs://zenodo-cache.catalyst.coop.
+If specified without --bypass-local-cache, the local cache will be populated from the GCS cache.
+If specified with --bypass-local-cache, the GCS cache will be populated by Zenodo.""",
     )
     parser.add_argument(
         "--bypass-local-cache",
