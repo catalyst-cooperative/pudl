@@ -1,5 +1,5 @@
 ---
-name: pre-commit-ci-auto-merge
+name: bot-auto-merge
 
 on:
   workflow_run:
