@@ -121,13 +121,13 @@ def encode_run_length(x: Sequence | np.ndarray) -> tuple[np.ndarray, np.ndarray]
     Examples:
         >>> x = np.array([0, 1, 1, 0, 1])
         >>> encode_run_length(x)
-        (array([0, 1, 0, 1]), array([1, 2, 1, 1], dtype=int64))
+        (array([0, 1, 0, 1]), array([1, 2, 1, 1]))
         >>> encode_run_length(x.astype('bool'))
-        (array([False,  True, False,  True]), array([1, 2, 1, 1], dtype=int64))
+        (array([False,  True, False,  True]), array([1, 2, 1, 1]))
         >>> encode_run_length(x.astype('<U1'))
-        (array(['0', '1', '0', '1'], dtype='<U1'), array([1, 2, 1, 1], dtype=int64))
+        (array(['0', '1', '0', '1'], dtype='<U1'), array([1, 2, 1, 1]))
         >>> encode_run_length(np.where(x == 0, np.nan, x))
-        (array([nan,  1., nan,  1.]), array([1, 2, 1, 1], dtype=int64))
+        (array([nan,  1., nan,  1.]), array([1, 2, 1, 1]))
     """
     # Inspired by https://stackoverflow.com/a/32681075
     x = np.asarray(x)
