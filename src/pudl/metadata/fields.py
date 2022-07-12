@@ -741,6 +741,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Generator ID is usually numeric, but sometimes includes letters. Make sure you treat it as a string!",
     },
+    "generator_id_epa": {
+        "type": "string",
+        "description": "Generator ID used by the EPA.",
+    },
     "generators_num_less_1_mw": {"type": "number", "unit": "MW"},
     "generators_number": {"type": "number"},
     "green_pricing_revenue": {"type": "number", "unit": "USD"},
@@ -1911,7 +1915,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "unit_id_epa": {
         "type": "string",
-        "description": "Emissions (smokestake) unit monitored by EPA CEMS.",
+        "description": "Emissions (smokestack) unit monitored by EPA CEMS.",
     },
     "unit_id_pudl": {
         "type": "integer",
