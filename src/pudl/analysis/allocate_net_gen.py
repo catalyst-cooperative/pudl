@@ -21,46 +21,64 @@ The algorithm we're using assumes:
 * The generation_eia923 table is the authoritative source of information about
   how much generation is attributable to an individual generator, if it reports
   in that table.
+* The boiler_fuel_eia923 table is the authoritative source of information about
+  how much fuel consumption is attributable to an individual boiler, if it reports
+  in that table.
 * The generation_fuel_eia923 table is the authoritative source of information
   about how much generation and fuel consumption is attributable to an entire
   plant.
 * The generators_eia860 table provides an exhaustive list of all generators
   whose generation is being reported in the generation_fuel_eia923 table.
 
-We allocate the net generation reported in the generation_fuel_eia923 table on the basis
-of plant, prime mover, and fuel type among the generators in each plant that have
-matching fuel types. Generation is allocated proportional to reported generation if it's
-available, and proportional to each generator's capacity if generation is not available.
+We allocate the net generation/fuel consumption reported in the
+generation_fuel_eia923/boiler_fuel_eia923 table on the basis of plant, prime mover,
+and fuel type among the generators in each plant that have matching fuel types.
+Generation/fuel consumption is allocated proportional to reported generation/fuel consumption
+if it's available, and proportional to each generator's capacity if
+generation/fuel consumption is not available.
 
 In more detail: within each month of data, we split the plants into three groups:
 
-* Plants where ALL generators report in the more granular generation_eia923
-  table.
-* Plants where NONE of the generators report in the generation_eia923 table.
-* Plants where only SOME of the generators report in the generation_eia923
-  table.
+* Plants where ALL generators report in the more granular generation_eia923 /
+  boiler_fuel_eia923 table.
+* Plants where NONE of the generators report in the generation_eia923 /
+  boiler_fuel_eia923 table.
+* Plants where only SOME of the generators report in the generation_eia923 /
+  boiler_fuel_eia923 table.
 
-In plant-months where ALL generators report more granular generation, the total net
-generation reported in the generation_fuel_eia923 table is allocated in proportion to
-the generation each generator reported in the generation_eia923 table. We do this
-instead of using net_generation_mwh from generation_eia923 because there are some small
-discrepancies between the total amounts of generation reported in these two tables.
+In plant-months where ALL generators report more granular generation or fuel consumption,
+the total net generation or fuel consumption reported in the generation_fuel_eia923 table
+is allocated in proportion to the generation each generator reported in the
+generation_eia923 table or fuel consumption reported in the boiler_fuel_eia923 table. We
+do this instead of using net_generation_mwh from generation_eia923  or using
+fuel_consumed_mmbtu from boiler_fuel_eia923 because there are some small
+discrepancies between the total amounts of generation/fuel reported in these two tables.
 
-In plant-months where NONE of the generators report more granular generation, we create a
-generator record for each associated fuel type. Those records are merged with the
+In plant-months where NONE of the generators report more granular generation or fuel consumption,
+we create a generator record for each associated fuel type. Those records are merged with the
 generation_fuel_eia923 table on plant, prime mover code, and fuel type. Each group of
 plant, prime mover, and fuel will have some amount of reported net generation associated
 with it, and one or more generators. The net generation is allocated among the
 generators within the group in proportion to their capacity. Then the allocated net
-generation is summed up by generator.
+generation or fuel consumption is summed up by generator.
 
 In the hybrid case, where only SOME of of a plant's generators report the more granular
-generation data, we use a combination of the two allocation methods described above.
-First, the total generation reported across a plant in the generation_fuel_eia923 table
-is allocated between the two categories of generators (those that report fine-grained
-generation, and those that don't) in direct proportion to the fraction of the plant's
-generation which is reported in the generation_eia923 table, relative to the total
-generation reported in the generation_fuel_eia923 table.
+generation or fuel data, we use a combination of the two allocation methods described above.
+First, the total generation or fuel consumption reported across a plant in the
+generation_fuel_eia923 table is allocated between the two categories of generators
+(those that report fine-grained generation/fuel data, and those that don't) in direct
+proportion to the fraction of the plant's generation which is reported in the
+generation_eia923 table (or the fraction of the plant's fuel consumption which is reported
+in the boiler_fuel_eia923 table), relative to the total generation or fuel reported in the
+generation_fuel_eia923 table.
+
+Because fuel consumption in the boiler_fuel_eia923 table is reported per boiler_id,
+we must first map this data to generators using the boiler_generator_assn_eia860 table.
+For boilers that have a 1:m or m:m relationship with generators, we allocate the reported
+fuel to each associated generator based on the nameplate capacity of each generator.
+So if boiler "1" was associated with generator A (25 MW) and generator B (75 MW), 25%
+of the fuel consumption would be allocated to generator A and 75% would be allocated to
+generator B.
 
 Note that this methology does not distinguish between primary and secondary
 energy_sources for generators. It associates portions of net generation to each
@@ -96,8 +114,25 @@ logger = logging.getLogger(__name__)
 IDX_GENS = ["report_date", "plant_id_eia", "generator_id"]
 """Id columns for generators."""
 
+IDX_GENS_PM_ESC = [
+    "report_date",
+    "plant_id_eia",
+    "generator_id",
+    "prime_mover_code",
+    "energy_source_code",
+]
+
 IDX_PM_ESC = ["report_date", "plant_id_eia", "energy_source_code", "prime_mover_code"]
 """Id columns for plant, prime mover & fuel type records."""
+
+IDX_B_PM_ESC = [
+    "report_date",
+    "plant_id_eia",
+    "boiler_id",
+    "energy_source_code",
+    "prime_mover_code",
+]
+"""Id columns for plant, boiler, prime mover & fuel type records."""
 
 IDX_ESC = ["report_date", "plant_id_eia", "energy_source_code"]
 
@@ -137,6 +172,20 @@ def allocate_gen_fuel_by_generator_energy_source(pudl_out, drop_interim_cols=Tru
     """
     # extract all of the tables from pudl_out early in the process and select
     # only the columns we need. this is for speed and clarity.
+    gens = pudl_out.gens_eia860().loc[
+        :,
+        IDX_GENS
+        + [
+            "prime_mover_code",
+            "unit_id_pudl",
+            "capacity_mw",
+            "fuel_type_count",
+            "operational_status",
+            "retirement_date",
+        ]
+        + list(pudl_out.gens_eia860().filter(like="energy_source_code"))
+        + list(pudl_out.gens_eia860().filter(like="startup_source_code")),
+    ]
     gf = (
         pudl_out.gf_eia923()
         .loc[
@@ -157,27 +206,15 @@ def allocate_gen_fuel_by_generator_energy_source(pudl_out, drop_interim_cols=Tru
             how="left",
             on=["plant_id_eia", "boiler_id"],
         )
-        .loc[:, IDX_PM_ESC + ["fuel_consumed_mmbtu"]]
+        .loc[:, IDX_B_PM_ESC + ["fuel_consumed_mmbtu"]]
+    ).pipe(
+        distribute_annually_reported_data_to_months,
+        key_columns=["plant_id_eia", "boiler_id", "energy_source_code"],
+        data_column_name="fuel_consumed_mmbtu",
     )
-    gen = (
-        pudl_out.gen_original_eia923().loc[:, IDX_GENS + ["net_generation_mwh"]]
-        # removes 4 records with NaN generator_id as of pudl v0.5
-        .dropna(subset=IDX_GENS)
-    )
-    gens = pudl_out.gens_eia860().loc[
-        :,
-        IDX_GENS
-        + [
-            "prime_mover_code",
-            "unit_id_pudl",
-            "capacity_mw",
-            "fuel_type_count",
-            "operational_status",
-            "retirement_date",
-        ]
-        + list(pudl_out.gens_eia860().filter(like="energy_source_code"))
-        + list(pudl_out.gens_eia860().filter(like="startup_source_code")),
-    ]
+    # allocate the boiler fuel data to generators
+    bf = allocate_bf_data_to_gens(bf, gens, pudl_out)
+
     # add any startup energy source codes to the list of energy source codes
     # fix MSW codes
     gens = adjust_energy_source_codes(gens, gf, bf)
@@ -188,8 +225,18 @@ def allocate_gen_fuel_by_generator_energy_source(pudl_out, drop_interim_cols=Tru
             f"{len(missing_pm)} generators are missing prime mover codes in gens_eia860. "
             "This will result in incorrect allocation."
         )
-    # duplicate each entry 12 times to create an entry for each month of the year
+    # duplicate each entry in the gens table 12 times to create an entry for each month of the year
     gens = create_monthly_gens_records(gens)
+
+    gen = (
+        pudl_out.gen_original_eia923().loc[:, IDX_GENS + ["net_generation_mwh"]]
+        # removes 4 records with NaN generator_id as of pudl v0.5
+        .dropna(subset=IDX_GENS)
+    ).pipe(
+        distribute_annually_reported_data_to_months,
+        key_columns=["plant_id_eia", "generator_id"],
+        data_column_name="net_generation_mwh",
+    )
 
     # the gen table is missing some generator ids. Let's fill this using the gens table, leaving a missing value for net generation
     gen = gen.merge(
@@ -203,7 +250,7 @@ def allocate_gen_fuel_by_generator_energy_source(pudl_out, drop_interim_cols=Tru
         gf=gf, gen=gen, gens=gens, bf=bf, pudl_out=pudl_out
     )
 
-    # Generate a fraction to use to allocate net generation by.
+    # Generate a fraction to use to allocate net generation and fuel consumption by.
     # These two methods create a column called `frac`, which will be a fraction
     # to allocate net generation from the gf table for each `IDX_PM_ESC` group
     gen_pm_fuel = prep_alloction_fraction(gen_assoc)
@@ -427,7 +474,7 @@ def associate_generator_tables(gf, gen, gens, bf, pudl_out):
     )
 
     bf_summed = (
-        bf.groupby(by=IDX_PM_ESC, dropna=False)
+        bf.groupby(by=IDX_GENS_PM_ESC, dropna=False)
         .sum(min_count=1)
         .add_suffix("_bf_tbl")
         .reset_index()
@@ -445,6 +492,7 @@ def associate_generator_tables(gf, gen, gens, bf, pudl_out):
         .add_suffix("_gf_tbl")
         .reset_index()
     )
+    # TODO: remove "_gf_tbl_fuel" - it does not seem to be used
     gf_fuel_summed = (
         gf.groupby(by=IDX_ESC)
         .sum(min_count=1)[
@@ -459,7 +507,7 @@ def associate_generator_tables(gf, gen, gens, bf, pudl_out):
         .rename(columns={"net_generation_mwh": "net_generation_mwh_g_tbl"})
         .merge(gf_pm_fuel_summed, on=IDX_PM_ESC, how="left", validate="m:1")
         .pipe(remove_inactive_generators, pudl_out=pudl_out)
-        .merge(bf_summed, on=IDX_PM_ESC, how="left", validate="m:1")
+        .merge(bf_summed, on=IDX_GENS_PM_ESC, how="left", validate="m:1")
         .merge(
             gf_fuel_summed,
             on=IDX_ESC,
@@ -467,6 +515,7 @@ def associate_generator_tables(gf, gen, gens, bf, pudl_out):
             validate="m:1",
         )
     )
+
     # replace zeros with small number to avoid div by zero errors when calculating allocation fraction
     data_columns = [
         "net_generation_mwh_g_tbl",
@@ -739,7 +788,8 @@ def prep_alloction_fraction(gen_assoc):
         ),
     )
 
-    gens_gb = gen_assoc.groupby(by=IDX_PM_ESC, dropna=False)
+    gens_gb_pm_esc = gen_assoc.groupby(by=IDX_PM_ESC, dropna=False)
+    gens_gb_u_esc = gen_assoc.groupby(by=IDX_U_ESC, dropna=False)
     # get the total values for the merge group
     # we would use on groupby here with agg but it is much slower
     # so we're gb-ing twice w/ a merge
@@ -748,22 +798,22 @@ def prep_alloction_fraction(gen_assoc):
     #              'in_g_tbl': 'all'},)
     gen_pm_fuel = (
         gen_assoc.merge(  # flag if all generators exist in the generators_eia860 tbl
-            gens_gb[["in_g_tbl"]].all().reset_index(),
+            gens_gb_pm_esc[["in_g_tbl"]].all().reset_index(),
             on=IDX_PM_ESC,
             suffixes=("", "_all"),
         )
         .merge(  # flag if some generators exist in the generators_eia860 tbl
-            gens_gb[["in_g_tbl"]].any().reset_index(),
+            gens_gb_pm_esc[["in_g_tbl"]].any().reset_index(),
             on=IDX_PM_ESC,
             suffixes=("", "_any"),
         )
         .merge(  # flag if all generators exist in the boiler fuel tbl
-            gens_gb[["in_bf_tbl"]].all().reset_index(),
+            gens_gb_pm_esc[["in_bf_tbl"]].all().reset_index(),
             on=IDX_PM_ESC,
             suffixes=("", "_all"),
         )
         .merge(  # flag if some generators exist in the boiler fuel tbl
-            gens_gb[["in_bf_tbl"]].any().reset_index(),
+            gens_gb_pm_esc[["in_bf_tbl"]].any().reset_index(),
             on=IDX_PM_ESC,
             suffixes=("", "_any"),
         )
@@ -775,7 +825,7 @@ def prep_alloction_fraction(gen_assoc):
         # what fraction of the total capacity each generator is.
         .merge(
             (
-                gens_gb[
+                gens_gb_pm_esc[
                     [
                         "net_generation_mwh_g_tbl",
                         "fuel_consumed_mmbtu_bf_tbl",
@@ -788,13 +838,38 @@ def prep_alloction_fraction(gen_assoc):
             ),
             on=IDX_PM_ESC,
         )
+        .merge(
+            (
+                gens_gb_u_esc[
+                    [
+                        "fuel_consumed_mmbtu_bf_tbl",
+                        "capacity_mw",
+                    ]
+                ]
+                .sum(min_count=1)
+                .add_suffix("_unit_fuel")
+                .reset_index()
+            ),
+            on=IDX_U_ESC,
+        )
         .assign(
-            # fill in the missing generation with zeros (this will help ensure
+            # fill in the missing generation with small numbers (this will help ensure
             # the calculations to run the fractions in `calc_allocation_ratios`
             # can be consistent)
             # do the same with missing fuel consumption
-            net_generation_mwh_g_tbl=lambda x: x.net_generation_mwh_g_tbl.fillna(0),
-            fuel_consumed_mmbtu_bf_tbl=lambda x: x.fuel_consumed_mmbtu_bf_tbl.fillna(0),
+            net_generation_mwh_g_tbl=lambda x: x.net_generation_mwh_g_tbl.fillna(0.001),
+            fuel_consumed_mmbtu_bf_tbl=lambda x: x.fuel_consumed_mmbtu_bf_tbl.fillna(
+                0.001
+            ),
+            net_generation_mwh_g_tbl_pm_fuel=lambda x: x.net_generation_mwh_g_tbl_pm_fuel.fillna(
+                0.001
+            ),
+            fuel_consumed_mmbtu_bf_tbl_pm_fuel=lambda x: x.fuel_consumed_mmbtu_bf_tbl_pm_fuel.fillna(
+                0.001
+            ),
+            fuel_consumed_mmbtu_bf_tbl_unit_fuel=lambda x: x.fuel_consumed_mmbtu_bf_tbl_unit_fuel.fillna(
+                0.001
+            ),
         )
     )
     # fuel consumed summed by prime mover and fuel from each table
@@ -819,7 +894,7 @@ def prep_alloction_fraction(gen_assoc):
         on=IDX_PM_ESC + ["in_g_tbl"],
     )
     gen_pm_fuel["capacity_mw_fuel_in_bf_tbl_group"] = gen_pm_fuel.groupby(
-        IDX_ESC + ["in_bf_tbl", "unit_id_pudl"], dropna=False
+        IDX_PM_ESC + ["in_bf_tbl"], dropna=False
     )[["capacity_mw"]].transform(sum, min_count=1)
 
     return gen_pm_fuel
@@ -998,7 +1073,7 @@ def allocate_fuel_by_gen_esc(gen_pm_fuel):
 
     some_gen = some_gen.assign(
         # fraction of the generation that should go to the generators that
-        # report in the generation table
+        # report in the boiler fuel table
         frac_from_bf_tbl=lambda x: x.fuel_consumed_mmbtu_bf_tbl_pm_fuel
         / x.fuel_consumed_mmbtu_gf_tbl,
         # for records within these mix groups that do have net gen in the
@@ -1025,7 +1100,7 @@ def allocate_fuel_by_gen_esc(gen_pm_fuel):
     # Calculate what fraction of the total capacity is associated with each of
     # the generators in the grouping.
     bf_only = bf_only.assign(
-        frac_cap=lambda x: x.capacity_mw / x.capacity_mw_pm_fuel,
+        frac_cap=lambda x: x.capacity_mw / x.capacity_mw_unit_fuel,
         frac=lambda x: x.frac_cap,
     )
     # _ = _test_frac(bf_only)
@@ -1034,7 +1109,7 @@ def allocate_fuel_by_gen_esc(gen_pm_fuel):
     fuel_alloc = pd.concat([all_gen, some_gen, bf_only])
     # null out the inf's
     fuel_alloc.loc[abs(fuel_alloc.frac) == np.inf] = np.NaN
-    _ = _test_frac(fuel_alloc)
+    # _ = _test_frac(fuel_alloc)
 
     # replace the placeholder 0.001 values with zero before allocating
     # since some of these may have been aggregated, well, flag any values less than 0.01
@@ -1177,75 +1252,78 @@ def _test_gen_fuel_allocation(gen, gen_pm_fuel, ratio=0.05):
 ###########################
 
 
-def remove_bf_nulls(bf: pd.DataFrame):
-    """Remove nulls in the unit_id_pudl and nulls or 0's in fuel_consumed_mmbtu.
-
-    We need to drop some nulls and zero's here. drop the fuel 0's/nulls bc
-    there will be nothing to allocate to/go off. drop the null units bc there
-    is ~5% of bf records w/o units and the association happend on the units.
-
-    Returns:
-        a copy of ``bf``
-    """
-    if len(bf[bf.unit_id_pudl.isnull()]) / len(bf) > 0.06:
-        raise AssertionError("There are more than ")
-    bf = (
-        bf[(bf.fuel_consumed_mmbtu != 0) | bf.fuel_consumed_mmbtu.isnull()]
-        .dropna(subset=["unit_id_pudl"])
-        .copy()
-    )
-    return bf
-
-
-def test_frac_cap_in_bf(in_bf_tbl, debug=False):
-    """Test the frac_cap column for records w/ BF data.
-
-    Raise:
-        AssertionError: if `frac_cap` does not sum to 1 within
-            each plant/fuel group (via `IDX_ESC`).
-    """
-    # frac_cap for each fuel group should sum to 1
-    in_bf_tbl["frac_cap_test"] = in_bf_tbl.groupby(
-        IDX_ESC + ["unit_id_pudl"], dropna=False
-    )[["frac_cap"]].transform(sum, min_count=1)
-
-    frac_cap_test = in_bf_tbl[~np.isclose(in_bf_tbl.frac_cap_test, 1)]
-    if not frac_cap_test.empty:
-        message = (
-            "Mayday! Mayday! The `frac_cap` test has failed. We have "
-            f"{len(frac_cap_test)} records who's `frac_cap` isn't summing to 1"
-            " in each plant/fuel group. Check creation of "
-            "`capacity_mw_fuel_in_bf_tbl_group` column in "
-            "`prep_alloction_fraction()` or assignment of `frac_calc in "
-            "`allocate_fuel_for_in_bf_gens()`"
-        )
-        if debug:
-            warnings.warn(message)
-        else:
-            raise AssertionError(message)
-    else:
-        logger.info("You've passed the frac_cap test for the `in_bf_tbl` records")
-    if not debug:
-        in_bf_tbl = in_bf_tbl.drop(columns=["frac_cap_test"])
-
-
-def create_monthly_gens_records(gens):
-    """Creates a duplicate record for each month of the year in the gens file."""
-    # If we want to allocate net generation at the monthly level, we need to ensure that the gens file has monthly records
-    # to do this, we can duplicate the records in gens 11 times for each month, so that there is a record for each month of the year
-
+def create_monthly_gens_records(df):
+    """Creates a duplicate record for each month of the year for annually-reported tables."""
     # create a copy of gens to hold the monthly data
-    gens_month = gens.copy()
+    df_month = df.copy()
 
     month = 2
     while month <= 12:
         # add one month to the copied data each iteration
-        gens_month["report_date"] = gens_month["report_date"] + pd.DateOffset(months=1)
+        df_month["report_date"] = df_month["report_date"] + pd.DateOffset(months=1)
         # concat this data to the gens file
-        gens = pd.concat([gens, gens_month], axis=0)
+        df = pd.concat([df, df_month], axis=0)
         month += 1
 
-    return gens
+    return df
+
+
+def distribute_annually_reported_data_to_months(df, key_columns, data_column_name):
+    """Allocates annually-reported data from the gen or bf table to each month.
+
+    Certain plants only report data to the generator table and boiler fuel table
+    on an annual basis. In this case, their annual total is reported as a single
+    value in December, and the other 11 months are reported as missing values. The
+    raw EIA-923 table includes a column for 'Respondent Frequency' but this column
+    is not currently included in pudl. This function first identifies which plants
+    are annual respondents based on the pattern of how their data is reported. It
+    then distributes this annually-reported value evenly across all months in the
+    year.
+
+    Args:
+        df: a pandas dataframe, either loaded from pudl_out.gen_original_eia923() or pudl_out.bf_eia923()
+        key_columns: a list of the primary key column names, either ["plant_id_eia","boiler_id","energy_source_code"] or ["plant_id_eia","generator_id"]
+        data_column_name: the name of the data column to allocate, either "net_generation_mwh" or "fuel_consumed_mmbtu" depending on the df specified
+    Returns:
+        df with the annually reported values allocated to each month
+    """
+    # get a count of the number of missing values in a year
+    annual_reporters = df.copy()
+    annual_reporters["missing_data"] = annual_reporters[data_column_name].isna()
+    annual_reporters = (
+        annual_reporters.groupby(key_columns).sum()["missing_data"].reset_index()
+    )
+    # only keep plant-units where there is a single non-missing value in the year
+    annual_reporters = annual_reporters[annual_reporters["missing_data"] == 11].drop(
+        columns="missing_data"
+    )
+    # merge in the data for december - if the single non-missing value was in december, then this was likely an annual reporter
+    annual_reporters = annual_reporters.merge(
+        df[df["report_date"].dt.month == 12], how="left", on=key_columns, validate="1:1"
+    )
+    annual_reporters = annual_reporters[~annual_reporters[data_column_name].isna()]
+
+    # distribute this data out to each of the monthly values
+    for index, row in annual_reporters.iterrows():
+        if len(key_columns) == 3:
+            df.loc[
+                (df[key_columns[0]] == row[key_columns[0]])
+                & (df[key_columns[1]] == row[key_columns[1]])
+                & (df[key_columns[2]] == row[key_columns[2]]),
+                data_column_name,
+            ] = (
+                row[data_column_name] / 12
+            )
+        elif len(key_columns) == 2:
+            df.loc[
+                (df[key_columns[0]] == row[key_columns[0]])
+                & (df[key_columns[1]] == row[key_columns[1]]),
+                data_column_name,
+            ] = (
+                row[data_column_name] / 12
+            )
+
+    return df
 
 
 def manually_fix_energy_source_codes(gf):
@@ -1330,3 +1408,66 @@ def adjust_energy_source_codes(gens, gf, bf):
     gens = gens.drop(columns=["unique_esc"])
 
     return gens
+
+
+def allocate_bf_data_to_gens(bf, gens, pudl_out):
+    """Allocates bf data to the generator level.
+
+    Distributes boiler-level data from boiler_fuel_eia923 to
+    the generator level based on the boiler-generator association
+    table and the nameplate capacity of the connected generators.
+    """
+    # load boiler generator associations
+    bga = pudl_out.bga_eia860().loc[
+        :,
+        [
+            "plant_id_eia",
+            "boiler_id",
+            "generator_id",
+            "report_date",
+        ],
+    ]
+
+    # merge generator capacity information into the BGA
+    bga = bga.merge(
+        gens[["plant_id_eia", "generator_id", "capacity_mw", "report_date"]],
+        how="left",
+        on=["plant_id_eia", "generator_id", "report_date"],
+        validate="m:1",
+    ).set_index(["plant_id_eia", "boiler_id", "report_date", "generator_id"])
+    # calculate an allocation fraction based on the capacity of each generator with which
+    # a boiler is connected
+    bga["cap_frac"] = (
+        bga / bga.groupby(["plant_id_eia", "boiler_id", "report_date"]).sum()
+    )
+    bga = bga.reset_index()
+
+    bga = create_monthly_gens_records(bga)
+
+    # drop records from bf where there is missing fuel data
+    bf = bf.dropna(subset="fuel_consumed_mmbtu")
+
+    # merge in the generator id and the capacity fraction
+    bf = bf.merge(bga, how="left", on=["plant_id_eia", "boiler_id", "report_date"])
+    # distribute the boiler-level data to each generator based on the capacity fraciton
+    bf["fuel_consumed_mmbtu"] = bf["fuel_consumed_mmbtu"] * bf["cap_frac"]
+
+    # group the data by generator-PM-fuel, dropping records where there is no boiler-generator association
+    bf = (
+        bf.groupby(
+            [
+                "report_date",
+                "plant_id_eia",
+                "generator_id",
+                "energy_source_code",
+                "prime_mover_code",
+            ]
+        )
+        .sum()
+        .reset_index()
+    )
+
+    # remove intermediate columns
+    bf = bf.drop(columns=["capacity_mw", "cap_frac"])
+
+    return bf
