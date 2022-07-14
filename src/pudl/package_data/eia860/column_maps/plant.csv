@@ -31,7 +31,7 @@ latitude,,,,,,,,,,,,latitude,latitude,latitude,latitude,latitude,latitude,latitu
 longitude,,,,,,,,,,,,longitude,longitude,longitude,longitude,longitude,longitude,longitude,longitude,longitude
 balancing_authority_code_eia,,,,,,,,,,,,,balancing_authority_code,balancing_authority_code,balancing_authority_code,balancing_authority_code,balancing_authority_code,balancing_authority_code,balancing_authority_code,balancing_authority_code
 balancing_authority_name_eia,,,,,,,,,,,,,balancing_authority_name,balancing_authority_name,balancing_authority_name,balancing_authority_name,balancing_authority_name,balancing_authority_name,balancing_authority_name,balancing_authority_name
-grid_voltage_kv,,,,,,,,,,,gridvoltage,grid_voltage_kv,grid_voltage_kv,grid_voltage_kv,grid_voltage_kv,grid_voltage_kv,grid_voltage_kv,grid_voltage_kv,grid_voltage_kv,grid_voltage_kv
+grid_voltage_1_kv,,,,,,,,,,,gridvoltage,grid_voltage_kv,grid_voltage_kv,grid_voltage_kv,grid_voltage_kv,grid_voltage_kv,grid_voltage_kv,grid_voltage_kv,grid_voltage_kv,grid_voltage_kv
 grid_voltage_2_kv,,,,,,,,,,,,,grid_voltage_2_kv,grid_voltage_2_kv,grid_voltage_2_kv,grid_voltage_2_kv,grid_voltage_2_kv,grid_voltage_2_kv,grid_voltage_2_kv,grid_voltage_2_kv
 grid_voltage_3_kv,,,,,,,,,,,,,grid_voltage_3_kv,grid_voltage_3_kv,grid_voltage_3_kv,grid_voltage_3_kv,grid_voltage_3_kv,grid_voltage_3_kv,grid_voltage_3_kv,grid_voltage_3_kv
 ash_impoundment,,,,,,,,,,,,,ash_impoundment,ash_impoundment,ash_impoundment,ash_impoundment,ash_impoundment,ash_impoundment,ash_impoundment,ash_impoundment
