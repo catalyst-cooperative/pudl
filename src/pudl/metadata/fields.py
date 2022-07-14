@@ -533,11 +533,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "ferc_cogen_docket_no": {
         "type": "string",
-        "description": "The docket number relating to the FERC qualifying facility cogenerator status.",
+        "description": "The docket number relating to the FERC qualifying facility cogenerator status. See FERC Form 556.",
     },
     "ferc_cogen_status": {
         "type": "boolean",
-        "description": "Indicates whether the plant has FERC qualifying facility cogenerator status."
+        "description": "Indicates whether the plant has FERC qualifying facility cogenerator status. See FERC Form 556."
         # TODO: Is this really boolean? Or do we have non-null strings that mean False?
     },
     "ferc_exempt_wholesale_generator": {
@@ -555,11 +555,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "ferc_small_power_producer": {
         "type": "boolean",
-        "description": "Indicates whether the plant has FERC qualifying facility small power producer status",
+        "description": "Indicates whether the plant has FERC qualifying facility small power producer status. See FERC Form 556.",
     },
     "ferc_small_power_producer_docket_no": {
         "type": "string",
-        "description": "The docket number relating to the FERC qualifying facility small power producer status.",
+        "description": "The docket number relating to the FERC qualifying facility small power producer status. See FERC Form 556.",
     },
     "fluidized_bed_tech": {
         "type": "boolean",
@@ -744,17 +744,17 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "generators_num_less_1_mw": {"type": "number", "unit": "MW"},
     "generators_number": {"type": "number"},
     "green_pricing_revenue": {"type": "number", "unit": "USD"},
+    "grid_voltage_1_kv": {
+        "type": "number",
+        "description": "Plant's grid voltage at point of interconnection to transmission or distibution facilities",
+        "unit": "kV",
+    },
     "grid_voltage_2_kv": {
         "type": "number",
         "description": "Plant's grid voltage at point of interconnection to transmission or distibution facilities",
         "unit": "kV",
     },
     "grid_voltage_3_kv": {
-        "type": "number",
-        "description": "Plant's grid voltage at point of interconnection to transmission or distibution facilities",
-        "unit": "kV",
-    },
-    "grid_voltage_kv": {
         "type": "number",
         "description": "Plant's grid voltage at point of interconnection to transmission or distibution facilities",
         "unit": "kV",
