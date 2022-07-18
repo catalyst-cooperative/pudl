@@ -2,39 +2,22 @@
 from typing import Any
 
 RESOURCE_METADATA: dict[str, dict[str, Any]] = {
-    "assn_gen_eia_unit_epa": {
+    "epacamd_eia_crosswalk": {
         "schema": {
             "fields": [
+                "plant_id_epa",
+                "unit_id_epa",
+                "generator_id_epa",
+                "plant_id_eia",
+                "boiler_id",
                 "generator_id",
-                "plant_id_eia",
-                "unit_id_epa",
             ],
         },
         "field_namespace": "glue",
         "etl_group": "glue",
-        "sources": ["eia_epa_crosswalk"],
-    },
-    "assn_plant_id_eia_epa": {
-        "schema": {
-            "fields": [
-                "plant_id_eia",
-                "plant_id_epa",
-            ],
-        },
-        "field_namespace": "glue",
-        "etl_group": "glue",
-        "sources": ["eia_epa_crosswalk"],
-    },
-    "plant_unit_epa": {
-        "schema": {
-            "fields": [
-                "plant_id_epa",
-                "unit_id_epa",
-            ],
-        },
-        "field_namespace": "glue",
-        "etl_group": "glue",
-        "sources": ["eia_epa_crosswalk"],
+        "sources": [
+            "epacamd_eia_crosswalk"
+        ],  # eia_epa_crosswalk --> what is this anyways
     },
 }
 """

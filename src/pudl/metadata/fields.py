@@ -526,7 +526,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
         "description": "FERC Account 103: Experimental Plant Unclassified.",
     },
-    "facility_id": {"type": "integer", "description": "New EPA plant ID."},
     "ferc_account_id": {
         "type": "string",
         "description": "Account number, from FERC's Uniform System of Accounts for Electric Plant. Also includes higher level labeled categories.",
@@ -1921,10 +1920,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "integer",
         "description": "Dynamically assigned PUDL unit id. WARNING: This ID is not guaranteed to be static long term as the input data and algorithm may evolve over time.",
     },
-    "unitid": {
-        "type": "string",
-        "description": "Facility-specific unit id (e.g. Unit 4)",
-    },
     "uprate_derate_completed_date": {
         "type": "date",
         "description": "The date when the uprate or derate was completed.",
@@ -2034,16 +2029,6 @@ FIELD_METADATA_BY_GROUP: dict[str, dict[str, Any]] = {
             }
         },
         "operating_datetime_utc": {
-            "constraints": {
-                "required": True,
-            }
-        },
-        "plant_id_eia": {
-            "constraints": {
-                "required": True,
-            }
-        },
-        "unitid": {
             "constraints": {
                 "required": True,
             }

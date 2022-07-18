@@ -278,6 +278,12 @@ def etl_epacems(
             "No plants_eia860 available in the PUDL DB! Have you run the ETL? "
             f"Trying to access PUDL DB: {pudl_engine}"
         )
+    # Verify that we have a PUDL DB with crosswalk data
+    if "epacamd_eia_crosswalk" not in inspector.get_table_names():
+        raise RuntimeError(
+            "No EPA-EIA Crosswalk available in the PUDL DB! Have you run the ETL? "
+            f"Trying to access PUDL DB: {pudl_engine}"
+        )
 
     eia_plant_years = pd.read_sql(
         """

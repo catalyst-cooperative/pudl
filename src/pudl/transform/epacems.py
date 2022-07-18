@@ -8,6 +8,7 @@ import pandas as pd
 import pytz
 import sqlalchemy as sa
 
+from pudl.helpers import remove_leading_zeros_from_numeric_strings
 from pudl.metadata.fields import apply_pudl_dtypes
 
 logger = logging.getLogger(__name__)
@@ -16,6 +17,53 @@ logger = logging.getLogger(__name__)
 # DATATABLE TRANSFORM FUNCTIONS
 ###############################################################################
 ###############################################################################
+
+
+def harmonize_eia_epa_orispl(
+    df: pd.DataFrame,
+    pudl_engine: sa.engine.Engine,
+) -> pd.DataFrame:
+    """Harmonize the ORISPL code to match the EIA data.
+
+    The EIA plant IDs and CEMS ORISPL codes almost match, but not quite. EPA has
+    compiled a crosswalk that maps one set of IDs to the other. The crosswalk is
+    integrated into the PUDL db.
+
+    EIA IDs are more correct so use the crosswalk to fix any erronious EPA IDs and get
+    rid of that column to avoid confusion.
+
+    https://github.com/USEPA/camd-eia-crosswalk
+
+    Note that this transformation needs to be run *before* fix_up_dates, because
+    fix_up_dates uses the plant ID to look up timezones.
+
+    Args:
+        pudl_engine: SQLAlchemy connection engine for connecting to an existing PUDL DB.
+            This is used to access the crosswalk file for conversion. The crosswalk must
+            be processed prior to running this function or it won't work.
+        df: A CEMS hourly dataframe for one year-month-state.
+
+    Returns:
+        The same data, with the ORISPL plant codes corrected to match the EIA plant IDs.
+
+    """
+    # Already ran a test to make sure this works. When you group the crosswalk by
+    # plant_id_epa and unit_id_epa then calculate .nunique() for plant_id_eia, none of
+    # the values are greater than one meaning that this drop/merge is ok. Might want to
+    # make that an official test somwwhere.
+    crosswalk_df = pd.read_sql("epacamd_eia_crosswalk", pudl_engine)[
+        ["plant_id_eia", "plant_id_epa", "unit_id_epa"]
+    ].drop_duplicates()
+
+    # I wonder if there is a faster way to do this by checking if the id needs to be
+    # fixed rather than just merging it all together (as done below).
+
+    # Merge CEMS with Crosswalk to get correct EIA ORISPL code. Remove incorrect
+    # plant_id_epa column to avoid confusion.
+    df_merged = pd.merge(
+        df, crosswalk_df, on=["plant_id_epa", "unit_id_epa"], how="left"
+    ).drop(columns=["plant_id_epa"])
+    return df_merged
 
 
 def fix_up_dates(df: pd.DataFrame, plant_utc_offset: pd.DataFrame) -> pd.DataFrame:
@@ -93,32 +141,6 @@ def _load_plant_utc_offset(pudl_engine):
     )
     del timezones["timezone"]
     return timezones
-
-
-def harmonize_eia_epa_orispl(df):
-    """Harmonize the ORISPL code to match the EIA data -- NOT YET IMPLEMENTED.
-
-    The EIA plant IDs and CEMS ORISPL codes almost match, but not quite. EPA has
-    compiled a crosswalk that maps one set of IDs to the other, but we haven't
-    integrated it yet. It can be found at:
-
-    https://github.com/USEPA/camd-eia-crosswalk
-
-    Note that this transformation needs to be run *before* fix_up_dates, because
-    fix_up_dates uses the plant ID to look up timezones.
-
-    Args:
-        df (pandas.DataFrame): A CEMS hourly dataframe for one year-month-state.
-
-    Returns:
-        pandas.DataFrame: The same data, with the ORISPL plant codes corrected to match
-        the EIA plant IDs.
-
-    Todo:
-        Actually implement the function...
-
-    """
-    return df
 
 
 def add_facility_id_unit_id_epa(df):
@@ -208,9 +230,9 @@ def transform(raw_df: pd.DataFrame, pudl_engine: sa.engine.Engine) -> pd.DataFra
     """
     return (
         raw_df.fillna({"gross_load_mw": 0.0, "heat_content_mmbtu": 0.0})
-        .pipe(harmonize_eia_epa_orispl)
+        .pipe(remove_leading_zeros_from_numeric_strings, "unit_id_epa")
+        .pipe(harmonize_eia_epa_orispl, pudl_engine)
         .pipe(fix_up_dates, plant_utc_offset=_load_plant_utc_offset(pudl_engine))
-        .pipe(add_facility_id_unit_id_epa)
         .pipe(correct_gross_load_mw)
         .pipe(apply_pudl_dtypes, group="epacems")
     )
