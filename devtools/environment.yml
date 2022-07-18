@@ -7,7 +7,7 @@ dependencies:
   # Used to set up the environment
   - pip>=21,<23
   - python>=3.10,<3.11
-  - setuptools<63
+  - setuptools<64
   # These packages are also specified in setup.py
   # However, they depend on or benefit from binary libraries
   # which conda can install.
