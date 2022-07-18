@@ -894,14 +894,12 @@ def remove_leading_zeros_from_numeric_strings(
 
     """
     if col_name in df.columns:
-        number_with_leading_zeros = r"^0+\d+$"
-        if df[col_name].str.contains(number_with_leading_zeros).any():
+        leading_zeros = df[col_name].str.contains(r"^0+\d+$")
+        if leading_zeros.any():
             logger.debug(f"Fixing leading zeros in {col_name} column")
-            df.loc[
-                df[col_name].notna()
-                & df[col_name].str.contains(number_with_leading_zeros),
-                col_name,
-            ] = df[col_name].str.replace(r"^0+", "", regex=True)
+            df.loc[df[col_name].notna() & leading_zeros, col_name] = df[
+                col_name
+            ].str.replace(r"^0+", "", regex=True)
         else:
             logger.debug(f"Found no numeric leading zeros in {col_name}")
     return df
