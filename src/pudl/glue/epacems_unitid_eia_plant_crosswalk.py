@@ -48,7 +48,7 @@ def transform(
 
     column_rename = {
         "camd_plant_id": "plant_id_epa",
-        "camd_unit_id": "unit_id_epa",
+        "camd_unit_id": "emissions_unit_id_epa",
         "camd_generator_id": "generator_id_epa",
         "eia_plant_id": "plant_id_eia",
         # "eia_boiler_id": "boiler_id",  # Eventually change to boiler_id_eia
@@ -87,7 +87,7 @@ def transform(
     # More indepth cleaning and droping rows with no plant_id_eia match.
     crosswalk_clean = (
         crosswalk_clean.pipe(remove_leading_zeros_from_numeric_strings, "generator_id")
-        .pipe(remove_leading_zeros_from_numeric_strings, "unit_id_epa")
+        .pipe(remove_leading_zeros_from_numeric_strings, "emissions_unit_id_epa")
         .dropna(subset="plant_id_eia")
     )
 

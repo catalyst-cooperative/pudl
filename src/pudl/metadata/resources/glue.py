@@ -6,7 +6,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "schema": {
             "fields": [
                 "plant_id_epa",
-                "unit_id_epa",
+                "emissions_unit_id_epa",
                 "generator_id_epa",
                 "plant_id_eia",
                 "boiler_id",

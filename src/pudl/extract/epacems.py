@@ -18,7 +18,7 @@ RENAME_DICT = {
     "STATE": "state",
     # "FACILITY_NAME": "plant_name",  # Not reading from CSV
     "ORISPL_CODE": "plant_id_epa",  # Not quite the same as plant_id_eia
-    "UNITID": "unit_id_epa",  # The smokestake unit
+    "UNITID": "emissions_unit_id_epa",
     # These op_date, op_hour, and op_time variables get converted to
     # operating_date, operating_datetime and operating_time_interval in
     # transform/epacems.py

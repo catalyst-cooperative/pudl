@@ -419,6 +419,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
         "description": "FERC Account 102: Electric Plant Sold (Negative).",
     },
+    "emissions_unit_id_epa": {
+        "type": "string",
+        "description": "Emissions (smokestack) unit monitored by EPA CEMS.",
+    },
     "energy_charges": {
         "type": "number",
         "description": "Energy charges (USD).",
@@ -1911,10 +1915,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "unit_id_eia": {
         "type": "string",
         "description": "EIA-assigned unit identification code.",
-    },
-    "unit_id_epa": {
-        "type": "string",
-        "description": "Emissions (smokestack) unit monitored by EPA CEMS.",
     },
     "unit_id_pudl": {
         "type": "integer",

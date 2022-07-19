@@ -48,11 +48,11 @@ def harmonize_eia_epa_orispl(
 
     """
     # Already ran a test to make sure this works. When you group the crosswalk by
-    # plant_id_epa and unit_id_epa then calculate .nunique() for plant_id_eia, none of
-    # the values are greater than one meaning that this drop/merge is ok. Might want to
-    # make that an official test somwwhere.
+    # plant_id_epa and emissions_unit_id_epa then calculate .nunique() for plant_id_eia,
+    # none of the values are greater than one meaning that this drop/merge is ok. Might
+    # want to make that an official test somewhere.
     crosswalk_df = pd.read_sql("epacamd_eia_crosswalk", pudl_engine)[
-        ["plant_id_eia", "plant_id_epa", "unit_id_epa"]
+        ["plant_id_eia", "plant_id_epa", "emissions_unit_id_epa"]
     ].drop_duplicates()
 
     # I wonder if there is a faster way to do this by checking if the id needs to be
@@ -61,7 +61,7 @@ def harmonize_eia_epa_orispl(
     # Merge CEMS with Crosswalk to get correct EIA ORISPL code. Remove incorrect
     # plant_id_epa column to avoid confusion.
     df_merged = pd.merge(
-        df, crosswalk_df, on=["plant_id_epa", "unit_id_epa"], how="left"
+        df, crosswalk_df, on=["plant_id_epa", "emissions_unit_id_epa"], how="left"
     ).drop(columns=["plant_id_epa"])
     return df_merged
 
@@ -230,7 +230,7 @@ def transform(raw_df: pd.DataFrame, pudl_engine: sa.engine.Engine) -> pd.DataFra
     """
     return (
         raw_df.fillna({"gross_load_mw": 0.0, "heat_content_mmbtu": 0.0})
-        .pipe(remove_leading_zeros_from_numeric_strings, "unit_id_epa")
+        .pipe(remove_leading_zeros_from_numeric_strings, "emissions_unit_id_epa")
         .pipe(harmonize_eia_epa_orispl, pudl_engine)
         .pipe(fix_up_dates, plant_utc_offset=_load_plant_utc_offset(pudl_engine))
         .pipe(correct_gross_load_mw)

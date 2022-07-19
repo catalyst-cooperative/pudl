@@ -7,7 +7,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "schema": {
             "fields": [
                 "plant_id_eia",
-                "unit_id_epa",
+                "emissions_unit_id_epa",
                 "operating_datetime_utc",
                 "year",
                 "state",
@@ -24,7 +24,11 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "co2_mass_tons",
                 "co2_mass_measurement_code",
             ],
-            "primary_key": ["plant_id_eia", "unit_id_epa", "operating_datetime_utc"],
+            "primary_key": [
+                "plant_id_eia",
+                "emissions_unit_id_epa",
+                "operating_datetime_utc",
+            ],
         },
         "sources": ["eia860", "epacems"],
         "field_namespace": "epacems",
