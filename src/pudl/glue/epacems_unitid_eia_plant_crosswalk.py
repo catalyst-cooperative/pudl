@@ -100,30 +100,3 @@ def transform(
     # ).dropna(subset="plant_id_eia")
 
     return {"epacamd_eia_crosswalk": crosswalk_clean}
-
-
-def crosswalk_et(
-    ds: Datastore,
-    generators_entity_eia: pd.DataFrame,
-    boilers_entiity_eia: pd.DataFrame,
-    processing_all_eia_years: bool,
-) -> dict[str, pd.DataFrame]:
-    """Clean raw crosswalk data.
-
-    Args:
-        ds: Initialized datastore.
-        generators_entity_eia: The generators_entity_eia table.
-        processing_all_eia_years: A boolean indicating whether the years from the
-            Eia860Settings object match the EIA860 working partitions. This tell the
-            function whether to restrict the crosswalk data so the tests don't fail on
-            foreign key restraints.
-
-    Returns:
-        A dictionary containing the cleaned EPACAMD-EIA crosswalk DataFrame.
-    """
-    return transform(
-        extract(ds),
-        generators_entity_eia,
-        boilers_entiity_eia,
-        processing_all_eia_years,
-    )
