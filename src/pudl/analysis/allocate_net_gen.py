@@ -1051,7 +1051,7 @@ def allocate_fuel_by_gen_esc(gen_pm_fuel):
             "partially, or not at all in the generation table."
         )
 
-    # In the case where we have all of teh fuel from the bf
+    # In the case where we have all of the fuel from the bf
     # table, we still allocate, because the fuel reported in these two
     # tables don't always match perfectly
     all_gen = all_gen.assign(
@@ -1061,28 +1061,21 @@ def allocate_fuel_by_gen_esc(gen_pm_fuel):
     )
     # _ = _test_frac(all_gen)
 
-    # a brief explaination of the equations below
-    # input definitions:
-    #   ng == net generation from the generation table (by generator)
-    #   ngf == net generation from the generation fuel table (summed by PM/Fuel)
-    #   ngt == total net generation from the generation table (summed by PM/Fuel)
-    #
-    # y = ngt / ngf (fraction of generation reporting in the generation table)
-    # z = ng * ngt (fraction of generation from generation table by generator)
-    # g = y * z  (fraction of generation reporting in generation table by generator - frac_bf)
-
     some_gen = some_gen.assign(
-        # fraction of the generation that should go to the generators that
+        # fraction of the fuel consumption that should go to the generators that
         # report in the boiler fuel table
         frac_from_bf_tbl=lambda x: x.fuel_consumed_mmbtu_bf_tbl_pm_fuel
         / x.fuel_consumed_mmbtu_gf_tbl,
-        # for records within these mix groups that do have net gen in the
-        # generation table..
+        # for records within these mix groups that do have fuel consumption in the
+        # bf table..
         frac_fuel=lambda x: x.fuel_consumed_mmbtu_bf_tbl
-        / x.fuel_consumed_mmbtu_bf_tbl_pm_fuel,  # generator based net gen from gen table
+        / x.fuel_consumed_mmbtu_bf_tbl_pm_fuel,  # generator based fuel from bf table
         frac_bf=lambda x: x.frac_fuel * x.frac_from_bf_tbl,
-        # fraction of generation that does not show up in the generation table
-        frac_missing_from_bf_tbl=lambda x: 1 - x.frac_from_bf_tbl,
+        # fraction of fuel that does not show up in the bf table
+        # set minimum fraction to zero so we don't get negative fuel
+        frac_missing_from_bf_tbl=lambda x: np.where(
+            (x.frac_from_bf_tbl < 1), (1 - x.frac_from_bf_tbl), 0
+        ),
         capacity_mw_missing_from_bf_tbl=lambda x: np.where(
             x.in_bf_tbl, 0, x.capacity_mw
         ),
@@ -1090,9 +1083,9 @@ def allocate_fuel_by_gen_esc(gen_pm_fuel):
         * (x.capacity_mw_missing_from_bf_tbl / x.capacity_mw_fuel_in_bf_tbl_group),
         # the real deal
         # this could aslo be `x.frac_bf + x.frac_cap` because the frac_bf
-        # should be 0 for any generator that does not have net gen in the g_tbl
-        # and frac_cap should be 0 for any generator that has net gen in the
-        # g_tbl.
+        # should be 0 for any generator that does not have fuel in the bf_tbl
+        # and frac_cap should be 0 for any generator that has fuel in the
+        # bf_tbl.
         frac=lambda x: np.where(x.in_bf_tbl, x.frac_bf, x.frac_cap),
     )
     # _ = _test_frac(some_gen)
