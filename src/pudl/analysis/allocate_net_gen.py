@@ -225,6 +225,19 @@ def allocate_gen_fuel_by_generator_energy_source(pudl_out, drop_interim_cols=Tru
             f"{len(missing_pm)} generators are missing prime mover codes in gens_eia860. "
             "This will result in incorrect allocation."
         )
+        print(
+            missing_pm[
+                [
+                    "report_date",
+                    "plant_id_eia",
+                    "generator_id",
+                    "prime_mover_code",
+                    "unit_id_pudl",
+                    "operational_status",
+                    "energy_source_code_1",
+                ]
+            ]
+        )
     # duplicate each entry in the gens table 12 times to create an entry for each month of the year
     gens = create_monthly_gens_records(gens)
 
