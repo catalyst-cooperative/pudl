@@ -16,9 +16,27 @@ DEFAULT_GENS_COLS = [
     "utility_id_eia",
     "utility_id_pudl",
     "utility_name_eia",
-    "fuel_type_code_pudl",
+    "technology_description",
+    "energy_source_code_1",
+    "prime_mover_code",
+    "operating_date",
+    "retirement_date",
+    "operational_status",
     "capacity_mw",
+    "fuel_type_code_pudl",
+    "planned_retirement_date",
 ]
+"""
+list: default list of columns from the EIA 860 generators table that will be included
+in the MCOE table. These default columns are necessary for the creation of the EIA
+plant parts table.
+
+The ID and name columns are all that's needed to create a bare-bones MCOE table.
+
+The remaining columns are used during the creation of the plant parts list as
+different attributes to aggregate the plant parts by or are attributes necessary
+for inclusion in the final table.
+"""
 
 
 def heat_rate_by_unit(pudl_out):
