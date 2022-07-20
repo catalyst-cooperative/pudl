@@ -406,7 +406,10 @@ def _etl_glue(
         )
         glue_dfs.update(
             pudl.glue.epacems_unitid_eia_plant_crosswalk.crosswalk_et(
-                ds, sqlite_dfs["generators_entity_eia"], processing_all_eia_years
+                ds,
+                sqlite_dfs["generators_entity_eia"],
+                sqlite_dfs["boilers_entity_eia"],
+                processing_all_eia_years,
             )
         )
 

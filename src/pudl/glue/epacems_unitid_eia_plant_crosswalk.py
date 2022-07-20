@@ -29,6 +29,7 @@ def extract(ds: Datastore) -> pd.DataFrame:
 def transform(
     epacamd_eia_crosswalk: pd.DataFrame,
     generators_entity_eia: pd.DataFrame,
+    boilers_entity_eia: pd.DataFrame,
     processing_all_eia_years: bool,
 ) -> dict[str, pd.DataFrame]:
     """Clean up the EPACAMD-EIA Crosswalk file.
@@ -51,7 +52,7 @@ def transform(
         "camd_unit_id": "emissions_unit_id_epa",
         "camd_generator_id": "generator_id_epa",
         "eia_plant_id": "plant_id_eia",
-        # "eia_boiler_id": "boiler_id",  # Eventually change to boiler_id_eia
+        "eia_boiler_id": "boiler_id",  # Eventually change to boiler_id_eia
         "eia_generator_id": "generator_id",  # Eventually change to generator_id_eia
     }
 
@@ -60,7 +61,10 @@ def transform(
         epacamd_eia_crosswalk.pipe(simplify_columns)
         .rename(columns=column_rename)
         .filter(list(column_rename.values()))
+        .pipe(remove_leading_zeros_from_numeric_strings, "generator_id")
+        .pipe(remove_leading_zeros_from_numeric_strings, "emissions_unit_id_epa")
         .pipe(apply_pudl_dtypes, "eia")
+        .dropna(subset=["plant_id_eia"])
     )
 
     # The crosswalk is a static file: there is no year field. The plant_id_eia and
@@ -78,24 +82,31 @@ def transform(
             chosen subset of EIA years"
         )
         crosswalk_clean = pd.merge(
-            crosswalk_clean.dropna(subset=["plant_id_eia"]),
-            generators_entity_eia[["plant_id_eia", "generator_id"]].drop_duplicates(),
+            crosswalk_clean,
+            generators_entity_eia[["plant_id_eia", "generator_id"]],
             on=["plant_id_eia", "generator_id"],
+            how="inner",
+        )
+        crosswalk_clean = pd.merge(
+            crosswalk_clean,
+            boilers_entity_eia[["plant_id_eia", "boiler_id"]],
+            on=["plant_id_eia", "boiler_id"],
             how="inner",
         )
 
     # More indepth cleaning and droping rows with no plant_id_eia match.
-    crosswalk_clean = (
-        crosswalk_clean.pipe(remove_leading_zeros_from_numeric_strings, "generator_id")
-        .pipe(remove_leading_zeros_from_numeric_strings, "emissions_unit_id_epa")
-        .dropna(subset="plant_id_eia")
-    )
+    # crosswalk_clean = crosswalk_clean.pipe(
+    #     remove_leading_zeros_from_numeric_strings, "emissions_unit_id_epa"
+    # ).dropna(subset="plant_id_eia")
 
     return {"epacamd_eia_crosswalk": crosswalk_clean}
 
 
 def crosswalk_et(
-    ds: Datastore, generators_entity_eia: pd.DataFrame, processing_all_eia_years: bool
+    ds: Datastore,
+    generators_entity_eia: pd.DataFrame,
+    boilers_entiity_eia: pd.DataFrame,
+    processing_all_eia_years: bool,
 ) -> dict[str, pd.DataFrame]:
     """Clean raw crosswalk data.
 
@@ -110,4 +121,9 @@ def crosswalk_et(
     Returns:
         A dictionary containing the cleaned EPACAMD-EIA crosswalk DataFrame.
     """
-    return transform(extract(ds), generators_entity_eia, processing_all_eia_years)
+    return transform(
+        extract(ds),
+        generators_entity_eia,
+        boilers_entiity_eia,
+        processing_all_eia_years,
+    )

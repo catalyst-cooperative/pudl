@@ -51,18 +51,34 @@ def harmonize_eia_epa_orispl(
     # plant_id_epa and emissions_unit_id_epa then calculate .nunique() for plant_id_eia,
     # none of the values are greater than one meaning that this drop/merge is ok. Might
     # want to make that an official test somewhere.
-    crosswalk_df = pd.read_sql("epacamd_eia_crosswalk", pudl_engine)[
-        ["plant_id_eia", "plant_id_epa", "emissions_unit_id_epa"]
-    ].drop_duplicates()
+
+    crosswalk_df = pd.read_sql(
+        "epacamd_eia_crosswalk",
+        con=pudl_engine,
+        columns=["plant_id_eia", "plant_id_epa", "emissions_unit_id_epa"],
+    ).drop_duplicates()
 
     # I wonder if there is a faster way to do this by checking if the id needs to be
     # fixed rather than just merging it all together (as done below).
 
-    # Merge CEMS with Crosswalk to get correct EIA ORISPL code. Remove incorrect
-    # plant_id_epa column to avoid confusion.
+    # Merge CEMS with Crosswalk to get correct EIA ORISPL code.
     df_merged = pd.merge(
         df, crosswalk_df, on=["plant_id_epa", "emissions_unit_id_epa"], how="left"
-    ).drop(columns=["plant_id_epa"])
+    )
+
+    # Because the crosswalk isn't complete, there are some instances where the
+    # plant_id_eia value will be NA. This isn't great when it goes to grouping or
+    # merging data together. Specifically for the fix_up_dates() function below.
+    # This creates a column based on the plant_id_eia but backfills NA with
+    # plant_id_epa so it can be used to merge on.
+    df_merged["plant_id_combined"] = df_merged.plant_id_eia.fillna(
+        df_merged.plant_id_epa
+    )
+    # assert (
+    #     ~df_merged.plant_id_combined.isna().any()
+    # ), "There shouldn't be any NA vales in the combined plant id column"
+
+    assert len(df_merged) == len(df)
     return df_merged
 
 
@@ -75,7 +91,7 @@ def fix_up_dates(df: pd.DataFrame, plant_utc_offset: pd.DataFrame) -> pd.DataFra
 
     Args:
         df: A CEMS hourly dataframe for one year-state.
-        plant_utc_offset: A dataframe association plant_id_eia with timezones.
+        plant_utc_offset: A dataframe association plant_id_combined with timezones.
 
     Returns:
         The same data, with an op_datetime_utc column added and the op_date and op_hour
@@ -91,12 +107,16 @@ def fix_up_dates(df: pd.DataFrame, plant_utc_offset: pd.DataFrame) -> pd.DataFra
             x.op_date, format=r"%m-%d-%Y", exact=True, cache=True
         )
         + pd.to_timedelta(x.op_hour, unit="h")  # Add the hour
-    ).merge(plant_utc_offset, how="left", on="plant_id_eia")
+    ).merge(
+        plant_utc_offset.rename(columns={"plant_id_eia": "plant_id_combined"}),
+        how="left",
+        on="plant_id_combined",
+    )
 
     # Some of the timezones in the plants_entity_eia table may be missing,
     # but none of the CEMS plants should be.
     if df["utc_offset"].isna().any():
-        missing_plants = df.loc[df["utc_offset"].isna(), "plant_id_eia"].unique()
+        missing_plants = df.loc[df["utc_offset"].isna(), "plant_id_combined"].unique()
         raise ValueError(
             f"utc_offset should never be missing for CEMS plants, but was "
             f"missing for these: {str(list(missing_plants))}"
@@ -107,7 +127,13 @@ def fix_up_dates(df: pd.DataFrame, plant_utc_offset: pd.DataFrame) -> pd.DataFra
     # deprecated, but the PyArrow schema stores this data as UTC. See:
     # https://numpy.org/devdocs/reference/arrays.datetime.html#basic-datetimes
     df["operating_datetime_utc"] = df["op_datetime_naive"] - df["utc_offset"]
-    del df["op_date"], df["op_hour"], df["op_datetime_naive"], df["utc_offset"]
+    del (
+        df["op_date"],
+        df["op_hour"],
+        df["op_datetime_naive"],
+        df["utc_offset"],
+        df["plant_id_combined"],
+    )
     return df
 
 
@@ -122,7 +148,7 @@ def _load_plant_utc_offset(pudl_engine):
             an existing PUDL DB.
 
     Returns:
-        pandas.DataFrame: With columns plant_id_eia and utc_offset.
+        pandas.DataFrame: With columns plant_id_combined and utc_offset.
 
     """
     # Verify that we have a PUDL DB with plant attributes:
@@ -217,7 +243,10 @@ def correct_gross_load_mw(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-def transform(raw_df: pd.DataFrame, pudl_engine: sa.engine.Engine) -> pd.DataFrame:
+def transform(
+    raw_df: pd.DataFrame,
+    pudl_engine: sa.engine.Engine,
+) -> pd.DataFrame:
     """Transform EPA CEMS hourly data and ready it for export to Parquet.
 
     Args:
