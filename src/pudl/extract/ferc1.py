@@ -69,9 +69,8 @@ from pudl.helpers import get_logger
 from pudl.metadata.classes import DataSource
 from pudl.metadata.constants import DBF_TABLES_FILENAMES
 from pudl.settings import (
-    Ferc1DbfSettings,
     Ferc1DbfToSqliteSettings,
-    Ferc1XbrlSettings,
+    Ferc1Settings,
     Ferc1XbrlToSqliteSettings,
 )
 from pudl.workspace.datastore import Datastore
@@ -752,7 +751,7 @@ def get_ferc1_meta(ferc1_engine):
 
 
 def extract_dbf(
-    ferc1_settings: Ferc1DbfSettings = Ferc1DbfSettings(),
+    ferc1_settings: Ferc1Settings = Ferc1Settings(),
     pudl_settings=None,
 ):
     """Coordinates the extraction of all FERC Form 1 tables into PUDL.
@@ -810,7 +809,7 @@ def extract_dbf(
 
 
 def extract_xbrl(
-    ferc1_settings: Ferc1XbrlSettings = Ferc1XbrlSettings(),
+    ferc1_settings: Ferc1Settings = Ferc1Settings(),
     pudl_settings=None,
 ):
     """Coordinates the extraction of all FERC Form 1 tables into PUDL from XBRL data.
@@ -838,16 +837,15 @@ def extract_xbrl(
         pudl_settings = pudl.workspace.setup.get_defaults()
 
     ferc1_extract_functions = {
-        "steam_electric_generating_plant_statistics_large_plants_fuel_statistics_402_duration": fuel_xbrl,
+        "fuel_ferc1": fuel_xbrl,
     }
 
     ferc1_raw_dfs = {}
     for pudl_table in ferc1_settings.tables:
         if pudl_table not in ferc1_extract_functions:
-            raise ValueError(
-                f"No extract function found for requested FERC Form 1 data "
-                f"table {pudl_table}!"
-            )
+            # For now skip until generalized extract is implemented
+            continue
+
         logger.info(
             f"Converting extracted FERC Form 1 table {pudl_table} into a "
             f"pandas DataFrame."
@@ -860,7 +858,7 @@ def extract_xbrl(
     return ferc1_raw_dfs
 
 
-def fuel_xbrl(ferc1_engine: sa.engine.Engine, ferc1_settings: Ferc1XbrlSettings):
+def fuel_xbrl(ferc1_engine: sa.engine.Engine, ferc1_settings: Ferc1Settings):
     """Creates a Dataframe of steam_electric_generating_plant_statistics_large_plants_fuel_statistics.
 
     Args:
@@ -878,13 +876,13 @@ def fuel_xbrl(ferc1_engine: sa.engine.Engine, ferc1_settings: Ferc1XbrlSettings)
     fuel_select = (
         sa.sql.select(fuel_stats)
         .join(identification, fuel_stats.c.filing_name == identification.c.filing_name)
-        .where(identification.c.ReportYear.in_(ferc1_settings.years))
+        .where(identification.c.ReportYear.in_(ferc1_settings.xbrl_years))
     )
     # Use the above SELECT to pull those records into a DataFrame:
     return pd.read_sql(fuel_select, ferc1_engine)
 
 
-def fuel(ferc1_engine: sa.engine.Engine, ferc1_settings: Ferc1DbfSettings):
+def fuel(ferc1_engine: sa.engine.Engine, ferc1_settings: Ferc1Settings):
     """Creates a DataFrame of f1_fuel table records with plant names, >0 fuel.
 
     Args:
@@ -908,13 +906,13 @@ def fuel(ferc1_engine: sa.engine.Engine, ferc1_settings: Ferc1DbfSettings):
         .where(f1_fuel.c.fuel != "")
         .where(f1_fuel.c.fuel_quantity > 0)
         .where(f1_fuel.c.plant_name != "")
-        .where(f1_fuel.c.report_year.in_(ferc1_settings.years))
+        .where(f1_fuel.c.report_year.in_(ferc1_settings.dbf_years))
     )
     # Use the above SELECT to pull those records into a DataFrame:
     return pd.read_sql(f1_fuel_select, ferc1_engine)
 
 
-def plants_steam(ferc1_engine: sa.engine.Engine, ferc1_settings: Ferc1DbfSettings):
+def plants_steam(ferc1_engine: sa.engine.Engine, ferc1_settings: Ferc1Settings):
     """Create a :class:`pandas.DataFrame` containing valid raw f1_steam records.
 
     Selected records must indicate a plant capacity greater than 0, and include
@@ -935,7 +933,7 @@ def plants_steam(ferc1_engine: sa.engine.Engine, ferc1_settings: Ferc1DbfSetting
     f1_steam = ferc1_meta.tables["f1_steam"]
     f1_steam_select = (
         sa.sql.select(f1_steam)
-        .where(f1_steam.c.report_year.in_(ferc1_settings.years))
+        .where(f1_steam.c.report_year.in_(ferc1_settings.dbf_years))
         .where(f1_steam.c.plant_name != "")
         .where(f1_steam.c.tot_capacity > 0.0)
     )
@@ -943,7 +941,7 @@ def plants_steam(ferc1_engine: sa.engine.Engine, ferc1_settings: Ferc1DbfSetting
     return pd.read_sql(f1_steam_select, ferc1_engine)
 
 
-def plants_small(ferc1_engine: sa.engine.Engine, ferc1_settings: Ferc1DbfSettings):
+def plants_small(ferc1_engine: sa.engine.Engine, ferc1_settings: Ferc1Settings):
     """Creates a DataFrame of f1_small for records with minimum data criteria.
 
     Args:
@@ -961,7 +959,7 @@ def plants_small(ferc1_engine: sa.engine.Engine, ferc1_settings: Ferc1DbfSetting
     f1_small = ferc1_meta.tables["f1_gnrt_plant"]
     f1_small_select = (
         sa.sql.select(f1_small)
-        .where(f1_small.c.report_year.in_(ferc1_settings.years))
+        .where(f1_small.c.report_year.in_(ferc1_settings.dbf_years))
         .where(f1_small.c.plant_name != "")
         .where(
             or_(
@@ -981,7 +979,7 @@ def plants_small(ferc1_engine: sa.engine.Engine, ferc1_settings: Ferc1DbfSetting
     return pd.read_sql(f1_small_select, ferc1_engine)
 
 
-def plants_hydro(ferc1_engine: sa.engine.Engine, ferc1_settings: Ferc1DbfSettings):
+def plants_hydro(ferc1_engine: sa.engine.Engine, ferc1_settings: Ferc1Settings):
     """Creates a DataFrame of f1_hydro for records that have plant names.
 
     Args:
@@ -1001,14 +999,14 @@ def plants_hydro(ferc1_engine: sa.engine.Engine, ferc1_settings: Ferc1DbfSetting
     f1_hydro_select = (
         sa.sql.select(f1_hydro)
         .where(f1_hydro.c.plant_name != "")
-        .where(f1_hydro.c.report_year.in_(ferc1_settings.years))
+        .where(f1_hydro.c.report_year.in_(ferc1_settings.dbf_years))
     )
 
     return pd.read_sql(f1_hydro_select, ferc1_engine)
 
 
 def plants_pumped_storage(
-    ferc1_engine: sa.engine.Engine, ferc1_settings: Ferc1DbfSettings
+    ferc1_engine: sa.engine.Engine, ferc1_settings: Ferc1Settings
 ):
     """Creates a DataFrame of f1_plants_pumped_storage records with plant names.
 
@@ -1031,13 +1029,13 @@ def plants_pumped_storage(
     f1_pumped_storage_select = (
         sa.sql.select(f1_pumped_storage)
         .where(f1_pumped_storage.c.plant_name != "")
-        .where(f1_pumped_storage.c.report_year.in_(ferc1_settings.years))
+        .where(f1_pumped_storage.c.report_year.in_(ferc1_settings.dbf_years))
     )
 
     return pd.read_sql(f1_pumped_storage_select, ferc1_engine)
 
 
-def plant_in_service(ferc1_engine: sa.engine.Engine, ferc1_settings: Ferc1DbfSettings):
+def plant_in_service(ferc1_engine: sa.engine.Engine, ferc1_settings: Ferc1Settings):
     """Creates a DataFrame of the fields of plant_in_service_ferc1.
 
     Args:
@@ -1054,13 +1052,13 @@ def plant_in_service(ferc1_engine: sa.engine.Engine, ferc1_settings: Ferc1DbfSet
     ferc1_meta = get_ferc1_meta(ferc1_engine)
     f1_plant_in_srvce = ferc1_meta.tables["f1_plant_in_srvce"]
     f1_plant_in_srvce_select = sa.sql.select(f1_plant_in_srvce).where(
-        f1_plant_in_srvce.c.report_year.in_(ferc1_settings.years)
+        f1_plant_in_srvce.c.report_year.in_(ferc1_settings.dbf_years)
     )
 
     return pd.read_sql(f1_plant_in_srvce_select, ferc1_engine)
 
 
-def purchased_power(ferc1_engine: sa.engine.Engine, ferc1_settings: Ferc1DbfSettings):
+def purchased_power(ferc1_engine: sa.engine.Engine, ferc1_settings: Ferc1Settings):
     """Creates a DataFrame the fields of purchased_power_ferc1.
 
     Args:
@@ -1077,14 +1075,14 @@ def purchased_power(ferc1_engine: sa.engine.Engine, ferc1_settings: Ferc1DbfSett
     ferc1_meta = get_ferc1_meta(ferc1_engine)
     f1_purchased_pwr = ferc1_meta.tables["f1_purchased_pwr"]
     f1_purchased_pwr_select = sa.sql.select(f1_purchased_pwr).where(
-        f1_purchased_pwr.c.report_year.in_(ferc1_settings.years)
+        f1_purchased_pwr.c.report_year.in_(ferc1_settings.dbf_years)
     )
 
     return pd.read_sql(f1_purchased_pwr_select, ferc1_engine)
 
 
 def accumulated_depreciation(
-    ferc1_engine: sa.engine.Engine, ferc1_settings: Ferc1DbfSettings
+    ferc1_engine: sa.engine.Engine, ferc1_settings: Ferc1Settings
 ):
     """Creates a DataFrame of the fields of accumulated_depreciation_ferc1.
 

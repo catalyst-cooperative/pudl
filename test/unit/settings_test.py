@@ -3,16 +3,14 @@ import pytest
 from pydantic import ValidationError
 
 from pudl.metadata.classes import DataSource
-from pudl.metadata.constants import XBRL_TABLES
 from pudl.settings import (
     DatasetsSettings,
     Eia860Settings,
     Eia923Settings,
     EiaSettings,
     EpaCemsSettings,
-    Ferc1DbfSettings,
     Ferc1DbfToSqliteSettings,
-    Ferc1XbrlSettings,
+    Ferc1Settings,
     GenericDatasetSettings,
 )
 
@@ -46,7 +44,7 @@ class TestFerc1DbfToSqliteSettings:
             Ferc1DbfToSqliteSettings(ferc1_to_sqlite_refyear=1990)
 
 
-class TestFerc1DbfSettings:
+class TestFerc1Settings:
     """Test Ferc1 settings validation.
 
     EIA860 and EIA923 use the same validation functions.
@@ -55,34 +53,36 @@ class TestFerc1DbfSettings:
     def test_not_working_year(self):
         """Make sure a validation error is being thrown when given an invalid year."""
         with pytest.raises(ValidationError):
-            Ferc1DbfSettings(years=[1901])
+            Ferc1Settings(years=[1901])
 
     def test_duplicate_sort_years(self):
         """Test years are sorted and deduplicated."""
-        returned_settings = Ferc1DbfSettings(years=[2001, 2001, 2000])
+        returned_settings = Ferc1Settings(years=[2001, 2001, 2000])
         expected_years = [2000, 2001]
 
         assert expected_years == returned_settings.years
 
     def test_default_years(self):
         """Test all years are used as default."""
-        returned_settings = Ferc1DbfSettings()
+        returned_settings = Ferc1Settings()
 
-        expected_years = [
-            year
-            for year in DataSource.from_id("ferc1").working_partitions["years"]
-            if year <= 2020
-        ]
+        expected_years = DataSource.from_id("ferc1").working_partitions["years"]
         assert expected_years == returned_settings.years
+
+        dbf_expected_years = [year for year in expected_years if year <= 2020]
+        assert dbf_expected_years == returned_settings.dbf_years
+
+        xbrl_expected_years = [year for year in expected_years if year >= 2021]
+        assert xbrl_expected_years == returned_settings.xbrl_years
 
     def test_not_working_table(self):
         """Make sure a validation error is being thrown when given an invalid table."""
         with pytest.raises(ValidationError):
-            Ferc1DbfSettings(tables=["fake_table"])
+            Ferc1Settings(tables=["fake_table"])
 
     def test_duplicate_sort_tables(self):
         """Test tables are sorted and deduplicated."""
-        returned_settings = Ferc1DbfSettings(
+        returned_settings = Ferc1Settings(
             tables=[
                 "plants_pumped_storage_ferc1",
                 "plant_in_service_ferc1",
@@ -95,60 +95,9 @@ class TestFerc1DbfSettings:
 
     def test_default_tables(self):
         """Test all tables are used as default."""
-        returned_settings = Ferc1DbfSettings()
+        returned_settings = Ferc1Settings()
 
         expected_tables = DataSource.from_id("ferc1").get_resource_ids()
-        assert expected_tables == returned_settings.tables
-
-
-class TestFerc1XbrlSettings:
-    """Test Ferc1 settings validation.
-
-    EIA860 and EIA923 use the same validation functions.
-    """
-
-    def test_not_working_year(self):
-        """Make sure a validation error is being thrown when given an invalid year."""
-        with pytest.raises(ValidationError):
-            Ferc1XbrlSettings(years=[1901])
-
-    def test_default_years(self):
-        """Test all years are used as default."""
-        returned_settings = Ferc1XbrlSettings()
-
-        expected_years = [
-            year
-            for year in DataSource.from_id("ferc1").working_partitions["years"]
-            if year >= 2021
-        ]
-        assert expected_years == returned_settings.years
-
-    def test_not_working_table(self):
-        """Make sure a validation error is being thrown when given an invalid table."""
-        with pytest.raises(ValidationError):
-            Ferc1XbrlSettings(tables=["fake_table"])
-
-    def test_duplicate_sort_tables(self):
-        """Test tables are sorted and deduplicated."""
-        returned_settings = Ferc1XbrlSettings(
-            tables=[
-                "corporate_officer_certification_001_duration",
-                "steam_electric_generating_plant_statistics_large_plants_402_duration",
-                "steam_electric_generating_plant_statistics_large_plants_402_duration",
-            ]
-        )
-        expected_tables = [
-            "corporate_officer_certification_001_duration",
-            "steam_electric_generating_plant_statistics_large_plants_402_duration",
-        ]
-
-        assert expected_tables == returned_settings.tables
-
-    def test_default_tables(self):
-        """Test all tables are used as default."""
-        returned_settings = Ferc1XbrlSettings()
-
-        expected_tables = XBRL_TABLES
         assert expected_tables == returned_settings.tables
 
 
@@ -230,14 +179,12 @@ class TestDatasetsSettings:
         settings = DatasetsSettings()
         data_source = DataSource.from_id("ferc1")
 
-        expected_years = [
-            year for year in data_source.working_partitions["years"] if year <= 2020
-        ]
-        returned_years = settings.ferc1.ferc1_dbf_settings.years
+        expected_years = data_source.working_partitions["years"]
+        returned_years = settings.ferc1.years
         assert expected_years == returned_years
 
         expected_tables = data_source.get_resource_ids()
-        returned_tables = settings.ferc1.ferc1_dbf_settings.tables
+        returned_tables = settings.ferc1.tables
         assert expected_tables == returned_tables
 
         assert settings.eia, "EIA settings were not added."

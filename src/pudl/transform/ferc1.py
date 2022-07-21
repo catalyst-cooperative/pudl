@@ -28,7 +28,7 @@ import pudl
 from pudl.helpers import convert_cols_dtypes, get_logger
 from pudl.metadata.classes import DataSource
 from pudl.metadata.dfs import FERC_DEPRECIATION_LINES
-from pudl.settings import Ferc1DbfSettings
+from pudl.settings import Ferc1Settings
 
 logger = get_logger(__name__)
 
@@ -2606,7 +2606,7 @@ def accumulated_depreciation(ferc1_raw_dfs, ferc1_transformed_dfs):
     return ferc1_transformed_dfs
 
 
-def transform_dbf(ferc1_raw_dfs, ferc1_settings: Ferc1DbfSettings = Ferc1DbfSettings()):
+def transform_dbf(ferc1_raw_dfs, ferc1_settings: Ferc1Settings = Ferc1Settings()):
     """Transforms FERC 1.
 
     Args:
@@ -2649,9 +2649,7 @@ def transform_dbf(ferc1_raw_dfs, ferc1_settings: Ferc1DbfSettings = Ferc1DbfSett
     }
 
 
-def transform_xbrl(
-    ferc1_raw_dfs, ferc1_settings: Ferc1DbfSettings = Ferc1DbfSettings()
-):
+def transform_xbrl(ferc1_raw_dfs, ferc1_settings: Ferc1Settings = Ferc1Settings()):
     """Transforms FERC 1 XBRL data.
 
     Args:

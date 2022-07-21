@@ -67,75 +67,37 @@ class GenericDatasetSettings(BaseModel):
         return sorted(set(tables))
 
 
-class Ferc1DbfSettings(GenericDatasetSettings):
-    """An immutable pydantic model to validate Ferc1DbfSettings.
-
-    Args:
-        data_source: DataSource metadata object
-        years: list of years to validate.
-        tables: list of tables to validate.
-    """
-
-    data_source: ClassVar[DataSource] = DataSource.from_id("ferc1")
-
-    years: list[int] = [
-        year for year in data_source.working_partitions["years"] if year <= 2020
-    ]
-    tables: list[str] = data_source.get_resource_ids()
-
-
-class Ferc1XbrlSettings(GenericDatasetSettings):
-    """An immutable pydantic model to validate Ferc1XbrlSettings.
-
-    Args:
-        data_source: DataSource metadata object
-        years: list of years to validate.
-        tables: list of tables to validate.
-    """
-
-    data_source: ClassVar[DataSource] = DataSource.from_id("ferc1")
-
-    years: list[int] = [
-        year for year in data_source.working_partitions["years"] if year >= 2021
-    ]
-    tables: list[str] = XBRL_TABLES
-
-    @validator("tables")
-    def validate_tables(cls, tables):  # noqa: N805
-        """Validate tables."""
-        default_tables = sorted(list(XBRL_TABLES))
-        tables_not_working = list(set(tables) - set(default_tables))
-        if len(tables_not_working) > 0:
-            raise ValueError(f"'{tables_not_working}' tables are not available.")
-        return sorted(set(tables))
-
-
-class Ferc1Settings(BaseModel):
+class Ferc1Settings(GenericDatasetSettings):
     """An immutable pydantic model to validate Ferc1Settings.
 
     Args:
-        ferc1_xbrl_settings: Immutable pydantic model to validate ferc1 XBRL settings.
-        ferc1_dbf_settings: Immutable pydantic model to validate ferc1 XBRL settings.
+        data_source: DataSource metadata object
+        years: list of years to validate.
+        tables: list of tables to validate.
     """
 
-    ferc1_xbrl_settings: Ferc1XbrlSettings = None
-    ferc1_dbf_settings: Ferc1DbfSettings = None
+    data_source: ClassVar[DataSource] = DataSource.from_id("ferc1")
 
-    @root_validator(pre=True)
-    def default_load_all(cls, values):  # noqa: N805
-        """If no datasets are specified default to all.
+    years: list[int] = data_source.working_partitions["years"]
+    tables: list[str] = data_source.get_resource_ids()
 
-        Args:
-            values (Dict[str, BaseModel]): dataset settings.
+    @validator("tables")
+    def validate_tables(cls, tables):  # noqa: N805
+        """Validate tables are available."""
+        tables_not_working = list(set(tables) - set(cls.data_source.get_resource_ids()))
+        if tables_not_working:
+            raise ValueError(f"'{tables_not_working}' tables are not available.")
+        return sorted(set(tables))
 
-        Returns:
-            values (Dict[str, BaseModel]): dataset settings.
-        """
-        if not any(values.values()):
-            values["ferc1_xbrl_settings"] = Ferc1XbrlSettings()
-            values["ferc1_dbf_settings"] = Ferc1DbfSettings()
+    @property
+    def dbf_years(self):
+        """Return validated years for which DBF data is available."""
+        return [year for year in self.years if year <= 2020]
 
-        return values
+    @property
+    def xbrl_years(self):
+        """Return validated years for which DBF data is available."""
+        return [year for year in self.years if year >= 2021]
 
 
 class Ferc714Settings(GenericDatasetSettings):
