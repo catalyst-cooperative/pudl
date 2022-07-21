@@ -404,8 +404,8 @@ def _etl_glue(
             datasets["eia"].eia860.years
             == datasets["eia"].eia860.data_source.working_partitions["years"]
         )
-        glue_raw_dfs = pudl.glue.epacems_unitid_eia_plant_crosswalk.extract(ds)
-        glue_transformed_dfs = pudl.glue.epacems_unitid_eia_plant_crosswalk.transform(
+        glue_raw_dfs = pudl.glue.epacamd_eia_crosswalk.extract(ds)
+        glue_transformed_dfs = pudl.glue.epacamd_eia_crosswalk.transform(
             glue_raw_dfs,
             sqlite_dfs["generators_entity_eia"],
             sqlite_dfs["boilers_entity_eia"],

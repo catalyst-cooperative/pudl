@@ -26,7 +26,7 @@ import pudl.extract.epacems
 import pudl.extract.excel
 import pudl.extract.ferc1
 import pudl.extract.ferc714
-import pudl.glue.epacems_unitid_eia_plant_crosswalk
+import pudl.glue.epacamd_eia_crosswalk
 import pudl.glue.ferc1_eia
 import pudl.helpers
 import pudl.load
