@@ -34,8 +34,8 @@ def harmonize_eia_epa_orispl(
 
     https://github.com/USEPA/camd-eia-crosswalk
 
-    Note that this transformation needs to be run *before* fix_up_dates, because
-    fix_up_dates uses the plant ID to look up timezones.
+    Note that this transformation needs to be run *before* convert_to_utc, because
+    convert_to_utc uses the plant ID to look up timezones.
 
     Args:
         pudl_engine: SQLAlchemy connection engine for connecting to an existing PUDL DB.
@@ -68,7 +68,7 @@ def harmonize_eia_epa_orispl(
 
     # Because the crosswalk isn't complete, there are some instances where the
     # plant_id_eia value will be NA. This isn't great when it goes to grouping or
-    # merging data together. Specifically for the fix_up_dates() function below.
+    # merging data together. Specifically for the convert_to_utc() function below.
     # This creates a column based on the plant_id_eia but backfills NA with
     # plant_id_epa so it can be used to merge on.
     df_merged["plant_id_combined"] = df_merged.plant_id_eia.fillna(
@@ -82,8 +82,8 @@ def harmonize_eia_epa_orispl(
     return df_merged
 
 
-def fix_up_dates(df: pd.DataFrame, plant_utc_offset: pd.DataFrame) -> pd.DataFrame:
-    """Fix the dates for the CEMS data.
+def convert_to_utc(df: pd.DataFrame, plant_utc_offset: pd.DataFrame) -> pd.DataFrame:
+    """Convert CEMS datetime data to UTC timezones.
 
     Transformations include:
 
@@ -260,7 +260,7 @@ def transform(
     return (
         raw_df.pipe(remove_leading_zeros_from_numeric_strings, "emissions_unit_id_epa")
         .pipe(harmonize_eia_epa_orispl, pudl_engine)
-        .pipe(fix_up_dates, plant_utc_offset=_load_plant_utc_offset(pudl_engine))
+        .pipe(convert_to_utc, plant_utc_offset=_load_plant_utc_offset(pudl_engine))
         .pipe(correct_gross_load_mw)
         .pipe(apply_pudl_dtypes, group="epacems")
     )
