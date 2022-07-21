@@ -2018,16 +2018,6 @@ Keys are in alphabetical order.
 FIELD_METADATA_BY_GROUP: dict[str, dict[str, Any]] = {
     "epacems": {
         "state": {"constraints": {"enum": EPACEMS_STATES}},
-        "gross_load_mw": {
-            "constraints": {
-                "required": True,
-            }
-        },
-        "heat_content_mmbtu": {
-            "constraints": {
-                "required": True,
-            }
-        },
         "operating_datetime_utc": {
             "constraints": {
                 "required": True,

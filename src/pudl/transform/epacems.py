@@ -239,7 +239,7 @@ def correct_gross_load_mw(df: pd.DataFrame) -> pd.DataFrame:
     # This is rare, so don't bother most of the time.
     bad = df["gross_load_mw"] > 2000
     if bad.any():
-        df.loc[bad, "gross_load_mw"] = df.loc[bad, "gross_load_mw"] / 1000
+        df.loc[bad, "gross_load_mw"] = df.gross_load_mw / 1000
     return df
 
 
@@ -258,8 +258,7 @@ def transform(
 
     """
     return (
-        raw_df.fillna({"gross_load_mw": 0.0, "heat_content_mmbtu": 0.0})
-        .pipe(remove_leading_zeros_from_numeric_strings, "emissions_unit_id_epa")
+        raw_df.pipe(remove_leading_zeros_from_numeric_strings, "emissions_unit_id_epa")
         .pipe(harmonize_eia_epa_orispl, pudl_engine)
         .pipe(fix_up_dates, plant_utc_offset=_load_plant_utc_offset(pudl_engine))
         .pipe(correct_gross_load_mw)
