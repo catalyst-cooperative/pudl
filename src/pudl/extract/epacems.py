@@ -37,8 +37,8 @@ RENAME_DICT = {
     # "SO2_RATE": "so2_rate_lbs_mmbtu",  # Not reading from CSV
     # "SO2_RATE_MEASURE_FLG": "so2_rate_measure_flg",  # Not reading from CSV
     "NOX_RATE (lbs/mmBtu)": "nox_rate_lbs_mmbtu",
-    "NOX_RATE": "nox_rate_lbs_mmbtu",
-    "NOX_RATE_MEASURE_FLG": "nox_rate_measurement_code",
+    # "NOX_RATE": "nox_rate_lbs_mmbtu",  # Not reading from CSV
+    # "NOX_RATE_MEASURE_FLG": "nox_rate_measurement_code",  # Not reading from CSV
     "NOX_MASS (lbs)": "nox_mass_lbs",
     "NOX_MASS": "nox_mass_lbs",
     "NOX_MASS_MEASURE_FLG": "nox_mass_measurement_code",
@@ -51,10 +51,11 @@ RENAME_DICT = {
     "HEAT_INPUT (mmBtu)": "heat_content_mmbtu",
     "HEAT_INPUT": "heat_content_mmbtu",
     # "FAC_ID": "facility_id",  # IDK what this is, but it isn't helpful
-    # "UNIT_ID": "unit_id_epa",  # IDK what this is, but it isn't helpful
+    # "UNIT_ID": "unit_id_what",  # IDK what this is, but it isn't helpful
 }
 """dict: A dictionary containing EPA CEMS column names (keys) and replacement
-    names to use when reading those columns into PUDL (values).
+    names to use when reading those columns into PUDL (values). There are some
+    duplicate rename values because the column names change year to year.
 """
 
 # Any column that exactly matches one of these won't be read
@@ -66,6 +67,8 @@ IGNORE_COLS = {
     "CO2_RATE (tons/mmBtu)",
     "CO2_RATE",
     "CO2_RATE_MEASURE_FLG",
+    "NOX_RATE_MEASURE_FLG",
+    "NOX_RATE",
     "FAC_ID",
     "UNIT_ID",
 }
