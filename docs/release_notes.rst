@@ -2,10 +2,10 @@
 PUDL Release Notes
 =======================================================================================
 
-.. _release-v2022.06.XX:
+.. _release-v2022.07.XX:
 
 ---------------------------------------------------------------------------------------
-2022.06.XX
+2022.07.XX
 ---------------------------------------------------------------------------------------
 
 Nightly Data Builds
@@ -38,6 +38,29 @@ Database Schema Changes
   :doc:`data_dictionaries/codes_and_labels`). Used these standard codes and code
   fixes to clean ``operational_status_code`` in the :ref:`generators_entity_eia`
   table. :pr:`1624`
+* Moved a number of slowly changing plant attributes from the :ref:`plants_entity_eia`
+  table to the annual :ref:`plants_eia860` table. See :issue:`1748` and :pr:`1749`.
+  This was initially inspired by the desire to more accurately reproduce the aggregated
+  fuel prices which are available in the EIA's API. Along with state, census region,
+  month, year, and fuel type, those prices are broken down by industrial sector.
+  Previously ``sector_id_eia`` (an aggregation of several ``primary_purpose_naics_id``
+  values) had been assumed to be static over a plant's lifetime, when in fact it can
+  change if e.g. a plant is sold to an IPP by a regulated utility. Other plant
+  attributes which are now allowed to vary annually include:
+
+  * ``balancing_authority_code_eia``
+  * ``balancing_authority_name_eia``
+  * ``ferc_cogen_status``
+  * ``ferc_exempt_wholesale_generator``
+  * ``ferc_small_power_producer``
+  * ``grid_voltage_1_kv``
+  * ``grid_voltage_2_kv``
+  * ``grid_voltage_3_kv``
+  * ``iso_rto_code``
+  * ``primary_purpose_id_naics``
+
+* Renamed ``grid_voltage_kv`` to ``grid_voltage_1_kv`` in the :ref:`plants_eia860`
+  table, to follow the pattern of many other multiply reported values.
 
 Date Merge Helper Function
 ^^^^^^^^^^^^^^^^^^^^^^^^^^

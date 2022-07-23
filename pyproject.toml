@@ -1,11 +1,15 @@
 [build-system]
-requires = ["setuptools<63", "pip>=21,<23", "wheel", "setuptools_scm"]
+requires = [
+    "setuptools<64",
+    "setuptools_scm[toml]>=3.5.0",
+]
+build-backend = "setuptools.build_meta"
 
 [tool.setuptools_scm]
 
 [tool.black]
 line-length = 88
-target-version = ["py38", "py39", "py310"]
+target-version = ["py310"]
 include = "\\.pyi?$"
 
 [tool.isort]
