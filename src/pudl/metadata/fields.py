@@ -10,6 +10,7 @@ from pudl.metadata.constants import FIELD_DTYPES_PANDAS
 from pudl.metadata.enums import (
     CANADA_PROVINCES_TERRITORIES,
     CUSTOMER_CLASSES,
+    EIA860_EMISSION_CONTROL_EQUIPMENT_TYPE_CODES,
     EPACEMS_MEASUREMENT_CODES,
     EPACEMS_STATES,
     FUEL_CLASSES,
@@ -418,6 +419,17 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "electric_plant_sold_acct102": {
         "type": "number",
         "description": "FERC Account 102: Electric Plant Sold (Negative).",
+    },
+    "emission_control_equipment_type": {
+        "type": "string",
+        "constraints": {"enum": EIA860_EMISSION_CONTROL_EQUIPMENT_TYPE_CODES},
+        "description": "Type of emissions control equipment as reported in EIA 860 (2013-).",
+    },
+    "emission_control_equipment_cost": {
+        "type": "number",
+        "description": "The nominal installed cost for the existing emissions control equipment or the anticipated cost to bring the planned piece of emissions control equipment into commercial operation. From EIA 860 (2013-).",
+        "unit": "USD",
+        # TODO this is reported in 1e3 USD need to convert
     },
     "energy_charges": {
         "type": "number",

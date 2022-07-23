@@ -4,5 +4,7 @@ utility_name_eia,,,,,,,,,,,,,utility_name,utility_name,utility_name,utility_name
 plant_id_eia,,,,,,,,,plant_code,plant_code,plant_code,plant_code,plant_code,plant_code,plant_code,plant_code,plant_code,plant_code,plant_code,plant_code
 plant_name_eia,,,,,,,,,,,,,plant_name,plant_name,plant_name,plant_name,plant_name,plant_name,plant_name,plant_name
 boiler_id,,,,,,,,,boiler_id,boiler_id,boiler_id,boiler_id,boiler_id,boiler_id,boiler_id,boiler_id,boiler_id,boiler_id,boiler_id,boiler_id
-stack_flue_id_eia,,,,,,,,,stack_id,stack_id,stack_id,stack_id,stack_/_flue_id,stack_/_flue_id,stack_/_flue_id,stack_/_flue_id,stack_/_flue_id,stack_/_flue_id,stack_/_flue_id,stack_/_flue_id
+stack_flue_id_eia,,,,,,,,,,,,,stack_/_flue_id,stack_/_flue_id,stack_/_flue_id,stack_/_flue_id,stack_/_flue_id,stack_/_flue_id,stack_/_flue_id,stack_/_flue_id
 steam_plant_type,,,,,,,,,,,,,,steam_plant_type,steam_plant_type,steam_plant_type,steam_plant_type,steam_plant_type,steam_plant_type,steam_plant_type
+stack_id_eia,,,,,,,,,stack_id,stack_id,stack_id,stack_id,,,,,,,,
+flue_id_eia,,,,,,,,,flue_id,flue_id,flue_id,flue_id,,,,,,,,

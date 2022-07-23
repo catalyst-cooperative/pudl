@@ -3,7 +3,7 @@ utility_id_eia,,,,,,,,,,,,,utility_id,utility_id,utility_id,utility_id,utility_i
 utility_name_eia,,,,,,,,,,,,,utility_name,utility_name,utility_name,utility_name,utility_name,utility_name,utility_name,utility_name
 plant_id_eia,,,,,,,,,,,,,plant_code,plant_code,plant_code,plant_code,plant_code,plant_code,plant_code,plant_code
 plant_name_eia,,,,,,,,,,,,,plant_name,plant_name,plant_name,plant_name,plant_name,plant_name,plant_name,plant_name
-equipment_type,,,,,,,,,,,,,equipment_type,equipment_type,equipment_type,equipment_type,equipment_type,equipment_type,equipment_type,equipment_type
+emission_control_equipment_type,,,,,,,,,,,,,equipment_type,equipment_type,equipment_type,equipment_type,equipment_type,equipment_type,equipment_type,equipment_type
 particulate_matter_control_id_eia,,,,,,,,,,,,,particulate_matter_control_id,particulate_matter_control_id,particulate_matter_control_id,particulate_matter_control_id,particulate_matter_control_id,particulate_matter_control_id,particulate_matter_control_id,particulate_matter_control_id
 so2_control_id_eia,,,,,,,,,,,,,so2_control_id,so2_control_id,so2_control_id,so2_control_id,so2_control_id,so2_control_id,so2_control_id,so2_control_id
 nox_control_id_eia,,,,,,,,,,,,,nox_control_id,nox_control_id,nox_control_id,nox_control_id,nox_control_id,nox_control_id,nox_control_id,nox_control_id
@@ -14,5 +14,5 @@ operating_month,,,,,,,,,,,,,inservice_month,inservice_month,inservice_month,inse
 operating_year,,,,,,,,,,,,,inservice_year,inservice_year,inservice_year,inservice_year,inservice_year,inservice_year,inservice_year,inservice_year
 retirement_month,,,,,,,,,,,,,,,,retirement_month,retirement_month,retirement_month,retirement_month,retirement_month
 retirement_year,,,,,,,,,,,,,,,,retirement_year,retirement_year,retirement_year,retirement_year,retirement_year
-total_cost_thousand_dollars,,,,,,,,,,,,,total_cost_(thousand_dollars),total_cost_(thousand_dollars),total_cost_(thousand_dollars),total_cost_(thousand_dollars),total_cost_(thousand_dollars),total_cost_(thousand_dollars),total_cost_(thousand_dollars),total_cost_(thousand_dollars)
+emission_control_equipment_cost,,,,,,,,,,,,,total_cost_(thousand_dollars),total_cost_(thousand_dollars),total_cost_(thousand_dollars),total_cost_(thousand_dollars),total_cost_(thousand_dollars),total_cost_(thousand_dollars),total_cost_(thousand_dollars),total_cost_(thousand_dollars)
 steam_plant_type,,,,,,,,,,,,,,steam_plant_type,steam_plant_type,steam_plant_type,steam_plant_type,steam_plant_type,steam_plant_type,steam_plant_type
