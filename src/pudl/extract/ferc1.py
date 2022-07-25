@@ -103,6 +103,18 @@ http://www.dbase.com/KnowledgeBase/int/db7_file_fmt.htm
 Un-mapped types left as 'XXX' which should obviously make an error.
 """
 
+TABLE_NAME_MAP = {
+    "fuel_ferc1": {
+        "xbrl": "steam_electric_generating_plant_statistics_large_plants_fuel_statistics_402",
+        "dbf": "f1_fuel",
+    },
+    "plants_steam_ferc1": {
+        "xbrl": "steam_electric_generating_plant_statistics_large_plants_402",
+        "dbf": "f1_steam",
+    },
+}
+"""Map output table names to XBRL and DBF input names."""
+
 PUDL_RIDS = {
     514: "AEP Texas",
     519: "Upper Michigan Energy Resources Company",
@@ -836,50 +848,61 @@ def extract_xbrl(
     if pudl_settings is None:
         pudl_settings = pudl.workspace.setup.get_defaults()
 
-    ferc1_extract_functions = {
-        "fuel_ferc1": fuel_xbrl,
-    }
-
     ferc1_raw_dfs = {}
     for pudl_table in ferc1_settings.tables:
-        if pudl_table not in ferc1_extract_functions:
-            # For now skip until generalized extract is implemented
+        # TODO: Raise exception once XBRL tables are fully integrated
+        # For now skip because map is not defined for all pudl tables
+        if pudl_table not in TABLE_NAME_MAP:
             continue
 
         logger.info(
             f"Converting extracted FERC Form 1 table {pudl_table} into a "
             f"pandas DataFrame."
         )
-        ferc1_raw_dfs[pudl_table] = ferc1_extract_functions[pudl_table](
-            ferc1_engine=sa.create_engine(pudl_settings["ferc1_xbrl_db"]),
-            ferc1_settings=ferc1_settings,
-        )
+
+        # Attempt to extract both duration and instant tables
+        xbrl_table = TABLE_NAME_MAP[pudl_table]["xbrl"]
+        ferc1_raw_dfs[pudl_table] = {}
+        for period_type in ["duration", "instant"]:
+            ferc1_raw_dfs[pudl_table][period_type] = generic_xbrl_extract(
+                ferc1_engine=sa.create_engine(pudl_settings["ferc1_xbrl_db"]),
+                ferc1_settings=ferc1_settings,
+                table_name=f"{xbrl_table}_{period_type}",
+            )
 
     return ferc1_raw_dfs
 
 
-def fuel_xbrl(ferc1_engine: sa.engine.Engine, ferc1_settings: Ferc1Settings):
-    """Creates a Dataframe of steam_electric_generating_plant_statistics_large_plants_fuel_statistics.
+def generic_xbrl_extract(
+    ferc1_engine: sa.engine.Engine, ferc1_settings: Ferc1Settings, table_name: str
+):
+    """Generic function to extract XBRL tables required for desired output table.
 
     Args:
         ferc1_engine: An SQL Alchemy connection
             engine for the FERC Form 1 database.
         ferc1_settings: Object containing validated settings
             relevant to FERC Form 1.
+        table_name: Name of desired output table to produce.
     """
+    # Get XBRL DB metadata
     ferc1_meta = get_ferc1_meta(ferc1_engine)
-    fuel_stats = ferc1_meta.tables[
-        "steam_electric_generating_plant_statistics_large_plants_fuel_statistics_402_duration"
-    ]
-    identification = ferc1_meta.tables["identification_001_duration"]
 
-    fuel_select = (
-        sa.sql.select(fuel_stats)
-        .join(identification, fuel_stats.c.filing_name == identification.c.filing_name)
-        .where(identification.c.ReportYear.in_(ferc1_settings.xbrl_years))
-    )
-    # Use the above SELECT to pull those records into a DataFrame:
-    return pd.read_sql(fuel_select, ferc1_engine)
+    # Not every table contains both instant and duration
+    # Return empty dict if table doesn't exist
+    if table_name not in ferc1_meta.tables:
+        return {}
+
+    id_table = "identification_001_duration"
+
+    # Identification table used to get the filing year
+    table_select = f"""
+       SELECT {table_name}.*, {id_table}.ReportYear FROM {table_name}
+       JOIN {id_table} ON {id_table}.filing_name = {table_name}.filing_name
+       WHERE {id_table}.ReportYear in ({",".join(map(str, ferc1_settings.xbrl_years))})
+    """
+
+    return pd.read_sql(table_select, ferc1_engine)
 
 
 def fuel(ferc1_engine: sa.engine.Engine, ferc1_settings: Ferc1Settings):
