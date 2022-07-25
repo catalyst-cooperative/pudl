@@ -482,6 +482,116 @@ def boiler_generator_assn(eia860_dfs, eia860_transformed_dfs):
     return eia860_transformed_dfs
 
 
+def emission_control_equip(eia860_dfs, eia860_transformed_dfs):
+    """WIP Pull and transform the emission control table.
+
+    Transformations include:
+    * combining emission control sheet with pm, so2, nox, and mercury
+
+    Args:
+        eia860_dfs (dict): Each entry in this
+            dictionary of DataFrame objects corresponds to a page from the EIA860 form,
+            as reported in the Excel spreadsheets they distribute.
+        eia860_transformed_dfs (dict): A dictionary of DataFrame objects in which pages
+            from EIA860 form (keys) correspond to normalized DataFrames of values from
+            that page (values).
+
+    Returns:
+        dict: eia860_transformed_dfs, a dictionary of DataFrame objects in which pages
+        from EIA860 form (keys) correspond to normalized DataFrames of values from that
+        page (values).
+
+    """
+    # cool = eia860_dfs["boiler_cooling"]
+    # stack = eia860_dfs["boiler_stack_flue"]
+    # fgd = eia860_dfs["boiler_fgd"]
+    # fgp = eia860_dfs["boiler_fgp"]
+    control_boiler = pd.concat(
+        [
+            eia860_dfs["boiler_particulate_matter"].assign(
+                emission_control_id_type="pm"
+            ),
+            eia860_dfs["boiler_so2"].assign(emission_control_id_type="so2"),
+            eia860_dfs["boiler_nox"].assign(emission_control_id_type="nox"),
+            eia860_dfs["boiler_mercury"].assign(emission_control_id_type="mercury"),
+        ],
+        axis=0,
+    )
+    equip = (
+        eia860_dfs["emissions_control_equipment"]
+        .melt(
+            id_vars=[
+                "plant_id_eia",
+                "plant_name_eia",
+                "report_year",
+                "utility_id_eia",
+                "utility_name_eia",
+                "operating_month",
+                "operating_year",
+                "operational_status_code",
+                "retirement_month",
+                "retirement_year",
+                "emission_control_equipment_cost",
+                "emission_control_equipment_type",
+                "acid_gas_control",
+            ],
+            value_vars=[
+                "pm",
+                "so2",
+                "nox",
+                "mercury",
+            ],
+            var_name="emission_control_id_type",
+            value_name="emission_control_id_eia",
+        )
+        .dropna(subset="emission_control_id_eia")
+    )
+    equip["acid_gas_control"] = (
+        equip["acid_gas_control"]
+        .fillna("NaN")
+        .replace(to_replace=["Y", "N", "NaN"], value=[True, False, pd.NA])
+    )
+    out = equip.merge(
+        control_boiler,
+        on=[
+            "plant_id_eia",
+            "utility_id_eia",
+            "report_year",
+            "emission_control_id_type",
+            "emission_control_id_eia",
+        ],
+        # melting does not deal with the fact that for a given emission control id type
+        # there can be multiple lines representing different `emission_control_equipment_type`
+        # this needs to be dealt with in an actually robust way, leaving this to a pandas
+        # m:m merge is actually correct.
+        validate="m:m",
+        how="left",
+        indicator=True,
+        suffixes=(None, "_cb"),
+    ).drop(["plant_name_eia_cb", "utility_name_eia_cb"])
+    # this little temp test shows where things are going to go wrong with 1:1 merge on both sides
+    # and indicates how we need to think about fixing the above merge
+    tests = []
+    for df in (equip, control_boiler):
+        a = df.groupby(
+            [
+                "plant_id_eia",
+                "utility_id_eia",
+                "report_year",
+                "emission_control_id_type",
+                "emission_control_id_eia",
+            ]
+        ).agg([pd.Series.nunique, list])
+        a.columns = ["_".join(x) for x in a.columns]
+        tests.append(
+            a.query(" | ".join(f"{x} > 1" for x in a.filter(like="nunique").columns))
+        )
+
+    eia860_transformed_dfs["emission_control_equip_eia860"] = out
+
+    return eia860_transformed_dfs
+
+
 def utilities(eia860_dfs, eia860_transformed_dfs):
     """Pull and transform the utilities table.
 
