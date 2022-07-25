@@ -112,6 +112,21 @@ TABLE_NAME_MAP = {
         "xbrl": "steam_electric_generating_plant_statistics_large_plants_402",
         "dbf": "f1_steam",
     },
+    "plants_small_ferc1": {
+        "dbf": "f1_gnrt_plant",
+    },
+    "plants_hydro_ferc1": {
+        "dbf": "f1_hydro",
+    },
+    "plants_pumped_storage_ferc1": {
+        "dbf": "f1_pumped_storage",
+    },
+    "plant_in_service_ferc1": {
+        "dbf": "f1_plant_in_srvce",
+    },
+    "purchased_power_ferc1": {
+        "dbf": "f1_purchased_pwr",
+    },
 }
 """Map output table names to XBRL and DBF input names."""
 
@@ -790,20 +805,9 @@ def extract_dbf(
     if pudl_settings is None:
         pudl_settings = pudl.workspace.setup.get_defaults()
 
-    ferc1_extract_functions = {
-        "fuel_ferc1": fuel,
-        "plants_steam_ferc1": plants_steam,
-        "plants_small_ferc1": plants_small,
-        "plants_hydro_ferc1": plants_hydro,
-        "plants_pumped_storage_ferc1": plants_pumped_storage,
-        "plant_in_service_ferc1": plant_in_service,
-        "purchased_power_ferc1": purchased_power,
-        "accumulated_depreciation_ferc1": accumulated_depreciation,
-    }
-
     ferc1_raw_dfs = {}
     for pudl_table in ferc1_settings.tables:
-        if pudl_table not in ferc1_extract_functions:
+        if pudl_table not in TABLE_NAME_MAP:
             raise ValueError(
                 f"No extract function found for requested FERC Form 1 data "
                 f"table {pudl_table}!"
@@ -812,9 +816,10 @@ def extract_dbf(
             f"Converting extracted FERC Form 1 table {pudl_table} into a "
             f"pandas DataFrame."
         )
-        ferc1_raw_dfs[pudl_table] = ferc1_extract_functions[pudl_table](
+        ferc1_raw_dfs[pudl_table] = generic_dbf_extract(
             ferc1_engine=sa.create_engine(pudl_settings["ferc1_db"]),
             ferc1_settings=ferc1_settings,
+            table_name=TABLE_NAME_MAP[pudl_table]["dbf"],
         )
 
     return ferc1_raw_dfs
@@ -852,7 +857,7 @@ def extract_xbrl(
     for pudl_table in ferc1_settings.tables:
         # TODO: Raise exception once XBRL tables are fully integrated
         # For now skip because map is not defined for all pudl tables
-        if pudl_table not in TABLE_NAME_MAP:
+        if "xbrl" not in TABLE_NAME_MAP[pudl_table]:
             continue
 
         logger.info(
@@ -902,6 +907,27 @@ def generic_xbrl_extract(
        WHERE {id_table}.ReportYear in ({",".join(map(str, ferc1_settings.xbrl_years))})
     """
 
+    return pd.read_sql(table_select, ferc1_engine)
+
+
+def generic_dbf_extract(
+    ferc1_engine: sa.engine.Engine, ferc1_settings: Ferc1Settings, table_name: str
+):
+    """Generic function to extract DBF tables required for desired output table.
+
+    Args:
+        ferc1_engine: An SQL Alchemy connection
+            engine for the FERC Form 1 database.
+        ferc1_settings: Object containing validated settings
+            relevant to FERC Form 1.
+        table_name: Name of desired output table to produce.
+    """
+    table_select = f"""
+        SELECT * FROM {table_name}
+        WHERE report_year in ({",".join(map(str, ferc1_settings.dbf_years))})
+    """
+
+    # Use the above SELECT to pull those records into a DataFrame:
     return pd.read_sql(table_select, ferc1_engine)
 
 
