@@ -16,6 +16,12 @@ has collected emissions data from CEMS units stretching back to 1995. Among the 
 included in CEMS are hourly gross load, SO2, CO2, and NOx emissions.
 {% endblock %}
 
+{% block downloadable_pdfs %}
+{% for filename in download_paths %}
+    * :download:`{{ filename.stem.replace("_", " ").title() }} (PDF) <{{ filename }}>`
+{% endfor %}
+{% endblock %}
+
 {% block accessible %}
 All of it! Data is currently available via the `PUDL Data Catalog <https://github.com/catalyst-cooperative/pudl-catalog>`__.
 
