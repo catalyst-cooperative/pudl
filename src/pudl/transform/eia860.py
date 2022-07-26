@@ -506,19 +506,20 @@ def emission_control_equip(eia860_dfs, eia860_transformed_dfs):
     # stack = eia860_dfs["boiler_stack_flue"]
     # fgd = eia860_dfs["boiler_fgd"]
     # fgp = eia860_dfs["boiler_fgp"]
+    emission_control_id_types = ("pm", "so2", "nox", "mercury")
+
     control_boiler = pd.concat(
         [
-            eia860_dfs["boiler_particulate_matter"].assign(
-                emission_control_id_type="pm"
-            ),
-            eia860_dfs["boiler_so2"].assign(emission_control_id_type="so2"),
-            eia860_dfs["boiler_nox"].assign(emission_control_id_type="nox"),
-            eia860_dfs["boiler_mercury"].assign(emission_control_id_type="mercury"),
+            eia860_dfs[f"boiler_{x}"]
+            .assign(emission_control_id_type=x)
+            .rename(columns={f"{x}_control_id_eia": "emission_control_id_eia"})
+            for x in emission_control_id_types
         ],
         axis=0,
     )
     equip = (
         eia860_dfs["emissions_control_equipment"]
+        .rename(columns={f"{x}_control_id_eia": x for x in emission_control_id_types})
         .melt(
             id_vars=[
                 "plant_id_eia",
@@ -535,12 +536,7 @@ def emission_control_equip(eia860_dfs, eia860_transformed_dfs):
                 "emission_control_equipment_type",
                 "acid_gas_control",
             ],
-            value_vars=[
-                "pm",
-                "so2",
-                "nox",
-                "mercury",
-            ],
+            value_vars=list(emission_control_id_types),
             var_name="emission_control_id_type",
             value_name="emission_control_id_eia",
         )
