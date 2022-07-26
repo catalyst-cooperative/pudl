@@ -10,11 +10,13 @@ bad data, or replacing it with the appropriate NA values.
 import importlib.resources
 import re
 from difflib import SequenceMatcher
+from typing import Literal
 
 # NetworkX is used to knit incomplete ferc plant time series together.
 import networkx as nx
 import numpy as np
 import pandas as pd
+from pydantic import BaseModel
 from sklearn.base import BaseEstimator, ClassifierMixin
 from sklearn.compose import ColumnTransformer
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -32,9 +34,214 @@ from pudl.settings import Ferc1Settings
 
 logger = get_logger(__name__)
 
+TABLES_LITERAL = Literal[
+    "plants_steam_ferc1",
+    "fuel_ferc1",
+]
+
+COLUMN_RENAME: dict[TABLES_LITERAL, dict[str, dict[Literal["dbf", "xbrl"], str]]] = {
+    "plants_steam_ferc1": {
+        "capex_structures": {
+            "dbf": "cost_structure",
+            "xbrl": "CostOfStructuresAndImprovementsSteamProduction",
+        },
+        "opex_misc_power": {
+            "dbf": "expns_misc_power",
+            "xbrl": "MiscellaneousSteamPowerExpenses",
+        },
+        "plant_name_ferc1": {
+            "dbf": "plant_name",
+            "xbrl": "PlantNameAxis",
+        },
+        "plant_capability_mw": {
+            "dbf": "plnt_capability",
+            "xbrl": "NetContinuousPlantCapability",
+        },
+        "opex_plants": {
+            "dbf": "expns_plants",
+            "xbrl": "MaintenanceOfElectricPlantSteamPowerGeneration",
+        },
+        "opex_misc_steam": {
+            "dbf": "expns_misc_steam",
+            "xbrl": "MaintenanceOfMiscellaneousSteamPlant",
+        },
+        "capex_per_kw": {
+            "dbf": "cost_per_kw",
+            "xbrl": "CostPerKilowattOfInstalledCapacity",
+        },
+        "not_water_limited_capacity_mw": {
+            "dbf": "when_not_limited",
+            "xbrl": "NetContinuousPlantCapabilityNotLimitedByCondenserWater",
+        },
+        "asset_retirement_cost": {
+            "dbf": "asset_retire_cost",
+            "xbrl": "AssetRetirementCostsSteamProduction",
+        },
+        "opex_steam_other": {
+            "dbf": "expns_steam_othr",
+            "xbrl": "SteamFromOtherSources",
+        },
+        "opex_transfer": {
+            "dbf": "expns_transfer",
+            "xbrl": "SteamTransferredCredit",
+        },
+        "opex_engineering": {
+            "dbf": "expns_engnr",
+            "xbrl": "MaintenanceSupervisionAndEngineeringSteamPowerGeneration",
+        },
+        "avg_num_employees": {
+            "dbf": "avg_num_of_emp",
+            "xbrl": "PlantAverageNumberOfEmployees",
+        },
+        "capex_total": {
+            "dbf": "cost_of_plant_to",
+            "xbrl": "CostOfPlant",
+        },
+        "opex_rents": {
+            "dbf": "expns_rents",
+            "xbrl": "RentsSteamPowerGeneration",
+        },
+        "opex_production_total": {
+            "dbf": "tot_prdctn_expns",
+            "xbrl": "PowerProductionExpensesSteamPower",
+        },
+        "plant_type": {
+            "dbf": "plant_kind",
+            "xbrl": "PlantKind",
+        },
+        "utility_id_ferc1": {
+            "dbf": "respondent_id",
+        },
+        "opex_operations": {
+            "dbf": "expns_operations",
+            "xbrl": "OperationSupervisionAndEngineeringExpense",
+        },
+        "capex_equipment": {
+            "dbf": "cost_equipment",
+            "xbrl": "CostOfEquipmentSteamProduction",
+        },
+        "construction_type": {
+            "dbf": "type_const",
+            "xbrl": "PlantConstructionType",
+        },
+        "plant_hours_connected_while_generating": {
+            "dbf": "plant_hours",
+            "xbrl": "PlantHoursConnectedToLoad",
+        },
+        "opex_coolants": {
+            "dbf": "expns_coolants",
+            "xbrl": "CoolantsAndWater",
+        },
+        "opex_fuel": {
+            "dbf": "expns_fuel",
+            "xbrl": "FuelSteamPowerGeneration",
+        },
+        "water_limited_capacity_mw": {
+            "dbf": "when_limited",
+            "xbrl": "NetContinuousPlantCapabilityLimitedByCondenserWater",
+        },
+        "opex_per_kwh": {
+            "dbf": "expns_kwh",
+            "xbrl": "ExpensesPerNetKilowattHour",
+        },
+        "opex_allowances": {
+            "dbf": "expns_allowances",
+            "xbrl": "Allowances",
+        },
+        "opex_steam": {
+            "dbf": "expns_steam",
+            "xbrl": "SteamExpensesSteamPowerGeneration",
+        },
+        "construction_year": {
+            "dbf": "yr_const",
+            "xbrl": "YearPlantOriginallyConstructed",
+        },
+        "installation_year": {
+            "dbf": "yr_installed",
+            "xbrl": "YearLastUnitOfPlantInstalled",
+        },
+        "opex_boiler": {
+            "dbf": "expns_boiler",
+            "xbrl": "MaintenanceOfBoilerPlantSteamPowerGeneration",
+        },
+        "peak_demand_mw": {
+            "dbf": "peak_demand",
+            "xbrl": "NetPeakDemandOnPlant",
+        },
+        "capex_land": {
+            "dbf": "cost_land",
+            "xbrl": "CostOfLandAndLandRightsSteamProduction",
+        },
+        "capacity_mw": {
+            "dbf": "tot_capacity",
+            "xbrl": "InstalledCapacityOfPlant",
+        },
+        "net_generation_kwh": {
+            "dbf": "net_generation",
+            "xbrl": "NetGenerationExcludingPlantUse",
+        },
+        "opex_electric": {
+            "dbf": "expns_electric",
+            "xbrl": "ElectricExpensesSteamPowerGeneration",
+        },
+        "opex_structures": {
+            "dbf": "expns_structures",
+            "xbrl": "MaintenanceOfStructuresSteamPowerGeneration",
+        },
+    },
+    "fuel_ferc1": {
+        "utility_id_ferc1": {
+            "dbf": "respondent_id",
+        },
+        "plant_name_ferc1": {
+            "dbf": "plant_name",
+            "xbrl": "PlantNameAxis",
+        },
+        "fuel_type_code_pudl": {
+            "dbf": "fuel",
+            "xbrl": "FuelKindAxis",
+        },
+        "fuel_units": {
+            "dbf": "fuel_unit",
+            "xbrl": "FuelUnit",
+        },
+        "fuel_btu_per_unit": {
+            "dbf": "fuel_avg_heat",
+        },
+        "fuel_mmbtu_per_unit": {
+            "xbrl": "FuelBurnedAverageHeatContent",
+        },
+        "fuel_consumed_units": {
+            "dbf": "fuel_quantity",
+            "xbrl": "QuantityOfFuelBurned",
+        },
+        "fuel_cost_per_unit_burned": {
+            "dbf": "fuel_cost_burned",
+            "xbrl": "AverageCostOfFuelPerUnitBurned",
+        },
+        "fuel_cost_per_unit_delivered": {
+            "dbf": "fuel_cost_delvd",
+            "xbrl": "AverageCostOfFuelPerUnitAsDelivered",
+        },
+        "fuel_cost_per_mmbtu": {
+            "dbf": "fuel_cost_btu",
+            "xbrl": "AverageCostOfFuelBurnedPerMillionBritishThermalUnit",
+        },
+        "fuel_mmbtu_per_kwh": {
+            "dbf": "fuel_generaton",
+            "xbrl": "AverageBritishThermalUnitPerKilowattHourNetGeneration",
+        },
+        "fuel_cost_per_kwh": {
+            "xbrl": "AverageCostOfFuelBurnedPerKilowattHourNetGeneration",
+        },
+    },
+}
+
+
 ##############################################################################
 # Dicts for categorizing freeform strings ####################################
 ##############################################################################
+
 FUEL_STRINGS: dict[str, list[str]] = {
     "coal": [
         "coal",
@@ -56,6 +263,9 @@ FUEL_STRINGS: dict[str, list[str]] = {
         "petcoke",
         "coal.oil",
         "coal/gas",
+        "coal. gas",
+        "coal & oil",
+        "coal bit",
         "bit coal",
         "coal-unit #3",
         "coal-subbitum",
@@ -200,6 +410,8 @@ FUEL_STRINGS: dict[str, list[str]] = {
         "# 6 gas",
         "#6 gas",
         "coke oven gas",
+        "gas & oil",
+        "gas/fuel oil",
     ],
     "solar": [],
     "wind": [],
@@ -221,9 +433,11 @@ FUEL_STRINGS: dict[str, list[str]] = {
         "nulcear",
         "nuc",
         "gr. uranium",
+        "uranium",
         "nuclear mw da",
         "grams of ura",
         "nucvlear",
+        "nuclear (1)",
     ],
     "waste": [
         "tires",
@@ -309,6 +523,7 @@ FUEL_STRINGS: dict[str, list[str]] = {
         "waste heat",
         "/#=2â?",
         "3",
+        "—",
     ],
 }
 """
@@ -346,6 +561,7 @@ FUEL_UNIT_STRINGS: dict[str, list[str]] = {
         "coal tons - 2",
         "c. t.",
         "c.t.",
+        "t",
         "toncoalequiv",
     ],
     "mcf": [
@@ -353,6 +569,7 @@ FUEL_UNIT_STRINGS: dict[str, list[str]] = {
         "mcf's",
         "mcfs",
         "mcf.",
+        "mcfe",
         "gas mcf",
         '"gas" mcf',
         "gas-mcf",
@@ -436,7 +653,9 @@ FUEL_UNIT_STRINGS: dict[str, list[str]] = {
         "barreks",
         "oil-bbls",
         "oil-bbs",
+        "boe",
     ],
+    "mmbbl": ["mmbbls"],
     "gal": ["gallons", "gal.", "gals", "gals.", "gallon", "gal", "galllons"],
     "kgal": [
         "oil(1000 gal)",
@@ -470,6 +689,8 @@ FUEL_UNIT_STRINGS: dict[str, list[str]] = {
         "grams v-235",
         "se uo2 grams",
         "grams u",
+        "g",
+        "grams of uranium",
     ],
     "kgU": [
         "kg of uranium",
@@ -622,6 +843,8 @@ FUEL_UNIT_STRINGS: dict[str, list[str]] = {
         "344",
         'å?"',
         "mcf / gallen",
+        "none",
+        "—",
     ],
 }
 """
@@ -705,6 +928,7 @@ PLANT_KIND_STRINGS: dict[str, list[str]] = {
         "resp share st note 3",
         "\x02steam (1)",
         "coal fired steam tur",
+        "coal fired steam turbine",
         "steam- 64%",
     ],
     "combustion_turbine": [
@@ -834,6 +1058,8 @@ PLANT_KIND_STRINGS: dict[str, list[str]] = {
         "ctg steam gas",
         "steam comb cycle",
         "gas/steam comb. cycl",
+        "gas/steam",
+        "gas turbine-combined cycle",
         "steam (comb. cycle)" "gas turbine/steam",
         "steam & gas turbine",
         "gas trb & heat rec",
@@ -902,7 +1128,8 @@ PLANT_KIND_STRINGS: dict[str, list[str]] = {
         "ic",
         "internal combustion",
         "internal comb.",
-        "internl combustion" "diesel turbine",
+        "internl combustion",
+        "diesel turbine",
         "int combust (note 1)",
         "int. combust (note1)",
         "int.combustine",
@@ -914,6 +1141,7 @@ PLANT_KIND_STRINGS: dict[str, list[str]] = {
         "int combust - note 1",
         "int. combust - note1",
         "internal comb recip",
+        "internal combustion reciprocating",
         "reciprocating engine",
         "comb. turbine",
         "internal combust.",
@@ -948,6 +1176,8 @@ PLANT_KIND_STRINGS: dict[str, list[str]] = {
         "see pgs 403.1-403.9",
         "respondent's share",
         "--",
+        "—",
+        "footnote",
         "(see note 7)",
         "other",
         "not applicable",
@@ -1009,6 +1239,7 @@ PLANT_KIND_STRINGS: dict[str, list[str]] = {
         "other generation plt",
         "combined heat/power",
         "oil",
+        "fuel oil",
     ],
 }
 """
@@ -1098,6 +1329,7 @@ CONSTRUCTION_TYPE_STRINGS: dict[str, list[str]] = {
         "outdoor boiler &fuel",
     ],
     "semioutdoor": [
+        "more than 50% outdoors",
         "more than 50% outdoo",
         "more than 50% outdos",
         "over 50% outdoor",
@@ -1196,6 +1428,7 @@ CONSTRUCTION_TYPE_STRINGS: dict[str, list[str]] = {
         "con sem outdoor",
         "cnvntl, outdr, boilr",
         "less than 50% outdoo",
+        "less than 50% outdoors",
         "under 50% outdoor",
         "under 50% outdoors",
         "1cnvntnl/2odboilers",
@@ -1218,6 +1451,7 @@ CONSTRUCTION_TYPE_STRINGS: dict[str, list[str]] = {
         "conventional",
         "conventional",
         "conventional boiler",
+        "conventional - boiler",
         "conv-b",
         "conventionall",
         "convention",
@@ -1249,6 +1483,7 @@ CONSTRUCTION_TYPE_STRINGS: dict[str, list[str]] = {
         "indoor",
         "indoor automatic",
         "indoor boiler",
+        "indoor boiler and steam turbine",
         "(peak load) indoor",
         "conventionl,indoor",
         "conventionl, indoor",
@@ -1257,6 +1492,7 @@ CONSTRUCTION_TYPE_STRINGS: dict[str, list[str]] = {
         "conven./outdoor",
         "conventional;semi-ou",
         "comb. cycle indoor",
+        "comb cycle indoor",
         "3 indoor boiler",
         "2 indoor boilers",
         "1 indoor boiler",
@@ -1334,6 +1570,7 @@ CONSTRUCTION_TYPE_STRINGS: dict[str, list[str]] = {
         "automatic oper.",
         "pakage",
         "---",
+        "—",
         "n/a (ct)",
         "comb turb instain",
         "ind encloures",
@@ -1368,6 +1605,7 @@ CONSTRUCTION_TYPE_STRINGS: dict[str, list[str]] = {
         "tracking pv",
         "o",
         "wind trubine",
+        "wind generator",
         "subcritical",
         "sucritical",
         "simple cycle",
@@ -1383,6 +1621,9 @@ CONSTRUCTION_TYPE_STRINGS: dict[str, list[str]] = {
         "conven. underground",
         "conventional (a)",
         "non-applicable",
+        "duct burner",
+        "see footnote",
+        "simple and reciprocat",
     ],
 }
 """
@@ -1392,9 +1633,101 @@ associated with each type (values) from FERC Form 1.
 There are many strings that weren't categorized, including crosses between conventional
 and outdoor, PV, wind, combined cycle, and internal combustion. The lists are broken out
 into the two types specified in Form 1: conventional and outdoor. These lists are
-inclusive so that variants of conventional (e.g.  "conventional full") and outdoor (e.g.
+inclusive so that variants of conventional (e.g. "conventional full") and outdoor (e.g.
 "outdoor full" and "outdoor hrsg") are included.
 """
+
+TABLE_CLEAN_STRINGS_COLS: dict[TABLES_LITERAL, dict] = {
+    "plants_steam_ferc1": {
+        "columns": ["construction_type", "plant_type"],
+        "stringmaps": [CONSTRUCTION_TYPE_STRINGS, PLANT_KIND_STRINGS],
+    },
+    "fuel_ferc1": {
+        "columns": ["fuel_type_code_pudl", "fuel_units"],
+        "stringmaps": [FUEL_STRINGS, FUEL_UNIT_STRINGS],
+    },
+}
+
+TABLE_SIMPLIFY_STRINGS_COLS: dict[TABLES_LITERAL, list] = {
+    "plants_steam_ferc1": ["plant_name_ferc1"],
+    "fuel_ferc1": ["plant_name_ferc1"],
+}
+
+TABLE_UNIT_CONVERSIONS: dict[TABLES_LITERAL, dict] = {
+    "plants_steam_ferc1": {
+        "capex_per_mw": {
+            "column_name_old": "capex_per_kw",
+            "conversion": 1000.0,
+        },
+        "opex_per_mwh": {
+            "column_name_old": "opex_per_kwh",
+            "conversion": 1000.0,
+        },
+        "net_generation_mwh": {
+            "column_name_old": "net_generation_kwh",
+            "conversion": 1000.0,
+        },
+    },
+    "fuel_ferc1": {
+        "fuel_mmbtu_per_unit": {
+            "column_name_old": "fuel_btu_per_unit",
+            "conversion": 1e-06,
+        }
+    },
+}
+"""Table conversions."""
+
+TABLE_OOB_TO_NAN = {
+    "plants_steam_ferc1": {
+        "columns": ["construction_year", "installation_year"],
+        "lower_bound": 1850,
+        "upper_bound": max(DataSource.from_id("ferc1").working_partitions["years"]) + 1,
+    }
+}
+
+COLUMN_CONDENSING_PRE_STRING_CLEAN: dict[
+    TABLES_LITERAL,
+    dict[str, dict[Literal["keep_records", "remove_records"], dict[str, tuple]]],
+] = {
+    "fuel_ferc1": {
+        "fuel_mmbtu_per_kwh": {
+            "keep_records": (
+                [
+                    "Columbia 1",
+                    "Columbia 2",
+                    "Columbia Total",
+                    "West Campus",
+                ],
+                [
+                    "Coal",
+                    "Coal",
+                    "Coal",
+                    "Gas",
+                ],
+                ["C002498", "C002498", "C002498", "C002498"],
+                [2021, 2021, 2021, 2021],
+            ),
+            "remove_records": (
+                [
+                    "Columbia 1",
+                    "Columbia 2",
+                    "Columbia Total",
+                    "West Campus",
+                ],
+                [
+                    "Coal & Oil",
+                    "Coal & Oil",
+                    "Coal & Oil",
+                    "Gas & Oil",
+                ],
+                ["C002498", "C002498", "C002498", "C002498"],
+                [2021, 2021, 2021, 2021],
+            ),
+        }
+    }
+}
+"""There are several instances in which we have two records and almost all of
+the content in the records is in one while another record has one datapoint."""
 
 ##############################################################################
 # FERC TRANSFORM HELPER FUNCTIONS ############################################
@@ -1524,6 +1857,11 @@ def _clean_cols(df, table_name):
     row_prvlg, row_seq, item, record_number (a temporary column used in plants_small)
     and all the footnote columns, which end in "_f".
 
+    TODO: remove in xbrl transition. migrated this functionality into
+    ``assign_record_id()``. The last chunk of this function that removes the "_f"
+    columns should be abandoned in favor of using the metadata to ensure the
+    tables have all/only the correct columns.
+
     Args:
         df (pandas.DataFrame): The DataFrame in which the function looks for columns
             for the unique identification of FERC records, and ensures that those
@@ -1581,7 +1919,9 @@ def _clean_cols(df, table_name):
                 f"{n_dupes} duplicate record_id values found "
                 f"in pre-transform table {table_name}: {dupe_ids}."
             )
-
+    # May want to replace this with always constraining the cols to the metadata cols
+    # at the end of the transform step (or in rename_columns if we don't need any
+    # temp columns)
     # Drop any _f columns... since we're not using the FERC Footnotes...
     # Drop columns and don't complain about it if they don't exist:
     no_f = [c for c in df.columns if not re.match(".*_f$", c)]
@@ -1605,463 +1945,822 @@ def _clean_cols(df, table_name):
     return df
 
 
-def _multiplicative_error_correction(tofix, mask, minval, maxval, mults):
-    """Corrects data entry errors where data being multiplied by a factor.
+class TransformerMeta(BaseModel):
+    """FERC1 table transform metadata."""
 
-    In many cases we know that a particular column in the database should have a value
-    in a particular rage (e.g. the heat content of a ton of coal is a well defined
-    physical quantity -- it can be 15 mmBTU/ton or 22 mmBTU/ton, but it can't be 1
-    mmBTU/ton or 100 mmBTU/ton). Sometimes these fields are reported in the wrong units
-    (e.g. kWh of electricity generated rather than MWh) resulting in several
-    distributions that have a similar shape showing up at different ranges of value
-    within the data.  This function takes a one dimensional data series, a description
-    of a valid range for the values, and a list of factors by which we expect to see
-    some of the data multiplied due to unit errors.  Data found in these "ghost"
-    distributions are multiplied by the appropriate factor to bring them into the
-    expected range.
+    table_name: TABLES_LITERAL
 
-    Data values which are not found in one of the acceptable multiplicative ranges are
-    set to NA.
+    @property
+    def unit_conversions(
+        self,
+    ) -> dict[str, dict[Literal["column_name_old", "conversions"], str | float]]:
+        """Dictionary of unit conversions."""
+        return TABLE_UNIT_CONVERSIONS.get(self.table_name, {})
 
-    Args:
-        tofix (pandas.Series): A 1-dimensional data series containing the values to be
-            fixed.
-        mask (pandas.Series): A 1-dimensional masking array of True/False values, which
-            will be used to select a subset of the tofix series onto which we will apply
-            the multiplicative fixes.
-        min (float): the minimum realistic value for the data series.
-        max (float): the maximum realistic value for the data series.
-        mults (list of floats): values by which "real" data may have been multiplied
-            due to common data entry errors. These values both show us where to look in
-            the full data series to find recoverable data, and also tell us by what
-            factor those values need to be multiplied to bring them back into the
-            reasonable range.
+    @property
+    def columns_to_rename(self) -> dict[str, dict[Literal["xbrl", "dbf"], str]]:
+        """Columns."""
+        return COLUMN_RENAME[self.table_name]
 
-    Returns:
-        fixed (pandas.Series): a data series of the same length as the input, but with
-        the transformed values.
-    """
-    # Grab the subset of the input series we are going to work on:
-    records_to_fix = tofix[mask]
-    # Drop those records from our output series
-    fixed = tofix.drop(records_to_fix.index)
-    # Iterate over the multipliers, applying fixes to outlying populations
-    for mult in mults:
-        records_to_fix = records_to_fix.apply(
-            lambda x: x * mult if x > minval / mult and x < maxval / mult else x
+    def columns_to_rename_by_ferc1_source(self, source_ferc1) -> dict[str, str]:
+        """Dictionary of Ferc1 original column name to pudl columns name by source."""
+        return {
+            sources_dict.get(source_ferc1): pudl_col
+            for (pudl_col, sources_dict) in self.columns_to_rename.items()
+            if sources_dict.get(source_ferc1)
+        }
+
+    @property
+    def axis_cols_xbrl(self) -> list:
+        """Axis column names, which are analogous to primary keys per filings."""
+        return [  # pudl column names if "Axis" is at the end of the xbrl name
+            xbrl_col
+            for xbrl_col in self.columns_to_rename_by_ferc1_source("xbrl").keys()
+            if "Axis" in xbrl_col
+        ]
+
+    @property
+    def primary_keys_xbrl(self) -> list:
+        """List of pudl column names of primary keys for the XBRL tables.
+
+        This is derived from the :py:const:`COLUMN_RENAME` dictionary by grabbing the list of pudl
+        column names when the xbrl column name has 'Axis' at the end. XBRL uses 'Axis'
+        as an indicator for primary keys. We also add 'entity_id' and 'report_date' to
+        the primary keys.
+        """
+        return ["report_year", "entity_id"] + [  # other primary keys
+            self.columns_to_rename_by_ferc1_source("xbrl")[axis_col]
+            for axis_col in self.axis_cols_xbrl
+        ]
+
+    @property
+    def table_column_condensing_dict(
+        self,
+    ) -> dict[str, dict[Literal["keep_records", "remove_records"], dict[str, tuple]]]:
+        """Dictionary of records to keep and records to remove.
+
+        This cleaning happens via :meth:`condense_sets_of_records_with_one_datapoint_in_second_record`
+        """
+        return COLUMN_CONDENSING_PRE_STRING_CLEAN[self.table_name]
+
+    @property
+    def simplify_strings_cols(self) -> list[str | None]:
+        """List of columns to treat with :func:`pudl.helpers.simplify_strings`."""
+        return TABLE_SIMPLIFY_STRINGS_COLS.get(self.table_name, [])
+
+    @property
+    def clean_strings_dict(self) -> dict[Literal["columns", "stringmaps"], list] | None:
+        """Dictionary of treatments for :func:`pudl.helpers.cleanstrings`."""
+        return TABLE_CLEAN_STRINGS_COLS.get(self.table_name, None)
+
+    @property
+    def oob_to_nan_inputs(self) -> dict | None:
+        """Dictionary of inputs for :func:`pudl.helpers.oob_to_nan`."""
+        return TABLE_OOB_TO_NAN.get(self.table_name, None)
+
+
+class GenericTransformer(BaseModel):
+    """Generic FERC1 table transformer."""
+
+    table_name: TABLES_LITERAL
+
+    @property
+    def meta(self) -> TransformerMeta:
+        """Metadata for table transformations."""
+        return TransformerMeta(table_name=self.table_name)
+
+    @staticmethod
+    def add_report_year_column(df):
+        """Add a report year column."""
+        df = df.assign(report_year=lambda x: pd.to_datetime(x.start_date).dt.year)
+        return df
+
+    def assign_record_id(
+        self,
+        df: pd.DataFrame,
+        source_ferc1: Literal["dbf", "xbrl"],
+    ) -> pd.DataFrame:
+        """Assign a record ID column from either XBRL or DBF ferc1 source table.
+
+        It is often useful to be able to tell exactly which record in the FERC Form 1
+        database a given record within the PUDL database came from.
+
+        Within each FERC Form 1 DBF table, each record is supposed to be uniquely
+        identified by the combination of:
+        report_year, report_prd, utility_id_ferc1, spplmnt_num, row_number.
+
+        The FERC Form 1 XBRL tables do not have these supplement and row number
+        columns, so we construct an id based on:
+        report_year, entity_id, and the primary key columns of the XBRL table
+
+        Args:
+            df: table to assign `record_id` to
+            table_name: name of table
+            source_ferc1: data source of raw ferc1 database.
+
+        Raises:
+            AssertionError: If the resulting `record_id` column is non-unique.
+        """
+        if source_ferc1 == "xbrl":
+            pk_cols = self.meta.primary_keys_xbrl
+        elif source_ferc1 == "dbf":
+            pk_cols = [
+                "report_year",
+                "report_prd",
+                "utility_id_ferc1",
+                "spplmnt_num",
+                "row_number",
+            ]
+            # for the dbf years, we used the original "f1_" table names for the id
+            # table_name = pudl_tables_to_dbf_tables.get(table_name)
+        else:
+            raise ValueError(
+                f"source_ferc1 must be either `xbrl` or `dbf`. Got {source_ferc1}"
+            )
+        if df[pk_cols].isnull().any(axis=None):
+            raise AssertionError(
+                f"Null field found in ferc1 table {self.table_name}. \n{df[pk_cols].isnull().any()}"
+            )
+
+        df = df.assign(
+            temp=self.table_name,
+            record_id=lambda x: x.temp.str.cat(x[pk_cols].astype(str), sep="_"),
+        ).drop(columns=["temp"])
+
+        df = pudl.helpers.simplify_strings(df, ["record_id"])
+        if df.record_id.duplicated().any():
+            raise AssertionError(
+                "Record id column cannot result in duplicates. Columns are not "
+                f"unique primary keys: {pk_cols}. \nNon-unqiue records:\n"
+                f"{df[df.record_id.duplicated()][['record_id'] + pk_cols]}"
+            )
+        return df
+
+    @staticmethod
+    def assign_utility_id_ferc1_xbrl(df: pd.DataFrame) -> pd.DataFrame:
+        """Assign utility_id_ferc1.
+
+        This is a shell rn. Issue #1705
+        """
+        return df.assign(
+            utility_id_ferc1=lambda x: x.entity_id.str.replace("C", "")
+            .str.lstrip("0")
+            .astype("Int64")
         )
-    # Set any record that wasn't inside one of our identified populations to
-    # NA -- we are saying that these are true outliers, which can't be part
-    # of the population of values we are examining.
-    records_to_fix = records_to_fix.apply(
-        lambda x: np.nan if x < minval or x > maxval else x
-    )
-    # Add our fixed records back to the complete data series and return it
-    fixed = pd.concat([fixed, records_to_fix])
-    return fixed
+
+    @staticmethod
+    def _multiplicative_error_correction(tofix, mask, minval, maxval, mults):
+        """Corrects data entry errors where data being multiplied by a factor.
+
+        In many cases we know that a particular column in the database should have a value
+        in a particular rage (e.g. the heat content of a ton of coal is a well defined
+        physical quantity -- it can be 15 mmBTU/ton or 22 mmBTU/ton, but it can't be 1
+        mmBTU/ton or 100 mmBTU/ton). Sometimes these fields are reported in the wrong units
+        (e.g. kWh of electricity generated rather than MWh) resulting in several
+        distributions that have a similar shape showing up at different ranges of value
+        within the data.  This function takes a one dimensional data series, a description
+        of a valid range for the values, and a list of factors by which we expect to see
+        some of the data multiplied due to unit errors.  Data found in these "ghost"
+        distributions are multiplied by the appropriate factor to bring them into the
+        expected range.
+
+        Data values which are not found in one of the acceptable multiplicative ranges are
+        set to NA.
+
+        Args:
+            tofix (pandas.Series): A 1-dimensional data series containing the values to be
+                fixed.
+            mask (pandas.Series): A 1-dimensional masking array of True/False values, which
+                will be used to select a subset of the tofix series onto which we will apply
+                the multiplicative fixes.
+            min (float): the minimum realistic value for the data series.
+            max (float): the maximum realistic value for the data series.
+            mults (list of floats): values by which "real" data may have been multiplied
+                due to common data entry errors. These values both show us where to look in
+                the full data series to find recoverable data, and also tell us by what
+                factor those values need to be multiplied to bring them back into the
+                reasonable range.
+
+        Returns:
+            fixed (pandas.Series): a data series of the same length as the input, but with
+            the transformed values.
+        """
+        # Grab the subset of the input series we are going to work on:
+        records_to_fix = tofix[mask]
+        # Drop those records from our output series
+        fixed = tofix.drop(records_to_fix.index)
+        # Iterate over the multipliers, applying fixes to outlying populations
+        for mult in mults:
+            records_to_fix = records_to_fix.apply(
+                lambda x: x * mult if x > minval / mult and x < maxval / mult else x
+            )
+        # Set any record that wasn't inside one of our identified populations to
+        # NA -- we are saying that these are true outliers, which can't be part
+        # of the population of values we are examining.
+        records_to_fix = records_to_fix.apply(
+            lambda x: np.nan if x < minval or x > maxval else x
+        )
+        # Add our fixed records back to the complete data series and return it
+        fixed = pd.concat([fixed, records_to_fix])
+        return fixed
+
+    @staticmethod
+    def convert_units(df, column_name_new, column_name_old, conversion):
+        """Convert the units of a column."""
+        df.loc[:, column_name_new] = df.loc[:, column_name_old] * conversion
+        return df.drop(columns=[column_name_old])
+
+    def convert_units_in_table(self, df: pd.DataFrame):
+        """Convert the units of a table based on.
+
+        If a table does not have any units to convert, the original table will be
+        returned.
+        """
+        for column, col_info in self.meta.unit_conversions.items():
+            df = self.convert_units(
+                df=df,
+                column_name_new=column,
+                column_name_old=col_info["column_name_old"],
+                conversion=col_info["conversion"],
+            )
+        return df
+
+    def rename_columns(
+        self, raw_table: pd.DataFrame, source: Literal["xbrl", "dbf"]
+    ) -> pd.DataFrame:
+        """Rename the columns in a FERC1 table based on table name and source.
+
+        This function is a light wrapper around ``pandas.rename``, mostly used to
+        grab the appropriate dictionary of old columns (keys) to new columns (values)
+        from :py:const:`COLUMN_RENAME` based on the table and the FERC1 source.
+        """
+        return raw_table.rename(
+            columns=self.meta.columns_to_rename_by_ferc1_source(source)
+        )
+
+    def merge_instant_and_duration_tables(
+        self, duration: pd.DataFrame, instant: pd.DataFrame
+    ) -> pd.DataFrame:
+        """Merge the XBRL instand and duration tables.
+
+        FERC1 XBRL instant period signifies that it is true as of the reported date,
+        while a duration fact is true for the specified time period. The ``date``
+        column for an instant fact is effectively equivalent to the ``end_date``
+        column of a duration fact.
+
+        Args:
+            duration: XBRL duration table.
+            instant: XBRL instant table.
+            table_name: table name
+
+        Returns:
+            one unified table that is a combination of the duration and instant
+            input tables. Any overlapping columns (besides the ``merge_on`` columns)
+            will be consolidated by filling the duration columns with the instant
+            columns.
+        """
+        # plants_steam_ferc1_duration
+        table = pd.merge(
+            duration.drop(columns=["filing_name"]),
+            instant.drop(columns=["filing_name"]),
+            how="outer",
+            left_on=["end_date", "entity_id"] + self.meta.axis_cols_xbrl,
+            right_on=["date", "entity_id"] + self.meta.axis_cols_xbrl,
+            validate="1:1",
+        )
+        return table
+
+    def pre_concat_clean_and_concat_dbf_xbrl(
+        self,
+        raw_dbf: pd.DataFrame,
+        raw_xbrl_instant: pd.DataFrame | None,
+        raw_xbrl_duration: pd.DataFrame | None,
+    ) -> pd.DataFrame:
+        """Perform pre-concat cleanig of XBRL and DBF tables and concatenate.
+
+        This function takes the raw intput tables from the FERC1 DBF and XBRL original
+        sources, performs the necessary pre-concatenation cleanup and then
+        concatenates the two FERC1 sources.
+
+        It assumes the format for the name of the table-specific pre-concat function
+        is: "pre_concat_{source of FERC1 ("xbrl" or "dbf")}_{``table_name``}"
+        """
+        dbf_df = self.pre_concat_dbf(raw_dbf)
+        xbrl_df = self.pre_concat_xbrl(raw_xbrl_instant, raw_xbrl_duration)
+        df_concat = pd.concat([dbf_df, xbrl_df]).reset_index(drop=True)
+        return df_concat
+
+    def condense_sets_of_records_with_one_datapoint_in_second_record(
+        self, df: pd.DataFrame
+    ) -> pd.DataFrame:
+        """Condense two records with one datapoint in one column.
+
+        There are instances in which FERC records are semi-duplicated with almost
+        all the information in one record (the "keep_records") and another record
+        with one column containing data (the "remove_records") that we want to move
+        into the more fleshed out record. This function uses the information in
+        `table_column_condensing_dict` to move contents from our "keep_records"
+        into our "remove_records" and then we drop the "remove_records".
+
+        Args:
+            df: input dataframe.
+        """
+        df = df.set_index(self.meta.primary_keys_xbrl).sort_index()
+        for column, fixes in self.meta.table_column_condensing_dict.items():
+            df.loc[fixes["keep_records"], column] = df.loc[
+                fixes["remove_records"], column
+            ]
+            df = df.drop(index=df.loc[fixes["remove_records"]].index)
+        df = df.reset_index()
+        return df
+
+    def simplify_strings_for_table(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Apply ``pudl.helpers.simplify_strings`` to a ferc1 table."""
+        df = pudl.helpers.simplify_strings(df, columns=self.meta.simplify_strings_cols)
+        return df
+
+    def clean_strings_for_table(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Apply ``pudl.helpers.cleanstrings`` to a ferc1 table."""
+        df = pudl.helpers.cleanstrings(
+            df=df,
+            columns=self.meta.clean_strings_dict.get("columns"),
+            stringmaps=self.meta.clean_strings_dict.get("stringmaps"),
+            unmapped=self.meta.clean_strings_dict.get("unmapped", pd.NA),
+        )
+        return df
+
+    def replace_unknown_w_nulls(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Replace the ``unknown``'s from ``cleanstrings`` with nulls."""
+        df = df.replace(
+            {
+                column: "unknown"
+                for column in self.meta.clean_strings_dict.get("columns")
+            },
+            pd.NA,
+        )
+        return df
+
+    def oob_to_nan_for_table(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Apply ``pudl.helpers.oob_to_nan`` to a ferc1 table."""
+        df = pudl.helpers.oob_to_nan(
+            df=df,
+            cols=self.meta.oob_to_nan_inputs.get("columns"),
+            lb=self.meta.oob_to_nan_inputs.get("lower_bound"),
+            ub=self.meta.oob_to_nan_inputs.get("upper_bound"),
+        )
+        return df
+
+    def convert_table_dtypes(self, df):
+        """Convert a table's datatypes via :func:`pudl.helpers.convert_cols_dtypes`."""
+        return convert_cols_dtypes(df, name=self.table_name, data_source="ferc1")
+
+    def restrict_to_pudl_cols(self, df):
+        """Ensure all the pudl columns are present and drop all others."""
+        return df
 
 
 ##############################################################################
 # DATABASE TABLE SPECIFIC PROCEDURES ##########################################
 ##############################################################################
-def plants_steam(ferc1_raw_dfs, ferc1_transformed_dfs):
-    """Transforms FERC Form 1 plant_steam data for loading into PUDL Database.
-
-    This includes converting to our preferred units of MWh and MW, as well as
-    standardizing the strings describing the kind of plant and construction.
-
-    Args:
-        ferc1_raw_dfs (dict): Each entry in this dictionary of DataFrame objects
-            corresponds to a table from the  FERC Form 1 DBC database.
-        ferc1_transformed_dfs (dict): A dictionary of DataFrames to be transformed.
-
-    Returns:
-        dict: of transformed dataframes, including the newly transformed
-        plants_steam_ferc1 dataframe.
-
-    """
-    ferc1_steam_df = (
-        ferc1_raw_dfs["plants_steam_ferc1"]
-        .pipe(_plants_steam_clean)
-        .pipe(_plants_steam_assign_plant_ids, ferc1_transformed_dfs["fuel_ferc1"])
-    )
-    plants_steam_validate_ids(ferc1_steam_df)
-    ferc1_steam_df = ferc1_steam_df.replace(
-        {"construction_type": "unknown", "plant_type": "unknown"}, pd.NA
-    )
-    ferc1_transformed_dfs["plants_steam_ferc1"] = ferc1_steam_df
-    return ferc1_transformed_dfs
 
 
-def _plants_steam_clean(ferc1_steam_df):
-    ferc1_steam_df = (
-        ferc1_steam_df.rename(
-            columns={
-                "plant_name": "plant_name_ferc1",
-                "yr_const": "construction_year",
-                "plant_kind": "plant_type",
-                "type_const": "construction_type",
-                "asset_retire_cost": "asset_retirement_cost",
-                "yr_installed": "installation_year",
-                "tot_capacity": "capacity_mw",
-                "peak_demand": "peak_demand_mw",
-                "plant_hours": "plant_hours_connected_while_generating",
-                "plnt_capability": "plant_capability_mw",
-                "when_limited": "water_limited_capacity_mw",
-                "when_not_limited": "not_water_limited_capacity_mw",
-                "avg_num_of_emp": "avg_num_employees",
-                "net_generation": "net_generation_kwh",
-                "cost_land": "capex_land",
-                "cost_structure": "capex_structures",
-                "cost_equipment": "capex_equipment",
-                "cost_of_plant_to": "capex_total",
-                "cost_per_kw": "capex_per_kw",
-                "expns_operations": "opex_operations",
-                "expns_fuel": "opex_fuel",
-                "expns_coolants": "opex_coolants",
-                "expns_steam": "opex_steam",
-                "expns_steam_othr": "opex_steam_other",
-                "expns_transfer": "opex_transfer",
-                "expns_electric": "opex_electric",
-                "expns_misc_power": "opex_misc_power",
-                "expns_rents": "opex_rents",
-                "expns_allowances": "opex_allowances",
-                "expns_engnr": "opex_engineering",
-                "expns_structures": "opex_structures",
-                "expns_boiler": "opex_boiler",
-                "expns_plants": "opex_plants",
-                "expns_misc_steam": "opex_misc_steam",
-                "tot_prdctn_expns": "opex_production_total",
-                "expns_kwh": "opex_per_kwh",
-            }
+class PlantsSteamFerc1(GenericTransformer):
+    """Transformer class for the plants_steam_ferc1 table."""
+
+    def execute(
+        self,
+        raw_dbf: pd.DataFrame,
+        raw_xbrl_instant: pd.DataFrame,
+        raw_xbrl_duration: pd.DataFrame,
+        transformed_fuel: pd.DataFrame,
+    ):
+        """Perform table transformations for the plants_steam_ferc1 table."""
+        plants_steam_combo = (
+            self.pre_concat_clean_and_concat_dbf_xbrl(
+                raw_dbf, raw_xbrl_instant, raw_xbrl_duration
+            )
+            .pipe(self.simplify_strings_for_table)
+            .pipe(self.clean_strings_for_table)
+            .pipe(self.oob_to_nan_for_table)
+            .pipe(self.convert_units_in_table)
+            .pipe(self.convert_table_dtypes)
+            .pipe(  # steam table specific
+                self._plants_steam_assign_plant_ids,
+                ferc1_fuel_df=transformed_fuel,
+            )
         )
-        .pipe(_clean_cols, "f1_steam")
-        .pipe(pudl.helpers.simplify_strings, ["plant_name_ferc1"])
-        .pipe(
-            pudl.helpers.cleanstrings,
-            ["construction_type", "plant_type"],
-            [CONSTRUCTION_TYPE_STRINGS, PLANT_KIND_STRINGS],
-            unmapped=pd.NA,
-        )
-        .pipe(
-            pudl.helpers.oob_to_nan,
-            cols=["construction_year", "installation_year"],
-            lb=1850,
-            ub=max(DataSource.from_id("ferc1").working_partitions["years"]) + 1,
-        )
-        .assign(
-            capex_per_mw=lambda x: 1000.0 * x.capex_per_kw,
-            opex_per_mwh=lambda x: 1000.0 * x.opex_per_kwh,
-            net_generation_mwh=lambda x: x.net_generation_kwh / 1000.0,
-        )
-        .drop(columns=["capex_per_kw", "opex_per_kwh", "net_generation_kwh"])
-    )
+        self.plants_steam_validate_ids(plants_steam_combo)
+        return plants_steam_combo
 
-    for col in ["construction_type", "plant_type"]:
-        if ferc1_steam_df[col].isnull().any():
+    def pre_concat_dbf(self, raw_dbf):
+        """Modifications of the dbf plants_steam_ferc1 table before concat w/ xbrl."""
+        plants_steam_dbf = self.rename_columns(
+            raw_table=raw_dbf,
+            source="dbf",
+        ).pipe(self.assign_record_id, source_ferc1="dbf")
+        return plants_steam_dbf
+
+    def pre_concat_xbrl(self, raw_xbrl_instant, raw_xbrl_duration):
+        """Modifications of the xbrl plants_steam_ferc1 table before concat w/ xbrl."""
+        plants_steam_xbrl = (
+            self.merge_instant_and_duration_tables(
+                duration=raw_xbrl_duration,
+                instant=raw_xbrl_instant,
+            )
+            .pipe(
+                self.rename_columns,
+                source="xbrl",
+            )
+            .pipe(self.add_report_year_column)
+            .pipe(
+                self.assign_record_id,
+                source_ferc1="xbrl",
+            )
+            .pipe(self.assign_utility_id_ferc1_xbrl)
+        )
+        return plants_steam_xbrl
+
+    @staticmethod
+    def _plants_steam_assign_plant_ids(ferc1_steam_df, ferc1_fuel_df):
+        """Assign IDs to the large steam plants."""
+        ###########################################################################
+        # FERC PLANT ID ASSIGNMENT
+        ###########################################################################
+        # Now we need to assign IDs to the large steam plants, since FERC doesn't
+        # do this for us.
+        logger.info("Identifying distinct large FERC plants for ID assignment.")
+
+        # scikit-learn still doesn't deal well with NA values (this will be fixed
+        # eventually) We need to massage the type and missing data for the
+        # Classifier to work.
+        ferc1_steam_df = pudl.helpers.fix_int_na(
+            ferc1_steam_df, columns=["construction_year"]
+        )
+
+        # Grab fuel consumption proportions for use in assigning plant IDs:
+        fuel_fractions = fuel_by_plant_ferc1(ferc1_fuel_df)
+        ffc = list(fuel_fractions.filter(regex=".*_fraction_mmbtu$").columns)
+
+        ferc1_steam_df = ferc1_steam_df.merge(
+            fuel_fractions[
+                ["utility_id_ferc1", "plant_name_ferc1", "report_year"] + ffc
+            ],
+            on=["utility_id_ferc1", "plant_name_ferc1", "report_year"],
+            how="left",
+        )
+        # We need to fill the null values for these numerical feature vectors with
+        # zeros. not ideal, but the model requires dealing with nulls
+        null_to_zero = ffc + ["capacity_mw"]
+        ferc1_steam_df[null_to_zero] = ferc1_steam_df[null_to_zero].fillna(value=0.0)
+
+        # Train the classifier using DEFAULT weights, parameters not listed here.
+        ferc1_clf = pudl.transform.ferc1.make_ferc1_clf(ferc1_steam_df)
+        ferc1_clf = ferc1_clf.fit_transform(ferc1_steam_df)
+
+        # Use the classifier to generate groupings of similar records:
+        record_groups = ferc1_clf.predict(ferc1_steam_df.record_id)
+        n_tot = len(ferc1_steam_df)
+        n_grp = len(record_groups)
+        pct_grp = n_grp / n_tot
+        logger.info(
+            f"Successfully associated {n_grp} of {n_tot} ({pct_grp:.2%}) "
+            f"FERC Form 1 plant records with multi-year plant entities."
+        )
+
+        record_groups.columns = record_groups.columns.astype(str)
+        cols = record_groups.columns
+        record_groups = record_groups.reset_index()
+
+        # Now we are going to create a graph (network) that describes all of the
+        # binary relationships between a seed_id and the record_ids that it has
+        # been associated with in any other year. Each connected component of that
+        # graph is a ferc plant time series / plant_id
+        logger.info("Assigning IDs to multi-year FERC plant entities.")
+        edges_df = pd.DataFrame(columns=["source", "target"])
+        for col in cols:
+            new_edges = record_groups[["seed_id", col]]
+            new_edges = new_edges.rename({"seed_id": "source", col: "target"}, axis=1)
+            edges_df = pd.concat([edges_df, new_edges], sort=True)
+
+        # Drop any records where there's no target ID (no match in a year)
+        edges_df = edges_df[edges_df.target != ""]
+
+        # We still have to deal with the orphaned records -- any record which
+        # wasn't place in a time series but is still valid should be included as
+        # its own independent "plant" for completeness, and use in aggregate
+        # analysis.
+        orphan_record_ids = np.setdiff1d(
+            ferc1_steam_df.record_id.unique(), record_groups.values.flatten()
+        )
+        logger.info(
+            f"Identified {len(orphan_record_ids)} orphaned FERC plant records. "
+            f"Adding orphans to list of plant entities."
+        )
+        orphan_df = pd.DataFrame(
+            {"source": orphan_record_ids, "target": orphan_record_ids}
+        )
+        edges_df = pd.concat([edges_df, orphan_df], sort=True)
+
+        # Use the data frame we've compiled to create a graph
+        G = nx.from_pandas_edgelist(  # noqa: N806
+            edges_df, source="source", target="target"
+        )
+        # Find the connected components of the graph
+        ferc1_plants = (G.subgraph(c) for c in nx.connected_components(G))
+
+        # Now we'll iterate through the connected components and assign each of
+        # them a FERC Plant ID, and pull the results back out into a dataframe:
+        plants_w_ids = []
+        for plant_id_ferc1, plant in enumerate(ferc1_plants):
+            nx.set_edge_attributes(plant, plant_id_ferc1 + 1, name="plant_id_ferc1")
+            new_plant_df = nx.to_pandas_edgelist(plant)
+            plants_w_ids.append(new_plant_df)
+        plants_w_ids = pd.concat(plants_w_ids)
+        logger.info(
+            f"Successfully Identified {plant_id_ferc1+1-len(orphan_record_ids)} "
+            f"multi-year plant entities."
+        )
+
+        # Set the construction year back to numeric because it is.
+        ferc1_steam_df["construction_year"] = pd.to_numeric(
+            ferc1_steam_df["construction_year"], errors="coerce"
+        )
+        # We don't actually want to save the fuel fractions in this table... they
+        # were only here to help us match up the plants.
+        ferc1_steam_df = ferc1_steam_df.drop(ffc, axis=1)
+
+        # Now we need a list of all the record IDs, with their associated
+        # FERC 1 plant IDs. However, the source-target listing isn't
+        # guaranteed to list every one of the nodes in either list, so we
+        # need to compile them together to ensure that we get every single
+        sources = (
+            plants_w_ids.drop("target", axis=1)
+            .drop_duplicates()
+            .rename({"source": "record_id"}, axis=1)
+        )
+        targets = (
+            plants_w_ids.drop("source", axis=1)
+            .drop_duplicates()
+            .rename({"target": "record_id"}, axis=1)
+        )
+        plants_w_ids = (
+            pd.concat([sources, targets])
+            .drop_duplicates()
+            .sort_values(["plant_id_ferc1", "record_id"])
+        )
+        steam_rids = ferc1_steam_df.record_id.values
+        pwids_rids = plants_w_ids.record_id.values
+        missing_ids = [rid for rid in steam_rids if rid not in pwids_rids]
+        if missing_ids:
             raise AssertionError(
-                f"NA values found in {col} column during FERC 1 steam clean, add string to dictionary for this column"
+                f"Uh oh, we lost {abs(len(steam_rids)-len(pwids_rids))} FERC "
+                f"steam plant record IDs: {missing_ids}"
             )
-    return ferc1_steam_df
+        ferc1_steam_df = pd.merge(ferc1_steam_df, plants_w_ids, on="record_id")
+        return ferc1_steam_df
 
+    @staticmethod
+    def plants_steam_validate_ids(ferc1_steam_df):
+        """Tests that plant_id_ferc1 times series includes one record per year.
 
-def _plants_steam_assign_plant_ids(ferc1_steam_df, ferc1_fuel_df):
-    """Assign IDs to the large steam plants."""
-    ###########################################################################
-    # FERC PLANT ID ASSIGNMENT
-    ###########################################################################
-    # Now we need to assign IDs to the large steam plants, since FERC doesn't
-    # do this for us.
-    logger.info("Identifying distinct large FERC plants for ID assignment.")
+        Args:
+            ferc1_steam_df (pandas.DataFrame): A DataFrame of the data from the FERC 1
+                Steam table.
 
-    # scikit-learn still doesn't deal well with NA values (this will be fixed
-    # eventually) We need to massage the type and missing data for the
-    # Classifier to work.
-    ferc1_steam_df = pudl.helpers.fix_int_na(
-        ferc1_steam_df, columns=["construction_year"]
-    )
+        Returns:
+            None
+        """
+        ##########################################################################
+        # FERC PLANT ID ERROR CHECKING STUFF
+        ##########################################################################
 
-    # Grab fuel consumption proportions for use in assigning plant IDs:
-    fuel_fractions = fuel_by_plant_ferc1(ferc1_fuel_df)
-    ffc = list(fuel_fractions.filter(regex=".*_fraction_mmbtu$").columns)
-
-    ferc1_steam_df = ferc1_steam_df.merge(
-        fuel_fractions[["utility_id_ferc1", "plant_name_ferc1", "report_year"] + ffc],
-        on=["utility_id_ferc1", "plant_name_ferc1", "report_year"],
-        how="left",
-    )
-    # We need to fill the null values for these numerical feature vectors with
-    # zeros. not ideal, but the model requires dealing with nulls
-    null_to_zero = ffc + ["capacity_mw"]
-    ferc1_steam_df[null_to_zero] = ferc1_steam_df[null_to_zero].fillna(value=0.0)
-
-    # Train the classifier using DEFAULT weights, parameters not listed here.
-    ferc1_clf = pudl.transform.ferc1.make_ferc1_clf(ferc1_steam_df)
-    ferc1_clf = ferc1_clf.fit_transform(ferc1_steam_df)
-
-    # Use the classifier to generate groupings of similar records:
-    record_groups = ferc1_clf.predict(ferc1_steam_df.record_id)
-    n_tot = len(ferc1_steam_df)
-    n_grp = len(record_groups)
-    pct_grp = n_grp / n_tot
-    logger.info(
-        f"Successfully associated {n_grp} of {n_tot} ({pct_grp:.2%}) "
-        f"FERC Form 1 plant records with multi-year plant entities."
-    )
-
-    record_groups.columns = record_groups.columns.astype(str)
-    cols = record_groups.columns
-    record_groups = record_groups.reset_index()
-
-    # Now we are going to create a graph (network) that describes all of the
-    # binary relationships between a seed_id and the record_ids that it has
-    # been associated with in any other year. Each connected component of that
-    # graph is a ferc plant time series / plant_id
-    logger.info("Assigning IDs to multi-year FERC plant entities.")
-    edges_df = pd.DataFrame(columns=["source", "target"])
-    for col in cols:
-        new_edges = record_groups[["seed_id", col]]
-        new_edges = new_edges.rename({"seed_id": "source", col: "target"}, axis=1)
-        edges_df = pd.concat([edges_df, new_edges], sort=True)
-
-    # Drop any records where there's no target ID (no match in a year)
-    edges_df = edges_df[edges_df.target != ""]
-
-    # We still have to deal with the orphaned records -- any record which
-    # wasn't place in a time series but is still valid should be included as
-    # its own independent "plant" for completeness, and use in aggregate
-    # analysis.
-    orphan_record_ids = np.setdiff1d(
-        ferc1_steam_df.record_id.unique(), record_groups.values.flatten()
-    )
-    logger.info(
-        f"Identified {len(orphan_record_ids)} orphaned FERC plant records. "
-        f"Adding orphans to list of plant entities."
-    )
-    orphan_df = pd.DataFrame({"source": orphan_record_ids, "target": orphan_record_ids})
-    edges_df = pd.concat([edges_df, orphan_df], sort=True)
-
-    # Use the data frame we've compiled to create a graph
-    G = nx.from_pandas_edgelist(  # noqa: N806
-        edges_df, source="source", target="target"
-    )
-    # Find the connected components of the graph
-    ferc1_plants = (G.subgraph(c) for c in nx.connected_components(G))
-
-    # Now we'll iterate through the connected components and assign each of
-    # them a FERC Plant ID, and pull the results back out into a dataframe:
-    plants_w_ids = []
-    for plant_id_ferc1, plant in enumerate(ferc1_plants):
-        nx.set_edge_attributes(plant, plant_id_ferc1 + 1, name="plant_id_ferc1")
-        new_plant_df = nx.to_pandas_edgelist(plant)
-        plants_w_ids.append(new_plant_df)
-    plants_w_ids = pd.concat(plants_w_ids)
-    logger.info(
-        f"Successfully Identified {plant_id_ferc1+1-len(orphan_record_ids)} "
-        f"multi-year plant entities."
-    )
-
-    # Set the construction year back to numeric because it is.
-    ferc1_steam_df["construction_year"] = pd.to_numeric(
-        ferc1_steam_df["construction_year"], errors="coerce"
-    )
-    # We don't actually want to save the fuel fractions in this table... they
-    # were only here to help us match up the plants.
-    ferc1_steam_df = ferc1_steam_df.drop(ffc, axis=1)
-
-    # Now we need a list of all the record IDs, with their associated
-    # FERC 1 plant IDs. However, the source-target listing isn't
-    # guaranteed to list every one of the nodes in either list, so we
-    # need to compile them together to ensure that we get every single
-    sources = (
-        plants_w_ids.drop("target", axis=1)
-        .drop_duplicates()
-        .rename({"source": "record_id"}, axis=1)
-    )
-    targets = (
-        plants_w_ids.drop("source", axis=1)
-        .drop_duplicates()
-        .rename({"target": "record_id"}, axis=1)
-    )
-    plants_w_ids = (
-        pd.concat([sources, targets])
-        .drop_duplicates()
-        .sort_values(["plant_id_ferc1", "record_id"])
-    )
-    steam_rids = ferc1_steam_df.record_id.values
-    pwids_rids = plants_w_ids.record_id.values
-    missing_ids = [rid for rid in steam_rids if rid not in pwids_rids]
-    if missing_ids:
-        raise AssertionError(
-            f"Uh oh, we lost {abs(len(steam_rids)-len(pwids_rids))} FERC "
-            f"steam plant record IDs: {missing_ids}"
+        # Test to make sure that we don't have any plant_id_ferc1 time series
+        # which include more than one record from a given year. Warn the user
+        # if we find such cases (which... we do, as of writing)
+        year_dupes = (
+            ferc1_steam_df.groupby(["plant_id_ferc1", "report_year"])[
+                "utility_id_ferc1"
+            ]
+            .count()
+            .reset_index()
+            .rename(columns={"utility_id_ferc1": "year_dupes"})
+            .query("year_dupes>1")
         )
-    ferc1_steam_df = pd.merge(ferc1_steam_df, plants_w_ids, on="record_id")
-    return ferc1_steam_df
+        if len(year_dupes) > 0:
+            for dupe in year_dupes.itertuples():
+                logger.error(
+                    f"Found report_year={dupe.report_year} "
+                    f"{dupe.year_dupes} times in "
+                    f"plant_id_ferc1={dupe.plant_id_ferc1}"
+                )
+        else:
+            logger.info("No duplicate years found in any plant_id_ferc1. Hooray!")
 
 
-def plants_steam_validate_ids(ferc1_steam_df):
-    """Tests that plant_id_ferc1 times series includes one record per year.
+class FuelFerc1(GenericTransformer):
+    """Transformer class for the fuel_ferc1 table."""
 
-    Args:
-        ferc1_steam_df (pandas.DataFrame): A DataFrame of the data from the FERC 1
-            Steam table.
-
-    Returns:
-        None
-    """
-    ##########################################################################
-    # FERC PLANT ID ERROR CHECKING STUFF
-    ##########################################################################
-
-    # Test to make sure that we don't have any plant_id_ferc1 time series
-    # which include more than one record from a given year. Warn the user
-    # if we find such cases (which... we do, as of writing)
-    year_dupes = (
-        ferc1_steam_df.groupby(["plant_id_ferc1", "report_year"])["utility_id_ferc1"]
-        .count()
-        .reset_index()
-        .rename(columns={"utility_id_ferc1": "year_dupes"})
-        .query("year_dupes>1")
-    )
-    if len(year_dupes) > 0:
-        for dupe in year_dupes.itertuples():
-            logger.error(
-                f"Found report_year={dupe.report_year} "
-                f"{dupe.year_dupes} times in "
-                f"plant_id_ferc1={dupe.plant_id_ferc1}"
+    def execute(
+        self,
+        raw_dbf: pd.DataFrame,
+        raw_xbrl_instant: None,
+        raw_xbrl_duration: pd.DataFrame,
+    ):
+        """Transforms FERC Form 1 fuel data for loading into PUDL Database."""
+        fuel_df = (
+            self.pre_concat_clean_and_concat_dbf_xbrl(
+                raw_dbf, raw_xbrl_instant, raw_xbrl_duration
             )
-    else:
-        logger.info("No duplicate years found in any plant_id_ferc1. Hooray!")
-
-
-def fuel(ferc1_raw_dfs, ferc1_transformed_dfs):
-    """Transforms FERC Form 1 fuel data for loading into PUDL Database.
-
-    This process includes converting some columns to be in terms of our preferred units,
-    like MWh and mmbtu instead of kWh and btu. Plant names are also standardized
-    (stripped & lower). Fuel and fuel unit strings are also standardized using our
-    cleanstrings() function and string cleaning dictionaries found above (FUEL_STRINGS,
-    etc.)
-
-    Args:
-        ferc1_raw_dfs (dict): Each entry in this dictionary of DataFrame objects
-            corresponds to a table from the  FERC Form 1 DBC database.
-        ferc1_transformed_dfs (dict): A dictionary of DataFrames to be transformed.
-
-    Returns:
-        dict: The dictionary of transformed dataframes.
-
-    """
-    # grab table from dictionary of dfs, clean it up a bit
-    fuel_ferc1_df = (
-        _clean_cols(ferc1_raw_dfs["fuel_ferc1"], "f1_fuel")
-        # Standardize plant_name capitalization and remove leading/trailing
-        # white space -- necesary b/c plant_name is part of many foreign keys.
-        .pipe(pudl.helpers.simplify_strings, ["plant_name"])
-        # Take the messy free-form fuel & fuel_unit fields, and do our best to
-        # map them to some canonical categories... this is necessarily
-        # imperfect:
-        .pipe(
-            pudl.helpers.cleanstrings,
-            ["fuel", "fuel_unit"],
-            [FUEL_STRINGS, FUEL_UNIT_STRINGS],
-            unmapped=pd.NA,
+            .pipe(self.simplify_strings_for_table)
+            .pipe(self.convert_float_nulls)
+            .pipe(self.convert_table_dtypes)
+            .pipe(self.fuel_correct_data_errors)
+            .pipe(self.fuel_drop_bad)
         )
-        # Fuel cost per kWh is a per-unit value that doesn't make sense to
-        # report for a single fuel that may be only a small part of the fuel
-        # consumed. "fuel generaton" is heat rate, but as it's based only on
-        # the heat content of a given fuel which may only be a small portion of
-        # the overall fuel # consumption, it doesn't make any sense here. Drop
-        # it.
-        .drop(["fuel_cost_kwh", "fuel_generaton"], axis=1)
-        # Convert from BTU/unit of fuel to 1e6 BTU/unit.
-        .assign(fuel_avg_mmbtu_per_unit=lambda x: x.fuel_avg_heat / 1e6).drop(
-            "fuel_avg_heat", axis=1
+        return fuel_df
+
+    def pre_concat_dbf(self, raw_dbf):
+        """Modifications of the dbf fuel_ferc1 table before concat w/ xbrl."""
+        fuel_dbf = (
+            self.rename_columns(
+                raw_table=raw_dbf,
+                source="dbf",
+            )
+            .pipe(self.assign_record_id, source_ferc1="dbf")
+            .pipe(self.clean_strings_for_table)
+            .pipe(self.convert_units_in_table)
         )
-        # Rename the columns to match our DB definitions
-        .rename(
-            columns={
-                # FERC 1 DB Name      PUDL DB Name
-                "plant_name": "plant_name_ferc1",
-                "fuel": "fuel_type_code_pudl",
-                "fuel_unit": "fuel_units",
-                "fuel_avg_mmbtu_per_unit": "fuel_mmbtu_per_unit",
-                "fuel_quantity": "fuel_consumed_units",
-                "fuel_cost_burned": "fuel_cost_per_unit_burned",
-                "fuel_cost_delvd": "fuel_cost_per_unit_delivered",
-                "fuel_cost_btu": "fuel_cost_per_mmbtu",
-            }
+        return fuel_dbf
+
+    def pre_concat_xbrl(self, raw_xbrl_instant: None, raw_xbrl_duration: pd.DataFrame):
+        """Modifications of the xbrl fuel_ferc1 table before concat w/ dbf."""
+        fuel_xbrl = (
+            self.rename_columns(
+                raw_table=raw_xbrl_duration,
+                source="xbrl",
+            )
+            .pipe(self.add_report_year_column)
+            .pipe(self.condense_sets_of_records_with_one_datapoint_in_second_record)
+            # clean the strings b4 the record_id assignment bc cols are pk/pk adjacent
+            .pipe(self.clean_strings_for_table)
+            .pipe(self.aggregate_fuel_dupes)
+            .pipe(self.assign_record_id, source_ferc1="xbrl")
+            .pipe(self.assign_utility_id_ferc1_xbrl)
         )
-    )
+        return fuel_xbrl
 
-    if fuel_ferc1_df["fuel_units"].isnull().any():
-        raise AssertionError(
-            "NA values found in fuel_units column during FERC 1 fuel clean, add string to dictionary"
+    def aggregate_fuel_dupes(self, fuel_xbrl: pd.DataFrame) -> pd.DataFrame:
+        """Aggregate the duplicate fuel records with a duplicate primary key."""
+        pk_cols = self.meta.primary_keys_xbrl
+        fuel_xbrl.loc[:, "fuel_units_count"] = fuel_xbrl.groupby(pk_cols, dropna=False)[
+            "fuel_units"
+        ].transform("nunique")
+
+        # split
+        dupe_mask = fuel_xbrl.duplicated(subset=pk_cols, keep=False)
+        multi_unit_mask = fuel_xbrl.fuel_units_count != 1
+
+        fuel_pk_dupes = fuel_xbrl[dupe_mask & ~multi_unit_mask].copy()
+        fuel_multi_unit = fuel_xbrl[dupe_mask & multi_unit_mask].copy()
+        fuel_non_dupes = fuel_xbrl[~dupe_mask & ~multi_unit_mask]
+        logger.info(
+            f"Aggregating {len(fuel_pk_dupes)} PK duplicates and nulling/dropping "
+            f"{len(fuel_multi_unit)} fuel unit records from the fuel_ferc1 table "
+            f"out of {len(fuel_xbrl)}"
         )
-
-    #########################################################################
-    # CORRECT DATA ENTRY ERRORS #############################################
-    #########################################################################
-    coal_mask = fuel_ferc1_df["fuel_type_code_pudl"] == "coal"
-    gas_mask = fuel_ferc1_df["fuel_type_code_pudl"] == "gas"
-    oil_mask = fuel_ferc1_df["fuel_type_code_pudl"] == "oil"
-
-    corrections = [
-        # mult = 2000: reported in units of lbs instead of short tons
-        # mult = 1e6:  reported BTUs instead of mmBTUs
-        # minval and maxval of 10 and 29 mmBTUs are the range of values
-        # specified by EIA 923 instructions at:
-        # https://www.eia.gov/survey/form/eia_923/instructions.pdf
-        ["fuel_mmbtu_per_unit", coal_mask, 10.0, 29.0, (2e3, 1e6)],
-        # mult = 1e-2: reported cents/mmBTU instead of USD/mmBTU
-        # minval and maxval of .5 and 7.5 dollars per mmBTUs are the
-        # end points of the primary distribution of EIA 923 fuel receipts
-        # and cost per mmBTU data weighted by quantity delivered
-        ["fuel_cost_per_mmbtu", coal_mask, 0.5, 7.5, (1e-2,)],
-        # mult = 1e3: reported fuel quantity in cubic feet, not mcf
-        # mult = 1e6: reported fuel quantity in BTU, not mmBTU
-        # minval and maxval of .8 and 1.2 mmBTUs are the range of values
-        # specified by EIA 923 instructions
-        ["fuel_mmbtu_per_unit", gas_mask, 0.8, 1.2, (1e3, 1e6)],
-        # mult = 1e-2: reported in cents/mmBTU instead of USD/mmBTU
-        # minval and maxval of 1 and 35 dollars per mmBTUs are the
-        # end points of the primary distribution of EIA 923 fuel receipts
-        # and cost per mmBTU data weighted by quantity delivered
-        ["fuel_cost_per_mmbtu", gas_mask, 1, 35, (1e-2,)],
-        # mult = 42: reported fuel quantity in gallons, not barrels
-        # mult = 1e6: reported fuel quantity in BTU, not mmBTU
-        # minval and maxval of 3 and 6.9 mmBTUs are the range of values
-        # specified by EIA 923 instructions
-        ["fuel_mmbtu_per_unit", oil_mask, 3, 6.9, (42,)],
-        # mult = 1e-2: reported in cents/mmBTU instead of USD/mmBTU
-        # minval and maxval of 5 and 33 dollars per mmBTUs are the
-        # end points of the primary distribution of EIA 923 fuel receipts
-        # and cost per mmBTU data weighted by quantity delivered
-        ["fuel_cost_per_mmbtu", oil_mask, 5, 33, (1e-2,)],
-    ]
-
-    for (coltofix, mask, minval, maxval, mults) in corrections:
-        fuel_ferc1_df[coltofix] = _multiplicative_error_correction(
-            fuel_ferc1_df[coltofix], mask, minval, maxval, mults
+        if (
+            fuel_to_agg := (
+                (len(fuel_pk_dupes) + len(fuel_multi_unit)) / len(fuel_xbrl)
+            )
+            > 0.15
+        ):
+            raise AssertionError(
+                f"Too many fuel table primary key duplicates ({fuel_to_agg:.0%})"
+            )
+        data_cols = [
+            "fuel_consumed_units",
+            "fuel_mmbtu_per_unit",
+            "fuel_cost_per_unit_delivered",
+            "fuel_cost_per_unit_burned",
+            "fuel_cost_per_mmbtu",
+            "fuel_cost_per_kwh",
+            "fuel_mmbtu_per_kwh",
+        ]
+        # apply
+        fuel_pk_dupes = pudl.helpers.sum_and_weighted_average_agg(
+            df_in=fuel_pk_dupes,
+            by=pk_cols + ["filing_name", "start_date", "end_date", "fuel_units"],
+            sum_cols=["fuel_consumed_units"],
+            wtavg_dict={
+                k: "fuel_consumed_units"
+                for k in data_cols
+                if k != "fuel_consumed_units"
+            },
         )
+        fuel_multi_unit.loc[:, data_cols] = pd.NA
+        fuel_multi_unit = fuel_multi_unit.drop_duplicates(subset=pk_cols, keep="first")
+        # combine
+        fuel_deduped = pd.concat([fuel_non_dupes, fuel_pk_dupes, fuel_multi_unit]).drop(
+            columns=["fuel_units_count"]
+        )
+        return fuel_deduped
 
-    #########################################################################
-    # REMOVE BAD DATA #######################################################
-    #########################################################################
-    # Drop any records that are missing data. This is a blunt instrument, to
-    # be sure. In some cases we lose data here, because some utilities have
-    # (for example) a "Total" line w/ only fuel_mmbtu_per_kwh on it. Grr.
-    fuel_ferc1_df.dropna(inplace=True)
+    def fuel_correct_data_errors(self, fuel_ferc1_df):
+        """Correct data errors for the fuel table.
 
-    # Replace "unkown" fuel unit with NAs - this comes after we drop missing data with NAs
-    fuel_ferc1_df = fuel_ferc1_df.replace({"fuel_units": "unknown"}, pd.NA)
-    ferc1_transformed_dfs["fuel_ferc1"] = fuel_ferc1_df
+        Note: this is a direct copy/paste from fuel_old. Still need to do extensive
+        data testing on the xbrl fuel table to see if these corrections are similarly
+        applicable.
+        """
+        coal_mask = fuel_ferc1_df["fuel_type_code_pudl"] == "coal"
+        gas_mask = fuel_ferc1_df["fuel_type_code_pudl"] == "gas"
+        oil_mask = fuel_ferc1_df["fuel_type_code_pudl"] == "oil"
 
-    return ferc1_transformed_dfs
+        corrections = [
+            # mult = 2000: reported in units of lbs instead of short tons
+            # mult = 1e6:  reported BTUs instead of mmBTUs
+            # minval and maxval of 10 and 29 mmBTUs are the range of values
+            # specified by EIA 923 instructions at:
+            # https://www.eia.gov/survey/form/eia_923/instructions.pdf
+            ["fuel_mmbtu_per_unit", coal_mask, 10.0, 29.0, (2e3, 1e6)],
+            # mult = 1e-2: reported cents/mmBTU instead of USD/mmBTU
+            # minval and maxval of .5 and 7.5 dollars per mmBTUs are the
+            # end points of the primary distribution of EIA 923 fuel receipts
+            # and cost per mmBTU data weighted by quantity delivered
+            ["fuel_cost_per_mmbtu", coal_mask, 0.5, 7.5, (1e-2,)],
+            # mult = 1e3: reported fuel quantity in cubic feet, not mcf
+            # mult = 1e6: reported fuel quantity in BTU, not mmBTU
+            # minval and maxval of .8 and 1.2 mmBTUs are the range of values
+            # specified by EIA 923 instructions
+            ["fuel_mmbtu_per_unit", gas_mask, 0.8, 1.2, (1e3, 1e6)],
+            # mult = 1e-2: reported in cents/mmBTU instead of USD/mmBTU
+            # minval and maxval of 1 and 35 dollars per mmBTUs are the
+            # end points of the primary distribution of EIA 923 fuel receipts
+            # and cost per mmBTU data weighted by quantity delivered
+            ["fuel_cost_per_mmbtu", gas_mask, 1, 35, (1e-2,)],
+            # mult = 42: reported fuel quantity in gallons, not barrels
+            # mult = 1e6: reported fuel quantity in BTU, not mmBTU
+            # minval and maxval of 3 and 6.9 mmBTUs are the range of values
+            # specified by EIA 923 instructions
+            ["fuel_mmbtu_per_unit", oil_mask, 3, 6.9, (42,)],
+            # mult = 1e-2: reported in cents/mmBTU instead of USD/mmBTU
+            # minval and maxval of 5 and 33 dollars per mmBTUs are the
+            # end points of the primary distribution of EIA 923 fuel receipts
+            # and cost per mmBTU data weighted by quantity delivered
+            ["fuel_cost_per_mmbtu", oil_mask, 5, 33, (1e-2,)],
+        ]
+
+        for (coltofix, mask, minval, maxval, mults) in corrections:
+            fuel_ferc1_df[coltofix] = self._multiplicative_error_correction(
+                fuel_ferc1_df[coltofix], mask, minval, maxval, mults
+            )
+        return fuel_ferc1_df
+
+    @staticmethod
+    def fuel_drop_bad(fuel_df: pd.DataFrame) -> pd.DataFrame:
+        """Drop known to be bad fuel records.
+
+        If all of the data columns are null excpet one (`fuel_mmbtu_per_kwh`) which
+        is known to be a column that shows up for FERC's weird total records.
+        """
+        data_cols = [
+            "fuel_consumed_units",
+            "fuel_mmbtu_per_unit",
+            "fuel_cost_per_unit_delivered",
+            "fuel_cost_per_unit_burned",
+            "fuel_cost_per_mmbtu",
+            "fuel_cost_per_kwh",
+            "fuel_mmbtu_per_kwh",
+        ]
+        probably_totals_index = fuel_df[
+            fuel_df[[col for col in data_cols if col != "fuel_mmbtu_per_kwh"]]
+            .isnull()
+            .all(axis="columns")
+            & fuel_df.fuel_mmbtu_per_kwh.notnull()
+            & (fuel_df.fuel_type_code_pudl == "other")
+            & (fuel_df.fuel_units == "unknown")
+        ].index
+
+        fuel_df = fuel_df.drop(index=probably_totals_index)
+        return fuel_df
+
+    @staticmethod
+    def convert_float_nulls(df):
+        """Convert the nulls of float columns in a table.
+
+        Note: WHY THOUGH! I kept getting this error via convert_cols_dtypes:
+        TypeError: float() argument must be a string or a real number, not 'NAType'
+        """
+        float_cols = [
+            col
+            for col, dtype in pudl.helpers.get_pudl_dtypes(group="ferc1").items()
+            if col in df.columns and "float" in dtype
+        ]
+        df.loc[df.fuel_consumed_units.isnull(), float_cols] = np.nan
+        return df
 
 
-def plants_small(ferc1_raw_dfs, ferc1_transformed_dfs):
+def plants_small(ferc1_dbf_raw_dfs, ferc1_xbrl_raw_dfs, ferc1_transformed_dfs):
     """Transforms FERC Form 1 plant_small data for loading into PUDL Database.
 
     This FERC Form 1 table contains information about a large number of small plants,
@@ -2085,7 +2784,7 @@ def plants_small(ferc1_raw_dfs, ferc1_transformed_dfs):
         dict: The dictionary of transformed dataframes.
     """
     # grab table from dictionary of dfs
-    ferc1_small_df = ferc1_raw_dfs["plants_small_ferc1"]
+    ferc1_small_df = ferc1_dbf_raw_dfs["plants_small_ferc1"]
     # Standardize plant_name_raw capitalization and remove leading/trailing
     # white space -- necesary b/c plant_name_raw is part of many foreign keys.
     ferc1_small_df = pudl.helpers.simplify_strings(
@@ -2198,7 +2897,7 @@ def plants_small(ferc1_raw_dfs, ferc1_transformed_dfs):
     return ferc1_transformed_dfs
 
 
-def plants_hydro(ferc1_raw_dfs, ferc1_transformed_dfs):
+def plants_hydro(ferc1_dbf_raw_dfs, ferc1_xbrl_raw_dfs, ferc1_transformed_dfs):
     """Transforms FERC Form 1 plant_hydro data for loading into PUDL Database.
 
     Standardizes plant names (stripping whitespace and Using Title Case). Also converts
@@ -2214,7 +2913,7 @@ def plants_hydro(ferc1_raw_dfs, ferc1_transformed_dfs):
     """
     # grab table from dictionary of dfs
     ferc1_hydro_df = (
-        _clean_cols(ferc1_raw_dfs["plants_hydro_ferc1"], "f1_hydro")
+        _clean_cols(ferc1_dbf_raw_dfs["plants_hydro_ferc1"], "f1_hydro")
         # Standardize plant_name capitalization and remove leading/trailing
         # white space -- necesary b/c plant_name is part of many foreign keys.
         .pipe(pudl.helpers.simplify_strings, ["plant_name"])
@@ -2298,7 +2997,7 @@ def plants_hydro(ferc1_raw_dfs, ferc1_transformed_dfs):
     return ferc1_transformed_dfs
 
 
-def plants_pumped_storage(ferc1_raw_dfs, ferc1_transformed_dfs):
+def plants_pumped_storage(ferc1_dbf_raw_dfs, ferc1_xbrl_raw_dfs, ferc1_transformed_dfs):
     """Transforms FERC Form 1 pumped storage data for loading into PUDL.
 
     Standardizes plant names (stripping whitespace and Using Title Case). Also converts
@@ -2314,7 +3013,9 @@ def plants_pumped_storage(ferc1_raw_dfs, ferc1_transformed_dfs):
     """
     # grab table from dictionary of dfs
     ferc1_pump_df = (
-        _clean_cols(ferc1_raw_dfs["plants_pumped_storage_ferc1"], "f1_pumped_storage")
+        _clean_cols(
+            ferc1_dbf_raw_dfs["plants_pumped_storage_ferc1"], "f1_pumped_storage"
+        )
         # Standardize plant_name capitalization and remove leading/trailing
         # white space -- necesary b/c plant_name is part of many foreign keys.
         .pipe(pudl.helpers.simplify_strings, ["plant_name"])
@@ -2473,7 +3174,7 @@ def plant_in_service(ferc1_raw_dfs, ferc1_transformed_dfs):
     return ferc1_transformed_dfs
 
 
-def purchased_power(ferc1_raw_dfs, ferc1_transformed_dfs):
+def purchased_power(ferc1_dbf_raw_dfs, ferc1_xbrl_raw_dfs, ferc1_transformed_dfs):
     """Transforms FERC Form 1 pumped storage data for loading into PUDL.
 
     This table has data about inter-utility power purchases into the PUDL DB. This
@@ -2493,7 +3194,7 @@ def purchased_power(ferc1_raw_dfs, ferc1_transformed_dfs):
     """
     # grab table from dictionary of dfs
     df = (
-        _clean_cols(ferc1_raw_dfs["purchased_power_ferc1"], "f1_purchased_pwr")
+        _clean_cols(ferc1_dbf_raw_dfs["purchased_power_ferc1"], "f1_purchased_pwr")
         .rename(
             columns={
                 "athrty_co_name": "seller_name",
@@ -2564,7 +3265,9 @@ def purchased_power(ferc1_raw_dfs, ferc1_transformed_dfs):
     return ferc1_transformed_dfs
 
 
-def accumulated_depreciation(ferc1_raw_dfs, ferc1_transformed_dfs):
+def accumulated_depreciation(
+    ferc1_dbf_raw_dfs, ferc1_xbrl_raw_dfs, ferc1_transformed_dfs
+):
     """Transforms FERC Form 1 depreciation data for loading into PUDL.
 
     This information is organized by FERC account, with each line of the FERC Form 1
@@ -2580,7 +3283,7 @@ def accumulated_depreciation(ferc1_raw_dfs, ferc1_transformed_dfs):
         dict: The dictionary of the transformed DataFrames.
     """
     # grab table from dictionary of dfs
-    ferc1_apd_df = ferc1_raw_dfs["accumulated_depreciation_ferc1"]
+    ferc1_apd_df = ferc1_dbf_raw_dfs["accumulated_depreciation_ferc1"]
 
     ferc1_acct_apd = FERC_DEPRECIATION_LINES.drop(["ferc_account_description"], axis=1)
     ferc1_acct_apd.dropna(inplace=True)
@@ -2606,12 +3309,18 @@ def accumulated_depreciation(ferc1_raw_dfs, ferc1_transformed_dfs):
     return ferc1_transformed_dfs
 
 
-def transform_dbf(ferc1_raw_dfs, ferc1_settings: Ferc1Settings = Ferc1Settings()):
+def transform(
+    ferc1_dbf_raw_dfs,
+    ferc1_xbrl_raw_dfs,
+    ferc1_settings: Ferc1Settings = Ferc1Settings(),
+):
     """Transforms FERC 1.
 
     Args:
-        ferc1_raw_dfs (dict): Each entry in this dictionary of DataFrame objects
-            corresponds to a table from the FERC Form 1 DBC database
+        ferc1_dbf_raw_dfs (dict): Dictionary pudl table names (keys) and raw DBF
+            dataframes (values).
+        ferc1_xbrl_raw_dfs (dict): Dictionary pudl table names with `_instant`
+            or `_duration` (keys) and raw XRBL dataframes (values).
         ferc1_settings: Validated ETL parameters required by
             this data source.
 
@@ -2619,33 +3328,49 @@ def transform_dbf(ferc1_raw_dfs, ferc1_settings: Ferc1Settings = Ferc1Settings()
         dict: A dictionary of the transformed DataFrames.
 
     """
-    ferc1_tfr_funcs = {
+    ferc1_tfr_classes = {
         # fuel must come before steam b/c fuel proportions are used to aid in
         # plant # ID assignment.
-        "fuel_ferc1": fuel,
-        "plants_steam_ferc1": plants_steam,
-        "plants_small_ferc1": plants_small,
-        "plants_hydro_ferc1": plants_hydro,
-        "plants_pumped_storage_ferc1": plants_pumped_storage,
-        "plant_in_service_ferc1": plant_in_service,
-        "purchased_power_ferc1": purchased_power,
-        "accumulated_depreciation_ferc1": accumulated_depreciation,
+        "fuel_ferc1": FuelFerc1,
+        # "plants_small_ferc1": plants_small,
+        # "plants_hydro_ferc1": plants_hydro,
+        # "plants_pumped_storage_ferc1": plants_pumped_storage,
+        # "plant_in_service_ferc1": plant_in_service,
+        # "purchased_power_ferc1": purchased_power,
+        # "accumulated_depreciation_ferc1": accumulated_depreciation,
     }
     # create an empty ditctionary to fill up through the transform fuctions
-    ferc1_tfr_dfs = {}
+    ferc1_transformed_dfs = {}
 
     # for each ferc table,
-    for table in ferc1_tfr_funcs:
+    for table in ferc1_tfr_classes:
         if table in ferc1_settings.tables:
             logger.info(
                 f"Transforming raw FERC Form 1 dataframe for loading into {table}"
             )
-            ferc1_tfr_funcs[table](ferc1_raw_dfs, ferc1_tfr_dfs)
+
+            ferc1_transformed_dfs[table] = ferc1_tfr_classes[table](
+                table_name=table
+            ).execute(
+                raw_dbf=ferc1_dbf_raw_dfs.get(table),
+                raw_xbrl_instant=ferc1_xbrl_raw_dfs.get(table).get("instant", None),
+                raw_xbrl_duration=ferc1_xbrl_raw_dfs.get(table).get("duration", None),
+            )
+
+    if "plants_steam_ferc1" in ferc1_settings.tables:
+        ferc1_transformed_dfs["plants_steam_ferc1"] = PlantsSteamFerc1(
+            table_name="plants_steam_ferc"
+        ).execute(
+            raw_dbf=ferc1_dbf_raw_dfs.get(table),
+            raw_xbrl_instant=ferc1_xbrl_raw_dfs.get(table).get("instant", None),
+            raw_xbrl_duration=ferc1_xbrl_raw_dfs.get(table).get("duration", None),
+            transformed_fuel=ferc1_transformed_dfs["fuel_ferc1"],
+        )
 
     # convert types and return:
     return {
         name: convert_cols_dtypes(df, data_source="ferc1")
-        for name, df in ferc1_tfr_dfs.items()
+        for name, df in ferc1_transformed_dfs.items()
     }
 
 
@@ -2726,7 +3451,7 @@ class FERCPlantClassifier(BaseEstimator, ClassifierMixin):
         """
         self.min_sim = min_sim
         self.plants_df = plants_df
-        self._years = self.plants_df.report_year.unique()
+        self._years = self.plants_df.report_year.unique()  # could we list() here?
 
     def fit(self, X, y=None):  # noqa: N803 Canonical capital letter...
         """Use weighted FERC plant features to group records into time series.
@@ -2752,7 +3477,9 @@ class FERCPlantClassifier(BaseEstimator, ClassifierMixin):
         self._cossim_df = pd.DataFrame(cosine_similarity(X))
         self._best_of = self._best_by_year()
         # Make the best match indices integers rather than floats w/ NA values.
-        self._best_of[self._years] = self._best_of[self._years].fillna(-1).astype(int)
+        self._best_of[list(self._years)] = (
+            self._best_of[list(self._years)].fillna(-1).astype(int)
+        )
 
         return self
 
