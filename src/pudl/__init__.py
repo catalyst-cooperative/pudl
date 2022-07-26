@@ -6,6 +6,7 @@ import logging
 import pkg_resources
 
 import pudl.analysis.allocate_net_gen
+import pudl.analysis.classify_plants_ferc1
 import pudl.analysis.mcoe
 import pudl.analysis.plant_parts_eia
 import pudl.analysis.service_territory

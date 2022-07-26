@@ -8,7 +8,6 @@ from setuptools import find_packages, setup
 readme_path = Path(__file__).parent / "README.rst"
 long_description = readme_path.read_text()
 
-
 setup(
     name="catalystcoop.pudl",
     description="An open data processing pipeline for public US utility data.",
