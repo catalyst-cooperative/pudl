@@ -192,7 +192,7 @@ SOURCES: dict[str, Any] = {
     },
     "epacems": {
         "title": "EPA Hourly Continuous Emission Monitoring System (CEMS)",
-        "path": "https://ampd.epa.gov/ampd",
+        "path": "https://campd.epa.gov/",
         "description": (
             "US EPA hourly Continuous Emissions Monitoring System (CEMS) data."
             "Hourly CO2, SO2, NOx emissions and gross load."

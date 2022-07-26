@@ -8,21 +8,12 @@ EPACEMS Intake catalog.
 {% block browse_online %}- Available via `PUDL Data Catalog <https://github.com/catalyst-cooperative/pudl-catalog>`__{% endblock %}
 
 {% block background %}
-As depicted by the EPA, `Continuous Emissions Monitoring Systems (CEMS)
-<https://www.epa.gov/emc/emc-continuous-emission-monitoring-systems>`__ are the
-“total equipment necessary for the determination of a gas or particulate matter
-concentration or emission rate.” They are used to determine compliance with EPA
-emissions standards and are therefore associated with a given “smokestack” and are
-categorized in the raw data by a corresponding ``unitid``. Because point sources of
-pollution are not alway correlated on a one-to-one basis with generation units, the
-CEMS ``unitid`` serves as its own unique grouping. The EPA in collaboration with the
-EIA has developed `a crosswalk table <https://github.com/USEPA/camd-eia-crosswalk>`__
-that maps the EPA’s ``unitid`` onto EIA’s ``boiler_id``, ``generator_id``, and
-``plant_id_eia``. This file has been integrated into the SQL database.
-
-The EPA `Clean Air Markets Division (CAMD) <https://www.epa.gov/airmarkets>`__ has
-collected emissions data from CEMS units stretching back to 1995. Among the data
-included in CEMS are hourly SO2, CO2, NOx emission and gross load.
+`Continuous Emissions Monitoring Systems
+<https://www.epa.gov/emc/emc-continuous-emission-monitoring-systems>`__ (CEMS) are used
+to determine the rate of gas or particulate matter exiting a point source of emissions.
+The EPA `Clean Air Markets Division (CAMD) <https://www.epa.gov/airmarkets>`__
+has collected emissions data from CEMS units stretching back to 1995. Among the data
+included in CEMS are hourly gross load, SO2, CO2, and NOx emissions.
 {% endblock %}
 
 {% block accessible %}
@@ -53,19 +44,46 @@ A plain English explanation of the requirements of Part 75 is available in secti
 {% endblock %}
 
 {% block original_data %}
-EPA CAMD publishes the CEMS data in an online `data portal <https://ampd.epa.gov/ampd/>`__
-. The files are available in a prepackaged format, accessible via a `user interface <https://ampd.epa.gov/ampd/>`__
-or `FTP site <ftp://newftp.epa.gov/DMDnLoad>`__ with each downloadable zip file
+EPA CAMD publishes the CEMS data in an online `data portal <https://campd.epa.gov/>`__.
+The files are available in a prepackaged format, accessible via a `user interface <https://campd.epa.gov/data/custom-data-download>`__
+or `FTP site <https://gaftp.epa.gov/DMDnLoad/>`__ with each downloadable zip file
 encompassing a year of data.
 {% endblock %}
 
 {% block notable_irregularities %}
-CEMS is by far the largest dataset in PUDL at the moment with hourly records for
-thousands of plants spanning decades. Note that the ETL process can easily take all
-day for the full dataset. PUDL also provides a script that converts the raw EPA CEMS
-data into Apache Parquet files that can be read and queried very efficiently with
-Dask. Check out the `EPA CEMS example notebook <https://github.com/catalyst-cooperative/pudl-examples/blob/main/notebooks/03-pudl-parquet.ipynb>`__
-in our
-`pudl-examples repository <https://github.com/catalyst-cooperative/pudl-examples>`__
-on GitHub for pointers on how to access this big dataset efficiently using :mod:`dask`.
+
+CEMS is enourmous
+-----------------
+CEMS is by far the largest dataset in PUDL what with hourly records for
+thousands of plants spanning decades. For this reason, we house CEMS data in `Apache
+Parquet <https://parquet.apache.org/>`__ files rather than the main PUDL database.
+Still, running the ETL with all of the CEMS data can take a long time. Note that you can
+:ref:`process CEMS Data seperately <add-cems-later>` from the main ETL
+script if you'd like.
+
+Check out the `EPA CEMS example notebook <https://github.com/catalyst-cooperative/pudl-examples/blob/main/notebooks/03-pudl-parquet.ipynb>`__
+in our `pudl-examples repository <https://github.com/catalyst-cooperative/pudl-examples>`__
+on GitHub for pointers on how to access this dataset efficiently using :mod:`dask`.
+
+EPA units vs. EIA units
+-----------------------
+Another important thing to note is the difference between EPA "units" vs EIA "units".
+Power plants are complex entities that have multiple subcomponents. In fossil powered
+plants, emissions come from the combusion of fuel. This occurs in the boiler for coal
+plants or the gas turbine for gas plants. When the EPA uses the term "unit" it is
+refering to the emissions unit or smokestack where the CEMS equipment are (i.e., the
+boiler or gas turbine). When the EIA refers to a "unit" it's usually refering to the
+electricity generating unit (i.e. the generator). Some plants have a one-to-one
+relationship between boilers and generators or gas turbines and generators, but many do
+not.
+
+The EPA and EIA have addressed this discrepancy by creating a `crosswalk
+<https://github.com/USEPA/camd-eia-crosswalk>`__ between the
+various sub-plant groupings reported to them. The ``plant_id_eia`` values from the
+crosswalk are integrated into the EPA CEMS Parquet files available in PUDL.
+
+Take a look at this helpful depiction of plant types from the EPA's crosswalk repo.
+
+.. image:: /data_sources/epacems/plant_configuration.png
+
 {% endblock %}
