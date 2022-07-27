@@ -26,9 +26,9 @@ repos:
       - id: trailing-whitespace # Remove trailing whitespace.
       - id: name-tests-test # Follow PyTest naming convention.
 
-  ########################################################################################
+  ####################################################################################
   # Formatters: hooks that re-write Python & documentation files
-  ########################################################################################
+  ####################################################################################
   # Convert relative imports to absolute imports
   - repo: https://github.com/MarcoGorelli/absolufy-imports
     rev: v0.3.1
@@ -73,9 +73,9 @@ repos:
       - id: pyupgrade
         args: ["--py310-plus"]
 
-  ########################################################################################
+  ####################################################################################
   # Linters: hooks that check but don't alter Python and documentation files
-  ########################################################################################
+  ####################################################################################
 
   # Check for PEP8 non-compliance, code complexity, style, errors, etc:
   - repo: https://github.com/PyCQA/flake8
@@ -122,9 +122,9 @@ repos:
         additional_dependencies: [sphinx]
         args: [--config, tox.ini]
 
-  ########################################################################################
+  #####################################################################################
   # Our own pre-commit hooks, which don't come from the pre-commit project
-  ########################################################################################
+  #####################################################################################
   - repo: local
     hooks:
       - id: nb-output-clear
