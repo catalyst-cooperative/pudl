@@ -7,9 +7,10 @@ entry errors which we can infer based on the existing data. It may also include 
 bad data, or replacing it with the appropriate NA values.
 
 """
+from re import Pattern
 import importlib.resources
 import re
-from typing import Literal, Pattern
+from typing import Literal
 
 import numpy as np
 import pandas as pd
