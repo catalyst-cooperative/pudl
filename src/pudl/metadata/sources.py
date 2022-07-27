@@ -351,9 +351,9 @@ SOURCES: dict[str, Any] = {
         "description": (
             "The Federal Energy Regulatory Commission (FERC) Form 60 is a "
             "comprehensive financial and operating report submitted for centralized "
-            "centralized service companies."
+            "service companies."
         ),
-        "field_namespace": "ferc6",
+        "field_namespace": "ferc60",
         "working_partitions": {
             "years": [],  # Not yet working!
         },
