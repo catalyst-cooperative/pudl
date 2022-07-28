@@ -101,7 +101,7 @@ setup(
             "flake8-colors>=0.1,<0.2",
             "flake8-docstrings>=1.5,<1.7",
             "flake8-rst-docstrings>=0.2,<0.3",
-            "flake8-use-fstring>=1.0,<1.4",
+            "flake8-use-fstring>=1.0,<1.5",
             "mccabe>=0.6,<0.8",
             "nbval>=0.9,<0.10",
             "pep8-naming>=0.12,<0.14",
