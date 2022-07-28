@@ -15,9 +15,18 @@ This can be a fat dictionary or pydantic metadata classes.
 Something that returns transform parameters for a given table.
 """
 TRANSFORM_METADATA = {
-    "steam": {"rename_columns": {"column_mapping": {"col": "columns"}}},
-    "fuel": {"rename_columns": {"column_mapping": {"col": "columns"}}},
-    "hydro": {"rename_columns": {"column_mapping": {"col": "columns"}}},
+    "steam": {
+        "xbrl": {"rename_columns": {"column_mapping": {"col": "columns"}}},
+        "dbf": {"rename_columns": {"column_mapping": {"col": "columns"}}},
+    },
+    "fuel": {
+        "xbrl": {"rename_columns": {"column_mapping": {"col": "columns"}}},
+        "dbf": {"rename_columns": {"column_mapping": {"col": "columns"}}},
+    },
+    "hydro": {
+        "xbrl": {"rename_columns": {"column_mapping": {"col": "columns"}}},
+        "dbf": {"rename_columns": {"column_mapping": {"col": "columns"}}},
+    },
 }
 
 #### Extract ops
@@ -59,7 +68,8 @@ def get_df_from_dict_factory(table_name, source):
 #### Generic cleaning ops
 def rename_columns_factory(
     table_name,
-    op_name="default_name",
+    op_name=None,
+    source=None,
     ins=None,
     **kwargs,
 ):
@@ -69,7 +79,7 @@ def rename_columns_factory(
         # Get the metadata for the given table and transform function.
         # This might couple the transform functions and metadata too tightly.
         # If the metadata structure changes, all of the transform functions need to change.
-        transform_metadata = TRANSFORM_METADATA[table_name]["rename_columns"]
+        transform_metadata = TRANSFORM_METADATA[table_name][source]["rename_columns"]
         # Access the config params via the dagster context keyword.
         return df.rename(columns=transform_metadata["column_mapping"])
 
@@ -98,10 +108,10 @@ def transform_steam(dbf_raw_dfs, xbrl_raw_dfs, transformed_fuel_table) -> pd.Dat
     steam_dbf_df = get_df_from_dict_factory("steam", "dbf")(dbf_raw_dfs)
 
     transformed_dbf_df = rename_columns_factory(
-        table_name="steam", op_name="steam_dbf_rename_columns"
+        table_name="steam", op_name="steam_dbf_rename_columns", source="dbf"
     )(steam_dbf_df)
     transformed_xbrl_df = rename_columns_factory(
-        table_name="steam", op_name="steam_xbrl_rename_columns"
+        table_name="steam", op_name="steam_xbrl_rename_columns", source="xbrl"
     )(steam_xbrl_df)
 
     transformed_steam_df = concat_xbrl_dbf_dfs(transformed_dbf_df, transformed_xbrl_df)
@@ -114,10 +124,10 @@ def transform_fuel(dbf_raw_dfs, xbrl_raw_dfs):
     fuel_dbf_df = get_df_from_dict_factory("fuel", "dbf")(dbf_raw_dfs)
 
     transformed_dbf_df = rename_columns_factory(
-        table_name="fuel", op_name="fuel_dbf_rename_columns"
+        table_name="fuel", op_name="fuel_dbf_rename_columns", source="dbf"
     )(fuel_dbf_df)
     transformed_xbrl_df = rename_columns_factory(
-        table_name="fuel", op_name="fuel_xbrl_rename_columns"
+        table_name="fuel", op_name="fuel_xbrl_rename_columns", source="xbrl"
     )(fuel_xbrl_df)
 
     return concat_xbrl_dbf_dfs(transformed_dbf_df, transformed_xbrl_df)
@@ -127,13 +137,12 @@ def transform_fuel(dbf_raw_dfs, xbrl_raw_dfs):
 def transform_hydro(dbf_raw_dfs, xbrl_raw_dfs):
     hydro_xbrl_df = get_df_from_dict_factory("hydro", "xbrl")(xbrl_raw_dfs)
     hydro_dbf_df = get_df_from_dict_factory("hydro", "dbf")(dbf_raw_dfs)
-    table_metadata = TRANSFORM_METADATA["hydro"]
 
     transformed_dbf_df = rename_columns_factory(
-        table_name="hydro", op_name="hydro_dbf_rename_columns"
+        table_name="hydro", op_name="hydro_dbf_rename_columns", source="dbf"
     )(hydro_dbf_df)
     transformed_xbrl_df = rename_columns_factory(
-        table_name="hydro", op_name="hydro_xbrl_rename_columns"
+        table_name="hydro", op_name="hydro_xbrl_rename_columns", source="xbrl"
     )(hydro_xbrl_df)
 
     return concat_xbrl_dbf_dfs(transformed_dbf_df, transformed_xbrl_df)

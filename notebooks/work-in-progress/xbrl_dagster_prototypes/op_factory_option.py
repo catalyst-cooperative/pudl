@@ -15,9 +15,18 @@ This can be a fat dictionary or pydantic metadata classes.
 Something that returns transform parameters for a given table.
 """
 TRANSFORM_METADATA = {
-    "steam": {"rename_columns": {"column_mapping": {"col": "columns"}}},
-    "fuel": {"rename_columns": {"column_mapping": {"col": "columns"}}},
-    "hydro": {"rename_columns": {"column_mapping": {"col": "columns"}}},
+    "steam": {
+        "xbrl": {"rename_columns": {"column_mapping": {"col": "columns"}}},
+        "dbf": {"rename_columns": {"column_mapping": {"col": "columns"}}},
+    },
+    "fuel": {
+        "xbrl": {"rename_columns": {"column_mapping": {"col": "columns"}}},
+        "dbf": {"rename_columns": {"column_mapping": {"col": "columns"}}},
+    },
+    "hydro": {
+        "xbrl": {"rename_columns": {"column_mapping": {"col": "columns"}}},
+        "dbf": {"rename_columns": {"column_mapping": {"col": "columns"}}},
+    },
 }
 
 #### Extract ops
@@ -95,11 +104,11 @@ def transform_steam(dbf_raw_dfs, xbrl_raw_dfs, transformed_fuel_table) -> pd.Dat
     table_metadata = TRANSFORM_METADATA["steam"]
 
     transformed_dbf_df = rename_columns_factory(
-        table_metadata["rename_columns"]["column_mapping"],
+        table_metadata["dbf"]["rename_columns"]["column_mapping"],
         name="steam_dbf_rename_columns",
     )(steam_dbf_df)
     transformed_xbrl_df = rename_columns_factory(
-        table_metadata["rename_columns"]["column_mapping"],
+        table_metadata["xbrl"]["rename_columns"]["column_mapping"],
         name="steam_xbrl_rename_columns",
     )(steam_xbrl_df)
 
@@ -114,11 +123,11 @@ def transform_fuel(dbf_raw_dfs, xbrl_raw_dfs):
     table_metadata = TRANSFORM_METADATA["fuel"]
 
     transformed_dbf_df = rename_columns_factory(
-        table_metadata["rename_columns"]["column_mapping"],
+        table_metadata["dbf"]["rename_columns"]["column_mapping"],
         name="fuel_dbf_rename_columns",
     )(fuel_dbf_df)
     transformed_xbrl_df = rename_columns_factory(
-        table_metadata["rename_columns"]["column_mapping"],
+        table_metadata["xbrl"]["rename_columns"]["column_mapping"],
         name="fuel_xbrl_rename_columns",
     )(fuel_xbrl_df)
 
@@ -132,11 +141,11 @@ def transform_hydro(dbf_raw_dfs, xbrl_raw_dfs):
     table_metadata = TRANSFORM_METADATA["hydro"]
 
     transformed_dbf_df = rename_columns_factory(
-        table_metadata["rename_columns"]["column_mapping"],
+        table_metadata["dbf"]["rename_columns"]["column_mapping"],
         name="hydro_dbf_rename_columns",
     )(hydro_dbf_df)
     transformed_xbrl_df = rename_columns_factory(
-        table_metadata["rename_columns"]["column_mapping"],
+        table_metadata["xbrl"]["rename_columns"]["column_mapping"],
         name="hydro_xbrl_rename_columns",
     )(hydro_xbrl_df)
 
@@ -160,15 +169,13 @@ ferc1_tfr_funcs = {
 def transform(dbf_raw_dfs, xbrl_raw_dfs):
     transformed_dfs = {}
 
-    # Define dependencies between tables. We don't have to pass around the
-    # transform_dfs dictionary if we specify the dependencies using dagster.
-
+    # Define dependencies between tables.
     transformed_dfs["fuel"] = transform_fuel(dbf_raw_dfs, xbrl_raw_dfs)
     transformed_dfs["steam"] = transform_steam(
         dbf_raw_dfs, xbrl_raw_dfs, transformed_dfs["fuel"]
     )
 
-    # # Transform tables that don't have dependencies
+    # Transform tables that don't have dependencies
     for table_name, transform_func in ferc1_tfr_funcs.items():
         # If the table hasn't been transformed, transform it!
         if table_name not in transformed_dfs:
