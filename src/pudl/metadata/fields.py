@@ -1038,16 +1038,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Identifies whether the reported value of emissions was measured, calculated, or measured and substitute.",
         "constraints": {"enum": EPACEMS_MEASUREMENT_CODES},
     },
-    "nox_rate_lbs_mmbtu": {
-        "type": "number",
-        "description": "The average rate at which NOx was emitted during a given time period.",
-        "unit": "lb_per_MMBtu",
-    },
-    "nox_rate_measurement_code": {
-        "type": "string",
-        "description": "Identifies whether the reported value of emissions was measured, calculated, or measured and substitute.",
-        "constraints": {"enum": EPACEMS_MEASUREMENT_CODES},
-    },
     "nuclear_acct320_land": {
         "type": "number",
         "description": "FERC Account 320: Nuclear Land and Land Rights.",

@@ -36,7 +36,7 @@ RENAME_DICT = {
     # "SO2_RATE (lbs/mmBtu)": "so2_rate_lbs_mmbtu",  # Not reading from CSV
     # "SO2_RATE": "so2_rate_lbs_mmbtu",  # Not reading from CSV
     # "SO2_RATE_MEASURE_FLG": "so2_rate_measure_flg",  # Not reading from CSV
-    "NOX_RATE (lbs/mmBtu)": "nox_rate_lbs_mmbtu",
+    # "NOX_RATE (lbs/mmBtu)": "nox_rate_lbs_mmbtu",
     # "NOX_RATE": "nox_rate_lbs_mmbtu",  # Not reading from CSV
     # "NOX_RATE_MEASURE_FLG": "nox_rate_measurement_code",  # Not reading from CSV
     "NOX_MASS (lbs)": "nox_mass_lbs",
@@ -69,6 +69,7 @@ IGNORE_COLS = {
     "CO2_RATE_MEASURE_FLG",
     "NOX_RATE_MEASURE_FLG",
     "NOX_RATE",
+    "NOX_RATE (lbs/mmBtu)",
     "FAC_ID",
     "UNIT_ID",
 }

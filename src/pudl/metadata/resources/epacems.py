@@ -18,8 +18,6 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "steam_load_1000_lbs",
                 "so2_mass_lbs",
                 "so2_mass_measurement_code",
-                "nox_rate_lbs_mmbtu",
-                "nox_rate_measurement_code",
                 "nox_mass_lbs",
                 "nox_mass_measurement_code",
                 "co2_mass_tons",
