@@ -50,8 +50,8 @@ RENAME_DICT = {
     # "CO2_RATE_MEASURE_FLG": "co2_rate_measure_flg",  # Not reading from CSV
     "HEAT_INPUT (mmBtu)": "heat_content_mmbtu",
     "HEAT_INPUT": "heat_content_mmbtu",
-    # "FAC_ID": "facility_id",  # IDK what this is, but it isn't helpful
-    # "UNIT_ID": "unit_id_what",  # IDK what this is, but it isn't helpful
+    # "FAC_ID": "facility_id",  # unique facility id for internal EPA database management
+    # "UNIT_ID": "unit_id_what", # unique unit id for internal EPA database management
 }
 """dict: A dictionary containing EPA CEMS column names (keys) and replacement
     names to use when reading those columns into PUDL (values). There are some

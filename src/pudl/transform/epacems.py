@@ -3,7 +3,6 @@
 import datetime
 import logging
 
-import numpy as np
 import pandas as pd
 import pytz
 import sqlalchemy as sa
@@ -137,18 +136,18 @@ def convert_to_utc(df: pd.DataFrame, plant_utc_offset: pd.DataFrame) -> pd.DataF
     return df
 
 
-def _load_plant_utc_offset(pudl_engine):
+def _load_plant_utc_offset(pudl_engine: sa.engine.Engine) -> pd.DataFrame:
     """Load the UTC offset each EIA plant.
 
     CEMS times don't change for DST, so we get get the UTC offset by using the
     offset for the plants' timezones in January.
 
     Args:
-        pudl_engine (sqlalchemy.engine.Engine): A database connection engine for
+        pudl_engine: A database connection engine for
             an existing PUDL DB.
 
     Returns:
-        pandas.DataFrame: With columns plant_id_combined and utc_offset.
+        Dataframe of applicable timezones taken from the plants_entity_eia table.
 
     """
     # Verify that we have a PUDL DB with plant attributes:
@@ -167,58 +166,6 @@ def _load_plant_utc_offset(pudl_engine):
     )
     del timezones["timezone"]
     return timezones
-
-
-def add_facility_id_unit_id_epa(df):
-    """Harmonize columns that are added later.
-
-    The Parquet schema requires consistent column names across all partitions and
-    ``facility_id`` and ``unit_id_epa`` aren't present before August 2008, so this
-    function adds them in.
-
-    Args:
-        df (pandas.DataFrame): A CEMS dataframe
-
-    Returns:
-        pandas.Dataframe: The same DataFrame guaranteed to have int facility_id and
-        unit_id_epa cols.
-
-    """
-    if ("facility_id" not in df.columns) or ("unit_id_epa" not in df.columns):
-        # Can't just assign np.NaN and get an integer NaN, so make a new array
-        # with the right shape:
-        na_col = pd.array(np.full(df.shape[0], np.NaN), dtype="Int64")
-        if "facility_id" not in df.columns:
-            df["facility_id"] = na_col
-        if "unit_id_epa" not in df.columns:
-            df["unit_id_epa"] = na_col
-    return df
-
-
-def _all_na_or_values(series, values):
-    """Test whether every element in the series is either missing or in values.
-
-    This is fiddly because isin() changes behavior if the series is totally NaN (because
-    of type issues).
-
-    Example: x = pd.DataFrame({'a': ['x', np.NaN], 'b': [np.NaN, np.NaN]})
-        x.isin({'x', np.NaN})
-
-    Args:
-        series (pd.Series): A data column values (set): A set of values
-
-    Returns:
-        bool: True or False, whether the elements are missing or in values
-
-    """
-    series_excl_na = series[series.notna()]
-    if not len(series_excl_na):
-        out = True
-    elif series_excl_na.isin(values).all():
-        out = True
-    else:
-        out = False
-    return out
 
 
 def correct_gross_load_mw(df: pd.DataFrame) -> pd.DataFrame:
