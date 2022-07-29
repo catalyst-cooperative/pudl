@@ -24,7 +24,7 @@ from pudl.analysis.classify_plants_ferc1 import (
 from pudl.helpers import convert_cols_dtypes, get_logger
 from pudl.metadata.classes import DataSource
 from pudl.metadata.dfs import FERC_DEPRECIATION_LINES
-from pudl.settings import Ferc1DbfSettings
+from pudl.settings import Ferc1Settings
 
 logger = get_logger(__name__)
 
@@ -3114,7 +3114,7 @@ def accumulated_depreciation(
 def transform(
     ferc1_dbf_raw_dfs,
     ferc1_xbrl_raw_dfs,
-    ferc1_settings: Ferc1DbfSettings = Ferc1DbfSettings(),
+    ferc1_settings: Ferc1Settings = Ferc1Settings(),
 ):
     """Transforms FERC 1.
 
@@ -3155,8 +3155,8 @@ def transform(
                 table_name=table
             ).execute(
                 raw_dbf=ferc1_dbf_raw_dfs.get(table),
-                raw_xbrl_instant=ferc1_xbrl_raw_dfs.get(f"{table}_instant", None),
-                raw_xbrl_duration=ferc1_xbrl_raw_dfs.get(f"{table}_duration", None),
+                raw_xbrl_instant=ferc1_xbrl_raw_dfs.get(table).get("instant", None),
+                raw_xbrl_duration=ferc1_xbrl_raw_dfs.get(table).get("duration", None),
             )
 
     if "plants_steam_ferc1" in ferc1_settings.tables:
@@ -3164,8 +3164,8 @@ def transform(
             table_name="plants_steam_ferc"
         ).execute(
             raw_dbf=ferc1_dbf_raw_dfs.get(table),
-            raw_xbrl_instant=ferc1_xbrl_raw_dfs.get(f"{table}_instant", None),
-            raw_xbrl_duration=ferc1_xbrl_raw_dfs.get(f"{table}_duration", None),
+            raw_xbrl_instant=ferc1_xbrl_raw_dfs.get(table).get("instant", None),
+            raw_xbrl_duration=ferc1_xbrl_raw_dfs.get(table).get("duration", None),
             transformed_fuel=ferc1_transformed_dfs["fuel_ferc1"],
         )
 
@@ -3176,9 +3176,7 @@ def transform(
     }
 
 
-def transform_xbrl(
-    ferc1_raw_dfs, ferc1_settings: Ferc1DbfSettings = Ferc1DbfSettings()
-):
+def transform_xbrl(ferc1_raw_dfs, ferc1_settings: Ferc1Settings = Ferc1Settings()):
     """Transforms FERC 1 XBRL data.
 
     Args:
