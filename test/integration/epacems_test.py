@@ -88,4 +88,4 @@ def test_epacems_parallel(pudl_settings_fixture, pudl_ds_kwargs, tmpdir_factory)
         engine="pyarrow",
         split_row_groups=True,
     ).compute()
-    assert df.shape == (96_360, 18)  # nosec: B101
+    assert df.shape == (96_360, 16)  # nosec: B101
