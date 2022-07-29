@@ -61,7 +61,7 @@ import pandas as pd
 import sqlalchemy as sa
 from dbfread import DBF
 from ferc_xbrl_extractor import xbrl
-from ferc_xbrl_extractor.instance import Instance
+from ferc_xbrl_extractor.instance import InstanceBuilder
 from sqlalchemy import or_
 
 import pudl
@@ -248,7 +248,9 @@ class Ferc1XbrlDatastore:
 
                 # Create in memory buffers with file data to be used in conversion
                 filings.append(
-                    Instance(io.BytesIO(archive.open(latest_filing).read()), filing_id)
+                    InstanceBuilder(
+                        io.BytesIO(archive.open(latest_filing).read()), filing_id
+                    )
                 )
 
         return filings
