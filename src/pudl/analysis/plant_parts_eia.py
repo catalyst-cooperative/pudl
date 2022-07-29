@@ -649,7 +649,9 @@ class MakePlantParts:
 
         """
         # aggregate everything by each plant part
-        self.pudl_out._dfs.clear()
+        df_keys = list(self.pudl_out._dfs.keys())
+        for k in df_keys:
+            del self.pudl_out._dfs[k]
         part_dfs = []
         for part_name in PLANT_PARTS_ORDERED:
             part_df = PlantPart(part_name).execute(gens_mega)
