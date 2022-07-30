@@ -225,7 +225,7 @@ def allocate_gen_fuel_by_generator_energy_source(pudl_out, drop_interim_cols=Tru
             f"{len(missing_pm)} generators are missing prime mover codes in gens_eia860. "
             "This will result in incorrect allocation."
         )
-        print(
+        logger.info(
             missing_pm[
                 [
                     "report_date",
@@ -239,7 +239,10 @@ def allocate_gen_fuel_by_generator_energy_source(pudl_out, drop_interim_cols=Tru
             ]
         )
     # duplicate each entry in the gens table 12 times to create an entry for each month of the year
-    gens = create_monthly_gens_records(gens)
+    if pudl_out.freq == "MS":
+        gens = pudl.helpers.expand_timeseries(
+            df=gens, key_cols=["plant_id_eia", "generator_id"], freq="MS"
+        )
 
     gen = (
         pudl_out.gen_original_eia923().loc[:, IDX_GENS + ["net_generation_mwh"]]
@@ -784,10 +787,10 @@ def _associate_unconnected_records(eia_generators_merged: pd.DataFrame):
 
 
 def prep_alloction_fraction(gen_assoc):
-    """Make flags and aggregations to prepare for the `calc_allocation_ratios()`.
+    """Make flags and aggregations to prepare for the `allocate_net_gen_by_gen_esc()` and `allocate_fuel_by_gen_esc() functions`.
 
-    In `calc_allocation_ratios()`, we will break the generators out into four
-    types - see `calc_allocation_ratios()` docs for details. This function adds
+    In `allocate_net_gen_by_gen_esc()`, we will break the generators out into four
+    types - see `allocate_net_gen_by_gen_esc()` docs for details. This function adds
     flags for splitting the generators. It also adds
 
     """
@@ -867,8 +870,8 @@ def prep_alloction_fraction(gen_assoc):
         )
         .assign(
             # fill in the missing generation with small numbers (this will help ensure
-            # the calculations to run the fractions in `calc_allocation_ratios`
-            # can be consistent)
+            # the calculations to run the fractions in `allocate_net_gen_by_gen_esc`
+            # and `allocate_fuel_by_gen_esc` can be consistent)
             # do the same with missing fuel consumption
             net_generation_mwh_g_tbl=lambda x: x.net_generation_mwh_g_tbl.fillna(0.001),
             fuel_consumed_mmbtu_bf_tbl=lambda x: x.fuel_consumed_mmbtu_bf_tbl.fillna(
@@ -1003,8 +1006,6 @@ def allocate_net_gen_by_gen_esc(gen_pm_fuel):
 
     # squish all of these methods back together.
     net_gen_alloc = pd.concat([all_gen, some_gen, gf_only])
-    # null out the inf's
-    net_gen_alloc.loc[abs(net_gen_alloc.frac) == np.inf] = np.NaN
     _ = _test_frac(net_gen_alloc)
 
     # replace the placeholder 0.001 values with zero before allocating
@@ -1113,8 +1114,6 @@ def allocate_fuel_by_gen_esc(gen_pm_fuel):
 
     # squish all of these methods back together.
     fuel_alloc = pd.concat([all_gen, some_gen, bf_only])
-    # null out the inf's
-    fuel_alloc.loc[abs(fuel_alloc.frac) == np.inf] = np.NaN
     # _ = _test_frac(fuel_alloc)
 
     # replace the placeholder 0.001 values with zero before allocating
@@ -1256,22 +1255,6 @@ def _test_gen_fuel_allocation(gen, gen_pm_fuel, ratio=0.05):
 ###########################
 # Fuel Allocation Functions
 ###########################
-
-
-def create_monthly_gens_records(df):
-    """Creates a duplicate record for each month of the year for annually-reported tables."""
-    # create a copy of gens to hold the monthly data
-    df_month = df.copy()
-
-    month = 2
-    while month <= 12:
-        # add one month to the copied data each iteration
-        df_month["report_date"] = df_month["report_date"] + pd.DateOffset(months=1)
-        # concat this data to the gens file
-        df = pd.concat([df, df_month], axis=0)
-        month += 1
-
-    return df
 
 
 def distribute_annually_reported_data_to_months(df, key_columns, data_column_name):
@@ -1448,13 +1431,22 @@ def allocate_bf_data_to_gens(bf, gens, pudl_out):
     )
     bga = bga.reset_index()
 
-    bga = create_monthly_gens_records(bga)
-
     # drop records from bf where there is missing fuel data
     bf = bf.dropna(subset="fuel_consumed_mmbtu")
 
     # merge in the generator id and the capacity fraction
-    bf = bf.merge(bga, how="left", on=["plant_id_eia", "boiler_id", "report_date"])
+    bf = pudl.helpers.date_merge(
+        left=bf,
+        right=bga,
+        left_date_col="report_date",
+        right_date_col="report_date",
+        new_date_col="report_date",
+        on=["plant_id_eia", "boiler_id"],
+        date_on=["year"],
+        how="left",
+        report_at_start=True,
+    )
+
     # distribute the boiler-level data to each generator based on the capacity fraciton
     bf["fuel_consumed_mmbtu"] = bf["fuel_consumed_mmbtu"] * bf["cap_frac"]
 
