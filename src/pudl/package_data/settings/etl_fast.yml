@@ -392,8 +392,8 @@ ferc1_xbrl_to_sqlite_settings: # What years of original FERC data should be clon
 ###########################################################################
 # Settings for pudl_etl script
 ###########################################################################
-name: pudl-full
-title: PUDL Full ETL
+name: pudl-fast
+title: PUDL Fast ETL
 description: >
   FERC 1 and EIA 860/923 from 2020 (output to SQLite) plus
   EPA CEMS hourly emissions data from 2020 (output to Parquet).
@@ -432,4 +432,4 @@ datasets:
     # so if you're loading CEMS data for a particular year, you should
     # also load the EIA 860 data for that year if possible
     states: [ID, ME]
-    years: [2019, 2020]
+    years: [2019, 2020, 2021]
