@@ -96,7 +96,7 @@ setup(
             "bandit>=1.6,<1.8",
             "coverage>=5.3,<6.5",
             "doc8>=0.9,<1.1",
-            "flake8>=4.0,<4.1",
+            "flake8>=4.0,<5.1",
             "flake8-builtins>=1.5,<1.6",
             "flake8-colors>=0.1,<0.2",
             "flake8-docstrings>=1.5,<1.7",
