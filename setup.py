@@ -68,7 +68,7 @@ setup(
         "pygeos>=0.10,<0.13",
         "pyyaml>=5,<6.1",
         "scikit-learn>=1.0,<1.2",
-        "scipy>=1.6,<1.9",
+        "scipy>=1.6,<1.10",
         "sqlalchemy>=1.4,<1.4.40",
         "timezonefinder>=5,<6.1",
         "xlsxwriter>=3,<3.1",
