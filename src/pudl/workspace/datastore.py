@@ -15,10 +15,10 @@ from typing import Any
 import coloredlogs
 import datapackage
 import requests
-import yaml
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
 
+import pudl
 from pudl.workspace import resource_cache
 from pudl.workspace.resource_cache import PudlResourceKey
 
@@ -161,7 +161,7 @@ class ZenodoFetcher:
             "eia860m": "10.5281/zenodo.6321197",
             "eia861": "10.5281/zenodo.5602102",
             "eia923": "10.5281/zenodo.5596977",
-            "epacems": "10.5281/zenodo.4660268",
+            "epacems": "10.5281/zenodo.6910058",
             "ferc1": "10.5281/zenodo.5534788",
             "ferc714": "10.5281/zenodo.5076672",
         },
@@ -440,9 +440,18 @@ Available Sandbox Datasets:
         default=False,
     )
     parser.add_argument(
-        "--populate-gcs-cache",
-        default=None,
-        help="If specified, upload data resources to this GCS bucket",
+        "--gcs-cache-path",
+        type=str,
+        help="""Load datastore resources from Google Cloud Storage. Should be gs://bucket[/path_prefix].
+The main zenodo cache bucket is gs://zenodo-cache.catalyst.coop.
+If specified without --bypass-local-cache, the local cache will be populated from the GCS cache.
+If specified with --bypass-local-cache, the GCS cache will be populated by Zenodo.""",
+    )
+    parser.add_argument(
+        "--bypass-local-cache",
+        action="store_true",
+        default=False,
+        help="""If enabled, the local file cache for datastore will not be used.""",
     )
     parser.add_argument(
         "--partition",
@@ -466,20 +475,16 @@ def _get_pudl_in(args: dict) -> Path:
     if args.pudl_in:
         return Path(args.pudl_in)
     else:
-        cfg = yaml.safe_load(PUDL_YML.open())
-        return Path(cfg["pudl_in"])
+        return Path(pudl.workspace.setup.get_defaults()["pudl_in"])
 
 
 def _create_datastore(args: dict) -> Datastore:
     """Constructs datastore instance."""
-    local_cache_path = None
-    if not args.populate_gcs_cache:
-        local_cache_path = _get_pudl_in(args) / "data"
-    return Datastore(
-        sandbox=args.sandbox,
-        local_cache_path=local_cache_path,
-        gcs_cache_path=args.populate_gcs_cache,
-    )
+    # Configure how we want to obtain raw input data:
+    ds_kwargs = dict(gcs_cache_path=args.gcs_cache_path, sandbox=args.sandbox)
+    if not args.bypass_local_cache:
+        ds_kwargs["local_cache_path"] = _get_pudl_in(args) / "data"
+    return Datastore(**ds_kwargs)
 
 
 def print_partitions(dstore: Datastore, datasets: list[str]) -> None:
@@ -524,10 +529,14 @@ def fetch_resources(
 ) -> None:
     """Retrieve all matching resources and store them in the cache."""
     for single_ds in datasets:
-        for res, _ in dstore.get_resources(
+        for res, contents in dstore.get_resources(
             single_ds, skip_optimally_cached=True, **args.partition
         ):
             logger.info(f"Retrieved {res}.")
+            # If the gcs_cache_path is specified and we don't want
+            # to bypass the local cache, populate the local cache.
+            if args.gcs_cache_path and not args.bypass_local_cache:
+                dstore._cache.add(res, contents)
 
 
 def main():
@@ -536,9 +545,7 @@ def main():
 
     pudl_logger = logging.getLogger("pudl")
     log_format = "%(asctime)s [%(levelname)8s] %(name)s:%(lineno)s %(message)s"
-    coloredlogs.install(fmt=log_format, level="INFO", logger=pudl_logger)
-
-    logger.setLevel(args.loglevel)
+    coloredlogs.install(fmt=log_format, level=args.loglevel, logger=pudl_logger)
 
     dstore = _create_datastore(args)
 

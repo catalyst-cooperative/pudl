@@ -43,7 +43,7 @@ repos:
 
   # Format the code
   - repo: https://github.com/psf/black
-    rev: 22.3.0
+    rev: 22.6.0
     hooks:
       - id: black
         language_version: python3.10
@@ -68,7 +68,7 @@ repos:
 
   # Update Python language constructs to modern standards
   - repo: https://github.com/asottile/pyupgrade
-    rev: v2.34.0
+    rev: v2.37.3
     hooks:
       - id: pyupgrade
         args: ["--py310-plus"]
@@ -79,7 +79,7 @@ repos:
 
   # Check for PEP8 non-compliance, code complexity, style, errors, etc:
   - repo: https://github.com/PyCQA/flake8
-    rev: 4.0.1
+    rev: 5.0.2
     hooks:
       - id: flake8
         args: [--config, tox.ini]
@@ -109,7 +109,7 @@ repos:
       - id: hadolint
   # Check for errors in restructuredtext (.rst) files under the doc hierarchy
   - repo: https://github.com/PyCQA/doc8
-    rev: 0.11.2
+    rev: v1.0.0
     hooks:
       - id: doc8
         args: [--config, tox.ini]
