@@ -783,7 +783,7 @@ class MakePlantParts:
             & (test_own_df.ownership == "owned")
         ]
 
-        if not owned_one_frac.empty:
+        if len(owned_one_frac) > 12:
             self.test_own_df = test_own_df
             self.owned_one_frac = owned_one_frac
             raise AssertionError(
