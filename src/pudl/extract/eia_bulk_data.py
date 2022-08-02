@@ -8,8 +8,6 @@ from pathlib import Path
 
 import pandas as pd
 
-path = "/home/tpb/Downloads/pudl_scrapers/scraped/eia_bulk_elec/2022-07-22#001/ELEC.zip"
-
 
 def _filter_df(df: pd.DataFrame) -> pd.DataFrame:
     """Pick out the desired data series."""
@@ -28,7 +26,9 @@ def _read_to_dataframe(raw_zipfile: Path) -> pd.DataFrame:
     filtered = []
     # Use chunksize arg to reduce peak memory usage when reading in 1.1 GB file
     # For reference, the file has ~680k lines and we want around 8.5k
-    with pd.read_json(path, compression="zip", lines=True, chunksize=10_000) as reader:
+    with pd.read_json(
+        raw_zipfile, compression="zip", lines=True, chunksize=10_000
+    ) as reader:
         for chunk in reader:
             filtered.append(_filter_df(chunk))
     out = pd.concat(filtered, ignore_index=True)
