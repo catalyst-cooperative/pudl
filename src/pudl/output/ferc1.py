@@ -180,7 +180,6 @@ def plants_small_ferc1(pudl_engine):
             on=["utility_id_ferc1", "plant_name_ferc1"],
             how="left",
         )
-        .rename(columns={"opex_total": "opex_operations"})
         .assign(
             opex_total=lambda x: (
                 x[["opex_fuel", "opex_maintenance", "opex_operations"]]
