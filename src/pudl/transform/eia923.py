@@ -636,7 +636,7 @@ def generation_fuel(eia923_dfs, eia923_transformed_dfs):
         "total_fuel_consumption_mmbtu",
         "elec_fuel_consumption_mmbtu",
         "net_generation_megawatthours",
-        "early_release_data_june_2022_not_fully_edited_use_with_caution_do_not_aggregate_to_state_regional_or_national_totals",
+        "early_release",
     ]
     gen_fuel.drop(cols_to_drop, axis=1, inplace=True)
 
@@ -848,7 +848,7 @@ def boiler_fuel(eia923_dfs, eia923_transformed_dfs):
         "total_fuel_consumption_quantity",
         "respondent_frequency",
         "balancing_authority_code_eia",
-        "early_release_data_june_2022_not_fully_edited_use_with_caution_do_not_aggregate_to_state_regional_or_national_totals",
+        "early_release",
     ]
     bf_df.drop(cols_to_drop, axis=1, inplace=True)
 
@@ -923,6 +923,7 @@ def generation(eia923_dfs, eia923_transformed_dfs):
                 "eia_sector",
                 "sector_name",
                 "net_generation_mwh_year_to_date",
+                "early_release",
             ],
             axis="columns",
         )
@@ -1098,7 +1099,7 @@ def fuel_receipts_costs(eia923_dfs, eia923_transformed_dfs):
         "mine_name",
         "regulated",
         "reporting_frequency",
-        "early_release_data_june_2022_not_fully_edited_use_with_caution_do_not_aggregate_to_state_regional_or_national_totals",
+        "early_release",
     ]
 
     cmi_df = (
