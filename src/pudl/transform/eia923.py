@@ -636,6 +636,7 @@ def generation_fuel(eia923_dfs, eia923_transformed_dfs):
         "total_fuel_consumption_mmbtu",
         "elec_fuel_consumption_mmbtu",
         "net_generation_megawatthours",
+        "early_release_data_june_2022_not_fully_edited_use_with_caution_do_not_aggregate_to_state_regional_or_national_totals",
     ]
     gen_fuel.drop(cols_to_drop, axis=1, inplace=True)
 
@@ -774,7 +775,8 @@ def _aggregate_duplicate_boiler_fuel_keys(boiler_fuel_df: pd.DataFrame) -> pd.Da
         )
 
     is_duplicate = boiler_fuel_df.duplicated(subset=key_cols, keep=False)
-    duplicates: pd.DataFrame = boiler_fuel_df[is_duplicate]
+    # copying bc a slice of this copy will be reassigned later
+    duplicates: pd.DataFrame = boiler_fuel_df[is_duplicate].copy()
     boiler_fuel_groups = duplicates.groupby(key_cols)
 
     # For relative columns, take average weighted by fuel usage
@@ -784,7 +786,7 @@ def _aggregate_duplicate_boiler_fuel_keys(boiler_fuel_df: pd.DataFrame) -> pd.Da
         duplicates["fuel_consumed_units"].div(total_fuel.to_numpy()).fillna(0.0)
     )
     # overwrite with weighted values
-    duplicates[relative_cols] = duplicates[relative_cols].mul(
+    duplicates.loc[:, relative_cols] = duplicates.loc[:, relative_cols].mul(
         fuel_fraction.to_numpy().reshape(-1, 1)
     )
 
@@ -846,6 +848,7 @@ def boiler_fuel(eia923_dfs, eia923_transformed_dfs):
         "total_fuel_consumption_quantity",
         "respondent_frequency",
         "balancing_authority_code_eia",
+        "early_release_data_june_2022_not_fully_edited_use_with_caution_do_not_aggregate_to_state_regional_or_national_totals",
     ]
     bf_df.drop(cols_to_drop, axis=1, inplace=True)
 
@@ -1095,6 +1098,7 @@ def fuel_receipts_costs(eia923_dfs, eia923_transformed_dfs):
         "mine_name",
         "regulated",
         "reporting_frequency",
+        "early_release_data_june_2022_not_fully_edited_use_with_caution_do_not_aggregate_to_state_regional_or_national_totals",
     ]
 
     cmi_df = (
