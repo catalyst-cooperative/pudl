@@ -45,7 +45,7 @@ class Extractor(excel.GenericExtractor):
         # the 2021 early release data had some ding dang "."'s and nulls in the year column
         if "report_year" in df.columns:
             mask = (df.report_year == ".") | df.report_year.isnull()
-            logger.info(
+            logger.debug(
                 f"{page}: replacing {len(df[mask])} nulls/bad values in `report_year` column with {partition['year']}"
             )
             df.loc[mask, "report_year"] = partition["year"]
