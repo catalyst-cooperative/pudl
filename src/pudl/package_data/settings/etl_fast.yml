@@ -55,7 +55,7 @@ datasets:
         - generators_eia860
         - ownership_eia860
       years: [2020]
-      eia860m: true
+      eia860m: false
   epacems:
     # Note that the CEMS data relies on EIA 860 data for plant locations,
     # so if you're loading CEMS data for a particular year, you should
