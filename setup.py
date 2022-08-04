@@ -62,7 +62,7 @@ setup(
         "networkx>=2.2,<2.9",
         "numpy>=1.18.5,<1.24,!=1.23.0",
         "pandas>=1.4,<1.4.4",
-        "pyarrow>=5,<8.1",
+        "pyarrow>=5,<9.1",
         "pydantic[email]>=1.7,<2",
         "python-snappy>=0.6,<0.7",
         "pygeos>=0.10,<0.13",
@@ -84,7 +84,7 @@ setup(
             "twine>=3.3,<4.1",
         ],
         "doc": [
-            "doc8>=1.0,<1.1",
+            "doc8>=0.9,<1.1",
             "furo>=2022.4.7",
             "sphinx>=4,!=5.1.0,<5.1.2",
             "sphinx-autoapi>=1.8,<1.10",
@@ -95,7 +95,7 @@ setup(
         "test": [
             "bandit>=1.6,<1.8",
             "coverage>=5.3,<6.5",
-            "doc8>=1.0,<1.1",
+            "doc8>=0.9,<1.1",
             "flake8>=4.0,<5.1",
             "flake8-builtins>=1.5,<1.6",
             "flake8-colors>=0.1,<0.2",
