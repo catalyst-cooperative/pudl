@@ -414,6 +414,7 @@ NERC_SPELLCHECK: dict[str, str] = {
     "ERCTO": "ERCOT",
     "RFO": "RFC",
     "RF": "RFC",
+    "REC": "RFC",
     "SSP": "SPP",
     "VACAR": "SERC",  # VACAR is a subregion of SERC
     "GATEWAY": "SERC",  # GATEWAY is a subregion of SERC
@@ -634,7 +635,7 @@ def _clean_nerc(df, idx_cols):
 
     Args:
         df (pandas.DataFrame): A DataFrame with the column 'nerc_region' to be cleaned.
-        idx_cols (list): A list of the primary keys.
+        idx_cols (list): A list of the primary keys and `nerc_region`.
 
     Returns:
         pandas.DataFrame: A DataFrame with correct and clean nerc regions.
@@ -665,10 +666,11 @@ def _clean_nerc(df, idx_cols):
         for nerc_entity in nerc_list
         if nerc_entity not in NERC_REGIONS + list(NERC_SPELLCHECK.keys())
     ]
-    print(
-        f"The following reported NERC regions are not currently recognized and become \
-        UNK values: {non_nerc_list}"
-    )
+    if non_nerc_list:
+        logger.info(
+            "The following reported NERC regions are not currently recognized and "
+            f"become UNK values: {non_nerc_list}"
+        )
 
     # Function to turn instances of 'SPP_UNK' or 'SPP_SPP' into 'SPP'
     def _remove_nerc_duplicates(entity_list):
