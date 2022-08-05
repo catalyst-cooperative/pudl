@@ -39,7 +39,7 @@ def test_no_null_cols_eia(pudl_out_eia, live_dbs, cols, df_name):
     "df_name,raw_rows,monthly_rows,annual_rows",
     [
         ("bf_eia923", 1_402_656, 1_402_656, 117_502),
-        ("bga_eia860", 12_8725, 12_8725, 12_8725),
+        ("bga_eia860", 128_725, 128_725, 128_725),
         ("frc_eia923", 591_695, 243_282, 23_950),
         ("gen_eia923", 599_674, 599_674, 50_038),
         ("gens_eia860", 490_939, 490_939, 490_939),
