@@ -26,6 +26,7 @@ import pandas as pd
 import pyarrow as pa
 import pyarrow.parquet as pq
 import sqlalchemy as sa
+from dagster import job, op, resource
 
 import pudl
 from pudl.helpers import convert_cols_dtypes
@@ -40,7 +41,7 @@ from pudl.settings import (
     Ferc1Settings,
     GlueSettings,
 )
-from pudl.workspace.datastore import Datastore
+from pudl.workspace.datastore import Datastore, datastore
 
 logger = logging.getLogger(__name__)
 
@@ -183,28 +184,30 @@ def _read_static_tables_ferc1() -> dict[str, pd.DataFrame]:
     }
 
 
-def _etl_ferc1(
-    ferc1_settings: Ferc1Settings,
-    pudl_settings: dict[str, Any],
-) -> dict[str, pd.DataFrame]:
+# TODO: update config to use dagster Field
+@op(
+    config_schema={"years": list, "tables": list},
+    required_resource_keys={"pudl_settings"},
+)
+def _etl_ferc1(context) -> dict[str, pd.DataFrame]:
     """Extract, transform and load CSVs for FERC Form 1.
-
-    Args:
-        ferc1_settings: Validated ETL parameters required by this data source.
-        pudl_settings: a dictionary filled with settings that mostly
-            describe paths to various resources and outputs.
 
     Returns:
         Dataframes containing PUDL database tables pertaining to the FERC Form 1
         data, keyed by table name.
 
     """
+    # Validate settings
+    years = context.op_config["years"]
+    tables = context.op_config["tables"]
+    ferc1_settings = Ferc1Settings(years=years, tables=tables)
+
     # Compile static FERC 1 dataframes
     out_dfs = _read_static_tables_ferc1()
 
     # Extract FERC form 1
     ferc1_raw_dfs = pudl.extract.ferc1.extract(
-        ferc1_settings=ferc1_settings, pudl_settings=pudl_settings
+        ferc1_settings=ferc1_settings, pudl_settings=context.resources.pudl_settings
     )
     # Transform FERC form 1
     ferc1_transformed_dfs = pudl.transform.ferc1.transform(
@@ -461,3 +464,42 @@ def etl(  # noqa: C901
     # Parquet Outputs:
     if datasets.get("epacems", False):
         etl_epacems(datasets["epacems"], pudl_settings, ds_kwargs, clobber=clobber)
+
+
+# DAGSTER WIP
+@resource
+def pudl_settings(init_context):
+    """Create a pudl engine Resource."""
+    # TODO: figure out how to config the pudl workspace using dagster instead of just pulling the defaults.
+    return pudl.workspace.setup.get_defaults()
+
+
+@resource(required_resource_keys={"pudl_settings"})
+def pudl_engine(init_context):
+    """Create a pudl engine Resource."""
+    return sa.create_engine(init_context.resources.pudl_settings["pudl_db"])
+
+
+@job(
+    resource_defs={
+        "pudl_settings": pudl_settings,
+        "datastore": datastore,
+        "pudl_engine": pudl_engine,
+    }
+)
+def dagster_etl():
+    """Tun temporary dagster_etl job."""
+    # TODO: figure out to combine etl dictionary outputs.
+    # Could create an op that combines dictionaries or
+    # maybe there is a way to define multiple outputs?
+    # See https://docs.dagster.io/concepts/ops-jobs-graphs/ops#outputs
+
+    # Maybe each etl can load its own data. would sqlalchemy protect
+    # against sqlite writting issues?
+    sqlite_dfs = {}
+    sqlite_dfs.update(_etl_ferc1())
+    pudl.load.dfs_to_sqlite(sqlite_dfs)
+
+
+if __name__ == "__main__":
+    dagster_etl.execute_in_process()

@@ -15,6 +15,7 @@ from typing import Any
 import coloredlogs
 import datapackage
 import requests
+from dagster import Field, resource
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
 
@@ -369,6 +370,34 @@ class Datastore:
     def get_zipfile_resource(self, dataset: str, **filters: Any) -> zipfile.ZipFile:
         """Retrieves unique resource and opens it as a ZipFile."""
         return zipfile.ZipFile(io.BytesIO(self.get_unique_resource(dataset, **filters)))
+
+
+@resource(
+    config_schema={
+        "gcs_cache_path": Field(
+            str,
+            description="Load datastore resources from Google Cloud Storage.",
+            default_value="",
+        ),
+        "use_local_cache": Field(
+            bool,
+            description="If enabled, the local file cache for datastore will be used.",
+            default_value=True,
+        ),
+    },
+    required_resource_keys={"pudl_settings"},
+)
+def datastore(init_context):
+    """Datastore resource. This can be configured in the dagit UI."""
+    ds_kwargs = {}
+    ds_kwargs["gcs_cache_path"] = init_context.resource_config["gcs_cache_path"]
+    ds_kwargs["sandbox"] = init_context.resources.pudl_settings.get("sandbox", False)
+
+    if init_context.resource_config["use_local_cache"]:
+        ds_kwargs["local_cache_path"] = (
+            Path(init_context.resources.pudl_settings["pudl_in"]) / "data"
+        )
+    return Datastore(**ds_kwargs)
 
 
 class ParseKeyValues(argparse.Action):
