@@ -74,7 +74,7 @@ jobs:
       #          username: ${{ secrets.DOCKERHUB_USERNAME }}
       #          password: ${{ secrets.DOCKERHUB_TOKEN }}
       #      - name: Build and push
-      #        uses: docker/build-push-action@v3.1.0
+      #        uses: docker/build-push-action@v3.1.1
       #        with:
       #          file: release/Dockerfile.tiny
       #          push: ${{ github.event_name != 'pull_request' }}
@@ -84,7 +84,7 @@ jobs:
       # TODO(rousik): should we use caching?
 
       - name: Build image and push to Docker Hub
-        uses: docker/build-push-action@v3.1.0
+        uses: docker/build-push-action@v3.1.1
         with:
           file: release/Dockerfile.tiny
           push: ${{ github.event_name != 'pull_request' }}
