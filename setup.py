@@ -70,7 +70,7 @@ setup(
         "pyyaml>=5,<6.1",
         "scikit-learn>=1.0,<1.2",
         "scipy>=1.6,<1.10",
-        "sqlalchemy>=1.4,<1.4.40",
+        "sqlalchemy>=1.4,<1.4.41",
         "timezonefinder>=5,<6.1",
         "xlsxwriter>=3,<3.1",
     ],
