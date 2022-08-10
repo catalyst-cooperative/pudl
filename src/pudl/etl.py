@@ -27,6 +27,7 @@ import pyarrow as pa
 import pyarrow.parquet as pq
 import sqlalchemy as sa
 from dagster import Field, job, op, resource
+from sqlalchemy.pool import StaticPool
 
 import pudl
 from pudl.helpers import convert_cols_dtypes
@@ -36,6 +37,8 @@ from pudl.metadata.codes import CODE_METADATA
 from pudl.metadata.dfs import FERC_ACCOUNTS, FERC_DEPRECIATION_LINES
 from pudl.metadata.fields import apply_pudl_dtypes
 from pudl.settings import (
+    Eia860Settings,
+    Eia923Settings,
     EiaSettings,
     EpaCemsSettings,
     EtlSettings,
@@ -76,25 +79,42 @@ def _read_static_tables_eia() -> dict[str, pd.DataFrame]:
     }
 
 
-def _etl_eia(
-    eia_settings: EiaSettings, ds_kwargs: dict[str, Any]
-) -> dict[str, pd.DataFrame]:
+@op(
+    config_schema={
+        "eia860_tables": list,
+        "eia860_years": list,
+        "eia860m": bool,
+        "eia923_tables": list,
+        "eia923_years": list,
+    },
+    required_resource_keys={"datastore", "sqlite_manager"},
+)
+def _etl_eia(context) -> dict[str, pd.DataFrame]:
     """Extract, transform and load CSVs for the EIA datasets.
 
     Args:
-        eia_settings: Validated ETL parameters required by this data source.
-        ds_kwargs: Keyword arguments for instantiating a PUDL datastore,
-            so that the ETL can access the raw input data.
+        context: dagster context keyword.
 
     Returns:
         A dictionary of EIA dataframes ready for loading into the PUDL DB.
 
     """
-    eia860_tables = eia_settings.eia860.tables
-    eia860_years = eia_settings.eia860.years
-    eia860m = eia_settings.eia860.eia860m
-    eia923_tables = eia_settings.eia923.tables
-    eia923_years = eia_settings.eia923.years
+    eia860_tables = context.op_config["eia860_tables"]
+    eia860_years = context.op_config["eia860_years"]
+    eia860m = context.op_config["eia860m"]
+    eia923_tables = context.op_config["eia923_tables"]
+    eia923_years = context.op_config["eia923_years"]
+
+    eia860_settings = Eia860Settings(
+        years=eia860_years,
+        tables=eia860_tables,
+        eia860m=eia860m,
+    )
+    eia923_settings = Eia923Settings(
+        years=eia923_years,
+        tables=eia923_tables,
+    )
+    eia_settings = EiaSettings(eia860=eia860_settings, eia923=eia923_settings)
 
     if (not eia923_tables or not eia923_years) and (
         not eia860_tables or not eia860_years
@@ -105,7 +125,7 @@ def _etl_eia(
     # generate dataframes for the static EIA tables
     out_dfs = _read_static_tables_eia()
 
-    ds = Datastore(**ds_kwargs)
+    ds = context.resources.datastore
     # Extract EIA forms 923, 860
     eia923_raw_dfs = pudl.extract.eia923.Extractor(ds).extract(
         settings=eia_settings.eia923
@@ -156,6 +176,7 @@ def _etl_eia(
 
     out_dfs.update(entities_dfs)
     out_dfs.update(eia_transformed_dfs)
+    context.resources.sqlite_manager.dfs_to_sqlite(out_dfs)
     return out_dfs
 
 
@@ -491,7 +512,10 @@ def pudl_settings(init_context):
 @resource(required_resource_keys={"pudl_settings"})
 def pudl_engine(init_context):
     """Create a pudl engine Resource."""
-    return sa.create_engine(init_context.resources.pudl_settings["pudl_db"])
+    return sa.create_engine(
+        init_context.resources.pudl_settings["pudl_db"],
+        poolclass=StaticPool,
+    )
 
 
 @job(
@@ -513,6 +537,7 @@ def dagster_etl():
     # against sqlite writting issues?
 
     _etl_ferc1()
+    _etl_eia()
     _etl_glue()
 
 

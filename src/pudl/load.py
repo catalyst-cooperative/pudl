@@ -30,7 +30,6 @@ class SQLiteManager:
         clobber: bool = True,
     ) -> None:
         """Create database schemas for all PUDL tables."""
-        engine = pudl_engine
         # This magic makes SQLAlchemy tell SQLite to check foreign key constraints
         # whenever we insert data into thd database, which it doesn't do by default
 
@@ -54,31 +53,37 @@ class SQLiteManager:
                 "As a result, data type constraint checking has been disabled."
             )
 
-        # Generate a SQLAlchemy MetaData object from dataframe names:
-        # TODO: This currently create all of the schemas.
+        # Create all schemas
         md = Package.from_resource_ids().to_sql(
-            check_types=check_types,
-            check_values=check_values,
+            check_types=check_types, check_values=check_values
         )
-        # Delete any existing tables, and create them anew:
-        if clobber:
-            md.drop_all(engine)
-        md.create_all(engine)
+        md.create_all(pudl_engine)
 
-        self.metadata = md
+        self.check_types = check_types
+        self.check_values = check_values
         self.pudl_engine = pudl_engine
+        self.clobber = clobber
 
     def dfs_to_sqlite(self, dfs):
         """Load dictionary of dataframes to the sqlite database."""
-        df_schemas = list(set(dfs.keys()).intersection(self.metadata.sorted_tables))
-        # TODO: raise exception if df_schemas isn't the same length of dfs
+        # Generate a SQLAlchemy MetaData object from dataframe names:
+        # TODO: This currently create all of the schemas.
+        # Generate a SQLAlchemy MetaData object from dataframe names:
+        md = Package.from_resource_ids(resource_ids=tuple(sorted(dfs))).to_sql(
+            check_types=self.check_types, check_values=self.check_values
+        )
+        # Delete any existing tables, and create them anew:
+        if self.clobber:
+            md.drop_all(self.pudl_engine)
 
-        for table in df_schemas:
+        # Load any tables that exist in our dictionary of dataframes into the
+        # corresponding table in the newly create database:
+        for table in md.sorted_tables:
             logger.info(f"Loading {table.name} into PUDL SQLite DB.")
             try:
                 dfs[table.name].to_sql(
                     table.name,
-                    self.pudl_engine,
+                    self.engine,
                     if_exists="append",
                     index=False,
                     dtype={c.name: c.type for c in table.columns},
