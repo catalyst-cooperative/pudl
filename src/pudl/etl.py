@@ -31,7 +31,6 @@ from sqlalchemy.pool import StaticPool
 
 import pudl
 from pudl.helpers import convert_cols_dtypes
-from pudl.load import sqlite_manager
 from pudl.metadata.classes import Resource
 from pudl.metadata.codes import CODE_METADATA
 from pudl.metadata.dfs import FERC_ACCOUNTS, FERC_DEPRECIATION_LINES
@@ -87,7 +86,7 @@ def _read_static_tables_eia() -> dict[str, pd.DataFrame]:
         "eia923_tables": list,
         "eia923_years": list,
     },
-    required_resource_keys={"datastore", "sqlite_manager"},
+    required_resource_keys={"datastore"},
 )
 def _etl_eia(context) -> dict[str, pd.DataFrame]:
     """Extract, transform and load CSVs for the EIA datasets.
@@ -176,7 +175,6 @@ def _etl_eia(context) -> dict[str, pd.DataFrame]:
 
     out_dfs.update(entities_dfs)
     out_dfs.update(eia_transformed_dfs)
-    context.resources.sqlite_manager.dfs_to_sqlite(out_dfs)
     return out_dfs
 
 
@@ -209,7 +207,7 @@ def _read_static_tables_ferc1() -> dict[str, pd.DataFrame]:
 # TODO: update config to use dagster Field
 @op(
     config_schema={"years": list, "tables": list},
-    required_resource_keys={"pudl_settings", "sqlite_manager"},
+    required_resource_keys={"pudl_settings"},
 )
 def _etl_ferc1(context) -> dict[str, pd.DataFrame]:
     """Extract, transform and load CSVs for FERC Form 1.
@@ -237,8 +235,6 @@ def _etl_ferc1(context) -> dict[str, pd.DataFrame]:
     )
 
     out_dfs.update(ferc1_transformed_dfs)
-
-    context.resources.sqlite_manager.dfs_to_sqlite(out_dfs)
     return out_dfs
 
 
@@ -384,7 +380,7 @@ def etl_epacems(
         "ferc1": Field(bool, default_value=True),
         "eia": Field(bool, default_value=True),
     },
-    required_resource_keys={"pudl_settings", "sqlite_manager"},
+    required_resource_keys={"pudl_settings"},
 )
 def _etl_glue(context) -> dict[str, pd.DataFrame]:
     """Extract, transform and load CSVs for the Glue tables.
@@ -523,7 +519,6 @@ def pudl_engine(init_context):
         "pudl_settings": pudl_settings,
         "datastore": datastore,
         "pudl_engine": pudl_engine,
-        "sqlite_manager": sqlite_manager,
     }
 )
 def dagster_etl():
@@ -536,9 +531,10 @@ def dagster_etl():
     # Maybe each etl can load its own data. would sqlalchemy protect
     # against sqlite writting issues?
 
-    _etl_ferc1()
-    _etl_eia()
-    _etl_glue()
+    ferc1_dfs = _etl_ferc1()
+    eia_dfs = _etl_eia()
+    glue_dfs = _etl_glue()
+    pudl.load.dfs_to_sqlite(ferc1_dfs=ferc1_dfs, eia_dfs=eia_dfs, glue_dfs=glue_dfs)
 
 
 if __name__ == "__main__":

@@ -5,8 +5,9 @@ import sys
 from sqlite3 import Connection as SQLite3Connection
 from sqlite3 import sqlite_version
 
+import pandas as pd
 import sqlalchemy as sa
-from dagster import Field, resource
+from dagster import Field, op
 from packaging import version
 from sqlalchemy.exc import IntegrityError
 
@@ -18,83 +19,7 @@ logger = logging.getLogger(__name__)
 MINIMUM_SQLITE_VERSION = "3.32.0"
 
 
-class SQLiteManager:
-    """Class for creating a sqlite database, schema and loading data."""
-
-    def __init__(
-        self,
-        pudl_engine,
-        check_foreign_keys: bool = True,
-        check_types: bool = True,
-        check_values: bool = True,
-        clobber: bool = True,
-    ) -> None:
-        """Create database schemas for all PUDL tables."""
-        # This magic makes SQLAlchemy tell SQLite to check foreign key constraints
-        # whenever we insert data into thd database, which it doesn't do by default
-
-        @sa.event.listens_for(sa.engine.Engine, "connect")
-        def _set_sqlite_pragma(dbapi_connection, connection_record):
-            if isinstance(dbapi_connection, SQLite3Connection):
-                cursor = dbapi_connection.cursor()
-                cursor.execute(
-                    f"PRAGMA foreign_keys={'ON' if check_foreign_keys else 'OFF'};"
-                )
-                cursor.close()
-
-        bad_sqlite_version = version.parse(sqlite_version) < version.parse(
-            MINIMUM_SQLITE_VERSION
-        )
-        if bad_sqlite_version and check_types:
-            check_types = False
-            logger.warning(
-                f"Found SQLite {sqlite_version} which is less than "
-                f"the minimum required version {MINIMUM_SQLITE_VERSION} "
-                "As a result, data type constraint checking has been disabled."
-            )
-
-        # Create all schemas
-        md = Package.from_resource_ids().to_sql(
-            check_types=check_types, check_values=check_values
-        )
-        md.create_all(pudl_engine)
-
-        self.check_types = check_types
-        self.check_values = check_values
-        self.pudl_engine = pudl_engine
-        self.clobber = clobber
-
-    def dfs_to_sqlite(self, dfs):
-        """Load dictionary of dataframes to the sqlite database."""
-        # Generate a SQLAlchemy MetaData object from dataframe names:
-        # TODO: This currently create all of the schemas.
-        # Generate a SQLAlchemy MetaData object from dataframe names:
-        md = Package.from_resource_ids(resource_ids=tuple(sorted(dfs))).to_sql(
-            check_types=self.check_types, check_values=self.check_values
-        )
-        # Delete any existing tables, and create them anew:
-        if self.clobber:
-            md.drop_all(self.pudl_engine)
-
-        # Load any tables that exist in our dictionary of dataframes into the
-        # corresponding table in the newly create database:
-        for table in md.sorted_tables:
-            logger.info(f"Loading {table.name} into PUDL SQLite DB.")
-            try:
-                dfs[table.name].to_sql(
-                    table.name,
-                    self.engine,
-                    if_exists="append",
-                    index=False,
-                    dtype={c.name: c.type for c in table.columns},
-                )
-            except IntegrityError as err:
-                logger.info(find_foreign_key_errors(dfs))
-                logger.info(err)
-                sys.exit(1)
-
-
-@resource(
+@op(
     config_schema={
         "check_foreign_keys": Field(bool, default_value=True),
         "check_types": Field(bool, default_value=True),
@@ -103,18 +28,71 @@ class SQLiteManager:
     },
     required_resource_keys={"pudl_engine"},
 )
-def sqlite_manager(init_context):
-    """Create SQLite manager that can be configured by dagster."""
-    check_foreign_keys = init_context.resource_config["check_foreign_keys"]
-    check_types = init_context.resource_config["check_types"]
-    check_values = init_context.resource_config["check_values"]
-    clobber = init_context.resource_config["clobber"]
-    pudl_engine = init_context.resources.pudl_engine
+def dfs_to_sqlite(
+    context,
+    glue_dfs: dict[str, pd.DataFrame],
+    eia_dfs: dict[str, pd.DataFrame],
+    ferc1_dfs: dict[str, pd.DataFrame],
+) -> None:
+    """Load a dictionary of dataframes into the PUDL SQLite DB.
 
-    return SQLiteManager(
-        pudl_engine=pudl_engine,
-        check_foreign_keys=check_foreign_keys,
-        check_types=check_types,
-        check_values=check_values,
-        clobber=clobber,
+    Args:
+        context: dagster context keyword.
+        glue_dfs: glue dataframes.
+        eia_dfs: eia dataframes.
+        ferc1_dfs: ferc1 Form 1 dataframes.
+    """
+    dfs = glue_dfs | eia_dfs | ferc1_dfs
+
+    engine = context.resources.pudl_engine
+    check_foreign_keys = context.op_config["check_foreign_keys"]
+    # This magic makes SQLAlchemy tell SQLite to check foreign key constraints
+    # whenever we insert data into thd database, which it doesn't do by default
+
+    @sa.event.listens_for(sa.engine.Engine, "connect")
+    def _set_sqlite_pragma(dbapi_connection, connection_record):
+        if isinstance(dbapi_connection, SQLite3Connection):
+            cursor = dbapi_connection.cursor()
+            cursor.execute(
+                f"PRAGMA foreign_keys={'ON' if check_foreign_keys else 'OFF'};"
+            )
+            cursor.close()
+
+    bad_sqlite_version = version.parse(sqlite_version) < version.parse(
+        MINIMUM_SQLITE_VERSION
     )
+    check_types = context.op_config["check_types"]
+    if bad_sqlite_version and check_types:
+        check_types = False
+        logger.warning(
+            f"Found SQLite {sqlite_version} which is less than "
+            f"the minimum required version {MINIMUM_SQLITE_VERSION} "
+            "As a result, data type constraint checking has been disabled."
+        )
+
+    # Generate a SQLAlchemy MetaData object from dataframe names:
+    md = Package.from_resource_ids(resource_ids=tuple(sorted(dfs))).to_sql(
+        check_types=check_types,
+        check_values=context.op_config["check_values"],
+    )
+    # Delete any existing tables, and create them anew:
+    if context.op_config["clobber"]:
+        md.drop_all(engine)
+    md.create_all(engine)
+
+    # Load any tables that exist in our dictionary of dataframes into the
+    # corresponding table in the newly create database:
+    for table in md.sorted_tables:
+        logger.info(f"Loading {table.name} into PUDL SQLite DB.")
+        try:
+            dfs[table.name].to_sql(
+                table.name,
+                engine,
+                if_exists="append",
+                index=False,
+                dtype={c.name: c.type for c in table.columns},
+            )
+        except IntegrityError as err:
+            logger.info(find_foreign_key_errors(dfs))
+            logger.info(err)
+            sys.exit(1)
