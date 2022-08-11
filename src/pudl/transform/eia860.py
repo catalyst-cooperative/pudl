@@ -487,6 +487,8 @@ def boiler_generator_assn(eia860_dfs, eia860_transformed_dfs):
 
     b_g_df = pudl.helpers.convert_to_date(b_g_df)
 
+    b_g_df = pudl.helpers.convert_cols_dtypes(df=b_g_df, data_source="eia")
+
     b_g_df = (
         pudl.metadata.classes.Package.from_resource_ids()
         .get_resource("boiler_generator_assn_eia860")

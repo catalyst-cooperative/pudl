@@ -561,7 +561,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "The docket number relating to the FERC qualifying facility small power producer status. See FERC Form 556.",
     },
-    "ferc_qualifying_cogen_docket_no": {
+    "ferc_qualifying_facility_docket_no": {
         "type": "string",
         "description": "The docket number relating to the FERC qualifying facility cogenerator status. See FERC Form 556.",
     },
@@ -1746,6 +1746,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
         "description": "Total steam pressure produced by a unit during the reported hour.",
         "unit": "lb",
+    },
+    "steam_plant_type_code": {
+        "type": "integer",
+        "description": "Code that describes types of steam plants from EIA 860.",
     },
     "steam_total": {
         "type": "number",

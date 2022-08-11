@@ -74,6 +74,7 @@ def _read_static_tables_eia() -> dict[str, pd.DataFrame]:
         ],
         "contract_types_eia": CODE_METADATA["contract_types_eia"]["df"],
         "coalmine_types_eia": CODE_METADATA["coalmine_types_eia"]["df"],
+        "steam_plant_types_eia": CODE_METADATA["steam_plant_type_eia"]["df"],
     }
 
 

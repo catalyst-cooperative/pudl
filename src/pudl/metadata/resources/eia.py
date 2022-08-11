@@ -27,6 +27,18 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "static_eia",
         "field_namespace": "eia",
     },
+    "steam_plant_types_eia": {
+        "description": "A coding table describing different types of steam plants in the EIA-860.",
+        "schema": {
+            "fields": ["code", "label", "description"],
+            "primary_key": ["code"],
+            "foreign_key_rules": {"fields": [["steam_plant_type_code"]]},
+        },
+        "encoder": CODE_METADATA["steam_plant_type_eia"],
+        "sources": ["eia860"],
+        "etl_group": "static_eia",
+        "field_namespace": "eia",
+    },
     "coalmine_types_eia": {
         "description": "A coding table describing different types of coalmines reported as fuel sources in the EIA-923.",
         "schema": {

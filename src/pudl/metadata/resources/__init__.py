@@ -47,7 +47,7 @@ ENTITIES: dict[str, dict[str, list[str]]] = {
             "ferc_exempt_wholesale_generator",
             "ferc_small_power_producer_docket_no",
             "ferc_small_power_producer",
-            "ferc_qualifying_cogen_docket_no",
+            "ferc_qualifying_facility_docket_no",
             "grid_voltage_1_kv",
             "grid_voltage_2_kv",
             "grid_voltage_3_kv",
