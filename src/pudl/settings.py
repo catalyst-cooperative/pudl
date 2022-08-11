@@ -434,7 +434,7 @@ class Ferc1DbfToSqliteSettings(GenericDatasetSettings):
 
 
 class Ferc1XbrlToSqliteSettings(GenericDatasetSettings):
-    """An immutable pydantic nodel to validate Ferc1 to SQLite settings.
+    """An immutable pydantic model to validate Ferc1 to SQLite settings.
 
     Args:
         taxonomy: URL of taxonomy used to .
@@ -459,11 +459,35 @@ class Ferc1XbrlToSqliteSettings(GenericDatasetSettings):
         return sorted(set(tables))
 
 
-class EtlSettings(BaseSettings):
-    """Main settings validation class."""
+class OtherFercToSqliteSettings(BaseSettings):
+    """An immutable pydantic model to validate FERC non-form 1 XBRL to SQLite settings.
+
+    Args:
+        forms: List of non-FERC1 forms to convert from XBRL to SQLite.
+    """
+
+    forms: list[int] = [2, 6, 60, 714]
+    years: list[int] = [2021]
+
+
+class FercToSqliteSettings(BaseSettings):
+    """An immutable pydantic model to validate FERC XBRL to SQLite settings.
+
+    Args:
+        ferc1_dbf_to_sqlite_settings: Settings for converting FERC 1 DBF data to SQLite.
+        ferc1_xbrl_to_sqlite_settings: Settings for converting FERC 1 XBRL data to SQLite.
+        other_xbrl_forms: List of non-FERC1 forms to convert from XBRL to SQLite.
+    """
 
     ferc1_dbf_to_sqlite_settings: Ferc1DbfToSqliteSettings = None
     ferc1_xbrl_to_sqlite_settings: Ferc1XbrlToSqliteSettings = None
+    ferc_other_xbrl_to_sqlite_settings: OtherFercToSqliteSettings = None
+
+
+class EtlSettings(BaseSettings):
+    """Main settings validation class."""
+
+    ferc_to_sqlite_settings: FercToSqliteSettings = None
     datasets: DatasetsSettings = None
 
     name: str = None

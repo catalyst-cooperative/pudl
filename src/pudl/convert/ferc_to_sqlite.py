@@ -14,7 +14,7 @@ import yaml
 
 import pudl
 from pudl.helpers import configure_root_logger, get_logger
-from pudl.settings import Ferc1DbfToSqliteSettings, Ferc1XbrlToSqliteSettings
+from pudl.settings import FercToSqliteSettings
 from pudl.workspace.datastore import Datastore
 
 # Create a logger to output any messages we might have...
@@ -108,8 +108,8 @@ def main():  # noqa: C901
         pudl_in=pudl_in, pudl_out=pudl_out
     )
 
-    dbf_settings = Ferc1DbfToSqliteSettings().parse_obj(
-        script_settings["ferc1_dbf_to_sqlite_settings"]
+    parsed_settings = FercToSqliteSettings().parse_obj(
+        script_settings["ferc_to_sqlite_settings"]
     )
 
     # Configure how we want to obtain raw input data:
@@ -121,18 +121,14 @@ def main():  # noqa: C901
 
     pudl_settings["sandbox"] = args.sandbox
     pudl.extract.ferc1.dbf2sqlite(
-        ferc1_to_sqlite_settings=dbf_settings,
+        ferc1_to_sqlite_settings=parsed_settings.ferc1_dbf_to_sqlite_settings,
         pudl_settings=pudl_settings,
         clobber=args.clobber,
         datastore=Datastore(**ds_kwargs),
     )
 
-    xbrl_settings = Ferc1XbrlToSqliteSettings().parse_obj(
-        script_settings["ferc1_xbrl_to_sqlite_settings"]
-    )
-
-    pudl.extract.ferc1.xbrl2sqlite(
-        ferc1_to_sqlite_settings=xbrl_settings,
+    pudl.extract.xbrl.xbrl2sqlite(
+        ferc1_to_sqlite_settings=parsed_settings,
         pudl_settings=pudl_settings,
         clobber=args.clobber,
         datastore=Datastore(local_cache_path=(Path(pudl_in) / "data"), sandbox=True),

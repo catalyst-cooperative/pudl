@@ -51,29 +51,19 @@ and EIA 923.
 import csv
 import importlib
 import io
-import json
-import time
-from datetime import datetime
 from pathlib import Path
 
 import dbfread
 import pandas as pd
 import sqlalchemy as sa
 from dbfread import DBF
-from ferc_xbrl_extractor import xbrl
-from ferc_xbrl_extractor.instance import InstanceBuilder
 from sqlalchemy import or_
 
 import pudl
 from pudl.helpers import get_logger
 from pudl.metadata.classes import DataSource
 from pudl.metadata.constants import DBF_TABLES_FILENAMES
-from pudl.settings import (
-    Ferc1DbfSettings,
-    Ferc1DbfToSqliteSettings,
-    Ferc1XbrlSettings,
-    Ferc1XbrlToSqliteSettings,
-)
+from pudl.settings import Ferc1DbfSettings, Ferc1DbfToSqliteSettings, Ferc1XbrlSettings
 from pudl.workspace.datastore import Datastore
 
 logger = get_logger(__name__)
@@ -215,45 +205,6 @@ class Ferc1Datastore:
             return archive.open((self.get_dir(year) / filename).as_posix())
         except KeyError:
             raise KeyError(f"{filename} not availabe for year {year} in ferc1.")
-
-
-class Ferc1XbrlDatastore:
-    """Simple datastore wrapper for accessing ferc1 xbrl resources."""
-
-    def __init__(self, datastore: Datastore):
-        """Instantiate datastore wrapper for ferc1 resources."""
-        self.datastore = datastore
-
-    def get_filings(self, year: int):
-        """Return list of filings from archive."""
-        archive = self.datastore.get_zipfile_resource("ferc1", year=year)
-
-        # Load RSS feed metadata
-        filings = []
-        with archive.open("rssfeed") as f:
-            metadata = json.load(f)
-
-            # Loop through all filings by a given filer in a given quarter
-            # And take the most recent one
-            for key, filing_info in metadata.items():
-                latest = datetime.min
-                for filing_id, info in filing_info.items():
-                    # Parse date from 9-tuple
-                    published = datetime.fromtimestamp(
-                        time.mktime(tuple(info["published_parsed"]))
-                    )
-
-                    if published > latest:
-                        latest_filing = f"{filing_id}.xbrl"
-
-                # Create in memory buffers with file data to be used in conversion
-                filings.append(
-                    InstanceBuilder(
-                        io.BytesIO(archive.open(latest_filing).read()), filing_id
-                    )
-                )
-
-        return filings
 
 
 def drop_tables(engine):
@@ -581,48 +532,6 @@ def get_raw_df(
             pd.concat(raw_dfs, sort=True)
             .drop("_NullFlags", axis=1, errors="ignore")
             .rename(dbc_map[table], axis=1)
-        )
-
-
-def xbrl2sqlite(
-    ferc1_to_sqlite_settings: Ferc1XbrlToSqliteSettings = Ferc1XbrlToSqliteSettings(),
-    pudl_settings=None,
-    clobber=False,
-    datastore=None,
-    batch_size: int | None = None,
-    workers: int | None = None,
-):
-    """Clone the FERC Form 1 Databsae to SQLite.
-
-    Args:
-        ferc1_to_sqlite_settings: Object containing Ferc1 to SQLite validated
-            settings.
-        pudl_settings (dict): Dictionary containing paths and database URLs
-            used by PUDL.
-        datastore (Datastore): instance of a datastore to access the resources.
-
-    Returns:
-        None
-
-    """
-    # Read in the structure of the DB, if it exists
-    logger.info("Dropping the old FERC Form 1 SQLite DB if it exists.")
-    sqlite_engine = sa.create_engine(pudl_settings["ferc1_xbrl_db"])
-    try:
-        # So that we can wipe it out
-        pudl.helpers.drop_tables(sqlite_engine, clobber=clobber)
-    except sa.exc.OperationalError:
-        pass
-
-    datastore = Ferc1XbrlDatastore(datastore)
-
-    for year in ferc1_to_sqlite_settings.years:
-        xbrl.extract(
-            datastore.get_filings(year),
-            sqlite_engine,
-            ferc1_to_sqlite_settings.taxonomy,
-            batch_size=batch_size,
-            workers=workers,
         )
 
 
