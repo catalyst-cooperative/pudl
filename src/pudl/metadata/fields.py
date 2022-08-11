@@ -533,7 +533,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "ferc_cogen_docket_no": {
         "type": "string",
-        "description": "The docket number relating to the FERC qualifying facility cogenerator status. See FERC Form 556.",
+        "description": "The docket number relating to the FERC cogenerator status. See FERC Form 556.",
     },
     "ferc_cogen_status": {
         "type": "boolean",
@@ -560,6 +560,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "ferc_small_power_producer_docket_no": {
         "type": "string",
         "description": "The docket number relating to the FERC qualifying facility small power producer status. See FERC Form 556.",
+    },
+    "ferc_qualifying_cogen_docket_no": {
+        "type": "string",
+        "description": "The docket number relating to the FERC qualifying facility cogenerator status. See FERC Form 556.",
+    },
+    "ferc_qualifying_facility": {
+        "type": "boolean",
+        "description": "Indicatates whether or not a generator is a qualifying FERC cogeneation facility.",
     },
     "fluidized_bed_tech": {
         "type": "boolean",
@@ -737,6 +745,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "General Plant Total (FERC Accounts 389-399.1).",
     },
     "generation_activity": {"type": "boolean"},
+    "boiler_generator_association_code": {
+        "type": "string",
+        "description": "Indicates whether boiler associations with generator during the year were actual or theoretical. Only available before 2013.",
+        # "constraints": {"enum": ["Actual", "Theoretical"]},
+    },
     "generator_id": {
         "type": "string",
         "description": "Generator ID is usually numeric, but sometimes includes letters. Make sure you treat it as a string!",

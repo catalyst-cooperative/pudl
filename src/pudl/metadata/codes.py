@@ -231,6 +231,21 @@ CODE_METADATA: dict[str, dict[str, Any]] = {
         },
         "ignored_codes": [],
     },
+    "boiler_generator_association_types_eia": {
+        "df": pd.DataFrame(
+            columns=[
+                "code",
+                "label",
+                "description",
+            ],
+            data=[
+                ("A", "actual", "An actual boiler generator association."),
+                ("T", "theorecial", "A theoretical boiler generator association."),
+            ],
+        ),
+        "code_fixes": {"t": "T", "a": "A"},
+        "ignored_codes": [1],
+    },
     "operational_status_eia": {
         "df": pd.DataFrame(
             columns=["code", "label", "description", "operational_status"],
