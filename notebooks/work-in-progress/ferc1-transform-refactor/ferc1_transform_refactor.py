@@ -17,11 +17,13 @@ hierarchically.
      more than one column of input data. They take a DataFrame and a TransformParam and
      return a DataFrame.
 
-   * Column-wise transforms can be automatically turned into table-wise transforms using
-     a factory function.
+   * Column transforms can be automatically turned into table (multi-column) transforms
+     using a factory function.
 
    * transform_functions() of potentially general utility will be defined as globally
-     accessible functions at the module level.
+     accessible functions at the module level. I'm not sure whether this pattern can
+     be applied directly to table-specific colum/multi-column transforms that are
+     defined as methods inside of a table transformer class.
 
 2. TransformParams: Immutable Pydantic models that store and validate the parameters
    required to perform a variety of different column or table level transformations.
@@ -32,6 +34,9 @@ hierarchically.
    * Multiple column-level TransformParams of the same type can be turned into
      table-level TransformParams simply by creating a dictionary that maps the column
      names to their individual column-level TransformParams.
+
+   * TableTransformParams contain all of the TransformParams that apply to a particular
+     table.
 
 3. The data to be transformed is tabular, and will be passed around as dataframes. If
    possible, we'll only operate on whole dataframes, with individual column-level
@@ -44,9 +49,12 @@ hierarchically.
    which are generally applicable to many tables within the dataset (e.g.  merging the
    instant and duration tables from the FERC 1 XBRL data.). These inherited methods
    can be overridden when necessary (potentially still making use of the inherited
-   method) if a particular table needs special treatment.
+   method) if a particular table needs special treatment. Each of the table-specific
+   subclasses will know what table it is associated with, and can look up the
+   TableTransformParams that are associated with it.
 
 """
+from collections.abc import Callable
 
 import logging
 import re
@@ -56,30 +64,40 @@ from abc import ABC, abstractmethod
 from typing import Protocol
 
 import pandas as pd
-from pydantic import BaseModel
+from pydantic import BaseModel, root_validator
 
 logger = logging.getLogger(__name__)
-
+logging.basicConfig(level=logging.INFO)
 
 ################################################################################
 # Test dataframes
 ################################################################################
 TEST_INPUT_DF: pd.DataFrame = pd.DataFrame(
     {
-        "netgen": [1_000, 2_000, 3_000],
+        "netgen": [1000.0, 2000.0, 3000.0],
         "fuel_btu_per_unit": [1.7e7, 5.8e6, 1e5],
         "units": ["tons", "barrels", "mcf"],
         "fuel_type": ["dinosaur", "astroglide", "unicorn farts"],
     }
 )
 
-EXPECTED_OUTPUT_DF: pd.DataFrame = pd.DataFrame(
-    {
-        "net_generation_mwh": [1, 2, 3],
-        "fuel_mmbtu_per_unit": [17.0, 5.8, 0.1],
-        "fuel_units": ["tons", "barrels", "mcf"],
-        "fuel_type": ["coal", "oil", "gas"],
-    }
+EXPECTED_OUTPUT_DFS: dict[str, pd.DataFrame] = dict(
+    test_table_one=pd.DataFrame(
+        {
+            "net_generation_mwh": [1.0, 2.0, 3.0],
+            "fuel_mmbtu_per_unit": [17.0, 5.8, 0.1],
+            "fuel_units": ["tons", "barrels", "mcf"],
+            "fuel_type": ["💩", "oil", "gas"],
+        }
+    ),
+    test_table_two=pd.DataFrame(
+        {
+            "net_generation_mwh": [1.0, 2.0, 3.0],
+            "fuel_mmbtu_per_unit": [17.0, 5.8, 0.1],
+            "fuel_units": ["tons", "barrels", "mcf"],
+            "fuel_type": ["👿", "oil", "gas"],
+        }
+    ),
 )
 
 ################################################################################
@@ -100,27 +118,48 @@ BTU_TO_MMBTU = dict(
 """Parameters for converting column units from BTU to MMBTU."""
 
 FUEL_TYPES = {
-    "coal": {"black", "xenoforming", "dinosaur", "goo"},
-    "oil": {"olive", "sunflower", "fish", "astroglide"},
-    "gas": {"elon musk", "unicorn farts", "cow farts"},
+    "categories": {
+        "coal": {"black", "xenoforming", "dinosaur", "goo"},
+        "oil": {"olive", "sunflower", "fish", "astroglide"},
+        "gas": {"elon musk", "unicorn farts", "cow farts"},
+    }
 }
 
 TRANSFORM_PARAMS = {
-    "test_table_id": {
+    "test_table_one": {
         "rename_columns": {
-            "netgen": "net_generation_kwh",
-            "heat_content": "fuel_btu_per_unit",
-            "units": "fuel_units",
-            "fuel_type": "fuel_type",
+            "columns": {
+                "netgen": "net_generation_kwh",
+                "heat_content": "fuel_btu_per_unit",
+                "units": "fuel_units",
+                "fuel_type": "fuel_type",
+            }
         },
-        "unit_conversions": {
+        "convert_units": {
             "net_generation_kwh": KWH_TO_MWH,
             "fuel_btu_per_unit": BTU_TO_MMBTU,
         },
-        "string_categories": {
+        "categorize_strings": {
             "fuel_type": FUEL_TYPES,
         },
-    }
+    },
+    "test_table_two": {
+        "rename_columns": {
+            "columns": {
+                "netgen": "net_generation_kwh",
+                "heat_content": "fuel_btu_per_unit",
+                "units": "fuel_units",
+                "fuel_type": "fuel_type",
+            }
+        },
+        "convert_units": {
+            "net_generation_kwh": KWH_TO_MWH,
+            "fuel_btu_per_unit": BTU_TO_MMBTU,
+        },
+        "categorize_strings": {
+            "fuel_type": FUEL_TYPES,
+        },
+    },
 }
 
 
@@ -137,39 +176,33 @@ class TransformParams(BaseModel):
 
 
 class MultiColumnTransformParams(TransformParams):
-    """Transform params that apply to several columns in a table."""
+    """Transform params that apply to several columns in a table.
 
-    __root__: dict[str, TransformParams]
+    The keys are column names, and the values must all be the same type of
+    :class:`TransformParams` object, since MultiColumnTransformParams are used by
+    :class:`MultiColumnTransformFn` callables.
 
-    def __iter__(self):
-        """Enable iteration over stored column transform parameters."""
-        return iter(self.__root__)
+    Individual subclasses are dynamically generated for each multi-column transformation
+    specified within a :class:`TableTransformParams` object.
 
-    def __getitem__(self, item):
-        """Enable dictionary style access."""
-        return self.__root__[item]
+    """
 
-    def __getattr__(self, item):
-        """Enable dotted attribute access."""
-        return self.__root__[item]
+    @root_validator
+    def single_param_type(cls, params):  # noqa: N805
+        """Check that all TransformParams in the dictionary are of the same type."""
+        param_types = {type(params[col]) for col in params}
+        if len(param_types) > 1:
+            raise ValueError(
+                "Found multiple parameter types in multi-column transform params: "
+                f"{param_types}"
+            )
+        return params
 
 
-class RenameCols(TransformParams):
-    """Simple table transform params for renaming columns."""
+class RenameColumns(TransformParams):
+    """A dictionary for mapping old column names to new column names in a dataframe."""
 
-    __root__: dict[str, str] = {}
-
-    def __iter__(self):
-        """Enable iteration over column rename dictionary."""
-        return iter(self.__root__)
-
-    def __getitem__(self, item):
-        """Enable dictionary style access."""
-        return self.__root__[item]
-
-    def __getattr__(self, item):
-        """Enable dotted attribute access."""
-        return self.__root__[item]
+    columns: dict[str, str] = {}
 
 
 class StringCategories(TransformParams):
@@ -180,24 +213,14 @@ class StringCategories(TransformParams):
 
     """
 
-    __root__: dict[str, set[str]]
-
-    def __iter__(self):
-        """Enable iteration over string categories."""
-        return iter(self.__root__)
-
-    def __getitem__(self, item):
-        """Enable dictionary style access."""
-        return self.__root__[item]
-
-    def __getattr__(self, item):
-        """Enable dotted attribute access."""
-        return self.__root__[item]
+    categories: dict[str, set[str]]
 
     @property
     def mapping(self) -> dict[str, str]:
         """A 1-to-1 mapping appropriate for use with :meth:`pd.Series.map`."""
-        return {string: cat for cat in self for string in self[cat]}
+        return {
+            string: cat for cat in self.categories for string in self.categories[cat]
+        }
 
 
 class UnitConversion(TransformParams):
@@ -209,50 +232,22 @@ class UnitConversion(TransformParams):
     repl: str
 
 
-class MultiColumnUnitConversion(MultiColumnTransformParams):
-    """Transformation paramaters for converting the units of multiple columns."""
-
-    __root__: dict[str, UnitConversion]
-
-
-class MultiColumnStringCategories(MultiColumnTransformParams):
-    """Transformation parameters for categorizing strings in multiple columns."""
-
-    __root__: dict[str, StringCategories]
-
-
 class TableTransformParams(TransformParams):
     """All defined transformation parameters for a table."""
 
-    rename_columns: RenameCols = {}
-    unit_conversions: MultiColumnUnitConversion = {}
-    string_categories: MultiColumnStringCategories = {}
+    class Config:
+        """Only allow the known table transform params."""
+
+        extra = "forbid"
+
+    rename_columns: RenameColumns = {}
+    convert_units: dict[str, UnitConversion] = {}
+    categorize_strings: dict[str, StringCategories] = {}
 
     @classmethod
     def from_id(cls, table_id: str) -> "TableTransformParams":
         """A factory method that looks up transform parameters based on table_id."""
-        return cls(**DatasetTransformParams()[table_id])
-
-
-class DatasetTransformParams(TransformParams):
-    """All defined transformation parameters pertaining to a dataset, (e.g. ferc1).
-
-    Dataset transform parameters are keyed by table name.
-    """
-
-    __root__: dict[str, TableTransformParams] = TRANSFORM_PARAMS
-
-    def __iter__(self):
-        """Enable iteration over stored table transform parameters."""
-        return iter(self.__root__)
-
-    def __getitem__(self, item):
-        """Enable dictionary style access."""
-        return self.__root__[item]
-
-    def __getattr__(self, item):
-        """Enable dotted attribute access."""
-        return self.__root__[item]
+        return cls(**TRANSFORM_PARAMS[table_id])
 
 
 ################################################################################
@@ -285,16 +280,11 @@ def multicol_transform_fn_factory(
         for col_name in params:
             if col_name in df.columns:
                 new_col = col_fn(col=df[col_name], params=params[col_name])
-                df = pd.concat([df, new_col], axis="columns")
                 if drop_col:
-                    if col_name == new_col.name:
-                        raise ValueError(
-                            f"Attempting to drop the column {col_name} that we just "
-                            "created!"
-                        )
                     df = df.drop(columns=col_name)
+                df = pd.concat([df, new_col], axis="columns")
             else:
-                logger.info(
+                logger.warning(
                     f"Expected column {col_name} not found in dataframe during table "
                     "transform."
                 )
@@ -325,7 +315,7 @@ def categorize_strings_col(col: pd.Series, params: StringCategories) -> pd.Serie
     return col.map(params.mapping)
 
 
-categorize_strings = multicol_transform_fn_factory(categorize_strings_col)
+categorize_strings = multicol_transform_fn_factory(categorize_strings_col, drop=True)
 
 
 ################################################################################
@@ -335,48 +325,82 @@ class AbstractTableTransformer(ABC):
     """An exmaple abstract base transformer class."""
 
     table_id: str
-    params: TableTransformParams
 
-    def __init__(self, table_id: str):
-        """Initialize the table transformer class."""
-        self.table_id = table_id
-        self.params = TableTransformParams.from_id(table_id=table_id)
+    @property
+    def params(self) -> TableTransformParams:
+        """Obtain table transform parameters based on the table ID."""
+        return TableTransformParams.from_id(table_id=self.table_id)
 
     ################################################################################
     # Abstract methods that must be defined by subclasses
     @abstractmethod
-    def apply(self, dfs: dict[str, pd.DataFrame]) -> dict[str, pd.DataFrame]:
+    def transform(self, df: pd.DataFrame) -> pd.DataFrame:
         """Apply all specified transformations to the appropriate input dataframes."""
         ...
 
     ################################################################################
     # Default method implementations which can be used or overridden by subclasses
-    def rename_columns(self, df: pd.DataFrame, params: RenameCols) -> pd.DataFrame:
+    def rename_columns(self, df: pd.DataFrame, params: RenameColumns) -> pd.DataFrame:
         """Rename the whole collection of dataframe columns using input params.
 
         Log if there's any mismatch between the columns in the dataframe, and the
         columns that have been defined in the mapping for renaming.
 
         """
-        return df.rename(columns=params.__root__)
+        return df.rename(columns=params.columns)
 
 
-class TestTableTransformer(AbstractTableTransformer):
+class TestTableTransformerOne(AbstractTableTransformer):
     """A concrete table transformer class for testing."""
 
-    def apply(self, dfs: dict[str, pd.DataFrame]) -> dict[str, pd.DataFrame]:
+    table_id: str = "test_table_one"
+
+    def transform(self, df: pd.DataFrame) -> pd.DataFrame:
         """Apply all the Test Transforms."""
-        out_df = (
-            dfs[self.table_id].pipe(self.rename_columns, self.params.rename_columns)
-            # .pipe(categorize_strings, self.params.string_categories)
-            # .pipe(convert_units, self.params.unit_conversions)
-            # .pipe(self.bespoke_transform)
+        return (
+            df.pipe(self.rename_columns, self.params.rename_columns)
+            .pipe(categorize_strings, self.params.categorize_strings)
+            .pipe(convert_units, self.params.convert_units)
+            .pipe(self.bespoke_transform)
         )
-        return {self.table_id: out_df}
 
     def bespoke_transform(self, df: pd.DataFrame) -> pd.DataFrame:
         """A transformation that's specific to this table."""
-        return df
+        return df.replace(to_replace="coal", value="💩")
+
+
+class TestTableTransformerTwo(AbstractTableTransformer):
+    """A concrete table transformer class for testing."""
+
+    table_id: str = "test_table_two"
+
+    def transform(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Apply all the Test Transforms."""
+        return (
+            df.pipe(self.rename_columns, self.params.rename_columns)
+            .pipe(categorize_strings, self.params.categorize_strings)
+            .pipe(convert_units, self.params.convert_units)
+            .pipe(self.bespoke_transform)
+        )
+
+    def bespoke_transform(self, df: pd.DataFrame) -> pd.DataFrame:
+        """A transformation that's specific to this table."""
+        return df.replace(to_replace="coal", value="👿")
+
+
+def table_transformer_fn_factory(
+    table_id: str,
+) -> Callable[[pd.DataFrame], pd.DataFrame]:
+    """A factory to create table transform functions we can wrap in ops..."""
+    table_transformers = {
+        "test_table_one": TestTableTransformerOne(),
+        "test_table_two": TestTableTransformerTwo(),
+    }
+
+    def fn(df: pd.DataFrame) -> pd.DataFrame:
+        return table_transformers[table_id].transform(df)
+
+    return fn
 
 
 ################################################################################
@@ -384,21 +408,23 @@ class TestTableTransformer(AbstractTableTransformer):
 ################################################################################
 def main() -> int:
     """Stand-in for the coordinationg transform() function so we can test."""
-    tttfr = TestTableTransformer("test_table_id")
-    actual = tttfr.apply({"test_table_id": TEST_INPUT_DF})["test_table_id"]
+    raw_dfs = {
+        "test_table_one": TEST_INPUT_DF,
+        "test_table_two": TEST_INPUT_DF,
+    }
+    transformed_dfs = {}
+    for table_id in raw_dfs:
+        df = raw_dfs[table_id]
+        transform = table_transformer_fn_factory(table_id)
+        transformed_dfs[table_id] = transform(df)
 
-    pd.testing.assert_frame_equal(actual, EXPECTED_OUTPUT_DF)
+        pd.testing.assert_frame_equal(
+            transformed_dfs[table_id].sort_index(axis="columns"),
+            EXPECTED_OUTPUT_DFS[table_id].sort_index(axis="columns"),
+        )
 
     return 0
 
 
 if __name__ == "__main__":
     sys.exit(main())
-
-# TODO:
-# [ ] Test DatasetTransformParams actually instantiates nested models
-# [ ] Function factory that takes a table name and provides a function with access
-#     to the right TableTransformParams and TableTransformer for use with Dagster.
-#     transform_all() function
-# [ ] Flesh out table iterations in main() to stand in for coordinating transform()
-#     function
