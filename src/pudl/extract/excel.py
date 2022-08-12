@@ -240,10 +240,10 @@ class GenericExtractor:
                 newdata = self.process_raw(newdata, page, **partition)
                 newdata = self.process_renamed(newdata, page, **partition)
                 dfs.append(newdata)
-                # check if there are any missing or ectra columns
+                # check if there are any missing or extra columns
                 str_part = str(list(partition.values())[0])
-                col_map = self.METADATA._column_map[page].loc[:, [str_part]]
-                page_cols = col_map[col_map[str_part].notnull()].index
+                col_map = self.METADATA._column_map[page]
+                page_cols = col_map.loc[col_map[str_part].notnull(), [str_part]].index
                 expected_cols = page_cols.union(self.cols_added)
                 if set(newdata.columns) != set(expected_cols):
 
@@ -252,12 +252,13 @@ class GenericExtractor:
                     missing_raw_cols = set(expected_cols).difference(newdata.columns)
                     if extra_raw_cols:
                         logger.warning(
-                            f"Extra columns found in {partition}'s {page}: {extra_raw_cols}"
+                            f"Extra columns found in extracted table of "
+                            f"{page}/{str_part}: {extra_raw_cols}"
                         )
                     if missing_raw_cols:
                         logger.warning(
-                            f"Columns found missing from page {partition}'s {page}: "
-                            f"{missing_raw_cols}"
+                            "Expected columns not found in extracted table of"
+                            f"{page}/{str_part}: {missing_raw_cols}"
                         )
             df = pd.concat(dfs, sort=True, ignore_index=True)
 

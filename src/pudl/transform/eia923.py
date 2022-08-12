@@ -846,7 +846,7 @@ def boiler_fuel(eia923_dfs, eia923_transformed_dfs):
         "sector_name",
         "fuel_unit",
         "total_fuel_consumption_quantity",
-        "respondent_frequency",
+        "reporting_frequency",
         "balancing_authority_code_eia",
         "early_release",
     ]

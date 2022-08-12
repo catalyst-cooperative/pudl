@@ -748,7 +748,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "boiler_generator_association_code": {
         "type": "string",
         "description": "Indicates whether boiler associations with generator during the year were actual or theoretical. Only available before 2013.",
-        # "constraints": {"enum": ["Actual", "Theoretical"]},
     },
     "generator_id": {
         "type": "string",
@@ -1749,7 +1748,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "steam_plant_type_code": {
         "type": "integer",
-        "description": "Code that describes types of steam plants from EIA 860.",
+        "description": "Code that describes types of steam plants from EIA 860. See steam_plant_types_eia table for more details.",
     },
     "steam_total": {
         "type": "number",
