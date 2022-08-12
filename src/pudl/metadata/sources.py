@@ -204,7 +204,7 @@ SOURCES: dict[str, Any] = {
         },
         "field_namespace": "epacems",
         "working_partitions": {
-            "years": sorted(set(range(1995, 2021))),
+            "years": sorted(set(range(1995, 2022))),
             "states": sorted(set(EPACEMS_STATES)),
         },
         "contributors": [
