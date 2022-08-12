@@ -54,13 +54,12 @@ hierarchically.
    TableTransformParams that are associated with it.
 
 """
-from collections.abc import Callable
-
 import logging
 import re
 import sys
 import typing
 from abc import ABC, abstractmethod
+from collections.abc import Callable
 from typing import Protocol
 
 import pandas as pd
