@@ -161,11 +161,15 @@ def convert_form(
         None
 
     """
-    # Handle FERC 1
+    # Use taxonomy arg if it exists, otherwise get taxonomy from form number
+    taxonomy = taxonomy if taxonomy else TAXONOMY_MAP[form_number]
+
+    # Process XBRL filings for each year requested
     for year in years:
         xbrl.extract(
-            datastore.get_filings(year, 1),
+            datastore.get_filings(year, form_number),
             sqlite_engine,
+            taxonomy,
             batch_size=batch_size,
             workers=workers,
         )

@@ -128,7 +128,7 @@ def main():  # noqa: C901
     )
 
     pudl.extract.xbrl.xbrl2sqlite(
-        ferc1_to_sqlite_settings=parsed_settings,
+        ferc_to_sqlite_settings=parsed_settings,
         pudl_settings=pudl_settings,
         clobber=args.clobber,
         datastore=Datastore(local_cache_path=(Path(pudl_in) / "data"), sandbox=True),
