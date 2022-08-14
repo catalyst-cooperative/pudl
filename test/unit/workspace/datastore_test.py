@@ -119,8 +119,8 @@ class TestZenodoFetcher(unittest.TestCase):
             },
         ]
     }
-    PROD_EPACEMS_DOI = "10.5281/zenodo.4660268"
-    PROD_EPACEMS_ZEN_ID = 4660268  # This is the last numeric part of doi
+    PROD_EPACEMS_DOI = "10.5281/zenodo.6910058"
+    PROD_EPACEMS_ZEN_ID = 6910058  # This is the last numeric part of doi
 
     def setUp(self):
         """Constructs instance of mockable zenodo fetcher based on the MOCK_EPACEMS_DATAPACKAGE."""
