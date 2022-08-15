@@ -80,10 +80,16 @@ def etl_parameters(request, test_dir):
     return etl_settings
 
 
-@pytest.fixture(scope="session", name="ferc1_etl_settings")
-def ferc1_etl_parameters(etl_settings):
+@pytest.fixture(scope="session", name="ferc1_dbf_settings")
+def ferc1_dbf_parameters(etl_settings):
     """Read ferc1_to_sqlite parameters out of test settings dictionary."""
     return etl_settings.ferc1_dbf_to_sqlite_settings
+
+
+@pytest.fixture(scope="session", name="ferc1_xbrl_settings")
+def ferc1_xbrl_parameters(etl_settings):
+    """Read ferc1_to_sqlite parameters out of test settings dictionary."""
+    return etl_settings.ferc1_xbrl_to_sqlite_settings
 
 
 @pytest.fixture(scope="session", name="pudl_etl_settings")
@@ -126,11 +132,11 @@ def pudl_out_orig(live_dbs, pudl_engine):
     return PudlTabl(pudl_engine=pudl_engine)
 
 
-@pytest.fixture(scope="session", name="ferc1_engine")
-def ferc1_sql_engine(
+@pytest.fixture(scope="session", name="ferc1_dbf_engine")
+def ferc1_dbf_sql_engine(
     pudl_settings_fixture,
     live_dbs,
-    ferc1_etl_settings,
+    ferc1_dbf_settings,
     pudl_datastore_fixture,
 ):
     """Grab a connection to the FERC Form 1 DB clone.
@@ -140,7 +146,7 @@ def ferc1_sql_engine(
     """
     if not live_dbs:
         pudl.extract.ferc1.dbf2sqlite(
-            ferc1_to_sqlite_settings=ferc1_etl_settings,
+            ferc1_to_sqlite_settings=ferc1_dbf_settings,
             pudl_settings=pudl_settings_fixture,
             clobber=False,
             datastore=pudl_datastore_fixture,
@@ -150,9 +156,40 @@ def ferc1_sql_engine(
     return engine
 
 
+@pytest.fixture(scope="session", name="ferc1_xbrl_engine")
+def ferc1_xbrl_sql_engine(
+    pudl_settings_fixture,
+    live_dbs,
+    ferc1_xbrl_settings,
+    pudl_ds_kwargs,
+):
+    """Grab a connection to the FERC Form 1 DB clone.
+
+    If we are using the test database, we initialize it from scratch first.
+    If we're using the live database, then we just yield a conneciton to it.
+    """
+    # For now explicitly create datastore using sandbox
+    # This should use pudl_datastore once an official FERC1 XBRL archive is created
+    ds_kwargs = {**pudl_ds_kwargs, "sandbox": True}
+    datastore = pudl.workspace.datastore.Datastore(**ds_kwargs)
+
+    if not live_dbs:
+        pudl.extract.ferc1.xbrl2sqlite(
+            ferc1_to_sqlite_settings=ferc1_xbrl_settings,
+            pudl_settings=pudl_settings_fixture,
+            clobber=False,
+            datastore=datastore,
+            workers=5,
+        )
+    engine = sa.create_engine(pudl_settings_fixture["ferc1_xbrl_db"])
+    logger.info("FERC1 Engine: %s", engine)
+    return engine
+
+
 @pytest.fixture(scope="session", name="pudl_engine")
 def pudl_sql_engine(
-    ferc1_engine,  # Implicit dependency
+    ferc1_dbf_engine,  # Implicit dependency
+    ferc1_xbrl_engine,  # Implicit dependency
     live_dbs,
     pudl_settings_fixture,
     etl_settings,
@@ -225,6 +262,9 @@ def pudl_settings_dict(request, live_dbs, tmpdir_factory):  # noqa: C901
     if live_dbs:
         pudl_settings["pudl_db"] = pudl.workspace.setup.get_defaults()["pudl_db"]
         pudl_settings["ferc1_db"] = pudl.workspace.setup.get_defaults()["ferc1_db"]
+        pudl_settings["ferc1_xbrl_db"] = pudl.workspace.setup.get_defaults()[
+            "ferc1_xbrl_db"
+        ]
         pudl_settings["censusdp1tract_db"] = pudl.workspace.setup.get_defaults()[
             "censusdp1tract_db"
         ]
