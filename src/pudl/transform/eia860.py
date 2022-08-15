@@ -10,7 +10,7 @@ from pudl.metadata.classes import DataSource
 from pudl.metadata.codes import CODE_METADATA
 from pudl.metadata.fields import apply_pudl_dtypes
 from pudl.settings import Eia860Settings
-from pudl.transform.eia861 import _clean_nerc
+from pudl.transform.eia861 import clean_nerc
 
 logger = logging.getLogger(__name__)
 
@@ -130,7 +130,7 @@ def ownership(eia860_dfs, eia860_transformed_dfs):
     own_df = own_df[~mask]
 
     if not (nulls := own_df[own_df.generator_id == ""]).empty:
-        logger.warning(f"Found records with null IDs in ownership_eia86: {nulls}")
+        logger.warning(f"Found records with null IDs in ownership_eia860: {nulls}")
     # In 2010 there are several hundred utilities that appear to be incorrectly
     # reporting the owner_utility_id_eia value *also* in the utility_id_eia
     # column. This results in duplicate operator IDs associated with a given
@@ -430,7 +430,7 @@ def plants(eia860_dfs, eia860_transformed_dfs):
 
     p_df = pudl.helpers.convert_to_date(p_df)
 
-    p_df = _clean_nerc(p_df, idx_cols=["plant_id_eia", "report_date", "nerc_region"])
+    p_df = clean_nerc(p_df, idx_cols=["plant_id_eia", "report_date", "nerc_region"])
 
     p_df = (
         pudl.metadata.classes.Package.from_resource_ids()
