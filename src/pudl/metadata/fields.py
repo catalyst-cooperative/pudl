@@ -1558,11 +1558,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "reporting_frequency_code": {
         "type": "string",
         "description": "Code that specifies what time period data has to be reported (i.e. monthly data or annual totals) and how often the power plant reports this data to EIA. See reporting_frequencies_eia for more details.",
-        # "constraints": {
-        #     "enum": sorted(
-        #         set(CODE_METADATA["reporting_frequencies_eia"]["df"]["code"])
-        #     )
-        # },
+        "constraints": {
+            "enum": sorted(
+                set(CODE_METADATA["reporting_frequencies_eia"]["df"]["code"])
+            )
+        },
     },
     "respondent_id_ferc714": {"type": "integer"},
     "respondent_name_ferc714": {"type": "string"},

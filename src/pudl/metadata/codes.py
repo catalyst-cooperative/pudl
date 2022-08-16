@@ -1168,17 +1168,17 @@ CODE_METADATA: dict[str, dict[str, Any]] = {
             columns=["code", "label", "description"],
             data=[
                 (
-                    "a",
+                    "A",
                     "annual",
                     "The respondent only provides an annual total(s) for this record via the EIA-923 annual survey form.  Any monthly data in this record is estimated based on the respondent's reported annual total(s) and power plants with similar characteristics to this plant.",
                 ),
                 (
-                    "m",
+                    "M",
                     "monthly",
                     "The respondent provides monthly values for this record and does so via the EIA-923 monthly survey form.",
                 ),
                 (
-                    "am",
+                    "AM",
                     "monthly_annual",
                     "The respondent provides monthly values for this record, but does so once per year via the EIA-923 annual survey form.",
                 ),
