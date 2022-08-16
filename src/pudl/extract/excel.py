@@ -176,8 +176,18 @@ class GenericExtractor:
 
     def process_raw(self, df, page, **partition):
         """Transforms raw dataframe and rename columns."""
-        self.cols_added = []
+        df = self.add_data_maturity(df, page, **partition)
+        self.cols_added = ["data_label"]
         return df.rename(columns=self._metadata.get_column_map(page, **partition))
+
+    def add_data_maturity(self, df: pd.DataFrame, page, **partition) -> pd.DataFrame:
+        """Add a data_maturity column to indicate the level of finality of the partition."""
+        maturity = "final"
+        if "early_release" in self.excel_filename(page, **partition).lower():
+            maturity = "early_release"
+        df.loc[:, "data_maturity"] = maturity
+        self.cols_added.append("data_maturity")
+        return df
 
     @staticmethod
     def process_renamed(df, page, **partition):

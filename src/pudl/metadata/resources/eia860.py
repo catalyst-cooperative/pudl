@@ -13,6 +13,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "unit_id_eia",
                 "unit_id_pudl",
                 "bga_source",
+                "data_maturity",
             ],
             "primary_key": ["plant_id_eia", "report_date", "generator_id", "boiler_id"],
         },
@@ -89,7 +90,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "retirement_date",
                 "owned_by_non_utility",
                 "reactive_power_output_mvar",
-                "data_source",
+                "data_maturity",
             ],
             "primary_key": ["plant_id_eia", "generator_id", "report_date"],
             "foreign_key_rules": {
@@ -125,6 +126,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "owner_street_address",
                 "owner_zip_code",
                 "fraction_owned",
+                "data_maturity",
             ],
             "primary_key": [
                 "report_date",
@@ -180,6 +182,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "transmission_distribution_owner_state",
                 "utility_id_eia",
                 "water_source",
+                "data_maturity",
             ],
             "primary_key": ["plant_id_eia", "report_date"],
             "foreign_key_rules": {
@@ -229,6 +232,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "contact_title_2",
                 "phone_number_2",
                 "phone_extension_2",
+                "data_maturity",
             ],
             "primary_key": ["utility_id_eia", "report_date"],
             "foreign_key_rules": {

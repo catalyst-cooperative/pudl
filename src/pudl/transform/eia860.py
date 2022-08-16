@@ -467,15 +467,15 @@ def boiler_generator_assn(eia860_dfs, eia860_transformed_dfs):
     """
     # Populating the 'generators_eia860' table
     b_g_df = eia860_dfs["boiler_generator_assn"].copy()
-    b_g_cols = [
-        "report_year",
-        "utility_id_eia",
-        "plant_id_eia",
-        "boiler_id",
-        "generator_id",
-    ]
+    # b_g_cols = [
+    #     "report_year",
+    #     "utility_id_eia",
+    #     "plant_id_eia",
+    #     "boiler_id",
+    #     "generator_id",
+    # ]
 
-    b_g_df = b_g_df[b_g_cols]
+    b_g_df = b_g_df  # [b_g_cols]
 
     # There are some bad (non-data) lines in some of the boiler generator
     # data files (notes from EIA) which are messing up the import. Need to
@@ -491,7 +491,7 @@ def boiler_generator_assn(eia860_dfs, eia860_transformed_dfs):
     b_g_df["boiler_id"] = b_g_df["boiler_id"].astype(str)
 
     # This drop_duplicates isn't removing all duplicates
-    b_g_df = b_g_df.drop_duplicates().dropna()
+    b_g_df = b_g_df.drop_duplicates()
 
     b_g_df = pudl.helpers.convert_to_date(b_g_df)
 

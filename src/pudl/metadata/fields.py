@@ -287,10 +287,12 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "boolean",
         "description": "Is the value observed (True) or imputed (False).",
     },
-    "data_source": {
+    "data_maturity": {
         "type": "string",
-        "description": "Source of EIA 860 data. Either Annual EIA 860 or the year-to-date updates from EIA 860M.",
-        "constraints": {"enum": ["eia860", "eia860m"]},
+        "description": "Level of maturity of the data record. Some data sources report less-than-final data. PUDL sometimes includes this data, but use at your own risk.",
+        "constraints": {
+            "enum": ["final", "early_release", "monthly_release", "year_to_date"]
+        },
     },
     "datasource": {
         "type": "string",

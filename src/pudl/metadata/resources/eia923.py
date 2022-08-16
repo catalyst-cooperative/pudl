@@ -15,6 +15,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "fuel_mmbtu_per_unit",
                 "sulfur_content_pct",
                 "ash_content_pct",
+                "data_maturity",
             ],
             "primary_key": [
                 "plant_id_eia",
@@ -37,6 +38,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "state",
                 "county_id_fips",
                 "mine_id_msha",
+                "data_maturity",
             ],
             "primary_key": ["mine_id_pudl"],
             "foreign_key_rules": {"fields": [["mine_id_pudl"]]},
@@ -70,6 +72,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "natural_gas_delivery_contract_type_code",
                 "moisture_content_pct",
                 "chlorine_content_ppm",
+                "data_maturity",
             ],
         },
         "field_namespace": "eia",
@@ -84,6 +87,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "generator_id",
                 "report_date",
                 "net_generation_mwh",
+                "data_maturity",
             ],
             "primary_key": ["plant_id_eia", "generator_id", "report_date"],
         },
@@ -107,6 +111,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "fuel_consumed_mmbtu",
                 "fuel_consumed_for_electricity_mmbtu",
                 "net_generation_mwh",
+                "data_maturity",
             ],
             "primary_key": [
                 "plant_id_eia",
@@ -136,6 +141,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "fuel_consumed_mmbtu",
                 "fuel_consumed_for_electricity_mmbtu",
                 "net_generation_mwh",
+                "data_maturity",
             ],
             "primary_key": [
                 "plant_id_eia",

@@ -49,6 +49,7 @@ class Extractor(excel.GenericExtractor):
                 f"{page}: replacing {len(df[mask])} nulls/bad values in `report_year` column with {partition['year']}"
             )
             df.loc[mask, "report_year"] = partition["year"]
+        df = self.add_data_maturity(df, page, **partition)
         return df
 
     def extract(self, settings: Eia923Settings = Eia923Settings()):
