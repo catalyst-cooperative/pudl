@@ -41,6 +41,18 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "static_eia",
         "field_namespace": "eia",
     },
+    "reporting_frequencies_eia": {
+        "description": "A coding table describing different types of reporting frequencies in plants in the EIA-923.",
+        "schema": {
+            "fields": ["code", "label", "description"],
+            "primary_key": ["code"],
+            "foreign_key_rules": {"fields": [["reporting_frequency_code"]]},
+        },
+        "encoder": CODE_METADATA["reporting_frequencies_eia"],
+        "sources": ["eia923"],
+        "etl_group": "static_eia",
+        "field_namespace": "eia",
+    },
     "coalmine_types_eia": {
         "description": "A coding table describing different types of coalmines reported as fuel sources in the EIA-923.",
         "schema": {

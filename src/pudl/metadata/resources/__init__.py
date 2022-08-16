@@ -63,7 +63,7 @@ ENTITIES: dict[str, dict[str, list[str]]] = {
             "pipeline_notes",
             "primary_purpose_id_naics",
             "regulatory_status_code",
-            "reporting_frequency",
+            "reporting_frequency_code",
             "sector_id_eia",
             "sector_name_eia",
             "service_area",

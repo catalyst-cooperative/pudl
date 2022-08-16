@@ -61,20 +61,9 @@ def _read_static_tables_eia() -> dict[str, pd.DataFrame]:
 
     """
     return {
-        "boiler_generator_association_types_eia": CODE_METADATA[
-            "boiler_generator_association_types_eia"
-        ]["df"],
-        "energy_sources_eia": CODE_METADATA["energy_sources_eia"]["df"],
-        "operational_status_eia": CODE_METADATA["operational_status_eia"]["df"],
-        "fuel_types_aer_eia": CODE_METADATA["fuel_types_aer_eia"]["df"],
-        "prime_movers_eia": CODE_METADATA["prime_movers_eia"]["df"],
-        "sector_consolidated_eia": CODE_METADATA["sector_consolidated_eia"]["df"],
-        "fuel_transportation_modes_eia": CODE_METADATA["fuel_transportation_modes_eia"][
-            "df"
-        ],
-        "contract_types_eia": CODE_METADATA["contract_types_eia"]["df"],
-        "coalmine_types_eia": CODE_METADATA["coalmine_types_eia"]["df"],
-        "steam_plant_types_eia": CODE_METADATA["steam_plant_types_eia"]["df"],
+        table_name: code_dict["df"]
+        for (table_name, code_dict) in CODE_METADATA.items()
+        if "_eia" in table_name  # right now th
     }
 
 

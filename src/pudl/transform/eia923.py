@@ -527,17 +527,13 @@ def plants(eia923_dfs, eia923_transformed_dfs):
             "plant_state",
             "eia_sector",
             "naics_code",
-            "reporting_frequency",
+            "reporting_frequency_code",
             "census_region",
             "nerc_region",
             "capacity_mw",
             "report_year",
         ]
     ]
-
-    plant_info_df["reporting_frequency"] = plant_info_df.reporting_frequency.replace(
-        {"M": "monthly", "A": "annual"}
-    )
     # Since this is a plain Yes/No variable -- just make it a real sa.Boolean.
     plant_info_df.combined_heat_power.replace({"N": False, "Y": True}, inplace=True)
 
@@ -846,7 +842,6 @@ def boiler_fuel(eia923_dfs, eia923_transformed_dfs):
         "sector_name",
         "fuel_unit",
         "total_fuel_consumption_quantity",
-        "reporting_frequency",
         "balancing_authority_code_eia",
         "early_release",
     ]
@@ -1098,7 +1093,6 @@ def fuel_receipts_costs(eia923_dfs, eia923_transformed_dfs):
         "state_id_fips",
         "mine_name",
         "regulated",
-        "reporting_frequency",
         "early_release",
     ]
 

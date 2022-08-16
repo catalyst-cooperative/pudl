@@ -1,6 +1,10 @@
 """Metadata for cleaning, re-encoding, and documenting coded data columns.
 
-These dictionaries are used to create Encoder instances. They contain the following keys:
+These dictionaries are used to create Encoder instances. Each key is a table name with
+a sub dictionary that includes additional detail. The table names must end with the
+data_source as a sufix (for EIA 860, 861 or 923 tables include ``_eia``).
+
+The table-specific dictionaries contain the following keys:
 
 * 'df': A dataframe associating short codes with long descriptions and other information.
   Each dataframe needs at least three standard columns: "code", "label", "description".
@@ -1153,6 +1157,30 @@ CODE_METADATA: dict[str, dict[str, Any]] = {
                     4,
                     "non_steam",
                     "Plants with non-steam fueled electric generators (wind, PV, geothermal, fuel cell, combustion turbines, IC engines, etc.) and electric generators not meeting conditions of categories above.",
+                ),
+            ],
+        ).convert_dtypes(),
+        "code_fixes": {},
+        "ignored_codes": [],
+    },
+    "reporting_frequencies_eia": {
+        "df": pd.DataFrame(
+            columns=["code", "label", "description"],
+            data=[
+                (
+                    "a",
+                    "annual",
+                    "The respondent only provides an annual total(s) for this record via the EIA-923 annual survey form.  Any monthly data in this record is estimated based on the respondent's reported annual total(s) and power plants with similar characteristics to this plant.",
+                ),
+                (
+                    "m",
+                    "monthly",
+                    "The respondent provides monthly values for this record and does so via the EIA-923 monthly survey form.",
+                ),
+                (
+                    "am",
+                    "monthly_annual",
+                    "The respondent provides monthly values for this record, but does so once per year via the EIA-923 annual survey form.",
                 ),
             ],
         ).convert_dtypes(),
