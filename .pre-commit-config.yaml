@@ -79,7 +79,7 @@ repos:
 
   # Check for PEP8 non-compliance, code complexity, style, errors, etc:
   - repo: https://github.com/PyCQA/flake8
-    rev: 5.0.2
+    rev: 5.0.4
     hooks:
       - id: flake8
         args: [--config, tox.ini]
