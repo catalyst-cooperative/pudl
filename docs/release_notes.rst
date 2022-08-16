@@ -11,6 +11,11 @@ PUDL Release Notes
 Data Coverage
 ^^^^^^^^^^^^^
 * Incorporated 2021 data from the :doc:`data_sources/epacems` dataset. See :pr:`1778`
+* Incorporated 2021 data from the :doc:`data_sources/eia860` and
+  :doc:`data_sources/eia923`. Early Release. Early release data is EIA's preliminary
+  annual release and should be used with caution. :pr:`1834`
+* Incorporated 2022 data from the :doc:`data_sources/eia860m` from June 20222.
+  :pr:`1834`
 
 Nightly Data Builds
 ^^^^^^^^^^^^^^^^^^^
