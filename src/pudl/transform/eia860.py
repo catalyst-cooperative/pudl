@@ -482,7 +482,6 @@ def boiler_generator_assn(eia860_dfs, eia860_transformed_dfs):
     b_g_df["generator_id"] = b_g_df["generator_id"].astype(str)
     b_g_df["boiler_id"] = b_g_df["boiler_id"].astype(str)
 
-    # This drop_duplicates isn't removing all duplicates
     b_g_df = b_g_df.drop_duplicates()
 
     b_g_df = pudl.helpers.convert_to_date(b_g_df)

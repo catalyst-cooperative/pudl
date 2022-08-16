@@ -20,7 +20,9 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "schema": {
             "fields": ["code", "label", "description"],
             "primary_key": ["code"],
-            "foreign_key_rules": {"fields": [["boiler_generator_association_code"]]},
+            "foreign_key_rules": {
+                "fields": [["boiler_generator_association_type_code"]]
+            },
         },
         "encoder": CODE_METADATA["boiler_generator_association_types_eia"],
         "sources": ["eia860"],
@@ -34,7 +36,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             "primary_key": ["code"],
             "foreign_key_rules": {"fields": [["steam_plant_type_code"]]},
         },
-        "encoder": CODE_METADATA["steam_plant_type_eia"],
+        "encoder": CODE_METADATA["steam_plant_types_eia"],
         "sources": ["eia860"],
         "etl_group": "static_eia",
         "field_namespace": "eia",

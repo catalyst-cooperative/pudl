@@ -745,7 +745,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "General Plant Total (FERC Accounts 389-399.1).",
     },
     "generation_activity": {"type": "boolean"},
-    "boiler_generator_association_code": {
+    "boiler_generator_association_type_code": {
         "type": "string",
         "description": "Indicates whether boiler associations with generator during the year were actual or theoretical. Only available before 2013.",
     },

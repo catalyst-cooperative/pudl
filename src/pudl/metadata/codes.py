@@ -1130,28 +1130,28 @@ CODE_METADATA: dict[str, dict[str, Any]] = {
         "code_fixes": {},
         "ignored_codes": [],
     },
-    "steam_plant_type_eia": {
+    "steam_plant_types_eia": {
         "df": pd.DataFrame(
             columns=["code", "label", "description"],
             data=[
                 (
                     1,
-                    "steam over 100MW",
+                    "steam_over_100mw",
                     "Plants with combustible-fueled steam-electric generators with a sum of 100 MW or more steam-electric nameplate capacity (including combined cycle steam-electric generators with duct firing).",
                 ),
                 (
                     2,
-                    "steam between 10MW and 100MW",
+                    "steam_between_10mw_and_100mw",
                     "Plants with combustible-fueled steam-electric generators with a sum of 10 MW or more but less than 100 MW steam-electric nameplate capacity (including combined cycle steam-electric generators with duct firing).",
                 ),
                 (
                     3,
-                    "nuclear over 100MW",
+                    "nuclear_over_100mw",
                     "Plants with nuclear fueled generators, combined cycle steam-electric generators without duct firing and solar thermal electric generators using a steam cycle with a sum of 100 MW or more steam-electric nameplate capacity.",
                 ),
                 (
                     4,
-                    "non-steam",
+                    "non_steam",
                     "Plants with non-steam fueled electric generators (wind, PV, geothermal, fuel cell, combustion turbines, IC engines, etc.) and electric generators not meeting conditions of categories above.",
                 ),
             ],
