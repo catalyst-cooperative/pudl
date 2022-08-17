@@ -200,7 +200,9 @@ Run a Siloed EIA ETL
 Before moving on you should ensure that the EIA ETL is fully functional by running it
 for all years and all EIA data sources. You'll need to create a temporary ETL settings
 file that includes only the EIA data, and all available years of it. You may need to
-debug inconsistencies in the harvested values.
+debug inconsistencies in the harvested values. See: :doc:`run_the_etl` for more details,
+but you'll need to use the ``--ignore-foreign-key-constraints`` argument because new
+plants and utilities probably need to be mapped (read on into next section).
 
 Integration between datasets
 ----------------------------
