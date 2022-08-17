@@ -469,24 +469,9 @@ def boiler_generator_assn(eia860_dfs, eia860_transformed_dfs):
     # Populating the 'generators_eia860' table
     b_g_df = eia860_dfs["boiler_generator_assn"].copy()
 
-    # There are some bad (non-data) lines in some of the boiler generator
-    # data files (notes from EIA) which are messing up the import. Need to
-    # identify and drop them early on.
-    b_g_df["utility_id_eia"] = b_g_df["utility_id_eia"].astype(str)
-    b_g_df = b_g_df[b_g_df.utility_id_eia.str.isnumeric()]
-
-    b_g_df["plant_id_eia"] = b_g_df["plant_id_eia"].astype(int)
-
-    # We need to cast the generator_id column as type str because sometimes
-    # it is heterogeneous int/str which make drop_duplicates fail.
-    b_g_df["generator_id"] = b_g_df["generator_id"].astype(str)
-    b_g_df["boiler_id"] = b_g_df["boiler_id"].astype(str)
-
-    b_g_df = b_g_df.drop_duplicates()
-
     b_g_df = pudl.helpers.convert_to_date(b_g_df)
-
     b_g_df = pudl.helpers.convert_cols_dtypes(df=b_g_df, data_source="eia")
+    b_g_df = b_g_df.drop_duplicates()
 
     b_g_df = (
         pudl.metadata.classes.Package.from_resource_ids()
