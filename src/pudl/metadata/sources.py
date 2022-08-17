@@ -43,7 +43,7 @@ SOURCES: dict[str, Any] = {
             CONTRIBUTORS["alana-wilson"],
         ],
         "working_partitions": {
-            "years": sorted(set(range(2001, 2021))),
+            "years": sorted(set(range(2001, 2022))),
         },
         "keywords": sorted(
             set(
@@ -77,7 +77,7 @@ SOURCES: dict[str, Any] = {
         "field_namespace": "eia",
         "contributors": [],
         "working_partitions": {
-            "year_month": "2021-12",
+            "year_month": "2022-06",
         },
         "keywords": sorted(
             set(
@@ -153,7 +153,7 @@ SOURCES: dict[str, Any] = {
         },
         "field_namespace": "eia",
         "working_partitions": {
-            "years": sorted(set(range(2001, 2021))),
+            "years": sorted(set(range(2001, 2022))),
         },
         "contributors": [
             CONTRIBUTORS["catalyst-cooperative"],
