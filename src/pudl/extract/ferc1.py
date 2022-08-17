@@ -57,14 +57,16 @@ from pathlib import Path
 import dbfread
 import pandas as pd
 import sqlalchemy as sa
+from dagster import Field, job, op
 from dbfread import DBF
 from sqlalchemy import or_
 
 import pudl
+from pudl.etl import pudl_engine, pudl_settings
 from pudl.metadata.classes import DataSource
 from pudl.metadata.constants import DBF_TABLES_FILENAMES
 from pudl.settings import Ferc1Settings, Ferc1ToSqliteSettings
-from pudl.workspace.datastore import Datastore
+from pudl.workspace.datastore import Datastore, datastore
 
 logger = logging.getLogger(__name__)
 
@@ -535,29 +537,36 @@ def get_raw_df(
         )
 
 
-def dbf2sqlite(
-    ferc1_to_sqlite_settings: Ferc1ToSqliteSettings = Ferc1ToSqliteSettings(),
-    pudl_settings=None,
-    clobber=False,
-    datastore=None,
-):
+@op(
+    config_schema={
+        "years": Field(list, is_required=False),
+        "tables": Field(list, is_required=False),
+        "bad_cols": Field(list, is_required=False),
+        "clobber": Field(bool, default_value=True),
+    },
+    required_resource_keys={"pudl_settings", "datastore", "pudl_engine"},
+)
+def dbf2sqlite(context):
     """Clone the FERC Form 1 Databsae to SQLite.
 
     Args:
-        ferc1_to_sqlite_settings: Object containing Ferc1 to SQLite validated
-            settings.
-        pudl_settings (dict): Dictionary containing paths and database URLs
-            used by PUDL.
-        bad_cols (iterable of tuples): A list of (table, column) pairs
-            indicating columns that should be skipped during the cloning
-            process. Both table and column are strings in this case, the
-            names of their respective entities within the database metadata.
-        datastore (Datastore): instance of a datastore to access the resources.
+        context: dagster context keyword.
 
     Returns:
         None
 
     """
+    settings_params = {}
+    settings_params["years"] = context.op_config.get("years")
+    settings_params["tables"] = context.op_config.get("tables")
+    settings_params["bad_cols"] = context.op_config.get("bad_cols")
+    settings_kwargs = {k: v for k, v in settings_params.items() if v}
+    ferc1_to_sqlite_settings = Ferc1ToSqliteSettings(**settings_kwargs)
+
+    pudl_settings = context.resources.pudl_settings
+    datastore = context.resources.datastore
+    clobber = context.op_config["clobber"]
+
     # Read in the structure of the DB, if it exists
     logger.info("Dropping the old FERC Form 1 SQLite DB if it exists.")
     sqlite_engine = sa.create_engine(pudl_settings["ferc1_db"])
@@ -938,3 +947,15 @@ def accumulated_depreciation(ferc1_engine, ferc1_settings):
     )
 
     return pd.read_sql(f1_accumdepr_prvsn_select, ferc1_engine)
+
+
+@job(
+    resource_defs={
+        "pudl_settings": pudl_settings,
+        "datastore": datastore,
+        "pudl_engine": pudl_engine,
+    }
+)
+def ferc1_to_sqlite():
+    """Run ferc1_to_sqlite job."""
+    dbf2sqlite()
