@@ -80,11 +80,11 @@ def _read_static_tables_eia() -> dict[str, pd.DataFrame]:
 
 @op(
     config_schema={
-        "eia860_tables": list,
-        "eia860_years": list,
-        "eia860m": bool,
-        "eia923_tables": list,
-        "eia923_years": list,
+        "eia860_tables": Field(list, is_required=False),
+        "eia860_years": Field(list, is_required=False),
+        "eia860m": Field(bool, is_required=False),
+        "eia923_tables": Field(list, is_required=False),
+        "eia923_years": Field(list, is_required=False),
     },
     required_resource_keys={"datastore"},
 )
@@ -98,25 +98,24 @@ def _etl_eia(context) -> dict[str, pd.DataFrame]:
         A dictionary of EIA dataframes ready for loading into the PUDL DB.
 
     """
-    eia860_tables = context.op_config["eia860_tables"]
-    eia860_years = context.op_config["eia860_years"]
-    eia860m = context.op_config["eia860m"]
-    eia923_tables = context.op_config["eia923_tables"]
-    eia923_years = context.op_config["eia923_years"]
+    eia860_settings_params = {}
+    eia860_settings_params["tables"] = context.op_config.get("eia860_tables")
+    eia860_settings_params["years"] = context.op_config.get("eia860_years")
+    eia860_settings_params["eia860m"] = context.op_config.get("eia860m")
+    eia860_settings_params = {k: v for k, v in eia860_settings_params.items() if v}
+    logger.info(eia860_settings_params)
 
-    eia860_settings = Eia860Settings(
-        years=eia860_years,
-        tables=eia860_tables,
-        eia860m=eia860m,
-    )
-    eia923_settings = Eia923Settings(
-        years=eia923_years,
-        tables=eia923_tables,
-    )
+    eia923_settings_params = {}
+    eia923_settings_params["tables"] = context.op_config.get("eia923_tables")
+    eia923_settings_params["years"] = context.op_config.get("eia923_years")
+    eia923_settings_params = {k: v for k, v in eia923_settings_params.items() if v}
+
+    eia860_settings = Eia860Settings(**eia860_settings_params)
+    eia923_settings = Eia923Settings(**eia923_settings_params)
     eia_settings = EiaSettings(eia860=eia860_settings, eia923=eia923_settings)
 
-    if (not eia923_tables or not eia923_years) and (
-        not eia860_tables or not eia860_years
+    if (not eia923_settings.tables or not eia923_settings.years) and (
+        not eia923_settings.tables or not eia923_settings.years
     ):
         logger.info("Not loading EIA.")
         return []
@@ -133,7 +132,7 @@ def _etl_eia(context) -> dict[str, pd.DataFrame]:
         settings=eia_settings.eia860
     )
     # if we are trying to add the EIA 860M YTD data, then extract it and append
-    if eia860m:
+    if eia860_settings.eia860m:
         eia860m_raw_dfs = pudl.extract.eia860m.Extractor(ds).extract(
             settings=eia_settings.eia860
         )
@@ -206,7 +205,10 @@ def _read_static_tables_ferc1() -> dict[str, pd.DataFrame]:
 
 # TODO: update config to use dagster Field
 @op(
-    config_schema={"years": list, "tables": list},
+    config_schema={
+        "years": Field(list, is_required=False),
+        "tables": Field(list, is_required=False),
+    },
     required_resource_keys={"pudl_settings"},
 )
 def _etl_ferc1(context) -> dict[str, pd.DataFrame]:
@@ -218,9 +220,13 @@ def _etl_ferc1(context) -> dict[str, pd.DataFrame]:
 
     """
     # Validate settings
-    years = context.op_config["years"]
-    tables = context.op_config["tables"]
-    ferc1_settings = Ferc1Settings(years=years, tables=tables)
+    # We need to filter setting parameters that aren't specified to let
+    # the pydantic setting models handle the default values.
+    settings_params = {}
+    settings_params["years"] = context.op_config.get("years")
+    settings_params["tables"] = context.op_config.get("tables")
+    settings_kwargs = {k: v for k, v in settings_params.items() if v}
+    ferc1_settings = Ferc1Settings(**settings_kwargs)
 
     # Compile static FERC 1 dataframes
     out_dfs = _read_static_tables_ferc1()
@@ -377,8 +383,8 @@ def etl_epacems(
 ###############################################################################
 @op(
     config_schema={
-        "ferc1": Field(bool, default_value=True),
-        "eia": Field(bool, default_value=True),
+        "ferc1": Field(bool, is_required=False),
+        "eia": Field(bool, is_required=False),
     },
     required_resource_keys={"pudl_settings"},
 )
@@ -393,9 +399,11 @@ def _etl_glue(context) -> dict[str, pd.DataFrame]:
         database table.
 
     """
-    ferc1 = context.op_config["ferc1"]
-    eia = context.op_config["eia"]
-    glue_settings = GlueSettings(ferc1=ferc1, eia=eia)
+    settings_params = {}
+    settings_params["ferc1"] = context.op_config.get("ferc1")
+    settings_params["eia"] = context.op_config.get("eia")
+    settings_kwargs = {k: v for k, v in settings_params.items() if v}
+    glue_settings = GlueSettings(**settings_kwargs)
 
     # grab the glue tables for ferc1 & eia
     glue_dfs = pudl.glue.ferc1_eia.glue(
@@ -521,8 +529,8 @@ def pudl_engine(init_context):
         "pudl_engine": pudl_engine,
     }
 )
-def dagster_etl():
-    """Tun temporary dagster_etl job."""
+def pudl_etl():
+    """Run pudl_etl job."""
     ferc1_dfs = _etl_ferc1()
     eia_dfs = _etl_eia()
     glue_dfs = _etl_glue()
@@ -530,4 +538,4 @@ def dagster_etl():
 
 
 if __name__ == "__main__":
-    dagster_etl.execute_in_process()
+    pudl_etl.execute_in_process()
