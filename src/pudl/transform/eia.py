@@ -638,7 +638,7 @@ def harvesting(  # noqa: C901
         entity_df = _add_additional_epacems_plants(entity_df)
         entity_df = _add_timezone(entity_df)
 
-    eia_transformed_dfs[f"{entity}_eia860"] = annual_df
+    eia_transformed_dfs[f"{entity}_annual_eia"] = annual_df
     entities_dfs[f"{entity}_entity_eia"] = entity_df
     if debug:
         return entities_dfs, eia_transformed_dfs, col_dfs
@@ -1116,15 +1116,20 @@ def transform(
             debug=debug,
             eia860m=eia_settings.eia860.eia860m,
         )
-    # remove the boilers annual table bc it has no columns
-    eia_transformed_dfs.pop(
-        "boilers_annual_eia",
-    )
     _boiler_generator_assn(
         eia_transformed_dfs,
         eia923_years=eia_settings.eia923.years,
         eia860_years=eia_settings.eia860.years,
         debug=debug,
     )
-
+    # get rid of the original annual dfs in the transformed dict
+    remove = ["generators", "plants", "utilities"]
+    for entity in remove:
+        eia_transformed_dfs[f"{entity}_eia860"] = eia_transformed_dfs.pop(
+            f"{entity}_annual_eia", f"{entity}_annual_eia"
+        )
+    # remove the boilers annual table bc it has no columns
+    eia_transformed_dfs.pop(
+        "boilers_annual_eia",
+    )
     return entities_dfs, eia_transformed_dfs
