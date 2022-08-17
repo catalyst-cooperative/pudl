@@ -844,6 +844,7 @@ def boiler_fuel(eia923_dfs, eia923_transformed_dfs):
         "total_fuel_consumption_quantity",
         "balancing_authority_code_eia",
         "early_release",
+        "reporting_frequency_code",
     ]
     bf_df.drop(cols_to_drop, axis=1, inplace=True)
 
