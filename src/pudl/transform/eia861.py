@@ -414,6 +414,7 @@ NERC_SPELLCHECK: dict[str, str] = {
     "ERCTO": "ERCOT",
     "RFO": "RFC",
     "RF": "RFC",
+    "REC": "RFC",
     "SSP": "SPP",
     "VACAR": "SERC",  # VACAR is a subregion of SERC
     "GATEWAY": "SERC",  # GATEWAY is a subregion of SERC
@@ -623,7 +624,7 @@ def _compare_totals(data_cols, idx_cols, class_type, df_name):
             logger.debug(f"{df_name}: for column {col} all total values are NaN")
 
 
-def _clean_nerc(df, idx_cols):
+def clean_nerc(df, idx_cols):
     """Clean NERC region entries and make new rows for multiple nercs.
 
     This function examines reported NERC regions and makes sure the output column of the
@@ -634,7 +635,7 @@ def _clean_nerc(df, idx_cols):
 
     Args:
         df (pandas.DataFrame): A DataFrame with the column 'nerc_region' to be cleaned.
-        idx_cols (list): A list of the primary keys.
+        idx_cols (list): A list of the primary keys and `nerc_region`.
 
     Returns:
         pandas.DataFrame: A DataFrame with correct and clean nerc regions.
@@ -665,10 +666,11 @@ def _clean_nerc(df, idx_cols):
         for nerc_entity in nerc_list
         if nerc_entity not in NERC_REGIONS + list(NERC_SPELLCHECK.keys())
     ]
-    print(
-        f"The following reported NERC regions are not currently recognized and become \
-        UNK values: {non_nerc_list}"
-    )
+    if non_nerc_list:
+        logger.info(
+            "The following reported NERC regions are not currently recognized and "
+            f"become UNK values: {non_nerc_list}"
+        )
 
     # Function to turn instances of 'SPP_UNK' or 'SPP_SPP' into 'SPP'
     def _remove_nerc_duplicates(entity_list):
@@ -1360,7 +1362,7 @@ def demand_side_management(tfr_dfs):
     ###########################################################################
 
     transformed_dsm1 = (
-        _clean_nerc(raw_dsm, idx_cols)
+        clean_nerc(raw_dsm, idx_cols)
         .drop(["demand_side_management", "data_status"], axis=1)
         .query("utility_id_eia not in [88888]")
     )
@@ -2097,7 +2099,7 @@ def operational_data(tfr_dfs):
     #   * I="imputed" => False
     ###########################################################################
 
-    transformed_od = _clean_nerc(raw_od, idx_cols).assign(
+    transformed_od = clean_nerc(raw_od, idx_cols).assign(
         data_observed=lambda x: x.data_observed.replace({"O": True, "I": False}),
         short_form=lambda x: _make_yn_bool(x.short_form),
     )
@@ -2245,7 +2247,7 @@ def utility_data(tfr_dfs):
     # * Clean NERC region col
     ##############################################################################
 
-    transformed_ud = _clean_nerc(raw_ud, idx_cols).assign(
+    transformed_ud = clean_nerc(raw_ud, idx_cols).assign(
         short_form=lambda x: _make_yn_bool(x.short_form)
     )
 
