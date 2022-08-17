@@ -305,16 +305,8 @@ def allocate_gen_fuel_by_generator_energy_source(pudl_out, drop_interim_cols=Tru
         ]
 
     # ensure that the allocated data has unique merge keys
-    net_gen_alloc = (
-        net_gen_alloc.groupby(IDX_PM_ESC + ["generator_id", "energy_source_code_num"])
-        .sum()
-        .reset_index()
-    )
-    fuel_alloc = (
-        fuel_alloc.groupby(IDX_PM_ESC + ["generator_id", "energy_source_code_num"])
-        .sum()
-        .reset_index()
-    )
+    net_gen_alloc = group_duplicate_keys(net_gen_alloc)
+    fuel_alloc = group_duplicate_keys(fuel_alloc)
 
     # squish net gen and fuel allocation together
     net_gen_fuel_alloc = pd.merge(
@@ -325,6 +317,36 @@ def allocate_gen_fuel_by_generator_energy_source(pudl_out, drop_interim_cols=Tru
         validate="1:1",
     ).sort_values(IDX_PM_ESC + ["generator_id", "energy_source_code_num"])
     return net_gen_fuel_alloc
+
+
+def group_duplicate_keys(df):
+    """Catches duplicate keys in the allocated data and groups them together.
+
+    Merging `net_gen_alloc` and `fuel_alloc` together requires unique keys in each df.
+    Sometimes the allocation process creates duplicate keys. This function identifies
+    when this happens, and aggregates the data on these keys to remove the duplicates.
+    """
+
+    # identify any duplicate records
+    duplicate_keys = df[
+        df.duplicated(subset=(IDX_PM_ESC + ["generator_id", "energy_source_code_num"]))
+    ]
+    # if there are duplicate records, print a warning and fix the issue
+    if len(duplicate_keys) > 0:
+        warnings.warn(
+            "Duplicate keys exist in the allocated data."
+            "These will be grouped together, but check the source "
+            "of this issue."
+        )
+        logger.warning(
+            duplicate_keys[IDX_PM_ESC + ["generator_id", "energy_source_code_num"]]
+        )
+        df = (
+            df.groupby(IDX_PM_ESC + ["generator_id", "energy_source_code_num"])
+            .sum()
+            .reset_index()
+        )
+    return df
 
 
 def aggregate_gen_fuel_by_generator(
