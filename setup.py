@@ -68,6 +68,7 @@ setup(
         "pygeos>=0.10,<0.13",
         "pyyaml>=5,<6.1",
         "scikit-learn>=1.0,<1.2",
+        "Shapely!=1.8.3",  # Seems to have a bug or incompatibility
         "scipy>=1.6,<1.10",
         "sqlalchemy>=1.4,<1.4.41",
         "timezonefinder>=5,<6.1",
