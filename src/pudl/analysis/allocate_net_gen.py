@@ -304,6 +304,18 @@ def allocate_gen_fuel_by_generator_energy_source(pudl_out, drop_interim_cols=Tru
             ],
         ]
 
+    # ensure that the allocated data has unique merge keys
+    net_gen_alloc = (
+        net_gen_alloc.groupby(IDX_PM_ESC + ["generator_id", "energy_source_code_num"])
+        .sum()
+        .reset_index()
+    )
+    fuel_alloc = (
+        fuel_alloc.groupby(IDX_PM_ESC + ["generator_id", "energy_source_code_num"])
+        .sum()
+        .reset_index()
+    )
+
     # squish net gen and fuel allocation together
     net_gen_fuel_alloc = pd.merge(
         net_gen_alloc,
