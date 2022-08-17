@@ -63,7 +63,7 @@ def _read_static_tables_eia() -> dict[str, pd.DataFrame]:
     return {
         table_name: code_dict["df"]
         for (table_name, code_dict) in CODE_METADATA.items()
-        if "_eia" in table_name  # right now th
+        if "_eia" in table_name  # only grab the eia tables
     }
 
 
