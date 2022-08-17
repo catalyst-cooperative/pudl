@@ -384,6 +384,11 @@ class Datastore:
             description="If enabled, the local file cache for datastore will be used.",
             default_value=True,
         ),
+        "sandbox": Field(
+            bool,
+            description="Use the Zenodo sandbox rather than production",
+            default_value=False,
+        ),
     },
     required_resource_keys={"pudl_settings"},
 )
@@ -391,7 +396,7 @@ def datastore(init_context):
     """Datastore resource. This can be configured in the dagit UI."""
     ds_kwargs = {}
     ds_kwargs["gcs_cache_path"] = init_context.resource_config["gcs_cache_path"]
-    ds_kwargs["sandbox"] = init_context.resources.pudl_settings.get("sandbox", False)
+    ds_kwargs["sandbox"] = init_context.resource_config["sandbox"]
 
     if init_context.resource_config["use_local_cache"]:
         ds_kwargs["local_cache_path"] = (

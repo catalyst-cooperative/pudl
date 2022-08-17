@@ -523,14 +523,6 @@ def pudl_engine(init_context):
 )
 def dagster_etl():
     """Tun temporary dagster_etl job."""
-    # TODO: figure out to combine etl dictionary outputs.
-    # Could create an op that combines dictionaries or
-    # maybe there is a way to define multiple outputs?
-    # See https://docs.dagster.io/concepts/ops-jobs-graphs/ops#outputs
-
-    # Maybe each etl can load its own data. would sqlalchemy protect
-    # against sqlite writting issues?
-
     ferc1_dfs = _etl_ferc1()
     eia_dfs = _etl_eia()
     glue_dfs = _etl_glue()

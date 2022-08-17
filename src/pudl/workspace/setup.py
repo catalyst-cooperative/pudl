@@ -164,9 +164,16 @@ def init(pudl_in, pudl_out, clobber=False):
     deploy(settings_pkg, settings_dir, ignore_files, clobber=clobber)
 
     # Make several output directories:
-    for fmt in ["sqlite", "parquet"]:
+    for fmt in ["sqlite", "parquet", "dagster_home"]:
         format_dir = pathlib.Path(pudl_settings["pudl_out"], fmt)
         format_dir.mkdir(parents=True, exist_ok=True)
+        if fmt == "dagster_home":
+            # Deploy dagster config file to dagster_home.
+            dagster_pkg = "pudl.package_data.dagster"
+            deploy(dagster_pkg, format_dir, ignore_files, clobber=clobber)
+            logger.info(
+                f"To set the DAGSTER_HOME env var, run: 'mamba env config vars set DAGSTER_HOME={format_dir}'."
+            )
 
 
 def deploy(pkg_path, deploy_dir, ignore_files, clobber=False):
