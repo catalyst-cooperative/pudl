@@ -244,7 +244,7 @@ CODE_METADATA: dict[str, dict[str, Any]] = {
             ],
             data=[
                 ("A", "actual", "An actual boiler generator association."),
-                ("T", "theorecial", "A theoretical boiler generator association."),
+                ("T", "theoretical", "A theoretical boiler generator association."),
             ],
         ),
         "code_fixes": {"t": "T", "a": "A"},
