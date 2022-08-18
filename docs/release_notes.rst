@@ -16,6 +16,8 @@ Data Coverage
   annual release and should be used with caution. :pr:`1834`
 * Incorporated 2022 data from the :doc:`data_sources/eia860` monthly update from June
   2022. :pr:`1834`
+* We've integrated several new columns into the EIA 860 and EIA 923 including several
+  codes with coding tables (See :doc:`data_dictionaries/codes_and_labels`). :pr:`1836`
 
 Nightly Data Builds
 ^^^^^^^^^^^^^^^^^^^

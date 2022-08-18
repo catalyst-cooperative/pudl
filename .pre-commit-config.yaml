@@ -79,7 +79,7 @@ repos:
 
   # Check for PEP8 non-compliance, code complexity, style, errors, etc:
   - repo: https://github.com/PyCQA/flake8
-    rev: 5.0.2
+    rev: 5.0.4
     hooks:
       - id: flake8
         args: [--config, tox.ini]
@@ -116,7 +116,7 @@ repos:
 
   # Lint any RST files and embedded code blocks for syntax / formatting errors
   - repo: https://github.com/myint/rstcheck
-    rev: v6.0.0.post1
+    rev: v6.1.0
     hooks:
       - id: rstcheck
         additional_dependencies: [sphinx]

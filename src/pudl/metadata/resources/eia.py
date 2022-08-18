@@ -15,6 +15,44 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "entity_eia",
         "field_namespace": "eia",
     },
+    "boiler_generator_association_types_eia": {
+        "description": "A coding table describing different types of boiler-generator associations in the EIA-860.",
+        "schema": {
+            "fields": ["code", "label", "description"],
+            "primary_key": ["code"],
+            "foreign_key_rules": {
+                "fields": [["boiler_generator_association_type_code"]]
+            },
+        },
+        "encoder": CODE_METADATA["boiler_generator_association_types_eia"],
+        "sources": ["eia860"],
+        "etl_group": "static_eia",
+        "field_namespace": "eia",
+    },
+    "steam_plant_types_eia": {
+        "description": "A coding table describing different types of steam plants in the EIA-860.",
+        "schema": {
+            "fields": ["code", "label", "description"],
+            "primary_key": ["code"],
+            "foreign_key_rules": {"fields": [["steam_plant_type_code"]]},
+        },
+        "encoder": CODE_METADATA["steam_plant_types_eia"],
+        "sources": ["eia860"],
+        "etl_group": "static_eia",
+        "field_namespace": "eia",
+    },
+    "reporting_frequencies_eia": {
+        "description": "A coding table describing different types of reporting frequencies in plants in the EIA-923.",
+        "schema": {
+            "fields": ["code", "label", "description"],
+            "primary_key": ["code"],
+            "foreign_key_rules": {"fields": [["reporting_frequency_code"]]},
+        },
+        "encoder": CODE_METADATA["reporting_frequencies_eia"],
+        "sources": ["eia923"],
+        "etl_group": "static_eia",
+        "field_namespace": "eia",
+    },
     "coalmine_types_eia": {
         "description": "A coding table describing different types of coalmines reported as fuel sources in the EIA-923.",
         "schema": {
@@ -101,7 +139,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "schema": {"fields": ["code", "label", "description"], "primary_key": ["code"]},
         "encoder": CODE_METADATA["entity_types_eia"],
         "sources": ["eia861"],
-        "etl_group": "static_eia",
+        "etl_group": "static_eia_disabled",  # currently not being loaded into the db
         "field_namespace": "eia",
     },
     "fuel_transportation_modes_eia": {
