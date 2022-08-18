@@ -30,6 +30,7 @@ import sqlalchemy as sa
 import pudl
 from pudl.helpers import convert_cols_dtypes
 from pudl.metadata.classes import Package, Resource
+from pudl.metadata.dfs import FERC_ACCOUNTS, FERC_DEPRECIATION_LINES
 from pudl.metadata.fields import apply_pudl_dtypes
 from pudl.settings import (
     EiaSettings,
@@ -75,7 +76,7 @@ def _etl_eia(
         return []
 
     # generate dataframes for the static EIA tables
-    out_dfs = _read_static_tables(etl_group_name="static_eia")
+    out_dfs = _read_static_encoded_tables(etl_group_name="static_eia")
 
     ds = Datastore(**ds_kwargs)
     # Extract EIA forms 923, 860
@@ -134,6 +135,27 @@ def _etl_eia(
 ###############################################################################
 
 
+def _read_static_tables_ferc1():
+    """Compile static tables for FERC1 for foriegn key constaints.
+
+    This function grabs static encoded tables via :func:`_read_static_encoded_tables`
+    as well as two static tables that are non-encoded tables (``ferc_accounts`` and
+    ``ferc_depreciation_lines``).
+    """
+    static_table_dict = _read_static_encoded_tables("static_ferc1")
+    static_table_dict.update(
+        {
+            "ferc_accounts": FERC_ACCOUNTS[
+                ["ferc_account_id", "ferc_account_description"]
+            ],
+            "ferc_depreciation_lines": FERC_DEPRECIATION_LINES[
+                ["line_id", "ferc_account_description"]
+            ],
+        }
+    )
+    return static_table_dict
+
+
 def _etl_ferc1(
     ferc1_settings: Ferc1Settings,
     pudl_settings: dict[str, Any],
@@ -151,7 +173,7 @@ def _etl_ferc1(
 
     """
     # Compile static FERC 1 dataframes
-    out_dfs = _read_static_tables(etl_group_name="static_ferc1")
+    out_dfs = _read_static_tables_ferc1(etl_group_name="static_ferc1")
 
     # Extract FERC form 1
     ferc1_raw_dfs = pudl.extract.ferc1.extract(
@@ -328,7 +350,7 @@ def _etl_glue(glue_settings: GlueSettings) -> dict[str, pd.DataFrame]:
     return glue_dfs
 
 
-def _read_static_tables(
+def _read_static_encoded_tables(
     etl_group_name: Literal["static_eia", "static_ferc1"]
 ) -> dict[str, pd.DataFrame]:
     """Build dataframes of static tables from a dataset for use as foreign keys.
@@ -353,7 +375,7 @@ def _read_static_tables(
     return {
         r.name: r.encoder.df
         for r in Package.from_resource_ids().resources
-        if r.etl_group == etl_group_name
+        if r.etl_group == etl_group_name and r.encoder
     }
 
 
