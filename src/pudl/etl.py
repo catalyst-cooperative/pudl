@@ -173,7 +173,7 @@ def _etl_ferc1(
 
     """
     # Compile static FERC 1 dataframes
-    out_dfs = _read_static_tables_ferc1(etl_group="static_ferc1")
+    out_dfs = _read_static_tables_ferc1()
 
     # Extract FERC form 1
     ferc1_raw_dfs = pudl.extract.ferc1.extract(
