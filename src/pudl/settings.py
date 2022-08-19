@@ -84,9 +84,9 @@ class Ferc1Settings(GenericDatasetSettings):
     @validator("tables")
     def validate_tables(cls, tables):  # noqa: N805
         """Validate tables are available."""
-        tables_not_working = list(set(tables) - set(cls.data_source.get_resource_ids()))
-        if tables_not_working:
-            raise ValueError(f"'{tables_not_working}' tables are not available.")
+        unavailable_tables = list(set(tables) - set(cls.data_source.get_resource_ids()))
+        if unavailable_tables:
+            raise ValueError(f"'{unavailable_tables}' tables are not available.")
         return sorted(set(tables))
 
     @property
@@ -383,7 +383,6 @@ class Ferc1DbfToSqliteSettings(GenericDatasetSettings):
     tables: list[str] = sorted(list(DBF_TABLES_FILENAMES.keys()))
 
     refyear: ClassVar[int] = max(years)
-    bad_cols: tuple = ()
 
     @validator("tables")
     def validate_tables(cls, tables):  # noqa: N805

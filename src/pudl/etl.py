@@ -214,7 +214,7 @@ def _etl_ferc1(
     ferc1_transformed_dfs = pudl.transform.ferc1.transform(
         ferc1_dbf_raw_dfs=ferc1_dbf_raw_dfs,
         ferc1_xbrl_raw_dfs=ferc1_xbrl_raw_dfs,
-        ferc1_settings=ferc1_settings.ferc1_dbf_settings,
+        ferc1_settings=ferc1_settings,
     )
 
     out_dfs.update(ferc1_transformed_dfs)

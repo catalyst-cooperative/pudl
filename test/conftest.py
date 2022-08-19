@@ -278,9 +278,9 @@ def pudl_settings_dict(request, live_dbs, tmpdir_factory):  # noqa: C901
 
 
 @pytest.fixture(scope="session")  # noqa: C901
-def pudl_ferc1datastore_fixture(pudl_datastore_fixture):
-    """Produce a :class:pudl.extract.ferc1.Ferc1Datastore."""
-    return pudl.extract.ferc1.Ferc1Datastore(pudl_datastore_fixture)
+def ferc1_dbf_datastore_fixture(pudl_datastore_fixture):
+    """Produce a :class:pudl.extract.ferc1.Ferc1DbfDatastore."""
+    return pudl.extract.ferc1.Ferc1DbfDatastore(pudl_datastore_fixture)
 
 
 @pytest.fixture(scope="session", name="pudl_ds_kwargs")

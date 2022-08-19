@@ -268,10 +268,20 @@ class TableTransformFn(Protocol):
         ...
 
 
+class MultiColumnTransformFn(Protocol):
+    """Callback protocol defining a per-table transformation function."""
+
+    def __call__(
+        self, df: pd.DataFrame, params: MultiColumnTransformParams
+    ) -> pd.DataFrame:
+        """Create a callable."""
+        ...
+
+
 def multicol_transform_fn_factory(
     col_fn: ColumnTransformFn,
     drop=False,
-) -> TableTransformFn:
+) -> MultiColumnTransformFn:
     """A factory for creating a table transformation from a column transformation."""
 
     def tab_fn(df: pd.DataFrame, params: MultiColumnTransformParams) -> pd.DataFrame:
