@@ -15,7 +15,7 @@ from pudl.metadata.classes import DataSource
 logger = logging.getLogger(__name__)
 
 
-def test_unmapped_plants_ferc1(pudl_settings_fixture, ferc1_engine):
+def test_unmapped_plants_ferc1(pudl_settings_fixture, ferc1_dbf_engine):
     """Test that we can correctly identify unmapped FERC Form 1 DB plants.
 
     This test replicates :func:`pudl.glue.ferc1_eia.get_unmapped_plants_ferc1`
@@ -51,10 +51,10 @@ def test_unmapped_plants_ferc1(pudl_settings_fixture, ferc1_engine):
         )
 
 
-def test_unmapped_utils_ferc1(pudl_settings_fixture, ferc1_engine):
+def test_unmapped_utils_ferc1(pudl_settings_fixture, ferc1_dbf_engine):
     """Test that we can identify unmapped FERC 1 utilities."""
     # First run the unmapped utility function as is:
-    actually_unmapped_utils = get_unmapped_utils_ferc1(ferc1_engine)
+    actually_unmapped_utils = get_unmapped_utils_ferc1(ferc1_dbf_engine)
     if not actually_unmapped_utils.empty:
         raise AssertionError(
             f"Found {len(actually_unmapped_utils)} unmapped FERC 1 utilities, "
