@@ -35,5 +35,36 @@ def _read_to_dataframe(raw_zipfile: Path) -> pd.DataFrame:
     return out
 
 
-def _extract_keys_from_series_id():
-    raise NotImplementedError
+def _extract_keys_from_series_id(raw_df: pd.DataFrame) -> pd.DataFrame:
+    """Parse EIA series_id to key categories.
+
+    Redundant information with 'name' field but with abbreviated codes instead of descriptive names.
+    """
+    # drop first one (constant value of "ELEC")
+    keys = (
+        raw_df.loc[:, "series_id"]
+        .str.split(r"[\.-]", expand=True, regex=True)
+        .drop(columns=0)
+    )
+    keys.columns = pd.Index(["series", "fuel", "region", "sector", "frequency"])
+    return keys
+
+
+def _extract_keys_from_name(raw_df: pd.DataFrame) -> pd.DataFrame:
+    """Parse EIA series name to key categories.
+
+    Redundant information with series_id but with descriptive names instead of codes.
+    """
+    keys = raw_df.loc[:, "name"].str.split(" : ", expand=True)
+    keys.columns = pd.Index(["series", "fuel", "region", "sector", "frequency"])
+    return keys
+
+
+def _parse_data_column(elec_df: pd.DataFrame) -> pd.DataFrame:
+    out = []
+    for idx in elec_df.index:
+        data_df = pd.DataFrame(elec_df.at[idx, "data"], columns=["date", "value"])
+        data_df["series_id"] = elec_df.at[idx, "series_id"]
+        out.append(data_df)
+    out = pd.concat(out, ignore_index=True, axis=0)
+    return out.loc[:, ["series_id", "date", "value"]]  # reorder cols
