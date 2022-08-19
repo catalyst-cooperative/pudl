@@ -76,7 +76,7 @@ def _etl_eia(
         return []
 
     # generate dataframes for the static EIA tables
-    out_dfs = _read_static_encoded_tables(etl_group_name="static_eia")
+    out_dfs = _read_static_encoding_tables(etl_group="static_eia")
 
     ds = Datastore(**ds_kwargs)
     # Extract EIA forms 923, 860
@@ -138,11 +138,11 @@ def _etl_eia(
 def _read_static_tables_ferc1():
     """Compile static tables for FERC1 for foriegn key constaints.
 
-    This function grabs static encoded tables via :func:`_read_static_encoded_tables`
+    This function grabs static encoded tables via :func:`_read_static_encoding_tables`
     as well as two static tables that are non-encoded tables (``ferc_accounts`` and
     ``ferc_depreciation_lines``).
     """
-    static_table_dict = _read_static_encoded_tables("static_ferc1")
+    static_table_dict = _read_static_encoding_tables("static_ferc1")
     static_table_dict.update(
         {
             "ferc_accounts": FERC_ACCOUNTS[
@@ -173,7 +173,7 @@ def _etl_ferc1(
 
     """
     # Compile static FERC 1 dataframes
-    out_dfs = _read_static_tables_ferc1(etl_group_name="static_ferc1")
+    out_dfs = _read_static_tables_ferc1(etl_group="static_ferc1")
 
     # Extract FERC form 1
     ferc1_raw_dfs = pudl.extract.ferc1.extract(
@@ -350,22 +350,21 @@ def _etl_glue(glue_settings: GlueSettings) -> dict[str, pd.DataFrame]:
     return glue_dfs
 
 
-def _read_static_encoded_tables(
-    etl_group_name: Literal["static_eia", "static_ferc1"]
+def _read_static_encoding_tables(
+    etl_group: Literal["static_eia", "static_ferc1"]
 ) -> dict[str, pd.DataFrame]:
-    """Build dataframes of static tables from a dataset for use as foreign keys.
+    """Build dataframes of static tables from a data source for use as foreign keys.
 
-    There are many values specified within the data that are essentially
-    constant, but which we need to store for data validation purposes, for use
-    as foreign keys.  E.g. the list of valid EIA fuel type codes, or the
-    possible state and country codes indicating a coal delivery's location of
-    origin. For now these values are primarily stored in a large collection of
-    lists, dictionaries, and dataframes which are specified in the
-    pudl.metadata module.  This function uses those data structures to
-    populate a bunch of small infrastructural tables within the PUDL DB.
+    There are many values specified within the data that are essentially constant, but
+    which we need to store for data validation purposes, for use as foreign keys.  E.g.
+    the list of valid EIA fuel type codes, or the possible state and country codes
+    indicating a coal delivery's location of origin. For now these values are primarily
+    stored in a large collection of lists, dictionaries, and dataframes which are
+    specified in the :mod:`pudl.metadata` subpackage.  This function uses those data
+    structures to populate a bunch of small infrastructural tables within the PUDL DB.
 
     Args:
-        etl_group_name: name of static table etl group.
+        etl_group: name of static table etl group.
 
     Returns:
         a dictionary with table names as keys and dataframes as values for all tables
@@ -375,7 +374,7 @@ def _read_static_encoded_tables(
     return {
         r.name: r.encoder.df
         for r in Package.from_resource_ids().resources
-        if r.etl_group == etl_group_name and r.encoder
+        if r.etl_group == etl_group and r.encoder
     }
 
 
