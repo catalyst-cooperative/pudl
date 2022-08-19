@@ -422,7 +422,7 @@ datasets:
         - generation_eia923
         - coalmine_eia923 # REQUIRES fuel_receipts_costs_eia923
         - fuel_receipts_costs_eia923
-      years: [2020]
+      years: [2020, 2021]
     eia860:
       tables:
         - boiler_generator_assn_eia860
@@ -430,8 +430,8 @@ datasets:
         - plants_eia860
         - generators_eia860
         - ownership_eia860
-      years: [2020]
-      eia860m: True
+      years: [2020, 2021]
+      eia860m: true
   epacems:
     # Note that the CEMS data relies on EIA 860 data for plant locations,
     # so if you're loading CEMS data for a particular year, you should
