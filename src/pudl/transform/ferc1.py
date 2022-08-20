@@ -26,7 +26,7 @@ from pudl.analysis.classify_plants_ferc1 import (
 )
 from pudl.extract.ferc1 import TABLE_NAME_MAP
 from pudl.helpers import convert_cols_dtypes, get_logger
-from pudl.metadata.classes import DataSource
+from pudl.metadata.classes import DataSource, Package
 from pudl.metadata.dfs import FERC_DEPRECIATION_LINES
 from pudl.settings import Ferc1Settings
 
@@ -1450,7 +1450,8 @@ CONSTRUCTION_TYPES: dict[str, set[str]] = {
             "indoor boiler and st",
         },
         "na_category": {
-            "na_category" "na",
+            "na_category",
+            "na",
             "",
             "automatic operation",
             "comb. turb. installn",
@@ -2119,62 +2120,60 @@ normalize_strings = multicol_transform_fn_factory(normalize_strings_col)
 
 
 def correct_units(df: pd.DataFrame, params: UnitCorrections) -> pd.DataFrame:
-    """Correct outlying values based on inferred discrepancy in reported units.
+    """Correct outlying values based on inferred discrepancies in reported units.
 
     In many cases we know that a particular column in the database should have a value
-    in a particular rage (e.g. the heat content of a ton of coal is a well defined
+    within a particular range (e.g. the heat content of a ton of coal is a well defined
     physical quantity -- it can be 15 mmBTU/ton or 22 mmBTU/ton, but it can't be 1
-    mmBTU/ton or 100 mmBTU/ton). Sometimes these fields are reported in the wrong units
-    (e.g. kWh of electricity generated rather than MWh) resulting in several
-    distributions that have a similar shape showing up at different ranges of value
-    within the data.  This function takes a one dimensional data series, a description
-    of a valid range for the values, and a list of factors by which we expect to see
-    some of the data multiplied due to unit errors.  Data found in these "ghost"
-    distributions are multiplied by the appropriate factor to bring them into the
-    expected range.
+    mmBTU/ton or 100 mmBTU/ton).
+
+    Sometimes these fields are reported in the wrong units (e.g. kWh of electricity
+    generated rather than MWh) resulting in several recognizable populations of reported
+    values showing up at different ranges of value within the data. In cases where the
+    unit conversion and range of valid values are such that these populations do not
+    overlap, it's possible to convert them to the canonical units fairly unambiguously.
+
+    This issue is especially common in the context of fuel attributes, because fuels are
+    reported in terms of many different units. Because fuels with different units are
+    often reported in the same column, and different fuels have different valid ranges
+    of values, it's also necessary to be able to select only a subset of the data that
+    pertains to a particular fuel. This means filtering based on another column, so the
+    function needs to have access to the whole dataframe.
+
+    for the values, and a list of factors by which we expect to see some of the data
+    multiplied due to unit errors.  Data found in these "ghost" distributions are
+    multiplied by the appropriate factor to bring them into the expected range.
 
     Data values which are not found in one of the acceptable multiplicative ranges are
     set to NA.
 
-    Args:
-        tofix (pandas.Series): A 1-dimensional data series containing the values to be
-            fixed.
-        mask (pandas.Series): A 1-dimensional masking array of True/False values, which
-            will be used to select a subset of the tofix series onto which we will apply
-            the multiplicative fixes.
-        min (float): the minimum realistic value for the data series.
-        max (float): the maximum realistic value for the data series.
-        mults (list of floats): values by which "real" data may have been multiplied
-            due to common data entry errors. These values both show us where to look in
-            the full data series to find recoverable data, and also tell us by what
-            factor those values need to be multiplied to bring them back into the
-            reasonable range.
-
-    Returns:
-        fixed (pandas.Series): a data series of the same length as the input, but with
-        the transformed values.
     """
-    # def _multiplicative_error_correction(tofix, mask, minval, maxval, mults):
+    logger.info(f"Correcting units in {params.col} where {params.query}.")
+    # Select a subset of the input dataframe to work on. E.g. only the heat content
+    # column for coal records:
+    selected = df.loc[df.query(params.query).index, params.col]
+    not_selected = df[params.col].drop(index=selected.index)
 
-    # Grab the subset of the input series we are going to work on:
-    rows_to_fix = df.iloc[df.query(params.query).index]
-    # Drop those records from the input
-    dont_fix = df.drop(index=rows_to_fix.index)
-
-    # Iterate over the unit conversions, applying fixes to outlying populations
+    # Now, we only want to alter the subset of these values which, when transformed by
+    # the unit conversion, lie in the range of valid values.
     for uc in params.unit_conversions:
-        records_to_fix = records_to_fix.apply(
-            lambda x: x * mult if x > minval / mult and x < maxval / mult else x
-        )
-    # Set any record that wasn't inside one of our identified populations to
-    # NA -- we are saying that these are true outliers, which can't be part
-    # of the population of values we are examining.
-    records_to_fix = records_to_fix.apply(
-        lambda x: np.nan if x < minval or x > maxval else x
+        converted = convert_units_col(col=selected, params=uc)
+        converted = nullify_outliers_col(col=converted, params=params.valid_range)
+        selected = selected.where(converted.isna(), converted)
+
+    # Nullify outliers that remain after the corrections have been applied.
+    na_before = sum(selected.isna())
+    selected = nullify_outliers_col(col=selected, params=params.valid_range)
+    na_after = sum(selected.isna())
+    total_nullified = na_after - na_before
+    logger.info(
+        f"{total_nullified}/{len(selected)} ({total_nullified/len(selected):.2%}) "
+        "of records could not be corrected and were set to NA."
     )
-    # Add our fixed records back to the complete data series and return it
-    fixed = pd.concat([fixed, records_to_fix])
-    return fixed
+    # Combine our cleaned up values with the other values we didn't select.
+    df = df.copy()
+    df[params.col] = pd.concat([selected, not_selected])
+    return df
 
 
 ################################################################################
@@ -2469,11 +2468,11 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                 x[pk_cols].astype(str), sep="_"
             ),
         ).drop(columns=["source_table_id"])
-        if df.record_id.duplicated().any():
-            raise ValueError(
-                f"{self.table_id} ({source_ferc1}): record_id must be unique. Found "
-                "non-unqiue IDs:\n"
-                f"{df[df.record_id.duplicated()].record_id}"
+        dupe_ids = df.record_id[df.record_id.duplicated()].values
+        if dupe_ids.any():
+            logger.warning(
+                f"{self.table_id}: Found {len(dupe_ids)} duplicate record_ids. "
+                f"{dupe_ids}."
             )
         return df
 
@@ -2494,6 +2493,24 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             .str.lstrip("0")
             .astype("Int64")
         )
+
+    def correct_units(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Apply all specified unit corrections to the table."""
+        for uc in self.params.correct_units:
+            df = correct_units(df, uc)
+        return df
+
+    def enforce_schema(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Drop columns not in the DB schema and enforce specified types."""
+        resource = Package.from_resource_ids().get_resource(self.table_id)
+        expected_cols = pd.Index(resource.get_field_names())
+        missing_cols = list(expected_cols.difference(df.columns))
+        if missing_cols:
+            raise ValueError(
+                f"{self.table_id}: Missing columns found when enforcing table schema: "
+                f"{missing_cols}"
+            )
+        return resource.format_df(df)
 
 
 class FuelFerc1TableTransformer(Ferc1AbstractTableTransformer):
@@ -2519,11 +2536,16 @@ class FuelFerc1TableTransformer(Ferc1AbstractTableTransformer):
             derived from the raw DBF and/or XBRL inputs.
 
         """
-        return self.concat_dbf_xbrl(
-            raw_dbf=raw_dbf,
-            raw_xbrl_instant=raw_xbrl_instant,
-            raw_xbrl_duration=raw_xbrl_duration,
-        ).pipe(self.drop_null_data_rows)
+        return (
+            self.concat_dbf_xbrl(
+                raw_dbf=raw_dbf,
+                raw_xbrl_instant=raw_xbrl_instant,
+                raw_xbrl_duration=raw_xbrl_duration,
+            )
+            .pipe(self.drop_null_data_rows)
+            .pipe(self.correct_units)
+            .pipe(self.enforce_schema)
+        )
 
     def process_dbf(self, raw_dbf: pd.DataFrame) -> pd.DataFrame:
         """Currently uses the inherited method."""
@@ -2652,24 +2674,66 @@ class FuelFerc1TableTransformer(Ferc1AbstractTableTransformer):
 
 ########################################################################################
 ########################################################################################
+# Christina's Transformer Classes
 ########################################################################################
 ########################################################################################
-########################################################################################
-################################################################################
-# Older Stuff
-################################################################################
-########################################################################################
-########################################################################################
-########################################################################################
-########################################################################################
-########################################################################################
+class PlantsSteamFerc1:
+    """Transformer class for the plants_steam_ferc1 table."""
+
+    def execute(
+        self,
+        raw_dbf: pd.DataFrame,
+        raw_xbrl_instant: pd.DataFrame,
+        raw_xbrl_duration: pd.DataFrame,
+        transformed_fuel: pd.DataFrame,
+    ):
+        """Perform table transformations for the plants_steam_ferc1 table."""
+        plants_steam_combo = (
+            self.pre_concat_clean_and_concat_dbf_xbrl(
+                raw_dbf, raw_xbrl_instant, raw_xbrl_duration
+            )
+            .pipe(self.simplify_strings_for_table)
+            .pipe(self.clean_strings_for_table)
+            .pipe(self.oob_to_nan_for_table)
+            .pipe(self.convert_units_in_table)
+            .pipe(self.convert_table_dtypes)
+            .pipe(plants_steam_assign_plant_ids, ferc1_fuel_df=transformed_fuel)
+        )
+        plants_steam_validate_ids(plants_steam_combo)
+        return plants_steam_combo
+
+    def process_dbf(self, raw_dbf):
+        """Modifications of the dbf plants_steam_ferc1 table before concat w/ xbrl."""
+        plants_steam_dbf = self.rename_columns(
+            raw_table=raw_dbf,
+            source="dbf",
+        ).pipe(self.assign_record_id, source_ferc1="dbf")
+        return plants_steam_dbf
+
+    def process_xbrl(self, raw_xbrl_instant, raw_xbrl_duration):
+        """Modifications of the xbrl plants_steam_ferc1 table before concat w/ xbrl."""
+        plants_steam_xbrl = (
+            self.merge_instant_and_duration_tables(
+                duration=raw_xbrl_duration,
+                instant=raw_xbrl_instant,
+            )
+            .pipe(
+                self.rename_columns,
+                source="xbrl",
+            )
+            .pipe(self.add_report_year_column)
+            .pipe(
+                self.assign_record_id,
+                source_ferc1="xbrl",
+            )
+            .pipe(self.assign_utility_id_ferc1_xbrl)
+        )
+        return plants_steam_xbrl
 
 
-##############################################################################
-# FERC TRANSFORM HELPER FUNCTIONS ############################################
-##############################################################################
-
-
+##################################################################################
+# OLD FERC TRANSFORM HELPER FUNCTIONS ############################################
+##################################################################################
 def unpack_table(ferc1_df, table_name, data_cols, data_rows):
     """Normalize a row-and-column based FERC Form 1 table.
 
@@ -2882,67 +2946,8 @@ def _clean_cols(df, table_name):
 
 
 ########################################################################################
-# Christina's Transformer Classes
-########################################################################################
-class PlantsSteamFerc1:
-    """Transformer class for the plants_steam_ferc1 table."""
-
-    def execute(
-        self,
-        raw_dbf: pd.DataFrame,
-        raw_xbrl_instant: pd.DataFrame,
-        raw_xbrl_duration: pd.DataFrame,
-        transformed_fuel: pd.DataFrame,
-    ):
-        """Perform table transformations for the plants_steam_ferc1 table."""
-        plants_steam_combo = (
-            self.pre_concat_clean_and_concat_dbf_xbrl(
-                raw_dbf, raw_xbrl_instant, raw_xbrl_duration
-            )
-            .pipe(self.simplify_strings_for_table)
-            .pipe(self.clean_strings_for_table)
-            .pipe(self.oob_to_nan_for_table)
-            .pipe(self.convert_units_in_table)
-            .pipe(self.convert_table_dtypes)
-            .pipe(plants_steam_assign_plant_ids, ferc1_fuel_df=transformed_fuel)
-        )
-        plants_steam_validate_ids(plants_steam_combo)
-        return plants_steam_combo
-
-    def process_dbf(self, raw_dbf):
-        """Modifications of the dbf plants_steam_ferc1 table before concat w/ xbrl."""
-        plants_steam_dbf = self.rename_columns(
-            raw_table=raw_dbf,
-            source="dbf",
-        ).pipe(self.assign_record_id, source_ferc1="dbf")
-        return plants_steam_dbf
-
-    def process_xbrl(self, raw_xbrl_instant, raw_xbrl_duration):
-        """Modifications of the xbrl plants_steam_ferc1 table before concat w/ xbrl."""
-        plants_steam_xbrl = (
-            self.merge_instant_and_duration_tables(
-                duration=raw_xbrl_duration,
-                instant=raw_xbrl_instant,
-            )
-            .pipe(
-                self.rename_columns,
-                source="xbrl",
-            )
-            .pipe(self.add_report_year_column)
-            .pipe(
-                self.assign_record_id,
-                source_ferc1="xbrl",
-            )
-            .pipe(self.assign_utility_id_ferc1_xbrl)
-        )
-        return plants_steam_xbrl
-
-
-########################################################################################
 # Old per-table transform functions
 ########################################################################################
-
-
 def plants_small(ferc1_dbf_raw_dfs, ferc1_xbrl_raw_dfs, ferc1_transformed_dfs):
     """Transforms FERC Form 1 plant_small data for loading into PUDL Database.
 
@@ -3516,7 +3521,7 @@ def transform(
     ferc1_tfr_classes = {
         # fuel must come before steam b/c fuel proportions are used to aid in
         # plant # ID assignment.
-        "fuel_ferc1": FuelFerc1,
+        # "fuel_ferc1": FuelFerc1,
         # "plants_small_ferc1": plants_small,
         # "plants_hydro_ferc1": plants_hydro,
         # "plants_pumped_storage_ferc1": plants_pumped_storage,
@@ -3557,22 +3562,6 @@ def transform(
         name: convert_cols_dtypes(df, data_source="ferc1")
         for name, df in ferc1_transformed_dfs.items()
     }
-
-
-def transform_xbrl(ferc1_raw_dfs, ferc1_settings: Ferc1Settings = Ferc1Settings()):
-    """Transforms FERC 1 XBRL data.
-
-    Args:
-        ferc1_raw_dfs (dict): Each entry in this dictionary of DataFrame objects
-            corresponds to a table from the FERC Form 1 DBC database
-        ferc1_settings: Validated ETL parameters required by
-            this data source.
-
-    Returns:
-        dict: A dictionary of the transformed DataFrames.
-
-    """
-    pass
 
 
 def fuel_by_plant_ferc1(fuel_df, thresh=0.5):

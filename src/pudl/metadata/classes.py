@@ -1273,6 +1273,10 @@ class Resource(Base):
             raise KeyError(f"The field {name} is not part of the {self.name} schema.")
         return self.schema.fields[names.index(name)]
 
+    def get_field_names(self) -> list[str]:
+        """Return a list of all the field names in the resource schema."""
+        return [field.name for field in self.schema.fields]
+
     def to_sql(
         self,
         metadata: sa.MetaData = None,
@@ -1387,8 +1391,17 @@ class Resource(Base):
             matches = {key: key for key in keys if key in names}
         return matches if len(matches) == len(keys) else None
 
-    def format_df(self, df: pd.DataFrame = None, **kwargs: Any) -> pd.DataFrame:
-        """Format a dataframe.
+    def format_df(self, df: pd.DataFrame | None = None, **kwargs: Any) -> pd.DataFrame:
+        """Format a dataframe according to the resources's table schema.
+
+        * DataFrame columns not in the schema are dropped.
+        * Any columns missing from the DataFrame are added with the right dtype, but
+          will be empty.
+        * All columns are cast to their specified pandas dtypes.
+        * Primary key columns must be present and non-null.
+        * Periodic primary key fields are snapped to the start of the desired period.
+        * If the primary key fields could not be matched to columns in `df`
+          (:meth:`match_primary_key`) or if `df=None`, an empty dataframe is returned.
 
         Args:
             df: Dataframe to format.
@@ -1396,9 +1409,6 @@ class Resource(Base):
 
         Returns:
             Dataframe with column names and data types matching the resource fields.
-            Periodic primary key fields are snapped to the start of the desired period.
-            If the primary key fields could not be matched to columns in `df`
-            (:meth:`match_primary_key`) or if `df=None`, an empty dataframe is returned.
         """
         dtypes = self.to_pandas_dtypes(**kwargs)
         if df is None:
