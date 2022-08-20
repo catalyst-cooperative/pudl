@@ -48,12 +48,12 @@ for further processing and integration with other data sources like the EIA 860
 and EIA 923.
 
 """
-from collections.abc import Iterable
 import csv
 import importlib
 import io
 import json
 import time
+from collections.abc import Iterable
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Literal
