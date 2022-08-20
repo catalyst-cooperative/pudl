@@ -499,6 +499,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Indicates if the facility has energy storage capabilities."
         # TODO: Is this really boolean? Or do we have non-null strings that mean False?
     },
+    "energy_storage_capacity_mwh": {
+        "type": "number",
+        "description": "Energy storage capacity in MWh (e.g. for batteries).",
+        "unit": "MWh",
+    },
     "energy_used_for_pumping_mwh": {
         "type": "number",
         "description": "Energy used for pumping, in megawatt-hours.",
@@ -999,6 +1004,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "net_capacity_favorable_conditions_mw": {
         "type": "number",
         "description": "Net plant capability under the most favorable operating conditions, in megawatts.",
+        "unit": "MW",
+    },
+    "net_capacity_mwdc": {
+        "type": "number",
+        "description": (
+            "Generation capacity in megawatts of direct current that is subject to a "
+            "net metering agreement. Typically used for behind-the-meter solar PV."
+        ),
         "unit": "MW",
     },
     "net_generation_mwh": {
