@@ -2548,7 +2548,12 @@ class FuelFerc1TableTransformer(Ferc1AbstractTableTransformer):
         )
 
     def process_dbf(self, raw_dbf: pd.DataFrame) -> pd.DataFrame:
-        """Currently uses the inherited method."""
+        """Start with inherited method and do some fuel-specific processing.
+
+        Mostly this needs to do extra work because of the linkage between the fuel_ferc1
+        and plants_steam_ferc1 tables, and because the fuel type column is both a big
+        mess of freeform strings and part of the primary key.
+        """
         df = (
             super()
             .process_dbf(raw_dbf)
