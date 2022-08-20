@@ -417,6 +417,13 @@ def _compile_all_entity_records(entity, eia_transformed_dfs):
     logger.debug("    Casting harvested IDs to correct data types")
     # most columns become objects (ack!), so assign types
     compiled_df = apply_pudl_dtypes(compiled_df, group="eia")
+    # encode the compiled options! (except for the boilers bc there is no annual table)
+    if entity != "boilers":
+        compiled_df = (
+            pudl.metadata.classes.Package.from_resource_ids()
+            .get_resource(f"{entity}_eia860")
+            .encode(compiled_df)
+        )
     return compiled_df
 
 
@@ -1109,14 +1116,12 @@ def transform(
             debug=debug,
             eia860m=eia_settings.eia860.eia860m,
         )
-
     _boiler_generator_assn(
         eia_transformed_dfs,
         eia923_years=eia_settings.eia923.years,
         eia860_years=eia_settings.eia860.years,
         debug=debug,
     )
-
     # get rid of the original annual dfs in the transformed dict
     remove = ["generators", "plants", "utilities"]
     for entity in remove:

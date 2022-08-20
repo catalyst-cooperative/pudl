@@ -533,7 +533,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "ferc_cogen_docket_no": {
         "type": "string",
-        "description": "The docket number relating to the FERC qualifying facility cogenerator status. See FERC Form 556.",
+        "description": "The docket number relating to the FERC cogenerator status. See FERC Form 556.",
     },
     "ferc_cogen_status": {
         "type": "boolean",
@@ -560,6 +560,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "ferc_small_power_producer_docket_no": {
         "type": "string",
         "description": "The docket number relating to the FERC qualifying facility small power producer status. See FERC Form 556.",
+    },
+    "ferc_qualifying_facility_docket_no": {
+        "type": "string",
+        "description": "The docket number relating to the FERC qualifying facility cogenerator status. See FERC Form 556.",
+    },
+    "ferc_qualifying_facility": {
+        "type": "boolean",
+        "description": "Indicatates whether or not a generator is a qualifying FERC cogeneation facility.",
     },
     "fluidized_bed_tech": {
         "type": "boolean",
@@ -737,6 +745,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "General Plant Total (FERC Accounts 389-399.1).",
     },
     "generation_activity": {"type": "boolean"},
+    "boiler_generator_association_type_code": {
+        "type": "string",
+        "description": "Indicates whether boiler associations with generator during the year were actual or theoretical. Only available before 2013.",
+    },
     "generator_id": {
         "type": "string",
         "description": "Generator ID is usually numeric, but sometimes includes letters. Make sure you treat it as a string!",
@@ -1543,9 +1555,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Four-digit year in which the data was reported.",
     },
     "reported_as_another_company": {"type": "string"},
-    "respondent_frequency": {
+    "reporting_frequency_code": {
         "type": "string",
-        "constraints": {"enum": ["A", "M", "AM"]},
+        "description": "Code that specifies what time period data has to be reported (i.e. monthly data or annual totals) and how often the power plant reports this data to EIA. See reporting_frequencies_eia for more details.",
+        "constraints": {
+            "enum": sorted(
+                set(CODE_METADATA["reporting_frequencies_eia"]["df"]["code"])
+            )
+        },
     },
     "respondent_id_ferc714": {"type": "integer"},
     "respondent_name_ferc714": {"type": "string"},
@@ -1733,6 +1750,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
         "description": "Total steam pressure produced by a unit during the reported hour.",
         "unit": "lb",
+    },
+    "steam_plant_type_code": {
+        "type": "integer",
+        "description": "Code that describes types of steam plants from EIA 860. See steam_plant_types_eia table for more details.",
     },
     "steam_total": {
         "type": "number",
