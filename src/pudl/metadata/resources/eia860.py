@@ -15,7 +15,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "boiler_id",
                 "unit_id_eia",
                 "unit_id_pudl",
-                "boiler_generator_association_type_code",
+                "boiler_generator_assn_type_code",
                 "steam_plant_type_code",
                 "bga_source",
             ],
