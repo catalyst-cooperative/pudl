@@ -14,7 +14,7 @@ from pudl.settings import EpaCemsSettings
 def epacamd_eia_crosswalk(pudl_engine: sa.engine.Engine) -> pd.DataFrame:
     """Pull the EPACAMD-EIA Crosswalk table."""
     pt = pudl.output.pudltabl.get_table_meta(pudl_engine)
-    crosswalk_tbl = pt["utilities_entity_eia"]
+    crosswalk_tbl = pt["epacamd_eia_crosswalk"]
     crosswalk_select = sa.sql.select(crosswalk_tbl)
     crosswalk_df = pd.read_sql(crosswalk_select, pudl_engine)
     return crosswalk_df

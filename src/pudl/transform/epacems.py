@@ -205,7 +205,8 @@ def transform(
 
     """
     return (
-        raw_df.pipe(remove_leading_zeros_from_numeric_strings, "emissions_unit_id_epa")
+        raw_df.pipe(apply_pudl_dtypes, group="epacems")
+        .pipe(remove_leading_zeros_from_numeric_strings, "emissions_unit_id_epa")
         .pipe(harmonize_eia_epa_orispl, pudl_engine)
         .pipe(convert_to_utc, plant_utc_offset=_load_plant_utc_offset(pudl_engine))
         .pipe(correct_gross_load_mw)
