@@ -161,6 +161,8 @@ ENTITIES: dict[str, dict[str, list[str]]] = {
             "utility_id_eia",
             "ferc_qualifying_facility",
             "data_source",
+            "energy_storage_capacity_mwh",
+            "net_capacity_mwdc",
         ],
     },
     # utilities must come after plants. plant location needs to be
