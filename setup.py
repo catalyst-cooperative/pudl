@@ -69,6 +69,7 @@ setup(
         "pygeos>=0.10,<0.13",
         "pyyaml>=5,<6.1",
         "scikit-learn>=1.0,<1.2",
+        "Shapely!=1.8.3",  # Seems to have a bug or incompatibility
         "scipy>=1.6,<1.10",
         "Shapely!=1.8.3",  # Bug or incompatibility in upstream dependencies
         "sqlalchemy>=1.4,<1.4.41",
