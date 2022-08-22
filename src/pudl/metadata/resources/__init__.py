@@ -163,6 +163,8 @@ ENTITIES: dict[str, dict[str, list[str]]] = {
             "utility_id_eia",
             "ferc_qualifying_facility",
             "data_maturity",
+            "energy_storage_capacity_mwh",
+            "net_capacity_mwdc",
         ],
         "not_to_drop_cols": ["utility_id_eia", "data_maturity"],
     },

@@ -15,16 +15,14 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "entity_eia",
         "field_namespace": "eia",
     },
-    "boiler_generator_association_types_eia": {
+    "boiler_generator_assn_types_eia": {
         "description": "A coding table describing different types of boiler-generator associations in the EIA-860.",
         "schema": {
             "fields": ["code", "label", "description"],
             "primary_key": ["code"],
-            "foreign_key_rules": {
-                "fields": [["boiler_generator_association_type_code"]]
-            },
+            "foreign_key_rules": {"fields": [["boiler_generator_assn_type_code"]]},
         },
-        "encoder": CODE_METADATA["boiler_generator_association_types_eia"],
+        "encoder": CODE_METADATA["boiler_generator_assn_types_eia"],
         "sources": ["eia860"],
         "etl_group": "static_eia",
         "field_namespace": "eia",
