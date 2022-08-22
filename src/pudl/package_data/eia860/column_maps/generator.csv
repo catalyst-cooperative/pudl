@@ -12,8 +12,8 @@ ownership_code,owner,owner,owner,owner,owner,owner,ownership,ownership
 owned_by_non_utility,,,,owned_by_nu,owned_by_nu,owned_by_nu,,
 capacity_mw,nameplate,nameplate,nameplate,nameplate,nameplate,nameplate,nameplate,nameplate
 reactive_power_output_mvar,,,,reactive_power_output,reactive_power_output,reactive_power_output,,
-summer_capacity_mw,summcap,summcap,summcap,summcap,summcap,summcap,summer_capability,summer_capability
-winter_capacity_mw,wintcap,wintcap,wintcap,wintcap,wintcap,wintcap,winter_capability,winter_capability
+summer_capacity_mw,summcap,summcap,summcap,summcap,summcap,summcap,summer_capacity,summer_capability
+winter_capacity_mw,wintcap,wintcap,wintcap,wintcap,wintcap,wintcap,winter_capacity,winter_capability
 summer_capacity_estimate,sumcapglg,sumcapflg,sumcapflg,sumcapflg,sumcapflg,sumcapflg,,
 winter_capacity_estimate,wincapflg,wincapflg,wincapflg,wincapflg,wincapflg,wincapflg,,
 operating_month,insvmonth,insvmonth,insvmonth,insvmonth,insvmonth,insvmonth,operating_month,operating_month
@@ -25,7 +25,7 @@ planned_retirement_year,,,,,,,planned_retirement_year,planned_retirement_year
 deliver_power_transgrid,,,,deliver_power_transgrid,deliver_power_transgrid,deliver_power_transgrid,deliver_power_transgrid,deliver_power_transgrid
 associated_combined_heat_power,cogen,cogen,cogen,cogen,cogen,cogen,cogenerator,cogenerator
 distributed_generation,distgen,distgen,distgen,distgen,distgen,distgen,,
-syncronized_transmission_grid,synchronized_grid,synchronized_grid,synchronized_grid,synchronized_grid,synchronized_grid,synchronized_grid,synchronized_grid,synchronized_grid
+syncronized_transmission_grid,,,,synchronized_grid,synchronized_grid,synchronized_grid,synchronized_grid,synchronized_grid
 duct_burners,,,,,,,duct_burners,duct_burners
 solid_fuel_gasification,,,,sfg_system,sfg_system,sfg_system,sfg_system,sfg_system
 energy_source_code_1,ensource1,ensource1,ensource1,energy_source_1,energy_source_1,energy_source_1,energy_source_1,energy_source_1
@@ -47,7 +47,7 @@ planned_net_summer_capacity_uprate_mw,,,,,,,planned_uprates_net_summer_cap,plann
 planned_net_winter_capacity_uprate_mw,,,,,,,planned_uprates_net_winter_cap,planned_uprates_net_winter_cap
 planned_uprate_month,,,,,,,planned_uprates_month,planned_uprates_month
 planned_uprate_year,,,,,,,planned_uprates_year,planned_uprates_year
-planned_net_summer_capacity_derate_mw,,,,,,,planned derates_net_summer_cap,planned derates_net_summer_cap
+planned_net_summer_capacity_derate_mw,,,,,,,planned_derates_net_summer_cap,planned_derates_net_summer_cap
 planned_net_winter_capacity_derate_mw,,,,,,,planned_derates_net_winter_cap,planned_derates_net_winter_cap
 planned_derate_month,,,,,,,planned_derates_month,planned_derates_month
 planned_derate_year,,,,,,,planned_derates_year,planned_derates_year
@@ -58,11 +58,14 @@ planned_repower_year,,,,,,,planned_repower_year,planned_repower_year
 other_planned_modifications,,,,,,,other_mods,other_mods
 other_modifications_month,,,,,,,other_mod_month,other_mod_month
 other_modifications_year,,,,,,,other_mod_year,other_mod_year
-ferc_cogen_status,fercqual,fercqual,fercqual,fercqfcogen,fercqfcogen,fercqfcogen,,
-ferc_cogen_docket_no,fercquldoc,fercquldoc,fercquldoc,fercqfdoc,fercqfdoc,fercqfdoc,,
+ferc_cogen_status,ferccogen,ferccogen,ferccogen,fercqfcogen,fercqfcogen,fercqfcogen,,
+ferc_qualifying_facility_docket_no,fercquldoc,fercquldoc,fercquldoc,fercqfdoc,fercqfdoc,fercqfdoc,,
+ferc_qualifying_facility,fercqual,fercqual,fercqual,,,,,
 ferc_small_power_producer,fercsmall,fercsmall,fercsmall,fercspp,fercspp,fercspp,,
 ferc_small_power_producer_docket_no,fercsmadoc,fercsmadoc,fercsmadoc,fercsppdoc,fercsppdoc,fercsppdoc,,
 ferc_exempt_wholesale_generator,fercwhole,fercwhole,fercwhole,fercewg,fercewg,fercewg,,
-ferc_exempt_wholesale_generator_docket_no,fercwhldoc,fercwhldoc,fercwhldoc,fercewgdoc,fercewgdoc,,,
-ferc_other_generator,fercexpmt,fercexpmt,fercexpmt,,,,,
+ferc_exempt_wholesale_generator_docket_no,fercwhldoc,fercwhldoc,fercwhldoc,fercewgdoc,fercewgdoc,fercewgdoc,,
+ferc_other_generator,,,fercother,,,,,
+ferc_exempt,fercexpmt,fercexpmt,,,,,,
 ferc_other_generator_docker_no,fercextdoc,fercextdoc,fercextdoc,,,,,
+ferc_cogen_docket_no,fercdock,fercdock,fercdock,,,,,
