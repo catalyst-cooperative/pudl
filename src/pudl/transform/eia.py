@@ -879,6 +879,7 @@ def _boiler_generator_assn(  # noqa: C901
             "steam_plant_type_code",
             "net_generation_mwh",
             "missing_from_923",
+            "data_maturity",
         ]
     ]
 
