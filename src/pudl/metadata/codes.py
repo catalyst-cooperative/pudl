@@ -31,12 +31,18 @@ CODE_METADATA: dict[str, dict[str, Any]] = {
                 (
                     "US",
                     "underground_and_surface",
-                    "Both an underground and surface mine with most coal extracted from underground",
+                    (
+                        "Both an underground and surface mine with most coal extracted "
+                        "from underground"
+                    ),
                 ),
                 (
                     "SU",
                     "surface_and_underground",
-                    "Both an underground and surface mine with most coal extracted from surface",
+                    (
+                        "Both an underground and surface mine with most coal extracted "
+                        "from surface"
+                    ),
                 ),
             ],
         ).convert_dtypes(),
@@ -55,17 +61,30 @@ CODE_METADATA: dict[str, dict[str, Any]] = {
                 (
                     "AD",
                     "adjustment",
-                    'Out-of-period adjustment. Use this code for any accounting adjustments or "true-ups" for service provided in prior reporting years. Provide an explanation in a footnote for each adjustment.',
+                    (
+                        "Out-of-period adjustment. Use this code for any accounting "
+                        "adjustments or 'true-ups' for service provided in prior "
+                        "reporting years. Provide an explanation in a footnote for "
+                        "each adjustment."
+                    ),
                 ),
                 (
                     "EX",
                     "electricity_exchange",
-                    "Exchanges of electricity. Use this category for transactions involving a balancing of debits and credits for energy, capacity, etc.  and any settlements for imbalanced exchanges.",
+                    (
+                        "Exchanges of electricity. Use this category for transactions "
+                        "involving a balancing of debits and credits for energy, "
+                        "capacity, etc.  and any settlements for imbalanced exchanges."
+                    ),
                 ),
                 (
                     "IF",
                     "intermediate_firm",
-                    'Intermediate-term firm service. The same as LF service expect that "intermediate-term" means longer than one year but less than five years.',
+                    (
+                        "Intermediate-term firm service. The same as LF service expect "
+                        "that 'intermediate-term' means longer than one year but less"
+                        "than five years."
+                    ),
                 ),
                 (
                     "IU",
@@ -235,7 +254,7 @@ CODE_METADATA: dict[str, dict[str, Any]] = {
         },
         "ignored_codes": [],
     },
-    "boiler_generator_association_types_eia": {
+    "boiler_generator_assn_types_eia": {
         "df": pd.DataFrame(
             columns=[
                 "code",

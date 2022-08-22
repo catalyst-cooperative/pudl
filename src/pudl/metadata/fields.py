@@ -499,6 +499,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Indicates if the facility has energy storage capabilities."
         # TODO: Is this really boolean? Or do we have non-null strings that mean False?
     },
+    "energy_storage_capacity_mwh": {
+        "type": "number",
+        "description": "Energy storage capacity in MWh (e.g. for batteries).",
+        "unit": "MWh",
+    },
     "energy_used_for_pumping_mwh": {
         "type": "number",
         "description": "Energy used for pumping, in megawatt-hours.",
@@ -745,13 +750,19 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "General Plant Total (FERC Accounts 389-399.1).",
     },
     "generation_activity": {"type": "boolean"},
-    "boiler_generator_association_type_code": {
+    "boiler_generator_assn_type_code": {
         "type": "string",
-        "description": "Indicates whether boiler associations with generator during the year were actual or theoretical. Only available before 2013.",
+        "description": (
+            "Indicates whether boiler associations with generator during the year were "
+            "actual or theoretical. Only available before 2013."
+        ),
     },
     "generator_id": {
         "type": "string",
-        "description": "Generator ID is usually numeric, but sometimes includes letters. Make sure you treat it as a string!",
+        "description": (
+            "Generator ID is usually numeric, but sometimes includes letters. Make "
+            "sure you treat it as a string!"
+        ),
     },
     "generators_num_less_1_mw": {"type": "number", "unit": "MW"},
     "generators_number": {"type": "number"},
@@ -999,6 +1010,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "net_capacity_favorable_conditions_mw": {
         "type": "number",
         "description": "Net plant capability under the most favorable operating conditions, in megawatts.",
+        "unit": "MW",
+    },
+    "net_capacity_mwdc": {
+        "type": "number",
+        "description": (
+            "Generation capacity in megawatts of direct current that is subject to a "
+            "net metering agreement. Typically used for behind-the-meter solar PV."
+        ),
         "unit": "MW",
     },
     "net_generation_mwh": {
