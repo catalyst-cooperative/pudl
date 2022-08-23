@@ -296,7 +296,7 @@ class Datastore:
             except DefaultCredentialsError:
                 logger.info(
                     f"Unable to obtain credentials for GCS Cache at {gcs_cache_path}. "
-                    "Falling back to obtaining archived data from Zenodo directly."
+                    "Falling back to Zenodo if necessary."
                 )
                 pass
 
