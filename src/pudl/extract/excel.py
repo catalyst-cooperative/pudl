@@ -173,19 +173,25 @@ class GenericExtractor:
         self._dataset_name = self._metadata.get_dataset_name()
         self._file_cache = {}
         self.ds = ds
+        self.cols_added: list = []
 
     def process_raw(self, df, page, **partition):
         """Transforms raw dataframe and rename columns."""
-        # df = self.add_data_maturity(df, page, **partition)
+        df = self.add_data_maturity(df, page, **partition)
         self.cols_added = ["data_label"]
         return df.rename(columns=self._metadata.get_column_map(page, **partition))
 
     def add_data_maturity(self, df: pd.DataFrame, page, **partition) -> pd.DataFrame:
-        """Add a data_maturity column to indicate the level of finality of the partition."""
+        """Add a data_maturity column to indicate the level of finality of the partition.
+
+        The two options enumerated here are ``final`` and ``early_release`` based on
+        the file names. EIA seems to always include ``Early_Release`` in the file names.
+        Must employ a unique solution for eia860m.
+        """
         maturity = "final"
         if "early_release" in self.excel_filename(page, **partition).lower():
             maturity = "early_release"
-        df.loc[:, "data_maturity"] = maturity
+        df = df.assign(data_maturity=maturity)
         self.cols_added.append("data_maturity")
         return df
 
