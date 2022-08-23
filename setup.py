@@ -93,7 +93,7 @@ setup(
             "sphinx-autoapi>=1.8,<1.10",
             "sphinx-issues>=1.2,<3.1",
             "sphinx-reredirects",
-            "sphinxcontrib_bibtex>=2.4,<2.5",
+            "sphinxcontrib_bibtex>=2.4,<2.6",
         ],
         "test": [
             "bandit>=1.6,<1.8",
