@@ -74,7 +74,7 @@ ENTITIES: dict[str, dict[str, list[str]]] = {
             "water_source",
             "data_maturity",
         ],
-        "not_to_drop_cols": ["data_maturity", "utility_id_eia"],
+        "keep_cols": ["data_maturity", "utility_id_eia"],
     },
     "generators": {
         "id_cols": ["plant_id_eia", "generator_id"],
@@ -166,7 +166,7 @@ ENTITIES: dict[str, dict[str, list[str]]] = {
             "energy_storage_capacity_mwh",
             "net_capacity_mwdc",
         ],
-        "not_to_drop_cols": ["utility_id_eia", "data_maturity"],
+        "keep_cols": ["utility_id_eia", "data_maturity"],
     },
     # utilities must come after plants. plant location needs to be
     # removed before the utility locations are compiled
@@ -198,7 +198,7 @@ ENTITIES: dict[str, dict[str, list[str]]] = {
             "phone_number_2",
             "data_maturity",
         ],
-        "not_to_drop_cols": ["data_maturity"],
+        "keep_cols": ["data_maturity"],
     },
     "boilers": {
         "id_cols": ["plant_id_eia", "boiler_id"],

@@ -291,7 +291,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Level of maturity of the data record. Some data sources report less-than-final data. PUDL sometimes includes this data, but use at your own risk.",
         "constraints": {
-            "enum": ["final", "early_release", "monthly_release", "year_to_date"]
+            "enum": sorted(set(CODE_METADATA["data_maturities"]["df"]["code"]))
         },
     },
     "datasource": {

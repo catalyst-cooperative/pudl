@@ -184,19 +184,19 @@ class GenericExtractor:
     def add_data_maturity(self, df: pd.DataFrame, page, **partition) -> pd.DataFrame:
         """Add a data_maturity column to indicate the level of finality of the partition.
 
-        The two options enumerated here are ``final``, ``early_release`` or
-        ``monthly_release``. We determine if a df should be labeled as ``early_release``
+        The three options enumerated here are ``final``, ``provisional`` or
+        ``monthly_update``. We determine if a df should be labeled as ``provisional``
         by using the file names because EIA seems to always include ``Early_Release``
-        in the file names. We determine if a df should be labeled as ``monthly_release``
+        in the file names. We determine if a df should be labeled as ``monthly_update``
         by checking if the ``self.dataset_name`` is ``eia860m``.
 
         This method adds a column and thus adds ``data_maturity`` to ``self.cols_added``.
         """
         maturity = "final"
         if "early_release" in self.excel_filename(page, **partition).lower():
-            maturity = "early_release"
+            maturity = "provisional"
         elif self._dataset_name == "eia860m":
-            maturity = "monthly_release"
+            maturity = "monthly_update"
         df = df.assign(data_maturity=maturity)
         self.cols_added.append("data_maturity")
         return df
