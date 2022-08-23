@@ -65,7 +65,7 @@ jobs:
         env:
           API_KEY_EIA: ${{ secrets.API_KEY_EIA }}
         run: |
-          conda run -n pudl-test tox -- --gcs-cache-path gs://zenodo-cache.catalyst.coop --loglevel DEBUG
+          conda run -n pudl-test tox -- --gcs-cache-path gs://zenodo-cache.catalyst.coop
 
       - name: Log post-test Zenodo datastore contents
         run: find ~/pudl-work/data/
