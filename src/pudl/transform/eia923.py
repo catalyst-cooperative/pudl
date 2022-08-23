@@ -760,15 +760,15 @@ def _aggregate_duplicate_boiler_fuel_keys(boiler_fuel_df: pd.DataFrame) -> pd.Da
     relative_cols = ["ash_content_pct", "sulfur_content_pct", "fuel_mmbtu_per_unit"]
     key_cols = ["boiler_id", "energy_source_code", "plant_id_eia", "report_date"]
 
-    # expected_cols = set(quantity_cols + relative_cols + key_cols + ["prime_mover_code"])
-    # actual_cols = set(boiler_fuel_df.columns)
-    # difference = actual_cols.symmetric_difference(expected_cols)
+    expected_cols = set(quantity_cols + relative_cols + key_cols + ["prime_mover_code"])
+    actual_cols = set(boiler_fuel_df.columns)
+    difference = actual_cols.symmetric_difference(expected_cols)
 
-    # if difference:
-    #     raise AssertionError(
-    #         "Columns were expected to align, instead found this difference: "
-    #         f"{difference}"
-    #     )
+    if difference:
+        raise AssertionError(
+            "Columns were expected to align, instead found this difference: "
+            f"{difference}"
+        )
 
     is_duplicate = boiler_fuel_df.duplicated(subset=key_cols, keep=False)
     # copying bc a slice of this copy will be reassigned later
@@ -845,6 +845,7 @@ def boiler_fuel(eia923_dfs, eia923_transformed_dfs):
         "balancing_authority_code_eia",
         "early_release",
         "reporting_frequency_code",
+        "data_maturity",
     ]
     bf_df.drop(cols_to_drop, axis=1, inplace=True)
 

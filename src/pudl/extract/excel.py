@@ -178,7 +178,7 @@ class GenericExtractor:
     def process_raw(self, df, page, **partition):
         """Transforms raw dataframe and rename columns."""
         df = self.add_data_maturity(df, page, **partition)
-        self.cols_added = ["data_label"]
+        self.cols_added.append("data_label")
         return df.rename(columns=self._metadata.get_column_map(page, **partition))
 
     def add_data_maturity(self, df: pd.DataFrame, page, **partition) -> pd.DataFrame:
