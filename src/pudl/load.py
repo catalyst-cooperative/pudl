@@ -7,7 +7,7 @@ from sqlite3 import sqlite_version
 
 import pandas as pd
 import sqlalchemy as sa
-from dagster import Field, op
+from dagster import Field, Nothing, op
 from packaging import version
 from sqlalchemy.exc import IntegrityError
 
@@ -24,7 +24,7 @@ MINIMUM_SQLITE_VERSION = "3.32.0"
         "check_foreign_keys": Field(bool, default_value=True),
         "check_types": Field(bool, default_value=True),
         "check_values": Field(bool, default_value=True),
-        "clobber": Field(bool, default_value=True),
+        "clobber": Field(bool, default_value=False),
     },
     required_resource_keys={"pudl_engine"},
 )
@@ -33,7 +33,7 @@ def dfs_to_sqlite(
     glue_dfs: dict[str, pd.DataFrame],
     eia_dfs: dict[str, pd.DataFrame],
     ferc1_dfs: dict[str, pd.DataFrame],
-) -> None:
+) -> Nothing:
     """Load a dictionary of dataframes into the PUDL SQLite DB.
 
     Args:

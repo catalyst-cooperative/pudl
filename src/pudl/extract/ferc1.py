@@ -57,7 +57,7 @@ from pathlib import Path
 import dbfread
 import pandas as pd
 import sqlalchemy as sa
-from dagster import Field, job, op
+from dagster import Field, Nothing, job, op
 from dbfread import DBF
 from sqlalchemy import or_
 
@@ -546,7 +546,7 @@ def get_raw_df(
     },
     required_resource_keys={"pudl_settings", "datastore", "pudl_engine"},
 )
-def dbf2sqlite(context):
+def dbf2sqlite(context) -> Nothing:
     """Clone the FERC Form 1 Databsae to SQLite.
 
     Args:

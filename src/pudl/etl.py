@@ -26,12 +26,20 @@ import pandas as pd
 import pyarrow as pa
 import pyarrow.parquet as pq
 import sqlalchemy as sa
-from dagster import Field, job, op, resource
+from dagster import (
+    Field,
+    in_process_executor,
+    job,
+    op,
+    resource,
+    static_partitioned_config,
+)
 from sqlalchemy.pool import StaticPool
 
 import pudl
+from pudl.extract.epacems import EpaCemsPartition
 from pudl.helpers import convert_cols_dtypes
-from pudl.metadata.classes import Resource
+from pudl.metadata.classes import DataSource, Resource
 from pudl.metadata.codes import CODE_METADATA
 from pudl.metadata.dfs import FERC_ACCOUNTS, FERC_DEPRECIATION_LINES
 from pudl.metadata.fields import apply_pudl_dtypes
@@ -535,6 +543,102 @@ def pudl_etl():
     eia_dfs = _etl_eia()
     glue_dfs = _etl_glue()
     pudl.load.dfs_to_sqlite(ferc1_dfs=ferc1_dfs, eia_dfs=eia_dfs, glue_dfs=glue_dfs)
+
+
+# Dagster epacems WIP
+def create_epacems_partitions() -> list[str]:
+    """Create a list of epacems partitions."""
+    data_source = DataSource.from_id("epacems")
+
+    years = data_source.working_partitions["years"]
+    states = data_source.working_partitions["states"]
+
+    partitions = itertools.product(years, states)
+    return list(map(lambda par: f"{par[0]}-{par[1]}", partitions))
+
+
+@static_partitioned_config(partition_keys=create_epacems_partitions())
+def partition_config(partition_key: str):
+    """EPA CEMS dagster partition config."""
+    return {"ops": {"etl_epacems_op": {"config": {"partition": partition_key}}}}
+
+
+@op(
+    config_schema={
+        "partition": str,
+        "clobber": Field(bool, default_value=False),
+    },
+    required_resource_keys={"pudl_settings", "datastore", "pudl_engine"},
+)
+def etl_epacems_op(context):
+    """Process a EPA CEMS partition."""
+    pudl_engine = context.resources.pudl_engine
+    pudl_settings = context.resources.pudl_settings
+    datastore = context.resources.datastore
+
+    year, state = context.op_config["partition"].split("-")
+    partition = EpaCemsPartition(state=state, year=int(year))
+    logger.info(partition)
+
+    # Verify that we have a PUDL DB with plant attributes:
+    inspector = sa.inspect(pudl_engine)
+    if "plants_eia860" not in inspector.get_table_names():
+        raise RuntimeError(
+            "No plants_eia860 available in the PUDL DB! Have you run the ETL? "
+            f"Trying to access PUDL DB: {pudl_engine}"
+        )
+
+    eia_plant_years = pd.read_sql(
+        """
+        SELECT DISTINCT strftime('%Y', report_date)
+        AS year
+        FROM plants_eia860
+        ORDER BY year ASC
+        """,
+        pudl_engine,
+    ).year.astype(int)
+    if year not in eia_plant_years:
+        logger.info(
+            f"Missing EIA plant data for year: {year} "
+            "Some timezones may be estimated based on plant state."
+        )
+
+    schema = Resource.from_id("hourly_emissions_epacems").to_pyarrow()
+    epacems_path = Path(
+        pudl_settings["parquet_dir"], "epacems/hourly_emissions_epacems.parquet"
+    )
+    if epacems_path.exists() and not context.op_config["clobber"]:
+        raise SystemExit(
+            "The EPA CEMS parquet file already exists, and we don't want to clobber it.\n"
+            f"Move {epacems_path} aside or set clobber=True and try again."
+        )
+
+    with pq.ParquetWriter(
+        where=str(epacems_path),
+        schema=schema,
+        compression="snappy",
+        version="2.6",
+    ) as pqwriter:
+        logger.info(f"Processing EPA CEMS hourly data for {year}-{state}")
+        df = pudl.extract.epacems.extract(year=year, state=state, ds=datastore)
+        df = pudl.transform.epacems.transform(df, pudl_engine=pudl_engine)
+        pqwriter.write_table(
+            pa.Table.from_pandas(df, schema=schema, preserve_index=False)
+        )
+
+
+@job(
+    resource_defs={
+        "pudl_settings": pudl_settings,
+        "datastore": datastore,
+        "pudl_engine": pudl_engine,
+    },
+    config=partition_config,
+    executor_def=in_process_executor,
+)
+def etl_epacems_job():
+    """Run etl_epacems_job."""
+    etl_epacems_op()
 
 
 if __name__ == "__main__":
