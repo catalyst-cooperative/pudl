@@ -26,6 +26,9 @@ def extend_gcp_retry_predicate(predicate, *exception_types):
     return new_predicate
 
 
+# Add BadRequest to default predicate _should_retry.
+# GCS get requests occasionally fail because of BadRequest errors.
+# See issue #1734.
 gcs_retry = Retry(predicate=extend_gcp_retry_predicate(_should_retry, BadRequest))
 
 
