@@ -45,8 +45,8 @@ class Extractor(excel.GenericExtractor):
             df["report_year"] = datetime.strptime(
                 list(partition.values())[0], "%Y-%m"
             ).year
-        df = df.assign(data_maturity="monthly_release")
-        self.cols_added = ["data_maturity", "report_year"]
+        df = df.add_data_maturity(df, page, **partition)
+        self.cols_added.append("report_year")
         df = fix_leading_zero_gen_ids(df)
         return df
 
