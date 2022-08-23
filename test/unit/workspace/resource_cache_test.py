@@ -4,8 +4,28 @@ import tempfile
 import unittest
 from pathlib import Path
 
+import requests.exceptions as requests_exceptions
+from google.api_core.exceptions import BadRequest
+from google.cloud.storage.retry import _should_retry
+
 from pudl.workspace import resource_cache
-from pudl.workspace.resource_cache import PudlResourceKey
+from pudl.workspace.resource_cache import PudlResourceKey, extend_gcp_retry_predicate
+
+
+class TestGoogleCloudStorageCache(unittest.TestCase):
+    """Unit tests for the GoogleCloudStorageCache class."""
+
+    def test_bad_request_predicate(self):
+        """Check extended predicate catches BadRequest and default exceptions."""
+        bad_request_predicate = extend_gcp_retry_predicate(_should_retry, BadRequest)
+
+        # Check default exceptions.
+        self.assertFalse(_should_retry(BadRequest(message="Bad request!")))
+        self.assertTrue(_should_retry(requests_exceptions.Timeout()))
+
+        # Check extended predicate handles default exceptionss and BadRequest.
+        self.assertTrue(bad_request_predicate(requests_exceptions.Timeout()))
+        self.assertTrue(bad_request_predicate(BadRequest(message="Bad request!")))
 
 
 class TestLocalFileCache(unittest.TestCase):
