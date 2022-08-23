@@ -15,6 +15,7 @@ from typing import Any
 import coloredlogs
 import datapackage
 import requests
+from google.auth.exceptions import DefaultCredentialsError
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
 
@@ -288,9 +289,16 @@ class Datastore:
         if local_cache_path:
             self._cache.add_cache_layer(resource_cache.LocalFileCache(local_cache_path))
         if gcs_cache_path:
-            self._cache.add_cache_layer(
-                resource_cache.GoogleCloudStorageCache(gcs_cache_path)
-            )
+            try:
+                self._cache.add_cache_layer(
+                    resource_cache.GoogleCloudStorageCache(gcs_cache_path)
+                )
+            except DefaultCredentialsError:
+                logger.info(
+                    f"Unable to obtain credentials for GCS Cache at {gcs_cache_path}. "
+                    "Falling back to obtaining archived data from Zenodo directly."
+                )
+                pass
 
         self._zenodo_fetcher = ZenodoFetcher(sandbox=sandbox, timeout=timeout)
 
@@ -299,7 +307,7 @@ class Datastore:
         return self._zenodo_fetcher.get_known_datasets()
 
     def get_datapackage_descriptor(self, dataset: str) -> DatapackageDescriptor:
-        """Fetch datapackage descriptor for given dataset either from cache or from zenodo."""
+        """Fetch datapackage descriptor for dataset either from cache or Zenodo."""
         doi = self._zenodo_fetcher.get_doi(dataset)
         if doi not in self._datapackage_descriptors:
             res = PudlResourceKey(dataset, doi, "datapackage.json")
@@ -325,9 +333,9 @@ class Datastore:
         """Return content of the matching resources.
 
         Args:
-            dataset (str): name of the dataset to query.
-            cached_only (bool): if True, only retrieve resources that are present in the cache.
-            skip_optimally_cached (bool): if True, only retrieve resources that are not optimally
+            dataset: name of the dataset to query.
+            cached_only: if True, only retrieve resources that are present in the cache.
+            skip_optimally_cached: if True, only retrieve resources that are not optimally
                 cached. This triggers attempt to optimally cache these resources.
             filters (key=val): only return resources that match the key-value mapping in their
             metadata["parts"].
@@ -349,7 +357,7 @@ class Datastore:
                 self._cache.add(res, contents)
                 yield (res, contents)
 
-    def remove_from_cache(self, res: PudlResourceKey):
+    def remove_from_cache(self, res: PudlResourceKey) -> None:
         """Remove given resource from the associated cache."""
         self._cache.delete(res)
 
