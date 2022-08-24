@@ -327,6 +327,9 @@ SOURCES: dict[str, Any] = {
         "working_partitions": {
             "years": [],  # Not yet working!
         },
+        "contributors": [
+            CONTRIBUTORS["catalyst-cooperative"],
+        ],
         "license_raw": LICENSES["us-govt"],
         "license_pudl": LICENSES["cc-by-4.0"],
     },
@@ -342,6 +345,9 @@ SOURCES: dict[str, Any] = {
         "working_partitions": {
             "years": [],  # Not yet working!
         },
+        "contributors": [
+            CONTRIBUTORS["catalyst-cooperative"],
+        ],
         "license_raw": LICENSES["us-govt"],
         "license_pudl": LICENSES["cc-by-4.0"],
     },
@@ -357,6 +363,9 @@ SOURCES: dict[str, Any] = {
         "working_partitions": {
             "years": [],  # Not yet working!
         },
+        "contributors": [
+            CONTRIBUTORS["catalyst-cooperative"],
+        ],
         "license_raw": LICENSES["us-govt"],
         "license_pudl": LICENSES["cc-by-4.0"],
     },
