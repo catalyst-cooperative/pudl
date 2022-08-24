@@ -51,26 +51,28 @@ setup(
         "addfips>=0.3.1,<0.4.0",
         "catalystcoop.dbfread>=3.0,<3.1",
         "coloredlogs>=15.0,<15.1",
-        "dask>=2021.8,<2022.7.2",
+        "dask>=2021.8,<2022.8.2",
         "datapackage>=1.11,<1.16",  # Transition datastore to use frictionless.
         # "email-validator>=1.0.3",  # pydantic[email] dependency
-        "fsspec>=2021.7,<2022.5.1",  # For caching datastore on GCS
-        "gcsfs>=2021.7,<2022.5.1",  # For caching datastore on GCS
+        "fsspec>=2021.7,<2022.7.2",  # For caching datastore on GCS
+        "gcsfs>=2021.7,<2022.7.2",  # For caching datastore on GCS
         "geopandas>=0.9,<0.12",
         "jinja2>=2,<3.2",
         "matplotlib>=3.3,<3.6",  # Should make this optional with a "viz" extras
         "networkx>=2.2,<2.9",
         "numpy>=1.18.5,<1.24,!=1.23.0",
         "pandas>=1.4,<1.4.4",
-        "pyarrow>=5,<8.1",
+        "pyarrow>=5,<9.1",
         "pydantic[email]>=1.7,<2",
         "python-snappy>=0.6,<0.7",
         "pygeos>=0.10,<0.13",
         "pyyaml>=5,<6.1",
         "scikit-learn>=1.0,<1.2",
-        "scipy>=1.6,<1.9",
-        "sqlalchemy>=1.4,<1.4.40",
-        "timezonefinder>=5,<6.1",
+        "Shapely!=1.8.3",  # Seems to have a bug or incompatibility
+        "scipy>=1.6,<1.10",
+        "Shapely!=1.8.3",  # Bug or incompatibility in upstream dependencies
+        "sqlalchemy>=1.4,<1.4.41",
+        "timezonefinder>=5,<6.2",
         "xlsxwriter>=3,<3.1",
     ],
     extras_require={
@@ -84,24 +86,24 @@ setup(
             "twine>=3.3,<4.1",
         ],
         "doc": [
-            "doc8>=0.9,<0.12",
+            "doc8>=0.9,<1.1",
             "furo>=2022.4.7",
-            "sphinx>=4,!=5.1.0,<5.1.1",
+            "sphinx>=4,!=5.1.0,<5.1.2",
             "sphinx-autoapi>=1.8,<1.10",
             "sphinx-issues>=1.2,<3.1",
             "sphinx-reredirects",
-            "sphinxcontrib_bibtex>=2.4,<2.5",
+            "sphinxcontrib_bibtex>=2.4,<2.6",
         ],
         "test": [
             "bandit>=1.6,<1.8",
             "coverage>=5.3,<6.5",
-            "doc8>=0.9,<0.12",
-            "flake8>=4.0,<4.1",
+            "doc8>=0.9,<1.1",
+            "flake8>=4.0,<5.1",
             "flake8-builtins>=1.5,<1.6",
             "flake8-colors>=0.1,<0.2",
             "flake8-docstrings>=1.5,<1.7",
             "flake8-rst-docstrings>=0.2,<0.3",
-            "flake8-use-fstring>=1.0,<1.4",
+            "flake8-use-fstring>=1.0,<1.5",
             "mccabe>=0.6,<0.8",
             "nbval>=0.9,<0.10",
             "pep8-naming>=0.12,<0.14",
@@ -111,11 +113,11 @@ setup(
             "pytest-console-scripts>=1.1,<1.4",
             "pytest-cov>=2.10,<3.1",
             "responses>=0.14,<0.22",
-            "rstcheck[sphinx]>=5.0,<6.1",
+            "rstcheck[sphinx]>=5.0,<6.2",
             "tox>=3.20,<3.26",
         ],
         "datasette": [
-            "datasette>=0.60,<0.62",
+            "datasette>=0.60,<0.63",
         ],
     },
     classifiers=[

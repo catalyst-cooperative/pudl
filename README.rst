@@ -60,14 +60,16 @@ What data is available?
 
 PUDL currently integrates data from:
 
-* `EIA Form 860 <https://www.eia.gov/electricity/data/eia860/>`__ (2001-2020)
-* `EIA Form 860m <https://www.eia.gov/electricity/data/eia860m/>`__ (to 2021-12)
-* `EIA Form 861 <https://www.eia.gov/electricity/data/eia861/>`__ (2001-2020)
-* `EIA Form 923 <https://www.eia.gov/electricity/data/eia923/>`__ (2001-2020)
-* `EPA Continuous Emissions Monitoring System (CEMS) <https://ampd.epa.gov/ampd/>`__ (1995-2020)
-* `FERC Form 1 <https://www.ferc.gov/industries-data/electric/general-information/electric-industry-forms/form-1-electric-utility-annual>`__ (1994-2020)
-* `FERC Form 714 <https://www.ferc.gov/industries-data/electric/general-information/electric-industry-forms/form-no-714-annual-electric/data>`__ (2006-2020)
-* `US Census Demographic Profile 1 Geodatabase <https://www.census.gov/geographies/mapping-files/2010/geo/tiger-data.html>`__ (2010)
+* `EIA Form 860 <https://www.eia.gov/electricity/data/eia860/>`__: 2001-2021 (2021 is
+  early release - use with caution)
+* `EIA Form 860m <https://www.eia.gov/electricity/data/eia860m/>`__: 2022-06
+* `EIA Form 861 <https://www.eia.gov/electricity/data/eia861/>`__: 2001-2020
+* `EIA Form 923 <https://www.eia.gov/electricity/data/eia923/>`__: 2001-2021  (2021 is
+  early release - use with caution)
+* `EPA Continuous Emissions Monitoring System (CEMS) <https://ampd.epa.gov/ampd/>`__: 1995-2021
+* `FERC Form 1 <https://www.ferc.gov/industries-data/electric/general-information/electric-industry-forms/form-1-electric-utility-annual>`__: 1994-2020
+* `FERC Form 714 <https://www.ferc.gov/industries-data/electric/general-information/electric-industry-forms/form-no-714-annual-electric/data>`__: 2006-2020
+* `US Census Demographic Profile 1 Geodatabase <https://www.census.gov/geographies/mapping-files/2010/geo/tiger-data.html>`__: 2010
 
 Thanks to support from the `Alfred P. Sloan Foundation Energy & Environment
 Program <https://sloan.org/programs/research/energy-and-environment>`__, from

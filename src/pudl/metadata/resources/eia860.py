@@ -3,7 +3,10 @@ from typing import Any
 
 RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     "boiler_generator_assn_eia860": {
-        "description": "Associations between boilers and generators as reported in EIA-860 Schedule 6, Part A. Augmented with various heuristics within PUDL.",
+        "description": (
+            "Associations between boilers and generators as reported in EIA-860 "
+            "Schedule 6, Part A. Augmented with various heuristics within PUDL."
+        ),
         "schema": {
             "fields": [
                 "plant_id_eia",
@@ -12,7 +15,10 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "boiler_id",
                 "unit_id_eia",
                 "unit_id_pudl",
+                "boiler_generator_assn_type_code",
+                "steam_plant_type_code",
                 "bga_source",
+                "data_maturity",
             ],
             "primary_key": ["plant_id_eia", "report_date", "generator_id", "boiler_id"],
         },
@@ -39,7 +45,10 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     #     "etl_group": "eia860",
     # },
     "generators_eia860": {
-        "description": "Annually varying generator attributes compiled from across EIA-860 and EIA-923 data.",
+        "description": (
+            "Annually varying generator attributes compiled from across EIA-860 and "
+            "EIA-923 data."
+        ),
         "schema": {
             "fields": [
                 "plant_id_eia",
@@ -54,6 +63,8 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "summer_capacity_estimate",
                 "winter_capacity_mw",
                 "winter_capacity_estimate",
+                "net_capacity_mwdc",
+                "energy_storage_capacity_mwh",
                 "prime_mover_code",
                 "energy_source_code_1",
                 "energy_source_code_2",
@@ -107,7 +118,8 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "retirement_date",
                 "owned_by_non_utility",
                 "reactive_power_output_mvar",
-                "data_source",
+                "ferc_qualifying_facility",
+                "data_maturity",
             ],
             "primary_key": ["plant_id_eia", "generator_id", "report_date"],
             "foreign_key_rules": {
@@ -129,7 +141,10 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "eia860",
     },
     "ownership_eia860": {
-        "description": "Generator Ownership, reported in EIA-860 Schedule 4. Includes only jointly or third-party owned generators.",
+        "description": (
+            "Generator Ownership, reported in EIA-860 Schedule 4. Includes only "
+            "jointly or third-party owned generators."
+        ),
         "schema": {
             "fields": [
                 "report_date",
@@ -143,6 +158,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "owner_street_address",
                 "owner_zip_code",
                 "fraction_owned",
+                "data_maturity",
             ],
             "primary_key": [
                 "report_date",
@@ -156,7 +172,10 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "eia860",
     },
     "plants_eia860": {
-        "description": "Annually varying plant attributes, compiled from across all EIA-860 and EIA-923 data.",
+        "description": (
+            "Annually varying plant attributes, compiled from across all EIA-860 and "
+            "EIA-923 data."
+        ),
         "schema": {
             "fields": [
                 "plant_id_eia",
@@ -174,6 +193,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "ferc_exempt_wholesale_generator",
                 "ferc_small_power_producer_docket_no",
                 "ferc_small_power_producer",
+                "ferc_qualifying_facility_docket_no",
                 "grid_voltage_1_kv",
                 "grid_voltage_2_kv",
                 "grid_voltage_3_kv",
@@ -189,7 +209,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "pipeline_notes",
                 "primary_purpose_id_naics",
                 "regulatory_status_code",
-                "respondent_frequency",
+                "reporting_frequency_code",
                 "sector_id_eia",
                 "sector_name_eia",
                 "service_area",
@@ -198,6 +218,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "transmission_distribution_owner_state",
                 "utility_id_eia",
                 "water_source",
+                "data_maturity",
             ],
             "primary_key": ["plant_id_eia", "report_date"],
             "foreign_key_rules": {
@@ -220,7 +241,9 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "eia860",
     },
     "utilities_eia860": {
-        "description": "Annually varying utility attributes, compiled from all EIA data.",
+        "description": (
+            "Annually varying utility attributes, compiled from all EIA data."
+        ),
         "schema": {
             "fields": [
                 "utility_id_eia",
@@ -247,6 +270,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "contact_title_2",
                 "phone_number_2",
                 "phone_extension_2",
+                "data_maturity",
             ],
             "primary_key": ["utility_id_eia", "report_date"],
             "foreign_key_rules": {

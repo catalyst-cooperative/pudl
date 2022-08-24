@@ -527,17 +527,13 @@ def plants(eia923_dfs, eia923_transformed_dfs):
             "plant_state",
             "eia_sector",
             "naics_code",
-            "reporting_frequency",
+            "reporting_frequency_code",
             "census_region",
             "nerc_region",
             "capacity_mw",
             "report_year",
         ]
     ]
-
-    plant_info_df["reporting_frequency"] = plant_info_df.reporting_frequency.replace(
-        {"M": "monthly", "A": "annual"}
-    )
     # Since this is a plain Yes/No variable -- just make it a real sa.Boolean.
     plant_info_df.combined_heat_power.replace({"N": False, "Y": True}, inplace=True)
 
@@ -636,6 +632,7 @@ def generation_fuel(eia923_dfs, eia923_transformed_dfs):
         "total_fuel_consumption_mmbtu",
         "elec_fuel_consumption_mmbtu",
         "net_generation_megawatthours",
+        "early_release",
     ]
     gen_fuel.drop(cols_to_drop, axis=1, inplace=True)
 
@@ -774,7 +771,8 @@ def _aggregate_duplicate_boiler_fuel_keys(boiler_fuel_df: pd.DataFrame) -> pd.Da
         )
 
     is_duplicate = boiler_fuel_df.duplicated(subset=key_cols, keep=False)
-    duplicates: pd.DataFrame = boiler_fuel_df[is_duplicate]
+    # copying bc a slice of this copy will be reassigned later
+    duplicates: pd.DataFrame = boiler_fuel_df[is_duplicate].copy()
     boiler_fuel_groups = duplicates.groupby(key_cols)
 
     # For relative columns, take average weighted by fuel usage
@@ -784,7 +782,7 @@ def _aggregate_duplicate_boiler_fuel_keys(boiler_fuel_df: pd.DataFrame) -> pd.Da
         duplicates["fuel_consumed_units"].div(total_fuel.to_numpy()).fillna(0.0)
     )
     # overwrite with weighted values
-    duplicates[relative_cols] = duplicates[relative_cols].mul(
+    duplicates.loc[:, relative_cols] = duplicates.loc[:, relative_cols].mul(
         fuel_fraction.to_numpy().reshape(-1, 1)
     )
 
@@ -844,8 +842,10 @@ def boiler_fuel(eia923_dfs, eia923_transformed_dfs):
         "sector_name",
         "fuel_unit",
         "total_fuel_consumption_quantity",
-        "respondent_frequency",
         "balancing_authority_code_eia",
+        "early_release",
+        "reporting_frequency_code",
+        "data_maturity",
     ]
     bf_df.drop(cols_to_drop, axis=1, inplace=True)
 
@@ -920,6 +920,7 @@ def generation(eia923_dfs, eia923_transformed_dfs):
                 "eia_sector",
                 "sector_name",
                 "net_generation_mwh_year_to_date",
+                "early_release",
             ],
             axis="columns",
         )
@@ -987,6 +988,7 @@ def coalmine(eia923_dfs, eia923_transformed_dfs):
         "state",
         "county_id_fips",
         "mine_id_msha",
+        "data_maturity",
     ]
 
     # Make a copy so we don't alter the FRC data frame... which we'll need
@@ -1013,15 +1015,7 @@ def coalmine(eia923_dfs, eia923_transformed_dfs):
     cmi_df.drop(cmi_df[cmi_df["mine_id_msha"] > 0].index)
     cmi_df = pd.concat([cmi_df, cmi_with_msha])
 
-    cmi_df = cmi_df.drop_duplicates(
-        subset=[
-            "mine_name",
-            "state",
-            "mine_id_msha",
-            "mine_type_code",
-            "county_id_fips",
-        ]
-    )
+    cmi_df = cmi_df.drop_duplicates(subset=coalmine_cols)
 
     # drop null values if they occur in vital fields....
     cmi_df.dropna(subset=["mine_name", "state"], inplace=True)
@@ -1094,7 +1088,7 @@ def fuel_receipts_costs(eia923_dfs, eia923_transformed_dfs):
         "state_id_fips",
         "mine_name",
         "regulated",
-        "reporting_frequency",
+        "early_release",
     ]
 
     cmi_df = (
@@ -1121,15 +1115,14 @@ def fuel_receipts_costs(eia923_dfs, eia923_transformed_dfs):
                 "mine_id_msha",
                 "mine_type_code",
                 "county_id_fips",
+                "data_maturity",
             ],
         )
         .drop(cols_to_drop, axis=1)
-        .
         # Replace the EIA923 NA value ('.') with a real NA value.
-        pipe(pudl.helpers.fix_eia_na)
-        .
+        .pipe(pudl.helpers.fix_eia_na)
         # These come in ALL CAPS from EIA...
-        pipe(pudl.helpers.simplify_strings, columns=["supplier_name"])
+        .pipe(pudl.helpers.simplify_strings, columns=["supplier_name"])
         .pipe(
             pudl.helpers.fix_int_na,
             columns=[
@@ -1154,9 +1147,8 @@ def fuel_receipts_costs(eia923_dfs, eia923_transformed_dfs):
                 lambda y: "20" + y[-2:] if y != "" else y
             ),
         )
-        .
         # Now that we will create our own real date field, so chuck this one.
-        drop("contract_expiration_date", axis=1)
+        .drop("contract_expiration_date", axis=1)
         .pipe(
             pudl.helpers.convert_to_date,
             date_col="contract_expiration_date",
