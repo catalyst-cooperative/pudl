@@ -12,6 +12,14 @@ ferc1_dbf_to_sqlite_settings:
     - f1_steam
     - f1_fuel
 
+ferc1_xbrl_to_sqlite_settings: # What years of original FERC data should be cloned into the SQLite DB?
+  years: [2021]
+  # A list of tables to be loaded into the local SQLite database. These are
+  # the table names as created from the 2022 XBRL taxonomy.
+  tables:
+    - identification_001_duration
+    - steam_electric_generating_plant_statistics_large_plants_fuel_statistics_402_duration
+
 name: ferc1-solo
 title: FERC Form 1 Solo ETL
 description: >

@@ -527,17 +527,13 @@ def plants(eia923_dfs, eia923_transformed_dfs):
             "plant_state",
             "eia_sector",
             "naics_code",
-            "reporting_frequency",
+            "reporting_frequency_code",
             "census_region",
             "nerc_region",
             "capacity_mw",
             "report_year",
         ]
     ]
-
-    plant_info_df["reporting_frequency"] = plant_info_df.reporting_frequency.replace(
-        {"M": "monthly", "A": "annual"}
-    )
     # Since this is a plain Yes/No variable -- just make it a real sa.Boolean.
     plant_info_df.combined_heat_power.replace({"N": False, "Y": True}, inplace=True)
 
@@ -636,6 +632,7 @@ def generation_fuel(eia923_dfs, eia923_transformed_dfs):
         "total_fuel_consumption_mmbtu",
         "elec_fuel_consumption_mmbtu",
         "net_generation_megawatthours",
+        "early_release",
     ]
     gen_fuel.drop(cols_to_drop, axis=1, inplace=True)
 
@@ -774,7 +771,8 @@ def _aggregate_duplicate_boiler_fuel_keys(boiler_fuel_df: pd.DataFrame) -> pd.Da
         )
 
     is_duplicate = boiler_fuel_df.duplicated(subset=key_cols, keep=False)
-    duplicates: pd.DataFrame = boiler_fuel_df[is_duplicate]
+    # copying bc a slice of this copy will be reassigned later
+    duplicates: pd.DataFrame = boiler_fuel_df[is_duplicate].copy()
     boiler_fuel_groups = duplicates.groupby(key_cols)
 
     # For relative columns, take average weighted by fuel usage
@@ -784,7 +782,7 @@ def _aggregate_duplicate_boiler_fuel_keys(boiler_fuel_df: pd.DataFrame) -> pd.Da
         duplicates["fuel_consumed_units"].div(total_fuel.to_numpy()).fillna(0.0)
     )
     # overwrite with weighted values
-    duplicates[relative_cols] = duplicates[relative_cols].mul(
+    duplicates.loc[:, relative_cols] = duplicates.loc[:, relative_cols].mul(
         fuel_fraction.to_numpy().reshape(-1, 1)
     )
 
@@ -844,8 +842,9 @@ def boiler_fuel(eia923_dfs, eia923_transformed_dfs):
         "sector_name",
         "fuel_unit",
         "total_fuel_consumption_quantity",
-        "respondent_frequency",
         "balancing_authority_code_eia",
+        "early_release",
+        "reporting_frequency_code",
     ]
     bf_df.drop(cols_to_drop, axis=1, inplace=True)
 
@@ -920,6 +919,7 @@ def generation(eia923_dfs, eia923_transformed_dfs):
                 "eia_sector",
                 "sector_name",
                 "net_generation_mwh_year_to_date",
+                "early_release",
             ],
             axis="columns",
         )
@@ -1094,7 +1094,7 @@ def fuel_receipts_costs(eia923_dfs, eia923_transformed_dfs):
         "state_id_fips",
         "mine_name",
         "regulated",
-        "reporting_frequency",
+        "early_release",
     ]
 
     cmi_df = (

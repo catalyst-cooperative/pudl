@@ -9,6 +9,7 @@ from pudl.metadata.classes import DataSource
 from pudl.metadata.codes import CODE_METADATA
 from pudl.metadata.fields import apply_pudl_dtypes
 from pudl.settings import Eia860Settings
+from pudl.transform.eia861 import clean_nerc
 
 logger = get_logger(__name__)
 
@@ -73,7 +74,11 @@ def ownership(eia860_dfs, eia860_transformed_dfs):
     # we'll be notified.
 
     # The plant & generator ID values we know have duplicates to remove.
-    known_dupes = own_df.set_index(["plant_id_eia", "generator_id"]).loc[(56032, "1")]
+    known_dupes = (
+        own_df.set_index(["plant_id_eia", "generator_id"])
+        .sort_index()
+        .loc[(56032, "1")]
+    )
     # Index of own_df w/ duplicated records removed.
     without_known_dupes_idx = own_df.set_index(
         ["plant_id_eia", "generator_id"]
@@ -107,13 +112,24 @@ def ownership(eia860_dfs, eia860_transformed_dfs):
     # datatypes are applied, which violates the primary key constraints.
     # See https://github.com/catalyst-cooperative/pudl/issues/1207
     mask = (
-        (own_df.report_date.isin(["2018-01-01", "2019-01-01", "2020-01-01"]))
+        (
+            own_df.report_date.isin(
+                [
+                    "2018-01-01",
+                    "2019-01-01",
+                    "2020-01-01",
+                    "2021-01-01",
+                ]
+            )
+        )
         & (own_df.plant_id_eia == 62844)
         & (own_df.owner_utility_id_eia == 62745)
         & (own_df.generator_id == "nan")
     )
     own_df = own_df[~mask]
 
+    if not (nulls := own_df[own_df.generator_id == ""]).empty:
+        logger.warning(f"Found records with null IDs in ownership_eia860: {nulls}")
     # In 2010 there are several hundred utilities that appear to be incorrectly
     # reporting the owner_utility_id_eia value *also* in the utility_id_eia
     # column. This results in duplicate operator IDs associated with a given
@@ -283,6 +299,7 @@ def generators(eia860_dfs, eia860_transformed_dfs):
         "ferc_cogen_status",
         "ferc_small_power_producer",
         "ferc_exempt_wholesale_generator",
+        "ferc_qualifying_facility",
     ]
 
     for column in boolean_columns_to_fix:
@@ -413,6 +430,8 @@ def plants(eia860_dfs, eia860_transformed_dfs):
 
     p_df = pudl.helpers.convert_to_date(p_df)
 
+    p_df = clean_nerc(p_df, idx_cols=["plant_id_eia", "report_date", "nerc_region"])
+
     p_df = (
         pudl.metadata.classes.Package.from_resource_ids()
         .get_resource("plants_eia860")
@@ -448,33 +467,16 @@ def boiler_generator_assn(eia860_dfs, eia860_transformed_dfs):
     """
     # Populating the 'generators_eia860' table
     b_g_df = eia860_dfs["boiler_generator_assn"].copy()
-    b_g_cols = [
-        "report_year",
-        "utility_id_eia",
-        "plant_id_eia",
-        "boiler_id",
-        "generator_id",
-    ]
-
-    b_g_df = b_g_df[b_g_cols]
-
-    # There are some bad (non-data) lines in some of the boiler generator
-    # data files (notes from EIA) which are messing up the import. Need to
-    # identify and drop them early on.
-    b_g_df["utility_id_eia"] = b_g_df["utility_id_eia"].astype(str)
-    b_g_df = b_g_df[b_g_df.utility_id_eia.str.isnumeric()]
-
-    b_g_df["plant_id_eia"] = b_g_df["plant_id_eia"].astype(int)
-
-    # We need to cast the generator_id column as type str because sometimes
-    # it is heterogeneous int/str which make drop_duplicates fail.
-    b_g_df["generator_id"] = b_g_df["generator_id"].astype(str)
-    b_g_df["boiler_id"] = b_g_df["boiler_id"].astype(str)
-
-    # This drop_duplicates isn't removing all duplicates
-    b_g_df = b_g_df.drop_duplicates().dropna()
 
     b_g_df = pudl.helpers.convert_to_date(b_g_df)
+    b_g_df = pudl.helpers.convert_cols_dtypes(df=b_g_df, data_source="eia")
+    b_g_df = b_g_df.drop_duplicates()
+
+    b_g_df = (
+        pudl.metadata.classes.Package.from_resource_ids()
+        .get_resource("boiler_generator_assn_eia860")
+        .encode(b_g_df)
+    )
 
     eia860_transformed_dfs["boiler_generator_assn_eia860"] = b_g_df
 
