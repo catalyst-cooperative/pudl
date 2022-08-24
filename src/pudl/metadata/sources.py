@@ -330,6 +330,16 @@ SOURCES: dict[str, Any] = {
         "contributors": [
             CONTRIBUTORS["catalyst-cooperative"],
         ],
+        "keywords": sorted(
+            set(
+                [
+                    "form 2",
+                    "ferc2",
+                ]
+                + KEYWORDS["ferc"]
+                + KEYWORDS["finance"]
+            )
+        ),
         "license_raw": LICENSES["us-govt"],
         "license_pudl": LICENSES["cc-by-4.0"],
     },
@@ -348,6 +358,16 @@ SOURCES: dict[str, Any] = {
         "contributors": [
             CONTRIBUTORS["catalyst-cooperative"],
         ],
+        "keywords": sorted(
+            set(
+                [
+                    "form 6",
+                    "ferc6",
+                ]
+                + KEYWORDS["ferc"]
+                + KEYWORDS["finance"]
+            )
+        ),
         "license_raw": LICENSES["us-govt"],
         "license_pudl": LICENSES["cc-by-4.0"],
     },
@@ -366,6 +386,16 @@ SOURCES: dict[str, Any] = {
         "contributors": [
             CONTRIBUTORS["catalyst-cooperative"],
         ],
+        "keywords": sorted(
+            set(
+                [
+                    "form 60",
+                    "ferc60",
+                ]
+                + KEYWORDS["ferc"]
+                + KEYWORDS["finance"]
+            )
+        ),
         "license_raw": LICENSES["us-govt"],
         "license_pudl": LICENSES["cc-by-4.0"],
     },
