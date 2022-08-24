@@ -173,11 +173,34 @@ class GenericExtractor:
         self._dataset_name = self._metadata.get_dataset_name()
         self._file_cache = {}
         self.ds = ds
+        self.cols_added: list[str] = []
 
     def process_raw(self, df, page, **partition):
         """Transforms raw dataframe and rename columns."""
-        self.cols_added = []
+        df = self.add_data_maturity(df, page, **partition)
+        self.cols_added.append("data_label")
         return df.rename(columns=self._metadata.get_column_map(page, **partition))
+
+    def add_data_maturity(self, df: pd.DataFrame, page, **partition) -> pd.DataFrame:
+        """Add a data_maturity column to indicate the level of finality of the partition.
+
+        The three options enumerated here are ``final``, ``provisional`` or
+        ``monthly_update`` (``incremental_ytd`` is not currently implemented). We
+        determine if a df should be labeled as ``provisional`` by using the file names
+        because EIA seems to always include ``Early_Release`` in the file names. We
+        determine if a df should be labeled as ``monthly_update`` by checking if the
+        ``self.dataset_name`` is ``eia860m``.
+
+        This method adds a column and thus adds ``data_maturity`` to ``self.cols_added``.
+        """
+        maturity = "final"
+        if "early_release" in self.excel_filename(page, **partition).lower():
+            maturity = "provisional"
+        elif self._dataset_name == "eia860m":
+            maturity = "monthly_update"
+        df = df.assign(data_maturity=maturity)
+        self.cols_added.append("data_maturity")
+        return df
 
     @staticmethod
     def process_renamed(df, page, **partition):

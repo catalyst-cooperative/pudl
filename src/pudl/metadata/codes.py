@@ -1206,4 +1206,29 @@ CODE_METADATA: dict[str, dict[str, Any]] = {
         "code_fixes": {},
         "ignored_codes": [],
     },
+    "data_maturities": {
+        "df": pd.DataFrame(
+            columns=["code", "description"],
+            data=[
+                (
+                    "final",
+                    "Data that has been reviewed and validated by the publishing agency, and is considered to be in its final form. Note that even final data is subject to later revision, sometimes years after the fact.",
+                ),
+                (
+                    "provisional",
+                    "An early draft of final release data, that has not yet been fully reviewed or validated by the publishing agency. Should be used with caution. E.g. Early Release versions of the complete annual EIA-860 and EIA-923 data.",
+                ),
+                (
+                    "monthly_update",
+                    "Data that is updated monthly throughout the year, but that is not monthly in resolution. Should be used with caution, as it may be revised when incorporated into final annual reporting. E.g. the generator attributes reported in the EIA-860m.",
+                ),
+                (
+                    "incremental_ytd",
+                    "Incremental releases of data with sub-annual resolution. Should be used with caution, as in many cases not all respondents are required to report at sub-annual frequency, meaning data coverage may not be complete. This data is also likely to be revised prior to its final annual release. E.g. the EIA-923 monthly or FERC Form 1 quarterly data releases.",
+                ),
+            ],
+        ).convert_dtypes(),
+        "code_fixes": {},
+        "ignored_codes": [],
+    },
 }
