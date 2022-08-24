@@ -173,7 +173,7 @@ class GenericExtractor:
         self._dataset_name = self._metadata.get_dataset_name()
         self._file_cache = {}
         self.ds = ds
-        self.cols_added: list = []
+        self.cols_added: list[str] = []
 
     def process_raw(self, df, page, **partition):
         """Transforms raw dataframe and rename columns."""
@@ -185,10 +185,11 @@ class GenericExtractor:
         """Add a data_maturity column to indicate the level of finality of the partition.
 
         The three options enumerated here are ``final``, ``provisional`` or
-        ``monthly_update``. We determine if a df should be labeled as ``provisional``
-        by using the file names because EIA seems to always include ``Early_Release``
-        in the file names. We determine if a df should be labeled as ``monthly_update``
-        by checking if the ``self.dataset_name`` is ``eia860m``.
+        ``monthly_update`` (``incremental_ytd`` is not currently implemented). We
+        determine if a df should be labeled as ``provisional`` by using the file names
+        because EIA seems to always include ``Early_Release`` in the file names. We
+        determine if a df should be labeled as ``monthly_update`` by checking if the
+        ``self.dataset_name`` is ``eia860m``.
 
         This method adds a column and thus adds ``data_maturity`` to ``self.cols_added``.
         """
