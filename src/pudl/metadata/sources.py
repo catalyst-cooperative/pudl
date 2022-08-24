@@ -330,6 +330,36 @@ SOURCES: dict[str, Any] = {
         "license_raw": LICENSES["us-govt"],
         "license_pudl": LICENSES["cc-by-4.0"],
     },
+    "ferc6": {
+        "title": "FERC Form 6",
+        "path": "https://www.ferc.gov/general-information-1/oil-industry-forms/form-6-6q-historical-vfp-data",
+        "description": (
+            "The Federal Energy Regulatory Commission (FERC) Form 6 is a "
+            "comprehensive financial and operating report submitted for oil "
+            "pipelines rate regulation and financial audits."
+        ),
+        "field_namespace": "ferc6",
+        "working_partitions": {
+            "years": [],  # Not yet working!
+        },
+        "license_raw": LICENSES["us-govt"],
+        "license_pudl": LICENSES["cc-by-4.0"],
+    },
+    "ferc60": {
+        "title": "FERC Form 60",
+        "path": "https://www.ferc.gov/general-information-1/oil-industry-forms/form-6-6q-historical-vfp-data",
+        "description": (
+            "The Federal Energy Regulatory Commission (FERC) Form 60 is a "
+            "comprehensive financial and operating report submitted for centralized "
+            "service companies."
+        ),
+        "field_namespace": "ferc60",
+        "working_partitions": {
+            "years": [],  # Not yet working!
+        },
+        "license_raw": LICENSES["us-govt"],
+        "license_pudl": LICENSES["cc-by-4.0"],
+    },
     "ferc714": {
         "title": "FERC Form 714: Annual Electric Balancing Authority Area and Planning Area Report",
         "path": "https://www.ferc.gov/industries-data/electric/general-information/electric-industry-forms/form-no-714-annual-electric",
