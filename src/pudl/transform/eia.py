@@ -366,6 +366,7 @@ def _compile_all_entity_records(entity, eia_transformed_dfs):
     static_cols = ENTITIES[entity]["static_cols"]
     annual_cols = ENTITIES[entity]["annual_cols"]
     base_cols = id_cols + ["report_date"]
+    keep_cols = ENTITIES[entity].get("keep_cols", [])
 
     # empty list for dfs to be added to for each table below
     dfs = []
@@ -392,18 +393,10 @@ def _compile_all_entity_records(entity, eia_transformed_dfs):
                 df["table"] = table_name
                 dfs.append(df)
 
-                # remove the static columns, with an exception
-                if (entity in ("generators", "plants")) and (
-                    table_name
-                    in (
-                        "generators_eia860",
-                        "ownership_eia860",
-                        "plants_eia860",
-                        "utilities_eia860",
-                    )
-                ):
-                    cols.remove("utility_id_eia")
-                transformed_df = transformed_df.drop(columns=cols)
+                # remove the static columns, except the explicitly non-dropped cols
+                transformed_df = transformed_df.drop(
+                    columns=[c for c in cols if c not in keep_cols]
+                )
                 eia_transformed_dfs[table_name] = transformed_df
 
     # add those records to the compliation
@@ -417,6 +410,13 @@ def _compile_all_entity_records(entity, eia_transformed_dfs):
     logger.debug("    Casting harvested IDs to correct data types")
     # most columns become objects (ack!), so assign types
     compiled_df = apply_pudl_dtypes(compiled_df, group="eia")
+    # encode the compiled options! (except for the boilers bc there is no annual table)
+    if entity != "boilers":
+        compiled_df = (
+            pudl.metadata.classes.Package.from_resource_ids()
+            .get_resource(f"{entity}_eia860")
+            .encode(compiled_df)
+        )
     return compiled_df
 
 
@@ -638,12 +638,12 @@ def harvesting(  # noqa: C901
     return (entities_dfs, eia_transformed_dfs)
 
 
-def _boiler_generator_assn(
-    eia_transformed_dfs,
-    eia923_years=DataSource.from_id("eia923").working_partitions["years"],
-    eia860_years=DataSource.from_id("eia860").working_partitions["years"],
-    debug=False,
-):
+def _boiler_generator_assn(  # noqa: C901
+    eia_transformed_dfs: dict[str, pd.DataFrame],
+    eia923_years: list[int] | None = None,
+    eia860_years: list[int] | None = None,
+    debug: bool = False,
+) -> dict[str, pd.DataFrame]:
     """Creates a set of more complete boiler generator associations.
 
     Creates a unique unit_id_pudl for each collection of boilers and generators
@@ -664,15 +664,15 @@ def _boiler_generator_assn(
     the generation units, at least for 2014 and later.
 
     Args:
-        eia_transformed_dfs (dict): a dictionary of post-transform dataframes
+        eia_transformed_dfs: a dictionary of post-transform dataframes
             representing the EIA database tables.
-        eia923_years (list-like): a list of the years of EIA 923 data that
+        eia923_years: a list of the years of EIA 923 data that
             should be used to infer the boiler-generator associations. By
             default it is all the working years of data.
-        eia860_years (list-like): a list of the years of EIA 860 data that
+        eia860_years: a list of the years of EIA 860 data that
             should be used to infer the boiler-generator associations. By
             default it is all the working years of data.
-        debug (bool): If True, include columns in the returned dataframe
+        debug: If True, include columns in the returned dataframe
             indicating by what method the individual boiler generator
             associations were inferred.
 
@@ -692,9 +692,15 @@ def _boiler_generator_assn(
             unit_id each year.
 
     """
-    # if you're not ingesting both 860 and 923, the bga is not compilable
+    if eia923_years is None:
+        eia923_years = DataSource.from_id("eia923").working_partitions["years"]
+    if eia860_years is None:
+        eia860_years = DataSource.from_id("eia860").working_partitions["years"]
+
+    # if eia860_years or eia923_years are still empty, we can't compile the BGA.
+    # Return the unaltered input dictionary of dataframes instead.
     if not (eia860_years and eia923_years):
-        return pd.DataFrame()
+        return eia_transformed_dfs
     # compile and scrub all the parts
     logger.info("Inferring complete EIA boiler-generator associations.")
     bga_eia860 = (
@@ -869,8 +875,11 @@ def _boiler_generator_assn(
             "boiler_id",
             "unit_id_eia",
             "bga_source",
+            "boiler_generator_assn_type_code",
+            "steam_plant_type_code",
             "net_generation_mwh",
             "missing_from_923",
+            "data_maturity",
         ]
     ]
 
@@ -1059,11 +1068,16 @@ def _boiler_generator_assn(
 
 
 def _restrict_years(
-    df,
-    eia923_years=DataSource.from_id("eia923").working_partitions["years"],
-    eia860_years=DataSource.from_id("eia860").working_partitions["years"],
-):
+    df: pd.DataFrame,
+    eia923_years: list[int] | None = None,
+    eia860_years: list[int] | None = None,
+) -> pd.DataFrame:
     """Restricts eia years for boiler generator association."""
+    if eia923_years is None:
+        eia923_years = DataSource.from_id("eia923").working_partitions["years"]
+    if eia860_years is None:
+        eia860_years = DataSource.from_id("eia860").working_partitions["years"]
+
     bga_years = set(eia860_years) & set(eia923_years)
     df = df[df.report_date.dt.year.isin(bga_years)]
     return df
@@ -1109,14 +1123,12 @@ def transform(
             debug=debug,
             eia860m=eia_settings.eia860.eia860m,
         )
-
     _boiler_generator_assn(
         eia_transformed_dfs,
         eia923_years=eia_settings.eia923.years,
         eia860_years=eia_settings.eia860.years,
         debug=debug,
     )
-
     # get rid of the original annual dfs in the transformed dict
     remove = ["generators", "plants", "utilities"]
     for entity in remove:
