@@ -689,6 +689,7 @@ class MakePlantParts:
             self.add_additonal_cols(plant_parts_eia)
             .pipe(pudl.helpers.organize_cols, FIRST_COLS)
             .pipe(self._clean_plant_parts)
+            .pipe(pudl.metadata.fields.apply_pudl_dtypes, resource="plant_parts_eia")
         )
         self.validate_ownership_for_owned_records(self.plant_parts_eia)
         validate_run_aggregations(self.plant_parts_eia, gens_mega)

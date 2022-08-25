@@ -53,6 +53,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "annual_indirect_program_cost": {"type": "number", "unit": "USD"},
     "annual_total_cost": {"type": "number", "unit": "USD"},
+    "appro_part_label": {
+        "type": "string",
+        "description": "Plant part of the associated true granularity record.",
+    },
+    "appro_record_id_eia": {
+        "type": "string",
+        "description": "EIA record ID of the associated true granularity record.",
+    },
     "ash_content_pct": {
         "type": "number",
         "description": "Ash content percentage by weight to the nearest 0.1 percent.",
@@ -530,6 +538,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "ferc_account_id": {
         "type": "string",
         "description": "Account number, from FERC's Uniform System of Accounts for Electric Plant. Also includes higher level labeled categories.",
+    },
+    "ferc_acct_name": {
+        "type": "string",
+        "description": "Name of FERC account type.",
     },
     "ferc_cogen_docket_no": {
         "type": "string",
@@ -1104,6 +1116,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "The operating status of the generator.",
     },
+    "operational_status_pudl": {
+        "type": "string",
+        "description": "The operating status of the generator using PUDL categories.",
+    },
     "opex_allowances": {"type": "number", "description": "Allowances.", "unit": "USD"},
     "opex_boiler": {
         "type": "number",
@@ -1327,6 +1343,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "pattern": r"^\d{5}$",
         },
     },
+    "ownership": {
+        "type": "string",
+        "description": "Whether each generator record is for one owner or represents a total of all ownerships.",
+    },
     "ownership_code": {
         "type": "string",
         "description": "Identifies the ownership for each generator.",
@@ -1440,6 +1460,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "integer",
         "description": "A manually assigned PUDL plant ID. May not be constant over time.",
     },
+    "plant_id_report_year": {
+        "type": "string",
+        "description": "PUDL plant ID and report year of the record.",
+    },
     "plant_name_eia": {"type": "string", "description": "Plant name."},
     "plant_name_ferc1": {
         "type": "string",
@@ -1452,6 +1476,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "plant_name_pudl": {
         "type": "string",
         "description": "Plant name, chosen arbitrarily from the several possible plant names available in the plant matching process. Included for human readability only.",
+    },
+    "plant_part": {
+        "type": "string",
+        "description": "The part of the plant a record corresponds to.",
+    },
+    "plant_part_id_eia": {
+        "type": "string",
+        "description": "Contains EIA plant ID, plant part, ownership, and EIA utility id",
     },
     "plant_type": {
         "type": "string"
@@ -2081,6 +2113,17 @@ override. Only those elements which should be overridden need to be specified.
 
 FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
     "sector_consolidated_eia": {"code": {"type": "integer"}},
+    "plant_parts_eia": {
+        "appro_part_label": {"type": "category"},
+        "energy_source_code_1": {"type": "category"},
+        "ferc_acct_name": {"type": "category"},
+        "fuel_type_code_pudl": {"type": "category"},
+        "operational_status_pudl": {"type": "category"},
+        "ownership": {"type": "category"},
+        "plant_part": {"type": "category"},
+        "prime_mover_code": {"type": "category"},
+        "technology_description": {"type": "category"},
+    },
     "plants_steam_ferc1": {
         "plant_type": {
             "type": "string",
@@ -2104,8 +2147,10 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
 
 def get_pudl_dtypes(
     group: str | None = None,
+    resource: str | None = None,
     field_meta: dict[str, Any] | None = FIELD_METADATA,
     field_meta_by_group: dict[str, Any] | None = FIELD_METADATA_BY_GROUP,
+    field_meta_by_resource: dict[str, Any] | None = FIELD_METADATA_BY_RESOURCE,
     dtype_map: dict[str, Any] | None = FIELD_DTYPES_PANDAS,
 ) -> dict[str, Any]:
     """Compile a dictionary of field dtypes, applying group overrides.
@@ -2114,9 +2159,13 @@ def get_pudl_dtypes(
         group: The data group (e.g. ferc1, eia) to use for overriding the default
             field types. If None, no overrides are applied and the default types
             are used.
+        resource: The data resource to use for overriding the default field types.
+            If None, no overrides are applied and the default types are used.
         field_meta: Field metadata dictionary which at least describes a "type".
         field_meta_by_group: Field metadata type overrides to apply based on the data
             group that the field is part of, if any.
+        field_meta_by_resource: Field metadata type overrides to apply based on the
+            data group that the field is part of, if any.
         dtype_map: Mapping from canonical PUDL data types to some other set of data
             types. Uses pandas data types by default.
 
@@ -2129,6 +2178,8 @@ def get_pudl_dtypes(
     for f in field_meta:
         if f in field_meta_by_group.get(group, []):
             field_meta[f].update(field_meta_by_group[group][f])
+        if f in field_meta_by_resource.get(resource, []):
+            field_meta[f].update(field_meta_by_resource[resource][f])
         dtypes[f] = dtype_map[field_meta[f]["type"]]
 
     return dtypes
@@ -2137,8 +2188,10 @@ def get_pudl_dtypes(
 def apply_pudl_dtypes(
     df: pd.DataFrame,
     group: str | None = None,
+    resource: str | None = None,
     field_meta: dict[str, Any] | None = FIELD_METADATA,
     field_meta_by_group: dict[str, Any] | None = FIELD_METADATA_BY_GROUP,
+    field_meta_by_resource: dict[str, Any] | None = FIELD_METADATA_BY_RESOURCE,
 ) -> pd.DataFrame:
     """Apply dtypes to those columns in a dataframe that have PUDL types defined.
 
@@ -2150,12 +2203,16 @@ def apply_pudl_dtypes(
         df: The dataframe to apply types to. Not all columns need to have types
             defined in the PUDL metadata.
         group: The data group to use for overrides, if any. E.g. "eia", "ferc1".
+        resource: The data resource to use for overrides, if any. E.g. "plants_steam_ferc1"
         field_meta: A dictionary of field metadata, where each key is a field name
             and the values are dictionaries which must have a "type" element. By
             default this is pudl.metadata.fields.FIELD_METADATA.
         field_meta_by_group: A dictionary of field metadata to use as overrides,
             based on the value of `group`, if any. By default it uses the overrides
             defined in pudl.metadata.fields.FIELD_METADATA_BY_GROUP.
+        field_meta_by_resource: A dictionary of field metadata to use as overrides,
+            based on the value of `resource`, if any. By default it uses the overrides
+            defined in pudl.metadata.fields.FIELD_METADATA_BY_RESOURCE.
 
     Returns:
         The input dataframe, but with standard PUDL types applied.
@@ -2163,8 +2220,10 @@ def apply_pudl_dtypes(
     """
     dtypes = get_pudl_dtypes(
         group=group,
+        resource=resource,
         field_meta=field_meta,
         field_meta_by_group=field_meta_by_group,
+        field_meta_by_resource=field_meta_by_resource,
         dtype_map=FIELD_DTYPES_PANDAS,
     )
 
