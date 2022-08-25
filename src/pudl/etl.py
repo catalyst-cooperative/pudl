@@ -20,30 +20,17 @@ import time
 from concurrent.futures import ProcessPoolExecutor
 from functools import partial
 from pathlib import Path
-from typing import Any
 
 import pandas as pd
 import pyarrow as pa
 import pyarrow.parquet as pq
 import sqlalchemy as sa
-from dagster import (
-    Field,
-    IOManager,
-    Out,
-    graph,
-    in_process_executor,
-    io_manager,
-    job,
-    op,
-    resource,
-    static_partitioned_config,
-)
+from dagster import Field, Nothing, job, op, resource
 from sqlalchemy.pool import StaticPool
 
 import pudl
-from pudl.extract.epacems import EpaCemsPartition
 from pudl.helpers import convert_cols_dtypes
-from pudl.metadata.classes import DataSource, Resource
+from pudl.metadata.classes import Resource
 from pudl.metadata.codes import CODE_METADATA
 from pudl.metadata.dfs import FERC_ACCOUNTS, FERC_DEPRECIATION_LINES
 from pudl.metadata.fields import apply_pudl_dtypes
@@ -264,11 +251,10 @@ def _etl_one_year_epacems(
     states: list[str],
     pudl_db: str,
     out_dir: str,
-    ds_kwargs: dict[str, Any],
+    ds: Datastore,
 ) -> None:
     """Process one year of EPA CEMS and output year-state paritioned Parquet files."""
     pudl_engine = sa.create_engine(pudl_db)
-    ds = Datastore(**ds_kwargs)
     schema = Resource.from_id("hourly_emissions_epacems").to_pyarrow()
 
     for state in states:
@@ -286,22 +272,20 @@ def _etl_one_year_epacems(
             )
 
 
-def etl_epacems(
-    epacems_settings: EpaCemsSettings,
-    pudl_settings: dict[str, Any],
-    ds_kwargs: dict[str, Any],
-    clobber: str = False,
-) -> None:
+@op(
+    config_schema={
+        "years": Field(list, is_required=False),
+        "states": Field(list, is_required=False),
+        "clobber": Field(bool, default_value=False),
+        "partition": Field(bool, default_value=False),
+    },
+    required_resource_keys={"pudl_settings", "datastore", "pudl_engine"},
+)
+def etl_epacems(context) -> Nothing:
     """Extract, transform and load CSVs for EPA CEMS.
 
     Args:
-        epacems_settings: Validated ETL parameters required by this data source.
-        pudl_settings: a dictionary filled with settings that mostly describe paths to
-            various resources and outputs.
-        ds_kwargs: Keyword arguments for instantiating a PUDL datastore, so that the ETL
-            can access the raw input data.
-        clobber: If True and there is already a hourly_emissions_epacems parquer file
-            or directory it will be deleted and a new one will be created.
+        context: dagster context keyword
 
     Returns:
         Unlike the other ETL functions, the EPACEMS writes its output to Parquet as it
@@ -309,7 +293,17 @@ def etl_epacems(
         dictionary of dataframes.
 
     """
-    pudl_engine = sa.create_engine(pudl_settings["pudl_db"])
+    pudl_engine = context.resources.pudl_engine
+    pudl_settings = context.resources.pudl_settings
+    ds = context.resources.datastore
+    clobber = context.op_config["clobber"]
+
+    settings_params = {}
+    settings_params["states"] = context.op_config.get("states")
+    settings_params["years"] = context.op_config.get("years")
+    settings_params["partition"] = context.op_config.get("partition")
+    settings_kwargs = {k: v for k, v in settings_params.items() if v}
+    epacems_settings = EpaCemsSettings(**settings_kwargs)
 
     # Verify that we have a PUDL DB with plant attributes:
     inspector = sa.inspect(pudl_engine)
@@ -349,14 +343,13 @@ def etl_epacems(
             states=epacems_settings.states,
             pudl_db=pudl_settings["pudl_db"],
             out_dir=epacems_dir,
-            ds_kwargs=ds_kwargs,
+            ds=ds,
         )
         with ProcessPoolExecutor() as executor:
             # Convert results of map() to list to force execution
             _ = list(executor.map(do_one_year, epacems_settings.years))
 
     else:
-        ds = Datastore(**ds_kwargs)
         schema = Resource.from_id("hourly_emissions_epacems").to_pyarrow()
         epacems_path = Path(
             pudl_settings["parquet_dir"], "epacems/hourly_emissions_epacems.parquet"
@@ -549,144 +542,16 @@ def pudl_etl():
     pudl.load.dfs_to_sqlite(ferc1_dfs=ferc1_dfs, eia_dfs=eia_dfs, glue_dfs=glue_dfs)
 
 
-# Dagster epacems WIP
-class EpaCemsPartitionIOManager(IOManager):
-    """IO manager that writes each EPA CEMS partition to a separate parquet file."""
-
-    def __init__(self, parquet_path: Path) -> None:
-        """Initialize a EpaCemsPartitionIOManager."""
-        self.out_dir = parquet_path / "epacems" / "hourly_emissions_epacems"
-        self.out_dir.mkdir(exist_ok=True)
-
-    def handle_output(self, context, df: pd.DataFrame) -> None:
-        """Write a partition to a single parquet file.
-
-        Args:
-            context: dagster context keyword.
-            df: Dataframe to write to a parquet file.
-        """
-        year, state = context.partition_key.split("-")
-        schema = Resource.from_id("hourly_emissions_epacems").to_pyarrow()
-
-        parquet_path = self.out_dir / f"epacems-{year}-{state}.parquet"
-        if parquet_path.exists():
-            raise SystemExit(
-                f"{parquet_path} file already exists, and we don't want to clobber it.\n"
-                "Move or delete it."
-            )
-
-        with pq.ParquetWriter(
-            where=parquet_path,
-            schema=schema,
-            compression="snappy",
-            version="2.6",
-        ) as pqwriter:
-            pqwriter.write_table(
-                pa.Table.from_pandas(df, schema=schema, preserve_index=False)
-            )
-
-    def load_input(self, context) -> pd.DataFrame:
-        """Load a dataframe from a parquet file.
-
-        Args:
-            context: dagster context keyword.
-
-        Returns:
-            A dataframe from the upstream output.
-        """
-        year, state = context.partition_key.split("-")
-        partition_path = self.out_dir / f"epacems-{year}-{state}.parquet"
-        return pd.read_parquet(partition_path)
-
-
-@io_manager(
-    required_resource_keys={"pudl_settings"},
-)
-def epacems_partition_io_manager(init_context):
-    """IO manager that writes each EPA CEMS partition to a separate parquet file."""
-    parquet_path = Path(init_context.resources.pudl_settings["parquet_dir"])
-    return EpaCemsPartitionIOManager(parquet_path=parquet_path)
-
-
-def create_epacems_partitions() -> list[str]:
-    """Create a list of epacems partitions."""
-    data_source = DataSource.from_id("epacems")
-
-    years = data_source.working_partitions["years"]
-    states = data_source.working_partitions["states"]
-
-    partitions = itertools.product(years, states)
-    return list(map(lambda par: f"{par[0]}-{par[1]}", partitions))
-
-
-@static_partitioned_config(partition_keys=create_epacems_partitions())
-def partition_config(partition_key: str):
-    """EPA CEMS dagster partition config."""
-    return {"ops": {"etl_epacems_op": {"config": {"partition": partition_key}}}}
-
-
-@op(
-    config_schema={
-        "partition": str,
-    },
-    required_resource_keys={"datastore", "pudl_engine"},
-    out=Out(io_manager_key="epacems_io_manager"),
-)
-def etl_epacems_op(context):
-    """Process a EPA CEMS partition."""
-    pudl_engine = context.resources.pudl_engine
-    datastore = context.resources.datastore
-
-    year, state = context.op_config["partition"].split("-")
-    partition = EpaCemsPartition(state=state, year=int(year))
-    logger.info(partition)
-
-    # Verify that we have a PUDL DB with plant attributes:
-    inspector = sa.inspect(pudl_engine)
-    if "plants_eia860" not in inspector.get_table_names():
-        raise RuntimeError(
-            "No plants_eia860 available in the PUDL DB! Have you run the ETL? "
-            f"Trying to access PUDL DB: {pudl_engine}"
-        )
-
-    eia_plant_years = pd.read_sql(
-        """
-        SELECT DISTINCT strftime('%Y', report_date)
-        AS year
-        FROM plants_eia860
-        ORDER BY year ASC
-        """,
-        pudl_engine,
-    ).year.astype(int)
-    if year not in eia_plant_years:
-        logger.info(
-            f"Missing EIA plant data for year: {year} "
-            "Some timezones may be estimated based on plant state."
-        )
-
-    logger.info(f"Processing EPA CEMS hourly data for {year}-{state}")
-    df = pudl.extract.epacems.extract(year=year, state=state, ds=datastore)
-    df = pudl.transform.epacems.transform(df, pudl_engine=pudl_engine)
-    return df
-
-
-@graph
-def etl_epacems_graph():
-    """Create a etl_epacems DAG."""
-    etl_epacems_op()
-
-
-etl_epacems_partition_job = etl_epacems_graph.to_job(
+@job(
     resource_defs={
         "pudl_settings": pudl_settings,
         "datastore": datastore,
         "pudl_engine": pudl_engine,
-        "epacems_io_manager": epacems_partition_io_manager,
-    },
-    config=partition_config,
-    executor_def=in_process_executor,
-    name="etl_epacems_partition_job",
+    }
 )
+def etl_epacems_job():
+    """Run etl_epacems_job."""
+    etl_epacems()
 
 
 if __name__ == "__main__":
