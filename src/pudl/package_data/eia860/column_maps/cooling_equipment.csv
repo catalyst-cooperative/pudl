@@ -48,3 +48,4 @@ intake_distance_surface_feet,,,,,,,,,intake_distance_surface,intake_distance_sur
 outlet_distance_surface_feet,,,,,,,,,outlet_distance_surface,outlet_distance_surface,outlet_distance_surface,outlet_distance_surface_feet,outlet_distance_surface_feet,outlet_distance_surface_feet,outlet_distance_surface_feet,outlet_distance_surface_feet,outlet_distance_surface_feet,outlet_distance_surface_feet,outlet_distance_surface_feet,outlet_distance_surface_feet,outlet_distance_surface_feet
 steam_plant_type,,,,,,,,,,,,,,steam_plant_type,steam_plant_type,steam_plant_type,steam_plant_type,steam_plant_type,steam_plant_type,steam_plant_type,steam_plant_type
 summer_capacity_mw,,,,,,,,,plant_sum_cap,plant_sum_cap,,,,,,,,,,,
+water_source,,,,,,,,,name_of_water_source,name_of_water_source,,,,,,,,,,,

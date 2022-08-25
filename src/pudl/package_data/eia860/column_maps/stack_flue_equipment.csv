@@ -25,4 +25,4 @@ exit_temperature_measured_or_estimated,,,,,,,,,exit_temp_source,exit_temp_source
 steam_plant_type,,,,,,,,,,,,,,steam_plant_type,steam_plant_type,steam_plant_type,steam_plant_type,steam_plant_type,steam_plant_type,steam_plant_type,steam_plant_type
 exit_temperature_source,,,,,,,,,,,,,,,,,,,,,
 summer_capacity_mw,,,,,,,,,plant_sum_cap,plant_sum_cap,,,,,,,,,,,
-stack_flue_water_source,,,,,,,,,name_of_water_source,name_of_water_source,,,,,,,,,,,
+water_source,,,,,,,,,name_of_water_source,name_of_water_source,,,,,,,,,,,
