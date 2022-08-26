@@ -24,26 +24,19 @@ MINIMUM_SQLITE_VERSION = "3.32.0"
         "check_foreign_keys": Field(bool, default_value=True),
         "check_types": Field(bool, default_value=True),
         "check_values": Field(bool, default_value=True),
-        "clobber": Field(bool, default_value=False),
     },
     required_resource_keys={"pudl_engine"},
 )
 def dfs_to_sqlite(
     context,
-    glue_dfs: dict[str, pd.DataFrame],
-    eia_dfs: dict[str, pd.DataFrame],
-    ferc1_dfs: dict[str, pd.DataFrame],
+    dfs: dict[str, pd.DataFrame],
 ) -> Nothing:
     """Load a dictionary of dataframes into the PUDL SQLite DB.
 
     Args:
         context: dagster context keyword.
-        glue_dfs: glue dataframes.
-        eia_dfs: eia dataframes.
-        ferc1_dfs: ferc1 Form 1 dataframes.
+        dfs: All transformed dataframes.
     """
-    dfs = glue_dfs | eia_dfs | ferc1_dfs
-
     engine = context.resources.pudl_engine
     check_foreign_keys = context.op_config["check_foreign_keys"]
     # This magic makes SQLAlchemy tell SQLite to check foreign key constraints
@@ -76,8 +69,7 @@ def dfs_to_sqlite(
         check_values=context.op_config["check_values"],
     )
     # Delete any existing tables, and create them anew:
-    if context.op_config["clobber"]:
-        md.drop_all(engine)
+    md.drop_all(engine)
     md.create_all(engine)
 
     # Load any tables that exist in our dictionary of dataframes into the

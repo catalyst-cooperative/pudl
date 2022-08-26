@@ -54,8 +54,8 @@ setup(
         "datapackage>=1.11,<1.16",  # Transition datastore to use frictionless.
         # "email-validator>=1.0.3",  # pydantic[email] dependency
         "coloredlogs<=14.0",
-        "dagster~=0.15.2",
-        "dagit~=0.15.2",
+        "dagster~=1.0.4",
+        "dagit~=1.0.4",
         "fsspec>=2021.7,<2022.7.2",  # For caching datastore on GCS
         "gcsfs>=2021.7,<2022.7.2",  # For caching datastore on GCS
         "geopandas>=0.9,<0.12",

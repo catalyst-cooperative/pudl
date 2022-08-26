@@ -1,0 +1,37 @@
+---
+###########################################################################
+# Config for pudl_etl dagster job
+###########################################################################
+ops:
+  _etl_eia:
+    config:
+      eia860_tables:
+        - boiler_generator_assn_eia860
+        - utilities_eia860
+        - plants_eia860
+        - generators_eia860
+        - ownership_eia860
+      eia860_years: [2020]
+      eia860m: true
+      eia923_tables:
+        - generation_fuel_eia923
+        - boiler_fuel_eia923
+        - generation_eia923
+        - coalmine_eia923
+        - fuel_receipts_costs_eia923
+      eia923_years: [2020]
+  _etl_ferc1:
+    config:
+      tables:
+        - fuel_ferc1 # requires plants_steam_ferc1 to load properly
+        - plants_steam_ferc1
+        - plants_small_ferc1
+        - plants_hydro_ferc1
+        - plants_pumped_storage_ferc1
+        - plant_in_service_ferc1
+        - purchased_power_ferc1
+      years: [2020]
+resources:
+  pudl_engine:
+    config:
+      clobber: true

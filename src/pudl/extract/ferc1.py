@@ -57,12 +57,13 @@ from pathlib import Path
 import dbfread
 import pandas as pd
 import sqlalchemy as sa
-from dagster import Field, Nothing, job, op
+from dagster import Field, Nothing, job, op, resource
 from dbfread import DBF
 from sqlalchemy import or_
+from sqlalchemy.pool import StaticPool
 
 import pudl
-from pudl.etl import pudl_engine, pudl_settings
+from pudl.etl import pudl_settings
 from pudl.metadata.classes import DataSource
 from pudl.metadata.constants import DBF_TABLES_FILENAMES
 from pudl.settings import Ferc1Settings, Ferc1ToSqliteSettings
@@ -544,7 +545,7 @@ def get_raw_df(
         "bad_cols": Field(list, is_required=False),
         "clobber": Field(bool, default_value=True),
     },
-    required_resource_keys={"pudl_settings", "datastore", "pudl_engine"},
+    required_resource_keys={"datastore", "ferc1_engine"},
 )
 def dbf2sqlite(context) -> Nothing:
     """Clone the FERC Form 1 Databsae to SQLite.
@@ -563,13 +564,12 @@ def dbf2sqlite(context) -> Nothing:
     settings_kwargs = {k: v for k, v in settings_params.items() if v}
     ferc1_to_sqlite_settings = Ferc1ToSqliteSettings(**settings_kwargs)
 
-    pudl_settings = context.resources.pudl_settings
     datastore = context.resources.datastore
     clobber = context.op_config["clobber"]
 
     # Read in the structure of the DB, if it exists
     logger.info("Dropping the old FERC Form 1 SQLite DB if it exists.")
-    sqlite_engine = sa.create_engine(pudl_settings["ferc1_db"])
+    sqlite_engine = context.resources.ferc1_engine
     try:
         # So that we can wipe it out
         pudl.helpers.drop_tables(sqlite_engine, clobber=clobber)
@@ -577,7 +577,6 @@ def dbf2sqlite(context) -> Nothing:
         pass
 
     # And start anew
-    sqlite_engine = sa.create_engine(pudl_settings["ferc1_db"])
     sqlite_meta = sa.MetaData()
     sqlite_meta.reflect(sqlite_engine)
 
@@ -949,11 +948,39 @@ def accumulated_depreciation(ferc1_engine, ferc1_settings):
     return pd.read_sql(f1_accumdepr_prvsn_select, ferc1_engine)
 
 
+@resource(
+    required_resource_keys={"pudl_settings"},
+    config_schema={
+        "clobber": Field(bool, default_value=False),
+    },
+)
+def ferc1_engine(init_context):
+    """Create a pudl sql engine Resource."""
+    pudl_settings = init_context.resources.pudl_settings
+    clobber = init_context.resource_config["clobber"]
+    ferc1_db_path = Path(pudl_settings["sqlite_dir"]) / "ferc1.sqlite"
+    logger.info(ferc1_db_path)
+
+    if ferc1_db_path.exists() and not clobber:
+        raise FileExistsError(
+            "The FERC Form 1 DB already exists, and we don't want to clobber it.\n"
+            f"Move {ferc1_db_path} aside or set clobber=True and try again."
+        )
+    # TODO: Getting an foreign key error when trying overwrite an existing database.
+    if ferc1_db_path.exists() and clobber:
+        ferc1_db_path.unlink()
+
+    return sa.create_engine(
+        pudl_settings["ferc1_db"],
+        poolclass=StaticPool,
+    )
+
+
 @job(
     resource_defs={
         "pudl_settings": pudl_settings,
         "datastore": datastore,
-        "pudl_engine": pudl_engine,
+        "ferc1_engine": ferc1_engine,
     }
 )
 def ferc1_to_sqlite():
