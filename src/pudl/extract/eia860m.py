@@ -47,7 +47,7 @@ class Extractor(excel.GenericExtractor):
             ).year
         df = self.add_data_maturity(df, page, **partition)
         self.cols_added.append("report_year")
-        df = remove_leading_zeros_from_numeric_strings(df, "generator_id")
+        df = remove_leading_zeros_from_numeric_strings(df=df, col_name="generator_id")
         return df
 
     def extract(self, settings: Eia860Settings = Eia860Settings()):

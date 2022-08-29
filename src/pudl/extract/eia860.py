@@ -41,7 +41,7 @@ class Extractor(excel.GenericExtractor):
         if "report_year" not in df.columns:
             df["report_year"] = list(partition.values())[0]
         self.cols_added = ["report_year"]
-        df = remove_leading_zeros_from_numeric_strings(df, "generator_id")
+        df = remove_leading_zeros_from_numeric_strings(df=df, col_name="generator_id")
         df = self.add_data_maturity(df, page, **partition)
         return df
 

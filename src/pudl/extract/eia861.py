@@ -46,7 +46,7 @@ class Extractor(excel.GenericExtractor):
             )
         )
         self.cols_added = []
-        df = remove_leading_zeros_from_numeric_strings(df, "generator_id")
+        df = remove_leading_zeros_from_numeric_strings(df=df, col_name="generator_id")
         return df
 
     def extract(self, settings: Eia861Settings = Eia861Settings()):

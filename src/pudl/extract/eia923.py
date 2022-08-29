@@ -41,7 +41,7 @@ class Extractor(excel.GenericExtractor):
         df.drop(to_drop, axis=1, inplace=True)
         df = df.rename(columns=self._metadata.get_column_map(page, **partition))
         self.cols_added = []
-        df = remove_leading_zeros_from_numeric_strings(df, "generator_id")
+        df = remove_leading_zeros_from_numeric_strings(df=df, col_name="generator_id")
         # the 2021 early release data had some ding dang "."'s and nulls in the year column
         if "report_year" in df.columns:
             mask = (df.report_year == ".") | df.report_year.isnull()
