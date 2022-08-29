@@ -482,7 +482,6 @@ def etl(  # noqa: C901
         sqlite_dfs.update(_etl_ferc1(datasets["ferc1"], pudl_settings))
     if datasets.get("eia", False):
         sqlite_dfs.update(_etl_eia(datasets["eia"], ds_kwargs))
-    logger.info(sqlite_dfs.keys())
     if datasets.get("glue", False):
         sqlite_dfs.update(
             _etl_glue(datasets["glue"], ds_kwargs, sqlite_dfs, datasets["eia"])
