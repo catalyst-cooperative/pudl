@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 # EPA CEMS constants #####
 RENAME_DICT = {
     "STATE": "state",
-    # "FACILITY_NAME": "plant_name",  # Not reading from CSV
+    "FACILITY_NAME": "plant_name",  # Not reading from CSV
     "ORISPL_CODE": "plant_id_epa",  # Not quite the same as plant_id_eia
     "UNITID": "emissions_unit_id_epa",
     # These op_date, op_hour, and op_time variables get converted to
@@ -33,25 +33,25 @@ RENAME_DICT = {
     "SO2_MASS (lbs)": "so2_mass_lbs",
     "SO2_MASS": "so2_mass_lbs",
     "SO2_MASS_MEASURE_FLG": "so2_mass_measurement_code",
-    # "SO2_RATE (lbs/mmBtu)": "so2_rate_lbs_mmbtu",  # Not reading from CSV
-    # "SO2_RATE": "so2_rate_lbs_mmbtu",  # Not reading from CSV
-    # "SO2_RATE_MEASURE_FLG": "so2_rate_measure_flg",  # Not reading from CSV
-    # "NOX_RATE (lbs/mmBtu)": "nox_rate_lbs_mmbtu",
-    # "NOX_RATE": "nox_rate_lbs_mmbtu",  # Not reading from CSV
-    # "NOX_RATE_MEASURE_FLG": "nox_rate_measurement_code",  # Not reading from CSV
+    "SO2_RATE (lbs/mmBtu)": "so2_rate_lbs_mmbtu",  # Not reading from CSV
+    "SO2_RATE": "so2_rate_lbs_mmbtu",  # Not reading from CSV
+    "SO2_RATE_MEASURE_FLG": "so2_rate_measure_flg",  # Not reading from CSV
+    "NOX_RATE (lbs/mmBtu)": "nox_rate_lbs_mmbtu",
+    "NOX_RATE": "nox_rate_lbs_mmbtu",  # Not reading from CSV
+    "NOX_RATE_MEASURE_FLG": "nox_rate_measurement_code",  # Not reading from CSV
     "NOX_MASS (lbs)": "nox_mass_lbs",
     "NOX_MASS": "nox_mass_lbs",
     "NOX_MASS_MEASURE_FLG": "nox_mass_measurement_code",
     "CO2_MASS (tons)": "co2_mass_tons",
     "CO2_MASS": "co2_mass_tons",
     "CO2_MASS_MEASURE_FLG": "co2_mass_measurement_code",
-    # "CO2_RATE (tons/mmBtu)": "co2_rate_tons_mmbtu",  # Not reading from CSV
-    # "CO2_RATE": "co2_rate_tons_mmbtu",  # Not reading from CSV
-    # "CO2_RATE_MEASURE_FLG": "co2_rate_measure_flg",  # Not reading from CSV
+    "CO2_RATE (tons/mmBtu)": "co2_rate_tons_mmbtu",  # Not reading from CSV
+    "CO2_RATE": "co2_rate_tons_mmbtu",  # Not reading from CSV
+    "CO2_RATE_MEASURE_FLG": "co2_rate_measure_flg",  # Not reading from CSV
     "HEAT_INPUT (mmBtu)": "heat_content_mmbtu",
     "HEAT_INPUT": "heat_content_mmbtu",
-    # "FAC_ID": "facility_id",  # unique facility id for internal EPA database management
-    # "UNIT_ID": "unit_id_what", # unique unit id for internal EPA database management
+    "FAC_ID": "facility_id",  # unique facility id for internal EPA database management
+    "UNIT_ID": "unit_id_what",  # unique unit id for internal EPA database management
 }
 """dict: A dictionary containing EPA CEMS column names (keys) and replacement
     names to use when reading those columns into PUDL (values). There are some
