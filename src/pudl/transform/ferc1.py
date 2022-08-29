@@ -7,13 +7,15 @@ entry errors which we can infer based on the existing data. It may also include 
 bad data, or replacing it with the appropriate NA values.
 
 """
+import enum
 import importlib.resources
 import re
 import typing
 from abc import ABC, abstractmethod
+from collections import namedtuple
 from functools import cached_property
 from itertools import combinations
-from typing import Literal, Protocol
+from typing import Protocol
 
 import numpy as np
 import pandas as pd
@@ -166,7 +168,7 @@ VALID_OIL_USD_PER_MMBTU = {
 # String categorizations
 ##############################################################################
 
-FUEL_TYPES: dict[str, set[str]] = {
+FUEL_CATEGORIES: dict[str, set[str]] = {
     "categories": {
         "coal": {
             "coal",
@@ -458,7 +460,7 @@ fuel in the FERC Form 1 Reporting. Case is ignored, as all fuel strings are conv
 lower case in the data set.
 """
 
-FUEL_UNITS: dict[str, set[str]] = {
+FUEL_UNIT_CATEGORIES: dict[str, set[str]] = {
     "categories": {
         "ton": {
             "ton",
@@ -783,7 +785,7 @@ A mapping of canonical fuel units (keys) to sets of strings representing those
 fuel units (values)
 """
 
-PLANT_TYPES: dict[str, set[str]] = {
+PLANT_TYPE_CATEGORIES: dict[str, set[str]] = {
     "categories": {
         "steam": {
             "coal",
@@ -1190,7 +1192,7 @@ on Steam (e.g. "steam 72" and "steam and gas") were classified based on addition
 research of the plants on the Internet.
 """
 
-CONSTRUCTION_TYPES: dict[str, set[str]] = {
+CONSTRUCTION_TYPE_CATEGORIES: dict[str, set[str]] = {
     "categories": {
         "outdoor": {
             "outdoor",
@@ -1592,11 +1594,16 @@ TRANSFORM_PARAMS = {
                     "plant_name": "plant_name_ferc1",
                     "fuel": "fuel_type_code_pudl",
                     "fuel_unit": "fuel_units",
+                    # Original fuel heat content is reported...:
+                    # * coal: almost entirely BTU per POUND
+                    # * gas: ~half MMBTU per cubic foot, ~half MMBTU per Mcf
+                    # * oil: almost entirely BTU per gallon
                     "fuel_avg_heat": "fuel_btu_per_unit",
                     "fuel_quantity": "fuel_consumed_units",
                     "fuel_cost_burned": "fuel_cost_per_unit_burned",
                     "fuel_cost_delvd": "fuel_cost_per_unit_delivered",
-                    "fuel_cost_btu": "fuel_cost_per_btu",
+                    # Note: Original fuel_cost_btu is misleadingly named
+                    "fuel_cost_btu": "fuel_cost_per_mmbtu",
                     "fuel_generaton": "fuel_btu_per_kwh",
                     "report_prd": "report_prd",
                     "row_prvlg": "row_prvlg",
@@ -1628,14 +1635,13 @@ TRANSFORM_PARAMS = {
             },
         },
         "categorize_strings": {
-            "fuel_type_code_pudl": FUEL_TYPES,
-            "fuel_units": FUEL_UNITS,
+            "fuel_type_code_pudl": FUEL_CATEGORIES,
+            "fuel_units": FUEL_UNIT_CATEGORIES,
         },
         "convert_units": {
             "fuel_btu_per_unit": BTU_TO_MMBTU,
             "fuel_btu_per_kwh": BTU_PERKWH_TO_MMBTU_PERMWH,
             "fuel_cost_per_kwh": PERKWH_TO_PERMWH,
-            "fuel_cost_per_btu": PERBTU_TO_PERMMBTU,
         },
         "normalize_strings": {
             "plant_name_ferc1": True,
@@ -1683,7 +1689,7 @@ TRANSFORM_PARAMS = {
                 "valid_range": VALID_OIL_MMBTU_PER_BBL,
                 "unit_conversions": [
                     PERGALLON_TO_PERBARREL,
-                    # BTU_TO_MMBTU,  # Why was this omitted in the old corrections?
+                    BTU_TO_MMBTU,  # Why was this omitted in the old corrections?
                 ],
             },
             {
@@ -1707,8 +1713,8 @@ TRANSFORM_PARAMS = {
             "installation_year": VALID_PLANT_YEARS,
         },
         "categorize_strings": {
-            "construction_type": CONSTRUCTION_TYPES,
-            "plant_type": PLANT_TYPES,
+            "construction_type": CONSTRUCTION_TYPE_CATEGORIES,
+            "plant_type": PLANT_TYPE_CATEGORIES,
         },
         "convert_units": {
             "capex_per_kw": PERKW_TO_PERMW,
@@ -1810,8 +1816,39 @@ TRANSFORM_PARAMS = {
 
 
 ################################################################################
-# Pydantic Transformation Parameter Models
+# Transformation Parameter Models
 ################################################################################
+@enum.unique
+class Ferc1Source(enum.Enum):
+    """Enumeration of allowed FERC 1 raw data sources."""
+
+    XBRL = "xbrl"
+    DBF = "dbf"
+
+
+@enum.unique
+class Ferc1TableId(enum.Enum):
+    """Enumeration of the allowable FERC 1 table IDs.
+
+    Hard coding this seems bad. Somehow it should be either defined in the context of
+    the Package, the Ferc1Settings, an etl_group, or DataSource. All of the table
+    transformers associated with a given data source should have a table_id that's
+    from that data source's subset of the database. Where should this really happen?
+
+    Alternatively, the allowable values could be derived *from* the structure of the
+    Package.
+
+    """
+
+    FUEL_FERC1 = "fuel_ferc1"
+    PLANTS_STEAM_FERC1 = "plants_steam_ferc1"
+    PLANTS_HYDRO_FERC1 = "plants_hydro_ferc1"
+    PLANTS_SMALL_FERC1 = "plants_small_ferc1"
+    PLANTS_PUMPED_STORAGE_FERC1 = "plants_pumped_storage_ferc1"
+    PLANT_IN_SERVICE_FERC1 = "plant_in_service_ferc1"
+    PURCHASED_POWER = "purchased_power_ferc1"
+
+
 class TransformParams(BaseModel):
     """An immutable base model for transformation parameters."""
 
@@ -1990,9 +2027,9 @@ class TableTransformParams(TransformParams):
     correct_units: list[UnitCorrections] = []
 
     @classmethod
-    def from_id(cls, table_id: str) -> "TableTransformParams":
+    def from_id(cls, table_id: Ferc1TableId) -> "TableTransformParams":
         """A factory method that looks up transform parameters based on table_id."""
-        return cls(**TRANSFORM_PARAMS[table_id])
+        return cls(**TRANSFORM_PARAMS[table_id.value])
 
 
 ################################################################################
@@ -2148,7 +2185,7 @@ def correct_units(df: pd.DataFrame, params: UnitCorrections) -> pd.DataFrame:
     set to NA.
 
     """
-    logger.info(f"Correcting units in {params.col} where {params.query}.")
+    logger.info(f"Correcting units of {params.col} where {params.query}.")
     # Select a subset of the input dataframe to work on. E.g. only the heat content
     # column for coal records:
     selected = df.loc[df.query(params.query).index, params.col]
@@ -2188,7 +2225,7 @@ class AbstractTableTransformer(ABC):
 
     """
 
-    table_id: str
+    table_id: enum.Enum
     """Name of the PUDL database table that this table transformer produces.
 
     Must be defined in the database schema / metadata. This ID is used to instantiate
@@ -2225,8 +2262,8 @@ class AbstractTableTransformer(ABC):
         if df_col_set != param_col_set:
             unshared_values = df_col_set.symmetric_difference(param_col_set)
             logger.warning(
-                f"{self.table_id}: Discrepancy between dataframe columns and rename "
-                "dictionary keys. \n"
+                f"{self.table_id.value}: Discrepancy between dataframe columns and "
+                "rename dictionary keys. \n"
                 f"Unshared values: {unshared_values}"
             )
         return df.rename(columns=params.columns)
@@ -2239,6 +2276,8 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
     abstractmethod.
 
     """
+
+    table_id: Ferc1TableId
 
     @abstractmethod
     def transform(
@@ -2282,7 +2321,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         return (
             self.drop_footnote_columns_dbf(raw_dbf)
             .pipe(self.rename_columns, params=self.params.rename_columns.dbf)
-            .pipe(self.assign_record_id, source_ferc1="dbf")
+            .pipe(self.assign_record_id, source_ferc1=Ferc1Source.DBF)
             .pipe(self.drop_unused_original_columns_dbf)
         )
 
@@ -2297,7 +2336,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                 raw_xbrl_instant, raw_xbrl_duration
             )
             .pipe(self.rename_columns, params=self.params.rename_columns.xbrl)
-            .pipe(self.assign_record_id, source_ferc1="xbrl")
+            .pipe(self.assign_record_id, source_ferc1=Ferc1Source.XBRL)
         )
 
     def merge_xbrl_instant_and_duration_tables(
@@ -2329,12 +2368,14 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
 
         if instant.empty:
             logger.debug(
-                f"{self.table_id}: No XBRL instant table found, returning duration."
+                f"{self.table_id.value}: No XBRL instant table found, returning the "
+                "duration table."
             )
             return duration
         if duration.empty:
             logger.debug(
-                f"{self.table_id}: No XBRL duration table found, returning instant."
+                f"{self.table_id.value}: No XBRL duration table found, returning "
+                "instant table."
             )
             return instant
 
@@ -2342,7 +2383,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         duration_axes = [col for col in raw_xbrl_duration.columns.str.endswith("Axis")]
         if set(instant_axes) != set(duration_axes):
             raise ValueError(
-                f"{self.table_id}: Instant and Duration XBRL Axes do not match.\n"
+                f"{self.table_id.value}: Instant and Duration XBRL Axes do not match.\n"
                 f"    instant: {instant_axes}\n"
                 f"    duration: {duration_axes}"
             )
@@ -2361,15 +2402,13 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         """Drop DBF footnote reference columns, which all end with _f."""
         return df.drop(columns=df.filter(regex=r".*_f$").columns)
 
-    def source_table_id(self, source_ferc1: Literal["dbf", "xbrl"]) -> str:
+    def source_table_id(self, source_ferc1: Ferc1Source) -> str:
         """Look up the ID of the raw data source table."""
-        return TABLE_NAME_MAP[self.table_id][source_ferc1]
+        return TABLE_NAME_MAP[self.table_id.value][source_ferc1.value]
 
-    def source_table_primary_key(
-        self, source_ferc1: Literal["dbf", "xbrl"]
-    ) -> list[str]:
+    def source_table_primary_key(self, source_ferc1: Ferc1Source) -> list[str]:
         """Look up the pre-renaming source table primary key columns."""
-        if source_ferc1 == "dbf":
+        if source_ferc1 == Ferc1Source.DBF:
             pk_cols = [
                 "report_year",
                 "report_prd",
@@ -2377,31 +2416,23 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                 "spplmnt_num",
                 "row_number",
             ]
-        elif source_ferc1 == "xbrl":
+        else:
+            assert source_ferc1 == Ferc1Source.XBRL
             cols = self.params.rename_columns.xbrl.columns
             pk_cols = ["ReportYear", "entity_id"]
             # Sort to avoid dependence on the ordering of rename_columns.
             # Doing the sorting here because we have a particular ordering
             # hard coded for the DBF primary keys.
             pk_cols += sorted(col for col in cols if col.endswith("Axis"))
-        else:
-            raise ValueError(
-                f"source_ferc1 must be either 'dbf' or 'xbrl'. Got {source_ferc1}"
-            )
         return pk_cols
 
-    def renamed_table_primary_key(
-        self, source_ferc1: Literal["dbf", "xbrl"]
-    ) -> list[str]:
+    def renamed_table_primary_key(self, source_ferc1: Ferc1Source) -> list[str]:
         """Look up the post-renaming primary key columns."""
-        if source_ferc1 == "dbf":
+        if source_ferc1 == Ferc1Source.DBF:
             cols = self.params.rename_columns.dbf.columns
-        elif source_ferc1 == "xbrl":
-            cols = self.params.rename_columns.xbrl.columns
         else:
-            raise ValueError(
-                f"source_ferc1 must be either 'dbf' or 'xbrl'. Got {source_ferc1}"
-            )
+            assert source_ferc1 == Ferc1Source.XBRL
+            cols = self.params.rename_columns.xbrl.columns
         pk_cols = self.source_table_primary_key(source_ferc1=source_ferc1)
         # Translate to the renamed columns
         return [cols[col] for col in pk_cols]
@@ -2418,13 +2449,13 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         missing_cols = set(unused_cols).difference(df.columns)
         if missing_cols:
             raise ValueError(
-                f"{self.table_id}: Trying to drop missing original DBF columns:"
+                f"{self.table_id.value}: Trying to drop missing original DBF columns:"
                 f"{missing_cols}"
             )
         return df.drop(columns=unused_cols)
 
     def assign_record_id(
-        self, df: pd.DataFrame, source_ferc1: Literal["dbf", "xbrl"]
+        self, df: pd.DataFrame, source_ferc1: Ferc1Source
     ) -> pd.DataFrame:
         """Add a column identifying the original source record for each row.
 
@@ -2454,12 +2485,14 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         missing_pk_cols = set(pk_cols).difference(df.columns)
         if missing_pk_cols:
             raise ValueError(
-                f"{self.table_id} ({source_ferc1}): Missing primary key columns in "
-                f"dataframe while assigning source record_id: {missing_pk_cols}"
+                f"{self.table_id.value} ({source_ferc1.value}): Missing primary key "
+                "columns in dataframe while assigning source record_id: "
+                f"{missing_pk_cols}"
             )
         if df[pk_cols].isnull().any(axis=None):
             raise ValueError(
-                f"{self.table_id} ({source_ferc1}): Found null primary key values.\n"
+                f"{self.table_id.value} ({source_ferc1.value}): Found null primary key "
+                "values.\n"
                 f"{df[pk_cols].isnull().any()}"
             )
         df = df.assign(
@@ -2471,7 +2504,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         dupe_ids = df.record_id[df.record_id.duplicated()].values
         if dupe_ids.any():
             logger.warning(
-                f"{self.table_id}: Found {len(dupe_ids)} duplicate record_ids. "
+                f"{self.table_id.value}: Found {len(dupe_ids)} duplicate record_ids. "
                 f"{dupe_ids}."
             )
         return df
@@ -2485,9 +2518,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         Note that in some cases this will create collisions with the existing
         utility_id_ferc1 values.
         """
-        logger.warning(
-            f"{self.table_id}: USING DUMMY METHOD TO ASSIGN UTILITY_ID_FERC1 IN XBRL."
-        )
+        logger.warning(f"{self.table_id.value}: USING DUMMY UTILITY_ID_FERC1 IN XBRL.")
         return df.assign(
             utility_id_ferc1=lambda x: x.entity_id.str.replace(r"^C", "", regex=True)
             .str.lstrip("0")
@@ -2502,21 +2533,87 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
 
     def enforce_schema(self, df: pd.DataFrame) -> pd.DataFrame:
         """Drop columns not in the DB schema and enforce specified types."""
-        resource = Package.from_resource_ids().get_resource(self.table_id)
+        resource = Package.from_resource_ids().get_resource(self.table_id.value)
         expected_cols = pd.Index(resource.get_field_names())
         missing_cols = list(expected_cols.difference(df.columns))
         if missing_cols:
             raise ValueError(
-                f"{self.table_id}: Missing columns found when enforcing table schema: "
-                f"{missing_cols}"
+                f"{self.table_id.value}: Missing columns found when enforcing table "
+                f"schema: {missing_cols}"
             )
         return resource.format_df(df)
 
 
 class FuelFerc1TableTransformer(Ferc1AbstractTableTransformer):
-    """A table transformer specific to the ``fuel_ferc1`` table."""
+    """A table transformer specific to the ``fuel_ferc1`` table.
 
-    table_id: str = "fuel_ferc1"
+    The ``fuel_ferc1`` table reports data about fuel consumed by large thermal power
+    plants that report in the ``plants_steam_ferc1`` table.  Each record in the steam
+    table is typically associated with several records in the fuel table, with each fuel
+    record reporting data for a particular type of fuel consumed by that plant over the
+    course of a year. The fuel table presents several challenges.
+
+    The type of fuel, which is part of the primary key for the table, is a freeform
+    string with hundreds of different nonstandard values. These strings are categorized
+    manually and converted to ``fuel_type_code_pudl``. Some values cannot be categorized
+    and are set to ``other``. In other string categorizations we set the unidentifiable
+    values to NA, but in this table the fuel type is part of the primary key and primary
+    keys cannot contain NA values.
+
+    This simplified categorization occasionally results in records with duplicate
+    primary keys. In those cases the records are aggregated into a single record if they
+    have the same apparent physical units. If the fuel units are different, only the
+    first record is retained.
+
+    Several columns have unspecified, inconsistent, fuel-type specific units of measure
+    associated with them. In order for records to be comparable and aggregatable, we
+    have to infer and standardize these units.
+
+    In the raw FERC Form 1 data there is a ``fuel_units`` column which describes the
+    units of fuel delivered or consumed. Most commonly this is short tons for solid
+    fuels (coal), thousands of cubic feet (Mcf) for gaseous fuels, and barrels (bbl) for
+    liquid fuels.  However, the ``fuel_units`` column is also a freeform string with
+    hundreds of nonstandard values which we have to manually categorize, and many of the
+    values do not map directly to the most commonly used units for fuel quantities. E.g.
+    some solid fuel quantities are reported in pounds, or thousands of pounds, not tons;
+    some liquid fuels are reported in gallons or thousands of gallons, not barrels; and
+    some gaseous fuels are reported in cubic feet not thousands of cubic feet.
+
+    Two additional columns report fuel price per unit of heat content and fuel heat
+    content per physical unit of fuel. The units of those columns are not explicitly
+    reported, vary by fuel, and are inconsistent within individual fuel types.
+
+    We adopt standardized units and attempt to convert all reported values in the fuel
+    table into those units. For physical fuel units we adopt those that are used by the
+    EIA: short tons (tons) for solid fuels, barrels (bbl) for liquid fuels, and
+    thousands of cubic feet (mcf) for gaseous fuels. For heat content per (physical)
+    unit of fuel, we use millions of British thermal units (mmbtu). All fuel prices are
+    converted to US dollars, while many are reported in cents.
+
+    Because the reported fuel price and heat content units are implicit, we have to
+    infer them based on observed values. This is only possible because these quantities
+    are ratios with well defined ranges of valid values. The common units that we
+    observe and attempt to standardize include:
+
+    * coal: primarily BTU/pound, but also MMBTU/ton and MMBTU/pound.
+    * oil: primarily BTU/gallon.
+    * gas: reported in a mix of MMBTU/cubic foot, and MMBTU/thousand cubic feet.
+
+    Steps to take, in order:
+
+    * Convert units in per-unit columns and rename the columns
+    * Normalize freeform strings (fuel type and fuel units)
+    * Categorize strings in fuel type and fuel unit columns
+    * Standardize physical fuel units based on reported units (tons, mcf, bbl)
+    * Remove fuel_units column
+    * Convert heterogenous fuel price and heat content columns to their aspirational
+      units.
+    * Apply fuel unit corrections to fuel price and heat content columns based on
+      observed clustering of values.
+
+    """
+
+    table_id: Ferc1TableId = Ferc1TableId.FUEL_FERC1
 
     def transform(
         self,
@@ -2560,6 +2657,7 @@ class FuelFerc1TableTransformer(Ferc1AbstractTableTransformer):
             .pipe(convert_units, params=self.params.convert_units)
             .pipe(normalize_strings, params=self.params.normalize_strings)
             .pipe(categorize_strings, params=self.params.categorize_strings)
+            .pipe(self.standardize_physical_fuel_units)
         )
         return df
 
@@ -2580,17 +2678,87 @@ class FuelFerc1TableTransformer(Ferc1AbstractTableTransformer):
                 raw_xbrl_instant, raw_xbrl_duration
             )
             .pipe(self.rename_columns, params=self.params.rename_columns.xbrl)
+            .pipe(convert_units, params=self.params.convert_units)
             .pipe(normalize_strings, params=self.params.normalize_strings)
             .pipe(categorize_strings, params=self.params.categorize_strings)
-            .pipe(convert_units, params=self.params.convert_units)
-            .pipe(self.aggregate_fuel_dupes_xbrl)
+            .pipe(self.standardize_physical_fuel_units)
+            .pipe(self.aggregate_duplicate_fuel_types_xbrl)
             .pipe(self.assign_utility_id_ferc1_xbrl)
-            .pipe(self.assign_record_id, source_ferc1="xbrl")
+            .pipe(self.assign_record_id, source_ferc1=Ferc1Source.XBRL)
         )
 
-    def aggregate_fuel_dupes_xbrl(self, fuel_xbrl: pd.DataFrame) -> pd.DataFrame:
+    def standardize_physical_fuel_units(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Convert reported fuel quantities to standard units depending on fuel type.
+
+        Use the categorized fuel type and reported fuel units to convert all fuel
+        quantities to the following standard units, depending on whether the fuel is a
+        solid, liquid, or gas:
+
+          * solid fuels (coal and waste): short tons [ton]
+          * liquid fuels (oil): barrels [bbl]
+          * gaseous fuels (gas): thousands of cubic feet [mcf]
+
+        Columns to which these physical units apply:
+
+          * fuel_consumed_units (tons, bbl, mcf)
+          * fuel_cost_per_unit_burned (usd/ton, usd/bbl, usd/mcf)
+          * fuel_cost_per_unit_delivered (usd/ton, usd/bbl, usd/mcf)
+
+        """
+        df = df.copy()
+
+        FuelFix = namedtuple("FuelFix", "fuel from_unit to_unit mult")
+        fuel_fixes = [
+            FuelFix("coal", "mmbtu", "ton", (1.0 / 19.85)),
+            FuelFix("coal", "klbs", "ton", (1.0 / 2.0)),
+            FuelFix("coal", "lbs", "ton", (1.0 / 2000.0)),
+            FuelFix("coal", "btu", "ton", (1.0 / 19.85e6)),
+            FuelFix("oil", "gal", "bbl", (1.0 / 42.0)),
+            FuelFix("oil", "kgal", "bbl", (1000.0 / 42.0)),
+            FuelFix("oil", "ton", "bbl", 7.46),
+            FuelFix("gas", "mmbtu", "mcf", (1.0 / 1.037)),
+            FuelFix("nuclear", "mwdth", "mwhth", 24.0),
+            FuelFix("nuclear", "mmmbtu", "mwhth", (1.0 / 3.412142)),
+            FuelFix("nuclear", "btu", "mwhth", (1.0 / 3412142)),
+            FuelFix("nuclear", "grams", "kg", (1.0 / 1000)),
+            # for fuel type "other" set all units to NA
+        ]
+        for fix in fuel_fixes:
+            fuel_mask = df.fuel_type_code_pudl == fix.fuel
+            unit_mask = df.fuel_units == fix.from_unit
+            df.loc[(fuel_mask & unit_mask), "fuel_consumed_units"] *= fix.mult
+            df.loc[(fuel_mask & unit_mask), "fuel_cost_per_unit_burned"] /= fix.mult
+            df.loc[(fuel_mask & unit_mask), "fuel_cost_per_unit_delivered"] /= fix.mult
+            df.loc[(fuel_mask & unit_mask), "fuel_units"] = fix.to_unit
+
+        # Set all remaining non-standard units and affected columns to NA.
+        FuelAllowedUnits = namedtuple("FuelAllowedUnits", "fuel allowed_units")
+        fuel_allowed_units = [
+            FuelAllowedUnits("coal", ("ton",)),
+            FuelAllowedUnits("oil", ("bbl",)),
+            FuelAllowedUnits("gas", ("mcf",)),
+            FuelAllowedUnits("nuclear", ("kg", "mwhth")),
+            FuelAllowedUnits("waste", ("ton",)),
+            FuelAllowedUnits("other", ()),
+        ]
+        physical_units_cols = [
+            "fuel_consumed_units",
+            "fuel_cost_per_unit_burned",
+            "fuel_cost_per_unit_delivered",
+        ]
+        for fau in fuel_allowed_units:
+            fuel_mask = df.fuel_type_code_pudl == fau.fuel
+            unit_mask = ~df.fuel_units.isin(fau.allowed_units)
+            df.loc[(fuel_mask & unit_mask), physical_units_cols] = np.nan
+            df.loc[(fuel_mask & unit_mask), "fuel_units"] = pd.NA
+
+        return df
+
+    def aggregate_duplicate_fuel_types_xbrl(
+        self, fuel_xbrl: pd.DataFrame
+    ) -> pd.DataFrame:
         """Aggregate the fuel records having duplicate primary keys."""
-        pk_cols = self.renamed_table_primary_key(source_ferc1="xbrl")
+        pk_cols = self.renamed_table_primary_key(source_ferc1=Ferc1Source.XBRL)
         fuel_xbrl.loc[:, "fuel_units_count"] = fuel_xbrl.groupby(pk_cols, dropna=False)[
             "fuel_units"
         ].transform("nunique")
@@ -2604,18 +2772,18 @@ class FuelFerc1TableTransformer(Ferc1AbstractTableTransformer):
         fuel_non_dupes = fuel_xbrl[~dupe_mask & ~multi_unit_mask]
 
         logger.info(
-            f"{self.table_id}: Aggregating {len(fuel_pk_dupes)} rows with duplicate "
-            f"primary keys out of {len(fuel_xbrl)} total rows."
+            f"{self.table_id.value}: Aggregating {len(fuel_pk_dupes)} rows with "
+            f"duplicate primary keys out of {len(fuel_xbrl)} total rows."
         )
         logger.info(
-            f"{self.table_id}: Dropping {len(fuel_multi_unit)} records with "
+            f"{self.table_id.value}: Dropping {len(fuel_multi_unit)} records with "
             "inconsistent fuel units preventing aggregation "
             f"out of {len(fuel_xbrl)} total rows."
         )
         agg_row_fraction = (len(fuel_pk_dupes) + len(fuel_multi_unit)) / len(fuel_xbrl)
         if agg_row_fraction > 0.15:
             logger.error(
-                f"{self.table_id}: {agg_row_fraction:.0%} of all rows are being "
+                f"{self.table_id.value}: {agg_row_fraction:.0%} of all rows are being "
                 "aggregated. Higher than the allowed value of 15%!"
             )
         data_cols = [
@@ -2671,8 +2839,8 @@ class FuelFerc1TableTransformer(Ferc1AbstractTableTransformer):
             & df.fuel_units.isna()
         ].index
         logger.info(
-            f"{self.table_id}: Dropping {len(probably_totals_index)} rows of missing "
-            "data."
+            f"{self.table_id.value}: Dropping {len(probably_totals_index)} rows of "
+            "missing data."
         )
         return df.drop(index=probably_totals_index)
 
@@ -2712,7 +2880,7 @@ class PlantsSteamFerc1:
         plants_steam_dbf = self.rename_columns(
             raw_table=raw_dbf,
             source="dbf",
-        ).pipe(self.assign_record_id, source_ferc1="dbf")
+        ).pipe(self.assign_record_id, source_ferc1=Ferc1Source.DBF)
         return plants_steam_dbf
 
     def process_xbrl(self, raw_xbrl_instant, raw_xbrl_duration):
@@ -2729,7 +2897,7 @@ class PlantsSteamFerc1:
             .pipe(self.add_report_year_column)
             .pipe(
                 self.assign_record_id,
-                source_ferc1="xbrl",
+                source_ferc1=Ferc1Source.XBRL,
             )
             .pipe(self.assign_utility_id_ferc1_xbrl)
         )
@@ -3113,7 +3281,7 @@ def plants_hydro(ferc1_dbf_raw_dfs, ferc1_xbrl_raw_dfs, ferc1_transformed_dfs):
         .pipe(
             pudl.helpers.cleanstrings,
             ["plant_const"],
-            [CONSTRUCTION_TYPES],
+            [CONSTRUCTION_TYPE_CATEGORIES["categories"]],
             unmapped=pd.NA,
         )
         .assign(
@@ -3217,7 +3385,7 @@ def plants_pumped_storage(ferc1_dbf_raw_dfs, ferc1_xbrl_raw_dfs, ferc1_transform
         .pipe(
             pudl.helpers.cleanstrings,
             ["plant_kind"],
-            [CONSTRUCTION_TYPES],
+            [CONSTRUCTION_TYPE_CATEGORIES["categories"]],
             unmapped=pd.NA,
         )
         .assign(
@@ -3567,152 +3735,3 @@ def transform(
         name: convert_cols_dtypes(df, data_source="ferc1")
         for name, df in ferc1_transformed_dfs.items()
     }
-
-
-def fuel_by_plant_ferc1(fuel_df, thresh=0.5):
-    """Calculates useful FERC Form 1 fuel metrics on a per plant-year basis.
-
-    Each record in the FERC Form 1 corresponds to a particular type of fuel. Many plants
-    -- especially coal plants -- use more than one fuel, with gas and/or diesel serving
-    as startup fuels. In order to be able to classify the type of plant based on
-    relative proportions of fuel consumed or fuel costs it is useful to aggregate these
-    per-fuel records into a single record for each plant.
-
-    Fuel cost (in nominal dollars) and fuel heat content (in mmBTU) are calculated for
-    each fuel based on the cost and heat content per unit, and the number of units
-    consumed, and then summed by fuel type (there can be more than one record for a
-    given type of fuel in each plant because we are simplifying the fuel categories).
-    The per-fuel records are then pivoted to create one column per fuel type. The total
-    is summed and stored separately, and the individual fuel costs & heat contents are
-    divided by that total, to yield fuel proportions.  Based on those proportions and a
-    minimum threshold that's passed in, a "primary" fuel type is then assigned to the
-    plant-year record and given a string label.
-
-    Args:
-        fuel_df (pandas.DataFrame): Pandas DataFrame resembling the post-transform
-            result for the fuel_ferc1 table.
-        thresh (float): A value between 0.5 and 1.0 indicating the minimum fraction of
-            overall heat content that must have been provided by a fuel in a plant-year
-            for it to be considered the "primary" fuel for the plant in that year.
-            Default value: 0.5.
-
-    Returns:
-        pandas.DataFrame: A DataFrame with a single record for each plant-year,
-        including the columns required to merge it with the plants_steam_ferc1
-        table/DataFrame (report_year, utility_id_ferc1, and plant_name) as well as
-        totals for fuel mmbtu consumed in that plant-year, and the cost of fuel in that
-        year, the proportions of heat content and fuel costs for each fuel in that year,
-        and a column that labels the plant's primary fuel for that year.
-
-    Raises:
-        AssertionError: If the DataFrame input does not have the columns required to
-            run the function.
-
-    """
-    keep_cols = [
-        "report_year",  # key
-        "utility_id_ferc1",  # key
-        "plant_name_ferc1",  # key
-        "fuel_type_code_pudl",  # pivot
-        "fuel_consumed_units",  # value
-        "fuel_mmbtu_per_unit",  # value
-        "fuel_cost_per_unit_burned",  # value
-    ]
-
-    # Ensure that the dataframe we've gotten has all the information we need:
-    for col in keep_cols:
-        if col not in fuel_df.columns:
-            raise AssertionError(f"Required column {col} not found in input fuel_df.")
-
-    # Calculate per-fuel derived values and add them to the DataFrame
-    df = (
-        # Really there should *not* be any duplicates here but... there's a
-        # bug somewhere that introduces them into the fuel_ferc1 table.
-        fuel_df[keep_cols]
-        .drop_duplicates()
-        # Calculate totals for each record based on per-unit values:
-        .assign(fuel_mmbtu=lambda x: x.fuel_consumed_units * x.fuel_mmbtu_per_unit)
-        .assign(fuel_cost=lambda x: x.fuel_consumed_units * x.fuel_cost_per_unit_burned)
-        # Drop the ratios and heterogeneous fuel "units"
-        .drop(
-            ["fuel_mmbtu_per_unit", "fuel_cost_per_unit_burned", "fuel_consumed_units"],
-            axis=1,
-        )
-        # Group by the keys and fuel type, and sum:
-        .groupby(
-            [
-                "utility_id_ferc1",
-                "plant_name_ferc1",
-                "report_year",
-                "fuel_type_code_pudl",
-            ]
-        )
-        .agg(sum)
-        .reset_index()
-        # Set the index to the keys, and pivot to get per-fuel columns:
-        .set_index(["utility_id_ferc1", "plant_name_ferc1", "report_year"])
-        .pivot(columns="fuel_type_code_pudl")
-        .fillna(0.0)
-    )
-
-    # Undo pivot. Could refactor this old function
-    plant_year_totals = df.stack("fuel_type_code_pudl").groupby(level=[0, 1, 2]).sum()
-
-    # Calculate total heat content burned for each plant, and divide it out
-    mmbtu_group = (
-        pd.merge(
-            # Sum up all the fuel heat content, and divide the individual fuel
-            # heat contents by it (they are all contained in single higher
-            # level group of columns labeled fuel_mmbtu)
-            df.loc[:, "fuel_mmbtu"].div(
-                df.loc[:, "fuel_mmbtu"].sum(axis=1), axis="rows"
-            ),
-            # Merge that same total into the dataframe separately as well.
-            plant_year_totals.loc[:, "fuel_mmbtu"],
-            right_index=True,
-            left_index=True,
-        )
-        .rename(columns=lambda x: re.sub(r"$", "_fraction_mmbtu", x))
-        .rename(columns=lambda x: re.sub(r"_mmbtu_fraction_mmbtu$", "_mmbtu", x))
-    )
-
-    # Calculate total fuel cost for each plant, and divide it out
-    cost_group = (
-        pd.merge(
-            # Sum up all the fuel costs, and divide the individual fuel
-            # costs by it (they are all contained in single higher
-            # level group of columns labeled fuel_cost)
-            df.loc[:, "fuel_cost"].div(df.loc[:, "fuel_cost"].sum(axis=1), axis="rows"),
-            # Merge that same total into the dataframe separately as well.
-            plant_year_totals.loc[:, "fuel_cost"],
-            right_index=True,
-            left_index=True,
-        )
-        .rename(columns=lambda x: re.sub(r"$", "_fraction_cost", x))
-        .rename(columns=lambda x: re.sub(r"_cost_fraction_cost$", "_cost", x))
-    )
-
-    # Re-unify the cost and heat content information:
-    df = pd.merge(
-        mmbtu_group, cost_group, left_index=True, right_index=True
-    ).reset_index()
-
-    # Label each plant-year record by primary fuel:
-    for fuel_str in FUEL_TYPES:
-        try:
-            mmbtu_mask = df[f"{fuel_str}_fraction_mmbtu"] > thresh
-            df.loc[mmbtu_mask, "primary_fuel_by_mmbtu"] = fuel_str
-        except KeyError:
-            pass
-
-        try:
-            cost_mask = df[f"{fuel_str}_fraction_cost"] > thresh
-            df.loc[cost_mask, "primary_fuel_by_cost"] = fuel_str
-        except KeyError:
-            pass
-
-    df[["primary_fuel_by_cost", "primary_fuel_by_mmbtu"]] = df[
-        ["primary_fuel_by_cost", "primary_fuel_by_mmbtu"]
-    ].fillna("")
-
-    return df

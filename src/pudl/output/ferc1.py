@@ -134,7 +134,7 @@ def fuel_by_plant_ferc1(pudl_engine, thresh=0.5):
     """Summarize FERC fuel data by plant for output.
 
     This is mostly a wrapper around
-    :func:`pudl.transform.ferc1.fuel_by_plant_ferc1`
+    :func:`pudl.analysis.classify_plants_ferc1.fuel_by_plant_ferc1`
     which calculates some summary values on a per-plant basis (as indicated
     by ``utility_id_ferc1`` and ``plant_name_ferc1``) related to fuel
     consumption.
@@ -152,7 +152,7 @@ def fuel_by_plant_ferc1(pudl_engine, thresh=0.5):
     """
     fbp_df = (
         pd.read_sql_table("fuel_ferc1", pudl_engine)
-        .pipe(pudl.transform.ferc1.fuel_by_plant_ferc1, thresh=thresh)
+        .pipe(pudl.analysis.classify_plants_ferc1.fuel_by_plant_ferc1, thresh=thresh)
         .merge(
             plants_utils_ferc1(pudl_engine), on=["utility_id_ferc1", "plant_name_ferc1"]
         )
