@@ -51,7 +51,7 @@ setup(
         "addfips>=0.3.1,<0.4.0",
         "catalystcoop.dbfread>=3.0,<3.1",
         "coloredlogs>=15.0,<15.1",
-        "dask>=2021.8,<2022.8.1",
+        "dask>=2021.8,<2022.8.2",
         "datapackage>=1.11,<1.16",  # Transition datastore to use frictionless.
         # "email-validator>=1.0.3",  # pydantic[email] dependency
         "fsspec>=2021.7,<2022.7.2",  # For caching datastore on GCS
@@ -65,12 +65,14 @@ setup(
         "pyarrow>=5,<9.1",
         "pydantic[email]>=1.7,<2",
         "python-snappy>=0.6,<0.7",
-        "pygeos>=0.10,<0.13",
+        "pygeos>=0.10,<0.14",
         "pyyaml>=5,<6.1",
         "scikit-learn>=1.0,<1.2",
+        "Shapely!=1.8.3",  # Seems to have a bug or incompatibility
         "scipy>=1.6,<1.10",
+        "Shapely!=1.8.3",  # Bug or incompatibility in upstream dependencies
         "sqlalchemy>=1.4,<1.4.41",
-        "timezonefinder>=5,<6.1",
+        "timezonefinder>=5,<6.2",
         "xlsxwriter>=3,<3.1",
     ],
     extras_require={
@@ -90,7 +92,7 @@ setup(
             "sphinx-autoapi>=1.8,<1.10",
             "sphinx-issues>=1.2,<3.1",
             "sphinx-reredirects",
-            "sphinxcontrib_bibtex>=2.4,<2.5",
+            "sphinxcontrib_bibtex>=2.4,<2.6",
         ],
         "test": [
             "bandit>=1.6,<1.8",
@@ -111,11 +113,11 @@ setup(
             "pytest-console-scripts>=1.1,<1.4",
             "pytest-cov>=2.10,<3.1",
             "responses>=0.14,<0.22",
-            "rstcheck[sphinx]>=5.0,<6.1",
+            "rstcheck[sphinx]>=5.0,<6.2",
             "tox>=3.20,<3.26",
         ],
         "datasette": [
-            "datasette>=0.60,<0.62",
+            "datasette>=0.60,<0.63",
         ],
     },
     classifiers=[

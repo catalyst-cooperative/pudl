@@ -155,7 +155,7 @@ class GenericExtractor:
     this method should be overwritten in the dataset-specific extractor.
     """
 
-    METADATA = None
+    METADATA: Metadata = None
     """Instance of metadata object to use with this extractor."""
 
     BLACKLISTED_PAGES = []
@@ -173,11 +173,34 @@ class GenericExtractor:
         self._dataset_name = self._metadata.get_dataset_name()
         self._file_cache = {}
         self.ds = ds
+        self.cols_added: list[str] = []
 
     def process_raw(self, df, page, **partition):
         """Transforms raw dataframe and rename columns."""
-        self.cols_added = []
+        df = self.add_data_maturity(df, page, **partition)
+        self.cols_added.append("data_label")
         return df.rename(columns=self._metadata.get_column_map(page, **partition))
+
+    def add_data_maturity(self, df: pd.DataFrame, page, **partition) -> pd.DataFrame:
+        """Add a data_maturity column to indicate the level of finality of the partition.
+
+        The three options enumerated here are ``final``, ``provisional`` or
+        ``monthly_update`` (``incremental_ytd`` is not currently implemented). We
+        determine if a df should be labeled as ``provisional`` by using the file names
+        because EIA seems to always include ``Early_Release`` in the file names. We
+        determine if a df should be labeled as ``monthly_update`` by checking if the
+        ``self.dataset_name`` is ``eia860m``.
+
+        This method adds a column and thus adds ``data_maturity`` to ``self.cols_added``.
+        """
+        maturity = "final"
+        if "early_release" in self.excel_filename(page, **partition).lower():
+            maturity = "provisional"
+        elif self._dataset_name == "eia860m":
+            maturity = "monthly_update"
+        df = df.assign(data_maturity=maturity)
+        self.cols_added.append("data_maturity")
+        return df
 
     @staticmethod
     def process_renamed(df, page, **partition):
@@ -240,6 +263,26 @@ class GenericExtractor:
                 newdata = self.process_raw(newdata, page, **partition)
                 newdata = self.process_renamed(newdata, page, **partition)
                 dfs.append(newdata)
+                # check if there are any missing or extra columns
+                str_part = str(list(partition.values())[0])
+                col_map = self.METADATA._column_map[page]
+                page_cols = col_map.loc[col_map[str_part].notnull(), [str_part]].index
+                expected_cols = page_cols.union(self.cols_added)
+                if set(newdata.columns) != set(expected_cols):
+
+                    # TODO (bendnorman): Enforce canonical fields for all raw fields?
+                    extra_raw_cols = set(newdata.columns).difference(expected_cols)
+                    missing_raw_cols = set(expected_cols).difference(newdata.columns)
+                    if extra_raw_cols:
+                        logger.warning(
+                            f"Extra columns found in extracted table of "
+                            f"{page}/{str_part}: {extra_raw_cols}"
+                        )
+                    if missing_raw_cols:
+                        logger.warning(
+                            "Expected columns not found in extracted table of"
+                            f"{page}/{str_part}: {missing_raw_cols}"
+                        )
             df = pd.concat(dfs, sort=True, ignore_index=True)
 
             # After all years are loaded, add empty columns that could appear
@@ -248,23 +291,6 @@ class GenericExtractor:
                 df.columns
             )
             df = pd.concat([df, pd.DataFrame(columns=missing_cols)], sort=True)
-
-            mapped_cols = set(self.METADATA._column_map[page].index)
-            expected_cols = mapped_cols.union(self.cols_added)
-
-            if set(df.columns) != expected_cols:
-                # TODO (bendnorman): Enforce canonical fields for all raw fields?
-                extra_raw_cols = set(df.columns).difference(expected_cols)
-                missing_raw_cols = set(expected_cols).difference(df.columns)
-                if extra_raw_cols:
-                    logger.warning(
-                        f"Extra columns found in page {page}: {extra_raw_cols}"
-                    )
-                if missing_raw_cols:
-                    logger.warning(
-                        f"Columns found missing from page {page}: "
-                        f"{missing_raw_cols}"
-                    )
 
             raw_dfs[page] = self.process_final_page(df, page)
         return raw_dfs

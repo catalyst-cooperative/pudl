@@ -19,7 +19,10 @@ if API_KEY_EIA:
     logger.info("Found an API_KEY_EIA in the environment.")
 else:
     logger.warning("API_KEY_EIA was not available from the environment.")
-FILL_FUEL_COST = bool(API_KEY_EIA)
+
+# Hard coding this for now because the EIA API has a ~100% failure rate now
+FILL_FUEL_COST = False
+# FILL_FUEL_COST = bool(API_KEY_EIA)
 
 
 @pytest.fixture(scope="module")
@@ -43,7 +46,7 @@ def fast_out_annual(pudl_engine, pudl_datastore_fixture):
         pudl_engine,
         ds=pudl_datastore_fixture,
         freq="AS",
-        fill_fuel_cost=True,
+        fill_fuel_cost=FILL_FUEL_COST,
         roll_fuel_cost=True,
         fill_net_gen=True,
     )

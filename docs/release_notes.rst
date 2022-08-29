@@ -11,6 +11,18 @@ PUDL Release Notes
 Data Coverage
 ^^^^^^^^^^^^^
 * Incorporated 2021 data from the :doc:`data_sources/epacems` dataset. See :pr:`1778`
+* Incorporated 2021 data from the :doc:`data_sources/eia860` and
+  :doc:`data_sources/eia923`. Early Release. Early release data is EIA's preliminary
+  annual release and should be used with caution. We also integrated a ``data_maturity``
+  column and related ``data_maturities`` table into most of the EIA data tables in
+  order to alter users to the level of finality of the data. :pr:`1834` :pr:`1855`
+* Incorporated 2022 data from the :doc:`data_sources/eia860` monthly update from June
+  2022. See :pr:`1834`. This included adding new ``energy_storage_capacity_mwh`` (for
+  batteries) and ``net_capacity_mwdc`` (for behind-the-meter solar PV) attributes to the
+  :ref:`generators_eia860` table, as they appear in the :doc:`data_sources/eia860`
+  monthly updates for 2022.
+* We've integrated several new columns into the EIA 860 and EIA 923 including several
+  codes with coding tables (See :doc:`data_dictionaries/codes_and_labels`). :pr:`1836`
 
 Nightly Data Builds
 ^^^^^^^^^^^^^^^^^^^
