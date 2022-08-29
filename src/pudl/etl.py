@@ -33,7 +33,6 @@ from pudl.metadata.classes import Package, Resource
 from pudl.metadata.dfs import FERC_ACCOUNTS, FERC_DEPRECIATION_LINES
 from pudl.metadata.fields import apply_pudl_dtypes
 from pudl.settings import (
-    DatasetsSettings,
     EiaSettings,
     EpaCemsSettings,
     EtlSettings,
@@ -336,7 +335,7 @@ def _etl_glue(
     glue_settings: GlueSettings,
     ds_kwargs: dict[str, Any],
     sqlite_dfs: dict[str, pd.DataFrame],
-    datasets: DatasetsSettings,
+    eia_settings: EiaSettings,
 ) -> dict[str, pd.DataFrame]:
     """Extract, transform and load CSVs for the Glue tables.
 
@@ -352,9 +351,7 @@ def _etl_glue(
             ferc1_solo test (where no eia tables are in the sqlite_dfs dict). Passing
             the whole dict avoids this because the crosswalk will only load if there
             are eia tables in the dict, but the dict will always be there.
-        datasets: An immutable pydantic model to validate PUDL Dataset settings. This is
-            used to acess the eia settings years and working partitions used to restrict
-            the crosswalk in the case of ETL runs that aren't using all available years.
+        eia_settings: Validated ETL parameters required by this data source.
 
     Returns:
         A dictionary of DataFrames whose keys are the names of the corresponding
@@ -374,8 +371,8 @@ def _etl_glue(
         # Check to see whether the settings file indicates the processing of all
         # available EIA years.
         processing_all_eia_years = (
-            datasets["eia"].eia860.years
-            == datasets["eia"].eia860.data_source.working_partitions["years"]
+            eia_settings.eia860.years
+            == eia_settings.eia860.data_source.working_partitions["years"]
         )
         glue_raw_dfs = pudl.glue.epacamd_eia_crosswalk.extract(ds)
         glue_transformed_dfs = pudl.glue.epacamd_eia_crosswalk.transform(
@@ -487,7 +484,9 @@ def etl(  # noqa: C901
         sqlite_dfs.update(_etl_eia(datasets["eia"], ds_kwargs))
     logger.info(sqlite_dfs.keys())
     if datasets.get("glue", False):
-        sqlite_dfs.update(_etl_glue(datasets["glue"], ds_kwargs, sqlite_dfs, datasets))
+        sqlite_dfs.update(
+            _etl_glue(datasets["glue"], ds_kwargs, sqlite_dfs, datasets["eia"])
+        )
 
     # Load the ferc1 + eia data directly into the SQLite DB:
     pudl_engine = sa.create_engine(pudl_settings["pudl_db"])
