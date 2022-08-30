@@ -5,7 +5,6 @@ import logging
 
 import pkg_resources
 
-import pudl.analysis.plant_parts_eia
 import pudl.analysis.service_territory
 import pudl.analysis.spatial
 import pudl.analysis.state_demand
@@ -45,6 +44,7 @@ import pudl.output.ferc714
 import pudl.output.pudltabl
 
 # Transformation functions, organized by data source:
+import pudl.transform.classes
 import pudl.transform.eia
 import pudl.transform.eia860
 import pudl.transform.eia861
