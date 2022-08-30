@@ -61,9 +61,11 @@ tables is normalized as a whole.
 
 """
 
+from typing import Any
+
 from pudl.transform.params.ferc1 import TRANSFORM_PARAMS as TRANSFORM_PARAMS_FERC1
 
-TRANSFORM_PARAMS: dict[str, str] = {
+TRANSFORM_PARAMS: dict[str, Any] = {
     **TRANSFORM_PARAMS_FERC1,
     # **TRANSFORM_PARAMS_EIA860,
     # **TRANSFORM_PARAMS_EIA861,
