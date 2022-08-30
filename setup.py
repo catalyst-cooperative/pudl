@@ -66,7 +66,7 @@ setup(
         "pyarrow>=5,<9.1",
         "pydantic[email]>=1.7,<2",
         "python-snappy>=0.6,<0.7",
-        "pygeos>=0.10,<0.13",
+        "pygeos>=0.10,<0.14",
         "pyyaml>=5,<6.1",
         "scikit-learn>=1.0,<1.2",
         "Shapely!=1.8.3",  # Seems to have a bug or incompatibility
