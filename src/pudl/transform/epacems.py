@@ -62,7 +62,11 @@ def harmonize_eia_epa_orispl(
 
     # Merge CEMS with Crosswalk to get correct EIA ORISPL code.
     df_merged = pd.merge(
-        df, crosswalk_df, on=["plant_id_epa", "emissions_unit_id_epa"], how="left"
+        df,
+        crosswalk_df,
+        on=["plant_id_epa", "emissions_unit_id_epa"],
+        how="left",
+        validate="one_to_one",
     )
 
     # Because the crosswalk isn't complete, there are some instances where the
@@ -73,11 +77,7 @@ def harmonize_eia_epa_orispl(
     df_merged["plant_id_combined"] = df_merged.plant_id_eia.fillna(
         df_merged.plant_id_epa
     )
-    # assert (
-    #     ~df_merged.plant_id_combined.isna().any()
-    # ), "There shouldn't be any NA vales in the combined plant id column"
 
-    assert len(df_merged) == len(df)
     return df_merged
 
 
