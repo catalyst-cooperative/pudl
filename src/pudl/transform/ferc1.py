@@ -189,14 +189,14 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         """XBRL-specific transformations that take place before concatenation."""
         logger.info(f"{self.table_id.value}: Processing XBRL data pre-concatenation.")
         return (
-            self.merge_xbrl_instant_and_duration_tables(
+            self.merge_instant_and_duration_tables_xbrl(
                 raw_xbrl_instant, raw_xbrl_duration
             )
             .pipe(self.rename_columns, params=self.params.rename_columns_ferc1.xbrl)
             .pipe(self.assign_record_id, source_ferc1=Ferc1Source.XBRL)
         )
 
-    def merge_xbrl_instant_and_duration_tables(
+    def merge_instant_and_duration_tables_xbrl(
         self,
         raw_xbrl_instant: pd.DataFrame,
         raw_xbrl_duration: pd.DataFrame,
@@ -522,7 +522,7 @@ class FuelFerc1TableTransformer(Ferc1AbstractTableTransformer):
         duplicate fuel records which need to be aggregated.
         """
         return (
-            self.merge_xbrl_instant_and_duration_tables(
+            self.merge_instant_and_duration_tables_xbrl(
                 raw_xbrl_instant, raw_xbrl_duration
             )
             .pipe(self.rename_columns, params=self.params.rename_columns_ferc1.xbrl)
