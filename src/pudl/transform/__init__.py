@@ -60,3 +60,21 @@ for the step after the intra-table transformations during which the collection o
 tables is normalized as a whole.
 
 """
+
+from pudl.transform.params.ferc1 import TRANSFORM_PARAMS as TRANSFORM_PARAMS_FERC1
+
+TRANSFORM_PARAMS: dict[str, str] = {
+    **TRANSFORM_PARAMS_FERC1,
+    # **TRANSFORM_PARAMS_EIA860,
+    # **TRANSFORM_PARAMS_EIA861,
+    # etc...
+}
+"""A dictionary of all the transformation parameters, keyed by table ID.
+
+This should be compiled dynamically from across all the different data source specific
+transform modules, or whatever other locations we end up deciding to store this
+information. We need to be able to do this kind of lookup based on table ID in order to
+sneak the table-specific parameters into the dagster ops without creating massive config
+parameter dictionaries. But for now we only have one data source and it's FERC 1.
+
+"""

@@ -5,9 +5,6 @@ import logging
 
 import pkg_resources
 
-import pudl.analysis.allocate_net_gen
-import pudl.analysis.classify_plants_ferc1
-import pudl.analysis.mcoe
 import pudl.analysis.plant_parts_eia
 import pudl.analysis.service_territory
 import pudl.analysis.spatial
@@ -55,6 +52,8 @@ import pudl.transform.eia923
 import pudl.transform.epacems
 import pudl.transform.ferc1
 import pudl.transform.ferc714
+import pudl.transform.params
+import pudl.transform.params.ferc1
 
 # Data validation tools and test cases:
 import pudl.validate
