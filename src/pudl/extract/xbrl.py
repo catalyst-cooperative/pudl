@@ -121,6 +121,7 @@ def xbrl2sqlite(
             form,
             datastore,
             sqlite_engine,
+            pudl_settings=pudl_settings,
             batch_size=batch_size,
             workers=workers,
         )
@@ -131,6 +132,7 @@ def convert_form(
     form_number: int,
     datastore: FercXbrlDatastore,
     sqlite_engine: sa.engine.Engine,
+    pudl_settings: dict = None,
     batch_size: int | None = None,
     workers: int | None = None,
 ):
@@ -141,6 +143,8 @@ def convert_form(
         form_number: FERC form number.
         datastore: Instance of a FERC XBRL datastore for retrieving data.
         sqlite_engine: SQLAlchemy connection to mirrored database.
+        pudl_settings: Dictionary containing paths and database URLs
+            used by PUDL.
         batch_size: Number of XBRL filings to process in a single CPU process.
         workers: Number of CPU processes to create for processing XBRL filings.
 
@@ -158,4 +162,5 @@ def convert_form(
             requested_tables=form_settings.tables,
             batch_size=batch_size,
             workers=workers,
+            datapackage_path=pudl_settings[f"ferc{form_number}_xbrl_descriptor"],
         )
