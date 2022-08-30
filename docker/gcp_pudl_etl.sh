@@ -20,23 +20,23 @@ function run_pudl_etl() {
     && ferc1_to_sqlite \
         --clobber \
         --loglevel DEBUG \
-        --gcs-cache-path gs://zenodo-cache.catalyst.coop \
+        --gcs-cache-path gs://zenodo-cache-internal \
         --bypass-local-cache \
         $PUDL_SETTINGS_YML \
     && pudl_etl \
         --clobber \
         --loglevel DEBUG \
-        --gcs-cache-path gs://zenodo-cache.catalyst.coop \
+        --gcs-cache-path gs://zenodo-cache-internal \
         --bypass-local-cache \
         $PUDL_SETTINGS_YML \
     && epacems_to_parquet \
         --partition \
         --clobber \
         --loglevel DEBUG \
-        --gcs-cache-path gs://zenodo-cache.catalyst.coop \
+        --gcs-cache-path gs://zenodo-cache-internal \
         --bypass-local-cache \
     && pytest \
-        --gcs-cache-path gs://zenodo-cache.catalyst.coop \
+        --gcs-cache-path gs://zenodo-cache-internal \
         --bypass-local-cache \
         --etl-settings $PUDL_SETTINGS_YML \
         --live-dbs test
