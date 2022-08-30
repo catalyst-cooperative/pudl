@@ -114,11 +114,6 @@ class Ferc1TableTransformParams(TableTransformParams):
 
 
 ################################################################################
-# FERC 1 specific Column, MultiColumn, and Table Transform Functions
-################################################################################
-
-
-################################################################################
 # FERC 1 specific TableTransformer classes
 ################################################################################
 class Ferc1AbstractTableTransformer(AbstractTableTransformer):
@@ -720,11 +715,6 @@ class FuelFerc1TableTransformer(Ferc1AbstractTableTransformer):
         return df.drop(index=probably_totals_index)
 
 
-########################################################################################
-########################################################################################
-# Christina's Transformer Classes
-########################################################################################
-########################################################################################
 class PlantsSteamFerc1TableTransformer(Ferc1AbstractTableTransformer):
     """Transformer class for the plants_steam_ferc1 table."""
 
@@ -738,7 +728,7 @@ class PlantsSteamFerc1TableTransformer(Ferc1AbstractTableTransformer):
         transformed_fuel: pd.DataFrame,
     ):
         """Perform table transformations for the plants_steam_ferc1 table."""
-        self.plants_steam_combo = (
+        self.plants_steam = (
             self.concat_dbf_xbrl(
                 raw_dbf=raw_dbf,
                 raw_xbrl_instant=raw_xbrl_instant,
@@ -751,12 +741,43 @@ class PlantsSteamFerc1TableTransformer(Ferc1AbstractTableTransformer):
             )
             .pipe(self.convert_units_multicol, params=self.params.convert_units)
             .pipe(pudl.helpers.convert_cols_dtypes, data_source="eia")
+            .pipe(self.drop_null_data_rows)
         )
-        self.plants_steam_combo = self.plants_steam_combo.pipe(
+        self.plants_steam = self.plants_steam.pipe(
             plants_steam_assign_plant_ids, ferc1_fuel_df=transformed_fuel
         ).pipe(self.enforce_schema)
-        plants_steam_validate_ids(self.plants_steam_combo)
-        return self.plants_steam_combo
+        plants_steam_validate_ids(self.plants_steam)
+        return self.plants_steam
+
+    def drop_null_data_rows(self, df):
+        """Drop rows with completely null or zero values."""
+        pre_drop_len = len(df)
+        non_data_cols = [
+            "record_id",
+            "utility_id_ferc1",
+            "plant_name_ferc1",
+            "report_year",
+            "entity_id",
+            "date",
+            "start_date",
+            "end_date",
+            "OrderNumber",
+            "PlantName",
+        ]
+        cols_to_check_nulls = [col for col in df if col not in non_data_cols]
+
+        df_out = df[
+            (
+                ~df.replace(to_replace=0, value=pd.NA)[cols_to_check_nulls]
+                .isnull()
+                .all(axis="columns")
+            )
+        ].copy()
+
+        logger.info(
+            f"{self.table_id.value}: dropping {1 - (len(df_out)/pre_drop_len):.0%} of records with only nulls or zeros"
+        )
+        return df_out
 
 
 ##################################################################################
