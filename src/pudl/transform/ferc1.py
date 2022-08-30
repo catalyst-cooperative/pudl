@@ -13,6 +13,7 @@ import re
 import typing
 from abc import ABC, abstractmethod
 from collections import namedtuple
+from collections.abc import Callable
 from functools import cached_property
 from itertools import combinations
 from typing import Protocol
@@ -120,10 +121,12 @@ VALID_PLANT_YEARS = {
 """Valid range of years for power plant construction."""
 
 VALID_COAL_MMBTU_PER_TON = {
-    "lower_bound": 10.0,
+    "lower_bound": 6.5,
     "upper_bound": 29.0,
 }
 """Valid range for coal heat content, taken from the EIA-923 instructions.
+
+Lower bound is for waste coal. Upper bound is for bituminous coal.
 
 https://www.eia.gov/survey/form/eia_923/instructions.pdf
 """
@@ -135,10 +138,13 @@ VALID_COAL_USD_PER_MMBTU = {
 """Historical coal price range from the EIA-923 Fuel Receipts and Costs table."""
 
 VALID_GAS_MMBTU_PER_MCF = {
-    "lower_bound": 0.8,
-    "upper_bound": 1.2,
+    "lower_bound": 0.3,
+    "upper_bound": 3.3,
 }
-"""Valid range for natural gas heat content, taken from the EIA-923 instructions.
+"""Valid range for gaseous fuel heat content, taken from the EIA-923 instructions.
+
+Lower bound is for landfill gas. Upper bound is for "other gas".  Blast furnace gas
+(which has very low heat content) is effectively excluded.
 
 https://www.eia.gov/survey/form/eia_923/instructions.pdf
 """
@@ -154,6 +160,8 @@ VALID_OIL_MMBTU_PER_BBL = {
     "upper_bound": 6.9,
 }
 """Valid range for petroleum fuels heat content, taken from the EIA-923 instructions.
+
+Lower bound is for waste oil. Upper bound is for residual fuel oil.
 
 https://www.eia.gov/survey/form/eia_923/instructions.pdf
 """
@@ -2065,27 +2073,35 @@ def multicol_transform_fn_factory(
     col_fn: ColumnTransformFn,
     drop=True,
 ) -> MultiColumnTransformFn:
-    """A factory for creating a table transformation from a column transformation."""
+    """A factory for creating a multi-column transform function."""
 
-    def tab_fn(df: pd.DataFrame, params: MultiColumnTransformParams) -> pd.DataFrame:
-        drop_col: bool = drop
-        for col_name in params:
-            if col_name in df.columns:
-                new_col = col_fn(col=df[col_name], params=params[col_name])
-                if drop_col:
-                    df = df.drop(columns=col_name)
-                df = pd.concat([df, new_col], axis="columns")
-            else:
-                logger.warning(
-                    f"Expected column {col_name} not found in dataframe during table "
-                    "transform."
-                )
-        return df
+    class InnerMultiColumnTransformFn(
+        Callable[[pd.DataFrame, MultiColumnTransformParams], pd.DataFrame]
+    ):
+        __name__ = col_fn.__name__ + "_multicol"
 
-    return tab_fn
+        def __call__(
+            self, df: pd.DataFrame, params: MultiColumnTransformParams
+        ) -> pd.DataFrame:
+            drop_col: bool = drop
+            for col_name in params:
+                if col_name in df.columns:
+                    logger.debug(f"Applying {col_fn.__name__} to {col_name}")
+                    new_col = col_fn(col=df[col_name], params=params[col_name])
+                    if drop_col:
+                        df = df.drop(columns=col_name)
+                    df = pd.concat([df, new_col], axis="columns")
+                else:
+                    logger.warning(
+                        f"Expected column {col_name} not found in dataframe during "
+                        f"application of {col_fn.__name__}."
+                    )
+            return df
+
+    return InnerMultiColumnTransformFn()
 
 
-def convert_units_col(col: pd.Series, params: UnitConversion) -> pd.Series:
+def convert_units(col: pd.Series, params: UnitConversion) -> pd.Series:
     """Convert the units of and appropriately rename a column."""
     new_name = re.sub(pattern=params.pattern, repl=params.repl, string=col.name)
     # only apply the unit conversion if the column name matched the pattern
@@ -2101,10 +2117,10 @@ def convert_units_col(col: pd.Series, params: UnitConversion) -> pd.Series:
     return col
 
 
-convert_units = multicol_transform_fn_factory(convert_units_col)
+convert_units_multicol = multicol_transform_fn_factory(convert_units)
 
 
-def categorize_strings_col(col: pd.Series, params: StringCategories) -> pd.Series:
+def categorize_strings(col: pd.Series, params: StringCategories) -> pd.Series:
     """Impose a controlled vocabulary on freeform string column."""
     uncategorized_strings = set(col).difference(params.mapping)
     if uncategorized_strings:
@@ -2117,20 +2133,20 @@ def categorize_strings_col(col: pd.Series, params: StringCategories) -> pd.Serie
     return col
 
 
-categorize_strings = multicol_transform_fn_factory(categorize_strings_col)
+categorize_strings_multicol = multicol_transform_fn_factory(categorize_strings)
 
 
-def nullify_outliers_col(col: pd.Series, params: ValidRange) -> pd.Series:
+def nullify_outliers(col: pd.Series, params: ValidRange) -> pd.Series:
     """Set any values outside the valid range to NA."""
     col = pd.to_numeric(col, errors="coerce")
     col[~col.between(params.lower_bound, params.upper_bound)] = np.nan
     return col
 
 
-nullify_outliers = multicol_transform_fn_factory(nullify_outliers_col)
+nullify_outliers_multicol = multicol_transform_fn_factory(nullify_outliers)
 
 
-def normalize_strings_col(col: pd.Series, params: bool) -> pd.Series:
+def normalize_strings(col: pd.Series, params: bool) -> pd.Series:
     """Derive a canonical version of the strings in the column.
 
     Transformations include:
@@ -2153,7 +2169,7 @@ def normalize_strings_col(col: pd.Series, params: bool) -> pd.Series:
     )
 
 
-normalize_strings = multicol_transform_fn_factory(normalize_strings_col)
+normalize_strings_multicol = multicol_transform_fn_factory(normalize_strings)
 
 
 def correct_units(df: pd.DataFrame, params: UnitCorrections) -> pd.DataFrame:
@@ -2194,13 +2210,13 @@ def correct_units(df: pd.DataFrame, params: UnitCorrections) -> pd.DataFrame:
     # Now, we only want to alter the subset of these values which, when transformed by
     # the unit conversion, lie in the range of valid values.
     for uc in params.unit_conversions:
-        converted = convert_units_col(col=selected, params=uc)
-        converted = nullify_outliers_col(col=converted, params=params.valid_range)
+        converted = convert_units(col=selected, params=uc)
+        converted = nullify_outliers(col=converted, params=params.valid_range)
         selected = selected.where(converted.isna(), converted)
 
     # Nullify outliers that remain after the corrections have been applied.
     na_before = sum(selected.isna())
-    selected = nullify_outliers_col(col=selected, params=params.valid_range)
+    selected = nullify_outliers(col=selected, params=params.valid_range)
     na_after = sum(selected.isna())
     total_nullified = na_after - na_before
     logger.info(
@@ -2219,9 +2235,12 @@ def correct_units(df: pd.DataFrame, params: UnitCorrections) -> pd.DataFrame:
 class AbstractTableTransformer(ABC):
     """An abstract base table transformer class.
 
-    This class is not really specific to FERC 1 and should be moved to a widely
-    available module when this transformer design is mature and we start using it for
-    other data sources.
+    This class is not specific to FERC 1 and should be moved to a widely available
+    module when this transformer design is mature and we start using it for other data
+    sources.
+
+    Only methods that are generally useful across data sources or that must be defined
+    by child casses should be defined here.
 
     """
 
@@ -2257,6 +2276,7 @@ class AbstractTableTransformer(ABC):
         columns that have been defined in the mapping for renaming.
 
         """
+        logger.info(f"{self.table_id.value}: Renaming {len(params.columns)} columns.")
         df_col_set = set(df.columns)
         param_col_set = set(params.columns)
         if df_col_set != param_col_set:
@@ -2267,6 +2287,47 @@ class AbstractTableTransformer(ABC):
                 f"Unshared values: {unshared_values}"
             )
         return df.rename(columns=params.columns)
+
+    def normalize_strings_multicol(
+        self,
+        df: pd.DataFrame,
+        params: dict[str, bool],
+    ) -> pd.DataFrame:
+        """Method wrapper for string normalization."""
+        logger.info(f"{self.table_id.value}: Normalizing freeform string columns.")
+        return normalize_strings_multicol(df, params)
+
+    def categorize_strings_multicol(
+        self,
+        df: pd.DataFrame,
+        params: dict[str, StringCategories],
+    ) -> pd.DataFrame:
+        """Method wrapper for string categorization."""
+        logger.info(
+            f"{self.table_id.value}: Categorizing string columns using a controlled "
+            "vocabulary."
+        )
+        return categorize_strings_multicol(df, params)
+
+    def nullify_outliers_multicol(
+        self,
+        df: pd.DataFrame,
+        params: dict[str, ValidRange],
+    ) -> pd.DataFrame:
+        """Method wrapper for nullifying outlying values."""
+        logger.info(f"{self.table_id.value}: Nullifying outlying values.")
+        return nullify_outliers_multicol(df, params)
+
+    def convert_units_multicol(
+        self,
+        df: pd.DataFrame,
+        params: dict[str, UnitConversion],
+    ) -> pd.DataFrame:
+        """Method wrapper for columnwise unit conversions."""
+        logger.info(
+            f"{self.table_id.value}: Converting units and renaming columns accordingly."
+        )
+        return convert_units_multicol(df, params)
 
 
 class Ferc1AbstractTableTransformer(AbstractTableTransformer):
@@ -2309,15 +2370,14 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         raw_xbrl_duration: pd.DataFrame,
     ) -> pd.DataFrame:
         """Process the raw data until the XBRL and DBF inputs have been unified."""
-        return pd.concat(
-            [
-                self.process_dbf(raw_dbf),
-                self.process_xbrl(raw_xbrl_instant, raw_xbrl_duration),
-            ]
-        ).reset_index(drop=True)
+        processed_dbf = self.process_dbf(raw_dbf)
+        processed_xbrl = self.process_xbrl(raw_xbrl_instant, raw_xbrl_duration)
+        logger.info(f"{self.table_id.value}: Concatenating DBF + XBRL dataframes.")
+        return pd.concat([processed_dbf, processed_xbrl]).reset_index(drop=True)
 
     def process_dbf(self, raw_dbf: pd.DataFrame) -> pd.DataFrame:
         """DBF-specific transformations that take place before concatenation."""
+        logger.info(f"{self.table_id.value}: Processing DBF data pre-concatenation.")
         return (
             self.drop_footnote_columns_dbf(raw_dbf)
             .pipe(self.rename_columns, params=self.params.rename_columns.dbf)
@@ -2331,6 +2391,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         raw_xbrl_duration: pd.DataFrame,
     ) -> pd.DataFrame:
         """XBRL-specific transformations that take place before concatenation."""
+        logger.info(f"{self.table_id.value}: Processing XBRL data pre-concatenation.")
         return (
             self.merge_xbrl_instant_and_duration_tables(
                 raw_xbrl_instant, raw_xbrl_duration
@@ -2397,9 +2458,9 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             validate="1:1",
         )
 
-    @staticmethod
-    def drop_footnote_columns_dbf(df: pd.DataFrame) -> pd.DataFrame:
+    def drop_footnote_columns_dbf(self, df: pd.DataFrame) -> pd.DataFrame:
         """Drop DBF footnote reference columns, which all end with _f."""
+        logger.debug(f"{self.table_id.value}: Dropping DBF footnote columns.")
         return df.drop(columns=df.filter(regex=r".*_f$").columns)
 
     def source_table_id(self, source_ferc1: Ferc1Source) -> str:
@@ -2446,6 +2507,10 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             "row_seq",
             "row_prvlg",
         ]
+        logger.debug(
+            f"{self.table_id.value}: Dropping unused DBF structural columns: "
+            f"{unused_cols}"
+        )
         missing_cols = set(unused_cols).difference(df.columns)
         if missing_cols:
             raise ValueError(
@@ -2481,6 +2546,9 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             ValueError: If there are any null values in the primary key columns.
             ValueError: If the resulting `record_id` column is non-unique.
         """
+        logger.debug(
+            f"{self.table_id.value}: Assigning {source_ferc1.value} source record IDs."
+        )
         pk_cols = self.renamed_table_primary_key(source_ferc1)
         missing_pk_cols = set(pk_cols).difference(df.columns)
         if missing_pk_cols:
@@ -2527,6 +2595,9 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
 
     def correct_units(self, df: pd.DataFrame) -> pd.DataFrame:
         """Apply all specified unit corrections to the table."""
+        logger.info(
+            f"{self.table_id.value}: Correcting inferred non-standard column units."
+        )
         for uc in self.params.correct_units:
             df = correct_units(df, uc)
         return df
@@ -2654,9 +2725,11 @@ class FuelFerc1TableTransformer(Ferc1AbstractTableTransformer):
         df = (
             super()
             .process_dbf(raw_dbf)
-            .pipe(convert_units, params=self.params.convert_units)
-            .pipe(normalize_strings, params=self.params.normalize_strings)
-            .pipe(categorize_strings, params=self.params.categorize_strings)
+            .pipe(self.convert_units_multicol, params=self.params.convert_units)
+            .pipe(self.normalize_strings_multicol, params=self.params.normalize_strings)
+            .pipe(
+                self.categorize_strings_multicol, params=self.params.categorize_strings
+            )
             .pipe(self.standardize_physical_fuel_units)
         )
         return df
@@ -2678,9 +2751,11 @@ class FuelFerc1TableTransformer(Ferc1AbstractTableTransformer):
                 raw_xbrl_instant, raw_xbrl_duration
             )
             .pipe(self.rename_columns, params=self.params.rename_columns.xbrl)
-            .pipe(convert_units, params=self.params.convert_units)
-            .pipe(normalize_strings, params=self.params.normalize_strings)
-            .pipe(categorize_strings, params=self.params.categorize_strings)
+            .pipe(self.convert_units_multicol, params=self.params.convert_units)
+            .pipe(self.normalize_strings_multicol, params=self.params.normalize_strings)
+            .pipe(
+                self.categorize_strings_multicol, params=self.params.categorize_strings
+            )
             .pipe(self.standardize_physical_fuel_units)
             .pipe(self.aggregate_duplicate_fuel_types_xbrl)
             .pipe(self.assign_utility_id_ferc1_xbrl)
@@ -2692,7 +2767,9 @@ class FuelFerc1TableTransformer(Ferc1AbstractTableTransformer):
 
         Use the categorized fuel type and reported fuel units to convert all fuel
         quantities to the following standard units, depending on whether the fuel is a
-        solid, liquid, or gas:
+        solid, liquid, or gas. When a single fuel reports its quantity in fundamentally
+        different units, convert based on typical values. E.g. 19.85 MMBTU per ton of
+        coal, 1.037 Mcf per MMBTU of natural gas, 7.46 barrels per ton of oil.
 
           * solid fuels (coal and waste): short tons [ton]
           * liquid fuels (oil): barrels [bbl]
@@ -2703,6 +2780,15 @@ class FuelFerc1TableTransformer(Ferc1AbstractTableTransformer):
           * fuel_consumed_units (tons, bbl, mcf)
           * fuel_cost_per_unit_burned (usd/ton, usd/bbl, usd/mcf)
           * fuel_cost_per_unit_delivered (usd/ton, usd/bbl, usd/mcf)
+
+        One remaining challenge in this standardization is that nuclear fuel is reported
+        in both mass of Uranium and fuel heat content, and it's unclear if there's any
+        reasonable typical conversion between these units, since available heat content
+        depends on the degree of U235 enrichement, the type of reactor, and whether the
+        fuel is just Uranium, or a mix of Uranium and Plutonium from decommissioned
+        nuclear weapons. See:
+
+        https://world-nuclear.org/information-library/facts-and-figures/heat-values-of-various-fuels.aspx
 
         """
         df = df.copy()
@@ -2721,7 +2807,6 @@ class FuelFerc1TableTransformer(Ferc1AbstractTableTransformer):
             FuelFix("nuclear", "mmmbtu", "mwhth", (1.0 / 3.412142)),
             FuelFix("nuclear", "btu", "mwhth", (1.0 / 3412142)),
             FuelFix("nuclear", "grams", "kg", (1.0 / 1000)),
-            # for fuel type "other" set all units to NA
         ]
         for fix in fuel_fixes:
             fuel_mask = df.fuel_type_code_pudl == fix.fuel
@@ -2739,6 +2824,7 @@ class FuelFerc1TableTransformer(Ferc1AbstractTableTransformer):
             FuelAllowedUnits("gas", ("mcf",)),
             FuelAllowedUnits("nuclear", ("kg", "mwhth")),
             FuelAllowedUnits("waste", ("ton",)),
+            # for fuel type "other" set all units to NA
             FuelAllowedUnits("other", ()),
         ]
         physical_units_cols = [
@@ -2823,6 +2909,8 @@ class FuelFerc1TableTransformer(Ferc1AbstractTableTransformer):
         it typically indicates a "total" row for a plant. We also require a null value
         for the fuel_units and an "other" value for the fuel type.
 
+        Right now this is extremely stringent and almost all rows are retained.
+
         """
         data_cols = [
             "fuel_consumed_units",
@@ -2839,8 +2927,9 @@ class FuelFerc1TableTransformer(Ferc1AbstractTableTransformer):
             & df.fuel_units.isna()
         ].index
         logger.info(
-            f"{self.table_id.value}: Dropping {len(probably_totals_index)} rows of "
-            "missing data."
+            f"{self.table_id.value}: Dropping "
+            f"{len(probably_totals_index)}/{len(df)}"
+            "rows of excessively null data."
         )
         return df.drop(index=probably_totals_index)
 
