@@ -10,19 +10,12 @@ from ferc_xbrl_extractor.instance import InstanceBuilder
 
 import pudl
 from pudl.helpers import get_logger
-from pudl.settings import FercToSqliteSettings
+from pudl.settings import FercGenericXbrlToSqliteSettings, FercToSqliteSettings
 from pudl.workspace.datastore import Datastore
 
 logger = get_logger(__name__)
 
-TAXONOMY_MAP = {
-    1: "https://eCollection.ferc.gov/taxonomy/form1/2022-01-01/form/form1/form-1_2022-01-01.xsd",
-    2: "https://eCollection.ferc.gov/taxonomy/form2/2022-01-01/form/form2/form-2_2022-01-01.xsd",
-    6: "https://eCollection.ferc.gov/taxonomy/form6/2022-01-01/form/form6/form-6_2022-01-01.xsd",
-    60: "https://eCollection.ferc.gov/taxonomy/form60/2022-01-01/form/form60/form-60_2022-01-01.xsd",
-    714: "https://eCollection.ferc.gov/taxonomy/form714/2022-01-01/form/form714/form-714_2022-01-01.xsd",
-}
-"""Map FERC form number to the most recently published taxonomy URL."""
+XBRL_FORM_NUMBERS = [1, 2, 6, 60, 714]
 
 
 class FercXbrlDatastore:
@@ -101,6 +94,7 @@ def xbrl2sqlite(
             settings.
         pudl_settings: Dictionary containing paths and database URLs
             used by PUDL.
+        clobber: Flag indicating whether or not to drop tables.
         datastore: Instance of a datastore to access the resources.
         batch_size: Number of XBRL filings to process in a single CPU process.
         workers: Number of CPU processes to create for processing XBRL filings.
@@ -111,24 +105,20 @@ def xbrl2sqlite(
     """
     datastore = FercXbrlDatastore(datastore)
 
-    # Handle Form 1 explicitly
-    sqlite_engine = _get_sqlite_engine(1, pudl_settings, clobber)
-    convert_form(
-        1,
-        ferc_to_sqlite_settings.ferc1_xbrl_to_sqlite_settings.years,
-        datastore,
-        sqlite_engine,
-        taxonomy=ferc_to_sqlite_settings.ferc1_xbrl_to_sqlite_settings.taxonomy,
-        batch_size=batch_size,
-        workers=workers,
-    )
-
     # Loop through all other forms and perform conversion
-    for form in ferc_to_sqlite_settings.ferc_other_xbrl_to_sqlite_settings.forms:
+    for form in XBRL_FORM_NUMBERS:
+        # Get desired settings object
+        settings = ferc_to_sqlite_settings.get_xbrl_dataset_settings(form)
+
+        # If no settings for form in question, skip
+        if settings is None:
+            continue
+
         sqlite_engine = _get_sqlite_engine(form, pudl_settings, clobber)
+
         convert_form(
+            settings,
             form,
-            ferc_to_sqlite_settings.ferc_other_xbrl_to_sqlite_settings.years,
             datastore,
             sqlite_engine,
             batch_size=batch_size,
@@ -137,39 +127,35 @@ def xbrl2sqlite(
 
 
 def convert_form(
+    form_settings: FercGenericXbrlToSqliteSettings,
     form_number: int,
-    years: list[int],
     datastore: FercXbrlDatastore,
     sqlite_engine: sa.engine.Engine,
     batch_size: int | None = None,
     workers: int | None = None,
-    taxonomy: str | None = None,
 ):
     """Clone a single FERC XBRL form to SQLite.
 
     Args:
-        form_number: FERC form number (can be 1, 2, 6, 60, 714).
-        years: List of validated years to process.
-        datastore: Instance FERC XBRL datastore for retrieving data.
+        form_settings: Validated settings for converting the desired XBRL form to SQLite.
+        form_number: FERC form number.
+        datastore: Instance of a FERC XBRL datastore for retrieving data.
         sqlite_engine: SQLAlchemy connection to mirrored database.
         batch_size: Number of XBRL filings to process in a single CPU process.
         workers: Number of CPU processes to create for processing XBRL filings.
-        taxonomy: URL of XBRL taxonomy to use for interpreting structure of XBRL filings.
-            will override form_number if present
 
     Returns:
         None
 
     """
-    # Use taxonomy arg if it exists, otherwise get taxonomy from form number
-    taxonomy = taxonomy if taxonomy else TAXONOMY_MAP[form_number]
-
     # Process XBRL filings for each year requested
-    for year in years:
+    for year in form_settings.years:
         xbrl.extract(
             datastore.get_filings(year, form_number),
             sqlite_engine,
-            taxonomy,
+            form_settings.taxonomy,
+            form_number,
+            requested_tables=form_settings.tables,
             batch_size=batch_size,
             workers=workers,
         )

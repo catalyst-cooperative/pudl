@@ -529,8 +529,13 @@ ferc_to_sqlite_settings:
       - transactions_with_associated_affiliated_companies_provided_for_429_duration
       - transactions_with_associated_affiliated_companies_provided_for_429_instant
 
-  ferc_other_xbrl_to_sqlite_settings:
-    forms: [2, 6, 60, 714]
+  ferc2_xbrl_to_sqlite_settings:
+    years: [2021]
+  ferc6_xbrl_to_sqlite_settings:
+    years: [2021]
+  ferc60_xbrl_to_sqlite_settings:
+    years: [2021]
+  ferc714_xbrl_to_sqlite_settings:
     years: [2021]
 
 ###########################################################################

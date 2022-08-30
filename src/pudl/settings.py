@@ -433,7 +433,21 @@ class Ferc1DbfToSqliteSettings(GenericDatasetSettings):
         return sorted(set(tables))
 
 
-class Ferc1XbrlToSqliteSettings(GenericDatasetSettings):
+class FercGenericXbrlToSqliteSettings(BaseSettings):
+    """An immutable pydantic model to validate Ferc1 to SQLite settings.
+
+    Args:
+        taxonomy: URL of XBRL taxonomy used to create structure of SQLite DB.
+        tables: list of tables to validate.
+        years: list of years to validate.
+    """
+
+    taxonomy: AnyHttpUrl
+    tables: list[int] | None = None
+    years: list[int]
+
+
+class Ferc1XbrlToSqliteSettings(FercGenericXbrlToSqliteSettings):
     """An immutable pydantic model to validate Ferc1 to SQLite settings.
 
     Args:
@@ -459,15 +473,52 @@ class Ferc1XbrlToSqliteSettings(GenericDatasetSettings):
         return sorted(set(tables))
 
 
-class OtherFercToSqliteSettings(BaseSettings):
-    """An immutable pydantic model to validate FERC non-form 1 XBRL to SQLite settings.
+class Ferc2XbrlToSqliteSettings(FercGenericXbrlToSqliteSettings):
+    """An immutable pydantic model to validate FERC from 2 XBRL to SQLite settings.
 
     Args:
-        forms: List of non-FERC1 forms to convert from XBRL to SQLite.
+        years: List of years to validate.
     """
 
-    forms: list[int] = [2, 6, 60, 714]
+    data_source: ClassVar[DataSource] = DataSource.from_id("ferc2")
+    years: list[int] = data_source.working_partitions["years"]
+    taxonomy: AnyHttpUrl = "https://eCollection.ferc.gov/taxonomy/form2/2022-01-01/form/form2/form-2_2022-01-01.xsd"
+
+
+class Ferc6XbrlToSqliteSettings(FercGenericXbrlToSqliteSettings):
+    """An immutable pydantic model to validate FERC from 6 XBRL to SQLite settings.
+
+    Args:
+        years: List of years to validate.
+    """
+
+    data_source: ClassVar[DataSource] = DataSource.from_id("ferc6")
+    years: list[int] = data_source.working_partitions["years"]
+    taxonomy: AnyHttpUrl = "https://eCollection.ferc.gov/taxonomy/form6/2022-01-01/form/form6/form-6_2022-01-01.xsd"
+
+
+class Ferc60XbrlToSqliteSettings(FercGenericXbrlToSqliteSettings):
+    """An immutable pydantic model to validate FERC from 60 XBRL to SQLite settings.
+
+    Args:
+        years: List of years to validate.
+    """
+
+    data_source: ClassVar[DataSource] = DataSource.from_id("ferc60")
+    years: list[int] = data_source.working_partitions["years"]
+    taxonomy: AnyHttpUrl = "https://eCollection.ferc.gov/taxonomy/form60/2022-01-01/form/form60/form-60_2022-01-01.xsd"
+
+
+class Ferc714XbrlToSqliteSettings(FercGenericXbrlToSqliteSettings):
+    """An immutable pydantic model to validate FERC from 714 XBRL to SQLite settings.
+
+    Args:
+        years: List of years to validate.
+    """
+
+    data_source: ClassVar[DataSource] = DataSource.from_id("ferc714")
     years: list[int] = [2021]
+    taxonomy: AnyHttpUrl = "https://eCollection.ferc.gov/taxonomy/form714/2022-01-01/form/form714/form-714_2022-01-01.xsd"
 
 
 class FercToSqliteSettings(BaseSettings):
@@ -481,7 +532,34 @@ class FercToSqliteSettings(BaseSettings):
 
     ferc1_dbf_to_sqlite_settings: Ferc1DbfToSqliteSettings = None
     ferc1_xbrl_to_sqlite_settings: Ferc1XbrlToSqliteSettings = None
-    ferc_other_xbrl_to_sqlite_settings: OtherFercToSqliteSettings = None
+    ferc2_xbrl_to_sqlite_settings: Ferc2XbrlToSqliteSettings = None
+    ferc6_xbrl_to_sqlite_settings: Ferc6XbrlToSqliteSettings = None
+    ferc60_xbrl_to_sqlite_settings: Ferc60XbrlToSqliteSettings = None
+    ferc714_xbrl_to_sqlite_settings: Ferc714XbrlToSqliteSettings = None
+
+    def get_xbrl_dataset_settings(
+        self, form_number: int
+    ) -> FercGenericXbrlToSqliteSettings:
+        """Return a list with all requested FERC XBRL to SQLite datasets.
+
+        Args:
+            form_number: Get settings by FERC form number.
+        """
+        # Get proper settings object
+        if form_number == 1:
+            settings = self.ferc1_xbrl_to_sqlite_settings
+        elif form_number == 2:
+            settings = self.ferc2_xbrl_to_sqlite_settings
+        elif form_number == 6:
+            settings = self.ferc6_xbrl_to_sqlite_settings
+        elif form_number == 60:
+            settings = self.ferc60_xbrl_to_sqlite_settings
+        elif form_number == 714:
+            settings = self.ferc714_xbrl_to_sqlite_settings
+        else:
+            raise ValueError(f"{form_number} is not a valid FERC form number.")
+
+        return settings
 
 
 class EtlSettings(BaseSettings):
