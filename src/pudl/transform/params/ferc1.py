@@ -932,7 +932,6 @@ PLANT_TYPE_CATEGORIES: dict[str, set[str]] = {
             "gas turb, diesel",
             "gas turb, int. comb",
             "i.c.e/gas turbine",
-            "diesel turbine",
             "comubstion turbine",
             "i.c.e. /gas turbine",
             "i.c.e/ gas turbine",
@@ -1246,6 +1245,7 @@ CONSTRUCTION_TYPE_CATEGORIES: dict[str, set[str]] = {
             "semioutdoor" "more than 50% outdoors",
             "more than 50% outdoo",
             "more than 50% outdos",
+            "more than 50% outdoors",
             "over 50% outdoor",
             "over 50% outdoors",
             "semi-outdoor",
@@ -1779,6 +1779,7 @@ TRANSFORM_PARAMS = {
                     "ElectricExpensesSteamPowerGeneration": "opex_electric",
                     "MaintenanceOfStructuresSteamPowerGeneration": "opex_structures",
                     "ReportYear": "report_year",
+                    "entity_id": "entity_id",
                 }
             },
         },

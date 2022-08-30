@@ -423,7 +423,9 @@ def plants_steam_assign_plant_ids(
     # zeros. not ideal, but the model requires dealing with nulls
     null_to_zero = ffc + ["capacity_mw"]
     ferc1_steam_df[null_to_zero] = ferc1_steam_df[null_to_zero].fillna(value=0.0)
-
+    # null these two str columns with empty strings for the model
+    str_cols = ["plant_type", "construction_type"]
+    ferc1_steam_df[str_cols] = ferc1_steam_df[str_cols].fillna(value="")
     # Train the classifier using DEFAULT weights, parameters not listed here.
     ferc1_clf = make_ferc1_clf(ferc1_steam_df).fit_transform(ferc1_steam_df)
 
@@ -690,7 +692,7 @@ def fuel_by_plant_ferc1(fuel_df: pd.DataFrame, thresh: float = 0.5) -> pd.DataFr
     ).reset_index()
 
     # Label each plant-year record by primary fuel:
-    for fuel_str in pudl.transform.ferc1.FUEL_CATEGORIES["categories"]:
+    for fuel_str in pudl.transform.params.ferc1.FUEL_CATEGORIES["categories"]:
         try:
             mmbtu_mask = df[f"{fuel_str}_fraction_mmbtu"] > thresh
             df.loc[mmbtu_mask, "primary_fuel_by_mmbtu"] = fuel_str

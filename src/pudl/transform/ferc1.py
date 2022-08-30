@@ -750,7 +750,6 @@ class PlantsSteamFerc1TableTransformer(Ferc1AbstractTableTransformer):
                 self.categorize_strings_multicol, params=self.params.categorize_strings
             )
             .pipe(self.convert_units_multicol, params=self.params.convert_units)
-            .pipe(self.correct_units)
             .pipe(pudl.helpers.convert_cols_dtypes, data_source="eia")
         )
         self.plants_steam_combo = self.plants_steam_combo.pipe(
@@ -1548,9 +1547,7 @@ def transform(
 
     """
     ferc1_tfr_classes = {
-        # fuel must come before steam b/c fuel proportions are used to aid in
-        # plant # ID assignment.
-        # "fuel_ferc1": FuelFerc1,
+        "fuel_ferc1": FuelFerc1TableTransformer,
         # "plants_small_ferc1": plants_small,
         # "plants_hydro_ferc1": plants_hydro,
         # "plants_pumped_storage_ferc1": plants_pumped_storage,
@@ -1560,7 +1557,6 @@ def transform(
     }
     # create an empty ditctionary to fill up through the transform fuctions
     ferc1_transformed_dfs = {}
-
     # for each ferc table,
     for table in ferc1_tfr_classes:
         if table in ferc1_settings.tables:
@@ -1570,16 +1566,17 @@ def transform(
 
             ferc1_transformed_dfs[table] = ferc1_tfr_classes[table](
                 table_name=table
-            ).execute(
+            ).transform(
                 raw_dbf=ferc1_dbf_raw_dfs.get(table),
                 raw_xbrl_instant=ferc1_xbrl_raw_dfs.get(table).get("instant", None),
                 raw_xbrl_duration=ferc1_xbrl_raw_dfs.get(table).get("duration", None),
             )
-
+    # Bespoke exception. fuel must come before steam b/c fuel proportions are used to
+    # aid in plant # ID assignment.
     if "plants_steam_ferc1" in ferc1_settings.tables:
         ferc1_transformed_dfs[
             "plants_steam_ferc1"
-        ] = PlantsSteamFerc1TableTransformer().execute(
+        ] = PlantsSteamFerc1TableTransformer().transform(
             raw_dbf=ferc1_dbf_raw_dfs.get("plants_steam_ferc1"),
             raw_xbrl_instant=ferc1_xbrl_raw_dfs.get("plants_steam_ferc1").get(
                 "instant", None
