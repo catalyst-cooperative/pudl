@@ -394,6 +394,7 @@ def make_ferc1_clf(
 def plants_steam_assign_plant_ids(
     ferc1_steam_df: pd.DataFrame,
     ferc1_fuel_df: pd.DataFrame,
+    fuel_categories: list[str],
 ) -> pd.DataFrame:
     """Assign IDs to the large steam plants."""
     ###########################################################################
@@ -411,7 +412,7 @@ def plants_steam_assign_plant_ids(
     )
 
     # Grab fuel consumption proportions for use in assigning plant IDs:
-    fuel_fractions = fuel_by_plant_ferc1(ferc1_fuel_df)
+    fuel_fractions = fuel_by_plant_ferc1(ferc1_fuel_df, fuel_categories)
     ffc = list(fuel_fractions.filter(regex=".*_fraction_mmbtu$").columns)
 
     ferc1_steam_df = ferc1_steam_df.merge(
@@ -423,7 +424,7 @@ def plants_steam_assign_plant_ids(
     # zeros. not ideal, but the model requires dealing with nulls
     null_to_zero = ffc + ["capacity_mw"]
     ferc1_steam_df[null_to_zero] = ferc1_steam_df[null_to_zero].fillna(value=0.0)
-    # null these two str columns with empty strings for the model
+    # fillin these two str columns with empty strings for the model
     str_cols = ["plant_type", "construction_type"]
     ferc1_steam_df[str_cols] = ferc1_steam_df[str_cols].fillna(value="")
     # Train the classifier using DEFAULT weights, parameters not listed here.
@@ -563,7 +564,9 @@ def plants_steam_validate_ids(ferc1_steam_df: pd.DataFrame) -> None:
         logger.info("No duplicate years found in any plant_id_ferc1. Hooray!")
 
 
-def fuel_by_plant_ferc1(fuel_df: pd.DataFrame, thresh: float = 0.5) -> pd.DataFrame:
+def fuel_by_plant_ferc1(
+    fuel_df: pd.DataFrame, fuel_categories: list[str], thresh: float = 0.5
+) -> pd.DataFrame:
     """Calculates useful FERC Form 1 fuel metrics on a per plant-year basis.
 
     Each record in the FERC Form 1 corresponds to a particular type of fuel. Many plants
@@ -692,7 +695,7 @@ def fuel_by_plant_ferc1(fuel_df: pd.DataFrame, thresh: float = 0.5) -> pd.DataFr
     ).reset_index()
 
     # Label each plant-year record by primary fuel:
-    for fuel_str in pudl.transform.params.ferc1.FUEL_CATEGORIES["categories"]:
+    for fuel_str in fuel_categories:
         try:
             mmbtu_mask = df[f"{fuel_str}_fraction_mmbtu"] > thresh
             df.loc[mmbtu_mask, "primary_fuel_by_mmbtu"] = fuel_str

@@ -740,11 +740,17 @@ class PlantsSteamFerc1TableTransformer(Ferc1AbstractTableTransformer):
                 self.categorize_strings_multicol, params=self.params.categorize_strings
             )
             .pipe(self.convert_units_multicol, params=self.params.convert_units)
-            .pipe(pudl.helpers.convert_cols_dtypes, data_source="eia")
+            # .pipe(pudl.helpers.convert_cols_dtypes, data_source="eia")
             .pipe(self.drop_null_data_rows)
         )
-        self.plants_steam = self.plants_steam.pipe(
-            plants_steam_assign_plant_ids, ferc1_fuel_df=transformed_fuel
+        self.plants_steam = plants_steam_assign_plant_ids(
+            self.plants_steam,
+            ferc1_fuel_df=transformed_fuel,
+            fuel_categories=list(
+                FuelFerc1TableTransformer()
+                .params.categorize_strings["fuel_type_code_pudl"]
+                .categories.keys()
+            ),
         ).pipe(self.enforce_schema)
         plants_steam_validate_ids(self.plants_steam)
         return self.plants_steam
@@ -1585,12 +1591,14 @@ def transform(
                 f"Transforming raw FERC Form 1 dataframe for loading into {table}"
             )
 
-            ferc1_transformed_dfs[table] = ferc1_tfr_classes[table](
-                table_name=table
-            ).transform(
-                raw_dbf=ferc1_dbf_raw_dfs.get(table),
-                raw_xbrl_instant=ferc1_xbrl_raw_dfs.get(table).get("instant", None),
-                raw_xbrl_duration=ferc1_xbrl_raw_dfs.get(table).get("duration", None),
+            ferc1_transformed_dfs[table] = ferc1_tfr_classes[table]().transform(
+                raw_dbf=ferc1_dbf_raw_dfs[table],
+                raw_xbrl_instant=ferc1_xbrl_raw_dfs[table].get(
+                    "instant", pd.DataFrame()
+                ),
+                raw_xbrl_duration=ferc1_xbrl_raw_dfs[table].get(
+                    "duration", pd.DataFrame()
+                ),
             )
     # Bespoke exception. fuel must come before steam b/c fuel proportions are used to
     # aid in plant # ID assignment.
@@ -1598,12 +1606,12 @@ def transform(
         ferc1_transformed_dfs[
             "plants_steam_ferc1"
         ] = PlantsSteamFerc1TableTransformer().transform(
-            raw_dbf=ferc1_dbf_raw_dfs.get("plants_steam_ferc1"),
-            raw_xbrl_instant=ferc1_xbrl_raw_dfs.get("plants_steam_ferc1").get(
-                "instant", None
+            raw_dbf=ferc1_dbf_raw_dfs["plants_steam_ferc1"],
+            raw_xbrl_instant=ferc1_xbrl_raw_dfs["plants_steam_ferc1"].get(
+                "instant", pd.DataFrame()
             ),
-            raw_xbrl_duration=ferc1_xbrl_raw_dfs.get("plants_steam_ferc1").get(
-                "duration", None
+            raw_xbrl_duration=ferc1_xbrl_raw_dfs["plants_steam_ferc1"].get(
+                "duration", pd.DataFrame()
             ),
             transformed_fuel=ferc1_transformed_dfs["fuel_ferc1"],
         )
