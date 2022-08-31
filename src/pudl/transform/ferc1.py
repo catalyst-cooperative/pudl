@@ -114,6 +114,11 @@ class Ferc1TableTransformParams(TableTransformParams):
 
 
 ################################################################################
+# FERC 1 specific Column, MultiColumn, and Table Transform Functions
+################################################################################
+
+
+################################################################################
 # FERC 1 specific TableTransformer classes
 ################################################################################
 class Ferc1AbstractTableTransformer(AbstractTableTransformer):
@@ -740,7 +745,6 @@ class PlantsSteamFerc1TableTransformer(Ferc1AbstractTableTransformer):
                 self.categorize_strings_multicol, params=self.params.categorize_strings
             )
             .pipe(self.convert_units_multicol, params=self.params.convert_units)
-            # .pipe(pudl.helpers.convert_cols_dtypes, data_source="eia")
             .pipe(self.drop_null_data_rows)
         )
         self.plants_steam = plants_steam_assign_plant_ids(
@@ -781,7 +785,8 @@ class PlantsSteamFerc1TableTransformer(Ferc1AbstractTableTransformer):
         ].copy()
 
         logger.info(
-            f"{self.table_id.value}: dropping {1 - (len(df_out)/pre_drop_len):.0%} of records with only nulls or zeros"
+            f"{self.table_id.value}: dropping {1 - (len(df_out)/pre_drop_len):.0%} of "
+            "records with only nulls or zeros in the data columns"
         )
         return df_out
 

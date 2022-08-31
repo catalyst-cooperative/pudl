@@ -1242,10 +1242,10 @@ CONSTRUCTION_TYPE_CATEGORIES: dict[str, set[str]] = {
             "outdoor boiler &fuel",
         },
         "semioutdoor": {
-            "semioutdoor" "more than 50% outdoors",
+            "semioutdoor",
+            "more than 50% outdoors",
             "more than 50% outdoo",
             "more than 50% outdos",
-            "more than 50% outdoors",
             "over 50% outdoor",
             "over 50% outdoors",
             "semi-outdoor",
