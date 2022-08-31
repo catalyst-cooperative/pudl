@@ -91,7 +91,8 @@ function run_deployment() {
 }
 
 if gsutil -q stat gs://pudl-etl-logs/$ACTION_SHA-$GITHUB_REF/pudl-etl.log; then
-    echo "Outputs for $ACTION_SHA-$GITHUB_REF already exist. Skipping the build.";
+    echo "Skipping deployment for $ACTION_SHA-$GITHUB_REF because outputs already exist for this commit.";
+    send_slack_msg "Skipping deployment for $ACTION_SHA-$GITHUB_REF because outputs already exist for this commit :cat:"
 else
     echo "Running the ETL"
     run_deployment
