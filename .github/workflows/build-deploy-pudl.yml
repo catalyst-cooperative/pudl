@@ -60,6 +60,8 @@ jobs:
     needs: check_for_existing_deployments
     if: needs.check.outputs.status == false
     steps:
+      - name: echo previous step outputs
+        run: echo ${{ needs.check.outputs.status }}
       - name: Use pudl-deployment-dev vm and dev branch if running on a schedule or manually triggered
         if: ${{ (github.event_name == 'schedule') }}
         run: |
