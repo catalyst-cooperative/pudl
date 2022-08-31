@@ -1,6 +1,7 @@
 """Metadata data classes."""
 import copy
 import datetime
+import json
 import re
 import sys
 from collections.abc import Callable, Iterable
@@ -1825,12 +1826,20 @@ class DatasetteMetadata(Base):
             "eia860m",
             "eia923",
         ],
+        xbrl_ids: Iterable[str] = [
+            "ferc1_xbrl",
+            "ferc2_xbrl",
+            "ferc6_xbrl",
+            "ferc60_xbrl",
+            "ferc714_xbrl",
+        ],
         extra_etl_groups: Iterable[str] = [
             "entity_eia",
             "glue",
             "static_eia",
             "static_ferc1",
         ],
+        pudl_settings: dict = {},
     ) -> "DatasetteMetadata":
         """Construct a dictionary of DataSources from data source names.
 
@@ -1838,7 +1847,9 @@ class DatasetteMetadata(Base):
 
         Args:
             data_source_ids: ids of data sources currently included in Datasette
+            xbrl_ids: ids of data converted XBRL data to be included in Datasette
             extra_etl_groups: ETL groups with resources that should be included
+            pudl_settings: Dictionary of settings.
         """
         # Compile a list of DataSource objects for use in the template
         data_sources = [DataSource.from_id(ds_id) for ds_id in data_source_ids]
@@ -1851,6 +1862,14 @@ class DatasetteMetadata(Base):
             for res in pkg.resources
             if res.etl_group in data_source_ids + extra_etl_groups
         ]
+
+        # Get XBRL based resources
+        for xbrl_id in xbrl_ids:
+            with open(pudl_settings[f"{xbrl_id}_descriptor"]) as f:
+                descriptor = json.load(f)
+
+            resources.extend(Package(**descriptor).resources)
+
         return cls(data_sources=data_sources, resources=resources)
 
     def to_yaml(self, path: str = None) -> None:
