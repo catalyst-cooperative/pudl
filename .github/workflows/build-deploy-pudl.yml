@@ -52,16 +52,17 @@ jobs:
 
       - name: Skip build and deploy if deployment already exists
         id: check-deployment-exists
-        run: echo "::set-output name=exists::$(gsutil -q stat gs://pudl-etl-logs/$ACTION_SHA-$GITHUB_REF/pudl-etl.log)"
+        run: echo "::set-output name=exists::$(gsutil -q stat gs://pudl-etl-logs/$ACTION_SHA-$GITHUB_REF/pudl-etl.log; echo $?)"
 
   build_and_deploy_pudl:
     name: Build Docker image, push to Docker Hub and deploy to a GCE VM
     runs-on: ubuntu-latest
     needs: check_for_existing_deployments
-    if: needs.check.outputs.status == false
+    if: needs.check.outputs.exists != 0
     steps:
       - name: echo previous step outputs
-        run: echo ${{ needs.check.outputs.status }}
+        run: echo ${{ needs.check.outputs.exists }}
+
       - name: Use pudl-deployment-dev vm and dev branch if running on a schedule or manually triggered
         if: ${{ (github.event_name == 'schedule') }}
         run: |
