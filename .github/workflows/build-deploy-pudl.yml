@@ -18,7 +18,7 @@ jobs:
     name: Build Docker image, push to Docker Hub and deploy to a GCE VM
     runs-on: ubuntu-latest
     steps:
-      - name: Use pudl-deployment-dev vm and dev branch if running on a schedule or manually triggered
+      - name: Use pudl-deployment-dev vm and dev branch if running on a schedule
         if: ${{ (github.event_name == 'schedule') }}
         run: |
           echo "This action was triggered by a schedule." && echo "GCE_INSTANCE=pudl-deployment-dev" >> $GITHUB_ENV && echo "GITHUB_REF=dev" >> $GITHUB_ENV
@@ -77,6 +77,10 @@ jobs:
       # Setup gcloud CLI
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v0
+
+      # Make sure the public and private zenodo-cache buckets are in sync
+      - name: Sync zenodo-cache buckets
+        run: gsutil -m rsync -d -r gs://internal-zenodo-cache.catalyst.coop gs://zenodo-cache.catalyst.coop
 
       # Deploy PUDL image to GCE
       - name: Deploy
