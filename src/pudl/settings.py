@@ -20,7 +20,7 @@ class XbrlFormNumber(Enum):
     """Contains full list of supported FERC XBRL forms."""
 
     FORM1 = 1
-    FORM2 = 1
+    FORM2 = 2
     FORM6 = 6
     FORM60 = 60
     FORM714 = 714
@@ -568,8 +568,6 @@ class FercToSqliteSettings(BaseSettings):
                 settings = self.ferc60_xbrl_to_sqlite_settings
             case XbrlFormNumber.FORM714:
                 settings = self.ferc714_xbrl_to_sqlite_settings
-            case _:
-                raise ValueError(f"{form_number} is not a valid FERC form number.")
 
         return settings
 
