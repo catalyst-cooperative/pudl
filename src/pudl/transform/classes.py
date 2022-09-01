@@ -493,12 +493,14 @@ class AbstractTableTransformer(ABC):
         of the columns that we are checking and drops them with a notification of the %
         of the records that were dropped. The input parameters must specific the invlaid
         values to search for and only one of the following:
+
         * columns to seach as ``cols_to_check``. This will be used directly in
           ``pandas.filter(items)``
         * columns to not search as ``cols_to_not_check``. This is usefull if a table
           is large and specifcying all of the ``cols_to_check`` would be arduous.
         * a string to search on via ``pandas.filter(like)`` as ``like``
         * a regex to search on via ``pandas.filter(regex)`` as ``regex``
+
         """
         pre_drop_len = len(df)
         # assign items for filter based on either the cols_to_check or cols_to_not_checks
