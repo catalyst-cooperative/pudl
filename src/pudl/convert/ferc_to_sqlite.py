@@ -127,11 +127,12 @@ def main():  # noqa: C901
         datastore=Datastore(**ds_kwargs),
     )
 
+    xbrl_ds_kwargs = {**ds_kwargs, "sandbox": True}
     pudl.extract.xbrl.xbrl2sqlite(
         ferc_to_sqlite_settings=parsed_settings,
         pudl_settings=pudl_settings,
         clobber=args.clobber,
-        datastore=Datastore(local_cache_path=(Path(pudl_in) / "data"), sandbox=True),
+        datastore=Datastore(**xbrl_ds_kwargs),
         batch_size=args.batch_size,
         workers=args.workers,
     )
