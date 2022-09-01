@@ -10,12 +10,14 @@ from ferc_xbrl_extractor.instance import InstanceBuilder
 
 import pudl
 from pudl.helpers import get_logger
-from pudl.settings import FercGenericXbrlToSqliteSettings, FercToSqliteSettings
+from pudl.settings import (
+    FercGenericXbrlToSqliteSettings,
+    FercToSqliteSettings,
+    XbrlFormNumber,
+)
 from pudl.workspace.datastore import Datastore
 
 logger = get_logger(__name__)
-
-XBRL_FORM_NUMBERS = [1, 2, 6, 60, 714]
 
 
 class FercXbrlDatastore:
@@ -25,9 +27,9 @@ class FercXbrlDatastore:
         """Instantiate datastore wrapper for ferc1 resources."""
         self.datastore = datastore
 
-    def get_filings(self, year: int, form_number: int):
+    def get_filings(self, year: int, form: XbrlFormNumber):
         """Return list of filings from archive."""
-        archive = self.datastore.get_zipfile_resource(f"ferc{form_number}", year=year)
+        archive = self.datastore.get_zipfile_resource(f"ferc{form.value}", year=year)
 
         # Load RSS feed metadata
         filings = []
@@ -106,7 +108,7 @@ def xbrl2sqlite(
     datastore = FercXbrlDatastore(datastore)
 
     # Loop through all other forms and perform conversion
-    for form in XBRL_FORM_NUMBERS:
+    for form in XbrlFormNumber:
         # Get desired settings object
         settings = ferc_to_sqlite_settings.get_xbrl_dataset_settings(form)
 
@@ -114,7 +116,7 @@ def xbrl2sqlite(
         if settings is None:
             continue
 
-        sqlite_engine = _get_sqlite_engine(form, pudl_settings, clobber)
+        sqlite_engine = _get_sqlite_engine(form.value, pudl_settings, clobber)
 
         convert_form(
             settings,
@@ -129,7 +131,7 @@ def xbrl2sqlite(
 
 def convert_form(
     form_settings: FercGenericXbrlToSqliteSettings,
-    form_number: int,
+    form: XbrlFormNumber,
     datastore: FercXbrlDatastore,
     sqlite_engine: sa.engine.Engine,
     pudl_settings: dict = None,
@@ -140,7 +142,7 @@ def convert_form(
 
     Args:
         form_settings: Validated settings for converting the desired XBRL form to SQLite.
-        form_number: FERC form number.
+        form: FERC form number.
         datastore: Instance of a FERC XBRL datastore for retrieving data.
         sqlite_engine: SQLAlchemy connection to mirrored database.
         pudl_settings: Dictionary containing paths and database URLs
@@ -155,12 +157,12 @@ def convert_form(
     # Process XBRL filings for each year requested
     for year in form_settings.years:
         xbrl.extract(
-            datastore.get_filings(year, form_number),
+            datastore.get_filings(year, form),
             sqlite_engine,
             form_settings.taxonomy,
-            form_number,
+            form.value,
             requested_tables=form_settings.tables,
             batch_size=batch_size,
             workers=workers,
-            datapackage_path=pudl_settings[f"ferc{form_number}_xbrl_descriptor"],
+            datapackage_path=pudl_settings[f"ferc{form.value}_xbrl_descriptor"],
         )

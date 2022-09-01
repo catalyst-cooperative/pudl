@@ -1865,10 +1865,15 @@ class DatasetteMetadata(Base):
 
         # Get XBRL based resources
         for xbrl_id in xbrl_ids:
+            # Read JSON Package descriptor from file
             with open(pudl_settings[f"{xbrl_id}_descriptor"]) as f:
                 descriptor = json.load(f)
 
-            resources.extend(Package(**descriptor).resources)
+            # Use descriptor to create Package object
+            xbrl_package = Package(**descriptor)
+
+            # Add resources to full list
+            resources.extend(xbrl_package.resources)
 
         return cls(data_sources=data_sources, resources=resources)
 

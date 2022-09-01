@@ -1,5 +1,6 @@
 """Module for validating pudl etl settings."""
 import pathlib
+from enum import Enum
 from typing import ClassVar
 
 import pandas as pd
@@ -13,6 +14,16 @@ import pudl.workspace.setup
 from pudl.metadata.classes import DataSource
 from pudl.metadata.constants import DBF_TABLES_FILENAMES, XBRL_TABLES
 from pudl.metadata.resources.eia861 import TABLE_DEPENDENCIES
+
+
+class XbrlFormNumber(Enum):
+    """Contains full list of supported FERC XBRL forms."""
+
+    FORM1 = 1
+    FORM2 = 1
+    FORM6 = 6
+    FORM60 = 60
+    FORM714 = 714
 
 
 class BaseModel(PydanticBaseModel):
@@ -538,26 +549,27 @@ class FercToSqliteSettings(BaseSettings):
     ferc714_xbrl_to_sqlite_settings: Ferc714XbrlToSqliteSettings = None
 
     def get_xbrl_dataset_settings(
-        self, form_number: int
+        self, form_number: XbrlFormNumber
     ) -> FercGenericXbrlToSqliteSettings:
         """Return a list with all requested FERC XBRL to SQLite datasets.
 
         Args:
             form_number: Get settings by FERC form number.
         """
-        # Get proper settings object
-        if form_number == 1:
-            settings = self.ferc1_xbrl_to_sqlite_settings
-        elif form_number == 2:
-            settings = self.ferc2_xbrl_to_sqlite_settings
-        elif form_number == 6:
-            settings = self.ferc6_xbrl_to_sqlite_settings
-        elif form_number == 60:
-            settings = self.ferc60_xbrl_to_sqlite_settings
-        elif form_number == 714:
-            settings = self.ferc714_xbrl_to_sqlite_settings
-        else:
-            raise ValueError(f"{form_number} is not a valid FERC form number.")
+        # Get requested settings object
+        match form_number:
+            case XbrlFormNumber.FORM1:
+                settings = self.ferc1_xbrl_to_sqlite_settings
+            case XbrlFormNumber.FORM2:
+                settings = self.ferc1_xbrl_to_sqlite_settings
+            case XbrlFormNumber.FORM6:
+                settings = self.ferc1_xbrl_to_sqlite_settings
+            case XbrlFormNumber.FORM60:
+                settings = self.ferc1_xbrl_to_sqlite_settings
+            case XbrlFormNumber.FORM714:
+                settings = self.ferc1_xbrl_to_sqlite_settings
+            case _:
+                raise ValueError(f"{form_number} is not a valid FERC form number.")
 
         return settings
 
