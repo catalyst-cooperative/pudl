@@ -78,10 +78,6 @@ jobs:
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v0
 
-      # Make sure the public and private zenodo-cache buckets are in sync
-      - name: Sync zenodo-cache buckets
-        run: gsutil -m rsync -d -r gs://internal-zenodo-cache.catalyst.coop gs://zenodo-cache.catalyst.coop
-
       # Deploy PUDL image to GCE
       - name: Deploy
         run: |-

@@ -76,26 +76,16 @@ function notify_slack() {
     send_slack_msg "$message"
 }
 
-function run_deployment() {
-    # # Run ETL. Copy outputs to GCS and shutdown VM if ETL succeeds or fails
-    # 2>&1 redirects stderr to stdout.
-    run_pudl_etl 2>&1 | tee $LOGFILE
+# # Run ETL. Copy outputs to GCS and shutdown VM if ETL succeeds or fails
+# 2>&1 redirects stderr to stdout.
+run_pudl_etl 2>&1 | tee $LOGFILE
 
-    # Notify slack if the etl succeeded.
-    if [[ ${PIPESTATUS[0]} == 0 ]]; then
-        notify_slack "success"
-        copy_outputs_to_intake_bucket
-    else
-        notify_slack "failure"
-    fi
-}
-
-if gsutil -q stat gs://pudl-etl-logs/$ACTION_SHA-$GITHUB_REF/pudl-etl.log; then
-    echo "Skipping deployment for $ACTION_SHA-$GITHUB_REF because outputs already exist for this commit.";
-    send_slack_msg "Skipping deployment for $ACTION_SHA-$GITHUB_REF because outputs already exist for this commit :cat:"
+# Notify slack if the etl succeeded.
+if [[ ${PIPESTATUS[0]} == 0 ]]; then
+    notify_slack "success"
+    copy_outputs_to_intake_bucket
 else
-    echo "Running the ETL"
-    run_deployment
+    notify_slack "failure"
 fi
 
 shutdown_vm
