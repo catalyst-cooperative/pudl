@@ -20,11 +20,27 @@ import numpy as np
 import pandas as pd
 from pydantic import BaseModel, root_validator, validator
 
-import pudl.transform
 from pudl.helpers import get_logger
 from pudl.metadata.classes import Package
+from pudl.transform.params.ferc1 import TRANSFORM_PARAMS as TRANSFORM_PARAMS_FERC1
 
 logger = get_logger(__name__)
+
+
+TRANSFORM_PARAMS: dict[str, str] = {
+    **TRANSFORM_PARAMS_FERC1,
+    # **TRANSFORM_PARAMS_EIA860,
+    # **TRANSFORM_PARAMS_EIA861,
+    # etc...
+}
+"""A dictionary of all the transformation parameters, keyed by table ID.
+
+This should be compiled dynamically from across all the different data source specific
+transform modules, or whatever other locations we end up deciding to store this
+information. We need to be able to do this kind of lookup based on table ID in order to
+sneak the table-specific parameters into the dagster ops without creating massive config
+parameter dictionaries. But for now we only have one data source and it's FERC 1.
+"""
 
 
 #####################################################################################
@@ -67,6 +83,39 @@ class RenameColumns(TransformParams):
     """A dictionary for mapping old column names to new column names in a dataframe."""
 
     columns: dict[str, str] = {}
+
+
+class RemoveInvalidRows(TransformParams):
+    """Defines how to identify invalid rows to drop."""
+
+    invalid_values: list
+    cols_to_check: list[str] | None = None
+    cols_to_not_check: list[str] | None = None
+    like: str | None = None
+    regex: str | None = None
+
+    @root_validator
+    def fliter_options(cls, values):
+        """Check if the args for ``filter`` are multually exculsive.
+
+        You input either ``cols_to_check`` or ``cols_to_not_check``, which will feed
+        into ``pandas.filter``'s ``items`` parameter.
+        """
+        num_of_non_non_values = sum(
+            x is not None
+            for x in [
+                values["cols_to_check"],
+                values["cols_to_not_check"],
+                values["like"],
+                values["regex"],
+            ]
+        )
+        if 1 != num_of_non_non_values:
+            raise AssertionError(
+                "You must specify one and only one input into ``pandas.filter`` and "
+                f"{num_of_non_non_values} were found."
+            )
+        return values
 
 
 class StringCategories(TransformParams):
@@ -182,11 +231,12 @@ class TableTransformParams(TransformParams):
     nullify_outliers: dict[str, ValidRange] = {}
     normalize_strings: dict[str, bool] = {}
     correct_units: list[UnitCorrections] = []
+    remove_invalid_rows: RemoveInvalidRows = {}
 
     @classmethod
     def from_id(cls, table_id: enum.Enum) -> "TableTransformParams":
         """A factory method that looks up transform parameters based on table_id."""
-        return cls(**pudl.transform.TRANSFORM_PARAMS[table_id.value])
+        return cls(**TRANSFORM_PARAMS[table_id.value])
 
 
 #####################################################################################
@@ -433,6 +483,56 @@ class AbstractTableTransformer(ABC):
                 f"Unshared values: {unshared_values}"
             )
         return df.rename(columns=params.columns)
+
+    def remove_invalid_rows(
+        self, df: pd.DataFrame, params: RemoveInvalidRows
+    ) -> pd.DataFrame:
+        """Drop rows with only invalid values in all specificed columns.
+
+        This method finds all rows in a dataframe that contain ONLY invalid data in ALL
+        of the columns that we are checking and drops them with a notification of the %
+        of the records that were dropped. The input parameters must specific the invlaid
+        values to search for and only one of the following:
+
+        * columns to seach as ``cols_to_check``. This will be used directly in
+          ``pandas.filter(items)``
+        * columns to not search as ``cols_to_not_check``. This is usefull if a table
+          is large and specifcying all of the ``cols_to_check`` would be arduous.
+        * a string to search on via ``pandas.filter(like)`` as ``like``
+        * a regex to search on via ``pandas.filter(regex)`` as ``regex``
+
+        """
+        pre_drop_len = len(df)
+        # assign items for filter based on either the cols_to_check or cols_to_not_checks
+        if params.cols_to_check or params.cols_to_not_check:
+            items = params.cols_to_check or [
+                col for col in df if col not in params.cols_to_not_check
+            ]
+        # find all of the bad records by first filtering the colums
+        # then check if those columns contain the invalid data
+        # but we only want to drop things if every single column contains only bad data
+        # so we use .all()... this gives us the BAD records, so the records to keep are
+        # everything but those, hence the ~ at the beginning.
+        # we use copy because we are creating a df that is a slice of the original
+        df_out = df[
+            (
+                ~(
+                    df.filter(
+                        items=items,
+                        like=params.like,
+                        regex=params.regex,
+                        axis="columns",
+                    ).isin(params.invalid_values)
+                ).all(axis="columns")
+            )
+        ].copy()
+
+        logger.info(
+            f"{self.table_id.value}: {1 - (len(df_out)/pre_drop_len):.0%} of records"
+            f" contain only {params.invalid_values} values in data columns. Dropping "
+            "these 💩 records."
+        )
+        return df_out
 
     def normalize_strings_multicol(
         self,

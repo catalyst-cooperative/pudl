@@ -194,6 +194,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             )
             .pipe(self.rename_columns, params=self.params.rename_columns_ferc1.xbrl)
             .pipe(self.assign_record_id, source_ferc1=Ferc1Source.XBRL)
+            .pipe(self.assign_utility_id_ferc1_xbrl)
         )
 
     def merge_instant_and_duration_tables_xbrl(
@@ -236,8 +237,10 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             )
             return instant
 
-        instant_axes = [col for col in raw_xbrl_instant.columns.str.endswith("Axis")]
-        duration_axes = [col for col in raw_xbrl_duration.columns.str.endswith("Axis")]
+        instant_axes = [col for col in raw_xbrl_instant.columns if col.endswith("Axis")]
+        duration_axes = [
+            col for col in raw_xbrl_duration.columns if col.endswith("Axis")
+        ]
         if set(instant_axes) != set(duration_axes):
             raise ValueError(
                 f"{self.table_id.value}: Instant and Duration XBRL Axes do not match.\n"
@@ -717,15 +720,12 @@ class FuelFerc1TableTransformer(Ferc1AbstractTableTransformer):
         return df.drop(index=probably_totals_index)
 
 
-########################################################################################
-########################################################################################
-# Christina's Transformer Classes
-########################################################################################
-########################################################################################
-class PlantsSteamFerc1:
+class PlantsSteamFerc1TableTransformer(Ferc1AbstractTableTransformer):
     """Transformer class for the plants_steam_ferc1 table."""
 
-    def execute(
+    table_id: Ferc1TableId = Ferc1TableId.PLANTS_STEAM_FERC1
+
+    def transform(
         self,
         raw_dbf: pd.DataFrame,
         raw_xbrl_instant: pd.DataFrame,
@@ -733,47 +733,32 @@ class PlantsSteamFerc1:
         transformed_fuel: pd.DataFrame,
     ):
         """Perform table transformations for the plants_steam_ferc1 table."""
-        plants_steam_combo = (
-            self.pre_concat_clean_and_concat_dbf_xbrl(
-                raw_dbf, raw_xbrl_instant, raw_xbrl_duration
+        plants_steam = (
+            self.concat_dbf_xbrl(
+                raw_dbf=raw_dbf,
+                raw_xbrl_instant=raw_xbrl_instant,
+                raw_xbrl_duration=raw_xbrl_duration,
             )
-            .pipe(self.simplify_strings_for_table)
-            .pipe(self.clean_strings_for_table)
-            .pipe(self.oob_to_nan_for_table)
-            .pipe(self.convert_units_in_table)
-            .pipe(self.convert_table_dtypes)
-            .pipe(plants_steam_assign_plant_ids, ferc1_fuel_df=transformed_fuel)
-        )
-        plants_steam_validate_ids(plants_steam_combo)
-        return plants_steam_combo
-
-    def process_dbf(self, raw_dbf):
-        """Modifications of the dbf plants_steam_ferc1 table before concat w/ xbrl."""
-        plants_steam_dbf = self.rename_columns(
-            raw_table=raw_dbf,
-            source="dbf",
-        ).pipe(self.assign_record_id, source_ferc1=Ferc1Source.DBF)
-        return plants_steam_dbf
-
-    def process_xbrl(self, raw_xbrl_instant, raw_xbrl_duration):
-        """Modifications of the xbrl plants_steam_ferc1 table before concat w/ xbrl."""
-        plants_steam_xbrl = (
-            self.merge_instant_and_duration_tables(
-                duration=raw_xbrl_duration,
-                instant=raw_xbrl_instant,
-            )
+            .pipe(self.normalize_strings_multicol, params=self.params.normalize_strings)
+            .pipe(self.nullify_outliers_multicol, params=self.params.nullify_outliers)
             .pipe(
-                self.rename_columns,
-                source="xbrl",
+                self.categorize_strings_multicol, params=self.params.categorize_strings
             )
-            .pipe(self.add_report_year_column)
+            .pipe(self.convert_units_multicol, params=self.params.convert_units)
+            .pipe(self.remove_invalid_rows, params=self.params.remove_invalid_rows)
             .pipe(
-                self.assign_record_id,
-                source_ferc1=Ferc1Source.XBRL,
+                plants_steam_assign_plant_ids,
+                ferc1_fuel_df=transformed_fuel,
+                fuel_categories=list(
+                    FuelFerc1TableTransformer()
+                    .params.categorize_strings["fuel_type_code_pudl"]
+                    .categories.keys()
+                ),
             )
-            .pipe(self.assign_utility_id_ferc1_xbrl)
+            .pipe(self.enforce_schema)
         )
-        return plants_steam_xbrl
+        plants_steam_validate_ids(plants_steam)
+        return plants_steam
 
 
 ##################################################################################
@@ -1564,9 +1549,7 @@ def transform(
 
     """
     ferc1_tfr_classes = {
-        # fuel must come before steam b/c fuel proportions are used to aid in
-        # plant # ID assignment.
-        # "fuel_ferc1": FuelFerc1,
+        "fuel_ferc1": FuelFerc1TableTransformer,
         # "plants_small_ferc1": plants_small,
         # "plants_hydro_ferc1": plants_hydro,
         # "plants_pumped_storage_ferc1": plants_pumped_storage,
@@ -1576,7 +1559,6 @@ def transform(
     }
     # create an empty ditctionary to fill up through the transform fuctions
     ferc1_transformed_dfs = {}
-
     # for each ferc table,
     for table in ferc1_tfr_classes:
         if table in ferc1_settings.tables:
@@ -1584,21 +1566,28 @@ def transform(
                 f"Transforming raw FERC Form 1 dataframe for loading into {table}"
             )
 
-            ferc1_transformed_dfs[table] = ferc1_tfr_classes[table](
-                table_name=table
-            ).execute(
-                raw_dbf=ferc1_dbf_raw_dfs.get(table),
-                raw_xbrl_instant=ferc1_xbrl_raw_dfs.get(table).get("instant", None),
-                raw_xbrl_duration=ferc1_xbrl_raw_dfs.get(table).get("duration", None),
+            ferc1_transformed_dfs[table] = ferc1_tfr_classes[table]().transform(
+                raw_dbf=ferc1_dbf_raw_dfs[table],
+                raw_xbrl_instant=ferc1_xbrl_raw_dfs[table].get(
+                    "instant", pd.DataFrame()
+                ),
+                raw_xbrl_duration=ferc1_xbrl_raw_dfs[table].get(
+                    "duration", pd.DataFrame()
+                ),
             )
-
+    # Bespoke exception. fuel must come before steam b/c fuel proportions are used to
+    # aid in plant # ID assignment.
     if "plants_steam_ferc1" in ferc1_settings.tables:
-        ferc1_transformed_dfs["plants_steam_ferc1"] = PlantsSteamFerc1(
-            table_name="plants_steam_ferc"
-        ).execute(
-            raw_dbf=ferc1_dbf_raw_dfs.get(table),
-            raw_xbrl_instant=ferc1_xbrl_raw_dfs.get(table).get("instant", None),
-            raw_xbrl_duration=ferc1_xbrl_raw_dfs.get(table).get("duration", None),
+        ferc1_transformed_dfs[
+            "plants_steam_ferc1"
+        ] = PlantsSteamFerc1TableTransformer().transform(
+            raw_dbf=ferc1_dbf_raw_dfs["plants_steam_ferc1"],
+            raw_xbrl_instant=ferc1_xbrl_raw_dfs["plants_steam_ferc1"].get(
+                "instant", pd.DataFrame()
+            ),
+            raw_xbrl_duration=ferc1_xbrl_raw_dfs["plants_steam_ferc1"].get(
+                "duration", pd.DataFrame()
+            ),
             transformed_fuel=ferc1_transformed_dfs["fuel_ferc1"],
         )
 

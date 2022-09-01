@@ -2,6 +2,9 @@
 
 from datetime import date
 
+import numpy as np
+import pandas as pd
+
 ##############################################################################
 # Unit converstion parameters
 ##############################################################################
@@ -932,7 +935,6 @@ PLANT_TYPE_CATEGORIES: dict[str, set[str]] = {
             "gas turb, diesel",
             "gas turb, int. comb",
             "i.c.e/gas turbine",
-            "diesel turbine",
             "comubstion turbine",
             "i.c.e. /gas turbine",
             "i.c.e/ gas turbine",
@@ -1243,7 +1245,8 @@ CONSTRUCTION_TYPE_CATEGORIES: dict[str, set[str]] = {
             "outdoor boiler &fuel",
         },
         "semioutdoor": {
-            "semioutdoor" "more than 50% outdoors",
+            "semioutdoor",
+            "more than 50% outdoors",
             "more than 50% outdoo",
             "more than 50% outdos",
             "over 50% outdoor",
@@ -1692,6 +1695,21 @@ TRANSFORM_PARAMS = {
             "opex_per_kwh": PERKWH_TO_PERMWH,
             "net_generation_kwh": KWH_TO_MWH,
         },
+        "remove_invalid_rows": {
+            "invalid_values": [0, pd.NA, np.nan],
+            "cols_to_not_check": [
+                "record_id",
+                "utility_id_ferc1",
+                "plant_name_ferc1",
+                "report_year",
+                "entity_id",
+                "date",
+                "start_date",
+                "end_date",
+                "OrderNumber",
+                "PlantName",
+            ],
+        },
         "rename_columns_ferc1": {
             "dbf": {
                 "columns": {
@@ -1779,6 +1797,7 @@ TRANSFORM_PARAMS = {
                     "ElectricExpensesSteamPowerGeneration": "opex_electric",
                     "MaintenanceOfStructuresSteamPowerGeneration": "opex_structures",
                     "ReportYear": "report_year",
+                    "entity_id": "entity_id",
                 }
             },
         },
