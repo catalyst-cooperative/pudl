@@ -28,12 +28,7 @@ description: >
 version: 0.1.0
 datasets:
   ferc1:
-    ferc1_dbf_settings:
-      tables:
-        - fuel_ferc1 # requires plants_steam_ferc1 to load properly
-        - plants_steam_ferc1
-      years: [2020]
-    ferc1_xbrl_settings:
-      tables:
-        - steam_electric_generating_plant_statistics_large_plants_fuel_statistics_402_duration
-      years: [2021]
+    tables:
+      - fuel_ferc1 # requires plants_steam_ferc1 to load properly
+      - plants_steam_ferc1
+    years: [2020, 2021]
