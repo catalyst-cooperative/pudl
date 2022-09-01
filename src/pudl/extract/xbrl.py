@@ -70,7 +70,9 @@ def _get_sqlite_engine(
         clobber: Flag indicating whether or not to drop tables.
     """
     # Read in the structure of the DB, if it exists
-    logger.info(f"Dropping the old FERC Form {form_number} SQLite DB if it exists.")
+    logger.info(
+        f"Dropping the old FERC Form {form_number} XBRL derived SQLite DB if it exists."
+    )
     sqlite_engine = sa.create_engine(pudl_settings[f"ferc{form_number}_xbrl_db"])
     try:
         # So that we can wipe it out
