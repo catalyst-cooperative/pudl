@@ -2,6 +2,9 @@
 
 from datetime import date
 
+import numpy as np
+import pandas as pd
+
 ##############################################################################
 # Unit converstion parameters
 ##############################################################################
@@ -1691,6 +1694,21 @@ TRANSFORM_PARAMS = {
             "capex_per_kw": PERKW_TO_PERMW,
             "opex_per_kwh": PERKWH_TO_PERMWH,
             "net_generation_kwh": KWH_TO_MWH,
+        },
+        "remove_invalid_rows": {
+            "invalid_values": [0, pd.NA, np.nan],
+            "cols_to_not_check": [
+                "record_id",
+                "utility_id_ferc1",
+                "plant_name_ferc1",
+                "report_year",
+                "entity_id",
+                "date",
+                "start_date",
+                "end_date",
+                "OrderNumber",
+                "PlantName",
+            ],
         },
         "rename_columns_ferc1": {
             "dbf": {
