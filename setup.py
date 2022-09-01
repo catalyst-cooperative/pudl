@@ -77,7 +77,7 @@ setup(
     ],
     extras_require={
         "dev": [
-            "black>=22.0,<22.7",
+            "black>=22.0,<22.9",
             "ipdb>=0.13,<0.14",
             "isort>=5.0,<5.11",
             "jedi>=0.18,<0.19",
