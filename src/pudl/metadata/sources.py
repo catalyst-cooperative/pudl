@@ -345,7 +345,7 @@ SOURCES: dict[str, Any] = {
     },
     "ferc6": {
         "title": "FERC Form 6",
-        "path": "https://www.ferc.gov/general-information-1/oil-industry-forms/form-6-6q-historical-vfp-data",
+        "path": "https://www.ferc.gov/industries-data/electric/general-information/electric-industry-forms/form-66-q-overview-orders",
         "description": (
             "The Federal Energy Regulatory Commission (FERC) Form 6 is a "
             "comprehensive financial and operating report submitted for oil "
@@ -373,7 +373,7 @@ SOURCES: dict[str, Any] = {
     },
     "ferc60": {
         "title": "FERC Form 60",
-        "path": "https://www.ferc.gov/general-information-1/oil-industry-forms/form-6-6q-historical-vfp-data",
+        "path": "https://www.ferc.gov/ferc-online/ferc-online/filing-forms/service-companies-filing-forms/form-60-annual-report",
         "description": (
             "The Federal Energy Regulatory Commission (FERC) Form 60 is a "
             "comprehensive financial and operating report submitted for centralized "
