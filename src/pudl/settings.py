@@ -561,13 +561,13 @@ class FercToSqliteSettings(BaseSettings):
             case XbrlFormNumber.FORM1:
                 settings = self.ferc1_xbrl_to_sqlite_settings
             case XbrlFormNumber.FORM2:
-                settings = self.ferc1_xbrl_to_sqlite_settings
+                settings = self.ferc2_xbrl_to_sqlite_settings
             case XbrlFormNumber.FORM6:
-                settings = self.ferc1_xbrl_to_sqlite_settings
+                settings = self.ferc6_xbrl_to_sqlite_settings
             case XbrlFormNumber.FORM60:
-                settings = self.ferc1_xbrl_to_sqlite_settings
+                settings = self.ferc60_xbrl_to_sqlite_settings
             case XbrlFormNumber.FORM714:
-                settings = self.ferc1_xbrl_to_sqlite_settings
+                settings = self.ferc714_xbrl_to_sqlite_settings
             case _:
                 raise ValueError(f"{form_number} is not a valid FERC form number.")
 
