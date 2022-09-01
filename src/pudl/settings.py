@@ -1,6 +1,6 @@
 """Module for validating pudl etl settings."""
 import pathlib
-from enum import Enum
+from enum import Enum, unique
 from typing import ClassVar
 
 import pandas as pd
@@ -16,6 +16,7 @@ from pudl.metadata.constants import DBF_TABLES_FILENAMES, XBRL_TABLES
 from pudl.metadata.resources.eia861 import TABLE_DEPENDENCIES
 
 
+@unique
 class XbrlFormNumber(Enum):
     """Contains full list of supported FERC XBRL forms."""
 
