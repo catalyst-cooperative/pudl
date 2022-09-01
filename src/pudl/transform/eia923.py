@@ -845,6 +845,7 @@ def boiler_fuel(eia923_dfs, eia923_transformed_dfs):
         "balancing_authority_code_eia",
         "early_release",
         "reporting_frequency_code",
+        "data_maturity",
     ]
     bf_df.drop(cols_to_drop, axis=1, inplace=True)
 
@@ -987,6 +988,7 @@ def coalmine(eia923_dfs, eia923_transformed_dfs):
         "state",
         "county_id_fips",
         "mine_id_msha",
+        "data_maturity",
     ]
 
     # Make a copy so we don't alter the FRC data frame... which we'll need
@@ -1013,15 +1015,7 @@ def coalmine(eia923_dfs, eia923_transformed_dfs):
     cmi_df.drop(cmi_df[cmi_df["mine_id_msha"] > 0].index)
     cmi_df = pd.concat([cmi_df, cmi_with_msha])
 
-    cmi_df = cmi_df.drop_duplicates(
-        subset=[
-            "mine_name",
-            "state",
-            "mine_id_msha",
-            "mine_type_code",
-            "county_id_fips",
-        ]
-    )
+    cmi_df = cmi_df.drop_duplicates(subset=coalmine_cols)
 
     # drop null values if they occur in vital fields....
     cmi_df.dropna(subset=["mine_name", "state"], inplace=True)
@@ -1121,15 +1115,14 @@ def fuel_receipts_costs(eia923_dfs, eia923_transformed_dfs):
                 "mine_id_msha",
                 "mine_type_code",
                 "county_id_fips",
+                "data_maturity",
             ],
         )
         .drop(cols_to_drop, axis=1)
-        .
         # Replace the EIA923 NA value ('.') with a real NA value.
-        pipe(pudl.helpers.fix_eia_na)
-        .
+        .pipe(pudl.helpers.fix_eia_na)
         # These come in ALL CAPS from EIA...
-        pipe(pudl.helpers.simplify_strings, columns=["supplier_name"])
+        .pipe(pudl.helpers.simplify_strings, columns=["supplier_name"])
         .pipe(
             pudl.helpers.fix_int_na,
             columns=[
@@ -1154,9 +1147,8 @@ def fuel_receipts_costs(eia923_dfs, eia923_transformed_dfs):
                 lambda y: "20" + y[-2:] if y != "" else y
             ),
         )
-        .
         # Now that we will create our own real date field, so chuck this one.
-        drop("contract_expiration_date", axis=1)
+        .drop("contract_expiration_date", axis=1)
         .pipe(
             pudl.helpers.convert_to_date,
             date_col="contract_expiration_date",

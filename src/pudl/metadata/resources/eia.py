@@ -94,6 +94,20 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "static_eia",
         "field_namespace": "eia",
     },
+    "data_maturities": {
+        "description": "Level of maturities of data records. Some data sources report less-than-final data. PUDL sometimes includes this data, but use at your own risk.",
+        "schema": {
+            "fields": ["code", "description"],
+            "primary_key": ["code"],
+            "foreign_key_rules": {
+                "fields": [["data_maturity"]],
+            },
+        },
+        "encoder": CODE_METADATA["data_maturities"],
+        "sources": ["eia860", "eia923"],
+        "etl_group": "static_eia",
+        "field_namespace": "eia",
+    },
     "energy_sources_eia": {
         "description": "Codes and metadata pertaining to energy sources reported to EIA. Compiled from EIA-860 instructions and EIA-923 file layout spreadsheets.",
         "schema": {

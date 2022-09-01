@@ -72,7 +72,9 @@ ENTITIES: dict[str, dict[str, list[str]]] = {
             "transmission_distribution_owner_state",
             "utility_id_eia",
             "water_source",
+            "data_maturity",
         ],
+        "keep_cols": ["data_maturity", "utility_id_eia"],
     },
     "generators": {
         "id_cols": ["plant_id_eia", "generator_id"],
@@ -160,10 +162,11 @@ ENTITIES: dict[str, dict[str, list[str]]] = {
             "retirement_date",
             "utility_id_eia",
             "ferc_qualifying_facility",
-            "data_source",
+            "data_maturity",
             "energy_storage_capacity_mwh",
             "net_capacity_mwdc",
         ],
+        "keep_cols": ["utility_id_eia", "data_maturity"],
     },
     # utilities must come after plants. plant location needs to be
     # removed before the utility locations are compiled
@@ -193,7 +196,9 @@ ENTITIES: dict[str, dict[str, list[str]]] = {
             "phone_extension_2",
             "phone_number",
             "phone_number_2",
+            "data_maturity",
         ],
+        "keep_cols": ["data_maturity"],
     },
     "boilers": {
         "id_cols": ["plant_id_eia", "boiler_id"],
