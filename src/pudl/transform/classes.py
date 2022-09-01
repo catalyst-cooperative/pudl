@@ -101,15 +101,19 @@ class RemoveInvalidRows(TransformParams):
         You input either ``cols_to_check`` or ``cols_to_not_check``, which will feed
         into ``pandas.filter``'s ``items`` parameter.
         """
-        if (
-            values["cols_to_check"]
-            and values["cols_to_not_check"]
-            or values["like"]
-            or values["regex"]
-        ):
+        num_of_non_non_values = sum(
+            x is not None
+            for x in [
+                values["cols_to_check"],
+                values["cols_to_not_check"],
+                values["like"],
+                values["regex"],
+            ]
+        )
+        if 1 != num_of_non_non_values:
             raise AssertionError(
-                "You can only specify one input into ``pandas.filter`` and more than "
-                "one were found."
+                "You must specify one and only one input into ``pandas.filter`` and "
+                f"{num_of_non_non_values} were found."
             )
         return values
 
