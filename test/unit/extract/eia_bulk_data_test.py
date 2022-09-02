@@ -1,6 +1,7 @@
 """Tests for eia_bulk_data module."""
 from io import BytesIO
 
+import numpy as np
 import pandas as pd
 import pytest
 
@@ -77,19 +78,22 @@ def test__parse_data_column(elec_txt_dataframe):
                 "ELEC.RECEIPTS_BTU.NG-US-2.A",
             ],
             "date": [
-                2021,
-                2020,
-                2021,
-                2020,
+                pd.Timestamp("2021"),
+                pd.Timestamp("2020"),
+                pd.Timestamp("2021"),
+                pd.Timestamp("2020"),
             ],
             "value": [
-                None,
-                None,
+                np.nan,
+                np.nan,
                 3987498.47545,
                 4371683.38189,
             ],
         },
-        dtype="object",
     )
+    expected.loc[:, "series_id"] = expected.loc[:, "series_id"].astype(
+        "category", copy=False
+    )
+
     actual = bulk._parse_data_column(input_)
     pd.testing.assert_frame_equal(actual, expected)

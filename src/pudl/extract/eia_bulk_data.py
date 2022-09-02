@@ -22,7 +22,11 @@ def _filter_df(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def _read_to_dataframe(raw_zipfile: Path) -> pd.DataFrame:
-    """Decompress and filter the 1100 MB file down to the 16 MB we actually want."""
+    """Decompress and filter the 1100 MB file down to the 16 MB we actually want.
+
+    This produces a dataframe with all text fields. The timeseries data is
+    left as JSON strings in the 'data' column. The other columns are metadata.
+    """
     filtered = []
     # Use chunksize arg to reduce peak memory usage when reading in 1.1 GB file
     # For reference, the file has ~680k lines and we want around 8.5k
@@ -64,7 +68,13 @@ def _parse_data_column(elec_df: pd.DataFrame) -> pd.DataFrame:
     out = []
     for idx in elec_df.index:
         data_df = pd.DataFrame(elec_df.at[idx, "data"], columns=["date", "value"])
+        # three possible date formats, all of them handled by pd.to_datetime():
+        #   annual data as "YYYY" eg "2020"
+        #   quarterly data as "YYYYQQ" eg "2020Q2"
+        #   monthly data as "YYYYMM" eg "202004"
+        data_df.loc[:, "date"] = pd.to_datetime(data_df.loc[:, "date"], errors="raise")
         data_df["series_id"] = elec_df.at[idx, "series_id"]
         out.append(data_df)
     out = pd.concat(out, ignore_index=True, axis=0)
+    out.loc[:, "series_id"] = out.loc[:, "series_id"].astype("category", copy=False)
     return out.loc[:, ["series_id", "date", "value"]]  # reorder cols
