@@ -789,7 +789,7 @@ def fuel_xbrl(ferc1_engine: sa.engine.Engine, ferc1_settings: Ferc1XbrlSettings)
     fuel_select = (
         sa.sql.select(fuel_stats)
         .join(identification, fuel_stats.c.filing_name == identification.c.filing_name)
-        .where(identification.c.ReportYear.in_(ferc1_settings.years))
+        .where(identification.c.report_year.in_(ferc1_settings.years))
     )
     # Use the above SELECT to pull those records into a DataFrame:
     return pd.read_sql(fuel_select, ferc1_engine)

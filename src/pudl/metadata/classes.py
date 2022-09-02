@@ -579,6 +579,7 @@ class Field(Base):
     type: Literal[  # noqa: A003
         "string", "number", "integer", "boolean", "date", "datetime", "year"
     ]
+    title: String = None
     format: Literal["default"] = "default"  # noqa: A003
     description: String = None
     unit: String = None
@@ -1137,6 +1138,11 @@ class Resource(Base):
     description: String = None
     harvest: ResourceHarvest = {}
     schema_: Schema = pydantic.Field(alias="schema")
+    format_: String = pydantic.Field(alias="format", default=None)
+    mediatype: String = None
+    path: String = None
+    dialect: dict[str, str] = None
+    profile: String = "tabular-data-resource"
     contributors: list[Contributor] = []
     licenses: list[License] = []
     sources: list[DataSource] = []
@@ -1656,6 +1662,7 @@ class Package(Base):
     sources: list[DataSource] = []
     licenses: list[License] = []
     resources: StrictList(Resource)
+    profile: String = "tabular-data-package"
 
     @pydantic.validator("resources")
     def _check_foreign_keys(cls, value):  # noqa: N805
