@@ -18,8 +18,8 @@ jobs:
     name: Build Docker image, push to Docker Hub and deploy to a GCE VM
     runs-on: ubuntu-latest
     steps:
-      - name: Use pudl-deployment-dev vm and dev branch if running on a schedule or manually triggered
-        if: ${{ (github.event_name == 'schedule') || (github.event_name == 'workflow_dispatch') }}
+      - name: Use pudl-deployment-dev vm and dev branch if running on a schedule
+        if: ${{ (github.event_name == 'schedule') }}
         run: |
           echo "This action was triggered by a schedule." && echo "GCE_INSTANCE=pudl-deployment-dev" >> $GITHUB_ENV && echo "GITHUB_REF=dev" >> $GITHUB_ENV
 
@@ -60,7 +60,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Build image and push to Docker Hub
-        uses: docker/build-push-action@v3.0.0
+        uses: docker/build-push-action@v3.1.1
         with:
           context: .
           file: docker/Dockerfile
@@ -72,7 +72,7 @@ jobs:
       - id: "auth"
         uses: "google-github-actions/auth@v0"
         with:
-          credentials_json: "${{ secrets.GCE_SA_KEY }}"
+          credentials_json: "${{ secrets.DEPLOY_PUDL_SA_KEY }}"
 
       # Setup gcloud CLI
       - name: Set up Cloud SDK
@@ -97,7 +97,6 @@ jobs:
             --container-env-file="./docker/.env" \
             --container-env ACTION_SHA=$ACTION_SHA \
             --container-env GITHUB_REF=${{ env.GITHUB_REF }} \
-            --container-env API_KEY_EIA=${{ secrets.API_KEY_EIA }} \
             --container-env SLACK_TOKEN=${{ secrets.PUDL_DEPLOY_SLACK_TOKEN }} \
             --container-env GCE_INSTANCE=${{ env.GCE_INSTANCE }} \
             --container-env GCP_BILLING_PROJECT=${{ secrets.GCP_BILLING_PROJECT }}
@@ -105,3 +104,12 @@ jobs:
       # Start the VM
       - name: Start the deploy-pudl-vm
         run: gcloud compute instances start "$GCE_INSTANCE" --zone="$GCE_INSTANCE_ZONE"
+
+      - name: Post to a pudl-deployments channel
+        id: slack
+        uses: slackapi/slack-github-action@v1.21.0
+        with:
+          channel-id: "C03FHB9N0PQ"
+          slack-message: "build-deploy-pudl status: ${{ job.status }}\n${{ env.ACTION_SHA }}-${{ env.GITHUB_REF }}"
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.PUDL_DEPLOY_SLACK_TOKEN }}
