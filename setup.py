@@ -54,14 +54,14 @@ setup(
         "dask>=2021.8,<2022.8.2",
         "datapackage>=1.11,<1.16",  # Transition datastore to use frictionless.
         # "email-validator>=1.0.3",  # pydantic[email] dependency
-        "fsspec>=2021.7,<2022.7.2",  # For caching datastore on GCS
-        "gcsfs>=2021.7,<2022.7.2",  # For caching datastore on GCS
+        "fsspec>=2021.7,<2022.8.3",  # For caching datastore on GCS
+        "gcsfs>=2021.7,<2022.8.3",  # For caching datastore on GCS
         "geopandas>=0.9,<0.12",
         "jinja2>=2,<3.2",
         "matplotlib>=3.3,<3.6",  # Should make this optional with a "viz" extras
         "networkx>=2.2,<2.9",
         "numpy>=1.18.5,<1.24,!=1.23.0",
-        "pandas>=1.4,<1.4.4",
+        "pandas>=1.4,<1.4.5",
         "pyarrow>=5,<9.1",
         "pydantic[email]>=1.7,<2",
         "python-snappy>=0.6,<0.7",
@@ -77,7 +77,7 @@ setup(
     ],
     extras_require={
         "dev": [
-            "black>=22.0,<22.7",
+            "black>=22.0,<22.9",
             "ipdb>=0.13,<0.14",
             "isort>=5.0,<5.11",
             "jedi>=0.18,<0.19",
