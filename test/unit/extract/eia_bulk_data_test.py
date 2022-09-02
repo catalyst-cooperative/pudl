@@ -1,5 +1,6 @@
 """Tests for eia_bulk_data module."""
 from io import BytesIO
+from zipfile import ZipFile
 
 import numpy as np
 import pandas as pd
@@ -9,7 +10,7 @@ import pudl.extract.eia_bulk_data as bulk
 
 
 @pytest.fixture()
-def elec_txt_dataframe() -> pd.DataFrame:
+def test_file_bytes() -> bytes:
     """Simulate raw ELEC.txt."""
     # actual subset of the bulk data file, but with data values truncated to only 2020 and 2021
     test_file = b"""
@@ -19,7 +20,13 @@ def elec_txt_dataframe() -> pd.DataFrame:
     {"series_id":"ELEC.RECEIPTS_BTU.NG-US-2.Q","name":"Receipts of fossil fuels by electricity plants (Btu) : natural gas : United States : electric utility non-cogen : quarterly","units":"billion Btu","f":"Q","description":"Natural Gas; Power plants owned by regulated electric utilties that produce electricity only; ","copyright":"None","source":"EIA, U.S. Energy Information Administration","iso3166":"USA","geography":"USA","start":"2008Q1","end":"2022Q1","last_updated":"2022-05-24T10:42:22-04:00","geoset_id":"ELEC.RECEIPTS_BTU.NG-2.Q","data":[["2021Q4",971009.16934],["2021Q3",1247751.19006],["2021Q2",924073.00164],["2021Q1",844665.11442],["2020Q4",972282.3858],["2020Q3",1439140.59549],["2020Q2",959842.7605],["2020Q1",1000417.64012]]}
     {"series_id":"ELEC.RECEIPTS_BTU.NG-US-2.A","name":"Receipts of fossil fuels by electricity plants (Btu) : natural gas : United States : electric utility non-cogen : annual","units":"billion Btu","f":"A","description":"Natural Gas; Power plants owned by regulated electric utilties that produce electricity only; ","copyright":"None","source":"EIA, U.S. Energy Information Administration","iso3166":"USA","geography":"USA","start":"2008","end":"2021","last_updated":"2022-02-25T15:25:17-05:00","geoset_id":"ELEC.RECEIPTS_BTU.NG-2.A","data":[["2021",3987498.47545],["2020",4371683.38189]]}
     """
-    buffer = BytesIO(test_file)
+    return test_file
+
+
+@pytest.fixture()
+def elec_txt_dataframe(test_file_bytes) -> pd.DataFrame:
+    """Simulate raw pd.read_json('ELEC.txt')."""
+    buffer = BytesIO(test_file_bytes)
     df = pd.read_json(buffer, lines=True)
     return df
 
@@ -37,11 +44,11 @@ def test__extract_keys_from_series_id(elec_txt_dataframe):
     input_ = elec_txt_dataframe.iloc[[3], :]
     expected = pd.DataFrame(
         {
-            "series": ["RECEIPTS_BTU"],
-            "fuel": ["NG"],
-            "region": ["US"],
-            "sector": ["2"],
-            "frequency": ["Q"],
+            "series_code": ["RECEIPTS_BTU"],
+            "fuel_code": ["NG"],
+            "region_code": ["US"],
+            "sector_code": ["2"],
+            "frequency_code": ["Q"],
         },
         index=[3],
     )
@@ -97,3 +104,54 @@ def test__parse_data_column(elec_txt_dataframe):
 
     actual = bulk._parse_data_column(input_)
     pd.testing.assert_frame_equal(actual, expected)
+
+
+def test_extract(test_file_bytes):
+    """Check shape and column names of output dataframes."""
+    zipped_buffer = BytesIO()
+    with ZipFile(zipped_buffer, mode="w") as archive:
+        archive.writestr("elec.txt", test_file_bytes)
+
+    actual_dfs = bulk.extract(zipped_buffer)
+    actual_metadata = actual_dfs["metadata"]
+    actual_timeseries = actual_dfs["timeseries"]
+
+    assert len(actual_dfs) == 2
+
+    expected_metadata_shape = (4, 23)
+    expected_metadata_columns = pd.Index(
+        [
+            "series_id",
+            "name",
+            "units",
+            "f",
+            "description",
+            "copyright",
+            "source",
+            "iso3166",
+            "geography",
+            "start",
+            "end",
+            "last_updated",
+            "geoset_id",
+            "series",
+            "fuel",
+            "region",
+            "sector",
+            "frequency",
+            "series_code",
+            "fuel_code",
+            "region_code",
+            "sector_code",
+            "frequency_code",
+        ]
+    )
+    assert actual_metadata.shape == expected_metadata_shape
+    pd.testing.assert_index_equal(actual_metadata.columns, expected_metadata_columns)
+
+    expected_timeseries_shape = (20, 3)
+    expected_timeseries_columns = pd.Index(["series_id", "date", "value"])
+    assert actual_timeseries.shape == expected_timeseries_shape
+    pd.testing.assert_index_equal(
+        actual_timeseries.columns, expected_timeseries_columns
+    )

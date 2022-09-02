@@ -21,7 +21,7 @@ def _filter_df(df: pd.DataFrame) -> pd.DataFrame:
         return pd.DataFrame()  # empty
 
 
-def _read_to_dataframe(raw_zipfile: Path) -> pd.DataFrame:
+def _filter_and_read_to_dataframe(raw_zipfile: Path) -> pd.DataFrame:
     """Decompress and filter the 1100 MB file down to the 16 MB we actually want.
 
     This produces a dataframe with all text fields. The timeseries data is
@@ -50,7 +50,9 @@ def _extract_keys_from_series_id(raw_df: pd.DataFrame) -> pd.DataFrame:
         .str.split(r"[\.-]", expand=True, regex=True)
         .drop(columns=0)
     )
-    keys.columns = pd.Index(["series", "fuel", "region", "sector", "frequency"])
+    keys.columns = pd.Index(
+        ["series_code", "fuel_code", "region_code", "sector_code", "frequency_code"]
+    )
     return keys
 
 
@@ -78,3 +80,22 @@ def _parse_data_column(elec_df: pd.DataFrame) -> pd.DataFrame:
     out = pd.concat(out, ignore_index=True, axis=0)
     out.loc[:, "series_id"] = out.loc[:, "series_id"].astype("category", copy=False)
     return out.loc[:, ["series_id", "date", "value"]]  # reorder cols
+
+
+def extract(raw_zipfile) -> dict[str, pd.DataFrame]:
+    """Extract metadata and timeseries from raw EIA bulk electricity data.
+
+    Args:
+        raw_zipfile (file-like): Path or other file-like object that can be read by pd.read_json()
+
+    Returns:
+        Dict[str, pd.DataFrame]: dictionary of dataframes with keys 'metadata' and 'timeseries'
+    """
+    filtered = _filter_and_read_to_dataframe(raw_zipfile)
+    timeseries = _parse_data_column(filtered)
+    key_descriptions = _extract_keys_from_name(filtered)
+    key_codes = _extract_keys_from_series_id(filtered)
+    metadata = pd.concat(
+        [filtered.drop(columns="data"), key_descriptions, key_codes], axis=1
+    )
+    return {"metadata": metadata, "timeseries": timeseries}
