@@ -4,7 +4,7 @@ from typing import Any
 from pudl.metadata.codes import CODE_METADATA
 
 RESOURCE_METADATA: dict[str, dict[str, Any]] = {
-    "balancing_authories_eia": {
+    "balancing_authorities_eia": {
         "description": "A coding table describing balancing authorities in EIA-860 and EIA-923.",
         "schema": {
             "fields": ["code", "label", "description"],

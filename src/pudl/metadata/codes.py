@@ -1467,7 +1467,7 @@ CODE_METADATA: dict[str, dict[str, Any]] = {
                     "Alcoa Power Generating, Inc. - Yadkin Division",
                 ),
             ],
-        ),
+        ).convert_dtypes(),
         "code_fixes": {
             "NVE": "NEVP",
             "IS": "ISNE",
@@ -1478,5 +1478,6 @@ CODE_METADATA: dict[str, dict[str, Any]] = {
             # KACY > SWPP
             # INDN 	Independence Power & Light (Independence,Misso...
         },
+        "ignored_codes": [],
     },
 }
