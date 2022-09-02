@@ -4,6 +4,18 @@ from typing import Any
 from pudl.metadata.codes import CODE_METADATA
 
 RESOURCE_METADATA: dict[str, dict[str, Any]] = {
+    "balancing_authories_eia": {
+        "description": "A coding table describing balancing authorities in EIA-860 and EIA-923.",
+        "schema": {
+            "fields": ["code", "description"],
+            "primary_key": ["code"],
+            "foreign_key_rules": {"fields": [["balancing_authority_code_eia"]]},
+        },
+        "encoder": CODE_METADATA["balancing_authorities_eia"],
+        "sources": ["eia860"],
+        "etl_group": "static_eia",
+        "field_namespace": "eia",
+    },
     "boilers_entity_eia": {
         "description": "Static boiler attributes compiled from the EIA-860 and EIA-923 data.",
         "schema": {
