@@ -10,7 +10,6 @@ bad data, or replacing it with the appropriate NA values.
 import enum
 import importlib.resources
 import re
-from abc import abstractmethod
 from collections import namedtuple
 from functools import cached_property
 
@@ -32,6 +31,7 @@ from pudl.transform.classes import (
     RenameColumns,
     TableTransformParams,
     TransformParams,
+    cache_df,
 )
 
 # This is only here to keep the module importable. Breaks legacy functions.
@@ -115,6 +115,7 @@ class Ferc1TableTransformParams(TableTransformParams):
 
 ################################################################################
 # FERC 1 specific Column, MultiColumn, and Table Transform Functions
+# (empty for now, but we anticipate there will be some)
 ################################################################################
 
 
@@ -124,9 +125,11 @@ class Ferc1TableTransformParams(TableTransformParams):
 class Ferc1AbstractTableTransformer(AbstractTableTransformer):
     """An abstract class defining methods common to many FERC Form 1 tables.
 
-    This subclass remains abstract because it does not define the required transform()
-    abstractmethod.
+    This subclass remains abstract because it does not define main_transform(), which
+    is always going to be table-specific.
 
+    * Methods that only apply to XBRL data should end with _xbrl
+    * Methods that only apply to DBF data should end with _dbf
     """
 
     table_id: Ferc1TableId
@@ -136,30 +139,8 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         """Obtain table transform parameters based on the table ID."""
         return Ferc1TableTransformParams.from_id(table_id=self.table_id)
 
-    @abstractmethod
-    def transform(
-        self,
-        raw_dbf: pd.DataFrame,
-        raw_xbrl_instant: pd.DataFrame,
-        raw_xbrl_duration: pd.DataFrame,
-    ) -> pd.DataFrame:
-        """Abstract FERC Form 1 specific transformation method.
-
-        This method primarily exists to define the FERC 1 specific call signature.
-
-        Params:
-            raw_xbrl_instant: Table representing raw instantaneous XBRL facts.
-            raw_xbrl_duration: Table representing raw duration XBRL facts.
-            raw_dbf: Raw Visual FoxPro database table.
-
-        Returns:
-            A single transformed table concatenating multiple years of cleaned data
-            derived from the raw DBF and/or XBRL inputs.
-
-        """
-        ...
-
-    def concat_dbf_xbrl(
+    @cache_df(key="main")
+    def start_transform(
         self,
         raw_dbf: pd.DataFrame,
         raw_xbrl_instant: pd.DataFrame,
@@ -171,6 +152,12 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         logger.info(f"{self.table_id.value}: Concatenating DBF + XBRL dataframes.")
         return pd.concat([processed_dbf, processed_xbrl]).reset_index(drop=True)
 
+    @cache_df(key="main")
+    def finish_transform(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Enforce the database schema and remove any cached dataframes."""
+        return self.enforce_schema(df)
+
+    @cache_df(key="dbf")
     def process_dbf(self, raw_dbf: pd.DataFrame) -> pd.DataFrame:
         """DBF-specific transformations that take place before concatenation."""
         logger.info(f"{self.table_id.value}: Processing DBF data pre-concatenation.")
@@ -181,6 +168,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             .pipe(self.drop_unused_original_columns_dbf)
         )
 
+    @cache_df(key="xbrl")
     def process_xbrl(
         self,
         raw_xbrl_instant: pd.DataFrame,
@@ -197,6 +185,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             .pipe(self.assign_utility_id_ferc1_xbrl)
         )
 
+    @cache_df(key="xbrl")
     def merge_instant_and_duration_tables_xbrl(
         self,
         raw_xbrl_instant: pd.DataFrame,
@@ -257,6 +246,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             validate="1:1",
         )
 
+    @cache_df(key="dbf")
     def drop_footnote_columns_dbf(self, df: pd.DataFrame) -> pd.DataFrame:
         """Drop DBF footnote reference columns, which all end with _f."""
         logger.debug(f"{self.table_id.value}: Dropping DBF footnote columns.")
@@ -297,6 +287,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         # Translate to the renamed columns
         return [cols[col] for col in pk_cols]
 
+    @cache_df(key="dbf")
     def drop_unused_original_columns_dbf(self, df: pd.DataFrame) -> pd.DataFrame:
         """Remove residual DBF specific columns."""
         unused_cols = [
@@ -376,6 +367,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             )
         return df
 
+    @cache_df(key="xbrl")
     def assign_utility_id_ferc1_xbrl(self, df: pd.DataFrame) -> pd.DataFrame:
         """Assign utility_id_ferc1.
 
@@ -464,35 +456,24 @@ class FuelFerc1TableTransformer(Ferc1AbstractTableTransformer):
 
     table_id: Ferc1TableId = Ferc1TableId.FUEL_FERC1
 
-    def transform(
-        self,
-        raw_dbf: pd.DataFrame,
-        raw_xbrl_instant: pd.DataFrame,
-        raw_xbrl_duration: pd.DataFrame,
-    ) -> pd.DataFrame:
-        """Transform the fuel_ferc1 table.
+    @cache_df(key="main")
+    def main_transform(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Table specific transforms for fuel_ferc1.
 
         Params:
-            raw_xbrl_instant: Table representing raw instantaneous XBRL facts.
-            raw_xbrl_duration: Table representing raw duration XBRL facts.
-            raw_dbf: Raw Visual FoxPro database table.
+            df: Pre-processed, concatenated XBRL and DBF data.
 
         Returns:
             A single transformed table concatenating multiple years of cleaned data
             derived from the raw DBF and/or XBRL inputs.
 
         """
-        return (
-            self.concat_dbf_xbrl(
-                raw_dbf=raw_dbf,
-                raw_xbrl_instant=raw_xbrl_instant,
-                raw_xbrl_duration=raw_xbrl_duration,
-            )
-            .pipe(self.drop_null_data_rows)
-            .pipe(self.correct_units, self.params.correct_units)
-            .pipe(self.enforce_schema)
+        df = self.drop_null_data_rows(df).pipe(
+            self.correct_units, self.params.correct_units
         )
+        return df
 
+    @cache_df(key="dbf")
     def process_dbf(self, raw_dbf: pd.DataFrame) -> pd.DataFrame:
         """Start with inherited method and do some fuel-specific processing.
 
@@ -512,6 +493,7 @@ class FuelFerc1TableTransformer(Ferc1AbstractTableTransformer):
         )
         return df
 
+    @cache_df(key="xbrl")
     def process_xbrl(
         self, raw_xbrl_instant: pd.DataFrame, raw_xbrl_duration: pd.DataFrame
     ) -> pd.DataFrame:
@@ -626,6 +608,7 @@ class FuelFerc1TableTransformer(Ferc1AbstractTableTransformer):
 
         return df
 
+    @cache_df(key="xbrl")
     def aggregate_duplicate_fuel_types_xbrl(
         self, fuel_xbrl: pd.DataFrame
     ) -> pd.DataFrame:
@@ -725,21 +708,18 @@ class PlantsSteamFerc1TableTransformer(Ferc1AbstractTableTransformer):
 
     table_id: Ferc1TableId = Ferc1TableId.PLANTS_STEAM_FERC1
 
-    def transform(
-        self,
-        raw_dbf: pd.DataFrame,
-        raw_xbrl_instant: pd.DataFrame,
-        raw_xbrl_duration: pd.DataFrame,
-        transformed_fuel: pd.DataFrame,
-    ):
+    @cache_df(key="main")
+    def main_transform(
+        self, df: pd.DataFrame, transformed_fuel: pd.DataFrame
+    ) -> pd.DataFrame:
         """Perform table transformations for the plants_steam_ferc1 table."""
-        plants_steam = (
-            self.concat_dbf_xbrl(
-                raw_dbf=raw_dbf,
-                raw_xbrl_instant=raw_xbrl_instant,
-                raw_xbrl_duration=raw_xbrl_duration,
-            )
-            .pipe(self.normalize_strings_multicol, params=self.params.normalize_strings)
+        fuel_categories = list(
+            FuelFerc1TableTransformer()
+            .params.categorize_strings["fuel_type_code_pudl"]
+            .categories.keys()
+        )
+        return (
+            self.normalize_strings_multicol(df, params=self.params.normalize_strings)
             .pipe(self.nullify_outliers_multicol, params=self.params.nullify_outliers)
             .pipe(
                 self.categorize_strings_multicol, params=self.params.categorize_strings
@@ -749,16 +729,10 @@ class PlantsSteamFerc1TableTransformer(Ferc1AbstractTableTransformer):
             .pipe(
                 plants_steam_assign_plant_ids,
                 ferc1_fuel_df=transformed_fuel,
-                fuel_categories=list(
-                    FuelFerc1TableTransformer()
-                    .params.categorize_strings["fuel_type_code_pudl"]
-                    .categories.keys()
-                ),
+                fuel_categories=fuel_categories,
             )
-            .pipe(self.enforce_schema)
+            .pipe(plants_steam_validate_ids)
         )
-        plants_steam_validate_ids(plants_steam)
-        return plants_steam
 
 
 ##################################################################################

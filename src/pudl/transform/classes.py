@@ -12,7 +12,7 @@ import re
 import typing
 from abc import ABC, abstractmethod
 from collections.abc import Callable
-from functools import cached_property
+from functools import cached_property, wraps
 from itertools import combinations
 from typing import Protocol
 
@@ -431,6 +431,26 @@ def correct_units(df: pd.DataFrame, params: UnitCorrections) -> pd.DataFrame:
 #####################################################################################
 # Abstract Table Transformer classes
 #####################################################################################
+def cache_df(key: str = "main") -> Callable:
+    """A decorator for managing intermediate dataframe caching."""
+
+    def _decorator(func) -> Callable:
+        @wraps(func)
+        def _wrapper(self: AbstractTableTransformer, *args, **kwargs) -> pd.DataFrame:
+            df = func(self, *args, **kwargs)
+            if self.cache_dfs:
+                logger.debug(
+                    f"{self.table_id.value}: Caching df to {key=} "
+                    f"in {func.__name__}()"
+                )
+                self._cached_dfs[key] = df.copy()
+            return df
+
+        return _wrapper
+
+    return _decorator
+
+
 class AbstractTableTransformer(ABC):
     """An abstract base table transformer class.
 
@@ -447,6 +467,25 @@ class AbstractTableTransformer(ABC):
     the appropriate :class:`TableTransformParams` object.
     """
 
+    cache_dfs: bool = False
+    """Whether to cache copies of intermediate dataframes until transformation is done.
+
+    When True, the TableTransformer will save dataframes internally at each step of the
+    transform, so that they can be inspected easily if the transformation fails.
+    """
+
+    clear_cached_dfs: bool = True
+    """Determines whether cached dataframes are deleted at the end of the transform."""
+
+    _cached_dfs: dict[str, pd.DataFrame] = {}
+    """Cached intermediate dataframes for use in development and debugging."""
+
+    def __init__(self, cache_dfs: bool = False, clear_cached_dfs: bool = True) -> None:
+        """Initialize the table transformer, setting caching flags."""
+        super().__init__()
+        self.cache_dfs = cache_dfs
+        self.clear_cached_dfs = clear_cached_dfs
+
     @cached_property
     def params(self) -> TableTransformParams:
         """Obtain table transform parameters based on the table ID."""
@@ -455,12 +494,54 @@ class AbstractTableTransformer(ABC):
     ################################################################################
     # Abstract methods that must be defined by subclasses
     @abstractmethod
-    def transform(self, **kwargs) -> dict[str, pd.DataFrame]:
-        """Apply all specified transformations to the appropriate input dataframes."""
+    def start_transform(self, **kwargs) -> pd.DataFrame:
+        """Transformations applied to many tables within a dataset at the beginning.
+
+        This method should be implemented by the dataset-level abstract table
+        transformer class. It does not specify its inputs because different data sources
+        need different inputs. E.g. the FERC 1 transform needs 2 XBRL derived
+        dataframes, and one DBF derived dataframe, while (most) EIA tables just receive
+        and return a single dataframe.
+
+        At the end of this step, all the inputs should have been consolidated into a
+        single dataframe to return.
+
+        """
         ...
+
+    @abstractmethod
+    def main_transform(self, df: pd.DataFrame) -> pd.DataFrame:
+        """The workhorse method doing most of the table-specific transformations."""
+        ...
+
+    @abstractmethod
+    def finish_transform(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Transformations applied to many tables within a dataset at the end.
+
+        This method should be implemented by the dataset-level abstract table
+        transformer class. It should do any standard cleanup that's required after the
+        table-specific transformations have been applied. E.g. enforcing the table's
+        database schema and dropping invalid records based on parameterized criteria.
+
+        """
 
     ################################################################################
     # Default method implementations which can be used or overridden by subclasses
+    def transform(self, *args, **kwargs) -> pd.DataFrame:
+        """Apply all specified transformations to the appropriate input dataframes."""
+        df = (
+            self.start_transform(*args, **kwargs)
+            .pipe(self.main_transform)
+            .pipe(self.finish_transform)
+        )
+        if self.clear_cached_dfs:
+            logger.debug(
+                f"{self.table_id.value}: Clearing cached dfs: "
+                f"{sorted(self._cached_dfs.keys())}"
+            )
+            self._cached_dfs.clear()
+        return df
+
     def rename_columns(
         self,
         df: pd.DataFrame,
@@ -593,6 +674,7 @@ class AbstractTableTransformer(ABC):
 
     def enforce_schema(self, df: pd.DataFrame) -> pd.DataFrame:
         """Drop columns not in the DB schema and enforce specified types."""
+        logger.info(f"{self.table_id.value}: Enforcing database schema on dataframe.")
         resource = Package.from_resource_ids().get_resource(self.table_id.value)
         expected_cols = pd.Index(resource.get_field_names())
         missing_cols = list(expected_cols.difference(df.columns))
