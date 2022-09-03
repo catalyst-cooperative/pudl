@@ -449,7 +449,7 @@ def _associate_unconnected_records(eia_generators_merged: pd.DataFrame):
         .rename(columns={"energy_source_code": "energy_source_unconnected"})
         .assign(energy_source_code_num="energy_source_code_1")
         .groupby(by=idx_pm)
-        .sum(min_count=1)
+        .sum(min_count=1, numeric_only=True)
         .reset_index()
     )
     eia_generators = (
