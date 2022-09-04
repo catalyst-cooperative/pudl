@@ -28,6 +28,7 @@ from pudl.metadata.dfs import FERC_DEPRECIATION_LINES
 from pudl.settings import Ferc1Settings
 from pudl.transform.classes import (
     AbstractTableTransformer,
+    InvalidRows,
     RenameColumns,
     TableTransformParams,
     TransformParams,
@@ -468,10 +469,9 @@ class FuelFerc1TableTransformer(Ferc1AbstractTableTransformer):
             derived from the raw DBF and/or XBRL inputs.
 
         """
-        df = self.drop_null_data_rows(df).pipe(
+        return self.drop_invalid_rows(df, self.params.drop_invalid_rows).pipe(
             self.correct_units, self.params.correct_units
         )
-        return df
 
     @cache_df(key="dbf")
     def process_dbf(self, raw_dbf: pd.DataFrame) -> pd.DataFrame:
@@ -670,15 +670,21 @@ class FuelFerc1TableTransformer(Ferc1AbstractTableTransformer):
             columns=["fuel_units_count"]
         )
 
-    def drop_null_data_rows(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Drop rows in which all data columns are null.
+    def drop_total_rows(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Drop rows that represent plant totals rather than individual fuels.
+
+        This is an imperfect, heuristic process. The rows we identify as probably
+        representing totals rather than individual fuels:
+
+        * have zero or null values in all of their numerical data columns
+        * have no identifiable fuel type
+        * have no identifiable fuel units
+        * DO report a value for MMBTU / MWh (heat rate)
 
         In the case of the fuel_ferc1 table, we drop any row where all the data columns
         are null AND there's a non-null value in the ``fuel_mmbtu_per_mwh`` column, as
         it typically indicates a "total" row for a plant. We also require a null value
         for the fuel_units and an "other" value for the fuel type.
-
-        Right now this is extremely stringent and almost all rows are retained.
 
         """
         data_cols = [
@@ -689,18 +695,28 @@ class FuelFerc1TableTransformer(Ferc1AbstractTableTransformer):
             "fuel_cost_per_mmbtu",
             "fuel_cost_per_mwh",
         ]
-        probably_totals_index = df[
-            df[data_cols].isna().all(axis="columns")
-            & df.fuel_mmbtu_per_mwh.notna()
-            & (df.fuel_type_code_pudl == "other")
-            & df.fuel_units.isna()
+        total_rows_idx = df[
+            df[data_cols].isna().all(axis="columns")  # No normal numerical data
+            & df.fuel_units.isna()  # no recognizable fuel units
+            & (df.fuel_type_code_pudl == "other")  # No recognizable fuel type
+            & df.fuel_mmbtu_per_mwh.notna()  # But it DOES report heat rate!
         ].index
         logger.info(
             f"{self.table_id.value}: Dropping "
-            f"{len(probably_totals_index)}/{len(df)}"
-            "rows of excessively null data."
+            f"{len(total_rows_idx)}/{len(df)}"
+            "rows representing plant-level all-fuel totals."
         )
-        return df.drop(index=probably_totals_index)
+        return df.drop(index=total_rows_idx)
+
+    def drop_invalid_rows(self, df: pd.DataFrame, params: InvalidRows) -> pd.DataFrame:
+        """Drop invalid rows from the fuel table.
+
+        This method both drops rows in which all required data columns are null (using
+        the inherited parameterized method) and then also drops those rows we believe
+        represent plant totals.
+
+        """
+        return super().drop_invalid_rows(df, params).pipe(self.drop_total_rows)
 
 
 class PlantsSteamFerc1TableTransformer(Ferc1AbstractTableTransformer):
@@ -725,7 +741,7 @@ class PlantsSteamFerc1TableTransformer(Ferc1AbstractTableTransformer):
                 self.categorize_strings_multicol, params=self.params.categorize_strings
             )
             .pipe(self.convert_units_multicol, params=self.params.convert_units)
-            .pipe(self.remove_invalid_rows, params=self.params.remove_invalid_rows)
+            .pipe(self.drop_invalid_rows, params=self.params.drop_invalid_rows)
             .pipe(
                 plants_steam_assign_plant_ids,
                 ferc1_fuel_df=transformed_fuel,

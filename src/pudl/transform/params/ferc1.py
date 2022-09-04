@@ -1568,10 +1568,6 @@ TRANSFORM_PARAMS = {
                     "plant_name": "plant_name_ferc1",
                     "fuel": "fuel_type_code_pudl",
                     "fuel_unit": "fuel_units",
-                    # Original fuel heat content is reported...:
-                    # * coal: almost entirely BTU per POUND
-                    # * gas: ~half MMBTU per cubic foot, ~half MMBTU per Mcf
-                    # * oil: almost entirely BTU per gallon
                     "fuel_avg_heat": "fuel_btu_per_unit",
                     "fuel_quantity": "fuel_consumed_units",
                     "fuel_cost_burned": "fuel_cost_per_unit_burned",
@@ -1675,41 +1671,20 @@ TRANSFORM_PARAMS = {
                 ],
             },
         ],
-    },
-    "plants_steam_ferc1": {
-        "normalize_strings": {
-            "plant_name_ferc1": True,
-            "construction_type": True,
-            "plant_type": True,
-        },
-        "nullify_outliers": {
-            "construction_year": VALID_PLANT_YEARS,
-            "installation_year": VALID_PLANT_YEARS,
-        },
-        "categorize_strings": {
-            "construction_type": CONSTRUCTION_TYPE_CATEGORIES,
-            "plant_type": PLANT_TYPE_CATEGORIES,
-        },
-        "convert_units": {
-            "capex_per_kw": PERKW_TO_PERMW,
-            "opex_per_kwh": PERKWH_TO_PERMWH,
-            "net_generation_kwh": KWH_TO_MWH,
-        },
-        "remove_invalid_rows": {
+        "drop_invalid_rows": {
             "invalid_values": [0, pd.NA, np.nan],
-            "cols_to_not_check": [
-                "record_id",
-                "utility_id_ferc1",
-                "plant_name_ferc1",
-                "report_year",
-                "entity_id",
-                "date",
-                "start_date",
-                "end_date",
-                "OrderNumber",
-                "PlantName",
+            "required_valid_cols": [
+                "fuel_consumed_units",
+                "fuel_cost_per_mmbtu",
+                "fuel_cost_per_mwh",
+                "fuel_cost_per_unit_delivered",
+                "fuel_cost_per_unit_burned",
+                "fuel_mmbtu_per_unit",
+                "fuel_units",
             ],
         },
+    },
+    "plants_steam_ferc1": {
         "rename_columns_ferc1": {
             "dbf": {
                 "columns": {
@@ -1756,7 +1731,7 @@ TRANSFORM_PARAMS = {
                     "row_number": "row_number",
                     "spplmnt_num": "spplmnt_num",
                     "row_seq": "row_seq",
-                }
+                },
             },
             "xbrl": {
                 "columns": {
@@ -1797,9 +1772,44 @@ TRANSFORM_PARAMS = {
                     "ElectricExpensesSteamPowerGeneration": "opex_electric",
                     "MaintenanceOfStructuresSteamPowerGeneration": "opex_structures",
                     "ReportYear": "report_year",
+                    "OrderNumber": "order_number",
+                    "PlantName": "plant_name",
                     "entity_id": "entity_id",
-                }
+                },
             },
+        },
+        "normalize_strings": {
+            "plant_name_ferc1": True,
+            "construction_type": True,
+            "plant_type": True,
+        },
+        "nullify_outliers": {
+            "construction_year": VALID_PLANT_YEARS,
+            "installation_year": VALID_PLANT_YEARS,
+        },
+        "categorize_strings": {
+            "construction_type": CONSTRUCTION_TYPE_CATEGORIES,
+            "plant_type": PLANT_TYPE_CATEGORIES,
+        },
+        "convert_units": {
+            "capex_per_kw": PERKW_TO_PERMW,
+            "opex_per_kwh": PERKWH_TO_PERMWH,
+            "net_generation_kwh": KWH_TO_MWH,
+        },
+        "drop_invalid_rows": {
+            "invalid_values": [0, pd.NA, np.nan],
+            "allowed_invalid_cols": [
+                "record_id",
+                "utility_id_ferc1",
+                "plant_name_ferc1",
+                "report_year",
+                "entity_id",
+                "date",
+                "start_date",
+                "end_date",
+                "OrderNumber",
+                "PlantName",
+            ],
         },
     },
 }
