@@ -553,7 +553,7 @@ class FuelFerc1TableTransformer(Ferc1AbstractTableTransformer):
         """
         df = df.copy()
 
-        FuelFix = namedtuple("FuelFix", "fuel from_unit to_unit mult")
+        FuelFix = namedtuple("FuelFix", ["fuel", "from_unit", "to_unit", "mult"])
         fuel_fixes = [
             # US average coal heat content is 19.85 mmbtu/short ton
             FuelFix("coal", "mmbtu", "ton", (1.0 / 19.85)),
@@ -580,12 +580,14 @@ class FuelFerc1TableTransformer(Ferc1AbstractTableTransformer):
             fuel_mask = df.fuel_type_code_pudl == fix.fuel
             unit_mask = df.fuel_units == fix.from_unit
             df.loc[(fuel_mask & unit_mask), "fuel_consumed_units"] *= fix.mult
+            # Note: The 2 corrections below DIVIDE by the multiplier because the units
+            # are in the denominator ("per_unit") rather than the numerator.
             df.loc[(fuel_mask & unit_mask), "fuel_cost_per_unit_burned"] /= fix.mult
             df.loc[(fuel_mask & unit_mask), "fuel_cost_per_unit_delivered"] /= fix.mult
             df.loc[(fuel_mask & unit_mask), "fuel_units"] = fix.to_unit
 
         # Set all remaining non-standard units and affected columns to NA.
-        FuelAllowedUnits = namedtuple("FuelAllowedUnits", "fuel allowed_units")
+        FuelAllowedUnits = namedtuple("FuelAllowedUnits", ["fuel", "allowed_units"])
         fuel_allowed_units = [
             FuelAllowedUnits("coal", ("ton",)),
             FuelAllowedUnits("oil", ("bbl",)),
@@ -602,9 +604,9 @@ class FuelFerc1TableTransformer(Ferc1AbstractTableTransformer):
         ]
         for fau in fuel_allowed_units:
             fuel_mask = df.fuel_type_code_pudl == fau.fuel
-            unit_mask = ~df.fuel_units.isin(fau.allowed_units)
-            df.loc[(fuel_mask & unit_mask), physical_units_cols] = np.nan
-            df.loc[(fuel_mask & unit_mask), "fuel_units"] = pd.NA
+            invalid_unit_mask = ~df.fuel_units.isin(fau.allowed_units)
+            df.loc[(fuel_mask & invalid_unit_mask), physical_units_cols] = np.nan
+            df.loc[(fuel_mask & invalid_unit_mask), "fuel_units"] = pd.NA
 
         return df
 
