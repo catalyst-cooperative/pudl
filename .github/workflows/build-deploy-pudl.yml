@@ -18,7 +18,7 @@ jobs:
     name: Build Docker image, push to Docker Hub and deploy to a GCE VM
     runs-on: ubuntu-latest
     steps:
-      - name: Use pudl-deployment-dev vm and dev branch if running on a schedule or manually triggered
+      - name: Use pudl-deployment-dev vm and dev branch if running on a schedule
         if: ${{ (github.event_name == 'schedule') }}
         run: |
           echo "This action was triggered by a schedule." && echo "GCE_INSTANCE=pudl-deployment-dev" >> $GITHUB_ENV && echo "GITHUB_REF=dev" >> $GITHUB_ENV
@@ -97,7 +97,6 @@ jobs:
             --container-env-file="./docker/.env" \
             --container-env ACTION_SHA=$ACTION_SHA \
             --container-env GITHUB_REF=${{ env.GITHUB_REF }} \
-            --container-env API_KEY_EIA=${{ secrets.API_KEY_EIA }} \
             --container-env SLACK_TOKEN=${{ secrets.PUDL_DEPLOY_SLACK_TOKEN }} \
             --container-env GCE_INSTANCE=${{ env.GCE_INSTANCE }} \
             --container-env GCP_BILLING_PROJECT=${{ secrets.GCP_BILLING_PROJECT }}
