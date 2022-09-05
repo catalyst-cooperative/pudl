@@ -208,8 +208,8 @@ def _occurrence_consistency(
         return col_df
     # determine how many times each entity occurs in col_df
     occur = (
-        col_df.groupby(by=cols_to_consit, observed=True)
-        .agg({"table": "count"})
+        col_df.groupby(by=cols_to_consit, observed=True)[["table"]]
+        .count()
         .reset_index()
         .rename(columns={"table": "entity_occurences"})
     )
@@ -219,8 +219,8 @@ def _occurrence_consistency(
 
     # determine how many instances of each of the records in col exist
     consist_df = (
-        col_df.groupby(by=cols_to_consit + [col], observed=True)
-        .agg({"table": "count"})
+        col_df.groupby(by=cols_to_consit + [col], observed=True)[["table"]]
+        .count()
         .reset_index()
         .rename(columns={"table": "record_occurences"})
     )
@@ -1083,6 +1083,61 @@ def _restrict_years(
     return df
 
 
+def map_balancing_authority_names_and_codes(df):
+    """Build a map of the BA codes and names. We know there are some inconsistent.
+
+    Pairings of codes and names so we are going to grab the most consistently
+    reported combo, making the assumption that the most consistent pairing is most
+    likely to be the correct.
+
+    Args:
+        df: a data table with columns ``balancing_authority_code_eia`` and
+            ``balancing_authority_name_eia``
+    """
+    bac_map = (
+        df.assign(count=1)
+        .groupby(
+            by=["balancing_authority_name_eia", "balancing_authority_code_eia"],
+            observed=True,
+        )[["count"]]
+        .count()
+        .reset_index()
+        .sort_values(by=["count"], ascending=False)
+        .drop_duplicates(["balancing_authority_code_eia"])
+        .set_index("balancing_authority_name_eia")
+        .drop(columns=["count"])
+    )
+    return bac_map
+
+
+def map_null_balancing_authority_codes_with_name(df: pd.DataFrame) -> pd.DataFrame:
+    """Map balancing autority codes with known names.
+
+    There are a handfull of missing balancing_authority_code_eia's that are very easy to
+    map given the balancing_authority_name_eia. This function fills in null codes when
+    we know the
+
+    Args:
+        df: a data table with columns ``balancing_authority_code_eia`` and
+            ``balancing_authority_name_eia``
+    """
+    pre_len = len(df[df.balancing_authority_code_eia.notnull()])
+
+    bac_map = map_balancing_authority_names_and_codes(df)
+
+    null_bac_mask = (
+        df.balancing_authority_code_eia.isnull()
+        & df.balancing_authority_name_eia.notnull()
+        & df.balancing_authority_name_eia.isin(bac_map.index)
+    )
+    df.loc[null_bac_mask, "balancing_authority_code_eia"] = df.loc[
+        null_bac_mask, "balancing_authority_name_eia"
+    ].map(bac_map.balancing_authority_code_eia)
+    post_len = len(df[df.balancing_authority_code_eia.notnull()])
+    logger.info(f"filled {post_len - pre_len} balancing authority codes using names.")
+    return df
+
+
 def transform(
     eia_transformed_dfs, eia_settings: EiaSettings = EiaSettings(), debug=False
 ):
@@ -1138,5 +1193,9 @@ def transform(
     # remove the boilers annual table bc it has no columns
     eia_transformed_dfs.pop(
         "boilers_annual_eia",
+    )
+
+    eia_transformed_dfs["plants_eia860"] = map_null_balancing_authority_codes_with_name(
+        df=eia_transformed_dfs["plants_eia860"]
     )
     return entities_dfs, eia_transformed_dfs
