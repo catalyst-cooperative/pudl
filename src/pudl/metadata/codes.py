@@ -1466,6 +1466,7 @@ CODE_METADATA: dict[str, dict[str, Any]] = {
                     "alcoa_power_yadkin",
                     "Alcoa Power Generating, Inc. - Yadkin Division",
                 ),
+                ("GLHB", "GridLiance", "GridLiance (GLHB)"),
             ],
         ).convert_dtypes(),
         "code_fixes": {
@@ -1478,6 +1479,8 @@ CODE_METADATA: dict[str, dict[str, Any]] = {
             # KACY > SWPP
             # INDN 	Independence Power & Light (Independence,Misso...
         },
-        "ignored_codes": [],
+        "ignored_codes": [
+            "GRID",  # 2022 860m code for plant ID 55328 (code: CSTO for previous years)
+        ],
     },
 }
