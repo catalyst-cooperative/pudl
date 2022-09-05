@@ -1084,7 +1084,7 @@ def _restrict_years(
 
 
 def map_balancing_authority_names_to_codes(df: pd.DataFrame) -> pd.DataFrame:
-    """Build a map of the BA names to their most frequent codes.
+    """Build a map of the BA names to their most frequently associated BA codes.
 
     We know there are some inconsistent pairings of codes and names so we grab the most
     consistently reported combo, making the assumption that the most consistent pairing
@@ -1098,7 +1098,7 @@ def map_balancing_authority_names_to_codes(df: pd.DataFrame) -> pd.DataFrame:
         a table with a unique index of ``balancing_authority_name_eia`` and a column of
         ``balancing_authority_code``.
     """
-    bac_map = (
+    return (
         # count the unquie combos of BA code and name's.
         df.assign(count=1)
         .groupby(
@@ -1114,7 +1114,6 @@ def map_balancing_authority_names_to_codes(df: pd.DataFrame) -> pd.DataFrame:
         .set_index("balancing_authority_name_eia")
         .drop(columns=["count"])
     )
-    return bac_map
 
 
 def fillna_balancing_authority_codes_via_names(df: pd.DataFrame) -> pd.DataFrame:
@@ -1131,19 +1130,22 @@ def fillna_balancing_authority_codes_via_names(df: pd.DataFrame) -> pd.DataFrame
     """
     pre_len = len(df[df.balancing_authority_code_eia.notnull()])
 
-    ba_code_map = map_balancing_authority_names_to_codes(df)
+    # Identify the most common mapping from a BA name to a BA code:
+    ba_name_to_code_map = map_balancing_authority_names_to_codes(df)
 
-    null_bac_mask = (
+    null_ba_code_mask = (
         df.balancing_authority_code_eia.isnull()
         & df.balancing_authority_name_eia.notnull()
-        & df.balancing_authority_name_eia.isin(ba_code_map.index)
+        & df.balancing_authority_name_eia.isin(ba_name_to_code_map.index)
     )
-    # the outcome here we want is a series of BA codes that are mapped off of the BA
-    # names. we use the ba_code_map with pd.Series.map to generate the codes bc it is a
-    # series of the codes with an index of the names.
-    df.loc[null_bac_mask, "balancing_authority_code_eia"] = df.loc[
-        null_bac_mask, "balancing_authority_name_eia"
-    ].map(ba_code_map.balancing_authority_code_eia)
+    # For each row with a missing BA code, identify the likely code based on its
+    # associated BA name. Here the argument to map() is a Series containing
+    # balancing_authority_code that's indexed by balancing_authority_name.
+    ba_codes = df.loc[null_ba_code_mask, "balancing_authority_name_eia"].map(
+        ba_name_to_code_map
+    )
+    # Fill in the null BA codes
+    df.loc[null_ba_code_mask, "balancing_authority_code_eia"] = ba_codes
 
     post_len = len(df[df.balancing_authority_code_eia.notnull()])
     logger.info(f"filled {post_len - pre_len} balancing authority codes using names.")
