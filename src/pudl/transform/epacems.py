@@ -66,7 +66,6 @@ def harmonize_eia_epa_orispl(
         crosswalk_df,
         on=["plant_id_epa", "emissions_unit_id_epa"],
         how="left",
-        validate="one_to_one",
     )
 
     # Because the crosswalk isn't complete, there are some instances where the
