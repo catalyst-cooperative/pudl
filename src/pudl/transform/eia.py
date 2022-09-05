@@ -1142,7 +1142,7 @@ def fillna_balancing_authority_codes_via_names(df: pd.DataFrame) -> pd.DataFrame
     # associated BA name. Here the argument to map() is a Series containing
     # balancing_authority_code that's indexed by balancing_authority_name.
     ba_codes = df.loc[null_ba_code_mask, "balancing_authority_name_eia"].map(
-        ba_name_to_code_map
+        ba_name_to_code_map.balancing_authority_code_eia
     )
     # Fill in the null BA codes
     df.loc[null_ba_code_mask, "balancing_authority_code_eia"] = ba_codes
