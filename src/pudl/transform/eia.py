@@ -1083,18 +1083,23 @@ def _restrict_years(
     return df
 
 
-def map_balancing_authority_names_and_codes(df):
-    """Build a map of the BA codes and names. We know there are some inconsistent.
+def map_balancing_authority_names_to_codes(df: pd.DataFrame) -> pd.DataFrame:
+    """Build a map of the BA names to their most frequent codes.
 
-    Pairings of codes and names so we are going to grab the most consistently
-    reported combo, making the assumption that the most consistent pairing is most
-    likely to be the correct.
+    We know there are some inconsistent pairings of codes and names so we grab the most
+    consistently reported combo, making the assumption that the most consistent pairing
+    is most likely to be the correct.
 
     Args:
         df: a data table with columns ``balancing_authority_code_eia`` and
             ``balancing_authority_name_eia``
+
+    Returns:
+        a table with a unique index of ``balancing_authority_name_eia`` and a column of
+        ``balancing_authority_code``.
     """
     bac_map = (
+        # count the unquie combos of BA code and name's.
         df.assign(count=1)
         .groupby(
             by=["balancing_authority_name_eia", "balancing_authority_code_eia"],
@@ -1102,20 +1107,23 @@ def map_balancing_authority_names_and_codes(df):
         )[["count"]]
         .count()
         .reset_index()
+        # then sort so the most common is at the top.
         .sort_values(by=["count"], ascending=False)
-        .drop_duplicates(["balancing_authority_code_eia"])
+        # then drop duplicates on the BA name
+        .drop_duplicates(["balancing_authority_name_eia"])
         .set_index("balancing_authority_name_eia")
         .drop(columns=["count"])
     )
     return bac_map
 
 
-def map_null_balancing_authority_codes_with_name(df: pd.DataFrame) -> pd.DataFrame:
-    """Map balancing autority codes with known names.
+def fillna_balancing_authority_codes_via_names(df: pd.DataFrame) -> pd.DataFrame:
+    """Fill null balancing authority (BA) codes via a map of the BA names to codes.
 
-    There are a handfull of missing balancing_authority_code_eia's that are very easy to
-    map given the balancing_authority_name_eia. This function fills in null codes when
-    we know the
+    There are a handfull of missing ``balancing_authority_code_eia``'s that are easy to
+    map given the balancing_authority_name_eia. This function fills in null BA codes
+    using the BA names. The map ofo the BA names to codes is generated via
+    :func:`map_balancing_authority_names_to_codes`.
 
     Args:
         df: a data table with columns ``balancing_authority_code_eia`` and
@@ -1123,16 +1131,20 @@ def map_null_balancing_authority_codes_with_name(df: pd.DataFrame) -> pd.DataFra
     """
     pre_len = len(df[df.balancing_authority_code_eia.notnull()])
 
-    bac_map = map_balancing_authority_names_and_codes(df)
+    ba_code_map = map_balancing_authority_names_to_codes(df)
 
     null_bac_mask = (
         df.balancing_authority_code_eia.isnull()
         & df.balancing_authority_name_eia.notnull()
-        & df.balancing_authority_name_eia.isin(bac_map.index)
+        & df.balancing_authority_name_eia.isin(ba_code_map.index)
     )
+    # the outcome here we want is a series of BA codes that are mapped off of the BA
+    # names. we use the ba_code_map with pd.Series.map to generate the codes bc it is a
+    # series of the codes with an index of the names.
     df.loc[null_bac_mask, "balancing_authority_code_eia"] = df.loc[
         null_bac_mask, "balancing_authority_name_eia"
-    ].map(bac_map.balancing_authority_code_eia)
+    ].map(ba_code_map.balancing_authority_code_eia)
+
     post_len = len(df[df.balancing_authority_code_eia.notnull()])
     logger.info(f"filled {post_len - pre_len} balancing authority codes using names.")
     return df
@@ -1195,7 +1207,7 @@ def transform(
         "boilers_annual_eia",
     )
 
-    eia_transformed_dfs["plants_eia860"] = map_null_balancing_authority_codes_with_name(
+    eia_transformed_dfs["plants_eia860"] = fillna_balancing_authority_codes_via_names(
         df=eia_transformed_dfs["plants_eia860"]
     )
     return entities_dfs, eia_transformed_dfs
