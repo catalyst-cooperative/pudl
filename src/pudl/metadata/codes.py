@@ -1299,11 +1299,12 @@ CODE_METADATA: dict[str, dict[str, Any]] = {
                     "public_utility_grant_county",
                     "Public Utility District No. 2 of Grant County, Washington",
                 ),
+                ("GLHB", "gridliance", "GridLiance (GLHB)"),
                 ("GRDA", "grand_river_dam", "Grand River Dam Authority"),
                 ("GRIF", "griffith_energy", "Griffith Energy, LLC"),
                 ("GRIS", "gridforce_south", "Gridforce South"),
                 ("GRMA", "gila_river_power", "Gila River Power, LLC"),
-                ("GVL", "gainsville_regional", "Gainesville Regional Utilities"),
+                ("GVL", "gainesville_regional", "Gainesville Regional Utilities"),
                 ("GWA", "naturener_power_watch", "NaturEner Power Watch, LLC (GWA)"),
                 ("HECO", "hawaiian_electric", "Hawaiian Electric Co Inc"),
                 (
@@ -1451,7 +1452,7 @@ CODE_METADATA: dict[str, dict[str, Any]] = {
                 ),
                 (
                     "WAUW",
-                    "wester_area_power_west",
+                    "western_area_power_west",
                     "Western Area Power Administration UGP West",
                 ),
                 (
@@ -1466,7 +1467,6 @@ CODE_METADATA: dict[str, dict[str, Any]] = {
                     "alcoa_power_yadkin",
                     "Alcoa Power Generating, Inc. - Yadkin Division",
                 ),
-                ("GLHB", "GridLiance", "GridLiance (GLHB)"),
             ],
         ).convert_dtypes(),
         "code_fixes": {
@@ -1476,8 +1476,6 @@ CODE_METADATA: dict[str, dict[str, Any]] = {
             "TIC": "TIDC",
             "TID": "TIDC",
             "CA": "CISO",
-            # KACY > SWPP
-            # INDN 	Independence Power & Light (Independence,Misso...
         },
         "ignored_codes": [
             "GRID",  # 2022 860m code for plant ID 55328 (code: CSTO for previous years)
