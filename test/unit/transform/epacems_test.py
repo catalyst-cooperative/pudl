@@ -1,5 +1,4 @@
 """Unit tests for the pudl.transform.epacems module."""
-import numpy as np
 import pandas as pd
 
 import pudl.transform.epacems as epacems
@@ -33,8 +32,7 @@ def test_harmonize_eia_epa_orispl():
         {
             "plant_id_epa": [2713, 3, 10, 1111],
             "emissions_unit_id_epa": ["01A", "1", "2", "no-match"],
-            "plant_id_eia": [58697, 3, 10, np.nan],
-            "plant_id_combined": [58697, 3, 10, 1111],
+            "plant_id_eia": [58697, 3, 10, 1111],
         }
     )
     actual_df = epacems.harmonize_eia_epa_orispl(cems_test_df, crosswalk_test_df)

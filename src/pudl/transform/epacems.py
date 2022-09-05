@@ -52,25 +52,19 @@ def harmonize_eia_epa_orispl(
         ["plant_id_eia", "plant_id_epa", "emissions_unit_id_epa"]
     ].drop_duplicates()
 
-    # I wonder if there is a faster way to do this by checking if the id needs to be
-    # fixed rather than just merging it all together (as done below).
-
     # Merge CEMS with Crosswalk to get correct EIA ORISPL code.
+
+    # Because the crosswalk isn't complete, there are some instances where the
+    # plant_id_eia value will be NA. This isn't great when it goes to grouping or
+    # merging data together. Specifically for the convert_to_utc() function below.
+    # Until the crosswalk is comprehensive, we'll fill in all unmapped plant_id_eia
+    # values with whatever was in plant_id_epa.s
     df_merged = pd.merge(
         df,
         crosswalk_df,
         on=["plant_id_epa", "emissions_unit_id_epa"],
         how="left",
-    )
-
-    # Because the crosswalk isn't complete, there are some instances where the
-    # plant_id_eia value will be NA. This isn't great when it goes to grouping or
-    # merging data together. Specifically for the convert_to_utc() function below.
-    # This creates a column based on the plant_id_eia but backfills NA with
-    # plant_id_epa so it can be used to merge on.
-    df_merged["plant_id_combined"] = df_merged.plant_id_eia.fillna(
-        df_merged.plant_id_epa
-    )
+    ).assign(plant_id_eia=lambda x: x.plant_id_eia.fillna(x.plant_id_epa))
 
     return df_merged
 
@@ -84,7 +78,7 @@ def convert_to_utc(df: pd.DataFrame, plant_utc_offset: pd.DataFrame) -> pd.DataF
 
     Args:
         df: A CEMS hourly dataframe for one year-state.
-        plant_utc_offset: A dataframe association plant_id_combined with timezones.
+        plant_utc_offset: A dataframe association with timezones.
 
     Returns:
         The same data, with an op_datetime_utc column added and the op_date and op_hour
@@ -101,15 +95,15 @@ def convert_to_utc(df: pd.DataFrame, plant_utc_offset: pd.DataFrame) -> pd.DataF
         )
         + pd.to_timedelta(x.op_hour, unit="h")  # Add the hour
     ).merge(
-        plant_utc_offset.rename(columns={"plant_id_eia": "plant_id_combined"}),
+        plant_utc_offset,
         how="left",
-        on="plant_id_combined",
+        on="plant_id_eia",
     )
 
     # Some of the timezones in the plants_entity_eia table may be missing,
     # but none of the CEMS plants should be.
     if df["utc_offset"].isna().any():
-        missing_plants = df.loc[df["utc_offset"].isna(), "plant_id_combined"].unique()
+        missing_plants = df.loc[df["utc_offset"].isna(), "plant_id_eia"].unique()
         raise ValueError(
             f"utc_offset should never be missing for CEMS plants, but was "
             f"missing for these: {str(list(missing_plants))}"
@@ -125,7 +119,6 @@ def convert_to_utc(df: pd.DataFrame, plant_utc_offset: pd.DataFrame) -> pd.DataF
         df["op_hour"],
         df["op_datetime_naive"],
         df["utc_offset"],
-        df["plant_id_combined"],
     )
     return df
 
