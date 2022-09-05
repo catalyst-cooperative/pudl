@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 
 def harmonize_eia_epa_orispl(
     df: pd.DataFrame,
-    pudl_engine: sa.engine.Engine,
+    crosswalk_df: pd.DataFrame,
 ) -> pd.DataFrame:
     """Harmonize the ORISPL code to match the EIA data.
 
@@ -37,10 +37,8 @@ def harmonize_eia_epa_orispl(
     convert_to_utc uses the plant ID to look up timezones.
 
     Args:
-        pudl_engine: SQLAlchemy connection engine for connecting to an existing PUDL DB.
-            This is used to access the crosswalk file for conversion. The crosswalk must
-            be processed prior to running this function or it won't work.
         df: A CEMS hourly dataframe for one year-month-state.
+        crosswalk_df: The epacamd_eia_crosswalk dataframe from the database.
 
     Returns:
         The same data, with the ORISPL plant codes corrected to match the EIA plant IDs.
@@ -50,12 +48,9 @@ def harmonize_eia_epa_orispl(
     # plant_id_epa and emissions_unit_id_epa then calculate .nunique() for plant_id_eia,
     # none of the values are greater than one meaning that this drop/merge is ok. Might
     # want to make that an official test somewhere.
-
-    crosswalk_df = pd.read_sql(
-        "epacamd_eia_crosswalk",
-        con=pudl_engine,
-        columns=["plant_id_eia", "plant_id_epa", "emissions_unit_id_epa"],
-    ).drop_duplicates()
+    crosswalk_df = crosswalk_df[
+        ["plant_id_eia", "plant_id_epa", "emissions_unit_id_epa"]
+    ].drop_duplicates()
 
     # I wonder if there is a faster way to do this by checking if the id needs to be
     # fixed rather than just merging it all together (as done below).
@@ -203,10 +198,13 @@ def transform(
         A single year-state of EPA CEMS data
 
     """
+    # Create all the table inputs used for the subtransform functions below
+    crosswalk_df = pd.read_sql("epacamd_eia_crosswalk", con=pudl_engine)
+
     return (
         raw_df.pipe(apply_pudl_dtypes, group="epacems")
         .pipe(remove_leading_zeros_from_numeric_strings, "emissions_unit_id_epa")
-        .pipe(harmonize_eia_epa_orispl, pudl_engine)
+        .pipe(harmonize_eia_epa_orispl, crosswalk_df)
         .pipe(convert_to_utc, plant_utc_offset=_load_plant_utc_offset(pudl_engine))
         .pipe(correct_gross_load_mw)
         .pipe(apply_pudl_dtypes, group="epacems")
