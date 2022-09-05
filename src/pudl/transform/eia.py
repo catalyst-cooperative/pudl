@@ -1120,7 +1120,7 @@ def map_balancing_authority_names_to_codes(df: pd.DataFrame) -> pd.DataFrame:
 def fillna_balancing_authority_codes_via_names(df: pd.DataFrame) -> pd.DataFrame:
     """Fill null balancing authority (BA) codes via a map of the BA names to codes.
 
-    There are a handfull of missing ``balancing_authority_code_eia``'s that are easy to
+    There are a handful of missing ``balancing_authority_code_eia``'s that are easy to
     map given the balancing_authority_name_eia. This function fills in null BA codes
     using the BA names. The map ofo the BA names to codes is generated via
     :func:`map_balancing_authority_names_to_codes`.
