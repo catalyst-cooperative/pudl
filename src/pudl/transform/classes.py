@@ -20,27 +20,11 @@ import numpy as np
 import pandas as pd
 from pydantic import BaseModel, root_validator, validator
 
+import pudl.transform.params.ferc1
 from pudl.helpers import get_logger
 from pudl.metadata.classes import Package
-from pudl.transform.params.ferc1 import TRANSFORM_PARAMS as TRANSFORM_PARAMS_FERC1
 
 logger = get_logger(__name__)
-
-
-TRANSFORM_PARAMS: dict[str, str] = {
-    **TRANSFORM_PARAMS_FERC1,
-    # **TRANSFORM_PARAMS_EIA860,
-    # **TRANSFORM_PARAMS_EIA861,
-    # etc...
-}
-"""A dictionary of all the transformation parameters, keyed by table ID.
-
-This should be compiled dynamically from across all the different data source specific
-transform modules, or whatever other locations we end up deciding to store this
-information. We need to be able to do this kind of lookup based on table ID in order to
-sneak the table-specific parameters into the dagster ops without creating massive config
-parameter dictionaries. But for now we only have one data source and it's FERC 1.
-"""
 
 
 #####################################################################################
@@ -212,7 +196,7 @@ class UnitCorrections(TransformParams):
     unit_conversions: list[UnitConversion]
 
     @validator("unit_conversions")
-    def no_column_rename(cls, v):
+    def no_column_rename(cls, v: list[UnitConversion]):
         """Require that all unit conversions result in no column renaming.
 
         This constraint is imposed so that the same unit conversion definitions
@@ -244,8 +228,14 @@ class TableTransformParams(TransformParams):
 
     @classmethod
     def from_id(cls, table_id: enum.Enum) -> "TableTransformParams":
-        """A factory method that looks up transform parameters based on table_id."""
-        return cls(**TRANSFORM_PARAMS[table_id.value])
+        """A factory method that looks up tr ansform parameters based on table_id."""
+        transform_params = {
+            **pudl.transform.params.ferc1.TRANSFORM_PARAMS,
+            # **pudl.transform.params.eia860.TRANSFORM_PARAMS,
+            # **pudl.transform.params.eia923.TRANSFORM_PARAMS,
+            # etc... as appropriate
+        }
+        return cls(**transform_params[table_id.value])
 
 
 #####################################################################################
