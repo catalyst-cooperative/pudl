@@ -14,33 +14,17 @@ from abc import ABC, abstractmethod
 from collections.abc import Callable
 from functools import cached_property, wraps
 from itertools import combinations
-from typing import Protocol
+from typing import Any, Protocol
 
 import numpy as np
 import pandas as pd
 from pydantic import BaseModel, root_validator, validator
 
+import pudl.transform.params.ferc1
 from pudl.helpers import get_logger
 from pudl.metadata.classes import Package
-from pudl.transform.params.ferc1 import TRANSFORM_PARAMS as TRANSFORM_PARAMS_FERC1
 
 logger = get_logger(__name__)
-
-
-TRANSFORM_PARAMS: dict[str, str] = {
-    **TRANSFORM_PARAMS_FERC1,
-    # **TRANSFORM_PARAMS_EIA860,
-    # **TRANSFORM_PARAMS_EIA861,
-    # etc...
-}
-"""A dictionary of all the transformation parameters, keyed by table ID.
-
-This should be compiled dynamically from across all the different data source specific
-transform modules, or whatever other locations we end up deciding to store this
-information. We need to be able to do this kind of lookup based on table ID in order to
-sneak the table-specific parameters into the dagster ops without creating massive config
-parameter dictionaries. But for now we only have one data source and it's FERC 1.
-"""
 
 
 #####################################################################################
@@ -85,35 +69,44 @@ class RenameColumns(TransformParams):
     columns: dict[str, str] = {}
 
 
-class RemoveInvalidRows(TransformParams):
-    """Defines how to identify invalid rows to drop."""
+class InvalidRows(TransformParams):
+    """Pameters that identify invalid rows to drop."""
 
     invalid_values: list
-    cols_to_check: list[str] | None = None
-    cols_to_not_check: list[str] | None = None
+    """A list of values that should be considered invalid in the selected columns."""
+
+    required_valid_cols: list[str] | None = None
+    """List of columns passed into :meth:`pd.filter` as the ``items`` argument."""
+
+    allowed_invalid_cols: list[str] | None = None
+    """List of columns *not* to search for valid values to preserve.
+
+    Used to construct an ``items`` argument for :meth:`pd.filter`. This option is useful
+    when a table is wide, and specifying all ``required_valid_cols`` would be tedious.
+    """
+
     like: str | None = None
+    """A string to use as the ``like`` argument to :meth:`pd.filter`"""
+
     regex: str | None = None
+    """A regular expression to use as the ``regex`` argument to :meth:`pd.filter`."""
 
     @root_validator
-    def fliter_options(cls, values):
-        """Check if the args for ``filter`` are multually exculsive.
-
-        You input either ``cols_to_check`` or ``cols_to_not_check``, which will feed
-        into ``pandas.filter``'s ``items`` parameter.
-        """
-        num_of_non_non_values = sum(
-            x is not None
-            for x in [
-                values["cols_to_check"],
-                values["cols_to_not_check"],
+    def one_filter_argument(cls, values):
+        """Validate that only one argument is specified for :meth:`pd.filter`."""
+        num_args = sum(
+            int(bool(val))
+            for val in [
+                values["required_valid_cols"],
+                values["allowed_invalid_cols"],
                 values["like"],
                 values["regex"],
             ]
         )
-        if 1 != num_of_non_non_values:
+        if num_args != 1:
             raise AssertionError(
-                "You must specify one and only one input into ``pandas.filter`` and "
-                f"{num_of_non_non_values} were found."
+                "You must specify one and only one argument to :meth:`pd.filter` and "
+                f"{num_args} were found."
             )
         return values
 
@@ -121,8 +114,8 @@ class RemoveInvalidRows(TransformParams):
 class StringCategories(TransformParams):
     """Defines mappings to clean up manually categorized freeform strings.
 
-    Each key in a stringmap is a cleaned output category, and each value is the set of
-    all strings which should be replaced with associated clean output category.
+    Each key in the dictionary is the categorical value that all the freeform strings
+    listed in the associated value will be mapped to after categorization.
 
     """
 
@@ -203,7 +196,7 @@ class UnitCorrections(TransformParams):
     unit_conversions: list[UnitConversion]
 
     @validator("unit_conversions")
-    def no_column_rename(cls, v):
+    def no_column_rename(cls, v: list[UnitConversion]):
         """Require that all unit conversions result in no column renaming.
 
         This constraint is imposed so that the same unit conversion definitions
@@ -231,12 +224,29 @@ class TableTransformParams(TransformParams):
     nullify_outliers: dict[str, ValidRange] = {}
     normalize_strings: dict[str, bool] = {}
     correct_units: list[UnitCorrections] = []
-    remove_invalid_rows: RemoveInvalidRows = {}
+    drop_invalid_rows: InvalidRows = {}
+
+    @classmethod
+    def from_dict(cls, params: dict[str, Any]) -> "TableTransformParams":
+        """Construct TableTransformParams from a dictionary of constant parameters."""
+        return cls(**params)
 
     @classmethod
     def from_id(cls, table_id: enum.Enum) -> "TableTransformParams":
-        """A factory method that looks up transform parameters based on table_id."""
-        return cls(**TRANSFORM_PARAMS[table_id.value])
+        """A factory method that looks up transform parameters based on table_id.
+
+        This is a shortcut, which allows us to constitute the parameter models based
+        on the table they are associated with without having to pass in a potentially
+        large nested data structure, which gets messy in Dagster.
+
+        """
+        transform_params = {
+            **pudl.transform.params.ferc1.TRANSFORM_PARAMS,
+            # **pudl.transform.params.eia860.TRANSFORM_PARAMS,
+            # **pudl.transform.params.eia923.TRANSFORM_PARAMS,
+            # etc... as appropriate
+        }
+        return cls.from_dict(transform_params[table_id.value])
 
 
 #####################################################################################
@@ -602,53 +612,36 @@ class AbstractTableTransformer(ABC):
             )
         return df.rename(columns=params.columns)
 
-    def remove_invalid_rows(
-        self, df: pd.DataFrame, params: RemoveInvalidRows
-    ) -> pd.DataFrame:
+    def drop_invalid_rows(self, df: pd.DataFrame, params: InvalidRows) -> pd.DataFrame:
         """Drop rows with only invalid values in all specificed columns.
 
         This method finds all rows in a dataframe that contain ONLY invalid data in ALL
-        of the columns that we are checking and drops them with a notification of the %
-        of the records that were dropped. The input parameters must specific the invlaid
-        values to search for and only one of the following:
-
-        * columns to seach as ``cols_to_check``. This will be used directly in
-          ``pandas.filter(items)``
-        * columns to not search as ``cols_to_not_check``. This is usefull if a table
-          is large and specifcying all of the ``cols_to_check`` would be arduous.
-        * a string to search on via ``pandas.filter(like)`` as ``like``
-        * a regex to search on via ``pandas.filter(regex)`` as ``regex``
+        of the columns that we are checking, and drops those rows, logging the % of all
+        rows that were dropped.
 
         """
         pre_drop_len = len(df)
-        # assign items for filter based on either the cols_to_check or cols_to_not_checks
-        if params.cols_to_check or params.cols_to_not_check:
-            items = params.cols_to_check or [
-                col for col in df if col not in params.cols_to_not_check
+        # set filter items using either required_valid_cols or allowed_invalid_cols
+        if params.required_valid_cols or params.allowed_invalid_cols:
+            items = params.required_valid_cols or [
+                col for col in df if col not in params.allowed_invalid_cols
             ]
-        # find all of the bad records by first filtering the colums
-        # then check if those columns contain the invalid data
-        # but we only want to drop things if every single column contains only bad data
-        # so we use .all()... this gives us the BAD records, so the records to keep are
-        # everything but those, hence the ~ at the beginning.
-        # we use copy because we are creating a df that is a slice of the original
-        df_out = df[
-            (
-                ~(
-                    df.filter(
-                        items=items,
-                        like=params.like,
-                        regex=params.regex,
-                        axis="columns",
-                    ).isin(params.invalid_values)
-                ).all(axis="columns")
-            )
-        ].copy()
+
+        # Filter to select the subset of COLUMNS we want to check for valid values:
+        cols_to_check = df.filter(
+            items=items, like=params.like, regex=params.regex, axis="columns"
+        )
+        # Create a boolean mask selecting the ROWS where NOT ALL of the columns we
+        # care about are invalid (i.e. where ANY of the columns we care about contain a
+        # valid value):
+        mask = ~cols_to_check.isin(params.invalid_values).all(axis="columns")
+        # Mask the input dataframe and make a copy to avoid returning a slice.
+        df_out = df[mask].copy()
 
         logger.info(
             f"{self.table_id.value}: {1 - (len(df_out)/pre_drop_len):.0%} of records"
-            f" contain only {params.invalid_values} values in data columns. Dropping "
-            "these 💩 records."
+            f" contain only {params.invalid_values} values in required columns. "
+            "Dropping these 💩💩💩 records."
         )
         return df_out
 
