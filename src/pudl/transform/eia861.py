@@ -500,9 +500,7 @@ def backfill_ba_codes_by_ba_id(df: pd.DataFrame) -> pd.DataFrame:
             (balancing_authority_eia861).
     """
     ba_eia861_filled = (
-        make_backfilled_ba_code_column(
-            df, date_col="report_date", by_cols=["balancing_authority_id_eia"]
-        )
+        make_backfilled_ba_code_column(df, by_cols=["balancing_authority_id_eia"])
         .assign(
             balancing_authority_code_eia=lambda x: x.balancing_authority_code_eia_bfilled
         )
