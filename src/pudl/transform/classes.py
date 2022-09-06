@@ -76,13 +76,13 @@ class InvalidRows(TransformParams):
     """A list of values that should be considered invalid in the selected columns."""
 
     required_valid_cols: list[str] | None = None
-    """The list of columns passed into :meth:`pd.filter` as the ``items`` argument."""
+    """List of columns passed into :meth:`pd.filter` as the ``items`` argument."""
 
     allowed_invalid_cols: list[str] | None = None
-    """The list of *not* to search for valid values to preserve.
+    """List of columns *not* to search for valid values to preserve.
 
-    Used to construct an ``items`` argument for :meth:`pd.filter`. This is useful if a
-    table is wide and specifcying all ``required_valid_cols`` would be tedious.
+    Used to construct an ``items`` argument for :meth:`pd.filter`. This option is useful
+    when a table is wide, and specifying all ``required_valid_cols`` would be tedious.
     """
 
     like: str | None = None
