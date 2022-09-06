@@ -441,13 +441,47 @@ def correct_units(df: pd.DataFrame, params: UnitCorrections) -> pd.DataFrame:
 #####################################################################################
 # Abstract Table Transformer classes
 #####################################################################################
-def cache_df(key: str = "main") -> Callable:
-    """A decorator for managing intermediate dataframe caching."""
+def cache_df(key: str = "main") -> Callable[..., pd.DataFrame]:
+    """A decorator for caching dataframes within an :class:`AbstractTableTransformer`.
 
-    def _decorator(func) -> Callable:
+    It's often useful during development or debugging to be able to track the evolution
+    of data as it passes through several transformation steps. Especially when some of
+    the steps are time consuming, it's nice to still get a copy of the last known state
+    of the data when a transform raises an exception and fails.
+
+    This decorator lets you easily save a copy of the dataframe being returned by a
+    class method for later reference, before moving on to the next step. Each unique key
+    used within a given :class:`AbstractTableTransformer` instance results in a new
+    dataframe being cached. Re-using the same key will overwrite previously cached
+    dataframes that were stored with that key.
+
+    Saving many intermediate steps can provide lots of detailed information, but will
+    use more memory. Updating the same cached dataframe as it successfully passes
+    through each step lets you access the last known state it had before an error
+    occurred.
+
+    This decorator requires that the decorated function return a single
+    :class:`pd.DataFrame`, but it can take any type of inputs.
+
+    Args:
+        key: The key that will be used to store and look up the cached dataframe in the
+            internal ``self._cached_dfs`` dictionary.
+
+    Returns:
+        The decorated class method.
+
+    """
+
+    def _decorator(func: Callable[..., pd.DataFrame]) -> Callable[..., pd.DataFrame]:
         @wraps(func)
         def _wrapper(self: AbstractTableTransformer, *args, **kwargs) -> pd.DataFrame:
             df = func(self, *args, **kwargs)
+            if not isinstance(df, pd.DataFrame):
+                raise ValueError(
+                    f"{self.table_id.value}: The cache_df decorator only works on "
+                    "methods that return a pandas dataframe. "
+                    f"The method {func.__name__} returned a {type(df)}."
+                )
             if self.cache_dfs:
                 logger.debug(
                     f"{self.table_id.value}: Caching df to {key=} "
@@ -504,7 +538,7 @@ class AbstractTableTransformer(ABC):
     ################################################################################
     # Abstract methods that must be defined by subclasses
     @abstractmethod
-    def start_transform(self, **kwargs) -> pd.DataFrame:
+    def transform_start(self, **kwargs) -> pd.DataFrame:
         """Transformations applied to many tables within a dataset at the beginning.
 
         This method should be implemented by the dataset-level abstract table
@@ -520,12 +554,12 @@ class AbstractTableTransformer(ABC):
         ...
 
     @abstractmethod
-    def main_transform(self, df: pd.DataFrame) -> pd.DataFrame:
+    def transform_main(self, df: pd.DataFrame) -> pd.DataFrame:
         """The workhorse method doing most of the table-specific transformations."""
         ...
 
     @abstractmethod
-    def finish_transform(self, df: pd.DataFrame) -> pd.DataFrame:
+    def transform_finish(self, df: pd.DataFrame) -> pd.DataFrame:
         """Transformations applied to many tables within a dataset at the end.
 
         This method should be implemented by the dataset-level abstract table
@@ -540,9 +574,9 @@ class AbstractTableTransformer(ABC):
     def transform(self, *args, **kwargs) -> pd.DataFrame:
         """Apply all specified transformations to the appropriate input dataframes."""
         df = (
-            self.start_transform(*args, **kwargs)
-            .pipe(self.main_transform)
-            .pipe(self.finish_transform)
+            self.transform_start(*args, **kwargs)
+            .pipe(self.transform_main)
+            .pipe(self.transform_finish)
         )
         if self.clear_cached_dfs:
             logger.debug(

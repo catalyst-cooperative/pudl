@@ -126,7 +126,7 @@ class Ferc1TableTransformParams(TableTransformParams):
 class Ferc1AbstractTableTransformer(AbstractTableTransformer):
     """An abstract class defining methods common to many FERC Form 1 tables.
 
-    This subclass remains abstract because it does not define main_transform(), which
+    This subclass remains abstract because it does not define transform_main(), which
     is always going to be table-specific.
 
     * Methods that only apply to XBRL data should end with _xbrl
@@ -141,7 +141,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         return Ferc1TableTransformParams.from_id(table_id=self.table_id)
 
     @cache_df(key="main")
-    def start_transform(
+    def transform_start(
         self,
         raw_dbf: pd.DataFrame,
         raw_xbrl_instant: pd.DataFrame,
@@ -154,7 +154,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         return pd.concat([processed_dbf, processed_xbrl]).reset_index(drop=True)
 
     @cache_df(key="main")
-    def finish_transform(self, df: pd.DataFrame) -> pd.DataFrame:
+    def transform_finish(self, df: pd.DataFrame) -> pd.DataFrame:
         """Enforce the database schema and remove any cached dataframes."""
         return self.enforce_schema(df)
 
@@ -458,7 +458,7 @@ class FuelFerc1TableTransformer(Ferc1AbstractTableTransformer):
     table_id: Ferc1TableId = Ferc1TableId.FUEL_FERC1
 
     @cache_df(key="main")
-    def main_transform(self, df: pd.DataFrame) -> pd.DataFrame:
+    def transform_main(self, df: pd.DataFrame) -> pd.DataFrame:
         """Table specific transforms for fuel_ferc1.
 
         Params:
@@ -727,7 +727,7 @@ class PlantsSteamFerc1TableTransformer(Ferc1AbstractTableTransformer):
     table_id: Ferc1TableId = Ferc1TableId.PLANTS_STEAM_FERC1
 
     @cache_df(key="main")
-    def main_transform(
+    def transform_main(
         self, df: pd.DataFrame, transformed_fuel: pd.DataFrame
     ) -> pd.DataFrame:
         """Perform table transformations for the plants_steam_ferc1 table."""
@@ -736,7 +736,7 @@ class PlantsSteamFerc1TableTransformer(Ferc1AbstractTableTransformer):
             .params.categorize_strings["fuel_type_code_pudl"]
             .categories.keys()
         )
-        return (
+        plants_steam = (
             self.normalize_strings_multicol(df, params=self.params.normalize_strings)
             .pipe(self.nullify_outliers_multicol, params=self.params.nullify_outliers)
             .pipe(
@@ -751,6 +751,7 @@ class PlantsSteamFerc1TableTransformer(Ferc1AbstractTableTransformer):
             )
             .pipe(plants_steam_validate_ids)
         )
+        return plants_steam
 
 
 ##################################################################################
