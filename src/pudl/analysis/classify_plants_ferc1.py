@@ -531,12 +531,14 @@ def plants_steam_assign_plant_ids(
     return ferc1_steam_df
 
 
-def plants_steam_validate_ids(ferc1_steam_df: pd.DataFrame) -> None:
+def plants_steam_validate_ids(ferc1_steam_df: pd.DataFrame) -> pd.DataFrame:
     """Tests that plant_id_ferc1 times series includes one record per year.
 
     Args:
-        ferc1_steam_df: A DataFrame of the data from the FERC 1
-            Steam table.
+        ferc1_steam_df: A DataFrame of the data from the FERC 1 Steam table.
+
+    Returns:
+        The input dataframe, to enable method chaining.
 
     """
     ##########################################################################
@@ -562,6 +564,8 @@ def plants_steam_validate_ids(ferc1_steam_df: pd.DataFrame) -> None:
             )
     else:
         logger.info("No duplicate years found in any plant_id_ferc1. Hooray!")
+
+    return ferc1_steam_df
 
 
 def fuel_by_plant_ferc1(

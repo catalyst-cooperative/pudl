@@ -357,14 +357,11 @@ def respondent_id(tfr_dfs):
         respondent_id_ferc714 dataframe.
 
     """
-    df = (
-        tfr_dfs["respondent_id_ferc714"].assign(
-            respondent_name_ferc714=lambda x: x.respondent_name_ferc714.str.strip(),
-            eia_code=lambda x: x.eia_code.replace(to_replace=0, value=pd.NA),
-        )
-        # These excludes fake Test IDs -- not real planning areas
-        .query("respondent_id_ferc714 not in @BAD_RESPONDENTS")
-    )
+    df = tfr_dfs["respondent_id_ferc714"]
+    df["respondent_name_ferc714"] = df.respondent_name_ferc714.str.strip()
+    df.loc[df.eia_code == 0, "eia_code"] = pd.NA
+    # These excludes fake Test IDs -- not real planning areas
+    df = df[~df.respondent_id_ferc714.isin(BAD_RESPONDENTS)]
     # There are a few utilities that seem mappable, but missing:
     for rid in EIA_CODE_FIXES:
         df.loc[df.respondent_id_ferc714 == rid, "eia_code"] = EIA_CODE_FIXES[rid]

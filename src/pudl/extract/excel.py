@@ -287,8 +287,8 @@ class GenericExtractor:
 
             # After all years are loaded, add empty columns that could appear
             # in other years so that df matches the database schema
-            missing_cols = set(self._metadata.get_all_columns(page)).difference(
-                df.columns
+            missing_cols = sorted(
+                set(self._metadata.get_all_columns(page)).difference(df.columns)
             )
             df = pd.concat([df, pd.DataFrame(columns=missing_cols)], sort=True)
 
