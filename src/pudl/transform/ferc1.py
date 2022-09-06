@@ -720,7 +720,7 @@ class PlantsSteamFerc1TableTransformer(Ferc1AbstractTableTransformer):
             .params.categorize_strings["fuel_type_code_pudl"]
             .categories.keys()
         )
-        return (
+        plants_steam = (
             self.normalize_strings_multicol(df, params=self.params.normalize_strings)
             .pipe(self.nullify_outliers_multicol, params=self.params.nullify_outliers)
             .pipe(
@@ -735,6 +735,7 @@ class PlantsSteamFerc1TableTransformer(Ferc1AbstractTableTransformer):
             )
             .pipe(plants_steam_validate_ids)
         )
+        return plants_steam
 
 
 ##################################################################################
