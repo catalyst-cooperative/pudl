@@ -528,7 +528,7 @@ class AbstractTableTransformer(ABC):
     ################################################################################
     # Abstract methods that must be defined by subclasses
     @abstractmethod
-    def start_transform(self, **kwargs) -> pd.DataFrame:
+    def transform_start(self, **kwargs) -> pd.DataFrame:
         """Transformations applied to many tables within a dataset at the beginning.
 
         This method should be implemented by the dataset-level abstract table
@@ -544,12 +544,12 @@ class AbstractTableTransformer(ABC):
         ...
 
     @abstractmethod
-    def main_transform(self, df: pd.DataFrame) -> pd.DataFrame:
+    def transform_main(self, df: pd.DataFrame) -> pd.DataFrame:
         """The workhorse method doing most of the table-specific transformations."""
         ...
 
     @abstractmethod
-    def finish_transform(self, df: pd.DataFrame) -> pd.DataFrame:
+    def transform_finish(self, df: pd.DataFrame) -> pd.DataFrame:
         """Transformations applied to many tables within a dataset at the end.
 
         This method should be implemented by the dataset-level abstract table
@@ -564,9 +564,9 @@ class AbstractTableTransformer(ABC):
     def transform(self, *args, **kwargs) -> pd.DataFrame:
         """Apply all specified transformations to the appropriate input dataframes."""
         df = (
-            self.start_transform(*args, **kwargs)
-            .pipe(self.main_transform)
-            .pipe(self.finish_transform)
+            self.transform_start(*args, **kwargs)
+            .pipe(self.transform_main)
+            .pipe(self.transform_finish)
         )
         if self.clear_cached_dfs:
             logger.debug(
