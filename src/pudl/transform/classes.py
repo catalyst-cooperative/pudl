@@ -14,7 +14,7 @@ from abc import ABC, abstractmethod
 from collections.abc import Callable
 from functools import cached_property, wraps
 from itertools import combinations
-from typing import Protocol
+from typing import Any, Protocol
 
 import numpy as np
 import pandas as pd
@@ -227,15 +227,26 @@ class TableTransformParams(TransformParams):
     drop_invalid_rows: InvalidRows = {}
 
     @classmethod
+    def from_dict(cls, params: dict[str, Any]) -> "TableTransformParams":
+        """Construct TableTransformParams from a dictionary of constant parameters."""
+        return cls(**params)
+
+    @classmethod
     def from_id(cls, table_id: enum.Enum) -> "TableTransformParams":
-        """A factory method that looks up tr ansform parameters based on table_id."""
+        """A factory method that looks up transform parameters based on table_id.
+
+        This is a shortcut, which allows us to constitute the parameter models based
+        on the table they are associated with without having to pass in a potentially
+        large nested data structure, which gets messy in Dagster.
+
+        """
         transform_params = {
             **pudl.transform.params.ferc1.TRANSFORM_PARAMS,
             # **pudl.transform.params.eia860.TRANSFORM_PARAMS,
             # **pudl.transform.params.eia923.TRANSFORM_PARAMS,
             # etc... as appropriate
         }
-        return cls(**transform_params[table_id.value])
+        return cls.from_dict(transform_params[table_id.value])
 
 
 #####################################################################################
