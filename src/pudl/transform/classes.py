@@ -463,6 +463,9 @@ def cache_df(key: str = "main") -> Callable[..., pd.DataFrame]:
     This decorator requires that the decorated function return a single
     :class:`pd.DataFrame`, but it can take any type of inputs.
 
+    There's a lot of nested functions in here. For a more thorough explanation, see:
+    https://realpython.com/primer-on-python-decorators/#fancy-decorators
+
     Args:
         key: The key that will be used to store and look up the cached dataframe in the
             internal ``self._cached_dfs`` dictionary.
