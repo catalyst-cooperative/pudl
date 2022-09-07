@@ -22,16 +22,6 @@ jobs:
           channels: conda-forge,defaults
           channel-priority: strict
 
-      #     - name: Set up conda environment for testing
-      #       uses: conda-incubator/setup-miniconda@v2.1.1
-      #       with:
-      #         mamba-version: "*"
-      #         channels: conda-forge,defaults
-      #         channel-priority: true
-      #         python-version: "3.10"
-      #         activate-environment: pudl-test
-      #         environment-file: test/test-environment.yml
-
       - shell: bash -l {0}
         run: |
           conda info
@@ -61,8 +51,8 @@ jobs:
 
       - name: Log SQLite3 version
         run: |
-          conda run -n pudl-test which sqlite3
-          conda run -n pudl-test sqlite3 --version
+          which sqlite3
+          sqlite3 --version
 
       - name: Set default gcp credentials
         id: gcloud-auth
@@ -74,7 +64,7 @@ jobs:
         env:
           API_KEY_EIA: ${{ secrets.API_KEY_EIA }}
         run: |
-          conda run -n pudl-test tox -- --gcs-cache-path gs://zenodo-cache.catalyst.coop
+          tox -- --gcs-cache-path gs://zenodo-cache.catalyst.coop
 
       - name: Log post-test Zenodo datastore contents
         run: find ~/pudl-work/data/
