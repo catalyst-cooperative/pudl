@@ -2221,16 +2221,12 @@ def apply_pudl_dtypes(
         df: The dataframe to apply types to. Not all columns need to have types
             defined in the PUDL metadata.
         group: The data group to use for overrides, if any. E.g. "eia", "ferc1".
-        resource: The data resource to use for overrides, if any. E.g. "plants_steam_ferc1"
         field_meta: A dictionary of field metadata, where each key is a field name
             and the values are dictionaries which must have a "type" element. By
             default this is pudl.metadata.fields.FIELD_METADATA.
         field_meta_by_group: A dictionary of field metadata to use as overrides,
             based on the value of `group`, if any. By default it uses the overrides
             defined in pudl.metadata.fields.FIELD_METADATA_BY_GROUP.
-        field_meta_by_resource: A dictionary of field metadata to use as overrides,
-            based on the value of `resource`, if any. By default it uses the overrides
-            defined in pudl.metadata.fields.FIELD_METADATA_BY_RESOURCE.
 
     Returns:
         The input dataframe, but with standard PUDL types applied.
