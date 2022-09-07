@@ -208,8 +208,8 @@ def _occurrence_consistency(
         return col_df
     # determine how many times each entity occurs in col_df
     occur = (
-        col_df.groupby(by=cols_to_consit, observed=True)
-        .agg({"table": "count"})
+        col_df.groupby(by=cols_to_consit, observed=True)[["table"]]
+        .count()
         .reset_index()
         .rename(columns={"table": "entity_occurences"})
     )
@@ -219,8 +219,8 @@ def _occurrence_consistency(
 
     # determine how many instances of each of the records in col exist
     consist_df = (
-        col_df.groupby(by=cols_to_consit + [col], observed=True)
-        .agg({"table": "count"})
+        col_df.groupby(by=cols_to_consit + [col], observed=True)[["table"]]
+        .count()
         .reset_index()
         .rename(columns={"table": "record_occurences"})
     )
@@ -1083,6 +1083,75 @@ def _restrict_years(
     return df
 
 
+def map_balancing_authority_names_to_codes(df: pd.DataFrame) -> pd.DataFrame:
+    """Build a map of the BA names to their most frequently associated BA codes.
+
+    We know there are some inconsistent pairings of codes and names so we grab the most
+    consistently reported combo, making the assumption that the most consistent pairing
+    is most likely to be the correct.
+
+    Args:
+        df: a data table with columns ``balancing_authority_code_eia`` and
+            ``balancing_authority_name_eia``
+
+    Returns:
+        a table with a unique index of ``balancing_authority_name_eia`` and a column of
+        ``balancing_authority_code``.
+    """
+    return (
+        # count the unquie combos of BA code and name's.
+        df.assign(count=1)
+        .groupby(
+            by=["balancing_authority_name_eia", "balancing_authority_code_eia"],
+            observed=True,
+        )[["count"]]
+        .count()
+        .reset_index()
+        # then sort so the most common is at the top.
+        .sort_values(by=["count"], ascending=False)
+        # then drop duplicates on the BA name
+        .drop_duplicates(["balancing_authority_name_eia"])
+        .set_index("balancing_authority_name_eia")
+        .drop(columns=["count"])
+    )
+
+
+def fillna_balancing_authority_codes_via_names(df: pd.DataFrame) -> pd.DataFrame:
+    """Fill null balancing authority (BA) codes via a map of the BA names to codes.
+
+    There are a handful of missing ``balancing_authority_code_eia``'s that are easy to
+    map given the balancing_authority_name_eia. This function fills in null BA codes
+    using the BA names. The map ofo the BA names to codes is generated via
+    :func:`map_balancing_authority_names_to_codes`.
+
+    Args:
+        df: a data table with columns ``balancing_authority_code_eia`` and
+            ``balancing_authority_name_eia``
+    """
+    pre_len = len(df[df.balancing_authority_code_eia.notnull()])
+
+    # Identify the most common mapping from a BA name to a BA code:
+    ba_name_to_code_map = map_balancing_authority_names_to_codes(df)
+
+    null_ba_code_mask = (
+        df.balancing_authority_code_eia.isnull()
+        & df.balancing_authority_name_eia.notnull()
+        & df.balancing_authority_name_eia.isin(ba_name_to_code_map.index)
+    )
+    # For each row with a missing BA code, identify the likely code based on its
+    # associated BA name. Here the argument to map() is a Series containing
+    # balancing_authority_code that's indexed by balancing_authority_name.
+    ba_codes = df.loc[null_ba_code_mask, "balancing_authority_name_eia"].map(
+        ba_name_to_code_map.balancing_authority_code_eia
+    )
+    # Fill in the null BA codes
+    df.loc[null_ba_code_mask, "balancing_authority_code_eia"] = ba_codes
+
+    post_len = len(df[df.balancing_authority_code_eia.notnull()])
+    logger.info(f"filled {post_len - pre_len} balancing authority codes using names.")
+    return df
+
+
 def transform(
     eia_transformed_dfs, eia_settings: EiaSettings = EiaSettings(), debug=False
 ):
@@ -1138,5 +1207,9 @@ def transform(
     # remove the boilers annual table bc it has no columns
     eia_transformed_dfs.pop(
         "boilers_annual_eia",
+    )
+
+    eia_transformed_dfs["plants_eia860"] = fillna_balancing_authority_codes_via_names(
+        df=eia_transformed_dfs["plants_eia860"]
     )
     return entities_dfs, eia_transformed_dfs

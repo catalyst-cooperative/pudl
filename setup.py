@@ -51,7 +51,7 @@ setup(
         "addfips>=0.3.1,<0.4.0",
         "catalystcoop.dbfread>=3.0,<3.1",
         "coloredlogs>=15.0,<15.1",
-        "dask>=2021.8,<2022.8.2",
+        "dask>=2021.8,<2022.9.1",
         "datapackage>=1.11,<1.16",  # Transition datastore to use frictionless.
         # "email-validator>=1.0.3",  # pydantic[email] dependency
         "fsspec>=2021.7,<2022.8.3",  # For caching datastore on GCS
@@ -71,7 +71,7 @@ setup(
         "Shapely!=1.8.3",  # Seems to have a bug or incompatibility
         "scipy>=1.6,<1.10",
         "Shapely!=1.8.3",  # Bug or incompatibility in upstream dependencies
-        "sqlalchemy>=1.4,<1.4.41",
+        "sqlalchemy>=1.4,<1.4.42",
         "timezonefinder>=5,<6.2",
         "xlsxwriter>=3,<3.1",
     ],
