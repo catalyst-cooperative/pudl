@@ -1065,7 +1065,6 @@ def merge_dicts(list_of_dicts):
 def convert_cols_dtypes(
     df: pd.DataFrame,
     data_source: str | None = None,
-    data_resource: str | None = None,
     name: str | None = None,
 ) -> pd.DataFrame:
     """Convert a PUDL dataframe's columns to the correct data type.
@@ -1086,7 +1085,6 @@ def convert_cols_dtypes(
     Args:
         df: dataframe with columns that appear in the PUDL tables.
         data_source: the name of the datasource (eia, ferc1, etc.)
-        data_resource: the name of the resource (plant_parts_eia)
         name: name of the table (for logging only!)
 
     Returns:
@@ -1097,9 +1095,7 @@ def convert_cols_dtypes(
     # get me all of the columns for the table in the constants dtype dict
     dtypes = {
         col: dtype
-        for col, dtype in get_pudl_dtypes(
-            group=data_source, resource=data_resource
-        ).items()
+        for col, dtype in get_pudl_dtypes(group=data_source).items()
         if col in df.columns
     }
 

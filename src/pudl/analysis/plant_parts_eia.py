@@ -345,6 +345,18 @@ FIRST_COLS = [
     "appro_part_label",
 ]
 
+CATEGORICAL_COLS = [
+    "energy_source_code_1",
+    "fuel_type_code_pudl",
+    "operational_status_pudl",
+    "prime_mover_code",
+    "technology_description",
+]
+"""
+list: a list of plant parts list columns that should be cast to "category"
+type for memory efficiency.
+"""
+
 
 class MakeMegaGenTbl:
     """Compiler for a MEGA generator table with ownership integrated.
@@ -689,8 +701,10 @@ class MakePlantParts:
             self.add_additonal_cols(plant_parts_eia)
             .pipe(pudl.helpers.organize_cols, FIRST_COLS)
             .pipe(self._clean_plant_parts)
-            .pipe(pudl.metadata.fields.apply_pudl_dtypes, resource="plant_parts_eia")
+            .pipe(pudl.metadata.fields.apply_pudl_dtypes)
+            .astype(dict.fromkeys(CATEGORICAL_COLS, "category"))
         )
+        self.plant_parts_eia.index = self.plant_parts_eia.index.astype("string")
         self.validate_ownership_for_owned_records(self.plant_parts_eia)
         validate_run_aggregations(self.plant_parts_eia, gens_mega)
         return self.plant_parts_eia

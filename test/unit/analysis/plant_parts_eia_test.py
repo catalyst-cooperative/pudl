@@ -46,7 +46,7 @@ def test_plant_ag():
                 "capacity_mw": [650.0],
             }
         )
-        .astype({"report_date": "datetime64[ns]"})
+        .astype({"report_date": "datetime64[ns]", "ownership": "category"})
         .convert_dtypes()
     )
 
@@ -77,7 +77,7 @@ def test_prime_fuel_ag():
                 "capacity_mw": [400.0, 250.0],
             }
         )
-        .astype({"report_date": "datetime64[ns]"})
+        .astype({"report_date": "datetime64[ns]", "ownership": "category"})
         .convert_dtypes()
     )
 
@@ -110,7 +110,7 @@ def test_prime_mover_ag():
                 "capacity_mw": [75.0, 125.0, 50.0, 400.0],
             }
         )
-        .astype({"report_date": "datetime64[ns]"})
+        .astype({"report_date": "datetime64[ns]", "ownership": "category"})
         .convert_dtypes()
     )
 
@@ -143,7 +143,7 @@ def test_plant_gen_ag():
                 "capacity_mw": [400.0, 50.0, 125.0, 75.0],
             }
         )
-        .astype({"report_date": "datetime64[ns]"})
+        .astype({"report_date": "datetime64[ns]", "ownership": "category"})
         .convert_dtypes()
     )
 
