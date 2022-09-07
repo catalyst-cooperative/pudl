@@ -50,7 +50,7 @@ setup(
     install_requires=[
         "addfips>=0.3.1,<0.4.0",
         "catalystcoop.dbfread>=3.0,<3.1",
-        "catalystcoop.ferc_xbrl_extractor==0.2.2",
+        "catalystcoop.ferc-xbrl-extractor==0.3.1",
         "coloredlogs>=15.0,<15.1",
         "dask>=2021.8,<2022.9.1",
         "datapackage>=1.11,<1.16",  # Transition datastore to use frictionless.
@@ -145,7 +145,7 @@ setup(
             "censusdp1tract_to_sqlite = pudl.convert.censusdp1tract_to_sqlite:main",
             "metadata_to_rst = pudl.convert.metadata_to_rst:main",
             "epacems_to_parquet = pudl.convert.epacems_to_parquet:main",
-            "ferc1_to_sqlite = pudl.convert.ferc1_to_sqlite:main",
+            "ferc_to_sqlite = pudl.convert.ferc_to_sqlite:main",
             "datasette_metadata_to_yml = pudl.convert.datasette_metadata_to_yml:main",
             "pudl_datastore = pudl.workspace.datastore:main",
             "pudl_etl = pudl.cli:main",

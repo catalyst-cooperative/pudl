@@ -1,6 +1,7 @@
 """Metadata data classes."""
 import copy
 import datetime
+import json
 import re
 import sys
 from collections.abc import Callable, Iterable
@@ -578,6 +579,7 @@ class Field(Base):
     type: Literal[  # noqa: A003
         "string", "number", "integer", "boolean", "date", "datetime", "year"
     ]
+    title: String = None
     format: Literal["default"] = "default"  # noqa: A003
     description: String = None
     unit: String = None
@@ -1136,6 +1138,11 @@ class Resource(Base):
     description: String = None
     harvest: ResourceHarvest = {}
     schema_: Schema = pydantic.Field(alias="schema")
+    format_: String = pydantic.Field(alias="format", default=None)
+    mediatype: String = None
+    path: String = None
+    dialect: dict[str, str] = None
+    profile: String = "tabular-data-resource"
     contributors: list[Contributor] = []
     licenses: list[License] = []
     sources: list[DataSource] = []
@@ -1655,6 +1662,7 @@ class Package(Base):
     sources: list[DataSource] = []
     licenses: list[License] = []
     resources: StrictList(Resource)
+    profile: String = "tabular-data-package"
 
     @pydantic.validator("resources")
     def _check_foreign_keys(cls, value):  # noqa: N805
@@ -1825,12 +1833,20 @@ class DatasetteMetadata(Base):
             "eia860m",
             "eia923",
         ],
+        xbrl_ids: Iterable[str] = [
+            "ferc1_xbrl",
+            "ferc2_xbrl",
+            "ferc6_xbrl",
+            "ferc60_xbrl",
+            "ferc714_xbrl",
+        ],
         extra_etl_groups: Iterable[str] = [
             "entity_eia",
             "glue",
             "static_eia",
             "static_ferc1",
         ],
+        pudl_settings: dict = {},
     ) -> "DatasetteMetadata":
         """Construct a dictionary of DataSources from data source names.
 
@@ -1838,7 +1854,9 @@ class DatasetteMetadata(Base):
 
         Args:
             data_source_ids: ids of data sources currently included in Datasette
+            xbrl_ids: ids of data converted XBRL data to be included in Datasette
             extra_etl_groups: ETL groups with resources that should be included
+            pudl_settings: Dictionary of settings.
         """
         # Compile a list of DataSource objects for use in the template
         data_sources = [DataSource.from_id(ds_id) for ds_id in data_source_ids]
@@ -1851,6 +1869,19 @@ class DatasetteMetadata(Base):
             for res in pkg.resources
             if res.etl_group in data_source_ids + extra_etl_groups
         ]
+
+        # Get XBRL based resources
+        for xbrl_id in xbrl_ids:
+            # Read JSON Package descriptor from file
+            with open(pudl_settings[f"{xbrl_id}_descriptor"]) as f:
+                descriptor = json.load(f)
+
+            # Use descriptor to create Package object
+            xbrl_package = Package(**descriptor)
+
+            # Add resources to full list
+            resources.extend(xbrl_package.resources)
+
         return cls(data_sources=data_sources, resources=resources)
 
     def to_yaml(self, path: str = None) -> None:

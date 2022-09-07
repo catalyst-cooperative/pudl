@@ -41,7 +41,7 @@ def test_ferc1_etl(ferc1_dbf_engine, ferc1_xbrl_engine):
     )
 
 
-def test_ferc1_schema(ferc1_dbf_settings, pudl_ferc1datastore_fixture):
+def test_ferc1_schema(ferc_to_sqlite_settings, pudl_ferc1datastore_fixture):
     """Check to make sure we aren't missing any old FERC Form 1 tables or fields.
 
     Exhaustively enumerate all historical sets of FERC Form 1 database tables
@@ -50,6 +50,7 @@ def test_ferc1_schema(ferc1_dbf_settings, pudl_ferc1datastore_fixture):
     DBF filename to table name mapping from 2015, includes every single table
     and field that appears in the historical FERC Form 1 data.
     """
+    ferc1_dbf_settings = ferc_to_sqlite_settings.ferc1_dbf_to_sqlite_settings
     refyear = ferc1_dbf_settings.refyear
     ds = pudl_ferc1datastore_fixture
     current_dbc_map = pudl.extract.ferc1.get_dbc_map(ds, year=refyear)
