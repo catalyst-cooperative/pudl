@@ -96,9 +96,4 @@ def transform(
             how="inner",
         )
 
-    # More indepth cleaning and droping rows with no plant_id_eia match.
-    # crosswalk_clean = crosswalk_clean.pipe(
-    #     remove_leading_zeros_from_numeric_strings, "emissions_unit_id_epa"
-    # ).dropna(subset="plant_id_eia")
-
     return {"epacamd_eia_crosswalk": crosswalk_clean}
