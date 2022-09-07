@@ -12,8 +12,10 @@ EPACEMS Intake catalog.
 <https://www.epa.gov/emc/emc-continuous-emission-monitoring-systems>`__ (CEMS) are used
 to determine the rate of gas or particulate matter exiting a point source of emissions.
 The EPA `Clean Air Markets Division (CAMD) <https://www.epa.gov/airmarkets>`__
-has collected emissions data from CEMS units stretching back to 1995. Among the data
-included in CEMS are hourly gross load, SO2, CO2, and NOx emissions.
+has collected data on power plant emissions from CEMS units stretching back to 1995. The
+CEMS dataset includes hourly gross load, SO2, CO2, and NOx emissions associated with
+a given point source, usually a boiler. Read more about this in "Notable
+Irregularities"; it gets complicated.
 {% endblock %}
 
 {% block downloadable_pdfs %}
@@ -35,15 +37,18 @@ Who is required to install CEMS and report to EPA?
 {% endblock %}
 {% block fill_out_form %}
 `Part 75 <https://www.ecfr.gov/cgi-bin/retrieveECFR?gp=&SID=d20546b42dd4ea978d0de7eabe15cbf4&mc=true&n=pt40.18.75&r=PART&ty=HTML#se40.18.75_12>`__
-of the Federal Code of Regulations (FRC), the backbone of the Clean Air Act Title IV and
-Acid Rain Program, requires coal and other solid-combusting units (see §72.2) to install
-and use CEMS (see §75.2, §72.6). Certain low-sulfur fueled gas and oil units (see §72.2)
-may seek exemption or alternative means of monitoring their emissions if desired (see
-§§75.23, §§75.48, §§75.66). Once CEMS are installed, Part 75 requires hourly data
-recording, including during startup, shutdown, and instances of malfunction as well as
-quarterly data reporting to the EPA. The regulation further details the protocol for
-missing data calculations and backup monitoring for instances of CEMS failure (see
-§§75,31-37).
+of the Code of Federal Regulations (CFR), the backbone of the Clean Air Act's Acid Rain
+Program, requires fossil-combustion units to install and use CEMS. The qualifications
+(§75.2(a), §72.6(a)) are closely followed by a myriad of exceptions (§75.2(b), §72.6(b),
+§72.7, §72.8). Among the many extenuating circumstances depicted are exemptions for
+retired units; old, simple conbustion turbine units; non-utility untis; units supplying
+generators with 25MW or less in capacity; units that have never sold their electricity;
+and units burning low-sulfer fuels.
+
+Once CEMS are installed, Part 75 requires hourly data recording, including during
+startup, shutdown, and instances of malfunction as well as quarterly data reporting to
+the EPA. The regulation further details the protocol for missing data calculations and
+backup monitoring for instances of CEMS failure (see §§75.31-37).
 
 A plain English explanation of the requirements of Part 75 is available in section
 `2.0 Overview of Part 75 Monitoring Requirements <https://www.epa.gov/sites/production/files/2015-05/documents/plain_english_guide_to_the_part_75_rule.pdf>`__
@@ -73,7 +78,7 @@ on GitHub for pointers on how to access this dataset efficiently using :mod:`das
 
 EPA units vs. EIA units
 -----------------------
-Another important thing to note is the difference between EPA "units" vs EIA "units".
+Another important thing to note is the difference between EPA "units" and EIA "units".
 Power plants are complex entities that have multiple subcomponents. In fossil powered
 plants, emissions come from the combusion of fuel. This occurs in the boiler for coal
 plants or the gas turbine for gas plants. When the EPA uses the term "unit" it is
