@@ -12,7 +12,7 @@ import re
 import typing
 from abc import ABC, abstractmethod
 from collections.abc import Callable
-from functools import cached_property, wraps
+from functools import wraps
 from itertools import combinations
 from typing import Any, Protocol
 
@@ -310,7 +310,7 @@ def multicol_transform_fn_factory(
     return InnerMultiColumnTransformFn()
 
 
-def normalize_strings(col: pd.Series, params: bool) -> pd.Series:
+def normalize_strings(col: pd.Series, params: bool = True) -> pd.Series:
     """Derive a canonical version of the strings in the column.
 
     Transformations include:
@@ -527,21 +527,27 @@ class AbstractTableTransformer(ABC):
     _cached_dfs: dict[str, pd.DataFrame] = {}
     """Cached intermediate dataframes for use in development and debugging."""
 
-    def __init__(self, cache_dfs: bool = False, clear_cached_dfs: bool = True) -> None:
+    def __init__(
+        self,
+        params: TableTransformParams | None = None,
+        cache_dfs: bool = False,
+        clear_cached_dfs: bool = True,
+    ) -> None:
         """Initialize the table transformer, setting caching flags."""
         super().__init__()
+        # Allowing params to be passed in or looked up makes testing easier, since it
+        # means the same transformer can be run with a variety of parameters and inputs.
+        if params is None:
+            self.params = TableTransformParams.from_id(self.table_id)
+        else:
+            self.params = TableTransformParams(params)
         self.cache_dfs = cache_dfs
         self.clear_cached_dfs = clear_cached_dfs
-
-    @cached_property
-    def params(self) -> TableTransformParams:
-        """Obtain table transform parameters based on the table ID."""
-        return TableTransformParams.from_id(table_id=self.table_id)
 
     ################################################################################
     # Abstract methods that must be defined by subclasses
     @abstractmethod
-    def transform_start(self, **kwargs) -> pd.DataFrame:
+    def transform_start(self, *args, **kwargs) -> pd.DataFrame:
         """Transformations applied to many tables within a dataset at the beginning.
 
         This method should be implemented by the dataset-level abstract table
