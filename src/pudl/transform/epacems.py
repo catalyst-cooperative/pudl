@@ -38,7 +38,7 @@ def harmonize_eia_epa_orispl(
 
     Args:
         df: A CEMS hourly dataframe for one year-month-state.
-        crosswalk_df: The epacamd_eia_crosswalk dataframe from the database.
+        crosswalk_df: The epacamd_eia dataframe from the database.
 
     Returns:
         The same data, with the ORISPL plant codes corrected to match the EIA plant IDs.
@@ -192,7 +192,7 @@ def transform(
 
     """
     # Create all the table inputs used for the subtransform functions below
-    crosswalk_df = pd.read_sql("epacamd_eia_crosswalk", con=pudl_engine)
+    crosswalk_df = pd.read_sql("epacamd_eia", con=pudl_engine)
 
     return (
         raw_df.pipe(apply_pudl_dtypes, group="epacems")

@@ -251,7 +251,7 @@ def etl_epacems(
             f"Trying to access PUDL DB: {pudl_engine}"
         )
     # Verify that we have a PUDL DB with crosswalk data
-    if "epacamd_eia_crosswalk" not in inspector.get_table_names():
+    if "epacamd_eia" not in inspector.get_table_names():
         raise RuntimeError(
             "No EPA-EIA Crosswalk available in the PUDL DB! Have you run the ETL? "
             f"Trying to access PUDL DB: {pudl_engine}"
@@ -374,8 +374,8 @@ def _etl_glue(
             eia_settings.eia860.years
             == eia_settings.eia860.data_source.working_partitions["years"]
         )
-        glue_raw_dfs = pudl.glue.epacamd_eia_crosswalk.extract(ds)
-        glue_transformed_dfs = pudl.glue.epacamd_eia_crosswalk.transform(
+        glue_raw_dfs = pudl.glue.epacamd_eia.extract(ds)
+        glue_transformed_dfs = pudl.glue.epacamd_eia.transform(
             glue_raw_dfs,
             sqlite_dfs["generators_entity_eia"],
             sqlite_dfs["boilers_entity_eia"],

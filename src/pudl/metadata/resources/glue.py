@@ -2,7 +2,7 @@
 from typing import Any
 
 RESOURCE_METADATA: dict[str, dict[str, Any]] = {
-    "epacamd_eia_crosswalk": {
+    "epacamd_eia": {
         "schema": {
             "fields": [
                 "plant_id_epa",
@@ -15,9 +15,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         },
         "field_namespace": "glue",
         "etl_group": "glue",
-        "sources": [
-            "epacamd_eia_crosswalk"
-        ],  # eia_epa_crosswalk --> what is this anyways
+        "sources": ["epacamd_eia"],  # --> what is this anyways
     },
 }
 """

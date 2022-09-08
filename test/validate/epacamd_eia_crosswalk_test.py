@@ -16,7 +16,7 @@ def test_unique_ids(pudl_out_eia, live_dbs):
         pytest.skip("Test should only run on un-aggregated data.")
     # Should I add these args to the pudl.validate module?
     check_unique_rows(
-        pudl_out_eia.epacamd_eia_crosswalk,
+        pudl_out_eia.epacamd_eia,
         ["plant_id_eia", "emissions_unit_id_epa"],
-        "epacamd_eia_crosswalk",
+        "epacamd_eia",
     )

@@ -1217,7 +1217,7 @@ class PudlTabl:
     # GLUE OUTPUTS
     ###########################################################################
 
-    def epacamd_eia_crosswalk(
+    def epacamd_eia(
         self,
         update: bool = False,
     ) -> pd.DataFrame:
@@ -1231,11 +1231,9 @@ class PudlTabl:
             A denormalized table for interactive use.
 
         """
-        if update or self._dfs["epacamd_eia_crosswalk"] is None:
-            self._dfs[
-                "epacamd_eia_crosswalk"
-            ] = pudl.output.epacems.epacamd_eia_crosswalk(self.pudl_engine)
-        return self._dfs["epacamd_eia_crosswalk"]
+        if update or self._dfs["epacamd_eia"] is None:
+            self._dfs["epacamd_eia"] = pudl.output.epacems.epacamd_eia(self.pudl_engine)
+        return self._dfs["epacamd_eia"]
 
 
 def get_table_meta(pudl_engine):
