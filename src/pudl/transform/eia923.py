@@ -307,6 +307,11 @@ def _aggregate_generation_fuel_duplicates(
     )
     if not fuel_type_code_aer_is_unique:
         raise AssertionError("Duplicate fuels have different fuel_type_code_aer.")
+    data_maturity_is_unique = (
+        duplicates.groupby(natural_key_fields).data_maturity.nunique().eq(1).all()
+    )
+    if not data_maturity_is_unique:
+        raise AssertionError("Duplicate fuels have different data_maturity.")
 
     agg_fields = {
         "fuel_consumed_units": "sum",
@@ -314,10 +319,14 @@ def _aggregate_generation_fuel_duplicates(
         "fuel_consumed_mmbtu": "sum",
         "fuel_consumed_for_electricity_mmbtu": "sum",
         "net_generation_mwh": "sum",
-        # We can safely select the first fuel_type_code_* because we know they
-        # are the same for each group of duplicates.
+        # We can safely select the first values here because we know they are unique
+        # within each group of duplicates. We check explicitly for fuel_type_code_aer
+        # and data_maturity above, and fuel_type_code_pudl maps to fuel_type_code_aer
+        # such that if fuel_type_code_aer is unique, fuel_type_code_pudl must also
+        # be unique.
         "fuel_type_code_aer": "first",
         "fuel_type_code_pudl": "first",
+        "data_maturity": "first",
     }
 
     resolved_dupes = (
