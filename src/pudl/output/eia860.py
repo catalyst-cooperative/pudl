@@ -202,18 +202,17 @@ def fill_in_missing_ba_codes(plants: pd.DataFrame) -> pd.DataFrame:
     consistently reported values. This function employs several filling methods based
     on our investigation of the data:
 
-    * if the backfilled code and the most consistent code are the same, use the
+    * if the oldest code and the most consistent code are the same, use the
       consistent value (either would work!)
-    * use the backfilled code for plants that have ``SWPP`` (``Southwest Power Pool``)
+    * use the oldest code for plants that have ``SWPP`` (``Southwest Power Pool``)
       as their most consistent BA code because we know ``SWPP`` has acquired many
       smaller balancing authorities in recent years.
-    * use the backfilled code for plants that have different backfilled and most
-      consistent codes, but the most consistent code has a consistency rate less than
-      80% (the consistency rate is how frequently the most consistent BA code is
-      reported as a fraction of the total number of BA codes reported). This is meant
-      to find plants where there are multiple years of an older BA code before it
-      switches - assuming a BA code being reported for multiple years is not a
-      reporting error. TODO: make this one more explicit.
+    * use the oldest code for plants that have ``NWMT`` (``NorthWestern Energy``)
+      as  their most consistent BA code and ``WAUE``
+      (``Western Area Power Administration``) as their oldest BA code.
+    * use the oldest code for plants that have more than one year of older BA codes,
+      using the assumption that more than one year of consistent old BA codes is not a
+      reporting error.
 
     Args:
         plants: table of annual plant attributes, including ``balancing_authority_code_eia``
@@ -239,6 +238,10 @@ def fill_in_missing_ba_codes(plants: pd.DataFrame) -> pd.DataFrame:
     log_current_ba_code_nulls(
         plants=plants, method_str="Before any filling treatment has been applied"
     )
+    # determine oldest year of BA codes before any filling in
+    oldest_og_ba_code_date = min(
+        plants[plants.balancing_authority_code_eia.notnull()].report_date
+    )
     # when the backfilled code and the static code are the same, use either result
     plants.loc[
         (
@@ -250,7 +253,8 @@ def fill_in_missing_ba_codes(plants: pd.DataFrame) -> pd.DataFrame:
     ] = plants.balancing_authority_code_eia_consistent
 
     log_current_ba_code_nulls(
-        plants=plants, method_str="backfilling and consistent value is the same"
+        plants=plants,
+        method_str="Backfilling and consistent value is the same. Filled w/ most consistent BA code",
     )
     # we know SWPP has done a ton of accumulation of smaller BA's
     plants.loc[
@@ -273,23 +277,35 @@ def fill_in_missing_ba_codes(plants: pd.DataFrame) -> pd.DataFrame:
     log_current_ba_code_nulls(
         plants, method_str="NWMT is most consistent value. Filled w/ oldest BA code"
     )
-    plants.loc[
-        (plants.balancing_authority_code_eia.isnull())
-        & (
-            plants.balancing_authority_code_eia_bfilled
-            != plants.balancing_authority_code_eia_consistent
+    # bfill where there is more than one old BA code.
+    # add a one-year shifted ba code
+    plants.loc[:, "balancing_authority_code_eia_shifted"] = plants.groupby(
+        ["plant_id_eia"]
+    )[["balancing_authority_code_eia"]].shift(periods=1)
+    # all the plants where the oldest BA year has the same ba code as the oldest year +1
+    two_year_old_ba_code_plant_ids = plants[
+        (
+            plants.balancing_authority_code_eia
+            == plants.balancing_authority_code_eia_shifted
         )
-        & (plants.balancing_authority_code_eia_consistent_rate <= 0.8),
+        & (plants.report_date == oldest_og_ba_code_date)
+    ].plant_id_eia.unique()
+
+    plants.loc[
+        plants.balancing_authority_code_eia.isnull()
+        & plants.plant_id_eia.isin(two_year_old_ba_code_plant_ids),
         "balancing_authority_code_eia",
     ] = plants.balancing_authority_code_eia_bfilled
+
     log_current_ba_code_nulls(
         plants,
-        method_str="most consistent BA code is less than 70% consistent. Used backfilled BA code",
+        method_str="Two or more years of oldest BA code. Filled w/ oldest BA code",
     )
     return plants.drop(
         columns=[
             "balancing_authority_code_eia_consistent",
             "balancing_authority_code_eia_bfilled",
+            "balancing_authority_code_eia_shifted",
         ]
     )
 
