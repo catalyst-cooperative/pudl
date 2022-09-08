@@ -19,6 +19,7 @@ found in :func:`pudl.transform.eia._boiler_generator_assn`.
 
 import importlib.resources
 import logging
+from collections import namedtuple
 
 import networkx as nx
 import numpy as np
@@ -161,10 +162,14 @@ def find_timezone(*, lng=None, lat=None, state=None, strict=True):
     return tz
 
 
-def _occurrence_consistency(
-    entity_id, compiled_df, col, cols_to_consit, strictness=0.7
-):
-    """Find the occurence of plants & the consistency of records.
+def occurrence_consistency(
+    entity_idx: list[str],
+    compiled_df: pd.DataFrame,
+    col: str,
+    cols_to_consit: list[str],
+    strictness: float = 0.7,
+) -> pd.DataFrame:
+    """Find the occurence of entities & the consistency of records.
 
     We need to determine how consistent a reported value is in the records
     across all of the years or tables that the value is being reported, so we
@@ -173,16 +178,16 @@ def _occurrence_consistency(
     information we can determine if the reported records are strict enough.
 
     Args:
-        entity_id (list): a list of the id(s) for the entity. Ex: for a plant
-            entity, the entity_id is ['plant_id_eia']. For a generator entity,
-            the entity_id is ['plant_id_eia', 'generator_id'].
-        compiled_df (pandas.DataFrame): a dataframe with every instance of the
+        entity_idx: a list of the id(s) for the entity. Ex: for a plant
+            entity, the entity_idx is ['plant_id_eia']. For a generator entity,
+            the entity_idx is ['plant_id_eia', 'generator_id'].
+        compiled_df: a dataframe with every instance of the
             column we are trying to harvest.
-        col (str): the column name of the column we are trying to harvest.
-        cols_to_consit (list): a list of the columns to determine consistency.
+        col: the column name of the column we are trying to harvest.
+        cols_to_consit: a list of the columns to determine consistency.
             This either the [entity_id] or the [entity_id, 'report_date'],
             depending on whether the entity is static or annual.
-        strictness (float): How consistent do you want the column records to
+        strictness: How consistent do you want the column records to
             be? The default setting is .7 (so 70% of the records need to be
             consistent in order to accept harvesting the record).
 
@@ -194,24 +199,23 @@ def _occurrence_consistency(
     """
     # select only the colums you want and drop the NaNs
     # we want to drop the NaNs because
-    col_df = compiled_df[entity_id + ["report_date", col, "table"]].copy()
+    col_df = compiled_df[entity_idx + ["report_date", col]].copy()
     if get_pudl_dtypes(group="eia")[col] == "string":
         nan_str_mask = (col_df[col] == "nan").fillna(False)
         col_df.loc[nan_str_mask, col] = pd.NA
     col_df = col_df.dropna()
 
     if len(col_df) == 0:
-        col_df[f"{col}_consistent"] = pd.NA
+        col_df[f"{col}_is_consistent"] = pd.NA
         col_df[f"{col}_consistent_rate"] = pd.NA
         col_df["entity_occurences"] = pd.NA
-        col_df = col_df.drop(columns=["table"])
         return col_df
     # determine how many times each entity occurs in col_df
     occur = (
-        col_df.groupby(by=cols_to_consit, observed=True)[["table"]]
+        col_df.assign(entity_occurences=1)
+        .groupby(by=cols_to_consit, observed=True)[["entity_occurences"]]
         .count()
         .reset_index()
-        .rename(columns={"table": "entity_occurences"})
     )
 
     # add the occurances into the main dataframe
@@ -219,28 +223,28 @@ def _occurrence_consistency(
 
     # determine how many instances of each of the records in col exist
     consist_df = (
-        col_df.groupby(by=cols_to_consit + [col], observed=True)[["table"]]
+        col_df.assign(record_occurences=1)
+        .groupby(by=cols_to_consit + [col], observed=True)[["record_occurences"]]
         .count()
         .reset_index()
-        .rename(columns={"table": "record_occurences"})
     )
     # now in col_df we have # of times an entity occurred accross the tables
     # and we are going to merge in the # of times each value occured for each
     # entity record. When we merge the consistency in with the occurances, we
     # can determine if the records are more than 70% consistent across the
     # occurances of the entities.
-    col_df = col_df.merge(consist_df, how="outer").drop(columns=["table"])
+    col_df = col_df.merge(consist_df, how="outer")
     # change all of the fully consistent records to True
     col_df[f"{col}_consistent_rate"] = (
         col_df["record_occurences"] / col_df["entity_occurences"]
     )
-    col_df[f"{col}_consistent"] = col_df[f"{col}_consistent_rate"] > strictness
+    col_df[f"{col}_is_consistent"] = col_df[f"{col}_consistent_rate"] > strictness
     col_df = col_df.sort_values(f"{col}_consistent_rate")
     return col_df
 
 
 def _lat_long(
-    dirty_df, clean_df, entity_id_df, entity_id, col, cols_to_consit, round_to=2
+    dirty_df, clean_df, entity_id_df, entity_idx, col, cols_to_consit, round_to=2
 ):
     """Harvests more complete lat/long in special cases.
 
@@ -256,9 +260,9 @@ def _lat_long(
             consistently reported lat/long.
         entity_id_df (pandas.DataFrame): a dataframe with a complete set of
             possible entity ids
-        entity_id (list): a list of the id(s) for the entity. Ex: for a plant
-            entity, the entity_id is ['plant_id_eia']. For a generator entity,
-            the entity_id is ['plant_id_eia', 'generator_id'].
+        entity_idx (list): a list of the id(s) for the entity. Ex: for a plant
+            entity, the entity_idx is ['plant_id_eia']. For a generator entity,
+            the entity_idx is ['plant_id_eia', 'generator_id'].
         col (string): the column name of the column we are trying to harvest.
         cols_to_consit (list): a list of the columns to determine consistency.
             This either the [entity_id] or the [entity_id, 'report_date'],
@@ -277,11 +281,11 @@ def _lat_long(
     ll_df = dirty_df.round(decimals={col: round_to})
     logger.debug(f"Dirty {col} records: {len(ll_df)}")
     ll_df["table"] = "special_case"
-    ll_df = _occurrence_consistency(entity_id, ll_df, col, cols_to_consit)
+    ll_df = occurrence_consistency(entity_idx, ll_df, col, cols_to_consit)
     # grab the clean plants
     ll_clean_df = clean_df.dropna()
     # find the new clean plant records by selecting the True consistent records
-    ll_df = ll_df[ll_df[f"{col}_consistent"]].drop_duplicates(subset=entity_id)
+    ll_df = ll_df[ll_df[f"{col}_is_consistent"]].drop_duplicates(subset=entity_idx)
     logger.debug(f"Clean {col} records: {len(ll_df)}")
     # add the newly cleaned records
     ll_clean_df = pd.concat([ll_clean_df, ll_df])
@@ -459,7 +463,7 @@ def harvesting(  # noqa: C901
     the outcome here to be perfect! We choose to pull the most consistent
     record as reported across all the EIA tables and years, but we also
     required a "strictness" level of 70% (this is currently a hard coded
-    argument for _occurrence_consistency). That means at least 70% of the
+    argument for :func:`occurrence_consistency`). That means at least 70% of the
     records must be the same for us to use that value. So if values for an
     entity haven't been reported 70% consistently, then it will show up as a
     null value. We built in the ability to add special cases for columns where
@@ -535,13 +539,13 @@ def harvesting(  # noqa: C901
             cols_to_consit = id_cols
 
         strictness = _manage_strictness(col, eia860m)
-        col_df = _occurrence_consistency(
+        col_df = occurrence_consistency(
             id_cols, compiled_df, col, cols_to_consit, strictness=strictness
         )
 
         # pull the correct values out of the df and merge w/ the plant ids
-        col_correct_df = col_df[col_df[f"{col}_consistent"]].drop_duplicates(
-            subset=(cols_to_consit + [f"{col}_consistent"])
+        col_correct_df = col_df[col_df[f"{col}_is_consistent"]].drop_duplicates(
+            subset=(cols_to_consit + [f"{col}_is_consistent"])
         )
 
         # we need this to be an empty df w/ columns bc we are going to use it
@@ -589,7 +593,7 @@ def harvesting(  # noqa: C901
         if total > 0:
             ratio = (
                 len(
-                    col_df[(col_df[f"{col}_consistent"])].drop_duplicates(
+                    col_df[(col_df[f"{col}_is_consistent"])].drop_duplicates(
                         subset=cols_to_consit
                     )
                 )
@@ -1152,6 +1156,54 @@ def fillna_balancing_authority_codes_via_names(df: pd.DataFrame) -> pd.DataFrame
     return df
 
 
+def fix_balancing_authority_codes_with_state(
+    plants: pd.DataFrame, plants_entity: pd.DataFrame
+) -> pd.DataFrame:
+    """Fix selective balancing_authority_code_eia's based on states.
+
+    There are some know errors in the ``balancing_authority_code_eia`` column that we
+    can identify and fix based on the state where the plant is located.
+
+    This function should only be applied post-:func:`harvesting`. The ``state`` column
+    is a "static" entity column so the first step in this function is merging the static
+    and annually varying plants together. Then we fix known errors in the BA codes:
+
+    * reported PACE, but state is OR or CA, code should be PACW
+    * reported PACW, but state is UT, code should be PACE
+    * reported ISNE, but state is NY, code should be NYIS
+
+    Args:
+        plants: annually harvested plant table with columns: ``plant_id_eia``,
+            ``report_date`` and ``balancing_authority_code_eia``.
+        plants_entity: static harvested plant table with columns: ``plant_id_eia`` and
+            ``state``.
+
+    Returns:
+        plants table that has the same set of columns and rows, with cleaned
+        ``balancing_authority_code_eia`` column.
+
+    """
+    plants = plants.merge(
+        plants_entity[["plant_id_eia", "state"]],  # only merge in state, drop later
+        on=["plant_id_eia"],
+        how="left",
+        validate="m:1",
+    )
+    BACodeFix = namedtuple("BACodeFix", ["ba_code_found", "ba_code_fix", "states"])
+    fixes = [
+        BACodeFix("PACE", "PACW", ["OR", "CA"]),
+        BACodeFix("PACW", "PACE", ["UT"]),
+        BACodeFix("ISNE", "NYIS", ["NY"]),
+    ]
+    for fix in fixes:
+        plants.loc[
+            (plants.balancing_authority_code_eia == fix.ba_code_found)
+            & (plants.state.isin(fix.states)),
+            "balancing_authority_code_eia",
+        ] = fix.ba_code_fix
+    return plants.drop(columns=["state"])
+
+
 def transform(
     eia_transformed_dfs, eia_settings: EiaSettings = EiaSettings(), debug=False
 ):
@@ -1211,5 +1263,8 @@ def transform(
 
     eia_transformed_dfs["plants_eia860"] = fillna_balancing_authority_codes_via_names(
         df=eia_transformed_dfs["plants_eia860"]
+    ).pipe(
+        fix_balancing_authority_codes_with_state,
+        plants_entity=entities_dfs["plants_entity_eia"],
     )
     return entities_dfs, eia_transformed_dfs
