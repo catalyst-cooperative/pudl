@@ -794,9 +794,9 @@ def generic_xbrl_extract(
 
     return pd.read_sql(
         f"""
-        SELECT {table_name}.*, {id_table}.ReportYear FROM {table_name}
+        SELECT {table_name}.*, {id_table}.report_year FROM {table_name}
         JOIN {id_table} ON {id_table}.filing_name = {table_name}.filing_name
-        WHERE {id_table}.ReportYear BETWEEN :min_year AND :max_year;
+        WHERE {id_table}.report_year BETWEEN :min_year AND :max_year;
         """,
         con=ferc1_engine,
         params={
