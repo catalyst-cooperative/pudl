@@ -6,6 +6,8 @@ import sqlalchemy as sa
 import pudl
 from pudl.helpers import get_logger
 from pudl.metadata.fields import apply_pudl_dtypes
+from pudl.transform.eia import occurrence_consistency
+from pudl.transform.eia861 import add_backfilled_ba_code_column
 
 logger = get_logger(__name__)
 
@@ -135,9 +137,176 @@ def plants_eia860(pudl_engine, start_date=None, end_date=None):
     out_df = (
         pd.merge(out_df, utils_eia_df, how="left", on=["utility_id_eia"])
         .dropna(subset=["report_date", "plant_id_eia"])
+        .pipe(fill_in_missing_ba_codes)
         .pipe(apply_pudl_dtypes, group="eia")
     )
     return out_df
+
+
+def add_consistent_ba_code_column(plants: pd.DataFrame) -> pd.DataFrame:
+    """Make a column containing each plant's most consistently reported BA code.
+
+    Employ the harvesting function :func:`occurrence_consistency` which determines how
+    consistent the values in a table are across all records within each plant. This
+    function grabs only the values determined to be at least 70% consitent and merges
+    them onto the plants table as a new column: ``balancing_authority_code_eia_consistent``
+    """
+    ba_code_consistent = occurrence_consistency(
+        entity_idx=["plant_id_eia"],
+        compiled_df=plants,
+        col="balancing_authority_code_eia",
+        cols_to_consit=["plant_id_eia"],
+        strictness=0.7,
+    )
+    # grab only the code that passed the consistency strictness test
+    ba_code_consistent = ba_code_consistent[
+        ba_code_consistent.balancing_authority_code_eia_is_consistent
+    ][
+        [
+            "plant_id_eia",
+            "balancing_authority_code_eia",
+            "balancing_authority_code_eia_consistent_rate",
+        ]
+    ].drop_duplicates()
+
+    plants = pd.merge(
+        plants,
+        ba_code_consistent,
+        how="left",
+        on=["plant_id_eia"],
+        suffixes=("", "_consistent"),
+    )
+    plants_w_ba_codes = plants[plants.balancing_authority_code_eia_consistent.notnull()]
+    logger.info(
+        f"{len(plants_w_ba_codes)/len(plants):.1%} of plant records have consistently "
+        "reported BA Codes"
+    )
+    return plants
+
+
+def fill_in_missing_ba_codes(plants: pd.DataFrame) -> pd.DataFrame:
+    """Fill in missing ``balancing_authority_code_eia`` using either bfill or most consistent.
+
+    Balancing authority codes did not begin being reported until 2013. This function
+    fills in the old years with BA codes using two main methods:
+
+    * Backfilling with the oldest reported BA code for each plant.
+    * Backfilling with the most frequently reported BA code for each plant.
+
+    We add a column to represent each of these two methodologies via
+    :func:`add_backfilled_ba_code_column` and :func:`add_consistent_ba_code_column`.
+
+    We know that the BA codes do change over time and are incorrectly reported at times.
+    This means we can't simply :meth:`pd.fillna` using either the oldest or most
+    consistently reported values. This function employs several filling methods based
+    on our investigation of the data:
+
+    * if the oldest code and the most consistent code are the same, use the
+      consistent value (either would work!)
+    * use the oldest code for plants that have ``SWPP`` (``Southwest Power Pool``)
+      as their most consistent BA code because we know ``SWPP`` has acquired many
+      smaller balancing authorities in recent years.
+    * use the oldest code for plants that have ``NWMT`` (``NorthWestern Energy``)
+      as  their most consistent BA code and ``WAUE``
+      (``Western Area Power Administration``) as their oldest BA code.
+    * use the oldest code for plants that have more than one year of older BA codes,
+      using the assumption that more than one year of consistent old BA codes is not a
+      reporting error.
+
+    Args:
+        plants: table of annual plant attributes, including ``balancing_authority_code_eia``
+    """
+
+    def log_current_ba_code_nulls(plants: pd.DataFrame, method_str: str) -> None:
+        """Internal function to log progress on fillin in BA codes.
+
+        Args:
+            plants: the current plants table to check
+            method_str: A description of the method employed. This will be inserted into
+                the log.
+        """
+        currently_null_len = len(plants[plants.balancing_authority_code_eia.isnull()])
+        logger.info(
+            f"{method_str}. {currently_null_len/len(plants):.1%} of records have no BA codes"
+        )
+
+    # add a column for each of our backfilling options
+    plants = add_backfilled_ba_code_column(plants, by_cols=["plant_id_eia"]).pipe(
+        add_consistent_ba_code_column
+    )
+    log_current_ba_code_nulls(
+        plants=plants, method_str="Before any filling treatment has been applied"
+    )
+    # determine oldest year of BA codes before any filling in
+    oldest_og_ba_code_date = min(
+        plants[plants.balancing_authority_code_eia.notnull()].report_date
+    )
+    # when the backfilled code and the static code are the same, use either result
+    plants.loc[
+        (
+            plants.balancing_authority_code_eia_bfilled
+            == plants.balancing_authority_code_eia_consistent
+        )
+        & (plants.balancing_authority_code_eia.isnull()),
+        "balancing_authority_code_eia",
+    ] = plants.balancing_authority_code_eia_consistent
+
+    log_current_ba_code_nulls(
+        plants=plants,
+        method_str="Backfilling and consistent value is the same. Filled w/ most consistent BA code",
+    )
+    # we know SWPP has done a ton of accumulation of smaller BA's
+    plants.loc[
+        (plants.balancing_authority_code_eia.isnull())
+        & (plants.balancing_authority_code_eia_consistent == "SWPP"),
+        "balancing_authority_code_eia",
+    ] = plants.balancing_authority_code_eia_bfilled
+    log_current_ba_code_nulls(
+        plants, method_str="SWPP is most consistent value. Filled w/ oldest BA code"
+    )
+    # Several plants went from reporting a BA of WAUE (Western Area Power Administration
+    # - Upper Great Plains East) to reporting a BA of NWMT (NorthWestern Energy (NWMT))
+    # we believe this is not a reporting error and should be bfilled
+    plants.loc[
+        (plants.balancing_authority_code_eia.isnull())
+        & (plants.balancing_authority_code_eia_consistent == "NWMT")
+        & (plants.balancing_authority_code_eia_bfilled == "WAUE"),
+        "balancing_authority_code_eia",
+    ] = plants.balancing_authority_code_eia_bfilled
+    log_current_ba_code_nulls(
+        plants, method_str="NWMT is most consistent value. Filled w/ oldest BA code"
+    )
+    # bfill where there is more than one old BA code.
+    # add a one-year shifted ba code
+    plants.loc[:, "balancing_authority_code_eia_shifted"] = plants.groupby(
+        ["plant_id_eia"]
+    )[["balancing_authority_code_eia"]].shift(periods=1)
+    # all the plants where the oldest BA year has the same ba code as the oldest year +1
+    two_year_old_ba_code_plant_ids = plants[
+        (
+            plants.balancing_authority_code_eia
+            == plants.balancing_authority_code_eia_shifted
+        )
+        & (plants.report_date == oldest_og_ba_code_date)
+    ].plant_id_eia.unique()
+
+    plants.loc[
+        plants.balancing_authority_code_eia.isnull()
+        & plants.plant_id_eia.isin(two_year_old_ba_code_plant_ids),
+        "balancing_authority_code_eia",
+    ] = plants.balancing_authority_code_eia_bfilled
+
+    log_current_ba_code_nulls(
+        plants,
+        method_str="Two or more years of oldest BA code. Filled w/ oldest BA code",
+    )
+    return plants.drop(
+        columns=[
+            "balancing_authority_code_eia_consistent",
+            "balancing_authority_code_eia_bfilled",
+            "balancing_authority_code_eia_shifted",
+        ]
+    )
 
 
 def plants_utils_eia860(pudl_engine, start_date=None, end_date=None):
