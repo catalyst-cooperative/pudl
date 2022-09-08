@@ -440,8 +440,8 @@ def _filter_non_class_cols(df, class_list):
     return df.filter(regex=regex)
 
 
-def make_backfilled_ba_code_column(df, by_cols: list[str]) -> pd.DataFrame:
-    """Make a backfilled Balancing Authority Codes based on codes in later years.
+def add_backfilled_ba_code_column(df, by_cols: list[str]) -> pd.DataFrame:
+    """Make a backfilled Balancing Authority Code column based on codes in later years.
 
     Args:
         df: table with columns: ``balancing_authority_code_eia``, ``report_date`` and
@@ -450,8 +450,8 @@ def make_backfilled_ba_code_column(df, by_cols: list[str]) -> pd.DataFrame:
 
 
     Returns:
-        pandas.DataFrame: The balancing_authority_eia861 dataframe, but with many fewer
-        NA values in the balancing_authority_code_eia column.
+        pandas.DataFrame: An altered version of ``df`` with an additional column
+        ``balancing_authority_code_eia_bfilled``
 
     """
     start_len = len(df)
@@ -498,9 +498,14 @@ def backfill_ba_codes_by_ba_id(df: pd.DataFrame) -> pd.DataFrame:
     Args:
         df: The transformed EIA 861 Balancing Authority dataframe
             (balancing_authority_eia861).
+
+    Returns:
+        pandas.DataFrame: The balancing_authority_eia861 dataframe, but with many fewer
+        NA values in the balancing_authority_code_eia column.
+
     """
     ba_eia861_filled = (
-        make_backfilled_ba_code_column(df, by_cols=["balancing_authority_id_eia"])
+        add_backfilled_ba_code_column(df, by_cols=["balancing_authority_id_eia"])
         .assign(
             balancing_authority_code_eia=lambda x: x.balancing_authority_code_eia_bfilled
         )

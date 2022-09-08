@@ -8,7 +8,7 @@ import sqlalchemy as sa
 import pudl
 from pudl.metadata.fields import apply_pudl_dtypes
 from pudl.transform.eia import occurrence_consistency
-from pudl.transform.eia861 import make_backfilled_ba_code_column
+from pudl.transform.eia861 import add_backfilled_ba_code_column
 
 logger = logging.getLogger(__name__)
 
@@ -144,8 +144,8 @@ def plants_eia860(pudl_engine, start_date=None, end_date=None):
     return out_df
 
 
-def make_consistent_ba_code_column(plants: pd.DataFrame) -> pd.DataFrame:
-    """Make a columns of  the most consistent balancing authority code.
+def add_consistent_ba_code_column(plants: pd.DataFrame) -> pd.DataFrame:
+    """Make a column containing each plant's most consistently reported BA code.
 
     Employ the harvesting function :func:`occurrence_consistency` which determines how
     consistent the values in a table are across all records within each plant. This
@@ -159,9 +159,9 @@ def make_consistent_ba_code_column(plants: pd.DataFrame) -> pd.DataFrame:
         cols_to_consit=["plant_id_eia"],
         strictness=0.7,
     )
-
-    static_plant_to_code_map = ba_code_consistent[
-        ba_code_consistent.balancing_authority_code_eia_consistent
+    # grab only the code that passed the consistency strictness test
+    ba_code_consistent = ba_code_consistent[
+        ba_code_consistent.balancing_authority_code_eia_is_consistent
     ][
         [
             "plant_id_eia",
@@ -172,13 +172,15 @@ def make_consistent_ba_code_column(plants: pd.DataFrame) -> pd.DataFrame:
 
     plants = pd.merge(
         plants,
-        static_plant_to_code_map,
+        ba_code_consistent,
         how="left",
         on=["plant_id_eia"],
         suffixes=("", "_consistent"),
     )
+    plants_w_ba_codes = plants[plants.balancing_authority_code_eia_consistent.notnull()]
     logger.info(
-        f"{len(plants[plants.balancing_authority_code_eia_consistent.notnull()])/len(plants):.1%} of plant records have static BA Codes"
+        f"{len(plants_w_ba_codes)/len(plants):.1%} of plant records have consistently "
+        "reported BA Codes"
     )
     return plants
 
@@ -189,32 +191,29 @@ def fill_in_missing_ba_codes(plants: pd.DataFrame) -> pd.DataFrame:
     Balancing authority codes did not begin being reported until 2013. This function
     fills in the old years with BA codes using two main methods:
 
-    * Backfilling from the oldest reported BA code (via :meth:`pd.bfill`)
-    * Using the most consistent reported value
+    * Backfilling with the oldest reported BA code for each plant.
+    * Backfilling with the most frequently reported BA code for each plant.
 
     We add a column to represent each of these two methodologies via
-    :func:`make_backfilled_ba_code_column` and :func:`make_consistent_ba_code_column`.
+    :func:`add_backfilled_ba_code_column` and :func:`add_consistent_ba_code_column`.
 
     We know that the BA codes do change over time and are incorrectly reported at times.
-    Because of these two facts, we cann't simple :meth:`pd.fillna` with either the
-    backfilled or most consistent value. This function employs some specific filling in
-    methodologies based on an investigation of the data. Here is a description of each
-    of various stages of filling in which involves some bespoke cleanup:
+    This means we can't simply :meth:`pd.fillna` using either the oldest or most
+    consistently reported values. This function employs several filling methods based
+    on our investigation of the data:
 
-    * if the backfilled code and the most consistent code are the same, use either!
-    * assign BA code ``PACW`` (``PacifiCorp - West``) when ``PACW`` is the most
-      consistent BA code and the ``state`` is within ``PACW``'s territory
-    * similarity, assign BA code ``PACE`` (``PacifiCorp - East``) when ``PACE`` is
-      the most consistent BA code and the ``state`` is within ``PACE``'s territory
+    * if the backfilled code and the most consistent code are the same, use the
+      consistent value (either would work!)
     * use the backfilled code for plants that have ``SWPP`` (``Southwest Power Pool``)
-      as their most consistent BA code because we know ``SWPP`` accumulated many smaller
-      balancing authorities
-    * use the backfilled code for plants that have a differnt backfilled and most
-      consistent code, but the most consistent code is has a consistency rate (how
-      frequent the most consistent BA code is reported / the total BA codes reported)
-      is less than 80%. This is meant to find plants where there are multiple years of
-      an older BA code before it switches - assuming a BA code being reported for
-      multiple years is not a reporting error. TODO: make this one more explicit.
+      as their most consistent BA code because we know ``SWPP`` has acquired many
+      smaller balancing authorities in recent years.
+    * use the backfilled code for plants that have different backfilled and most
+      consistent codes, but the most consistent code has a consistency rate less than
+      80% (the consistency rate is how frequently the most consistent BA code is
+      reported as a fraction of the total number of BA codes reported). This is meant
+      to find plants where there are multiple years of an older BA code before it
+      switches - assuming a BA code being reported for multiple years is not a
+      reporting error. TODO: make this one more explicit.
 
     Args:
         plants: table of annual plant attributes, including ``balancing_authority_code_eia``
@@ -230,14 +229,16 @@ def fill_in_missing_ba_codes(plants: pd.DataFrame) -> pd.DataFrame:
         """
         currently_null_len = len(plants[plants.balancing_authority_code_eia.isnull()])
         logger.info(
-            f"Filled BA codes where {method_str}. "
-            f"Currently {currently_null_len/len(plants):.1%} of records ({currently_null_len}) with no BA codes"
+            f"{method_str}. {currently_null_len/len(plants):.1%} of records have no BA codes"
         )
 
-    plants = make_backfilled_ba_code_column(plants, by_cols=["plant_id_eia"]).pipe(
-        make_consistent_ba_code_column
+    # add a column for each of our backfilling options
+    plants = add_backfilled_ba_code_column(plants, by_cols=["plant_id_eia"]).pipe(
+        add_consistent_ba_code_column
     )
-    log_current_ba_code_nulls(plants, method_str="no treatment had been applied")
+    log_current_ba_code_nulls(
+        plants=plants, method_str="Before any filling treatment has been applied"
+    )
     # when the backfilled code and the static code are the same, use either result
     plants.loc[
         (
@@ -249,30 +250,7 @@ def fill_in_missing_ba_codes(plants: pd.DataFrame) -> pd.DataFrame:
     ] = plants.balancing_authority_code_eia_consistent
 
     log_current_ba_code_nulls(
-        plants, method_str="backfilling and consistent value is the same"
-    )
-    # we found a pattern of 2013 plants reporting BA codes of PACE when the
-    # consistent option was PACW and the states the plants were located in
-    # are PACW states
-    # use PACW for those records
-    plants.loc[
-        (plants.balancing_authority_code_eia.isnull())
-        & (plants.balancing_authority_code_eia_consistent == "PACW")
-        & (plants.state.isin(["OR", "CA"])),
-        "balancing_authority_code_eia",
-    ] = "PACW"
-    log_current_ba_code_nulls(
-        plants, method_str="consistent code is PACW and state is OR or CA"
-    )
-    # found the opposite! Plants in UT labeled as PACW instead of PACE
-    plants.loc[
-        (plants.balancing_authority_code_eia.isnull())
-        & (plants.balancing_authority_code_eia_consistent == "PACE")
-        & (plants.state.isin(["UT"])),
-        "balancing_authority_code_eia",
-    ] = "PACE"
-    log_current_ba_code_nulls(
-        plants, method_str="consistent code is PACE and state is UT"
+        plants=plants, method_str="backfilling and consistent value is the same"
     )
     # we know SWPP has done a ton of accumulation of smaller BA's
     plants.loc[
@@ -283,7 +261,18 @@ def fill_in_missing_ba_codes(plants: pd.DataFrame) -> pd.DataFrame:
     log_current_ba_code_nulls(
         plants, method_str="SWPP is most consistent value. Filled w/ oldest BA code"
     )
-
+    # Several plants went from reporting a BA of WAUE (Western Area Power Administration
+    # - Upper Great Plains East) to reporting a BA of NWMT (NorthWestern Energy (NWMT))
+    # we believe this is not a reporting error and should be bfilled
+    plants.loc[
+        (plants.balancing_authority_code_eia.isnull())
+        & (plants.balancing_authority_code_eia_consistent == "NWMT")
+        & (plants.balancing_authority_code_eia_bfilled == "WAUE"),
+        "balancing_authority_code_eia",
+    ] = plants.balancing_authority_code_eia_bfilled
+    log_current_ba_code_nulls(
+        plants, method_str="NWMT is most consistent value. Filled w/ oldest BA code"
+    )
     plants.loc[
         (plants.balancing_authority_code_eia.isnull())
         & (
@@ -295,9 +284,14 @@ def fill_in_missing_ba_codes(plants: pd.DataFrame) -> pd.DataFrame:
     ] = plants.balancing_authority_code_eia_bfilled
     log_current_ba_code_nulls(
         plants,
-        method_str="most consistent BA code is less than 80% consistent. Used backfilled BA code",
+        method_str="most consistent BA code is less than 70% consistent. Used backfilled BA code",
     )
-    return plants
+    return plants.drop(
+        columns=[
+            "balancing_authority_code_eia_consistent",
+            "balancing_authority_code_eia_bfilled",
+        ]
+    )
 
 
 def plants_utils_eia860(pudl_engine, start_date=None, end_date=None):

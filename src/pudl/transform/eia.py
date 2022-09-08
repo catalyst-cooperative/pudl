@@ -19,6 +19,7 @@ found in :func:`pudl.transform.eia._boiler_generator_assn`.
 
 import importlib.resources
 import logging
+from collections import namedtuple
 
 import networkx as nx
 import numpy as np
@@ -205,7 +206,7 @@ def occurrence_consistency(
     col_df = col_df.dropna()
 
     if len(col_df) == 0:
-        col_df[f"{col}_consistent"] = pd.NA
+        col_df[f"{col}_is_consistent"] = pd.NA
         col_df[f"{col}_consistent_rate"] = pd.NA
         col_df["entity_occurences"] = pd.NA
         return col_df
@@ -237,7 +238,7 @@ def occurrence_consistency(
     col_df[f"{col}_consistent_rate"] = (
         col_df["record_occurences"] / col_df["entity_occurences"]
     )
-    col_df[f"{col}_consistent"] = col_df[f"{col}_consistent_rate"] > strictness
+    col_df[f"{col}_is_consistent"] = col_df[f"{col}_consistent_rate"] > strictness
     col_df = col_df.sort_values(f"{col}_consistent_rate")
     return col_df
 
@@ -284,7 +285,7 @@ def _lat_long(
     # grab the clean plants
     ll_clean_df = clean_df.dropna()
     # find the new clean plant records by selecting the True consistent records
-    ll_df = ll_df[ll_df[f"{col}_consistent"]].drop_duplicates(subset=entity_idx)
+    ll_df = ll_df[ll_df[f"{col}_is_consistent"]].drop_duplicates(subset=entity_idx)
     logger.debug(f"Clean {col} records: {len(ll_df)}")
     # add the newly cleaned records
     ll_clean_df = pd.concat([ll_clean_df, ll_df])
@@ -543,8 +544,8 @@ def harvesting(  # noqa: C901
         )
 
         # pull the correct values out of the df and merge w/ the plant ids
-        col_correct_df = col_df[col_df[f"{col}_consistent"]].drop_duplicates(
-            subset=(cols_to_consit + [f"{col}_consistent"])
+        col_correct_df = col_df[col_df[f"{col}_is_consistent"]].drop_duplicates(
+            subset=(cols_to_consit + [f"{col}_is_consistent"])
         )
 
         # we need this to be an empty df w/ columns bc we are going to use it
@@ -592,7 +593,7 @@ def harvesting(  # noqa: C901
         if total > 0:
             ratio = (
                 len(
-                    col_df[(col_df[f"{col}_consistent"])].drop_duplicates(
+                    col_df[(col_df[f"{col}_is_consistent"])].drop_duplicates(
                         subset=cols_to_consit
                     )
                 )
@@ -1155,6 +1156,54 @@ def fillna_balancing_authority_codes_via_names(df: pd.DataFrame) -> pd.DataFrame
     return df
 
 
+def fix_balancing_authority_codes_with_state(
+    plants: pd.DataFrame, plants_entity: pd.DataFrame
+) -> pd.DataFrame:
+    """Fix selective balancing_authority_code_eia's based on states.
+
+    There are some know errors in the ``balancing_authority_code_eia`` column that we
+    can identify and fix based on the state where the plant is located.
+
+    This function should only be applied post-:func:`harvesting`. The ``state`` column
+    is a "static" entity column so the first step in this function is merging the static
+    and annually varying plants together. Then we fix known errors in the BA codes:
+
+    * reported PACE, but state is OR or CA, code should be PACW
+    * reported PACW, but state is UT, code should be PACE
+    * reported ISNE, but state is NY, code should be NYIS
+
+    Args:
+        plants: annually harvested plant table with columns: ``plant_id_eia``,
+            ``report_date`` and ``balancing_authority_code_eia``.
+        plants_entity: static harvested plant table with columns: ``plant_id_eia`` and
+            ``state``.
+
+    Returns:
+        plants table that has the same set of columns and rows, with cleaned
+        ``balancing_authority_code_eia`` column.
+
+    """
+    plants = plants.merge(
+        plants_entity[["plant_id_eia", "state"]],  # only merge in state, drop later
+        on=["plant_id_eia"],
+        how="left",
+        validate="m:1",
+    )
+    BACodeFix = namedtuple("BACodeFix", ["ba_code_found", "ba_code_fix", "states"])
+    fixes = [
+        BACodeFix("PACE", "PACW", ["OR", "CA"]),
+        BACodeFix("PACW", "PACE", ["UT"]),
+        BACodeFix("ISNE", "NYIS", ["NY"]),
+    ]
+    for fix in fixes:
+        plants.loc[
+            (plants.balancing_authority_code_eia == fix.ba_code_found)
+            & (plants.state.isin(fix.states)),
+            "balancing_authority_code_eia",
+        ] = fix.ba_code_fix
+    return plants.drop(columns=["state"])
+
+
 def transform(
     eia_transformed_dfs, eia_settings: EiaSettings = EiaSettings(), debug=False
 ):
@@ -1214,5 +1263,8 @@ def transform(
 
     eia_transformed_dfs["plants_eia860"] = fillna_balancing_authority_codes_via_names(
         df=eia_transformed_dfs["plants_eia860"]
+    ).pipe(
+        fix_balancing_authority_codes_with_state,
+        plants_entity=entities_dfs["plants_entity_eia"],
     )
     return entities_dfs, eia_transformed_dfs
