@@ -1149,6 +1149,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "operational_status_pudl": {
         "type": "string",
         "description": "The operating status of the generator using PUDL categories.",
+        "constraints": {"enum": ["operating", "retired", "proposed", "BU"]},
     },
     "opex_allowances": {"type": "number", "description": "Allowances.", "unit": "USD"},
     "opex_boiler": {
@@ -2169,6 +2170,15 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
                 ]
             },
         }
+    },
+    "plant_parts_eia": {
+        "energy_source_code_1": {
+            "constraints": {"enum": set(CODE_METADATA["energy_sources_eia"]["df"].code)}
+        },
+        "prime_movers_eia": {
+            "constraints": {"enum": set(CODE_METADATA["prime_movers_eia"]["df"].code)}
+        },
+        "technology_description": {"type": "category"},
     },
 }
 

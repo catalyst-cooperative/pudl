@@ -188,6 +188,7 @@ import numpy as np
 import pandas as pd
 
 import pudl
+from pudl.metadata.classes import Resource
 
 logger = logging.getLogger(__name__)
 
@@ -344,18 +345,6 @@ FIRST_COLS = [
     "true_gran",
     "appro_part_label",
 ]
-
-CATEGORICAL_COLS = [
-    "energy_source_code_1",
-    "fuel_type_code_pudl",
-    "operational_status_pudl",
-    "prime_mover_code",
-    "technology_description",
-]
-"""
-list: a list of plant parts list columns that should be cast to "category"
-type for memory efficiency.
-"""
 
 
 class MakeMegaGenTbl:
@@ -701,8 +690,7 @@ class MakePlantParts:
             self.add_additonal_cols(plant_parts_eia)
             .pipe(pudl.helpers.organize_cols, FIRST_COLS)
             .pipe(self._clean_plant_parts)
-            .pipe(pudl.metadata.fields.apply_pudl_dtypes)
-            .astype(dict.fromkeys(CATEGORICAL_COLS, "category"))
+            .pipe(Resource.from_id("plant_parts_eia").format_df)
         )
         self.plant_parts_eia.index = self.plant_parts_eia.index.astype("string")
         self.validate_ownership_for_owned_records(self.plant_parts_eia)
