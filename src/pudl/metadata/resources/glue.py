@@ -15,7 +15,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         },
         "field_namespace": "glue",
         "etl_group": "glue",
-        "sources": ["epacamd_eia"],  # --> what is this anyways
+        "sources": ["epacamd_eia"],
     },
 }
 """

@@ -27,7 +27,7 @@ def extract(ds: Datastore) -> pd.DataFrame:
 
 
 def transform(
-    epacamd_eia_crosswalk: pd.DataFrame,
+    epacamd_eia: pd.DataFrame,
     generators_entity_eia: pd.DataFrame,
     boilers_entity_eia: pd.DataFrame,
     processing_all_eia_years: bool,
@@ -35,7 +35,7 @@ def transform(
     """Clean up the EPACAMD-EIA Crosswalk file.
 
     Args:
-        epacamd_eia_crosswalk: The result of running this module's extract() function.
+        epacamd_eia: The result of running this module's extract() function.
         generators_entity_eia: The generators_entity_eia table.
         processing_all_years: A boolean indicating whether the years from the
             Eia860Settings object match the EIA860 working partitions. This indicates
@@ -58,7 +58,7 @@ def transform(
 
     # Basic column rename, selection, and dtype alignment.
     crosswalk_clean = (
-        epacamd_eia_crosswalk.pipe(simplify_columns)
+        epacamd_eia.pipe(simplify_columns)
         .rename(columns=column_rename)
         .filter(list(column_rename.values()))
         .pipe(remove_leading_zeros_from_numeric_strings, col_name="generator_id")
@@ -96,4 +96,4 @@ def transform(
             how="inner",
         )
 
-    return {"epacamd_eia_crosswalk": crosswalk_clean}
+    return {"epacamd_eia": crosswalk_clean}
