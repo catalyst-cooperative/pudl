@@ -152,6 +152,7 @@ class ZenodoFetcher:
             "eia860m": "10.5072/zenodo.926659",
             "eia861": "10.5072/zenodo.687052",
             "eia923": "10.5072/zenodo.1090056",
+            "epacamd_eia": "10.5072/zenodo.1103224",
             "epacems": "10.5072/zenodo.672963",
             "epacems_unitid_eia_plant_crosswalk": "10.5072/zenodo.1072001",  # Eventually change name
             "ferc1": "10.5072/zenodo.926302",
@@ -163,6 +164,7 @@ class ZenodoFetcher:
             "eia860m": "10.5281/zenodo.6929086",
             "eia861": "10.5281/zenodo.5602102",
             "eia923": "10.5281/zenodo.7003886",
+            "epacamd_eia": "10.5281/zenodo.7063255",
             "epacems": "10.5281/zenodo.6910058",
             "epacems_unitid_eia_plant_crosswalk": "10.5281/zenodo.6633770",  # Eventually change name
             "ferc1": "10.5281/zenodo.5534788",
