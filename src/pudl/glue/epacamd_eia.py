@@ -19,10 +19,9 @@ logger = logging.getLogger(__name__)
 
 def extract(ds: Datastore) -> pd.DataFrame:
     """Extract the EPACAMD-EIA Crosswalk from the Datastore."""
-    with ds.get_zipfile_resource(
-        "epacems_unitid_eia_plant_crosswalk",  # eventually change these names?
-        name="epacems_unitid_eia_plant_crosswalk.zip",  # eventually change these names?
-    ).open("camd-eia-crosswalk-master/epa_eia_crosswalk.csv") as f:
+    with ds.get_zipfile_resource("epacamd_eia", name="epacamd_eia.zip").open(
+        "camd-eia-crosswalk-master/epa_eia_crosswalk.csv"
+    ) as f:
         return pd.read_csv(f)
 
 
