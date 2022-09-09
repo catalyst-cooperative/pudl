@@ -28,3 +28,4 @@ other_standard_inactive_accounts_included,24,24,24,24,24,24,25,24,25
 other_standard_momentary_interruption_definition,25,25,25,25,25,25,26,25,26
 other_standard_highest_distribution_voltage_kv,26,26,26,26,26,26,27,26,27
 other_standard_outages_recorded_automatically,27,27,27,27,27,27,28,27,28
+early_release,-1,-1,-1,-1,-1,-1,-1,-1,0

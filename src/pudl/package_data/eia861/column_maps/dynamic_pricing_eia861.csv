@@ -30,3 +30,4 @@ residential_critical_peak_rebate,25,25,25,25,26,26,27,27,28
 commercial_critical_peak_rebate,26,26,26,26,27,27,28,28,29
 industrial_critical_peak_rebate,27,27,27,27,28,28,29,29,30
 transportation_critical_peak_rebate,28,28,28,28,29,29,30,30,31
+early_release,-1,-1,-1,-1,-1,-1,-1,-1,0

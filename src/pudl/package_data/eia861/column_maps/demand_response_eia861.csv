@@ -36,3 +36,4 @@ industrial_other_costs,31,31,31,31,32,32,33,32,33
 transportation_other_costs,32,32,32,32,33,33,34,33,34
 total_other_costs,33,33,33,33,34,34,35,34,35
 water_heater,34,34,34,34,35,35,36,35,36
+early_release,-1,-1,-1,-1,-1,-1,-1,-1,0

@@ -46,3 +46,4 @@ commercial_direct_load_control_customers,-1,-1,-1,-1,-1,-1,41,41,42,42,42,42,43,
 industrial_direct_load_control_customers,-1,-1,-1,-1,-1,-1,42,42,43,43,43,43,44,44,45
 transportation_direct_load_control_customers,-1,-1,-1,-1,-1,-1,43,43,44,44,44,44,45,45,46
 total_direct_load_control_customers,-1,-1,-1,-1,-1,-1,44,44,45,45,45,45,46,46,47
+early_release,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,0

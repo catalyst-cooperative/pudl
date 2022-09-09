@@ -13,3 +13,4 @@ net_metering,8,9,9,10,10,10,10,-1,10,11
 demand_side_management,9,10,10,11,11,11,11,-1,11,12
 time_based_programs,10,11,11,12,12,12,12,-1,12,13
 green_pricing,7,-1,-1,-1,-1,-1,-1,-1,-1,-1
+early_release,-1,-1,-1,-1,-1,-1,-1,-1,-1,0

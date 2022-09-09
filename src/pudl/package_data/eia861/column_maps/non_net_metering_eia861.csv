@@ -69,3 +69,4 @@ industrial_total_capacity_mw,66,66,66,66,66,67
 transportation_total_capacity_mw,67,67,67,67,67,68
 direct_connection_total_capacity_mw,68,68,68,68,68,69
 total_total_capacity_mw,69,69,69,69,69,70
+early_release,-1,-1,-1,-1,-1,0
