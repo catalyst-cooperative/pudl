@@ -28,6 +28,12 @@ def harmonize_eia_epa_orispl(
     compiled a crosswalk that maps one set of IDs to the other. The crosswalk is
     integrated into the PUDL db.
 
+    This function merges the crosswalk with the cems data thus adding the official
+    plant_id_eia column to CEMS. In cases where there is no plant_id_eia value for a
+    given plant_id_epa (i.e., this plant isn't in the crosswalk yet), we use
+    fillna() to add the plant_id_epa value to the plant_id_eia column. Because the
+    plant_id_epa is almost always correct this is reasonable.
+
     EIA IDs are more correct so use the crosswalk to fix any erronious EPA IDs and get
     rid of that column to avoid confusion.
 
