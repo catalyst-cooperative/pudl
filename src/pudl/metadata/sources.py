@@ -242,7 +242,7 @@ SOURCES: dict[str, Any] = {
         ),
         "source_file_dict": {
             "records_liberated": "~7000",
-            "source_format": "Microsoft Excel (.xlsx)",
+            "source_format": "Comma Separated Value (.csv)",
         },
         "field_namespace": "glue",
         "working_partitions": {},
