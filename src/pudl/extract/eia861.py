@@ -47,6 +47,7 @@ class Extractor(excel.GenericExtractor):
         )
         self.cols_added = []
         df = remove_leading_zeros_from_numeric_strings(df=df, col_name="generator_id")
+        df = self.add_data_maturity(df, page, **partition)
         return df
 
     def extract(self, settings: Eia861Settings = Eia861Settings()):
