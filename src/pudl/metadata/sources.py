@@ -180,6 +180,39 @@ SOURCES: dict[str, Any] = {
         "license_raw": LICENSES["us-govt"],
         "license_pudl": LICENSES["cc-by-4.0"],
     },
+    "eia_bulk_elec": {
+        "title": "EIA Bulk Electricity API Data",
+        "path": "https://www.eia.gov/opendata/bulkfiles.php",
+        "description": (
+            "Aggregate national, state, and plant-level electricity generation "
+            "statistics, including fuel quality and consumption, for grid-connected "
+            "plants with nameplate capacity of 1 megawatt or greater"
+        ),
+        "source_file_dict": {
+            "respondents": (
+                "Electric, CHP plants, and sometimes fuel transfer termianls with "
+                "either 1MW+ or the ability to receive and deliver power to the grid."
+            ),
+            "source_format": "JSON",
+        },
+        "field_namespace": "eia",
+        "working_partitions": {},
+        "contributors": [
+            CONTRIBUTORS["catalyst-cooperative"],
+            CONTRIBUTORS["zane-selvans"],
+            CONTRIBUTORS["trenton-bush"],
+        ],
+        "keywords": sorted(
+            set(
+                KEYWORDS["eia"]
+                + KEYWORDS["us_govt"]
+                + KEYWORDS["electricity"]
+                + KEYWORDS["environment"]
+            )
+        ),
+        "license_raw": LICENSES["us-govt"],
+        "license_pudl": LICENSES["cc-by-4.0"],
+    },
     "eiawater": {
         "title": "EIA Thermoelectric Cooling Water",
         "path": "https://www.eia.gov/electricity/data/water",
@@ -198,7 +231,7 @@ SOURCES: dict[str, Any] = {
             "Hourly CO2, SO2, NOx emissions and gross load."
         ),
         "source_file_dict": {
-            "respondents": "Coal and high-sulfur fueled plants",
+            "respondents": "Coal and high-sulfur fueled plants over 25MW",
             "records_liberated": "~800 million",
             "source_format": "Comma Separated Value (.csv)",
         },
