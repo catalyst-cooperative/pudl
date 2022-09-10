@@ -70,11 +70,21 @@ def _parse_data_column(elec_df: pd.DataFrame) -> pd.DataFrame:
     out = []
     for idx in elec_df.index:
         data_df = pd.DataFrame(elec_df.at[idx, "data"], columns=["date", "value"])
-        # three possible date formats, all of them handled by pd.to_datetime():
+        # three possible date formats, only annual/quarterly handled by pd.to_datetime() automatically
         #   annual data as "YYYY" eg "2020"
         #   quarterly data as "YYYYQQ" eg "2020Q2"
         #   monthly data as "YYYYMM" eg "202004"
-        data_df.loc[:, "date"] = pd.to_datetime(data_df.loc[:, "date"], errors="raise")
+        is_monthly = (
+            data_df.iloc[0:5, data_df.columns.get_loc("date")].str.match(r"\d{6}").all()
+        )
+        if is_monthly:
+            data_df.loc[:, "date"] = pd.to_datetime(
+                data_df.loc[:, "date"], format="%Y%m", errors="raise"
+            )
+        else:
+            data_df.loc[:, "date"] = pd.to_datetime(
+                data_df.loc[:, "date"], infer_datetime_format=True, errors="raise"
+            )
         data_df["series_id"] = elec_df.at[idx, "series_id"]
         out.append(data_df)
     out = pd.concat(out, ignore_index=True, axis=0)
