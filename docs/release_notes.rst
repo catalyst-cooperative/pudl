@@ -2,14 +2,23 @@
 PUDL Release Notes
 =======================================================================================
 
-.. _release-v2022.08.XX:
+.. _release-v2022.09.XX:
 
 ---------------------------------------------------------------------------------------
-2022.08.XX
+2022.09.XX
 ---------------------------------------------------------------------------------------
 
 Data Coverage
 ^^^^^^^^^^^^^
+* Added archives of the bulk EIA electricity API data to our datastore, since the API
+  itself is too unreliable for production use. This is part of :issue:`1763`. The code
+  for this new data is ``eia_bulk_elec`` and the data comes as a single 200MB zipped
+  JSON file. :pr:`1922` updates the datastore to include
+  `this archive on Zenodo <https://zenodo.org/record/7067367>`__ but most of the work
+  happened in the
+  `pudl-scrapers <https://github.com/catalyst-cooperative/pudl-scrapers>`__ and
+  `pudl-zenodo-storage <https://github.com/catalyst-cooperative/pudl-zenodo-storage>`__
+  repositories. See issue :issue:`catalyst-cooperative/pudl-zenodo-storage#29`.
 * Incorporated 2021 data from the :doc:`data_sources/epacems` dataset. See :pr:`1778`
 * Incorporated Early Release 2021 data from the :doc:`data_sources/eia860`,
   :ref:`data-eia861`, and :doc:`data_sources/eia923`. Early release data is EIA's
