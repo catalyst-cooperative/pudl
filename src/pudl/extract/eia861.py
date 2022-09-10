@@ -47,6 +47,7 @@ class Extractor(excel.GenericExtractor):
         )
         self.cols_added = []
         df = fix_leading_zero_gen_ids(df)
+        df = self.add_data_maturity(df, page, **partition)
         return df
 
     def extract(self, settings: Eia861Settings = Eia861Settings()):
