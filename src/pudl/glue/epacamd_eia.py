@@ -19,6 +19,7 @@ logger = logging.getLogger(__name__)
 
 def extract(ds: Datastore) -> pd.DataFrame:
     """Extract the EPACAMD-EIA Crosswalk from the Datastore."""
+    logger.info("Extracting the EPACAMD-EIA crosswalk from Zenodo")
     with ds.get_zipfile_resource("epacamd_eia", name="epacamd_eia.zip").open(
         "camd-eia-crosswalk-master/epa_eia_crosswalk.csv"
     ) as f:
@@ -44,7 +45,7 @@ def transform(
     Returns:
         A dictionary containing the cleaned EPACAMD-EIA crosswalk DataFrame.
     """
-    logger.info("Cleaning up the epacems-eia crosswalk")
+    logger.info("Transforming the EPACAMD-EIA crosswalk")
 
     column_rename = {
         "camd_plant_id": "plant_id_epa",
@@ -79,8 +80,8 @@ def transform(
     # discrepancies.
     if not processing_all_eia_years:
         logger.info(
-            "Selected subset of avilable EIA years--restricting EIA-EPA Crosswalk to \
-            chosen subset of EIA years"
+            "Selected subset of avilable EIA years--restricting EPACAMD-EIA Crosswalk \
+            to chosen subset of EIA years"
         )
         crosswalk_clean = pd.merge(
             crosswalk_clean,

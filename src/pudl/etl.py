@@ -253,7 +253,7 @@ def etl_epacems(
     # Verify that we have a PUDL DB with crosswalk data
     if "epacamd_eia" not in inspector.get_table_names():
         raise RuntimeError(
-            "No EPA-EIA Crosswalk available in the PUDL DB! Have you run the ETL? "
+            "No EPACAMD-EIA Crosswalk available in the PUDL DB! Have you run the ETL? "
             f"Trying to access PUDL DB: {pudl_engine}"
         )
 
@@ -344,7 +344,7 @@ def _etl_glue(
         ds_kwargs: Keyword arguments for instantiating a PUDL datastore, so that the ETL
             can access the raw input data.
         sqlite_dfs: The dictionary of dataframes to be loaded into the pudl database.
-            We pass the dictionary though because the EPACEMS-EIA crosswalk needs to
+            We pass the dictionary though because the EPACAMD-EIA crosswalk needs to
             know which EIA plants and generators are being loaded into the database
             (based on whether we run the full or fast etl). The tests will break if we
             pass the generators_entity_eia table as an argument because of the
