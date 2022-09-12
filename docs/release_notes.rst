@@ -117,18 +117,15 @@ Plant Parts List Module Changes
   of the default list are needed from the EIA 860 generators table, these columns can be
   passed in with the ``gens_cols`` argument.  See :pr:`1550`
 * For greater memory efficiency, appropriate columns are now cast to string and
-  categorical types when the full plant parts list is created.
+  categorical types when the full plant parts list is created. The resource and field
+  metadata is now included in the PUDL metadata.
 
 Metadata
 ^^^^^^^^
 * Used the data source metadata class added in release 0.6.0 to dynamically generate
   the data source documentation (See :doc:`data_sources/index`). :pr:`1532`
-* Column attributes may now be the pandas ``Categorical`` data type. Using categorical
-  values reduces per-column memory usage substantially when working with data in Pandas
-  or Parquet. However, to explicitly specify the allowed values of the attribute, the
-  column type must still be its appropriate Python data type and an ``enum`` constraint
-  must be specified in the field metadata. Greater compatibility for the categorical
-  values will be addressed in :issue:`1866`.
+* The EIA plant parts list was added to the resource and field metadata. This is the
+  first output table to be included in the metadata.
 
 Bug Fixes
 ^^^^^^^^^
