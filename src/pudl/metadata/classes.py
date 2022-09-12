@@ -576,7 +576,13 @@ class Field(Base):
 
     name: SnakeCase
     type: Literal[  # noqa: A003
-        "string", "number", "integer", "boolean", "date", "datetime", "year", "category"
+        "string",
+        "number",
+        "integer",
+        "boolean",
+        "date",
+        "datetime",
+        "year",
     ]
     format: Literal["default"] = "default"  # noqa: A003
     description: String = None
