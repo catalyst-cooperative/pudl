@@ -690,7 +690,7 @@ class MakePlantParts:
             self.add_additonal_cols(plant_parts_eia)
             .pipe(pudl.helpers.organize_cols, FIRST_COLS)
             .pipe(self._clean_plant_parts)
-            .astype(Resource.from_id("plant_parts_eia").to_pandas_dtypes())
+            .pipe(Resource.from_id("plant_parts_eia").format_df)
         )
         self.plant_parts_eia.index = self.plant_parts_eia.index.astype("string")
         self.validate_ownership_for_owned_records(self.plant_parts_eia)

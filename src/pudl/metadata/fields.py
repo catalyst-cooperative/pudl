@@ -1174,7 +1174,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "unit": "hr",
     },
     "operating_year": {
-        "type": "year",
+        "type": "integer",
         "description": "Year a generator went into service.",
     },
     "operational_status": {
