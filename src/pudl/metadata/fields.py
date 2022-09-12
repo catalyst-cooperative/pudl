@@ -18,6 +18,7 @@ from pudl.metadata.enums import (
     REVENUE_CLASSES,
     RTO_CLASSES,
     TECH_CLASSES,
+    TECH_DESCRIPTIONS,
     US_STATES_TERRITORIES,
 )
 from pudl.metadata.labels import (
@@ -54,8 +55,20 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "annual_indirect_program_cost": {"type": "number", "unit": "USD"},
     "annual_total_cost": {"type": "number", "unit": "USD"},
     "appro_part_label": {
-        "type": "category",
+        "type": "string",
         "description": "Plant part of the associated true granularity record.",
+        "constraints": {
+            "enum": [
+                "plant",
+                "plant_unit",
+                "plant_prime_mover",
+                "plant_technology",
+                "plant_prime_fuel",
+                "plant_ferc_acct",
+                "plant_operating_year",
+                "plant_gen",
+            ]
+        },
     },
     "appro_record_id_eia": {
         "type": "string",
@@ -544,8 +557,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Account number, from FERC's Uniform System of Accounts for Electric Plant. Also includes higher level labeled categories.",
     },
     "ferc_acct_name": {
-        "type": "category",
+        "type": "string",
         "description": "Name of FERC account type.",
+        "constraints": {
+            "enum": ["other", "hydro", "steam", "nuclear", "Other", "Steam"]
+        },
     },
     "ferc_cogen_docket_no": {
         "type": "string",
@@ -1375,8 +1391,9 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         },
     },
     "ownership": {
-        "type": "category",
+        "type": "string",
         "description": "Whether each generator record is for one owner or represents a total of all ownerships.",
+        "constraints": {"enum": ["owned", "total"]},
     },
     "ownership_code": {
         "type": "string",
@@ -1509,8 +1526,20 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Plant name, chosen arbitrarily from the several possible plant names available in the plant matching process. Included for human readability only.",
     },
     "plant_part": {
-        "type": "category",
+        "type": "string",
         "description": "The part of the plant a record corresponds to.",
+        "constraints": {
+            "enum": [
+                "plant",
+                "plant_unit",
+                "plant_prime_mover",
+                "plant_technology",
+                "plant_prime_fuel",
+                "plant_ferc_acct",
+                "plant_operating_year",
+                "plant_gen",
+            ]
+        },
     },
     "plant_part_id_eia": {
         "type": "string",
@@ -2178,7 +2207,7 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
         "prime_movers_eia": {
             "constraints": {"enum": set(CODE_METADATA["prime_movers_eia"]["df"].code)}
         },
-        "technology_description": {"type": "category"},
+        "technology_description": {"constraints": {"enum": TECH_DESCRIPTIONS}},
     },
 }
 

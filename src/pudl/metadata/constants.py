@@ -14,7 +14,6 @@ FIELD_DTYPES_PANDAS: dict[str, str] = {
     "date": "datetime64[ns]",
     "datetime": "datetime64[ns]",
     "year": "datetime64[ns]",
-    "category": "category",
 }
 """
 Pandas data type by PUDL field type (Data Package `field.type`).

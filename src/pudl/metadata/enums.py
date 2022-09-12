@@ -213,3 +213,35 @@ EPACEMS_MEASUREMENT_CODES: list[str] = [
     "Unknown Code",  # Should be replaced with NA
 ]
 """Valid emissions measurement codes for the EPA CEMS hourly data."""
+
+TECH_DESCRIPTIONS: list[str] = [
+    "Conventional Hydroelectric",
+    "Conventional Steam Coal",
+    "Natural Gas Steam Turbine",
+    "Natural Gas Fired Combustion Turbine",
+    "Natural Gas Internal Combustion Engine",
+    "Nuclear",
+    "Natural Gas Fired Combined Cycle",
+    "Petroleum Liquids",
+    "Hydroelectric Pumped Storage",
+    "Solar Photovoltaic",
+    "Batteries",
+    "Geothermal",
+    "Municipal Solid Waste",
+    "Wood/Wood Waste Biomass",
+    "Onshore Wind Turbine",
+    "Coal Integrated Gasification Combined Cycle",
+    "Other Gases",
+    "Landfill Gas",
+    "All Other",
+    "Other Waste Biomass",
+    "Petroleum Coke",
+    "Solar Thermal without Energy Storage",
+    "Solar Thermal with Energy Storage",
+    "Other Natural Gas",
+    "Flywheels",
+    "Offshore Wind Turbine",
+    "Natural Gas with Compressed Air Storage",
+    "Hydrokinetic",
+]
+"""Valid technology descriptions from the EIA plant parts list."""
