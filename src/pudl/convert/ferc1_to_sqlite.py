@@ -108,37 +108,52 @@ def main():  # noqa: C901
         pudl_in=pudl_in, pudl_out=pudl_out
     )
 
-    dbf_settings = Ferc1DbfToSqliteSettings().parse_obj(
-        script_settings["ferc1_dbf_to_sqlite_settings"]
-    )
-
-    # Configure how we want to obtain raw input data:
-    ds_kwargs = dict(
-        gcs_cache_path=args.gcs_cache_path, sandbox=pudl_settings.get("sandbox", False)
-    )
-    if not args.bypass_local_cache:
-        ds_kwargs["local_cache_path"] = Path(pudl_settings["pudl_in"]) / "data"
-
+    # Use sandbox arg from CLI
     pudl_settings["sandbox"] = args.sandbox
-    pudl.extract.ferc1.dbf2sqlite(
-        ferc1_to_sqlite_settings=dbf_settings,
-        pudl_settings=pudl_settings,
-        clobber=args.clobber,
-        datastore=Datastore(**ds_kwargs),
-    )
 
-    xbrl_settings = Ferc1XbrlToSqliteSettings().parse_obj(
-        script_settings["ferc1_xbrl_to_sqlite_settings"]
-    )
+    # Perform DBF to SQLite conversion if requested
+    if "ferc1_dbf_to_sqlite_settings" in script_settings:
+        dbf_settings = Ferc1DbfToSqliteSettings().parse_obj(
+            script_settings["ferc1_dbf_to_sqlite_settings"]
+        )
 
-    pudl.extract.ferc1.xbrl2sqlite(
-        ferc1_to_sqlite_settings=xbrl_settings,
-        pudl_settings=pudl_settings,
-        clobber=args.clobber,
-        datastore=Datastore(local_cache_path=(Path(pudl_in) / "data"), sandbox=True),
-        batch_size=args.batch_size,
-        workers=args.workers,
-    )
+        # Configure how we want to obtain raw input data:
+        ds_kwargs = dict(
+            gcs_cache_path=args.gcs_cache_path,
+            sandbox=pudl_settings.get("sandbox", False),
+        )
+        if not args.bypass_local_cache:
+            ds_kwargs["local_cache_path"] = Path(pudl_settings["pudl_in"]) / "data"
+
+        pudl.extract.ferc1.dbf2sqlite(
+            ferc1_to_sqlite_settings=dbf_settings,
+            pudl_settings=pudl_settings,
+            clobber=args.clobber,
+            datastore=Datastore(**ds_kwargs),
+        )
+    else:
+        # Notify user that no DBF data was requested
+        logger.info("No FERC 1 DBF to SQLite settings found.")
+
+    # Perform XBRL to SQLite conversion if requested
+    if "ferc1_xbrl_to_sqlite_settings" in script_settings:
+        xbrl_settings = Ferc1XbrlToSqliteSettings().parse_obj(
+            script_settings["ferc1_xbrl_to_sqlite_settings"]
+        )
+
+        pudl.extract.ferc1.xbrl2sqlite(
+            ferc1_to_sqlite_settings=xbrl_settings,
+            pudl_settings=pudl_settings,
+            clobber=args.clobber,
+            datastore=Datastore(
+                local_cache_path=(Path(pudl_in) / "data"), sandbox=True
+            ),
+            batch_size=args.batch_size,
+            workers=args.workers,
+        )
+    else:
+        # Notify user that no XBRL data was requested
+        logger.info("No FERC 1 XBRL to SQLite settings found.")
 
 
 if __name__ == "__main__":

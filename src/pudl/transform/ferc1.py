@@ -7,17 +7,15 @@ entry errors which we can infer based on the existing data. It may also include 
 bad data, or replacing it with the appropriate NA values.
 
 """
+import enum
 import importlib.resources
 import re
-import typing
-from abc import ABC, abstractmethod
+from abc import abstractmethod
+from collections import namedtuple
 from functools import cached_property
-from itertools import combinations
-from typing import Literal, Protocol
 
 import numpy as np
 import pandas as pd
-from pydantic import BaseModel, root_validator, validator
 
 import pudl
 from pudl.analysis.classify_plants_ferc1 import (
@@ -26,1836 +24,65 @@ from pudl.analysis.classify_plants_ferc1 import (
 )
 from pudl.extract.ferc1 import TABLE_NAME_MAP
 from pudl.helpers import convert_cols_dtypes, get_logger
-from pudl.metadata.classes import DataSource, Package
+from pudl.metadata.classes import DataSource
 from pudl.metadata.dfs import FERC_DEPRECIATION_LINES
 from pudl.settings import Ferc1Settings
+from pudl.transform.classes import (
+    AbstractTableTransformer,
+    RenameColumns,
+    TableTransformParams,
+    TransformParams,
+)
+
+# This is only here to keep the module importable. Breaks legacy functions.
+CONSTRUCTION_TYPE_CATEGORIES = {}
 
 logger = get_logger(__name__)
 
 
-##############################################################################
-# Unit converstion parameters
-##############################################################################
-
-PERPOUND_TO_PERSHORTTON = dict(
-    multiplier=2000.0,
-    pattern=r"(.*)_per_lb$",
-    repl=r"\1_per_ton",
-)
-"""Parameters for converting from inverse pounds to inverse short tons."""
-
-CENTS_TO_DOLLARS = dict(
-    multiplier=0.01,
-    pattern=r"(.*)_cents$",
-    repl=r"\1_usd",
-)
-"""Parameters for converting from cents to dollars."""
-
-PERCF_TO_PERMCF = dict(
-    multiplier=1000.0,
-    pattern=r"(.*)_per_cf$",
-    repl=r"\1_per_mcf",
-)
-"""Parameters for converting from inverse cubic feet to inverse 1000s of cubic feet."""
-
-PERGALLON_TO_PERBARREL = dict(
-    multiplier=42.0,
-    pattern=r"(.*)_per_gal",
-    repl=r"\1_per_bbl",
-)
-"""Parameters for converting from inverse gallons to inverse barrels."""
-
-PERKW_TO_PERMW = dict(
-    multiplier=1000.0,
-    pattern=r"(.*)_per_kw$",
-    repl=r"\1_per_mw",
-)
-"""Parameters for converting column units from per kW to per MW."""
-
-PERKWH_TO_PERMWH = dict(
-    multiplier=1000.0,
-    pattern=r"(.*)_per_kwh$",
-    repl=r"\1_per_mwh",
-)
-"""Parameters for converting column units from per kWh to per MWh."""
-
-KWH_TO_MWH = dict(
-    multiplier=1e-3,
-    pattern=r"(.*)_kwh$",
-    repl=r"\1_mwh",
-)
-"""Parameters for converting column units from kWh to MWh."""
-
-BTU_TO_MMBTU = dict(
-    multiplier=1e-6,
-    pattern=r"(.*)_btu(.*)$",
-    repl=r"\1_mmbtu\2",
-)
-"""Parameters for converting column units from BTU to MMBTU."""
-
-PERBTU_TO_PERMMBTU = dict(
-    multiplier=1e6,
-    pattern=r"(.*)_per_btu$",
-    repl=r"\1_per_mmbtu",
-)
-"""Parameters for converting column units from BTU to MMBTU."""
-
-BTU_PERKWH_TO_MMBTU_PERMWH = dict(
-    multiplier=(1e-6 * 1000.0),
-    pattern=r"(.*)_btu_per_kwh$",
-    repl=r"\1_mmbtu_per_mwh",
-)
-"""Parameters for converting column units from BTU/kWh to MMBTU/MWh."""
-
-##############################################################################
-# Valid ranges to impose on various columns
-##############################################################################
-
-VALID_PLANT_YEARS = {
-    "lower_bound": 1850,
-    "upper_bound": max(DataSource.from_id("ferc1").working_partitions["years"]) + 1,
-}
-"""Valid range of years for power plant construction."""
-
-VALID_COAL_MMBTU_PER_TON = {
-    "lower_bound": 10.0,
-    "upper_bound": 29.0,
-}
-"""Valid range for coal heat content, taken from the EIA-923 instructions.
-
-https://www.eia.gov/survey/form/eia_923/instructions.pdf
-"""
-
-VALID_COAL_USD_PER_MMBTU = {
-    "lower_bound": 0.5,
-    "upper_bound": 7.5,
-}
-"""Historical coal price range from the EIA-923 Fuel Receipts and Costs table."""
-
-VALID_GAS_MMBTU_PER_MCF = {
-    "lower_bound": 0.8,
-    "upper_bound": 1.2,
-}
-"""Valid range for natural gas heat content, taken from the EIA-923 instructions.
-
-https://www.eia.gov/survey/form/eia_923/instructions.pdf
-"""
-
-VALID_GAS_USD_PER_MMBTU = {
-    "lower_bound": 1.0,
-    "upper_bound": 35.0,
-}
-"""Historical natural gas price range from the EIA-923 Fuel Receipts and Costs table."""
-
-VALID_OIL_MMBTU_PER_BBL = {
-    "lower_bound": 3.0,
-    "upper_bound": 6.9,
-}
-"""Valid range for petroleum fuels heat content, taken from the EIA-923 instructions.
-
-https://www.eia.gov/survey/form/eia_923/instructions.pdf
-"""
-
-VALID_OIL_USD_PER_MMBTU = {
-    "lower_bound": 5.0,
-    "upper_bound": 33.0,
-}
-"""Historical petroleum price range from the EIA-923 Fuel Receipts and Costs table."""
-
-##############################################################################
-# String categorizations
-##############################################################################
-
-FUEL_TYPES: dict[str, set[str]] = {
-    "categories": {
-        "coal": {
-            "coal",
-            "coal-subbit",
-            "lignite",
-            "coal(sb)",
-            "coal (sb)",
-            "coal-lignite",
-            "coke",
-            "coa",
-            "lignite/coal",
-            "coal - subbit",
-            "coal-subb",
-            "coal-sub",
-            "coal-lig",
-            "coal-sub bit",
-            "coals",
-            "ciak",
-            "petcoke",
-            "coal.oil",
-            "coal/gas",
-            "coal. gas",
-            "coal & oil",
-            "coal bit",
-            "bit coal",
-            "coal-unit #3",
-            "coal-subbitum",
-            "coal tons",
-            "coal mcf",
-            "coal unit #3",
-            "pet. coke",
-            "coal-u3",
-            "coal&coke",
-            "tons",
-        },
-        "oil": {
-            "oil",
-            "#6 oil",
-            "#2 oil",
-            "fuel oil",
-            "jet",
-            "no. 2 oil",
-            "no.2 oil",
-            "no.6& used",
-            "used oil",
-            "oil-2",
-            "oil (#2)",
-            "diesel oil",
-            "residual oil",
-            "# 2 oil",
-            "resid. oil",
-            "tall oil",
-            "oil/gas",
-            "no.6 oil",
-            "oil-fuel",
-            "oil-diesel",
-            "oil / gas",
-            "oil bbls",
-            "oil bls",
-            "no. 6 oil",
-            "#1 kerosene",
-            "diesel",
-            "no. 2 oils",
-            "blend oil",
-            "#2oil diesel",
-            "#2 oil-diesel",
-            "# 2  oil",
-            "light oil",
-            "heavy oil",
-            "gas.oil",
-            "#2",
-            "2",
-            "6",
-            "bbl",
-            "no 2 oil",
-            "no 6 oil",
-            "#1 oil",
-            "#6",
-            "oil-kero",
-            "oil bbl",
-            "biofuel",
-            "no 2",
-            "kero",
-            "#1 fuel oil",
-            "no. 2  oil",
-            "blended oil",
-            "no 2. oil",
-            "# 6 oil",
-            "nno. 2 oil",
-            "#2 fuel",
-            "oill",
-            "oils",
-            "gas/oil",
-            "no.2 oil gas",
-            "#2 fuel oil",
-            "oli",
-            "oil (#6)",
-            "oil/diesel",
-            "2 oil",
-            "#6 hvy oil",
-            "jet fuel",
-            "diesel/compos",
-            "oil-8",
-            "oil {6}",  # noqa: FS003
-            "oil-unit #1",
-            "bbl.",
-            "oil.",
-            "oil #6",
-            "oil (6)",
-            "oil(#2)",
-            "oil-unit1&2",
-            "oil-6",
-            "#2 fue oil",
-            "dielel oil",
-            "dielsel oil",
-            "#6 & used",
-            "barrels",
-            "oil un 1 & 2",
-            "jet oil",
-            "oil-u1&2",
-            "oiul",
-            "pil",
-            "oil - 2",
-            "#6 & used",
-            "oial",
-            "diesel fuel",
-            "diesel/compo",
-            "oil (used)",
-        },
-        "gas": {
-            "gas",
-            "gass",
-            "methane",
-            "natural gas",
-            "blast gas",
-            "gas mcf",
-            "propane",
-            "prop",
-            "natural  gas",
-            "nat.gas",
-            "nat gas",
-            "nat. gas",
-            "natl gas",
-            "ga",
-            "gas`",
-            "syngas",
-            "ng",
-            "mcf",
-            "blast gaa",
-            "nat  gas",
-            "gac",
-            "syngass",
-            "prop.",
-            "natural",
-            "coal.gas",
-            "n. gas",
-            "lp gas",
-            "natuaral gas",
-            "coke gas",
-            "gas #2016",
-            "propane**",
-            "* propane",
-            "propane **",
-            "gas expander",
-            "gas ct",
-            "# 6 gas",
-            "#6 gas",
-            "coke oven gas",
-            "gas & oil",
-            "gas/fuel oil",
-        },
-        "solar": {"solar"},
-        "wind": {"wind"},
-        "hydro": {"hydro"},
-        "nuclear": {
-            "nuclear",
-            "grams of uran",
-            "grams of",
-            "grams of  ura",
-            "grams",
-            "nucleur",
-            "nulear",
-            "nucl",
-            "nucleart",
-            "nucelar",
-            "gr.uranium",
-            "grams of urm",
-            "nuclear (9)",
-            "nulcear",
-            "nuc",
-            "gr. uranium",
-            "uranium",
-            "nuclear mw da",
-            "grams of ura",
-            "nucvlear",
-            "nuclear (1)",
-        },
-        "waste": {
-            "waste",
-            "tires",
-            "tire",
-            "refuse",
-            "switchgrass",
-            "wood waste",
-            "woodchips",
-            "biomass",
-            "wood",
-            "wood chips",
-            "rdf",
-            "tires/refuse",
-            "tire refuse",
-            "waste oil",
-            "woodships",
-            "tire chips",
-            "tdf",
-        },
-        "other": {  # This should really be NA but we require a fuel_type_code_pudl
-            "other",
-            "na",
-            "",
-            "steam",
-            "purch steam",
-            "all",
-            "n/a",
-            "purch. steam",
-            "composite",
-            "composit",
-            "mbtus",
-            "total",
-            "avg",
-            "avg.",
-            "blo",
-            "all fuel",
-            "comb.",
-            "alt. fuels",
-            "comb",
-            "/#=2\x80â\x91?",
-            "kã\xadgv¸\x9d?",
-            "mbtu's",
-            "gas, oil",
-            "rrm",
-            "3\x9c",
-            "average",
-            "furfural",
-            "0",
-            "watson bng",
-            "toal",
-            "bng",
-            "# 6 & used",
-            "combined",
-            "blo bls",
-            "compsite",
-            "*",
-            "compos.",
-            "gas / oil",
-            "mw days",
-            "g",
-            "c",
-            "lime",
-            "all fuels",
-            "at right",
-            "20",
-            "1",
-            "comp oil/gas",
-            "all fuels to",
-            "the right are",
-            "c omposite",
-            "all fuels are",
-            "total pr crk",
-            "all fuels =",
-            "total pc",
-            "comp",
-            "alternative",
-            "alt. fuel",
-            "bio fuel",
-            "total prairie",
-            "kã\xadgv¸?",
-            "m",
-            "waste heat",
-            "/#=2â?",
-            "3",
-            "—",
-        },
-    }
-}
-"""
-A mapping a canonical fuel name to a set of strings which are used to represent that
-fuel in the FERC Form 1 Reporting. Case is ignored, as all fuel strings are converted to
-lower case in the data set.
-"""
-
-FUEL_UNITS: dict[str, set[str]] = {
-    "categories": {
-        "ton": {
-            "ton",
-            "toms",
-            "taons",
-            "tones",
-            "col-tons",
-            "toncoaleq",
-            "coal",
-            "tons coal eq",
-            "coal-tons",
-            "tons",
-            "tons coal",
-            "coal-ton",
-            "tires-tons",
-            "coal tons -2 ",
-            "oil-tons",
-            "coal tons 200",
-            "ton-2000",
-            "coal tons",
-            "coal tons -2",
-            "coal-tone",
-            "tire-ton",
-            "tire-tons",
-            "ton coal eqv",
-            "tos",
-            "coal tons - 2",
-            "c. t.",
-            "c.t.",
-            "t",
-            "toncoalequiv",
-        },
-        "mcf": {
-            "mcf",
-            "mcf's",
-            "mcfs",
-            "mcf.",
-            "mcfe",
-            "gas mcf",
-            '"gas" mcf',
-            "gas-mcf",
-            "mfc",
-            "mct",
-            " mcf",
-            "msfs",
-            "mlf",
-            "mscf",
-            "mci",
-            "mcl",
-            "mcg",
-            "m.cu.ft.",
-            "kcf",
-            "(mcf)",
-            "mcf *(4)",
-            "mcf00",
-            "m.cu.ft..",
-            "1000 c.f",
-        },
-        "bbl": {
-            "bbl",
-            "barrel",
-            "bbls",
-            "barrels",
-            "bbrl",
-            "bbl.",
-            "bbls.",
-            "oil 42 gal",
-            "oil-barrels",
-            "barrrels",
-            "bbl-42 gal",
-            "oil-barrel",
-            "bb.",
-            "barrells",
-            "bar",
-            "bbld",
-            "oil- barrel",
-            "barrels    .",
-            "bbl .",
-            "barels",
-            "barrell",
-            "berrels",
-            "bb",
-            "bbl.s",
-            "oil-bbl",
-            "bls",
-            "bbl:",
-            "barrles",
-            "blb",
-            "propane-bbl",
-            "barriel",
-            "berriel",
-            "barrile",
-            "(bbl.)",
-            "barrel *(4)",
-            "(4) barrel",
-            "bbf",
-            "blb.",
-            "(bbl)",
-            "bb1",
-            "bbsl",
-            "barrrel",
-            "barrels 100%",
-            "bsrrels",
-            "bbl's",
-            "*barrels",
-            "oil - barrels",
-            "oil 42 gal ba",
-            "bll",
-            "boiler barrel",
-            "gas barrel",
-            '"boiler" barr',
-            '"gas" barrel',
-            '"boiler"barre',
-            '"boiler barre',
-            "barrels .",
-            "bariel",
-            "brrels",
-            "oil barrel",
-            "barreks",
-            "oil-bbls",
-            "oil-bbs",
-            "boe",
-        },
-        "mmbbl": {"mmbbl", "mmbbls"},
-        "gal": {"gal", "gallons", "gal.", "gals", "gals.", "gallon", "galllons"},
-        "kgal": {
-            "kgal",
-            "oil(1000 gal)",
-            "oil(1000)",
-            "oil (1000)",
-            "oil(1000",
-            "oil(1000ga)",
-            "1000 gals",
-            "1000 gal",
-        },
-        "grams": {
-            "gram",
-            "grams",
-            "gm u",
-            "grams u235",
-            "grams u-235",
-            "grams of uran",
-            "grams: u-235",
-            "grams:u-235",
-            "grams:u235",
-            "grams u308",
-            "grams: u235",
-            "grams of",
-            "grams - n/a",
-            "gms uran",
-            "s e uo2 grams",
-            "gms uranium",
-            "grams of urm",
-            "gms. of uran",
-            "grams (100%)",
-            "grams v-235",
-            "se uo2 grams",
-            "grams u",
-            "g",
-            "grams of uranium",
-        },
-        "kg": {
-            "kg",
-            "kg of uranium",
-            "kg uranium",
-            "kilg. u-235",
-            "kg u-235",
-            "kilograms-u23",
-            "kilograms u-2",
-            "kilograms",
-            "kg of",
-            "kg-u-235",
-            "kilgrams",
-            "kilogr. u235",
-            "uranium kg",
-            "kg uranium25",
-            "kilogr. u-235",
-            "kg uranium 25",
-            "kilgr. u-235",
-            "kguranium 25",
-            "kg-u235",
-            "kgm",
-        },
-        "klbs": {
-            "klbs",
-            "k lbs.",
-            "k lbs",
-            "1000 / lbs",
-            "1000 lbs",
-        },
-        "mmbtu": {
-            "mmbtu",
-            "mmbtus",
-            "mbtus",
-            "(mmbtu)",
-            "mmbtu's",
-            "nuclear-mmbtu",
-            "nuclear-mmbt",
-            "mmbtul",
-        },
-        "btu": {
-            "btu",
-            "btus",
-        },
-        "mwdth": {
-            "mwdth",
-            "mwd therman",
-            "mw days-therm",
-            "mwd thrml",
-            "mwd thermal",
-            "mwd/mtu",
-            "mw days",
-            "mwd",
-            "mw day",
-            "dth",
-            "mwdaysthermal",
-            "mw day therml",
-            "mw days thrml",
-            "nuclear mwd",
-            "mmwd",
-            "mw day/therml" "mw days/therm",
-            "mw days (th",
-            "ermal)",
-        },
-        "mwhth": {
-            "nwh therm",
-            "mwhth",
-            "mwh them",
-            "mwh threm",
-            "mwh therm",
-            "mwh",
-            "mwh therms.",
-            "mwh term.uts",
-            "mwh thermal",
-            "mwh thermals",
-            "mw hr therm",
-            "mwh therma",
-            "mwh therm.uts",
-        },
-        "na_category": {
-            "na_category",
-            "na",
-            "",
-            "1265",
-            "mwh units",
-            "composite",
-            "therms",
-            "n/a",
-            "mbtu/kg",
-            "uranium 235",
-            "oil",
-            "ccf",
-            "2261",
-            "uo2",
-            "(7)",
-            "oil #2",
-            "oil #6",
-            '\x99å\x83\x90?"',
-            "dekatherm",
-            "0",
-            "mw day/therml",
-            "nuclear",
-            "gas",
-            "62,679",
-            "mw days/therm",
-            "uranium",
-            "oil/gas",
-            "thermal",
-            "(thermal)",
-            "se uo2",
-            "181679",
-            "83",
-            "3070",
-            "248",
-            "273976",
-            "747",
-            "-",
-            "are total",
-            "pr. creek",
-            "decatherms",
-            "uramium",
-            ".",
-            "total pr crk",
-            ">>>>>>>>",
-            "all",
-            "total",
-            "alternative-t",
-            "oil-mcf",
-            "3303671",
-            "929",
-            "7182175",
-            "319",
-            "1490442",
-            "10881",
-            "1363663",
-            "7171",
-            "1726497",
-            "4783",
-            "7800",
-            "12559",
-            "2398",
-            "creek fuels",
-            "propane-barre",
-            "509",
-            "barrels/mcf",
-            "propane-bar",
-            "4853325",
-            "4069628",
-            "1431536",
-            "708903",
-            "mcf/oil (1000",
-            "344",
-            'å?"',
-            "mcf / gallen",
-            "none",
-            "—",
-        },
-    }
-}
-"""
-A mapping of canonical fuel units (keys) to sets of strings representing those
-fuel units (values)
-"""
-
-PLANT_TYPES: dict[str, set[str]] = {
-    "categories": {
-        "steam": {
-            "coal",
-            "steam",
-            "steam units 1 2 3",
-            "steam units 4 5",
-            "steam fossil",
-            "steam turbine",
-            "steam a",
-            "steam 100",
-            "steam units 1 2 3",
-            "steams",
-            "steam 1",
-            "steam retired 2013",
-            "stream",
-            "steam units 1,2,3",
-            "steam units 4&5",
-            "steam units 4&6",
-            "steam conventional",
-            "unit total-steam",
-            "unit total steam",
-            "*resp. share steam",
-            "resp. share steam",
-            "steam (see note 1,",
-            "steam (see note 3)",
-            "mpc 50%share steam",
-            "40% share steam" "steam (2)",
-            "steam (3)",
-            "steam (4)",
-            "steam (5)",
-            "steam (6)",
-            "steam (7)",
-            "steam (8)",
-            "steam units 1 and 2",
-            "steam units 3 and 4",
-            "steam (note 1)",
-            "steam (retired)",
-            "steam (leased)",
-            "coal-fired steam",
-            "oil-fired steam",
-            "steam/fossil",
-            "steam (a,b)",
-            "steam (a)",
-            "stean",
-            "steam-internal comb",
-            "steam (see notes)",
-            "steam units 4 & 6",
-            "resp share stm note3",
-            "mpc50% share steam",
-            "mpc40%share steam",
-            "steam - 64%",
-            "steam - 100%",
-            "steam (1) & (2)",
-            "resp share st note3",
-            "mpc 50% shares steam",
-            "steam-64%",
-            "steam-100%",
-            "steam (see note 1)",
-            "mpc 50% share steam",
-            "steam units 1, 2, 3",
-            "steam units 4, 5",
-            "steam (2)",
-            "steam (1)",
-            "steam 4, 5",
-            "steam - 72%",
-            "steam (incl i.c.)",
-            "steam- 72%",
-            "steam;retired - 2013",
-            "respondent's sh.-st.",
-            "respondent's sh-st",
-            "40% share steam",
-            "resp share stm note3",
-            "mpc50% share steam",
-            "resp share st note 3",
-            "\x02steam (1)",
-            "coal fired steam tur",
-            "coal fired steam turbine",
-            "steam- 64%",
-        },
-        "combustion_turbine": {
-            "combustion turbine",
-            "gt",
-            "gas turbine",
-            "gas turbine # 1",
-            "gas turbine",
-            "gas turbine (note 1)",
-            "gas turbines",
-            "simple cycle",
-            "combustion turbine",
-            "comb.turb.peak.units",
-            "gas turbine",
-            "combustion turbine",
-            "com turbine peaking",
-            "gas turbine peaking",
-            "comb turb peaking",
-            "combustine turbine",
-            "comb. turine",
-            "conbustion turbine",
-            "combustine turbine",
-            "gas turbine (leased)",
-            "combustion tubine",
-            "gas turb",
-            "gas turbine peaker",
-            "gtg/gas",
-            "simple cycle turbine",
-            "gas-turbine",
-            "gas turbine-simple",
-            "gas turbine - note 1",
-            "gas turbine #1",
-            "simple cycle",
-            "gasturbine",
-            "combustionturbine",
-            "gas turbine (2)",
-            "comb turb peak units",
-            "jet engine",
-            "jet powered turbine",
-            "*gas turbine",
-            "gas turb.(see note5)",
-            "gas turb. (see note",
-            "combutsion turbine",
-            "combustion turbin",
-            "gas turbine-unit 2",
-            "gas - turbine",
-            "comb turbine peaking",
-            "gas expander turbine",
-            "jet turbine",
-            "gas turbin (lease",
-            "gas turbine (leased",
-            "gas turbine/int. cm",
-            "comb.turb-gas oper.",
-            "comb.turb.gas/oil op",
-            "comb.turb.oil oper.",
-            "jet",
-            "comb. turbine (a)",
-            "gas turb.(see notes)",
-            "gas turb(see notes)",
-            "comb. turb-gas oper",
-            "comb.turb.oil oper",
-            "gas turbin (leasd)",
-            "gas turbne/int comb",
-            "gas turbine (note1)",
-            "combution turbin",
-            "* gas turbine",
-            "add to gas turbine",
-            "gas turbine (a)",
-            "gas turbinint comb",
-            "gas turbine (note 3)",
-            "resp share gas note3",
-            "gas trubine",
-            "*gas turbine(note3)",
-            "gas turbine note 3,6",
-            "gas turbine note 4,6",
-            "gas turbine peakload",
-            "combusition turbine",
-            "gas turbine (lease)",
-            "comb. turb-gas oper.",
-            "combution turbine",
-            "combusion turbine",
-            "comb. turb. oil oper",
-            "combustion burbine",
-            "combustion and gas",
-            "comb. turb.",
-            "gas turbine (lease",
-            "gas turbine (leasd)",
-            "gas turbine/int comb",
-            "*gas turbine(note 3)",
-            "gas turbine (see nos",
-            "i.c.e./gas turbine",
-            "gas turbine/intcomb",
-            "cumbustion turbine",
-            "gas turb, int. comb.",
-            "gas turb, diesel",
-            "gas turb, int. comb",
-            "i.c.e/gas turbine",
-            "diesel turbine",
-            "comubstion turbine",
-            "i.c.e. /gas turbine",
-            "i.c.e/ gas turbine",
-            "i.c.e./gas tubine",
-            "gas turbine; retired",
-        },
-        "combined_cycle": {
-            "Combined cycle",
-            "combined cycle",
-            "combined",
-            "gas & steam turbine",
-            "gas turb. & heat rec",
-            "combined cycle",
-            "com. cyc",
-            "com. cycle",
-            "gas turb-combined cy",
-            "combined cycle ctg",
-            "combined cycle - 40%",
-            "com cycle gas turb",
-            "combined cycle oper",
-            "gas turb/comb. cyc",
-            "combine cycle",
-            "cc",
-            "comb. cycle",
-            "gas turb-combined cy",
-            "steam and cc",
-            "steam cc",
-            "gas steam",
-            "ctg steam gas",
-            "steam comb cycle",
-            "gas/steam comb. cycl",
-            "gas/steam",
-            "gas turbine-combined cycle",
-            "steam (comb. cycle)" "gas turbine/steam",
-            "steam & gas turbine",
-            "gas trb & heat rec",
-            "steam & combined ce",
-            "st/gas turb comb cyc",
-            "gas tur & comb cycl",
-            "combined cycle (a,b)",
-            "gas turbine/ steam",
-            "steam/gas turb.",
-            "steam & comb cycle",
-            "gas/steam comb cycle",
-            "comb cycle (a,b)",
-            "igcc",
-            "steam/gas turbine",
-            "gas turbine / steam",
-            "gas tur & comb cyc",
-            "comb cyc (a) (b)",
-            "comb cycle",
-            "comb cyc",
-            "combined turbine",
-            "combine cycle oper",
-            "comb cycle/steam tur",
-            "cc / gas turb",
-            "steam (comb. cycle)",
-            "steam & cc",
-            "gas turbine/steam",
-            "gas turb/cumbus cycl",
-            "gas turb/comb cycle",
-            "gasturb/comb cycle",
-            "gas turb/cumb. cyc",
-            "igcc/gas turbine",
-            "gas / steam",
-            "ctg/steam-gas",
-            "ctg/steam -gas",
-            "gas fired cc turbine",
-            "combinedcycle",
-            "comb cycle gas turb",
-            "combined cycle opern",
-            "comb. cycle gas turb",
-            "ngcc",
-        },
-        "nuclear": {
-            "nuclear",
-            "nuclear (3)",
-            "steam(nuclear)",
-            "nuclear(see note4)" "nuclear steam",
-            "nuclear turbine",
-            "nuclear - steam",
-            "nuclear (a)(b)(c)",
-            "nuclear (b)(c)",
-            "* nuclear",
-            "nuclear (b) (c)",
-            "nuclear (see notes)",
-            "steam (nuclear)",
-            "* nuclear (note 2)",
-            "nuclear (note 2)",
-            "nuclear (see note 2)",
-            "nuclear(see note4)",
-            "nuclear steam",
-            "nuclear(see notes)",
-            "nuclear-steam",
-            "nuclear (see note 3)",
-        },
-        "geothermal": {"steam - geothermal", "steam_geothermal", "geothermal"},
-        "internal_combustion": {
-            "ic",
-            "internal combustion",
-            "internal comb.",
-            "internl combustion",
-            "diesel turbine",
-            "int combust (note 1)",
-            "int. combust (note1)",
-            "int.combustine",
-            "comb. cyc",
-            "internal comb",
-            "diesel",
-            "diesel engine",
-            "internal combustion",
-            "int combust - note 1",
-            "int. combust - note1",
-            "internal comb recip",
-            "internal combustion reciprocating",
-            "reciprocating engine",
-            "comb. turbine",
-            "internal combust.",
-            "int. combustion (1)",
-            "*int combustion (1)",
-            "*internal combust'n",
-            "internal",
-            "internal comb.",
-            "steam internal comb",
-            "combustion",
-            "int. combustion",
-            "int combust (note1)",
-            "int. combustine",
-            "internl combustion",
-            "*int. combustion (1)",
-            "internal conbustion",
-        },
-        "wind": {
-            "wind",
-            "wind energy",
-            "wind turbine",
-            "wind - turbine",
-            "wind generation",
-            "wind turbin",
-        },
-        "photovoltaic": {
-            "solar photovoltaic",
-            "photovoltaic",
-            "solar",
-            "solar project",
-        },
-        "solar_thermal": {"solar thermal"},
-        "na_category": {
-            "na_category",
-            "na",
-            "",
-            "n/a",
-            "see pgs 402.1-402.3",
-            "see pgs 403.1-403.9",
-            "respondent's share",
-            "--",
-            "—",
-            "footnote",
-            "(see note 7)",
-            "other",
-            "not applicable",
-            "peach bottom",
-            "none.",
-            "fuel facilities",
-            "0",
-            "not in service",
-            "none",
-            "common expenses",
-            "expenses common to",
-            "retired in 1981",
-            "retired in 1978",
-            "unit total (note3)",
-            "unit total (note2)",
-            "resp. share (note2)",
-            "resp. share (note8)",
-            "resp. share (note 9)",
-            "resp. share (note11)",
-            "resp. share (note4)",
-            "resp. share (note6)",
-            "conventional",
-            "expenses commom to",
-            "not in service in",
-            "unit total (note 3)",
-            "unit total (note 2)",
-            "resp. share (note 8)",
-            "resp. share (note 3)",
-            "resp. share note 11",
-            "resp. share (note 4)",
-            "resp. share (note 6)",
-            "(see note 5)",
-            "resp. share (note 2)",
-            "package",
-            "(left blank)",
-            "common",
-            "0.0000",
-            "other generation",
-            "resp share (note 11)",
-            "retired",
-            "storage/pipelines",
-            "sold april 16, 1999",
-            "sold may 07, 1999",
-            "plants sold in 1999",
-            "gas",
-            "not applicable.",
-            "resp. share - note 2",
-            "resp. share - note 8",
-            "resp. share - note 9",
-            "resp share - note 11",
-            "resp. share - note 4",
-            "resp. share - note 6",
-            "plant retired- 2013",
-            "retired - 2013",
-            "resp share - note 5",
-            "resp. share - note 7",
-            "non-applicable",
-            "other generation plt",
-            "combined heat/power",
-            "oil",
-            "fuel oil",
-        },
-    }
-}
-"""
-A mapping from canonical plant kinds (keys) to the associated freeform strings (values)
-identified as being associated with that kind of plant in the FERC Form 1 raw data.
-There are many strings that weren't categorized, Solar and Solar Project were not
-classified as these do not indicate if they are solar thermal or photovoltaic. Variants
-on Steam (e.g. "steam 72" and "steam and gas") were classified based on additional
-research of the plants on the Internet.
-"""
-
-CONSTRUCTION_TYPES: dict[str, set[str]] = {
-    "categories": {
-        "outdoor": {
-            "outdoor",
-            "outdoor boiler",
-            "full outdoor",
-            "outdoor boiler",
-            "outdoor boilers",
-            "outboilers",
-            "fuel outdoor",
-            "full outdoor",
-            "outdoors",
-            "outdoor",
-            "boiler outdoor& full",
-            "boiler outdoor&full",
-            "outdoor boiler& full",
-            "full -outdoor",
-            "outdoor steam",
-            "outdoor boiler",
-            "ob",
-            "outdoor automatic",
-            "outdoor repower",
-            "full outdoor boiler",
-            "fo",
-            "outdoor boiler & ful",
-            "full-outdoor",
-            "fuel outdoor",
-            "outoor",
-            "outdoor",
-            "outdoor  boiler&full",
-            "boiler outdoor &full",
-            "outdoor boiler &full",
-            "boiler outdoor & ful",
-            "outdoor-boiler",
-            "outdoor - boiler",
-            "outdoor const.",
-            "4 outdoor boilers",
-            "3 outdoor boilers",
-            "full outdoor",
-            "full outdoors",
-            "full oudoors",
-            "outdoor (auto oper)",
-            "outside boiler",
-            "outdoor boiler&full",
-            "outdoor hrsg",
-            "outdoor hrsg",
-            "outdoor-steel encl.",
-            "boiler-outdr & full",
-            "con.& full outdoor",
-            "partial outdoor",
-            "outdoor (auto. oper)",
-            "outdoor (auto.oper)",
-            "outdoor construction",
-            "1 outdoor boiler",
-            "2 outdoor boilers",
-            "outdoor enclosure",
-            "2 outoor boilers",
-            "boiler outdr.& full",
-            "boiler outdr. & full",
-            "ful outdoor",
-            "outdoor-steel enclos",
-            "outdoor (auto oper.)",
-            "con. & full outdoor",
-            "outdore",
-            "boiler & full outdor",
-            "full & outdr boilers",
-            "outodoor (auto oper)",
-            "outdoor steel encl.",
-            "full outoor",
-            "boiler & outdoor ful",
-            "otdr. blr. & f. otdr",
-            "f.otdr & otdr.blr.",
-            "oudoor (auto oper)",
-            "outdoor constructin",
-            "f. otdr. & otdr. blr",
-            "outdoor boiler & fue",
-            "outdoor boiler &fuel",
-        },
-        "semioutdoor": {
-            "semioutdoor" "more than 50% outdoors",
-            "more than 50% outdoo",
-            "more than 50% outdos",
-            "over 50% outdoor",
-            "over 50% outdoors",
-            "semi-outdoor",
-            "semi - outdoor",
-            "semi outdoor",
-            "semi-enclosed",
-            "semi-outdoor boiler",
-            "semi outdoor boiler",
-            "semi- outdoor",
-            "semi - outdoors",
-            "semi -outdoor" "conven & semi-outdr",
-            "conv & semi-outdoor",
-            "conv & semi- outdoor",
-            "convent. semi-outdr",
-            "conv. semi outdoor",
-            "conv(u1)/semiod(u2)",
-            "conv u1/semi-od u2",
-            "conv-one blr-semi-od",
-            "convent semioutdoor",
-            "conv. u1/semi-od u2",
-            "conv - 1 blr semi od",
-            "conv. ui/semi-od u2",
-            "conv-1 blr semi-od",
-            "conven. semi-outdoor",
-            "conv semi-outdoor",
-            "u1-conv./u2-semi-od",
-            "u1-conv./u2-semi -od",
-            "convent. semi-outdoo",
-            "u1-conv. / u2-semi",
-            "conven & semi-outdr",
-            "semi -outdoor",
-            "outdr & conventnl",
-            "conven. full outdoor",
-            "conv. & outdoor blr",
-            "conv. & outdoor blr.",
-            "conv. & outdoor boil",
-            "conv. & outdr boiler",
-            "conv. & out. boiler",
-            "convntl,outdoor blr",
-            "outdoor & conv.",
-            "2 conv., 1 out. boil",
-            "outdoor/conventional",
-            "conv. boiler outdoor",
-            "conv-one boiler-outd",
-            "conventional outdoor",
-            "conventional outdor",
-            "conv. outdoor boiler",
-            "conv.outdoor boiler",
-            "conventional outdr.",
-            "conven,outdoorboiler",
-            "conven full outdoor",
-            "conven,full outdoor",
-            "1 out boil, 2 conv",
-            "conv. & full outdoor",
-            "conv. & outdr. boilr",
-            "conv outdoor boiler",
-            "convention. outdoor",
-            "conv. sem. outdoor",
-            "convntl, outdoor blr",
-            "conv & outdoor boil",
-            "conv & outdoor boil.",
-            "outdoor & conv",
-            "conv. broiler outdor",
-            "1 out boilr, 2 conv",
-            "conv.& outdoor boil.",
-            "conven,outdr.boiler",
-            "conven,outdr boiler",
-            "outdoor & conventil",
-            "1 out boilr 2 conv",
-            "conv & outdr. boilr",
-            "conven, full outdoor",
-            "conven full outdr.",
-            "conven, full outdr.",
-            "conv/outdoor boiler",
-            "convnt'l outdr boilr",
-            "1 out boil 2 conv",
-            "conv full outdoor",
-            "conven, outdr boiler",
-            "conventional/outdoor",
-            "conv&outdoor boiler",
-            "outdoor & convention",
-            "conv & outdoor boilr",
-            "conv & full outdoor",
-            "convntl. outdoor blr",
-            "conv - ob",
-            "1conv'l/2odboilers",
-            "2conv'l/1odboiler",
-            "conv-ob",
-            "conv.-ob",
-            "1 conv/ 2odboilers",
-            "2 conv /1 odboilers",
-            "conv- ob",
-            "conv -ob",
-            "con sem outdoor",
-            "cnvntl, outdr, boilr",
-            "less than 50% outdoo",
-            "less than 50% outdoors",
-            "under 50% outdoor",
-            "under 50% outdoors",
-            "1cnvntnl/2odboilers",
-            "2cnvntnl1/1odboiler",
-            "con & ob",
-            "combination (b)",
-            "indoor & outdoor",
-            "conven. blr. & full",
-            "conv. & otdr. blr.",
-            "combination",
-            "indoor and outdoor",
-            "conven boiler & full",
-            "2conv'l/10dboiler",
-            "4 indor/outdr boiler",
-            "4 indr/outdr boilerr",
-            "4 indr/outdr boiler",
-            "indoor & outdoof",
-        },
-        "conventional": {
-            "conventional",
-            "conventional",
-            "conventional boiler",
-            "conventional - boiler",
-            "conv-b",
-            "conventionall",
-            "convention",
-            "conventional",
-            "coventional",
-            "conven full boiler",
-            "c0nventional",
-            "conventtional",
-            "convential" "underground",
-            "conventional bulb",
-            "conventrional",
-            "*conventional",
-            "convential",
-            "convetional",
-            "conventioanl",
-            "conventioinal",
-            "conventaional",
-            "indoor construction",
-            "convenional",
-            "conventional steam",
-            "conventinal",
-            "convntional",
-            "conventionl",
-            "conventionsl",
-            "conventiional",
-            "convntl steam plants",
-            "indoor const.",
-            "full indoor",
-            "indoor",
-            "indoor automatic",
-            "indoor boiler",
-            "indoor boiler and steam turbine",
-            "(peak load) indoor",
-            "conventionl,indoor",
-            "conventionl, indoor",
-            "conventional, indoor",
-            "conventional;outdoor",
-            "conven./outdoor",
-            "conventional;semi-ou",
-            "comb. cycle indoor",
-            "comb cycle indoor",
-            "3 indoor boiler",
-            "2 indoor boilers",
-            "1 indoor boiler",
-            "2 indoor boiler",
-            "3 indoor boilers",
-            "fully contained",
-            "conv - b",
-            "conventional/boiler",
-            "cnventional",
-            "comb. cycle indooor",
-            "sonventional",
-            "ind enclosures",
-            "conentional",
-            "conventional - boilr",
-            "indoor boiler and st",
-        },
-        "na_category": {
-            "na_category",
-            "na",
-            "",
-            "automatic operation",
-            "comb. turb. installn",
-            "comb. turb. instaln",
-            "com. turb. installn",
-            "n/a",
-            "for detailed info.",
-            "for detailed info",
-            "combined cycle",
-            "not applicable",
-            "gas",
-            "heated individually",
-            "metal enclosure",
-            "pressurized water",
-            "nuclear",
-            "jet engine",
-            "gas turbine",
-            "storage/pipelines",
-            "0",
-            "during 1994",
-            "peaking - automatic",
-            "gas turbine/int. cm",
-            "2 oil/gas turbines",
-            "wind",
-            "package",
-            "mobile",
-            "auto-operated",
-            "steam plants",
-            "other production",
-            "all nuclear plants",
-            "other power gen.",
-            "automatically operad",
-            "automatically operd",
-            "circ fluidized bed",
-            "jet turbine",
-            "gas turbne/int comb",
-            "automatically oper.",
-            "retired 1/1/95",
-            "during 1995",
-            "1996. plant sold",
-            "reactivated 7/1/96",
-            "gas turbine/int comb",
-            "portable",
-            "head individually",
-            "automatic opertion",
-            "peaking-automatic",
-            "cycle",
-            "full order",
-            "circ. fluidized bed",
-            "gas turbine/intcomb",
-            "0.0000",
-            "none",
-            "2 oil / gas",
-            "block & steel",
-            "and 2000",
-            "comb.turb. instaln",
-            "automatic oper.",
-            "pakage",
-            "---",
-            "—",
-            "n/a (ct)",
-            "comb turb instain",
-            "ind encloures",
-            "2 oil /gas turbines",
-            "combustion turbine",
-            "1970",
-            "gas/oil turbines",
-            "combined cycle steam",
-            "pwr",
-            "2 oil/ gas",
-            "2 oil / gas turbines",
-            "gas / oil turbines",
-            "no boiler",
-            "internal combustion",
-            "gasturbine no boiler",
-            "boiler",
-            "tower -10 unit facy",
-            "gas trubine",
-            "4 gas/oil trubines",
-            "2 oil/ 4 gas/oil tur",
-            "5 gas/oil turbines",
-            "tower 16",
-            "2 on 1 gas turbine",
-            "tower 23",
-            "tower -10 unit",
-            "tower - 101 unit",
-            "3 on 1 gas turbine",
-            "tower - 10 units",
-            "tower - 165 units",
-            "wind turbine",
-            "fixed tilt pv",
-            "tracking pv",
-            "o",
-            "wind trubine",
-            "wind generator",
-            "subcritical",
-            "sucritical",
-            "simple cycle",
-            "simple & reciprocat",
-            "solar",
-            "pre-fab power plant",
-            "prefab power plant",
-            "prefab. power plant",
-            "pump storage",
-            "underground",
-            "see page 402",
-            "conv. underground",
-            "conven. underground",
-            "conventional (a)",
-            "non-applicable",
-            "duct burner",
-            "see footnote",
-            "simple and reciprocat",
-        },
-    }
-}
-"""
-A dictionary of construction types (keys) and lists of construction type strings
-associated with each type (values) from FERC Form 1.
-
-There are many strings that weren't categorized, including crosses between conventional
-and outdoor, PV, wind, combined cycle, and internal combustion. The lists are broken out
-into the two types specified in Form 1: conventional and outdoor. These lists are
-inclusive so that variants of conventional (e.g. "conventional full") and outdoor (e.g.
-"outdoor full" and "outdoor hrsg") are included.
-"""
-
-##############################################################################
-# Fully assembled set of FERC 1 transformation parameters
-##############################################################################
-
-TRANSFORM_PARAMS = {
-    "fuel_ferc1": {
-        "rename_columns": {
-            "dbf": {
-                "columns": {
-                    "respondent_id": "utility_id_ferc1",
-                    "plant_name": "plant_name_ferc1",
-                    "fuel": "fuel_type_code_pudl",
-                    "fuel_unit": "fuel_units",
-                    "fuel_avg_heat": "fuel_btu_per_unit",
-                    "fuel_quantity": "fuel_consumed_units",
-                    "fuel_cost_burned": "fuel_cost_per_unit_burned",
-                    "fuel_cost_delvd": "fuel_cost_per_unit_delivered",
-                    "fuel_cost_btu": "fuel_cost_per_btu",
-                    "fuel_generaton": "fuel_btu_per_kwh",
-                    "report_prd": "report_prd",
-                    "row_prvlg": "row_prvlg",
-                    "report_year": "report_year",
-                    "row_number": "row_number",
-                    "fuel_cost_kwh": "fuel_cost_per_kwh",
-                    "spplmnt_num": "spplmnt_num",
-                    "row_seq": "row_seq",
-                }
-            },
-            "xbrl": {
-                "columns": {
-                    "PlantNameAxis": "plant_name_ferc1",
-                    "FuelKindAxis": "fuel_type_code_pudl",
-                    "FuelUnit": "fuel_units",
-                    "FuelBurnedAverageHeatContent": "fuel_btu_per_unit",
-                    "QuantityOfFuelBurned": "fuel_consumed_units",
-                    "AverageCostOfFuelPerUnitBurned": "fuel_cost_per_unit_burned",
-                    "AverageCostOfFuelPerUnitAsDelivered": "fuel_cost_per_unit_delivered",
-                    "AverageCostOfFuelBurnedPerMillionBritishThermalUnit": "fuel_cost_per_mmbtu",
-                    "AverageBritishThermalUnitPerKilowattHourNetGeneration": "fuel_btu_per_kwh",
-                    "AverageCostOfFuelBurnedPerKilowattHourNetGeneration": "fuel_cost_per_kwh",
-                    "ReportYear": "report_year",
-                    "FuelKind": "fuel_kind",
-                    "end_date": "end_date",
-                    "entity_id": "entity_id",
-                    "start_date": "start_date",
-                }
-            },
-        },
-        "categorize_strings": {
-            "fuel_type_code_pudl": FUEL_TYPES,
-            "fuel_units": FUEL_UNITS,
-        },
-        "convert_units": {
-            "fuel_btu_per_unit": BTU_TO_MMBTU,
-            "fuel_btu_per_kwh": BTU_PERKWH_TO_MMBTU_PERMWH,
-            "fuel_cost_per_kwh": PERKWH_TO_PERMWH,
-            "fuel_cost_per_btu": PERBTU_TO_PERMMBTU,
-        },
-        "normalize_strings": {
-            "plant_name_ferc1": True,
-            "fuel_type_code_pudl": True,
-            "fuel_units": True,
-        },
-        "correct_units": [
-            {
-                "col": "fuel_mmbtu_per_unit",
-                "query": "fuel_type_code_pudl=='coal'",
-                "valid_range": VALID_COAL_MMBTU_PER_TON,
-                "unit_conversions": [
-                    PERPOUND_TO_PERSHORTTON,
-                    BTU_TO_MMBTU,
-                ],
-            },
-            {
-                "col": "fuel_cost_per_mmbtu",
-                "query": "fuel_type_code_pudl=='coal'",
-                "valid_range": VALID_COAL_USD_PER_MMBTU,
-                "unit_conversions": [
-                    CENTS_TO_DOLLARS,
-                ],
-            },
-            {
-                "col": "fuel_mmbtu_per_unit",
-                "query": "fuel_type_code_pudl=='gas'",
-                "valid_range": VALID_GAS_MMBTU_PER_MCF,
-                "unit_conversions": [
-                    PERCF_TO_PERMCF,
-                    BTU_TO_MMBTU,
-                ],
-            },
-            {
-                "col": "fuel_cost_per_mmbtu",
-                "query": "fuel_type_code_pudl=='gas'",
-                "valid_range": VALID_GAS_USD_PER_MMBTU,
-                "unit_conversions": [
-                    CENTS_TO_DOLLARS,
-                ],
-            },
-            {
-                "col": "fuel_mmbtu_per_unit",
-                "query": "fuel_type_code_pudl=='oil'",
-                "valid_range": VALID_OIL_MMBTU_PER_BBL,
-                "unit_conversions": [
-                    PERGALLON_TO_PERBARREL,
-                    # BTU_TO_MMBTU,  # Why was this omitted in the old corrections?
-                ],
-            },
-            {
-                "col": "fuel_cost_per_mmbtu",
-                "query": "fuel_type_code_pudl=='oil'",
-                "valid_range": VALID_OIL_USD_PER_MMBTU,
-                "unit_conversions": [
-                    CENTS_TO_DOLLARS,
-                ],
-            },
-        ],
-    },
-    "plants_steam_ferc1": {
-        "normalize_strings": {
-            "plant_name_ferc1": True,
-            "construction_type": True,
-            "plant_type": True,
-        },
-        "nullify_outliers": {
-            "construction_year": VALID_PLANT_YEARS,
-            "installation_year": VALID_PLANT_YEARS,
-        },
-        "categorize_strings": {
-            "construction_type": CONSTRUCTION_TYPES,
-            "plant_type": PLANT_TYPES,
-        },
-        "convert_units": {
-            "capex_per_kw": PERKW_TO_PERMW,
-            "opex_per_kwh": PERKWH_TO_PERMWH,
-            "net_generation_kwh": KWH_TO_MWH,
-        },
-        "rename_columns": {
-            "dbf": {
-                "columns": {
-                    "cost_structure": "capex_structures",
-                    "expns_misc_power": "opex_misc_power",
-                    "plant_name": "plant_name_ferc1",
-                    "plnt_capability": "plant_capability_mw",
-                    "expns_plants": "opex_plants",
-                    "expns_misc_steam": "opex_misc_steam",
-                    "cost_per_kw": "capex_per_kw",
-                    "when_not_limited": "not_water_limited_capacity_mw",
-                    "asset_retire_cost": "asset_retirement_cost",
-                    "expns_steam_othr": "opex_steam_other",
-                    "expns_transfer": "opex_transfer",
-                    "expns_engnr": "opex_engineering",
-                    "avg_num_of_emp": "avg_num_employees",
-                    "cost_of_plant_to": "capex_total",
-                    "expns_rents": "opex_rents",
-                    "tot_prdctn_expns": "opex_production_total",
-                    "plant_kind": "plant_type",
-                    "respondent_id": "utility_id_ferc1",
-                    "expns_operations": "opex_operations",
-                    "cost_equipment": "capex_equipment",
-                    "type_const": "construction_type",
-                    "plant_hours": "plant_hours_connected_while_generating",
-                    "expns_coolants": "opex_coolants",
-                    "expns_fuel": "opex_fuel",
-                    "when_limited": "water_limited_capacity_mw",
-                    "expns_kwh": "opex_per_kwh",
-                    "expns_allowances": "opex_allowances",
-                    "expns_steam": "opex_steam",
-                    "yr_const": "construction_year",
-                    "yr_installed": "installation_year",
-                    "expns_boiler": "opex_boiler",
-                    "peak_demand": "peak_demand_mw",
-                    "cost_land": "capex_land",
-                    "tot_capacity": "capacity_mw",
-                    "net_generation": "net_generation_kwh",
-                    "expns_electric": "opex_electric",
-                    "expns_structures": "opex_structures",
-                    "report_year": "report_year",
-                    "report_prd": "report_prd",
-                    "row_prvlg": "row_prvlg",
-                    "row_number": "row_number",
-                    "spplmnt_num": "spplmnt_num",
-                    "row_seq": "row_seq",
-                }
-            },
-            "xbrl": {
-                "columns": {
-                    "CostOfStructuresAndImprovementsSteamProduction": "capex_structures",
-                    "MiscellaneousSteamPowerExpenses": "opex_misc_power",
-                    "PlantNameAxis": "plant_name_ferc1",
-                    "NetContinuousPlantCapability": "plant_capability_mw",
-                    "MaintenanceOfElectricPlantSteamPowerGeneration": "opex_plants",
-                    "MaintenanceOfMiscellaneousSteamPlant": "opex_misc_steam",
-                    "CostPerKilowattOfInstalledCapacity": "capex_per_kw",
-                    "NetContinuousPlantCapabilityNotLimitedByCondenserWater": "not_water_limited_capacity_mw",
-                    "AssetRetirementCostsSteamProduction": "asset_retirement_cost",
-                    "SteamFromOtherSources": "opex_steam_other",
-                    "SteamTransferredCredit": "opex_transfer",
-                    "MaintenanceSupervisionAndEngineeringSteamPowerGeneration": "opex_engineering",
-                    "PlantAverageNumberOfEmployees": "avg_num_employees",
-                    "CostOfPlant": "capex_total",
-                    "RentsSteamPowerGeneration": "opex_rents",
-                    "PowerProductionExpensesSteamPower": "opex_production_total",
-                    "PlantKind": "plant_type",
-                    "OperationSupervisionAndEngineeringExpense": "opex_operations",
-                    "CostOfEquipmentSteamProduction": "capex_equipment",
-                    "PlantConstructionType": "construction_type",
-                    "PlantHoursConnectedToLoad": "plant_hours_connected_while_generating",
-                    "CoolantsAndWater": "opex_coolants",
-                    "FuelSteamPowerGeneration": "opex_fuel",
-                    "NetContinuousPlantCapabilityLimitedByCondenserWater": "water_limited_capacity_mw",
-                    "ExpensesPerNetKilowattHour": "opex_per_kwh",
-                    "Allowances": "opex_allowances",
-                    "SteamExpensesSteamPowerGeneration": "opex_steam",
-                    "YearPlantOriginallyConstructed": "construction_year",
-                    "YearLastUnitOfPlantInstalled": "installation_year",
-                    "MaintenanceOfBoilerPlantSteamPowerGeneration": "opex_boiler",
-                    "NetPeakDemandOnPlant": "peak_demand_mw",
-                    "CostOfLandAndLandRightsSteamProduction": "capex_land",
-                    "InstalledCapacityOfPlant": "capacity_mw",
-                    "NetGenerationExcludingPlantUse": "net_generation_kwh",
-                    "ElectricExpensesSteamPowerGeneration": "opex_electric",
-                    "MaintenanceOfStructuresSteamPowerGeneration": "opex_structures",
-                    "ReportYear": "report_year",
-                }
-            },
-        },
-    },
-}
-
-
 ################################################################################
-# Pydantic Transformation Parameter Models
+# FERC 1 Transform Parameter Models
 ################################################################################
-class TransformParams(BaseModel):
-    """An immutable base model for transformation parameters."""
+@enum.unique
+class Ferc1Source(enum.Enum):
+    """Enumeration of allowed FERC 1 raw data sources."""
 
-    class Config:
-        """Prevent parameters from changing part way through."""
-
-        allow_mutation = False
+    XBRL = "xbrl"
+    DBF = "dbf"
 
 
-class MultiColumnTransformParams(TransformParams):
-    """Transform params that apply to several columns in a table.
+@enum.unique
+class Ferc1TableId(enum.Enum):
+    """Enumeration of the allowable FERC 1 table IDs.
 
-    The keys are column names, and the values must all be the same type of
-    :class:`TransformParams` object, since MultiColumnTransformParams are used by
-    :class:`MultiColumnTransformFn` callables.
+    Hard coding this seems bad. Somehow it should be either defined in the context of
+    the Package, the Ferc1Settings, an etl_group, or DataSource. All of the table
+    transformers associated with a given data source should have a table_id that's
+    from that data source's subset of the database. Where should this really happen?
 
-    Individual subclasses are dynamically generated for each multi-column transformation
-    specified within a :class:`TableTransformParams` object.
+    Alternatively, the allowable values could be derived *from* the structure of the
+    Package.
 
     """
 
-    @root_validator
-    def single_param_type(cls, params):  # noqa: N805
-        """Check that all TransformParams in the dictionary are of the same type."""
-        param_types = {type(params[col]) for col in params}
-        if len(param_types) > 1:
-            raise ValueError(
-                "Found multiple parameter types in multi-column transform params: "
-                f"{param_types}"
-            )
-        return params
-
-
-class RenameColumns(TransformParams):
-    """A dictionary for mapping old column names to new column names in a dataframe."""
-
-    columns: dict[str, str] = {}
+    FUEL_FERC1 = "fuel_ferc1"
+    PLANTS_STEAM_FERC1 = "plants_steam_ferc1"
+    PLANTS_HYDRO_FERC1 = "plants_hydro_ferc1"
+    PLANTS_SMALL_FERC1 = "plants_small_ferc1"
+    PLANTS_PUMPED_STORAGE_FERC1 = "plants_pumped_storage_ferc1"
+    PLANT_IN_SERVICE_FERC1 = "plant_in_service_ferc1"
+    PURCHASED_POWER = "purchased_power_ferc1"
 
 
 class Ferc1RenameColumns(TransformParams):
     """Dictionaries for renaming either XBRL or DBF derived FERC 1 columns.
 
     This is FERC 1 specific, because we need to store both DBF and XBRL rename
-    dictionaires separately.
+    dictionaires separately. (Is this true? Could we just include all of the column
+    mappings from both the DBF and XBRL inputs in the same rename dictionary? Would that
+    be simpler, or would there be issues that come up with name collisions where the
+    source columns have the same name but map to different column namess / meanings in
+    the PUDL DB?)
 
     Potential validations:
 
@@ -1875,363 +102,25 @@ class Ferc1RenameColumns(TransformParams):
     xbrl: RenameColumns = {}
 
 
-class StringCategories(TransformParams):
-    """Defines mappings to clean up manually categorized freeform strings.
-
-    Each key in a stringmap is a cleaned output category, and each value is the set of
-    all strings which should be replaced with associated clean output category.
-
-    """
-
-    categories: dict[str, set[str]]
-    na_category: str = "na_category"
-
-    @validator("categories")
-    def categories_are_disjoint(cls, v):
-        """Ensure that each string to be categorized only appears in one category."""
-        for cat1, cat2 in combinations(v, 2):
-            intersection = set(v[cat1]).intersection(v[cat2])
-            if intersection:
-                raise ValueError(
-                    f"String categories are not disjoint. {cat1} and {cat2} both "
-                    f"contain these values: {intersection}"
-                )
-        return v
-
-    @validator("categories")
-    def categories_are_idempotent(cls, v):
-        """Ensure that every category contains the string it will map to.
-
-        This ensures that if the categorization is applied more than once, it doesn't
-        change the output.
-        """
-        for cat in v:
-            if cat not in v[cat]:
-                logger.info(f"String category {cat} does not map to itself. Adding it.")
-                v[cat] = v[cat].union({cat})
-        return v
-
-    @property
-    def mapping(self) -> dict[str, str]:
-        """A 1-to-1 mapping appropriate for use with :meth:`pd.Series.map`."""
-        return {
-            string: cat for cat in self.categories for string in self.categories[cat]
-        }
-
-
-class UnitConversion(TransformParams):
-    """A column-wise unit conversion.
-
-    The default values will result in no alteration of the column.
-    """
-
-    multiplier: float = 1.0  # By default, multiply by 1 (no change)
-    adder: float = 0.0  # By default, add 0 (no change)
-    pattern: typing.Pattern = r"^(.*)$"  # By default, match the whole column namme
-    repl: str = r"\1"  # By default, replace the whole column name with itself.
-
-
-class ValidRange(TransformParams):
-    """Column level specification of min and/or max values."""
-
-    lower_bound: float = -np.inf
-    upper_bound: float = np.inf
-
-    @validator("upper_bound")
-    def upper_bound_gte_lower_bound(cls, v, values, **kwargs):
-        """Require upper bound to be greater than or equal to lower bound."""
-        if values["lower_bound"] > v:
-            raise ValueError("upper_bound must be greater than or equal to lower_bound")
-        return v
-
-
-class UnitCorrections(TransformParams):
-    """Fix outlying values resulting from unit errors by muliplying by a constant.
-
-    Note that since the unit correction depends on other columns in the dataframe to
-    select a relevant subset of records, it is a table transform not a column transform,
-    and so needs to know what column it applies to internally.
-
-    """
-
-    col: str
-    query: str
-    valid_range: ValidRange
-    unit_conversions: list[UnitConversion]
-
-    @validator("unit_conversions")
-    def no_column_rename(cls, v):
-        """Require that all unit conversions result in no column renaming.
-
-        This constraint is imposed so that the same unit conversion definitions
-        can be re-used both for unit corrections and columnwise unit conversions.
-        """
-        new_conversions = []
-        for conv in v:
-            new_conversions.append(
-                UnitConversion(multiplier=conv.multiplier, adder=conv.adder)
-            )
-        return new_conversions
-
-
-class TableTransformParams(TransformParams):
-    """All defined transformation parameters for a table."""
+class Ferc1TableTransformParams(TableTransformParams):
+    """A model defining additional allowed FERC Form 1 specific TransformParams."""
 
     class Config:
         """Only allow the known table transform params."""
 
         extra = "forbid"
 
-    rename_columns: Ferc1RenameColumns
-    convert_units: dict[str, UnitConversion] = {}
-    categorize_strings: dict[str, StringCategories] = {}
-    nullify_outliers: dict[str, ValidRange] = {}
-    normalize_strings: dict[str, bool] = {}
-    correct_units: list[UnitCorrections] = []
-
-    @classmethod
-    def from_id(cls, table_id: str) -> "TableTransformParams":
-        """A factory method that looks up transform parameters based on table_id."""
-        return cls(**TRANSFORM_PARAMS[table_id])
+    rename_columns_ferc1: Ferc1RenameColumns = {}
 
 
 ################################################################################
-# Column, MultiColumn, and Table Transform Functions
+# FERC 1 specific Column, MultiColumn, and Table Transform Functions
 ################################################################################
-class ColumnTransformFn(Protocol):
-    """Callback protocol defining a per-column transformation function."""
-
-    def __call__(self, col: pd.Series, params: TransformParams) -> pd.Series:
-        """Create a callable."""
-        ...
-
-
-class TableTransformFn(Protocol):
-    """Callback protocol defining a per-table transformation function."""
-
-    def __call__(self, df: pd.DataFrame, params: TransformParams) -> pd.DataFrame:
-        """Create a callable."""
-        ...
-
-
-class MultiColumnTransformFn(Protocol):
-    """Callback protocol defining a per-table transformation function."""
-
-    def __call__(
-        self, df: pd.DataFrame, params: MultiColumnTransformParams
-    ) -> pd.DataFrame:
-        """Create a callable."""
-        ...
-
-
-def multicol_transform_fn_factory(
-    col_fn: ColumnTransformFn,
-    drop=True,
-) -> MultiColumnTransformFn:
-    """A factory for creating a table transformation from a column transformation."""
-
-    def tab_fn(df: pd.DataFrame, params: MultiColumnTransformParams) -> pd.DataFrame:
-        drop_col: bool = drop
-        for col_name in params:
-            if col_name in df.columns:
-                new_col = col_fn(col=df[col_name], params=params[col_name])
-                if drop_col:
-                    df = df.drop(columns=col_name)
-                df = pd.concat([df, new_col], axis="columns")
-            else:
-                logger.warning(
-                    f"Expected column {col_name} not found in dataframe during table "
-                    "transform."
-                )
-        return df
-
-    return tab_fn
-
-
-def convert_units_col(col: pd.Series, params: UnitConversion) -> pd.Series:
-    """Convert the units of and appropriately rename a column."""
-    new_name = re.sub(pattern=params.pattern, repl=params.repl, string=col.name)
-    # only apply the unit conversion if the column name matched the pattern
-    if not re.match(pattern=params.pattern, string=col.name):
-        logger.warning(
-            f"{col.name} did not match the unit rename pattern. Check for typos "
-            "and make sure you're applying the conversion to an appropriate column."
-        )
-    if col.name == new_name:
-        logger.debug(f"Old and new column names are identical: {col.name}.")
-    col = (params.multiplier * col) + params.adder
-    col.name = new_name
-    return col
-
-
-convert_units = multicol_transform_fn_factory(convert_units_col)
-
-
-def categorize_strings_col(col: pd.Series, params: StringCategories) -> pd.Series:
-    """Impose a controlled vocabulary on freeform string column."""
-    uncategorized_strings = set(col).difference(params.mapping)
-    if uncategorized_strings:
-        logger.warning(
-            f"{col.name}: Found {len(uncategorized_strings)} uncategorized values: "
-            f"{uncategorized_strings}"
-        )
-    col = col.map(params.mapping).astype(pd.StringDtype())
-    col.loc[col == params.na_category] = pd.NA
-    return col
-
-
-categorize_strings = multicol_transform_fn_factory(categorize_strings_col)
-
-
-def nullify_outliers_col(col: pd.Series, params: ValidRange) -> pd.Series:
-    """Set any values outside the valid range to NA."""
-    col = pd.to_numeric(col, errors="coerce")
-    col[~col.between(params.lower_bound, params.upper_bound)] = np.nan
-    return col
-
-
-nullify_outliers = multicol_transform_fn_factory(nullify_outliers_col)
-
-
-def normalize_strings_col(col: pd.Series, params: bool) -> pd.Series:
-    """Derive a canonical version of the strings in the column.
-
-    Transformations include:
-
-    * Conversion to Pandas nullable String data type.
-    * Removal of some non-printable characters.
-    * Unicode composite character decomposition.
-    * Translation to lower case.
-    * Stripping of leading and trailing whitespace.
-    * Compression of multiple consecutive whitespace characters to a single space.
-
-    """
-    return (
-        col.astype(pd.StringDtype())
-        .str.replace(r"[\x00-\x1f\x7f-\x9f]", "", regex=True)
-        .str.normalize("NFKD")
-        .str.lower()
-        .str.strip()
-        .str.replace(r"\s+", " ", regex=True)
-    )
-
-
-normalize_strings = multicol_transform_fn_factory(normalize_strings_col)
-
-
-def correct_units(df: pd.DataFrame, params: UnitCorrections) -> pd.DataFrame:
-    """Correct outlying values based on inferred discrepancies in reported units.
-
-    In many cases we know that a particular column in the database should have a value
-    within a particular range (e.g. the heat content of a ton of coal is a well defined
-    physical quantity -- it can be 15 mmBTU/ton or 22 mmBTU/ton, but it can't be 1
-    mmBTU/ton or 100 mmBTU/ton).
-
-    Sometimes these fields are reported in the wrong units (e.g. kWh of electricity
-    generated rather than MWh) resulting in several recognizable populations of reported
-    values showing up at different ranges of value within the data. In cases where the
-    unit conversion and range of valid values are such that these populations do not
-    overlap, it's possible to convert them to the canonical units fairly unambiguously.
-
-    This issue is especially common in the context of fuel attributes, because fuels are
-    reported in terms of many different units. Because fuels with different units are
-    often reported in the same column, and different fuels have different valid ranges
-    of values, it's also necessary to be able to select only a subset of the data that
-    pertains to a particular fuel. This means filtering based on another column, so the
-    function needs to have access to the whole dataframe.
-
-    for the values, and a list of factors by which we expect to see some of the data
-    multiplied due to unit errors.  Data found in these "ghost" distributions are
-    multiplied by the appropriate factor to bring them into the expected range.
-
-    Data values which are not found in one of the acceptable multiplicative ranges are
-    set to NA.
-
-    """
-    logger.info(f"Correcting units in {params.col} where {params.query}.")
-    # Select a subset of the input dataframe to work on. E.g. only the heat content
-    # column for coal records:
-    selected = df.loc[df.query(params.query).index, params.col]
-    not_selected = df[params.col].drop(index=selected.index)
-
-    # Now, we only want to alter the subset of these values which, when transformed by
-    # the unit conversion, lie in the range of valid values.
-    for uc in params.unit_conversions:
-        converted = convert_units_col(col=selected, params=uc)
-        converted = nullify_outliers_col(col=converted, params=params.valid_range)
-        selected = selected.where(converted.isna(), converted)
-
-    # Nullify outliers that remain after the corrections have been applied.
-    na_before = sum(selected.isna())
-    selected = nullify_outliers_col(col=selected, params=params.valid_range)
-    na_after = sum(selected.isna())
-    total_nullified = na_after - na_before
-    logger.info(
-        f"{total_nullified}/{len(selected)} ({total_nullified/len(selected):.2%}) "
-        "of records could not be corrected and were set to NA."
-    )
-    # Combine our cleaned up values with the other values we didn't select.
-    df = df.copy()
-    df[params.col] = pd.concat([selected, not_selected])
-    return df
 
 
 ################################################################################
-# TableTransformer classes
+# FERC 1 specific TableTransformer classes
 ################################################################################
-class AbstractTableTransformer(ABC):
-    """An abstract base table transformer class.
-
-    This class is not really specific to FERC 1 and should be moved to a widely
-    available module when this transformer design is mature and we start using it for
-    other data sources.
-
-    """
-
-    table_id: str
-    """Name of the PUDL database table that this table transformer produces.
-
-    Must be defined in the database schema / metadata. This ID is used to instantiate
-    the appropriate :class:`TableTransformParams` object.
-    """
-
-    @cached_property
-    def params(self) -> TableTransformParams:
-        """Obtain table transform parameters based on the table ID."""
-        return TableTransformParams.from_id(table_id=self.table_id)
-
-    ################################################################################
-    # Abstract methods that must be defined by subclasses
-    @abstractmethod
-    def transform(self, **kwargs) -> dict[str, pd.DataFrame]:
-        """Apply all specified transformations to the appropriate input dataframes."""
-        ...
-
-    ################################################################################
-    # Default method implementations which can be used or overridden by subclasses
-    def rename_columns(
-        self,
-        df: pd.DataFrame,
-        params: RenameColumns,
-    ) -> pd.DataFrame:
-        """Rename the whole collection of dataframe columns using input params.
-
-        Log if there's any mismatch between the columns in the dataframe, and the
-        columns that have been defined in the mapping for renaming.
-
-        """
-        df_col_set = set(df.columns)
-        param_col_set = set(params.columns)
-        if df_col_set != param_col_set:
-            unshared_values = df_col_set.symmetric_difference(param_col_set)
-            logger.warning(
-                f"{self.table_id}: Discrepancy between dataframe columns and rename "
-                "dictionary keys. \n"
-                f"Unshared values: {unshared_values}"
-            )
-        return df.rename(columns=params.columns)
-
-
 class Ferc1AbstractTableTransformer(AbstractTableTransformer):
     """An abstract class defining methods common to many FERC Form 1 tables.
 
@@ -2239,6 +128,13 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
     abstractmethod.
 
     """
+
+    table_id: Ferc1TableId
+
+    @cached_property
+    def params(self) -> Ferc1TableTransformParams:
+        """Obtain table transform parameters based on the table ID."""
+        return Ferc1TableTransformParams.from_id(table_id=self.table_id)
 
     @abstractmethod
     def transform(
@@ -2270,19 +166,18 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         raw_xbrl_duration: pd.DataFrame,
     ) -> pd.DataFrame:
         """Process the raw data until the XBRL and DBF inputs have been unified."""
-        return pd.concat(
-            [
-                self.process_dbf(raw_dbf),
-                self.process_xbrl(raw_xbrl_instant, raw_xbrl_duration),
-            ]
-        ).reset_index(drop=True)
+        processed_dbf = self.process_dbf(raw_dbf)
+        processed_xbrl = self.process_xbrl(raw_xbrl_instant, raw_xbrl_duration)
+        logger.info(f"{self.table_id.value}: Concatenating DBF + XBRL dataframes.")
+        return pd.concat([processed_dbf, processed_xbrl]).reset_index(drop=True)
 
     def process_dbf(self, raw_dbf: pd.DataFrame) -> pd.DataFrame:
         """DBF-specific transformations that take place before concatenation."""
+        logger.info(f"{self.table_id.value}: Processing DBF data pre-concatenation.")
         return (
             self.drop_footnote_columns_dbf(raw_dbf)
-            .pipe(self.rename_columns, params=self.params.rename_columns.dbf)
-            .pipe(self.assign_record_id, source_ferc1="dbf")
+            .pipe(self.rename_columns, params=self.params.rename_columns_ferc1.dbf)
+            .pipe(self.assign_record_id, source_ferc1=Ferc1Source.DBF)
             .pipe(self.drop_unused_original_columns_dbf)
         )
 
@@ -2292,15 +187,17 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         raw_xbrl_duration: pd.DataFrame,
     ) -> pd.DataFrame:
         """XBRL-specific transformations that take place before concatenation."""
+        logger.info(f"{self.table_id.value}: Processing XBRL data pre-concatenation.")
         return (
-            self.merge_xbrl_instant_and_duration_tables(
+            self.merge_instant_and_duration_tables_xbrl(
                 raw_xbrl_instant, raw_xbrl_duration
             )
-            .pipe(self.rename_columns, params=self.params.rename_columns.xbrl)
-            .pipe(self.assign_record_id, source_ferc1="xbrl")
+            .pipe(self.rename_columns, params=self.params.rename_columns_ferc1.xbrl)
+            .pipe(self.assign_record_id, source_ferc1=Ferc1Source.XBRL)
+            .pipe(self.assign_utility_id_ferc1_xbrl)
         )
 
-    def merge_xbrl_instant_and_duration_tables(
+    def merge_instant_and_duration_tables_xbrl(
         self,
         raw_xbrl_instant: pd.DataFrame,
         raw_xbrl_duration: pd.DataFrame,
@@ -2329,20 +226,24 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
 
         if instant.empty:
             logger.debug(
-                f"{self.table_id}: No XBRL instant table found, returning duration."
+                f"{self.table_id.value}: No XBRL instant table found, returning the "
+                "duration table."
             )
             return duration
         if duration.empty:
             logger.debug(
-                f"{self.table_id}: No XBRL duration table found, returning instant."
+                f"{self.table_id.value}: No XBRL duration table found, returning "
+                "instant table."
             )
             return instant
 
-        instant_axes = [col for col in raw_xbrl_instant.columns.str.endswith("Axis")]
-        duration_axes = [col for col in raw_xbrl_duration.columns.str.endswith("Axis")]
+        instant_axes = [col for col in raw_xbrl_instant.columns if col.endswith("Axis")]
+        duration_axes = [
+            col for col in raw_xbrl_duration.columns if col.endswith("Axis")
+        ]
         if set(instant_axes) != set(duration_axes):
             raise ValueError(
-                f"{self.table_id}: Instant and Duration XBRL Axes do not match.\n"
+                f"{self.table_id.value}: Instant and Duration XBRL Axes do not match.\n"
                 f"    instant: {instant_axes}\n"
                 f"    duration: {duration_axes}"
             )
@@ -2356,20 +257,18 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             validate="1:1",
         )
 
-    @staticmethod
-    def drop_footnote_columns_dbf(df: pd.DataFrame) -> pd.DataFrame:
+    def drop_footnote_columns_dbf(self, df: pd.DataFrame) -> pd.DataFrame:
         """Drop DBF footnote reference columns, which all end with _f."""
+        logger.debug(f"{self.table_id.value}: Dropping DBF footnote columns.")
         return df.drop(columns=df.filter(regex=r".*_f$").columns)
 
-    def source_table_id(self, source_ferc1: Literal["dbf", "xbrl"]) -> str:
+    def source_table_id(self, source_ferc1: Ferc1Source) -> str:
         """Look up the ID of the raw data source table."""
-        return TABLE_NAME_MAP[self.table_id][source_ferc1]
+        return TABLE_NAME_MAP[self.table_id.value][source_ferc1.value]
 
-    def source_table_primary_key(
-        self, source_ferc1: Literal["dbf", "xbrl"]
-    ) -> list[str]:
+    def source_table_primary_key(self, source_ferc1: Ferc1Source) -> list[str]:
         """Look up the pre-renaming source table primary key columns."""
-        if source_ferc1 == "dbf":
+        if source_ferc1 == Ferc1Source.DBF:
             pk_cols = [
                 "report_year",
                 "report_prd",
@@ -2377,31 +276,23 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                 "spplmnt_num",
                 "row_number",
             ]
-        elif source_ferc1 == "xbrl":
-            cols = self.params.rename_columns.xbrl.columns
+        else:
+            assert source_ferc1 == Ferc1Source.XBRL  # nosec: B101
+            cols = self.params.rename_columns_ferc1.xbrl.columns
             pk_cols = ["ReportYear", "entity_id"]
             # Sort to avoid dependence on the ordering of rename_columns.
             # Doing the sorting here because we have a particular ordering
             # hard coded for the DBF primary keys.
             pk_cols += sorted(col for col in cols if col.endswith("Axis"))
-        else:
-            raise ValueError(
-                f"source_ferc1 must be either 'dbf' or 'xbrl'. Got {source_ferc1}"
-            )
         return pk_cols
 
-    def renamed_table_primary_key(
-        self, source_ferc1: Literal["dbf", "xbrl"]
-    ) -> list[str]:
+    def renamed_table_primary_key(self, source_ferc1: Ferc1Source) -> list[str]:
         """Look up the post-renaming primary key columns."""
-        if source_ferc1 == "dbf":
-            cols = self.params.rename_columns.dbf.columns
-        elif source_ferc1 == "xbrl":
-            cols = self.params.rename_columns.xbrl.columns
+        if source_ferc1 == Ferc1Source.DBF:
+            cols = self.params.rename_columns_ferc1.dbf.columns
         else:
-            raise ValueError(
-                f"source_ferc1 must be either 'dbf' or 'xbrl'. Got {source_ferc1}"
-            )
+            assert source_ferc1 == Ferc1Source.XBRL  # nosec: B101
+            cols = self.params.rename_columns_ferc1.xbrl.columns
         pk_cols = self.source_table_primary_key(source_ferc1=source_ferc1)
         # Translate to the renamed columns
         return [cols[col] for col in pk_cols]
@@ -2415,16 +306,20 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             "row_seq",
             "row_prvlg",
         ]
+        logger.debug(
+            f"{self.table_id.value}: Dropping unused DBF structural columns: "
+            f"{unused_cols}"
+        )
         missing_cols = set(unused_cols).difference(df.columns)
         if missing_cols:
             raise ValueError(
-                f"{self.table_id}: Trying to drop missing original DBF columns:"
+                f"{self.table_id.value}: Trying to drop missing original DBF columns:"
                 f"{missing_cols}"
             )
         return df.drop(columns=unused_cols)
 
     def assign_record_id(
-        self, df: pd.DataFrame, source_ferc1: Literal["dbf", "xbrl"]
+        self, df: pd.DataFrame, source_ferc1: Ferc1Source
     ) -> pd.DataFrame:
         """Add a column identifying the original source record for each row.
 
@@ -2450,16 +345,21 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             ValueError: If there are any null values in the primary key columns.
             ValueError: If the resulting `record_id` column is non-unique.
         """
+        logger.debug(
+            f"{self.table_id.value}: Assigning {source_ferc1.value} source record IDs."
+        )
         pk_cols = self.renamed_table_primary_key(source_ferc1)
         missing_pk_cols = set(pk_cols).difference(df.columns)
         if missing_pk_cols:
             raise ValueError(
-                f"{self.table_id} ({source_ferc1}): Missing primary key columns in "
-                f"dataframe while assigning source record_id: {missing_pk_cols}"
+                f"{self.table_id.value} ({source_ferc1.value}): Missing primary key "
+                "columns in dataframe while assigning source record_id: "
+                f"{missing_pk_cols}"
             )
         if df[pk_cols].isnull().any(axis=None):
             raise ValueError(
-                f"{self.table_id} ({source_ferc1}): Found null primary key values.\n"
+                f"{self.table_id.value} ({source_ferc1.value}): Found null primary key "
+                "values.\n"
                 f"{df[pk_cols].isnull().any()}"
             )
         df = df.assign(
@@ -2471,7 +371,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         dupe_ids = df.record_id[df.record_id.duplicated()].values
         if dupe_ids.any():
             logger.warning(
-                f"{self.table_id}: Found {len(dupe_ids)} duplicate record_ids. "
+                f"{self.table_id.value}: Found {len(dupe_ids)} duplicate record_ids. "
                 f"{dupe_ids}."
             )
         return df
@@ -2485,38 +385,84 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         Note that in some cases this will create collisions with the existing
         utility_id_ferc1 values.
         """
-        logger.warning(
-            f"{self.table_id}: USING DUMMY METHOD TO ASSIGN UTILITY_ID_FERC1 IN XBRL."
-        )
+        logger.warning(f"{self.table_id.value}: USING DUMMY UTILITY_ID_FERC1 IN XBRL.")
         return df.assign(
             utility_id_ferc1=lambda x: x.entity_id.str.replace(r"^C", "", regex=True)
             .str.lstrip("0")
             .astype("Int64")
         )
 
-    def correct_units(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Apply all specified unit corrections to the table."""
-        for uc in self.params.correct_units:
-            df = correct_units(df, uc)
-        return df
-
-    def enforce_schema(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Drop columns not in the DB schema and enforce specified types."""
-        resource = Package.from_resource_ids().get_resource(self.table_id)
-        expected_cols = pd.Index(resource.get_field_names())
-        missing_cols = list(expected_cols.difference(df.columns))
-        if missing_cols:
-            raise ValueError(
-                f"{self.table_id}: Missing columns found when enforcing table schema: "
-                f"{missing_cols}"
-            )
-        return resource.format_df(df)
-
 
 class FuelFerc1TableTransformer(Ferc1AbstractTableTransformer):
-    """A table transformer specific to the ``fuel_ferc1`` table."""
+    """A table transformer specific to the ``fuel_ferc1`` table.
 
-    table_id: str = "fuel_ferc1"
+    The ``fuel_ferc1`` table reports data about fuel consumed by large thermal power
+    plants that report in the ``plants_steam_ferc1`` table.  Each record in the steam
+    table is typically associated with several records in the fuel table, with each fuel
+    record reporting data for a particular type of fuel consumed by that plant over the
+    course of a year. The fuel table presents several challenges.
+
+    The type of fuel, which is part of the primary key for the table, is a freeform
+    string with hundreds of different nonstandard values. These strings are categorized
+    manually and converted to ``fuel_type_code_pudl``. Some values cannot be categorized
+    and are set to ``other``. In other string categorizations we set the unidentifiable
+    values to NA, but in this table the fuel type is part of the primary key and primary
+    keys cannot contain NA values.
+
+    This simplified categorization occasionally results in records with duplicate
+    primary keys. In those cases the records are aggregated into a single record if they
+    have the same apparent physical units. If the fuel units are different, only the
+    first record is retained.
+
+    Several columns have unspecified, inconsistent, fuel-type specific units of measure
+    associated with them. In order for records to be comparable and aggregatable, we
+    have to infer and standardize these units.
+
+    In the raw FERC Form 1 data there is a ``fuel_units`` column which describes the
+    units of fuel delivered or consumed. Most commonly this is short tons for solid
+    fuels (coal), thousands of cubic feet (Mcf) for gaseous fuels, and barrels (bbl) for
+    liquid fuels.  However, the ``fuel_units`` column is also a freeform string with
+    hundreds of nonstandard values which we have to manually categorize, and many of the
+    values do not map directly to the most commonly used units for fuel quantities. E.g.
+    some solid fuel quantities are reported in pounds, or thousands of pounds, not tons;
+    some liquid fuels are reported in gallons or thousands of gallons, not barrels; and
+    some gaseous fuels are reported in cubic feet not thousands of cubic feet.
+
+    Two additional columns report fuel price per unit of heat content and fuel heat
+    content per physical unit of fuel. The units of those columns are not explicitly
+    reported, vary by fuel, and are inconsistent within individual fuel types.
+
+    We adopt standardized units and attempt to convert all reported values in the fuel
+    table into those units. For physical fuel units we adopt those that are used by the
+    EIA: short tons (tons) for solid fuels, barrels (bbl) for liquid fuels, and
+    thousands of cubic feet (mcf) for gaseous fuels. For heat content per (physical)
+    unit of fuel, we use millions of British thermal units (mmbtu). All fuel prices are
+    converted to US dollars, while many are reported in cents.
+
+    Because the reported fuel price and heat content units are implicit, we have to
+    infer them based on observed values. This is only possible because these quantities
+    are ratios with well defined ranges of valid values. The common units that we
+    observe and attempt to standardize include:
+
+    * coal: primarily BTU/pound, but also MMBTU/ton and MMBTU/pound.
+    * oil: primarily BTU/gallon.
+    * gas: reported in a mix of MMBTU/cubic foot, and MMBTU/thousand cubic feet.
+
+    Steps to take, in order:
+
+    * Convert units in per-unit columns and rename the columns
+    * Normalize freeform strings (fuel type and fuel units)
+    * Categorize strings in fuel type and fuel unit columns
+    * Standardize physical fuel units based on reported units (tons, mcf, bbl)
+    * Remove fuel_units column
+    * Convert heterogenous fuel price and heat content columns to their aspirational
+      units.
+    * Apply fuel unit corrections to fuel price and heat content columns based on
+      observed clustering of values.
+
+    """
+
+    table_id: Ferc1TableId = Ferc1TableId.FUEL_FERC1
 
     def transform(
         self,
@@ -2543,7 +489,7 @@ class FuelFerc1TableTransformer(Ferc1AbstractTableTransformer):
                 raw_xbrl_duration=raw_xbrl_duration,
             )
             .pipe(self.drop_null_data_rows)
-            .pipe(self.correct_units)
+            .pipe(self.correct_units, self.params.correct_units)
             .pipe(self.enforce_schema)
         )
 
@@ -2557,9 +503,12 @@ class FuelFerc1TableTransformer(Ferc1AbstractTableTransformer):
         df = (
             super()
             .process_dbf(raw_dbf)
-            .pipe(convert_units, params=self.params.convert_units)
-            .pipe(normalize_strings, params=self.params.normalize_strings)
-            .pipe(categorize_strings, params=self.params.categorize_strings)
+            .pipe(self.convert_units_multicol, params=self.params.convert_units)
+            .pipe(self.normalize_strings_multicol, params=self.params.normalize_strings)
+            .pipe(
+                self.categorize_strings_multicol, params=self.params.categorize_strings
+            )
+            .pipe(self.standardize_physical_fuel_units)
         )
         return df
 
@@ -2576,21 +525,112 @@ class FuelFerc1TableTransformer(Ferc1AbstractTableTransformer):
         duplicate fuel records which need to be aggregated.
         """
         return (
-            self.merge_xbrl_instant_and_duration_tables(
+            self.merge_instant_and_duration_tables_xbrl(
                 raw_xbrl_instant, raw_xbrl_duration
             )
-            .pipe(self.rename_columns, params=self.params.rename_columns.xbrl)
-            .pipe(normalize_strings, params=self.params.normalize_strings)
-            .pipe(categorize_strings, params=self.params.categorize_strings)
-            .pipe(convert_units, params=self.params.convert_units)
-            .pipe(self.aggregate_fuel_dupes_xbrl)
+            .pipe(self.rename_columns, params=self.params.rename_columns_ferc1.xbrl)
+            .pipe(self.convert_units_multicol, params=self.params.convert_units)
+            .pipe(self.normalize_strings_multicol, params=self.params.normalize_strings)
+            .pipe(
+                self.categorize_strings_multicol, params=self.params.categorize_strings
+            )
+            .pipe(self.standardize_physical_fuel_units)
+            .pipe(self.aggregate_duplicate_fuel_types_xbrl)
             .pipe(self.assign_utility_id_ferc1_xbrl)
-            .pipe(self.assign_record_id, source_ferc1="xbrl")
+            .pipe(self.assign_record_id, source_ferc1=Ferc1Source.XBRL)
         )
 
-    def aggregate_fuel_dupes_xbrl(self, fuel_xbrl: pd.DataFrame) -> pd.DataFrame:
+    def standardize_physical_fuel_units(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Convert reported fuel quantities to standard units depending on fuel type.
+
+        Use the categorized fuel type and reported fuel units to convert all fuel
+        quantities to the following standard units, depending on whether the fuel is a
+        solid, liquid, or gas. When a single fuel reports its quantity in fundamentally
+        different units, convert based on typical values. E.g. 19.85 MMBTU per ton of
+        coal, 1.037 Mcf per MMBTU of natural gas, 7.46 barrels per ton of oil.
+
+          * solid fuels (coal and waste): short tons [ton]
+          * liquid fuels (oil): barrels [bbl]
+          * gaseous fuels (gas): thousands of cubic feet [mcf]
+
+        Columns to which these physical units apply:
+
+          * fuel_consumed_units (tons, bbl, mcf)
+          * fuel_cost_per_unit_burned (usd/ton, usd/bbl, usd/mcf)
+          * fuel_cost_per_unit_delivered (usd/ton, usd/bbl, usd/mcf)
+
+        One remaining challenge in this standardization is that nuclear fuel is reported
+        in both mass of Uranium and fuel heat content, and it's unclear if there's any
+        reasonable typical conversion between these units, since available heat content
+        depends on the degree of U235 enrichement, the type of reactor, and whether the
+        fuel is just Uranium, or a mix of Uranium and Plutonium from decommissioned
+        nuclear weapons. See:
+
+        https://world-nuclear.org/information-library/facts-and-figures/heat-values-of-various-fuels.aspx
+
+        """
+        df = df.copy()
+
+        FuelFix = namedtuple("FuelFix", "fuel from_unit to_unit mult")
+        fuel_fixes = [
+            # US average coal heat content is 19.85 mmbtu/short ton
+            FuelFix("coal", "mmbtu", "ton", (1.0 / 19.85)),
+            FuelFix("coal", "btu", "ton", (1.0 / 19.85e6)),
+            # 2000 lbs per short ton
+            FuelFix("coal", "lbs", "ton", (1.0 / 2000.0)),
+            FuelFix("coal", "klbs", "ton", (1.0 / 2.0)),
+            # 42 gallons per barrel. Seriously, who makes up these units?
+            FuelFix("oil", "gal", "bbl", (1.0 / 42.0)),
+            FuelFix("oil", "kgal", "bbl", (1000.0 / 42.0)),
+            # On average a "ton of oil equivalent" is 7.46 barrels
+            FuelFix("oil", "ton", "bbl", 7.46),
+            FuelFix("gas", "mmbtu", "mcf", (1.0 / 1.037)),
+            # Nuclear plants report either heat content or mass of heavy metal
+            # MW*days thermal to MWh thermal
+            FuelFix("nuclear", "mwdth", "mwhth", 24.0),
+            # Straight energy equivalence between BTU and MWh here:
+            FuelFix("nuclear", "mmmbtu", "mwhth", (1.0 / 3.412142)),
+            FuelFix("nuclear", "btu", "mwhth", (1.0 / 3412142)),
+            # Unclear if it's possible to convert heavy metal to heat reliably
+            FuelFix("nuclear", "grams", "kg", (1.0 / 1000)),
+        ]
+        for fix in fuel_fixes:
+            fuel_mask = df.fuel_type_code_pudl == fix.fuel
+            unit_mask = df.fuel_units == fix.from_unit
+            df.loc[(fuel_mask & unit_mask), "fuel_consumed_units"] *= fix.mult
+            df.loc[(fuel_mask & unit_mask), "fuel_cost_per_unit_burned"] /= fix.mult
+            df.loc[(fuel_mask & unit_mask), "fuel_cost_per_unit_delivered"] /= fix.mult
+            df.loc[(fuel_mask & unit_mask), "fuel_units"] = fix.to_unit
+
+        # Set all remaining non-standard units and affected columns to NA.
+        FuelAllowedUnits = namedtuple("FuelAllowedUnits", "fuel allowed_units")
+        fuel_allowed_units = [
+            FuelAllowedUnits("coal", ("ton",)),
+            FuelAllowedUnits("oil", ("bbl",)),
+            FuelAllowedUnits("gas", ("mcf",)),
+            FuelAllowedUnits("nuclear", ("kg", "mwhth")),
+            FuelAllowedUnits("waste", ("ton",)),
+            # All unidentified fuel types ("other") get units set to NA
+            FuelAllowedUnits("other", ()),
+        ]
+        physical_units_cols = [
+            "fuel_consumed_units",
+            "fuel_cost_per_unit_burned",
+            "fuel_cost_per_unit_delivered",
+        ]
+        for fau in fuel_allowed_units:
+            fuel_mask = df.fuel_type_code_pudl == fau.fuel
+            unit_mask = ~df.fuel_units.isin(fau.allowed_units)
+            df.loc[(fuel_mask & unit_mask), physical_units_cols] = np.nan
+            df.loc[(fuel_mask & unit_mask), "fuel_units"] = pd.NA
+
+        return df
+
+    def aggregate_duplicate_fuel_types_xbrl(
+        self, fuel_xbrl: pd.DataFrame
+    ) -> pd.DataFrame:
         """Aggregate the fuel records having duplicate primary keys."""
-        pk_cols = self.renamed_table_primary_key(source_ferc1="xbrl")
+        pk_cols = self.renamed_table_primary_key(source_ferc1=Ferc1Source.XBRL)
         fuel_xbrl.loc[:, "fuel_units_count"] = fuel_xbrl.groupby(pk_cols, dropna=False)[
             "fuel_units"
         ].transform("nunique")
@@ -2604,18 +644,18 @@ class FuelFerc1TableTransformer(Ferc1AbstractTableTransformer):
         fuel_non_dupes = fuel_xbrl[~dupe_mask & ~multi_unit_mask]
 
         logger.info(
-            f"{self.table_id}: Aggregating {len(fuel_pk_dupes)} rows with duplicate "
-            f"primary keys out of {len(fuel_xbrl)} total rows."
+            f"{self.table_id.value}: Aggregating {len(fuel_pk_dupes)} rows with "
+            f"duplicate primary keys out of {len(fuel_xbrl)} total rows."
         )
         logger.info(
-            f"{self.table_id}: Dropping {len(fuel_multi_unit)} records with "
+            f"{self.table_id.value}: Dropping {len(fuel_multi_unit)} records with "
             "inconsistent fuel units preventing aggregation "
             f"out of {len(fuel_xbrl)} total rows."
         )
         agg_row_fraction = (len(fuel_pk_dupes) + len(fuel_multi_unit)) / len(fuel_xbrl)
         if agg_row_fraction > 0.15:
             logger.error(
-                f"{self.table_id}: {agg_row_fraction:.0%} of all rows are being "
+                f"{self.table_id.value}: {agg_row_fraction:.0%} of all rows are being "
                 "aggregated. Higher than the allowed value of 15%!"
             )
         data_cols = [
@@ -2655,6 +695,8 @@ class FuelFerc1TableTransformer(Ferc1AbstractTableTransformer):
         it typically indicates a "total" row for a plant. We also require a null value
         for the fuel_units and an "other" value for the fuel type.
 
+        Right now this is extremely stringent and almost all rows are retained.
+
         """
         data_cols = [
             "fuel_consumed_units",
@@ -2671,21 +713,19 @@ class FuelFerc1TableTransformer(Ferc1AbstractTableTransformer):
             & df.fuel_units.isna()
         ].index
         logger.info(
-            f"{self.table_id}: Dropping {len(probably_totals_index)} rows of missing "
-            "data."
+            f"{self.table_id.value}: Dropping "
+            f"{len(probably_totals_index)}/{len(df)}"
+            "rows of excessively null data."
         )
         return df.drop(index=probably_totals_index)
 
 
-########################################################################################
-########################################################################################
-# Christina's Transformer Classes
-########################################################################################
-########################################################################################
-class PlantsSteamFerc1:
+class PlantsSteamFerc1TableTransformer(Ferc1AbstractTableTransformer):
     """Transformer class for the plants_steam_ferc1 table."""
 
-    def execute(
+    table_id: Ferc1TableId = Ferc1TableId.PLANTS_STEAM_FERC1
+
+    def transform(
         self,
         raw_dbf: pd.DataFrame,
         raw_xbrl_instant: pd.DataFrame,
@@ -2693,47 +733,32 @@ class PlantsSteamFerc1:
         transformed_fuel: pd.DataFrame,
     ):
         """Perform table transformations for the plants_steam_ferc1 table."""
-        plants_steam_combo = (
-            self.pre_concat_clean_and_concat_dbf_xbrl(
-                raw_dbf, raw_xbrl_instant, raw_xbrl_duration
+        plants_steam = (
+            self.concat_dbf_xbrl(
+                raw_dbf=raw_dbf,
+                raw_xbrl_instant=raw_xbrl_instant,
+                raw_xbrl_duration=raw_xbrl_duration,
             )
-            .pipe(self.simplify_strings_for_table)
-            .pipe(self.clean_strings_for_table)
-            .pipe(self.oob_to_nan_for_table)
-            .pipe(self.convert_units_in_table)
-            .pipe(self.convert_table_dtypes)
-            .pipe(plants_steam_assign_plant_ids, ferc1_fuel_df=transformed_fuel)
-        )
-        plants_steam_validate_ids(plants_steam_combo)
-        return plants_steam_combo
-
-    def process_dbf(self, raw_dbf):
-        """Modifications of the dbf plants_steam_ferc1 table before concat w/ xbrl."""
-        plants_steam_dbf = self.rename_columns(
-            raw_table=raw_dbf,
-            source="dbf",
-        ).pipe(self.assign_record_id, source_ferc1="dbf")
-        return plants_steam_dbf
-
-    def process_xbrl(self, raw_xbrl_instant, raw_xbrl_duration):
-        """Modifications of the xbrl plants_steam_ferc1 table before concat w/ xbrl."""
-        plants_steam_xbrl = (
-            self.merge_instant_and_duration_tables(
-                duration=raw_xbrl_duration,
-                instant=raw_xbrl_instant,
-            )
+            .pipe(self.normalize_strings_multicol, params=self.params.normalize_strings)
+            .pipe(self.nullify_outliers_multicol, params=self.params.nullify_outliers)
             .pipe(
-                self.rename_columns,
-                source="xbrl",
+                self.categorize_strings_multicol, params=self.params.categorize_strings
             )
-            .pipe(self.add_report_year_column)
+            .pipe(self.convert_units_multicol, params=self.params.convert_units)
+            .pipe(self.remove_invalid_rows, params=self.params.remove_invalid_rows)
             .pipe(
-                self.assign_record_id,
-                source_ferc1="xbrl",
+                plants_steam_assign_plant_ids,
+                ferc1_fuel_df=transformed_fuel,
+                fuel_categories=list(
+                    FuelFerc1TableTransformer()
+                    .params.categorize_strings["fuel_type_code_pudl"]
+                    .categories.keys()
+                ),
             )
-            .pipe(self.assign_utility_id_ferc1_xbrl)
+            .pipe(self.enforce_schema)
         )
-        return plants_steam_xbrl
+        plants_steam_validate_ids(plants_steam)
+        return plants_steam
 
 
 ##################################################################################
@@ -3113,7 +1138,7 @@ def plants_hydro(ferc1_dbf_raw_dfs, ferc1_xbrl_raw_dfs, ferc1_transformed_dfs):
         .pipe(
             pudl.helpers.cleanstrings,
             ["plant_const"],
-            [CONSTRUCTION_TYPES],
+            [CONSTRUCTION_TYPE_CATEGORIES["categories"]],
             unmapped=pd.NA,
         )
         .assign(
@@ -3217,7 +1242,7 @@ def plants_pumped_storage(ferc1_dbf_raw_dfs, ferc1_xbrl_raw_dfs, ferc1_transform
         .pipe(
             pudl.helpers.cleanstrings,
             ["plant_kind"],
-            [CONSTRUCTION_TYPES],
+            [CONSTRUCTION_TYPE_CATEGORIES["categories"]],
             unmapped=pd.NA,
         )
         .assign(
@@ -3524,9 +1549,7 @@ def transform(
 
     """
     ferc1_tfr_classes = {
-        # fuel must come before steam b/c fuel proportions are used to aid in
-        # plant # ID assignment.
-        # "fuel_ferc1": FuelFerc1,
+        "fuel_ferc1": FuelFerc1TableTransformer,
         # "plants_small_ferc1": plants_small,
         # "plants_hydro_ferc1": plants_hydro,
         # "plants_pumped_storage_ferc1": plants_pumped_storage,
@@ -3536,7 +1559,6 @@ def transform(
     }
     # create an empty ditctionary to fill up through the transform fuctions
     ferc1_transformed_dfs = {}
-
     # for each ferc table,
     for table in ferc1_tfr_classes:
         if table in ferc1_settings.tables:
@@ -3544,21 +1566,28 @@ def transform(
                 f"Transforming raw FERC Form 1 dataframe for loading into {table}"
             )
 
-            ferc1_transformed_dfs[table] = ferc1_tfr_classes[table](
-                table_name=table
-            ).execute(
-                raw_dbf=ferc1_dbf_raw_dfs.get(table),
-                raw_xbrl_instant=ferc1_xbrl_raw_dfs.get(table).get("instant", None),
-                raw_xbrl_duration=ferc1_xbrl_raw_dfs.get(table).get("duration", None),
+            ferc1_transformed_dfs[table] = ferc1_tfr_classes[table]().transform(
+                raw_dbf=ferc1_dbf_raw_dfs[table],
+                raw_xbrl_instant=ferc1_xbrl_raw_dfs[table].get(
+                    "instant", pd.DataFrame()
+                ),
+                raw_xbrl_duration=ferc1_xbrl_raw_dfs[table].get(
+                    "duration", pd.DataFrame()
+                ),
             )
-
+    # Bespoke exception. fuel must come before steam b/c fuel proportions are used to
+    # aid in plant # ID assignment.
     if "plants_steam_ferc1" in ferc1_settings.tables:
-        ferc1_transformed_dfs["plants_steam_ferc1"] = PlantsSteamFerc1(
-            table_name="plants_steam_ferc"
-        ).execute(
-            raw_dbf=ferc1_dbf_raw_dfs.get(table),
-            raw_xbrl_instant=ferc1_xbrl_raw_dfs.get(table).get("instant", None),
-            raw_xbrl_duration=ferc1_xbrl_raw_dfs.get(table).get("duration", None),
+        ferc1_transformed_dfs[
+            "plants_steam_ferc1"
+        ] = PlantsSteamFerc1TableTransformer().transform(
+            raw_dbf=ferc1_dbf_raw_dfs["plants_steam_ferc1"],
+            raw_xbrl_instant=ferc1_xbrl_raw_dfs["plants_steam_ferc1"].get(
+                "instant", pd.DataFrame()
+            ),
+            raw_xbrl_duration=ferc1_xbrl_raw_dfs["plants_steam_ferc1"].get(
+                "duration", pd.DataFrame()
+            ),
             transformed_fuel=ferc1_transformed_dfs["fuel_ferc1"],
         )
 
@@ -3567,152 +1596,3 @@ def transform(
         name: convert_cols_dtypes(df, data_source="ferc1")
         for name, df in ferc1_transformed_dfs.items()
     }
-
-
-def fuel_by_plant_ferc1(fuel_df, thresh=0.5):
-    """Calculates useful FERC Form 1 fuel metrics on a per plant-year basis.
-
-    Each record in the FERC Form 1 corresponds to a particular type of fuel. Many plants
-    -- especially coal plants -- use more than one fuel, with gas and/or diesel serving
-    as startup fuels. In order to be able to classify the type of plant based on
-    relative proportions of fuel consumed or fuel costs it is useful to aggregate these
-    per-fuel records into a single record for each plant.
-
-    Fuel cost (in nominal dollars) and fuel heat content (in mmBTU) are calculated for
-    each fuel based on the cost and heat content per unit, and the number of units
-    consumed, and then summed by fuel type (there can be more than one record for a
-    given type of fuel in each plant because we are simplifying the fuel categories).
-    The per-fuel records are then pivoted to create one column per fuel type. The total
-    is summed and stored separately, and the individual fuel costs & heat contents are
-    divided by that total, to yield fuel proportions.  Based on those proportions and a
-    minimum threshold that's passed in, a "primary" fuel type is then assigned to the
-    plant-year record and given a string label.
-
-    Args:
-        fuel_df (pandas.DataFrame): Pandas DataFrame resembling the post-transform
-            result for the fuel_ferc1 table.
-        thresh (float): A value between 0.5 and 1.0 indicating the minimum fraction of
-            overall heat content that must have been provided by a fuel in a plant-year
-            for it to be considered the "primary" fuel for the plant in that year.
-            Default value: 0.5.
-
-    Returns:
-        pandas.DataFrame: A DataFrame with a single record for each plant-year,
-        including the columns required to merge it with the plants_steam_ferc1
-        table/DataFrame (report_year, utility_id_ferc1, and plant_name) as well as
-        totals for fuel mmbtu consumed in that plant-year, and the cost of fuel in that
-        year, the proportions of heat content and fuel costs for each fuel in that year,
-        and a column that labels the plant's primary fuel for that year.
-
-    Raises:
-        AssertionError: If the DataFrame input does not have the columns required to
-            run the function.
-
-    """
-    keep_cols = [
-        "report_year",  # key
-        "utility_id_ferc1",  # key
-        "plant_name_ferc1",  # key
-        "fuel_type_code_pudl",  # pivot
-        "fuel_consumed_units",  # value
-        "fuel_mmbtu_per_unit",  # value
-        "fuel_cost_per_unit_burned",  # value
-    ]
-
-    # Ensure that the dataframe we've gotten has all the information we need:
-    for col in keep_cols:
-        if col not in fuel_df.columns:
-            raise AssertionError(f"Required column {col} not found in input fuel_df.")
-
-    # Calculate per-fuel derived values and add them to the DataFrame
-    df = (
-        # Really there should *not* be any duplicates here but... there's a
-        # bug somewhere that introduces them into the fuel_ferc1 table.
-        fuel_df[keep_cols]
-        .drop_duplicates()
-        # Calculate totals for each record based on per-unit values:
-        .assign(fuel_mmbtu=lambda x: x.fuel_consumed_units * x.fuel_mmbtu_per_unit)
-        .assign(fuel_cost=lambda x: x.fuel_consumed_units * x.fuel_cost_per_unit_burned)
-        # Drop the ratios and heterogeneous fuel "units"
-        .drop(
-            ["fuel_mmbtu_per_unit", "fuel_cost_per_unit_burned", "fuel_consumed_units"],
-            axis=1,
-        )
-        # Group by the keys and fuel type, and sum:
-        .groupby(
-            [
-                "utility_id_ferc1",
-                "plant_name_ferc1",
-                "report_year",
-                "fuel_type_code_pudl",
-            ]
-        )
-        .agg(sum)
-        .reset_index()
-        # Set the index to the keys, and pivot to get per-fuel columns:
-        .set_index(["utility_id_ferc1", "plant_name_ferc1", "report_year"])
-        .pivot(columns="fuel_type_code_pudl")
-        .fillna(0.0)
-    )
-
-    # Undo pivot. Could refactor this old function
-    plant_year_totals = df.stack("fuel_type_code_pudl").groupby(level=[0, 1, 2]).sum()
-
-    # Calculate total heat content burned for each plant, and divide it out
-    mmbtu_group = (
-        pd.merge(
-            # Sum up all the fuel heat content, and divide the individual fuel
-            # heat contents by it (they are all contained in single higher
-            # level group of columns labeled fuel_mmbtu)
-            df.loc[:, "fuel_mmbtu"].div(
-                df.loc[:, "fuel_mmbtu"].sum(axis=1), axis="rows"
-            ),
-            # Merge that same total into the dataframe separately as well.
-            plant_year_totals.loc[:, "fuel_mmbtu"],
-            right_index=True,
-            left_index=True,
-        )
-        .rename(columns=lambda x: re.sub(r"$", "_fraction_mmbtu", x))
-        .rename(columns=lambda x: re.sub(r"_mmbtu_fraction_mmbtu$", "_mmbtu", x))
-    )
-
-    # Calculate total fuel cost for each plant, and divide it out
-    cost_group = (
-        pd.merge(
-            # Sum up all the fuel costs, and divide the individual fuel
-            # costs by it (they are all contained in single higher
-            # level group of columns labeled fuel_cost)
-            df.loc[:, "fuel_cost"].div(df.loc[:, "fuel_cost"].sum(axis=1), axis="rows"),
-            # Merge that same total into the dataframe separately as well.
-            plant_year_totals.loc[:, "fuel_cost"],
-            right_index=True,
-            left_index=True,
-        )
-        .rename(columns=lambda x: re.sub(r"$", "_fraction_cost", x))
-        .rename(columns=lambda x: re.sub(r"_cost_fraction_cost$", "_cost", x))
-    )
-
-    # Re-unify the cost and heat content information:
-    df = pd.merge(
-        mmbtu_group, cost_group, left_index=True, right_index=True
-    ).reset_index()
-
-    # Label each plant-year record by primary fuel:
-    for fuel_str in FUEL_TYPES:
-        try:
-            mmbtu_mask = df[f"{fuel_str}_fraction_mmbtu"] > thresh
-            df.loc[mmbtu_mask, "primary_fuel_by_mmbtu"] = fuel_str
-        except KeyError:
-            pass
-
-        try:
-            cost_mask = df[f"{fuel_str}_fraction_cost"] > thresh
-            df.loc[cost_mask, "primary_fuel_by_cost"] = fuel_str
-        except KeyError:
-            pass
-
-    df[["primary_fuel_by_cost", "primary_fuel_by_mmbtu"]] = df[
-        ["primary_fuel_by_cost", "primary_fuel_by_mmbtu"]
-    ].fillna("")
-
-    return df

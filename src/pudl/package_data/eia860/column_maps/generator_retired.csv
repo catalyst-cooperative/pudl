@@ -74,3 +74,5 @@ stoker_tech,,,,,stoker_technology,stoker_technology,stoker_technology,stoker_tec
 other_combustion_tech,,,,,other_combustion_technology,other_combustion_technology,other_combustion_technology,other_combustion_technology,other_combustion_technology,other_combustion_technology,other_combustion_technology,other_combustion_technology,other_combustion_technology
 cofire_fuels,,,,,cofire_fuels,cofire_fuels,cofire_fuels,cofire_fuels,cofire_fuels,cofire_fuels,cofire_fuels,cofire_fuels,cofire_fuels
 switch_oil_gas,,,,,switch_between_oil_and_natural_gas,switch_between_oil_and_natural_gas,switch_between_oil_and_natural_gas,switch_between_oil_and_natural_gas,switch_between_oil_and_natural_gas,switch_between_oil_and_natural_gas,switch_between_oil_and_natural_gas,switch_between_oil_and_natural_gas,switch_between_oil_and_natural_gas
+energy_storage_capacity_mwh,,,,,,,,,,,,,
+net_capacity_mwdc,,,,,,,,,,,,,
