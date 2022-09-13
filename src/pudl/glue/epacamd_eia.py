@@ -37,6 +37,7 @@ def transform(
     Args:
         epacamd_eia: The result of running this module's extract() function.
         generators_entity_eia: The generators_entity_eia table.
+        boilers_entity_eia: The boilers_entitiy_eia table.
         processing_all_years: A boolean indicating whether the years from the
             Eia860Settings object match the EIA860 working partitions. This indicates
             whether or not to restrict the crosswalk data so the tests don't fail on
