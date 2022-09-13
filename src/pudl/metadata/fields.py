@@ -1188,7 +1188,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "operational_status_pudl": {
         "type": "string",
         "description": "The operating status of the generator using PUDL categories.",
-        "constraints": {"enum": ["operating", "retired", "proposed", "BU"]},
+        "constraints": {"enum": ["operating", "retired", "proposed"]},
     },
     "opex_allowances": {"type": "number", "description": "Allowances.", "unit": "USD"},
     "opex_boiler": {
