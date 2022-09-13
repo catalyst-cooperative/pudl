@@ -34,6 +34,16 @@ def transform(
 ) -> dict[str, pd.DataFrame]:
     """Clean up the EPACAMD-EIA Crosswalk file.
 
+    The crosswalk is a static file: there is no year field. The plant_id_eia and
+    generator_id fields, however, are foreign keys from an annualized table. If the
+    fast ETL is run (on one year of data) the test will break because the crosswalk
+    tables with plant_id_eia and generator_id contain values from various years. To
+    keep the crosswalk in alignment with the available eia data, we'll restrict it
+    based on the generator entity table which has plant_id_eia and generator_id so long
+    as it's not using the full suite of avilable years. If it is, we don't want to
+    restrict the crosswalk so we can get warnings and errors from any foreign key
+    discrepancies. This isn't an ideal solution, but it works for now.
+
     Args:
         epacamd_eia: The result of running this module's extract() function.
         generators_entity_eia: The generators_entity_eia table.
@@ -70,15 +80,7 @@ def transform(
         .dropna(subset=["plant_id_eia"])
     )
 
-    # The crosswalk is a static file: there is no year field. The plant_id_eia and
-    # generator_id fields, however, are foreign keys from an annualized table. If the
-    # fast ETL is run (on one year of data) the test will break because the crosswalk
-    # tables with plant_id_eia and generator_id contain values from various years. To
-    # keep the crosswalk in alignment with the available eia data, we'll restrict it
-    # based on the generator entity table which has plant id and generator id so long
-    # as it's not using the full suite of avilable years. If it is, we don't want to
-    # restrict the crosswalk so we can get warnings and errors from any foreign key
-    # discrepancies.
+    # Restrict crosswalk for tests if running fast etl
     if not processing_all_eia_years:
         logger.info(
             "Selected subset of avilable EIA years--restricting EPACAMD-EIA Crosswalk \
