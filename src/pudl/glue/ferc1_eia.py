@@ -315,7 +315,7 @@ def get_unmapped_plants_ferc1(
     return unmapped_plants
 
 
-def get_unmapped_utils_ferc1(ferc1_engine):
+def get_unmapped_utils_ferc1_bdf(ferc1_engine):
     """Generate a list of as-of-yet unmapped utilities from the FERC Form 1 DB.
 
     Find any utilities which do exist in the cloned FERC Form 1 DB,

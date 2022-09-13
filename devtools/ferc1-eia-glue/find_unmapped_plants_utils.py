@@ -81,7 +81,7 @@ from pudl.glue.ferc1_eia import (
     get_unmapped_plants_eia,
     get_unmapped_plants_ferc1,
     get_unmapped_utils_eia,
-    get_unmapped_utils_ferc1,
+    get_unmapped_utils_ferc1_dbf,
 )
 from pudl.metadata.classes import DataSource
 
@@ -195,7 +195,7 @@ def main():
     # ==========================
     # Unmapped FERC 1 Utilities:
     # ==========================
-    unmapped_utils_ferc1 = get_unmapped_utils_ferc1(ferc1_engine)
+    unmapped_utils_ferc1 = get_unmapped_utils_ferc1_dbf(ferc1_engine)
     pudl_logger.info(
         f"Found {len(unmapped_utils_ferc1)} unmapped FERC 1 utilities in "
         f"{min(ferc1_years)}-{max(ferc1_years)}."
