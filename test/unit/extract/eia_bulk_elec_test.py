@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-import pudl.extract.eia_bulk_data as bulk
+import pudl.extract.eia_bulk_elec as bulk
 
 
 @pytest.fixture()
@@ -36,40 +36,6 @@ def test__filter_df(elec_txt_dataframe):
     input_ = elec_txt_dataframe
     expected = input_.iloc[1:, :]
     actual = bulk._filter_df(input_)
-    pd.testing.assert_frame_equal(actual, expected)
-
-
-def test__extract_keys_from_series_id(elec_txt_dataframe):
-    """Parse keys from EIA series_id string."""
-    input_ = elec_txt_dataframe.iloc[[3], :]
-    expected = pd.DataFrame(
-        {
-            "series_code": ["RECEIPTS_BTU"],
-            "fuel_code": ["NG"],
-            "region_code": ["US"],
-            "sector_code": ["2"],
-            "frequency_code": ["Q"],
-        },
-        index=[3],
-    )
-    actual = bulk._extract_keys_from_series_id(input_)
-    pd.testing.assert_frame_equal(actual, expected)
-
-
-def test__extract_keys_from_name(elec_txt_dataframe):
-    """Parse keys from EIA name string."""
-    input_ = elec_txt_dataframe.iloc[[3], :]
-    expected = pd.DataFrame(
-        {
-            "series": ["Receipts of fossil fuels by electricity plants (Btu)"],
-            "fuel": ["natural gas"],
-            "region": ["United States"],
-            "sector": ["electric utility non-cogen"],
-            "frequency": ["quarterly"],
-        },
-        index=[3],
-    )
-    actual = bulk._extract_keys_from_name(input_)
     pd.testing.assert_frame_equal(actual, expected)
 
 
@@ -118,7 +84,7 @@ def test_extract(test_file_bytes):
 
     assert len(actual_dfs) == 2
 
-    expected_metadata_shape = (4, 23)
+    expected_metadata_shape = (4, 13)
     expected_metadata_columns = pd.Index(
         [
             "series_id",
@@ -134,16 +100,6 @@ def test_extract(test_file_bytes):
             "end",
             "last_updated",
             "geoset_id",
-            "series",
-            "fuel",
-            "region",
-            "sector",
-            "frequency",
-            "series_code",
-            "fuel_code",
-            "region_code",
-            "sector_code",
-            "frequency_code",
         ]
     )
     assert actual_metadata.shape == expected_metadata_shape

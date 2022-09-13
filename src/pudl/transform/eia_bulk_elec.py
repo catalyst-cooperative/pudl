@@ -78,3 +78,30 @@ def _get_col_names_to_drop(metadata: pd.DataFrame) -> set[str]:
     ]
     cols_to_drop = reduce(set.union, (check(metadata) for check in checks))
     return cols_to_drop
+
+
+def _extract_keys_from_series_id(raw_df: pd.DataFrame) -> pd.DataFrame:
+    """Parse EIA series_id to key categories.
+
+    Redundant information with 'name' field but with abbreviated codes instead of descriptive names.
+    """
+    # drop first one (constant value of "ELEC")
+    keys = (
+        raw_df.loc[:, "series_id"]
+        .str.split(r"[\.-]", expand=True, regex=True)
+        .drop(columns=0)
+    )
+    keys.columns = pd.Index(
+        ["series_code", "fuel_code", "region_code", "sector_code", "frequency_code"]
+    )
+    return keys
+
+
+def _extract_keys_from_name(raw_df: pd.DataFrame) -> pd.DataFrame:
+    """Parse EIA series name to key categories.
+
+    Redundant information with series_id but with descriptive names instead of codes.
+    """
+    keys = raw_df.loc[:, "name"].str.split(" : ", expand=True)
+    keys.columns = pd.Index(["series", "fuel", "region", "sector", "frequency"])
+    return keys

@@ -39,33 +39,6 @@ def _filter_and_read_to_dataframe(raw_zipfile: Path) -> pd.DataFrame:
     return out
 
 
-def _extract_keys_from_series_id(raw_df: pd.DataFrame) -> pd.DataFrame:
-    """Parse EIA series_id to key categories.
-
-    Redundant information with 'name' field but with abbreviated codes instead of descriptive names.
-    """
-    # drop first one (constant value of "ELEC")
-    keys = (
-        raw_df.loc[:, "series_id"]
-        .str.split(r"[\.-]", expand=True, regex=True)
-        .drop(columns=0)
-    )
-    keys.columns = pd.Index(
-        ["series_code", "fuel_code", "region_code", "sector_code", "frequency_code"]
-    )
-    return keys
-
-
-def _extract_keys_from_name(raw_df: pd.DataFrame) -> pd.DataFrame:
-    """Parse EIA series name to key categories.
-
-    Redundant information with series_id but with descriptive names instead of codes.
-    """
-    keys = raw_df.loc[:, "name"].str.split(" : ", expand=True)
-    keys.columns = pd.Index(["series", "fuel", "region", "sector", "frequency"])
-    return keys
-
-
 def _parse_data_column(elec_df: pd.DataFrame) -> pd.DataFrame:
     out = []
     for idx in elec_df.index:
@@ -103,9 +76,5 @@ def extract(raw_zipfile) -> dict[str, pd.DataFrame]:
     """
     filtered = _filter_and_read_to_dataframe(raw_zipfile)
     timeseries = _parse_data_column(filtered)
-    key_descriptions = _extract_keys_from_name(filtered)
-    key_codes = _extract_keys_from_series_id(filtered)
-    metadata = pd.concat(
-        [filtered.drop(columns="data"), key_descriptions, key_codes], axis=1
-    )
+    metadata = filtered.drop(columns="data")
     return {"metadata": metadata, "timeseries": timeseries}
