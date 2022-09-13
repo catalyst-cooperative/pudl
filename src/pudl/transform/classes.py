@@ -527,6 +527,9 @@ class AbstractTableTransformer(ABC):
     _cached_dfs: dict[str, pd.DataFrame] = {}
     """Cached intermediate dataframes for use in development and debugging."""
 
+    parameter_model = TableTransformParams
+    params: parameter_model
+
     def __init__(
         self,
         params: TableTransformParams | None = None,
@@ -538,9 +541,9 @@ class AbstractTableTransformer(ABC):
         # Allowing params to be passed in or looked up makes testing easier, since it
         # means the same transformer can be run with a variety of parameters and inputs.
         if params is None:
-            self.params = TableTransformParams.from_id(self.table_id)
+            self.params = self.parameter_model.from_id(self.table_id)
         else:
-            self.params = TableTransformParams(params)
+            self.params = params
         self.cache_dfs = cache_dfs
         self.clear_cached_dfs = clear_cached_dfs
 
@@ -563,12 +566,12 @@ class AbstractTableTransformer(ABC):
         ...
 
     @abstractmethod
-    def transform_main(self, df: pd.DataFrame) -> pd.DataFrame:
+    def transform_main(self, df: pd.DataFrame, **kwargs) -> pd.DataFrame:
         """The workhorse method doing most of the table-specific transformations."""
         ...
 
     @abstractmethod
-    def transform_finish(self, df: pd.DataFrame) -> pd.DataFrame:
+    def transform_end(self, df: pd.DataFrame) -> pd.DataFrame:
         """Transformations applied to many tables within a dataset at the end.
 
         This method should be implemented by the dataset-level abstract table
@@ -585,7 +588,7 @@ class AbstractTableTransformer(ABC):
         df = (
             self.transform_start(*args, **kwargs)
             .pipe(self.transform_main)
-            .pipe(self.transform_finish)
+            .pipe(self.transform_end)
         )
         if self.clear_cached_dfs:
             logger.debug(
@@ -598,7 +601,7 @@ class AbstractTableTransformer(ABC):
     def rename_columns(
         self,
         df: pd.DataFrame,
-        params: RenameColumns,
+        params: RenameColumns | None = None,
     ) -> pd.DataFrame:
         """Rename the whole collection of dataframe columns using input params.
 
@@ -606,6 +609,8 @@ class AbstractTableTransformer(ABC):
         columns that have been defined in the mapping for renaming.
 
         """
+        if params is None:
+            params = self.params.rename_columns
         logger.info(f"{self.table_id.value}: Renaming {len(params.columns)} columns.")
         df_col_set = set(df.columns)
         param_col_set = set(params.columns)
@@ -618,7 +623,9 @@ class AbstractTableTransformer(ABC):
             )
         return df.rename(columns=params.columns)
 
-    def drop_invalid_rows(self, df: pd.DataFrame, params: InvalidRows) -> pd.DataFrame:
+    def drop_invalid_rows(
+        self, df: pd.DataFrame, params: InvalidRows | None = None
+    ) -> pd.DataFrame:
         """Drop rows with only invalid values in all specificed columns.
 
         This method finds all rows in a dataframe that contain ONLY invalid data in ALL
@@ -626,6 +633,8 @@ class AbstractTableTransformer(ABC):
         rows that were dropped.
 
         """
+        if params is None:
+            params = self.params.drop_invalid_rows
         pre_drop_len = len(df)
         # set filter items using either required_valid_cols or allowed_invalid_cols
         if params.required_valid_cols or params.allowed_invalid_cols:
@@ -651,42 +660,50 @@ class AbstractTableTransformer(ABC):
         )
         return df_out
 
-    def normalize_strings_multicol(
+    def normalize_strings(
         self,
         df: pd.DataFrame,
-        params: dict[str, bool],
+        params: dict[str, bool] | None = None,
     ) -> pd.DataFrame:
         """Method wrapper for string normalization."""
+        if params is None:
+            params = self.params.normalize_strings
         logger.info(f"{self.table_id.value}: Normalizing freeform string columns.")
         return normalize_strings_multicol(df, params)
 
-    def categorize_strings_multicol(
+    def categorize_strings(
         self,
         df: pd.DataFrame,
-        params: dict[str, StringCategories],
+        params: dict[str, StringCategories] | None = None,
     ) -> pd.DataFrame:
         """Method wrapper for string categorization."""
+        if params is None:
+            params = self.params.categorize_strings
         logger.info(
             f"{self.table_id.value}: Categorizing string columns using a controlled "
             "vocabulary."
         )
         return categorize_strings_multicol(df, params)
 
-    def nullify_outliers_multicol(
+    def nullify_outliers(
         self,
         df: pd.DataFrame,
-        params: dict[str, ValidRange],
+        params: dict[str, ValidRange] | None = None,
     ) -> pd.DataFrame:
         """Method wrapper for nullifying outlying values."""
+        if params is None:
+            params = self.params.nullify_outliers
         logger.info(f"{self.table_id.value}: Nullifying outlying values.")
         return nullify_outliers_multicol(df, params)
 
-    def convert_units_multicol(
+    def convert_units(
         self,
         df: pd.DataFrame,
-        params: dict[str, UnitConversion],
+        params: dict[str, UnitConversion] | None = None,
     ) -> pd.DataFrame:
         """Method wrapper for columnwise unit conversions."""
+        if params is None:
+            params = self.params.convert_units
         logger.info(
             f"{self.table_id.value}: Converting units and renaming columns accordingly."
         )
@@ -695,12 +712,14 @@ class AbstractTableTransformer(ABC):
     def correct_units(
         self,
         df: pd.DataFrame,
-        params: UnitCorrections,
+        params: UnitCorrections | None = None,
     ) -> pd.DataFrame:
         """Apply all specified unit corrections to the table in order.
 
         Note: this is a table transform, not a multi-column transform.
         """
+        if params is None:
+            params = self.params.correct_units
         logger.info(
             f"{self.table_id.value}: Correcting inferred non-standard column units."
         )

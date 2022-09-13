@@ -9,9 +9,9 @@ bad data, or replacing it with the appropriate NA values.
 """
 import enum
 import importlib.resources
+import logging
 import re
 from collections import namedtuple
-from functools import cached_property
 
 import numpy as np
 import pandas as pd
@@ -134,11 +134,8 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
     """
 
     table_id: Ferc1TableId
-
-    @cached_property
-    def params(self) -> Ferc1TableTransformParams:
-        """Obtain table transform parameters based on the table ID."""
-        return Ferc1TableTransformParams.from_id(table_id=self.table_id)
+    parameter_model = Ferc1TableTransformParams
+    params: parameter_model
 
     @cache_df(key="main")
     def transform_start(
@@ -154,7 +151,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         return pd.concat([processed_dbf, processed_xbrl]).reset_index(drop=True)
 
     @cache_df(key="main")
-    def transform_finish(self, df: pd.DataFrame) -> pd.DataFrame:
+    def transform_end(self, df: pd.DataFrame) -> pd.DataFrame:
         """Enforce the database schema and remove any cached dataframes."""
         return self.enforce_schema(df)
 
@@ -164,6 +161,8 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         logger.info(f"{self.table_id.value}: Processing DBF data pre-concatenation.")
         return (
             self.drop_footnote_columns_dbf(raw_dbf)
+            # Note: in this rename_columns we have to pass in params, since we're using
+            # the inherited method, with param specific to the child class.
             .pipe(self.rename_columns, params=self.params.rename_columns_ferc1.dbf)
             .pipe(self.assign_record_id, source_ferc1=Ferc1Source.DBF)
             .pipe(self.drop_unused_original_columns_dbf)
@@ -181,6 +180,8 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             self.merge_instant_and_duration_tables_xbrl(
                 raw_xbrl_instant, raw_xbrl_duration
             )
+            # Note: in this rename_columns we have to pass in params, since we're using
+            # the inherited method, with param specific to the child class.
             .pipe(self.rename_columns, params=self.params.rename_columns_ferc1.xbrl)
             .pipe(self.assign_record_id, source_ferc1=Ferc1Source.XBRL)
             .pipe(self.assign_utility_id_ferc1_xbrl)
@@ -227,9 +228,11 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             )
             return instant
 
-        instant_axes = [col for col in raw_xbrl_instant.columns if col.endswith("Axis")]
+        instant_axes = [
+            col for col in raw_xbrl_instant.columns if col.endswith("_axis")
+        ]
         duration_axes = [
-            col for col in raw_xbrl_duration.columns if col.endswith("Axis")
+            col for col in raw_xbrl_duration.columns if col.endswith("_axis")
         ]
         if set(instant_axes) != set(duration_axes):
             raise ValueError(
@@ -242,8 +245,8 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             instant,
             duration,
             how="outer",
-            left_on=["date", "entity_id", "ReportYear"] + instant_axes,
-            right_on=["end_date", "entity_id", "ReportYear"] + duration_axes,
+            left_on=["date", "entity_id", "report_year"] + instant_axes,
+            right_on=["end_date", "entity_id", "report_year"] + duration_axes,
             validate="1:1",
         )
 
@@ -270,11 +273,11 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         else:
             assert source_ferc1 == Ferc1Source.XBRL  # nosec: B101
             cols = self.params.rename_columns_ferc1.xbrl.columns
-            pk_cols = ["ReportYear", "entity_id"]
+            pk_cols = ["report_year", "entity_id"]
             # Sort to avoid dependence on the ordering of rename_columns.
             # Doing the sorting here because we have a particular ordering
             # hard coded for the DBF primary keys.
-            pk_cols += sorted(col for col in cols if col.endswith("Axis"))
+            pk_cols += sorted(col for col in cols if col.endswith("_axis"))
         return pk_cols
 
     def renamed_table_primary_key(self, source_ferc1: Ferc1Source) -> list[str]:
@@ -469,9 +472,7 @@ class FuelFerc1TableTransformer(Ferc1AbstractTableTransformer):
             derived from the raw DBF and/or XBRL inputs.
 
         """
-        return self.drop_invalid_rows(df, self.params.drop_invalid_rows).pipe(
-            self.correct_units, self.params.correct_units
-        )
+        return self.drop_invalid_rows(df).pipe(self.correct_units)
 
     @cache_df(key="dbf")
     def process_dbf(self, raw_dbf: pd.DataFrame) -> pd.DataFrame:
@@ -484,11 +485,9 @@ class FuelFerc1TableTransformer(Ferc1AbstractTableTransformer):
         df = (
             super()
             .process_dbf(raw_dbf)
-            .pipe(self.convert_units_multicol, params=self.params.convert_units)
-            .pipe(self.normalize_strings_multicol, params=self.params.normalize_strings)
-            .pipe(
-                self.categorize_strings_multicol, params=self.params.categorize_strings
-            )
+            .pipe(self.convert_units)
+            .pipe(self.normalize_strings)
+            .pipe(self.categorize_strings)
             .pipe(self.standardize_physical_fuel_units)
         )
         return df
@@ -510,12 +509,12 @@ class FuelFerc1TableTransformer(Ferc1AbstractTableTransformer):
             self.merge_instant_and_duration_tables_xbrl(
                 raw_xbrl_instant, raw_xbrl_duration
             )
+            # Note: in this rename_columns we have to pass in params, since we're using
+            # the inherited method, with param specific to the child class.
             .pipe(self.rename_columns, params=self.params.rename_columns_ferc1.xbrl)
-            .pipe(self.convert_units_multicol, params=self.params.convert_units)
-            .pipe(self.normalize_strings_multicol, params=self.params.normalize_strings)
-            .pipe(
-                self.categorize_strings_multicol, params=self.params.categorize_strings
-            )
+            .pipe(self.convert_units)
+            .pipe(self.normalize_strings)
+            .pipe(self.categorize_strings)
             .pipe(self.standardize_physical_fuel_units)
             .pipe(self.aggregate_duplicate_fuel_types_xbrl)
             .pipe(self.assign_utility_id_ferc1_xbrl)
@@ -710,7 +709,9 @@ class FuelFerc1TableTransformer(Ferc1AbstractTableTransformer):
         )
         return df.drop(index=total_rows_idx)
 
-    def drop_invalid_rows(self, df: pd.DataFrame, params: InvalidRows) -> pd.DataFrame:
+    def drop_invalid_rows(
+        self, df: pd.DataFrame, params: InvalidRows | None = None
+    ) -> pd.DataFrame:
         """Drop invalid rows from the fuel table.
 
         This method both drops rows in which all required data columns are null (using
@@ -737,13 +738,11 @@ class PlantsSteamFerc1TableTransformer(Ferc1AbstractTableTransformer):
             .categories.keys()
         )
         plants_steam = (
-            self.normalize_strings_multicol(df, params=self.params.normalize_strings)
-            .pipe(self.nullify_outliers_multicol, params=self.params.nullify_outliers)
-            .pipe(
-                self.categorize_strings_multicol, params=self.params.categorize_strings
-            )
-            .pipe(self.convert_units_multicol, params=self.params.convert_units)
-            .pipe(self.drop_invalid_rows, params=self.params.drop_invalid_rows)
+            self.normalize_strings(df)
+            .pipe(self.nullify_outliers)
+            .pipe(self.categorize_strings)
+            .pipe(self.convert_units)
+            .pipe(self.drop_invalid_rows)
             .pipe(
                 plants_steam_assign_plant_ids,
                 ferc1_fuel_df=transformed_fuel,
@@ -752,6 +751,134 @@ class PlantsSteamFerc1TableTransformer(Ferc1AbstractTableTransformer):
             .pipe(plants_steam_validate_ids)
         )
         return plants_steam
+
+    def transform(
+        self,
+        raw_dbf: pd.DataFrame,
+        raw_xbrl_instant: pd.DataFrame,
+        raw_xbrl_duration: pd.DataFrame,
+        transformed_fuel: pd.DataFrame,
+    ) -> pd.DataFrame:
+        """Redfine the transform method to accommodate the use of transformed_fuel.
+
+        This is duplicating code from the parent class, but is necessary because the
+        steam table needs the fuel table for its transform. Is there a better way to
+        do this that doesn't require cutting and pasting the whole method just to
+        stick the extra dataframe input into transform_main()?
+        """
+        df = (
+            self.transform_start(
+                raw_dbf=raw_dbf,
+                raw_xbrl_instant=raw_xbrl_instant,
+                raw_xbrl_duration=raw_xbrl_duration,
+            )
+            .pipe(self.transform_main, transformed_fuel=transformed_fuel)
+            .pipe(self.transform_end)
+        )
+        if self.clear_cached_dfs:
+            logger.debug(
+                f"{self.table_id.value}: Clearing cached dfs: "
+                f"{sorted(self._cached_dfs.keys())}"
+            )
+            self._cached_dfs.clear()
+        return df
+
+
+def transform(
+    ferc1_dbf_raw_dfs,
+    ferc1_xbrl_raw_dfs,
+    ferc1_settings: Ferc1Settings | None = None,
+):
+    """Transforms FERC 1.
+
+    Args:
+        ferc1_dbf_raw_dfs (dict): Dictionary pudl table names (keys) and raw DBF
+            dataframes (values).
+        ferc1_xbrl_raw_dfs (dict): Dictionary pudl table names with `_instant`
+            or `_duration` (keys) and raw XRBL dataframes (values).
+        ferc1_settings: Validated ETL parameters required by
+            this data source.
+
+    Returns:
+        dict: A dictionary of the transformed DataFrames.
+
+    """
+    if ferc1_settings is None:
+        ferc1_settings = Ferc1Settings()
+
+    ferc1_tfr_classes = {
+        "fuel_ferc1": FuelFerc1TableTransformer,
+        # "plants_small_ferc1": plants_small,
+        # "plants_hydro_ferc1": plants_hydro,
+        # "plants_pumped_storage_ferc1": plants_pumped_storage,
+        # "plant_in_service_ferc1": plant_in_service,
+        # "purchased_power_ferc1": purchased_power,
+        # "accumulated_depreciation_ferc1": accumulated_depreciation,
+    }
+    # create an empty ditctionary to fill up through the transform fuctions
+    ferc1_transformed_dfs = {}
+    # for each ferc table,
+    for table in ferc1_tfr_classes:
+        if table in ferc1_settings.tables:
+            logger.info(
+                f"Transforming raw FERC Form 1 dataframe for loading into {table}"
+            )
+
+            ferc1_transformed_dfs[table] = ferc1_tfr_classes[table]().transform(
+                raw_dbf=ferc1_dbf_raw_dfs[table],
+                raw_xbrl_instant=ferc1_xbrl_raw_dfs[table].get(
+                    "instant", pd.DataFrame()
+                ),
+                raw_xbrl_duration=ferc1_xbrl_raw_dfs[table].get(
+                    "duration", pd.DataFrame()
+                ),
+            )
+    # Bespoke exception. fuel must come before steam b/c fuel proportions are used to
+    # aid in plant # ID assignment.
+    if "plants_steam_ferc1" in ferc1_settings.tables:
+        ferc1_transformed_dfs[
+            "plants_steam_ferc1"
+        ] = PlantsSteamFerc1TableTransformer().transform(
+            raw_dbf=ferc1_dbf_raw_dfs["plants_steam_ferc1"],
+            raw_xbrl_instant=ferc1_xbrl_raw_dfs["plants_steam_ferc1"].get(
+                "instant", pd.DataFrame()
+            ),
+            raw_xbrl_duration=ferc1_xbrl_raw_dfs["plants_steam_ferc1"].get(
+                "duration", pd.DataFrame()
+            ),
+            transformed_fuel=ferc1_transformed_dfs["fuel_ferc1"],
+        )
+
+    # convert types and return:
+    return {
+        name: convert_cols_dtypes(df, data_source="ferc1")
+        for name, df in ferc1_transformed_dfs.items()
+    }
+
+
+if __name__ == "__main__":
+    """Make the module runnable for testing purposes."""
+
+    logging.basicConfig(
+        level=logging.DEBUG,
+        format=r"%(asctime)s [%(levelname)8s] %(name)s:%(lineno)s %(message)s",
+    )
+    ferc1_settings = Ferc1Settings(
+        years=[2020, 2021],
+        tables=["fuel_ferc1", "plants_steam_ferc1"],
+    )
+    pudl_settings = pudl.workspace.setup.get_defaults()
+    raw_dbf = pudl.extract.ferc1.extract_dbf(
+        ferc1_settings=ferc1_settings, pudl_settings=pudl_settings
+    )
+    raw_xbrl = pudl.extract.ferc1.extract_xbrl(
+        ferc1_settings=ferc1_settings, pudl_settings=pudl_settings
+    )
+    dfs = transform(
+        ferc1_dbf_raw_dfs=raw_dbf,
+        ferc1_xbrl_raw_dfs=raw_xbrl,
+        ferc1_settings=ferc1_settings,
+    )
 
 
 ##################################################################################
@@ -1520,72 +1647,3 @@ def accumulated_depreciation(
     ferc1_transformed_dfs["accumulated_depreciation_ferc1"] = ferc1_accumdepr_prvsn_df
 
     return ferc1_transformed_dfs
-
-
-def transform(
-    ferc1_dbf_raw_dfs,
-    ferc1_xbrl_raw_dfs,
-    ferc1_settings: Ferc1Settings = Ferc1Settings(),
-):
-    """Transforms FERC 1.
-
-    Args:
-        ferc1_dbf_raw_dfs (dict): Dictionary pudl table names (keys) and raw DBF
-            dataframes (values).
-        ferc1_xbrl_raw_dfs (dict): Dictionary pudl table names with `_instant`
-            or `_duration` (keys) and raw XRBL dataframes (values).
-        ferc1_settings: Validated ETL parameters required by
-            this data source.
-
-    Returns:
-        dict: A dictionary of the transformed DataFrames.
-
-    """
-    ferc1_tfr_classes = {
-        "fuel_ferc1": FuelFerc1TableTransformer,
-        # "plants_small_ferc1": plants_small,
-        # "plants_hydro_ferc1": plants_hydro,
-        # "plants_pumped_storage_ferc1": plants_pumped_storage,
-        # "plant_in_service_ferc1": plant_in_service,
-        # "purchased_power_ferc1": purchased_power,
-        # "accumulated_depreciation_ferc1": accumulated_depreciation,
-    }
-    # create an empty ditctionary to fill up through the transform fuctions
-    ferc1_transformed_dfs = {}
-    # for each ferc table,
-    for table in ferc1_tfr_classes:
-        if table in ferc1_settings.tables:
-            logger.info(
-                f"Transforming raw FERC Form 1 dataframe for loading into {table}"
-            )
-
-            ferc1_transformed_dfs[table] = ferc1_tfr_classes[table]().transform(
-                raw_dbf=ferc1_dbf_raw_dfs[table],
-                raw_xbrl_instant=ferc1_xbrl_raw_dfs[table].get(
-                    "instant", pd.DataFrame()
-                ),
-                raw_xbrl_duration=ferc1_xbrl_raw_dfs[table].get(
-                    "duration", pd.DataFrame()
-                ),
-            )
-    # Bespoke exception. fuel must come before steam b/c fuel proportions are used to
-    # aid in plant # ID assignment.
-    if "plants_steam_ferc1" in ferc1_settings.tables:
-        ferc1_transformed_dfs[
-            "plants_steam_ferc1"
-        ] = PlantsSteamFerc1TableTransformer().transform(
-            raw_dbf=ferc1_dbf_raw_dfs["plants_steam_ferc1"],
-            raw_xbrl_instant=ferc1_xbrl_raw_dfs["plants_steam_ferc1"].get(
-                "instant", pd.DataFrame()
-            ),
-            raw_xbrl_duration=ferc1_xbrl_raw_dfs["plants_steam_ferc1"].get(
-                "duration", pd.DataFrame()
-            ),
-            transformed_fuel=ferc1_transformed_dfs["fuel_ferc1"],
-        )
-
-    # convert types and return:
-    return {
-        name: convert_cols_dtypes(df, data_source="ferc1")
-        for name, df in ferc1_transformed_dfs.items()
-    }
