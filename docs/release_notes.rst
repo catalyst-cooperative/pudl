@@ -33,7 +33,7 @@ Data Coverage
   monthly updates for 2022.
 * Integrated several new columns into the EIA 860 and EIA 923 including several
   codes with coding tables (See :doc:`data_dictionaries/codes_and_labels`). :pr:`1836`
-* Added the `EPACAMD-EIA Crosswalk <https://github.com/USEPA/camd-eia-crosswalk>`__` to
+* Added the `EPACAMD-EIA Crosswalk <https://github.com/USEPA/camd-eia-crosswalk>`__ to
   the database. Previously, the crosswalk was a csv stored in ``package_data/glue``,
   but now it has its own scraper
   :pr:`https://github.com/catalyst-cooperative/pudl-scrapers/pull/20`, archiver,
