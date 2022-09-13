@@ -101,20 +101,21 @@ Database Schema Changes
   (PacifiCorp West vs. East) based on the state associated with the plant reporting the
   code. Also added backfilling for codes in years before 2013 when BA Codes first
   started being reported, but only in the output tables. See: :pr:`1906,1911`
-* Changed and removed some columns in the :doc:`data_sources/epacems` dataset.
+* Renamed and removed some columns in the :doc:`data_sources/epacems` dataset.
   ``unitid`` was changed to ``emissions_unit_id_epa`` to clarify the type of unit it
-  represents. ``plant_id_eia`` was supplemented with values from the newly integrated
-  ``epacamd_eia`` crosswalk as not all EPA's ORISPL codes are correct. ``unit_id_epa``
-  was removed because it is a unique identifyer for ``emissions_unit_id_epa`` and not
-  otherwise useful or transferable to other datasets. ``facility_id`` was removed
-  because it is specific to EPA's internal database and does not aid in connection with
-  other data. :pr:`1692`
+  represents. ``unit_id_epa`` was removed because it is a unique identifyer for
+  ``emissions_unit_id_epa`` and not otherwise useful or transferable to other datasets.
+  ``facility_id`` was removed because it is specific to EPA's internal database and does
+  not aid in connection with other data. :pr:`1692`
 
 Data Accuracy
 ^^^^^^^^^^^^^
 * Retain NA values for :doc:`data_sources/epacems` fields ``gross_load_mw`` and
   ``heat_content_mmbtu``. Previously, these fields converted NA to 0, but this is not
   accurate, so we removed this step.
+* Update the ``plant_id_eia`` field from :doc:`data_sources/epacems` with values from
+  the newly integrated ``epacamd_eia`` crosswalk as not all EPA's ORISPL codes are
+  correct.
 
 Helper Function Updates
 ^^^^^^^^^^^^^^^^^^^^^^^
