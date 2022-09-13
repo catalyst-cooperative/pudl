@@ -110,6 +110,12 @@ Database Schema Changes
   because it is specific to EPA's internal database and does not aid in connection with
   other data. :pr:`1692`
 
+Data Accuracy
+^^^^^^^^^^^^^
+* Retain NA values for :doc:`data_sources/epacems` fields ``gross_load_mw`` and
+  ``heat_content_mmbtu``. Previously, these fields converted NA to 0, but this is not
+  accurate, so we removed this step.
+
 Helper Function Updates
 ^^^^^^^^^^^^^^^^^^^^^^^
 * Replaced the PUDL helper function ``clean_merge_asof`` that merged two dataframes
