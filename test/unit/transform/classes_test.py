@@ -185,6 +185,64 @@ def test_unit_corrections_distinct_domains(unit_corrections, expectation):
         _ = UnitCorrections(**unit_corrections)
 
 
+@pytest.mark.parametrize(
+    "invalid_rows,expectation",
+    [
+        pytest.param(
+            dict(invalid_values=[0, pd.NA], required_valid_cols=["a", "b"]),
+            does_not_raise(),
+            id="good_required_valid_cols",
+        ),
+        pytest.param(
+            dict(invalid_values=[0, pd.NA], allowed_invalid_cols=["a", "b"]),
+            does_not_raise(),
+            id="good_allowed_invalid_cols",
+        ),
+        pytest.param(
+            dict(
+                invalid_values=[0, pd.NA],
+                allowed_invalid_cols=["a", "b"],
+                required_valid_cols=["a", "b"],
+            ),
+            pytest.raises(ValidationError),
+            id="too_many_filters",
+        ),
+        pytest.param(
+            dict(
+                invalid_values=[0, pd.NA],
+                like="dude",
+                regex="wtf",
+            ),
+            pytest.raises(ValidationError),
+            id="too_many_filters",
+        ),
+        pytest.param(
+            dict(
+                invalid_values=[0, pd.NA],
+                required_valid_cols=["a", "b"],
+                like="omg",
+            ),
+            pytest.raises(ValidationError),
+            id="too_many_filters",
+        ),
+        pytest.param(
+            dict(invalid_values=[0, pd.NA]),
+            pytest.raises(ValidationError),
+            id="no_filters",
+        ),
+        pytest.param(
+            dict(invalid_values=[], allowed_invalid_cols=["a", "b"]),
+            pytest.raises(ValidationError),
+            id="no_invalid_values_specified",
+        ),
+    ],
+)
+def test_invalid_row_validation(invalid_rows, expectation):
+    """Make sure we catch invalid arguments to the InvalidRows model."""
+    with expectation:
+        _ = InvalidRows(**invalid_rows)
+
+
 #####################################################################################
 # Series transformation unit tests
 # These transform functions take and return single columns.
@@ -303,7 +361,7 @@ def test_correct_units():
 
 
 @pytest.mark.parametrize(
-    "df,expected,params,raises",
+    "df,expected,params",
     [
         (
             pytest.param(
@@ -317,7 +375,6 @@ def test_correct_units():
                         "net_generation_mwh",
                     ],
                 ),
-                does_not_raise(),
                 id="required_valid_cols",
             )
         ),
@@ -335,41 +392,16 @@ def test_correct_units():
                         "net_generation_kwh",
                     ],
                 ),
-                does_not_raise(),
                 id="allowed_invalid_cols",
-            )
-        ),
-        (
-            pytest.param(
-                NUMERICAL_DATA,
-                NUMERICAL_DATA.loc[NUMERICAL_DATA.id.isin([1, 2, 3, 4, 5, 6])],
-                dict(
-                    invalid_values=[0, pd.NA, np.nan],
-                    required_valid_cols=[
-                        "valid_year",
-                        "valid_capacity_mw",
-                        "net_generation_mwh",
-                    ],
-                    allowed_invalid_cols=[
-                        "id",
-                        "year",
-                        "capacity_kw",
-                        "capacity_mw",
-                        "net_generation_kwh",
-                    ],
-                ),
-                pytest.raises(ValidationError),
-                id="params_validation_error",
             )
         ),
     ],
 )
-def test_drop_invalid_rows(df, expected, params, raises):
+def test_drop_invalid_rows(df, expected, params):
     """Test our ability to select and drop invalid rows."""
-    with raises:
-        invalid_row = InvalidRows(**params)
-        actual = drop_invalid_rows(df, params=invalid_row)
-        assert_frame_equal(actual, expected)
+    invalid_row = InvalidRows(**params)
+    actual = drop_invalid_rows(df, params=invalid_row)
+    assert_frame_equal(actual, expected)
 
 
 #####################################################################################

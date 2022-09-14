@@ -80,7 +80,7 @@ from typing import Any, Protocol
 
 import numpy as np
 import pandas as pd
-from pydantic import BaseModel, root_validator, validator
+from pydantic import BaseModel, conset, root_validator, validator
 
 import pudl.transform.params.ferc1
 from pudl.helpers import get_logger
@@ -544,7 +544,7 @@ def correct_units(df: pd.DataFrame, params: UnitCorrections) -> pd.DataFrame:
 class InvalidRows(TransformParams):
     """Pameters that identify invalid rows to drop."""
 
-    invalid_values: list
+    invalid_values: conset(Any, min_items=1)
     """A list of values that should be considered invalid in the selected columns."""
 
     required_valid_cols: list[str] | None = None
