@@ -1,6 +1,9 @@
 ---
 name: Bug report
 about: Create a report to help us improve
+title: ''
+labels: bug
+assignees: ''
 
 ---
 
@@ -23,10 +26,11 @@ Steps to reproduce the behavior -- ideally including a code snippet that causes 
 A clear and concise description of what you expected to happen, or what you expected the data to look like.
 
 ### Software Environment?
- - OS: (e.g. Mac OS X)
- - PostgreSQL version (e.g. 9.6)
- - Python version (e.g. 3.7.3)
- - How did you install PUDL? (e.g. `git clone`, `pip`, or `conda`)
+ - Operating System. (e.g. MacOS 14.5, Ubuntu 22.04, Windows Subsystem for Linux v2)
+ - Python version and distribution (e.g. Anaconda Python 3.10.6)
+ - How did you install PUDL?
+    - If you installed using `git clone` what branch are you using (probably `main` or `dev`)
+    - If you installed using `pip`, `conda` or `mamba` what version did you install?
 
 ### Additional context
 Add any other context about the problem here.

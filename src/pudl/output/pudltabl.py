@@ -1121,7 +1121,7 @@ class PudlTabl:
             gens_cols: equal to the string "all", None, or a list of
                 additional column attributes to include from the EIA 860 generators table
                 in the output mega gens table. By default all columns necessary to create
-                the mega generators table are included.
+                the plant parts EIA table are included.
 
         Returns:
             A table of all of the generators with identifying
@@ -1154,6 +1154,8 @@ class PudlTabl:
                     "retirement_date",
                     "operational_status",
                     "capacity_mw",
+                    "fuel_type_code_pudl",
+                    "planned_retirement_date",
                 ]
                 gens_cols = list(set(gens_cols + default_cols))
             self._dfs[

@@ -7,11 +7,11 @@ dependencies:
   # Used to set up the environment
   - pip>=21,<23
   - python>=3.10,<3.11
-  - setuptools<63
+  - setuptools<66
   # These packages are also specified in setup.py
   # However, they depend on or benefit from binary libraries
   # which conda can install.
-  - geopandas>=0.9,<0.11
+  - geopandas>=0.9,<0.12
   - pygeos>=0.10,<0.13 # Python wrappers for the GEOS spatial libraries
   - python-snappy>=0.6,<1
   - sqlite>=3.36,<4

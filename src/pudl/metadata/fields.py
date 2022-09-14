@@ -287,10 +287,9 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "boolean",
         "description": "Is the value observed (True) or imputed (False).",
     },
-    "data_source": {
+    "data_maturity": {
         "type": "string",
-        "description": "Source of EIA 860 data. Either Annual EIA 860 or the year-to-date updates from EIA 860M.",
-        "constraints": {"enum": ["eia860", "eia860m"]},
+        "description": "Level of maturity of the data record. Some data sources report less-than-final data. PUDL sometimes includes this data, but use at your own risk.",
     },
     "datasource": {
         "type": "string",
@@ -499,6 +498,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Indicates if the facility has energy storage capabilities."
         # TODO: Is this really boolean? Or do we have non-null strings that mean False?
     },
+    "energy_storage_capacity_mwh": {
+        "type": "number",
+        "description": "Energy storage capacity in MWh (e.g. for batteries).",
+        "unit": "MWh",
+    },
     "energy_used_for_pumping_mwh": {
         "type": "number",
         "description": "Energy used for pumping, in megawatt-hours.",
@@ -533,11 +537,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "ferc_cogen_docket_no": {
         "type": "string",
-        "description": "The docket number relating to the FERC qualifying facility cogenerator status.",
+        "description": "The docket number relating to the FERC cogenerator status. See FERC Form 556.",
     },
     "ferc_cogen_status": {
         "type": "boolean",
-        "description": "Indicates whether the plant has FERC qualifying facility cogenerator status."
+        "description": "Indicates whether the plant has FERC qualifying facility cogenerator status. See FERC Form 556."
         # TODO: Is this really boolean? Or do we have non-null strings that mean False?
     },
     "ferc_exempt_wholesale_generator": {
@@ -555,11 +559,19 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "ferc_small_power_producer": {
         "type": "boolean",
-        "description": "Indicates whether the plant has FERC qualifying facility small power producer status",
+        "description": "Indicates whether the plant has FERC qualifying facility small power producer status. See FERC Form 556.",
     },
     "ferc_small_power_producer_docket_no": {
         "type": "string",
-        "description": "The docket number relating to the FERC qualifying facility small power producer status.",
+        "description": "The docket number relating to the FERC qualifying facility small power producer status. See FERC Form 556.",
+    },
+    "ferc_qualifying_facility_docket_no": {
+        "type": "string",
+        "description": "The docket number relating to the FERC qualifying facility cogenerator status. See FERC Form 556.",
+    },
+    "ferc_qualifying_facility": {
+        "type": "boolean",
+        "description": "Indicatates whether or not a generator is a qualifying FERC cogeneation facility.",
     },
     "fluidized_bed_tech": {
         "type": "boolean",
@@ -737,24 +749,34 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "General Plant Total (FERC Accounts 389-399.1).",
     },
     "generation_activity": {"type": "boolean"},
+    "boiler_generator_assn_type_code": {
+        "type": "string",
+        "description": (
+            "Indicates whether boiler associations with generator during the year were "
+            "actual or theoretical. Only available before 2013."
+        ),
+    },
     "generator_id": {
         "type": "string",
-        "description": "Generator ID is usually numeric, but sometimes includes letters. Make sure you treat it as a string!",
+        "description": (
+            "Generator ID is usually numeric, but sometimes includes letters. Make "
+            "sure you treat it as a string!"
+        ),
     },
     "generators_num_less_1_mw": {"type": "number", "unit": "MW"},
     "generators_number": {"type": "number"},
     "green_pricing_revenue": {"type": "number", "unit": "USD"},
+    "grid_voltage_1_kv": {
+        "type": "number",
+        "description": "Plant's grid voltage at point of interconnection to transmission or distibution facilities",
+        "unit": "kV",
+    },
     "grid_voltage_2_kv": {
         "type": "number",
         "description": "Plant's grid voltage at point of interconnection to transmission or distibution facilities",
         "unit": "kV",
     },
     "grid_voltage_3_kv": {
-        "type": "number",
-        "description": "Plant's grid voltage at point of interconnection to transmission or distibution facilities",
-        "unit": "kV",
-    },
-    "grid_voltage_kv": {
         "type": "number",
         "description": "Plant's grid voltage at point of interconnection to transmission or distibution facilities",
         "unit": "kV",
@@ -987,6 +1009,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "net_capacity_favorable_conditions_mw": {
         "type": "number",
         "description": "Net plant capability under the most favorable operating conditions, in megawatts.",
+        "unit": "MW",
+    },
+    "net_capacity_mwdc": {
+        "type": "number",
+        "description": (
+            "Generation capacity in megawatts of direct current that is subject to a "
+            "net metering agreement. Typically used for behind-the-meter solar PV."
+        ),
         "unit": "MW",
     },
     "net_generation_mwh": {
@@ -1543,9 +1573,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Four-digit year in which the data was reported.",
     },
     "reported_as_another_company": {"type": "string"},
-    "respondent_frequency": {
+    "reporting_frequency_code": {
         "type": "string",
-        "constraints": {"enum": ["A", "M", "AM"]},
+        "description": "Code that specifies what time period data has to be reported (i.e. monthly data or annual totals) and how often the power plant reports this data to EIA. See reporting_frequencies_eia for more details.",
+        "constraints": {
+            "enum": sorted(
+                set(CODE_METADATA["reporting_frequencies_eia"]["df"]["code"])
+            )
+        },
     },
     "respondent_id_ferc714": {"type": "integer"},
     "respondent_name_ferc714": {"type": "string"},
@@ -1733,6 +1768,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
         "description": "Total steam pressure produced by a unit during the reported hour.",
         "unit": "lb",
+    },
+    "steam_plant_type_code": {
+        "type": "integer",
+        "description": "Code that describes types of steam plants from EIA 860. See steam_plant_types_eia table for more details.",
     },
     "steam_total": {
         "type": "number",
