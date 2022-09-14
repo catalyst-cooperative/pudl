@@ -10,71 +10,71 @@ import pandas as pd
 ##############################################################################
 PERPOUND_TO_PERSHORTTON = dict(
     multiplier=2000.0,
-    pattern=r"(.*)_per_lb$",
-    repl=r"\1_per_ton",
+    from_unit=r"_per_lb",
+    to_unit=r"_per_ton",
 )
 """Parameters for converting from inverse pounds to inverse short tons."""
 
 CENTS_TO_DOLLARS = dict(
     multiplier=0.01,
-    pattern=r"(.*)_cents$",
-    repl=r"\1_usd",
+    from_unit=r"_cents",
+    to_unit=r"_usd",
 )
 """Parameters for converting from cents to dollars."""
 
 PERCF_TO_PERMCF = dict(
     multiplier=1000.0,
-    pattern=r"(.*)_per_cf$",
-    repl=r"\1_per_mcf",
+    from_unit=r"_per_cf",
+    to_unit=r"_per_mcf",
 )
 """Parameters for converting from inverse cubic feet to inverse 1000s of cubic feet."""
 
 PERGALLON_TO_PERBARREL = dict(
     multiplier=42.0,
-    pattern=r"(.*)_per_gal",
-    repl=r"\1_per_bbl",
+    from_unit=r"_per_gal",
+    to_unit=r"_per_bbl",
 )
 """Parameters for converting from inverse gallons to inverse barrels."""
 
 PERKW_TO_PERMW = dict(
     multiplier=1000.0,
-    pattern=r"(.*)_per_kw$",
-    repl=r"\1_per_mw",
+    from_unit=r"_per_kw",
+    to_unit=r"_per_mw",
 )
 """Parameters for converting column units from per kW to per MW."""
 
 PERKWH_TO_PERMWH = dict(
     multiplier=1000.0,
-    pattern=r"(.*)_per_kwh$",
-    repl=r"\1_per_mwh",
+    from_unit=r"_per_kwh",
+    to_unit=r"_per_mwh",
 )
 """Parameters for converting column units from per kWh to per MWh."""
 
 KWH_TO_MWH = dict(
     multiplier=1e-3,
-    pattern=r"(.*)_kwh$",
-    repl=r"\1_mwh",
+    from_unit=r"_kwh",
+    to_unit=r"_mwh",
 )
 """Parameters for converting column units from kWh to MWh."""
 
 BTU_TO_MMBTU = dict(
     multiplier=1e-6,
-    pattern=r"(.*)_btu(.*)$",
-    repl=r"\1_mmbtu\2",
+    from_unit=r"_btu",
+    to_unit=r"_mmbtu",
 )
 """Parameters for converting column units from BTU to MMBTU."""
 
 PERBTU_TO_PERMMBTU = dict(
     multiplier=1e6,
-    pattern=r"(.*)_per_btu$",
-    repl=r"\1_per_mmbtu",
+    from_unit=r"_per_btu",
+    to_unit=r"_per_mmbtu",
 )
 """Parameters for converting column units from BTU to MMBTU."""
 
 BTU_PERKWH_TO_MMBTU_PERMWH = dict(
     multiplier=(1e-6 * 1000.0),
-    pattern=r"(.*)_btu_per_kwh$",
-    repl=r"\1_mmbtu_per_mwh",
+    from_unit=r"_btu_per_kwh",
+    to_unit=r"_mmbtu_per_mwh",
 )
 """Parameters for converting column units from BTU/kWh to MMBTU/MWh."""
 
