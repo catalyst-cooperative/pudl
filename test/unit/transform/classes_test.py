@@ -23,10 +23,12 @@ from pudl.transform.classes import (
     StringCategories,
     UnitConversion,
     UnitCorrections,
+    ValidRange,
     cache_df,
     categorize_strings,
     convert_units,
     normalize_strings,
+    nullify_outliers,
 )
 from pudl.transform.params.ferc1 import BTU_TO_MMBTU, KWH_TO_MWH, VALID_PLANT_YEARS
 
@@ -103,6 +105,43 @@ STRING_DATA: pd.DataFrame = pd.DataFrame(
     }
 )
 
+VALID_CAPACITY_MW = {
+    "lower_bound": 0.0,
+    "upper_bound": 4000,
+}
+
+NUMERICAL_DATA: pd.DataFrame = pd.DataFrame(
+    columns=[
+        "id",
+        "year",
+        "valid_year",
+        "capacity_kw",
+        "capacity_mw",
+        "valid_capacity_mw",
+        "net_generation_kwh",
+        "net_generation_mwh",
+    ],
+    data=[
+        (1, 1776, pd.NA, 1000.0, 1.0, 1.0, 1e6, 1000.0),
+        (2, 1876, 1876, 2000.0, 2.0, 2.0, 2e6, 2000.0),
+        (3, 1976, 1976, 3000.0, 3.0, 3.0, 3e6, 3000.0),
+        (4, 2076, pd.NA, 4000.0, 4.0, 4.0, 4e6, 4000.0),
+        (5, pd.NA, pd.NA, 5000.0, 5.0, 5.0, 5e6, 5000.0),
+        (6, 2000, 2000, 6e6, 6000.0, np.nan, 6e6, 6000.0),
+    ],
+).astype(
+    {
+        "id": int,
+        "year": pd.Int64Dtype(),
+        "valid_year": pd.Int64Dtype(),
+        "capacity_kw": float,
+        "capacity_mw": float,
+        "valid_capacity_mw": float,
+        "net_generation_kwh": float,
+        "net_generation_mwh": float,
+    }
+)
+
 
 #####################################################################################
 # TransformParams parameter model unit tests
@@ -158,10 +197,27 @@ def test_categorize_strings(series: pd.Series, expected: pd.Series, params) -> N
     assert_series_equal(categorized, expected, check_names=False)
 
 
-# @pytest.mark.parametrize("series,expected,params", [()])
-def test_nullifiy_outliers():
+@pytest.mark.parametrize(
+    "series,expected,params",
+    [
+        pytest.param(
+            NUMERICAL_DATA.year,
+            NUMERICAL_DATA.valid_year,
+            VALID_PLANT_YEARS,
+            id="valid_plant_years",
+        ),
+        pytest.param(
+            NUMERICAL_DATA.capacity_mw,
+            NUMERICAL_DATA.valid_capacity_mw,
+            VALID_CAPACITY_MW,
+            id="valid_capacity_mw",
+        ),
+    ],
+)
+def test_nullify_outliers(series, expected, params):
     """Test outlier nullification function in isolation."""
-    ...
+    valid = nullify_outliers(series, params=ValidRange(**params))
+    assert_series_equal(valid, expected, check_names=False)
 
 
 # @pytest.mark.parametrize("series,expected,params", [()])
