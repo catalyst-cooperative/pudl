@@ -396,7 +396,7 @@ class ValidRange(TransformParams):
     upper_bound: float = np.inf
 
     @validator("upper_bound")
-    def upper_bound_gte_lower_bound(cls, v, values, **kwargs):
+    def upper_bound_gte_lower_bound(cls, v, values):
         """Require upper bound to be greater than or equal to lower bound."""
         if values["lower_bound"] > v:
             raise ValueError("upper_bound must be greater than or equal to lower_bound")
@@ -405,6 +405,8 @@ class ValidRange(TransformParams):
 
 def nullify_outliers(col: pd.Series, params: ValidRange) -> pd.Series:
     """Set any values outside the valid range to NA."""
+    # Surprisingly, pd.to_numeric() dit *not* return a copy of the series!
+    col = col.copy()
     col = pd.to_numeric(col, errors="coerce")
     col[~col.between(params.lower_bound, params.upper_bound)] = np.nan
     return col

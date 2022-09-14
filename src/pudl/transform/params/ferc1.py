@@ -50,6 +50,13 @@ PERKWH_TO_PERMWH = dict(
 )
 """Parameters for converting column units from per kWh to per MWh."""
 
+KW_TO_MW = dict(
+    multiplier=1e-3,
+    from_unit=r"_kw",
+    to_unit=r"_mw",
+)
+"""Parameters for converting column units from kW to MW."""
+
 KWH_TO_MWH = dict(
     multiplier=1e-3,
     from_unit=r"_kwh",

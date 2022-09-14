@@ -30,7 +30,12 @@ from pudl.transform.classes import (
     normalize_strings,
     nullify_outliers,
 )
-from pudl.transform.params.ferc1 import BTU_TO_MMBTU, KWH_TO_MWH, VALID_PLANT_YEARS
+from pudl.transform.params.ferc1 import (
+    BTU_TO_MMBTU,
+    KW_TO_MW,
+    KWH_TO_MWH,
+    VALID_PLANT_YEARS,
+)
 
 ANIMAL_CATS: dict[str, set[str]] = {
     "categories": {
@@ -220,14 +225,37 @@ def test_nullify_outliers(series, expected, params):
     assert_series_equal(valid, expected, check_names=False)
 
 
-# @pytest.mark.parametrize("series,expected,params", [()])
-def test_convert_units():
+@pytest.mark.parametrize(
+    "series,expected,params",
+    [
+        pytest.param(
+            NUMERICAL_DATA.capacity_kw,
+            NUMERICAL_DATA.capacity_mw,
+            KW_TO_MW,
+            id="kw_to_mw",
+        ),
+        pytest.param(
+            NUMERICAL_DATA.net_generation_kwh,
+            NUMERICAL_DATA.net_generation_mwh,
+            KWH_TO_MWH,
+            id="kwh_to_mwh",
+        ),
+    ],
+)
+def test_convert_units(series, expected, params):
     """Test unit conversion function in isolation.
 
-    * Check column names are as expected.
-    * Check that converted values seem correct.
+    * Check column names and converted values are as we expect.
+    * Check that the inverse of the unit conversion gets us back to the original.
+      (this will let us know if the column name substitution has a collision...)
     """
-    ...
+    uc = UnitConversion(**params)
+
+    converted = convert_units(series, params=uc)
+    assert_series_equal(converted, expected)
+
+    converted_back = convert_units(converted, params=uc.inverse())
+    assert_series_equal(converted_back, series)
 
 
 def test_convert_units_round_trip():
