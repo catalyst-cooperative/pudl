@@ -2,20 +2,30 @@
 PUDL Release Notes
 =======================================================================================
 
-.. _release-v2022.08.XX:
+.. _release-v2022.09.XX:
 
 ---------------------------------------------------------------------------------------
-2022.08.XX
+2022.09.XX
 ---------------------------------------------------------------------------------------
 
 Data Coverage
 ^^^^^^^^^^^^^
+* Added archives of the bulk EIA electricity API data to our datastore, since the API
+  itself is too unreliable for production use. This is part of :issue:`1763`. The code
+  for this new data is ``eia_bulk_elec`` and the data comes as a single 200MB zipped
+  JSON file. :pr:`1922` updates the datastore to include
+  `this archive on Zenodo <https://zenodo.org/record/7067367>`__ but most of the work
+  happened in the
+  `pudl-scrapers <https://github.com/catalyst-cooperative/pudl-scrapers>`__ and
+  `pudl-zenodo-storage <https://github.com/catalyst-cooperative/pudl-zenodo-storage>`__
+  repositories. See issue :issue:`catalyst-cooperative/pudl-zenodo-storage#29`.
 * Incorporated 2021 data from the :doc:`data_sources/epacems` dataset. See :pr:`1778`
-* Incorporated 2021 data from the :doc:`data_sources/eia860` and
-  :doc:`data_sources/eia923`. Early Release. Early release data is EIA's preliminary
-  annual release and should be used with caution. We also integrated a ``data_maturity``
-  column and related ``data_maturities`` table into most of the EIA data tables in
-  order to alter users to the level of finality of the data. :pr:`1834` :pr:`1855`
+* Incorporated Early Release 2021 data from the :doc:`data_sources/eia860`,
+  :ref:`data-eia861`, and :doc:`data_sources/eia923`. Early release data is EIA's
+  preliminary annual release and should be used with caution. We also integrated a
+  ``data_maturity`` column and related ``data_maturities`` table into most of the EIA
+  data tables in order to alter users to the level of finality of the data. See
+  :pr:`1834,1855,1915,1921`
 * Incorporated 2022 data from the :doc:`data_sources/eia860` monthly update from June
   2022. See :pr:`1834`. This included adding new ``energy_storage_capacity_mwh`` (for
   batteries) and ``net_capacity_mwdc`` (for behind-the-meter solar PV) attributes to the
@@ -77,6 +87,12 @@ Database Schema Changes
 
 * Renamed ``grid_voltage_kv`` to ``grid_voltage_1_kv`` in the :ref:`plants_eia860`
   table, to follow the pattern of many other multiply reported values.
+* Added a :ref:`balancing_authorities_eia` coding table mapping BA codes found in the
+  :doc:`data_sources/eia860` and :doc:`data_sources/eia923` to their names, cleaning up
+  non-standard codes, and fixing some reporting errors for ``PACW`` vs. ``PACE``
+  (PacifiCorp West vs. East) based on the state associated with the plant reporting the
+  code. Also added backfilling for codes in years before 2013 when BA Codes first
+  started being reported), but only in the output tables. See: :pr:`1906,1911`
 
 Date Merge Helper Function
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
