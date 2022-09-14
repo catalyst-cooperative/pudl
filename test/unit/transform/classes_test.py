@@ -20,6 +20,7 @@ from pydantic import ValidationError
 
 from pudl.transform.classes import (
     AbstractTableTransformer,
+    InvalidRows,
     StringCategories,
     UnitConversion,
     UnitCorrections,
@@ -27,6 +28,7 @@ from pudl.transform.classes import (
     cache_df,
     categorize_strings,
     convert_units,
+    drop_invalid_rows,
     normalize_strings,
     nullify_outliers,
 )
@@ -36,6 +38,11 @@ from pudl.transform.params.ferc1 import (
     KWH_TO_MWH,
     VALID_PLANT_YEARS,
 )
+
+VALID_CAPACITY_MW = {
+    "lower_bound": 0.0,
+    "upper_bound": 4000.0,
+}
 
 ANIMAL_CATS: dict[str, set[str]] = {
     "categories": {
@@ -110,11 +117,6 @@ STRING_DATA: pd.DataFrame = pd.DataFrame(
     }
 )
 
-VALID_CAPACITY_MW = {
-    "lower_bound": 0.0,
-    "upper_bound": 4000,
-}
-
 NUMERICAL_DATA: pd.DataFrame = pd.DataFrame(
     columns=[
         "id",
@@ -133,6 +135,7 @@ NUMERICAL_DATA: pd.DataFrame = pd.DataFrame(
         (4, 2076, pd.NA, 4000.0, 4.0, 4.0, 4e6, 4000.0),
         (5, pd.NA, pd.NA, 5000.0, 5.0, 5.0, 5e6, 5000.0),
         (6, 2000, 2000, 6e6, 6000.0, np.nan, 6e6, 6000.0),
+        (7, pd.NA, pd.NA, np.nan, np.nan, np.nan, 0.0, 0.0),
     ],
 ).astype(
     {
@@ -299,10 +302,74 @@ def test_correct_units():
     ...
 
 
-# @pytest.mark.parametrize("series,expected,params", [()])
-def test_drop_invalid_rows():
+@pytest.mark.parametrize(
+    "df,expected,params,raises",
+    [
+        (
+            pytest.param(
+                NUMERICAL_DATA,
+                NUMERICAL_DATA.loc[NUMERICAL_DATA.id.isin([1, 2, 3, 4, 5, 6])],
+                dict(
+                    invalid_values=[0, pd.NA, np.nan],
+                    required_valid_cols=[
+                        "valid_year",
+                        "valid_capacity_mw",
+                        "net_generation_mwh",
+                    ],
+                ),
+                does_not_raise(),
+                id="required_valid_cols",
+            )
+        ),
+        (
+            pytest.param(
+                NUMERICAL_DATA,
+                NUMERICAL_DATA.loc[NUMERICAL_DATA.id.isin([1, 2, 3, 4, 5, 6])],
+                dict(
+                    invalid_values=[0, pd.NA, np.nan],
+                    allowed_invalid_cols=[
+                        "id",
+                        "year",
+                        "capacity_kw",
+                        "capacity_mw",
+                        "net_generation_kwh",
+                    ],
+                ),
+                does_not_raise(),
+                id="allowed_invalid_cols",
+            )
+        ),
+        (
+            pytest.param(
+                NUMERICAL_DATA,
+                NUMERICAL_DATA.loc[NUMERICAL_DATA.id.isin([1, 2, 3, 4, 5, 6])],
+                dict(
+                    invalid_values=[0, pd.NA, np.nan],
+                    required_valid_cols=[
+                        "valid_year",
+                        "valid_capacity_mw",
+                        "net_generation_mwh",
+                    ],
+                    allowed_invalid_cols=[
+                        "id",
+                        "year",
+                        "capacity_kw",
+                        "capacity_mw",
+                        "net_generation_kwh",
+                    ],
+                ),
+                pytest.raises(ValidationError),
+                id="params_validation_error",
+            )
+        ),
+    ],
+)
+def test_drop_invalid_rows(df, expected, params, raises):
     """Test our ability to select and drop invalid rows."""
-    ...
+    with raises:
+        invalid_row = InvalidRows(**params)
+        actual = drop_invalid_rows(df, params=invalid_row)
+        assert_frame_equal(actual, expected)
 
 
 #####################################################################################
@@ -351,7 +418,7 @@ class TestTableTransformer(AbstractTableTransformer):
         # pytest.param(UNITS_DF, UNITS_PARAMS, UNITS_EXPECTED, id="unit_conversion"),
     ],
 )
-def test_transform(df, params, expected):
+def test_transform(df, expected, params):
     """Test the use of general transforms as part of a TableTransfomer class."""
     transformer = TestTableTransformer(
         params=params, cache_dfs=True, clear_cached_dfs=False
