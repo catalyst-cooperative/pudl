@@ -11,7 +11,7 @@ import warnings
 import pandas as pd
 
 from pudl.extract import excel
-from pudl.helpers import fix_leading_zero_gen_ids
+from pudl.helpers import remove_leading_zeros_from_numeric_strings
 from pudl.settings import Eia861Settings
 
 logger = logging.getLogger(__name__)
@@ -46,7 +46,11 @@ class Extractor(excel.GenericExtractor):
             )
         )
         self.cols_added = []
-        df = fix_leading_zero_gen_ids(df)
+        # Eventually we should probably make this a transform
+        if "generator_id" in df.columns:
+            df = remove_leading_zeros_from_numeric_strings(
+                df=df, col_name="generator_id"
+            )
         df = self.add_data_maturity(df, page, **partition)
         return df
 
