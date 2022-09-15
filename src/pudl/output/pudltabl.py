@@ -1213,6 +1213,28 @@ class PudlTabl:
 
         return self._dfs["plant_parts_eia"]
 
+    ###########################################################################
+    # GLUE OUTPUTS
+    ###########################################################################
+
+    def epacamd_eia(
+        self,
+        update: bool = False,
+    ) -> pd.DataFrame:
+        """Pull the EPACAMD-EIA Crosswalk Table.
+
+        Args:
+            update: If true, re-calculate the output dataframe, even if
+                a cached version exists.
+
+        Returns:
+            A denormalized table for interactive use.
+
+        """
+        if update or self._dfs["epacamd_eia"] is None:
+            self._dfs["epacamd_eia"] = pudl.output.epacems.epacamd_eia(self.pudl_engine)
+        return self._dfs["epacamd_eia"]
+
 
 def get_table_meta(pudl_engine):
     """Grab the pudl sqlitie database table metadata."""

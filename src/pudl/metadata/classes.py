@@ -912,7 +912,7 @@ class DataSource(Base):
     email: Email = None
 
     def get_resource_ids(self) -> list[str]:
-        """Compile list of resoruce IDs associated with this data source."""
+        """Compile list of resource IDs associated with this data source."""
         # Temporary check to use eia861.RESOURCE_METADATA directly
         # eia861 is not currently included in the general RESOURCE_METADATA dict
         resources = RESOURCE_METADATA
