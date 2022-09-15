@@ -67,7 +67,7 @@ PUDL currently integrates data from:
   early release - use with caution)
 * `EIA Form 923 <https://www.eia.gov/electricity/data/eia923/>`__: 2001-2021  (2021 is
   early release - use with caution)
-* `EPA Continuous Emissions Monitoring System (CEMS) <https://ampd.epa.gov/ampd/>`__: 1995-2021
+* `EPA Continuous Emissions Monitoring System (CEMS) <https://campd.epa.gov/>`__: 1995-2021
 * `FERC Form 1 <https://www.ferc.gov/industries-data/electric/general-information/electric-industry-forms/form-1-electric-utility-annual>`__: 1994-2020
 * `FERC Form 714 <https://www.ferc.gov/industries-data/electric/general-information/electric-industry-forms/form-no-714-annual-electric/data>`__: 2006-2020
 * `US Census Demographic Profile 1 Geodatabase <https://www.census.gov/geographies/mapping-files/2010/geo/tiger-data.html>`__: 2010

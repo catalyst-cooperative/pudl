@@ -418,6 +418,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
         "description": "FERC Account 102: Electric Plant Sold (Negative).",
     },
+    "emissions_unit_id_epa": {
+        "type": "string",
+        "description": "Emissions (smokestack) unit monitored by EPA CEMS.",
+    },
     "energy_charges": {
         "type": "number",
         "description": "Energy charges (USD).",
@@ -530,7 +534,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
         "description": "FERC Account 103: Experimental Plant Unclassified.",
     },
-    "facility_id": {"type": "integer", "description": "New EPA plant ID."},
     "ferc_account_id": {
         "type": "string",
         "description": "Account number, from FERC's Uniform System of Accounts for Electric Plant. Also includes higher level labeled categories.",
@@ -762,6 +765,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "Generator ID is usually numeric, but sometimes includes letters. Make "
             "sure you treat it as a string!"
         ),
+    },
+    "generator_id_epa": {
+        "type": "string",
+        "description": "Generator ID used by the EPA.",
     },
     "generators_num_less_1_mw": {"type": "number", "unit": "MW"},
     "generators_number": {"type": "number"},
@@ -1057,16 +1064,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "unit": "lb",
     },
     "nox_mass_measurement_code": {
-        "type": "string",
-        "description": "Identifies whether the reported value of emissions was measured, calculated, or measured and substitute.",
-        "constraints": {"enum": EPACEMS_MEASUREMENT_CODES},
-    },
-    "nox_rate_lbs_mmbtu": {
-        "type": "number",
-        "description": "The average rate at which NOx was emitted during a given time period.",
-        "unit": "lb_per_MMBtu",
-    },
-    "nox_rate_measurement_code": {
         "type": "string",
         "description": "Identifies whether the reported value of emissions was measured, calculated, or measured and substitute.",
         "constraints": {"enum": EPACEMS_MEASUREMENT_CODES},
@@ -1948,17 +1945,9 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "EIA-assigned unit identification code.",
     },
-    "unit_id_epa": {
-        "type": "string",
-        "description": "Emissions (smokestake) unit monitored by EPA CEMS.",
-    },
     "unit_id_pudl": {
         "type": "integer",
         "description": "Dynamically assigned PUDL unit id. WARNING: This ID is not guaranteed to be static long term as the input data and algorithm may evolve over time.",
-    },
-    "unitid": {
-        "type": "string",
-        "description": "Facility-specific unit id (e.g. Unit 4)",
     },
     "uprate_derate_completed_date": {
         "type": "date",
@@ -2058,27 +2047,7 @@ Keys are in alphabetical order.
 FIELD_METADATA_BY_GROUP: dict[str, dict[str, Any]] = {
     "epacems": {
         "state": {"constraints": {"enum": EPACEMS_STATES}},
-        "gross_load_mw": {
-            "constraints": {
-                "required": True,
-            }
-        },
-        "heat_content_mmbtu": {
-            "constraints": {
-                "required": True,
-            }
-        },
         "operating_datetime_utc": {
-            "constraints": {
-                "required": True,
-            }
-        },
-        "plant_id_eia": {
-            "constraints": {
-                "required": True,
-            }
-        },
-        "unitid": {
             "constraints": {
                 "required": True,
             }
