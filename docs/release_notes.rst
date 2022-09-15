@@ -2,27 +2,45 @@
 PUDL Release Notes
 =======================================================================================
 
-.. _release-v2022.08.XX:
+.. _release-v2022.09.XX:
 
 ---------------------------------------------------------------------------------------
-2022.08.XX
+2022.09.XX
 ---------------------------------------------------------------------------------------
 
 Data Coverage
 ^^^^^^^^^^^^^
+* Added archives of the bulk EIA electricity API data to our datastore, since the API
+  itself is too unreliable for production use. This is part of :issue:`1763`. The code
+  for this new data is ``eia_bulk_elec`` and the data comes as a single 200MB zipped
+  JSON file. :pr:`1922` updates the datastore to include
+  `this archive on Zenodo <https://zenodo.org/record/7067367>`__ but most of the work
+  happened in the
+  `pudl-scrapers <https://github.com/catalyst-cooperative/pudl-scrapers>`__ and
+  `pudl-zenodo-storage <https://github.com/catalyst-cooperative/pudl-zenodo-storage>`__
+  repositories. See issue :issue:`catalyst-cooperative/pudl-zenodo-storage#29`.
 * Incorporated 2021 data from the :doc:`data_sources/epacems` dataset. See :pr:`1778`
-* Incorporated 2021 data from the :doc:`data_sources/eia860` and
-  :doc:`data_sources/eia923`. Early Release. Early release data is EIA's preliminary
-  annual release and should be used with caution. We also integrated a ``data_maturity``
-  column and related ``data_maturities`` table into most of the EIA data tables in
-  order to alter users to the level of finality of the data. :pr:`1834` :pr:`1855`
+* Incorporated Early Release 2021 data from the :doc:`data_sources/eia860`,
+  :ref:`data-eia861`, and :doc:`data_sources/eia923`. Early release data is EIA's
+  preliminary annual release and should be used with caution. We also integrated a
+  ``data_maturity`` column and related ``data_maturities`` table into most of the EIA
+  data tables in order to alter users to the level of finality of the data. See
+  :pr:`1834,1855,1915,1921`
 * Incorporated 2022 data from the :doc:`data_sources/eia860` monthly update from June
   2022. See :pr:`1834`. This included adding new ``energy_storage_capacity_mwh`` (for
   batteries) and ``net_capacity_mwdc`` (for behind-the-meter solar PV) attributes to the
   :ref:`generators_eia860` table, as they appear in the :doc:`data_sources/eia860`
   monthly updates for 2022.
-* We've integrated several new columns into the EIA 860 and EIA 923 including several
+* Integrated several new columns into the EIA 860 and EIA 923 including several
   codes with coding tables (See :doc:`data_dictionaries/codes_and_labels`). :pr:`1836`
+* Added the `EPACAMD-EIA Crosswalk <https://github.com/USEPA/camd-eia-crosswalk>`__ to
+  the database. Previously, the crosswalk was a csv stored in ``package_data/glue``,
+  but now it has its own scraper
+  :pr:`https://github.com/catalyst-cooperative/pudl-scrapers/pull/20`, archiver,
+  :pr:`https://github.com/catalyst-cooperative/pudl-zenodo-storage/pull/20`
+  and place in the PUDL db. For now there's a ``epacamd_eia`` output table you can use
+  to merge CEMS and EIA data yourself :pr:`1692`. Eventually we'll work these crosswalk
+  values into an output table combining CEMS and EIA.
 
 Nightly Data Builds
 ^^^^^^^^^^^^^^^^^^^
@@ -77,9 +95,30 @@ Database Schema Changes
 
 * Renamed ``grid_voltage_kv`` to ``grid_voltage_1_kv`` in the :ref:`plants_eia860`
   table, to follow the pattern of many other multiply reported values.
+* Added a :ref:`balancing_authorities_eia` coding table mapping BA codes found in the
+  :doc:`data_sources/eia860` and :doc:`data_sources/eia923` to their names, cleaning up
+  non-standard codes, and fixing some reporting errors for ``PACW`` vs. ``PACE``
+  (PacifiCorp West vs. East) based on the state associated with the plant reporting the
+  code. Also added backfilling for codes in years before 2013 when BA Codes first
+  started being reported, but only in the output tables. See: :pr:`1906,1911`
+* Renamed and removed some columns in the :doc:`data_sources/epacems` dataset.
+  ``unitid`` was changed to ``emissions_unit_id_epa`` to clarify the type of unit it
+  represents. ``unit_id_epa`` was removed because it is a unique identifyer for
+  ``emissions_unit_id_epa`` and not otherwise useful or transferable to other datasets.
+  ``facility_id`` was removed because it is specific to EPA's internal database and does
+  not aid in connection with other data. :pr:`1692`
 
-Date Merge Helper Function
-^^^^^^^^^^^^^^^^^^^^^^^^^^
+Data Accuracy
+^^^^^^^^^^^^^
+* Retain NA values for :doc:`data_sources/epacems` fields ``gross_load_mw`` and
+  ``heat_content_mmbtu``. Previously, these fields converted NA to 0, but this is not
+  accurate, so we removed this step.
+* Update the ``plant_id_eia`` field from :doc:`data_sources/epacems` with values from
+  the newly integrated ``epacamd_eia`` crosswalk as not all EPA's ORISPL codes are
+  correct.
+
+Helper Function Updates
+^^^^^^^^^^^^^^^^^^^^^^^
 * Replaced the PUDL helper function ``clean_merge_asof`` that merged two dataframes
   reported on different temporal granularities, for example monthly vs yearly data.
   The reworked function, :mod:`pudl.helpers.date_merge`, is more encapsulating and
@@ -94,6 +133,10 @@ Date Merge Helper Function
   makes this function optionally used to generate the MCOE table that includes a full
   monthly timeseries even in years when annually reported generators don't have
   matching monthly data. See :pr:`1550`
+* Updated the ``fix_leading_zero_gen_ids`` fuction by changing the name to
+  ``remove_leading_zeros_from_numeric_strings`` because it's used to fix more than just
+  the ``generator_id`` column. Included a new argument to specify which column you'd
+  like to fix.
 
 Plant Parts List Module Changes
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -121,6 +164,14 @@ Metadata
 ^^^^^^^^
 * Used the data source metadata class added in release 0.6.0 to dynamically generate
   the data source documentation (See :doc:`data_sources/index`). :pr:`1532`
+
+Documentation
+^^^^^^^^^^^^^
+* Fixed broken links in the documentation since the Air Markets Program Data (AMPD)
+  changed to Clean Air Markets Data (CAMD).
+* Added graphics and clearer descriptions of EPA data and reporting requirements to the
+  :doc:`data_sources/epacems` page. Also included information about the ``epacamd_eia``
+  crosswalk.
 
 Bug Fixes
 ^^^^^^^^^
