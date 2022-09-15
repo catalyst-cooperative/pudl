@@ -45,6 +45,10 @@ import networkx as nx
 import pandas as pd
 
 
+def test_func():
+    """Simple test."""
+
+
 def _get_unique_keys(epacems: pd.DataFrame | dd.DataFrame) -> pd.DataFrame:
     """Get unique unit IDs from CEMS data.
 
