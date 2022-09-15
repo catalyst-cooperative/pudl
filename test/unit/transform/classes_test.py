@@ -22,6 +22,7 @@ from pudl.transform.classes import (
     AbstractTableTransformer,
     InvalidRows,
     StringCategories,
+    StringNormalization,
     UnitConversion,
     UnitCorrections,
     ValidRange,
@@ -34,6 +35,7 @@ from pudl.transform.classes import (
 )
 from pudl.transform.params.ferc1 import (
     BTU_TO_MMBTU,
+    FERC1_STRING_NORM,
     KW_TO_MW,
     KWH_TO_MWH,
     VALID_PLANT_YEARS,
@@ -96,19 +98,25 @@ STRING_DATA: pd.DataFrame = pd.DataFrame(
     data=[
         ("gato", "gato", "cat"),
         ("NEKO", "neko", "cat"),
+        ("猫", "", pd.NA),
+        ("ねこ", "", pd.NA),
+        ("ネコ", "", pd.NA),
+        ("\ua000", "", pd.NA),
         ("cAt", "cat", "cat"),
         (" lion ", "lion", "cat"),
         ("\tlion\t", "lion", "cat"),
-        ("pUmA", "puma", "cat"),
-        ("wolf", "wolf", "dog"),
+        ("püma", "puma", "cat"),
+        ("wolf?", "wolf", "dog"),
         ("dire\t      \twolf  ", "dire wolf", "dog"),
-        ("hyena", "hyena", pd.NA),
+        ("hyeña", "hyena", pd.NA),
         ("ta66y", "ta66y", "cat"),
+        ("pu$$y", "puy", pd.NA),
         ("", "", pd.NA),
         (pd.NA, "", pd.NA),
         (" ", "", pd.NA),
         (" \t ", "", pd.NA),
         ("\t\t", "", pd.NA),
+        ("\x02steam (1)", "steam (1)", pd.NA),
     ],
 ).astype(
     {
@@ -247,10 +255,12 @@ def test_invalid_row_validation(invalid_rows, expectation):
 # Series transformation unit tests
 # These transform functions take and return single columns.
 #####################################################################################
-@pytest.mark.parametrize("series,expected", [(STRING_DATA.raw, STRING_DATA.norm)])
-def test_normalize_strings(series: pd.Series, expected: pd.Series) -> None:
+@pytest.mark.parametrize(
+    "series,expected,params", [(STRING_DATA.raw, STRING_DATA.norm, FERC1_STRING_NORM)]
+)
+def test_normalize_strings(series: pd.Series, expected: pd.Series, params) -> None:
     """Test our string normalization function in isolation."""
-    normalized = normalize_strings(series)
+    normalized = normalize_strings(series, StringNormalization(**params))
     assert_series_equal(normalized, expected, check_names=False)
 
 

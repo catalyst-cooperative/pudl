@@ -148,6 +148,14 @@ VALID_OIL_USD_PER_MMBTU = {
 """Historical petroleum price range from the EIA-923 Fuel Receipts and Costs table."""
 
 ##############################################################################
+# String normalizations
+##############################################################################
+FERC1_STRING_NORM = {
+    "remove_chars": r"$?={}\x02\x00",
+    "nullable": False,
+}
+
+##############################################################################
 # String categorizations
 ##############################################################################
 FUEL_CATEGORIES: dict[str, set[str]] = {
@@ -254,12 +262,12 @@ FUEL_CATEGORIES: dict[str, set[str]] = {
             "jet fuel",
             "diesel/compos",
             "oil-8",
-            "oil {6}",  # noqa: FS003
             "oil-unit #1",
             "bbl.",
             "oil.",
             "oil #6",
             "oil (6)",
+            "oil 6",
             "oil(#2)",
             "oil-unit1&2",
             "oil-6",
@@ -387,12 +395,9 @@ FUEL_CATEGORIES: dict[str, set[str]] = {
             "comb.",
             "alt. fuels",
             "comb",
-            "/#=2\x80â\x91?",
-            "kã\xadgv¸\x9d?",
             "mbtu's",
             "gas, oil",
             "rrm",
-            "3\x9c",
             "average",
             "furfural",
             "0",
@@ -427,10 +432,10 @@ FUEL_CATEGORIES: dict[str, set[str]] = {
             "alt. fuel",
             "bio fuel",
             "total prairie",
-            "kã\xadgv¸?",
+            "kagv",
             "m",
             "waste heat",
-            "/#=2â?",
+            "/#2a",
             "3",
             "—",
         },
@@ -700,7 +705,7 @@ FUEL_UNIT_CATEGORIES: dict[str, set[str]] = {
             "(7)",
             "oil #2",
             "oil #6",
-            '\x99å\x83\x90?"',
+            'a"',
             "dekatherm",
             "0",
             "mw day/therml",
@@ -755,7 +760,6 @@ FUEL_UNIT_CATEGORIES: dict[str, set[str]] = {
             "708903",
             "mcf/oil (1000",
             "344",
-            'å?"',
             "mcf / gallen",
             "none",
             "—",
@@ -842,7 +846,6 @@ PLANT_TYPE_CATEGORIES: dict[str, set[str]] = {
             "resp share stm note3",
             "mpc50% share steam",
             "resp share st note 3",
-            "\x02steam (1)",
             "coal fired steam tur",
             "coal fired steam turbine",
             "steam- 64%",
@@ -1621,9 +1624,9 @@ TRANSFORM_PARAMS = {
             "fuel_cost_per_kwh": PERKWH_TO_PERMWH,
         },
         "normalize_strings": {
-            "plant_name_ferc1": True,
-            "fuel_type_code_pudl": True,
-            "fuel_units": True,
+            "plant_name_ferc1": FERC1_STRING_NORM,
+            "fuel_type_code_pudl": FERC1_STRING_NORM,
+            "fuel_units": FERC1_STRING_NORM,
         },
         "correct_units": [
             {
@@ -1786,9 +1789,9 @@ TRANSFORM_PARAMS = {
             },
         },
         "normalize_strings": {
-            "plant_name_ferc1": True,
-            "construction_type": True,
-            "plant_type": True,
+            "plant_name_ferc1": FERC1_STRING_NORM,
+            "construction_type": FERC1_STRING_NORM,
+            "plant_type": FERC1_STRING_NORM,
         },
         "nullify_outliers": {
             "construction_year": VALID_PLANT_YEARS,

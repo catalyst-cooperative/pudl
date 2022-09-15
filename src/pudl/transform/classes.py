@@ -202,19 +202,28 @@ class RenameColumns(TransformParams):
 ################################################################################
 # Normalize Strings
 ################################################################################
-def normalize_strings(
-    col: pd.Series, nullable: bool = False, params: bool = True
-) -> pd.Series:
+class StringNormalization(TransformParams):
+    """Options to control string normalization."""
+
+    remove_chars: str
+    """A string of individual ASCII characters removed at the end of normalization."""
+
+    nullable: bool = False
+    """Whether the string should be cast to the nullable :class:`pd.StringDtype`"""
+
+
+def normalize_strings(col: pd.Series, params: StringNormalization) -> pd.Series:
     """Derive a canonical version of the strings in the column.
 
     Transformations include:
 
-    * Conversion to Pandas nullable String data type.
-    * Removal of some non-printable characters.
-    * Unicode composite character decomposition.
-    * Translation to lower case.
-    * Stripping of leading and trailing whitespace.
-    * Consolidation of multiple consecutive whitespace characters into a single space.
+    * Convert to :class:`pd.StringDtype`.
+    * Decompose composite unicode characters.
+    * Translate to ASCII character equivalents if they exist.
+    * Translate to lower case.
+    * Strip leading and trailing whitespace.
+    * Consolidate multiple internal whitespace characters into a single space.
+    * Remove selected rare confounding punctuation marks.
 
     This transform function has no associated TransformParams since it is simply a
     dictionary with column names as keys and booleans as the values.
@@ -225,18 +234,19 @@ def normalize_strings(
             python string, with pd.NA replaced with the empty string.
         params: Whether to do a transform at all. Included to keep the call signature
             of the function the same as the other column transformations.
-
     """
     if params:
         col = (
             col.astype(pd.StringDtype())
-            .str.replace(r"[\x00-\x1f\x7f-\x9f]", "", regex=True)
             .str.normalize("NFKD")
+            .str.encode("ascii", errors="ignore")
+            .str.decode("ascii", errors="ignore")
             .str.lower()
-            .str.strip()
+            .str.replace(r"[" + params.remove_chars + r"]+", "", regex=True)
             .str.replace(r"\s+", " ", regex=True)
+            .str.strip()
         )
-        if not nullable:
+        if not params.nullable:
             col = col.fillna("").astype(str)
     return col
 
@@ -632,7 +642,7 @@ class TableTransformParams(TransformParams):
     convert_units: dict[str, UnitConversion] = {}
     categorize_strings: dict[str, StringCategories] = {}
     nullify_outliers: dict[str, ValidRange] = {}
-    normalize_strings: dict[str, bool] = {}
+    normalize_strings: dict[str, StringNormalization] = {}
     correct_units: list[UnitCorrections] = []
     drop_invalid_rows: InvalidRows = {}
 
