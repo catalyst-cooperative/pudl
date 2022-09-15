@@ -5,27 +5,19 @@ from pathlib import Path
 
 import dask.dataframe as dd
 import pandas as pd
+import sqlalchemy as sa
 
 import pudl
 from pudl.settings import EpaCemsSettings
 
-# TODO: hardcoded data version doesn't belong here, but will defer fixing it until
-# the crosswalk is formally integrated into PUDL. See Issue #1123
-EPA_CROSSWALK_RELEASE = (
-    "https://github.com/USEPA/camd-eia-crosswalk/releases/download/v0.2.1/"
-)
 
-
-def epa_crosswalk() -> pd.DataFrame:
-    # TODO: formally integrate this into PUDL. See Issue #1123
-    """Read EPA/EIA crosswalk from EPA github repo.
-
-    See https://github.com/USEPA/camd-eia-crosswalk for details and data dictionary
-
-    Returns:
-        pd.Dataframe: EPA/EIA crosswalk
-    """
-    return pd.read_csv(EPA_CROSSWALK_RELEASE + "epa_eia_crosswalk.csv")
+def epacamd_eia(pudl_engine: sa.engine.Engine) -> pd.DataFrame:
+    """Pull the EPACAMD-EIA Crosswalk table."""
+    pt = pudl.output.pudltabl.get_table_meta(pudl_engine)
+    crosswalk_tbl = pt["epacamd_eia"]
+    crosswalk_select = sa.sql.select(crosswalk_tbl)
+    crosswalk_df = pd.read_sql(crosswalk_select, pudl_engine)
+    return crosswalk_df
 
 
 def year_state_filter(

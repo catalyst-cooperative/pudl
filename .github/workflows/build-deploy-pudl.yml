@@ -107,7 +107,7 @@ jobs:
 
       - name: Post to a pudl-deployments channel
         id: slack
-        uses: slackapi/slack-github-action@v1.21.0
+        uses: slackapi/slack-github-action@v1.22.0
         with:
           channel-id: "C03FHB9N0PQ"
           slack-message: "build-deploy-pudl status: ${{ job.status }}\n${{ env.ACTION_SHA }}-${{ env.GITHUB_REF }}"

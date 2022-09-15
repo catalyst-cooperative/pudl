@@ -256,6 +256,12 @@ def etl_epacems(
             "No plants_eia860 available in the PUDL DB! Have you run the ETL? "
             f"Trying to access PUDL DB: {pudl_engine}"
         )
+    # Verify that we have a PUDL DB with crosswalk data
+    if "epacamd_eia" not in inspector.get_table_names():
+        raise RuntimeError(
+            "No EPACAMD-EIA Crosswalk available in the PUDL DB! Have you run the ETL? "
+            f"Trying to access PUDL DB: {pudl_engine}"
+        )
 
     eia_plant_years = pd.read_sql(
         """
@@ -331,11 +337,27 @@ def etl_epacems(
 ###############################################################################
 # GLUE AND STATIC EXPORT FUNCTIONS
 ###############################################################################
-def _etl_glue(glue_settings: GlueSettings) -> dict[str, pd.DataFrame]:
+def _etl_glue(
+    glue_settings: GlueSettings,
+    ds_kwargs: dict[str, Any],
+    sqlite_dfs: dict[str, pd.DataFrame],
+    eia_settings: EiaSettings,
+) -> dict[str, pd.DataFrame]:
     """Extract, transform and load CSVs for the Glue tables.
 
     Args:
         glue_settings: Validated ETL parameters required by this data source.
+        ds_kwargs: Keyword arguments for instantiating a PUDL datastore, so that the ETL
+            can access the raw input data.
+        sqlite_dfs: The dictionary of dataframes to be loaded into the pudl database.
+            We pass the dictionary though because the EPACAMD-EIA crosswalk needs to
+            know which EIA plants and generators are being loaded into the database
+            (based on whether we run the full or fast etl). The tests will break if we
+            pass the generators_entity_eia table as an argument because of the
+            ferc1_solo test (where no eia tables are in the sqlite_dfs dict). Passing
+            the whole dict avoids this because the crosswalk will only load if there
+            are eia tables in the dict, but the dict will always be there.
+        eia_settings: Validated ETL parameters required by this data source.
 
     Returns:
         A dictionary of DataFrames whose keys are the names of the corresponding
@@ -350,8 +372,22 @@ def _etl_glue(glue_settings: GlueSettings) -> dict[str, pd.DataFrame]:
 
     # Add the EPA to EIA crosswalk, but only if the eia data is being processed.
     # Otherwise the foreign key references will have nothing to point at:
+    ds = Datastore(**ds_kwargs)
     if glue_settings.eia:
-        glue_dfs.update(pudl.glue.eia_epacems.grab_clean_split())
+        # Check to see whether the settings file indicates the processing of all
+        # available EIA years.
+        processing_all_eia_years = (
+            eia_settings.eia860.years
+            == eia_settings.eia860.data_source.working_partitions["years"]
+        )
+        glue_raw_dfs = pudl.glue.epacamd_eia.extract(ds)
+        glue_transformed_dfs = pudl.glue.epacamd_eia.transform(
+            glue_raw_dfs,
+            sqlite_dfs["generators_entity_eia"],
+            sqlite_dfs["boilers_entity_eia"],
+            processing_all_eia_years,
+        )
+        glue_dfs.update(glue_transformed_dfs)
 
     return glue_dfs
 
@@ -453,7 +489,9 @@ def etl(  # noqa: C901
     if datasets.get("eia", False):
         sqlite_dfs.update(_etl_eia(datasets["eia"], ds_kwargs))
     if datasets.get("glue", False):
-        sqlite_dfs.update(_etl_glue(datasets["glue"]))
+        sqlite_dfs.update(
+            _etl_glue(datasets["glue"], ds_kwargs, sqlite_dfs, datasets["eia"])
+        )
 
     # Load the ferc1 + eia data directly into the SQLite DB:
     pudl_engine = sa.create_engine(pudl_settings["pudl_db"])
