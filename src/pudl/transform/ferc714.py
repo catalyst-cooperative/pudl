@@ -325,13 +325,15 @@ def _standardize_offset_codes(df, offset_fixes):
         Standardized UTC offset codes.
     """
     logger.debug("Standardizing UTC offset codes.")
-    # Treat empty string as missing
-    is_blank = df["utc_offset_code"] == ""
-    code = df["utc_offset_code"].mask(is_blank)
+    # We only need a couple of columns here:
+    codes = df[["respondent_id_ferc714", "utc_offset_code"]].copy()
+    # Set all blank "" missing UTC codes to np.nan
+    codes["utc_offset_code"] = codes.utc_offset_code.mask(codes.utc_offset_code == "")
     # Apply specific fixes on a per-respondent basis:
-    return code.groupby(df["respondent_id_ferc714"]).apply(
+    codes = codes.groupby("respondent_id_ferc714").transform(
         lambda x: x.replace(offset_fixes[x.name]) if x.name in offset_fixes else x
     )
+    return codes
 
 
 def _log_dupes(df, dupe_cols):
@@ -404,7 +406,7 @@ def demand_hourly_pa(tfr_dfs):
         year: set(pd.date_range(f"{year}-01-01", f"{year}-12-31", freq="1D"))
         for year in range(df["report_year"].min(), df["report_year"].max() + 1)
     }
-    assert (
+    assert (  # nosec B101
         df.groupby(["respondent_id_ferc714", "report_year"])
         .apply(lambda x: set(x["report_date"]) == all_dates[x.name[1]])
         .all()
@@ -412,7 +414,8 @@ def demand_hourly_pa(tfr_dfs):
 
     # Clean UTC offset codes
     df["utc_offset_code"] = df["utc_offset_code"].str.strip().str.upper()
-    df["utc_offset_code"] = df.pipe(_standardize_offset_codes, OFFSET_CODE_FIXES)
+    df["utc_offset_code"] = _standardize_offset_codes(df, OFFSET_CODE_FIXES)
+
     # NOTE: Assumes constant timezone for entire year
     for fix in OFFSET_CODE_FIXES_BY_YEAR:
         mask = (df["report_year"] == fix["report_year"]) & (
@@ -450,7 +453,7 @@ def demand_hourly_pa(tfr_dfs):
 
     # Assert that all records missing UTC offset have zero demand
     missing_offset = df["utc_offset"].isna()
-    assert df.loc[missing_offset, "demand_mwh"].eq(0).all()
+    assert df.loc[missing_offset, "demand_mwh"].eq(0).all()  # nosec B101
     # Drop these records
     df.query("~@missing_offset", inplace=True)
 
