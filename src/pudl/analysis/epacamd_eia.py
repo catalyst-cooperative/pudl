@@ -240,6 +240,10 @@ def make_subplant_ids(crosswalk: pd.DataFrame) -> pd.DataFrame:
     filtered_crosswalk = filter_crosswalk(epacamd_eia, epacems)
     crosswalk_with_subplant_ids = make_subplant_ids(filtered_crosswalk)
 
+    Note that sub-plant ids should be used in conjunction with `plant_id_eia` vs.
+    `plant_id_epa` because the former is more granular and integrated into CEMS during
+    the transform process.
+
     Args:
         crosswalk (pd.DataFrame): The epacamd_eia crosswalk
 
