@@ -60,7 +60,7 @@ jobs:
 
       - name: Sync internal and public caches
         run: |
-          gsutil -m rsync -dr ${{ env.INTERNAL_ZENODO_CACHE_BUCKET }} ${{ env.PUBLIC_ZENODO_CACHE_BUCKET }}
+          gsutil -u catalyst-cooperative-pudl -m rsync -dr ${{ env.INTERNAL_ZENODO_CACHE_BUCKET }} ${{ env.PUBLIC_ZENODO_CACHE_BUCKET }}
 
   zenodo-cache-sync-notify:
     runs-on: ubuntu-latest
