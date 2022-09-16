@@ -58,7 +58,7 @@ setup(
         "gcsfs>=2021.7,<2022.8.3",  # For caching datastore on GCS
         "geopandas>=0.9,<0.12",
         "jinja2>=2,<3.2",
-        "matplotlib>=3.3,<3.6",  # Should make this optional with a "viz" extras
+        "matplotlib>=3.3,<3.7",  # Should make this optional with a "viz" extras
         "networkx>=2.2,<2.9",
         "numpy>=1.18.5,<1.24,!=1.23.0",
         "pandas==1.5.0rc0",
