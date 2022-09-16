@@ -3,6 +3,9 @@ name: zenodo-cache-sync
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - zenodo-cache-action # For testing purposes
   schedule:
     - cron: "0 6 * * 1-5" # Weekdays at midnight on MST
 
