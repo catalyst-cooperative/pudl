@@ -44,6 +44,10 @@ jobs:
           conda config --show
           printenv | sort
 
+      - name: Install pudl package
+        run: |
+          pip install --editable ./
+
       - name: Set default gcp credentials
         id: gcloud-auth
         uses: "google-github-actions/auth@v0"
@@ -52,7 +56,6 @@ jobs:
 
       - name: Update GCS cache with any new Zenodo archives
         run: |
-          conda activate pudl-test
           pudl_datastore --gcs-cache-path ${{ env.INTERNAL_ZENODO_CACHE_BUCKET }} --bypass-local-cache --loglevel DEBUG
 
       - name: Sync internal and public caches
