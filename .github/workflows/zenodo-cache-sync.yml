@@ -54,6 +54,9 @@ jobs:
         with:
           credentials_json: "${{ secrets.ZENODO_CACHE_MANAGER_SA_KEY }}"
 
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v0
+
       - name: Update GCS cache with any new Zenodo archives
         run: |
           pudl_datastore --gcs-cache-path ${{ env.INTERNAL_ZENODO_CACHE_BUCKET }} --bypass-local-cache --loglevel DEBUG
