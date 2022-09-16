@@ -38,7 +38,6 @@ epacamd_eia = pudl_out.epacamd_eia()
 filtered_crosswalk = filter_crosswalk(epacamd_eia, epacems)
 crosswalk_with_subplant_ids = make_subplant_ids(filtered_crosswalk)
 """
-# from typing import Union
 
 import dask.dataframe as dd
 import networkx as nx
@@ -251,5 +250,5 @@ def make_subplant_ids(crosswalk: pd.DataFrame) -> pd.DataFrame:
     edge_list = _prep_for_networkx(crosswalk)
     edge_list = _subplant_ids_from_prepped_crosswalk(edge_list)
     edge_list = _convert_global_id_to_composite_id(edge_list)
-    column_order = ["subplant_id"] + list(crosswalk.columns)
-    return edge_list[column_order]  # reorder and drop global_subplant_id
+    # column_order = ["subplant_id"] + list(crosswalk.columns)
+    return edge_list  # [column_order]  # reorder and drop global_subplant_id
