@@ -910,7 +910,7 @@ class DataSource(Base):
     email: Email = None
 
     def get_resource_ids(self) -> list[str]:
-        """Compile list of resoruce IDs associated with this data source."""
+        """Compile list of resource IDs associated with this data source."""
         # Temporary check to use eia861.RESOURCE_METADATA directly
         # eia861 is not currently included in the general RESOURCE_METADATA dict
         resources = RESOURCE_METADATA
@@ -1156,6 +1156,7 @@ class Resource(Base):
         "glue",
         "static_ferc1",
         "static_eia",
+        "static_eia_disabled",
     ] = None
 
     _check_unique = _validator(
@@ -1606,7 +1607,7 @@ class Resource(Base):
     def encode(self, df: pd.DataFrame) -> pd.DataFrame:
         """Standardize coded columns using the foreign column they refer to."""
         for field in self.schema.fields:
-            if field.encoder:
+            if field.encoder and field.name in df.columns:
                 logger.info(f"Recoding {self.name}.{field.name}")
                 df[field.name] = field.encoder.encode(
                     col=df[field.name], dtype=field.to_pandas_dtype()

@@ -20,23 +20,23 @@ function run_pudl_etl() {
     && ferc1_to_sqlite \
         --clobber \
         --loglevel DEBUG \
-        --gcs-cache-path gs://zenodo-cache.catalyst.coop \
+        --gcs-cache-path gs://internal-zenodo-cache.catalyst.coop \
         --bypass-local-cache \
         $PUDL_SETTINGS_YML \
     && pudl_etl \
         --clobber \
         --loglevel DEBUG \
-        --gcs-cache-path gs://zenodo-cache.catalyst.coop \
+        --gcs-cache-path gs://internal-zenodo-cache.catalyst.coop \
         --bypass-local-cache \
         $PUDL_SETTINGS_YML \
     && epacems_to_parquet \
         --partition \
         --clobber \
         --loglevel DEBUG \
-        --gcs-cache-path gs://zenodo-cache.catalyst.coop \
+        --gcs-cache-path gs://internal-zenodo-cache.catalyst.coop \
         --bypass-local-cache \
     && pytest \
-        --gcs-cache-path gs://zenodo-cache.catalyst.coop \
+        --gcs-cache-path gs://internal-zenodo-cache.catalyst.coop \
         --bypass-local-cache \
         --etl-settings $PUDL_SETTINGS_YML \
         --live-dbs test
@@ -59,6 +59,7 @@ function copy_outputs_to_intake_bucket() {
     gsutil -m -u $GCP_BILLING_PROJECT cp -r "$CONTAINER_PUDL_OUT/sqlite/*" "gs://intake.catalyst.coop/$GITHUB_REF"
     gsutil -m -u $GCP_BILLING_PROJECT cp -r "$CONTAINER_PUDL_OUT/parquet/epacems/*" "gs://intake.catalyst.coop/$GITHUB_REF"
 }
+
 
 function notify_slack() {
     # Notify pudl-builds slack channel of deployment status

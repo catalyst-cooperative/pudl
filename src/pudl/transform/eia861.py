@@ -414,6 +414,7 @@ NERC_SPELLCHECK: dict[str, str] = {
     "ERCTO": "ERCOT",
     "RFO": "RFC",
     "RF": "RFC",
+    "REC": "RFC",
     "SSP": "SPP",
     "VACAR": "SERC",  # VACAR is a subregion of SERC
     "GATEWAY": "SERC",  # GATEWAY is a subregion of SERC
@@ -439,21 +440,18 @@ def _filter_non_class_cols(df, class_list):
     return df.filter(regex=regex)
 
 
-def _ba_code_backfill(df):
-    """Backfill Balancing Authority Codes based on codes in later years.
-
-    Note:
-        The BA Code to ID mapping can change from year to year. If a Balancing Authority
-        is bought by another entity, the code may change, but the old EIA BA ID will be
-        retained.
+def add_backfilled_ba_code_column(df, by_cols: list[str]) -> pd.DataFrame:
+    """Make a backfilled Balancing Authority Code column based on codes in later years.
 
     Args:
-        ba_eia861 (pandas.DataFrame): The transformed EIA 861 Balancing Authority
-            dataframe (balancing_authority_eia861).
+        df: table with columns: ``balancing_authority_code_eia``, ``report_date`` and
+            all ``by_cols``
+        by_cols: list of columns to use as ``by`` argument in :meth:`pd.groupby`
+
 
     Returns:
-        pandas.DataFrame: The balancing_authority_eia861 dataframe, but with many fewer
-        NA values in the balancing_authority_code_eia column.
+        pandas.DataFrame: An altered version of ``df`` with an additional column
+        ``balancing_authority_code_eia_bfilled``
 
     """
     start_len = len(df)
@@ -463,34 +461,55 @@ def _ba_code_backfill(df):
         f"records ({start_nas/start_len:.2%})"
     )
     ba_ids = (
-        df[
-            [
-                "balancing_authority_id_eia",
-                "balancing_authority_code_eia",
-                "report_date",
-            ]
-        ]
+        df[by_cols + ["balancing_authority_code_eia", "report_date"]]
         .drop_duplicates()
-        .sort_values(["balancing_authority_id_eia", "report_date"])
+        .sort_values(by_cols + ["report_date"])
     )
-    ba_ids["ba_code_filled"] = ba_ids.groupby("balancing_authority_id_eia")[
+    ba_ids["balancing_authority_code_eia_bfilled"] = ba_ids.groupby(by_cols)[
         "balancing_authority_code_eia"
     ].fillna(method="bfill")
     ba_eia861_filled = df.merge(ba_ids, how="left")
-    ba_eia861_filled = ba_eia861_filled.assign(
-        balancing_authority_code_eia=lambda x: x.ba_code_filled
-    ).drop("ba_code_filled", axis="columns")
+
     end_len = len(ba_eia861_filled)
     if start_len != end_len:
         raise AssertionError(
             f"Number of rows in the dataframe changed {start_len}!={end_len}!"
         )
     end_nas = len(
-        ba_eia861_filled.loc[ba_eia861_filled.balancing_authority_code_eia.isnull()]
+        ba_eia861_filled.loc[
+            ba_eia861_filled.balancing_authority_code_eia_bfilled.isnull()
+        ]
     )
     logger.info(
         f"Ended with {end_nas} missing BA Codes out of {end_len} "
         f"records ({end_nas/end_len:.2%})"
+    )
+    return ba_eia861_filled
+
+
+def backfill_ba_codes_by_ba_id(df: pd.DataFrame) -> pd.DataFrame:
+    """Fill in missing BA Codes by backfilling based on BA ID.
+
+    Note:
+        The BA Code to ID mapping can change from year to year. If a Balancing Authority
+        is bought by another entity, the code may change, but the old EIA BA ID will be
+        retained.
+
+    Args:
+        df: The transformed EIA 861 Balancing Authority dataframe
+            (balancing_authority_eia861).
+
+    Returns:
+        pandas.DataFrame: The balancing_authority_eia861 dataframe, but with many fewer
+        NA values in the balancing_authority_code_eia column.
+
+    """
+    ba_eia861_filled = (
+        add_backfilled_ba_code_column(df, by_cols=["balancing_authority_id_eia"])
+        .assign(
+            balancing_authority_code_eia=lambda x: x.balancing_authority_code_eia_bfilled
+        )
+        .drop("balancing_authority_code_eia_bfilled", axis="columns")
     )
     return ba_eia861_filled
 
@@ -623,7 +642,7 @@ def _compare_totals(data_cols, idx_cols, class_type, df_name):
             logger.debug(f"{df_name}: for column {col} all total values are NaN")
 
 
-def _clean_nerc(df, idx_cols):
+def clean_nerc(df, idx_cols):
     """Clean NERC region entries and make new rows for multiple nercs.
 
     This function examines reported NERC regions and makes sure the output column of the
@@ -634,7 +653,7 @@ def _clean_nerc(df, idx_cols):
 
     Args:
         df (pandas.DataFrame): A DataFrame with the column 'nerc_region' to be cleaned.
-        idx_cols (list): A list of the primary keys.
+        idx_cols (list): A list of the primary keys and `nerc_region`.
 
     Returns:
         pandas.DataFrame: A DataFrame with correct and clean nerc regions.
@@ -665,10 +684,11 @@ def _clean_nerc(df, idx_cols):
         for nerc_entity in nerc_list
         if nerc_entity not in NERC_REGIONS + list(NERC_SPELLCHECK.keys())
     ]
-    print(
-        f"The following reported NERC regions are not currently recognized and become \
-        UNK values: {non_nerc_list}"
-    )
+    if non_nerc_list:
+        logger.info(
+            "The following reported NERC regions are not currently recognized and "
+            f"become UNK values: {non_nerc_list}"
+        )
 
     # Function to turn instances of 'SPP_UNK' or 'SPP_SPP' into 'SPP'
     def _remove_nerc_duplicates(entity_list):
@@ -874,7 +894,7 @@ def balancing_authority(tfr_dfs):
     )
 
     # Backfill BA Codes based on BA IDs:
-    df = df.reset_index().pipe(_ba_code_backfill)
+    df = df.reset_index().pipe(backfill_ba_codes_by_ba_id)
     # Typo: NEVP, BA ID is 13407, but in 2014-2015 in UT, entered as 13047
     df.loc[
         (df.balancing_authority_code_eia == "NEVP")
@@ -1360,7 +1380,7 @@ def demand_side_management(tfr_dfs):
     ###########################################################################
 
     transformed_dsm1 = (
-        _clean_nerc(raw_dsm, idx_cols)
+        clean_nerc(raw_dsm, idx_cols)
         .drop(["demand_side_management", "data_status"], axis=1)
         .query("utility_id_eia not in [88888]")
     )
@@ -2097,7 +2117,7 @@ def operational_data(tfr_dfs):
     #   * I="imputed" => False
     ###########################################################################
 
-    transformed_od = _clean_nerc(raw_od, idx_cols).assign(
+    transformed_od = clean_nerc(raw_od, idx_cols).assign(
         data_observed=lambda x: x.data_observed.replace({"O": True, "I": False}),
         short_form=lambda x: _make_yn_bool(x.short_form),
     )
@@ -2245,7 +2265,7 @@ def utility_data(tfr_dfs):
     # * Clean NERC region col
     ##############################################################################
 
-    transformed_ud = _clean_nerc(raw_ud, idx_cols).assign(
+    transformed_ud = clean_nerc(raw_ud, idx_cols).assign(
         short_form=lambda x: _make_yn_bool(x.short_form)
     )
 

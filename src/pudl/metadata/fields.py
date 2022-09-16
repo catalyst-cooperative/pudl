@@ -287,10 +287,9 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "boolean",
         "description": "Is the value observed (True) or imputed (False).",
     },
-    "data_source": {
+    "data_maturity": {
         "type": "string",
-        "description": "Source of EIA 860 data. Either Annual EIA 860 or the year-to-date updates from EIA 860M.",
-        "constraints": {"enum": ["eia860", "eia860m"]},
+        "description": "Level of maturity of the data record. Some data sources report less-than-final data. PUDL sometimes includes this data, but use at your own risk.",
     },
     "datasource": {
         "type": "string",
@@ -419,6 +418,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
         "description": "FERC Account 102: Electric Plant Sold (Negative).",
     },
+    "emissions_unit_id_epa": {
+        "type": "string",
+        "description": "Emissions (smokestack) unit monitored by EPA CEMS.",
+    },
     "energy_charges": {
         "type": "number",
         "description": "Energy charges (USD).",
@@ -499,6 +502,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Indicates if the facility has energy storage capabilities."
         # TODO: Is this really boolean? Or do we have non-null strings that mean False?
     },
+    "energy_storage_capacity_mwh": {
+        "type": "number",
+        "description": "Energy storage capacity in MWh (e.g. for batteries).",
+        "unit": "MWh",
+    },
     "energy_used_for_pumping_mwh": {
         "type": "number",
         "description": "Energy used for pumping, in megawatt-hours.",
@@ -526,14 +534,13 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
         "description": "FERC Account 103: Experimental Plant Unclassified.",
     },
-    "facility_id": {"type": "integer", "description": "New EPA plant ID."},
     "ferc_account_id": {
         "type": "string",
         "description": "Account number, from FERC's Uniform System of Accounts for Electric Plant. Also includes higher level labeled categories.",
     },
     "ferc_cogen_docket_no": {
         "type": "string",
-        "description": "The docket number relating to the FERC qualifying facility cogenerator status. See FERC Form 556.",
+        "description": "The docket number relating to the FERC cogenerator status. See FERC Form 556.",
     },
     "ferc_cogen_status": {
         "type": "boolean",
@@ -560,6 +567,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "ferc_small_power_producer_docket_no": {
         "type": "string",
         "description": "The docket number relating to the FERC qualifying facility small power producer status. See FERC Form 556.",
+    },
+    "ferc_qualifying_facility_docket_no": {
+        "type": "string",
+        "description": "The docket number relating to the FERC qualifying facility cogenerator status. See FERC Form 556.",
+    },
+    "ferc_qualifying_facility": {
+        "type": "boolean",
+        "description": "Indicatates whether or not a generator is a qualifying FERC cogeneation facility.",
     },
     "fluidized_bed_tech": {
         "type": "boolean",
@@ -737,9 +752,23 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "General Plant Total (FERC Accounts 389-399.1).",
     },
     "generation_activity": {"type": "boolean"},
+    "boiler_generator_assn_type_code": {
+        "type": "string",
+        "description": (
+            "Indicates whether boiler associations with generator during the year were "
+            "actual or theoretical. Only available before 2013."
+        ),
+    },
     "generator_id": {
         "type": "string",
-        "description": "Generator ID is usually numeric, but sometimes includes letters. Make sure you treat it as a string!",
+        "description": (
+            "Generator ID is usually numeric, but sometimes includes letters. Make "
+            "sure you treat it as a string!"
+        ),
+    },
+    "generator_id_epa": {
+        "type": "string",
+        "description": "Generator ID used by the EPA.",
     },
     "generators_num_less_1_mw": {"type": "number", "unit": "MW"},
     "generators_number": {"type": "number"},
@@ -989,6 +1018,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Net plant capability under the most favorable operating conditions, in megawatts.",
         "unit": "MW",
     },
+    "net_capacity_mwdc": {
+        "type": "number",
+        "description": (
+            "Generation capacity in megawatts of direct current that is subject to a "
+            "net metering agreement. Typically used for behind-the-meter solar PV."
+        ),
+        "unit": "MW",
+    },
     "net_generation_mwh": {
         "type": "number",
         "description": "Net electricity generation for the specified period in megawatt-hours (MWh).",
@@ -1027,16 +1064,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "unit": "lb",
     },
     "nox_mass_measurement_code": {
-        "type": "string",
-        "description": "Identifies whether the reported value of emissions was measured, calculated, or measured and substitute.",
-        "constraints": {"enum": EPACEMS_MEASUREMENT_CODES},
-    },
-    "nox_rate_lbs_mmbtu": {
-        "type": "number",
-        "description": "The average rate at which NOx was emitted during a given time period.",
-        "unit": "lb_per_MMBtu",
-    },
-    "nox_rate_measurement_code": {
         "type": "string",
         "description": "Identifies whether the reported value of emissions was measured, calculated, or measured and substitute.",
         "constraints": {"enum": EPACEMS_MEASUREMENT_CODES},
@@ -1543,9 +1570,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Four-digit year in which the data was reported.",
     },
     "reported_as_another_company": {"type": "string"},
-    "respondent_frequency": {
+    "reporting_frequency_code": {
         "type": "string",
-        "constraints": {"enum": ["A", "M", "AM"]},
+        "description": "Code that specifies what time period data has to be reported (i.e. monthly data or annual totals) and how often the power plant reports this data to EIA. See reporting_frequencies_eia for more details.",
+        "constraints": {
+            "enum": sorted(
+                set(CODE_METADATA["reporting_frequencies_eia"]["df"]["code"])
+            )
+        },
     },
     "respondent_id_ferc714": {"type": "integer"},
     "respondent_name_ferc714": {"type": "string"},
@@ -1734,6 +1766,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Total steam pressure produced by a unit during the reported hour.",
         "unit": "lb",
     },
+    "steam_plant_type_code": {
+        "type": "integer",
+        "description": "Code that describes types of steam plants from EIA 860. See steam_plant_types_eia table for more details.",
+    },
     "steam_total": {
         "type": "number",
         "description": "Total Steam Production Plant (FERC Accounts 310-317).",
@@ -1909,17 +1945,9 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "EIA-assigned unit identification code.",
     },
-    "unit_id_epa": {
-        "type": "string",
-        "description": "Emissions (smokestake) unit monitored by EPA CEMS.",
-    },
     "unit_id_pudl": {
         "type": "integer",
         "description": "Dynamically assigned PUDL unit id. WARNING: This ID is not guaranteed to be static long term as the input data and algorithm may evolve over time.",
-    },
-    "unitid": {
-        "type": "string",
-        "description": "Facility-specific unit id (e.g. Unit 4)",
     },
     "uprate_derate_completed_date": {
         "type": "date",
@@ -2019,27 +2047,7 @@ Keys are in alphabetical order.
 FIELD_METADATA_BY_GROUP: dict[str, dict[str, Any]] = {
     "epacems": {
         "state": {"constraints": {"enum": EPACEMS_STATES}},
-        "gross_load_mw": {
-            "constraints": {
-                "required": True,
-            }
-        },
-        "heat_content_mmbtu": {
-            "constraints": {
-                "required": True,
-            }
-        },
         "operating_datetime_utc": {
-            "constraints": {
-                "required": True,
-            }
-        },
-        "plant_id_eia": {
-            "constraints": {
-                "required": True,
-            }
-        },
-        "unitid": {
             "constraints": {
                 "required": True,
             }

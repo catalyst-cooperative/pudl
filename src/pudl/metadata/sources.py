@@ -43,7 +43,7 @@ SOURCES: dict[str, Any] = {
             CONTRIBUTORS["alana-wilson"],
         ],
         "working_partitions": {
-            "years": sorted(set(range(2001, 2021))),
+            "years": sorted(set(range(2001, 2022))),
         },
         "keywords": sorted(
             set(
@@ -77,7 +77,7 @@ SOURCES: dict[str, Any] = {
         "field_namespace": "eia",
         "contributors": [],
         "working_partitions": {
-            "year_month": "2021-12",
+            "year_month": "2022-06",
         },
         "keywords": sorted(
             set(
@@ -106,7 +106,7 @@ SOURCES: dict[str, Any] = {
         ),
         "field_namespace": "eia",
         "working_partitions": {
-            "years": sorted(set(range(2001, 2021))),
+            "years": sorted(set(range(2001, 2022))),
         },
         "contributors": [],
         "keywords": sorted(
@@ -153,7 +153,7 @@ SOURCES: dict[str, Any] = {
         },
         "field_namespace": "eia",
         "working_partitions": {
-            "years": sorted(set(range(2001, 2021))),
+            "years": sorted(set(range(2001, 2022))),
         },
         "contributors": [
             CONTRIBUTORS["catalyst-cooperative"],
@@ -180,6 +180,39 @@ SOURCES: dict[str, Any] = {
         "license_raw": LICENSES["us-govt"],
         "license_pudl": LICENSES["cc-by-4.0"],
     },
+    "eia_bulk_elec": {
+        "title": "EIA Bulk Electricity API Data",
+        "path": "https://www.eia.gov/opendata/bulkfiles.php",
+        "description": (
+            "Aggregate national, state, and plant-level electricity generation "
+            "statistics, including fuel quality and consumption, for grid-connected "
+            "plants with nameplate capacity of 1 megawatt or greater"
+        ),
+        "source_file_dict": {
+            "respondents": (
+                "Electric, CHP plants, and sometimes fuel transfer termianls with "
+                "either 1MW+ or the ability to receive and deliver power to the grid."
+            ),
+            "source_format": "JSON",
+        },
+        "field_namespace": "eia",
+        "working_partitions": {},
+        "contributors": [
+            CONTRIBUTORS["catalyst-cooperative"],
+            CONTRIBUTORS["zane-selvans"],
+            CONTRIBUTORS["trenton-bush"],
+        ],
+        "keywords": sorted(
+            set(
+                KEYWORDS["eia"]
+                + KEYWORDS["us_govt"]
+                + KEYWORDS["electricity"]
+                + KEYWORDS["environment"]
+            )
+        ),
+        "license_raw": LICENSES["us-govt"],
+        "license_pudl": LICENSES["cc-by-4.0"],
+    },
     "eiawater": {
         "title": "EIA Thermoelectric Cooling Water",
         "path": "https://www.eia.gov/electricity/data/water",
@@ -192,13 +225,13 @@ SOURCES: dict[str, Any] = {
     },
     "epacems": {
         "title": "EPA Hourly Continuous Emission Monitoring System (CEMS)",
-        "path": "https://ampd.epa.gov/ampd",
+        "path": "https://campd.epa.gov/",
         "description": (
             "US EPA hourly Continuous Emissions Monitoring System (CEMS) data."
             "Hourly CO2, SO2, NOx emissions and gross load."
         ),
         "source_file_dict": {
-            "respondents": "Coal and high-sulfur fueled plants",
+            "respondents": "Coal and high-sulfur fueled plants over 25MW",
             "records_liberated": "~800 million",
             "source_format": "Comma Separated Value (.csv)",
         },
@@ -230,19 +263,19 @@ SOURCES: dict[str, Any] = {
         "license_raw": LICENSES["us-govt"],
         "license_pudl": LICENSES["cc-by-4.0"],
     },
-    "epacems_unitid_eia_plant_crosswalk": {
-        "title": "EPA CEMS unitid to EIA Plant Crosswalk",
+    "epacamd_eia": {
+        "title": "EPA CAMD to EIA Data Crosswalk",
         "path": "https://github.com/USEPA/camd-eia-crosswalk",
         "description": (
-            "A file created collaboratively by EPA and EIA that connects EPA CEMS "
-            "smokestacks (unitids) with cooresponding EIA plant part ids reported in "
+            "A file created collaboratively by EPA and EIA that connects EPA CAMD "
+            "smokestacks (units) with cooresponding EIA plant part ids reported in "
             "EIA Forms 860 and 923 (plant_id_eia, boiler_id, generator_id). This "
             "one-to-many connection is necessary because pollutants from various plant "
             "parts are collecitvely emitted and measured from one point-source."
         ),
         "source_file_dict": {
             "records_liberated": "~7000",
-            "source_format": "Microsoft Excel (.xlsx)",
+            "source_format": "Comma Separated Value (.csv)",
         },
         "field_namespace": "glue",
         "working_partitions": {},
