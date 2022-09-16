@@ -52,6 +52,7 @@ jobs:
 
       - name: Update GCS cache with any new Zenodo archives
         run: |
+          conda activate pudl-test
           pudl_datastore --gcs-cache-path ${{ env.INTERNAL_ZENODO_CACHE_BUCKET }} --bypass-local-cache --loglevel DEBUG
 
       - name: Sync internal and public caches
