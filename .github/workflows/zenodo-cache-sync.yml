@@ -4,10 +4,7 @@ name: zenodo-cache-sync
 on:
   workflow_dispatch:
   push:
-    branches:
-      - zenodo-cache-action # For testing purposes
-  schedule:
-    - cron: "0 6 * * 1-5" # Weekdays at midnight on MST
+  pull_request:
 
 env:
   INTERNAL_ZENODO_CACHE_BUCKET: gs://internal-zenodo-cache.catalyst.coop

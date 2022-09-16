@@ -1,7 +1,11 @@
 ---
 name: tox-pytest
 
-on: [push, pull_request]
+on:
+  workflow_run:
+    workflows: [zenodo-cache-sync]
+    types:
+      - completed
 
 jobs:
   ci-test:
