@@ -1387,13 +1387,11 @@ def dedupe_on_category(dedup_df, base_cols, category_name, sorter):
         category_name (string) : name of categorical column
         sorter (list): sorted list of category options
     """
-    dedup_df[category_name] = (
-        dedup_df[category_name]
-        .astype(pd.CategoricalDtype(categories=sorter, ordered=True))
-        .drop_duplicates(subset=base_cols, keep="first")
+    dedup_df[category_name] = dedup_df[category_name].astype(
+        pd.CategoricalDtype(categories=sorter, ordered=True)
     )
 
-    return dedup_df
+    return dedup_df.drop_duplicates(subset=base_cols, keep="first")
 
 
 def calc_capacity_factor(df, freq, min_cap_fact=None, max_cap_fact=None):
