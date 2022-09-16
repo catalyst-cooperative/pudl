@@ -575,9 +575,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "ferc_acct_name": {
         "type": "string",
         "description": "Name of FERC account, derived from technology description and prime mover code.",
-        "constraints": {
-            "enum": ["other", "hydro", "steam", "nuclear", "Other", "Steam"]
-        },
+        "constraints": {"enum": ["Hydraulic", "Nuclear", "Steam", "Other"]},
     },
     "ferc_cogen_docket_no": {
         "type": "string",
@@ -2254,7 +2252,7 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
         "prime_movers_eia": {
             "constraints": {"enum": set(CODE_METADATA["prime_movers_eia"]["df"].code)}
         },
-        "technology_description": {"constraints": {"enum": TECH_DESCRIPTIONS}},
+        "technology_description": {"constraints": {"enum": set(TECH_DESCRIPTIONS)}},
     },
 }
 
