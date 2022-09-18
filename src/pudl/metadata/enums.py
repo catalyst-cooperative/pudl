@@ -66,13 +66,13 @@ US_TERRITORIES: dict[str, str] = {
 
 US_STATES_TERRITORIES: dict[str, str] = {**US_STATES, **US_TERRITORIES}
 
-EPACEMS_STATES: set[str] = {
+EPACEMS_STATES: list[str] = [
     state
     for state in US_STATES_TERRITORIES
     # AK and PR have data but only a few years, and that breaks the Datastore.
     # See https://github.com/catalyst-cooperative/pudl/issues/1264
     if state not in {"AK", "AS", "GU", "HI", "MP", "PR", "VI"}
-}
+]
 """The US states and territories that are present in the EPA CEMS dataset."""
 
 CANADA_PROVINCES_TERRITORIES: dict[str, str] = {
@@ -93,7 +93,7 @@ CANADA_PROVINCES_TERRITORIES: dict[str, str] = {
 }
 """Mapping of Canadian province and territory abbreviations to their full names"""
 
-NERC_REGIONS: set[str] = {
+NERC_REGIONS: list[str] = [
     "BASN",  # ASSESSMENT AREA Basin (WECC)
     "CALN",  # ASSESSMENT AREA California (WECC)
     "CALS",  # ASSESSMENT AREA California (WECC)
@@ -134,14 +134,14 @@ NERC_REGIONS: set[str] = {
     "PR",  # Puerto Rico
     "AS",  # American Samoa
     "UNK",
-}
+]
 """
 North American Reliability Corporation (NERC) regions.
 
 See https://www.eia.gov/electricity/data/eia411/#tabs_NERC-3.
 """
 
-CUSTOMER_CLASSES: set[str] = {
+CUSTOMER_CLASSES: list[str] = [
     "commercial",
     "industrial",
     "direct_connection",
@@ -149,9 +149,9 @@ CUSTOMER_CLASSES: set[str] = {
     "residential",
     "total",
     "transportation",
-}
+]
 
-TECH_CLASSES: set[str] = {
+TECH_CLASSES: list[str] = [
     "backup",  # WHERE Is this used? because removed from DG table b/c not a real component
     "chp_cogen",
     "combustion_turbine",
@@ -166,9 +166,9 @@ TECH_CLASSES: set[str] = {
     "total",
     "virtual_pv",
     "wind",
-}
+]
 
-REVENUE_CLASSES: set[str] = {
+REVENUE_CLASSES: list[str] = [
     "credits_or_adjustments",
     "delivery_customers",
     "other",
@@ -177,11 +177,11 @@ REVENUE_CLASSES: set[str] = {
     "total",
     "transmission",
     "unbundled",
-}
+]
 
-RELIABILITY_STANDARDS: set[str] = {"ieee_standard", "other_standard"}
+RELIABILITY_STANDARDS: list[str] = ["ieee_standard", "other_standard"]
 
-FUEL_CLASSES: set[str] = {
+FUEL_CLASSES: list[str] = [
     "gas",
     "oil",
     "other",
@@ -189,9 +189,9 @@ FUEL_CLASSES: set[str] = {
     "water",
     "wind",
     "wood",
-}
+]
 
-RTO_CLASSES: set[str] = {
+RTO_CLASSES: list[str] = [
     "caiso",
     "ercot",
     "isone",
@@ -200,9 +200,9 @@ RTO_CLASSES: set[str] = {
     "other",
     "pjm",
     "spp",
-}
+]
 
-EPACEMS_MEASUREMENT_CODES: set[str] = {
+EPACEMS_MEASUREMENT_CODES: list[str] = [
     "Calculated",
     "LME",
     "Measured",
@@ -211,7 +211,7 @@ EPACEMS_MEASUREMENT_CODES: set[str] = {
     "Substitute",
     "Undetermined",  # Should be replaced with NA
     "Unknown Code",  # Should be replaced with NA
-}
+]
 """Valid emissions measurement codes for the EPA CEMS hourly data."""
 
 TECH_DESCRIPTIONS: set[str] = {
