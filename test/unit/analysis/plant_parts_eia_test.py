@@ -11,7 +11,7 @@ GENS_MEGA = pd.DataFrame(
         "generator_id": ["a", "b", "c", "d"],
         "prime_mover_code": ["ST", "GT", "CT", "CA"],
         "energy_source_code_1": ["BIT", "NG", "NG", "NG"],
-        "ownership": [
+        "ownership_record_type": [
             "total",
             "total",
             "total",
@@ -42,7 +42,7 @@ def test_plant_ag():
                 "report_date": ["2020-01-01"],
                 "operational_status_pudl": ["operating"],
                 "utility_id_eia": [111],
-                "ownership": ["total"],
+                "ownership_record_type": ["total"],
                 "capacity_mw": [650.0],
             }
         )
@@ -73,7 +73,7 @@ def test_prime_fuel_ag():
                 "report_date": "2020-01-01",
                 "operational_status_pudl": "operating",
                 "utility_id_eia": 111,
-                "ownership": "total",
+                "ownership_record_type": "total",
                 "capacity_mw": [400.0, 250.0],
             }
         )
@@ -106,7 +106,7 @@ def test_prime_mover_ag():
                 "report_date": "2020-01-01",
                 "operational_status_pudl": "operating",
                 "utility_id_eia": 111,
-                "ownership": "total",
+                "ownership_record_type": "total",
                 "capacity_mw": [75.0, 125.0, 50.0, 400.0],
             }
         )
@@ -139,7 +139,7 @@ def test_plant_gen_ag():
                 "report_date": "2020-01-01",
                 "operational_status_pudl": "operating",
                 "utility_id_eia": 111,
-                "ownership": "total",
+                "ownership_record_type": "total",
                 "capacity_mw": [400.0, 50.0, 125.0, 75.0],
             }
         )
@@ -212,7 +212,7 @@ def test_make_mega_gen_tbl():
                 "capacity_eoy_mw": [50, 50, 100, 100, 50, 50, 100, 100],
                 "fraction_owned": [1.00, 1.00, 0.75, 0.25, 1.00, 1.00, 1.00, 1.00],
                 "utility_id_eia": [111, 111, 111, 888, 111, 111, 111, 888],
-                "ownership": [
+                "ownership_record_type": [
                     "owned",
                     "owned",
                     "owned",
@@ -360,7 +360,7 @@ def test_scale_by_ownership():
             ],
             "fraction_owned": [0.7, 0.3, 0.1, 0.9, 1, 1, 1, 1],
             "utility_id_eia": [3, 4, 3, 4, 3, 4, 3, 4],
-            "ownership": [
+            "ownership_record_type": [
                 "owned",
                 "owned",
                 "owned",
@@ -411,7 +411,7 @@ def test_label_true_grans():
             "technology_description": ["nat_gas"] * 7,
             "operational_status_pudl": [None] * 7,
             "utility_id_eia": [None] * 7,
-            "ownership": [None] * 7,
+            "ownership_record_type": [None] * 7,
             "prime_mover_code": [None] * 7,
             "ferc_acct_name": [None] * 7,
             "energy_source_code_1": [None] * 7,

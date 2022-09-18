@@ -1401,7 +1401,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "pattern": r"^\d{5}$",
         },
     },
-    "ownership": {
+    "ownership_record_type": {
         "type": "string",
         "description": "Whether each generator record is for one owner or represents a total of all ownerships.",
         "constraints": {"enum": ["owned", "total"]},

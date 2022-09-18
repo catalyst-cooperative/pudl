@@ -316,7 +316,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "operating_year",
                 "operational_status",
                 "operational_status_pudl",
-                "ownership",
+                "ownership_record_type",
                 "ownership_dupe",
                 "planned_retirement_date",
                 "plant_id_pudl",
