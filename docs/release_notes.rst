@@ -135,6 +135,9 @@ Plant Parts List Module Changes
 * For memory efficiency, appropriate columns are now cast to string and
   categorical types when the full plant parts list is created. The resource and field
   metadata is now included in the PUDL metadata. See :pr:`1865`
+* For clarity and specificity, the ``plant_name_new`` column was renamed
+  ``plant_name_eia`` and the ``ownership`` column was renamed ``ownership_record_type``.
+  See :pr:`1865`
 
 Metadata
 ^^^^^^^^
