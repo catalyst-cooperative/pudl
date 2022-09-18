@@ -138,6 +138,9 @@ Plant Parts List Module Changes
 * For clarity and specificity, the ``plant_name_new`` column was renamed
   ``plant_name_eia`` and the ``ownership`` column was renamed ``ownership_record_type``.
   See :pr:`1865`
+* The ``PLANT_PARTS_ORDERED`` list was removed and ``PLANT_PARTS`` is now an
+  ``OrderedDict`` that establishes the plant parts hierarchy in its keys. All references
+  to ``PLANT_PARTS_ORDERED`` were replaced with the ``PLANT_PARTS`` keys. See :pr:`1865`
 
 Metadata
 ^^^^^^^^

@@ -31,8 +31,8 @@ able to reduce the plant-part list to only unique collections of generators,
 so we label the first unique granularity as a true granularity and label the
 subsequent records as false granularities with the ``true_gran`` column. In
 order to choose which plant-part to keep in these instances, we assigned a
-:py:const:`PLANT_PARTS_ORDERED` and label whichever plant-part comes first as
-the unique granularity.
+hierarchy of plant parts, the order of the keys in :py:const:`PLANT_PARTS`
+and label whichever plant-part comes first as the unique granularity.
 
 **Recipe Book for the plant-part list**
 
@@ -178,9 +178,9 @@ OR make the table via objects in this module:
     plant_parts_eia = parts_compiler.execute(gens_mega=gens_mega)
 
 """
-
 import logging
 import warnings
+from collections import OrderedDict
 from copy import deepcopy
 from typing import Literal
 
@@ -201,32 +201,34 @@ logger = logging.getLogger(__name__)
 pd.options.display.width = 1000
 pd.options.display.max_columns = 1000
 
-PLANT_PARTS: dict[str, dict[str, list]] = {
-    "plant": {
-        "id_cols": ["plant_id_eia"],
-    },
-    "plant_gen": {
-        "id_cols": ["plant_id_eia", "generator_id"],
-    },
-    "plant_unit": {
-        "id_cols": ["plant_id_eia", "unit_id_pudl"],
-    },
-    "plant_technology": {
-        "id_cols": ["plant_id_eia", "technology_description"],
-    },
-    "plant_prime_fuel": {  # 'plant_primary_fuel': {
-        "id_cols": ["plant_id_eia", "energy_source_code_1"],
-    },
-    "plant_prime_mover": {
-        "id_cols": ["plant_id_eia", "prime_mover_code"],
-    },
-    "plant_ferc_acct": {
-        "id_cols": ["plant_id_eia", "ferc_acct_name"],
-    },
-    "plant_operating_year": {
-        "id_cols": ["plant_id_eia", "operating_year"],
-    },
-}
+PLANT_PARTS: OrderedDict[str, dict[str, list]] = OrderedDict(
+    {
+        "plant": {
+            "id_cols": ["plant_id_eia"],
+        },
+        "plant_unit": {
+            "id_cols": ["plant_id_eia", "unit_id_pudl"],
+        },
+        "plant_prime_mover": {
+            "id_cols": ["plant_id_eia", "prime_mover_code"],
+        },
+        "plant_technology": {
+            "id_cols": ["plant_id_eia", "technology_description"],
+        },
+        "plant_prime_fuel": {  # 'plant_primary_fuel': {
+            "id_cols": ["plant_id_eia", "energy_source_code_1"],
+        },
+        "plant_ferc_acct": {
+            "id_cols": ["plant_id_eia", "ferc_acct_name"],
+        },
+        "plant_operating_year": {
+            "id_cols": ["plant_id_eia", "operating_year"],
+        },
+        "plant_gen": {
+            "id_cols": ["plant_id_eia", "generator_id"],
+        },
+    }
+)
 """
 dict: this dictionary contains a key for each of the 'plant parts' that should
 end up in the plant parts list. The top-level value for each key is another
@@ -236,17 +238,6 @@ dictionary, which contains keys:
   plant_id_eia column must come first.
 
 """
-
-PLANT_PARTS_ORDERED: list[str] = [
-    "plant",
-    "plant_unit",
-    "plant_prime_mover",
-    "plant_technology",
-    "plant_prime_fuel",
-    "plant_ferc_acct",
-    "plant_operating_year",
-    "plant_gen",
-]
 
 PLANT_PARTS_LITERAL = Literal[
     "plant",
@@ -659,7 +650,7 @@ class MakePlantParts:
         for k in df_keys:
             del self.pudl_out._dfs[k]
         part_dfs = []
-        for part_name in PLANT_PARTS_ORDERED:
+        for part_name in PLANT_PARTS:
             part_df = PlantPart(part_name).execute(gens_mega)
             # add in the attributes!
             for attribute_col in CONSISTENT_ATTRIBUTE_COLS:
@@ -1083,7 +1074,7 @@ class TrueGranLabeler:
         each plant-part is a true or false granularity.
 
         First the plant part list records are matched to generators. Then
-        the matched records are sorted by PLANT_PARTS_ORDERED and the
+        the matched records are sorted by the order of keys in PLANT_PARTS and the
         highest granularity record for each generator is marked as the true
         granularity. The appropriate true granular part label and record id
         is then merged on to get the plant part table with true granularity labels.
@@ -1114,9 +1105,9 @@ class TrueGranLabeler:
             combos, how="left", left_on="record_id_eia", right_index=True
         )
 
-        # categorical columns allow sorting by PLANT_PARTS_ORDERED
+        # categorical columns allow sorting by PLANT_PARTS key order
         parts_to_gens["plant_part"] = pd.Categorical(
-            parts_to_gens["plant_part"], PLANT_PARTS_ORDERED
+            parts_to_gens["plant_part"], PLANT_PARTS.keys()
         )
         parts_to_gens = parts_to_gens.sort_values("plant_part")
         # get the true gran records by finding duplicate gen combos
@@ -1379,7 +1370,7 @@ def validate_run_aggregations(plant_parts_eia, gens_mega):
     This test will used the plant_parts_eia, re-run groubys and check
     similarity.
     """
-    for part_name in PLANT_PARTS_ORDERED:
+    for part_name in PLANT_PARTS:
         logger.info(f"Begining tests for {part_name}:")
         test_merge = _test_prep_merge(part_name, plant_parts_eia, gens_mega)
         for test_col in SUM_COLS:
@@ -1564,7 +1555,7 @@ def match_to_single_plant_part(
         multi_gran_df.report_date.dt.year, format="%Y"
     )
     out_dfs = []
-    for merge_part in PLANT_PARTS_ORDERED:
+    for merge_part in PLANT_PARTS:
         pk_cols = PLANT_PARTS[merge_part]["id_cols"] + IDX_TO_ADD + IDX_OWN_TO_ADD
         part_df = pd.merge(
             (
