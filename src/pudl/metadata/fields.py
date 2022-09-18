@@ -14,6 +14,7 @@ from pudl.metadata.enums import (
     EPACEMS_STATES,
     FUEL_CLASSES,
     NERC_REGIONS,
+    PLANT_PARTS,
     RELIABILITY_STANDARDS,
     REVENUE_CLASSES,
     RTO_CLASSES,
@@ -57,18 +58,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "appro_part_label": {
         "type": "string",
         "description": "Plant part of the associated true granularity record.",
-        "constraints": {
-            "enum": [
-                "plant",
-                "plant_unit",
-                "plant_prime_mover",
-                "plant_technology",
-                "plant_prime_fuel",
-                "plant_ferc_acct",
-                "plant_operating_year",
-                "plant_gen",
-            ]
-        },
+        "constraints": {"enum": PLANT_PARTS},
     },
     "appro_record_id_eia": {
         "type": "string",
@@ -1546,7 +1536,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Name of the plant, as reported to FERC. This is a freeform string, not guaranteed to be consistent across references to the same plant.",
     },
-    "plant_name_new": {
+    "plant_name_ppe": {
         "type": "string",
         "description": "Derived plant name that includes EIA plant name and other strings associated with ID and PK columns of the plant part.",
     },
@@ -1557,18 +1547,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "plant_part": {
         "type": "string",
         "description": "The part of the plant a record corresponds to.",
-        "constraints": {
-            "enum": [
-                "plant",
-                "plant_unit",
-                "plant_prime_mover",
-                "plant_technology",
-                "plant_prime_fuel",
-                "plant_ferc_acct",
-                "plant_operating_year",
-                "plant_gen",
-            ]
-        },
+        "constraints": {"enum": PLANT_PARTS},
     },
     "plant_part_id_eia": {
         "type": "string",

@@ -214,7 +214,7 @@ EPACEMS_MEASUREMENT_CODES: list[str] = [
 ]
 """Valid emissions measurement codes for the EPA CEMS hourly data."""
 
-TECH_DESCRIPTIONS: list[str] = [
+TECH_DESCRIPTIONS: set[str] = {
     "Conventional Hydroelectric",
     "Conventional Steam Coal",
     "Natural Gas Steam Turbine",
@@ -243,5 +243,18 @@ TECH_DESCRIPTIONS: list[str] = [
     "Offshore Wind Turbine",
     "Natural Gas with Compressed Air Storage",
     "Hydrokinetic",
-]
+}
 """Valid technology descriptions from the EIA plant parts list."""
+
+PLANT_PARTS: set[str] = {
+    "plant",
+    "plant_unit",
+    "plant_prime_mover",
+    "plant_technology",
+    "plant_prime_fuel",
+    "plant_ferc_acct",
+    "plant_operating_year",
+    "plant_gen",
+}
+
+"""The plant parts in the EIA plant parts list."""

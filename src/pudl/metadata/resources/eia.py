@@ -321,7 +321,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "planned_retirement_date",
                 "plant_id_pudl",
                 "plant_name_eia",
-                "plant_name_new",
+                "plant_name_ppe",
                 "plant_part_id_eia",
                 "record_count",
                 "retirement_date",
@@ -332,6 +332,9 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "plant_id_report_year",
             ]
         },
+        "sources": ["eia860", "eia923"],
+        "etl_group": "outputs",
+        "field_namespace": "ppe",
     },
     "prime_movers_eia": {
         "description": "Long descriptions explaining the short prime mover codes reported in the EIA-860 and EIA-923.",

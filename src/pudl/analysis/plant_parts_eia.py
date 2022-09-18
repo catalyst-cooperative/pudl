@@ -1031,13 +1031,13 @@ class PlantPart:
             gens_mega[self.id_cols + ["plant_name_eia"]].drop_duplicates(),
             on=self.id_cols,
             how="left",
-        ).assign(plant_name_new=lambda x: x.plant_name_eia)
+        ).assign(plant_name_ppe=lambda x: x.plant_name_eia)
         # we don't want the plant_id_eia to be part of the plant name, but all
         # of the other parts should have their id column in the new plant name
         if self.part_name != "plant":
             col = [x for x in self.id_cols if x != "plant_id_eia"][0]
-            part_df.loc[part_df[col].notnull(), "plant_name_new"] = (
-                part_df["plant_name_new"] + " " + part_df[col].astype(str)
+            part_df.loc[part_df[col].notnull(), "plant_name_ppe"] = (
+                part_df["plant_name_ppe"] + " " + part_df[col].astype(str)
             )
         return part_df
 
