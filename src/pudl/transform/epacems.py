@@ -49,21 +49,23 @@ def harmonize_eia_epa_orispl(
         The same data, with the ORISPL plant codes corrected to match the EIA plant IDs.
 
     """
-    # Already ran a test to make sure this works. When you group the crosswalk by
-    # plant_id_epa and emissions_unit_id_epa then calculate .nunique() for plant_id_eia,
-    # none of the values are greater than one meaning that this drop/merge is ok. Might
-    # want to make that an official test somewhere.
+    # Make sure the crosswalk does not have multiple plant_id_eia values for each
+    # plant_id_epa and emissions_unit_id_epa value before reassigning IDs.
+    one_to_many = crosswalk_df.groupby(
+        ["plant_id_epa", "emissions_unit_id_epa"]
+    ).filter(lambda x: x.plant_id_eia.nunique() > 1)
+
+    if not one_to_many.empty:
+        raise AssertionError(
+            "The epacamd_eia crosswalk has more than one plant_id_eia value per "
+            "plant_id_epa and emissions_unit_id_epa group"
+        )
     crosswalk_df = crosswalk_df[
         ["plant_id_eia", "plant_id_epa", "emissions_unit_id_epa"]
     ].drop_duplicates()
 
-    # Merge CEMS with Crosswalk to get correct EIA ORISPL code.
-
-    # Because the crosswalk isn't complete, there are some instances where the
-    # plant_id_eia value will be NA. This isn't great when it goes to grouping or
-    # merging data together. Specifically for the convert_to_utc() function below.
-    # Until the crosswalk is comprehensive, we'll fill in all unmapped plant_id_eia
-    # values with whatever was in plant_id_epa.s
+    # Merge CEMS with Crosswalk to get correct EIA ORISPL code and fill in all unmapped
+    # values with old plant_id_epa value.
     df_merged = pd.merge(
         df,
         crosswalk_df,

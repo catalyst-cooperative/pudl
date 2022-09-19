@@ -1,6 +1,23 @@
 """Retrieve data from EPA CEMS hourly zipped CSVs.
 
-This modules pulls data from EPA's published CSV files.
+Presently, this module is where the CEMS columns are renamed and dropped.
+Any columns in the IGNORE_COLS dictionary are excluded from the final output. All of
+these columns are calculable rates, measurement flags, or descriptors (like facility
+name) that can be accessed by merging this data with the EIA860 plants entity table.
+We also remove the `FACILITY_ID` field because it is internal to the EPA's business
+accounting database and `UNIT_ID` field because it's a unique (calculable) identifier
+for plant_id and emissions_unit_id (previously `UNITID`) groupings. It took a minute to
+verify the difference between the `UNITID` and `UNIT_ID` fields, but coorespondance with
+the EPA's CAMD team cleared this up.
+
+Pre-transform, the `plant_id_epa` field is a close but not perfect indicator for
+`plant_id_eia`. In the raw data it's called `ORISPL_CODE` but that's not entirely
+accurate. The epacamd_eia crosswalk will show that the mapping between `ORISPL_CODE` as
+it appears in CEMS and the `plant_id_eia` field used in EIA data. Hense, we've called it
+`plant_id_epa` until it gets transformed into `plant_id_eia` during the transform
+process with help from the crosswalk.
+
+
 """
 from pathlib import Path
 from typing import NamedTuple
