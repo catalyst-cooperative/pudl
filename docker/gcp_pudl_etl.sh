@@ -91,6 +91,9 @@ run_pudl_etl 2>&1 | tee $LOGFILE
 if [[ ${PIPESTATUS[0]} == 0 ]]; then
     notify_slack "success"
     copy_outputs_to_intake_bucket
+
+    # Deploy the updated data to datasette
+    source ~/devtools/datasette/publish.sh
 else
     notify_slack "failure"
 fi

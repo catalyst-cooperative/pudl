@@ -3,12 +3,13 @@ name: zenodo-cache-sync
 
 on:
   workflow_dispatch:
-  push:
-  pull_request:
+  schedule:
+    - cron: "0 6 * * 1-5" # Weekdays at midnight on MST
 
 env:
   INTERNAL_ZENODO_CACHE_BUCKET: gs://internal-zenodo-cache.catalyst.coop
   PUBLIC_ZENODO_CACHE_BUCKET: gs://zenodo-cache.catalyst.coop
+  GITHUB_REF: ${{ github.ref_name }} # This is changed to dev if running on a schedule
 
 jobs:
   zenodo-cache-sync:
@@ -20,10 +21,15 @@ jobs:
         shell: bash -l {0}
 
     steps:
-      - name: Checkout dev branch
+      - name: Use dev branch if running on a schedule
+        if: ${{ (github.event_name == 'schedule') }}
+        run: |
+          echo "This action was triggered by a schedule." && echo "GITHUB_REF=dev" >> $GITHUB_ENV
+
+      - name: Checkout desired branch branch
         uses: actions/checkout@v3
         with:
-          ref: dev
+          ref: ${{ env.GITHUB_REF }}
 
       - name: Install Conda environment using mamba
         uses: mamba-org/provision-with-micromamba@v13
