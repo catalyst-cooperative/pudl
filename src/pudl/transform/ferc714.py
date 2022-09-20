@@ -5,7 +5,9 @@ import re
 import numpy as np
 import pandas as pd
 
+from pudl.metadata.classes import Resource
 from pudl.metadata.fields import apply_pudl_dtypes
+from pudl.metadata.resources import RESOURCE_METADATA
 from pudl.settings import Ferc714Settings
 
 logger = logging.getLogger(__name__)
@@ -602,5 +604,9 @@ def transform(raw_dfs, ferc714_settings: Ferc714Settings = Ferc714Settings()):
             raw_dfs[table].rename(columns=RENAME_COLS[table]).pipe(_early_transform)
         )
         tfr_dfs = tfr_funcs[table](tfr_dfs)
-        tfr_dfs[table] = apply_pudl_dtypes(tfr_dfs[table], group="ferc714")
+        if table in RESOURCE_METADATA:
+            tfr_dfs[table] = Resource.from_id(table).format_df(tfr_dfs[table])
+        else:
+            tfr_dfs[table] = apply_pudl_dtypes(tfr_dfs[table], group="ferc714")
+
     return tfr_dfs
