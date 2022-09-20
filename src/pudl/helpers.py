@@ -1387,19 +1387,24 @@ def get_working_eia_dates():
     return dates
 
 
-def dedupe_on_category(dedup_df, base_cols, category_name, sorter):
+def dedupe_on_category(
+    dedup_df: pd.DataFrame, base_cols: list[str], category_name: str, sorter: list[str]
+) -> pd.DataFrame:
     """Deduplicate a df using a sorted category to retain prefered values.
 
     Use a sorted category column to retain your prefered values when a
     dataframe is deduplicated.
 
     Args:
-        dedup_df (pandas.DataFrame): the dataframe with the record
-        base_cols (list) : list of columns to use when dropping duplicates
-        category_name (string) : name of categorical column
-        sorter (list): sorted list of category options
+        dedup_df: the dataframe with the records to deduplicate.
+        base_cols: list of columns which must not be duplicated.
+        category_name: name of the categorical column to order values for deduplication.
+        sorter: sorted list of categorical values found in the ``category_name`` column.
+
+    Returns:
+        The deduplicated dataframe.
     """
-    dedup_df.loc[:, category_name] = dedup_df.loc[:, category_name].astype(
+    dedup_df[category_name] = dedup_df[category_name].astype(
         pd.CategoricalDtype(categories=sorter, ordered=True)
     )
 
