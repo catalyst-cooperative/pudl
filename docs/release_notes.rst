@@ -159,11 +159,22 @@ Plant Parts List Module Changes
   :mod:`pudl.analysis.mcoe.DEFAULT_GENS_COLS`. If additional columns that are not part
   of the default list are needed from the EIA 860 generators table, these columns can be
   passed in with the ``gens_cols`` argument.  See :pr:`1550`
+* For memory efficiency, appropriate columns are now cast to string and
+  categorical types when the full plant parts list is created. The resource and field
+  metadata is now included in the PUDL metadata. See :pr:`1865`
+* For clarity and specificity, the ``plant_name_new`` column was renamed
+  ``plant_name_ppe`` and the ``ownership`` column was renamed ``ownership_record_type``.
+  See :pr:`1865`
+* The ``PLANT_PARTS_ORDERED`` list was removed and ``PLANT_PARTS`` is now an
+  ``OrderedDict`` that establishes the plant parts hierarchy in its keys. All references
+  to ``PLANT_PARTS_ORDERED`` were replaced with the ``PLANT_PARTS`` keys. See :pr:`1865`
 
 Metadata
 ^^^^^^^^
 * Used the data source metadata class added in release 0.6.0 to dynamically generate
   the data source documentation (See :doc:`data_sources/index`). :pr:`1532`
+* The EIA plant parts list was added to the resource and field metadata. This is the
+  first output table to be included in the metadata. See :pr:`1865`
 
 Documentation
 ^^^^^^^^^^^^^
