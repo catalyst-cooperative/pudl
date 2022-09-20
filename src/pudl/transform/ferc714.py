@@ -5,7 +5,9 @@ import re
 import numpy as np
 import pandas as pd
 
+from pudl.metadata.classes import Resource
 from pudl.metadata.fields import apply_pudl_dtypes
+from pudl.metadata.resources import RESOURCE_METADATA
 from pudl.settings import Ferc714Settings
 
 logger = logging.getLogger(__name__)
@@ -325,13 +327,15 @@ def _standardize_offset_codes(df, offset_fixes):
         Standardized UTC offset codes.
     """
     logger.debug("Standardizing UTC offset codes.")
-    # Treat empty string as missing
-    is_blank = df["utc_offset_code"] == ""
-    code = df["utc_offset_code"].mask(is_blank)
+    # We only need a couple of columns here:
+    codes = df[["respondent_id_ferc714", "utc_offset_code"]].copy()
+    # Set all blank "" missing UTC codes to np.nan
+    codes["utc_offset_code"] = codes.utc_offset_code.mask(codes.utc_offset_code == "")
     # Apply specific fixes on a per-respondent basis:
-    return code.groupby(df["respondent_id_ferc714"]).apply(
+    codes = codes.groupby("respondent_id_ferc714").transform(
         lambda x: x.replace(offset_fixes[x.name]) if x.name in offset_fixes else x
     )
+    return codes
 
 
 def _log_dupes(df, dupe_cols):
@@ -357,14 +361,11 @@ def respondent_id(tfr_dfs):
         respondent_id_ferc714 dataframe.
 
     """
-    df = (
-        tfr_dfs["respondent_id_ferc714"].assign(
-            respondent_name_ferc714=lambda x: x.respondent_name_ferc714.str.strip(),
-            eia_code=lambda x: x.eia_code.replace(to_replace=0, value=pd.NA),
-        )
-        # These excludes fake Test IDs -- not real planning areas
-        .query("respondent_id_ferc714 not in @BAD_RESPONDENTS")
-    )
+    df = tfr_dfs["respondent_id_ferc714"]
+    df["respondent_name_ferc714"] = df.respondent_name_ferc714.str.strip()
+    df.loc[df.eia_code == 0, "eia_code"] = pd.NA
+    # These excludes fake Test IDs -- not real planning areas
+    df = df[~df.respondent_id_ferc714.isin(BAD_RESPONDENTS)]
     # There are a few utilities that seem mappable, but missing:
     for rid in EIA_CODE_FIXES:
         df.loc[df.respondent_id_ferc714 == rid, "eia_code"] = EIA_CODE_FIXES[rid]
@@ -407,7 +408,7 @@ def demand_hourly_pa(tfr_dfs):
         year: set(pd.date_range(f"{year}-01-01", f"{year}-12-31", freq="1D"))
         for year in range(df["report_year"].min(), df["report_year"].max() + 1)
     }
-    assert (
+    assert (  # nosec B101
         df.groupby(["respondent_id_ferc714", "report_year"])
         .apply(lambda x: set(x["report_date"]) == all_dates[x.name[1]])
         .all()
@@ -415,7 +416,8 @@ def demand_hourly_pa(tfr_dfs):
 
     # Clean UTC offset codes
     df["utc_offset_code"] = df["utc_offset_code"].str.strip().str.upper()
-    df["utc_offset_code"] = df.pipe(_standardize_offset_codes, OFFSET_CODE_FIXES)
+    df["utc_offset_code"] = _standardize_offset_codes(df, OFFSET_CODE_FIXES)
+
     # NOTE: Assumes constant timezone for entire year
     for fix in OFFSET_CODE_FIXES_BY_YEAR:
         mask = (df["report_year"] == fix["report_year"]) & (
@@ -453,7 +455,7 @@ def demand_hourly_pa(tfr_dfs):
 
     # Assert that all records missing UTC offset have zero demand
     missing_offset = df["utc_offset"].isna()
-    assert df.loc[missing_offset, "demand_mwh"].eq(0).all()
+    assert df.loc[missing_offset, "demand_mwh"].eq(0).all()  # nosec B101
     # Drop these records
     df.query("~@missing_offset", inplace=True)
 
@@ -482,7 +484,9 @@ def demand_hourly_pa(tfr_dfs):
     df.loc[mask, "demand_mwh"] *= -1
 
     # Convert report_date to first day of year
-    df["report_date"] = df["report_date"].astype("datetime64[Y]")
+    df["report_date"] = pd.Series(
+        df.loc[:, "report_date"].to_numpy().astype("datetime64[Y]")
+    )
 
     # Format result
     columns = [
@@ -602,5 +606,9 @@ def transform(raw_dfs, ferc714_settings: Ferc714Settings = Ferc714Settings()):
             raw_dfs[table].rename(columns=RENAME_COLS[table]).pipe(_early_transform)
         )
         tfr_dfs = tfr_funcs[table](tfr_dfs)
-        tfr_dfs[table] = apply_pudl_dtypes(tfr_dfs[table], group="ferc714")
+        if table in RESOURCE_METADATA:
+            tfr_dfs[table] = Resource.from_id(table).format_df(tfr_dfs[table])
+        else:
+            tfr_dfs[table] = apply_pudl_dtypes(tfr_dfs[table], group="ferc714")
+
     return tfr_dfs
