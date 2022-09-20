@@ -136,7 +136,7 @@ Plant Parts List Module Changes
   categorical types when the full plant parts list is created. The resource and field
   metadata is now included in the PUDL metadata. See :pr:`1865`
 * For clarity and specificity, the ``plant_name_new`` column was renamed
-  ``plant_name_eia`` and the ``ownership`` column was renamed ``ownership_record_type``.
+  ``plant_name_ppe`` and the ``ownership`` column was renamed ``ownership_record_type``.
   See :pr:`1865`
 * The ``PLANT_PARTS_ORDERED`` list was removed and ``PLANT_PARTS`` is now an
   ``OrderedDict`` that establishes the plant parts hierarchy in its keys. All references
