@@ -1074,7 +1074,9 @@ def merge_dicts(list_of_dicts):
 
 
 def convert_cols_dtypes(
-    df: pd.DataFrame, data_source: str | None = None, name: str | None = None
+    df: pd.DataFrame,
+    data_source: str | None = None,
+    name: str | None = None,
 ) -> pd.DataFrame:
     """Convert a PUDL dataframe's columns to the correct data type.
 
