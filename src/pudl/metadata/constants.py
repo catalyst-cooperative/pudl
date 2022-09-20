@@ -2,7 +2,6 @@
 import datetime
 from collections.abc import Callable
 
-import numpy as np
 import pandas as pd
 import pyarrow as pa
 import sqlalchemy as sa
@@ -73,12 +72,12 @@ License attributes.
 """
 
 PERIODS: dict[str, Callable[[pd.Series], pd.Series]] = {
-    "year": lambda x: pd.Series(np.array(x).astype("datetime64[Y]")),
+    "year": lambda x: pd.Series(x.to_numpy().astype("datetime64[Y]")),
     "quarter": lambda x: x.apply(
         pd.tseries.offsets.QuarterBegin(startingMonth=1).rollback
     ),
-    "month": lambda x: pd.Series(np.array(x).astype("datetime64[M]")),
-    "date": lambda x: pd.Series(np.array(x).astype("datetime64[D]")),
+    "month": lambda x: pd.Series(x.to_numpy().astype("datetime64[M]")),
+    "date": lambda x: pd.Series(x.to_numpy().astype("datetime64[D]")),
 }
 """
 Functions converting datetimes to period start times, by time period.
