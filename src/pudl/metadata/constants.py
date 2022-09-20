@@ -72,12 +72,12 @@ License attributes.
 """
 
 PERIODS: dict[str, Callable[[pd.Series], pd.Series]] = {
-    "year": lambda x: x.astype("datetime64[Y]"),
+    "year": lambda x: pd.Series(x.to_numpy().astype("datetime64[Y]")),
     "quarter": lambda x: x.apply(
         pd.tseries.offsets.QuarterBegin(startingMonth=1).rollback
     ),
-    "month": lambda x: x.astype("datetime64[M]"),
-    "date": lambda x: x.astype("datetime64[D]"),
+    "month": lambda x: pd.Series(x.to_numpy().astype("datetime64[M]")),
+    "date": lambda x: pd.Series(x.to_numpy().astype("datetime64[D]")),
 }
 """
 Functions converting datetimes to period start times, by time period.

@@ -1,4 +1,5 @@
 """Functions & classes for compiling derived aspects of the FERC Form 714 data."""
+import logging
 from functools import cached_property
 from typing import Any
 
@@ -9,6 +10,7 @@ import pudl
 from pudl.metadata.fields import apply_pudl_dtypes
 from pudl.workspace.datastore import Datastore
 
+logger = logging.getLogger(__name__)
 ASSOCIATIONS: list[dict[str, Any]] = [
     # MISO: Midwest Indep System Operator
     {"id": 56669, "from": 2011, "to": [2009, 2010]},
@@ -101,13 +103,18 @@ def add_dates(rids_ferc714, report_dates):
     if "report_date" in rids_ferc714.columns:
         raise ValueError("report_date already present, can't be added again!")
     # Create DataFrame with all report_date and respondent_id_ferc714 combos
+    logger.info(f"Got {len(report_dates)} report_dates.")
+    unique_rids = rids_ferc714.respondent_id_ferc714.unique()
+    logger.info(f"found {len(unique_rids)} unique FERC-714 respondent IDs.")
     dates_rids_df = pd.DataFrame(
         index=pd.MultiIndex.from_product(
-            [report_dates, rids_ferc714.respondent_id_ferc714.unique()],
+            [report_dates, unique_rids],
             names=["report_date", "respondent_id_ferc714"],
         )
     ).reset_index()
-    return pd.merge(rids_ferc714, dates_rids_df, on="respondent_id_ferc714")
+    rids_with_dates = pd.merge(rids_ferc714, dates_rids_df, on="respondent_id_ferc714")
+    logger.info(f"Generated {len(rids_with_dates)} report_date + respondent_id rows.")
+    return rids_with_dates
 
 
 def categorize_eia_code(eia_codes, ba_ids, util_ids, priority="balancing_authority"):
@@ -431,12 +438,20 @@ class Respondents:
         """
         if update or self._categorized is None:
             rids_ferc714 = self.pudl_out.respondent_id_ferc714()
+            logger.info("Categorizing EIA codes associated with FERC-714 Respondents.")
             categorized = categorize_eia_code(
                 rids_ferc714.eia_code.dropna().unique(),
                 ba_ids=self.ba_ids,
                 util_ids=self.util_ids,
                 priority=self.priority,
-            ).merge(self.annualize(update=update), how="right")
+            )
+            logger.info(
+                "Merging categorized EIA codes with annualized FERC-714 Respondent "
+                "data."
+            )
+            categorized = pd.merge(
+                categorized, self.annualize(update=update), how="right"
+            )
             # Names, ids, and codes for BAs identified as FERC 714 respondents
             # NOTE: this is not *strictly* correct, because the EIA BAs are not
             # eternal and unchanging.  There's at least one case in which the BA
@@ -445,9 +460,14 @@ class Respondents:
             # addition to the balancing_authority_id_eia / eia_code fields ensures
             # that all years are populated for all BAs, which keeps them analogous
             # to the Utiliies in structure. Sooo.... it's fine for now.
-            ba_respondents = categorized.query(
-                "respondent_type=='balancing_authority'"
-            ).merge(
+            logger.info("Selecting FERC-714 Balancing Authority respondents.")
+            ba_respondents = categorized.query("respondent_type=='balancing_authority'")
+            logger.info(
+                "Merging FERC-714 Balancing Authority respondents with BA id/code/name "
+                "information from EIA-861."
+            )
+            ba_respondents = pd.merge(
+                ba_respondents,
                 self.balancing_authority_eia861[
                     [
                         "balancing_authority_id_eia",
@@ -463,13 +483,17 @@ class Respondents:
                 left_on="eia_code",
                 right_on="balancing_authority_id_eia",
             )
-            # Names and ids for Utils identified as FERC 714 respondents
-            util_respondents = categorized.query("respondent_type=='utility'").merge(
+            logger.info("Selecting names and IDs for FERC-714 Utility respondents.")
+            util_respondents = categorized.query("respondent_type=='utility'")
+            logger.info("Merging FERC-714 Utility respondents with service territory.")
+            util_respondents = pd.merge(
+                util_respondents,
                 pudl.analysis.service_territory.get_all_utils(self.pudl_out),
                 how="left",
                 left_on="eia_code",
                 right_on="utility_id_eia",
             )
+            logger.info("Concatenating categorized FERC-714 respondents.")
             self._categorized = pd.concat(
                 [
                     ba_respondents,
@@ -477,7 +501,8 @@ class Respondents:
                     # Uncategorized respondents w/ no respondent_type:
                     categorized[categorized.respondent_type.isnull()],
                 ]
-            ).pipe(apply_pudl_dtypes)
+            )
+            self._categorized = apply_pudl_dtypes(self._categorized)
         return self._categorized
 
     def summarize_demand(self, update=False):
