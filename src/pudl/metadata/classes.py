@@ -577,7 +577,13 @@ class Field(Base):
 
     name: SnakeCase
     type: Literal[  # noqa: A003
-        "string", "number", "integer", "boolean", "date", "datetime", "year"
+        "string",
+        "number",
+        "integer",
+        "boolean",
+        "date",
+        "datetime",
+        "year",
     ]
     title: String = None
     format: Literal["default"] = "default"  # noqa: A003
@@ -1149,7 +1155,7 @@ class Resource(Base):
     keywords: list[String] = []
     encoder: Encoder = None
     field_namespace: Literal[
-        "eia", "epacems", "ferc1", "ferc714", "glue", "pudl"
+        "eia", "epacems", "ferc1", "ferc714", "glue", "pudl", "ppe"
     ] = None
     etl_group: Literal[
         "eia860",
@@ -1161,6 +1167,7 @@ class Resource(Base):
         "ferc1_disabled",
         "ferc714",
         "glue",
+        "outputs",
         "static_ferc1",
         "static_eia",
         "static_eia_disabled",
@@ -1426,6 +1433,16 @@ class Resource(Base):
                 and pd.api.types.is_integer_dtype(df[field.name])
             ):
                 df[field.name] = pd.to_datetime(df[field.name], format="%Y")
+            if pd.api.types.is_categorical_dtype(dtypes[field.name]):
+                if not all(
+                    value in dtypes[field.name].categories
+                    for value in df[field.name].dropna().unique()
+                ):
+                    logger.warning(
+                        f"Values in {field.name} column are not included in "
+                        "categorical values in field enum constraint "
+                        "and will be converted to nulls."
+                    )
         df = (
             # Reorder columns and insert missing columns
             df.reindex(columns=dtypes.keys(), copy=False)
