@@ -1,12 +1,12 @@
 """Clean and normalize EIA bulk electricity data.
 
-EIA's bulk electricity data contains 680,000 timeseries. These timeseries contain a variety of measures (fuel amount and cost are just two) across multiple levels of aggregation, from individual plants to national averages. 
+EIA's bulk electricity data contains 680,000 timeseries. These timeseries contain a variety of measures (fuel amount and cost are just two) across multiple levels of aggregation, from individual plants to national averages.
 
 The data is formatted as a single 1.1GB text file of line-delimited JSON with one line per timeseries. Each JSON structure has two nested levels: the top level contains metadata describing the series and the second level (under the "data" heading) contains an array of timestamp/value pairs. This structure leads to a natural normalization into two tables: one of metadata and one of timeseries. That is the format delivered by the extract module.
 
 The transform module parses a compound key out of long string IDs and sets it as the index of the timeseries data. The rest of the metadata is not very valuable so is not returned.
 
-The EIA aggregates are related to their component categories via a set of association tables defined here. For example, 
+The EIA aggregates are related to their component categories via a set of association tables defined here. For example,
 """
 from io import StringIO
 
