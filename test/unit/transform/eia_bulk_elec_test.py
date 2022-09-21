@@ -44,20 +44,3 @@ def test__extract_keys_from_series_id(elec_txt_dataframe):
     )
     actual = bulk._extract_keys_from_series_id(input_)
     pd.testing.assert_frame_equal(actual, expected)
-
-
-def test__extract_keys_from_name(elec_txt_dataframe):
-    """Parse keys from EIA name string."""
-    input_ = elec_txt_dataframe.iloc[[2], :]
-    expected = pd.DataFrame(
-        {
-            "series": ["Receipts of fossil fuels by electricity plants (Btu)"],
-            "fuel": ["natural gas"],
-            "region": ["United States"],
-            "sector": ["electric utility non-cogen"],
-            "frequency": ["quarterly"],
-        },
-        index=[2],
-    )
-    actual = bulk._extract_keys_from_name(input_)
-    pd.testing.assert_frame_equal(actual, expected)
