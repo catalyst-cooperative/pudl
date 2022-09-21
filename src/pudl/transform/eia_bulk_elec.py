@@ -9,31 +9,44 @@ import pandas as pd
 EIA_SECTOR_AGGREGATE_ASSOCIATION = pd.read_csv(
     StringIO(
         """
-sector,is_cogen,aggregate,sector_code_eia,aggregate_description_eia
-commercial,True,all sectors,99,All sectors
-commercial,False,all sectors,99,All sectors
-industrial,True,all sectors,99,All sectors
-industrial,False,all sectors,99,All sectors
-electric utility,True,all sectors,99,All sectors
-electric utility,False,all sectors,99,All sectors
-independent power producers,True,all sectors,99,All sectors
-independent power producers,False,all sectors,99,All sectors
-industrial,True,all industrial (total),97,Power plants in the industrial sector
-industrial,False,all industrial (total),97,Power plants in the industrial sector
-commercial,True,all commercial (total),96,Power plants in the commercial sector
-commercial,False,all commercial (total),96,Power plants in the commercial sector
-electric utility,True,electric utility,1,Power plants owned by regulated electric utilties
-electric utility,False,electric utility,1,Power plants owned by regulated electric utilties
-independent power producers,True,independent power producers (total),94,Power plants owned by unregulated power companies (also called merchant generators)
-independent power producers,False,independent power producers (total),94,Power plants owned by unregulated power companies (also called merchant generators)
-electric utility,True,electric power (total),98,Power plants owned by companies whose primary purpose is to produce power
-electric utility,False,electric power (total),98,Power plants owned by companies whose primary purpose is to produce power
-independent power producers,True,electric power (total),98,Power plants owned by companies whose primary purpose is to produce power
-independent power producers,False,electric power (total),98,Power plants owned by companies whose primary purpose is to produce power
+sector_code_eia,sector_aggregate_code
+5,99
+4,99
+7,99
+6,99
+1,99
+3,99
+2,99
+7,97
+6,97
+5,96
+4,96
+1,1
+3,94
+2,94
+1,98
+3,98
+2,98
 """
     ),
 )
 """Association table describing the many-to-many relationships between plant sectors and various levels of EIA's aggregates."""
+
+
+BULK_EIA_SECTOR_AGGREGATES = pd.read_csv(
+    StringIO(
+        """
+sector_aggregate_code,aggregate_name,aggregate_description
+99,all_sectors,All power plants
+98,electric_power,Power plants owned by companies whose primary purpose is to produce power; both regulated and unregulated
+97,all_industrial,Power plants in the industrial sector; both cogen and non-cogen
+96,all_commercial,Power plants in the commercial sector; both cogen and non-cogen
+94,all_ipp,Power plants owned by unregulated power companies (also called merchant generators); both cogen and non-cogen
+1,electric_utility,Power plants owned by regulated electric utilties
+"""
+    ),
+)
+"""Names and descriptions of EIA sectoral aggregates."""
 
 
 # modified from:
@@ -44,89 +57,114 @@ independent power producers,False,electric power (total),98,Power plants owned b
 EIA_FUEL_AGGREGATE_ASSOCIATION = pd.read_csv(
     StringIO(
         """
-aggregate_fuel,aggregate_fuel_code,energy_source_code_eia
-bituminous coal,BIT,BIT
-subbituminous coal,SUB,SUB
-lignite coal,LIG,LIG
-coal,COW,BIT
-coal,COW,SUB
-coal,COW,LIG
-coal,COW,WC
-natural gas,NG,NG
-petroleum coke,PC,PC
-petroleum liquids,PEL,DFO
-petroleum liquids,PEL,RFO
-petroleum liquids,PEL,JF
-petroleum liquids,PEL,KER
-petroleum liquids,PEL,WO
+fuel_aggregate_code,energy_source_code_eia
+BIT,BIT
+SUB,SUB
+LIG,LIG
+COW,BIT
+COW,SUB
+COW,LIG
+COW,WC
+NG,NG
+PC,PC
+PEL,DFO
+PEL,RFO
+PEL,JF
+PEL,KER
+PEL,WO
     """
     ),
 )
 """Association table describing the many-to-many relationships between fuel types and various levels of EIA's aggregates."""
 
 
+EIA_BULK_FUEL_AGGREGATES = pd.read_csv(
+    StringIO(
+        """
+fuel_aggregate_code,fuel_aggregate_name
+BIT,bituminous_coal
+SUB,sub-bituminous_coal
+LIG,lignite_coal
+COW,all_coal
+NG,natural_gas
+PC,petroleum_coke
+PEL,petroleum_liquids
+"""
+    ),
+)
+"""Names of EIA bulk fuel aggregates.
+
+These codes and categories collide with, but are distinct from, the fuel codes found in EIA 860 or 923.
+"""
+
 # modified from:
 # meta.groupby(["region", "region_code"])['description'].first().str.strip('; ').str.split(';', expand=True)[[2]]
 # The raw data was missing Connecticut
-CENSUS_REGION_STATE_ASSOCIATION = pd.read_csv(
+# This is NOT an association table! The bulk data has a region 'USA' that aggregates all states (not sure about territories)
+STATES = pd.read_csv(
     StringIO(
         """
-region,region_code,state_name,state_abbrev
-East North Central,ENC,Illinois,IL
-East North Central,ENC,Michigan,MI
-East North Central,ENC,Wisconsin,WI
-East North Central,ENC,Indiana,IN
-East North Central,ENC,Ohio,OH
-East South Central,ESC,Mississippi,MS
-East South Central,ESC,Alabama,AL
-East South Central,ESC,Tennessee,TN
-East South Central,ESC,Kentucky,KY
-Middle Atlantic,MAT,New York,NY
-Middle Atlantic,MAT,Pennsylvania,PA
-Middle Atlantic,MAT,New Jersey,NJ
-Mountain,MTN,Idaho,ID
-Mountain,MTN,Montana,MT
-Mountain,MTN,Wyoming,WY
-Mountain,MTN,Colorado,CO
-Mountain,MTN,Arizona,AZ
-Mountain,MTN,New Mexico,SN
-Mountain,MTN,Utah,UT
-Mountain,MTN,Nevada,NV
-New England,NEW,Maine,ME
-New England,NEW,Rhode Island,RI
-New England,NEW,New Hampshire,NH
-New England,NEW,Vermont,VT
-New England,NEW,Connecticut,CT
-New England,NEW,Massaschusetts,MA
-Pacific Contiguous,PCC,Washington,WA
-Pacific Contiguous,PCC,California,CA
-Pacific Contiguous,PCC,Oregon,OR
-Pacific Noncontiguous,PCN,Alaska,AK
-Pacific Noncontiguous,PCN,Hawaii,HI
-South Atlantic,SAT,West Virginia,WV
-South Atlantic,SAT,Virginia,VA
-South Atlantic,SAT,South Carolina,SC
-South Atlantic,SAT,District of Columbia,DC
-South Atlantic,SAT,Georgia,GA
-South Atlantic,SAT,Florida,FL
-South Atlantic,SAT,Maryland,MD
-South Atlantic,SAT,North Carolina,NC
-South Atlantic,SAT,Delaware,DE
-West North Central,WNC,South Dakota,SD
-West North Central,WNC,North Dakota,ND
-West North Central,WNC,Minnesota,MN
-West North Central,WNC,Nebraska,NE
-West North Central,WNC,Missouri,MO
-West North Central,WNC,Kansas,KS
-West North Central,WNC,Iowa,IA
-West South Central,WSC,Texas,TX
-West South Central,WSC,Louisiana,LA
-West South Central,WSC,Oklahoma,OK
-West South Central,WSC,Arkansas,AR
+state_id_fips,state_name,state_abbrev,census_region,census_region_code
+1,Alabama,AL,East South Central,ESC
+2,Alaska,AK,Pacific Noncontiguous,PCN
+4,Arizona,AZ,Mountain,MTN
+5,Arkansas,AR,West South Central,WSC
+6,California,CA,Pacific Contiguous,PCC
+8,Colorado,CO,Mountain,MTN
+9,Connecticut,CT,New England,NEW
+10,Delaware,DE,South Atlantic,SAT
+11,D.C.,DC,South Atlantic,SAT
+12,Florida,FL,South Atlantic,SAT
+13,Georgia,GA,South Atlantic,SAT
+15,Hawaii,HI,Pacific Noncontiguous,PCN
+16,Idaho,ID,Mountain,MTN
+17,Illinois,IL,East North Central,ENC
+18,Indiana,IN,East North Central,ENC
+19,Iowa,IA,West North Central,WNC
+20,Kansas,KS,West North Central,WNC
+21,Kentucky,KY,East South Central,ESC
+22,Louisiana,LA,West South Central,WSC
+23,Maine,ME,New England,NEW
+24,Maryland,MD,South Atlantic,SAT
+25,Massachusetts,MA,New England,NEW
+26,Michigan,MI,East North Central,ENC
+27,Minnesota,MN,West North Central,WNC
+28,Mississippi,MS,East South Central,ESC
+29,Missouri,MO,West North Central,WNC
+30,Montana,MT,Mountain,MTN
+31,Nebraska,NE,West North Central,WNC
+32,Nevada,NV,Mountain,MTN
+33,New Hampshire,NH,New England,NEW
+34,New Jersey,NJ,Middle Atlantic,MAT
+35,New Mexico,NM,Mountain,MTN
+36,New York,NY,Middle Atlantic,MAT
+37,North Carolina,NC,South Atlantic,SAT
+38,North Dakota,ND,West North Central,WNC
+39,Ohio,OH,East North Central,ENC
+40,Oklahoma,OK,West South Central,WSC
+41,Oregon,OR,Pacific Contiguous,PCC
+42,Pennsylvania,PA,Middle Atlantic,MAT
+44,Rhode Island,RI,New England,NEW
+45,South Carolina,SC,South Atlantic,SAT
+46,South Dakota,SD,West North Central,WNC
+47,Tennessee,TN,East South Central,ESC
+48,Texas,TX,West South Central,WSC
+49,Utah,UT,Mountain,MTN
+50,Vermont,VT,New England,NEW
+51,Virginia,VA,South Atlantic,SAT
+53,Washington,WA,Pacific Contiguous,PCC
+54,West Virginia,WV,South Atlantic,SAT
+55,Wisconsin,WI,East North Central,ENC
+56,Wyoming,WY,Mountain,MTN
+60,American Samoa,AS,,
+66,Guam,GU,,
+69,Northern Mariana Islands,MP,,
+72,Puerto Rico,PR,,
+78,Virgin Islands,VI,,
     """
     ),
 )
-"""Association table describing the many-to-one relationships between states and Census Regions used in EIA's aggregates."""
+"""Table of state information, including the census regions used in EIA bulk aggregates."""
 
 
 def _get_empty_col_names(metadata: pd.DataFrame) -> set[str]:
