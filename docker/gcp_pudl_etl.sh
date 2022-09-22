@@ -93,7 +93,10 @@ if [[ ${PIPESTATUS[0]} == 0 ]]; then
     copy_outputs_to_intake_bucket
 
     # Deploy the updated data to datasette
-    source ~/devtools/datasette/publish.sh
+    if [ $GITHUB_REF = "dev" ]; then
+        gcloud config set run/region us-central1
+        source ~/devtools/datasette/publish.sh
+    fi
 else
     notify_slack "failure"
 fi
