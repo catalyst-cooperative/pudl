@@ -148,6 +148,83 @@ VALID_OIL_USD_PER_MMBTU = {
 """Historical petroleum price range from the EIA-923 Fuel Receipts and Costs table."""
 
 ##############################################################################
+# Unit Corrections
+##############################################################################
+COAL_COST_PER_MMBTU_CORRECTIONS = {
+    "data_col": "fuel_cost_per_mmbtu",
+    "cat_col": "fuel_type_code_pudl",
+    "cat_val": "coal",
+    "valid_range": VALID_COAL_USD_PER_MMBTU,
+    "unit_conversions": [
+        CENTS_TO_DOLLARS,
+    ],
+}
+GAS_COST_PER_MMBTU_CORRECTIONS = {
+    "data_col": "fuel_cost_per_mmbtu",
+    "cat_col": "fuel_type_code_pudl",
+    "cat_val": "gas",
+    "valid_range": VALID_GAS_USD_PER_MMBTU,
+    "unit_conversions": [
+        CENTS_TO_DOLLARS,
+    ],
+}
+OIL_COST_PER_MMBTU_CORRECTIONS = {
+    "data_col": "fuel_cost_per_mmbtu",
+    "cat_col": "fuel_type_code_pudl",
+    "cat_val": "oil",
+    "valid_range": VALID_OIL_USD_PER_MMBTU,
+    "unit_conversions": [
+        CENTS_TO_DOLLARS,
+    ],
+}
+FUEL_COST_PER_MMBTU_CORRECTIONS = [
+    COAL_COST_PER_MMBTU_CORRECTIONS,
+    GAS_COST_PER_MMBTU_CORRECTIONS,
+    OIL_COST_PER_MMBTU_CORRECTIONS,
+]
+
+COAL_MMBTU_PER_UNIT_CORRECTIONS = {
+    "data_col": "fuel_mmbtu_per_unit",
+    "cat_col": "fuel_type_code_pudl",
+    "cat_val": "coal",
+    "valid_range": VALID_COAL_MMBTU_PER_TON,
+    "unit_conversions": [
+        PERPOUND_TO_PERSHORTTON,
+        BTU_TO_MMBTU,
+    ],
+}
+GAS_MMBTU_PER_UNIT_CORRECTIONS = {
+    "data_col": "fuel_mmbtu_per_unit",
+    "cat_col": "fuel_type_code_pudl",
+    "cat_val": "gas",
+    "valid_range": VALID_GAS_MMBTU_PER_MCF,
+    "unit_conversions": [
+        PERCF_TO_PERMCF,
+        BTU_TO_MMBTU,
+    ],
+}
+OIL_MMBTU_PER_UNIT_CORRECTIONS = {
+    "data_col": "fuel_mmbtu_per_unit",
+    "cat_col": "fuel_type_code_pudl",
+    "cat_val": "oil",
+    "valid_range": VALID_OIL_MMBTU_PER_BBL,
+    "unit_conversions": [
+        PERGALLON_TO_PERBARREL,
+        BTU_TO_MMBTU,  # Why was this omitted in the old corrections?
+    ],
+}
+FUEL_MMBTU_PER_UNIT_CORRECTIONS = [
+    COAL_MMBTU_PER_UNIT_CORRECTIONS,
+    GAS_MMBTU_PER_UNIT_CORRECTIONS,
+    OIL_MMBTU_PER_UNIT_CORRECTIONS,
+]
+
+FUEL_UNIT_CORRECTIONS = [
+    *FUEL_COST_PER_MMBTU_CORRECTIONS,
+    *FUEL_MMBTU_PER_UNIT_CORRECTIONS,
+]
+
+##############################################################################
 # String normalizations
 ##############################################################################
 FERC1_STRING_NORM = {
@@ -1630,8 +1707,9 @@ TRANSFORM_PARAMS = {
         },
         "correct_units": [
             {
-                "col": "fuel_mmbtu_per_unit",
-                "query": "fuel_type_code_pudl=='coal'",
+                "data_col": "fuel_mmbtu_per_unit",
+                "cat_col": "fuel_type_code_pudl",
+                "cat_val": "coal",
                 "valid_range": VALID_COAL_MMBTU_PER_TON,
                 "unit_conversions": [
                     PERPOUND_TO_PERSHORTTON,
@@ -1639,16 +1717,18 @@ TRANSFORM_PARAMS = {
                 ],
             },
             {
-                "col": "fuel_cost_per_mmbtu",
-                "query": "fuel_type_code_pudl=='coal'",
+                "data_col": "fuel_cost_per_mmbtu",
+                "cat_col": "fuel_type_code_pudl",
+                "cat_val": "coal",
                 "valid_range": VALID_COAL_USD_PER_MMBTU,
                 "unit_conversions": [
                     CENTS_TO_DOLLARS,
                 ],
             },
             {
-                "col": "fuel_mmbtu_per_unit",
-                "query": "fuel_type_code_pudl=='gas'",
+                "data_col": "fuel_mmbtu_per_unit",
+                "cat_col": "fuel_type_code_pudl",
+                "cat_val": "gas",
                 "valid_range": VALID_GAS_MMBTU_PER_MCF,
                 "unit_conversions": [
                     PERCF_TO_PERMCF,
@@ -1656,16 +1736,18 @@ TRANSFORM_PARAMS = {
                 ],
             },
             {
-                "col": "fuel_cost_per_mmbtu",
-                "query": "fuel_type_code_pudl=='gas'",
+                "data_col": "fuel_cost_per_mmbtu",
+                "cat_col": "fuel_type_code_pudl",
+                "cat_val": "gas",
                 "valid_range": VALID_GAS_USD_PER_MMBTU,
                 "unit_conversions": [
                     CENTS_TO_DOLLARS,
                 ],
             },
             {
-                "col": "fuel_mmbtu_per_unit",
-                "query": "fuel_type_code_pudl=='oil'",
+                "data_col": "fuel_mmbtu_per_unit",
+                "cat_col": "fuel_type_code_pudl",
+                "cat_val": "oil",
                 "valid_range": VALID_OIL_MMBTU_PER_BBL,
                 "unit_conversions": [
                     PERGALLON_TO_PERBARREL,
@@ -1673,8 +1755,9 @@ TRANSFORM_PARAMS = {
                 ],
             },
             {
-                "col": "fuel_cost_per_mmbtu",
-                "query": "fuel_type_code_pudl=='oil'",
+                "data_col": "fuel_cost_per_mmbtu",
+                "cat_col": "fuel_type_code_pudl",
+                "cat_val": "oil",
                 "valid_range": VALID_OIL_USD_PER_MMBTU,
                 "unit_conversions": [
                     CENTS_TO_DOLLARS,

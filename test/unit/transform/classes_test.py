@@ -38,13 +38,98 @@ from pudl.transform.params.ferc1 import (
     FERC1_STRING_NORM,
     KW_TO_MW,
     KWH_TO_MWH,
+    PERCF_TO_PERMCF,
+    PERGALLON_TO_PERBARREL,
+    PERPOUND_TO_PERSHORTTON,
+    VALID_COAL_MMBTU_PER_TON,
+    VALID_GAS_MMBTU_PER_MCF,
+    VALID_OIL_MMBTU_PER_BBL,
     VALID_PLANT_YEARS,
 )
+
+# Unit conversions that are only used in testing
+PERTHERM_TO_PERMCF = dict(
+    multiplier=10.37,
+    from_unit="_per_therm",
+    to_unit="_per_mcf",
+)
+PERGRAM_TO_PERSHORTTON = dict(
+    multiplier=907185,
+    from_unit="_per_kg",
+    to_unit="_per_ton",
+)
+PERTON_TO_PERBARREL = dict(
+    multiplier=(1.0 / 7.46),
+    from_unit="_per_ton",
+    to_unit="_per_bbl",
+)
+PERKGAL_TO_PERBARREL = dict(
+    multiplier=42000.0,
+    from_unit="_per_kgal",
+    to_unit="_per_bbl",
+)
+PERFUCKTON_TO_PERSHORTTON = dict(
+    multiplier=1.0e-9,
+    adder=123.4e-9,
+    from_unit="_per_fuckton",
+    to_unit="_per_ton",
+)
+BUTTLOAD_TO_MMBUTTLOAD = dict(
+    multiplier=1.0e9,
+    adder=1.234e9,
+    from_unit="_butt",
+    to_unit="_mmbutt",
+)
+
+# Unit corrections only used in testing
+COAL_MMBTU_PER_UNIT_CORRECTIONS = {
+    "data_col": "fuel_mmbtu_per_unit",
+    "cat_col": "fuel_type_code_pudl",
+    "cat_val": "coal",
+    "valid_range": VALID_COAL_MMBTU_PER_TON,
+    "unit_conversions": [
+        PERPOUND_TO_PERSHORTTON,
+        BTU_TO_MMBTU,
+        PERGRAM_TO_PERSHORTTON,
+        PERFUCKTON_TO_PERSHORTTON,
+    ],
+}
+GAS_MMBTU_PER_UNIT_CORRECTIONS = {
+    "data_col": "fuel_mmbtu_per_unit",
+    "cat_col": "fuel_type_code_pudl",
+    "cat_val": "gas",
+    "valid_range": VALID_GAS_MMBTU_PER_MCF,
+    "unit_conversions": [
+        PERCF_TO_PERMCF,
+        BTU_TO_MMBTU,
+        PERTHERM_TO_PERMCF,
+        BUTTLOAD_TO_MMBUTTLOAD,
+    ],
+}
+OIL_MMBTU_PER_UNIT_CORRECTIONS = {
+    "data_col": "fuel_mmbtu_per_unit",
+    "cat_col": "fuel_type_code_pudl",
+    "cat_val": "oil",
+    "valid_range": VALID_OIL_MMBTU_PER_BBL,
+    "unit_conversions": [
+        PERGALLON_TO_PERBARREL,
+        PERTON_TO_PERBARREL,
+        PERKGAL_TO_PERBARREL,
+        BTU_TO_MMBTU,
+    ],
+}
+
+FUEL_UNIT_CORRECTIONS = [
+    COAL_MMBTU_PER_UNIT_CORRECTIONS,
+    GAS_MMBTU_PER_UNIT_CORRECTIONS,
+    OIL_MMBTU_PER_UNIT_CORRECTIONS,
+]
 
 VALID_CAPACITY_MW = {
     "lower_bound": 0.0,
     "upper_bound": 4000.0,
 }
+
 
 ANIMAL_CATS: dict[str, set[str]] = {
     "categories": {
@@ -167,23 +252,36 @@ NUMERICAL_DATA: pd.DataFrame = pd.DataFrame(
     [
         pytest.param(
             dict(
-                col="column",
-                query="query string",
+                data_col="column",
+                cat_col="categories",
+                cat_val="cat",
                 valid_range={"lower_bound": 1.0, "upper_bound": 999},
                 unit_conversions=[BTU_TO_MMBTU, KWH_TO_MWH],
             ),
             does_not_raise(),
-            id="good_unit_corrections",
+            id="distinct_unit_corrections",
         ),
         pytest.param(
             dict(
-                col="column",
-                query="query string",
+                data_col="column",
+                cat_col="categories",
+                cat_val="cat",
                 valid_range={"lower_bound": 1.0, "upper_bound": 1000},
                 unit_conversions=[BTU_TO_MMBTU, KWH_TO_MWH],
             ),
             pytest.raises(ValidationError),
-            id="bad_unit_corrections",
+            id="overlapping_unit_corrections",
+        ),
+        pytest.param(
+            dict(
+                data_col="column",
+                cat_col="fuel_type",
+                cat_val="gas",
+                valid_range={"lower_bound": 0.3, "upper_bound": 3.3},
+                unit_conversions=[PERTHERM_TO_PERMCF],
+            ),
+            pytest.raises(ValidationError),
+            id="self_overlapping_unit_correction",
         ),
     ],
 )
@@ -365,7 +463,27 @@ def test_rename_columns():
 def test_correct_units():
     """Test unit connection function in isolation.
 
+    * Start with a dataframe that has coherent units in a data column.
+    * These units need to be different in different rows (vary by fuel type).
     * Test that the order in which the conversions are applied doesn't matter.
+
+    * Input dataframe looks like:
+      * index column (int)
+      * fuel type (categorical: coal, oil, gas)
+      * fuel heat content per unit of fuel (numerical data). This can be generated
+        automatically given the UnitCorrection (valid_range, query, col)
+
+    * Re-run the same tests as above, but concatenate some "bad" data to the coherent
+      dataframe, and verify that it is set to NA in the end.
+    * The bad data can also be generated automatically, by adding some data to the
+      input dataframe that explicitly falls *outside* the valid range.
+    * Need to have a set of indices here that's guaranteed to be distinct from the
+      good input data so they can be recognized at the end to check for NA values.
+
+    * Function to create either good or bad data, given list[UnitCorrection]
+      * Here it would be helpful if query were broken out into query_col & category so
+        they could be used separately.
+
     """
     ...
 

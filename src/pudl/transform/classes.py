@@ -437,8 +437,9 @@ class UnitCorrections(TransformParams):
 
     """
 
-    col: str
-    query: str
+    data_col: str
+    cat_col: str
+    cat_val: str
     valid_range: ValidRange
     unit_conversions: list[UnitConversion]
 
@@ -475,8 +476,9 @@ class UnitCorrections(TransformParams):
             [params["valid_range"].lower_bound, params["valid_range"].upper_bound],
             name="dude",
         )
-        # If there are < 2 unit conversions, this is an empty iterator which is fine:
-        uc_combos = combinations(params["unit_conversions"], 2)
+        # We need to make sure that the unit conversion doesn't map the valid range
+        # onto itself either, so add an additional conversion that does nothing:
+        uc_combos = combinations(params["unit_conversions"] + [UnitConversion()], 2)
         for uc1, uc2 in uc_combos:
             out1 = convert_units(input_vals, uc1.inverse())
             out2 = convert_units(input_vals, uc2.inverse())
@@ -520,11 +522,14 @@ def correct_units(df: pd.DataFrame, params: UnitCorrections) -> pd.DataFrame:
     set to NA.
 
     """
-    logger.info(f"Correcting units of {params.col} where {params.query}.")
+    logger.info(
+        f"Correcting units of {params.data_col} "
+        f"where {params.cat_col}=={params.cat_val}."
+    )
     # Select a subset of the input dataframe to work on. E.g. only the heat content
     # column for coal records:
-    selected = df.loc[df.query(params.query).index, params.col]
-    not_selected = df[params.col].drop(index=selected.index)
+    selected = df.loc[df[params.cat_col] == params.cat_val, params.data_col]
+    not_selected = df[params.data_col].drop(index=selected.index)
 
     # Now, we only want to alter the subset of these values which, when transformed by
     # the unit conversion, lie in the range of valid values.
@@ -544,7 +549,7 @@ def correct_units(df: pd.DataFrame, params: UnitCorrections) -> pd.DataFrame:
     )
     # Combine our cleaned up values with the other values we didn't select.
     df = df.copy()
-    df[params.col] = pd.concat([selected, not_selected])
+    df[params.data_col] = pd.concat([selected, not_selected])
     return df
 
 
