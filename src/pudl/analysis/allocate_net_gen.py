@@ -212,8 +212,18 @@ def allocate_gen_fuel_by_generator_energy_source(pudl_out, drop_interim_cols=Tru
         key_columns=["plant_id_eia", "boiler_id", "energy_source_code"],
         data_column_name="fuel_consumed_mmbtu",
     )
+    # load boiler generator associations
+    bga = pudl_out.bga_eia860().loc[
+        :,
+        [
+            "plant_id_eia",
+            "boiler_id",
+            "generator_id",
+            "report_date",
+        ],
+    ]
     # allocate the boiler fuel data to generators
-    bf = allocate_bf_data_to_gens(bf, gens, pudl_out)
+    bf = allocate_bf_data_to_gens(bf, gens, bga)
 
     # add any startup energy source codes to the list of energy source codes
     # fix MSW codes
@@ -1326,24 +1336,16 @@ def distribute_annually_reported_data_to_months(df, key_columns, data_column_nam
     annual_reporters = annual_reporters[~annual_reporters[data_column_name].isna()]
 
     # distribute this data out to each of the monthly values
-    for index, row in annual_reporters.iterrows():
-        if len(key_columns) == 3:
-            df.loc[
-                (df[key_columns[0]] == row[key_columns[0]])
-                & (df[key_columns[1]] == row[key_columns[1]])
-                & (df[key_columns[2]] == row[key_columns[2]]),
-                data_column_name,
-            ] = (
-                row[data_column_name] / 12
-            )
-        elif len(key_columns) == 2:
-            df.loc[
-                (df[key_columns[0]] == row[key_columns[0]])
-                & (df[key_columns[1]] == row[key_columns[1]]),
-                data_column_name,
-            ] = (
-                row[data_column_name] / 12
-            )
+    df = df.merge(
+        annual_reporters[key_columns + [data_column_name]],
+        how="left",
+        on=key_columns,
+        suffixes=(None, "_annual_total"),
+    )
+    df.loc[:, data_column_name] = df.loc[:, data_column_name].fillna(
+        df.loc[:, f"{data_column_name}_annual_total"] / 12
+    )
+    df = df.drop(columns=[f"{data_column_name}_annual_total"])
 
     return df
 
@@ -1432,37 +1434,25 @@ def adjust_energy_source_codes(gens, gf, bf):
     return gens
 
 
-def allocate_bf_data_to_gens(bf, gens, pudl_out):
+def allocate_bf_data_to_gens(bf, gens, bga):
     """Allocates bf data to the generator level.
 
     Distributes boiler-level data from boiler_fuel_eia923 to
     the generator level based on the boiler-generator association
     table and the nameplate capacity of the connected generators.
     """
-    # load boiler generator associations
-    bga = pudl_out.bga_eia860().loc[
-        :,
-        [
-            "plant_id_eia",
-            "boiler_id",
-            "generator_id",
-            "report_date",
-        ],
-    ]
-
     # merge generator capacity information into the BGA
     bga = bga.merge(
         gens[["plant_id_eia", "generator_id", "capacity_mw", "report_date"]],
         how="left",
         on=["plant_id_eia", "generator_id", "report_date"],
         validate="m:1",
-    ).set_index(["plant_id_eia", "boiler_id", "report_date", "generator_id"])
+    )
     # calculate an allocation fraction based on the capacity of each generator with which
     # a boiler is connected
-    bga["cap_frac"] = (
-        bga / bga.groupby(["plant_id_eia", "boiler_id", "report_date"]).sum()
-    )
-    bga = bga.reset_index()
+    bga["cap_frac"] = bga[["capacity_mw"]] / bga.groupby(
+        ["plant_id_eia", "boiler_id", "report_date"]
+    )[["capacity_mw"]].transform("sum")
 
     # drop records from bf where there is missing fuel data
     bf = bf.dropna(subset="fuel_consumed_mmbtu")
