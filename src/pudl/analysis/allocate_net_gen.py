@@ -326,7 +326,6 @@ def group_duplicate_keys(df):
     Sometimes the allocation process creates duplicate keys. This function identifies
     when this happens, and aggregates the data on these keys to remove the duplicates.
     """
-
     # identify any duplicate records
     duplicate_keys = df[
         df.duplicated(subset=(IDX_PM_ESC + ["generator_id", "energy_source_code_num"]))
@@ -765,7 +764,7 @@ def _associate_unconnected_records(eia_generators_merged: pd.DataFrame):
         .rename(columns={"energy_source_code": "energy_source_unconnected"})
         .assign(energy_source_code_num="energy_source_code_1")
         .groupby(by=idx_pm)
-        .sum(min_count=1)
+        .sum(min_count=1, numeric_only=True)
         .reset_index()
     )
     eia_generators = (

@@ -1122,7 +1122,7 @@ class PudlTabl:
             gens_cols: equal to the string "all", None, or a list of
                 additional column attributes to include from the EIA 860 generators table
                 in the output mega gens table. By default all columns necessary to create
-                the mega generators table are included.
+                the plant parts EIA table are included.
 
         Returns:
             A table of all of the generators with identifying
@@ -1155,6 +1155,8 @@ class PudlTabl:
                     "retirement_date",
                     "operational_status",
                     "capacity_mw",
+                    "fuel_type_code_pudl",
+                    "planned_retirement_date",
                 ]
                 gens_cols = list(set(gens_cols + default_cols))
             self._dfs[
@@ -1211,6 +1213,28 @@ class PudlTabl:
             )
 
         return self._dfs["plant_parts_eia"]
+
+    ###########################################################################
+    # GLUE OUTPUTS
+    ###########################################################################
+
+    def epacamd_eia(
+        self,
+        update: bool = False,
+    ) -> pd.DataFrame:
+        """Pull the EPACAMD-EIA Crosswalk Table.
+
+        Args:
+            update: If true, re-calculate the output dataframe, even if
+                a cached version exists.
+
+        Returns:
+            A denormalized table for interactive use.
+
+        """
+        if update or self._dfs["epacamd_eia"] is None:
+            self._dfs["epacamd_eia"] = pudl.output.epacems.epacamd_eia(self.pudl_engine)
+        return self._dfs["epacamd_eia"]
 
 
 def get_table_meta(pudl_engine):

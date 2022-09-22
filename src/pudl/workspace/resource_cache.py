@@ -7,10 +7,29 @@ from typing import Any, NamedTuple
 from urllib.parse import urlparse
 
 import google.auth
+from google.api_core.exceptions import BadRequest
+from google.api_core.retry import Retry
 from google.cloud import storage
 from google.cloud.storage.blob import Blob
+from google.cloud.storage.retry import _should_retry
 
 logger = logging.getLogger(__name__)
+
+
+def extend_gcp_retry_predicate(predicate, *exception_types):
+    """Extend a GCS predicate function with additional exception_types."""
+
+    def new_predicate(erc):
+        """Predicate for checking an exception type."""
+        return predicate(erc) or isinstance(erc, exception_types)
+
+    return new_predicate
+
+
+# Add BadRequest to default predicate _should_retry.
+# GCS get requests occasionally fail because of BadRequest errors.
+# See issue #1734.
+gcs_retry = Retry(predicate=extend_gcp_retry_predicate(_should_retry, BadRequest))
 
 
 class PudlResourceKey(NamedTuple):
@@ -127,7 +146,7 @@ class GoogleCloudStorageCache(AbstractCache):
 
     def get(self, resource: PudlResourceKey) -> bytes:
         """Retrieves value associated with given resource."""
-        return self._blob(resource).download_as_bytes()
+        return self._blob(resource).download_as_bytes(retry=gcs_retry)
 
     def add(self, resource: PudlResourceKey, value: bytes):
         """Adds (or updates) resource to the cache with given value."""
@@ -139,7 +158,7 @@ class GoogleCloudStorageCache(AbstractCache):
 
     def contains(self, resource: PudlResourceKey) -> bool:
         """Returns True if resource is present in the cache."""
-        return self._blob(resource).exists()
+        return self._blob(resource).exists(retry=gcs_retry)
 
 
 class LayeredCache(AbstractCache):
