@@ -1,4 +1,6 @@
 """Static database tables."""
+from io import StringIO
+
 import pandas as pd
 
 FERC_ACCOUNTS: pd.DataFrame = pd.DataFrame(
@@ -231,3 +233,135 @@ Row numbers, FERC account IDs, and FERC account descriptions.
 From FERC Form 1 page 219, Accumulated Provision for Depreciation of electric
 utility plant (Account 108).
 """
+
+EIA_SECTOR_AGGREGATE_ASSOCIATION = pd.read_csv(
+    StringIO(
+        """
+sector_agg,sector_id_eia
+electric_utility,1
+ipp_non_cogen,2
+ipp_cogen,3
+commercial_non_cogen,4
+commercial_cogen,5
+industrial_non_cogen,6
+industrial_cogen,7
+all_sectors,1
+all_sectors,2
+all_sectors,3
+all_sectors,4
+all_sectors,5
+all_sectors,6
+all_sectors,7
+all_ipp,2
+all_ipp,3
+all_commercial,4
+all_commercial,5
+all_industrial,6
+all_industrial,7
+electric_power,1
+electric_power,2
+electric_power,3
+"""
+    ),
+)
+"""Association table describing the many-to-many relationships between plant sectors
+and various aggregates in fuel_receipts_costs_aggs_eia.
+"""
+
+# PEL is defined as "Summation of all petroleum liquids (distallte fuel oil, jet fuel,
+# residual fuel oil, kerosense waste oil and other petroleum liquids)"
+# Missing from this list are all the "other" categories of gases: OG, BFG, SGP, SC, PG
+# Those gases combine for about the same total MMBTU as DFO, about 0.2% of all reported
+# fuel receipts
+EIA_FUEL_AGGREGATE_ASSOCIATION = pd.read_csv(
+    StringIO(
+        """
+fuel_agg,energy_source_code_eia
+bituminous_coal,BIT
+sub_bituminous_coal,SUB
+lignite_coal,LIG
+all_coal,BIT
+all_coal,SUB
+all_coal,LIG
+all_coal,WC
+natural_gas,NG
+petroleum_coke,PC
+petroleum_liquids,DFO
+petroleum_liquids,RFO
+petroleum_liquids,JF
+petroleum_liquids,KER
+petroleum_liquids,WO
+    """
+    ),
+)
+"""Association table describing the many-to-many relationships between fuel types
+and various aggregates in fuel_receipts_costs_aggs_eia."""
+
+
+# This is NOT an association table! The bulk data has a region 'USA' that aggregates
+# all states (not sure about territories)
+STATES = pd.read_csv(
+    StringIO(
+        """
+state_id_fips,state_name,state_abbrev,census_region,census_region_abbrev
+"01",Alabama,AL,East South Central,ESC
+"02",Alaska,AK,Pacific Noncontiguous,PCN
+"04",Arizona,AZ,Mountain,MTN
+"05",Arkansas,AR,West South Central,WSC
+"06",California,CA,Pacific Contiguous,PCC
+"08",Colorado,CO,Mountain,MTN
+"09",Connecticut,CT,New England,NEW
+"10",Delaware,DE,South Atlantic,SAT
+"11",D.C.,DC,South Atlantic,SAT
+"12",Florida,FL,South Atlantic,SAT
+"13",Georgia,GA,South Atlantic,SAT
+"15",Hawaii,HI,Pacific Noncontiguous,PCN
+"16",Idaho,ID,Mountain,MTN
+"17",Illinois,IL,East North Central,ENC
+"18",Indiana,IN,East North Central,ENC
+"19",Iowa,IA,West North Central,WNC
+"20",Kansas,KS,West North Central,WNC
+"21",Kentucky,KY,East South Central,ESC
+"22",Louisiana,LA,West South Central,WSC
+"23",Maine,ME,New England,NEW
+"24",Maryland,MD,South Atlantic,SAT
+"25",Massachusetts,MA,New England,NEW
+"26",Michigan,MI,East North Central,ENC
+"27",Minnesota,MN,West North Central,WNC
+"28",Mississippi,MS,East South Central,ESC
+"29",Missouri,MO,West North Central,WNC
+"30",Montana,MT,Mountain,MTN
+"31",Nebraska,NE,West North Central,WNC
+"32",Nevada,NV,Mountain,MTN
+"33",New Hampshire,NH,New England,NEW
+"34",New Jersey,NJ,Middle Atlantic,MAT
+"35",New Mexico,NM,Mountain,MTN
+"36",New York,NY,Middle Atlantic,MAT
+"37",North Carolina,NC,South Atlantic,SAT
+"38",North Dakota,ND,West North Central,WNC
+"39",Ohio,OH,East North Central,ENC
+"40",Oklahoma,OK,West South Central,WSC
+"41",Oregon,OR,Pacific Contiguous,PCC
+"42",Pennsylvania,PA,Middle Atlantic,MAT
+"44",Rhode Island,RI,New England,NEW
+"45",South Carolina,SC,South Atlantic,SAT
+"46",South Dakota,SD,West North Central,WNC
+"47",Tennessee,TN,East South Central,ESC
+"48",Texas,TX,West South Central,WSC
+"49",Utah,UT,Mountain,MTN
+"50",Vermont,VT,New England,NEW
+"51",Virginia,VA,South Atlantic,SAT
+"53",Washington,WA,Pacific Contiguous,PCC
+"54",West Virginia,WV,South Atlantic,SAT
+"55",Wisconsin,WI,East North Central,ENC
+"56",Wyoming,WY,Mountain,MTN
+"60",American Samoa,AS,,
+"66",Guam,GU,,
+"69",Northern Mariana Islands,MP,,
+"72",Puerto Rico,PR,,
+"78",Virgin Islands,VI,,
+    """
+    ),
+)
+"""Table of state information, including the census regions used in
+fuel_receipts_costs_aggs_eia."""
