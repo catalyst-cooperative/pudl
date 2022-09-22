@@ -31,11 +31,13 @@ def elec_txt_dataframe(test_file_bytes) -> pd.DataFrame:
     return df
 
 
-def test__filter_df(elec_txt_dataframe):
+def test__filter_for_fuel_receipts_costs_series(elec_txt_dataframe):
     """Filter for only the desired data series."""
     input_ = elec_txt_dataframe
-    expected = input_.iloc[1:, :]
-    actual = bulk._filter_df(input_)
+    expected = input_.iloc[
+        1:, :
+    ]  # row 0 should be filtered because it is not COST_BTU or RECEIPTS_BTU
+    actual = bulk._filter_for_fuel_receipts_costs_series(input_)
     pd.testing.assert_frame_equal(actual, expected)
 
 
@@ -72,13 +74,13 @@ def test__parse_data_column(elec_txt_dataframe):
     pd.testing.assert_frame_equal(actual, expected)
 
 
-def test_extract(test_file_bytes):
+def test__extract(test_file_bytes):
     """Check shape and column names of output dataframes."""
     zipped_buffer = BytesIO()
     with ZipFile(zipped_buffer, mode="w") as archive:
         archive.writestr("elec.txt", test_file_bytes)
 
-    actual_dfs = bulk.extract(zipped_buffer)
+    actual_dfs = bulk._extract(zipped_buffer)
     actual_metadata = actual_dfs["metadata"]
     actual_timeseries = actual_dfs["timeseries"]
 
