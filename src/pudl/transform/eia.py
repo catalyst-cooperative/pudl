@@ -1006,11 +1006,11 @@ def _boiler_generator_assn(  # noqa: C901
         bga_unit_id_eia_counts.unit_id_eia_count > 1
     ]
     too_many_codes = (
-        too_many_codes[~too_many_codes.unit_id_eia.isnull()]
+        too_many_codes[too_many_codes.unit_id_eia.notna()]
         .groupby(["plant_id_eia", "unit_id_pudl"])["unit_id_eia"]
         .unique()
     )
-    for row in too_many_codes.iteritems():
+    for row in too_many_codes.items():
         logger.warning(
             f"Multiple EIA unit codes:"
             f"plant_id_eia={row[0][0]}, "
