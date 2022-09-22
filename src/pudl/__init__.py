@@ -23,6 +23,7 @@ import pudl.extract.eia860
 import pudl.extract.eia860m
 import pudl.extract.eia861
 import pudl.extract.eia923
+import pudl.extract.eia_bulk_elec
 import pudl.extract.epacems
 import pudl.extract.excel
 import pudl.extract.ferc1
@@ -52,6 +53,7 @@ import pudl.transform.eia
 import pudl.transform.eia860
 import pudl.transform.eia861
 import pudl.transform.eia923
+import pudl.transform.eia_bulk_elec
 import pudl.transform.epacems
 import pudl.transform.ferc1
 import pudl.transform.ferc714
