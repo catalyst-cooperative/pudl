@@ -29,6 +29,7 @@ from pudl.transform.classes import (
     cache_df,
     categorize_strings,
     convert_units,
+    correct_units,
     drop_invalid_rows,
     normalize_strings,
     nullify_outliers,
@@ -36,6 +37,8 @@ from pudl.transform.classes import (
 from pudl.transform.params.ferc1 import (
     BTU_TO_MMBTU,
     FERC1_STRING_NORM,
+    FUEL_COST_PER_MMBTU_CORRECTIONS,
+    FUEL_MMBTU_PER_UNIT_CORRECTIONS,
     KW_TO_MW,
     KWH_TO_MWH,
     PERCF_TO_PERMCF,
@@ -102,7 +105,6 @@ GAS_MMBTU_PER_UNIT_CORRECTIONS = {
     "unit_conversions": [
         PERCF_TO_PERMCF,
         BTU_TO_MMBTU,
-        PERTHERM_TO_PERMCF,
         BUTTLOAD_TO_MMBUTTLOAD,
     ],
 }
@@ -119,17 +121,21 @@ OIL_MMBTU_PER_UNIT_CORRECTIONS = {
     ],
 }
 
-FUEL_UNIT_CORRECTIONS = [
+TEST_FUEL_UNIT_CORRECTIONS = [
     COAL_MMBTU_PER_UNIT_CORRECTIONS,
     GAS_MMBTU_PER_UNIT_CORRECTIONS,
     OIL_MMBTU_PER_UNIT_CORRECTIONS,
+]
+
+BAD_TEST_FUEL_UNIT_CORRECTIONS = [
+    *FUEL_MMBTU_PER_UNIT_CORRECTIONS,
+    *FUEL_COST_PER_MMBTU_CORRECTIONS,
 ]
 
 VALID_CAPACITY_MW = {
     "lower_bound": 0.0,
     "upper_bound": 4000.0,
 }
-
 
 ANIMAL_CATS: dict[str, set[str]] = {
     "categories": {
@@ -459,69 +465,211 @@ def test_rename_columns():
     ...
 
 
-# @pytest.mark.parametrize("series,expected,params", [()])
-def test_correct_units():
-    """Test unit connection function in isolation.
+def unit_corrections_are_homogeneous(corrections: list[UnitCorrections]) -> tuple():
+    """Check that all unit corrections apply to same data and category columns.
 
-    * Start with a dataframe that has coherent units in a data column.
-    * These units need to be different in different rows (vary by fuel type).
-    * Test that the order in which the conversions are applied doesn't matter.
+    Assuming the list of unit corrections are homogeneous, return the names of the
+    data colum, category column, and the categories that appear as a tuple.
 
-    * Input dataframe looks like:
-      * index column (int)
-      * fuel type (categorical: coal, oil, gas)
-      * fuel heat content per unit of fuel (numerical data). This can be generated
-        automatically given the UnitCorrection (valid_range, query, col)
+    This is a helper function for test_correct_units().
 
-    * Re-run the same tests as above, but concatenate some "bad" data to the coherent
-      dataframe, and verify that it is set to NA in the end.
-    * The bad data can also be generated automatically, by adding some data to the
-      input dataframe that explicitly falls *outside* the valid range.
-    * Need to have a set of indices here that's guaranteed to be distinct from the
-      good input data so they can be recognized at the end to check for NA values.
+    Args:
+        corrections: The list of unit correction parameters to be used in generating
+            test data.
 
-    * Function to create either good or bad data, given list[UnitCorrection]
-      * Here it would be helpful if query were broken out into query_col & category so
-        they could be used separately.
+    Returns:
+         (data_col, cat_col, categories)
 
     """
-    ...
+    cat_cols = {uc.cat_col for uc in corrections}
+    assert len(cat_cols) == 1  # nosec: B101
+    cat_col = list(cat_cols)[0]
+
+    data_cols = {uc.data_col for uc in corrections}
+    assert len(data_cols) == 1  # nosec: B101
+    data_col = list(data_cols)[0]
+
+    categories = list({uc.cat_val for uc in corrections})
+
+    return data_col, cat_col, categories
+
+
+def make_unit_correction_test_data(
+    corrections: list[UnitCorrections],
+    nrows: int = 10_000,
+) -> pd.DataFrame:
+    """Create synthetic data for testing unit corrections.
+
+    This is a helper function fo test_correct_units().
+
+    Args:
+        corrections: The list of unit correction parameters to be used in generating
+            test data.
+        nrows: Number of rows of synthetic data to generate.
+
+    Returns:
+        A dataframe that represents a perfectly dataset, as would be expected to result
+        from correcting units in dirty data where only the provided unit corrections
+        were responsible for discrepancies in the original data.
+
+    """
+    # Verify that all unit corrections are referring to the same data column and
+    # categorical columns
+    data_col, cat_col, categories = unit_corrections_are_homogeneous(corrections)
+
+    df = pd.DataFrame(index=range(0, nrows))
+    df[cat_col] = np.random.choice(categories, size=nrows)
+    df[data_col] = np.nan
+
+    # Assign data values
+    for uc in corrections:
+        mask = df[uc.cat_col] == uc.cat_val
+        size = sum(mask)
+        # Pick values from within the appropriate valid range
+        df.loc[mask, data_col] = np.random.uniform(
+            low=uc.valid_range.lower_bound,
+            high=uc.valid_range.upper_bound,
+            size=size,
+        )
+
+    return df
+
+
+def scramble_units(
+    df: pd.DataFrame,
+    corrections: list[UnitCorrections],
+) -> pd.DataFrame:
+    """Scramble the units of a clean dataframe.
+
+    This is a helper function for test_correct_units().
+
+    Args:
+        df: A clean dataframe with uniform units, as produced by
+            make_unit_correction_test_data() above.
+        corrections: The list of unit correction parameters that were used to generate
+            the test data.
+
+    Returns:
+        A dataframe whose data has been scrambled randomly using the inverse of the
+        unit conversions contained in corrections.
+
+    """
+    # Verify that all unit corrections are referring to the same
+    # data column and categorical columns
+    data_col, cat_col, categories = unit_corrections_are_homogeneous(corrections)
+    df = df.copy()
+
+    for corr in corrections:
+        # Select only those records that this correction applies to:
+        masked_df = df.loc[df[corr.cat_col] == corr.cat_val]
+        for conv in corr.unit_conversions:
+            # Select a subset of the applicable records to scramble using this
+            # particular unit conversion:
+            sampled_df = masked_df.sample(frac=1.0 / (len(corr.unit_conversions) + 2))
+            # Use the inverse unit conversion to scramble the units:
+            df.loc[sampled_df.index, "scrambled"] = convert_units(
+                df.loc[sampled_df.index, corr.data_col], params=conv.inverse()
+            )
+
+    # Fill in any values that weren't scrambled with the original data
+    df["scrambled"] = df["scrambled"].fillna(df[data_col])
+    df[data_col + "_orig"] = df[data_col].copy()
+    df[data_col] = df["scrambled"].copy()
+    # At this point there should be no null values in the dataframe:
+    assert df.notna().all(axis="columns").all()  # nosec: B101
+    return df
+
+
+@pytest.mark.parametrize(
+    "corrections,expectation",
+    [
+        pytest.param(
+            TEST_FUEL_UNIT_CORRECTIONS,
+            does_not_raise(),
+            id="fake_units",
+        ),
+        pytest.param(
+            FUEL_MMBTU_PER_UNIT_CORRECTIONS,
+            does_not_raise(),
+            id="fuel_mmbtu_per_unit",
+        ),
+        pytest.param(
+            FUEL_COST_PER_MMBTU_CORRECTIONS,
+            does_not_raise(),
+            id="fuel_cost_per_mmbtu",
+        ),
+        pytest.param(
+            BAD_TEST_FUEL_UNIT_CORRECTIONS,
+            pytest.raises(AssertionError),
+            id="inconsistent_unit_corrections",
+        ),
+    ],
+)
+def test_correct_units(corrections, expectation):
+    """Test our ability to correct units in isolation.
+
+    First we construct a dataframe that has coherent units in a data column These units
+    are different in different rows, but the units are consistent within groups that can
+    be identified by another column. E.g. they vary by fuel type.
+
+    Use the inverse of the unit conversions defined in the unit corrections to scramble
+    the data, and then apply the unit conversions to unscramble it, and verify that we
+    get the same input data back out.
+
+    """
+    with expectation:
+        unit_corrections = [UnitCorrections(**uc) for uc in corrections]
+
+        clean_df = make_unit_correction_test_data(
+            corrections=unit_corrections,
+            nrows=10_000,
+        )
+
+        scrambled_df = scramble_units(clean_df, unit_corrections)
+        data_col, *_ = unit_corrections_are_homogeneous(unit_corrections)
+
+        corrected_df = scrambled_df.copy()
+
+        for corr in unit_corrections:
+            corrected_df = correct_units(corrected_df, corr)
+
+        assert_series_equal(
+            corrected_df[data_col + "_orig"],
+            corrected_df[data_col],
+            check_names=False,
+        )
 
 
 @pytest.mark.parametrize(
     "df,expected,params",
     [
-        (
-            pytest.param(
-                NUMERICAL_DATA,
-                NUMERICAL_DATA.loc[NUMERICAL_DATA.id.isin([1, 2, 3, 4, 5, 6])],
-                dict(
-                    invalid_values=[0, pd.NA, np.nan],
-                    required_valid_cols=[
-                        "valid_year",
-                        "valid_capacity_mw",
-                        "net_generation_mwh",
-                    ],
-                ),
-                id="required_valid_cols",
-            )
+        pytest.param(
+            NUMERICAL_DATA,
+            NUMERICAL_DATA.loc[NUMERICAL_DATA.id.isin([1, 2, 3, 4, 5, 6])],
+            dict(
+                invalid_values=[0, pd.NA, np.nan],
+                required_valid_cols=[
+                    "valid_year",
+                    "valid_capacity_mw",
+                    "net_generation_mwh",
+                ],
+            ),
+            id="required_valid_cols",
         ),
-        (
-            pytest.param(
-                NUMERICAL_DATA,
-                NUMERICAL_DATA.loc[NUMERICAL_DATA.id.isin([1, 2, 3, 4, 5, 6])],
-                dict(
-                    invalid_values=[0, pd.NA, np.nan],
-                    allowed_invalid_cols=[
-                        "id",
-                        "year",
-                        "capacity_kw",
-                        "capacity_mw",
-                        "net_generation_kwh",
-                    ],
-                ),
-                id="allowed_invalid_cols",
-            )
+        pytest.param(
+            NUMERICAL_DATA,
+            NUMERICAL_DATA.loc[NUMERICAL_DATA.id.isin([1, 2, 3, 4, 5, 6])],
+            dict(
+                invalid_values=[0, pd.NA, np.nan],
+                allowed_invalid_cols=[
+                    "id",
+                    "year",
+                    "capacity_kw",
+                    "capacity_mw",
+                    "net_generation_kwh",
+                ],
+            ),
+            id="allowed_invalid_cols",
         ),
     ],
 )
