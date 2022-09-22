@@ -10,6 +10,7 @@
 import enum
 import random
 from contextlib import nullcontext as does_not_raise
+from datetime import date
 from string import ascii_letters
 
 import numpy as np
@@ -235,6 +236,9 @@ NUMERICAL_DATA: pd.DataFrame = pd.DataFrame(
         (5, pd.NA, pd.NA, 5000.0, 5.0, 5.0, 5e6, 5000.0),
         (6, 2000, 2000, 6e6, 6000.0, np.nan, 6e6, 6000.0),
         (7, pd.NA, pd.NA, np.nan, np.nan, np.nan, 0.0, 0.0),
+        (8, -52, pd.NA, -3000.0, -3.0, np.nan, 3e6, 3000.0),
+        (9, 1850, 1850, 0.0, 0.0, 0.0, 3e6, 3000.0),
+        (10, date.today().year, date.today().year, 4e6, 4000.0, 4000.0, 3e6, 3000.0),
     ],
 ).astype(
     {
@@ -288,6 +292,21 @@ NUMERICAL_DATA: pd.DataFrame = pd.DataFrame(
             ),
             pytest.raises(ValidationError),
             id="self_overlapping_unit_correction",
+        ),
+        pytest.param(
+            COAL_MMBTU_PER_UNIT_CORRECTIONS,
+            does_not_raise(),
+            id="fake_coal_mmbtu_per_unit_corrections",
+        ),
+        pytest.param(
+            GAS_MMBTU_PER_UNIT_CORRECTIONS,
+            does_not_raise(),
+            id="fake_gas_mmbtu_per_unit_corrections",
+        ),
+        pytest.param(
+            OIL_MMBTU_PER_UNIT_CORRECTIONS,
+            does_not_raise(),
+            id="fake_oil_mmbtu_per_unit_corrections",
         ),
     ],
 )
@@ -645,7 +664,7 @@ def test_correct_units(corrections, expectation):
     [
         pytest.param(
             NUMERICAL_DATA,
-            NUMERICAL_DATA.loc[NUMERICAL_DATA.id.isin([1, 2, 3, 4, 5, 6])],
+            NUMERICAL_DATA.loc[NUMERICAL_DATA.id.isin([1, 2, 3, 4, 5, 6, 8, 9, 10])],
             dict(
                 invalid_values=[0, pd.NA, np.nan],
                 required_valid_cols=[
@@ -658,7 +677,7 @@ def test_correct_units(corrections, expectation):
         ),
         pytest.param(
             NUMERICAL_DATA,
-            NUMERICAL_DATA.loc[NUMERICAL_DATA.id.isin([1, 2, 3, 4, 5, 6])],
+            NUMERICAL_DATA.loc[NUMERICAL_DATA.id.isin([1, 2, 3, 4, 5, 6, 8, 9, 10])],
             dict(
                 invalid_values=[0, pd.NA, np.nan],
                 allowed_invalid_cols=[
