@@ -35,10 +35,10 @@ def test__extract_keys_from_series_id(elec_txt_dataframe):
     expected = pd.DataFrame(
         {
             "series_code": ["RECEIPTS_BTU"],
-            "fuel_code": ["NG"],
-            "region_code": ["US"],
-            "sector_code": ["2"],
-            "frequency_code": ["Q"],
+            "fuel_agg": ["NG"],
+            "geo_agg": ["US"],
+            "sector_agg": ["2"],
+            "temporal_agg": ["Q"],
         },
         index=[2],
     )
