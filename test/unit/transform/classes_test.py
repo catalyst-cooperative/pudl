@@ -24,6 +24,7 @@ from pudl.transform.classes import (
     InvalidRows,
     StringCategories,
     StringNormalization,
+    TableTransformParams,
     UnitConversion,
     UnitCorrections,
     ValidRange,
@@ -172,16 +173,46 @@ ANIMAL_CATS: dict[str, set[str]] = {
 
 STRING_PARAMS = {
     "test_table": {
-        # "rename_columns": RENAME_CATS,
+        "rename_columns": {
+            "columns": {
+                "raw": "sushi",
+                "norm": "orthogonal",
+                "cat": "kitteh",
+            },
+        },
         "normalize_strings": {
-            "col2": True,
+            "sushi": FERC1_STRING_NORM,
         },
         "categorize_strings": {
-            "col2": ANIMAL_CATS,
+            "sushi": ANIMAL_CATS,
         },
-        "nullify_outliers": {"col3": VALID_PLANT_YEARS},
-        "correct_units": {},
-        "drop_invalid_rows": {},
+    }
+}
+
+NUMERIC_PARAMS = {
+    "test_table": {
+        "rename_columns": {
+            "columns": {
+                "capacity_mw": "capacity_mw_expected",
+                "net_generation_mwh": "net_generation_mwh_expected",
+            },
+        },
+        "nullify_outliers": {
+            "valid_capacity_mw": VALID_CAPACITY_MW,
+            "valid_year": VALID_PLANT_YEARS,
+        },
+        "convert_units": {
+            "capacity_kw": KW_TO_MW,
+            "net_generation_kwh": KWH_TO_MWH,
+        },
+        "drop_invalid_rows": {
+            "invalid_values": [0, pd.NA, np.nan],
+            "required_valid_cols": [
+                "valid_year",
+                "valid_capacity_mw",
+                "net_generation_mwh",
+            ],
+        },
     }
 }
 
@@ -217,7 +248,7 @@ STRING_DATA: pd.DataFrame = pd.DataFrame(
     }
 )
 
-NUMERICAL_DATA: pd.DataFrame = pd.DataFrame(
+NUMERIC_DATA: pd.DataFrame = pd.DataFrame(
     columns=[
         "id",
         "year",
@@ -358,7 +389,7 @@ def test_unit_corrections_distinct_domains(unit_corrections, expectation):
         ),
         pytest.param(
             dict(invalid_values=[0, pd.NA]),
-            pytest.raises(ValidationError),
+            does_not_raise(),
             id="no_filters",
         ),
         pytest.param(
@@ -400,14 +431,14 @@ def test_categorize_strings(series: pd.Series, expected: pd.Series, params) -> N
     "series,expected,params",
     [
         pytest.param(
-            NUMERICAL_DATA.year,
-            NUMERICAL_DATA.valid_year,
+            NUMERIC_DATA.year,
+            NUMERIC_DATA.valid_year,
             VALID_PLANT_YEARS,
             id="valid_plant_years",
         ),
         pytest.param(
-            NUMERICAL_DATA.capacity_mw,
-            NUMERICAL_DATA.valid_capacity_mw,
+            NUMERIC_DATA.capacity_mw,
+            NUMERIC_DATA.valid_capacity_mw,
             VALID_CAPACITY_MW,
             id="valid_capacity_mw",
         ),
@@ -423,14 +454,14 @@ def test_nullify_outliers(series, expected, params):
     "series,expected,params",
     [
         pytest.param(
-            NUMERICAL_DATA.capacity_kw,
-            NUMERICAL_DATA.capacity_mw,
+            NUMERIC_DATA.capacity_kw,
+            NUMERIC_DATA.capacity_mw,
             KW_TO_MW,
             id="kw_to_mw",
         ),
         pytest.param(
-            NUMERICAL_DATA.net_generation_kwh,
-            NUMERICAL_DATA.net_generation_mwh,
+            NUMERIC_DATA.net_generation_kwh,
+            NUMERIC_DATA.net_generation_mwh,
             KWH_TO_MWH,
             id="kwh_to_mwh",
         ),
@@ -663,8 +694,8 @@ def test_correct_units(corrections, expectation):
     "df,expected,params",
     [
         pytest.param(
-            NUMERICAL_DATA,
-            NUMERICAL_DATA.loc[NUMERICAL_DATA.id.isin([1, 2, 3, 4, 5, 6, 8, 9, 10])],
+            NUMERIC_DATA,
+            NUMERIC_DATA.loc[NUMERIC_DATA.id.isin([1, 2, 3, 4, 5, 6, 8, 9, 10])],
             dict(
                 invalid_values=[0, pd.NA, np.nan],
                 required_valid_cols=[
@@ -676,8 +707,8 @@ def test_correct_units(corrections, expectation):
             id="required_valid_cols",
         ),
         pytest.param(
-            NUMERICAL_DATA,
-            NUMERICAL_DATA.loc[NUMERICAL_DATA.id.isin([1, 2, 3, 4, 5, 6, 8, 9, 10])],
+            NUMERIC_DATA,
+            NUMERIC_DATA.loc[NUMERIC_DATA.id.isin([1, 2, 3, 4, 5, 6, 8, 9, 10])],
             dict(
                 invalid_values=[0, pd.NA, np.nan],
                 allowed_invalid_cols=[
@@ -703,16 +734,16 @@ def test_drop_invalid_rows(df, expected, params):
 # TableTransformer class unit tests.
 #####################################################################################
 @enum.unique
-class TestTableId(enum.Enum):
+class TableId(enum.Enum):
     """Dummy test table IDs."""
 
     TEST_TABLE = "test_table"
 
 
-class TestTableTransformer(AbstractTableTransformer):
+class TableTransformer(AbstractTableTransformer):
     """A concrete TableTransformer for testing purposes."""
 
-    table_id: enum.Enum = TestTableId.TEST_TABLE
+    table_id: enum.Enum = TableId.TEST_TABLE
 
     @cache_df(key="start")
     def transform_start(self, df: pd.DataFrame) -> pd.DataFrame:
@@ -727,7 +758,6 @@ class TestTableTransformer(AbstractTableTransformer):
             self.normalize_strings(df)
             .pipe(self.categorize_strings)
             .pipe(self.nullify_outliers)
-            .pipe(self.correct_units)
         )
         return df
 
@@ -739,19 +769,23 @@ class TestTableTransformer(AbstractTableTransformer):
 
 
 @pytest.mark.parametrize(
-    "df,params,expected",
+    "df,params",
     [
-        # pytest.param(STRING_DATA, STRING_PARAMS, STRING_EXPECTED, id="string_cleaning"),
-        # pytest.param(UNITS_DF, UNITS_PARAMS, UNITS_EXPECTED, id="unit_conversion"),
+        pytest.param(STRING_DATA, STRING_PARAMS, id="string_transform"),
+        pytest.param(NUMERIC_DATA, NUMERIC_PARAMS, id="numeric_transform"),
     ],
 )
-def test_transform(df, expected, params):
-    """Test the use of general transforms as part of a TableTransfomer class."""
-    transformer = TestTableTransformer(
-        params=params, cache_dfs=True, clear_cached_dfs=False
+def test_transform(df, params):
+    """Test the use of general transforms as part of a TableTransfomer class.
+
+    Should really define "expected" output dataframes here and check that they match.
+
+    """
+    transformer = TableTransformer(
+        params=TableTransformParams.from_dict(params["test_table"]),
+        cache_dfs=True,
+        clear_cached_dfs=False,
     )
     actual = transformer.transform(df)
-    # assert_frame_equal(transformer._cached_dfs["start"], expected_start)
-    # assert_frame_equal(transformer._cached_dfs["main"], expected_main)
-    assert_frame_equal(transformer._cached_dfs["end"], expected)
-    assert_frame_equal(actual, expected)
+    assert not actual.empty  # nosec: B101
+    assert_frame_equal(actual, transformer._cached_dfs["end"])

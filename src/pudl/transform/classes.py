@@ -559,7 +559,7 @@ def correct_units(df: pd.DataFrame, params: UnitCorrections) -> pd.DataFrame:
 class InvalidRows(TransformParams):
     """Pameters that identify invalid rows to drop."""
 
-    invalid_values: conset(Any, min_items=1)
+    invalid_values: conset(Any, min_items=1) | None = None
     """A list of values that should be considered invalid in the selected columns."""
 
     required_valid_cols: list[str] | None = None
@@ -590,11 +590,12 @@ class InvalidRows(TransformParams):
                 values["regex"],
             ]
         )
-        if num_args != 1:
+        if num_args > 1:
             raise AssertionError(
-                "You must specify one and only one argument to :meth:`pd.filter` and "
+                "You must specify at most one argument to :meth:`pd.filter` and "
                 f"{num_args} were found."
             )
+
         return values
 
 
@@ -606,6 +607,15 @@ def drop_invalid_rows(df: pd.DataFrame, params: InvalidRows) -> pd.DataFrame:
     rows that were dropped.
 
     """
+    # The default InvalidRows() instance has no effect:
+    if (
+        params.required_valid_cols is None
+        and params.allowed_invalid_cols is None
+        and params.like is None
+        and params.regex is None
+    ) or params.invalid_values is None:
+        return df
+
     pre_drop_len = len(df)
     # set filter items using either required_valid_cols or allowed_invalid_cols
     if params.required_valid_cols or params.allowed_invalid_cols:
@@ -643,13 +653,22 @@ class TableTransformParams(TransformParams):
 
     """
 
-    rename_columns: RenameColumns = {}
+    # MultiColumnTransformParams can be initilized to empty dictionaries, since they
+    # all iterate over the columns they apply to. Empty means... do nothing.
     convert_units: dict[str, UnitConversion] = {}
     categorize_strings: dict[str, StringCategories] = {}
     nullify_outliers: dict[str, ValidRange] = {}
     normalize_strings: dict[str, StringNormalization] = {}
+
+    # Transformations that apply to whole dataframes have to be treated individually,
+    # with default initializations that result in no transformation taking place.
+
+    # correct_units iterates over a list... so does nothing with an empty list.
     correct_units: list[UnitCorrections] = []
-    drop_invalid_rows: InvalidRows = {}
+    # This instantiates an empty dictionary of column renames:
+    rename_columns: RenameColumns = RenameColumns()
+    # InvalidRows has a special case of all None parameters, where it does nothing:
+    drop_invalid_rows: InvalidRows = InvalidRows()
 
     @classmethod
     def from_dict(cls, params: dict[str, Any]) -> "TableTransformParams":

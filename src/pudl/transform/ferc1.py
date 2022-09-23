@@ -111,7 +111,10 @@ class Ferc1TableTransformParams(TableTransformParams):
 
         extra = "forbid"
 
-    rename_columns_ferc1: Ferc1RenameColumns = {}
+    rename_columns_ferc1: Ferc1RenameColumns = Ferc1RenameColumns(
+        dbf=RenameColumns(),
+        xbrl=RenameColumns(),
+    )
 
 
 ################################################################################
