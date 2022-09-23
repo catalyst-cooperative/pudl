@@ -114,17 +114,17 @@ def _prep_for_networkx(crosswalk: pd.DataFrame) -> pd.DataFrame:
 
     Returns:
         pd.DataFrame: copy of epacamd_eia crosswalk with new surrogate ID columns
-            'combustor_id' and 'generator_id'
+            'combustor_id_temp' and 'generator_id_temp'
     """
     prepped = crosswalk.copy()
     # networkx can't handle composite keys, so make surrogates
-    prepped["combustor_id"] = prepped.groupby(
+    prepped["combustor_id_temp"] = prepped.groupby(
         by=["plant_id_eia", "emissions_unit_id_epa"]
     ).ngroup()
     # node IDs can't overlap so add (max + 1)
-    prepped["generator_id"] = (
+    prepped["generator_id_temp"] = (
         prepped.groupby(by=["plant_id_eia", "generator_id"]).ngroup()
-        + prepped["combustor_id"].max()
+        + prepped["combustor_id_temp"].max()
         + 1
     )
     return prepped
@@ -142,8 +142,8 @@ def _subplant_ids_from_prepped_crosswalk(prepped: pd.DataFrame) -> pd.DataFrame:
     """
     graph = nx.from_pandas_edgelist(
         prepped,
-        source="combustor_id",
-        target="generator_id",
+        source="combustor_id_temp",
+        target="generator_id_temp",
         edge_attr=True,
     )
     for i, node_set in enumerate(nx.connected_components(graph)):
@@ -254,5 +254,10 @@ def make_subplant_ids(crosswalk: pd.DataFrame) -> pd.DataFrame:
     edge_list = _prep_for_networkx(crosswalk)
     edge_list = _subplant_ids_from_prepped_crosswalk(edge_list)
     edge_list = _convert_global_id_to_composite_id(edge_list)
-    # column_order = ["subplant_id"] + list(crosswalk.columns)
-    return edge_list  # [column_order]  # reorder and drop global_subplant_id
+    column_order = [
+        "subplant_id",
+        "plant_id_eia",
+        "emissions_unit_id_epa",
+        "generator_id",
+    ]
+    return edge_list[column_order]  # reorder and drop global_subplant_id
