@@ -228,7 +228,9 @@ def allocate_gen_fuel_by_generator_energy_source(pudl_out, drop_interim_cols=Tru
     # add any startup energy source codes to the list of energy source codes
     # fix MSW codes
     gens = adjust_energy_source_codes(gens, gf, bf)
-    # fix prime mover codes in gens so that they match the codes in the gf table
+    # warn if prime mover codes in gens do not match the codes in the gf table
+    # this is something that should probably be fixed in the input data
+    # see https://github.com/catalyst-cooperative/pudl/issues/1585
     missing_pm = gens[gens["prime_mover_code"].isna()]
     if not missing_pm.empty:
         warnings.warn(
@@ -272,9 +274,7 @@ def allocate_gen_fuel_by_generator_energy_source(pudl_out, drop_interim_cols=Tru
     )
 
     # do the association!
-    gen_assoc = associate_generator_tables(
-        gf=gf, gen=gen, gens=gens, bf=bf, pudl_out=pudl_out
-    )
+    gen_assoc = associate_generator_tables(gf=gf, gen=gen, gens=gens, bf=bf)
 
     # Generate a fraction to use to allocate net generation and fuel consumption by.
     # These two methods create a column called `frac`, which will be a fraction
@@ -496,13 +496,27 @@ def stack_generators(
         stacked_col
 
     """
-    esc = list(gens.filter(like="energy_source_code"))
+    # get a list of all energy_source_code, planned_energy_source_code, and startup_source_code columns
+    esc = list(gens.filter(regex="source_code"))
+
     gens_stack_prep = (
         pd.DataFrame(gens.set_index(IDX_GENS)[esc].stack(level=0))
         .reset_index()
         .rename(columns={"level_3": cat_col, 0: stacked_col})
         .pipe(apply_pudl_dtypes, "eia")
     )
+    # arrange energy source codes by number and type (start with energy_source_code, then planned_, then startup_)
+    gens_stack_prep = gens_stack_prep.sort_values(
+        by=(IDX_GENS + [cat_col]), ascending=True
+    )
+    # drop overlapping energy_source_code's from startup and planned codes
+    gens_stack_prep = gens_stack_prep.drop_duplicates(
+        subset=IDX_GENS + [stacked_col], keep="first"
+    )
+    # replace the energy_source_code_num. Existing energy source codes should be arranged in ascending order
+    gens_stack_prep["energy_source_code_num"] = "energy_source_code_" + (
+        gens_stack_prep.groupby(IDX_GENS).cumcount() + 1
+    ).astype(str)
 
     # merge the stacked df back onto the gens table
     # we first drop the cols_to_stack so we don't duplicate data
@@ -512,7 +526,7 @@ def stack_generators(
     return gens_stack
 
 
-def associate_generator_tables(gf, gen, gens, bf, pudl_out):
+def associate_generator_tables(gf, gen, gens, bf):
     """Associate the three tables needed to assign net gen to generators.
 
     Args:
@@ -551,28 +565,13 @@ def associate_generator_tables(gf, gen, gens, bf, pudl_out):
         .add_suffix("_gf_tbl")
         .reset_index()
     )
-    # TODO: remove "_gf_tbl_fuel" - it does not seem to be used
-    gf_fuel_summed = (
-        gf.groupby(by=IDX_ESC)
-        .sum(min_count=1)[
-            ["fuel_consumed_mmbtu", "fuel_consumed_for_electricity_mmbtu"]
-        ]
-        .add_suffix("_gf_tbl_fuel")
-        .reset_index()
-    )
 
     gen_assoc = (
         pd.merge(stack_gens, gen, on=IDX_GENS, how="outer")
         .rename(columns={"net_generation_mwh": "net_generation_mwh_g_tbl"})
         .merge(gf_pm_fuel_summed, on=IDX_PM_ESC, how="left", validate="m:1")
-        .pipe(remove_inactive_generators, pudl_out=pudl_out)
+        .pipe(remove_inactive_generators)
         .merge(bf_summed, on=IDX_GENS_PM_ESC, how="left", validate="m:1")
-        .merge(
-            gf_fuel_summed,
-            on=IDX_ESC,
-            how="left",
-            validate="m:1",
-        )
     )
 
     # replace zeros with small number to avoid div by zero errors when calculating allocation fraction
@@ -582,8 +581,6 @@ def associate_generator_tables(gf, gen, gens, bf, pudl_out):
         "fuel_consumed_for_electricity_mmbtu_gf_tbl",
         "net_generation_mwh_gf_tbl",
         "fuel_consumed_mmbtu_bf_tbl",
-        "fuel_consumed_mmbtu_gf_tbl_fuel",
-        "fuel_consumed_for_electricity_mmbtu_gf_tbl_fuel",
     ]
     gen_assoc[data_columns] = gen_assoc[data_columns].replace(0, 0.001)
 
@@ -603,131 +600,49 @@ def associate_generator_tables(gf, gen, gens, bf, pudl_out):
     return gen_assoc
 
 
-def remove_inactive_generators(gen_assoc, pudl_out):
+def remove_inactive_generators(gen_assoc):
     """Remove the retired generators.
 
     We don't want to associate net generation to generators that are retired
     (or proposed! or any other `operational_status` besides `existing`).
 
-    We do want to keep the generators that retire mid-year and have generator
-    specific data from the generation_eia923 table. Removing the generators
-    that retire mid-report year and don't report to the generation_eia923 table
-    is not exactly a great assumption. For now, we are removing them. We should
-    employ a strategy that allocates only a portion of the generation to them
-    based on their operational months (or by doing the allocation on a monthly
-    basis).
+    We do want to keep the generators that report operational statuses other
+    than `existing` but which report non-zero data despite being `retired` or
+    `proposed`. This includes several categories of generators/plants:
+        `retiring_generators`: generators that retire mid-year
+        `retired_plants`: entire plants that supposedly retired prior to
+            the current year but which report data. If a plant has a mix of gens
+            which are existing and retired, they are not included in this category.
+        `proposed_generators`: generators that become operational mid-year,
+            or which are marked as `proposed` but start reporting non-zero data
+        `proposed_plants`: entire plants that have a `proposed` status but
+            which start reporting data. If a plant has a mix of gens which are
+            existing and proposed, they are not included in this category.
+
+    When we do not have generator-specific generation for a proposed/retired
+    generator that is not coming online/retiring mid-year, we can also look
+    at whether there is generation reported for this generator in the gf table.
+    However, if a proposed/retired generator is part of an existing plant, it
+    is possible that the reported generation from the gf table belongs to one
+    of the other existing generators. Thus, we want to only keep proposed/retired
+    generators where the entire plant is proposed/retired (in which case the gf-
+    reported generation could only come from one of the new/retired generators).
 
     Args:
         gen_assoc (pandas.DataFrame): table of generators with stacked fuel
             types and broadcasted net generation data from the
             generation_eia923 and generation_fuel_eia923 tables. Output of
             `associate_generator_tables()`.
-        pudl_out (pudl.output.pudltabl.PudlTabl): An object used to create the
-            tables for EIA and FERC Form 1 analysis.
     """
     existing = gen_assoc.loc[(gen_assoc.operational_status == "existing")]
-    # keep the gens that retired mid-report-year that have generator
-    # specific data
-    retiring_generators = gen_assoc.loc[
-        (gen_assoc.operational_status == "retired")
-        & (
-            (gen_assoc.report_date <= gen_assoc.retirement_date)
-            | (gen_assoc.net_generation_mwh_g_tbl.notnull())
-        )
-    ]
 
-    # Get a list of all of the plants with a retired generator and non-null/non-zero gf generation data reported after the retirement date
-    retired_with_gf = list(
-        gen_assoc.loc[
-            (gen_assoc.operational_status == "retired")
-            & (gen_assoc.report_date > gen_assoc.retirement_date)
-            & (gen_assoc.net_generation_mwh_gf_tbl.notnull())
-            & (gen_assoc.net_generation_mwh_g_tbl.isnull())
-            & (gen_assoc.net_generation_mwh_gf_tbl != 0),
-            "plant_id_eia",
-        ].unique()
-    )
+    retiring_generators = identify_retiring_generators(gen_assoc)
 
-    # create a table for all of these plants that identifies all of the unique operational statuses
-    plants_with_retired_generators = gen_assoc.loc[
-        gen_assoc["plant_id_eia"].isin(retired_with_gf),
-        ["plant_id_eia", "operational_status", "retirement_date"],
-    ].drop_duplicates()
+    retired_plants = identify_retired_plants(gen_assoc)
 
-    # remove plants that have operational statuses other than retired
-    plants_with_nonretired_generators = list(
-        plants_with_retired_generators.loc[
-            (plants_with_retired_generators["operational_status"] != "retired"),
-            "plant_id_eia",
-        ].unique()
-    )
-    plants_with_retired_generators = plants_with_retired_generators[
-        ~plants_with_retired_generators["plant_id_eia"].isin(
-            plants_with_nonretired_generators
-        )
-    ]
+    proposed_generators = identify_generators_coming_online(gen_assoc)
 
-    # only keep the plants where all retirement dates are before the current year
-    plants_retiring_after_start_date = list(
-        plants_with_retired_generators.loc[
-            plants_with_retired_generators["retirement_date"] >= pudl_out.start_date,
-            "plant_id_eia",
-        ].unique()
-    )
-    entirely_retired_plants = plants_with_retired_generators[
-        ~plants_with_retired_generators["plant_id_eia"].isin(
-            plants_retiring_after_start_date
-        )
-    ]
-
-    entirely_retired_plants = list(entirely_retired_plants["plant_id_eia"].unique())
-
-    retired_plants = gen_assoc[gen_assoc["plant_id_eia"].isin(entirely_retired_plants)]
-
-    # sometimes a plant will report generation data before its proposed operating date
-    # we want to keep any data that is reported for proposed generators
-    proposed_generators = gen_assoc.loc[
-        (gen_assoc.operational_status == "proposed")
-        & (gen_assoc.net_generation_mwh_g_tbl.notnull())
-    ]
-
-    # when we do not have generator-specific generation for a proposed generator, we can also
-    # look at whether there is generation reported from the gf table. However, if a proposed
-    # generator is part of an existing plant, it is possible that this gf generation belongs
-    # to one of the other existing generators. Thus, we want to identify those proposed generators
-    # where the entire plant is proposed (since the gf-reported generation could only come from
-    # one of the new generators).
-
-    # Get a list of all of the plants that have a proposed generator with non-null and non-zero gf generation
-    proposed_with_gf = list(
-        gen_assoc.loc[
-            (gen_assoc.operational_status == "proposed")
-            & (gen_assoc.net_generation_mwh_gf_tbl.notnull())
-            & (gen_assoc.net_generation_mwh_gf_tbl != 0),
-            "plant_id_eia",
-        ].unique()
-    )
-
-    # create a table for all of these plants that identifies all of the unique operational statuses
-    plants_with_proposed_generators = gen_assoc.loc[
-        gen_assoc["plant_id_eia"].isin(proposed_with_gf),
-        ["plant_id_eia", "operational_status"],
-    ].drop_duplicates()
-
-    # filter this list to those plant ids where the only operational status is "proposed"
-    # i.e. where the entire plant is new
-    entirely_new_plants = plants_with_proposed_generators[
-        (~plants_with_proposed_generators.duplicated(subset="plant_id_eia", keep=False))
-        & (plants_with_proposed_generators["operational_status"] == "proposed")
-    ]
-    # convert this table into a list of these plant ids
-    entirely_new_plants = list(entirely_new_plants["plant_id_eia"].unique())
-
-    # keep data for these proposed plants in months where there is reported data
-    proposed_plants = gen_assoc[
-        gen_assoc["plant_id_eia"].isin(entirely_new_plants)
-        & gen_assoc["net_generation_mwh_gf_tbl"].notnull()
-    ]
+    proposed_plants = identify_proposed_plants(gen_assoc)
 
     gen_assoc_removed = pd.concat(
         [
@@ -740,6 +655,137 @@ def remove_inactive_generators(gen_assoc, pudl_out):
     )
 
     return gen_assoc_removed
+
+
+def identify_retiring_generators(gen_assoc):
+    """Identify any generators that retire mid-year.
+
+    These are generators with a retirement date after the earliest report_date
+    or which report generator-specific generation data in the g table after
+    their retirement date.
+    """
+    retiring_generators = gen_assoc.loc[
+        (gen_assoc.operational_status == "retired")
+        & (
+            (gen_assoc.report_date <= gen_assoc.retirement_date)
+            | (gen_assoc.net_generation_mwh_g_tbl.notnull())
+        )
+    ]
+
+    return retiring_generators
+
+
+def identify_retired_plants(gen_assoc):
+    """Identify entire plants that have previously retired but are reporting data."""
+    # get a subset of the data that represents all plants that have completely retired before the start date
+    # Get a list of all of the plants with at least one retired generator and reports non-zero generation data
+    # after the generator retirement date
+    retired_generators_with_reported_gf = list(
+        gen_assoc.loc[
+            (gen_assoc.operational_status == "retired")
+            & (gen_assoc.report_date > gen_assoc.retirement_date)
+            & (gen_assoc.net_generation_mwh_gf_tbl.notnull())
+            & (gen_assoc.net_generation_mwh_g_tbl.isnull())
+            & (gen_assoc.net_generation_mwh_gf_tbl != 0),
+            "plant_id_eia",
+        ].unique()
+    )
+
+    # create a table for all of these plants that identifies all of the unique operational statuses
+    plants_with_any_retired_generators = gen_assoc.loc[
+        gen_assoc["plant_id_eia"].isin(retired_generators_with_reported_gf),
+        ["plant_id_eia", "operational_status", "retirement_date"],
+    ].drop_duplicates()
+
+    # remove plants that have operational statuses other than retired
+    plants_with_both_retired_and_and_existing_generators = list(
+        plants_with_any_retired_generators.loc[
+            (plants_with_any_retired_generators["operational_status"] != "retired"),
+            "plant_id_eia",
+        ].unique()
+    )
+    plants_with_only_retired_generators = plants_with_any_retired_generators[
+        ~plants_with_any_retired_generators["plant_id_eia"].isin(
+            plants_with_both_retired_and_and_existing_generators
+        )
+    ]
+
+    # only keep the plants where all retirement dates are before the current year
+    plants_retiring_after_start_date = list(
+        plants_with_only_retired_generators.loc[
+            plants_with_only_retired_generators["retirement_date"]
+            >= min(gen_assoc.report_date),
+            "plant_id_eia",
+        ].unique()
+    )
+    entirely_retired_plants = list(
+        plants_with_only_retired_generators.loc[
+            ~plants_with_only_retired_generators["plant_id_eia"].isin(
+                plants_retiring_after_start_date
+            ),
+            "plant_id_eia",
+        ].unique()
+    )
+
+    retired_plants = gen_assoc[gen_assoc["plant_id_eia"].isin(entirely_retired_plants)]
+
+    return retired_plants
+
+
+def identify_generators_coming_online(gen_assoc):
+    """Identify generators that are coming online mid-year.
+
+    These are defined as generators that have a proposed status
+    but which report generator-specific generation data in the g table
+    """
+    # sometimes a plant will report generation data before its proposed operating date
+    # we want to keep any data that is reported for proposed generators
+    proposed_generators = gen_assoc.loc[
+        (gen_assoc.operational_status == "proposed")
+        & (gen_assoc.net_generation_mwh_g_tbl.notnull())
+    ]
+    return proposed_generators
+
+
+def identify_proposed_plants(gen_assoc):
+    """Identify entirely new plants that are proposed but are already reporting data."""
+    # Get a list of all of the plants that have a proposed generator with non-null and non-zero gf generation
+    proposed_generators_with_reported_bf = list(
+        gen_assoc.loc[
+            (gen_assoc.operational_status == "proposed")
+            & (gen_assoc.net_generation_mwh_gf_tbl.notnull())
+            & (gen_assoc.net_generation_mwh_gf_tbl != 0),
+            "plant_id_eia",
+        ].unique()
+    )
+
+    # create a table for all of these plants that identifies all of the unique operational statuses
+    plants_with_any_proposed_generators = gen_assoc.loc[
+        gen_assoc["plant_id_eia"].isin(proposed_generators_with_reported_bf),
+        ["plant_id_eia", "operational_status"],
+    ].drop_duplicates()
+
+    # filter this list to those plant ids where the only operational status is "proposed"
+    # i.e. where the entire plant is new
+    entirely_new_plants = list(
+        plants_with_any_proposed_generators.loc[
+            (
+                ~plants_with_any_proposed_generators.duplicated(
+                    subset="plant_id_eia", keep=False
+                )
+            )
+            & (plants_with_any_proposed_generators["operational_status"] == "proposed"),
+            "plant_id_eia",
+        ].unique()
+    )
+
+    # keep data for these proposed plants in months where there is reported data
+    proposed_plants = gen_assoc[
+        gen_assoc["plant_id_eia"].isin(entirely_new_plants)
+        & gen_assoc["net_generation_mwh_gf_tbl"].notnull()
+    ]
+
+    return proposed_plants
 
 
 def _associate_unconnected_records(eia_generators_merged: pd.DataFrame):
@@ -1076,9 +1122,9 @@ def allocate_fuel_by_gen_esc(gen_pm_fuel):
     """Allocate fuel_consumption to generators/energy_source_code via three methods.
 
     There are three main types of generators:
-      * "all gen": generators of plants which fully report to the
+      * "all bf": generators of plants which fully report to the
         boiler_fuel_eia923 table.
-      * "some gen": generators of plants which partially report to the
+      * "some bf": generators of plants which partially report to the
         boiler_fuel_eia923 table.
       * "gf only": generators of plants which do not report at all to the
         boiler_fuel_eia923 table.
@@ -1092,33 +1138,33 @@ def allocate_fuel_by_gen_esc(gen_pm_fuel):
 
     """
     # break out the table into these four different generator types.
-    all_gen = gen_pm_fuel.loc[gen_pm_fuel.in_bf_tbl_all]
-    some_gen = gen_pm_fuel.loc[gen_pm_fuel.in_bf_tbl_any & ~gen_pm_fuel.in_bf_tbl_all]
-    bf_only = gen_pm_fuel.loc[~gen_pm_fuel.in_bf_tbl_any]
+    all_bf = gen_pm_fuel.loc[gen_pm_fuel.in_bf_tbl_all]
+    some_bf = gen_pm_fuel.loc[gen_pm_fuel.in_bf_tbl_any & ~gen_pm_fuel.in_bf_tbl_all]
+    gf_only = gen_pm_fuel.loc[~gen_pm_fuel.in_bf_tbl_any]
 
     logger.info(
         "Ratio calc types: \n"
-        f"   All gens w/in generation table:  {len(all_gen)}#, {all_gen.capacity_mw.sum():.2} MW\n"
-        f"   Some gens w/in generation table: {len(some_gen)}#, {some_gen.capacity_mw.sum():.2} MW\n"
-        f"   No gens w/in generation table:   {len(bf_only)}#, {bf_only.capacity_mw.sum():.2} MW"
+        f"   All gens w/in boiler fuel table:  {len(all_bf)}#, {all_bf.capacity_mw.sum():.2} MW\n"
+        f"   Some gens w/in boiler fuel table: {len(some_bf)}#, {some_bf.capacity_mw.sum():.2} MW\n"
+        f"   No gens w/in boiler fuel table:   {len(gf_only)}#, {gf_only.capacity_mw.sum():.2} MW"
     )
-    if len(gen_pm_fuel) != len(all_gen) + len(some_gen) + len(bf_only):
+    if len(gen_pm_fuel) != len(all_bf) + len(some_bf) + len(gf_only):
         raise AssertionError(
             "Error in splitting the gens between records showing up fully, "
-            "partially, or not at all in the generation table."
+            "partially, or not at all in the boiler fuel table."
         )
 
     # In the case where we have all of the fuel from the bf
     # table, we still allocate, because the fuel reported in these two
     # tables don't always match perfectly
-    all_gen = all_gen.assign(
+    all_bf = all_bf.assign(
         frac_fuel=lambda x: x.fuel_consumed_mmbtu_bf_tbl
         / x.fuel_consumed_mmbtu_bf_tbl_pm_fuel,
         frac=lambda x: x.frac_fuel,
     )
-    # _ = _test_frac(all_gen)
+    # _ = _test_frac(all_bf)
 
-    some_gen = some_gen.assign(
+    some_bf = some_bf.assign(
         # fraction of the fuel consumption that should go to the generators that
         # report in the boiler fuel table
         frac_from_bf_tbl=lambda x: x.fuel_consumed_mmbtu_bf_tbl_pm_fuel
@@ -1145,18 +1191,18 @@ def allocate_fuel_by_gen_esc(gen_pm_fuel):
         # bf_tbl.
         frac=lambda x: np.where(x.in_bf_tbl, x.frac_bf, x.frac_cap),
     )
-    # _ = _test_frac(some_gen)
+    # _ = _test_frac(some_bf)
 
     # Calculate what fraction of the total capacity is associated with each of
     # the generators in the grouping.
-    bf_only = bf_only.assign(
+    gf_only = gf_only.assign(
         frac_cap=lambda x: x.capacity_mw / x.capacity_mw_unit_fuel,
         frac=lambda x: x.frac_cap,
     )
-    # _ = _test_frac(bf_only)
+    # _ = _test_frac(gf_only)
 
     # squish all of these methods back together.
-    fuel_alloc = pd.concat([all_gen, some_gen, bf_only])
+    fuel_alloc = pd.concat([all_bf, some_bf, gf_only])
     # _ = _test_frac(fuel_alloc)
 
     # replace the placeholder 0.001 values with zero before allocating
@@ -1341,8 +1387,10 @@ def distribute_annually_reported_data_to_months(df, key_columns, data_column_nam
         how="left",
         on=key_columns,
         suffixes=(None, "_annual_total"),
+        validate="m:1",
     )
-    df.loc[:, data_column_name] = df.loc[:, data_column_name].fillna(
+    # update the column using 1/12 of the annual total
+    df.loc[:, data_column_name].update(
         df.loc[:, f"{data_column_name}_annual_total"] / 12
     )
     df = df.drop(columns=[f"{data_column_name}_annual_total"])
@@ -1362,10 +1410,7 @@ def manually_fix_energy_source_codes(gf):
 
 
 def adjust_energy_source_codes(gens, gf, bf):
-    """Adds startup fuels to the list of energy source codes and adjusts MSW codes.
-
-    Adds the energy source code of any startup fuels to the energy source
-    columns so that any fuel burned in startup can be allocated to the generator
+    """Adjusts MSW codes.
 
     Adjust the MSW codes in gens to match those used in gf and bf.
 
@@ -1374,19 +1419,9 @@ def adjust_energy_source_codes(gens, gf, bf):
     ``MSN`` (municipal_solid_nonbiogenic). However, the EIA-860 Generators table still
     only uses the ``MSW`` code.
 
-    This function identifies which MSW codes are used in teh gf and bf tables and creates records
+    This function identifies which MSW codes are used in the gf and bf tables and creates records
     to match these.
     """
-    # drop the planned energy source code column
-    gens = gens.drop(columns=["planned_energy_source_code_1"])
-
-    # create a column of all unique fuels in the order in which they appear (ESC 1-6, startup fuel 1-6)
-    # this column will have each fuel code separated by a comma
-    gens["unique_esc"] = [
-        ",".join(fuel for fuel in list(dict.fromkeys(fuels)) if pd.notnull(fuel))
-        for fuels in gens.filter(like="source_code").values
-    ]
-
     # Adjust any energy source codes related to municipal solid waste
     # get a list of all of the MSW-related codes used in gf and bf
     msw_codes_in_gf = set(
@@ -1408,28 +1443,60 @@ def adjust_energy_source_codes(gens, gf, bf):
     msw_codes_used = list(msw_codes_in_gf | msw_codes_in_bf)
     # join these codes into a string that will be used to replace the MSW code
     replacement_codes = ",".join(msw_codes_used)
-    # replace any MSW codes with the codes used in bf and gf
-    gens.loc[gens["unique_esc"].str.contains("MSW"), "unique_esc"] = gens.loc[
-        gens["unique_esc"].str.contains("MSW"), "unique_esc"
-    ].str.replace("MSW", replacement_codes)
 
-    # we need to create numbered energy source code columns for each fuel
-    # first, we need to identify the maximum number of fuel codes that exist for a single generator
-    max_num_esc = (gens.unique_esc.str.count(",") + 1).max()
+    # if MSN and MSB codes are used, replace the existing MSW value
+    if replacement_codes != "MSW":
+        # for each type of energy source column, we want to expand any "MSW" values
+        for esc_type in ["energy_", "planned_energy_", "startup_"]:
 
-    # create a list of numbered fuel code columns
-    esc_columns_to_add = []
-    for n in range(1, max_num_esc + 1):
-        esc_columns_to_add.append(f"energy_source_code_{n}")
+            # create a column of all unique fuels in the order in which they appear (ESC 1-6, startup fuel 1-6)
+            # this column will have each fuel code separated by a comma
+            gens["unique_esc"] = [
+                ",".join(
+                    fuel for fuel in list(dict.fromkeys(fuels)) if pd.notnull(fuel)
+                )
+                for fuels in gens.loc[
+                    :,
+                    [
+                        col
+                        for col in gens.columns
+                        if col.startswith(f"{esc_type}source_code")
+                    ],
+                ].values
+            ]
 
-    # drop all of the existing energy source code columns
-    gens = gens.drop(columns=list(gens.filter(like="source_code").columns))
+            # replace any MSW codes with the codes used in bf and gf
+            gens.loc[gens["unique_esc"].str.contains("MSW"), "unique_esc"] = gens.loc[
+                gens["unique_esc"].str.contains("MSW"), "unique_esc"
+            ].str.replace("MSW", replacement_codes)
 
-    # create new numbered energy source code columns by expanding the list of unique fuels
-    gens[esc_columns_to_add] = gens["unique_esc"].str.split(",", expand=True)
+            # we need to create numbered energy source code columns for each fuel
+            # first, we need to identify the maximum number of fuel codes that exist for a single generator
+            max_num_esc = (gens.unique_esc.str.count(",") + 1).max()
 
-    # drop the intermediate column
-    gens = gens.drop(columns=["unique_esc"])
+            # create a list of numbered fuel code columns
+            esc_columns_to_add = []
+            for n in range(1, max_num_esc + 1):
+                esc_columns_to_add.append(f"{esc_type}source_code_{n}")
+
+            # drop all of the existing energy source code columns
+            gens = gens.drop(
+                columns=[
+                    col
+                    for col in gens.columns
+                    if col.startswith(f"{esc_type}source_code")
+                ]
+            )
+
+            # create new numbered energy source code columns by expanding the list of unique fuels
+            gens[esc_columns_to_add] = gens["unique_esc"].str.split(",", expand=True)
+
+            # creating columns from this list sometimes replaces NaN values with "" or None
+            gens[esc_columns_to_add] = gens[esc_columns_to_add].replace("", np.NaN)
+            gens[esc_columns_to_add] = gens[esc_columns_to_add].fillna(value=np.NaN)
+
+            # drop the intermediate column
+            gens = gens.drop(columns=["unique_esc"])
 
     return gens
 
