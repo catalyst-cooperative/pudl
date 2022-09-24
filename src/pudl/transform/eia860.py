@@ -36,7 +36,6 @@ def ownership(eia860_dfs, eia860_transformed_dfs):
         dict: eia860_transformed_dfs, a dictionary of DataFrame objects in which
         pages from EIA860 form (keys) correspond to normalized DataFrames of values
         from that page (values).
-
     """
     # Preiminary clean and get rid of unecessary 'year' column
     own_df = (
@@ -202,7 +201,6 @@ def generators(eia860_dfs, eia860_transformed_dfs):
         dict: eia860_transformed_dfs, a dictionary of DataFrame objects in which pages
         from EIA860 form (keys) correspond to normalized DataFrames of values from that
         page (values).
-
     """
     # Groupby objects were creating chained assignment warning that is N/A
     pd.options.mode.chained_assignment = None
@@ -374,7 +372,6 @@ def plants(eia860_dfs, eia860_transformed_dfs):
         dict: eia860_transformed_dfs, a dictionary of DataFrame objects in which pages
         from EIA860 form (keys) correspond to normalized DataFrames of values from that
         page (values).
-
     """
     # Populating the 'plants_eia860' table
     p_df = (
@@ -464,7 +461,6 @@ def boiler_generator_assn(eia860_dfs, eia860_transformed_dfs):
         dict: eia860_transformed_dfs, a dictionary of DataFrame objects in which pages
         from EIA860 form (keys) correspond to normalized DataFrames of values from that
         page (values).
-
     """
     # Populating the 'generators_eia860' table
     b_g_df = eia860_dfs["boiler_generator_assn"].copy()
@@ -509,7 +505,6 @@ def utilities(eia860_dfs, eia860_transformed_dfs):
         dict: eia860_transformed_dfs, a dictionary of DataFrame objects in which pages
         from EIA860 form (keys) correspond to normalized DataFrames of values from that
         page (values).
-
     """
     # Populating the 'utilities_eia860' table
     u_df = eia860_dfs["utility"].copy()
@@ -592,7 +587,6 @@ def transform(eia860_raw_dfs, eia860_settings: Eia860Settings = Eia860Settings()
     Returns:
         dict: A dictionary of DataFrame objects in which pages from EIA860 form (keys)
         corresponds to a normalized DataFrame of values from that page (values).
-
     """
     # these are the tables that we have transform functions for...
     eia860_transform_functions = {

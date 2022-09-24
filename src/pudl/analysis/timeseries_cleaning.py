@@ -27,7 +27,6 @@ And described at:
 * https://arxiv.org/abs/2006.10436
 * https://arxiv.org/abs/2008.03194
 * https://github.com/xinychen/tensor-learning
-
 """
 import functools
 import warnings

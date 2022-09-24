@@ -6,7 +6,6 @@ an Apache Parquet dataset partitioned by year and state.
 Processing the EPA CEMS data requires information that's stored in the main PUDL
 database, so to run this script, you must already have a PUDL database
 available on your system.
-
 """
 import argparse
 import logging
@@ -30,7 +29,6 @@ def parse_command_line(argv):
 
     Returns:
         dict: Dictionary of command line arguments and their parsed values.
-
     """
     parser = argparse.ArgumentParser(description=__doc__)
 
