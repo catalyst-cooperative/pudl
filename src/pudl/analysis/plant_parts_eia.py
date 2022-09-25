@@ -645,6 +645,7 @@ class MakePlantParts:
             pandas.DataFrame: The complete plant parts list
 
         """
+        gens_mega = Resource.from_id("gens_mega_eia").format_df(gens_mega)
         # aggregate everything by each plant part
         df_keys = list(self.pudl_out._dfs.keys())
         for k in df_keys:

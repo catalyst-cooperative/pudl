@@ -639,6 +639,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
         "description": "Consumption of the fuel type in physical units. Note: this is the total quantity consumed for both electricity and, in the case of combined heat and power plants, process steam production.",
     },
+    "fuel_cost_from_eiaapi": {
+        "type": "boolean",
+        "description": "Whether fuel cost is given from the EIA API.",
+    },
     "fuel_cost_per_mmbtu": {
         "type": "number",
         "description": "Average fuel cost per mmBTU of heat content in nominal USD.",
@@ -2165,6 +2169,18 @@ FIELD_METADATA_BY_GROUP: dict[str, dict[str, Any]] = {
             }
         }
     },
+    "ppe": {
+        "energy_source_code_1": {
+            "constraints": {"enum": set(CODE_METADATA["energy_sources_eia"]["df"].code)}
+        },
+        "operational_status": {
+            "constraints": {"enum": {"existing", "retired", "proposed"}}
+        },
+        "prime_mover_code": {
+            "constraints": {"enum": set(CODE_METADATA["prime_movers_eia"]["df"].code)}
+        },
+        "technology_description": {"constraints": {"enum": set(TECH_DESCRIPTIONS)}},
+    },
 }
 """Field attributes by resource group (`resource.group`) and PUDL identifier.
 
@@ -2192,15 +2208,6 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
                 ]
             },
         }
-    },
-    "plant_parts_eia": {
-        "energy_source_code_1": {
-            "constraints": {"enum": set(CODE_METADATA["energy_sources_eia"]["df"].code)}
-        },
-        "prime_movers_eia": {
-            "constraints": {"enum": set(CODE_METADATA["prime_movers_eia"]["df"].code)}
-        },
-        "technology_description": {"constraints": {"enum": set(TECH_DESCRIPTIONS)}},
     },
 }
 
