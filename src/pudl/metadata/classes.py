@@ -14,6 +14,7 @@ import pandas as pd
 import pyarrow as pa
 import pydantic
 import sqlalchemy as sa
+from pandas._libs.missing import NAType
 from pydantic.types import DirectoryPath
 
 from pudl.helpers import get_logger
@@ -503,7 +504,7 @@ class Encoder(Base):
         return code_fixes
 
     @property
-    def code_map(self) -> dict[str, str | type(pd.NA)]:
+    def code_map(self) -> dict[str, str | NAType]:
         """A mapping of all known codes to their standardized values, or NA."""
         code_map = {code: code for code in self.df["code"]}
         code_map.update(self.code_fixes)
