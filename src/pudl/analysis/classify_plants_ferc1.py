@@ -6,7 +6,6 @@ them. This is often enough information to be able to recognize which records oug
 associated with each other year to year to create a continuous time series. However, we
 want to do that programmatically, which means using some clustering / categorization
 tools from scikit-learn
-
 """
 
 import re
@@ -56,7 +55,6 @@ class FERCPlantClassifier(BaseEstimator, ClassifierMixin):
     test dataset are assigned to the same group as in our manual classification of those
     records. There are much more complicated ways to do the scoring too... but for now
     let's just keep it as simple as possible.
-
     """
 
     def __init__(self, plants_df: pd.DataFrame, min_sim: float = 0.75) -> None:
@@ -71,7 +69,6 @@ class FERCPlantClassifier(BaseEstimator, ClassifierMixin):
                 cosine similarity that we are willing to accept as indicating two
                 records are part of the same plant record time series. All entries in
                 the pairwise similarity matrix below this value will be zeroed out.
-
         """
         self.min_sim = min_sim
         self.plants_df = plants_df
@@ -93,7 +90,6 @@ class FERCPlantClassifier(BaseEstimator, ClassifierMixin):
         Args:
             X: a sparse matrix of size n_samples x n_features.
             y: Included only for API compatibility.
-
         """
         self._cossim_df = pd.DataFrame(cosine_similarity(X))
         self._best_of = self._best_by_year()
@@ -124,7 +120,6 @@ class FERCPlantClassifier(BaseEstimator, ClassifierMixin):
         Todo:
         * This method is hideously inefficient. It should be vectorized.
         * There's a line that throws a FutureWarning that needs to be fixed.
-
         """
         try:
             getattr(self, "_cossim_df")
@@ -324,7 +319,6 @@ def make_ferc1_clf(
     Returns:
         sklearn.pipeline.Pipeline: an sklearn Pipeline that performs reprocessing and
         classification with a FERCPlantClassifier object.
-
     """
     # Make a list of all the fuel fraction columns for use as one feature.
     fuel_cols = list(plants_df.filter(regex=".*_fraction_mmbtu$").columns)
@@ -539,7 +533,6 @@ def plants_steam_validate_ids(ferc1_steam_df: pd.DataFrame) -> pd.DataFrame:
 
     Returns:
         The input dataframe, to enable method chaining.
-
     """
     ##########################################################################
     # FERC PLANT ID ERROR CHECKING STUFF
@@ -608,7 +601,6 @@ def fuel_by_plant_ferc1(
     Raises:
         AssertionError: If the DataFrame input does not have the columns required to
             run the function.
-
     """
     keep_cols = [
         "report_year",  # key

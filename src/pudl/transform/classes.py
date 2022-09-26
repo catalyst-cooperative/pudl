@@ -5,7 +5,6 @@ There are 3 kinds of classes defined in this module:
 * Transform Parameters (Pydantic)
 * Transform Functions (Protocols)
 * Table Transformers (Abstract Base Class)
-
 """
 import enum
 import re
@@ -48,7 +47,6 @@ class MultiColumnTransformParams(TransformParams):
 
     Individual subclasses are dynamically generated for each multi-column transformation
     specified within a :class:`TableTransformParams` object.
-
     """
 
     @root_validator
@@ -116,7 +114,6 @@ class StringCategories(TransformParams):
 
     Each key in the dictionary is the categorical value that all the freeform strings
     listed in the associated value will be mapped to after categorization.
-
     """
 
     categories: dict[str, set[str]]
@@ -187,7 +184,6 @@ class UnitCorrections(TransformParams):
     Note that since the unit correction depends on other columns in the dataframe to
     select a relevant subset of records, it is a table transform not a column transform,
     and so needs to know what column it applies to internally.
-
     """
 
     col: str
@@ -199,8 +195,8 @@ class UnitCorrections(TransformParams):
     def no_column_rename(cls, v: list[UnitConversion]):
         """Require that all unit conversions result in no column renaming.
 
-        This constraint is imposed so that the same unit conversion definitions
-        can be re-used both for unit corrections and columnwise unit conversions.
+        This constraint is imposed so that the same unit conversion definitions can be
+        re-used both for unit corrections and columnwise unit conversions.
         """
         new_conversions = []
         for conv in v:
@@ -213,9 +209,8 @@ class UnitCorrections(TransformParams):
 class TableTransformParams(TransformParams):
     """All the generic transformation parameters for a table.
 
-    Data source specific TableTransformParams can be defined by models that inherit
-    from this one in the data source specific transform modules.
-
+    Data source specific TableTransformParams can be defined by models that inherit from
+    this one in the data source specific transform modules.
     """
 
     rename_columns: RenameColumns = {}
@@ -235,10 +230,9 @@ class TableTransformParams(TransformParams):
     def from_id(cls, table_id: enum.Enum) -> "TableTransformParams":
         """A factory method that looks up transform parameters based on table_id.
 
-        This is a shortcut, which allows us to constitute the parameter models based
-        on the table they are associated with without having to pass in a potentially
-        large nested data structure, which gets messy in Dagster.
-
+        This is a shortcut, which allows us to constitute the parameter models based on
+        the table they are associated with without having to pass in a potentially large
+        nested data structure, which gets messy in Dagster.
         """
         transform_params = {
             **pudl.transform.params.ferc1.TRANSFORM_PARAMS,
@@ -321,7 +315,6 @@ def normalize_strings(col: pd.Series, params: bool) -> pd.Series:
     * Translation to lower case.
     * Stripping of leading and trailing whitespace.
     * Compression of multiple consecutive whitespace characters to a single space.
-
     """
     return (
         col.astype(pd.StringDtype())
@@ -408,7 +401,6 @@ def correct_units(df: pd.DataFrame, params: UnitCorrections) -> pd.DataFrame:
 
     Data values which are not found in one of the acceptable multiplicative ranges are
     set to NA.
-
     """
     logger.info(f"Correcting units of {params.col} where {params.query}.")
     # Select a subset of the input dataframe to work on. E.g. only the heat content
@@ -472,7 +464,6 @@ def cache_df(key: str = "main") -> Callable[..., pd.DataFrame]:
 
     Returns:
         The decorated class method.
-
     """
 
     def _decorator(func: Callable[..., pd.DataFrame]) -> Callable[..., pd.DataFrame]:
@@ -504,7 +495,6 @@ class AbstractTableTransformer(ABC):
     Only methods that are generally useful across data sources should be defined here.
     Make sure to decorate any methods that must be defined by child classes with
     @abstractmethod.
-
     """
 
     table_id: enum.Enum
@@ -552,7 +542,6 @@ class AbstractTableTransformer(ABC):
 
         At the end of this step, all the inputs should have been consolidated into a
         single dataframe to return.
-
         """
         ...
 
@@ -569,7 +558,6 @@ class AbstractTableTransformer(ABC):
         transformer class. It should do any standard cleanup that's required after the
         table-specific transformations have been applied. E.g. enforcing the table's
         database schema and dropping invalid records based on parameterized criteria.
-
         """
 
     ################################################################################
@@ -598,7 +586,6 @@ class AbstractTableTransformer(ABC):
 
         Log if there's any mismatch between the columns in the dataframe, and the
         columns that have been defined in the mapping for renaming.
-
         """
         logger.info(f"{self.table_id.value}: Renaming {len(params.columns)} columns.")
         df_col_set = set(df.columns)
@@ -618,7 +605,6 @@ class AbstractTableTransformer(ABC):
         This method finds all rows in a dataframe that contain ONLY invalid data in ALL
         of the columns that we are checking, and drops those rows, logging the % of all
         rows that were dropped.
-
         """
         pre_drop_len = len(df)
         # set filter items using either required_valid_cols or allowed_invalid_cols
