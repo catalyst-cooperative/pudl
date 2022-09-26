@@ -55,7 +55,6 @@ def mock_cems_extended():
     2019-12-31 22:00:00+00:00       11                 a              0
     2019-12-31 22:00:00+00:00       11                 b              0
     2019-12-31 22:00:00+00:00       12                 a              0
-
     """
     cems = pd.DataFrame()
     cems["operating_datetime_utc"] = [
@@ -121,7 +120,6 @@ def test__convert_global_id_to_composite_id(mock_cems_extended):
     5         2               0               11            b                 0
     6         3               0               12            a                 0   # many to one
     7         3               0               12            a                 1
-
     """
     uniques = mock_cems_extended[
         mock_cems_extended["operating_datetime_utc"] == "2019-12-31 22:00:00+00:00"
@@ -164,7 +162,6 @@ def test_make_subplant_ids(mock_crosswalk, mock_cems_extended):
     5            0  ...        11            b                 0
     6            0  ...        12            a                 0          # many to one
     7            0  ...        12            a                 1
-
     """
     uniques = mock_cems_extended[
         mock_cems_extended["operating_datetime_utc"] == "2019-12-31 22:00:00+00:00"
