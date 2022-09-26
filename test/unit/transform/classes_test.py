@@ -19,12 +19,14 @@ import pytest
 from pandas.testing import assert_frame_equal, assert_series_equal
 from pydantic import ValidationError
 
+from pudl.helpers import get_logger
 from pudl.transform.classes import (
     AbstractTableTransformer,
     InvalidRows,
     StringCategories,
     StringNormalization,
     TableTransformParams,
+    TransformParams,
     UnitConversion,
     UnitCorrections,
     ValidRange,
@@ -33,6 +35,7 @@ from pudl.transform.classes import (
     convert_units,
     correct_units,
     drop_invalid_rows,
+    multicol_transform_factory,
     normalize_strings,
     nullify_outliers,
 )
@@ -51,6 +54,8 @@ from pudl.transform.params.ferc1 import (
     VALID_OIL_MMBTU_PER_BBL,
     VALID_PLANT_YEARS,
 )
+
+logger = get_logger(__name__)
 
 # Unit conversions that are only used in testing
 PERTHERM_TO_PERMCF = dict(
@@ -283,6 +288,86 @@ NUMERIC_DATA: pd.DataFrame = pd.DataFrame(
         "net_generation_mwh": float,
     }
 )
+
+
+#####################################################################################
+# Infrastructure function tests.
+#####################################################################################
+class FillValue(TransformParams):
+    """The simplest possible parameter."""
+
+    fill_value: float | int
+
+
+def fill_values(col: pd.Series, params: FillValue):
+    """A very simple column transformer for testing multicolumn transform factory.
+
+    Fills NA values with a number.
+    """
+    col = col.copy().fillna(params.fill_value)
+    col.name = col.name + "_filled"
+    return col
+
+
+MULTICOL_PARAMS = {
+    "a": {"fill_value": 42},
+    "b": {"fill_value": 17},
+    "c": {"fill_value": 0},
+}
+
+MULTICOL_TEST_DF = pd.DataFrame(
+    columns=["a", "b", "c"],
+    data=[
+        (0.0, 1, 2),
+        (np.nan, pd.NA, None),
+    ],
+)
+MULTICOL_DROP_EXPECTED = pd.DataFrame(
+    columns=["a_filled", "b_filled", "c_filled"],
+    data=[
+        (0.0, 1.0, 2.0),
+        (42.0, 17.0, 0.0),
+    ],
+)
+MULTICOL_NODROP_EXPECTED = pd.DataFrame(
+    columns=["a", "b", "c", "a_filled", "b_filled", "c_filled"],
+    data=[
+        (0.0, 1, 2.0, 0.0, 1.0, 2.0),
+        (np.nan, pd.NA, None, 42.0, 17.0, 0.0),
+    ],
+)
+
+
+@pytest.mark.parametrize(
+    "func,drop,df,expected,param_model,param_dict",
+    [
+        pytest.param(
+            fill_values,
+            True,
+            MULTICOL_TEST_DF,
+            MULTICOL_DROP_EXPECTED,
+            FillValue,
+            MULTICOL_PARAMS,
+            id="multicol_transform_with_drop",
+        ),
+        pytest.param(
+            fill_values,
+            False,
+            MULTICOL_TEST_DF,
+            MULTICOL_NODROP_EXPECTED,
+            FillValue,
+            MULTICOL_PARAMS,
+            id="multicol_transform_no_drop",
+        ),
+    ],
+)
+def test_multicol_transform_factory(func, drop, df, expected, param_model, param_dict):
+    """Make sure our transform factory works."""
+    func_multicol = multicol_transform_factory(func, drop=drop)
+    assert func_multicol.__name__ == func.__name__ + "_multicol"  # nosec: B101
+    params = {col: param_model(**param_dict[col]) for col in param_dict}
+    actual = func_multicol(df, params=params)
+    assert_frame_equal(actual, expected)
 
 
 #####################################################################################

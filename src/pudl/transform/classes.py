@@ -106,7 +106,7 @@ class MultiColumnTransformParams(TransformParams):
 
     The keys are column names, and the values must all be the same type of
     :class:`TransformParams` object, since MultiColumnTransformParams are used by
-    :class:`MultiColumnTransformFn` callables.
+    :class:`MultiColumnTransformFunc` callables.
 
     Individual subclasses are dynamically generated for each multi-column transformation
     specified within a :class:`TableTransformParams` object.
@@ -128,7 +128,7 @@ class MultiColumnTransformParams(TransformParams):
 #####################################################################################
 # Transform Protocol & General Function Definitions
 #####################################################################################
-class ColumnTransformFn(Protocol):
+class ColumnTransformFunc(Protocol):
     """Callback protocol defining a per-column transformation function."""
 
     def __call__(self, col: pd.Series, params: TransformParams) -> pd.Series:
@@ -136,7 +136,7 @@ class ColumnTransformFn(Protocol):
         ...
 
 
-class TableTransformFn(Protocol):
+class TableTransformFunc(Protocol):
     """Callback protocol defining a per-table transformation function."""
 
     def __call__(self, df: pd.DataFrame, params: TransformParams) -> pd.DataFrame:
@@ -144,7 +144,7 @@ class TableTransformFn(Protocol):
         ...
 
 
-class MultiColumnTransformFn(Protocol):
+class MultiColumnTransformFunc(Protocol):
     """Callback protocol defining a per-table transformation function."""
 
     def __call__(
@@ -154,16 +154,16 @@ class MultiColumnTransformFn(Protocol):
         ...
 
 
-def multicol_transform_fn_factory(
-    col_fn: ColumnTransformFn,
+def multicol_transform_factory(
+    col_func: ColumnTransformFunc,
     drop=True,
-) -> MultiColumnTransformFn:
+) -> MultiColumnTransformFunc:
     """A factory for creating a multi-column transform function."""
 
-    class InnerMultiColumnTransformFn(
+    class InnerMultiColumnTransformFunc(
         Callable[[pd.DataFrame, MultiColumnTransformParams], pd.DataFrame]
     ):
-        __name__ = col_fn.__name__ + "_multicol"
+        __name__ = col_func.__name__ + "_multicol"
 
         def __call__(
             self, df: pd.DataFrame, params: MultiColumnTransformParams
@@ -171,19 +171,19 @@ def multicol_transform_fn_factory(
             drop_col: bool = drop
             for col_name in params:
                 if col_name in df.columns:
-                    logger.debug(f"Applying {col_fn.__name__} to {col_name}")
-                    new_col = col_fn(col=df[col_name], params=params[col_name])
+                    logger.debug(f"Applying {col_func.__name__} to {col_name}")
+                    new_col = col_func(col=df[col_name], params=params[col_name])
                     if drop_col:
                         df = df.drop(columns=col_name)
                     df = pd.concat([df, new_col], axis="columns")
                 else:
                     logger.warning(
                         f"Expected column {col_name} not found in dataframe during "
-                        f"application of {col_fn.__name__}."
+                        f"application of {col_func.__name__}."
                     )
             return df
 
-    return InnerMultiColumnTransformFn()
+    return InnerMultiColumnTransformFunc()
 
 
 ################################################################################
@@ -251,7 +251,7 @@ def normalize_strings(col: pd.Series, params: StringNormalization) -> pd.Series:
     return col
 
 
-normalize_strings_multicol = multicol_transform_fn_factory(normalize_strings)
+normalize_strings_multicol = multicol_transform_factory(normalize_strings)
 
 
 ################################################################################
@@ -314,7 +314,7 @@ def categorize_strings(col: pd.Series, params: StringCategories) -> pd.Series:
     return col
 
 
-categorize_strings_multicol = multicol_transform_fn_factory(categorize_strings)
+categorize_strings_multicol = multicol_transform_factory(categorize_strings)
 
 
 ################################################################################
@@ -393,7 +393,7 @@ def convert_units(col: pd.Series, params: UnitConversion) -> pd.Series:
     return col
 
 
-convert_units_multicol = multicol_transform_fn_factory(convert_units)
+convert_units_multicol = multicol_transform_factory(convert_units)
 
 
 ################################################################################
@@ -422,7 +422,7 @@ def nullify_outliers(col: pd.Series, params: ValidRange) -> pd.Series:
     return col
 
 
-nullify_outliers_multicol = multicol_transform_fn_factory(nullify_outliers)
+nullify_outliers_multicol = multicol_transform_factory(nullify_outliers)
 
 
 ################################################################################
