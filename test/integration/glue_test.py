@@ -21,7 +21,6 @@ def test_unmapped_plants_ferc1(pudl_settings_fixture, ferc1_engine):
     This test replicates :func:`pudl.glue.ferc1_eia.get_unmapped_plants_ferc1`
     but deletes a plant from the raw FERC 1 DB contents, which should then be
     identified as "unmapped."
-
     """
     actually_unmapped_plants = get_unmapped_plants_ferc1(
         pudl_settings_fixture, DataSource.from_id("ferc1").working_partitions["years"]

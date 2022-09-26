@@ -1,7 +1,6 @@
 """Definitions for the connection between PUDL-specific IDs and other datasets.
 
 Most of this is compiled from handmapping records.
-
 """
 from typing import Any
 

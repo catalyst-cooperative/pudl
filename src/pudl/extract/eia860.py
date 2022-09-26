@@ -35,7 +35,6 @@ class Extractor(excel.GenericExtractor):
         * Add report_year if it is missing
         * Add a flag indicating if record came from EIA 860, or EIA 860M
         * Fix any generator_id values with leading zeroes.
-
         """
         df = df.rename(columns=self._metadata.get_column_map(page, **partition))
         if "report_year" not in df.columns:
