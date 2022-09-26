@@ -32,7 +32,6 @@ def dfs_to_sqlite(
         check_foreign_keys: if True, enforce foreign key constraints.
         check_types: if True, enforce column data types.
         check_values: if True, enforce value constraints.
-
     """
     # This magic makes SQLAlchemy tell SQLite to check foreign key constraints
     # whenever we insert data into thd database, which it doesn't do by default

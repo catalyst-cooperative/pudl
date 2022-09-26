@@ -14,7 +14,6 @@ includes:
 The boiler generator association inferrence (bga) takes the associations
 provided by the EIA 860, and expands on it using several methods which can be
 found in :func:`pudl.transform.eia._boiler_generator_assn`.
-
 """
 
 import importlib.resources
@@ -143,7 +142,6 @@ def find_timezone(*, lng=None, lat=None, state=None, strict=True):
 
     Todo:
         Update docstring.
-
     """
     try:
         tz = TZ_FINDER.timezone_at(lng=lng, lat=lat)
@@ -195,7 +193,6 @@ def occurrence_consistency(
         pandas.DataFrame: this dataframe will be a transformed version of
         compiled_df with NaNs removed and with new columns with information
         about the consistency of the reported values.
-
     """
     # select only the colums you want and drop the NaNs
     # we want to drop the NaNs because
@@ -275,7 +272,6 @@ def _lat_long(
         have harvested records from the clean_df. some will have harvested
         records that were found after rounding. some will have NaNs if no
         consistently reported records were found.
-
     """
     # grab the dirty plant records, round and get a new consistency
     ll_df = dirty_df.round(decimals={col: round_to})
@@ -304,7 +300,6 @@ def _add_timezone(plants_entity: pd.DataFrame) -> pd.DataFrame:
     Returns:
         A DataFrame containing the same table, with a "timezone" column added.
         Timezone may be missing if lat / lon is missing or invalid.
-
     """
     plants_entity["timezone"] = plants_entity.apply(
         lambda row: find_timezone(
@@ -337,7 +332,6 @@ def _add_additional_epacems_plants(plants_entity):
     Returns:
         pandas.DataFrame: The same plants_entity table, with the addition of
         some missing EPA CEMS plants.
-
     """
     # Add the plant IDs that are missing and update the values for the others
     # The data we're reading is a CSV in pudl/metadata/
@@ -362,8 +356,8 @@ def _add_additional_epacems_plants(plants_entity):
 def _compile_all_entity_records(entity, eia_transformed_dfs):
     """Compile all of the entity records from each table they appear in.
 
-    Comb through each of the dataframes in the eia_transformed_dfs dictionary
-    to pull out every instance of the entity id.
+    Comb through each of the dataframes in the eia_transformed_dfs dictionary to pull
+    out every instance of the entity id.
     """
     # we know these columns must be in the dfs
     id_cols = ENTITIES[entity]["id_cols"]
@@ -504,7 +498,6 @@ def harvesting(  # noqa: C901
         * Return to role of debug.
         * Determine what to do with null records
         * Determine how to treat mostly static records
-
     """
     # we know these columns must be in the dfs
     id_cols = ENTITIES[entity]["id_cols"]
@@ -694,7 +687,6 @@ def _boiler_generator_assn(  # noqa: C901
             each year.
         AssertionError: If all the generators do not end up with the same
             unit_id each year.
-
     """
     if eia923_years is None:
         eia923_years = DataSource.from_id("eia923").working_partitions["years"]
@@ -1181,7 +1173,6 @@ def fix_balancing_authority_codes_with_state(
     Returns:
         plants table that has the same set of columns and rows, with cleaned
         ``balancing_authority_code_eia`` column.
-
     """
     plants = plants.merge(
         plants_entity[["plant_id_eia", "state"]],  # only merge in state, drop later
@@ -1227,7 +1218,6 @@ def transform(
     Returns:
         tuple: two dictionaries having table names as keys and
         dataframes as values for the entity tables transformed EIA dataframes
-
     """
     # create the empty entities df to fill up
     entities_dfs = {}

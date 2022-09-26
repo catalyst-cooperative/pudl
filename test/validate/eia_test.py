@@ -71,7 +71,6 @@ def test_minmax_rows(
         df_name (str): Shorthand name identifying the dataframe, corresponding
             to the name of the function used to pull it from the PudlTabl
             output object.
-
     """
     if not live_dbs:
         pytest.skip("Data validation only works with a live PUDL DB.")

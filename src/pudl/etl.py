@@ -12,7 +12,6 @@ data from:
    - Form 1 (ferc1)
  - US Environmental Protection Agency (EPA):
    - Continuous Emissions Monitory System (epacems)
-
 """
 import itertools
 import logging
@@ -61,7 +60,6 @@ def _etl_eia(
 
     Returns:
         A dictionary of EIA dataframes ready for loading into the PUDL DB.
-
     """
     eia860_tables = eia_settings.eia860.tables
     eia860_years = eia_settings.eia860.years
@@ -170,7 +168,6 @@ def _etl_ferc1(
     Returns:
         Dataframes containing PUDL database tables pertaining to the FERC Form 1
         data, keyed by table name.
-
     """
     # Compile static FERC 1 dataframes
     out_dfs = _read_static_tables_ferc1()
@@ -245,7 +242,6 @@ def etl_epacems(
         Unlike the other ETL functions, the EPACEMS writes its output to Parquet as it
         goes, since the dataset is too large to hold in memory.  So it doesn't return a
         dictionary of dataframes.
-
     """
     pudl_engine = sa.create_engine(pudl_settings["pudl_db"])
 
@@ -362,7 +358,6 @@ def _etl_glue(
     Returns:
         A dictionary of DataFrames whose keys are the names of the corresponding
         database table.
-
     """
     # grab the glue tables for ferc1 & eia
     glue_dfs = pudl.glue.ferc1_eia.glue(
@@ -411,7 +406,6 @@ def _read_static_encoding_tables(
     Returns:
         a dictionary with table names as keys and dataframes as values for all tables
         labeled as static tables in their resource ``etl_group``
-
     """
     return {
         r.name: r.encoder.df
@@ -456,7 +450,6 @@ def etl(  # noqa: C901
 
     Returns:
         None
-
     """
     pudl_db_path = Path(pudl_settings["sqlite_dir"]) / "pudl.sqlite"
     if pudl_db_path.exists() and not clobber:

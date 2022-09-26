@@ -401,7 +401,6 @@ class Encoder(Base):
     If any unrecognized values are encountered, an exception will be raised, alerting
     us that a new code has been identified, and needs to be classified as fixable or
     to be ignored.
-
     """
 
     df: pd.DataFrame
@@ -539,13 +538,16 @@ class Encoder(Base):
 
     @classmethod
     def from_code_id(cls, x: str) -> "Encoder":
-        """Construct an Encoder based on looking up the name of a coding table directly in the codes metadata."""
+        """Construct an Encoder by looking up name of coding table in codes metadata."""
         return cls(**copy.deepcopy(CODE_METADATA[x]), name=x)
 
     def to_rst(
         self, top_dir: DirectoryPath, csv_subdir: DirectoryPath, is_header: Bool
     ) -> String:
-        """Ouput dataframe to a csv for use in jinja template. Then output to an RST file."""
+        """Ouput dataframe to a csv for use in jinja template.
+
+        Then output to an RST file.
+        """
         self.df.to_csv(Path(top_dir) / csv_subdir / f"{self.name}.csv", index=False)
         template = _get_jinja_environment(top_dir).get_template(
             "codemetadata.rst.jinja"
@@ -899,7 +901,6 @@ class DataSource(Base):
     data packages and data resources (`package|resource.sources[...]`).
 
     See https://specs.frictionlessdata.io/data-package/#sources.
-
     """
 
     name: SnakeCase
@@ -1609,7 +1610,6 @@ class Resource(Base):
             A dataframe harvested from the dataframes, with column names and
             data types matching the resource fields, alongside an aggregation
             report.
-
         """
         if aggregate is None:
             aggregate = self.harvest.harvest
@@ -1749,7 +1749,6 @@ class Package(Base):
                 return value caching through lru_cache.
             resolve_foreign_keys: Whether to add resources as needed based on
                 foreign keys.
-
         """
         resources = [Resource.dict_from_id(x) for x in resource_ids]
         if resolve_foreign_keys:
@@ -1799,9 +1798,9 @@ class Package(Base):
 
 
 class CodeMetadata(Base):
-    """A list of Encoders representing standardization and description for reported categorical codes.
+    """A list of Encoders for standardizing and documenting categorical codes.
 
-    Used to export to documentation.
+    Used to export static coding metadata to PUDL documentation automatically
     """
 
     encoder_list: list[Encoder] = []
@@ -1811,8 +1810,8 @@ class CodeMetadata(Base):
         """Construct a list of encoders from code dictionaries.
 
         Args:
-            code_ids: A list of Code PUDL identifiers, keys to entries in the CODE_METADATA dictionary.
-
+            code_ids: A list of Code PUDL identifiers, keys to entries in the
+                CODE_METADATA dictionary.
         """
         encoder_list = []
         for name in code_ids:

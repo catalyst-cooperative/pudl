@@ -5,7 +5,6 @@ data prior to loading into our database. This includes adopting standardized uni
 column names, standardizing the formatting of some string values, and correcting data
 entry errors which we can infer based on the existing data. It may also include removing
 bad data, or replacing it with the appropriate NA values.
-
 """
 import enum
 import importlib.resources
@@ -63,7 +62,6 @@ class Ferc1TableId(enum.Enum):
 
     Alternatively, the allowable values could be derived *from* the structure of the
     Package.
-
     """
 
     FUEL_FERC1 = "fuel_ferc1"
@@ -96,7 +94,6 @@ class Ferc1RenameColumns(TransformParams):
       Actually we can't require that the rename values appear in the PUDL tables,
       because there will be cases in which the original column gets dropped or modified,
       e.g. in the case of unit conversions with a column rename.
-
     """
 
     dbf: RenameColumns = {}
@@ -207,7 +204,6 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             of facts were present. If either input dataframe is empty, the other
             dataframe is returned unchanged, except that several unused columns are
             dropped. If both input dataframes are empty, an empty dataframe is returned.
-
         """
         drop_cols = ["filing_name", "index"]
         # Ignore errors in case not all drop_cols are present.
@@ -452,7 +448,6 @@ class FuelFerc1TableTransformer(Ferc1AbstractTableTransformer):
       units.
     * Apply fuel unit corrections to fuel price and heat content columns based on
       observed clustering of values.
-
     """
 
     table_id: Ferc1TableId = Ferc1TableId.FUEL_FERC1
@@ -467,7 +462,6 @@ class FuelFerc1TableTransformer(Ferc1AbstractTableTransformer):
         Returns:
             A single transformed table concatenating multiple years of cleaned data
             derived from the raw DBF and/or XBRL inputs.
-
         """
         return self.drop_invalid_rows(df, self.params.drop_invalid_rows).pipe(
             self.correct_units, self.params.correct_units
@@ -549,7 +543,6 @@ class FuelFerc1TableTransformer(Ferc1AbstractTableTransformer):
         nuclear weapons. See:
 
         https://world-nuclear.org/information-library/facts-and-figures/heat-values-of-various-fuels.aspx
-
         """
         df = df.copy()
 
@@ -687,7 +680,6 @@ class FuelFerc1TableTransformer(Ferc1AbstractTableTransformer):
         are null AND there's a non-null value in the ``fuel_mmbtu_per_mwh`` column, as
         it typically indicates a "total" row for a plant. We also require a null value
         for the fuel_units and an "other" value for the fuel type.
-
         """
         data_cols = [
             "fuel_consumed_units",
@@ -716,7 +708,6 @@ class FuelFerc1TableTransformer(Ferc1AbstractTableTransformer):
         This method both drops rows in which all required data columns are null (using
         the inherited parameterized method) and then also drops those rows we believe
         represent plant totals.
-
         """
         return super().drop_invalid_rows(df, params).pipe(self.drop_total_rows)
 
@@ -775,7 +766,6 @@ def unpack_table(ferc1_df, table_name, data_cols, data_rows):
 
     Returns:
         pandas.DataFrame
-
     """
     # Read in the corresponding row map:
     row_map = (
@@ -842,7 +832,6 @@ def cols_to_cats(df, cat_name, col_cats):
         pandas.DataFrame: A re-shaped/re-labeled dataframe with one fewer levels of
         MultiIndex in the columns, and an additional column containing the assigned
         labels.
-
     """
     out_df = pd.DataFrame()
     for col, cat in col_cats.items():
@@ -898,7 +887,6 @@ def _clean_cols(df, table_name):
 
     Raises:
         AssertionError: If the table input contains NULL columns
-
     """
     # Make sure that *all* of these columns exist in the proffered table:
     for field in [
@@ -1343,7 +1331,6 @@ def plant_in_service(ferc1_raw_dfs, ferc1_transformed_dfs):
 
     Returns:
         dict: The dictionary of the transformed DataFrames.
-
     """
     pis_df = (
         unpack_table(
@@ -1539,7 +1526,6 @@ def transform(
 
     Returns:
         dict: A dictionary of the transformed DataFrames.
-
     """
     ferc1_tfr_classes = {
         "fuel_ferc1": FuelFerc1TableTransformer,

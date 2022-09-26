@@ -62,7 +62,6 @@ unmapped_plants_eia.csv:
     minimum threshold. These plants are indicated with "True" in the "link_to_ferc1"
     column. All other EIA PLant IDs should get added to the mapping spreadsheet with an
     automatically assigned PUDL ID.
-
 """
 
 import argparse
@@ -106,7 +105,6 @@ def parse_command_line(argv: str) -> argparse.Namespace:
 
     Returns:
         Command line arguments and their parsed values.
-
     """
     parser = argparse.ArgumentParser(
         description=__doc__,
