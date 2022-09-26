@@ -88,7 +88,7 @@ setup(
         "doc": [
             "doc8>=0.9,<1.1",
             "furo>=2022.4.7",
-            "sphinx>=4,!=5.1.0,<5.1.2",
+            "sphinx>=4,!=5.1.0,<5.2.2",
             "sphinx-autoapi>=1.8,<1.10",
             "sphinx-issues>=1.2,<3.1",
             "sphinx-reredirects",
