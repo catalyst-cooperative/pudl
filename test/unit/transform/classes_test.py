@@ -853,14 +853,88 @@ class TableTransformer(AbstractTableTransformer):
         return df
 
 
+EXPECTED_STRINGS: pd.DataFrame = pd.DataFrame(
+    columns=["orthogonal", "kitteh", "sushi"],
+    data=[
+        ("gato", "cat", "cat"),
+        ("neko", "cat", "cat"),
+        ("", pd.NA, pd.NA),
+        ("", pd.NA, pd.NA),
+        ("", pd.NA, pd.NA),
+        ("", pd.NA, pd.NA),
+        ("cat", "cat", "cat"),
+        ("lion", "cat", "cat"),
+        ("lion", "cat", "cat"),
+        ("puma", "cat", "cat"),
+        ("wolf", "dog", "dog"),
+        ("dire wolf", "dog", "dog"),
+        ("hyena", pd.NA, pd.NA),
+        ("ta66y", "cat", "cat"),
+        ("puy", pd.NA, pd.NA),
+        ("", pd.NA, pd.NA),
+        ("", pd.NA, pd.NA),
+        ("", pd.NA, pd.NA),
+        ("", pd.NA, pd.NA),
+        ("", pd.NA, pd.NA),
+        ("steam (1)", pd.NA, pd.NA),
+    ],
+).convert_dtypes()
+
+EXPECTED_NUMBERS: pd.DataFrame = pd.DataFrame(
+    columns=[
+        "id",
+        "year",
+        "capacity_mw_expected",
+        "net_generation_mwh_expected",
+        "capacity_mw",
+        "net_generation_mwh",
+        "valid_capacity_mw",
+        "valid_year",
+    ],
+    index=[0, 1, 2, 3, 4, 5, 7, 8, 9],
+    data=[
+        (1, 1776, 1, 1000, 1, 1000, 1, pd.NA),
+        (2, 1876, 2, 2000, 2, 2000, 2, 1876),
+        (3, 1976, 3, 3000, 3, 3000, 3, 1976),
+        (4, 2076, 4, 4000, 4, 4000, 4, pd.NA),
+        (5, pd.NA, 5, 5000, 5, 5000, 5, pd.NA),
+        (6, 2000, 6000, 6000, 6000, 6000, pd.NA, 2000),
+        (8, -52, -3, 3000, -3, 3000, pd.NA, pd.NA),
+        (9, 1850, 0, 3000, 0, 3000, 0, 1850),
+        (10, 2022, 4000, 3000, 4000, 3000, 4000, 2022),
+    ],
+).astype(
+    {
+        "id": "Int64",
+        "year": "Int64",
+        "capacity_mw_expected": "Int64",
+        "net_generation_mwh_expected": "Int64",
+        "capacity_mw": "Int64",
+        "net_generation_mwh": "Int64",
+        "valid_capacity_mw": "Int64",
+        "valid_year": "Int64",
+    }
+)
+
+
 @pytest.mark.parametrize(
-    "df,params",
+    "df,expected,params",
     [
-        pytest.param(STRING_DATA, STRING_PARAMS, id="string_transform"),
-        pytest.param(NUMERIC_DATA, NUMERIC_PARAMS, id="numeric_transform"),
+        pytest.param(
+            STRING_DATA,
+            EXPECTED_STRINGS,
+            STRING_PARAMS,
+            id="string_transform",
+        ),
+        pytest.param(
+            NUMERIC_DATA,
+            EXPECTED_NUMBERS,
+            NUMERIC_PARAMS,
+            id="numeric_transform",
+        ),
     ],
 )
-def test_transform(df, params):
+def test_transform(df: pd.DataFrame, expected: pd.DataFrame, params):
     """Test the use of general transforms as part of a TableTransfomer class.
 
     Should really define "expected" output dataframes here and check that they match.
@@ -872,5 +946,5 @@ def test_transform(df, params):
         clear_cached_dfs=False,
     )
     actual = transformer.transform(df)
-    assert not actual.empty  # nosec: B101
     assert_frame_equal(actual, transformer._cached_dfs["end"])
+    assert_frame_equal(actual, expected.convert_dtypes(), check_index_type=False)
