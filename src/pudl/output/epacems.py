@@ -50,7 +50,6 @@ def year_state_filter(
     Returns:
         A list of lists of tuples, suitable for use as a filter in the
         read_parquet() method of pandas and dask dataframes.
-
     """
     if years is not None:
         year_filters = [("year", "=", year) for year in years]
@@ -85,7 +84,6 @@ def get_plant_states(plant_ids, pudl_out):
     Returns:
         list: A list containing the 2-letter state abbreviations for any state that was
         found in association with one or more of the plant_ids.
-
     """
     return list(
         pudl_out.plants_eia860().query("plant_id_eia in @plant_ids").state.unique()
@@ -112,7 +110,6 @@ def get_plant_years(plant_ids, pudl_out):
     Returns:
         list: A list containing the 4-digit integer years found in association with one
         or more of the plant_ids.
-
     """
     return list(
         pudl_out.plants_eia860()
@@ -138,7 +135,6 @@ def epacems(
 
     Returns:
         The requested epacems data
-
     """
     epacems_settings = EpaCemsSettings(states=states, years=years)
 

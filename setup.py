@@ -61,7 +61,7 @@ setup(
         "matplotlib>=3.3,<3.7",  # Should make this optional with a "viz" extras
         "networkx>=2.2,<2.9",
         "numpy>=1.18.5,<1.24,!=1.23.0",
-        "pandas>=1.4,<1.5.1",
+        "pandas>=1.4,<1.4.5",
         "pyarrow>=5,<9.1",
         "pydantic[email]>=1.7,<2",
         "python-snappy>=0.6,<0.7",
@@ -78,6 +78,7 @@ setup(
     extras_require={
         "dev": [
             "black>=22.0,<22.9",
+            "docformatter>=1.5,<1.6",
             "ipdb>=0.13,<0.14",
             "isort>=5.0,<5.11",
             "jedi>=0.18,<0.19",
@@ -100,7 +101,6 @@ setup(
             "doc8>=0.9,<1.1",
             "flake8>=4.0,<5.1",
             "flake8-builtins>=1.5,<1.6",
-            "flake8-colors>=0.1,<0.2",
             "flake8-docstrings>=1.5,<1.7",
             "flake8-rst-docstrings>=0.2,<0.3",
             "flake8-use-fstring>=1.0,<1.5",

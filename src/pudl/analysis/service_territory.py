@@ -1,10 +1,9 @@
 """Compile historical utility and balancing area territories.
 
 Use the mapping of utilities to counties, and balancing areas to utilities, available
-within the EIA 861, in conjunction with the US Census geometries for counties, to
-infer the historical spatial extent of utility and balancing area territories. Output
-the resulting geometries for use in other applications.
-
+within the EIA 861, in conjunction with the US Census geometries for counties, to infer
+the historical spatial extent of utility and balancing area territories. Output the
+resulting geometries for use in other applications.
 """
 import argparse
 import logging
@@ -41,7 +40,6 @@ def get_all_utils(pudl_out):
 
     Returns:
         pandas.DataFrame: Having 2 columns ``utility_id_eia`` and ``utility_name_eia``.
-
     """
     return (
         pd.concat(
@@ -86,7 +84,6 @@ def get_territory_fips(ids, assn, assn_col, st_eia861, limit_by_state=True):
         pandas.DataFrame: A table associating the entity IDs with a collection of
         counties annually, identifying counties both by name and county_id_fips
         (both state and state_id_fips are included for clarity).
-
     """
     # Limit the association table to only the relevant values:
     assn = assn.loc[assn[assn_col].isin(ids)]
@@ -133,7 +130,6 @@ def add_geometries(df, census_gdf, dissolve=False, dissolve_by=None):
 
     Returns:
         geopandas.GeoDataFrame
-
     """
     out_gdf = (
         census_gdf[["geoid10", "namelsad10", "dp0010001", "geometry"]]
@@ -223,7 +219,6 @@ def get_territory_geometries(
 
     Returns:
         geopandas.GeoDataFrame
-
     """
     return get_territory_fips(
         ids=ids,
@@ -267,7 +262,6 @@ def compile_geoms(
 
     Returns:
         geopandas.GeoDataFrame
-
     """
     logger.info(
         "Compiling %s geometries with dissolve=%s and limit_by_state=%s.",
@@ -348,7 +342,6 @@ def plot_historical_territory(gdf, id_col, id_val):
 
     Returns:
         None
-
     """
     if id_col not in gdf.columns:
         raise ValueError(f"The input id_col {id_col} doesn't exist in this GDF.")
@@ -415,7 +408,6 @@ def plot_all_territories(
 
     Returns:
         matplotlib.axes.Axes
-
     """
     unwanted_respondent_ids = (  # noqa: F841 variable is used, in df.query() below
         112,  # Alaska
@@ -453,7 +445,6 @@ def parse_command_line(argv):
 
     Returns:
         dict: A dictionary mapping command line arguments to their values.
-
     """
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(

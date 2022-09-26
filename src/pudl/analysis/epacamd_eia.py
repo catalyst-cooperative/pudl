@@ -53,7 +53,6 @@ def _get_unique_keys(epacems: pd.DataFrame | dd.DataFrame) -> pd.DataFrame:
 
     Returns:
         pd.DataFrame: unique keys from the epacems dataset
-
     """
     # The purpose of this function is mostly to resolve the
     # ambiguity between dask and pandas dataframes
@@ -79,7 +78,6 @@ def filter_crosswalk_by_epacems(
     Returns:
         The inner join of the epacamd_eia crosswalk and unique epacems units. Adds
         the global ID column unit_id_epa.
-
     """
     unique_epacems_ids = _get_unique_keys(epacems)
     key_map = unique_epacems_ids.merge(

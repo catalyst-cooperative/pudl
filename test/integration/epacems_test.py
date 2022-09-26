@@ -27,7 +27,10 @@ def epacems_parquet_path(
 
 
 def test_epacems_subset(epacems_year_and_state, epacems_parquet_path):
-    """Minimal integration test of epacems(). Check if it returns a DataFrame."""
+    """Minimal integration test of epacems().
+
+    Check if it returns a DataFrame.
+    """
     if not epacems_year_and_state:
         pytest.skip("EPA CEMS not in settings file and so is not being tested.")
     path = epacems_parquet_path

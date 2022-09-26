@@ -1,7 +1,7 @@
 """Validate post-ETL FERC Form 1 data and the associated derived outputs.
 
-These tests depend on a FERC Form 1 specific PudlTabl output object, which is
-a parameterized fixture that has session scope.
+These tests depend on a FERC Form 1 specific PudlTabl output object, which is a
+parameterized fixture that has session scope.
 """
 import logging
 
@@ -93,7 +93,10 @@ def test_vs_bounds(pudl_out_ferc1, live_dbs, cases):
 
 
 def test_self_vs_historical(pudl_out_ferc1, live_dbs):
-    """Validate fuel by plants vs. historical data."""
+    """Validate fuel by plants vs.
+
+    historical data.
+    """
     if not live_dbs:
         pytest.skip("Data validation only works with a live PUDL DB.")
     for args in pv.fbp_ferc1_self:

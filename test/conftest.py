@@ -1,4 +1,7 @@
-"""PyTest configuration module. Defines useful fixtures, command line args."""
+"""PyTest configuration module.
+
+Defines useful fixtures, command line args.
+"""
 import logging
 import os
 from pathlib import Path
@@ -135,8 +138,8 @@ def ferc1_sql_engine(
 ):
     """Grab a connection to the FERC Form 1 DB clone.
 
-    If we are using the test database, we initialize it from scratch first.
-    If we're using the live database, then we just yield a conneciton to it.
+    If we are using the test database, we initialize it from scratch first. If we're
+    using the live database, then we just yield a conneciton to it.
     """
     if not live_dbs:
         pudl.extract.ferc1.dbf2sqlite(
@@ -160,8 +163,8 @@ def pudl_sql_engine(
 ):
     """Grab a connection to the PUDL Database.
 
-    If we are using the test database, we initialize the PUDL DB from scratch.
-    If we're using the live database, then we just make a conneciton to it.
+    If we are using the test database, we initialize the PUDL DB from scratch. If we're
+    using the live database, then we just make a conneciton to it.
     """
     logger.info("setting up the pudl_engine fixture")
     if not live_dbs:
