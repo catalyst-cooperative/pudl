@@ -217,12 +217,10 @@ def test_ferc714_outputs(ferc714_out, df_name):
 def test_ferc714_respondents_georef_counties(ferc714_out):
     """Test FERC 714 respondent county FIPS associations.
 
-    This test works with the Census DP1 data, which is converted into
-    SQLite using the GDAL command line tool ogr2ogr. That tools is easy
-    to install via conda or on Linux, but is more challenging on Windows
-    and MacOS, so this test is marked xfail conditionally if the user is
-    neither using conda, nor is on Linux.
-
+    This test works with the Census DP1 data, which is converted into SQLite using the
+    GDAL command line tool ogr2ogr. That tools is easy to install via conda or on Linux,
+    but is more challenging on Windows and MacOS, so this test is marked xfail
+    conditionally if the user is neither using conda, nor is on Linux.
     """
     ferc714_gdf = ferc714_out.georef_counties()
     assert isinstance(ferc714_gdf, gpd.GeoDataFrame), "ferc714_gdf not a GeoDataFrame!"
@@ -259,8 +257,8 @@ def fast_out_filled(pudl_engine, pudl_datastore_fixture):
 def test_mcoe_filled(fast_out_filled, df_name, expected_nuke_fraction, tolerance):
     """Test that the net generation allocation process is working.
 
-    In addition to running the allocation itself, make sure that the nuclear and
-    non-nuclear generation fractions are as we would expect after the net generation has
+    In addition to running the allocation itself, make sure that the nuclear and non-
+    nuclear generation fractions are as we would expect after the net generation has
     been allocated.
     """
     actual_nuke_fraction = nuke_gen_fraction(

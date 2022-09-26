@@ -5,7 +5,6 @@ data prior to loading into our database. This includes adopting standardized uni
 column names, standardizing the formatting of some string values, and correcting data
 entry errors which we can infer based on the existing data. It may also include removing
 bad data, or replacing it with the appropriate NA values.
-
 """
 import importlib.resources
 import re
@@ -1419,7 +1418,6 @@ def unpack_table(ferc1_df, table_name, data_cols, data_rows):
 
     Returns:
         pandas.DataFrame
-
     """
     # Read in the corresponding row map:
     row_map = (
@@ -1486,7 +1484,6 @@ def cols_to_cats(df, cat_name, col_cats):
         pandas.DataFrame: A re-shaped/re-labeled dataframe with one fewer levels of
         MultiIndex in the columns, and an additional column containing the assigned
         labels.
-
     """
     out_df = pd.DataFrame()
     for col, cat in col_cats.items():
@@ -1537,7 +1534,6 @@ def _clean_cols(df, table_name):
 
     Raises:
         AssertionError: If the table input contains NULL columns
-
     """
     # Make sure that *all* of these columns exist in the proffered table:
     for field in [
@@ -1678,7 +1674,6 @@ def plants_steam(ferc1_raw_dfs, ferc1_transformed_dfs):
     Returns:
         dict: of transformed dataframes, including the newly transformed
         plants_steam_ferc1 dataframe.
-
     """
     ferc1_steam_df = (
         ferc1_raw_dfs["plants_steam_ferc1"]
@@ -1951,7 +1946,6 @@ def fuel(ferc1_raw_dfs, ferc1_transformed_dfs):
 
     Returns:
         dict: The dictionary of transformed dataframes.
-
     """
     # grab table from dictionary of dfs, clean it up a bit
     fuel_ferc1_df = (
@@ -2429,7 +2423,6 @@ def plant_in_service(ferc1_raw_dfs, ferc1_transformed_dfs):
 
     Returns:
         dict: The dictionary of the transformed DataFrames.
-
     """
     pis_df = (
         unpack_table(
@@ -2617,7 +2610,6 @@ def transform_dbf(ferc1_raw_dfs, ferc1_settings: Ferc1DbfSettings = Ferc1DbfSett
 
     Returns:
         dict: A dictionary of the transformed DataFrames.
-
     """
     ferc1_tfr_funcs = {
         # fuel must come before steam b/c fuel proportions are used to aid in
@@ -2662,7 +2654,6 @@ def transform_xbrl(
 
     Returns:
         dict: A dictionary of the transformed DataFrames.
-
     """
     pass
 
@@ -2706,7 +2697,6 @@ class FERCPlantClassifier(BaseEstimator, ClassifierMixin):
     test dataset are assigned to the same group as in our manual classification of those
     records. There are much more complicated ways to do the scoring too... but for now
     let's just keep it as simple as possible.
-
     """
 
     def __init__(self, min_sim=0.75, plants_df=None):
@@ -2724,7 +2714,6 @@ class FERCPlantClassifier(BaseEstimator, ClassifierMixin):
 
         Todo:
             Zane revisit plants_df
-
         """
         self.min_sim = min_sim
         self.plants_df = plants_df
@@ -2778,7 +2767,6 @@ class FERCPlantClassifier(BaseEstimator, ClassifierMixin):
         Todo:
         * This method is hideously inefficient. It should be vectorized.
         * There's a line that throws a FutureWarning that needs to be fixed.
-
         """
         try:
             getattr(self, "_cossim_df")
@@ -2978,7 +2966,6 @@ def make_ferc1_clf(
     Returns:
         sklearn.pipeline.Pipeline: an sklearn Pipeline that performs reprocessing and
         classification with a FERCPlantClassifier object.
-
     """
     # Make a list of all the fuel fraction columns for use as one feature.
     fuel_cols = list(plants_df.filter(regex=".*_fraction_mmbtu$").columns)
@@ -3085,7 +3072,6 @@ def fuel_by_plant_ferc1(fuel_df, thresh=0.5):
     Raises:
         AssertionError: If the DataFrame input does not have the columns required to
             run the function.
-
     """
     keep_cols = [
         "report_year",  # key

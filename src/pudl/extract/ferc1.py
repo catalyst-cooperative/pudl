@@ -1,53 +1,48 @@
 """Tools for extracting data from the FERC Form 1 FoxPro database for use in PUDL.
 
-FERC distributes the annual responses to Form 1 as binary FoxPro database
-files. This format is no longer widely supported, and so our first challenge in
-accessing the Form 1 data is to convert it into a modern format. In addition,
-FERC distributes one database for each year, and these databases are not
-explicitly linked together. Over time the structure has changed as new tables
-and fields have been added. In order to be able to use the data to do analyses
-across many years, we need to bring all of it into a unified structure. However
-it appears that these changes are only entirely additive -- the most recent
-versions of the DB contain all the tables and fields that existed in earlier
+FERC distributes the annual responses to Form 1 as binary FoxPro database files. This
+format is no longer widely supported, and so our first challenge in accessing the Form 1
+data is to convert it into a modern format. In addition, FERC distributes one database
+for each year, and these databases are not explicitly linked together. Over time the
+structure has changed as new tables and fields have been added. In order to be able to
+use the data to do analyses across many years, we need to bring all of it into a unified
+structure. However it appears that these changes are only entirely additive -- the most
+recent versions of the DB contain all the tables and fields that existed in earlier
 versions.
 
 PUDL uses the most recently released year of data as a template, and infers the
-structure of the FERC Form 1 database based on the strings embedded within the
-binary files, pulling out the names of tables and their constituent columns.
-The structure of the database is also informed by information we found on the
-FERC website, including a mapping between the table names, DBF file names,
-and the pages of the Form 1 (add link to file, which should distributed with
-the docs) that the data was gathered from, as well as a diagram of the
-structure of the database as it existed in 2015 (add link/embed image).
+structure of the FERC Form 1 database based on the strings embedded within the binary
+files, pulling out the names of tables and their constituent columns.  The structure of
+the database is also informed by information we found on the FERC website, including a
+mapping between the table names, DBF file names, and the pages of the Form 1 (add link
+to file, which should distributed with the docs) that the data was gathered from, as
+well as a diagram of the structure of the database as it existed in 2015 (add link/embed
+image).
 
-Using this inferred structure PUDL creates an SQLite database mirroring the
-FERC database using :mod:`sqlalchemy`. Then we use a python package called
-`dbfread <https://dbfread.readthedocs.io/en/latest/>`__ to extract the data from
-the DBF tables, and insert it virtually unchanged into the SQLite database.
-However, we do compile a master table of the all the respondent IDs and
-respondent names, which all the other tables refer to. Unlike the other tables,
-this table has no ``report_year`` and so it represents a merge of all the years
-of data. In the event that the name associated with a given respondent ID has
-changed over time, we retain the most recently reported name.
+Using this inferred structure PUDL creates an SQLite database mirroring the FERC
+database using :mod:`sqlalchemy`. Then we use a python package called `dbfread
+<https://dbfread.readthedocs.io/en/latest/>`__ to extract the data from the DBF tables,
+and insert it virtually unchanged into the SQLite database.  However, we do compile a
+master table of the all the respondent IDs and respondent names, which all the other
+tables refer to. Unlike the other tables, this table has no ``report_year`` and so it
+represents a merge of all the years of data. In the event that the name associated with
+a given respondent ID has changed over time, we retain the most recently reported name.
 
-Ths SQLite based compilation of the original FERC Form 1 databases can
-accommodate all 116 tables from all the published years of data (beginning in
-1994). Including all the data through 2018, the database takes up more than
-7GB of disk space. However, almost 90% of that "data" is embeded binary files
-in two tables. If those tables are excluded, the database is less than 800MB
-in size.
+Ths SQLite based compilation of the original FERC Form 1 databases can accommodate all
+116 tables from all the published years of data (beginning in 1994). Including all the
+data through 2018, the database takes up more than 7GB of disk space. However, almost
+90% of that "data" is embeded binary files in two tables. If those tables are excluded,
+the database is less than 800MB in size.
 
-The process of cloning the FERC Form 1 database(s) is coordinated by a script
-called ``ferc1_to_sqlite`` implemented in :mod:`pudl.convert.ferc1_to_sqlite`
-which is controlled by a YAML file. See the example file distributed with the
-package.
+The process of cloning the FERC Form 1 database(s) is coordinated by a script called
+``ferc1_to_sqlite`` implemented in :mod:`pudl.convert.ferc1_to_sqlite` which is
+controlled by a YAML file. See the example file distributed with the package.
 
-Once the cloned SQLite database has been created, we use it as an input into
-the PUDL ETL pipeline, and we extract a small subset of the available tables
-for further processing and integration with other data sources like the EIA 860
-and EIA 923.
-
+Once the cloned SQLite database has been created, we use it as an input into the PUDL
+ETL pipeline, and we extract a small subset of the available tables for further
+processing and integration with other data sources like the EIA 860 and EIA 923.
 """
+
 import csv
 import importlib
 import io
@@ -86,12 +81,12 @@ DBF_TYPES = {
 }
 """dict: A mapping of DBF field types to SQLAlchemy Column types.
 
-This dictionary maps the strings which are used to denote field types in the
-DBF objects to the corresponding generic SQLAlchemy Column types:
-These definitions come from a combination of the dbfread example program
-dbf2sqlite and this DBF file format documentation page:
-http://www.dbase.com/KnowledgeBase/int/db7_file_fmt.htm
-Un-mapped types left as 'XXX' which should obviously make an error.
+This dictionary maps the strings which are used to denote field types in the DBF objects
+to the corresponding generic SQLAlchemy Column types: These definitions come from a
+combination of the dbfread example program dbf2sqlite and this DBF file format
+documentation page: http://www.dbase.com/KnowledgeBase/int/db7_file_fmt.htm
+
+Un-mapped types left as 'XXX' which should obviously result in an error.
 """
 
 PUDL_RIDS = {
@@ -121,7 +116,6 @@ def missing_respondents(reported, observed, identified):
         records are generated only for unreported respondents. Identified respondents
         get the values passed in through ``identified`` and the other observed but
         unidentified respondents are named "Missing Respondent ID"
-
     """
     records = []
     for rid in observed:
@@ -157,7 +151,6 @@ def observed_respondents(ferc1_engine: sa.engine.Engine) -> set[int]:
 
     Returns:
         Every respondent ID reported in any of the FERC 1 DB tables.
-
     """
     f1_table_meta = pudl.output.pudltabl.get_table_meta(ferc1_engine)
     observed = set()
@@ -191,7 +184,7 @@ class Ferc1Datastore:
                 self.dbc_path[year] = path
 
     def get_dir(self, year: int) -> Path:
-        """Returns the path where individual ferc1 files are stored inside the yearly archive."""
+        """Return path to individual ferc1 files stored inside an annual archive."""
         if year not in self.dbc_path:
             raise ValueError(f"No ferc1 data for year {year}")
         return self.dbc_path[year]
@@ -210,9 +203,9 @@ class Ferc1Datastore:
 def drop_tables(engine):
     """Drop all FERC Form 1 tables from the SQLite database.
 
-    Creates an sa.schema.MetaData object reflecting the structure of the
-    database that the passed in ``engine`` refers to, and uses that schema to
-    drop all existing tables.
+    Creates an sa.schema.MetaData object reflecting the structure of the database that
+    the passed in ``engine`` refers to, and uses that schema to drop all existing
+    tables.
 
     Todo:
         Treat DB connection as a context manager (with/as).
@@ -223,7 +216,6 @@ def drop_tables(engine):
 
     Returns:
         None
-
     """
     md = sa.MetaData()
     md.reflect(engine)
@@ -266,7 +258,6 @@ def add_sqlite_table(
 
     Returns:
         None
-
     """
     # Create the new table object
     new_table = sa.Table(table_name, sqlite_meta)
@@ -375,7 +366,6 @@ def get_dbc_map(ds, year, min_length=4):
         the first of which is the full name of each field in the table with
         the same name as the key, and the second of which is the truncated
         (<=10 character) long name of that field as found in the DBF file.
-
     """
     # Extract all the strings longer than "min" from the DBC file
     dbc = ds.get_file(year, "F1_PUB.DBC")
@@ -441,7 +431,6 @@ def define_sqlite_db(
 
     Returns:
         None: the effects of the function are stored inside sqlite_meta
-
     """
     for table in ferc1_to_sqlite_settings.tables:
         add_sqlite_table(
@@ -473,7 +462,6 @@ class FERC1FieldParser(dbfread.FieldParser):
         Args:
             field ():
             data ():
-
         """  # noqa: D417
         # Strip whitespace, null characters, and zeroes
         data = data.strip().strip(b"*\x00").lstrip(b"0")
@@ -501,7 +489,6 @@ def get_raw_df(
     Returns:
         :class:`pandas.DataFrame`: A DataFrame containing several years of FERC
         Form 1 data for the given table.
-
     """
     dbf_filename = DBF_TABLES_FILENAMES[table]
 
@@ -556,7 +543,6 @@ def dbf2sqlite(
 
     Returns:
         None
-
     """
     # Read in the structure of the DB, if it exists
     logger.info("Dropping the old FERC Form 1 SQLite DB if it exists.")
@@ -652,7 +638,6 @@ def get_ferc1_meta(ferc1_engine):
 
     Raises:
         ValueError: If there are no tables in the SQLite Database.
-
     """
     # Connect to the local SQLite DB and read its structure.
     ferc1_meta = sa.MetaData()
@@ -685,7 +670,6 @@ def extract_dbf(
             is available
         ValueError: If the year is not in the list of working FERC years
         ValueError: If the FERC table requested is not integrated into PUDL
-
     """
     if pudl_settings is None:
         pudl_settings = pudl.workspace.setup.get_defaults()
@@ -743,7 +727,6 @@ def extract_xbrl(
             is available
         ValueError: If the year is not in the list of working FERC years
         ValueError: If the FERC table requested is not integrated into PUDL
-
     """
     if pudl_settings is None:
         pudl_settings = pudl.workspace.setup.get_defaults()
@@ -772,13 +755,11 @@ def extract_xbrl(
 
 
 def fuel_xbrl(ferc1_engine: sa.engine.Engine, ferc1_settings: Ferc1XbrlSettings):
-    """Creates a Dataframe of steam_electric_generating_plant_statistics_large_plants_fuel_statistics.
+    """Creates a Dataframe of large steam plant data from XBRL.
 
     Args:
-        ferc1_engine: An SQL Alchemy connection
-            engine for the FERC Form 1 database.
-        ferc1_settings: Object containing validated settings
-            relevant to FERC Form 1.
+        ferc1_engine: An SQL Alchemy connection engine for the FERC Form 1 database.
+        ferc1_settings: Object containing validated settings relevant to FERC Form 1.
     """
     ferc1_meta = get_ferc1_meta(ferc1_engine)
     fuel_stats = ferc1_meta.tables[
@@ -807,7 +788,6 @@ def fuel(ferc1_engine: sa.engine.Engine, ferc1_settings: Ferc1DbfSettings):
     Returns:
         :class:`pandas.DataFrame`: A DataFrame containing f1_fuel records that
         have plant_names and non-zero fuel amounts.
-
     """
     ferc1_meta = get_ferc1_meta(ferc1_engine)
     f1_fuel = ferc1_meta.tables["f1_fuel"]
@@ -840,7 +820,6 @@ def plants_steam(ferc1_engine: sa.engine.Engine, ferc1_settings: Ferc1DbfSetting
     Returns:
         pandas.DataFrame: A DataFrame containing f1_steam records that have
         plant names and non-zero capacities.
-
     """
     ferc1_meta = get_ferc1_meta(ferc1_engine)
     f1_steam = ferc1_meta.tables["f1_steam"]
@@ -904,7 +883,6 @@ def plants_hydro(ferc1_engine: sa.engine.Engine, ferc1_settings: Ferc1DbfSetting
     Returns:
         pandas.DataFrame: A DataFrame containing f1_hydro records that have
         plant names.
-
     """
     ferc1_meta = get_ferc1_meta(ferc1_engine)
     f1_hydro = ferc1_meta.tables["f1_hydro"]
@@ -932,7 +910,6 @@ def plants_pumped_storage(
     Returns:
         pandas.DataFrame: A DataFrame containing f1_plants_pumped_storage
         records that have plant names.
-
     """
     ferc1_meta = get_ferc1_meta(ferc1_engine)
     f1_pumped_storage = ferc1_meta.tables["f1_pumped_storage"]
@@ -960,7 +937,6 @@ def plant_in_service(ferc1_engine: sa.engine.Engine, ferc1_settings: Ferc1DbfSet
     Returns:
         pandas.DataFrame: A DataFrame containing all plant_in_service_ferc1
         records.
-
     """
     ferc1_meta = get_ferc1_meta(ferc1_engine)
     f1_plant_in_srvce = ferc1_meta.tables["f1_plant_in_srvce"]
@@ -983,7 +959,6 @@ def purchased_power(ferc1_engine: sa.engine.Engine, ferc1_settings: Ferc1DbfSett
     Returns:
         pandas.DataFrame: A DataFrame containing all purchased_power_ferc1
         records.
-
     """
     ferc1_meta = get_ferc1_meta(ferc1_engine)
     f1_purchased_pwr = ferc1_meta.tables["f1_purchased_pwr"]
@@ -1008,7 +983,6 @@ def accumulated_depreciation(
     Returns:
         :class:`pandas.DataFrame`: A DataFrame containing all
         accumulated_depreciation_ferc1 records.
-
     """
     ferc1_meta = get_ferc1_meta(ferc1_engine)
     f1_accumdepr_prvsn = ferc1_meta.tables["f1_accumdepr_prvsn"]

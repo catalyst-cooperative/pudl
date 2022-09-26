@@ -34,7 +34,6 @@ def get_layer(
 
     Returns:
         geopandas.GeoDataFrame
-
     """
     if not isinstance(layer, str):
         raise TypeError(f"Argument 'layer' must be a string, got arg of type {layer}.")

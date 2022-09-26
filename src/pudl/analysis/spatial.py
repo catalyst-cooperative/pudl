@@ -25,7 +25,6 @@ def check_gdf(gdf: gpd.GeoDataFrame) -> None:
         ValueError: Geometry contains non-(Multi)Polygon geometries.
         ValueError: Geometry contains (Multi)Polygon geometries with zero area.
         ValueError: MultiPolygon contains Polygon geometries with zero area.
-
     """
     if not isinstance(gdf, gpd.GeoDataFrame):
         raise TypeError("Object is not a GeoDataFrame")
@@ -60,7 +59,6 @@ def polygonize(geom: BaseGeometry) -> Polygon | MultiPolygon:
 
     Raises:
         ValueError: Geometry has zero area.
-
     """
     polys = []
     # Explode geometries to polygons
@@ -99,7 +97,6 @@ def explode(gdf: gpd.GeoDataFrame, ratios: Iterable[str] = None) -> gpd.GeoDataF
     Returns:
         GeoDataFrame with each Polygon as a separate row in the GeoDataFrame.
         The index is the number of the source row in the input GeoDataFrame.
-
     """
     check_gdf(gdf)
     gdf = gdf.reset_index(drop=True)
@@ -133,7 +130,6 @@ def self_union(gdf: gpd.GeoDataFrame, ratios: Iterable[str] = None) -> gpd.GeoDa
 
     Raises:
         NotImplementedError: MultiPolygon geometries are not yet supported.
-
     """
     check_gdf(gdf)
     gdf = gdf.reset_index(drop=True)
@@ -193,7 +189,6 @@ def dissolve(
     Returns:
         GeoDataFrame with dissolved geometry and data columns,
         and grouping columns set as the index.
-
     """
     check_gdf(gdf)
     merges = {"union": lambda x: x.unary_union, "first": lambda x: x.iloc[0]}
@@ -239,7 +234,6 @@ def overlay(
 
     Returns:
         GeoDataFrame with the geometries and attributes resulting from the overlay.
-
     """
     for gdf in gdfs:
         check_gdf(gdf)

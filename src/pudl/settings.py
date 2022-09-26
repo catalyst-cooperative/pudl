@@ -40,8 +40,8 @@ class BaseModel(PydanticBaseModel):
 class GenericDatasetSettings(BaseModel):
     """An abstract pydantic model for generic datasets.
 
-    Each dataset must specify working tables and partitions.
-    A dataset can have an arbitrary number of partitions.
+    Each dataset must specify working tables and partitions. A dataset can have an
+    arbitrary number of partitions.
     """
 
     tables: list[str]
@@ -54,7 +54,6 @@ class GenericDatasetSettings(BaseModel):
         associated ``data_source`` (e.g. years or states) have been assigned in the
         definition of the class, and that the requested values are a subset of the
         allowable values defined by the ``data_source``.
-
         """
         for name, working_partitions in cls.data_source.working_partitions.items():
             try:
@@ -275,7 +274,7 @@ class Eia860Settings(GenericDatasetSettings):
 
     @validator("eia860m")
     def check_eia860m_date(cls, eia860m: bool) -> bool:  # noqa: N805
-        """Check 860m date year is exactly one year later than most recent working 860 year.
+        """Check 860m date-year is exactly one year after most recent working 860 year.
 
         Args:
             eia860m: True if 860m is requested.
@@ -418,12 +417,11 @@ class DatasetsSettings(BaseModel):
 
 
 class Ferc1DbfToSqliteSettings(GenericDatasetSettings):
-    """An immutable pydantic nodel to validate Ferc1 to SQLite settings.
+    """An immutable Pydantic model to validate FERC 1 to SQLite settings.
 
     Args:
-        tables: list of tables to validate.
-        years: list of years to validate.
-
+        tables: List of tables to validate.
+        years: List of years to validate.
     """
 
     data_source: ClassVar[DataSource] = DataSource.from_id("ferc1")
@@ -465,7 +463,6 @@ class Ferc1XbrlToSqliteSettings(FercGenericXbrlToSqliteSettings):
     Args:
         taxonomy: URL of taxonomy used to .
         years: list of years to validate.
-
     """
 
     data_source: ClassVar[DataSource] = DataSource.from_id("ferc1")
@@ -596,7 +593,6 @@ class EtlSettings(BaseSettings):
 
         Returns:
             An ETL settings object.
-
         """
         with pathlib.Path(path).open() as f:
             yaml_file = yaml.safe_load(f)

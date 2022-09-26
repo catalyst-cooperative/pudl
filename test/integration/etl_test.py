@@ -1,10 +1,8 @@
 """PyTest based testing of the FERC Database & PUDL data package initializations.
 
-This module also contains fixtures for returning connections to the databases.
-These connections can be either to the live databases for post-ETL testing or
-to new temporary databases, which are created from scratch and dropped after
-the tests have completed.
-
+This module also contains fixtures for returning connections to the databases. These
+connections can be either to the live databases for post-ETL testing or to new temporary
+databases, which are created from scratch and dropped after the tests have completed.
 """
 import logging
 from pathlib import Path
@@ -29,8 +27,8 @@ def test_pudl_engine(pudl_engine):
 def test_ferc1_etl(ferc1_dbf_engine, ferc1_xbrl_engine):
     """Create a fresh FERC Form 1 SQLite DB and attempt to access it.
 
-    Nothing needs to be in the body of this "test" because the database
-    connections are created by the ferc1_engine fixture defined in conftest.py
+    Nothing needs to be in the body of this "test" because the database connections are
+    created by the ferc1_engine fixture defined in conftest.py
     """
     assert isinstance(ferc1_dbf_engine, sa.engine.Engine)
     assert "f1_respondent_id" in sa.inspect(ferc1_dbf_engine).get_table_names()
@@ -44,11 +42,11 @@ def test_ferc1_etl(ferc1_dbf_engine, ferc1_xbrl_engine):
 def test_ferc1_schema(ferc_to_sqlite_settings, pudl_ferc1datastore_fixture):
     """Check to make sure we aren't missing any old FERC Form 1 tables or fields.
 
-    Exhaustively enumerate all historical sets of FERC Form 1 database tables
-    and their constituent fields. Check to make sure that the current database
-    definition, based on the given reference year and our compilation of the
-    DBF filename to table name mapping from 2015, includes every single table
-    and field that appears in the historical FERC Form 1 data.
+    Exhaustively enumerate all historical sets of FERC Form 1 database tables and their
+    constituent fields. Check to make sure that the current database definition, based
+    on the given reference year and our compilation of the DBF filename to table name
+    mapping from 2015, includes every single table and field that appears in the
+    historical FERC Form 1 data.
     """
     ferc1_dbf_settings = ferc_to_sqlite_settings.ferc1_dbf_to_sqlite_settings
     refyear = ferc1_dbf_settings.refyear

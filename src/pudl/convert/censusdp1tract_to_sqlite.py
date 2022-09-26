@@ -12,7 +12,6 @@ environment, but if you are using PUDL outside of the conda environment, you
 will need to install ogr2ogr separately. On Debian Linux based systems such
 as Ubuntu it can be installed with ``sudo apt-get install gdal-bin`` (which
 is what we do in our CI setup and Docker images.)
-
 """
 
 import argparse
@@ -47,7 +46,6 @@ def censusdp1tract_to_sqlite(pudl_settings=None, year=2010, ds=None, clobber=Fal
 
     Returns:
         None
-
     """
     if ds is None:
         ds = Datastore()
@@ -96,7 +94,6 @@ def parse_command_line(argv):
 
     Returns:
         dict: Dictionary of command line arguments and their parsed values.
-
     """
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
