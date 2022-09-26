@@ -105,7 +105,6 @@ def xbrl2sqlite(
 
     Returns:
         None
-
     """
     datastore = FercXbrlDatastore(datastore)
 
@@ -154,7 +153,6 @@ def convert_form(
 
     Returns:
         None
-
     """
     # Process XBRL filings for each year requested
     for year in form_settings.years:
