@@ -191,8 +191,6 @@ def test_make_subplant_ids(mock_crosswalk, mock_cems_extended):
     ]
 
     # should be two separate tests but I ran out of time
-    actual1 = cw_analysis.filter_crosswalk(mock_crosswalk, mock_cems_extended)
-    actual = cw_analysis.make_subplant_ids(actual1)
-    print(actual)
-    print(expected)
+    actual = cw_analysis.filter_crosswalk(mock_crosswalk, mock_cems_extended)
+    actual = cw_analysis.make_subplant_ids(actual)
     assert_frame_equal(actual, expected)
