@@ -36,6 +36,7 @@ import pandas as pd
 import sqlalchemy as sa
 
 import pudl
+from pudl.glue.xbrl_dbf_ferc1 import get_util_ids_ferc1_csv, get_util_ids_pudl
 from pudl.helpers import get_logger
 
 logger = get_logger(__name__)
@@ -77,26 +78,16 @@ def get_plant_map() -> pd.DataFrame:
     )
 
 
-def get_utility_map() -> pd.DataFrame:
+def get_utility_map_pudl() -> pd.DataFrame:
     """Read in the manual FERC to EIA utility mapping data."""
-    mapping_xlsx = importlib.resources.open_binary(
-        "pudl.package_data.glue", "pudl_id_mapping.xlsx"
+    return get_util_ids_pudl().assign(
+        utility_name_pudl=lambda x: x.utility_name_eia.fillna(x.utility_name_ferc1)
     )
 
-    return pd.read_excel(
-        mapping_xlsx,
-        sheet_name="utilities_output",
-        na_values="",
-        keep_default_na=False,
-        converters={
-            "utility_id_pudl": int,
-            "utility_name_pudl": str,
-            "utility_id_ferc1": int,
-            "utility_name_ferc1": str,
-            "utility_id_eia": int,
-            "utility_name_eia": str,
-        },
-    )
+
+def get_utility_map_ferc1() -> pd.DataFrame:
+    """Read in the manual XBRL to DBF FERC1 utility mapping data."""
+    return get_util_ids_ferc1_csv()
 
 
 def get_db_plants_ferc1(
@@ -268,7 +259,7 @@ def get_mapped_utils_ferc1():
 
     """
     ferc1_mapped_utils = (
-        pudl.glue.ferc1_eia.get_utility_map()
+        get_utility_map_pudl()
         .loc[:, ["utility_id_ferc1", "utility_name_ferc1"]]
         .dropna(subset=["utility_id_ferc1"])
         .pipe(
@@ -505,7 +496,7 @@ def get_utility_most_recent_capacity(pudl_engine) -> pd.DataFrame:
 def get_mapped_utils_eia() -> pd.DataFrame:
     """Get a list of all the EIA Utilities that have PUDL IDs."""
     mapped_utils_eia = (
-        pudl.glue.ferc1_eia.get_utility_map()
+        get_utility_map_pudl()
         .loc[:, ["utility_id_eia", "utility_name_eia"]]
         .dropna(subset=["utility_id_eia"])
         .pipe(pudl.helpers.simplify_strings, columns=["utility_name_eia"])
@@ -705,23 +696,37 @@ def glue(ferc1=False, eia=False):
         .dropna(subset=["utility_id_ferc1", "plant_name_ferc1"])
     )
 
-    utility_map = get_utility_map()
+    utility_map_pudl = get_utility_map_pudl()
     utilities_pudl = (
-        utility_map.loc[:, ["utility_id_pudl", "utility_name_pudl"]]
+        utility_map_pudl.loc[:, ["utility_id_pudl", "utility_name_pudl"]]
         .drop_duplicates("utility_id_pudl")
         .dropna(how="all")
     )
     utilities_eia = (
-        utility_map.loc[:, ["utility_id_eia", "utility_name_eia", "utility_id_pudl"]]
+        utility_map_pudl.loc[
+            :, ["utility_id_eia", "utility_name_eia", "utility_id_pudl"]
+        ]
         .drop_duplicates("utility_id_eia")
         .dropna(subset=["utility_id_eia"])
     )
     utilities_ferc1 = (
-        utility_map.loc[
+        utility_map_pudl.loc[
             :, ["utility_id_ferc1", "utility_name_ferc1", "utility_id_pudl"]
         ]
         .drop_duplicates("utility_id_ferc1")
         .dropna(subset=["utility_id_ferc1"])
+    )
+
+    utility_map_ferc1 = get_utility_map_ferc1()
+    utilities_dbf_ferc1 = (
+        utility_map_ferc1.loc[:, ["utility_id_ferc1", "utility_id_dbf_ferc1"]]
+        .drop_duplicates("utility_id_dbf_ferc1")
+        .dropna(subset=["utility_id_dbf_ferc1"])
+    )
+    utilities_xbrl_ferc1 = (
+        utility_map_ferc1.loc[:, ["utility_id_ferc1", "utility_id_xbrl_ferc1"]]
+        .drop_duplicates("utility_id_xbrl_ferc1")
+        .dropna(subset=["utility_id_xbrl_ferc1"])
     )
 
     # Now we need to create a table that indicates which plants are associated
@@ -786,6 +791,8 @@ def glue(ferc1=False, eia=False):
         "utilities_pudl": utilities_pudl,
         "plants_ferc1": plants_ferc1,
         "utilities_ferc1": utilities_ferc1,
+        "utilities_dbf_ferc1": utilities_dbf_ferc1,
+        "utilities_xbrl_ferc1": utilities_xbrl_ferc1,
         "plants_eia": plants_eia,
         "utilities_eia": utilities_eia,
         "utility_plant_assn": utility_plant_assn,
@@ -799,5 +806,7 @@ def glue(ferc1=False, eia=False):
     if not ferc1:
         del glue_dfs["utilities_ferc1"]
         del glue_dfs["plants_ferc1"]
+        del glue_dfs["utilities_dbf_ferc1"]
+        del glue_dfs["utilities_xbrl_ferc1"]
 
     return glue_dfs

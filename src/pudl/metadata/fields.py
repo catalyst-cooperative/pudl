@@ -1981,7 +1981,15 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "utility_id_ferc1": {
         "type": "integer",
-        "description": "FERC-assigned respondent_id, identifying the reporting entity. Stable from year to year.",
+        "description": "PUDL-assigned utility ID, identifying a FERC1 utility. This is an auto-incremented ID and is not expected to be stable from year to year.",
+    },
+    "utility_id_dbf_ferc1": {
+        "type": "integer",
+        "description": "FERC-assigned respondent_id from DBF reporting years, identifying the reporting entity. Stable from year to year.",
+    },
+    "utility_id_xbrl_ferc1": {
+        "type": "integer",
+        "description": "FERC-assigned entity_id from XBRL reporting years, identifying the reporting entity. Stable from year to year.",
     },
     "utility_id_pudl": {
         "type": "integer",

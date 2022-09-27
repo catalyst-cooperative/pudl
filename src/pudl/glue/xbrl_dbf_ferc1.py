@@ -114,7 +114,7 @@ def update_util_id_ferc1_map_xbrl():
     util_ids_ferc1 = get_util_ids_ferc1_csv()
 
     util_ids_ferc1_new = update_id_col(
-        new_df=util_ids_xbrl, old_df=util_ids_ferc1, id_col="utility_id_ferc1_xbrl"
+        new_ids=util_ids_xbrl, old_ids=util_ids_ferc1, id_col="utility_id_ferc1_xbrl"
     ).pipe(autoincrement_from_max, id_col="utility_id_ferc1")
     util_ids_ferc1_new.to_csv(Path(UTIL_ID_FERC_MAP_CSV.name), index=False)
 
@@ -125,7 +125,7 @@ def update_util_id_pudl_ferc1():
     util_ids_pudl = get_util_ids_pudl()
 
     util_ids_pudl_new = update_id_col(
-        new_df=util_ids_ferc1, old_df=util_ids_pudl, id_col="utility_id_ferc1"
+        new_ids=util_ids_ferc1, old_ids=util_ids_pudl, id_col="utility_id_ferc1"
     ).pipe(autoincrement_from_max, id_col="utility_id_pudl")
     # update the ferc1 names based on the most recent xbrl name
     util_ids_ferc_w_names = util_ids_ferc1.merge(
@@ -139,7 +139,7 @@ def update_util_id_pudl_ferc1():
         util_ids_pudl.merge(
             util_ids_ferc_w_names,
             on=["utility_id_ferc1"],
-            how="left",
+            how="outer",
             suffixes=("", "_new"),
         )
         .assign(
@@ -174,13 +174,13 @@ def _tmp_update_utility_id_pudl_with_new_ferc1_ids(
     """
     # extract the unique mappings of old ids and rename for merge
     util_id_ferc1_unique = (
-        util_id_ferc1[["utility_id_ferc1", "utility_id_ferc1_b4"]].drop_duplicates(
-            subset=["utility_id_ferc1_b4"]
+        util_id_ferc1[["utility_id_ferc1", "utility_id_ferc1_dbf"]].drop_duplicates(
+            subset=["utility_id_ferc1_dbf"]
         )
     ).rename(
         columns={
             "utility_id_ferc1": "utilty_id_ferc1_new",
-            "utility_id_ferc1_b4": "utility_id_ferc1",
+            "utility_id_ferc1_dbf": "utility_id_ferc1",
         }
     )
 
@@ -207,4 +207,4 @@ def _tmp_update_utility_id_pudl_with_new_ferc1_ids(
             file_path=PUDL_ID_MAP_XLSX,
             sheets_df_dict={"utilities_ferc1": util_ids_changed},
         )
-    return util_id_ferc1, util_id_pudl
+    return util_ids_changed
