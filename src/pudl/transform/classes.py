@@ -68,7 +68,6 @@ parts. We use inheritance to categorize the transform methods into three categor
    method) if a particular table needs special treatment. Each of the table-specific
    subclasses will know what table it is associated with, and can look up the
    TableTransformParams that are associated with it.
-
 """
 import enum
 import re
@@ -110,7 +109,6 @@ class MultiColumnTransformParams(TransformParams):
 
     Individual subclasses are dynamically generated for each multi-column transformation
     specified within a :class:`TableTransformParams` object.
-
     """
 
     @root_validator
@@ -262,7 +260,6 @@ class StringCategories(TransformParams):
 
     Each key in the dictionary is the categorical value that all the freeform strings
     listed in the associated value will be mapped to after categorization.
-
     """
 
     categories: dict[str, set[str]]
@@ -434,7 +431,6 @@ class UnitCorrections(TransformParams):
     Note that since the unit correction depends on other columns in the dataframe to
     select a relevant subset of records, it is a table transform not a column transform,
     and so needs to know what column it applies to internally.
-
     """
 
     data_col: str
@@ -447,8 +443,8 @@ class UnitCorrections(TransformParams):
     def no_column_rename(cls, params: list[UnitConversion]) -> list[UnitConversion]:
         """Require that all unit conversions result in no column renaming.
 
-        This constraint is imposed so that the same unit conversion definitions
-        can be re-used both for unit corrections and columnwise unit conversions.
+        This constraint is imposed so that the same unit conversion definitions can be
+        re-used both for unit corrections and columnwise unit conversions.
         """
         new_conversions = []
         for uc in params:
@@ -470,7 +466,6 @@ class UnitCorrections(TransformParams):
 
         * For all pairs of unit conversions verify that their original data ranges do
           not overlap.
-
         """
         input_vals = pd.Series(
             [params["valid_range"].lower_bound, params["valid_range"].upper_bound],
@@ -520,7 +515,6 @@ def correct_units(df: pd.DataFrame, params: UnitCorrections) -> pd.DataFrame:
 
     Data values which are not found in one of the acceptable multiplicative ranges are
     set to NA.
-
     """
     logger.info(
         f"Correcting units of {params.data_col} "
@@ -602,10 +596,9 @@ class InvalidRows(TransformParams):
 def drop_invalid_rows(df: pd.DataFrame, params: InvalidRows) -> pd.DataFrame:
     """Drop rows with only invalid values in all specificed columns.
 
-    This method finds all rows in a dataframe that contain ONLY invalid data in ALL
-    of the columns that we are checking, and drops those rows, logging the % of all
-    rows that were dropped.
-
+    This method finds all rows in a dataframe that contain ONLY invalid data in ALL of
+    the columns that we are checking, and drops those rows, logging the % of all rows
+    that were dropped.
     """
     # The default InvalidRows() instance has no effect:
     if (
@@ -648,9 +641,8 @@ def drop_invalid_rows(df: pd.DataFrame, params: InvalidRows) -> pd.DataFrame:
 class TableTransformParams(TransformParams):
     """All the generic transformation parameters for a table.
 
-    Data source specific TableTransformParams can be defined by models that inherit
-    from this one in the data source specific transform modules.
-
+    Data source specific TableTransformParams can be defined by models that inherit from
+    this one in the data source specific transform modules.
     """
 
     # MultiColumnTransformParams can be initilized to empty dictionaries, since they
@@ -679,10 +671,9 @@ class TableTransformParams(TransformParams):
     def from_id(cls, table_id: enum.Enum) -> "TableTransformParams":
         """A factory method that looks up transform parameters based on table_id.
 
-        This is a shortcut, which allows us to constitute the parameter models based
-        on the table they are associated with without having to pass in a potentially
-        large nested data structure, which gets messy in Dagster.
-
+        This is a shortcut, which allows us to constitute the parameter models based on
+        the table they are associated with without having to pass in a potentially large
+        nested data structure, which gets messy in Dagster.
         """
         transform_params = {
             **pudl.transform.params.ferc1.TRANSFORM_PARAMS,
@@ -727,7 +718,6 @@ def cache_df(key: str = "main") -> Callable[..., pd.DataFrame]:
 
     Returns:
         The decorated class method.
-
     """
 
     def _decorator(func: Callable[..., pd.DataFrame]) -> Callable[..., pd.DataFrame]:
@@ -759,7 +749,6 @@ class AbstractTableTransformer(ABC):
     Only methods that are generally useful across data sources should be defined here.
     Make sure to decorate any methods that must be defined by child classes with
     @abstractmethod.
-
     """
 
     table_id: enum.Enum
@@ -816,7 +805,6 @@ class AbstractTableTransformer(ABC):
 
         At the end of this step, all the inputs should have been consolidated into a
         single dataframe to return.
-
         """
         ...
 
@@ -833,7 +821,6 @@ class AbstractTableTransformer(ABC):
         transformer class. It should do any standard cleanup that's required after the
         table-specific transformations have been applied. E.g. enforcing the table's
         database schema and dropping invalid records based on parameterized criteria.
-
         """
         ...
 
@@ -863,7 +850,6 @@ class AbstractTableTransformer(ABC):
 
         Log if there's any mismatch between the columns in the dataframe, and the
         columns that have been defined in the mapping for renaming.
-
         """
         if params is None:
             params = self.params.rename_columns
