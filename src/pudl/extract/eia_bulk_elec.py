@@ -34,8 +34,8 @@ def _filter_for_fuel_receipts_costs_series(df: pd.DataFrame) -> pd.DataFrame:
 def _filter_and_read_to_dataframe(raw_zipfile: Path) -> pd.DataFrame:
     """Decompress and filter the 1100 MB file down to the 16 MB we actually want.
 
-    This produces a dataframe with all text fields. The timeseries data is
-    left as JSON strings in the 'data' column. The other columns are metadata.
+    This produces a dataframe with all text fields. The timeseries data is left as JSON
+    strings in the 'data' column. The other columns are metadata.
     """
     filtered = []
     # Use chunksize arg to reduce peak memory usage when reading in 1.1 GB file
