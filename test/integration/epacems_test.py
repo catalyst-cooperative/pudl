@@ -27,7 +27,10 @@ def epacems_parquet_path(
 
 
 def test_epacems_subset(epacems_year_and_state, epacems_parquet_path):
-    """Minimal integration test of epacems(). Check if it returns a DataFrame."""
+    """Minimal integration test of epacems().
+
+    Check if it returns a DataFrame.
+    """
     if not epacems_year_and_state:
         pytest.skip("EPA CEMS not in settings file and so is not being tested.")
     path = epacems_parquet_path
@@ -88,4 +91,4 @@ def test_epacems_parallel(pudl_settings_fixture, pudl_ds_kwargs, tmpdir_factory)
         engine="pyarrow",
         split_row_groups=True,
     ).compute()
-    assert df.shape == (96_360, 19)  # nosec: B101
+    assert df.shape == (96_360, 16)  # nosec: B101

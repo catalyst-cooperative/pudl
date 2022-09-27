@@ -1,43 +1,53 @@
 ---
 ###########################################################################
-# Settings for ferc1_to_sqlite script
+# Settings for ferc_to_sqlite script
 ###########################################################################
-ferc1_dbf_to_sqlite_settings:
-  # What years of original FERC data should be cloned into the SQLite DB?
-  years: [2020]
-  # A list of tables to be loaded into the local SQLite database. These are
-  # the table names as they appear in the 2015 FERC Form 1 database.
-  tables:
-    - f1_respondent_id
-    - f1_gnrt_plant
-    - f1_steam
-    - f1_fuel
-    - f1_plant_in_srvce
-    - f1_hydro
-    - f1_pumped_storage
-    - f1_purchased_pwr
+ferc_to_sqlite_settings:
+  ferc1_dbf_to_sqlite_settings:
+    # What years of original FERC data should be cloned into the SQLite DB?
+    years: [2020]
+    # A list of tables to be loaded into the local SQLite database. These are
+    # the table names as they appear in the 2015 FERC Form 1 database.
+    tables:
+      - f1_respondent_id
+      - f1_gnrt_plant
+      - f1_steam
+      - f1_fuel
+      - f1_plant_in_srvce
+      - f1_hydro
+      - f1_pumped_storage
+      - f1_purchased_pwr
 
-ferc1_xbrl_to_sqlite_settings: # What years of original FERC data should be cloned into the SQLite DB?
-  years: [2021]
-  # A list of tables to be loaded into the local SQLite database. These are
-  # the table names as created from the 2022 XBRL taxonomy.
-  tables:
-    - identification_001_duration
-    - identification_001_instant
-    - steam_electric_generating_plant_statistics_large_plants_402_duration
-    - steam_electric_generating_plant_statistics_large_plants_402_instant
-    - steam_electric_generating_plant_statistics_large_plants_fuel_statistics_402_duration
-    - steam_electric_generating_plant_statistics_large_plants_fuel_statistics_402_instant
-    - hydroelectric_generating_plant_statistics_large_plants_406_duration
-    - hydroelectric_generating_plant_statistics_large_plants_406_instant
-    - pumped_storage_generating_plant_statistics_large_plants_408_duration
-    - pumped_storage_generating_plant_statistics_large_plants_408_instant
-    - generating_plant_statistics_410_duration
-    - generating_plant_statistics_410_instant
-    - electric_plant_in_service_204_duration
-    - electric_plant_in_service_204_instant
-    - purchased_power_326_duration
-    - purchased_power_326_instant
+  ferc1_xbrl_to_sqlite_settings:
+    years: [2021]
+    # A list of tables to be loaded into the local SQLite database. These are
+    # the table names as created from the 2022 XBRL taxonomy.
+    tables:
+      - identification_001_duration
+      - identification_001_instant
+      - steam_electric_generating_plant_statistics_large_plants_402_duration
+      - steam_electric_generating_plant_statistics_large_plants_402_instant
+      - steam_electric_generating_plant_statistics_large_plants_fuel_statistics_402_duration
+      - steam_electric_generating_plant_statistics_large_plants_fuel_statistics_402_instant
+      - hydroelectric_generating_plant_statistics_large_plants_406_duration
+      - hydroelectric_generating_plant_statistics_large_plants_406_instant
+      - pumped_storage_generating_plant_statistics_large_plants_408_duration
+      - pumped_storage_generating_plant_statistics_large_plants_408_instant
+      - generating_plant_statistics_410_duration
+      - generating_plant_statistics_410_instant
+      - electric_plant_in_service_204_duration
+      - electric_plant_in_service_204_instant
+      - purchased_power_326_duration
+      - purchased_power_326_instant
+
+  ferc2_xbrl_to_sqlite_settings:
+    years: [2021]
+  ferc6_xbrl_to_sqlite_settings:
+    years: [2021]
+  ferc60_xbrl_to_sqlite_settings:
+    years: [2021]
+  ferc714_xbrl_to_sqlite_settings:
+    years: [2021]
 
 ###########################################################################
 # Settings for pudl_etl script

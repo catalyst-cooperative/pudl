@@ -47,9 +47,9 @@ def test_no_null_cols_eia(pudl_out_eia, live_dbs, cols, df_name):
         ("gf_nonuclear_eia923", 2_646_290, 2_646_290, 226_602),
         ("gf_nuclear_eia923", 24_617, 24_617, 2_058),
         ("own_eia860", 84_364, 84_364, 84_364),
-        ("plants_eia860", 185_071, 185_071, 185_071),
-        ("pu_eia860", 184_260, 184_260, 184_260),
-        ("utils_eia860", 119_158, 119_158, 119_158),
+        ("plants_eia860", 185_069, 185_069, 185_069),
+        ("pu_eia860", 184_258, 184_258, 184_258),
+        ("utils_eia860", 119_156, 119_156, 119_156),
     ],
 )
 def test_minmax_rows(
@@ -71,7 +71,6 @@ def test_minmax_rows(
         df_name (str): Shorthand name identifying the dataframe, corresponding
             to the name of the function used to pull it from the PudlTabl
             output object.
-
     """
     if not live_dbs:
         pytest.skip("Data validation only works with a live PUDL DB.")

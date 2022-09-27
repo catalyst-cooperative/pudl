@@ -28,7 +28,6 @@ def set_defaults(pudl_in, pudl_out, clobber=False):
 
     Returns:
         None
-
     """
     settings_file = pathlib.Path.home() / ".pudl.yml"
     if settings_file.exists():
@@ -53,7 +52,6 @@ def get_defaults():
         dict: The contents of the user's PUDL settings file, with keys
         ``pudl_in`` and ``pudl_out`` defining their default PUDL workspace. If
         the ``$HOME/.pudl.yml`` file does not exist, set these paths to None.
-
     """
     settings_file = pathlib.Path.home() / ".pudl.yml"
 
@@ -93,7 +91,6 @@ def derive_paths(pudl_in, pudl_out):
     Returns:
         dict: A dictionary containing common PUDL settings, derived from those
             read out of the YAML file. Mostly paths for inputs & outputs.
-
     """
     pudl_settings = {}
 
@@ -119,6 +116,33 @@ def derive_paths(pudl_in, pudl_out):
 
     ferc1_db_file = pathlib.Path(pudl_settings["sqlite_dir"], "ferc1_xbrl.sqlite")
     pudl_settings["ferc1_xbrl_db"] = "sqlite:///" + str(ferc1_db_file.resolve())
+    pudl_settings["ferc1_xbrl_descriptor"] = pathlib.Path(
+        pudl_settings["sqlite_dir"], "ferc1_xbrl_descriptor.json"
+    )
+
+    ferc2_db_file = pathlib.Path(pudl_settings["sqlite_dir"], "ferc2_xbrl.sqlite")
+    pudl_settings["ferc2_xbrl_db"] = "sqlite:///" + str(ferc2_db_file.resolve())
+    pudl_settings["ferc2_xbrl_descriptor"] = pathlib.Path(
+        pudl_settings["sqlite_dir"], "ferc2_xbrl_descriptor.json"
+    )
+
+    ferc6_db_file = pathlib.Path(pudl_settings["sqlite_dir"], "ferc6_xbrl.sqlite")
+    pudl_settings["ferc6_xbrl_db"] = "sqlite:///" + str(ferc6_db_file.resolve())
+    pudl_settings["ferc6_xbrl_descriptor"] = pathlib.Path(
+        pudl_settings["sqlite_dir"], "ferc6_xbrl_descriptor.json"
+    )
+
+    ferc60_db_file = pathlib.Path(pudl_settings["sqlite_dir"], "ferc60_xbrl.sqlite")
+    pudl_settings["ferc60_xbrl_db"] = "sqlite:///" + str(ferc60_db_file.resolve())
+    pudl_settings["ferc60_xbrl_descriptor"] = pathlib.Path(
+        pudl_settings["sqlite_dir"], "ferc60_xbrl_descriptor.json"
+    )
+
+    ferc714_db_file = pathlib.Path(pudl_settings["sqlite_dir"], "ferc714_xbrl.sqlite")
+    pudl_settings["ferc714_xbrl_db"] = "sqlite:///" + str(ferc714_db_file.resolve())
+    pudl_settings["ferc714_xbrl_descriptor"] = pathlib.Path(
+        pudl_settings["sqlite_dir"], "ferc714_xbrl_descriptor.json"
+    )
 
     pudl_settings["pudl_db"] = "sqlite:///" + str(
         pathlib.Path(pudl_settings["sqlite_dir"], "pudl.sqlite")
@@ -147,7 +171,6 @@ def init(pudl_in, pudl_out, clobber=False):
 
     Returns:
         None
-
     """
     # Generate paths for the workspace:
     pudl_settings = derive_paths(pudl_in, pudl_out)
@@ -188,7 +211,6 @@ def deploy(pkg_path, deploy_dir, ignore_files, clobber=False):
 
     Returns:
         None
-
     """
     files = [
         file

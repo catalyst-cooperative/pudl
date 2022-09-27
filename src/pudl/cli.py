@@ -9,7 +9,6 @@ included), no outputs will be generated. See :doc:`/dev/run_the_etl` for details
 The output SQLite and Parquet files will be stored in ``PUDL_OUT`` in directories named
 ``sqlite`` and ``parquet``.  To setup your default ``PUDL_IN`` and ``PUDL_OUT``
 directories see ``pudl_setup --help``.
-
 """
 import argparse
 import sys
@@ -33,7 +32,6 @@ def parse_command_line(argv):
 
     Returns:
         dict: A dictionary mapping command line arguments to their values.
-
     """
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(

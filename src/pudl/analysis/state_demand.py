@@ -20,7 +20,6 @@ Currently the script takes no arguments and simply runs a predefined analysis
 across all states and all years for which both EIA 861 and FERC 714 data are
 available, and outputs the results as a CSV in
 PUDL_DIR/local/state-demand/demand.csv
-
 """
 import argparse
 import datetime

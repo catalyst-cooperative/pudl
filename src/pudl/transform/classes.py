@@ -5,42 +5,25 @@ There are 3 kinds of classes defined in this module:
 * Transform Parameters (Pydantic)
 * Transform Functions (Protocols)
 * Table Transformers (Abstract Base Class)
-
 """
 import enum
 import re
 import typing
 from abc import ABC, abstractmethod
 from collections.abc import Callable
-from functools import cached_property
+from functools import cached_property, wraps
 from itertools import combinations
-from typing import Protocol
+from typing import Any, Protocol
 
 import numpy as np
 import pandas as pd
 from pydantic import BaseModel, root_validator, validator
 
+import pudl.transform.params.ferc1
 from pudl.helpers import get_logger
 from pudl.metadata.classes import Package
-from pudl.transform.params.ferc1 import TRANSFORM_PARAMS as TRANSFORM_PARAMS_FERC1
 
 logger = get_logger(__name__)
-
-
-TRANSFORM_PARAMS: dict[str, str] = {
-    **TRANSFORM_PARAMS_FERC1,
-    # **TRANSFORM_PARAMS_EIA860,
-    # **TRANSFORM_PARAMS_EIA861,
-    # etc...
-}
-"""A dictionary of all the transformation parameters, keyed by table ID.
-
-This should be compiled dynamically from across all the different data source specific
-transform modules, or whatever other locations we end up deciding to store this
-information. We need to be able to do this kind of lookup based on table ID in order to
-sneak the table-specific parameters into the dagster ops without creating massive config
-parameter dictionaries. But for now we only have one data source and it's FERC 1.
-"""
 
 
 #####################################################################################
@@ -64,7 +47,6 @@ class MultiColumnTransformParams(TransformParams):
 
     Individual subclasses are dynamically generated for each multi-column transformation
     specified within a :class:`TableTransformParams` object.
-
     """
 
     @root_validator
@@ -85,35 +67,44 @@ class RenameColumns(TransformParams):
     columns: dict[str, str] = {}
 
 
-class RemoveInvalidRows(TransformParams):
-    """Defines how to identify invalid rows to drop."""
+class InvalidRows(TransformParams):
+    """Pameters that identify invalid rows to drop."""
 
     invalid_values: list
-    cols_to_check: list[str] | None = None
-    cols_to_not_check: list[str] | None = None
+    """A list of values that should be considered invalid in the selected columns."""
+
+    required_valid_cols: list[str] | None = None
+    """List of columns passed into :meth:`pd.filter` as the ``items`` argument."""
+
+    allowed_invalid_cols: list[str] | None = None
+    """List of columns *not* to search for valid values to preserve.
+
+    Used to construct an ``items`` argument for :meth:`pd.filter`. This option is useful
+    when a table is wide, and specifying all ``required_valid_cols`` would be tedious.
+    """
+
     like: str | None = None
+    """A string to use as the ``like`` argument to :meth:`pd.filter`"""
+
     regex: str | None = None
+    """A regular expression to use as the ``regex`` argument to :meth:`pd.filter`."""
 
     @root_validator
-    def fliter_options(cls, values):
-        """Check if the args for ``filter`` are multually exculsive.
-
-        You input either ``cols_to_check`` or ``cols_to_not_check``, which will feed
-        into ``pandas.filter``'s ``items`` parameter.
-        """
-        num_of_non_non_values = sum(
-            x is not None
-            for x in [
-                values["cols_to_check"],
-                values["cols_to_not_check"],
+    def one_filter_argument(cls, values):
+        """Validate that only one argument is specified for :meth:`pd.filter`."""
+        num_args = sum(
+            int(bool(val))
+            for val in [
+                values["required_valid_cols"],
+                values["allowed_invalid_cols"],
                 values["like"],
                 values["regex"],
             ]
         )
-        if 1 != num_of_non_non_values:
+        if num_args != 1:
             raise AssertionError(
-                "You must specify one and only one input into ``pandas.filter`` and "
-                f"{num_of_non_non_values} were found."
+                "You must specify one and only one argument to :meth:`pd.filter` and "
+                f"{num_args} were found."
             )
         return values
 
@@ -121,9 +112,8 @@ class RemoveInvalidRows(TransformParams):
 class StringCategories(TransformParams):
     """Defines mappings to clean up manually categorized freeform strings.
 
-    Each key in a stringmap is a cleaned output category, and each value is the set of
-    all strings which should be replaced with associated clean output category.
-
+    Each key in the dictionary is the categorical value that all the freeform strings
+    listed in the associated value will be mapped to after categorization.
     """
 
     categories: dict[str, set[str]]
@@ -194,7 +184,6 @@ class UnitCorrections(TransformParams):
     Note that since the unit correction depends on other columns in the dataframe to
     select a relevant subset of records, it is a table transform not a column transform,
     and so needs to know what column it applies to internally.
-
     """
 
     col: str
@@ -203,11 +192,11 @@ class UnitCorrections(TransformParams):
     unit_conversions: list[UnitConversion]
 
     @validator("unit_conversions")
-    def no_column_rename(cls, v):
+    def no_column_rename(cls, v: list[UnitConversion]):
         """Require that all unit conversions result in no column renaming.
 
-        This constraint is imposed so that the same unit conversion definitions
-        can be re-used both for unit corrections and columnwise unit conversions.
+        This constraint is imposed so that the same unit conversion definitions can be
+        re-used both for unit corrections and columnwise unit conversions.
         """
         new_conversions = []
         for conv in v:
@@ -220,9 +209,8 @@ class UnitCorrections(TransformParams):
 class TableTransformParams(TransformParams):
     """All the generic transformation parameters for a table.
 
-    Data source specific TableTransformParams can be defined by models that inherit
-    from this one in the data source specific transform modules.
-
+    Data source specific TableTransformParams can be defined by models that inherit from
+    this one in the data source specific transform modules.
     """
 
     rename_columns: RenameColumns = {}
@@ -231,12 +219,28 @@ class TableTransformParams(TransformParams):
     nullify_outliers: dict[str, ValidRange] = {}
     normalize_strings: dict[str, bool] = {}
     correct_units: list[UnitCorrections] = []
-    remove_invalid_rows: RemoveInvalidRows = {}
+    drop_invalid_rows: InvalidRows = {}
+
+    @classmethod
+    def from_dict(cls, params: dict[str, Any]) -> "TableTransformParams":
+        """Construct TableTransformParams from a dictionary of constant parameters."""
+        return cls(**params)
 
     @classmethod
     def from_id(cls, table_id: enum.Enum) -> "TableTransformParams":
-        """A factory method that looks up transform parameters based on table_id."""
-        return cls(**TRANSFORM_PARAMS[table_id.value])
+        """A factory method that looks up transform parameters based on table_id.
+
+        This is a shortcut, which allows us to constitute the parameter models based on
+        the table they are associated with without having to pass in a potentially large
+        nested data structure, which gets messy in Dagster.
+        """
+        transform_params = {
+            **pudl.transform.params.ferc1.TRANSFORM_PARAMS,
+            # **pudl.transform.params.eia860.TRANSFORM_PARAMS,
+            # **pudl.transform.params.eia923.TRANSFORM_PARAMS,
+            # etc... as appropriate
+        }
+        return cls.from_dict(transform_params[table_id.value])
 
 
 #####################################################################################
@@ -311,7 +315,6 @@ def normalize_strings(col: pd.Series, params: bool) -> pd.Series:
     * Translation to lower case.
     * Stripping of leading and trailing whitespace.
     * Compression of multiple consecutive whitespace characters to a single space.
-
     """
     return (
         col.astype(pd.StringDtype())
@@ -398,7 +401,6 @@ def correct_units(df: pd.DataFrame, params: UnitCorrections) -> pd.DataFrame:
 
     Data values which are not found in one of the acceptable multiplicative ranges are
     set to NA.
-
     """
     logger.info(f"Correcting units of {params.col} where {params.query}.")
     # Select a subset of the input dataframe to work on. E.g. only the heat content
@@ -431,13 +433,68 @@ def correct_units(df: pd.DataFrame, params: UnitCorrections) -> pd.DataFrame:
 #####################################################################################
 # Abstract Table Transformer classes
 #####################################################################################
+def cache_df(key: str = "main") -> Callable[..., pd.DataFrame]:
+    """A decorator for caching dataframes within an :class:`AbstractTableTransformer`.
+
+    It's often useful during development or debugging to be able to track the evolution
+    of data as it passes through several transformation steps. Especially when some of
+    the steps are time consuming, it's nice to still get a copy of the last known state
+    of the data when a transform raises an exception and fails.
+
+    This decorator lets you easily save a copy of the dataframe being returned by a
+    class method for later reference, before moving on to the next step. Each unique key
+    used within a given :class:`AbstractTableTransformer` instance results in a new
+    dataframe being cached. Re-using the same key will overwrite previously cached
+    dataframes that were stored with that key.
+
+    Saving many intermediate steps can provide lots of detailed information, but will
+    use more memory. Updating the same cached dataframe as it successfully passes
+    through each step lets you access the last known state it had before an error
+    occurred.
+
+    This decorator requires that the decorated function return a single
+    :class:`pd.DataFrame`, but it can take any type of inputs.
+
+    There's a lot of nested functions in here. For a more thorough explanation, see:
+    https://realpython.com/primer-on-python-decorators/#fancy-decorators
+
+    Args:
+        key: The key that will be used to store and look up the cached dataframe in the
+            internal ``self._cached_dfs`` dictionary.
+
+    Returns:
+        The decorated class method.
+    """
+
+    def _decorator(func: Callable[..., pd.DataFrame]) -> Callable[..., pd.DataFrame]:
+        @wraps(func)
+        def _wrapper(self: AbstractTableTransformer, *args, **kwargs) -> pd.DataFrame:
+            df = func(self, *args, **kwargs)
+            if not isinstance(df, pd.DataFrame):
+                raise ValueError(
+                    f"{self.table_id.value}: The cache_df decorator only works on "
+                    "methods that return a pandas dataframe. "
+                    f"The method {func.__name__} returned a {type(df)}."
+                )
+            if self.cache_dfs:
+                logger.debug(
+                    f"{self.table_id.value}: Caching df to {key=} "
+                    f"in {func.__name__}()"
+                )
+                self._cached_dfs[key] = df.copy()
+            return df
+
+        return _wrapper
+
+    return _decorator
+
+
 class AbstractTableTransformer(ABC):
     """An abstract base table transformer class.
 
     Only methods that are generally useful across data sources should be defined here.
     Make sure to decorate any methods that must be defined by child classes with
     @abstractmethod.
-
     """
 
     table_id: enum.Enum
@@ -447,6 +504,25 @@ class AbstractTableTransformer(ABC):
     the appropriate :class:`TableTransformParams` object.
     """
 
+    cache_dfs: bool = False
+    """Whether to cache copies of intermediate dataframes until transformation is done.
+
+    When True, the TableTransformer will save dataframes internally at each step of the
+    transform, so that they can be inspected easily if the transformation fails.
+    """
+
+    clear_cached_dfs: bool = True
+    """Determines whether cached dataframes are deleted at the end of the transform."""
+
+    _cached_dfs: dict[str, pd.DataFrame] = {}
+    """Cached intermediate dataframes for use in development and debugging."""
+
+    def __init__(self, cache_dfs: bool = False, clear_cached_dfs: bool = True) -> None:
+        """Initialize the table transformer, setting caching flags."""
+        super().__init__()
+        self.cache_dfs = cache_dfs
+        self.clear_cached_dfs = clear_cached_dfs
+
     @cached_property
     def params(self) -> TableTransformParams:
         """Obtain table transform parameters based on the table ID."""
@@ -455,12 +531,52 @@ class AbstractTableTransformer(ABC):
     ################################################################################
     # Abstract methods that must be defined by subclasses
     @abstractmethod
-    def transform(self, **kwargs) -> dict[str, pd.DataFrame]:
-        """Apply all specified transformations to the appropriate input dataframes."""
+    def transform_start(self, **kwargs) -> pd.DataFrame:
+        """Transformations applied to many tables within a dataset at the beginning.
+
+        This method should be implemented by the dataset-level abstract table
+        transformer class. It does not specify its inputs because different data sources
+        need different inputs. E.g. the FERC 1 transform needs 2 XBRL derived
+        dataframes, and one DBF derived dataframe, while (most) EIA tables just receive
+        and return a single dataframe.
+
+        At the end of this step, all the inputs should have been consolidated into a
+        single dataframe to return.
+        """
         ...
+
+    @abstractmethod
+    def transform_main(self, df: pd.DataFrame) -> pd.DataFrame:
+        """The workhorse method doing most of the table-specific transformations."""
+        ...
+
+    @abstractmethod
+    def transform_finish(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Transformations applied to many tables within a dataset at the end.
+
+        This method should be implemented by the dataset-level abstract table
+        transformer class. It should do any standard cleanup that's required after the
+        table-specific transformations have been applied. E.g. enforcing the table's
+        database schema and dropping invalid records based on parameterized criteria.
+        """
 
     ################################################################################
     # Default method implementations which can be used or overridden by subclasses
+    def transform(self, *args, **kwargs) -> pd.DataFrame:
+        """Apply all specified transformations to the appropriate input dataframes."""
+        df = (
+            self.transform_start(*args, **kwargs)
+            .pipe(self.transform_main)
+            .pipe(self.transform_finish)
+        )
+        if self.clear_cached_dfs:
+            logger.debug(
+                f"{self.table_id.value}: Clearing cached dfs: "
+                f"{sorted(self._cached_dfs.keys())}"
+            )
+            self._cached_dfs.clear()
+        return df
+
     def rename_columns(
         self,
         df: pd.DataFrame,
@@ -470,7 +586,6 @@ class AbstractTableTransformer(ABC):
 
         Log if there's any mismatch between the columns in the dataframe, and the
         columns that have been defined in the mapping for renaming.
-
         """
         logger.info(f"{self.table_id.value}: Renaming {len(params.columns)} columns.")
         df_col_set = set(df.columns)
@@ -484,53 +599,35 @@ class AbstractTableTransformer(ABC):
             )
         return df.rename(columns=params.columns)
 
-    def remove_invalid_rows(
-        self, df: pd.DataFrame, params: RemoveInvalidRows
-    ) -> pd.DataFrame:
+    def drop_invalid_rows(self, df: pd.DataFrame, params: InvalidRows) -> pd.DataFrame:
         """Drop rows with only invalid values in all specificed columns.
 
         This method finds all rows in a dataframe that contain ONLY invalid data in ALL
-        of the columns that we are checking and drops them with a notification of the %
-        of the records that were dropped. The input parameters must specific the invlaid
-        values to search for and only one of the following:
-
-        * columns to seach as ``cols_to_check``. This will be used directly in
-          ``pandas.filter(items)``
-        * columns to not search as ``cols_to_not_check``. This is usefull if a table
-          is large and specifcying all of the ``cols_to_check`` would be arduous.
-        * a string to search on via ``pandas.filter(like)`` as ``like``
-        * a regex to search on via ``pandas.filter(regex)`` as ``regex``
-
+        of the columns that we are checking, and drops those rows, logging the % of all
+        rows that were dropped.
         """
         pre_drop_len = len(df)
-        # assign items for filter based on either the cols_to_check or cols_to_not_checks
-        if params.cols_to_check or params.cols_to_not_check:
-            items = params.cols_to_check or [
-                col for col in df if col not in params.cols_to_not_check
+        # set filter items using either required_valid_cols or allowed_invalid_cols
+        if params.required_valid_cols or params.allowed_invalid_cols:
+            items = params.required_valid_cols or [
+                col for col in df if col not in params.allowed_invalid_cols
             ]
-        # find all of the bad records by first filtering the colums
-        # then check if those columns contain the invalid data
-        # but we only want to drop things if every single column contains only bad data
-        # so we use .all()... this gives us the BAD records, so the records to keep are
-        # everything but those, hence the ~ at the beginning.
-        # we use copy because we are creating a df that is a slice of the original
-        df_out = df[
-            (
-                ~(
-                    df.filter(
-                        items=items,
-                        like=params.like,
-                        regex=params.regex,
-                        axis="columns",
-                    ).isin(params.invalid_values)
-                ).all(axis="columns")
-            )
-        ].copy()
+
+        # Filter to select the subset of COLUMNS we want to check for valid values:
+        cols_to_check = df.filter(
+            items=items, like=params.like, regex=params.regex, axis="columns"
+        )
+        # Create a boolean mask selecting the ROWS where NOT ALL of the columns we
+        # care about are invalid (i.e. where ANY of the columns we care about contain a
+        # valid value):
+        mask = ~cols_to_check.isin(params.invalid_values).all(axis="columns")
+        # Mask the input dataframe and make a copy to avoid returning a slice.
+        df_out = df[mask].copy()
 
         logger.info(
             f"{self.table_id.value}: {1 - (len(df_out)/pre_drop_len):.0%} of records"
-            f" contain only {params.invalid_values} values in data columns. Dropping "
-            "these 💩 records."
+            f" contain only {params.invalid_values} values in required columns. "
+            "Dropping these 💩💩💩 records."
         )
         return df_out
 
@@ -593,6 +690,7 @@ class AbstractTableTransformer(ABC):
 
     def enforce_schema(self, df: pd.DataFrame) -> pd.DataFrame:
         """Drop columns not in the DB schema and enforce specified types."""
+        logger.info(f"{self.table_id.value}: Enforcing database schema on dataframe.")
         resource = Package.from_resource_ids().get_resource(self.table_id.value)
         expected_cols = pd.Index(resource.get_field_names())
         missing_cols = list(expected_cols.difference(df.columns))

@@ -108,7 +108,7 @@ class DatapackageDescriptor:
                 )
 
     def get_partitions(self, name: str = None) -> dict[str, set[str]]:
-        """Returns mapping of all known partition keys to the set of its known values."""
+        """Return mapping of known partition keys to their allowed known values."""
         partitions: dict[str, set[str]] = defaultdict(set)
         for res in self.datapackage_json["resources"]:
             if name and res["name"] != name:
@@ -118,7 +118,10 @@ class DatapackageDescriptor:
         return partitions
 
     def _validate_datapackage(self, datapackage_json: dict):
-        """Checks the correctness of datapackage.json metadata. Throws ValueError if invalid."""
+        """Checks the correctness of datapackage.json metadata.
+
+        Throws ValueError if invalid.
+        """
         dp = datapackage.Package(datapackage_json)
         if not dp.valid:
             msg = f"Found {len(dp.errors)} datapackage validation errors:\n"
@@ -148,18 +151,25 @@ class ZenodoFetcher:
             "censusdp1tract": "10.5072/zenodo.674992",
             "eia860": "10.5072/zenodo.926292",
             "eia860m": "10.5072/zenodo.926659",
-            "eia861": "10.5072/zenodo.687052",
+            "eia861": "10.5072/zenodo.1103262",
             "eia923": "10.5072/zenodo.1090056",
+            "eia_bulk_elec": "10.5072/zenodo.1103572",
+            "epacamd_eia": "10.5072/zenodo.1103224",
             "epacems": "10.5072/zenodo.672963",
             "ferc1": "10.5072/zenodo.1070868",
-            "ferc714": "10.5072/zenodo.926660",
+            "ferc2": "10.5072/zenodo.1096047",
+            "ferc6": "10.5072/zenodo.1098088",
+            "ferc60": "10.5072/zenodo.1098089",
+            "ferc714": "10.5072/zenodo.1098302",
         },
         "production": {
             "censusdp1tract": "10.5281/zenodo.4127049",
             "eia860": "10.5281/zenodo.6954131",
             "eia860m": "10.5281/zenodo.6929086",
-            "eia861": "10.5281/zenodo.5602102",
+            "eia861": "10.5281/zenodo.7063401",
             "eia923": "10.5281/zenodo.7003886",
+            "eia_bulk_elec": "10.5281/zenodo.7067367",
+            "epacamd_eia": "10.5281/zenodo.7063255",
             "epacems": "10.5281/zenodo.6910058",
             "ferc1": "10.5281/zenodo.5534788",
             "ferc714": "10.5281/zenodo.5076672",
@@ -279,7 +289,6 @@ class Datastore:
               as well as dois used for each dataset.
             timeout (floaTR): connection timeouts (in seconds) to use when connecting
               to Zenodo servers.
-
         """
         self._cache = resource_cache.LayeredCache()
         self._datapackage_descriptors: dict[str, DatapackageDescriptor] = {}
@@ -378,7 +387,10 @@ class Datastore:
 
 
 class ParseKeyValues(argparse.Action):
-    """Transforms k1=v1,k2=v2,... into dict(k1=v1, k2=v2, ...)."""
+    """Transforms k1=v1,k2=v2,...
+
+    into dict(k1=v1, k2=v2, ...).
+    """
 
     def __call__(self, parser, namespace, values, option_string=None):
         """Parses the argument value into dict."""
@@ -508,7 +520,10 @@ def print_partitions(dstore: Datastore, datasets: list[str]) -> None:
 def validate_cache(
     dstore: Datastore, datasets: list[str], args: argparse.Namespace
 ) -> None:
-    """Validate elements in the datastore cache. Delete invalid entires from cache."""
+    """Validate elements in the datastore cache.
+
+    Delete invalid entires from cache.
+    """
     for single_ds in datasets:
         num_total = 0
         num_invalid = 0

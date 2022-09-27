@@ -1,4 +1,7 @@
-"""Definitions for the glue/crosswalk tables that connect data groups."""
+"""Definitions for the connection between PUDL-specific IDs and other datasets.
+
+Most of this is compiled from handmapping records.
+"""
 from typing import Any
 
 RESOURCE_METADATA: dict[str, dict[str, Any]] = {

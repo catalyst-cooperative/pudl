@@ -52,7 +52,6 @@ hierarchically.
    method) if a particular table needs special treatment. Each of the table-specific
    subclasses will know what table it is associated with, and can look up the
    TableTransformParams that are associated with it.
-
 """
 import logging
 import re
@@ -183,7 +182,6 @@ class MultiColumnTransformParams(TransformParams):
 
     Individual subclasses are dynamically generated for each multi-column transformation
     specified within a :class:`TableTransformParams` object.
-
     """
 
     @root_validator
@@ -209,7 +207,6 @@ class StringCategories(TransformParams):
 
     Each key in a stringmap is a cleaned output category, and each value is the set of
     all strings which should be replaced with associated clean output category.
-
     """
 
     categories: dict[str, set[str]]
@@ -354,7 +351,6 @@ class AbstractTableTransformer(ABC):
 
         Log if there's any mismatch between the columns in the dataframe, and the
         columns that have been defined in the mapping for renaming.
-
         """
         return df.rename(columns=params.columns)
 

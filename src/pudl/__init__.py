@@ -5,6 +5,10 @@ import logging
 
 import pkg_resources
 
+import pudl.analysis.allocate_net_gen
+import pudl.analysis.epacamd_eia
+import pudl.analysis.mcoe
+import pudl.analysis.plant_parts_eia
 import pudl.analysis.service_territory
 import pudl.analysis.spatial
 import pudl.analysis.state_demand
@@ -12,7 +16,7 @@ import pudl.analysis.timeseries_cleaning
 import pudl.cli
 import pudl.convert.censusdp1tract_to_sqlite
 import pudl.convert.epacems_to_parquet
-import pudl.convert.ferc1_to_sqlite
+import pudl.convert.ferc_to_sqlite
 import pudl.convert.metadata_to_rst
 import pudl.etl
 import pudl.extract.eia860
@@ -23,7 +27,8 @@ import pudl.extract.epacems
 import pudl.extract.excel
 import pudl.extract.ferc1
 import pudl.extract.ferc714
-import pudl.glue.eia_epacems
+import pudl.extract.xbrl
+import pudl.glue.epacamd_eia
 import pudl.glue.ferc1_eia
 import pudl.helpers
 import pudl.load

@@ -49,16 +49,16 @@ setup(
     install_requires=[
         "addfips>=0.3.1,<0.4.0",
         "catalystcoop.dbfread>=3.0,<3.1",
-        "catalystcoop.ferc_xbrl_extractor==0.2.2",
+        "catalystcoop.ferc-xbrl-extractor==0.3.1",
         "coloredlogs>=15.0,<15.1",
-        "dask>=2021.8,<2022.8.2",
+        "dask>=2021.8,<2022.9.2",
         "datapackage>=1.11,<1.16",  # Transition datastore to use frictionless.
         # "email-validator>=1.0.3",  # pydantic[email] dependency
         "fsspec>=2021.7,<2022.8.3",  # For caching datastore on GCS
         "gcsfs>=2021.7,<2022.8.3",  # For caching datastore on GCS
         "geopandas>=0.9,<0.12",
         "jinja2>=2,<3.2",
-        "matplotlib>=3.3,<3.6",  # Should make this optional with a "viz" extras
+        "matplotlib>=3.3,<3.7",  # Should make this optional with a "viz" extras
         "networkx>=2.2,<2.9",
         "numpy>=1.18.5,<1.24,!=1.23.0",
         "pandas>=1.4,<1.4.5",
@@ -71,13 +71,14 @@ setup(
         "Shapely!=1.8.3",  # Seems to have a bug or incompatibility
         "scipy>=1.6,<1.10",
         "Shapely!=1.8.3",  # Bug or incompatibility in upstream dependencies
-        "sqlalchemy>=1.4,<1.4.41",
+        "sqlalchemy>=1.4,<1.4.42",
         "timezonefinder>=5,<6.2",
         "xlsxwriter>=3,<3.1",
     ],
     extras_require={
         "dev": [
             "black>=22.0,<22.9",
+            "docformatter>=1.5,<1.6",
             "ipdb>=0.13,<0.14",
             "isort>=5.0,<5.11",
             "jedi>=0.18,<0.19",
@@ -100,7 +101,6 @@ setup(
             "doc8>=0.9,<1.1",
             "flake8>=4.0,<5.1",
             "flake8-builtins>=1.5,<1.6",
-            "flake8-colors>=0.1,<0.2",
             "flake8-docstrings>=1.5,<1.7",
             "flake8-rst-docstrings>=0.2,<0.3",
             "flake8-use-fstring>=1.0,<1.5",
@@ -114,7 +114,7 @@ setup(
             "pytest-cov>=2.10,<3.1",
             "responses>=0.14,<0.22",
             "rstcheck[sphinx]>=5.0,<6.2",
-            "tox>=3.20,<3.26",
+            "tox>=3.20,<3.27",
         ],
         "datasette": [
             "datasette>=0.60,<0.63",
@@ -144,7 +144,7 @@ setup(
             "censusdp1tract_to_sqlite = pudl.convert.censusdp1tract_to_sqlite:main",
             "metadata_to_rst = pudl.convert.metadata_to_rst:main",
             "epacems_to_parquet = pudl.convert.epacems_to_parquet:main",
-            "ferc1_to_sqlite = pudl.convert.ferc1_to_sqlite:main",
+            "ferc_to_sqlite = pudl.convert.ferc_to_sqlite:main",
             "datasette_metadata_to_yml = pudl.convert.datasette_metadata_to_yml:main",
             "pudl_datastore = pudl.workspace.datastore:main",
             "pudl_etl = pudl.cli:main",

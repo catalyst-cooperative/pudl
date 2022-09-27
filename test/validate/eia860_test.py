@@ -109,7 +109,6 @@ def test_unique_operator_id(pudl_out_eia, live_dbs):
 
     Raises:
         AssertionError: If there are generators with multiple reported operators
-
     """
     if not live_dbs:
         pytest.skip("Data validation only works with a live PUDL DB.")
@@ -134,11 +133,9 @@ def test_unique_operator_id(pudl_out_eia, live_dbs):
 def test_generator_id_consistency(pudl_out_eia, live_dbs):
     """Check if there are any plants that report inconsistent generator IDs.
 
-    There are some instances in which a plant will report generator IDs
-    differently in different years, such that the IDs differ only in terms of
-    the case of letters, or non-alphanumeric characters. This test identifies
-    them. We haven't fixed them yet.
-
+    There are some instances in which a plant will report generator IDs differently in
+    different years, such that the IDs differ only in terms of the case of letters, or
+    non-alphanumeric characters. This test identifies them. We haven't fixed them yet.
     """
     if not live_dbs:
         pytest.skip("Data validation only works with a live PUDL DB.")

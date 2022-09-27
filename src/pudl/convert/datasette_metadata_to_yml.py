@@ -3,6 +3,7 @@
 import argparse
 import sys
 
+import pudl
 from pudl.helpers import configure_root_logger, get_logger
 from pudl.metadata.classes import DatasetteMetadata
 
@@ -17,7 +18,6 @@ def parse_command_line(argv):
 
     Returns:
         dict: Dictionary of command line arguments and their parsed values.
-
     """
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
@@ -37,7 +37,12 @@ def main():
     args = parse_command_line(sys.argv)
     logger.info(f"Exporting Datasette metadata to: {args.output}")
 
-    dm = DatasetteMetadata.from_data_source_ids()
+    defaults = pudl.workspace.setup.get_defaults()
+    pudl_settings = pudl.workspace.setup.derive_paths(
+        pudl_in=defaults["pudl_in"], pudl_out=defaults["pudl_out"]
+    )
+
+    dm = DatasetteMetadata.from_data_source_ids(pudl_settings=pudl_settings)
     dm.to_yaml(path=args.output)
 
 

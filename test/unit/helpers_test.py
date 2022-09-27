@@ -12,7 +12,7 @@ from pudl.helpers import (
     date_merge,
     expand_timeseries,
     fix_eia_na,
-    fix_leading_zero_gen_ids,
+    remove_leading_zeros_from_numeric_strings,
     zero_pad_numeric_string,
 )
 
@@ -490,7 +490,7 @@ def test_fix_eia_na():
     assert_frame_equal(out_df, expected_df)
 
 
-def test_fix_leading_zero_gen_ids():
+def test_remove_leading_zeros_from_numeric_strings():
     """Test removal of leading zeroes from EIA generator IDs."""
     in_df = pd.DataFrame(
         {
@@ -516,7 +516,9 @@ def test_fix_leading_zero_gen_ids():
             ]
         }
     )
-    out_df = fix_leading_zero_gen_ids(in_df)
+    out_df = remove_leading_zeros_from_numeric_strings(
+        in_df.astype(str), "generator_id"
+    )
     assert_frame_equal(out_df, expected_df)
 
 

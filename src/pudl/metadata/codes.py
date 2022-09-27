@@ -13,7 +13,6 @@ The table-specific dictionaries contain the following keys:
   codes.
 * 'ignored_codes': A list of non-standard codes which appear in the data, and will
   be set to NA.
-
 """
 from typing import Any
 
@@ -1230,5 +1229,255 @@ CODE_METADATA: dict[str, dict[str, Any]] = {
         ).convert_dtypes(),
         "code_fixes": {},
         "ignored_codes": [],
+    },
+    "balancing_authorities_eia": {
+        "df": pd.DataFrame(
+            columns=["code", "label", "description"],
+            data=[
+                ("AEC", "power_south_coop", "PowerSouth Energy Cooperative"),
+                (
+                    "AECI",
+                    "associated_electric_coop",
+                    "Associated Electric Cooperative, Inc.",
+                ),
+                ("AVA", "avista", "Avista Corporation"),
+                ("AVRN", "avangrid", "Avangrid Renewables LLC"),
+                ("AZPS", "arizona_public_service", "Arizona Public Service Company"),
+                (
+                    "BANC",
+                    "northern_california",
+                    "Balancing Authority of Northern California",
+                ),
+                ("BPAT", "bonneville_power", "Bonneville Power Administration"),
+                (
+                    "CHPD",
+                    "public_utility_district_of_chelan_county",
+                    "Public Utility District No. 1 of Chelan County",
+                ),
+                (
+                    "CISO",
+                    "california_iso",
+                    "California Independent System Operator",
+                ),
+                ("CPLE", "duke_energy_progress_east", "Duke Energy Progress East"),
+                ("CPLW", "duke_energy_progress_west", "Duke Energy Progress West"),
+                (
+                    "CSTO",
+                    "constellation",
+                    "Constellation Energy Control and Dispatch, LLC",
+                ),
+                (
+                    "CSWS",
+                    "public_service_company_of_oklahoma_and_southwestern_electric",
+                    "American Electric Power Service Corp. As Agent For Public Svc. Co. Of Oklahoma & SW Ele Pwr Co.",
+                ),
+                ("DEAA", "arlington_valley", "Arlington Valley, LLC - AVBA"),
+                (
+                    "DOPD",
+                    "public_utility_of_douglas_county",
+                    "PUD No. 1 of Douglas County",
+                ),
+                ("DUK", "duke_energy_carolinas", "Duke Energy Carolinas"),
+                ("EDE", "empire_district", "The Empire District Electric Company"),
+                ("EEI", "electric_energy", "Electric Energy, Inc."),
+                ("EPE", "el_paso", "El Paso Electric Company"),
+                (
+                    "ERCO",
+                    "electric_reliability_council_of_texas",
+                    "Electric Reliability Council of Texas, Inc.",
+                ),
+                (
+                    "FMPP",
+                    "florida_municipal_power_pool",
+                    "Florida Municipal Power Pool",
+                ),
+                ("FPC", "progress_energy_florida", "Progress Energy Florida"),
+                ("FPL", "florida_power_and_light", "Florida Power & Light Company"),
+                (
+                    "GCPD",
+                    "public_utility_grant_county",
+                    "Public Utility District No. 2 of Grant County, Washington",
+                ),
+                ("GLHB", "gridliance", "GridLiance (GLHB)"),
+                ("GRDA", "grand_river_dam", "Grand River Dam Authority"),
+                ("GRIF", "griffith_energy", "Griffith Energy, LLC"),
+                ("GRIS", "gridforce_south", "Gridforce South"),
+                ("GRMA", "gila_river_power", "Gila River Power, LLC"),
+                ("GVL", "gainesville_regional", "Gainesville Regional Utilities"),
+                ("GWA", "naturener_power_watch", "NaturEner Power Watch, LLC (GWA)"),
+                ("HECO", "hawaiian_electric", "Hawaiian Electric Co Inc"),
+                (
+                    "HGMA",
+                    "new_harquahala",
+                    "New Harquahala Generating Company, LLC - HGBA",
+                ),
+                ("HST", "city_of_homestead", "City of Homestead"),
+                ("IID", "imperial_irrigation", "Imperial Irrigation District"),
+                (
+                    "INDN",
+                    "independence_power_and_light",
+                    "Independence Power & Light (Independence,Missouri)",
+                ),
+                ("IPCO", "idaho_power", "Idaho Power Company"),
+                ("ISNE", "iso_new_england", "ISO New England Inc."),
+                ("JEA", "jacksonville_energy", "JEA"),
+                (
+                    "KACY",
+                    "kansas_city",
+                    "Board Of Public Utilities (Kansas City KS)",
+                ),
+                (
+                    "KCPL",
+                    "kansas_city_power_and_light",
+                    "Kansas City Power & Light Company",
+                ),
+                (
+                    "LDWP",
+                    "los_angeles_dept_of_water_and_power",
+                    "Los Angeles Department of Water and Power",
+                ),
+                ("LES", "lincoln_electric", "Lincoln Electric System"),
+                (
+                    "LGEE",
+                    "louisville_gas_and_electric_and_kentucky",
+                    "LG&E and KU Services Company as agent for Louisville Gas and Electric Company and Kentucky Utilities",
+                ),
+                (
+                    "MISO",
+                    "midcontinent_iso",
+                    "Midcontinent Independent Transmission System Operator, Inc..",
+                ),
+                (
+                    "MPS",
+                    "kansas_city_power_and_light_missouri",
+                    "KCPL - Greater Missouri Operations",
+                ),
+                (
+                    "NBSO",
+                    "new_brunswick_system_operator",
+                    "New Brunswick System Operator",
+                ),
+                ("NEVP", "nevada_power", "Nevada Power Company"),
+                ("NPPD", "nebraska_public_power", "Nebraska Public Power District"),
+                (
+                    "NSB",
+                    "new_smyrna_beach",
+                    "New Smyrna Beach, Utilities Commission of",
+                ),
+                ("NWMT", "northwestern_energy", "NorthWestern Energy (NWMT)"),
+                ("NYIS", "new_york_iso", "New York Independent System Operator"),
+                ("OKGE", "oklahoma_gas_and_electric", "Oklahoma Gas And Electric Co."),
+                ("OPPD", "omaha_public_power", "Omaha Public Power District"),
+                ("OVEC", "ohio_valley", "Ohio Valley Electric Corporation"),
+                ("PACE", "pacificorp_east", "PacifiCorp - East"),
+                ("PACW", "pacificorp_west", "PacifiCorp - West"),
+                (
+                    "PGE",
+                    "portland_general_electric",
+                    "Portland General Electric Company",
+                ),
+                ("PJM", "pjm_interconnection", "PJM Interconnection, LLC"),
+                (
+                    "PNM",
+                    "public_service_company_of_new_mexico",
+                    "Public Service Company of New Mexico",
+                ),
+                (
+                    "PSCO",
+                    "public_service_company_of_colorado",
+                    "Public Service Company of Colorado",
+                ),
+                ("PSEI", "pugent_sound_energy", "Puget Sound Energy"),
+                (
+                    "SC",
+                    "south_carolina_public_service",
+                    "South Carolina Public Service Authority",
+                ),
+                (
+                    "SCEG",
+                    "south_carolina_electric_and_gas",
+                    "South Carolina Electric & Gas Company",
+                ),
+                ("SCL", "seattle_city_light", "Seattle City Light"),
+                ("SEC", "seminole_electric_coop", "Seminole Electric Cooperative"),
+                (
+                    "SECI",
+                    "sunflower_electric_power",
+                    "Sunflower Electric Power Corporation",
+                ),
+                ("SEPA", "southeastern_power", "Southeastern Power Administration"),
+                (
+                    "SOCO",
+                    "southern_company_services",
+                    "Southern Company Services, Inc. - Trans",
+                ),
+                ("SPA", "southwestern_power", "Southwestern Power Administration"),
+                (
+                    "SPRM",
+                    "city_utilities_of_springfield",
+                    "City Utilities Of Springfield, MO",
+                ),
+                (
+                    "SPS",
+                    "southwestern_public_service",
+                    "Southwestern Public Service Co. (Xcel Energy)",
+                ),
+                ("SRP", "salt_river_project", "Salt River Project"),
+                ("SWPP", "southwest_power_pool", "Southwest Power Pool"),
+                ("TAL", "city_of_tallahassee", "City of Tallahassee"),
+                ("TEC", "tampa_electric", "Tampa Electric Company"),
+                ("TEPC", "tuscon_electric_power", "Tucson Electric Power Company"),
+                ("TIDC", "turlock_irrigation_district", "Turlock Irrigation District"),
+                (
+                    "TPWR",
+                    "city_of_tacoma",
+                    "City of Tacoma, Department of Public Utilities, Light Division",
+                ),
+                ("TVA", "tennessee_valley_authority", "Tennessee Valley Authority"),
+                (
+                    "WACM",
+                    "western_area_power_mountain",
+                    "Western Area Power Administration - Rocky Mountain Region",
+                ),
+                (
+                    "WALC",
+                    "western_area_power_southwest",
+                    "Western Area Power Administration - Desert Southwest Region",
+                ),
+                (
+                    "WAUE",
+                    "western_area_power_east",
+                    "Western Area Power Administration - Upper Great Plains East",
+                ),
+                (
+                    "WAUW",
+                    "western_area_power_west",
+                    "Western Area Power Administration UGP West",
+                ),
+                (
+                    "WFEC",
+                    "western_farmers_electric_coop",
+                    "Western Farmers Electric Cooperative",
+                ),
+                ("WR", "westar_energy", "Westar Energy"),
+                ("WWA", "naturener_wind", "NaturEner Wind Watch, LLC"),
+                (
+                    "YAD",
+                    "alcoa_power_yadkin",
+                    "Alcoa Power Generating, Inc. - Yadkin Division",
+                ),
+            ],
+        ).convert_dtypes(),
+        "code_fixes": {
+            "NVE": "NEVP",
+            "IS": "ISNE",
+            "PS": "PSCO",
+            "TIC": "TIDC",
+            "TID": "TIDC",
+            "CA": "CISO",
+        },
+        "ignored_codes": [
+            "GRID",  # 2022 860m code for plant ID 55328 (code: CSTO for previous years)
+        ],
     },
 }

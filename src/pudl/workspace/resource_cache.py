@@ -183,7 +183,10 @@ class LayeredCache(AbstractCache):
         self._caches: list[AbstractCache] = list(caches)
 
     def add_cache_layer(self, cache: AbstractCache):
-        """Adds caching layer. The priority is below all other."""
+        """Adds caching layer.
+
+        The priority is below all other.
+        """
         self._caches.append(cache)
 
     def num_layers(self):
@@ -237,7 +240,7 @@ class LayeredCache(AbstractCache):
         logger.debug(f"contains: {resource} not found in layered cache.")
 
     def is_optimally_cached(self, resource: PudlResourceKey) -> bool:
-        """Returns true if the resource is contained in the closest write-enabled layer."""
+        """Return True if resource is contained in the closest write-enabled layer."""
         for cache_layer in self._caches:
             if cache_layer.is_read_only():
                 continue

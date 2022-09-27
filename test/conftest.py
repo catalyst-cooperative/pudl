@@ -1,4 +1,7 @@
-"""PyTest configuration module. Defines useful fixtures, command line args."""
+"""PyTest configuration module.
+
+Defines useful fixtures, command line args.
+"""
 import logging
 import os
 from pathlib import Path
@@ -80,16 +83,10 @@ def etl_parameters(request, test_dir):
     return etl_settings
 
 
-@pytest.fixture(scope="session", name="ferc1_dbf_settings")
-def ferc1_dbf_parameters(etl_settings):
-    """Read ferc1_to_sqlite parameters out of test settings dictionary."""
-    return etl_settings.ferc1_dbf_to_sqlite_settings
-
-
-@pytest.fixture(scope="session", name="ferc1_xbrl_settings")
-def ferc1_xbrl_parameters(etl_settings):
-    """Read ferc1_to_sqlite parameters out of test settings dictionary."""
-    return etl_settings.ferc1_xbrl_to_sqlite_settings
+@pytest.fixture(scope="session", name="ferc_to_sqlite_settings")
+def ferc_to_sqlite_parameters(etl_settings):
+    """Read ferc_to_sqlite parameters out of test settings dictionary."""
+    return etl_settings.ferc_to_sqlite_settings
 
 
 @pytest.fixture(scope="session", name="pudl_etl_settings")
@@ -136,17 +133,17 @@ def pudl_out_orig(live_dbs, pudl_engine):
 def ferc1_dbf_sql_engine(
     pudl_settings_fixture,
     live_dbs,
-    ferc1_dbf_settings,
+    ferc_to_sqlite_settings,
     pudl_datastore_fixture,
 ):
     """Grab a connection to the FERC Form 1 DB clone.
 
-    If we are using the test database, we initialize it from scratch first.
-    If we're using the live database, then we just yield a conneciton to it.
+    If we are using the test database, we initialize it from scratch first. If we're
+    using the live database, then we just yield a conneciton to it.
     """
     if not live_dbs:
         pudl.extract.ferc1.dbf2sqlite(
-            ferc1_to_sqlite_settings=ferc1_dbf_settings,
+            ferc1_to_sqlite_settings=ferc_to_sqlite_settings.ferc1_dbf_to_sqlite_settings,
             pudl_settings=pudl_settings_fixture,
             clobber=False,
             datastore=pudl_datastore_fixture,
@@ -160,13 +157,13 @@ def ferc1_dbf_sql_engine(
 def ferc1_xbrl_sql_engine(
     pudl_settings_fixture,
     live_dbs,
-    ferc1_xbrl_settings,
+    ferc_to_sqlite_settings,
     pudl_ds_kwargs,
 ):
     """Grab a connection to the FERC Form 1 DB clone.
 
-    If we are using the test database, we initialize it from scratch first.
-    If we're using the live database, then we just yield a conneciton to it.
+    If we are using the test database, we initialize it from scratch first. If we're
+    using the live database, then we just yield a conneciton to it.
     """
     # For now explicitly create datastore using sandbox
     # This should use pudl_datastore once an official FERC1 XBRL archive is created
@@ -174,12 +171,13 @@ def ferc1_xbrl_sql_engine(
     datastore = pudl.workspace.datastore.Datastore(**ds_kwargs)
 
     if not live_dbs:
-        pudl.extract.ferc1.xbrl2sqlite(
-            ferc1_to_sqlite_settings=ferc1_xbrl_settings,
+        pudl.extract.xbrl.xbrl2sqlite(
+            ferc_to_sqlite_settings=ferc_to_sqlite_settings,
             pudl_settings=pudl_settings_fixture,
             clobber=False,
             datastore=datastore,
             workers=5,
+            batch_size=20,
         )
     engine = sa.create_engine(pudl_settings_fixture["ferc1_xbrl_db"])
     logger.info("FERC1 Engine: %s", engine)
@@ -197,8 +195,8 @@ def pudl_sql_engine(
 ):
     """Grab a connection to the PUDL Database.
 
-    If we are using the test database, we initialize the PUDL DB from scratch.
-    If we're using the live database, then we just make a conneciton to it.
+    If we are using the test database, we initialize the PUDL DB from scratch. If we're
+    using the live database, then we just make a conneciton to it.
     """
     logger.info("setting up the pudl_engine fixture")
     if not live_dbs:
