@@ -11,7 +11,6 @@ eia860m_raw_dfs = pudl.extract.eia860m.Extractor(ds).extract(
     Eia860Settings.eia860m_date)
 eia860_raw_dfs = pudl.extract.eia860m.append_eia860m(
     eia860_raw_dfs=eia860_raw_dfs, eia860m_raw_dfs=eia860m_raw_dfs)
-
 """
 import logging
 from datetime import datetime
@@ -90,7 +89,6 @@ def append_eia860m(eia860_raw_dfs, eia860m_raw_dfs):
         dictionary: augumented eia860_raw_dfs dictionary of pandas.DataFrame's.
         Each raw page stored in eia860m_raw_dfs appened to its eia860_raw_dfs
         counterpart.
-
     """
     meta_eia860m = excel.Metadata("eia860m")
     pages_eia860m = meta_eia860m.get_all_pages()

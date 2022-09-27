@@ -1,7 +1,7 @@
 """Validate post-ETL FERC Form 1 data and the associated derived outputs.
 
-These tests depend on a FERC Form 1 specific PudlTabl output object, which is
-a parameterized fixture that has session scope.
+These tests depend on a FERC Form 1 specific PudlTabl output object, which is a
+parameterized fixture that has session scope.
 """
 import logging
 
@@ -88,7 +88,6 @@ def test_minmax_rows(pudl_out_ferc1, live_dbs, expected_rows, df_name):
         df_name (str): Shorthand name identifying the dataframe, corresponding
             to the name of the function used to pull it from the PudlTabl
             output object.
-
     """
     if not live_dbs:
         pytest.skip("Data validation only works with a live PUDL DB.")

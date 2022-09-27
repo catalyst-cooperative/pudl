@@ -176,7 +176,6 @@ OR make the table via objects in this module:
     gens_mega = MakeMegaGenTbl().execute(mcoe, own_eia860)
     parts_compiler = MakePlantParts(pudl_out)
     plant_parts_eia = parts_compiler.execute(gens_mega=gens_mega)
-
 """
 import logging
 import warnings
@@ -401,14 +400,12 @@ class MakeMegaGenTbl:
     with 100% of the capacity of that generator - one for each owner - and
     two "owned" records with the capacity scaled to the ownership stake
     of each of the owner utilites - represented by ``fraction_owned``.
-
     """
 
     def __init__(self):
         """Initialize object which creates a MEGA generator table.
 
         The coordinating function here is :meth:`execute`.
-
         """
         self.id_cols_list = make_id_cols_list()
 
@@ -441,7 +438,6 @@ class MakeMegaGenTbl:
             records correspond to the full plant for every owner (e.g. using
             the same 2-owner 200 MW generator as above, each owner will have a
             records with 200 MW).
-
         """
         logger.info("Generating the mega generator table with ownership.")
 
@@ -500,7 +496,6 @@ class MakeMegaGenTbl:
             This function results in warning: `PerformanceWarning: DataFrame
             is highly fragmented...` I expect this is because of the number of
             columns that are being assigned here via `.loc[:, col_to_assign]`.
-
         """
         mid_year_retiree_mask = (
             gen_df.retirement_date.dt.year == gen_df.report_date.dt.year
@@ -643,7 +638,6 @@ class MakePlantParts:
 
         Returns:
             pandas.DataFrame: The complete plant parts list
-
         """
         # aggregate everything by each plant part
         df_keys = list(self.pudl_out._dfs.keys())
@@ -711,7 +705,6 @@ class MakePlantParts:
             * capacity_factor +
             * ownership_dupe (boolean): indicator of whether the "owned"
               record has a corresponding "total" duplicate.
-
         """
         plant_parts_eia = (
             pudl.helpers.calc_capacity_factor(
@@ -844,7 +837,6 @@ class PlantPart:
 
     This ``gens_mega`` table can then be aggregated by ``plant``, ``plant_prime_fuel``,
     ``plant_prime_mover``, or ``plant_gen``.
-
     """
 
     def __init__(self, part_name: PLANT_PARTS_LITERAL):
@@ -853,7 +845,6 @@ class PlantPart:
         Args:
             part_name (str): the name of the part to aggregate to. Names can be
                 only those in :py:const:`PLANT_PARTS`
-
         """
         self.part_name = part_name
         self.id_cols = PLANT_PARTS[part_name]["id_cols"]
@@ -873,7 +864,6 @@ class PlantPart:
 
         Returns:
             a table with records that have been aggregated to a plant-part.
-
         """
         part_df = (
             self.ag_part_by_own_slice(
@@ -917,7 +907,6 @@ class PlantPart:
         Returns:
             pandas.DataFrame: dataframe aggregated to the level of the
             part_name
-
         """
         logger.info(f"begin aggregation for: {self.part_name}")
         # id_cols = PLANT_PARTS[self.part_name]['id_cols']
@@ -1215,7 +1204,6 @@ class AddConsistentAttributes(AddAttribute):
             gens_mega (pandas.DataFrame): a table of all of the generators with
                 identifying columns and data columns, sliced by ownership which
                 makes "total" and "owned" records for each generator owner.
-
         """
         attribute_col = self.attribute_col
         if attribute_col in part_df.columns:
@@ -1271,14 +1259,13 @@ class AddConsistentAttributes(AddAttribute):
 class AddPriorityAttribute(AddAttribute):
     """Add Attributes based on a priority sorting from :py:const:`PRIORITY_ATTRIBUTES`.
 
-    This object associates one attribute from the generators that make up a
-    plant-part based on a sorted list within :py:const:`PRIORITY_ATTRIBUTES`.
-    For example, for "operational_status" we will grab the highest level of
-    operational status that is associated with each records' component
-    generators. The order of operational status is defined within the method as:
-    'existing', 'proposed', then 'retired'. For example if a plant_unit is
-    composed of two generators, and one of them is "existing" and another
-    is "retired" the entire plant_unit will be considered "existing".
+    This object associates one attribute from the generators that make up a plant-part
+    based on a sorted list within :py:const:`PRIORITY_ATTRIBUTES`. For example, for
+    "operational_status" we will grab the highest level of operational status that is
+    associated with each records' component generators. The order of operational status
+    is defined within the method as: 'existing', 'proposed', then 'retired'. For example
+    if a plant_unit is composed of two generators, and one of them is "existing" and
+    another is "retired" the entire plant_unit will be considered "existing".
     """
 
     def execute(self, part_df, gens_mega):
@@ -1311,9 +1298,8 @@ class AddPriorityAttribute(AddAttribute):
 class AddMaxMinAttribute(AddAttribute):
     """Add Attributes based on the maximum or minimum value of a sorted attribute.
 
-    This object adds an attribute based on the maximum or minimum of another
-    attribute within a group of plant parts uniquely identified by their base
-    ID columns.
+    This object adds an attribute based on the maximum or minimum of another attribute
+    within a group of plant parts uniquely identified by their base ID columns.
     """
 
     def execute(
@@ -1367,8 +1353,7 @@ class AddMaxMinAttribute(AddAttribute):
 def validate_run_aggregations(plant_parts_eia, gens_mega):
     """Run a test of the aggregated columns.
 
-    This test will used the plant_parts_eia, re-run groubys and check
-    similarity.
+    This test will used the plant_parts_eia, re-run groubys and check similarity.
     """
     for part_name in PLANT_PARTS:
         logger.info(f"Begining tests for {part_name}:")
@@ -1427,7 +1412,6 @@ def make_id_cols_list():
     Returns:
         list: a list of the ID columns for all of the plant-parts, including
         ``report_date``
-
     """
     return IDX_TO_ADD + pudl.helpers.dedupe_n_flatten_list_of_lists(
         [x["id_cols"] for x in PLANT_PARTS.values()]
@@ -1444,7 +1428,6 @@ def make_parts_to_ids_dict():
     Returns:
         dictionary: plant-part names (keys) cooresponding to the main ID column
         (value).
-
     """
     parts_to_ids = {}
     for part, part_dict in PLANT_PARTS.items():
@@ -1455,10 +1438,9 @@ def make_parts_to_ids_dict():
 def add_record_id(part_df, id_cols, plant_part_col="plant_part", year=True):
     """Add a record id to a compiled part df.
 
-    We need a standardized way to refer to these compiled records that
-    contains enough information in the id itself that in theory we could
-    deconstruct the id and determine which plant id and plant part id
-    columns are associated with this record.
+    We need a standardized way to refer to these compiled records that contains enough
+    information in the id itself that in theory we could deconstruct the id and
+    determine which plant id and plant part id columns are associated with this record.
     """
     ids = deepcopy(id_cols)
     # we want the plant id first... mostly just bc it'll be easier to read

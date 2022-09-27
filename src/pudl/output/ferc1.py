@@ -20,7 +20,6 @@ def plants_utils_ferc1(pudl_engine):
     Returns:
         pandas.DataFrame: A DataFrame containing useful FERC Form 1 Plant and
         Utility information.
-
     """
     pu_df = pd.merge(
         pd.read_sql("plants_ferc1", pudl_engine),
@@ -47,7 +46,6 @@ def plants_steam_ferc1(pudl_engine):
     Returns:
         pandas.DataFrame: A DataFrame containing useful fields from the FERC
         Form 1 steam table.
-
     """
     steam_df = (
         pd.read_sql("plants_steam_ferc1", pudl_engine)
@@ -102,7 +100,6 @@ def fuel_ferc1(pudl_engine):
     Returns:
         pandas.DataFrame: A DataFrame containing useful FERC Form 1 fuel
         information.
-
     """
     fuel_df = (
         pd.read_sql("fuel_ferc1", pudl_engine)
@@ -148,7 +145,6 @@ def fuel_by_plant_ferc1(pudl_engine, thresh=0.5):
 
     Returns:
         pandas.DataFrame: A DataFrame with fuel use summarized by plant.
-
     """
     fbp_df = (
         pd.read_sql_table("fuel_ferc1", pudl_engine)
@@ -305,10 +301,9 @@ def plants_all_ferc1(pudl_engine):
 
     While this table may have many purposes, the main one is to prepare it for
     integration with the EIA Master Unit List (MUL). All subtables included in this
-    output table must have pudl ids. Table prepping involves ensuring that
-    the individual tables can merge correctly (like columns have the same name)
-    both with each other and the EIA MUL.
-
+    output table must have pudl ids. Table prepping involves ensuring that the
+    individual tables can merge correctly (like columns have the same name) both with
+    each other and the EIA MUL.
     """
     steam_df = plants_steam_ferc1(pudl_engine)
     small_df = plants_small_ferc1(pudl_engine)

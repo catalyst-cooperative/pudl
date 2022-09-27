@@ -80,7 +80,6 @@ def generation_fuel_eia923(
 
     Returns:
         A DataFrame containing records from the EIA 923 Generation Fuel table.
-
     """
     pt = pudl.output.pudltabl.get_table_meta(pudl_engine)
 
@@ -177,7 +176,6 @@ def generation_fuel_all_eia923(gf: pd.DataFrame, gfn: pd.DataFrame) -> pd.DataFr
     Args:
         gf: non-nuclear generation fuel dataframe.
         gfn: nuclear generation fuel dataframe.
-
     """
     primary_key = [
         "report_date",
@@ -290,7 +288,6 @@ def fuel_receipts_costs_eia923(
 
     Returns:
         A DataFrame containing records from the EIA 923 Fuel Receipts and Costs table.
-
     """
     if fill:
         _check_eia_api_key()
@@ -512,7 +509,6 @@ def boiler_fuel_eia923(pudl_engine, freq=None, start_date=None, end_date=None):
     Returns:
         pandas.DataFrame: A DataFrame containing all records from the EIA 923
         Boiler Fuel table.
-
     """
     pt = pudl.output.pudltabl.get_table_meta(pudl_engine)
     bf_eia923_tbl = pt["boiler_fuel_eia923"]
@@ -637,7 +633,6 @@ def generation_eia923(pudl_engine, freq=None, start_date=None, end_date=None):
     Returns:
         pandas.DataFrame: A DataFrame containing all records from the EIA 923
         Generation table.
-
     """
     pt = pudl.output.pudltabl.get_table_meta(pudl_engine)
     g_eia923_tbl = pt["generation_eia923"]
@@ -733,7 +728,6 @@ def make_url_cat_eiaapi(category_id):
     a valid EIA API key, which you can obtain from:
 
     https://www.eia.gov/opendata/register.php
-
     """
     _check_eia_api_key()
     return (
@@ -749,7 +743,6 @@ def make_url_series_eiaapi(series_id):
     a valid EIA API key, which you can obtain from:
 
     https://www.eia.gov/opendata/register.php
-
     """
     _check_eia_api_key()
     if series_id.count(";") > 100:

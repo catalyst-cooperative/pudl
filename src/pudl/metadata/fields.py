@@ -2246,7 +2246,6 @@ def get_pudl_dtypes(
 
     Returns:
         A mapping of PUDL field names to their associated data types.
-
     """
     field_meta = deepcopy(field_meta)
     dtypes = {}
@@ -2283,7 +2282,6 @@ def apply_pudl_dtypes(
 
     Returns:
         The input dataframe, but with standard PUDL types applied.
-
     """
     dtypes = get_pudl_dtypes(
         group=group,

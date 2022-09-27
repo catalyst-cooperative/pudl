@@ -13,7 +13,6 @@ The table-specific dictionaries contain the following keys:
   codes.
 * 'ignored_codes': A list of non-standard codes which appear in the data, and will
   be set to NA.
-
 """
 from typing import Any
 
