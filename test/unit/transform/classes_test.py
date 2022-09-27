@@ -6,12 +6,12 @@
 * Test that the TransformParams models succeed / fail / behave as expected.
 """
 
-from unittest.mock import MagicMock
 import enum
 import random
 from contextlib import nullcontext as does_not_raise
 from datetime import date
 from string import ascii_letters
+from unittest.mock import MagicMock
 
 import numpy as np
 import pandas as pd
