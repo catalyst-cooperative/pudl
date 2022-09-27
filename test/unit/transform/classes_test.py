@@ -6,6 +6,7 @@
 * Test that the TransformParams models succeed / fail / behave as expected.
 """
 
+from unittest.mock import MagicMock
 import enum
 import random
 from contextlib import nullcontext as does_not_raise
@@ -832,6 +833,8 @@ class TableTransformer(AbstractTableTransformer):
     def transform_start(self, df: pd.DataFrame) -> pd.DataFrame:
         """Start the transform."""
         df = self.rename_columns(df).pipe(self.convert_units)
+        if self.cache_dfs:
+            df["stage"] = "start"
         return df
 
     @cache_df(key="main")
@@ -842,106 +845,108 @@ class TableTransformer(AbstractTableTransformer):
             .pipe(self.categorize_strings)
             .pipe(self.nullify_outliers)
         )
+        if self.cache_dfs:
+            df["stage"] = "main"
         return df
 
     @cache_df(key="end")
     def transform_end(self, df: pd.DataFrame) -> pd.DataFrame:
         """Finish up the transform."""
         df = self.drop_invalid_rows(df).convert_dtypes(convert_floating=False)
+        if self.cache_dfs:
+            df["stage"] = "end"
         return df
 
 
-EXPECTED_STRINGS: pd.DataFrame = pd.DataFrame(
-    columns=["orthogonal", "kitteh", "sushi"],
-    data=[
-        ("gato", "cat", "cat"),
-        ("neko", "cat", "cat"),
-        ("", pd.NA, pd.NA),
-        ("", pd.NA, pd.NA),
-        ("", pd.NA, pd.NA),
-        ("", pd.NA, pd.NA),
-        ("cat", "cat", "cat"),
-        ("lion", "cat", "cat"),
-        ("lion", "cat", "cat"),
-        ("puma", "cat", "cat"),
-        ("wolf", "dog", "dog"),
-        ("dire wolf", "dog", "dog"),
-        ("hyena", pd.NA, pd.NA),
-        ("ta66y", "cat", "cat"),
-        ("puy", pd.NA, pd.NA),
-        ("", pd.NA, pd.NA),
-        ("", pd.NA, pd.NA),
-        ("", pd.NA, pd.NA),
-        ("", pd.NA, pd.NA),
-        ("", pd.NA, pd.NA),
-        ("steam (1)", pd.NA, pd.NA),
-    ],
-).convert_dtypes()
-
-EXPECTED_NUMBERS: pd.DataFrame = pd.DataFrame(
-    columns=[
-        "id",
-        "year",
-        "capacity_mw_expected",
-        "net_generation_mwh_expected",
-        "capacity_mw",
-        "net_generation_mwh",
-        "valid_capacity_mw",
-        "valid_year",
-    ],
-    index=[0, 1, 2, 3, 4, 5, 7, 8, 9],
-    data=[
-        (1, 1776, 1, 1000, 1, 1000, 1, pd.NA),
-        (2, 1876, 2, 2000, 2, 2000, 2, 1876),
-        (3, 1976, 3, 3000, 3, 3000, 3, 1976),
-        (4, 2076, 4, 4000, 4, 4000, 4, pd.NA),
-        (5, pd.NA, 5, 5000, 5, 5000, 5, pd.NA),
-        (6, 2000, 6000, 6000, 6000, 6000, pd.NA, 2000),
-        (8, -52, -3, 3000, -3, 3000, pd.NA, pd.NA),
-        (9, 1850, 0, 3000, 0, 3000, 0, 1850),
-        (10, 2022, 4000, 3000, 4000, 3000, 4000, 2022),
-    ],
-).astype(
-    {
-        "id": "Int64",
-        "year": "Int64",
-        "capacity_mw_expected": "Int64",
-        "net_generation_mwh_expected": "Int64",
-        "capacity_mw": "Int64",
-        "net_generation_mwh": "Int64",
-        "valid_capacity_mw": "Int64",
-        "valid_year": "Int64",
-    }
-)
-
-
-@pytest.mark.parametrize(
-    "df,expected,params",
-    [
-        pytest.param(
-            STRING_DATA,
-            EXPECTED_STRINGS,
-            STRING_PARAMS,
-            id="string_transform",
-        ),
-        pytest.param(
-            NUMERIC_DATA,
-            EXPECTED_NUMBERS,
-            NUMERIC_PARAMS,
-            id="numeric_transform",
-        ),
-    ],
-)
-def test_transform(df: pd.DataFrame, expected: pd.DataFrame, params):
+def test_transform(mocker):
     """Test the use of general transforms as part of a TableTransfomer class.
 
-    Should really define "expected" output dataframes here and check that they match.
+    This is trying to test the mechanics of the TableTransformer class, and not the
+    individual transforms, since they are exercised in more specific testes above.
+
+    However... the mocking doesn't seem to be working. The original functions are still
+    getting called. Is that because they're getting called from within class methods?
+    Or because they aren't normal "functions" and rather are callables that were
+    constructed by the multicol_transform_factory function??
     """
-    transformer = TableTransformer(
-        params=TableTransformParams.from_dict(params["test_table"]),
+    df = STRING_DATA
+    params = STRING_PARAMS
+
+    convert_units_mock: MagicMock = mocker.MagicMock(
+        name="convert_units", return_value=df
+    )
+    normalize_strings_mock: MagicMock = mocker.MagicMock(
+        name="normalize_strings", return_value=df
+    )
+    categorize_strings_mock: MagicMock = mocker.MagicMock(
+        name="categorize_strings", return_value=df
+    )
+    nullify_outliers_mock: MagicMock = mocker.MagicMock(
+        name="nullify_outliers", return_value=df
+    )
+    drop_invalid_rows_mock: MagicMock = mocker.MagicMock(
+        name="drop_invalid_rows", return_value=df
+    )
+
+    mocker.patch(
+        "pudl.transform.classes.convert_units_multicol", new=convert_units_mock
+    )
+    mocker.patch(
+        "pudl.transform.classes.normalize_strings_multicol", new=normalize_strings_mock
+    )
+    mocker.patch(
+        "pudl.transform.classes.categorize_strings_multicol",
+        new=categorize_strings_mock,
+    )
+    mocker.patch(
+        "pudl.transform.classes.nullify_outliers_multicol", new=nullify_outliers_mock
+    )
+    mocker.patch("pudl.transform.classes.drop_invalid_rows", new=drop_invalid_rows_mock)
+
+    params = TableTransformParams.from_dict(params["test_table"])
+    transformer = TableTransformer(params=params)
+    _ = transformer.transform(df)
+
+    # Mock can't compare dataframes since it uses the == operator, and for dataframes
+    # that returns a dataframe of bools, so we have to do it explicitly:
+    convert_units_mock.assert_called_once()
+    assert_frame_equal(df, convert_units_mock.call_args.args[0])
+    assert params.convert_units == convert_units_mock.call_args.args[1]  # nosec: B101
+
+    normalize_strings_mock.assert_called_once()
+    assert_frame_equal(df, normalize_strings_mock.call_args.args[0])
+    assert (  # nosec: B101
+        params.normalize_strings == normalize_strings_mock.call_args.args[1]
+    )
+
+    categorize_strings_mock.assert_called_once()
+    assert_frame_equal(df, categorize_strings_mock.call_args.args[0])
+    assert (  # nosec: B101
+        params.categorize_strings == categorize_strings_mock.call_args.args[1]
+    )
+
+    nullify_outliers_mock.assert_called_once()
+    assert_frame_equal(df, nullify_outliers_mock.call_args.args[0])
+    assert (  # nosec: B101
+        params.nullify_outliers == nullify_outliers_mock.call_args.args[1]
+    )
+
+    drop_invalid_rows_mock.assert_called_once()
+    assert_frame_equal(df, drop_invalid_rows_mock.call_args.args[0])
+    assert (  # nosec: B101
+        params.drop_invalid_rows == drop_invalid_rows_mock.call_args.args[1]
+    )
+
+    caching_transformer = TableTransformer(
+        params=params,
         cache_dfs=True,
         clear_cached_dfs=False,
     )
-    actual = transformer.transform(df)
-    assert_frame_equal(actual, transformer._cached_dfs["end"])
-    assert_frame_equal(actual, expected.convert_dtypes(), check_index_type=False)
+    actual = caching_transformer.transform(df)
+    # The dataframe shouldn't change at all after the last stage is cached:
+    assert_frame_equal(actual, caching_transformer._cached_dfs["end"])
+    # Check that the dataframes were cached as expected after each stage:
+    for stage in ["start", "main", "end"]:
+        assert (  # nosec B101
+            (caching_transformer._cached_dfs[stage]["stage"] == stage).all()
+        ).all()
