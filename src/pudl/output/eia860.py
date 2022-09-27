@@ -28,7 +28,6 @@ def utilities_eia860(pudl_engine, start_date=None, end_date=None):
     Returns:
         pandas.DataFrame: A DataFrame containing all the fields of the EIA 860
         Utilities table.
-
     """
     pt = pudl.output.pudltabl.get_table_meta(pudl_engine)
     # grab the entity table
@@ -94,7 +93,6 @@ def plants_eia860(pudl_engine, start_date=None, end_date=None):
     Returns:
         pandas.DataFrame: A DataFrame containing all the fields of the EIA 860
         Plants table.
-
     """
     pt = pudl.output.pudltabl.get_table_meta(pudl_engine)
     # grab the entity table
@@ -149,7 +147,8 @@ def add_consistent_ba_code_column(plants: pd.DataFrame) -> pd.DataFrame:
     Employ the harvesting function :func:`occurrence_consistency` which determines how
     consistent the values in a table are across all records within each plant. This
     function grabs only the values determined to be at least 70% consitent and merges
-    them onto the plants table as a new column: ``balancing_authority_code_eia_consistent``
+    them onto the plants table as a new column:
+    ``balancing_authority_code_eia_consistent``
     """
     ba_code_consistent = occurrence_consistency(
         entity_idx=["plant_id_eia"],
@@ -185,7 +184,7 @@ def add_consistent_ba_code_column(plants: pd.DataFrame) -> pd.DataFrame:
 
 
 def fill_in_missing_ba_codes(plants: pd.DataFrame) -> pd.DataFrame:
-    """Fill in missing ``balancing_authority_code_eia`` using either bfill or most consistent.
+    """Fill in missing ``balancing_authority_code_eia`` values.
 
     Balancing authority codes did not begin being reported until 2013. This function
     fills in the old years with BA codes using two main methods:
@@ -214,7 +213,8 @@ def fill_in_missing_ba_codes(plants: pd.DataFrame) -> pd.DataFrame:
       reporting error.
 
     Args:
-        plants: table of annual plant attributes, including ``balancing_authority_code_eia``
+        plants: table of annual plant attributes, including
+            ``balancing_authority_code_eia``
     """
 
     def log_current_ba_code_nulls(plants: pd.DataFrame, method_str: str) -> None:
@@ -334,7 +334,6 @@ def plants_utils_eia860(pudl_engine, start_date=None, end_date=None):
     Returns:
         pandas.DataFrame: A DataFrame containing plant and utility IDs and
         names from EIA 860.
-
     """
     # Contains the one-to-one mapping of EIA plants to their operators
     plants_eia = (
@@ -417,7 +416,6 @@ def generators_eia860(
 
     Returns:
         A DataFrame containing all the fields of the EIA 860 Generators table.
-
     """
     pt = pudl.output.pudltabl.get_table_meta(pudl_engine)
     # Almost all the info we need will come from here.
@@ -556,7 +554,6 @@ def fill_generator_technology_description(gens_df: pd.DataFrame) -> pd.DataFrame
 
     Returns:
         A copy of the input dataframe, with ``technology_description`` filled in.
-
     """
     nrows_orig = len(gens_df)
     out_df = gens_df.copy()
@@ -595,7 +592,7 @@ def fill_generator_technology_description(gens_df: pd.DataFrame) -> pd.DataFrame
         .technology_description.bfill()
     )
 
-    assert len(out_df) == nrows_orig
+    assert len(out_df) == nrows_orig  # nosec: B101
 
     # Assert that at least 95 percent of tech desc rows are filled in
     pct_cov = out_df.technology_description.count() / out_df.technology_description.size
@@ -625,7 +622,6 @@ def boiler_generator_assn_eia860(pudl_engine, start_date=None, end_date=None):
     Returns:
         pandas.DataFrame: A DataFrame containing all the fields from the EIA
         860 boiler generator association table.
-
     """
     pt = pudl.output.pudltabl.get_table_meta(pudl_engine)
     bga_eia860_tbl = pt["boiler_generator_assn_eia860"]
@@ -663,7 +659,6 @@ def ownership_eia860(pudl_engine, start_date=None, end_date=None):
     Returns:
         pandas.DataFrame: A DataFrame containing a useful set of fields related
         to the EIA 860 Ownership table.
-
     """
     pt = pudl.output.pudltabl.get_table_meta(pudl_engine)
     own_eia860_tbl = pt["ownership_eia860"]
@@ -759,7 +754,6 @@ def assign_unit_ids(gens_df):
         AssertionError: If row or column indices are changed.
         AssertionError: If pre-existing unit_id_pudl or bga_source values are altered.
         AssertionError: If contents of any other columns are altered at all.
-
     """
     required_cols = [
         "plant_id_eia",
@@ -922,7 +916,6 @@ def fill_unit_ids(gens_df):
         pandas.DataFrame: with the same columns as the input dataframe, but
         having some NA values filled in for both the unit_id_pudl and bga_source
         columns.
-
     """
     # forward and backward fill the unit IDs
     gen_ids = ["plant_id_eia", "generator_id"]
@@ -960,7 +953,6 @@ def max_unit_id_by_plant(gens_df):
     Returns:
         pandas.DataFrame: Having two columns: plant_id_eia and max_unit_id_pudl
         in which each row should be unique.
-
     """
     return (
         gens_df[["plant_id_eia", "unit_id_pudl"]]
@@ -994,7 +986,6 @@ def _append_masked_units(gens_df, row_mask, unit_ids, on):
 
     Returns:
         pandas.DataFrame:
-
     """
     return gens_df.loc[~row_mask].append(
         gens_df.loc[row_mask]
@@ -1042,7 +1033,6 @@ def assign_single_gen_unit_ids(
         pandas.DataFrame: A new dataframe with the same rows and columns as
         were passed in, but with the unit_id_pudl and bga_source columns updated
         to reflect the newly assigned Unit IDs.
-
     """
     if fuel_type_code_pudl is not None:
         # Need to make this only apply to consistent inter-year fuel types.
@@ -1118,7 +1108,6 @@ def assign_cc_unit_ids(gens_df):
 
     Returns:
         pandas.DataFrame
-
     """
     # Calculate the largest preexisting unit_id_pudl within each plant
     max_unit_ids = max_unit_id_by_plant(gens_df)
@@ -1162,8 +1151,8 @@ def assign_cc_unit_ids(gens_df):
     tmp_df.loc[tmp_df.CT == 0, "bga_source"] = "orphan_ca"
     # The orphan flags should only have been applied to generators that had
     # at least one prime mover of the orphaned type. Just checking...
-    assert (tmp_df.loc[tmp_df.bga_source == "orphan_ct", "CT"] > 0).all()
-    assert (tmp_df.loc[tmp_df.bga_source == "orphan_ca", "CA"] > 0).all()
+    assert (tmp_df.loc[tmp_df.bga_source == "orphan_ct", "CT"] > 0).all()  # nosec: B101
+    assert (tmp_df.loc[tmp_df.bga_source == "orphan_ca", "CA"] > 0).all()  # nosec: B101
 
     # Assign flags for various arrangements of CA and CT generators
     tmp_df.loc[
@@ -1221,7 +1210,6 @@ def assign_prime_fuel_unit_ids(gens_df, prime_mover_code, fuel_type_code_pudl):
 
     Returns:
         pandas.DataFrame:
-
     """
     # Find generators with a consistent fuel_type_code_pudl across all years.
     consistent_fuel = (

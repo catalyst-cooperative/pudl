@@ -47,7 +47,6 @@ def harmonize_eia_epa_orispl(
 
     Returns:
         The same data, with the ORISPL plant codes corrected to match the EIA plant IDs.
-
     """
     # Make sure the crosswalk does not have multiple plant_id_eia values for each
     # plant_id_epa and emissions_unit_id_epa value before reassigning IDs.
@@ -90,7 +89,6 @@ def convert_to_utc(df: pd.DataFrame, plant_utc_offset: pd.DataFrame) -> pd.DataF
     Returns:
         The same data, with an op_datetime_utc column added and the op_date and op_hour
         columns removed.
-
     """
     df = df.assign(
         # Convert op_date and op_hour from string and integer to datetime:
@@ -142,7 +140,6 @@ def _load_plant_utc_offset(pudl_engine: sa.engine.Engine) -> pd.DataFrame:
 
     Returns:
         Dataframe of applicable timezones taken from the plants_entity_eia table.
-
     """
     # Verify that we have a PUDL DB with plant attributes:
     inspector = sa.inspect(pudl_engine)
@@ -170,7 +167,6 @@ def correct_gross_load_mw(df: pd.DataFrame) -> pd.DataFrame:
 
     Returns:
         The same DataFrame with corrected gross load values.
-
     """
     # Largest fossil plant is something like 3500 MW, and the largest unit
     # in the EIA 860 is less than 1500. Therefore, assume they've done it
@@ -196,7 +192,6 @@ def transform(
 
     Returns:
         A single year-state of EPA CEMS data
-
     """
     # Create all the table inputs used for the subtransform functions below
     crosswalk_df = pd.read_sql("epacamd_eia", con=pudl_engine)

@@ -3,7 +3,6 @@
 This modules pulls data from EIA's published Excel spreadsheets.
 
 This code is for use analyzing EIA Form 861 data.
-
 """
 import warnings
 

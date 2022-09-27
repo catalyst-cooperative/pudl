@@ -98,7 +98,6 @@ def add_dates(rids_ferc714, report_dates):
         ``rids_ferc714`` with the addition of a ``report_date`` column, but with all
         records associated with each ``respondent_id_ferc714`` duplicated on a per-date
         basis.
-
     """
     if "report_date" in rids_ferc714.columns:
         raise ValueError("report_date already present, can't be added again!")
@@ -159,7 +158,6 @@ def categorize_eia_code(eia_codes, ba_ids, util_ids, priority="balancing_authori
     Returns:
         pandas.DataFrame: A dataframe containing 2 columns: ``eia_code`` and
         ``respondent_type``.
-
     """
     if priority == "balancing_authority":
         primary = "balancing_authority"
@@ -232,7 +230,6 @@ class Respondents:
         limit_by_state (bool): Whether to limit respondent service territories to the
             states where they have documented activity in the EIA 861. Currently this
             is only implemented for Balancing Authorities.
-
     """
 
     def __init__(
@@ -408,14 +405,14 @@ class Respondents:
     def annualize(self, update=False):
         """Broadcast respondent data across all years with reported demand.
 
-        The FERC 714 Respondent IDs and names are reported in their own table,
-        without any refence to individual years, but much of the information we are
-        associating with them varies annually. This method creates an annualized
-        version of the respondent table, with each respondent having an entry
-        corresponding to every year in which hourly demand was reported in the FERC 714
-        dataset as a whole -- this necessarily means that many of the respondents will
-        end up having entries for years in which they reported no demand, and that's
-        fine.  They can be filtered later.
+        The FERC 714 Respondent IDs and names are reported in their own table, without
+        any refence to individual years, but much of the information we are associating
+        with them varies annually. This method creates an annualized version of the
+        respondent table, with each respondent having an entry corresponding to every
+        year in which hourly demand was reported in the FERC 714 dataset as a whole --
+        this necessarily means that many of the respondents will end up having entries
+        for years in which they reported no demand, and that's fine.  They can be
+        filtered later.
         """
         if update or self._annualized is None:
             # Calculate the total demand per respondent, per year:
@@ -432,8 +429,8 @@ class Respondents:
 
         Categorize each respondent as either a ``utility`` or a ``balancing_authority``
         using the parameters stored in the instance of the class. While categorization
-        can also be done without annualizing, this function annualizes as well, since
-        we are adding the ``respondent_type`` in order to be able to compile service
+        can also be done without annualizing, this function annualizes as well, since we
+        are adding the ``respondent_type`` in order to be able to compile service
         territories for the respondent, which vary annually.
         """
         if update or self._categorized is None:
@@ -516,7 +513,6 @@ class Respondents:
 
         These metrics are helpful identifying suspicious changes in the compiled annual
         geometries for the planning areas.
-
         """
         if update or self._demand_summary is None:
             demand_annual = (
@@ -604,11 +600,11 @@ class Respondents:
     def georef_counties(self, update=False):
         """Annual respondents with all associated county-level geometries.
 
-        Given the county FIPS codes associated with each respondent in each year,
-        pull in associated geometries from the US Census DP1 dataset, so we can do
-        spatial analyses. This keeps each county record independent -- so there will
-        be many records for each respondent in each year. This is fast, and still good
-        for mapping, and retains all of the FIPS IDs so you can also still do ID based
+        Given the county FIPS codes associated with each respondent in each year, pull
+        in associated geometries from the US Census DP1 dataset, so we can do spatial
+        analyses. This keeps each county record independent -- so there will be many
+        records for each respondent in each year. This is fast, and still good for
+        mapping, and retains all of the FIPS IDs so you can also still do ID based
         analyses.
         """
         if update or self._counties_gdf is None:

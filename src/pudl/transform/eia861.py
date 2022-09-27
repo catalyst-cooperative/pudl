@@ -2,7 +2,6 @@
 
 All transformations include:
 - Replace . values with NA.
-
 """
 
 
@@ -451,7 +450,6 @@ def add_backfilled_ba_code_column(df, by_cols: list[str]) -> pd.DataFrame:
     Returns:
         pandas.DataFrame: An altered version of ``df`` with an additional column
         ``balancing_authority_code_eia_bfilled``
-
     """
     start_len = len(df)
     start_nas = len(df.loc[df.balancing_authority_code_eia.isnull()])
@@ -501,7 +499,6 @@ def backfill_ba_codes_by_ba_id(df: pd.DataFrame) -> pd.DataFrame:
     Returns:
         pandas.DataFrame: The balancing_authority_eia861 dataframe, but with many fewer
         NA values in the balancing_authority_code_eia column.
-
     """
     ba_eia861_filled = (
         add_backfilled_ba_code_column(df, by_cols=["balancing_authority_id_eia"])
@@ -656,7 +653,6 @@ def clean_nerc(df, idx_cols):
 
     Returns:
         pandas.DataFrame: A DataFrame with correct and clean nerc regions.
-
     """
     idx_no_nerc = idx_cols.copy()
     if "nerc_region" in idx_no_nerc:
@@ -744,7 +740,6 @@ def _compare_nerc_physical_w_nerc_operational(df: pd.DataFrame) -> pd.DataFrame:
         A DataFrame with rows for utilities where NO listed operating
         nerc region matches the "physical location" nerc region column that's a part of
         the index.
-
     """
     # Set NA states to UNK
     df["state"] = df["state"].fillna("UNK")
@@ -824,7 +819,6 @@ def service_territory(tfr_dfs):
         dict: a dictionary of pandas.DataFrame objects in which pages from EIA861 form
             (keys) correspond to normalized DataFrames of values from that page
             (values).
-
     """
     # No data tidying required
     # There are a few NA values in the county column which get interpreted
@@ -860,7 +854,6 @@ def balancing_authority(tfr_dfs):
 
     Returns:
         dict: A dictionary of transformed EIA 861 dataframes, keyed by table name.
-
     """
     # No data tidying required
     # All columns are already type compatible.
@@ -937,7 +930,6 @@ def balancing_authority_assn(tfr_dfs):
         table. It may be that once the harvesting process incorporates the EIA 861, some
         or all of this functionality should be pulled into the phase-2 transform
         functions.
-
     """
     # These aren't really "data" tables, and should not be searched for associations
     non_data_dfs = [
@@ -1042,7 +1034,6 @@ def _harvest_associations(dfs, cols):
     Returns:
         pandas.DataFrame: A dataframe containing all the unique, non-null combinations
         of values found in ``cols``.
-
     """
     assn = pd.DataFrame()
     for df in dfs:
@@ -1060,12 +1051,11 @@ def normalize_balancing_authority(tfr_dfs):
     """Finish the normalization of the balancing_authority_eia861 table.
 
     The balancing_authority_assn_eia861 table depends on information that is only
-    available in the UN-normalized form of the balancing_authority_eia861 table, so
-    and also on having access to a bunch of transformed data tables, so it can compile
-    the observed combinations of report dates, balancing authorities, states, and
-    utilities. This means that we have to hold off on the final normalization of the
+    available in the UN-normalized form of the balancing_authority_eia861 table, so and
+    also on having access to a bunch of transformed data tables, so it can compile the
+    observed combinations of report dates, balancing authorities, states, and utilities.
+    This means that we have to hold off on the final normalization of the
     balancing_authority_eia861 table until the rest of the transform process is over.
-
     """
     logger.info("Completing normalization of balancing_authority_eia861.")
     ba_eia861_normed = (
@@ -1115,7 +1105,6 @@ def sales(tfr_dfs):
     * Convert 1000s of dollars into dollars.
     * Convert data_observed field I/O into boolean.
     * Map full spelling onto code values.
-
     """
     idx_cols = [
         "utility_id_eia",
@@ -1199,7 +1188,6 @@ def advanced_metering_infrastructure(tfr_dfs):
 
     Returns:
         dict: A dictionary of transformed EIA 861 dataframes, keyed by table name.
-
     """
     idx_cols = [
         "utility_id_eia",
@@ -1340,7 +1328,6 @@ def demand_side_management(tfr_dfs):
 
     Returns:
         dict: A dictionary of transformed EIA 861 dataframes, keyed by table name.
-
     """
     idx_cols = [
         "utility_id_eia",
@@ -1472,7 +1459,6 @@ def distributed_generation(tfr_dfs):
 
     Returns:
         dict: A dictionary of transformed EIA 861 dataframes, keyed by table name.
-
     """
     idx_cols = [
         "utility_id_eia",
@@ -1650,7 +1636,6 @@ def distribution_systems(tfr_dfs):
 
     Returns:
         dict: A dictionary of transformed EIA 861 dataframes, keyed by table name.
-
     """
     # No data tidying or transformation required
 
@@ -1681,7 +1666,6 @@ def dynamic_pricing(tfr_dfs):
 
     Returns:
         dict: A dictionary of transformed EIA 861 dataframes, keyed by table name.
-
     """
     idx_cols = [
         "utility_id_eia",
@@ -1751,7 +1735,6 @@ def energy_efficiency(tfr_dfs):
 
     Returns:
         dict: A dictionary of transformed EIA 861 dataframes, keyed by table name.
-
     """
     idx_cols = [
         "utility_id_eia",
@@ -1824,7 +1807,6 @@ def green_pricing(tfr_dfs):
 
     Returns:
         dict: A dictionary of transformed EIA 861 dataframes, keyed by table name.
-
     """
     idx_cols = [
         "utility_id_eia",
@@ -1873,7 +1855,6 @@ def mergers(tfr_dfs):
 
     Returns:
         dict: A dictionary of transformed EIA 861 dataframes, keyed by table name.
-
     """
     transformed_mergers = tfr_dfs["mergers_eia861"].copy()
 
@@ -1901,7 +1882,6 @@ def net_metering(tfr_dfs):
 
     Returns:
         dict: A dictionary of transformed EIA 861 dataframes, keyed by table name.
-
     """
     idx_cols = [
         "utility_id_eia",
@@ -1982,7 +1962,6 @@ def non_net_metering(tfr_dfs):
 
     Returns:
         dict: A dictionary of transformed EIA 861 dataframes, keyed by table name.
-
     """
     idx_cols = [
         "utility_id_eia",
@@ -2089,7 +2068,6 @@ def operational_data(tfr_dfs):
 
     Returns:
         dict: A dictionary of transformed EIA 861 dataframes, keyed by table name.
-
     """
     idx_cols = [
         "utility_id_eia",
@@ -2172,7 +2150,6 @@ def reliability(tfr_dfs):
 
     Returns:
         dict: A dictionary of transformed EIA 861 dataframes, keyed by table name.
-
     """
     idx_cols = ["utility_id_eia", "state", "report_date"]
 
@@ -2249,7 +2226,6 @@ def utility_data(tfr_dfs):
 
     Returns:
         dict: A dictionary of transformed EIA 861 dataframes, keyed by table name.
-
     """
     idx_cols = ["utility_id_eia", "state", "report_date", "nerc_region"]
 
@@ -2378,7 +2354,6 @@ def transform(raw_dfs, eia861_settings: Eia861Settings = Eia861Settings()):
     Returns:
         dict: A dictionary of DataFrame objects in which pages from EIA 861 form (keys)
         corresponds to a normalized DataFrame of values from that page (values).
-
     """
     # these are the tables that we have transform functions for...
     tfr_funcs = {

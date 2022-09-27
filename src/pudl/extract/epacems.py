@@ -16,8 +16,6 @@ accurate. The epacamd_eia crosswalk will show that the mapping between `ORISPL_C
 it appears in CEMS and the `plant_id_eia` field used in EIA data. Hense, we've called it
 `plant_id_epa` until it gets transformed into `plant_id_eia` during the transform
 process with help from the crosswalk.
-
-
 """
 from pathlib import Path
 from typing import NamedTuple
@@ -122,7 +120,7 @@ class EpaCemsDatastore:
     """
 
     def __init__(self, datastore: Datastore):
-        """Constructs a simple datastore wrapper for loading EpaCems dataframes from datastore."""
+        """Construct datastore wrapper for loading raw EPA CEMS data into dataframes."""
         self.datastore = datastore
 
     def get_data_frame(self, partition: EpaCemsPartition) -> pd.DataFrame:
@@ -148,7 +146,6 @@ class EpaCemsDatastore:
 
         Returns:
             A DataFrame containing the contents of the CSV file.
-
         """
         return pd.read_csv(
             csv_file,
@@ -167,7 +164,6 @@ def extract(year: int, state: str, ds: Datastore):
 
     Yields:
         pandas.DataFrame: A single state-year of EPA CEMS hourly emissions data.
-
     """
     ds = EpaCemsDatastore(ds)
     partition = EpaCemsPartition(state=state, year=year)

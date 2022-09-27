@@ -108,7 +108,7 @@ class DatapackageDescriptor:
                 )
 
     def get_partitions(self, name: str = None) -> dict[str, set[str]]:
-        """Returns mapping of all known partition keys to the set of its known values."""
+        """Return mapping of known partition keys to their allowed known values."""
         partitions: dict[str, set[str]] = defaultdict(set)
         for res in self.datapackage_json["resources"]:
             if name and res["name"] != name:
@@ -118,7 +118,10 @@ class DatapackageDescriptor:
         return partitions
 
     def _validate_datapackage(self, datapackage_json: dict):
-        """Checks the correctness of datapackage.json metadata. Throws ValueError if invalid."""
+        """Checks the correctness of datapackage.json metadata.
+
+        Throws ValueError if invalid.
+        """
         dp = datapackage.Package(datapackage_json)
         if not dp.valid:
             msg = f"Found {len(dp.errors)} datapackage validation errors:\n"
@@ -286,7 +289,6 @@ class Datastore:
               as well as dois used for each dataset.
             timeout (floaTR): connection timeouts (in seconds) to use when connecting
               to Zenodo servers.
-
         """
         self._cache = resource_cache.LayeredCache()
         self._datapackage_descriptors: dict[str, DatapackageDescriptor] = {}
@@ -385,7 +387,10 @@ class Datastore:
 
 
 class ParseKeyValues(argparse.Action):
-    """Transforms k1=v1,k2=v2,... into dict(k1=v1, k2=v2, ...)."""
+    """Transforms k1=v1,k2=v2,...
+
+    into dict(k1=v1, k2=v2, ...).
+    """
 
     def __call__(self, parser, namespace, values, option_string=None):
         """Parses the argument value into dict."""
@@ -515,7 +520,10 @@ def print_partitions(dstore: Datastore, datasets: list[str]) -> None:
 def validate_cache(
     dstore: Datastore, datasets: list[str], args: argparse.Namespace
 ) -> None:
-    """Validate elements in the datastore cache. Delete invalid entires from cache."""
+    """Validate elements in the datastore cache.
+
+    Delete invalid entires from cache.
+    """
     for single_ds in datasets:
         num_total = 0
         num_invalid = 0
