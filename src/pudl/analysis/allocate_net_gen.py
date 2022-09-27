@@ -78,7 +78,6 @@ secondary fuel of 'NG'), the methodology associates the generation_fuel_eia923 r
 similarly across these two generators. However, the allocated net generation will still
 be porporational to each generator's net generation (if it's reported) or capacity (if
 generation is not reported).
-
 """
 
 import logging
@@ -216,7 +215,6 @@ def aggregate_gen_fuel_by_generator(
     Returns:
         table with columns :py:const:`IDX_GENS` and net generation and fuel
         consumption scaled to the level of the :py:const:`IDX_GENS`.
-
     """
     # aggregate the gen/pm/fuel records back to generator records
     gen_allocated = agg_by_generator(gen_pm_fuel)
@@ -252,7 +250,6 @@ def scale_allocated_net_gen_by_ownership(
         gens: `generators_eia860` table with cols: :const:``IDX_GENS``, `capacity_mw`
             and `utility_id_eia`
         own_eia860: `ownership_eia860` table.
-
     """
     gen_pm_fuel_own = pudl.analysis.plant_parts_eia.MakeMegaGenTbl().scale_by_ownership(
         gens_mega=pd.merge(
@@ -310,7 +307,6 @@ def stack_generators(
     Returns:
         pandas.DataFrame: a dataframe with these columns: idx_stack, cat_col,
         stacked_col
-
     """
     esc = list(gens.filter(like="energy_source_code"))
     gens_stack_prep = (
@@ -429,7 +425,6 @@ def _associate_unconnected_records(eia_generators_merged: pd.DataFrame):
 
     Args:
         eia_generators_merged:
-
     """  # noqa: D417
     # we're associating on the plant/pm level... but we only want to associated
     # these unassocaited records w/ the primary fuel type from stack_generators
@@ -497,7 +492,6 @@ def prep_alloction_fraction(gen_assoc):
     In `calc_allocation_ratios()`, we will break the generators out into four
     types - see `calc_allocation_ratios()` docs for details. This function adds
     flags for splitting the generators. It also adds
-
     """
     # flag whether the generator exists in the
     # generation table (this will be used later on)
@@ -580,7 +574,6 @@ def calc_allocation_fraction(gen_pm_fuel, drop_interim_cols=True):
             mostly interim frac columns and totals of net generataion from
             various groupings of generators) that are useful for debugging.
             Default is False.
-
     """
     # break out the table into these four different generator types.
     all_gen = gen_pm_fuel.loc[gen_pm_fuel.in_g_tbl_all]

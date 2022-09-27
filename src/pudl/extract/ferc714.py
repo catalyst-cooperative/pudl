@@ -56,7 +56,6 @@ def extract(
     Returns:
         dict: A dictionary of dataframes, with raw FERC 714 table names as the
         keys, and minimally processed pandas.DataFrame instances as the values.
-
     """
     warnings.warn(
         "Integration of FERC 714 into PUDL is still experimental and incomplete.\n"

@@ -28,7 +28,6 @@ def set_defaults(pudl_in, pudl_out, clobber=False):
 
     Returns:
         None
-
     """
     settings_file = pathlib.Path.home() / ".pudl.yml"
     if settings_file.exists():
@@ -53,7 +52,6 @@ def get_defaults():
         dict: The contents of the user's PUDL settings file, with keys
         ``pudl_in`` and ``pudl_out`` defining their default PUDL workspace. If
         the ``$HOME/.pudl.yml`` file does not exist, set these paths to None.
-
     """
     settings_file = pathlib.Path.home() / ".pudl.yml"
 
@@ -93,7 +91,6 @@ def derive_paths(pudl_in, pudl_out):
     Returns:
         dict: A dictionary containing common PUDL settings, derived from those
             read out of the YAML file. Mostly paths for inputs & outputs.
-
     """
     pudl_settings = {}
 
@@ -144,7 +141,6 @@ def init(pudl_in, pudl_out, clobber=False):
 
     Returns:
         None
-
     """
     # Generate paths for the workspace:
     pudl_settings = derive_paths(pudl_in, pudl_out)
@@ -185,7 +181,6 @@ def deploy(pkg_path, deploy_dir, ignore_files, clobber=False):
 
     Returns:
         None
-
     """
     files = [
         file

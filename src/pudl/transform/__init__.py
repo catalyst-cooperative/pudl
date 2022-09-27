@@ -58,5 +58,4 @@ columns whose values are required to uniquely specify a record), and/or whether 
 denormalized columns may also be part of the primary key. This information is important
 for the step after the intra-table transformations during which the collection of EIA
 tables is normalized as a whole.
-
 """
