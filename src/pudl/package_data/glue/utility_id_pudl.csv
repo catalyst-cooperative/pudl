@@ -1,372 +1,372 @@
 utility_id_pudl,utility_id_ferc1,utility_name_ferc1,utility_id_eia,utility_name_eia
-1,423,"{Test 423 (do not use) Sharyland Utilities, L.P.)}",,
-2,999,{Test Company - A},,
-3,998,{Test Company - B1},,
-4,400,Access Energy Cooperative,,
-5,248,Adirondack Hydro Development Corporation,,
-6,436,"AEP Appalachian Transmission Company, Inc.",,
-7,1,AEP Generating Company,343,AEP Generating Company
-8,452,AEP Generation Resources Inc.,58620,AEP Generation Resources Inc
-9,440,"AEP Indiana Michigan Transmission Company, Inc.",,
-10,439,"AEP Kentucky Transmission Company, Inc.",,
-11,438,"AEP Ohio Transmission Company, Inc.",,
-12,442,"AEP Oklahoma Transmission Company, Inc.",,
-13,441,"AEP Southwestern Transmission Company, Inc.",,
-14,24,AEP Texas Central Company,,
-15,189,AEP Texas North Company,,
-16,437,"AEP West Virginia Transmission Company, Inc.",,
-17,401,AJO Improvement Company,,
-18,2,ALABAMA POWER COMPANY,195,Alabama Power Co
-19,3,Alaska Electric Light and Power Company,213,Alaska Electric Light&Power Co
-20,4,Alcoa Generating Corporation,,
-21,171,Alcoa Power Generating Inc.,317,Alcoa Power Generating Inc Yadkin Div
-22,254,"Alfalfa Electric Cooperative, Inc.",,
-23,98,"ALLETE, Inc.",12647,"ALLETE, Inc."
-24,243,Amerada Hess Corporation,,
-26,444,Ameren Transmission Company of Illinois,,
-27,275,American Transmission Company LLC,,
-28,258,"American Transmission Systems, Incorporated",,
-29,6,Appalachian Power Company,733,Appalachian Power Co
-30,303,APS Energy Services Company,,
-31,7,Arizona Public Service Company,803,Arizona Public Service Co
-32,200,AROOSTOOK VALLEY ELECTRIC COMPANY,,
-33,9,Atlantic City Electric Company,,
-34,301,Attala Transmission LLC,,
-35,187,Avista Corporation,20169,Avista Corp
-36,10,Baltimore Gas and Electric Company,,
-37,434,Beacon Power Corporation,57031,Beacon Power LLC
-38,212,BeeBee Island Corporation,,
-39,233,Berea College Utilities,,
-40,201,Big Rivers Electric Corporation,1692,Big Rivers Electric Corp
-41,211,"Black Creek Hydro, Inc.",1784,Black Creek Hydro Inc
-42,12,"Black Hills Power, Inc.",19545,"Black Hills Power, Inc. d/b/a"
-43,432,"Black Hills/Colorado Electric Utility Company, LP",56146,Black Hills/Colorado Elec.Util
-44,13,Blackstone Valley Electric Company,,
-45,14,Boston Edison Company,,
-46,402,"Bridger Valley Electric Association, Inc.",,
-47,245,"Buckeye Power, Inc.",7004,"Buckeye Power, Inc"
-48,229,California Independent System Operator Corporation,,
-49,240,California Power Exchange Corporation,,
-50,15,Cambridge Electric Light Company,,
-51,16,CANAL ELECTRIC COMPANY,,
-52,249,"Carr Street Generating, L.P.",24202,Carr Street Generating Sta LP
-53,18,Catalyst Old River Hydroelectric Limited Partnership,,
-54,68,"CenterPoint Energy Houston Electric, LLC",,
-55,19,CENTRAL HUDSON GAS & ELECTRIC CORPORATION,3249,Central Hudson Gas & Elec Corp
-56,20,Central Illinois Light Company,,
-57,21,Central Illinois Public Service Company,,
-58,23,Central Maine Power Company,,
-59,25,Central Vermont Public Service Corporation,,
-60,26,Century Power Corporation,,
-61,287,Chattahoochee EMC,,
-62,403,"Cheyenne Light, Fuel and Power Company",,
-63,202,"Chugach Electric Association, Inc.",3522,Chugach Electric Assn Inc
-64,29,CITIZENS COMMUNCIATIONS COMPANY,,
-65,284,Citizens Electric Corporation,,
-66,321,Citizens Sunrise Transmission LLC.,,
-67,28,CITIZENS' ELECTRIC COMPANY,,
-68,285,Clark Fork & Blackfoot LLC,,
-69,22,Cleco Power LLC,3265,Cleco Power LLC
-70,30,"Cleveland Electric Illuminating Company, The",,
-71,31,Columbus Southern Power Company,,
-72,32,Commonwealth Edison Company,,
-73,33,"Commonwealth Edison Company of Indiana, Inc.",,
-74,34,Commonwealth Electric Company,,
-75,39,"Connecticut Light and Power Company, The",,
-76,37,Connecticut Valley Electric Company Inc.,,
-77,38,Connecticut Yankee Atomic Power Company,,
-78,218,Connexus Energy,,
-79,36,"Consolidated Edison Company of New York, Inc.",4226,Consolidated Edison Co-NY Inc
-80,40,Consolidated Water Power Company,4247,Consolidated Water Power Co
-81,41,Consumers Energy Company,4254,Consumers Energy Co
-82,292,"Cross Sound Cable Company, LLC",,
-83,295,"DATC Path 15, LLC",,
-84,43,Delmarva Power & Light Company,,
-85,234,"Delta Natural Gas Company, Inc.",,
-86,226,Deseret Generation & Transmission Cooperative,40230,Deseret Generation & Tran Coop
-87,405,Dixie-Escalante Rural Electric Association,,
-88,241,"Dixie-Escalante Rural Electric Association, Inc.",,
-89,44,DTE Electric Company,5109,DTE Electric Company
-90,45,"Duke Energy Carolinas, LLC",5416,"Duke Energy Carolinas, LLC"
-91,55,"Duke Energy Florida, Inc.",6455,"Duke Energy Florida, Inc"
-92,144,"Duke Energy Indiana, Inc.",15470,"Duke Energy Indiana, LLC"
-93,178,"Duke Energy Kentucky, Inc.",55729,Duke Energy Kentucky Inc
-94,235,Duke Energy Moss Landing LLC,,
-95,236,Duke Energy Oakland LLC,,
-96,27,"Duke Energy Ohio, Inc.",3542,Duke Energy Ohio Inc
-97,17,"Duke Energy Progress, Inc.",3046,Duke Energy Progress - (NC)
-98,46,Duquesne Light Company,,
-99,449,"EAM Nelson Holding, LLC",,
-100,203,"East Texas Electric Cooperative, Inc.",39347,"East Texas Electric Coop, Inc"
-101,47,Eastern Edison Company,,
-102,48,Edison Sault Electric Company,,
-103,49,El Paso Electric Company,5701,El Paso Electric Co
-104,50,"Electric Energy, Inc.",5748,Electric Energy Inc
-105,11,Emera Maine,1179,Emera Maine
-106,8,"Entergy Arkansas, Inc.",814,Entergy Arkansas Inc
-107,63,"Entergy Gulf States Louisiana, L.L.C.",11241,Entergy Louisiana LLC
-107,87,"Entergy Louisiana, LLC",11241,Entergy Louisiana LLC
-109,100,"Entergy Mississippi, Inc.",12685,Entergy Mississippi Inc
-110,114,"Entergy New Orleans, Inc.",13478,Entergy New Orleans Inc
-111,306,"Entergy Power Ventures, LP",,
-112,52,"Entergy Power, LLC",,
-113,315,"Entergy Texas, Inc.",55937,Entergy Texas Inc.
-107,454,"Entergy Louisiana, LLC",11241,Entergy Louisiana LLC
-115,305,"EWO Marketing, LLC",,
-116,53,Exeter & Hampton Electric Company,,
-117,406,"Fall River Electric Cooperative, Inc",6169,Fall River Rural Elec Coop Inc
-118,257,First Electric Cooperative Corporation,,
-119,54,Fitchburg Gas and Electric Light Company,,
-120,407,"Florida Keys Electric Cooperative Assoc., Inc.",6443,"Florida Keys El Coop Assn, Inc"
-121,56,Florida Power & Light Company,6452,Florida Power & Light Co
-122,408,"Flowell Electric Association, Inc.",,
-123,57,Georgia Power Company,7140,Georgia Power Co
-124,58,"Golden Spread Electric Cooperative, Inc.",7349,"Golden Spread Electric Cooperative, Inc"
-125,269,Golden State Water Company,54710,Golden State Water Company
-126,232,"Graham County Electric Cooperative, Inc.",,
-127,60,Great Bay Power Corporation,,
-128,61,Green Mountain Power Corp,7601,Green Mountain Power Corp
-129,293,GRIDAMERICA LLC,,
-130,62,Gulf Power Company,7801,Gulf Power Co
-131,404,Hagerstown Light Department,,
-132,64,Hardee Power Partners Limited,,
-133,409,Harney Electric Cooperative,,
-134,300,"Hawaii Electric Light Company, Inc.",8287,Hawaii Electric Light Co Inc
-135,65,"Hawaiian Electric Company, Inc.",19547,Hawaiian Electric Co Inc
-136,230,"Hermiston Generating Company, L.P.",8503,Hermiston Generating Co LP
-137,66,Holyoke Power and Electric Company,,
-138,67,Holyoke Water Power Company,,
-139,410,Idaho County Light & Power Coop. Assoc. Inc.,,
-140,70,Idaho Power Company,9191,Idaho Power Co
-141,69,IES Utilities Inc.,,
-142,71,Illinois Power Company,,
-143,266,Illinois Power Generating Company,520,Illinois Power Generating Co
-144,73,Indiana Michigan Power Company,9324,Indiana Michigan Power Co
-145,72,Indiana-Kentucky Electric Corporation,9269,Indiana-Kentucky Electric Corp
-146,74,Indianapolis Power & Light Company,9273,Indianapolis Power & Light Co
-147,228,Inland Power & Light Company,,
-148,278,International Transmission Company,,
-149,289,International Transmission Company,,
-150,281,Interstate Power and Light Company,9417,Interstate Power and Light Co
-151,75,Interstate Power Company,,
-152,76,Iowa-Illinois Gas and Electric Company,,
-153,231,ISO New England Inc.,,
-154,433,"ITC Great Plains, LLC",,
-155,316,ITC Midwest LLC,,
-156,77,Jersey Central Power & Light Company,9726,Jersey Central Power & Lt Co
-157,78,Kanawha Valley Power Company,,
-158,411,Kandiyohi  Power Cooperative,,
-159,79,Kansas City Power & Light Company,10000,Kansas City Power & Light Co
-160,80,Kansas Gas and Electric Company,10005,Kansas Gas & Electric Co
-161,182,KCP&L Greater Missouri Operations Company,56211,KCP&L Greater Missouri Operations Co
-162,81,Kentucky Power Company,22053,Kentucky Power Co
-163,82,Kentucky Utilities Company,10171,Kentucky Utilities Co
-164,239,KeySpan Generation LLC,,
-165,83,Kingsport Power Company,,
-166,59,Liberty Utilities (Granite State Electric) Corp.,,
-167,84,Lockhart Power Company,11118,Lockhart Power Co
-168,86,"Long Sault, Inc.",,
-169,88,Louisville Gas and Electric Company,11249,Louisville Gas & Electric Co
-170,412,Lyon Rural Electric Cooperative,,
-171,89,Madison Gas and Electric Company,11479,Madison Gas & Electric Co
-172,90,"Maine Electric Power Company, Inc.",,
-173,91,Maine Public Service Company,,
-174,92,Maine Yankee Atomic Power Company,,
-175,93,Massachusetts Electric Company,11804,Massachusetts Electric Co
-176,94,"MAUI ELECTRIC COMPANY, LIMITED",11843,Maui Electric Co Ltd
-177,413,McDonough Power Cooperative,,
-178,95,"MDU Resources Group, Inc.",,
-179,209,Medina Power Company,,
-180,96,Metropolitan Edison Company,,
-181,273,Michigan Electric Transmission Company (04/02),,
-182,308,Michigan Electric Transmission Company LLC (10/06),,
-183,280,Michigan Electric Transmission Company LLC (12/9/03),,
-184,291,"Michigan Electric Transmission Company, LLC",,
-185,210,MidAmerican Energy Company,12341,MidAmerican Energy Co
-186,274,"Midcontinent Independent System Operator, Inc",,
-187,262,"Midwest Electric Power, Inc",12159,Midwest Electric Power Inc
-188,213,Midwest Energy Inc.,12524,Midwest Energy Inc
-189,97,Midwest Power Systems Inc.,,
-190,99,Mississippi Power Company,12686,Mississippi Power Co
-191,101,MONONGAHELA POWER COMPANY,12796,Monongahela Power Co
-192,102,"Montana Power Company, The",,
-178,103,Montana-Dakota Utilities Company,12199,Montana-Dakota Utilities Co
-194,104,Montaup Electric Company,,
-195,414,"Moon Lake Electric Association, Inc.",12866,Moon Lake Electric Assn Inc
-196,214,Moreau Manufacturing,,
-197,302,"Mountainview Power Company, LLC",,
-198,105,Mt. Carmel Public Utility Co,,
-199,242,"Mt. Wheeler Power, Inc.",,
-200,415,"Mt. Wheeler Power, Inc.",,
-201,106,Nantahala Power and Light Company,,
-202,416,Nantucket Electric Company,13206,Nantucket Electric Co
-203,85,National Grid Generation LLC,56505,National Grid Generation LLC
-204,108,"Nevada Power Company, d/b/a NV Energy",13407,Nevada Power Co
-205,109,Nevada Sun-Peak Limited Partnership,,
-206,110,New England Electric Transmission Corporation,,
-207,111,"New England Hydro-Trans. Elec. Co., Inc.",,
-208,112,New England Hydro-Transmission Corporation,,
-209,113,New England Power Company,,
-210,204,"New Hampshire Electric Cooperative, Inc.",,
-211,435,"New Hampshire Transmission, LLC",,
-212,250,New York Independent System Operator,,
-213,115,New York State Electric & Gas Corporation,13511,New York State Elec & Gas Corp
-214,215,"Newcorp Resources Electric Cooperative, Inc.",,
-215,116,Newport Electric Corporation,,
-216,117,Niagara Mohawk Power Corporation,,
-217,118,North Atlantic Energy Corporation,,
-218,256,"North Central Missouri Electric Cooperative, Inc.",,
-219,418,"North Central Power Co., Inc.",13697,North Central Power Co Inc
-220,417,North West Rural Electric Cooperative,,
-221,260,Northeast Generation Company,,
-222,119,Northern Indiana Public Service Company,13756,Northern Indiana Pub Serv Co
-223,265,"Northern Maine Independent System Administrator, Inc",,
-224,120,Northern States Power Company (Minnesota),13781,Northern States Power Co - Minnesota
-225,121,Northern States Power Company (Wisconsin),,
-226,122,NorthWestern Corporation,13902,NorthWestern Energy
-228,122,NorthWestern Corporation,56815,NorthWestern Energy DGGS
-229,123,Northwestern Wisconsin Electric Company,13815,Northwestern Wisconsin Elec Co
-231,124,Ocean State Power,27769,Ocean State Power Co
-232,125,"Ocean State Power, II",27770,Ocean State Power II
-233,205,Oconto Electric Cooperative,13964,Oconto Electric Cooperative
-234,126,Ohio Edison Company,,
-235,127,Ohio Power Company,,
-236,128,Ohio Valley Electric Corporation,14015,Ohio Valley Electric Corp
-237,130,Oklahoma Gas and Electric Company,14063,Oklahoma Gas & Electric Co
-238,129,Old Dominion Electric Cooperative,40229,Old Dominion Electric Coop
-239,419,"Omya, Inc.",19794,Omya Inc
-240,282,Oncor Electric Delivery Company LLC,,
-241,131,"Orange and Rockland Utilities, Inc",,
-242,420,"Oregon Trail Electric Consumers Coop, Inc.",,
-243,132,Otter Tail Power Company,14232,Otter Tail Power Co
-244,133,PACIFIC GAS AND ELECTRIC COMPANY,14328,Pacific Gas & Electric Co
-245,222,Pacific Northwest Generating Cooperative,14323,Pacific Northwest Generating Coop
-246,134,PacifiCorp,14354,PacifiCorp
-247,313,"Path Allegheny Transmission Company, LLC",,
-248,314,"Path West Virginia Transmission Company, L.L.C.",,
-249,135,PECO Energy Company,,
-250,136,Pennsylvania Electric Company,,
-251,137,Pennsylvania Power Company,,
-252,421,Penoyer Valley Electric Company,,
-253,206,Peoples Electric Cooperative,,
-254,139,"Pepperell Power Association, Limited Partnership",,
-255,298,"Perryville Energy Partners, L.L.C",,
-256,422,Pike County Light and Power Company,,
-257,304,Pinnacle West Capital Corporation,,
-258,310,Pinnacle West Marketing & Trading Co. LLC,,
-259,140,Pioneer Power and Light Company,,
-260,255,"PJM Interconnection, LLC",,
-261,447,"PJM Settlement, Inc.",,
-262,259,Platte-Clay Electric Cooperative Inc.,,
-263,141,Portland General Electric Company,15248,Portland General Electric Co
-264,143,Potomac Electric Power Company,,
-265,138,PPL Electric Utilities Corporation,,
-266,319,"Prairie Wind Transmission, LLC",,
-267,272,PSEG Energy Resources & Trade LLC,,
-268,270,PSEG Fossil LLC,15147,PSEG Fossil LLC
-269,271,PSEG Nuclear LLC,15478,PSEG Nuclear LLC
-270,261,PSEG Power LLC,15452,PSEG Power Connecticut LLC
-271,263,PSEG Power New York Inc.,14294,PSEG Power New York Inc
-272,145,Public Service Company of Colorado,15466,Public Service Co of Colorado
-273,146,Public Service Company of New Hampshire,15472,Public Service Co of NH
-274,147,Public Service Company of New Mexico,15473,Public Service Co of NM
-275,148,Public Service Company of Oklahoma,15474,Public Service Co of Oklahoma
-276,149,Public Service Electric and Gas Company,15477,Public Service Elec & Gas Co
-277,150,"Puget Sound Energy, Inc.",15500,Puget Sound Energy Inc
-278,207,"Rayburn Country Electric Cooperative, Inc.",,
-279,450,"RITELine Illinois, LLC",,
-280,151,Rochester Gas and Electric Corporation,16183,Rochester Gas & Electric Corp
-281,152,Rockland Electric Company,,
-282,153,Safe Harbor Water Power Corporation,59364,Safe Harbor
-283,431,"Salmon River Electric Cooperative, Inc.",,
-284,155,San Diego Gas & Electric Company,16609,San Diego Gas & Electric Co
-285,156,Savannah Electric and Power Company,,
-286,268,"Sharyland Utilities, L.P.",,
-287,157,Sierra Pacific Power Company d/b/a NV Energy,17166,Sierra Pacific Power Co
-288,244,Smarr EMC,,
-289,451,Smoky Mountain Transmission LLC,,
-290,424,Somerset Rural Electric Cooperative Inc.,,
-291,158,"South Beloit Water, Gas and Electric Company",,
-292,159,South Carolina Electric & Gas Company,17539,South Carolina Electric&Gas Company
-293,160,"South Carolina Generating Company, Inc.",17554,"South Carolina Genertg Co, Inc"
-294,317,"Southeast Chicago Energy Project, LLC",,
-295,161,Southern California Edison Company,17609,Southern California Edison Co
-296,425,Southern California Water Company,,
-297,162,SOUTHERN ELECTRIC GENERATING COMPANY,,
-298,163,Southern Indiana Gas and Electric Company,17633,Southern Indiana Gas & Elec Co
-299,296,Southern Maryland Electric Cooperative,,
-300,297,"Southwest Power Pool, Inc.",,
-301,164,Southwestern Electric Power Company,17698,Southwestern Electric Power Co
-302,166,Southwestern Public Service Company,17718,Southwestern Public Service Co
-303,221,"Soyland Power Cooperative, Inc",,
-304,154,St. Joseph Light & Power Company,,
-305,318,"Startrans IO, LLC",,
-306,445,SU FERC L.L.C,,
-307,426,Sun River Electric Cooperative,,
-308,167,"Superior Water, Light and Power Company",,
-309,168,Susquehanna Electric Company,,
-310,427,Sussex Rural Electric Cooperative,,
-311,169,"System Energy Resources, Inc.",12465,"System Energy Resources, Inc"
-312,283,Talbot EMC,,
-313,170,Tampa Electric Company,18454,Tampa Electric Co
-314,172,Terra Comfort Corporation,,
-315,174,Texas-New Mexico Power Company,,
-316,5,THE ALLEGHENY GENERATING COMPANY,,
-317,42,The Dayton Power and Light Company,4922,Dayton Power & Light Co
-318,51,The Empire District Electric Company,5860,Empire District Electric Co
-319,238,The Morenci Water & Electric Company,,
-320,107,The Narragansett Electric Company,,
-321,142,THE POTOMAC EDISON COMPANY,,
-322,179,The United Illuminating Company,19497,United Illuminating Co
-323,277,The Walton E.M.C.,,
-324,175,"Toledo Edison Company, The",,
-325,446,Trans Bay Cable LLC,,
-326,311,Trans-Allegheny Interstate Line Company,,
-327,299,TransCanada Hydro NorthEast Inc.,50048,"TransCanada Hydro Northeast Inc.,"
-328,453,"Transource Missouri, LLC",,
-329,237,Trigen-Kansas City Energy Corporation,,
-330,176,Tucson Electric Power Company,24211,Tucson Electric Power Co
-331,173,TXU Electric Company,,
-332,165,TXU SESCO Company,,
-333,428,"UGI Utilities, Inc.",,
-334,177,UNION ELECTRIC COMPANY,19436,Union Electric Co - (MO)
-336,290,"Unitil Energy Systems, Inc.",,
-337,35,UNITIL Power Corp.,,
-338,180,UNITIL Power Corp.,,
-339,288,"UNS Electric, Inc.",19728,"UNS Electric, Inc"
-340,181,Upper Peninsula Power Company,19578,Upper Peninsula Power Company
-341,225,Valley Electric Association Inc.,,
-342,448,"Verde Energy USA, Inc.",,
-343,247,"Vermont Electric Cooperative, Inc.",,
-344,183,"Vermont Electric Power Company, Inc.",,
-345,184,"Vermont Electric Transmission Company, Inc.",,
-346,320,Vermont Transco LLC,,
-347,185,Vermont Yankee Nuclear Power Corporation,,
-348,224,Village of Morrisville Water and Light Department,12989,Village of Morrisville - (VT)
-349,186,VIRGINIA ELECTRIC AND POWER COMPANY,19876,Virginia Electric & Power Co
-350,208,W.F. Wyman Unit No. 4 Composite Data 100%,,
-351,312,"Wabash Valley Energy Marketing, Inc.",,
-352,294,"Wabash Valley Power Association, Inc.",40211,"Wabash Valley Power Assn, Inc"
-353,307,"Warren Power, LLC",,
-354,246,"Washington Electric Cooperative, Inc.",20151,Washington Electric Coop - (VT)
-355,251,Wayne-White Counties Electric Cooperative,,
-356,264,Wells Rural Electric Company,,
-357,267,Wellsboro Electric Company,,
-358,188,WEST PENN POWER COMPANY,,
-359,191,"Westar Energy, Inc.",22500,Westar Energy Inc
-359,276,"Westar Generating, Inc.",22500,Westar Energy Inc
-360,190,Western Massachusetts Electric Company,56999,Western Massachusetts Electric Company
-361,192,Wheeling Power Company,,
-362,430,"White River Electric Association, Inc.",,
-363,193,Wisconsin Electric Power Company,20847,Wisconsin Electric Power Co
-364,194,Wisconsin Power and Light Company,20856,Wisconsin Power & Light Co
-365,195,Wisconsin Public Service Corporation,20860,Wisconsin Public Service Corp
-366,196,Wisconsin River Power Company,20863,Wisconsin River Power Company
-367,279,Wolf Creek Nuclear Operating Corporation,20893,Wolf Creek Nuclear Optg Corp
-368,227,"Wolverine Power Supply Cooperative, Inc.",20910,Wolverine Power Supply Coop
-369,197,"Yadkin, Inc.",,
-370,198,Yankee Atomic Electric Company,,
-371,199,York Haven Power Company,56065,York Haven Power Company LLC
+1,131,"{Test 423 (do not use) Sharyland Utilities, L.P.)}",,
+2,148,{Test Company - A},,
+3,147,{Test Company - B1},,
+4,113,Access Energy Cooperative,,
+5,76,Adirondack Hydro Development Corporation,,
+6,431,"AEP Appalachian Transmission Company, Inc.",,
+7,342,AEP Generating Company,343,AEP Generating Company
+8,340,AEP Generation Resources Inc.,58620,AEP Generation Resources Inc
+9,434,"AEP Indiana Michigan Transmission Company, Inc.",,
+10,433,"AEP Kentucky Transmission Company, Inc.",,
+11,194,"AEP Ohio Transmission Company, Inc.",,
+12,195,"AEP Oklahoma Transmission Company, Inc.",,
+13,435,"AEP Southwestern Transmission Company, Inc.",,
+14,198,AEP Texas Central Company,,
+15,199,AEP Texas North Company,,
+16,432,"AEP West Virginia Transmission Company, Inc.",,
+17,114,AJO Improvement Company,,
+18,294,ALABAMA POWER COMPANY,195,Alabama Power Co
+19,403,Alaska Electric Light and Power Company,213,Alaska Electric Light&Power Co
+20,349,Alcoa Generating Corporation,,
+21,282,Alcoa Power Generating Inc.,317,Alcoa Power Generating Inc Yadkin Div
+22,81,"Alfalfa Electric Cooperative, Inc.",,
+23,307,"ALLETE, Inc.",12647,"ALLETE, Inc."
+24,72,Amerada Hess Corporation,,
+26,328,Ameren Transmission Company of Illinois,,
+27,92,American Transmission Company LLC,,
+28,180,"American Transmission Systems, Incorporated",,
+29,200,Appalachian Power Company,733,Appalachian Power Co
+30,107,APS Energy Services Company,,
+31,286,Arizona Public Service Company,803,Arizona Public Service Co
+32,45,AROOSTOOK VALLEY ELECTRIC COMPANY,,
+33,292,Atlantic City Electric Company,,
+34,421,Attala Transmission LLC,,
+35,182,Avista Corporation,20169,Avista Corp
+36,248,Baltimore Gas and Electric Company,,
+37,139,Beacon Power Corporation,57031,Beacon Power LLC
+38,54,BeeBee Island Corporation,,
+39,63,Berea College Utilities,,
+40,46,Big Rivers Electric Corporation,1692,Big Rivers Electric Corp
+41,53,"Black Creek Hydro, Inc.",1784,Black Creek Hydro Inc
+42,285,"Black Hills Power, Inc.",19545,"Black Hills Power, Inc. d/b/a"
+43,309,"Black Hills/Colorado Electric Utility Company, LP",56146,Black Hills/Colorado Elec.Util
+44,2,Blackstone Valley Electric Company,,
+45,3,Boston Edison Company,,
+46,115,"Bridger Valley Electric Association, Inc.",,
+47,334,"Buckeye Power, Inc.",7004,"Buckeye Power, Inc"
+48,256,California Independent System Operator Corporation,,
+49,325,California Power Exchange Corporation,,
+50,4,Cambridge Electric Light Company,,
+51,5,CANAL ELECTRIC COMPANY,,
+52,77,"Carr Street Generating, L.P.",24202,Carr Street Generating Sta LP
+53,404,Catalyst Old River Hydroelectric Limited Partnership,,
+54,318,"CenterPoint Energy Houston Electric, LLC",,
+55,246,CENTRAL HUDSON GAS & ELECTRIC CORPORATION,3249,Central Hudson Gas & Elec Corp
+56,6,Central Illinois Light Company,,
+57,7,Central Illinois Public Service Company,,
+58,212,Central Maine Power Company,,
+59,405,Central Vermont Public Service Corporation,,
+60,8,Century Power Corporation,,
+61,99,Chattahoochee EMC,,
+62,289,"Cheyenne Light, Fuel and Power Company",,
+63,418,"Chugach Electric Association, Inc.",3522,Chugach Electric Assn Inc
+64,10,CITIZENS COMMUNCIATIONS COMPANY,,
+65,97,Citizens Electric Corporation,,
+66,339,Citizens Sunrise Transmission LLC.,,
+67,9,CITIZENS' ELECTRIC COMPANY,,
+68,98,Clark Fork & Blackfoot LLC,,
+69,185,Cleco Power LLC,3265,Cleco Power LLC
+70,175,"Cleveland Electric Illuminating Company, The",,
+71,406,Columbus Southern Power Company,,
+72,165,Commonwealth Edison Company,,
+73,407,"Commonwealth Edison Company of Indiana, Inc.",,
+74,11,Commonwealth Electric Company,,
+75,243,"Connecticut Light and Power Company, The",,
+76,12,Connecticut Valley Electric Company Inc.,,
+77,326,Connecticut Yankee Atomic Power Company,,
+78,57,Connexus Energy,,
+79,159,"Consolidated Edison Company of New York, Inc.",4226,Consolidated Edison Co-NY Inc
+80,312,Consolidated Water Power Company,4247,Consolidated Water Power Co
+81,163,Consumers Energy Company,4254,Consumers Energy Co
+82,101,"Cross Sound Cable Company, LLC",,
+83,322,"DATC Path 15, LLC",,
+84,291,Delmarva Power & Light Company,,
+85,64,"Delta Natural Gas Company, Inc.",,
+86,268,Deseret Generation & Transmission Cooperative,40230,Deseret Generation & Tran Coop
+87,117,Dixie-Escalante Rural Electric Association,,
+88,70,"Dixie-Escalante Rural Electric Association, Inc.",,
+89,184,DTE Electric Company,5109,DTE Electric Company
+90,170,"Duke Energy Carolinas, LLC",5416,"Duke Energy Carolinas, LLC"
+91,161,"Duke Energy Florida, Inc.",6455,"Duke Energy Florida, Inc"
+92,169,"Duke Energy Indiana, Inc.",15470,"Duke Energy Indiana, LLC"
+93,171,"Duke Energy Kentucky, Inc.",55729,Duke Energy Kentucky Inc
+94,65,Duke Energy Moss Landing LLC,,
+95,66,Duke Energy Oakland LLC,,
+96,172,"Duke Energy Ohio, Inc.",3542,Duke Energy Ohio Inc
+97,160,"Duke Energy Progress, Inc.",3046,Duke Energy Progress - (NC)
+98,284,Duquesne Light Company,,
+99,336,"EAM Nelson Holding, LLC",,
+100,402,"East Texas Electric Cooperative, Inc.",39347,"East Texas Electric Coop, Inc"
+101,13,Eastern Edison Company,,
+102,14,Edison Sault Electric Company,,
+103,186,El Paso Electric Company,5701,El Paso Electric Co
+104,321,"Electric Energy, Inc.",5748,Electric Energy Inc
+105,158,Emera Maine,1179,Emera Maine
+106,226,"Entergy Arkansas, Inc.",814,Entergy Arkansas Inc
+107,231,"Entergy Gulf States Louisiana, L.L.C.",11241,Entergy Louisiana LLC
+107,411,"Entergy Louisiana, LLC",11241,Entergy Louisiana LLC
+109,232,"Entergy Mississippi, Inc.",12685,Entergy Mississippi Inc
+110,233,"Entergy New Orleans, Inc.",13478,Entergy New Orleans Inc
+111,109,"Entergy Power Ventures, LP",,
+112,408,"Entergy Power, LLC",,
+113,234,"Entergy Texas, Inc.",55937,Entergy Texas Inc.
+107,362,"Entergy Louisiana, LLC",11241,Entergy Louisiana LLC
+115,236,"EWO Marketing, LLC",,
+116,15,Exeter & Hampton Electric Company,,
+117,118,"Fall River Electric Cooperative, Inc",6169,Fall River Rural Elec Coop Inc
+118,83,First Electric Cooperative Corporation,,
+119,264,Fitchburg Gas and Electric Light Company,,
+120,119,"Florida Keys Electric Cooperative Assoc., Inc.",6443,"Florida Keys El Coop Assn, Inc"
+121,247,Florida Power & Light Company,6452,Florida Power & Light Co
+122,120,"Flowell Electric Association, Inc.",,
+123,295,Georgia Power Company,7140,Georgia Power Co
+124,273,"Golden Spread Electric Cooperative, Inc.",7349,"Golden Spread Electric Cooperative, Inc"
+125,266,Golden State Water Company,54710,Golden State Water Company
+126,62,"Graham County Electric Cooperative, Inc.",,
+127,16,Great Bay Power Corporation,,
+128,313,Green Mountain Power Corp,7601,Green Mountain Power Corp
+129,102,GRIDAMERICA LLC,,
+130,296,Gulf Power Company,7801,Gulf Power Co
+131,116,Hagerstown Light Department,,
+132,253,Hardee Power Partners Limited,,
+133,121,Harney Electric Cooperative,,
+134,105,"Hawaii Electric Light Company, Inc.",8287,Hawaii Electric Light Co Inc
+135,400,"Hawaiian Electric Company, Inc.",19547,Hawaiian Electric Co Inc
+136,345,"Hermiston Generating Company, L.P.",8503,Hermiston Generating Co LP
+137,17,Holyoke Power and Electric Company,,
+138,18,Holyoke Water Power Company,,
+139,122,Idaho County Light & Power Coop. Assoc. Inc.,,
+140,216,Idaho Power Company,9191,Idaho Power Co
+141,19,IES Utilities Inc.,,
+142,20,Illinois Power Company,,
+143,223,Illinois Power Generating Company,520,Illinois Power Generating Co
+144,201,Indiana Michigan Power Company,9324,Indiana Michigan Power Co
+145,409,Indiana-Kentucky Electric Corporation,9269,Indiana-Kentucky Electric Corp
+146,279,Indianapolis Power & Light Company,9273,Indianapolis Power & Light Co
+147,61,Inland Power & Light Company,,
+148,,International Transmission Company,,
+148,333,International Transmission Company,,
+150,220,Interstate Power and Light Company,9417,Interstate Power and Light Co
+151,21,Interstate Power Company,,
+152,22,Iowa-Illinois Gas and Electric Company,,
+153,152,ISO New England Inc.,,
+154,341,"ITC Great Plains, LLC",,
+155,337,ITC Midwest LLC,,
+156,173,Jersey Central Power & Light Company,9726,Jersey Central Power & Lt Co
+157,23,Kanawha Valley Power Company,,
+158,123,Kandiyohi  Power Cooperative,,
+159,254,Kansas City Power & Light Company,10000,Kansas City Power & Light Co
+160,410,Kansas Gas and Electric Company,10005,Kansas Gas & Electric Co
+161,255,KCP&L Greater Missouri Operations Company,56211,KCP&L Greater Missouri Operations Co
+162,202,Kentucky Power Company,22053,Kentucky Power Co
+163,210,Kentucky Utilities Company,10171,Kentucky Utilities Co
+164,69,KeySpan Generation LLC,,
+165,203,Kingsport Power Company,,
+166,276,Liberty Utilities (Granite State Electric) Corp.,,
+167,252,Lockhart Power Company,11118,Lockhart Power Co
+168,24,"Long Sault, Inc.",,
+169,209,Louisville Gas and Electric Company,11249,Louisville Gas & Electric Co
+170,124,Lyon Rural Electric Cooperative,,
+171,335,Madison Gas and Electric Company,11479,Madison Gas & Electric Co
+172,213,"Maine Electric Power Company, Inc.",,
+173,302,Maine Public Service Company,,
+174,350,Maine Yankee Atomic Power Company,,
+175,277,Massachusetts Electric Company,11804,Massachusetts Electric Co
+176,25,"MAUI ELECTRIC COMPANY, LIMITED",11843,Maui Electric Co Ltd
+177,125,McDonough Power Cooperative,,
+178,319,"MDU Resources Group, Inc.",,
+179,52,Medina Power Company,,
+180,179,Metropolitan Edison Company,,
+181,91,Michigan Electric Transmission Company (04/02),,
+182,324,Michigan Electric Transmission Company LLC (10/06),,
+183,95,Michigan Electric Transmission Company LLC (12/9/03),,
+184,100,"Michigan Electric Transmission Company, LLC",,
+185,251,MidAmerican Energy Company,12341,MidAmerican Energy Co
+186,283,"Midcontinent Independent System Operator, Inc",,
+187,360,"Midwest Electric Power, Inc",12159,Midwest Electric Power Inc
+188,401,Midwest Energy Inc.,12524,Midwest Energy Inc
+189,26,Midwest Power Systems Inc.,,
+190,297,Mississippi Power Company,12686,Mississippi Power Co
+191,238,MONONGAHELA POWER COMPANY,12796,Monongahela Power Co
+192,27,"Montana Power Company, The",,
+178,28,Montana-Dakota Utilities Company,12199,Montana-Dakota Utilities Co
+194,29,Montaup Electric Company,,
+195,126,"Moon Lake Electric Association, Inc.",12866,Moon Lake Electric Assn Inc
+196,55,Moreau Manufacturing,,
+197,106,"Mountainview Power Company, LLC",,
+198,412,Mt. Carmel Public Utility Co,,
+199,71,"Mt. Wheeler Power, Inc.",,
+200,127,"Mt. Wheeler Power, Inc.",,
+201,30,Nantahala Power and Light Company,,
+202,426,Nantucket Electric Company,13206,Nantucket Electric Co
+203,281,National Grid Generation LLC,56505,National Grid Generation LLC
+204,301,"Nevada Power Company, d/b/a NV Energy",13407,Nevada Power Co
+205,357,Nevada Sun-Peak Limited Partnership,,
+206,304,New England Electric Transmission Corporation,,
+207,306,"New England Hydro-Trans. Elec. Co., Inc.",,
+208,305,New England Hydro-Transmission Corporation,,
+209,274,New England Power Company,,
+210,47,"New Hampshire Electric Cooperative, Inc.",,
+211,430,"New Hampshire Transmission, LLC",,
+212,154,New York Independent System Operator,,
+213,215,New York State Electric & Gas Corporation,13511,New York State Elec & Gas Corp
+214,56,"Newcorp Resources Electric Cooperative, Inc.",,
+215,31,Newport Electric Corporation,,
+216,275,Niagara Mohawk Power Corporation,,
+217,32,North Atlantic Energy Corporation,,
+218,82,"North Central Missouri Electric Cooperative, Inc.",,
+219,427,"North Central Power Co., Inc.",13697,North Central Power Co Inc
+220,128,North West Rural Electric Cooperative,,
+221,85,Northeast Generation Company,,
+222,208,Northern Indiana Public Service Company,13756,Northern Indiana Pub Serv Co
+223,88,"Northern Maine Independent System Administrator, Inc",,
+224,229,Northern States Power Company (Minnesota),13781,Northern States Power Co - Minnesota
+225,228,Northern States Power Company (Wisconsin),,
+226,315,NorthWestern Corporation,13902,NorthWestern Energy
+228,315,NorthWestern Corporation,56815,NorthWestern Energy DGGS
+229,413,Northwestern Wisconsin Electric Company,13815,Northwestern Wisconsin Elec Co
+231,316,Ocean State Power,27769,Ocean State Power Co
+232,317,"Ocean State Power, II",27770,Ocean State Power II
+233,48,Oconto Electric Cooperative,13964,Oconto Electric Cooperative
+234,174,Ohio Edison Company,,
+235,204,Ohio Power Company,,
+236,217,Ohio Valley Electric Corporation,14015,Ohio Valley Electric Corp
+237,314,Oklahoma Gas and Electric Company,14063,Oklahoma Gas & Electric Co
+238,287,Old Dominion Electric Cooperative,40229,Old Dominion Electric Coop
+239,428,"Omya, Inc.",19794,Omya Inc
+240,293,Oncor Electric Delivery Company LLC,,
+241,190,"Orange and Rockland Utilities, Inc",,
+242,129,"Oregon Trail Electric Consumers Coop, Inc.",,
+243,272,Otter Tail Power Company,14232,Otter Tail Power Co
+244,183,PACIFIC GAS AND ELECTRIC COMPANY,14328,Pacific Gas & Electric Co
+245,329,Pacific Northwest Generating Cooperative,14323,Pacific Northwest Generating Coop
+246,303,PacifiCorp,14354,PacifiCorp
+247,423,"Path Allegheny Transmission Company, LLC",,
+248,424,"Path West Virginia Transmission Company, L.L.C.",,
+249,167,PECO Energy Company,,
+250,178,Pennsylvania Electric Company,,
+251,177,Pennsylvania Power Company,,
+252,130,Penoyer Valley Electric Company,,
+253,49,Peoples Electric Cooperative,,
+254,33,"Pepperell Power Association, Limited Partnership",,
+255,420,"Perryville Energy Partners, L.L.C",,
+256,429,Pike County Light and Power Company,,
+257,108,Pinnacle West Capital Corporation,,
+258,111,Pinnacle West Marketing & Trading Co. LLC,,
+259,414,Pioneer Power and Light Company,,
+260,153,"PJM Interconnection, LLC",,
+261,437,"PJM Settlement, Inc.",,
+262,84,Platte-Clay Electric Cooperative Inc.,,
+263,250,Portland General Electric Company,15248,Portland General Electric Co
+264,290,Potomac Electric Power Company,,
+265,267,PPL Electric Utilities Corporation,,
+266,425,"Prairie Wind Transmission, LLC",,
+267,261,PSEG Energy Resources & Trade LLC,,
+268,90,PSEG Fossil LLC,15147,PSEG Fossil LLC
+269,262,PSEG Nuclear LLC,15478,PSEG Nuclear LLC
+270,86,PSEG Power LLC,15452,PSEG Power Connecticut LLC
+271,87,PSEG Power New York Inc.,14294,PSEG Power New York Inc
+272,227,Public Service Company of Colorado,15466,Public Service Co of Colorado
+273,244,Public Service Company of New Hampshire,15472,Public Service Co of NH
+274,263,Public Service Company of New Mexico,15473,Public Service Co of NM
+275,205,Public Service Company of Oklahoma,15474,Public Service Co of Oklahoma
+276,260,Public Service Electric and Gas Company,15477,Public Service Elec & Gas Co
+277,162,"Puget Sound Energy, Inc.",15500,Puget Sound Energy Inc
+278,50,"Rayburn Country Electric Cooperative, Inc.",,
+279,141,"RITELine Illinois, LLC",,
+280,214,Rochester Gas and Electric Corporation,16183,Rochester Gas & Electric Corp
+281,415,Rockland Electric Company,,
+282,311,Safe Harbor Water Power Corporation,59364,Safe Harbor
+283,138,"Salmon River Electric Cooperative, Inc.",,
+284,218,San Diego Gas & Electric Company,16609,San Diego Gas & Electric Co
+285,35,Savannah Electric and Power Company,,
+286,419,"Sharyland Utilities, L.P.",,
+287,300,Sierra Pacific Power Company d/b/a NV Energy,17166,Sierra Pacific Power Co
+288,73,Smarr EMC,,
+289,344,Smoky Mountain Transmission LLC,,
+290,132,Somerset Rural Electric Cooperative Inc.,,
+291,36,"South Beloit Water, Gas and Electric Company",,
+292,168,South Carolina Electric & Gas Company,17539,South Carolina Electric&Gas Company
+293,416,"South Carolina Generating Company, Inc.",17554,"South Carolina Genertg Co, Inc"
+294,112,"Southeast Chicago Energy Project, LLC",,
+295,155,Southern California Edison Company,17609,Southern California Edison Co
+296,133,Southern California Water Company,,
+297,298,SOUTHERN ELECTRIC GENERATING COMPANY,,
+298,242,Southern Indiana Gas and Electric Company,17633,Southern Indiana Gas & Elec Co
+299,103,Southern Maryland Electric Cooperative,,
+300,224,"Southwest Power Pool, Inc.",,
+301,206,Southwestern Electric Power Company,17698,Southwestern Electric Power Co
+302,230,Southwestern Public Service Company,17718,Southwestern Public Service Co
+303,58,"Soyland Power Cooperative, Inc",,
+304,34,St. Joseph Light & Power Company,,
+305,320,"Startrans IO, LLC",,
+306,436,SU FERC L.L.C,,
+307,134,Sun River Electric Cooperative,,
+308,417,"Superior Water, Light and Power Company",,
+309,38,Susquehanna Electric Company,,
+310,135,Sussex Rural Electric Cooperative,,
+311,235,"System Energy Resources, Inc.",12465,"System Energy Resources, Inc"
+312,96,Talbot EMC,,
+313,157,Tampa Electric Company,18454,Tampa Electric Co
+314,39,Terra Comfort Corporation,,
+315,41,Texas-New Mexico Power Company,,
+316,239,THE ALLEGHENY GENERATING COMPANY,,
+317,211,The Dayton Power and Light Company,4922,Dayton Power & Light Co
+318,249,The Empire District Electric Company,5860,Empire District Electric Co
+319,68,The Morenci Water & Electric Company,,
+320,278,The Narragansett Electric Company,,
+321,240,THE POTOMAC EDISON COMPANY,,
+322,299,The United Illuminating Company,19497,United Illuminating Co
+323,93,The Walton E.M.C.,,
+324,176,"Toledo Edison Company, The",,
+325,330,Trans Bay Cable LLC,,
+326,422,Trans-Allegheny Interstate Line Company,,
+327,104,TransCanada Hydro NorthEast Inc.,50048,"TransCanada Hydro Northeast Inc.,"
+328,343,"Transource Missouri, LLC",,
+329,67,Trigen-Kansas City Energy Corporation,,
+330,257,Tucson Electric Power Company,24211,Tucson Electric Power Co
+331,40,TXU Electric Company,,
+332,37,TXU SESCO Company,,
+333,323,"UGI Utilities, Inc.",,
+334,221,UNION ELECTRIC COMPANY,19436,Union Electric Co - (MO)
+336,265,"Unitil Energy Systems, Inc.",,
+337,269,UNITIL Power Corp.,,
+338,42,UNITIL Power Corp.,,
+339,258,"UNS Electric, Inc.",19728,"UNS Electric, Inc"
+340,188,Upper Peninsula Power Company,19578,Upper Peninsula Power Company
+341,346,Valley Electric Association Inc.,,
+342,140,"Verde Energy USA, Inc.",,
+343,75,"Vermont Electric Cooperative, Inc.",,
+344,308,"Vermont Electric Power Company, Inc.",,
+345,43,"Vermont Electric Transmission Company, Inc.",,
+346,270,Vermont Transco LLC,,
+347,288,Vermont Yankee Nuclear Power Corporation,,
+348,60,Village of Morrisville Water and Light Department,12989,Village of Morrisville - (VT)
+349,164,VIRGINIA ELECTRIC AND POWER COMPANY,19876,Virginia Electric & Power Co
+350,51,W.F. Wyman Unit No. 4 Composite Data 100%,,
+351,181,"Wabash Valley Energy Marketing, Inc.",,
+352,156,"Wabash Valley Power Association, Inc.",40211,"Wabash Valley Power Assn, Inc"
+353,110,"Warren Power, LLC",,
+354,74,"Washington Electric Cooperative, Inc.",20151,Washington Electric Coop - (VT)
+355,78,Wayne-White Counties Electric Cooperative,,
+356,347,Wells Rural Electric Company,,
+357,89,Wellsboro Electric Company,,
+358,237,WEST PENN POWER COMPANY,,
+359,225,"Westar Energy, Inc.",22500,Westar Energy Inc
+359,348,"Westar Generating, Inc.",22500,Westar Energy Inc
+360,245,Western Massachusetts Electric Company,56999,Western Massachusetts Electric Company
+361,207,Wheeling Power Company,,
+362,137,"White River Electric Association, Inc.",,
+363,280,Wisconsin Electric Power Company,20847,Wisconsin Electric Power Co
+364,219,Wisconsin Power and Light Company,20856,Wisconsin Power & Light Co
+365,187,Wisconsin Public Service Corporation,20860,Wisconsin Public Service Corp
+366,189,Wisconsin River Power Company,20863,Wisconsin River Power Company
+367,94,Wolf Creek Nuclear Operating Corporation,20893,Wolf Creek Nuclear Optg Corp
+368,259,"Wolverine Power Supply Cooperative, Inc.",20910,Wolverine Power Supply Coop
+369,44,"Yadkin, Inc.",,
+370,327,Yankee Atomic Electric Company,,
+371,379,York Haven Power Company,56065,York Haven Power Company LLC
 372,,,58164,"180 Raritan Energy Solutions, LLC"
 373,,,21260,191 Peachtree Associates
 374,,,56971,"500 Virginia Solar, LP"
@@ -4824,10 +4824,10 @@ utility_id_pudl,utility_id_ferc1,utility_name_ferc1,utility_id_eia,utility_name_
 4834,,,60397,Osborn Wind Energy LLC
 4835,,,60406,"Cimarron Bend Wind Project I, LLC"
 4836,,,60460,CXA Sundevil Power II
-4837,513,"4C Acquisition, Llc",,
-4838,512,"Transource West Virginia, LLC",,
-4839,455,ITC Interconnection LLC,,
-4840,322,South Central MCN LLC,,
+4837,365,"4C Acquisition, Llc",,
+4838,438,"Transource West Virginia, LLC",,
+4839,361,ITC Interconnection LLC,,
+4840,364,South Central MCN LLC,,
 4841,,,2087,Bowie Power Station LLC
 4842,,,7189,Gila Bend Power Partners LLC
 4844,,,9109,Hutzel Hospital
@@ -5500,11 +5500,11 @@ utility_id_pudl,utility_id_ferc1,utility_name_ferc1,utility_id_eia,utility_name_
 5511,,,60290,"Crocker Wind Farm, LLC"
 5512,,,60292,"Advanced Solar Power Holdings, Inc"
 5513,,,60293,"DG Colorado Solar, LLC"
-5515,519,upper michigan energy resources company (pudl determined),,
-5516,522,"luning energy holdings llc, invenergy investments (pudl determined)",,
-25,443,Ameren Illinois Company,61576,Ameren Illinois
-230,309,NSTAR Electric Company,54913,NSTAR Electric Company
-335,429,"United Power, Inc.",19499,"United Power, Inc"
+5515,368,upper michigan energy resources company (pudl determined),,
+5516,241,"luning energy holdings llc, invenergy investments (pudl determined)",,
+25,222,Ameren Illinois Company,61576,Ameren Illinois
+230,271,NSTAR Electric Company,54913,NSTAR Electric Company
+335,136,"United Power, Inc.",19499,"United Power, Inc"
 5521,,,4158,Conectiv Atlantic Generation Inc
 5522,,,54787,The Premcor Refining Group Inc
 5523,,,2819,Calpine Pittsburg LLC
@@ -6741,30 +6741,30 @@ utility_id_pudl,utility_id_ferc1,utility_name_ferc1,utility_id_eia,utility_name_
 6754,,,63505,"DG Illinois Solar, LLC"
 6755,,,63510,"POET Biorefining - Marion, LLC"
 6756,,,63521,"DG Southwest Solar Portfolio 2019, LLC"
-6757,0,missing respondent 0,,
-97,17,"duke energy progress, llc",,
-91,55,"duke energy florida, llc",,
-108,87,el investment company,,
-92,144,"duke energy indiana, llc",,
-6762,223,missing respondent 223,,
-6763,252,missing respondent 252,,
-6764,253,missing respondent 253,,
-5514,514,aep texas (pudl determined),,
-6766,515,missing respondent 515,,
-6767,516,missing respondent 516,,
-6768,517,missing respondent 517,,
-6769,518,missing respondent 518,,
-6771,520,missing respondent 520,,
-6772,521,missing respondent 521,,
-6773,523,missing respondent 523,,
-6774,527,missing respondent 527,,
-6775,528,missing respondent 528,,
-3514,529,tri-state generation and transmission association (pudl determined),,
-582,531,basin electric power cooperative (pudl determined),,
-6778,900,missing respondent 900,,
-6779,1000,missing respondent 1000,,
-6780,1001,missing respondent 1001,,
-6781,1003,missing respondent 1003,,
+6757,,missing respondent 0,,
+97,160,"duke energy progress, llc",,
+91,161,"duke energy florida, llc",,
+108,411,el investment company,,
+92,169,"duke energy indiana, llc",,
+6762,59,missing respondent 223,,
+6763,79,missing respondent 252,,
+6764,80,missing respondent 253,,
+5514,372,aep texas (pudl determined),,
+6766,439,missing respondent 515,,
+6767,370,missing respondent 516,,
+6768,375,missing respondent 517,,
+6769,371,missing respondent 518,,
+6771,440,missing respondent 520,,
+6772,441,missing respondent 521,,
+6773,442,missing respondent 523,,
+6774,355,missing respondent 527,,
+6775,380,missing respondent 528,,
+3514,353,tri-state generation and transmission association (pudl determined),,
+582,354,basin electric power cooperative (pudl determined),,
+6778,146,missing respondent 900,,
+6779,149,missing respondent 1000,,
+6780,150,missing respondent 1001,,
+6781,151,missing respondent 1003,,
 6782,,,8901,Reliant Energy HL&P
 6783,,,50023,"Texas Genco II, LP"
 6784,,,6083,Exelon Gen Co LLC
@@ -9202,7 +9202,7 @@ utility_id_pudl,utility_id_ferc1,utility_name_ferc1,utility_id_eia,utility_name_
 9272,,,55776,Entegra Power Group LLC
 9273,,,62733,Cranberry Point Energy Storage LLC
 9274,,,64347,"Silver Queen Wind Farm, LLC"
-9275,122,NorthWestern Corporation,13809,NorthWestern Energy - (SD)
+9275,315,NorthWestern Corporation,13809,NorthWestern Energy - (SD)
 9276,,,2836,BP America Inc
 9277,,,8009,International Paper Co
 9278,,,9385,International Paper Co
@@ -13612,52 +13612,52 @@ utility_id_pudl,utility_id_ferc1,utility_name_ferc1,utility_id_eia,utility_name_
 13682,,,99991,x
 13683,,,99996,several municipals and coops
 13684,,,99997,ownership uncommitted
-20,4,alcoa power generating inc.,,
-106,8,"entergy arkansas, llc",,
-13685,11,versant power,,
-178,79,"evergy metro, inc.",,
-110,80,"evergy kansas south, inc.",,
-292,95,montana-dakota utilities co.,,
-109,100,"entergy mississippi, llc",,
-110,114,"entergy new orleans, llc",,
-222,119,northern indiana public service company llc,,
-292,159,"dominion energy south carolina, inc.",,
-20,171,"alcoa power generating, inc.",,
-161,182,"evergy missouri west, inc.",,
-359,191,"evergy kansas central, inc.",,
-359,276,"evergy generating, inc.",,
-13686,322,gridliance high plains llc,,
-43,432,"black hills colorado electric, llc",,
-5514,514,aep texas inc.,,
-6766,515,"new york transco, llc",,
-6767,516,"mid-atlantic interstate transmission, llc",,
-6768,517,cube yadkin transmission llc,,
-6769,518,gridliance west llc,,
-13687,519,upper michigan energy resources corporation,,
-6771,520,"transource pennsylvania, llc",,
-6772,521,"transource maryland, llc",,
-2269,522,liberty utilities (calpeco electric) llc,,
-6773,523,"pioneer transmission, llc",,
-13688,524,"cross texas transmission, llc",,
-13689,525,oncor electric delivery company ntu llc,,
-13690,526,gridliance heartland llc,,
-6774,527,"midamerican central california transco, llc",,
-6775,528,citizens sycamore-penasquitos transmission llc,,
-3514,529,"tri-state generation and transmission association, inc.",,
-13691,530,"horizon west transmission, llc",,
-582,531,basin electric power cooperative,,
-13692,532,"silver run electric, llc",,
-13693,533,"republic transmission, llc",,
-7745,534,"taylor creek solar, llc",,
-7746,535,"harmony florida solar, llc",,
-12092,536,"upper missouri g & t electric cooperative, inc. dba upper missouri poe",,
-13694,537,"bear valley electric service, inc.",,
-13695,538,"desertlink, llc",,
-13696,539,"nextera energy transmission midatlantic indiana, inc.",,
-13697,540,"wilderness line holdings, llc",,
-11020,541,"mckenzie electric cooperative, inc.",,
+20,349,alcoa power generating inc.,,
+106,226,"entergy arkansas, llc",,
+13685,158,versant power,,
+178,254,"evergy metro, inc.",,
+110,410,"evergy kansas south, inc.",,
+292,319,montana-dakota utilities co.,,
+109,232,"entergy mississippi, llc",,
+110,233,"entergy new orleans, llc",,
+222,208,northern indiana public service company llc,,
+292,168,"dominion energy south carolina, inc.",,
+20,282,"alcoa power generating, inc.",,
+161,255,"evergy missouri west, inc.",,
+359,225,"evergy kansas central, inc.",,
+359,348,"evergy generating, inc.",,
+13686,364,gridliance high plains llc,,
+43,309,"black hills colorado electric, llc",,
+5514,372,aep texas inc.,,
+6766,439,"new york transco, llc",,
+6767,370,"mid-atlantic interstate transmission, llc",,
+6768,375,cube yadkin transmission llc,,
+6769,371,gridliance west llc,,
+13687,368,upper michigan energy resources corporation,,
+6771,440,"transource pennsylvania, llc",,
+6772,441,"transource maryland, llc",,
+2269,241,liberty utilities (calpeco electric) llc,,
+6773,442,"pioneer transmission, llc",,
+13688,142,"cross texas transmission, llc",,
+13689,143,oncor electric delivery company ntu llc,,
+13690,383,gridliance heartland llc,,
+6774,355,"midamerican central california transco, llc",,
+6775,380,citizens sycamore-penasquitos transmission llc,,
+3514,353,"tri-state generation and transmission association, inc.",,
+13691,359,"horizon west transmission, llc",,
+582,354,basin electric power cooperative,,
+13692,363,"silver run electric, llc",,
+13693,385,"republic transmission, llc",,
+7745,144,"taylor creek solar, llc",,
+7746,145,"harmony florida solar, llc",,
+12092,386,"upper missouri g & t electric cooperative, inc. dba upper missouri poe",,
+13694,389,"bear valley electric service, inc.",,
+13695,369,"desertlink, llc",,
+13696,367,"nextera energy transmission midatlantic indiana, inc.",,
+13697,388,"wilderness line holdings, llc",,
+11020,387,"mckenzie electric cooperative, inc.",,
 13698,,,11631,marathon oil co
-13699,542,missing respondent 542,,
+13699,384,missing respondent 542,,
 13700,,,64430,"calpine greenleaf holding, inc."
 13701,,,64606,"steward creek solar, llc"
 13702,,,64587,"renegade renewables, llc"
