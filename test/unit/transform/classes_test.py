@@ -4,7 +4,6 @@
 * Test a dummy TableTransformer class that stitches together all of the
   general transform functions together with the class structure.
 * Test that the TransformParams models succeed / fail / behave as expected.
-
 """
 
 import enum
@@ -427,7 +426,10 @@ def test_multicol_transform_factory(func, drop, df, expected, param_model, param
     ],
 )
 def test_unit_corrections_distinct_domains(unit_corrections, expectation):
-    """Make sure we are able to identify distinct vs. overlapping domains."""
+    """Make sure we are able to identify distinct vs.
+
+    overlapping domains.
+    """
     with expectation:
         _ = UnitCorrections(**unit_corrections)
 
@@ -614,7 +616,6 @@ def unit_corrections_are_homogeneous(corrections: list[UnitCorrections]) -> tupl
 
     Returns:
          (data_col, cat_col, categories)
-
     """
     cat_cols = {uc.cat_col for uc in corrections}
     assert len(cat_cols) == 1  # nosec: B101
@@ -646,7 +647,6 @@ def make_unit_correction_test_data(
         A dataframe that represents a perfectly dataset, as would be expected to result
         from correcting units in dirty data where only the provided unit corrections
         were responsible for discrepancies in the original data.
-
     """
     # Verify that all unit corrections are referring to the same data column and
     # categorical columns
@@ -687,7 +687,6 @@ def scramble_units(
     Returns:
         A dataframe whose data has been scrambled randomly using the inverse of the
         unit conversions contained in corrections.
-
     """
     # Verify that all unit corrections are referring to the same
     # data column and categorical columns
@@ -750,7 +749,6 @@ def test_correct_units(corrections, expectation):
     Use the inverse of the unit conversions defined in the unit corrections to scramble
     the data, and then apply the unit conversions to unscramble it, and verify that we
     get the same input data back out.
-
     """
     with expectation:
         unit_corrections = [UnitCorrections(**uc) for uc in corrections]
@@ -938,7 +936,6 @@ def test_transform(df: pd.DataFrame, expected: pd.DataFrame, params):
     """Test the use of general transforms as part of a TableTransfomer class.
 
     Should really define "expected" output dataframes here and check that they match.
-
     """
     transformer = TableTransformer(
         params=TableTransformParams.from_dict(params["test_table"]),
