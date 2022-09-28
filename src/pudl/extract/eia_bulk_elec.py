@@ -23,12 +23,12 @@ def _filter_for_fuel_receipts_costs_series(df: pd.DataFrame) -> pd.DataFrame:
     """Pick out the desired data series.
 
     Fuel receipts and costs are about 1% of the total lines. This function filters for
-    series that contain the name "RECEIPTS_BTU" or "COST_BTU" in their `series_id`.
+    series that contain the name "RECEIPTS_BTU" or "COST_BTU" in their ``series_id``.
 
     Of the approximately 680,000 objects in the dataset, about 19,000 represent things
     other than data series (such as category definitions or plot axes). Those
-    non-series objects do not have a field called `series_id`.
-    The `except KeyError:` clause handles that situation.
+    non-series objects do not have a field called ``series_id``.
+    The ``except KeyError:`` clause handles that situation.
     """
     series_to_extract = ["RECEIPTS_BTU", "COST_BTU"]
     series_pattern = "|".join(series_to_extract)

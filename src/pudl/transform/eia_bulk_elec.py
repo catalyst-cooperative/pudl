@@ -11,9 +11,9 @@ contains an array of timestamp/value pairs. This structure leads to a natural
 normalization into two tables: one of metadata and one of timeseries. That is the
 format delivered by the extract module.
 
-The transform module parses a compound key out of long string IDs ("series_id") and
-sets it as the index of the timeseries data. The rest of the metadata is not very
-valuable so is not transformed or returned.
+The transform module parses a compound primary key out of long string IDs
+("series_id"). The rest of the metadata is not very valuable so is not transformed
+ or returned.
 
 The EIA aggregates are related to their component categories via a set of association
 tables defined in pudl.metadata.dfs. For example, the "all_coal" fuel aggregate is
@@ -26,10 +26,10 @@ import pandas as pd
 
 
 def _extract_keys_from_series_id(raw_df: pd.DataFrame) -> pd.DataFrame:
-    """Parse key codes from EIA series_id.
+    """Parse primary key codes from EIA series_id.
 
-    These keys comprise the compound key that uniquely identifies a data series:
-    (metric, fuel, region, sector, frequency).
+    These codes comprise the compound primary key that uniquely identifies a data
+    series: (metric, fuel, region, sector, frequency).
     """
     # drop first one (constant value of "ELEC")
     keys = (
@@ -88,10 +88,15 @@ def _map_key_codes_to_readable_values(compound_keys: pd.DataFrame) -> pd.DataFra
 
 
 def _transform_timeseries(raw_ts: pd.DataFrame) -> pd.DataFrame:
-    """Transform raw timeseries to tidy format and replace series_id with readable keys.
+    """Transform raw timeseries.
 
-    Keys: ("fuel_agg", "geo_agg", "sector_agg", "temporal_agg", "report_date")
-    Values: "fuel_received_mmbtu", "fuel_cost_per_mmbtu"
+    Transform to tidy format and replace the obscure series_id with a readable
+    compound primary key.
+
+    Returns:
+        A dataframe with compound key ("fuel_agg", "geo_agg", "sector_agg",
+        "temporal_agg", "report_date") and two value columns: "fuel_received_mmbtu",
+        "fuel_cost_per_mmbtu"
     """
     compound_key = _map_key_codes_to_readable_values(
         _extract_keys_from_series_id(raw_ts)
@@ -127,10 +132,12 @@ def transform(raw_dfs: dict[str, pd.DataFrame]) -> dict[str, pd.DataFrame]:
         raw_dfs: raw timeseries dataframe
 
     Returns:
-        Transformed timeseries dataframe
+        Transformed timeseries dataframe with compound key:
+        ("fuel_agg", "geo_agg", "sector_agg", "temporal_agg", "report_date")
+        and two value columns: "fuel_received_mmbtu", "fuel_cost_per_mmbtu"
     """
     ts = _transform_timeseries(raw_dfs["timeseries"])
-    # the metadata table is mostly useless after joining the keys into the timeseries,
+    # raw_dfs["metadata"] is mostly useless after joining the keys into the timeseries,
     # so don't return it
     return {
         "fuel_receipts_costs_aggs_eia": ts,
