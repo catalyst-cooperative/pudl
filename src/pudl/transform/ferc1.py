@@ -330,12 +330,12 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         database a given record within the PUDL database came from.
 
         Within each FERC Form 1 DBF table, each record is supposed to be uniquely
-        identified by the combination of: report_year, report_prd, utility_id_ferc1,
+        identified by the combination of: report_year, report_prd, utility_id_ferc1_dbf,
         spplmnt_num, row_number.
 
         The FERC Form 1 XBRL tables do not have these supplement and row number
         columns, so we construct an id based on:
-        report_year, utility_id_xbrl_ferc1, and the primary key columns of the XBRL table
+        report_year, utility_id_ferc1_xbrl, and the primary key columns of the XBRL table
 
         Args:
             df: table to assign `record_id` to

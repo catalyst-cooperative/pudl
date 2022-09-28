@@ -118,7 +118,7 @@ def get_db_plants_ferc1(
         combination of ``utility_id_ferc1`` and ``plant_name``.
     """
     # Validate the input years:
-    _ = pudl.settings.Ferc1DbfSettings(years=list(years))
+    _ = pudl.settings.Ferc1Settings(years=list(years))
 
     # Grab the FERC 1 DB metadata so we can query against the DB w/ SQLAlchemy:
     ferc1_engine = sa.create_engine(pudl_settings["ferc1_db"])
@@ -707,15 +707,15 @@ def glue(ferc1=False, eia=False):
     )
 
     utility_map_ferc1 = get_utility_map_ferc1()
-    utilities_dbf_ferc1 = (
-        utility_map_ferc1.loc[:, ["utility_id_ferc1", "utility_id_dbf_ferc1"]]
-        .drop_duplicates("utility_id_dbf_ferc1")
-        .dropna(subset=["utility_id_dbf_ferc1"])
+    utilities_ferc1_dbf = (
+        utility_map_ferc1.loc[:, ["utility_id_ferc1", "utility_id_ferc1_dbf"]]
+        .drop_duplicates("utility_id_ferc1_dbf")
+        .dropna(subset=["utility_id_ferc1_dbf"])
     )
-    utilities_xbrl_ferc1 = (
-        utility_map_ferc1.loc[:, ["utility_id_ferc1", "utility_id_xbrl_ferc1"]]
-        .drop_duplicates("utility_id_xbrl_ferc1")
-        .dropna(subset=["utility_id_xbrl_ferc1"])
+    utilities_ferc1_xbrl = (
+        utility_map_ferc1.loc[:, ["utility_id_ferc1", "utility_id_ferc1_xbrl"]]
+        .drop_duplicates("utility_id_ferc1_xbrl")
+        .dropna(subset=["utility_id_ferc1_xbrl"])
     )
 
     # Now we need to create a table that indicates which plants are associated
@@ -780,8 +780,8 @@ def glue(ferc1=False, eia=False):
         "utilities_pudl": utilities_pudl,
         "plants_ferc1": plants_ferc1,
         "utilities_ferc1": utilities_ferc1,
-        "utilities_dbf_ferc1": utilities_dbf_ferc1,
-        "utilities_xbrl_ferc1": utilities_xbrl_ferc1,
+        "utilities_ferc1_dbf": utilities_ferc1_dbf,
+        "utilities_ferc1_xbrl": utilities_ferc1_xbrl,
         "plants_eia": plants_eia,
         "utilities_eia": utilities_eia,
         "utility_plant_assn": utility_plant_assn,
@@ -789,13 +789,9 @@ def glue(ferc1=False, eia=False):
 
     # if we're not ingesting eia, exclude eia only tables
     if not eia:
-        del glue_dfs["utilities_eia"]
-        del glue_dfs["plants_eia"]
+        glue_dfs = {name: df for (name, df) in glue_dfs.items() if "_eia" not in name}
     # if we're not ingesting ferc, exclude ferc1 only tables
     if not ferc1:
-        del glue_dfs["utilities_ferc1"]
-        del glue_dfs["plants_ferc1"]
-        del glue_dfs["utilities_dbf_ferc1"]
-        del glue_dfs["utilities_xbrl_ferc1"]
+        glue_dfs = {name: df for (name, df) in glue_dfs.items() if "_ferc1" not in name}
 
     return glue_dfs
