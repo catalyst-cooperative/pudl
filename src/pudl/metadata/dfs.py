@@ -234,7 +234,7 @@ From FERC Form 1 page 219, Accumulated Provision for Depreciation of electric
 utility plant (Account 108).
 """
 
-EIA_SECTOR_AGGREGATE_ASSOCIATION = pd.read_csv(
+EIA_SECTOR_AGGREGATE_ASSN = pd.read_csv(
     StringIO(
         """
 sector_agg,sector_id_eia
@@ -268,12 +268,8 @@ electric_power,3
 and various aggregates in fuel_receipts_costs_aggs_eia.
 """
 
-# PEL is defined as "Summation of all petroleum liquids (distallte fuel oil, jet fuel,
-# residual fuel oil, kerosense waste oil and other petroleum liquids)"
-# Missing from this list are all the "other" categories of gases: OG, BFG, SGP, SC, PG
-# Those gases combine for about the same total MMBTU as DFO, about 0.2% of all reported
-# fuel receipts
-EIA_FUEL_AGGREGATE_ASSOCIATION = pd.read_csv(
+
+EIA_FUEL_AGGREGATE_ASSN = pd.read_csv(
     StringIO(
         """
 fuel_agg,energy_source_code_eia
@@ -295,7 +291,9 @@ petroleum_liquids,WO
     ),
 )
 """Association table describing the many-to-many relationships between fuel types
-and various aggregates in fuel_receipts_costs_aggs_eia."""
+and various aggregates in fuel_receipts_costs_aggs_eia. Missing from these aggregates
+are all the "other" categories of gases: OG, BFG, SGP, SC, PG. But those gases combine
+for about 0.2% of total MMBTU of reported fuel receipts."""
 
 
 # This is NOT an association table! The bulk data has a region 'USA' that aggregates
@@ -303,7 +301,7 @@ and various aggregates in fuel_receipts_costs_aggs_eia."""
 STATES = pd.read_csv(
     StringIO(
         """
-state_id_fips,state_name,state_abbrev,census_region,census_region_abbrev
+state_id_fips,state_name,state_code,census_region,census_region_code
 "01",Alabama,AL,East South Central,ESC
 "02",Alaska,AK,Pacific Noncontiguous,PCN
 "04",Arizona,AZ,Mountain,MTN

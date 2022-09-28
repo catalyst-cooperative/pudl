@@ -1,11 +1,11 @@
 """Module to extract aggregate data from the EIA bulk electricity download.
 
-EIA's bulk electricity data contains 680,000 timeseries. These timeseries contain a
-variety of measures (fuel amount and cost are just two) across multiple levels of
-aggregation, from individual plants to national averages.
+EIA's bulk electricity data contains 680,000 objects, most of which are timeseries.
+These timeseries contain a variety of measures (fuel amount and cost are just two)
+across multiple levels of aggregation from individual plants to national averages.
 
 The data is formatted as a single 1.1GB text file of line-delimited JSON with one line
-per timeseries. Each JSON structure has two nested levels: the top level contains
+per object. Each JSON structure has two nested levels: the top level contains
 metadata describing the series and the second level (under the "data" heading)
 contains an array of timestamp/value pairs. This structure leads to a natural
 normalization into two tables: one of metadata and one of timeseries. That is the
@@ -20,7 +20,16 @@ from pudl.workspace.datastore import Datastore
 
 
 def _filter_for_fuel_receipts_costs_series(df: pd.DataFrame) -> pd.DataFrame:
-    """Pick out the desired data series."""
+    """Pick out the desired data series.
+
+    Fuel receipts and costs are about 1% of the total lines. This function filters for
+    series that contain the name "RECEIPTS_BTU" or "COST_BTU" in their `series_id`.
+
+    Of the approximately 680,000 objects in the dataset, about 19,000 represent things
+    other than data series (such as category definitions or plot axes). Those
+    non-series objects do not have a field called `series_id`.
+    The `except KeyError:` clause handles that situation.
+    """
     series_to_extract = ["RECEIPTS_BTU", "COST_BTU"]
     series_pattern = "|".join(series_to_extract)
     pattern = rf"^ELEC\.(?:{series_pattern})"
@@ -79,10 +88,10 @@ def _extract(raw_zipfile) -> dict[str, pd.DataFrame]:
     """Extract metadata and timeseries from raw EIA bulk electricity data.
 
     Args:
-        raw_zipfile (file-like): Path or other file-like object that can be read by pd.read_json()
+        raw_zipfile: Path or other file-like object that can be read by pd.read_json()
 
     Returns:
-        dict[str, pd.DataFrame]: dictionary of dataframes with keys 'metadata' and 'timeseries'
+        Dictionary of dataframes with keys 'metadata' and 'timeseries'
     """
     filtered = _filter_and_read_to_dataframe(raw_zipfile)
     timeseries = _parse_data_column(filtered)
@@ -97,7 +106,7 @@ def extract(ds: Datastore) -> dict[str, pd.DataFrame]:
         ds: Datastore object
 
     Returns:
-        Dict[str, pd.DataFrame]: dictionary of dataframes with keys 'metadata' and 'timeseries'
+        Dictionary of dataframes with keys 'metadata' and 'timeseries'
     """
     raw_zipfile = ds.get_unique_resource("eia_bulk_elec")
     dfs = _extract(BytesIO(raw_zipfile))

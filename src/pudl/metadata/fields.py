@@ -367,9 +367,9 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Category of temporal aggregation in EIA bulk electricity data.",
     },
-    "receipts_mmbtu": {
+    "fuel_received_mmbtu": {
         "type": "number",
-        "description": "Category of fuel aggregation in EIA bulk electricity data.",
+        "description": "Aggregated fuel receipts, in MMBtu, in EIA bulk electricity data.",
         "unit": "MMBtu",
     },
     "direct_load_control_customers": {"type": "integer"},

@@ -331,11 +331,11 @@ def _etl_eia_bulk_elec(ds_kwargs: dict[str, Any]) -> dict[str, pd.DataFrame]:
     """Extract and transform EIA bulk electricity aggregates.
 
     Args:
-        ds_kwargs (dict[str, Any]): Keyword arguments for instantiating a PUDL datastore, so that the ETL
-            can access the raw input data.
+        ds_kwargs: Keyword arguments for instantiating a PUDL datastore, so that the
+            ETL can access the raw input data.
 
     Returns:
-        dict[str, pd.DataFrame]: A dictionary of DataFrames whose keys are the names of the corresponding
+        A dictionary of DataFrames whose keys are the names of the corresponding
         database table.
     """
     logger.info("Processing EIA bulk electricity aggregates.")

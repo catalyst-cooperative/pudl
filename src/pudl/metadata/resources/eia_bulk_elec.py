@@ -14,7 +14,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "sector_agg",
                 "temporal_agg",
                 "report_date",
-                "receipts_mmbtu",
+                "fuel_received_mmbtu",
                 "fuel_cost_per_mmbtu",
             ],
             "primary_key": [

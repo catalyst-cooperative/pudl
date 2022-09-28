@@ -47,7 +47,7 @@ def _map_key_codes_to_readable_values(compound_keys: pd.DataFrame) -> pd.DataFra
     keys = compound_keys.copy()
     mappings = {
         "fuel_agg": {
-            # match values in pudl.metadata.dfs.py:EIA_FUEL_AGGREGATE_ASSOCIATION
+            # match values in pudl.metadata.dfs.py:EIA_FUEL_AGGREGATE_ASSN
             "BIT": "bituminous_coal",
             "SUB": "sub_bituminous_coal",
             "LIG": "lignite_coal",
@@ -57,7 +57,7 @@ def _map_key_codes_to_readable_values(compound_keys: pd.DataFrame) -> pd.DataFra
             "PEL": "petroleum_liquids",
         },
         "sector_agg": {
-            # match values in pudl.metadata.dfs.py:EIA_SECTOR_AGGREGATE_ASSOCIATION
+            # match values in pudl.metadata.dfs.py:EIA_SECTOR_AGGREGATE_ASSN
             "1": "electric_utility",
             "2": "ipp_non_cogen",
             "3": "ipp_cogen",
@@ -68,7 +68,7 @@ def _map_key_codes_to_readable_values(compound_keys: pd.DataFrame) -> pd.DataFra
             "94": "all_ipp",
             "96": "all_commercial",
             "97": "all_industrial",
-            "98": "electric_power",  # IPP + regulated utilities
+            "98": "all_electric_power",  # all_IPP + regulated utilities
             "99": "all_sectors",
         },
         "temporal_agg": {
@@ -79,15 +79,19 @@ def _map_key_codes_to_readable_values(compound_keys: pd.DataFrame) -> pd.DataFra
     }
     for col_name, mapping in mappings.items():
         keys.loc[:, col_name] = keys.loc[:, col_name].map(mapping)
+        assert (
+            keys.loc[:, col_name].notnull().all()
+        ), f"{col_name} contains an unmapped category."
+
     keys = keys.astype("category")
     return keys
 
 
 def _transform_timeseries(raw_ts: pd.DataFrame) -> pd.DataFrame:
-    """Transform raw timeseries to tidy format. Replace ID string with readable keys.
+    """Transform raw timeseries to tidy format and replace series_id with readable keys.
 
     Keys: ("fuel_agg", "geo_agg", "sector_agg", "temporal_agg", "report_date")
-    Values: "receipts_mmbtu", "fuel_cost_per_mmbtu"
+    Values: "fuel_received_mmbtu", "fuel_cost_per_mmbtu"
     """
     compound_key = _map_key_codes_to_readable_values(
         _extract_keys_from_series_id(raw_ts)
@@ -106,7 +110,7 @@ def _transform_timeseries(raw_ts: pd.DataFrame) -> pd.DataFrame:
 
     ts.rename(
         columns={
-            "RECEIPTS_BTU": "receipts_mmbtu",
+            "RECEIPTS_BTU": "fuel_received_mmbtu",
             "COST_BTU": "fuel_cost_per_mmbtu",
             "date": "report_date",
         },
@@ -120,10 +124,10 @@ def transform(raw_dfs: dict[str, pd.DataFrame]) -> dict[str, pd.DataFrame]:
     """Transform raw EIA bulk electricity aggregates.
 
     Args:
-        raw_dfs (dict[str, pd.DataFrame]): raw timeseries dataframe
+        raw_dfs: raw timeseries dataframe
 
     Returns:
-        dict[str, pd.DataFrame]: transformed timeseries dataframe
+        Transformed timeseries dataframe
     """
     ts = _transform_timeseries(raw_dfs["timeseries"])
     # the metadata table is mostly useless after joining the keys into the timeseries,
