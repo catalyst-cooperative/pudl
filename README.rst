@@ -36,6 +36,10 @@ The Public Utility Data Liberation Project (PUDL)
    :target: https://github.com/psf/black
    :alt: Any color you want, so long as it's black.
 
+.. image:: https://results.pre-commit.ci/badge/github/catalyst-cooperative/pudl/main.svg
+   :target: https://results.pre-commit.ci/latest/github/catalyst-cooperative/pudl/main
+   :alt: pre-commit CI
+
 .. image:: https://zenodo.org/badge/80646423.svg
    :target: https://zenodo.org/badge/latestdoi/80646423
    :alt: Zenodo DOI

@@ -10,71 +10,78 @@ import pandas as pd
 ##############################################################################
 PERPOUND_TO_PERSHORTTON = dict(
     multiplier=2000.0,
-    pattern=r"(.*)_per_lb$",
-    repl=r"\1_per_ton",
+    from_unit=r"_per_lb",
+    to_unit=r"_per_ton",
 )
 """Parameters for converting from inverse pounds to inverse short tons."""
 
 CENTS_TO_DOLLARS = dict(
     multiplier=0.01,
-    pattern=r"(.*)_cents$",
-    repl=r"\1_usd",
+    from_unit=r"_cents",
+    to_unit=r"_usd",
 )
 """Parameters for converting from cents to dollars."""
 
 PERCF_TO_PERMCF = dict(
     multiplier=1000.0,
-    pattern=r"(.*)_per_cf$",
-    repl=r"\1_per_mcf",
+    from_unit=r"_per_cf",
+    to_unit=r"_per_mcf",
 )
 """Parameters for converting from inverse cubic feet to inverse 1000s of cubic feet."""
 
 PERGALLON_TO_PERBARREL = dict(
     multiplier=42.0,
-    pattern=r"(.*)_per_gal",
-    repl=r"\1_per_bbl",
+    from_unit=r"_per_gal",
+    to_unit=r"_per_bbl",
 )
 """Parameters for converting from inverse gallons to inverse barrels."""
 
 PERKW_TO_PERMW = dict(
     multiplier=1000.0,
-    pattern=r"(.*)_per_kw$",
-    repl=r"\1_per_mw",
+    from_unit=r"_per_kw",
+    to_unit=r"_per_mw",
 )
 """Parameters for converting column units from per kW to per MW."""
 
 PERKWH_TO_PERMWH = dict(
     multiplier=1000.0,
-    pattern=r"(.*)_per_kwh$",
-    repl=r"\1_per_mwh",
+    from_unit=r"_per_kwh",
+    to_unit=r"_per_mwh",
 )
 """Parameters for converting column units from per kWh to per MWh."""
 
+KW_TO_MW = dict(
+    multiplier=1e-3,
+    from_unit=r"_kw",
+    to_unit=r"_mw",
+)
+"""Parameters for converting column units from kW to MW."""
+
 KWH_TO_MWH = dict(
     multiplier=1e-3,
-    pattern=r"(.*)_kwh$",
-    repl=r"\1_mwh",
+    from_unit=r"_kwh",
+    to_unit=r"_mwh",
 )
 """Parameters for converting column units from kWh to MWh."""
 
 BTU_TO_MMBTU = dict(
     multiplier=1e-6,
-    pattern=r"(.*)_btu(.*)$",
-    repl=r"\1_mmbtu\2",
+    from_unit=r"_btu",
+    to_unit=r"_mmbtu",
 )
 """Parameters for converting column units from BTU to MMBTU."""
 
 PERBTU_TO_PERMMBTU = dict(
     multiplier=1e6,
-    pattern=r"(.*)_per_btu$",
-    repl=r"\1_per_mmbtu",
+    from_unit=r"_per_btu",
+    to_unit=r"_per_mmbtu",
 )
 """Parameters for converting column units from BTU to MMBTU."""
 
 BTU_PERKWH_TO_MMBTU_PERMWH = dict(
     multiplier=(1e-6 * 1000.0),
-    pattern=r"(.*)_btu_per_kwh$",
-    repl=r"\1_mmbtu_per_mwh",
+    from_unit=r"_btu_per_kwh",
+    to_unit=r"_mmbtu_per_mwh",
 )
 """Parameters for converting column units from BTU/kWh to MMBTU/MWh."""
 
@@ -139,6 +146,86 @@ VALID_OIL_USD_PER_MMBTU = {
     "upper_bound": 33.0,
 }
 """Historical petroleum price range from the EIA-923 Fuel Receipts and Costs table."""
+
+##############################################################################
+# Unit Corrections
+##############################################################################
+COAL_COST_PER_MMBTU_CORRECTIONS = {
+    "data_col": "fuel_cost_per_mmbtu",
+    "cat_col": "fuel_type_code_pudl",
+    "cat_val": "coal",
+    "valid_range": VALID_COAL_USD_PER_MMBTU,
+    "unit_conversions": [
+        CENTS_TO_DOLLARS,
+    ],
+}
+GAS_COST_PER_MMBTU_CORRECTIONS = {
+    "data_col": "fuel_cost_per_mmbtu",
+    "cat_col": "fuel_type_code_pudl",
+    "cat_val": "gas",
+    "valid_range": VALID_GAS_USD_PER_MMBTU,
+    "unit_conversions": [
+        CENTS_TO_DOLLARS,
+    ],
+}
+OIL_COST_PER_MMBTU_CORRECTIONS = {
+    "data_col": "fuel_cost_per_mmbtu",
+    "cat_col": "fuel_type_code_pudl",
+    "cat_val": "oil",
+    "valid_range": VALID_OIL_USD_PER_MMBTU,
+    "unit_conversions": [
+        CENTS_TO_DOLLARS,
+    ],
+}
+FUEL_COST_PER_MMBTU_CORRECTIONS = [
+    COAL_COST_PER_MMBTU_CORRECTIONS,
+    GAS_COST_PER_MMBTU_CORRECTIONS,
+    OIL_COST_PER_MMBTU_CORRECTIONS,
+]
+
+COAL_MMBTU_PER_UNIT_CORRECTIONS = {
+    "data_col": "fuel_mmbtu_per_unit",
+    "cat_col": "fuel_type_code_pudl",
+    "cat_val": "coal",
+    "valid_range": VALID_COAL_MMBTU_PER_TON,
+    "unit_conversions": [
+        PERPOUND_TO_PERSHORTTON,
+        BTU_TO_MMBTU,
+    ],
+}
+GAS_MMBTU_PER_UNIT_CORRECTIONS = {
+    "data_col": "fuel_mmbtu_per_unit",
+    "cat_col": "fuel_type_code_pudl",
+    "cat_val": "gas",
+    "valid_range": VALID_GAS_MMBTU_PER_MCF,
+    "unit_conversions": [
+        PERCF_TO_PERMCF,
+        BTU_TO_MMBTU,
+    ],
+}
+OIL_MMBTU_PER_UNIT_CORRECTIONS = {
+    "data_col": "fuel_mmbtu_per_unit",
+    "cat_col": "fuel_type_code_pudl",
+    "cat_val": "oil",
+    "valid_range": VALID_OIL_MMBTU_PER_BBL,
+    "unit_conversions": [
+        PERGALLON_TO_PERBARREL,
+        BTU_TO_MMBTU,  # Why was this omitted in the old corrections?
+    ],
+}
+FUEL_MMBTU_PER_UNIT_CORRECTIONS = [
+    COAL_MMBTU_PER_UNIT_CORRECTIONS,
+    GAS_MMBTU_PER_UNIT_CORRECTIONS,
+    OIL_MMBTU_PER_UNIT_CORRECTIONS,
+]
+
+##############################################################################
+# String normalizations
+##############################################################################
+FERC1_STRING_NORM = {
+    "remove_chars": r"$?={}\x02\x00",
+    "nullable": False,
+}
 
 ##############################################################################
 # String categorizations
@@ -247,12 +334,12 @@ FUEL_CATEGORIES: dict[str, set[str]] = {
             "jet fuel",
             "diesel/compos",
             "oil-8",
-            "oil {6}",  # noqa: FS003
             "oil-unit #1",
             "bbl.",
             "oil.",
             "oil #6",
             "oil (6)",
+            "oil 6",
             "oil(#2)",
             "oil-unit1&2",
             "oil-6",
@@ -380,12 +467,9 @@ FUEL_CATEGORIES: dict[str, set[str]] = {
             "comb.",
             "alt. fuels",
             "comb",
-            "/#=2\x80â\x91?",
-            "kã\xadgv¸\x9d?",
             "mbtu's",
             "gas, oil",
             "rrm",
-            "3\x9c",
             "average",
             "furfural",
             "0",
@@ -420,10 +504,10 @@ FUEL_CATEGORIES: dict[str, set[str]] = {
             "alt. fuel",
             "bio fuel",
             "total prairie",
-            "kã\xadgv¸?",
+            "kagv",
             "m",
             "waste heat",
-            "/#=2â?",
+            "/#2a",
             "3",
             "—",
         },
@@ -693,7 +777,7 @@ FUEL_UNIT_CATEGORIES: dict[str, set[str]] = {
             "(7)",
             "oil #2",
             "oil #6",
-            '\x99å\x83\x90?"',
+            'a"',
             "dekatherm",
             "0",
             "mw day/therml",
@@ -748,7 +832,6 @@ FUEL_UNIT_CATEGORIES: dict[str, set[str]] = {
             "708903",
             "mcf/oil (1000",
             "344",
-            'å?"',
             "mcf / gallen",
             "none",
             "—",
@@ -835,7 +918,6 @@ PLANT_TYPE_CATEGORIES: dict[str, set[str]] = {
             "resp share stm note3",
             "mpc50% share steam",
             "resp share st note 3",
-            "\x02steam (1)",
             "coal fired steam tur",
             "coal fired steam turbine",
             "steam- 64%",
@@ -1614,62 +1696,17 @@ TRANSFORM_PARAMS = {
             "fuel_cost_per_kwh": PERKWH_TO_PERMWH,
         },
         "normalize_strings": {
-            "plant_name_ferc1": True,
-            "fuel_type_code_pudl": True,
-            "fuel_units": True,
+            "plant_name_ferc1": FERC1_STRING_NORM,
+            "fuel_type_code_pudl": FERC1_STRING_NORM,
+            "fuel_units": FERC1_STRING_NORM,
         },
         "correct_units": [
-            {
-                "col": "fuel_mmbtu_per_unit",
-                "query": "fuel_type_code_pudl=='coal'",
-                "valid_range": VALID_COAL_MMBTU_PER_TON,
-                "unit_conversions": [
-                    PERPOUND_TO_PERSHORTTON,
-                    BTU_TO_MMBTU,
-                ],
-            },
-            {
-                "col": "fuel_cost_per_mmbtu",
-                "query": "fuel_type_code_pudl=='coal'",
-                "valid_range": VALID_COAL_USD_PER_MMBTU,
-                "unit_conversions": [
-                    CENTS_TO_DOLLARS,
-                ],
-            },
-            {
-                "col": "fuel_mmbtu_per_unit",
-                "query": "fuel_type_code_pudl=='gas'",
-                "valid_range": VALID_GAS_MMBTU_PER_MCF,
-                "unit_conversions": [
-                    PERCF_TO_PERMCF,
-                    BTU_TO_MMBTU,
-                ],
-            },
-            {
-                "col": "fuel_cost_per_mmbtu",
-                "query": "fuel_type_code_pudl=='gas'",
-                "valid_range": VALID_GAS_USD_PER_MMBTU,
-                "unit_conversions": [
-                    CENTS_TO_DOLLARS,
-                ],
-            },
-            {
-                "col": "fuel_mmbtu_per_unit",
-                "query": "fuel_type_code_pudl=='oil'",
-                "valid_range": VALID_OIL_MMBTU_PER_BBL,
-                "unit_conversions": [
-                    PERGALLON_TO_PERBARREL,
-                    BTU_TO_MMBTU,  # Why was this omitted in the old corrections?
-                ],
-            },
-            {
-                "col": "fuel_cost_per_mmbtu",
-                "query": "fuel_type_code_pudl=='oil'",
-                "valid_range": VALID_OIL_USD_PER_MMBTU,
-                "unit_conversions": [
-                    CENTS_TO_DOLLARS,
-                ],
-            },
+            COAL_MMBTU_PER_UNIT_CORRECTIONS,
+            GAS_MMBTU_PER_UNIT_CORRECTIONS,
+            OIL_MMBTU_PER_UNIT_CORRECTIONS,
+            COAL_COST_PER_MMBTU_CORRECTIONS,
+            GAS_COST_PER_MMBTU_CORRECTIONS,
+            OIL_COST_PER_MMBTU_CORRECTIONS,
         ],
         "drop_invalid_rows": {
             "invalid_values": [0, pd.NA, np.nan],
@@ -1779,9 +1816,9 @@ TRANSFORM_PARAMS = {
             },
         },
         "normalize_strings": {
-            "plant_name_ferc1": True,
-            "construction_type": True,
-            "plant_type": True,
+            "plant_name_ferc1": FERC1_STRING_NORM,
+            "construction_type": FERC1_STRING_NORM,
+            "plant_type": FERC1_STRING_NORM,
         },
         "nullify_outliers": {
             "construction_year": VALID_PLANT_YEARS,
