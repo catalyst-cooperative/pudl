@@ -1564,7 +1564,7 @@ TRANSFORM_PARAMS = {
         "rename_columns_ferc1": {
             "dbf": {
                 "columns": {
-                    "respondent_id": "utility_id_ferc1",
+                    "respondent_id": "utility_id_ferc1_dbf",
                     "plant_name": "plant_name_ferc1",
                     "fuel": "fuel_type_code_pudl",
                     "fuel_unit": "fuel_units",
@@ -1599,7 +1599,7 @@ TRANSFORM_PARAMS = {
                     "report_year": "report_year",
                     "fuel_kind": "fuel_kind",
                     "end_date": "end_date",
-                    "entity_id": "entity_id",
+                    "entity_id": "utility_id_ferc1_xbrl",
                     "start_date": "start_date",
                 }
             },

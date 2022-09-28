@@ -413,23 +413,23 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "glue",
         "field_namespace": "ferc1",
     },
-    "utilities_dbf_ferc1": {
+    "utilities_ferc1_dbf": {
         "description": "This table maps the assign utility ID FERC1 to the native utility ID from the FERC1 DBF inputs - originally reported as respondent_id.",
         "schema": {
-            "fields": ["utility_id_ferc1", "utility_id_dbf_ferc1"],
+            "fields": ["utility_id_ferc1", "utility_id_ferc1_dbf"],
             "primary_key": ["utility_id_ferc1"],
-            "foreign_key_rules": {"fields": [["utility_id_dbf_ferc1"]]},
+            "foreign_key_rules": {"fields": [["utility_id_ferc1_dbf"]]},
         },
         "sources": ["ferc1"],
         "etl_group": "glue",
         "field_namespace": "ferc1",
     },
-    "utilities_xbrl_ferc1": {
+    "utilities_ferc1_xbrl": {
         "description": "This table maps the assign utility ID FERC1 to the native utility ID from the FERC1 XBRL inputs - originally reported as entity_id.",
         "schema": {
-            "fields": ["utility_id_ferc1", "utility_id_xbrl_ferc1"],
+            "fields": ["utility_id_ferc1", "utility_id_ferc1_xbrl"],
             "primary_key": ["utility_id_ferc1"],
-            "foreign_key_rules": {"fields": [["utility_id_xbrl_ferc1"]]},
+            "foreign_key_rules": {"fields": [["utility_id_ferc1_xbrl"]]},
         },
         "sources": ["ferc1"],
         "etl_group": "glue",

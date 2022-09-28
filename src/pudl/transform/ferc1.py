@@ -164,6 +164,10 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             .pipe(self.rename_columns, params=self.params.rename_columns_ferc1.dbf)
             .pipe(self.assign_record_id, source_ferc1=Ferc1Source.DBF)
             .pipe(self.drop_unused_original_columns_dbf)
+            .pipe(
+                self.replace_utility_id_source_with_ferc1_id,
+                source_ferc1=Ferc1Source.DBF,
+            )
         )
 
     @cache_df(key="xbrl")
@@ -180,7 +184,10 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             )
             .pipe(self.rename_columns, params=self.params.rename_columns_ferc1.xbrl)
             .pipe(self.assign_record_id, source_ferc1=Ferc1Source.XBRL)
-            .pipe(self.assign_utility_id_ferc1_xbrl)
+            .pipe(
+                self.replace_utility_id_source_with_ferc1_id,
+                source_ferc1=Ferc1Source.XBRL,
+            )
         )
 
     @cache_df(key="xbrl")
@@ -194,6 +201,8 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         FERC1 XBRL instant period signifies that it is true as of the reported date,
         while a duration fact pertains to the specified time period. The ``date`` column
         for an instant fact corresponds to the ``end_date`` column of a duration fact.
+
+        Note: This should always be applied before :meth:``rename_columns``
 
         Args:
             raw_xbrl_instant: table representing XBRL instant facts.
@@ -266,7 +275,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         else:
             assert source_ferc1 == Ferc1Source.XBRL  # nosec: B101
             cols = self.params.rename_columns_ferc1.xbrl.columns
-            pk_cols = ["ReportYear", "entity_id"]
+            pk_cols = ["report_year", "entity_id"]
             # Sort to avoid dependence on the ordering of rename_columns.
             # Doing the sorting here because we have a particular ordering
             # hard coded for the DBF primary keys.
@@ -320,7 +329,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
 
         The FERC Form 1 XBRL tables do not have these supplement and row number
         columns, so we construct an id based on:
-        report_year, entity_id, and the primary key columns of the XBRL table
+        report_year, utility_id_xbrl_ferc1, and the primary key columns of the XBRL table
 
         Args:
             df: table to assign `record_id` to
@@ -364,22 +373,38 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             )
         return df
 
-    @cache_df(key="xbrl")
-    def assign_utility_id_ferc1_xbrl(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Assign utility_id_ferc1.
+    def replace_utility_id_source_with_ferc1_id(
+        self, df: pd.DataFrame, source_ferc1: Ferc1Source
+    ) -> pd.DataFrame:
+        """Assign the PUDL-assigned utility_id_ferc1 based on the native utility ID.
 
-        This is a temporary solution until we have real ID mapping working for the XBRL
-        entity IDs. See https://github.com/catalyst-cooperative/pudl/issue/1705
+        We need to replace the natively reported utility ID from each of the two FERC1
+        sources with a PUDL-assigned utilty. The mapping between the native ID's and
+        these PUDL-assigned ID's can be accessed in the database tables
+        ``utilities_dbf_ferc1`` and ``utilities_xbrl_ferc1``.
 
-        Note that in some cases this will create collisions with the existing
-        utility_id_ferc1 values.
+        Args:
+            df: the input table with the native utilty ID column.
+
+        Returns:
+            an augemented version of the input ``df`` with a new column that replaces
+            the natively reported utility ID with the PUDL-assigned utility ID.
         """
-        logger.warning(f"{self.table_id.value}: USING DUMMY UTILITY_ID_FERC1 IN XBRL.")
-        return df.assign(
-            utility_id_ferc1=lambda x: x.entity_id.str.replace(r"^C", "", regex=True)
-            .str.lstrip("0")
-            .astype("Int64")
+        logger.debug(
+            f"{self.table_id.value}: Assigning {source_ferc1.value} source utility IDs."
         )
+        utility_map_ferc1 = pudl.glue.xbrl_dbf_ferc1.get_util_ids_ferc1_csv()
+        # use the source utility ID column to get a unique map and for merging
+        util_id_col = f"utility_id_ferc1_{source_ferc1.value}"
+        utility_map_ferc1 = utility_map_ferc1.loc[
+            :, ["utility_id_ferc1", util_id_col]
+        ].dropna(subset=[util_id_col])
+        return df.merge(
+            utility_map_ferc1,
+            on=[util_id_col],
+            how="left",
+            validate="m:1",
+        ).drop(columns=[util_id_col])
 
 
 class FuelFerc1TableTransformer(Ferc1AbstractTableTransformer):
@@ -512,8 +537,11 @@ class FuelFerc1TableTransformer(Ferc1AbstractTableTransformer):
             )
             .pipe(self.standardize_physical_fuel_units)
             .pipe(self.aggregate_duplicate_fuel_types_xbrl)
-            .pipe(self.assign_utility_id_ferc1_xbrl)
             .pipe(self.assign_record_id, source_ferc1=Ferc1Source.XBRL)
+            .pipe(
+                self.replace_utility_id_source_with_ferc1_id,
+                source_ferc1=Ferc1Source.XBRL,
+            )
         )
 
     def standardize_physical_fuel_units(self, df: pd.DataFrame) -> pd.DataFrame:

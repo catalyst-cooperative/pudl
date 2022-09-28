@@ -301,21 +301,20 @@ def get_unmapped_plants_ferc1(
     return unmapped_plants
 
 
-def get_unmapped_utils_ferc1_bdf(ferc1_engine):
+def get_unmapped_utils_ferc1_bdf(ferc1_engine_dbf: sa.engine.Engine):
     """Generate a list of as-of-yet unmapped utilities from the FERC Form 1 DB.
 
     Find any utilities which do exist in the cloned FERC Form 1 DB,
     but which do not show up in the already mapped FERC respondents.
 
     Args:
-        ferc1_engine (sqlalchemy.engine.Engine): A database connection engine
-            for the cloned FERC Form 1 DB.
+        ferc1_engine_dbf: A database connection engine for the cloned FERC Form 1 DB.
 
     Returns:
         pandas.DataFrame: with columns "utility_id_ferc1" and "utility_name_ferc1"
     """
     all_utils_ferc1 = (
-        pd.read_sql_table("f1_respondent_id", ferc1_engine)
+        pd.read_sql_table("f1_respondent_id", ferc1_engine_dbf)
         .rename(
             columns={
                 "respondent_id": "utility_id_ferc1",

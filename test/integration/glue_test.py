@@ -8,7 +8,7 @@ from pudl.glue.ferc1_eia import (
     get_unmapped_plants_eia,
     get_unmapped_plants_ferc1,
     get_unmapped_utils_eia,
-    get_unmapped_utils_ferc1,
+    get_unmapped_utils_ferc1_bdf,
 )
 from pudl.metadata.classes import DataSource
 
@@ -53,7 +53,7 @@ def test_unmapped_plants_ferc1(pudl_settings_fixture, ferc1_dbf_engine):
 def test_unmapped_utils_ferc1(pudl_settings_fixture, ferc1_dbf_engine):
     """Test that we can identify unmapped FERC 1 utilities."""
     # First run the unmapped utility function as is:
-    actually_unmapped_utils = get_unmapped_utils_ferc1(ferc1_dbf_engine)
+    actually_unmapped_utils = get_unmapped_utils_ferc1_bdf(ferc1_dbf_engine)
     if not actually_unmapped_utils.empty:
         raise AssertionError(
             f"Found {len(actually_unmapped_utils)} unmapped FERC 1 utilities, "
