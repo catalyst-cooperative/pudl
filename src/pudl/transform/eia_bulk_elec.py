@@ -13,7 +13,7 @@ format delivered by the extract module.
 
 The transform module parses a compound primary key out of long string IDs
 ("series_id"). The rest of the metadata is not very valuable so is not transformed
- or returned.
+or returned.
 
 The EIA aggregates are related to their component categories via a set of association
 tables defined in pudl.metadata.dfs. For example, the "all_coal" fuel aggregate is
