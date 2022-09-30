@@ -4,11 +4,11 @@ import argparse
 import sys
 from pathlib import Path
 
-from pudl.helpers import configure_root_logger, get_logger
+import pudl.logging
 from pudl.metadata.classes import Package
 from pudl.metadata.resources import RESOURCE_METADATA
 
-logger = get_logger(__name__)
+logger = pudl.logging.get_logger(__name__)
 
 
 def parse_command_line(argv):
@@ -45,7 +45,7 @@ def parse_command_line(argv):
 
 def main():
     """Run conversion from json to rst."""
-    configure_root_logger()
+    pudl.logging.configure_root_logger()
 
     args = parse_command_line(sys.argv)
     logger.info(f"Exporting PUDL metadata to: {args.output}")

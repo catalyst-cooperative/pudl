@@ -8,11 +8,12 @@ import warnings
 
 import pandas as pd
 
+import pudl.logging
 from pudl.extract import excel
-from pudl.helpers import get_logger, remove_leading_zeros_from_numeric_strings
+from pudl.helpers import remove_leading_zeros_from_numeric_strings
 from pudl.settings import Eia861Settings
 
-logger = get_logger(__name__)
+logger = pudl.logging.get_logger(__name__)
 
 
 class Extractor(excel.GenericExtractor):

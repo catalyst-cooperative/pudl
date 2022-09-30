@@ -9,10 +9,9 @@ import requests
 import sqlalchemy as sa
 
 import pudl
-from pudl.helpers import get_logger
 from pudl.metadata.fields import apply_pudl_dtypes
 
-logger = get_logger(__name__)
+logger = pudl.logging.get_logger(__name__)
 
 BASE_URL_EIA = "https://api.eia.gov/"
 

@@ -21,7 +21,7 @@ from pudl.analysis.classify_plants_ferc1 import (
     plants_steam_validate_ids,
 )
 from pudl.extract.ferc1 import TABLE_NAME_MAP
-from pudl.helpers import convert_cols_dtypes, get_logger
+from pudl.helpers import convert_cols_dtypes
 from pudl.metadata.classes import DataSource
 from pudl.metadata.dfs import FERC_DEPRECIATION_LINES
 from pudl.settings import Ferc1Settings
@@ -37,7 +37,7 @@ from pudl.transform.classes import (
 # This is only here to keep the module importable. Breaks legacy functions.
 CONSTRUCTION_TYPE_CATEGORIES = {}
 
-logger = get_logger(__name__)
+logger = pudl.logging.get_logger(__name__)
 
 
 ################################################################################
@@ -193,7 +193,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         raw_xbrl_instant: pd.DataFrame,
         raw_xbrl_duration: pd.DataFrame,
     ) -> pd.DataFrame:
-        """Merge the XBRL instand and duration tables into a single dataframe.
+        """Merge the XBRL instant and duration tables into a single dataframe.
 
         FERC1 XBRL instant period signifies that it is true as of the reported date,
         while a duration fact pertains to the specified time period. The ``date`` column

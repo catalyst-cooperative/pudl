@@ -35,9 +35,8 @@ import pandas as pd
 import sqlalchemy as sa
 
 import pudl
-from pudl.helpers import get_logger
 
-logger = get_logger(__name__)
+logger = pudl.logging.get_logger(__name__)
 
 # Identify only those utilities assocaited with plants that reported data
 # at some point in the EIA 923 -- these are the ones we might need to link
@@ -127,7 +126,7 @@ def get_db_plants_ferc1(
         combination of ``utility_id_ferc1`` and ``plant_name``.
     """
     # Validate the input years:
-    _ = pudl.settings.Ferc1DbfSettings(years=list(years))
+    _ = pudl.settings.Ferc1Settings(years=list(years))
 
     # Grab the FERC 1 DB metadata so we can query against the DB w/ SQLAlchemy:
     ferc1_engine = sa.create_engine(pudl_settings["ferc1_db"])

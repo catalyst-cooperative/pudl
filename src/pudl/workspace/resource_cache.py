@@ -1,6 +1,5 @@
 """Implementations of datastore resource caches."""
 
-import logging
 from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import Any, NamedTuple
@@ -13,7 +12,9 @@ from google.cloud import storage
 from google.cloud.storage.blob import Blob
 from google.cloud.storage.retry import _should_retry
 
-logger = logging.getLogger(__name__)
+import pudl.logging
+
+logger = pudl.logging.get_logger(__name__)
 
 
 def extend_gcp_retry_predicate(predicate, *exception_types):

@@ -13,12 +13,11 @@ from pathlib import Path
 import yaml
 
 import pudl
-from pudl.helpers import configure_root_logger, get_logger
 from pudl.settings import FercToSqliteSettings
 from pudl.workspace.datastore import Datastore
 
 # Create a logger to output any messages we might have...
-logger = get_logger(__name__)
+logger = pudl.logging.get_logger(__name__)
 
 
 def parse_command_line(argv):
@@ -94,7 +93,7 @@ def main():  # noqa: C901
     args = parse_command_line(sys.argv)
 
     # Display logged output from the PUDL package:
-    configure_root_logger(args.logfile)
+    pudl.logging.configure_root_logger(logfile=args.logfile)
 
     with pathlib.Path(args.settings_file).open() as f:
         script_settings = yaml.safe_load(f)

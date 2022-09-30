@@ -15,9 +15,9 @@ import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
 
-from pudl.helpers import get_logger
+import pudl.logging
 
-logger = get_logger(__name__)
+logger = pudl.logging.get_logger(__name__)
 
 
 def intersect_indexes(indexes):

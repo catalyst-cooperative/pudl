@@ -17,11 +17,10 @@ from sqlite3 import sqlite_version
 from packaging import version
 
 import pudl
-from pudl.helpers import configure_root_logger, get_logger
 from pudl.load import MINIMUM_SQLITE_VERSION
 from pudl.settings import EtlSettings
 
-logger = get_logger(__name__)
+logger = pudl.logging.get_logger(__name__)
 
 
 def parse_command_line(argv):
@@ -98,8 +97,7 @@ def main():
     args = parse_command_line(sys.argv)
 
     # Display logged output from the PUDL package:
-    configure_root_logger(args.logfile)
-    pudl_logger = get_logger("pudl")
+    pudl.logging.configure_root_logger(logfile=args.logfile)
 
     etl_settings = EtlSettings.from_yaml(args.settings_file)
 
@@ -113,7 +111,7 @@ def main():
     )
     if bad_sqlite_version and not args.ignore_type_constraints:
         args.ignore_type_constraints = False
-        pudl_logger.warning(
+        logger.warning(
             f"Found SQLite {sqlite_version} which is less than "
             f"the minimum required version {MINIMUM_SQLITE_VERSION} "
             "As a result, data type constraint checking will be disabled."

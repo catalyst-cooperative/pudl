@@ -86,11 +86,10 @@ import warnings
 import numpy as np
 import pandas as pd
 
-import pudl.helpers
-from pudl.helpers import get_logger
+import pudl
 from pudl.metadata.fields import apply_pudl_dtypes
 
-logger = get_logger(__name__)
+logger = pudl.logging.get_logger(__name__)
 
 IDX_GENS = ["report_date", "plant_id_eia", "generator_id"]
 """Id columns for generators."""
@@ -100,9 +99,8 @@ IDX_PM_ESC = ["report_date", "plant_id_eia", "prime_mover_code", "energy_source_
 
 IDX_ESC = ["report_date", "plant_id_eia", "energy_source_code"]
 
+
 # Two top-level functions (allocate & aggregate)
-
-
 def allocate_gen_fuel_by_generator_energy_source(pudl_out, drop_interim_cols=True):
     """Allocate net gen from gen_fuel table to the generator/energy_source_code level.
 
@@ -194,7 +192,7 @@ def allocate_gen_fuel_by_generator_energy_source(pudl_out, drop_interim_cols=Tru
 
 
 def aggregate_gen_fuel_by_generator(
-    pudl_out, gen_pm_fuel: pd.DataFrame
+    pudl_out: "pudl.output.pudltabl.PudlTabl", gen_pm_fuel: pd.DataFrame
 ) -> pd.DataFrame:
     """Aggregate gen fuel data columns to generators.
 
@@ -207,8 +205,7 @@ def aggregate_gen_fuel_by_generator(
     (see :func:`pudl.output.eia923.denorm_generation_eia923`).
 
     Args:
-        pudl_out (pudl.output.pudltabl.PudlTabl): An object used to create the tables for EIA and FERC Form 1
-            analysis.
+        pudl_out: An object used to create the tables for EIA and FERC Form 1 analysis.
         gen_pm_fuel: table of allocated generation at the generator/prime mover
             /fuel type. Result of :func:`allocate_gen_fuel_by_generator_energy_source`
 

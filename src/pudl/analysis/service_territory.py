@@ -14,9 +14,8 @@ import sqlalchemy as sa
 from matplotlib import pyplot as plt
 
 import pudl
-from pudl.helpers import configure_root_logger, get_logger
 
-logger = get_logger(__name__)
+logger = pudl.logging.get_logger(__name__)
 
 ################################################################################
 # Coordinate Reference Systems used in different contexts
@@ -461,7 +460,7 @@ def parse_command_line(argv):
 def main():
     """Compile historical utility and balancing area territories."""
     # Display logged output from the PUDL package:
-    configure_root_logger()
+    pudl.logging.configure_root_logger()
 
     args = parse_command_line(sys.argv)
     pudl_settings = pudl.workspace.setup.get_defaults()

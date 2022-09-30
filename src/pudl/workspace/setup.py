@@ -1,12 +1,13 @@
 """Tools for setting up and managing PUDL workspaces."""
 import importlib
-import logging
 import pathlib
 import shutil
 
 import yaml
 
-logger = logging.getLogger(__name__)
+import pudl.logging
+
+logger = pudl.logging.get_logger(__name__)
 
 
 def set_defaults(pudl_in, pudl_out, clobber=False):

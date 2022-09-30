@@ -1,13 +1,11 @@
 """Functions for pulling FERC Form 1 data out of the PUDL DB."""
-import logging
-
 import numpy as np
 import pandas as pd
 
 import pudl
 from pudl.metadata.fields import apply_pudl_dtypes
 
-logger = logging.getLogger(__name__)
+logger = pudl.logging.get_logger(__name__)
 
 
 def plants_utils_ferc1(pudl_engine):

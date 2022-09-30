@@ -4,11 +4,10 @@ import numpy as np
 import pandas as pd
 
 import pudl
-from pudl.helpers import get_logger
 from pudl.metadata.codes import CODE_METADATA
 from pudl.settings import Eia923Settings
 
-logger = get_logger(__name__)
+logger = pudl.logging.get_logger(__name__)
 
 COALMINE_COUNTRY_CODES: dict[str, str] = {
     "AU": "AUS",  # Australia

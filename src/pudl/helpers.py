@@ -7,7 +7,6 @@ should probably live here. There are lost of transform type functions in here th
 with cleaning and restructing dataframes.
 """
 import itertools
-import logging
 import pathlib
 import re
 import shutil
@@ -18,13 +17,13 @@ from io import BytesIO
 from typing import Any, Literal
 
 import addfips
-import coloredlogs
 import numpy as np
 import pandas as pd
 import requests
 import sqlalchemy as sa
 from pandas._libs.missing import NAType
 
+import pudl.logging
 from pudl.metadata.fields import get_pudl_dtypes
 
 sum_na = partial(pd.Series.sum, skipna=False)
@@ -38,13 +37,7 @@ consumption for the year needs to be NA, otherwise we'll get unrealistic heat
 rates.
 """
 
-
-def get_logger(name: str):
-    """Helper function to append 'catalystcoop' to logger name and return logger."""
-    return logging.getLogger(f"catalystcoop.{name}")
-
-
-logger = get_logger(__name__)
+logger = pudl.logging.get_logger(__name__)
 
 
 def label_map(
@@ -1546,19 +1539,3 @@ def convert_df_to_excel_file(df: pd.DataFrame, **kwargs) -> pd.ExcelFile:
     workbook = bio.read()
 
     return pd.ExcelFile(workbook)
-
-
-def configure_root_logger(logfile: str | None = None):
-    """Configure the root catalystcoop logger.
-
-    Args:
-        logfile: Path to logfile or None.
-    """
-    logger = logging.getLogger("catalystcoop")
-    log_format = "%(asctime)s [%(levelname)8s] %(name)s:%(lineno)s %(message)s"
-    coloredlogs.install(fmt=log_format, level="INFO", logger=logger)
-
-    if logfile is not None:
-        file_logger = logging.FileHandler(logfile)
-        file_logger.setFormatter(logging.Formatter(log_format))
-        logger.addHandler(file_logger)

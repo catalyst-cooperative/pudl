@@ -8,3 +8,4 @@ are constants which can be used as parameters to construct a TableTransformParam
 These dictionaries are used by the AbstractTableTransformer class to look up the
 parameters to be used in transforming a table, based on its name.
 """
+from . import ferc1  # noqa: F401

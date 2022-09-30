@@ -55,13 +55,12 @@ import sqlalchemy as sa
 from dbfread import DBF, FieldParser
 
 import pudl
-from pudl.helpers import get_logger
 from pudl.metadata.classes import DataSource
 from pudl.metadata.constants import DBF_TABLES_FILENAMES
 from pudl.settings import Ferc1DbfToSqliteSettings, Ferc1Settings
 from pudl.workspace.datastore import Datastore
 
-logger = get_logger(__name__)
+logger = pudl.logging.get_logger(__name__)
 
 DBF_TYPES = {
     "C": sa.String,
