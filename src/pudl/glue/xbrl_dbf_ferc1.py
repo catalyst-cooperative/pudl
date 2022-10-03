@@ -34,14 +34,14 @@ def get_util_ids_ferc1_xbrl():
     ferc1_xbrl_engine = sa.create_engine(PUDL_SETTINGS["ferc1_xbrl_db"])
     entity_ids = (
         pd.read_sql(
-            "SELECT entity_id, RespondentLegalName FROM identification_001_duration",
+            "SELECT entity_id, respondent_legal_name FROM identification_001_duration",
             ferc1_xbrl_engine,
         )
         .drop_duplicates(subset=["entity_id"])
         .rename(
             columns={
                 "entity_id": "utility_id_ferc1_xbrl",
-                "RespondentLegalName": "utility_name_ferc1",
+                "respondent_legal_name": "utility_name_ferc1",
             }
         )
     )
@@ -151,60 +151,3 @@ def update_util_id_pudl_ferc1():
     )
 
     util_ids_pudl_new.to_csv(Path(UTIL_ID_PUDL_MAP_CSV.name), index=False)
-
-
-#############
-# Temporary !
-#############
-
-
-def _tmp_update_utility_id_pudl_with_new_ferc1_ids(
-    util_id_ferc1: pd.DataFrame,
-    util_id_pudl: pd.DataFrame,
-    export_to_pudl_map: bool,
-) -> pd.DataFrame:
-    """Generate a mapping of old ID's to new ID's and export into the pudl mapping.
-
-    This function generates a new tab in the pudl mappping spreadsheet that can be used
-    to replace the utility_id_ferc's in the plant mapping sheet with a little
-    index-match.
-
-    NOTE: This is a temporary function meant to help the transition to these new IDs
-    and should probably be deleted afterward.
-    """
-    # extract the unique mappings of old ids and rename for merge
-    util_id_ferc1_unique = (
-        util_id_ferc1[["utility_id_ferc1", "utility_id_ferc1_dbf"]].drop_duplicates(
-            subset=["utility_id_ferc1_dbf"]
-        )
-    ).rename(
-        columns={
-            "utility_id_ferc1": "utilty_id_ferc1_new",
-            "utility_id_ferc1_dbf": "utility_id_ferc1",
-        }
-    )
-
-    util_id_pudl = util_id_pudl.merge(
-        util_id_ferc1_unique, on=["utility_id_ferc1"], how="left", validate="m:1"
-    )
-    non_mapped = util_id_pudl[
-        util_id_pudl.utility_id_ferc1.notnull()
-        & util_id_pudl.utilty_id_ferc1_new.isnull()
-    ]
-    if not non_mapped.empty:
-        raise AssertionError(
-            f"FERC1 ID's found that have not been updated: {non_mapped}"
-        )
-
-    util_ids_changed = util_id_pudl[
-        util_id_pudl.utilty_id_ferc1_new != util_id_pudl.utility_id_ferc1
-    ][["utilty_id_ferc1_new", "utility_id_ferc1"]].drop_duplicates()
-    logger.info(f"Updating {len(util_ids_changed)} utility_id_ferc1's.")
-    util_id_pudl.loc[:, "utility_id_ferc1"] = util_id_pudl.loc[:, "utilty_id_ferc1_new"]
-    util_id_pudl = util_id_pudl.drop(columns=["utilty_id_ferc1_new"])
-    if export_to_pudl_map:
-        pudl.helpers.save_to_workbook(
-            file_path=PUDL_ID_MAP_XLSX,
-            sheets_df_dict={"utilities_ferc1": util_ids_changed},
-        )
-    return util_ids_changed

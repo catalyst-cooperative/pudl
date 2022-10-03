@@ -210,14 +210,16 @@ NUMERIC_PARAMS = {
             "capacity_kw": KW_TO_MW,
             "net_generation_kwh": KWH_TO_MWH,
         },
-        "drop_invalid_rows": {
-            "invalid_values": [0, pd.NA, np.nan],
-            "required_valid_cols": [
-                "valid_year",
-                "valid_capacity_mw",
-                "net_generation_mwh",
-            ],
-        },
+        "drop_invalid_rows": [
+            {
+                "invalid_values": [0, pd.NA, np.nan],
+                "required_valid_cols": [
+                    "valid_year",
+                    "valid_capacity_mw",
+                    "net_generation_mwh",
+                ],
+            },
+        ],
     }
 }
 

@@ -37,6 +37,7 @@ import sqlalchemy as sa
 import pudl
 from pudl.glue.xbrl_dbf_ferc1 import get_util_ids_ferc1_csv, get_util_ids_pudl
 from pudl.helpers import get_logger
+from pudl.transform.ferc1 import Ferc1AbstractTableTransformer, Ferc1TableId
 
 logger = get_logger(__name__)
 
@@ -50,6 +51,10 @@ DATA_TABLES_EIA923: list[str] = [
     "generation_fuel_eia923",
     "generation_fuel_nuclear_eia923",
 ]
+
+#####################################
+# Stored Maps of plants and utilities
+#####################################
 
 
 def get_plant_map() -> pd.DataFrame:
@@ -89,7 +94,91 @@ def get_utility_map_ferc1() -> pd.DataFrame:
     return get_util_ids_ferc1_csv()
 
 
-def get_db_plants_ferc1(
+class GenericPlantFerc1TableTransformer(Ferc1AbstractTableTransformer):
+    """Generic plant table transformer.
+
+    Intended for use in compiling all plant names for mannual ID mapping.
+    """
+
+    def __init__(self, table_id: Ferc1TableId):
+        """Initialize generic table transformer with table_id."""
+        self.table_id = table_id
+        super().__init__()
+
+    def transform(
+        self,
+        raw_dbf: pd.DataFrame,
+        raw_xbrl_instant: pd.DataFrame,
+        raw_xbrl_duration: pd.DataFrame,
+    ) -> pd.DataFrame:
+        """Only apply the generic :meth:``transform_start``."""
+        return self.transform_start(raw_dbf, raw_xbrl_instant, raw_xbrl_duration).pipe(
+            self.transform_main
+        )
+
+    def transform_main(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Basic name normalization and dropping of invalid rows."""
+        return (
+            self.normalize_strings(df)
+            .pipe(self.drop_invalid_rows)
+            .assign(plant_table=self.table_id.value)
+        )
+
+
+def get_raw_plants_ferc1(
+    pudl_settings: dict[str, str], years: Iterable[int]
+) -> pd.DataFrame:
+    """Pull all plants in the FERC Form 1 DBF and XBRL DB for given years.
+
+    Args:
+        pudl_settings: Dictionary containing various paths and database URLs used by
+            PUDL.
+        years: Years for which plants should be compiled.
+
+    Returns:
+        A dataframe containing columns ``utility_id_ferc1``, ``utility_name_ferc1``,
+        ``plant_name``, ``capacity_mw``, and ``plant_table``. Each row is a unique
+        combination of ``utility_id_ferc1`` and ``plant_name``.
+    """
+    # Validate the input years:
+    _ = pudl.settings.Ferc1Settings(years=list(years))
+
+    plant_tables = [
+        # "plants_hydro_ferc1",
+        # "plants_pumped_storage_ferc1",
+        # "plants_small_ferc1",
+        "plants_steam_ferc1",
+        "fuel_ferc1",
+    ]
+    ferc1_settings = pudl.settings.Ferc1Settings(tables=plant_tables)
+    # Extract FERC form 1
+    ferc1_dbf_raw_dfs = pudl.extract.ferc1.extract_dbf(
+        ferc1_settings=ferc1_settings, pudl_settings=pudl_settings
+    )
+    # Extract FERC form 1 XBRL data
+    ferc1_xbrl_raw_dfs = pudl.extract.ferc1.extract_xbrl(
+        ferc1_settings=ferc1_settings, pudl_settings=pudl_settings
+    )
+    plant_dfs: list[pd.DataFrame] = []
+    for table in plant_tables:
+        plant_df = GenericPlantFerc1TableTransformer(
+            table_id=Ferc1TableId(table)
+        ).transform(
+            raw_dbf=ferc1_dbf_raw_dfs[table],
+            raw_xbrl_instant=ferc1_xbrl_raw_dfs[table].get("instant", pd.DataFrame()),
+            raw_xbrl_duration=ferc1_xbrl_raw_dfs[table].get("duration", pd.DataFrame()),
+        )
+        plant_dfs.append(plant_df)
+
+    all_plants = (
+        pd.concat(plant_dfs)
+        .drop_duplicates(["utility_id_ferc1", "plant_name_ferc1"])
+        .sort_values(["utility_id_ferc1", "plant_name_ferc1"])
+    )
+    return all_plants
+
+
+def get_raw_plants_ferc1_dbf(
     pudl_settings: dict[str, str], years: Iterable[int]
 ) -> pd.DataFrame:
     """Pull a dataframe of all plants in the FERC Form 1 DB for the given years.
@@ -107,6 +196,8 @@ def get_db_plants_ferc1(
     This function is primarily meant for use generating inputs into the manual
     mapping of FERC to EIA plants with PUDL IDs.
 
+    TODO: Remove this function with full integration of :func:`get_raw_plants_ferc1`
+
     Args:
         pudl_settings: Dictionary containing various paths and database URLs used by
             PUDL.
@@ -117,9 +208,6 @@ def get_db_plants_ferc1(
         ``plant_name``, ``capacity_mw``, and ``plant_table``. Each row is a unique
         combination of ``utility_id_ferc1`` and ``plant_name``.
     """
-    # Validate the input years:
-    _ = pudl.settings.Ferc1Settings(years=list(years))
-
     # Grab the FERC 1 DB metadata so we can query against the DB w/ SQLAlchemy:
     ferc1_engine = sa.create_engine(pudl_settings["ferc1_db"])
     ferc1_tables = pudl.output.pudltabl.get_table_meta(ferc1_engine)
@@ -290,7 +378,7 @@ def get_unmapped_plants_ferc1(
         utility_id_ferc1 and plant_name, which appears in the FERC Form 1 DB, but not in
         the list of manually mapped plants.
     """
-    db_plants = get_db_plants_ferc1(pudl_settings, years).set_index(
+    db_plants = get_raw_plants_ferc1(pudl_settings, years).set_index(
         ["utility_id_ferc1", "plant_name_ferc1"]
     )
     mapped_plants = get_mapped_plants_ferc1().set_index(
@@ -301,7 +389,7 @@ def get_unmapped_plants_ferc1(
     return unmapped_plants
 
 
-def get_unmapped_utils_ferc1_bdf(ferc1_engine_dbf: sa.engine.Engine):
+def get_unmapped_utils_ferc1_dbf(ferc1_engine_dbf: sa.engine.Engine):
     """Generate a list of as-of-yet unmapped utilities from the FERC Form 1 DB.
 
     Find any utilities which do exist in the cloned FERC Form 1 DB,

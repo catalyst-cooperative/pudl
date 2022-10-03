@@ -610,8 +610,18 @@ def drop_invalid_rows(df: pd.DataFrame, params: InvalidRows) -> pd.DataFrame:
         return df
 
     pre_drop_len = len(df)
-    # set filter items using either required_valid_cols or allowed_invalid_cols
     if params.required_valid_cols or params.allowed_invalid_cols:
+        # check if the columns enumerated are actually in the df
+        possible_cols = (
+            params.required_valid_cols or [] + params.allowed_invalid_cols or []
+        )
+        missing_cols = [col for col in possible_cols if col not in df]
+        if missing_cols:
+            logger.warning(
+                "Columns used as drop_invalid_rows parameters do not appear in "
+                f"dataframe: {missing_cols}"
+            )
+        # set filter items using either required_valid_cols or allowed_invalid_cols
         items = params.required_valid_cols or [
             col for col in df if col not in params.allowed_invalid_cols
         ]
@@ -628,7 +638,7 @@ def drop_invalid_rows(df: pd.DataFrame, params: InvalidRows) -> pd.DataFrame:
     df_out = df[mask].copy()
 
     logger.info(
-        f"{1 - (len(df_out)/pre_drop_len):.0%} of records contain only "
+        f"{1 - (len(df_out)/pre_drop_len):.1%} of records contain only "
         f"{params.invalid_values} values in required columns. "
         "Dropped these 💩💩💩 records."
     )
@@ -660,7 +670,7 @@ class TableTransformParams(TransformParams):
     # This instantiates an empty dictionary of column renames:
     rename_columns: RenameColumns = RenameColumns()
     # InvalidRows has a special case of all None parameters, where it does nothing:
-    drop_invalid_rows: InvalidRows = InvalidRows()
+    drop_invalid_rows: list[InvalidRows] = []
 
     @classmethod
     def from_dict(cls, params: dict[str, Any]) -> "TableTransformParams":
@@ -933,13 +943,15 @@ class AbstractTableTransformer(ABC):
         return df
 
     def drop_invalid_rows(
-        self, df: pd.DataFrame, params: InvalidRows | None = None
+        self, df: pd.DataFrame, params: list[InvalidRows] | None = None
     ) -> pd.DataFrame:
         """Drop rows with only invalid values in all specificed columns."""
         if params is None:
             params = self.params.drop_invalid_rows
         logger.info(f"{self.table_id.value}: Dropping remaining invalid rows.")
-        return drop_invalid_rows(df, params)
+        for invalid_fix in params:
+            df = drop_invalid_rows(df, invalid_fix)
+        return df
 
     def enforce_schema(self, df: pd.DataFrame) -> pd.DataFrame:
         """Drop columns not in the DB schema and enforce specified types."""

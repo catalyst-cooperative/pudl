@@ -1708,18 +1708,32 @@ TRANSFORM_PARAMS = {
             GAS_COST_PER_MMBTU_CORRECTIONS,
             OIL_COST_PER_MMBTU_CORRECTIONS,
         ],
-        "drop_invalid_rows": {
-            "invalid_values": [0, pd.NA, np.nan],
-            "required_valid_cols": [
-                "fuel_consumed_units",
-                "fuel_cost_per_mmbtu",
-                "fuel_cost_per_mwh",
-                "fuel_cost_per_unit_delivered",
-                "fuel_cost_per_unit_burned",
-                "fuel_mmbtu_per_unit",
-                "fuel_units",
-            ],
-        },
+        "drop_invalid_rows": [
+            {
+                "invalid_values": [0, pd.NA, np.nan, ""],
+                "required_valid_cols": [
+                    "fuel_consumed_units",
+                    "fuel_cost_per_mmbtu",
+                    "fuel_cost_per_mwh",
+                    "fuel_cost_per_unit_delivered",
+                    "fuel_cost_per_unit_burned",
+                    "fuel_mmbtu_per_unit",
+                    "fuel_units",
+                ],
+            },
+            {
+                "invalid_values": [
+                    pd.NA,
+                    np.nan,
+                    "",
+                    "must 123",
+                    "must 456",
+                    "ant1-3",
+                    "elk 1-3",
+                ],
+                "required_valid_cols": ["plant_name_ferc1"],
+            },
+        ],
     },
     "plants_steam_ferc1": {
         "rename_columns_ferc1": {
@@ -1833,20 +1847,72 @@ TRANSFORM_PARAMS = {
             "opex_per_kwh": PERKWH_TO_PERMWH,
             "net_generation_kwh": KWH_TO_MWH,
         },
-        "drop_invalid_rows": {
-            "invalid_values": [0, pd.NA, np.nan],
-            "allowed_invalid_cols": [
-                "record_id",
-                "utility_id_ferc1",
-                "plant_name_ferc1",
-                "report_year",
-                "entity_id",
-                "date",
-                "start_date",
-                "end_date",
-                "OrderNumber",
-                "PlantName",
-            ],
-        },
+        "drop_invalid_rows": [
+            {
+                "invalid_values": [0, "0", pd.NA, np.nan, "", "none"],
+                "allowed_invalid_cols": [
+                    "record_id",
+                    "utility_id_ferc1",
+                    "plant_name_ferc1",
+                    "report_year",
+                    "date",
+                    "start_date",
+                    "end_date",
+                    "order_number",
+                    "plant_name",
+                    "plant_type",
+                ],
+            },
+            {
+                "invalid_values": [
+                    pd.NA,
+                    np.nan,
+                    "",
+                ],
+                "required_valid_cols": ["plant_name_ferc1"],
+            },
+        ],
+        # "spot_fix": [
+        #     {
+        #         "record_id_ferc1": "f1_steam_1999_12_72_0_1",
+        #         "fixes": {"plant_name_ferc1": "clifty creek"},
+        #     },
+        #     {
+        #         "record_id_ferc1": "f1_steam_2010_12_306_0_1",
+        #         "fixes": {"plant_name_ferc1": "harrison county"},
+        #     },
+        #     {
+        #         "record_id_ferc1": "f1_steam_1997_12_230_0_1",
+        #         "fixes": {"plant_name_ferc1": "hermiston generating"},
+        #     },
+        #     {
+        #         "record_id_ferc1": "f1_steam_1998_12_64_0_1",
+        #         "fixes": {"plant_name_ferc1": "hardee power station"},
+        #     },
+        #     {
+        #         "record_id_ferc1": "f1_steam_2015_12_276_0_1",
+        #         "fixes": {"plant_name_ferc1": "state line"},
+        #     },
+        #     {
+        #         "record_id_ferc1": "f1_steam_2014_12_276_0_1",
+        #         "fixes": {"plant_name_ferc1": "state line"},
+        #     },
+        #     {
+        #         "record_id_ferc1": "f1_steam_2003_12_62_2_3",
+        #         "fixes": {"plant_name_ferc1": "pea ridge"},
+        #     },
+        #     {
+        #         "record_id_ferc1": "f1_steam_2003_12_62_2_2",
+        #         "fixes": {"plant_name_ferc1": "smith"},
+        #     },
+        #     {
+        #         "record_id_ferc1": "f1_steam_2000_12_204_0_1",
+        #         "fixes": {"plant_name_ferc1": "seabrook"},
+        #     },
+        #     {
+        #         "record_id_ferc1": "f1_steam_2001_12_204_0_1",
+        #         "fixes": {"plant_name_ferc1": "seabrook"},
+        #     },
+        # ],
     },
 }
