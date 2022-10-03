@@ -51,7 +51,7 @@ setup(
         "addfips>=0.3.1,<0.4.0",
         "catalystcoop.dbfread>=3.0,<3.1",
         "coloredlogs>=15.0,<15.1",
-        "dask>=2021.8,<2022.9.2",
+        "dask>=2021.8,<2022.9.3",
         "datapackage>=1.11,<1.16",  # Transition datastore to use frictionless.
         # "email-validator>=1.0.3",  # pydantic[email] dependency
         "fsspec>=2021.7,<2022.8.3",  # For caching datastore on GCS
@@ -89,7 +89,7 @@ setup(
         "doc": [
             "doc8>=0.9,<1.1",
             "furo>=2022.4.7",
-            "sphinx>=4,!=5.1.0,<5.2.3",
+            "sphinx>=4,!=5.1.0,<5.2.4",
             "sphinx-autoapi>=1.8,<2.1",
             "sphinx-issues>=1.2,<3.1",
             "sphinx-reredirects",
