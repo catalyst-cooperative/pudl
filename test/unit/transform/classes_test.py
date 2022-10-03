@@ -191,6 +191,16 @@ STRING_PARAMS = {
         "categorize_strings": {
             "sushi": ANIMAL_CATS,
         },
+        "drop_invalid_rows": [
+            {
+                "invalid_values": [0, pd.NA, np.nan],
+                "required_valid_cols": [
+                    "valid_year",
+                    "valid_capacity_mw",
+                    "net_generation_mwh",
+                ],
+            },
+        ],
     }
 }
 
@@ -952,7 +962,7 @@ def test_transform(mocker):
     drop_invalid_rows_mock.assert_called_once()
     assert_frame_equal(df, drop_invalid_rows_mock.call_args.args[0])
     assert (  # nosec: B101
-        params.drop_invalid_rows == drop_invalid_rows_mock.call_args.args[1]
+        params.drop_invalid_rows[0] == drop_invalid_rows_mock.call_args.args[1]
     )
 
     caching_transformer = TableTransformer(
