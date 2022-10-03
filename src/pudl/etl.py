@@ -29,7 +29,11 @@ import sqlalchemy as sa
 import pudl
 from pudl.helpers import convert_cols_dtypes
 from pudl.metadata.classes import Package, Resource
-from pudl.metadata.dfs import FERC_ACCOUNTS, FERC_DEPRECIATION_LINES
+from pudl.metadata.dfs import (
+    FERC_ACCOUNTS,
+    FERC_DEPRECIATION_LINES,
+    POLITICAL_SUBDIVISIONS,
+)
 from pudl.metadata.fields import apply_pudl_dtypes
 from pudl.settings import (
     EiaSettings,
@@ -408,6 +412,11 @@ def _read_static_encoding_tables(
     }
 
 
+def _read_static_pudl_tables() -> dict[str, pd.DataFrame]:
+    """Read static tables compiled as part of PUDL and not from any agency dataset."""
+    return {"political_subdivisions": POLITICAL_SUBDIVISIONS}
+
+
 ###############################################################################
 # Coordinating functions
 ###############################################################################
@@ -469,7 +478,7 @@ def etl(  # noqa: C901
         epacems_pq_path = Path(pudl_settings["parquet_dir"]) / "epacems"
         epacems_pq_path.mkdir(exist_ok=True)
 
-    sqlite_dfs = {}
+    sqlite_dfs = _read_static_pudl_tables()
     # This could be cleaner if we simplified the settings file format:
     if datasets.get("ferc1", False):
         sqlite_dfs.update(_etl_ferc1(datasets["ferc1"], pudl_settings))

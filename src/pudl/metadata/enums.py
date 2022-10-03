@@ -1,97 +1,39 @@
 """Enumerations of valid field values."""
 
-US_STATES: dict[str, str] = {
-    "AK": "Alaska",
-    "AL": "Alabama",
-    "AR": "Arkansas",
-    "AZ": "Arizona",
-    "CA": "California",
-    "CO": "Colorado",
-    "CT": "Connecticut",
-    "DE": "Delaware",
-    "FL": "Florida",
-    "GA": "Georgia",
-    "HI": "Hawaii",
-    "IA": "Iowa",
-    "ID": "Idaho",
-    "IL": "Illinois",
-    "IN": "Indiana",
-    "KS": "Kansas",
-    "KY": "Kentucky",
-    "LA": "Louisiana",
-    "MA": "Massachusetts",
-    "MD": "Maryland",
-    "ME": "Maine",
-    "MI": "Michigan",
-    "MN": "Minnesota",
-    "MO": "Missouri",
-    "MS": "Mississippi",
-    "MT": "Montana",
-    "NC": "North Carolina",
-    "ND": "North Dakota",
-    "NE": "Nebraska",
-    "NH": "New Hampshire",
-    "NJ": "New Jersey",
-    "NM": "New Mexico",
-    "NV": "Nevada",
-    "NY": "New York",
-    "OH": "Ohio",
-    "OK": "Oklahoma",
-    "OR": "Oregon",
-    "PA": "Pennsylvania",
-    "RI": "Rhode Island",
-    "SC": "South Carolina",
-    "SD": "South Dakota",
-    "TN": "Tennessee",
-    "TX": "Texas",
-    "UT": "Utah",
-    "VA": "Virginia",
-    "VT": "Vermont",
-    "WA": "Washington",
-    "WI": "Wisconsin",
-    "WV": "West Virginia",
-    "WY": "Wyoming",
+from pudl.metadata.dfs import POLITICAL_SUBDIVISIONS
+
+COUNTRY_CODES_ISO3166: set[str] = set(POLITICAL_SUBDIVISIONS.country_code)
+SUBDIVISION_CODES_ISO3166: set[str] = set(POLITICAL_SUBDIVISIONS.subdivision_code)
+EPACEMS_STATES: set[str] = set(
+    POLITICAL_SUBDIVISIONS.loc[
+        POLITICAL_SUBDIVISIONS.is_epacems_state, "subdivision_code"
+    ]
+)
+DIVISION_CODES_US_CENSUS: set[str] = set(
+    POLITICAL_SUBDIVISIONS.division_code_us_census.dropna()
+)
+
+APPROXIMATE_TIMEZONES: dict[str, str] = {
+    x.subdivision_code: x.timezone for x in POLITICAL_SUBDIVISIONS.itertuples()
 }
-"""Mapping of US state abbreviations to their full names."""
+"""Mapping of political subdivision code to the most common timezone in that area.
 
-US_TERRITORIES: dict[str, str] = {
-    "AS": "American Samoa",
-    "DC": "District of Columbia",
-    "GU": "Guam",
-    "MP": "Northern Mariana Islands",
-    "PR": "Puerto Rico",
-    "VI": "Virgin Islands",
+This is imperfect for states that have split timezones. See:
+https://en.wikipedia.org/wiki/List_of_time_offsets_by_U.S._state_and_territory
+
+For states that are split, we chose the timezone with a larger population.
+List of timezones in pytz.common_timezones
+Canada: https://en.wikipedia.org/wiki/Time_in_Canada#IANA_time_zone_database
+"""
+
+STATE_TO_CENSUS_DIVISION: dict[str, str] = {
+    x.subdivision_code: x.division_code_us_census
+    for x in POLITICAL_SUBDIVISIONS.itertuples()
 }
-"""Mapping of US territory abbreviations to their full names."""
 
-US_STATES_TERRITORIES: dict[str, str] = {**US_STATES, **US_TERRITORIES}
-
-EPACEMS_STATES: list[str] = [
-    state
-    for state in US_STATES_TERRITORIES
-    # AK and PR have data but only a few years, and that breaks the Datastore.
-    # See https://github.com/catalyst-cooperative/pudl/issues/1264
-    if state not in {"AK", "AS", "GU", "HI", "MP", "PR", "VI"}
-]
-"""The US states and territories that are present in the EPA CEMS dataset."""
-
-CANADA_PROVINCES_TERRITORIES: dict[str, str] = {
-    "AB": "Alberta",
-    "BC": "British Columbia",
-    "CN": "Canada",
-    "MB": "Manitoba",
-    "NB": "New Brunswick",
-    "NS": "Nova Scotia",
-    "NL": "Newfoundland and Labrador",
-    "NT": "Northwest Territories",
-    "NU": "Nunavut",
-    "ON": "Ontario",
-    "PE": "Prince Edwards Island",
-    "QC": "Quebec",
-    "SK": "Saskatchewan",
-    "YT": "Yukon Territory",
+STATE_ID_FIPS: dict[str, str] = {
+    x.state_id_fips: x.subdivision_code for x in POLITICAL_SUBDIVISIONS.itertuples()
 }
-"""Mapping of Canadian province and territory abbreviations to their full names"""
 
 NERC_REGIONS: list[str] = [
     "BASN",  # ASSESSMENT AREA Basin (WECC)
