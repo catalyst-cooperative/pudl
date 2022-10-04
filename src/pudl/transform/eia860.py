@@ -7,6 +7,7 @@ import pudl
 from pudl.helpers import get_logger
 from pudl.metadata.classes import DataSource
 from pudl.metadata.codes import CODE_METADATA
+from pudl.metadata.dfs import POLITICAL_SUBDIVISIONS
 from pudl.metadata.fields import apply_pudl_dtypes
 from pudl.settings import Eia860Settings
 from pudl.transform.eia861 import clean_nerc
@@ -160,7 +161,13 @@ def ownership(eia860_dfs, eia860_transformed_dfs):
         .get_resource("ownership_eia860")
         .encode(own_df)
     )
-
+    # CN is an invalid political subdivision code used by a few respondents to indicate
+    # that the owner is in Canada. At least we can recover the country:
+    state_to_country = {
+        x.subdivision_code: x.country_code for x in POLITICAL_SUBDIVISIONS.itertuples()
+    } | {"CN": "CAN"}
+    own_df["owner_country"] = own_df["owner_state"].map(state_to_country)
+    own_df.loc[own_df.owner_state == "CN", "owner_state"] = pd.NA
     eia860_transformed_dfs["ownership_eia860"] = own_df
 
     return eia860_transformed_dfs
