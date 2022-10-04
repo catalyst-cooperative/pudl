@@ -54,6 +54,18 @@ def pytest_addoption(parser):
         default=False,
         help="Use raw inputs from the Zenodo sandbox server.",
     )
+    parser.addoption(
+        "--save-unmapped-ids",
+        action="store_true",
+        default=False,
+        help="Write the unmapped IDs to disk.",
+    )
+    parser.addoption(
+        "--ignore-foreign-key-constaints",
+        action="store_true",
+        default=False,
+        help="If enabled, check the foreign keys.",
+    )
 
 
 @pytest.fixture(scope="session", name="test_dir")
@@ -66,6 +78,18 @@ def test_directory():
 def live_databases(request):
     """Fixture that tells whether to use existing live FERC1/PUDL DBs)."""
     return request.config.getoption("--live-dbs")
+
+
+@pytest.fixture(scope="session", name="save_unmapped_ids")
+def save_unmapped_ids(request):
+    """Fixture that tells whether to use existing live FERC1/PUDL DBs)."""
+    return request.config.getoption("--save-unmapped-ids")
+
+
+@pytest.fixture(scope="session", name="check_foreign_keys")
+def check_foreign_keys(request):
+    """Fixture that tells whether to use existing live FERC1/PUDL DBs)."""
+    return not request.config.getoption("--ignore-foreign-key-constaints")
 
 
 @pytest.fixture(scope="session", name="etl_settings")
@@ -191,6 +215,7 @@ def pudl_sql_engine(
     live_dbs,
     pudl_settings_fixture,
     etl_settings,
+    check_foreign_keys,
     request,
 ):
     """Grab a connection to the PUDL Database.
@@ -205,7 +230,7 @@ def pudl_sql_engine(
             etl_settings=etl_settings,
             pudl_settings=pudl_settings_fixture,
             clobber=False,
-            check_foreign_keys=True,
+            check_foreign_keys=check_foreign_keys,
             check_types=True,
             check_values=True,
             use_local_cache=not request.config.getoption("--bypass-local-cache"),
