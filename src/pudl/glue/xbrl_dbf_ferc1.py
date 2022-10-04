@@ -11,8 +11,6 @@ import pudl.helpers
 
 logger = logging.getLogger(__name__)
 
-PUDL_SETTINGS: dict[str, str] = pudl.workspace.setup.get_defaults()
-
 PUDL_ID_MAP_XLSX = importlib.resources.open_binary(
     "pudl.package_data.glue", "pudl_id_mapping.xlsx"
 )
@@ -29,23 +27,38 @@ UTIL_ID_FERC_MAP_CSV = importlib.resources.open_text(
 ##################################
 
 
-def get_util_ids_ferc1_xbrl():
+def get_util_ids_ferc1_raw_xbrl(ferc1_xbrl_engine: sa.engine.Engine) -> pd.DataFrame:
     """Grab the utlity ids (reported as `entity_id`) in the FERC1 XBRL database."""
-    ferc1_xbrl_engine = sa.create_engine(PUDL_SETTINGS["ferc1_xbrl_db"])
-    entity_ids = (
+    all_utils_ferc1_xbrl = (
         pd.read_sql(
             "SELECT entity_id, respondent_legal_name FROM identification_001_duration",
             ferc1_xbrl_engine,
         )
-        .drop_duplicates(subset=["entity_id"])
         .rename(
             columns={
                 "entity_id": "utility_id_ferc1_xbrl",
                 "respondent_legal_name": "utility_name_ferc1",
             }
         )
+        .drop_duplicates(subset=["utility_id_ferc1_xbrl"])
     )
-    return entity_ids
+    return all_utils_ferc1_xbrl
+
+
+def get_utils_ferc1_raw_dbf(ferc1_engine_dbf: sa.engine.Engine) -> pd.DataFrame:
+    """Grab the utlity ids (reported as `respondent_id`) in the FERC1 DBF database."""
+    all_utils_ferc1_dbf = (
+        pd.read_sql_table("f1_respondent_id", ferc1_engine_dbf)
+        .rename(
+            columns={
+                "respondent_id": "utility_id_ferc1_dbf",
+                "respondent_name": "utility_name_ferc1",
+            }
+        )
+        .pipe(pudl.helpers.simplify_strings, ["utility_name_ferc1"])
+        .drop_duplicates(subset=["utility_id_ferc1_dbf"])
+    )
+    return all_utils_ferc1_dbf
 
 
 def get_util_ids_ferc1_csv() -> pd.DataFrame:
@@ -110,7 +123,7 @@ def autoincrement_from_max(df: pd.DataFrame, id_col: str) -> pd.DataFrame:
 
 def update_util_id_ferc1_map_xbrl():
     """Update the FERC1 utility ID map with any missing XBRL IDs."""
-    util_ids_xbrl = get_util_ids_ferc1_xbrl()
+    util_ids_xbrl = get_util_ids_ferc1_raw_xbrl()
     util_ids_ferc1 = get_util_ids_ferc1_csv()
 
     util_ids_ferc1_new = update_id_col(
@@ -129,7 +142,7 @@ def update_util_id_pudl_ferc1():
     ).pipe(autoincrement_from_max, id_col="utility_id_pudl")
     # update the ferc1 names based on the most recent xbrl name
     util_ids_ferc_w_names = util_ids_ferc1.merge(
-        get_util_ids_ferc1_xbrl(),
+        get_util_ids_ferc1_raw_xbrl(),
         on=["utility_id_ferc1_xbrl"],
         how="inner",
         validate="m:1",

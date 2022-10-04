@@ -961,6 +961,7 @@ def test_transform(mocker):
 
     drop_invalid_rows_mock.assert_called_once()
     assert_frame_equal(df, drop_invalid_rows_mock.call_args.args[0])
+    # the params are a list of InvalidRows(), but the function takes one InvalidRow()
     assert (  # nosec: B101
         params.drop_invalid_rows[0] == drop_invalid_rows_mock.call_args.args[1]
     )
