@@ -1173,6 +1173,7 @@ class Resource(Base):
         "static_eia",
         "static_eia_disabled",
         "eia_bulk_elec",
+        "static_pudl",
     ] = None
 
     _check_unique = _validator(
