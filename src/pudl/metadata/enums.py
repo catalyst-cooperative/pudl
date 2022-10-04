@@ -26,11 +26,6 @@ List of timezones in pytz.common_timezones
 Canada: https://en.wikipedia.org/wiki/Time_in_Canada#IANA_time_zone_database
 """
 
-STATE_TO_CENSUS_DIVISION: dict[str, str] = {
-    x.subdivision_code: x.division_code_us_census
-    for x in POLITICAL_SUBDIVISIONS.itertuples()
-}
-
 NERC_REGIONS: list[str] = [
     "BASN",  # ASSESSMENT AREA Basin (WECC)
     "CALN",  # ASSESSMENT AREA California (WECC)
