@@ -237,7 +237,7 @@ utility plant (Account 108).
 POLITICAL_SUBDIVISIONS: pd.DataFrame = pd.read_csv(
     StringIO(
         """
-subdivision_code,subdivision_name,country_code,country_name,subdivision_type,timezone,state_id_fips,division_name_us_census,division_code_us_census,region_name_us_census,is_epacems_state
+subdivision_code,subdivision_name,country_code,country_name,subdivision_type,timezone_approx,state_id_fips,division_name_us_census,division_code_us_census,region_name_us_census,is_epacems_state
 AB,Alberta,CAN,Canada,province,America/Edmonton,,,,,0
 AK,Alaska,USA,United States of America,state,America/Anchorage,"02",Pacific Noncontiguous,PCN,West,0
 AL,Alabama,USA,United States of America,state,America/Chicago,"01",East South Central,ESC,South,1

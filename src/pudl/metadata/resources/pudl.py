@@ -18,7 +18,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "subdivision_code",
                 "subdivision_name",
                 "subdivision_type",
-                "timezone",
+                "timezone_approx",
                 "state_id_fips",
                 "division_name_us_census",
                 "division_code_us_census",

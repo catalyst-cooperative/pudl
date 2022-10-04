@@ -14,7 +14,7 @@ DIVISION_CODES_US_CENSUS: set[str] = set(
 )
 
 APPROXIMATE_TIMEZONES: dict[str, str] = {
-    x.subdivision_code: x.timezone for x in POLITICAL_SUBDIVISIONS.itertuples()
+    x.subdivision_code: x.timezone_approx for x in POLITICAL_SUBDIVISIONS.itertuples()
 }
 """Mapping of political subdivision code to the most common timezone in that area.
 
@@ -29,10 +29,6 @@ Canada: https://en.wikipedia.org/wiki/Time_in_Canada#IANA_time_zone_database
 STATE_TO_CENSUS_DIVISION: dict[str, str] = {
     x.subdivision_code: x.division_code_us_census
     for x in POLITICAL_SUBDIVISIONS.itertuples()
-}
-
-STATE_ID_FIPS: dict[str, str] = {
-    x.state_id_fips: x.subdivision_code for x in POLITICAL_SUBDIVISIONS.itertuples()
 }
 
 NERC_REGIONS: list[str] = [

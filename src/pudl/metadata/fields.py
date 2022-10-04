@@ -1973,6 +1973,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "IANA timezone name",
         "constraints": {"enum": all_timezones},
     },
+    "timezone_approx": {
+        "type": "string",
+        "description": (
+            "IANA timezone name of the timezone which encompasses the largest portion "
+            "of the population in the associated geographic area."
+        ),
+        "constraints": {"enum": all_timezones},
+    },
     "topping_bottoming_code": {
         "type": "string",
         "description": "If the generator is associated with a combined heat and power system, indicates whether the generator is part of a topping cycle or a bottoming cycle",
