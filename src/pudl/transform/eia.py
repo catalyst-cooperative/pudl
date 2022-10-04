@@ -26,6 +26,7 @@ import timezonefinder
 
 import pudl
 from pudl.metadata.classes import DataSource
+from pudl.metadata.enums import APPROXIMATE_TIMEZONES
 from pudl.metadata.fields import apply_pudl_dtypes, get_pudl_dtypes
 from pudl.metadata.resources import ENTITIES
 from pudl.settings import EiaSettings
@@ -34,87 +35,6 @@ logger = pudl.logging.get_logger(__name__)
 
 TZ_FINDER = timezonefinder.TimezoneFinder()
 """A global TimezoneFinder to cache geographies in memory for faster access."""
-
-APPROXIMATE_TIMEZONES: dict[str, str] = {
-    "AK": "America/Anchorage",  # Alaska
-    "AL": "America/Chicago",  # Alabama
-    "AR": "America/Chicago",  # Arkansas
-    "AS": "Pacific/Pago_Pago",  # American Samoa; Not in CEMS
-    "AZ": "America/Phoenix",  # Arizona
-    "CA": "America/Los_Angeles",  # California
-    "CO": "America/Denver",  # Colorado
-    "CT": "America/New_York",  # Connecticut
-    "DC": "America/New_York",  # District of Columbia
-    "DE": "America/New_York",  # Delaware
-    "FL": "America/New_York",  # Florida (split state)
-    "GA": "America/New_York",  # Georgia
-    "GU": "Pacific/Guam",  # Guam; Not in CEMS
-    "HI": "Pacific/Honolulu",  # Hawaii; Not in CEMS
-    "IA": "America/Chicago",  # Iowa
-    "ID": "America/Denver",  # Idaho (split state)
-    "IL": "America/Chicago",  # Illinois
-    "IN": "America/New_York",  # Indiana (split state)
-    "KS": "America/Chicago",  # Kansas (split state)
-    "KY": "America/New_York",  # Kentucky (split state)
-    "LA": "America/Chicago",  # Louisiana
-    "MA": "America/New_York",  # Massachusetts
-    "MD": "America/New_York",  # Maryland
-    "ME": "America/New_York",  # Maine
-    "MI": "America/Detroit",  # Michigan (split state)
-    "MN": "America/Chicago",  # Minnesota
-    "MO": "America/Chicago",  # Missouri
-    "MP": "Pacific/Guam",  # Northern Mariana Islands; Not in CEMS
-    "MS": "America/Chicago",  # Mississippi
-    "MT": "America/Denver",  # Montana
-    "NC": "America/New_York",  # North Carolina
-    "ND": "America/Chicago",  # North Dakota (split state)
-    "NE": "America/Chicago",  # Nebraska (split state)
-    "NH": "America/New_York",  # New Hampshire
-    "NJ": "America/New_York",  # New Jersey
-    "NM": "America/Denver",  # New Mexico
-    "NV": "America/Los_Angeles",  # Nevada
-    "NY": "America/New_York",  # New York
-    "OH": "America/New_York",  # Ohio
-    "OK": "America/Chicago",  # Oklahoma
-    "OR": "America/Los_Angeles",  # Oregon (split state)
-    "PA": "America/New_York",  # Pennsylvania
-    "PR": "America/Puerto_Rico",  # Puerto Rico; Not in CEMS
-    "RI": "America/New_York",  # Rhode Island
-    "SC": "America/New_York",  # South Carolina
-    "SD": "America/Chicago",  # South Dakota (split state)
-    "TN": "America/Chicago",  # Tennessee
-    "TX": "America/Chicago",  # Texas
-    "UT": "America/Denver",  # Utah
-    "VA": "America/New_York",  # Virginia
-    "VI": "America/Port_of_Spain",  # Virgin Islands; Not in CEMS
-    "VT": "America/New_York",  # Vermont
-    "WA": "America/Los_Angeles",  # Washington
-    "WI": "America/Chicago",  # Wisconsin
-    "WV": "America/New_York",  # West Virginia
-    "WY": "America/Denver",  # Wyoming
-    # Canada (none of these are in CEMS)
-    "AB": "America/Edmonton",  # Alberta
-    "BC": "America/Vancouver",  # British Columbia (split province)
-    "MB": "America/Winnipeg",  # Manitoba
-    "NB": "America/Moncton",  # New Brunswick
-    "NS": "America/Halifax",  # Nova Scotia
-    "NL": "America/St_Johns",  # Newfoundland and Labrador (split province)
-    "NT": "America/Yellowknife",  # Northwest Territories (split province)
-    "NU": "America/Iqaluit",  # Nunavut (split province)
-    "ON": "America/Toronto",  # Ontario (split province)
-    "PE": "America/Halifax",  # Prince Edwards Island
-    "QC": "America/Montreal",  # Quebec (split province)
-    "SK": "America/Regina",  # Saskatchewan  (split province)
-    "YT": "America/Whitehorse",  # Yukon Territory
-}
-"""Approximate mapping of US & Canadian jurisdictions to canonical timezones
-
-This is imperfect for states that have split timezones. See:
-https://en.wikipedia.org/wiki/List_of_time_offsets_by_U.S._state_and_territory
-For states that are split, the timezone that has more people in it.
-List of timezones in pytz.common_timezones
-Canada: https://en.wikipedia.org/wiki/Time_in_Canada#IANA_time_zone_database
-"""
 
 
 def find_timezone(*, lng=None, lat=None, state=None, strict=True):
