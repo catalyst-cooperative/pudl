@@ -93,6 +93,32 @@ def get_utility_map_ferc1() -> pd.DataFrame:
     return pd.read_csv(UTIL_ID_FERC_MAP_CSV.name).convert_dtypes()
 
 
+def get_mapped_plants_eia():
+    """Get a list of all EIA plants that have been assigned PUDL Plant IDs.
+
+    Read in the list of already mapped EIA plants from the FERC 1 / EIA plant
+    and utility mapping spreadsheet kept in the package_data.
+
+    Args:
+        None
+
+    Returns:
+        pandas.DataFrame: A DataFrame listing the plant_id_eia and
+        plant_name_eia values for every EIA plant which has already been
+        assigned a PUDL Plant ID.
+    """
+    mapped_plants_eia = (
+        get_plant_map()
+        .loc[:, ["plant_id_eia", "plant_name_eia"]]
+        .dropna(subset=["plant_id_eia"])
+        .pipe(pudl.helpers.simplify_strings, columns=["plant_name_eia"])
+        .astype({"plant_id_eia": int})
+        .drop_duplicates("plant_id_eia")
+        .sort_values("plant_id_eia")
+    )
+    return mapped_plants_eia
+
+
 ##########################
 # Raw Plants and Utilities
 ##########################
@@ -230,6 +256,112 @@ def get_missing_ids(
     id_test = pd.merge(ids_left, ids_right, on=id_cols, indicator=True, how="outer")
     missing = id_test[id_test._merge == "right_only"]
     return missing
+
+
+def get_unmapped_plants_eia(pudl_out, plants_eia):
+    """Identify any as-of-yet unmapped EIA Plants."""
+    plants_eia_db = pudl_out.plants_eia860()
+    plants_eia = plants_eia.loc[:, ["plant_id_eia"]]  # drop bc shared columns
+    unmapped_plants_eia = (
+        get_missing_ids(plants_eia, plants_eia_db, ["plant_id_eia"])
+        .loc[
+            :,
+            [
+                "plant_id_eia",
+                "plant_name_eia",
+                "utility_id_eia",
+                "utility_name_eia",
+                "state",
+                "capacity_mw",
+            ],
+        ]
+        .astype({"utility_id_eia": "Int32"})
+    )
+    return unmapped_plants_eia
+
+
+def get_utility_most_recent_capacity(pudl_engine) -> pd.DataFrame:
+    """Calculate total generation capacity by utility in most recent reported year."""
+    gen_caps = pd.read_sql(
+        "SELECT utility_id_eia, capacity_mw, report_date FROM generators_eia860",
+        con=pudl_engine,
+        parse_dates=["report_date"],
+    )
+    gen_caps["utility_id_eia"] = gen_caps["utility_id_eia"].astype("Int64")
+
+    most_recent_gens_idx = (
+        gen_caps.groupby("utility_id_eia")["report_date"].transform(max)
+        == gen_caps["report_date"]
+    )
+    most_recent_gens = gen_caps.loc[most_recent_gens_idx]
+    utility_caps = most_recent_gens.groupby("utility_id_eia").sum()
+    return utility_caps
+
+
+def get_plants_ids_eia923(pudl_out: pudl.output.pudltabl.PudlTabl) -> list:
+    """Get a list of plant_id_eia's that show up in EIA 923 tables."""
+    pudl_out_methods_eia923 = [
+        method_name
+        for method_name in dir(pudl_out)
+        if callable(getattr(pudl_out, method_name)) and "_eia923" in method_name
+    ]
+    list_of_plant_ids = []
+    for eia923_meth in pudl_out_methods_eia923:
+        new_ids = getattr(pudl_out, eia923_meth)()["plant_id_eia"]
+        list_of_plant_ids.append(new_ids)
+    plant_ids = pd.concat(list_of_plant_ids)
+    plant_ids_in_eia923 = sorted(set(plant_ids))
+    return plant_ids_in_eia923
+
+
+def get_unmapped_utils_eia(pudl_out, pudl_engine, utilities_eia_mapped) -> pd.DataFrame:
+    """Get a list of all the EIA Utilities in the PUDL DB without PUDL IDs.
+
+    Identify any EIA Utility that appears in the data but does not have a
+    utility_id_pudl associated with it in our ID mapping spreadsheet. Label some of
+    those utilities for potential linkage to FERC 1 utilities, but only if they have
+    plants which report data somewhere in the EIA-923 data tables. For those utilites
+    that do have plants reporting in EIA-923, sum up the total capacity of all of their
+    plants and include that in the output dataframe so that we can effectively
+    prioritize mapping them.
+    """
+    utilities_eia_db = pudl_out.utils_eia860()[["utility_id_eia"]].drop_duplicates()
+    unmapped_utils_eia = get_missing_ids(
+        utilities_eia_mapped, utilities_eia_db, id_cols=["utility_id_eia"]
+    )
+
+    # Get the most recent total capacity for the unmapped utils.
+    unmapped_utils_eia = unmapped_utils_eia.merge(
+        get_utility_most_recent_capacity(pudl_engine),
+        on="utility_id_eia",
+        how="left",
+        validate="1:1",
+    )
+
+    plant_ids_in_eia923 = get_plants_ids_eia923(pudl_out=pudl_out)
+    utils_with_plants = (
+        pudl_out.gens_eia860()
+        .loc[:, ["utility_id_eia", "plant_id_eia"]]
+        .drop_duplicates()
+        .dropna()
+    )
+    utils_with_data_in_eia923 = utils_with_plants.loc[
+        utils_with_plants.plant_id_eia.isin(plant_ids_in_eia923), "utility_id_eia"
+    ].to_frame()
+
+    # Most unmapped utilities have no EIA 923 data and so don't need to be linked:
+    unmapped_utils_eia["link_to_ferc1"] = False
+    # Any utility ID that's both unmapped and has EIA 923 data should get linked:
+    idx_to_link = unmapped_utils_eia.index.intersection(
+        utils_with_data_in_eia923.utility_id_eia
+    )
+    unmapped_utils_eia.loc[idx_to_link, "link_to_ferc1"] = True
+
+    unmapped_utils_eia = unmapped_utils_eia.sort_values(
+        by="capacity_mw", ascending=False
+    )
+
+    return unmapped_utils_eia
 
 
 #################

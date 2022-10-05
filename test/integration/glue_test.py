@@ -61,6 +61,18 @@ def plants_ferc1(glue_dfs) -> pd.DataFrame:
     return glue_dfs["plants_ferc1"]
 
 
+@pytest.fixture(scope="module")
+def plants_eia(glue_dfs) -> pd.DataFrame:
+    """A table of EIA plant IDs."""
+    return glue_dfs["plants_eia"]
+
+
+@pytest.fixture(scope="module")
+def utilities_eia(glue_dfs) -> pd.DataFrame:
+    """A table of EIA utility IDs."""
+    return glue_dfs["utilities_eia"]
+
+
 # Raw FERC1 db utilities/plants
 
 
@@ -83,6 +95,17 @@ def plants_ferc1_raw(pudl_settings_fixture):
         pudl_settings=pudl_settings_fixture,
         years=DataSource.from_id("ferc1").working_partitions["years"],
     )
+
+
+def save_to_devtools_glue(df, test_dir, request):
+    """Save a dataframe as a CSV to the glue directory in devtools."""
+    file_path = Path(
+        test_dir.parent,
+        "devtools",
+        "ferc1-eia-glue",
+        f"{request.node.callspec.id}.csv",
+    )
+    df.to_csv(file_path)
 
 
 ID_PARAMETERS = [
@@ -161,15 +184,8 @@ def test_for_fk_validation_and_unmapped_ids(
         request.getfixturevalue(ids_right),
         id_cols,
     )
-    print(request.node.callspec.id)
     if save_unmapped_ids:
-        file_path = Path(
-            test_dir.parent,
-            "devtools",
-            "ferc1-eia-glue",
-            f"{request.node.callspec.id}.csv",
-        )
-        missing.to_csv(file_path)
+        save_to_devtools_glue(df=missing, test_dir=test_dir, request=request)
     if not missing.empty:
         raise AssertionError(f"Found {len(missing)} {id_cols}: {missing}")
 
@@ -217,9 +233,20 @@ def test_for_unmapped_ids_minus_one(
         raise AssertionError(f"Found {len(missing)} {id_cols} but expected 1.")
 
 
-def test_unmapped_plants_eia(pudl_settings_fixture, pudl_engine):
-    """Check for unmapped EIA Plants."""
-    unmapped_plants_eia = get_unmapped_plants_eia(pudl_engine)
+def test_unmapped_plants_eia(
+    pudl_out_orig, plants_eia, save_unmapped_ids, test_dir, request
+):
+    """Check for unmapped EIA Plants.
+
+    This test is duplicative with the sql foriegn key constraints.
+    """
+    unmapped_plants_eia = get_unmapped_plants_eia(
+        pudl_out=pudl_out_orig, plants_eia=plants_eia
+    )
+    if save_unmapped_ids:
+        save_to_devtools_glue(
+            df=unmapped_plants_eia, test_dir=test_dir, request=request
+        )
     if not unmapped_plants_eia.empty:
         raise AssertionError(
             f"Found {len(unmapped_plants_eia)} unmapped EIA plants, expected 0."
@@ -227,9 +254,18 @@ def test_unmapped_plants_eia(pudl_settings_fixture, pudl_engine):
         )
 
 
-def test_unmapped_utils_eia(pudl_settings_fixture, pudl_engine):
-    """Check for unmapped EIA Plants."""
-    unmapped_utils_eia = get_unmapped_utils_eia(pudl_engine)
+def test_unmapped_utils_eia(
+    pudl_out_orig, pudl_engine, utilities_eia, save_unmapped_ids, test_dir, request
+):
+    """Check for unmapped EIA Plants.
+
+    This test is duplicative with the sql foriegn key constraints.
+    """
+    unmapped_utils_eia = get_unmapped_utils_eia(
+        pudl_out_orig, pudl_engine, utilities_eia
+    )
+    if save_unmapped_ids:
+        save_to_devtools_glue(df=unmapped_utils_eia, test_dir=test_dir, request=request)
     if not unmapped_utils_eia.empty:
         raise AssertionError(
             f"Found {len(unmapped_utils_eia)} unmapped EIA utilities, expected 0."

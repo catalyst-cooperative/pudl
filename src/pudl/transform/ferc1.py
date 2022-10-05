@@ -399,7 +399,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         logger.debug(
             f"{self.table_id.value}: Assigning {source_ferc1.value} source utility IDs."
         )
-        utility_map_ferc1 = pudl.glue.xbrl_dbf_ferc1.get_util_ids_ferc1_csv()
+        utility_map_ferc1 = pudl.glue.ferc1_eia.get_utility_map_ferc1()
         # use the source utility ID column to get a unique map and for merging
         util_id_col = f"utility_id_ferc1_{source_ferc1.value}"
         utility_map_ferc1 = utility_map_ferc1.loc[
