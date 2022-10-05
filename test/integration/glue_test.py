@@ -6,14 +6,13 @@ import pandas as pd
 import pytest
 
 from pudl.glue.ferc1_eia import (
+    get_missing_ids,
     get_raw_plants_ferc1,
     get_unmapped_plants_eia,
     get_unmapped_utils_eia,
-    glue,
-)
-from pudl.glue.xbrl_dbf_ferc1 import (
     get_util_ids_ferc1_raw_xbrl,
     get_utils_ferc1_raw_dbf,
+    glue,
 )
 from pudl.metadata.classes import DataSource
 
@@ -84,17 +83,6 @@ def plants_ferc1_raw(pudl_settings_fixture):
         pudl_settings=pudl_settings_fixture,
         years=DataSource.from_id("ferc1").working_partitions["years"],
     )
-
-
-def get_missing_ids(
-    ids_left: pd.DataFrame,
-    ids_right: pd.DataFrame,
-    id_cols: list[str],
-):
-    """Identify IDs that are missing from the left df but show up in the right df."""
-    id_test = pd.merge(ids_left, ids_right, on=id_cols, indicator=True, how="outer")
-    missing = id_test[id_test._merge == "right_only"]
-    return missing
 
 
 ID_PARAMETERS = [
