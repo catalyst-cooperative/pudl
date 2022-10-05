@@ -998,7 +998,7 @@ def simplify_columns(df):
     return df
 
 
-def drop_tables(engine, clobber=False):
+def drop_tables(engine: sa.engine.Engine, clobber: bool = False):
     """Drops all tables from a SQLite database.
 
     Creates an sa.schema.MetaData object reflecting the structure of the
@@ -1009,8 +1009,12 @@ def drop_tables(engine, clobber=False):
         Treat DB connection as a context manager (with/as).
 
     Args:
-        engine (sa.engine.Engine): An SQL Alchemy SQLite database Engine
-            pointing at an exising SQLite database to be deleted.
+        engine: An SQL Alchemy SQLite database Engine pointing at an exising SQLite
+            database to be deleted.
+        clobber: Whether or not to allow a non-empty DB to be removed.
+
+    Raises:
+        AssertionError: if clobber is False and there are any tables in the database.
 
     Returns:
         None
