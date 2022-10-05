@@ -64,7 +64,7 @@ def pytest_addoption(parser):
         "--ignore-foreign-key-constaints",
         action="store_true",
         default=False,
-        help="If enabled, check the foreign keys.",
+        help="If enabled, do not check the foreign keys.",
     )
 
 
@@ -123,7 +123,7 @@ def pudl_etl_parameters(etl_settings):
 def pudl_out_ferc1(live_dbs, pudl_engine, request):
     """Define parameterized PudlTabl output object fixture for FERC 1 tests."""
     if not live_dbs:
-        pytest.skip("Output tests only work with a live PUDL DB.")
+        pytest.skip("Validation tests only work with a live PUDL DB.")
     return PudlTabl(pudl_engine=pudl_engine, freq=request.param)
 
 
@@ -135,7 +135,7 @@ def pudl_out_ferc1(live_dbs, pudl_engine, request):
 def pudl_out_eia(live_dbs, pudl_engine, request):
     """Define parameterized PudlTabl output object fixture for EIA tests."""
     if not live_dbs:
-        pytest.skip("Output tests only work with a live PUDL DB.")
+        pytest.skip("Validation tests only work with a live PUDL DB.")
     return PudlTabl(
         pudl_engine=pudl_engine,
         freq=request.param,
@@ -149,7 +149,7 @@ def pudl_out_eia(live_dbs, pudl_engine, request):
 def pudl_out_orig(live_dbs, pudl_engine):
     """Create an unaggregated PUDL output object for checking raw data."""
     if not live_dbs:
-        pytest.skip("Output tests only work with a live PUDL DB.")
+        pytest.skip("Validation tests only work with a live PUDL DB.")
     return PudlTabl(pudl_engine=pudl_engine)
 
 

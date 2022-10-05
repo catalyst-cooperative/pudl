@@ -23,7 +23,6 @@ import numpy as np
 import pandas as pd
 import requests
 import sqlalchemy as sa
-from openpyxl import load_workbook
 from pandas._libs.missing import NAType
 
 from pudl.metadata.fields import get_pudl_dtypes
@@ -1563,34 +1562,3 @@ def configure_root_logger(logfile: str | None = None):
         file_logger = logging.FileHandler(logfile)
         file_logger.setFormatter(logging.Formatter(log_format))
         logger.addHandler(file_logger)
-
-
-def save_to_workbook(file_path: pathlib.Path, sheets_df_dict: dict[str, pd.DataFrame]):
-    """Save dataframes to sheets in an existing workbook.
-
-    This method enables us to save multiple dataframes into differnt tabs in
-    the same excel workbook. If those tabs already exist, the default process
-    is to make save a new tab with a suffix, so we remove the tab if it exists
-    before saving.
-
-    Args:
-        file_path: the location of the excel workbook.
-        sheets_df_dict: dictionary of the names of sheets (keys) of where their
-            corresponding dataframes (values) should end up in the workbook.
-    """
-    logger.info(f"Saving dataframe to {file_path}")
-    if not file_path.exists():
-        raise AssertionError(f"file path {file_path} does not exist")
-    workbook1 = load_workbook(file_path)
-    writer = pd.ExcelWriter(file_path, engine="openpyxl")
-    writer.book = workbook1
-    for sheet_name, df in sheets_df_dict.items():
-        if sheet_name in workbook1.sheetnames:
-            logger.info(f"Removing {sheet_name} from {file_path}")
-            workbook1.remove(workbook1[sheet_name])
-            if sheet_name in workbook1.sheetnames:
-                raise AssertionError(f"{sheet_name} was not removed")
-        df.to_excel(writer, sheet_name=sheet_name, index=False)
-
-    writer.save()
-    writer.close()

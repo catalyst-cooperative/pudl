@@ -43,10 +43,11 @@ logger = get_logger(__name__)
 PUDL_ID_MAP_XLSX = importlib.resources.open_binary(
     "pudl.package_data.glue", "pudl_id_mapping.xlsx"
 )
+"""Path to the PUDL ID mapping sheet with the plant map."""
 UTIL_ID_PUDL_MAP_CSV = importlib.resources.open_text(
     "pudl.package_data.glue", "utility_id_pudl.csv"
 )
-
+""
 UTIL_ID_FERC_MAP_CSV = importlib.resources.open_text(
     "pudl.package_data.glue", "utility_id_ferc1.csv"
 )

@@ -15,6 +15,7 @@ from pudl.glue.ferc1_eia import (
     glue,
 )
 from pudl.metadata.classes import DataSource
+from pudl.output.pudltabl import PudlTabl
 
 logger = logging.getLogger(__name__)
 
@@ -71,6 +72,16 @@ def plants_eia(glue_dfs) -> pd.DataFrame:
 def utilities_eia(glue_dfs) -> pd.DataFrame:
     """A table of EIA utility IDs."""
     return glue_dfs["utilities_eia"]
+
+
+@pytest.fixture(scope="module")
+def pudl_out(pudl_engine, pudl_datastore_fixture):
+    """A PUDL output object for use in CI."""
+    return PudlTabl(
+        pudl_engine,
+        ds=pudl_datastore_fixture,
+        freq=None,
+    )
 
 
 # Raw FERC1 db utilities/plants
@@ -234,14 +245,14 @@ def test_for_unmapped_ids_minus_one(
 
 
 def test_unmapped_plants_eia(
-    pudl_out_orig, plants_eia, save_unmapped_ids, test_dir, request
+    pudl_out, plants_eia, save_unmapped_ids, test_dir, request
 ):
     """Check for unmapped EIA Plants.
 
     This test is duplicative with the sql foriegn key constraints.
     """
     unmapped_plants_eia = get_unmapped_plants_eia(
-        pudl_out=pudl_out_orig, plants_eia=plants_eia
+        pudl_out=pudl_out, plants_eia=plants_eia
     )
     if save_unmapped_ids:
         save_to_devtools_glue(
@@ -255,15 +266,13 @@ def test_unmapped_plants_eia(
 
 
 def test_unmapped_utils_eia(
-    pudl_out_orig, pudl_engine, utilities_eia, save_unmapped_ids, test_dir, request
+    pudl_out, pudl_engine, utilities_eia, save_unmapped_ids, test_dir, request
 ):
     """Check for unmapped EIA Plants.
 
     This test is duplicative with the sql foriegn key constraints.
     """
-    unmapped_utils_eia = get_unmapped_utils_eia(
-        pudl_out_orig, pudl_engine, utilities_eia
-    )
+    unmapped_utils_eia = get_unmapped_utils_eia(pudl_out, pudl_engine, utilities_eia)
     if save_unmapped_ids:
         save_to_devtools_glue(df=unmapped_utils_eia, test_dir=test_dir, request=request)
     if not unmapped_utils_eia.empty:
