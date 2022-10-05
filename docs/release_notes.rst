@@ -2,10 +2,10 @@
 PUDL Release Notes
 =======================================================================================
 
-.. _release-v2022.09.XX:
+.. _release-v2022.10.XX:
 
 ---------------------------------------------------------------------------------------
-2022.09.XX
+2022.10.XX
 ---------------------------------------------------------------------------------------
 
 Data Coverage
@@ -107,6 +107,11 @@ Database Schema Changes
   ``emissions_unit_id_epa`` and not otherwise useful or transferable to other datasets.
   ``facility_id`` was removed because it is specific to EPA's internal database and does
   not aid in connection with other data. :pr:`1692`
+* Added a new table :ref:`political_subdivisions` which consolidated various bits of
+  information about states, territories, provinces etc. that had previously been
+  scattered across constants stored in the codebase. The :ref:`ownership_eia860` table
+  had a mix of state and country information stored in the same column, and to retain
+  all of it we added a new ``owner_country_code`` column. :pr:`1966`
 
 Data Accuracy
 ^^^^^^^^^^^^^
