@@ -1,8 +1,7 @@
 """Generic extractor for all FERC XBRL data."""
 import io
 import json
-import time
-from datetime import datetime
+from datetime import date, datetime
 
 import sqlalchemy as sa
 from ferc_xbrl_extractor import xbrl
@@ -26,9 +25,23 @@ class FercXbrlDatastore:
         """Instantiate datastore wrapper for ferc1 resources."""
         self.datastore = datastore
 
+    def get_taxonomy(self, year: int, form: XbrlFormNumber):
+        """Returns the path to the taxonomy entry point within the an archive."""
+        raw_archive = self.datastore.get_unique_resource(
+            f"ferc{form.value}", year=year, data_format="XBRL"
+        )
+
+        # Construct path to taxonomy entry point within archive
+        taxonomy_date = date(year, 1, 1).isoformat()
+        taxonomy_entry_point = f"taxonomy/form{form.value}/{taxonomy_date}/form/form{form.value}/form-{form.value}_{taxonomy_date}.xsd"
+
+        return io.BytesIO(raw_archive), taxonomy_entry_point
+
     def get_filings(self, year: int, form: XbrlFormNumber):
         """Return list of filings from archive."""
-        archive = self.datastore.get_zipfile_resource(f"ferc{form.value}", year=year)
+        archive = self.datastore.get_zipfile_resource(
+            f"ferc{form.value}", year=year, data_format="XBRL"
+        )
 
         # Load RSS feed metadata
         filings = []
@@ -41,9 +54,7 @@ class FercXbrlDatastore:
                 latest = datetime.min
                 for filing_id, info in filing_info.items():
                     # Parse date from 9-tuple
-                    published = datetime.fromtimestamp(
-                        time.mktime(tuple(info["published_parsed"]))
-                    )
+                    published = datetime.fromisoformat(info["published_parsed"])
 
                     if published > latest:
                         latest_filing = f"{filing_id}.xbrl"
@@ -155,13 +166,15 @@ def convert_form(
     """
     # Process XBRL filings for each year requested
     for year in form_settings.years:
+        raw_archive, taxonomy_entry_point = datastore.get_taxonomy(year, form)
         xbrl.extract(
             datastore.get_filings(year, form),
             sqlite_engine,
-            form_settings.taxonomy,
+            raw_archive,
             form.value,
             requested_tables=form_settings.tables,
             batch_size=batch_size,
             workers=workers,
             datapackage_path=pudl_settings[f"ferc{form.value}_xbrl_descriptor"],
+            archive_file_path=taxonomy_entry_point,
         )
