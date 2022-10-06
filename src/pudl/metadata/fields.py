@@ -8,8 +8,9 @@ from pytz import all_timezones
 from pudl.metadata.codes import CODE_METADATA
 from pudl.metadata.constants import FIELD_DTYPES_PANDAS
 from pudl.metadata.enums import (
-    CANADA_PROVINCES_TERRITORIES,
+    COUNTRY_CODES_ISO3166,
     CUSTOMER_CLASSES,
+    DIVISION_CODES_US_CENSUS,
     EPACEMS_MEASUREMENT_CODES,
     EPACEMS_STATES,
     FUEL_CLASSES,
@@ -18,9 +19,9 @@ from pudl.metadata.enums import (
     RELIABILITY_STANDARDS,
     REVENUE_CLASSES,
     RTO_CLASSES,
+    SUBDIVISION_CODES_ISO3166,
     TECH_CLASSES,
     TECH_DESCRIPTIONS,
-    US_STATES_TERRITORIES,
 )
 from pudl.metadata.labels import (
     ESTIMATED_OR_ACTUAL,
@@ -292,6 +293,15 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "pattern": r"^\d{5}$",
         },
     },
+    "country_code": {
+        "type": "string",
+        "description": "Three letter ISO-3166 country code (e.g. USA or CAN).",
+        "constraints": {"enum": COUNTRY_CODES_ISO3166},
+    },
+    "country_name": {
+        "type": "string",
+        "description": "Full country name (e.g. United States of America).",
+    },
     "credits_or_adjustments": {"type": "number"},
     "critical_peak_pricing": {"type": "boolean"},
     "critical_peak_rebate": {"type": "boolean"},
@@ -422,6 +432,21 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "distribution_total": {
         "type": "number",
         "description": "Distribution Plant Total (FERC Accounts 360-374).",
+    },
+    "division_code_us_census": {
+        "type": "string",
+        "description": (
+            "Three-letter US Census division code as it appears in the bulk "
+            "electricity data published by the EIA. Note that EIA splits the Pacific "
+            "division into distinct contiguous (CA, OR, WA) and non-contiguous (AK, "
+            "HI) states. For reference see this US Census region and division map: "
+            "https://www2.census.gov/geo/pdfs/maps-data/maps/reference/us_regdiv.pdf"
+        ),
+        "constraints": {"enum": DIVISION_CODES_US_CENSUS},
+    },
+    "division_name_us_census": {
+        "type": "string",
+        "description": "Longer human readable name describing the US Census division.",
     },
     "duct_burners": {
         "type": "boolean",
@@ -895,6 +920,13 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "intangible_total": {
         "type": "number",
         "description": "Intangible Plant Total (FERC Accounts 301-303).",
+    },
+    "is_epacems_state": {
+        "type": "boolean",
+        "description": (
+            "Indicates whether the associated state reports data within the EPA's "
+            "Continuous Emissions Monitoring System."
+        ),
     },
     "iso_rto_code": {
         "type": "string",
@@ -1370,18 +1402,16 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Whether any part of generator is owned by a nonutilty",
     },
     "owner_city": {"type": "string", "description": "City of owner."},
+    "owner_country": {
+        "type": "string",
+        "description": "Three letter ISO-3166 country code.",
+        "constraints": {"enum": COUNTRY_CODES_ISO3166},
+    },
     "owner_name": {"type": "string", "description": "Name of owner."},
     "owner_state": {
         "type": "string",
-        "description": "Two letter US & Canadian state and territory abbreviations.",
-        "constraints": {
-            "enum": sorted(
-                {
-                    **US_STATES_TERRITORIES,
-                    **CANADA_PROVINCES_TERRITORIES,
-                }.keys()
-            )
-        },
+        "description": "Two letter ISO-3166 political subdivision code.",
+        "constraints": {"enum": SUBDIVISION_CODES_ISO3166},
     },
     "owner_street_address": {
         "type": "string",
@@ -1634,6 +1664,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Identifier indicating original FERC Form 1 source record. format: {table_name}_{report_year}_{report_prd}_{respondent_id}_{spplmnt_num}_{row_number}. Unique within FERC Form 1 DB tables which are not row-mapped.",  # noqa: FS003
     },
+    "region_name_us_census": {
+        "type": "string",
+        "description": "Human-readable name of a US Census region.",
+    },
     "regulatory_status_code": {
         "type": "string",
         "description": "Indicates whether the plant is regulated or non-regulated.",
@@ -1862,6 +1896,27 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "boolean",
         "description": "Indicates whether the generator uses subcritical technology",
     },
+    "subdivision_code": {
+        "type": "string",
+        "description": (
+            "Two-letter ISO-3166 political subdivision code (e.g. US state "
+            "or Canadian provice abbreviations like CA or AB)."
+        ),
+        "constraints": {"enum": SUBDIVISION_CODES_ISO3166},
+    },
+    "subdivision_name": {
+        "type": "string",
+        "description": (
+            "Full name of political subdivision (e.g. US state or Canadian "
+            "province names like California or Alberta."
+        ),
+    },
+    "subdivision_type": {
+        "type": "string",
+        "description": (
+            "ISO-3166 political subdivision type. E.g. state, province, outlying_area."
+        ),
+    },
     "sulfur_content_pct": {
         "type": "number",
         "description": "Sulfur content percentage by weight to the nearest 0.01 percent.",
@@ -1916,6 +1971,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "timezone": {
         "type": "string",
         "description": "IANA timezone name",
+        "constraints": {"enum": all_timezones},
+    },
+    "timezone_approx": {
+        "type": "string",
+        "description": (
+            "IANA timezone name of the timezone which encompasses the largest portion "
+            "of the population in the associated geographic area."
+        ),
         "constraints": {"enum": all_timezones},
     },
     "topping_bottoming_code": {
