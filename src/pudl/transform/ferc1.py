@@ -34,7 +34,7 @@ from pudl.transform.classes import (
     cache_df,
 )
 
-# This is only here to keep the module importable. Breaks legacy functions.
+# This is only here to keep the module importable. Removal Breaks legacy functions.
 CONSTRUCTION_TYPE_CATEGORIES = {}
 
 logger = pudl.logging.get_logger(__name__)
