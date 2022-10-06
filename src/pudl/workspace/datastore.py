@@ -171,8 +171,11 @@ class ZenodoFetcher:
             "eia_bulk_elec": "10.5281/zenodo.7067367",
             "epacamd_eia": "10.5281/zenodo.7063255",
             "epacems": "10.5281/zenodo.6910058",
-            "ferc1": "10.5281/zenodo.5534788",
-            "ferc714": "10.5281/zenodo.5076672",
+            "ferc1": "10.5281/zenodo.7129946",
+            "ferc2": "10.5281/zenodo.7130128",
+            "ferc6": "10.5281/zenodo.7130141",
+            "ferc60": "10.5281/zenodo.7130146",
+            "ferc714": "10.5281/zenodo.7139875",
         },
     }
     API_ROOT = {
