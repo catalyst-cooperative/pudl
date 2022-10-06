@@ -252,31 +252,52 @@ def get_missing_ids(
     ids_left: pd.DataFrame,
     ids_right: pd.DataFrame,
     id_cols: list[str],
-):
-    """Identify IDs that are missing from the left df but show up in the right df."""
-    id_test = pd.merge(ids_left, ids_right, on=id_cols, indicator=True, how="outer")
-    missing = id_test[id_test._merge == "right_only"]
+) -> pd.DataFrame:
+    """Identify IDs that are missing from the left df but show up in the right df.
+
+    Args:
+        ids_left: table which contains ``id_cols`` to be used as left table in join.
+        ids_right: table which contains ``id_cols`` to be used as left table in join.
+        id_cols: list of ID column(s)
+
+    Return:
+        dataframe of unique values in ``id_cols`` that exist in ``ids_right`` but not
+        ``ids_left``.
+    """
+    id_test = pd.merge(
+        ids_left[id_cols], ids_right[id_cols], on=id_cols, indicator=True, how="outer"
+    )
+    missing = id_test[id_test._merge == "right_only"].drop_duplicates()
     return missing
 
 
-def get_unmapped_plants_eia(pudl_out, plants_eia):
-    """Identify any as-of-yet unmapped EIA Plants."""
-    plants_eia_db = pudl_out.plants_eia860()
-    plants_eia = plants_eia.loc[:, ["plant_id_eia"]]  # drop bc shared columns
-    unmapped_plants_eia = (
-        get_missing_ids(plants_eia, plants_eia_db, ["plant_id_eia"])
-        .loc[
-            :,
-            [
-                "plant_id_eia",
-                "plant_name_eia",
-                "utility_id_eia",
-                "utility_name_eia",
-                "state",
-                "capacity_mw",
-            ],
-        ]
-        .astype({"utility_id_eia": "Int32"})
+def document_plant_eia_ids_for_mannual_mapping(
+    unmapped_plants_eia: pd.DataFrame, pudl_out: pudl.output.pudltabl.PudlTabl
+) -> pd.DataFrame:
+    """Label the unmapped_plants_eia for mannual mapping.
+
+    The main things to add to the EIA plants are the name, utility and the
+    ``capacity_mw`` from the most recent year of data.
+
+    Args:
+        unmapped_plants_eia: a table of the missing EIA plant IDS
+        pudl_out: pudl output object.
+    """
+    plants = pudl_out.plants_eia860()
+    most_recent_date = max(plants.report_date)
+    plants = plants.loc[
+        (plants.report_date == most_recent_date),
+        [
+            "plant_id_eia",
+            "plant_name_eia",
+            "utility_id_eia",
+            "utility_name_eia",
+            "state",
+            "capacity_mw",
+        ],
+    ]
+    unmapped_plants_eia = pd.merge(
+        unmapped_plants_eia, plants, on=["plant_id_eia"], how="left"
     )
     return unmapped_plants_eia
 

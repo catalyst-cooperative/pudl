@@ -6,9 +6,9 @@ import pandas as pd
 import pytest
 
 from pudl.glue.ferc1_eia import (
+    document_plant_eia_ids_for_mannual_mapping,
     get_missing_ids,
     get_raw_plants_ferc1,
-    get_unmapped_plants_eia,
     get_unmapped_utils_eia,
     get_util_ids_ferc1_raw_xbrl,
     get_utils_ferc1_raw_dbf,
@@ -84,6 +84,15 @@ def pudl_out(pudl_engine, pudl_datastore_fixture):
     )
 
 
+# PUDL DB tables
+
+
+@pytest.fixture(scope="module")
+def plants_eia_pudl_db(pudl_out):
+    """A PUDL output object for use in CI."""
+    return pudl_out.plants_eia860()
+
+
 # Raw FERC1 db utilities/plants
 
 
@@ -124,58 +133,75 @@ ID_PARAMETERS = [
         "utilities_pudl",
         "utilities_ferc1",
         ["utility_id_pudl"],
+        None,
         id="validate_utility_id_pudl_in_utilities_ferc1",
     ),
     pytest.param(
         "utilities_ferc1",
         "utilities_ferc1_dbf",
         ["utility_id_ferc1"],
+        None,
         id="validate_utility_id_ferc1_in_utilities_ferc1_dbf",
     ),
     pytest.param(
         "utilities_ferc1",
         "utilities_ferc1_xbrl",
         ["utility_id_ferc1"],
+        None,
         id="validate_utility_id_ferc1_in_utilities_ferc1_xbrl",
     ),
     pytest.param(
         "utilities_ferc1",
         "plants_ferc1",
         ["utility_id_ferc1"],
+        None,
         id="validate_utility_id_ferc1_in_plants_ferc1",
     ),
     pytest.param(
         "utilities_ferc1_xbrl",
         "util_ids_ferc1_raw_xbrl",
         ["utility_id_ferc1_xbrl"],
+        None,
         id="check_for_unmmaped_utility_id_ferc1_xbrl_in_raw_xbrl",
     ),
     pytest.param(
         "utilities_ferc1_dbf",
         "util_ids_ferc1_raw_dbf",
         ["utility_id_ferc1_dbf"],
+        None,
         id="check_for_unmmaped_utility_id_ferc1_dbf_in_raw_dbf",
     ),
     pytest.param(
         "plants_pudl",
         "plants_ferc1",
         ["plant_id_pudl"],
+        None,
         id="validate_plant_id_pudl_in_plants_ferc1",
     ),
     pytest.param(
         "plants_ferc1",
         "plants_ferc1_raw",
         ["utility_id_ferc1", "plant_name_ferc1"],
+        None,
         id="check_for_unmmapped_plants_in_plants_ferc1",
+    ),
+    pytest.param(
+        "plants_eia",
+        "plants_eia_pudl_db",
+        ["plant_id_eia"],
+        document_plant_eia_ids_for_mannual_mapping,
+        id="check_for_unmmapped_plants_in_plants_eia",
     ),
 ]
 
 
-@pytest.mark.parametrize("ids_left,ids_right,id_cols", ID_PARAMETERS)
+@pytest.mark.parametrize("ids_left,ids_right,id_cols,label_func", ID_PARAMETERS)
 def test_for_fk_validation_and_unmapped_ids(
     ids_left: str,
     ids_right: str,
     id_cols: list[str],
+    label_func,
+    pudl_out,
     save_unmapped_ids,
     test_dir,
     request,
@@ -196,6 +222,8 @@ def test_for_fk_validation_and_unmapped_ids(
         id_cols,
     )
     if save_unmapped_ids:
+        if label_func:
+            missing = label_func(missing, pudl_out)
         save_to_devtools_glue(df=missing, test_dir=test_dir, request=request)
     if not missing.empty:
         raise AssertionError(f"Found {len(missing)} {id_cols}: {missing}")
@@ -242,27 +270,6 @@ def test_for_unmapped_ids_minus_one(
     )
     if len(missing) != 1:
         raise AssertionError(f"Found {len(missing)} {id_cols} but expected 1.")
-
-
-def test_unmapped_plants_eia(
-    pudl_out, plants_eia, save_unmapped_ids, test_dir, request
-):
-    """Check for unmapped EIA Plants.
-
-    This test is duplicative with the sql foriegn key constraints.
-    """
-    unmapped_plants_eia = get_unmapped_plants_eia(
-        pudl_out=pudl_out, plants_eia=plants_eia
-    )
-    if save_unmapped_ids:
-        save_to_devtools_glue(
-            df=unmapped_plants_eia, test_dir=test_dir, request=request
-        )
-    if not unmapped_plants_eia.empty:
-        raise AssertionError(
-            f"Found {len(unmapped_plants_eia)} unmapped EIA plants, expected 0."
-            f"{unmapped_plants_eia}"
-        )
 
 
 def test_unmapped_utils_eia(
