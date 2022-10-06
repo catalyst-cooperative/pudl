@@ -167,7 +167,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             .pipe(self.assign_record_id, source_ferc1=Ferc1Source.DBF)
             .pipe(self.drop_unused_original_columns_dbf)
             .pipe(
-                self.replace_utility_id_source_with_ferc1_id,
+                self.assign_utility_id_ferc1,
                 source_ferc1=Ferc1Source.DBF,
             )
         )
@@ -189,7 +189,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             .pipe(self.rename_columns, params=self.params.rename_columns_ferc1.xbrl)
             .pipe(self.assign_record_id, source_ferc1=Ferc1Source.XBRL)
             .pipe(
-                self.replace_utility_id_source_with_ferc1_id,
+                self.assign_utility_id_ferc1,
                 source_ferc1=Ferc1Source.XBRL,
             )
         )
@@ -379,7 +379,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             )
         return df
 
-    def replace_utility_id_source_with_ferc1_id(
+    def assign_utility_id_ferc1(
         self, df: pd.DataFrame, source_ferc1: Ferc1Source
     ) -> pd.DataFrame:
         """Assign the PUDL-assigned utility_id_ferc1 based on the native utility ID.
@@ -391,6 +391,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
 
         Args:
             df: the input table with the native utilty ID column.
+            source_ferc1: the
 
         Returns:
             an augemented version of the input ``df`` with a new column that replaces
@@ -402,15 +403,14 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         utility_map_ferc1 = pudl.glue.ferc1_eia.get_utility_map_ferc1()
         # use the source utility ID column to get a unique map and for merging
         util_id_col = f"utility_id_ferc1_{source_ferc1.value}"
-        utility_map_ferc1 = utility_map_ferc1.loc[
-            :, ["utility_id_ferc1", util_id_col]
-        ].dropna(subset=[util_id_col])
-        return df.merge(
-            utility_map_ferc1,
-            on=[util_id_col],
-            how="left",
-            validate="m:1",
-        ).drop(columns=[util_id_col])
+        util_map_series = (
+            utility_map_ferc1.dropna(subset=[util_id_col])
+            .set_index(util_id_col)
+            .utility_id_ferc1
+        )
+
+        df["utility_id_ferc1"] = df[util_id_col].map(util_map_series)
+        return df
 
 
 class FuelFerc1TableTransformer(Ferc1AbstractTableTransformer):
@@ -541,7 +541,7 @@ class FuelFerc1TableTransformer(Ferc1AbstractTableTransformer):
             .pipe(self.aggregate_duplicate_fuel_types_xbrl)
             .pipe(self.assign_record_id, source_ferc1=Ferc1Source.XBRL)
             .pipe(
-                self.replace_utility_id_source_with_ferc1_id,
+                self.assign_utility_id_ferc1,
                 source_ferc1=Ferc1Source.XBRL,
             )
         )

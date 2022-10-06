@@ -36,6 +36,7 @@ import sqlalchemy as sa
 
 import pudl
 from pudl.helpers import get_logger
+from pudl.transform.classes import StringNormalization, normalize_strings
 from pudl.transform.ferc1 import Ferc1AbstractTableTransformer, Ferc1TableId
 
 logger = get_logger(__name__)
@@ -125,6 +126,15 @@ def get_mapped_plants_eia():
 ##########################
 
 
+def string_normalize_col_ferc1(df: pd.DataFrame, col) -> pd.DataFrame:
+    """Normalize the strings for a particular FERC1 column."""
+    df[col] = normalize_strings(
+        df[col],
+        StringNormalization(**pudl.transform.params.ferc1.FERC1_STRING_NORM),
+    )
+    return df
+
+
 def get_util_ids_ferc1_raw_xbrl(ferc1_engine_xbrl: sa.engine.Engine) -> pd.DataFrame:
     """Grab the utility ids (reported as `entity_id`) in the FERC1 XBRL database."""
     all_utils_ferc1_xbrl = (
@@ -138,7 +148,7 @@ def get_util_ids_ferc1_raw_xbrl(ferc1_engine_xbrl: sa.engine.Engine) -> pd.DataF
                 "respondent_legal_name": "utility_name_ferc1",
             }
         )
-        .pipe(pudl.helpers.simplify_strings, ["utility_name_ferc1"])
+        .pipe(string_normalize_col_ferc1, "utility_name_ferc1")
         .drop_duplicates(subset=["utility_id_ferc1_xbrl"])
     )
     return all_utils_ferc1_xbrl
@@ -154,7 +164,7 @@ def get_utils_ferc1_raw_dbf(ferc1_engine_dbf: sa.engine.Engine) -> pd.DataFrame:
                 "respondent_name": "utility_name_ferc1",
             }
         )
-        .pipe(pudl.helpers.simplify_strings, ["utility_name_ferc1"])
+        .pipe(string_normalize_col_ferc1, "utility_name_ferc1")
         .drop_duplicates(subset=["utility_id_ferc1_dbf"])
     )
     return all_utils_ferc1_dbf
@@ -252,7 +262,7 @@ def get_missing_ids(
     ids_left: pd.DataFrame,
     ids_right: pd.DataFrame,
     id_cols: list[str],
-) -> pd.DataFrame:
+) -> pd.Index:
     """Identify IDs that are missing from the left df but show up in the right df.
 
     Args:
@@ -261,18 +271,16 @@ def get_missing_ids(
         id_cols: list of ID column(s)
 
     Return:
-        dataframe of unique values in ``id_cols`` that exist in ``ids_right`` but not
+        index of unique values in ``id_cols`` that exist in ``ids_right`` but not
         ``ids_left``.
     """
-    id_test = pd.merge(
-        ids_left[id_cols], ids_right[id_cols], on=id_cols, indicator=True, how="outer"
-    )
-    missing = id_test[id_test._merge == "right_only"].drop_duplicates()
-    return missing
+    ids_left = ids_left.set_index(id_cols)
+    ids_right = ids_right.set_index(id_cols)
+    return ids_right.index.difference(ids_left.index)
 
 
 def document_plant_eia_ids_for_manual_mapping(
-    unmapped_plants_eia: pd.DataFrame, pudl_out: pudl.output.pudltabl.PudlTabl
+    unmapped_plants_eia: pd.Series, pudl_out: pudl.output.pudltabl.PudlTabl
 ) -> pd.DataFrame:
     """Label the unmapped_plants_eia for manual mapping.
 
@@ -285,7 +293,7 @@ def document_plant_eia_ids_for_manual_mapping(
     """
     plants = pudl_out.plants_eia860()
     most_recent_date = max(plants.report_date)
-    plants = plants.loc[
+    unmapped_plants = plants.loc[unmapped_plants_eia].loc[
         (plants.report_date == most_recent_date),
         [
             "plant_id_eia",
@@ -296,10 +304,7 @@ def document_plant_eia_ids_for_manual_mapping(
             "capacity_mw",
         ],
     ]
-    unmapped_plants_eia = pd.merge(
-        unmapped_plants_eia, plants, on=["plant_id_eia"], how="left"
-    )
-    return unmapped_plants_eia
+    return unmapped_plants
 
 
 def get_utility_most_recent_capacity(pudl_engine) -> pd.DataFrame:
@@ -353,12 +358,9 @@ def get_unmapped_utils_eia(pudl_out, pudl_engine, utilities_eia_mapped) -> pd.Da
     )
 
     # Get the most recent total capacity for the unmapped utils.
-    unmapped_utils_eia = unmapped_utils_eia.merge(
-        get_utility_most_recent_capacity(pudl_engine),
-        on="utility_id_eia",
-        how="left",
-        validate="1:1",
-    )
+    unmapped_utils_eia = get_utility_most_recent_capacity(pudl_engine).loc[
+        unmapped_utils_eia
+    ]
 
     plant_ids_in_eia923 = get_plants_ids_eia923(pudl_out=pudl_out)
     utils_with_plants = (

@@ -1855,6 +1855,8 @@ TRANSFORM_PARAMS = {
                 "allowed_invalid_cols": [
                     "record_id",
                     "utility_id_ferc1",
+                    "utility_id_ferc1_dbf",
+                    "utility_id_ferc1_xbrl",
                     "plant_name_ferc1",
                     "report_year",
                     "date",

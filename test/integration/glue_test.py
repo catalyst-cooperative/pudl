@@ -1,5 +1,6 @@
 """PyTest cases related to the integration between FERC1 & EIA 860/923."""
 import logging
+from collections.abc import Callable
 from pathlib import Path
 
 import pandas as pd
@@ -21,60 +22,6 @@ logger = logging.getLogger(__name__)
 
 
 @pytest.fixture(scope="module")
-def glue_dfs() -> dict[str, pd.DataFrame]:
-    """Make a dictionary of glue dataframes."""
-    return glue(eia=True, ferc1=True)
-
-
-@pytest.fixture(scope="module")
-def utilities_pudl(glue_dfs) -> pd.DataFrame:
-    """A table of PUDL utilities IDs."""
-    return glue_dfs["utilities_pudl"]
-
-
-@pytest.fixture(scope="module")
-def utilities_ferc1(glue_dfs) -> pd.DataFrame:
-    """A table of FERC1 utilities IDs."""
-    return glue_dfs["utilities_ferc1"]
-
-
-@pytest.fixture(scope="module")
-def utilities_ferc1_xbrl(glue_dfs) -> pd.DataFrame:
-    """A table of FERC1 XBRL utilities IDs."""
-    return glue_dfs["utilities_ferc1_xbrl"]
-
-
-@pytest.fixture(scope="module")
-def utilities_ferc1_dbf(glue_dfs) -> pd.DataFrame:
-    """A table of FERC1 DBF utilities IDs."""
-    return glue_dfs["utilities_ferc1_dbf"]
-
-
-@pytest.fixture(scope="module")
-def plants_pudl(glue_dfs) -> pd.DataFrame:
-    """A table of FERC1 DBF utilities IDs."""
-    return glue_dfs["plants_pudl"]
-
-
-@pytest.fixture(scope="module")
-def plants_ferc1(glue_dfs) -> pd.DataFrame:
-    """A table of FERC1 DBF utilities IDs."""
-    return glue_dfs["plants_ferc1"]
-
-
-@pytest.fixture(scope="module")
-def plants_eia(glue_dfs) -> pd.DataFrame:
-    """A table of EIA plant IDs."""
-    return glue_dfs["plants_eia"]
-
-
-@pytest.fixture(scope="module")
-def utilities_eia(glue_dfs) -> pd.DataFrame:
-    """A table of EIA utility IDs."""
-    return glue_dfs["utilities_eia"]
-
-
-@pytest.fixture(scope="module")
 def pudl_out(pudl_engine, pudl_datastore_fixture):
     """A PUDL output object for use in CI."""
     return PudlTabl(
@@ -84,37 +31,22 @@ def pudl_out(pudl_engine, pudl_datastore_fixture):
     )
 
 
-# PUDL DB tables
-
-
 @pytest.fixture(scope="module")
-def plants_eia_pudl_db(pudl_out):
-    """A PUDL output object for use in CI."""
-    return pudl_out.plants_eia860()
-
-
-# Raw FERC1 db utilities/plants
-
-
-@pytest.fixture(scope="module")
-def util_ids_ferc1_raw_xbrl(ferc1_engine_xbrl):
-    """A fixture of utilty ids from the raw XBRL db."""
-    return get_util_ids_ferc1_raw_xbrl(ferc1_engine_xbrl)
-
-
-@pytest.fixture(scope="module")
-def util_ids_ferc1_raw_dbf(ferc1_engine_dbf):
-    """A fixture of utilty ids from the raw XBRL db."""
-    return get_utils_ferc1_raw_dbf(ferc1_engine_dbf)
-
-
-@pytest.fixture(scope="module")
-def plants_ferc1_raw(pudl_settings_fixture):
-    """A fixture of raw FERC1 plants."""
-    return get_raw_plants_ferc1(
-        pudl_settings=pudl_settings_fixture,
-        years=DataSource.from_id("ferc1").working_partitions["years"],
-    )
+def glue_test_dfs(
+    pudl_out, ferc1_engine_xbrl, ferc1_engine_dbf, pudl_settings_fixture
+) -> dict[str, pd.DataFrame]:
+    """Make a dictionary of the dataframes required for this test module."""
+    glue_test_dfs = {
+        "plants_eia_pudl_db": pudl_out.plants_eia860(),
+        "util_ids_ferc1_raw_xbrl": get_util_ids_ferc1_raw_xbrl(ferc1_engine_xbrl),
+        "util_ids_ferc1_raw_dbf": get_utils_ferc1_raw_dbf(ferc1_engine_dbf),
+        "plants_ferc1_raw": get_raw_plants_ferc1(
+            pudl_settings=pudl_settings_fixture,
+            years=DataSource.from_id("ferc1").working_partitions["years"],
+        ),
+    }
+    glue_test_dfs.update(glue(eia=True, ferc1=True))
+    return glue_test_dfs
 
 
 def save_to_devtools_glue(df, test_dir, request):
@@ -200,30 +132,37 @@ def test_for_fk_validation_and_unmapped_ids(
     ids_left: str,
     ids_right: str,
     id_cols: list[str],
-    label_func,
-    pudl_out,
-    save_unmapped_ids,
+    label_func: Callable | None,
+    glue_test_dfs: dict,
+    pudl_out: PudlTabl,
+    save_unmapped_ids: bool,
     test_dir,
     request,
 ):
-    """Test that the stored ids are internally consistent.
+    """Test that the stored ids are internally consistent. Label and save (optionally).
 
     Args:
         ids_left: name of fixure cooresponding to a dataframe which contains ID's
         ids_right: name of fixure cooresponding to a dataframe which contains ID's
         id_cols: list of ID column(s)
+        label_func: If a labeling function is provided, label the missing ID's with
+            flags and columns needed for manual mapping
+        pudl_out: an instance of a pudl output object
+        save_unmapped_ids: If ``True``, export any missing ID's.
+        test_dir: path to the ``test`` directory. Will be used to construct path to the
+            ``devtools/ferc1-eia-glue`` directory to save outputs into.
 
     Raises:
         AssertionError:
     """
     missing = get_missing_ids(
-        request.getfixturevalue(ids_left),
-        request.getfixturevalue(ids_right),
+        glue_test_dfs[ids_left],
+        glue_test_dfs[ids_right],
         id_cols,
     )
+    if label_func:
+        missing = label_func(missing, pudl_out)
     if save_unmapped_ids:
-        if label_func:
-            missing = label_func(missing, pudl_out)
         save_to_devtools_glue(df=missing, test_dir=test_dir, request=request)
     if not missing.empty:
         raise AssertionError(f"Found {len(missing)} {id_cols}: {missing}")
@@ -249,7 +188,11 @@ def test_for_fk_validation_and_unmapped_ids(
     ],
 )
 def test_for_unmapped_ids_minus_one(
-    ids_left: str, ids_right: str, id_cols: list[str], drop: tuple, request
+    ids_left: str,
+    ids_right: str,
+    id_cols: list[str],
+    drop: tuple,
+    glue_test_dfs: dict[str, pd.DataFrame],
 ):
     """Test that we will find one unmapped ID after dropping one.
 
@@ -258,28 +201,27 @@ def test_for_unmapped_ids_minus_one(
         ids_right: name of fixure cooresponding to a dataframe which contains ID's
         id_cols: list of ID column(s)
         drop: a tuple of the one record IDs to drop
+        glue_test_dfs: dictionary of tables needed.
 
     Raises:
         AssertionError:
     """
-    ids_minus_one = (
-        request.getfixturevalue(ids_left).set_index(id_cols).drop(drop).reset_index()
-    )
-    missing = get_missing_ids(
-        ids_minus_one, request.getfixturevalue(ids_right), id_cols
-    )
+    ids_minus_one = glue_test_dfs[ids_left].set_index(id_cols).drop(drop).reset_index()
+    missing = get_missing_ids(ids_minus_one, glue_test_dfs[ids_right], id_cols)
     if len(missing) != 1:
         raise AssertionError(f"Found {len(missing)} {id_cols} but expected 1.")
 
 
 def test_unmapped_utils_eia(
-    pudl_out, pudl_engine, utilities_eia, save_unmapped_ids, test_dir, request
+    pudl_out, pudl_engine, glue_test_dfs, save_unmapped_ids, test_dir, request
 ):
     """Check for unmapped EIA Plants.
 
     This test is duplicative with the sql foriegn key constraints.
     """
-    unmapped_utils_eia = get_unmapped_utils_eia(pudl_out, pudl_engine, utilities_eia)
+    unmapped_utils_eia = get_unmapped_utils_eia(
+        pudl_out, pudl_engine, glue_test_dfs["utilities_eia"]
+    )
     if save_unmapped_ids:
         save_to_devtools_glue(df=unmapped_utils_eia, test_dir=test_dir, request=request)
     if not unmapped_utils_eia.empty:
