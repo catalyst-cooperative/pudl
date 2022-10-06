@@ -12,7 +12,7 @@ from pudl.metadata.classes import DatasetteMetadata
 logger = logging.getLogger(__name__)
 
 
-def test_datasette_metadata_to_yml(pudl_settings_fixture, ferc1_xbrl_engine):
+def test_datasette_metadata_to_yml(pudl_settings_fixture, ferc1_engine_xbrl):
     """Test the ability to export metadata as YML for use with Datasette."""
     metadata_yml = Path(pudl_settings_fixture["pudl_out"], "metadata.yml")
     logger.info(f"Writing Datasette Metadata to {metadata_yml}")

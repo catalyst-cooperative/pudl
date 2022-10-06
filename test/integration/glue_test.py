@@ -6,7 +6,7 @@ import pandas as pd
 import pytest
 
 from pudl.glue.ferc1_eia import (
-    document_plant_eia_ids_for_mannual_mapping,
+    document_plant_eia_ids_for_manual_mapping,
     get_missing_ids,
     get_raw_plants_ferc1,
     get_unmapped_utils_eia,
@@ -97,15 +97,15 @@ def plants_eia_pudl_db(pudl_out):
 
 
 @pytest.fixture(scope="module")
-def util_ids_ferc1_raw_xbrl(ferc1_xbrl_engine):
+def util_ids_ferc1_raw_xbrl(ferc1_engine_xbrl):
     """A fixture of utilty ids from the raw XBRL db."""
-    return get_util_ids_ferc1_raw_xbrl(ferc1_xbrl_engine)
+    return get_util_ids_ferc1_raw_xbrl(ferc1_engine_xbrl)
 
 
 @pytest.fixture(scope="module")
-def util_ids_ferc1_raw_dbf(ferc1_dbf_engine):
+def util_ids_ferc1_raw_dbf(ferc1_engine_dbf):
     """A fixture of utilty ids from the raw XBRL db."""
-    return get_utils_ferc1_raw_dbf(ferc1_dbf_engine)
+    return get_utils_ferc1_raw_dbf(ferc1_engine_dbf)
 
 
 @pytest.fixture(scope="module")
@@ -189,7 +189,7 @@ ID_PARAMETERS = [
         "plants_eia",
         "plants_eia_pudl_db",
         ["plant_id_eia"],
-        document_plant_eia_ids_for_mannual_mapping,
+        document_plant_eia_ids_for_manual_mapping,
         id="check_for_unmmapped_plants_in_plants_eia",
     ),
 ]

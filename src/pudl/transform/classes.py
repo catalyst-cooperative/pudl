@@ -949,8 +949,8 @@ class AbstractTableTransformer(ABC):
         if params is None:
             params = self.params.drop_invalid_rows
         logger.info(f"{self.table_id.value}: Dropping remaining invalid rows.")
-        for invalid_fix in params:
-            df = drop_invalid_rows(df, invalid_fix)
+        for param in params:
+            df = drop_invalid_rows(df, param)
         return df
 
     def enforce_schema(self, df: pd.DataFrame) -> pd.DataFrame:

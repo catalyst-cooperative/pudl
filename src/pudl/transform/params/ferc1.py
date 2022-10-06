@@ -1699,6 +1699,7 @@ TRANSFORM_PARAMS = {
             "plant_name_ferc1": FERC1_STRING_NORM,
             "fuel_type_code_pudl": FERC1_STRING_NORM,
             "fuel_units": FERC1_STRING_NORM,
+            "utility_name_ferc1": FERC1_STRING_NORM,
         },
         "correct_units": [
             COAL_MMBTU_PER_UNIT_CORRECTIONS,
@@ -1833,6 +1834,7 @@ TRANSFORM_PARAMS = {
             "plant_name_ferc1": FERC1_STRING_NORM,
             "construction_type": FERC1_STRING_NORM,
             "plant_type": FERC1_STRING_NORM,
+            "utility_name_ferc1": FERC1_STRING_NORM,
         },
         "nullify_outliers": {
             "construction_year": VALID_PLANT_YEARS,

@@ -125,12 +125,12 @@ def get_mapped_plants_eia():
 ##########################
 
 
-def get_util_ids_ferc1_raw_xbrl(ferc1_xbrl_engine: sa.engine.Engine) -> pd.DataFrame:
-    """Grab the utlity ids (reported as `entity_id`) in the FERC1 XBRL database."""
+def get_util_ids_ferc1_raw_xbrl(ferc1_engine_xbrl: sa.engine.Engine) -> pd.DataFrame:
+    """Grab the utility ids (reported as `entity_id`) in the FERC1 XBRL database."""
     all_utils_ferc1_xbrl = (
         pd.read_sql(
             "SELECT entity_id, respondent_legal_name FROM identification_001_duration",
-            ferc1_xbrl_engine,
+            ferc1_engine_xbrl,
         )
         .rename(
             columns={
@@ -138,13 +138,14 @@ def get_util_ids_ferc1_raw_xbrl(ferc1_xbrl_engine: sa.engine.Engine) -> pd.DataF
                 "respondent_legal_name": "utility_name_ferc1",
             }
         )
+        .pipe(pudl.helpers.simplify_strings, ["utility_name_ferc1"])
         .drop_duplicates(subset=["utility_id_ferc1_xbrl"])
     )
     return all_utils_ferc1_xbrl
 
 
 def get_utils_ferc1_raw_dbf(ferc1_engine_dbf: sa.engine.Engine) -> pd.DataFrame:
-    """Grab the utlity ids (reported as `respondent_id`) in the FERC1 DBF database."""
+    """Grab the utility ids (reported as `respondent_id`) in the FERC1 DBF database."""
     all_utils_ferc1_dbf = (
         pd.read_sql_table("f1_respondent_id", ferc1_engine_dbf)
         .rename(
@@ -162,7 +163,7 @@ def get_utils_ferc1_raw_dbf(ferc1_engine_dbf: sa.engine.Engine) -> pd.DataFrame:
 class GenericPlantFerc1TableTransformer(Ferc1AbstractTableTransformer):
     """Generic plant table transformer.
 
-    Intended for use in compiling all plant names for mannual ID mapping.
+    Intended for use in compiling all plant names for manual ID mapping.
     """
 
     def __init__(self, table_id: Ferc1TableId):
@@ -201,9 +202,8 @@ def get_raw_plants_ferc1(
         years: Years for which plants should be compiled.
 
     Returns:
-        A dataframe containing columns ``utility_id_ferc1``, ``utility_name_ferc1``,
-        ``plant_name``, ``capacity_mw``, and ``plant_table``. Each row is a unique
-        combination of ``utility_id_ferc1`` and ``plant_name``.
+        A dataframe containing plant records from all relevant FERC1 plant tables. Each
+        row is a unique combination of ``utility_id_ferc1`` and ``plant_name``.
     """
     # Validate the input years:
     _ = pudl.settings.Ferc1Settings(years=list(years))
@@ -213,7 +213,7 @@ def get_raw_plants_ferc1(
         # "plants_pumped_storage_ferc1",
         # "plants_small_ferc1",
         "plants_steam_ferc1",
-        "fuel_ferc1",
+        "fuel_ferc1",  # bc it has plants/is associated w/ the steam table
     ]
     ferc1_settings = pudl.settings.Ferc1Settings(tables=plant_tables)
     # Extract FERC form 1
@@ -271,10 +271,10 @@ def get_missing_ids(
     return missing
 
 
-def document_plant_eia_ids_for_mannual_mapping(
+def document_plant_eia_ids_for_manual_mapping(
     unmapped_plants_eia: pd.DataFrame, pudl_out: pudl.output.pudltabl.PudlTabl
 ) -> pd.DataFrame:
-    """Label the unmapped_plants_eia for mannual mapping.
+    """Label the unmapped_plants_eia for manual mapping.
 
     The main things to add to the EIA plants are the name, utility and the
     ``capacity_mw`` from the most recent year of data.

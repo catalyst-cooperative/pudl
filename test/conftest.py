@@ -153,7 +153,7 @@ def pudl_out_orig(live_dbs, pudl_engine):
     return PudlTabl(pudl_engine=pudl_engine)
 
 
-@pytest.fixture(scope="session", name="ferc1_dbf_engine")
+@pytest.fixture(scope="session", name="ferc1_engine_dbf")
 def ferc1_dbf_sql_engine(
     pudl_settings_fixture,
     live_dbs,
@@ -177,7 +177,7 @@ def ferc1_dbf_sql_engine(
     return engine
 
 
-@pytest.fixture(scope="session", name="ferc1_xbrl_engine")
+@pytest.fixture(scope="session", name="ferc1_engine_xbrl")
 def ferc1_xbrl_sql_engine(
     pudl_settings_fixture,
     live_dbs,
@@ -210,8 +210,8 @@ def ferc1_xbrl_sql_engine(
 
 @pytest.fixture(scope="session", name="pudl_engine")
 def pudl_sql_engine(
-    ferc1_dbf_engine,  # Implicit dependency
-    ferc1_xbrl_engine,  # Implicit dependency
+    ferc1_engine_dbf,  # Implicit dependency
+    ferc1_engine_xbrl,  # Implicit dependency
     live_dbs,
     pudl_settings_fixture,
     etl_settings,
