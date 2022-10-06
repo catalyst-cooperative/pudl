@@ -124,15 +124,6 @@ def plants_eia860(pudl_engine, start_date=None, end_date=None):
         plants_g_eia_tbl.c.plant_id_pudl,
     )
     plants_g_eia_df = pd.read_sql(plants_g_eia_select, pudl_engine)
-    # generator table for capacity
-    gens_eia860_tbl = pt["generators_eia860"]
-    gens_eia860_select = sa.sql.select(gens_eia860_tbl)
-    plant_capacity = (
-        pd.read_sql(gens_eia860_select, pudl_engine)
-        .groupby(["plant_id_eia", "report_date"], as_index=False)[["capacity_mw"]]
-        .sum(min_count=1)
-        .pipe(apply_pudl_dtypes, group="eia")
-    )
 
     utils_eia_tbl = pt["utilities_eia"]
     utils_eia_select = sa.sql.select(utils_eia_tbl)
@@ -141,7 +132,6 @@ def plants_eia860(pudl_engine, start_date=None, end_date=None):
     out_df = (
         pd.merge(plants_eia_df, plants_eia860_df, how="left", on=["plant_id_eia"])
         .merge(plants_g_eia_df, how="left", on=["plant_id_eia"])
-        .merge(plant_capacity, how="left", on=["plant_id_eia", "report_date"])
         .merge(utils_eia_df, how="left", on=["utility_id_eia"])
         .dropna(subset=["report_date", "plant_id_eia"])
         .pipe(fill_in_missing_ba_codes)

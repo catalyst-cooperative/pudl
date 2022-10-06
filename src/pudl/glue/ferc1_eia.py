@@ -36,6 +36,7 @@ import sqlalchemy as sa
 
 import pudl
 from pudl.helpers import get_logger
+from pudl.metadata.fields import apply_pudl_dtypes
 from pudl.transform.classes import StringNormalization, normalize_strings
 from pudl.transform.ferc1 import Ferc1AbstractTableTransformer, Ferc1TableId
 
@@ -292,18 +293,34 @@ def document_plant_eia_ids_for_manual_mapping(
         pudl_out: pudl output object.
     """
     plants = pudl_out.plants_eia860()
+    # generator table for capacity
+    plant_capacity = (
+        pudl_out.gens_eia860()
+        .groupby(["plant_id_eia", "report_date"], as_index=False)[["capacity_mw"]]
+        .sum(min_count=1)
+        .pipe(apply_pudl_dtypes, group="eia")
+    )
     most_recent_date = max(plants.report_date)
-    unmapped_plants = plants.loc[unmapped_plants_eia].loc[
-        (plants.report_date == most_recent_date),
-        [
-            "plant_id_eia",
-            "plant_name_eia",
-            "utility_id_eia",
-            "utility_name_eia",
-            "state",
-            "capacity_mw",
-        ],
-    ]
+    unmapped_plants = (
+        plants.merge(
+            plant_capacity,
+            on=["plant_id_eia", "report_date"],
+            how="left",
+            validate="1:1",
+        )
+        .loc[unmapped_plants_eia]
+        .loc[
+            (plants.report_date == most_recent_date),
+            [
+                "plant_id_eia",
+                "plant_name_eia",
+                "utility_id_eia",
+                "utility_name_eia",
+                "state",
+                "capacity_mw",
+            ],
+        ]
+    )
     return unmapped_plants
 
 
