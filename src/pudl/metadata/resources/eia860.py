@@ -137,6 +137,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "owner_name",
                 "owner_state",
                 "owner_city",
+                "owner_country",
                 "owner_street_address",
                 "owner_zip_code",
                 "fraction_owned",
