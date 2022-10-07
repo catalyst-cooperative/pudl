@@ -182,19 +182,24 @@ def ferc1_xbrl_sql_engine(
     pudl_settings_fixture,
     live_dbs,
     ferc_to_sqlite_settings,
-    pudl_datastore_fixture,
+    pudl_ds_kwargs,
 ):
     """Grab a connection to the FERC Form 1 DB clone.
 
     If we are using the test database, we initialize it from scratch first. If we're
     using the live database, then we just yield a conneciton to it.
     """
+    # For now explicitly create datastore using sandbox
+    # This should use pudl_datastore once an official FERC1 XBRL archive is created
+    ds_kwargs = {**pudl_ds_kwargs, "sandbox": True}
+    datastore = pudl.workspace.datastore.Datastore(**ds_kwargs)
+
     if not live_dbs:
         pudl.extract.xbrl.xbrl2sqlite(
             ferc_to_sqlite_settings=ferc_to_sqlite_settings,
             pudl_settings=pudl_settings_fixture,
             clobber=False,
-            datastore=pudl_datastore_fixture,
+            datastore=datastore,
             workers=5,
             batch_size=20,
         )
