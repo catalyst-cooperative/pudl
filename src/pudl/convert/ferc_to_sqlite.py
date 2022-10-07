@@ -120,8 +120,7 @@ def main():  # noqa: C901
 
     pudl_settings["sandbox"] = args.sandbox
 
-    # Check that DBF data has been requested
-    if parsed_settings.ferc1_dbf_to_sqlite_settings is not None:
+    if parsed_settings.ferc1_dbf_to_sqlite_settings:
         pudl.extract.ferc1.dbf2sqlite(
             ferc1_to_sqlite_settings=parsed_settings.ferc1_dbf_to_sqlite_settings,
             pudl_settings=pudl_settings,
@@ -129,12 +128,11 @@ def main():  # noqa: C901
             datastore=Datastore(**ds_kwargs),
         )
 
-    xbrl_ds_kwargs = {**ds_kwargs, "sandbox": True}
     pudl.extract.xbrl.xbrl2sqlite(
         ferc_to_sqlite_settings=parsed_settings,
         pudl_settings=pudl_settings,
         clobber=args.clobber,
-        datastore=Datastore(**xbrl_ds_kwargs),
+        datastore=Datastore(**ds_kwargs),
         batch_size=args.batch_size,
         workers=args.workers,
     )
