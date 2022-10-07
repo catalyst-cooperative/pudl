@@ -73,56 +73,56 @@ ID_PARAMETERS = [
         "utilities_ferc1_dbf",
         ["utility_id_ferc1"],
         None,
-        id="validate_utility_id_ferc1_in_utilities_ferc1_dbf",
+        id="missing_utility_id_ferc1_in_utilities_ferc1_dbf",
     ),
     pytest.param(
         "utilities_ferc1",
         "utilities_ferc1_xbrl",
         ["utility_id_ferc1"],
         None,
-        id="validate_utility_id_ferc1_in_utilities_ferc1_xbrl",
+        id="missing_utility_id_ferc1_in_utilities_ferc1_xbrl",
     ),
     pytest.param(
         "utilities_ferc1",
         "plants_ferc1",
         ["utility_id_ferc1"],
         None,
-        id="validate_utility_id_ferc1_in_plants_ferc1",
+        id="missing_utility_id_ferc1_in_plants_ferc1",
     ),
     pytest.param(
         "utilities_ferc1_xbrl",
         "util_ids_ferc1_raw_xbrl",
         ["utility_id_ferc1_xbrl"],
         None,
-        id="check_for_unmmaped_utility_id_ferc1_xbrl_in_raw_xbrl",
+        id="missing_utility_id_ferc1_xbrl_in_raw_xbrl",
     ),
     pytest.param(
         "utilities_ferc1_dbf",
         "util_ids_ferc1_raw_dbf",
         ["utility_id_ferc1_dbf"],
         None,
-        id="check_for_unmmaped_utility_id_ferc1_dbf_in_raw_dbf",
+        id="missing_utility_id_ferc1_dbf_in_raw_dbf",
     ),
     pytest.param(
         "plants_pudl",
         "plants_ferc1",
         ["plant_id_pudl"],
         None,
-        id="validate_plant_id_pudl_in_plants_ferc1",
+        id="missing_plant_id_pudl_in_plants_ferc1",
     ),
     pytest.param(
         "plants_ferc1",
         "plants_ferc1_raw",
         ["utility_id_ferc1", "plant_name_ferc1"],
         None,
-        id="check_for_unmmapped_plants_in_plants_ferc1",
+        id="missing_plants_in_plants_ferc1",
     ),
     pytest.param(
         "plants_eia",
         "plants_eia_pudl_db",
         ["plant_id_eia"],
         document_plant_eia_ids_for_manual_mapping,
-        id="check_for_unmmapped_plants_in_plants_eia",
+        id="missing_plants_in_plants_eia",
     ),
 ]
 
@@ -133,7 +133,7 @@ def test_for_fk_validation_and_unmapped_ids(
     ids_right: str,
     id_cols: list[str],
     label_func: Callable | None,
-    glue_test_dfs: dict,
+    glue_test_dfs: dict[str, pd.DataFrame],
     pudl_out: PudlTabl,
     save_unmapped_ids: bool,
     test_dir,
@@ -142,12 +142,15 @@ def test_for_fk_validation_and_unmapped_ids(
     """Test that the stored ids are internally consistent. Label and save (optionally).
 
     Args:
-        ids_left: name of fixure cooresponding to a dataframe which contains ID's
-        ids_right: name of fixure cooresponding to a dataframe which contains ID's
+        ids_left: name of key to access corresponding to a dataframe which contains
+            ID's in ``glue_test_dfs``
+        ids_right: name of key to access corresponding to a dataframe which contains
+            ID's in ``glue_test_dfs``
         id_cols: list of ID column(s)
         label_func: If a labeling function is provided, label the missing ID's with
             flags and columns needed for manual mapping
         pudl_out: an instance of a pudl output object
+        glue_test_dfs: a dictionary of dataframes
         save_unmapped_ids: If ``True``, export any missing ID's.
         test_dir: path to the ``test`` directory. Will be used to construct path to the
             ``devtools/ferc1-eia-glue`` directory to save outputs into.
@@ -197,8 +200,10 @@ def test_for_unmapped_ids_minus_one(
     """Test that we will find one unmapped ID after dropping one.
 
     Args:
-        ids_left: name of fixure cooresponding to a dataframe which contains ID's
-        ids_right: name of fixure cooresponding to a dataframe which contains ID's
+        ids_left: name of key to access corresponding to a dataframe which contains
+            ID's in ``glue_test_dfs``
+        ids_right: name of key to access corresponding to a dataframe which contains
+            ID's in ``glue_test_dfs``
         id_cols: list of ID column(s)
         drop: a tuple of the one record IDs to drop
         glue_test_dfs: dictionary of tables needed.

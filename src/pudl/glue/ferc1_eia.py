@@ -37,8 +37,9 @@ import sqlalchemy as sa
 import pudl
 from pudl.helpers import get_logger
 from pudl.metadata.fields import apply_pudl_dtypes
-from pudl.transform.classes import StringNormalization, normalize_strings
+from pudl.transform.classes import StringNormalization, normalize_strings_multicol
 from pudl.transform.ferc1 import Ferc1AbstractTableTransformer, Ferc1TableId
+from pudl.transform.params.ferc1 import FERC1_STRING_NORM
 
 logger = get_logger(__name__)
 
@@ -46,13 +47,16 @@ PUDL_ID_MAP_XLSX = importlib.resources.open_binary(
     "pudl.package_data.glue", "pudl_id_mapping.xlsx"
 )
 """Path to the PUDL ID mapping sheet with the plant map."""
+
 UTIL_ID_PUDL_MAP_CSV = importlib.resources.open_text(
     "pudl.package_data.glue", "utility_id_pudl.csv"
 )
-""
+"""Path to the PUDL utility ID mapping CSV."""
+
 UTIL_ID_FERC_MAP_CSV = importlib.resources.open_text(
     "pudl.package_data.glue", "utility_id_ferc1.csv"
 )
+"""Path to the PUDL-assign FERC1 utility ID mapping CSV."""
 
 #####################################
 # Stored Maps of plants and utilities
@@ -127,15 +131,6 @@ def get_mapped_plants_eia():
 ##########################
 
 
-def string_normalize_col_ferc1(df: pd.DataFrame, col) -> pd.DataFrame:
-    """Normalize the strings for a particular FERC1 column."""
-    df[col] = normalize_strings(
-        df[col],
-        StringNormalization(**pudl.transform.params.ferc1.FERC1_STRING_NORM),
-    )
-    return df
-
-
 def get_util_ids_ferc1_raw_xbrl(ferc1_engine_xbrl: sa.engine.Engine) -> pd.DataFrame:
     """Grab the utility ids (reported as `entity_id`) in the FERC1 XBRL database."""
     all_utils_ferc1_xbrl = (
@@ -149,7 +144,10 @@ def get_util_ids_ferc1_raw_xbrl(ferc1_engine_xbrl: sa.engine.Engine) -> pd.DataF
                 "respondent_legal_name": "utility_name_ferc1",
             }
         )
-        .pipe(string_normalize_col_ferc1, "utility_name_ferc1")
+        .pipe(
+            normalize_strings_multicol,
+            {"utility_name_ferc1": StringNormalization(**FERC1_STRING_NORM)},
+        )
         .drop_duplicates(subset=["utility_id_ferc1_xbrl"])
     )
     return all_utils_ferc1_xbrl
@@ -165,7 +163,10 @@ def get_utils_ferc1_raw_dbf(ferc1_engine_dbf: sa.engine.Engine) -> pd.DataFrame:
                 "respondent_name": "utility_name_ferc1",
             }
         )
-        .pipe(string_normalize_col_ferc1, "utility_name_ferc1")
+        .pipe(
+            normalize_strings_multicol,
+            {"utility_name_ferc1": StringNormalization(**FERC1_STRING_NORM)},
+        )
         .drop_duplicates(subset=["utility_id_ferc1_dbf"])
     )
     return all_utils_ferc1_dbf
