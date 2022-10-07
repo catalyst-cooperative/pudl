@@ -28,6 +28,7 @@ def pudl_out(pudl_engine, pudl_datastore_fixture):
         pudl_engine,
         ds=pudl_datastore_fixture,
         freq=None,
+        fill_tech_desc=False,
     )
 
 
@@ -49,7 +50,7 @@ def glue_test_dfs(
     return glue_test_dfs
 
 
-def save_to_devtools_glue(df, test_dir, request):
+def save_to_devtools_glue(index: pd.Index, test_dir, request):
     """Save a dataframe as a CSV to the glue directory in devtools."""
     file_path = Path(
         test_dir.parent,
@@ -57,7 +58,7 @@ def save_to_devtools_glue(df, test_dir, request):
         "ferc1-eia-glue",
         f"{request.node.callspec.id}.csv",
     )
-    df.to_csv(file_path)
+    pd.DataFrame(index=index).to_csv(file_path)
 
 
 ID_PARAMETERS = [
@@ -166,7 +167,7 @@ def test_for_fk_validation_and_unmapped_ids(
     if label_func:
         missing = label_func(missing, pudl_out)
     if save_unmapped_ids:
-        save_to_devtools_glue(df=missing, test_dir=test_dir, request=request)
+        save_to_devtools_glue(index=missing, test_dir=test_dir, request=request)
     if not missing.empty:
         raise AssertionError(f"Found {len(missing)} {id_cols}: {missing}")
 
@@ -228,7 +229,10 @@ def test_unmapped_utils_eia(
         pudl_out, pudl_engine, glue_test_dfs["utilities_eia"]
     )
     if save_unmapped_ids:
-        save_to_devtools_glue(df=unmapped_utils_eia, test_dir=test_dir, request=request)
+        request.node.callspec.id = "missing_utils_eia"
+        save_to_devtools_glue(
+            index=unmapped_utils_eia, test_dir=test_dir, request=request
+        )
     if not unmapped_utils_eia.empty:
         raise AssertionError(
             f"Found {len(unmapped_utils_eia)} unmapped EIA utilities, expected 0."

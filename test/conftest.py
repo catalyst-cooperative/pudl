@@ -61,7 +61,7 @@ def pytest_addoption(parser):
         help="Write the unmapped IDs to disk.",
     )
     parser.addoption(
-        "--ignore-foreign-key-constaints",
+        "--ignore-foreign-key-constraints",
         action="store_true",
         default=False,
         help="If enabled, do not check the foreign keys.",
@@ -89,7 +89,7 @@ def save_unmapped_ids(request):
 @pytest.fixture(scope="session", name="check_foreign_keys")
 def check_foreign_keys(request):
     """Fixture that tells whether to use existing live FERC1/PUDL DBs)."""
-    return not request.config.getoption("--ignore-foreign-key-constaints")
+    return not request.config.getoption("--ignore-foreign-key-constraints")
 
 
 @pytest.fixture(scope="session", name="etl_settings")
