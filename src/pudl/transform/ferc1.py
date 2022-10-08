@@ -445,7 +445,7 @@ class FuelFerc1TableTransformer(Ferc1AbstractTableTransformer):
     def transform_main(self, df: pd.DataFrame) -> pd.DataFrame:
         """Table specific transforms for fuel_ferc1.
 
-        Params:
+        Args:
             df: Pre-processed, concatenated XBRL and DBF data.
 
         Returns:
@@ -484,6 +484,14 @@ class FuelFerc1TableTransformer(Ferc1AbstractTableTransformer):
         can't create a record ID until that fuel type value is clean. In addition, the
         categorization of fuel types results in a number of duplicate fuel records which
         need to be aggregated.
+
+        Args:
+            raw_xbrl_instant: Freshly extracted XBRL instant fact table.
+            raw_xbrl_duration: Freshly extracted XBRL duration fact table.
+
+        Returns:
+            Almost fully transformed XBRL data table, with instant and duration facts
+            merged together.
         """
         return (
             self.merge_instant_and_duration_tables_xbrl(
@@ -700,7 +708,7 @@ class FuelFerc1TableTransformer(Ferc1AbstractTableTransformer):
 
 
 class PlantsSteamFerc1TableTransformer(Ferc1AbstractTableTransformer):
-    """Transformer class for the plants_steam_ferc1 table."""
+    """Transformer class for the :ref:`plants_steam_ferc1` table."""
 
     table_id: Ferc1TableId = Ferc1TableId.PLANTS_STEAM_FERC1
 
@@ -708,7 +716,7 @@ class PlantsSteamFerc1TableTransformer(Ferc1AbstractTableTransformer):
     def transform_main(
         self, df: pd.DataFrame, transformed_fuel: pd.DataFrame
     ) -> pd.DataFrame:
-        """Perform table transformations for the plants_steam_ferc1 table.
+        """Perform table transformations for the :ref:`plants_steam_ferc1` table.
 
         Note that this method has a non-standard call signature, since the
         :ref:`plants_steam_ferc1` table depends on the :ref:`fuel_ferc1` table.
