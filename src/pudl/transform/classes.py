@@ -785,17 +785,40 @@ def cache_df(key: str = "main") -> Callable[..., pd.DataFrame]:
 class AbstractTableTransformer(ABC):
     """An abstract base table transformer class.
 
-    * Provides a default transform method.
-    * Structured into three phases, which must be defined by children.
-    * Handles intermediate dataframe caching.
-    * Will grab associated parameters based on table ID if not passed in.
-    * Only methods that are generally useful across data sources should be defined here.
-    * Methods that must be defined by child classes are denoted with @abstractmethod.
-    * Methods should log that they're running.
-    * Methods should grab their parameters by default, but allow parameters to be
-      passed in too.
-    * Dealing with transforms that take more than one dataframe in or return more than
-      one dataframe.
+    This class provides methods for applying the general purpose transform funcitons to
+    dataframes. These methods should each log that they are running, and the
+    ``table_id`` of the table they're beiing applied to. By default they should obtain
+    their parameters from the ``params`` which are stored in the class, but should allow
+    other parameters to be passed in.
+
+    The class also provides a template for coordinating the high level flow of data
+    through the transformations. The main coordinating function that's used to run the
+    full transformation is :meth:`AbstractTableTransformer.transform`, and the transform
+    is broken down into 3 distinct steps: start, main, and end. Those individual steps
+    need to be defined by child classes. Usually the start and end methods will handle
+    transformations that need to be applied uniformily across all the tables in a given
+    dataset, with the main step containing transformations that are specific to a
+    particular table.
+
+    In development it's often useful to be able to review the state of the data at
+    various stages as it progresses through the transformation. The :func:`cache_df`
+    decorator defined above can be applied to individual transform methods or the
+    start, main, and end methods defined in the child classes, to allow intermediate
+    dataframes to be reviewed after the fact. Whether to cache dataframes and whether to
+    delete them upon successful completion of the transform is controlled by flags set
+    when the ``TableTransformer`` class is created.
+
+    Table-specific transform parameters need to be associated with the class. They can
+    either be passed in explicitly when the class is instantiated, or looked up based on
+    the ``table_id`` associated with the class. See :meth:`TableTransformParams.from_id`
+
+    The call signature of the :meth:`AbstractTableTransformer.transform_start` method
+    accepts any type of inputs by default, and returns a single :class:`pd.DataFrame`.
+    Later transform steps are assumed to take a single dataframe as input, and return a
+    single dataframe. Since Python is lazy about enforcing types and interfaces you can
+    get away with other kinds of arguments when they're sometimes necessary, but this
+    isn't a good arrangement and we should figure out how to do it right. See the
+    :class:`pudl.transform.ferc1.PlantsSteamFerc1TableTransformer` class for an example.
     """
 
     table_id: enum.Enum
@@ -857,6 +880,9 @@ class AbstractTableTransformer(ABC):
         dataframes, and one DBF derived dataframe, while (most) EIA tables just receive
         and return a single dataframe.
 
+        This step is often used to organize initial transformations that are applied
+        uniformly across all the tables in a dataset.
+
         At the end of this step, all the inputs should have been consolidated into a
         single dataframe to return.
         """
@@ -864,7 +890,16 @@ class AbstractTableTransformer(ABC):
 
     @abstractmethod
     def transform_main(self, df: pd.DataFrame, **kwargs) -> pd.DataFrame:
-        """The workhorse method doing most of the table-specific transformations."""
+        """The method used to do most of the table-specific transformations.
+
+        Typically the transformations grouped together into this method will be unique
+        to the table that is being transformed. Generally this method will take and
+        return a single dataframe, and that pattern is implemented in the
+        :meth:`AbstractTableTransformer.transform` method. In cases where transforms
+        take or return more than one dataframe, you will need to define a new transform
+        method within the child class. See :class:`PlantsSteamFerc1TableTransformer`
+        as an example.
+        """
         ...
 
     @abstractmethod
