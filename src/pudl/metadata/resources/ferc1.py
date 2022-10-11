@@ -403,11 +403,31 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "field_namespace": "ferc1",
     },
     "utilities_ferc1": {
-        "description": "This table maps the manually assigned PUDL utility ID to a FERC respondent ID, enabling a connection between the FERC and EIA data sets. It also stores the utility name associated with the FERC respondent ID. Those values originate in the f1_respondent_id table in FERC's FoxPro database, which is stored in a file called F1_1.DBF. This table is generated from a spreadsheet stored in the PUDL repository: src/package_data/glue/pudl_id_mapping.xlsx",
+        "description": "This table maps two manually assigned utility IDs: a PUDL ID and a FERC1 ID. The PUDL ID maps EIA and FERC1 utilities. The FERC1 ID maps the older DBF respondent IDs to new XBRL entity IDs. This table is generated from a table stored in the PUDL repository: src/package_data/glue/utility_id_pudl.csv",
         "schema": {
             "fields": ["utility_id_ferc1", "utility_name_ferc1", "utility_id_pudl"],
             "primary_key": ["utility_id_ferc1"],
             "foreign_key_rules": {"fields": [["utility_id_ferc1"]]},
+        },
+        "sources": ["ferc1"],
+        "etl_group": "glue",
+        "field_namespace": "ferc1",
+    },
+    "utilities_ferc1_dbf": {
+        "description": "This table maps the assign utility ID FERC1 to the native utility ID from the FERC1 DBF inputs - originally reported as respondent_id.",
+        "schema": {
+            "fields": ["utility_id_ferc1", "utility_id_ferc1_dbf"],
+            "primary_key": ["utility_id_ferc1_dbf"],
+        },
+        "sources": ["ferc1"],
+        "etl_group": "glue",
+        "field_namespace": "ferc1",
+    },
+    "utilities_ferc1_xbrl": {
+        "description": "This table maps the assign utility ID FERC1 to the native utility ID from the FERC1 XBRL inputs - originally reported as entity_id.",
+        "schema": {
+            "fields": ["utility_id_ferc1", "utility_id_ferc1_xbrl"],
+            "primary_key": ["utility_id_ferc1_xbrl"],
         },
         "sources": ["ferc1"],
         "etl_group": "glue",

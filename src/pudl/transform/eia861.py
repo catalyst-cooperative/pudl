@@ -729,7 +729,7 @@ def _compare_nerc_physical_w_nerc_operational(df: pd.DataFrame) -> pd.DataFrame:
     utility operates in multiple nerc regions in which case one row will match and
     another row will not. The output of this function in a table that shows only the
     utilities where the physical nerc region does not match the operational region
-    ever, meaning there is no additional row for the same utlity during the same
+    ever, meaning there is no additional row for the same utility during the same
     year where there is a match between the cols.
 
     Args:

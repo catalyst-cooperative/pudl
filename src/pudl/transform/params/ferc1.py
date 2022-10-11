@@ -1651,7 +1651,7 @@ TRANSFORM_PARAMS = {
         "rename_columns_ferc1": {
             "dbf": {
                 "columns": {
-                    "respondent_id": "utility_id_ferc1",
+                    "respondent_id": "utility_id_ferc1_dbf",
                     "plant_name": "plant_name_ferc1",
                     "fuel": "fuel_type_code_pudl",
                     "fuel_unit": "fuel_units",
@@ -1686,7 +1686,7 @@ TRANSFORM_PARAMS = {
                     "report_year": "report_year",
                     "fuel_kind": "fuel_kind",
                     "end_date": "end_date",
-                    "entity_id": "entity_id",
+                    "entity_id": "utility_id_ferc1_xbrl",
                     "start_date": "start_date",
                 }
             },
@@ -1704,6 +1704,7 @@ TRANSFORM_PARAMS = {
             "plant_name_ferc1": FERC1_STRING_NORM,
             "fuel_type_code_pudl": FERC1_STRING_NORM,
             "fuel_units": FERC1_STRING_NORM,
+            "utility_name_ferc1": FERC1_STRING_NORM,
         },
         "correct_units": [
             COAL_MMBTU_PER_UNIT_CORRECTIONS,
@@ -1713,18 +1714,32 @@ TRANSFORM_PARAMS = {
             GAS_COST_PER_MMBTU_CORRECTIONS,
             OIL_COST_PER_MMBTU_CORRECTIONS,
         ],
-        "drop_invalid_rows": {
-            "invalid_values": [0, pd.NA, np.nan],
-            "required_valid_cols": [
-                "fuel_consumed_units",
-                "fuel_cost_per_mmbtu",
-                "fuel_cost_per_mwh",
-                "fuel_cost_per_unit_delivered",
-                "fuel_cost_per_unit_burned",
-                "fuel_mmbtu_per_unit",
-                "fuel_units",
-            ],
-        },
+        "drop_invalid_rows": [
+            {
+                "invalid_values": [0, pd.NA, np.nan, ""],
+                "required_valid_cols": [
+                    "fuel_consumed_units",
+                    "fuel_cost_per_mmbtu",
+                    "fuel_cost_per_mwh",
+                    "fuel_cost_per_unit_delivered",
+                    "fuel_cost_per_unit_burned",
+                    "fuel_mmbtu_per_unit",
+                    "fuel_units",
+                ],
+            },
+            {
+                "invalid_values": [
+                    pd.NA,
+                    np.nan,
+                    "",
+                    "must 123",
+                    "must 456",
+                    "ant1-3",
+                    "elk 1-3",
+                ],
+                "required_valid_cols": ["plant_name_ferc1"],
+            },
+        ],
     },
     "plants_steam_ferc1": {
         "rename_columns_ferc1": {
@@ -1747,7 +1762,7 @@ TRANSFORM_PARAMS = {
                     "expns_rents": "opex_rents",
                     "tot_prdctn_expns": "opex_production_total",
                     "plant_kind": "plant_type",
-                    "respondent_id": "utility_id_ferc1",
+                    "respondent_id": "utility_id_ferc1_dbf",
                     "expns_operations": "opex_operations",
                     "cost_equipment": "capex_equipment",
                     "type_const": "construction_type",
@@ -1816,7 +1831,7 @@ TRANSFORM_PARAMS = {
                     "report_year": "report_year",
                     "order_number": "order_number",
                     "plant_name": "plant_name",
-                    "entity_id": "entity_id",
+                    "entity_id": "utility_id_ferc1_xbrl",
                 },
             },
         },
@@ -1824,6 +1839,7 @@ TRANSFORM_PARAMS = {
             "plant_name_ferc1": FERC1_STRING_NORM,
             "construction_type": FERC1_STRING_NORM,
             "plant_type": FERC1_STRING_NORM,
+            "utility_name_ferc1": FERC1_STRING_NORM,
         },
         "nullify_outliers": {
             "construction_year": VALID_PLANT_YEARS,
@@ -1838,21 +1854,75 @@ TRANSFORM_PARAMS = {
             "opex_per_kwh": PERKWH_TO_PERMWH,
             "net_generation_kwh": KWH_TO_MWH,
         },
-        "drop_invalid_rows": {
-            "invalid_values": [0, pd.NA, np.nan],
-            "allowed_invalid_cols": [
-                "record_id",
-                "utility_id_ferc1",
-                "plant_name_ferc1",
-                "report_year",
-                "entity_id",
-                "date",
-                "start_date",
-                "end_date",
-                "OrderNumber",
-                "PlantName",
-            ],
-        },
+        "drop_invalid_rows": [
+            {
+                "invalid_values": [0, "0", pd.NA, np.nan, "", "none"],
+                "allowed_invalid_cols": [
+                    "record_id",
+                    "utility_id_ferc1",
+                    "utility_id_ferc1_dbf",
+                    "utility_id_ferc1_xbrl",
+                    "plant_name_ferc1",
+                    "report_year",
+                    "date",
+                    "start_date",
+                    "end_date",
+                    "order_number",
+                    "plant_name",
+                    "plant_type",
+                ],
+            },
+            {
+                "invalid_values": [
+                    pd.NA,
+                    np.nan,
+                    "",
+                ],
+                "required_valid_cols": ["plant_name_ferc1"],
+            },
+        ],
+        # "spot_fix": [
+        #     {
+        #         "record_id_ferc1": "f1_steam_1999_12_72_0_1",
+        #         "fixes": {"plant_name_ferc1": "clifty creek"},
+        #     },
+        #     {
+        #         "record_id_ferc1": "f1_steam_2010_12_306_0_1",
+        #         "fixes": {"plant_name_ferc1": "harrison county"},
+        #     },
+        #     {
+        #         "record_id_ferc1": "f1_steam_1997_12_230_0_1",
+        #         "fixes": {"plant_name_ferc1": "hermiston generating"},
+        #     },
+        #     {
+        #         "record_id_ferc1": "f1_steam_1998_12_64_0_1",
+        #         "fixes": {"plant_name_ferc1": "hardee power station"},
+        #     },
+        #     {
+        #         "record_id_ferc1": "f1_steam_2015_12_276_0_1",
+        #         "fixes": {"plant_name_ferc1": "state line"},
+        #     },
+        #     {
+        #         "record_id_ferc1": "f1_steam_2014_12_276_0_1",
+        #         "fixes": {"plant_name_ferc1": "state line"},
+        #     },
+        #     {
+        #         "record_id_ferc1": "f1_steam_2003_12_62_2_3",
+        #         "fixes": {"plant_name_ferc1": "pea ridge"},
+        #     },
+        #     {
+        #         "record_id_ferc1": "f1_steam_2003_12_62_2_2",
+        #         "fixes": {"plant_name_ferc1": "smith"},
+        #     },
+        #     {
+        #         "record_id_ferc1": "f1_steam_2000_12_204_0_1",
+        #         "fixes": {"plant_name_ferc1": "seabrook"},
+        #     },
+        #     {
+        #         "record_id_ferc1": "f1_steam_2001_12_204_0_1",
+        #         "fixes": {"plant_name_ferc1": "seabrook"},
+        #     },
+        # ],
     },
 }
 """The full set of parameters used to transform the FERC Form 1 data.

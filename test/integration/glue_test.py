@@ -1,121 +1,238 @@
 """PyTest cases related to the integration between FERC1 & EIA 860/923."""
 import logging
+from collections.abc import Callable
+from pathlib import Path
+
+import pandas as pd
+import pytest
 
 from pudl.glue.ferc1_eia import (
-    get_db_plants_ferc1,
-    get_mapped_plants_ferc1,
-    get_mapped_utils_ferc1,
-    get_unmapped_plants_eia,
-    get_unmapped_plants_ferc1,
+    get_missing_ids,
+    get_raw_plants_ferc1,
     get_unmapped_utils_eia,
-    get_unmapped_utils_ferc1,
+    get_util_ids_ferc1_raw_xbrl,
+    get_utils_ferc1_raw_dbf,
+    glue,
+    label_plant_eia_ids_for_manual_mapping,
 )
 from pudl.metadata.classes import DataSource
+from pudl.output.pudltabl import PudlTabl
 
 logger = logging.getLogger(__name__)
 
 
-def test_unmapped_plants_ferc1(pudl_settings_fixture, ferc1_dbf_engine):
-    """Test that we can correctly identify unmapped FERC Form 1 DB plants.
+@pytest.fixture(scope="module")
+def pudl_out(pudl_engine, pudl_datastore_fixture):
+    """A PUDL output object for use in CI."""
+    return PudlTabl(
+        pudl_engine,
+        ds=pudl_datastore_fixture,
+        freq=None,
+        fill_tech_desc=False,
+    )
 
-    This test replicates :func:`pudl.glue.ferc1_eia.get_unmapped_plants_ferc1`
-    but deletes a plant from the raw FERC 1 DB contents, which should then be
-    identified as "unmapped."
+
+@pytest.fixture(scope="module")
+def glue_test_dfs(
+    pudl_out, ferc1_engine_xbrl, ferc1_engine_dbf, pudl_settings_fixture
+) -> dict[str, pd.DataFrame]:
+    """Make a dictionary of the dataframes required for this test module."""
+    glue_test_dfs = {
+        "plants_eia_pudl_db": pudl_out.plants_eia860(),
+        "util_ids_ferc1_raw_xbrl": get_util_ids_ferc1_raw_xbrl(ferc1_engine_xbrl),
+        "util_ids_ferc1_raw_dbf": get_utils_ferc1_raw_dbf(ferc1_engine_dbf),
+        "plants_ferc1_raw": get_raw_plants_ferc1(
+            pudl_settings=pudl_settings_fixture,
+            years=DataSource.from_id("ferc1").working_partitions["years"],
+        ),
+    }
+    glue_test_dfs.update(glue(eia=True, ferc1=True))
+    return glue_test_dfs
+
+
+def save_to_devtools_glue(index: pd.Index, test_dir, file_name: str):
+    """Save a dataframe as a CSV to the glue directory in devtools."""
+    file_path = Path(test_dir.parent, "devtools", "ferc1-eia-glue", file_name)
+    pd.DataFrame(index=index).to_csv(file_path)
+
+
+ID_PARAMETERS = [
+    pytest.param(
+        "utilities_pudl",
+        "utilities_ferc1",
+        ["utility_id_pudl"],
+        None,
+        id="validate_utility_id_pudl_in_utilities_ferc1",
+    ),
+    pytest.param(
+        "utilities_ferc1",
+        "utilities_ferc1_dbf",
+        ["utility_id_ferc1"],
+        None,
+        id="missing_utility_id_ferc1_in_utilities_ferc1_dbf",
+    ),
+    pytest.param(
+        "utilities_ferc1",
+        "utilities_ferc1_xbrl",
+        ["utility_id_ferc1"],
+        None,
+        id="missing_utility_id_ferc1_in_utilities_ferc1_xbrl",
+    ),
+    pytest.param(
+        "utilities_ferc1",
+        "plants_ferc1",
+        ["utility_id_ferc1"],
+        None,
+        id="missing_utility_id_ferc1_in_plants_ferc1",
+    ),
+    pytest.param(
+        "utilities_ferc1_xbrl",
+        "util_ids_ferc1_raw_xbrl",
+        ["utility_id_ferc1_xbrl"],
+        None,
+        id="missing_utility_id_ferc1_xbrl_in_raw_xbrl",
+    ),
+    pytest.param(
+        "utilities_ferc1_dbf",
+        "util_ids_ferc1_raw_dbf",
+        ["utility_id_ferc1_dbf"],
+        None,
+        id="missing_utility_id_ferc1_dbf_in_raw_dbf",
+    ),
+    pytest.param(
+        "plants_pudl",
+        "plants_ferc1",
+        ["plant_id_pudl"],
+        None,
+        id="missing_plant_id_pudl_in_plants_ferc1",
+    ),
+    pytest.param(
+        "plants_ferc1",
+        "plants_ferc1_raw",
+        ["utility_id_ferc1", "plant_name_ferc1"],
+        None,
+        id="missing_plants_in_plants_ferc1",
+    ),
+    pytest.param(
+        "plants_eia",
+        "plants_eia_pudl_db",
+        ["plant_id_eia"],
+        label_plant_eia_ids_for_manual_mapping,
+        id="missing_plants_in_plants_eia",
+    ),
+]
+
+
+@pytest.mark.parametrize("ids_left,ids_right,id_cols,label_func", ID_PARAMETERS)
+def test_for_fk_validation_and_unmapped_ids(
+    ids_left: str,
+    ids_right: str,
+    id_cols: list[str],
+    label_func: Callable | None,
+    glue_test_dfs: dict[str, pd.DataFrame],
+    pudl_out: PudlTabl,
+    save_unmapped_ids: bool,
+    test_dir,
+    request,
+):
+    """Test that the stored ids are internally consistent. Label and save (optionally).
+
+    Args:
+        ids_left: name of key to access corresponding to a dataframe which contains
+            ID's in ``glue_test_dfs``
+        ids_right: name of key to access corresponding to a dataframe which contains
+            ID's in ``glue_test_dfs``
+        id_cols: list of ID column(s)
+        label_func: If a labeling function is provided, label the missing ID's with
+            flags and columns needed for manual mapping
+        pudl_out: an instance of a pudl output object
+        glue_test_dfs: a dictionary of dataframes
+        save_unmapped_ids: If ``True``, export any missing ID's.
+        test_dir: path to the ``test`` directory. Will be used to construct path to the
+            ``devtools/ferc1-eia-glue`` directory to save outputs into.
+
+    Raises:
+        AssertionError:
     """
-    actually_unmapped_plants = get_unmapped_plants_ferc1(
-        pudl_settings_fixture, DataSource.from_id("ferc1").working_partitions["years"]
+    missing = get_missing_ids(
+        glue_test_dfs[ids_left],
+        glue_test_dfs[ids_right],
+        id_cols,
     )
-    if not actually_unmapped_plants.empty:
-        raise AssertionError(
-            f"Found {len(actually_unmapped_plants)} unmapped FERC 1 plants, "
-            f"expected 0."
-            f"{actually_unmapped_plants}"
+    if label_func:
+        missing = label_func(missing, pudl_out)
+    if save_unmapped_ids:
+        save_to_devtools_glue(
+            index=missing,
+            test_dir=test_dir,
+            file_name=f"{request.node.callspec.id}.csv",
         )
+    if not missing.empty:
+        raise AssertionError(f"Found {len(missing)} {id_cols}: {missing}")
 
-    # Get all the plants in the FERC 1 DB:
-    db_plants = get_db_plants_ferc1(
-        pudl_settings_fixture, DataSource.from_id("ferc1").working_partitions["years"]
-    ).set_index(["utility_id_ferc1", "plant_name_ferc1"])
-    # Read in the mapped plants... but ditch Xcel's Comanche:
-    mapped_plants = (
-        get_mapped_plants_ferc1()
-        .set_index(["utility_id_ferc1", "plant_name_ferc1"])
-        .drop((145, "comanche"))
+
+@pytest.mark.parametrize(
+    "ids_left,ids_right,id_cols,drop",
+    [
+        pytest.param(
+            "plants_ferc1",
+            "plants_ferc1_raw",
+            ["utility_id_ferc1", "plant_name_ferc1"],
+            (227, "comanche"),
+            id="check_for_unmmapped_plants_in_plants_ferc1",
+        ),
+        pytest.param(
+            "utilities_ferc1",
+            "utilities_ferc1_xbrl",
+            ["utility_id_ferc1"],
+            (227),
+            id="validate_utility_id_ferc1_in_utilities_ferc1_xbrl",
+        ),
+    ],
+)
+def test_for_unmapped_ids_minus_one(
+    ids_left: str,
+    ids_right: str,
+    id_cols: list[str],
+    drop: tuple,
+    glue_test_dfs: dict[str, pd.DataFrame],
+):
+    """Test that we will find one unmapped ID after dropping one.
+
+    Args:
+        ids_left: name of key to access corresponding to a dataframe which contains
+            ID's in ``glue_test_dfs``
+        ids_right: name of key to access corresponding to a dataframe which contains
+            ID's in ``glue_test_dfs``
+        id_cols: list of ID column(s)
+        drop: a tuple of the one record IDs to drop
+        glue_test_dfs: dictionary of tables needed.
+
+    Raises:
+        AssertionError:
+    """
+    ids_minus_one = glue_test_dfs[ids_left].set_index(id_cols).drop(drop).reset_index()
+    missing = get_missing_ids(ids_minus_one, glue_test_dfs[ids_right], id_cols)
+    if len(missing) != 1:
+        raise AssertionError(f"Found {len(missing)} {id_cols} but expected 1.")
+
+
+def test_unmapped_utils_eia(
+    pudl_out, pudl_engine, glue_test_dfs, save_unmapped_ids, test_dir
+):
+    """Check for unmapped EIA Plants.
+
+    This test is duplicative with the sql foriegn key constraints.
+    """
+    unmapped_utils_eia = get_unmapped_utils_eia(
+        pudl_out, pudl_engine, glue_test_dfs["utilities_eia"]
     )
-    new_plants_index = db_plants.index.difference(mapped_plants.index)
-    unmapped_plants = db_plants.loc[new_plants_index].reset_index()
-    if len(unmapped_plants) != 1:
-        raise AssertionError(
-            f"Found {len(unmapped_plants)} unmapped FERC 1 plants instead of 1."
+    if save_unmapped_ids:
+        save_to_devtools_glue(
+            index=unmapped_utils_eia,
+            test_dir=test_dir,
+            file_name="missing_utility_id_eia_in_utilities_eia.csv",
         )
-
-
-def test_unmapped_utils_ferc1(pudl_settings_fixture, ferc1_dbf_engine):
-    """Test that we can identify unmapped FERC 1 utilities."""
-    # First run the unmapped utility function as is:
-    actually_unmapped_utils = get_unmapped_utils_ferc1(ferc1_dbf_engine)
-    if not actually_unmapped_utils.empty:
-        raise AssertionError(
-            f"Found {len(actually_unmapped_utils)} unmapped FERC 1 utilities, "
-            f"expected 0.\n"
-            f"{actually_unmapped_utils}"
-        )
-    logger.info("Found 0 unmapped FERC 1 utilities, as expected.")
-
-    # Now do the smae thing... but yanking one of the mapped utils:
-    mapped_utilities = (
-        get_mapped_utils_ferc1()
-        .set_index("utility_id_ferc1")
-        .drop(145)  # Drop Xcel Energy Colorado / PSCo.
-    )
-    # Get all the plants in the FERC 1 DB:
-    db_plants = get_db_plants_ferc1(
-        pudl_settings_fixture, DataSource.from_id("ferc1").working_partitions["years"]
-    ).set_index(["utility_id_ferc1", "plant_name_ferc1"])
-    # Read in the mapped plants... but ditch Xcel's Comanche:
-    mapped_plants = (
-        get_mapped_plants_ferc1()
-        .set_index(["utility_id_ferc1", "plant_name_ferc1"])
-        .drop((145, "comanche"))
-    )
-    new_plants_index = db_plants.index.difference(mapped_plants.index)
-    unmapped_plants = db_plants.loc[new_plants_index].reset_index()
-    # Generate a list of all utilities which have unmapped plants:
-    # (Since any unmapped utility *must* have unmapped plants)
-    utils_with_unmapped_plants = (
-        unmapped_plants.loc[:, ["utility_id_ferc1", "utility_name_ferc1"]]
-        .drop_duplicates("utility_id_ferc1")
-        .set_index("utility_id_ferc1")
-    )
-    # Find the indices of all utilities with unmapped plants that do not appear
-    # in the list of mapped utilities at all:
-    new_utilities_index = utils_with_unmapped_plants.index.difference(
-        mapped_utilities.index
-    )
-    # Use that index to select only the previously unmapped utilities:
-    unmapped_utilities = utils_with_unmapped_plants.loc[
-        new_utilities_index
-    ].reset_index()
-    if len(unmapped_utilities) != 1:
-        raise AssertionError(
-            f"Found {len(unmapped_utilities)} "
-            f"unmapped FERC 1 utilities instead of 1."
-        )
-
-
-def test_unmapped_plants_eia(pudl_settings_fixture, pudl_engine):
-    """Check for unmapped EIA Plants."""
-    unmapped_plants_eia = get_unmapped_plants_eia(pudl_engine)
-    if not unmapped_plants_eia.empty:
-        raise AssertionError(
-            f"Found {len(unmapped_plants_eia)} unmapped EIA plants, expected 0."
-            f"{unmapped_plants_eia}"
-        )
-
-
-def test_unmapped_utils_eia(pudl_settings_fixture, pudl_engine):
-    """Check for unmapped EIA Plants."""
-    unmapped_utils_eia = get_unmapped_utils_eia(pudl_engine)
     if not unmapped_utils_eia.empty:
         raise AssertionError(
             f"Found {len(unmapped_utils_eia)} unmapped EIA utilities, expected 0."

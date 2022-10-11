@@ -54,6 +54,18 @@ def pytest_addoption(parser):
         default=False,
         help="Use raw inputs from the Zenodo sandbox server.",
     )
+    parser.addoption(
+        "--save-unmapped-ids",
+        action="store_true",
+        default=False,
+        help="Write the unmapped IDs to disk.",
+    )
+    parser.addoption(
+        "--ignore-foreign-key-constraints",
+        action="store_true",
+        default=False,
+        help="If enabled, do not check the foreign keys.",
+    )
 
 
 @pytest.fixture(scope="session", name="test_dir")
@@ -66,6 +78,18 @@ def test_directory():
 def live_databases(request):
     """Fixture that tells whether to use existing live FERC1/PUDL DBs)."""
     return request.config.getoption("--live-dbs")
+
+
+@pytest.fixture(scope="session", name="save_unmapped_ids")
+def save_unmapped_ids(request):
+    """Fixture that tells whether to use existing live FERC1/PUDL DBs)."""
+    return request.config.getoption("--save-unmapped-ids")
+
+
+@pytest.fixture(scope="session", name="check_foreign_keys")
+def check_foreign_keys(request):
+    """Fixture that tells whether to use existing live FERC1/PUDL DBs)."""
+    return not request.config.getoption("--ignore-foreign-key-constraints")
 
 
 @pytest.fixture(scope="session", name="etl_settings")
@@ -99,7 +123,7 @@ def pudl_etl_parameters(etl_settings):
 def pudl_out_ferc1(live_dbs, pudl_engine, request):
     """Define parameterized PudlTabl output object fixture for FERC 1 tests."""
     if not live_dbs:
-        pytest.skip("Output tests only work with a live PUDL DB.")
+        pytest.skip("Validation tests only work with a live PUDL DB.")
     return PudlTabl(pudl_engine=pudl_engine, freq=request.param)
 
 
@@ -111,7 +135,7 @@ def pudl_out_ferc1(live_dbs, pudl_engine, request):
 def pudl_out_eia(live_dbs, pudl_engine, request):
     """Define parameterized PudlTabl output object fixture for EIA tests."""
     if not live_dbs:
-        pytest.skip("Output tests only work with a live PUDL DB.")
+        pytest.skip("Validation tests only work with a live PUDL DB.")
     return PudlTabl(
         pudl_engine=pudl_engine,
         freq=request.param,
@@ -125,11 +149,11 @@ def pudl_out_eia(live_dbs, pudl_engine, request):
 def pudl_out_orig(live_dbs, pudl_engine):
     """Create an unaggregated PUDL output object for checking raw data."""
     if not live_dbs:
-        pytest.skip("Output tests only work with a live PUDL DB.")
+        pytest.skip("Validation tests only work with a live PUDL DB.")
     return PudlTabl(pudl_engine=pudl_engine)
 
 
-@pytest.fixture(scope="session", name="ferc1_dbf_engine")
+@pytest.fixture(scope="session", name="ferc1_engine_dbf")
 def ferc1_dbf_sql_engine(
     pudl_settings_fixture,
     live_dbs,
@@ -153,7 +177,7 @@ def ferc1_dbf_sql_engine(
     return engine
 
 
-@pytest.fixture(scope="session", name="ferc1_xbrl_engine")
+@pytest.fixture(scope="session", name="ferc1_engine_xbrl")
 def ferc1_xbrl_sql_engine(
     pudl_settings_fixture,
     live_dbs,
@@ -181,11 +205,12 @@ def ferc1_xbrl_sql_engine(
 
 @pytest.fixture(scope="session", name="pudl_engine")
 def pudl_sql_engine(
-    ferc1_dbf_engine,  # Implicit dependency
-    ferc1_xbrl_engine,  # Implicit dependency
+    ferc1_engine_dbf,  # Implicit dependency
+    ferc1_engine_xbrl,  # Implicit dependency
     live_dbs,
     pudl_settings_fixture,
     etl_settings,
+    check_foreign_keys,
     request,
 ):
     """Grab a connection to the PUDL Database.
@@ -200,7 +225,7 @@ def pudl_sql_engine(
             etl_settings=etl_settings,
             pudl_settings=pudl_settings_fixture,
             clobber=False,
-            check_foreign_keys=True,
+            check_foreign_keys=check_foreign_keys,
             check_types=True,
             check_values=True,
             use_local_cache=not request.config.getoption("--bypass-local-cache"),
