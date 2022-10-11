@@ -418,7 +418,6 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "schema": {
             "fields": ["utility_id_ferc1", "utility_id_ferc1_dbf"],
             "primary_key": ["utility_id_ferc1_dbf"],
-            # "foreign_key_rules": {"fields": [["utility_id_ferc1"]]},
         },
         "sources": ["ferc1"],
         "etl_group": "glue",
@@ -429,7 +428,6 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "schema": {
             "fields": ["utility_id_ferc1", "utility_id_ferc1_xbrl"],
             "primary_key": ["utility_id_ferc1_xbrl"],
-            # "foreign_key_rules": {"fields": [["utility_id_ferc1"]]},
         },
         "sources": ["ferc1"],
         "etl_group": "glue",

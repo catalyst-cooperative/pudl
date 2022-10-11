@@ -50,14 +50,9 @@ def glue_test_dfs(
     return glue_test_dfs
 
 
-def save_to_devtools_glue(index: pd.Index, test_dir, request):
+def save_to_devtools_glue(index: pd.Index, test_dir, file_name: str):
     """Save a dataframe as a CSV to the glue directory in devtools."""
-    file_path = Path(
-        test_dir.parent,
-        "devtools",
-        "ferc1-eia-glue",
-        f"{request.node.callspec.id}.csv",
-    )
+    file_path = Path(test_dir.parent, "devtools", "ferc1-eia-glue", file_name)
     pd.DataFrame(index=index).to_csv(file_path)
 
 
@@ -167,7 +162,11 @@ def test_for_fk_validation_and_unmapped_ids(
     if label_func:
         missing = label_func(missing, pudl_out)
     if save_unmapped_ids:
-        save_to_devtools_glue(index=missing, test_dir=test_dir, request=request)
+        save_to_devtools_glue(
+            index=missing,
+            test_dir=test_dir,
+            file_name=f"{request.node.callspec.id}.csv",
+        )
     if not missing.empty:
         raise AssertionError(f"Found {len(missing)} {id_cols}: {missing}")
 
@@ -219,7 +218,7 @@ def test_for_unmapped_ids_minus_one(
 
 
 def test_unmapped_utils_eia(
-    pudl_out, pudl_engine, glue_test_dfs, save_unmapped_ids, test_dir, request
+    pudl_out, pudl_engine, glue_test_dfs, save_unmapped_ids, test_dir
 ):
     """Check for unmapped EIA Plants.
 
@@ -229,9 +228,10 @@ def test_unmapped_utils_eia(
         pudl_out, pudl_engine, glue_test_dfs["utilities_eia"]
     )
     if save_unmapped_ids:
-        request.node.callspec.id = "missing_utils_eia"
         save_to_devtools_glue(
-            index=unmapped_utils_eia, test_dir=test_dir, request=request
+            index=unmapped_utils_eia,
+            test_dir=test_dir,
+            file_name="missing_utility_id_eia_in_utilities_eia.csv",
         )
     if not unmapped_utils_eia.empty:
         raise AssertionError(
