@@ -146,9 +146,18 @@ def fuel_by_plant_ferc1(pudl_engine, thresh=0.5):
     Returns:
         pandas.DataFrame: A DataFrame with fuel use summarized by plant.
     """
+    fuel_categories = list(
+        pudl.transform.ferc1.FuelFerc1TableTransformer()
+        .params.categorize_strings["fuel_type_code_pudl"]
+        .categories.keys()
+    )
     fbp_df = (
         pd.read_sql_table("fuel_ferc1", pudl_engine)
-        .pipe(pudl.analysis.classify_plants_ferc1.fuel_by_plant_ferc1, thresh=thresh)
+        .pipe(
+            pudl.analysis.classify_plants_ferc1.fuel_by_plant_ferc1,
+            fuel_categories=fuel_categories,
+            thresh=thresh,
+        )
         .merge(
             plants_utils_ferc1(pudl_engine), on=["utility_id_ferc1", "plant_name_ferc1"]
         )

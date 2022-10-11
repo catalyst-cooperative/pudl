@@ -24,20 +24,20 @@ def test_pudl_engine(pudl_engine):
     assert "utilities_pudl" in insp.get_table_names()  # nosec: B101
 
 
-def test_ferc1_etl(ferc1_dbf_engine, ferc1_xbrl_engine):
+def test_ferc1_etl(ferc1_engine_dbf, ferc1_engine_xbrl):
     """Create a fresh FERC Form 1 SQLite DB and attempt to access it.
 
     Nothing needs to be in the body of this "test" because the database connections are
     created by the ferc1_engine fixture defined in conftest.py
     """
-    assert isinstance(ferc1_dbf_engine, sa.engine.Engine)  # nosec: B101
+    assert isinstance(ferc1_engine_dbf, sa.engine.Engine)  # nosec: B101
     assert (  # nosec: B101
-        "f1_respondent_id" in sa.inspect(ferc1_dbf_engine).get_table_names()
+        "f1_respondent_id" in sa.inspect(ferc1_engine_dbf).get_table_names()
     )
 
-    assert isinstance(ferc1_xbrl_engine, sa.engine.Engine)  # nosec: B101
+    assert isinstance(ferc1_engine_xbrl, sa.engine.Engine)  # nosec: B101
     assert (  # nosec: B101
-        "identification_001_duration" in sa.inspect(ferc1_xbrl_engine).get_table_names()
+        "identification_001_duration" in sa.inspect(ferc1_engine_xbrl).get_table_names()
     )
 
 
