@@ -281,8 +281,8 @@ def get_missing_ids(
     return ids_right.index.difference(ids_left.index)
 
 
-def document_plant_eia_ids_for_manual_mapping(
-    unmapped_plants_eia: pd.Series, pudl_out: pudl.output.pudltabl.PudlTabl
+def label_plant_eia_ids_for_manual_mapping(
+    unmapped_plants_eia: pd.Index, pudl_out: pudl.output.pudltabl.PudlTabl
 ) -> pd.DataFrame:
     """Label the unmapped_plants_eia for manual mapping.
 
@@ -290,7 +290,8 @@ def document_plant_eia_ids_for_manual_mapping(
     ``capacity_mw`` from the most recent year of data.
 
     Args:
-        unmapped_plants_eia: a table of the missing EIA plant IDS
+        unmapped_plants_eia: an index of ``plant_id_eia``'s that need to be labeled for
+            manual mapping.
         pudl_out: pudl output object.
     """
     plants = pudl_out.plants_eia860()

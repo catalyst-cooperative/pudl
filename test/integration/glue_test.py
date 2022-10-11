@@ -7,13 +7,13 @@ import pandas as pd
 import pytest
 
 from pudl.glue.ferc1_eia import (
-    document_plant_eia_ids_for_manual_mapping,
     get_missing_ids,
     get_raw_plants_ferc1,
     get_unmapped_utils_eia,
     get_util_ids_ferc1_raw_xbrl,
     get_utils_ferc1_raw_dbf,
     glue,
+    label_plant_eia_ids_for_manual_mapping,
 )
 from pudl.metadata.classes import DataSource
 from pudl.output.pudltabl import PudlTabl
@@ -122,7 +122,7 @@ ID_PARAMETERS = [
         "plants_eia",
         "plants_eia_pudl_db",
         ["plant_id_eia"],
-        document_plant_eia_ids_for_manual_mapping,
+        label_plant_eia_ids_for_manual_mapping,
         id="missing_plants_in_plants_eia",
     ),
 ]
