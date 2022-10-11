@@ -78,7 +78,7 @@ setup(
     ],
     extras_require={
         "dev": [
-            "black>=22.0,<22.9",
+            "black>=22.0,<22.11",
             "docformatter>=1.5,<1.6",
             "ipdb>=0.13,<0.14",
             "isort>=5.0,<5.11",
@@ -101,7 +101,7 @@ setup(
             "coverage>=5.3,<6.6",
             "doc8>=0.9,<1.1",
             "flake8>=4.0,<5.1",
-            "flake8-builtins>=1.5,<1.6",
+            "flake8-builtins>=1.5,<2.1",
             "flake8-docstrings>=1.5,<1.7",
             "flake8-rst-docstrings>=0.2,<0.3",
             "flake8-use-fstring>=1.0,<1.5",
