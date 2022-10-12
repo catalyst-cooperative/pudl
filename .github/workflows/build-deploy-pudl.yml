@@ -40,7 +40,7 @@ jobs:
 
       - name: Docker Metadata
         id: docker_metadata
-        uses: docker/metadata-action@v4.0.1
+        uses: docker/metadata-action@v4.1.0
         with:
           images: catalystcoop/pudl-etl
           flavor: |
@@ -54,7 +54,7 @@ jobs:
 
       - name: Login to DockerHub
         if: github.event_name != 'pull_request'
-        uses: docker/login-action@v2.0.0
+        uses: docker/login-action@v2.1.0
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
