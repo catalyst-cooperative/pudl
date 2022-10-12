@@ -258,9 +258,9 @@ all_commercial,4
 all_commercial,5
 all_industrial,6
 all_industrial,7
-electric_power,1
-electric_power,2
-electric_power,3
+all_electric_power,1
+all_electric_power,2
+all_electric_power,3
 """
     ),
 )
