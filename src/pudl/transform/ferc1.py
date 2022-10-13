@@ -1,4 +1,12 @@
-"""Classes & functions to process FERC Form 1 data before loading into the PUDL DB."""
+"""Classes & functions to process FERC Form 1 data before loading into the PUDL DB.
+
+Note that many of the classes/objects here inherit from/are instances of classes defined
+in :mod:`pudl.transform.classes`. Their design and relationships to each other are
+documented in that module.
+
+See :mod:`pudl.transform.params.ferc1` for the values that parameterize many of these
+transformations.
+"""
 import enum
 import importlib.resources
 import logging

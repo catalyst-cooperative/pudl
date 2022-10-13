@@ -22,23 +22,16 @@ they are organized into 3 separate levels of abstraction:
   * table-specific: used only once for a particular table, defined in a concrete class.
 
 These functions are not generally meant to be used independent of a ``TableTransfomer``
-class. They are wrapped by methods within the class definitions, which handle logging,
+class. They are wrapped by methods within the class definitions which handle logging
 and intermediate dataframe caching.
 
-  * Some transform functions operate on individual columns. They take a
-    :class:`pd.Series` and a :class:`TransformParam` and return a
-    :class:`pd.Series`. These functions implement the :class:`ColumnTransformFunc`
-    :class:`Protocol`.
-  * Other transform functions are intrinsically table-oriented since they depend on
-    more than one column of input data. They take a :class:`pd.DataFrame` and a
-    :class:`TransformParam` and return a :class:`pd.DataFrame`. These functions
-    implement the :class:`TableTransformFunc` :class:`Protocol`.
-  * Several instances of the same type of :class:`ColumnTransformFunc` that operate on
-    different columns using different parameters can be automatically combined into a
-    :class:`Callable` which implements the :class:`MultiColumnTransformFunc`
-    :class:`Protocol` using the :func:`multicol_transform_factory` function. This
-    multi-column transformer handles the iterative application of the underlying
-    columnwise transforms using the appropriate parameters.
+  * Transform functions that operate on individual columns should implement the
+    :class:`ColumnTransformFunc` :class:`Protocol`.
+  * Transform functions that need to operate on whole tables should implement the
+    :class:`TableTransformFunc` :class:`Protocol`.
+  * To iteratively apply a :class:`ColumnTransformFunc` to several columns in a table,
+    use :func:`multicol_transform_factory` to construct a
+    :class:`MultiColumnTransformFunc`
 
 Using a hierarchy of ``TableTransformer`` classes to organize the functions and
 parameters allows us to apply a particular set of transformations uniformly across every
@@ -111,8 +104,8 @@ class MultiColumnTransformParams(TransformParams):
     Keys are column names, values must all be the same type of :class:`TransformParams`
     object. ``MultiColumnTransformParams`` are used by the
     :class:`MultiColumnTransformFunc` callables which are constructed by
-    :func:`multicol_transform_factory` to all all column transforms of a particiular
-    type to a dataframe iteratively.
+    :func:`multicol_transform_factory` to all column transforms of a particiular type
+    to a dataframe iteratively.
 
     Individual subclasses are dynamically generated for each multi-column transformation
     specified within a :class:`TableTransformParams` object.
@@ -163,14 +156,14 @@ def multicol_transform_factory(
     col_func: ColumnTransformFunc,
     drop=True,
 ) -> MultiColumnTransformFunc:
-    """A factory function for creating multi-column transform functions.
+    """Construct :class:`MultiColumnTransformFunc` from a :class:`ColumnTransformFunc`.
 
-    Converts individual column transformers into multi-column transformers. This saves
-    us from having to manually iterate over dataframes in many places, applying the
-    same transform functions with different parameters to multiple columns. Instead we
-    can define a function that transforms a column given some parameters, and then
-    easily apply that function to many columns using a dictionary of parameters. Uniform
-    logging output is also integrated into the multi-column transform function.
+    This factory function saves us from having to iterate over dataframes in many
+    separate places, applying the same transform functions with different parameters to
+    multiple columns.  Instead we can define a function that transforms a column given
+    some parameters, and then easily apply that function to many columns using a
+    dictionary of parameters (a :class:`MultiColumnTransformParams`). Uniform logging
+    output is also integrated into the constructed function.
 
     Args:
         col_func: A single column transform function.
@@ -226,16 +219,17 @@ class RenameColumns(TransformParams):
 class StringNormalization(TransformParams):
     """Options to control string normalization.
 
-    Most of the many possible options here are hard-coded in the
-    :func:`normalize_strings` function since we need the normalizations of different
-    columns to be comparable.
+    Most of what takes place in the string normalization is standardized and controlled
+    by the :func:`normalize_strings` function since we need the normalizations of
+    different columns to be comparable, but there are a couple of column-specific
+    parameterizations that are useful, and they are encapsulated by this class.
     """
 
     remove_chars: str
     """A string of individual ASCII characters removed at the end of normalization."""
 
     nullable: bool = False
-    """Whether the string should be cast to the nullable :class:`pd.StringDtype`"""
+    """Whether the normalized string should be cast to :class:`pd.StringDtype`."""
 
 
 def normalize_strings(col: pd.Series, params: StringNormalization) -> pd.Series:
@@ -252,7 +246,8 @@ def normalize_strings(col: pd.Series, params: StringNormalization) -> pd.Series:
 
     Args:
         col: series of strings to normalize.
-        params: settings that determine string normalization behavior.
+        params: settings enumerating any particular characters to remove, and whether
+            the resulting series should be a nullable string.
     """
     if params:
         col = (
@@ -353,10 +348,11 @@ class UnitConversion(TransformParams):
         multiplier: A multiplicative coefficient; "a" in the equation above. Set to 1.0
             by default.
         adder: An additive constant; "b" in the equation above. Set to 0.0 by default.
-        from_unit: A string that will be replaced in the input series name. If set to
-            None (the default) the series is not renamed.
-        to_unit: The string from_unit is replaced with. If set to None (the default)
-            the series is not renamed.
+        from_unit: A string that will be replaced in the input series name. If None or
+            the empty string, the series is not renamed.
+        to_unit: The string from_unit is replaced with. If None or the empty string,
+            the series is not renamed. Note that either both or neither of ``from_unit``
+            and ``to_unit`` can be left unset, but not just one of them.
     """
 
     multiplier: float = 1.0  # By default, multiply by 1 (no change)
@@ -503,7 +499,11 @@ class UnitCorrections(TransformParams):
           from the inverse of the specified unit conversion applied to the valid
           ranges of values.
         * For all pairs of unit conversions verify that their original data ranges do
-          not overlap. Note that we also need to compare the unit conversion to itself.
+          not overlap with each other. We must also ensure that the original and
+          converted ranges of each individual correction do not overlap. For example, if
+          the valid range is from 1 to 10, and the unit conversion multiplies by 3, we'd
+          be unable to distinguish a valid value of 6 from a value that should be
+          corrected to be 2.
         """
         input_vals = pd.Series(
             [params["valid_range"].lower_bound, params["valid_range"].upper_bound],
@@ -713,7 +713,12 @@ class TableTransformParams(TransformParams):
 
     @classmethod
     def from_dict(cls, params: dict[str, Any]) -> "TableTransformParams":
-        """Construct ``TableTransformParams`` from a dictionary of constants."""
+        """Construct ``TableTransformParams`` from a dictionary of keyword arguments.
+
+        Typically these will be the table-level dictionaries defined in the dataset-
+        specific modules in the :mod:`pudl.transform.params` subpackage. See also the
+        :meth:`TableTransformParams.from_id` method.
+        """
         return cls(**params)
 
     @classmethod
@@ -849,7 +854,9 @@ class AbstractTableTransformer(ABC):
     """Determines whether cached dataframes are deleted at the end of the transform."""
 
     _cached_dfs: dict[str, pd.DataFrame] = {}
-    """Cached intermediate dataframes for use in development and debugging."""
+    """Cached intermediate dataframes for use in development and debugging.
+    The dictionary keys are the strings passed to the :func:`cache_df` method decorator.
+    """
 
     parameter_model = TableTransformParams
     """The :mod:`pydantic` model that is used to contain & instantiate parameters.
@@ -859,7 +866,13 @@ class AbstractTableTransformer(ABC):
     """
 
     params: parameter_model
-    """The parameters that will be used to control the transformation functions."""
+    """The parameters that will be used to control the transformation functions.
+
+    This attribute is of type ``parameter_model`` which is defined above. This type
+    varies across datasets and is used to construct and validate the parameters based,
+    so it needs to be set separately in child classes. See
+    :class:`pudl.transform.ferc1.Ferc1AbstractTableTransformer` for an example.
+    """
 
     def __init__(
         self,

@@ -552,6 +552,8 @@ def dbf2sqlite(
 
     Args:
         ferc1_to_sqlite_settings: Object containing Ferc1 to SQLite validated settings.
+            If None (the default) then a default :class:`Ferc1DbfToSqliteSettings`
+            object will be used.
         pudl_settings: Dictionary containing paths and database URLs used by PUDL.
         clobber: Whether to clobber an existing FERC 1 database.
         datastore: instance of a datastore providing access to raw resources.
@@ -717,7 +719,7 @@ def extract_xbrl(
         pudl_settings: A PUDL settings dictionary.
 
     Returns:
-        A dictionary where kys are the names of the PUDL database tables, values are
+        A dictionary where keys are the names of the PUDL database tables, values are
         dictionaries of DataFrames coresponding to the instant and duration tables from
         the XBRL derived FERC 1 database.
 
