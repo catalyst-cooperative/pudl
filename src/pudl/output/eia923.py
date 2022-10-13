@@ -316,33 +316,8 @@ def fuel_receipts_costs_eia923(
     )
 
     if fill:
-        logger.info("filling in fuel cost NaNs EIA APIs monthly state averages")
-        fuel_costs_avg_eiaapi = get_fuel_cost_avg_eiaapi(FUEL_COST_CATEGORIES_EIAAPI)
-        # Merge to bring in states associated with each plant:
-        plant_states = pd.read_sql(
-            "SELECT plant_id_eia, state FROM plants_entity_eia;", pudl_engine
-        )
-        frc_df = frc_df.merge(plant_states, on="plant_id_eia", how="left")
-
-        # Merge in monthly per-state fuel costs from EIA based on fuel type.
-        frc_df = frc_df.merge(
-            fuel_costs_avg_eiaapi,
-            on=["report_date", "state", "fuel_type_code_pudl"],
-            how="left",
-        )
-        frc_df = frc_df.assign(
-            # add a flag column to note if we are using the api data
-            fuel_cost_from_eiaapi=lambda x: np.where(
-                x.fuel_cost_per_mmbtu.isnull() & x.fuel_cost_per_unit.notnull(),
-                True,
-                False,
-            ),
-            fuel_cost_per_mmbtu=lambda x: np.where(
-                x.fuel_cost_per_mmbtu.isnull(),
-                (x.fuel_cost_per_unit / x.fuel_mmbtu_per_unit),
-                x.fuel_cost_per_mmbtu,
-            ),
-        )
+        logger.info("filling in fuel cost NaNs")
+        frc_df = _impute_via_bulk_elec(frc_df, pudl_engine)
     # add the flag column to note that we didn't fill in with API data
     else:
         frc_df = frc_df.assign(fuel_cost_from_eiaapi=False)
@@ -889,3 +864,106 @@ def get_fuel_cost_avg_eiaapi(fuel_cost_cat_ids):
             convert_cost_json_to_df(grab_fuel_state_monthly(fuel_cat_id))
         )
     return pd.concat(dfs_to_concat)
+
+
+def get_fuel_cost_avg_bulk_elec(pudl_engine: sa.engine.Engine):
+    """Get a dataframe of state-level average fuel costs from EIA's bulk electricity data.
+
+    This table is intended for use in ``fuel_receipts_costs_eia923()`` as a drop in
+    replacement for a previous process that fetched data from the unreliable EIA API.
+
+    Args:
+        pudl_engine: SQLAlchemy connection engine for the PUDL DB.
+
+    Returns:
+        pandas.DataFrame: a dataframe containing state-level montly fuel cost.
+        The table contains the following columns, some of which are refernce
+        columns: 'report_date', 'fuel_cost_per_mmbtu', 'state',
+        'fuel_type_code_pudl'
+    """
+
+    aggregates = pd.read_sql(
+        """
+        SELECT
+            fuel_agg,
+            geo_agg,
+            report_date,
+            fuel_cost_per_mmbtu
+        FROM fuel_receipts_costs_aggs_eia
+        WHERE
+            sector_agg = 'all_electric_power'
+            AND temporal_agg = 'monthly'
+            AND fuel_agg in ('all_coal', 'petroleum_liquids', 'natural_gas')
+            -- geo_agg will take care of itself in the join
+            AND fuel_cost_per_mmbtu IS NOT NULL
+            ;
+        """,
+        pudl_engine,
+        parse_dates=['report_date'],
+    )
+    fuel_map = {  # convert to fuel_type_code_pudl categories
+        'all_coal': 'coal',
+        'natural_gas': 'gas',
+        'petroleum_liquids': 'oil',
+    }
+    aggregates['fuel_type_code_pudl'] = aggregates['fuel_agg'].map(fuel_map)
+    aggregates.drop(columns='fuel_agg', inplace=True)
+
+    col_rename_dict = {
+        'geo_agg': 'state',
+        'fuel_cost_per_mmbtu': 'bulk_agg_fuel_cost_per_mmbtu',
+    }
+    aggregates.rename(columns=col_rename_dict, inplace=True)
+    return aggregates
+
+
+def _impute_via_eia_api(frc_df: pd.DataFrame, pudl_engine: sa.engine.Engine) -> pd.DataFrame:
+    fuel_costs_avg_eiaapi = get_fuel_cost_avg_eiaapi(FUEL_COST_CATEGORIES_EIAAPI)
+    # Merge to bring in states associated with each plant:
+    plant_states = pd.read_sql(
+        "SELECT plant_id_eia, state FROM plants_entity_eia;", pudl_engine
+    )
+    frc_df = frc_df.merge(plant_states, on="plant_id_eia", how="left")
+
+    # Merge in monthly per-state fuel costs from EIA based on fuel type.
+    frc_df = frc_df.merge(
+        fuel_costs_avg_eiaapi,
+        on=["report_date", "state", "fuel_type_code_pudl"],
+        how="left",
+    )
+    frc_df = frc_df.assign(
+        # add a flag column to note if we are using the api data
+        fuel_cost_from_eiaapi=lambda x: np.where(
+            x.fuel_cost_per_mmbtu.isnull() & x.fuel_cost_per_unit.notnull(),
+            True,
+            False,
+        ),
+        fuel_cost_per_mmbtu=lambda x: np.where(
+            x.fuel_cost_per_mmbtu.isnull(),
+            (x.fuel_cost_per_unit / x.fuel_mmbtu_per_unit),
+            x.fuel_cost_per_mmbtu,
+        ),
+    )
+    return frc_df
+
+
+def _impute_via_bulk_elec(frc_df: pd.DataFrame, pudl_engine: sa.engine.Engine) -> pd.DataFrame:
+    fuel_costs_avg_eia_bulk_elec = get_fuel_cost_avg_bulk_elec(pudl_engine)
+    # Merge to bring in states associated with each plant:
+    plant_states = pd.read_sql(
+        "SELECT plant_id_eia, state FROM plants_entity_eia;", pudl_engine
+    )
+    out_df = frc_df.merge(plant_states, on="plant_id_eia", how="left")
+
+    # Merge in monthly per-state fuel costs from EIA based on fuel type.
+    out_df = out_df.merge(
+        fuel_costs_avg_eia_bulk_elec,
+        on=["report_date", "state", "fuel_type_code_pudl"],
+        how="left",
+    )
+    
+    out_df.loc[:, 'fuel_cost_per_mmbtu'].fillna(out_df['bulk_agg_fuel_cost_per_mmbtu'], inplace=True)
+    # add an indicator column to show if a value has been imputed
+    out_df['fuel_cost_from_eiaapi'] = (out_df['fuel_cost_per_mmbtu'].isnull() & out_df['bulk_agg_fuel_cost_per_mmbtu'].notnull())
+    
+    return out_df
