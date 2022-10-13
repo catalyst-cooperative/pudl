@@ -58,6 +58,10 @@ UTIL_ID_FERC_MAP_CSV = importlib.resources.open_text(
 )
 """Path to the PUDL-assign FERC1 utility ID mapping CSV."""
 
+MIN_PLANT_CAPACITY_MW: float = 5.0
+MAX_LOST_PLANTS_EIA: int = 50
+MAX_LOST_UTILS_EIA: int = 10
+
 #####################################
 # Stored Maps of plants and utilities
 #####################################
@@ -153,7 +157,7 @@ def get_util_ids_ferc1_raw_xbrl(ferc1_engine_xbrl: sa.engine.Engine) -> pd.DataF
     return all_utils_ferc1_xbrl
 
 
-def get_utils_ferc1_raw_dbf(ferc1_engine_dbf: sa.engine.Engine) -> pd.DataFrame:
+def get_util_ids_ferc1_raw_dbf(ferc1_engine_dbf: sa.engine.Engine) -> pd.DataFrame:
     """Grab the utility ids (reported as `respondent_id`) in the FERC1 DBF database."""
     all_utils_ferc1_dbf = (
         pd.read_sql_table("f1_respondent_id", ferc1_engine_dbf)
@@ -168,6 +172,7 @@ def get_utils_ferc1_raw_dbf(ferc1_engine_dbf: sa.engine.Engine) -> pd.DataFrame:
             {"utility_name_ferc1": StringNormalization(**FERC1_STRING_NORM)},
         )
         .drop_duplicates(subset=["utility_id_ferc1_dbf"])
+        .loc[:, ["utility_id_ferc1_dbf", "utility_name_ferc1"]]
     )
     return all_utils_ferc1_dbf
 
@@ -203,7 +208,7 @@ class GenericPlantFerc1TableTransformer(Ferc1AbstractTableTransformer):
         )
 
 
-def get_raw_plants_ferc1(
+def get_plants_ferc1_raw(
     pudl_settings: dict[str, str], years: Iterable[int]
 ) -> pd.DataFrame:
     """Pull all plants in the FERC Form 1 DBF and XBRL DB for given years.
@@ -247,8 +252,21 @@ def get_raw_plants_ferc1(
         )
         plant_dfs.append(plant_df)
 
+    all_plants = pd.concat(plant_dfs)
+    most_recent_year = max(all_plants.report_year)
     all_plants = (
-        pd.concat(plant_dfs)
+        all_plants.loc[
+            (all_plants.report_year == most_recent_year),
+            [
+                "utility_id_ferc1",
+                "plant_name_ferc1",
+                "utility_id_ferc1_dbf",
+                "utility_id_ferc1_xbrl",
+                "capacity_mw",
+                "report_year",
+                "plant_table",
+            ],
+        ]
         .drop_duplicates(["utility_id_ferc1", "plant_name_ferc1"])
         .sort_values(["utility_id_ferc1", "plant_name_ferc1"])
     )
@@ -281,19 +299,16 @@ def get_missing_ids(
     return ids_right.index.difference(ids_left.index)
 
 
-def label_plant_eia_ids_for_manual_mapping(
-    unmapped_plants_eia: pd.Index, pudl_out: pudl.output.pudltabl.PudlTabl
+def label_missing_ids_for_manual_mapping(
+    missing_ids: pd.Index, label_df: pd.DataFrame
 ) -> pd.DataFrame:
-    """Label the unmapped_plants_eia for manual mapping.
+    """Label unmapped IDs for manual mapping."""
+    # the index name for single indexes are accessed differently than for multi-indexes
+    return label_df.set_index(missing_ids.name or missing_ids.names).loc[missing_ids]
 
-    The main things to add to the EIA plants are the name, utility and the
-    ``capacity_mw`` from the most recent year of data.
 
-    Args:
-        unmapped_plants_eia: an index of ``plant_id_eia``'s that need to be labeled for
-            manual mapping.
-        pudl_out: pudl output object.
-    """
+def label_plants_eia(pudl_out: pudl.output.pudltabl.PudlTabl):
+    """Label plants with columns helpful in manual mapping."""
     plants = pudl_out.plants_eia860()
     # generator table for capacity
     plant_capacity = (
@@ -303,14 +318,14 @@ def label_plant_eia_ids_for_manual_mapping(
         .pipe(apply_pudl_dtypes, group="eia")
     )
     most_recent_date = max(plants.report_date)
-    unmapped_plants = (
+    plants_w_capacity = (
         plants.merge(
             plant_capacity,
             on=["plant_id_eia", "report_date"],
             how="left",
             validate="1:1",
         )
-        .loc[unmapped_plants_eia]
+        .assign(link_to_ferc1=lambda x: x.capacity_mw >= MIN_PLANT_CAPACITY_MW)
         .loc[
             (plants.report_date == most_recent_date),
             [
@@ -318,12 +333,31 @@ def label_plant_eia_ids_for_manual_mapping(
                 "plant_name_eia",
                 "utility_id_eia",
                 "utility_name_eia",
+                "link_to_ferc1",
                 "state",
                 "capacity_mw",
             ],
         ]
     )
-    return unmapped_plants
+    return plants_w_capacity
+
+
+def label_utilities_ferc1_dbf(
+    utilities_ferc1_dbf: pd.DataFrame, util_ids_ferc1_raw_dbf: pd.DataFrame
+) -> pd.DataFrame:
+    """Get the DBF FERC1 utilities with their names."""
+    return utilities_ferc1_dbf.merge(
+        util_ids_ferc1_raw_dbf, how="outer", on="utility_id_ferc1_dbf"
+    )
+
+
+def label_utilities_ferc1_xbrl(
+    utilities_ferc1_xbrl: pd.DataFrame, util_ids_ferc1_raw_xbrl: pd.DataFrame
+) -> pd.DataFrame:
+    """Get the XBRL FERC1 utilities with their names."""
+    return utilities_ferc1_xbrl.merge(
+        util_ids_ferc1_raw_xbrl, how="outer", on="utility_id_ferc1_xbrl"
+    )
 
 
 def get_utility_most_recent_capacity(pudl_engine) -> pd.DataFrame:
@@ -360,7 +394,9 @@ def get_plants_ids_eia923(pudl_out: pudl.output.pudltabl.PudlTabl) -> list:
     return plant_ids_in_eia923
 
 
-def get_unmapped_utils_eia(pudl_out, pudl_engine, utilities_eia_mapped) -> pd.DataFrame:
+def get_utils_ids_eia_unmapped(
+    pudl_out, pudl_engine, utilities_eia_mapped
+) -> pd.DataFrame:
     """Get a list of all the EIA Utilities in the PUDL DB without PUDL IDs.
 
     Identify any EIA Utility that appears in the data but does not have a
