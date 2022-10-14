@@ -1011,10 +1011,17 @@ def coalmine(eia923_dfs, eia923_transformed_dfs):
             "mine_id_msha",
         ]
     )
-    cmi_df.drop(cmi_df[cmi_df["mine_id_msha"] > 0].index)
+    cmi_df = cmi_df.drop(cmi_df[cmi_df["mine_id_msha"] > 0].index)
     cmi_df = pd.concat([cmi_df, cmi_with_msha])
 
     cmi_df = cmi_df.drop_duplicates(subset=coalmine_cols)
+
+    # ensure mine_id_msha values are unique
+    assert cmi_df[
+        ~cmi_df.mine_id_msha.isna()
+    ].mine_id_msha.is_unique, (
+        "Found duplicate values for mine_id_msha in the coalmine_eia923 table."
+    )
 
     # drop null values if they occur in vital fields....
     cmi_df.dropna(subset=["mine_name", "state"], inplace=True)
