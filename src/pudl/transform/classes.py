@@ -964,4 +964,5 @@ class AbstractTableTransformer(ABC):
                 f"{self.table_id.value}: Missing columns found when enforcing table "
                 f"schema: {missing_cols}"
             )
+        self.resource = resource
         return resource.format_df(df)
