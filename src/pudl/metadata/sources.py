@@ -445,6 +445,9 @@ SOURCES: dict[str, Any] = {
         ),
         "field_namespace": "ferc714",
         "working_partitions": {},  # Data is monolitic, one file with all years.
+        "contributors": [
+            CONTRIBUTORS["catalyst-cooperative"],
+        ],
         "keywords": sorted(
             set(
                 [
