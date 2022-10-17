@@ -252,6 +252,25 @@ def normalize_strings(col: pd.Series, params: StringNormalization) -> pd.Series:
 normalize_strings_multicol = multicol_transform_factory(normalize_strings)
 
 
+def enforce_snake_case(col: pd.Series) -> pd.Series:
+    """Enforce snake_case for a column.
+
+    Removes leading whitespaces, lower-cases, replaces spaces with underscore and
+    removes remaining non alpha numeric snake case values.
+    """
+    return (
+        col.str.strip()
+        .str.lower()
+        .replace(
+            to_replace={
+                r"\s{1,}": "_",
+                r"[^a-z\d_]": "",
+            },
+            regex=True,
+        )
+    )
+
+
 ################################################################################
 # Categorize Strings
 ################################################################################
@@ -964,5 +983,4 @@ class AbstractTableTransformer(ABC):
                 f"{self.table_id.value}: Missing columns found when enforcing table "
                 f"schema: {missing_cols}"
             )
-        self.resource = resource
         return resource.format_df(df)

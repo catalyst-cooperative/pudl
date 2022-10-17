@@ -32,6 +32,7 @@ from pudl.transform.classes import (
     TableTransformParams,
     TransformParams,
     cache_df,
+    enforce_snake_case,
 )
 
 # This is only here to keep the module importable. Breaks legacy functions.
@@ -371,6 +372,8 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                 x[pk_cols].astype(str), sep="_"
             ),
         ).drop(columns=["source_table_id"])
+        df.record_id = enforce_snake_case(df.record_id)
+
         dupe_ids = df.record_id[df.record_id.duplicated()].values
         if dupe_ids.any():
             logger.warning(
@@ -822,19 +825,19 @@ class PlantsHydroFerc1TableTransformer(Ferc1AbstractTableTransformer):
             A single transformed table concatenating multiple years of cleaned data
             derived from the raw DBF and/or XBRL inputs.
         """
-        return (
+        df = (
             self.normalize_strings(df)
             .pipe(self.categorize_strings)
             .pipe(self.convert_units)
             .pipe(self.nullify_outliers)
             .pipe(self.drop_invalid_rows)
-            .pipe(self.strip_project_num_of_non_ints)
         )
-
-    def strip_project_num_of_non_ints(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Strip the ``project_num`` column of any non-integer values."""
-        df["project_num"] = df["project_num"].str.extract(r"(\d+)")
+        df["project_num"] = self.strip_col_of_non_ints(df["project_num"])
         return df
+
+    def strip_col_of_non_ints(self, col: pd.Series) -> pd.DataFrame:
+        """Strip the column of any non-integer values."""
+        return col.str.extract(r"(\d+)")
 
 
 def transform(
