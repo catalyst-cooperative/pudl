@@ -226,7 +226,7 @@ def get_plants_ferc1_raw(
     _ = pudl.settings.Ferc1Settings(years=list(years))
 
     plant_tables = [
-        # "plants_hydro_ferc1",
+        "plants_hydro_ferc1",
         # "plants_pumped_storage_ferc1",
         # "plants_small_ferc1",
         "plants_steam_ferc1",
