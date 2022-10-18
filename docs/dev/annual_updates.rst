@@ -47,8 +47,11 @@ reflect the years of data that are available within each dataset.
 
 **1.5)** Update the years of data to be processed in the ``etl_full.yml`` and
 ``etl_fast.yml`` settings files stored under ``src/pudl/package_data/settings`` in the
-PUDL repo.  Note that you will also need to have your own working copies of the settings
-files that you edit throughout the process of integrating the new year of data.
+PUDL repo.
+
+**1.6)** Update the settings files in your PUDL workspace to reflect the new
+years by running ``pudl_setup {path to your pudl_work directory} -c``. Don't worry, it
+won't remove any custom settings files you've added under a diffrent name.
 
 .. note::
 
@@ -61,8 +64,8 @@ raw data archives in bulk so that network hiccups don't cause issues during ETL.
 2. Map the Structure of the New Data
 ------------------------------------
 
-EIA Forms 860/860m/861/923
-^^^^^^^^^^^^^^^^^^^^^^^^^^
+A. EIA Forms 860/860m/861/923
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 EIA often alters the structure of their published spreadsheets from year to year. This
 includes changing file names; adding, removing, or re-ordering spreadsheet pages;
 changing the number of header and footer rows; and adding, removing, re-ordering, or
@@ -89,7 +92,7 @@ the years (e.g. ``boiler_fuel``). However ``page_name`` does not necessarily cor
 directly to PUDL database table names because we don't load the data from all pages, and
 some pages result in more than one database table after normalization.
 
-**2.1)** Add a column for the new year of data to each of the aforementioned files. If
+**2.A.1)** Add a column for the new year of data to each of the aforementioned files. If
 there are any changes too prior years, make sure to address those too. (See note above).
 If you are updating early release data with final release data, replace the values in
 the appropriate year column.
@@ -105,8 +108,8 @@ the appropriate year column.
    skiprows and column map values will probably be off by 1 when you update from early
    release to final release.
 
-**2.2)** If there are files, spreadsheet pages, or individual columns with new semantic
-meaning (i.e. they don't correspond to any of the previously mapped files,
+**2.A.2)** If there are files, spreadsheet pages, or individual columns with new
+semantic meaning (i.e. they don't correspond to any of the previously mapped files,
 pages, or columns) then create new mappings to track that information over time.
 
 .. note::
@@ -114,48 +117,48 @@ pages, or columns) then create new mappings to track that information over time.
     In all of the the above CSV files we use a value of ``-1`` to indicate that the data
     does not exist in a given year.
 
-FERC Form 1
-^^^^^^^^^^^
-**2.1)** Update the path to the directory containing the database files stored within
+B. FERC Form 1
+^^^^^^^^^^^^^^
+**2.B.1)** Update the path to the directory containing the database files stored within
 the annual FERC 1 zipfiles to reflect the new year of data. We store this information in
 ``src/pudl/package_data/ferc1/file_map.csv``
 
-**2.2)** The process we use for :doc:`clone_ferc1` uses the most recent annual database
-to define the schema for our multi-year FERC 1 DB. This only works because historically
-the FERC 1 DB has only added tables and columns over time. To check whether the new year
-of data continues this pattern, you can run:
+**2.B.2)** The process we use for :doc:`clone_ferc1` uses the most recent annual
+database to define the schema for our multi-year FERC 1 DB. This only works because
+historically the FERC 1 DB has only added tables and columns over time. To check whether
+the new year of data continues this pattern, you can run:
 
 .. code-block:: bash
 
   pytest --etl_settings src/pudl/package_data/settings/etl_full.yml \
     test/integration/etl_test.py::test_ferc1_schema
 
-FERC Form 714
-^^^^^^^^^^^^^
-**2.1)** FERC Form 714 is distributed as an archive of CSV files, each of which spans
+C. FERC Form 714
+^^^^^^^^^^^^^^^^
+**2.C.1)** FERC Form 714 is distributed as an archive of CSV files, each of which spans
 all available years of data. This means there's much less structure to keep track of.
 The main thing that changes from year to year is the names of the CSV files within the
 ZIP archive. Update the mapping between extracted dataframes and those filenames in the
 :py:const:`pudl.extract.ferc714.TABLE_FNAME` dictionary.
 
-**2.2)** The character encodings of these CSV files may vary with some of them using
+**2.C.2)** The character encodings of these CSV files may vary with some of them using
 ``iso-8859-1`` (Latin) rather than ``utf-8`` (Unicode). Note the per-file encoding
 in :py:const:`pudl.extract.ferc714.TABLE_ENCODING` and that it may change over time.
 
 3. Initial Data Extraction
 --------------------------
 
-EIA Forms 860/860m/861/923
-^^^^^^^^^^^^^^^^^^^^^^^^^^
-**3.1)** Use the Jupyter notebook ``devtools/eia-etl-debug.ipynb`` to run one step of
+A. EIA Forms 860/860m/861/923
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+**3.A.1)** Use the Jupyter notebook ``devtools/eia-etl-debug.ipynb`` to run one step of
 the process at a time, independently for each dataset. This makes debugging issues
 easier. Given that there are hundreds of columns mapped across all the different EIA
 spreadsheets, you'll almost certainly find some typos or errors in the extract process
 and need to revise your work.
 
-FERC Form 1
-^^^^^^^^^^^
-**3.1)** Clone the all of the FERC 1 data (including the new year) into SQLite with:
+B. FERC Form 1
+^^^^^^^^^^^^^^
+**3.B.1)** Clone the all of the FERC 1 data (including the new year) into SQLite with:
 
 .. code-block:: bash
 
@@ -167,29 +170,29 @@ utilities later.
 4. Update Table & Column Transformations
 ----------------------------------------
 
-EIA Forms 860/860m/861/923
-^^^^^^^^^^^^^^^^^^^^^^^^^^
-**4.1)** Use the EIA ETL Debugging notebook mentioned above to run the initial transform
-step on all tables of the new year of data and debug any failures. If any new tables
-were added in the new year of data you will need to add a new transform function for the
-corresponding dataframe. If new columns have been added, they should also be inspected
-for cleanup.
+A. EIA Forms 860/860m/861/923
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+**4.A.1)** Use the EIA ETL Debugging notebook mentioned above to run the initial
+transform step on all tables of the new year of data and debug any failures. If any new
+tables were added in the new year of data you will need to add a new transform function
+for the corresponding dataframe. If new columns have been added, they should also be
+inspected for cleanup.
 
-FERC Form 1
-^^^^^^^^^^^
+B. FERC Form 1
+^^^^^^^^^^^^^^
 Some FERC 1 tables store different variables in different rows instead of or in addition
 to using columns. Rows are identified by ``row_number``. What row number corresponds to
 which variable changes from year to year.  We catalog this correspondence in the FERC 1
 row maps, a collection of CSV files stored under
 ``src/pudl/package_data/ferc1/row_maps`` and organized by original FERC 1 DB table name.
 
-**4.1)** Check whether the data associated with a given row number has changed
+**4.B.1)** Check whether the data associated with a given row number has changed
 by looking at the table's entries in the ``f1_row_lit_tbl`` table. This table stores the
 descriptive strings associated with each row in the FERC Form 1, and also indicates the
 last year that the string was changed in the ``row_chg_yr`` column. The
 ``devtools/ferc1/ferc1-new-year.ipynb`` notebook can make this process less tedious.
 
-**4.2)** The ``plant_kind`` and ``construction_type`` fields in the
+**4.B.2)** The ``plant_kind`` and ``construction_type`` fields in the
 ``plants_steam_ferc1`` table and the ``fuel_type`` and ``fuel_unit`` fields in the
 ``fuel_ferc1`` table are reported as freeform strings and need to be converted to simple
 categorical values to be useful. If the new year of data contains strings that have
@@ -228,12 +231,12 @@ and utilities probably need to be mapped (read on into next section).
 7. Integrate Datasets
 ---------------------
 
-FERC 1 & EIA Plants & Utilities
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-**7.1)** Once you have a PUDL DB containing **ALL OF AND ONLY THE EIA DATA** (including
-the new year of data), and a cloned FERC 1 DB containing all years of available data,
-you should link the plant & utility entities that are reported in the two
-datasets. Refer to the :doc:`pudl_id_mapping` page for further instructions.
+A. FERC 1 & EIA Plants & Utilities
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+**7.A.1)** Once you have a PUDL DB containing **ALL OF AND ONLY THE EIA DATA**
+(including the new year of data), and a cloned FERC 1 DB containing all years of
+available data, you should link the plant & utility entities that are reported in the
+two datasets. Refer to the :doc:`pudl_id_mapping` page for further instructions.
 
 .. note::
 
@@ -245,11 +248,11 @@ datasets. Refer to the :doc:`pudl_id_mapping` page for further instructions.
     counterparts. All FERC 1 plants and utilities should be linked to their EIA
     counterparts (there are far fewer of them).
 
-Missing EIA Plant Locations from CEMS
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-**7.1)** If there are any plants that appear in the EPA CEMS dataset that do not appear
-in the ``plants_entity_eia`` table or that are missing latitute and longitude values,
-the missing information should be compiled and added to
+B. Missing EIA Plant Locations from CEMS
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+**7.B.1)** If there are any plants that appear in the EPA CEMS dataset that do not
+appear in the ``plants_entity_eia`` table or that are missing latitute and longitude
+values, the missing information should be compiled and added to
 ``src/pudl/package_data/epacems/additional_epacems_plants.csv`` to enable accurate
 adjustment of the EPA CEMS timestamps to UTC. This information can usually be obtained
 with the ``plant_id_eia`` and the
