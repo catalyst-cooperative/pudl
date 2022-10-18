@@ -64,8 +64,6 @@ jobs:
           credentials_json: "${{ secrets.TOX_PYTEST_SA_KEY }}"
 
       - name: Run PyTest with Tox
-        env:
-          API_KEY_EIA: ${{ secrets.API_KEY_EIA }}
         run: |
           tox -- --gcs-cache-path gs://zenodo-cache.catalyst.coop
 
