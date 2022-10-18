@@ -22,7 +22,7 @@ jobs:
 
       - name: Docker meta
         id: docker_meta
-        uses: crazy-max/ghaction-docker-meta@v4.1.0
+        uses: crazy-max/ghaction-docker-meta@v4.1.1
         with:
           images: catalystcoop/pudl_etl
           tag-sha: true
@@ -57,7 +57,7 @@ jobs:
       #        run: python devtools/print_requirements.py
       #      - name: Docker Meta
       #        id: docker_meta
-      #        uses: crazy-max/ghaction-docker-meta@v4.1.0
+      #        uses: crazy-max/ghaction-docker-meta@v4.1.1
       #        with:
       #          tag-sha: true
       #          images: catalystcoop/pudl_etl
