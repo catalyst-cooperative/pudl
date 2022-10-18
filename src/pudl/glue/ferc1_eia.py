@@ -253,12 +253,25 @@ def get_plants_ferc1_raw(
         plant_dfs.append(plant_df)
 
     all_plants = pd.concat(plant_dfs)
+    # add the utility_name_ferc1
+    util_map = get_utility_map_pudl()
+    unique_utils_ferc1 = util_map.loc[
+        util_map.utility_id_ferc1.notnull(), ["utility_id_ferc1", "utility_name_ferc1"]
+    ].drop_duplicates(subset=["utility_id_ferc1"])
+    all_plants = all_plants.merge(
+        unique_utils_ferc1,
+        on=["utility_id_ferc1"],
+        how="left",
+        validate="m:1",
+    )
+    # grab the most recent plant record
     most_recent_year = max(all_plants.report_year)
     all_plants = (
         all_plants.loc[
             (all_plants.report_year == most_recent_year),
             [
                 "utility_id_ferc1",
+                "utility_name_ferc1",
                 "plant_name_ferc1",
                 "utility_id_ferc1_dbf",
                 "utility_id_ferc1_xbrl",
