@@ -12,18 +12,6 @@ import pudl.validate as pv
 
 logger = logging.getLogger(__name__)
 
-# This avoids trying to use the EIA API key when CI is run by a bot that doesn't
-# have access to our GitHub secrets
-API_KEY_EIA = os.environ.get("API_KEY_EIA", False)
-if API_KEY_EIA:
-    logger.info("Found an API_KEY_EIA in the environment.")
-else:
-    logger.warning("API_KEY_EIA was not available from the environment.")
-
-# Hard coding this for now because the EIA API has a ~100% failure rate now
-FILL_FUEL_COST = False
-# FILL_FUEL_COST = bool(API_KEY_EIA)
-
 
 @pytest.fixture(scope="module")
 def fast_out(pudl_engine, pudl_datastore_fixture):
@@ -32,7 +20,7 @@ def fast_out(pudl_engine, pudl_datastore_fixture):
         pudl_engine,
         ds=pudl_datastore_fixture,
         freq="MS",
-        fill_fuel_cost=FILL_FUEL_COST,
+        fill_fuel_cost=True,
         roll_fuel_cost=True,
         fill_net_gen=False,
         fill_tech_desc=True,
@@ -46,7 +34,7 @@ def fast_out_annual(pudl_engine, pudl_datastore_fixture):
         pudl_engine,
         ds=pudl_datastore_fixture,
         freq="AS",
-        fill_fuel_cost=FILL_FUEL_COST,
+        fill_fuel_cost=True,
         roll_fuel_cost=True,
         fill_net_gen=True,
     )
@@ -280,7 +268,7 @@ def fast_out_filled(pudl_engine, pudl_datastore_fixture):
         pudl_engine,
         ds=pudl_datastore_fixture,
         freq="MS",
-        fill_fuel_cost=FILL_FUEL_COST,
+        fill_fuel_cost=True,
         roll_fuel_cost=True,
         fill_net_gen=True,
     )

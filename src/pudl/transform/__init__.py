@@ -65,6 +65,7 @@ from . import (  # noqa: F401
     eia860,
     eia861,
     eia923,
+    eia_bulk_elec,
     epacems,
     ferc1,
     ferc714,

@@ -1157,7 +1157,14 @@ class Resource(Base):
     keywords: list[String] = []
     encoder: Encoder = None
     field_namespace: Literal[
-        "eia", "epacems", "ferc1", "ferc714", "glue", "pudl", "ppe"
+        "eia",
+        "epacems",
+        "ferc1",
+        "ferc714",
+        "glue",
+        "pudl",
+        "ppe",
+        "eia_bulk_elec",
     ] = None
     etl_group: Literal[
         "eia860",
@@ -1173,6 +1180,7 @@ class Resource(Base):
         "static_ferc1",
         "static_eia",
         "static_eia_disabled",
+        "eia_bulk_elec",
         "static_pudl",
     ] = None
 

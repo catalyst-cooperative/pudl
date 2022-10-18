@@ -186,7 +186,10 @@ SOURCES: dict[str, Any] = {
         "description": (
             "Aggregate national, state, and plant-level electricity generation "
             "statistics, including fuel quality and consumption, for grid-connected "
-            "plants with nameplate capacity of 1 megawatt or greater"
+            "plants with nameplate capacity of 1 megawatt or greater."
+            "\n"
+            "At present, PUDL integrates only a few specific data series related to "
+            "fuel receipts and costs figures."
         ),
         "source_file_dict": {
             "respondents": (
@@ -445,6 +448,9 @@ SOURCES: dict[str, Any] = {
         ),
         "field_namespace": "ferc714",
         "working_partitions": {},  # Data is monolitic, one file with all years.
+        "contributors": [
+            CONTRIBUTORS["catalyst-cooperative"],
+        ],
         "keywords": sorted(
             set(
                 [

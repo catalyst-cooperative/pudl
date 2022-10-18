@@ -83,7 +83,7 @@ class PudlTabl:
             end_date: End date for data to pull from the PUDL DB. If a string,
                 it should use the ISO 8601 ``YYYY-MM-DD`` format.
             fill_fuel_cost: if True, fill in missing ``frc_eia923()`` fuel cost
-                data with state-level averages obtained from EIA's API.
+                data with state-fuel averages from EIA's bulk electricity data.
             roll_fuel_cost: if True, apply a rolling average to a subset of
                 output table's columns (currently only ``fuel_cost_per_mmbtu``
                 for the ``fuel_receipts_costs_eia923`` table.)

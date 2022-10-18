@@ -12,6 +12,7 @@ from . import (  # noqa: F401
     eia860m,
     eia861,
     eia923,
+    eia_bulk_elec,
     epacems,
     excel,
     ferc1,
