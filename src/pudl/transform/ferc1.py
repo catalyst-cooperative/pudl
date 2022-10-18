@@ -816,7 +816,7 @@ class PlantsHydroFerc1TableTransformer(Ferc1AbstractTableTransformer):
 
     @cache_df(key="main")
     def transform_main(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Table specific transforms for plants_hydro_ferc1. Hi!
+        """Table specific transforms for plants_hydro_ferc1.
 
         Params:
             df: Pre-processed, concatenated XBRL and DBF data.
@@ -837,7 +837,10 @@ class PlantsHydroFerc1TableTransformer(Ferc1AbstractTableTransformer):
 
     def strip_col_of_non_ints(self, col: pd.Series) -> pd.DataFrame:
         """Strip the column of any non-integer values."""
-        return col.str.extract(r"(\d+)")
+        return pd.to_numeric(
+            col,
+            errors="coerce",
+        )
 
 
 def transform(
