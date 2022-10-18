@@ -361,6 +361,27 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "ferc_account_description": {
         "type": "string",
     },
+    "fuel_agg": {
+        "type": "string",
+        "description": "Category of fuel aggregation in EIA bulk electricity data.",
+    },
+    "geo_agg": {
+        "type": "string",
+        "description": "Category of geographic aggregation in EIA bulk electricity data.",
+    },
+    "sector_agg": {
+        "type": "string",
+        "description": "Category of sectoral aggregation in EIA bulk electricity data.",
+    },
+    "temporal_agg": {
+        "type": "string",
+        "description": "Category of temporal aggregation in EIA bulk electricity data.",
+    },
+    "fuel_received_mmbtu": {
+        "type": "number",
+        "description": "Aggregated fuel receipts, in MMBtu, in EIA bulk electricity data.",
+        "unit": "MMBtu",
+    },
     "direct_load_control_customers": {"type": "integer"},
     "distributed_generation": {
         "type": "boolean",
