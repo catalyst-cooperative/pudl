@@ -318,6 +318,7 @@ def fuel_receipts_costs_eia923(
     if fill:
         logger.info("filling in fuel cost NaNs")
         frc_df = _impute_via_bulk_elec(frc_df, pudl_engine)
+        # frc_df = _impute_via_eia_api(frc_df, pudl_engine)
     # add the flag column to note that we didn't fill in with API data
     else:
         frc_df = frc_df.assign(fuel_cost_from_eiaapi=False)
@@ -734,6 +735,7 @@ def make_url_series_eiaapi(series_id):
 
 
 def _check_eia_api_key():
+    return
     if "API_KEY_EIA" not in os.environ:
         raise RuntimeError(
             """
@@ -866,8 +868,8 @@ def get_fuel_cost_avg_eiaapi(fuel_cost_cat_ids):
     return pd.concat(dfs_to_concat)
 
 
-def get_fuel_cost_avg_bulk_elec(pudl_engine: sa.engine.Engine):
-    """Get a dataframe of state-level average fuel costs from EIA's bulk electricity data.
+def get_fuel_cost_avg_bulk_elec(pudl_engine: sa.engine.Engine) -> pd.DataFrame:
+    """Get state-level average fuel costs from EIA's bulk electricity data.
 
     This table is intended for use in ``fuel_receipts_costs_eia923()`` as a drop in
     replacement for a previous process that fetched data from the unreliable EIA API.
@@ -881,7 +883,6 @@ def get_fuel_cost_avg_bulk_elec(pudl_engine: sa.engine.Engine):
         columns: 'report_date', 'fuel_cost_per_mmbtu', 'state',
         'fuel_type_code_pudl'
     """
-
     aggregates = pd.read_sql(
         """
         SELECT
@@ -899,25 +900,27 @@ def get_fuel_cost_avg_bulk_elec(pudl_engine: sa.engine.Engine):
             ;
         """,
         pudl_engine,
-        parse_dates=['report_date'],
+        parse_dates=["report_date"],
     )
     fuel_map = {  # convert to fuel_type_code_pudl categories
-        'all_coal': 'coal',
-        'natural_gas': 'gas',
-        'petroleum_liquids': 'oil',
+        "all_coal": "coal",
+        "natural_gas": "gas",
+        "petroleum_liquids": "oil",
     }
-    aggregates['fuel_type_code_pudl'] = aggregates['fuel_agg'].map(fuel_map)
-    aggregates.drop(columns='fuel_agg', inplace=True)
+    aggregates["fuel_type_code_pudl"] = aggregates["fuel_agg"].map(fuel_map)
+    aggregates.drop(columns="fuel_agg", inplace=True)
 
     col_rename_dict = {
-        'geo_agg': 'state',
-        'fuel_cost_per_mmbtu': 'bulk_agg_fuel_cost_per_mmbtu',
+        "geo_agg": "state",
+        "fuel_cost_per_mmbtu": "bulk_agg_fuel_cost_per_mmbtu",
     }
     aggregates.rename(columns=col_rename_dict, inplace=True)
     return aggregates
 
 
-def _impute_via_eia_api(frc_df: pd.DataFrame, pudl_engine: sa.engine.Engine) -> pd.DataFrame:
+def _impute_via_eia_api(
+    frc_df: pd.DataFrame, pudl_engine: sa.engine.Engine
+) -> pd.DataFrame:
     fuel_costs_avg_eiaapi = get_fuel_cost_avg_eiaapi(FUEL_COST_CATEGORIES_EIAAPI)
     # Merge to bring in states associated with each plant:
     plant_states = pd.read_sql(
@@ -947,7 +950,9 @@ def _impute_via_eia_api(frc_df: pd.DataFrame, pudl_engine: sa.engine.Engine) -> 
     return frc_df
 
 
-def _impute_via_bulk_elec(frc_df: pd.DataFrame, pudl_engine: sa.engine.Engine) -> pd.DataFrame:
+def _impute_via_bulk_elec(
+    frc_df: pd.DataFrame, pudl_engine: sa.engine.Engine
+) -> pd.DataFrame:
     fuel_costs_avg_eia_bulk_elec = get_fuel_cost_avg_bulk_elec(pudl_engine)
     # Merge to bring in states associated with each plant:
     plant_states = pd.read_sql(
@@ -961,9 +966,14 @@ def _impute_via_bulk_elec(frc_df: pd.DataFrame, pudl_engine: sa.engine.Engine) -
         on=["report_date", "state", "fuel_type_code_pudl"],
         how="left",
     )
-    
-    out_df.loc[:, 'fuel_cost_per_mmbtu'].fillna(out_df['bulk_agg_fuel_cost_per_mmbtu'], inplace=True)
-    # add an indicator column to show if a value has been imputed
-    out_df['fuel_cost_from_eiaapi'] = (out_df['fuel_cost_per_mmbtu'].isnull() & out_df['bulk_agg_fuel_cost_per_mmbtu'].notnull())
-    
+
+    out_df["fuel_cost_from_eiaapi"] = (
+        # add an indicator column to show if a value has been imputed
+        out_df["fuel_cost_per_mmbtu"].isnull()
+        & out_df["bulk_agg_fuel_cost_per_mmbtu"].notnull()
+    )
+    out_df.loc[:, "fuel_cost_per_mmbtu"].fillna(
+        out_df["bulk_agg_fuel_cost_per_mmbtu"], inplace=True
+    )
+
     return out_df
