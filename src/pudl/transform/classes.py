@@ -255,8 +255,6 @@ normalize_strings_multicol = multicol_transform_factory(normalize_strings)
 ################################################################################
 # Enforce Snake Case
 ################################################################################
-
-
 class EnforceSnakeCase(TransformParams):
     """Boolean parameter for :func:`enforce_snake_case`."""
 
@@ -264,7 +262,7 @@ class EnforceSnakeCase(TransformParams):
 
 
 def enforce_snake_case(
-    col: pd.Series, params: EnforceSnakeCase = EnforceSnakeCase(enforce_snake_case=True)
+    col: pd.Series, params: EnforceSnakeCase | None = None
 ) -> pd.Series:
     """Enforce snake_case for a column.
 
@@ -273,11 +271,14 @@ def enforce_snake_case(
 
     Args:
         col: a column of strings.
-        params: an :class:`EnforceSnakeCase` parameter object. Default is an instance
-            of :class:`EnforceSnakeCase` where ``enforce_snake_case`` is ``True``,
-            which will enforce snake case on the ``col``. If ``False``, the column will
-            be returned unaltered.
+        params: an :class:`EnforceSnakeCase` parameter object. Default is None which
+            will instantiate an instance of :class:`EnforceSnakeCase` where
+            ``enforce_snake_case`` is ``True``, which will enforce snake case on the
+            ``col``. If ``enforce_snake_case`` is ``False``, the column will be
+            returned unaltered.
     """
+    if params is None:
+        params = EnforceSnakeCase(enforce_snake_case=True)
     if params.enforce_snake_case:
         col = (
             col.str.strip()
@@ -295,11 +296,10 @@ def enforce_snake_case(
 
 enforce_snake_case_multicol = multicol_transform_factory(enforce_snake_case)
 
+
 ################################################################################
 # Categorize Strings
 ################################################################################
-
-
 class StringCategories(TransformParams):
     """Defines mappings to clean up manually categorized freeform strings.
 
