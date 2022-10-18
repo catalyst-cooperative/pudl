@@ -2011,7 +2011,7 @@ TRANSFORM_PARAMS = {
                     "date": "date",
                     "start_date": "start_date",
                     "end_date": "end_date",
-                    "licensed_project_number_and_hydroelectric_plant_name_axis": "project_num_and_plant_name_ferc1",  # ?? wtf is this squish column?
+                    "licensed_project_number_and_hydroelectric_plant_name_axis": "project_num_and_plant_name_ferc1",
                     "installed_capacity_of_plant": "capacity_mw",
                     "cost_of_plant": "capex_total",
                     "equipment_costs_hydroelectric_production": "capex_equipment",
