@@ -1,6 +1,5 @@
 """PyTest cases related to the integration between FERC1 & EIA 860/923."""
 import logging
-from collections.abc import Callable
 from pathlib import Path
 
 import pandas as pd
@@ -8,14 +7,16 @@ import pytest
 
 from pudl.glue.ferc1_eia import (
     get_missing_ids,
-    get_raw_plants_ferc1,
-    get_unmapped_utils_eia,
+    get_plants_ferc1_raw,
+    get_util_ids_eia_unmapped,
+    get_util_ids_ferc1_raw_dbf,
     get_util_ids_ferc1_raw_xbrl,
-    get_utils_ferc1_raw_dbf,
     glue,
-    label_plant_eia_ids_for_manual_mapping,
+    label_missing_ids_for_manual_mapping,
+    label_plants_eia,
+    label_utilities_ferc1_dbf,
+    label_utilities_ferc1_xbrl,
 )
-from pudl.metadata.classes import DataSource
 from pudl.output.pudltabl import PudlTabl
 
 logger = logging.getLogger(__name__)
@@ -34,103 +35,120 @@ def pudl_out(pudl_engine, pudl_datastore_fixture):
 
 @pytest.fixture(scope="module")
 def glue_test_dfs(
-    pudl_out, ferc1_engine_xbrl, ferc1_engine_dbf, pudl_settings_fixture
+    pudl_out,
+    ferc1_engine_xbrl,
+    ferc1_engine_dbf,
+    pudl_settings_fixture,
+    etl_settings,
 ) -> dict[str, pd.DataFrame]:
     """Make a dictionary of the dataframes required for this test module."""
     glue_test_dfs = {
         "plants_eia_pudl_db": pudl_out.plants_eia860(),
         "util_ids_ferc1_raw_xbrl": get_util_ids_ferc1_raw_xbrl(ferc1_engine_xbrl),
-        "util_ids_ferc1_raw_dbf": get_utils_ferc1_raw_dbf(ferc1_engine_dbf),
-        "plants_ferc1_raw": get_raw_plants_ferc1(
+        "util_ids_ferc1_raw_dbf": get_util_ids_ferc1_raw_dbf(ferc1_engine_dbf),
+        "plants_ferc1_raw": get_plants_ferc1_raw(
             pudl_settings=pudl_settings_fixture,
-            years=DataSource.from_id("ferc1").working_partitions["years"],
+            years=etl_settings.datasets.ferc1.years,
         ),
+        "plants_eia_labeled": label_plants_eia(pudl_out),
     }
     glue_test_dfs.update(glue(eia=True, ferc1=True))
+    # more glue test input tables that are compiled from tables already in glue_test_dfs
+    glue_test_dfs.update(
+        {
+            "utilities_ferc1_dbf_labeled": label_utilities_ferc1_dbf(
+                glue_test_dfs["utilities_ferc1_dbf"],
+                glue_test_dfs["util_ids_ferc1_raw_dbf"],
+            ),
+            "utilities_ferc1_xbrl_labeled": label_utilities_ferc1_xbrl(
+                glue_test_dfs["utilities_ferc1_xbrl"],
+                glue_test_dfs["util_ids_ferc1_raw_xbrl"],
+            ),
+        }
+    )
     return glue_test_dfs
 
 
-def save_to_devtools_glue(index: pd.Index, test_dir, file_name: str):
+def save_to_devtools_glue(missing_df: pd.DataFrame, test_dir, file_name: str):
     """Save a dataframe as a CSV to the glue directory in devtools."""
     file_path = Path(test_dir.parent, "devtools", "ferc1-eia-glue", file_name)
-    pd.DataFrame(index=index).to_csv(file_path)
+    missing_df.to_csv(file_path)
 
 
-ID_PARAMETERS = [
-    pytest.param(
-        "utilities_pudl",
-        "utilities_ferc1",
-        ["utility_id_pudl"],
-        None,
-        id="validate_utility_id_pudl_in_utilities_ferc1",
-    ),
-    pytest.param(
-        "utilities_ferc1",
-        "utilities_ferc1_dbf",
-        ["utility_id_ferc1"],
-        None,
-        id="missing_utility_id_ferc1_in_utilities_ferc1_dbf",
-    ),
-    pytest.param(
-        "utilities_ferc1",
-        "utilities_ferc1_xbrl",
-        ["utility_id_ferc1"],
-        None,
-        id="missing_utility_id_ferc1_in_utilities_ferc1_xbrl",
-    ),
-    pytest.param(
-        "utilities_ferc1",
-        "plants_ferc1",
-        ["utility_id_ferc1"],
-        None,
-        id="missing_utility_id_ferc1_in_plants_ferc1",
-    ),
-    pytest.param(
-        "utilities_ferc1_xbrl",
-        "util_ids_ferc1_raw_xbrl",
-        ["utility_id_ferc1_xbrl"],
-        None,
-        id="missing_utility_id_ferc1_xbrl_in_raw_xbrl",
-    ),
-    pytest.param(
-        "utilities_ferc1_dbf",
-        "util_ids_ferc1_raw_dbf",
-        ["utility_id_ferc1_dbf"],
-        None,
-        id="missing_utility_id_ferc1_dbf_in_raw_dbf",
-    ),
-    pytest.param(
-        "plants_pudl",
-        "plants_ferc1",
-        ["plant_id_pudl"],
-        None,
-        id="missing_plant_id_pudl_in_plants_ferc1",
-    ),
-    pytest.param(
-        "plants_ferc1",
-        "plants_ferc1_raw",
-        ["utility_id_ferc1", "plant_name_ferc1"],
-        None,
-        id="missing_plants_in_plants_ferc1",
-    ),
-    pytest.param(
-        "plants_eia",
-        "plants_eia_pudl_db",
-        ["plant_id_eia"],
-        label_plant_eia_ids_for_manual_mapping,
-        id="missing_plants_in_plants_eia",
-    ),
-]
-
-
-@pytest.mark.parametrize("ids_left,ids_right,id_cols,label_func", ID_PARAMETERS)
+@pytest.mark.parametrize(
+    "ids_left,ids_right,id_cols,label_df",
+    [
+        pytest.param(
+            "utilities_pudl",
+            "utilities_ferc1",
+            ["utility_id_pudl"],
+            "utilities_ferc1",
+            id="missing_utility_id_pudl_in_utilities_ferc1",
+        ),
+        pytest.param(
+            "utilities_ferc1",
+            "utilities_ferc1_dbf",
+            ["utility_id_ferc1"],
+            "utilities_ferc1_dbf_labeled",
+            id="missing_utility_id_ferc1_in_utilities_ferc1_dbf",
+        ),
+        pytest.param(
+            "utilities_ferc1",
+            "utilities_ferc1_xbrl",
+            ["utility_id_ferc1"],
+            "utilities_ferc1_xbrl_labeled",
+            id="missing_utility_id_ferc1_in_utilities_ferc1_xbrl",
+        ),
+        pytest.param(
+            "utilities_ferc1",
+            "plants_ferc1",
+            ["utility_id_ferc1"],
+            "plants_ferc1",
+            id="missing_utility_id_ferc1_in_plants_ferc1",
+        ),
+        pytest.param(
+            "utilities_ferc1_xbrl",
+            "util_ids_ferc1_raw_xbrl",
+            ["utility_id_ferc1_xbrl"],
+            "util_ids_ferc1_raw_xbrl",
+            id="missing_utility_id_ferc1_xbrl_in_raw_xbrl",
+        ),
+        pytest.param(
+            "utilities_ferc1_dbf",
+            "util_ids_ferc1_raw_dbf",
+            ["utility_id_ferc1_dbf"],
+            "util_ids_ferc1_raw_dbf",
+            id="missing_utility_id_ferc1_dbf_in_raw_dbf",
+        ),
+        pytest.param(
+            "plants_pudl",
+            "plants_ferc1",
+            ["plant_id_pudl"],
+            None,  # should only ever happen if a plant is in the mapping sheet w/o a pudl id
+            id="missing_plant_id_pudl_in_plants_ferc1",
+        ),
+        pytest.param(
+            "plants_ferc1",
+            "plants_ferc1_raw",
+            ["utility_id_ferc1", "plant_name_ferc1"],
+            "plants_ferc1_raw",
+            id="missing_plants_in_plants_ferc1",
+        ),
+        pytest.param(
+            "plants_eia",
+            "plants_eia_pudl_db",
+            ["plant_id_eia"],
+            "plants_eia_labeled",
+            id="missing_plants_in_plants_eia",
+        ),
+    ],
+)
 def test_for_fk_validation_and_unmapped_ids(
     ids_left: str,
     ids_right: str,
     id_cols: list[str],
-    label_func: Callable | None,
+    label_df: pd.DataFrame | None,
     glue_test_dfs: dict[str, pd.DataFrame],
-    pudl_out: PudlTabl,
     save_unmapped_ids: bool,
     test_dir,
     request,
@@ -143,8 +161,8 @@ def test_for_fk_validation_and_unmapped_ids(
         ids_right: name of key to access corresponding to a dataframe which contains
             ID's in ``glue_test_dfs``
         id_cols: list of ID column(s)
-        label_func: If a labeling function is provided, label the missing ID's with
-            flags and columns needed for manual mapping
+        label_df: If a labeling table is provided, label the missing ID's with flags
+            and columns needed for manual mapping
         pudl_out: an instance of a pudl output object
         glue_test_dfs: a dictionary of dataframes
         save_unmapped_ids: If ``True``, export any missing ID's.
@@ -159,11 +177,15 @@ def test_for_fk_validation_and_unmapped_ids(
         glue_test_dfs[ids_right],
         id_cols,
     )
-    if label_func:
-        missing = label_func(missing, pudl_out)
+    if label_df:
+        missing_df = label_missing_ids_for_manual_mapping(
+            missing, glue_test_dfs[label_df]
+        )
+    else:
+        missing_df = pd.DataFrame(index=missing)
     if save_unmapped_ids:
         save_to_devtools_glue(
-            index=missing,
+            missing_df=missing_df,
             test_dir=test_dir,
             file_name=f"{request.node.callspec.id}.csv",
         )
@@ -222,14 +244,16 @@ def test_unmapped_utils_eia(
 ):
     """Check for unmapped EIA Plants.
 
-    This test is duplicative with the sql foriegn key constraints.
+    This test has its own call signature because its more complex. In order to label the
+    missing utilities, we use both the ``pudl_out`` object as well as direct SQL
+    queries. This test is duplicative with the sql foriegn key constraints.
     """
-    unmapped_utils_eia = get_unmapped_utils_eia(
+    unmapped_utils_eia = get_util_ids_eia_unmapped(
         pudl_out, pudl_engine, glue_test_dfs["utilities_eia"]
     )
     if save_unmapped_ids:
         save_to_devtools_glue(
-            index=unmapped_utils_eia,
+            missing_df=unmapped_utils_eia,
             test_dir=test_dir,
             file_name="missing_utility_id_eia_in_utilities_eia.csv",
         )

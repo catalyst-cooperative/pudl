@@ -197,6 +197,12 @@ to the existing coding tables.
 
 Run a Siloed EIA ETL
 --------------------
+.. note::
+    This section should probably be updated to include reference to the new ``tox`` test
+    called ``get_unmapped_ids`` that was implemented for the FERC1 XBRL integration. We
+    may be able to fully skip this step because ``get_unmapped_ids`` runs the ETL with
+    ``--ignore-foreign-key-constraints`` and saves the unmapped IDs.
+
 Before moving on you should ensure that the EIA ETL is fully functional by running it
 for all years and all EIA data sources. You'll need to create a temporary ETL settings
 file that includes only the EIA data, and all available years of it. You may need to
