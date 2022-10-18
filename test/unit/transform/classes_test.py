@@ -986,8 +986,9 @@ def test_enforce_snake_case():
     """Test the enforce_snake_case function.
 
     Ensure spaces are replaced with underscores, non-alphanumeric values are removed,
-    leading or trailing spaces are removed, caps are lowered, numbers remain, and
-    multiple white-spaces in a row are converted into just one underscore.
+    leading or trailing spaces are removed, caps are lowered, numbers remain, multiple
+    white-spaces in a row are converted into just one underscore and non-ascii
+    characters are removed.
     """
     pd.testing.assert_series_equal(
         enforce_snake_case(
@@ -998,6 +999,7 @@ def test_enforce_snake_case():
                     "SCREAM HI",
                     "$smell ya l@t3r!",
                     "smell    ya later",
+                    "ñ",
                 ]
             )
         ),
@@ -1008,6 +1010,7 @@ def test_enforce_snake_case():
                 "scream_hi",
                 "smell_ya_lt3r",
                 "smell_ya_later",
+                "",
             ]
         ),
     )
