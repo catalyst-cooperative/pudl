@@ -222,9 +222,6 @@ def get_plants_ferc1_raw(
         A dataframe containing plant records from all relevant FERC1 plant tables. Each
         row is a unique combination of ``utility_id_ferc1`` and ``plant_name``.
     """
-    # Validate the input years:
-    _ = pudl.settings.Ferc1Settings(years=list(years))
-
     plant_tables = [
         # "plants_hydro_ferc1",
         # "plants_pumped_storage_ferc1",
@@ -232,7 +229,7 @@ def get_plants_ferc1_raw(
         "plants_steam_ferc1",
         "fuel_ferc1",  # bc it has plants/is associated w/ the steam table
     ]
-    ferc1_settings = pudl.settings.Ferc1Settings(tables=plant_tables)
+    ferc1_settings = pudl.settings.Ferc1Settings(tables=plant_tables, years=years)
     # Extract FERC form 1
     ferc1_dbf_raw_dfs = pudl.extract.ferc1.extract_dbf(
         ferc1_settings=ferc1_settings, pudl_settings=pudl_settings
@@ -394,7 +391,7 @@ def get_plants_ids_eia923(pudl_out: pudl.output.pudltabl.PudlTabl) -> list:
     return plant_ids_in_eia923
 
 
-def get_utils_ids_eia_unmapped(
+def get_util_ids_eia_unmapped(
     pudl_out, pudl_engine, utilities_eia_mapped
 ) -> pd.DataFrame:
     """Get a list of all the EIA Utilities in the PUDL DB without PUDL IDs.
