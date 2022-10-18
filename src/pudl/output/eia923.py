@@ -267,9 +267,9 @@ def fuel_receipts_costs_eia923(
     frc_select = sa.sql.select(frc_tbl)
 
     # Need to re-integrate the MSHA coalmine info:
-    cmi_tbl = pt["coalmine_eia923"]
-    cmi_select = sa.sql.select(cmi_tbl)
-    cmi_df = pd.read_sql(cmi_select, pudl_engine)
+    cmi_df = pd.read_sql_table("coalmine_eia923", pudl_engine).drop(
+        ["data_maturity"], axis="columns"
+    )
 
     if start_date is not None:
         frc_select = frc_select.where(frc_tbl.c.report_date >= start_date)
@@ -280,7 +280,7 @@ def fuel_receipts_costs_eia923(
         pd.read_sql(frc_select, pudl_engine)
         .merge(cmi_df, how="left", on="mine_id_pudl")
         .rename(columns={"state": "mine_state"})
-        .drop(["mine_id_pudl"], axis=1)
+        .drop(["mine_id_pudl"], axis="columns")
         .pipe(apply_pudl_dtypes, group="eia")
         .rename(columns={"county_id_fips": "coalmine_county_id_fips"})
     )
