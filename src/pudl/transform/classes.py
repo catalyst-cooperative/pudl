@@ -281,6 +281,51 @@ normalize_strings_multicol = multicol_transform_factory(normalize_strings)
 
 
 ################################################################################
+# Enforce Snake Case
+################################################################################
+class EnforceSnakeCase(TransformParams):
+    """Boolean parameter for :func:`enforce_snake_case`."""
+
+    enforce_snake_case: bool
+
+
+def enforce_snake_case(
+    col: pd.Series, params: EnforceSnakeCase | None = None
+) -> pd.Series:
+    """Enforce snake_case for a column.
+
+    Removes leading whitespaces, lower-cases, replaces spaces with underscore and
+    removes remaining non alpha numeric snake case values.
+
+    Args:
+        col: a column of strings.
+        params: an :class:`EnforceSnakeCase` parameter object. Default is None which
+            will instantiate an instance of :class:`EnforceSnakeCase` where
+            ``enforce_snake_case`` is ``True``, which will enforce snake case on the
+            ``col``. If ``enforce_snake_case`` is ``False``, the column will be
+            returned unaltered.
+    """
+    if params is None:
+        params = EnforceSnakeCase(enforce_snake_case=True)
+    if params.enforce_snake_case:
+        col = (
+            col.str.strip()
+            .str.lower()
+            .replace(
+                to_replace={
+                    r"\s{1,}": "_",
+                    r"[^a-z\d_]": "",
+                },
+                regex=True,
+            )
+        )
+    return col
+
+
+enforce_snake_case_multicol = multicol_transform_factory(enforce_snake_case)
+
+
+################################################################################
 # Categorize Strings
 ################################################################################
 class StringCategories(TransformParams):
