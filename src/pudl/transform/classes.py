@@ -101,14 +101,20 @@ class TransformParams(BaseModel):
 class MultiColumnTransformParams(TransformParams):
     """A dictionary of :class:`TransformParams` to apply to several columns in a table.
 
-    Keys are column names, values must all be the same type of :class:`TransformParams`
-    object. ``MultiColumnTransformParams`` are used by the
-    :class:`MultiColumnTransformFunc` callables which are constructed by
-    :func:`multicol_transform_factory` to all column transforms of a particiular type
-    to a dataframe iteratively.
+    These parameter dictionaries are dynamically generated for each multi-column
+    transformation specified within a :class:`TableTransformParams` object, and passed
+    in to the :class:`MultiColumnTransformFunc` callables which are constructed by
+    :func:`multicol_transform_factory`
 
-    Individual subclasses are dynamically generated for each multi-column transformation
-    specified within a :class:`TableTransformParams` object.
+    The keys are column names, values must all be the same type of
+    :class:`TransformParams` object. For examples, see e.g. the ``categorize_strings``
+    or ``convert_units`` elements within
+    :py:const:`pudl.transform.ferc1.TRANSFORM_PARAMS`.
+
+    The dictionary structure is not explicitly stated in this class, because it's messy
+    to use Pydantic for validation when the data to be validated isn't contained within
+    a Pydantic model. When Pydantic v2 is available, it will be easy, and we'll do it:
+    https://pydantic-docs.helpmanual.io/blog/pydantic-v2/#validation-without-a-model
     """
 
     @root_validator
@@ -125,6 +131,11 @@ class MultiColumnTransformParams(TransformParams):
 
 #####################################################################################
 # Transform Protocol & General Function Definitions
+# Factory functions and callback protocols are a little complex. For more on how
+# Protocols and type annotations can be used to define function call
+# signatures and return types see:
+# https://realpython.com/python-type-checking/#callables
+# https://mypy.readthedocs.io/en/stable/protocols.html#callback-protocols
 #####################################################################################
 class ColumnTransformFunc(Protocol):
     """Callback protocol defining a per-column transformation function."""
@@ -273,13 +284,18 @@ normalize_strings_multicol = multicol_transform_factory(normalize_strings)
 # Categorize Strings
 ################################################################################
 class StringCategories(TransformParams):
-    """Defines mappings to clean up columns containing freeform strings."""
+    """Mappings to categorize the values in freeform string columns."""
 
     categories: dict[str, set[str]]
     """Mapping from a categorical string to the set of the values it should replace."""
 
     na_category: str = "na_category"
-    """All strings mapped to this category will be set to NA."""
+    """All strings mapped to this category will be set to NA at the end.
+
+    The NA category is a special case because testing whether a value is NA is complex,
+    given the many different values which can be used to represent NA. See
+    :func:`categorize_strings` to see how it is used.
+    """
 
     @validator("categories")
     def categories_are_disjoint(cls, v):
@@ -373,7 +389,12 @@ class UnitConversion(TransformParams):
         return params
 
     def inverse(self) -> "UnitConversion":
-        """Construct and a :class:`UnitConversion` that is the inverse of self."""
+        """Construct a :class:`UnitConversion` that is the inverse of self.
+
+        Allows a unit conversion to be undone. This is currently used in the context of
+        validating the combination of :class:`UnitConversions` that are used in the
+        :class:`UnitCorrections` parameter model.
+        """
         return UnitConversion(
             multiplier=1.0 / self.multiplier,
             adder=-1.0 * (self.adder / self.multiplier),
@@ -855,6 +876,7 @@ class AbstractTableTransformer(ABC):
 
     _cached_dfs: dict[str, pd.DataFrame] = {}
     """Cached intermediate dataframes for use in development and debugging.
+
     The dictionary keys are the strings passed to the :func:`cache_df` method decorator.
     """
 
