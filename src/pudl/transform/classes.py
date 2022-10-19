@@ -298,6 +298,44 @@ enforce_snake_case_multicol = multicol_transform_factory(enforce_snake_case)
 
 
 ################################################################################
+# Strip Non-Numeric Values
+################################################################################
+class StripNonNumericValues(TransformParams):
+    """Boolean parameter for :func:`strip_non_numeric_values`."""
+
+    strip_non_numeric_values: bool
+
+
+def strip_non_numeric_values(
+    col: pd.Series, params: StripNonNumericValues | None = None
+) -> pd.Series:
+    """Strip the column of any non-integer values.
+
+    Using the following options in :func:`pd.Series.extract` :
+
+    * any digits before and after ``e`` or ``E`` for exponential notion
+    * any digits before a ``.`` notating floating point values befoer the decimal point
+    * any digits or numbers in exponential notation after a decimal points
+    * any digits
+    """
+    if params is None:
+        params = StripNonNumericValues(strip_non_numeric_values=True)
+    if params.strip_non_numeric_values:
+        col = col.astype(str).str.extract(
+            rf"(?P<{col.name}>"  # name the series
+            r"[1-9][0-9]*[eE][1-9][0-9]*"
+            r"|[1-9][0-9]*\."
+            r"|\.[0-9]+[0-9]*?[eE][\-\+]?[1-9][0-9]*?"
+            r"|\d+)",
+            expand=False,
+        )
+    return col
+
+
+strip_non_numeric_values_multicol = multicol_transform_factory(strip_non_numeric_values)
+
+
+################################################################################
 # Categorize Strings
 ################################################################################
 class StringCategories(TransformParams):
@@ -706,6 +744,7 @@ class TableTransformParams(TransformParams):
     categorize_strings: dict[str, StringCategories] = {}
     nullify_outliers: dict[str, ValidRange] = {}
     normalize_strings: dict[str, StringNormalization] = {}
+    strip_non_numeric_values: dict[str, StripNonNumericValues] = {}
 
     # Transformations that apply to whole dataframes have to be treated individually,
     # with default initializations that result in no transformation taking place.
@@ -931,6 +970,19 @@ class AbstractTableTransformer(ABC):
         logger.info(f"{self.table_id.value}: Normalizing freeform string columns.")
         return normalize_strings_multicol(df, params)
 
+    def strip_non_numeric_values(
+        self,
+        df: pd.DataFrame,
+        params: dict[str, bool] | None = None,
+    ) -> pd.DataFrame:
+        """Method wrapper for stripping non-numeric values."""
+        if params is None:
+            params = self.params.strip_non_numeric_values
+        logger.info(
+            f"{self.table_id.value}: Stripping non-numeric values from {list(params.keys())}."
+        )
+        return strip_non_numeric_values_multicol(df, params)
+
     def categorize_strings(
         self,
         df: pd.DataFrame,
@@ -1009,4 +1061,5 @@ class AbstractTableTransformer(ABC):
                 f"{self.table_id.value}: Missing columns found when enforcing table "
                 f"schema: {missing_cols}"
             )
+        self.resource = resource
         return resource.format_df(df)
