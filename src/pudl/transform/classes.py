@@ -171,7 +171,7 @@ def multicol_transform_factory(
 
     This factory function saves us from having to iterate over dataframes in many
     separate places, applying the same transform functions with different parameters to
-    multiple columns.  Instead we can define a function that transforms a column given
+    multiple columns. Instead, we define a function that transforms a column given
     some parameters, and then easily apply that function to many columns using a
     dictionary of parameters (a :class:`MultiColumnTransformParams`). Uniform logging
     output is also integrated into the constructed function.
@@ -181,6 +181,39 @@ def multicol_transform_factory(
 
     Returns:
         A multi-column transform function.
+
+    Examples:
+        >>> class AddInt(TransformParams):
+        ...     val: int
+        ...
+        >>> def add_int(col: pd.Series, params: AddInt):
+        ...     return col + params.val
+        ...
+        >>> add_int_multicol = multicol_transform_factory(add_int)
+        ...
+        >>> df = pd.DataFrame(
+        ...     {
+        ...         "col1": [1, 2, 3],
+        ...         "col2": [10, 20, 30],
+        ...     }
+        ... )
+        ...
+        >>> actual = add_int_multicol(
+        ...     df,
+        ...     params={
+        ...         "col1": AddInt(val=1),
+        ...         "col2": AddInt(val=2),
+        ...     }
+        ... )
+        ...
+        >>> expected = pd.DataFrame(
+        ...     {
+        ...         "col1": [2, 3, 4],
+        ...         "col2": [12, 22, 32],
+        ...     }
+        ... )
+        ...
+        >>> pd.testing.assert_frame_equal(actual, expected)
     """
 
     class InnerMultiColumnTransformFunc(
