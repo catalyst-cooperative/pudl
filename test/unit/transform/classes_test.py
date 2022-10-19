@@ -35,6 +35,7 @@ from pudl.transform.classes import (
     convert_units,
     correct_units,
     drop_invalid_rows,
+    enforce_snake_case,
     multicol_transform_factory,
     normalize_strings,
     nullify_outliers,
@@ -979,3 +980,37 @@ def test_transform(mocker):
         assert (  # nosec B101
             (caching_transformer._cached_dfs[stage]["stage"] == stage).all()
         ).all()
+
+
+def test_enforce_snake_case():
+    """Test the enforce_snake_case function.
+
+    Ensure spaces are replaced with underscores, non-alphanumeric values are removed,
+    leading or trailing spaces are removed, caps are lowered, numbers remain, multiple
+    white-spaces in a row are converted into just one underscore and non-ascii
+    characters are removed.
+    """
+    pd.testing.assert_series_equal(
+        enforce_snake_case(
+            pd.Series(
+                [
+                    "hello, world.",
+                    "  h3ll0 ",
+                    "SCREAM HI",
+                    "$smell ya l@t3r!",
+                    "smell    ya later",
+                    "ñ",
+                ]
+            )
+        ),
+        pd.Series(
+            [
+                "hello_world",
+                "h3ll0",
+                "scream_hi",
+                "smell_ya_lt3r",
+                "smell_ya_later",
+                "",
+            ]
+        ),
+    )

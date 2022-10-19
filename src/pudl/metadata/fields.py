@@ -29,6 +29,10 @@ from pudl.metadata.labels import (
     MOMENTARY_INTERRUPTIONS,
 )
 from pudl.metadata.sources import SOURCES
+from pudl.transform.params.ferc1 import (
+    PLANT_TYPE_CATEGORIES,
+    PLANT_TYPE_CATEGORIES_HYDRO,
+)
 
 FIELD_METADATA: dict[str, dict[str, Any]] = {
     "active": {
@@ -1602,9 +1606,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Contains EIA plant ID, plant part, ownership, and EIA utility id",
     },
     "plant_type": {
-        "type": "string"
-        # TODO Disambiguate column name and apply table specific ENUM constraints. There
-        # are different allowable values in different tables.
+        "type": "string"  # if plant_type is categorized w/ categorize_strings, add enum in FIELD_METADATA_BY_RESOURCE
     },
     "plants_reported_asset_manager": {
         "type": "boolean",
@@ -2267,22 +2269,18 @@ override. Only those elements which should be overridden need to be specified.
 
 FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
     "sector_consolidated_eia": {"code": {"type": "integer"}},
-    "plants_steam_ferc1": {
+    "plants_hydro_ferc1": {
         "plant_type": {
             "type": "string",
             "constraints": {
-                "enum": [
-                    "combined_cycle",
-                    "combustion_turbine",
-                    "geothermal",
-                    "internal_combustion",
-                    "nuclear",
-                    "photovoltaic",
-                    "solar_thermal",
-                    "steam",
-                    "wind",
-                ]
+                "enum": set(PLANT_TYPE_CATEGORIES_HYDRO["categories"].keys())
             },
+        }
+    },
+    "plants_steam_ferc1": {
+        "plant_type": {
+            "type": "string",
+            "constraints": {"enum": set(PLANT_TYPE_CATEGORIES["categories"].keys())},
         }
     },
     "plant_parts_eia": {
