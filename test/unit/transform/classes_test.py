@@ -39,6 +39,7 @@ from pudl.transform.classes import (
     multicol_transform_factory,
     normalize_strings,
     nullify_outliers,
+    strip_non_numeric_values,
 )
 from pudl.transform.params.ferc1 import (
     BTU_TO_MMBTU,
@@ -1014,3 +1015,48 @@ def test_enforce_snake_case():
             ]
         ),
     )
+
+
+def test_strip_non_numeric():
+    """Test whether ``strip_non_numeric_values`` converts messy strings properly."""
+    col = pd.Series(
+        [
+            " FERC Lic. Proj. No. 2175",
+            "2175",
+            2175,
+            "     FERC Licensed Proj. No. 0120",
+            "-120",
+            "3.",
+            "3.3",
+            3.3,
+            0.03,
+            ".3",
+        ],
+        name="test",
+    )
+
+    expected_col = pd.Series(
+        [
+            "2175",
+            "2175",
+            "2175",
+            "0120",
+            "-120",
+            "3.",
+            "3.3",
+            "3.3",
+            "0.03",
+            ".3",
+        ],
+        name="test",
+    )
+    out_col = strip_non_numeric_values(col)
+    pd.testing.assert_series_equal(expected_col, out_col)
+
+
+def test_null_strip_non_numeric_values():
+    """Test whether :func:``strip_non_numeric_values`` nulls non-numeric values."""
+    col = pd.Series([" FERC Lic. Proj. No.", "N/A", pd.NA, np.nan, "BAD"])
+    out_col = strip_non_numeric_values(col)
+    if not out_col.isnull().all():
+        raise AssertionError("strip_non_numeric_values not nulling non-int values")

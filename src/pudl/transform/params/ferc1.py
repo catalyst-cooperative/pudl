@@ -921,6 +921,7 @@ PLANT_TYPE_CATEGORIES: dict[str, set[str]] = {
             "coal fired steam tur",
             "coal fired steam turbine",
             "steam- 64%",
+            "steam/fuel oil",
         },
         "combustion_turbine": {
             "combustion turbine",
@@ -1022,6 +1023,7 @@ PLANT_TYPE_CATEGORIES: dict[str, set[str]] = {
             "i.c.e/ gas turbine",
             "i.c.e./gas tubine",
             "gas turbine; retired",
+            "gas turbine/fuel oil",
         },
         "combined_cycle": {
             "Combined cycle",
@@ -1702,6 +1704,13 @@ CONSTRUCTION_TYPE_CATEGORIES: dict[str, set[str]] = {
             "see footnote",
             "simple and reciprocat",
             "--not applicable--",
+            "---not applicable---",
+            "not applicable.",
+            "schedule is n/a",
+            "none.",
+            "see note",
+            "not appicable",
+            "pv tracking",
         },
     }
 }
@@ -1777,7 +1786,6 @@ TRANSFORM_PARAMS = {
             "plant_name_ferc1": FERC1_STRING_NORM,
             "fuel_type_code_pudl": FERC1_STRING_NORM,
             "fuel_units": FERC1_STRING_NORM,
-            "utility_name_ferc1": FERC1_STRING_NORM,
         },
         "correct_units": [
             COAL_MMBTU_PER_UNIT_CORRECTIONS,
@@ -1912,7 +1920,6 @@ TRANSFORM_PARAMS = {
             "plant_name_ferc1": FERC1_STRING_NORM,
             "construction_type": FERC1_STRING_NORM,
             "plant_type": FERC1_STRING_NORM,
-            "utility_name_ferc1": FERC1_STRING_NORM,
         },
         "nullify_outliers": {
             "construction_year": VALID_PLANT_YEARS,
@@ -2083,7 +2090,6 @@ TRANSFORM_PARAMS = {
                     "end_date",
                     "order_number",
                     "project_num",
-                    "plant_name",
                     "plant_type",
                     "construction_type",
                 ],
@@ -2229,10 +2235,7 @@ TRANSFORM_PARAMS = {
                     "date",
                     "start_date",
                     "end_date",
-                    # "order_number",
                     "project_num",
-                    "plant_name",
-                    "plant_type",
                     "construction_type",
                 ],
             },

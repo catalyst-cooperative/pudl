@@ -313,20 +313,17 @@ def strip_non_numeric_values(
 
     Using the following options in :func:`pd.Series.extract` :
 
-    * any digits before and after ``e`` or ``E`` for exponential notion
-    * any digits before a ``.`` notating floating point values befoer the decimal point
-    * any digits or numbers in exponential notation after a decimal points
-    * any digits
+    * an optional ``+`` or ``-`` followed by at least one digit followed by an optional
+      decimal place followed by any number of digits (including zero)
+    * OR an optional ``+`` or ``-`` followed by a period followed by at least one digit
+
+    Note: this will not work with exponential values.
     """
     if params is None:
         params = StripNonNumericValues(strip_non_numeric_values=True)
     if params.strip_non_numeric_values:
         col = col.astype(str).str.extract(
-            rf"(?P<{col.name}>"  # name the series
-            r"[1-9][0-9]*[eE][1-9][0-9]*"
-            r"|[1-9][0-9]*\."
-            r"|\.[0-9]+[0-9]*?[eE][\-\+]?[1-9][0-9]*?"
-            r"|\d+)",
+            rf"(?P<{col.name}>[-+]?\d+\.?\d*|[-+]?\.\d+)",  # name the series
             expand=False,
         )
     return col
