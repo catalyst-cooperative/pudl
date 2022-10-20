@@ -315,7 +315,7 @@ class StripNonNumericValues(TransformParams):
 def strip_non_numeric_values(
     col: pd.Series, params: StripNonNumericValues | None = None
 ) -> pd.Series:
-    """Strip the column of any non-integer values.
+    """Strip a column of any non-integer values.
 
     Using the following options in :func:`pd.Series.extract` :
 
