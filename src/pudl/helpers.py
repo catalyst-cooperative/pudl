@@ -23,7 +23,7 @@ import requests
 import sqlalchemy as sa
 from pandas._libs.missing import NAType
 
-import pudl.logging
+import pudl.logging_helpers
 from pudl.metadata.fields import get_pudl_dtypes
 
 sum_na = partial(pd.Series.sum, skipna=False)
@@ -37,7 +37,7 @@ consumption for the year needs to be NA, otherwise we'll get unrealistic heat
 rates.
 """
 
-logger = pudl.logging.get_logger(__name__)
+logger = pudl.logging_helpers.get_logger(__name__)
 
 
 def label_map(

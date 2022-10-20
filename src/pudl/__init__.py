@@ -11,7 +11,7 @@ from . import (  # noqa: F401
     glue,
     helpers,
     load,
-    logging,
+    logging_helpers,
     metadata,
     output,
     transform,
@@ -19,7 +19,7 @@ from . import (  # noqa: F401
     workspace,
 )
 
-logging.configure_root_logger()
+logging_helpers.configure_root_logger()
 
 __author__ = "Catalyst Cooperative"
 __contact__ = "pudl@catalyst.coop"

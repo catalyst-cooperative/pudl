@@ -1259,7 +1259,7 @@ PLANT_TYPE_CATEGORIES_HYDRO: dict[str, set[str]] = {
             "hydro",
             "conventional",
         },
-        "run of river": {
+        "run_of_river": {
             "run ofriver",
             "r of r",
             "run - of - river",
@@ -1270,7 +1270,7 @@ PLANT_TYPE_CATEGORIES_HYDRO: dict[str, set[str]] = {
             "run-of river",
             "run-of-river",
         },
-        "run of river with storage": {
+        "run_of_river_with_storage": {
             "run-of-river/storage",
             "r of r/ storage",
             "r of r/storage",

@@ -89,7 +89,7 @@ import pandas as pd
 import pudl
 from pudl.metadata.fields import apply_pudl_dtypes
 
-logger = pudl.logging.get_logger(__name__)
+logger = pudl.logging_helpers.get_logger(__name__)
 
 IDX_GENS = ["report_date", "plant_id_eia", "generator_id"]
 """Id columns for generators."""

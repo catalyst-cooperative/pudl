@@ -39,7 +39,7 @@ from pudl.transform.classes import (
 # This is only here to keep the module importable. Removal Breaks legacy functions.
 CONSTRUCTION_TYPE_CATEGORIES = {}
 
-logger = pudl.logging.get_logger(__name__)
+logger = pudl.logging_helpers.get_logger(__name__)
 
 
 ################################################################################

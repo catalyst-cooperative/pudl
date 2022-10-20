@@ -36,7 +36,7 @@ from pudl.analysis.allocate_net_gen import (
 from pudl.settings import Eia861Settings, Ferc714Settings
 from pudl.workspace.datastore import Datastore
 
-logger = pudl.logging.get_logger(__name__)
+logger = pudl.logging_helpers.get_logger(__name__)
 
 
 ###############################################################################

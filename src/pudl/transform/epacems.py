@@ -6,11 +6,11 @@ import pandas as pd
 import pytz
 import sqlalchemy as sa
 
-import pudl.logging
+import pudl.logging_helpers
 from pudl.helpers import remove_leading_zeros_from_numeric_strings
 from pudl.metadata.fields import apply_pudl_dtypes
 
-logger = pudl.logging.get_logger(__name__)
+logger = pudl.logging_helpers.get_logger(__name__)
 
 
 ###############################################################################

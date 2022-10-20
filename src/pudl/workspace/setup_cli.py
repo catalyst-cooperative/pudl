@@ -50,7 +50,7 @@ import sys
 
 import pudl
 
-logger = pudl.logging.get_logger(__name__)
+logger = pudl.logging_helpers.get_logger(__name__)
 
 
 def initialize_parser():
@@ -99,7 +99,7 @@ def initialize_parser():
 def main():
     """Set up a new default PUDL workspace."""
     # Display logged output from the PUDL package:
-    pudl.logging.configure_root_logger()
+    pudl.logging_helpers.configure_root_logger()
 
     parser = initialize_parser()
     args = parser.parse_args(sys.argv[1:])

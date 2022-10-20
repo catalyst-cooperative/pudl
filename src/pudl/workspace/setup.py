@@ -5,9 +5,9 @@ import shutil
 
 import yaml
 
-import pudl.logging
+import pudl.logging_helpers
 
-logger = pudl.logging.get_logger(__name__)
+logger = pudl.logging_helpers.get_logger(__name__)
 
 
 def set_defaults(pudl_in, pudl_out, clobber=False):

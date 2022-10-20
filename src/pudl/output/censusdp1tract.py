@@ -11,7 +11,7 @@ import pudl
 from pudl.convert.censusdp1tract_to_sqlite import censusdp1tract_to_sqlite
 from pudl.workspace.datastore import Datastore
 
-logger = pudl.logging.get_logger(__name__)
+logger = pudl.logging_helpers.get_logger(__name__)
 
 
 def get_layer(

@@ -7,7 +7,7 @@ import pandas as pd
 
 import pudl
 
-logger = pudl.logging.get_logger(__name__)
+logger = pudl.logging_helpers.get_logger(__name__)
 
 
 class Metadata:

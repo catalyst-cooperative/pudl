@@ -8,7 +8,7 @@ from pudl.metadata.fields import apply_pudl_dtypes
 from pudl.transform.eia import occurrence_consistency
 from pudl.transform.eia861 import add_backfilled_ba_code_column
 
-logger = pudl.logging.get_logger(__name__)
+logger = pudl.logging_helpers.get_logger(__name__)
 
 
 def utilities_eia860(pudl_engine, start_date=None, end_date=None):

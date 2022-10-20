@@ -20,7 +20,7 @@ import pudl
 from pudl.load import MINIMUM_SQLITE_VERSION
 from pudl.settings import EtlSettings
 
-logger = pudl.logging.get_logger(__name__)
+logger = pudl.logging_helpers.get_logger(__name__)
 
 
 def parse_command_line(argv):
@@ -97,7 +97,7 @@ def main():
     args = parse_command_line(sys.argv)
 
     # Display logged output from the PUDL package:
-    pudl.logging.configure_root_logger(logfile=args.logfile)
+    pudl.logging_helpers.configure_root_logger(logfile=args.logfile)
 
     etl_settings = EtlSettings.from_yaml(args.settings_file)
 

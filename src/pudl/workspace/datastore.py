@@ -21,7 +21,7 @@ import pudl
 from pudl.workspace import resource_cache
 from pudl.workspace.resource_cache import PudlResourceKey
 
-logger = pudl.logging.get_logger(__name__)
+logger = pudl.logging_helpers.get_logger(__name__)
 
 # The Zenodo tokens recorded here should have read-only access to our archives.
 # Including them here is correct in order to allow public use of this tool, so
@@ -566,7 +566,7 @@ def main():
     """Cache datasets."""
     args = parse_command_line()
 
-    pudl.logging.configure_root_logger(loglevel=args.loglevel)
+    pudl.logging_helpers.configure_root_logger(loglevel=args.loglevel)
 
     dstore = _create_datastore(args)
 

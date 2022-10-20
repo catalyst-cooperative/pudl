@@ -15,7 +15,7 @@ import pudl
 from pudl.metadata.classes import DataSource
 from pudl.settings import EpaCemsSettings
 
-logger = pudl.logging.get_logger(__name__)
+logger = pudl.logging_helpers.get_logger(__name__)
 
 
 def parse_command_line(argv):
@@ -91,7 +91,7 @@ def main():
     args = parse_command_line(sys.argv)
 
     # Display logged output from the PUDL package:
-    pudl.logging.configure_root_logger()
+    pudl.logging_helpers.configure_root_logger()
 
     pudl_settings = pudl.workspace.setup.get_defaults()
     # This also validates the states / years we've been given:

@@ -6,7 +6,7 @@ import sys
 import pudl
 from pudl.metadata.classes import DatasetteMetadata
 
-logger = pudl.logging.get_logger(__name__)
+logger = pudl.logging_helpers.get_logger(__name__)
 
 
 def parse_command_line(argv):
@@ -31,7 +31,7 @@ def parse_command_line(argv):
 
 def main():
     """Convert metadata to YAML."""
-    pudl.logging.configure_root_logger()
+    pudl.logging_helpers.configure_root_logger()
 
     args = parse_command_line(sys.argv)
     logger.info(f"Exporting Datasette metadata to: {args.output}")

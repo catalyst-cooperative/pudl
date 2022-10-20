@@ -7,7 +7,7 @@ import pudl
 from pudl.metadata.codes import CODE_METADATA
 from pudl.settings import Eia923Settings
 
-logger = pudl.logging.get_logger(__name__)
+logger = pudl.logging_helpers.get_logger(__name__)
 
 COALMINE_COUNTRY_CODES: dict[str, str] = {
     "AU": "AUS",  # Australia

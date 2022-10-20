@@ -12,9 +12,9 @@ from google.cloud import storage
 from google.cloud.storage.blob import Blob
 from google.cloud.storage.retry import _should_retry
 
-import pudl.logging
+import pudl.logging_helpers
 
-logger = pudl.logging.get_logger(__name__)
+logger = pudl.logging_helpers.get_logger(__name__)
 
 
 def extend_gcp_retry_predicate(predicate, *exception_types):

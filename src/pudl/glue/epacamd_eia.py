@@ -9,12 +9,12 @@ progress and worth noting that, at present, only pulls from 2018 data.
 """
 import pandas as pd
 
-import pudl.logging
+import pudl.logging_helpers
 from pudl.helpers import remove_leading_zeros_from_numeric_strings, simplify_columns
 from pudl.metadata.fields import apply_pudl_dtypes
 from pudl.workspace.datastore import Datastore
 
-logger = pudl.logging.get_logger(__name__)
+logger = pudl.logging_helpers.get_logger(__name__)
 
 
 def extract(ds: Datastore) -> pd.DataFrame:

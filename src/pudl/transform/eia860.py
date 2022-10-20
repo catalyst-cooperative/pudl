@@ -11,7 +11,7 @@ from pudl.metadata.fields import apply_pudl_dtypes
 from pudl.settings import Eia860Settings
 from pudl.transform.eia861 import clean_nerc
 
-logger = pudl.logging.get_logger(__name__)
+logger = pudl.logging_helpers.get_logger(__name__)
 
 
 def ownership(eia860_dfs, eia860_transformed_dfs):

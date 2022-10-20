@@ -75,11 +75,11 @@ import numpy as np
 import pandas as pd
 from pydantic import BaseModel, conset, root_validator, validator
 
-import pudl.logging
+import pudl.logging_helpers
 import pudl.transform.params.ferc1
 from pudl.metadata.classes import Package
 
-logger = pudl.logging.get_logger(__name__)
+logger = pudl.logging_helpers.get_logger(__name__)
 
 
 #####################################################################################

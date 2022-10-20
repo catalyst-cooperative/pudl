@@ -24,7 +24,7 @@ from tempfile import TemporaryDirectory
 import pudl
 from pudl.workspace.datastore import Datastore
 
-logger = pudl.logging.get_logger(__name__)
+logger = pudl.logging_helpers.get_logger(__name__)
 
 
 def censusdp1tract_to_sqlite(pudl_settings=None, year=2010, ds=None, clobber=False):
@@ -136,7 +136,7 @@ def parse_command_line(argv):
 def main():
     """Convert the Census DP1 GeoDatabase into an SQLite Database."""
     args = parse_command_line(sys.argv)
-    pudl.logging.configure_root_logger(logfile=args.logfile)
+    pudl.logging_helpers.configure_root_logger(logfile=args.logfile)
     pudl_settings = pudl.workspace.setup.get_defaults()
 
     # Configure how we want to obtain raw input data:

@@ -40,7 +40,7 @@ from pudl.transform.classes import StringNormalization, normalize_strings_multic
 from pudl.transform.ferc1 import Ferc1AbstractTableTransformer, Ferc1TableId
 from pudl.transform.params.ferc1 import FERC1_STRING_NORM
 
-logger = pudl.logging.get_logger(__name__)
+logger = pudl.logging_helpers.get_logger(__name__)
 
 PUDL_ID_MAP_XLSX = importlib.resources.open_binary(
     "pudl.package_data.glue", "pudl_id_mapping.xlsx"

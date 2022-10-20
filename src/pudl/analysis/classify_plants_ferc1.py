@@ -25,7 +25,7 @@ from sklearn.preprocessing import MinMaxScaler, Normalizer, OneHotEncoder
 
 import pudl
 
-logger = pudl.logging.get_logger(__name__)
+logger = pudl.logging_helpers.get_logger(__name__)
 
 
 class FERCPlantClassifier(BaseEstimator, ClassifierMixin):

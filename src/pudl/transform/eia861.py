@@ -22,7 +22,7 @@ from pudl.metadata.fields import apply_pudl_dtypes
 from pudl.metadata.labels import ESTIMATED_OR_ACTUAL, MOMENTARY_INTERRUPTIONS
 from pudl.settings import Eia861Settings
 
-logger = pudl.logging.get_logger(__name__)
+logger = pudl.logging_helpers.get_logger(__name__)
 
 
 BA_ID_NAME_FIXES: pd.DataFrame = (

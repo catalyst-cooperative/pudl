@@ -83,7 +83,7 @@ from pudl.metadata.constants import DBF_TABLES_FILENAMES
 from pudl.settings import Ferc1DbfToSqliteSettings, Ferc1Settings
 from pudl.workspace.datastore import Datastore
 
-logger = pudl.logging.get_logger(__name__)
+logger = pudl.logging_helpers.get_logger(__name__)
 
 DBF_TYPES = {
     "C": sa.String,
