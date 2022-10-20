@@ -42,6 +42,15 @@ Data Coverage
   to merge CEMS and EIA data yourself :pr:`1692`. Eventually we'll work these crosswalk
   values into an output table combining CEMS and EIA.
 
+Data Analysis
+^^^^^^^^^^^^^
+* Instead of relying on the EIA API to fill in redacted fuel prices with aggregate
+  values for individual states and plants, use the archived ``eia_bulk_elec`` data. This
+  means we no longer have any reliance on the API, which should make the fuel price
+  filling faster and more reliable. Coverage is still only about 90%. See :issue:`1764`
+  and :pr:`1998`. Additional filling with aggregate and/or imputed values is still on
+  the workplan. You can follow the progress in :issue:`1708`.
+
 Nightly Data Builds
 ^^^^^^^^^^^^^^^^^^^
 * We added infrastructure to run the entire ETL and all tests nightly
