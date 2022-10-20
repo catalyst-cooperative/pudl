@@ -25,11 +25,11 @@ import pandas as pd
 import pyarrow as pa
 import pyarrow.parquet as pq
 import sqlalchemy as sa
-from dagster import Field, Nothing, job, op, resource
+from dagster import Field, GraphOut, Nothing, Out, Output, graph, job, op, resource
 from sqlalchemy.pool import StaticPool
 
 import pudl
-from pudl.helpers import convert_cols_dtypes
+from pudl.helpers import convert_cols_dtypes, get_pudl_etl_tables
 from pudl.metadata.classes import Resource
 from pudl.metadata.codes import CODE_METADATA
 from pudl.metadata.dfs import FERC_ACCOUNTS, FERC_DEPRECIATION_LINES
@@ -84,7 +84,7 @@ def _read_static_tables_eia() -> dict[str, pd.DataFrame]:
         "eia923_tables": Field(list, is_required=False),
         "eia923_years": Field(list, is_required=False),
     },
-    required_resource_keys={"datastore", "pudl_engine"},
+    required_resource_keys={"datastore"},
 )
 def _etl_eia(context) -> dict[str, pd.DataFrame]:
     """Extract, transform and load CSVs for the EIA datasets.
@@ -205,7 +205,6 @@ def _read_static_tables_ferc1() -> dict[str, pd.DataFrame]:
         "years": Field(list, is_required=False),
         "tables": Field(list, is_required=False),
     },
-    required_resource_keys={"pudl_settings", "pudl_engine"},
 )
 def _etl_ferc1(context) -> dict[str, pd.DataFrame]:
     """Extract, transform and load CSVs for FERC Form 1.
@@ -227,9 +226,7 @@ def _etl_ferc1(context) -> dict[str, pd.DataFrame]:
     out_dfs = _read_static_tables_ferc1()
 
     # Extract FERC form 1
-    ferc1_raw_dfs = pudl.extract.ferc1.extract(
-        ferc1_settings=ferc1_settings, pudl_settings=context.resources.pudl_settings
-    )
+    ferc1_raw_dfs = pudl.extract.ferc1.extract(ferc1_settings=ferc1_settings)
 
     # Transform FERC form 1
     ferc1_transformed_dfs = pudl.transform.ferc1.transform(
@@ -387,11 +384,16 @@ def etl_epacems(context) -> Nothing:
 ###############################################################################
 # GLUE EXPORT FUNCTIONS
 ###############################################################################
+
+
 @op(
-    required_resource_keys={"pudl_settings", "pudl_engine"},
+    out={
+        table_name: Out(pd.DataFrame, io_manager_key="sqlite_io_manager")
+        for table_name in get_pudl_etl_tables()
+    },
 )
 def _add_glue(
-    eia_dfs: dict[str, pd.DataFrame], ferc1_dfs: dict[str, pd.DataFrame]
+    context, eia_dfs: dict[str, pd.DataFrame], ferc1_dfs: dict[str, pd.DataFrame]
 ) -> dict[str, pd.DataFrame]:
     """Extract, transform and load CSVs for the Glue tables.
 
@@ -420,7 +422,12 @@ def _add_glue(
 
     dfs = glue_dfs | eia_dfs | ferc1_dfs
 
-    return dfs
+    for table_name in get_pudl_etl_tables():
+        yield Output(
+            output_name=table_name,
+            value=dfs[table_name],
+            metadata={"num_rows": dfs[table_name].shape[0]},
+        )
 
 
 ###############################################################################
@@ -463,30 +470,14 @@ def pudl_engine(init_context):
     )
 
 
-@job(
-    resource_defs={
-        "pudl_settings": pudl_settings,
-        "datastore": datastore,
-        "pudl_engine": pudl_engine,
-    },
-    config={
-        "execution": {
-            "config": {
-                "multiprocess": {
-                    "start_method": {
-                        "forkserver": {},
-                    },
-                },
-            }
-        }
-    },
+@graph(
+    out={table_name: GraphOut() for table_name in get_pudl_etl_tables()},
 )
 def pudl_etl():
     """Run pudl_etl job."""
     ferc1_dfs = _etl_ferc1()
     eia_dfs = _etl_eia()
-    dfs = _add_glue(eia_dfs, ferc1_dfs)
-    pudl.load.dfs_to_sqlite(dfs)
+    return _add_glue(eia_dfs, ferc1_dfs)
 
 
 @job(

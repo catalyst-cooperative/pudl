@@ -1156,6 +1156,7 @@ class Resource(Base):
         "glue",
         "static_ferc1",
         "static_eia",
+        "static_eia861",
     ] = None
 
     _check_unique = _validator(

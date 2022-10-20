@@ -1553,3 +1553,28 @@ def convert_df_to_excel_file(df: pd.DataFrame, **kwargs) -> pd.ExcelFile:
     workbook = bio.read()
 
     return pd.ExcelFile(workbook)
+
+
+# TODO: Create a cleaner way to do this
+def get_pudl_etl_tables():
+    """Get resources that are produced by pudl_etl."""
+    resource_etl_groups = [
+        "eia860",
+        "eia923",
+        "entity_eia",
+        "ferc1",
+        "glue",
+        "static_ferc1",
+        "static_eia",
+    ]
+
+    table_names = tuple(
+        sorted(
+            resource.name
+            for resource in Package.from_resource_ids().resources
+            if resource.etl_group in resource_etl_groups
+        )
+    )
+
+    md = Package.from_resource_ids(resource_ids=table_names).to_sql()
+    return tuple(table.name for table in md.sorted_tables)

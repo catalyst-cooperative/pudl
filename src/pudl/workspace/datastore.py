@@ -4,6 +4,7 @@ import hashlib
 import io
 import json
 import logging
+import os
 import re
 import sys
 import zipfile
@@ -374,6 +375,11 @@ class Datastore:
 
 @resource(
     config_schema={
+        "local_cache_path": Field(
+            str,
+            description="Path to local cache of raw data.",
+            default_value=os.environ.get("PUDL_CACHE"),
+        ),
         "gcs_cache_path": Field(
             str,
             description="Load datastore resources from Google Cloud Storage.",
@@ -390,7 +396,6 @@ class Datastore:
             default_value=False,
         ),
     },
-    required_resource_keys={"pudl_settings"},
 )
 def datastore(init_context):
     """Datastore resource. This can be configured in the dagit UI."""
@@ -399,9 +404,7 @@ def datastore(init_context):
     ds_kwargs["sandbox"] = init_context.resource_config["sandbox"]
 
     if init_context.resource_config["use_local_cache"]:
-        ds_kwargs["local_cache_path"] = (
-            Path(init_context.resources.pudl_settings["pudl_in"]) / "data"
-        )
+        ds_kwargs["local_cache_path"] = init_context.resource_config["local_cache_path"]
     return Datastore(**ds_kwargs)
 
 

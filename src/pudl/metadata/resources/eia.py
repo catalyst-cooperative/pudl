@@ -101,7 +101,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "schema": {"fields": ["code", "label", "description"], "primary_key": ["code"]},
         "encoder": CODE_METADATA["entity_types_eia"],
         "sources": ["eia861"],
-        "etl_group": "static_eia",
+        "etl_group": "static_eia861",
         "field_namespace": "eia",
     },
     "fuel_transportation_modes_eia": {
@@ -180,7 +180,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         },
         "encoder": CODE_METADATA["momentary_interruptions_eia"],
         "sources": ["eia861"],
-        "etl_group": "static_eia",
+        "etl_group": "static_eia861",
         "field_namespace": "eia",
     },
     "plants_eia": {
