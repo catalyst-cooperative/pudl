@@ -301,7 +301,13 @@ enforce_snake_case_multicol = multicol_transform_factory(enforce_snake_case)
 # Strip Non-Numeric Values
 ################################################################################
 class StripNonNumericValues(TransformParams):
-    """Boolean parameter for :func:`strip_non_numeric_values`."""
+    """Boolean parameter for :func:`strip_non_numeric_values`.
+
+    Stores a named boolean variable that is employed in
+    :func:`strip_non_numeric_values` to determine whether of not the transform
+    treatment should be applied. Pydantic 2.0 will allow validation of these simple
+    variables without needing to define a model.
+    """
 
     strip_non_numeric_values: bool
 
@@ -1058,5 +1064,4 @@ class AbstractTableTransformer(ABC):
                 f"{self.table_id.value}: Missing columns found when enforcing table "
                 f"schema: {missing_cols}"
             )
-        self.resource = resource
         return resource.format_df(df)
