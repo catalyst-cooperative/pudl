@@ -35,13 +35,12 @@ import pandas as pd
 import sqlalchemy as sa
 
 import pudl
-from pudl.helpers import get_logger
 from pudl.metadata.fields import apply_pudl_dtypes
 from pudl.transform.classes import StringNormalization, normalize_strings_multicol
 from pudl.transform.ferc1 import Ferc1AbstractTableTransformer, Ferc1TableId
 from pudl.transform.params.ferc1 import FERC1_STRING_NORM
 
-logger = get_logger(__name__)
+logger = pudl.logging_helpers.get_logger(__name__)
 
 PUDL_ID_MAP_XLSX = importlib.resources.open_binary(
     "pudl.package_data.glue", "pudl_id_mapping.xlsx"

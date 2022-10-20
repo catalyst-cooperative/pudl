@@ -9,10 +9,11 @@ import sqlalchemy as sa
 from packaging import version
 from sqlalchemy.exc import IntegrityError
 
-from pudl.helpers import find_foreign_key_errors, get_logger
+import pudl.logging_helpers
+from pudl.helpers import find_foreign_key_errors
 from pudl.metadata.classes import Package
 
-logger = get_logger(__name__)
+logger = pudl.logging_helpers.get_logger(__name__)
 
 MINIMUM_SQLITE_VERSION = "3.32.0"
 

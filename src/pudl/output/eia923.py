@@ -7,10 +7,9 @@ import pandas as pd
 import sqlalchemy as sa
 
 import pudl
-from pudl.helpers import get_logger
 from pudl.metadata.fields import apply_pudl_dtypes
 
-logger = get_logger(__name__)
+logger = pudl.logging_helpers.get_logger(__name__)
 
 
 def generation_fuel_eia923(

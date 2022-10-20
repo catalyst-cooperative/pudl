@@ -17,7 +17,7 @@ import sqlalchemy as sa
 from pandas._libs.missing import NAType
 from pydantic.types import DirectoryPath
 
-from pudl.helpers import get_logger
+import pudl.logging_helpers
 from pudl.metadata.codes import CODE_METADATA
 from pudl.metadata.constants import (
     CONSTRAINT_DTYPES,
@@ -44,7 +44,7 @@ from pudl.metadata.resources import FOREIGN_KEYS, RESOURCE_METADATA, eia861
 from pudl.metadata.sources import SOURCES
 from pudl.workspace.datastore import Datastore
 
-logger = get_logger(__name__)
+logger = pudl.logging_helpers.get_logger(__name__)
 
 # ---- Helpers ---- #
 

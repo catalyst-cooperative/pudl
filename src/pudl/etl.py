@@ -27,7 +27,7 @@ import pyarrow.parquet as pq
 import sqlalchemy as sa
 
 import pudl
-from pudl.helpers import convert_cols_dtypes, get_logger
+from pudl.helpers import convert_cols_dtypes
 from pudl.metadata.classes import Package, Resource
 from pudl.metadata.dfs import (
     FERC_ACCOUNTS,
@@ -44,7 +44,7 @@ from pudl.settings import (
 )
 from pudl.workspace.datastore import Datastore
 
-logger = get_logger(__name__)
+logger = pudl.logging_helpers.get_logger(__name__)
 
 
 ###############################################################################

@@ -25,14 +25,13 @@ import pandas as pd
 import timezonefinder
 
 import pudl
-from pudl.helpers import get_logger
 from pudl.metadata.classes import DataSource
 from pudl.metadata.enums import APPROXIMATE_TIMEZONES
 from pudl.metadata.fields import apply_pudl_dtypes, get_pudl_dtypes
 from pudl.metadata.resources import ENTITIES
 from pudl.settings import EiaSettings
 
-logger = get_logger(__name__)
+logger = pudl.logging_helpers.get_logger(__name__)
 
 TZ_FINDER = timezonefinder.TimezoneFinder()
 """A global TimezoneFinder to cache geographies in memory for faster access."""

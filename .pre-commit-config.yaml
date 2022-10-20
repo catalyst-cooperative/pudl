@@ -29,12 +29,6 @@ repos:
   ####################################################################################
   # Formatters: hooks that re-write Python & documentation files
   ####################################################################################
-  # Convert relative imports to absolute imports
-  - repo: https://github.com/MarcoGorelli/absolufy-imports
-    rev: v0.3.1
-    hooks:
-      - id: absolufy-imports
-
   # Make sure import statements are sorted uniformly.
   - repo: https://github.com/PyCQA/isort
     rev: 5.10.1

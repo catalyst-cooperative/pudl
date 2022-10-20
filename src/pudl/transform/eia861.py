@@ -8,7 +8,7 @@ All transformations include:
 import pandas as pd
 
 import pudl
-from pudl.helpers import convert_cols_dtypes, get_logger
+from pudl.helpers import convert_cols_dtypes
 from pudl.metadata.enums import (
     CUSTOMER_CLASSES,
     FUEL_CLASSES,
@@ -22,7 +22,7 @@ from pudl.metadata.fields import apply_pudl_dtypes
 from pudl.metadata.labels import ESTIMATED_OR_ACTUAL, MOMENTARY_INTERRUPTIONS
 from pudl.settings import Eia861Settings
 
-logger = get_logger(__name__)
+logger = pudl.logging_helpers.get_logger(__name__)
 
 
 BA_ID_NAME_FIXES: pd.DataFrame = (

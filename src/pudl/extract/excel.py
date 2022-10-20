@@ -6,9 +6,8 @@ import dbfread
 import pandas as pd
 
 import pudl
-from pudl.helpers import get_logger
 
-logger = get_logger(__name__)
+logger = pudl.logging_helpers.get_logger(__name__)
 
 
 class Metadata:

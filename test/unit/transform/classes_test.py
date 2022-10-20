@@ -19,7 +19,7 @@ import pytest
 from pandas.testing import assert_frame_equal, assert_series_equal
 from pydantic import ValidationError
 
-from pudl.helpers import get_logger
+import pudl.logging_helpers
 from pudl.transform.classes import (
     AbstractTableTransformer,
     InvalidRows,
@@ -56,7 +56,7 @@ from pudl.transform.params.ferc1 import (
     VALID_PLANT_YEARS,
 )
 
-logger = get_logger(__name__)
+logger = pudl.logging_helpers.get_logger(__name__)
 
 # Unit conversions that are only used in testing
 PERTHERM_TO_PERMCF = dict(
