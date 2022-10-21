@@ -71,7 +71,7 @@ class Ferc1TableId(enum.Enum):
     PLANTS_SMALL_FERC1 = "plants_small_ferc1"
     PLANTS_PUMPED_STORAGE_FERC1 = "plants_pumped_storage_ferc1"
     PLANT_IN_SERVICE_FERC1 = "plant_in_service_ferc1"
-    PURCHASED_POWER = "purchased_power_ferc1"
+    PURCHASED_POWER_FERC1 = "purchased_power_ferc1"
 
 
 class Ferc1RenameColumns(TransformParams):
@@ -852,6 +852,17 @@ class PlantsPumpedStorageFerc1TableTransformer(Ferc1AbstractTableTransformer):
             .pipe(self.nullify_outliers)
             .pipe(self.drop_invalid_rows)
         )
+
+
+class PurchasedPowerTableTransformer(Ferc1AbstractTableTransformer):
+    """Transformer class for ``purchased_power_ferc1`` table."""
+
+    table_id: Ferc1TableId = Ferc1TableId.PURCHASED_POWER_FERC1
+
+    @cache_df(key="main")
+    def transform_main(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Table-specific transforms for the ``purchased_power_ferc1`` table."""
+        return df
 
 
 def transform(
