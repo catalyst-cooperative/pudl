@@ -163,6 +163,8 @@ You've changed the settings and renamed the file to CUSTOM_ETL.yml
     $ pudl_etl settings/CUSTOM_ETL.yml
 
 
+.. _add-cems-later:
+
 Processing EPA CEMS Separately
 ------------------------------
 As mentioned above, CEMS takes a while to process. Luckily, we've designed PUDL so that

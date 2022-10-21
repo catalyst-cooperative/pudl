@@ -70,7 +70,7 @@ def test_epacems_subset_input_validation(epacems_year_and_state, epacems_parquet
 def test_epacems_parallel(pudl_settings_fixture, pudl_ds_kwargs, tmpdir_factory):
     """Test that we can run the EPA CEMS ETL in parallel."""
     epacems_settings = EpaCemsSettings(
-        years=[2019, 2020], states=["ID", "ME"], partition=True
+        years=[2019, 2020, 2021], states=["ID", "ME"], partition=True
     )
     # We need a temporary output directory to avoid dropping the ID/ME 2019/2020
     # parallel outputs in the real output directory and interfering with the normal
@@ -88,4 +88,4 @@ def test_epacems_parallel(pudl_settings_fixture, pudl_ds_kwargs, tmpdir_factory)
         engine="pyarrow",
         split_row_groups=True,
     ).compute()
-    assert df.shape == (96_360, 19)  # nosec: B101
+    assert df.shape == (96_360, 16)  # nosec: B101

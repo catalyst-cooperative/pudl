@@ -1,6 +1,9 @@
 ---
 name: Epic
 about: Create an Epic to organize a collection of issues.
+title: ''
+labels: ''
+assignees: ''
 
 ---
 

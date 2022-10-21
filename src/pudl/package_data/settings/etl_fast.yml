@@ -21,8 +21,8 @@ ferc1_to_sqlite_settings:
 ###########################################################################
 # Settings for pudl_etl script
 ###########################################################################
-name: pudl-full
-title: PUDL Full ETL
+name: pudl-fast
+title: PUDL Fast ETL
 description: >
   FERC 1 and EIA 860/923 from 2020 (output to SQLite) plus
   EPA CEMS hourly emissions data from 2020 (output to Parquet).
@@ -46,7 +46,7 @@ datasets:
         - generation_eia923
         - coalmine_eia923 # REQUIRES fuel_receipts_costs_eia923
         - fuel_receipts_costs_eia923
-      years: [2020]
+      years: [2020, 2021]
     eia860:
       tables:
         - boiler_generator_assn_eia860
@@ -54,11 +54,11 @@ datasets:
         - plants_eia860
         - generators_eia860
         - ownership_eia860
-      years: [2020]
+      years: [2020, 2021]
       eia860m: true
   epacems:
     # Note that the CEMS data relies on EIA 860 data for plant locations,
     # so if you're loading CEMS data for a particular year, you should
     # also load the EIA 860 data for that year if possible
     states: [ID, ME]
-    years: [2019, 2020]
+    years: [2019, 2020, 2021]

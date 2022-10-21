@@ -809,9 +809,10 @@ class PudlTabl:
         if update or self._dfs["gen_fuel_allocated_eia923"] is None:
             self._dfs["gen_fuel_allocated_eia923"] = aggregate_gen_fuel_by_generator(
                 pudl_out=self,
-                gen_pm_fuel=self.gen_fuel_by_generator_energy_source_eia923(
+                net_gen_fuel_alloc=self.gen_fuel_by_generator_energy_source_eia923(
                     update=update
                 ),
+                sum_cols=["net_generation_mwh"],
             )
         return self._dfs["gen_fuel_allocated_eia923"]
 
@@ -1212,6 +1213,28 @@ class PudlTabl:
             )
 
         return self._dfs["plant_parts_eia"]
+
+    ###########################################################################
+    # GLUE OUTPUTS
+    ###########################################################################
+
+    def epacamd_eia(
+        self,
+        update: bool = False,
+    ) -> pd.DataFrame:
+        """Pull the EPACAMD-EIA Crosswalk Table.
+
+        Args:
+            update: If true, re-calculate the output dataframe, even if
+                a cached version exists.
+
+        Returns:
+            A denormalized table for interactive use.
+
+        """
+        if update or self._dfs["epacamd_eia"] is None:
+            self._dfs["epacamd_eia"] = pudl.output.epacems.epacamd_eia(self.pudl_engine)
+        return self._dfs["epacamd_eia"]
 
 
 def get_table_meta(pudl_engine):

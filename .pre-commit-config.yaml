@@ -43,7 +43,7 @@ repos:
 
   # Format the code
   - repo: https://github.com/psf/black
-    rev: 22.6.0
+    rev: 22.8.0
     hooks:
       - id: black
         language_version: python3.10
@@ -61,14 +61,14 @@ repos:
       - id: upgrade-type-hints
 
   - repo: https://github.com/pre-commit/mirrors-prettier
-    rev: v2.7.1
+    rev: v3.0.0-alpha.0
     hooks:
       - id: prettier
         types_or: [yaml]
 
   # Update Python language constructs to modern standards
   - repo: https://github.com/asottile/pyupgrade
-    rev: v2.37.1
+    rev: v2.38.0
     hooks:
       - id: pyupgrade
         args: ["--py310-plus"]
@@ -79,7 +79,7 @@ repos:
 
   # Check for PEP8 non-compliance, code complexity, style, errors, etc:
   - repo: https://github.com/PyCQA/flake8
-    rev: 4.0.1
+    rev: 5.0.4
     hooks:
       - id: flake8
         args: [--config, tox.ini]
@@ -109,14 +109,14 @@ repos:
       - id: hadolint
   # Check for errors in restructuredtext (.rst) files under the doc hierarchy
   - repo: https://github.com/PyCQA/doc8
-    rev: 0.11.2
+    rev: v1.0.0
     hooks:
       - id: doc8
         args: [--config, tox.ini]
 
   # Lint any RST files and embedded code blocks for syntax / formatting errors
-  - repo: https://github.com/myint/rstcheck
-    rev: v6.0.0.post1
+  - repo: https://github.com/rstcheck/rstcheck
+    rev: v6.1.0
     hooks:
       - id: rstcheck
         additional_dependencies: [sphinx]

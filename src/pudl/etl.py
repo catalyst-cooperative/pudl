@@ -20,7 +20,7 @@ import time
 from concurrent.futures import ProcessPoolExecutor
 from functools import partial
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
 
 import pandas as pd
 import pyarrow as pa
@@ -29,8 +29,7 @@ import sqlalchemy as sa
 
 import pudl
 from pudl.helpers import convert_cols_dtypes
-from pudl.metadata.classes import Resource
-from pudl.metadata.codes import CODE_METADATA
+from pudl.metadata.classes import Package, Resource
 from pudl.metadata.dfs import FERC_ACCOUNTS, FERC_DEPRECIATION_LINES
 from pudl.metadata.fields import apply_pudl_dtypes
 from pudl.settings import (
@@ -48,30 +47,6 @@ logger = logging.getLogger(__name__)
 ###############################################################################
 # EIA EXPORT FUNCTIONS
 ###############################################################################
-
-
-def _read_static_tables_eia() -> dict[str, pd.DataFrame]:
-    """Build dataframes of static EIA tables for use as foreign key constraints.
-
-    There are many values specified within the data that are essentially
-    constant, but which we need to store for data validation purposes, for use
-    as foreign keys.  E.g. the list of valid EIA fuel type codes, or the
-    possible state and country codes indicating a coal delivery's location of
-    origin.
-
-    """
-    return {
-        "energy_sources_eia": CODE_METADATA["energy_sources_eia"]["df"],
-        "operational_status_eia": CODE_METADATA["operational_status_eia"]["df"],
-        "fuel_types_aer_eia": CODE_METADATA["fuel_types_aer_eia"]["df"],
-        "prime_movers_eia": CODE_METADATA["prime_movers_eia"]["df"],
-        "sector_consolidated_eia": CODE_METADATA["sector_consolidated_eia"]["df"],
-        "fuel_transportation_modes_eia": CODE_METADATA["fuel_transportation_modes_eia"][
-            "df"
-        ],
-        "contract_types_eia": CODE_METADATA["contract_types_eia"]["df"],
-        "coalmine_types_eia": CODE_METADATA["coalmine_types_eia"]["df"],
-    }
 
 
 def _etl_eia(
@@ -101,7 +76,7 @@ def _etl_eia(
         return []
 
     # generate dataframes for the static EIA tables
-    out_dfs = _read_static_tables_eia()
+    out_dfs = _read_static_encoding_tables(etl_group="static_eia")
 
     ds = Datastore(**ds_kwargs)
     # Extract EIA forms 923, 860
@@ -147,9 +122,7 @@ def _etl_eia(
 
     for table in entities_dfs:
         entities_dfs[table] = (
-            pudl.metadata.classes.Package.from_resource_ids()
-            .get_resource(table)
-            .encode(entities_dfs[table])
+            Package.from_resource_ids().get_resource(table).encode(entities_dfs[table])
         )
 
     out_dfs.update(entities_dfs)
@@ -162,25 +135,25 @@ def _etl_eia(
 ###############################################################################
 
 
-def _read_static_tables_ferc1() -> dict[str, pd.DataFrame]:
-    """Populate static PUDL tables with constants for use as foreign keys.
+def _read_static_tables_ferc1():
+    """Compile static tables for FERC1 for foriegn key constaints.
 
-    There are many values specified within the data that are essentially
-    constant, but which we need to store for data validation purposes, for use
-    as foreign keys.  E.g. the list of valid EIA fuel type codes, or the
-    possible state and country codes indicating a coal delivery's location of
-    origin. For now these values are primarily stored in a large collection of
-    lists, dictionaries, and dataframes which are specified in the
-    pudl.metadata module.  This function uses those data structures to
-    populate a bunch of small infrastructural tables within the PUDL DB.
+    This function grabs static encoded tables via :func:`_read_static_encoding_tables`
+    as well as two static tables that are non-encoded tables (``ferc_accounts`` and
+    ``ferc_depreciation_lines``).
     """
-    return {
-        "ferc_accounts": FERC_ACCOUNTS[["ferc_account_id", "ferc_account_description"]],
-        "ferc_depreciation_lines": FERC_DEPRECIATION_LINES[
-            ["line_id", "ferc_account_description"]
-        ],
-        "power_purchase_types_ferc1": CODE_METADATA["power_purchase_types_ferc1"]["df"],
-    }
+    static_table_dict = _read_static_encoding_tables("static_ferc1")
+    static_table_dict.update(
+        {
+            "ferc_accounts": FERC_ACCOUNTS[
+                ["ferc_account_id", "ferc_account_description"]
+            ],
+            "ferc_depreciation_lines": FERC_DEPRECIATION_LINES[
+                ["line_id", "ferc_account_description"]
+            ],
+        }
+    )
+    return static_table_dict
 
 
 def _etl_ferc1(
@@ -277,6 +250,12 @@ def etl_epacems(
             "No plants_eia860 available in the PUDL DB! Have you run the ETL? "
             f"Trying to access PUDL DB: {pudl_engine}"
         )
+    # Verify that we have a PUDL DB with crosswalk data
+    if "epacamd_eia" not in inspector.get_table_names():
+        raise RuntimeError(
+            "No EPACAMD-EIA Crosswalk available in the PUDL DB! Have you run the ETL? "
+            f"Trying to access PUDL DB: {pudl_engine}"
+        )
 
     eia_plant_years = pd.read_sql(
         """
@@ -350,13 +329,29 @@ def etl_epacems(
 
 
 ###############################################################################
-# GLUE EXPORT FUNCTIONS
+# GLUE AND STATIC EXPORT FUNCTIONS
 ###############################################################################
-def _etl_glue(glue_settings: GlueSettings) -> dict[str, pd.DataFrame]:
+def _etl_glue(
+    glue_settings: GlueSettings,
+    ds_kwargs: dict[str, Any],
+    sqlite_dfs: dict[str, pd.DataFrame],
+    eia_settings: EiaSettings,
+) -> dict[str, pd.DataFrame]:
     """Extract, transform and load CSVs for the Glue tables.
 
     Args:
         glue_settings: Validated ETL parameters required by this data source.
+        ds_kwargs: Keyword arguments for instantiating a PUDL datastore, so that the ETL
+            can access the raw input data.
+        sqlite_dfs: The dictionary of dataframes to be loaded into the pudl database.
+            We pass the dictionary though because the EPACAMD-EIA crosswalk needs to
+            know which EIA plants and generators are being loaded into the database
+            (based on whether we run the full or fast etl). The tests will break if we
+            pass the generators_entity_eia table as an argument because of the
+            ferc1_solo test (where no eia tables are in the sqlite_dfs dict). Passing
+            the whole dict avoids this because the crosswalk will only load if there
+            are eia tables in the dict, but the dict will always be there.
+        eia_settings: Validated ETL parameters required by this data source.
 
     Returns:
         A dictionary of DataFrames whose keys are the names of the corresponding
@@ -371,10 +366,52 @@ def _etl_glue(glue_settings: GlueSettings) -> dict[str, pd.DataFrame]:
 
     # Add the EPA to EIA crosswalk, but only if the eia data is being processed.
     # Otherwise the foreign key references will have nothing to point at:
+    ds = Datastore(**ds_kwargs)
     if glue_settings.eia:
-        glue_dfs.update(pudl.glue.eia_epacems.grab_clean_split())
+        # Check to see whether the settings file indicates the processing of all
+        # available EIA years.
+        processing_all_eia_years = (
+            eia_settings.eia860.years
+            == eia_settings.eia860.data_source.working_partitions["years"]
+        )
+        glue_raw_dfs = pudl.glue.epacamd_eia.extract(ds)
+        glue_transformed_dfs = pudl.glue.epacamd_eia.transform(
+            glue_raw_dfs,
+            sqlite_dfs["generators_entity_eia"],
+            sqlite_dfs["boilers_entity_eia"],
+            processing_all_eia_years,
+        )
+        glue_dfs.update(glue_transformed_dfs)
 
     return glue_dfs
+
+
+def _read_static_encoding_tables(
+    etl_group: Literal["static_eia", "static_ferc1"]
+) -> dict[str, pd.DataFrame]:
+    """Build dataframes of static tables from a data source for use as foreign keys.
+
+    There are many values specified within the data that are essentially constant, but
+    which we need to store for data validation purposes, for use as foreign keys.  E.g.
+    the list of valid EIA fuel type codes, or the possible state and country codes
+    indicating a coal delivery's location of origin. For now these values are primarily
+    stored in a large collection of lists, dictionaries, and dataframes which are
+    specified in the :mod:`pudl.metadata` subpackage.  This function uses those data
+    structures to populate a bunch of small infrastructural tables within the PUDL DB.
+
+    Args:
+        etl_group: name of static table etl group.
+
+    Returns:
+        a dictionary with table names as keys and dataframes as values for all tables
+        labeled as static tables in their resource ``etl_group``
+
+    """
+    return {
+        r.name: r.encoder.df
+        for r in Package.from_resource_ids().resources
+        if r.etl_group == etl_group and r.encoder
+    }
 
 
 ###############################################################################
@@ -446,7 +483,9 @@ def etl(  # noqa: C901
     if datasets.get("eia", False):
         sqlite_dfs.update(_etl_eia(datasets["eia"], ds_kwargs))
     if datasets.get("glue", False):
-        sqlite_dfs.update(_etl_glue(datasets["glue"]))
+        sqlite_dfs.update(
+            _etl_glue(datasets["glue"], ds_kwargs, sqlite_dfs, datasets["eia"])
+        )
 
     # Load the ferc1 + eia data directly into the SQLite DB:
     pudl_engine = sa.create_engine(pudl_settings["pudl_db"])

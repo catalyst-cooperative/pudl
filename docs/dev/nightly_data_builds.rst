@@ -31,7 +31,7 @@ The ``gcloud`` command in ``build-deploy-pudl`` requires certain Google Cloud
 Platform (GCP) permissions to start and update the GCE instance. The
 ``gcloud`` command authenticates using a service account key for the
 ``deploy-pudl-github-action`` service account stored in PUDL's GitHub secrets
-as ``GCE_SA_KEY``. The ``deploy-pudl-github-action`` service account has
+as ``DEPLOY_PUDL_SA_KEY``. The ``deploy-pudl-github-action`` service account has
 the `Compute Instance Admin (v1) IAM <https://cloud.google.com/iam/docs/understanding-roles#compute-engine>`__
 role on the GCE instances to update the container and start the instance.
 

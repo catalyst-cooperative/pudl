@@ -475,16 +475,17 @@ def date_merge(
     """
 
     def separate_date_cols(df, date_col_name, date_on):
-        df[date_col_name] = pd.to_datetime(df[date_col_name])
+        out_df = df.copy()
+        out_df.loc[:, date_col_name] = pd.to_datetime(out_df[date_col_name])
         if "year_temp_for_merge" in date_on:
-            df.loc[:, "year_temp_for_merge"] = df[date_col_name].dt.year
+            out_df.loc[:, "year_temp_for_merge"] = out_df[date_col_name].dt.year
         if "quarter_temp_for_merge" in date_on:
-            df.loc[:, "quarter_temp_for_merge"] = df[date_col_name].dt.quarter
+            out_df.loc[:, "quarter_temp_for_merge"] = out_df[date_col_name].dt.quarter
         if "month_temp_for_merge" in date_on:
-            df.loc[:, "month_temp_for_merge"] = df[date_col_name].dt.month
+            out_df.loc[:, "month_temp_for_merge"] = out_df[date_col_name].dt.month
         if "day_temp_for_merge" in date_on:
-            df.loc[:, "day_temp_for_merge"] = df[date_col_name].dt.day
-        return df
+            out_df.loc[:, "day_temp_for_merge"] = out_df[date_col_name].dt.day
+        return out_df
 
     right = convert_col_to_datetime(right, right_date_col)
     left = convert_col_to_datetime(left, left_date_col)
@@ -867,39 +868,40 @@ def month_year_to_date(df):
     return df
 
 
-def fix_leading_zero_gen_ids(df):
-    """Remove leading zeros from EIA generator IDs which are numeric strings.
+def remove_leading_zeros_from_numeric_strings(
+    df: pd.DataFrame, col_name: str
+) -> pd.DataFrame:
+    """Remove leading zeros frame column values that are numeric strings.
 
-    If the DataFrame contains a column named ``generator_id`` then that column
-    will be cast to a string, and any all numeric value with leading zeroes
-    will have the leading zeroes removed. This is necessary because in some
-    but not all years of data, some of the generator IDs are treated as integers
-    in the Excel spreadsheets published by EIA, so the same generator may show
-    up with the ID "0001" and "1" in different years.
+    Sometimes an ID column (like generator_id or unit_id) will be reported with leading
+    zeros and sometimes it won't. For example, in the Excel spreadsheets published by
+    EIA, the same generator may show up with the ID "0001" and "1" in different years
+    This function strips the leading zeros from those numeric strings so the data can
+    be mapped accross years and datasets more reliably.
 
     Alphanumeric generator IDs with leadings zeroes are not affected, as we
-    found no instances in which an alphanumeric generator ID appeared both with
-    and without leading zeroes.
+    found no instances in which an alphanumeric ID appeared both with
+    and without leading zeroes. The ID "0A1" will stay "0A1".
 
     Args:
-        df (pandas.DataFrame): DataFrame, presumably containing a column named
-            generator_id (otherwise no action will be taken.)
+        df: A DataFrame containing the column you'd like to remove numeric leading zeros
+            from.
+        col_name: The name of the column you'd like to remove numeric leading zeros
+            from.
 
     Returns:
-        pandas.DataFrame
+        A DataFrame without leading zeros for numeric string values in the desired
+        column.
 
     """
-    if "generator_id" in df.columns:
-        fixed_generator_id = (
-            df["generator_id"]
-            .astype(str)
-            .apply(lambda x: re.sub(r"^0+(\d+$)", r"\1", x))
+    leading_zeros = df[col_name].str.contains(r"^0+\d+$").fillna(False)
+    if leading_zeros.any():
+        logger.debug(f"Fixing leading zeros in {col_name} column")
+        df.loc[leading_zeros, col_name] = df[col_name].str.replace(
+            r"^0+", "", regex=True
         )
-        num_fixes = len(df.loc[df["generator_id"].astype(str) != fixed_generator_id])
-        logger.debug("Fixed %s EIA generator IDs with leading zeros.", num_fixes)
-        df = df.drop("generator_id", axis="columns").assign(
-            generator_id=fixed_generator_id
-        )
+    else:
+        logger.debug(f"Found no numeric leading zeros in {col_name}")
     return df
 
 
@@ -1063,7 +1065,9 @@ def merge_dicts(list_of_dicts):
 
 
 def convert_cols_dtypes(
-    df: pd.DataFrame, data_source: str | None = None, name: str | None = None
+    df: pd.DataFrame,
+    data_source: str | None = None,
+    name: str | None = None,
 ) -> pd.DataFrame:
     """Convert a PUDL dataframe's columns to the correct data type.
 
@@ -1374,19 +1378,24 @@ def get_working_eia_dates():
     return dates
 
 
-def dedupe_on_category(dedup_df, base_cols, category_name, sorter):
+def dedupe_on_category(
+    dedup_df: pd.DataFrame, base_cols: list[str], category_name: str, sorter: list[str]
+) -> pd.DataFrame:
     """Deduplicate a df using a sorted category to retain prefered values.
 
     Use a sorted category column to retain your prefered values when a
     dataframe is deduplicated.
 
     Args:
-        dedup_df (pandas.DataFrame): the dataframe with the record
-        base_cols (list) : list of columns to use when dropping duplicates
-        category_name (string) : name of categorical column
-        sorter (list): sorted list of category options
+        dedup_df: the dataframe with the records to deduplicate.
+        base_cols: list of columns which must not be duplicated.
+        category_name: name of the categorical column to order values for deduplication.
+        sorter: sorted list of categorical values found in the ``category_name`` column.
+
+    Returns:
+        The deduplicated dataframe.
     """
-    dedup_df.loc[:, category_name] = dedup_df.loc[:, category_name].astype(
+    dedup_df[category_name] = dedup_df[category_name].astype(
         pd.CategoricalDtype(categories=sorter, ordered=True)
     )
 

@@ -576,7 +576,13 @@ class Field(Base):
 
     name: SnakeCase
     type: Literal[  # noqa: A003
-        "string", "number", "integer", "boolean", "date", "datetime", "year"
+        "string",
+        "number",
+        "integer",
+        "boolean",
+        "date",
+        "datetime",
+        "year",
     ]
     format: Literal["default"] = "default"  # noqa: A003
     description: String = None
@@ -910,7 +916,7 @@ class DataSource(Base):
     email: Email = None
 
     def get_resource_ids(self) -> list[str]:
-        """Compile list of resoruce IDs associated with this data source."""
+        """Compile list of resource IDs associated with this data source."""
         # Temporary check to use eia861.RESOURCE_METADATA directly
         # eia861 is not currently included in the general RESOURCE_METADATA dict
         resources = RESOURCE_METADATA
@@ -1142,7 +1148,7 @@ class Resource(Base):
     keywords: list[String] = []
     encoder: Encoder = None
     field_namespace: Literal[
-        "eia", "epacems", "ferc1", "ferc714", "glue", "pudl"
+        "eia", "epacems", "ferc1", "ferc714", "glue", "pudl", "ppe"
     ] = None
     etl_group: Literal[
         "eia860",
@@ -1154,8 +1160,10 @@ class Resource(Base):
         "ferc1_disabled",
         "ferc714",
         "glue",
+        "outputs",
         "static_ferc1",
         "static_eia",
+        "static_eia_disabled",
     ] = None
 
     _check_unique = _validator(
@@ -1418,6 +1426,16 @@ class Resource(Base):
                 and pd.api.types.is_integer_dtype(df[field.name])
             ):
                 df[field.name] = pd.to_datetime(df[field.name], format="%Y")
+            if pd.api.types.is_categorical_dtype(dtypes[field.name]):
+                if not all(
+                    value in dtypes[field.name].categories
+                    for value in df[field.name].dropna().unique()
+                ):
+                    logger.warning(
+                        f"Values in {field.name} column are not included in "
+                        "categorical values in field enum constraint "
+                        "and will be converted to nulls."
+                    )
         df = (
             # Reorder columns and insert missing columns
             df.reindex(columns=dtypes.keys(), copy=False)
@@ -1606,7 +1624,7 @@ class Resource(Base):
     def encode(self, df: pd.DataFrame) -> pd.DataFrame:
         """Standardize coded columns using the foreign column they refer to."""
         for field in self.schema.fields:
-            if field.encoder:
+            if field.encoder and field.name in df.columns:
                 logger.info(f"Recoding {self.name}.{field.name}")
                 df[field.name] = field.encoder.encode(
                     col=df[field.name], dtype=field.to_pandas_dtype()
