@@ -139,6 +139,9 @@ IDX_U_ESC = ["report_date", "plant_id_eia", "energy_source_code", "unit_id_pudl"
 
 """Data columns from generation_fuel_eia923 that are being allocated."""
 
+MISSING_SENTINEL = 0.0001
+"""A sentinel value for dealing with null or zero values."""
+
 
 # Two top-level functions (allocate & aggregate)
 def allocate_gen_fuel_by_generator_energy_source(pudl_out, drop_interim_cols=True):
@@ -265,7 +268,8 @@ def allocate_gen_fuel_by_generator_energy_source(pudl_out, drop_interim_cols=Tru
         data_column_name="net_generation_mwh",
     )
 
-    # the gen table is missing some generator ids. Let's fill this using the gens table, leaving a missing value for net generation
+    # the gen table is missing many generator ids. Let's fill this using the gens table
+    # leaving a missing value for net generation
     gen = gen.merge(
         gens[["plant_id_eia", "generator_id", "report_date"]],
         how="outer",
@@ -578,7 +582,7 @@ def associate_generator_tables(gf, gen, gens, bf):
         "net_generation_mwh_gf_tbl",
         "fuel_consumed_mmbtu_bf_tbl",
     ]
-    gen_assoc[data_columns] = gen_assoc[data_columns].replace(0, 0.001)
+    gen_assoc[data_columns] = gen_assoc[data_columns].replace(0, MISSING_SENTINEL)
 
     # calculate the total capacity in every fuel group
     gen_assoc = (
@@ -963,18 +967,20 @@ def prep_alloction_fraction(gen_assoc: pd.DataFrame):
             # the calculations to run the fractions in `allocate_net_gen_by_gen_esc`
             # and `allocate_fuel_by_gen_esc` can be consistent)
             # do the same with missing fuel consumption
-            net_generation_mwh_g_tbl=lambda x: x.net_generation_mwh_g_tbl.fillna(0.001),
+            net_generation_mwh_g_tbl=lambda x: x.net_generation_mwh_g_tbl.fillna(
+                MISSING_SENTINEL
+            ),
             fuel_consumed_mmbtu_bf_tbl=lambda x: x.fuel_consumed_mmbtu_bf_tbl.fillna(
-                0.001
+                MISSING_SENTINEL
             ),
             net_generation_mwh_g_tbl_pm_fuel=lambda x: x.net_generation_mwh_g_tbl_pm_fuel.fillna(
-                0.001
+                MISSING_SENTINEL
             ),
             fuel_consumed_mmbtu_bf_tbl_pm_fuel=lambda x: x.fuel_consumed_mmbtu_bf_tbl_pm_fuel.fillna(
-                0.001
+                MISSING_SENTINEL
             ),
             fuel_consumed_mmbtu_bf_tbl_unit_fuel=lambda x: x.fuel_consumed_mmbtu_bf_tbl_unit_fuel.fillna(
-                0.001
+                MISSING_SENTINEL
             ),
         )
     )
@@ -1097,10 +1103,11 @@ def allocate_net_gen_by_gen_esc(gen_pm_fuel):
     net_gen_alloc = pd.concat([all_gen, some_gen, gf_only])
     _ = _test_frac(net_gen_alloc)
 
-    # replace the placeholder 0.001 values with zero before allocating
+    # replace the placeholder missing values with zero before allocating
     # since some of these may have been aggregated, well, flag any values less than 0.01
     net_gen_alloc.loc[
-        net_gen_alloc["net_generation_mwh_gf_tbl"] < 0.01, "net_generation_mwh_gf_tbl"
+        net_gen_alloc["net_generation_mwh_gf_tbl"] < MISSING_SENTINEL,
+        "net_generation_mwh_gf_tbl",
     ] = 0
 
     # do the allocating-ing!
@@ -1204,13 +1211,15 @@ def allocate_fuel_by_gen_esc(gen_pm_fuel):
     fuel_alloc = pd.concat([all_bf, some_bf, gf_only])
     # _ = _test_frac(fuel_alloc)
 
-    # replace the placeholder 0.001 values with zero before allocating
-    # since some of these may have been aggregated, well, flag any values less than 0.01
+    # replace the placeholder missing values with zero before allocating
+    # since some of these may have been aggregated, well, flag any values less than the
+    # sentinel missing value
     fuel_alloc.loc[
-        fuel_alloc["fuel_consumed_mmbtu_gf_tbl"] < 0.01, "fuel_consumed_mmbtu_gf_tbl"
+        fuel_alloc["fuel_consumed_mmbtu_gf_tbl"] < MISSING_SENTINEL,
+        "fuel_consumed_mmbtu_gf_tbl",
     ] = 0
     fuel_alloc.loc[
-        fuel_alloc["fuel_consumed_for_electricity_mmbtu_gf_tbl"] < 0.01,
+        fuel_alloc["fuel_consumed_for_electricity_mmbtu_gf_tbl"] < MISSING_SENTINEL,
         "fuel_consumed_for_electricity_mmbtu_gf_tbl",
     ] = 0
 
