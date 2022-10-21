@@ -1,29 +1,22 @@
 """This module provides a class enabling tabular compilations from the PUDL DB.
 
-Many of our potential users are comfortable using spreadsheets, not databases,
-so we are creating a collection of tabular outputs that contain the most
-useful core information from the PUDL data packages, including additional keys
-and human readable names for the objects (utilities, plants, generators) being
-described in the table.
+Many of our potential users are comfortable using spreadsheets, not databases, so we are
+creating a collection of tabular outputs that contain the most useful core information
+from the PUDL data packages, including additional keys and human readable names for the
+objects (utilities, plants, generators) being described in the table.
 
-These tabular outputs can be joined with each other using those keys, and used
-as a data source within Microsoft Excel, Access, R Studio, or other data
-analysis packages that folks may be familiar with.  They aren't meant to
-completely replicate all the data and relationships contained within the full
-PUDL database, but should serve as a generally usable set of PUDL data
-products.
+These tabular outputs can be joined with each other using those keys, and used as a data
+source within Microsoft Excel, Access, R Studio, or other data analysis packages that
+folks may be familiar with.  They aren't meant to completely replicate all the data and
+relationships contained within the full PUDL database, but should serve as a generally
+usable set of PUDL data products.
 
-The PudlTabl class can also provide access to complex derived values, like the
-generator and plant level marginal cost of electricity (MCOE), which are
-defined in the analysis module.
+The PudlTabl class can also provide access to complex derived values, like the generator
+and plant level marginal cost of electricity (MCOE), which are defined in the analysis
+module.
 
-In the long run, this is a probably a kind of prototype for pre-packaged API
-outputs or data products that we might want to be able to provide to users a la
-carte.
-
-Todo:
-    Return to for update arg and returns values in functions below
-
+In the long run, this is a probably a kind of prototype for pre-packaged API outputs or
+data products that we might want to be able to provide to users a la carte.
 """
 
 import logging
@@ -70,12 +63,12 @@ class PudlTabl:
     ):
         """Initialize the PUDL output object.
 
-        Private data members are not initialized until they are requested.
-        They are then cached within the object unless they get re-initialized
-        via a method that includes update=True.
+        Private data members are not initialized until they are requested.  They are
+        then cached within the object unless they get re-initialized via a method that
+        includes update=True.
 
-        Some methods (e.g mcoe) will take a while to run, since they need to
-        pull substantial data and do a bunch of calculations.
+        Some methods (e.g mcoe) will take a while to run, since they need to pull
+        substantial data and do a bunch of calculations.
 
         Args:
             pudl_engine: A connection engine for the PUDL DB.
@@ -91,7 +84,7 @@ class PudlTabl:
             end_date: End date for data to pull from the PUDL DB. If a string,
                 it should use the ISO 8601 ``YYYY-MM-DD`` format.
             fill_fuel_cost: if True, fill in missing ``frc_eia923()`` fuel cost
-                data with state-level averages obtained from EIA's API.
+                data with state-fuel averages from EIA's bulk electricity data.
             roll_fuel_cost: if True, apply a rolling average to a subset of
                 output table's columns (currently only ``fuel_cost_per_mmbtu``
                 for the ``fuel_receipts_costs_eia923`` table.)
@@ -105,7 +98,6 @@ class PudlTabl:
                 code.
             unit_ids: If True, use several heuristics to assign
                 individual generators to functional units. EXPERIMENTAL.
-
         """
         # Validating ds is deferred to the etl_eia861 & etl_ferc714 methods
         # because those are the only places a datastore is required.
@@ -156,7 +148,6 @@ class PudlTabl:
 
         Returns:
             pandas.DataFrame: a denormalized table for interactive use.
-
         """
         if update or self._dfs["pu_eia"] is None:
             self._dfs["pu_eia"] = pudl.output.eia860.plants_utils_eia860(
@@ -173,7 +164,6 @@ class PudlTabl:
 
         Returns:
             pandas.DataFrame: a denormalized table for interactive use.
-
         """
         if update or self._dfs["pu_ferc1"] is None:
             self._dfs["pu_ferc1"] = pudl.output.ferc1.plants_utils_ferc1(
@@ -200,7 +190,6 @@ class PudlTabl:
         Args:
             eia861_settings: Object containing validated settings relevant to EIA 861.
             update: Whether to overwrite the existing dataframes if they exist.
-
         """
         if isinstance(self.ds, Datastore):
             pass
@@ -455,7 +444,6 @@ class PudlTabl:
         Args:
             ferc714_settings: An ETL Settings object for FERC 714.
             update: Whether to overwrite the existing dataframes if they exist.
-
         """
         if isinstance(self.ds, Datastore):
             pass
@@ -557,7 +545,6 @@ class PudlTabl:
 
         Returns:
             pandas.DataFrame: a denormalized table for interactive use.
-
         """
         if update or self._dfs["utils_eia860"] is None:
             self._dfs["utils_eia860"] = pudl.output.eia860.utilities_eia860(
@@ -574,7 +561,6 @@ class PudlTabl:
 
         Returns:
             pandas.DataFrame: a denormalized table for interactive use.
-
         """
         if update or self._dfs["bga_eia860"] is None:
             self._dfs["bga_eia860"] = pudl.output.eia860.boiler_generator_assn_eia860(
@@ -591,7 +577,6 @@ class PudlTabl:
 
         Returns:
             pandas.DataFrame: a denormalized table for interactive use.
-
         """
         if update or self._dfs["plants_eia860"] is None:
             self._dfs["plants_eia860"] = pudl.output.eia860.plants_eia860(
@@ -613,7 +598,6 @@ class PudlTabl:
 
         Returns:
             pandas.DataFrame: a denormalized table for interactive use.
-
         """
         if update or self._dfs["gens_eia860"] is None:
             self._dfs["gens_eia860"] = pudl.output.eia860.generators_eia860(
@@ -635,7 +619,6 @@ class PudlTabl:
 
         Returns:
             pandas.DataFrame: a denormalized table for interactive use.
-
         """
         if update or self._dfs["own_eia860"] is None:
             self._dfs["own_eia860"] = pudl.output.eia860.ownership_eia860(
@@ -652,7 +635,6 @@ class PudlTabl:
 
         Returns:
             A denormalized table for interactive use.
-
         """
         if update or self._dfs["gf_eia923"] is None:
             self._dfs["gf_eia923"] = pudl.output.eia923.generation_fuel_all_eia923(
@@ -670,7 +652,6 @@ class PudlTabl:
 
         Returns:
             A denormalized table for interactive use.
-
         """
         if update or self._dfs["gf_nonuclear_eia923"] is None:
             self._dfs[
@@ -693,7 +674,6 @@ class PudlTabl:
 
         Returns:
             A denormalized table for interactive use.
-
         """
         if update or self._dfs["gf_nuclear_eia923"] is None:
             self._dfs["gf_nuclear_eia923"] = pudl.output.eia923.generation_fuel_eia923(
@@ -714,7 +694,6 @@ class PudlTabl:
 
         Returns:
             pandas.DataFrame: a denormalized table for interactive use.
-
         """
         if update or self._dfs["frc_eia923"] is None:
             self._dfs["frc_eia923"] = pudl.output.eia923.fuel_receipts_costs_eia923(
@@ -736,7 +715,6 @@ class PudlTabl:
 
         Returns:
             pandas.DataFrame: a denormalized table for interactive use.
-
         """
         if update or self._dfs["bf_eia923"] is None:
             self._dfs["bf_eia923"] = pudl.output.eia923.boiler_fuel_eia923(
@@ -766,7 +744,6 @@ class PudlTabl:
 
         Returns:
             pandas.DataFrame: a denormalized table for interactive use.
-
         """
         if update or self._dfs["gen_eia923"] is None:
             if self.fill_net_gen:
@@ -817,7 +794,7 @@ class PudlTabl:
         return self._dfs["gen_fuel_allocated_eia923"]
 
     def gen_fuel_by_generator_energy_source_owner_eia923(self, update=False):
-        """Generation and fuel consumption at the generator/energy_source_code/owner level."""
+        """Generation and fuel consumption by generator/energy_source_code/owner."""
         if update or self._dfs["gen_fuel_by_genid_esc_own"] is None:
             self._dfs[
                 "gen_fuel_by_genid_esc_own"
@@ -840,7 +817,6 @@ class PudlTabl:
 
         Returns:
             pandas.DataFrame: a denormalized table for interactive use.
-
         """
         if update or self._dfs["plants_steam_ferc1"] is None:
             self._dfs["plants_steam_ferc1"] = pudl.output.ferc1.plants_steam_ferc1(
@@ -857,7 +833,6 @@ class PudlTabl:
 
         Returns:
             pandas.DataFrame: a denormalized table for interactive use.
-
         """
         if update or self._dfs["fuel_ferc1"] is None:
             self._dfs["fuel_ferc1"] = pudl.output.ferc1.fuel_ferc1(self.pudl_engine)
@@ -872,7 +847,6 @@ class PudlTabl:
 
         Returns:
             pandas.DataFrame: a denormalized table for interactive use.
-
         """
         if update or self._dfs["fbp_ferc1"] is None:
             self._dfs["fbp_ferc1"] = pudl.output.ferc1.fuel_by_plant_ferc1(
@@ -889,7 +863,6 @@ class PudlTabl:
 
         Returns:
             pandas.DataFrame: a denormalized table for interactive use.
-
         """
         if update or self._dfs["plants_small_ferc1"] is None:
             self._dfs["plants_small_ferc1"] = pudl.output.ferc1.plants_small_ferc1(
@@ -906,7 +879,6 @@ class PudlTabl:
 
         Returns:
             pandas.DataFrame: a denormalized table for interactive use.
-
         """
         if update or self._dfs["plants_hydro_ferc1"] is None:
             self._dfs["plants_hydro_ferc1"] = pudl.output.ferc1.plants_hydro_ferc1(
@@ -923,7 +895,6 @@ class PudlTabl:
 
         Returns:
             pandas.DataFrame: a denormalized table for interactive use.
-
         """
         if update or self._dfs["plants_pumped_storage_ferc1"] is None:
             self._dfs[
@@ -940,7 +911,6 @@ class PudlTabl:
 
         Returns:
             pandas.DataFrame: a denormalized table for interactive use.
-
         """
         if update or self._dfs["purchased_power_ferc1"] is None:
             self._dfs[
@@ -957,7 +927,6 @@ class PudlTabl:
 
         Returns:
             pandas.DataFrame: a denormalized table for interactive use.
-
         """
         if update or self._dfs["plant_in_service_ferc1"] is None:
             self._dfs[
@@ -974,7 +943,6 @@ class PudlTabl:
 
         Returns:
             pandas.DataFrame: a denormalized table for interactive use.
-
         """
         if update or self._dfs["plants_all_ferc1"] is None:
             self._dfs["plants_all_ferc1"] = pudl.output.ferc1.plants_all_ferc1(
@@ -994,7 +962,6 @@ class PudlTabl:
 
         Returns:
             pandas.DataFrame: a denormalized table for interactive use.
-
         """
         if update or self._dfs["hr_by_gen"] is None:
             self._dfs["hr_by_gen"] = pudl.analysis.mcoe.heat_rate_by_gen(self)
@@ -1009,7 +976,6 @@ class PudlTabl:
 
         Returns:
             pandas.DataFrame: a denormalized table for interactive use.
-
         """
         if update or self._dfs["hr_by_unit"] is None:
             self._dfs["hr_by_unit"] = pudl.analysis.mcoe.heat_rate_by_unit(self)
@@ -1024,7 +990,6 @@ class PudlTabl:
 
         Returns:
             pandas.DataFrame: a denormalized table for interactive use.
-
         """
         if update or self._dfs["fuel_cost"] is None:
             self._dfs["fuel_cost"] = pudl.analysis.mcoe.fuel_cost(self)
@@ -1039,7 +1004,6 @@ class PudlTabl:
 
         Returns:
             pandas.DataFrame: a denormalized table for interactive use.
-
         """
         if update or self._dfs["capacity_factor"] is None:
             self._dfs["capacity_factor"] = pudl.analysis.mcoe.capacity_factor(
@@ -1095,7 +1059,6 @@ class PudlTabl:
         Returns:
             :class:`pandas.DataFrame`: a compilation of generator attributes,
             including fuel costs per MWh.
-
         """
         if update or self._dfs["mcoe"] is None:
             self._dfs["mcoe"] = pudl.analysis.mcoe.mcoe(
@@ -1230,7 +1193,6 @@ class PudlTabl:
 
         Returns:
             A denormalized table for interactive use.
-
         """
         if update or self._dfs["epacamd_eia"] is None:
             self._dfs["epacamd_eia"] = pudl.output.epacems.epacamd_eia(self.pudl_engine)

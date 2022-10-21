@@ -36,7 +36,10 @@ class FakeExtractor(excel.GenericExtractor):
     """Test friendly fake extractor returns strings instead of files."""
 
     def __init__(self, *args, **kwargs):
-        """It's a Fake extractor.  Good thing flake demanded this."""
+        """It's a Fake extractor.
+
+        Good thing flake demanded this.
+        """
         self.METADATA = excel.Metadata("test")
         self.BLACKLISTED_PAGES = ["shoes"]
         super().__init__(ds=None)
@@ -49,7 +52,8 @@ class FakeExtractor(excel.GenericExtractor):
 def _fake_data_frames(page_name, **kwargs):
     """Returns panda.DataFrames.
 
-    This is suitable mock for pd.read_excel method when used together with FakeExtractor.
+    This is suitable mock for pd.read_excel method when used together with
+    FakeExtractor.
     """
     fake_data = {
         "books-2010": pd.DataFrame.from_dict(

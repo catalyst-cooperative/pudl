@@ -96,7 +96,6 @@ secondary fuel of 'NG'), the methodology associates the generation_fuel_eia923 r
 similarly across these two generators. However, the allocated net generation will still
 be porporational to each generator's net generation (if it's reported) or capacity (if
 generation is not reported).
-
 """
 
 import logging
@@ -388,7 +387,6 @@ def aggregate_gen_fuel_by_generator(
     Returns:
         table with columns :py:const:`IDX_GENS` and net generation and fuel
         consumption scaled to the level of the :py:const:`IDX_GENS`.
-
     """
     # aggregate the gen/pm/fuel records back to generator records
     gen_allocated = agg_by_generator(
@@ -427,7 +425,6 @@ def scale_allocated_net_gen_by_ownership(
         gens: `generators_eia860` table with cols: :const:``IDX_GENS``, `capacity_mw`
             and `utility_id_eia`
         own_eia860: `ownership_eia860` table.
-
     """
     gen_pm_fuel_own = pudl.analysis.plant_parts_eia.MakeMegaGenTbl().scale_by_ownership(
         gens_mega=pd.merge(
@@ -494,7 +491,6 @@ def stack_generators(
     Returns:
         pandas.DataFrame: a dataframe with these columns: idx_stack, cat_col,
         stacked_col
-
     """
     # get a list of all energy_source_code, planned_energy_source_code, and startup_source_code columns
     esc = list(gens.filter(regex="source_code"))
@@ -660,9 +656,9 @@ def remove_inactive_generators(gen_assoc):
 def identify_retiring_generators(gen_assoc):
     """Identify any generators that retire mid-year.
 
-    These are generators with a retirement date after the earliest report_date
-    or which report generator-specific generation data in the g table after
-    their retirement date.
+    These are generators with a retirement date after the earliest report_date or which
+    report generator-specific generation data in the g table after their retirement
+    date.
     """
     retiring_generators = gen_assoc.loc[
         (gen_assoc.operational_status == "retired")
@@ -735,8 +731,8 @@ def identify_retired_plants(gen_assoc):
 def identify_generators_coming_online(gen_assoc):
     """Identify generators that are coming online mid-year.
 
-    These are defined as generators that have a proposed status
-    but which report generator-specific generation data in the g table
+    These are defined as generators that have a proposed status but which report
+    generator-specific generation data in the g table
     """
     # sometimes a plant will report generation data before its proposed operating date
     # we want to keep any data that is reported for proposed generators
@@ -800,7 +796,6 @@ def _associate_unconnected_records(eia_generators_merged: pd.DataFrame):
 
     Args:
         eia_generators_merged:
-
     """  # noqa: D417
     # we're associating on the plant/pm level... but we only want to associated
     # these unassocaited records w/ the primary fuel type from stack_generators
@@ -875,13 +870,19 @@ def _associate_unconnected_records(eia_generators_merged: pd.DataFrame):
     return eia_generators
 
 
-def prep_alloction_fraction(gen_assoc):
-    """Make flags and aggregations to prepare for the `allocate_net_gen_by_gen_esc()` and `allocate_fuel_by_gen_esc() functions`.
+def prep_alloction_fraction(gen_assoc: pd.DataFrame):
+    """Prepare the associated generators for allocation.
 
-    In `allocate_net_gen_by_gen_esc()`, we will break the generators out into four
-    types - see `allocate_net_gen_by_gen_esc()` docs for details. This function adds
-    flags for splitting the generators. It also adds
+    Make flags and aggregations to prepare for the :func:`allocate_net_gen_by_gen_esc`
+    and :func:`allocate_fuel_by_gen_esc` functions.
 
+    In :func:`allocate_net_gen_by_gen_esc`, we will break the generators out into four
+    types - see :func:`allocate_net_gen_by_gen_esc` docs for details. This function adds
+    flags for splitting the generators.
+
+    Args:
+        gen_assoc: a table of generators that have associated w/ energy sources, prime
+            movers and boilers - result of :func:`associate_generator_tables`
     """
     # flag whether the generator exists in the
     # generation table (this will be used later on)
@@ -1022,7 +1023,6 @@ def allocate_net_gen_by_gen_esc(gen_pm_fuel):
 
     Args:
         gen_pm_fuel (pandas.DataFrame): output of :func:``prep_alloction_fraction()``.
-
     """
     # break out the table into these four different generator types.
     all_gen = gen_pm_fuel.loc[gen_pm_fuel.in_g_tbl_all]
@@ -1135,7 +1135,6 @@ def allocate_fuel_by_gen_esc(gen_pm_fuel):
 
     Args:
         gen_pm_fuel (pandas.DataFrame): output of :func:``prep_alloction_fraction()``.
-
     """
     # break out the table into these four different generator types.
     all_bf = gen_pm_fuel.loc[gen_pm_fuel.in_bf_tbl_all]
@@ -1504,9 +1503,9 @@ def adjust_energy_source_codes(gens, gf, bf):
 def allocate_bf_data_to_gens(bf, gens, bga):
     """Allocates bf data to the generator level.
 
-    Distributes boiler-level data from boiler_fuel_eia923 to
-    the generator level based on the boiler-generator association
-    table and the nameplate capacity of the connected generators.
+    Distributes boiler-level data from boiler_fuel_eia923 to the generator level based
+    on the boiler-generator association table and the nameplate capacity of the
+    connected generators.
     """
     # merge generator capacity information into the BGA
     bga = bga.merge(

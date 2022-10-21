@@ -2,10 +2,10 @@
 PUDL Release Notes
 =======================================================================================
 
-.. _release-v2022.09.XX:
+.. _release-v2022.10.XX:
 
 ---------------------------------------------------------------------------------------
-2022.09.XX
+2022.10.XX
 ---------------------------------------------------------------------------------------
 
 Data Coverage
@@ -41,6 +41,15 @@ Data Coverage
   and place in the PUDL db. For now there's a ``epacamd_eia`` output table you can use
   to merge CEMS and EIA data yourself :pr:`1692`. Eventually we'll work these crosswalk
   values into an output table combining CEMS and EIA.
+
+Data Analysis
+^^^^^^^^^^^^^
+* Instead of relying on the EIA API to fill in redacted fuel prices with aggregate
+  values for individual states and plants, use the archived ``eia_bulk_elec`` data. This
+  means we no longer have any reliance on the API, which should make the fuel price
+  filling faster and more reliable. Coverage is still only about 90%. See :issue:`1764`
+  and :pr:`1998`. Additional filling with aggregate and/or imputed values is still on
+  the workplan. You can follow the progress in :issue:`1708`.
 
 Nightly Data Builds
 ^^^^^^^^^^^^^^^^^^^
@@ -107,6 +116,11 @@ Database Schema Changes
   ``emissions_unit_id_epa`` and not otherwise useful or transferable to other datasets.
   ``facility_id`` was removed because it is specific to EPA's internal database and does
   not aid in connection with other data. :pr:`1692`
+* Added a new table :ref:`political_subdivisions` which consolidated various bits of
+  information about states, territories, provinces etc. that had previously been
+  scattered across constants stored in the codebase. The :ref:`ownership_eia860` table
+  had a mix of state and country information stored in the same column, and to retain
+  all of it we added a new ``owner_country_code`` column. :pr:`1966`
 
 Data Accuracy
 ^^^^^^^^^^^^^

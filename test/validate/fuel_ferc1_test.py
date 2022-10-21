@@ -1,7 +1,7 @@
 """Validate post-ETL FERC Form 1 data and the associated derived outputs.
 
-These tests depend on a FERC Form 1 specific PudlTabl output object, which is
-a parameterized fixture that has session scope.
+These tests depend on a FERC Form 1 specific PudlTabl output object, which is a
+parameterized fixture that has session scope.
 """
 import logging
 

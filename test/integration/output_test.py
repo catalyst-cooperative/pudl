@@ -12,18 +12,6 @@ import pudl.validate as pv
 
 logger = logging.getLogger(__name__)
 
-# This avoids trying to use the EIA API key when CI is run by a bot that doesn't
-# have access to our GitHub secrets
-API_KEY_EIA = os.environ.get("API_KEY_EIA", False)
-if API_KEY_EIA:
-    logger.info("Found an API_KEY_EIA in the environment.")
-else:
-    logger.warning("API_KEY_EIA was not available from the environment.")
-
-# Hard coding this for now because the EIA API has a ~100% failure rate now
-FILL_FUEL_COST = False
-# FILL_FUEL_COST = bool(API_KEY_EIA)
-
 
 @pytest.fixture(scope="module")
 def fast_out(pudl_engine, pudl_datastore_fixture):
@@ -32,7 +20,7 @@ def fast_out(pudl_engine, pudl_datastore_fixture):
         pudl_engine,
         ds=pudl_datastore_fixture,
         freq="MS",
-        fill_fuel_cost=FILL_FUEL_COST,
+        fill_fuel_cost=True,
         roll_fuel_cost=True,
         fill_net_gen=False,
         fill_tech_desc=True,
@@ -46,7 +34,7 @@ def fast_out_annual(pudl_engine, pudl_datastore_fixture):
         pudl_engine,
         ds=pudl_datastore_fixture,
         freq="AS",
-        fill_fuel_cost=FILL_FUEL_COST,
+        fill_fuel_cost=True,
         roll_fuel_cost=True,
         fill_net_gen=True,
     )
@@ -216,12 +204,10 @@ def test_ferc714_outputs(ferc714_out, df_name):
 def test_ferc714_respondents_georef_counties(ferc714_out):
     """Test FERC 714 respondent county FIPS associations.
 
-    This test works with the Census DP1 data, which is converted into
-    SQLite using the GDAL command line tool ogr2ogr. That tools is easy
-    to install via conda or on Linux, but is more challenging on Windows
-    and MacOS, so this test is marked xfail conditionally if the user is
-    neither using conda, nor is on Linux.
-
+    This test works with the Census DP1 data, which is converted into SQLite using the
+    GDAL command line tool ogr2ogr. That tools is easy to install via conda or on Linux,
+    but is more challenging on Windows and MacOS, so this test is marked xfail
+    conditionally if the user is neither using conda, nor is on Linux.
     """
     ferc714_gdf = ferc714_out.georef_counties()
     assert isinstance(ferc714_gdf, gpd.GeoDataFrame), "ferc714_gdf not a GeoDataFrame!"
@@ -240,7 +226,7 @@ def fast_out_filled(pudl_engine, pudl_datastore_fixture):
         pudl_engine,
         ds=pudl_datastore_fixture,
         freq="MS",
-        fill_fuel_cost=FILL_FUEL_COST,
+        fill_fuel_cost=True,
         roll_fuel_cost=True,
         fill_net_gen=True,
     )
@@ -258,8 +244,8 @@ def fast_out_filled(pudl_engine, pudl_datastore_fixture):
 def test_mcoe_filled(fast_out_filled, df_name, expected_nuke_fraction, tolerance):
     """Test that the net generation allocation process is working.
 
-    In addition to running the allocation itself, make sure that the nuclear and
-    non-nuclear generation fractions are as we would expect after the net generation has
+    In addition to running the allocation itself, make sure that the nuclear and non-
+    nuclear generation fractions are as we would expect after the net generation has
     been allocated.
     """
     actual_nuke_fraction = nuke_gen_fraction(

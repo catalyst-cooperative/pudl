@@ -12,7 +12,6 @@ data from:
    - Form 1 (ferc1)
  - US Environmental Protection Agency (EPA):
    - Continuous Emissions Monitory System (epacems)
-
 """
 import itertools
 import logging
@@ -30,7 +29,11 @@ import sqlalchemy as sa
 import pudl
 from pudl.helpers import convert_cols_dtypes
 from pudl.metadata.classes import Package, Resource
-from pudl.metadata.dfs import FERC_ACCOUNTS, FERC_DEPRECIATION_LINES
+from pudl.metadata.dfs import (
+    FERC_ACCOUNTS,
+    FERC_DEPRECIATION_LINES,
+    POLITICAL_SUBDIVISIONS,
+)
 from pudl.metadata.fields import apply_pudl_dtypes
 from pudl.settings import (
     EiaSettings,
@@ -61,7 +64,6 @@ def _etl_eia(
 
     Returns:
         A dictionary of EIA dataframes ready for loading into the PUDL DB.
-
     """
     eia860_tables = eia_settings.eia860.tables
     eia860_years = eia_settings.eia860.years
@@ -170,7 +172,6 @@ def _etl_ferc1(
     Returns:
         Dataframes containing PUDL database tables pertaining to the FERC Form 1
         data, keyed by table name.
-
     """
     # Compile static FERC 1 dataframes
     out_dfs = _read_static_tables_ferc1()
@@ -239,7 +240,6 @@ def etl_epacems(
         Unlike the other ETL functions, the EPACEMS writes its output to Parquet as it
         goes, since the dataset is too large to hold in memory.  So it doesn't return a
         dictionary of dataframes.
-
     """
     pudl_engine = sa.create_engine(pudl_settings["pudl_db"])
 
@@ -329,6 +329,27 @@ def etl_epacems(
 
 
 ###############################################################################
+# EIA BULK ELECTRICITY AGGREGATES
+###############################################################################
+def _etl_eia_bulk_elec(ds_kwargs: dict[str, Any]) -> dict[str, pd.DataFrame]:
+    """Extract and transform EIA bulk electricity aggregates.
+
+    Args:
+        ds_kwargs: Keyword arguments for instantiating a PUDL datastore, so that the
+            ETL can access the raw input data.
+
+    Returns:
+        A dictionary of DataFrames whose keys are the names of the corresponding
+        database table.
+    """
+    logger.info("Processing EIA bulk electricity aggregates.")
+    ds = Datastore(**ds_kwargs)
+    raw_bulk_dfs = pudl.extract.eia_bulk_elec.extract(ds)
+    transformed_bulk_dfs = pudl.transform.eia_bulk_elec.transform(raw_bulk_dfs)
+    return transformed_bulk_dfs
+
+
+###############################################################################
 # GLUE AND STATIC EXPORT FUNCTIONS
 ###############################################################################
 def _etl_glue(
@@ -356,7 +377,6 @@ def _etl_glue(
     Returns:
         A dictionary of DataFrames whose keys are the names of the corresponding
         database table.
-
     """
     # grab the glue tables for ferc1 & eia
     glue_dfs = pudl.glue.ferc1_eia.glue(
@@ -405,13 +425,17 @@ def _read_static_encoding_tables(
     Returns:
         a dictionary with table names as keys and dataframes as values for all tables
         labeled as static tables in their resource ``etl_group``
-
     """
     return {
         r.name: r.encoder.df
         for r in Package.from_resource_ids().resources
         if r.etl_group == etl_group and r.encoder
     }
+
+
+def _read_static_pudl_tables() -> dict[str, pd.DataFrame]:
+    """Read static tables compiled as part of PUDL and not from any agency dataset."""
+    return {"political_subdivisions": POLITICAL_SUBDIVISIONS}
 
 
 ###############################################################################
@@ -450,7 +474,6 @@ def etl(  # noqa: C901
 
     Returns:
         None
-
     """
     pudl_db_path = Path(pudl_settings["sqlite_dir"]) / "pudl.sqlite"
     if pudl_db_path.exists() and not clobber:
@@ -476,12 +499,13 @@ def etl(  # noqa: C901
         epacems_pq_path = Path(pudl_settings["parquet_dir"]) / "epacems"
         epacems_pq_path.mkdir(exist_ok=True)
 
-    sqlite_dfs = {}
+    sqlite_dfs = _read_static_pudl_tables()
     # This could be cleaner if we simplified the settings file format:
     if datasets.get("ferc1", False):
         sqlite_dfs.update(_etl_ferc1(datasets["ferc1"], pudl_settings))
     if datasets.get("eia", False):
         sqlite_dfs.update(_etl_eia(datasets["eia"], ds_kwargs))
+        sqlite_dfs.update(_etl_eia_bulk_elec(ds_kwargs))
     if datasets.get("glue", False):
         sqlite_dfs.update(
             _etl_glue(datasets["glue"], ds_kwargs, sqlite_dfs, datasets["eia"])

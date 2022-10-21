@@ -302,10 +302,13 @@ def most_frequent(x: pd.Series) -> Any:
 
 
 def most_and_more_frequent(x: pd.Series, min_frequency: float = None) -> Any:
-    """Return most frequent value if more frequent than minimum (or error if none exists).
+    """Return the most frequent value if more frequent than ``min_frequency``.
 
-    The minimum frequency ignores null values, so for example,
-    `1` in `[1, 1, 1, nan]` has a frequency of 1.
+    The minimum frequency ignores null values, so for example, `1` in `[1, 1, 1, nan]`
+    has a frequency of 1.
+
+    Raises:
+        AggregationError: if no value is more frequent than ``min_frequency``.
     """
     x = x.dropna()
     mode = x.mode()

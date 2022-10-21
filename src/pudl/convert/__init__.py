@@ -10,5 +10,4 @@ original raw data as organized by the :mod:`pudl.workspace` package (e.g.
 :mod:`pudl.convert.ferc1_to_sqlite` or :mod:`pudl.convert.epacems_to_parquet`),
 and others convert metadata into RST for use in documentation
 (e.g. :mod:`pudl.convert.metadata_to_rst`).
-
 """

@@ -359,7 +359,6 @@ def respondent_id(tfr_dfs):
     Returns:
         dict: The input dictionary of dataframes, but with a finished
         respondent_id_ferc714 dataframe.
-
     """
     df = tfr_dfs["respondent_id_ferc714"]
     df["respondent_name_ferc714"] = df.respondent_name_ferc714.str.strip()
@@ -392,7 +391,6 @@ def demand_hourly_pa(tfr_dfs):
     Returns:
         dict: The input dictionary of dataframes, but with a finished
         pa_demand_hourly_ferc714 dataframe.
-
     """
     logger.debug("Converting dates into pandas Datetime types.")
     df = tfr_dfs["demand_hourly_pa_ferc714"].copy()
@@ -557,7 +555,6 @@ def _early_transform(raw_df):
     * Removes footnotes columns ending with _f
     * Drops report_prd, spplmnt_num, and row_num columns
     * Excludes records which pertain to bad (test) respondents.
-
     """
     logger.debug("Removing unneeded columns and dropping bad respondents.")
 
@@ -582,7 +579,6 @@ def transform(raw_dfs, ferc714_settings: Ferc714Settings = Ferc714Settings()):
     Returns:
         dict: A dictionary of pandas.DataFrame objects that are ready to be output in a
         data package / database table.
-
     """
     tfr_funcs = {
         "respondent_id_ferc714": respondent_id,

@@ -186,7 +186,10 @@ SOURCES: dict[str, Any] = {
         "description": (
             "Aggregate national, state, and plant-level electricity generation "
             "statistics, including fuel quality and consumption, for grid-connected "
-            "plants with nameplate capacity of 1 megawatt or greater"
+            "plants with nameplate capacity of 1 megawatt or greater."
+            "\n"
+            "At present, PUDL integrates only a few specific data series related to "
+            "fuel receipts and costs figures."
         ),
         "source_file_dict": {
             "respondents": (
@@ -238,7 +241,7 @@ SOURCES: dict[str, Any] = {
         "field_namespace": "epacems",
         "working_partitions": {
             "years": sorted(set(range(1995, 2022))),
-            "states": sorted(set(EPACEMS_STATES)),
+            "states": sorted(EPACEMS_STATES),
         },
         "contributors": [
             CONTRIBUTORS["catalyst-cooperative"],
