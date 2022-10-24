@@ -163,7 +163,7 @@ class ZenodoFetcher:
         },
         "production": {
             "censusdp1tract": "10.5281/zenodo.4127049",
-            "eia860": "10.5281/zenodo.6954131",
+            "eia860": "10.5281/zenodo.7113854",
             "eia860m": "10.5281/zenodo.6929086",
             "eia861": "10.5281/zenodo.7191809",
             "eia923": "10.5281/zenodo.7236677",
