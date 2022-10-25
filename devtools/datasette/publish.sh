@@ -3,11 +3,6 @@
 PUDL_OUT=`grep "^pudl_out" $HOME/.pudl.yml | sed -e "s/^pudl_out: //"`
 SQLITE_DIR="$PUDL_OUT/sqlite"
 
-echo "Indexing FERC1 DB FKs"
-sqlite-utils index-foreign-keys $SQLITE_DIR/ferc1.sqlite
-echo "Indexing PUDL DB FKs"
-sqlite-utils index-foreign-keys $SQLITE_DIR/pudl.sqlite
-
 # make metadata.yml
 datasette_metadata_to_yml -o "metadata.yml"
 
