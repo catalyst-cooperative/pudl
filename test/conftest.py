@@ -117,7 +117,7 @@ def pudl_out_eia(live_dbs, pudl_engine, request):
         freq=request.param,
         fill_fuel_cost=True,
         roll_fuel_cost=True,
-        fill_net_gen=False,
+        fill_net_gen=True,
     )
 
 

@@ -100,6 +100,7 @@ generation is not reported).
 
 import logging
 import warnings
+from typing import Literal
 
 # Useful high-level external modules.
 import numpy as np
@@ -201,18 +202,15 @@ def allocate_gen_fuel_by_generator_energy_source(pudl_out, drop_interim_cols=Tru
         ]
         .pipe(manually_fix_energy_source_codes)
     )
-    bf = (
-        pudl_out.bf_eia923()
-        .merge(
-            pd.read_sql("boilers_entity_eia", pudl_out.pudl_engine),
-            how="left",
-            on=["plant_id_eia", "boiler_id"],
-        )
-        .loc[:, IDX_B_PM_ESC + ["fuel_consumed_mmbtu"]]
-    ).pipe(
-        distribute_annually_reported_data_to_months,
-        key_columns=["plant_id_eia", "boiler_id", "energy_source_code"],
+    plants = pudl_out.plants_eia860().loc[
+        :, ["plant_id_eia", "report_date", "reporting_frequency_code"]
+    ]
+    bf = (pudl_out.bf_eia923().loc[:, IDX_B_PM_ESC + ["fuel_consumed_mmbtu"]]).pipe(
+        distribute_annually_reported_data_to_months_if_annual,
+        plants=plants,
+        key_columns=["plant_id_eia", "boiler_id", "energy_source_code", "report_date"],
         data_column_name="fuel_consumed_mmbtu",
+        freq=pudl_out.freq,
     )
     # load boiler generator associations
     bga = pudl_out.bga_eia860().loc[
@@ -225,16 +223,19 @@ def allocate_gen_fuel_by_generator_energy_source(pudl_out, drop_interim_cols=Tru
         ],
     ]
     # allocate the boiler fuel data to generators
-    bf = allocate_bf_data_to_gens(bf, gens, bga)
+    bf_to_gens = allocate_bf_data_to_gens(bf, gens, bga)
 
     # add any startup energy source codes to the list of energy source codes
     # fix MSW codes
-    gens = adjust_energy_source_codes(gens, gf, bf)
+    gens = adjust_energy_source_codes(gens, gf, bf_to_gens)
     # warn if prime mover codes in gens do not match the codes in the gf table
     # this is something that should probably be fixed in the input data
     # see https://github.com/catalyst-cooperative/pudl/issues/1585
-    missing_pm = gens[gens["prime_mover_code"].isna()]
-    if not missing_pm.empty:
+    # set a threshold and ignore 2001 bc most errors are 2001 error!
+    missing_pm = gens[
+        gens["prime_mover_code"].isna() & (gens.report_date.dt.year != 2001)
+    ]
+    if len(missing_pm) > 35:
         warnings.warn(
             f"{len(missing_pm)} generators are missing prime mover codes in gens_eia860. "
             "This will result in incorrect allocation."
@@ -263,9 +264,11 @@ def allocate_gen_fuel_by_generator_energy_source(pudl_out, drop_interim_cols=Tru
         # removes 4 records with NaN generator_id as of pudl v0.5
         .dropna(subset=IDX_GENS)
     ).pipe(
-        distribute_annually_reported_data_to_months,
-        key_columns=["plant_id_eia", "generator_id"],
+        distribute_annually_reported_data_to_months_if_annual,
+        plants=plants,
+        key_columns=["plant_id_eia", "generator_id", "report_date"],
         data_column_name="net_generation_mwh",
+        freq=pudl_out.freq,
     )
 
     # the gen table is missing many generator ids. Let's fill this using the gens table
@@ -277,7 +280,7 @@ def allocate_gen_fuel_by_generator_energy_source(pudl_out, drop_interim_cols=Tru
     )
 
     # do the association!
-    gen_assoc = associate_generator_tables(gf=gf, gen=gen, gens=gens, bf=bf)
+    gen_assoc = associate_generator_tables(gf=gf, gen=gen, gens=gens, bf=bf_to_gens)
 
     # Generate a fraction to use to allocate net generation and fuel consumption by.
     # These two methods create a column called `frac`, which will be a fraction
@@ -308,9 +311,8 @@ def allocate_gen_fuel_by_generator_energy_source(pudl_out, drop_interim_cols=Tru
     if drop_interim_cols:
         fuel_alloc = fuel_alloc.loc[
             :,
-            IDX_PM_ESC
+            IDX_GENS_PM_ESC
             + [
-                "generator_id",
                 "energy_source_code_num",
                 "fuel_consumed_mmbtu",
                 "fuel_consumed_for_electricity_mmbtu",
@@ -325,10 +327,10 @@ def allocate_gen_fuel_by_generator_energy_source(pudl_out, drop_interim_cols=Tru
     net_gen_fuel_alloc = pd.merge(
         net_gen_alloc,
         fuel_alloc,
-        on=IDX_PM_ESC + ["generator_id", "energy_source_code_num"],
+        on=IDX_GENS_PM_ESC + ["energy_source_code_num"],
         how="outer",
         validate="1:1",
-    ).sort_values(IDX_PM_ESC + ["generator_id", "energy_source_code_num"])
+    ).sort_values(IDX_GENS_PM_ESC)
     return net_gen_fuel_alloc
 
 
@@ -340,9 +342,7 @@ def group_duplicate_keys(df):
     when this happens, and aggregates the data on these keys to remove the duplicates.
     """
     # identify any duplicate records
-    duplicate_keys = df[
-        df.duplicated(subset=(IDX_PM_ESC + ["generator_id", "energy_source_code_num"]))
-    ]
+    duplicate_keys = df[df.duplicated(subset=(IDX_GENS_PM_ESC))]
     # if there are duplicate records, print a warning and fix the issue
     if len(duplicate_keys) > 0:
         warnings.warn(
@@ -350,14 +350,9 @@ def group_duplicate_keys(df):
             "These will be grouped together, but check the source "
             "of this issue."
         )
-        logger.warning(
-            duplicate_keys[IDX_PM_ESC + ["generator_id", "energy_source_code_num"]]
-        )
-        df = (
-            df.groupby(IDX_PM_ESC + ["generator_id", "energy_source_code_num"])
-            .sum()
-            .reset_index()
-        )
+        logger.warning(duplicate_keys[IDX_GENS_PM_ESC])
+
+        df = df.groupby(IDX_GENS_PM_ESC).sum(min_count=1).reset_index()
     return df
 
 
@@ -471,7 +466,7 @@ def agg_by_generator(
             ``pandas.groupby.sum()``
     """
     gen = (
-        net_gen_fuel_alloc.groupby(by=IDX_GENS)[sum_cols]
+        net_gen_fuel_alloc.groupby(by=by_cols)[sum_cols]
         .sum(min_count=1)
         .reset_index()
         .pipe(apply_pudl_dtypes, group="eia")
@@ -535,7 +530,8 @@ def associate_generator_tables(gf, gen, gens, bf):
         gen (pandas.DataFrame): generation_eia923 table with columns:
             ``IDX_GENS`` and `net_generation_mwh`.
         gens (pandas.DataFrame): generators_eia860 table with cols: ``IDX_GENS``
-            and all of the `energy_source_code` columns
+            and all of the `energy_source_code` columns and expanded to the frequency
+            of ``pudl_out``
         bf (pandas.DataFrame): boiler_fuel_eia923 table
         pudl_out (pudl.output.pudltabl.PudlTabl): An object used to create the
             tables for EIA and FERC Form 1 analysis.
@@ -609,15 +605,16 @@ def remove_inactive_generators(gen_assoc):
     We do want to keep the generators that report operational statuses other
     than `existing` but which report non-zero data despite being `retired` or
     `proposed`. This includes several categories of generators/plants:
-        `retiring_generators`: generators that retire mid-year
-        `retired_plants`: entire plants that supposedly retired prior to
-            the current year but which report data. If a plant has a mix of gens
-            which are existing and retired, they are not included in this category.
-        `proposed_generators`: generators that become operational mid-year,
-            or which are marked as `proposed` but start reporting non-zero data
-        `proposed_plants`: entire plants that have a `proposed` status but
-            which start reporting data. If a plant has a mix of gens which are
-            existing and proposed, they are not included in this category.
+
+        * `retiring_generators`: generators that retire mid-year
+        * `retired_plants`: entire plants that supposedly retired prior to
+          the current year but which report data. If a plant has a mix of gens
+          which are existing and retired, they are not included in this category.
+        * `proposed_generators`: generators that become operational mid-year,
+          or which are marked as `proposed` but start reporting non-zero data
+        * `proposed_plants`: entire plants that have a `proposed` status but
+          which start reporting data. If a plant has a mix of gens which are
+          existing and proposed, they are not included in this category.
 
     When we do not have generator-specific generation for a proposed/retired
     generator that is not coming online/retiring mid-year, we can also look
@@ -984,16 +981,6 @@ def prep_alloction_fraction(gen_assoc: pd.DataFrame):
             ),
         )
     )
-    # fuel consumed summed by prime mover and fuel from each table
-    # for f_col in ['fuel_consumed_mmbtu_gf_tbl', 'fuel_consumed_mmbtu_bf_tbl']:
-    # gen_pm_fuel[f'{f_col}_pm'] = (
-    #     gen_pm_fuel.groupby(IDX_PM, dropna=False)
-    #     [[f'{f_col}']].transform(sum, min_count=1)
-    # )
-    # gen_pm_fuel[f'{f_col}_fuel'] = (
-    #     gen_pm_fuel.groupby(IDX_U_ESC, dropna=False)
-    #     [[f'{f_col}']].transform(sum, min_count=1)
-    # )
     # Add a column that indicates how much capacity comes from generators that
     # report in the generation table, and how much comes only from generators
     # that show up in the generation_fuel table.
@@ -1129,6 +1116,7 @@ def allocate_fuel_by_gen_esc(gen_pm_fuel):
     """Allocate fuel_consumption to generators/energy_source_code via three methods.
 
     There are three main types of generators:
+
       * "all bf": generators of plants which fully report to the
         boiler_fuel_eia923 table.
       * "some bf": generators of plants which partially report to the
@@ -1354,56 +1342,105 @@ def _test_gen_fuel_allocation(gen, gen_pm_fuel, ratio=0.05):
 ###########################
 
 
-def distribute_annually_reported_data_to_months(df, key_columns, data_column_name):
+def distribute_annually_reported_data_to_months_if_annual(
+    df: pd.DataFrame,
+    plants: pd.DataFrame,
+    key_columns: list[str],
+    data_column_name: str,
+    freq: Literal["AS", "MS"],
+) -> pd.DataFrame:
     """Allocates annually-reported data from the gen or bf table to each month.
 
     Certain plants only report data to the generator table and boiler fuel table
     on an annual basis. In this case, their annual total is reported as a single
-    value in December, and the other 11 months are reported as missing values. The
-    raw EIA-923 table includes a column for 'Respondent Frequency' but this column
-    is not currently included in pudl. This function first identifies which plants
-    are annual respondents based on the pattern of how their data is reported. It
-    then distributes this annually-reported value evenly across all months in the
-    year.
+    value in December, and the other 11 months are reported as missing values. This
+    function first identifies which plants are annual respondents based on a
+    ``reporting_frequency_code`` column in the ``plants_eia860`` table. It then
+    distributes this annually-reported value evenly across all months in the year.
 
     Args:
-        df: a pandas dataframe, either loaded from pudl_out.gen_original_eia923() or pudl_out.bf_eia923()
-        key_columns: a list of the primary key column names, either ["plant_id_eia","boiler_id","energy_source_code"] or ["plant_id_eia","generator_id"]
-        data_column_name: the name of the data column to allocate, either "net_generation_mwh" or "fuel_consumed_mmbtu" depending on the df specified
+        df: a pandas dataframe, either loaded from pudl_out.gen_original_eia923() or
+            pudl_out.bf_eia923()
+        key_columns: a list of the primary key column names, either
+            ``["plant_id_eia","boiler_id","energy_source_code"]`` or
+            ``["plant_id_eia","generator_id"]``
+        data_column_name: the name of the data column to allocate, either
+            "net_generation_mwh" or "fuel_consumed_mmbtu" depending on the df specified
+        freq: frequency of input df. Must be either ``AS`` or ``MS``.
+
     Returns:
         df with the annually reported values allocated to each month
     """
-    # get a count of the number of missing values in a year
-    annual_reporters = df.copy()
-    annual_reporters["missing_data"] = annual_reporters[data_column_name].isna()
-    annual_reporters = (
-        annual_reporters.groupby(key_columns).sum()["missing_data"].reset_index()
-    )
-    # only keep plant-units where there is a single non-missing value in the year
-    annual_reporters = annual_reporters[annual_reporters["missing_data"] == 11].drop(
-        columns="missing_data"
-    )
-    # merge in the data for december - if the single non-missing value was in december, then this was likely an annual reporter
-    annual_reporters = annual_reporters.merge(
-        df[df["report_date"].dt.month == 12], how="left", on=key_columns, validate="1:1"
-    )
-    annual_reporters = annual_reporters[~annual_reporters[data_column_name].isna()]
+    if freq == "MS":
 
-    # distribute this data out to each of the monthly values
-    df = df.merge(
-        annual_reporters[key_columns + [data_column_name]],
-        how="left",
-        on=key_columns,
-        suffixes=(None, "_annual_total"),
-        validate="m:1",
-    )
-    # update the column using 1/12 of the annual total
-    df.loc[:, data_column_name].update(
-        df.loc[:, f"{data_column_name}_annual_total"] / 12
-    )
-    df = df.drop(columns=[f"{data_column_name}_annual_total"])
+        def set_plant_year_index(df):
+            return df.assign(
+                plant_year=lambda x: x.report_date.dt.year.astype(str)
+                + "_"
+                + x.plant_id_eia.astype(str)
+            ).set_index(["plant_year"])
 
-    return df
+        # get a count of the number of missing values in a year
+        reporters = df.copy()
+        reporters = pudl.helpers.date_merge(
+            df, plants, on=["plant_id_eia"], date_on=["year"], how="left"
+        ).pipe(set_plant_year_index)
+
+        # seperate annual and monthly reporters
+        annual_reporters = reporters.loc[
+            (
+                (reporters["reporting_frequency_code"] == "A")
+                & (reporters["report_date"].dt.month == 12)
+                & ~reporters[data_column_name].isna()
+            )
+        ]
+
+        monthly_reporters = reporters.loc[
+            reporters.index.difference(annual_reporters.index)
+        ]
+
+        logger.info(
+            f"Distributing {len(annual_reporters)/len(reporters):.1%} annually reported"
+            " records to months."
+        )
+        # first convert the december month to january bc expand_timeseries
+
+        # sometimes a plant oscillates btwn annual and monthly reporting. when it does
+        # expand_timeseries will generate monthly records for years that were not
+        # included annual_reporters bc expand_timeseries expands from the most recent
+        # to the last date... so we...
+
+        annual_reporters_expanded = (
+            annual_reporters.assign(
+                report_date=lambda x: pd.to_datetime(
+                    {
+                        "year": x.report_date.dt.year,
+                        "month": 1,
+                        "day": 1,
+                    }
+                )
+            )
+            .pipe(
+                pudl.helpers.expand_timeseries,
+                key_cols=[col for col in key_columns if col != "report_date"],
+                date_col="report_date",
+                fill_through_freq="year",
+            )
+            .assign(**{data_column_name: lambda x: x[data_column_name] / 12})
+            .pipe(set_plant_year_index)
+            .loc[annual_reporters.index]
+        )
+
+        df_out = (
+            pd.concat([monthly_reporters, annual_reporters_expanded])
+            .reset_index(drop=True)
+            .drop(columns=["reporting_frequency_code"])
+        )
+    elif freq == "AS":
+        df_out = df
+    else:
+        raise AssertionError(f"Frequency must be either `AS` or `MS`. Got {freq}")
+    return df_out
 
 
 def manually_fix_energy_source_codes(gf):

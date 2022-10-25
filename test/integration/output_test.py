@@ -22,7 +22,7 @@ def fast_out(pudl_engine, pudl_datastore_fixture):
         freq="MS",
         fill_fuel_cost=True,
         roll_fuel_cost=True,
-        fill_net_gen=False,
+        fill_net_gen=True,
         fill_tech_desc=True,
     )
 
