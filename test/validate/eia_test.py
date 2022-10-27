@@ -1,5 +1,6 @@
 """Validate post-ETL EIA 860 data and the associated derived outputs."""
 import logging
+from test.conftest import skip_table_if_null_freq_table
 
 import pytest
 
@@ -30,6 +31,7 @@ def test_no_null_cols_eia(pudl_out_eia, live_dbs, cols, df_name):
     """Verify that output DataFrames have no entirely NULL columns."""
     if not live_dbs:
         pytest.skip("Data validation only works with a live PUDL DB.")
+    skip_table_if_null_freq_table(table_name=df_name, freq=pudl_out_eia.freq)
     pv.no_null_cols(
         pudl_out_eia.__getattribute__(df_name)(), cols=cols, df_name=df_name
     )
@@ -74,6 +76,7 @@ def test_minmax_rows(
     """
     if not live_dbs:
         pytest.skip("Data validation only works with a live PUDL DB.")
+    skip_table_if_null_freq_table(table_name=df_name, freq=pudl_out_eia.freq)
     if pudl_out_eia.freq == "AS":
         expected_rows = annual_rows
     elif pudl_out_eia.freq == "MS":
@@ -139,6 +142,7 @@ def test_unique_rows_eia(pudl_out_eia, live_dbs, unique_subset, df_name):
     """Test whether dataframe has unique records within a subset of columns."""
     if not live_dbs:
         pytest.skip("Data validation only works with a live PUDL DB.")
+    skip_table_if_null_freq_table(table_name=df_name, freq=pudl_out_eia.freq)
     pv.check_unique_rows(
         pudl_out_eia.__getattribute__(df_name)(), subset=unique_subset, df_name=df_name
     )

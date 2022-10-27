@@ -747,14 +747,20 @@ class PudlTabl:
         """
         if update or self._dfs["gen_eia923"] is None:
             if self.fill_net_gen:
+                if self.freq not in ["AS", "MS"]:
+                    raise AssertionError(
+                        "Frequency must be either `AS` or `MS` to allocate net "
+                        f"generation. Got {self.freq}"
+                    )
                 logger.info(
                     "Allocating net generation from the generation_fuel_eia923 "
                     "to the generator level instead of using the less complete "
                     "generation_eia923 table."
                 )
+
                 self._dfs["gen_eia923"] = self.gen_fuel_by_generator_eia923(
                     update=update
-                )
+                ).loc[:, list(self.gen_original_eia923().columns)]
             else:
                 self._dfs["gen_eia923"] = self.gen_original_eia923(update=update)
         return self._dfs["gen_eia923"]
@@ -784,12 +790,16 @@ class PudlTabl:
     def gen_fuel_by_generator_eia923(self, update=False):
         """Net generation from gen fuel table allocated to generators."""
         if update or self._dfs["gen_fuel_allocated_eia923"] is None:
+            if self.freq not in ["AS", "MS"]:
+                raise AssertionError(
+                    "Frequency must be either `AS` or `MS` to allocate net "
+                    f"generation. Got {self.freq}"
+                )
             self._dfs["gen_fuel_allocated_eia923"] = aggregate_gen_fuel_by_generator(
                 pudl_out=self,
                 net_gen_fuel_alloc=self.gen_fuel_by_generator_energy_source_eia923(
                     update=update
                 ),
-                sum_cols=["net_generation_mwh"],
             )
         return self._dfs["gen_fuel_allocated_eia923"]
 

@@ -16,6 +16,11 @@ from pudl.settings import EtlSettings
 
 logger = logging.getLogger(__name__)
 
+AS_MS_ONLY_FREQ_TABLES = [
+    "gen_eia923",
+    "gen_fuel_by_generator_eia923",
+]
+
 
 def pytest_addoption(parser):
     """Add a command line option Requiring fresh data download."""
@@ -265,3 +270,11 @@ def ds_kwargs(pudl_settings_fixture, request):
 def pudl_datastore(pudl_ds_kwargs):
     """Produce a :class:pudl.workspace.datastore.Datastore."""
     return pudl.workspace.datastore.Datastore(**pudl_ds_kwargs)
+
+
+def skip_table_if_null_freq_table(table_name, freq):
+    """Check."""
+    if table_name in AS_MS_ONLY_FREQ_TABLES and freq is None:
+        pytest.skip(
+            f"Data validation for {table_name} does not work with a null frequency."
+        )

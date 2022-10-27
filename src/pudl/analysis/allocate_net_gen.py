@@ -202,12 +202,9 @@ def allocate_gen_fuel_by_generator_energy_source(pudl_out, drop_interim_cols=Tru
         ]
         .pipe(manually_fix_energy_source_codes)
     )
-    plants = pudl_out.plants_eia860().loc[
-        :, ["plant_id_eia", "report_date", "reporting_frequency_code"]
-    ]
+
     bf = (pudl_out.bf_eia923().loc[:, IDX_B_PM_ESC + ["fuel_consumed_mmbtu"]]).pipe(
         distribute_annually_reported_data_to_months_if_annual,
-        plants=plants,
         key_columns=["plant_id_eia", "boiler_id", "energy_source_code", "report_date"],
         data_column_name="fuel_consumed_mmbtu",
         freq=pudl_out.freq,
@@ -265,7 +262,6 @@ def allocate_gen_fuel_by_generator_energy_source(pudl_out, drop_interim_cols=Tru
         .dropna(subset=IDX_GENS)
     ).pipe(
         distribute_annually_reported_data_to_months_if_annual,
-        plants=plants,
         key_columns=["plant_id_eia", "generator_id", "report_date"],
         data_column_name="net_generation_mwh",
         freq=pudl_out.freq,
@@ -320,13 +316,13 @@ def allocate_gen_fuel_by_generator_energy_source(pudl_out, drop_interim_cols=Tru
         ]
 
     # ensure that the allocated data has unique merge keys
-    net_gen_alloc = group_duplicate_keys(net_gen_alloc)
-    fuel_alloc = group_duplicate_keys(fuel_alloc)
+    net_gen_alloc_agg = group_duplicate_keys(net_gen_alloc)
+    fuel_alloc_agg = group_duplicate_keys(fuel_alloc)
 
     # squish net gen and fuel allocation together
     net_gen_fuel_alloc = pd.merge(
-        net_gen_alloc,
-        fuel_alloc,
+        net_gen_alloc_agg,
+        fuel_alloc_agg,
         on=IDX_GENS_PM_ESC + ["energy_source_code_num"],
         how="outer",
         validate="1:1",
@@ -342,7 +338,9 @@ def group_duplicate_keys(df):
     when this happens, and aggregates the data on these keys to remove the duplicates.
     """
     # identify any duplicate records
-    duplicate_keys = df[df.duplicated(subset=(IDX_GENS_PM_ESC))]
+    duplicate_keys = df[
+        df.duplicated(subset=(IDX_GENS_PM_ESC + ["energy_source_code_num"]))
+    ]
     # if there are duplicate records, print a warning and fix the issue
     if len(duplicate_keys) > 0:
         warnings.warn(
@@ -350,9 +348,13 @@ def group_duplicate_keys(df):
             "These will be grouped together, but check the source "
             "of this issue."
         )
-        logger.warning(duplicate_keys[IDX_GENS_PM_ESC])
+        logger.warning(duplicate_keys[IDX_GENS_PM_ESC + ["energy_source_code_num"]])
 
-        df = df.groupby(IDX_GENS_PM_ESC).sum(min_count=1).reset_index()
+        df = (
+            df.groupby(IDX_GENS_PM_ESC + ["energy_source_code_num"])
+            .sum(min_count=1)
+            .reset_index()
+        )
     return df
 
 
@@ -1091,9 +1093,10 @@ def allocate_net_gen_by_gen_esc(gen_pm_fuel):
     _ = _test_frac(net_gen_alloc)
 
     # replace the placeholder missing values with zero before allocating
-    # since some of these may have been aggregated, well, flag any values less than 0.01
+    # since some of these may have been aggregated, well, flag any values less than 10
+    # times the sentinel
     net_gen_alloc.loc[
-        net_gen_alloc["net_generation_mwh_gf_tbl"] < MISSING_SENTINEL,
+        net_gen_alloc["net_generation_mwh_gf_tbl"] < 10 * MISSING_SENTINEL,
         "net_generation_mwh_gf_tbl",
     ] = 0
 
@@ -1203,11 +1206,12 @@ def allocate_fuel_by_gen_esc(gen_pm_fuel):
     # since some of these may have been aggregated, well, flag any values less than the
     # sentinel missing value
     fuel_alloc.loc[
-        fuel_alloc["fuel_consumed_mmbtu_gf_tbl"] < MISSING_SENTINEL,
+        fuel_alloc["fuel_consumed_mmbtu_gf_tbl"] < 10 * MISSING_SENTINEL,
         "fuel_consumed_mmbtu_gf_tbl",
     ] = 0
     fuel_alloc.loc[
-        fuel_alloc["fuel_consumed_for_electricity_mmbtu_gf_tbl"] < MISSING_SENTINEL,
+        fuel_alloc["fuel_consumed_for_electricity_mmbtu_gf_tbl"]
+        < 10 * MISSING_SENTINEL,
         "fuel_consumed_for_electricity_mmbtu_gf_tbl",
     ] = 0
 
@@ -1344,7 +1348,6 @@ def _test_gen_fuel_allocation(gen, gen_pm_fuel, ratio=0.05):
 
 def distribute_annually_reported_data_to_months_if_annual(
     df: pd.DataFrame,
-    plants: pd.DataFrame,
     key_columns: list[str],
     data_column_name: str,
     freq: Literal["AS", "MS"],
@@ -1352,11 +1355,20 @@ def distribute_annually_reported_data_to_months_if_annual(
     """Allocates annually-reported data from the gen or bf table to each month.
 
     Certain plants only report data to the generator table and boiler fuel table
-    on an annual basis. In this case, their annual total is reported as a single
-    value in December, and the other 11 months are reported as missing values. This
-    function first identifies which plants are annual respondents based on a
-    ``reporting_frequency_code`` column in the ``plants_eia860`` table. It then
-    distributes this annually-reported value evenly across all months in the year.
+    on an annual basis. In these cases, their annual total is reported as a single
+    value in January or December, and the other 11 months are reported as missing
+    values. This function first identifies which plants are annual respondents by
+    identifying plants that have 11 months of missing data, with the one month of
+    existing data being in January or December. There are plants that report only one
+    month of data in other months, but over 40% of the one-month data appears in these
+    two months (this assumption is checked within this function and will raise a
+    warning if it becomes invalid). It then distributes this annually-reported value
+    evenly across all months in the year.
+
+    Note: We should be able to use the ``reporting_frequency_code`` column for the
+    identification of annually reported data. This currently does not work because we
+    assumed this was a plant-level annual attribute (and is thus stored in the
+    ``plants_eia860`` table). See Issue #1933.
 
     Args:
         df: a pandas dataframe, either loaded from pudl_out.gen_original_eia923() or
@@ -1373,28 +1385,48 @@ def distribute_annually_reported_data_to_months_if_annual(
     """
     if freq == "MS":
 
-        def set_plant_year_index(df):
+        def assign_plant_year(df):
             return df.assign(
                 plant_year=lambda x: x.report_date.dt.year.astype(str)
                 + "_"
                 + x.plant_id_eia.astype(str)
-            ).set_index(["plant_year"])
+            )
 
+        reporters = df.copy().pipe(assign_plant_year)
         # get a count of the number of missing values in a year
-        reporters = df.copy()
-        reporters = pudl.helpers.date_merge(
-            df, plants, on=["plant_id_eia"], date_on=["year"], how="left"
-        ).pipe(set_plant_year_index)
+        key_columns_annual = ["plant_year"] + [
+            col for col in key_columns if col != "report_date"
+        ]
+        reporters["missing_data"] = (
+            reporters.assign(
+                missing_data=lambda x: x[data_column_name].isnull()
+                | np.isclose(reporters[data_column_name], 0)
+            )
+            .groupby(key_columns_annual, dropna=False)[["missing_data"]]
+            .transform(sum)
+        )
 
         # seperate annual and monthly reporters
-        annual_reporters = reporters.loc[
+        once_a_year_reporters = reporters[
             (
-                (reporters["reporting_frequency_code"] == "A")
-                & (reporters["report_date"].dt.month == 12)
-                & ~reporters[data_column_name].isna()
+                reporters[data_column_name].notnull()
+                & ~np.isclose(reporters[data_column_name], 0)
             )
+            & (reporters.missing_data == 11)
         ]
+        annual_reporters = once_a_year_reporters[
+            once_a_year_reporters.report_date.dt.month.isin([1, 12])
+        ].set_index(["plant_year"])
 
+        # check if the plurality of the once_a_year_reporters are in Jan or Dec
+        perc_of_annual = len(annual_reporters) / len(once_a_year_reporters)
+        if perc_of_annual < 0.40:
+            logger.warning(
+                f"Less than 40% ({perc_of_annual:.0%}) of the once-a-year reporters "
+                "are in January or December. Examine assumption about annual reporters."
+            )
+
+        reporters = reporters.set_index(["plant_year"])
         monthly_reporters = reporters.loc[
             reporters.index.difference(annual_reporters.index)
         ]
@@ -1403,13 +1435,8 @@ def distribute_annually_reported_data_to_months_if_annual(
             f"Distributing {len(annual_reporters)/len(reporters):.1%} annually reported"
             " records to months."
         )
-        # first convert the december month to january bc expand_timeseries
-
-        # sometimes a plant oscillates btwn annual and monthly reporting. when it does
-        # expand_timeseries will generate monthly records for years that were not
-        # included annual_reporters bc expand_timeseries expands from the most recent
-        # to the last date... so we...
-
+        # first convert the december month to january bc expand_timeseries expands from
+        # the start date and we want january on.
         annual_reporters_expanded = (
             annual_reporters.assign(
                 report_date=lambda x: pd.to_datetime(
@@ -1427,14 +1454,22 @@ def distribute_annually_reported_data_to_months_if_annual(
                 fill_through_freq="year",
             )
             .assign(**{data_column_name: lambda x: x[data_column_name] / 12})
-            .pipe(set_plant_year_index)
-            .loc[annual_reporters.index]
+            .pipe(assign_plant_year)
+            .set_index(["plant_year"])
         )
+        # sometimes a plant oscillates btwn annual and monthly reporting. when it does
+        # expand_timeseries will generate monthly records for years that were not
+        # included annual_reporters bc expand_timeseries expands from the most recent
+        # to the last date... so we remove any plant/year combo that didn't show up
+        # before the expansion
+        annual_reporters_expanded = annual_reporters_expanded.loc[
+            annual_reporters_expanded.index.intersection(annual_reporters.index)
+        ]
 
         df_out = (
             pd.concat([monthly_reporters, annual_reporters_expanded])
             .reset_index(drop=True)
-            .drop(columns=["reporting_frequency_code"])
+            .drop(columns=["missing_data"])
         )
     elif freq == "AS":
         df_out = df
@@ -1596,7 +1631,7 @@ def allocate_bf_data_to_gens(bf, gens, bga):
                 "prime_mover_code",
             ]
         )
-        .sum()
+        .sum(numeric_only=True)
         .reset_index()
     )
 
