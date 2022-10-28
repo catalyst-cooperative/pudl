@@ -117,7 +117,7 @@ setup(
             "tox>=3.20,<3.28",
         ],
         "datasette": [
-            "datasette>=0.60,<0.63",
+            "datasette>=0.60,<0.64",
         ],
     },
     classifiers=[
