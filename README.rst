@@ -60,13 +60,10 @@ What data is available?
 
 PUDL currently integrates data from:
 
-* `EIA Form 860 <https://www.eia.gov/electricity/data/eia860/>`__: 2001-2021 (2021 is
-  early release - use with caution)
+* `EIA Form 860 <https://www.eia.gov/electricity/data/eia860/>`__: 2001-2021
 * `EIA Form 860m <https://www.eia.gov/electricity/data/eia860m/>`__: 2022-06
-* `EIA Form 861 <https://www.eia.gov/electricity/data/eia861/>`__: 2001-2021  (2021 is
-  early release - use with caution)
-* `EIA Form 923 <https://www.eia.gov/electricity/data/eia923/>`__: 2001-2021  (2021 is
-  early release - use with caution)
+* `EIA Form 861 <https://www.eia.gov/electricity/data/eia861/>`__: 2001-2021
+* `EIA Form 923 <https://www.eia.gov/electricity/data/eia923/>`__: 2001-2021
 * `EPA Continuous Emissions Monitoring System (CEMS) <https://campd.epa.gov/>`__: 1995-2021
 * `FERC Form 1 <https://www.ferc.gov/industries-data/electric/general-information/electric-industry-forms/form-1-electric-utility-annual>`__: 1994-2020
 * `FERC Form 714 <https://www.ferc.gov/industries-data/electric/general-information/electric-industry-forms/form-no-714-annual-electric/data>`__: 2006-2020
