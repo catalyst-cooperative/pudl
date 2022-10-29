@@ -144,6 +144,11 @@ both FERC and EIA that may be the same or part of the same facility. Searching
 for a piece can help catch misspellings in the plant name, which are more common
 in the FERC records.
 
+    * **If co-located EIA plants have distinct plant IDs and no FERC 1 plant:**
+        they should not be lumped under a single PUDL Plant ID, as that artificially
+        reduces the granularity of data without providing any additional linkage to
+        other datasets.
+
     * **If a record has the same plant and utility name as another record:**
         assign it the same PUDL ID as the other record **by reference** to the cell in
         which the first instance of that PUDL ID appears. **Never simply enter the PUDL
@@ -160,12 +165,10 @@ in the FERC records.
         best to look at the capacity first to see if the facilities are the same. If
         that’s indeterminate, you can Google the plant to see if it has the same
         location or if there is ownership or construction history that helps determine
-        if the facilities are the same or co-located.
-
-    * **If co-located EIA plants have distinct plant IDs and no FERC 1 plant:**
-        they should not be lumped under a single PUDL Plant ID, as that artificially
-        reduces the granularity of data without providing any additional linkage to
-        other datasets.
+        if the facilities are the same or co-located. Presuming you've run the ETL with
+        the ``--ignore-foreign-key-constraints`` flag, you can also look at the PUDL
+        ``plants_eia860`` and ``plants_all_ferc1`` tables to compare the records'
+        location information.
 
 Mapping Utilities
 ^^^^^^^^^^^^^^^^^
@@ -210,4 +213,5 @@ Integrating Newly Mapped Records into PUDL
 Once you’ve successfully mapped all unmapped PUDL IDs, you’ll want to rerun the ETL!
 This ensures that the newly mapped IDs get integrated into the PUDL database and output
 tables that folks are using. Make sure to tell everyone else to do so as well so that
-you can all use the newly mapped PUDL IDs.
+you can all use the newly mapped PUDL IDs. But furst, make sure to head back to the
+:doc:`annual_updates` page to wrap up the validation tests!
