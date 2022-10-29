@@ -2098,6 +2098,40 @@ TRANSFORM_PARAMS = {
             },
         ],
     },
+    "plant_in_service_ferc1": {
+        "rename_columns_ferc1": {
+            "xbrl": {
+                "columns": {
+                    "entity_id": "utility_id_ferc1_xbrl",
+                    "report_year": "report_year",
+                    "ferc_account_id": "ferc_account_id",
+                    "starting_balance": "starting_balance",
+                    "additions": "additions",
+                    "retirements": "retirements",
+                    "adjustments": "adjustments",
+                    "transfers": "transfers",
+                    "ending_balance": "ending_balance",
+                }
+            },
+            "dbf": {
+                "columns": {
+                    "begin_yr_bal": "starting_balance",
+                    "addition": "additions",
+                    "retirements": "retirements",
+                    "adjustments": "adjustments",
+                    "transfers": "transfers",
+                    "yr_end_bal": "ending_balance",
+                    "report_year": "report_year",
+                    "respondent_id": "utility_id_ferc1_dbf",
+                    "report_prd": "report_prd",
+                    "row_prvlg": "row_prvlg",
+                    "row_number": "row_number",
+                    "row_seq": "row_seq",
+                    "spplmnt_num": "spplmnt_num",
+                }
+            },
+        }
+    },
 }
 """The full set of parameters used to transform the FERC Form 1 data.
 

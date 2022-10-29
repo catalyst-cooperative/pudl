@@ -853,6 +853,226 @@ class PlantsHydroFerc1TableTransformer(Ferc1AbstractTableTransformer):
         )
 
 
+class PlantInServiceFerc1TableTransformer(Ferc1AbstractTableTransformer):
+    """A transformer for the Electric Plant in Service table."""
+
+    table_id: Ferc1TableId = Ferc1TableId.PLANT_IN_SERVICE_FERC1
+
+    def get_row_map(self) -> pd.DataFrame:
+        """Construct a row map for a DBF table based on stored metadata."""
+        # Read the minimal, manually compiled row map for this table:
+        row_map = pd.read_csv(
+            importlib.resources.open_text("pudl.package_data.ferc1", "dbf_to_xbrl.csv"),
+            usecols=["sched_table_name", "report_year", "row_number", "xbrl_column"],
+        )
+        row_map = row_map.loc[
+            row_map.sched_table_name == self.source_table_id(Ferc1Source.DBF),
+            ["report_year", "row_number", "xbrl_column"],
+        ]
+
+        # Create an index containing all possible combinations of years and row numbers
+        idx = pd.MultiIndex.from_product(
+            [Ferc1Settings().dbf_years, row_map.row_number.unique()],
+            names=["report_year", "row_number"],
+        )
+
+        # Concatenate the row map with the empty index, so we have blank spaces to fill:
+        row_map = pd.concat(
+            [pd.DataFrame(index=idx), row_map.set_index(["report_year", "row_number"])],
+            axis="columns",
+        ).reset_index()
+
+        # Forward fill missing XBRL column names, until a new definition for the row
+        # number is found:
+        row_map["xbrl_column"] = row_map.groupby("row_number").xbrl_column.transform(
+            "ffill"
+        )
+        # Drop any rows that do not actually map between DBF rows and XBRL columns:
+        row_map = row_map.replace({"HEADER_ROW": np.nan}).dropna(subset=["xbrl_column"])
+        return row_map
+
+    @cache_df(key="dbf")
+    def process_dbf(self, raw_dbf: pd.DataFrame) -> pd.DataFrame:
+        """Process DBF inputs, aligning historical row numbers to XBRL account IDs."""
+        logger.info(f"{self.table_id.value}: Processing DBF data pre-concatenation.")
+        return (
+            self.drop_footnote_columns_dbf(raw_dbf)
+            # Note: in this rename_columns we have to pass in params, since we're using
+            # the inherited method, with param specific to the child class.
+            .pipe(self.rename_columns, params=self.params.rename_columns_ferc1.dbf)
+            .pipe(self.assign_record_id, source_ferc1=Ferc1Source.DBF)
+            .pipe(self.align_row_numbers_dbf)
+            .pipe(self.drop_unused_original_columns_dbf)
+            .pipe(
+                self.assign_utility_id_ferc1,
+                source_ferc1=Ferc1Source.DBF,
+            )
+        )
+
+    @cache_df(key="dbf")
+    def align_row_numbers_dbf(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Align historical FERC1 DBF row numbers with XBRL account IDs."""
+        return pd.merge(
+            df, self.get_row_map(), on=["report_year", "row_number"]
+        ).rename(columns={"xbrl_column": "ferc_account_id"})
+
+    @cache_df(key="xbrl")
+    def process_xbrl(
+        self,
+        raw_xbrl_instant: pd.DataFrame,
+        raw_xbrl_duration: pd.DataFrame,
+    ) -> pd.DataFrame:
+        """XBRL-specific transformations that take place before concatenation."""
+        logger.info(f"{self.table_id.value}: Processing XBRL data pre-concatenation.")
+        return (
+            self.merge_instant_and_duration_tables_xbrl(
+                raw_xbrl_instant, raw_xbrl_duration
+            )
+            .pipe(self.tidy_ferc_accounts_xbrl)
+            # Note: in this rename_columns we have to pass in params, since we're using
+            # the inherited method, with param specific to the child class.
+            .pipe(self.rename_columns, params=self.params.rename_columns_ferc1.xbrl)
+            .pipe(self.assign_record_id, source_ferc1=Ferc1Source.XBRL)
+            .pipe(
+                self.assign_utility_id_ferc1,
+                source_ferc1=Ferc1Source.XBRL,
+            )
+        )
+
+    @cache_df(key="xbrl")
+    def merge_instant_and_duration_tables_xbrl(
+        self,
+        raw_xbrl_instant: pd.DataFrame,
+        raw_xbrl_duration: pd.DataFrame,
+    ) -> pd.DataFrame:
+        """Merge XBRL instant and duration tables, reshaping instant as needed.
+
+        FERC1 XBRL instant period signifies that it is true as of the reported date,
+        while a duration fact pertains to the specified time period. The ``date`` column
+        for an instant fact corresponds to the ``end_date`` column of a duration fact.
+
+        Note: This should always be applied before :meth:``rename_columns``
+
+        Args:
+            raw_xbrl_instant: table representing XBRL instant facts.
+            raw_xbrl_duration: table representing XBRL duration facts.
+
+        Returns:
+            A unified table combining the XBRL duration and instant facts, if both types
+            of facts were present. If either input dataframe is empty, the other
+            dataframe is returned unchanged, except that several unused columns are
+            dropped. If both input dataframes are empty, an empty dataframe is returned.
+        """
+        drop_cols = ["filing_name", "index"]
+        # Ignore errors in case not all drop_cols are present.
+        instant = raw_xbrl_instant.drop(columns=drop_cols, errors="ignore")
+        duration = raw_xbrl_duration.drop(columns=drop_cols, errors="ignore")
+
+        if instant.empty:
+            logger.debug(
+                f"{self.table_id.value}: No XBRL instant table found, returning the "
+                "duration table."
+            )
+            return duration
+        if duration.empty:
+            logger.debug(
+                f"{self.table_id.value}: No XBRL duration table found, returning "
+                "instant table."
+            )
+            return instant
+
+        instant_axes = [
+            col for col in raw_xbrl_instant.columns if col.endswith("_axis")
+        ]
+        duration_axes = [
+            col for col in raw_xbrl_duration.columns if col.endswith("_axis")
+        ]
+        if set(instant_axes) != set(duration_axes):
+            raise ValueError(
+                f"{self.table_id.value}: Instant and Duration XBRL Axes do not match.\n"
+                f"    instant: {instant_axes}\n"
+                f"    duration: {duration_axes}"
+            )
+
+        # Everything above here is the same as the parent function, but here we need
+        # to reshape the instant table such that end-of-last-year becomes
+        # beginning-of-this-year in a separate column. Probably going to need to factor
+        # out the shared vs. different code into separate methods once we know what this
+        # should look like.
+        instant = self.reshape_starting_ending_balances(instant)
+        return pd.concat(
+            [
+                instant.set_index(["report_year", "entity_id"] + instant_axes),
+                duration.set_index(["report_year", "entity_id"] + duration_axes),
+            ],
+            axis="columns",
+        ).reset_index()
+
+    @cache_df("reshape_instant")
+    def reshape_starting_ending_balances(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Convert row-oriented end-of-year balances to starting/ending balance cols."""
+        df["year"] = pd.to_datetime(df["date"]).dt.year
+        df.loc[df.report_year == (df.year + 1), "balance_type"] = "starting_balance"
+        df.loc[df.report_year == df.year, "balance_type"] = "ending_balance"
+        # If there are other years something is wrong.
+        assert df.balance_type.notna().all()
+        df = (
+            df.drop(["year", "date"], axis="columns")
+            .set_index(["entity_id", "report_year", "balance_type"])
+            .unstack()
+        )
+        df.columns = ["_".join(items) for items in df.columns.to_flat_index()]
+        return df.reset_index()
+
+    def tidy_ferc_accounts_xbrl(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Reshape wide-format table based on FERC account column labels."""
+        df = df.drop(["start_date", "end_date"], axis="columns")
+        suffixes = [
+            "starting_balance",
+            "additions",
+            "retirements",
+            "transfers",
+            "adjustments",
+            "ending_balance",
+        ]
+        new_cols = []
+        for col in df.columns:
+            for suffix in suffixes:
+                if col.endswith(suffix):
+                    new_cols.append((suffix, re.sub(f"_{suffix}", "", col)))
+        new_col_idx = pd.MultiIndex.from_tuples(
+            new_cols, names=["value_type", "ferc_account_id"]
+        )
+
+        df = df.set_index(["entity_id", "report_year"])
+        df.columns = new_col_idx
+        df = (
+            df.stack(level=1)
+            .loc[
+                :,
+                [
+                    "starting_balance",
+                    "additions",
+                    "retirements",
+                    "transfers",
+                    "adjustments",
+                    "ending_balance",
+                ],
+            ]
+            .reset_index()
+        )
+        df.columns.name = None
+        return df
+
+    @cache_df("main")
+    def transform_main(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Main transform.
+
+        Dummy for now.
+        """
+        return df
+
+
 def transform(
     ferc1_dbf_raw_dfs: dict[str, pd.DataFrame],
     ferc1_xbrl_raw_dfs: dict[str, dict[str, pd.DataFrame]],
@@ -878,7 +1098,7 @@ def transform(
         # "plants_small_ferc1": plants_small,
         "plants_hydro_ferc1": PlantsHydroFerc1TableTransformer,
         # "plants_pumped_storage_ferc1": plants_pumped_storage,
-        # "plant_in_service_ferc1": plant_in_service,
+        "plant_in_service_ferc1": PlantInServiceFerc1TableTransformer,
         # "purchased_power_ferc1": purchased_power,
         # "accumulated_depreciation_ferc1": accumulated_depreciation,
     }
@@ -935,7 +1155,12 @@ if __name__ == "__main__":
     )
     ferc1_settings = Ferc1Settings(
         years=[2020, 2021],
-        tables=["fuel_ferc1", "plants_steam_ferc1"],
+        tables=[
+            "fuel_ferc1",
+            "plants_steam_ferc1",
+            "plants_hydro_ferc1",
+            "plant_in_service_ferc1",
+        ],
     )
     pudl_settings = pudl.workspace.setup.get_defaults()
     raw_dbf = pudl.extract.ferc1.extract_dbf(

@@ -778,7 +778,8 @@ def generic_xbrl_extract(
     Args:
         ferc1_engine: An SQL Alchemy connection engine for the FERC Form 1 database.
         ferc1_settings: Object containing validated settings relevant to FERC Form 1.
-        table_name: Name of desired output table to produce.
+        table_name: Name of the XBRL table to extract, as it appears in the original
+            XBRL derived SQLite database.
     """
     # Get XBRL DB metadata
     ferc1_meta = get_ferc1_meta(ferc1_engine)
