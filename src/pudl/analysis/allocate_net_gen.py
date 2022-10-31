@@ -34,10 +34,10 @@ There are six main stages of the allocation process in this module:
 
 * Inputs! Grabbing the input tables from :class:`pudl.output.pudl.PudlTabl`. Some
   cleaning (like :func:`distribute_annually_reported_data_to_months_if_annual`) and
-  aggregation (like :func:`allocate_bf_data_to_gens`)
+  aggregation (like :func:`allocate_bf_data_to_gens`) happen in this stage.
 * Associating the data from the input tables with generator/prime mover/energy source
-  codes - using the primary keys in :py:const:`IDX_GENS_PM_ESC`
-  (see :func:`associate_generator_tables`).
+  codes - using the primary keys in :py:const:`IDX_GENS_PM_ESC` (see
+  :func:`associate_generator_tables`).
 * Prepare for the allocation (see :func:`prep_alloction_fraction`) by adding boolean
   flags for whether a particular :py:const:`IDX_GENS_PM_ESC` shows up in each of the
   input data tables.
@@ -46,8 +46,8 @@ There are six main stages of the allocation process in this module:
   details on the allocation process below.
 * Tests! The high-level test of whether the allocated data matches the original inputs
   is :func:`test_the_original_gf_vs_the_allocated_by_gens_gf`. There are also other
-  warnings that are flagged via :func:`_test_frac`, :func:`_test_gen_fuel_allocation`
-  and :func:`_test_gen_pm_fuel_output`
+  warnings that are logged if assumptions aren't met via :func:`_test_frac`,
+  :func:`_test_gen_fuel_allocation` and :func:`_test_gen_pm_fuel_output`
 * Aggregate the main output with primary keys of :py:const:`IDX_GENS_PM_ESC` to the
   generator-level with primary keys of :py:const:`IDX_GENS` via
   :func:`aggregate_gen_fuel_by_generator`.
