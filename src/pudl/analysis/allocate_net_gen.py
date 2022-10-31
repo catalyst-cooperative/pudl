@@ -525,6 +525,14 @@ def associate_generator_tables(
     data tables and merge them with the generators. We add suffixes to the data columns
     to identify the source table.
 
+    This function also removes inactive generators so that we don't associate any net
+    generation or fuel to those generators. See :func:`remove_inactive_generators` for
+    more details.
+
+    There are some records in the data tables that have primary key values that do no
+    match up with any of those values in the generators table. We employ
+    :func:`_allocate_unassociated_records` to make sure those records are associated.
+
     Args:
         gens: ``generators_eia860`` table with cols: :py:const:`IDX_GENS` and all of
             the ``energy_source_code`` columns and expanded to the frequency of
