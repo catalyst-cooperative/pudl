@@ -80,7 +80,15 @@ def test_no_null_cols_mcoe(pudl_out_mcoe, live_dbs, df_name):
 @pytest.mark.parametrize(
     "df_name,thresh",
     [
-        ("mcoe", 0.8),
+        pytest.param(
+            "mcoe",
+            0.8,
+            marks=pytest.mark.xfail(
+                reason="The net generation allocation is now integrated into MCOE. The "
+                "allocated fuel still needs to be integrated - without it we'll have "
+                "nulls. See #2033"
+            ),
+        ),
     ],
 )
 def test_no_null_rows_mcoe(pudl_out_mcoe, live_dbs, df_name, thresh):
@@ -105,11 +113,11 @@ def test_no_null_rows_mcoe(pudl_out_mcoe, live_dbs, df_name, thresh):
 @pytest.mark.parametrize(
     "df_name,monthly_rows,annual_rows",
     [
-        ("hr_by_unit", 364_920, 30_459),
-        ("hr_by_gen", 557_819, 46_535),
-        ("fuel_cost", 557_819, 46_535),
-        ("capacity_factor", 604_594, 50_448),
-        ("mcoe", 1_077_537, 523_343),
+        ("hr_by_unit", 360_106, 30_269),
+        ("hr_by_gen", 551_699, 46_328),
+        ("fuel_cost", 551_699, 46_328),
+        ("capacity_factor", 4_666_504, 394_943),
+        ("mcoe", 4_667_253, 395_003),
     ],
 )
 def test_minmax_rows_mcoe(pudl_out_mcoe, live_dbs, monthly_rows, annual_rows, df_name):

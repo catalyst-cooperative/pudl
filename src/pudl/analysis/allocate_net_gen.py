@@ -394,6 +394,7 @@ def aggregate_gen_fuel_by_generator(
         start_date=pudl_out.start_date,
         end_date=pudl_out.end_date,
     )
+    gen_allocated = gen_allocated[gen_allocated.net_generation_mwh.notnull()].copy()
     return gen_allocated
 
 
@@ -577,7 +578,6 @@ def associate_generator_tables(
 
     # replace zeros with small number to avoid div by zero errors when calculating allocation fraction
     data_columns = [
-        "net_generation_mwh_g_tbl",
         "fuel_consumed_mmbtu_gf_tbl",
         "fuel_consumed_for_electricity_mmbtu_gf_tbl",
         "net_generation_mwh_gf_tbl",
@@ -897,11 +897,19 @@ def prep_alloction_fraction(gen_assoc: pd.DataFrame) -> pd.DataFrame:
         gen_assoc: a table of generators that have associated w/ energy sources, prime
             movers and boilers - result of :func:`associate_generator_tables`
     """
-    # flag whether the generator exists in the
-    # generation table (this will be used later on)
-    # for calculating ratios to use to allocate net generation
+    # flag whether the generator exists in the generation table (this will be used
+    # later on) for calculating ratios to use to allocate net generation
+    # if there is more net gen reported to the gen table than the gf table, we assume
+    # this is an "all gen" table (see allocate_net_gen_by_gen_esc). If this isn't done
+    # the records that don't report in the gen table will end up getting negative net
+    # generation
     gen_assoc = gen_assoc.assign(
-        in_g_tbl=lambda x: np.where(x.net_generation_mwh_g_tbl.notnull(), True, False),
+        in_g_tbl=lambda x: np.where(
+            x.net_generation_mwh_g_tbl.notnull()
+            | (x.net_generation_mwh_g_tbl >= x.net_generation_mwh_gf_tbl),
+            True,
+            False,
+        ),
         in_bf_tbl=lambda x: np.where(
             x.fuel_consumed_mmbtu_bf_tbl.notnull(), True, False
         ),
@@ -976,9 +984,6 @@ def prep_alloction_fraction(gen_assoc: pd.DataFrame) -> pd.DataFrame:
             # the calculations to run the fractions in `allocate_net_gen_by_gen_esc`
             # and `allocate_fuel_by_gen_esc` can be consistent)
             # do the same with missing fuel consumption
-            net_generation_mwh_g_tbl=lambda x: x.net_generation_mwh_g_tbl.fillna(
-                MISSING_SENTINEL
-            ),
             fuel_consumed_mmbtu_bf_tbl=lambda x: x.fuel_consumed_mmbtu_bf_tbl.fillna(
                 MISSING_SENTINEL
             ),
@@ -1015,12 +1020,14 @@ def allocate_net_gen_by_gen_esc(gen_pm_fuel: pd.DataFrame) -> pd.DataFrame:
     """Allocate net generation to generators/energy_source_code via three methods.
 
     There are three main types of generators:
-      * "all gen": generators of plants which fully report to the
-        generators_eia860 table.
+      * "all gen": generators of plants which fully report to the ``generation_eia923``
+        table. This includes records that report more MWh to the ``generation_eia923``
+        table than to the ``generation_fuel_eia923`` table (if we did not include these
+        records, the ).
       * "some gen": generators of plants which partially report to the
-        generators_eia860 table.
+        ``generation_eia923`` table.
       * "gf only": generators of plants which do not report at all to the
-        generators_eia860 table.
+        ``generation_eia923`` table.
 
     Each different type of generator needs to be treated slightly differently,
     but all will end up with a ``frac`` column that can be used to allocate
@@ -1705,7 +1712,7 @@ def test_the_original_gf_vs_the_allocated_by_gens_gf(
     gf_allocated: pd.DataFrame,
     data_columns: list[str] = DATA_COLUMNS,
     by: list[str] = ["year", "plant_id_eia"],
-):
+) -> pd.DataFrame:
     """Test whether the allocated data and original data sum up to similar values.
 
     Raises:

@@ -43,7 +43,7 @@ def test_no_null_cols_eia(pudl_out_eia, live_dbs, cols, df_name):
         ("bf_eia923", 1_415_232, 1_415_232, 118_550),
         ("bga_eia860", 129_869, 129_869, 129_869),
         ("frc_eia923", 596_855, 244_403, 24_064),
-        ("gen_eia923", 604_594, 604_594, 50_448),
+        ("gen_eia923", None, 4_666_504, 394_943),
         ("gens_eia860", 523_343, 523_343, 523_343),
         ("gf_eia923", 2_687_321, 2_687_321, 230_147),
         ("gf_nonuclear_eia923", 2_671_268, 2_671_268, 228_804),
@@ -57,7 +57,7 @@ def test_no_null_cols_eia(pudl_out_eia, live_dbs, cols, df_name):
 def test_minmax_rows(
     pudl_out_eia: PudlTabl,
     live_dbs: bool,
-    raw_rows: int,
+    raw_rows: int | None,
     annual_rows: int,
     monthly_rows: int,
     df_name: str,
