@@ -27,6 +27,12 @@ CENTS_TO_DOLLARS = dict(
 )
 """Parameters for converting from cents to dollars."""
 
+CENTS_PERMMBTU_TO_USD_PERMMBTU = dict(
+    multiplier=0.01,
+)
+"""Parameters for converting from cents per mmbtu to dollars per mmbtu."""
+
+
 PERCF_TO_PERMCF = dict(
     multiplier=1000.0,
     from_unit=r"_per_cf",
@@ -2097,6 +2103,67 @@ TRANSFORM_PARAMS = {
                 "required_valid_cols": ["plant_name_ferc1"],
             },
         ],
+    },
+    "plants_small_ferc1": {
+        "rename_columns_ferc1": {
+            "dbf": {
+                "columns": {
+                    "plant_name": "plant_name_ferc1",
+                    "yr_constructed": "construction_year",
+                    "capacity_rating": "capacity_mw",
+                    "net_demand": "peak_demand_mw",
+                    "net_generation": "net_generation_kwh",
+                    "plant_cost": "capex_total",
+                    "plant_cost_mw": "capex_per_mw",
+                    "operation": "opex_operations",
+                    "expns_fuel": "opex_fuel",
+                    "expns_maint": "opex_maintenance",
+                    "kind_of_fuel": "fuel_type",
+                    "fuel_cost": "fuel_cost_per_mmbtu",
+                    "report_year": "report_year",
+                    "respondent_id": "utility_id_ferc1_dbf",
+                    "report_prd": "report_prd",
+                    "row_prvlg": "row_prvlg",
+                    "row_number": "row_number",
+                    "row_seq": "row_seq",
+                    "spplmnt_num": "spplmnt_num",
+                },
+            },
+            "xbrl": {
+                "columns": {
+                    "report_year": "report_year",
+                    "entity_id": "utility_id_ferc1_xbrl",
+                    "plant_name": "plant_name_ferc1",
+                    "start_date": "start_date",
+                    "end_date": "end_date",
+                    "date": "date",
+                    "generation_type": "plant_type",
+                    "fuel_cost_per_mmbtus": "fuel_cost_per_mmbtu",
+                    "fuel_kind": "fuel_type",
+                    "year_plant_originally_constructed": "construction_year",
+                    "maintenance_production_expenses": "opex_maintenance",
+                    "operating_expenses_excluding_fuel": "opex_operations",
+                    "fuel_production_expenses": "opex_fuel",
+                    "order_number": "order_number",
+                    "net_generation_excluding_plant_use": "net_generation_kwh",
+                    "net_peak_demand_on_plant": "peak_demand_mw",
+                    "plant_cost_per_mw": "opex_per_mw",
+                    "installed_capacity_of_plant": "capacity_mw",
+                    "cost_of_plant": "capex_total",
+                    "generating_plant_statistics_axis": "generating_plant_statistics_axis",
+                },
+            },
+        },
+        "normalize_strings": {
+            "plant_name_ferc1": FERC1_STRING_NORM,
+            "fuel_type": FERC1_STRING_NORM,
+        },
+        "nullify_outliers": {
+            "construction_year": VALID_PLANT_YEARS,
+        },
+        "convert_units": {
+            "fuel_cost_per_mmbtu": CENTS_PERMMBTU_TO_USD_PERMMBTU,
+        },
     },
 }
 """The full set of parameters used to transform the FERC Form 1 data.

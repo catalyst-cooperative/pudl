@@ -536,16 +536,16 @@ class FuelFerc1TableTransformer(Ferc1AbstractTableTransformer):
             # Note: in this rename_columns we have to pass in params, since we're using
             # the inherited method, with param specific to the child class.
             .pipe(self.rename_columns, params=self.params.rename_columns_ferc1.xbrl)
-            .pipe(self.convert_units)
-            .pipe(self.normalize_strings)
-            .pipe(self.categorize_strings)
-            .pipe(self.standardize_physical_fuel_units)
-            .pipe(self.aggregate_duplicate_fuel_types_xbrl)
-            .pipe(self.assign_record_id, source_ferc1=Ferc1Source.XBRL)
-            .pipe(
-                self.assign_utility_id_ferc1,
-                source_ferc1=Ferc1Source.XBRL,
-            )
+            # .pipe(self.convert_units)
+            # .pipe(self.normalize_strings)
+            # .pipe(self.categorize_strings)
+            # .pipe(self.standardize_physical_fuel_units)
+            # .pipe(self.aggregate_duplicate_fuel_types_xbrl)
+            # .pipe(self.assign_record_id, source_ferc1=Ferc1Source.XBRL)
+            # .pipe(
+            #     self.assign_utility_id_ferc1,
+            #     source_ferc1=Ferc1Source.XBRL,
+            # )
         )
 
     def standardize_physical_fuel_units(self, df: pd.DataFrame) -> pd.DataFrame:
@@ -851,6 +851,33 @@ class PlantsHydroFerc1TableTransformer(Ferc1AbstractTableTransformer):
             col,
             errors="coerce",
         )
+
+
+class PlantsSmallFerc1TableTransformer(Ferc1AbstractTableTransformer):
+    """A table transformer specific to the ``plants_small_ferc1`` table."""
+
+    table_id: Ferc1TableId = Ferc1TableId.PLANTS_SMALL_FERC1
+
+    @cache_df(key="main")
+    def transform_main(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Table specific transforms for plants_small_ferc1.
+
+        Params:
+            df: Pre-processed, concatenated XBRL and DBF data.
+
+        Returns:
+            A single transformed table concatenating multiple years of cleaned data
+            derived from the raw DBF and/or XBRL inputs.
+        """
+        df = (
+            self.normalize_strings(df)
+            .pipe(self.nullify_outliers)
+            .pipe(self.convert_units)
+            # .pipe(self.categorize_strings)
+            # .pipe(self.nullify_outliers)
+            # .pipe(self.drop_invalid_rows)
+        )
+        return df
 
 
 def transform(
