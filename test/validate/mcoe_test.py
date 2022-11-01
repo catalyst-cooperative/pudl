@@ -113,11 +113,11 @@ def test_no_null_rows_mcoe(pudl_out_mcoe, live_dbs, df_name, thresh):
 @pytest.mark.parametrize(
     "df_name,monthly_rows,annual_rows",
     [
-        ("hr_by_unit", 332_427, 29_624),
-        ("hr_by_gen", 513_394, 45_461),
-        ("fuel_cost", 513_394, 45_461),
-        ("capacity_factor", 4_621_015, 393_750),
-        ("mcoe", 4_625_758, 394_050),
+        ("hr_by_unit", 361_963, 30_305),
+        ("hr_by_gen", 554_617, 46_366),
+        ("fuel_cost", 554_617, 46_366),
+        ("capacity_factor", 5_170_743, 432_542),
+        ("mcoe", 5_171_127, 432_574),
     ],
 )
 def test_minmax_rows_mcoe(pudl_out_mcoe, live_dbs, monthly_rows, annual_rows, df_name):

@@ -306,7 +306,6 @@ def aggregate_gen_fuel_by_generator(
         start_date=pudl_out.start_date,
         end_date=pudl_out.end_date,
     )
-    gen_allocated = gen_allocated[gen_allocated.net_generation_mwh.notnull()].copy()
     return gen_allocated
 
 
