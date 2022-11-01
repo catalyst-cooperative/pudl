@@ -27,10 +27,10 @@ to individual generators based on the more complete but less granular reporting 
 There are six main stages of the allocation process in this module:
 
 #. **Read inputs**: Read denormalized net generation and fuel consumption data from the
-   PUDL DB. Standardize reporting frequency. Allocate boiler fuel consumption to their
-   associated generators
-   (see :func:`distribute_annually_reported_data_to_months_if_annual` and
-   :func:`allocate_bf_data_to_gens`).
+   PUDL DB (see :func:`extract_input_tables`). Standardize reporting frequency (see
+   :func:`standardize_input_frequency`) which employs
+   :func:`distribute_annually_reported_data_to_months_if_annual` and
+   :func:`pudl.helpers.expand_timeseries`.
 #. **Associate inputs**: Merging the data from the input tables with the same
    generator/prime mover/energy source codes - using the primary keys in
    :py:const:`IDX_GENS_PM_ESC` (see :func:`associate_generator_tables`).
@@ -212,87 +212,16 @@ def allocate_gen_fuel_by_generator_energy_source(
             ``generation_eia923`` and ``generation_fuel_eia923`` tables) that are
             useful for debugging. Default is False, which will drop the columns.
     """
-    # extract all of the tables from pudl_out early in the process and select
-    # only the columns we need. this is for speed and clarity.
-    gf = (
-        pudl_out.gf_eia923()
-        .loc[
-            :,
-            IDX_PM_ESC + DATA_COLUMNS,
-        ]
-        .pipe(manually_fix_energy_source_codes)
-    )
-    bf = (pudl_out.bf_eia923().loc[:, IDX_B_PM_ESC + ["fuel_consumed_mmbtu"]]).pipe(
-        distribute_annually_reported_data_to_months_if_annual,
-        key_columns=[
-            "plant_id_eia",
-            "boiler_id",
-            "energy_source_code",
-            "report_date",
-        ],
-        data_column_name="fuel_consumed_mmbtu",
-        freq=pudl_out.freq,
-    )
-    # load boiler generator associations
-    bga = pudl_out.bga_eia860().loc[
-        :,
-        [
-            "plant_id_eia",
-            "boiler_id",
-            "generator_id",
-            "report_date",
-        ],
-    ]
-    gens = (
-        pudl_out.gens_eia860().loc[
-            :,
-            IDX_GENS
-            + [
-                "prime_mover_code",
-                "unit_id_pudl",
-                "capacity_mw",
-                "fuel_type_count",
-                "operational_status",
-                "retirement_date",
-            ]
-            + list(pudl_out.gens_eia860().filter(like="energy_source_code"))
-            + list(pudl_out.gens_eia860().filter(like="startup_source_code")),
-        ]
-        # add any startup energy source codes to the list of energy source codes
-        # fix MSW codes
-        .pipe(adjust_energy_source_codes, gf, bf)
-    )
-    warn_if_missing_pms(gens)
-    # duplicate each entry in the gens table 12 times to create an entry for each month of the year
-    if pudl_out.freq == "MS":
-        gens_at_freq = pudl.helpers.expand_timeseries(
-            df=gens, key_cols=["plant_id_eia", "generator_id"], freq="MS"
-        )
-    else:
-        gens_at_freq = gens
-
-    gen = (
-        (
-            pudl_out.gen_original_eia923().loc[:, IDX_GENS + ["net_generation_mwh"]]
-            # removes 4 records with NaN generator_id as of pudl v0.5
-            .dropna(subset=IDX_GENS)
-        ).pipe(
-            distribute_annually_reported_data_to_months_if_annual,
-            key_columns=["plant_id_eia", "generator_id", "report_date"],
-            data_column_name="net_generation_mwh",
-            freq=pudl_out.freq,
-        )
-        # the gen table is missing many generator ids. Let's fill this using the gens table
-        # leaving a missing value for net generation
-        .merge(
-            gens_at_freq[["plant_id_eia", "generator_id", "report_date"]],
-            how="outer",
-            on=["plant_id_eia", "generator_id", "report_date"],
-        )
+    gf, bf, bga, gens, gen = extract_input_tables(pudl_out)
+    bf, gens_at_freq, gen = standardize_input_frequency(
+        bf, gens, gen, freq=pudl_out.freq
     )
 
+    # add any startup energy source codes to the list of energy source codes
+    # fix MSW codes
+    gens_at_freq = adjust_energy_source_codes(gens_at_freq, gf, bf)
     # allocate the boiler fuel data to generators
-    bf_by_gens = allocate_bf_data_to_gens(bf, gens, bga)
+    bf_by_gens = allocate_bf_data_to_gens(bf, gens_at_freq, bga)
     # do the association!
     gen_assoc = associate_generator_tables(
         gens=gens_at_freq, gf=gf, gen=gen, bf_by_gens=bf_by_gens
@@ -377,6 +306,108 @@ def aggregate_gen_fuel_by_generator(
     )
     gen_allocated = gen_allocated[gen_allocated.net_generation_mwh.notnull()].copy()
     return gen_allocated
+
+
+def extract_input_tables(pudl_out: "pudl.output.pudltabl.PudlTabl"):
+    """Extract the input tables from the pudl_out object.
+
+    Extract all of the tables from pudl_out early in the process and select
+    only the columns we need.
+
+    Args:
+        pudl_out: instantiated pudl output object.
+    """
+    gf = (
+        pudl_out.gf_eia923()
+        .loc[
+            :,
+            IDX_PM_ESC + DATA_COLUMNS,
+        ]
+        .pipe(manually_fix_energy_source_codes)
+    )
+    bf = pudl_out.bf_eia923().loc[:, IDX_B_PM_ESC + ["fuel_consumed_mmbtu"]]
+    # load boiler generator associations
+    bga = pudl_out.bga_eia860().loc[
+        :,
+        ["plant_id_eia", "boiler_id", "generator_id", "report_date"],
+    ]
+    gens = pudl_out.gens_eia860().loc[
+        :,
+        IDX_GENS
+        + [
+            "prime_mover_code",
+            "unit_id_pudl",
+            "capacity_mw",
+            "fuel_type_count",
+            "operational_status",
+            "retirement_date",
+        ]
+        + list(pudl_out.gens_eia860().filter(like="energy_source_code"))
+        + list(pudl_out.gens_eia860().filter(like="startup_source_code")),
+    ]
+    warn_if_missing_pms(gens)
+
+    gen = (
+        pudl_out.gen_original_eia923().loc[:, IDX_GENS + ["net_generation_mwh"]]
+        # removes 4 records with NaN generator_id as of pudl v0.5
+        .dropna(subset=IDX_GENS)
+    )
+    return gf, bf, bga, gens, gen
+
+
+def standardize_input_frequency(
+    bf: pd.DataFrame, gens: pd.DataFrame, gen: pd.DataFrame, freq: Literal["MS", "MS"]
+):
+    """Standardize the frequency of the input tables.
+
+    Employ :func:`distribute_annually_reported_data_to_months_if_annual` on the boiler
+    fuel and generation table. Employ :func:`pudl.helpers.expand_timeseries` on the
+    generators table. Also use the expanded generators table to ensure the generation
+    table has all of the generators present.
+
+    Args:
+        bf: :ref:`boiler_fuel_eia923` table
+        gens: :ref:`generators_eia860` table
+        gen: :ref:`generation_eia923` table
+        freq: the frequency code from the ``pudl_out`` object used to generate the above
+            tables.
+    """
+    bf = distribute_annually_reported_data_to_months_if_annual(
+        df=bf,
+        key_columns=[
+            "plant_id_eia",
+            "boiler_id",
+            "energy_source_code",
+            "report_date",
+        ],
+        data_column_name="fuel_consumed_mmbtu",
+        freq=freq,
+    )
+
+    # duplicate each entry in the gens table 12 times to create an entry for each month of the year
+    if freq == "MS":
+        gens_at_freq = pudl.helpers.expand_timeseries(
+            df=gens, key_cols=["plant_id_eia", "generator_id"], freq="MS"
+        )
+    else:
+        gens_at_freq = gens
+
+    gen = (
+        distribute_annually_reported_data_to_months_if_annual(
+            df=gen,
+            key_columns=["plant_id_eia", "generator_id", "report_date"],
+            data_column_name="net_generation_mwh",
+            freq=freq,
+        )
+        # the gen table is missing many generator ids. Let's fill this using the gens table
+        # leaving a missing value for net generation
+        .merge(
+            gens_at_freq[["plant_id_eia", "generator_id", "report_date"]],
+            how="outer",
+            on=["plant_id_eia", "generator_id", "report_date"],
+        )
+    )
+    return bf, gens_at_freq, gen
 
 
 def scale_allocated_net_gen_by_ownership(
@@ -509,7 +540,7 @@ def associate_generator_tables(
     ``["plant_id_eia", "generator_id", "report_date", "energy_sorce_code"]``. Other
     columns include the ``prime_mover_code`` column in it for merging in the other data
     tables, the ``capacity_mw`` which we use to allocate on if there is no data in the
-    :ref:`generation_eia860` table and the ``operational_status`` which we use to remove
+    :ref:`generation_eia923` table and the ``operational_status`` which we use to remove
     inactive plants from the association and allocation process.
 
     The remaining data tables are all less granular then this stacked generators table
