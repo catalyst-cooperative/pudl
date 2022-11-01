@@ -873,8 +873,7 @@ class PlantsSmallFerc1TableTransformer(Ferc1AbstractTableTransformer):
             self.normalize_strings(df)
             .pipe(self.nullify_outliers)
             .pipe(self.convert_units)
-            # .pipe(self.categorize_strings)
-            # .pipe(self.nullify_outliers)
+            .pipe(self.categorize_strings)
             # .pipe(self.drop_invalid_rows)
         )
         return df
