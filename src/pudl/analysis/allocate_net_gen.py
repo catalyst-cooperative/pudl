@@ -31,12 +31,14 @@ There are six main stages of the allocation process in this module:
    :func:`standardize_input_frequency`) which employs
    :func:`distribute_annually_reported_data_to_months_if_annual` and
    :func:`pudl.helpers.expand_timeseries`.
-#. **Associate inputs**: Merging the data from the input tables with the same
-   generator/prime mover/energy source codes - using the primary keys in
-   :py:const:`IDX_GENS_PM_ESC` (see :func:`associate_generator_tables`).
-#. **Flag associations** Prepare for the allocation  by adding boolean flags for
-   whether a particular :py:const:`IDX_GENS_PM_ESC` shows up in each of the input data
-   tables (see :func:`prep_alloction_fraction`).
+#. **Associate inputs**: Merge the data from the all of the input tables as long as they
+   share generator id, prime mover code and/or energy source codes. The output of this
+   step is a table with the primary keys py:const:`IDX_GENS_PM_ESC` with the data
+   columns from the input tables broadcasted (see :func:`associate_generator_tables`).
+#. **Flag associations**: Prepare for the allocation by adding boolean flags for whether
+   a particular :py:const:`IDX_GENS_PM_ESC` shows up in each of the input data tables.
+   This enables us to determine what kind of coverage the granular tables have and from
+   that how the record should be allocated (see :func:`prep_alloction_fraction`).
 #. **Allocate**: Allocate the net generation and fuel from the less granular
    :ref:`generation_fuel_eia923` table to the :py:const:`IDX_GENS_PM_ESC` level. More
    details on the allocation process below (see :func:`allocate_net_gen_by_gen_esc` and
@@ -54,8 +56,8 @@ There are six main stages of the allocation process in this module:
 **High-level description about the allocaiton step**:
 
 We allocate the net generation/fuel consumption reported in the
-generation_fuel_eia923/boiler_fuel_eia923 table on the basis of plant, prime mover,
-and energy sources among the generators in each plant that have matching energy sources.
+:ref:`generation_fuel_eia923` table on the basis of plant, prime mover, and energy
+source among the generators in each plant that have matching energy sources.
 Generation/fuel consumption is allocated proportional to reported generation/fuel
 consumption if it's available in the granular tables, and proportional to each
 generator's capacity if granular generation/fuel consumption is not available.
@@ -153,7 +155,7 @@ IDX_B_PM_ESC = [
 
 IDX_ESC = ["report_date", "plant_id_eia", "energy_source_code"]
 
-IDX_U_ESC = ["report_date", "plant_id_eia", "energy_source_code", "unit_id_pudl"]
+IDX_UNIT_ESC = ["report_date", "plant_id_eia", "energy_source_code", "unit_id_pudl"]
 
 DATA_COLUMNS = [
     "net_generation_mwh",
@@ -958,7 +960,7 @@ def prep_alloction_fraction(gen_assoc: pd.DataFrame) -> pd.DataFrame:
     )
 
     gens_gb_pm_esc = gen_assoc.groupby(by=IDX_PM_ESC, dropna=False)
-    gens_gb_u_esc = gen_assoc.groupby(by=IDX_U_ESC, dropna=False)
+    gens_gb_u_esc = gen_assoc.groupby(by=IDX_UNIT_ESC, dropna=False)
     # get the total values for the merge group
     # we would use on groupby here with agg but it is much slower
     # so we're gb-ing twice w/ a merge
@@ -1019,7 +1021,7 @@ def prep_alloction_fraction(gen_assoc: pd.DataFrame) -> pd.DataFrame:
                 .add_suffix("_unit_fuel")
                 .reset_index()
             ),
-            on=IDX_U_ESC,
+            on=IDX_UNIT_ESC,
         )
         .assign(
             # fill in the missing generation with small numbers (this will help ensure
