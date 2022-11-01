@@ -55,7 +55,7 @@ There are six main stages of the allocation process in this module:
 
 We allocate the net generation/fuel consumption reported in the
 generation_fuel_eia923/boiler_fuel_eia923 table on the basis of plant, prime mover,
-and fuel type among the generators in each plant that have matching fuel types.
+and energy sources among the generators in each plant that have matching energy sources.
 Generation/fuel consumption is allocated proportional to reported generation/fuel
 consumption if it's available in the granular tables, and proportional to each
 generator's capacity if granular generation/fuel consumption is not available.
@@ -79,8 +79,8 @@ some small discrepancies between the total amounts of generation/fuel reported i
 two tables.
 
 In plant-report_date's where NONE of the generators report more granular generation or fuel consumption,
-we create a generator record for each associated fuel type. Those records are merged with the
-generation_fuel_eia923 table on plant, prime mover code, and fuel type. Each group of
+we create a generator record for each associated energy source. Those records are merged with the
+generation_fuel_eia923 table on plant, prime mover code, and energy source. Each group of
 plant, prime mover, and fuel will have some amount of reported net generation associated
 with it, and one or more generators. The net generation is allocated among the
 generators within the group in proportion to their capacity. Then the allocated net
@@ -140,7 +140,7 @@ IDX_GENS_PM_ESC = [
 ]
 
 IDX_PM_ESC = ["report_date", "plant_id_eia", "energy_source_code", "prime_mover_code"]
-"""Id columns for plant, prime mover & fuel type records."""
+"""Id columns for plant, prime mover & energy source records."""
 
 IDX_B_PM_ESC = [
     "report_date",
@@ -149,7 +149,7 @@ IDX_B_PM_ESC = [
     "energy_source_code",
     "prime_mover_code",
 ]
-"""Id columns for plant, boiler, prime mover & fuel type records."""
+"""Id columns for plant, boiler, prime mover & energy source records."""
 
 IDX_ESC = ["report_date", "plant_id_eia", "energy_source_code"]
 
@@ -273,7 +273,7 @@ def aggregate_gen_fuel_by_generator(
     """Aggregate gen fuel data columns to generators.
 
     The generation_fuel_eia923 table includes net generation and fuel
-    consumption data at the plant/fuel type/prime mover level. The most
+    consumption data at the plant/energy source/prime mover level. The most
     granular level of plants that PUDL typically uses is at the plant/generator
     level. This function takes the plant/energy source code/prime mover level
     allocation, aggregates it to the generator level and then denormalizes it to
@@ -283,8 +283,8 @@ def aggregate_gen_fuel_by_generator(
     Args:
         pudl_out (pudl.output.pudltabl.PudlTabl): An object used to create the tables for EIA and FERC Form 1
             analysis.
-        net_gen_fuel_alloc: table of allocated generation at the generator/prime mover
-            /fuel type. Result of :func:`allocate_gen_fuel_by_generator_energy_source`
+        net_gen_fuel_alloc: table of allocated generation at the generator/prime mover/
+            energy source. Result of :func:`allocate_gen_fuel_by_generator_energy_source`
         sum_cols: Data columns from that are being aggregated via a
             ``pandas.groupby.sum()`` in agg_by_generator
 
@@ -427,8 +427,8 @@ def scale_allocated_net_gen_by_ownership(
     available, and then feeds that table into the EIA Plant-parts' :meth:`scale_by_ownership`.
 
     Args:
-        gen_pm_fuel: able of allocated generation at the generator/prime mover
-            /fuel type. Result of :func:`allocate_gen_fuel_by_generator_energy_source`
+        gen_pm_fuel: able of allocated generation at the generator/prime mover/energy
+            source. Result of :func:`allocate_gen_fuel_by_generator_energy_source`
         gens: `generators_eia860` table with cols: :const:``IDX_GENS``, `capacity_mw`
             and `utility_id_eia`
         own_eia860: `ownership_eia860` table.
@@ -569,8 +569,8 @@ def associate_generator_tables(
         bf_by_gens: ``boiler_fuel_eia923`` table aggregated at the generator-level
 
     Returns:
-        table of generators with stacked fuel types and broadcasted net generation and
-        fuel data from the :ref:`generation_eia923` and :ref:`generation_fuel_eia923`
+        table of generators with stacked energy sources and broadcasted net generation
+        and fuel data from the :ref:`generation_eia923` and :ref:`generation_fuel_eia923`
         tables. There are many duplicate values in this output which will later be used
         in the allocation process in :func:`allocate_net_gen_by_gen_esc` and
         :func:`allocate_fuel_by_gen_esc`.
@@ -671,7 +671,7 @@ def remove_inactive_generators(gen_assoc: pd.DataFrame) -> pd.DataFrame:
     be associated via :func:`_allocate_unassociated_records`.
 
     Args:
-        gen_assoc: table of generators with stacked fuel types and broadcasted net
+        gen_assoc: table of generators with stacked energy sources and broadcasted net
             generation data from the generation_eia923 and generation_fuel_eia923
             tables. Output of :func:`associate_generator_tables`.
     """
@@ -843,7 +843,7 @@ def _allocate_unassociated_records(
     There are a subset of ``generation_fuel_eia923`` or ``boiler_fuel_eia923`` records
     which do not merge onto the stacked generator table on ``IDX_PM_ESC`` or
     ``IDX_GENS_PM_ESC`` respecitively. These records generally don't match with
-    the set of prime movers and fuel types in the stacked generator table. In this
+    the set of prime movers and energy sources in the stacked generator table. In this
     method, we associate those straggler, unassociated records by merging these records
     with the stacked generators witouth the un-matching data column.
 
@@ -855,7 +855,7 @@ def _allocate_unassociated_records(
         data_columns: the data columns to associate and allocate.
     """
     # we're associating these unassociated records but we only want to associate
-    # them w/ the primary fuel type from stack_generators so we're going to assign
+    # them w/ the primary energy source from stack_generators so we're going to assign
     # the energy_source_code_num as the primary source on the unassociated data and
     # merge on that column
     idx_minus_one = [col for col in idx_cols if col != col_w_unexpected_codes] + [
