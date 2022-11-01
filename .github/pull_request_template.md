@@ -1,7 +1,17 @@
-# PR Process Overview
+# Making a PUDL Pull Request
+
+First of all, thank you for contributing to PUDL!
+
+If you haven't already, before making a PR you might want to check out our
+[contributing guidelines](https://catalystcoop-pudl.readthedocs.io/en/latest/CONTRIBUTING.html),
+[code of conduct](https://catalystcoop-pudl.readthedocs.io/en/latest/code_of_conduct.html)
+and some of the details of our
+[development process](https://catalystcoop-pudl.readthedocs.io/en/latest/dev/index.html)
+
+## PR Process Overview
 
 * We require a code review before merging PRs into the `dev` branch.
-* It is much easier to do timely code reviews on smaller chunks of code.  We try to keep
+* It is much easier to do timely code reviews on smaller chunks of code. We try to keep
   PRs under 500 lines of code.
 * If you're doing a bigger refactor or adding a large subsystem, it may be better to
   create a persistent branch off of `dev` and then merge smaller, incremental PRs into
@@ -30,7 +40,7 @@
   daily interaction. If significant changes are required, it's usually best to request
   another review after those changes have been made.
 
-# PR Checklist
+## PR Checklist
 
 Before requesting a review of your pull request, please make sure you've done the
 following:
