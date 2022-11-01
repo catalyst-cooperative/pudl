@@ -874,9 +874,63 @@ class PlantsSmallFerc1TableTransformer(Ferc1AbstractTableTransformer):
             .pipe(self.nullify_outliers)
             .pipe(self.convert_units)
             .pipe(self.categorize_strings)
+            .pipe(self.extract_ferc1_license)
             # .pipe(self.drop_invalid_rows)
         )
         return df
+
+    def extract_ferc1_license(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Extract FERC license number from plant_name.
+
+        Many FERC license numbers are embedded in the plant_name_ferc1 field, whether
+        as a note or an actual plant name. Not all numbers in the plant_name_ferc1 field
+        that are FERC licenses, however. Some are dates, dollar amounts, page numbers,
+        or numbers of wind turbines. This function extracts valid FERC license numbers
+        and puts them in a new column.
+
+        Valid FERC license numbers are:
+        - Greater than 2.
+        - Usually accompanied by key phrases such as "license", "no.", "ferc", or
+        "project".
+        - Don't contain phrases like "page", "pg", "$", "wind", "units"
+        - Don't fall within the range of a valid year, defined as: 1900-2050
+        - Are categorized as either hydro or NA.
+        """
+        logger.info("Extracting FERC license from plant name")
+        # Extract all numbers greater than 2 digits from plant_name_ferc1 and put them
+        # in a new column as integers.
+        out_df = df.assign(
+            license_id_ferc1=lambda x: (
+                x.plant_name_ferc1.str.extract(r"(\d{3,})")
+                .astype("float")
+                .astype("Int64")
+            ),
+        )
+        # Define what makes a good license
+        obvious_license = out_df.plant_name_ferc1.str.contains(
+            r"no\.|license|ferc|project", regex=True
+        )
+        not_license = out_df.plant_name_ferc1.str.contains(
+            r"page|pg|\$|wind|solar|nuclear|nonutility|units|surrendered", regex=True
+        )
+        exceptions = out_df.plant_name_ferc1.str.contains(
+            r"tomahawk|otter rapids|wausau|alexander|hooksett|north umpqua", regex=True
+        )
+        year_vs_num = (out_df["license_id_ferc1"] > 1900) & (
+            out_df["license_id_ferc1"] < 2050
+        )
+        not_hydro = ~out_df["plant_type"].isin(["hydro", np.nan, None]) | ~out_df[
+            "fuel_type"
+        ].isin(["hydro", "other"])
+        # Replace all the non-license numbers with NA
+        out_df.loc[
+            (not_hydro & ~obvious_license)
+            | not_license
+            | (year_vs_num & ~obvious_license & ~exceptions),
+            "license_id_ferc1",
+        ] = pd.NA
+
+        return out_df
 
 
 def transform(
