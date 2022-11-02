@@ -639,7 +639,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "The docket number relating to the FERC qualifying facility exempt wholesale generator status.",
     },
-    "ferc_license_id": {
+    "license_id_ferc1": {
         "type": "integer",
         "description": "FERC issued operating license ID for the facility, if available. This value is extracted from the original plant name where possible.",
     },
@@ -1580,10 +1580,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "PUDL plant ID and report year of the record.",
     },
-    "plant_name_clean": {
-        "type": "string",
-        "description": "A semi-manually cleaned version of the freeform FERC 1 plant name.",
-    },
     "plant_name_eia": {"type": "string", "description": "Plant name."},
     "plant_name_ferc1": {
         "type": "string",
@@ -2015,11 +2011,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "unit": "USD",
     },
     "total_capacity_less_1_mw": {"type": "number", "unit": "MW"},
-    "total_cost_of_plant": {
-        "type": "number",
-        "description": "Total cost of plant (USD).",
-        "unit": "USD",
-    },
     "total_disposition_mwh": {"type": "number", "unit": "MWh"},
     "total_energy_losses_mwh": {"type": "number", "unit": "MWh"},
     "total_fuel_cost": {

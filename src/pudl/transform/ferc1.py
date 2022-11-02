@@ -875,8 +875,15 @@ class PlantsSmallFerc1TableTransformer(Ferc1AbstractTableTransformer):
             .pipe(self.convert_units)
             .pipe(self.categorize_strings)
             .pipe(self.extract_ferc1_license)
+            .pipe(self.label_row_type)
+            .pipe(self.map_header_fuel_types)
+            .pipe(self.map_plant_name_fuel_types)
+            .pipe(self.associate_notes_with_values)
             # .pipe(self.drop_invalid_rows)
         )
+        # Remove headers and note rows
+        df = df[(df["row_type"] != "header") & (df["row_type"] != "note")].copy()
+
         return df
 
     def extract_ferc1_license(self, df: pd.DataFrame) -> pd.DataFrame:
@@ -895,8 +902,10 @@ class PlantsSmallFerc1TableTransformer(Ferc1AbstractTableTransformer):
         - Don't contain phrases like "page", "pg", "$", "wind", "units"
         - Don't fall within the range of a valid year, defined as: 1900-2050
         - Are categorized as either hydro or NA.
+
+        This function also fills "other" fuel types with hydro for all these plants.
         """
-        logger.info("Extracting FERC license from plant name")
+        logger.info(f"{self.table_id.value}: Extracting FERC license from plant name")
         # Extract all numbers greater than 2 digits from plant_name_ferc1 and put them
         # in a new column as integers.
         out_df = df.assign(
@@ -928,9 +937,447 @@ class PlantsSmallFerc1TableTransformer(Ferc1AbstractTableTransformer):
             | not_license
             | (year_vs_num & ~obvious_license & ~exceptions),
             "license_id_ferc1",
-        ] = pd.NA
+        ] = np.nan
+        # Fill fuel type with hydro
+        out_df.loc[
+            out_df["license_id_ferc1"].notna() & (out_df["fuel_type"] == "other"),
+            "fuel_type",
+        ] = "hydro"
 
         return out_df
+
+    def label_row_type(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Label rows as headers, notes, or totals."""
+        # Define header qualifications
+        header_strings = [
+            "hydro",
+            "hyrdo",
+            "internal",
+            "wind",
+            "solar",
+            "gas",
+            "diesel",
+            "diesal",
+            "steam",
+            "other",
+            "combustion",
+            "combustine",
+            "fuel cell",
+            "hydraulic",
+            "waste",
+            "landfill",
+            "photovoltaic",
+            "nuclear",
+            "oil",
+            "renewable",
+            "facilities",
+            "combined cycle",
+        ]
+        nonheader_strings = [
+            "#",
+            r"\*",
+            "pg",
+            "solargenix",
+            "solargennix",
+            r"\@",
+            "rockton",
+            "albany steam",
+        ]
+        exceptions = [
+            "hydro plants: licensed proj. no.",
+            "hydro license no.",
+            "hydro: license no.",
+            "hydro plants: licensed proj no.",
+        ]
+        not_header_if_cols_na = [
+            "construction_year",
+            "net_generation_mwh",
+            "total_cost_of_plant",
+            "capex_per_mw",
+            "opex_total",
+            "opex_fuel",
+            "opex_maintenance",
+            "fuel_cost_per_mmbtu",
+        ]
+
+        def label_header_rows(df: pd.DataFrame) -> pd.DataFrame:
+            """Label header rows.
+
+            This function labels rows it believes are possible headers based on whether
+            they contain information in certain key columns. Of those possible headers,
+            ones that contain a specific key word or phrase are dubbed headers. Leftover
+            possible header rows are evaluated as possible note rows in the
+            _label_notes_rows() function.
+            """
+            logger.info(f"{self.table_id.value}: Labeling header rows")
+
+            # Label possible header rows (based on the nan cols specified above)
+            df.loc[
+                df.filter(not_header_if_cols_na).isna().all(1), "possible_header"
+            ] = True
+
+            # Label good header rows (based on whether they contain key strings)
+            possible_header = df["possible_header"]
+            good_header = df["plant_name_ferc1"].str.contains("|".join(header_strings))
+            not_bad = ~df["plant_name_ferc1"].str.contains("|".join(nonheader_strings))
+
+            df.loc[possible_header & good_header & not_bad, "row_type"] = "header"
+            df.loc[df["plant_name_ferc1"].isin(exceptions), "row_type"] = "header"
+
+            return df
+
+        def label_total_rows(df: pd.DataFrame) -> pd.DataFrame:
+            """Label total rows."""
+            logger.info(f"{self.table_id.value}: Labeling total rows")
+
+            df.loc[df["plant_name_ferc1"].str.contains("total"), "row_type"] = "total"
+
+            # Now deal with some outliers:
+
+            # There are a couple rows that contain the phrase "amounts are for" in the
+            # plant name that contain total pertaining to total records above. This
+            # section of code moves the total row values that are reported as notes to
+            # correct row above and nulls the values in the notes row.
+            num_cols = [
+                x
+                for x in df.select_dtypes(include=["float", "Int64"]).columns.tolist()
+                if x not in ["utility_id_ferc1", "report_year", "license_id_ferc1"]
+            ]
+            bad_row = df[
+                (df["plant_name_ferc1"].str.contains("amounts are for"))
+                & (df["capacity_mw"] > 0)
+            ]
+
+            df.loc[bad_row.index, num_cols] = df.loc[bad_row.index - 1][num_cols].values
+            df.loc[bad_row.index - 1, num_cols] = np.nan
+
+            return df
+
+        def label_notes_rows(df: pd.DataFrame) -> pd.DataFrame:
+            """Remove clumps of consecutive rows flagged as possible headers.
+
+            FERC has lots of note rows that are not headers but are also not useful for
+            analysis. This function looks for rows flagged as possible headers (based on
+            NA values) and checks to see if there are multiple in a row. A header row is
+            (usually) defined as a row with NA values followed by rows without NA
+            values, so when there are more than one clumped together they are likely
+            either notes or not helpful. Sometimes note clumps will end with a
+            meaningful header. This function also checks for this and will unclump any
+            headers at the bottom of clumps. There is one exception to this case which
+            is a header that is followed by a plant that had no values reported...
+            Unfortunately I haven't built a work around, but hopefully there aren't very
+            many of these. Currently, that header and plant will be categorized as
+            clumps and removed.
+            """
+            logger.info(f"{self.table_id.value}: Labeling notes rows")
+
+            util_groups = df.groupby(["utility_id_ferc1", "report_year"])
+
+            def _find_header_clumps_sg(group, group_col):
+                """Count groups of possible headers in a given utiltiy group.
+
+                This function is used within the _label_note_rows() function. It takes a
+                utility group and regroups it by rows where possible_header = True
+                (i.e.: all values in the specified NAN_COLS are NA) vs. False. Rows
+                where possible_header = True can be bad data, headers, or notes. The
+                result is a DataFrame that contains one row per clump of similar
+                adjecent possible_header values with columns val_col depicting the
+                number of rows per possible_header clump.
+
+                Ex: If you pass in a df with the possible_header values: True, False
+                False, True, True, the header_groups output df will look like this:
+                {'header':[True, False, True], 'val_col: [1, 2, 2]}.
+
+                Args:
+                    group (pandas.DataFrameGroupBy): A groupby object that you'd like
+                        to condense by group_col
+                    group_col (str): The name of the column you'd like to make sub
+                        groups from.
+
+                Returns:
+                    pandas.DataFrame: A condensed version of that dataframe input
+                        grouped by breaks in header row designation.
+                """
+                # Make groups based on consecutive sections where the group_col is alike.
+                header_groups = group.groupby(
+                    (group[f"{group_col}"].shift() != group[f"{group_col}"]).cumsum(),
+                    as_index=False,
+                )
+
+                # Identify the first (and only) group_col value for each group and count
+                # how many rows are in each group.
+                header_groups_df = header_groups.agg(
+                    header=(f"{group_col}", "first"),
+                    val_count=(f"{group_col}", "count"),
+                )
+
+                return header_groups, header_groups_df
+
+            def _label_notes_rows_group(util_year_group):
+                """Find an label notes rows in a designated sub-group of the sg table.
+
+                Utilities report to FERC on a yearly basis therefore it is on a utility
+                and yearly basis by which we need to parse the data. Each year for each
+                utility appears in the data like a copy of a pdf form. If you are
+                looking for rows that are notes or headers, this context is extremely
+                important. For example. Flagged headers that appear at the bottom of a
+                given utility-year subgroup are notes rather than headers strictly due
+                to their location in the group. For this reason, we must parse the notes
+                from the header groups at the utility-year level rather than the dataset
+                as a whole.
+
+                Args:
+                    util_year_group (pandas.DataFrame): A groupby object that contains
+                        a single year and utility.
+                """
+                # Create mini groups that count pockets of true and false for each
+                # utility and year. Basically what it does is create a df
+                # where each row represents a clump of adjecent, equal values for a
+                # given column. Ex: a column of True, True, True, False, True, False,
+                # False, will appear as True, False, True, False with value counts for
+                # each.
+                group, header_count = _find_header_clumps_sg(
+                    util_year_group, "possible_header"
+                )
+
+                # Used later to enable exceptions
+                max_df_val = util_year_group.index.max()
+
+                # Create a list of the index values that comprise each of the header
+                # clumps. It's only considered a clump if it is greater than 1.
+                idx_list = list(
+                    header_count[
+                        (header_count["header"]) & (header_count["val_count"] > 1)
+                    ].index
+                )
+
+                # If the last row is not a clump (i.e. there is just one value) but it
+                # is a header (i.e. has nan values) then also include it in the index
+                # values to be flagged because it might be a one-liner note. And because
+                # it is at the bottom there is no chance it can actually be a useful
+                # header because there are no value rows below it.
+                last_row = header_count.tail(1)
+                if (last_row["header"].item()) & (last_row["val_count"].item() == 1):
+                    idx_list = idx_list + list(last_row.index)
+                # If there are any clumped/end headers:
+                if idx_list:
+                    for idx in idx_list:
+                        # Check to see if last clump bit is not a header... sometimes
+                        # you might find a clump of notes FOLLOWED by a useful header.
+                        # This next bit will check the last row in each of the
+                        # identified clumps and "unclump" it if it looks like a valid
+                        # header. We only need to check clumps that fall in the middle
+                        # because, as previously mentioned, the last row cannot contain
+                        # any meaningful header information because there are no values
+                        # below it.
+                        idx_range = group.groups[idx + 1]
+                        is_middle_clump = group.groups[idx + 1].max() < max_df_val
+                        is_good_header = (
+                            util_year_group.loc[
+                                util_year_group.index.isin(group.groups[idx + 1])
+                            ]
+                            .tail(1)["plant_name_ferc1"]
+                            .str.contains("|".join(header_strings))
+                            .all()
+                        )
+                        # If the clump is in the middle and the last row looks like a
+                        # header, then drop it from the idx range
+                        if is_middle_clump & is_good_header:
+                            idx_range = [x for x in idx_range if x != idx_range.max()]
+                        # Label the clump as a note
+                        util_year_group.loc[
+                            util_year_group.index.isin(idx_range), "row_type"
+                        ] = "note"
+
+                return util_year_group
+
+            return util_groups.apply(lambda x: _label_notes_rows_group(x))
+
+        # Add some new helper columns
+        df.insert(3, "possible_header", False)
+        df.insert(3, "row_type", np.nan)
+
+        # Label the row types
+        df_labeled = (
+            df.pipe(label_header_rows)
+            .pipe(label_total_rows)
+            .pipe(label_notes_rows)
+            .drop(columns=["possible_header"])
+        )
+
+        return df_labeled
+
+    def map_header_fuel_types(
+        self, df: pd.DataFrame, show_unmapped_headers=False
+    ) -> pd.DataFrame:
+        """Apply the plant type indicated in the header row to the relevant rows.
+
+        This function groups the data by utility, year, and header and forward fills the
+        cleaned plant type based on that. As long as each utility year group that uses a
+        header for one plant type also uses headers for other plant types this will
+        work. I.e., if a utility's plant_name_ferc1 column looks like this: [STEAM,
+        coal_plant1, coal_plant2, wind_turbine1], this algorythem will think that wind
+        turbine is steam. Ideally (also usually) if they label one, they will label all.
+        The ideal version is:
+
+        [STEAM, coal_plant1, coal_plant2, WIND, wind_turbine]. Right now, this function
+        puts the new header plant type into a column called plant_type_2. This is so we
+        can compare against the current plant_type column for accuracy and validation
+        purposes.
+        """
+        logger.info(f"{self.table_id.value}: Mapping header fuels to relevant rows")
+
+        def expand_dict(dic):
+            """Change format of header_labels.
+
+            Right now, the header_labels dictionaries defined above follow this format:
+
+            {clean_name_A: [ bad_name_A1, bad_name_A2, ...], clean_name_B: [bad_name_B1,
+            bad_nameB2]}. This is convenient visually, but it makes more sense to format
+            it like this: {bad_name_A1: clean_name_A, bad_name_A2: clean_name_A,
+            bad_name_B1: clean_name_B, bad_name_B2: clean_name_B}. We could reformat the
+            dictionaries, but for now I created this function to do it where necessariy
+            in certain functions.
+            """
+            d = {}
+            for k, lst in dic.items():
+                for i in range(len(lst)):
+                    d[lst[i]] = k
+            return d
+
+        header_labels = {  # Add these to the PLANT_CATEGORIES param ideally
+            "hydroelectric": ["hydro", "hyrdo"],
+            "internal combustion": ["internal", "interal", "international combustion"],
+            "combustion turbine": ["combustion turbine"],
+            "combined cycle": ["combined cycle"],
+            "gas turbine": ["gas"],
+            "petroleum liquids": ["oil", "diesel", "diesal"],
+            "solar": ["solar", "photovoltaic"],
+            "wind": ["wind"],
+            "geothermal": ["geothermal"],
+            "waste": ["waste", "landfill"],
+            "steam": ["steam"],
+            "nuclear": ["nuclear"],
+            "fuel_cell": ["fuel cell"],
+            "other": ["other"],
+            "renewables": ["renewables"],
+        }
+        # Clean header names
+        df["header_clean"] = np.nan
+        d = expand_dict(header_labels)
+        # Map cleaned header names onto df in a new column
+        df.loc[df["row_type"] == "header", "header_clean"] = (
+            df["plant_name_ferc1"]
+            .str.extract(rf"({'|'.join(d.keys())})", expand=False)
+            .map(d)
+        )
+        # Make groups based on utility, year, and header
+        header_groups = df.groupby(
+            [
+                "utility_id_ferc1",
+                "report_year",
+                (df["row_type"] == "header").cumsum(),
+            ]
+        )
+        # Forward fill based on headers
+        df["plant_type_2"] = np.nan
+        df.loc[
+            df["row_type"] != "note", "plant_type_2"
+        ] = header_groups.header_clean.ffill()
+
+        # Document unmapped headers
+        unmapped_headers = df[
+            (df["row_type"] == "header") & (df["header_clean"].isna())
+        ].plant_name_ferc1.value_counts()
+        logger.info(f"Found unmapped headers: \n {unmapped_headers}")
+
+        df = df.drop(columns=["header_clean"])
+
+        return df
+
+    def map_plant_name_fuel_types(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Get plant type from plant name.
+
+        If there is a plant type embedded in the plant name (that's not a header) then
+        move that to the plant_type_2 column. Right now, this only works for hydro
+        plants because the rest are complicated and have a slew of exceptions.
+        """
+        logger.info(f"{self.table_id.value}: Getting fuel type (hydro) from plant name")
+        df.loc[
+            (
+                df["plant_name_ferc1"].str.contains("hydro")
+                & (df["fuel_type"] == "other")
+            ),
+            "fuel_type",
+        ] = "hydro"
+
+        return df
+
+    def associate_notes_with_values(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Use footnotes to map string and ferc license to value rows.
+
+        There are many utilities that report a bunch of note rows at the bottom of their
+        yearly entry. These note rows often pertain directly to specific plant rows
+        above. Sometimes, the notes and their respective plant rows are connected by a
+        footnote such as (a) or (1) etc. This function finds those footnotes, associates
+        the "note" version with the regular value row, maps the note content from the
+        note row into a new note column that's associated with the value row, also maps
+        any ferc license extracted from this note column up to the value row it
+        references.
+        """
+        logger.info(
+            f"{self.table_id.value}: Mapping notes and ferc license from footnotes"
+        )
+
+        def associate_notes_with_values_group(group):
+            """Map footnotes within a given utility year group.
+
+            Because different utilities may use the same footnotes or the same utility
+            could reuse footnotes each year, we must do the footnote association within
+            utility-year groups.
+            """
+            regular_row = group["row_type"].isna()
+            has_note = group["row_type"] == "note"
+            # has_footnote = group.plant_name_ferc1.str.contains(footnote_pattern)
+
+            # Shorten execution time by only looking at groups with discernable footnotes
+            if group.footnote.any():
+
+                # Make a df that combines notes and ferc license with the same footnote
+                footnote_df = (
+                    group[has_note]
+                    .groupby("footnote")
+                    .agg({"plant_name_ferc1": ", ".join, "license_id_ferc1": "first"})
+                    .rename(columns={"plant_name_ferc1": "notes"})
+                )
+
+                # Map these new license and note values onto the original df
+                updated_ferc_license_col = group.footnote.map(
+                    footnote_df["license_id_ferc1"]
+                )
+                notes_col = group.footnote.map(footnote_df["notes"])
+                # We update the ferc lic col because some were already there from the
+                # plant name extraction. However, we want to override with the notes
+                # ferc licenses because they are more likely to be accurate.
+                group.license_id_ferc1.update(updated_ferc_license_col)
+                group.loc[regular_row, "notes"] = notes_col
+
+            return group
+
+        footnote_pattern = r"(\(\d?[a-z]?[A-Z]?\))"
+        df["notes"] = pd.NA
+        df["footnote"] = pd.NA
+        # Create new footnote column
+        df.loc[:, "footnote"] = df.plant_name_ferc1.str.extract(
+            footnote_pattern, expand=False
+        )
+        # Group by year and utility and run footnote association
+        groups = df.groupby(["report_year", "utility_id_ferc1"])
+        sg_notes = groups.apply(lambda x: associate_notes_with_values_group(x))
+        # Remove footnote column now that rows are associated
+        sg_notes = sg_notes.drop(columns=["footnote"])
+
+        return sg_notes
 
 
 def transform(
@@ -955,7 +1402,7 @@ def transform(
 
     ferc1_tfr_classes = {
         "fuel_ferc1": FuelFerc1TableTransformer,
-        # "plants_small_ferc1": plants_small,
+        "plants_small_ferc1": PlantsSmallFerc1TableTransformer,
         "plants_hydro_ferc1": PlantsHydroFerc1TableTransformer,
         # "plants_pumped_storage_ferc1": plants_pumped_storage,
         # "plant_in_service_ferc1": plant_in_service,
