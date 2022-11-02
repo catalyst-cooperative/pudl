@@ -15,6 +15,7 @@ from collections import namedtuple
 
 import numpy as np
 import pandas as pd
+import sqlalchemy as sa
 
 import pudl
 from pudl.analysis.classify_plants_ferc1 import (
@@ -122,6 +123,117 @@ class Ferc1TableTransformParams(TableTransformParams):
 # FERC 1 specific Column, MultiColumn, and Table Transform Functions
 # (empty for now, but we anticipate there will be some)
 ################################################################################
+
+
+################################################################################
+# FERC 1 transform helper functions. Probably to be integrated into a class
+# below as methods or moved to a different module once it's clear where they belong.
+################################################################################
+def get_ferc1_dbf_rows_to_map(ferc1_engine: sa.engine.Engine) -> pd.DataFrame:
+    """Identify DBF rows that need to be mapped to XBRL columns.
+
+    Select all records in the ``f1_row_lit_tbl`` where the row literal associated with a
+    given combination of table and row number is different from the preceeding year.
+    This is the smallest set of records which we can use to reproduce the whole table by
+    expanding the time series to include all years, and forward filling the row
+    literals.
+    """
+    idx_cols = ["sched_table_name", "row_status", "row_number", "report_year"]
+    data_cols = ["row_literal"]
+    row_lit = pd.read_sql(
+        "f1_row_lit_tbl", con=ferc1_engine, columns=idx_cols + data_cols
+    ).sort_values(idx_cols)
+    row_lit["shifted"] = row_lit.groupby(
+        ["sched_table_name", "row_status", "row_number"]
+    ).row_literal.shift()
+    row_lit["changed"] = row_lit.row_literal != row_lit.shifted
+    return row_lit.loc[row_lit.changed, idx_cols + data_cols]
+
+
+def update_ferc1_dbf_xbrl_glue(ferc1_engine: sa.engine.Engine) -> pd.DataFrame:
+    """Regenerate the FERC 1 DBF+XBRL glue while retaining existing mappings.
+
+    Reads all rows that need to be mapped out of the ``f1_row_lit_tbl`` and
+    appends columns containing any previously mapped values, returning the
+    resulting dataframe.
+
+    This
+    """
+    idx_cols = ["sched_table_name", "row_status", "row_number", "report_year"]
+    all_rows = get_ferc1_dbf_rows_to_map(ferc1_engine).set_index(idx_cols)
+    with importlib.resources.open_text(
+        "pudl.package_data.ferc1", "dbf_to_xbrl.csv"
+    ) as file:
+        mapped_rows = (
+            pd.read_csv(file).set_index(idx_cols).drop(["row_literal"], axis="columns")
+        )
+    return (
+        pd.concat([all_rows, mapped_rows], axis="columns")
+        .reset_index()
+        .sort_values(["sched_table_name", "row_status", "report_year", "row_number"])
+    )
+
+
+def get_ferc1_dbf_xbrl_glue(dbf_table_name: str) -> pd.DataFrame:
+    """Read the DBF+XBRL glue and expand it to cover all DBF years."""
+    with importlib.resources.open_text(
+        "pudl.package_data.ferc1", "dbf_to_xbrl.csv"
+    ) as file:
+        row_map = pd.read_csv(
+            file,
+            usecols=[
+                "sched_table_name",
+                "row_status",
+                "report_year",
+                "row_number",
+                "row_type",
+                "xbrl_column_stem",
+            ],
+        )
+    # Select only the rows that pertain to dbf_table_name
+    row_map = row_map.loc[
+        row_map.sched_table_name == dbf_table_name,
+        ["row_status", "report_year", "row_number", "row_type", "xbrl_column_stem"],
+    ]
+    # Indicate which rows have unmappable headers in them, to differentiate them from
+    # null values in the exhaustive index we create below:
+    row_map.loc[
+        (row_map.row_type == "header") & (row_map.xbrl_column_stem.isna()),
+        "xbrl_column_stem",
+    ] == "HEADER_ROW"
+    row_map = row_map.drop(["row_type"], axis="columns")
+
+    # Create an index containing all possible index values:
+    idx = pd.MultiIndex.from_product(
+        [
+            row_map.row_status.unique(),
+            Ferc1Settings().dbf_years,
+            row_map.row_number.unique(),
+        ],
+        names=["row_status", "report_year", "row_number"],
+    )
+
+    # Concatenate the row map with the empty index, so we have blank spaces to fill:
+    row_map = pd.concat(
+        [
+            pd.DataFrame(index=idx),
+            row_map.set_index(["row_status", "report_year", "row_number"]),
+        ],
+        axis="columns",
+    ).reset_index()
+
+    # Forward fill missing XBRL column names, until a new definition for the row
+    # number is encountered:
+    row_map["xbrl_column_stem"] = row_map.groupby(
+        "row_number"
+    ).xbrl_column_stem.transform("ffill")
+    # Drop any rows that do not actually map between DBF rows and XBRL columns:
+    row_map = (
+        row_map.replace({"HEADER_ROW": np.nan})
+        .dropna(subset=["xbrl_column_stem"])
+        .drop(["row_status"], axis="columns")
+    )
+    return row_map
 
 
 ################################################################################
@@ -913,8 +1025,10 @@ class PlantInServiceFerc1TableTransformer(Ferc1AbstractTableTransformer):
     def align_row_numbers_dbf(self, df: pd.DataFrame) -> pd.DataFrame:
         """Align historical FERC1 DBF row numbers with XBRL account IDs."""
         return pd.merge(
-            df, self.get_row_map(), on=["report_year", "row_number"]
-        ).rename(columns={"xbrl_column": "ferc_account_id"})
+            df,
+            get_ferc1_dbf_xbrl_glue(self.source_table_id(Ferc1Source.DBF)),
+            on=["report_year", "row_number"],
+        ).rename(columns={"xbrl_column_stem": "ferc_account_id"})
 
     @cache_df(key="xbrl")
     def process_xbrl(
