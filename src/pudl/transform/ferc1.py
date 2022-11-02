@@ -9,7 +9,6 @@ transformations.
 """
 import enum
 import importlib.resources
-import logging
 import re
 from collections import namedtuple
 
@@ -1263,10 +1262,6 @@ if __name__ == "__main__":
     This should probably be removed when we are done with the FERC 1 Transforms.
     """
 
-    logging.basicConfig(
-        level=logging.DEBUG,
-        format=r"%(asctime)s [%(levelname)8s] %(name)s:%(lineno)s %(message)s",
-    )
     ferc1_settings = Ferc1Settings(
         years=[2020, 2021],
         tables=[
