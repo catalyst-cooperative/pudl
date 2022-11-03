@@ -925,10 +925,10 @@ class PlantsSmallFerc1TableTransformer(Ferc1AbstractTableTransformer):
         not_license = out_df.plant_name_ferc1.str.contains(
             r"page|pg|\$|wind|solar|nuclear|nonutility|units|surrendered", regex=True
         )
-        exceptions = out_df.plant_name_ferc1.str.contains(
+        exceptions_to_is_year = out_df.plant_name_ferc1.str.contains(
             r"tomahawk|otter rapids|wausau|alexander|hooksett|north umpqua", regex=True
         )
-        year_vs_num = (out_df["license_id_ferc1"] > 1900) & (
+        is_year = (out_df["license_id_ferc1"] > 1900) & (
             out_df["license_id_ferc1"] < 2050
         )
         not_hydro = ~out_df["plant_type"].isin(["hydro", np.nan, None]) | ~out_df[
@@ -938,7 +938,7 @@ class PlantsSmallFerc1TableTransformer(Ferc1AbstractTableTransformer):
         out_df.loc[
             (not_hydro & ~obvious_license)
             | not_license
-            | (year_vs_num & ~obvious_license & ~exceptions),
+            | (is_year & ~obvious_license & ~exceptions_to_is_year),
             "license_id_ferc1",
         ] = np.nan
         # Fill fuel type with hydro
