@@ -990,7 +990,7 @@ class PlantsSmallFerc1TableTransformer(Ferc1AbstractTableTransformer):
             "hydro: license no.",
             "hydro plants: licensed proj no.",
         ]
-        not_header_if_cols_na = [
+        possible_header_if_cols_na = [
             "construction_year",
             "net_generation_mwh",
             "total_cost_of_plant",
@@ -1014,7 +1014,7 @@ class PlantsSmallFerc1TableTransformer(Ferc1AbstractTableTransformer):
 
             # Label possible header rows (based on the nan cols specified above)
             df.loc[
-                df.filter(not_header_if_cols_na).isna().all(1), "possible_header"
+                df.filter(possible_header_if_cols_na).isna().all(1), "possible_header"
             ] = True
 
             # Label good header rows (based on whether they contain key strings)
