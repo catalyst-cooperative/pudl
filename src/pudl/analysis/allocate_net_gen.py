@@ -586,7 +586,7 @@ def associate_generator_tables(
         gens: :ref:`generators_eia860` table with cols: :py:const:`IDX_GENS` and all of
             the ``energy_source_code`` columns and expanded to the frequency of
             ``pudl_out``
-        gf: :ref:`generator_fuel_eia923` table with columns: :py:const:`IDX_PM_ESC` and
+        gf: :ref:`generation_fuel_eia923` table with columns: :py:const:`IDX_PM_ESC` and
             ``net_generation_mwh`` and ``fuel_consumed_mmbtu``.
         gen: :ref:`generation_eia923` table with columns: :py:const:`IDX_GENS` and
             ``net_generation_mwh``.
