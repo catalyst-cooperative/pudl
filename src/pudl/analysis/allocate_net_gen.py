@@ -1,65 +1,70 @@
 """Allocate data from :ref:`generation_fuel_eia923` table to generator level.
 
-The algorithm we're using assumes:
+The algorithm we're using assumes the following about the reported data:
 
 * The :ref:`generation_fuel_eia923` table is the authoritative source of information
   about how much generation and fuel consumption is attributable to an entire
-  plant. This table has the most complete coverage, but is not the most granularly
-  reported - it's primary keys are :py:const:`IDX_PM_ESC`.
-* The :ref:`generation_eia923` table is the most granular reporting of net generation -
-  reported at the generator level - with primary keys :py:const:`IDX_GENS`. This table
-  includes only ~55% of the total MWhs reported in the :ref:`generation_fuel_eia923`
+  plant. This table has the most complete data coverage, but it is not the most granular
+  data reported. It's primary keys are :py:const:`IDX_PM_ESC`.
+* The :ref:`generation_eia923` table contains the most granular net generation data. It
+  is reported at the generator level with primary keys :py:const:`IDX_GENS`. This table
+  includes only ~39% of the total MWhs reported in the :ref:`generation_fuel_eia923`
   table.
-* The :ref:`boiler_fuel_eia923` table is the authoritative source of information about
-  how much fuel consumption is attributable to an individual boiler, if it reports
-  in that table. The fuel in this table is reported at the boiler/prime mover/energy
-  source level - with primary keys :py:const:`IDX_B_PM_ESC`.
+* The :ref:`boiler_fuel_eia923` table contains the most granular fuel consumption data.
+  It is reported at the boiler/prime mover/energy source level with primary keys
+  :py:const:`IDX_B_PM_ESC`. This table includes only ~38% of the total MMBTUs reported
+  in the :ref:`generation_fuel_eia923` table.
 * The :ref:`generators_eia860` table provides an exhaustive list of all generators
   whose generation is being reported in the :ref:`generation_fuel_eia923` table - with
   primary keys :py:const:`IDX_GENS`.
 
-This module estimates the net electricity generation and fuel consumption attributable
-to individual generators based on the more complete but less granular reporting of the
-:ref:`generation_fuel_eia923` table. The main coordinating functions here are
+This module allocates the total net electricity generation and fuel consumption
+reported in the :ref:`generation_fuel_eia923` table to individual generators, based
+on more granular data reported in the :ref:`generation_eia923` and
+:ref:`boiler_fuel_eia923` tables, as well as capacity (MW) found in the
+:ref:`generators_eia860` table. It uses other generator attributes from the
+:ref:`generators_eia860` table to associate the data found in the
+:ref:`generation_fuel_eia923` with generators. It also uses as the associations between
+boilers and generators found in the :ref:`boiler_generator_assn_eia860` table to
+aggregate data :ref:`boiler_fuel_eia923` tables. The main coordinating functions hereare
 :func:`allocate_gen_fuel_by_generator_energy_source` and
 :func:`aggregate_gen_fuel_by_generator`.
 
 Some definitions:
 
-* The **data columns** refers to the net generation and fuel consumption - the specific
+* **Data columns** refers to the net generation and fuel consumption - the specific
   columns are defined in :py:const:`DATA_COLUMNS`.
-* The **granular tables** refer to :ref:`generation_eia923` and
+* **Granular tables** refers to :ref:`generation_eia923` and
   :ref:`boiler_fuel_eia923`, which report granular data but do not have complete
   coverage.
 
 There are six main stages of the allocation process in this module:
 
 #. **Read inputs**: Read denormalized net generation and fuel consumption data from the
-   PUDL DB (see :func:`extract_input_tables`). Standardize reporting frequency (see
-   :func:`standardize_input_frequency`) which employs
-   :func:`distribute_annually_reported_data_to_months_if_annual` and
-   :func:`pudl.helpers.expand_timeseries`.
-#. **Associate inputs**: Merge the data columns from the all of the input tables as
-   long as they share generator id, prime mover code and/or energy source codes. The
-   output of this step is a table with the primary keys py:const:`IDX_GENS_PM_ESC` with
-   the data columns from the input tables broadcasted (see
-   :func:`associate_generator_tables`).
-#. **Flag associations**: Prepare for the allocation by adding boolean flags for whether
-   a particular :py:const:`IDX_GENS_PM_ESC` shows up in each of the input data tables.
-   This enables us to determine what kind of coverage the granular tables have and from
-   that how the record should be allocated (see :func:`prep_alloction_fraction`).
-#. **Allocate**: Allocate the net generation and fuel from the less granular
-   :ref:`generation_fuel_eia923` table to the :py:const:`IDX_GENS_PM_ESC` level. More
-   details on the allocation process below (see :func:`allocate_net_gen_by_gen_esc` and
-   :func:`allocate_fuel_by_gen_esc`).
+   PUDL DB and standardize data reporting frequency. (See :func:`extract_input_tables`
+   and :func:`standardize_input_frequency`).
+#. **Associate inputs**: Merge data columns from the input tables described above on the
+   basis of their shared primary key columns, producing an output with primary key
+   :py:const:`IDX_GENS_PM_ESC`. This broadcasts many data values across multiple rows
+   for use in the allocation process below (see :func:`associate_generator_tables`).
+#. **Flag associated inputs**: For each record in the associated inputs, add boolean
+   flags that separately indicate whether the generation and fuel consumption in that
+   record are directly reported in the granular tables. This lets us choose an
+   appropriate data allocation method based on how complete the granular data coverage
+   is for a given value of :py:const:`IDX_PM_ESC`, which is the original primary key of
+   the :ref:`generation_fuel_eia923` table. (See :func:`prep_allocation_fraction`).
+#. **Allocate**: Allocate the net generation and fuel consumption reported in the less
+   granular :ref:`generation_fuel_eia923` table to the :py:const:`IDX_GENS_PM_ESC`
+   level. More details on the allocation process are below (see
+   :func:`allocate_net_gen_by_gen_esc` and :func:`allocate_fuel_by_gen_esc`).
 #. **Sanity check allocation**: Verify that the total allocated net generation and fuel
    consumption within each plant is equal to the total of the originally reported values
    within some tolerance (see :func:`test_original_gf_vs_the_allocated_by_gens_gf`).
    Warn if assumptions about the data and the outputs aren't met (see
    :func:`warn_if_missing_pms`, :func:`_test_frac`, :func:`test_gen_fuel_allocation` and
    :func:`_test_gen_pm_fuel_output`)
-#. **Aggregate output**: Aggregate the main output (which has primary keys of
-   :py:const:`IDX_GENS_PM_ESC`) to the generator-level with primary keys of
+#. **Aggregate outputs**: Aggregate the allocated net generation and fuel consumption to
+   the generator level, going from having primary keys of :py:const:`IDX_GENS_PM_ESC` to
    :py:const:`IDX_GENS` (see :func:`aggregate_gen_fuel_by_generator`).
 
 **High-level description about the allocaiton step**:
@@ -68,31 +73,41 @@ We allocate the data columns reported in the :ref:`generation_fuel_eia923` table
 basis of plant, prime mover, and energy source among the generators in each plant that
 have matching energy sources.
 
+We group the associated data columns by :py:const:`IDX_PM_ESC` and categorize
+each resulting group of generators based on whether  **ALL**, **SOME**, or **NONE** of
+them reported data in the granular tables. This is done for both the net generation and
+fuel consumption since the same generator may have reported differently in its
+respective granular table. This is done for both the net generation and fuel consumption
+since the same generator may have reported differently in its respective granular table.
+
 In more detail, within each reporting period, we split the plants into three groups:
 
 * The **ALL** Coverage Records: where ALL generators report in the granular tables.
-* The **NO** Coverage Records: where NONE of the generators report in the granular
+* The **NONE** Coverage Records: where NONE of the generators report in the granular
   tables.
 * The **SOME** Coverage Records: where only SOME of the generators report in the granular
   tables.
 
-For the **ALL** generators, the data columns reported in the
+In the **ALL** generators case, the data columns reported in the
 :ref:`generation_fuel_eia923` table are allocated in proportion to data reported in the
 granular data tables. We do this instead of directly using the data columns from the
-granular tables because we are assuming the :ref:`generation_fuel_eia923` table is the
-truth when there are some discrepencies between the granular tables and the
-:ref:`generation_fuel_eia923` table.
+granular tables because there are discrepancies between the generation_fuel_eia923 table
+and the granular tables and we are assuming the totals reported in the
+generation_fuel_eia923 table are authoritative.
 
-For the **NONE** generators, the data columns reported in the
+In the **NONE** generators case, the data columns reported in the
 :ref:`generation_fuel_eia923` table are allocated in proportion to the each generator's
 capacity.
 
-For the **SOME** generators, we use a combination of the two allocation methods
+In the **SOME** generators case, we use a combination of the two allocation methods
 described above. First, the data columns reported in the :ref:`generation_fuel_eia923`
-table is allocated between the two categories of generators (those that report granular
-data, and those that don't) in direct proportion to the fraction of the records the data
-which is reported in the granular tables relative to the data that is reported in the
-:ref:`generation_fuel_eia923` table.
+table are allocated between the two categories of generators: those that report granular
+data, and those that don't. The fraction allocated to each of those categories is based
+on how much of the total is reported in the granular tables. If T is the total reported,
+and X is the quantity reported in the granular tables, then the allocation is X/T to the
+generators reporting granular data, and (T-X)/T to the generators not reporting granular
+data. Within each of those categories the allocation then follows the ALL or NONE
+allocation methods described above.
 
 **Known Drawbacks of this methodology**:
 
@@ -221,11 +236,9 @@ def allocate_gen_fuel_by_generator_energy_source(
     # add any startup energy source codes to the list of energy source codes
     # fix MSW codes
     gens_at_freq = adjust_energy_source_codes(gens_at_freq, gf, bf)
-    # allocate the boiler fuel data to generators
-    bf_by_gens = allocate_bf_data_to_gens(bf, gens_at_freq, bga)
     # do the association!
     gen_assoc = associate_generator_tables(
-        gens=gens_at_freq, gf=gf, gen=gen, bf_by_gens=bf_by_gens
+        gens=gens_at_freq, gf=gf, gen=gen, bf=bf, bga=bga
     )
 
     # Generate a fraction to use to allocate net generation and fuel consumption by.
@@ -351,6 +364,13 @@ def extract_input_tables(pudl_out: "pudl.output.pudltabl.PudlTabl"):
         pudl_out.gen_original_eia923().loc[:, IDX_GENS + ["net_generation_mwh"]]
         # removes 4 records with NaN generator_id as of pudl v0.5
         .dropna(subset=IDX_GENS)
+    )
+    granular_fuel_ratio = bf.fuel_consumed_mmbtu.sum() / gf.fuel_consumed_mmbtu.sum()
+    granular_net_gen_ratio = gen.net_generation_mwh.sum() / gf.net_generation_mwh.sum()
+    logger.info(
+        f"The granular data tables contain {granular_fuel_ratio:.1%} of the fuel and "
+        f"{granular_net_gen_ratio:.1%} of net generation in the higher-coverage "
+        "generation_fuel_eia923 table."
     )
     return gf, bf, bga, gens, gen
 
@@ -523,27 +543,31 @@ def stack_generators(
 
 
 def associate_generator_tables(
-    gens: pd.DataFrame, gf: pd.DataFrame, gen: pd.DataFrame, bf_by_gens: pd.DataFrame
+    gens: pd.DataFrame,
+    gf: pd.DataFrame,
+    gen: pd.DataFrame,
+    bf: pd.DataFrame,
+    bga: pd.DataFrame,
 ) -> pd.DataFrame:
     """Associate the three tables needed to assign net gen and fuel to generators.
 
     The :ref:`generation_fuel_eia923` table's data is reported at the
     :py:const:`IDX_PM_ESC` granularity. Each generator in the :ref:`generators_eia860`
     has one ``prime_mover_code``, but potentially several ``energy_source_code``s that
-    are reported in several columns. We need to reshape the generators energy source
-    code columns to rows so it can be merged with the :ref:`generation_fuel_eia923`
-    table. We do this using :func:``stack_generators`` employing :func:`pd.stack` which
-    creates one column of ``energy_sorce_code`` with all of the codes that are present
-    in the many code columns in the :ref:`generators_eia860` table.
+    are reported in several columns. We need to reshape the generators table such that
+    each generator has a separate record corresponding to each of its reported
+    energy_source_codes, so it can be merged with the :ref:`generation_fuel_eia923`
+    table. We do this using :func:``stack_generators`` employing
+    :func:`pd.DataFrame.stack`.
 
-    The stacked generators table has primary keys of:
-    ``["plant_id_eia", "generator_id", "report_date", "energy_sorce_code"]``. Other
-    columns include the ``prime_mover_code`` column in it for merging in the other data
-    tables, the ``capacity_mw`` which we use to allocate on if there is no data in the
-    :ref:`generation_eia923` table and the ``operational_status`` which we use to remove
-    inactive plants from the association and allocation process.
+    The stacked generators table has a primary key of
+    ``["plant_id_eia", "generator_id", "report_date", "energy_source_code"]``. The table
+    also includes the ``prime_mover_code`` column to enable merges with other tables,
+    the ``capacity_mw`` column which we use to determine the allocation when there is no
+    data in the granular data tables, and the ``operational_status`` column which we use
+    to remove inactive plants from the association and allocation process.
 
-    The remaining data tables are all less granular then this stacked generators table
+    The remaining data tables are all less granular than this stacked generators table
     and have varying primary keys. We add suffixes to the data columns in these data
     tables to identify the source table before broadcast merging these data columns into
     the stacked generators. This broadcasted data will be used later in the allocation
@@ -559,14 +583,16 @@ def associate_generator_tables(
     associated.
 
     Args:
-        gens: ``generators_eia860`` table with cols: :py:const:`IDX_GENS` and all of
+        gens: :ref:`generators_eia860` table with cols: :py:const:`IDX_GENS` and all of
             the ``energy_source_code`` columns and expanded to the frequency of
             ``pudl_out``
-        gf: generator_fuel_eia923 table with columns: :py:const:`IDX_PM_ESC` and
+        gf: :ref:`generator_fuel_eia923` table with columns: :py:const:`IDX_PM_ESC` and
             ``net_generation_mwh`` and ``fuel_consumed_mmbtu``.
-        gen: ``generation_eia923`` table with columns: :py:const:`IDX_GENS` and
+        gen: :ref:`generation_eia923` table with columns: :py:const:`IDX_GENS` and
             ``net_generation_mwh``.
-        bf_by_gens: ``boiler_fuel_eia923`` table aggregated at the generator-level
+        bf: :ref:`boiler_fuel_eia923` table with columns: :py:const:`IDX_B_PM_ESC` and
+            fuel consumption columns.
+        bga: :ref:`boiler_generator_assn_eia860` table.
 
     Returns:
         table of generators with stacked energy sources and broadcasted net generation
@@ -578,6 +604,8 @@ def associate_generator_tables(
     stack_gens = stack_generators(
         gens, cat_col="energy_source_code_num", stacked_col="energy_source_code"
     )
+    # allocate the boiler fuel data to generators
+    bf_by_gens = allocate_bf_data_to_gens(bf, gens, bga)
     bf_by_gens = (
         bf_by_gens.set_index(IDX_GENS_PM_ESC).add_suffix("_bf_tbl").reset_index()
     )
@@ -619,6 +647,7 @@ def associate_generator_tables(
 
     # replace zeros with small number to avoid div by zero errors when calculating allocation fraction
     data_columns = [
+        # "net_generation_mwh_g_tbl",
         "fuel_consumed_mmbtu_gf_tbl",
         "fuel_consumed_for_electricity_mmbtu_gf_tbl",
         "net_generation_mwh_gf_tbl",
@@ -972,7 +1001,9 @@ def prep_alloction_fraction(gen_assoc: pd.DataFrame) -> pd.DataFrame:
             suffixes=("", "_all"),
         )
         .merge(  # flag if some generators exist in the generators_eia860 tbl
-            gens_gb_pm_esc[["in_g_tbl"]].any().reset_index(),
+            gens_gb_pm_esc[["in_g_tbl", "more_mwh_in_g_than_gf_tbl"]]
+            .any()
+            .reset_index(),
             on=IDX_PM_ESC,
             suffixes=("", "_any"),
         )
@@ -1079,12 +1110,11 @@ def allocate_net_gen_by_gen_esc(gen_pm_fuel: pd.DataFrame) -> pd.DataFrame:
         gen_pm_fuel: output of :func:``prep_alloction_fraction()``.
     """
     # break out the table into these four different generator types and assign a category
-    all_gen = gen_pm_fuel.loc[gen_pm_fuel.in_g_tbl_all].assign(
-        net_gen_alloc_cat="all_gen"
+    all_mask = gen_pm_fuel.in_g_tbl_all | gen_pm_fuel.more_mwh_in_g_than_gf_tbl_any
+    all_gen = gen_pm_fuel.loc[all_mask].assign(net_gen_alloc_cat="all_gen")
+    some_gen = gen_pm_fuel.loc[gen_pm_fuel.in_g_tbl_any & ~all_mask].assign(
+        net_gen_alloc_cat="some_gen"
     )
-    some_gen = gen_pm_fuel.loc[
-        gen_pm_fuel.in_g_tbl_any & ~gen_pm_fuel.in_g_tbl_all
-    ].assign(net_gen_alloc_cat="some_gen")
     gf_only = gen_pm_fuel.loc[~gen_pm_fuel.in_g_tbl_any].assign(
         net_gen_alloc_cat="gf_only"
     )
