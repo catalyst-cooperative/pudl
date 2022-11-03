@@ -1020,9 +1020,13 @@ class PlantsSmallFerc1TableTransformer(Ferc1AbstractTableTransformer):
             # Label good header rows (based on whether they contain key strings)
             possible_header = df["possible_header"]
             good_header = df["plant_name_ferc1"].str.contains("|".join(header_strings))
-            not_bad = ~df["plant_name_ferc1"].str.contains("|".join(nonheader_strings))
+            not_bad_header = ~df["plant_name_ferc1"].str.contains(
+                "|".join(nonheader_strings)
+            )
 
-            df.loc[possible_header & good_header & not_bad, "row_type"] = "header"
+            df.loc[
+                possible_header & good_header & not_bad_header, "row_type"
+            ] = "header"
             df.loc[df["plant_name_ferc1"].isin(exceptions), "row_type"] = "header"
 
             return df
