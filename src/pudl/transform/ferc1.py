@@ -928,9 +928,7 @@ class PlantsSmallFerc1TableTransformer(Ferc1AbstractTableTransformer):
         exceptions_to_is_year = out_df.plant_name_ferc1.str.contains(
             r"tomahawk|otter rapids|wausau|alexander|hooksett|north umpqua", regex=True
         )
-        is_year = (out_df["license_id_ferc1"] > 1900) & (
-            out_df["license_id_ferc1"] < 2050
-        )
+        is_year = out_df["license_id_ferc1"].between(1900, 2050)
         not_hydro = ~out_df["plant_type"].isin(["hydro", np.nan, None]) | ~out_df[
             "fuel_type"
         ].isin(["hydro", "other"])
