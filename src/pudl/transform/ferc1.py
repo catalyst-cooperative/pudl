@@ -1037,15 +1037,10 @@ class PlantsSmallFerc1TableTransformer(Ferc1AbstractTableTransformer):
         def label_total_rows(df: pd.DataFrame) -> pd.DataFrame:
             """Label total rows."""
             logger.info(f"{self.table_id.value}: Labeling total rows")
-
             df.loc[df["plant_name_ferc1"].str.contains("total"), "row_type"] = "total"
-
-            # Now deal with some outliers:
-
-            # There are a couple rows that contain the phrase "amounts are for" in the
-            # plant name that contain total pertaining to total records above. This
-            # section of code moves the total row values that are reported as notes to
-            # correct row above and nulls the values in the notes row.
+            # There are a couple or pre-2021 rows that contain the phrase like
+            # "amounts are for" that pertaining to total records listed one row above.
+            # This section of code moves the content of those rows one up.
             num_cols = [
                 x
                 for x in df.select_dtypes(include=["float", "Int64"]).columns.tolist()
@@ -1054,8 +1049,8 @@ class PlantsSmallFerc1TableTransformer(Ferc1AbstractTableTransformer):
             bad_row = df[
                 (df["plant_name_ferc1"].str.contains("amounts are for"))
                 & (df["capacity_mw"] > 0)
+                & (df["report_year"] < 2021)
             ]
-
             df.loc[bad_row.index, num_cols] = df.loc[bad_row.index - 1][num_cols].values
             df.loc[bad_row.index - 1, num_cols] = np.nan
 
