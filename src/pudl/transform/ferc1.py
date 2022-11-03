@@ -969,39 +969,6 @@ class PlantInServiceFerc1TableTransformer(Ferc1AbstractTableTransformer):
 
     table_id: Ferc1TableId = Ferc1TableId.PLANT_IN_SERVICE_FERC1
 
-    def get_row_map(self) -> pd.DataFrame:
-        """Construct a row map for a DBF table based on stored metadata."""
-        # Read the minimal, manually compiled row map for this table:
-        row_map = pd.read_csv(
-            importlib.resources.open_text("pudl.package_data.ferc1", "dbf_to_xbrl.csv"),
-            usecols=["sched_table_name", "report_year", "row_number", "xbrl_column"],
-        )
-        row_map = row_map.loc[
-            row_map.sched_table_name == self.source_table_id(Ferc1Source.DBF),
-            ["report_year", "row_number", "xbrl_column"],
-        ]
-
-        # Create an index containing all possible combinations of years and row numbers
-        idx = pd.MultiIndex.from_product(
-            [Ferc1Settings().dbf_years, row_map.row_number.unique()],
-            names=["report_year", "row_number"],
-        )
-
-        # Concatenate the row map with the empty index, so we have blank spaces to fill:
-        row_map = pd.concat(
-            [pd.DataFrame(index=idx), row_map.set_index(["report_year", "row_number"])],
-            axis="columns",
-        ).reset_index()
-
-        # Forward fill missing XBRL column names, until a new definition for the row
-        # number is found:
-        row_map["xbrl_column"] = row_map.groupby("row_number").xbrl_column.transform(
-            "ffill"
-        )
-        # Drop any rows that do not actually map between DBF rows and XBRL columns:
-        row_map = row_map.replace({"HEADER_ROW": np.nan}).dropna(subset=["xbrl_column"])
-        return row_map
-
     @cache_df(key="dbf")
     def process_dbf(self, raw_dbf: pd.DataFrame) -> pd.DataFrame:
         """Process DBF inputs, aligning historical row numbers to XBRL account IDs."""
