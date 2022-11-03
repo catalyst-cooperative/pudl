@@ -895,13 +895,16 @@ class PlantsSmallFerc1TableTransformer(Ferc1AbstractTableTransformer):
         or numbers of wind turbines. This function extracts valid FERC license numbers
         and puts them in a new column.
 
-        Valid FERC license numbers are:
-        - Greater than 2.
-        - Usually accompanied by key phrases such as "license", "no.", "ferc", or
-        "project".
-        - Don't contain phrases like "page", "pg", "$", "wind", "units"
-        - Don't fall within the range of a valid year, defined as: 1900-2050
-        - Are categorized as either hydro or NA.
+        Potential FERC license numbers are valid when:
+        - Two or more integers were found.
+        - The found integers were accompanied bykey phrases such as "license", "no.",
+        "ferc", or "project".
+        - The accompanying name does not contain phrases like "page", "pg", "$", "wind",
+        "units".
+        - The found integers don't fall don't fall within the range of a valid year,
+        defined as: 1900-2050.
+        - The plant record is categorized as a hydro or not categorized via the
+        `plant_type` and `fuel_type` columns.
 
         This function also fills "other" fuel types with hydro for all these plants.
         """
