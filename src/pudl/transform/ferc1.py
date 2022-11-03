@@ -984,7 +984,7 @@ class PlantsSmallFerc1TableTransformer(Ferc1AbstractTableTransformer):
             "rockton",
             "albany steam",
         ]
-        exceptions = [
+        header_exceptions = [
             "hydro plants: licensed proj. no.",
             "hydro license no.",
             "hydro: license no.",
@@ -1023,11 +1023,14 @@ class PlantsSmallFerc1TableTransformer(Ferc1AbstractTableTransformer):
             not_bad_header = ~df["plant_name_ferc1"].str.contains(
                 "|".join(nonheader_strings)
             )
-
             df.loc[
                 possible_header & good_header & not_bad_header, "row_type"
             ] = "header"
-            df.loc[df["plant_name_ferc1"].isin(exceptions), "row_type"] = "header"
+            # There are some headers that don't pass the possible_header test but are
+            # still definitely headers.
+            df.loc[
+                df["plant_name_ferc1"].isin(header_exceptions), "row_type"
+            ] = "header"
 
             return df
 
