@@ -1,5 +1,6 @@
 """Validate post-ETL EIA 860 data and the associated derived outputs."""
 import logging
+from test.conftest import skip_table_if_null_freq_table
 
 import pytest
 
@@ -30,6 +31,7 @@ def test_no_null_cols_eia(pudl_out_eia, live_dbs, cols, df_name):
     """Verify that output DataFrames have no entirely NULL columns."""
     if not live_dbs:
         pytest.skip("Data validation only works with a live PUDL DB.")
+    skip_table_if_null_freq_table(table_name=df_name, freq=pudl_out_eia.freq)
     pv.no_null_cols(
         pudl_out_eia.__getattribute__(df_name)(), cols=cols, df_name=df_name
     )
@@ -41,7 +43,7 @@ def test_no_null_cols_eia(pudl_out_eia, live_dbs, cols, df_name):
         ("bf_eia923", 1_415_232, 1_415_232, 118_550),
         ("bga_eia860", 129_869, 129_869, 129_869),
         ("frc_eia923", 596_855, 244_403, 24_064),
-        ("gen_eia923", 604_594, 604_594, 50_448),
+        ("gen_eia923", None, 5_170_743, 432_542),
         ("gens_eia860", 523_343, 523_343, 523_343),
         ("gf_eia923", 2_687_321, 2_687_321, 230_147),
         ("gf_nonuclear_eia923", 2_671_268, 2_671_268, 228_804),
@@ -55,7 +57,7 @@ def test_no_null_cols_eia(pudl_out_eia, live_dbs, cols, df_name):
 def test_minmax_rows(
     pudl_out_eia: PudlTabl,
     live_dbs: bool,
-    raw_rows: int,
+    raw_rows: int | None,
     annual_rows: int,
     monthly_rows: int,
     df_name: str,
@@ -74,6 +76,7 @@ def test_minmax_rows(
     """
     if not live_dbs:
         pytest.skip("Data validation only works with a live PUDL DB.")
+    skip_table_if_null_freq_table(table_name=df_name, freq=pudl_out_eia.freq)
     if pudl_out_eia.freq == "AS":
         expected_rows = annual_rows
     elif pudl_out_eia.freq == "MS":
@@ -139,6 +142,7 @@ def test_unique_rows_eia(pudl_out_eia, live_dbs, unique_subset, df_name):
     """Test whether dataframe has unique records within a subset of columns."""
     if not live_dbs:
         pytest.skip("Data validation only works with a live PUDL DB.")
+    skip_table_if_null_freq_table(table_name=df_name, freq=pudl_out_eia.freq)
     pv.check_unique_rows(
         pudl_out_eia.__getattribute__(df_name)(), subset=unique_subset, df_name=df_name
     )

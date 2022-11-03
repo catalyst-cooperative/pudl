@@ -22,7 +22,7 @@ def fast_out(pudl_engine, pudl_datastore_fixture):
         freq="MS",
         fill_fuel_cost=True,
         roll_fuel_cost=True,
-        fill_net_gen=False,
+        fill_net_gen=True,
         fill_tech_desc=True,
     )
 
@@ -96,8 +96,7 @@ def test_ferc1_outputs(fast_out, df_name):
         ("gens_eia860", "bf_eia923", 12 / 1, {}),
         ("gens_eia860", "frc_eia923", 12 / 1, {}),
         ("gens_eia860", "gen_eia923", 12 / 1, {}),
-        # gen_fuel_by_generator_eia923 currently only produces annual results.
-        ("gens_eia860", "gen_fuel_by_generator_eia923", 1 / 1, {}),
+        ("gens_eia860", "gen_fuel_by_generator_eia923", 12 / 1, {}),
         ("gens_eia860", "gf_eia923", 12 / 1, {}),
         ("gens_eia860", "gf_nonuclear_eia923", 12 / 1, {}),
         ("gens_eia860", "gf_nuclear_eia923", 12 / 1, {}),
