@@ -1076,7 +1076,7 @@ class PlantsSmallFerc1TableTransformer(Ferc1AbstractTableTransformer):
 
             util_groups = df.groupby(["utility_id_ferc1", "report_year"])
 
-            def _find_header_clumps_sg(group, group_col):
+            def _find_header_clumps(group, group_col):
                 """Count groups of possible headers in a given utiltiy group.
 
                 This function is used within the _label_note_rows() function. It takes a
@@ -1139,7 +1139,7 @@ class PlantsSmallFerc1TableTransformer(Ferc1AbstractTableTransformer):
                 # given column. Ex: a column of True, True, True, False, True, False,
                 # False, will appear as True, False, True, False with value counts for
                 # each.
-                group, header_count = _find_header_clumps_sg(
+                group, header_count = _find_header_clumps(
                     util_year_group, "possible_header"
                 )
 
