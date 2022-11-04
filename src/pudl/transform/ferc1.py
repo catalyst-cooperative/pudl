@@ -1013,9 +1013,7 @@ class PlantsSmallFerc1TableTransformer(Ferc1AbstractTableTransformer):
             logger.info(f"{self.table_id.value}: Labeling header rows")
 
             # Label possible header rows (based on the nan cols specified above)
-            df.loc[
-                df.filter(possible_header_if_cols_na).isna().all(1), "possible_header"
-            ] = True
+            df["possible_header"] = df.filter(possible_header_if_cols_na).isna().all(1)
 
             # Label good header rows (based on whether they contain key strings)
             possible_header = df["possible_header"]
@@ -1197,7 +1195,6 @@ class PlantsSmallFerc1TableTransformer(Ferc1AbstractTableTransformer):
             return util_groups.apply(lambda x: _label_notes_rows_group(x))
 
         # Add some new helper columns
-        df.insert(3, "possible_header", False)
         df.insert(3, "row_type", np.nan)
 
         # Label the row types
