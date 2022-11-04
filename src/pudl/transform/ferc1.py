@@ -271,6 +271,17 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         return self.enforce_schema(df)
 
     @cache_df(key="dbf")
+    def align_row_numbers_dbf(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Align row-numbers across multiple years of DBF data.
+
+        This is a no-op in the abstract base class, but for row-oriented DBF data where
+        the same data shows up in different row numbers in different years, it needs to
+        be implemented. Parameterization TBD with additional experience. See:
+        https://github.com/catalyst-cooperative/pudl/issues/2012
+        """
+        return df
+
+    @cache_df(key="dbf")
     def process_dbf(self, raw_dbf: pd.DataFrame) -> pd.DataFrame:
         """DBF-specific transformations that take place before concatenation."""
         logger.info(f"{self.table_id.value}: Processing DBF data pre-concatenation.")
@@ -280,6 +291,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             # the inherited method, with param specific to the child class.
             .pipe(self.rename_columns, params=self.params.rename_columns_ferc1.dbf)
             .pipe(self.assign_record_id, source_ferc1=Ferc1Source.DBF)
+            .pipe(self.align_row_numbers_dbf)
             .pipe(self.drop_unused_original_columns_dbf)
             .pipe(
                 self.assign_utility_id_ferc1,
@@ -299,6 +311,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             self.merge_instant_and_duration_tables_xbrl(
                 raw_xbrl_instant, raw_xbrl_duration
             )
+            .pipe(self.wide_to_tidy_xbrl)
             # Note: in this rename_columns we have to pass in params, since we're using
             # the inherited method, with param specific to the child class.
             .pipe(self.rename_columns, params=self.params.rename_columns_ferc1.xbrl)
@@ -310,12 +323,23 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         )
 
     @cache_df(key="xbrl")
+    def wide_to_tidy_xbrl(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Reshape the XBRL data from wide to tidy format.
+
+        This is a no-op in the abstract base class, but should be implemented for
+        child classes which need to reshape the XBRL data for concatenation with DBF.
+        Parameterization TBD based on additional experience. See:
+        https://github.com/catalyst-cooperative/pudl/issues/2012
+        """
+        return df
+
+    @cache_df(key="xbrl")
     def merge_instant_and_duration_tables_xbrl(
         self,
         raw_xbrl_instant: pd.DataFrame,
         raw_xbrl_duration: pd.DataFrame,
     ) -> pd.DataFrame:
-        """Merge the XBRL instant and duration tables into a single dataframe.
+        """Merge XBRL instant and duration tables, reshaping instant as needed.
 
         FERC1 XBRL instant period signifies that it is true as of the reported date,
         while a duration fact pertains to the specified time period. The ``date`` column
@@ -338,40 +362,76 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         instant = raw_xbrl_instant.drop(columns=drop_cols, errors="ignore")
         duration = raw_xbrl_duration.drop(columns=drop_cols, errors="ignore")
 
-        if instant.empty:
-            logger.debug(
-                f"{self.table_id.value}: No XBRL instant table found, returning the "
-                "duration table."
-            )
-            return duration
-        if duration.empty:
-            logger.debug(
-                f"{self.table_id.value}: No XBRL duration table found, returning "
-                "instant table."
-            )
-            return instant
-
         instant_axes = [
             col for col in raw_xbrl_instant.columns if col.endswith("_axis")
         ]
         duration_axes = [
             col for col in raw_xbrl_duration.columns if col.endswith("_axis")
         ]
-        if set(instant_axes) != set(duration_axes):
+        if (
+            bool(instant_axes)
+            & bool(duration_axes)
+            & (set(instant_axes) != set(duration_axes))
+        ):
             raise ValueError(
                 f"{self.table_id.value}: Instant and Duration XBRL Axes do not match.\n"
                 f"    instant: {instant_axes}\n"
                 f"    duration: {duration_axes}"
             )
 
-        return pd.merge(
-            instant,
-            duration,
-            how="outer",
-            left_on=["date", "entity_id", "report_year"] + instant_axes,
-            right_on=["end_date", "entity_id", "report_year"] + duration_axes,
-            validate="1:1",
-        )
+        # Everything above here is the same as the parent function, but here we need
+        # to reshape the instant table such that end-of-last-year becomes
+        # beginning-of-this-year in a separate column. Probably going to need to factor
+        # out the shared vs. different code into separate methods once we know what this
+        # should look like.
+        instant = self.process_instant_xbrl(instant)
+        duration = self.process_duration_xbrl(duration)
+
+        if instant.empty:
+            logger.info(f"{self.table_id.value}: No XBRL instant table found.")
+            return duration
+        elif duration.empty:
+            logger.info(f"{self.table_id.value}: No XBRL duration table found.")
+            return instant
+        else:
+            return pd.concat(
+                [
+                    instant.set_index(["report_year", "entity_id"] + instant_axes),
+                    duration.set_index(["report_year", "entity_id"] + duration_axes),
+                ],
+                axis="columns",
+            ).reset_index()
+
+        # We may need to do something different with the merge/concat in rehsaped vs.
+        # row-oriented tables. This is the old version for reference just in case:
+        # return pd.merge(
+        #    instant,
+        #    duration,
+        #    how="outer",
+        #    left_on=["date", "entity_id", "report_year"] + instant_axes,
+        #    right_on=["end_date", "entity_id", "report_year"] + duration_axes,
+        #    validate="1:1",
+        # )
+
+    def process_instant_xbrl(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Processing required to make the instant and duration tables compatible.
+
+        This is a no-op in the abstract base class, but should be implemented for
+        child classes which need to reshape the XBRL data for concatenation with DBF.
+        Parameterization TBD based on additional experience. See:
+        https://github.com/catalyst-cooperative/pudl/issues/2012
+        """
+        return df
+
+    def process_duration_xbrl(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Processing required to make the instant and duration tables compatible.
+
+        This is a no-op in the abstract base class, but should be implemented for
+        child classes which need to reshape the XBRL data for concatenation with DBF.
+        Parameterization TBD based on additional experience. See:
+        https://github.com/catalyst-cooperative/pudl/issues/2012
+        """
+        return df
 
     @cache_df(key="dbf")
     def drop_footnote_columns_dbf(self, df: pd.DataFrame) -> pd.DataFrame:
@@ -970,24 +1030,6 @@ class PlantInServiceFerc1TableTransformer(Ferc1AbstractTableTransformer):
     table_id: Ferc1TableId = Ferc1TableId.PLANT_IN_SERVICE_FERC1
 
     @cache_df(key="dbf")
-    def process_dbf(self, raw_dbf: pd.DataFrame) -> pd.DataFrame:
-        """Process DBF inputs, aligning historical row numbers to XBRL account IDs."""
-        logger.info(f"{self.table_id.value}: Processing DBF data pre-concatenation.")
-        return (
-            self.drop_footnote_columns_dbf(raw_dbf)
-            # Note: in this rename_columns we have to pass in params, since we're using
-            # the inherited method, with param specific to the child class.
-            .pipe(self.rename_columns, params=self.params.rename_columns_ferc1.dbf)
-            .pipe(self.assign_record_id, source_ferc1=Ferc1Source.DBF)
-            .pipe(self.align_row_numbers_dbf)
-            .pipe(self.drop_unused_original_columns_dbf)
-            .pipe(
-                self.assign_utility_id_ferc1,
-                source_ferc1=Ferc1Source.DBF,
-            )
-        )
-
-    @cache_df(key="dbf")
     def align_row_numbers_dbf(self, df: pd.DataFrame) -> pd.DataFrame:
         """Align historical FERC1 DBF row numbers with XBRL account IDs."""
         return pd.merge(
@@ -996,100 +1038,8 @@ class PlantInServiceFerc1TableTransformer(Ferc1AbstractTableTransformer):
             on=["report_year", "row_number"],
         ).rename(columns={"xbrl_column_stem": "ferc_account_id"})
 
-    @cache_df(key="xbrl")
-    def process_xbrl(
-        self,
-        raw_xbrl_instant: pd.DataFrame,
-        raw_xbrl_duration: pd.DataFrame,
-    ) -> pd.DataFrame:
-        """XBRL-specific transformations that take place before concatenation."""
-        logger.info(f"{self.table_id.value}: Processing XBRL data pre-concatenation.")
-        return (
-            self.merge_instant_and_duration_tables_xbrl(
-                raw_xbrl_instant, raw_xbrl_duration
-            )
-            .pipe(self.tidy_ferc_accounts_xbrl)
-            # Note: in this rename_columns we have to pass in params, since we're using
-            # the inherited method, with param specific to the child class.
-            .pipe(self.rename_columns, params=self.params.rename_columns_ferc1.xbrl)
-            .pipe(self.assign_record_id, source_ferc1=Ferc1Source.XBRL)
-            .pipe(
-                self.assign_utility_id_ferc1,
-                source_ferc1=Ferc1Source.XBRL,
-            )
-        )
-
-    @cache_df(key="xbrl")
-    def merge_instant_and_duration_tables_xbrl(
-        self,
-        raw_xbrl_instant: pd.DataFrame,
-        raw_xbrl_duration: pd.DataFrame,
-    ) -> pd.DataFrame:
-        """Merge XBRL instant and duration tables, reshaping instant as needed.
-
-        FERC1 XBRL instant period signifies that it is true as of the reported date,
-        while a duration fact pertains to the specified time period. The ``date`` column
-        for an instant fact corresponds to the ``end_date`` column of a duration fact.
-
-        Note: This should always be applied before :meth:``rename_columns``
-
-        Args:
-            raw_xbrl_instant: table representing XBRL instant facts.
-            raw_xbrl_duration: table representing XBRL duration facts.
-
-        Returns:
-            A unified table combining the XBRL duration and instant facts, if both types
-            of facts were present. If either input dataframe is empty, the other
-            dataframe is returned unchanged, except that several unused columns are
-            dropped. If both input dataframes are empty, an empty dataframe is returned.
-        """
-        drop_cols = ["filing_name", "index"]
-        # Ignore errors in case not all drop_cols are present.
-        instant = raw_xbrl_instant.drop(columns=drop_cols, errors="ignore")
-        duration = raw_xbrl_duration.drop(columns=drop_cols, errors="ignore")
-
-        if instant.empty:
-            logger.debug(
-                f"{self.table_id.value}: No XBRL instant table found, returning the "
-                "duration table."
-            )
-            return duration
-        if duration.empty:
-            logger.debug(
-                f"{self.table_id.value}: No XBRL duration table found, returning "
-                "instant table."
-            )
-            return instant
-
-        instant_axes = [
-            col for col in raw_xbrl_instant.columns if col.endswith("_axis")
-        ]
-        duration_axes = [
-            col for col in raw_xbrl_duration.columns if col.endswith("_axis")
-        ]
-        if set(instant_axes) != set(duration_axes):
-            raise ValueError(
-                f"{self.table_id.value}: Instant and Duration XBRL Axes do not match.\n"
-                f"    instant: {instant_axes}\n"
-                f"    duration: {duration_axes}"
-            )
-
-        # Everything above here is the same as the parent function, but here we need
-        # to reshape the instant table such that end-of-last-year becomes
-        # beginning-of-this-year in a separate column. Probably going to need to factor
-        # out the shared vs. different code into separate methods once we know what this
-        # should look like.
-        instant = self.reshape_starting_ending_balances(instant)
-        return pd.concat(
-            [
-                instant.set_index(["report_year", "entity_id"] + instant_axes),
-                duration.set_index(["report_year", "entity_id"] + duration_axes),
-            ],
-            axis="columns",
-        ).reset_index()
-
     @cache_df("reshape_instant")
-    def reshape_starting_ending_balances(self, df: pd.DataFrame) -> pd.DataFrame:
+    def process_instant_xbrl(self, df: pd.DataFrame) -> pd.DataFrame:
         """Convert row-oriented end-of-year balances to starting/ending balance cols."""
         df["year"] = pd.to_datetime(df["date"]).dt.year
         df.loc[df.report_year == (df.year + 1), "balance_type"] = "starting_balance"
@@ -1104,7 +1054,7 @@ class PlantInServiceFerc1TableTransformer(Ferc1AbstractTableTransformer):
         df.columns = ["_".join(items) for items in df.columns.to_flat_index()]
         return df.reset_index()
 
-    def tidy_ferc_accounts_xbrl(self, df: pd.DataFrame) -> pd.DataFrame:
+    def wide_to_tidy_xbrl(self, df: pd.DataFrame) -> pd.DataFrame:
         """Reshape wide-format table based on FERC account column labels."""
         df = df.drop(["start_date", "end_date"], axis="columns")
         suffixes = [
