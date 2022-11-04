@@ -387,7 +387,7 @@ def get_utility_most_recent_capacity(pudl_engine) -> pd.DataFrame:
     return utility_caps
 
 
-def get_plants_ids_eia923(pudl_out: pudl.output.pudltabl.PudlTabl) -> list:
+def get_plants_ids_eia923(pudl_out: pudl.output.pudltabl.PudlTabl) -> pd.DataFrame:
     """Get a list of plant_id_eia's that show up in EIA 923 tables."""
     pudl_out_methods_eia923 = [
         method_name
