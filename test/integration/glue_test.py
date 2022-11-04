@@ -30,6 +30,7 @@ def pudl_out(pudl_engine, pudl_datastore_fixture):
         ds=pudl_datastore_fixture,
         freq=None,
         fill_tech_desc=False,
+        fill_net_gen=False,
     )
 
 
