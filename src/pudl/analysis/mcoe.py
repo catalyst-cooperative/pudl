@@ -78,16 +78,20 @@ def heat_rate_by_unit(pudl_out):
     # Sum up the net generation per unit for each time period:
     gen_by_unit = (
         pudl_out.gen_eia923()
-        .groupby(["report_date", "plant_id_eia", "unit_id_pudl"])
-        .agg({"net_generation_mwh": pudl.helpers.sum_na})
+        .groupby(["report_date", "plant_id_eia", "unit_id_pudl"])[
+            ["net_generation_mwh"]
+        ]
+        .sum(min_count=1)
         .reset_index()
     )
 
     # Sum up all the fuel consumption per unit for each time period:
     bf_by_unit = (
         pudl_out.bf_eia923()
-        .groupby(["report_date", "plant_id_eia", "unit_id_pudl"])
-        .agg({"fuel_consumed_mmbtu": pudl.helpers.sum_na})
+        .groupby(["report_date", "plant_id_eia", "unit_id_pudl"])[
+            ["fuel_consumed_mmbtu"]
+        ]
+        .sum(min_count=1)
         .reset_index()
     )
 
