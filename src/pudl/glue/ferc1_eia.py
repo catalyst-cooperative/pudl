@@ -347,6 +347,7 @@ def label_plants_eia(pudl_out: pudl.output.pudltabl.PudlTabl):
                 "capacity_mw",
             ],
         ]
+        .drop_duplicates(subset=["plant_id_eia"])
     )
     return plants_w_capacity
 
