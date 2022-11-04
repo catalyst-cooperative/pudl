@@ -875,13 +875,14 @@ class PlantsSmallFerc1TableTransformer(Ferc1AbstractTableTransformer):
             .pipe(self.convert_units)
             .pipe(self.categorize_strings)
             .pipe(self.extract_ferc1_license)
-            .pipe(self.label_row_type)
+            .pipe(self.label_row_types)
             .pipe(self.map_header_fuel_types)
             .pipe(self.map_plant_name_fuel_types)
             .pipe(self.associate_notes_with_values)
             # .pipe(self.drop_invalid_rows)
         )
-        # Remove headers and note rows
+        # Remove headers and note rows now that the relevant information has been
+        # extracted.
         df = df[(df["row_type"] != "header") & (df["row_type"] != "note")].copy()
 
         return df
@@ -947,9 +948,125 @@ class PlantsSmallFerc1TableTransformer(Ferc1AbstractTableTransformer):
 
         return out_df
 
-    def label_row_type(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Label rows as headers, notes, or totals."""
+    def _find_possible_header_or_note_rows(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Find rows that might be headers or footnotes.
+
+        This function creates a column called "possible_header_or_note" that is either
+        True or False depending on whether a group of columns are all NA. Rows labeled
+        as True will be further scrutinized in the label_header_rows and
+        label_notes_rows functions to determine whether they are headers or notes. The
+        "possible_header_or_note" column is necessary for the label_header_rows and
+        label_notes_rows functions, but it is unecessary once the row_types have been
+        determined, and the column is removed after the row labeling process is
+        complete.
+        """
         # Define header qualifications
+        possible_header_or_note_if_cols_na = [
+            "construction_year",
+            "net_generation_mwh",
+            "total_cost_of_plant",
+            "capex_per_mw",
+            "opex_total",
+            "opex_fuel",
+            "opex_maintenance",
+            "fuel_cost_per_mmbtu",
+        ]
+        # Label possible header or note rows
+        df["possible_header_or_note"] = (
+            df.filter(possible_header_or_note_if_cols_na).isna().all(1)
+        )
+        return df
+
+    def _find_note_clumps(self, group, group_col):
+        """Find groups of rows likely to be notes.
+
+        Once the _find_possible_header_or_note_rows function identifies rows that are
+        either headers or rows, we must now deterine which they are. As described in the
+        _label_note_rows and _label_note_rows_group functions, notes rows tend to be
+        several adjecent rows with no content.
+
+        This function itentifies instances of two or more adjecent rows where
+        possible_header_or_note = True. It's important that this function opperate on a
+        utility-year group as opposed to the entire dataset. Notes are reported by a
+        particular utility in a particular year. If we were to run this on the whole
+        dataframe, we would see "clumps" that are actually notes from the end of one
+        utility's report and headers from the beginning of another. For this reason, we
+        run this function from within the label_note_row_group function.
+
+        The output of this function is not a modified version of the original
+        utility-year group, rather, it is a DataFrame containing information about the
+        nature of the possible_header_or_note = True rows that is used to determine
+        if that row is a note or not.
+
+        If you pass in the following df:
+
+        +-------------------+-------------------------+-----------------+
+        | plant_name_ferc1  | possible_header_or_note | ...             |
+        +===================+=========================+=================+
+        | HYDRO:            | True                    | NA              |
+        +-------------------+-------------------------+-----------------+
+        | rainbow falls (b) | False                   | NA              |
+        +-------------------+-------------------------+-----------------+
+        | cadyville (a)     | False                   | NA              |
+        +-------------------+-------------------------+-----------------+
+        | keuka (c)         | False                   | NA              |
+        +-------------------+-------------------------+-----------------+
+        | (a) project #2738 | True                    | NA              |
+        +-------------------+-------------------------+-----------------+
+        | (b) project #2835 | True                    | NA              |
+        +-------------------+-------------------------+-----------------+
+        | (c) project #2852 | True                    | NA              |
+        +-------------------+-------------------------+-----------------+
+
+        You will get the following output:
+
+        +----------------+----------------+
+        | header_or_note | rows_per_clump |
+        +================+================+
+        | True           | 1              |
+        +----------------+----------------+
+        | False          | 3              |
+        +----------------+----------------+
+        | True           | 3              |
+        +----------------+----------------+
+
+        This shows each clump of adjecent records where possible_header_or_note is True
+        or False and how many records are in each clump.
+
+        Args:
+            group (pandas.DataFrameGroupBy): A groupby object that you'd like
+                to condense by group_col.
+            group_col (str): The name of the column you'd like to make sub
+                groups from.
+
+        Returns:
+            pandas.DataFrame: A condensed version of that dataframe input
+                grouped by breaks in row designation.
+        """
+        # Make groups based on consecutive sections where the group_col is alike.
+        clump_groups = group.groupby(
+            (group[f"{group_col}"].shift() != group[f"{group_col}"]).cumsum(),
+            as_index=False,
+        )
+
+        # Identify the first (and only) group_col value for each group and count
+        # how many rows are in each group.
+        clump_groups_df = clump_groups.agg(
+            header_or_note=(f"{group_col}", "first"),
+            rows_per_clump=(f"{group_col}", "count"),
+        )
+
+        return clump_groups, clump_groups_df
+
+    def _label_header_rows(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Label header rows.
+
+        Once possible header or notes rows have been identified via the
+        _find_possible_header_or_note_rows function, this function sorts out which are
+        headers. It does this by identifying a list of strings that, when found in the
+        plant_name_ferc1 column, indicate that the row is or is not a header.
+        """
+        # Possible headers/note rows that contains these strings are headers
         header_strings = [
             "hydro",
             "hyrdo",
@@ -974,6 +1091,7 @@ class PlantsSmallFerc1TableTransformer(Ferc1AbstractTableTransformer):
             "facilities",
             "combined cycle",
         ]
+        # Possible headers/note rows that contains these strings are not headers
         nonheader_strings = [
             "#",
             r"\*",
@@ -984,225 +1102,206 @@ class PlantsSmallFerc1TableTransformer(Ferc1AbstractTableTransformer):
             "rockton",
             "albany steam",
         ]
+        # Any rows that contains these strings are headers
         header_exceptions = [
             "hydro plants: licensed proj. no.",
             "hydro license no.",
             "hydro: license no.",
             "hydro plants: licensed proj no.",
         ]
-        possible_header_if_cols_na = [
-            "construction_year",
-            "net_generation_mwh",
-            "total_cost_of_plant",
-            "capex_per_mw",
-            "opex_total",
-            "opex_fuel",
-            "opex_maintenance",
-            "fuel_cost_per_mmbtu",
-        ]
 
-        def label_header_rows(df: pd.DataFrame) -> pd.DataFrame:
-            """Label header rows.
+        logger.info(f"{self.table_id.value}: Labeling header rows")
 
-            This function labels rows it believes are possible headers based on whether
-            they contain information in certain key columns. Of those possible headers,
-            ones that contain a specific key word or phrase are dubbed headers. Leftover
-            possible header rows are evaluated as possible note rows in the
-            _label_notes_rows() function.
+        # Label good header rows (based on whether they contain key strings)
+        possible_header = df["possible_header_or_note"]
+        good_header = df["plant_name_ferc1"].str.contains("|".join(header_strings))
+        bad_header = df["plant_name_ferc1"].str.contains("|".join(nonheader_strings))
+        df.loc[possible_header & good_header & ~bad_header, "row_type"] = "header"
+        # There are some headers that don't pass the possible_header test but are
+        # still definitely headers.
+        df.loc[df["plant_name_ferc1"].isin(header_exceptions), "row_type"] = "header"
+
+        return df
+
+    def _label_note_rows(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Label rows that are notes.
+
+        The small plants table has lots of note rows that contain useful information.
+        Unfortunately, the notes are in their own row rather than their own column! This
+        means that there are tons of rows containing some useful information in the
+        plant_name_ferc1 field, but mostly NAs. Luckily, the data are reported just like
+        they would be on paper. I.e., The headers are at the top, and the notes are at
+        the bottom. (See example in the label_row_type docstring).
+
+        Note rows are determined by row location within a given report, so we must break
+        the data into reporting units (utility and year) and then apply note-finding
+        methodology to each group. For specifics on that methodology,
+        see the doc strings for the internally defined _label_note_rows_group function.
+        """
+        logger.info(f"{self.table_id.value}: Labeling notes rows")
+
+        util_groups = df.groupby(["utility_id_ferc1", "report_year"])
+
+        def _label_note_rows_group(util_year_group):
+            """Find and label notes rows in a designated sub-group of the sg table.
+
+            This function breaks the data down by reporting unit (utility and year) and
+            determines whether a possible_header_note row is a note based on two
+            criteria:
+            - Clumps of 2 or more adjecent rows where possible_header_or_note is True.
+            - Instances where the last row in a utility-year group has
+            possible_header_or_note as True.
+
+            There are a couple of important exceptions that this function also
+            addresses. Utilities often have multiple headers in a single utility-year
+            grouping. You might see something like: header, plant1, plant2, note,
+            header, plant3, plant4. In this case, a note clump is actually comprised of
+            a note followed by a header. This function will not override the header as a
+            note. Unfortunately, there is always the possability that a header row is
+            followed by a plant that had no values reported. This would look like, and
+            therefore be categorized as a note clump. I haven't built a work around, but
+            hopefully there aren't very many of these.
+
+            Args:
+                util_year_group (pandas.DataFrame): A groupby object that contains
+                    a single year and utility.
             """
-            logger.info(f"{self.table_id.value}: Labeling header rows")
-
-            # Label possible header rows (based on the nan cols specified above)
-            df["possible_header"] = df.filter(possible_header_if_cols_na).isna().all(1)
-
-            # Label good header rows (based on whether they contain key strings)
-            possible_header = df["possible_header"]
-            good_header = df["plant_name_ferc1"].str.contains("|".join(header_strings))
-            not_bad_header = ~df["plant_name_ferc1"].str.contains(
-                "|".join(nonheader_strings)
+            # Create mini groups that count pockets of true and false for each
+            # utility and year. See _find_note_clumps docstring.
+            group, header_count = self._find_note_clumps(
+                util_year_group, "possible_header_or_note"
             )
-            df.loc[
-                possible_header & good_header & not_bad_header, "row_type"
-            ] = "header"
-            # There are some headers that don't pass the possible_header test but are
-            # still definitely headers.
-            df.loc[
-                df["plant_name_ferc1"].isin(header_exceptions), "row_type"
-            ] = "header"
 
-            return df
+            # Used later to enable exceptions
+            max_df_val = util_year_group.index.max()
 
-        def label_total_rows(df: pd.DataFrame) -> pd.DataFrame:
-            """Label total rows."""
-            logger.info(f"{self.table_id.value}: Labeling total rows")
-            df.loc[df["plant_name_ferc1"].str.contains("total"), "row_type"] = "total"
-            # There are a couple or pre-2021 rows that contain the phrase like
-            # "amounts are for" that pertaining to total records listed one row above.
-            # This section of code moves the content of those rows one up.
-            num_cols = [
-                x
-                for x in df.select_dtypes(include=["float", "Int64"]).columns.tolist()
-                if x not in ["utility_id_ferc1", "report_year", "license_id_ferc1"]
-            ]
-            bad_row = df[
-                (df["plant_name_ferc1"].str.contains("amounts are for"))
-                & (df["capacity_mw"] > 0)
-                & (df["report_year"] < 2021)
-            ]
-            df.loc[bad_row.index, num_cols] = df.loc[bad_row.index - 1][num_cols].values
-            df.loc[bad_row.index - 1, num_cols] = np.nan
+            # Create a list of the index values that comprise each of the header
+            # clumps. It's only considered a clump if it is greater than 1.
+            idx_list = list(
+                header_count[
+                    (header_count["header_or_note"])
+                    & (header_count["rows_per_clump"] > 1)
+                ].index
+            )
 
-            return df
-
-        def label_notes_rows(df: pd.DataFrame) -> pd.DataFrame:
-            """Remove clumps of consecutive rows flagged as possible headers.
-
-            FERC has lots of note rows that are not headers but are also not useful for
-            analysis. This function looks for rows flagged as possible headers (based on
-            NA values) and checks to see if there are multiple in a row. A header row is
-            (usually) defined as a row with NA values followed by rows without NA
-            values, so when there are more than one clumped together they are likely
-            either notes or not helpful. Sometimes note clumps will end with a
-            meaningful header. This function also checks for this and will unclump any
-            headers at the bottom of clumps. There is one exception to this case which
-            is a header that is followed by a plant that had no values reported...
-            Unfortunately I haven't built a work around, but hopefully there aren't very
-            many of these. Currently, that header and plant will be categorized as
-            clumps and removed.
-            """
-            logger.info(f"{self.table_id.value}: Labeling notes rows")
-
-            util_groups = df.groupby(["utility_id_ferc1", "report_year"])
-
-            def _find_header_clumps(group, group_col):
-                """Count groups of possible headers in a given utiltiy group.
-
-                This function is used within the _label_note_rows() function. It takes a
-                utility group and regroups it by rows where possible_header = True
-                (i.e.: all values in the specified NAN_COLS are NA) vs. False. Rows
-                where possible_header = True can be bad data, headers, or notes. The
-                result is a DataFrame that contains one row per clump of similar
-                adjecent possible_header values with columns val_col depicting the
-                number of rows per possible_header clump.
-
-                Ex: If you pass in a df with the possible_header values: True, False
-                False, True, True, the header_groups output df will look like this:
-                {'header':[True, False, True], 'val_col: [1, 2, 2]}.
-
-                Args:
-                    group (pandas.DataFrameGroupBy): A groupby object that you'd like
-                        to condense by group_col
-                    group_col (str): The name of the column you'd like to make sub
-                        groups from.
-
-                Returns:
-                    pandas.DataFrame: A condensed version of that dataframe input
-                        grouped by breaks in header row designation.
-                """
-                # Make groups based on consecutive sections where the group_col is alike.
-                header_groups = group.groupby(
-                    (group[f"{group_col}"].shift() != group[f"{group_col}"]).cumsum(),
-                    as_index=False,
-                )
-
-                # Identify the first (and only) group_col value for each group and count
-                # how many rows are in each group.
-                header_groups_df = header_groups.agg(
-                    header=(f"{group_col}", "first"),
-                    val_count=(f"{group_col}", "count"),
-                )
-
-                return header_groups, header_groups_df
-
-            def _label_notes_rows_group(util_year_group):
-                """Find an label notes rows in a designated sub-group of the sg table.
-
-                Utilities report to FERC on a yearly basis therefore it is on a utility
-                and yearly basis by which we need to parse the data. Each year for each
-                utility appears in the data like a copy of a pdf form. If you are
-                looking for rows that are notes or headers, this context is extremely
-                important. For example. Flagged headers that appear at the bottom of a
-                given utility-year subgroup are notes rather than headers strictly due
-                to their location in the group. For this reason, we must parse the notes
-                from the header groups at the utility-year level rather than the dataset
-                as a whole.
-
-                Args:
-                    util_year_group (pandas.DataFrame): A groupby object that contains
-                        a single year and utility.
-                """
-                # Create mini groups that count pockets of true and false for each
-                # utility and year. Basically what it does is create a df
-                # where each row represents a clump of adjecent, equal values for a
-                # given column. Ex: a column of True, True, True, False, True, False,
-                # False, will appear as True, False, True, False with value counts for
-                # each.
-                group, header_count = _find_header_clumps(
-                    util_year_group, "possible_header"
-                )
-
-                # Used later to enable exceptions
-                max_df_val = util_year_group.index.max()
-
-                # Create a list of the index values that comprise each of the header
-                # clumps. It's only considered a clump if it is greater than 1.
-                idx_list = list(
-                    header_count[
-                        (header_count["header"]) & (header_count["val_count"] > 1)
-                    ].index
-                )
-
-                # If the last row is not a clump (i.e. there is just one value) but it
-                # is a header (i.e. has nan values) then also include it in the index
-                # values to be flagged because it might be a one-liner note. And because
-                # it is at the bottom there is no chance it can actually be a useful
-                # header because there are no value rows below it.
-                last_row = header_count.tail(1)
-                if (last_row["header"].item()) & (last_row["val_count"].item() == 1):
-                    idx_list = idx_list + list(last_row.index)
-                # If there are any clumped/end headers:
-                if idx_list:
-                    for idx in idx_list:
-                        # Check to see if last clump bit is not a header... sometimes
-                        # you might find a clump of notes FOLLOWED by a useful header.
-                        # This next bit will check the last row in each of the
-                        # identified clumps and "unclump" it if it looks like a valid
-                        # header. We only need to check clumps that fall in the middle
-                        # because, as previously mentioned, the last row cannot contain
-                        # any meaningful header information because there are no values
-                        # below it.
-                        idx_range = group.groups[idx + 1]
-                        is_middle_clump = group.groups[idx + 1].max() < max_df_val
-                        is_good_header = (
-                            util_year_group.loc[
-                                util_year_group.index.isin(group.groups[idx + 1])
-                            ]
-                            .tail(1)["plant_name_ferc1"]
-                            .str.contains("|".join(header_strings))
-                            .all()
-                        )
-                        # If the clump is in the middle and the last row looks like a
-                        # header, then drop it from the idx range
-                        if is_middle_clump & is_good_header:
-                            idx_range = [x for x in idx_range if x != idx_range.max()]
-                        # Label the clump as a note
+            # If the last row is not a clump (i.e. there is just one value) but it
+            # is a header (i.e. has nan values) then also include it in the index
+            # values to be flagged because it might be a one-liner note. And because
+            # it is at the bottom there is no chance it can actually be a useful
+            # header because there are no value rows below it.
+            last_row = header_count.tail(1)
+            if (last_row["header_or_note"].item()) & (
+                last_row["rows_per_clump"].item() == 1
+            ):
+                idx_list = idx_list + list(last_row.index)
+            # If there are any clumped/end headers:
+            if idx_list:
+                for idx in idx_list:
+                    # Check to see if last clump bit is not a header... sometimes
+                    # you might find a clump of notes FOLLOWED by a useful header.
+                    # This next bit will check the last row in each of the
+                    # identified clumps and "unclump" it if it looks like a valid
+                    # header. We only need to check clumps that fall in the middle
+                    # because, as previously mentioned, the last row cannot contain
+                    # any meaningful header information because there are no values
+                    # below it.
+                    idx_range = group.groups[idx + 1]
+                    is_middle_clump = group.groups[idx + 1].max() < max_df_val
+                    is_good_header = (
                         util_year_group.loc[
-                            util_year_group.index.isin(idx_range), "row_type"
-                        ] = "note"
+                            util_year_group.index.isin(group.groups[idx + 1])
+                        ]
+                        .tail(1)["plant_name_ferc1"]
+                        .str.contains(
+                            "solar"
+                        )  # WANT TO TEST THIS WITH row_type=header if the header labeling has already happened!
+                        .all()
+                    )
+                    # If the clump is in the middle and the last row looks like a
+                    # header, then drop it from the idx range
+                    if is_middle_clump & is_good_header:
+                        idx_range = [x for x in idx_range if x != idx_range.max()]
+                    # Label the clump as a note
+                    util_year_group.loc[
+                        util_year_group.index.isin(idx_range), "row_type"
+                    ] = "note"
 
-                return util_year_group
+            return util_year_group
 
-            return util_groups.apply(lambda x: _label_notes_rows_group(x))
+        return util_groups.apply(lambda x: _label_note_rows_group(x))
 
-        # Add some new helper columns
+    def _label_total_rows(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Label total rows."""
+        logger.info(f"{self.table_id.value}: Labeling total rows")
+        df.loc[df["plant_name_ferc1"].str.contains("total"), "row_type"] = "total"
+        # There are a couple or pre-2021 rows that contain the phrase like
+        # "amounts are for" that pertaining to total records listed one row above.
+        # This section of code moves the content of those rows one up.
+        num_cols = [
+            x
+            for x in df.select_dtypes(include=["float", "Int64"]).columns.tolist()
+            if x not in ["utility_id_ferc1", "report_year", "license_id_ferc1"]
+        ]
+        bad_row = df[
+            (df["plant_name_ferc1"].str.contains("amounts are for"))
+            & (df["capacity_mw"] > 0)
+            & (df["report_year"] < 2021)
+        ]
+        df.loc[bad_row.index, num_cols] = df.loc[bad_row.index - 1][num_cols].values
+        df.loc[bad_row.index - 1, num_cols] = np.nan
+
+        return df
+
+    def label_row_types(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Coordinate labeling of rows that are headers, notes, or totals.
+
+        The small plants table is more like a digitized PDF than an actual data table.
+        The rows contain all sorts of information in addition to what the columns might
+        suggest. For instance, there are header rows, note rows, and total rows that
+        contain useful information, but cause confusion in their current state, mixed in
+        with the rest of the data.
+
+        Here's an example of what you might find in the small plants table:
+
+        +-------------------+------------+-----------------+
+        | plant_name_ferc1  | plant_type | capacity_mw     |
+        +===================+============+=================+
+        | HYDRO:            | NA         | NA              |
+        +-------------------+------------+-----------------+
+        | rainbow falls (b) | NA         | 30              |
+        +-------------------+------------+-----------------+
+        | cadyville (a)     | NA         | 100             |
+        +-------------------+------------+-----------------+
+        | keuka (c)         | NA         | 80              |
+        +-------------------+------------+-----------------+
+        | total plants      | NA         | 310             |
+        +-------------------+------------+-----------------+
+        | (a) project #2738 | NA         | NA              |
+        +-------------------+------------+-----------------+
+        | (b) project #2835 | NA         | NA              |
+        +-------------------+------------+-----------------+
+        | (c) project #2852 | NA         | NA              |
+        +-------------------+------------+-----------------+
+
+        Notice how there missleading it is to have all this infomration in one column.
+        The goal of this function is to coordinate labeling functions so that we can
+        identify which rows contain specific plant information and which rows are
+        headers, notes, or totals.
+
+        Once labeled, other functions can either remove rows that might cause double
+        counting, extract useful plant_type information from headers, and extract
+        useful context and license id information from notes.
+        """
+        # Add a column to show final row type
         df.insert(3, "row_type", np.nan)
 
         # Label the row types
         df_labeled = (
-            df.pipe(label_header_rows)
-            .pipe(label_total_rows)
-            .pipe(label_notes_rows)
-            .drop(columns=["possible_header"])
+            df.pipe(self._find_possible_header_or_note_rows)
+            .pipe(self._label_header_rows)
+            .pipe(self._label_total_rows)
+            .pipe(self._label_note_rows)
+            .drop(columns=["possible_header_or_note"])
         )
 
         return df_labeled
