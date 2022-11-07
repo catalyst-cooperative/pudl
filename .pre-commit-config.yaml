@@ -94,6 +94,7 @@ repos:
           - pyflakes
           - flake8-rst-docstrings
           - flake8-use-fstring
+        exclude: notebooks/work-in-progress/dagster_prototypes/
 
   # Check for known security vulnerabilities:
   - repo: https://github.com/PyCQA/bandit
