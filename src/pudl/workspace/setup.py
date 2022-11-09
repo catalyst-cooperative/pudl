@@ -120,11 +120,17 @@ def derive_paths(pudl_in, pudl_out):
     pudl_settings["ferc1_xbrl_descriptor"] = pathlib.Path(
         pudl_settings["sqlite_dir"], "ferc1_xbrl_descriptor.json"
     )
+    pudl_settings["ferc1_taxonomy_metadata"] = pathlib.Path(
+        pudl_settings["sqlite_dir"], "ferc1_xbrl_tax_metadata.json"
+    )
 
     ferc2_db_file = pathlib.Path(pudl_settings["sqlite_dir"], "ferc2_xbrl.sqlite")
     pudl_settings["ferc2_xbrl_db"] = "sqlite:///" + str(ferc2_db_file.resolve())
     pudl_settings["ferc2_xbrl_descriptor"] = pathlib.Path(
         pudl_settings["sqlite_dir"], "ferc2_xbrl_descriptor.json"
+    )
+    pudl_settings["ferc2_taxonomy_metadata"] = pathlib.Path(
+        pudl_settings["sqlite_dir"], "ferc2_xbrl_tax_metadata.json"
     )
 
     ferc6_db_file = pathlib.Path(pudl_settings["sqlite_dir"], "ferc6_xbrl.sqlite")
@@ -132,17 +138,26 @@ def derive_paths(pudl_in, pudl_out):
     pudl_settings["ferc6_xbrl_descriptor"] = pathlib.Path(
         pudl_settings["sqlite_dir"], "ferc6_xbrl_descriptor.json"
     )
+    pudl_settings["ferc6_taxonomy_metadata"] = pathlib.Path(
+        pudl_settings["sqlite_dir"], "ferc6_xbrl_tax_metadata.json"
+    )
 
     ferc60_db_file = pathlib.Path(pudl_settings["sqlite_dir"], "ferc60_xbrl.sqlite")
     pudl_settings["ferc60_xbrl_db"] = "sqlite:///" + str(ferc60_db_file.resolve())
     pudl_settings["ferc60_xbrl_descriptor"] = pathlib.Path(
         pudl_settings["sqlite_dir"], "ferc60_xbrl_descriptor.json"
     )
+    pudl_settings["ferc60_taxonomy_metadata"] = pathlib.Path(
+        pudl_settings["sqlite_dir"], "ferc60_xbrl_tax_metadata.json"
+    )
 
     ferc714_db_file = pathlib.Path(pudl_settings["sqlite_dir"], "ferc714_xbrl.sqlite")
     pudl_settings["ferc714_xbrl_db"] = "sqlite:///" + str(ferc714_db_file.resolve())
     pudl_settings["ferc714_xbrl_descriptor"] = pathlib.Path(
         pudl_settings["sqlite_dir"], "ferc714_xbrl_descriptor.json"
+    )
+    pudl_settings["ferc714_taxonomy_metadata"] = pathlib.Path(
+        pudl_settings["sqlite_dir"], "ferc714_xbrl_tax_metadata.json"
     )
 
     pudl_settings["pudl_db"] = "sqlite:///" + str(
