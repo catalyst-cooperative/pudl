@@ -210,6 +210,14 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         while a duration fact pertains to the specified time period. The ``date`` column
         for an instant fact corresponds to the ``end_date`` column of a duration fact.
 
+        When merging the instant and duration tables, we need to preserve row order.
+        For the small generators table, row order is how we label and extract
+        information from header and note rows. Outer merging messes up the order, so we
+        need to use a one-sided merge. So far, it seems like the duration df contains
+        all the index values in the instant df. To be sure, there's a check that makes
+        sure there are no unique intant df index values. If that passes, we merge the
+        instant table into the duration table, and the row order is preserved.
+
         Note: This should always be applied before :meth:``rename_columns``
 
         Args:
@@ -253,10 +261,26 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                 f"    duration: {duration_axes}"
             )
 
+        instant_merge_keys = ["date", "entity_id", "report_year"] + instant_axes
+        duration_merge_keys = ["end_date", "entity_id", "report_year"] + duration_axes
+
+        # See if there are any values in the instant table that don't show up in the
+        # duration table.
+        unique_instant_rows = instant.set_index(instant_merge_keys).index.difference(
+            duration.set_index(duration_merge_keys).index
+        )
+
+        if not unique_instant_rows.empty:
+            raise AssertionError(
+                "instant df contains values not in duration df -- can't do a one-sided merge"
+                f"{unique_instant_rows}"
+            )
+
+        # Merge instant into duration.
         return pd.merge(
             instant,
             duration,
-            how="outer",
+            how="right",
             left_on=["date", "entity_id", "report_year"] + instant_axes,
             right_on=["end_date", "entity_id", "report_year"] + duration_axes,
             validate="1:1",
@@ -884,7 +908,7 @@ class PlantsSmallFerc1TableTransformer(Ferc1AbstractTableTransformer):
         )
         # Remove headers and note rows now that the relevant information has been
         # extracted.
-        df = df[(df["row_type"] != "header") & (df["row_type"] != "note")].copy()
+        # df = df[(df["row_type"] != "header") & (df["row_type"] != "note")].copy()
 
         return df
 
