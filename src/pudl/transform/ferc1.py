@@ -152,11 +152,8 @@ def get_ferc1_dbf_rows_to_map(ferc1_engine: sa.engine.Engine) -> pd.DataFrame:
 def update_ferc1_dbf_xbrl_glue(ferc1_engine: sa.engine.Engine) -> pd.DataFrame:
     """Regenerate the FERC 1 DBF+XBRL glue while retaining existing mappings.
 
-    Reads all rows that need to be mapped out of the ``f1_row_lit_tbl`` and
-    appends columns containing any previously mapped values, returning the
-    resulting dataframe.
-
-    This
+    Reads all rows that need to be mapped out of the ``f1_row_lit_tbl`` and appends
+    columns containing any previously mapped values, returning the resulting dataframe.
     """
     idx_cols = ["sched_table_name", "row_status", "row_number", "report_year"]
     all_rows = get_ferc1_dbf_rows_to_map(ferc1_engine).set_index(idx_cols)
@@ -228,7 +225,7 @@ def get_ferc1_dbf_xbrl_glue(dbf_table_name: str) -> pd.DataFrame:
     ).xbrl_column_stem.transform("ffill")
     # Drop any rows that do not actually map between DBF rows and XBRL columns:
     row_map = (
-        row_map.replace({"HEADER_ROW": np.nan})
+        row_map.replace({"xbrl_column_stem": {"HEADER_ROW": np.nan}})
         .dropna(subset=["xbrl_column_stem"])
         .drop(["row_status"], axis="columns")
     )
@@ -1040,24 +1037,56 @@ class PlantInServiceFerc1TableTransformer(Ferc1AbstractTableTransformer):
 
     @cache_df("reshape_instant")
     def process_instant_xbrl(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Convert row-oriented end-of-year balances to starting/ending balance cols."""
+        """Convert row-oriented end-of-year balances to starting/ending balance cols.
+
+        Each year the plant account balances are reported twice, in two separate
+        records: one for the end of the previous year, and one for the end of the
+        current year, with appropriate dates for the two year ends. Here we are
+        reshaping the table so that we instead have two columns: ``starting_balance``
+        and ``ending_balance`` that both pertain to the current year, so that all of
+        the records pertaining to a single ``report_year`` can be identified without
+        dealing with the instant / duration distinction.
+        """
         df["year"] = pd.to_datetime(df["date"]).dt.year
         df.loc[df.report_year == (df.year + 1), "balance_type"] = "starting_balance"
         df.loc[df.report_year == df.year, "balance_type"] = "ending_balance"
-        # If there are other years something is wrong.
-        assert df.balance_type.notna().all()
+        if not df.balance_type.notna().all():
+            raise ValueError(
+                f"Unexpected years found in the {self.table_id.value} table: "
+                f"{df.loc[df.balance_type.isna(), 'year'].unique()}"
+            )
         df = (
             df.drop(["year", "date"], axis="columns")
             .set_index(["entity_id", "report_year", "balance_type"])
-            .unstack()
+            .unstack("balance_type")
         )
+        # This turns a multi-index into a single-level index with tuples of strings as
+        # the keys, and then converts the tuples of strings into a single string by
+        # joining their values with an underscore. This results in column labels like
+        # boiler_plant_equipment_steam_production_starting_balance
+        # Is there a better way?
         df.columns = ["_".join(items) for items in df.columns.to_flat_index()]
         return df.reset_index()
 
     def wide_to_tidy_xbrl(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Reshape wide-format table based on FERC account column labels."""
+        """Reshape wide tables with FERC account columns to tidy format.
+
+        The XBRL table coming into this method contains all the data from both the
+        instant and duration tables in a wide format -- with one column for every
+        combination of value type (e.g. additions, ending_balance) and accounting
+        category, which means ~500 columns.
+
+        We tidy this into a long table with one column for each of the value types (6 in
+        all), and a new column that contains the accounting categories. This allows
+        aggregation across columns to calculate the ending balance based on the starting
+        balance and all of the reported changes, and aggregation across groups of rows
+        to total up various hierarchical accounting categories (hydraulic turbines ->
+        hydraulic production plant -> all production plant -> all electric utility
+        plant) though the categorical columns required for that aggregation are added
+        later.
+        """
         df = df.drop(["start_date", "end_date"], axis="columns")
-        suffixes = [
+        value_types = [
             "starting_balance",
             "additions",
             "retirements",
@@ -1065,40 +1094,28 @@ class PlantInServiceFerc1TableTransformer(Ferc1AbstractTableTransformer):
             "adjustments",
             "ending_balance",
         ]
-        new_cols = []
-        for col in df.columns:
-            for suffix in suffixes:
-                if col.endswith(suffix):
-                    new_cols.append((suffix, re.sub(f"_{suffix}", "", col)))
+        new_cols = [
+            (suffix, re.sub(f"_{suffix}", "", column_name))
+            for suffix in value_types
+            for column_name in df.columns
+            if column_name.endswith(suffix)
+        ]
         new_col_idx = pd.MultiIndex.from_tuples(
             new_cols, names=["value_type", "ferc_account_id"]
         )
 
         df = df.set_index(["entity_id", "report_year"])
         df.columns = new_col_idx
-        df = (
-            df.stack(level=1)
-            .loc[
-                :,
-                [
-                    "starting_balance",
-                    "additions",
-                    "retirements",
-                    "transfers",
-                    "adjustments",
-                    "ending_balance",
-                ],
-            ]
-            .reset_index()
-        )
-        df.columns.name = None
+        df = df.stack(level="ferc_account_id").loc[:, value_types].reset_index()
+        # df.columns.name = None
         return df
 
     @cache_df("main")
     def transform_main(self, df: pd.DataFrame) -> pd.DataFrame:
         """Main transform.
 
-        Dummy for now.
+        Currently no manipulation of the data values is being done, but this method is
+        abstract in the parent class, and so must be defined by all children.
         """
         return df
 
