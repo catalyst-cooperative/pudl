@@ -2333,6 +2333,7 @@ TRANSFORM_PARAMS = {
         "normalize_strings": {
             "plant_name_ferc1": FERC1_STRING_NORM,
             "fuel_type": FERC1_STRING_NORM,
+            "plant_type": FERC1_STRING_NORM,
         },
         "nullify_outliers": {
             "construction_year": VALID_PLANT_YEARS,

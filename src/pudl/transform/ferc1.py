@@ -1443,7 +1443,7 @@ class PlantsSmallFerc1TableTransformer(Ferc1AbstractTableTransformer):
         `prep_header_fuel_and_plant_types` docstring.
         """
         logger.info(
-            f"{self.table_id.value}: Filling NA and other fuel and plant types with"
+            f"{self.table_id.value}: Filling NA and 'other' fuel and plant types with"
             " header info"
         )
 
