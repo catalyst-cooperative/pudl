@@ -1464,19 +1464,69 @@ class PlantsSmallFerc1TableTransformer(Ferc1AbstractTableTransformer):
         return df
 
     def associate_notes_with_values(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Use footnotes to map string and ferc license to value rows.
+        """Use footnote indicators to map notes and ferc licenses to value rows.
 
-        There are many utilities that report a bunch of note rows at the bottom of their
-        yearly entry. These note rows often pertain directly to specific plant rows
-        above. Sometimes, the notes and their respective plant rows are connected by a
-        footnote such as (a) or (1) etc. This function finds those footnotes, associates
-        the "note" version with the regular value row, maps the note content from the
-        note row into a new note column that's associated with the value row, also maps
-        any ferc license extracted from this note column up to the value row it
-        references.
+        There are many utilities that report a bunch of mostly empty note rows at the
+        bottom of their yearly entry. These notes often pertain to specific plant or
+        "value" rows above. Sometimes, the notes and their respective plant rows are
+        connected by a footnote indicator such as (a) or (1) etc.
+
+        This function takes this:
+
+        +-------------------+------------+------------------+
+        | plant_name_ferc1  | row_type   | license_id_ferc1 |
+        +===================+============+==================+
+        | HYDRO:            | header     | NA               |
+        +-------------------+------------+------------------+
+        | rainbow falls (b) | NA         | NA               |
+        +-------------------+------------+------------------+
+        | cadyville (a)     | NA         | NA               |
+        +-------------------+------------+------------------+
+        | keuka (c)         | NA         | NA               |
+        +-------------------+------------+------------------+
+        | total plants      | total      | NA               |
+        +-------------------+------------+------------------+
+        | (a) project #2738 | note       | 2738             |
+        +-------------------+------------+------------------+
+        | (b) project #2835 | note       | 2738             |
+        +-------------------+------------+------------------+
+        | (c) project #2852 | note       | 2738             |
+        +-------------------+------------+------------------+
+
+        And finds these note rows with footnote indicators, maps the content
+        from the note row into a new note column that's associated with the value row,
+        and also maps any ferc license extracted from this note column to the
+        `license_id_ferc1` column in the value row.
+
+        +-------------------+------------+-------------------+------------------+
+        | plant_name_ferc1  | row_type   | note              | license_id_ferc1 |
+        +===================+============+===================+==================+
+        | HYDRO:            | header     | NA                | NA               |
+        +-------------------+------------+-------------------+------------------+
+        | rainbow falls (b) | NA         | (b) project #2835 | 2835             |
+        +-------------------+------------+-------------------+------------------+
+        | cadyville (a)     | NA         | (a) project #2738 | 2738             |
+        +-------------------+------------+-------------------+------------------+
+        | keuka (c)         | NA         | (c) project #2852 | 2752             |
+        +-------------------+------------+-------------------+------------------+
+        | total plants      | total      | NA                | NA               |
+        +-------------------+------------+-------------------+------------------+
+        | (a) project #2738 | note       | NA                | 2738             |
+        +-------------------+------------+-------------------+------------------+
+        | (b) project #2835 | note       | NA                | 2835             |
+        +-------------------+------------+-------------------+------------------+
+        | (c) project #2852 | note       | NA                | 2752             |
+        +-------------------+------------+-------------------+------------------+
+
+        The note rows will get dropped in another function.
+
+        NOTE: Note rows that don't have a footnote indicator or note rows with a
+        footnote indicator that don't have a cooresponding plant row with the same
+        indicator are not captured. They will ultimately get removed and their content
+        will not be preserved.
         """
         logger.info(
-            f"{self.table_id.value}: Mapping notes and ferc license from footnotes"
+            f"{self.table_id.value}: Mapping notes and ferc license from notes rows"
         )
 
         def associate_notes_with_values_group(group):
@@ -1488,9 +1538,9 @@ class PlantsSmallFerc1TableTransformer(Ferc1AbstractTableTransformer):
             """
             regular_row = group["row_type"].isna()
             has_note = group["row_type"] == "note"
-            # has_footnote = group.plant_name_ferc1.str.contains(footnote_pattern)
 
-            # Shorten execution time by only looking at groups with discernable footnotes
+            # Shorten execution time by only looking at groups with discernable
+            # footnotes
             if group.footnote.any():
 
                 # Make a df that combines notes and ferc license with the same footnote
@@ -1516,7 +1566,6 @@ class PlantsSmallFerc1TableTransformer(Ferc1AbstractTableTransformer):
 
         footnote_pattern = r"(\(\d?[a-z]?[A-Z]?\))"
         df["notes"] = pd.NA
-        df["footnote"] = pd.NA
         # Create new footnote column
         df.loc[:, "footnote"] = df.plant_name_ferc1.str.extract(
             footnote_pattern, expand=False
