@@ -137,13 +137,13 @@ def get_ferc1_dbf_rows_to_map(ferc1_engine: sa.engine.Engine) -> pd.DataFrame:
     expanding the time series to include all years, and forward filling the row
     literals.
     """
-    idx_cols = ["sched_table_name", "row_status", "row_number", "report_year"]
+    idx_cols = ["sched_table_name", "row_number", "report_year"]
     data_cols = ["row_literal"]
     row_lit = pd.read_sql(
         "f1_row_lit_tbl", con=ferc1_engine, columns=idx_cols + data_cols
     ).sort_values(idx_cols)
     row_lit["shifted"] = row_lit.groupby(
-        ["sched_table_name", "row_status", "row_number"]
+        ["sched_table_name", "row_number"]
     ).row_literal.shift()
     row_lit["changed"] = row_lit.row_literal != row_lit.shifted
     return row_lit.loc[row_lit.changed, idx_cols + data_cols]
@@ -155,7 +155,7 @@ def update_ferc1_dbf_xbrl_glue(ferc1_engine: sa.engine.Engine) -> pd.DataFrame:
     Reads all rows that need to be mapped out of the ``f1_row_lit_tbl`` and appends
     columns containing any previously mapped values, returning the resulting dataframe.
     """
-    idx_cols = ["sched_table_name", "row_status", "row_number", "report_year"]
+    idx_cols = ["sched_table_name", "row_number", "report_year"]
     all_rows = get_ferc1_dbf_rows_to_map(ferc1_engine).set_index(idx_cols)
     with importlib.resources.open_text(
         "pudl.package_data.ferc1", "dbf_to_xbrl.csv"
@@ -166,7 +166,7 @@ def update_ferc1_dbf_xbrl_glue(ferc1_engine: sa.engine.Engine) -> pd.DataFrame:
     return (
         pd.concat([all_rows, mapped_rows], axis="columns")
         .reset_index()
-        .sort_values(["sched_table_name", "row_status", "report_year", "row_number"])
+        .sort_values(["sched_table_name", "report_year", "row_number"])
     )
 
 
@@ -179,7 +179,6 @@ def get_ferc1_dbf_xbrl_glue(dbf_table_name: str) -> pd.DataFrame:
             file,
             usecols=[
                 "sched_table_name",
-                "row_status",
                 "report_year",
                 "row_number",
                 "row_type",
@@ -189,7 +188,7 @@ def get_ferc1_dbf_xbrl_glue(dbf_table_name: str) -> pd.DataFrame:
     # Select only the rows that pertain to dbf_table_name
     row_map = row_map.loc[
         row_map.sched_table_name == dbf_table_name,
-        ["row_status", "report_year", "row_number", "row_type", "xbrl_column_stem"],
+        ["report_year", "row_number", "row_type", "xbrl_column_stem"],
     ]
     # Indicate which rows have unmappable headers in them, to differentiate them from
     # null values in the exhaustive index we create below:
@@ -202,18 +201,17 @@ def get_ferc1_dbf_xbrl_glue(dbf_table_name: str) -> pd.DataFrame:
     # Create an index containing all possible index values:
     idx = pd.MultiIndex.from_product(
         [
-            row_map.row_status.unique(),
             Ferc1Settings().dbf_years,
             row_map.row_number.unique(),
         ],
-        names=["row_status", "report_year", "row_number"],
+        names=["report_year", "row_number"],
     )
 
     # Concatenate the row map with the empty index, so we have blank spaces to fill:
     row_map = pd.concat(
         [
             pd.DataFrame(index=idx),
-            row_map.set_index(["row_status", "report_year", "row_number"]),
+            row_map.set_index(["report_year", "row_number"]),
         ],
         axis="columns",
     ).reset_index()
@@ -224,10 +222,8 @@ def get_ferc1_dbf_xbrl_glue(dbf_table_name: str) -> pd.DataFrame:
         "row_number"
     ).xbrl_column_stem.transform("ffill")
     # Drop any rows that do not actually map between DBF rows and XBRL columns:
-    row_map = (
-        row_map.replace({"xbrl_column_stem": {"HEADER_ROW": np.nan}})
-        .dropna(subset=["xbrl_column_stem"])
-        .drop(["row_status"], axis="columns")
+    row_map = row_map.replace({"xbrl_column_stem": {"HEADER_ROW": np.nan}}).dropna(
+        subset=["xbrl_column_stem"]
     )
     return row_map
 
