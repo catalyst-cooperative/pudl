@@ -152,6 +152,27 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         return pd.concat([processed_dbf, processed_xbrl]).reset_index(drop=True)
 
     @cache_df(key="main")
+    def transform_main(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Generic FERC1 main table transformer.
+
+        Params:
+            df: Pre-processed, concatenated XBRL and DBF data.
+
+        Returns:
+            A single transformed table concatenating multiple years of cleaned data
+            derived from the raw DBF and/or XBRL inputs.
+        """
+        df = (
+            self.normalize_strings(df)
+            .pipe(self.categorize_strings)
+            .pipe(self.convert_units)
+            .pipe(self.strip_non_numeric_values)
+            .pipe(self.nullify_outliers)
+            .pipe(self.drop_invalid_rows)
+        )
+        return df
+
+    @cache_df(key="main")
     def transform_end(self, df: pd.DataFrame) -> pd.DataFrame:
         """Enforce the database schema and remove any cached dataframes."""
         return self.enforce_schema(df)
@@ -763,11 +784,8 @@ class PlantsSteamFerc1TableTransformer(Ferc1AbstractTableTransformer):
             .categories.keys()
         )
         plants_steam = (
-            self.normalize_strings(df)
-            .pipe(self.nullify_outliers)
-            .pipe(self.categorize_strings)
-            .pipe(self.convert_units)
-            .pipe(self.drop_invalid_rows)
+            super()
+            .transform_main(df)
             .pipe(
                 plants_steam_assign_plant_ids,
                 ferc1_fuel_df=transformed_fuel,
@@ -814,44 +832,11 @@ class PlantsHydroFerc1TableTransformer(Ferc1AbstractTableTransformer):
 
     table_id: Ferc1TableId = Ferc1TableId.PLANTS_HYDRO_FERC1
 
-    @cache_df(key="main")
-    def transform_main(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Table specific transforms for plants_hydro_ferc1.
-
-        Params:
-            df: Pre-processed, concatenated XBRL and DBF data.
-
-        Returns:
-            A single transformed table concatenating multiple years of cleaned data
-            derived from the raw DBF and/or XBRL inputs.
-        """
-        df = (
-            self.normalize_strings(df)
-            .pipe(self.categorize_strings)
-            .pipe(self.convert_units)
-            .pipe(self.strip_non_numeric_values)
-            .pipe(self.nullify_outliers)
-            .pipe(self.drop_invalid_rows)
-        )
-        return df
-
 
 class PlantsPumpedStorageFerc1TableTransformer(Ferc1AbstractTableTransformer):
     """Transformer class for ``plants_pumped_storage_ferc1`` table."""
 
     table_id: Ferc1TableId = Ferc1TableId.PLANTS_PUMPED_STORAGE_FERC1
-
-    @cache_df(key="main")
-    def transform_main(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Table-specific transforms for the ``plants_pumped_storage_ferc1`` table."""
-        return (
-            self.normalize_strings(df)
-            .pipe(self.categorize_strings)
-            .pipe(self.convert_units)
-            .pipe(self.strip_non_numeric_values)
-            .pipe(self.nullify_outliers)
-            .pipe(self.drop_invalid_rows)
-        )
 
 
 def transform(
