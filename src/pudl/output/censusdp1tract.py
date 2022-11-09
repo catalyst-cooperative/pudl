@@ -9,10 +9,9 @@ import sqlalchemy as sa
 
 import pudl
 from pudl.convert.censusdp1tract_to_sqlite import censusdp1tract_to_sqlite
-from pudl.helpers import get_logger
 from pudl.workspace.datastore import Datastore
 
-logger = get_logger(__name__)
+logger = pudl.logging_helpers.get_logger(__name__)
 
 
 def get_layer(

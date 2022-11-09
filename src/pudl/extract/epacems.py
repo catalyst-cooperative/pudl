@@ -23,10 +23,10 @@ from zipfile import ZipFile
 
 import pandas as pd
 
-from pudl.helpers import get_logger
+import pudl.logging_helpers
 from pudl.workspace.datastore import Datastore
 
-logger = get_logger(__name__)
+logger = pudl.logging_helpers.get_logger(__name__)
 
 # EPA CEMS constants #####
 RENAME_DICT = {

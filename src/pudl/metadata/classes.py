@@ -17,7 +17,7 @@ import sqlalchemy as sa
 from pandas._libs.missing import NAType
 from pydantic.types import DirectoryPath
 
-from pudl.helpers import get_logger
+import pudl.logging_helpers
 from pudl.metadata.codes import CODE_METADATA
 from pudl.metadata.constants import (
     CONSTRAINT_DTYPES,
@@ -44,7 +44,7 @@ from pudl.metadata.resources import FOREIGN_KEYS, RESOURCE_METADATA, eia861
 from pudl.metadata.sources import SOURCES
 from pudl.workspace.datastore import Datastore
 
-logger = get_logger(__name__)
+logger = pudl.logging_helpers.get_logger(__name__)
 
 # ---- Helpers ---- #
 
@@ -1157,7 +1157,14 @@ class Resource(Base):
     keywords: list[String] = []
     encoder: Encoder = None
     field_namespace: Literal[
-        "eia", "epacems", "ferc1", "ferc714", "glue", "pudl", "ppe"
+        "eia",
+        "epacems",
+        "ferc1",
+        "ferc714",
+        "glue",
+        "pudl",
+        "ppe",
+        "eia_bulk_elec",
     ] = None
     etl_group: Literal[
         "eia860",
@@ -1173,6 +1180,7 @@ class Resource(Base):
         "static_ferc1",
         "static_eia",
         "static_eia_disabled",
+        "eia_bulk_elec",
         "static_pudl",
     ] = None
 

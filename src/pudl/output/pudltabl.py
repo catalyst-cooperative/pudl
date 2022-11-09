@@ -33,11 +33,10 @@ from pudl.analysis.allocate_net_gen import (
     allocate_gen_fuel_by_generator_energy_source,
     scale_allocated_net_gen_by_ownership,
 )
-from pudl.helpers import get_logger
 from pudl.settings import Eia861Settings, Ferc714Settings
 from pudl.workspace.datastore import Datastore
 
-logger = get_logger(__name__)
+logger = pudl.logging_helpers.get_logger(__name__)
 
 
 ###############################################################################
@@ -84,7 +83,7 @@ class PudlTabl:
             end_date: End date for data to pull from the PUDL DB. If a string,
                 it should use the ISO 8601 ``YYYY-MM-DD`` format.
             fill_fuel_cost: if True, fill in missing ``frc_eia923()`` fuel cost
-                data with state-level averages obtained from EIA's API.
+                data with state-fuel averages from EIA's bulk electricity data.
             roll_fuel_cost: if True, apply a rolling average to a subset of
                 output table's columns (currently only ``fuel_cost_per_mmbtu``
                 for the ``fuel_receipts_costs_eia923`` table.)
@@ -747,14 +746,20 @@ class PudlTabl:
         """
         if update or self._dfs["gen_eia923"] is None:
             if self.fill_net_gen:
+                if self.freq not in ["AS", "MS"]:
+                    raise AssertionError(
+                        "Frequency must be either `AS` or `MS` to allocate net "
+                        f"generation. Got {self.freq}"
+                    )
                 logger.info(
                     "Allocating net generation from the generation_fuel_eia923 "
                     "to the generator level instead of using the less complete "
                     "generation_eia923 table."
                 )
+
                 self._dfs["gen_eia923"] = self.gen_fuel_by_generator_eia923(
                     update=update
-                )
+                ).loc[:, list(self.gen_original_eia923().columns)]
             else:
                 self._dfs["gen_eia923"] = self.gen_original_eia923(update=update)
         return self._dfs["gen_eia923"]
@@ -784,9 +789,14 @@ class PudlTabl:
     def gen_fuel_by_generator_eia923(self, update=False):
         """Net generation from gen fuel table allocated to generators."""
         if update or self._dfs["gen_fuel_allocated_eia923"] is None:
+            if self.freq not in ["AS", "MS"]:
+                raise AssertionError(
+                    "Frequency must be either `AS` or `MS` to allocate net "
+                    f"generation. Got {self.freq}"
+                )
             self._dfs["gen_fuel_allocated_eia923"] = aggregate_gen_fuel_by_generator(
                 pudl_out=self,
-                gen_pm_fuel=self.gen_fuel_by_generator_energy_source_eia923(
+                net_gen_fuel_alloc=self.gen_fuel_by_generator_energy_source_eia923(
                     update=update
                 ),
             )

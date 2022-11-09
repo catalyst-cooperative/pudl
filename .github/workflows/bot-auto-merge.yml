@@ -17,12 +17,12 @@ jobs:
         with:
           # For clarity only. dependabot is default.
           GITHUB_LOGIN: dependabot
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.BOT_AUTO_MERGE_TOKEN }}
           ENABLED_FOR_MANUAL_CHANGES: "true"
       - name: Auto-merge passing pre-commit-ci PRs
         if: ${{ github.event.workflow_run.conclusion == 'success' }}
         uses: ridedott/merge-me-action@v2
         with:
           GITHUB_LOGIN: pre-commit-ci
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.BOT_AUTO_MERGE_TOKEN }}
           ENABLED_FOR_MANUAL_CHANGES: "true"

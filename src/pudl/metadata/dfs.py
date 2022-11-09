@@ -234,6 +234,68 @@ From FERC Form 1 page 219, Accumulated Provision for Depreciation of electric
 utility plant (Account 108).
 """
 
+EIA_SECTOR_AGGREGATE_ASSN = pd.read_csv(
+    StringIO(
+        """
+sector_agg,sector_id_eia
+electric_utility,1
+ipp_non_cogen,2
+ipp_cogen,3
+commercial_non_cogen,4
+commercial_cogen,5
+industrial_non_cogen,6
+industrial_cogen,7
+all_sectors,1
+all_sectors,2
+all_sectors,3
+all_sectors,4
+all_sectors,5
+all_sectors,6
+all_sectors,7
+all_ipp,2
+all_ipp,3
+all_commercial,4
+all_commercial,5
+all_industrial,6
+all_industrial,7
+all_electric_power,1
+all_electric_power,2
+all_electric_power,3
+"""
+    ),
+)
+"""Association table describing the many-to-many relationships between plant sectors
+and various aggregates in fuel_receipts_costs_aggs_eia.
+"""
+
+
+EIA_FUEL_AGGREGATE_ASSN = pd.read_csv(
+    StringIO(
+        """
+fuel_agg,energy_source_code_eia
+bituminous_coal,BIT
+sub_bituminous_coal,SUB
+lignite_coal,LIG
+all_coal,BIT
+all_coal,SUB
+all_coal,LIG
+all_coal,WC
+natural_gas,NG
+petroleum_coke,PC
+petroleum_liquids,DFO
+petroleum_liquids,RFO
+petroleum_liquids,JF
+petroleum_liquids,KER
+petroleum_liquids,WO
+    """
+    ),
+)
+"""Association table describing the many-to-many relationships between fuel types
+and various aggregates in fuel_receipts_costs_aggs_eia. Missing from these aggregates
+are all the "other" categories of gases: OG, BFG, SGP, SC, PG. But those gases combine
+for about 0.2% of total MMBTU of reported fuel receipts."""
+
+
 POLITICAL_SUBDIVISIONS: pd.DataFrame = pd.read_csv(
     StringIO(
         """

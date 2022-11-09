@@ -18,11 +18,10 @@ from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
 
 import pudl
-from pudl.helpers import configure_root_logger, get_logger
 from pudl.workspace import resource_cache
 from pudl.workspace.resource_cache import PudlResourceKey
 
-logger = get_logger(__name__)
+logger = pudl.logging_helpers.get_logger(__name__)
 
 # The Zenodo tokens recorded here should have read-only access to our archives.
 # Including them here is correct in order to allow public use of this tool, so
@@ -164,10 +163,10 @@ class ZenodoFetcher:
         },
         "production": {
             "censusdp1tract": "10.5281/zenodo.4127049",
-            "eia860": "10.5281/zenodo.6954131",
+            "eia860": "10.5281/zenodo.7113854",
             "eia860m": "10.5281/zenodo.6929086",
-            "eia861": "10.5281/zenodo.7063401",
-            "eia923": "10.5281/zenodo.7003886",
+            "eia861": "10.5281/zenodo.7191809",
+            "eia923": "10.5281/zenodo.7236677",
             "eia_bulk_elec": "10.5281/zenodo.7067367",
             "epacamd_eia": "10.5281/zenodo.7063255",
             "epacems": "10.5281/zenodo.6910058",
@@ -567,9 +566,7 @@ def main():
     """Cache datasets."""
     args = parse_command_line()
 
-    configure_root_logger()
-
-    logger.setLevel(args.loglevel)
+    pudl.logging_helpers.configure_root_logger(loglevel=args.loglevel)
 
     dstore = _create_datastore(args)
 

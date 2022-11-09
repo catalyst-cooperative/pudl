@@ -19,7 +19,7 @@ import pytest
 from pandas.testing import assert_frame_equal, assert_series_equal
 from pydantic import ValidationError
 
-from pudl.helpers import get_logger
+import pudl.logging_helpers
 from pudl.transform.classes import (
     AbstractTableTransformer,
     InvalidRows,
@@ -57,7 +57,7 @@ from pudl.transform.params.ferc1 import (
     VALID_PLANT_YEARS,
 )
 
-logger = get_logger(__name__)
+logger = pudl.logging_helpers.get_logger(__name__)
 
 # Unit conversions that are only used in testing
 PERTHERM_TO_PERMCF = dict(
@@ -1025,7 +1025,9 @@ def test_strip_non_numeric():
             "2175",
             2175,
             "     FERC Licensed Proj. No. 0120",
+            "     FERC1 Licensed Proj. No. 0120",
             "-120",
+            "No1 6.6",
             "3.",
             "3.3",
             3.3,
@@ -1041,7 +1043,9 @@ def test_strip_non_numeric():
             "2175",
             "2175",
             "0120",
+            "0120",
             "-120",
+            "6.6",
             "3.",
             "3.3",
             "3.3",

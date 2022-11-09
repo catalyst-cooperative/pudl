@@ -49,9 +49,8 @@ import pathlib
 import sys
 
 import pudl
-from pudl.helpers import configure_root_logger, get_logger
 
-logger = get_logger(__name__)
+logger = pudl.logging_helpers.get_logger(__name__)
 
 
 def initialize_parser():
@@ -100,7 +99,7 @@ def initialize_parser():
 def main():
     """Set up a new default PUDL workspace."""
     # Display logged output from the PUDL package:
-    configure_root_logger()
+    pudl.logging_helpers.configure_root_logger()
 
     parser = initialize_parser()
     args = parser.parse_args(sys.argv[1:])

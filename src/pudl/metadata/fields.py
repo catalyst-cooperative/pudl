@@ -29,10 +29,11 @@ from pudl.metadata.labels import (
     MOMENTARY_INTERRUPTIONS,
 )
 from pudl.metadata.sources import SOURCES
-from pudl.transform.params.ferc1 import (
-    PLANT_TYPE_CATEGORIES,
-    PLANT_TYPE_CATEGORIES_HYDRO,
-)
+
+# from pudl.transform.params.ferc1 import (
+#    PLANT_TYPE_CATEGORIES,
+#    PLANT_TYPE_CATEGORIES_HYDRO,
+# )
 
 FIELD_METADATA: dict[str, dict[str, Any]] = {
     "active": {
@@ -364,6 +365,27 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "ferc_account_description": {
         "type": "string",
+    },
+    "fuel_agg": {
+        "type": "string",
+        "description": "Category of fuel aggregation in EIA bulk electricity data.",
+    },
+    "geo_agg": {
+        "type": "string",
+        "description": "Category of geographic aggregation in EIA bulk electricity data.",
+    },
+    "sector_agg": {
+        "type": "string",
+        "description": "Category of sectoral aggregation in EIA bulk electricity data.",
+    },
+    "temporal_agg": {
+        "type": "string",
+        "description": "Category of temporal aggregation in EIA bulk electricity data.",
+    },
+    "fuel_received_mmbtu": {
+        "type": "number",
+        "description": "Aggregated fuel receipts, in MMBtu, in EIA bulk electricity data.",
+        "unit": "MMBtu",
     },
     "direct_load_control_customers": {"type": "integer"},
     "distributed_generation": {
@@ -2252,14 +2274,41 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
         "plant_type": {
             "type": "string",
             "constraints": {
-                "enum": set(PLANT_TYPE_CATEGORIES_HYDRO["categories"].keys())
+                # This ENUM is made up of the keys from
+                # pudl.transform.params.ferc1.PLANT_TYPE_CATEGORIES_HYDRO, which it
+                # would be better to use directly, but we have to work out some cross
+                # subpackage import dependencies
+                "enum": {
+                    "hydro",
+                    "na_category",
+                    "run_of_river_with_storage",
+                    "run_of_river",
+                    "storage",
+                }
             },
         }
     },
     "plants_steam_ferc1": {
         "plant_type": {
             "type": "string",
-            "constraints": {"enum": set(PLANT_TYPE_CATEGORIES["categories"].keys())},
+            "constraints": {
+                # This ENUM is made up of the keys from
+                # pudl.transform.params.ferc1.PLANT_TYPE_CATEGORIES, which it
+                # would be better to use directly, but we have to work out some cross
+                # subpackage import dependencies
+                "enum": {
+                    "combined_cycle",
+                    "combustion_turbine",
+                    "geothermal",
+                    "internal_combustion",
+                    "na_category",
+                    "nuclear",
+                    "photovoltaic",
+                    "solar_thermal",
+                    "steam",
+                    "wind",
+                }
+            },
         }
     },
     "plant_parts_eia": {

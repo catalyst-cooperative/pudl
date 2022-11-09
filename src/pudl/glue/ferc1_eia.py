@@ -35,13 +35,12 @@ import pandas as pd
 import sqlalchemy as sa
 
 import pudl
-from pudl.helpers import get_logger
 from pudl.metadata.fields import apply_pudl_dtypes
 from pudl.transform.classes import StringNormalization, normalize_strings_multicol
 from pudl.transform.ferc1 import Ferc1AbstractTableTransformer, Ferc1TableId
 from pudl.transform.params.ferc1 import FERC1_STRING_NORM
 
-logger = get_logger(__name__)
+logger = pudl.logging_helpers.get_logger(__name__)
 
 PUDL_ID_MAP_XLSX = importlib.resources.open_binary(
     "pudl.package_data.glue", "pudl_id_mapping.xlsx"
@@ -222,9 +221,6 @@ def get_plants_ferc1_raw(
         A dataframe containing plant records from all relevant FERC1 plant tables. Each
         row is a unique combination of ``utility_id_ferc1`` and ``plant_name``.
     """
-    # Validate the input years:
-    _ = pudl.settings.Ferc1Settings(years=list(years))
-
     plant_tables = [
         "plants_hydro_ferc1",
         "plants_pumped_storage_ferc1",
@@ -232,7 +228,7 @@ def get_plants_ferc1_raw(
         "plants_steam_ferc1",
         "fuel_ferc1",  # bc it has plants/is associated w/ the steam table
     ]
-    ferc1_settings = pudl.settings.Ferc1Settings(tables=plant_tables)
+    ferc1_settings = pudl.settings.Ferc1Settings(tables=plant_tables, years=years)
     # Extract FERC form 1
     ferc1_dbf_raw_dfs = pudl.extract.ferc1.extract_dbf(
         ferc1_settings=ferc1_settings, pudl_settings=pudl_settings
@@ -330,17 +326,17 @@ def label_plants_eia(pudl_out: pudl.output.pudltabl.PudlTabl):
         .sum(min_count=1)
         .pipe(apply_pudl_dtypes, group="eia")
     )
-    most_recent_date = max(plants.report_date)
     plants_w_capacity = (
         plants.merge(
             plant_capacity,
             on=["plant_id_eia", "report_date"],
-            how="left",
+            how="outer",
             validate="1:1",
         )
         .assign(link_to_ferc1=lambda x: x.capacity_mw >= MIN_PLANT_CAPACITY_MW)
+        .sort_values(["report_date"], ascending=False)
         .loc[
-            (plants.report_date == most_recent_date),
+            :,
             [
                 "plant_id_eia",
                 "plant_name_eia",
@@ -351,6 +347,7 @@ def label_plants_eia(pudl_out: pudl.output.pudltabl.PudlTabl):
                 "capacity_mw",
             ],
         ]
+        .drop_duplicates(subset=["plant_id_eia"])
     )
     return plants_w_capacity
 
@@ -391,23 +388,24 @@ def get_utility_most_recent_capacity(pudl_engine) -> pd.DataFrame:
     return utility_caps
 
 
-def get_plants_ids_eia923(pudl_out: pudl.output.pudltabl.PudlTabl) -> list:
+def get_plants_ids_eia923(pudl_out: pudl.output.pudltabl.PudlTabl) -> pd.DataFrame:
     """Get a list of plant_id_eia's that show up in EIA 923 tables."""
     pudl_out_methods_eia923 = [
         method_name
         for method_name in dir(pudl_out)
-        if callable(getattr(pudl_out, method_name)) and "_eia923" in method_name
+        if callable(getattr(pudl_out, method_name))
+        and "_eia923" in method_name
+        and "gen_fuel_by_generator" not in method_name
     ]
     list_of_plant_ids = []
     for eia923_meth in pudl_out_methods_eia923:
-        new_ids = getattr(pudl_out, eia923_meth)()["plant_id_eia"]
+        new_ids = getattr(pudl_out, eia923_meth)()[["plant_id_eia"]]
         list_of_plant_ids.append(new_ids)
-    plant_ids = pd.concat(list_of_plant_ids)
-    plant_ids_in_eia923 = sorted(set(plant_ids))
+    plant_ids_in_eia923 = pd.concat(list_of_plant_ids).drop_duplicates()
     return plant_ids_in_eia923
 
 
-def get_utils_ids_eia_unmapped(
+def get_util_ids_eia_unmapped(
     pudl_out, pudl_engine, utilities_eia_mapped
 ) -> pd.DataFrame:
     """Get a list of all the EIA Utilities in the PUDL DB without PUDL IDs.
@@ -420,15 +418,24 @@ def get_utils_ids_eia_unmapped(
     plants and include that in the output dataframe so that we can effectively
     prioritize mapping them.
     """
-    utilities_eia_db = pudl_out.utils_eia860()[["utility_id_eia"]].drop_duplicates()
+    utilities_eia_db = pudl_out.utils_eia860()[
+        ["utility_id_eia", "utility_name_eia"]
+    ].drop_duplicates(["utility_id_eia"])
     unmapped_utils_eia = get_missing_ids(
         utilities_eia_mapped, utilities_eia_db, id_cols=["utility_id_eia"]
     )
 
     # Get the most recent total capacity for the unmapped utils.
-    unmapped_utils_eia = get_utility_most_recent_capacity(pudl_engine).loc[
-        unmapped_utils_eia
-    ]
+    unmapped_utils_eia = (
+        get_utility_most_recent_capacity(pudl_engine)
+        .loc[unmapped_utils_eia]
+        .merge(
+            utilities_eia_db.set_index("utility_id_eia"),
+            left_index=True,
+            right_index=True,
+            how="left",
+        )
+    )
 
     plant_ids_in_eia923 = get_plants_ids_eia923(pudl_out=pudl_out)
     utils_with_plants = (

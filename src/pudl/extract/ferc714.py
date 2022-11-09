@@ -4,10 +4,9 @@ import warnings
 import pandas as pd
 
 import pudl
-from pudl.helpers import get_logger
 from pudl.settings import Ferc714Settings
 
-logger = get_logger(__name__)
+logger = pudl.logging_helpers.get_logger(__name__)
 
 TABLE_FNAME = {
     "id_certification_ferc714": "Part 1 Schedule 1 - Identification Certification.csv",
