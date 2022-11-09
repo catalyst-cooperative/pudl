@@ -315,7 +315,7 @@ class StripNonNumericValues(TransformParams):
 def strip_non_numeric_values(
     col: pd.Series, params: StripNonNumericValues | None = None
 ) -> pd.Series:
-    """Strip a column of any non-integer values.
+    """Strip a column of any non numeric values.
 
     Using the following options in :func:`pd.Series.extract` :
 
@@ -323,13 +323,16 @@ def strip_non_numeric_values(
       decimal place followed by any number of digits (including zero)
     * OR an optional ``+`` or ``-`` followed by a period followed by at least one digit
 
+    Unless the found mathc is followed by a letter (this is done using a negative
+    lookback).
+
     Note: this will not work with exponential values.
     """
     if params is None:
         params = StripNonNumericValues(strip_non_numeric_values=True)
     if params.strip_non_numeric_values:
         col = col.astype(str).str.extract(
-            rf"(?P<{col.name}>[-+]?\d+\.?\d*|[-+]?\.\d+)",  # name the series
+            rf"(?P<{col.name}>(?<![a-z-A-Z])[-+]?\d+\.?\d*|[-+]?\.\d+)",  # name the series
             expand=False,
         )
     return col
