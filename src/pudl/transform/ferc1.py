@@ -1224,9 +1224,20 @@ class PlantsSmallFerc1TableTransformer(Ferc1AbstractTableTransformer):
         return util_groups.apply(lambda x: _label_note_rows_group(x))
 
     def _label_total_rows(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Label total rows."""
+        """Label total rows.
+
+        For the most part, when `plant_name_ferc1` contains the words "total", the
+        values therein are duplicates of what is already reported. However, there are
+        some cases where that's not true. The phrase "amounts are for the total" appears
+        when chunks of plants (usually but not always wind) are reported together. It's
+        a total, but it's not double counting which is the reason for the "total" flag.
+        """
         logger.info(f"{self.table_id.value}: Labeling total rows")
-        df.loc[df["plant_name_ferc1"].str.contains("total"), "row_type"] = "total"
+        df.loc[
+            df["plant_name_ferc1"].str.contains("total")
+            & ~df["plant_name_ferc1"].str.contains("amounts are for the total"),
+            "row_type",
+        ] = "total"
 
         return df
 
