@@ -904,6 +904,7 @@ class PlantsSmallFerc1TableTransformer(Ferc1AbstractTableTransformer):
             .pipe(self.categorize_strings)
             .pipe(self.map_header_fuel_and_plant_types)
             .pipe(self.associate_notes_with_values)
+            .pipe(self.spot_fix_rows)
             # .pipe(self.drop_invalid_rows)
         )
         # Remove headers and note rows now that the relevant information has been
@@ -1259,21 +1260,6 @@ class PlantsSmallFerc1TableTransformer(Ferc1AbstractTableTransformer):
         """Label total rows."""
         logger.info(f"{self.table_id.value}: Labeling total rows")
         df.loc[df["plant_name_ferc1"].str.contains("total"), "row_type"] = "total"
-        # There are a couple or pre-2021 rows that contain the phrase like
-        # "amounts are for" that pertaining to total records listed one row above.
-        # This section of code moves the content of those rows one up.
-        num_cols = [
-            x
-            for x in df.select_dtypes(include=["float", "Int64"]).columns.tolist()
-            if x not in ["utility_id_ferc1", "report_year", "license_id_ferc1"]
-        ]
-        bad_row = df[
-            (df["plant_name_ferc1"].str.contains("amounts are for"))
-            & (df["capacity_mw"] > 0)
-            & (df["report_year"] < 2021)
-        ]
-        df.loc[bad_row.index, num_cols] = df.loc[bad_row.index - 1][num_cols].values
-        df.loc[bad_row.index - 1, num_cols] = np.nan
 
         return df
 
@@ -1601,6 +1587,38 @@ class PlantsSmallFerc1TableTransformer(Ferc1AbstractTableTransformer):
         sg_notes = sg_notes.drop(columns=["footnote"])
 
         return sg_notes
+
+    def spot_fix_rows(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Fix some row discrepancies that are one-off errors.
+
+        In 2004, utility_id_ferc1 251 reports clumps of units together. Each unit clump
+        looks something like this: "intrepid wind farm (107 units @ 1.5 mw each)" and is
+        followed by a row that looks like this: "(amounts are for the total of all 107
+        units)". For the most part, these rows are useless note rows. However, there is
+        one instance where important values are reported in this note row rather than in
+        the actual plant row above.
+        """
+        logger.info(f"{self.table_id.value}: Spot fixing some rows")
+        # Define rows and columns to change
+        cols_to_change = df.select_dtypes(include=np.number).columns.tolist() + [
+            "row_type"
+        ]
+        row_with_info = (df["report_year"] == 2004) & (
+            df["plant_name_ferc1"] == "(amounts are for the total of all 107 units)"
+        )
+        row_missing_info = (df["report_year"] == 2004) & (
+            df["plant_name_ferc1"] == "intrepid wind farm (107 units @ 1.5 mw each)"
+        )
+
+        # Replace row missing information with data from row containing information
+        df.loc[row_missing_info, cols_to_change] = df[row_with_info][
+            cols_to_change
+        ].values
+
+        # Remove row_with_info so there is no duplicate information
+        df = df[~row_with_info]
+
+        return df
 
 
 def transform(
