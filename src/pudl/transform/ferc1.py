@@ -873,11 +873,12 @@ class PlantsSmallFerc1TableTransformer(Ferc1AbstractTableTransformer):
             self.normalize_strings(df)
             .pipe(self.nullify_outliers)
             .pipe(self.convert_units)
-            .pipe(self.categorize_strings)
             .pipe(self.extract_ferc1_license)
             .pipe(self.label_row_types)
-            .pipe(self.map_header_fuel_types)
+            .pipe(self.prep_header_fuel_and_plant_types)
             .pipe(self.map_plant_name_fuel_types)
+            .pipe(self.categorize_strings)
+            .pipe(self.map_header_fuel_and_plant_types)
             .pipe(self.associate_notes_with_values)
             # .pipe(self.drop_invalid_rows)
         )
@@ -1306,71 +1307,85 @@ class PlantsSmallFerc1TableTransformer(Ferc1AbstractTableTransformer):
 
         return df_labeled
 
-    def map_header_fuel_types(
+    def prep_header_fuel_and_plant_types(
         self, df: pd.DataFrame, show_unmapped_headers=False
     ) -> pd.DataFrame:
-        """Apply the plant type indicated in the header row to the relevant rows.
+        """Forward fill headers to prep for integration with plant and fuel type cols.
 
-        This function groups the data by utility, year, and header and forward fills the
-        cleaned plant type based on that. As long as each utility year group that uses a
-        header for one plant type also uses headers for other plant types this will
-        work. I.e., if a utility's plant_name_ferc1 column looks like this: [STEAM,
-        coal_plant1, coal_plant2, wind_turbine1], this algorythem will think that wind
-        turbine is steam. Ideally (also usually) if they label one, they will label all.
-        The ideal version is:
+        The headers we've identified in _label_header_rows() can be used to supplement
+        the values in the `plant_type` and `fuel_type` columns.
 
-        [STEAM, coal_plant1, coal_plant2, WIND, wind_turbine]. Right now, this function
-        puts the new header plant type into a column called plant_type_2. This is so we
-        can compare against the current plant_type column for accuracy and validation
-        purposes.
+        This function groups the data by utility, year, and header, creates a new column
+        for the header, and forward fills the header so that each record in the header
+        group has the header in a new column. This header column is then duplicated and
+        renamed `fuel_type_2` and `plant_type_2`. These columns will then be used to
+        fill in blank values in the `plant_type` and `fuel_type` columns.
+
+        Why do we stop here?
+
+        We trust the original values more than the `_2` values we've gotten from the
+        headers. We only want to replace original values labeled as NA and "other", but
+        we don't get the "other" designation until the `fuel_type` and `plant_type`
+        columns have been run through categorize strings. Because we'll eventually want
+        cleaned header strings as well, we create the two new columns, run all four
+        through `categorize_strings` and then combine then.
+
+        Here's a look at what this function does. It starts with this:
+        +-------------------+------------+------------+----------+
+        | plant_name_ferc1  | plant_type | fuel_type  | row_type |
+        +===================+============+============+==========+
+        | HYDRO:            | NA         | NA         | header   |
+        +-------------------+------------+------------+----------+
+        | rainbow falls (b) | NA         | NA         | NA       |
+        +-------------------+------------+------------+----------+
+        | cadyville (a)     | NA         | NA         | NA       |
+        +-------------------+------------+------------+----------+
+        | keuka (c)         | NA         | NA         | NA       |
+        +-------------------+------------+------------+----------+
+        | Wind Turbines:    | NA         | NA         | header   |
+        +-------------------+------------+------------+----------+
+        | sunny grove       | NA         | NA         | NA       |
+        +-------------------+------------+------------+----------+
+        | green park wind   | NA         | wind       | NA       |
+        +-------------------+------------+------------+----------+
+
+        And ends with this:
+        +-------------------+------------+------------+---------------+----------------+
+        | plant_name_ferc1  | plant_type | fuel_type  | plant_type_2  | fuel_type_2    |
+        +===================+============+============+===============+================+
+        | HYDRO:            | NA         | NA         | HYDRO:        | HYDRO:         |
+        +-------------------+------------+------------+---------------+----------------+
+        | rainbow falls (b) | NA         | NA         | HYDRO:        | HYDRO:         |
+        +-------------------+------------+------------+---------------+----------------+
+        | cadyville (a)     | NA         | NA         | HYDRO:        | HYDRO:         |
+        +-------------------+------------+------------+---------------+----------------+
+        | keuka (c)         | NA         | NA         | HYDRO:        | HYDRO:         |
+        +-------------------+------------+------------+---------------+----------------+
+        | Wind Turbines:    | NA         | NA         | Wind Turbines:| Wind Turbines: |
+        +-------------------+------------+------------+---------------+----------------+
+        | sunny grove       | NA         | NA         | Wind Turbines:| Wind Turbines: |
+        +-------------------+------------+------------+---------------+----------------+
+        | green park wind   | NA         | wind       | Wind Turbines:| Wind Turbines: |
+        +-------------------+------------+------------+---------------+----------------+
+
+        NOTE: If a utility's `plant_name_ferc1` column looks like this: [STEAM,
+        coal_plant1, coal_plant2, wind_turbine1], then algorythem will think that last
+        wind turbine is a steam plant. Luckily, when a utility embeds headers in the
+        data it usually includes them for all plant types: [STEAM, coal_plant1,
+        coal_plant2, WIND, wind_turbine].
         """
-        logger.info(f"{self.table_id.value}: Mapping header fuels to relevant rows")
-
-        def expand_dict(dic):
-            """Change format of header_labels.
-
-            Right now, the header_labels dictionaries defined above follow this format:
-
-            {clean_name_A: [ bad_name_A1, bad_name_A2, ...], clean_name_B: [bad_name_B1,
-            bad_nameB2]}. This is convenient visually, but it makes more sense to format
-            it like this: {bad_name_A1: clean_name_A, bad_name_A2: clean_name_A,
-            bad_name_B1: clean_name_B, bad_name_B2: clean_name_B}. We could reformat the
-            dictionaries, but for now I created this function to do it where necessariy
-            in certain functions.
-            """
-            d = {}
-            for k, lst in dic.items():
-                for i in range(len(lst)):
-                    d[lst[i]] = k
-            return d
-
-        header_labels = {  # Add these to the PLANT_CATEGORIES param ideally
-            "hydroelectric": ["hydro", "hyrdo"],
-            "internal combustion": ["internal", "interal", "international combustion"],
-            "combustion turbine": ["combustion turbine"],
-            "combined cycle": ["combined cycle"],
-            "gas turbine": ["gas"],
-            "petroleum liquids": ["oil", "diesel", "diesal"],
-            "solar": ["solar", "photovoltaic"],
-            "wind": ["wind"],
-            "geothermal": ["geothermal"],
-            "waste": ["waste", "landfill"],
-            "steam": ["steam"],
-            "nuclear": ["nuclear"],
-            "fuel_cell": ["fuel cell"],
-            "other": ["other"],
-            "renewables": ["renewables"],
-        }
-        # Clean header names
-        df["header_clean"] = np.nan
-        d = expand_dict(header_labels)
-        # Map cleaned header names onto df in a new column
-        df.loc[df["row_type"] == "header", "header_clean"] = (
-            df["plant_name_ferc1"]
-            .str.extract(rf"({'|'.join(d.keys())})", expand=False)
-            .map(d)
+        logger.info(
+            f"{self.table_id.value}: Forward filling header fuel and plant types"
         )
-        # Make groups based on utility, year, and header
+
+        # Create a column of just headers
+        df.loc[df["row_type"] == "header", "header"] = df["plant_name_ferc1"]
+
+        # Make groups based on utility, year, and header.
+        # The .cumsum() creates a new series with values that go up from 1 whenever
+        # there is a new header. So imagine row_type["header", NA, NA, "header", NA].
+        # this creates a series of [1,1,1,2,2] so that the data can be grouped by
+        # header.
         header_groups = df.groupby(
             [
                 "utility_id_ferc1",
@@ -1379,18 +1394,54 @@ class PlantsSmallFerc1TableTransformer(Ferc1AbstractTableTransformer):
             ]
         )
         # Forward fill based on headers
-        df["plant_type_2"] = np.nan
-        df.loc[
-            df["row_type"] != "note", "plant_type_2"
-        ] = header_groups.header_clean.ffill()
+        df.loc[df["row_type"] != "note", "header"] = header_groups.header.ffill()
 
-        # Document unmapped headers
-        unmapped_headers = df[
-            (df["row_type"] == "header") & (df["header_clean"].isna())
-        ].plant_name_ferc1.value_counts()
-        logger.info(f"Found unmapped headers: \n {unmapped_headers}")
+        # Create temporary columns for plant type and fuel type
+        df["plant_type_2"] = df["header"]
+        df["fuel_type_2"] = df["header"]
+        df = df.drop(columns=["header"])
 
-        df = df.drop(columns=["header_clean"])
+        return df
+
+    def map_header_fuel_and_plant_types(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Fill NA and other plant and fuel types with header fuels.
+
+        `prep_header_fuel_and_plant_types` extracted and forward filled the header
+        values; categorize_strings cleaned them according to both the fuel and plant
+        type parameters; now we need to combine the `fuel_type_2` with `fuel_type` and
+        `plant_type_2` with `plant_type`.
+
+        This function replaces values that are NA or "other" from `fuel_type` with
+        `fuel_type_2` and from `plant_type` with `plant_type_2`. It then removes the
+        `plant_type_2` and `fuel_type_2` columns.
+
+        To understand more about why these steps are necessary, see the
+        `prep_header_fuel_and_plant_types` docstring.
+        """
+        logger.info(
+            f"{self.table_id.value}: Filling NA and other fuel and plant types with"
+            " header info"
+        )
+
+        # Stash the amount of NA values to check that the filling worked.
+        old_fuel_na_count = len(df[df["fuel_type"].isin([pd.NA, "other"])])
+        old_plant_na_count = len(df[df["plant_type"].isin([pd.NA, "other"])])
+
+        # Fill NA and "other" fields
+        df.loc[df["plant_type"].isin([pd.NA, "other"]), "plant_type"] = df.plant_type_2
+        df.loc[df["fuel_type"].isin([pd.NA, "other"]), "fuel_type"] = df.fuel_type_2
+
+        # Remove _2 fields
+        df = df.drop(columns=["plant_type_2", "fuel_type_2"])
+
+        # Check that this worked!
+        new_fuel_na_count = len(df[df["fuel_type"].isin([pd.NA, "other"])])
+        new_plant_na_count = len(df[df["plant_type"].isin([pd.NA, "other"])])
+
+        if not old_fuel_na_count > new_fuel_na_count:
+            raise AssertionError("No header fuel types added when there should be")
+        if not old_plant_na_count > new_plant_na_count:
+            raise AssertionError("No header plant types added when there should be")
 
         return df
 
