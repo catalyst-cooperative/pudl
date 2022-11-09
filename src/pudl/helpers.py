@@ -7,7 +7,6 @@ should probably live here. There are lost of transform type functions in here th
 with cleaning and restructing dataframes.
 """
 import itertools
-import logging
 import pathlib
 import re
 import shutil
@@ -18,13 +17,13 @@ from io import BytesIO
 from typing import Any, Literal
 
 import addfips
-import coloredlogs
 import numpy as np
 import pandas as pd
 import requests
 import sqlalchemy as sa
 from pandas._libs.missing import NAType
 
+import pudl.logging_helpers
 from pudl.metadata.fields import get_pudl_dtypes
 
 sum_na = partial(pd.Series.sum, skipna=False)
@@ -38,13 +37,7 @@ consumption for the year needs to be NA, otherwise we'll get unrealistic heat
 rates.
 """
 
-
-def get_logger(name: str):
-    """Helper function to append 'catalystcoop' to logger name and return logger."""
-    return logging.getLogger(f"catalystcoop.{name}")
-
-
-logger = get_logger(__name__)
+logger = pudl.logging_helpers.get_logger(__name__)
 
 
 def label_map(
@@ -477,16 +470,17 @@ def date_merge(
     """
 
     def separate_date_cols(df, date_col_name, date_on):
-        df[date_col_name] = pd.to_datetime(df[date_col_name])
+        out_df = df.copy()
+        out_df.loc[:, date_col_name] = pd.to_datetime(out_df[date_col_name])
         if "year_temp_for_merge" in date_on:
-            df.loc[:, "year_temp_for_merge"] = df[date_col_name].dt.year
+            out_df.loc[:, "year_temp_for_merge"] = out_df[date_col_name].dt.year
         if "quarter_temp_for_merge" in date_on:
-            df.loc[:, "quarter_temp_for_merge"] = df[date_col_name].dt.quarter
+            out_df.loc[:, "quarter_temp_for_merge"] = out_df[date_col_name].dt.quarter
         if "month_temp_for_merge" in date_on:
-            df.loc[:, "month_temp_for_merge"] = df[date_col_name].dt.month
+            out_df.loc[:, "month_temp_for_merge"] = out_df[date_col_name].dt.month
         if "day_temp_for_merge" in date_on:
-            df.loc[:, "day_temp_for_merge"] = df[date_col_name].dt.day
-        return df
+            out_df.loc[:, "day_temp_for_merge"] = out_df[date_col_name].dt.day
+        return out_df
 
     right = convert_col_to_datetime(right, right_date_col)
     left = convert_col_to_datetime(left, left_date_col)
@@ -1005,7 +999,7 @@ def simplify_columns(df):
     return df
 
 
-def drop_tables(engine, clobber=False):
+def drop_tables(engine: sa.engine.Engine, clobber: bool = False):
     """Drops all tables from a SQLite database.
 
     Creates an sa.schema.MetaData object reflecting the structure of the
@@ -1016,8 +1010,12 @@ def drop_tables(engine, clobber=False):
         Treat DB connection as a context manager (with/as).
 
     Args:
-        engine (sa.engine.Engine): An SQL Alchemy SQLite database Engine
-            pointing at an exising SQLite database to be deleted.
+        engine: An SQL Alchemy SQLite database Engine pointing at an exising SQLite
+            database to be deleted.
+        clobber: Whether or not to allow a non-empty DB to be removed.
+
+    Raises:
+        AssertionError: if clobber is False and there are any tables in the database.
 
     Returns:
         None
@@ -1546,19 +1544,3 @@ def convert_df_to_excel_file(df: pd.DataFrame, **kwargs) -> pd.ExcelFile:
     workbook = bio.read()
 
     return pd.ExcelFile(workbook)
-
-
-def configure_root_logger(logfile: str | None = None):
-    """Configure the root catalystcoop logger.
-
-    Args:
-        logfile: Path to logfile or None.
-    """
-    logger = logging.getLogger("catalystcoop")
-    log_format = "%(asctime)s [%(levelname)8s] %(name)s:%(lineno)s %(message)s"
-    coloredlogs.install(fmt=log_format, level="INFO", logger=logger)
-
-    if logfile is not None:
-        file_logger = logging.FileHandler(logfile)
-        file_logger.setFormatter(logging.Formatter(log_format))
-        logger.addHandler(file_logger)

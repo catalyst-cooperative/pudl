@@ -8,7 +8,6 @@ from ferc_xbrl_extractor import xbrl
 from ferc_xbrl_extractor.instance import InstanceBuilder
 
 import pudl
-from pudl.helpers import get_logger
 from pudl.settings import (
     FercGenericXbrlToSqliteSettings,
     FercToSqliteSettings,
@@ -16,7 +15,7 @@ from pudl.settings import (
 )
 from pudl.workspace.datastore import Datastore
 
-logger = get_logger(__name__)
+logger = pudl.logging_helpers.get_logger(__name__)
 
 
 class FercXbrlDatastore:
@@ -177,5 +176,6 @@ def convert_form(
             batch_size=batch_size,
             workers=workers,
             datapackage_path=pudl_settings[f"ferc{form.value}_xbrl_descriptor"],
+            metadata_path=pudl_settings[f"ferc{form.value}_taxonomy_metadata"],
             archive_file_path=taxonomy_entry_point,
         )

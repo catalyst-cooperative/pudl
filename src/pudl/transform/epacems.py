@@ -6,17 +6,18 @@ import pandas as pd
 import pytz
 import sqlalchemy as sa
 
-from pudl.helpers import get_logger, remove_leading_zeros_from_numeric_strings
+import pudl.logging_helpers
+from pudl.helpers import remove_leading_zeros_from_numeric_strings
 from pudl.metadata.fields import apply_pudl_dtypes
 
-logger = get_logger(__name__)
+logger = pudl.logging_helpers.get_logger(__name__)
+
+
 ###############################################################################
 ###############################################################################
 # DATATABLE TRANSFORM FUNCTIONS
 ###############################################################################
 ###############################################################################
-
-
 def harmonize_eia_epa_orispl(
     df: pd.DataFrame,
     crosswalk_df: pd.DataFrame,

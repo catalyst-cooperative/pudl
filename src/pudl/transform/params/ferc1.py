@@ -1,4 +1,9 @@
-"""FERC 1 specific transformation parameters."""
+"""FERC 1 specific transformation parameters.
+
+These constants are used to construct :mod:`pydantic` models, which are validated and
+used to control the various data transformations. The definitions of those models can be
+found in :mod:`pudl.transform.classes` and :mod:`pudl.transform.ferc1`
+"""
 
 from datetime import date
 
@@ -1256,7 +1261,7 @@ PLANT_TYPE_CATEGORIES_HYDRO: dict[str, set[str]] = {
             "hydro",
             "conventional",
         },
-        "run of river": {
+        "run_of_river": {
             "run ofriver",
             "r of r",
             "run - of - river",
@@ -1267,7 +1272,7 @@ PLANT_TYPE_CATEGORIES_HYDRO: dict[str, set[str]] = {
             "run-of river",
             "run-of-river",
         },
-        "run of river with storage": {
+        "run_of_river_with_storage": {
             "run-of-river/storage",
             "r of r/ storage",
             "r of r/storage",
@@ -2246,3 +2251,9 @@ TRANSFORM_PARAMS = {
         ],
     },
 }
+"""The full set of parameters used to transform the FERC Form 1 data.
+
+Each item in the dictionary can be used to instantiate a
+:class:`pudl.transform.ferc1.Ferc1TableTransformParams` object appropriate for
+transforming the table identified by that item's key.
+"""

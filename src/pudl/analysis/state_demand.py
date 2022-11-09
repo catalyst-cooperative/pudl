@@ -34,12 +34,12 @@ import pandas as pd
 import sqlalchemy as sa
 
 import pudl.analysis.timeseries_cleaning
+import pudl.logging_helpers
 import pudl.output.pudltabl
 import pudl.workspace.setup
-from pudl.helpers import configure_root_logger, get_logger
 from pudl.metadata.dfs import POLITICAL_SUBDIVISIONS
 
-logger = get_logger(__name__)
+logger = pudl.logging_helpers.get_logger(__name__)
 
 
 # --- Constants --- #
@@ -718,7 +718,7 @@ def parse_command_line(argv):
 def main():
     """Predict state demand."""
     # --- Connect to PUDL logger --- #
-    configure_root_logger()
+    pudl.logging_helpers.configure_root_logger()
 
     # --- Parse command line args --- #
     _ = parse_command_line(sys.argv)

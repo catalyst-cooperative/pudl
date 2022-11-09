@@ -1,5 +1,4 @@
 """Functions & classes for compiling derived aspects of the FERC Form 714 data."""
-import logging
 from functools import cached_property
 from typing import Any
 
@@ -10,7 +9,8 @@ import pudl
 from pudl.metadata.fields import apply_pudl_dtypes
 from pudl.workspace.datastore import Datastore
 
-logger = logging.getLogger(__name__)
+logger = pudl.logging_helpers.get_logger(__name__)
+
 ASSOCIATIONS: list[dict[str, Any]] = [
     # MISO: Midwest Indep System Operator
     {"id": 56669, "from": 2011, "to": [2009, 2010]},

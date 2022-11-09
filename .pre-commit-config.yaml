@@ -29,12 +29,6 @@ repos:
   ####################################################################################
   # Formatters: hooks that re-write Python & documentation files
   ####################################################################################
-  # Convert relative imports to absolute imports
-  - repo: https://github.com/MarcoGorelli/absolufy-imports
-    rev: v0.3.1
-    hooks:
-      - id: absolufy-imports
-
   # Make sure import statements are sorted uniformly.
   - repo: https://github.com/PyCQA/isort
     rev: 5.10.1
@@ -68,14 +62,14 @@ repos:
       - id: upgrade-type-hints
 
   - repo: https://github.com/pre-commit/mirrors-prettier
-    rev: v3.0.0-alpha.1
+    rev: v3.0.0-alpha.4
     hooks:
       - id: prettier
         types_or: [yaml]
 
   # Update Python language constructs to modern standards
   - repo: https://github.com/asottile/pyupgrade
-    rev: v3.0.0
+    rev: v3.2.0
     hooks:
       - id: pyupgrade
         args: ["--py310-plus"]

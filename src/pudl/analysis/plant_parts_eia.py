@@ -186,10 +186,9 @@ import numpy as np
 import pandas as pd
 
 import pudl
-from pudl.helpers import get_logger
 from pudl.metadata.classes import Resource
 
-logger = get_logger(__name__)
+logger = pudl.logging_helpers.get_logger(__name__)
 
 # HALP: I need both of these setting set in order for the dfs in the docstrings
 # to pass the doctests. Without them the formatting get all jumbled.

@@ -1,10 +1,11 @@
-"""Routines for transforming FERC Form 1 data before loading into the PUDL DB.
+"""Classes & functions to process FERC Form 1 data before loading into the PUDL DB.
 
-This module provides a variety of functions that are used in cleaning up the FERC Form 1
-data prior to loading into our database. This includes adopting standardized units and
-column names, standardizing the formatting of some string values, and correcting data
-entry errors which we can infer based on the existing data. It may also include removing
-bad data, or replacing it with the appropriate NA values.
+Note that many of the classes/objects here inherit from/are instances of classes defined
+in :mod:`pudl.transform.classes`. Their design and relationships to each other are
+documented in that module.
+
+See :mod:`pudl.transform.params.ferc1` for the values that parameterize many of these
+transformations.
 """
 import enum
 import importlib.resources
@@ -21,7 +22,7 @@ from pudl.analysis.classify_plants_ferc1 import (
     plants_steam_validate_ids,
 )
 from pudl.extract.ferc1 import TABLE_NAME_MAP
-from pudl.helpers import convert_cols_dtypes, get_logger
+from pudl.helpers import convert_cols_dtypes
 from pudl.metadata.classes import DataSource
 from pudl.metadata.dfs import FERC_DEPRECIATION_LINES
 from pudl.settings import Ferc1Settings
@@ -35,10 +36,10 @@ from pudl.transform.classes import (
     enforce_snake_case,
 )
 
-# This is only here to keep the module importable. Breaks legacy functions.
+# This is only here to keep the module importable. Removal Breaks legacy functions.
 CONSTRUCTION_TYPE_CATEGORIES = {}
 
-logger = get_logger(__name__)
+logger = pudl.logging_helpers.get_logger(__name__)
 
 
 ################################################################################
@@ -54,15 +55,14 @@ class Ferc1Source(enum.Enum):
 
 @enum.unique
 class Ferc1TableId(enum.Enum):
-    """Enumeration of the allowable FERC 1 table IDs.
+    """Enumeration of the allowed FERC 1 table IDs.
 
-    Hard coding this seems bad. Somehow it should be either defined in the context of
-    the Package, the Ferc1Settings, an etl_group, or DataSource. All of the table
-    transformers associated with a given data source should have a table_id that's
+    Hard coding this doesn't seem ideal. Somehow it should be either defined in the
+    context of the Package, the Ferc1Settings, an etl_group, or DataSource. All of the
+    table transformers associated with a given data source should have a table_id that's
     from that data source's subset of the database. Where should this really happen?
-
     Alternatively, the allowable values could be derived *from* the structure of the
-    Package.
+    Package. But this works for now.
     """
 
     FUEL_FERC1 = "fuel_ferc1"
@@ -78,13 +78,12 @@ class Ferc1RenameColumns(TransformParams):
     """Dictionaries for renaming either XBRL or DBF derived FERC 1 columns.
 
     This is FERC 1 specific, because we need to store both DBF and XBRL rename
-    dictionaires separately. (Is this true? Could we just include all of the column
-    mappings from both the DBF and XBRL inputs in the same rename dictionary? Would that
-    be simpler, or would there be issues that come up with name collisions where the
-    source columns have the same name but map to different column namess / meanings in
-    the PUDL DB?)
+    dictionaires separately. Note that this parameter model does not have its own unique
+    transform function. Like the generic :class:`pudl.transform.classes.RenameColumns`
+    it depends on the build in :meth:`pd.rename` method, which is called with the values
+    DBF or XBRL parameters depending on the context.
 
-    Potential validations:
+    Potential parameters validations that could be implemented
 
     * Validate that all keys appear in the original dbf/xbrl sources.
       This has to be true, but right now we don't have stored metadata enumerating all
@@ -102,7 +101,11 @@ class Ferc1RenameColumns(TransformParams):
 
 
 class Ferc1TableTransformParams(TableTransformParams):
-    """A model defining additional allowed FERC Form 1 specific TransformParams."""
+    """A model defining what TransformParams are allowed for FERC Form 1.
+
+    This adds additional parameter models beyond the ones inherited from the
+    :class:`pudl.transform.classes.AbstractTableTransformer` class.
+    """
 
     class Config:
         """Only allow the known table transform params."""
@@ -222,7 +225,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         raw_xbrl_instant: pd.DataFrame,
         raw_xbrl_duration: pd.DataFrame,
     ) -> pd.DataFrame:
-        """Merge the XBRL instand and duration tables into a single dataframe.
+        """Merge the XBRL instant and duration tables into a single dataframe.
 
         FERC1 XBRL instant period signifies that it is true as of the reported date,
         while a duration fact pertains to the specified time period. The ``date`` column
@@ -438,13 +441,13 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
 
 
 class FuelFerc1TableTransformer(Ferc1AbstractTableTransformer):
-    """A table transformer specific to the ``fuel_ferc1`` table.
+    """A table transformer specific to the :ref:`fuel_ferc1` table.
 
-    The ``fuel_ferc1`` table reports data about fuel consumed by large thermal power
-    plants that report in the ``plants_steam_ferc1`` table.  Each record in the steam
-    table is typically associated with several records in the fuel table, with each fuel
-    record reporting data for a particular type of fuel consumed by that plant over the
-    course of a year. The fuel table presents several challenges.
+    The :ref:`fuel_ferc1` table reports data about fuel consumed by large thermal power
+    plants in the :ref:`plants_steam_ferc1` table. Each record in the steam table is
+    typically associated with several records in the fuel table, with each fuel record
+    reporting data for a particular type of fuel consumed by that plant over the course
+    of a year. The fuel table presents several challenges.
 
     The type of fuel, which is part of the primary key for the table, is a freeform
     string with hundreds of different nonstandard values. These strings are categorized
@@ -491,18 +494,6 @@ class FuelFerc1TableTransformer(Ferc1AbstractTableTransformer):
     * coal: primarily BTU/pound, but also MMBTU/ton and MMBTU/pound.
     * oil: primarily BTU/gallon.
     * gas: reported in a mix of MMBTU/cubic foot, and MMBTU/thousand cubic feet.
-
-    Steps to take, in order:
-
-    * Convert units in per-unit columns and rename the columns
-    * Normalize freeform strings (fuel type and fuel units)
-    * Categorize strings in fuel type and fuel unit columns
-    * Standardize physical fuel units based on reported units (tons, mcf, bbl)
-    * Remove fuel_units column
-    * Convert heterogenous fuel price and heat content columns to their aspirational
-      units.
-    * Apply fuel unit corrections to fuel price and heat content columns based on
-      observed clustering of values.
     """
 
     table_id: Ferc1TableId = Ferc1TableId.FUEL_FERC1
@@ -511,7 +502,7 @@ class FuelFerc1TableTransformer(Ferc1AbstractTableTransformer):
     def transform_main(self, df: pd.DataFrame) -> pd.DataFrame:
         """Table specific transforms for fuel_ferc1.
 
-        Params:
+        Args:
             df: Pre-processed, concatenated XBRL and DBF data.
 
         Returns:
@@ -524,9 +515,9 @@ class FuelFerc1TableTransformer(Ferc1AbstractTableTransformer):
     def process_dbf(self, raw_dbf: pd.DataFrame) -> pd.DataFrame:
         """Start with inherited method and do some fuel-specific processing.
 
-        Mostly this needs to do extra work because of the linkage between the fuel_ferc1
-        and plants_steam_ferc1 tables, and because the fuel type column is both a big
-        mess of freeform strings and part of the primary key.
+        We have to do most of the transformation before the DBF and XBRL data have been
+        concatenated because the fuel type column is part of the primary key and it is
+        extensively modified in the cleaning process.
         """
         df = (
             super()
@@ -542,14 +533,22 @@ class FuelFerc1TableTransformer(Ferc1AbstractTableTransformer):
     def process_xbrl(
         self, raw_xbrl_instant: pd.DataFrame, raw_xbrl_duration: pd.DataFrame
     ) -> pd.DataFrame:
-        """Special pre-concat treatment of the fuel_ferc1 table.
+        """Special pre-concat treatment of the :ref:`fuel_ferc1` table.
 
-        This is necessary because the fuel type is a messy freeform string column that
-        needs to be cleaned up, and is also (insanely) a primary key column for the
-        table, and required for merging the fuel_ferc1 and plants_steam_ferc1 tables.
-        This means that we can't assign a record ID until the fuel types have been
-        cleaned up. Additionally the string categorization results in a number of
-        duplicate fuel records which need to be aggregated.
+        We have to do most of the transformation before the DBF and XBRL data have been
+        concatenated because the fuel type column is part of the primary key and it is
+        extensively modified in the cleaning process. For the XBRL data, this means we
+        can't create a record ID until that fuel type value is clean. In addition, the
+        categorization of fuel types results in a number of duplicate fuel records which
+        need to be aggregated.
+
+        Args:
+            raw_xbrl_instant: Freshly extracted XBRL instant fact table.
+            raw_xbrl_duration: Freshly extracted XBRL duration fact table.
+
+        Returns:
+            Almost fully transformed XBRL data table, with instant and duration facts
+            merged together.
         """
         return (
             self.merge_instant_and_duration_tables_xbrl(
@@ -763,13 +762,13 @@ class FuelFerc1TableTransformer(Ferc1AbstractTableTransformer):
 
         This method both drops rows in which all required data columns are null (using
         the inherited parameterized method) and then also drops those rows we believe
-        represent plant totals.
+        represent plant totals. See :meth:`FuelFerc1TableTransformer.drop_total_rows`.
         """
         return super().drop_invalid_rows(df, params).pipe(self.drop_total_rows)
 
 
 class PlantsSteamFerc1TableTransformer(Ferc1AbstractTableTransformer):
-    """Transformer class for the plants_steam_ferc1 table."""
+    """Transformer class for the :ref:`plants_steam_ferc1` table."""
 
     table_id: Ferc1TableId = Ferc1TableId.PLANTS_STEAM_FERC1
 
@@ -777,7 +776,18 @@ class PlantsSteamFerc1TableTransformer(Ferc1AbstractTableTransformer):
     def transform_main(
         self, df: pd.DataFrame, transformed_fuel: pd.DataFrame
     ) -> pd.DataFrame:
-        """Perform table transformations for the plants_steam_ferc1 table."""
+        """Perform table transformations for the :ref:`plants_steam_ferc1` table.
+
+        Note that this method has a non-standard call signature, since the
+        :ref:`plants_steam_ferc1` table depends on the :ref:`fuel_ferc1` table.
+
+        Args:
+            df: The pre-processed steam plants table.
+            transformed_fuel: The fully transformed :ref:`fuel_ferc1` table. This is
+                required because fuel consumption information is used to help link
+                steam plant records together across years using
+                :func:`plants_steam_assign_plant_ids`
+        """
         fuel_categories = list(
             FuelFerc1TableTransformer()
             .params.categorize_strings["fuel_type_code_pudl"]
@@ -840,22 +850,21 @@ class PlantsPumpedStorageFerc1TableTransformer(Ferc1AbstractTableTransformer):
 
 
 def transform(
-    ferc1_dbf_raw_dfs,
-    ferc1_xbrl_raw_dfs,
+    ferc1_dbf_raw_dfs: dict[str, pd.DataFrame],
+    ferc1_xbrl_raw_dfs: dict[str, dict[str, pd.DataFrame]],
     ferc1_settings: Ferc1Settings | None = None,
-):
-    """Transforms FERC 1.
+) -> dict[str, pd.DataFrame]:
+    """Coordinate the transformation of all FERC Form 1 tables.
 
     Args:
-        ferc1_dbf_raw_dfs (dict): Dictionary pudl table names (keys) and raw DBF
+        ferc1_dbf_raw_dfs: Dictionary mapping PUDL table names (keys) to raw DBF
             dataframes (values).
-        ferc1_xbrl_raw_dfs (dict): Dictionary pudl table names with `_instant`
-            or `_duration` (keys) and raw XRBL dataframes (values).
-        ferc1_settings: Validated ETL parameters required by
-            this data source.
+        ferc1_xbrl_raw_dfs: Nested dictionary containing both an instant and duration
+            table for each input XBRL table. Some of these are empty.
+        ferc1_settings: Validated FERC 1 ETL settings.
 
     Returns:
-        dict: A dictionary of the transformed DataFrames.
+        A dictionary of transformed DataFrames.
     """
     if ferc1_settings is None:
         ferc1_settings = Ferc1Settings()
@@ -888,7 +897,7 @@ def transform(
                 ),
             )
     # Bespoke exception. fuel must come before steam b/c fuel proportions are used to
-    # aid in plant # ID assignment.
+    # aid in FERC plant ID assignment.
     if "plants_steam_ferc1" in ferc1_settings.tables:
         ferc1_transformed_dfs[
             "plants_steam_ferc1"
@@ -911,7 +920,10 @@ def transform(
 
 
 if __name__ == "__main__":
-    """Make the module runnable for testing purposes."""
+    """Make the module runnable for testing purposes during development.
+
+    This should probably be removed when we are done with the FERC 1 Transforms.
+    """
 
     logging.basicConfig(
         level=logging.DEBUG,

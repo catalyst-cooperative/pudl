@@ -1,73 +1,67 @@
-"""Generally useful classes for transforming multiple data sources.
+"""Classes for defining & coordinating the transformation of tabular data sources.
 
-This model of table transformations is separated into four parts:
+We define our data transformations in four separate components:
 
-  * The data being transformed (DataFrames, or sometimes Series at a lower level)
+  * The data being transformed (:class:`pd.DataFrame` or :class:`pd.Series`).
   * The functions & methods doing the transformations.
   * Non-data parameters that control the behavior of the transform functions & methods.
-  * Classes that bring together the functions & parameters to transform a table.
+  * Classes that organize the functions & parameters that transform a given input table.
 
-We've broken the design down into these parts because we have found that often need to
-apply many of the same kinds of transformations to different tables, and sometimes they
-are applied uniformly across all of the tables that are part of a single dataset.
-Separating the functions from their parameters lets us re-use the functions, and apply
-them in the same way wherever they are used.
+Separating out the transformation functions and the parameters that control them allows
+us to re-use the same transforms in many different contexts without duplicating the
+code.
 
-The TableTransformer classes let us define a table-specific collection of operations and
-parameters with a uniform external interface. They are built largely out of reusable
-parts. We use inheritance to categorize the transform methods into three categories:
+Transform functions take data (either a Series or DataFrame) and a TransformParams
+object as inputs, and return transformed data of the same type that they consumed
+(Series or DataFrame). They operate on the data, and their particular behavior is
+controled by the TransformParams. Like the TableTransformer classes discussed below,
+they are organized into 3 separate levels of abstraction:
 
   * general-purpose: always available from the abstract base class.
   * dataset-specific: used repeatedly by a dataset, from an intermediate abstract class.
   * table-specific: used only once for a particular table, defined in a concrete class.
 
-1. transform_functions(): take data (either a Series or DataFrame) and a
-   TransformParams object as inputs, and return transformed data of the same type that
-   they consumed (Series or DataFrame). They operate on the data, and their particular
-   behavior is controled by the TransformParams.
+These functions are not generally meant to be used independent of a ``TableTransfomer``
+class. They are wrapped by methods within the class definitions which handle logging
+and intermediate dataframe caching.
 
-   * Some transform_functions() operate on individual columns. They take a Series and
-     and a TransformParam and return a Series.
+  * Transform functions that operate on individual columns should implement the
+    :class:`ColumnTransformFunc` :class:`Protocol`.
+  * Transform functions that need to operate on whole tables should implement the
+    :class:`TableTransformFunc` :class:`Protocol`.
+  * To iteratively apply a :class:`ColumnTransformFunc` to several columns in a table,
+    use :func:`multicol_transform_factory` to construct a
+    :class:`MultiColumnTransformFunc`
 
-   * Some transform_functions() are intrinsically table-oriented since they depend on
-     more than one column of input data. They take a DataFrame and a TransformParam and
-     return a DataFrame.
+Using a hierarchy of ``TableTransformer`` classes to organize the functions and
+parameters allows us to apply a particular set of transformations uniformly across every
+table that's part of a family of similar data. It also allows us to keep transform
+functions that only apply to a particular collection of tables or an individual table
+separated from other data that it should not be used with.
 
-   * Column transforms can be automatically turned into table (multi-column) transforms
-     using a factory function.
+Currently there are 3 levels of abstraction in the TableTransformer classes:
 
-   * transform_functions() of potentially general utility will be defined as globally
-     accessible functions at the module level. I'm not sure whether this pattern can
-     be applied directly to table-specific colum/multi-column transforms that are
-     defined as methods inside of a table transformer class.
+  * The :class:`AbstractTableTransformer` abstract base class that defines methods
+    useful across a wide range of data sources.
+  * A dataset-specific abstract class that can define transforms which are consistently
+    useful across many tables in the dataset (e.g. the
+    :class:`pudl.transform.ferc1.Ferc1AbstractTableTransformer` class).
+  * Table-specific concrete classes that inherit from both of the higher levels, and
+    contain any bespoke transformations or parameters that only pertain to that table.
+    (e.g. the :class:`pudl.transform.ferc1.SteamPlantsFerc1TableTransformer` class).
 
-2. TransformParams: Immutable Pydantic models that store and validate the parameters
-   required to perform a variety of different column or table level transformations.
+The :class:`TransformParams` classes are immutable :mod:`pydantic` models that store and
+the parameters which are passed to the transform functions / methods described above.
+These models are defined alongside the functions they're used with. General purpose
+transforms have their parameter models defined in this module. Dataset-specific
+transforms should have their parameters defined in the module that defines the
+associated transform function. The :class:`MultiColumnTransformParams` models are
+dictionaries keyed by column name, that must map to per-column parameters which are all
+of the same type.
 
-   * Some TransformParams only apply to a column level transform. Others only apply to a
-     table level transform.
-
-   * Multiple column-level TransformParams of the same type can be turned into
-     table-level TransformParams simply by creating a dictionary that maps the column
-     names to their individual column-level TransformParams.
-
-   * TableTransformParams contain all of the TransformParams that apply to a particular
-     table.
-
-3. The data to be transformed is tabular, and will be passed around as dataframes. If
-   possible, we'll only operate on whole dataframes, with individual column-level
-   transformations being packaged inside of table-level transformations as described
-   above.
-
-4. TableTransformers are classes specific to cleaning a particular table (e.g.
-   plants_steam_ferc1). These may inherit from a dataset-specific abstract base class
-   that defines any transformation methods that are only relevant to that dataset, but
-   which are generally applicable to many tables within the dataset (e.g.  merging the
-   instant and duration tables from the FERC 1 XBRL data.). These inherited methods
-   can be overridden when necessary (potentially still making use of the inherited
-   method) if a particular table needs special treatment. Each of the table-specific
-   subclasses will know what table it is associated with, and can look up the
-   TableTransformParams that are associated with it.
+Specific :class:`TransformParams` classes are instantiated using dictionaries of values
+defined in the per-dataset modules under :mod:`pudl.transform.params` e.g.
+:mod:`pudl.transform.params.ferc1`.
 """
 import enum
 import re
@@ -81,18 +75,22 @@ import numpy as np
 import pandas as pd
 from pydantic import BaseModel, conset, root_validator, validator
 
+import pudl.logging_helpers
 import pudl.transform.params.ferc1
-from pudl.helpers import get_logger
 from pudl.metadata.classes import Package
 
-logger = get_logger(__name__)
+logger = pudl.logging_helpers.get_logger(__name__)
 
 
 #####################################################################################
 # Transform Parameter Models
 #####################################################################################
 class TransformParams(BaseModel):
-    """An immutable base model for transformation parameters."""
+    """An immutable base model for transformation parameters.
+
+    ``TransformParams`` instances created without any arguments should have no effect
+    when applied by their associated function.
+    """
 
     class Config:
         """Prevent parameters from changing part way through."""
@@ -101,14 +99,22 @@ class TransformParams(BaseModel):
 
 
 class MultiColumnTransformParams(TransformParams):
-    """Transform params that apply to several columns in a table.
+    """A dictionary of :class:`TransformParams` to apply to several columns in a table.
 
-    The keys are column names, and the values must all be the same type of
-    :class:`TransformParams` object, since MultiColumnTransformParams are used by
-    :class:`MultiColumnTransformFunc` callables.
+    These parameter dictionaries are dynamically generated for each multi-column
+    transformation specified within a :class:`TableTransformParams` object, and passed
+    in to the :class:`MultiColumnTransformFunc` callables which are constructed by
+    :func:`multicol_transform_factory`
 
-    Individual subclasses are dynamically generated for each multi-column transformation
-    specified within a :class:`TableTransformParams` object.
+    The keys are column names, values must all be the same type of
+    :class:`TransformParams` object. For examples, see e.g. the ``categorize_strings``
+    or ``convert_units`` elements within
+    :py:const:`pudl.transform.ferc1.TRANSFORM_PARAMS`.
+
+    The dictionary structure is not explicitly stated in this class, because it's messy
+    to use Pydantic for validation when the data to be validated isn't contained within
+    a Pydantic model. When Pydantic v2 is available, it will be easy, and we'll do it:
+    https://pydantic-docs.helpmanual.io/blog/pydantic-v2/#validation-without-a-model
     """
 
     @root_validator
@@ -125,6 +131,11 @@ class MultiColumnTransformParams(TransformParams):
 
 #####################################################################################
 # Transform Protocol & General Function Definitions
+# Factory functions and callback protocols are a little complex. For more on how
+# Protocols and type annotations can be used to define function call
+# signatures and return types see:
+# https://realpython.com/python-type-checking/#callables
+# https://mypy.readthedocs.io/en/stable/protocols.html#callback-protocols
 #####################################################################################
 class ColumnTransformFunc(Protocol):
     """Callback protocol defining a per-column transformation function."""
@@ -156,7 +167,54 @@ def multicol_transform_factory(
     col_func: ColumnTransformFunc,
     drop=True,
 ) -> MultiColumnTransformFunc:
-    """A factory for creating a multi-column transform function."""
+    """Construct :class:`MultiColumnTransformFunc` from a :class:`ColumnTransformFunc`.
+
+    This factory function saves us from having to iterate over dataframes in many
+    separate places, applying the same transform functions with different parameters to
+    multiple columns. Instead, we define a function that transforms a column given
+    some parameters, and then easily apply that function to many columns using a
+    dictionary of parameters (a :class:`MultiColumnTransformParams`). Uniform logging
+    output is also integrated into the constructed function.
+
+    Args:
+        col_func: A single column transform function.
+
+    Returns:
+        A multi-column transform function.
+
+    Examples:
+        >>> class AddInt(TransformParams):
+        ...     val: int
+        ...
+        >>> def add_int(col: pd.Series, params: AddInt):
+        ...     return col + params.val
+        ...
+        >>> add_int_multicol = multicol_transform_factory(add_int)
+        ...
+        >>> df = pd.DataFrame(
+        ...     {
+        ...         "col1": [1, 2, 3],
+        ...         "col2": [10, 20, 30],
+        ...     }
+        ... )
+        ...
+        >>> actual = add_int_multicol(
+        ...     df,
+        ...     params={
+        ...         "col1": AddInt(val=1),
+        ...         "col2": AddInt(val=2),
+        ...     }
+        ... )
+        ...
+        >>> expected = pd.DataFrame(
+        ...     {
+        ...         "col1": [2, 3, 4],
+        ...         "col2": [12, 22, 32],
+        ...     }
+        ... )
+        ...
+        >>> pd.testing.assert_frame_equal(actual, expected)
+    """
 
     class InnerMultiColumnTransformFunc(
         Callable[[pd.DataFrame, MultiColumnTransformParams], pd.DataFrame]
@@ -190,8 +248,10 @@ def multicol_transform_factory(
 class RenameColumns(TransformParams):
     """A dictionary for mapping old column names to new column names in a dataframe.
 
-    This parameter model has no associated transform function since it relies on
-    :meth:`pd.DataFrame.rename` directly.
+    This parameter model has no associated transform function since it is used with the
+    :meth:`pd.DataFrame.rename` method. Because it renames all of the columns in a
+    dataframe at once, it's a table transformation (though it could also have been
+    implemented as a column transform).
     """
 
     columns: dict[str, str] = {}
@@ -201,17 +261,23 @@ class RenameColumns(TransformParams):
 # Normalize Strings
 ################################################################################
 class StringNormalization(TransformParams):
-    """Options to control string normalization."""
+    """Options to control string normalization.
+
+    Most of what takes place in the string normalization is standardized and controlled
+    by the :func:`normalize_strings` function since we need the normalizations of
+    different columns to be comparable, but there are a couple of column-specific
+    parameterizations that are useful, and they are encapsulated by this class.
+    """
 
     remove_chars: str
     """A string of individual ASCII characters removed at the end of normalization."""
 
     nullable: bool = False
-    """Whether the string should be cast to the nullable :class:`pd.StringDtype`"""
+    """Whether the normalized string should be cast to :class:`pd.StringDtype`."""
 
 
 def normalize_strings(col: pd.Series, params: StringNormalization) -> pd.Series:
-    """Derive a canonical version of the strings in the column.
+    """Derive a canonical, simplified version of the strings in the column.
 
     Transformations include:
 
@@ -221,17 +287,11 @@ def normalize_strings(col: pd.Series, params: StringNormalization) -> pd.Series:
     * Translate to lower case.
     * Strip leading and trailing whitespace.
     * Consolidate multiple internal whitespace characters into a single space.
-    * Remove selected rare confounding punctuation marks.
-
-    This transform function has no associated TransformParams since it is simply a
-    dictionary with column names as keys and booleans as the values.
 
     Args:
         col: series of strings to normalize.
-        nullable: Whether to leave the series nullable or cast it back to a traditional
-            python string, with pd.NA replaced with the empty string.
-        params: Whether to do a transform at all. Included to keep the call signature
-            of the function the same as the other column transformations.
+        params: settings enumerating any particular characters to remove, and whether
+            the resulting series should be a nullable string.
     """
     if params:
         col = (
@@ -250,6 +310,7 @@ def normalize_strings(col: pd.Series, params: StringNormalization) -> pd.Series:
 
 
 normalize_strings_multicol = multicol_transform_factory(normalize_strings)
+"""A multi-column version of the :func:`normalize_strings` function."""
 
 
 ################################################################################
@@ -345,14 +406,18 @@ strip_non_numeric_values_multicol = multicol_transform_factory(strip_non_numeric
 # Categorize Strings
 ################################################################################
 class StringCategories(TransformParams):
-    """Defines mappings to clean up manually categorized freeform strings.
-
-    Each key in the dictionary is the categorical value that all the freeform strings
-    listed in the associated value will be mapped to after categorization.
-    """
+    """Mappings to categorize the values in freeform string columns."""
 
     categories: dict[str, set[str]]
+    """Mapping from a categorical string to the set of the values it should replace."""
+
     na_category: str = "na_category"
+    """All strings mapped to this category will be set to NA at the end.
+
+    The NA category is a special case because testing whether a value is NA is complex,
+    given the many different values which can be used to represent NA. See
+    :func:`categorize_strings` to see how it is used.
+    """
 
     @validator("categories")
     def categories_are_disjoint(cls, v):
@@ -388,7 +453,11 @@ class StringCategories(TransformParams):
 
 
 def categorize_strings(col: pd.Series, params: StringCategories) -> pd.Series:
-    """Impose a controlled vocabulary on freeform string column."""
+    """Impose a controlled vocabulary on a freeform string column.
+
+    Note that any value present in the data that is not mapped to one of the output
+    categories will be set to NA.
+    """
     uncategorized_strings = set(col).difference(params.mapping)
     if uncategorized_strings:
         logger.warning(
@@ -401,26 +470,27 @@ def categorize_strings(col: pd.Series, params: StringCategories) -> pd.Series:
 
 
 categorize_strings_multicol = multicol_transform_factory(categorize_strings)
+"""A multi-column version of the :func:`categorize_strings` function."""
 
 
 ################################################################################
 # Convert Units
 ################################################################################
 class UnitConversion(TransformParams):
-    """A column-wise unit conversion which can also rename a column.
+    """A column-wise unit conversion which can also rename the column.
 
-    Allows simple linear conversions of the form y(x) = a*x + b.
+    Allows simple linear conversions of the form y(x) = a*x + b. Note that the default
+    values result in no alteration of the column.
 
     Args:
         multiplier: A multiplicative coefficient; "a" in the equation above. Set to 1.0
             by default.
         adder: An additive constant; "b" in the equation above. Set to 0.0 by default.
-        from_unit: A string that will be replaced in the input series name. If set to
-            None (the default) the series is not renamed.
-        to_unit: The string from_unit is replaced with. If set to None (the default)
-            the series is not renamed.
-
-    The default values will result in no alteration of the column.
+        from_unit: A string that will be replaced in the input series name. If None or
+            the empty string, the series is not renamed.
+        to_unit: The string from_unit is replaced with. If None or the empty string,
+            the series is not renamed. Note that either both or neither of ``from_unit``
+            and ``to_unit`` can be left unset, but not just one of them.
     """
 
     multiplier: float = 1.0  # By default, multiply by 1 (no change)
@@ -441,7 +511,12 @@ class UnitConversion(TransformParams):
         return params
 
     def inverse(self) -> "UnitConversion":
-        """Construct and retrun a UnitConversion that is the inverse of self."""
+        """Construct a :class:`UnitConversion` that is the inverse of self.
+
+        Allows a unit conversion to be undone. This is currently used in the context of
+        validating the combination of :class:`UnitConversions` that are used in the
+        :class:`UnitCorrections` parameter model.
+        """
         return UnitConversion(
             multiplier=1.0 / self.multiplier,
             adder=-1.0 * (self.adder / self.multiplier),
@@ -461,7 +536,7 @@ class UnitConversion(TransformParams):
 
 
 def convert_units(col: pd.Series, params: UnitConversion) -> pd.Series:
-    """Convert the units of and appropriately rename a column."""
+    """Convert column units and rename the column to reflect the change."""
     if params.from_unit is not None:
         new_name = re.sub(pattern=params.pattern, repl=params.repl, string=col.name)
         # only apply the unit conversion if the column name matched the pattern
@@ -472,7 +547,7 @@ def convert_units(col: pd.Series, params: UnitConversion) -> pd.Series:
             )
     else:
         new_name = col.name
-    if col.name == new_name:
+    if (col.name == new_name) & (params.from_unit != "") & (params.to_unit != ""):
         logger.debug(f"Old and new column names are identical: {col.name}.")
     col = (params.multiplier * col) + params.adder
     col.name = new_name
@@ -480,6 +555,7 @@ def convert_units(col: pd.Series, params: UnitConversion) -> pd.Series:
 
 
 convert_units_multicol = multicol_transform_factory(convert_units)
+"""A multi-column version of the :func:`convert_units` function."""
 
 
 ################################################################################
@@ -500,8 +576,11 @@ class ValidRange(TransformParams):
 
 
 def nullify_outliers(col: pd.Series, params: ValidRange) -> pd.Series:
-    """Set any values outside the valid range to NA."""
-    # Surprisingly, pd.to_numeric() dit *not* return a copy of the series!
+    """Set any values outside the valid range to NA.
+
+    The column is coerced to be numeric.
+    """
+    # Surprisingly, pd.to_numeric() did *not* return a copy of the series!
     col = col.copy()
     col = pd.to_numeric(col, errors="coerce")
     col[~col.between(params.lower_bound, params.upper_bound)] = np.nan
@@ -509,13 +588,14 @@ def nullify_outliers(col: pd.Series, params: ValidRange) -> pd.Series:
 
 
 nullify_outliers_multicol = multicol_transform_factory(nullify_outliers)
+"""A multi-column version of the :func:`nullify_outliers` function."""
 
 
 ################################################################################
 # Correct units based on inferred data entry errors or implicit units.
 ################################################################################
 class UnitCorrections(TransformParams):
-    """Fix outlying values resulting from unit errors by muliplying by a constant.
+    """Fix outlying values resulting from apparent unit errors.
 
     Note that since the unit correction depends on other columns in the dataframe to
     select a relevant subset of records, it is a table transform not a column transform,
@@ -523,17 +603,26 @@ class UnitCorrections(TransformParams):
     """
 
     data_col: str
+    """The label of the column to be modified."""
+
     cat_col: str
+    """Label of a categorical column which will be used to select records to correct."""
+
     cat_val: str
+    """Categorical value to use to select records for correction."""
+
     valid_range: ValidRange
+    """The range of values expected to be found in ``data_col``."""
+
     unit_conversions: list[UnitConversion]
+    """A list of unit conversions to use to identify errors and correct them."""
 
     @validator("unit_conversions")
     def no_column_rename(cls, params: list[UnitConversion]) -> list[UnitConversion]:
-        """Require that all unit conversions result in no column renaming.
+        """Ensure that the unit conversions used in corrections don't rename the column.
 
         This constraint is imposed so that the same unit conversion definitions can be
-        re-used both for unit corrections and columnwise unit conversions.
+        re-used both for unit corrections and normal columnwise unit conversions.
         """
         new_conversions = []
         for uc in params:
@@ -552,9 +641,12 @@ class UnitCorrections(TransformParams):
         * For all unit conversions calculate the range of original values that result
           from the inverse of the specified unit conversion applied to the valid
           ranges of values.
-
         * For all pairs of unit conversions verify that their original data ranges do
-          not overlap.
+          not overlap with each other. We must also ensure that the original and
+          converted ranges of each individual correction do not overlap. For example, if
+          the valid range is from 1 to 10, and the unit conversion multiplies by 3, we'd
+          be unable to distinguish a valid value of 6 from a value that should be
+          corrected to be 2.
         """
         input_vals = pd.Series(
             [params["valid_range"].lower_bound, params["valid_range"].upper_bound],
@@ -598,12 +690,7 @@ def correct_units(df: pd.DataFrame, params: UnitCorrections) -> pd.DataFrame:
     pertains to a particular fuel. This means filtering based on another column, so the
     function needs to have access to the whole dataframe.
 
-    for the values, and a list of factors by which we expect to see some of the data
-    multiplied due to unit errors.  Data found in these "ghost" distributions are
-    multiplied by the appropriate factor to bring them into the expected range.
-
-    Data values which are not found in one of the acceptable multiplicative ranges are
-    set to NA.
+    Data values which are not found in one of the expected ranges are set to NA.
     """
     logger.info(
         f"Correcting units of {params.data_col} "
@@ -738,10 +825,16 @@ def drop_invalid_rows(df: pd.DataFrame, params: InvalidRows) -> pd.DataFrame:
 # A parameter model collecting all the valid generic transform params:
 ################################################################################
 class TableTransformParams(TransformParams):
-    """All the generic transformation parameters for a table.
+    """A collection of all the generic transformation parameters for a table.
 
-    Data source specific TableTransformParams can be defined by models that inherit from
-    this one in the data source specific transform modules.
+    This class is used to instantiate and contain all of the individual
+    :class:`TransformParams` objects that are associated with transforming a given
+    table. It can be instantiated using one of the table-level dictionaries of
+    parameters defined in the dataset-specific modules in :mod:`pudl.transform.params`
+
+    Data source-specific :class:`TableTransformParams` classes should be defined in
+    the data source-specific transform modules and inherit from this class. See e.g.
+    :class:`pudl.transform.ferc1.Ferc1TableTransformParams`
     """
 
     # MultiColumnTransformParams can be initilized to empty dictionaries, since they
@@ -764,7 +857,12 @@ class TableTransformParams(TransformParams):
 
     @classmethod
     def from_dict(cls, params: dict[str, Any]) -> "TableTransformParams":
-        """Construct TableTransformParams from a dictionary of constant parameters."""
+        """Construct ``TableTransformParams`` from a dictionary of keyword arguments.
+
+        Typically these will be the table-level dictionaries defined in the dataset-
+        specific modules in the :mod:`pudl.transform.params` subpackage. See also the
+        :meth:`TableTransformParams.from_id` method.
+        """
         return cls(**params)
 
     @classmethod
@@ -846,9 +944,40 @@ def cache_df(key: str = "main") -> Callable[..., pd.DataFrame]:
 class AbstractTableTransformer(ABC):
     """An abstract base table transformer class.
 
-    Only methods that are generally useful across data sources should be defined here.
-    Make sure to decorate any methods that must be defined by child classes with
-    @abstractmethod.
+    This class provides methods for applying the general purpose transform funcitons to
+    dataframes. These methods should each log that they are running, and the
+    ``table_id`` of the table they're beiing applied to. By default they should obtain
+    their parameters from the ``params`` which are stored in the class, but should allow
+    other parameters to be passed in.
+
+    The class also provides a template for coordinating the high level flow of data
+    through the transformations. The main coordinating function that's used to run the
+    full transformation is :meth:`AbstractTableTransformer.transform`, and the transform
+    is broken down into 3 distinct steps: start, main, and end. Those individual steps
+    need to be defined by child classes. Usually the start and end methods will handle
+    transformations that need to be applied uniformily across all the tables in a given
+    dataset, with the main step containing transformations that are specific to a
+    particular table.
+
+    In development it's often useful to be able to review the state of the data at
+    various stages as it progresses through the transformation. The :func:`cache_df`
+    decorator defined above can be applied to individual transform methods or the
+    start, main, and end methods defined in the child classes, to allow intermediate
+    dataframes to be reviewed after the fact. Whether to cache dataframes and whether to
+    delete them upon successful completion of the transform is controlled by flags set
+    when the ``TableTransformer`` class is created.
+
+    Table-specific transform parameters need to be associated with the class. They can
+    either be passed in explicitly when the class is instantiated, or looked up based on
+    the ``table_id`` associated with the class. See :meth:`TableTransformParams.from_id`
+
+    The call signature of the :meth:`AbstractTableTransformer.transform_start` method
+    accepts any type of inputs by default, and returns a single :class:`pd.DataFrame`.
+    Later transform steps are assumed to take a single dataframe as input, and return a
+    single dataframe. Since Python is lazy about enforcing types and interfaces you can
+    get away with other kinds of arguments when they're sometimes necessary, but this
+    isn't a good arrangement and we should figure out how to do it right. See the
+    :class:`pudl.transform.ferc1.PlantsSteamFerc1TableTransformer` class for an example.
     """
 
     table_id: enum.Enum
@@ -869,10 +998,26 @@ class AbstractTableTransformer(ABC):
     """Determines whether cached dataframes are deleted at the end of the transform."""
 
     _cached_dfs: dict[str, pd.DataFrame] = {}
-    """Cached intermediate dataframes for use in development and debugging."""
+    """Cached intermediate dataframes for use in development and debugging.
+
+    The dictionary keys are the strings passed to the :func:`cache_df` method decorator.
+    """
 
     parameter_model = TableTransformParams
+    """The :mod:`pydantic` model that is used to contain & instantiate parameters.
+
+    In child classes this should be replaced with the data source-specific
+    :class:`TableTransformParams` class, if it has been defined.
+    """
+
     params: parameter_model
+    """The parameters that will be used to control the transformation functions.
+
+    This attribute is of type ``parameter_model`` which is defined above. This type
+    varies across datasets and is used to construct and validate the parameters based,
+    so it needs to be set separately in child classes. See
+    :class:`pudl.transform.ferc1.Ferc1AbstractTableTransformer` for an example.
+    """
 
     def __init__(
         self,
@@ -903,6 +1048,9 @@ class AbstractTableTransformer(ABC):
         dataframes, and one DBF derived dataframe, while (most) EIA tables just receive
         and return a single dataframe.
 
+        This step is often used to organize initial transformations that are applied
+        uniformly across all the tables in a dataset.
+
         At the end of this step, all the inputs should have been consolidated into a
         single dataframe to return.
         """
@@ -910,7 +1058,16 @@ class AbstractTableTransformer(ABC):
 
     @abstractmethod
     def transform_main(self, df: pd.DataFrame, **kwargs) -> pd.DataFrame:
-        """The workhorse method doing most of the table-specific transformations."""
+        """The method used to do most of the table-specific transformations.
+
+        Typically the transformations grouped together into this method will be unique
+        to the table that is being transformed. Generally this method will take and
+        return a single dataframe, and that pattern is implemented in the
+        :meth:`AbstractTableTransformer.transform` method. In cases where transforms
+        take or return more than one dataframe, you will need to define a new transform
+        method within the child class. See :class:`PlantsSteamFerc1TableTransformer`
+        as an example.
+        """
         ...
 
     @abstractmethod

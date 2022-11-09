@@ -20,12 +20,11 @@ Data Coverage
   `pudl-zenodo-storage <https://github.com/catalyst-cooperative/pudl-zenodo-storage>`__
   repositories. See issue :issue:`catalyst-cooperative/pudl-zenodo-storage#29`.
 * Incorporated 2021 data from the :doc:`data_sources/epacems` dataset. See :pr:`1778`
-* Incorporated Early Release 2021 data from the :doc:`data_sources/eia860`,
-  :ref:`data-eia861`, and :doc:`data_sources/eia923`. Early release data is EIA's
-  preliminary annual release and should be used with caution. We also integrated a
+* Incorporated Final Release 2021 data from the :doc:`data_sources/eia860`,
+  :ref:`data-eia861`, and :doc:`data_sources/eia923`. We also integrated a
   ``data_maturity`` column and related ``data_maturities`` table into most of the EIA
   data tables in order to alter users to the level of finality of the data. See
-  :pr:`1834,1855,1915,1921`
+  :pr:`1834,1855,1915,1921`.
 * Incorporated 2022 data from the :doc:`data_sources/eia860` monthly update from June
   2022. See :pr:`1834`. This included adding new ``energy_storage_capacity_mwh`` (for
   batteries) and ``net_capacity_mwdc`` (for behind-the-meter solar PV) attributes to the
@@ -41,6 +40,15 @@ Data Coverage
   and place in the PUDL db. For now there's a ``epacamd_eia`` output table you can use
   to merge CEMS and EIA data yourself :pr:`1692`. Eventually we'll work these crosswalk
   values into an output table combining CEMS and EIA.
+
+Data Analysis
+^^^^^^^^^^^^^
+* Instead of relying on the EIA API to fill in redacted fuel prices with aggregate
+  values for individual states and plants, use the archived ``eia_bulk_elec`` data. This
+  means we no longer have any reliance on the API, which should make the fuel price
+  filling faster and more reliable. Coverage is still only about 90%. See :issue:`1764`
+  and :pr:`1998`. Additional filling with aggregate and/or imputed values is still on
+  the workplan. You can follow the progress in :issue:`1708`.
 
 Nightly Data Builds
 ^^^^^^^^^^^^^^^^^^^

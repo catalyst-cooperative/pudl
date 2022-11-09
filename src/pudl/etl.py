@@ -27,7 +27,7 @@ import pyarrow.parquet as pq
 import sqlalchemy as sa
 
 import pudl
-from pudl.helpers import convert_cols_dtypes, get_logger
+from pudl.helpers import convert_cols_dtypes
 from pudl.metadata.classes import Package, Resource
 from pudl.metadata.dfs import (
     FERC_ACCOUNTS,
@@ -44,7 +44,7 @@ from pudl.settings import (
 )
 from pudl.workspace.datastore import Datastore
 
-logger = get_logger(__name__)
+logger = pudl.logging_helpers.get_logger(__name__)
 
 
 ###############################################################################
@@ -335,6 +335,27 @@ def etl_epacems(
 
 
 ###############################################################################
+# EIA BULK ELECTRICITY AGGREGATES
+###############################################################################
+def _etl_eia_bulk_elec(ds_kwargs: dict[str, Any]) -> dict[str, pd.DataFrame]:
+    """Extract and transform EIA bulk electricity aggregates.
+
+    Args:
+        ds_kwargs: Keyword arguments for instantiating a PUDL datastore, so that the
+            ETL can access the raw input data.
+
+    Returns:
+        A dictionary of DataFrames whose keys are the names of the corresponding
+        database table.
+    """
+    logger.info("Processing EIA bulk electricity aggregates.")
+    ds = Datastore(**ds_kwargs)
+    raw_bulk_dfs = pudl.extract.eia_bulk_elec.extract(ds)
+    transformed_bulk_dfs = pudl.transform.eia_bulk_elec.transform(raw_bulk_dfs)
+    return transformed_bulk_dfs
+
+
+###############################################################################
 # GLUE AND STATIC EXPORT FUNCTIONS
 ###############################################################################
 def _etl_glue(
@@ -490,6 +511,7 @@ def etl(  # noqa: C901
         sqlite_dfs.update(_etl_ferc1(datasets["ferc1"], pudl_settings))
     if datasets.get("eia", False):
         sqlite_dfs.update(_etl_eia(datasets["eia"], ds_kwargs))
+        sqlite_dfs.update(_etl_eia_bulk_elec(ds_kwargs))
     if datasets.get("glue", False):
         sqlite_dfs.update(
             _etl_glue(datasets["glue"], ds_kwargs, sqlite_dfs, datasets["eia"])

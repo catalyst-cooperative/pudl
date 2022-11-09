@@ -1,5 +1,13 @@
 """Metadata constants and methods."""
-
-from pudl.metadata.resources import RESOURCE_METADATA
-
-__all__ = ["Package", "Resource", "RESOURCE_METADATA"]
+from . import (  # noqa: F401
+    classes,
+    codes,
+    constants,
+    dfs,
+    enums,
+    fields,
+    helpers,
+    labels,
+    resources,
+    sources,
+)
