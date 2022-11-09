@@ -58,7 +58,7 @@ jobs:
           credentials_json: "${{ secrets.ZENODO_CACHE_MANAGER_SA_KEY }}"
 
       - name: Set up Cloud SDK
-        uses: google-github-actions/setup-gcloud@v0
+        uses: google-github-actions/setup-gcloud@v1
 
       - name: Update GCS cache with any new Zenodo archives
         run: |
