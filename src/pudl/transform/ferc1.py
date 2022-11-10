@@ -172,6 +172,11 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             .pipe(self.strip_non_numeric_values)
             .pipe(self.nullify_outliers)
             .pipe(self.drop_invalid_rows)
+            .pipe(
+                pudl.metadata.classes.Package.from_resource_ids()
+                .get_resource(self.table_id.value)
+                .encode
+            )
         )
         return df
 
@@ -185,7 +190,8 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         """DBF-specific transformations that take place before concatenation."""
         logger.info(f"{self.table_id.value}: Processing DBF data pre-concatenation.")
         return (
-            self.drop_footnote_columns_dbf(raw_dbf)
+            raw_dbf.drop_duplicates()
+            .pipe(self.drop_footnote_columns_dbf)
             # Note: in this rename_columns we have to pass in params, since we're using
             # the inherited method, with param specific to the child class.
             .pipe(self.rename_columns, params=self.params.rename_columns_ferc1.dbf)
@@ -850,30 +856,17 @@ class PlantsPumpedStorageFerc1TableTransformer(Ferc1AbstractTableTransformer):
 
 
 class PurchasedPowerTableTransformer(Ferc1AbstractTableTransformer):
-    """Transformer class for ``purchased_power_ferc1`` table."""
+    """Transformer class for ``purchased_power_ferc1`` table.
+
+    This table has data about inter-utility power purchases into the PUDL DB. This
+    includes how much electricty was purchased, how much it cost, and who it was
+    purchased from. Unfortunately the field describing which other utility the power was
+    being bought from is poorly standardized, making it difficult to correlate with
+    other data. It will need to be categorized by hand or with some fuzzy matching
+    eventually.
+    """
 
     table_id: Ferc1TableId = Ferc1TableId.PURCHASED_POWER_FERC1
-
-    @cache_df(key="main")
-    def transform_main(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Table-specific transforms for the ``purchased_power_ferc1`` table.
-
-        Perform all default :meth:`Ferc1AbstractTableTransformer.transform_main`
-        procedures, plus drop duplicates and run the encoder.
-        """
-        df = (
-            super()
-            .transform_main(df)
-            # Drop records containing no useful data and also any completely duplicate
-            # records -- there are 6 in 1998 for utility 238 for some reason...
-            .drop_duplicates()
-            .pipe(
-                pudl.metadata.classes.Package.from_resource_ids()
-                .get_resource(self.table_id.value)
-                .encode
-            )
-        )
-        return df
 
 
 def transform(
