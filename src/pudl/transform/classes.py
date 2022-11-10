@@ -359,6 +359,52 @@ enforce_snake_case_multicol = multicol_transform_factory(enforce_snake_case)
 
 
 ################################################################################
+# Strip Non-Numeric Values
+################################################################################
+class StripNonNumericValues(TransformParams):
+    """Boolean parameter for :func:`strip_non_numeric_values`.
+
+    Stores a named boolean variable that is employed in
+    :func:`strip_non_numeric_values` to determine whether of not the transform
+    treatment should be applied. Pydantic 2.0 will allow validation of these simple
+    variables without needing to define a model.
+    """
+
+    strip_non_numeric_values: bool
+
+
+def strip_non_numeric_values(
+    col: pd.Series, params: StripNonNumericValues | None = None
+) -> pd.Series:
+    """Strip a column of any non numeric values.
+
+    Using the following options in :func:`pd.Series.extract` :
+
+    * an optional ``+`` or ``-`` followed by at least one digit followed by an optional
+      decimal place followed by any number of digits (including zero)
+    * OR an optional ``+`` or ``-`` followed by a period followed by at least one digit
+
+    Unless the found mathc is followed by a letter (this is done using a negative
+    lookback).
+
+    Note: This will not work with exponential values. If there are two possible matches
+    of numeric values within a value, only the first match will be returned (ex:
+    ``"FERC1 Licenses 1234 & 5678"`` will return ``"1234"``).
+    """
+    if params is None:
+        params = StripNonNumericValues(strip_non_numeric_values=True)
+    if params.strip_non_numeric_values:
+        col = col.astype(str).str.extract(
+            rf"(?P<{col.name}>(?<![a-z-A-Z])[-+]?\d+\.?\d*|[-+]?\.\d+)",  # name the series
+            expand=False,
+        )
+    return col
+
+
+strip_non_numeric_values_multicol = multicol_transform_factory(strip_non_numeric_values)
+
+
+################################################################################
 # Categorize Strings
 ################################################################################
 class StringCategories(TransformParams):
@@ -799,6 +845,7 @@ class TableTransformParams(TransformParams):
     categorize_strings: dict[str, StringCategories] = {}
     nullify_outliers: dict[str, ValidRange] = {}
     normalize_strings: dict[str, StringNormalization] = {}
+    strip_non_numeric_values: dict[str, StripNonNumericValues] = {}
 
     # Transformations that apply to whole dataframes have to be treated individually,
     # with default initializations that result in no transformation taking place.
@@ -1087,6 +1134,19 @@ class AbstractTableTransformer(ABC):
             params = self.params.normalize_strings
         logger.info(f"{self.table_id.value}: Normalizing freeform string columns.")
         return normalize_strings_multicol(df, params)
+
+    def strip_non_numeric_values(
+        self,
+        df: pd.DataFrame,
+        params: dict[str, bool] | None = None,
+    ) -> pd.DataFrame:
+        """Method wrapper for stripping non-numeric values."""
+        if params is None:
+            params = self.params.strip_non_numeric_values
+        logger.info(
+            f"{self.table_id.value}: Stripping non-numeric values from {list(params.keys())}."
+        )
+        return strip_non_numeric_values_multicol(df, params)
 
     def categorize_strings(
         self,
