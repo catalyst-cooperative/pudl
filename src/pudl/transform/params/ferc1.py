@@ -2250,6 +2250,84 @@ TRANSFORM_PARAMS = {
             },
         ],
     },
+    "purchased_power_ferc1": {
+        "rename_columns_ferc1": {
+            "dbf": {
+                "columns": {
+                    "report_prd": "report_prd",
+                    "row_number": "row_number",
+                    "row_seq": "row_seq",
+                    "row_prvlg": "row_prvlg",
+                    "spplmnt_num": "spplmnt_num",
+                    "report_year": "report_year",
+                    "respondent_id": "utility_id_ferc1_dbf",
+                    "athrty_co_name": "seller_name",
+                    "sttstcl_clssfctn": "purchase_type_code",
+                    "rtsched_trffnbr": "tariff",
+                    "avgmth_bill_dmnd": "billing_demand_mw",
+                    "avgmth_ncp_dmnd": "non_coincident_peak_demand_mw",
+                    "avgmth_cp_dmnd": "coincident_peak_demand_mw",
+                    "mwh_purchased": "purchased_mwh",
+                    "mwh_recv": "received_mwh",
+                    "mwh_delvd": "delivered_mwh",
+                    "dmnd_charges": "demand_charges",
+                    "erg_charges": "energy_charges",
+                    "othr_charges": "other_charges",
+                    "settlement_tot": "total_settlement",
+                }
+            },
+            "xbrl": {
+                "columns": {
+                    "end_date": "end_date",
+                    "start_date": "start_date",
+                    "report_year": "report_year",
+                    "order_number": "order_number",
+                    "entity_id": "utility_id_ferc1_xbrl",
+                    "average_monthly_billing_demand": "billing_demand_mw",
+                    "average_monthly_coincident_peak_demand": "coincident_peak_demand_mw",
+                    "average_monthly_non_coincident_peak_demand": "non_coincident_peak_demand_mw",
+                    "demand_charges_of_purchased_power": "demand_charges",
+                    "energy_charges_of_purchased_power": "energy_charges",
+                    "energy_delivered_through_power_exchanges": "delivered_mwh",
+                    "energy_received_through_power_exchanges": "received_mwh",
+                    "megawatt_hours_purchased_for_energy_storage": "purchased_storage_mwh",  # new column
+                    "megawatt_hours_purchased_other_than_storage": "purchased_mwh",
+                    "name_of_company_or_public_authority_providing_purchased_power": "seller_name",
+                    "other_charges_of_purchased_power": "other_charges",
+                    "purchased_power_axis": "purchased_power_axis",  # new probably pk col
+                    "rate_schedule_tariff_number": "tariff",
+                    "settlement_of_power": "total_settlement",
+                    "statistical_classification_code": "purchase_type_code",
+                }
+            },
+        },
+        "normalize_strings": {
+            "seller_name": FERC1_STRING_NORM,
+        },
+        "strip_non_numeric_values": {
+            "billing_demand_mw": {"strip_non_numeric_values": True},
+            "non_coincident_peak_demand_mw": {"strip_non_numeric_values": True},
+            "coincident_peak_demand_mw": {"strip_non_numeric_values": True},
+        },
+        "drop_invalid_rows": [
+            {
+                "invalid_values": [0, "0", pd.NA, np.nan, "", "none", "—"],
+                "required_valid_cols": [
+                    "purchased_mwh",
+                    "received_mwh",
+                    "delivered_mwh",
+                    "demand_charges",
+                    "energy_charges",
+                    "other_charges",
+                    "total_settlement",
+                    "purchased_storage_mwh",
+                    "billing_demand_mw",
+                    "non_coincident_peak_demand_mw",
+                    "coincident_peak_demand_mw",
+                ],
+            }
+        ],
+    },
 }
 """The full set of parameters used to transform the FERC Form 1 data.
 

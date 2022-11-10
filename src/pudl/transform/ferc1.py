@@ -71,7 +71,7 @@ class Ferc1TableId(enum.Enum):
     PLANTS_SMALL_FERC1 = "plants_small_ferc1"
     PLANTS_PUMPED_STORAGE_FERC1 = "plants_pumped_storage_ferc1"
     PLANT_IN_SERVICE_FERC1 = "plant_in_service_ferc1"
-    PURCHASED_POWER = "purchased_power_ferc1"
+    PURCHASED_POWER_FERC1 = "purchased_power_ferc1"
 
 
 class Ferc1RenameColumns(TransformParams):
@@ -172,6 +172,11 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             .pipe(self.strip_non_numeric_values)
             .pipe(self.nullify_outliers)
             .pipe(self.drop_invalid_rows)
+            .pipe(
+                pudl.metadata.classes.Package.from_resource_ids()
+                .get_resource(self.table_id.value)
+                .encode
+            )
         )
         return df
 
@@ -185,7 +190,8 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         """DBF-specific transformations that take place before concatenation."""
         logger.info(f"{self.table_id.value}: Processing DBF data pre-concatenation.")
         return (
-            self.drop_footnote_columns_dbf(raw_dbf)
+            raw_dbf.drop_duplicates()
+            .pipe(self.drop_footnote_columns_dbf)
             # Note: in this rename_columns we have to pass in params, since we're using
             # the inherited method, with param specific to the child class.
             .pipe(self.rename_columns, params=self.params.rename_columns_ferc1.dbf)
@@ -849,6 +855,20 @@ class PlantsPumpedStorageFerc1TableTransformer(Ferc1AbstractTableTransformer):
     table_id: Ferc1TableId = Ferc1TableId.PLANTS_PUMPED_STORAGE_FERC1
 
 
+class PurchasedPowerTableTransformer(Ferc1AbstractTableTransformer):
+    """Transformer class for ``purchased_power_ferc1`` table.
+
+    This table has data about inter-utility power purchases into the PUDL DB. This
+    includes how much electricty was purchased, how much it cost, and who it was
+    purchased from. Unfortunately the field describing which other utility the power was
+    being bought from is poorly standardized, making it difficult to correlate with
+    other data. It will need to be categorized by hand or with some fuzzy matching
+    eventually.
+    """
+
+    table_id: Ferc1TableId = Ferc1TableId.PURCHASED_POWER_FERC1
+
+
 def transform(
     ferc1_dbf_raw_dfs: dict[str, pd.DataFrame],
     ferc1_xbrl_raw_dfs: dict[str, dict[str, pd.DataFrame]],
@@ -875,7 +895,7 @@ def transform(
         "plants_hydro_ferc1": PlantsHydroFerc1TableTransformer,
         "plants_pumped_storage_ferc1": PlantsPumpedStorageFerc1TableTransformer,
         # "plant_in_service_ferc1": plant_in_service,
-        # "purchased_power_ferc1": purchased_power,
+        "purchased_power_ferc1": PurchasedPowerTableTransformer,
         # "accumulated_depreciation_ferc1": accumulated_depreciation,
     }
     # create an empty ditctionary to fill up through the transform fuctions
@@ -1358,97 +1378,6 @@ def plant_in_service(ferc1_raw_dfs, ferc1_transformed_dfs):
     pis_df = pis_df.drop(columns=pis_df.filter(regex=".*_head$").columns)
 
     ferc1_transformed_dfs["plant_in_service_ferc1"] = pis_df
-    return ferc1_transformed_dfs
-
-
-def purchased_power(ferc1_dbf_raw_dfs, ferc1_xbrl_raw_dfs, ferc1_transformed_dfs):
-    """Transforms FERC Form 1 pumped storage data for loading into PUDL.
-
-    This table has data about inter-utility power purchases into the PUDL DB. This
-    includes how much electricty was purchased, how much it cost, and who it was
-    purchased from. Unfortunately the field describing which other utility the power was
-    being bought from is poorly standardized, making it difficult to correlate with
-    other data. It will need to be categorized by hand or with some fuzzy matching
-    eventually.
-
-    Args:
-        ferc1_raw_dfs (dict): Each entry in this dictionary of DataFrame objects
-            corresponds to a table from the  FERC Form 1 DBC database.
-        ferc1_transformed_dfs (dict): A dictionary of DataFrames to be transformed.
-
-    Returns:
-        dict: The dictionary of the transformed DataFrames.
-    """
-    # grab table from dictionary of dfs
-    df = (
-        _clean_cols(ferc1_dbf_raw_dfs["purchased_power_ferc1"], "f1_purchased_pwr")
-        .rename(
-            columns={
-                "athrty_co_name": "seller_name",
-                "sttstcl_clssfctn": "purchase_type_code",
-                "rtsched_trffnbr": "tariff",
-                "avgmth_bill_dmnd": "billing_demand_mw",
-                "avgmth_ncp_dmnd": "non_coincident_peak_demand_mw",
-                "avgmth_cp_dmnd": "coincident_peak_demand_mw",
-                "mwh_purchased": "purchased_mwh",
-                "mwh_recv": "received_mwh",
-                "mwh_delvd": "delivered_mwh",
-                "dmnd_charges": "demand_charges",
-                "erg_charges": "energy_charges",
-                "othr_charges": "other_charges",
-                "settlement_tot": "total_settlement",
-            }
-        )
-        .assign(  # Require these columns to numeric, or NaN
-            billing_demand_mw=lambda x: pd.to_numeric(
-                x.billing_demand_mw, errors="coerce"
-            ),
-            non_coincident_peak_demand_mw=lambda x: pd.to_numeric(
-                x.non_coincident_peak_demand_mw, errors="coerce"
-            ),
-            coincident_peak_demand_mw=lambda x: pd.to_numeric(
-                x.coincident_peak_demand_mw, errors="coerce"
-            ),
-        )
-        .fillna(
-            {  # Replace blanks w/ 0.0 in data columns.
-                "purchased_mwh": 0.0,
-                "received_mwh": 0.0,
-                "delivered_mwh": 0.0,
-                "demand_charges": 0.0,
-                "energy_charges": 0.0,
-                "other_charges": 0.0,
-                "total_settlement": 0.0,
-            }
-        )
-    )
-
-    # Reencode the power purchase types:
-    df = (
-        pudl.metadata.classes.Package.from_resource_ids()
-        .get_resource("purchased_power_ferc1")
-        .encode(df)
-    )
-
-    # Drop records containing no useful data and also any completely duplicate
-    # records -- there are 6 in 1998 for utility 238 for some reason...
-    df = df.drop_duplicates().drop(
-        df.loc[
-            (
-                (df.purchased_mwh == 0)
-                & (df.received_mwh == 0)
-                & (df.delivered_mwh == 0)
-                & (df.demand_charges == 0)
-                & (df.energy_charges == 0)
-                & (df.other_charges == 0)
-                & (df.total_settlement == 0)
-            ),
-            :,
-        ].index
-    )
-
-    ferc1_transformed_dfs["purchased_power_ferc1"] = df
-
     return ferc1_transformed_dfs
 
 
