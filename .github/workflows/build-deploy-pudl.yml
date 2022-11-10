@@ -70,13 +70,13 @@ jobs:
 
       # Authentication via credentials json
       - id: "auth"
-        uses: "google-github-actions/auth@v0"
+        uses: "google-github-actions/auth@v1"
         with:
           credentials_json: "${{ secrets.DEPLOY_PUDL_SA_KEY }}"
 
       # Setup gcloud CLI
       - name: Set up Cloud SDK
-        uses: google-github-actions/setup-gcloud@v0
+        uses: google-github-actions/setup-gcloud@v1
 
       # Deploy PUDL image to GCE
       - name: Deploy
