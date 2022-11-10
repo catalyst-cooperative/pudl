@@ -1033,6 +1033,7 @@ def test_strip_non_numeric():
             3.3,
             0.03,
             ".3",
+            "FERC1 Licenses 1234 & 5678",
         ],
         name="test",
     )
@@ -1051,6 +1052,7 @@ def test_strip_non_numeric():
             "3.3",
             "0.03",
             ".3",
+            "1234",
         ],
         name="test",
     )

@@ -387,7 +387,9 @@ def strip_non_numeric_values(
     Unless the found mathc is followed by a letter (this is done using a negative
     lookback).
 
-    Note: this will not work with exponential values.
+    Note: This will not work with exponential values. If there are two possible matches
+    of numeric values within a value, only the first match will be returned (ex:
+    ``"FERC1 Licenses 1234 & 5678"`` will return ``"1234"``).
     """
     if params is None:
         params = StripNonNumericValues(strip_non_numeric_values=True)

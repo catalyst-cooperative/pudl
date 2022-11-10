@@ -951,7 +951,7 @@ if __name__ == "__main__":
     )
     ferc1_settings = Ferc1Settings(
         years=[2020, 2021],
-        tables=["fuel_ferc1", "plants_steam_ferc1"],
+        tables=["fuel_ferc1", "plants_steam_ferc1", "plants_pumped_storage_ferc1"],
     )
     pudl_settings = pudl.workspace.setup.get_defaults()
     raw_dbf = pudl.extract.ferc1.extract_dbf(
