@@ -71,7 +71,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             "fields": [
                 "utility_id_ferc1",
                 "report_year",
-                "ferc_account_id",
+                "ferc_account_label",
                 "starting_balance",
                 "additions",
                 "retirements",
@@ -80,7 +80,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "ending_balance",
                 "record_id",
             ],
-            "primary_key": ["utility_id_ferc1", "report_year", "ferc_account_id"],
+            "primary_key": ["utility_id_ferc1", "report_year", "ferc_account_label"],
         },
         "sources": ["ferc1"],
         "etl_group": "ferc1",

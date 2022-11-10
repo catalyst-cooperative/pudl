@@ -9,9 +9,9 @@ instance so new code merged into ``dev`` can be fully tested. These complete bui
 also enable continuous deployment of PUDL's data outputs.
 
 The builds are kicked off by the ``build-deploy-pudl`` GitHub Action, which builds and
-pushes a Docker image with PUDL installed to `Docker Hub <https://hub.docker.com/r/catalystcoop/pudl-etl>`__ and deploys the image as a container
-to a GCE instance. The container runs the ETL and tests, then copies the outputs to GCS
-buckets for the PUDL Intake catalogs to consume.
+pushes a Docker image with PUDL installed to `Docker Hub <https://hub.docker.com/r/catalystcoop/pudl-etl>`__
+and deploys the image as a container to a GCE instance. The container runs the ETL and
+tests, then copies the outputs to GCS buckets for the PUDL Intake catalogs to consume.
 
 Breaking the Builds
 -------------------
