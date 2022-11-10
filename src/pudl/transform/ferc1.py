@@ -1306,8 +1306,9 @@ class PlantsSmallFerc1TableTransformer(Ferc1AbstractTableTransformer):
         This function groups the data by utility, year, and header, creates a new column
         for the header, and forward fills the header so that each record in the header
         group has the header in a new column. This header column is then duplicated and
-        renamed `fuel_type_2` and `plant_type_2`. These columns will then be used to
-        fill in blank values in the `plant_type` and `fuel_type` columns.
+        renamed `fuel_type_from_header` and `plant_type_from_header`. These columns will
+        then be used to fill in blank values in the `plant_type` and `fuel_type`
+        columns.
 
         Why do we stop here?
 
@@ -1338,23 +1339,23 @@ class PlantsSmallFerc1TableTransformer(Ferc1AbstractTableTransformer):
         +-------------------+------------+------------+----------+
 
         And ends with this:
-        +-------------------+------------+------------+---------------+----------------+
-        | plant_name_ferc1  | plant_type | fuel_type  | plant_type_2  | fuel_type_2    |
-        +===================+============+============+===============+================+
-        | HYDRO:            | NA         | NA         | HYDRO:        | HYDRO:         |
-        +-------------------+------------+------------+---------------+----------------+
-        | rainbow falls (b) | NA         | NA         | HYDRO:        | HYDRO:         |
-        +-------------------+------------+------------+---------------+----------------+
-        | cadyville (a)     | NA         | NA         | HYDRO:        | HYDRO:         |
-        +-------------------+------------+------------+---------------+----------------+
-        | keuka (c)         | NA         | NA         | HYDRO:        | HYDRO:         |
-        +-------------------+------------+------------+---------------+----------------+
-        | Wind Turbines:    | NA         | NA         | Wind Turbines:| Wind Turbines: |
-        +-------------------+------------+------------+---------------+----------------+
-        | sunny grove       | NA         | NA         | Wind Turbines:| Wind Turbines: |
-        +-------------------+------------+------------+---------------+----------------+
-        | green park wind   | NA         | wind       | Wind Turbines:| Wind Turbines: |
-        +-------------------+------------+------------+---------------+----------------+
+        +-------------------+------------+------------+-------------------------+-----------------------+
+        | plant_name_ferc1  | plant_type | fuel_type  | plant_type_from_header  | fuel_type_from_header |
+        +===================+============+============+=========================+=======================+
+        | HYDRO:            | NA         | NA         | HYDRO:                  | HYDRO:                |
+        +-------------------+------------+------------+-------------------------+-----------------------+
+        | rainbow falls (b) | NA         | NA         | HYDRO:                  | HYDRO:                |
+        +-------------------+------------+------------+-------------------------+-----------------------+
+        | cadyville (a)     | NA         | NA         | HYDRO:                  | HYDRO:                |
+        +-------------------+------------+------------+-------------------------+-----------------------+
+        | keuka (c)         | NA         | NA         | HYDRO:                  | HYDRO:                |
+        +-------------------+------------+------------+-------------------------+-----------------------+
+        | Wind Turbines:    | NA         | NA         | Wind Turbines:          | Wind Turbines:        |
+        +-------------------+------------+------------+-------------------------+-----------------------+
+        | sunny grove       | NA         | NA         | Wind Turbines:          | Wind Turbines:        |
+        +-------------------+------------+------------+-------------------------+-----------------------+
+        | green park wind   | NA         | wind       | Wind Turbines:          | Wind Turbines:        |
+        +-------------------+------------+------------+-------------------------+-----------------------+
 
         NOTE: If a utility's `plant_name_ferc1` column looks like this: [STEAM,
         coal_plant1, coal_plant2, wind_turbine1], then algorythem will think that last
@@ -1385,8 +1386,8 @@ class PlantsSmallFerc1TableTransformer(Ferc1AbstractTableTransformer):
         df.loc[df["row_type"] != "note", "header"] = header_groups.header.ffill()
 
         # Create temporary columns for plant type and fuel type
-        df["plant_type_2"] = df["header"]
-        df["fuel_type_2"] = df["header"]
+        df["plant_type_from_header"] = df["header"]
+        df["fuel_type_from_header"] = df["header"]
         df = df.drop(columns=["header"])
 
         return df
@@ -1396,12 +1397,13 @@ class PlantsSmallFerc1TableTransformer(Ferc1AbstractTableTransformer):
 
         `prep_header_fuel_and_plant_types` extracted and forward filled the header
         values; categorize_strings cleaned them according to both the fuel and plant
-        type parameters; now we need to combine the `fuel_type_2` with `fuel_type` and
-        `plant_type_2` with `plant_type`.
+        type parameters; now we need to combine the `fuel_type_from_header` with
+        `fuel_type` and `plant_type_from_header` with `plant_type`.
 
         This function replaces values that are NA or "other" from `fuel_type` with
-        `fuel_type_2` and from `plant_type` with `plant_type_2`. It then removes the
-        `plant_type_2` and `fuel_type_2` columns.
+        `fuel_type_from_header` and from `plant_type` with `plant_type_from_header`.
+        It then removes the `plant_type_from_header` and `fuel_type_from_header`
+        columns.
 
         To understand more about why these steps are necessary, see the
         `prep_header_fuel_and_plant_types` docstring.
@@ -1416,11 +1418,15 @@ class PlantsSmallFerc1TableTransformer(Ferc1AbstractTableTransformer):
         old_plant_na_count = len(df[df["plant_type"].isin([pd.NA, "other"])])
 
         # Fill NA and "other" fields
-        df.loc[df["plant_type"].isin([pd.NA, "other"]), "plant_type"] = df.plant_type_2
-        df.loc[df["fuel_type"].isin([pd.NA, "other"]), "fuel_type"] = df.fuel_type_2
+        df.loc[
+            df["plant_type"].isin([pd.NA, "other"]), "plant_type"
+        ] = df.plant_type_from_header
+        df.loc[
+            df["fuel_type"].isin([pd.NA, "other"]), "fuel_type"
+        ] = df.fuel_type_from_header
 
-        # Remove _2 fields
-        df = df.drop(columns=["plant_type_2", "fuel_type_2"])
+        # Remove _from_header fields
+        df = df.drop(columns=["plant_type_from_header", "fuel_type_from_header"])
 
         # Check that this worked!
         new_fuel_na_count = len(df[df["fuel_type"].isin([pd.NA, "other"])])
@@ -1437,8 +1443,8 @@ class PlantsSmallFerc1TableTransformer(Ferc1AbstractTableTransformer):
         """Get plant type from plant name.
 
         If there is a plant type embedded in the plant name (that's not a header) then
-        move that to the plant_type_2 column. Right now, this only works for hydro
-        plants because the rest are complicated and have a slew of exceptions.
+        move that to the plant_type_from_header column. Right now, this only works for
+        hydro plants because the rest are complicated and have a slew of exceptions.
         """
         logger.info(f"{self.table_id.value}: Getting fuel type (hydro) from plant name")
         df.loc[

@@ -2400,9 +2400,9 @@ TRANSFORM_PARAMS = {
         },
         "categorize_strings": {
             "fuel_type": FUEL_CATEGORIES,
-            "fuel_type_2": FUEL_CATEGORIES,
+            "fuel_type_from_header": FUEL_CATEGORIES,
             "plant_type": PLANT_TYPE_CATEGORIES,
-            "plant_type_2": PLANT_TYPE_CATEGORIES,
+            "plant_type_from_header": PLANT_TYPE_CATEGORIES,
         },
     },
 }
