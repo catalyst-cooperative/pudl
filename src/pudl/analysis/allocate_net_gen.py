@@ -1862,7 +1862,6 @@ def test_original_gf_vs_the_allocated_by_gens_gf(
         & ~(gf_test.net_generation_mwh_allocated < 1)
     ].empty:
         gf_test = gf_test[~np.isinf(gf_test.net_generation_mwh_diff)]
-    logger.debug(gf_test.filter(like="_diff").mean().round(2))
 
     for data_col in data_columns:
         col_test = gf_test[
@@ -1882,8 +1881,8 @@ def test_original_gf_vs_the_allocated_by_gens_gf(
                 f"More than the expected number of plants' allocated {data_col} are off"
                 " the original data by more than 5%."
             )
-        max_diff = gf_test[f"{data_col}_diff"].max().round(2)
-        min_diff = gf_test[f"{data_col}_diff"].min().round(2)
+        max_diff = round(gf_test[f"{data_col}_diff"].max(), 2)
+        min_diff = round(gf_test[f"{data_col}_diff"].min(), 2)
         logger.info(
             f"{data_col}: Min and max differnce are x{min_diff} and x{max_diff}"
         )
