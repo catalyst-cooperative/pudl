@@ -857,6 +857,18 @@ class PurchasedPowerTableTransformer(Ferc1AbstractTableTransformer):
     @cache_df(key="main")
     def transform_main(self, df: pd.DataFrame) -> pd.DataFrame:
         """Table-specific transforms for the ``purchased_power_ferc1`` table."""
+        df = (
+            super()
+            .transform_main(df)
+            # Drop records containing no useful data and also any completely duplicate
+            # records -- there are 6 in 1998 for utility 238 for some reason...
+            .drop_duplicates()
+            .pipe(
+                pudl.metadata.classes.Package.from_resource_ids()
+                .get_resource(self.table_id.value)
+                .encode
+            )
+        )
         return df
 
 
@@ -886,7 +898,7 @@ def transform(
         "plants_hydro_ferc1": PlantsHydroFerc1TableTransformer,
         "plants_pumped_storage_ferc1": PlantsPumpedStorageFerc1TableTransformer,
         # "plant_in_service_ferc1": plant_in_service,
-        # "purchased_power_ferc1": purchased_power,
+        "purchased_power_ferc1": PurchasedPowerTableTransformer,
         # "accumulated_depreciation_ferc1": accumulated_depreciation,
     }
     # create an empty ditctionary to fill up through the transform fuctions

@@ -2301,11 +2301,32 @@ TRANSFORM_PARAMS = {
                 }
             },
         },
+        "normalize_strings": {
+            "seller_name": FERC1_STRING_NORM,
+        },
         "strip_non_numeric_values": {
             "billing_demand_mw": {"strip_non_numeric_values": True},
             "non_coincident_peak_demand_mw": {"strip_non_numeric_values": True},
             "coincident_peak_demand_mw": {"strip_non_numeric_values": True},
         },
+        "drop_invalid_rows": [
+            {
+                "invalid_values": [0, "0", pd.NA, np.nan, "", "none", "—"],
+                "required_valid_cols": [
+                    "purchased_mwh",
+                    "received_mwh",
+                    "delivered_mwh",
+                    "demand_charges",
+                    "energy_charges",
+                    "other_charges",
+                    "total_settlement",
+                    "purchased_storage_mwh",
+                    "billing_demand_mw",
+                    "non_coincident_peak_demand_mw",
+                    "coincident_peak_demand_mw",
+                ],
+            }
+        ],
     },
 }
 """The full set of parameters used to transform the FERC Form 1 data.
