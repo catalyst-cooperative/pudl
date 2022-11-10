@@ -155,6 +155,27 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         return pd.concat([processed_dbf, processed_xbrl]).reset_index(drop=True)
 
     @cache_df(key="main")
+    def transform_main(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Generic FERC1 main table transformer.
+
+        Params:
+            df: Pre-processed, concatenated XBRL and DBF data.
+
+        Returns:
+            A single transformed table concatenating multiple years of cleaned data
+            derived from the raw DBF and/or XBRL inputs.
+        """
+        df = (
+            self.normalize_strings(df)
+            .pipe(self.categorize_strings)
+            .pipe(self.convert_units)
+            .pipe(self.strip_non_numeric_values)
+            .pipe(self.nullify_outliers)
+            .pipe(self.drop_invalid_rows)
+        )
+        return df
+
+    @cache_df(key="main")
     def transform_end(self, df: pd.DataFrame) -> pd.DataFrame:
         """Enforce the database schema and remove any cached dataframes."""
         return self.enforce_schema(df)
@@ -773,11 +794,8 @@ class PlantsSteamFerc1TableTransformer(Ferc1AbstractTableTransformer):
             .categories.keys()
         )
         plants_steam = (
-            self.normalize_strings(df)
-            .pipe(self.nullify_outliers)
-            .pipe(self.categorize_strings)
-            .pipe(self.convert_units)
-            .pipe(self.drop_invalid_rows)
+            super()
+            .transform_main(df)
             .pipe(
                 plants_steam_assign_plant_ids,
                 ferc1_fuel_df=transformed_fuel,
@@ -824,33 +842,11 @@ class PlantsHydroFerc1TableTransformer(Ferc1AbstractTableTransformer):
 
     table_id: Ferc1TableId = Ferc1TableId.PLANTS_HYDRO_FERC1
 
-    @cache_df(key="main")
-    def transform_main(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Table specific transforms for plants_hydro_ferc1.
 
-        Params:
-            df: Pre-processed, concatenated XBRL and DBF data.
+class PlantsPumpedStorageFerc1TableTransformer(Ferc1AbstractTableTransformer):
+    """Transformer class for ``plants_pumped_storage_ferc1`` table."""
 
-        Returns:
-            A single transformed table concatenating multiple years of cleaned data
-            derived from the raw DBF and/or XBRL inputs.
-        """
-        df = (
-            self.normalize_strings(df)
-            .pipe(self.categorize_strings)
-            .pipe(self.convert_units)
-            .pipe(self.nullify_outliers)
-            .pipe(self.drop_invalid_rows)
-        )
-        df["project_num"] = self.strip_col_of_non_ints(df["project_num"])
-        return df
-
-    def strip_col_of_non_ints(self, col: pd.Series) -> pd.DataFrame:
-        """Strip the column of any non-integer values."""
-        return pd.to_numeric(
-            col,
-            errors="coerce",
-        )
+    table_id: Ferc1TableId = Ferc1TableId.PLANTS_PUMPED_STORAGE_FERC1
 
 
 def transform(
@@ -877,7 +873,7 @@ def transform(
         "fuel_ferc1": FuelFerc1TableTransformer,
         # "plants_small_ferc1": plants_small,
         "plants_hydro_ferc1": PlantsHydroFerc1TableTransformer,
-        # "plants_pumped_storage_ferc1": plants_pumped_storage,
+        "plants_pumped_storage_ferc1": PlantsPumpedStorageFerc1TableTransformer,
         # "plant_in_service_ferc1": plant_in_service,
         # "purchased_power_ferc1": purchased_power,
         # "accumulated_depreciation_ferc1": accumulated_depreciation,
@@ -935,7 +931,7 @@ if __name__ == "__main__":
     )
     ferc1_settings = Ferc1Settings(
         years=[2020, 2021],
-        tables=["fuel_ferc1", "plants_steam_ferc1"],
+        tables=["fuel_ferc1", "plants_steam_ferc1", "plants_pumped_storage_ferc1"],
     )
     pudl_settings = pudl.workspace.setup.get_defaults()
     raw_dbf = pudl.extract.ferc1.extract_dbf(
@@ -1299,120 +1295,6 @@ def plants_small(ferc1_dbf_raw_dfs, ferc1_xbrl_raw_dfs, ferc1_transformed_dfs):
     )
 
     ferc1_transformed_dfs["plants_small_ferc1"] = ferc1_small_df
-    return ferc1_transformed_dfs
-
-
-def plants_pumped_storage(ferc1_dbf_raw_dfs, ferc1_xbrl_raw_dfs, ferc1_transformed_dfs):
-    """Transforms FERC Form 1 pumped storage data for loading into PUDL.
-
-    Standardizes plant names (stripping whitespace and Using Title Case). Also converts
-    into our preferred units of MW and MWh.
-
-    Args:
-        ferc1_raw_dfs (dict): Each entry in this dictionary of DataFrame objects
-            corresponds to a table from the  FERC Form 1 DBC database.
-        ferc1_transformed_dfs (dict): A dictionary of DataFrames to be transformed.
-
-    Returns:
-        dict: The dictionary of transformed dataframes.
-    """
-    # grab table from dictionary of dfs
-    ferc1_pump_df = (
-        _clean_cols(
-            ferc1_dbf_raw_dfs["plants_pumped_storage_ferc1"], "f1_pumped_storage"
-        )
-        # Standardize plant_name capitalization and remove leading/trailing
-        # white space -- necesary b/c plant_name is part of many foreign keys.
-        .pipe(pudl.helpers.simplify_strings, ["plant_name"])
-        # Clean up the messy plant construction type column:
-        .pipe(
-            pudl.helpers.cleanstrings,
-            ["plant_kind"],
-            [CONSTRUCTION_TYPE_CATEGORIES["categories"]],
-            unmapped=pd.NA,
-        )
-        .assign(
-            # Converting from kW/kWh to MW/MWh
-            net_generation_mwh=lambda x: x.net_generation / 1000.0,
-            energy_used_for_pumping_mwh=lambda x: x.energy_used / 1000.0,
-            net_load_mwh=lambda x: x.net_load / 1000.0,
-            cost_per_mw=lambda x: x.cost_per_kw * 1000.0,
-            expns_per_mwh=lambda x: x.expns_kwh * 1000.0,
-        )
-        .pipe(
-            pudl.helpers.oob_to_nan,
-            cols=["yr_const", "yr_installed"],
-            lb=1850,
-            ub=max(DataSource.from_id("ferc1").working_partitions["years"]) + 1,
-        )
-        .drop(
-            columns=[
-                "net_generation",
-                "energy_used",
-                "net_load",
-                "cost_per_kw",
-                "expns_kwh",
-            ]
-        )
-        .rename(
-            columns={
-                # FERC1 DB          PUDL DB
-                "plant_name": "plant_name_ferc1",
-                "project_number": "project_num",
-                "tot_capacity": "capacity_mw",
-                "project_no": "project_num",
-                "plant_kind": "construction_type",
-                "peak_demand": "peak_demand_mw",
-                "yr_const": "construction_year",
-                "yr_installed": "installation_year",
-                "plant_hours": "plant_hours_connected_while_generating",
-                "plant_capability": "plant_capability_mw",
-                "avg_num_of_emp": "avg_num_employees",
-                "cost_wheels": "capex_wheels_turbines_generators",
-                "cost_land": "capex_land",
-                "cost_structures": "capex_structures",
-                "cost_facilties": "capex_facilities",
-                "cost_wheels_turbines_generators": "capex_wheels_turbines_generators",
-                "cost_electric": "capex_equipment_electric",
-                "cost_misc_eqpmnt": "capex_equipment_misc",
-                "cost_roads": "capex_roads",
-                "asset_retire_cost": "asset_retirement_cost",
-                "cost_of_plant": "capex_total",
-                "cost_per_mw": "capex_per_mw",
-                "expns_operations": "opex_operations",
-                "expns_water_pwr": "opex_water_for_power",
-                "expns_pump_strg": "opex_pumped_storage",
-                "expns_electric": "opex_electric",
-                "expns_misc_power": "opex_generation_misc",
-                "expns_rents": "opex_rents",
-                "expns_engneering": "opex_engineering",
-                "expns_structures": "opex_structures",
-                "expns_dams": "opex_dams",
-                "expns_plant": "opex_plant",
-                "expns_misc_plnt": "opex_misc_plant",
-                "expns_producton": "opex_production_before_pumping",
-                "pumping_expenses": "opex_pumping",
-                "tot_prdctn_exns": "opex_total",
-                "expns_per_mwh": "opex_per_mwh",
-            }
-        )
-        .drop_duplicates(
-            subset=[
-                "report_year",
-                "utility_id_ferc1",
-                "plant_name_ferc1",
-                "capacity_mw",
-            ],
-            keep=False,
-        )
-    )
-    if ferc1_pump_df["construction_type"].isnull().any():
-        raise AssertionError(
-            "NA values found in construction_type column during FERC 1 pumped storage "
-            "clean, add string to CONSTRUCTION_TYPES."
-        )
-    ferc1_pump_df = ferc1_pump_df.replace({"construction_type": "unknown"}, pd.NA)
-    ferc1_transformed_dfs["plants_pumped_storage_ferc1"] = ferc1_pump_df
     return ferc1_transformed_dfs
 
 
