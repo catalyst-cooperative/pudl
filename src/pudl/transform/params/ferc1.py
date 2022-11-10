@@ -2130,7 +2130,38 @@ TRANSFORM_PARAMS = {
                     "spplmnt_num": "spplmnt_num",
                 }
             },
-        }
+        },
+        "rename_columns_instant_xbrl": {
+            "columns": {
+                "communication_equipment": "communication_equipment_general_plant",
+                "office_furniture_and_equipment": "office_furniture_and_equipment_general_plant",
+                "structures_and_improvements": "structures_and_improvements_general_plant",
+                "tools_shop_and_garage_equipment": "tools_shop_and_garage_equipment_general_plant",
+                "miscellaneous_equipment": "miscellaneous_equipment_general_plant",
+                "transportation_equipment": "transportation_equipment_general_plant",
+                "laboratory_equipment": "laboratory_equipment_general_plant",
+                "land_and_land_rights": "land_and_land_rights_general_plant",
+                "stores_equipment": "stores_equipment_general_plant",
+                "power_operated_equipment": "power_operated_equipment_general_plant",
+                "other_tangible_property": "other_tangible_property_general_plant",
+                "installations_on_customers_premises_distribution_plant": "installations_on_customer_premises_distribution_plant",
+                "fuel_holders_producers_and_accessories_other_production": "fuel_holders_products_and_accessories_other_production",
+                "structures_and_improvement_nuclear_production": "structures_and_improvements_nuclear_production",
+                "leased_property_on_customers_premises_distribution_plant": "leased_property_on_customer_premises_distribution_plant",
+            }
+        },
+        "rename_columns_duration_xbrl": {
+            "columns": {
+                "energy_storage_equipment_production_other_production_additions": "energy_storage_equipment_other_production_additions",
+                "energy_storage_equipment_production_other_production_adjustments": "energy_storage_equipment_other_production_adjustments",
+                "energy_storage_equipment_production_other_production_retirements": "energy_storage_equipment_other_production_retirements",
+                "energy_storage_equipment_production_other_production_transfers": "energy_storage_equipment_other_production_transfers",
+                "asset_retirement_costs_for_regional_transmission_and_market_operations_regional_transmission_and_market_operation_plant_additions": "asset_retirement_costs_for_regional_transmission_and_market_operation_plant_regional_transmission_and_market_operation_plant_additions",
+                "asset_retirement_costs_for_regional_transmission_and_market_operations_regional_transmission_and_market_operation_plant_adjustments": "asset_retirement_costs_for_regional_transmission_and_market_operation_plant_regional_transmission_and_market_operation_plant_adjustments",
+                "asset_retirement_costs_for_regional_transmission_and_market_operations_regional_transmission_and_market_operation_plant_retirements": "asset_retirement_costs_for_regional_transmission_and_market_operation_plant_regional_transmission_and_market_operation_plant_retirements",
+                "asset_retirement_costs_for_regional_transmission_and_market_operations_regional_transmission_and_market_operation_plant_transfers": "asset_retirement_costs_for_regional_transmission_and_market_operation_plant_regional_transmission_and_market_operation_plant_transfers",
+            }
+        },
     },
 }
 """The full set of parameters used to transform the FERC Form 1 data.

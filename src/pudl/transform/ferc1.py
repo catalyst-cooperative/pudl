@@ -116,6 +116,8 @@ class Ferc1TableTransformParams(TableTransformParams):
         dbf=RenameColumns(),
         xbrl=RenameColumns(),
     )
+    rename_columns_instant_xbrl: RenameColumns = RenameColumns()
+    rename_columns_duration_xbrl: RenameColumns = RenameColumns()
 
 
 ################################################################################
@@ -372,11 +374,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                 f"    duration: {duration_axes}"
             )
 
-        # Everything above here is the same as the parent function, but here we need
-        # to reshape the instant table such that end-of-last-year becomes
-        # beginning-of-this-year in a separate column. Probably going to need to factor
-        # out the shared vs. different code into separate methods once we know what this
-        # should look like.
+        # Do any table-specific preprocessing of the instant and duration tables
         instant = self.process_instant_xbrl(instant)
         duration = self.process_duration_xbrl(duration)
 
@@ -387,6 +385,10 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             logger.info(f"{self.table_id.value}: No XBRL duration table found.")
             return instant
         else:
+            # TODO: Check whether our assumptions about these tables hold before
+            # concatenating them. May need to be table specific. E.g.
+            # * What fraction of their index values overlap? (it should be high!)
+            # * Do the instant/duration columns conform to expected naming conventions?
             return pd.concat(
                 [
                     instant.set_index(["report_year", "entity_id"] + instant_axes),
@@ -406,24 +408,28 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         #    validate="1:1",
         # )
 
+    @cache_df("process_instant_xbrl")
     def process_instant_xbrl(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Processing required to make the instant and duration tables compatible.
+        """Pre-processing required to make instant and duration tables compatible.
 
-        This is a no-op in the abstract base class, but should be implemented for
-        child classes which need to reshape the XBRL data for concatenation with DBF.
-        Parameterization TBD based on additional experience. See:
-        https://github.com/catalyst-cooperative/pudl/issues/2012
+        Column renaming is sometimes required because a few columns in the instant and
+        duration tables do not have corresponding names that follow the naming
+        conventions of ~95% of all the columns, which we rely on programmatically when
+        reshaping and concatenating these tables together.
         """
+        df = self.rename_columns(df, self.params.rename_columns_instant_xbrl)
         return df
 
+    @cache_df("process_duration_xbrl")
     def process_duration_xbrl(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Processing required to make the instant and duration tables compatible.
+        """Pre-processing required to make instant and duration tables compatible.
 
-        This is a no-op in the abstract base class, but should be implemented for
-        child classes which need to reshape the XBRL data for concatenation with DBF.
-        Parameterization TBD based on additional experience. See:
-        https://github.com/catalyst-cooperative/pudl/issues/2012
+        Column renaming is sometimes required because a few columns in the instant and
+        duration tables do not have corresponding names that follow the naming
+        conventions of ~95% of all the columns, which we rely on programmatically when
+        reshaping and concatenating these tables together.
         """
+        df = self.rename_columns(df, self.params.rename_columns_duration_xbrl)
         return df
 
     @cache_df(key="dbf")
@@ -1031,9 +1037,9 @@ class PlantInServiceFerc1TableTransformer(Ferc1AbstractTableTransformer):
             on=["report_year", "row_number"],
         ).rename(columns={"xbrl_column_stem": "ferc_account_id"})
 
-    @cache_df("reshape_instant")
+    @cache_df("process_instant_xbrl")
     def process_instant_xbrl(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Convert row-oriented end-of-year balances to starting/ending balance cols.
+        """Pre-processing required to make the instant and duration tables compatible.
 
         Each year the plant account balances are reported twice, in two separate
         records: one for the end of the previous year, and one for the end of the
@@ -1043,6 +1049,7 @@ class PlantInServiceFerc1TableTransformer(Ferc1AbstractTableTransformer):
         the records pertaining to a single ``report_year`` can be identified without
         dealing with the instant / duration distinction.
         """
+        df = super().process_instant_xbrl(df)
         df["year"] = pd.to_datetime(df["date"]).dt.year
         df.loc[df.report_year == (df.year + 1), "balance_type"] = "starting_balance"
         df.loc[df.report_year == df.year, "balance_type"] = "ending_balance"
