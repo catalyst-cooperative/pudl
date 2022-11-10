@@ -2111,7 +2111,7 @@ TRANSFORM_PARAMS = {
                 "columns": {
                     "entity_id": "utility_id_ferc1_xbrl",
                     "report_year": "report_year",
-                    "ferc_account_id": "ferc_account_id",
+                    "ferc_account_label": "ferc_account_label",
                     "starting_balance": "starting_balance",
                     "additions": "additions",
                     "retirements": "retirements",

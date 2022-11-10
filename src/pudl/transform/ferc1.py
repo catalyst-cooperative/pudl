@@ -1025,7 +1025,7 @@ class PlantInServiceFerc1TableTransformer(Ferc1AbstractTableTransformer):
             df,
             get_ferc1_dbf_xbrl_glue(self.source_table_id(Ferc1Source.DBF)),
             on=["report_year", "row_number"],
-        ).rename(columns={"xbrl_column_stem": "ferc_account_id"})
+        ).rename(columns={"xbrl_column_stem": "ferc_account_label"})
 
     @cache_df("reshape_instant")
     def process_instant_xbrl(self, df: pd.DataFrame) -> pd.DataFrame:
@@ -1093,12 +1093,12 @@ class PlantInServiceFerc1TableTransformer(Ferc1AbstractTableTransformer):
             if column_name.endswith(suffix)
         ]
         new_col_idx = pd.MultiIndex.from_tuples(
-            new_cols, names=["value_type", "ferc_account_id"]
+            new_cols, names=["value_type", "ferc_account_label"]
         )
 
         df = df.set_index(["entity_id", "report_year"])
         df.columns = new_col_idx
-        df = df.stack(level="ferc_account_id").loc[:, value_types].reset_index()
+        df = df.stack(level="ferc_account_label").loc[:, value_types].reset_index()
         # df.columns.name = None
         return df
 

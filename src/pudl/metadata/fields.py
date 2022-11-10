@@ -537,6 +537,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Account identifier from FERC's Uniform System of Accounts for Electric Plant. Includes higher level labeled categories.",
     },
+    "ferc_account_label": {
+        "type": "string",
+        "description": "Long FERC account identifier derived from values reported in the XBRL taxonomies. May also refer to aggregations of individual FERC accounts.",
+    },
     "ferc_acct_name": {
         "type": "string",
         "description": "Name of FERC account, derived from technology description and prime mover code.",
