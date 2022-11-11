@@ -406,36 +406,8 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                 f"    instant: {instant_axes}\n"
                 f"    duration: {duration_axes}"
             )
-
-        # instant_merge_keys = ["entity_id", "report_year"] + instant_axes
-        # duration_merge_keys = ["entity_id", "report_year"] + duration_axes
-        # # See if there are any values in the instant table that don't show up in the
-        # # duration table.
-        # unique_instant_rows = instant.set_index(instant_merge_keys).index.difference(
-        #     duration.set_index(duration_merge_keys).index
-        # )
-
-        # if not unique_instant_rows.empty:
-        #     raise AssertionError(
-        #         "instant df contains values not in duration df -- can't do a one-sided merge"
-        #         f"{unique_instant_rows}"
-        #     )
-
-        # # Merge instant into duration.
-        # return pd.merge(
-        #     instant,
-        #     duration,
-        #     how="right",
-        #     left_on=["date", "entity_id", "report_year"] + instant_axes,
-        #     right_on=["end_date", "entity_id", "report_year"] + duration_axes,
-        #     validate="1:1",
-        # )
-
-        # Everything above here is the same as the parent function, but here we need
-        # to reshape the instant table such that end-of-last-year becomes
-        # beginning-of-this-year in a separate column. Probably going to need to factor
-        # out the shared vs. different code into separate methods once we know what this
-        # should look like.
+        # If necessary, process the instant and duration tables differently prior to
+        # merging.
         instant = self.process_instant_xbrl(instant)
         duration = self.process_duration_xbrl(duration)
 
@@ -446,13 +418,29 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             logger.info(f"{self.table_id.value}: No XBRL duration table found.")
             return instant
         else:
-            return pd.concat(
-                [
-                    instant.set_index(["report_year", "entity_id"] + instant_axes),
-                    duration.set_index(["report_year", "entity_id"] + duration_axes),
-                ],
-                axis="columns",
-            ).reset_index()
+            instant_merge_keys = ["entity_id", "report_year"] + instant_axes
+            duration_merge_keys = ["entity_id", "report_year"] + duration_axes
+            # See if there are any values in the instant table that don't show up in the
+            # duration table.
+            unique_instant_rows = instant.set_index(
+                instant_merge_keys
+            ).index.difference(duration.set_index(duration_merge_keys).index)
+            if not unique_instant_rows.empty:
+                raise AssertionError(
+                    "instant df contains values not in duration df -- can't do a "
+                    "one-sided merge: "
+                    f"{unique_instant_rows}"
+                )
+
+            # Merge instant into duration.
+            return pd.merge(
+                instant,
+                duration,
+                how="right",
+                left_on=["date", "entity_id", "report_year"] + instant_axes,
+                right_on=["end_date", "entity_id", "report_year"] + duration_axes,
+                validate="1:1",
+            )
 
     def process_instant_xbrl(self, df: pd.DataFrame) -> pd.DataFrame:
         """Processing required to make the instant and duration tables compatible.
