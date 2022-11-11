@@ -1172,21 +1172,21 @@ class PlantsSmallFerc1TableTransformer(Ferc1AbstractTableTransformer):
             """Find and label notes rows in a designated sub-group of the sg table.
 
             This function breaks the data down by reporting unit (utility and year) and
-            determines whether a possible_header_note row is a note based on the
-            following criteria:
+            determines whether a possible_header_note row is a note based on two
+            criteria:
+            - Clumps of 2 or more adjecent rows where possible_header_or_note is True.
+            - Instances where the last row in a utility-year group has
+            possible_header_or_note as True.
 
-            - Clumps of 2 or more adjecent rows where possible_header_or_note is True
-              and row_type is not already a header.
-
-            There is always the possability that a header row is followed by a plant
-            that had no values reported. This would look like, and therefore be
-            categorized as, a note. I haven't built a work around, but it's not a big
-            deal because in order to be a possible_header_or_note the row must not have
-            any important data.
-
-            NOTE: This whole note-row labeling thing might be unecessary. We might be
-            able to just check the non-header rows for footnotes and then map those to
-            the relevant rows.
+            There are a couple of important exceptions that this function also
+            addresses. Utilities often have multiple headers in a single utility-year
+            grouping. You might see something like: header, plant1, plant2, note,
+            header, plant3, plant4. In this case, a note clump is actually comprised of
+            a note followed by a header. This function will not override the header as a
+            note. Unfortunately, there is always the possability that a header row is
+            followed by a plant that had no values reported. This would look like, and
+            therefore be categorized as a note clump. I haven't built a work around, but
+            hopefully there aren't very many of these.
 
             Args:
                 util_year_group (pandas.DataFrame): A groupby object that contains
@@ -1197,6 +1197,9 @@ class PlantsSmallFerc1TableTransformer(Ferc1AbstractTableTransformer):
             clump_group, clump_count = self._find_note_clumps(
                 util_year_group, "possible_header_or_note"
             )
+
+            # Used later to enable exceptions
+            max_df_val = util_year_group.index.max()
 
             # Create a list of the index values where there is a note clump! This also
             # includes instances where the last row in a group is a note.
@@ -1209,14 +1212,31 @@ class PlantsSmallFerc1TableTransformer(Ferc1AbstractTableTransformer):
                     )
                 ].index
             )
-            # Label the notes!
+            # If there are any clumped/end headers:
             if note_clump_idx_list:
                 for idx in note_clump_idx_list:
+                    # If the last row in a clump looks like a header, and the clump is
+                    # not the last clump in the utility_year group, then drop the last
+                    # row from the note clump index range because it's a header!
                     note_clump_idx_range = clump_group.groups[idx + 1]
+                    not_last_clump = clump_group.groups[idx + 1].max() < max_df_val
+                    is_good_header = (
+                        util_year_group.loc[
+                            util_year_group.index.isin(clump_group.groups[idx + 1])
+                        ]
+                        .tail(1)["row_type"]
+                        .str.contains("header")
+                        .all()
+                    )
+                    if not_last_clump & is_good_header:
+                        note_clump_idx_range = [
+                            x
+                            for x in note_clump_idx_range
+                            if x != note_clump_idx_range.max()
+                        ]
+                    # Label the note clump as a note
                     util_year_group.loc[
-                        (util_year_group.index.isin(note_clump_idx_range))
-                        & (util_year_group["row_type"] != "header"),
-                        "row_type",
+                        util_year_group.index.isin(note_clump_idx_range), "row_type"
                     ] = "note"
 
             return util_year_group
