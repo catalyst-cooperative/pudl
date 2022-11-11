@@ -1405,6 +1405,7 @@ class PlantsSmallFerc1TableTransformer(Ferc1AbstractTableTransformer):
             "hydro license no.",
             "hydro: license no.",
             "hydro plants: licensed proj no.",
+            "photo voltaic generating plants:",
         ]
 
         logger.info(f"{self.table_id.value}: Labeling header rows")
@@ -1530,6 +1531,8 @@ class PlantsSmallFerc1TableTransformer(Ferc1AbstractTableTransformer):
             & ~df["plant_name_ferc1"].str.contains("amounts are for the total"),
             "row_type",
         ] = "total"
+
+        # This one gets overridden by notes: total solar operation/maintenance
 
         return df
 
