@@ -245,7 +245,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
     parameter_model = Ferc1TableTransformParams
     params: parameter_model
 
-    @cache_df(key="main")
+    @cache_df(key="start")
     def transform_start(
         self,
         raw_dbf: pd.DataFrame,

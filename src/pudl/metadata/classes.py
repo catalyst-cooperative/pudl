@@ -1456,14 +1456,16 @@ class Resource(Base):
             ):
                 df[field.name] = pd.to_datetime(df[field.name], format="%Y")
             if pd.api.types.is_categorical_dtype(dtypes[field.name]):
-                if not all(
-                    value in dtypes[field.name].categories
+                uncategorized = [
+                    value
                     for value in df[field.name].dropna().unique()
-                ):
+                    if value not in dtypes[field.name].categories
+                ]
+                if uncategorized:
                     logger.warning(
                         f"Values in {field.name} column are not included in "
                         "categorical values in field enum constraint "
-                        "and will be converted to nulls."
+                        f"and will be converted to nulls ({uncategorized})."
                     )
         df = (
             # Reorder columns and insert missing columns

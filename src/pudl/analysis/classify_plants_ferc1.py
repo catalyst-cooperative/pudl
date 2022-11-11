@@ -521,7 +521,14 @@ def plants_steam_assign_plant_ids(
             f"Uh oh, we lost {abs(len(steam_rids)-len(pwids_rids))} FERC "
             f"steam plant record IDs: {missing_ids}"
         )
-    ferc1_steam_df = pd.merge(ferc1_steam_df, plants_w_ids, on="record_id")
+    # replace blank "" that got introduced to remove nulls with nulls for enum
+    # constrained columns
+    ferc1_steam_df = pd.merge(ferc1_steam_df, plants_w_ids, on="record_id").replace(
+        {
+            "plant_type": {"", pd.NA},
+            "construction_type": {"", pd.NA},
+        }
+    )
     return ferc1_steam_df
 
 
