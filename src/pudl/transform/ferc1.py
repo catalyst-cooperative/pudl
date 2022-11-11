@@ -1108,6 +1108,7 @@ class PlantInServiceFerc1TableTransformer(Ferc1AbstractTableTransformer):
         df.columns = ["_".join(items) for items in df.columns.to_flat_index()]
         return df.reset_index()
 
+    @cache_df(key="xbrl")
     def wide_to_tidy_xbrl(self, df: pd.DataFrame) -> pd.DataFrame:
         """Reshape wide tables with FERC account columns to tidy format.
 
@@ -1134,19 +1135,19 @@ class PlantInServiceFerc1TableTransformer(Ferc1AbstractTableTransformer):
             "adjustments",
             "ending_balance",
         ]
-        new_cols = [
-            (suffix, re.sub(f"_{suffix}", "", column_name))
-            for suffix in value_types
-            for column_name in df.columns
-            if column_name.endswith(suffix)
-        ]
-        new_col_idx = pd.MultiIndex.from_tuples(
-            new_cols, names=["value_type", "ferc_account_label"]
-        )
-
+        suffixes = "|".join(value_types)
+        pat = r"(^.*)_(" + suffixes + r"$)"
         df = df.set_index(["entity_id", "report_year"])
-        df.columns = new_col_idx
-        df = df.stack(level="ferc_account_label").loc[:, value_types].reset_index()
+        new_cols = pd.MultiIndex.from_tuples(
+            [(re.sub(pat, r"\1", col), re.sub(pat, r"\2", col)) for col in df.columns],
+            names=["ferc_account_label", "value_type"],
+        )
+        df.columns = new_cols
+        df = (
+            df.stack(level="ferc_account_label", dropna=False)
+            .loc[:, value_types]
+            .reset_index()
+        )
         return df
 
     @cache_df("main")
