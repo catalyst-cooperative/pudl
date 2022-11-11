@@ -3018,7 +3018,7 @@ f1_plant_in_srvce,79,2006,(382) Computer Hardware,ferc_account,computer_hardware
 f1_plant_in_srvce,80,2006,(383) Computer Software,ferc_account,computer_software_regional_transmission_and_market_operation_plant,
 f1_plant_in_srvce,81,2006,(384) Communication Equipment,ferc_account,communication_equipment_regional_transmission_and_market_operation_plant,
 f1_plant_in_srvce,82,2006,(385) Miscellaneous Regional Transmission and Market Operation Plant,ferc_account,miscellaneous_regional_transmission_and_market_operation_plant_regional_transmission_and_market_operation_plant,
-f1_plant_in_srvce,83,2006,(386) Asset Retirement Costs for Regional Transmission and Market Oper,ferc_account,asset_retirement_costs_for_regional_transmission_and_market_operations_regional_transmission_and_market_operation_plant,
+f1_plant_in_srvce,83,2006,(386) Asset Retirement Costs for Regional Transmission and Market Oper,ferc_account,asset_retirement_costs_for_regional_transmission_and_market_operation_plant_regional_transmission_and_market_operation_plant,XBRL column adjusted to use naming conventions and ensure instant/duration table column names match.
 f1_plant_in_srvce,84,2006,TOTAL Transmission and Market Operation Plant (Total lines 77 thru 83),total,transmission_and_market_operation_plant_regional_transmission_and_market_operation_plant,
 f1_plant_in_srvce,85,2006,6. GENERAL PLANT,header,#N/A,
 f1_plant_in_srvce,86,2006,(389) Land and Land Rights,ferc_account,land_and_land_rights_general_plant,
