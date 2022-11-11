@@ -11,6 +11,7 @@ import enum
 import importlib.resources
 import re
 from collections import namedtuple
+from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -240,6 +241,33 @@ def get_ferc1_dbf_xbrl_glue(dbf_table_name: str) -> pd.DataFrame:
     return row_map
 
 
+def get_data_cols_raw_xbrl(
+    raw_xbrl_instant: pd.DataFrame,
+    raw_xbrl_duration: pd.DataFrame,
+) -> list[str]:
+    """Get a list of all XBRL data columns appearing in a given XBRL table.
+
+    Returns:
+        A list of all the data columns found in the original XBRL DB that correspond to
+        the given PUDL table. Includes columns from both the instant and duration tables
+        but excludes structural columns that appear in all XBRL tables.
+    """
+    excluded_cols = [
+        "date",
+        "end_date",
+        "entity_id",
+        "filing_name",
+        "index",
+        "report_year",
+        "start_date",
+    ]
+    return sorted(
+        set(raw_xbrl_instant.columns)
+        .union(raw_xbrl_duration.columns)
+        .difference(excluded_cols)
+    )
+
+
 ################################################################################
 # FERC 1 specific TableTransformer classes
 ################################################################################
@@ -267,7 +295,28 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
     the transformed data.
     """
 
-    @cache_df(key="main")
+    xbrl_metadata_json: list[dict[Any]] = []
+    """An array of JSON objects extracted from the FERC 1 XBRL taxonomy."""
+
+    xbrl_metadata_normalized: pd.DataFrame | None = None
+    """A semi-normalized dataframe containing table-specific XBRL metadata."""
+
+    def __init__(
+        self,
+        params: TableTransformParams | None = None,
+        cache_dfs: bool = False,
+        clear_cached_dfs: bool = True,
+        ferc1_xbrl_raw_meta: list[dict[Any]] | None = None,
+    ) -> None:
+        """Augment inherited initializer to store XBRL metadata in the class."""
+        super().__init__(
+            params=params,
+            cache_dfs=cache_dfs,
+            clear_cached_dfs=clear_cached_dfs,
+        )
+        self.xbrl_metadata_json = ferc1_xbrl_raw_meta
+
+    @cache_df(key="start")
     def transform_start(
         self,
         raw_dbf: pd.DataFrame,
@@ -311,6 +360,48 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         """Enforce the database schema and remove any cached dataframes."""
         return self.enforce_schema(df)
 
+    def normalize_metadata_xbrl(
+        self, xbrl_fact_names: list[str] | None
+    ) -> pd.DataFrame:
+        """Normalize XBRL metadata, select table-specific rows, and transform them."""
+        normed_meta = (
+            pd.json_normalize(self.xbrl_metadata_json, max_level=3)
+            .explode("references.Account")
+            .rename(
+                columns={
+                    "name": "xbrl_fact_name",
+                    "references.Account": "ferc_account",
+                }
+            )
+            .loc[
+                :,
+                [
+                    "xbrl_fact_name",
+                    "balance",
+                    "calculations",
+                    "ferc_account",
+                ],
+            ]
+        )
+        normed_meta = normed_meta.mask(
+            # Replace empty lists with NA
+            normed_meta.applymap(type).eq(list)
+            & ~normed_meta.astype(bool)
+        )
+        # Use nullable strings, converting NaN to pd.NA
+        normed_meta = normed_meta.astype(
+            {
+                "xbrl_fact_name": pd.StringDtype(),
+                "balance": pd.StringDtype(),
+                "ferc_account": pd.StringDtype(),
+            }
+        )
+        if xbrl_fact_names:
+            normed_meta = normed_meta.loc[
+                normed_meta.xbrl_fact_name.isin(xbrl_fact_names)
+            ]
+        return normed_meta
+
     @cache_df(key="dbf")
     def align_row_numbers_dbf(self, df: pd.DataFrame) -> pd.DataFrame:
         """Align row-numbers across multiple years of DBF data.
@@ -349,6 +440,13 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
     ) -> pd.DataFrame:
         """XBRL-specific transformations that take place before concatenation."""
         logger.info(f"{self.table_id.value}: Processing XBRL data pre-concatenation.")
+        logger.info(f"{self.table_id.value}: Normalizing XBRL taxonomy metadata.")
+        self.xbrl_metadata_normalized = self.normalize_metadata_xbrl(
+            xbrl_fact_names=get_data_cols_raw_xbrl(
+                raw_xbrl_duration=raw_xbrl_duration,
+                raw_xbrl_instant=raw_xbrl_instant,
+            )
+        )
         return (
             self.merge_instant_and_duration_tables_xbrl(
                 raw_xbrl_instant, raw_xbrl_duration
@@ -1168,6 +1266,7 @@ class PlantInServiceFerc1TableTransformer(Ferc1AbstractTableTransformer):
 def transform(
     ferc1_dbf_raw_dfs: dict[str, pd.DataFrame],
     ferc1_xbrl_raw_dfs: dict[str, dict[str, pd.DataFrame]],
+    ferc1_xbrl_raw_meta: list[dict[Any]],
     ferc1_settings: Ferc1Settings | None = None,
 ) -> dict[str, pd.DataFrame]:
     """Coordinate the transformation of all FERC Form 1 tables.
@@ -1203,7 +1302,9 @@ def transform(
                 f"Transforming raw FERC Form 1 dataframe for loading into {table}"
             )
 
-            ferc1_transformed_dfs[table] = ferc1_tfr_classes[table]().transform(
+            ferc1_transformed_dfs[table] = ferc1_tfr_classes[table](
+                ferc1_xbrl_raw_meta=ferc1_xbrl_raw_meta,
+            ).transform(
                 raw_dbf=ferc1_dbf_raw_dfs[table],
                 raw_xbrl_instant=ferc1_xbrl_raw_dfs[table].get(
                     "instant", pd.DataFrame()
@@ -1215,9 +1316,9 @@ def transform(
     # Bespoke exception. fuel must come before steam b/c fuel proportions are used to
     # aid in FERC plant ID assignment.
     if "plants_steam_ferc1" in ferc1_settings.tables:
-        ferc1_transformed_dfs[
-            "plants_steam_ferc1"
-        ] = PlantsSteamFerc1TableTransformer().transform(
+        ferc1_transformed_dfs["plants_steam_ferc1"] = PlantsSteamFerc1TableTransformer(
+            ferc1_xbrl_raw_meta=ferc1_xbrl_raw_meta
+        ).transform(
             raw_dbf=ferc1_dbf_raw_dfs["plants_steam_ferc1"],
             raw_xbrl_instant=ferc1_xbrl_raw_dfs["plants_steam_ferc1"].get(
                 "instant", pd.DataFrame()
@@ -1252,15 +1353,17 @@ if __name__ == "__main__":
         ],
     )
     pudl_settings = pudl.workspace.setup.get_defaults()
-    raw_dbf = pudl.extract.ferc1.extract_dbf(
+    ferc1_dbf_raw_dfs = pudl.extract.ferc1.extract_dbf(
         ferc1_settings=ferc1_settings, pudl_settings=pudl_settings
     )
-    raw_xbrl = pudl.extract.ferc1.extract_xbrl(
+    ferc1_xbrl_raw_dfs = pudl.extract.ferc1.extract_xbrl(
         ferc1_settings=ferc1_settings, pudl_settings=pudl_settings
     )
+    ferc1_xbrl_raw_meta = pudl.extract.ferc1.extract_xbrl_metadata(pudl_settings)
     dfs = transform(
-        ferc1_dbf_raw_dfs=raw_dbf,
-        ferc1_xbrl_raw_dfs=raw_xbrl,
+        ferc1_dbf_raw_dfs=ferc1_dbf_raw_dfs,
+        ferc1_xbrl_raw_dfs=ferc1_xbrl_raw_dfs,
+        ferc1_xbrl_raw_meta=ferc1_xbrl_raw_meta,
         ferc1_settings=ferc1_settings,
     )
 
