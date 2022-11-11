@@ -521,6 +521,7 @@ class Encoder(Base):
         unknown_codes = set(col.dropna()).difference(self.code_map)
         if unknown_codes:
             raise ValueError(f"Found unknown codes while encoding: {unknown_codes=}")
+        logger.debug(f"Encoding {col.name}")
         col = col.map(self.code_map)
         if dtype:
             col = col.astype(dtype)
@@ -1909,7 +1910,7 @@ class DatasetteMetadata(Base):
         # Get XBRL based resources
         for xbrl_id in xbrl_ids:
             # Read JSON Package descriptor from file
-            with open(pudl_settings[f"{xbrl_id}_descriptor"]) as f:
+            with open(pudl_settings[f"{xbrl_id}_datapackage"]) as f:
                 descriptor = json.load(f)
 
             # Use descriptor to create Package object

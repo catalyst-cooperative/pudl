@@ -163,10 +163,10 @@ class ZenodoFetcher:
         },
         "production": {
             "censusdp1tract": "10.5281/zenodo.4127049",
-            "eia860": "10.5281/zenodo.6954131",
+            "eia860": "10.5281/zenodo.7113854",
             "eia860m": "10.5281/zenodo.6929086",
             "eia861": "10.5281/zenodo.7191809",
-            "eia923": "10.5281/zenodo.7003886",
+            "eia923": "10.5281/zenodo.7236677",
             "eia_bulk_elec": "10.5281/zenodo.7067367",
             "epacamd_eia": "10.5281/zenodo.7063255",
             "epacems": "10.5281/zenodo.6910058",

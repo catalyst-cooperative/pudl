@@ -470,16 +470,17 @@ def date_merge(
     """
 
     def separate_date_cols(df, date_col_name, date_on):
-        df[date_col_name] = pd.to_datetime(df[date_col_name])
+        out_df = df.copy()
+        out_df.loc[:, date_col_name] = pd.to_datetime(out_df[date_col_name])
         if "year_temp_for_merge" in date_on:
-            df.loc[:, "year_temp_for_merge"] = df[date_col_name].dt.year
+            out_df.loc[:, "year_temp_for_merge"] = out_df[date_col_name].dt.year
         if "quarter_temp_for_merge" in date_on:
-            df.loc[:, "quarter_temp_for_merge"] = df[date_col_name].dt.quarter
+            out_df.loc[:, "quarter_temp_for_merge"] = out_df[date_col_name].dt.quarter
         if "month_temp_for_merge" in date_on:
-            df.loc[:, "month_temp_for_merge"] = df[date_col_name].dt.month
+            out_df.loc[:, "month_temp_for_merge"] = out_df[date_col_name].dt.month
         if "day_temp_for_merge" in date_on:
-            df.loc[:, "day_temp_for_merge"] = df[date_col_name].dt.day
-        return df
+            out_df.loc[:, "day_temp_for_merge"] = out_df[date_col_name].dt.day
+        return out_df
 
     right = convert_col_to_datetime(right, right_date_col)
     left = convert_col_to_datetime(left, left_date_col)

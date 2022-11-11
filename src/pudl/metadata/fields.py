@@ -41,24 +41,20 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Indicates whether or not the dataset has been pulled into PUDL by the extract transform load process.",
     },
     "actual_peak_demand_savings_mw": {"type": "number", "unit": "MW"},
+    "additions": {
+        "type": "number",
+        "description": "Cost of acquisition of items classified within the account.",
+        "unit": "USD",
+    },
     "address_2": {"type": "string"},
+    "adjustments": {
+        "type": "number",
+        "description": "Cost of adjustments to the account.",
+        "unit": "USD",
+    },
     "advanced_metering_infrastructure": {"type": "integer"},
     "alternative_fuel_vehicle_2_activity": {"type": "boolean"},
     "alternative_fuel_vehicle_activity": {"type": "boolean"},
-    "amount_type": {
-        "type": "string",
-        "description": "String indicating which original FERC Form 1 column the listed amount came from. Each field should have one (potentially NA) value of each type for each utility in each year, and the ending_balance should equal the sum of starting_balance, additions, retirements, adjustments, and transfers.",
-        "constraints": {
-            "enum": [
-                "starting_balance",
-                "retirements",
-                "transfers",
-                "adjustments",
-                "ending_balance",
-                "additions",
-            ]
-        },
-    },
     "annual_indirect_program_cost": {"type": "number", "unit": "USD"},
     "annual_total_cost": {"type": "number", "unit": "USD"},
     "appro_part_label": {
@@ -363,6 +359,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Long human-readable description of the meaning of a code/label.",
     },
+    "ending_balance": {
+        "type": "number",
+        "description": "Account balance at end of year.",
+        "unit": "USD",
+    },
     "ferc_account_description": {
         "type": "string",
     },
@@ -393,72 +394,8 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Whether the generator is considered distributed generation",
     },
     "distributed_generation_owned_capacity_mw": {"type": "number", "unit": "MW"},
-    "distribution_acct360_land": {
-        "type": "number",
-        "description": "FERC Account 360: Distribution Plant Land and Land Rights.",
-    },
-    "distribution_acct361_structures": {
-        "type": "number",
-        "description": "FERC Account 361: Distribution Plant Structures and Improvements.",
-    },
-    "distribution_acct362_station_equip": {
-        "type": "number",
-        "description": "FERC Account 362: Distribution Plant Station Equipment.",
-    },
-    "distribution_acct363_storage_battery_equip": {
-        "type": "number",
-        "description": "FERC Account 363: Distribution Plant Storage Battery Equipment.",
-    },
-    "distribution_acct364_poles_towers": {
-        "type": "number",
-        "description": "FERC Account 364: Distribution Plant Poles, Towers, and Fixtures.",
-    },
-    "distribution_acct365_overhead_conductors": {
-        "type": "number",
-        "description": "FERC Account 365: Distribution Plant Overhead Conductors and Devices.",
-    },
-    "distribution_acct366_underground_conduit": {
-        "type": "number",
-        "description": "FERC Account 366: Distribution Plant Underground Conduit.",
-    },
-    "distribution_acct367_underground_conductors": {
-        "type": "number",
-        "description": "FERC Account 367: Distribution Plant Underground Conductors and Devices.",
-    },
-    "distribution_acct368_line_transformers": {
-        "type": "number",
-        "description": "FERC Account 368: Distribution Plant Line Transformers.",
-    },
-    "distribution_acct369_services": {
-        "type": "number",
-        "description": "FERC Account 369: Distribution Plant Services.",
-    },
-    "distribution_acct370_meters": {
-        "type": "number",
-        "description": "FERC Account 370: Distribution Plant Meters.",
-    },
-    "distribution_acct371_customer_installations": {
-        "type": "number",
-        "description": "FERC Account 371: Distribution Plant Installations on Customer Premises.",
-    },
-    "distribution_acct372_leased_property": {
-        "type": "number",
-        "description": "FERC Account 372: Distribution Plant Leased Property on Customer Premises.",
-    },
-    "distribution_acct373_street_lighting": {
-        "type": "number",
-        "description": "FERC Account 373: Distribution PLant Street Lighting and Signal Systems.",
-    },
-    "distribution_acct374_asset_retirement": {
-        "type": "number",
-        "description": "FERC Account 374: Distribution Plant Asset Retirement Costs.",
-    },
     "distribution_activity": {"type": "boolean"},
     "distribution_circuits": {"type": "integer"},
-    "distribution_total": {
-        "type": "number",
-        "description": "Distribution Plant Total (FERC Accounts 360-374).",
-    },
     "division_code_us_census": {
         "type": "string",
         "description": (
@@ -483,18 +420,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
         "description": "Electric Plant In Service (USD).",
         "unit": "USD",
-    },
-    "electric_plant_in_service_total": {
-        "type": "number",
-        "description": "Total Electric Plant in Service (FERC Accounts 101, 102, 103 and 106)",
-    },
-    "electric_plant_purchased_acct102": {
-        "type": "number",
-        "description": "FERC Account 102: Electric Plant Purchased.",
-    },
-    "electric_plant_sold_acct102": {
-        "type": "number",
-        "description": "FERC Account 102: Electric Plant Sold (Negative).",
     },
     "emissions_unit_id_epa": {
         "type": "string",
@@ -608,13 +533,13 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "exchange_energy_delivered_mwh": {"type": "number", "unit": "MWh"},
     "exchange_energy_received_mwh": {"type": "number", "unit": "MWh"},
-    "experimental_plant_acct103": {
-        "type": "number",
-        "description": "FERC Account 103: Experimental Plant Unclassified.",
-    },
     "ferc_account_id": {
         "type": "string",
-        "description": "Account number, from FERC's Uniform System of Accounts for Electric Plant. Also includes higher level labeled categories.",
+        "description": "Account identifier from FERC's Uniform System of Accounts for Electric Plant. Includes higher level labeled categories.",
+    },
+    "ferc_account_label": {
+        "type": "string",
+        "description": "Long FERC account identifier derived from values reported in the XBRL taxonomies. May also refer to aggregations of individual FERC accounts.",
     },
     "ferc_acct_name": {
         "type": "string",
@@ -783,62 +708,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Electric Plant Held for Future Use (USD).",
         "unit": "USD",
     },
-    "general_acct389_land": {
-        "type": "number",
-        "description": "FERC Account 389: General Land and Land Rights.",
-    },
-    "general_acct390_structures": {
-        "type": "number",
-        "description": "FERC Account 390: General Structures and Improvements.",
-    },
-    "general_acct391_office_equip": {
-        "type": "number",
-        "description": "FERC Account 391: General Office Furniture and Equipment.",
-    },
-    "general_acct392_transportation_equip": {
-        "type": "number",
-        "description": "FERC Account 392: General Transportation Equipment.",
-    },
-    "general_acct393_stores_equip": {
-        "type": "number",
-        "description": "FERC Account 393: General Stores Equipment.",
-    },
-    "general_acct394_shop_equip": {
-        "type": "number",
-        "description": "FERC Account 394: General Tools, Shop, and Garage Equipment.",
-    },
-    "general_acct395_lab_equip": {
-        "type": "number",
-        "description": "FERC Account 395: General Laboratory Equipment.",
-    },
-    "general_acct396_power_operated_equip": {
-        "type": "number",
-        "description": "FERC Account 396: General Power Operated Equipment.",
-    },
-    "general_acct397_communication_equip": {
-        "type": "number",
-        "description": "FERC Account 397: General Communication Equipment.",
-    },
-    "general_acct398_misc_equip": {
-        "type": "number",
-        "description": "FERC Account 398: General Miscellaneous Equipment.",
-    },
-    "general_acct399_1_asset_retirement": {
-        "type": "number",
-        "description": "FERC Account 399.1: Asset Retirement Costs for General Plant.",
-    },
-    "general_acct399_other_property": {
-        "type": "number",
-        "description": "FERC Account 399: General Plant Other Tangible Property.",
-    },
-    "general_subtotal": {
-        "type": "number",
-        "description": "General Plant Subtotal (FERC Accounts 389-398).",
-    },
-    "general_total": {
-        "type": "number",
-        "description": "General Plant Total (FERC Accounts 389-399.1).",
-    },
     "generation_activity": {"type": "boolean"},
     "generator_id": {
         "type": "string",
@@ -886,42 +755,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "highest_distribution_voltage_kv": {"type": "number", "unit": "kV"},
     "home_area_network": {"type": "integer"},
-    "hydro_acct330_land": {
-        "type": "number",
-        "description": "FERC Account 330: Hydro Land and Land Rights.",
-    },
-    "hydro_acct331_structures": {
-        "type": "number",
-        "description": "FERC Account 331: Hydro Structures and Improvements.",
-    },
-    "hydro_acct332_reservoirs_dams_waterways": {
-        "type": "number",
-        "description": "FERC Account 332: Hydro Reservoirs, Dams, and Waterways.",
-    },
-    "hydro_acct333_wheels_turbines_generators": {
-        "type": "number",
-        "description": "FERC Account 333: Hydro Water Wheels, Turbins, and Generators.",
-    },
-    "hydro_acct334_accessory_equip": {
-        "type": "number",
-        "description": "FERC Account 334: Hydro Accessory Electric Equipment.",
-    },
-    "hydro_acct335_misc_equip": {
-        "type": "number",
-        "description": "FERC Account 335: Hydro Miscellaneous Power Plant Equipment.",
-    },
-    "hydro_acct336_roads_railroads_bridges": {
-        "type": "number",
-        "description": "FERC Account 336: Hydro Roads, Railroads, and Bridges.",
-    },
-    "hydro_acct337_asset_retirement": {
-        "type": "number",
-        "description": "FERC Account 337: Asset Retirement Costs for Hydraulic Production.",
-    },
-    "hydro_total": {
-        "type": "number",
-        "description": "Hydraulic Production Plant Total (FERC Accounts 330-337)",
-    },
     "inactive_accounts_included": {"type": "boolean"},
     "incremental_energy_savings_mwh": {"type": "number", "unit": "MWh"},
     "incremental_life_cycle_energy_savings_mwh": {"type": "number", "unit": "MWh"},
@@ -930,22 +763,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "installation_year": {
         "type": "integer",
         "description": "Year the plant's most recently built unit was installed.",
-    },
-    "intangible_acct301_organization": {
-        "type": "number",
-        "description": "FERC Account 301: Intangible Plant Organization.",
-    },
-    "intangible_acct302_franchises_consents": {
-        "type": "number",
-        "description": "FERC Account 302: Intangible Plant Franchises and Consents.",
-    },
-    "intangible_acct303_misc": {
-        "type": "number",
-        "description": "FERC Account 303: Miscellaneous Intangible Plant.",
-    },
-    "intangible_total": {
-        "type": "number",
-        "description": "Intangible Plant Total (FERC Accounts 301-303).",
     },
     "is_epacems_state": {
         "type": "boolean",
@@ -1001,10 +818,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "longitude": {
         "type": "number",
         "description": "Longitude of the plant's location, in degrees.",
-    },
-    "major_electric_plant_acct101_acct106_total": {
-        "type": "number",
-        "description": "Total Major Electric Plant in Service (FERC Accounts 101 and 106).",
     },
     "major_program_changes": {"type": "boolean"},
     "max_fuel_mmbtu_per_unit": {
@@ -1160,39 +973,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Identifies whether the reported value of emissions was measured, calculated, or measured and substitute.",
         "constraints": {"enum": EPACEMS_MEASUREMENT_CODES},
-    },
-    "nuclear_acct320_land": {
-        "type": "number",
-        "description": "FERC Account 320: Nuclear Land and Land Rights.",
-    },
-    "nuclear_acct321_structures": {
-        "type": "number",
-        "description": "FERC Account 321: Nuclear Structures and Improvements.",
-    },
-    "nuclear_acct322_reactor_equip": {
-        "type": "number",
-        "description": "FERC Account 322: Nuclear Reactor Plant Equipment.",
-    },
-    "nuclear_acct323_turbogenerators": {
-        "type": "number",
-        "description": "FERC Account 323: Nuclear Turbogenerator Units",
-    },
-    "nuclear_acct324_accessory_equip": {
-        "type": "number",
-        "description": "FERC Account 324: Nuclear Accessory Electric Equipment.",
-    },
-    "nuclear_acct325_misc_equip": {
-        "type": "number",
-        "description": "FERC Account 325: Nuclear Miscellaneous Power Plant Equipment.",
-    },
-    "nuclear_acct326_asset_retirement": {
-        "type": "number",
-        "description": "FERC Account 326: Asset Retirement Costs for Nuclear Production.",
-        "unit": "USD",
-    },
-    "nuclear_total": {
-        "type": "number",
-        "description": "Total Nuclear Production Plant (FERC Accounts 320-326)",
     },
     "nuclear_unit_id": {
         "type": "string",
@@ -1366,39 +1146,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "The date the generator was originally scheduled to be operational",
     },
     "other": {"type": "number"},
-    "other_acct340_land": {
-        "type": "number",
-        "description": "FERC Account 340: Other Land and Land Rights.",
-    },
-    "other_acct341_structures": {
-        "type": "number",
-        "description": "FERC Account 341: Other Structures and Improvements.",
-    },
-    "other_acct342_fuel_accessories": {
-        "type": "number",
-        "description": "FERC Account 342: Other Fuel Holders, Products, and Accessories.",
-    },
-    "other_acct343_prime_movers": {
-        "type": "number",
-        "description": "FERC Account 343: Other Prime Movers.",
-    },
-    "other_acct344_generators": {
-        "type": "number",
-        "description": "FERC Account 344: Other Generators.",
-    },
-    "other_acct345_accessory_equip": {
-        "type": "number",
-        "description": "FERC Account 345: Other Accessory Electric Equipment.",
-    },
-    "other_acct346_misc_equip": {
-        "type": "number",
-        "description": "FERC Account 346: Other Miscellaneous Power Plant Equipment.",
-    },
-    "other_acct347_asset_retirement": {
-        "type": "number",
-        "description": "FERC Account 347: Asset Retirement Costs for Other Production.",
-        "unit": "USD",
-    },
     "other_charges": {
         "type": "number",
         "description": "Other charges, including out-of-period adjustments (USD).",
@@ -1644,10 +1391,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Code for the type of prime mover (e.g. CT, CG)",
     },
-    "production_total": {
-        "type": "number",
-        "description": "Total Production Plant (FERC Accounts 310-347).",
-    },
     "project_num": {"type": "integer", "description": "FERC Licensed Project Number."},
     "pulverized_coal_tech": {
         "type": "boolean",
@@ -1720,36 +1463,13 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "date",
         "description": "Date of the scheduled or effected retirement of the generator.",
     },
+    "retirements": {
+        "type": "number",
+        "description": "Cost of disposal of items classified within the account.",
+        "unit": "USD",
+    },
     "revenue": {"type": "number", "unit": "USD"},
     "revenue_class": {"type": "string", "constraints": {"enum": REVENUE_CLASSES}},
-    "rtmo_acct380_land": {
-        "type": "number",
-        "description": "FERC Account 380: RTMO Land and Land Rights.",
-    },
-    "rtmo_acct381_structures": {
-        "type": "number",
-        "description": "FERC Account 381: RTMO Structures and Improvements.",
-    },
-    "rtmo_acct382_computer_hardware": {
-        "type": "number",
-        "description": "FERC Account 382: RTMO Computer Hardware.",
-    },
-    "rtmo_acct383_computer_software": {
-        "type": "number",
-        "description": "FERC Account 383: RTMO Computer Software.",
-    },
-    "rtmo_acct384_communication_equip": {
-        "type": "number",
-        "description": "FERC Account 384: RTMO Communication Equipment.",
-    },
-    "rtmo_acct385_misc_equip": {
-        "type": "number",
-        "description": "FERC Account 385: RTMO Miscellaneous Equipment.",
-    },
-    "rtmo_total": {
-        "type": "number",
-        "description": "Total RTMO Plant (FERC Accounts 380-386)",
-    },
     "rto_iso_lmp_node_id": {
         "type": "string",
         "description": "The designation used to identify the price node in RTO/ISO Locational Marginal Price reports",
@@ -1822,6 +1542,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Indicates whether the generator is part of a solid fuel gasification system",
     },
     "standard": {"type": "string", "constraints": {"enum": RELIABILITY_STANDARDS}},
+    "starting_balance": {
+        "type": "number",
+        "description": "Account balance at beginning of year.",
+        "unit": "USD",
+    },
     "startup_source_code_1": {
         "type": "string",
         "description": "The code representing the first, second, third or fourth start-up and flame stabilization energy source used by the combustion unit(s) associated with this generator.",
@@ -1856,39 +1581,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string"
         # TODO: Disambiguate column name.
     },
-    "steam_acct310_land": {
-        "type": "number",
-        "description": "FERC Account 310: Steam Plant Land and Land Rights.",
-    },
-    "steam_acct311_structures": {
-        "type": "number",
-        "description": "FERC Account 311: Steam Plant Structures and Improvements.",
-    },
-    "steam_acct312_boiler_equip": {
-        "type": "number",
-        "description": "FERC Account 312: Steam Boiler Plant Equipment.",
-    },
-    "steam_acct313_engines": {
-        "type": "number",
-        "description": "FERC Account 313: Steam Engines and Engine-Driven Generators.",
-    },
-    "steam_acct314_turbogenerators": {
-        "type": "number",
-        "description": "FERC Account 314: Steam Turbogenerator Units.",
-    },
-    "steam_acct315_accessory_equip": {
-        "type": "number",
-        "description": "FERC Account 315: Steam Accessory Electric Equipment.",
-    },
-    "steam_acct316_misc_equip": {
-        "type": "number",
-        "description": "FERC Account 316: Steam Miscellaneous Power Plant Equipment.",
-    },
-    "steam_acct317_asset_retirement": {
-        "type": "number",
-        "description": "FERC Account 317: Asset Retirement Costs for Steam Production.",
-        "unit": "USD",
-    },
     "steam_load_1000_lbs": {
         "type": "number",
         "description": "Total steam pressure produced by a unit during the reported hour.",
@@ -1897,10 +1589,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "steam_plant_type_code": {
         "type": "integer",
         "description": "Code that describes types of steam plants from EIA 860. See steam_plant_types_eia table for more details.",
-    },
-    "steam_total": {
-        "type": "number",
-        "description": "Total Steam Production Plant (FERC Accounts 310-317).",
     },
     "stoker_tech": {
         "type": "boolean",
@@ -2029,52 +1717,16 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "total_sources_mwh": {"type": "number", "unit": "MWh"},
     "transmission": {"type": "number"},
-    "transmission_acct350_land": {
-        "type": "number",
-        "description": "FERC Account 350: Transmission Land and Land Rights.",
-    },
-    "transmission_acct352_structures": {
-        "type": "number",
-        "description": "FERC Account 352: Transmission Structures and Improvements.",
-    },
-    "transmission_acct353_station_equip": {
-        "type": "number",
-        "description": "FERC Account 353: Transmission Station Equipment.",
-    },
-    "transmission_acct354_towers": {
-        "type": "number",
-        "description": "FERC Account 354: Transmission Towers and Fixtures.",
-    },
-    "transmission_acct355_poles": {
-        "type": "number",
-        "description": "FERC Account 355: Transmission Poles and Fixtures.",
-    },
-    "transmission_acct356_overhead_conductors": {
-        "type": "number",
-        "description": "FERC Account 356: Overhead Transmission Conductors and Devices.",
-    },
-    "transmission_acct357_underground_conduit": {
-        "type": "number",
-        "description": "FERC Account 357: Underground Transmission Conduit.",
-    },
-    "transmission_acct358_underground_conductors": {
-        "type": "number",
-        "description": "FERC Account 358: Underground Transmission Conductors.",
-    },
-    "transmission_acct359_1_asset_retirement": {
-        "type": "number",
-        "description": "FERC Account 359.1: Asset Retirement Costs for Transmission Plant.",
-        "unit": "USD",
-    },
-    "transmission_acct359_roads_trails": {
-        "type": "number",
-        "description": "FERC Account 359: Transmission Roads and Trails.",
-    },
     "transmission_activity": {"type": "boolean"},
     "transmission_by_other_losses_mwh": {"type": "number", "unit": "MWh"},
     "transmission_distribution_owner_id": {
         "type": "integer",
         "description": "EIA-assigned code for owner of transmission/distribution system to which the plant is interconnected.",
+    },
+    "transfers": {
+        "type": "number",
+        "description": "Cost of transfers into (out of) the account.",
+        "unit": "USD",
     },
     "transmission_distribution_owner_name": {
         "type": "string",
@@ -2083,10 +1735,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "transmission_distribution_owner_state": {
         "type": "string",
         "description": "State location for owner of transmission/distribution system to which the plant is interconnected.",
-    },
-    "transmission_total": {
-        "type": "number",
-        "description": "Total Transmission Plant (FERC Accounts 350-359.1)",
     },
     "true_gran": {
         "type": "boolean",

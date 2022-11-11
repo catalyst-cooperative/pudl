@@ -20,12 +20,11 @@ Data Coverage
   `pudl-zenodo-storage <https://github.com/catalyst-cooperative/pudl-zenodo-storage>`__
   repositories. See issue :issue:`catalyst-cooperative/pudl-zenodo-storage#29`.
 * Incorporated 2021 data from the :doc:`data_sources/epacems` dataset. See :pr:`1778`
-* Incorporated Early Release 2021 data from the :doc:`data_sources/eia860`,
-  :ref:`data-eia861`, and :doc:`data_sources/eia923`. Early release data is EIA's
-  preliminary annual release and should be used with caution. We also integrated a
+* Incorporated Final Release 2021 data from the :doc:`data_sources/eia860`,
+  :ref:`data-eia861`, and :doc:`data_sources/eia923`. We also integrated a
   ``data_maturity`` column and related ``data_maturities`` table into most of the EIA
   data tables in order to alter users to the level of finality of the data. See
-  :pr:`1834,1855,1915,1921`
+  :pr:`1834,1855,1915,1921`.
 * Incorporated 2022 data from the :doc:`data_sources/eia860` monthly update from June
   2022. See :pr:`1834`. This included adding new ``energy_storage_capacity_mwh`` (for
   batteries) and ``net_capacity_mwdc`` (for behind-the-meter solar PV) attributes to the

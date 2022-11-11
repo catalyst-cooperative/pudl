@@ -175,6 +175,7 @@ def convert_form(
             requested_tables=form_settings.tables,
             batch_size=batch_size,
             workers=workers,
-            datapackage_path=pudl_settings[f"ferc{form.value}_xbrl_descriptor"],
+            datapackage_path=pudl_settings[f"ferc{form.value}_xbrl_datapackage"],
+            metadata_path=pudl_settings[f"ferc{form.value}_xbrl_taxonomy_metadata"],
             archive_file_path=taxonomy_entry_point,
         )
