@@ -193,7 +193,17 @@ def get_ferc1_dbf_xbrl_glue(dbf_table_name: str) -> pd.DataFrame:
         ["report_year", "row_number", "row_type", "xbrl_column_stem"],
     ]
     # Indicate which rows have unmappable headers in them, to differentiate them from
-    # null values in the exhaustive index we create below:
+    # null values in the exhaustive index we create below.
+    # We need the ROW_HEADER sentinel value so we can distinguish
+    # between two different reasons that we might find NULL values in the
+    # xbrl_column_stem field:
+    # 1. It's NULL because it's between two valid mapped values (the NULL was created
+    #    in our filling of the time series) and should thus be filled in, or
+    # 2. It's NULL because it was a header row in the DBF data, which means it should
+    #    NOT be filled in. Without the HEADER_ROW value, when a row number from year X
+    #    becomes associated with a non-header row in year X+1
+    #    the ffill will keep right on filling, associating all of the new header rows
+    #    with the value of xbrl_column_stem that was associated with the old row number.
     row_map.loc[
         (row_map.row_type == "header") & (row_map.xbrl_column_stem.isna()),
         "xbrl_column_stem",
@@ -246,6 +256,16 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
     table_id: Ferc1TableId
     parameter_model = Ferc1TableTransformParams
     params: parameter_model
+
+    has_unique_record_ids: bool = True
+    """True if each record in the transformed table corresponds to one input record.
+
+    For tables that have been transformed from wide-to-tidy format, or undergone other
+    kinds of reshaping, there is not a simple one-to-one relationship between input and
+    output records, and so we should not expect record IDs to be unique. In those cases
+    they serve only a forensic purpose, telling us where to find the original source of
+    the transformed data.
+    """
 
     @cache_df(key="main")
     def transform_start(
@@ -575,9 +595,9 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         df.record_id = enforce_snake_case(df.record_id)
 
         dupe_ids = df.record_id[df.record_id.duplicated()].values
-        if dupe_ids.any():
+        if dupe_ids.any() and self.has_unique_record_ids:
             logger.warning(
-                f"{self.table_id.value}: Found {len(dupe_ids)} duplicate record_ids. "
+                f"{self.table_id.value}: Found {len(dupe_ids)} duplicate record_ids: \n"
                 f"{dupe_ids}."
             )
         return df
@@ -1025,10 +1045,25 @@ class PlantsPumpedStorageFerc1TableTransformer(Ferc1AbstractTableTransformer):
     table_id: Ferc1TableId = Ferc1TableId.PLANTS_PUMPED_STORAGE_FERC1
 
 
+class PurchasedPowerTableTransformer(Ferc1AbstractTableTransformer):
+    """Transformer class for :ref:`purchased_power_ferc1` table.
+
+    This table has data about inter-utility power purchases into the PUDL DB. This
+    includes how much electricty was purchased, how much it cost, and who it was
+    purchased from. Unfortunately the field describing which other utility the power was
+    being bought from is poorly standardized, making it difficult to correlate with
+    other data. It will need to be categorized by hand or with some fuzzy matching
+    eventually.
+    """
+
+    table_id: Ferc1TableId = Ferc1TableId.PURCHASED_POWER_FERC1
+
+
 class PlantInServiceFerc1TableTransformer(Ferc1AbstractTableTransformer):
     """A transformer for the :ref:`plant_in_service_ferc1` table."""
 
     table_id: Ferc1TableId = Ferc1TableId.PLANT_IN_SERVICE_FERC1
+    has_unique_record_ids: bool = False
 
     @cache_df(key="dbf")
     def align_row_numbers_dbf(self, df: pd.DataFrame) -> pd.DataFrame:
@@ -1112,7 +1147,6 @@ class PlantInServiceFerc1TableTransformer(Ferc1AbstractTableTransformer):
         df = df.set_index(["entity_id", "report_year"])
         df.columns = new_col_idx
         df = df.stack(level="ferc_account_label").loc[:, value_types].reset_index()
-        # df.columns.name = None
         return df
 
     @cache_df("main")
@@ -1121,22 +1155,13 @@ class PlantInServiceFerc1TableTransformer(Ferc1AbstractTableTransformer):
 
         Currently no manipulation of the data values is being done, but this method is
         abstract in the parent class, and so must be defined by all children.
+
+        * Apply column sign conventions (retirements)
+        * Apply row sign conventions (102_sold)
+        * Check that reported numbers add up to ending_balance.
+        * Identify cases where flipping retirements and/or 102_sold fixes errors.
         """
         return df
-
-
-class PurchasedPowerTableTransformer(Ferc1AbstractTableTransformer):
-    """Transformer class for :ref:`purchased_power_ferc1` table.
-
-    This table has data about inter-utility power purchases into the PUDL DB. This
-    includes how much electricty was purchased, how much it cost, and who it was
-    purchased from. Unfortunately the field describing which other utility the power was
-    being bought from is poorly standardized, making it difficult to correlate with
-    other data. It will need to be categorized by hand or with some fuzzy matching
-    eventually.
-    """
-
-    table_id: Ferc1TableId = Ferc1TableId.PURCHASED_POWER_FERC1
 
 
 def transform(
@@ -1210,13 +1235,11 @@ def transform(
 
 
 if __name__ == "__main__":
-    """Make the module runnable for testing purposes during development.
-
-    This should probably be removed when we are done with the FERC 1 Transforms.
-    """
+    """Make the module runnable for iterative testing during development."""
 
     ferc1_settings = Ferc1Settings(
         years=[2020, 2021],
+        # years=Ferc1Settings().years,
         tables=[
             "fuel_ferc1",
             "plants_steam_ferc1",
@@ -1224,6 +1247,7 @@ if __name__ == "__main__":
             "plant_in_service_ferc1",
             "plants_pumped_storage_ferc1",
             "purchased_power_ferc1",
+            # "plants_small_ferc1",
         ],
     )
     pudl_settings = pudl.workspace.setup.get_defaults()
