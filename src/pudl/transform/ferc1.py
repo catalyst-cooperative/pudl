@@ -905,11 +905,11 @@ class PlantsSmallFerc1TableTransformer(Ferc1AbstractTableTransformer):
             .pipe(self.map_header_fuel_and_plant_types)
             .pipe(self.associate_notes_with_values)
             .pipe(self.spot_fix_rows)
-            # .pipe(self.drop_invalid_rows)
+            .pipe(self.drop_invalid_rows)
         )
         # Remove headers and note rows now that the relevant information has been
         # extracted.
-        # df = df[(df["row_type"] != "header") & (df["row_type"] != "note")].copy()
+        df = df[(df["row_type"] != "header") & (df["row_type"] != "note")].copy()
 
         return df
 
@@ -991,11 +991,14 @@ class PlantsSmallFerc1TableTransformer(Ferc1AbstractTableTransformer):
             "construction_year",
             "net_generation_mwh",
             "total_cost_of_plant",
+            "capex_total",
             "capex_per_mw",
             "opex_total",
             "opex_fuel",
             "opex_maintenance",
             "fuel_cost_per_mmbtu",
+            # "peak_demand_mw",
+            # "opex_operations"
         ]
         # Label possible header or note rows
         df["possible_header_or_note"] = (
@@ -1434,8 +1437,8 @@ class PlantsSmallFerc1TableTransformer(Ferc1AbstractTableTransformer):
         )
 
         # Stash the amount of NA values to check that the filling worked.
-        old_fuel_na_count = len(df[df["fuel_type"].isin([pd.NA, "other"])])
-        old_plant_na_count = len(df[df["plant_type"].isin([pd.NA, "other"])])
+        old_fuel_type_count = len(df[~df["fuel_type"].isin([pd.NA, "other"])])
+        old_plant_type_count = len(df[~df["plant_type"].isin([pd.NA, "other"])])
 
         # Fill NA and "other" fields
         df.loc[
@@ -1449,13 +1452,20 @@ class PlantsSmallFerc1TableTransformer(Ferc1AbstractTableTransformer):
         df = df.drop(columns=["plant_type_from_header", "fuel_type_from_header"])
 
         # Check that this worked!
-        new_fuel_na_count = len(df[df["fuel_type"].isin([pd.NA, "other"])])
-        new_plant_na_count = len(df[df["plant_type"].isin([pd.NA, "other"])])
+        new_fuel_type_count = len(df[~df["fuel_type"].isin([pd.NA, "other"])])
+        new_plant_type_count = len(df[~df["plant_type"].isin([pd.NA, "other"])])
 
-        if not old_fuel_na_count > new_fuel_na_count:
+        if not old_fuel_type_count < new_fuel_type_count:
             raise AssertionError("No header fuel types added when there should be")
-        if not old_plant_na_count > new_plant_na_count:
+        if not old_plant_type_count < new_plant_type_count:
             raise AssertionError("No header plant types added when there should be")
+
+        logger.info(
+            f"Added fuel types to {new_fuel_type_count-old_fuel_type_count} rows "
+            f"({round((new_fuel_type_count-old_fuel_type_count)/len(df)*100)}%). "
+            f"Added plant types to {new_plant_type_count-old_plant_type_count} rows "
+            f"({round((new_plant_type_count-old_plant_type_count)/len(df)*100)}%)."
+        )
 
         return df
 
@@ -1589,6 +1599,11 @@ class PlantsSmallFerc1TableTransformer(Ferc1AbstractTableTransformer):
         sg_notes = groups.apply(lambda x: associate_notes_with_values_group(x))
         # Remove footnote column now that rows are associated
         sg_notes = sg_notes.drop(columns=["footnote"])
+
+        notes_added = len(
+            sg_notes[sg_notes["notes"].notna() & sg_notes["row_type"].isna()]
+        )
+        logger.info(f"Mapped {notes_added} notes to plant rows.")
 
         return sg_notes
 

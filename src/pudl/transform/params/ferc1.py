@@ -2476,6 +2476,31 @@ TRANSFORM_PARAMS = {
             "plant_type": PLANT_TYPE_CATEGORIES,
             "plant_type_from_header": PLANT_TYPE_CATEGORIES,
         },
+        "drop_invalid_rows": [
+            {
+                "invalid_values": [0, "0", pd.NA, np.nan, "", "none"],
+                "allowed_invalid_cols": [
+                    "record_id",
+                    "utility_id_ferc1",
+                    "utility_id_ferc1_dbf",
+                    "utility_id_ferc1_xbrl",
+                    "plant_name_ferc1",
+                    "generating_plant_statistics",
+                    "report_year",
+                    "construction_year",
+                    "date",
+                    "start_date",
+                    "end_date",
+                    "order_number",
+                    "plant_type",
+                    "fuel_type",
+                    "license_id_ferc1",
+                    "notes",
+                    "row_type",
+                ],
+            },
+            {"invalid_values": ["0", ""], "required_valid_cols": ["plant_name_ferc1"]},
+        ],
     },
 }
 """The full set of parameters used to transform the FERC Form 1 data.
