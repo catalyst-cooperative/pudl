@@ -1437,8 +1437,12 @@ class PlantsSmallFerc1TableTransformer(Ferc1AbstractTableTransformer):
         )
 
         # Stash the amount of NA values to check that the filling worked.
-        old_fuel_type_count = len(df[~df["fuel_type"].isin([pd.NA, "other"])])
-        old_plant_type_count = len(df[~df["plant_type"].isin([pd.NA, "other"])])
+        old_fuel_type_count = len(
+            df[~df["fuel_type"].isin([pd.NA, "other"]) & df["row_type"].isna()]
+        )
+        old_plant_type_count = len(
+            df[~df["plant_type"].isin([pd.NA, "other"]) & df["row_type"].isna()]
+        )
 
         # Fill NA and "other" fields
         df.loc[
@@ -1452,19 +1456,25 @@ class PlantsSmallFerc1TableTransformer(Ferc1AbstractTableTransformer):
         df = df.drop(columns=["plant_type_from_header", "fuel_type_from_header"])
 
         # Check that this worked!
-        new_fuel_type_count = len(df[~df["fuel_type"].isin([pd.NA, "other"])])
-        new_plant_type_count = len(df[~df["plant_type"].isin([pd.NA, "other"])])
+        new_fuel_type_count = len(
+            df[~df["fuel_type"].isin([pd.NA, "other"]) & df["row_type"].isna()]
+        )
+        new_plant_type_count = len(
+            df[~df["plant_type"].isin([pd.NA, "other"]) & df["row_type"].isna()]
+        )
 
         if not old_fuel_type_count < new_fuel_type_count:
             raise AssertionError("No header fuel types added when there should be")
         if not old_plant_type_count < new_plant_type_count:
             raise AssertionError("No header plant types added when there should be")
 
+        useful_rows_len = len(df[df["row_type"].isna()])
+
         logger.info(
-            f"Added fuel types to {new_fuel_type_count-old_fuel_type_count} rows "
-            f"({round((new_fuel_type_count-old_fuel_type_count)/len(df)*100)}%). "
-            f"Added plant types to {new_plant_type_count-old_plant_type_count} rows "
-            f"({round((new_plant_type_count-old_plant_type_count)/len(df)*100)}%)."
+            f"Added fuel types to {new_fuel_type_count-old_fuel_type_count} plant rows "
+            f"({round((new_fuel_type_count-old_fuel_type_count)/useful_rows_len*100)}%). "
+            f"Added plant types to {new_plant_type_count-old_plant_type_count} plant "
+            f"rows ({round((new_plant_type_count-old_plant_type_count)/useful_rows_len*100)}%)."
         )
 
         return df
