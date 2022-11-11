@@ -2425,40 +2425,6 @@ TRANSFORM_PARAMS = {
             },
         ],
     },
-    "plant_in_service_ferc1": {
-        "rename_columns_ferc1": {
-            "xbrl": {
-                "columns": {
-                    "entity_id": "utility_id_ferc1_xbrl",
-                    "report_year": "report_year",
-                    "ferc_account_label": "ferc_account_label",
-                    "starting_balance": "starting_balance",
-                    "additions": "additions",
-                    "retirements": "retirements",
-                    "adjustments": "adjustments",
-                    "transfers": "transfers",
-                    "ending_balance": "ending_balance",
-                }
-            },
-            "dbf": {
-                "columns": {
-                    "report_year": "report_year",
-                    "respondent_id": "utility_id_ferc1_dbf",
-                    "report_prd": "report_prd",
-                    "row_prvlg": "row_prvlg",
-                    "row_number": "row_number",
-                    "row_seq": "row_seq",
-                    "spplmnt_num": "spplmnt_num",
-                    "begin_yr_bal": "starting_balance",
-                    "addition": "additions",
-                    "retirements": "retirements",
-                    "adjustments": "adjustments",
-                    "transfers": "transfers",
-                    "yr_end_bal": "ending_balance",
-                }
-            },
-        },
-    },
     "plants_small_ferc1": {
         "rename_columns_ferc1": {
             "dbf": {
@@ -2558,6 +2524,40 @@ TRANSFORM_PARAMS = {
             },
             {"invalid_values": ["0", ""], "required_valid_cols": ["plant_name_ferc1"]},
         ],
+    },
+    "plant_in_service_ferc1": {
+        "rename_columns_ferc1": {
+            "xbrl": {
+                "columns": {
+                    "entity_id": "utility_id_ferc1_xbrl",
+                    "report_year": "report_year",
+                    "ferc_account_label": "ferc_account_label",
+                    "starting_balance": "starting_balance",
+                    "additions": "additions",
+                    "retirements": "retirements",
+                    "adjustments": "adjustments",
+                    "transfers": "transfers",
+                    "ending_balance": "ending_balance",
+                }
+            },
+            "dbf": {
+                "columns": {
+                    "report_year": "report_year",
+                    "respondent_id": "utility_id_ferc1_dbf",
+                    "report_prd": "report_prd",
+                    "row_prvlg": "row_prvlg",
+                    "row_number": "row_number",
+                    "row_seq": "row_seq",
+                    "spplmnt_num": "spplmnt_num",
+                    "begin_yr_bal": "starting_balance",
+                    "addition": "additions",
+                    "retirements": "retirements",
+                    "adjustments": "adjustments",
+                    "transfers": "transfers",
+                    "yr_end_bal": "ending_balance",
+                }
+            },
+        },
     },
     "plants_pumped_storage_ferc1": {
         "rename_columns_ferc1": {
@@ -2783,6 +2783,7 @@ TRANSFORM_PARAMS = {
         ],
     },
 }
+
 """The full set of parameters used to transform the FERC Form 1 data.
 
 Each item in the dictionary can be used to instantiate a
