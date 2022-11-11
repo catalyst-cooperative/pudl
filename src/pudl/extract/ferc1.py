@@ -140,6 +140,14 @@ TABLE_NAME_MAP: dict[str, dict[str, str]] = {
         "dbf": "f1_purchased_pwr",
         "xbrl": "purchased_power_326",
     },
+    "electric_oandm_ferc1": {
+        "dbf": "f1_324_elc_expns",
+        "xbrl": "electric_operations_and_maintenance_expenses_320",
+    },
+    "electric_energy_account_ferc1": {
+        "dbf": "f1_elctrc_erg_acct",
+        "xbrl": "electric_energy_account_401a",
+    },
 }
 """A mapping of PUDL DB table names to their XBRL and DBF source table names."""
 
@@ -770,7 +778,8 @@ def generic_xbrl_extract(
     Args:
         ferc1_engine: An SQL Alchemy connection engine for the FERC Form 1 database.
         ferc1_settings: Object containing validated settings relevant to FERC Form 1.
-        table_name: Name of desired output table to produce.
+        table_name: Name of the XBRL table to extract, as it appears in the original
+            XBRL derived SQLite database.
     """
     # Get XBRL DB metadata
     ferc1_meta = get_ferc1_meta(ferc1_engine)

@@ -2105,10 +2105,51 @@ TRANSFORM_PARAMS = {
             },
         ],
     },
+    "plant_in_service_ferc1": {
+        "rename_columns_ferc1": {
+            "xbrl": {
+                "columns": {
+                    "entity_id": "utility_id_ferc1_xbrl",
+                    "report_year": "report_year",
+                    "ferc_account_label": "ferc_account_label",
+                    "starting_balance": "starting_balance",
+                    "additions": "additions",
+                    "retirements": "retirements",
+                    "adjustments": "adjustments",
+                    "transfers": "transfers",
+                    "ending_balance": "ending_balance",
+                }
+            },
+            "dbf": {
+                "columns": {
+                    "report_year": "report_year",
+                    "respondent_id": "utility_id_ferc1_dbf",
+                    "report_prd": "report_prd",
+                    "row_prvlg": "row_prvlg",
+                    "row_number": "row_number",
+                    "row_seq": "row_seq",
+                    "spplmnt_num": "spplmnt_num",
+                    "begin_yr_bal": "starting_balance",
+                    "addition": "additions",
+                    "retirements": "retirements",
+                    "adjustments": "adjustments",
+                    "transfers": "transfers",
+                    "yr_end_bal": "ending_balance",
+                }
+            },
+        },
+    },
     "plants_pumped_storage_ferc1": {
         "rename_columns_ferc1": {
             "dbf": {
                 "columns": {
+                    "report_year": "report_year",
+                    "respondent_id": "utility_id_ferc1_dbf",
+                    "report_prd": "report_prd",
+                    "row_prvlg": "row_prvlg",
+                    "row_number": "row_number",
+                    "row_seq": "row_seq",
+                    "spplmnt_num": "spplmnt_num",
                     "plant_name": "plant_name_ferc1",
                     "tot_capacity": "capacity_mw",
                     "project_no": "project_num",
@@ -2144,13 +2185,6 @@ TRANSFORM_PARAMS = {
                     "expns_kwh": "opex_per_kwh",
                     "pumping_expenses": "opex_pumping",
                     "tot_prdctn_exns": "opex_total",
-                    "report_year": "report_year",
-                    "respondent_id": "utility_id_ferc1_dbf",
-                    "report_prd": "report_prd",
-                    "row_prvlg": "row_prvlg",
-                    "row_number": "row_number",
-                    "row_seq": "row_seq",
-                    "spplmnt_num": "spplmnt_num",
                     "energy_used": "energy_used_for_pumping_kwh",
                     "net_load": "net_load_kwh",
                     "net_generation": "net_generation_kwh",

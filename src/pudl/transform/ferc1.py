@@ -9,12 +9,12 @@ transformations.
 """
 import enum
 import importlib.resources
-import logging
 import re
 from collections import namedtuple
 
 import numpy as np
 import pandas as pd
+import sqlalchemy as sa
 
 import pudl
 from pudl.analysis.classify_plants_ferc1 import (
@@ -125,6 +125,110 @@ class Ferc1TableTransformParams(TableTransformParams):
 
 
 ################################################################################
+# FERC 1 transform helper functions. Probably to be integrated into a class
+# below as methods or moved to a different module once it's clear where they belong.
+################################################################################
+def get_ferc1_dbf_rows_to_map(ferc1_engine: sa.engine.Engine) -> pd.DataFrame:
+    """Identify DBF rows that need to be mapped to XBRL columns.
+
+    Select all records in the ``f1_row_lit_tbl`` where the row literal associated with a
+    given combination of table and row number is different from the preceeding year.
+    This is the smallest set of records which we can use to reproduce the whole table by
+    expanding the time series to include all years, and forward filling the row
+    literals.
+    """
+    idx_cols = ["sched_table_name", "row_number", "report_year"]
+    data_cols = ["row_literal"]
+    row_lit = pd.read_sql(
+        "f1_row_lit_tbl", con=ferc1_engine, columns=idx_cols + data_cols
+    ).sort_values(idx_cols)
+    row_lit["shifted"] = row_lit.groupby(
+        ["sched_table_name", "row_number"]
+    ).row_literal.shift()
+    row_lit["changed"] = row_lit.row_literal != row_lit.shifted
+    return row_lit.loc[row_lit.changed, idx_cols + data_cols]
+
+
+def update_ferc1_dbf_xbrl_glue(ferc1_engine: sa.engine.Engine) -> pd.DataFrame:
+    """Regenerate the FERC 1 DBF+XBRL glue while retaining existing mappings.
+
+    Reads all rows that need to be mapped out of the ``f1_row_lit_tbl`` and appends
+    columns containing any previously mapped values, returning the resulting dataframe.
+    """
+    idx_cols = ["sched_table_name", "row_number", "report_year"]
+    all_rows = get_ferc1_dbf_rows_to_map(ferc1_engine).set_index(idx_cols)
+    with importlib.resources.open_text(
+        "pudl.package_data.ferc1", "dbf_to_xbrl.csv"
+    ) as file:
+        mapped_rows = (
+            pd.read_csv(file).set_index(idx_cols).drop(["row_literal"], axis="columns")
+        )
+    return (
+        pd.concat([all_rows, mapped_rows], axis="columns")
+        .reset_index()
+        .sort_values(["sched_table_name", "report_year", "row_number"])
+    )
+
+
+def get_ferc1_dbf_xbrl_glue(dbf_table_name: str) -> pd.DataFrame:
+    """Read the DBF+XBRL glue and expand it to cover all DBF years."""
+    with importlib.resources.open_text(
+        "pudl.package_data.ferc1", "dbf_to_xbrl.csv"
+    ) as file:
+        row_map = pd.read_csv(
+            file,
+            usecols=[
+                "sched_table_name",
+                "report_year",
+                "row_number",
+                "row_type",
+                "xbrl_column_stem",
+            ],
+        )
+    # Select only the rows that pertain to dbf_table_name
+    row_map = row_map.loc[
+        row_map.sched_table_name == dbf_table_name,
+        ["report_year", "row_number", "row_type", "xbrl_column_stem"],
+    ]
+    # Indicate which rows have unmappable headers in them, to differentiate them from
+    # null values in the exhaustive index we create below:
+    row_map.loc[
+        (row_map.row_type == "header") & (row_map.xbrl_column_stem.isna()),
+        "xbrl_column_stem",
+    ] == "HEADER_ROW"
+    row_map = row_map.drop(["row_type"], axis="columns")
+
+    # Create an index containing all possible index values:
+    idx = pd.MultiIndex.from_product(
+        [
+            Ferc1Settings().dbf_years,
+            row_map.row_number.unique(),
+        ],
+        names=["report_year", "row_number"],
+    )
+
+    # Concatenate the row map with the empty index, so we have blank spaces to fill:
+    row_map = pd.concat(
+        [
+            pd.DataFrame(index=idx),
+            row_map.set_index(["report_year", "row_number"]),
+        ],
+        axis="columns",
+    ).reset_index()
+
+    # Forward fill missing XBRL column names, until a new definition for the row
+    # number is encountered:
+    row_map["xbrl_column_stem"] = row_map.groupby(
+        "row_number"
+    ).xbrl_column_stem.transform("ffill")
+    # Drop any rows that do not actually map between DBF rows and XBRL columns:
+    row_map = row_map.replace({"xbrl_column_stem": {"HEADER_ROW": np.nan}}).dropna(
+        subset=["xbrl_column_stem"]
+    )
+    return row_map
+
+
+################################################################################
 # FERC 1 specific TableTransformer classes
 ################################################################################
 class Ferc1AbstractTableTransformer(AbstractTableTransformer):
@@ -186,6 +290,17 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         return self.enforce_schema(df)
 
     @cache_df(key="dbf")
+    def align_row_numbers_dbf(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Align row-numbers across multiple years of DBF data.
+
+        This is a no-op in the abstract base class, but for row-oriented DBF data where
+        the same data shows up in different row numbers in different years, it needs to
+        be implemented. Parameterization TBD with additional experience. See:
+        https://github.com/catalyst-cooperative/pudl/issues/2012
+        """
+        return df
+
+    @cache_df(key="dbf")
     def process_dbf(self, raw_dbf: pd.DataFrame) -> pd.DataFrame:
         """DBF-specific transformations that take place before concatenation."""
         logger.info(f"{self.table_id.value}: Processing DBF data pre-concatenation.")
@@ -196,6 +311,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             # the inherited method, with param specific to the child class.
             .pipe(self.rename_columns, params=self.params.rename_columns_ferc1.dbf)
             .pipe(self.assign_record_id, source_ferc1=Ferc1Source.DBF)
+            .pipe(self.align_row_numbers_dbf)
             .pipe(self.drop_unused_original_columns_dbf)
             .pipe(
                 self.assign_utility_id_ferc1,
@@ -215,6 +331,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             self.merge_instant_and_duration_tables_xbrl(
                 raw_xbrl_instant, raw_xbrl_duration
             )
+            .pipe(self.wide_to_tidy_xbrl)
             # Note: in this rename_columns we have to pass in params, since we're using
             # the inherited method, with param specific to the child class.
             .pipe(self.rename_columns, params=self.params.rename_columns_ferc1.xbrl)
@@ -226,12 +343,23 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         )
 
     @cache_df(key="xbrl")
+    def wide_to_tidy_xbrl(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Reshape the XBRL data from wide to tidy format.
+
+        This is a no-op in the abstract base class, but should be implemented for
+        child classes which need to reshape the XBRL data for concatenation with DBF.
+        Parameterization TBD based on additional experience. See:
+        https://github.com/catalyst-cooperative/pudl/issues/2012
+        """
+        return df
+
+    @cache_df(key="xbrl")
     def merge_instant_and_duration_tables_xbrl(
         self,
         raw_xbrl_instant: pd.DataFrame,
         raw_xbrl_duration: pd.DataFrame,
     ) -> pd.DataFrame:
-        """Merge the XBRL instant and duration tables into a single dataframe.
+        """Merge XBRL instant and duration tables, reshaping instant as needed.
 
         FERC1 XBRL instant period signifies that it is true as of the reported date,
         while a duration fact pertains to the specified time period. The ``date`` column
@@ -254,40 +382,76 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         instant = raw_xbrl_instant.drop(columns=drop_cols, errors="ignore")
         duration = raw_xbrl_duration.drop(columns=drop_cols, errors="ignore")
 
-        if instant.empty:
-            logger.debug(
-                f"{self.table_id.value}: No XBRL instant table found, returning the "
-                "duration table."
-            )
-            return duration
-        if duration.empty:
-            logger.debug(
-                f"{self.table_id.value}: No XBRL duration table found, returning "
-                "instant table."
-            )
-            return instant
-
         instant_axes = [
             col for col in raw_xbrl_instant.columns if col.endswith("_axis")
         ]
         duration_axes = [
             col for col in raw_xbrl_duration.columns if col.endswith("_axis")
         ]
-        if set(instant_axes) != set(duration_axes):
+        if (
+            bool(instant_axes)
+            & bool(duration_axes)
+            & (set(instant_axes) != set(duration_axes))
+        ):
             raise ValueError(
                 f"{self.table_id.value}: Instant and Duration XBRL Axes do not match.\n"
                 f"    instant: {instant_axes}\n"
                 f"    duration: {duration_axes}"
             )
 
-        return pd.merge(
-            instant,
-            duration,
-            how="outer",
-            left_on=["date", "entity_id", "report_year"] + instant_axes,
-            right_on=["end_date", "entity_id", "report_year"] + duration_axes,
-            validate="1:1",
-        )
+        # Everything above here is the same as the parent function, but here we need
+        # to reshape the instant table such that end-of-last-year becomes
+        # beginning-of-this-year in a separate column. Probably going to need to factor
+        # out the shared vs. different code into separate methods once we know what this
+        # should look like.
+        instant = self.process_instant_xbrl(instant)
+        duration = self.process_duration_xbrl(duration)
+
+        if instant.empty:
+            logger.info(f"{self.table_id.value}: No XBRL instant table found.")
+            return duration
+        elif duration.empty:
+            logger.info(f"{self.table_id.value}: No XBRL duration table found.")
+            return instant
+        else:
+            return pd.concat(
+                [
+                    instant.set_index(["report_year", "entity_id"] + instant_axes),
+                    duration.set_index(["report_year", "entity_id"] + duration_axes),
+                ],
+                axis="columns",
+            ).reset_index()
+
+        # We may need to do something different with the merge/concat in rehsaped vs.
+        # row-oriented tables. This is the old version for reference just in case:
+        # return pd.merge(
+        #    instant,
+        #    duration,
+        #    how="outer",
+        #    left_on=["date", "entity_id", "report_year"] + instant_axes,
+        #    right_on=["end_date", "entity_id", "report_year"] + duration_axes,
+        #    validate="1:1",
+        # )
+
+    def process_instant_xbrl(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Processing required to make the instant and duration tables compatible.
+
+        This is a no-op in the abstract base class, but should be implemented for
+        child classes which need to reshape the XBRL data for concatenation with DBF.
+        Parameterization TBD based on additional experience. See:
+        https://github.com/catalyst-cooperative/pudl/issues/2012
+        """
+        return df
+
+    def process_duration_xbrl(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Processing required to make the instant and duration tables compatible.
+
+        This is a no-op in the abstract base class, but should be implemented for
+        child classes which need to reshape the XBRL data for concatenation with DBF.
+        Parameterization TBD based on additional experience. See:
+        https://github.com/catalyst-cooperative/pudl/issues/2012
+        """
+        return df
 
     @cache_df(key="dbf")
     def drop_footnote_columns_dbf(self, df: pd.DataFrame) -> pd.DataFrame:
@@ -844,19 +1008,118 @@ class PlantsSteamFerc1TableTransformer(Ferc1AbstractTableTransformer):
 
 
 class PlantsHydroFerc1TableTransformer(Ferc1AbstractTableTransformer):
-    """A table transformer specific to the ``plants_hydro_ferc1`` table."""
+    """A table transformer specific to the :ref:`plants_hydro_ferc1` table."""
 
     table_id: Ferc1TableId = Ferc1TableId.PLANTS_HYDRO_FERC1
 
 
 class PlantsPumpedStorageFerc1TableTransformer(Ferc1AbstractTableTransformer):
-    """Transformer class for ``plants_pumped_storage_ferc1`` table."""
+    """Transformer class for :ref:`plants_pumped_storage_ferc1` table."""
 
     table_id: Ferc1TableId = Ferc1TableId.PLANTS_PUMPED_STORAGE_FERC1
 
 
+class PlantInServiceFerc1TableTransformer(Ferc1AbstractTableTransformer):
+    """A transformer for the :ref:`plant_in_service_ferc1` table."""
+
+    table_id: Ferc1TableId = Ferc1TableId.PLANT_IN_SERVICE_FERC1
+
+    @cache_df(key="dbf")
+    def align_row_numbers_dbf(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Align historical FERC1 DBF row numbers with XBRL account IDs."""
+        return pd.merge(
+            df,
+            get_ferc1_dbf_xbrl_glue(self.source_table_id(Ferc1Source.DBF)),
+            on=["report_year", "row_number"],
+        ).rename(columns={"xbrl_column_stem": "ferc_account_label"})
+
+    @cache_df("reshape_instant")
+    def process_instant_xbrl(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Convert row-oriented end-of-year balances to starting/ending balance cols.
+
+        Each year the plant account balances are reported twice, in two separate
+        records: one for the end of the previous year, and one for the end of the
+        current year, with appropriate dates for the two year ends. Here we are
+        reshaping the table so that we instead have two columns: ``starting_balance``
+        and ``ending_balance`` that both pertain to the current year, so that all of
+        the records pertaining to a single ``report_year`` can be identified without
+        dealing with the instant / duration distinction.
+        """
+        df["year"] = pd.to_datetime(df["date"]).dt.year
+        df.loc[df.report_year == (df.year + 1), "balance_type"] = "starting_balance"
+        df.loc[df.report_year == df.year, "balance_type"] = "ending_balance"
+        if not df.balance_type.notna().all():
+            raise ValueError(
+                f"Unexpected years found in the {self.table_id.value} table: "
+                f"{df.loc[df.balance_type.isna(), 'year'].unique()}"
+            )
+        df = (
+            df.drop(["year", "date"], axis="columns")
+            .set_index(["entity_id", "report_year", "balance_type"])
+            .unstack("balance_type")
+        )
+        # This turns a multi-index into a single-level index with tuples of strings as
+        # the keys, and then converts the tuples of strings into a single string by
+        # joining their values with an underscore. This results in column labels like
+        # boiler_plant_equipment_steam_production_starting_balance
+        # Is there a better way?
+        df.columns = ["_".join(items) for items in df.columns.to_flat_index()]
+        return df.reset_index()
+
+    def wide_to_tidy_xbrl(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Reshape wide tables with FERC account columns to tidy format.
+
+        The XBRL table coming into this method contains all the data from both the
+        instant and duration tables in a wide format -- with one column for every
+        combination of value type (e.g. additions, ending_balance) and accounting
+        category, which means ~500 columns.
+
+        We tidy this into a long table with one column for each of the value types (6 in
+        all), and a new column that contains the accounting categories. This allows
+        aggregation across columns to calculate the ending balance based on the starting
+        balance and all of the reported changes, and aggregation across groups of rows
+        to total up various hierarchical accounting categories (hydraulic turbines ->
+        hydraulic production plant -> all production plant -> all electric utility
+        plant) though the categorical columns required for that aggregation are added
+        later.
+        """
+        df = df.drop(["start_date", "end_date"], axis="columns")
+        value_types = [
+            "starting_balance",
+            "additions",
+            "retirements",
+            "transfers",
+            "adjustments",
+            "ending_balance",
+        ]
+        new_cols = [
+            (suffix, re.sub(f"_{suffix}", "", column_name))
+            for suffix in value_types
+            for column_name in df.columns
+            if column_name.endswith(suffix)
+        ]
+        new_col_idx = pd.MultiIndex.from_tuples(
+            new_cols, names=["value_type", "ferc_account_label"]
+        )
+
+        df = df.set_index(["entity_id", "report_year"])
+        df.columns = new_col_idx
+        df = df.stack(level="ferc_account_label").loc[:, value_types].reset_index()
+        # df.columns.name = None
+        return df
+
+    @cache_df("main")
+    def transform_main(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Main transform.
+
+        Currently no manipulation of the data values is being done, but this method is
+        abstract in the parent class, and so must be defined by all children.
+        """
+        return df
+
+
 class PurchasedPowerTableTransformer(Ferc1AbstractTableTransformer):
-    """Transformer class for ``purchased_power_ferc1`` table.
+    """Transformer class for :ref:`purchased_power_ferc1` table.
 
     This table has data about inter-utility power purchases into the PUDL DB. This
     includes how much electricty was purchased, how much it cost, and who it was
@@ -893,8 +1156,8 @@ def transform(
         "fuel_ferc1": FuelFerc1TableTransformer,
         # "plants_small_ferc1": plants_small,
         "plants_hydro_ferc1": PlantsHydroFerc1TableTransformer,
+        "plant_in_service_ferc1": PlantInServiceFerc1TableTransformer,
         "plants_pumped_storage_ferc1": PlantsPumpedStorageFerc1TableTransformer,
-        # "plant_in_service_ferc1": plant_in_service,
         "purchased_power_ferc1": PurchasedPowerTableTransformer,
         # "accumulated_depreciation_ferc1": accumulated_depreciation,
     }
@@ -945,13 +1208,16 @@ if __name__ == "__main__":
     This should probably be removed when we are done with the FERC 1 Transforms.
     """
 
-    logging.basicConfig(
-        level=logging.DEBUG,
-        format=r"%(asctime)s [%(levelname)8s] %(name)s:%(lineno)s %(message)s",
-    )
     ferc1_settings = Ferc1Settings(
         years=[2020, 2021],
-        tables=["fuel_ferc1", "plants_steam_ferc1", "plants_pumped_storage_ferc1"],
+        tables=[
+            "fuel_ferc1",
+            "plants_steam_ferc1",
+            "plants_hydro_ferc1",
+            "plant_in_service_ferc1",
+            "plants_pumped_storage_ferc1",
+            "purchased_power_ferc1",
+        ],
     )
     pudl_settings = pudl.workspace.setup.get_defaults()
     raw_dbf = pudl.extract.ferc1.extract_dbf(
@@ -970,100 +1236,6 @@ if __name__ == "__main__":
 ##################################################################################
 # OLD FERC TRANSFORM HELPER FUNCTIONS ############################################
 ##################################################################################
-def unpack_table(ferc1_df, table_name, data_cols, data_rows):
-    """Normalize a row-and-column based FERC Form 1 table.
-
-    Pulls the named database table from the FERC Form 1 DB and uses the corresponding
-    ferc1_row_map to unpack the row_number coded data.
-
-    Args:
-        ferc1_df (pandas.DataFrame): Raw FERC Form 1 DataFrame from the DB.
-        table_name (str): Original name of the FERC Form 1 DB table.
-        data_cols (list): List of strings corresponding to the original FERC Form 1
-            database table column labels -- these are the columns of data that we are
-            extracting (it can be a subset of the columns which are present in the
-            original database).
-        data_rows (list): List of row_names to extract, as defined in the FERC 1 row
-            maps. Set to slice(None) if you want all rows.
-
-    Returns:
-        pandas.DataFrame
-    """
-    # Read in the corresponding row map:
-    row_map = (
-        pd.read_csv(
-            importlib.resources.open_text(
-                "pudl.package_data.ferc1.row_maps", f"{table_name}.csv"
-            ),
-            index_col=0,
-            comment="#",
-        )
-        .copy()
-        .transpose()
-        .rename_axis(index="year_index", columns=None)
-    )
-    row_map.index = row_map.index.astype(int)
-
-    # For each year, rename row numbers to variable names based on row_map.
-    rename_dict = {}
-    out_df = pd.DataFrame()
-    for year in row_map.index:
-        rename_dict = {v: k for k, v in dict(row_map.loc[year, :]).items()}
-        _ = rename_dict.pop(-1, None)
-        df = ferc1_df.loc[ferc1_df.report_year == year].copy()
-        df.loc[:, "row_name"] = df.loc[:, "row_number"].replace(rename_dict)
-        # The concatenate according to row_name
-        out_df = pd.concat([out_df, df], axis="index")
-
-    # Is this list of index columns universal? Or should they be an argument?
-    idx_cols = ["respondent_id", "report_year", "report_prd", "spplmnt_num", "row_name"]
-    logger.info(
-        f"{len(out_df[out_df.duplicated(idx_cols)])/len(out_df):.4%} "
-        f"of unpacked records were duplicates, and discarded."
-    )
-    # Index the dataframe based on the list of index_cols
-    # Unstack the dataframe based on variable names
-    out_df = (
-        out_df.loc[:, idx_cols + data_cols]
-        # These lost records should be minimal. If not, something's wrong.
-        .drop_duplicates(subset=idx_cols)
-        .set_index(idx_cols)
-        .unstack("row_name")
-        .loc[:, (slice(None), data_rows)]
-    )
-    return out_df
-
-
-def cols_to_cats(df, cat_name, col_cats):
-    """Turn top-level MultiIndex columns into a categorial column.
-
-    In some cases FERC Form 1 data comes with many different types of related values
-    interleaved in the same table -- e.g. current year and previous year income -- this
-    can result in DataFrames that are hundreds of columns wide, which is unwieldy. This
-    function takes those top level MultiIndex labels and turns them into categories in a
-    single column, which can be used to select a particular type of report.
-
-    Args:
-        df (pandas.DataFrame): the dataframe to be simplified.
-        cat_name (str): the label of the column to be created indicating what
-            MultiIndex label the values came from.
-        col_cats (dict): a dictionary with top level MultiIndex labels as keys,
-            and the category to which they should be mapped as values.
-
-    Returns:
-        pandas.DataFrame: A re-shaped/re-labeled dataframe with one fewer levels of
-        MultiIndex in the columns, and an additional column containing the assigned
-        labels.
-    """
-    out_df = pd.DataFrame()
-    for col, cat in col_cats.items():
-        logger.info(f"Col: {col}, Cat: {cat}")
-        tmp_df = df.loc[:, col].copy().dropna(how="all")
-        tmp_df.loc[:, cat_name] = cat
-        out_df = pd.concat([out_df, tmp_df])
-    return out_df.reset_index()
-
-
 def _clean_cols(df, table_name):
     """Adds a FERC record ID and drop FERC columns not to be loaded into PUDL.
 
@@ -1315,69 +1487,6 @@ def plants_small(ferc1_dbf_raw_dfs, ferc1_xbrl_raw_dfs, ferc1_transformed_dfs):
     )
 
     ferc1_transformed_dfs["plants_small_ferc1"] = ferc1_small_df
-    return ferc1_transformed_dfs
-
-
-def plant_in_service(ferc1_raw_dfs, ferc1_transformed_dfs):
-    """Transforms FERC Form 1 Plant in Service data for loading into PUDL.
-
-    Re-organizes the original FERC Form 1 Plant in Service data by unpacking the rows as
-    needed on a year by year basis, to organize them into columns. The "columns" in the
-    original FERC Form 1 denote starting balancing, ending balance, additions,
-    retirements, adjustments, and transfers -- these categories are turned into labels
-    in a column called "amount_type". Because each row in the transformed table is
-    composed of many individual records (rows) from the original table, row_number can't
-    be part of the record_id, which means they are no longer unique. To infer exactly
-    what record a given piece of data came from, the record_id and the row_map (found in
-    the PUDL package_data directory) can be used.
-
-    Args:
-        ferc1_raw_dfs (dict): Each entry in this dictionary of DataFrame objects
-            corresponds to a table from the FERC Form 1 DBC database.
-        ferc1_transformed_dfs (dict): A dictionary of DataFrames to be transformed.
-
-    Returns:
-        dict: The dictionary of the transformed DataFrames.
-    """
-    pis_df = (
-        unpack_table(
-            ferc1_df=ferc1_raw_dfs["plant_in_service_ferc1"],
-            table_name="f1_plant_in_srvce",
-            data_rows=slice(None),  # Gotta catch 'em all!
-            data_cols=[
-                "begin_yr_bal",
-                "addition",
-                "retirements",
-                "adjustments",
-                "transfers",
-                "yr_end_bal",
-            ],
-        )
-        .pipe(  # Convert top level of column index into a categorical column:
-            cols_to_cats,
-            cat_name="amount_type",
-            col_cats={
-                "begin_yr_bal": "starting_balance",
-                "addition": "additions",
-                "retirements": "retirements",
-                "adjustments": "adjustments",
-                "transfers": "transfers",
-                "yr_end_bal": "ending_balance",
-            },
-        )
-        .rename_axis(columns=None)
-        .pipe(_clean_cols, "f1_plant_in_srvce")
-        .set_index(["utility_id_ferc1", "report_year", "amount_type", "record_id"])
-        .reset_index()
-    )
-
-    # Get rid of the columns corresponding to "header" rows in the FERC
-    # form, which should *never* contain data... but in about 2 dozen cases,
-    # they do. See this issue on Github for more information:
-    # https://github.com/catalyst-cooperative/pudl/issues/471
-    pis_df = pis_df.drop(columns=pis_df.filter(regex=".*_head$").columns)
-
-    ferc1_transformed_dfs["plant_in_service_ferc1"] = pis_df
     return ferc1_transformed_dfs
 
 
