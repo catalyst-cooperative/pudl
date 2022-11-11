@@ -1174,6 +1174,9 @@ class PlantsSmallFerc1TableTransformer(Ferc1AbstractTableTransformer):
         # Remove headers and note rows now that the relevant information has been
         # extracted.
         df = df[(df["row_type"] != "header") & (df["row_type"] != "note")].copy()
+        # Now remove the row_type columns because we've already moved totals to a
+        # different column
+        df = df.drop(columns=["row_type"])
 
         return df
 
@@ -1519,6 +1522,7 @@ class PlantsSmallFerc1TableTransformer(Ferc1AbstractTableTransformer):
         when chunks of plants (usually but not always wind) are reported together. It's
         a total, but it's not double counting which is the reason for the "total" flag.
         """
+        # Label totals in row_type in case it overwrites any headers
         logger.info(f"{self.table_id.value}: Labeling total rows")
         df.loc[
             df["plant_name_ferc1"].str.contains("total")
@@ -1579,6 +1583,10 @@ class PlantsSmallFerc1TableTransformer(Ferc1AbstractTableTransformer):
             .pipe(self._label_note_rows)
             .drop(columns=["possible_header_or_note"])
         )
+
+        # Move total lables to a different column
+        df_labeled.loc[df_labeled["row_type"] == "total", "is_total"] = True
+        df_labeled["is_total"] = df_labeled.filter(["row_type"]).isin(["total"]).all(1)
 
         return df_labeled
 

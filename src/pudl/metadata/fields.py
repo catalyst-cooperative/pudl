@@ -771,6 +771,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "Continuous Emissions Monitoring System."
         ),
     },
+    "is_total": {
+        "type": "boolean",
+        "description": "Indicates whether the row is a total.",
+    },
     "iso_rto_code": {
         "type": "string",
         "description": "The code of the plant's ISO or RTO. NA if not reported in that year.",
@@ -958,6 +962,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
         "description": "Average monthly non-coincident peak (NCP) demand (for requirements purhcases, and any transactions involving demand charges). Monthly NCP demand is the maximum metered hourly (60-minute integration) demand in a month. In megawatts.",
         "unit": "MW",
+    },
+    "notes": {
+        "type": "string",
+        "description": "Notes previously in the plant_name_ferc1 field that were extracted and associated with the right plant row.",
     },
     "not_water_limited_capacity_mw": {
         "type": "number",
