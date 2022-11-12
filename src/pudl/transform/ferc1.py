@@ -447,22 +447,30 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             unique_instant_rows = instant.set_index(
                 instant_merge_keys
             ).index.difference(duration.set_index(duration_merge_keys).index)
-            if not unique_instant_rows.empty:
-                raise AssertionError(
-                    "instant df contains values not in duration df -- can't do a "
-                    "one-sided merge: "
-                    f"{unique_instant_rows}"
+            if unique_instant_rows.empty:
+                # Merge instant into duration.
+                return pd.merge(
+                    instant,
+                    duration,
+                    how="right",
+                    left_on=instant_merge_keys,
+                    right_on=duration_merge_keys,
+                    validate="1:1",
                 )
-
-            # Merge instant into duration.
-            return pd.merge(
-                instant,
-                duration,
-                how="right",
-                left_on=["date", "entity_id", "report_year"] + instant_axes,
-                right_on=["end_date", "entity_id", "report_year"] + duration_axes,
-                validate="1:1",
-            )
+            else:
+                # TODO: Check whether our assumptions about these tables hold before
+                # concatenating them. May need to be table specific. E.g.
+                # * What fraction of their index values overlap? (it should be high!)
+                # * Do the instant/duration columns conform to expected naming conventions?
+                return pd.concat(
+                    [
+                        instant.set_index(["report_year", "entity_id"] + instant_axes),
+                        duration.set_index(
+                            ["report_year", "entity_id"] + duration_axes
+                        ),
+                    ],
+                    axis="columns",
+                ).reset_index()
 
     @cache_df("process_instant_xbrl")
     def process_instant_xbrl(self, df: pd.DataFrame) -> pd.DataFrame:
@@ -2041,7 +2049,7 @@ if __name__ == "__main__":
             "plant_in_service_ferc1",
             "plants_pumped_storage_ferc1",
             "purchased_power_ferc1",
-            # "plants_small_ferc1",
+            "plants_small_ferc1",
         ],
     )
     pudl_settings = pudl.workspace.setup.get_defaults()
