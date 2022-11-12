@@ -1112,15 +1112,19 @@ class AbstractTableTransformer(ABC):
         """
         if params is None:
             params = self.params.rename_columns
-        logger.info(f"{self.table_id.value}: Renaming {len(params.columns)} columns.")
-        df_col_set = set(df.columns)
-        param_col_set = set(params.columns)
-        if df_col_set != param_col_set:
-            unshared_values = df_col_set.symmetric_difference(param_col_set)
+        logger.info(
+            f"{self.table_id.value}: Attempting to rename {len(params.columns)} "
+            "columns."
+        )
+
+        # If we are attempting to rename columns that do *not* appear in the dataframe,
+        # warn the user.
+        missing_cols = set(params.columns).difference(set(df.columns))
+        if missing_cols:
             logger.warning(
-                f"{self.table_id.value}: Discrepancy between dataframe columns and "
-                "rename dictionary keys. \n"
-                f"Unshared values: {unshared_values}"
+                f"{self.table_id.value}: Attempting to rename columns which are not "
+                "present in the dataframe.\n"
+                f"Missing columns: {missing_cols}"
             )
         return df.rename(columns=params.columns)
 

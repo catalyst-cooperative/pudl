@@ -1573,6 +1573,7 @@ PLANT_TYPE_CATEGORIES_HYDRO: dict[str, set[str]] = {
             "unallocated hydros",
         },
         "run_of_river": {
+            "run_of_river",
             "run ofriver",
             "r of r",
             "run - of - river",
@@ -1584,6 +1585,7 @@ PLANT_TYPE_CATEGORIES_HYDRO: dict[str, set[str]] = {
             "run-of-river",
         },
         "run_of_river_with_storage": {
+            "run_of_river_with_storage",
             "run-of-river/storage",
             "r of r/ storage",
             "r of r/storage",
@@ -1613,6 +1615,7 @@ PLANT_TYPE_CATEGORIES_HYDRO: dict[str, set[str]] = {
             "weekly storage",
         },
         "na_category": {
+            "na_category",
             "(see note 7, page",
             "-",
             "---not applicable---",
@@ -2238,6 +2241,9 @@ TRANSFORM_PARAMS = {
                     "order_number": "order_number",
                     "plant_name": "plant_name",
                     "entity_id": "utility_id_ferc1_xbrl",
+                    "end_date": "end_date",
+                    "start_date": "start_date",
+                    "date": "date",
                 },
             },
         },
@@ -2321,7 +2327,7 @@ TRANSFORM_PARAMS = {
                     "expns_dams": "opex_dams",
                     "expns_plant": "opex_plant",
                     "expns_misc_plant": "opex_misc_plant",
-                    "expns_kwh": "opex_per_mwh",
+                    "expns_kwh": "opex_per_kwh",
                     "expns_engnr": "opex_engineering",
                     "expns_total": "opex_total",
                     "asset_retire_cost": "asset_retirement_cost",
@@ -2356,7 +2362,7 @@ TRANSFORM_PARAMS = {
                     "net_plant_capability_under_most_favorable_operating_conditions": "net_capacity_favorable_conditions_mw",
                     "plant_construction_type": "construction_type",
                     "net_generation_excluding_plant_use": "net_generation_kwh",
-                    "expenses_per_net_kilowatt_hour": "opex_per_mwh",
+                    "expenses_per_net_kilowatt_hour": "opex_per_kwh",
                     "cost_per_kilowatt_of_installed_capacity": "capex_per_kw",
                     "maintenance_of_structures_hydraulic_power_generation": "opex_structures",
                     "maintenance_supervision_and_engineering_hydraulic_power_generation": "opex_engineering",
@@ -2557,6 +2563,37 @@ TRANSFORM_PARAMS = {
                     "yr_end_bal": "ending_balance",
                 }
             },
+        },
+        "rename_columns_instant_xbrl": {
+            "columns": {
+                "communication_equipment": "communication_equipment_general_plant",
+                "office_furniture_and_equipment": "office_furniture_and_equipment_general_plant",
+                "structures_and_improvements": "structures_and_improvements_general_plant",
+                "tools_shop_and_garage_equipment": "tools_shop_and_garage_equipment_general_plant",
+                "miscellaneous_equipment": "miscellaneous_equipment_general_plant",
+                "transportation_equipment": "transportation_equipment_general_plant",
+                "laboratory_equipment": "laboratory_equipment_general_plant",
+                "land_and_land_rights": "land_and_land_rights_general_plant",
+                "stores_equipment": "stores_equipment_general_plant",
+                "power_operated_equipment": "power_operated_equipment_general_plant",
+                "other_tangible_property": "other_tangible_property_general_plant",
+                "installations_on_customers_premises_distribution_plant": "installations_on_customer_premises_distribution_plant",
+                "fuel_holders_producers_and_accessories_other_production": "fuel_holders_products_and_accessories_other_production",
+                "structures_and_improvement_nuclear_production": "structures_and_improvements_nuclear_production",
+                "leased_property_on_customers_premises_distribution_plant": "leased_property_on_customer_premises_distribution_plant",
+            }
+        },
+        "rename_columns_duration_xbrl": {
+            "columns": {
+                "energy_storage_equipment_production_other_production_additions": "energy_storage_equipment_other_production_additions",
+                "energy_storage_equipment_production_other_production_adjustments": "energy_storage_equipment_other_production_adjustments",
+                "energy_storage_equipment_production_other_production_retirements": "energy_storage_equipment_other_production_retirements",
+                "energy_storage_equipment_production_other_production_transfers": "energy_storage_equipment_other_production_transfers",
+                "asset_retirement_costs_for_regional_transmission_and_market_operations_regional_transmission_and_market_operation_plant_additions": "asset_retirement_costs_for_regional_transmission_and_market_operation_plant_regional_transmission_and_market_operation_plant_additions",
+                "asset_retirement_costs_for_regional_transmission_and_market_operations_regional_transmission_and_market_operation_plant_adjustments": "asset_retirement_costs_for_regional_transmission_and_market_operation_plant_regional_transmission_and_market_operation_plant_adjustments",
+                "asset_retirement_costs_for_regional_transmission_and_market_operations_regional_transmission_and_market_operation_plant_retirements": "asset_retirement_costs_for_regional_transmission_and_market_operation_plant_regional_transmission_and_market_operation_plant_retirements",
+                "asset_retirement_costs_for_regional_transmission_and_market_operations_regional_transmission_and_market_operation_plant_transfers": "asset_retirement_costs_for_regional_transmission_and_market_operation_plant_regional_transmission_and_market_operation_plant_transfers",
+            }
         },
     },
     "plants_pumped_storage_ferc1": {

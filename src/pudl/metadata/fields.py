@@ -1893,7 +1893,7 @@ FIELD_METADATA_BY_GROUP: dict[str, dict[str, Any]] = {
                 "enum": [
                     "mmbtu",
                     "gramsU",
-                    "kgU",
+                    "kg",
                     "mwhth",
                     "kgal",
                     "bbl",

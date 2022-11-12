@@ -116,6 +116,8 @@ class Ferc1TableTransformParams(TableTransformParams):
         dbf=RenameColumns(),
         xbrl=RenameColumns(),
     )
+    rename_columns_instant_xbrl: RenameColumns = RenameColumns()
+    rename_columns_duration_xbrl: RenameColumns = RenameColumns()
 
 
 ################################################################################
@@ -191,7 +193,17 @@ def get_ferc1_dbf_xbrl_glue(dbf_table_name: str) -> pd.DataFrame:
         ["report_year", "row_number", "row_type", "xbrl_column_stem"],
     ]
     # Indicate which rows have unmappable headers in them, to differentiate them from
-    # null values in the exhaustive index we create below:
+    # null values in the exhaustive index we create below.
+    # We need the ROW_HEADER sentinel value so we can distinguish
+    # between two different reasons that we might find NULL values in the
+    # xbrl_column_stem field:
+    # 1. It's NULL because it's between two valid mapped values (the NULL was created
+    #    in our filling of the time series) and should thus be filled in, or
+    # 2. It's NULL because it was a header row in the DBF data, which means it should
+    #    NOT be filled in. Without the HEADER_ROW value, when a row number from year X
+    #    becomes associated with a non-header row in year X+1
+    #    the ffill will keep right on filling, associating all of the new header rows
+    #    with the value of xbrl_column_stem that was associated with the old row number.
     row_map.loc[
         (row_map.row_type == "header") & (row_map.xbrl_column_stem.isna()),
         "xbrl_column_stem",
@@ -245,7 +257,17 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
     parameter_model = Ferc1TableTransformParams
     params: parameter_model
 
-    @cache_df(key="main")
+    has_unique_record_ids: bool = True
+    """True if each record in the transformed table corresponds to one input record.
+
+    For tables that have been transformed from wide-to-tidy format, or undergone other
+    kinds of reshaping, there is not a simple one-to-one relationship between input and
+    output records, and so we should not expect record IDs to be unique. In those cases
+    they serve only a forensic purpose, telling us where to find the original source of
+    the transformed data.
+    """
+
+    @cache_df(key="start")
     def transform_start(
         self,
         raw_dbf: pd.DataFrame,
@@ -284,7 +306,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         )
         return df
 
-    @cache_df(key="main")
+    @cache_df(key="end")
     def transform_end(self, df: pd.DataFrame) -> pd.DataFrame:
         """Enforce the database schema and remove any cached dataframes."""
         return self.enforce_schema(df)
@@ -406,8 +428,8 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                 f"    instant: {instant_axes}\n"
                 f"    duration: {duration_axes}"
             )
-        # If necessary, process the instant and duration tables differently prior to
-        # merging.
+
+        # Do any table-specific preprocessing of the instant and duration tables
         instant = self.process_instant_xbrl(instant)
         duration = self.process_duration_xbrl(duration)
 
@@ -442,24 +464,28 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                 validate="1:1",
             )
 
+    @cache_df("process_instant_xbrl")
     def process_instant_xbrl(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Processing required to make the instant and duration tables compatible.
+        """Pre-processing required to make instant and duration tables compatible.
 
-        This is a no-op in the abstract base class, but should be implemented for
-        child classes which need to reshape the XBRL data for concatenation with DBF.
-        Parameterization TBD based on additional experience. See:
-        https://github.com/catalyst-cooperative/pudl/issues/2012
+        Column renaming is sometimes required because a few columns in the instant and
+        duration tables do not have corresponding names that follow the naming
+        conventions of ~95% of all the columns, which we rely on programmatically when
+        reshaping and concatenating these tables together.
         """
+        df = self.rename_columns(df, self.params.rename_columns_instant_xbrl)
         return df
 
+    @cache_df("process_duration_xbrl")
     def process_duration_xbrl(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Processing required to make the instant and duration tables compatible.
+        """Pre-processing required to make instant and duration tables compatible.
 
-        This is a no-op in the abstract base class, but should be implemented for
-        child classes which need to reshape the XBRL data for concatenation with DBF.
-        Parameterization TBD based on additional experience. See:
-        https://github.com/catalyst-cooperative/pudl/issues/2012
+        Column renaming is sometimes required because a few columns in the instant and
+        duration tables do not have corresponding names that follow the naming
+        conventions of ~95% of all the columns, which we rely on programmatically when
+        reshaping and concatenating these tables together.
         """
+        df = self.rename_columns(df, self.params.rename_columns_duration_xbrl)
         return df
 
     @cache_df(key="dbf")
@@ -578,9 +604,9 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         df.record_id = enforce_snake_case(df.record_id)
 
         dupe_ids = df.record_id[df.record_id.duplicated()].values
-        if dupe_ids.any():
+        if dupe_ids.any() and self.has_unique_record_ids:
             logger.warning(
-                f"{self.table_id.value}: Found {len(dupe_ids)} duplicate record_ids. "
+                f"{self.table_id.value}: Found {len(dupe_ids)} duplicate record_ids: \n"
                 f"{dupe_ids}."
             )
         return df
@@ -1028,10 +1054,25 @@ class PlantsPumpedStorageFerc1TableTransformer(Ferc1AbstractTableTransformer):
     table_id: Ferc1TableId = Ferc1TableId.PLANTS_PUMPED_STORAGE_FERC1
 
 
+class PurchasedPowerTableTransformer(Ferc1AbstractTableTransformer):
+    """Transformer class for :ref:`purchased_power_ferc1` table.
+
+    This table has data about inter-utility power purchases into the PUDL DB. This
+    includes how much electricty was purchased, how much it cost, and who it was
+    purchased from. Unfortunately the field describing which other utility the power was
+    being bought from is poorly standardized, making it difficult to correlate with
+    other data. It will need to be categorized by hand or with some fuzzy matching
+    eventually.
+    """
+
+    table_id: Ferc1TableId = Ferc1TableId.PURCHASED_POWER_FERC1
+
+
 class PlantInServiceFerc1TableTransformer(Ferc1AbstractTableTransformer):
     """A transformer for the :ref:`plant_in_service_ferc1` table."""
 
     table_id: Ferc1TableId = Ferc1TableId.PLANT_IN_SERVICE_FERC1
+    has_unique_record_ids: bool = False
 
     @cache_df(key="dbf")
     def align_row_numbers_dbf(self, df: pd.DataFrame) -> pd.DataFrame:
@@ -1042,9 +1083,9 @@ class PlantInServiceFerc1TableTransformer(Ferc1AbstractTableTransformer):
             on=["report_year", "row_number"],
         ).rename(columns={"xbrl_column_stem": "ferc_account_label"})
 
-    @cache_df("reshape_instant")
+    @cache_df("process_instant_xbrl")
     def process_instant_xbrl(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Convert row-oriented end-of-year balances to starting/ending balance cols.
+        """Pre-processing required to make the instant and duration tables compatible.
 
         Each year the plant account balances are reported twice, in two separate
         records: one for the end of the previous year, and one for the end of the
@@ -1054,6 +1095,7 @@ class PlantInServiceFerc1TableTransformer(Ferc1AbstractTableTransformer):
         the records pertaining to a single ``report_year`` can be identified without
         dealing with the instant / duration distinction.
         """
+        df = super().process_instant_xbrl(df)
         df["year"] = pd.to_datetime(df["date"]).dt.year
         df.loc[df.report_year == (df.year + 1), "balance_type"] = "starting_balance"
         df.loc[df.report_year == df.year, "balance_type"] = "ending_balance"
@@ -1114,7 +1156,6 @@ class PlantInServiceFerc1TableTransformer(Ferc1AbstractTableTransformer):
         df = df.set_index(["entity_id", "report_year"])
         df.columns = new_col_idx
         df = df.stack(level="ferc_account_label").loc[:, value_types].reset_index()
-        # df.columns.name = None
         return df
 
     @cache_df("main")
@@ -1123,22 +1164,13 @@ class PlantInServiceFerc1TableTransformer(Ferc1AbstractTableTransformer):
 
         Currently no manipulation of the data values is being done, but this method is
         abstract in the parent class, and so must be defined by all children.
+
+        * Apply column sign conventions (retirements)
+        * Apply row sign conventions (102_sold)
+        * Check that reported numbers add up to ending_balance.
+        * Identify cases where flipping retirements and/or 102_sold fixes errors.
         """
         return df
-
-
-class PurchasedPowerTableTransformer(Ferc1AbstractTableTransformer):
-    """Transformer class for :ref:`purchased_power_ferc1` table.
-
-    This table has data about inter-utility power purchases into the PUDL DB. This
-    includes how much electricty was purchased, how much it cost, and who it was
-    purchased from. Unfortunately the field describing which other utility the power was
-    being bought from is poorly standardized, making it difficult to correlate with
-    other data. It will need to be categorized by hand or with some fuzzy matching
-    eventually.
-    """
-
-    table_id: Ferc1TableId = Ferc1TableId.PURCHASED_POWER_FERC1
 
 
 class PlantsSmallFerc1TableTransformer(Ferc1AbstractTableTransformer):
@@ -1997,13 +2029,11 @@ def transform(
 
 
 if __name__ == "__main__":
-    """Make the module runnable for testing purposes during development.
-
-    This should probably be removed when we are done with the FERC 1 Transforms.
-    """
+    """Make the module runnable for iterative testing during development."""
 
     ferc1_settings = Ferc1Settings(
         years=[2020, 2021],
+        # years=Ferc1Settings().years,
         tables=[
             "fuel_ferc1",
             "plants_steam_ferc1",
@@ -2011,6 +2041,7 @@ if __name__ == "__main__":
             "plant_in_service_ferc1",
             "plants_pumped_storage_ferc1",
             "purchased_power_ferc1",
+            # "plants_small_ferc1",
         ],
     )
     pudl_settings = pudl.workspace.setup.get_defaults()

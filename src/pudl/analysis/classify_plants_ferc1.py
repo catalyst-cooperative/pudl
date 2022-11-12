@@ -521,7 +521,16 @@ def plants_steam_assign_plant_ids(
             f"Uh oh, we lost {abs(len(steam_rids)-len(pwids_rids))} FERC "
             f"steam plant record IDs: {missing_ids}"
         )
+
     ferc1_steam_df = pd.merge(ferc1_steam_df, plants_w_ids, on="record_id")
+    # replace blank "" that got introduced to remove nulls with nulls for enum
+    # constrained columns.
+    # the replace to_replace={column_name: {"", pd.NA}} mysteriously doesn't work
+    for col in ["plant_type", "construction_type"]:
+        ferc1_steam_df[col] = ferc1_steam_df[col].replace(
+            to_replace=[""],
+            value=pd.NA,
+        )
     return ferc1_steam_df
 
 
