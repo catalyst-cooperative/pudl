@@ -267,7 +267,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
     the transformed data.
     """
 
-    @cache_df(key="main")
+    @cache_df(key="start")
     def transform_start(
         self,
         raw_dbf: pd.DataFrame,
@@ -306,7 +306,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         )
         return df
 
-    @cache_df(key="main")
+    @cache_df(key="end")
     def transform_end(self, df: pd.DataFrame) -> pd.DataFrame:
         """Enforce the database schema and remove any cached dataframes."""
         return self.enforce_schema(df)
