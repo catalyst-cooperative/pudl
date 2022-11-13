@@ -298,7 +298,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
     xbrl_metadata_json: list[dict[Any]] = []
     """An array of JSON objects extracted from the FERC 1 XBRL taxonomy."""
 
-    xbrl_metadata_normalized: pd.DataFrame | None = None
+    xbrl_metadata_normalized: pd.DataFrame = pd.DataFrame()
     """A semi-normalized dataframe containing table-specific XBRL metadata."""
 
     def __init__(
@@ -314,7 +314,9 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             cache_dfs=cache_dfs,
             clear_cached_dfs=clear_cached_dfs,
         )
-        self.xbrl_metadata_json = ferc1_xbrl_raw_meta
+        # Many tables don't require this input:
+        if ferc1_xbrl_raw_meta:
+            self.xbrl_metadata_json = ferc1_xbrl_raw_meta
 
     @cache_df(key="start")
     def transform_start(
@@ -364,6 +366,10 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         self, xbrl_fact_names: list[str] | None
     ) -> pd.DataFrame:
         """Normalize XBRL metadata, select table-specific rows, and transform them."""
+        # If the table has no XBRL metadata, return immediately:
+        if not self.xbrl_metadata_json:
+            return pd.DataFrame()
+
         normed_meta = (
             pd.json_normalize(self.xbrl_metadata_json)
             .rename(

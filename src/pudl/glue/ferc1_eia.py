@@ -61,11 +61,10 @@ MIN_PLANT_CAPACITY_MW: float = 5.0
 MAX_LOST_PLANTS_EIA: int = 50
 MAX_LOST_UTILS_EIA: int = 10
 
+
 #####################################
 # Stored Maps of plants and utilities
 #####################################
-
-
 def get_plant_map() -> pd.DataFrame:
     """Read in the manual FERC to EIA plant mapping data."""
     return pd.read_excel(
@@ -132,8 +131,6 @@ def get_mapped_plants_eia():
 ##########################
 # Raw Plants and Utilities
 ##########################
-
-
 def get_util_ids_ferc1_raw_xbrl(ferc1_engine_xbrl: sa.engine.Engine) -> pd.DataFrame:
     """Grab the utility ids (reported as `entity_id`) in the FERC1 XBRL database."""
     all_utils_ferc1_xbrl = (
@@ -285,8 +282,6 @@ def get_plants_ferc1_raw(
 ###############################
 # Unmapped plants and utilities
 ###############################
-
-
 def get_missing_ids(
     ids_left: pd.DataFrame,
     ids_right: pd.DataFrame,
@@ -466,8 +461,6 @@ def get_util_ids_eia_unmapped(
 #################
 # Glue Tables ETL
 #################
-
-
 def glue(ferc1=False, eia=False):
     """Generates a dictionary of dataframes for glue tables between FERC1, EIA.
 
