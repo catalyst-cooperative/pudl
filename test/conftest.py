@@ -2,6 +2,7 @@
 
 Defines useful fixtures, command line args.
 """
+import json
 import logging
 import os
 from pathlib import Path
@@ -11,6 +12,7 @@ import sqlalchemy as sa
 import yaml
 
 import pudl
+from pudl.extract.ferc1 import extract_xbrl_metadata
 from pudl.output.pudltabl import PudlTabl
 from pudl.settings import EtlSettings
 
@@ -208,6 +210,12 @@ def ferc1_xbrl_sql_engine(
     return engine
 
 
+@pytest.fixture(scope="session", name="ferc1_xbrl_taxonomy_metadata")
+def ferc1_xbrl_taxonomy_metadata(pudl_settings_fixture, ferc1_engine_xbrl):
+    """Read the FERC 1 XBRL taxonomy metadata from JSON."""
+    return extract_xbrl_metadata(pudl_settings=pudl_settings_fixture)
+
+
 @pytest.fixture(scope="session", name="pudl_engine")
 def pudl_sql_engine(
     ferc1_engine_dbf,  # Implicit dependency
@@ -283,20 +291,21 @@ def pudl_settings_dict(request, live_dbs, tmpdir_factory):  # noqa: C901
     pudl.workspace.setup.init(pudl_in=pudl_in, pudl_out=pudl_out)
 
     if live_dbs:
-        pudl_settings["pudl_db"] = pudl.workspace.setup.get_defaults()["pudl_db"]
-        pudl_settings["ferc1_db"] = pudl.workspace.setup.get_defaults()["ferc1_db"]
-        pudl_settings["ferc1_xbrl_db"] = pudl.workspace.setup.get_defaults()[
-            "ferc1_xbrl_db"
+        pudl_defaults = pudl.workspace.setup.get_defaults()
+        pudl_settings["pudl_db"] = pudl_defaults["pudl_db"]
+        pudl_settings["ferc1_db"] = pudl_defaults["ferc1_db"]
+        pudl_settings["ferc1_xbrl_db"] = pudl_defaults["ferc1_xbrl_db"]
+        pudl_settings["ferc1_xbrl_taxonomy_metadata"] = pudl_defaults[
+            "ferc1_xbrl_taxonomy_metadata"
         ]
-        pudl_settings["censusdp1tract_db"] = pudl.workspace.setup.get_defaults()[
-            "censusdp1tract_db"
-        ]
-        pudl_settings["parquet_dir"] = pudl.workspace.setup.get_defaults()[
-            "parquet_dir"
-        ]
-        pudl_settings["sqlite_dir"] = pudl.workspace.setup.get_defaults()["sqlite_dir"]
+        pudl_settings["censusdp1tract_db"] = pudl_defaults["censusdp1tract_db"]
+        pudl_settings["parquet_dir"] = pudl_defaults["parquet_dir"]
+        pudl_settings["sqlite_dir"] = pudl_defaults["sqlite_dir"]
 
-    logger.info("pudl_settings being used: %s", pudl_settings)
+    pretty_settings = json.dumps(
+        {str(k): str(v) for k, v in pudl_settings.items()}, indent=2
+    )
+    logger.info(f"pudl_settings being used: {pretty_settings}")
     return pudl_settings
 
 

@@ -365,8 +365,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
     ) -> pd.DataFrame:
         """Normalize XBRL metadata, select table-specific rows, and transform them."""
         normed_meta = (
-            pd.json_normalize(self.xbrl_metadata_json, max_level=3)
-            .explode("references.Account")
+            pd.json_normalize(self.xbrl_metadata_json)
             .rename(
                 columns={
                     "name": "xbrl_fact_name",
