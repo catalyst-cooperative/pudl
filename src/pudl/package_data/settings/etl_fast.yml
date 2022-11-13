@@ -40,14 +40,14 @@ ferc_to_sqlite_settings:
       - purchased_power_326_duration
       - purchased_power_326_instant
 
-#  ferc2_xbrl_to_sqlite_settings:
-#   years: [2021]
-# ferc6_xbrl_to_sqlite_settings:
-#   years: [2021]
-# ferc60_xbrl_to_sqlite_settings:
-#   years: [2021]
-# ferc714_xbrl_to_sqlite_settings:
-#   years: [2021]
+  ferc2_xbrl_to_sqlite_settings:
+    years: [2021]
+  ferc6_xbrl_to_sqlite_settings:
+    years: [2021]
+  ferc60_xbrl_to_sqlite_settings:
+    years: [2021]
+  ferc714_xbrl_to_sqlite_settings:
+    years: [2021]
 
 ###########################################################################
 # Settings for pudl_etl script
