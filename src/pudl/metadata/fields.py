@@ -564,7 +564,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "The docket number relating to the FERC qualifying facility exempt wholesale generator status.",
     },
-    "ferc_license_id": {
+    "license_id_ferc1": {
         "type": "integer",
         "description": "FERC issued operating license ID for the facility, if available. This value is extracted from the original plant name where possible.",
     },
@@ -771,6 +771,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "Continuous Emissions Monitoring System."
         ),
     },
+    "is_total": {
+        "type": "boolean",
+        "description": "Indicates whether the row is a total.",
+    },
     "iso_rto_code": {
         "type": "string",
         "description": "The code of the plant's ISO or RTO. NA if not reported in that year.",
@@ -958,6 +962,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
         "description": "Average monthly non-coincident peak (NCP) demand (for requirements purhcases, and any transactions involving demand charges). Monthly NCP demand is the maximum metered hourly (60-minute integration) demand in a month. In megawatts.",
         "unit": "MW",
+    },
+    "notes": {
+        "type": "string",
+        "description": "Notes previously in the plant_name_ferc1 field that were extracted and associated with the right plant row.",
     },
     "not_water_limited_capacity_mw": {
         "type": "number",
@@ -1326,10 +1334,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "plant_id_report_year": {
         "type": "string",
         "description": "PUDL plant ID and report year of the record.",
-    },
-    "plant_name_clean": {
-        "type": "string",
-        "description": "A semi-manually cleaned version of the freeform FERC 1 plant name.",
     },
     "plant_name_eia": {"type": "string", "description": "Plant name."},
     "plant_name_ferc1": {
@@ -1703,11 +1707,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "unit": "USD",
     },
     "total_capacity_less_1_mw": {"type": "number", "unit": "MW"},
-    "total_cost_of_plant": {
-        "type": "number",
-        "description": "Total cost of plant (USD).",
-        "unit": "USD",
-    },
     "total_disposition_mwh": {"type": "number", "unit": "MWh"},
     "total_energy_losses_mwh": {"type": "number", "unit": "MWh"},
     "total_fuel_cost": {

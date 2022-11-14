@@ -63,7 +63,7 @@ datasets:
     tables:
       - fuel_ferc1 # requires plants_steam_ferc1 to load properly
       - plants_steam_ferc1
-      # - plants_small_ferc1
+      - plants_small_ferc1
       - plants_hydro_ferc1
       - plant_in_service_ferc1
       - plants_pumped_storage_ferc1
