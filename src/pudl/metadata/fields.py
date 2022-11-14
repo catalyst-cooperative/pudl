@@ -533,6 +533,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "exchange_energy_delivered_mwh": {"type": "number", "unit": "MWh"},
     "exchange_energy_received_mwh": {"type": "number", "unit": "MWh"},
+    "ferc_account": {
+        "type": "string",
+        "description": "Actual FERC Account number (e.g. '359.1') if available, or a PUDL assigned ID when FERC accounts have been split or combined in reporting.",
+    },
     "ferc_account_id": {
         "type": "string",
         "description": "Account identifier from FERC's Uniform System of Accounts for Electric Plant. Includes higher level labeled categories.",
@@ -1474,6 +1478,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "revenue": {"type": "number", "unit": "USD"},
     "revenue_class": {"type": "string", "constraints": {"enum": REVENUE_CLASSES}},
+    "row_type_xbrl": {
+        "type": "string",
+        "description": "Indicates whether the value reported in the row is calculated, or uniquely reported within the table.",
+        "constraints": {"enum": ["calculated", "ferc_account"]},
+    },
     "rto_iso_lmp_node_id": {
         "type": "string",
         "description": "The designation used to identify the price node in RTO/ISO Locational Marginal Price reports",

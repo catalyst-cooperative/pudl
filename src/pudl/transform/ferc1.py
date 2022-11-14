@@ -365,7 +365,15 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
     def normalize_metadata_xbrl(
         self, xbrl_fact_names: list[str] | None
     ) -> pd.DataFrame:
-        """Normalize XBRL metadata, select table-specific rows, and transform them."""
+        """Normalize XBRL metadata, select table-specific rows, and transform them.
+
+        In order to select the relevant rows from the normalized metadata, this function
+        needs to know which XBRL facts pertain to the table being transformed. These are
+        the names of the data columns in the raw XBRL data. To avoid creating a separate
+        dependency on the FERC 1 XBRL DB, we defer the assignment of this class
+        attribute until :meth:`Ferc1AbstractTableTransformer.process_xbrl` is called,
+        and read the column labels from the input dataframes.
+        """
         # If the table has no XBRL metadata, return immediately:
         if not self.xbrl_metadata_json:
             return pd.DataFrame()
@@ -405,6 +413,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             normed_meta = normed_meta.loc[
                 normed_meta.xbrl_fact_name.isin(xbrl_fact_names)
             ]
+        self.xbrl_metadata_normalized = normed_meta
         return normed_meta
 
     @cache_df(key="dbf")
@@ -1253,19 +1262,91 @@ class PlantInServiceFerc1TableTransformer(Ferc1AbstractTableTransformer):
         )
         return df
 
+    def normalize_metadata_xbrl(
+        self, xbrl_fact_names: list[str] | None
+    ) -> pd.DataFrame:
+        """Transform the metadata to reflect the transformed data.
+
+        The XBRL Taxonomy metadata as extracted pertains to the XBRL data as extracted.
+        When we re-shape the data, we also need to adjust the metadata to be usable
+        alongside the reshaped data. For the plant in service table, this means
+        selecting metadata fields that pertain to the "stem" column name (not
+        differentiating between starting/ending balance, retirements, additions, etc.)
+
+        We also need to fill in some gaps in the metadata, e.g. for FERC accounts that
+        have been split across multiple rows, or combined without being calculated.
+        """
+        pis_meta = (
+            super()
+            .normalize_metadata_xbrl(xbrl_fact_names)
+            .rename(columns={"xbrl_fact_name": "ferc_account_label"})
+        )
+
+        # Remove metadata records that pertain to columns we have eliminated through
+        # reshaping:
+        value_types = ["additions", "retirements", "adjustments", "transfers"]
+        pattern = ".*(" + "|".join(value_types) + ")$"
+        pis_meta = pis_meta[~pis_meta["ferc_account_label"].str.match(pattern)]
+
+        # Set pseudo-account numbers for rows that split or combine FERC accounts, but
+        # which are not calculated values.
+        pis_meta.loc[
+            pis_meta.ferc_account_label == "electric_plant_purchased", "ferc_account"
+        ] = "102_purchased"
+        pis_meta.loc[
+            pis_meta.ferc_account_label == "electric_plant_sold", "ferc_account"
+        ] = "102_sold"
+        pis_meta.loc[
+            pis_meta.ferc_account_label
+            == "electric_plant_in_service_and_completed_construction_not_classified_electric",
+            "ferc_account",
+        ] = "101_and_106"
+
+        # Flag the metadata record types
+        pis_meta.loc[pis_meta.calculations.notna(), "row_type_xbrl"] = "calculated"
+        pis_meta.loc[
+            pis_meta.calculations.isna() & pis_meta.ferc_account.notna(),
+            "row_type_xbrl",
+        ] = "ferc_account"
+
+        # Set per-row weights for use in calculating aggregations.
+        pis_meta.loc[pis_meta.balance == "debit", "row_weight"] = 1.0
+        pis_meta.loc[pis_meta.balance == "credit", "row_weight"] = -1.0
+
+        # Save the normalized metadata so it can be used by other methods.
+        self.xbrl_metadata_normalized = pis_meta
+        return pis_meta
+
+    def apply_sign_conventions(self, df) -> pd.DataFrame:
+        """Adjust rows and column sign conventsion to enable aggregation by summing."""
+        # Merge in the metadata
+        df = pd.merge(
+            df, self.xbrl_metadata_normalized, on="ferc_account_label", how="left"
+        )
+
+        # Columns have uniform sign conventions, which we have manually inferred from
+        # the original metadata. This can and probably should be done programmatically
+        # in the future.
+        column_weights = {
+            "starting_balance": 1.0,
+            "additions": 1.0,
+            "retirements": -1.0,
+            "transfers": 1.0,
+            "adjustments": 1.0,
+            "ending_balance": 1.0,
+        }
+
+        # Apply column weightings. Can this be done all at once in a vectorized way?
+        for col in column_weights:
+            df.loc[:, col] *= column_weights[col]
+            df.loc[:, col] *= df["row_weight"]
+
+        return df
+
     @cache_df("main")
     def transform_main(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Main transform.
-
-        Currently no manipulation of the data values is being done, but this method is
-        abstract in the parent class, and so must be defined by all children.
-
-        * Apply column sign conventions (retirements)
-        * Apply row sign conventions (102_sold)
-        * Check that reported numbers add up to ending_balance.
-        * Identify cases where flipping retirements and/or 102_sold fixes errors.
-        """
-        return df
+        """Annotates and transforms the table based on XBRL taxonomy metadata."""
+        return super().transform_main(df).pipe(self.apply_sign_conventions)
 
 
 def transform(
