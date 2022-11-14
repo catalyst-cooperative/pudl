@@ -1273,13 +1273,21 @@ class PlantInServiceFerc1TableTransformer(Ferc1AbstractTableTransformer):
         selecting metadata fields that pertain to the "stem" column name (not
         differentiating between starting/ending balance, retirements, additions, etc.)
 
-        We also need to fill in some gaps in the metadata, e.g. for FERC accounts that
-        have been split across multiple rows, or combined without being calculated.
+        We fill in some gaps in the metadata, e.g. for FERC accounts that have been
+        split across multiple rows, or combined without being calculated. We also need
+        to rename the XBRL metadata categories to conform to the same naming convention
+        that we are using in the data itself (since FERC doesn't quite follow their own
+        naming conventions...). We use the same rename dictionary, but as an argument
+        to :meth:`pd.Series.replace` instead of :meth:`pd.DataFrame.rename`.
         """
         pis_meta = (
             super()
             .normalize_metadata_xbrl(xbrl_fact_names)
-            .rename(columns={"xbrl_fact_name": "ferc_account_label"})
+            .assign(
+                ferc_account_label=lambda x: x.xbrl_fact_name.replace(
+                    self.params.rename_columns_instant_xbrl.columns
+                )
+            )
         )
 
         # Remove metadata records that pertain to columns we have eliminated through
