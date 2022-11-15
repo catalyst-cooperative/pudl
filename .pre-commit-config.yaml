@@ -75,7 +75,7 @@ repos:
 
   # Update Python language constructs to modern standards
   - repo: https://github.com/asottile/pyupgrade
-    rev: v3.2.0
+    rev: v3.2.2
     hooks:
       - id: pyupgrade
         args: ["--py310-plus"]
@@ -123,7 +123,7 @@ repos:
 
   # Lint any RST files and embedded code blocks for syntax / formatting errors
   - repo: https://github.com/rstcheck/rstcheck
-    rev: v6.1.0
+    rev: v6.1.1
     hooks:
       - id: rstcheck
         additional_dependencies: [sphinx]
