@@ -11,6 +11,7 @@ import enum
 import importlib.resources
 import re
 from collections import namedtuple
+from collections.abc import Iterable
 from typing import Any
 
 import numpy as np
@@ -191,7 +192,7 @@ def read_dbf_to_xbrl_map(dbf_table_name: str) -> pd.DataFrame:
     return row_map
 
 
-def fill_dbf_to_xbrl_map(df: pd.DataFrame) -> pd.DataFrame:
+def fill_dbf_to_xbrl_map(df: pd.DataFrame, dbf_years: Iterable[int]) -> pd.DataFrame:
     """Forward-fill missing years in the minimal, manually compiled DBF to XBRL mapping.
 
     Note that we need to indicate which rows have unmappable headers in them, to
@@ -217,7 +218,7 @@ def fill_dbf_to_xbrl_map(df: pd.DataFrame) -> pd.DataFrame:
     # Create an index containing all combinations of report_year and row_number
     idx = pd.MultiIndex.from_product(
         [
-            Ferc1Settings().dbf_years,
+            dbf_years,
             df.row_number.unique(),
         ],
         names=["report_year", "row_number"],
@@ -1196,7 +1197,10 @@ class PlantInServiceFerc1TableTransformer(Ferc1AbstractTableTransformer):
     def align_row_numbers_dbf(self, df: pd.DataFrame) -> pd.DataFrame:
         """Align historical FERC1 DBF row numbers with XBRL account IDs."""
         dbf_to_xbrl_map = fill_dbf_to_xbrl_map(
-            read_dbf_to_xbrl_map(dbf_table_name=self.source_table_id(Ferc1Source.DBF))
+            df=read_dbf_to_xbrl_map(
+                dbf_table_name=self.source_table_id(Ferc1Source.DBF)
+            ),
+            dbf_years=Ferc1Settings().dbf_years,
         )
         return pd.merge(df, dbf_to_xbrl_map, on=["report_year", "row_number"]).rename(
             columns={"xbrl_column_stem": "ferc_account_label"}
@@ -2250,17 +2254,17 @@ if __name__ == "__main__":
     """Make the module runnable for iterative testing during development."""
 
     ferc1_settings = Ferc1Settings(
-        years=[2020, 2021],
+        # years=[2020, 2021],
         # If you want to run it with all years:
-        # years=Ferc1Settings().years,
+        years=Ferc1Settings().years,
         tables=[
-            "fuel_ferc1",
-            "plants_steam_ferc1",
-            "plants_hydro_ferc1",
+            #   "fuel_ferc1",
+            #   "plants_steam_ferc1",
+            #   "plants_hydro_ferc1",
             "plant_in_service_ferc1",
-            "plants_pumped_storage_ferc1",
-            "purchased_power_ferc1",
-            "plants_small_ferc1",
+            #   "plants_pumped_storage_ferc1",
+            #   "purchased_power_ferc1",
+            #   "plants_small_ferc1",
         ],
     )
     pudl_settings = pudl.workspace.setup.get_defaults()
