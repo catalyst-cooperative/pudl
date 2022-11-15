@@ -220,8 +220,8 @@ def get_plants_ferc1_raw(
     """
     plant_tables = [
         "plants_hydro_ferc1",
+        "plants_small_ferc1",
         "plants_pumped_storage_ferc1",
-        # "plants_small_ferc1",
         "plants_steam_ferc1",
         "fuel_ferc1",  # bc it has plants/is associated w/ the steam table
     ]
