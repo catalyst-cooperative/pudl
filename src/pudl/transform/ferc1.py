@@ -35,9 +35,6 @@ from pudl.transform.classes import (
     enforce_snake_case,
 )
 
-# This is only here to keep the module importable. Removal Breaks legacy functions.
-CONSTRUCTION_TYPE_CATEGORIES = {}
-
 logger = pudl.logging_helpers.get_logger(__name__)
 
 
