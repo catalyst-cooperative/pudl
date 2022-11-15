@@ -7,6 +7,7 @@ databases, which are created from scratch and dropped after the tests have compl
 import logging
 from pathlib import Path
 
+import pandas as pd
 import sqlalchemy as sa
 import yaml
 
@@ -24,20 +25,37 @@ def test_pudl_engine(pudl_engine):
     assert "utilities_pudl" in insp.get_table_names()  # nosec: B101
 
 
-def test_ferc1_etl(ferc1_engine_dbf, ferc1_engine_xbrl):
-    """Create a fresh FERC Form 1 SQLite DB and attempt to access it.
+def test_ferc1_xbrl2sqlite(ferc1_engine_xbrl, ferc1_xbrl_taxonomy_metadata):
+    """Attempt to access the XBRL based FERC 1 SQLite DB & XBRL taxonomy metadata.
 
-    Nothing needs to be in the body of this "test" because the database connections are
-    created by the ferc1_engine fixture defined in conftest.py
+    We're testing both the SQLite & JSON taxonomy here because they are generated
+    together by the FERC 1 XBRL ETL.
     """
-    assert isinstance(ferc1_engine_dbf, sa.engine.Engine)  # nosec: B101
-    assert (  # nosec: B101
-        "f1_respondent_id" in sa.inspect(ferc1_engine_dbf).get_table_names()
-    )
-
+    # Does the database exist, and contain a table we expect it to contain?
     assert isinstance(ferc1_engine_xbrl, sa.engine.Engine)  # nosec: B101
     assert (  # nosec: B101
         "identification_001_duration" in sa.inspect(ferc1_engine_xbrl).get_table_names()
+    )
+
+    # Has the metadata we've read in from JSON contain a long list of entities?
+    assert isinstance(ferc1_xbrl_taxonomy_metadata, list)  # nosec: B101
+    assert len(ferc1_xbrl_taxonomy_metadata) > 2500  # nosec: B101
+
+    # Can we normalize that list of entities and find data in it that we expect?
+    df = pd.json_normalize(ferc1_xbrl_taxonomy_metadata)
+    assert (  # nosec: B101
+        df.loc[df.name == "spent_nuclear_fuel", "balance"].values == "debit"
+    )
+    assert (  # nosec: B101
+        df.loc[df.name == "spent_nuclear_fuel", "references.Account"].values == "120.4"
+    )
+
+
+def test_ferc1_dbf2sqlite(ferc1_engine_dbf):
+    """Attempt to access the DBF based FERC 1 SQLite DB fixture."""
+    assert isinstance(ferc1_engine_dbf, sa.engine.Engine)  # nosec: B101
+    assert (  # nosec: B101
+        "f1_respondent_id" in sa.inspect(ferc1_engine_dbf).get_table_names()
     )
 
 
