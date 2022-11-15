@@ -306,7 +306,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         params: TableTransformParams | None = None,
         cache_dfs: bool = False,
         clear_cached_dfs: bool = True,
-        ferc1_xbrl_raw_meta: list[dict[Any]] | None = None,
+        xbrl_metadata_json: list[dict[Any]] | None = None,
     ) -> None:
         """Augment inherited initializer to store XBRL metadata in the class."""
         super().__init__(
@@ -315,8 +315,8 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             clear_cached_dfs=clear_cached_dfs,
         )
         # Many tables don't require this input:
-        if ferc1_xbrl_raw_meta:
-            self.xbrl_metadata_json = ferc1_xbrl_raw_meta
+        if xbrl_metadata_json:
+            self.xbrl_metadata_json = xbrl_metadata_json
 
     @cache_df(key="start")
     def transform_start(
@@ -395,11 +395,6 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                     "ferc_account",
                 ],
             ]
-        )
-        normed_meta = normed_meta.mask(
-            # Replace empty lists with NA
-            normed_meta.applymap(type).eq(list)
-            & ~normed_meta.astype(bool)
         )
         # Use nullable strings, converting NaN to pd.NA
         normed_meta = normed_meta.astype(
@@ -1311,30 +1306,34 @@ class PlantInServiceFerc1TableTransformer(Ferc1AbstractTableTransformer):
         ] = "101_and_106"
 
         # Flag the metadata record types
-        pis_meta.loc[pis_meta.calculations.notna(), "row_type_xbrl"] = "calculated"
+        pis_meta.loc[pis_meta.calculations.astype(bool), "row_type_xbrl"] = "calculated"
         pis_meta.loc[
-            pis_meta.calculations.isna() & pis_meta.ferc_account.notna(),
+            ~pis_meta.calculations.astype(bool) & pis_meta.ferc_account.notna(),
             "row_type_xbrl",
         ] = "ferc_account"
-
-        # Set per-row weights for use in calculating aggregations.
-        pis_meta.loc[pis_meta.balance == "debit", "row_weight"] = 1.0
-        pis_meta.loc[pis_meta.balance == "credit", "row_weight"] = -1.0
-
         # Save the normalized metadata so it can be used by other methods.
         self.xbrl_metadata_normalized = pis_meta
         return pis_meta
 
-    def apply_sign_conventions(self, df) -> pd.DataFrame:
-        """Adjust rows and column sign conventsion to enable aggregation by summing."""
-        # Merge in the metadata
-        df = pd.merge(
+    def merge_metadata(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Combine XBRL-derived metadata with the data it pertains to.
+
+        While the metadata we're using to annotate the data comes from the more recent
+        XBRL data, it applies generally to all the historical DBF data as well! This
+        method reads the normalized metadata out of an attribute.
+        """
+        return pd.merge(
             df, self.xbrl_metadata_normalized, on="ferc_account_label", how="left"
         )
 
-        # Columns have uniform sign conventions, which we have manually inferred from
-        # the original metadata. This can and probably should be done programmatically
-        # in the future.
+    def apply_sign_conventions(self, df) -> pd.DataFrame:
+        """Adjust rows and column sign conventsion to enable aggregation by summing.
+
+        Columns have uniform sign conventions, which we have manually inferred from the
+        original metadata. This can and probably should be done programmatically in the
+        future. If not, we'll probably want to store the column_weights as a parameter
+        rather than hard-coding it in here.
+        """
         column_weights = {
             "starting_balance": 1.0,
             "additions": 1.0,
@@ -1343,6 +1342,10 @@ class PlantInServiceFerc1TableTransformer(Ferc1AbstractTableTransformer):
             "adjustments": 1.0,
             "ending_balance": 1.0,
         }
+
+        # Set row weights based on the value of the "balance" field
+        df.loc[df.balance == "debit", "row_weight"] = 1.0
+        df.loc[df.balance == "credit", "row_weight"] = -1.0
 
         # Apply column weightings. Can this be done all at once in a vectorized way?
         for col in column_weights:
@@ -1354,13 +1357,18 @@ class PlantInServiceFerc1TableTransformer(Ferc1AbstractTableTransformer):
     @cache_df("main")
     def transform_main(self, df: pd.DataFrame) -> pd.DataFrame:
         """Annotates and transforms the table based on XBRL taxonomy metadata."""
-        return super().transform_main(df).pipe(self.apply_sign_conventions)
+        return (
+            super()
+            .transform_main(df)
+            .pipe(self.merge_metadata)
+            .pipe(self.apply_sign_conventions)
+        )
 
 
 def transform(
     ferc1_dbf_raw_dfs: dict[str, pd.DataFrame],
     ferc1_xbrl_raw_dfs: dict[str, dict[str, pd.DataFrame]],
-    ferc1_xbrl_raw_meta: list[dict[Any]],
+    xbrl_metadata_json: list[dict[Any]],
     ferc1_settings: Ferc1Settings | None = None,
 ) -> dict[str, pd.DataFrame]:
     """Coordinate the transformation of all FERC Form 1 tables.
@@ -1397,7 +1405,7 @@ def transform(
             )
 
             ferc1_transformed_dfs[table] = ferc1_tfr_classes[table](
-                ferc1_xbrl_raw_meta=ferc1_xbrl_raw_meta,
+                xbrl_metadata_json=xbrl_metadata_json,
             ).transform(
                 raw_dbf=ferc1_dbf_raw_dfs[table],
                 raw_xbrl_instant=ferc1_xbrl_raw_dfs[table].get(
@@ -1411,7 +1419,7 @@ def transform(
     # aid in FERC plant ID assignment.
     if "plants_steam_ferc1" in ferc1_settings.tables:
         ferc1_transformed_dfs["plants_steam_ferc1"] = PlantsSteamFerc1TableTransformer(
-            ferc1_xbrl_raw_meta=ferc1_xbrl_raw_meta
+            xbrl_metadata_json=xbrl_metadata_json
         ).transform(
             raw_dbf=ferc1_dbf_raw_dfs["plants_steam_ferc1"],
             raw_xbrl_instant=ferc1_xbrl_raw_dfs["plants_steam_ferc1"].get(
@@ -1453,11 +1461,11 @@ if __name__ == "__main__":
     ferc1_xbrl_raw_dfs = pudl.extract.ferc1.extract_xbrl(
         ferc1_settings=ferc1_settings, pudl_settings=pudl_settings
     )
-    ferc1_xbrl_raw_meta = pudl.extract.ferc1.extract_xbrl_metadata(pudl_settings)
+    xbrl_metadata_json = pudl.extract.ferc1.extract_xbrl_metadata(pudl_settings)
     dfs = transform(
         ferc1_dbf_raw_dfs=ferc1_dbf_raw_dfs,
         ferc1_xbrl_raw_dfs=ferc1_xbrl_raw_dfs,
-        ferc1_xbrl_raw_meta=ferc1_xbrl_raw_meta,
+        xbrl_metadata_json=xbrl_metadata_json,
         ferc1_settings=ferc1_settings,
     )
 
