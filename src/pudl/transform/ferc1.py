@@ -147,7 +147,7 @@ def get_ferc1_dbf_rows_to_map(ferc1_engine: sa.engine.Engine) -> pd.DataFrame:
     return row_lit.loc[row_lit.changed, idx_cols + data_cols]
 
 
-def update_ferc1_dbf_xbrl_glue(ferc1_engine: sa.engine.Engine) -> pd.DataFrame:
+def update_dbf_to_xbrl_map(ferc1_engine: sa.engine.Engine) -> pd.DataFrame:
     """Regenerate the FERC 1 DBF+XBRL glue while retaining existing mappings.
 
     Reads all rows that need to be mapped out of the ``f1_row_lit_tbl`` and appends
@@ -168,8 +168,8 @@ def update_ferc1_dbf_xbrl_glue(ferc1_engine: sa.engine.Engine) -> pd.DataFrame:
     )
 
 
-def get_ferc1_dbf_xbrl_glue(dbf_table_name: str) -> pd.DataFrame:
-    """Read the DBF+XBRL glue and expand it to cover all DBF years."""
+def read_dbf_to_xbrl_map(dbf_table_name: str) -> pd.DataFrame:
+    """Read the manually compiled DBF row to XBRL column mapping for a given table."""
     with importlib.resources.open_text(
         "pudl.package_data.ferc1", "dbf_to_xbrl.csv"
     ) as file:
@@ -188,52 +188,60 @@ def get_ferc1_dbf_xbrl_glue(dbf_table_name: str) -> pd.DataFrame:
         row_map.sched_table_name == dbf_table_name,
         ["report_year", "row_number", "row_type", "xbrl_column_stem"],
     ]
-    # Indicate which rows have unmappable headers in them, to differentiate them from
-    # null values in the exhaustive index we create below.
-    # We need the ROW_HEADER sentinel value so we can distinguish
-    # between two different reasons that we might find NULL values in the
-    # xbrl_column_stem field:
-    # 1. It's NULL because it's between two valid mapped values (the NULL was created
-    #    in our filling of the time series) and should thus be filled in, or
-    # 2. It's NULL because it was a header row in the DBF data, which means it should
-    #    NOT be filled in. Without the HEADER_ROW value, when a row number from year X
-    #    becomes associated with a non-header row in year X+1
-    #    the ffill will keep right on filling, associating all of the new header rows
-    #    with the value of xbrl_column_stem that was associated with the old row number.
-    row_map.loc[
-        (row_map.row_type == "header") & (row_map.xbrl_column_stem.isna()),
+    return row_map
+
+
+def fill_dbf_to_xbrl_map(df: pd.DataFrame) -> pd.DataFrame:
+    """Forward-fill missing years in the minimal, manually compiled DBF to XBRL mapping.
+
+    Note that we need to indicate which rows have unmappable headers in them, to
+    differentiate them from null values in the exhaustive index we create below. We
+    set a ``ROW_HEADER`` sentinel value so we can distinguish between two different
+    reasons that we might find NULL values in the ``xbrl_column_stem`` field:
+
+    1. It's NULL because it's between two valid mapped values (the NULL was created
+       in our filling of the time series) and should thus be filled in, or
+
+    2. It's NULL because it was a header row in the DBF data, which means it should
+       NOT be filled in. Without the ``HEADER_ROW`` value, when a row number from year X
+       becomes associated with a non-header row in year X+1 the ffill will keep right on
+       filling, associating all of the new header rows with the value of
+       ``xbrl_column_stem`` that was associated with the old row number.
+    """
+    df.loc[
+        (df.row_type == "header") & (df.xbrl_column_stem.isna()),
         "xbrl_column_stem",
     ] == "HEADER_ROW"
-    row_map = row_map.drop(["row_type"], axis="columns")
+    df = df.drop(["row_type"], axis="columns")
 
-    # Create an index containing all possible index values:
+    # Create an index containing all combinations of report_year and row_number
     idx = pd.MultiIndex.from_product(
         [
             Ferc1Settings().dbf_years,
-            row_map.row_number.unique(),
+            df.row_number.unique(),
         ],
         names=["report_year", "row_number"],
     )
 
     # Concatenate the row map with the empty index, so we have blank spaces to fill:
-    row_map = pd.concat(
+    df = pd.concat(
         [
             pd.DataFrame(index=idx),
-            row_map.set_index(["report_year", "row_number"]),
+            df.set_index(["report_year", "row_number"]),
         ],
         axis="columns",
     ).reset_index()
 
     # Forward fill missing XBRL column names, until a new definition for the row
     # number is encountered:
-    row_map["xbrl_column_stem"] = row_map.groupby(
-        "row_number"
-    ).xbrl_column_stem.transform("ffill")
+    df["xbrl_column_stem"] = df.groupby("row_number").xbrl_column_stem.transform(
+        "ffill"
+    )
     # Drop any rows that do not actually map between DBF rows and XBRL columns:
-    row_map = row_map.replace({"xbrl_column_stem": {"HEADER_ROW": np.nan}}).dropna(
+    df = df.replace({"xbrl_column_stem": {"HEADER_ROW": np.nan}}).dropna(
         subset=["xbrl_column_stem"]
     )
-    return row_map
+    return df
 
 
 def get_data_cols_raw_xbrl(
@@ -1187,11 +1195,12 @@ class PlantInServiceFerc1TableTransformer(Ferc1AbstractTableTransformer):
     @cache_df(key="dbf")
     def align_row_numbers_dbf(self, df: pd.DataFrame) -> pd.DataFrame:
         """Align historical FERC1 DBF row numbers with XBRL account IDs."""
-        return pd.merge(
-            df,
-            get_ferc1_dbf_xbrl_glue(self.source_table_id(Ferc1Source.DBF)),
-            on=["report_year", "row_number"],
-        ).rename(columns={"xbrl_column_stem": "ferc_account_label"})
+        dbf_to_xbrl_map = fill_dbf_to_xbrl_map(
+            read_dbf_to_xbrl_map(dbf_table_name=self.source_table_id(Ferc1Source.DBF))
+        )
+        return pd.merge(df, dbf_to_xbrl_map, on=["report_year", "row_number"]).rename(
+            columns={"xbrl_column_stem": "ferc_account_label"}
+        )
 
     @cache_df("process_instant_xbrl")
     def process_instant_xbrl(self, df: pd.DataFrame) -> pd.DataFrame:
