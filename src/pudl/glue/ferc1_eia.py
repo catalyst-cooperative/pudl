@@ -204,7 +204,13 @@ class GenericPlantFerc1TableTransformer(Ferc1AbstractTableTransformer):
         )
 
     def drop_invalid_rows(self, df):
-        """Overwrite."""
+        """Add required valid columns before running standard drop_invalid_rows.
+
+        This parent classes' method drops the whole df if all of the
+        ``require_valid_columns`` don't exist in the df. For the glue tests only, we add
+        in empty required columns because we know that the real ETL adds columns during
+        the full transform step.
+        """
         # ensure the required columns are actually in the df
         list_of_lists_of_required_valid_cols = [
             param.required_valid_cols
