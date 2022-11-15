@@ -40,6 +40,24 @@ Data Coverage
   and place in the PUDL db. For now there's a ``epacamd_eia`` output table you can use
   to merge CEMS and EIA data yourself :pr:`1692`. Eventually we'll work these crosswalk
   values into an output table combining CEMS and EIA.
+* Integrated 2021 from the :doc:`data_sources/ferc1` data. FERC updated its reporting
+  format for 2021 from a DBF file to a XBRL files. This required a major overhaul of
+  the extract and transform step. The updates were accumulated in :pr:`1665`. The raw
+  XBRL data is being extracted through a
+  `FERC XBRL Extractor <https://github.com/catalyst-cooperative/ferc-xbrl-extractor>`__.
+  This work is ongoing with additional tasks being tracked in :issue:`1574`. Specific
+  updates in this release include:
+
+  * Convert XBRL into raw sqlite database :pr:`1831`
+  * Build transformer infrastructure & Add :ref:`fuel_ferc1` table :pr:`1721`
+  * Map utility XBRL and DBF utility IDs :pr:`1931`
+  * Add :ref:`plants_steam_ferc1` table :pr:`1881`
+  * Add :ref:`plants_hydro_ferc1` :pr:`1992`
+  * Add :ref:`plants_pumped_storage_ferc1` :pr:`2005`
+  * Add :ref:`purchased_power_ferc1` :pr:`2011`
+  * Add :ref:`plants_small_ferc1` table :pr:`2035`
+  * Add :ref:`plant_in_service_ferc1` table :pr:`2025` & :pr:`2058`
+
 
 Data Analysis
 ^^^^^^^^^^^^^

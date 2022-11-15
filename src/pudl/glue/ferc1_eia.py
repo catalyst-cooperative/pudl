@@ -61,11 +61,10 @@ MIN_PLANT_CAPACITY_MW: float = 5.0
 MAX_LOST_PLANTS_EIA: int = 50
 MAX_LOST_UTILS_EIA: int = 10
 
+
 #####################################
 # Stored Maps of plants and utilities
 #####################################
-
-
 def get_plant_map() -> pd.DataFrame:
     """Read in the manual FERC to EIA plant mapping data."""
     return pd.read_excel(
@@ -132,8 +131,6 @@ def get_mapped_plants_eia():
 ##########################
 # Raw Plants and Utilities
 ##########################
-
-
 def get_util_ids_ferc1_raw_xbrl(ferc1_engine_xbrl: sa.engine.Engine) -> pd.DataFrame:
     """Grab the utility ids (reported as `entity_id`) in the FERC1 XBRL database."""
     all_utils_ferc1_xbrl = (
@@ -205,6 +202,34 @@ class GenericPlantFerc1TableTransformer(Ferc1AbstractTableTransformer):
             .pipe(self.drop_invalid_rows)
             .assign(plant_table=self.table_id.value)
         )
+
+    def drop_invalid_rows(self, df):
+        """Add required valid columns before running standard drop_invalid_rows.
+
+        This parent classes' method drops the whole df if all of the
+        ``require_valid_columns`` don't exist in the df. For the glue tests only, we add
+        in empty required columns because we know that the real ETL adds columns during
+        the full transform step.
+        """
+        # ensure the required columns are actually in the df
+        list_of_lists_of_required_valid_cols = [
+            param.required_valid_cols
+            for param in self.params.drop_invalid_rows
+            if param.required_valid_cols
+        ]
+        required_valid_cols = pudl.helpers.dedupe_n_flatten_list_of_lists(
+            list_of_lists_of_required_valid_cols
+        )
+        if required_valid_cols:
+            missing_required_cols = set(required_valid_cols).difference(df.columns)
+            if missing_required_cols:
+                logger.info(
+                    f"{self.table_id.value}: Found required columns for "
+                    "`drop_invalid_rows`. Adding empty columns for: "
+                    f"{missing_required_cols}"
+                )
+                df.loc[:, missing_required_cols] = pd.NA
+        return super().drop_invalid_rows(df)
 
 
 def get_plants_ferc1_raw(
@@ -285,8 +310,6 @@ def get_plants_ferc1_raw(
 ###############################
 # Unmapped plants and utilities
 ###############################
-
-
 def get_missing_ids(
     ids_left: pd.DataFrame,
     ids_right: pd.DataFrame,
@@ -466,8 +489,6 @@ def get_util_ids_eia_unmapped(
 #################
 # Glue Tables ETL
 #################
-
-
 def glue(ferc1=False, eia=False):
     """Generates a dictionary of dataframes for glue tables between FERC1, EIA.
 

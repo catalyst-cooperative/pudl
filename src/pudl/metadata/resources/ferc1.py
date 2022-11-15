@@ -72,6 +72,8 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "utility_id_ferc1",
                 "report_year",
                 "ferc_account_label",
+                "ferc_account",
+                "row_type_xbrl",
                 "starting_balance",
                 "additions",
                 "retirements",
