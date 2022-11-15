@@ -22,6 +22,6 @@ def test_dbf_to_xbrl_map(dbf_table_name):
             "row_number"
         ].nunique()
         <= 1
-    ).any()
+    ).all()
 
     assert dbf_to_xbrl_mapping_is_unique  # nosec: B101
