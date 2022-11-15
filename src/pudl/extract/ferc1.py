@@ -265,7 +265,7 @@ class Ferc1DbfDatastore:
         """Opens given ferc1 file from the corresponding archive."""
         if year not in self._cache:
             self._cache[year] = self.datastore.get_zipfile_resource(
-                "ferc1", year=year, data_format="DBF"
+                "ferc1", year=year, data_format="dbf"
             )
         archive = self._cache[year]
         try:
