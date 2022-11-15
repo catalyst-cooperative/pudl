@@ -43,7 +43,7 @@ Data Coverage
 * Integrated 2021 from the :doc:`data_sources/ferc1` data. FERC updated its reporting
   format for 2021 from a DBF file to a XBRL files. This required a major overhaul of
   the extract and transform step. The updates were accumulated in :pr:`1665`. The raw
-  XBRL data is being extracted through a 
+  XBRL data is being extracted through a
   `FERC XBRL Extractor <https://github.com/catalyst-cooperative/ferc-xbrl-extractor>`__.
   This work is ongoing with additional tasks being tracked in :issue:`1574`. Specific
   updates in this release include:
