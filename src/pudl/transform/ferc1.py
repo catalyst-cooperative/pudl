@@ -11,6 +11,7 @@ import enum
 import importlib.resources
 import re
 from collections import namedtuple
+from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -23,7 +24,6 @@ from pudl.analysis.classify_plants_ferc1 import (
 )
 from pudl.extract.ferc1 import TABLE_NAME_MAP
 from pudl.helpers import convert_cols_dtypes
-from pudl.metadata.dfs import FERC_DEPRECIATION_LINES
 from pudl.settings import Ferc1Settings
 from pudl.transform.classes import (
     AbstractTableTransformer,
@@ -34,9 +34,6 @@ from pudl.transform.classes import (
     cache_df,
     enforce_snake_case,
 )
-
-# This is only here to keep the module importable. Removal Breaks legacy functions.
-CONSTRUCTION_TYPE_CATEGORIES = {}
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
@@ -239,6 +236,33 @@ def get_ferc1_dbf_xbrl_glue(dbf_table_name: str) -> pd.DataFrame:
     return row_map
 
 
+def get_data_cols_raw_xbrl(
+    raw_xbrl_instant: pd.DataFrame,
+    raw_xbrl_duration: pd.DataFrame,
+) -> list[str]:
+    """Get a list of all XBRL data columns appearing in a given XBRL table.
+
+    Returns:
+        A list of all the data columns found in the original XBRL DB that correspond to
+        the given PUDL table. Includes columns from both the instant and duration tables
+        but excludes structural columns that appear in all XBRL tables.
+    """
+    excluded_cols = [
+        "date",
+        "end_date",
+        "entity_id",
+        "filing_name",
+        "index",
+        "report_year",
+        "start_date",
+    ]
+    return sorted(
+        set(raw_xbrl_instant.columns)
+        .union(raw_xbrl_duration.columns)
+        .difference(excluded_cols)
+    )
+
+
 ################################################################################
 # FERC 1 specific TableTransformer classes
 ################################################################################
@@ -265,6 +289,29 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
     they serve only a forensic purpose, telling us where to find the original source of
     the transformed data.
     """
+
+    xbrl_metadata_json: list[dict[Any]] = []
+    """An array of JSON objects extracted from the FERC 1 XBRL taxonomy."""
+
+    xbrl_metadata_normalized: pd.DataFrame = pd.DataFrame()
+    """A semi-normalized dataframe containing table-specific XBRL metadata."""
+
+    def __init__(
+        self,
+        params: TableTransformParams | None = None,
+        cache_dfs: bool = False,
+        clear_cached_dfs: bool = True,
+        xbrl_metadata_json: list[dict[Any]] | None = None,
+    ) -> None:
+        """Augment inherited initializer to store XBRL metadata in the class."""
+        super().__init__(
+            params=params,
+            cache_dfs=cache_dfs,
+            clear_cached_dfs=clear_cached_dfs,
+        )
+        # Many tables don't require this input:
+        if xbrl_metadata_json:
+            self.xbrl_metadata_json = xbrl_metadata_json
 
     @cache_df(key="start")
     def transform_start(
@@ -310,6 +357,55 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         """Enforce the database schema and remove any cached dataframes."""
         return self.enforce_schema(df)
 
+    def normalize_metadata_xbrl(
+        self, xbrl_fact_names: list[str] | None
+    ) -> pd.DataFrame:
+        """Normalize XBRL metadata, select table-specific rows, and transform them.
+
+        In order to select the relevant rows from the normalized metadata, this function
+        needs to know which XBRL facts pertain to the table being transformed. These are
+        the names of the data columns in the raw XBRL data. To avoid creating a separate
+        dependency on the FERC 1 XBRL DB, we defer the assignment of this class
+        attribute until :meth:`Ferc1AbstractTableTransformer.process_xbrl` is called,
+        and read the column labels from the input dataframes.
+        """
+        # If the table has no XBRL metadata, return immediately:
+        if not self.xbrl_metadata_json:
+            return pd.DataFrame()
+
+        normed_meta = (
+            pd.json_normalize(self.xbrl_metadata_json)
+            .rename(
+                columns={
+                    "name": "xbrl_fact_name",
+                    "references.Account": "ferc_account",
+                }
+            )
+            .loc[
+                :,
+                [
+                    "xbrl_fact_name",
+                    "balance",
+                    "calculations",
+                    "ferc_account",
+                ],
+            ]
+        )
+        # Use nullable strings, converting NaN to pd.NA
+        normed_meta = normed_meta.astype(
+            {
+                "xbrl_fact_name": pd.StringDtype(),
+                "balance": pd.StringDtype(),
+                "ferc_account": pd.StringDtype(),
+            }
+        )
+        if xbrl_fact_names:
+            normed_meta = normed_meta.loc[
+                normed_meta.xbrl_fact_name.isin(xbrl_fact_names)
+            ]
+        self.xbrl_metadata_normalized = normed_meta
+        return normed_meta
+
     @cache_df(key="dbf")
     def align_row_numbers_dbf(self, df: pd.DataFrame) -> pd.DataFrame:
         """Align row-numbers across multiple years of DBF data.
@@ -348,6 +444,13 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
     ) -> pd.DataFrame:
         """XBRL-specific transformations that take place before concatenation."""
         logger.info(f"{self.table_id.value}: Processing XBRL data pre-concatenation.")
+        logger.info(f"{self.table_id.value}: Normalizing XBRL taxonomy metadata.")
+        self.xbrl_metadata_normalized = self.normalize_metadata_xbrl(
+            xbrl_fact_names=get_data_cols_raw_xbrl(
+                raw_xbrl_duration=raw_xbrl_duration,
+                raw_xbrl_instant=raw_xbrl_instant,
+            )
+        )
         return (
             self.merge_instant_and_duration_tables_xbrl(
                 raw_xbrl_instant, raw_xbrl_duration
@@ -1166,19 +1269,116 @@ class PlantInServiceFerc1TableTransformer(Ferc1AbstractTableTransformer):
         )
         return df
 
+    def normalize_metadata_xbrl(
+        self, xbrl_fact_names: list[str] | None
+    ) -> pd.DataFrame:
+        """Transform the metadata to reflect the transformed data.
+
+        The XBRL Taxonomy metadata as extracted pertains to the XBRL data as extracted.
+        When we re-shape the data, we also need to adjust the metadata to be usable
+        alongside the reshaped data. For the plant in service table, this means
+        selecting metadata fields that pertain to the "stem" column name (not
+        differentiating between starting/ending balance, retirements, additions, etc.)
+
+        We fill in some gaps in the metadata, e.g. for FERC accounts that have been
+        split across multiple rows, or combined without being calculated. We also need
+        to rename the XBRL metadata categories to conform to the same naming convention
+        that we are using in the data itself (since FERC doesn't quite follow their own
+        naming conventions...). We use the same rename dictionary, but as an argument
+        to :meth:`pd.Series.replace` instead of :meth:`pd.DataFrame.rename`.
+        """
+        pis_meta = (
+            super()
+            .normalize_metadata_xbrl(xbrl_fact_names)
+            .assign(
+                ferc_account_label=lambda x: x.xbrl_fact_name.replace(
+                    self.params.rename_columns_instant_xbrl.columns
+                )
+            )
+        )
+
+        # Remove metadata records that pertain to columns we have eliminated through
+        # reshaping. The *_starting_balance and *_ending_balance columns come from the
+        # instant table, but they have no suffix there -- they just show up as the
+        # stem (e.g. land_and_land_rights_general_plant). So by removing any column
+        # that has these four value type suffixes, we're left with only the stem
+        # categories.
+        value_types = ["additions", "retirements", "adjustments", "transfers"]
+        pattern = ".*(" + "|".join(value_types) + ")$"
+        pis_meta = pis_meta[~pis_meta["ferc_account_label"].str.match(pattern)]
+
+        # Set pseudo-account numbers for rows that split or combine FERC accounts, but
+        # which are not calculated values.
+        pis_meta.loc[
+            pis_meta.ferc_account_label == "electric_plant_purchased", "ferc_account"
+        ] = "102_purchased"
+        pis_meta.loc[
+            pis_meta.ferc_account_label == "electric_plant_sold", "ferc_account"
+        ] = "102_sold"
+        pis_meta.loc[
+            pis_meta.ferc_account_label
+            == "electric_plant_in_service_and_completed_construction_not_classified_electric",
+            "ferc_account",
+        ] = "101_and_106"
+
+        # Flag the metadata record types
+        pis_meta.loc[pis_meta.calculations.astype(bool), "row_type_xbrl"] = "calculated"
+        pis_meta.loc[
+            ~pis_meta.calculations.astype(bool) & pis_meta.ferc_account.notna(),
+            "row_type_xbrl",
+        ] = "ferc_account"
+        # Save the normalized metadata so it can be used by other methods.
+        self.xbrl_metadata_normalized = pis_meta
+        return pis_meta
+
+    def merge_metadata(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Combine XBRL-derived metadata with the data it pertains to.
+
+        While the metadata we're using to annotate the data comes from the more recent
+        XBRL data, it applies generally to all the historical DBF data as well! This
+        method reads the normalized metadata out of an attribute.
+        """
+        return pd.merge(
+            df, self.xbrl_metadata_normalized, on="ferc_account_label", how="left"
+        )
+
+    def apply_sign_conventions(self, df) -> pd.DataFrame:
+        """Adjust rows and column sign conventsion to enable aggregation by summing.
+
+        Columns have uniform sign conventions, which we have manually inferred from the
+        original metadata. This can and probably should be done programmatically in the
+        future. If not, we'll probably want to store the column_weights as a parameter
+        rather than hard-coding it in here.
+        """
+        column_weights = {
+            "starting_balance": 1.0,
+            "additions": 1.0,
+            "retirements": -1.0,
+            "transfers": 1.0,
+            "adjustments": 1.0,
+            "ending_balance": 1.0,
+        }
+
+        # Set row weights based on the value of the "balance" field
+        df.loc[df.balance == "debit", "row_weight"] = 1.0
+        df.loc[df.balance == "credit", "row_weight"] = -1.0
+
+        # Apply column weightings. Can this be done all at once in a vectorized way?
+        for col in column_weights:
+            df.loc[:, col] *= column_weights[col]
+            df.loc[:, col] *= df["row_weight"]
+
+        return df
+
     @cache_df("main")
     def transform_main(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Main transform.
-
-        Currently no manipulation of the data values is being done, but this method is
-        abstract in the parent class, and so must be defined by all children.
-
-        * Apply column sign conventions (retirements)
-        * Apply row sign conventions (102_sold)
-        * Check that reported numbers add up to ending_balance.
-        * Identify cases where flipping retirements and/or 102_sold fixes errors.
-        """
-        return df
+        """Annotates and transforms the table based on XBRL taxonomy metadata."""
+        return (
+            super()
+            .transform_main(df)
+            .pipe(self.merge_metadata)
+            .pipe(self.apply_sign_conventions)
+        )
 
 
 class PlantsSmallFerc1TableTransformer(Ferc1AbstractTableTransformer):
@@ -1966,6 +2166,7 @@ class PlantsSmallFerc1TableTransformer(Ferc1AbstractTableTransformer):
 def transform(
     ferc1_dbf_raw_dfs: dict[str, pd.DataFrame],
     ferc1_xbrl_raw_dfs: dict[str, dict[str, pd.DataFrame]],
+    xbrl_metadata_json: list[dict[Any]],
     ferc1_settings: Ferc1Settings | None = None,
 ) -> dict[str, pd.DataFrame]:
     """Coordinate the transformation of all FERC Form 1 tables.
@@ -1975,6 +2176,8 @@ def transform(
             dataframes (values).
         ferc1_xbrl_raw_dfs: Nested dictionary containing both an instant and duration
             table for each input XBRL table. Some of these are empty.
+        xbrl_metadata_json: FERC 1XBRL taxonomy metadata exported as an array of JSON
+            objects.
         ferc1_settings: Validated FERC 1 ETL settings.
 
     Returns:
@@ -1990,7 +2193,6 @@ def transform(
         "plant_in_service_ferc1": PlantInServiceFerc1TableTransformer,
         "plants_pumped_storage_ferc1": PlantsPumpedStorageFerc1TableTransformer,
         "purchased_power_ferc1": PurchasedPowerTableTransformer,
-        # "accumulated_depreciation_ferc1": accumulated_depreciation,
     }
     # create an empty ditctionary to fill up through the transform fuctions
     ferc1_transformed_dfs = {}
@@ -2001,7 +2203,9 @@ def transform(
                 f"Transforming raw FERC Form 1 dataframe for loading into {table}"
             )
 
-            ferc1_transformed_dfs[table] = ferc1_tfr_classes[table]().transform(
+            ferc1_transformed_dfs[table] = ferc1_tfr_classes[table](
+                xbrl_metadata_json=xbrl_metadata_json,
+            ).transform(
                 raw_dbf=ferc1_dbf_raw_dfs[table],
                 raw_xbrl_instant=ferc1_xbrl_raw_dfs[table].get(
                     "instant", pd.DataFrame()
@@ -2013,9 +2217,9 @@ def transform(
     # Bespoke exception. fuel must come before steam b/c fuel proportions are used to
     # aid in FERC plant ID assignment.
     if "plants_steam_ferc1" in ferc1_settings.tables:
-        ferc1_transformed_dfs[
-            "plants_steam_ferc1"
-        ] = PlantsSteamFerc1TableTransformer().transform(
+        ferc1_transformed_dfs["plants_steam_ferc1"] = PlantsSteamFerc1TableTransformer(
+            xbrl_metadata_json=xbrl_metadata_json
+        ).transform(
             raw_dbf=ferc1_dbf_raw_dfs["plants_steam_ferc1"],
             raw_xbrl_instant=ferc1_xbrl_raw_dfs["plants_steam_ferc1"].get(
                 "instant", pd.DataFrame()
@@ -2038,6 +2242,7 @@ if __name__ == "__main__":
 
     ferc1_settings = Ferc1Settings(
         years=[2020, 2021],
+        # If you want to run it with all years:
         # years=Ferc1Settings().years,
         tables=[
             "fuel_ferc1",
@@ -2050,63 +2255,16 @@ if __name__ == "__main__":
         ],
     )
     pudl_settings = pudl.workspace.setup.get_defaults()
-    raw_dbf = pudl.extract.ferc1.extract_dbf(
+    ferc1_dbf_raw_dfs = pudl.extract.ferc1.extract_dbf(
         ferc1_settings=ferc1_settings, pudl_settings=pudl_settings
     )
-    raw_xbrl = pudl.extract.ferc1.extract_xbrl(
+    ferc1_xbrl_raw_dfs = pudl.extract.ferc1.extract_xbrl(
         ferc1_settings=ferc1_settings, pudl_settings=pudl_settings
     )
+    xbrl_metadata_json = pudl.extract.ferc1.extract_xbrl_metadata(pudl_settings)
     dfs = transform(
-        ferc1_dbf_raw_dfs=raw_dbf,
-        ferc1_xbrl_raw_dfs=raw_xbrl,
+        ferc1_dbf_raw_dfs=ferc1_dbf_raw_dfs,
+        ferc1_xbrl_raw_dfs=ferc1_xbrl_raw_dfs,
+        xbrl_metadata_json=xbrl_metadata_json,
         ferc1_settings=ferc1_settings,
     )
-
-
-########################################################################################
-# Old per-table transform functions
-########################################################################################
-
-
-def accumulated_depreciation(
-    ferc1_dbf_raw_dfs, ferc1_xbrl_raw_dfs, ferc1_transformed_dfs
-):
-    """Transforms FERC Form 1 depreciation data for loading into PUDL.
-
-    This information is organized by FERC account, with each line of the FERC Form 1
-    having a different descriptive identifier like 'balance_end_of_year' or
-    'transmission'.
-
-    Args:
-        ferc1_raw_dfs (dict): Each entry in this dictionary of DataFrame objects
-            corresponds to a table from the FERC Form 1 DBC database.
-        ferc1_transformed_dfs (dict): A dictionary of DataFrames to be transformed.
-
-    Returns:
-        dict: The dictionary of the transformed DataFrames.
-    """
-    # grab table from dictionary of dfs
-    ferc1_apd_df = ferc1_dbf_raw_dfs["accumulated_depreciation_ferc1"]
-
-    ferc1_acct_apd = FERC_DEPRECIATION_LINES.drop(["ferc_account_description"], axis=1)
-    ferc1_acct_apd.dropna(inplace=True)
-    ferc1_acct_apd["row_number"] = ferc1_acct_apd["row_number"].astype(int)
-
-    ferc1_accumdepr_prvsn_df = pd.merge(
-        ferc1_apd_df, ferc1_acct_apd, how="left", on="row_number"
-    )
-    # ferc1_accumdepr_prvsn_df = _clean_cols(
-    #     ferc1_accumdepr_prvsn_df, "f1_accumdepr_prvsn"
-    # )
-
-    ferc1_accumdepr_prvsn_df.rename(
-        columns={
-            # FERC1 DB   PUDL DB
-            "total_cde": "total"
-        },
-        inplace=True,
-    )
-
-    ferc1_transformed_dfs["accumulated_depreciation_ferc1"] = ferc1_accumdepr_prvsn_df
-
-    return ferc1_transformed_dfs

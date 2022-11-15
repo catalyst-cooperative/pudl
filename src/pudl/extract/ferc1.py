@@ -69,6 +69,7 @@ https://data.catalyst.coop/ferc1
 import csv
 import importlib
 import io
+import json
 from collections.abc import Iterable
 from pathlib import Path
 from typing import Any, Literal
@@ -706,7 +707,7 @@ def extract_dbf(
             f"Converting extracted FERC Form 1 table {pudl_table} into a "
             f"pandas DataFrame from DBF table."
         )
-        ferc1_raw_dfs[pudl_table] = generic_dbf_extract(
+        ferc1_raw_dfs[pudl_table] = extract_dbf_generic(
             ferc1_engine=sa.create_engine(pudl_settings["ferc1_db"]),
             ferc1_settings=ferc1_settings,
             table_name=TABLE_NAME_MAP[pudl_table]["dbf"],
@@ -759,7 +760,7 @@ def extract_xbrl(
         xbrl_table = TABLE_NAME_MAP[pudl_table]["xbrl"]
         ferc1_raw_dfs[pudl_table] = {}
         for period_type in ["duration", "instant"]:
-            ferc1_raw_dfs[pudl_table][period_type] = generic_xbrl_extract(
+            ferc1_raw_dfs[pudl_table][period_type] = extract_xbrl_generic(
                 ferc1_engine=sa.create_engine(pudl_settings["ferc1_xbrl_db"]),
                 ferc1_settings=ferc1_settings,
                 table_name=f"{xbrl_table}_{period_type}",
@@ -768,7 +769,7 @@ def extract_xbrl(
     return ferc1_raw_dfs
 
 
-def generic_xbrl_extract(
+def extract_xbrl_generic(
     ferc1_engine: sa.engine.Engine,
     ferc1_settings: Ferc1Settings,
     table_name: str,
@@ -806,7 +807,7 @@ def generic_xbrl_extract(
     )
 
 
-def generic_dbf_extract(
+def extract_dbf_generic(
     ferc1_engine: sa.engine.Engine,
     ferc1_settings: Ferc1Settings,
     table_name: str,
@@ -827,3 +828,10 @@ def generic_dbf_extract(
             "max_year": max(ferc1_settings.dbf_years),
         },
     )
+
+
+def extract_xbrl_metadata(pudl_settings: dict[Any]) -> list[dict[Any]]:
+    """Extract the XBRL Taxonomy we've stored as JSON."""
+    with open(pudl_settings["ferc1_xbrl_taxonomy_metadata"]) as f:
+        xbrl_meta = json.load(f)
+    return xbrl_meta

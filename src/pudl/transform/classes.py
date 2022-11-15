@@ -1030,6 +1030,7 @@ class AbstractTableTransformer(ABC):
         params: TableTransformParams | None = None,
         cache_dfs: bool = False,
         clear_cached_dfs: bool = True,
+        **kwargs,
     ) -> None:
         """Initialize the table transformer, setting caching flags."""
         super().__init__()
