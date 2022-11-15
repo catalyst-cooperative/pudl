@@ -280,6 +280,7 @@ FUEL_CATEGORIES: dict[str, set[str]] = {
             "other-steam expenses:",
             "pet. coke",
             "petcoke",
+            "steam plants",
             "steam-common production",
             "steam-common production plant",
             "tons",
@@ -470,6 +471,7 @@ FUEL_CATEGORIES: dict[str, set[str]] = {
         "solar": {
             "community solar gardens",
             "photovoltaic",
+            "photo voltaic generating plants:",
             "proj dvlpmnt div solar photovoltaic project:",
             "sixth street solar",
             "solar",
@@ -628,6 +630,8 @@ FUEL_CATEGORIES: dict[str, set[str]] = {
             "composit",
             "composite",
             "compsite",
+            "fuel cell:",
+            "fuel cell",
             "furfural",
             "kagv",
             "lime",
@@ -657,6 +661,13 @@ FUEL_CATEGORIES: dict[str, set[str]] = {
             "--",
             "---------",
             '"',
+        },
+        "na_category": {
+            "na_category",
+            "internal combustion",
+            "internal combustion:",
+            "internal combustion plants:",
+            "gold creek internal combustion:",
         },
     }
 }
@@ -1328,7 +1339,9 @@ PLANT_TYPE_CATEGORIES: dict[str, set[str]] = {
             "int. combustion (1)",
             "int.combustine",
             "interal",
+            "internal conbustion",
             "interal combustion:",
+            "internal combustion:",
             "internal",
             "internal comb",
             "internal comb recip",
@@ -1392,9 +1405,14 @@ PLANT_TYPE_CATEGORIES: dict[str, set[str]] = {
             "solar project",
             "solar:",
             "proj dvlpmnt div solar photovoltaic project:",
+            "photo voltaic generating plants:",
         },
         "solar_thermal": {"solar thermal", "solar_thermal"},
-        "fuel_cell": {"fuel cell", "fuel_cell"},
+        "fuel_cell": {
+            "fuel cell",
+            "fuel_cell",
+            "fuel cell:",
+        },
         "hydro": {
             "(1) the dixon hydro electric generating facility",
             "(6) excludes portion allocated to other water",
@@ -1529,6 +1547,7 @@ PLANT_TYPE_CATEGORIES: dict[str, set[str]] = {
             "unit total (note 3)",
             "unit total (note2)",
             "unit total (note3)",
+            "waste heat",
             "—",
         },
     }
@@ -2454,12 +2473,6 @@ TRANSFORM_PARAMS = {
                     "row_number": "row_number",
                     "row_seq": "row_seq",
                     "spplmnt_num": "spplmnt_num",
-                    "begin_yr_bal": "starting_balance",
-                    "addition": "additions",
-                    "retirements": "retirements",
-                    "adjustments": "adjustments",
-                    "transfers": "transfers",
-                    "yr_end_bal": "ending_balance",
                 }
             },
             "xbrl": {
@@ -2506,6 +2519,7 @@ TRANSFORM_PARAMS = {
             "plant_type_from_header": PLANT_TYPE_CATEGORIES,
         },
         "drop_invalid_rows": [
+            {"invalid_values": ["header", "note"], "required_valid_cols": ["row_type"]},
             {
                 "invalid_values": [0, "0", pd.NA, np.nan, "", "none"],
                 "allowed_invalid_cols": [

@@ -1410,13 +1410,10 @@ class PlantsSmallFerc1TableTransformer(Ferc1AbstractTableTransformer):
             .pipe(self.associate_notes_with_values)
             .pipe(self.spot_fix_rows)
             .pipe(self.drop_invalid_rows)
+            # Now remove the row_type columns because we've already moved totals to a
+            # different column
+            .drop(columns=["row_type"])
         )
-        # Remove headers and note rows now that the relevant information has been
-        # extracted.
-        df = df[(df["row_type"] != "header") & (df["row_type"] != "note")].copy()
-        # Now remove the row_type columns because we've already moved totals to a
-        # different column
-        df = df.drop(columns=["row_type"])
 
         return df
 
