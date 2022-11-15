@@ -221,9 +221,7 @@ class GenericPlantFerc1TableTransformer(Ferc1AbstractTableTransformer):
             list_of_lists_of_required_valid_cols
         )
         if required_valid_cols:
-            missing_required_cols = [
-                col for col in required_valid_cols if col not in df
-            ]
+            missing_required_cols = set(required_valid_cols).difference(df.columns)
             if missing_required_cols:
                 logger.info(
                     f"{self.table_id.value}: Found required columns for "
