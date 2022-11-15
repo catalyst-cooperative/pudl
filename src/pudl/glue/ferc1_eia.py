@@ -203,6 +203,30 @@ class GenericPlantFerc1TableTransformer(Ferc1AbstractTableTransformer):
             .assign(plant_table=self.table_id.value)
         )
 
+    def drop_invalid_rows(self, df):
+        """Overwrite."""
+        # ensure the required columns are actually in the df
+        list_of_lists_of_required_valid_cols = [
+            param.required_valid_cols
+            for param in self.params.drop_invalid_rows
+            if param.required_valid_cols
+        ]
+        required_valid_cols = pudl.helpers.dedupe_n_flatten_list_of_lists(
+            list_of_lists_of_required_valid_cols
+        )
+        if required_valid_cols:
+            missing_required_cols = [
+                col for col in required_valid_cols if col not in df
+            ]
+            if missing_required_cols:
+                logger.info(
+                    f"{self.table_id.value}: Found required columns for "
+                    "`drop_invalid_rows`. Adding empty columns for: "
+                    f"{missing_required_cols}"
+                )
+                df.loc[:, missing_required_cols] = pd.NA
+        return super().drop_invalid_rows(df)
+
 
 def get_plants_ferc1_raw(
     pudl_settings: dict[str, str], years: Iterable[int]

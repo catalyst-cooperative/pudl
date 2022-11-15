@@ -803,10 +803,6 @@ def drop_invalid_rows(df: pd.DataFrame, params: InvalidRows) -> pd.DataFrame:
         items = params.required_valid_cols or [
             col for col in df if col not in params.allowed_invalid_cols
         ]
-        # ensure that all the items are actually in df
-        if not set(items).issubset(set(df.columns)):
-            logger.warning("Found no columns to check.")
-            return df
 
     # Filter to select the subset of COLUMNS we want to check for valid values:
     cols_to_check = df.filter(
