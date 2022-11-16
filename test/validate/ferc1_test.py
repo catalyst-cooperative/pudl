@@ -15,13 +15,11 @@ logger = logging.getLogger(__name__)
 
 # These are tables for which individual records have been sliced up and
 # turned into columns -- so there's no universally unique record ID:
-row_mapped_tables = [
-    "plant_in_service_ferc1",
-]
+non_unique_record_id_tables = ["plant_in_service_ferc1", "purchased_power_ferc1"]
 unique_record_tables = [
     t
     for t in DataSource.from_id("ferc1").get_resource_ids()
-    if t not in row_mapped_tables
+    if t not in non_unique_record_id_tables
 ]
 
 
