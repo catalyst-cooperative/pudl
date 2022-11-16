@@ -212,7 +212,7 @@ def fill_dbf_to_xbrl_map(df: pd.DataFrame, dbf_years: Iterable[int]) -> pd.DataF
     df.loc[
         (df.row_type == "header") & (df.xbrl_column_stem.isna()),
         "xbrl_column_stem",
-    ] == "HEADER_ROW"
+    ] = "HEADER_ROW"
     df = df.drop(["row_type"], axis="columns")
 
     # Create an index containing all combinations of report_year and row_number
