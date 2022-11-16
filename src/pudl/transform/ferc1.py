@@ -11,7 +11,6 @@ import enum
 import importlib.resources
 import re
 from collections import namedtuple
-from collections.abc import Iterable
 from typing import Any
 
 import numpy as np
@@ -192,7 +191,7 @@ def read_dbf_to_xbrl_map(dbf_table_name: str) -> pd.DataFrame:
     return row_map
 
 
-def fill_dbf_to_xbrl_map(df: pd.DataFrame, dbf_years: Iterable[int]) -> pd.DataFrame:
+def fill_dbf_to_xbrl_map(df: pd.DataFrame, dbf_years: list[int]) -> pd.DataFrame:
     """Forward-fill missing years in the minimal, manually compiled DBF to XBRL mapping.
 
     Note that we need to indicate which rows have unmappable headers in them, to
@@ -2300,17 +2299,17 @@ if __name__ == "__main__":
     """Make the module runnable for iterative testing during development."""
 
     ferc1_settings = Ferc1Settings(
-        # years=[2020, 2021],
+        years=[2020, 2021],
         # If you want to run it with all years:
-        years=Ferc1Settings().years,
+        # years=Ferc1Settings().years,
         tables=[
-            #   "fuel_ferc1",
-            #   "plants_steam_ferc1",
-            #   "plants_hydro_ferc1",
+            "fuel_ferc1",
+            "plants_steam_ferc1",
+            "plants_hydro_ferc1",
             "plant_in_service_ferc1",
-            #   "plants_pumped_storage_ferc1",
-            #   "purchased_power_ferc1",
-            #   "plants_small_ferc1",
+            "plants_pumped_storage_ferc1",
+            "purchased_power_ferc1",
+            "plants_small_ferc1",
         ],
     )
     pudl_settings = pudl.workspace.setup.get_defaults()
