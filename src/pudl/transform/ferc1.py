@@ -16,6 +16,7 @@ from typing import Any
 import numpy as np
 import pandas as pd
 import sqlalchemy as sa
+from pandas.core.groupby import DataFrameGroupBy
 
 import pudl
 from pudl.analysis.classify_plants_ferc1 import (
@@ -1440,7 +1441,7 @@ class PlantInServiceFerc1TableTransformer(Ferc1AbstractTableTransformer):
 
 
 class PlantsSmallFerc1TableTransformer(Ferc1AbstractTableTransformer):
-    """A table transformer specific to the ``plants_small_ferc1`` table."""
+    """A table transformer specific to the :ref:`plants_small_ferc1` table."""
 
     table_id: Ferc1TableId = Ferc1TableId.PLANTS_SMALL_FERC1
 
@@ -1476,26 +1477,36 @@ class PlantsSmallFerc1TableTransformer(Ferc1AbstractTableTransformer):
         return df
 
     def extract_ferc1_license(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Extract FERC license number from plant_name.
+        """Extract FERC license number from ``plant_name_ferc1``.
 
-        Many FERC license numbers are embedded in the plant_name_ferc1 field, whether
-        as a note or an actual plant name. Not all numbers in the plant_name_ferc1 field
-        that are FERC licenses, however. Some are dates, dollar amounts, page numbers,
-        or numbers of wind turbines. This function extracts valid FERC license numbers
-        and puts them in a new column.
+        Many FERC license numbers are embedded in the ``plant_name_ferc1`` column, but
+        not all numbers in the ``plant_name_ferc1`` column are FERC licenses. Some are
+        dates, dollar amounts, page numbers, or numbers of wind turbines. This function
+        extracts valid FERC license numbers and puts them in a new column called
+        ``license_id_ferc1``.
 
         Potential FERC license numbers are valid when:
-        - Two or more integers were found.
-        - The found integers were accompanied bykey phrases such as "license", "no.",
-        "ferc", or "project".
-        - The accompanying name does not contain phrases like "page", "pg", "$", "wind",
-        "units".
-        - The found integers don't fall don't fall within the range of a valid year,
-        defined as: 1900-2050.
-        - The plant record is categorized as a hydro or not categorized via the
-        `plant_type` and `fuel_type` columns.
 
-        This function also fills "other" fuel types with hydro for all these plants.
+        - Two or more integers were found.
+        - The found integers were accompanied by key phrases such as:
+          ``["license", "no.", "ferc", "project"]``.
+        - The accompanying name does not contain phrases such as:
+          ``["page", "pg", "$",  "wind", "units"]``.
+        - The found integers don't fall don't fall within the range of a valid year,
+          defined as: 1900-2050.
+        - The plant record is categorized as ``hydro`` or not categorized via the
+          ``plant_type`` and ``fuel_type`` columns.
+
+        This function also fills ``other`` fuel types with ``hydro`` for all plants with
+        valid FERC licenses because only hydro plants have FERC licenses.
+
+        Params:
+            df: Pre-processed, concatenated XBRL and DBF data.
+
+        Returns:
+            The same input DataFrame but with a new column called ``license_id_ferc1``
+            that contains FERC 1 license infromation extracted from
+            ``plant_name_ferc1``.
         """
         logger.info(f"{self.table_id.value}: Extracting FERC license from plant name")
         # Extract all numbers greater than 2 digits from plant_name_ferc1 and put them
@@ -1537,16 +1548,23 @@ class PlantsSmallFerc1TableTransformer(Ferc1AbstractTableTransformer):
         return out_df
 
     def _find_possible_header_or_note_rows(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Find rows that might be headers or footnotes.
+        """Find and label rows that might be headers or notes.
 
-        This function creates a column called "possible_header_or_note" that is either
+        Called by the coordinating function :func:`label_row_types`.
+
+        This function creates a column called ``possible_header_or_note`` that is either
         True or False depending on whether a group of columns are all NA. Rows labeled
-        as True will be further scrutinized in the label_header_rows and
-        label_notes_rows functions to determine whether they are headers or notes. The
-        "possible_header_or_note" column is necessary for the label_header_rows and
-        label_notes_rows functions, but it is unecessary once the row_types have been
-        determined, and the column is removed after the row labeling process is
-        complete.
+        as True will be further scrutinized in the :func:`_label_header_rows` and
+        :func:`_label_note_rows` functions to determine whether they are actually
+        headers or notes.
+
+        Params:
+            df: Pre-processed, concatenated XBRL and DBF data.
+
+        Returns:
+            The same input DataFrame but with a new column called
+            ``possible_header_or_note`` that flags rows that might contain useful header
+            or note information.
         """
         # Define header qualifications
         possible_header_or_note_if_cols_na = [
@@ -1568,48 +1586,54 @@ class PlantsSmallFerc1TableTransformer(Ferc1AbstractTableTransformer):
         )
         return df
 
-    def _find_note_clumps(self, group, group_col):
+    def _find_note_clumps(
+        self, group: DataFrameGroupBy
+    ) -> tuple[DataFrameGroupBy, pd.DataFrame]:
         """Find groups of rows likely to be notes.
 
-        Once the _find_possible_header_or_note_rows function identifies rows that are
-        either headers or rows, we must now deterine which they are. As described in the
-        _label_note_rows and _label_note_rows_group functions, notes rows tend to be
-        several adjecent rows with no content.
+        Once the :func:`_find_possible_header_or_note_rows` function identifies rows
+        that are either headers or notes, we must deterine which one they are. As
+        described in the :func:`_label_note_rows` function, notes rows are usually
+        adjecent rows with no content.
 
         This function itentifies instances of two or more adjecent rows where
-        possible_header_or_note = True. It's important that this function opperate on a
-        utility-year group as opposed to the entire dataset. Notes are reported by a
-        particular utility in a particular year. If we were to run this on the whole
-        dataframe, we would see "clumps" that are actually notes from the end of one
-        utility's report and headers from the beginning of another. For this reason, we
-        run this function from within the label_note_row_group function.
+        ``possible_header_or_note`` = True. It takes individual utility-year groups as a
+        parameter as opposed to the entire dataset because adjecent rows are only
+        meaningful if they are from the same reporting entity in the same year. If we
+        were to run this on the whole dataframe, we would see "note clumps" that are
+        actually notes from the end of one utility's report and headers from the
+        beginning of another. For this reason, we run this function from within the
+        :func:`_label_note_rows_group` function.
 
         The output of this function is not a modified version of the original
         utility-year group, rather, it is a DataFrame containing information about the
-        nature of the possible_header_or_note = True rows that is used to determine
-        if that row is a note or not.
+        nature of the ``possible_header_or_note`` = True rows that is used to determine
+        if that row is a note or not. It also returns the original utility-year-group as
+        groupby objects seperated by each time ``possible_header_or_note`` changes from
+        True to False or vice versa.
 
         If you pass in the following df:
 
-        +-------------------+-------------------------+-----------------+
-        | plant_name_ferc1  | possible_header_or_note | ...             |
-        +===================+=========================+=================+
-        | HYDRO:            | True                    | NA              |
-        +-------------------+-------------------------+-----------------+
-        | rainbow falls (b) | False                   | NA              |
-        +-------------------+-------------------------+-----------------+
-        | cadyville (a)     | False                   | NA              |
-        +-------------------+-------------------------+-----------------+
-        | keuka (c)         | False                   | NA              |
-        +-------------------+-------------------------+-----------------+
-        | (a) project #2738 | True                    | NA              |
-        +-------------------+-------------------------+-----------------+
-        | (b) project #2835 | True                    | NA              |
-        +-------------------+-------------------------+-----------------+
-        | (c) project #2852 | True                    | NA              |
-        +-------------------+-------------------------+-----------------+
+        +-------------------+-------------------------+
+        | plant_name_ferc1  | possible_header_or_note |
+        +===================+=========================+
+        | HYDRO:            | True                    |
+        +-------------------+-------------------------+
+        | rainbow falls (b) | False                   |
+        +-------------------+-------------------------+
+        | cadyville (a)     | False                   |
+        +-------------------+-------------------------+
+        | keuka (c)         | False                   |
+        +-------------------+-------------------------+
+        | (a) project #2738 | True                    |
+        +-------------------+-------------------------+
+        | (b) project #2835 | True                    |
+        +-------------------+-------------------------+
+        | (c) project #2852 | True                    |
+        +-------------------+-------------------------+
 
-        You will get the following output:
+        You will get the following output (in addition to the groupby objects for each
+        clump):
 
         +----------------+----------------+
         | header_or_note | rows_per_clump |
@@ -1621,41 +1645,62 @@ class PlantsSmallFerc1TableTransformer(Ferc1AbstractTableTransformer):
         | True           | 3              |
         +----------------+----------------+
 
-        This shows each clump of adjecent records where possible_header_or_note is True
-        or False and how many records are in each clump.
+        This shows each clump of adjecent records where ``possible_header_or_note`` is
+        True or False and how many records are in each clump.
 
-        Args:
-            group (pandas.DataFrameGroupBy): A groupby object that you'd like
-                to condense by group_col.
-            group_col (str): The name of the column you'd like to make sub
-                groups from.
+        Params:
+            group: A utility-year grouping of the concatenated FERC XBRL and DBF tables.
+                This table must have been run through the
+                :func:`_find_possible_header_or_note_rows` function and contain the
+                column ``possible_header_or_note``.
 
         Returns:
-            pandas.DataFrame: A condensed version of that dataframe input
-                grouped by breaks in row designation.
+            A tuple containing groupby objects for each of the note and non-note clumps
+            and a DataFrame indicating the number of rows in each note or non-note
+            clump.
         """
         # Make groups based on consecutive sections where the group_col is alike.
         clump_groups = group.groupby(
-            (group[f"{group_col}"].shift() != group[f"{group_col}"]).cumsum(),
+            (
+                group["possible_header_or_note"].shift()
+                != group["possible_header_or_note"]
+            ).cumsum(),
             as_index=False,
         )
 
         # Identify the first (and only) group_col value for each group and count
         # how many rows are in each group.
         clump_groups_df = clump_groups.agg(
-            header_or_note=(f"{group_col}", "first"),
-            rows_per_clump=(f"{group_col}", "count"),
+            header_or_note=("possible_header_or_note", "first"),
+            rows_per_clump=("possible_header_or_note", "count"),
         )
 
         return clump_groups, clump_groups_df
 
     def _label_header_rows(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Label header rows.
+        """Label header rows by adding ``header`` to ``row_type`` column.
+
+        Called by the coordinating function :func:`label_row_types`.
 
         Once possible header or notes rows have been identified via the
-        _find_possible_header_or_note_rows function, this function sorts out which are
-        headers. It does this by identifying a list of strings that, when found in the
-        plant_name_ferc1 column, indicate that the row is or is not a header.
+        :func:`_find_possible_header_or_note_rows` function, this function sorts out
+        which ones are headers. It does this by identifying a list of strings that, when
+        found in the ``plant_name_ferc1`` column, indicate that the row is or is not a
+        header.
+
+        Sometimes this function identifies a header that is acutally a note. For this
+        reason, it's important that the function be called before
+        :func:`_label_note_rows` so that the bad header values get overridden by the
+        ``note`` designation.
+
+        Params:
+            df: Pre-processed, concatenated XBRL and DBF data that has been run through
+            the :func:`_find_possible_header_or_note_rows` function and contains the
+            column ``possible_header_or_note``.
+
+        Returns:
+            The same input DataFrame but with likely headers rows containing the string
+            ``header`` in the ``row_type`` column.
         """
         # Possible headers/note rows that contains these strings are headers
         header_strings = [
@@ -1716,108 +1761,137 @@ class PlantsSmallFerc1TableTransformer(Ferc1AbstractTableTransformer):
 
         return df
 
+    def _label_note_rows_group(
+        self, util_year_group: DataFrameGroupBy
+    ) -> DataFrameGroupBy:
+        """Label note rows by adding ``note`` to ``row_type`` column.
+
+        Called within the wraper function :func:`_label_note_rows`
+
+        This function breaks the data down by reporting unit (utility and year) and
+        determines whether a ``possible_header_note`` = True row is a note based on two
+        criteria:
+
+        - Clumps of 2 or more adjecent rows where ``possible_header_or_note`` is True.
+        - Instances where the last row in a utility-year group has
+          ``possible_header_or_note`` as True.
+
+        There are a couple of important exceptions that this function also
+        addresses. Utilities often have multiple headers in a single utility-year
+        grouping. You might see something like: ``pd.Series([header, plant1, plant2,
+        note, header, plant3, plant4])``. In this case, a note clump is actually
+        comprised of a note followed by a header. This function will not override the
+        header as a note. Unfortunately, there is always the possability that a header
+        row is followed by a plant that had no values reported. This would look like,
+        and therefore be categorized as a note clump. I haven't built a work around, but
+        hopefully there aren't very many of these.
+
+        Params:
+            util_year_group: A groupby object that contains a single year and utility.
+
+        Returns:
+            The same input but with likely note rows containing the string ``note`` in
+            the ``row_type`` column.
+        """
+        # Create mini groups that count pockets of true and false for each
+        # utility and year. See _find_note_clumps docstring.
+        clump_group, clump_count = self._find_note_clumps(util_year_group)
+
+        # Used later to enable exceptions
+        max_df_val = util_year_group.index.max()
+
+        # Create a list of the index values where there is a note clump! This also
+        # includes instances where the last row in a group is a note.
+        note_clump_idx_list = list(
+            clump_count[
+                (clump_count["header_or_note"])
+                & (
+                    (clump_count["rows_per_clump"] > 1)
+                    | (clump_count.tail(1)["rows_per_clump"] == 1)
+                )
+            ].index
+        )
+        # If there are any clumped/end headers:
+        if note_clump_idx_list:
+            for idx in note_clump_idx_list:
+                # If the last row in a clump looks like a header, and the clump is
+                # not the last clump in the utility_year group, then drop the last
+                # row from the note clump index range because it's a header!
+                note_clump_idx_range = clump_group.groups[idx + 1]
+                not_last_clump = clump_group.groups[idx + 1].max() < max_df_val
+                is_good_header = (
+                    util_year_group.loc[
+                        util_year_group.index.isin(clump_group.groups[idx + 1])
+                    ]
+                    .tail(1)["row_type"]
+                    .str.contains("header")
+                    .all()
+                )
+                if not_last_clump & is_good_header:
+                    note_clump_idx_range = [
+                        x
+                        for x in note_clump_idx_range
+                        if x != note_clump_idx_range.max()
+                    ]
+                # Label the note clump as a note
+                util_year_group.loc[
+                    util_year_group.index.isin(note_clump_idx_range), "row_type"
+                ] = "note"
+
+        return util_year_group
+
     def _label_note_rows(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Label rows that are notes.
+        """Wrapper for :func:`_label_note_rows_group`.
 
         The small plants table has lots of note rows that contain useful information.
         Unfortunately, the notes are in their own row rather than their own column! This
-        means that there are tons of rows containing some useful information in the
-        plant_name_ferc1 field, but mostly NAs. Luckily, the data are reported just like
-        they would be on paper. I.e., The headers are at the top, and the notes are at
-        the bottom. (See example in the label_row_type docstring).
+        means that useful information pertaining to plant rows is floating around as a
+        junk row with no other information except the note in the ``plant_name_ferc1``
+        field. Luckily, the data are reported just like they would be on paper. I.e.,
+        The headers are at the top, and the notes are at the bottom. See the table in
+        :func:`label_row_types` for more detail. This function labels note rows.
 
         Note rows are determined by row location within a given report, so we must break
         the data into reporting units (utility and year) and then apply note-finding
-        methodology to each group. For specifics on that methodology,
-        see the doc strings for the internally defined _label_note_rows_group function.
+        methodology defined in :func:`_label_note_rows_group` to each group.
+
+        Params:
+            df: Pre-processed, concatenated XBRL and DBF data that has been run through
+            the :func:`_find_possible_header_or_note_rows` function and contains the
+            column ``possible_header_or_note``.
+
+        Returns:
+            The same input DataFrame but with likely note rows containing the string
+            ``note`` in the ``row_type`` column.
         """
         logger.info(f"{self.table_id.value}: Labeling notes rows")
 
         util_groups = df.groupby(["utility_id_ferc1", "report_year"])
 
-        def _label_note_rows_group(util_year_group):
-            """Find and label notes rows in a designated sub-group of the sg table.
-
-            This function breaks the data down by reporting unit (utility and year) and
-            determines whether a possible_header_note row is a note based on two
-            criteria:
-            - Clumps of 2 or more adjecent rows where possible_header_or_note is True.
-            - Instances where the last row in a utility-year group has
-            possible_header_or_note as True.
-
-            There are a couple of important exceptions that this function also
-            addresses. Utilities often have multiple headers in a single utility-year
-            grouping. You might see something like: header, plant1, plant2, note,
-            header, plant3, plant4. In this case, a note clump is actually comprised of
-            a note followed by a header. This function will not override the header as a
-            note. Unfortunately, there is always the possability that a header row is
-            followed by a plant that had no values reported. This would look like, and
-            therefore be categorized as a note clump. I haven't built a work around, but
-            hopefully there aren't very many of these.
-
-            Args:
-                util_year_group (pandas.DataFrame): A groupby object that contains
-                    a single year and utility.
-            """
-            # Create mini groups that count pockets of true and false for each
-            # utility and year. See _find_note_clumps docstring.
-            clump_group, clump_count = self._find_note_clumps(
-                util_year_group, "possible_header_or_note"
-            )
-
-            # Used later to enable exceptions
-            max_df_val = util_year_group.index.max()
-
-            # Create a list of the index values where there is a note clump! This also
-            # includes instances where the last row in a group is a note.
-            note_clump_idx_list = list(
-                clump_count[
-                    (clump_count["header_or_note"])
-                    & (
-                        (clump_count["rows_per_clump"] > 1)
-                        | (clump_count.tail(1)["rows_per_clump"] == 1)
-                    )
-                ].index
-            )
-            # If there are any clumped/end headers:
-            if note_clump_idx_list:
-                for idx in note_clump_idx_list:
-                    # If the last row in a clump looks like a header, and the clump is
-                    # not the last clump in the utility_year group, then drop the last
-                    # row from the note clump index range because it's a header!
-                    note_clump_idx_range = clump_group.groups[idx + 1]
-                    not_last_clump = clump_group.groups[idx + 1].max() < max_df_val
-                    is_good_header = (
-                        util_year_group.loc[
-                            util_year_group.index.isin(clump_group.groups[idx + 1])
-                        ]
-                        .tail(1)["row_type"]
-                        .str.contains("header")
-                        .all()
-                    )
-                    if not_last_clump & is_good_header:
-                        note_clump_idx_range = [
-                            x
-                            for x in note_clump_idx_range
-                            if x != note_clump_idx_range.max()
-                        ]
-                    # Label the note clump as a note
-                    util_year_group.loc[
-                        util_year_group.index.isin(note_clump_idx_range), "row_type"
-                    ] = "note"
-
-            return util_year_group
-
-        return util_groups.apply(lambda x: _label_note_rows_group(x))
+        return util_groups.apply(lambda x: self._label_note_rows_group(x))
 
     def _label_total_rows(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Label total rows.
+        """Label total rows by adding ``total`` to ``row_type`` column.
 
-        For the most part, when `plant_name_ferc1` contains the words "total", the
-        values therein are duplicates of what is already reported. However, there are
-        some cases where that's not true. The phrase "amounts are for the total" appears
-        when chunks of plants (usually but not always wind) are reported together. It's
-        a total, but it's not double counting which is the reason for the "total" flag.
+        Called within the wraper function :func:`_label_note_rows`
+
+        For the most part, when ``plant_name_ferc1`` contains the string ``total``, the
+        values therein are duplicates of what is already reported, i.e.: a total value.
+        However, there are some cases where that's not true. For example, the phrase
+        ``amounts are for the total`` appears when chunks of plants (usually but not
+        always wind) are reported together. It's a total, but it's not double counting
+        which is the reason for the ``total`` flag.
+
+        Similar to :func:`_label_header_rows`, it's important that this be called before
+        :func:`_label_note_rows` in :func:`label_row_types` so that not clumps can
+        override certain non-totals that are mistakenly labeled as such.
+
+        Params:
+            df: Pre-processed, concatenated XBRL and DBF data.
+
+        Returns:
+            The same input DataFrame but with likely total rows containing the string
+            ``total`` in the ``row_type`` column.
         """
         # Label totals in row_type in case it overwrites any headers
         logger.info(f"{self.table_id.value}: Labeling total rows")
@@ -1832,7 +1906,7 @@ class PlantsSmallFerc1TableTransformer(Ferc1AbstractTableTransformer):
         return df
 
     def label_row_types(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Coordinate labeling of rows that are headers, notes, or totals.
+        """Coordinate labeling of ``row_types`` as headers, notes, or totals.
 
         The small plants table is more like a digitized PDF than an actual data table.
         The rows contain all sorts of information in addition to what the columns might
@@ -1862,14 +1936,27 @@ class PlantsSmallFerc1TableTransformer(Ferc1AbstractTableTransformer):
         | (c) project #2852 | NA         | NA              |
         +-------------------+------------+-----------------+
 
-        Notice how there missleading it is to have all this infomration in one column.
-        The goal of this function is to coordinate labeling functions so that we can
+        Notice how misleading it is to have all this infomration in one column. The
+        goal of this function is to coordinate labeling functions so that we can
         identify which rows contain specific plant information and which rows are
         headers, notes, or totals.
 
         Once labeled, other functions can either remove rows that might cause double
-        counting, extract useful plant_type information from headers, and extract
-        useful context and license id information from notes.
+        counting, extract useful plant or fuel type information from headers, and
+        extract useful context or license id information from notes.
+
+        Coordinates :func:`_label_header_rows`, :func:`_label_total_rows`,
+        :func:`_label_note_rows`.
+
+        Params:
+            df: Pre-processed, concatenated XBRL and DBF data that has been run through
+            the :func:`_find_possible_header_or_note_rows` function and contains the
+            column ``possible_header_or_note``.
+
+        Returns:
+            The same input DataFrame but with a column called ``row_type`` containg the
+            strings ``header``, ``note``, ``total``, or NA to indicate what type of row
+            it is.
         """
         # Add a column to show final row type
         df.insert(3, "row_type", np.nan)
@@ -1892,28 +1979,36 @@ class PlantsSmallFerc1TableTransformer(Ferc1AbstractTableTransformer):
     def prep_header_fuel_and_plant_types(
         self, df: pd.DataFrame, show_unmapped_headers=False
     ) -> pd.DataFrame:
-        """Forward fill headers to prep for integration with plant and fuel type cols.
+        """Forward fill header rows to prep for fuel and plant type extraction.
 
-        The headers we've identified in _label_header_rows() can be used to supplement
-        the values in the `plant_type` and `fuel_type` columns.
+        The headers we've identified in :func:`_label_header_rows` can be used to
+        supplement the values in the ``plant_type`` and ``fuel_type`` columns.
 
-        This function groups the data by utility, year, and header, creates a new column
-        for the header, and forward fills the header so that each record in the header
-        group has the header in a new column. This header column is then duplicated and
-        renamed `fuel_type_from_header` and `plant_type_from_header`. These columns will
-        then be used to fill in blank values in the `plant_type` and `fuel_type`
-        columns.
+        This function groups the data by utility, year, and header; extracts the header
+        into a new column; and forward fills the headers so that each record in the
+        header group is associated with that header. Because the headers map to
+        different fuel types and plant types (ex: ``solar pv`` maps to fuel type
+        ``solar`` and plant type ``photovoltaic``), the new forward-filled header column
+        is duplicated and called ``fuel_type_from_header`` and
+        ``plant_type_from_header``. In :func:`map_header_fuel_and_plant_types`, these
+        columns will be mapped to their respective fuel and plant types, used
+        to fill in blank values in the ``plant_type`` and ``fuel_type``, and then
+        eventually removed.
 
-        Why do we stop here?
+        Why separate the prep step from the map step?
 
-        We trust the original values more than the `_2` values we've gotten from the
-        headers. We only want to replace original values labeled as NA and "other", but
-        we don't get the "other" designation until the `fuel_type` and `plant_type`
-        columns have been run through categorize strings. Because we'll eventually want
-        cleaned header strings as well, we create the two new columns, run all four
-        through `categorize_strings` and then combine then.
+        We trust the values originally reported in the ``fuel_type`` and ``plant_type``
+        columns more than the extracted and forward filled header values, so we only
+        want to replace ``fuel_type`` and ``plant_type`` values that are labeled as
+        ``pd.NA`` or ``other``. The values reported to those columns are extremely messy
+        and must be cleaned via :func:`pudl.transform.classes.categorize_strings` in
+        order for us to know which are truely ``pd.NA`` or ``other``. Because we also
+        use :func:`pudl.transform.classes.categorize_strings` to map the headers to fuel
+        and plant types, it makes sense to clean all four columns at once and then
+        combine them.
 
-        Here's a look at what this function does. It starts with this:
+        Here's a look at what this function does. It starts with the following table:
+
         +-------------------+------------+------------+----------+
         | plant_name_ferc1  | plant_type | fuel_type  | row_type |
         +===================+============+============+==========+
@@ -1933,29 +2028,40 @@ class PlantsSmallFerc1TableTransformer(Ferc1AbstractTableTransformer):
         +-------------------+------------+------------+----------+
 
         And ends with this:
-        +-------------------+------------+------------+-------------------------+-----------------------+
-        | plant_name_ferc1  | plant_type | fuel_type  | plant_type_from_header  | fuel_type_from_header |
-        +===================+============+============+=========================+=======================+
-        | HYDRO:            | NA         | NA         | HYDRO:                  | HYDRO:                |
-        +-------------------+------------+------------+-------------------------+-----------------------+
-        | rainbow falls (b) | NA         | NA         | HYDRO:                  | HYDRO:                |
-        +-------------------+------------+------------+-------------------------+-----------------------+
-        | cadyville (a)     | NA         | NA         | HYDRO:                  | HYDRO:                |
-        +-------------------+------------+------------+-------------------------+-----------------------+
-        | keuka (c)         | NA         | NA         | HYDRO:                  | HYDRO:                |
-        +-------------------+------------+------------+-------------------------+-----------------------+
-        | Wind Turbines:    | NA         | NA         | Wind Turbines:          | Wind Turbines:        |
-        +-------------------+------------+------------+-------------------------+-----------------------+
-        | sunny grove       | NA         | NA         | Wind Turbines:          | Wind Turbines:        |
-        +-------------------+------------+------------+-------------------------+-----------------------+
-        | green park wind   | NA         | wind       | Wind Turbines:          | Wind Turbines:        |
-        +-------------------+------------+------------+-------------------------+-----------------------+
 
-        NOTE: If a utility's `plant_name_ferc1` column looks like this: [STEAM,
-        coal_plant1, coal_plant2, wind_turbine1], then algorythem will think that last
-        wind turbine is a steam plant. Luckily, when a utility embeds headers in the
-        data it usually includes them for all plant types: [STEAM, coal_plant1,
-        coal_plant2, WIND, wind_turbine].
+        +-------------------+---------+---------+----------------+--------------------+
+        | plant_name_ferc1  | plant   | fuel    | plant_type     | fuel_type          |
+        |                   | _type   | _type   | _from_header   | _from_header       |
+        +===================+=========+=========+================+====================+
+        | HYDRO:            | NA      | NA      | HYDRO:         | HYDRO:             |
+        +-------------------+---------+---------+----------------+--------------------+
+        | rainbow falls (b) | NA      | NA      | HYDRO:         | HYDRO:             |
+        +-------------------+---------+---------+----------------+--------------------+
+        | cadyville (a)     | NA      | NA      | HYDRO:         | HYDRO:             |
+        +-------------------+---------+---------+----------------+--------------------+
+        | keuka (c)         | NA      | NA      | HYDRO:         | HYDRO:             |
+        +-------------------+---------+---------+----------------+--------------------+
+        | Wind Turbines:    | NA      | NA      | Wind Turbines: | Wind Turbines:     |
+        +-------------------+---------+---------+----------------+--------------------+
+        | sunny grove       | NA      | NA      | Wind Turbines: | Wind Turbines:     |
+        +-------------------+---------+---------+----------------+--------------------+
+        | green park wind   | NA      | wind    | Wind Turbines: | Wind Turbines:     |
+        +-------------------+---------+---------+----------------+--------------------+
+
+        NOTE: If a utility's ``plant_name_ferc1`` values look like this: ``["STEAM",
+        "coal_plant1", "coal_plant2", "wind_turbine1"]``, then this algorythem will
+        think that last wind turbine is a steam plant. Luckily, when a utility embeds
+        headers in the data it usually includes them for all plant types: ``["STEAM",
+        "coal_plant1", "coal_plant2", "WIND", "wind_turbine"]``.
+
+        Params:
+            df: Pre-processed, concatenated XBRL and DBF data that has been run through
+            :func:`_label_row_type` and contains the columns ``row_type``.
+
+        Returns:
+            The same input DataFrame but with new columns ``plant_type_from_header``
+            and ``fuel_type_from_header`` that forward fill the values in the header
+            rows by utility, year, and header group.
         """
         logger.info(
             f"{self.table_id.value}: Forward filling header fuel and plant types"
@@ -1987,20 +2093,28 @@ class PlantsSmallFerc1TableTransformer(Ferc1AbstractTableTransformer):
         return df
 
     def map_header_fuel_and_plant_types(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Fill NA and other plant and fuel types with header fuels.
+        """Fill ``pd.NA`` and ``other`` plant and fuel types with cleaned headers.
 
-        `prep_header_fuel_and_plant_types` extracted and forward filled the header
-        values; categorize_strings cleaned them according to both the fuel and plant
-        type parameters; now we need to combine the `fuel_type_from_header` with
-        `fuel_type` and `plant_type_from_header` with `plant_type`.
+        :func:`prep_header_fuel_and_plant_types` extracted and forward filled the header
+        values; :func:`pudl.transform.params.categorize_strings` cleaned them according
+        to both the fuel and plant type parameters. This function combines the
+        ``fuel_type_from_header`` with ``fuel_type`` and ``plant_type_from_header`` with
+        ``plant_type`` when the reported, cleaned values are ``pd.NA`` or ``other``.
 
-        This function replaces values that are NA or "other" from `fuel_type` with
-        `fuel_type_from_header` and from `plant_type` with `plant_type_from_header`.
-        It then removes the `plant_type_from_header` and `fuel_type_from_header`
-        columns.
+        To understand more about why these steps are necessary read the docstrings for
+        :func:`prep_header_fuel_and_plant_types`.
 
-        To understand more about why these steps are necessary, see the
-        `prep_header_fuel_and_plant_types` docstring.
+        Params:
+            df: Pre-processed, concatenated XBRL and DBF data that has been run through
+            :func:`prep_header_fuel_and_plant_types` and contains the columns
+            ``fuel_type_from_header`` and ``plant_type_from_header``.
+
+        Returns:
+            The same input DataFrame but with rows with ``pd.NA`` or ``other`` in the
+            ``fuel_type`` and ``plant_type`` columns filled in with the respective
+            values from ``fuel_type_from_header`` and ``plant_type_from_header`` when
+            available. ``fuel_type_from_header`` and ``plant_type_from_header`` columns
+            removed.
         """
         logger.info(
             f"{self.table_id.value}: Filling NA and 'other' fuel and plant types with"
@@ -2051,11 +2165,21 @@ class PlantsSmallFerc1TableTransformer(Ferc1AbstractTableTransformer):
         return df
 
     def map_plant_name_fuel_types(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Get plant type from plant name.
+        """Suppliment ``fuel_type`` with information in ``plant_name_ferc1``.
 
-        If there is a plant type embedded in the plant name (that's not a header) then
-        move that to the plant_type_from_header column. Right now, this only works for
-        hydro plants because the rest are complicated and have a slew of exceptions.
+        Sometimes fuel type is embedded in a plant name (not just headers). In this case
+        we can identify that what that fuel is from the name and fill in empty
+        ``fuel_type`` values. Right now, this only works for hydro plants because the
+        rest are complicated and have a slew of exceptions. This could probably be
+        applied to the ``plant_type`` column in the future too.
+
+        Params:
+            df: Pre-processed, concatenated XBRL and DBF data.
+
+        Returns:
+            The same input DataFrame but with rows with ``other`` in the
+            ``fuel_type`` column filled in notable fuel types extracted from the the
+            ``plant_name_ferc1`` column.
         """
         logger.info(f"{self.table_id.value}: Getting fuel type (hydro) from plant name")
         df.loc[
@@ -2069,12 +2193,12 @@ class PlantsSmallFerc1TableTransformer(Ferc1AbstractTableTransformer):
         return df
 
     def associate_notes_with_values(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Use footnote indicators to map notes and ferc licenses to value rows.
+        """Use footnote indicators to map notes and FERC licenses to plant rows.
 
         There are many utilities that report a bunch of mostly empty note rows at the
-        bottom of their yearly entry. These notes often pertain to specific plant or
-        "value" rows above. Sometimes, the notes and their respective plant rows are
-        connected by a footnote indicator such as (a) or (1) etc.
+        bottom of their yearly entry. These notes often pertain to specific plant rows
+        above. Sometimes the notes and their respective plant rows are linked by a
+        common footnote indicator such as (a) or (1) etc.
 
         This function takes this:
 
@@ -2098,13 +2222,13 @@ class PlantsSmallFerc1TableTransformer(Ferc1AbstractTableTransformer):
         | (c) project #2852 | note       | 2738             |
         +-------------------+------------+------------------+
 
-        And finds these note rows with footnote indicators, maps the content
-        from the note row into a new note column that's associated with the value row,
-        and also maps any ferc license extracted from this note column to the
-        `license_id_ferc1` column in the value row.
+        Finds the note rows with footnote indicators, maps the content from the note row
+        into a new note column that's associated with the value row, and maps any FERC
+        license extracted from this note column to the ``license_id_ferc1`` column in
+        the value row.
 
         +-------------------+------------+-------------------+------------------+
-        | plant_name_ferc1  | row_type   | note              | license_id_ferc1 |
+        | plant_name_ferc1  | row_type   | notes             | license_id_ferc1 |
         +===================+============+===================+==================+
         | HYDRO:            | header     | NA                | NA               |
         +-------------------+------------+-------------------+------------------+
@@ -2123,12 +2247,22 @@ class PlantsSmallFerc1TableTransformer(Ferc1AbstractTableTransformer):
         | (c) project #2852 | note       | NA                | 2752             |
         +-------------------+------------+-------------------+------------------+
 
-        The note rows will get dropped in another function.
+        (Header and note rows are removed later).
 
         NOTE: Note rows that don't have a footnote indicator or note rows with a
         footnote indicator that don't have a cooresponding plant row with the same
         indicator are not captured. They will ultimately get removed and their content
         will not be preserved.
+
+        Params:
+            df: Pre-processed, concatenated XBRL and DBF data that has been run through
+            :func:`label_row_types` and contains the column ``row_type``.
+
+        Returns:
+            The same input DataFrame but with a column called ``notes`` that contains
+            notes, reported below, in the same row as the plant values they pertain to.
+            Also, any further additions to the ``license_id_ferc1`` field as extracted
+            from these newly associated notes.
         """
         logger.info(
             f"{self.table_id.value}: Mapping notes and ferc license from notes rows"
@@ -2189,14 +2323,22 @@ class PlantsSmallFerc1TableTransformer(Ferc1AbstractTableTransformer):
         return sg_notes
 
     def spot_fix_rows(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Fix some row discrepancies that are one-off errors.
+        """Fix one-off row errors.
 
         In 2004, utility_id_ferc1 251 reports clumps of units together. Each unit clump
-        looks something like this: "intrepid wind farm (107 units @ 1.5 mw each)" and is
-        followed by a row that looks like this: "(amounts are for the total of all 107
-        units)". For the most part, these rows are useless note rows. However, there is
-        one instance where important values are reported in this note row rather than in
-        the actual plant row above.
+        looks something like this: ``intrepid wind farm (107 units @ 1.5 mw each)`` and
+        is followed by a row that looks like this: ``(amounts are for the total of all
+        107 units)``. For the most part, these rows are useless note rows. However,
+        there is one instance where important values are reported in this note row
+        rather than in the actual plant row above.
+
+        There are probably plenty of other spot fixes one could add here.
+
+        Params:
+            df: Pre-processed, concatenated XBRL and DBF data.
+
+        Returns:
+            The same input DataFrame but with some spot fixes corrected.
         """
         logger.info(f"{self.table_id.value}: Spot fixing some rows")
         # Define rows and columns to change
