@@ -179,10 +179,10 @@ class GenericPlantFerc1TableTransformer(Ferc1AbstractTableTransformer):
     Intended for use in compiling all plant names for manual ID mapping.
     """
 
-    def __init__(self, table_id: Ferc1TableId):
+    def __init__(self, table_id: Ferc1TableId, **kwargs):
         """Initialize generic table transformer with table_id."""
         self.table_id = table_id
-        super().__init__()
+        super().__init__(**kwargs)
 
     def transform(
         self,
@@ -286,10 +286,10 @@ def get_plants_ferc1_raw(
         validate="m:1",
     )
     # grab the most recent plant record
-    most_recent_year = max(all_plants.report_year)
     all_plants = (
-        all_plants.loc[
-            (all_plants.report_year == most_recent_year),
+        all_plants.sort_values(["report_year"], ascending=False)
+        .loc[
+            :,
             [
                 "utility_id_ferc1",
                 "utility_name_ferc1",
