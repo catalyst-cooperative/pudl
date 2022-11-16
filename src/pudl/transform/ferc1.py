@@ -215,7 +215,7 @@ def fill_dbf_to_xbrl_map(
 
     One complication is that we need to explicitly indicate which DBF rows have headers
     in them (which don't exist in XBRL), to differentiate them from null values in the
-    exhaustive index we create below. We set a ``ROW_HEADER`` sentinel value so we can
+    exhaustive index we create below. We set a ``HEADER_ROW`` sentinel value so we can
     distinguish between two different reasons that we might find NULL values in the
     ``xbrl_column_stem`` field:
 
@@ -253,10 +253,10 @@ def fill_dbf_to_xbrl_map(
             f"Mapped years: {sorted(df.report_years.unique())}"
         )
 
-    df.loc[
-        (df.row_type == "header") & (df.xbrl_column_stem.isna()),
-        "xbrl_column_stem",
-    ] = "HEADER_ROW"
+    if df.loc[(df.row_type == "header"), "xbrl_column_stem"].notna().any():
+        raise ValueError("Found non-null XBRL column value mapped to a DBF header row.")
+    df.loc[df.row_type == "header", "xbrl_column_stem"] = "HEADER_ROW"
+
     if df["xbrl_column_stem"].isna().any():
         raise ValueError(
             "Found NA XBRL values in the DBF-XBRL mapping, which shouldn't happen."
@@ -286,8 +286,6 @@ def fill_dbf_to_xbrl_map(
     df["xbrl_column_stem"] = df.groupby("row_number").xbrl_column_stem.transform(
         "ffill"
     )
-    # eliminate the unmappable header rows now that their ffill stopping job is done:
-    df = df[df.xbrl_column_stem != "HEADER_ROW"]
     # Drop NA values produced in the broadcasting merge onto the exhaustive index.
     df = df.dropna(subset="xbrl_column_stem")
     # There should be no NA values left at this point:
@@ -1249,15 +1247,27 @@ class PlantInServiceFerc1TableTransformer(Ferc1AbstractTableTransformer):
     @cache_df(key="dbf")
     def align_row_numbers_dbf(self, df: pd.DataFrame) -> pd.DataFrame:
         """Align historical FERC1 DBF row numbers with XBRL account IDs."""
-        dbf_to_xbrl_map = fill_dbf_to_xbrl_map(
-            df=read_dbf_to_xbrl_map(
-                dbf_table_name=self.source_table_id(Ferc1Source.DBF)
-            ),
-            dbf_years=Ferc1Settings().dbf_years,
+        row_map = read_dbf_to_xbrl_map(
+            dbf_table_name=self.source_table_id(Ferc1Source.DBF)
+        ).pipe(fill_dbf_to_xbrl_map)
+        if not row_map.all(axis=None):
+            raise ValueError(
+                "Filled DBF-XBRL map contains NA values, which should never happen:"
+                f"{row_map}"
+            )
+
+        df = pd.merge(df, row_map, on=["report_year", "row_number"], how="left").rename(
+            columns={"xbrl_column_stem": "ferc_account_label"}
         )
-        return pd.merge(
-            df, dbf_to_xbrl_map, on=["report_year", "row_number"], how="left"
-        ).rename(columns={"xbrl_column_stem": "ferc_account_label"})
+        if df.ferc_account_label.isna().any():
+            raise ValueError(
+                "Found null FERC Account labels after aligning DBF/XBRL rows."
+            )
+        # eliminate the header rows since they (should!) contain no data in either the
+        # DBF or XBRL records:
+        df = df[df.ferc_account_label != "HEADER_ROW"]
+
+        return df
 
     @cache_df("process_instant_xbrl")
     def process_instant_xbrl(self, df: pd.DataFrame) -> pd.DataFrame:
@@ -1470,14 +1480,10 @@ class PlantInServiceFerc1TableTransformer(Ferc1AbstractTableTransformer):
         )
         deduped = pd.concat([df[~dupe_mask], good_dupes], axis="index")
         remaining_dupes = deduped[deduped.duplicated(subset=pk)]
-        if not remaining_dupes.empty:
-            # raise ValueError(
-            #    f"Unexpected duplicate records found in {self.table_id.value}!"
-            # )
-            logger.error(
-                f"{self.table_id.value}: Found {len(remaining_dupes)} remaining "
-                "duplicate records!"
-            )
+        logger.info(
+            f"{self.table_id.value}: {len(remaining_dupes)} dupes remaining after "
+            "targeted deduplication."
+        )
         return deduped
 
     def process_dbf(self, df: pd.DataFrame) -> pd.DataFrame:
@@ -2499,17 +2505,17 @@ if __name__ == "__main__":
     """Make the module runnable for iterative testing during development."""
 
     ferc1_settings = Ferc1Settings(
-        # years=[2020, 2021],
-        # If you want to run it with all years:
-        years=Ferc1Settings().years,
+        # Do one year of each, type of data, or all the years:
+        years=[2020, 2021],
+        # years=Ferc1Settings().years,
         tables=[
-            #   "fuel_ferc1",
-            #   "plants_steam_ferc1",
-            #   "plants_hydro_ferc1",
+            "fuel_ferc1",
+            "plants_steam_ferc1",
+            "plants_hydro_ferc1",
             "plant_in_service_ferc1",
-            #   "plants_pumped_storage_ferc1",
-            #   "purchased_power_ferc1",
-            #   "plants_small_ferc1",
+            "plants_pumped_storage_ferc1",
+            "purchased_power_ferc1",
+            "plants_small_ferc1",
         ],
     )
     pudl_settings = pudl.workspace.setup.get_defaults()

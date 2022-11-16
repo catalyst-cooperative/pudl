@@ -41,6 +41,7 @@ def test_dbf_to_xbrl_mapping_is_unique(dbf_table_name):
         df=read_dbf_to_xbrl_map(dbf_table_name=dbf_table_name),
         dbf_years=Ferc1Settings().dbf_years,
     )
+    dbf_xbrl_map = dbf_xbrl_map[dbf_xbrl_map.xbrl_column_stem != "HEADER_ROW"]
     dbf_to_xbrl_mapping_is_unique = (
         dbf_xbrl_map.groupby(["report_year", "xbrl_column_stem"])[
             "row_number"
@@ -74,11 +75,9 @@ report_year,row_number,xbrl_column_stem
 """
         )
     )
-
     test_map = TEST_DBF_XBRL_MAP.drop(
         ["sched_column_name", "row_literal"], axis="columns"
     ).reset_index(drop=True)
-    actual = fill_dbf_to_xbrl_map(df=test_map, dbf_years=range(2000, 2004)).reset_index(
-        drop=True
-    )
+    actual = fill_dbf_to_xbrl_map(df=test_map, dbf_years=range(2000, 2004))
+    actual = actual[actual.xbrl_column_stem != "HEADER_ROW"].reset_index(drop=True)
     pd.testing.assert_frame_equal(actual, expected)
