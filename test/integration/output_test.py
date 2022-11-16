@@ -67,54 +67,13 @@ def test_nuclear_fraction(fast_out, df_name, expected_nuke_fraction, tolerance):
         "pu_ferc1",
         "fuel_ferc1",
         "plants_steam_ferc1",
-        pytest.param(
-            "fbp_ferc1",
-            marks=pytest.mark.xfail(
-                reason="table not yet migrated in xbrl integration"
-            ),
-        ),
-        pytest.param(
-            "plant_in_service_ferc1",
-            marks=pytest.mark.xfail(
-                reason="table not yet migrated in xbrl integration"
-            ),
-        ),
-        pytest.param(
-            "plants_all_ferc1",
-            marks=pytest.mark.xfail(
-                reason="table not yet migrated in xbrl integration"
-            ),
-        ),
-        pytest.param(
-            "plants_hydro_ferc1",
-            marks=pytest.mark.xfail(
-                reason="table not yet migrated in xbrl integration"
-            ),
-        ),
-        pytest.param(
-            "plants_pumped_storage_ferc1",
-            marks=pytest.mark.xfail(
-                reason="table not yet migrated in xbrl integration"
-            ),
-        ),
-        pytest.param(
-            "plants_small_ferc1",
-            marks=pytest.mark.xfail(
-                reason="table not yet migrated in xbrl integration"
-            ),
-        ),
-        pytest.param(
-            "plants_all_ferc1",
-            marks=pytest.mark.xfail(
-                reason="table not yet migrated in xbrl integration"
-            ),
-        ),
-        pytest.param(
-            "purchased_power_ferc1",
-            marks=pytest.mark.xfail(
-                reason="table not yet migrated in xbrl integration"
-            ),
-        ),
+        "fbp_ferc1",
+        "plants_all_ferc1",
+        "plants_hydro_ferc1",
+        "plants_pumped_storage_ferc1",
+        "plants_small_ferc1",
+        "purchased_power_ferc1",
+        "plant_in_service_ferc1",
     ],
 )
 def test_ferc1_outputs(fast_out, df_name):
