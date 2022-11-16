@@ -148,7 +148,7 @@ def get_ferc1_dbf_rows_to_map(ferc1_engine: sa.engine.Engine) -> pd.DataFrame:
     return row_lit.loc[row_lit.changed, idx_cols + data_cols]
 
 
-def update_ferc1_dbf_xbrl_glue(ferc1_engine: sa.engine.Engine) -> pd.DataFrame:
+def update_dbf_to_xbrl_map(ferc1_engine: sa.engine.Engine) -> pd.DataFrame:
     """Regenerate the FERC 1 DBF+XBRL glue while retaining existing mappings.
 
     Reads all rows that need to be mapped out of the ``f1_row_lit_tbl`` and appends
@@ -169,8 +169,17 @@ def update_ferc1_dbf_xbrl_glue(ferc1_engine: sa.engine.Engine) -> pd.DataFrame:
     )
 
 
-def get_ferc1_dbf_xbrl_glue(dbf_table_name: str) -> pd.DataFrame:
-    """Read the DBF+XBRL glue and expand it to cover all DBF years."""
+def read_dbf_to_xbrl_map(dbf_table_name: str) -> pd.DataFrame:
+    """Read the manually compiled DBF row to XBRL column mapping for a given table.
+
+    Args:
+        dbf_table_name: The original name of the table in the FERC Form 1 DBF database
+            whose mapping to the XBRL data you want to extract. for example
+            ``f1_plant_in_srvce``.
+
+    Returns:
+        DataFrame with columns ``[report_year, row_number, row_type, xbrl_column_stem]``
+    """
     with importlib.resources.open_text(
         "pudl.package_data.ferc1", "dbf_to_xbrl.csv"
     ) as file:
@@ -189,52 +198,102 @@ def get_ferc1_dbf_xbrl_glue(dbf_table_name: str) -> pd.DataFrame:
         row_map.sched_table_name == dbf_table_name,
         ["report_year", "row_number", "row_type", "xbrl_column_stem"],
     ]
-    # Indicate which rows have unmappable headers in them, to differentiate them from
-    # null values in the exhaustive index we create below.
-    # We need the ROW_HEADER sentinel value so we can distinguish
-    # between two different reasons that we might find NULL values in the
-    # xbrl_column_stem field:
-    # 1. It's NULL because it's between two valid mapped values (the NULL was created
-    #    in our filling of the time series) and should thus be filled in, or
-    # 2. It's NULL because it was a header row in the DBF data, which means it should
-    #    NOT be filled in. Without the HEADER_ROW value, when a row number from year X
-    #    becomes associated with a non-header row in year X+1
-    #    the ffill will keep right on filling, associating all of the new header rows
-    #    with the value of xbrl_column_stem that was associated with the old row number.
-    row_map.loc[
-        (row_map.row_type == "header") & (row_map.xbrl_column_stem.isna()),
-        "xbrl_column_stem",
-    ] == "HEADER_ROW"
-    row_map = row_map.drop(["row_type"], axis="columns")
+    return row_map
 
-    # Create an index containing all possible index values:
+
+def fill_dbf_to_xbrl_map(
+    df: pd.DataFrame, dbf_years: list[int] | None = None
+) -> pd.DataFrame:
+    """Forward-fill missing years in the minimal, manually compiled DBF to XBRL mapping.
+
+    The relationship between a DBF row and XBRL column/fact/entity/whatever is mostly
+    consistent from year to year. To minimize the amount of manual mapping work we have
+    to do, we only map the years in which the relationship changes. In the end we do
+    need a complete correspondence for all years though, and this function uses the
+    minimal information we've compiled to fill in all the gaps, producing a complete
+    mapping across all requested years.
+
+    One complication is that we need to explicitly indicate which DBF rows have headers
+    in them (which don't exist in XBRL), to differentiate them from null values in the
+    exhaustive index we create below. We set a ``HEADER_ROW`` sentinel value so we can
+    distinguish between two different reasons that we might find NULL values in the
+    ``xbrl_column_stem`` field:
+
+    1. It's NULL because it's between two valid mapped values (the NULL was created
+       in our filling of the time series) and should thus be filled in, or
+
+    2. It's NULL because it was a header row in the DBF data, which means it should
+       NOT be filled in. Without the ``HEADER_ROW`` value, when a row number from year X
+       becomes associated with a non-header row in year X+1 the ffill will keep right on
+       filling, associating all of the new header rows with the value of
+       ``xbrl_column_stem`` that was associated with the old row number.
+
+    Args:
+        df: A dataframe containing a DBF row to XBRL mapping for a single FERC 1 DBF
+            table.
+        dbf_years: The list of years that should have their DBF row to XBRL mapping
+            filled in. This defaults to all available years of DBF data for FERC 1. In
+            general this parameter should only be set to a non-default value for testing
+            purposes.
+
+    Returns:
+        A complete mapping of DBF row number to XBRL columns for all years of data
+        within a single FERC 1 DBF table. Has columns of
+        ``[report_year, row_number, xbrl_column_stem]``
+    """
+    if not dbf_years:
+        dbf_years = Ferc1Settings().dbf_years
+    # If the first year that we're trying to produce isn't mapped, we won't be able to
+    # forward fill.
+    if min(dbf_years) not in df.report_year.unique():
+        raise ValueError(
+            "Invalid combination of years and DBF-XBRL mapping. The first year cannot\n"
+            "be filled and **must** be mapped.\n"
+            f"First year: {min(dbf_years)}, "
+            f"Mapped years: {sorted(df.report_years.unique())}"
+        )
+
+    if df.loc[(df.row_type == "header"), "xbrl_column_stem"].notna().any():
+        raise ValueError("Found non-null XBRL column value mapped to a DBF header row.")
+    df.loc[df.row_type == "header", "xbrl_column_stem"] = "HEADER_ROW"
+
+    if df["xbrl_column_stem"].isna().any():
+        raise ValueError(
+            "Found NA XBRL values in the DBF-XBRL mapping, which shouldn't happen."
+        )
+    df = df.drop(["row_type"], axis="columns")
+
+    # Create an index containing all combinations of report_year and row_number
     idx = pd.MultiIndex.from_product(
         [
-            Ferc1Settings().dbf_years,
-            row_map.row_number.unique(),
+            dbf_years,
+            df.row_number.unique(),
         ],
         names=["report_year", "row_number"],
     )
 
     # Concatenate the row map with the empty index, so we have blank spaces to fill:
-    row_map = pd.concat(
+    df = pd.concat(
         [
             pd.DataFrame(index=idx),
-            row_map.set_index(["report_year", "row_number"]),
+            df.set_index(["report_year", "row_number"]),
         ],
         axis="columns",
     ).reset_index()
 
     # Forward fill missing XBRL column names, until a new definition for the row
     # number is encountered:
-    row_map["xbrl_column_stem"] = row_map.groupby(
-        "row_number"
-    ).xbrl_column_stem.transform("ffill")
-    # Drop any rows that do not actually map between DBF rows and XBRL columns:
-    row_map = row_map.replace({"xbrl_column_stem": {"HEADER_ROW": np.nan}}).dropna(
-        subset=["xbrl_column_stem"]
+    df["xbrl_column_stem"] = df.groupby("row_number").xbrl_column_stem.transform(
+        "ffill"
     )
-    return row_map
+    # Drop NA values produced in the broadcasting merge onto the exhaustive index.
+    df = df.dropna(subset="xbrl_column_stem")
+    # There should be no NA values left at this point:
+    if not df.all(axis=None):
+        raise ValueError(
+            "Filled DBF-XBRL map contains NA values, which should never happen:" f"{df}"
+        )
+    return df
 
 
 def get_data_cols_raw_xbrl(
@@ -1188,11 +1247,27 @@ class PlantInServiceFerc1TableTransformer(Ferc1AbstractTableTransformer):
     @cache_df(key="dbf")
     def align_row_numbers_dbf(self, df: pd.DataFrame) -> pd.DataFrame:
         """Align historical FERC1 DBF row numbers with XBRL account IDs."""
-        return pd.merge(
-            df,
-            get_ferc1_dbf_xbrl_glue(self.source_table_id(Ferc1Source.DBF)),
-            on=["report_year", "row_number"],
-        ).rename(columns={"xbrl_column_stem": "ferc_account_label"})
+        row_map = read_dbf_to_xbrl_map(
+            dbf_table_name=self.source_table_id(Ferc1Source.DBF)
+        ).pipe(fill_dbf_to_xbrl_map)
+        if not row_map.all(axis=None):
+            raise ValueError(
+                "Filled DBF-XBRL map contains NA values, which should never happen:"
+                f"{row_map}"
+            )
+
+        df = pd.merge(df, row_map, on=["report_year", "row_number"], how="left").rename(
+            columns={"xbrl_column_stem": "ferc_account_label"}
+        )
+        if df.ferc_account_label.isna().any():
+            raise ValueError(
+                "Found null FERC Account labels after aligning DBF/XBRL rows."
+            )
+        # eliminate the header rows since they (should!) contain no data in either the
+        # DBF or XBRL records:
+        df = df[df.ferc_account_label != "HEADER_ROW"]
+
+        return df
 
     @cache_df("process_instant_xbrl")
     def process_instant_xbrl(self, df: pd.DataFrame) -> pd.DataFrame:
@@ -1371,9 +1446,56 @@ class PlantInServiceFerc1TableTransformer(Ferc1AbstractTableTransformer):
 
         return df
 
+    def targeted_drop_duplicates_dbf(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Drop bad duplicate records from a specific utility in 2018.
+
+        This is a very specific fix, meant to get rid of a particular observed set of
+        duplicate records: FERC Respondent ID 187 in 2018 has two sets of plant in
+        service records, one of which contains a bunch of null data.
+
+        This method is part of the DBF processing because we want to be able to
+        hard-code a specific value of ``utility_id_ferc1_dbf`` and those IDs are no
+        longer available later in the process. I think.
+        """
+        # A single utility has double reported data in 2018.
+        pk = ["report_year", "utility_id_ferc1", "ferc_account_label"]
+        dupe_mask = (
+            df.duplicated(subset=pk, keep=False)
+            & (df.report_year == 2018)
+            & (df.utility_id_ferc1_dbf == 187)
+        )
+        all_dupes = df[dupe_mask]
+        # The observed pairs of duplicate records have NA values in all of the
+        # additions, retirements, adjustments, and transfers columns. This selects
+        # only those duplicates that have *any* non-null value in those rows.
+        good_dupes = all_dupes[
+            all_dupes[["additions", "retirements", "adjustments", "transfers"]]
+            .notnull()
+            .any(axis="columns")
+        ]
+        # Make sure that the good and bad dupes have exactly the same indices:
+        pd.testing.assert_index_equal(
+            good_dupes.set_index(pk).index,
+            all_dupes.set_index(pk).index.drop_duplicates(),
+        )
+        deduped = pd.concat([df[~dupe_mask], good_dupes], axis="index")
+        remaining_dupes = deduped[deduped.duplicated(subset=pk)]
+        logger.info(
+            f"{self.table_id.value}: {len(remaining_dupes)} dupes remaining after "
+            "targeted deduplication."
+        )
+        return deduped
+
+    def process_dbf(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Drop targeted duplicates in the DBF data so we can use FERC respondent ID."""
+        return super().process_dbf(df).pipe(self.targeted_drop_duplicates_dbf)
+
     @cache_df("main")
     def transform_main(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Annotates and transforms the table based on XBRL taxonomy metadata."""
+        """The main table-specific transformations, affecting contents not structure.
+
+        Annotates and alters data based on information from the XBRL taxonomy metadata.
+        """
         return (
             super()
             .transform_main(df)
@@ -2383,8 +2505,8 @@ if __name__ == "__main__":
     """Make the module runnable for iterative testing during development."""
 
     ferc1_settings = Ferc1Settings(
+        # Do one year of each, type of data, or all the years:
         years=[2020, 2021],
-        # If you want to run it with all years:
         # years=Ferc1Settings().years,
         tables=[
             "fuel_ferc1",

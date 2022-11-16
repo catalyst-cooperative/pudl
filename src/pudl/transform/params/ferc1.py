@@ -2445,7 +2445,7 @@ TRANSFORM_PARAMS = {
                 ],
             },
             {
-                "invalid_values": ["0", "—"],
+                "invalid_values": ["0", "—", ""],
                 "required_valid_cols": ["plant_name_ferc1"],
             },
         ],
