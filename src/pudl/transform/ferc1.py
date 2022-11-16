@@ -1973,7 +1973,7 @@ class PlantsSmallFerc1TableTransformer(Ferc1AbstractTableTransformer):
 
         +-------------------+---------+---------+----------------+--------------------+
         | plant_name_ferc1  | plant   | fuel    | plant_type     | fuel_type          |
-        |                   | _type   | _typ    | _from_header   | _from_header       |
+        |                   | _type   | _type   | _from_header   | _from_header       |
         +===================+=========+=========+================+====================+
         | HYDRO:            | NA      | NA      | HYDRO:         | HYDRO:             |
         +-------------------+---------+---------+----------------+--------------------+
