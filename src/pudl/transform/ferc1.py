@@ -1383,9 +1383,55 @@ class PlantInServiceFerc1TableTransformer(Ferc1AbstractTableTransformer):
 
         return df
 
+    def targeted_drop_duplicates_dbf(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Drop bad duplicate records from a specific utility in 2018.
+
+        This is a very specific fix, meant to get rid of a particular observed set of
+        duplicate records: FERC Respondent ID 187 in 2018 has two sets of plant in
+        service records, one of which contains a bunch of null data.
+
+        This method is part of the DBF processing because we want to be able to
+        hard-code a specific value of ``utility_id_ferc1_dbf`` and those IDs are no
+        longer available later in the process. I think.
+        """
+        # A single utility has double reported data in 2018.
+        pk = ["report_year", "utility_id_ferc1", "ferc_account_label"]
+        dupe_mask = (
+            df.duplicated(subset=pk, keep=False)
+            & (df.report_year == 2018)
+            & (df.utility_id_ferc1_dbf == 187)
+        )
+        all_dupes = df[dupe_mask]
+        # The observed pairs of duplicate records have NA values in all of the
+        # additions, retirements, adjustments, and transfers columns. This selects
+        # only those duplicates that have *any* non-null value in those rows.
+        good_dupes = all_dupes[
+            all_dupes[["additions", "retirements", "adjustments", "transfers"]]
+            .notnull()
+            .any(axis="columns")
+        ]
+        # Make sure that the good and bad dupes have exactly the same indices:
+        pd.testing.assert_index_equal(
+            good_dupes.set_index(pk).index,
+            all_dupes.set_index(pk).index.drop_duplicates(),
+        )
+        deduped = pd.concat([df[~dupe_mask], good_dupes], axis="index")
+        if not deduped[deduped.duplicated(subset=pk, keep=False)].empty:
+            raise ValueError(
+                f"Unexpected duplicate records found in {self.table_id.value}!"
+            )
+        return deduped
+
+    def process_dbf(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Drop targeted duplicates in the DBF data so we can use FERC respondent ID."""
+        return super().process_dbf(df).pipe(self.targeted_drop_duplicates_dbf)
+
     @cache_df("main")
     def transform_main(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Annotates and transforms the table based on XBRL taxonomy metadata."""
+        """The main table-specific transformations, affecting contents not structure.
+
+        Annotates and alters data based on information from the XBRL taxonomy metadata.
+        """
         return (
             super()
             .transform_main(df)
