@@ -296,7 +296,6 @@ def plant_in_service_ferc1(pudl_engine):
                 "utility_id_pudl",
                 "utility_name_ferc1",
                 "record_id",
-                "amount_type",
             ],
         )
     )
