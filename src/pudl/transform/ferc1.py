@@ -1383,7 +1383,7 @@ class PlantInServiceFerc1TableTransformer(Ferc1AbstractTableTransformer):
 
 
 class PlantsSmallFerc1TableTransformer(Ferc1AbstractTableTransformer):
-    """A table transformer specific to the ``plants_small_ferc1`` table."""
+    """A table transformer specific to the :ref:`plants_small_ferc1` table."""
 
     table_id: Ferc1TableId = Ferc1TableId.PLANTS_SMALL_FERC1
 
@@ -1545,7 +1545,7 @@ class PlantsSmallFerc1TableTransformer(Ferc1AbstractTableTransformer):
         were to run this on the whole dataframe, we would see "note clumps" that are
         actually notes from the end of one utility's report and headers from the
         beginning of another. For this reason, we run this function from within the
-        :func:`_label_note_row_group` function.
+        :func:`_label_note_rows_group` function.
 
         The output of this function is not a modified version of the original
         utility-year group, rather, it is a DataFrame containing information about the
@@ -1878,7 +1878,7 @@ class PlantsSmallFerc1TableTransformer(Ferc1AbstractTableTransformer):
         | (c) project #2852 | NA         | NA              |
         +-------------------+------------+-----------------+
 
-        Notice how missleading it is to have all this infomration in one column. The
+        Notice how misleading it is to have all this infomration in one column. The
         goal of this function is to coordinate labeling functions so that we can
         identify which rows contain specific plant information and which rows are
         headers, notes, or totals.
@@ -1943,9 +1943,9 @@ class PlantsSmallFerc1TableTransformer(Ferc1AbstractTableTransformer):
         columns more than the extracted and forward filled header values, so we only
         want to replace ``fuel_type`` and ``plant_type`` values that are labeled as
         ``pd.NA`` or ``other``. The values reported to those columns are extremely messy
-        and must be cleaned via :func:`pudl.transform.params.categorize_strings` in
+        and must be cleaned via :func:`pudl.transform.classes.categorize_strings` in
         order for us to know which are truely ``pd.NA`` or ``other``. Because we also
-        use :func:`pudl.transform.params.categorize_strings` to map the headers to fuel
+        use :func:`pudl.transform.classes.categorize_strings` to map the headers to fuel
         and plant types, it makes sense to clean all four columns at once and then
         combine them.
 
