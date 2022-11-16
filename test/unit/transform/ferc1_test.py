@@ -35,8 +35,8 @@ test_table1,2002,"Account C",6,ferc_account,account_c
         "f1_elctrc_erg_acct",
     ],
 )
-def test_actual_dbf_to_xbrl_maps(dbf_table_name):
-    """Test our DBF to XBRL row alignment tools & manually compiled mapping."""
+def test_dbf_to_xbrl_mapping_is_unique(dbf_table_name):
+    """Verify that our DBF to XBRL mapping results in at most 1 mapping per year."""
     dbf_xbrl_map = fill_dbf_to_xbrl_map(
         df=read_dbf_to_xbrl_map(dbf_table_name=dbf_table_name),
         dbf_years=Ferc1Settings().dbf_years,
