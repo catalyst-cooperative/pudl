@@ -523,17 +523,18 @@ def plants_steam_assign_plant_ids(
         )
 
     ferc1_steam_df = pd.merge(ferc1_steam_df, plants_w_ids, on="record_id")
-    ferc1_steam_df = revert_filled_in_nulls(ferc1_steam_df)
+    ferc1_steam_df = revert_filled_in_string_nulls(ferc1_steam_df)
     return ferc1_steam_df
 
 
-def revert_filled_in_nulls(df: pd.DataFrame) -> pd.DataFrame:
-    """Revert the filled nulls from strings and floats.
+def revert_filled_in_string_nulls(df: pd.DataFrame) -> pd.DataFrame:
+    """Revert the filled nulls from string columns.
 
     Many columns that are used for the classification in
     :func:`plants_steam_assign_plant_ids` have many nulls. The classifier can't handle
-    nulls well, so we filled in nulls with empty strings and zeros for string and float
-    columns respectively.
+    nulls well, so we filled in nulls with empty strings for string columns. This
+    function replaces empty strings with null values for specific columns that are known
+    to contain empty strings introduced for the classifier.
     """
     for col in [
         "plant_type",
@@ -548,6 +549,17 @@ def revert_filled_in_nulls(df: pd.DataFrame) -> pd.DataFrame:
                 to_replace=[""],
                 value=pd.NA,
             )
+    return df
+
+
+def revert_filled_in_float_nulls(df: pd.DataFrame) -> pd.DataFrame:
+    """Revert the filled nulls from float columns.
+
+    Many columns that are used for the classification in
+    :func:`plants_steam_assign_plant_ids` have many nulls. The classifier can't handle
+    nulls well, so we filled in nulls with zeros for float columns. This function
+    replaces zeros with nulls for all float columns.
+    """
     float_cols = list(df.select_dtypes(include=[float]))
     if float_cols:
         df.loc[:, float_cols] = df.loc[:, float_cols].replace(0, np.nan)

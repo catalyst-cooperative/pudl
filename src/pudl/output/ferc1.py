@@ -166,7 +166,8 @@ def fuel_by_plant_ferc1(pudl_engine, thresh=0.5):
             fuel_categories=fuel_categories,
             thresh=thresh,
         )
-        .pipe(pudl.analysis.classify_plants_ferc1.revert_filled_in_nulls)
+        .pipe(pudl.analysis.classify_plants_ferc1.revert_filled_in_float_nulls)
+        .pipe(pudl.analysis.classify_plants_ferc1.revert_filled_in_string_nulls)
         .merge(
             plants_utils_ferc1(pudl_engine), on=["utility_id_ferc1", "plant_name_ferc1"]
         )
