@@ -292,13 +292,16 @@ def pudl_settings_dict(request, live_dbs, tmpdir_factory):  # noqa: C901
 
     if live_dbs:
         pudl_defaults = pudl.workspace.setup.get_defaults()
-        pudl_settings["pudl_db"] = pudl_defaults["pudl_db"]
-        pudl_settings["ferc1_db"] = pudl_defaults["ferc1_db"]
-        pudl_settings["ferc1_xbrl_db"] = pudl_defaults["ferc1_xbrl_db"]
-        pudl_settings["ferc1_xbrl_taxonomy_metadata"] = pudl_defaults[
-            "ferc1_xbrl_taxonomy_metadata"
-        ]
-        pudl_settings["censusdp1tract_db"] = pudl_defaults["censusdp1tract_db"]
+        # everything with the following suffixes should use the defaults as opposed to
+        # the generated settings. We should overhaul using temp_dir's for pudl_out at
+        # all while using `live_dbs` and perhaps change the name of `live_dbs` bc it
+        # now encompasses more than just dbs
+        overwrite_suffixes = ("_db", "_datapackage", "_xbrl_taxonomy_metadata")
+        pudl_settings = {
+            k: pudl_defaults[k] if k.endswith(overwrite_suffixes) else v
+            for (k, v) in pudl_settings.items()
+        }
+
         pudl_settings["parquet_dir"] = pudl_defaults["parquet_dir"]
         pudl_settings["sqlite_dir"] = pudl_defaults["sqlite_dir"]
 

@@ -1217,6 +1217,47 @@ class PlantsHydroFerc1TableTransformer(Ferc1AbstractTableTransformer):
 
     table_id: Ferc1TableId = Ferc1TableId.PLANTS_HYDRO_FERC1
 
+    def transform_main(self, df):
+        """Add bespoke removal of duplicate record after standard transform_main."""
+        return super().transform_main(df).pipe(self.targeted_drop_duplicates)
+
+    def targeted_drop_duplicates(self, df):
+        """Targeted removal of known duplicate record.
+
+        There are two records in 2019 with a ``utility_id_ferc1`` of 200 and a
+        ``plant_name_ferc1`` of "marmet". The records are nearly duplicates of
+        eachother, except one have nulls in the capex columns. Surgically remove the
+        record with the nulls.
+        """
+        null_columns = [
+            "capex_land",
+            "capex_structures",
+            "capex_facilities",
+            "capex_equipment",
+            "capex_roads",
+            "asset_retirement_cost",
+            "capex_total",
+            "capex_per_mw",
+        ]
+        dupe_mask = (
+            (df.report_year == 2019)
+            & (df.utility_id_ferc1 == 200)
+            & (df.plant_name_ferc1 == "marmet")
+        )
+        null_maks = df[null_columns].isnull().all(axis="columns")
+
+        possible_dupes = df.loc[dupe_mask]
+        if (len(possible_dupes) != 2) & (2019 in df.report_year.unique()):
+            raise AssertionError(
+                f"{self.table_id}: Expected 2 records for found: {possible_dupes}"
+            )
+        dropping = df.loc[(dupe_mask & null_maks)]
+        logger.debug(
+            f"Dropping {len(dropping)} duplicate record with null data in {null_columns}"
+        )
+        df = df.loc[~(dupe_mask & null_maks)].copy()
+        return df
+
 
 class PlantsPumpedStorageFerc1TableTransformer(Ferc1AbstractTableTransformer):
     """Transformer class for :ref:`plants_pumped_storage_ferc1` table."""
