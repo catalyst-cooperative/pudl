@@ -102,7 +102,7 @@ setup(
             "flake8>=4.0,<5.1",
             "flake8-builtins>=1.5,<2.1",
             "flake8-docstrings>=1.5,<1.7",
-            "flake8-rst-docstrings>=0.2,<0.3",
+            "flake8-rst-docstrings>=0.2,<0.4",
             "flake8-use-fstring>=1.0,<1.5",
             "mccabe>=0.6,<0.8",
             "nbval>=0.9,<0.10",
