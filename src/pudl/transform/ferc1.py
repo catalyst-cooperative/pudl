@@ -1229,34 +1229,33 @@ class PlantsHydroFerc1TableTransformer(Ferc1AbstractTableTransformer):
         eachother, except one have nulls in the capex columns. Surgically remove the
         record with the nulls.
         """
-        if 2019 in df.report_year.unique():
-            null_columns = [
-                "capex_land",
-                "capex_structures",
-                "capex_facilities",
-                "capex_equipment",
-                "capex_roads",
-                "asset_retirement_cost",
-                "capex_total",
-                "capex_per_mw",
-            ]
-            dupe_mask = (
-                (df.report_year == 2019)
-                & (df.utility_id_ferc1 == 200)
-                & (df.plant_name_ferc1 == "marmet")
-            )
-            null_maks = df[null_columns].isnull().all(axis="columns")
+        null_columns = [
+            "capex_land",
+            "capex_structures",
+            "capex_facilities",
+            "capex_equipment",
+            "capex_roads",
+            "asset_retirement_cost",
+            "capex_total",
+            "capex_per_mw",
+        ]
+        dupe_mask = (
+            (df.report_year == 2019)
+            & (df.utility_id_ferc1 == 200)
+            & (df.plant_name_ferc1 == "marmet")
+        )
+        null_maks = df[null_columns].isnull().all(axis="columns")
 
-            possible_dupes = df.loc[dupe_mask]
-            if len(possible_dupes) != 2:
-                raise AssertionError(
-                    f"{self.table_id}: Expected 2 records for found: {possible_dupes}"
-                )
-            dropping = df.loc[(dupe_mask & null_maks)]
-            logger.debug(
-                f"Dropping {len(dropping)} duplicate record with null data in {null_columns}"
+        possible_dupes = df.loc[dupe_mask]
+        if (len(possible_dupes) != 2) & (2019 in df.report_year.unique()):
+            raise AssertionError(
+                f"{self.table_id}: Expected 2 records for found: {possible_dupes}"
             )
-            df = df.loc[~(dupe_mask & null_maks)].copy()
+        dropping = df.loc[(dupe_mask & null_maks)]
+        logger.debug(
+            f"Dropping {len(dropping)} duplicate record with null data in {null_columns}"
+        )
+        df = df.loc[~(dupe_mask & null_maks)].copy()
         return df
 
 

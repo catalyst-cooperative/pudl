@@ -1231,7 +1231,7 @@ fbp_ferc1_oil_cost_per_mmbtu_bounds = [
         "title": "Oil Cost per MMBTU (Median)",
         "query": "",
         "low_q": 0.5,
-        "low_bound": 7.0,
+        "low_bound": 6.5,
         "hi_q": 0.5,
         "hi_bound": 17.0,
         "data_col": "oil_cost_per_mmbtu",
