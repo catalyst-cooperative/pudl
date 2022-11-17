@@ -827,7 +827,7 @@ plants_steam_ferc1_capacity_ratios = [
         "title": "Capability Ratio (tails)",
         "query": "",
         "low_q": 0.05,
-        "low_bound": 0.64,
+        "low_bound": 0.5,
         "hi_q": 0.95,
         "hi_bound": 1.18,
         "data_col": "capability_ratio",

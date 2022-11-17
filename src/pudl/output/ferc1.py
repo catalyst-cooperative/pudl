@@ -149,13 +149,24 @@ def fuel_by_plant_ferc1(pudl_engine, thresh=0.5):
         .params.categorize_strings["fuel_type_code_pudl"]
         .categories.keys()
     )
+
+    def drop_other_fuel_types(df):
+        """Internal function to drop other fuel type.
+
+        Fuel type other indicates we didn't know how to categorize the reported fuel
+        type, which leads to records with incomplete and unsable data.
+        """
+        return df[df.fuel_type_code_pudl != "other"].copy()
+
     fbp_df = (
         pd.read_sql_table("fuel_ferc1", pudl_engine)
+        .pipe(drop_other_fuel_types)
         .pipe(
             pudl.analysis.classify_plants_ferc1.fuel_by_plant_ferc1,
             fuel_categories=fuel_categories,
             thresh=thresh,
         )
+        .pipe(pudl.analysis.classify_plants_ferc1.revert_filled_in_nulls)
         .merge(
             plants_utils_ferc1(pudl_engine), on=["utility_id_ferc1", "plant_name_ferc1"]
         )

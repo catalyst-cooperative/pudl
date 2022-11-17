@@ -523,15 +523,35 @@ def plants_steam_assign_plant_ids(
         )
 
     ferc1_steam_df = pd.merge(ferc1_steam_df, plants_w_ids, on="record_id")
-    # replace blank "" that got introduced to remove nulls with nulls for enum
-    # constrained columns.
-    # the replace to_replace={column_name: {"", pd.NA}} mysteriously doesn't work
-    for col in ["plant_type", "construction_type"]:
-        ferc1_steam_df[col] = ferc1_steam_df[col].replace(
-            to_replace=[""],
-            value=pd.NA,
-        )
+    ferc1_steam_df = revert_filled_in_nulls(ferc1_steam_df)
     return ferc1_steam_df
+
+
+def revert_filled_in_nulls(df: pd.DataFrame) -> pd.DataFrame:
+    """Revert the filled nulls from strings and floats.
+
+    Many columns that are used for the classification in
+    :func:`plants_steam_assign_plant_ids` have many nulls. The classifier can't handle
+    nulls well, so we filled in nulls with empty strings and zeros for string and float
+    columns respectively.
+    """
+    for col in [
+        "plant_type",
+        "construction_type",
+        "fuel_type_code_pudl",
+        "primary_fuel_by_cost",
+        "primary_fuel_by_mmbtu",
+    ]:
+        if col in df.columns:
+            # the replace to_replace={column_name: {"", pd.NA}} mysteriously doesn't work.
+            df[col] = df[col].replace(
+                to_replace=[""],
+                value=pd.NA,
+            )
+    float_cols = list(df.select_dtypes(include=[float]))
+    if float_cols:
+        df.loc[:, float_cols] = df.loc[:, float_cols].replace(0, np.nan)
+    return df
 
 
 def plants_steam_validate_ids(ferc1_steam_df: pd.DataFrame) -> pd.DataFrame:
