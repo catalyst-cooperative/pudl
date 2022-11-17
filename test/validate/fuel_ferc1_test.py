@@ -40,7 +40,9 @@ def test_fuel_ferc1_trivial(pudl_out_ferc1):
         pytest.param(
             pv.fuel_ferc1_gas_cost_per_unit_bounds,
             id="gas_cost_per_unit",
-            marks=pytest.mark.xfail(reason="FERC 1 fuel unit errors? See issue #2073"),
+            marks=pytest.mark.xfail(
+                reason="FERC 1 fuel unit errors? See issue https://github.com/catalyst-cooperative/pudl/issues/2073"
+            ),
         ),
     ],
 )
