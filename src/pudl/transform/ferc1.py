@@ -1256,7 +1256,8 @@ class PlantsHydroFerc1TableTransformer(Ferc1AbstractTableTransformer):
             logger.debug(
                 f"Dropping {len(dropping)} duplicate record with null data in {null_columns}"
             )
-        return df.loc[~(dupe_mask & null_maks)].copy()
+            df = df.loc[~(dupe_mask & null_maks)].copy()
+        return df
 
 
 class PlantsPumpedStorageFerc1TableTransformer(Ferc1AbstractTableTransformer):
