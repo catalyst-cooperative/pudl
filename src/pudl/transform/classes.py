@@ -1231,4 +1231,10 @@ class AbstractTableTransformer(ABC):
                 f"{self.table_id.value}: Missing columns found when enforcing table "
                 f"schema: {missing_cols}"
             )
-        return resource.format_df(df)
+        df = resource.format_df(df)
+        pk = resource.schema.primary_key
+        if pk and not df[df.duplicated(subset=pk)].empty:
+            raise ValueError(
+                f"{self.table_id.value} Duplicate primary keys when enforcing schema."
+            )
+        return df
