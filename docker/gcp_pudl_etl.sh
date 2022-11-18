@@ -1,5 +1,5 @@
 #!/usr/bin/bash
-# This script runs the entire ETL and validation tests in a docker container on a Google Compute Engin instance.
+# This script runs the entire ETL and validation tests in a docker container on a Google Compute Engine instance.
 # This script won't work locally because it needs adequate GCP permissions.
 function send_slack_msg() {
     curl -X POST -H "Content-type: application/json" -H "Authorization: Bearer ${SLACK_TOKEN}" https://slack.com/api/chat.postMessage --data "{\"channel\": \"C03FHB9N0PQ\", \"text\": \"$1\"}"
@@ -21,7 +21,7 @@ function run_pudl_etl() {
     && pudl_setup \
         --pudl_in $CONTAINER_PUDL_IN \
         --pudl_out $CONTAINER_PUDL_OUT \
-    && ferc1_to_sqlite \
+    && ferc_to_sqlite \
         --clobber \
         --loglevel DEBUG \
         --gcs-cache-path gs://internal-zenodo-cache.catalyst.coop \
@@ -71,9 +71,9 @@ function copy_outputs_to_intake_bucket() {
 function notify_slack() {
     # Notify pudl-builds slack channel of deployment status
     if [ $1 = "success" ]; then
-        message=":large_green_circle: :sunglasses: :unicorn_face: :rainbow: The deployment succeeded!! :rainbow: :unicorn_face: :sunglasses: :large_green_circle:\n\n "
+        message=":large_green_circle: :sunglasses: :unicorn_face: :rainbow: The deployment succeeded!! :partygritty: :database_parrot: :blob-dance: :large_green_circle:\n\n "
     elif [ $1 = "failure" ]; then
-        message=":large_red_square: Oh bummer the deployment failed :smiling_face_with_tear:\n\n "
+        message=":large_red_square: Oh bummer the deployment failed ::fiiiiine: :sob: :cry_spin:\n\n "
     else
         echo "Invalid deployment status"
         exit 1
