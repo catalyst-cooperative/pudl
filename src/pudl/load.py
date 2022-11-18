@@ -1,6 +1,5 @@
 """Routines for loading PUDL data into various storage formats."""
 
-import logging
 import sys
 from sqlite3 import Connection as SQLite3Connection
 from sqlite3 import sqlite_version
@@ -10,10 +9,11 @@ import sqlalchemy as sa
 from packaging import version
 from sqlalchemy.exc import IntegrityError
 
+import pudl.logging_helpers
 from pudl.helpers import find_foreign_key_errors
 from pudl.metadata.classes import Package
 
-logger = logging.getLogger(__name__)
+logger = pudl.logging_helpers.get_logger(__name__)
 
 MINIMUM_SQLITE_VERSION = "3.32.0"
 

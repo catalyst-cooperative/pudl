@@ -17,16 +17,16 @@ it appears in CEMS and the `plant_id_eia` field used in EIA data. Hense, we've c
 `plant_id_epa` until it gets transformed into `plant_id_eia` during the transform
 process with help from the crosswalk.
 """
-import logging
 from pathlib import Path
 from typing import NamedTuple
 from zipfile import ZipFile
 
 import pandas as pd
 
+import pudl.logging_helpers
 from pudl.workspace.datastore import Datastore
 
-logger = logging.getLogger(__name__)
+logger = pudl.logging_helpers.get_logger(__name__)
 
 # EPA CEMS constants #####
 RENAME_DICT = {

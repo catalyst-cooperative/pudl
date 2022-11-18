@@ -44,7 +44,7 @@ from pudl.settings import (
 )
 from pudl.workspace.datastore import Datastore
 
-logger = logging.getLogger(__name__)
+logger = pudl.logging_helpers.get_logger(__name__)
 
 
 ###############################################################################
@@ -177,12 +177,20 @@ def _etl_ferc1(
     out_dfs = _read_static_tables_ferc1()
 
     # Extract FERC form 1
-    ferc1_raw_dfs = pudl.extract.ferc1.extract(
+    ferc1_dbf_raw_dfs = pudl.extract.ferc1.extract_dbf(
         ferc1_settings=ferc1_settings, pudl_settings=pudl_settings
     )
+    # Extract FERC form 1 XBRL data
+    ferc1_xbrl_raw_dfs = pudl.extract.ferc1.extract_xbrl(
+        ferc1_settings=ferc1_settings, pudl_settings=pudl_settings
+    )
+    xbrl_metadata_json = pudl.extract.ferc1.extract_xbrl_metadata(pudl_settings)
     # Transform FERC form 1
     ferc1_transformed_dfs = pudl.transform.ferc1.transform(
-        ferc1_raw_dfs, ferc1_settings=ferc1_settings
+        ferc1_dbf_raw_dfs=ferc1_dbf_raw_dfs,
+        ferc1_xbrl_raw_dfs=ferc1_xbrl_raw_dfs,
+        xbrl_metadata_json=xbrl_metadata_json,
+        ferc1_settings=ferc1_settings,
     )
 
     out_dfs.update(ferc1_transformed_dfs)

@@ -1,23 +1,23 @@
 """Module to perform data cleaning functions on EPA CEMS data tables."""
 
 import datetime
-import logging
 
 import pandas as pd
 import pytz
 import sqlalchemy as sa
 
+import pudl.logging_helpers
 from pudl.helpers import remove_leading_zeros_from_numeric_strings
 from pudl.metadata.fields import apply_pudl_dtypes
 
-logger = logging.getLogger(__name__)
+logger = pudl.logging_helpers.get_logger(__name__)
+
+
 ###############################################################################
 ###############################################################################
 # DATATABLE TRANSFORM FUNCTIONS
 ###############################################################################
 ###############################################################################
-
-
 def harmonize_eia_epa_orispl(
     df: pd.DataFrame,
     crosswalk_df: pd.DataFrame,

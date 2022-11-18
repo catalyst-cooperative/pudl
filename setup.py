@@ -8,7 +8,6 @@ from setuptools import find_packages, setup
 readme_path = Path(__file__).parent / "README.rst"
 long_description = readme_path.read_text()
 
-
 setup(
     name="catalystcoop.pudl",
     description="An open data processing pipeline for public US utility data.",
@@ -50,6 +49,7 @@ setup(
     install_requires=[
         "addfips>=0.3.1,<0.4.0",
         "catalystcoop.dbfread>=3.0,<3.1",
+        "catalystcoop.ferc-xbrl-extractor==0.4.2",
         "coloredlogs>=15.0,<15.1",
         "dask>=2021.8,<2022.11.1",
         "datapackage>=1.11,<1.16",  # Transition datastore to use frictionless.
@@ -112,6 +112,7 @@ setup(
             "pytest>=6.2,<7.3",
             "pytest-console-scripts>=1.1,<1.4",
             "pytest-cov>=2.10,<4.1",
+            "pytest-mock>=3.0,<3.9",
             "responses>=0.14,<0.23",
             "rstcheck[sphinx]>=5.0,<6.2",
             "tox>=3.20,<3.28",
@@ -144,7 +145,7 @@ setup(
             "censusdp1tract_to_sqlite = pudl.convert.censusdp1tract_to_sqlite:main",
             "metadata_to_rst = pudl.convert.metadata_to_rst:main",
             "epacems_to_parquet = pudl.convert.epacems_to_parquet:main",
-            "ferc1_to_sqlite = pudl.convert.ferc1_to_sqlite:main",
+            "ferc_to_sqlite = pudl.convert.ferc_to_sqlite:main",
             "datasette_metadata_to_yml = pudl.convert.datasette_metadata_to_yml:main",
             "pudl_datastore = pudl.workspace.datastore:main",
             "pudl_etl = pudl.cli:main",

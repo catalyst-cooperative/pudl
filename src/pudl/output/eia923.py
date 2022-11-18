@@ -1,5 +1,4 @@
 """Functions for pulling EIA 923 data out of the PUDl DB."""
-import logging
 from datetime import date, datetime
 from typing import Literal
 
@@ -10,7 +9,7 @@ import sqlalchemy as sa
 import pudl
 from pudl.metadata.fields import apply_pudl_dtypes
 
-logger = logging.getLogger(__name__)
+logger = pudl.logging_helpers.get_logger(__name__)
 
 
 def generation_fuel_eia923(
