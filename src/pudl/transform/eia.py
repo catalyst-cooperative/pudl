@@ -24,13 +24,14 @@ import networkx as nx
 import numpy as np
 import pandas as pd
 import timezonefinder
+from dagster import AssetIn, AssetOut, Output, load_assets_from_modules, multi_asset
 
 import pudl
-from pudl.metadata.classes import DataSource
+from pudl.metadata.classes import DataSource, Package
 from pudl.metadata.enums import APPROXIMATE_TIMEZONES
 from pudl.metadata.fields import apply_pudl_dtypes, get_pudl_dtypes
 from pudl.metadata.resources import ENTITIES
-from pudl.settings import EiaSettings
+from pudl.transform import eia860, eia923
 
 logger = logging.getLogger(__name__)
 
@@ -555,6 +556,7 @@ def harvesting(  # noqa: C901
     return (entities_dfs, eia_transformed_dfs)
 
 
+# TODO (bendnorman): Can this and harvesting() be separate assets?
 def _boiler_generator_assn(  # noqa: C901
     eia_transformed_dfs: dict[str, pd.DataFrame],
     eia923_years: list[int] | None = None,
@@ -1115,9 +1117,38 @@ def fix_balancing_authority_codes_with_state(
     return plants.drop(columns=["state"])
 
 
-def transform(
-    eia_transformed_dfs, eia_settings: EiaSettings = EiaSettings(), debug=False
-):
+# TODO (bendnorman): Do this in a more graceful way
+eia_assets = load_assets_from_modules([eia860, eia923])
+
+# TODO (bendnorman): Get this information from metadata classes
+final_eia_table_names = [
+    "plants_entity_eia",
+    "generators_entity_eia",
+    "utilities_entity_eia",
+    "boilers_entity_eia",
+    "final_boiler_fuel_eia923",
+    "final_boiler_generator_assn_eia860",
+    "final_coalmine_eia923",
+    "final_fuel_receipts_costs_eia923",
+    "final_generation_eia923",
+    "final_generation_fuel_eia923",
+    "final_generation_fuel_nuclear_eia923",
+    "final_generators_eia860",
+    "final_ownership_eia860",
+    "final_plants_eia860",
+    "final_utilities_eia860",
+]
+
+
+@multi_asset(
+    ins={
+        asset_key.to_python_identifier(): AssetIn()
+        for eia_asset in eia_assets
+        for asset_key in eia_asset.asset_keys
+    },
+    outs={table_name: AssetOut() for table_name in sorted(final_eia_table_names)},
+)
+def eia_transform(**eia_transformed_dfs):
     """Creates DataFrames for EIA Entity tables and modifies EIA tables.
 
     This function coordinates two main actions: generating the entity tables
@@ -1144,6 +1175,8 @@ def transform(
 
     # for each of the entities, harvest the static and annual columns.
     # the order of the entities matter! the
+
+    # TODO (bendnorman): Figure out how to pass eia860m along
     for entity in ENTITIES:
         logger.info(f"Harvesting IDs & consistently static attributes for EIA {entity}")
 
@@ -1151,14 +1184,14 @@ def transform(
             entity,
             eia_transformed_dfs,
             entities_dfs,
-            debug=debug,
-            eia860m=eia_settings.eia860.eia860m,
+            # debug=debug,
+            # eia860m=eia_settings.eia860.eia860m,
         )
     _boiler_generator_assn(
         eia_transformed_dfs,
-        eia923_years=eia_settings.eia923.years,
-        eia860_years=eia_settings.eia860.years,
-        debug=debug,
+        # eia923_years=eia_settings.eia923.years,
+        # eia860_years=eia_settings.eia860.years,
+        # debug=debug,
     )
     # get rid of the original annual dfs in the transformed dict
     remove = ["generators", "plants", "utilities"]
@@ -1177,4 +1210,30 @@ def transform(
         fix_balancing_authority_codes_with_state,
         plants_entity=entities_dfs["plants_entity_eia"],
     )
-    return entities_dfs, eia_transformed_dfs
+
+    # Assign appropriate types to new entity tables:
+    entities_dfs = {
+        name: apply_pudl_dtypes(df, group="eia") for name, df in entities_dfs.items()
+    }
+
+    for table in entities_dfs:
+        entities_dfs[table] = (
+            Package.from_resource_ids().get_resource(table).encode(entities_dfs[table])
+        )
+
+    # Rename dfs so they don't conflict with the asset names of the previous assets.
+    # TODO (bendnorman): The previous cleaning steps assets should be renamed. I'm
+    # renaming these tables because I think harvesting relies on the old tables names.
+    # I just need to understand what table names harvesting expects.
+    eia_transformed_dfs = {
+        f"final_{table_name}": df for table_name, df in eia_transformed_dfs.items()
+    }
+
+    final_dfs = entities_dfs | eia_transformed_dfs
+
+    # Ensure they are sorted so they match up with the asset outs
+    final_dfs = dict(sorted(final_dfs.items()))
+
+    return (
+        Output(output_name=table_name, value=df) for table_name, df in final_dfs.items()
+    )

@@ -3,10 +3,10 @@ import logging
 
 import numpy as np
 import pandas as pd
+from dagster import AssetOut, Output, asset, multi_asset
 
 import pudl
 from pudl.metadata.codes import CODE_METADATA
-from pudl.settings import Eia923Settings
 
 logger = logging.getLogger(__name__)
 
@@ -491,7 +491,7 @@ def _coalmine_cleanup(cmi_df: pd.DataFrame) -> pd.DataFrame:
 ###############################################################################
 
 
-def plants(eia923_dfs, eia923_transformed_dfs):
+def plants_eia923(eia923_dfs, eia923_transformed_dfs):
     """Transforms the plants_eia923 table.
 
     Much of the static plant information is reported repeatedly, and scattered across
@@ -584,7 +584,13 @@ def gen_fuel_nuclear(gen_fuel_nuke: pd.DataFrame) -> pd.DataFrame:
     return gen_fuel_nuke
 
 
-def generation_fuel(eia923_dfs, eia923_transformed_dfs):
+@multi_asset(
+    outs={
+        "generation_fuel_eia923": AssetOut(),
+        "generation_fuel_nuclear_eia923": AssetOut(),
+    }
+)
+def generation_fuel_eia923(raw_generation_fuel_eia923):
     """Transforms the generation_fuel_eia923 table.
 
     Transformations include:
@@ -614,7 +620,7 @@ def generation_fuel(eia923_dfs, eia923_transformed_dfs):
         page (values).
     """
     # This needs to be a copy of what we're passed in so we can edit it.
-    gen_fuel = eia923_dfs["generation_fuel"].copy()
+    gen_fuel = raw_generation_fuel_eia923
 
     # Drop fields we're not inserting into the generation_fuel_eia923 table.
     cols_to_drop = [
@@ -691,7 +697,7 @@ def generation_fuel(eia923_dfs, eia923_transformed_dfs):
         gen_fuel.nuclear_unit_id.notna() | gen_fuel.energy_source_code.eq("NUC")
     ].copy()
 
-    eia923_transformed_dfs["generation_fuel_nuclear_eia923"] = gen_fuel_nuclear(nukes)
+    generation_fuel_nuclear_eia923 = gen_fuel_nuclear(nukes)
 
     gen_fuel = gen_fuel[
         gen_fuel.nuclear_unit_id.isna() & gen_fuel.energy_source_code.ne("NUC")
@@ -704,9 +710,10 @@ def generation_fuel(eia923_dfs, eia923_transformed_dfs):
     # Aggregate any remaining duplicates.
     gen_fuel = _aggregate_generation_fuel_duplicates(gen_fuel)
 
-    eia923_transformed_dfs["generation_fuel_eia923"] = gen_fuel
-
-    return eia923_transformed_dfs
+    return Output(output_name="generation_fuel_eia923", value=gen_fuel), Output(
+        output_name="generation_fuel_nuclear_eia923",
+        value=generation_fuel_nuclear_eia923,
+    )
 
 
 def _map_prime_mover_sets(prime_mover_set: np.ndarray) -> str:
@@ -801,7 +808,8 @@ def _aggregate_duplicate_boiler_fuel_keys(boiler_fuel_df: pd.DataFrame) -> pd.Da
     return modified_boiler_fuel_df
 
 
-def boiler_fuel(eia923_dfs, eia923_transformed_dfs):
+@asset
+def boiler_fuel_eia923(raw_boiler_fuel_eia923):
     """Transforms the boiler_fuel_eia923 table.
 
     Transformations include:
@@ -826,7 +834,7 @@ def boiler_fuel(eia923_dfs, eia923_transformed_dfs):
             from EIA923 form (keys) correspond to normalized DataFrames of values from
             that page (values).
     """
-    bf_df = eia923_dfs["boiler_fuel"].copy()
+    bf_df = raw_boiler_fuel_eia923
 
     # Need to stop dropping fields that contain harvestable entity attributes.
     # See https://github.com/catalyst-cooperative/pudl/issues/509
@@ -876,12 +884,11 @@ def boiler_fuel(eia923_dfs, eia923_transformed_dfs):
         )
     )
 
-    eia923_transformed_dfs["boiler_fuel_eia923"] = bf_df
-
-    return eia923_transformed_dfs
+    return bf_df
 
 
-def generation(eia923_dfs, eia923_transformed_dfs):
+@asset
+def generation_eia923(raw_generator_eia923):
     """Transforms the generation_eia923 table.
 
     Transformations include:
@@ -905,8 +912,7 @@ def generation(eia923_dfs, eia923_transformed_dfs):
         page (values).
     """
     gen_df = (
-        eia923_dfs["generator"]
-        .dropna(subset=["generator_id"])
+        raw_generator_eia923.dropna(subset=["generator_id"])
         .drop(
             [
                 "combined_heat_power",
@@ -953,12 +959,11 @@ def generation(eia923_dfs, eia923_transformed_dfs):
         .encode(gen_df)
     )
 
-    eia923_transformed_dfs["generation_eia923"] = gen_df
-
-    return eia923_transformed_dfs
+    return gen_df
 
 
-def coalmine(eia923_dfs, eia923_transformed_dfs):
+@asset
+def coalmine_eia923(raw_fuel_receipts_costs_eia923):
     """Transforms the coalmine_eia923 table.
 
     Transformations include:
@@ -992,7 +997,7 @@ def coalmine(eia923_dfs, eia923_transformed_dfs):
 
     # Make a copy so we don't alter the FRC data frame... which we'll need
     # to use again for populating the FRC table (see below)
-    cmi_df = eia923_dfs["fuel_receipts_costs"].copy()
+    cmi_df = raw_fuel_receipts_costs_eia923
     # Keep only the columns listed above:
     cmi_df = _coalmine_cleanup(cmi_df)
 
@@ -1039,12 +1044,11 @@ def coalmine(eia923_dfs, eia923_transformed_dfs):
         .encode(cmi_df)
     )
 
-    eia923_transformed_dfs["coalmine_eia923"] = cmi_df
-
-    return eia923_transformed_dfs
+    return cmi_df
 
 
-def fuel_receipts_costs(eia923_dfs, eia923_transformed_dfs):
+@asset
+def fuel_receipts_costs_eia923(raw_fuel_receipts_costs_eia923, coalmine_eia923):
     """Transforms the fuel_receipts_costs_eia923 dataframe.
 
     Transformations include:
@@ -1070,7 +1074,7 @@ def fuel_receipts_costs(eia923_dfs, eia923_transformed_dfs):
         from EIA923 form (keys) correspond to normalized DataFrames of values from that
         page (values).
     """
-    frc_df = eia923_dfs["fuel_receipts_costs"].copy()
+    frc_df = raw_fuel_receipts_costs_eia923
 
     # Drop fields we're not inserting into the fuel_receipts_costs_eia923
     # table.
@@ -1090,7 +1094,7 @@ def fuel_receipts_costs(eia923_dfs, eia923_transformed_dfs):
     ]
 
     cmi_df = (
-        eia923_transformed_dfs["coalmine_eia923"].copy()
+        coalmine_eia923
         # In order for the merge to work, we need to get the county_id_fips
         # field back into ready-to-dump form... so it matches the types of the
         # county_id_fips field that we are going to be merging on in the
@@ -1183,47 +1187,4 @@ def fuel_receipts_costs(eia923_dfs, eia923_transformed_dfs):
     bad_hg_idx = frc_df.mercury_content_ppm >= 7.0
     frc_df.loc[bad_hg_idx, "mercury_content_ppm"] = np.nan
 
-    eia923_transformed_dfs["fuel_receipts_costs_eia923"] = frc_df
-
-    return eia923_transformed_dfs
-
-
-def transform(eia923_raw_dfs, eia923_settings: Eia923Settings = Eia923Settings()):
-    """Transforms all the EIA 923 tables.
-
-    Args:
-        eia923_raw_dfs (dict): a dictionary of tab names (keys) and DataFrames
-            (values). Generated from `pudl.extract.eia923.extract()`.
-        settings: Object containing validated settings
-            relevant to EIA 923. Contains the tables and years to be loaded
-            into PUDL.
-
-    Returns:
-        dict: A dictionary of DataFrame with table names as keys and
-        :class:`pandas.DataFrame` objects as values, where the contents of the
-        DataFrames correspond to cleaned and normalized PUDL database tables, ready for
-        loading.
-    """
-    eia923_transform_functions = {
-        "generation_fuel_eia923": generation_fuel,
-        "boiler_fuel_eia923": boiler_fuel,
-        "generation_eia923": generation,
-        "coalmine_eia923": coalmine,
-        "fuel_receipts_costs_eia923": fuel_receipts_costs,
-    }
-    eia923_transformed_dfs = {}
-
-    if not eia923_raw_dfs:
-        logger.info("No raw EIA 923 DataFrames found. " "Not transforming EIA 923.")
-        return eia923_transformed_dfs
-
-    for table in eia923_transform_functions:
-        if table in eia923_settings.tables:
-            logger.info(
-                f"Transforming raw EIA 923 DataFrames for {table} "
-                f"concatenated across all years."
-            )
-            eia923_transform_functions[table](eia923_raw_dfs, eia923_transformed_dfs)
-        else:
-            logger.info(f"Not transforming {table}")
-    return eia923_transformed_dfs
+    return frc_df

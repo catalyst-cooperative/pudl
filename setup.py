@@ -50,9 +50,11 @@ setup(
     install_requires=[
         "addfips>=0.3.1,<0.4.0",
         "catalystcoop.dbfread>=3.0,<3.1",
-        "coloredlogs>=15.0,<15.1",
+        "coloredlogs>=14.0,<15.1",  # Dagster requires 14.0
         "dask>=2021.8,<2022.11.1",
         "datapackage>=1.11,<1.16",  # Transition datastore to use frictionless.
+        "dagster~=1.0.17",
+        "dagit~=1.0.17",
         # "email-validator>=1.0.3",  # pydantic[email] dependency
         "fsspec>=2021.7,<2022.11.1",  # For caching datastore on GCS
         "gcsfs>=2021.7,<2022.11.1",  # For caching datastore on GCS

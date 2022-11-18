@@ -11,7 +11,6 @@ import pandas as pd
 
 from pudl.extract import excel
 from pudl.helpers import remove_leading_zeros_from_numeric_strings
-from pudl.settings import Eia923Settings
 
 logger = logging.getLogger(__name__)
 
@@ -55,19 +54,6 @@ class Extractor(excel.GenericExtractor):
             df.loc[mask, "report_year"] = partition["year"]
         df = self.add_data_maturity(df, page, **partition)
         return df
-
-    def extract(self, settings: Eia923Settings = Eia923Settings()):
-        """Extracts dataframes.
-
-        Returns dict where keys are page names and values are
-        DataFrames containing data across given years.
-
-        Args:
-            settings: Object containing validated settings
-                relevant to EIA 923. Contains the tables and years to be loaded
-                into PUDL.
-        """
-        return super().extract(year=settings.years)
 
     @staticmethod
     def process_renamed(df, page, **partition):

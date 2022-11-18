@@ -25,13 +25,12 @@ import pandas as pd
 import pyarrow as pa
 import pyarrow.parquet as pq
 import sqlalchemy as sa
+from dagster import AssetOut, Field, Output, multi_asset
 
 import pudl
 from pudl.helpers import convert_cols_dtypes
-from pudl.metadata.classes import Package, Resource
-from pudl.metadata.dfs import (
-    FERC_ACCOUNTS,
-    FERC_DEPRECIATION_LINES,
+from pudl.metadata.classes import DataSource, Package, Resource
+from pudl.metadata.dfs import (  # FERC_ACCOUNTS,; FERC_DEPRECIATION_LINES,
     POLITICAL_SUBDIVISIONS,
 )
 from pudl.metadata.fields import apply_pudl_dtypes
@@ -50,6 +49,70 @@ logger = logging.getLogger(__name__)
 ###############################################################################
 # EIA EXPORT FUNCTIONS
 ###############################################################################
+
+# TODO: create new config type that checks years exist for the requested data
+# TODO: create a data structure to hold multi_asset outs so we can dynamically create them.
+@multi_asset(
+    config_schema={
+        "years": Field(list, default_value=[2021]),
+        "eia860m": Field(bool, default_value=False),
+    },
+    outs={
+        "raw_boiler_fuel_eia923": AssetOut(),
+        "raw_boiler_generator_assn_eia860": AssetOut(),
+        "raw_fuel_receipts_costs_eia923": AssetOut(),
+        "raw_generation_fuel_eia923": AssetOut(),
+        "raw_generator_eia860": AssetOut(),
+        "raw_generator_eia923": AssetOut(),
+        "raw_generator_existing_eia860": AssetOut(),
+        "raw_generator_proposed_eia860": AssetOut(),
+        "raw_generator_retired_eia860": AssetOut(),
+        "raw_ownership_eia860": AssetOut(),
+        "raw_plant_eia860": AssetOut(),
+        "raw_stocks_eia923": AssetOut(),
+        "raw_utility_eia860": AssetOut(),
+    },
+    required_resource_keys={"datastore"},
+    group_name="eia_raw_dfs",
+)
+def eia_raw_dfs(context):
+    """Extract raw EIA data from excel sheets into dataframes."""
+    # TODO (bendnorman): More verbose doc string.
+    ds = context.resources.datastore
+    eia923_raw_dfs = pudl.extract.eia923.Extractor(ds).extract(
+        year=context.op_config["years"]
+    )
+    eia860_raw_dfs = pudl.extract.eia860.Extractor(ds).extract(
+        year=context.op_config["years"]
+    )
+
+    if context.op_config["eia860m"]:
+        eia860m_data_source = DataSource.from_id("eia860m")
+        eia860m_date = eia860m_data_source.working_partitions["year_month"]
+        eia860m_raw_dfs = pudl.extract.eia860m.Extractor(ds).extract(
+            year_month=eia860m_date
+        )
+        eia860_raw_dfs = pudl.extract.eia860m.append_eia860m(
+            eia860_raw_dfs=eia860_raw_dfs, eia860m_raw_dfs=eia860m_raw_dfs
+        )
+
+    # create descriptive table_names
+    eia860_raw_dfs = {
+        "raw_" + table_name + "_eia860": df for table_name, df in eia860_raw_dfs.items()
+    }
+    eia923_raw_dfs = {
+        "raw_" + table_name + "_eia923": df for table_name, df in eia923_raw_dfs.items()
+    }
+
+    eia_raw_dfs = {}
+    eia_raw_dfs.update(eia860_raw_dfs)
+    eia_raw_dfs.update(eia923_raw_dfs)
+    eia_raw_dfs = dict(sorted(eia_raw_dfs.items()))
+
+    return (
+        Output(output_name=table_name, value=df)
+        for table_name, df in eia_raw_dfs.items()
+    )
 
 
 def _etl_eia(
@@ -78,7 +141,8 @@ def _etl_eia(
         return []
 
     # generate dataframes for the static EIA tables
-    out_dfs = _read_static_encoding_tables(etl_group="static_eia")
+    # out_dfs = _read_static_encoding_tables(etl_group="static_eia")
+    out_dfs = {}
 
     ds = Datastore(**ds_kwargs)
     # Extract EIA forms 923, 860
@@ -107,6 +171,7 @@ def _etl_eia(
     eia_transformed_dfs = eia860_transformed_dfs.copy()
     eia_transformed_dfs.update(eia923_transformed_dfs.copy())
 
+    # TODO: ensure the individual table transformation functions convert dtypes
     # Do some final cleanup and assign appropriate types:
     eia_transformed_dfs = {
         name: convert_cols_dtypes(df, data_source="eia")
@@ -136,26 +201,26 @@ def _etl_eia(
 # FERC1 EXPORT FUNCTIONS
 ###############################################################################
 
+# TODO (bendnorman): Create static FERC Form 1 tables
+# def _read_static_tables_ferc1():
+#     """Compile static tables for FERC1 for foriegn key constaints.
 
-def _read_static_tables_ferc1():
-    """Compile static tables for FERC1 for foriegn key constaints.
-
-    This function grabs static encoded tables via :func:`_read_static_encoding_tables`
-    as well as two static tables that are non-encoded tables (``ferc_accounts`` and
-    ``ferc_depreciation_lines``).
-    """
-    static_table_dict = _read_static_encoding_tables("static_ferc1")
-    static_table_dict.update(
-        {
-            "ferc_accounts": FERC_ACCOUNTS[
-                ["ferc_account_id", "ferc_account_description"]
-            ],
-            "ferc_depreciation_lines": FERC_DEPRECIATION_LINES[
-                ["line_id", "ferc_account_description"]
-            ],
-        }
-    )
-    return static_table_dict
+#     This function grabs static encoded tables via :func:`_read_static_encoding_tables`
+#     as well as two static tables that are non-encoded tables (``ferc_accounts`` and
+#     ``ferc_depreciation_lines``).
+#     """
+#     static_table_dict = _read_static_encoding_tables("static_ferc1")
+#     static_table_dict.update(
+#         {
+#             "ferc_accounts": FERC_ACCOUNTS[
+#                 ["ferc_account_id", "ferc_account_description"]
+#             ],
+#             "ferc_depreciation_lines": FERC_DEPRECIATION_LINES[
+#                 ["line_id", "ferc_account_description"]
+#             ],
+#         }
+#     )
+#     return static_table_dict
 
 
 def _etl_ferc1(
@@ -174,7 +239,8 @@ def _etl_ferc1(
         data, keyed by table name.
     """
     # Compile static FERC 1 dataframes
-    out_dfs = _read_static_tables_ferc1()
+    # out_dfs = _read_static_tables_ferc1()
+    out_dfs = {}
 
     # Extract FERC form 1
     ferc1_raw_dfs = pudl.extract.ferc1.extract(
@@ -406,31 +472,45 @@ def _etl_glue(
     return glue_dfs
 
 
-def _read_static_encoding_tables(
+def _read_static_encouding_tables_asset_factory(
     etl_group: Literal["static_eia", "static_ferc1"]
-) -> dict[str, pd.DataFrame]:
-    """Build dataframes of static tables from a data source for use as foreign keys.
+):
+    @multi_asset(
+        outs={
+            r.name: AssetOut()
+            for r in Package.from_resource_ids().resources
+            if r.etl_group == etl_group and r.encoder
+        },
+        group_name="static_dfs",
+    )
+    def _read_static_encoding_tables():
+        """Build dataframes of static tables from a data source for use as foreign keys.
 
-    There are many values specified within the data that are essentially constant, but
-    which we need to store for data validation purposes, for use as foreign keys.  E.g.
-    the list of valid EIA fuel type codes, or the possible state and country codes
-    indicating a coal delivery's location of origin. For now these values are primarily
-    stored in a large collection of lists, dictionaries, and dataframes which are
-    specified in the :mod:`pudl.metadata` subpackage.  This function uses those data
-    structures to populate a bunch of small infrastructural tables within the PUDL DB.
+        There are many values specified within the data that are essentially constant, but
+        which we need to store for data validation purposes, for use as foreign keys.  E.g.
+        the list of valid EIA fuel type codes, or the possible state and country codes
+        indicating a coal delivery's location of origin. For now these values are primarily
+        stored in a large collection of lists, dictionaries, and dataframes which are
+        specified in the :mod:`pudl.metadata` subpackage.  This function uses those data
+        structures to populate a bunch of small infrastructural tables within the PUDL DB.
 
-    Args:
-        etl_group: name of static table etl group.
+        Args:
+            etl_group: name of static table etl group.
 
-    Returns:
-        a dictionary with table names as keys and dataframes as values for all tables
-        labeled as static tables in their resource ``etl_group``
-    """
-    return {
-        r.name: r.encoder.df
-        for r in Package.from_resource_ids().resources
-        if r.etl_group == etl_group and r.encoder
-    }
+        Returns:
+            a dictionary with table names as keys and dataframes as values for all tables
+            labeled as static tables in their resource ``etl_group``
+        """
+        return (
+            Output(output_name=r.name, value=r.encoder.df)
+            for r in Package.from_resource_ids().resources
+            if r.etl_group == etl_group and r.encoder
+        )
+
+    return _read_static_encoding_tables
+
+
+static_eia_assets = _read_static_encouding_tables_asset_factory("static_eia")
 
 
 def _read_static_pudl_tables() -> dict[str, pd.DataFrame]:
