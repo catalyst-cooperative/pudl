@@ -162,7 +162,7 @@ B. FERC Form 1
 
 .. code-block:: bash
 
-    ferc1_to_sqlite src/pudl/package_data/settings/etl_full.yml
+    ferc_to_sqlite src/pudl/package_data/settings/etl_full.yml
 
 This is necessary to enable mapping associations between the FERC 1 and EIA plants and
 utilities later.
