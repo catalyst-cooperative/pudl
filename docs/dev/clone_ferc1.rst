@@ -52,7 +52,7 @@ This should create several outputs that you can find in your workspace at:
  * ``sqlite/ferc1.sqlite``: Data from 1994-2020 (FoxPro/DBF)
  * ``sqlite/ferc1_xbrl.sqlite``: Data from 2021 onward (XBRL)
  * ``sqlite/ferc1_xbrl_datapackage.json``: `Frictionless data package
-   <https://specs.frictionlessdata.io/data-package/>__` descriptor for the XBRL derived
+   <https://specs.frictionlessdata.io/data-package/>`__ descriptor for the XBRL derived
    database.
  * ``sqlite/ferc1_xbrl_taxonomy_metadata.json``: A JSON version of the XBRL Taxonomy,
    containing additional metadata.
