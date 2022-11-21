@@ -162,7 +162,7 @@ B. FERC Form 1
 
 .. code-block:: bash
 
-    ferc1_to_sqlite src/pudl/package_data/settings/etl_full.yml
+    ferc_to_sqlite src/pudl/package_data/settings/etl_full.yml
 
 This is necessary to enable mapping associations between the FERC 1 and EIA plants and
 utilities later.
@@ -202,11 +202,11 @@ notebook and :func:`pudl.helpers.find_new_ferc1_strings` will help with this pro
 Every string observed in these fileds should ultimately be mapped to one of the defined
 categories.
 
-5. Update the PUDL DB Schema
+5. Update the PUDL DB schema
 ----------------------------
-**5.1)** If new columns or tables have been added, you will probably need to update the
+**5.1)** If new columns or tables have been added, you will need to update the
 PUDL DB schema, defining column types, giving them meaningful descriptions, applying
-appropriate ENUM constraints, etc. This happens in the ``pudl/metadata`` subpackage.
+appropriate ENUM constraints, etc. This happens in the :mod:`pudl.metadata` subpackage.
 Otherwise when the system tries to write dataframes into SQLite, it will fail.
 
 **5.2)** Differentiate between columns which should be harvested from the transformed
@@ -221,6 +221,13 @@ remain in the table where they are reported.
 
 6. Run a Siloed EIA ETL
 -----------------------
+.. note::
+
+    This section should probably be updated to include reference to the new ``tox`` test
+    called ``get_unmapped_ids`` that was implemented for the FERC1 XBRL integration. We
+    may be able to fully skip this step because ``get_unmapped_ids`` runs the ETL with
+    ``--ignore-foreign-key-constraints`` and saves the unmapped IDs.
+
 **6.1)** Before moving on you should ensure that the EIA ETL is fully functional by
 running it for all years and all EIA data sources. Create a temporary ETL settings file
 that includes only the EIA data and all available years of it. You may need to debug
@@ -228,8 +235,8 @@ inconsistencies in the harvested values. See: :doc:`run_the_etl` for more detail
 you'll need to use the ``--ignore-foreign-key-constraints`` argument because new plants
 and utilities probably need to be mapped (read on into next section).
 
-7. Integrate Datasets
----------------------
+7. Integration Between Datasets
+-------------------------------
 
 A. FERC 1 & EIA Plants & Utilities
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

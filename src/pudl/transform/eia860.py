@@ -1,7 +1,5 @@
 """Module to perform data cleaning functions on EIA860 data tables."""
 
-import logging
-
 import numpy as np
 import pandas as pd
 from dagster import asset
@@ -13,7 +11,7 @@ from pudl.metadata.dfs import POLITICAL_SUBDIVISIONS
 from pudl.metadata.fields import apply_pudl_dtypes
 from pudl.transform.eia861 import clean_nerc
 
-logger = logging.getLogger(__name__)
+logger = pudl.logging_helpers.get_logger(__name__)
 
 
 @asset

@@ -7,6 +7,7 @@ databases, which are created from scratch and dropped after the tests have compl
 import logging
 from pathlib import Path
 
+import pandas as pd
 import sqlalchemy as sa
 import yaml
 
@@ -18,23 +19,47 @@ logger = logging.getLogger(__name__)
 
 def test_pudl_engine(pudl_engine):
     """Try creating a pudl_engine...."""
-    assert isinstance(pudl_engine, sa.engine.Engine)
+    assert isinstance(pudl_engine, sa.engine.Engine)  # nosec: B101
     insp = sa.inspect(pudl_engine)
-    assert "plants_pudl" in insp.get_table_names()
-    assert "utilities_pudl" in insp.get_table_names()
+    assert "plants_pudl" in insp.get_table_names()  # nosec: B101
+    assert "utilities_pudl" in insp.get_table_names()  # nosec: B101
 
 
-def test_ferc1_etl(ferc1_engine):
-    """Create a fresh FERC Form 1 SQLite DB and attempt to access it.
+def test_ferc1_xbrl2sqlite(ferc1_engine_xbrl, ferc1_xbrl_taxonomy_metadata):
+    """Attempt to access the XBRL based FERC 1 SQLite DB & XBRL taxonomy metadata.
 
-    Nothing needs to be in the body of this "test" because the database connections are
-    created by the ferc1_engine fixture defined in conftest.py
+    We're testing both the SQLite & JSON taxonomy here because they are generated
+    together by the FERC 1 XBRL ETL.
     """
-    assert isinstance(ferc1_engine, sa.engine.Engine)
-    assert "f1_respondent_id" in sa.inspect(ferc1_engine).get_table_names()
+    # Does the database exist, and contain a table we expect it to contain?
+    assert isinstance(ferc1_engine_xbrl, sa.engine.Engine)  # nosec: B101
+    assert (  # nosec: B101
+        "identification_001_duration" in sa.inspect(ferc1_engine_xbrl).get_table_names()
+    )
+
+    # Has the metadata we've read in from JSON contain a long list of entities?
+    assert isinstance(ferc1_xbrl_taxonomy_metadata, list)  # nosec: B101
+    assert len(ferc1_xbrl_taxonomy_metadata) > 2500  # nosec: B101
+
+    # Can we normalize that list of entities and find data in it that we expect?
+    df = pd.json_normalize(ferc1_xbrl_taxonomy_metadata)
+    assert (  # nosec: B101
+        df.loc[df.name == "spent_nuclear_fuel", "balance"].values == "debit"
+    )
+    assert (  # nosec: B101
+        df.loc[df.name == "spent_nuclear_fuel", "references.Account"].values == "120.4"
+    )
 
 
-def test_ferc1_schema(ferc1_etl_settings, pudl_ferc1datastore_fixture):
+def test_ferc1_dbf2sqlite(ferc1_engine_dbf):
+    """Attempt to access the DBF based FERC 1 SQLite DB fixture."""
+    assert isinstance(ferc1_engine_dbf, sa.engine.Engine)  # nosec: B101
+    assert (  # nosec: B101
+        "f1_respondent_id" in sa.inspect(ferc1_engine_dbf).get_table_names()
+    )
+
+
+def test_ferc1_schema(ferc_to_sqlite_settings, ferc1_dbf_datastore_fixture):
     """Check to make sure we aren't missing any old FERC Form 1 tables or fields.
 
     Exhaustively enumerate all historical sets of FERC Form 1 database tables and their
@@ -43,8 +68,9 @@ def test_ferc1_schema(ferc1_etl_settings, pudl_ferc1datastore_fixture):
     mapping from 2015, includes every single table and field that appears in the
     historical FERC Form 1 data.
     """
-    refyear = ferc1_etl_settings.refyear
-    ds = pudl_ferc1datastore_fixture
+    ferc1_dbf_settings = ferc_to_sqlite_settings.ferc1_dbf_to_sqlite_settings
+    refyear = ferc1_dbf_settings.refyear
+    ds = ferc1_dbf_datastore_fixture
     current_dbc_map = pudl.extract.ferc1.get_dbc_map(ds, year=refyear)
     current_tables = list(current_dbc_map.keys())
     logger.info(f"Checking for new, unrecognized FERC1 tables in {refyear}.")
@@ -57,7 +83,7 @@ def test_ferc1_schema(ferc1_etl_settings, pudl_ferc1datastore_fixture):
             )
     # Get all historical table collections...
     dbc_maps = {}
-    for yr in ferc1_etl_settings.years:
+    for yr in ferc1_dbf_settings.years:
         logger.info(f"Searching for lost FERC1 tables and fields in {yr}.")
         dbc_maps[yr] = pudl.extract.ferc1.get_dbc_map(ds, year=yr)
         old_tables = list(dbc_maps[yr].keys())
@@ -78,21 +104,21 @@ def test_ferc1_schema(ferc1_etl_settings, pudl_ferc1datastore_fixture):
                     )
 
 
-class TestFerc1Datastore:
+class TestFerc1DbfDatastore:
     """Validate the Ferc1 Datastore and integration functions."""
 
-    def test_ferc_folder(self, pudl_ferc1datastore_fixture):
+    def test_ferc1_folder(self, ferc1_dbf_datastore_fixture):
         """Spot check we get correct folder names per dataset year."""
-        ds = pudl_ferc1datastore_fixture
-        assert ds.get_dir(1994) == Path("FORMSADMIN/FORM1/working")
-        assert ds.get_dir(2001) == Path("UPLOADERS/FORM1/working")
-        assert ds.get_dir(2002) == Path("FORMSADMIN/FORM1/working")
-        assert ds.get_dir(2010) == Path("UPLOADERS/FORM1/working")
-        assert ds.get_dir(2015) == Path("UPLOADERS/FORM1/working")
+        ds = ferc1_dbf_datastore_fixture
+        assert ds.get_dir(1994) == Path("FORMSADMIN/FORM1/working")  # nosec: B101
+        assert ds.get_dir(2001) == Path("UPLOADERS/FORM1/working")  # nosec: B101
+        assert ds.get_dir(2002) == Path("FORMSADMIN/FORM1/working")  # nosec: B101
+        assert ds.get_dir(2010) == Path("UPLOADERS/FORM1/working")  # nosec: B101
+        assert ds.get_dir(2015) == Path("UPLOADERS/FORM1/working")  # nosec: B101
 
-    def test_get_fields(self, pudl_ferc1datastore_fixture, test_dir):
+    def test_get_fields(self, ferc1_dbf_datastore_fixture, test_dir):
         """Check that the get fields table works as expected."""
-        ds = pudl_ferc1datastore_fixture
+        ds = ferc1_dbf_datastore_fixture
 
         expect_path = test_dir / "data/ferc1/f1_2018/get_fields.json"
 
@@ -101,14 +127,14 @@ class TestFerc1Datastore:
 
         data = ds.get_file(2018, "F1_PUB.DBC")
         result = get_fields(data)
-        assert result == expect
+        assert result == expect  # nosec: B101
 
-    def test_sample_get_dbc_map(self, pudl_ferc1datastore_fixture):
+    def test_sample_get_dbc_map(self, ferc1_dbf_datastore_fixture):
         """Test sample_get_dbc_map."""
-        ds = pudl_ferc1datastore_fixture
+        ds = ferc1_dbf_datastore_fixture
 
         table = get_dbc_map(ds, 2018)
-        assert table["f1_429_trans_aff"] == {
+        assert table["f1_429_trans_aff"] == {  # nosec: B101
             "ACCT_CORC": "acct_corc",
             "ACCT_CORC_": "acct_corc_f",
             "AMT_CORC": "amt_corc",

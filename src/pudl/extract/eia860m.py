@@ -12,15 +12,15 @@ eia860m_raw_dfs = pudl.extract.eia860m.Extractor(ds).extract(
 eia860_raw_dfs = pudl.extract.eia860m.append_eia860m(
     eia860_raw_dfs=eia860_raw_dfs, eia860m_raw_dfs=eia860m_raw_dfs)
 """
-import logging
 from datetime import datetime
 
 import pandas as pd
 
+import pudl.logging_helpers
 from pudl.extract import excel
 from pudl.helpers import remove_leading_zeros_from_numeric_strings
 
-logger = logging.getLogger(__name__)
+logger = pudl.logging_helpers.get_logger(__name__)
 
 
 class Extractor(excel.GenericExtractor):

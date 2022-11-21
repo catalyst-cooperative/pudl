@@ -1,15 +1,14 @@
 """Export PUDL table and field metadata to RST for use in documentation."""
 
 import argparse
-import logging
 import sys
 from pathlib import Path
 
-import coloredlogs
+import pudl.logging_helpers
+from pudl.metadata.classes import Package
+from pudl.metadata.resources import RESOURCE_METADATA
 
-from pudl.metadata import RESOURCE_METADATA, Package
-
-logger = logging.getLogger(__name__)
+logger = pudl.logging_helpers.get_logger(__name__)
 
 
 def parse_command_line(argv):
@@ -46,9 +45,7 @@ def parse_command_line(argv):
 
 def main():
     """Run conversion from json to rst."""
-    pudl_logger = logging.getLogger("pudl")
-    log_format = "%(asctime)s [%(levelname)8s] %(name)s:%(lineno)s %(message)s"
-    coloredlogs.install(fmt=log_format, level="INFO", logger=pudl_logger)
+    pudl.logging_helpers.configure_root_logger()
 
     args = parse_command_line(sys.argv)
     logger.info(f"Exporting PUDL metadata to: {args.output}")

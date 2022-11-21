@@ -129,17 +129,16 @@ be porporational to each generator's net generation (if it's reported) or capaci
 generation is not reported).
 """
 
-import logging
 from typing import Literal
 
 # Useful high-level external modules.
 import numpy as np
 import pandas as pd
 
-import pudl.helpers
+import pudl
 from pudl.metadata.fields import apply_pudl_dtypes
 
-logger = logging.getLogger(__name__)
+logger = pudl.logging_helpers.get_logger(__name__)
 
 IDX_GENS = ["report_date", "plant_id_eia", "generator_id"]
 """Primary key columns for generator records."""
@@ -280,7 +279,7 @@ def allocate_gen_fuel_by_generator_energy_source(
 
 
 def aggregate_gen_fuel_by_generator(
-    pudl_out,
+    pudl_out: "pudl.output.pudltabl.PudlTabl",
     net_gen_fuel_alloc: pd.DataFrame,
     sum_cols: list[str] = DATA_COLUMNS,
 ) -> pd.DataFrame:
@@ -295,7 +294,7 @@ def aggregate_gen_fuel_by_generator(
     (see :func:`pudl.output.eia923.denorm_generation_eia923`).
 
     Args:
-        pudl_out (pudl.output.pudltabl.PudlTabl): An object used to create the tables for EIA and FERC Form 1
+        pudl_out: An object used to create the tables for EIA and FERC Form 1
             analysis.
         net_gen_fuel_alloc: table of allocated generation at the generator/prime mover/
             energy source. Result of :func:`allocate_gen_fuel_by_generator_energy_source`

@@ -19,8 +19,8 @@ other datasets.
 Because generators are often owned by multiple utilities, another dimention of
 the master unit list involves generating two records for each owner: one of the
 portion of the plant part they own and one for the plant part as a whole. The
-portion records are labeled in the ``ownership_record_type`` column as "owned" and the total
-records are labeled as "total".
+portion records are labeled in the ``ownership_record_type`` column as "owned"
+and the total records are labeled as "total".
 
 This module refers to "true granularies". Many plant parts we cobble together
 here in the master plant-part list refer to the same collection of
@@ -177,7 +177,6 @@ OR make the table via objects in this module:
     parts_compiler = MakePlantParts(pudl_out)
     plant_parts_eia = parts_compiler.execute(gens_mega=gens_mega)
 """
-import logging
 import warnings
 from collections import OrderedDict
 from copy import deepcopy
@@ -189,7 +188,7 @@ import pandas as pd
 import pudl
 from pudl.metadata.classes import Resource
 
-logger = logging.getLogger(__name__)
+logger = pudl.logging_helpers.get_logger(__name__)
 
 # HALP: I need both of these setting set in order for the dfs in the docstrings
 # to pass the doctests. Without them the formatting get all jumbled.

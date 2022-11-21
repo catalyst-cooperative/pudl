@@ -17,7 +17,6 @@ found in :func:`pudl.transform.eia._boiler_generator_assn`.
 """
 
 import importlib.resources
-import logging
 from collections import namedtuple
 
 import networkx as nx
@@ -33,7 +32,7 @@ from pudl.metadata.fields import apply_pudl_dtypes, get_pudl_dtypes
 from pudl.metadata.resources import ENTITIES
 from pudl.transform import eia860, eia923
 
-logger = logging.getLogger(__name__)
+logger = pudl.logging_helpers.get_logger(__name__)
 
 TZ_FINDER = timezonefinder.TimezoneFinder()
 """A global TimezoneFinder to cache geographies in memory for faster access."""

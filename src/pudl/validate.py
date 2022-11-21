@@ -9,14 +9,15 @@ What defines a data validation?
     * A processed version of itself (aggregation or derived values)
     * A hard-coded external standard (e.g. heat rates, fuel heat content)
 """
-import logging
 import warnings
 
 import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
 
-logger = logging.getLogger(__name__)
+import pudl.logging_helpers
+
+logger = pudl.logging_helpers.get_logger(__name__)
 
 
 def intersect_indexes(indexes):
@@ -826,7 +827,7 @@ plants_steam_ferc1_capacity_ratios = [
         "title": "Capability Ratio (tails)",
         "query": "",
         "low_q": 0.05,
-        "low_bound": 0.64,
+        "low_bound": 0.5,
         "hi_q": 0.95,
         "hi_bound": 1.18,
         "data_col": "capability_ratio",
@@ -1220,7 +1221,7 @@ fbp_ferc1_oil_cost_per_mmbtu_bounds = [
         "title": "Oil cost per MMBTU (Tails)",
         "query": "",
         "low_q": 0.1,
-        "low_bound": 4.0,
+        "low_bound": 3.5,
         "hi_q": 0.90,
         "hi_bound": 25.0,
         "data_col": "oil_cost_per_mmbtu",
@@ -1230,7 +1231,7 @@ fbp_ferc1_oil_cost_per_mmbtu_bounds = [
         "title": "Oil Cost per MMBTU (Median)",
         "query": "",
         "low_q": 0.5,
-        "low_bound": 7.0,
+        "low_bound": 6.5,
         "hi_q": 0.5,
         "hi_bound": 17.0,
         "data_col": "oil_cost_per_mmbtu",

@@ -1,6 +1,5 @@
 """Load excel metadata CSV files form a python data package."""
 import importlib.resources
-import logging
 import pathlib
 
 import dbfread
@@ -8,7 +7,7 @@ import pandas as pd
 
 import pudl
 
-logger = logging.getLogger(__name__)
+logger = pudl.logging_helpers.get_logger(__name__)
 
 
 class Metadata:

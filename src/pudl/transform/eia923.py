@@ -1,5 +1,4 @@
 """Module to perform data cleaning functions on EIA923 data tables."""
-import logging
 
 import numpy as np
 import pandas as pd
@@ -8,7 +7,7 @@ from dagster import AssetOut, Output, asset, multi_asset
 import pudl
 from pudl.metadata.codes import CODE_METADATA
 
-logger = logging.getLogger(__name__)
+logger = pudl.logging_helpers.get_logger(__name__)
 
 COALMINE_COUNTRY_CODES: dict[str, str] = {
     "AU": "AUS",  # Australia

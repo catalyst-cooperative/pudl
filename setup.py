@@ -8,7 +8,6 @@ from setuptools import find_packages, setup
 readme_path = Path(__file__).parent / "README.rst"
 long_description = readme_path.read_text()
 
-
 setup(
     name="catalystcoop.pudl",
     description="An open data processing pipeline for public US utility data.",
@@ -51,7 +50,8 @@ setup(
         "addfips>=0.3.1,<0.4.0",
         "catalystcoop.dbfread>=3.0,<3.1",
         "coloredlogs>=14.0,<15.1",  # Dagster requires 14.0
-        "dask>=2021.8,<2022.11.1",
+        "catalystcoop.ferc_xbrl_extractor @ git+https://github.com/catalyst-cooperative/ferc-xbrl-extractor.git@relax-coloredlogs-version",
+        "dask>=2021.8,<2022.11.2",
         "datapackage>=1.11,<1.16",  # Transition datastore to use frictionless.
         "dagster~=1.0.17",
         "dagit~=1.0.17",
@@ -104,7 +104,7 @@ setup(
             "flake8>=4.0,<5.1",
             "flake8-builtins>=1.5,<2.1",
             "flake8-docstrings>=1.5,<1.7",
-            "flake8-rst-docstrings>=0.2,<0.3",
+            "flake8-rst-docstrings>=0.2,<0.4",
             "flake8-use-fstring>=1.0,<1.5",
             "mccabe>=0.6,<0.8",
             "nbval>=0.9,<0.10",
@@ -114,6 +114,7 @@ setup(
             "pytest>=6.2,<7.3",
             "pytest-console-scripts>=1.1,<1.4",
             "pytest-cov>=2.10,<4.1",
+            "pytest-mock>=3.0,<3.11",
             "responses>=0.14,<0.23",
             "rstcheck[sphinx]>=5.0,<6.2",
             "tox>=3.20,<3.28",
@@ -146,7 +147,7 @@ setup(
             "censusdp1tract_to_sqlite = pudl.convert.censusdp1tract_to_sqlite:main",
             "metadata_to_rst = pudl.convert.metadata_to_rst:main",
             "epacems_to_parquet = pudl.convert.epacems_to_parquet:main",
-            "ferc1_to_sqlite = pudl.convert.ferc1_to_sqlite:main",
+            "ferc_to_sqlite = pudl.convert.ferc_to_sqlite:main",
             "datasette_metadata_to_yml = pudl.convert.datasette_metadata_to_yml:main",
             "pudl_datastore = pudl.workspace.datastore:main",
             "pudl_etl = pudl.cli:main",

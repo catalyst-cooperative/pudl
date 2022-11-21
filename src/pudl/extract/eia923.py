@@ -5,14 +5,13 @@ This modules pulls data from EIA's published Excel spreadsheets.
 This code is for use analyzing EIA Form 923 data. Currenly only
 years 2009-2016 work, as they share nearly identical file formatting.
 """
-import logging
-
 import pandas as pd
 
+import pudl.logging_helpers
 from pudl.extract import excel
 from pudl.helpers import remove_leading_zeros_from_numeric_strings
 
-logger = logging.getLogger(__name__)
+logger = pudl.logging_helpers.get_logger(__name__)
 
 
 class Extractor(excel.GenericExtractor):
@@ -49,7 +48,8 @@ class Extractor(excel.GenericExtractor):
         if "report_year" in df.columns:
             mask = (df.report_year == ".") | df.report_year.isnull()
             logger.debug(
-                f"{page}: replacing {len(df[mask])} nulls/bad values in `report_year` column with {partition['year']}"
+                f"{page}: replacing {len(df[mask])} nulls/bad values in `report_year` "
+                f"column with {partition['year']}"
             )
             df.loc[mask, "report_year"] = partition["year"]
         df = self.add_data_maturity(df, page, **partition)

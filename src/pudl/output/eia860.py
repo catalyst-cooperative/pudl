@@ -1,7 +1,5 @@
 """Functions for pulling data primarily from the EIA's Form 860."""
 
-import logging
-
 import pandas as pd
 import sqlalchemy as sa
 
@@ -10,7 +8,7 @@ from pudl.metadata.fields import apply_pudl_dtypes
 from pudl.transform.eia import occurrence_consistency
 from pudl.transform.eia861 import add_backfilled_ba_code_column
 
-logger = logging.getLogger(__name__)
+logger = pudl.logging_helpers.get_logger(__name__)
 
 
 def utilities_eia860(pudl_engine, start_date=None, end_date=None):
@@ -126,15 +124,14 @@ def plants_eia860(pudl_engine, start_date=None, end_date=None):
     )
     plants_g_eia_df = pd.read_sql(plants_g_eia_select, pudl_engine)
 
-    out_df = pd.merge(plants_eia_df, plants_eia860_df, how="left", on=["plant_id_eia"])
-    out_df = pd.merge(out_df, plants_g_eia_df, how="left", on=["plant_id_eia"])
-
     utils_eia_tbl = pt["utilities_eia"]
     utils_eia_select = sa.sql.select(utils_eia_tbl)
     utils_eia_df = pd.read_sql(utils_eia_select, pudl_engine)
 
     out_df = (
-        pd.merge(out_df, utils_eia_df, how="left", on=["utility_id_eia"])
+        pd.merge(plants_eia_df, plants_eia860_df, how="left", on=["plant_id_eia"])
+        .merge(plants_g_eia_df, how="left", on=["plant_id_eia"])
+        .merge(utils_eia_df, how="left", on=["utility_id_eia"])
         .dropna(subset=["report_date", "plant_id_eia"])
         .pipe(fill_in_missing_ba_codes)
         .pipe(apply_pudl_dtypes, group="eia")

@@ -7,15 +7,14 @@ The crosswalk file was a joint effort on behalf on EPA and EIA and is published 
 EPA's github account at www.github.com/USEPA/camd-eia-crosswalk". It's a work in
 progress and worth noting that, at present, only pulls from 2018 data.
 """
-import logging
-
 import pandas as pd
 
+import pudl.logging_helpers
 from pudl.helpers import remove_leading_zeros_from_numeric_strings, simplify_columns
 from pudl.metadata.fields import apply_pudl_dtypes
 from pudl.workspace.datastore import Datastore
 
-logger = logging.getLogger(__name__)
+logger = pudl.logging_helpers.get_logger(__name__)
 
 
 def extract(ds: Datastore) -> pd.DataFrame:

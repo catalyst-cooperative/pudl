@@ -3,7 +3,6 @@ import argparse
 import hashlib
 import io
 import json
-import logging
 import os
 import re
 import sys
@@ -13,7 +12,6 @@ from collections.abc import Iterator
 from pathlib import Path
 from typing import Any
 
-import coloredlogs
 import datapackage
 import requests
 from dagster import Field, resource
@@ -25,12 +23,11 @@ import pudl
 from pudl.workspace import resource_cache
 from pudl.workspace.resource_cache import PudlResourceKey
 
-logger = logging.getLogger(__name__)
+logger = pudl.logging_helpers.get_logger(__name__)
 
 # The Zenodo tokens recorded here should have read-only access to our archives.
 # Including them here is correct in order to allow public use of this tool, so
 # long as we stick to read-only keys.
-
 
 PUDL_YML = Path.home() / ".pudl.yml"
 
@@ -160,8 +157,11 @@ class ZenodoFetcher:
             "eia_bulk_elec": "10.5072/zenodo.1103572",
             "epacamd_eia": "10.5072/zenodo.1103224",
             "epacems": "10.5072/zenodo.672963",
-            "ferc1": "10.5072/zenodo.926302",
-            "ferc714": "10.5072/zenodo.926660",
+            "ferc1": "10.5072/zenodo.1070868",
+            "ferc2": "10.5072/zenodo.1096047",
+            "ferc6": "10.5072/zenodo.1098088",
+            "ferc60": "10.5072/zenodo.1098089",
+            "ferc714": "10.5072/zenodo.1098302",
         },
         "production": {
             "censusdp1tract": "10.5281/zenodo.4127049",
@@ -172,8 +172,11 @@ class ZenodoFetcher:
             "eia_bulk_elec": "10.5281/zenodo.7067367",
             "epacamd_eia": "10.5281/zenodo.7063255",
             "epacems": "10.5281/zenodo.6910058",
-            "ferc1": "10.5281/zenodo.5534788",
-            "ferc714": "10.5281/zenodo.5076672",
+            "ferc1": "10.5281/zenodo.7314437",
+            "ferc2": "10.5281/zenodo.7130128",
+            "ferc6": "10.5281/zenodo.7130141",
+            "ferc60": "10.5281/zenodo.7130146",
+            "ferc714": "10.5281/zenodo.7139875",
         },
     }
     API_ROOT = {
@@ -535,7 +538,7 @@ def _get_pudl_in(args: dict) -> Path:
         return Path(pudl.workspace.setup.get_defaults()["pudl_in"])
 
 
-def _create_datastore(args: dict) -> Datastore:
+def _create_datastore(args: argparse.Namespace) -> Datastore:
     """Constructs datastore instance."""
     # Configure how we want to obtain raw input data:
     ds_kwargs = dict(gcs_cache_path=args.gcs_cache_path, sandbox=args.sandbox)
@@ -603,9 +606,7 @@ def main():
     """Cache datasets."""
     args = parse_command_line()
 
-    pudl_logger = logging.getLogger("pudl")
-    log_format = "%(asctime)s [%(levelname)8s] %(name)s:%(lineno)s %(message)s"
-    coloredlogs.install(fmt=log_format, level=args.loglevel, logger=pudl_logger)
+    pudl.logging_helpers.configure_root_logger(loglevel=args.loglevel)
 
     dstore = _create_datastore(args)
 

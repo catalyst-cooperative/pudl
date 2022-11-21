@@ -2,6 +2,7 @@
 
 Defines useful fixtures, command line args.
 """
+import json
 import logging
 import os
 from pathlib import Path
@@ -11,6 +12,7 @@ import sqlalchemy as sa
 import yaml
 
 import pudl
+from pudl.extract.ferc1 import extract_xbrl_metadata
 from pudl.output.pudltabl import PudlTabl
 from pudl.settings import EtlSettings
 
@@ -59,6 +61,18 @@ def pytest_addoption(parser):
         default=False,
         help="Use raw inputs from the Zenodo sandbox server.",
     )
+    parser.addoption(
+        "--save-unmapped-ids",
+        action="store_true",
+        default=False,
+        help="Write the unmapped IDs to disk.",
+    )
+    parser.addoption(
+        "--ignore-foreign-key-constraints",
+        action="store_true",
+        default=False,
+        help="If enabled, do not check the foreign keys.",
+    )
 
 
 @pytest.fixture(scope="session", name="test_dir")
@@ -71,6 +85,18 @@ def test_directory():
 def live_databases(request):
     """Fixture that tells whether to use existing live FERC1/PUDL DBs)."""
     return request.config.getoption("--live-dbs")
+
+
+@pytest.fixture(scope="session", name="save_unmapped_ids")
+def save_unmapped_ids(request):
+    """Fixture that tells whether to use existing live FERC1/PUDL DBs)."""
+    return request.config.getoption("--save-unmapped-ids")
+
+
+@pytest.fixture(scope="session", name="check_foreign_keys")
+def check_foreign_keys(request):
+    """Fixture that tells whether to use existing live FERC1/PUDL DBs)."""
+    return not request.config.getoption("--ignore-foreign-key-constraints")
 
 
 @pytest.fixture(scope="session", name="etl_settings")
@@ -88,10 +114,10 @@ def etl_parameters(request, test_dir):
     return etl_settings
 
 
-@pytest.fixture(scope="session", name="ferc1_etl_settings")
-def ferc1_etl_parameters(etl_settings):
-    """Read ferc1_to_sqlite parameters out of test settings dictionary."""
-    return etl_settings.ferc1_to_sqlite_settings
+@pytest.fixture(scope="session", name="ferc_to_sqlite_settings")
+def ferc_to_sqlite_parameters(etl_settings):
+    """Read ferc_to_sqlite parameters out of test settings dictionary."""
+    return etl_settings.ferc_to_sqlite_settings
 
 
 @pytest.fixture(scope="session", name="pudl_etl_settings")
@@ -104,7 +130,7 @@ def pudl_etl_parameters(etl_settings):
 def pudl_out_ferc1(live_dbs, pudl_engine, request):
     """Define parameterized PudlTabl output object fixture for FERC 1 tests."""
     if not live_dbs:
-        pytest.skip("Output tests only work with a live PUDL DB.")
+        pytest.skip("Validation tests only work with a live PUDL DB.")
     return PudlTabl(pudl_engine=pudl_engine, freq=request.param)
 
 
@@ -116,7 +142,7 @@ def pudl_out_ferc1(live_dbs, pudl_engine, request):
 def pudl_out_eia(live_dbs, pudl_engine, request):
     """Define parameterized PudlTabl output object fixture for EIA tests."""
     if not live_dbs:
-        pytest.skip("Output tests only work with a live PUDL DB.")
+        pytest.skip("Validation tests only work with a live PUDL DB.")
     return PudlTabl(
         pudl_engine=pudl_engine,
         freq=request.param,
@@ -130,15 +156,15 @@ def pudl_out_eia(live_dbs, pudl_engine, request):
 def pudl_out_orig(live_dbs, pudl_engine):
     """Create an unaggregated PUDL output object for checking raw data."""
     if not live_dbs:
-        pytest.skip("Output tests only work with a live PUDL DB.")
+        pytest.skip("Validation tests only work with a live PUDL DB.")
     return PudlTabl(pudl_engine=pudl_engine)
 
 
-@pytest.fixture(scope="session", name="ferc1_engine")
-def ferc1_sql_engine(
+@pytest.fixture(scope="session", name="ferc1_engine_dbf")
+def ferc1_dbf_sql_engine(
     pudl_settings_fixture,
     live_dbs,
-    ferc1_etl_settings,
+    ferc_to_sqlite_settings,
     pudl_datastore_fixture,
 ):
     """Grab a connection to the FERC Form 1 DB clone.
@@ -148,7 +174,7 @@ def ferc1_sql_engine(
     """
     if not live_dbs:
         pudl.extract.ferc1.dbf2sqlite(
-            ferc1_to_sqlite_settings=ferc1_etl_settings,
+            ferc1_to_sqlite_settings=ferc_to_sqlite_settings.ferc1_dbf_to_sqlite_settings,
             pudl_settings=pudl_settings_fixture,
             clobber=False,
             datastore=pudl_datastore_fixture,
@@ -158,12 +184,46 @@ def ferc1_sql_engine(
     return engine
 
 
+@pytest.fixture(scope="session", name="ferc1_engine_xbrl")
+def ferc1_xbrl_sql_engine(
+    pudl_settings_fixture,
+    live_dbs,
+    ferc_to_sqlite_settings,
+    pudl_datastore_fixture,
+):
+    """Grab a connection to the FERC Form 1 DB clone.
+
+    If we are using the test database, we initialize it from scratch first. If we're
+    using the live database, then we just yield a conneciton to it.
+    """
+    if not live_dbs:
+        pudl.extract.xbrl.xbrl2sqlite(
+            ferc_to_sqlite_settings=ferc_to_sqlite_settings,
+            pudl_settings=pudl_settings_fixture,
+            clobber=False,
+            datastore=pudl_datastore_fixture,
+            workers=5,
+            batch_size=20,
+        )
+    engine = sa.create_engine(pudl_settings_fixture["ferc1_xbrl_db"])
+    logger.info("FERC1 Engine: %s", engine)
+    return engine
+
+
+@pytest.fixture(scope="session", name="ferc1_xbrl_taxonomy_metadata")
+def ferc1_xbrl_taxonomy_metadata(pudl_settings_fixture, ferc1_engine_xbrl):
+    """Read the FERC 1 XBRL taxonomy metadata from JSON."""
+    return extract_xbrl_metadata(pudl_settings=pudl_settings_fixture)
+
+
 @pytest.fixture(scope="session", name="pudl_engine")
 def pudl_sql_engine(
-    ferc1_engine,  # Implicit dependency
+    ferc1_engine_dbf,  # Implicit dependency
+    ferc1_engine_xbrl,  # Implicit dependency
     live_dbs,
     pudl_settings_fixture,
     etl_settings,
+    check_foreign_keys,
     request,
 ):
     """Grab a connection to the PUDL Database.
@@ -178,7 +238,7 @@ def pudl_sql_engine(
             etl_settings=etl_settings,
             pudl_settings=pudl_settings_fixture,
             clobber=False,
-            check_foreign_keys=True,
+            check_foreign_keys=check_foreign_keys,
             check_types=True,
             check_values=True,
             use_local_cache=not request.config.getoption("--bypass-local-cache"),
@@ -231,24 +291,31 @@ def pudl_settings_dict(request, live_dbs, tmpdir_factory):  # noqa: C901
     pudl.workspace.setup.init(pudl_in=pudl_in, pudl_out=pudl_out)
 
     if live_dbs:
-        pudl_settings["pudl_db"] = pudl.workspace.setup.get_defaults()["pudl_db"]
-        pudl_settings["ferc1_db"] = pudl.workspace.setup.get_defaults()["ferc1_db"]
-        pudl_settings["censusdp1tract_db"] = pudl.workspace.setup.get_defaults()[
-            "censusdp1tract_db"
-        ]
-        pudl_settings["parquet_dir"] = pudl.workspace.setup.get_defaults()[
-            "parquet_dir"
-        ]
-        pudl_settings["sqlite_dir"] = pudl.workspace.setup.get_defaults()["sqlite_dir"]
+        pudl_defaults = pudl.workspace.setup.get_defaults()
+        # everything with the following suffixes should use the defaults as opposed to
+        # the generated settings. We should overhaul using temp_dir's for pudl_out at
+        # all while using `live_dbs` and perhaps change the name of `live_dbs` bc it
+        # now encompasses more than just dbs
+        overwrite_suffixes = ("_db", "_datapackage", "_xbrl_taxonomy_metadata")
+        pudl_settings = {
+            k: pudl_defaults[k] if k.endswith(overwrite_suffixes) else v
+            for (k, v) in pudl_settings.items()
+        }
 
-    logger.info("pudl_settings being used: %s", pudl_settings)
+        pudl_settings["parquet_dir"] = pudl_defaults["parquet_dir"]
+        pudl_settings["sqlite_dir"] = pudl_defaults["sqlite_dir"]
+
+    pretty_settings = json.dumps(
+        {str(k): str(v) for k, v in pudl_settings.items()}, indent=2
+    )
+    logger.info(f"pudl_settings being used: {pretty_settings}")
     return pudl_settings
 
 
 @pytest.fixture(scope="session")  # noqa: C901
-def pudl_ferc1datastore_fixture(pudl_datastore_fixture):
-    """Produce a :class:pudl.extract.ferc1.Ferc1Datastore."""
-    return pudl.extract.ferc1.Ferc1Datastore(pudl_datastore_fixture)
+def ferc1_dbf_datastore_fixture(pudl_datastore_fixture):
+    """Produce a :class:pudl.extract.ferc1.Ferc1DbfDatastore."""
+    return pudl.extract.ferc1.Ferc1DbfDatastore(pudl_datastore_fixture)
 
 
 @pytest.fixture(scope="session", name="pudl_ds_kwargs")

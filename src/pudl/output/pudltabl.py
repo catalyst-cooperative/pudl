@@ -19,7 +19,6 @@ In the long run, this is a probably a kind of prototype for pre-packaged API out
 data products that we might want to be able to provide to users a la carte.
 """
 
-import logging
 from collections import defaultdict
 from datetime import date, datetime
 from typing import Any, Literal
@@ -37,7 +36,7 @@ from pudl.analysis.allocate_net_gen import (
 from pudl.settings import Eia861Settings, Ferc714Settings
 from pudl.workspace.datastore import Datastore
 
-logger = logging.getLogger(__name__)
+logger = pudl.logging_helpers.get_logger(__name__)
 
 
 ###############################################################################

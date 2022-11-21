@@ -8,17 +8,14 @@ database, so to run this script, you must already have a PUDL database
 available on your system.
 """
 import argparse
-import logging
 import pathlib
 import sys
-
-import coloredlogs
 
 import pudl
 from pudl.metadata.classes import DataSource
 from pudl.settings import EpaCemsSettings
 
-logger = logging.getLogger(__name__)
+logger = pudl.logging_helpers.get_logger(__name__)
 
 
 def parse_command_line(argv):
@@ -94,9 +91,7 @@ def main():
     args = parse_command_line(sys.argv)
 
     # Display logged output from the PUDL package:
-    pudl_logger = logging.getLogger("pudl")
-    log_format = "%(asctime)s [%(levelname)8s] %(name)s:%(lineno)s %(message)s"
-    coloredlogs.install(fmt=log_format, level=args.loglevel, logger=pudl_logger)
+    pudl.logging_helpers.configure_root_logger()
 
     pudl_settings = pudl.workspace.setup.get_defaults()
     # This also validates the states / years we've been given:

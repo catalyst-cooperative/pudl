@@ -7,7 +7,6 @@ should probably live here. There are lost of transform type functions in here th
 with cleaning and restructing dataframes.
 """
 import itertools
-import logging
 import pathlib
 import re
 import shutil
@@ -22,11 +21,10 @@ import numpy as np
 import pandas as pd
 import requests
 import sqlalchemy as sa
+from pandas._libs.missing import NAType
 
-from pudl.metadata.classes import DataSource, Package
+import pudl.logging_helpers
 from pudl.metadata.fields import get_pudl_dtypes
-
-logger = logging.getLogger(__name__)
 
 sum_na = partial(pd.Series.sum, skipna=False)
 """A sum function that returns NA if the Series includes any NA values.
@@ -39,13 +37,15 @@ consumption for the year needs to be NA, otherwise we'll get unrealistic heat
 rates.
 """
 
+logger = pudl.logging_helpers.get_logger(__name__)
+
 
 def label_map(
     df: pd.DataFrame,
     from_col: str = "code",
     to_col: str = "label",
-    null_value: str | type(pd.NA) = pd.NA,
-) -> defaultdict[str, str | type(pd.NA)]:
+    null_value: str | NAType = pd.NA,
+) -> defaultdict[str, str | NAType]:
     """Build a mapping dictionary from two columns of a labeling / coding dataframe.
 
     These dataframes document the meanings of the codes that show up in much of the
@@ -117,7 +117,11 @@ def find_foreign_key_errors(dfs: dict[str, pd.DataFrame]) -> list[dict[str, Any]
         the table name, foreign key definition, and the elements of the
         dataframe that violated the foreign key constraint.
     """
-    package = Package.from_resource_ids(resource_ids=tuple(sorted(dfs)))
+    import pudl.metadata.classes
+
+    package = pudl.metadata.classes.Package.from_resource_ids(
+        resource_ids=tuple(sorted(dfs))
+    )
     errors = []
     for resource in package.resources:
         for foreign_key in resource.schema.foreign_keys:
@@ -995,7 +999,7 @@ def simplify_columns(df):
     return df
 
 
-def drop_tables(engine, clobber=False):
+def drop_tables(engine: sa.engine.Engine, clobber: bool = False):
     """Drops all tables from a SQLite database.
 
     Creates an sa.schema.MetaData object reflecting the structure of the
@@ -1006,8 +1010,12 @@ def drop_tables(engine, clobber=False):
         Treat DB connection as a context manager (with/as).
 
     Args:
-        engine (sa.engine.Engine): An SQL Alchemy SQLite database Engine
-            pointing at an exising SQLite database to be deleted.
+        engine: An SQL Alchemy SQLite database Engine pointing at an exising SQLite
+            database to be deleted.
+        clobber: Whether or not to allow a non-empty DB to be removed.
+
+    Raises:
+        AssertionError: if clobber is False and there are any tables in the database.
 
     Returns:
         None
@@ -1338,8 +1346,10 @@ def iterate_multivalue_dict(**kwargs):
 
 def get_working_eia_dates():
     """Get all working EIA dates as a DatetimeIndex."""
+    import pudl.metadata.classes
+
     dates = pd.DatetimeIndex([])
-    for data_source in DataSource.from_field_namespace("eia"):
+    for data_source in pudl.metadata.classes.DataSource.from_field_namespace("eia"):
         working_partitions = data_source.working_partitions
         if "years" in working_partitions:
             dates = dates.append(

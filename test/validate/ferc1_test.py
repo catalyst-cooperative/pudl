@@ -15,13 +15,11 @@ logger = logging.getLogger(__name__)
 
 # These are tables for which individual records have been sliced up and
 # turned into columns -- so there's no universally unique record ID:
-row_mapped_tables = [
-    "plant_in_service_ferc1",
-]
+non_unique_record_id_tables = ["plant_in_service_ferc1", "purchased_power_ferc1"]
 unique_record_tables = [
     t
     for t in DataSource.from_id("ferc1").get_resource_ids()
-    if t not in row_mapped_tables
+    if t not in non_unique_record_id_tables
 ]
 
 
@@ -65,16 +63,16 @@ def test_no_null_cols_ferc1(pudl_out_ferc1, live_dbs, cols, df_name):
 @pytest.mark.parametrize(
     "df_name,expected_rows",
     [
-        ("fbp_ferc1", 20_573),
-        ("fuel_ferc1", 31_265),
-        ("plant_in_service_ferc1", 26_933),
-        ("plants_all_ferc1", 51_456),
-        ("plants_hydro_ferc1", 6_782),
-        ("plants_pumped_storage_ferc1", 710),
-        ("plants_small_ferc1", 15_584),
-        ("plants_steam_ferc1", 28_380),
-        ("pu_ferc1", 6_946),
-        ("purchased_power_ferc1", 190_228),
+        ("fbp_ferc1", 25_097),
+        ("fuel_ferc1", 48_218),
+        ("plant_in_service_ferc1", 311_794),
+        ("plants_all_ferc1", 54_276),
+        ("plants_hydro_ferc1", 6_796),
+        ("plants_pumped_storage_ferc1", 544),
+        ("plants_small_ferc1", 16_235),
+        ("plants_steam_ferc1", 30_701),
+        ("pu_ferc1", 7_425),
+        ("purchased_power_ferc1", 197_523),
     ],
 )
 def test_minmax_rows(pudl_out_ferc1, live_dbs, expected_rows, df_name):
@@ -125,7 +123,10 @@ def test_minmax_rows(pudl_out_ferc1, live_dbs, expected_rows, df_name):
                 "capacity_mw",  # Why does having capacity here make sense???
             ],
         ),
-        ("plant_in_service_ferc1", ["report_year", "utility_id_ferc1", "amount_type"]),
+        (
+            "plant_in_service_ferc1",
+            ["report_year", "utility_id_ferc1", "ferc_account_label"],
+        ),
     ],
 )
 def test_unique_rows_ferc1(pudl_out_ferc1, live_dbs, df_name, unique_subset):
