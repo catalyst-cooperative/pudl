@@ -135,10 +135,12 @@ the new year of data continues this pattern, you can run:
 
 C. FERC Form 714
 ^^^^^^^^^^^^^^^^
-**2.C.1)** FERC Form 714 is distributed as an archive of CSV files, each of which spans
+FERC Form 714 is distributed as an archive of CSV files, each of which spans
 all available years of data. This means there's much less structure to keep track of.
 The main thing that changes from year to year is the names of the CSV files within the
-ZIP archive. Update the mapping between extracted dataframes and those filenames in the
+ZIP archive.
+
+**2.C.1)** Update the mapping between extracted dataframes and those filenames in the
 :py:const:`pudl.extract.ferc714.TABLE_FNAME` dictionary.
 
 **2.C.2)** The character encodings of these CSV files may vary with some of them using
@@ -150,11 +152,10 @@ in :py:const:`pudl.extract.ferc714.TABLE_ENCODING` and that it may change over t
 
 A. EIA Forms
 ^^^^^^^^^^^^
-**3.A.1)** Use the Jupyter notebook ``devtools/eia-etl-debug.ipynb`` to run one step of
-the process at a time, independently for each dataset. This makes debugging issues
-easier. Given that there are hundreds of columns mapped across all the different EIA
-spreadsheets, you'll almost certainly find some typos or errors in the extract process
-and need to revise your work.
+**3.A.1)** Use the Jupyter notebook ``devtools/eia-etl-debug.ipynb`` to run the extract
+process independently for each dataset. Given that there are hundreds of columns mapped
+across all the different EIA spreadsheets, you'll almost certainly find some typos or
+errors in the extract process and need to revise your work from step 2.
 
 B. FERC Form 1
 ^^^^^^^^^^^^^^
