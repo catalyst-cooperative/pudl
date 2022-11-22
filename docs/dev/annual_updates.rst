@@ -42,8 +42,10 @@ a new version to an existing archive.
 **1.3)** Update the dictionary of production DOIs in :mod:`pudl.workspace.datastore` to
 refer to the new raw input archives.
 
-**1.4)** Update the working partitions in the :mod:`pudl.metadata.sources` dictionary to
-reflect the years of data that are available within each dataset.
+**1.4)** In :py:const:`pudl.metadata.sources.SOURCES`, update the ``working_partitions``
+to reflect the years of data that are available within each dataset and the
+``records_liberated`` to show how many records are available. Check to make sure other
+fields such as ``source_format`` or ``path`` are still accurate.
 
 **1.5)** Update the years of data to be processed in the ``etl_full.yml`` and
 ``etl_fast.yml`` settings files stored under ``src/pudl/package_data/settings`` in the
@@ -58,7 +60,7 @@ won't remove any custom settings files you've added under a diffrent name.
     EIA861 is not yet included in the ETL, so you can skip 1.5 if you're updating 861.
     You can also skip all steps after 3.
 
-**1.6)** Use the ``pudl_datastore`` script (see :doc:`datastore`) to download the new
+**1.7)** Use the ``pudl_datastore`` script (see :doc:`datastore`) to download the new
 raw data archives in bulk so that network hiccups don't cause issues during ETL.
 
 2. Map the Structure of the New Data
@@ -147,8 +149,8 @@ ZIP archive.
 ``iso-8859-1`` (Latin) rather than ``utf-8`` (Unicode). Note the per-file encoding
 in :py:const:`pudl.extract.ferc714.TABLE_ENCODING` and that it may change over time.
 
-3. Initial Data Extraction
---------------------------
+3. Test Data Extraction
+-----------------------
 
 A. EIA Forms
 ^^^^^^^^^^^^
@@ -182,6 +184,10 @@ tables were added in the new year of data you will need to add a new transform f
 for the corresponding dataframe. If new columns have been added, they should also be
 inspected for cleanup.
 
+.. note::
+
+    The next time we update EIA we should probably do so in the new transform framework.
+
 B. FERC Form 1
 ^^^^^^^^^^^^^^
 Some FERC 1 tables store different variables in different rows instead of or in addition
@@ -205,9 +211,31 @@ Uncategorized string values (think new, strange fuel type spellings) will throw 
 and should be added to the appropriate dictionaries in
 :mod:`pudl.transform.params.ferc1`.
 
+**4.B.3)** If there's a new column, add it to the transform process. At the very least,
+you'll need to include it in the ``rename_columns`` dictionary in
+:py:const:`pudl.transform.params.ferc1.TRANSFORM_PARAMS` for the appropriate table.
+
+* Consider whether the column could benefit from any of the standard transforms in
+  :mod:`pudl.transform.classes`. If so, add those transforms/the new column to
+  :py:const:`pudl.transform.params.ferc1.TRANSFORM_PARAMS`. If the standard transform
+  you're applying to the new column was not previously listed in
+  :py:const:`pudl.transform.params.ferc1.TRANSFORM_PARAMS` under the table you're
+  working on, you'll need to add it to ``transform_main()`` in
+  :mod:`pudl.transform.ferc1` under the cooresponding table transformer class or it
+  won't be executed.
+
+* Consider whether the column could benefit from custom transformations. If it's
+  something that could be applicable to other columns, consider building it in
+  :mod:`pudl.tranform.classes`. If not, build it in the relevant table transformer
+  class in :mod:`pudl.transform.ferc1`.
+
+**4.B.4)** If there's a new table, add it to the transform process. You'll need to build
+or augment a table transformer in :mod:`pudl.transform.ferc1` and follow all
+instructions applicable to new columns.
+
 5. Update the PUDL DB Schema
 ----------------------------
-If new columns or tables have been added, you will need to update the PUDL DB schema,
+If new columns or tables have been added, you must also update the PUDL DB schema,
 define column types, give them meaningful descriptions, apply appropriate ENUM
 constraints, etc. This happens in the :mod:`pudl.metadata` subpackage. Otherwise when
 the system tries to write dataframes into SQLite, it will fail or simply exclude any new
@@ -248,8 +276,8 @@ inconsistencies in the harvested values. See: :doc:`run_the_etl` for more detail
 you'll need to use the ``--ignore-foreign-key-constraints`` argument because new plants
 and utilities probably need to be mapped (read on into next section).
 
-7. Integration Between Datasets
--------------------------------
+7. Integrate Datasets
+---------------------
 
 A. FERC 1 & EIA Plants & Utilities
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
