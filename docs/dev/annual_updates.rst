@@ -198,29 +198,39 @@ last year that the string was changed in the ``row_chg_yr`` column. The
 
 **4.B.2)** Use the FERC 1 debugging notebook ``devtools/ferc1-etl-debug.ipynb`` to run
 the transforms for each table. Heed any errors or warnings that pop up in the
-logs. One of the most likely bugs will uncategorized strings. Any column listed in
+logs. One of the most likely bugs will be uncategorized strings. Any column listed in
 :py:const:`pudl.transform.params.ferc1.TRANSFORM_PARAMS` under ``categorize_strings``
 gets cleaned according to varables defined in :mod:`pudl.transform.params.ferc1`.
 Uncategorized string values (think new, strange fuel type spellings) will throw an error
 and should be added to the appropriate dictionaries in
 :mod:`pudl.transform.params.ferc1`.
 
-5. Update the PUDL DB schema
+5. Update the PUDL DB Schema
 ----------------------------
-**5.1)** If new columns or tables have been added, you will need to update the
-PUDL DB schema, defining column types, giving them meaningful descriptions, applying
-appropriate ENUM constraints, etc. This happens in the :mod:`pudl.metadata` subpackage.
-Otherwise when the system tries to write dataframes into SQLite, it will fail.
+If new columns or tables have been added, you will need to update the PUDL DB schema,
+define column types, give them meaningful descriptions, apply appropriate ENUM
+constraints, etc. This happens in the :mod:`pudl.metadata` subpackage. Otherwise when
+the system tries to write dataframes into SQLite, it will fail or simply exclude any new
+columns.
 
-**5.2)** Differentiate between columns which should be harvested from the transformed
+**5.1)** Check whether new columns exist in
+:py:const:`pudl.metadata.fields.FIELD_METADATA`. If they do, make sure the descriptions
+and data types match. If the descriptions don't match, you may need to define that
+column by source: :py:const:`pudl.metadata.fields.FIELD_METADATA_BY_GROUP` or by table:
+:py:const:`pudl.metadata.fields.FIELD_METADATA_BY_RESOURCE`. If the column is not in
+:py:const:`pudl.metadata.fields.FIELD_METADATA`, add it.
+
+**5.2)** Add new columns and tables to the ``RESOURCE_METADATA`` dictionaries in the
+appropriate :mod:`pudl.metadata.resources` modules.
+
+**5.3)** Update any :mod:`pudl.metadata.codes`, :mod:`pudl.metadata.labels`, or
+:mod:`pudl.metadata.enums` pertaining to new or existing columns with novel content.
+
+**5.4)** Differentiate between columns which should be harvested from the transformed
 dataframes in the normalization and entity resolution process (and associated with a
 generator, boiler, plant, utility, or balancing authority entity), and those that should
 remain in the table where they are reported.
 
-.. note::
-
-    You may also need to define new coding/labeling tables, or add new codes or code
-    fixes to the existing coding tables.
 
 6. Run a Siloed EIA ETL
 -----------------------
