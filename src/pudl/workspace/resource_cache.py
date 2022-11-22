@@ -1,6 +1,5 @@
 """Implementations of datastore resource caches."""
 
-import logging
 from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import Any, NamedTuple
@@ -13,7 +12,9 @@ from google.cloud import storage
 from google.cloud.storage.blob import Blob
 from google.cloud.storage.retry import _should_retry
 
-logger = logging.getLogger(__name__)
+import pudl.logging_helpers
+
+logger = pudl.logging_helpers.get_logger(__name__)
 
 
 def extend_gcp_retry_predicate(predicate, *exception_types):
@@ -183,7 +184,10 @@ class LayeredCache(AbstractCache):
         self._caches: list[AbstractCache] = list(caches)
 
     def add_cache_layer(self, cache: AbstractCache):
-        """Adds caching layer. The priority is below all other."""
+        """Adds caching layer.
+
+        The priority is below all other.
+        """
         self._caches.append(cache)
 
     def num_layers(self):
@@ -237,7 +241,7 @@ class LayeredCache(AbstractCache):
         logger.debug(f"contains: {resource} not found in layered cache.")
 
     def is_optimally_cached(self, resource: PudlResourceKey) -> bool:
-        """Returns true if the resource is contained in the closest write-enabled layer."""
+        """Return True if resource is contained in the closest write-enabled layer."""
         for cache_layer in self._caches:
             if cache_layer.is_read_only():
                 continue

@@ -1,9 +1,9 @@
 """Tests for metadata not covered elsewhere."""
 import pytest
 
-from pudl.metadata import RESOURCE_METADATA, Package
-from pudl.metadata.classes import DataSource
+from pudl.metadata.classes import DataSource, Package
 from pudl.metadata.helpers import format_errors
+from pudl.metadata.resources import RESOURCE_METADATA
 from pudl.metadata.sources import SOURCES
 
 

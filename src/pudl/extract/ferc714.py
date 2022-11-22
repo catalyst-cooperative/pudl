@@ -1,5 +1,4 @@
 """Routines used for extracting the raw FERC 714 data."""
-import logging
 import warnings
 
 import pandas as pd
@@ -7,7 +6,7 @@ import pandas as pd
 import pudl
 from pudl.settings import Ferc714Settings
 
-logger = logging.getLogger(__name__)
+logger = pudl.logging_helpers.get_logger(__name__)
 
 TABLE_FNAME = {
     "id_certification_ferc714": "Part 1 Schedule 1 - Identification Certification.csv",
@@ -56,7 +55,6 @@ def extract(
     Returns:
         dict: A dictionary of dataframes, with raw FERC 714 table names as the
         keys, and minimally processed pandas.DataFrame instances as the values.
-
     """
     warnings.warn(
         "Integration of FERC 714 into PUDL is still experimental and incomplete.\n"

@@ -12,23 +12,19 @@ environment, but if you are using PUDL outside of the conda environment, you
 will need to install ogr2ogr separately. On Debian Linux based systems such
 as Ubuntu it can be installed with ``sudo apt-get install gdal-bin`` (which
 is what we do in our CI setup and Docker images.)
-
 """
 
 import argparse
-import logging
 import os
 import subprocess  # nosec: B404
 import sys
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
-import coloredlogs
-
 import pudl
 from pudl.workspace.datastore import Datastore
 
-logger = logging.getLogger(__name__)
+logger = pudl.logging_helpers.get_logger(__name__)
 
 
 def censusdp1tract_to_sqlite(pudl_settings=None, year=2010, ds=None, clobber=False):
@@ -46,7 +42,6 @@ def censusdp1tract_to_sqlite(pudl_settings=None, year=2010, ds=None, clobber=Fal
 
     Returns:
         None
-
     """
     if ds is None:
         ds = Datastore()
@@ -95,7 +90,6 @@ def parse_command_line(argv):
 
     Returns:
         dict: Dictionary of command line arguments and their parsed values.
-
     """
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
@@ -142,16 +136,7 @@ def parse_command_line(argv):
 def main():
     """Convert the Census DP1 GeoDatabase into an SQLite Database."""
     args = parse_command_line(sys.argv)
-
-    pudl_logger = logging.getLogger("pudl")
-    log_format = "%(asctime)s [%(levelname)8s] %(name)s:%(lineno)s %(message)s"
-    coloredlogs.install(fmt=log_format, level=args.loglevel, logger=pudl_logger)
-
-    if args.logfile:
-        file_logger = logging.FileHandler(args.logfile)
-        file_logger.setFormatter(logging.Formatter(log_format))
-        pudl_logger.addHandler(file_logger)
-
+    pudl.logging_helpers.configure_root_logger(logfile=args.logfile)
     pudl_settings = pudl.workspace.setup.get_defaults()
 
     # Configure how we want to obtain raw input data:

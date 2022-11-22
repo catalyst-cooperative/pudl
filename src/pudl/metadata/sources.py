@@ -186,7 +186,10 @@ SOURCES: dict[str, Any] = {
         "description": (
             "Aggregate national, state, and plant-level electricity generation "
             "statistics, including fuel quality and consumption, for grid-connected "
-            "plants with nameplate capacity of 1 megawatt or greater"
+            "plants with nameplate capacity of 1 megawatt or greater."
+            "\n"
+            "At present, PUDL integrates only a few specific data series related to "
+            "fuel receipts and costs figures."
         ),
         "source_file_dict": {
             "respondents": (
@@ -238,7 +241,7 @@ SOURCES: dict[str, Any] = {
         "field_namespace": "epacems",
         "working_partitions": {
             "years": sorted(set(range(1995, 2022))),
-            "states": sorted(set(EPACEMS_STATES)),
+            "states": sorted(EPACEMS_STATES),
         },
         "contributors": [
             CONTRIBUTORS["catalyst-cooperative"],
@@ -275,7 +278,7 @@ SOURCES: dict[str, Any] = {
         ),
         "source_file_dict": {
             "records_liberated": "~7000",
-            "source_format": "Microsoft Excel (.xlsx)",
+            "source_format": "Comma Separated Value (.csv)",
         },
         "field_namespace": "glue",
         "working_partitions": {},
@@ -321,7 +324,7 @@ SOURCES: dict[str, Any] = {
         },
         "field_namespace": "ferc1",
         "working_partitions": {
-            "years": sorted(set(range(1994, 2021))),
+            "years": sorted(set(range(1994, 2022))),
         },
         "contributors": [
             CONTRIBUTORS["catalyst-cooperative"],
@@ -360,6 +363,75 @@ SOURCES: dict[str, Any] = {
         "working_partitions": {
             "years": [],  # Not yet working!
         },
+        "contributors": [
+            CONTRIBUTORS["catalyst-cooperative"],
+        ],
+        "keywords": sorted(
+            set(
+                [
+                    "form 2",
+                    "ferc2",
+                ]
+                + KEYWORDS["ferc"]
+                + KEYWORDS["finance"]
+            )
+        ),
+        "license_raw": LICENSES["us-govt"],
+        "license_pudl": LICENSES["cc-by-4.0"],
+    },
+    "ferc6": {
+        "title": "FERC Form 6",
+        "path": "https://www.ferc.gov/industries-data/electric/general-information/electric-industry-forms/form-66-q-overview-orders",
+        "description": (
+            "The Federal Energy Regulatory Commission (FERC) Form 6 is a "
+            "comprehensive financial and operating report submitted for oil "
+            "pipelines rate regulation and financial audits."
+        ),
+        "field_namespace": "ferc6",
+        "working_partitions": {
+            "years": [],  # Not yet working!
+        },
+        "contributors": [
+            CONTRIBUTORS["catalyst-cooperative"],
+        ],
+        "keywords": sorted(
+            set(
+                [
+                    "form 6",
+                    "ferc6",
+                ]
+                + KEYWORDS["ferc"]
+                + KEYWORDS["finance"]
+            )
+        ),
+        "license_raw": LICENSES["us-govt"],
+        "license_pudl": LICENSES["cc-by-4.0"],
+    },
+    "ferc60": {
+        "title": "FERC Form 60",
+        "path": "https://www.ferc.gov/ferc-online/ferc-online/filing-forms/service-companies-filing-forms/form-60-annual-report",
+        "description": (
+            "The Federal Energy Regulatory Commission (FERC) Form 60 is a "
+            "comprehensive financial and operating report submitted for centralized "
+            "service companies."
+        ),
+        "field_namespace": "ferc60",
+        "working_partitions": {
+            "years": [],  # Not yet working!
+        },
+        "contributors": [
+            CONTRIBUTORS["catalyst-cooperative"],
+        ],
+        "keywords": sorted(
+            set(
+                [
+                    "form 60",
+                    "ferc60",
+                ]
+                + KEYWORDS["ferc"]
+                + KEYWORDS["finance"]
+            )
+        ),
         "license_raw": LICENSES["us-govt"],
         "license_pudl": LICENSES["cc-by-4.0"],
     },
@@ -376,6 +448,9 @@ SOURCES: dict[str, Any] = {
         ),
         "field_namespace": "ferc714",
         "working_partitions": {},  # Data is monolitic, one file with all years.
+        "contributors": [
+            CONTRIBUTORS["catalyst-cooperative"],
+        ],
         "keywords": sorted(
             set(
                 [

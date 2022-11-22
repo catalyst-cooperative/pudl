@@ -12,5 +12,5 @@ report to both FERC and EIA, but using different names and IDs.
 In general we try to enable each dataset to be processed independently, and
 optionally apply the glue to connect them to each other when both datasets for
 which glue exists are being processed together.
-
 """
+from . import epacamd_eia, ferc1_eia  # noqa: F401

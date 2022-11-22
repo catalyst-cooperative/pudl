@@ -22,14 +22,12 @@ logger = logging.getLogger(__name__)
 def pudl_out_mcoe(pudl_out_eia, live_dbs):
     """A fixture to calculate MCOE appropriately for testing.
 
-    By default, the MCOE calculation drops rows with "unreasonable" values for
-    heat rate, fuel costs, and capacity factors. However, for the purposes of
-    testing, we don't want to lose those values -- that's the kind of thing
-    we're looking for.  So here we override those defaults, causing the MCOE
-    output dataframe to be cached with all the nasty details, so it is
-    available for the rest of the tests that look at MCOE results in this
-    module
-
+    By default, the MCOE calculation drops rows with "unreasonable" values for heat
+    rate, fuel costs, and capacity factors. However, for the purposes of testing, we
+    don't want to lose those values -- that's the kind of thing we're looking for.  So
+    here we override those defaults, causing the MCOE output dataframe to be cached with
+    all the nasty details, so it is available for the rest of the tests that look at
+    MCOE results in this module
     """
     if live_dbs and pudl_out_eia.freq is not None:
         logger.info("Calculating MCOE, leaving in all the nasty bits.")
@@ -82,16 +80,23 @@ def test_no_null_cols_mcoe(pudl_out_mcoe, live_dbs, df_name):
 @pytest.mark.parametrize(
     "df_name,thresh",
     [
-        ("mcoe", 0.8),
+        pytest.param(
+            "mcoe",
+            0.8,
+            marks=pytest.mark.xfail(
+                reason="The net generation allocation is now integrated into MCOE. The "
+                "allocated fuel still needs to be integrated - without it we'll have "
+                "nulls. See #2033"
+            ),
+        ),
     ],
 )
 def test_no_null_rows_mcoe(pudl_out_mcoe, live_dbs, df_name, thresh):
     """Verify that output DataFrames have no overly NULL rows.
 
-    Currently we only test the MCOE dataframe because it has lots of columns
-    and some complicated merges. For tables with fewer columns, the "index"
-    columns end up being most of them, and should probably be skipped.
-
+    Currently we only test the MCOE dataframe because it has lots of columns and some
+    complicated merges. For tables with fewer columns, the "index" columns end up being
+    most of them, and should probably be skipped.
     """
     if not live_dbs:
         pytest.skip("Data validation only works with a live PUDL DB.")
@@ -108,11 +113,11 @@ def test_no_null_rows_mcoe(pudl_out_mcoe, live_dbs, df_name, thresh):
 @pytest.mark.parametrize(
     "df_name,monthly_rows,annual_rows",
     [
-        ("hr_by_unit", 362_208, 30_233),
-        ("hr_by_gen", 553_211, 46_151),
-        ("fuel_cost", 553_211, 46_151),
-        ("capacity_factor", 599_674, 50_038),
-        ("mcoe", 599_722, 50_038),
+        ("hr_by_unit", 361_963, 30_305),
+        ("hr_by_gen", 554_617, 46_366),
+        ("fuel_cost", 554_617, 46_366),
+        ("capacity_factor", 5_170_743, 432_542),
+        ("mcoe", 5_171_127, 432_574),
     ],
 )
 def test_minmax_rows_mcoe(pudl_out_mcoe, live_dbs, monthly_rows, annual_rows, df_name):

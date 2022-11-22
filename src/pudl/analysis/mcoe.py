@@ -69,7 +69,6 @@ def heat_rate_by_unit(pudl_out):
     - net_generation_mwh
     - fuel_consumed_mmbtu
     - heat_rate_mmbtu_mwh
-
     """
     # pudl_out must have a freq, otherwise capacity factor will fail and merges
     # between tables with different frequencies will fail
@@ -79,16 +78,20 @@ def heat_rate_by_unit(pudl_out):
     # Sum up the net generation per unit for each time period:
     gen_by_unit = (
         pudl_out.gen_eia923()
-        .groupby(["report_date", "plant_id_eia", "unit_id_pudl"])
-        .agg({"net_generation_mwh": pudl.helpers.sum_na})
+        .groupby(["report_date", "plant_id_eia", "unit_id_pudl"])[
+            ["net_generation_mwh"]
+        ]
+        .sum(min_count=1)
         .reset_index()
     )
 
     # Sum up all the fuel consumption per unit for each time period:
     bf_by_unit = (
         pudl_out.bf_eia923()
-        .groupby(["report_date", "plant_id_eia", "unit_id_pudl"])
-        .agg({"fuel_consumed_mmbtu": pudl.helpers.sum_na})
+        .groupby(["report_date", "plant_id_eia", "unit_id_pudl"])[
+            ["fuel_consumed_mmbtu"]
+        ]
+        .sum(min_count=1)
         .reset_index()
     )
 
@@ -126,7 +129,6 @@ def heat_rate_by_gen(pudl_out):
 
     Raises:
         ValueError if pudl_out.freq is None.
-
     """
     # pudl_out must have a freq, otherwise capacity factor will fail and merges
     # between tables with different frequencies will fail
@@ -198,7 +200,6 @@ def fuel_cost(pudl_out):
     are associated with generators that have energy_source_code gas, and the
     coal fuel costs are associated with the generators that have
     energy_source_code coal.
-
     """
     # pudl_out must have a freq, otherwise capacity factor will fail and merges
     # between tables with different frequencies will fail
@@ -366,10 +367,10 @@ def fuel_cost(pudl_out):
 def capacity_factor(pudl_out, min_cap_fact=0, max_cap_fact=1.5):
     """Calculate the capacity factor for each generator.
 
-    Capacity Factor is calculated by using the net generation from eia923 and
-    the nameplate capacity from eia860. The net gen and capacity are pulled
-    into one dataframe and then run through our standard capacity factor
-    function (``pudl.helpers.calc_capacity_factor()``).
+    Capacity Factor is calculated by using the net generation from eia923 and the
+    nameplate capacity from eia860. The net gen and capacity are pulled into one
+    dataframe and then run through our standard capacity factor function
+    (``pudl.helpers.calc_capacity_factor()``).
     """
     # pudl_out must have a freq, otherwise capacity factor will fail and merges
     # between tables with different frequencies will fail
@@ -450,7 +451,6 @@ def mcoe(
         pandas.DataFrame: a dataframe organized by date and generator,
         with lots of juicy information about the generators -- including fuel
         cost on a per MWh and MMBTU basis, heat rates, and net generation.
-
     """
     gens_idx = ["report_date", "plant_id_eia", "generator_id"]
 
