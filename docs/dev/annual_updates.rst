@@ -170,6 +170,9 @@ utilities later.
 
 4. Update Table & Column Transformations
 ----------------------------------------
+We're in the process of transitioning from our old transform framework to a newer, more
+standardized transform framework. Currently, the EIA tables utilize the old transform
+framework and the FERC Form 1 tables utilize the new transform framework.
 
 A. EIA Forms
 ^^^^^^^^^^^^
@@ -183,7 +186,7 @@ B. FERC Form 1
 ^^^^^^^^^^^^^^
 Some FERC 1 tables store different variables in different rows instead of or in addition
 to using columns. Rows are identified by ``row_number``. What row number corresponds to
-which variable changes from year to year.  We catalog this correspondence in the FERC 1
+which variable changes from year to year. We catalog this correspondence in the FERC 1
 row maps, a collection of CSV files stored under
 ``src/pudl/package_data/ferc1/row_maps`` and organized by original FERC 1 DB table name.
 
@@ -193,15 +196,14 @@ descriptive strings associated with each row in the FERC Form 1, and also indica
 last year that the string was changed in the ``row_chg_yr`` column. The
 ``devtools/ferc1/ferc1-new-year.ipynb`` notebook can make this process less tedious.
 
-**4.B.2)** The ``plant_kind`` and ``construction_type`` fields in the
-``plants_steam_ferc1`` table and the ``fuel_type`` and ``fuel_unit`` fields in the
-``fuel_ferc1`` table are reported as freeform strings and need to be converted to simple
-categorical values to be useful. If the new year of data contains strings that have
-never been encountered before, they need to be added to the string cleaning dictionaries
-defined in :mod:`pudl.transform.ferc1`. The ``devtools/ferc1/ferc1-new-year.ipynb``
-notebook and :func:`pudl.helpers.find_new_ferc1_strings` will help with this process.
-Every string observed in these fileds should ultimately be mapped to one of the defined
-categories.
+**4.B.2)** Use the FERC 1 debugging notebook ``devtools/ferc1-etl-debug.ipynb`` to run
+the transforms for each table. Heed any errors or warnings that pop up in the
+logs. One of the most likely bugs will uncategorized strings. Any column listed in
+:py:const:`pudl.transform.params.ferc1.TRANSFORM_PARAMS` under ``categorize_strings``
+gets cleaned according to varables defined in :mod:`pudl.transform.params.ferc1`.
+Uncategorized string values (think new, strange fuel type spellings) will throw an error
+and should be added to the appropriate dictionaries in
+:mod:`pudl.transform.params.ferc1`.
 
 5. Update the PUDL DB schema
 ----------------------------
