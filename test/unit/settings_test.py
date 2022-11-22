@@ -4,7 +4,7 @@ import pytest
 from pandas import json_normalize
 from pydantic import ValidationError
 
-from pudl.etl import make_dataset_table
+from pudl.etl import make_datasources_table
 from pudl.metadata.classes import DataSource
 from pudl.settings import (
     DatasetsSettings,
@@ -249,7 +249,7 @@ def test_partitions_for_datasource_table(pudl_settings_fixture, pudl_etl_setting
     """Test whether or not we can make the datasource table."""
     datasets = pudl_etl_settings.get_datasets()
     ds = Datastore(local_cache_path=pudl_settings_fixture["data_dir"])
-    datasource = make_dataset_table(datasets, ds)
+    datasource = make_datasources_table(datasets, ds)
     if datasource.empty and datasets.keys() != 0:
         raise AssertionError(
             "Datasource table is empty with the following datasets in the settings: "

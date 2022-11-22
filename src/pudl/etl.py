@@ -446,7 +446,7 @@ def _read_static_pudl_tables() -> dict[str, pd.DataFrame]:
     return {"political_subdivisions": POLITICAL_SUBDIVISIONS}
 
 
-def make_dataset_table(datasets_settings, ds):
+def make_datasources_table(datasets_settings, ds):
     """Compile a table of dataset information.
 
     There are three places we can look for information about a dataset:
@@ -476,7 +476,6 @@ def make_dataset_table(datasets_settings, ds):
         )
 
     datasets = datasets_in_datastore_format.keys()
-    logger.info(f"Making a dataset table for: {datasets}")
     df = pd.DataFrame(
         data={
             "datasource": datasets,
@@ -581,7 +580,7 @@ def etl(  # noqa: C901
         epacems_pq_path.mkdir(exist_ok=True)
 
     sqlite_dfs = _read_static_pudl_tables()
-    sqlite_dfs["datasources"] = make_dataset_table(
+    sqlite_dfs["datasources"] = make_datasources_table(
         datasets_settings=datasets, ds=Datastore(**ds_kwargs)
     )
     # This could be cleaner if we simplified the settings file format:

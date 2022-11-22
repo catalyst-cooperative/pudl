@@ -74,7 +74,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             ],
             "primary_key": ["datasource"],
         },
-        "etl_group": "glue",
+        "etl_group": "static_pudl",
         "field_namespace": "pudl",
         "sources": ["pudl"],
     },
