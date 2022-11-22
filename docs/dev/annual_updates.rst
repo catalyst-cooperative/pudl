@@ -64,8 +64,8 @@ raw data archives in bulk so that network hiccups don't cause issues during ETL.
 2. Map the Structure of the New Data
 ------------------------------------
 
-A. EIA Forms 860/860m/861/923
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+A. EIA Forms
+^^^^^^^^^^^^
 EIA often alters the structure of their published spreadsheets from year to year. This
 includes changing file names; adding, removing, or re-ordering spreadsheet pages;
 changing the number of header and footer rows; and adding, removing, re-ordering, or
@@ -148,8 +148,8 @@ in :py:const:`pudl.extract.ferc714.TABLE_ENCODING` and that it may change over t
 3. Initial Data Extraction
 --------------------------
 
-A. EIA Forms 860/860m/861/923
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+A. EIA Forms
+^^^^^^^^^^^^
 **3.A.1)** Use the Jupyter notebook ``devtools/eia-etl-debug.ipynb`` to run one step of
 the process at a time, independently for each dataset. This makes debugging issues
 easier. Given that there are hundreds of columns mapped across all the different EIA
@@ -170,8 +170,8 @@ utilities later.
 4. Update Table & Column Transformations
 ----------------------------------------
 
-A. EIA Forms 860/860m/861/923
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+A. EIA Forms
+^^^^^^^^^^^^
 **4.A.1)** Use the EIA ETL Debugging notebook mentioned above to run the initial
 transform step on all tables of the new year of data and debug any failures. If any new
 tables were added in the new year of data you will need to add a new transform function
