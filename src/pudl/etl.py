@@ -459,7 +459,6 @@ def make_datasources_table(datasets_settings, ds):
     are three EIA datasets right now - eia923, eia860 and eia860m. eia860m is a monthly
     update of a few tables in the larger eia860 dataset.
     """
-    # setting_datasets = validated_etl_settings.get_datasets()
     # grab all of the datasets that show up by name in the datastore
     datasets_in_datastore_format = {
         name: setting
@@ -515,7 +514,6 @@ def make_datasources_table(datasets_settings, ds):
 def _make_doi_clickable(link):
     """Make a clickable DOI."""
     return f"https://doi.org/{link}"
-    # return f'<a href="https://doi.org/{link}">https://doi.org/{link}</a>'
 
 
 ###############################################################################
