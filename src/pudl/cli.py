@@ -97,7 +97,9 @@ def main():
     args = parse_command_line(sys.argv)
 
     # Display logged output from the PUDL package:
-    pudl.logging_helpers.configure_root_logger(logfile=args.logfile)
+    pudl.logging_helpers.configure_root_logger(
+        logfile=args.logfile, loglevel=args.loglevel
+    )
 
     etl_settings = EtlSettings.from_yaml(args.settings_file)
 
