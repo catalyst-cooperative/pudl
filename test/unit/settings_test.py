@@ -1,7 +1,9 @@
 """Tests for settings validation."""
 import pytest
+from pandas import json_normalize
 from pydantic import ValidationError
 
+from pudl.etl import make_dataset_table
 from pudl.metadata.classes import DataSource
 from pudl.settings import (
     DatasetsSettings,
@@ -13,6 +15,38 @@ from pudl.settings import (
     Ferc1Settings,
     GenericDatasetSettings,
 )
+from pudl.workspace.datastore import Datastore
+
+
+def test_partitions_with_json_normalize(pudl_etl_settings):
+    """Ensure the FERC1 and CEMS partitions normalize."""
+    datasets = pudl_etl_settings.get_datasets()
+
+    ferc_parts = json_normalize(datasets["ferc1"].partitions)
+    if list(ferc_parts.columns) != ["year"]:
+        raise AssertionError(
+            "FERC1 paritions should have year and state columns only, found:"
+            f"{ferc_parts}"
+        )
+
+    cems_parts = json_normalize(datasets["epacems"].partitions)
+    if list(cems_parts.columns) != ["year", "state"]:
+        raise AssertionError(
+            "CEMS paritions should have year and state columns only, found:"
+            f"{cems_parts}"
+        )
+
+
+def test_partitions_for_datasource_table(pudl_settings_fixture, pudl_etl_settings):
+    """Test whether or not we can make the datasource table."""
+    datasets = pudl_etl_settings.get_datasets()
+    ds = Datastore(local_cache_path=pudl_settings_fixture["data_dir"])
+    datasource = make_dataset_table(datasets, ds)
+    if datasource.empty and datasets.keys() != 0:
+        raise AssertionError(
+            "Datasource table is empty with the following datasets in the settings: "
+            f"{datasets.keys()}"
+        )
 
 
 class TestGenericDatasetSettings:

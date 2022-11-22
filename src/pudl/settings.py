@@ -1,4 +1,5 @@
 """Module for validating pudl etl settings."""
+import itertools
 import pathlib
 from enum import Enum, unique
 from typing import ClassVar
@@ -76,6 +77,24 @@ class GenericDatasetSettings(BaseModel):
         if tables_not_working:
             raise ValueError(f"'{tables_not_working}' tables are not available.")
         return sorted(set(tables))
+
+    @property
+    def partitions(cls) -> list[None | dict[str, str]]:  # noqa: N805
+        """Return list of dictionaries representing individual partitions.
+
+        Convert a list of partitions into a list of dictionaries of partitions. This is
+        intended to be used to store partitions in a format that is easy to use with
+        ``pd.json_normalize``.
+        """
+        partitions = []
+        if hasattr(cls, "years") and hasattr(cls, "states"):
+            partitions = [
+                {"year": year, "state": state}
+                for year, state in itertools.product(cls.years, cls.states)
+            ]
+        elif hasattr(cls, "years"):
+            partitions = [{"year": part} for part in cls.years]
+        return partitions
 
 
 class Ferc1Settings(GenericDatasetSettings):
@@ -251,10 +270,10 @@ class Eia860Settings(GenericDatasetSettings):
         expected_year = max(cls.data_source.working_partitions["years"]) + 1
         if eia860m and (eia860m_year != expected_year):
             raise AssertionError(
-                """Attempting to integrate an eia860m year"""
-                f"""({eia860m_year}) not immediately following the eia860 years:"""
-                f"""{cls.data_source.working_partitions["years"]}. Consider switching eia860m"""
-                """parameter to False."""
+                """Attempting to integrate an eia860m year """
+                f"""({eia860m_year}) from {cls.eia860m_date} not immediately following """
+                f"""the eia860 years: {cls.data_source.working_partitions["years"]}. """
+                """Consider switching eia860m parameter to False."""
             )
         return eia860m
 

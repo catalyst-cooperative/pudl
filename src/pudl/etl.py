@@ -13,7 +13,7 @@ data from:
  - US Environmental Protection Agency (EPA):
    - Continuous Emissions Monitory System (epacems)
 """
-import itertools
+import json
 import logging
 import time
 from concurrent.futures import ProcessPoolExecutor
@@ -319,9 +319,9 @@ def etl_epacems(
             compression="snappy",
             version="2.6",
         ) as pqwriter:
-            for year, state in itertools.product(
-                epacems_settings.years, epacems_settings.states
-            ):
+            for part in epacems_settings.partitions:
+                year = part["year"]
+                state = part["state"]
                 logger.info(f"Processing EPA CEMS hourly data for {year}-{state}")
                 df = pudl.extract.epacems.extract(year=year, state=state, ds=ds)
                 df = pudl.transform.epacems.transform(df, pudl_engine=pudl_engine)
@@ -446,7 +446,7 @@ def _read_static_pudl_tables() -> dict[str, pd.DataFrame]:
     return {"political_subdivisions": POLITICAL_SUBDIVISIONS}
 
 
-def make_dataset_table(validated_etl_settings, ds):
+def make_dataset_table(datasets_settings, ds):
     """Compile a table of dataset information.
 
     There are three places we can look for information about a dataset:
@@ -459,67 +459,64 @@ def make_dataset_table(validated_etl_settings, ds):
     are three EIA datasets right now - eia923, eia860 and eia860m. eia860m is a monthly
     update of a few tables in the larger eia860 dataset.
     """
-    setting_datasets = validated_etl_settings.get_datasets()
+    # setting_datasets = validated_etl_settings.get_datasets()
     # grab all of the datasets that show up by name in the datastore
     datasets_in_datastore_format = {
         name: setting
-        for (name, setting) in setting_datasets.items()
+        for (name, setting) in datasets_settings.items()
         if name in ds.get_known_datasets()
     }
     # add the eia datasets that are nested inside of the eia settings
-    if setting_datasets["eia"]:
+    if datasets_settings["eia"]:
         datasets_in_datastore_format.update(
             {
-                "eia923": setting_datasets["eia"].eia923,
-                "eia860": setting_datasets["eia"].eia860,
+                "eia923": datasets_settings["eia"].eia923,
+                "eia860": datasets_settings["eia"].eia860,
             }
         )
 
     datasets = datasets_in_datastore_format.keys()
+    logger.info(f"Making a dataset table for: {datasets}")
     df = pd.DataFrame(
         data={
-            "dataset": datasets,
-            "title": [
-                ds.get_datapackage_descriptor(dataset).datapackage_json["title"]
+            "datasource": datasets,
+            "partitions": [
+                json.dumps(datasets_in_datastore_format[dataset].partitions)
                 for dataset in datasets
             ],
-            "description": [
-                datasets_in_datastore_format[dataset].data_source.description
+            "doi": [
+                _make_doi_clickable(ds.get_datapackage_descriptor(dataset).doi)
                 for dataset in datasets
             ],
-            "tables_in_database": [
-                datasets_in_datastore_format[dataset].tables for dataset in datasets
-            ],
-            "years_in_database": [
-                datasets_in_datastore_format[dataset].years for dataset in datasets
-            ],
-            "working_partitions": [
-                datasets_in_datastore_format[dataset].data_source.working_partitions
-                for dataset in datasets
-            ],
-            "doi": [ds.get_datapackage_descriptor(dataset).doi for dataset in datasets],
         }
     )
     # add in EIA860m if eia in general is in the settings and the 860m bool is True
     special_nested_datasets = pd.DataFrame()
-    if setting_datasets["eia"] and setting_datasets["eia"].eia860.eia860m:
+    if datasets_settings["eia"] and datasets_settings["eia"].eia860.eia860m:
         special_nested_datasets = pd.DataFrame(
             data={
-                "dataset": ["eia860m"],
-                "description": [
-                    datasets_in_datastore_format[
-                        "eia860"
-                    ].eia860m_data_source.description
+                "datasource": ["eia860m"],
+                "partitions": [
+                    json.dumps(
+                        datasets_in_datastore_format[
+                            "eia860"
+                        ].eia860m_data_source.working_partitions
+                    )
                 ],
-                "working_partitions": [
-                    datasets_in_datastore_format[
-                        "eia860"
-                    ].eia860m_data_source.working_partitions
+                "doi": [
+                    _make_doi_clickable(ds.get_datapackage_descriptor("eia860m").doi)
                 ],
-                "doi": [ds.get_datapackage_descriptor("eia860m").doi],
             }
         )
-    return pd.concat([df, special_nested_datasets])
+    df = pd.concat([df, special_nested_datasets]).reset_index(drop=True)
+    df["pudl_version"] = pudl.__version__
+    return df
+
+
+def _make_doi_clickable(link):
+    """Make a clickable DOI."""
+    return f"https://doi.org/{link}"
+    # return f'<a href="https://doi.org/{link}">https://doi.org/{link}</a>'
 
 
 ###############################################################################
@@ -584,7 +581,9 @@ def etl(  # noqa: C901
         epacems_pq_path.mkdir(exist_ok=True)
 
     sqlite_dfs = _read_static_pudl_tables()
-    sqlite_dfs["datasets"] = make_dataset_table(datasets, Datastore(ds_kwargs))
+    sqlite_dfs["datasources"] = make_dataset_table(
+        datasets_settings=datasets, ds=Datastore(**ds_kwargs)
+    )
     # This could be cleaner if we simplified the settings file format:
     if datasets.get("ferc1", False):
         sqlite_dfs.update(_etl_ferc1(datasets["ferc1"], pudl_settings))
