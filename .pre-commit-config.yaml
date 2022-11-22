@@ -22,7 +22,8 @@ repos:
       - id: check-case-conflict # Avoid case sensitivity in file names.
       - id: debug-statements # Watch for lingering debugger calls.
       - id: end-of-file-fixer # Ensure there's a newline at EOF.
-      - id: mixed-line-ending # Only newlines, no line-feeds.
+      - id: mixed-line-ending # Use Unix line-endings to avoid big no-op CSV diffs.
+        args: ["--fix=lf"]
       - id: trailing-whitespace # Remove trailing whitespace.
       - id: name-tests-test # Follow PyTest naming convention.
 
