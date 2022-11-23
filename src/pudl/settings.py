@@ -412,8 +412,8 @@ class DatasetsSettings(BaseModel):
         update of a few tables in the larger eia860 dataset.
 
         Args:
-            ds: A PUDL Datastore from which the DOI's for each raw input dataset can be
-                obtained.
+            ds: An initalized PUDL Datastore from which the DOI's for each raw input
+                dataset can be obtained.
 
         Returns:
             a dataframe describing the partitions and DOI's of each of the datasets in
