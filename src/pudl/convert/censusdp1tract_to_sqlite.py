@@ -136,7 +136,9 @@ def parse_command_line(argv):
 def main():
     """Convert the Census DP1 GeoDatabase into an SQLite Database."""
     args = parse_command_line(sys.argv)
-    pudl.logging_helpers.configure_root_logger(logfile=args.logfile)
+    pudl.logging_helpers.configure_root_logger(
+        logfile=args.logfile, loglevel=args.loglevel
+    )
     pudl_settings = pudl.workspace.setup.get_defaults()
 
     # Configure how we want to obtain raw input data:

@@ -82,6 +82,11 @@ def parse_command_line(argv):
         help="Set logging level (DEBUG, INFO, WARNING, ERROR, or CRITICAL).",
         default="INFO",
     )
+    parser.add_argument(
+        "--logfile",
+        default=None,
+        help="If specified, write logs to this file.",
+    )
     arguments = parser.parse_args(argv[1:])
     return arguments
 
@@ -91,7 +96,9 @@ def main():
     args = parse_command_line(sys.argv)
 
     # Display logged output from the PUDL package:
-    pudl.logging_helpers.configure_root_logger()
+    pudl.logging_helpers.configure_root_logger(
+        logfile=args.logfile, loglevel=args.loglevel
+    )
 
     pudl_settings = pudl.workspace.setup.get_defaults()
     # This also validates the states / years we've been given:

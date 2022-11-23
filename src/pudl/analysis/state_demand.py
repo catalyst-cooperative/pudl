@@ -709,6 +709,17 @@ def compare_state_demand(
 def parse_command_line(argv):
     """Skeletal command line argument parser to provide a help message."""
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--logfile",
+        default=None,
+        type=str,
+        help="If specified, write logs to this file.",
+    )
+    parser.add_argument(
+        "--loglevel",
+        help="Set logging level (DEBUG, INFO, WARNING, ERROR, or CRITICAL).",
+        default="INFO",
+    )
     return parser.parse_args(argv[1:])
 
 
@@ -717,11 +728,13 @@ def parse_command_line(argv):
 
 def main():
     """Predict state demand."""
-    # --- Connect to PUDL logger --- #
-    pudl.logging_helpers.configure_root_logger()
-
     # --- Parse command line args --- #
-    _ = parse_command_line(sys.argv)
+    args = parse_command_line(sys.argv)
+
+    # --- Connect to PUDL logger --- #
+    pudl.logging_helpers.configure_root_logger(
+        logfile=args.logfile, loglevel=args.loglevel
+    )
 
     # --- Connect to PUDL database --- #
 
