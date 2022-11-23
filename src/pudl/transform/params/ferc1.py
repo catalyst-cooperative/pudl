@@ -2833,6 +2833,65 @@ TRANSFORM_PARAMS = {
             }
         ],
     },
+    "electric_energy_account_sources_ferc1": {
+        "rename_columns_ferc1": {
+            "dbf": {
+                "columns": {
+                    "respondent_id": "utility_id_ferc1_dbf",
+                    "report_year": "report_year",
+                    "spplmnt_num": "spplmnt_num",
+                    "row_number": "row_number",
+                    "row_seq": "row_seq",
+                    "row_prvlg": "row_prvlg",
+                    "erg_src_mwh": "energy_source_mwh",
+                    "erg_disp_mwh": "energy_disposition_mwh",
+                    "report_prd": "report_prd",
+                }
+            },
+            "xbrl": {
+                "columns": {
+                    "entity_id": "utility_id_ferc1_xbrl",
+                    "report_year": "report_year",
+                    "ferc_account_label": "ferc_account_label",
+                    "energy_source_mwh": "energy_source_mwh",
+                }
+            },
+        },
+        "rename_columns_duration_xbrl": {
+            "columns": {
+                # generation
+                "steam_generation": "steam_generation_energy_source_mwh",
+                "nuclear_generation": "nuclear_generation_energy_source_mwh",
+                "hydro_conventional_generation": "hydro_conventional_generation_energy_source_mwh",
+                "hydro_pumped_storage_generation": "hydro_pumped_storage_generation_energy_source_mwh",
+                "other_energy_generation": "other_energy_generation_energy_source_mwh",
+                "pumping_energy": "pumping_energy_energy_source_mwh",
+                "net_energy_generation": "net_energy_generation",
+                "megawatt_hours_purchased_other_than_storage": "megawatt_hours_purchased_other_than_storage_energy_source_mwh",
+                "megawatt_hours_purchased_for_energy_storage": "megawatt_hours_purchased_for_energy_storage_energy_source_mwh",
+                # exchanges
+                "energy_received_through_power_exchanges": "energy_received_through_power_exchanges_energy_source_mwh",
+                "energy_delivered_through_power_exchanges": "energy_delivered_through_power_exchanges_energy_source_mwh",
+                "net_energy_through_power_exchanges": "net_energy_through_power_exchanges_energy_source_mwh",
+                # transmission
+                "electric_power_wheeling_energy_received": "electric_power_wheeling_energy_received_energy_source_mwh",
+                "electric_power_wheeling_energy_delivered": "electric_power_wheeling_energy_delivered_energy_source_mwh",
+                "net_transmission_energy_for_others_electric_power_wheeling": "net_transmission_energy_for_others_electric_power_wheeling_energy_source_mwh",
+                "transmission_losses_by_others_electric_power_wheeling": "transmission_losses_by_others_electric_power_wheeling_energy_source_mwh",
+                # total
+                "sources_of_energy": "sources_of_energy_energy_source_mwh",
+            }
+        },
+        "drop_invalid_rows": [
+            {
+                "invalid_values": [pd.NA, np.nan, ""],
+                "required_valid_cols": ["energy_source_mwh"],
+            },
+        ],
+        # "strip_non_numeric_values": {
+        #     "energy_source_mwh": {"strip_non_numeric_values": True}
+        # },
+    },
 }
 
 """The full set of parameters used to transform the FERC Form 1 data.

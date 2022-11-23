@@ -364,6 +364,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Account balance at end of year.",
         "unit": "USD",
     },
+    "energy_source_mwh": {"type": "number", "unit": "MWh"},
     "ferc_account_description": {
         "type": "string",
     },

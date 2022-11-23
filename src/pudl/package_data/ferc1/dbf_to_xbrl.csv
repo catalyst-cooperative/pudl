@@ -1880,7 +1880,7 @@ f1_elctrc_erg_acct,6,1994,Hydro-Pumped Storage,,hydro_pumped_storage_generation,
 f1_elctrc_erg_acct,7,1994,Other,,other_energy_generation,
 f1_elctrc_erg_acct,8,1994,Less Energy for Pumping,,pumping_energy,
 f1_elctrc_erg_acct,9,1994,Net Generation (Enter Total of lines 3 through 8),total,net_energy_generation,
-f1_elctrc_erg_acct,10,1994,Purchases,,megawatt_hours_purchased_dbfonly,"Split into 2 megawatt_hours_purchased_ fields in XBRL, which should probably be summed to produce this field."
+f1_elctrc_erg_acct,10,1994,Purchases,,megawatt_hours_purchased,"Split into 2 megawatt_hours_purchased_ fields in XBRL, which should probably be summed to produce this field."
 f1_elctrc_erg_acct,11,1994,Power Exchanges:,header,#N/A,
 f1_elctrc_erg_acct,12,1994,Received,,energy_received_through_power_exchanges,
 f1_elctrc_erg_acct,13,1994,Delivered,,energy_delivered_through_power_exchanges,

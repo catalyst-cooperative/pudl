@@ -23,6 +23,41 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "ferc1_disabled",
         "field_namespace": "ferc1",
     },
+    "electric_energy_account_sources_ferc1": {
+        "description": "idk yet.",
+        "schema": {
+            "fields": [
+                "utility_id_ferc1",
+                "report_year",
+                "ferc_account_label",
+                "energy_source_mwh",
+            ],
+            "primary_key": [
+                "utility_id_ferc1",
+                "report_year",
+                "ferc_account_label",
+            ],
+        },
+        "sources": ["ferc1"],
+        "etl_group": "ferc1",
+        "field_namespace": "ferc1",
+    },
+    "electric_energy_account_dispositions_ferc1": {
+        "description": "idk yet.",
+        "schema": {
+            "fields": [
+                "utility_id_ferc1",
+                "report_year",
+            ],
+            "primary_key": [
+                "utility_id_ferc1",
+                "report_year",
+            ],
+        },
+        "sources": ["ferc1"],
+        "etl_group": "ferc1",
+        "field_namespace": "ferc1",
+    },
     "ferc_accounts": {
         "description": "Account numbers from the FERC Uniform System of Accounts for Electric Plant, which is defined in Code of Federal Regulations (CFR) Title 18, Chapter I, Subchapter C, Part 101. (See e.g. https://www.law.cornell.edu/cfr/text/18/part-101).",
         "schema": {
