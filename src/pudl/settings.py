@@ -398,7 +398,7 @@ class DatasetsSettings(BaseModel):
         """Gets dictionary of dataset settings."""
         return vars(self)
 
-    def make_datasources_table(self, ds: Datastore):
+    def make_datasources_table(self, ds: Datastore) -> pd.DataFrame:
         """Compile a table of dataset information.
 
         There are three places we can look for information about a dataset:
@@ -412,7 +412,12 @@ class DatasetsSettings(BaseModel):
         update of a few tables in the larger eia860 dataset.
 
         Args:
-            ds: a datastore object
+            ds: A PUDL Datastore from which the DOI's for each raw input dataset can be
+                obtained.
+
+        Returns:
+            a dataframe describing the partitions and DOI's of each of the datasets in
+            this settings object.
         """
         datasets_settings = self.get_datasets()
         # grab all of the datasets that show up by name in the datastore
