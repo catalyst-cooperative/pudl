@@ -1,5 +1,6 @@
 """Module for validating pudl etl settings."""
 import itertools
+import json
 import pathlib
 from enum import Enum, unique
 from typing import ClassVar
@@ -15,6 +16,7 @@ import pudl.workspace.setup
 from pudl.metadata.classes import DataSource
 from pudl.metadata.constants import DBF_TABLES_FILENAMES, XBRL_TABLES
 from pudl.metadata.resources.eia861 import TABLE_DEPENDENCIES
+from pudl.workspace.datastore import Datastore
 
 
 @unique
@@ -396,6 +398,79 @@ class DatasetsSettings(BaseModel):
         """Gets dictionary of dataset settings."""
         return vars(self)
 
+    def make_datasources_table(self, ds: Datastore):
+        """Compile a table of dataset information.
+
+        There are three places we can look for information about a dataset:
+        * the datastore (for DOIs, working partitions, etc)
+        * the ETL settings (for partitions that are used in the ETL)
+        * the DataSource info (which is stored within the ETL settings)
+
+        The ETL settings and the datastore have different levels of nesting - and therefor
+        names for datasets. The nesting happens particularly with the EIA data. There
+        are three EIA datasets right now - eia923, eia860 and eia860m. eia860m is a monthly
+        update of a few tables in the larger eia860 dataset.
+
+        Args:
+            ds: a datastore object
+        """
+        datasets_settings = self.get_datasets()
+        # grab all of the datasets that show up by name in the datastore
+        datasets_in_datastore_format = {
+            name: setting
+            for (name, setting) in datasets_settings.items()
+            if name in ds.get_known_datasets()
+        }
+        # add the eia datasets that are nested inside of the eia settings
+        if datasets_settings.get("eia", False):
+            datasets_in_datastore_format.update(
+                {
+                    "eia923": datasets_settings["eia"].eia923,
+                    "eia860": datasets_settings["eia"].eia860,
+                }
+            )
+
+        datasets = datasets_in_datastore_format.keys()
+        df = pd.DataFrame(
+            data={
+                "datasource": datasets,
+                "partitions": [
+                    json.dumps(datasets_in_datastore_format[dataset].partitions)
+                    for dataset in datasets
+                ],
+                "doi": [
+                    _make_doi_clickable(ds.get_datapackage_descriptor(dataset).doi)
+                    for dataset in datasets
+                ],
+            }
+        )
+        # add in EIA860m if eia in general is in the settings and the 860m bool is True
+        special_nested_datasets = pd.DataFrame()
+        if (
+            datasets_settings.get("eia", False)
+            and datasets_settings["eia"].eia860.eia860m
+        ):
+            special_nested_datasets = pd.DataFrame(
+                data={
+                    "datasource": ["eia860m"],
+                    "partitions": [
+                        json.dumps(
+                            datasets_in_datastore_format[
+                                "eia860"
+                            ].eia860m_data_source.working_partitions
+                        )
+                    ],
+                    "doi": [
+                        _make_doi_clickable(
+                            ds.get_datapackage_descriptor("eia860m").doi
+                        )
+                    ],
+                }
+            )
+        df = pd.concat([df, special_nested_datasets]).reset_index(drop=True)
+        df["pudl_version"] = pudl.__version__
+        return df
+
 
 class Ferc1DbfToSqliteSettings(GenericDatasetSettings):
     """An immutable Pydantic model to validate FERC 1 to SQLite settings.
@@ -577,3 +652,8 @@ class EtlSettings(BaseSettings):
         with pathlib.Path(path).open() as f:
             yaml_file = yaml.safe_load(f)
         return cls.parse_obj(yaml_file)
+
+
+def _make_doi_clickable(link):
+    """Make a clickable DOI."""
+    return f"https://doi.org/{link}"
