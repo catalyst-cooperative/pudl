@@ -49,7 +49,7 @@ setup(
     install_requires=[
         "addfips>=0.3.1,<0.4.0",
         "catalystcoop.dbfread>=3.0,<3.1",
-        "catalystcoop.ferc-xbrl-extractor==0.4.2",
+        "catalystcoop.ferc-xbrl-extractor==0.5.0",
         "coloredlogs>=15.0,<15.1",
         "dask>=2021.8,<2022.11.2",
         "datapackage>=1.11,<1.16",  # Transition datastore to use frictionless.

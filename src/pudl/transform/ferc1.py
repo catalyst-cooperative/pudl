@@ -602,6 +602,9 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             logger.info(f"{self.table_id.value}: No XBRL duration table found.")
             return instant
         else:
+            logger.info(
+                f"{self.table_id.value}: Both XBRL instant & duration tables found."
+            )
             instant_merge_keys = ["entity_id", "report_year"] + instant_axes
             duration_merge_keys = ["entity_id", "report_year"] + duration_axes
             # See if there are any values in the instant table that don't show up in the
@@ -610,6 +613,10 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                 instant_merge_keys
             ).index.difference(duration.set_index(duration_merge_keys).index)
             if unique_instant_rows.empty:
+                logger.info(
+                    f"{self.table_id.value}: Combining XBRL instant & duration tables "
+                    "using RIGHT-MERGE."
+                )
                 # Merge instant into duration.
                 return pd.merge(
                     instant,
@@ -624,6 +631,10 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                 # concatenating them. May need to be table specific. E.g.
                 # * What fraction of their index values overlap? (it should be high!)
                 # * Do the instant/duration columns conform to expected naming conventions?
+                logger.info(
+                    f"{self.table_id.value}: Combining XBRL instant & duration tables "
+                    "using CONCATENATION."
+                )
                 return pd.concat(
                     [
                         instant.set_index(["report_year", "entity_id"] + instant_axes),
@@ -2532,7 +2543,9 @@ def transform(
             raw_xbrl_duration=ferc1_xbrl_raw_dfs["plants_steam_ferc1"].get(
                 "duration", pd.DataFrame()
             ),
-            transformed_fuel=ferc1_transformed_dfs["fuel_ferc1"],
+            # use a copy of the fuel table because we *definitely* don't want it to
+            # be changed by the steam transform.
+            transformed_fuel=ferc1_transformed_dfs["fuel_ferc1"].copy(),
         )
 
     # convert types and return:
