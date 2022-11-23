@@ -998,7 +998,10 @@ class DataSource(Base):
     @staticmethod
     def dict_from_id(x: str) -> dict:
         """Look up the source by source name in the metadata."""
-        return {"name": x, **copy.deepcopy(SOURCES[x])}
+        # If ID ends with _xbrl strip end to find data source
+        lookup_id = x.replace("_xbrl", "")
+
+        return {"name": x, **copy.deepcopy(SOURCES[lookup_id])}
 
     @classmethod
     def from_id(cls, x: str) -> "DataSource":
