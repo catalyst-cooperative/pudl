@@ -1856,6 +1856,7 @@ class DatasetteMetadata(Base):
 
     data_sources: list[DataSource]
     resources: list[Resource] = Package.from_resource_ids().resources
+    xbrl_resources: dict[str, list[Resource]] = {}
     label_columns: dict[str, str] = {
         "plants_entity_eia": "plant_name_eia",
         "plants_ferc1": "plant_name_ferc1",
@@ -1901,7 +1902,9 @@ class DatasetteMetadata(Base):
             pudl_settings: Dictionary of settings.
         """
         # Compile a list of DataSource objects for use in the template
-        data_sources = [DataSource.from_id(ds_id) for ds_id in data_source_ids]
+        data_sources = [
+            DataSource.from_id(ds_id) for ds_id in data_source_ids + xbrl_ids
+        ]
 
         # Instantiate all possible resources in a Package:
         pkg = Package.from_resource_ids()
@@ -1913,6 +1916,7 @@ class DatasetteMetadata(Base):
         ]
 
         # Get XBRL based resources
+        xbrl_resources = {}
         for xbrl_id in xbrl_ids:
             # Read JSON Package descriptor from file
             with open(pudl_settings[f"{xbrl_id}_datapackage"]) as f:
@@ -1921,10 +1925,14 @@ class DatasetteMetadata(Base):
             # Use descriptor to create Package object
             xbrl_package = Package(**descriptor)
 
-            # Add resources to full list
-            resources.extend(xbrl_package.resources)
+            # Add list of resources to dict
+            xbrl_resources[xbrl_id] = xbrl_package.resources
 
-        return cls(data_sources=data_sources, resources=resources)
+        return cls(
+            data_sources=data_sources,
+            resources=resources,
+            xbrl_resources=xbrl_resources,
+        )
 
     def to_yaml(self, path: str = None) -> None:
         """Output database, table, and column metadata to YAML file."""
@@ -1933,6 +1941,7 @@ class DatasetteMetadata(Base):
             license=LICENSES["cc-by-4.0"],
             data_sources=self.data_sources,
             resources=self.resources,
+            xbrl_resources=self.xbrl_resources,
             label_columns=self.label_columns,
         )
         if path:
