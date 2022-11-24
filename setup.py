@@ -99,7 +99,7 @@ setup(
             "bandit>=1.6,<1.8",
             "coverage>=5.3,<6.6",
             "doc8>=0.9,<1.1",
-            "flake8>=4.0,<5.1",
+            "flake8>=4.0,<6.1",
             "flake8-builtins>=1.5,<2.1",
             "flake8-docstrings>=1.5,<1.7",
             "flake8-rst-docstrings>=0.2,<0.4",
