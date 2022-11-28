@@ -2833,6 +2833,63 @@ TRANSFORM_PARAMS = {
             }
         ],
     },
+    "transmission_ferc1": {
+        "rename_columns_ferc1": {
+            "dbf": {
+                "columns": {
+                    "respondent_id": "utility_id_ferc1_dbf",
+                    "report_year": "report_year",
+                    "spplmnt_num": "spplmnt_num",
+                    "row_number": "row_number",
+                    "row_seq": "row_seq",
+                    "row_prvlg": "row_prvlg",
+                    "designation_from": "start_point",
+                    "designation_to": "end_point",
+                    "voltage_oper": "operating_voltage_kv",
+                    "designed_voltage": "designed_voltage_kv",
+                    "structure": "supporting_structure_type",
+                    "length_dsgnt": "transmission_line_length_miles",
+                    "length_another": "transmission_line_and_structures_length_miles",
+                    "num_of_circuits": "num_transmission_circuits",
+                    "conductor_size": "conductor_size",
+                    "cost_land": "capex_land",
+                    "cost_other": "capex_other",
+                    "cost_total": "capex_total",
+                    "expns_operations": "opex_operations",
+                    "expns_maint": "opex_maintenance",
+                    "expns_rents": "opex_rent",
+                    "expns_total": "opex_total",
+                    "report_prd": "report_prd",
+                }
+            },
+            "xbrl": {
+                "columns": {
+                    "entity_id": "utility_id_ferc1_xbrl",
+                    "start_date": "start_date",
+                    "end_date": "end_date",
+                    "transmission_line_statistics_axis": "transmission_line_statistics_axis",
+                    "length_for_transmission_lines_aggregated_with_other_structures": "transmission_line_and_structures_length_miles",
+                    "overall_cost_of_transmission_line": "capex_total",
+                    "number_of_transmission_circuits": "num_transmission_circuits",
+                    "maintenance_expenses_of_transmission_line": "opex_maintenance",
+                    "cost_of_land_and_land_rights_transmission_lines": "capex_land",
+                    "operating_expenses_of_transmission_line": "opex_operations",
+                    "designed_voltage_of_transmission_line": "designed_voltage_kv",
+                    "supporting_structure_of_transmission_line_type": "supporting_structure_type",
+                    "construction_and_other_costs_transmission_lines": "capex_other",
+                    "operating_voltage_of_transmission_line": "operating_voltage_kv",
+                    "transmission_line_end_point": "end_point",
+                    "order_number": "order_number",
+                    "size_of_conductor_and_material": "conductor_size",
+                    "transmission_line_start_point": "start_point",
+                    "rent_expenses_of_transmission_line": "opex_rent",
+                    "length_for_stand_alone_transmission_lines": "transmission_line_length_miles",
+                    "overall_expenses_of_transmission_line": "opex_total",
+                    "report_year": "report_year",
+                }
+            },
+        }
+    },
 }
 
 """The full set of parameters used to transform the FERC Form 1 data.

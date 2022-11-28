@@ -69,6 +69,7 @@ class Ferc1TableId(enum.Enum):
     PLANTS_PUMPED_STORAGE_FERC1 = "plants_pumped_storage_ferc1"
     PLANT_IN_SERVICE_FERC1 = "plant_in_service_ferc1"
     PURCHASED_POWER_FERC1 = "purchased_power_ferc1"
+    TRANSMISSION_FERC1 = "transmission_ferc1"
 
 
 class Ferc1RenameColumns(TransformParams):
@@ -2475,6 +2476,27 @@ class PlantsSmallFerc1TableTransformer(Ferc1AbstractTableTransformer):
 
         # Remove row_with_info so there is no duplicate information
         df = df[~row_with_info]
+
+        return df
+
+
+class TransmissionFerc1TableTransformer(Ferc1AbstractTableTransformer):
+    """A table transformer specific to the :ref:`transmission_ferc1` table."""
+
+    table_id: Ferc1TableId = Ferc1TableId.TRANSMISSION_FERC1
+
+    @cache_df(key="main")
+    def transform_main(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Table specific transforms for plants_small_ferc1.
+
+        Params:
+            df: Pre-processed, concatenated XBRL and DBF data.
+
+        Returns:
+            A single transformed table concatenating multiple years of cleaned data
+            derived from the raw DBF and/or XBRL inputs.
+        """
+        # df = self.normalize_strings(df).pipe(self.nullify_outliers)
 
         return df
 

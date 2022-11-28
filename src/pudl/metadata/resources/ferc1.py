@@ -347,6 +347,19 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "glue",
         "field_namespace": "ferc1",
     },
+    "transmission_ferc1": {
+        "description": "Information concerning transmission lines, cost of lines, and expenses for year.",
+        "schema": {
+            "fields": [
+                "record_id",
+                "utility_id_ferc1",
+                "report_year",
+            ],
+        },
+        "sources": ["ferc1"],
+        "etl_group": "ferc1",
+        "field_namespace": "ferc1",
+    },
 }
 """
 FERC Form 1 resource attributes by PUDL identifier (``resource.name``).
