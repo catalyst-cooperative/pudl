@@ -365,9 +365,8 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "unit": "USD",
     },
     "energy_source_mwh": {"type": "number", "unit": "MWh"},
-    "ferc_account_description": {
-        "type": "string",
-    },
+    "energy_source_type": {"type": "string", "description": "Type of energy source."},
+    "ferc_account_description": {"type": "string"},
     "fuel_agg": {
         "type": "string",
         "description": "Category of fuel aggregation in EIA bulk electricity data.",
@@ -1486,7 +1485,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "row_type_xbrl": {
         "type": "string",
         "description": "Indicates whether the value reported in the row is calculated, or uniquely reported within the table.",
-        "constraints": {"enum": ["calculated", "ferc_account"]},
+        "constraints": {"enum": ["calculated", "ferc_account", "energy_source"]},
     },
     "rto_iso_lmp_node_id": {
         "type": "string",

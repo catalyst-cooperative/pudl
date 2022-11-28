@@ -29,13 +29,14 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             "fields": [
                 "utility_id_ferc1",
                 "report_year",
-                "ferc_account_label",
+                "energy_source_type",
+                "row_type_xbrl",
                 "energy_source_mwh",
             ],
             "primary_key": [
                 "utility_id_ferc1",
                 "report_year",
-                "ferc_account_label",
+                "energy_source_type",
             ],
         },
         "sources": ["ferc1"],

@@ -2609,6 +2609,20 @@ TRANSFORM_PARAMS = {
                 "asset_retirement_costs_for_regional_transmission_and_market_operations_regional_transmission_and_market_operation_plant_transfers": "asset_retirement_costs_for_regional_transmission_and_market_operation_plant_regional_transmission_and_market_operation_plant_transfers",
             }
         },
+        "wide_to_tidy_xbrl": {
+            "idx_cols": ["entity_id", "report_year"],
+            "value_types": [
+                "starting_balance",
+                "additions",
+                "retirements",
+                "transfers",
+                "adjustments",
+                "ending_balance",
+            ],
+            "xbrl_fact_label": "ferc_account_label",
+        },
+        "merge_metadata": {"on": "ferc_account_label"},
+        "align_row_numbers_dbf": {"xbrl_column_stem_label": "ferc_account_label"},
     },
     "plants_pumped_storage_ferc1": {
         "rename_columns_ferc1": {
@@ -2852,7 +2866,7 @@ TRANSFORM_PARAMS = {
                 "columns": {
                     "entity_id": "utility_id_ferc1_xbrl",
                     "report_year": "report_year",
-                    "ferc_account_label": "ferc_account_label",
+                    "energy_source_type": "energy_source_type",
                     "energy_source_mwh": "energy_source_mwh",
                 }
             },
@@ -2866,7 +2880,7 @@ TRANSFORM_PARAMS = {
                 "hydro_pumped_storage_generation": "hydro_pumped_storage_generation_energy_source_mwh",
                 "other_energy_generation": "other_energy_generation_energy_source_mwh",
                 "pumping_energy": "pumping_energy_energy_source_mwh",
-                "net_energy_generation": "net_energy_generation",
+                "net_energy_generation": "net_energy_generation_energy_source_mwh",
                 "megawatt_hours_purchased_other_than_storage": "megawatt_hours_purchased_other_than_storage_energy_source_mwh",
                 "megawatt_hours_purchased_for_energy_storage": "megawatt_hours_purchased_for_energy_storage_energy_source_mwh",
                 # exchanges
@@ -2888,9 +2902,13 @@ TRANSFORM_PARAMS = {
                 "required_valid_cols": ["energy_source_mwh"],
             },
         ],
-        # "strip_non_numeric_values": {
-        #     "energy_source_mwh": {"strip_non_numeric_values": True}
-        # },
+        "wide_to_tidy_xbrl": {
+            "idx_cols": ["entity_id", "report_year"],
+            "value_types": ["energy_source_mwh"],
+            "xbrl_fact_label": "energy_source_type",
+        },
+        "merge_metadata": {"on": "energy_source_type"},
+        "align_row_numbers_dbf": {"xbrl_column_stem_label": "energy_source_type"},
     },
 }
 
