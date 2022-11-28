@@ -10,8 +10,8 @@ on:
 env:
   GCP_BILLING_PROJECT: ${{ secrets.GCP_BILLING_PROJECT }}
   GITHUB_REF: ${{ github.ref_name }} # This is changed to dev if running on a schedule
-  GCE_INSTANCE: pudl-deployment-tag # This is changed to pudl-deployment-tag if running on a schedule
-  GCE_INSTANCE_ZONE: us-central1-a
+  GCE_INSTANCE: pudl-deployment-tag # This is changed to pudl-deployment-dev if running on a schedule
+  GCE_INSTANCE_ZONE: ${{ secrets.GCE_INSTANCE_ZONE }}
 
 jobs:
   build_and_deploy_pudl:
