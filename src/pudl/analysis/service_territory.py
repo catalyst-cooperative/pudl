@@ -453,16 +453,29 @@ def parse_command_line(argv):
         default=False,
         help="Dissolve county level geometries to utility or balancing authorities",
     )
-
+    parser.add_argument(
+        "--logfile",
+        default=None,
+        type=str,
+        help="If specified, write logs to this file.",
+    )
+    parser.add_argument(
+        "--loglevel",
+        help="Set logging level (DEBUG, INFO, WARNING, ERROR, or CRITICAL).",
+        default="INFO",
+    )
     return parser.parse_args(argv[1:])
 
 
 def main():
     """Compile historical utility and balancing area territories."""
     # Display logged output from the PUDL package:
-    pudl.logging_helpers.configure_root_logger()
 
     args = parse_command_line(sys.argv)
+    pudl.logging_helpers.configure_root_logger(
+        logfile=args.logfile, loglevel=args.loglevel
+    )
+
     pudl_settings = pudl.workspace.setup.get_defaults()
     pudl_engine = sa.create_engine(pudl_settings["pudl_db"])
     pudl_out = pudl.output.pudltabl.PudlTabl(pudl_engine)

@@ -93,7 +93,9 @@ def main():  # noqa: C901
     args = parse_command_line(sys.argv)
 
     # Display logged output from the PUDL package:
-    pudl.logging_helpers.configure_root_logger(logfile=args.logfile)
+    pudl.logging_helpers.configure_root_logger(
+        logfile=args.logfile, loglevel=args.loglevel
+    )
 
     with pathlib.Path(args.settings_file).open() as f:
         script_settings = yaml.safe_load(f)

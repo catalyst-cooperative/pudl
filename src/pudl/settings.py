@@ -122,6 +122,9 @@ class Ferc714Settings(GenericDatasetSettings):
     data_source: ClassVar[DataSource] = DataSource.from_id("ferc714")
 
     tables: list[str] = data_source.get_resource_ids()
+    years: list[int] = data_source.working_partitions[
+        "years"
+    ]  # Years only apply to XBRL
 
 
 class EpaCemsSettings(GenericDatasetSettings):
