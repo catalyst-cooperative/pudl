@@ -370,6 +370,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Sources and uses of energy in MWh.",
     },
     "energy_source_type": {"type": "string", "description": "Type of energy source."},
+    "energy_disposition_type": {
+        "type": "string",
+        "description": "Type of energy disposition.",
+    },
     "ferc_account_description": {"type": "string"},
     "fuel_agg": {
         "type": "string",

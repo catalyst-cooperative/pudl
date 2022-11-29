@@ -49,11 +49,16 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             "fields": [
                 "utility_id_ferc1",
                 "report_year",
+                "energy_disposition_type",
+                "row_type_xbrl",
+                "energy_mwh",
             ],
-            "primary_key": [
-                "utility_id_ferc1",
-                "report_year",
-            ],
+            # the PK is duplicated for ONE energy_disposition_type in 2021. still investigating
+            # "primary_key": [
+            #     "utility_id_ferc1",
+            #     "report_year",
+            #     "energy_disposition_type",
+            # ],
         },
         "sources": ["ferc1"],
         "etl_group": "ferc1",

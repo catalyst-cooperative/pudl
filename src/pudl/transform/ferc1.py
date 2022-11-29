@@ -592,14 +592,14 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             pd.json_normalize(self.xbrl_metadata_json)
             .rename(
                 columns={
-                    "name": "xbrl_fact_name",
+                    "name": "xbrl_factoid",
                     "references.Account": "ferc_account",
                 }
             )
             .loc[
                 :,
                 [
-                    "xbrl_fact_name",
+                    "xbrl_factoid",
                     "balance",
                     "calculations",
                     "ferc_account",
@@ -609,7 +609,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         # Use nullable strings, converting NaN to pd.NA
         normed_meta = normed_meta.astype(
             {
-                "xbrl_fact_name": pd.StringDtype(),
+                "xbrl_factoid": pd.StringDtype(),
                 "balance": pd.StringDtype(),
                 "ferc_account": pd.StringDtype(),
             }
@@ -621,7 +621,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         )
         if xbrl_fact_names:
             normed_meta = normed_meta.loc[
-                normed_meta.xbrl_fact_name.isin(xbrl_fact_names)
+                normed_meta.xbrl_factoid.isin(xbrl_fact_names)
             ]
         self.xbrl_metadata_normalized = normed_meta
         return normed_meta
@@ -2627,6 +2627,32 @@ class ElectricEnergyAccountSourcesFerc1TableTransformer(Ferc1AbstractTableTransf
         disposition_cols = ["energy_disposition_mwh"]
         df = super().process_dbf(raw_dbf).drop(columns=disposition_cols)
         return df
+
+
+class ElectricEnergyAccountDispositionsFerc1TableTransformer(
+    Ferc1AbstractTableTransformer
+):
+    """Transformer class for :ref:`electric_energy_account_dispositions_ferc1` table.
+
+    For XBRL, this is a duration-only table. Right now we are merging in the metadata
+    but not actually keeping anything from it. We are also not yet doing anything with
+    the sign.
+    """
+
+    table_id: Ferc1TableId = Ferc1TableId.ELECTRIC_ENERGY_ACCOUNT_DISPOSITIONS_FERC1
+    has_unique_record_ids: bool = False
+
+    def normalize_metadata_xbrl(
+        self, xbrl_fact_names: list[str] | None
+    ) -> pd.DataFrame:
+        """Normie.
+
+        Determine whether the
+        """
+        eead_meta = super().normalize_metadata_xbrl(xbrl_fact_names)
+        # Save the normalized metadata so it can be used by other methods.
+        self.xbrl_metadata_normalized = eead_meta
+        return eead_meta
 
 
 def transform(
