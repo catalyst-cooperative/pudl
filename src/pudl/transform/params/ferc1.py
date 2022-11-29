@@ -2551,7 +2551,7 @@ TRANSFORM_PARAMS = {
                 "columns": {
                     "entity_id": "utility_id_ferc1_xbrl",
                     "report_year": "report_year",
-                    "xbrl_column_stem": "ferc_account_label",
+                    "xbrl_factoid": "ferc_account_label",
                     "starting_balance": "starting_balance",
                     "additions": "additions",
                     "retirements": "retirements",
@@ -2575,7 +2575,7 @@ TRANSFORM_PARAMS = {
                     "adjustments": "adjustments",
                     "transfers": "transfers",
                     "yr_end_bal": "ending_balance",
-                    "xbrl_column_stem": "ferc_account_label",
+                    "xbrl_factoid": "ferc_account_label",
                 }
             },
         },
@@ -2623,7 +2623,7 @@ TRANSFORM_PARAMS = {
             "expected_drop_cols": 2,
         },
         "merge_metadata": {
-            "rename_columns": {"xbrl_column_stem": "ferc_account_label"},
+            "rename_columns": {"xbrl_factoid": "ferc_account_label"},
             "on": "ferc_account_label",
         },
         "align_row_numbers_dbf": {"align_row_numbers_dbf": True},
@@ -2864,14 +2864,14 @@ TRANSFORM_PARAMS = {
                     "erg_src_mwh": "energy_source_mwh",
                     "erg_disp_mwh": "energy_disposition_mwh",
                     "report_prd": "report_prd",
-                    "xbrl_column_stem": "energy_source_type",
+                    "xbrl_factoid": "energy_source_type",
                 }
             },
             "xbrl": {
                 "columns": {
                     "entity_id": "utility_id_ferc1_xbrl",
                     "report_year": "report_year",
-                    "xbrl_column_stem": "energy_source_type",
+                    "xbrl_factoid": "energy_source_type",
                     "energy_source_mwh": "energy_source_mwh",
                 }
             },
@@ -2913,7 +2913,7 @@ TRANSFORM_PARAMS = {
             "expected_drop_cols": 10,
         },
         "merge_metadata": {
-            "rename_columns": {"xbrl_column_stem": "energy_source_type"},
+            "rename_columns": {"xbrl_factoid": "energy_source_type"},
             "on": "energy_source_type",
         },
         "align_row_numbers_dbf": {"align_row_numbers_dbf": True},
