@@ -9,8 +9,8 @@ from pudl.settings import (
     Eia923Settings,
     EiaSettings,
     EpaCemsSettings,
+    Ferc1DbfToSqliteSettings,
     Ferc1Settings,
-    Ferc1ToSqliteSettings,
     GenericDatasetSettings,
 )
 
@@ -35,13 +35,13 @@ class TestGenericDatasetSettings:
             Test()
 
 
-class TestFerc1ToSqliteSettings:
-    """Test Ferc1ToSqliteSettings."""
+class TestFerc1DbfToSqliteSettings:
+    """Test Ferc1DbfToSqliteSettings."""
 
     def test_ref_year(self):
         """Test reference year is within working years."""
         with pytest.raises(ValidationError):
-            Ferc1ToSqliteSettings(ferc1_to_sqlite_refyear=1990)
+            Ferc1DbfToSqliteSettings(ferc1_to_sqlite_refyear=1990)
 
 
 class TestFerc1Settings:
@@ -68,6 +68,12 @@ class TestFerc1Settings:
 
         expected_years = DataSource.from_id("ferc1").working_partitions["years"]
         assert expected_years == returned_settings.years
+
+        dbf_expected_years = [year for year in expected_years if year <= 2020]
+        assert dbf_expected_years == returned_settings.dbf_years
+
+        xbrl_expected_years = [year for year in expected_years if year >= 2021]
+        assert xbrl_expected_years == returned_settings.xbrl_years
 
     def test_not_working_table(self):
         """Make sure a validation error is being thrown when given an invalid table."""

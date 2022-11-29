@@ -27,12 +27,11 @@ And described at:
 * https://arxiv.org/abs/2006.10436
 * https://arxiv.org/abs/2008.03194
 * https://github.com/xinychen/tensor-learning
-
 """
-
 import functools
 import warnings
-from typing import Any, Iterable, List, Sequence, Tuple, Union
+from collections.abc import Iterable, Sequence
+from typing import Any
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -44,7 +43,7 @@ import scipy.stats
 
 def slice_axis(
     x: np.ndarray, start: int = None, end: int = None, step: int = None, axis: int = 0
-) -> Tuple[slice, ...]:
+) -> tuple[slice, ...]:
     """Return an index that slices an array along an axis.
 
     Args:
@@ -109,7 +108,7 @@ def array_diff(
     return dx
 
 
-def encode_run_length(x: Union[Sequence, np.ndarray]) -> Tuple[np.ndarray, np.ndarray]:
+def encode_run_length(x: Sequence | np.ndarray) -> tuple[np.ndarray, np.ndarray]:
     """Encode vector with run-length encoding.
 
     Args:
@@ -144,8 +143,8 @@ def encode_run_length(x: Union[Sequence, np.ndarray]) -> Tuple[np.ndarray, np.nd
 
 
 def insert_run_length(  # noqa: C901
-    x: Union[Sequence, np.ndarray],
-    values: Union[Sequence, np.ndarray],
+    x: Sequence | np.ndarray,
+    values: Sequence | np.ndarray,
     lengths: Sequence[int],
     mask: Sequence[bool] = None,
     padding: int = 0,
@@ -543,7 +542,7 @@ class Timeseries:
         columns: Column names.
     """
 
-    def __init__(self, x: Union[np.ndarray, pd.DataFrame]) -> None:
+    def __init__(self, x: np.ndarray | pd.DataFrame) -> None:
         """Initialize a multivariate timeseries.
 
         Args:
@@ -566,7 +565,7 @@ class Timeseries:
             self.columns = pd.RangeIndex(x.shape[1])
         self.x: np.ndarray = self.xi.copy()
         self.flags: np.ndarray = np.empty(self.x.shape, dtype=object)
-        self.flagged: List[str] = []
+        self.flagged: list[str] = []
 
     def to_dataframe(self, array: np.ndarray = None, copy: bool = True) -> pd.DataFrame:
         """Return multivariate timeseries as a :class:`pandas.DataFrame`.
@@ -768,7 +767,7 @@ class Timeseries:
         shifts: Sequence[int] = range(-240, 241, 24),
         long_window: int = 480,
         iqr_window: int = 240,
-        multiplier: Tuple[float, float] = (3.5, 2.5),
+        multiplier: tuple[float, float] = (3.5, 2.5),
     ) -> None:
         """Flag local outliers (LOCAL_OUTLIER_HIGH, LOCAL_OUTLIER_LOW).
 

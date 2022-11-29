@@ -1,32 +1,23 @@
 """Metadata data classes."""
 import copy
 import datetime
-import logging
-import os
+import json
 import re
 import sys
+from collections.abc import Callable, Iterable
 from functools import lru_cache
 from pathlib import Path
-from typing import (
-    Any,
-    Callable,
-    Dict,
-    Iterable,
-    List,
-    Literal,
-    Optional,
-    Tuple,
-    Type,
-    Union,
-)
+from typing import Any, Literal
 
 import jinja2
 import pandas as pd
 import pyarrow as pa
 import pydantic
 import sqlalchemy as sa
+from pandas._libs.missing import NAType
 from pydantic.types import DirectoryPath
 
+import pudl.logging_helpers
 from pudl.metadata.codes import CODE_METADATA
 from pudl.metadata.constants import (
     CONSTRAINT_DTYPES,
@@ -51,8 +42,9 @@ from pudl.metadata.helpers import (
 )
 from pudl.metadata.resources import FOREIGN_KEYS, RESOURCE_METADATA, eia861
 from pudl.metadata.sources import SOURCES
+from pudl.workspace.datastore import Datastore
 
-logger = logging.getLogger(__name__)
+logger = pudl.logging_helpers.get_logger(__name__)
 
 # ---- Helpers ---- #
 
@@ -135,12 +127,15 @@ def _format_for_sql(x: Any, identifier: bool = False) -> str:  # noqa: C901
     return f"'{x}'"
 
 
-JINJA_ENVIRONMENT: jinja2.Environment = jinja2.Environment(
-    loader=jinja2.FileSystemLoader(
-        os.path.join(os.path.dirname(__file__), "templates")
-    ),
-    autoescape=True,
-)
+def _get_jinja_environment(template_dir: DirectoryPath = None):
+    if template_dir:
+        path = template_dir / "templates"
+    else:
+        path = Path(__file__).parent.resolve() / "templates"
+    return jinja2.Environment(
+        loader=jinja2.FileSystemLoader(path),
+        autoescape=True,
+    )
 
 
 # ---- Base ---- #
@@ -154,7 +149,7 @@ class Base(pydantic.BaseModel):
 
     Examples:
         >>> class Class(Base):
-        ...     fields_: List[str] = pydantic.Field(alias="fields")
+        ...     fields_: list[str] = pydantic.Field(alias="fields")
         >>> m = Class(fields=['x'])
         >>> m
         Class(fields=['x'])
@@ -193,7 +188,7 @@ class Base(pydantic.BaseModel):
             name = f"{name}_"
         super().__setattr__(name, value)
 
-    def __repr_args__(self) -> List[Tuple[str, Any]]:
+    def __repr_args__(self) -> list[tuple[str, Any]]:
         """Returns the attributes to show in __str__, __repr__, and __pretty__."""
         return [
             (a[:-1] if a in ("fields_", "schema_") else a, v)
@@ -281,7 +276,7 @@ class Pattern(BaseType):
         return value
 
 
-def StrictList(item_type: Type = Any) -> pydantic.ConstrainedList:  # noqa: N802
+def StrictList(item_type: type = Any) -> pydantic.ConstrainedList:  # noqa: N802
     """Non-empty :class:`list`.
 
     Allows :class:`list`, :class:`tuple`, :class:`set`, :class:`frozenset`,
@@ -293,7 +288,7 @@ def StrictList(item_type: Type = Any) -> pydantic.ConstrainedList:  # noqa: N802
 # ---- Class attribute validators ---- #
 
 
-def _check_unique(value: list = None) -> Optional[list]:
+def _check_unique(value: list = None) -> list | None:
     """Check that input list has unique values."""
     if value:
         for i in range(len(value)):
@@ -333,11 +328,11 @@ class FieldConstraints(Base):
     unique: Bool = False
     min_length: PositiveInt = None
     max_length: PositiveInt = None
-    minimum: Union[Int, Float, Date, Datetime] = None
-    maximum: Union[Int, Float, Date, Datetime] = None
+    minimum: Int | Float | Date | Datetime = None
+    maximum: Int | Float | Date | Datetime = None
     pattern: Pattern = None
     # TODO: Replace with String (min_length=1) once "" removed from enums
-    enum: StrictList(Union[pydantic.StrictStr, Int, Float, Bool, Date, Datetime]) = None
+    enum: StrictList(pydantic.StrictStr | Int | Float | Bool | Date | Datetime) = None
 
     _check_unique = _validator("enum", fn=_check_unique)
 
@@ -407,7 +402,6 @@ class Encoder(Base):
     If any unrecognized values are encountered, an exception will be raised, alerting
     us that a new code has been identified, and needs to be classified as fixable or
     to be ignored.
-
     """
 
     df: pd.DataFrame
@@ -421,14 +415,14 @@ class Encoder(Base):
     values.
     """
 
-    ignored_codes: List[Union[Int, str]] = []
+    ignored_codes: list[Int | str] = []
     """A list of non-standard codes which appear in the data, and will be set to NA.
 
     These codes may be the result of data entry errors, and we are unable to map them
     to the appropriate canonical code. They are discarded from the raw input data.
     """
 
-    code_fixes: Dict[Union[Int, String], Union[Int, String]] = {}
+    code_fixes: dict[Int | String, Int | String] = {}
     """A dictionary mapping non-standard codes to canonical, standardized codes.
 
     The intended meanings of some non-standard codes are clear, and therefore they can
@@ -509,7 +503,7 @@ class Encoder(Base):
         return code_fixes
 
     @property
-    def code_map(self) -> Dict[str, Union[str, type(pd.NA)]]:
+    def code_map(self) -> dict[str, str | NAType]:
         """A mapping of all known codes to their standardized values, or NA."""
         code_map = {code: code for code in self.df["code"]}
         code_map.update(self.code_fixes)
@@ -519,7 +513,7 @@ class Encoder(Base):
     def encode(
         self,
         col: pd.Series,
-        dtype: Union[type, None] = None,
+        dtype: type | None = None,
     ) -> pd.Series:
         """Apply the stored code mapping to an input Series."""
         # Every value in the Series should appear in the map. If that's not the
@@ -527,6 +521,7 @@ class Encoder(Base):
         unknown_codes = set(col.dropna()).difference(self.code_map)
         if unknown_codes:
             raise ValueError(f"Found unknown codes while encoding: {unknown_codes=}")
+        logger.debug(f"Encoding {col.name}")
         col = col.map(self.code_map)
         if dtype:
             col = col.astype(dtype)
@@ -545,15 +540,20 @@ class Encoder(Base):
 
     @classmethod
     def from_code_id(cls, x: str) -> "Encoder":
-        """Construct an Encoder based on looking up the name of a coding table directly in the codes metadata."""
+        """Construct an Encoder by looking up name of coding table in codes metadata."""
         return cls(**copy.deepcopy(CODE_METADATA[x]), name=x)
 
     def to_rst(
         self, top_dir: DirectoryPath, csv_subdir: DirectoryPath, is_header: Bool
     ) -> String:
-        """Ouput dataframe to a csv for use in jinja template. Then output to an RST file."""
+        """Ouput dataframe to a csv for use in jinja template.
+
+        Then output to an RST file.
+        """
         self.df.to_csv(Path(top_dir) / csv_subdir / f"{self.name}.csv", index=False)
-        template = JINJA_ENVIRONMENT.get_template("codemetadata.rst.jinja")
+        template = _get_jinja_environment(top_dir).get_template(
+            "codemetadata.rst.jinja"
+        )
         rendered = template.render(
             Encoder=self,
             description=RESOURCE_METADATA[self.name]["description"],
@@ -581,8 +581,15 @@ class Field(Base):
 
     name: SnakeCase
     type: Literal[  # noqa: A003
-        "string", "number", "integer", "boolean", "date", "datetime", "year"
+        "string",
+        "number",
+        "integer",
+        "boolean",
+        "date",
+        "datetime",
+        "year",
     ]
+    title: String = None
     format: Literal["default"] = "default"  # noqa: A003
     description: String = None
     unit: String = None
@@ -639,7 +646,7 @@ class Field(Base):
         """Construct from PUDL identifier (`Field.name`)."""
         return cls(**cls.dict_from_id(x))
 
-    def to_pandas_dtype(self, compact: bool = False) -> Union[str, pd.CategoricalDtype]:
+    def to_pandas_dtype(self, compact: bool = False) -> str | pd.CategoricalDtype:
         """Return Pandas data type.
 
         Args:
@@ -733,7 +740,7 @@ class Field(Base):
             comment=self.description,
         )
 
-    def encode(self, col: pd.Series, dtype: Union[type, None] = None) -> pd.Series:
+    def encode(self, col: pd.Series, dtype: type | None = None) -> pd.Series:
         """Recode the Field if it has an associated encoder."""
         return self.encoder.encode(col, dtype=dtype) if self.encoder else col
 
@@ -790,9 +797,9 @@ class Schema(Base):
     """
 
     fields_: StrictList(Field) = pydantic.Field(alias="fields")
-    missing_values: List[pydantic.StrictStr] = [""]
+    missing_values: list[pydantic.StrictStr] = [""]
     primary_key: StrictList(SnakeCase) = None
-    foreign_keys: List[ForeignKey] = []
+    foreign_keys: list[ForeignKey] = []
 
     _check_unique = _validator(
         "missing_values", "primary_key", "foreign_keys", fn=_check_unique
@@ -896,25 +903,25 @@ class DataSource(Base):
     data packages and data resources (`package|resource.sources[...]`).
 
     See https://specs.frictionlessdata.io/data-package/#sources.
-
     """
 
     name: SnakeCase
     title: String = None
     description: String = None
     field_namespace: String = None
-    keywords: List[str] = []
+    keywords: list[str] = []
     path: HttpUrl = None
-    contributors: List[Contributor] = []  # Or should this be compiled from Resources?
+    contributors: list[Contributor] = []  # Or should this be compiled from Resources?
     license_raw: License
     license_pudl: License
     # concept_doi: Doi = None  # Need to define a Doi type?
-    working_partitions: Dict[SnakeCase, Any] = {}
+    working_partitions: dict[SnakeCase, Any] = {}
+    source_file_dict: dict[SnakeCase, Any] = {}
     # agency: Agency  # needs to be defined
     email: Email = None
 
-    def get_resource_ids(self) -> List[str]:
-        """Compile list of resoruce IDs associated with this data source."""
+    def get_resource_ids(self) -> list[str]:
+        """Compile list of resource IDs associated with this data source."""
         # Temporary check to use eia861.RESOURCE_METADATA directly
         # eia861 is not currently included in the general RESOURCE_METADATA dict
         resources = RESOURCE_METADATA
@@ -922,28 +929,65 @@ class DataSource(Base):
             resources = eia861.RESOURCE_METADATA
 
         return sorted(
-            [
-                name
-                for name, value in resources.items()
-                if value.get("etl_group") == self.name
-            ]
+            name
+            for name, value in resources.items()
+            if value.get("etl_group") == self.name
         )
 
-    def get_temporal_coverage(self) -> str:
+    def get_temporal_coverage(self, partitions: dict = None) -> str:
         """Return a string describing the time span covered by the data source."""
-        if "years" in self.working_partitions:
-            return f"{min(self.working_partitions['years'])}-{max(self.working_partitions['years'])}"
-        elif "year_month" in self.working_partitions:
-            return f"through {self.working_partitions['year_month']}"
+        if partitions is None:
+            partitions = self.working_partitions
+        if "years" in partitions:
+            return f"{min(partitions['years'])}-{max(partitions['years'])}"
+        elif "year_month" in partitions:
+            return f"through {partitions['year_month']}"
         else:
             return ""
 
-    def to_rst(self) -> None:
+    def add_datastore_metadata(self) -> None:
+        """Get source file metadata from the datastore."""
+        dp_desc = Datastore(sandbox=False).get_datapackage_descriptor(self.name)
+        partitions = dp_desc.get_partitions()
+        if "year" in partitions:
+            partitions["years"] = partitions["year"]
+        elif "year_month" in partitions:
+            partitions["year_month"] = max(partitions["year_month"])
+        self.source_file_dict["source_years"] = self.get_temporal_coverage(partitions)
+        self.source_file_dict["download_size"] = dp_desc.get_download_size()
+
+    def to_rst(
+        self,
+        docs_dir: DirectoryPath,
+        source_resources: list,
+        extra_resources: list,
+        output_path: str = None,
+    ) -> None:
         """Output a representation of the data source in RST for documentation."""
-        pass
+        self.add_datastore_metadata()
+        template = _get_jinja_environment(docs_dir).get_template(
+            f"{self.name}_child.rst.jinja"
+        )
+        data_source_dir = docs_dir / "data_sources"
+        download_paths = [
+            path.relative_to(data_source_dir)
+            for path in (data_source_dir / self.name).glob("*.pdf")
+            if path.is_file()
+        ]
+        download_paths = sorted(download_paths)
+        rendered = template.render(
+            source=self,
+            source_resources=source_resources,
+            extra_resources=extra_resources,
+            download_paths=download_paths,
+        )
+        if output_path:
+            Path(output_path).write_text(rendered)
+        else:
+            sys.stdout.write(rendered)
 
     @classmethod
-    def from_field_namespace(cls, x: str) -> List["DataSource"]:
+    def from_field_namespace(cls, x: str) -> list["DataSource"]:
         """Return list of DataSource objects by field namespace."""
         return [
             cls(**cls.dict_from_id(name))
@@ -954,7 +998,10 @@ class DataSource(Base):
     @staticmethod
     def dict_from_id(x: str) -> dict:
         """Look up the source by source name in the metadata."""
-        return {"name": x, **copy.deepcopy(SOURCES[x])}
+        # If ID ends with _xbrl strip end to find data source
+        lookup_id = x.replace("_xbrl", "")
+
+        return {"name": x, **copy.deepcopy(SOURCES[lookup_id])}
 
     @classmethod
     def from_id(cls, x: str) -> "DataSource":
@@ -1103,13 +1150,25 @@ class Resource(Base):
     description: String = None
     harvest: ResourceHarvest = {}
     schema_: Schema = pydantic.Field(alias="schema")
-    contributors: List[Contributor] = []
-    licenses: List[License] = []
-    sources: List[DataSource] = []
-    keywords: List[String] = []
+    format_: String = pydantic.Field(alias="format", default=None)
+    mediatype: String = None
+    path: String = None
+    dialect: dict[str, str] = None
+    profile: String = "tabular-data-resource"
+    contributors: list[Contributor] = []
+    licenses: list[License] = []
+    sources: list[DataSource] = []
+    keywords: list[String] = []
     encoder: Encoder = None
     field_namespace: Literal[
-        "eia", "epacems", "ferc1", "ferc714", "glue", "pudl"
+        "eia",
+        "epacems",
+        "ferc1",
+        "ferc714",
+        "glue",
+        "pudl",
+        "ppe",
+        "eia_bulk_elec",
     ] = None
     etl_group: Literal[
         "eia860",
@@ -1121,8 +1180,12 @@ class Resource(Base):
         "ferc1_disabled",
         "ferc714",
         "glue",
+        "outputs",
         "static_ferc1",
         "static_eia",
+        "static_eia_disabled",
+        "eia_bulk_elec",
+        "static_pudl",
     ] = None
 
     _check_unique = _validator(
@@ -1240,6 +1303,10 @@ class Resource(Base):
             raise KeyError(f"The field {name} is not part of the {self.name} schema.")
         return self.schema.fields[names.index(name)]
 
+    def get_field_names(self) -> list[str]:
+        """Return a list of all the field names in the resource schema."""
+        return [field.name for field in self.schema.fields]
+
     def to_sql(
         self,
         metadata: sa.MetaData = None,
@@ -1272,9 +1339,7 @@ class Resource(Base):
         }
         return pa.schema(fields=fields, metadata=metadata)
 
-    def to_pandas_dtypes(
-        self, **kwargs: Any
-    ) -> Dict[str, Union[str, pd.CategoricalDtype]]:
+    def to_pandas_dtypes(self, **kwargs: Any) -> dict[str, str | pd.CategoricalDtype]:
         """Return Pandas data type of each field by field name.
 
         Args:
@@ -1282,7 +1347,7 @@ class Resource(Base):
         """
         return {f.name: f.to_pandas_dtype(**kwargs) for f in self.schema.fields}
 
-    def match_primary_key(self, names: Iterable[str]) -> Optional[Dict[str, str]]:
+    def match_primary_key(self, names: Iterable[str]) -> dict[str, str] | None:
         """Match primary key fields to input field names.
 
         An exact match is required unless :attr:`harvest` .`harvest=True`,
@@ -1356,8 +1421,17 @@ class Resource(Base):
             matches = {key: key for key in keys if key in names}
         return matches if len(matches) == len(keys) else None
 
-    def format_df(self, df: pd.DataFrame = None, **kwargs: Any) -> pd.DataFrame:
-        """Format a dataframe.
+    def format_df(self, df: pd.DataFrame | None = None, **kwargs: Any) -> pd.DataFrame:
+        """Format a dataframe according to the resources's table schema.
+
+        * DataFrame columns not in the schema are dropped.
+        * Any columns missing from the DataFrame are added with the right dtype, but
+          will be empty.
+        * All columns are cast to their specified pandas dtypes.
+        * Primary key columns must be present and non-null.
+        * Periodic primary key fields are snapped to the start of the desired period.
+        * If the primary key fields could not be matched to columns in `df`
+          (:meth:`match_primary_key`) or if `df=None`, an empty dataframe is returned.
 
         Args:
             df: Dataframe to format.
@@ -1365,9 +1439,6 @@ class Resource(Base):
 
         Returns:
             Dataframe with column names and data types matching the resource fields.
-            Periodic primary key fields are snapped to the start of the desired period.
-            If the primary key fields could not be matched to columns in `df`
-            (:meth:`match_primary_key`) or if `df=None`, an empty dataframe is returned.
         """
         dtypes = self.to_pandas_dtypes(**kwargs)
         if df is None:
@@ -1387,6 +1458,18 @@ class Resource(Base):
                 and pd.api.types.is_integer_dtype(df[field.name])
             ):
                 df[field.name] = pd.to_datetime(df[field.name], format="%Y")
+            if pd.api.types.is_categorical_dtype(dtypes[field.name]):
+                uncategorized = [
+                    value
+                    for value in df[field.name].dropna().unique()
+                    if value not in dtypes[field.name].categories
+                ]
+                if uncategorized:
+                    logger.warning(
+                        f"Values in {field.name} column are not included in "
+                        "categorical values in field enum constraint "
+                        f"and will be converted to nulls ({uncategorized})."
+                    )
         df = (
             # Reorder columns and insert missing columns
             df.reindex(columns=dtypes.keys(), copy=False)
@@ -1402,7 +1485,7 @@ class Resource(Base):
 
     def aggregate_df(
         self, df: pd.DataFrame, raised: bool = False, error: Callable = None
-    ) -> Tuple[pd.DataFrame, dict]:
+    ) -> tuple[pd.DataFrame, dict]:
         """Aggregate dataframe by primary key.
 
         The dataframe is grouped by primary key fields
@@ -1495,7 +1578,7 @@ class Resource(Base):
                 "stats": stats,
                 "errors": errors.get(field.name, None),
             }
-        nerrors = sum([not f["valid"] for f in freports.values()])
+        nerrors = sum(not f["valid"] for f in freports.values())
         stats = {
             "all": ncols,
             "invalid": nerrors,
@@ -1510,11 +1593,11 @@ class Resource(Base):
 
     def harvest_dfs(
         self,
-        dfs: Dict[str, pd.DataFrame],
+        dfs: dict[str, pd.DataFrame],
         aggregate: bool = None,
-        aggregate_kwargs: Dict[str, Any] = {},
-        format_kwargs: Dict[str, Any] = {},
-    ) -> Tuple[pd.DataFrame, dict]:
+        aggregate_kwargs: dict[str, Any] = {},
+        format_kwargs: dict[str, Any] = {},
+    ) -> tuple[pd.DataFrame, dict]:
         """Harvest from named dataframes.
 
         For standard resources (:attr:`harvest`. `harvest=False`), the columns
@@ -1543,7 +1626,6 @@ class Resource(Base):
             A dataframe harvested from the dataframes, with column names and
             data types matching the resource fields, alongside an aggregation
             report.
-
         """
         if aggregate is None:
             aggregate = self.harvest.harvest
@@ -1566,16 +1648,16 @@ class Resource(Base):
             return self.aggregate_df(df, **aggregate_kwargs)
         return df, {}
 
-    def to_rst(self, path: str) -> None:
+    def to_rst(self, docs_dir: DirectoryPath, path: str) -> None:
         """Output to an RST file."""
-        template = JINJA_ENVIRONMENT.get_template("resource.rst.jinja")
+        template = _get_jinja_environment(docs_dir).get_template("resource.rst.jinja")
         rendered = template.render(resource=self)
         Path(path).write_text(rendered)
 
     def encode(self, df: pd.DataFrame) -> pd.DataFrame:
         """Standardize coded columns using the foreign column they refer to."""
         for field in self.schema.fields:
-            if field.encoder:
+            if field.encoder and field.name in df.columns:
                 logger.info(f"Recoding {self.name}.{field.name}")
                 df[field.name] = field.encoder.encode(
                     col=df[field.name], dtype=field.to_pandas_dtype()
@@ -1616,13 +1698,14 @@ class Package(Base):
     name: String
     title: String = None
     description: String = None
-    keywords: List[String] = []
+    keywords: list[String] = []
     homepage: HttpUrl = "https://catalyst.coop/pudl"
     created: Datetime = datetime.datetime.utcnow()
-    contributors: List[Contributor] = []
-    sources: List[DataSource] = []
-    licenses: List[License] = []
+    contributors: list[Contributor] = []
+    sources: list[DataSource] = []
+    licenses: list[License] = []
     resources: StrictList(Resource)
+    profile: String = "tabular-data-package"
 
     @pydantic.validator("resources")
     def _check_foreign_keys(cls, value):  # noqa: N805
@@ -1664,7 +1747,7 @@ class Package(Base):
     @lru_cache
     def from_resource_ids(  # noqa: C901
         cls,
-        resource_ids: Tuple[str] = tuple(sorted(RESOURCE_METADATA)),
+        resource_ids: tuple[str] = tuple(sorted(RESOURCE_METADATA)),
         resolve_foreign_keys: bool = False,
     ) -> "Package":
         """Construct a collection of Resources from PUDL identifiers (`resource.name`).
@@ -1682,7 +1765,6 @@ class Package(Base):
                 return value caching through lru_cache.
             resolve_foreign_keys: Whether to add resources as needed based on
                 foreign keys.
-
         """
         resources = [Resource.dict_from_id(x) for x in resource_ids]
         if resolve_foreign_keys:
@@ -1706,9 +1788,9 @@ class Package(Base):
         names = [resource.name for resource in self.resources]
         return self.resources[names.index(name)]
 
-    def to_rst(self, path: str) -> None:
+    def to_rst(self, docs_dir: DirectoryPath, path: str) -> None:
         """Output to an RST file."""
-        template = JINJA_ENVIRONMENT.get_template("package.rst.jinja")
+        template = _get_jinja_environment(docs_dir).get_template("package.rst.jinja")
         rendered = template.render(package=self)
         if path:
             Path(path).write_text(rendered)
@@ -1732,20 +1814,20 @@ class Package(Base):
 
 
 class CodeMetadata(Base):
-    """A list of Encoders representing standardization and description for reported categorical codes.
+    """A list of Encoders for standardizing and documenting categorical codes.
 
-    Used to export to documentation.
+    Used to export static coding metadata to PUDL documentation automatically
     """
 
-    encoder_list: List[Encoder] = []
+    encoder_list: list[Encoder] = []
 
     @classmethod
     def from_code_ids(cls, code_ids: Iterable[str]) -> "CodeMetadata":
         """Construct a list of encoders from code dictionaries.
 
         Args:
-            code_ids: A list of Code PUDL identifiers, keys to entries in the CODE_METADATA dictionary.
-
+            code_ids: A list of Code PUDL identifiers, keys to entries in the
+                CODE_METADATA dictionary.
         """
         encoder_list = []
         for name in code_ids:
@@ -1772,9 +1854,10 @@ class DatasetteMetadata(Base):
     Used to create metadata YAML file to accompany Datasette.
     """
 
-    data_sources: List[DataSource]
-    resources: List[Resource] = Package.from_resource_ids().resources
-    label_columns: Dict[str, str] = {
+    data_sources: list[DataSource]
+    resources: list[Resource] = Package.from_resource_ids().resources
+    xbrl_resources: dict[str, list[Resource]] = {}
+    label_columns: dict[str, str] = {
         "plants_entity_eia": "plant_name_eia",
         "plants_ferc1": "plant_name_ferc1",
         "plants_pudl": "plant_name_pudl",
@@ -1793,12 +1876,20 @@ class DatasetteMetadata(Base):
             "eia860m",
             "eia923",
         ],
+        xbrl_ids: Iterable[str] = [
+            "ferc1_xbrl",
+            "ferc2_xbrl",
+            "ferc6_xbrl",
+            "ferc60_xbrl",
+            "ferc714_xbrl",
+        ],
         extra_etl_groups: Iterable[str] = [
             "entity_eia",
             "glue",
             "static_eia",
             "static_ferc1",
         ],
+        pudl_settings: dict = {},
     ) -> "DatasetteMetadata":
         """Construct a dictionary of DataSources from data source names.
 
@@ -1806,10 +1897,14 @@ class DatasetteMetadata(Base):
 
         Args:
             data_source_ids: ids of data sources currently included in Datasette
+            xbrl_ids: ids of data converted XBRL data to be included in Datasette
             extra_etl_groups: ETL groups with resources that should be included
+            pudl_settings: Dictionary of settings.
         """
         # Compile a list of DataSource objects for use in the template
-        data_sources = [DataSource.from_id(ds_id) for ds_id in data_source_ids]
+        data_sources = [
+            DataSource.from_id(ds_id) for ds_id in data_source_ids + xbrl_ids
+        ]
 
         # Instantiate all possible resources in a Package:
         pkg = Package.from_resource_ids()
@@ -1819,15 +1914,34 @@ class DatasetteMetadata(Base):
             for res in pkg.resources
             if res.etl_group in data_source_ids + extra_etl_groups
         ]
-        return cls(data_sources=data_sources, resources=resources)
 
-    def to_yaml(self, path: str) -> None:
+        # Get XBRL based resources
+        xbrl_resources = {}
+        for xbrl_id in xbrl_ids:
+            # Read JSON Package descriptor from file
+            with open(pudl_settings[f"{xbrl_id}_datapackage"]) as f:
+                descriptor = json.load(f)
+
+            # Use descriptor to create Package object
+            xbrl_package = Package(**descriptor)
+
+            # Add list of resources to dict
+            xbrl_resources[xbrl_id] = xbrl_package.resources
+
+        return cls(
+            data_sources=data_sources,
+            resources=resources,
+            xbrl_resources=xbrl_resources,
+        )
+
+    def to_yaml(self, path: str = None) -> None:
         """Output database, table, and column metadata to YAML file."""
-        template = JINJA_ENVIRONMENT.get_template("metadata.yml.jinja")
+        template = _get_jinja_environment().get_template("datasette-metadata.yml.jinja")
         rendered = template.render(
             license=LICENSES["cc-by-4.0"],
             data_sources=self.data_sources,
             resources=self.resources,
+            xbrl_resources=self.xbrl_resources,
             label_columns=self.label_columns,
         )
         if path:

@@ -1,11 +1,11 @@
-ferc1_to_sqlite_settings:
+---
 ###########################################################################
-# FERC FORM 1 DB CLONE SETTINGS
+# Settings for ferc_to_sqlite script
 ###########################################################################
+ferc_to_sqlite_settings:
+  ferc1_dbf_to_sqlite_settings:
     # What years of original FERC data should be cloned into the SQLite DB?
-    years: [
-        2020
-    ]
+    years: [2020]
     # A list of tables to be loaded into the local SQLite database. These are
     # the table names as they appear in the 2015 FERC Form 1 database.
     tables:
@@ -18,52 +18,78 @@ ferc1_to_sqlite_settings:
       - f1_pumped_storage
       - f1_purchased_pwr
 
-name: pudl-full
-title: PUDL Full ETL
+  ferc1_xbrl_to_sqlite_settings:
+    years: [2021]
+    # A list of tables to be loaded into the local SQLite database. These are
+    # the table names as created from the 2022 XBRL taxonomy.
+    tables:
+      - identification_001_duration
+      - identification_001_instant
+      - steam_electric_generating_plant_statistics_large_plants_402_duration
+      - steam_electric_generating_plant_statistics_large_plants_402_instant
+      - steam_electric_generating_plant_statistics_large_plants_fuel_statistics_402_duration
+      - steam_electric_generating_plant_statistics_large_plants_fuel_statistics_402_instant
+      - hydroelectric_generating_plant_statistics_large_plants_406_duration
+      - hydroelectric_generating_plant_statistics_large_plants_406_instant
+      - pumped_storage_generating_plant_statistics_large_plants_408_duration
+      - pumped_storage_generating_plant_statistics_large_plants_408_instant
+      - generating_plant_statistics_410_duration
+      - generating_plant_statistics_410_instant
+      - electric_plant_in_service_204_duration
+      - electric_plant_in_service_204_instant
+      - purchased_power_326_duration
+      - purchased_power_326_instant
+
+  ferc2_xbrl_to_sqlite_settings:
+    years: [2021]
+  ferc6_xbrl_to_sqlite_settings:
+    years: [2021]
+  ferc60_xbrl_to_sqlite_settings:
+    years: [2021]
+  ferc714_xbrl_to_sqlite_settings:
+    years: [2021]
+
+###########################################################################
+# Settings for pudl_etl script
+###########################################################################
+name: pudl-fast
+title: PUDL Fast ETL
 description: >
   FERC 1 and EIA 860/923 from 2020 (output to SQLite) plus
   EPA CEMS hourly emissions data from 2020 (output to Parquet).
 version: 0.1.0
 datasets:
-    ferc1:
-      tables:
+  ferc1:
+    tables:
       - fuel_ferc1 # requires plants_steam_ferc1 to load properly
       - plants_steam_ferc1
       - plants_small_ferc1
       - plants_hydro_ferc1
-      - plants_pumped_storage_ferc1
       - plant_in_service_ferc1
+      - plants_pumped_storage_ferc1
       - purchased_power_ferc1
-      years: [
-          2020
-      ]
-    eia:
-      eia923:
-        tables:
-          - generation_fuel_eia923
-          - boiler_fuel_eia923
-          - generation_eia923
-          - coalmine_eia923 # REQUIRES fuel_receipts_costs_eia923
-          - fuel_receipts_costs_eia923
-        years: [
-            2020
-        ]
-      eia860:
-        tables:
-          - boiler_generator_assn_eia860
-          - utilities_eia860
-          - plants_eia860
-          - generators_eia860
-          - ownership_eia860
-        years: [
-            2020
-        ]
-        eia860m: True
-    epacems:
-      # Note that the CEMS data relies on EIA 860 data for plant locations,
-      # so if you're loading CEMS data for a particular year, you should
-      # also load the EIA 860 data for that year if possible
-      states: [ID, ME]
-      years: [
-          2019, 2020
-      ]
+    years: [2020, 2021]
+  eia:
+    eia923:
+      tables:
+        - generation_fuel_eia923
+        - boiler_fuel_eia923
+        - generation_eia923
+        - coalmine_eia923 # REQUIRES fuel_receipts_costs_eia923
+        - fuel_receipts_costs_eia923
+      years: [2020, 2021]
+    eia860:
+      tables:
+        - boiler_generator_assn_eia860
+        - utilities_eia860
+        - plants_eia860
+        - generators_eia860
+        - ownership_eia860
+      years: [2020, 2021]
+      eia860m: true
+  epacems:
+    # Note that the CEMS data relies on EIA 860 data for plant locations,
+    # so if you're loading CEMS data for a particular year, you should
+    # also load the EIA 860 data for that year if possible
+    states: [ID, ME]
+    years: [2019, 2020, 2021]

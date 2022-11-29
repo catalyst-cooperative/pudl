@@ -1,8 +1,8 @@
 """Tables definitions for data coming from the FERC Form 714."""
 
-from typing import Any, Dict
+from typing import Any
 
-RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
+RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     "respondent_id_ferc714": {
         "description": "Respondent identification. FERC Form 714, Part I, Schedule 1.",
         "schema": {
@@ -12,7 +12,7 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
                 "eia_code",
             ],
             "primary_key": ["respondent_id_ferc714"],
-            "foreign_key_rules": {"fields": [["respodnent_id_ferc714"]]},
+            "foreign_key_rules": {"fields": [["respondent_id_ferc714"]]},
         },
         "sources": ["ferc714"],
         "field_namespace": "ferc714",

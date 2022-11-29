@@ -14,7 +14,7 @@ def test__yearly_to_monthly_records__normal_values():
     101     3           4               5
 
     output:
-    idx      other_col 	report_month 	value
+    idx      other_col  report_month    value
     100         0           1           1
     100         0           6           2
     101         3           1           4
@@ -42,7 +42,7 @@ def test__yearly_to_monthly_records__empty_frame():
     <empty>
 
     output:
-    idx      other_col 	report_month 	value
+    idx      other_col  report_month    value
     <empty>
     """
     # empty dfs initialize with Index by default, so need to specify RangeIndex

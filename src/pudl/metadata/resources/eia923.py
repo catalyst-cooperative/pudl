@@ -1,7 +1,7 @@
 """Definitions of data tables primarily coming from EIA-923."""
-from typing import Any, Dict
+from typing import Any
 
-RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
+RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     "boiler_fuel_eia923": {
         "description": "EIA-923 Monthly Boiler Fuel Consumption and Emissions Time Series. From EIA-923 Schedule 3.",
         "schema": {
@@ -37,6 +37,7 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
                 "state",
                 "county_id_fips",
                 "mine_id_msha",
+                "data_maturity",
             ],
             "primary_key": ["mine_id_pudl"],
             "foreign_key_rules": {"fields": [["mine_id_pudl"]]},
@@ -70,6 +71,7 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
                 "natural_gas_delivery_contract_type_code",
                 "moisture_content_pct",
                 "chlorine_content_ppm",
+                "data_maturity",
             ],
         },
         "field_namespace": "eia",
@@ -84,6 +86,7 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
                 "generator_id",
                 "report_date",
                 "net_generation_mwh",
+                "data_maturity",
             ],
             "primary_key": ["plant_id_eia", "generator_id", "report_date"],
         },
@@ -107,6 +110,7 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
                 "fuel_consumed_mmbtu",
                 "fuel_consumed_for_electricity_mmbtu",
                 "net_generation_mwh",
+                "data_maturity",
             ],
             "primary_key": [
                 "plant_id_eia",
@@ -136,6 +140,7 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
                 "fuel_consumed_mmbtu",
                 "fuel_consumed_for_electricity_mmbtu",
                 "net_generation_mwh",
+                "data_maturity",
             ],
             "primary_key": [
                 "plant_id_eia",

@@ -1,33 +1,31 @@
 """Datastore manages file retrieval for PUDL datasets."""
-
 import argparse
 import hashlib
 import io
 import json
-import logging
 import re
 import sys
 import zipfile
 from collections import defaultdict
+from collections.abc import Iterator
 from pathlib import Path
-from typing import Any, Dict, Iterator, List, Optional, Set, Tuple
+from typing import Any
 
-import coloredlogs
 import datapackage
 import requests
-import yaml
+from google.auth.exceptions import DefaultCredentialsError
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
 
+import pudl
 from pudl.workspace import resource_cache
 from pudl.workspace.resource_cache import PudlResourceKey
 
-logger = logging.getLogger(__name__)
+logger = pudl.logging_helpers.get_logger(__name__)
 
 # The Zenodo tokens recorded here should have read-only access to our archives.
 # Including them here is correct in order to allow public use of this tool, so
 # long as we stick to read-only keys.
-
 
 PUDL_YML = Path.home() / ".pudl.yml"
 
@@ -67,6 +65,13 @@ class DatapackageDescriptor:
                 return res
         raise KeyError(f"Resource {name} not found for {self.dataset}/{self.doi}")
 
+    def get_download_size(self) -> int:
+        """Returns the total download size of all the resources in MB."""
+        total_bytes = 0
+        for res in self.datapackage_json["resources"]:
+            total_bytes += res["bytes"]
+        return int(total_bytes / 1000000)
+
     def validate_checksum(self, name: str, content: str) -> bool:
         """Returns True if content matches checksum for given named resource."""
         expected_checksum = self._get_resource_metadata(name)["hash"]
@@ -101,9 +106,9 @@ class DatapackageDescriptor:
                     dataset=self.dataset, doi=self.doi, name=res["name"]
                 )
 
-    def get_partitions(self, name: str = None) -> Dict[str, Set[str]]:
-        """Returns mapping of all known partition keys to the set of its known values."""
-        partitions: Dict[str, Set[str]] = defaultdict(set)
+    def get_partitions(self, name: str = None) -> dict[str, set[str]]:
+        """Return mapping of known partition keys to their allowed known values."""
+        partitions: dict[str, set[str]] = defaultdict(set)
         for res in self.datapackage_json["resources"]:
             if name and res["name"] != name:
                 continue
@@ -112,7 +117,10 @@ class DatapackageDescriptor:
         return partitions
 
     def _validate_datapackage(self, datapackage_json: dict):
-        """Checks the correctness of datapackage.json metadata. Throws ValueError if invalid."""
+        """Checks the correctness of datapackage.json metadata.
+
+        Throws ValueError if invalid.
+        """
         dp = datapackage.Package(datapackage_json)
         if not dp.valid:
             msg = f"Found {len(dp.errors)} datapackage validation errors:\n"
@@ -142,21 +150,31 @@ class ZenodoFetcher:
             "censusdp1tract": "10.5072/zenodo.674992",
             "eia860": "10.5072/zenodo.926292",
             "eia860m": "10.5072/zenodo.926659",
-            "eia861": "10.5072/zenodo.687052",
-            "eia923": "10.5072/zenodo.926301",
+            "eia861": "10.5072/zenodo.1103262",
+            "eia923": "10.5072/zenodo.1090056",
+            "eia_bulk_elec": "10.5072/zenodo.1103572",
+            "epacamd_eia": "10.5072/zenodo.1103224",
             "epacems": "10.5072/zenodo.672963",
-            "ferc1": "10.5072/zenodo.926302",
-            "ferc714": "10.5072/zenodo.926660",
+            "ferc1": "10.5072/zenodo.1070868",
+            "ferc2": "10.5072/zenodo.1096047",
+            "ferc6": "10.5072/zenodo.1098088",
+            "ferc60": "10.5072/zenodo.1098089",
+            "ferc714": "10.5072/zenodo.1098302",
         },
         "production": {
             "censusdp1tract": "10.5281/zenodo.4127049",
-            "eia860": "10.5281/zenodo.5534934",
-            "eia860m": "10.5281/zenodo.6321197",
-            "eia861": "10.5281/zenodo.5602102",
-            "eia923": "10.5281/zenodo.5596977",
-            "epacems": "10.5281/zenodo.4660268",
-            "ferc1": "10.5281/zenodo.5534788",
-            "ferc714": "10.5281/zenodo.5076672",
+            "eia860": "10.5281/zenodo.7113854",
+            "eia860m": "10.5281/zenodo.6929086",
+            "eia861": "10.5281/zenodo.7191809",
+            "eia923": "10.5281/zenodo.7236677",
+            "eia_bulk_elec": "10.5281/zenodo.7067367",
+            "epacamd_eia": "10.5281/zenodo.7063255",
+            "epacems": "10.5281/zenodo.6910058",
+            "ferc1": "10.5281/zenodo.7314437",
+            "ferc2": "10.5281/zenodo.7130128",
+            "ferc6": "10.5281/zenodo.7130141",
+            "ferc60": "10.5281/zenodo.7130146",
+            "ferc714": "10.5281/zenodo.7139875",
         },
     }
     API_ROOT = {
@@ -176,7 +194,7 @@ class ZenodoFetcher:
         self._api_root = self.API_ROOT[backend]
         self._token = self.TOKEN[backend]
         self._dataset_to_doi = self.DOI[backend]
-        self._descriptor_cache: Dict[str, DatapackageDescriptor] = {}
+        self._descriptor_cache: dict[str, DatapackageDescriptor] = {}
 
         self.timeout = timeout
         retries = Retry(
@@ -244,7 +262,7 @@ class ZenodoFetcher:
         desc.validate_checksum(res.name, content)
         return content
 
-    def get_known_datasets(self) -> List[str]:
+    def get_known_datasets(self) -> list[str]:
         """Returns list of supported datasets."""
         return sorted(self._dataset_to_doi)
 
@@ -254,8 +272,8 @@ class Datastore:
 
     def __init__(
         self,
-        local_cache_path: Optional[Path] = None,
-        gcs_cache_path: Optional[str] = None,
+        local_cache_path: Path | None = None,
+        gcs_cache_path: str | None = None,
         sandbox: bool = False,
         timeout: float = 15,
     ):
@@ -273,26 +291,32 @@ class Datastore:
               as well as dois used for each dataset.
             timeout (floaTR): connection timeouts (in seconds) to use when connecting
               to Zenodo servers.
-
         """
         self._cache = resource_cache.LayeredCache()
-        self._datapackage_descriptors: Dict[str, DatapackageDescriptor] = {}
+        self._datapackage_descriptors: dict[str, DatapackageDescriptor] = {}
 
         if local_cache_path:
             self._cache.add_cache_layer(resource_cache.LocalFileCache(local_cache_path))
         if gcs_cache_path:
-            self._cache.add_cache_layer(
-                resource_cache.GoogleCloudStorageCache(gcs_cache_path)
-            )
+            try:
+                self._cache.add_cache_layer(
+                    resource_cache.GoogleCloudStorageCache(gcs_cache_path)
+                )
+            except DefaultCredentialsError:
+                logger.info(
+                    f"Unable to obtain credentials for GCS Cache at {gcs_cache_path}. "
+                    "Falling back to Zenodo if necessary."
+                )
+                pass
 
         self._zenodo_fetcher = ZenodoFetcher(sandbox=sandbox, timeout=timeout)
 
-    def get_known_datasets(self) -> List[str]:
+    def get_known_datasets(self) -> list[str]:
         """Returns list of supported datasets."""
         return self._zenodo_fetcher.get_known_datasets()
 
     def get_datapackage_descriptor(self, dataset: str) -> DatapackageDescriptor:
-        """Fetch datapackage descriptor for given dataset either from cache or from zenodo."""
+        """Fetch datapackage descriptor for dataset either from cache or Zenodo."""
         doi = self._zenodo_fetcher.get_doi(dataset)
         if doi not in self._datapackage_descriptors:
             res = PudlResourceKey(dataset, doi, "datapackage.json")
@@ -314,13 +338,13 @@ class Datastore:
         cached_only: bool = False,
         skip_optimally_cached: bool = False,
         **filters: Any,
-    ) -> Iterator[Tuple[PudlResourceKey, bytes]]:
+    ) -> Iterator[tuple[PudlResourceKey, bytes]]:
         """Return content of the matching resources.
 
         Args:
-            dataset (str): name of the dataset to query.
-            cached_only (bool): if True, only retrieve resources that are present in the cache.
-            skip_optimally_cached (bool): if True, only retrieve resources that are not optimally
+            dataset: name of the dataset to query.
+            cached_only: if True, only retrieve resources that are present in the cache.
+            skip_optimally_cached: if True, only retrieve resources that are not optimally
                 cached. This triggers attempt to optimally cache these resources.
             filters (key=val): only return resources that match the key-value mapping in their
             metadata["parts"].
@@ -342,7 +366,7 @@ class Datastore:
                 self._cache.add(res, contents)
                 yield (res, contents)
 
-    def remove_from_cache(self, res: PudlResourceKey):
+    def remove_from_cache(self, res: PudlResourceKey) -> None:
         """Remove given resource from the associated cache."""
         self._cache.delete(res)
 
@@ -365,7 +389,10 @@ class Datastore:
 
 
 class ParseKeyValues(argparse.Action):
-    """Transforms k1=v1,k2=v2,... into dict(k1=v1, k2=v2, ...)."""
+    """Transforms k1=v1,k2=v2,...
+
+    into dict(k1=v1, k2=v2, ...).
+    """
 
     def __call__(self, parser, namespace, values, option_string=None):
         """Parses the argument value into dict."""
@@ -427,15 +454,30 @@ Available Sandbox Datasets:
         default="INFO",
     )
     parser.add_argument(
+        "--logfile",
+        default=None,
+        type=str,
+        help="If specified, write logs to this file.",
+    )
+    parser.add_argument(
         "--quiet",
         help="Do not send logging messages to stdout.",
         action="store_true",
         default=False,
     )
     parser.add_argument(
-        "--populate-gcs-cache",
-        default=None,
-        help="If specified, upload data resources to this GCS bucket",
+        "--gcs-cache-path",
+        type=str,
+        help="""Load datastore resources from Google Cloud Storage. Should be gs://bucket[/path_prefix].
+The main zenodo cache bucket is gs://zenodo-cache.catalyst.coop.
+If specified without --bypass-local-cache, the local cache will be populated from the GCS cache.
+If specified with --bypass-local-cache, the GCS cache will be populated by Zenodo.""",
+    )
+    parser.add_argument(
+        "--bypass-local-cache",
+        action="store_true",
+        default=False,
+        help="""If enabled, the local file cache for datastore will not be used.""",
     )
     parser.add_argument(
         "--partition",
@@ -459,23 +501,19 @@ def _get_pudl_in(args: dict) -> Path:
     if args.pudl_in:
         return Path(args.pudl_in)
     else:
-        cfg = yaml.safe_load(PUDL_YML.open())
-        return Path(cfg["pudl_in"])
+        return Path(pudl.workspace.setup.get_defaults()["pudl_in"])
 
 
-def _create_datastore(args: dict) -> Datastore:
+def _create_datastore(args: argparse.Namespace) -> Datastore:
     """Constructs datastore instance."""
-    local_cache_path = None
-    if not args.populate_gcs_cache:
-        local_cache_path = _get_pudl_in(args) / "data"
-    return Datastore(
-        sandbox=args.sandbox,
-        local_cache_path=local_cache_path,
-        gcs_cache_path=args.populate_gcs_cache,
-    )
+    # Configure how we want to obtain raw input data:
+    ds_kwargs = dict(gcs_cache_path=args.gcs_cache_path, sandbox=args.sandbox)
+    if not args.bypass_local_cache:
+        ds_kwargs["local_cache_path"] = _get_pudl_in(args) / "data"
+    return Datastore(**ds_kwargs)
 
 
-def print_partitions(dstore: Datastore, datasets: List[str]) -> None:
+def print_partitions(dstore: Datastore, datasets: list[str]) -> None:
     """Prints known partition keys and its values for each of the datasets."""
     for single_ds in datasets:
         parts = dstore.get_datapackage_descriptor(single_ds).get_partitions()
@@ -488,9 +526,12 @@ def print_partitions(dstore: Datastore, datasets: List[str]) -> None:
 
 
 def validate_cache(
-    dstore: Datastore, datasets: List[str], args: argparse.Namespace
+    dstore: Datastore, datasets: list[str], args: argparse.Namespace
 ) -> None:
-    """Validate elements in the datastore cache. Delete invalid entires from cache."""
+    """Validate elements in the datastore cache.
+
+    Delete invalid entires from cache.
+    """
     for single_ds in datasets:
         num_total = 0
         num_invalid = 0
@@ -513,25 +554,27 @@ def validate_cache(
 
 
 def fetch_resources(
-    dstore: Datastore, datasets: List[str], args: argparse.Namespace
+    dstore: Datastore, datasets: list[str], args: argparse.Namespace
 ) -> None:
     """Retrieve all matching resources and store them in the cache."""
     for single_ds in datasets:
-        for res, _ in dstore.get_resources(
+        for res, contents in dstore.get_resources(
             single_ds, skip_optimally_cached=True, **args.partition
         ):
             logger.info(f"Retrieved {res}.")
+            # If the gcs_cache_path is specified and we don't want
+            # to bypass the local cache, populate the local cache.
+            if args.gcs_cache_path and not args.bypass_local_cache:
+                dstore._cache.add(res, contents)
 
 
 def main():
     """Cache datasets."""
     args = parse_command_line()
 
-    pudl_logger = logging.getLogger("pudl")
-    log_format = "%(asctime)s [%(levelname)8s] %(name)s:%(lineno)s %(message)s"
-    coloredlogs.install(fmt=log_format, level="INFO", logger=pudl_logger)
-
-    logger.setLevel(args.loglevel)
+    pudl.logging_helpers.configure_root_logger(
+        logfile=args.logfile, loglevel=args.loglevel
+    )
 
     dstore = _create_datastore(args)
 

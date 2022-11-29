@@ -12,26 +12,22 @@ environment, but if you are using PUDL outside of the conda environment, you
 will need to install ogr2ogr separately. On Debian Linux based systems such
 as Ubuntu it can be installed with ``sudo apt-get install gdal-bin`` (which
 is what we do in our CI setup and Docker images.)
-
 """
 
 import argparse
-import logging
 import os
 import subprocess  # nosec: B404
 import sys
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
-import coloredlogs
-
 import pudl
 from pudl.workspace.datastore import Datastore
 
-logger = logging.getLogger(__name__)
+logger = pudl.logging_helpers.get_logger(__name__)
 
 
-def censusdp1tract_to_sqlite(pudl_settings=None, year=2010):
+def censusdp1tract_to_sqlite(pudl_settings=None, year=2010, ds=None, clobber=False):
     """Use GDAL's ogr2ogr utility to convert the Census DP1 GeoDB to an SQLite DB.
 
     The Census DP1 GeoDB is read from the datastore, where it is stored as a
@@ -46,12 +42,9 @@ def censusdp1tract_to_sqlite(pudl_settings=None, year=2010):
 
     Returns:
         None
-
     """
-    if pudl_settings is None:
-        pudl_settings = pudl.workspace.setup.get_defaults()
-    ds = Datastore(local_cache_path=pudl_settings["data_dir"])
-
+    if ds is None:
+        ds = Datastore()
     # If we're in a conda environment, use the version of ogr2ogr that has been
     # installed by conda. Otherwise, try and use a system installed version
     # at /usr/bin/ogr2ogr  This allows us to avoid simply running whatever
@@ -59,7 +52,6 @@ def censusdp1tract_to_sqlite(pudl_settings=None, year=2010):
     # fragile solution that will not work on all platforms, but should cover
     # conda environments, Docker, and continuous integration on GitHub.
     ogr2ogr = os.environ.get("CONDA_PREFIX", "/usr") + "/bin/ogr2ogr"
-
     # Extract the sippzed GeoDB archive from the Datastore into a temporary
     # directory so that ogr2ogr can operate on it. Output the resulting SQLite
     # database into the user's PUDL workspace. We do not need to keep the
@@ -71,6 +63,16 @@ def censusdp1tract_to_sqlite(pudl_settings=None, year=2010):
         zip_ref = ds.get_zipfile_resource("censusdp1tract", year=year)
         extract_root = tmpdir_path / Path(zip_ref.filelist[0].filename)
         out_path = Path(pudl_settings["sqlite_dir"]) / "censusdp1tract.sqlite"
+
+        if out_path.exists():
+            if clobber:
+                out_path.unlink()
+            else:
+                raise SystemExit(
+                    "The Census DB already exists, and we don't want to clobber it.\n"
+                    f"Move {out_path} aside or set clobber=True and try again."
+                )
+
         logger.info("Extracting the Census DP1 GeoDB to %s", out_path)
         zip_ref.extractall(tmpdir_path)
         logger.info("extract_root = %s", extract_root)
@@ -88,23 +90,69 @@ def parse_command_line(argv):
 
     Returns:
         dict: Dictionary of command line arguments and their parsed values.
-
     """
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--logfile",
+        default=None,
+        type=str,
+        help="If specified, write logs to this file.",
+    )
+    parser.add_argument(
+        "-c",
+        "--clobber",
+        action="store_true",
+        help="""Clobber existing sqlite database if it exists. If clobber is
+        not included but the sqlite databse already exists the _build will
+        fail.""",
+        default=False,
+    )
+    parser.add_argument(
+        "--sandbox",
+        action="store_true",
+        default=False,
+        help="Use the Zenodo sandbox rather than production",
+    )
+    parser.add_argument(
+        "--gcs-cache-path",
+        type=str,
+        help="Load datastore resources from Google Cloud Storage. Should be gs://bucket[/path_prefix]",
+    )
+    parser.add_argument(
+        "--bypass-local-cache",
+        action="store_true",
+        default=False,
+        help="If enabled, the local file cache for datastore will not be used.",
+    )
+    parser.add_argument(
+        "--loglevel",
+        help="Set logging level (DEBUG, INFO, WARNING, ERROR, or CRITICAL).",
+        default="INFO",
+    )
     arguments = parser.parse_args(argv[1:])
     return arguments
 
 
 def main():
     """Convert the Census DP1 GeoDatabase into an SQLite Database."""
-    pudl_logger = logging.getLogger("pudl")
-    log_format = "%(asctime)s [%(levelname)8s] %(name)s:%(lineno)s %(message)s"
-    coloredlogs.install(fmt=log_format, level="INFO", logger=pudl_logger)
+    args = parse_command_line(sys.argv)
+    pudl.logging_helpers.configure_root_logger(
+        logfile=args.logfile, loglevel=args.loglevel
+    )
+    pudl_settings = pudl.workspace.setup.get_defaults()
 
-    # Currently have no arguments, but want to generate a usage message.
-    _ = parse_command_line(sys.argv)
+    # Configure how we want to obtain raw input data:
+    ds_kwargs = dict(
+        gcs_cache_path=args.gcs_cache_path, sandbox=pudl_settings.get("sandbox", False)
+    )
+    if not args.bypass_local_cache:
+        ds_kwargs["local_cache_path"] = Path(pudl_settings["pudl_in"]) / "data"
 
-    censusdp1tract_to_sqlite()
+    ds = Datastore(**ds_kwargs)
+
+    pudl_settings["sandbox"] = args.sandbox
+
+    censusdp1tract_to_sqlite(pudl_settings=pudl_settings, ds=ds, clobber=args.clobber)
 
 
 if __name__ == "__main__":

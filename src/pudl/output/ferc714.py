@@ -1,14 +1,17 @@
 """Functions & classes for compiling derived aspects of the FERC Form 714 data."""
 from functools import cached_property
-from typing import Any, Dict, List
+from typing import Any
 
 import numpy as np
 import pandas as pd
 
 import pudl
 from pudl.metadata.fields import apply_pudl_dtypes
+from pudl.workspace.datastore import Datastore
 
-ASSOCIATIONS: List[Dict[str, Any]] = [
+logger = pudl.logging_helpers.get_logger(__name__)
+
+ASSOCIATIONS: list[dict[str, Any]] = [
     # MISO: Midwest Indep System Operator
     {"id": 56669, "from": 2011, "to": [2009, 2010]},
     # SWPP: Southwest Power Pool
@@ -47,7 +50,7 @@ The changes are applied locally to EIA 861 tables.
   Rows are excluded from `balancing_authority_assn_eia861` with target year and state.
 """
 
-UTILITIES: List[Dict[str, Any]] = [
+UTILITIES: list[dict[str, Any]] = [
     # (no code): Pacific Gas & Electric Co
     {"id": 14328, "reassign": True},
     # (no code): San Diego Gas & Electric Co
@@ -95,18 +98,22 @@ def add_dates(rids_ferc714, report_dates):
         ``rids_ferc714`` with the addition of a ``report_date`` column, but with all
         records associated with each ``respondent_id_ferc714`` duplicated on a per-date
         basis.
-
     """
     if "report_date" in rids_ferc714.columns:
         raise ValueError("report_date already present, can't be added again!")
     # Create DataFrame with all report_date and respondent_id_ferc714 combos
+    logger.info(f"Got {len(report_dates)} report_dates.")
+    unique_rids = rids_ferc714.respondent_id_ferc714.unique()
+    logger.info(f"found {len(unique_rids)} unique FERC-714 respondent IDs.")
     dates_rids_df = pd.DataFrame(
         index=pd.MultiIndex.from_product(
-            [report_dates, rids_ferc714.respondent_id_ferc714.unique()],
+            [report_dates, unique_rids],
             names=["report_date", "respondent_id_ferc714"],
         )
     ).reset_index()
-    return pd.merge(rids_ferc714, dates_rids_df, on="respondent_id_ferc714")
+    rids_with_dates = pd.merge(rids_ferc714, dates_rids_df, on="respondent_id_ferc714")
+    logger.info(f"Generated {len(rids_with_dates)} report_date + respondent_id rows.")
+    return rids_with_dates
 
 
 def categorize_eia_code(eia_codes, ba_ids, util_ids, priority="balancing_authority"):
@@ -151,7 +158,6 @@ def categorize_eia_code(eia_codes, ba_ids, util_ids, priority="balancing_authori
     Returns:
         pandas.DataFrame: A dataframe containing 2 columns: ``eia_code`` and
         ``respondent_type``.
-
     """
     if priority == "balancing_authority":
         primary = "balancing_authority"
@@ -189,7 +195,7 @@ def categorize_eia_code(eia_codes, ba_ids, util_ids, priority="balancing_authori
     return df
 
 
-class Respondents(object):
+class Respondents:
     """A class coordinating compilation of data related to FERC 714 Respondents.
 
     The FERC 714 Respondents themselves are not complex as they are reported, but
@@ -224,7 +230,6 @@ class Respondents(object):
         limit_by_state (bool): Whether to limit respondent service territories to the
             states where they have documented activity in the EIA 861. Currently this
             is only implemented for Balancing Authorities.
-
     """
 
     def __init__(
@@ -235,14 +240,17 @@ class Respondents(object):
         util_ids=None,
         priority="balancing_authority",
         limit_by_state=True,
+        ds=None,
     ):
         """Set respondent compilation parameters."""
         self.pudl_out = pudl_out
+        self.ds = ds
 
         if pudl_settings is None:
             pudl_settings = pudl.workspace.setup.get_defaults()
         self.pudl_settings = pudl_settings
-
+        if ds is None:
+            ds = Datastore()
         if ba_ids is None:
             ba_ids = (
                 self.balancing_authority_eia861.balancing_authority_id_eia.dropna().unique()
@@ -397,14 +405,14 @@ class Respondents(object):
     def annualize(self, update=False):
         """Broadcast respondent data across all years with reported demand.
 
-        The FERC 714 Respondent IDs and names are reported in their own table,
-        without any refence to individual years, but much of the information we are
-        associating with them varies annually. This method creates an annualized
-        version of the respondent table, with each respondent having an entry
-        corresponding to every year in which hourly demand was reported in the FERC 714
-        dataset as a whole -- this necessarily means that many of the respondents will
-        end up having entries for years in which they reported no demand, and that's
-        fine.  They can be filtered later.
+        The FERC 714 Respondent IDs and names are reported in their own table, without
+        any refence to individual years, but much of the information we are associating
+        with them varies annually. This method creates an annualized version of the
+        respondent table, with each respondent having an entry corresponding to every
+        year in which hourly demand was reported in the FERC 714 dataset as a whole --
+        this necessarily means that many of the respondents will end up having entries
+        for years in which they reported no demand, and that's fine.  They can be
+        filtered later.
         """
         if update or self._annualized is None:
             # Calculate the total demand per respondent, per year:
@@ -421,18 +429,26 @@ class Respondents(object):
 
         Categorize each respondent as either a ``utility`` or a ``balancing_authority``
         using the parameters stored in the instance of the class. While categorization
-        can also be done without annualizing, this function annualizes as well, since
-        we are adding the ``respondent_type`` in order to be able to compile service
+        can also be done without annualizing, this function annualizes as well, since we
+        are adding the ``respondent_type`` in order to be able to compile service
         territories for the respondent, which vary annually.
         """
         if update or self._categorized is None:
             rids_ferc714 = self.pudl_out.respondent_id_ferc714()
+            logger.info("Categorizing EIA codes associated with FERC-714 Respondents.")
             categorized = categorize_eia_code(
                 rids_ferc714.eia_code.dropna().unique(),
                 ba_ids=self.ba_ids,
                 util_ids=self.util_ids,
                 priority=self.priority,
-            ).merge(self.annualize(update=update), how="right")
+            )
+            logger.info(
+                "Merging categorized EIA codes with annualized FERC-714 Respondent "
+                "data."
+            )
+            categorized = pd.merge(
+                categorized, self.annualize(update=update), how="right"
+            )
             # Names, ids, and codes for BAs identified as FERC 714 respondents
             # NOTE: this is not *strictly* correct, because the EIA BAs are not
             # eternal and unchanging.  There's at least one case in which the BA
@@ -441,9 +457,14 @@ class Respondents(object):
             # addition to the balancing_authority_id_eia / eia_code fields ensures
             # that all years are populated for all BAs, which keeps them analogous
             # to the Utiliies in structure. Sooo.... it's fine for now.
-            ba_respondents = categorized.query(
-                "respondent_type=='balancing_authority'"
-            ).merge(
+            logger.info("Selecting FERC-714 Balancing Authority respondents.")
+            ba_respondents = categorized.query("respondent_type=='balancing_authority'")
+            logger.info(
+                "Merging FERC-714 Balancing Authority respondents with BA id/code/name "
+                "information from EIA-861."
+            )
+            ba_respondents = pd.merge(
+                ba_respondents,
                 self.balancing_authority_eia861[
                     [
                         "balancing_authority_id_eia",
@@ -459,13 +480,17 @@ class Respondents(object):
                 left_on="eia_code",
                 right_on="balancing_authority_id_eia",
             )
-            # Names and ids for Utils identified as FERC 714 respondents
-            util_respondents = categorized.query("respondent_type=='utility'").merge(
+            logger.info("Selecting names and IDs for FERC-714 Utility respondents.")
+            util_respondents = categorized.query("respondent_type=='utility'")
+            logger.info("Merging FERC-714 Utility respondents with service territory.")
+            util_respondents = pd.merge(
+                util_respondents,
                 pudl.analysis.service_territory.get_all_utils(self.pudl_out),
                 how="left",
                 left_on="eia_code",
                 right_on="utility_id_eia",
             )
+            logger.info("Concatenating categorized FERC-714 respondents.")
             self._categorized = pd.concat(
                 [
                     ba_respondents,
@@ -473,7 +498,8 @@ class Respondents(object):
                     # Uncategorized respondents w/ no respondent_type:
                     categorized[categorized.respondent_type.isnull()],
                 ]
-            ).pipe(apply_pudl_dtypes)
+            )
+            self._categorized = apply_pudl_dtypes(self._categorized)
         return self._categorized
 
     def summarize_demand(self, update=False):
@@ -487,7 +513,6 @@ class Respondents(object):
 
         These metrics are helpful identifying suspicious changes in the compiled annual
         geometries for the planning areas.
-
         """
         if update or self._demand_summary is None:
             demand_annual = (
@@ -575,17 +600,16 @@ class Respondents(object):
     def georef_counties(self, update=False):
         """Annual respondents with all associated county-level geometries.
 
-        Given the county FIPS codes associated with each respondent in each year,
-        pull in associated geometries from the US Census DP1 dataset, so we can do
-        spatial analyses. This keeps each county record independent -- so there will
-        be many records for each respondent in each year. This is fast, and still good
-        for mapping, and retains all of the FIPS IDs so you can also still do ID based
+        Given the county FIPS codes associated with each respondent in each year, pull
+        in associated geometries from the US Census DP1 dataset, so we can do spatial
+        analyses. This keeps each county record independent -- so there will be many
+        records for each respondent in each year. This is fast, and still good for
+        mapping, and retains all of the FIPS IDs so you can also still do ID based
         analyses.
         """
         if update or self._counties_gdf is None:
             census_counties = pudl.output.censusdp1tract.get_layer(
-                layer="county",
-                pudl_settings=self.pudl_settings,
+                layer="county", pudl_settings=self.pudl_settings, ds=self.ds
             )
             self._counties_gdf = pudl.analysis.service_territory.add_geometries(
                 self.fipsify(update=update), census_gdf=census_counties

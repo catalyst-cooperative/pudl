@@ -1,16 +1,25 @@
 """Metadata for cleaning, re-encoding, and documenting coded data columns.
 
-These dictionaries are used to create Encoder instances. They contain the following keys:
-'df': A dataframe associating short codes with long descriptions and other information.
-'code_fixes': A dictionary mapping non-standard codes to canonical, standardized codes.
-'ignored_codes': A list of non-standard codes which appear in the data, and will be set to NA.
+These dictionaries are used to create Encoder instances. Each key is a table name with
+a sub dictionary that includes additional detail. The table names must end with the
+data_source as a sufix (for EIA 860, 861 or 923 tables include ``_eia``).
+
+The table-specific dictionaries contain the following keys:
+
+* 'df': A dataframe associating short codes with long descriptions and other information.
+  Each dataframe needs at least three standard columns: "code", "label", "description".
+  The codes and lables must be unique. By convention, the "label"'s are snake case.
+* 'code_fixes': A dictionary mapping non-standard codes to canonical, standardized
+  codes.
+* 'ignored_codes': A list of non-standard codes which appear in the data, and will
+  be set to NA.
 """
-from typing import Any, Dict
+from typing import Any
 
 import numpy as np
 import pandas as pd
 
-CODE_METADATA: Dict[str, Dict[str, Any]] = {
+CODE_METADATA: dict[str, dict[str, Any]] = {
     "coalmine_types_eia": {
         "df": pd.DataFrame(
             columns=["code", "label", "description"],
@@ -21,12 +30,18 @@ CODE_METADATA: Dict[str, Dict[str, Any]] = {
                 (
                     "US",
                     "underground_and_surface",
-                    "Both an underground and surface mine with most coal extracted from underground",
+                    (
+                        "Both an underground and surface mine with most coal extracted "
+                        "from underground"
+                    ),
                 ),
                 (
                     "SU",
                     "surface_and_underground",
-                    "Both an underground and surface mine with most coal extracted from surface",
+                    (
+                        "Both an underground and surface mine with most coal extracted "
+                        "from surface"
+                    ),
                 ),
             ],
         ).convert_dtypes(),
@@ -45,17 +60,30 @@ CODE_METADATA: Dict[str, Dict[str, Any]] = {
                 (
                     "AD",
                     "adjustment",
-                    'Out-of-period adjustment. Use this code for any accounting adjustments or "true-ups" for service provided in prior reporting years. Provide an explanation in a footnote for each adjustment.',
+                    (
+                        "Out-of-period adjustment. Use this code for any accounting "
+                        "adjustments or 'true-ups' for service provided in prior "
+                        "reporting years. Provide an explanation in a footnote for "
+                        "each adjustment."
+                    ),
                 ),
                 (
                     "EX",
                     "electricity_exchange",
-                    "Exchanges of electricity. Use this category for transactions involving a balancing of debits and credits for energy, capacity, etc.  and any settlements for imbalanced exchanges.",
+                    (
+                        "Exchanges of electricity. Use this category for transactions "
+                        "involving a balancing of debits and credits for energy, "
+                        "capacity, etc.  and any settlements for imbalanced exchanges."
+                    ),
                 ),
                 (
                     "IF",
                     "intermediate_firm",
-                    'Intermediate-term firm service. The same as LF service expect that "intermediate-term" means longer than one year but less than five years.',
+                    (
+                        "Intermediate-term firm service. The same as LF service expect "
+                        "that 'intermediate-term' means longer than one year but less"
+                        "than five years."
+                    ),
                 ),
                 (
                     "IU",
@@ -224,6 +252,126 @@ CODE_METADATA: Dict[str, Dict[str, Any]] = {
             "Wholesale Power Marketer": "W",
         },
         "ignored_codes": [],
+    },
+    "boiler_generator_assn_types_eia": {
+        "df": pd.DataFrame(
+            columns=[
+                "code",
+                "label",
+                "description",
+            ],
+            data=[
+                ("A", "actual", "An actual boiler generator association."),
+                ("T", "theoretical", "A theoretical boiler generator association."),
+            ],
+        ),
+        "code_fixes": {"t": "T", "a": "A"},
+        "ignored_codes": ["1"],
+    },
+    "operational_status_eia": {
+        "df": pd.DataFrame(
+            columns=["code", "label", "description", "operational_status"],
+            data=[
+                (
+                    "CN",
+                    "cancelled",
+                    "Cancelled, but previously reported as 'planned'",
+                    "proposed",
+                ),
+                (
+                    "IP",
+                    "indefinitely_postponed",
+                    "Planned new indefinitely postponed, or no longer in resource plan",
+                    "proposed",
+                ),
+                (
+                    "L",
+                    "planned_approvals_pending",
+                    "Not under construction but site preparation could be underway",
+                    "proposed",
+                ),
+                (
+                    "OA",
+                    "out_of_service_short_term",
+                    "Was not used for some or all of the reporting period but is expected to be returned to service in the next calendar year.",
+                    "existing",
+                ),
+                (
+                    "OP",
+                    "operating",
+                    "In service (commercial operation) and producing some electricity. Includes peaking units that are run on an as needed (intermittent or seasonal) basis.",
+                    "existing",
+                ),
+                (
+                    "OS",
+                    "out_of_service_long_term",
+                    "Was not used for some or all of the reporting period and is NOT expected to be returned to service in the next calendar year.",
+                    "existing",
+                ),
+                (
+                    "OT",
+                    "other",
+                    "proposed",
+                    "proposed",
+                ),
+                (
+                    "P",
+                    "planned_approvals_not_initiated",
+                    "Planned for installation but regulatory approvals not initiated; Not under construction",
+                    "proposed",
+                ),
+                (
+                    "RE",
+                    "retired",
+                    "No longer in service and not expected to be returned to service.",
+                    "retired",
+                ),
+                (
+                    "SB",
+                    "standby",
+                    "Standby/Backup. Available for service but not normally used (has little or no generation during the year) for this reporting period. Includes old code BU from 2004-2006.",
+                    "existing",
+                ),
+                (
+                    "T",
+                    "planned_approvals_received",
+                    "Regulatory approvals received. Not under construction but site preparation could be underway",
+                    "proposed",
+                ),
+                (
+                    "TS",
+                    "construction_complete",
+                    "Construction complete, but not yet in commercial operation (including low power testing of nuclear units)",
+                    "proposed",
+                ),
+                (
+                    "U",
+                    "under_construction_less_than_half_complete",
+                    "Under construction, less than or equal to 50 percent complete (based on construction time to date of operation)",
+                    "proposed",
+                ),
+                (
+                    "V",
+                    "under_construction_more_than_half_complete",
+                    "Under construction, more than 50 percent complete (based on construction time to date of operation)",
+                    "proposed",
+                ),
+            ],
+        ).convert_dtypes(),
+        "code_fixes": {
+            "(L) Regulatory approvals pending. Not under construction": "L",
+            "(OA) Out of service but expected to return to service in next calendar year": "OA",
+            "(OP) Operating": "OP",
+            "(OS) Out of service and NOT expected to return to service in next calendar year": "OS",
+            "(OT) Other": "OT",
+            "(P) Planned for installation, but regulatory approvals not initiated": "P",
+            "(SB) Standby/Backup: available for service but not normally used": "SB",
+            "(T) Regulatory approvals received. Not under construction": "T",
+            "(TS) Construction complete, but not yet in commercial operation": "TS",
+            "(U) Under construction, less than or equal to 50 percent complete": "U",
+            "(V) Under construction, more than 50 percent complete": "V",
+            "BU": "SB",
+        },
     },
     "energy_sources_eia": {
         "df": pd.DataFrame(
@@ -961,7 +1109,7 @@ CODE_METADATA: Dict[str, Dict[str, Any]] = {
                 ("WT", "wind_onshore", "Wind Turbine, Onshore"),
             ],
         ).convert_dtypes(),
-        "code_fixes": {},
+        "code_fixes": {"ic": "IC"},  # there is literally one 'ic' from 2002.
         "ignored_codes": [],
     },
     "sector_consolidated_eia": {
@@ -1003,5 +1151,333 @@ CODE_METADATA: Dict[str, Dict[str, Any]] = {
         ).convert_dtypes(),
         "code_fixes": {},
         "ignored_codes": [],
+    },
+    "steam_plant_types_eia": {
+        "df": pd.DataFrame(
+            columns=["code", "label", "description"],
+            data=[
+                (
+                    1,
+                    "steam_over_100mw",
+                    "Plants with combustible-fueled steam-electric generators with a sum of 100 MW or more steam-electric nameplate capacity (including combined cycle steam-electric generators with duct firing).",
+                ),
+                (
+                    2,
+                    "steam_between_10mw_and_100mw",
+                    "Plants with combustible-fueled steam-electric generators with a sum of 10 MW or more but less than 100 MW steam-electric nameplate capacity (including combined cycle steam-electric generators with duct firing).",
+                ),
+                (
+                    3,
+                    "nuclear_over_100mw",
+                    "Plants with nuclear fueled generators, combined cycle steam-electric generators without duct firing and solar thermal electric generators using a steam cycle with a sum of 100 MW or more steam-electric nameplate capacity.",
+                ),
+                (
+                    4,
+                    "non_steam",
+                    "Plants with non-steam fueled electric generators (wind, PV, geothermal, fuel cell, combustion turbines, IC engines, etc.) and electric generators not meeting conditions of categories above.",
+                ),
+            ],
+        ).convert_dtypes(),
+        "code_fixes": {},
+        "ignored_codes": [],
+    },
+    "reporting_frequencies_eia": {
+        "df": pd.DataFrame(
+            columns=["code", "label", "description"],
+            data=[
+                (
+                    "A",
+                    "annual",
+                    "The respondent only provides an annual total(s) for this record via the EIA-923 annual survey form.  Any monthly data in this record is estimated based on the respondent's reported annual total(s) and power plants with similar characteristics to this plant.",
+                ),
+                (
+                    "M",
+                    "monthly",
+                    "The respondent provides monthly values for this record and does so via the EIA-923 monthly survey form.",
+                ),
+                (
+                    "AM",
+                    "monthly_annual",
+                    "The respondent provides monthly values for this record, but does so once per year via the EIA-923 annual survey form.",
+                ),
+            ],
+        ).convert_dtypes(),
+        "code_fixes": {},
+        "ignored_codes": [],
+    },
+    "data_maturities": {
+        "df": pd.DataFrame(
+            columns=["code", "description"],
+            data=[
+                (
+                    "final",
+                    "Data that has been reviewed and validated by the publishing agency, and is considered to be in its final form. Note that even final data is subject to later revision, sometimes years after the fact.",
+                ),
+                (
+                    "provisional",
+                    "An early draft of final release data, that has not yet been fully reviewed or validated by the publishing agency. Should be used with caution. E.g. Early Release versions of the complete annual EIA-860 and EIA-923 data.",
+                ),
+                (
+                    "monthly_update",
+                    "Data that is updated monthly throughout the year, but that is not monthly in resolution. Should be used with caution, as it may be revised when incorporated into final annual reporting. E.g. the generator attributes reported in the EIA-860m.",
+                ),
+                (
+                    "incremental_ytd",
+                    "Incremental releases of data with sub-annual resolution. Should be used with caution, as in many cases not all respondents are required to report at sub-annual frequency, meaning data coverage may not be complete. This data is also likely to be revised prior to its final annual release. E.g. the EIA-923 monthly or FERC Form 1 quarterly data releases.",
+                ),
+            ],
+        ).convert_dtypes(),
+        "code_fixes": {},
+        "ignored_codes": [],
+    },
+    "balancing_authorities_eia": {
+        "df": pd.DataFrame(
+            columns=["code", "label", "description"],
+            data=[
+                ("AEC", "power_south_coop", "PowerSouth Energy Cooperative"),
+                (
+                    "AECI",
+                    "associated_electric_coop",
+                    "Associated Electric Cooperative, Inc.",
+                ),
+                ("AVA", "avista", "Avista Corporation"),
+                ("AVRN", "avangrid", "Avangrid Renewables LLC"),
+                ("AZPS", "arizona_public_service", "Arizona Public Service Company"),
+                (
+                    "BANC",
+                    "northern_california",
+                    "Balancing Authority of Northern California",
+                ),
+                ("BPAT", "bonneville_power", "Bonneville Power Administration"),
+                (
+                    "CHPD",
+                    "public_utility_district_of_chelan_county",
+                    "Public Utility District No. 1 of Chelan County",
+                ),
+                (
+                    "CISO",
+                    "california_iso",
+                    "California Independent System Operator",
+                ),
+                ("CPLE", "duke_energy_progress_east", "Duke Energy Progress East"),
+                ("CPLW", "duke_energy_progress_west", "Duke Energy Progress West"),
+                (
+                    "CSTO",
+                    "constellation",
+                    "Constellation Energy Control and Dispatch, LLC",
+                ),
+                (
+                    "CSWS",
+                    "public_service_company_of_oklahoma_and_southwestern_electric",
+                    "American Electric Power Service Corp. As Agent For Public Svc. Co. Of Oklahoma & SW Ele Pwr Co.",
+                ),
+                ("DEAA", "arlington_valley", "Arlington Valley, LLC - AVBA"),
+                (
+                    "DOPD",
+                    "public_utility_of_douglas_county",
+                    "PUD No. 1 of Douglas County",
+                ),
+                ("DUK", "duke_energy_carolinas", "Duke Energy Carolinas"),
+                ("EDE", "empire_district", "The Empire District Electric Company"),
+                ("EEI", "electric_energy", "Electric Energy, Inc."),
+                ("EPE", "el_paso", "El Paso Electric Company"),
+                (
+                    "ERCO",
+                    "electric_reliability_council_of_texas",
+                    "Electric Reliability Council of Texas, Inc.",
+                ),
+                (
+                    "FMPP",
+                    "florida_municipal_power_pool",
+                    "Florida Municipal Power Pool",
+                ),
+                ("FPC", "progress_energy_florida", "Progress Energy Florida"),
+                ("FPL", "florida_power_and_light", "Florida Power & Light Company"),
+                (
+                    "GCPD",
+                    "public_utility_grant_county",
+                    "Public Utility District No. 2 of Grant County, Washington",
+                ),
+                ("GLHB", "gridliance", "GridLiance (GLHB)"),
+                ("GRDA", "grand_river_dam", "Grand River Dam Authority"),
+                ("GRIF", "griffith_energy", "Griffith Energy, LLC"),
+                ("GRIS", "gridforce_south", "Gridforce South"),
+                ("GRMA", "gila_river_power", "Gila River Power, LLC"),
+                ("GVL", "gainesville_regional", "Gainesville Regional Utilities"),
+                ("GWA", "naturener_power_watch", "NaturEner Power Watch, LLC (GWA)"),
+                ("HECO", "hawaiian_electric", "Hawaiian Electric Co Inc"),
+                (
+                    "HGMA",
+                    "new_harquahala",
+                    "New Harquahala Generating Company, LLC - HGBA",
+                ),
+                ("HST", "city_of_homestead", "City of Homestead"),
+                ("IID", "imperial_irrigation", "Imperial Irrigation District"),
+                (
+                    "INDN",
+                    "independence_power_and_light",
+                    "Independence Power & Light (Independence,Missouri)",
+                ),
+                ("IPCO", "idaho_power", "Idaho Power Company"),
+                ("ISNE", "iso_new_england", "ISO New England Inc."),
+                ("JEA", "jacksonville_energy", "JEA"),
+                (
+                    "KACY",
+                    "kansas_city",
+                    "Board Of Public Utilities (Kansas City KS)",
+                ),
+                (
+                    "KCPL",
+                    "kansas_city_power_and_light",
+                    "Kansas City Power & Light Company",
+                ),
+                (
+                    "LDWP",
+                    "los_angeles_dept_of_water_and_power",
+                    "Los Angeles Department of Water and Power",
+                ),
+                ("LES", "lincoln_electric", "Lincoln Electric System"),
+                (
+                    "LGEE",
+                    "louisville_gas_and_electric_and_kentucky",
+                    "LG&E and KU Services Company as agent for Louisville Gas and Electric Company and Kentucky Utilities",
+                ),
+                (
+                    "MISO",
+                    "midcontinent_iso",
+                    "Midcontinent Independent Transmission System Operator, Inc..",
+                ),
+                (
+                    "MPS",
+                    "kansas_city_power_and_light_missouri",
+                    "KCPL - Greater Missouri Operations",
+                ),
+                (
+                    "NBSO",
+                    "new_brunswick_system_operator",
+                    "New Brunswick System Operator",
+                ),
+                ("NEVP", "nevada_power", "Nevada Power Company"),
+                ("NPPD", "nebraska_public_power", "Nebraska Public Power District"),
+                (
+                    "NSB",
+                    "new_smyrna_beach",
+                    "New Smyrna Beach, Utilities Commission of",
+                ),
+                ("NWMT", "northwestern_energy", "NorthWestern Energy (NWMT)"),
+                ("NYIS", "new_york_iso", "New York Independent System Operator"),
+                ("OKGE", "oklahoma_gas_and_electric", "Oklahoma Gas And Electric Co."),
+                ("OPPD", "omaha_public_power", "Omaha Public Power District"),
+                ("OVEC", "ohio_valley", "Ohio Valley Electric Corporation"),
+                ("PACE", "pacificorp_east", "PacifiCorp - East"),
+                ("PACW", "pacificorp_west", "PacifiCorp - West"),
+                (
+                    "PGE",
+                    "portland_general_electric",
+                    "Portland General Electric Company",
+                ),
+                ("PJM", "pjm_interconnection", "PJM Interconnection, LLC"),
+                (
+                    "PNM",
+                    "public_service_company_of_new_mexico",
+                    "Public Service Company of New Mexico",
+                ),
+                (
+                    "PSCO",
+                    "public_service_company_of_colorado",
+                    "Public Service Company of Colorado",
+                ),
+                ("PSEI", "pugent_sound_energy", "Puget Sound Energy"),
+                (
+                    "SC",
+                    "south_carolina_public_service",
+                    "South Carolina Public Service Authority",
+                ),
+                (
+                    "SCEG",
+                    "south_carolina_electric_and_gas",
+                    "South Carolina Electric & Gas Company",
+                ),
+                ("SCL", "seattle_city_light", "Seattle City Light"),
+                ("SEC", "seminole_electric_coop", "Seminole Electric Cooperative"),
+                (
+                    "SECI",
+                    "sunflower_electric_power",
+                    "Sunflower Electric Power Corporation",
+                ),
+                ("SEPA", "southeastern_power", "Southeastern Power Administration"),
+                (
+                    "SOCO",
+                    "southern_company_services",
+                    "Southern Company Services, Inc. - Trans",
+                ),
+                ("SPA", "southwestern_power", "Southwestern Power Administration"),
+                (
+                    "SPRM",
+                    "city_utilities_of_springfield",
+                    "City Utilities Of Springfield, MO",
+                ),
+                (
+                    "SPS",
+                    "southwestern_public_service",
+                    "Southwestern Public Service Co. (Xcel Energy)",
+                ),
+                ("SRP", "salt_river_project", "Salt River Project"),
+                ("SWPP", "southwest_power_pool", "Southwest Power Pool"),
+                ("TAL", "city_of_tallahassee", "City of Tallahassee"),
+                ("TEC", "tampa_electric", "Tampa Electric Company"),
+                ("TEPC", "tuscon_electric_power", "Tucson Electric Power Company"),
+                ("TIDC", "turlock_irrigation_district", "Turlock Irrigation District"),
+                (
+                    "TPWR",
+                    "city_of_tacoma",
+                    "City of Tacoma, Department of Public Utilities, Light Division",
+                ),
+                ("TVA", "tennessee_valley_authority", "Tennessee Valley Authority"),
+                (
+                    "WACM",
+                    "western_area_power_mountain",
+                    "Western Area Power Administration - Rocky Mountain Region",
+                ),
+                (
+                    "WALC",
+                    "western_area_power_southwest",
+                    "Western Area Power Administration - Desert Southwest Region",
+                ),
+                (
+                    "WAUE",
+                    "western_area_power_east",
+                    "Western Area Power Administration - Upper Great Plains East",
+                ),
+                (
+                    "WAUW",
+                    "western_area_power_west",
+                    "Western Area Power Administration UGP West",
+                ),
+                (
+                    "WFEC",
+                    "western_farmers_electric_coop",
+                    "Western Farmers Electric Cooperative",
+                ),
+                ("WR", "westar_energy", "Westar Energy"),
+                ("WWA", "naturener_wind", "NaturEner Wind Watch, LLC"),
+                (
+                    "YAD",
+                    "alcoa_power_yadkin",
+                    "Alcoa Power Generating, Inc. - Yadkin Division",
+                ),
+            ],
+        ).convert_dtypes(),
+        "code_fixes": {
+            "NVE": "NEVP",
+            "IS": "ISNE",
+            "PS": "PSCO",
+            "TIC": "TIDC",
+            "TID": "TIDC",
+            "CA": "CISO",
+        },
+        "ignored_codes": [
+            "GRID",  # 2022 860m code for plant ID 55328 (code: CSTO for previous years)
+        ],
     },
 }

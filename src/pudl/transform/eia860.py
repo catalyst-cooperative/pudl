@@ -1,17 +1,17 @@
 """Module to perform data cleaning functions on EIA860 data tables."""
 
-import logging
-
 import numpy as np
 import pandas as pd
 
 import pudl
 from pudl.metadata.classes import DataSource
 from pudl.metadata.codes import CODE_METADATA
+from pudl.metadata.dfs import POLITICAL_SUBDIVISIONS
 from pudl.metadata.fields import apply_pudl_dtypes
 from pudl.settings import Eia860Settings
+from pudl.transform.eia861 import clean_nerc
 
-logger = logging.getLogger(__name__)
+logger = pudl.logging_helpers.get_logger(__name__)
 
 
 def ownership(eia860_dfs, eia860_transformed_dfs):
@@ -35,7 +35,6 @@ def ownership(eia860_dfs, eia860_transformed_dfs):
         dict: eia860_transformed_dfs, a dictionary of DataFrame objects in which
         pages from EIA860 form (keys) correspond to normalized DataFrames of values
         from that page (values).
-
     """
     # Preiminary clean and get rid of unecessary 'year' column
     own_df = (
@@ -74,7 +73,11 @@ def ownership(eia860_dfs, eia860_transformed_dfs):
     # we'll be notified.
 
     # The plant & generator ID values we know have duplicates to remove.
-    known_dupes = own_df.set_index(["plant_id_eia", "generator_id"]).loc[(56032, "1")]
+    known_dupes = (
+        own_df.set_index(["plant_id_eia", "generator_id"])
+        .sort_index()
+        .loc[(56032, "1")]
+    )
     # Index of own_df w/ duplicated records removed.
     without_known_dupes_idx = own_df.set_index(
         ["plant_id_eia", "generator_id"]
@@ -108,13 +111,24 @@ def ownership(eia860_dfs, eia860_transformed_dfs):
     # datatypes are applied, which violates the primary key constraints.
     # See https://github.com/catalyst-cooperative/pudl/issues/1207
     mask = (
-        (own_df.report_date.isin(["2018-01-01", "2019-01-01", "2020-01-01"]))
+        (
+            own_df.report_date.isin(
+                [
+                    "2018-01-01",
+                    "2019-01-01",
+                    "2020-01-01",
+                    "2021-01-01",
+                ]
+            )
+        )
         & (own_df.plant_id_eia == 62844)
         & (own_df.owner_utility_id_eia == 62745)
         & (own_df.generator_id == "nan")
     )
     own_df = own_df[~mask]
 
+    if not (nulls := own_df[own_df.generator_id == ""]).empty:
+        logger.warning(f"Found records with null IDs in ownership_eia860: {nulls}")
     # In 2010 there are several hundred utilities that appear to be incorrectly
     # reporting the owner_utility_id_eia value *also* in the utility_id_eia
     # column. This results in duplicate operator IDs associated with a given
@@ -146,7 +160,13 @@ def ownership(eia860_dfs, eia860_transformed_dfs):
         .get_resource("ownership_eia860")
         .encode(own_df)
     )
-
+    # CN is an invalid political subdivision code used by a few respondents to indicate
+    # that the owner is in Canada. At least we can recover the country:
+    state_to_country = {
+        x.subdivision_code: x.country_code for x in POLITICAL_SUBDIVISIONS.itertuples()
+    } | {"CN": "CAN"}
+    own_df["owner_country"] = own_df["owner_state"].map(state_to_country)
+    own_df.loc[own_df.owner_state == "CN", "owner_state"] = pd.NA
     eia860_transformed_dfs["ownership_eia860"] = own_df
 
     return eia860_transformed_dfs
@@ -186,7 +206,6 @@ def generators(eia860_dfs, eia860_transformed_dfs):
         dict: eia860_transformed_dfs, a dictionary of DataFrame objects in which pages
         from EIA860 form (keys) correspond to normalized DataFrames of values from that
         page (values).
-
     """
     # Groupby objects were creating chained assignment warning that is N/A
     pd.options.mode.chained_assignment = None
@@ -200,18 +219,11 @@ def generators(eia860_dfs, eia860_transformed_dfs):
     ge_df = eia860_dfs["generator_existing"].copy()
     gr_df = eia860_dfs["generator_retired"].copy()
     g_df = eia860_dfs["generator"].copy()
-    gp_df["operational_status"] = "proposed"
-    ge_df["operational_status"] = "existing"
-    gr_df["operational_status"] = "retired"
-    g_df["operational_status"] = g_df["operational_status_code"].replace(
-        {
-            "OP": "existing",  # could move this dict to codes...
-            "SB": "existing",
-            "OA": "existing",
-            "OS": "existing",
-            "RE": "retired",
-        }
-    )
+    # the retired tab of eia860 does not have a operational_status_code column.
+    # we still want these gens to have a code (and subsequently a
+    # operational_status). We could do this by fillna w/ the retirement_date, but
+    # this way seems more straightforward.
+    gr_df["operational_status_code"] = gr_df["operational_status_code"].fillna("RE")
 
     gens_df = (
         pd.concat([ge_df, gp_df, gr_df, g_df], sort=True)
@@ -291,6 +303,7 @@ def generators(eia860_dfs, eia860_transformed_dfs):
         "ferc_cogen_status",
         "ferc_small_power_producer",
         "ferc_exempt_wholesale_generator",
+        "ferc_qualifying_facility",
     ]
 
     for column in boolean_columns_to_fix:
@@ -308,9 +321,6 @@ def generators(eia860_dfs, eia860_transformed_dfs):
         )
         .pipe(pudl.helpers.convert_to_date)
     )
-    # there is literally one 'ic' from 2002... which breaks the enums!
-    gens_df.loc[:, "prime_mover_code"] = gens_df.loc[:, "prime_mover_code"].str.upper()
-    # gens_df.loc[gens_df.prime_mover_code == "ic", "prime_mover_code"] == "IC"
 
     gens_df = (
         pudl.metadata.classes.Package.from_resource_ids()
@@ -323,6 +333,15 @@ def generators(eia860_dfs, eia860_transformed_dfs):
             CODE_METADATA["energy_sources_eia"]["df"],
             from_col="code",
             to_col="fuel_type_code_pudl",
+            null_value=pd.NA,
+        )
+    )
+
+    gens_df["operational_status"] = gens_df.operational_status_code.str.upper().map(
+        pudl.helpers.label_map(
+            CODE_METADATA["operational_status_eia"]["df"],
+            from_col="code",
+            to_col="operational_status",
             null_value=pd.NA,
         )
     )
@@ -358,7 +377,6 @@ def plants(eia860_dfs, eia860_transformed_dfs):
         dict: eia860_transformed_dfs, a dictionary of DataFrame objects in which pages
         from EIA860 form (keys) correspond to normalized DataFrames of values from that
         page (values).
-
     """
     # Populating the 'plants_eia860' table
     p_df = (
@@ -415,6 +433,8 @@ def plants(eia860_dfs, eia860_transformed_dfs):
 
     p_df = pudl.helpers.convert_to_date(p_df)
 
+    p_df = clean_nerc(p_df, idx_cols=["plant_id_eia", "report_date", "nerc_region"])
+
     p_df = (
         pudl.metadata.classes.Package.from_resource_ids()
         .get_resource("plants_eia860")
@@ -446,37 +466,19 @@ def boiler_generator_assn(eia860_dfs, eia860_transformed_dfs):
         dict: eia860_transformed_dfs, a dictionary of DataFrame objects in which pages
         from EIA860 form (keys) correspond to normalized DataFrames of values from that
         page (values).
-
     """
     # Populating the 'generators_eia860' table
     b_g_df = eia860_dfs["boiler_generator_assn"].copy()
-    b_g_cols = [
-        "report_year",
-        "utility_id_eia",
-        "plant_id_eia",
-        "boiler_id",
-        "generator_id",
-    ]
-
-    b_g_df = b_g_df[b_g_cols]
-
-    # There are some bad (non-data) lines in some of the boiler generator
-    # data files (notes from EIA) which are messing up the import. Need to
-    # identify and drop them early on.
-    b_g_df["utility_id_eia"] = b_g_df["utility_id_eia"].astype(str)
-    b_g_df = b_g_df[b_g_df.utility_id_eia.str.isnumeric()]
-
-    b_g_df["plant_id_eia"] = b_g_df["plant_id_eia"].astype(int)
-
-    # We need to cast the generator_id column as type str because sometimes
-    # it is heterogeneous int/str which make drop_duplicates fail.
-    b_g_df["generator_id"] = b_g_df["generator_id"].astype(str)
-    b_g_df["boiler_id"] = b_g_df["boiler_id"].astype(str)
-
-    # This drop_duplicates isn't removing all duplicates
-    b_g_df = b_g_df.drop_duplicates().dropna()
 
     b_g_df = pudl.helpers.convert_to_date(b_g_df)
+    b_g_df = pudl.helpers.convert_cols_dtypes(df=b_g_df, data_source="eia")
+    b_g_df = b_g_df.drop_duplicates()
+
+    b_g_df = (
+        pudl.metadata.classes.Package.from_resource_ids()
+        .get_resource("boiler_generator_assn_eia860")
+        .encode(b_g_df)
+    )
 
     eia860_transformed_dfs["boiler_generator_assn_eia860"] = b_g_df
 
@@ -508,7 +510,6 @@ def utilities(eia860_dfs, eia860_transformed_dfs):
         dict: eia860_transformed_dfs, a dictionary of DataFrame objects in which pages
         from EIA860 form (keys) correspond to normalized DataFrames of values from that
         page (values).
-
     """
     # Populating the 'utilities_eia860' table
     u_df = eia860_dfs["utility"].copy()
@@ -591,7 +592,6 @@ def transform(eia860_raw_dfs, eia860_settings: Eia860Settings = Eia860Settings()
     Returns:
         dict: A dictionary of DataFrame objects in which pages from EIA860 form (keys)
         corresponds to a normalized DataFrame of values from that page (values).
-
     """
     # these are the tables that we have transform functions for...
     eia860_transform_functions = {

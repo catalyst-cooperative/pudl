@@ -1,6 +1,4 @@
 """Module to perform data cleaning functions on EIA923 data tables."""
-import logging
-from typing import Dict
 
 import numpy as np
 import pandas as pd
@@ -9,9 +7,9 @@ import pudl
 from pudl.metadata.codes import CODE_METADATA
 from pudl.settings import Eia923Settings
 
-logger = logging.getLogger(__name__)
+logger = pudl.logging_helpers.get_logger(__name__)
 
-COALMINE_COUNTRY_CODES: Dict[str, str] = {
+COALMINE_COUNTRY_CODES: dict[str, str] = {
     "AU": "AUS",  # Australia
     "CL": "COL",  # Colombia
     "CN": "CAN",  # Canada
@@ -42,7 +40,7 @@ three letter country codes: https://en.wikipedia.org/wiki/ISO_3166-1_alpha-3
 ###############################################################################
 
 
-def _get_plant_nuclear_unit_id_map(nuc_fuel: pd.DataFrame) -> Dict[int, str]:
+def _get_plant_nuclear_unit_id_map(nuc_fuel: pd.DataFrame) -> dict[int, str]:
     """Get a plant_id -> nuclear_unit_id mapping for all plants with one nuclear unit.
 
     Args:
@@ -115,7 +113,7 @@ def _backfill_nuclear_unit_id(nuc_fuel: pd.DataFrame) -> pd.DataFrame:
     return nuc_fuel
 
 
-def _get_plant_prime_mover_map(gen_fuel: pd.DataFrame) -> Dict[int, str]:
+def _get_plant_prime_mover_map(gen_fuel: pd.DataFrame) -> dict[int, str]:
     """Get a plant_id -> prime_mover_code mapping for all plants with one prime mover.
 
     Args:
@@ -198,7 +196,7 @@ def _backfill_prime_mover_code(gen_fuel: pd.DataFrame) -> pd.DataFrame:
     return gen_fuel
 
 
-def _get_most_frequent_energy_source_map(gen_fuel: pd.DataFrame) -> Dict[str, str]:
+def _get_most_frequent_energy_source_map(gen_fuel: pd.DataFrame) -> dict[str, str]:
     """Get the a mapping of the most common energy_source for each fuel_type_code_aer.
 
     Args:
@@ -206,7 +204,6 @@ def _get_most_frequent_energy_source_map(gen_fuel: pd.DataFrame) -> Dict[str, st
 
     Returns:
         energy_source_map: mapping of fuel_type_code_aer to energy_source_code.
-
     """
     energy_source_counts = gen_fuel.groupby(
         ["fuel_type_code_aer", "energy_source_code"]
@@ -236,7 +233,6 @@ def _clean_gen_fuel_energy_sources(gen_fuel: pd.DataFrame) -> pd.DataFrame:
 
     Returns:
         gen_fuel: generation fuels dataframe with cleaned energy_source_code field.
-
     """
     # replace whitespace and empty strings with NA values.
     gen_fuel["energy_source_code"] = gen_fuel.energy_source_code.replace(
@@ -308,6 +304,11 @@ def _aggregate_generation_fuel_duplicates(
     )
     if not fuel_type_code_aer_is_unique:
         raise AssertionError("Duplicate fuels have different fuel_type_code_aer.")
+    data_maturity_is_unique = (
+        duplicates.groupby(natural_key_fields).data_maturity.nunique().eq(1).all()
+    )
+    if not data_maturity_is_unique:
+        raise AssertionError("Duplicate fuels have different data_maturity.")
 
     agg_fields = {
         "fuel_consumed_units": "sum",
@@ -315,10 +316,14 @@ def _aggregate_generation_fuel_duplicates(
         "fuel_consumed_mmbtu": "sum",
         "fuel_consumed_for_electricity_mmbtu": "sum",
         "net_generation_mwh": "sum",
-        # We can safely select the first fuel_type_code_* because we know they
-        # are the same for each group of duplicates.
+        # We can safely select the first values here because we know they are unique
+        # within each group of duplicates. We check explicitly for fuel_type_code_aer
+        # and data_maturity above, and fuel_type_code_pudl maps to fuel_type_code_aer
+        # such that if fuel_type_code_aer is unique, fuel_type_code_pudl must also
+        # be unique.
         "fuel_type_code_aer": "first",
         "fuel_type_code_pudl": "first",
+        "data_maturity": "first",
     }
 
     resolved_dupes = (
@@ -372,7 +377,6 @@ def _yearly_to_monthly_records(df: pd.DataFrame) -> pd.DataFrame:
     Returns:
         A dataframe containing the same data as was passed in via df,
         but with monthly records as rows instead of as columns.
-
     """
     month_dict = {
         "january": 1,
@@ -437,7 +441,6 @@ def _coalmine_cleanup(cmi_df: pd.DataFrame) -> pd.DataFrame:
 
     Returns:
         A cleaned DataFrame containing coalmine information.
-
     """
     # Because we need to pull the mine_id_msha field into the FRC table,
     # but we don't know what that ID is going to be until we've populated
@@ -514,7 +517,6 @@ def plants(eia923_dfs, eia923_transformed_dfs):
         dict: eia923_transformed_dfs, a dictionary of DataFrame objects in which pages
         from EIA923 form (keys) correspond to normalized DataFrames of values from that
         page (values).
-
     """
     plant_info_df = eia923_dfs["plant_frame"].copy()
 
@@ -528,17 +530,13 @@ def plants(eia923_dfs, eia923_transformed_dfs):
             "plant_state",
             "eia_sector",
             "naics_code",
-            "reporting_frequency",
+            "reporting_frequency_code",
             "census_region",
             "nerc_region",
             "capacity_mw",
             "report_year",
         ]
     ]
-
-    plant_info_df["reporting_frequency"] = plant_info_df.reporting_frequency.replace(
-        {"M": "monthly", "A": "annual"}
-    )
     # Since this is a plain Yes/No variable -- just make it a real sa.Boolean.
     plant_info_df.combined_heat_power.replace({"N": False, "Y": True}, inplace=True)
 
@@ -567,7 +565,6 @@ def gen_fuel_nuclear(gen_fuel_nuke: pd.DataFrame) -> pd.DataFrame:
 
     Returns:
         Transformed nuclear generation fuel table.
-
     """
     gen_fuel_nuke["nuclear_unit_id"] = (
         gen_fuel_nuke["nuclear_unit_id"].astype("Int64").astype("string")
@@ -614,7 +611,6 @@ def generation_fuel(eia923_dfs, eia923_transformed_dfs):
         dict: eia923_transformed_dfs, a dictionary of DataFrame objects in which pages
         from EIA923 form (keys) correspond to normalized DataFrames of values from that
         page (values).
-
     """
     # This needs to be a copy of what we're passed in so we can edit it.
     gen_fuel = eia923_dfs["generation_fuel"].copy()
@@ -637,6 +633,7 @@ def generation_fuel(eia923_dfs, eia923_transformed_dfs):
         "total_fuel_consumption_mmbtu",
         "elec_fuel_consumption_mmbtu",
         "net_generation_megawatthours",
+        "early_release",
     ]
     gen_fuel.drop(cols_to_drop, axis=1, inplace=True)
 
@@ -756,7 +753,6 @@ def _aggregate_duplicate_boiler_fuel_keys(boiler_fuel_df: pd.DataFrame) -> pd.Da
 
     Returns:
         A copy of boiler_fuel dataframe with duplicates removed and aggregates appended.
-
     """
     quantity_cols = [
         "fuel_consumed_units",
@@ -775,7 +771,8 @@ def _aggregate_duplicate_boiler_fuel_keys(boiler_fuel_df: pd.DataFrame) -> pd.Da
         )
 
     is_duplicate = boiler_fuel_df.duplicated(subset=key_cols, keep=False)
-    duplicates: pd.DataFrame = boiler_fuel_df[is_duplicate]
+    # copying bc a slice of this copy will be reassigned later
+    duplicates: pd.DataFrame = boiler_fuel_df[is_duplicate].copy()
     boiler_fuel_groups = duplicates.groupby(key_cols)
 
     # For relative columns, take average weighted by fuel usage
@@ -785,7 +782,7 @@ def _aggregate_duplicate_boiler_fuel_keys(boiler_fuel_df: pd.DataFrame) -> pd.Da
         duplicates["fuel_consumed_units"].div(total_fuel.to_numpy()).fillna(0.0)
     )
     # overwrite with weighted values
-    duplicates[relative_cols] = duplicates[relative_cols].mul(
+    duplicates.loc[:, relative_cols] = duplicates.loc[:, relative_cols].mul(
         fuel_fraction.to_numpy().reshape(-1, 1)
     )
 
@@ -845,8 +842,10 @@ def boiler_fuel(eia923_dfs, eia923_transformed_dfs):
         "sector_name",
         "fuel_unit",
         "total_fuel_consumption_quantity",
-        "respondent_frequency",
         "balancing_authority_code_eia",
+        "early_release",
+        "reporting_frequency_code",
+        "data_maturity",
     ]
     bf_df.drop(cols_to_drop, axis=1, inplace=True)
 
@@ -903,7 +902,6 @@ def generation(eia923_dfs, eia923_transformed_dfs):
         dict: eia923_transformed_dfs, a dictionary of DataFrame objects in which pages
         from EIA923 form (keys) correspond to normalized DataFrames of values from that
         page (values).
-
     """
     gen_df = (
         eia923_dfs["generator"]
@@ -921,6 +919,7 @@ def generation(eia923_dfs, eia923_transformed_dfs):
                 "eia_sector",
                 "sector_name",
                 "net_generation_mwh_year_to_date",
+                "early_release",
             ],
             axis="columns",
         )
@@ -978,7 +977,6 @@ def coalmine(eia923_dfs, eia923_transformed_dfs):
         dict: eia923_transformed_dfs, a dictionary of DataFrame objects in which pages
         from EIA923 form (keys) correspond to normalized DataFrames of values from that
         page (values).
-
     """
     # These are the columns that we want to keep from FRC for the
     # coal mine info table.
@@ -988,6 +986,7 @@ def coalmine(eia923_dfs, eia923_transformed_dfs):
         "state",
         "county_id_fips",
         "mine_id_msha",
+        "data_maturity",
     ]
 
     # Make a copy so we don't alter the FRC data frame... which we'll need
@@ -1014,15 +1013,7 @@ def coalmine(eia923_dfs, eia923_transformed_dfs):
     cmi_df.drop(cmi_df[cmi_df["mine_id_msha"] > 0].index)
     cmi_df = pd.concat([cmi_df, cmi_with_msha])
 
-    cmi_df = cmi_df.drop_duplicates(
-        subset=[
-            "mine_name",
-            "state",
-            "mine_id_msha",
-            "mine_type_code",
-            "county_id_fips",
-        ]
-    )
+    cmi_df = cmi_df.drop_duplicates(subset=coalmine_cols)
 
     # drop null values if they occur in vital fields....
     cmi_df.dropna(subset=["mine_name", "state"], inplace=True)
@@ -1077,7 +1068,6 @@ def fuel_receipts_costs(eia923_dfs, eia923_transformed_dfs):
         dict: eia923_transformed_dfs, a dictionary of DataFrame objects in which pages
         from EIA923 form (keys) correspond to normalized DataFrames of values from that
         page (values).
-
     """
     frc_df = eia923_dfs["fuel_receipts_costs"].copy()
 
@@ -1095,7 +1085,7 @@ def fuel_receipts_costs(eia923_dfs, eia923_transformed_dfs):
         "state_id_fips",
         "mine_name",
         "regulated",
-        "reporting_frequency",
+        "early_release",
     ]
 
     cmi_df = (
@@ -1122,15 +1112,14 @@ def fuel_receipts_costs(eia923_dfs, eia923_transformed_dfs):
                 "mine_id_msha",
                 "mine_type_code",
                 "county_id_fips",
+                "data_maturity",
             ],
         )
         .drop(cols_to_drop, axis=1)
-        .
         # Replace the EIA923 NA value ('.') with a real NA value.
-        pipe(pudl.helpers.fix_eia_na)
-        .
+        .pipe(pudl.helpers.fix_eia_na)
         # These come in ALL CAPS from EIA...
-        pipe(pudl.helpers.simplify_strings, columns=["supplier_name"])
+        .pipe(pudl.helpers.simplify_strings, columns=["supplier_name"])
         .pipe(
             pudl.helpers.fix_int_na,
             columns=[
@@ -1155,9 +1144,8 @@ def fuel_receipts_costs(eia923_dfs, eia923_transformed_dfs):
                 lambda y: "20" + y[-2:] if y != "" else y
             ),
         )
-        .
         # Now that we will create our own real date field, so chuck this one.
-        drop("contract_expiration_date", axis=1)
+        .drop("contract_expiration_date", axis=1)
         .pipe(
             pudl.helpers.convert_to_date,
             date_col="contract_expiration_date",
@@ -1214,7 +1202,6 @@ def transform(eia923_raw_dfs, eia923_settings: Eia923Settings = Eia923Settings()
         :class:`pandas.DataFrame` objects as values, where the contents of the
         DataFrames correspond to cleaned and normalized PUDL database tables, ready for
         loading.
-
     """
     eia923_transform_functions = {
         "generation_fuel_eia923": generation_fuel,

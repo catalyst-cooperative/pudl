@@ -4,26 +4,23 @@ This script cordinates the PUDL ETL process, based on parameters provided via a 
 settings file.
 
 If the settings for a dataset has empty parameters (meaning there are no years or tables
-included), no outputs will be generated. See :doc:`/dev/settings_files` for details.
+included), no outputs will be generated. See :doc:`/dev/run_the_etl` for details.
 
 The output SQLite and Parquet files will be stored in ``PUDL_OUT`` in directories named
 ``sqlite`` and ``parquet``.  To setup your default ``PUDL_IN`` and ``PUDL_OUT``
 directories see ``pudl_setup --help``.
-
 """
 import argparse
-import logging
 import sys
 from sqlite3 import sqlite_version
 
-import coloredlogs
 from packaging import version
 
 import pudl
 from pudl.load import MINIMUM_SQLITE_VERSION
 from pudl.settings import EtlSettings
 
-logger = logging.getLogger(__name__)
+logger = pudl.logging_helpers.get_logger(__name__)
 
 
 def parse_command_line(argv):
@@ -34,7 +31,6 @@ def parse_command_line(argv):
 
     Returns:
         dict: A dictionary mapping command line arguments to their values.
-
     """
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
@@ -87,23 +83,23 @@ def parse_command_line(argv):
         default=False,
         help="If enabled, the local file cache for datastore will not be used.",
     )
-
+    parser.add_argument(
+        "--loglevel",
+        help="Set logging level (DEBUG, INFO, WARNING, ERROR, or CRITICAL).",
+        default="INFO",
+    )
     arguments = parser.parse_args(argv[1:])
     return arguments
 
 
 def main():
     """Parse command line and initialize PUDL DB."""
-    # Display logged output from the PUDL package:
-    pudl_logger = logging.getLogger("pudl")
-    log_format = "%(asctime)s [%(levelname)8s] %(name)s:%(lineno)s %(message)s"
-    coloredlogs.install(fmt=log_format, level="INFO", logger=pudl_logger)
-
     args = parse_command_line(sys.argv)
-    if args.logfile:
-        file_logger = logging.FileHandler(args.logfile)
-        file_logger.setFormatter(logging.Formatter(log_format))
-        pudl_logger.addHandler(file_logger)
+
+    # Display logged output from the PUDL package:
+    pudl.logging_helpers.configure_root_logger(
+        logfile=args.logfile, loglevel=args.loglevel
+    )
 
     etl_settings = EtlSettings.from_yaml(args.settings_file)
 
@@ -117,7 +113,7 @@ def main():
     )
     if bad_sqlite_version and not args.ignore_type_constraints:
         args.ignore_type_constraints = False
-        pudl_logger.warning(
+        logger.warning(
             f"Found SQLite {sqlite_version} which is less than "
             f"the minimum required version {MINIMUM_SQLITE_VERSION} "
             "As a result, data type constraint checking will be disabled."

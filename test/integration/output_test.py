@@ -12,15 +12,6 @@ import pudl.validate as pv
 
 logger = logging.getLogger(__name__)
 
-# This avoids trying to use the EIA API key when CI is run by a bot that doesn't
-# have access to our GitHub secrets
-API_KEY_EIA = os.environ.get("API_KEY_EIA", False)
-if API_KEY_EIA:
-    logger.info("Found an API_KEY_EIA in the environment.")
-else:
-    logger.warning("API_KEY_EIA was not available from the environment.")
-FILL_FUEL_COST = bool(API_KEY_EIA)
-
 
 @pytest.fixture(scope="module")
 def fast_out(pudl_engine, pudl_datastore_fixture):
@@ -29,9 +20,9 @@ def fast_out(pudl_engine, pudl_datastore_fixture):
         pudl_engine,
         ds=pudl_datastore_fixture,
         freq="MS",
-        fill_fuel_cost=FILL_FUEL_COST,
+        fill_fuel_cost=True,
         roll_fuel_cost=True,
-        fill_net_gen=False,
+        fill_net_gen=True,
         fill_tech_desc=True,
     )
 
@@ -73,16 +64,16 @@ def test_nuclear_fraction(fast_out, df_name, expected_nuke_fraction, tolerance):
 @pytest.mark.parametrize(
     "df_name",
     [
-        "all_plants_ferc1",
-        "fbp_ferc1",
+        "pu_ferc1",
         "fuel_ferc1",
-        "plant_in_service_ferc1",
+        "plants_steam_ferc1",
+        "fbp_ferc1",
+        "plants_all_ferc1",
         "plants_hydro_ferc1",
         "plants_pumped_storage_ferc1",
         "plants_small_ferc1",
-        "plants_steam_ferc1",
-        "pu_ferc1",
         "purchased_power_ferc1",
+        "plant_in_service_ferc1",
     ],
 )
 def test_ferc1_outputs(fast_out, df_name):
@@ -105,8 +96,7 @@ def test_ferc1_outputs(fast_out, df_name):
         ("gens_eia860", "bf_eia923", 12 / 1, {}),
         ("gens_eia860", "frc_eia923", 12 / 1, {}),
         ("gens_eia860", "gen_eia923", 12 / 1, {}),
-        # gen_fuel_by_generator_eia923 currently only produces annual results.
-        ("gens_eia860", "gen_fuel_by_generator_eia923", 1 / 1, {}),
+        ("gens_eia860", "gen_fuel_by_generator_eia923", 12 / 1, {}),
         ("gens_eia860", "gf_eia923", 12 / 1, {}),
         ("gens_eia860", "gf_nonuclear_eia923", 12 / 1, {}),
         ("gens_eia860", "gf_nuclear_eia923", 12 / 1, {}),
@@ -182,11 +172,10 @@ def test_ferc714_etl(fast_out):
 
 
 @pytest.fixture(scope="module")
-def ferc714_out(fast_out, pudl_settings_fixture):
+def ferc714_out(fast_out, pudl_settings_fixture, pudl_datastore_fixture):
     """A FERC 714 Respondents output object for use in CI."""
     return pudl.output.ferc714.Respondents(
-        fast_out,
-        pudl_settings=pudl_settings_fixture,
+        fast_out, pudl_settings=pudl_settings_fixture, ds=pudl_datastore_fixture
     )
 
 
@@ -215,12 +204,10 @@ def test_ferc714_outputs(ferc714_out, df_name):
 def test_ferc714_respondents_georef_counties(ferc714_out):
     """Test FERC 714 respondent county FIPS associations.
 
-    This test works with the Census DP1 data, which is converted into
-    SQLite using the GDAL command line tool ogr2ogr. That tools is easy
-    to install via conda or on Linux, but is more challenging on Windows
-    and MacOS, so this test is marked xfail conditionally if the user is
-    neither using conda, nor is on Linux.
-
+    This test works with the Census DP1 data, which is converted into SQLite using the
+    GDAL command line tool ogr2ogr. That tools is easy to install via conda or on Linux,
+    but is more challenging on Windows and MacOS, so this test is marked xfail
+    conditionally if the user is neither using conda, nor is on Linux.
     """
     ferc714_gdf = ferc714_out.georef_counties()
     assert isinstance(ferc714_gdf, gpd.GeoDataFrame), "ferc714_gdf not a GeoDataFrame!"
@@ -239,7 +226,7 @@ def fast_out_filled(pudl_engine, pudl_datastore_fixture):
         pudl_engine,
         ds=pudl_datastore_fixture,
         freq="MS",
-        fill_fuel_cost=FILL_FUEL_COST,
+        fill_fuel_cost=True,
         roll_fuel_cost=True,
         fill_net_gen=True,
     )
@@ -257,8 +244,8 @@ def fast_out_filled(pudl_engine, pudl_datastore_fixture):
 def test_mcoe_filled(fast_out_filled, df_name, expected_nuke_fraction, tolerance):
     """Test that the net generation allocation process is working.
 
-    In addition to running the allocation itself, make sure that the nuclear and
-    non-nuclear generation fractions are as we would expect after the net generation has
+    In addition to running the allocation itself, make sure that the nuclear and non-
+    nuclear generation fractions are as we would expect after the net generation has
     been allocated.
     """
     actual_nuke_fraction = nuke_gen_fraction(

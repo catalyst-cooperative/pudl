@@ -58,5 +58,16 @@ columns whose values are required to uniquely specify a record), and/or whether 
 denormalized columns may also be part of the primary key. This information is important
 for the step after the intra-table transformations during which the collection of EIA
 tables is normalized as a whole.
-
 """
+from . import (  # noqa: F401
+    classes,
+    eia,
+    eia860,
+    eia861,
+    eia923,
+    eia_bulk_elec,
+    epacems,
+    ferc1,
+    ferc714,
+    params,
+)

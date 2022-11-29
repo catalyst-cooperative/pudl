@@ -1,9 +1,21 @@
 """Definitions of data tables primarily coming from EIA 860/861/923."""
-from typing import Any, Dict
+from typing import Any
 
 from pudl.metadata.codes import CODE_METADATA
 
-RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
+RESOURCE_METADATA: dict[str, dict[str, Any]] = {
+    "balancing_authorities_eia": {
+        "description": "A coding table describing balancing authorities in EIA-860 and EIA-923.",
+        "schema": {
+            "fields": ["code", "label", "description"],
+            "primary_key": ["code"],
+            "foreign_key_rules": {"fields": [["balancing_authority_code_eia"]]},
+        },
+        "encoder": CODE_METADATA["balancing_authorities_eia"],
+        "sources": ["eia860"],
+        "etl_group": "static_eia",
+        "field_namespace": "eia",
+    },
     "boilers_entity_eia": {
         "description": "Static boiler attributes compiled from the EIA-860 and EIA-923 data.",
         "schema": {
@@ -13,6 +25,42 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
         },
         "sources": ["eia860", "eia923"],
         "etl_group": "entity_eia",
+        "field_namespace": "eia",
+    },
+    "boiler_generator_assn_types_eia": {
+        "description": "A coding table describing different types of boiler-generator associations in the EIA-860.",
+        "schema": {
+            "fields": ["code", "label", "description"],
+            "primary_key": ["code"],
+            "foreign_key_rules": {"fields": [["boiler_generator_assn_type_code"]]},
+        },
+        "encoder": CODE_METADATA["boiler_generator_assn_types_eia"],
+        "sources": ["eia860"],
+        "etl_group": "static_eia",
+        "field_namespace": "eia",
+    },
+    "steam_plant_types_eia": {
+        "description": "A coding table describing different types of steam plants in the EIA-860.",
+        "schema": {
+            "fields": ["code", "label", "description"],
+            "primary_key": ["code"],
+            "foreign_key_rules": {"fields": [["steam_plant_type_code"]]},
+        },
+        "encoder": CODE_METADATA["steam_plant_types_eia"],
+        "sources": ["eia860"],
+        "etl_group": "static_eia",
+        "field_namespace": "eia",
+    },
+    "reporting_frequencies_eia": {
+        "description": "A coding table describing different types of reporting frequencies in plants in the EIA-923.",
+        "schema": {
+            "fields": ["code", "label", "description"],
+            "primary_key": ["code"],
+            "foreign_key_rules": {"fields": [["reporting_frequency_code"]]},
+        },
+        "encoder": CODE_METADATA["reporting_frequencies_eia"],
+        "sources": ["eia923"],
+        "etl_group": "static_eia",
         "field_namespace": "eia",
     },
     "coalmine_types_eia": {
@@ -36,6 +84,39 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
         },
         "encoder": CODE_METADATA["contract_types_eia"],
         "sources": ["eia923"],
+        "etl_group": "static_eia",
+        "field_namespace": "eia",
+    },
+    "operational_status_eia": {
+        "description": "Codes and metadata pertaining to operational status reported to EIA. Compiled from EIA-860 instructions and EIA-923 file layout spreadsheets.",
+        "schema": {
+            "fields": [
+                "code",
+                "label",
+                "description",
+                "operational_status",
+            ],
+            "primary_key": ["code"],
+            "foreign_key_rules": {
+                "fields": [["operational_status_code"]],
+            },
+        },
+        "encoder": CODE_METADATA["operational_status_eia"],
+        "sources": ["eia860", "eia923"],
+        "etl_group": "static_eia",
+        "field_namespace": "eia",
+    },
+    "data_maturities": {
+        "description": "Level of maturities of data records. Some data sources report less-than-final data. PUDL sometimes includes this data, but use at your own risk.",
+        "schema": {
+            "fields": ["code", "description"],
+            "primary_key": ["code"],
+            "foreign_key_rules": {
+                "fields": [["data_maturity"]],
+            },
+        },
+        "encoder": CODE_METADATA["data_maturities"],
+        "sources": ["eia860", "eia923"],
         "etl_group": "static_eia",
         "field_namespace": "eia",
     },
@@ -82,7 +163,7 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
         "schema": {"fields": ["code", "label", "description"], "primary_key": ["code"]},
         "encoder": CODE_METADATA["entity_types_eia"],
         "sources": ["eia861"],
-        "etl_group": "static_eia",
+        "etl_group": "static_eia_disabled",  # currently not being loaded into the db
         "field_namespace": "eia",
     },
     "fuel_transportation_modes_eia": {
@@ -180,22 +261,10 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
             "fields": [
                 "plant_id_eia",
                 "plant_name_eia",
-                "balancing_authority_code_eia",
-                "balancing_authority_name_eia",
                 "city",
                 "county",
-                "ferc_cogen_status",
-                "ferc_exempt_wholesale_generator",
-                "ferc_small_power_producer",
-                "grid_voltage_kv",
-                "grid_voltage_2_kv",
-                "grid_voltage_3_kv",
-                "iso_rto_code",
                 "latitude",
                 "longitude",
-                "primary_purpose_id_naics",
-                "sector_name_eia",
-                "sector_id_eia",
                 "state",
                 "street_address",
                 "zip_code",
@@ -215,6 +284,57 @@ RESOURCE_METADATA: Dict[str, Dict[str, Any]] = {
         "sources": ["eia860", "eia923"],
         "etl_group": "entity_eia",
         "field_namespace": "eia",
+    },
+    "plant_parts_eia": {
+        "description": "Output table with the aggregation of all EIA plant parts. For use with matching to FERC 1.",
+        "schema": {
+            "fields": [
+                "plant_id_eia",
+                "report_date",
+                "plant_part",
+                "generator_id",
+                "unit_id_pudl",
+                "prime_mover_code",
+                "energy_source_code_1",
+                "technology_description",
+                "ferc_acct_name",
+                "utility_id_eia",
+                "true_gran",
+                "appro_part_label",
+                "appro_record_id_eia",
+                "capacity_eoy_mw",
+                "capacity_factor",
+                "capacity_mw",
+                "construction_year",
+                "fraction_owned",
+                "fuel_cost_per_mmbtu",
+                "fuel_cost_per_mwh",
+                "fuel_type_code_pudl",
+                "heat_rate_mmbtu_mwh",
+                "installation_year",
+                "net_generation_mwh",
+                "operating_year",
+                "operational_status",
+                "operational_status_pudl",
+                "ownership_record_type",
+                "ownership_dupe",
+                "planned_retirement_date",
+                "plant_id_pudl",
+                "plant_name_eia",
+                "plant_name_ppe",
+                "plant_part_id_eia",
+                "record_count",
+                "retirement_date",
+                "total_fuel_cost",
+                "total_mmbtu",
+                "utility_id_pudl",
+                "report_year",
+                "plant_id_report_year",
+            ]
+        },
+        "sources": ["eia860", "eia923"],
+        "etl_group": "outputs",
+        "field_namespace": "ppe",
     },
     "prime_movers_eia": {
         "description": "Long descriptions explaining the short prime mover codes reported in the EIA-860 and EIA-923.",

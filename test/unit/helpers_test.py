@@ -4,14 +4,427 @@ import numpy as np
 import pandas as pd
 import pytest
 from pandas.testing import assert_frame_equal, assert_series_equal
+from pandas.tseries.offsets import BYearEnd
 
 from pudl.helpers import (
     convert_df_to_excel_file,
     convert_to_date,
+    date_merge,
+    expand_timeseries,
     fix_eia_na,
-    fix_leading_zero_gen_ids,
+    remove_leading_zeros_from_numeric_strings,
     zero_pad_numeric_string,
 )
+
+MONTHLY_GEN_FUEL = pd.DataFrame(
+    {
+        "report_date": [
+            "2019-12-01",
+            "2020-10-01",
+            "2019-01-01",
+            "2019-06-01",
+            "2018-07-01",
+        ],
+        "plant_id_eia": [2, 2, 3, 3, 3],
+        "prime_mover_code": ["HY", "ST", "HY", "CT", "HY"],
+        "fuel_consumed_units": [0.0, 98085.0, 0.0, 4800000.0, 0.0],
+    }
+)
+
+ANNUAL_PLANTS_UTIL = pd.DataFrame(
+    {
+        "report_date": [
+            "2020-01-01",
+            "2020-01-01",
+            "2019-01-01",
+            "2018-01-01",
+            "2020-01-01",
+            "2019-01-01",
+            "2018-01-01",
+        ],
+        "plant_id_eia": [1, 2, 2, 2, 3, 3, 3],
+        "plant_name_eia": [
+            "Sand Point",
+            "Bankhead",
+            "Bankhead Dam",
+            "Bankhead Dam",
+            "Barry",
+            "Barry",
+            "Barry",
+        ],
+        "utility_id_eia": [63560, 195, 195, 195, 16, 16, 16],
+    }
+).astype({"report_date": "datetime64[ns]"})
+
+QUARTERLY_DATA = pd.DataFrame(
+    {
+        "report_date": ["2020-01-01", "2020-10-01", "2019-04-01", "2019-01-01"],
+        "plant_id_eia": [2, 2, 3, 3],
+        "data": [1, 4, 2, 1],
+    }
+)
+
+MONTHLY_OTHER = pd.DataFrame(
+    {
+        "report_date": ["2019-10-01", "2020-10-01", "2019-01-01", "2018-02-01"],
+        "plant_id_eia": [2, 2, 3, 3],
+        "energy_source_code": ["DFO", "WND", "WND", "DFO"],
+    }
+)
+
+DAILY_DATA = pd.DataFrame(
+    {
+        "date": ["2019-10-12", "2019-10-13", "2019-12-01", "2018-02-03"],
+        "plant_id_eia": [2, 2, 2, 3],
+        "daily_data": [1, 2, 3, 4],
+    }
+).astype({"date": "datetime64[ns]"})
+
+
+def test_annual_attribute_merge():
+    """Test merging annual attributes onto monthly data with a sparse report date.
+
+    The left and right merges in this case is a one to many merge and should
+    yield an output table with the exact same data records as the
+    input data table.
+
+    The inner merge case loses records. The outer merge case creates extra
+    records with NA values.
+    """
+    out_expected_left = pd.DataFrame(
+        {
+            "report_date": [
+                "2019-12-01",
+                "2020-10-01",
+                "2019-01-01",
+                "2019-06-01",
+                "2018-07-01",
+            ],
+            "plant_id_eia": [2, 2, 3, 3, 3],
+            "prime_mover_code": ["HY", "ST", "HY", "CT", "HY"],
+            "fuel_consumed_units": [0.0, 98085.0, 0.0, 4800000.0, 0.0],
+            "plant_name_eia": ["Bankhead Dam", "Bankhead", "Barry", "Barry", "Barry"],
+            "utility_id_eia": [195, 195, 16, 16, 16],
+        }
+    ).astype({"report_date": "datetime64[ns]"})
+
+    out_left = date_merge(
+        left=MONTHLY_GEN_FUEL.copy(),
+        right=ANNUAL_PLANTS_UTIL.copy(),
+        on=["plant_id_eia"],
+        how="left",
+    )
+
+    assert_frame_equal(out_left, out_expected_left)
+
+    out_expected_right = pd.DataFrame(
+        {
+            "report_date": [
+                "2019-12-01",
+                "2020-10-01",
+                "2019-01-01",
+                "2019-06-01",
+                "2018-07-01",
+            ],
+            "plant_id_eia": [2, 2, 3, 3, 3],
+            "plant_name_eia": ["Bankhead Dam", "Bankhead", "Barry", "Barry", "Barry"],
+            "utility_id_eia": [195, 195, 16, 16, 16],
+            "prime_mover_code": ["HY", "ST", "HY", "CT", "HY"],
+            "fuel_consumed_units": [0.0, 98085.0, 0.0, 4800000.0, 0.0],
+        }
+    ).astype({"report_date": "datetime64[ns]"})
+
+    out_right = date_merge(
+        left=ANNUAL_PLANTS_UTIL.copy(),
+        right=MONTHLY_GEN_FUEL.copy(),
+        on=["plant_id_eia"],
+        how="right",
+    )
+
+    assert_frame_equal(out_right, out_expected_right)
+
+    out_expected_inner = pd.DataFrame(
+        {
+            "report_date": [
+                "2019-12-01",
+                "2020-10-01",
+                "2019-01-01",
+                "2019-06-01",
+                "2018-07-01",
+            ],
+            "plant_id_eia": [2, 2, 3, 3, 3],
+            "prime_mover_code": ["HY", "ST", "HY", "CT", "HY"],
+            "fuel_consumed_units": [0.0, 98085.0, 0.0, 4800000.0, 0.0],
+            "plant_name_eia": ["Bankhead Dam", "Bankhead", "Barry", "Barry", "Barry"],
+            "utility_id_eia": [195, 195, 16, 16, 16],
+        }
+    ).astype({"report_date": "datetime64[ns]"})
+
+    out_inner = date_merge(
+        left=MONTHLY_GEN_FUEL.copy(),
+        right=ANNUAL_PLANTS_UTIL.copy(),
+        on=["plant_id_eia"],
+        how="inner",
+    )
+
+    assert_frame_equal(out_inner, out_expected_inner)
+
+    out_expected_outer = pd.DataFrame(
+        {
+            "report_date": [
+                "2019-12-01",
+                "2020-10-01",
+                "2019-01-01",
+                "2019-06-01",
+                "2018-07-01",
+                "2020-01-01",
+                "2018-01-01",
+                "2020-01-01",
+            ],
+            "plant_id_eia": [2, 2, 3, 3, 3, 1, 2, 3],
+            "prime_mover_code": ["HY", "ST", "HY", "CT", "HY", None, None, None],
+            "fuel_consumed_units": [
+                0.0,
+                98085.0,
+                0.0,
+                4800000.0,
+                0.0,
+                None,
+                None,
+                None,
+            ],
+            "plant_name_eia": [
+                "Bankhead Dam",
+                "Bankhead",
+                "Barry",
+                "Barry",
+                "Barry",
+                "Sand Point",
+                "Bankhead Dam",
+                "Barry",
+            ],
+            "utility_id_eia": [195, 195, 16, 16, 16, 63560, 195, 16],
+        }
+    ).astype({"report_date": "datetime64[ns]"})
+
+    out_outer = date_merge(
+        left=MONTHLY_GEN_FUEL.copy(),
+        right=ANNUAL_PLANTS_UTIL.copy(),
+        on=["plant_id_eia"],
+        how="outer",
+    )
+
+    assert_frame_equal(out_outer, out_expected_outer)
+
+
+def test_monthly_attribute_merge():
+    """Test merging monthly attributes onto daily data with a sparse report date."""
+    out_expected = pd.DataFrame(
+        {
+            "report_date": ["2019-10-12", "2019-10-13", "2019-12-01", "2018-02-03"],
+            "plant_id_eia": [2, 2, 2, 3],
+            "daily_data": [1, 2, 3, 4],
+            "energy_source_code": ["DFO", "DFO", None, "DFO"],
+        }
+    ).astype({"report_date": "datetime64[ns]"})
+
+    out = date_merge(
+        left=DAILY_DATA.copy(),
+        right=MONTHLY_OTHER.copy(),
+        left_date_col="date",
+        on=["plant_id_eia"],
+        date_on=["year", "month"],
+        how="left",
+    )
+
+    assert_frame_equal(out, out_expected)
+
+
+def test_quarterly_attribute_merge():
+    """Test merging quarterly attributes onto monthly data.
+
+    This should probably be updated once we need a quarterly merge for FERC data.
+    """
+    out_expected = pd.DataFrame(
+        {
+            "report_date": [
+                "2019-12-01",
+                "2020-10-01",
+                "2019-01-01",
+                "2019-06-01",
+                "2018-07-01",
+            ],
+            "plant_id_eia": [2, 2, 3, 3, 3],
+            "prime_mover_code": ["HY", "ST", "HY", "CT", "HY"],
+            "fuel_consumed_units": [0.0, 98085.0, 0.0, 4800000.0, 0.0],
+            "data": [None, 4.0, 1.0, 2.0, None],
+        }
+    ).astype({"report_date": "datetime64[ns]"})
+
+    out = date_merge(
+        left=MONTHLY_GEN_FUEL.copy(),
+        right=QUARTERLY_DATA.copy(),
+        on=["plant_id_eia"],
+        date_on=["year", "quarter"],
+        how="left",
+    )
+
+    assert_frame_equal(out, out_expected)
+
+
+def test_same_temporal_gran():
+    """Test merging tables with the same temporal granularity.
+
+    In this case, this yields the same results as ``pd.merge``.
+    """
+    out_expected = MONTHLY_GEN_FUEL.merge(
+        MONTHLY_OTHER,
+        how="left",
+        on=["report_date", "plant_id_eia"],
+    ).astype({"report_date": "datetime64[ns]"})
+
+    out = date_merge(
+        left=MONTHLY_GEN_FUEL.copy(),
+        right=MONTHLY_OTHER.copy(),
+        on=["plant_id_eia"],
+        date_on=["year", "month"],
+        how="left",
+    )
+    assert_frame_equal(out, out_expected)
+
+
+def test_end_of_report_period():
+    """Test merging tables repeated at the end of the report period."""
+    eoy_plants_util = ANNUAL_PLANTS_UTIL.copy()
+    eoy_plants_util.loc[:, "report_date"] = eoy_plants_util.report_date + BYearEnd()
+
+    out_expected = pd.DataFrame(
+        {
+            "report_date": [
+                "2019-12-01",
+                "2020-10-01",
+                "2019-01-01",
+                "2019-06-01",
+                "2018-07-01",
+            ],
+            "plant_id_eia": [2, 2, 3, 3, 3],
+            "prime_mover_code": ["HY", "ST", "HY", "CT", "HY"],
+            "fuel_consumed_units": [0.0, 98085.0, 0.0, 4800000.0, 0.0],
+            "plant_name_eia": ["Bankhead Dam", "Bankhead", "Barry", "Barry", "Barry"],
+            "utility_id_eia": [195, 195, 16, 16, 16],
+        }
+    ).astype({"report_date": "datetime64[ns]"})
+
+    out = date_merge(
+        MONTHLY_GEN_FUEL.copy(),
+        eoy_plants_util,
+        on=["plant_id_eia"],
+        how="left",
+        report_at_start=False,
+    )
+
+    assert_frame_equal(out, out_expected)
+
+
+def test_less_granular_merge():
+    """Test merging a more granular table onto a less granular table."""
+    out_expected = pd.DataFrame(
+        {
+            "report_date": [
+                "2020-01-01",
+                "2020-01-01",
+                "2019-01-01",
+                "2018-01-01",
+                "2020-01-01",
+            ],
+            "plant_id_eia": [1, 2, 2, 2, 3],
+            "plant_name_eia": [
+                "Sand Point",
+                "Bankhead",
+                "Bankhead Dam",
+                "Bankhead Dam",
+                "Barry",
+            ],
+            "utility_id_eia": [63560, 195, 195, 195, 16],
+            "prime_mover_code": [None, "ST", "HY", None, None],
+            "fuel_consumed_units": [None, 98085.0, 0.0, None, None],
+        }
+    ).astype({"report_date": "datetime64[ns]"})
+
+    out = date_merge(
+        ANNUAL_PLANTS_UTIL[:5].copy(),
+        MONTHLY_GEN_FUEL.copy(),
+        on=["plant_id_eia"],
+        date_on=["year"],
+        how="left",
+        report_at_start=False,
+    )
+
+    assert_frame_equal(out, out_expected)
+
+
+def test_timeseries_fillin(test_dir):
+    """Test filling in tables to a full timeseries."""
+    input_df = pd.DataFrame(
+        {
+            "report_date": [
+                "2019-02-01",
+                "2020-01-01",
+                "2020-02-01",
+                "2019-03-01",
+                "2019-10-01",
+                "2020-02-01",
+            ],
+            "plant_id_eia": [1, 1, 1, 1, 2, 2],
+            "generator_id": [1, 2, 1, 1, 3, 3],
+            "data": [2, 1, 2, 3, 10, 2],
+        }
+    ).astype({"report_date": "datetime64[ns]"})
+
+    expected_out_path = (
+        test_dir / "data/date_merge_unit_test/timeseries_fillin_expected_out.csv"
+    )
+    expected_out = pd.read_csv(expected_out_path).astype(
+        {"report_date": "datetime64[ns]", "data": "float64"}
+    )
+
+    out = expand_timeseries(
+        input_df, fill_through_freq="year", key_cols=["plant_id_eia", "generator_id"]
+    )
+    assert_frame_equal(expected_out, out)
+
+
+def test_timeseries_fillin_through_month(test_dir):
+    """Test filling in full timeseries through the end of last reported month."""
+    input_df = pd.DataFrame(
+        {
+            "report_date": [
+                "2019-12-30",
+                "2020-01-02",
+                "2020-01-25",
+                "2020-02-27",
+                "2020-03-01",
+            ],
+            "plant_id_eia": [1, 1, 1, 2, 2],
+            "generator_id": [1, 1, 2, 1, 1],
+            "data": [1, 2, 1, 3, 4],
+        }
+    )
+
+    expected_out_path = (
+        test_dir
+        / "data/date_merge_unit_test/timeseries_fillin_through_month_expected_out.csv"
+    )
+    expected_out = pd.read_csv(expected_out_path).astype(
+        {"report_date": "datetime64[ns]", "data": "float64"}
+    )
+    out = expand_timeseries(
+        input_df,
+        freq="D",
+        fill_through_freq="month",
+        key_cols=["plant_id_eia", "generator_id"],
+    )
+    assert_frame_equal(expected_out, out)
 
 
 def test_convert_to_date():
@@ -77,7 +490,7 @@ def test_fix_eia_na():
     assert_frame_equal(out_df, expected_df)
 
 
-def test_fix_leading_zero_gen_ids():
+def test_remove_leading_zeros_from_numeric_strings():
     """Test removal of leading zeroes from EIA generator IDs."""
     in_df = pd.DataFrame(
         {
@@ -103,7 +516,9 @@ def test_fix_leading_zero_gen_ids():
             ]
         }
     )
-    out_df = fix_leading_zero_gen_ids(in_df)
+    out_df = remove_leading_zeros_from_numeric_strings(
+        in_df.astype(str), "generator_id"
+    )
     assert_frame_equal(out_df, expected_df)
 
 

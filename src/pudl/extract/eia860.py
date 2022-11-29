@@ -4,15 +4,14 @@ This modules pulls data from EIA's published Excel spreadsheets.
 
 This code is for use analyzing EIA Form 860 data.
 """
-import logging
-
 import pandas as pd
 
+import pudl.logging_helpers
 from pudl.extract import excel
-from pudl.helpers import fix_leading_zero_gen_ids
+from pudl.helpers import remove_leading_zeros_from_numeric_strings
 from pudl.settings import Eia860Settings
 
-logger = logging.getLogger(__name__)
+logger = pudl.logging_helpers.get_logger(__name__)
 
 
 class Extractor(excel.GenericExtractor):
@@ -35,19 +34,17 @@ class Extractor(excel.GenericExtractor):
         * Add report_year if it is missing
         * Add a flag indicating if record came from EIA 860, or EIA 860M
         * Fix any generator_id values with leading zeroes.
-
         """
         df = df.rename(columns=self._metadata.get_column_map(page, **partition))
         if "report_year" not in df.columns:
             df["report_year"] = list(partition.values())[0]
         self.cols_added = ["report_year"]
-        # if this is one of the EIA860M pages, add data_source
-        meta_eia860m = excel.Metadata("eia860m")
-        pages_eia860m = meta_eia860m.get_all_pages()
-        if page in pages_eia860m:
-            df = df.assign(data_source="eia860")
-            self.cols_added.append("data_source")
-        df = fix_leading_zero_gen_ids(df)
+        # Eventually we should probably make this a transform
+        if "generator_id" in df.columns:
+            df = remove_leading_zeros_from_numeric_strings(
+                df=df, col_name="generator_id"
+            )
+        df = self.add_data_maturity(df, page, **partition)
         return df
 
     def extract(self, settings: Eia860Settings = Eia860Settings()):

@@ -1,15 +1,36 @@
 """Implementations of datastore resource caches."""
 
-import logging
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Any, List, NamedTuple
+from typing import Any, NamedTuple
 from urllib.parse import urlparse
 
+import google.auth
+from google.api_core.exceptions import BadRequest
+from google.api_core.retry import Retry
 from google.cloud import storage
 from google.cloud.storage.blob import Blob
+from google.cloud.storage.retry import _should_retry
 
-logger = logging.getLogger(__name__)
+import pudl.logging_helpers
+
+logger = pudl.logging_helpers.get_logger(__name__)
+
+
+def extend_gcp_retry_predicate(predicate, *exception_types):
+    """Extend a GCS predicate function with additional exception_types."""
+
+    def new_predicate(erc):
+        """Predicate for checking an exception type."""
+        return predicate(erc) or isinstance(erc, exception_types)
+
+    return new_predicate
+
+
+# Add BadRequest to default predicate _should_retry.
+# GCS get requests occasionally fail because of BadRequest errors.
+# See issue #1734.
+gcs_retry = Retry(predicate=extend_gcp_retry_predicate(_should_retry, BadRequest))
 
 
 class PudlResourceKey(NamedTuple):
@@ -112,7 +133,12 @@ class GoogleCloudStorageCache(AbstractCache):
         if parsed_url.scheme != "gs":
             raise ValueError(f"gsc_path should start with gs:// (found: {gcs_path})")
         self._path_prefix = Path(parsed_url.path)
-        self._bucket = storage.Client().bucket(parsed_url.netloc)
+        # Get GCP credentials and billing project id
+        # A billing project is now required because zenodo-cache is requester pays.
+        credentials, project_id = google.auth.default()
+        self._bucket = storage.Client(credentials=credentials).bucket(
+            parsed_url.netloc, user_project=project_id
+        )
 
     def _blob(self, resource: PudlResourceKey) -> Blob:
         """Retrieve Blob object associated with given resource."""
@@ -121,7 +147,7 @@ class GoogleCloudStorageCache(AbstractCache):
 
     def get(self, resource: PudlResourceKey) -> bytes:
         """Retrieves value associated with given resource."""
-        return self._blob(resource).download_as_bytes()
+        return self._blob(resource).download_as_bytes(retry=gcs_retry)
 
     def add(self, resource: PudlResourceKey, value: bytes):
         """Adds (or updates) resource to the cache with given value."""
@@ -133,7 +159,7 @@ class GoogleCloudStorageCache(AbstractCache):
 
     def contains(self, resource: PudlResourceKey) -> bool:
         """Returns True if resource is present in the cache."""
-        return self._blob(resource).exists()
+        return self._blob(resource).exists(retry=gcs_retry)
 
 
 class LayeredCache(AbstractCache):
@@ -147,7 +173,7 @@ class LayeredCache(AbstractCache):
     layers are read-only (get).
     """
 
-    def __init__(self, *caches: List[AbstractCache], **kwargs: Any):
+    def __init__(self, *caches: list[AbstractCache], **kwargs: Any):
         """Creates layered cache consisting of given cache layers.
 
         Args:
@@ -155,10 +181,13 @@ class LayeredCache(AbstractCache):
               of decreasing priority.
         """
         super().__init__(**kwargs)
-        self._caches: List[AbstractCache] = list(caches)
+        self._caches: list[AbstractCache] = list(caches)
 
     def add_cache_layer(self, cache: AbstractCache):
-        """Adds caching layer. The priority is below all other."""
+        """Adds caching layer.
+
+        The priority is below all other.
+        """
         self._caches.append(cache)
 
     def num_layers(self):
@@ -185,6 +214,9 @@ class LayeredCache(AbstractCache):
             if cache_layer.is_read_only():
                 continue
             cache_layer.add(resource, value)
+            logger.debug(
+                f"Add {resource} to cache layer {cache_layer.__class__.__name__})"
+            )
             break
 
     def delete(self, resource: PudlResourceKey):
@@ -209,8 +241,11 @@ class LayeredCache(AbstractCache):
         logger.debug(f"contains: {resource} not found in layered cache.")
 
     def is_optimally_cached(self, resource: PudlResourceKey) -> bool:
-        """Returns true if the resource is contained in the closest write-enabled layer."""
+        """Return True if resource is contained in the closest write-enabled layer."""
         for cache_layer in self._caches:
             if cache_layer.is_read_only():
                 continue
+            logger.debug(
+                f"{resource} optimally cached in {cache_layer.__class__.__name__}"
+            )
             return cache_layer.contains(resource)

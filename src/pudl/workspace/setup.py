@@ -1,12 +1,13 @@
 """Tools for setting up and managing PUDL workspaces."""
 import importlib
-import logging
 import pathlib
 import shutil
 
 import yaml
 
-logger = logging.getLogger(__name__)
+import pudl.logging_helpers
+
+logger = pudl.logging_helpers.get_logger(__name__)
 
 
 def set_defaults(pudl_in, pudl_out, clobber=False):
@@ -28,7 +29,6 @@ def set_defaults(pudl_in, pudl_out, clobber=False):
 
     Returns:
         None
-
     """
     settings_file = pathlib.Path.home() / ".pudl.yml"
     if settings_file.exists():
@@ -53,7 +53,6 @@ def get_defaults():
         dict: The contents of the user's PUDL settings file, with keys
         ``pudl_in`` and ``pudl_out`` defining their default PUDL workspace. If
         the ``$HOME/.pudl.yml`` file does not exist, set these paths to None.
-
     """
     settings_file = pathlib.Path.home() / ".pudl.yml"
 
@@ -93,7 +92,6 @@ def derive_paths(pudl_in, pudl_out):
     Returns:
         dict: A dictionary containing common PUDL settings, derived from those
             read out of the YAML file. Mostly paths for inputs & outputs.
-
     """
     pudl_settings = {}
 
@@ -116,6 +114,51 @@ def derive_paths(pudl_in, pudl_out):
 
     ferc1_db_file = pathlib.Path(pudl_settings["sqlite_dir"], "ferc1.sqlite")
     pudl_settings["ferc1_db"] = "sqlite:///" + str(ferc1_db_file.resolve())
+
+    ferc1_db_file = pathlib.Path(pudl_settings["sqlite_dir"], "ferc1_xbrl.sqlite")
+    pudl_settings["ferc1_xbrl_db"] = "sqlite:///" + str(ferc1_db_file.resolve())
+    pudl_settings["ferc1_xbrl_datapackage"] = pathlib.Path(
+        pudl_settings["sqlite_dir"], "ferc1_xbrl_datapackage.json"
+    )
+    pudl_settings["ferc1_xbrl_taxonomy_metadata"] = pathlib.Path(
+        pudl_settings["sqlite_dir"], "ferc1_xbrl_taxonomy_metadata.json"
+    )
+
+    ferc2_db_file = pathlib.Path(pudl_settings["sqlite_dir"], "ferc2_xbrl.sqlite")
+    pudl_settings["ferc2_xbrl_db"] = "sqlite:///" + str(ferc2_db_file.resolve())
+    pudl_settings["ferc2_xbrl_datapackage"] = pathlib.Path(
+        pudl_settings["sqlite_dir"], "ferc2_xbrl_datapackage.json"
+    )
+    pudl_settings["ferc2_xbrl_taxonomy_metadata"] = pathlib.Path(
+        pudl_settings["sqlite_dir"], "ferc2_xbrl_taxonomy_metadata.json"
+    )
+
+    ferc6_db_file = pathlib.Path(pudl_settings["sqlite_dir"], "ferc6_xbrl.sqlite")
+    pudl_settings["ferc6_xbrl_db"] = "sqlite:///" + str(ferc6_db_file.resolve())
+    pudl_settings["ferc6_xbrl_datapackage"] = pathlib.Path(
+        pudl_settings["sqlite_dir"], "ferc6_xbrl_datapackage.json"
+    )
+    pudl_settings["ferc6_xbrl_taxonomy_metadata"] = pathlib.Path(
+        pudl_settings["sqlite_dir"], "ferc6_xbrl_taxonomy_metadata.json"
+    )
+
+    ferc60_db_file = pathlib.Path(pudl_settings["sqlite_dir"], "ferc60_xbrl.sqlite")
+    pudl_settings["ferc60_xbrl_db"] = "sqlite:///" + str(ferc60_db_file.resolve())
+    pudl_settings["ferc60_xbrl_datapackage"] = pathlib.Path(
+        pudl_settings["sqlite_dir"], "ferc60_xbrl_datapackage.json"
+    )
+    pudl_settings["ferc60_xbrl_taxonomy_metadata"] = pathlib.Path(
+        pudl_settings["sqlite_dir"], "ferc60_xbrl_taxonomy_metadata.json"
+    )
+
+    ferc714_db_file = pathlib.Path(pudl_settings["sqlite_dir"], "ferc714_xbrl.sqlite")
+    pudl_settings["ferc714_xbrl_db"] = "sqlite:///" + str(ferc714_db_file.resolve())
+    pudl_settings["ferc714_xbrl_datapackage"] = pathlib.Path(
+        pudl_settings["sqlite_dir"], "ferc714_xbrl_datapackage.json"
+    )
+    pudl_settings["ferc714_xbrl_taxonomy_metadata"] = pathlib.Path(
+        pudl_settings["sqlite_dir"], "ferc714_xbrl_taxonomy_metadata.json"
+    )
 
     pudl_settings["pudl_db"] = "sqlite:///" + str(
         pathlib.Path(pudl_settings["sqlite_dir"], "pudl.sqlite")
@@ -144,7 +187,6 @@ def init(pudl_in, pudl_out, clobber=False):
 
     Returns:
         None
-
     """
     # Generate paths for the workspace:
     pudl_settings = derive_paths(pudl_in, pudl_out)
@@ -185,7 +227,6 @@ def deploy(pkg_path, deploy_dir, ignore_files, clobber=False):
 
     Returns:
         None
-
     """
     files = [
         file

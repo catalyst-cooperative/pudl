@@ -11,18 +11,17 @@ eia860m_raw_dfs = pudl.extract.eia860m.Extractor(ds).extract(
     Eia860Settings.eia860m_date)
 eia860_raw_dfs = pudl.extract.eia860m.append_eia860m(
     eia860_raw_dfs=eia860_raw_dfs, eia860m_raw_dfs=eia860m_raw_dfs)
-
 """
-import logging
 from datetime import datetime
 
 import pandas as pd
 
+import pudl.logging_helpers
 from pudl.extract import excel
-from pudl.helpers import fix_leading_zero_gen_ids
+from pudl.helpers import remove_leading_zeros_from_numeric_strings
 from pudl.settings import Eia860Settings
 
-logger = logging.getLogger(__name__)
+logger = pudl.logging_helpers.get_logger(__name__)
 
 
 class Extractor(excel.GenericExtractor):
@@ -45,9 +44,13 @@ class Extractor(excel.GenericExtractor):
             df["report_year"] = datetime.strptime(
                 list(partition.values())[0], "%Y-%m"
             ).year
-        df = df.assign(data_source="eia860m")
-        self.cols_added = ["data_source", "report_year"]
-        df = fix_leading_zero_gen_ids(df)
+        df = self.add_data_maturity(df, page, **partition)
+        self.cols_added.append("report_year")
+        # Eventually we should probably make this a transform
+        if "generator_id" in df.columns:
+            df = remove_leading_zeros_from_numeric_strings(
+                df=df, col_name="generator_id"
+            )
         return df
 
     def extract(self, settings: Eia860Settings = Eia860Settings()):
@@ -86,7 +89,6 @@ def append_eia860m(eia860_raw_dfs, eia860m_raw_dfs):
         dictionary: augumented eia860_raw_dfs dictionary of pandas.DataFrame's.
         Each raw page stored in eia860m_raw_dfs appened to its eia860_raw_dfs
         counterpart.
-
     """
     meta_eia860m = excel.Metadata("eia860m")
     pages_eia860m = meta_eia860m.get_all_pages()

@@ -5,15 +5,14 @@ This modules pulls data from EIA's published Excel spreadsheets.
 This code is for use analyzing EIA Form 923 data. Currenly only
 years 2009-2016 work, as they share nearly identical file formatting.
 """
-import logging
-
 import pandas as pd
 
+import pudl.logging_helpers
 from pudl.extract import excel
-from pudl.helpers import fix_leading_zero_gen_ids
+from pudl.helpers import remove_leading_zeros_from_numeric_strings
 from pudl.settings import Eia923Settings
 
-logger = logging.getLogger(__name__)
+logger = pudl.logging_helpers.get_logger(__name__)
 
 
 class Extractor(excel.GenericExtractor):
@@ -41,7 +40,20 @@ class Extractor(excel.GenericExtractor):
         df.drop(to_drop, axis=1, inplace=True)
         df = df.rename(columns=self._metadata.get_column_map(page, **partition))
         self.cols_added = []
-        df = fix_leading_zero_gen_ids(df)
+        # Eventually we should probably make this a transform
+        if "generator_id" in df.columns:
+            df = remove_leading_zeros_from_numeric_strings(
+                df=df, col_name="generator_id"
+            )
+        # the 2021 early release data had some ding dang "."'s and nulls in the year column
+        if "report_year" in df.columns:
+            mask = (df.report_year == ".") | df.report_year.isnull()
+            logger.debug(
+                f"{page}: replacing {len(df[mask])} nulls/bad values in `report_year` "
+                f"column with {partition['year']}"
+            )
+            df.loc[mask, "report_year"] = partition["year"]
+        df = self.add_data_maturity(df, page, **partition)
         return df
 
     def extract(self, settings: Eia923Settings = Eia923Settings()):

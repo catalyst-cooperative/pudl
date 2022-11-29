@@ -1,0 +1,67 @@
+{% extends "data_source_parent.rst.jinja" %}
+{% block database_text %}
+This block describes how the processed data is segmented into tables in the PUDL database and
+how more information about the table and fields can be accessed.
+{% endblock %}
+
+{% block browse_online scoped %}- this block can modify how the tables in the data source can be accessed online{% endblock %}
+
+{% block extra_table_text %}
+This block describes if there are any extra tables created in PUDL that are derived from the existing tables in the data source.
+{% endblock %}
+
+{% block browse_extra_online scoped %}
+     - this block can modify how the extra tables in the data source can be accessed online
+{% endblock %}
+
+{% block background %}
+This block provides a description of the data source - who is involved in creating the data
+in the data source, what data the source contains, and the time period the data spans.
+If the form is organized into schedules or other formats, then that system is
+described here.
+{% endblock %}
+
+{% block downloadable_pdfs %}
+This block iterates through any downloadable PDFs for the data source that might provide extra context.
+These might be a diagram of the database or a blank form for the data source for a certain time frame.
+{% endblock %}
+
+{% block accessible_title %}
+How much of the data is accessible through PUDL?
+------------------------------------------------
+{% endblock %}
+{% block accessible %}In these next sections the title of each question can be modified
+to make sense for each data source. These questions (or a similar question) should be answered
+or each data source.{% endblock %}
+
+{% block fill_out_form_title %}
+Who is required to fill out the form?
+-------------------------------------
+{% endblock %}
+{% block fill_out_form %}{% endblock %}
+
+{% block original_data_title %}
+What does the original data look like?
+--------------------------------------
+{% endblock %}
+{% block original_data %}{% endblock %}
+
+{% block notable_irregularities %}
+This block discusses any irregularities about the dataset that could be helpful for a user to know about.
+{% endblock %}
+
+
+{% for filename in download_paths %}
+    * :download:`{{ filename.split("/")[-1].replace("_", " ")[:-4].title() }} (PDF) <{{ filename }}>`
+{% endfor %}
+
+As of 2019, the EIA-860 Form is organized into the following schedules:
+
+    * **Schedule 1:** Identification
+    * **Schedule 2:** Power plant data
+    * **Schedule 3:** Generator information
+    * **Schedule 4:** Ownership of generators
+    * **Schedule 6:** Boiler information
+
+(Schedule 5 contained generator construction cost information)
+{% endblock %}

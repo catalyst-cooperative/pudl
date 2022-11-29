@@ -3,18 +3,17 @@
 This modules pulls data from EIA's published Excel spreadsheets.
 
 This code is for use analyzing EIA Form 861 data.
-
 """
-import logging
 import warnings
 
 import pandas as pd
 
+import pudl.logging_helpers
 from pudl.extract import excel
-from pudl.helpers import fix_leading_zero_gen_ids
+from pudl.helpers import remove_leading_zeros_from_numeric_strings
 from pudl.settings import Eia861Settings
 
-logger = logging.getLogger(__name__)
+logger = pudl.logging_helpers.get_logger(__name__)
 
 
 class Extractor(excel.GenericExtractor):
@@ -29,13 +28,13 @@ class Extractor(excel.GenericExtractor):
         self.METADATA = excel.Metadata("eia861")
         self.cols_added = []
         super().__init__(*args, **kwargs)
-
-    def process_raw(self, df, page, **partition):
-        """Rename columns with location."""
         warnings.warn(
             "Integration of EIA 861 into PUDL is still experimental and incomplete.\n"
             "The data has not yet been validated, and the structure may change."
         )
+
+    def process_raw(self, df, page, **partition):
+        """Rename columns with location."""
         column_map_numeric = self._metadata.get_column_map(page, **partition)
         df = df.rename(
             columns=dict(
@@ -46,7 +45,12 @@ class Extractor(excel.GenericExtractor):
             )
         )
         self.cols_added = []
-        df = fix_leading_zero_gen_ids(df)
+        # Eventually we should probably make this a transform
+        if "generator_id" in df.columns:
+            df = remove_leading_zeros_from_numeric_strings(
+                df=df, col_name="generator_id"
+            )
+        df = self.add_data_maturity(df, page, **partition)
         return df
 
     def extract(self, settings: Eia861Settings = Eia861Settings()):

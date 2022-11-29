@@ -8,16 +8,16 @@ What defines a data validation?
     * Itself (helps validate that the tests themselves are working)
     * A processed version of itself (aggregation or derived values)
     * A hard-coded external standard (e.g. heat rates, fuel heat content)
-
 """
-import logging
 import warnings
 
 import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
 
-logger = logging.getLogger(__name__)
+import pudl.logging_helpers
+
+logger = pudl.logging_helpers.get_logger(__name__)
 
 
 def intersect_indexes(indexes):
@@ -29,7 +29,6 @@ def intersect_indexes(indexes):
     Returns:
         pandas.Index: The intersection of all values found in the input
         indexes.
-
     """
     shared_idx = indexes[0]
     for idx in indexes:
@@ -77,7 +76,6 @@ def check_date_freq(df1, df2, mult):
             ``report_date`` values in ``df1``.
         ValueError: if either ``df1`` or ``df2`` does not have a
             column named ``report_date``
-
     """
     if ("report_date" not in df1.columns) or ("report_date" not in df2.columns):
         raise ValueError("Missing report_date column in one or both input DataFrames")
@@ -116,7 +114,6 @@ def no_null_rows(df, cols="all", df_name="", thresh=0.9):
     Raises:
         ValueError: If the fraction of NA values in any row is greater than
         ``thresh``.
-
     """
     if cols == "all":
         cols = df.columns
@@ -147,7 +144,6 @@ def no_null_cols(df, cols="all", df_name=""):
 
     Raises:
         ValueError: If any completely NaN / Null valued columns are found.
-
     """
     if cols == "all":
         cols = df.columns
@@ -208,7 +204,6 @@ def check_unique_rows(df, subset=None, df_name=""):
     Raises:
         ValueError:  If there are duplicate records in the subset of selected
             columns.
-
     """
     n_dupes = len(df[df.duplicated(subset=subset)])
     if n_dupes != 0:
@@ -238,7 +233,6 @@ def weighted_quantile(data, weights, quantile):
     Returns:
         float: the value in the weighted data corresponding to the given
         quantile. If there are no values in the data, return :mod:`numpy.na`.
-
     """
     if (quantile < 0) or (quantile > 1):
         raise ValueError("quantile must have a value between 0 and 1.")
@@ -279,7 +273,6 @@ def historical_distribution(df, data_col, weight_col, quantile):
     Returns:
         list: The weighted quantiles of data, for each of the years found in
         the historical data of df.
-
     """
     if "report_year" not in df.columns:
         df["report_year"] = pd.to_datetime(df.report_date).dt.year
@@ -362,10 +355,9 @@ def vs_self(
 ):
     """Test a distribution against its own historical range.
 
-    This is a special case of the :func:`pudl.validate.vs_historical` function,
-    in which both the ``orig_df`` and ``test_df`` are the same. Mostly it
-    helps ensure that the test itself is valid for the given distribution.
-
+    This is a special case of the :func:`pudl.validate.vs_historical` function, in which
+    both the ``orig_df`` and ``test_df`` are the same. Mostly it helps ensure that the
+    test itself is valid for the given distribution.
     """
     if weight_col is None or weight_col == "":
         df["ones"] = 1.0
@@ -835,7 +827,7 @@ plants_steam_ferc1_capacity_ratios = [
         "title": "Capability Ratio (tails)",
         "query": "",
         "low_q": 0.05,
-        "low_bound": 0.64,
+        "low_bound": 0.5,
         "hi_q": 0.95,
         "hi_bound": 1.18,
         "data_col": "capability_ratio",
@@ -1229,7 +1221,7 @@ fbp_ferc1_oil_cost_per_mmbtu_bounds = [
         "title": "Oil cost per MMBTU (Tails)",
         "query": "",
         "low_q": 0.1,
-        "low_bound": 4.0,
+        "low_bound": 3.5,
         "hi_q": 0.90,
         "hi_bound": 25.0,
         "data_col": "oil_cost_per_mmbtu",
@@ -1239,7 +1231,7 @@ fbp_ferc1_oil_cost_per_mmbtu_bounds = [
         "title": "Oil Cost per MMBTU (Median)",
         "query": "",
         "low_q": 0.5,
-        "low_bound": 7.0,
+        "low_bound": 6.5,
         "hi_q": 0.5,
         "hi_bound": 17.0,
         "data_col": "oil_cost_per_mmbtu",

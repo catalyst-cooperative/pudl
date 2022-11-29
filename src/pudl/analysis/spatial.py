@@ -1,7 +1,8 @@
 """Spatial operations for demand allocation."""
 import itertools
 import warnings
-from typing import Callable, Iterable, Literal, Union
+from collections.abc import Callable, Iterable
+from typing import Literal
 
 import geopandas as gpd
 import pandas as pd
@@ -24,7 +25,6 @@ def check_gdf(gdf: gpd.GeoDataFrame) -> None:
         ValueError: Geometry contains non-(Multi)Polygon geometries.
         ValueError: Geometry contains (Multi)Polygon geometries with zero area.
         ValueError: MultiPolygon contains Polygon geometries with zero area.
-
     """
     if not isinstance(gdf, gpd.GeoDataFrame):
         raise TypeError("Object is not a GeoDataFrame")
@@ -48,7 +48,7 @@ def check_gdf(gdf: gpd.GeoDataFrame) -> None:
                 )
 
 
-def polygonize(geom: BaseGeometry) -> Union[Polygon, MultiPolygon]:
+def polygonize(geom: BaseGeometry) -> Polygon | MultiPolygon:
     """Convert geometry to (Multi)Polygon.
 
     Args:
@@ -59,7 +59,6 @@ def polygonize(geom: BaseGeometry) -> Union[Polygon, MultiPolygon]:
 
     Raises:
         ValueError: Geometry has zero area.
-
     """
     polys = []
     # Explode geometries to polygons
@@ -98,7 +97,6 @@ def explode(gdf: gpd.GeoDataFrame, ratios: Iterable[str] = None) -> gpd.GeoDataF
     Returns:
         GeoDataFrame with each Polygon as a separate row in the GeoDataFrame.
         The index is the number of the source row in the input GeoDataFrame.
-
     """
     check_gdf(gdf)
     gdf = gdf.reset_index(drop=True)
@@ -132,7 +130,6 @@ def self_union(gdf: gpd.GeoDataFrame, ratios: Iterable[str] = None) -> gpd.GeoDa
 
     Raises:
         NotImplementedError: MultiPolygon geometries are not yet supported.
-
     """
     check_gdf(gdf)
     gdf = gdf.reset_index(drop=True)
@@ -173,10 +170,10 @@ def self_union(gdf: gpd.GeoDataFrame, ratios: Iterable[str] = None) -> gpd.GeoDa
 def dissolve(
     gdf: gpd.GeoDataFrame,
     by: Iterable[str],
-    func: Union[Callable, str, list, dict],
-    how: Union[
-        Literal["union", "first"], Callable[[gpd.GeoSeries], BaseGeometry]
-    ] = "union",
+    func: Callable | str | list | dict,
+    how: (
+        Literal["union", "first"] | Callable[[gpd.GeoSeries], BaseGeometry]
+    ) = "union",
 ) -> gpd.GeoDataFrame:
     """Dissolve layer by aggregating features based on common attributes.
 
@@ -192,7 +189,6 @@ def dissolve(
     Returns:
         GeoDataFrame with dissolved geometry and data columns,
         and grouping columns set as the index.
-
     """
     check_gdf(gdf)
     merges = {"union": lambda x: x.unary_union, "first": lambda x: x.iloc[0]}
@@ -238,7 +234,6 @@ def overlay(
 
     Returns:
         GeoDataFrame with the geometries and attributes resulting from the overlay.
-
     """
     for gdf in gdfs:
         check_gdf(gdf)
@@ -246,9 +241,9 @@ def overlay(
         ratios = []
     # Check for duplicate non-geometry column names
     seen = set()
-    duplicates = set(
+    duplicates = {
         c for df in gdfs for c in get_data_columns(df) if c in seen or seen.add(c)
-    )
+    }
     if duplicates:
         raise ValueError(f"Duplicate column names in layers: {duplicates}")
     # Drop index columns and replace with default index of known name

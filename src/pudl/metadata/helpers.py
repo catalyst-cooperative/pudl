@@ -1,6 +1,7 @@
 """Functions for manipulating metadata constants."""
 from collections import defaultdict
-from typing import Any, Callable, Dict, Iterable, List, Optional, Tuple, Union
+from collections.abc import Callable, Iterable
+from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -44,7 +45,7 @@ def format_errors(*errors: str, title: str = None, pydantic: bool = False) -> st
 # --- Foreign keys --- #
 
 
-def _parse_field_names(fields: List[Union[str, dict]]) -> List[str]:
+def _parse_field_names(fields: list[str | dict]) -> list[str]:
     """Parse field names.
 
     Args:
@@ -56,7 +57,7 @@ def _parse_field_names(fields: List[Union[str, dict]]) -> List[str]:
     return [field if isinstance(field, str) else field["name"] for field in fields]
 
 
-def _parse_foreign_key_rule(rule: dict, name: str, key: List[str]) -> List[dict]:
+def _parse_foreign_key_rule(rule: dict, name: str, key: list[str]) -> list[dict]:
     """Parse foreign key rule from resource descriptor.
 
     Args:
@@ -86,8 +87,8 @@ def _parse_foreign_key_rule(rule: dict, name: str, key: List[str]) -> List[dict]
 
 
 def _build_foreign_key_tree(
-    resources: Dict[str, dict]
-) -> Dict[str, Dict[Tuple[str, ...], dict]]:
+    resources: dict[str, dict]
+) -> dict[str, dict[tuple[str, ...], dict]]:
     """Build foreign key tree.
 
     Args:
@@ -125,8 +126,8 @@ def _build_foreign_key_tree(
 
 
 def _traverse_foreign_key_tree(
-    tree: Dict[str, Dict[Tuple[str, ...], dict]], name: str, fields: Tuple[str, ...]
-) -> List[Dict[str, Any]]:
+    tree: dict[str, dict[tuple[str, ...], dict]], name: str, fields: tuple[str, ...]
+) -> list[dict[str, Any]]:
     """Traverse foreign key tree.
 
     Args:
@@ -159,17 +160,17 @@ def _traverse_foreign_key_tree(
 
 
 def build_foreign_keys(
-    resources: Dict[str, dict],
+    resources: dict[str, dict],
     prune: bool = True,
-) -> Dict[str, List[dict]]:
+) -> dict[str, list[dict]]:
     """Build foreign keys for each resource.
 
     A resource's `foreign_key_rules` (if present) determines which other resources will
     be assigned a foreign key (`foreign_keys`) to the reference's primary key:
 
-    * `fields` (List[List[str]]): Sets of field names for which to create a foreign key.
+    * `fields` (list[list[str]]): Sets of field names for which to create a foreign key.
       These are assumed to match the order of the reference's primary key fields.
-    * `exclude` (Optional[List[str]]): Names of resources to exclude.
+    * `exclude` (Optional[list[str]]): Names of resources to exclude.
 
     Args:
         resources: Resource descriptors by name.
@@ -178,9 +179,9 @@ def build_foreign_keys(
     Returns:
         Foreign keys for each resource (if any), by resource name.
 
-        * `fields` (List[str]): Field names.
+        * `fields` (list[str]): Field names.
         * `reference['resource']` (str): Reference resource name.
-        * `reference['fields']` (List[str]): Reference resource field names.
+        * `reference['fields']` (list[str]): Reference resource field names.
 
     Examples:
         >>> resources = {
@@ -228,7 +229,7 @@ def build_foreign_keys(
 # --- Harvest --- #
 
 
-def split_period(name: str) -> Tuple[str, Optional[str]]:
+def split_period(name: str) -> tuple[str, str | None]:
     """Split the time period from a column name.
 
     Args:
@@ -251,7 +252,7 @@ def split_period(name: str) -> Tuple[str, Optional[str]]:
     return parts[0], parts[1]
 
 
-def expand_periodic_column_names(names: Iterable[str]) -> List[str]:
+def expand_periodic_column_names(names: Iterable[str]) -> list[str]:
     """Add smaller periods to a list of column names.
 
     Args:
@@ -301,10 +302,13 @@ def most_frequent(x: pd.Series) -> Any:
 
 
 def most_and_more_frequent(x: pd.Series, min_frequency: float = None) -> Any:
-    """Return most frequent value if more frequent than minimum (or error if none exists).
+    """Return the most frequent value if more frequent than ``min_frequency``.
 
-    The minimum frequency ignores null values, so for example,
-    `1` in `[1, 1, 1, nan]` has a frequency of 1.
+    The minimum frequency ignores null values, so for example, `1` in `[1, 1, 1, nan]`
+    has a frequency of 1.
+
+    Raises:
+        AggregationError: if no value is more frequent than ``min_frequency``.
     """
     x = x.dropna()
     mode = x.mode()
@@ -330,7 +334,7 @@ def unique(x: pd.Series) -> Any:
     raise AggregationError("Not unique.")
 
 
-def as_dict(x: pd.Series) -> Dict[Any, list]:
+def as_dict(x: pd.Series) -> dict[Any, list]:
     """Return dictionary of values, listed by index."""
     result = {}
     x = x.dropna()
@@ -342,7 +346,7 @@ def as_dict(x: pd.Series) -> Dict[Any, list]:
 def try_aggfunc(  # noqa: C901
     func: Callable,
     raised: bool = True,
-    error: Union[str, Callable] = None,
+    error: str | Callable = None,
 ) -> Callable:
     """Wrap aggregate function in a try-except for error handling.
 
@@ -414,10 +418,10 @@ def try_aggfunc(  # noqa: C901
 def groupby_apply(  # noqa: C901
     df: pd.DataFrame,
     by: Iterable,
-    aggfuncs: Dict[Any, Callable],
+    aggfuncs: dict[Any, Callable],
     raised: bool = True,
     error: Callable = None,
-) -> Tuple[pd.DataFrame, Dict[Any, pd.Series]]:
+) -> tuple[pd.DataFrame, dict[Any, pd.Series]]:
     """Aggregate dataframe and capture errors (using apply).
 
     Args:
@@ -500,10 +504,10 @@ def groupby_apply(  # noqa: C901
 def groupby_aggregate(  # noqa: C901
     df: pd.DataFrame,
     by: Iterable,
-    aggfuncs: Dict[Any, Callable],
+    aggfuncs: dict[Any, Callable],
     raised: bool = True,
     error: Callable = None,
-) -> Tuple[pd.DataFrame, Dict[Any, pd.Series]]:
+) -> tuple[pd.DataFrame, dict[Any, pd.Series]]:
     """Aggregate dataframe and capture errors (using aggregate).
 
     Although faster than :func:`groupby_apply`, it has some limitations:

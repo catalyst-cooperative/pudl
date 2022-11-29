@@ -2,7 +2,6 @@
 
 import importlib
 import pkgutil
-from typing import Dict, List
 
 from pudl.metadata.helpers import build_foreign_keys
 
@@ -14,34 +13,22 @@ for module_info in pkgutil.iter_modules(__path__):
     resources = module.RESOURCE_METADATA
     RESOURCE_METADATA.update(resources)
 
-FOREIGN_KEYS: Dict[str, List[dict]] = build_foreign_keys(RESOURCE_METADATA)
+FOREIGN_KEYS: dict[str, list[dict]] = build_foreign_keys(RESOURCE_METADATA)
 """
 Generated foreign key constraints by resource name.
 
 See :func:`pudl.metadata.helpers.build_foreign_keys`.
 """
 
-ENTITIES: Dict[str, Dict[str, List[str]]] = {
+ENTITIES: dict[str, dict[str, list[str]]] = {
     "plants": {
         "id_cols": ["plant_id_eia"],
         "static_cols": [
-            "balancing_authority_code_eia",
-            "balancing_authority_name_eia",
             "city",
             "county",
-            "ferc_cogen_status",
-            "ferc_exempt_wholesale_generator",
-            "ferc_small_power_producer",
-            "grid_voltage_2_kv",
-            "grid_voltage_3_kv",
-            "grid_voltage_kv",
-            "iso_rto_code",
             "latitude",
             "longitude",
             "plant_name_eia",
-            "primary_purpose_id_naics",
-            "sector_id_eia",
-            "sector_name_eia",
             "state",
             "street_address",
             "zip_code",
@@ -50,12 +37,21 @@ ENTITIES: Dict[str, Dict[str, List[str]]] = {
             "ash_impoundment",
             "ash_impoundment_lined",
             "ash_impoundment_status",
+            "balancing_authority_code_eia",
+            "balancing_authority_name_eia",
             "datum",
             "energy_storage",
             "ferc_cogen_docket_no",
-            "water_source",
+            "ferc_cogen_status",
             "ferc_exempt_wholesale_generator_docket_no",
+            "ferc_exempt_wholesale_generator",
             "ferc_small_power_producer_docket_no",
+            "ferc_small_power_producer",
+            "ferc_qualifying_facility_docket_no",
+            "grid_voltage_1_kv",
+            "grid_voltage_2_kv",
+            "grid_voltage_3_kv",
+            "iso_rto_code",
             "liquefied_natural_gas_storage",
             "natural_gas_local_distribution_company",
             "natural_gas_storage",
@@ -65,14 +61,20 @@ ENTITIES: Dict[str, Dict[str, List[str]]] = {
             "nerc_region",
             "net_metering",
             "pipeline_notes",
+            "primary_purpose_id_naics",
             "regulatory_status_code",
-            "respondent_frequency",
+            "reporting_frequency_code",
+            "sector_id_eia",
+            "sector_name_eia",
             "service_area",
             "transmission_distribution_owner_id",
             "transmission_distribution_owner_name",
             "transmission_distribution_owner_state",
             "utility_id_eia",
+            "water_source",
+            "data_maturity",
         ],
+        "keep_cols": ["data_maturity", "utility_id_eia"],
     },
     "generators": {
         "id_cols": ["plant_id_eia", "generator_id"],
@@ -159,8 +161,12 @@ ENTITIES: Dict[str, Dict[str, List[str]]] = {
             "winter_estimated_capability_mw",
             "retirement_date",
             "utility_id_eia",
-            "data_source",
+            "ferc_qualifying_facility",
+            "data_maturity",
+            "energy_storage_capacity_mwh",
+            "net_capacity_mwdc",
         ],
+        "keep_cols": ["utility_id_eia", "data_maturity"],
     },
     # utilities must come after plants. plant location needs to be
     # removed before the utility locations are compiled
@@ -190,7 +196,9 @@ ENTITIES: Dict[str, Dict[str, List[str]]] = {
             "phone_extension_2",
             "phone_number",
             "phone_number_2",
+            "data_maturity",
         ],
+        "keep_cols": ["data_maturity"],
     },
     "boilers": {
         "id_cols": ["plant_id_eia", "boiler_id"],

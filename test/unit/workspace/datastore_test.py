@@ -3,7 +3,6 @@
 import json
 import re
 import unittest
-from typing import Dict
 
 import responses
 
@@ -86,9 +85,9 @@ class MockableZenodoFetcher(datastore.ZenodoFetcher):
     """
 
     def __init__(
-        self, descriptors: Dict[str, datastore.DatapackageDescriptor], **kwargs
+        self, descriptors: dict[str, datastore.DatapackageDescriptor], **kwargs
     ):
-        """Constructs test-friendly ZenodoFetcher that has given descriptors pre-loaded."""
+        """Construct a test-friendly ZenodoFetcher with descriptors pre-loaded."""
         super().__init__(**kwargs)
         self._descriptor_cache = dict(descriptors)
 
@@ -120,11 +119,11 @@ class TestZenodoFetcher(unittest.TestCase):
             },
         ]
     }
-    PROD_EPACEMS_DOI = "10.5281/zenodo.4660268"
-    PROD_EPACEMS_ZEN_ID = 4660268  # This is the last numeric part of doi
+    PROD_EPACEMS_DOI = "10.5281/zenodo.6910058"
+    PROD_EPACEMS_ZEN_ID = 6910058  # This is the last numeric part of doi
 
     def setUp(self):
-        """Constructs instance of mockable zenodo fetcher based on the MOCK_EPACEMS_DATAPACKAGE."""
+        """Constructs mockable Zenodo fetcher based on MOCK_EPACEMS_DATAPACKAGE."""
         self.fetcher = MockableZenodoFetcher(
             descriptors={
                 self.PROD_EPACEMS_DOI: datastore.DatapackageDescriptor(
@@ -176,7 +175,7 @@ class TestZenodoFetcher(unittest.TestCase):
 
     @responses.activate
     def test_get_descriptor_http_calls(self):
-        """Tests that the right http requests are fired when loading datapackage.json."""
+        """Tests that correct http requests are fired when loading datapackage.json."""
         fetcher = datastore.ZenodoFetcher()
         responses.add(
             responses.GET,
@@ -207,7 +206,7 @@ class TestZenodoFetcher(unittest.TestCase):
 
     @responses.activate
     def test_get_resource(self):
-        """Tests that get_resource() calls the expected http request and gives back the content."""
+        """Test that get_resource() calls expected http request and returns content."""
         responses.add(responses.GET, "http://localhost/first", body="blah")
         res = self.fetcher.get_resource(
             PudlResourceKey("epacems", self.PROD_EPACEMS_DOI, "first")
@@ -216,7 +215,7 @@ class TestZenodoFetcher(unittest.TestCase):
 
     @responses.activate
     def test_get_resource_with_invalid_checksum(self):
-        """Retrieving resource where content does nto match the checksum will throw ChecksumMismatch."""
+        """Test that retrieving resource with bad checksum raises ChecksumMismatch."""
         responses.add(responses.GET, "http://localhost/first", body="wrongContent")
         res = PudlResourceKey("epacems", self.PROD_EPACEMS_DOI, "first")
         self.assertRaises(datastore.ChecksumMismatch, self.fetcher.get_resource, res)

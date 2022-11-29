@@ -28,24 +28,24 @@ or Linux) and are already familiar with ``git``, GitHub, and the Unix shell.
     * `Cloning a Repository <https://help.github.com/articles/cloning-a-repository/>`__
 
 ------------------------------------------------------------------------------
-Install conda
+Install mambaforge
 ------------------------------------------------------------------------------
-We use the ``conda`` package manager to specify and update our development
+We use the ``mamba`` package manager to specify and update our development
 environment, preferentially installing packages from the community maintained
 `conda-forge <https://conda-forge.org>`__ distribution channel. We recommend
-using `miniconda <https://docs.conda.io/en/latest/miniconda.html>`__ rather
-than the large pre-defined collection of scientific packages bundled together
-in the Anaconda Python distribution. You may also want to consider using
-`mamba <https://github.com/mamba-org/mamba>`__ -- a faster drop-in replacement for
-``conda`` written in C++.
+using `mambaforge <https://github.com/conda-forge/miniforge#mambaforge>`__ rather than
+it's ``conda`` equivalent
+`miniconda <https://docs.conda.io/en/latest/miniconda.html>`__ or the large pre-defined
+collection of scientific packages bundled together in the Anaconda Python distribution
+because it's faster.
 
-After a conda package manager, make sure it's configured to use
+After installing your package manager, make sure it's configured to use
 `strict channel priority <https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-channels.html#>`__
 with the following commands:
 
 .. code-block:: console
 
-    $ conda update conda
+    $ mamba update mamba
     $ conda config --set channel_priority strict
 
 ------------------------------------------------------------------------------
@@ -71,32 +71,15 @@ main repository directory by running:
 
 .. code-block:: console
 
-    $ conda update conda
-    $ conda env create --name pudl-dev --file devtools/environment.yml
-    $ conda activate pudl-dev
+    $ mamba update mamba
+    $ mamba env create --name pudl-dev --file devtools/environment.yml
+    $ mamba activate pudl-dev
 
 This environment installs the ``catalystcoop.pudl`` package directly using the code in
 your cloned repository so that it can be edited during development. It also installs all
 of the software PUDL depends on, some packages for testing and quality control, packages
 for working with interactive Jupyter Notebooks, and a few Python packages that have
 binary dependencies which can be easier to satisfy through ``conda`` packages.
-
--------------------------------------------------------------------------------
-Getting and Storing an EIA API Key
--------------------------------------------------------------------------------
-PUDL accesses Energy Information Agency (EIA) datasets via an API, which requires
-permission from the EIA. New users must `register for an API key
-<https://www.eia.gov/opendata/>`__, which is free, nearly instantaneous,
-and only requires you give an email address.
-
-To make this key accessible to pudl, store it in an environment variable and
-reactivate the environment:
-
-.. code-block:: console
-
-    $ conda activate pudl-dev
-    $ conda env config vars set API_KEY_EIA='your_api_key_here'
-    $ conda activate pudl-dev
 
 -------------------------------------------------------------------------------
 Updating the PUDL Dev Environment
@@ -123,34 +106,11 @@ repository you would do:
 
     $ git checkout new-feature
     $ git pull
-    $ conda deactivate
-    $ conda update conda
-    $ conda env remove --name pudl-dev
-    $ conda env create --name pudl-dev --file devtools/environment.yml
-    $ conda activate pudl-dev
-
-If you find yourself recreating the environment frequently, and are
-frustrated by how long it takes ``conda`` to solve the dependencies, we
-recommend using the `mamba <https://github.com/mamba-org/mamba>`__ solver.
-You'll want to install it in your ``base`` conda environment -- i.e. with no
-conda environment activated):
-
-.. code-block:: console
-
-    $ conda deactivate
-    $ conda install mamba
-
-Then the above development environment update process would become:
-
-.. code-block:: console
-
-    $ git checkout new-feature
-    $ git pull
-    $ conda deactivate
+    $ mamba deactivate
     $ mamba update mamba
     $ mamba env remove --name pudl-dev
     $ mamba env create --name pudl-dev --file devtools/environment.yml
-    $ conda activate pudl-dev
+    $ mamba activate pudl-dev
 
 If you are working with locally processed data and there have been changes to
 the expectations about that data in the PUDL software, you may also need to

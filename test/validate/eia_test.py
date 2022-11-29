@@ -1,5 +1,6 @@
 """Validate post-ETL EIA 860 data and the associated derived outputs."""
 import logging
+from test.conftest import skip_table_if_null_freq_table
 
 import pytest
 
@@ -30,6 +31,7 @@ def test_no_null_cols_eia(pudl_out_eia, live_dbs, cols, df_name):
     """Verify that output DataFrames have no entirely NULL columns."""
     if not live_dbs:
         pytest.skip("Data validation only works with a live PUDL DB.")
+    skip_table_if_null_freq_table(table_name=df_name, freq=pudl_out_eia.freq)
     pv.no_null_cols(
         pudl_out_eia.__getattribute__(df_name)(), cols=cols, df_name=df_name
     )
@@ -38,24 +40,24 @@ def test_no_null_cols_eia(pudl_out_eia, live_dbs, cols, df_name):
 @pytest.mark.parametrize(
     "df_name,raw_rows,monthly_rows,annual_rows",
     [
-        ("bf_eia923", 1_309_942, 1_309_942, 109_807),
-        ("bga_eia860", 117_930, 117_930, 117_930),
-        ("frc_eia923", 560_377, 230_063, 22_686),
-        ("gen_eia923", 559_570, 559_570, 46_718),
-        ("gens_eia860", 491_469, 491_469, 491_469),
-        ("gf_eia923", 2_507_870, 2_507_870, 214_709),
-        ("gf_nonuclear_eia923", 2_492_481, 2_492_481, 213_422),
-        ("gf_nuclear_eia923", 23_498, 23_498, 1_964),
-        ("own_eia860", 79_311, 79_311, 79_311),
-        ("plants_eia860", 171_570, 171_570, 171_570),
-        ("pu_eia860", 170_792, 170_792, 170_792),
-        ("utils_eia860", 113_464, 113_464, 113_464),
+        ("bf_eia923", 1_415_232, 1_415_232, 118_550),
+        ("bga_eia860", 129_869, 129_869, 129_869),
+        ("frc_eia923", 596_855, 244_403, 24_064),
+        ("gen_eia923", None, 5_170_743, 432_542),
+        ("gens_eia860", 523_343, 523_343, 523_343),
+        ("gf_eia923", 2_687_321, 2_687_321, 230_147),
+        ("gf_nonuclear_eia923", 2_671_268, 2_671_268, 228_804),
+        ("gf_nuclear_eia923", 24_617, 24_617, 2_058),
+        ("own_eia860", 84_440, 84_440, 84_440),
+        ("plants_eia860", 185_357, 185_357, 185_357),
+        ("pu_eia860", 184_546, 184_546, 184_546),
+        ("utils_eia860", 119_277, 119_277, 119_277),
     ],
 )
 def test_minmax_rows(
     pudl_out_eia: PudlTabl,
     live_dbs: bool,
-    raw_rows: int,
+    raw_rows: int | None,
     annual_rows: int,
     monthly_rows: int,
     df_name: str,
@@ -71,10 +73,10 @@ def test_minmax_rows(
         df_name (str): Shorthand name identifying the dataframe, corresponding
             to the name of the function used to pull it from the PudlTabl
             output object.
-
     """
     if not live_dbs:
         pytest.skip("Data validation only works with a live PUDL DB.")
+    skip_table_if_null_freq_table(table_name=df_name, freq=pudl_out_eia.freq)
     if pudl_out_eia.freq == "AS":
         expected_rows = annual_rows
     elif pudl_out_eia.freq == "MS":
@@ -140,6 +142,7 @@ def test_unique_rows_eia(pudl_out_eia, live_dbs, unique_subset, df_name):
     """Test whether dataframe has unique records within a subset of columns."""
     if not live_dbs:
         pytest.skip("Data validation only works with a live PUDL DB.")
+    skip_table_if_null_freq_table(table_name=df_name, freq=pudl_out_eia.freq)
     pv.check_unique_rows(
         pudl_out_eia.__getattribute__(df_name)(), subset=unique_subset, df_name=df_name
     )

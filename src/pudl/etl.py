@@ -12,7 +12,6 @@ data from:
    - Form 1 (ferc1)
  - US Environmental Protection Agency (EPA):
    - Continuous Emissions Monitory System (epacems)
-
 """
 import itertools
 import logging
@@ -20,7 +19,7 @@ import time
 from concurrent.futures import ProcessPoolExecutor
 from functools import partial
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any, Literal
 
 import pandas as pd
 import pyarrow as pa
@@ -29,9 +28,12 @@ import sqlalchemy as sa
 
 import pudl
 from pudl.helpers import convert_cols_dtypes
-from pudl.metadata.classes import Resource
-from pudl.metadata.codes import CODE_METADATA
-from pudl.metadata.dfs import FERC_ACCOUNTS, FERC_DEPRECIATION_LINES
+from pudl.metadata.classes import Package, Resource
+from pudl.metadata.dfs import (
+    FERC_ACCOUNTS,
+    FERC_DEPRECIATION_LINES,
+    POLITICAL_SUBDIVISIONS,
+)
 from pudl.metadata.fields import apply_pudl_dtypes
 from pudl.settings import (
     EiaSettings,
@@ -42,7 +44,7 @@ from pudl.settings import (
 )
 from pudl.workspace.datastore import Datastore
 
-logger = logging.getLogger(__name__)
+logger = pudl.logging_helpers.get_logger(__name__)
 
 
 ###############################################################################
@@ -50,32 +52,9 @@ logger = logging.getLogger(__name__)
 ###############################################################################
 
 
-def _read_static_tables_eia() -> Dict[str, pd.DataFrame]:
-    """Build dataframes of static EIA tables for use as foreign key constraints.
-
-    There are many values specified within the data that are essentially
-    constant, but which we need to store for data validation purposes, for use
-    as foreign keys.  E.g. the list of valid EIA fuel type codes, or the
-    possible state and country codes indicating a coal delivery's location of
-    origin.
-
-    """
-    return {
-        "energy_sources_eia": CODE_METADATA["energy_sources_eia"]["df"],
-        "fuel_types_aer_eia": CODE_METADATA["fuel_types_aer_eia"]["df"],
-        "prime_movers_eia": CODE_METADATA["prime_movers_eia"]["df"],
-        "sector_consolidated_eia": CODE_METADATA["sector_consolidated_eia"]["df"],
-        "fuel_transportation_modes_eia": CODE_METADATA["fuel_transportation_modes_eia"][
-            "df"
-        ],
-        "contract_types_eia": CODE_METADATA["contract_types_eia"]["df"],
-        "coalmine_types_eia": CODE_METADATA["coalmine_types_eia"]["df"],
-    }
-
-
 def _etl_eia(
-    eia_settings: EiaSettings, ds_kwargs: Dict[str, Any]
-) -> Dict[str, pd.DataFrame]:
+    eia_settings: EiaSettings, ds_kwargs: dict[str, Any]
+) -> dict[str, pd.DataFrame]:
     """Extract, transform and load CSVs for the EIA datasets.
 
     Args:
@@ -85,7 +64,6 @@ def _etl_eia(
 
     Returns:
         A dictionary of EIA dataframes ready for loading into the PUDL DB.
-
     """
     eia860_tables = eia_settings.eia860.tables
     eia860_years = eia_settings.eia860.years
@@ -100,7 +78,7 @@ def _etl_eia(
         return []
 
     # generate dataframes for the static EIA tables
-    out_dfs = _read_static_tables_eia()
+    out_dfs = _read_static_encoding_tables(etl_group="static_eia")
 
     ds = Datastore(**ds_kwargs)
     # Extract EIA forms 923, 860
@@ -118,7 +96,6 @@ def _etl_eia(
         eia860_raw_dfs = pudl.extract.eia860m.append_eia860m(
             eia860_raw_dfs=eia860_raw_dfs, eia860m_raw_dfs=eia860m_raw_dfs
         )
-
     # Transform EIA forms 923, 860
     eia860_transformed_dfs = pudl.transform.eia860.transform(
         eia860_raw_dfs, eia860_settings=eia_settings.eia860
@@ -147,9 +124,7 @@ def _etl_eia(
 
     for table in entities_dfs:
         entities_dfs[table] = (
-            pudl.metadata.classes.Package.from_resource_ids()
-            .get_resource(table)
-            .encode(entities_dfs[table])
+            Package.from_resource_ids().get_resource(table).encode(entities_dfs[table])
         )
 
     out_dfs.update(entities_dfs)
@@ -162,31 +137,31 @@ def _etl_eia(
 ###############################################################################
 
 
-def _read_static_tables_ferc1() -> Dict[str, pd.DataFrame]:
-    """Populate static PUDL tables with constants for use as foreign keys.
+def _read_static_tables_ferc1():
+    """Compile static tables for FERC1 for foriegn key constaints.
 
-    There are many values specified within the data that are essentially
-    constant, but which we need to store for data validation purposes, for use
-    as foreign keys.  E.g. the list of valid EIA fuel type codes, or the
-    possible state and country codes indicating a coal delivery's location of
-    origin. For now these values are primarily stored in a large collection of
-    lists, dictionaries, and dataframes which are specified in the
-    pudl.metadata module.  This function uses those data structures to
-    populate a bunch of small infrastructural tables within the PUDL DB.
+    This function grabs static encoded tables via :func:`_read_static_encoding_tables`
+    as well as two static tables that are non-encoded tables (``ferc_accounts`` and
+    ``ferc_depreciation_lines``).
     """
-    return {
-        "ferc_accounts": FERC_ACCOUNTS[["ferc_account_id", "ferc_account_description"]],
-        "ferc_depreciation_lines": FERC_DEPRECIATION_LINES[
-            ["line_id", "ferc_account_description"]
-        ],
-        "power_purchase_types_ferc1": CODE_METADATA["power_purchase_types_ferc1"]["df"],
-    }
+    static_table_dict = _read_static_encoding_tables("static_ferc1")
+    static_table_dict.update(
+        {
+            "ferc_accounts": FERC_ACCOUNTS[
+                ["ferc_account_id", "ferc_account_description"]
+            ],
+            "ferc_depreciation_lines": FERC_DEPRECIATION_LINES[
+                ["line_id", "ferc_account_description"]
+            ],
+        }
+    )
+    return static_table_dict
 
 
 def _etl_ferc1(
     ferc1_settings: Ferc1Settings,
-    pudl_settings: Dict[str, Any],
-) -> Dict[str, pd.DataFrame]:
+    pudl_settings: dict[str, Any],
+) -> dict[str, pd.DataFrame]:
     """Extract, transform and load CSVs for FERC Form 1.
 
     Args:
@@ -197,18 +172,25 @@ def _etl_ferc1(
     Returns:
         Dataframes containing PUDL database tables pertaining to the FERC Form 1
         data, keyed by table name.
-
     """
     # Compile static FERC 1 dataframes
     out_dfs = _read_static_tables_ferc1()
 
     # Extract FERC form 1
-    ferc1_raw_dfs = pudl.extract.ferc1.extract(
+    ferc1_dbf_raw_dfs = pudl.extract.ferc1.extract_dbf(
         ferc1_settings=ferc1_settings, pudl_settings=pudl_settings
     )
+    # Extract FERC form 1 XBRL data
+    ferc1_xbrl_raw_dfs = pudl.extract.ferc1.extract_xbrl(
+        ferc1_settings=ferc1_settings, pudl_settings=pudl_settings
+    )
+    xbrl_metadata_json = pudl.extract.ferc1.extract_xbrl_metadata(pudl_settings)
     # Transform FERC form 1
     ferc1_transformed_dfs = pudl.transform.ferc1.transform(
-        ferc1_raw_dfs, ferc1_settings=ferc1_settings
+        ferc1_dbf_raw_dfs=ferc1_dbf_raw_dfs,
+        ferc1_xbrl_raw_dfs=ferc1_xbrl_raw_dfs,
+        xbrl_metadata_json=xbrl_metadata_json,
+        ferc1_settings=ferc1_settings,
     )
 
     out_dfs.update(ferc1_transformed_dfs)
@@ -220,10 +202,10 @@ def _etl_ferc1(
 ###############################################################################
 def _etl_one_year_epacems(
     year: int,
-    states: List[str],
+    states: list[str],
     pudl_db: str,
     out_dir: str,
-    ds_kwargs: Dict[str, Any],
+    ds_kwargs: dict[str, Any],
 ) -> None:
     """Process one year of EPA CEMS and output year-state paritioned Parquet files."""
     pudl_engine = sa.create_engine(pudl_db)
@@ -247,8 +229,9 @@ def _etl_one_year_epacems(
 
 def etl_epacems(
     epacems_settings: EpaCemsSettings,
-    pudl_settings: Dict[str, Any],
-    ds_kwargs: Dict[str, Any],
+    pudl_settings: dict[str, Any],
+    ds_kwargs: dict[str, Any],
+    clobber: str = False,
 ) -> None:
     """Extract, transform and load CSVs for EPA CEMS.
 
@@ -258,12 +241,13 @@ def etl_epacems(
             various resources and outputs.
         ds_kwargs: Keyword arguments for instantiating a PUDL datastore, so that the ETL
             can access the raw input data.
+        clobber: If True and there is already a hourly_emissions_epacems parquer file
+            or directory it will be deleted and a new one will be created.
 
     Returns:
         Unlike the other ETL functions, the EPACEMS writes its output to Parquet as it
         goes, since the dataset is too large to hold in memory.  So it doesn't return a
         dictionary of dataframes.
-
     """
     pudl_engine = sa.create_engine(pudl_settings["pudl_db"])
 
@@ -272,6 +256,12 @@ def etl_epacems(
     if "plants_eia860" not in inspector.get_table_names():
         raise RuntimeError(
             "No plants_eia860 available in the PUDL DB! Have you run the ETL? "
+            f"Trying to access PUDL DB: {pudl_engine}"
+        )
+    # Verify that we have a PUDL DB with crosswalk data
+    if "epacamd_eia" not in inspector.get_table_names():
+        raise RuntimeError(
+            "No EPACAMD-EIA Crosswalk available in the PUDL DB! Have you run the ETL? "
             f"Trying to access PUDL DB: {pudl_engine}"
         )
 
@@ -296,7 +286,10 @@ def etl_epacems(
         start_time = time.monotonic()
 
     if epacems_settings.partition:
-        epacems_dir = Path(pudl_settings["parquet_dir"]) / "epacems"
+        epacems_dir = (
+            Path(pudl_settings["parquet_dir"]) / "epacems" / "hourly_emissions_epacems"
+        )
+        _ = pudl.helpers.prep_dir(epacems_dir, clobber=clobber)
         do_one_year = partial(
             _etl_one_year_epacems,
             states=epacems_settings.states,
@@ -314,6 +307,12 @@ def etl_epacems(
         epacems_path = Path(
             pudl_settings["parquet_dir"], "epacems/hourly_emissions_epacems.parquet"
         )
+        if epacems_path.exists() and not clobber:
+            raise SystemExit(
+                "The EPA CEMS parquet file already exists, and we don't want to clobber it.\n"
+                f"Move {epacems_path} aside or set clobber=True and try again."
+            )
+
         with pq.ParquetWriter(
             where=str(epacems_path),
             schema=schema,
@@ -338,18 +337,54 @@ def etl_epacems(
 
 
 ###############################################################################
-# GLUE EXPORT FUNCTIONS
+# EIA BULK ELECTRICITY AGGREGATES
 ###############################################################################
-def _etl_glue(glue_settings: GlueSettings) -> Dict[str, pd.DataFrame]:
-    """Extract, transform and load CSVs for the Glue tables.
+def _etl_eia_bulk_elec(ds_kwargs: dict[str, Any]) -> dict[str, pd.DataFrame]:
+    """Extract and transform EIA bulk electricity aggregates.
 
     Args:
-        glue_settings: Validated ETL parameters required by this data source.
+        ds_kwargs: Keyword arguments for instantiating a PUDL datastore, so that the
+            ETL can access the raw input data.
 
     Returns:
         A dictionary of DataFrames whose keys are the names of the corresponding
         database table.
+    """
+    logger.info("Processing EIA bulk electricity aggregates.")
+    ds = Datastore(**ds_kwargs)
+    raw_bulk_dfs = pudl.extract.eia_bulk_elec.extract(ds)
+    transformed_bulk_dfs = pudl.transform.eia_bulk_elec.transform(raw_bulk_dfs)
+    return transformed_bulk_dfs
 
+
+###############################################################################
+# GLUE AND STATIC EXPORT FUNCTIONS
+###############################################################################
+def _etl_glue(
+    glue_settings: GlueSettings,
+    ds_kwargs: dict[str, Any],
+    sqlite_dfs: dict[str, pd.DataFrame],
+    eia_settings: EiaSettings,
+) -> dict[str, pd.DataFrame]:
+    """Extract, transform and load CSVs for the Glue tables.
+
+    Args:
+        glue_settings: Validated ETL parameters required by this data source.
+        ds_kwargs: Keyword arguments for instantiating a PUDL datastore, so that the ETL
+            can access the raw input data.
+        sqlite_dfs: The dictionary of dataframes to be loaded into the pudl database.
+            We pass the dictionary though because the EPACAMD-EIA crosswalk needs to
+            know which EIA plants and generators are being loaded into the database
+            (based on whether we run the full or fast etl). The tests will break if we
+            pass the generators_entity_eia table as an argument because of the
+            ferc1_solo test (where no eia tables are in the sqlite_dfs dict). Passing
+            the whole dict avoids this because the crosswalk will only load if there
+            are eia tables in the dict, but the dict will always be there.
+        eia_settings: Validated ETL parameters required by this data source.
+
+    Returns:
+        A dictionary of DataFrames whose keys are the names of the corresponding
+        database table.
     """
     # grab the glue tables for ferc1 & eia
     glue_dfs = pudl.glue.ferc1_eia.glue(
@@ -359,10 +394,56 @@ def _etl_glue(glue_settings: GlueSettings) -> Dict[str, pd.DataFrame]:
 
     # Add the EPA to EIA crosswalk, but only if the eia data is being processed.
     # Otherwise the foreign key references will have nothing to point at:
+    ds = Datastore(**ds_kwargs)
     if glue_settings.eia:
-        glue_dfs.update(pudl.glue.eia_epacems.grab_clean_split())
+        # Check to see whether the settings file indicates the processing of all
+        # available EIA years.
+        processing_all_eia_years = (
+            eia_settings.eia860.years
+            == eia_settings.eia860.data_source.working_partitions["years"]
+        )
+        glue_raw_dfs = pudl.glue.epacamd_eia.extract(ds)
+        glue_transformed_dfs = pudl.glue.epacamd_eia.transform(
+            glue_raw_dfs,
+            sqlite_dfs["generators_entity_eia"],
+            sqlite_dfs["boilers_entity_eia"],
+            processing_all_eia_years,
+        )
+        glue_dfs.update(glue_transformed_dfs)
 
     return glue_dfs
+
+
+def _read_static_encoding_tables(
+    etl_group: Literal["static_eia", "static_ferc1"]
+) -> dict[str, pd.DataFrame]:
+    """Build dataframes of static tables from a data source for use as foreign keys.
+
+    There are many values specified within the data that are essentially constant, but
+    which we need to store for data validation purposes, for use as foreign keys.  E.g.
+    the list of valid EIA fuel type codes, or the possible state and country codes
+    indicating a coal delivery's location of origin. For now these values are primarily
+    stored in a large collection of lists, dictionaries, and dataframes which are
+    specified in the :mod:`pudl.metadata` subpackage.  This function uses those data
+    structures to populate a bunch of small infrastructural tables within the PUDL DB.
+
+    Args:
+        etl_group: name of static table etl group.
+
+    Returns:
+        a dictionary with table names as keys and dataframes as values for all tables
+        labeled as static tables in their resource ``etl_group``
+    """
+    return {
+        r.name: r.encoder.df
+        for r in Package.from_resource_ids().resources
+        if r.etl_group == etl_group and r.encoder
+    }
+
+
+def _read_static_pudl_tables() -> dict[str, pd.DataFrame]:
+    """Read static tables compiled as part of PUDL and not from any agency dataset."""
+    return {"political_subdivisions": POLITICAL_SUBDIVISIONS}
 
 
 ###############################################################################
@@ -372,7 +453,7 @@ def _etl_glue(glue_settings: GlueSettings) -> Dict[str, pd.DataFrame]:
 
 def etl(  # noqa: C901
     etl_settings: EtlSettings,
-    pudl_settings: Dict,
+    pudl_settings: dict,
     clobber: bool = False,
     use_local_cache: bool = True,
     gcs_cache_path: str = None,
@@ -401,7 +482,6 @@ def etl(  # noqa: C901
 
     Returns:
         None
-
     """
     pudl_db_path = Path(pudl_settings["sqlite_dir"]) / "pudl.sqlite"
     if pudl_db_path.exists() and not clobber:
@@ -425,16 +505,19 @@ def etl(  # noqa: C901
     datasets = validated_etl_settings.get_datasets()
     if "epacems" in datasets.keys():
         epacems_pq_path = Path(pudl_settings["parquet_dir"]) / "epacems"
-        _ = pudl.helpers.prep_dir(epacems_pq_path, clobber=clobber)
+        epacems_pq_path.mkdir(exist_ok=True)
 
-    sqlite_dfs = {}
+    sqlite_dfs = _read_static_pudl_tables()
     # This could be cleaner if we simplified the settings file format:
     if datasets.get("ferc1", False):
         sqlite_dfs.update(_etl_ferc1(datasets["ferc1"], pudl_settings))
     if datasets.get("eia", False):
         sqlite_dfs.update(_etl_eia(datasets["eia"], ds_kwargs))
+        sqlite_dfs.update(_etl_eia_bulk_elec(ds_kwargs))
     if datasets.get("glue", False):
-        sqlite_dfs.update(_etl_glue(datasets["glue"]))
+        sqlite_dfs.update(
+            _etl_glue(datasets["glue"], ds_kwargs, sqlite_dfs, datasets["eia"])
+        )
 
     # Load the ferc1 + eia data directly into the SQLite DB:
     pudl_engine = sa.create_engine(pudl_settings["pudl_db"])
@@ -448,4 +531,4 @@ def etl(  # noqa: C901
 
     # Parquet Outputs:
     if datasets.get("epacems", False):
-        etl_epacems(datasets["epacems"], pudl_settings, ds_kwargs)
+        etl_epacems(datasets["epacems"], pudl_settings, ds_kwargs, clobber=clobber)

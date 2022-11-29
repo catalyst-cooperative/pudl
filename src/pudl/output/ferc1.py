@@ -1,13 +1,11 @@
 """Functions for pulling FERC Form 1 data out of the PUDL DB."""
-import logging
-
 import numpy as np
 import pandas as pd
 
 import pudl
 from pudl.metadata.fields import apply_pudl_dtypes
 
-logger = logging.getLogger(__name__)
+logger = pudl.logging_helpers.get_logger(__name__)
 
 
 def plants_utils_ferc1(pudl_engine):
@@ -20,7 +18,6 @@ def plants_utils_ferc1(pudl_engine):
     Returns:
         pandas.DataFrame: A DataFrame containing useful FERC Form 1 Plant and
         Utility information.
-
     """
     pu_df = pd.merge(
         pd.read_sql("plants_ferc1", pudl_engine),
@@ -47,7 +44,6 @@ def plants_steam_ferc1(pudl_engine):
     Returns:
         pandas.DataFrame: A DataFrame containing useful fields from the FERC
         Form 1 steam table.
-
     """
     steam_df = (
         pd.read_sql("plants_steam_ferc1", pudl_engine)
@@ -59,9 +55,12 @@ def plants_steam_ferc1(pudl_engine):
         .assign(
             capacity_factor=lambda x: x.net_generation_mwh / (8760 * x.capacity_mw),
             opex_fuel_per_mwh=lambda x: x.opex_fuel / x.net_generation_mwh,
-            opex_nonfuel=lambda x: x.opex_production_total - x.opex_fuel,
+            opex_total_nonfuel=lambda x: x.opex_production_total
+            - x.opex_fuel.fillna(0),
             opex_nonfuel_per_mwh=lambda x: np.where(
-                x.net_generation_mwh > 0, x.opex_nonfuel / x.net_generation_mwh, pd.NA
+                x.net_generation_mwh > 0,
+                x.opex_total_nonfuel / x.net_generation_mwh,
+                np.nan,
             ),
         )
         .pipe(
@@ -99,7 +98,6 @@ def fuel_ferc1(pudl_engine):
     Returns:
         pandas.DataFrame: A DataFrame containing useful FERC Form 1 fuel
         information.
-
     """
     fuel_df = (
         pd.read_sql("fuel_ferc1", pudl_engine)
@@ -131,7 +129,7 @@ def fuel_by_plant_ferc1(pudl_engine, thresh=0.5):
     """Summarize FERC fuel data by plant for output.
 
     This is mostly a wrapper around
-    :func:`pudl.transform.ferc1.fuel_by_plant_ferc1`
+    :func:`pudl.analysis.classify_plants_ferc1.fuel_by_plant_ferc1`
     which calculates some summary values on a per-plant basis (as indicated
     by ``utility_id_ferc1`` and ``plant_name_ferc1``) related to fuel
     consumption.
@@ -145,11 +143,31 @@ def fuel_by_plant_ferc1(pudl_engine, thresh=0.5):
 
     Returns:
         pandas.DataFrame: A DataFrame with fuel use summarized by plant.
-
     """
+    fuel_categories = list(
+        pudl.transform.ferc1.FuelFerc1TableTransformer()
+        .params.categorize_strings["fuel_type_code_pudl"]
+        .categories.keys()
+    )
+
+    def drop_other_fuel_types(df):
+        """Internal function to drop other fuel type.
+
+        Fuel type other indicates we didn't know how to categorize the reported fuel
+        type, which leads to records with incomplete and unsable data.
+        """
+        return df[df.fuel_type_code_pudl != "other"].copy()
+
     fbp_df = (
         pd.read_sql_table("fuel_ferc1", pudl_engine)
-        .pipe(pudl.transform.ferc1.fuel_by_plant_ferc1, thresh=thresh)
+        .pipe(drop_other_fuel_types)
+        .pipe(
+            pudl.analysis.classify_plants_ferc1.fuel_by_plant_ferc1,
+            fuel_categories=fuel_categories,
+            thresh=thresh,
+        )
+        .pipe(pudl.analysis.classify_plants_ferc1.revert_filled_in_float_nulls)
+        .pipe(pudl.analysis.classify_plants_ferc1.revert_filled_in_string_nulls)
         .merge(
             plants_utils_ferc1(pudl_engine), on=["utility_id_ferc1", "plant_name_ferc1"]
         )
@@ -177,6 +195,14 @@ def plants_small_ferc1(pudl_engine):
             on=["utility_id_ferc1", "plant_name_ferc1"],
             how="left",
         )
+        .assign(
+            opex_total=lambda x: (
+                x[["opex_fuel", "opex_maintenance", "opex_operations"]]
+                .fillna(0)
+                .sum(axis=1)
+            ),
+            opex_total_nonfuel=lambda x: (x.opex_total - x.opex_fuel.fillna(0)),
+        )
         .pipe(
             pudl.helpers.organize_cols,
             [
@@ -203,7 +229,8 @@ def plants_hydro_ferc1(pudl_engine):
             how="left",
         )
         .assign(
-            capacity_factor=lambda x: (x.net_generation_mwh / (8760 * x.capacity_mw))
+            capacity_factor=lambda x: (x.net_generation_mwh / (8760 * x.capacity_mw)),
+            opex_total_nonfuel=lambda x: x.opex_total,
         )
         .pipe(
             pudl.helpers.organize_cols,
@@ -229,7 +256,10 @@ def plants_pumped_storage_ferc1(pudl_engine):
             on=["utility_id_ferc1", "plant_name_ferc1"],
             how="left",
         )
-        .assign(capacity_factor=lambda x: x.net_generation_mwh / (8760 * x.capacity_mw))
+        .assign(
+            capacity_factor=lambda x: x.net_generation_mwh / (8760 * x.capacity_mw),
+            opex_total_nonfuel=lambda x: x.opex_total,
+        )
         .pipe(
             pudl.helpers.organize_cols,
             [
@@ -278,46 +308,40 @@ def plant_in_service_ferc1(pudl_engine):
                 "utility_id_pudl",
                 "utility_name_ferc1",
                 "record_id",
-                "amount_type",
             ],
         )
     )
     return pis_df
 
 
-def all_plants_ferc1(pudl_engine):
+def plants_all_ferc1(pudl_engine):
     """Combine the steam, small generators, hydro, and pumped storage tables.
 
     While this table may have many purposes, the main one is to prepare it for
     integration with the EIA Master Unit List (MUL). All subtables included in this
-    output table must have pudl ids. Table prepping involves ensuring that
-    the individual tables can merge correctly (like columns have the same name)
-    both with each other and the EIA MUL.
-
+    output table must have pudl ids. Table prepping involves ensuring that the
+    individual tables can merge correctly (like columns have the same name) both with
+    each other and the EIA MUL.
     """
-    logger.info("loading steam table")
     steam_df = plants_steam_ferc1(pudl_engine)
-    logger.info("loading small gens table")
     small_df = plants_small_ferc1(pudl_engine)
-    logger.info("loading hydro table")
     hydro_df = plants_hydro_ferc1(pudl_engine)
-    logger.info("loading pumped storage table")
     pump_df = plants_pumped_storage_ferc1(pudl_engine)
 
     # Prep steam table
-    logger.info("prepping steam table")
+    logger.debug("prepping steam table")
     steam_df = steam_df.rename(columns={"opex_plants": "opex_plant"}).pipe(
         apply_pudl_dtypes, group="ferc1"
     )
 
     # Prep hydro tables (Add this to the meta data later)
-    logger.info("prepping hydro tables")
+    logger.debug("prepping hydro tables")
     hydro_df = hydro_df.rename(columns={"project_num": "ferc_license_id"})
     pump_df = pump_df.rename(columns={"project_num": "ferc_license_id"})
 
     # Combine all the tables together
-    logger.info("combining all tables")
-    all_plants_df = (
+    logger.debug("combining all tables")
+    all_df = (
         pd.concat([steam_df, small_df, hydro_df, pump_df])
         .rename(
             columns={
@@ -330,4 +354,4 @@ def all_plants_ferc1(pudl_engine):
         .replace({"": np.nan})
     )
 
-    return all_plants_df
+    return all_df

@@ -2,25 +2,229 @@
 PUDL Release Notes
 =======================================================================================
 
-.. _release-v0-7-0:
+.. _release-v2022.11.XX:
 
 ---------------------------------------------------------------------------------------
-0.7.0 (2022-XX-XX)
+2022.11.XX
 ---------------------------------------------------------------------------------------
+
+Data Coverage
+^^^^^^^^^^^^^
+* Added archives of the bulk EIA electricity API data to our datastore, since the API
+  itself is too unreliable for production use. This is part of :issue:`1763`. The code
+  for this new data is ``eia_bulk_elec`` and the data comes as a single 200MB zipped
+  JSON file. :pr:`1922` updates the datastore to include
+  `this archive on Zenodo <https://zenodo.org/record/7067367>`__ but most of the work
+  happened in the
+  `pudl-scrapers <https://github.com/catalyst-cooperative/pudl-scrapers>`__ and
+  `pudl-zenodo-storage <https://github.com/catalyst-cooperative/pudl-zenodo-storage>`__
+  repositories. See issue :issue:`catalyst-cooperative/pudl-zenodo-storage#29`.
+* Incorporated 2021 data from the :doc:`data_sources/epacems` dataset. See :pr:`1778`
+* Incorporated Final Release 2021 data from the :doc:`data_sources/eia860`,
+  :ref:`data-eia861`, and :doc:`data_sources/eia923`. We also integrated a
+  ``data_maturity`` column and related ``data_maturities`` table into most of the EIA
+  data tables in order to alter users to the level of finality of the data. See
+  :pr:`1834,1855,1915,1921`.
+* Incorporated 2022 data from the :doc:`data_sources/eia860` monthly update from June
+  2022. See :pr:`1834`. This included adding new ``energy_storage_capacity_mwh`` (for
+  batteries) and ``net_capacity_mwdc`` (for behind-the-meter solar PV) attributes to the
+  :ref:`generators_eia860` table, as they appear in the :doc:`data_sources/eia860`
+  monthly updates for 2022.
+* Integrated several new columns into the EIA 860 and EIA 923 including several
+  codes with coding tables (See :doc:`data_dictionaries/codes_and_labels`). :pr:`1836`
+* Added the `EPACAMD-EIA Crosswalk <https://github.com/USEPA/camd-eia-crosswalk>`__ to
+  the database. Previously, the crosswalk was a csv stored in ``package_data/glue``,
+  but now it has its own scraper
+  :pr:`https://github.com/catalyst-cooperative/pudl-scrapers/pull/20`, archiver,
+  :pr:`https://github.com/catalyst-cooperative/pudl-zenodo-storage/pull/20`
+  and place in the PUDL db. For now there's a ``epacamd_eia`` output table you can use
+  to merge CEMS and EIA data yourself :pr:`1692`. Eventually we'll work these crosswalk
+  values into an output table combining CEMS and EIA.
+* Integrated 2021 from the :doc:`data_sources/ferc1` data. FERC updated its reporting
+  format for 2021 from a DBF file to a XBRL files. This required a major overhaul of
+  the extract and transform step. The updates were accumulated in :pr:`1665`. The raw
+  XBRL data is being extracted through a
+  `FERC XBRL Extractor <https://github.com/catalyst-cooperative/ferc-xbrl-extractor>`__.
+  This work is ongoing with additional tasks being tracked in :issue:`1574`. Specific
+  updates in this release include:
+
+  * Convert XBRL into raw sqlite database :pr:`1831`
+  * Build transformer infrastructure & Add :ref:`fuel_ferc1` table :pr:`1721`
+  * Map utility XBRL and DBF utility IDs :pr:`1931`
+  * Add :ref:`plants_steam_ferc1` table :pr:`1881`
+  * Add :ref:`plants_hydro_ferc1` :pr:`1992`
+  * Add :ref:`plants_pumped_storage_ferc1` :pr:`2005`
+  * Add :ref:`purchased_power_ferc1` :pr:`2011`
+  * Add :ref:`plants_small_ferc1` table :pr:`2035`
+  * Add :ref:`plant_in_service_ferc1` table :pr:`2025` & :pr:`2058`
+
+* Added all of the SQLite databases which we build from FERC's raw XBRL filings to our
+  Datasette deployment. See :pr:`2095` & :issue:`2080`. Browse the published data here:
+
+  * `FERC Form 1 <https://data.catalyst.coop/ferc1_xbrl>`__
+  * `FERC Form 2 <https://data.catalyst.coop/ferc2_xbrl>`__
+  * `FERC Form 6 <https://data.catalyst.coop/ferc6_xbrl>`__
+  * `FERC Form 60 <https://data.catalyst.coop/ferc60_xbrl>`__
+  * `FERC Form 714 <https://data.catalyst.coop/ferc714_xbrl>`__
+
+Data Analysis
+^^^^^^^^^^^^^
+* Instead of relying on the EIA API to fill in redacted fuel prices with aggregate
+  values for individual states and plants, use the archived ``eia_bulk_elec`` data. This
+  means we no longer have any reliance on the API, which should make the fuel price
+  filling faster and more reliable. Coverage is still only about 90%. See :issue:`1764`
+  and :pr:`1998`. Additional filling with aggregate and/or imputed values is still on
+  the workplan. You can follow the progress in :issue:`1708`.
+
+Nightly Data Builds
+^^^^^^^^^^^^^^^^^^^
+* We added infrastructure to run the entire ETL and all tests nightly
+  so we can catch data errors when they are merged into ``dev``. This allows us
+  to automatically update the `PUDL Intake data catalogs <https://github.com/catalyst-cooperative/pudl-catalog>`__
+  when there are new code releases. See :issue:`1177` for more details.
+* Created a `docker image <https://hub.docker.com/r/catalystcoop/pudl-etl>`__
+  that installs PUDL and it's depedencies. The ``build-deploy-pudl.yaml`` GitHub
+  Action builds and pushes the image to Docker Hub and deploys the image on
+  a Google Compute Engine instance. The ETL outputs are then loaded to Google
+  Cloud buckets for the data catalogs to access.
+* Added ``GoogleCloudStorageCache`` support to ``ferc1_to_sqlite`` and
+  ``censusdp1tract_to_sqlite`` commands and pytest.
+* Allow users to create monolithic and partitioned EPA CEMS outputs without having
+  to clobber or move any existing CEMS outputs.
+* ``GoogleCloudStorageCache`` now supports accessing requester pays buckets.
+* Added a ``--loglevel`` arg to the package entrypoint commands.
 
 Database Schema Changes
 ^^^^^^^^^^^^^^^^^^^^^^^
-
 * After learning that generators' prime movers do very occasionally change over
   time, we recategorized the ``prime_mover_code`` column in our entity resolution
   process to enable the rare but real variability over time. We moved the
   ``prime_mover_code`` column from the statically harvested/normalized data
   column to an annually harvested data column (i.e. from :ref:`generators_entity_eia`
   to :ref:`generators_eia860`) :pr:`1600`. See :issue:`1585` for more details.
+* Created :ref:`operational_status_eia` into our static metadata tables (See
+  :doc:`data_dictionaries/codes_and_labels`). Used these standard codes and code
+  fixes to clean ``operational_status_code`` in the :ref:`generators_entity_eia`
+  table. :pr:`1624`
+* Moved a number of slowly changing plant attributes from the :ref:`plants_entity_eia`
+  table to the annual :ref:`plants_eia860` table. See :issue:`1748` and :pr:`1749`.
+  This was initially inspired by the desire to more accurately reproduce the aggregated
+  fuel prices which are available in the EIA's API. Along with state, census region,
+  month, year, and fuel type, those prices are broken down by industrial sector.
+  Previously ``sector_id_eia`` (an aggregation of several ``primary_purpose_naics_id``
+  values) had been assumed to be static over a plant's lifetime, when in fact it can
+  change if e.g. a plant is sold to an IPP by a regulated utility. Other plant
+  attributes which are now allowed to vary annually include:
+
+  * ``balancing_authority_code_eia``
+  * ``balancing_authority_name_eia``
+  * ``ferc_cogen_status``
+  * ``ferc_exempt_wholesale_generator``
+  * ``ferc_small_power_producer``
+  * ``grid_voltage_1_kv``
+  * ``grid_voltage_2_kv``
+  * ``grid_voltage_3_kv``
+  * ``iso_rto_code``
+  * ``primary_purpose_id_naics``
+
+* Renamed ``grid_voltage_kv`` to ``grid_voltage_1_kv`` in the :ref:`plants_eia860`
+  table, to follow the pattern of many other multiply reported values.
+* Added a :ref:`balancing_authorities_eia` coding table mapping BA codes found in the
+  :doc:`data_sources/eia860` and :doc:`data_sources/eia923` to their names, cleaning up
+  non-standard codes, and fixing some reporting errors for ``PACW`` vs. ``PACE``
+  (PacifiCorp West vs. East) based on the state associated with the plant reporting the
+  code. Also added backfilling for codes in years before 2013 when BA Codes first
+  started being reported, but only in the output tables. See: :pr:`1906,1911`
+* Renamed and removed some columns in the :doc:`data_sources/epacems` dataset.
+  ``unitid`` was changed to ``emissions_unit_id_epa`` to clarify the type of unit it
+  represents. ``unit_id_epa`` was removed because it is a unique identifyer for
+  ``emissions_unit_id_epa`` and not otherwise useful or transferable to other datasets.
+  ``facility_id`` was removed because it is specific to EPA's internal database and does
+  not aid in connection with other data. :pr:`1692`
+* Added a new table :ref:`political_subdivisions` which consolidated various bits of
+  information about states, territories, provinces etc. that had previously been
+  scattered across constants stored in the codebase. The :ref:`ownership_eia860` table
+  had a mix of state and country information stored in the same column, and to retain
+  all of it we added a new ``owner_country_code`` column. :pr:`1966`
+
+Data Accuracy
+^^^^^^^^^^^^^
+* Retain NA values for :doc:`data_sources/epacems` fields ``gross_load_mw`` and
+  ``heat_content_mmbtu``. Previously, these fields converted NA to 0, but this is not
+  accurate, so we removed this step.
+* Update the ``plant_id_eia`` field from :doc:`data_sources/epacems` with values from
+  the newly integrated ``epacamd_eia`` crosswalk as not all EPA's ORISPL codes are
+  correct.
+
+Helper Function Updates
+^^^^^^^^^^^^^^^^^^^^^^^
+* Replaced the PUDL helper function ``clean_merge_asof`` that merged two dataframes
+  reported on different temporal granularities, for example monthly vs yearly data.
+  The reworked function, :mod:`pudl.helpers.date_merge`, is more encapsulating and
+  faster and replaces ``clean_merge_asof`` in the MCOE table and EIA 923 tables. See
+  :pr:`1103,1550`
+* The helper function :mod:`pudl.helpers.expand_timeseries` was also added, which
+  expands a dataframe to include a full timeseries of data at a certain frequency.
+  The coordinating function :mod:`pudl.helpers.full_timeseries_date_merge` first calls
+  :mod:`pudl.helpers.date_merge` to merge two dataframes of different temporal
+  granularities, and then calls :mod:`pudl.helpers.expand_timeseries` to expand the
+  merged dataframe to a full timeseries. The added ``timeseries_fillin`` argument,
+  makes this function optionally used to generate the MCOE table that includes a full
+  monthly timeseries even in years when annually reported generators don't have
+  matching monthly data. See :pr:`1550`
+* Updated the ``fix_leading_zero_gen_ids`` fuction by changing the name to
+  ``remove_leading_zeros_from_numeric_strings`` because it's used to fix more than just
+  the ``generator_id`` column. Included a new argument to specify which column you'd
+  like to fix.
+
+Plant Parts List Module Changes
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+* We refactored a couple components of the Plant Parts List module in preparation
+  for the next round of entity matching of EIA and FERC Form 1 records with the
+  Panda model developed by the
+  `Chu Data Lab at Georgia Tech <https://chu-data-lab.cc.gatech.edu/>`__, through work
+  funded by a
+  `CCAI Innovation Grant <https://www.climatechange.ai/calls/innovation_grants>`__.
+  The labeling of different aggregations of EIA generators as the true granularity was
+  sped up, resulting in faster generation of the final plant parts list. In addition,
+  the generation of the ``installation_year`` column in the plant parts list was fixed
+  and a ``construction_year`` column was also added. Finally, ``operating_year`` was
+  added as a level that the EIA generators are now aggregated to.
+* The mega generators table and in turn the plant parts list requires the MCOE table
+  to generate. The MCOE table is now created with the new :mod:`pudl.helpers.date_merge`
+  helper function (described above). As a result, now by default only columns from the
+  EIA 860 generators table that are necessary for the creation of the plant parts list
+  will be included in the MCOE table. This list of columns is defined by the global
+  :mod:`pudl.analysis.mcoe.DEFAULT_GENS_COLS`. If additional columns that are not part
+  of the default list are needed from the EIA 860 generators table, these columns can be
+  passed in with the ``gens_cols`` argument.  See :pr:`1550`
+* For memory efficiency, appropriate columns are now cast to string and
+  categorical types when the full plant parts list is created. The resource and field
+  metadata is now included in the PUDL metadata. See :pr:`1865`
+* For clarity and specificity, the ``plant_name_new`` column was renamed
+  ``plant_name_ppe`` and the ``ownership`` column was renamed ``ownership_record_type``.
+  See :pr:`1865`
+* The ``PLANT_PARTS_ORDERED`` list was removed and ``PLANT_PARTS`` is now an
+  ``OrderedDict`` that establishes the plant parts hierarchy in its keys. All references
+  to ``PLANT_PARTS_ORDERED`` were replaced with the ``PLANT_PARTS`` keys. See :pr:`1865`
+
+Metadata
+^^^^^^^^
+* Used the data source metadata class added in release 0.6.0 to dynamically generate
+  the data source documentation (See :doc:`data_sources/index`). :pr:`1532`
+* The EIA plant parts list was added to the resource and field metadata. This is the
+  first output table to be included in the metadata. See :pr:`1865`
+
+Documentation
+^^^^^^^^^^^^^
+* Fixed broken links in the documentation since the Air Markets Program Data (AMPD)
+  changed to Clean Air Markets Data (CAMD).
+* Added graphics and clearer descriptions of EPA data and reporting requirements to the
+  :doc:`data_sources/epacems` page. Also included information about the ``epacamd_eia``
+  crosswalk.
 
 Bug Fixes
 ^^^^^^^^^
-
 * `Dask v2022.4.2 <https://docs.dask.org/en/stable/changelog.html#v2022-04-2>`__
   introduced breaking changes into :meth:`dask.dataframe.read_parquet`.  However, we
   didn't catch this when it happened because it's only a problem when there's more than
@@ -32,6 +236,28 @@ Bug Fixes
 * Fixed a testing bug where the partitioned EPA CEMS outputs generated using parallel
   processing were getting output in the same output directory as the real ETL, which
   should never happen. See :pr:`1618`.
+* Changed the way fixes to the EIA-861 balancing authority names and IDs are applied,
+  so that they still work when only some years of data are being processed. See
+  :pr:`1671` and :issue:`828`.
+
+Dependencies / Environment
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+* In conjunction with getting the :user:`dependabot` set up to merge its own PRs if CI
+  passes, we tightened the version constraints on a lot of our dependencies. This should
+  reduce the frequency with which we get surprised by changes breaking things after
+  release. See :pr:`1655`
+* We've switched to using `mambaforge <https://github.com/conda-forge/miniforge>`__ to
+  manage our environments internally, and are recommending that users use it as well.
+* We're moving toward treating PUDL like an application rather than a library, and part
+  of that is no longer trying to be compatible with a wide range of versions of our
+  dependencies, instead focusing on a single reproducible environment that is associated
+  with each release, using lockfiles, etc. See :issue:`1669`
+* As an "application" PUDL is now only supporting the most recent major version of
+  Python (curently 3.10). We used
+  `pyupgrade <https://github.com/asottile/pyupgrade>`__ and
+  `pep585-upgrade <https://github.com/snok/pep585-upgrade>`__ to update the syntax of
+  to use Python 3.10 norms, and are now using those packages as pre-commit hooks as
+  well. See :pr:`1685`
 
 .. _release-v0-6-0:
 
