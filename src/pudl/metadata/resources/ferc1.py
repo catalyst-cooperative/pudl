@@ -24,7 +24,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "field_namespace": "ferc1",
     },
     "electric_energy_account_sources_ferc1": {
-        "description": "Reported annual values for sources of electricity for each utility.",
+        "description": "Amount of electricity the utility obtained from each of several sources, by year.",
         "schema": {
             "fields": [
                 "utility_id_ferc1",

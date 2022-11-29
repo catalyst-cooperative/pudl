@@ -101,16 +101,21 @@ class Ferc1RenameColumns(TransformParams):
     xbrl: RenameColumns = {}
 
 
-class WideToTidyXBRL(TransformParams):
+class WideToTidyXbrl(TransformParams):
     """Parameters for converting a wide XBRL table to a tidy table with value types."""
 
     idx_cols: list[str] | None
     """List of column names to treat as the table index."""
 
     value_types: list[str] | None
-    """List of names of value types.
+    """List of names of value types that will end up being the column names.
 
-    These will be the renamed XBRL column suffixes and will be the output table columns."""
+    In the input dataframe given to :func:`wide_to_tidy_xbrl`, the value types must be
+    the suffixes of the column names. If the table does not natively have the pattern
+    of "{xbrl_factoid}_{value_type}", rename the columns using a
+    ``rename_columns_duration_xbrl`` and/or ``rename_columns_instant_xbrl`` paramete
+    which will be employed in :meth:`process_duration_xbrl` and
+    :meth:`process_instant_xbrl`."""
 
     expected_drop_cols: int = 0
     """The number of columns that are expected to be dropped.
@@ -127,29 +132,35 @@ class WideToTidyXBRL(TransformParams):
     """
 
 
-def wide_to_tidy_xbrl(df: pd.DataFrame, params: WideToTidyXBRL) -> pd.DataFrame:
+def wide_to_tidy_xbrl(df: pd.DataFrame, params: WideToTidyXbrl) -> pd.DataFrame:
     """Reshape wide tables with FERC account columns to tidy format.
 
-    The XBRL table coming into this method contains all the data from both the
+    The XBRL table coming into this method could contain all the data from both the
     instant and duration tables in a wide format -- with one column for every
-    combination of value type (e.g. additions, ending_balance) and accounting
-    category, which means ~500 columns.
+    combination of value type (e.g. additions, ending_balance) and value category, which
+    means ~500 columns for some tables.
 
-    We tidy this into a long table with one column for each of the value types (6 in
-    all), and a new column that contains the accounting categories. This allows
-    aggregation across columns to calculate the ending balance based on the starting
-    balance and all of the reported changes, and aggregation across groups of rows
-    to total up various hierarchical accounting categories (hydraulic turbines ->
-    hydraulic production plant -> all production plant -> all electric utility
-    plant) though the categorical columns required for that aggregation are added
-    later.
+    We tidy this into a long table with one column for each of the value types in
+    ``params.value_types`` and a new column named ``xbrl_factoid`` that contains
+    categories that were previously the XBRL column name stems.
+
+    This allows aggregations of multiple ``xbrl_factoid`` categories in a columnar
+    fashion such as aggregation across groups of rows to total up various hierarchical
+    accounting categories (hydraulic turbines -> hydraulic production plant -> all
+    production plant -> all electric utility plant) though the categorical columns
+    required for that aggregation are added later.
+
+    For table that have a internal relationship between the values in the
+    ``params.value_types``, such as the :ref:`plant_in_service_ferc1` table, this also
+    enables aggregation across columns to calculate the ending balance based on the
+    starting balance and all of the reported changes.
     """
     suffixes = "|".join(params.value_types)
     pat = r"(^.*)_(" + suffixes + r"$)"
     # filter out any columns that don't match the pattern
     df_out = df.set_index(params.idx_cols).filter(regex=pat)
     # check if there are unexpected columns being dropped
-    dropped_cols = [col for col in df if col not in df_out.reset_index()]
+    dropped_cols = [col for col in df if col not in df_out.reset_index().columns]
     logger.debug(f"dropping: {dropped_cols}")
     if params.expected_drop_cols != len(dropped_cols):
         raise AssertionError(
@@ -173,8 +184,8 @@ def wide_to_tidy_xbrl(df: pd.DataFrame, params: WideToTidyXBRL) -> pd.DataFrame:
     return df_out
 
 
-class MergeMetadata(TransformParams):
-    """Parameters for merging metadata."""
+class MergeMetadataXbrl(TransformParams):
+    """Parameters for merging in XBRL metadata."""
 
     rename_columns: dict[str, str] = {}
     """Dictionary to rename columns in the normalized metadata before merging.
@@ -182,11 +193,11 @@ class MergeMetadata(TransformParams):
     This dictionary will be passed as :func:`pd.DataFrame.rename` ``columns`` parameter."""
 
     on: str | None = None
-    """Column name to merge on in :func:`merge_metadata`."""
+    """Column name to merge on in :func:`merge_metadata_xbrl`."""
 
 
-def merge_metadata(
-    df: pd.DataFrame, xbrl_metadata_normalized: pd.DataFrame, params: MergeMetadata
+def merge_metadata_xbrl(
+    df: pd.DataFrame, xbrl_metadata_normalized: pd.DataFrame, params: MergeMetadataXbrl
 ) -> pd.DataFrame:
     """Merge metadata based on params."""
     return pd.merge(
@@ -251,8 +262,8 @@ class Ferc1TableTransformParams(TableTransformParams):
     )
     rename_columns_instant_xbrl: RenameColumns = RenameColumns()
     rename_columns_duration_xbrl: RenameColumns = RenameColumns()
-    wide_to_tidy_xbrl: WideToTidyXBRL = WideToTidyXBRL()
-    merge_metadata: MergeMetadata = MergeMetadata()
+    wide_to_tidy_xbrl: WideToTidyXbrl = WideToTidyXbrl()
+    merge_metadata_xbrl: MergeMetadataXbrl = MergeMetadataXbrl()
     align_row_numbers_dbf: AlignRowNumbersDbf = AlignRowNumbersDbf()
 
 
@@ -546,7 +557,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                 .get_resource(self.table_id.value)
                 .encode
             )
-            .pipe(self.merge_metadata)
+            .pipe(self.merge_metadata_xbrl)
         )
         return df
 
@@ -604,8 +615,8 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         self.xbrl_metadata_normalized = normed_meta
         return normed_meta
 
-    def merge_metadata(
-        self, df: pd.DataFrame, params: MergeMetadata | None = None
+    def merge_metadata_xbrl(
+        self, df: pd.DataFrame, params: MergeMetadataXbrl | None = None
     ) -> pd.DataFrame:
         """Combine XBRL-derived metadata with the data it pertains to.
 
@@ -614,10 +625,10 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         method reads the normalized metadata out of an attribute.
         """
         if not params:
-            params = self.params.merge_metadata
+            params = self.params.merge_metadata_xbrl
         if params.on:
             logger.info(f"{self.table_id.value}: merging metadata")
-            df = merge_metadata(df, self.xbrl_metadata_normalized, params)
+            df = merge_metadata_xbrl(df, self.xbrl_metadata_normalized, params)
         return df
 
     @cache_df(key="dbf")
@@ -689,7 +700,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
 
     @cache_df(key="xbrl")
     def wide_to_tidy_xbrl(
-        self, df: pd.DataFrame, params: WideToTidyXBRL | None = None
+        self, df: pd.DataFrame, params: WideToTidyXbrl | None = None
     ) -> pd.DataFrame:
         """Reshape wide tables with FERC account columns to tidy format.
 
@@ -1453,7 +1464,7 @@ class PlantsPumpedStorageFerc1TableTransformer(Ferc1AbstractTableTransformer):
     table_id: Ferc1TableId = Ferc1TableId.PLANTS_PUMPED_STORAGE_FERC1
 
 
-class PurchasedPowerTableTransformer(Ferc1AbstractTableTransformer):
+class PurchasedPowerFerc1TableTransformer(Ferc1AbstractTableTransformer):
     """Transformer class for :ref:`purchased_power_ferc1` table.
 
     This table has data about inter-utility power purchases into the PUDL DB. This
@@ -1560,7 +1571,9 @@ class PlantInServiceFerc1TableTransformer(Ferc1AbstractTableTransformer):
         ] = "101_and_106"
 
         # Flag the metadata record types
-        pis_meta.loc[pis_meta.calculations.astype(bool), "row_type_xbrl"] = "calculated"
+        pis_meta.loc[
+            pis_meta.calculations.astype(bool), "row_type_xbrl"
+        ] = "calculated_value"
         pis_meta.loc[
             ~pis_meta.calculations.astype(bool) & pis_meta.ferc_account.notna(),
             "row_type_xbrl",
@@ -2573,12 +2586,14 @@ class PlantsSmallFerc1TableTransformer(Ferc1AbstractTableTransformer):
         return df
 
 
-class ElectricEnergyAccountSourcesTransformer(Ferc1AbstractTableTransformer):
+class ElectricEnergyAccountSourcesFerc1TableTransformer(Ferc1AbstractTableTransformer):
     """Transformer class for :ref:`electric_energy_account_sources_ferc1` table.
 
-    For XBRL, this is a duration-only table. Right now we are merging in the metadata
-    but not actually keeping anything from it. We are also not yet doing anything with
-    the sign.
+    The raw DBF and XBRL table will be split up into two tables. This transformer
+    generates the sources of electricity for utilities, dropping the information about
+    dispositions. For XBRL, this is a duration-only table. Right now we are merging in
+    the metadata but not actually keeping anything from it. We are also not yet doing
+    anything with the sign.
     """
 
     table_id: Ferc1TableId = Ferc1TableId.ELECTRIC_ENERGY_ACCOUNT_SOURCES_FERC1
@@ -2587,24 +2602,23 @@ class ElectricEnergyAccountSourcesTransformer(Ferc1AbstractTableTransformer):
     def normalize_metadata_xbrl(
         self, xbrl_fact_names: list[str] | None
     ) -> pd.DataFrame:
-        """Normie.
+        """Apply table-specific normalization after applying inherited normalization.
 
-        Determine whether the
+        Add a ``row_type_xbrl`` columns which incidates whether a value is calculated or
+        natively reported based on the XBRL metadata.
         """
         eeas_meta = (
             super().normalize_metadata_xbrl(xbrl_fact_names)
             # should this be a straight up rename? could we just rename it within the
             # standard normalize_metadata_xbrl??
-            .assign(xbrl_factoid=lambda x: x.xbrl_fact_name)
+            .assign(
+                xbrl_factoid=lambda x: x.xbrl_fact_name,
+                # Flag the metadata record types
+                row_type_xbrl=lambda x: np.where(
+                    x.calculations.astype(bool), "calculated_value", "reported_value"
+                ),
+            )
         )
-        # # Flag the metadata record types
-        eeas_meta.loc[
-            eeas_meta.calculations.astype(bool), "row_type_xbrl"
-        ] = "calculated"
-        eeas_meta.loc[
-            ~eeas_meta.calculations.astype(bool),
-            "row_type_xbrl",
-        ] = "energy_source"
         # Save the normalized metadata so it can be used by other methods.
         self.xbrl_metadata_normalized = eeas_meta
         return eeas_meta
@@ -2613,8 +2627,8 @@ class ElectricEnergyAccountSourcesTransformer(Ferc1AbstractTableTransformer):
     def process_dbf(self, raw_dbf: pd.DataFrame) -> pd.DataFrame:
         """Start with inherited method and do some energy source-specific processing.
 
-        We have do drop the columns from the disposition table because if we don't they
-        will show up in the concatenated table.
+        We have to drop the columns from the disposition table because we are splitting
+        up this one raw table into two PUDL tables.
         """
         disposition_cols = ["energy_disposition_mwh"]
         df = super().process_dbf(raw_dbf).drop(columns=disposition_cols)
@@ -2650,8 +2664,8 @@ def transform(
         "plants_hydro_ferc1": PlantsHydroFerc1TableTransformer,
         "plant_in_service_ferc1": PlantInServiceFerc1TableTransformer,
         "plants_pumped_storage_ferc1": PlantsPumpedStorageFerc1TableTransformer,
-        "purchased_power_ferc1": PurchasedPowerTableTransformer,
-        "electric_energy_account_sources_ferc1": ElectricEnergyAccountSourcesTransformer,
+        "purchased_power_ferc1": PurchasedPowerFerc1TableTransformer,
+        "electric_energy_account_sources_ferc1": ElectricEnergyAccountSourcesFerc1TableTransformer,
     }
     # create an empty ditctionary to fill up through the transform fuctions
     ferc1_transformed_dfs = {}
