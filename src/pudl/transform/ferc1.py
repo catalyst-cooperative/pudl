@@ -113,6 +113,18 @@ class WideToTidyXBRL(TransformParams):
     These will be the renamed XBRL column suffixes and will be the output table columns."""
 
     expected_drop_cols: int = 0
+    """The number of columns that are expected to be dropped.
+
+    :func:`wide_to_tidy_xbrl` will generate a regex pattern assuming the ``value_types``
+    are the column name's suffixes. If a column does not conform to that pattern, it
+    will be filtered out. This is helpful for us to not include a bunch of columns from
+    the input dataframe incorrectly included in the stacking process. We could enumerate
+    every column that we want to drop, but this could be tedious and potentially error
+    prone. But this does mean that if a column is incorrectly named - or barely missing
+    the pattern, it will be dropped. This parameter enables us to lock the number of
+    expected columns. If the dropped columns are a different number, an error will be
+    raised.
+    """
 
 
 def wide_to_tidy_xbrl(df: pd.DataFrame, params: WideToTidyXBRL) -> pd.DataFrame:
@@ -155,7 +167,8 @@ def wide_to_tidy_xbrl(df: pd.DataFrame, params: WideToTidyXBRL) -> pd.DataFrame:
         .loc[:, params.value_types]
         .reset_index()
     )
-    # remove the column name
+    # remove the name of the columns which was the name of the renaming layer of the
+    # multi-index
     df_out.columns.name = None
     return df_out
 
@@ -164,6 +177,10 @@ class MergeMetadata(TransformParams):
     """Parameters for merging metadata."""
 
     rename_columns: dict[str, str] = {}
+    """Dictionary to rename columns in the normalized metadata before merging.
+
+    This dictionary will be passed as :func:`pd.DataFrame.rename` ``columns`` parameter."""
+
     on: str | None = None
     """Column name to merge on in :func:`merge_metadata`."""
 
@@ -171,11 +188,7 @@ class MergeMetadata(TransformParams):
 def merge_metadata(
     df: pd.DataFrame, xbrl_metadata_normalized: pd.DataFrame, params: MergeMetadata
 ) -> pd.DataFrame:
-    """Merge metadata based on params.
-
-    Maybe this should just be done in the method bc it is a one liner now and no longer
-    uses params.
-    """
+    """Merge metadata based on params."""
     return pd.merge(
         df,
         xbrl_metadata_normalized.rename(columns=params.rename_columns),
@@ -687,7 +700,14 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         combination of value type (e.g. additions, ending_balance) and accounting
         category, which means ~500 columns.
 
-        We tidy this into a long table with one column for each of the value types (6 in all), and a new column that contains the accounting categories. This allows aggregation across columns to calculate the ending balance based on the starting balance and all of the reported changes, and aggregation across groups of rows to total up various hierarchical accounting categories (hydraulic turbines -> hydraulic production plant -> all  production plant -> all electric utility plant) though the categorical columns required for that aggregation are added later.
+        We tidy this into a long table with one column for each of the value types (6 in
+        all), and a new column that contains the accounting categories. This allows
+        aggregation across columns to calculate the ending balance based on the starting
+        balance and all of the reported changes, and aggregation across groups of rows
+        to total up various hierarchical accounting categories (hydraulic turbines ->
+        hydraulic production plant -> all  production plant -> all electric utility
+        plant) though the categorical columns required for that aggregation are added
+        later.
         """
         if not params:
             params = self.params.wide_to_tidy_xbrl
