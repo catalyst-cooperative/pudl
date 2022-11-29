@@ -6,7 +6,12 @@ import pandas as pd
 import pytest
 
 from pudl.settings import Ferc1Settings
-from pudl.transform.ferc1 import fill_dbf_to_xbrl_map, read_dbf_to_xbrl_map
+from pudl.transform.ferc1 import (
+    WideToTidyXBRL,
+    fill_dbf_to_xbrl_map,
+    read_dbf_to_xbrl_map,
+    wide_to_tidy_xbrl,
+)
 
 TEST_DBF_XBRL_MAP = pd.read_csv(
     StringIO(
@@ -81,3 +86,77 @@ report_year,row_number,xbrl_column_stem
     actual = fill_dbf_to_xbrl_map(df=test_map, dbf_years=range(2000, 2004))
     actual = actual[actual.xbrl_column_stem != "HEADER_ROW"].reset_index(drop=True)
     pd.testing.assert_frame_equal(actual, expected)
+
+
+WIDE_TO_TIDY_DF = pd.read_csv(
+    StringIO(
+        """
+idx,a_test_value,b_test_value,c_test_value
+A,10,100,1000
+B,11,110,1100
+C,12,120,1200
+D,13,130,1300
+"""
+    ),
+)
+
+
+def test_wide_to_tidy_xbrl():
+    """Test :func:`wide_to_tidy_xbrl`."""
+    params = WideToTidyXBRL(**{"idx_cols": ["idx"], "value_types": ["test_value"]})
+    df_out = wide_to_tidy_xbrl(df=WIDE_TO_TIDY_DF, params=params)
+
+    df_expected = pd.read_csv(
+        StringIO(
+            """
+idx,xbrl_column_stem,test_value
+A,a,10
+A,b,100
+A,c,1000
+B,a,11
+B,b,110
+B,c,1100
+C,a,12
+C,b,120
+C,c,1200
+D,a,13
+D,b,130
+D,c,1300
+"""
+        ),
+    )
+    pd.testing.assert_frame_equal(df_out, df_expected)
+
+
+def test_wide_to_tidy_xbrl_fail():
+    """Test the :func:`wide_to_tidy_xbrl` fails with a bad rename."""
+    params = WideToTidyXBRL(**{"idx_cols": ["idx"], "value_types": ["test_value"]})
+    df_renamed = WIDE_TO_TIDY_DF.rename(columns={"c_test_value": "c_test_values"})
+    with pytest.raises(AssertionError):
+        wide_to_tidy_xbrl(df=df_renamed, params=params)
+
+
+def test_wide_to_tidy_xbrl_rename():
+    """Test the updated ``expected_drop_cols`` params for :func:`wide_to_tidy_xbrl`."""
+    params_renamed = WideToTidyXBRL(
+        **{"idx_cols": ["idx"], "value_types": ["test_value"], "expected_drop_cols": 1}
+    )
+    df_renamed = WIDE_TO_TIDY_DF.rename(columns={"c_test_value": "c_test_values"})
+    df_out = wide_to_tidy_xbrl(df=df_renamed, params=params_renamed)
+    # everything but the xbrl_column_stem == "c"
+    df_expected = pd.read_csv(
+        StringIO(
+            """
+idx,xbrl_column_stem,test_value
+A,a,10
+A,b,100
+B,a,11
+B,b,110
+C,a,12
+C,b,120
+D,a,13
+D,b,130
+"""
+        ),
+    )
+    pd.testing.assert_frame_equal(df_out, df_expected)

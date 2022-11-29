@@ -2620,6 +2620,7 @@ TRANSFORM_PARAMS = {
                 "adjustments",
                 "ending_balance",
             ],
+            "expected_drop_cols": 2,
         },
         "merge_metadata": {
             "rename_columns": {"xbrl_column_stem": "ferc_account_label"},
@@ -2909,6 +2910,7 @@ TRANSFORM_PARAMS = {
         "wide_to_tidy_xbrl": {
             "idx_cols": ["entity_id", "report_year"],
             "value_types": ["energy_source_mwh"],
+            "expected_drop_cols": 10,
         },
         "merge_metadata": {
             "rename_columns": {"xbrl_column_stem": "energy_source_type"},

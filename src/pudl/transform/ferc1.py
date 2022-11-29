@@ -112,6 +112,8 @@ class WideToTidyXBRL(TransformParams):
 
     These will be the renamed XBRL column suffixes and will be the output table columns."""
 
+    expected_drop_cols: int = 0
+
 
 def wide_to_tidy_xbrl(df: pd.DataFrame, params: WideToTidyXBRL) -> pd.DataFrame:
     """Reshape wide tables with FERC account columns to tidy format.
@@ -132,7 +134,16 @@ def wide_to_tidy_xbrl(df: pd.DataFrame, params: WideToTidyXBRL) -> pd.DataFrame:
     """
     suffixes = "|".join(params.value_types)
     pat = r"(^.*)_(" + suffixes + r"$)"
+    # filter out any columns that don't match the pattern
     df_out = df.set_index(params.idx_cols).filter(regex=pat)
+    # check if there are unexpected columns being dropped
+    dropped_cols = [col for col in df if col not in df_out.reset_index()]
+    logger.debug(f"dropping: {dropped_cols}")
+    if params.expected_drop_cols != len(dropped_cols):
+        raise AssertionError(
+            f"Dropping more columns ({len(dropped_cols)}) than expected "
+            f"({params.expected_drop_cols}). Columns dropped: {dropped_cols}"
+        )
 
     new_cols = pd.MultiIndex.from_tuples(
         [(re.sub(pat, r"\1", col), re.sub(pat, r"\2", col)) for col in df_out.columns],
@@ -144,7 +155,8 @@ def wide_to_tidy_xbrl(df: pd.DataFrame, params: WideToTidyXBRL) -> pd.DataFrame:
         .loc[:, params.value_types]
         .reset_index()
     )
-    # check whether or not we have incorrectly named any of the columns in df
+    # remove the column name
+    df_out.columns.name = None
     return df_out
 
 
