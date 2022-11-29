@@ -25,11 +25,13 @@ Data Coverage
   ``data_maturity`` column and related ``data_maturities`` table into most of the EIA
   data tables in order to alter users to the level of finality of the data. See
   :pr:`1834,1855,1915,1921`.
-* Incorporated 2022 data from the :doc:`data_sources/eia860` monthly update from June
-  2022. See :pr:`1834`. This included adding new ``energy_storage_capacity_mwh`` (for
-  batteries) and ``net_capacity_mwdc`` (for behind-the-meter solar PV) attributes to the
-  :ref:`generators_eia860` table, as they appear in the :doc:`data_sources/eia860`
-  monthly updates for 2022.
+* Incorporated 2022 data from the :doc:`data_sources/eia860` monthly update from
+  September 2022. See :pr:`2079`. A June 2022 eia860m update included adding new
+  ``energy_storage_capacity_mwh`` (for batteries) and ``net_capacity_mwdc`` (for
+  behind-the-meter solar PV) attributes to the :ref:`generators_eia860` table, as they
+  appear in the :doc:`data_sources/eia860` monthly updates for 2022.  See :pr:`1834`.
+* Added new :ref:`datasources` table, which includes partitions used to generate the
+  database. See :pr:`2079`.
 * Integrated several new columns into the EIA 860 and EIA 923 including several
   codes with coding tables (See :doc:`data_dictionaries/codes_and_labels`). :pr:`1836`
 * Added the `EPACAMD-EIA Crosswalk <https://github.com/USEPA/camd-eia-crosswalk>`__ to
