@@ -31,7 +31,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "report_year",
                 "energy_source_type",
                 "row_type_xbrl",
-                "energy_source_mwh",
+                "energy_mwh",
             ],
             "primary_key": [
                 "utility_id_ferc1",

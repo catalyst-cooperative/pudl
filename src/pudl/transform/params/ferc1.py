@@ -2622,11 +2622,11 @@ TRANSFORM_PARAMS = {
             ],
             "expected_drop_cols": 2,
         },
-        "merge_metadata": {
+        "merge_metadata_xbrl": {
             "rename_columns": {"xbrl_factoid": "ferc_account_label"},
             "on": "ferc_account_label",
         },
-        "align_row_numbers_dbf": {"align_row_numbers_dbf": True},
+        "align_row_numbers_dbf": {"dbf_table_name": "f1_plant_in_srvce"},
     },
     "plants_pumped_storage_ferc1": {
         "rename_columns_ferc1": {
@@ -2861,7 +2861,7 @@ TRANSFORM_PARAMS = {
                     "row_number": "row_number",
                     "row_seq": "row_seq",
                     "row_prvlg": "row_prvlg",
-                    "erg_src_mwh": "energy_source_mwh",
+                    "erg_src_mwh": "energy_mwh",
                     "erg_disp_mwh": "energy_disposition_mwh",
                     "report_prd": "report_prd",
                     "xbrl_factoid": "energy_source_type",
@@ -2872,7 +2872,7 @@ TRANSFORM_PARAMS = {
                     "entity_id": "utility_id_ferc1_xbrl",
                     "report_year": "report_year",
                     "xbrl_factoid": "energy_source_type",
-                    "energy_source_mwh": "energy_source_mwh",
+                    "energy_source_mwh": "energy_mwh",
                 }
             },
         },
@@ -2912,11 +2912,11 @@ TRANSFORM_PARAMS = {
             "value_types": ["energy_source_mwh"],
             "expected_drop_cols": 10,
         },
-        "merge_metadata": {
+        "merge_metadata_xbrl": {
             "rename_columns": {"xbrl_factoid": "energy_source_type"},
             "on": "energy_source_type",
         },
-        "align_row_numbers_dbf": {"align_row_numbers_dbf": True},
+        "align_row_numbers_dbf": {"dbf_table_name": "f1_elctrc_erg_acct"},
     },
 }
 

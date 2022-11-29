@@ -212,35 +212,40 @@ def merge_metadata_xbrl(
 class AlignRowNumbersDbf(TransformParams):
     """Parameters for aligning DBF row numbers with metadata from mannual maps."""
 
-    align_row_numbers_dbf: bool = False
-    """Boolean variable that indicates whether to run :func:`align_row_numbers_dbf`.
+    dbf_table_name: str | None = None
+    """DBF table to use to grab the row map in :func:`align_row_numbers_dbf`.
 
-    Default is ``False``.
+    Default is ``None``.
     """
 
 
-def align_row_numbers_dbf(df: pd.DataFrame, dbf_table_name: str) -> pd.DataFrame:
-    """Rename the xbrl_factoid column after :meth:`align_row_numbers_dbf`.
-
-    Note: This function takes a ``dbf_table_name`` because it needs to know which piece
-    of the dbf_to_xbrl map tp grab from :func:`read_dbf_to_xbrl_map`. This is difference
-    than our current general convention of passing in just a ``df`` and ``params``.
-    """
-    row_map = read_dbf_to_xbrl_map(dbf_table_name=dbf_table_name).pipe(
-        fill_dbf_to_xbrl_map
-    )
-    if not row_map.all(axis=None):
-        raise ValueError(
-            "Filled DBF-XBRL map contains NA values, which should never happen:"
-            f"{row_map}"
+def align_row_numbers_dbf(
+    df: pd.DataFrame, params: AlignRowNumbersDbf | None = None
+) -> pd.DataFrame:
+    """Rename the xbrl_factoid column after :meth:`align_row_numbers_dbf`."""
+    if params is None:
+        params = AlignRowNumbersDbf()
+    if params.dbf_table_name:
+        logger.info(
+            f"Aligning row numbers from DBF row to XBRL map for  {params.dbf_table_name}"
         )
+        row_map = read_dbf_to_xbrl_map(dbf_table_name=params.dbf_table_name).pipe(
+            fill_dbf_to_xbrl_map
+        )
+        if not row_map.all(axis=None):
+            raise ValueError(
+                "Filled DBF-XBRL map contains NA values, which should never happen:"
+                f"{row_map}"
+            )
 
-    df = pd.merge(df, row_map, on=["report_year", "row_number"], how="left")
-    if df.xbrl_factoid.isna().any():
-        raise ValueError("Found null FERC Account labels after aligning DBF/XBRL rows.")
-    # eliminate the header rows since they (should!) contain no data in either the
-    # DBF or XBRL records:
-    df = df[df.xbrl_factoid != "HEADER_ROW"]
+        df = pd.merge(df, row_map, on=["report_year", "row_number"], how="left")
+        if df.xbrl_factoid.isna().any():
+            raise ValueError(
+                "Found null FERC Account labels after aligning DBF/XBRL rows."
+            )
+        # eliminate the header rows since they (should!) contain no data in either the
+        # DBF or XBRL records:
+        df = df[df.xbrl_factoid != "HEADER_ROW"]
     return df
 
 
@@ -348,6 +353,7 @@ def read_dbf_to_xbrl_map(dbf_table_name: str) -> pd.DataFrame:
         row_map.sched_table_name == dbf_table_name,
         ["report_year", "row_number", "row_type", "xbrl_factoid"],
     ]
+    row_map = row_map.fillna(value={"dbf_only": False})
     return row_map
 
 
@@ -607,6 +613,11 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                 "balance": pd.StringDtype(),
                 "ferc_account": pd.StringDtype(),
             }
+        ).assign(
+            # Flag the metadata record types
+            row_type_xbrl=lambda x: np.where(
+                x.calculations.astype(bool), "calculated_value", "reported_value"
+            ),
         )
         if xbrl_fact_names:
             normed_meta = normed_meta.loc[
@@ -640,13 +651,9 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         Additional Parameterization TBD with additional experience. See:
         https://github.com/catalyst-cooperative/pudl/issues/2012
         """
-        if not params:
+        if params is None:
             params = self.params.align_row_numbers_dbf
-        if params.align_row_numbers_dbf:
-            logger.info(f"{self.table_id.value}: adding row labels")
-            df = align_row_numbers_dbf(
-                df, dbf_table_name=self.source_table_id(Ferc1Source.DBF)
-            )
+        df = align_row_numbers_dbf(df, params=params)
         return df
 
     @cache_df(key="dbf")
@@ -1569,15 +1576,6 @@ class PlantInServiceFerc1TableTransformer(Ferc1AbstractTableTransformer):
             == "electric_plant_in_service_and_completed_construction_not_classified_electric",
             "ferc_account",
         ] = "101_and_106"
-
-        # Flag the metadata record types
-        pis_meta.loc[
-            pis_meta.calculations.astype(bool), "row_type_xbrl"
-        ] = "calculated_value"
-        pis_meta.loc[
-            ~pis_meta.calculations.astype(bool) & pis_meta.ferc_account.notna(),
-            "row_type_xbrl",
-        ] = "ferc_account"
         # Save the normalized metadata so it can be used by other methods.
         self.xbrl_metadata_normalized = pis_meta
         return pis_meta
@@ -2613,10 +2611,6 @@ class ElectricEnergyAccountSourcesFerc1TableTransformer(Ferc1AbstractTableTransf
             # standard normalize_metadata_xbrl??
             .assign(
                 xbrl_factoid=lambda x: x.xbrl_fact_name,
-                # Flag the metadata record types
-                row_type_xbrl=lambda x: np.where(
-                    x.calculations.astype(bool), "calculated_value", "reported_value"
-                ),
             )
         )
         # Save the normalized metadata so it can be used by other methods.
