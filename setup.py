@@ -49,7 +49,7 @@ setup(
     install_requires=[
         "addfips>=0.3.1,<0.4.0",
         "catalystcoop.dbfread>=3.0,<3.1",
-        "catalystcoop.ferc-xbrl-extractor==0.4.2",
+        "catalystcoop.ferc-xbrl-extractor==0.5.0",
         "coloredlogs>=15.0,<15.1",
         "dask>=2021.8,<2022.11.2",
         "datapackage>=1.11,<1.16",  # Transition datastore to use frictionless.
@@ -61,7 +61,7 @@ setup(
         "matplotlib>=3.3,<3.7",  # Should make this optional with a "viz" extras
         "networkx>=2.2,<2.9",
         "numpy>=1.18.5,<1.24,!=1.23.0",
-        "pandas>=1.4,<1.5.2",
+        "pandas>=1.4,<1.5.3",
         "pyarrow>=5,<10.1",
         "pydantic[email]>=1.7,<2",
         "python-snappy>=0.6,<0.7",
@@ -99,7 +99,7 @@ setup(
             "bandit>=1.6,<1.8",
             "coverage>=5.3,<6.6",
             "doc8>=0.9,<1.1",
-            "flake8>=4.0,<5.1",
+            "flake8>=4.0,<6.1",
             "flake8-builtins>=1.5,<2.1",
             "flake8-docstrings>=1.5,<1.7",
             "flake8-rst-docstrings>=0.2,<0.4",
