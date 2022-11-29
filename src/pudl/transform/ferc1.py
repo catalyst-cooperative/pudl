@@ -112,9 +112,6 @@ class WideToTidyXBRL(TransformParams):
 
     These will be the renamed XBRL column suffixes and will be the output table columns."""
 
-    xbrl_fact_label: str | None
-    """Name of XBRL fact-type (i.e. ``ferc_account_label`` if the XBRL columns represent ferc accounts.)"""
-
 
 def wide_to_tidy_xbrl(df: pd.DataFrame, params: WideToTidyXBRL) -> pd.DataFrame:
     """Reshape wide tables with FERC account columns to tidy format.
@@ -135,51 +132,63 @@ def wide_to_tidy_xbrl(df: pd.DataFrame, params: WideToTidyXBRL) -> pd.DataFrame:
     """
     suffixes = "|".join(params.value_types)
     pat = r"(^.*)_(" + suffixes + r"$)"
-    df = df.set_index(params.idx_cols).filter(regex=pat)
+    df_out = df.set_index(params.idx_cols).filter(regex=pat)
 
     new_cols = pd.MultiIndex.from_tuples(
-        [(re.sub(pat, r"\1", col), re.sub(pat, r"\2", col)) for col in df.columns],
-        names=[params.xbrl_fact_label, "value_type"],
+        [(re.sub(pat, r"\1", col), re.sub(pat, r"\2", col)) for col in df_out.columns],
+        names=["xbrl_column_stem", "value_type"],
     )
-    df.columns = new_cols
-    df = (
-        df.stack(level=params.xbrl_fact_label, dropna=False)
+    df_out.columns = new_cols
+    df_out = (
+        df_out.stack(level="xbrl_column_stem", dropna=False)
         .loc[:, params.value_types]
         .reset_index()
     )
-    return df
+    # check whether or not we have incorrectly named any of the columns in df
+    return df_out
 
 
 class MergeMetadata(TransformParams):
     """Parameters for merging metadata."""
 
-    on: str | None
+    rename_columns: dict[str, str] = {}
+    on: str | None = None
     """Column name to merge on in :func:`merge_metadata`."""
 
 
 def merge_metadata(
-    df: pd.DataFrame, xbrl_metadata_normalized: pd.DataFrame, params: WideToTidyXBRL
+    df: pd.DataFrame, xbrl_metadata_normalized: pd.DataFrame, params: MergeMetadata
 ) -> pd.DataFrame:
-    """Merge metadata based on params."""
-    return pd.merge(df, xbrl_metadata_normalized, on=params.on, how="left")
+    """Merge metadata based on params.
+
+    Maybe this should just be done in the method bc it is a one liner now and no longer
+    uses params.
+    """
+    return pd.merge(
+        df,
+        xbrl_metadata_normalized.rename(columns=params.rename_columns),
+        on=params.on,
+        how="left",
+        validate="many_to_one",
+    )
 
 
 class AlignRowNumbersDbf(TransformParams):
     """Parameters for aligning DBF row numbers with metadata from mannual maps."""
 
-    xbrl_column_stem_label: str | None
-    """Column to rename ``xbrl_column_stem`` in :func:`align_row_numbers_dbf`."""
+    align_row_numbers_dbf: bool = False
+    """Boolean variable that indicates whether to run :func:`align_row_numbers_dbf`.
+
+    Default is ``False``.
+    """
 
 
-def align_row_numbers_dbf(
-    df: pd.DataFrame, params: AlignRowNumbersDbf, dbf_table_name: str
-) -> pd.DataFrame:
+def align_row_numbers_dbf(df: pd.DataFrame, dbf_table_name: str) -> pd.DataFrame:
     """Rename the xbrl_column_stem column after :meth:`align_row_numbers_dbf`.
 
-    Note: This function **will** be the home for all of :meth:`align_row_numbers_dbf`.
-    But that method requires the table_id of the class to grab the meteadata. We could
-    add the table name as a part of AlignRowNumbersDbf, but we are going to overhaul
-    the way in which we grab the
+    Note: This function takes a ``dbf_table_name`` because it needs to know which piece
+    of the dbf_to_xbrl map tp grab from :func:`read_dbf_to_xbrl_map`. This is difference
+    than our current general convention of passing in just a ``df`` and ``params``.
     """
     row_map = read_dbf_to_xbrl_map(dbf_table_name=dbf_table_name).pipe(
         fill_dbf_to_xbrl_map
@@ -196,7 +205,6 @@ def align_row_numbers_dbf(
     # eliminate the header rows since they (should!) contain no data in either the
     # DBF or XBRL records:
     df = df[df.xbrl_column_stem != "HEADER_ROW"]
-    df = df.rename(columns={"xbrl_column_stem": params.xbrl_column_stem_label})
     return df
 
 
@@ -585,7 +593,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         if not params:
             params = self.params.merge_metadata
         if params.on:
-            logger.info(f"{self.table_id.value}: merging metadata ")
+            logger.info(f"{self.table_id.value}: merging metadata")
             df = merge_metadata(df, self.xbrl_metadata_normalized, params)
         return df
 
@@ -600,10 +608,10 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         """
         if not params:
             params = self.params.align_row_numbers_dbf
-        if params.xbrl_column_stem_label:
+        if params.align_row_numbers_dbf:
             logger.info(f"{self.table_id.value}: adding row labels")
             df = align_row_numbers_dbf(
-                df, params, dbf_table_name=self.source_table_id(Ferc1Source.DBF)
+                df, dbf_table_name=self.source_table_id(Ferc1Source.DBF)
             )
         return df
 
@@ -614,11 +622,11 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         return (
             raw_dbf.drop_duplicates()
             .pipe(self.drop_footnote_columns_dbf)
+            .pipe(self.align_row_numbers_dbf)
             # Note: in this rename_columns we have to pass in params, since we're using
             # the inherited method, with param specific to the child class.
             .pipe(self.rename_columns, params=self.params.rename_columns_ferc1.dbf)
             .pipe(self.assign_record_id, source_ferc1=Ferc1Source.DBF)
-            .pipe(self.align_row_numbers_dbf)
             .pipe(self.drop_unused_original_columns_dbf)
             .pipe(
                 self.assign_utility_id_ferc1,
@@ -671,7 +679,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         """
         if not params:
             params = self.params.wide_to_tidy_xbrl
-        if params.idx_cols or params.xbrl_fact_label or params.value_types:
+        if params.idx_cols or params.value_types:
             logger.info(f"{self.table_id.value}: applying wide_to_tidy_xbrl")
             df = wide_to_tidy_xbrl(df, params)
         return df
@@ -1480,7 +1488,7 @@ class PlantInServiceFerc1TableTransformer(Ferc1AbstractTableTransformer):
             super()
             .normalize_metadata_xbrl(xbrl_fact_names)
             .assign(
-                ferc_account_label=lambda x: x.xbrl_fact_name.replace(
+                xbrl_column_stem=lambda x: x.xbrl_fact_name.replace(
                     self.params.rename_columns_instant_xbrl.columns
                 )
             )
@@ -1494,18 +1502,18 @@ class PlantInServiceFerc1TableTransformer(Ferc1AbstractTableTransformer):
         # categories.
         value_types = ["additions", "retirements", "adjustments", "transfers"]
         pattern = ".*(" + "|".join(value_types) + ")$"
-        pis_meta = pis_meta[~pis_meta["ferc_account_label"].str.match(pattern)]
+        pis_meta = pis_meta[~pis_meta["xbrl_fact_name"].str.match(pattern)]
 
         # Set pseudo-account numbers for rows that split or combine FERC accounts, but
         # which are not calculated values.
         pis_meta.loc[
-            pis_meta.ferc_account_label == "electric_plant_purchased", "ferc_account"
+            pis_meta.xbrl_fact_name == "electric_plant_purchased", "ferc_account"
         ] = "102_purchased"
         pis_meta.loc[
-            pis_meta.ferc_account_label == "electric_plant_sold", "ferc_account"
+            pis_meta.xbrl_fact_name == "electric_plant_sold", "ferc_account"
         ] = "102_sold"
         pis_meta.loc[
-            pis_meta.ferc_account_label
+            pis_meta.xbrl_fact_name
             == "electric_plant_in_service_and_completed_construction_not_classified_electric",
             "ferc_account",
         ] = "101_and_106"
@@ -2546,7 +2554,7 @@ class ElectricEnergyAccountSourcesTransformer(Ferc1AbstractTableTransformer):
             super().normalize_metadata_xbrl(xbrl_fact_names)
             # should this be a straight up rename? could we just rename it within the
             # standard normalize_metadata_xbrl??
-            .assign(energy_source_type=lambda x: x.xbrl_fact_name)
+            .assign(xbrl_column_stem=lambda x: x.xbrl_fact_name)
         )
         # # Flag the metadata record types
         eeas_meta.loc[
