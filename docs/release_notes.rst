@@ -2,10 +2,10 @@
 PUDL Release Notes
 =======================================================================================
 
-.. _release-v2022.10.XX:
+.. _release-v2022.11.XX:
 
 ---------------------------------------------------------------------------------------
-2022.10.XX
+2022.11.XX
 ---------------------------------------------------------------------------------------
 
 Data Coverage
@@ -60,6 +60,14 @@ Data Coverage
   * Add :ref:`plants_small_ferc1` table :pr:`2035`
   * Add :ref:`plant_in_service_ferc1` table :pr:`2025` & :pr:`2058`
 
+* Added all of the SQLite databases which we build from FERC's raw XBRL filings to our
+  Datasette deployment. See :pr:`2095` & :issue:`2080`. Browse the published data here:
+
+  * `FERC Form 1 <https://data.catalyst.coop/ferc1_xbrl>`__
+  * `FERC Form 2 <https://data.catalyst.coop/ferc2_xbrl>`__
+  * `FERC Form 6 <https://data.catalyst.coop/ferc6_xbrl>`__
+  * `FERC Form 60 <https://data.catalyst.coop/ferc60_xbrl>`__
+  * `FERC Form 714 <https://data.catalyst.coop/ferc714_xbrl>`__
 
 Data Analysis
 ^^^^^^^^^^^^^

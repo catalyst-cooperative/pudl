@@ -15,4 +15,9 @@ datasette publish cloudrun \
     --metadata metadata.yml \
     --extra-options="--setting sql_time_limit_ms 5000" \
     $SQLITE_DIR/pudl.sqlite \
-    $SQLITE_DIR/ferc1.sqlite
+    $SQLITE_DIR/ferc1.sqlite \
+    $SQLITE_DIR/ferc1_xbrl.sqlite \
+    $SQLITE_DIR/ferc2_xbrl.sqlite \
+    $SQLITE_DIR/ferc6_xbrl.sqlite \
+    $SQLITE_DIR/ferc60_xbrl.sqlite \
+    $SQLITE_DIR/ferc714_xbrl.sqlite

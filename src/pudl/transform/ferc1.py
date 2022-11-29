@@ -178,7 +178,7 @@ def read_dbf_to_xbrl_map(dbf_table_name: str) -> pd.DataFrame:
             ``f1_plant_in_srvce``.
 
     Returns:
-        DataFrame with columns ``[report_year, row_number, row_type, xbrl_column_stem]``
+        DataFrame with columns ``[report_year, row_number, row_type, xbrl_factoid]``
     """
     with importlib.resources.open_text(
         "pudl.package_data.ferc1", "dbf_to_xbrl.csv"
@@ -190,13 +190,13 @@ def read_dbf_to_xbrl_map(dbf_table_name: str) -> pd.DataFrame:
                 "report_year",
                 "row_number",
                 "row_type",
-                "xbrl_column_stem",
+                "xbrl_factoid",
             ],
         )
     # Select only the rows that pertain to dbf_table_name
     row_map = row_map.loc[
         row_map.sched_table_name == dbf_table_name,
-        ["report_year", "row_number", "row_type", "xbrl_column_stem"],
+        ["report_year", "row_number", "row_type", "xbrl_factoid"],
     ]
     return row_map
 
@@ -217,7 +217,7 @@ def fill_dbf_to_xbrl_map(
     in them (which don't exist in XBRL), to differentiate them from null values in the
     exhaustive index we create below. We set a ``HEADER_ROW`` sentinel value so we can
     distinguish between two different reasons that we might find NULL values in the
-    ``xbrl_column_stem`` field:
+    ``xbrl_factoid`` field:
 
     1. It's NULL because it's between two valid mapped values (the NULL was created
        in our filling of the time series) and should thus be filled in, or
@@ -226,7 +226,7 @@ def fill_dbf_to_xbrl_map(
        NOT be filled in. Without the ``HEADER_ROW`` value, when a row number from year X
        becomes associated with a non-header row in year X+1 the ffill will keep right on
        filling, associating all of the new header rows with the value of
-       ``xbrl_column_stem`` that was associated with the old row number.
+       ``xbrl_factoid`` that was associated with the old row number.
 
     Args:
         df: A dataframe containing a DBF row to XBRL mapping for a single FERC 1 DBF
@@ -239,7 +239,7 @@ def fill_dbf_to_xbrl_map(
     Returns:
         A complete mapping of DBF row number to XBRL columns for all years of data
         within a single FERC 1 DBF table. Has columns of
-        ``[report_year, row_number, xbrl_column_stem]``
+        ``[report_year, row_number, xbrl_factoid]``
     """
     if not dbf_years:
         dbf_years = Ferc1Settings().dbf_years
@@ -253,11 +253,11 @@ def fill_dbf_to_xbrl_map(
             f"Mapped years: {sorted(df.report_years.unique())}"
         )
 
-    if df.loc[(df.row_type == "header"), "xbrl_column_stem"].notna().any():
+    if df.loc[(df.row_type == "header"), "xbrl_factoid"].notna().any():
         raise ValueError("Found non-null XBRL column value mapped to a DBF header row.")
-    df.loc[df.row_type == "header", "xbrl_column_stem"] = "HEADER_ROW"
+    df.loc[df.row_type == "header", "xbrl_factoid"] = "HEADER_ROW"
 
-    if df["xbrl_column_stem"].isna().any():
+    if df["xbrl_factoid"].isna().any():
         raise ValueError(
             "Found NA XBRL values in the DBF-XBRL mapping, which shouldn't happen."
         )
@@ -283,11 +283,9 @@ def fill_dbf_to_xbrl_map(
 
     # Forward fill missing XBRL column names, until a new definition for the row
     # number is encountered:
-    df["xbrl_column_stem"] = df.groupby("row_number").xbrl_column_stem.transform(
-        "ffill"
-    )
+    df["xbrl_factoid"] = df.groupby("row_number").xbrl_factoid.transform("ffill")
     # Drop NA values produced in the broadcasting merge onto the exhaustive index.
-    df = df.dropna(subset="xbrl_column_stem")
+    df = df.dropna(subset="xbrl_factoid")
     # There should be no NA values left at this point:
     if not df.all(axis=None):
         raise ValueError(
@@ -350,7 +348,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
     the transformed data.
     """
 
-    xbrl_metadata_json: list[dict[Any]] = []
+    xbrl_metadata_json: list[dict] = []
     """An array of JSON objects extracted from the FERC 1 XBRL taxonomy."""
 
     xbrl_metadata_normalized: pd.DataFrame = pd.DataFrame()
@@ -361,7 +359,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         params: TableTransformParams | None = None,
         cache_dfs: bool = False,
         clear_cached_dfs: bool = True,
-        xbrl_metadata_json: list[dict[Any]] | None = None,
+        xbrl_metadata_json: list[dict] | None = None,
     ) -> None:
         """Augment inherited initializer to store XBRL metadata in the class."""
         super().__init__(
@@ -602,6 +600,9 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             logger.info(f"{self.table_id.value}: No XBRL duration table found.")
             return instant
         else:
+            logger.info(
+                f"{self.table_id.value}: Both XBRL instant & duration tables found."
+            )
             instant_merge_keys = ["entity_id", "report_year"] + instant_axes
             duration_merge_keys = ["entity_id", "report_year"] + duration_axes
             # See if there are any values in the instant table that don't show up in the
@@ -610,6 +611,10 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                 instant_merge_keys
             ).index.difference(duration.set_index(duration_merge_keys).index)
             if unique_instant_rows.empty:
+                logger.info(
+                    f"{self.table_id.value}: Combining XBRL instant & duration tables "
+                    "using RIGHT-MERGE."
+                )
                 # Merge instant into duration.
                 return pd.merge(
                     instant,
@@ -624,6 +629,10 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                 # concatenating them. May need to be table specific. E.g.
                 # * What fraction of their index values overlap? (it should be high!)
                 # * Do the instant/duration columns conform to expected naming conventions?
+                logger.info(
+                    f"{self.table_id.value}: Combining XBRL instant & duration tables "
+                    "using CONCATENATION."
+                )
                 return pd.concat(
                     [
                         instant.set_index(["report_year", "entity_id"] + instant_axes),
@@ -1298,7 +1307,7 @@ class PlantInServiceFerc1TableTransformer(Ferc1AbstractTableTransformer):
             )
 
         df = pd.merge(df, row_map, on=["report_year", "row_number"], how="left").rename(
-            columns={"xbrl_column_stem": "ferc_account_label"}
+            columns={"xbrl_factoid": "ferc_account_label"}
         )
         if df.ferc_account_label.isna().any():
             raise ValueError(
@@ -2532,7 +2541,9 @@ def transform(
             raw_xbrl_duration=ferc1_xbrl_raw_dfs["plants_steam_ferc1"].get(
                 "duration", pd.DataFrame()
             ),
-            transformed_fuel=ferc1_transformed_dfs["fuel_ferc1"],
+            # use a copy of the fuel table because we *definitely* don't want it to
+            # be changed by the steam transform.
+            transformed_fuel=ferc1_transformed_dfs["fuel_ferc1"].copy(),
         )
 
     # convert types and return:

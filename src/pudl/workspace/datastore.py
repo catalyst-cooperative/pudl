@@ -454,6 +454,12 @@ Available Sandbox Datasets:
         default="INFO",
     )
     parser.add_argument(
+        "--logfile",
+        default=None,
+        type=str,
+        help="If specified, write logs to this file.",
+    )
+    parser.add_argument(
         "--quiet",
         help="Do not send logging messages to stdout.",
         action="store_true",
@@ -566,7 +572,9 @@ def main():
     """Cache datasets."""
     args = parse_command_line()
 
-    pudl.logging_helpers.configure_root_logger(loglevel=args.loglevel)
+    pudl.logging_helpers.configure_root_logger(
+        logfile=args.logfile, loglevel=args.loglevel
+    )
 
     dstore = _create_datastore(args)
 

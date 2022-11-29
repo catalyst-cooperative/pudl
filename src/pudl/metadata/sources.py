@@ -361,7 +361,7 @@ SOURCES: dict[str, Any] = {
         ),
         "field_namespace": "ferc2",
         "working_partitions": {
-            "years": [],  # Not yet working!
+            "years": sorted(set(range(2021, 2022))),  # XBRL only
         },
         "contributors": [
             CONTRIBUTORS["catalyst-cooperative"],
@@ -389,7 +389,7 @@ SOURCES: dict[str, Any] = {
         ),
         "field_namespace": "ferc6",
         "working_partitions": {
-            "years": [],  # Not yet working!
+            "years": sorted(set(range(2021, 2022))),  # XBRL only
         },
         "contributors": [
             CONTRIBUTORS["catalyst-cooperative"],
@@ -417,7 +417,7 @@ SOURCES: dict[str, Any] = {
         ),
         "field_namespace": "ferc60",
         "working_partitions": {
-            "years": [],  # Not yet working!
+            "years": sorted(set(range(2021, 2022))),  # XBRL only
         },
         "contributors": [
             CONTRIBUTORS["catalyst-cooperative"],
@@ -436,7 +436,7 @@ SOURCES: dict[str, Any] = {
         "license_pudl": LICENSES["cc-by-4.0"],
     },
     "ferc714": {
-        "title": "FERC Form 714: Annual Electric Balancing Authority Area and Planning Area Report",
+        "title": "FERC Form 714 - Annual Electric Balancing Authority Area and Planning Area Report",
         "path": "https://www.ferc.gov/industries-data/electric/general-information/electric-industry-forms/form-no-714-annual-electric",
         "description": (
             "Electric transmitting utilities operating balancing authority "
@@ -447,7 +447,9 @@ SOURCES: dict[str, Any] = {
             "summer-winter generation peaks and system lambda."
         ),
         "field_namespace": "ferc714",
-        "working_partitions": {},  # Data is monolitic, one file with all years.
+        "working_partitions": {
+            "years": sorted(set(range(2021, 2022))),  # Pre-XBRL data is monolithic
+        },
         "contributors": [
             CONTRIBUTORS["catalyst-cooperative"],
         ],
