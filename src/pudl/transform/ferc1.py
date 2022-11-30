@@ -592,14 +592,14 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             pd.json_normalize(self.xbrl_metadata_json)
             .rename(
                 columns={
-                    "name": "xbrl_factoid",
+                    "name": "xbrl_fact_name",
                     "references.Account": "ferc_account",
                 }
             )
             .loc[
                 :,
                 [
-                    "xbrl_factoid",
+                    "xbrl_fact_name",
                     "balance",
                     "calculations",
                     "ferc_account",
@@ -609,7 +609,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         # Use nullable strings, converting NaN to pd.NA
         normed_meta = normed_meta.astype(
             {
-                "xbrl_factoid": pd.StringDtype(),
+                "xbrl_fact_name": pd.StringDtype(),
                 "balance": pd.StringDtype(),
                 "ferc_account": pd.StringDtype(),
             }
@@ -621,7 +621,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         )
         if xbrl_fact_names:
             normed_meta = normed_meta.loc[
-                normed_meta.xbrl_factoid.isin(xbrl_fact_names)
+                normed_meta.xbrl_fact_name.isin(xbrl_fact_names)
             ]
         self.xbrl_metadata_normalized = normed_meta
         return normed_meta
