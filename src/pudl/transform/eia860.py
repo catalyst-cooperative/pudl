@@ -5,7 +5,6 @@ import pandas as pd
 from dagster import asset
 
 import pudl
-from pudl.helpers import convert_cols_dtypes
 from pudl.metadata.classes import DataSource
 from pudl.metadata.codes import CODE_METADATA
 from pudl.metadata.dfs import POLITICAL_SUBDIVISIONS
@@ -169,7 +168,6 @@ def clean_ownership_eia860(raw_ownership_eia860):
     own_df["owner_country"] = own_df["owner_state"].map(state_to_country)
     own_df.loc[own_df.owner_state == "CN", "owner_state"] = pd.NA
 
-    own_df = convert_cols_dtypes(own_df, data_source="eia")
     return own_df
 
 

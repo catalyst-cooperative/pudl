@@ -33,6 +33,7 @@ from dagster import (
 )
 
 import pudl
+from pudl.helpers import convert_cols_dtypes
 from pudl.metadata.classes import DataSource, Package
 from pudl.metadata.enums import APPROXIMATE_TIMEZONES
 from pudl.metadata.fields import apply_pudl_dtypes, get_pudl_dtypes
@@ -1183,6 +1184,12 @@ def eia_transform(context, **eia_transformed_dfs):
         tuple: two dictionaries having table names as keys and
         dataframes as values for the entity tables transformed EIA dataframes
     """
+    # Do some final cleanup and assign appropriate types:
+    eia_transformed_dfs = {
+        name: convert_cols_dtypes(df, data_source="eia")
+        for name, df in eia_transformed_dfs.items()
+    }
+
     eia_settings = context.resources.dataset_settings.eia
 
     # create the empty entities df to fill up
