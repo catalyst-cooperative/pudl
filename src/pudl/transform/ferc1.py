@@ -251,17 +251,24 @@ def align_row_numbers_dbf(
 
 
 class SelectDateRangeDurationXbrl(TransformParams):
-    """hello."""
+    """Parameters for selecting date ranges for report_years in the duration table."""
 
     date_ranges: list[
         dict[Literal["report_year", "start_date", "end_date"], int | datetime.date]
     ] = []
+    """List of date ranges.
+
+    Each element of the list must be a dictionary with three keys: report_year,
+    start_date and end_date. The report_year should be an year represented as an int.
+    This will be the report year that you want to apply this date range to. The start
+    and end date must be dates.
+    """
 
 
 def select_date_range_duration_xbrl(
     df: pd.DataFrame, params: SelectDateRangeDurationXbrl | None = None
 ) -> pd.DataFrame:
-    """Select rows that fall within a date range for each report_year.
+    """Select rows that have specific date ranges for each report_year.
 
     In the XBRL tables, there are occassionally multiple entries for each report year.
     Sometimes there are sneaky, sneaky quarterly filings that shouldn't be in the annual
@@ -916,7 +923,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
     def select_date_range_duration_xbrl(
         self, df: pd.DataFrame, params: SelectDateRangeDurationXbrl | None = None
     ) -> pd.DataFrame:
-        """Hello."""
+        """Wrapper method for :func:`select_date_range_duration_xbrl`."""
         if not params:
             params = self.params.select_date_range_duration_xbrl
         df = select_date_range_duration_xbrl(df, params=params)
