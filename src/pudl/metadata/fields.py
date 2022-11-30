@@ -359,6 +359,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Long human-readable description of the meaning of a code/label.",
     },
+    "doi": {
+        "type": "string",
+        "description": "Unique digitial object identifier of Zenodo archive.",
+    },
     "ending_balance": {
         "type": "number",
         "description": "Account balance at end of year.",
@@ -369,10 +373,13 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "unit": "MWh",
         "description": "Sources and uses of energy in MWh.",
     },
-    "energy_source_type": {"type": "string", "description": "Type of energy source."},
+    "energy_source_type": {
+        "type": "string",
+        "description": "Type of energy source reported in the electric_energy_account_sources_ferc1 table. There are three groups of energy sources: generation, power exchanges and transmission.",
+    },
     "energy_disposition_type": {
         "type": "string",
-        "description": "Type of energy disposition.",
+        "description": "Type of energy disposition reported in the electric_energy_account_dispositions_ferc1. Dispositions include sales to customers, re-sales of energy, energy used internally, losses, etc.",
     },
     "ferc_account_description": {"type": "string"},
     "fuel_agg": {
@@ -1234,6 +1241,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "boolean",
         "description": "Whether a plant part record has a duplicate record with different ownership status.",
     },
+    "partitions": {
+        "type": "string",
+        "description": "The data parititions used to generate this instance of the database.",
+    },
     "peak_demand_mw": {
         "type": "number",
         "unit": "MW",
@@ -1412,6 +1423,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Code for the type of prime mover (e.g. CT, CG)",
     },
     "project_num": {"type": "integer", "description": "FERC Licensed Project Number."},
+    "pudl_version": {
+        "type": "string",
+        "description": "The version of PUDL used to generate this database.",
+    },
     "pulverized_coal_tech": {
         "type": "boolean",
         "description": "Indicates whether the generator uses pulverized coal technology",
