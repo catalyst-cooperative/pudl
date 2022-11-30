@@ -58,7 +58,7 @@ function shutdown_vm() {
         "http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token" \
         -H "Metadata-Flavor: Google" | jq -r '.access_token'`
 
-    curl -X POST -H "Content-Length: 0" -H "Authorization: Bearer ${ACCESS_TOKEN}" https://compute.googleapis.com/compute/v1/projects/catalyst-cooperative-pudl/zones/us-central1-a/instances/$GCE_INSTANCE/stop
+    curl -X POST -H "Content-Length: 0" -H "Authorization: Bearer ${ACCESS_TOKEN}" https://compute.googleapis.com/compute/v1/projects/catalyst-cooperative-pudl/zones/$GCE_INSTANCE_ZONE/instances/$GCE_INSTANCE/stop
 }
 
 function copy_outputs_to_intake_bucket() {
