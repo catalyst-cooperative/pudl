@@ -585,8 +585,8 @@ def gen_fuel_nuclear(gen_fuel_nuke: pd.DataFrame) -> pd.DataFrame:
 
 @multi_asset(
     outs={
-        "generation_fuel_eia923": AssetOut(),
-        "generation_fuel_nuclear_eia923": AssetOut(),
+        "clean_generation_fuel_eia923": AssetOut(),
+        "clean_generation_fuel_nuclear_eia923": AssetOut(),
     }
 )
 def generation_fuel_eia923(raw_generation_fuel_eia923):
@@ -709,8 +709,8 @@ def generation_fuel_eia923(raw_generation_fuel_eia923):
     # Aggregate any remaining duplicates.
     gen_fuel = _aggregate_generation_fuel_duplicates(gen_fuel)
 
-    return Output(output_name="generation_fuel_eia923", value=gen_fuel), Output(
-        output_name="generation_fuel_nuclear_eia923",
+    return Output(output_name="clean_generation_fuel_eia923", value=gen_fuel), Output(
+        output_name="clean_generation_fuel_nuclear_eia923",
         value=generation_fuel_nuclear_eia923,
     )
 
@@ -785,6 +785,7 @@ def _aggregate_duplicate_boiler_fuel_keys(boiler_fuel_df: pd.DataFrame) -> pd.Da
     # For relative columns, take average weighted by fuel usage
     total_fuel: pd.Series = boiler_fuel_groups["fuel_consumed_units"].transform("sum")
     # division by zero -> NaN, so fill with 0 in those cases
+    print(f"Aggregate boilers: {duplicates.info()}")
     fuel_fraction = (
         duplicates["fuel_consumed_units"].div(total_fuel.to_numpy()).fillna(0.0)
     )
@@ -808,7 +809,7 @@ def _aggregate_duplicate_boiler_fuel_keys(boiler_fuel_df: pd.DataFrame) -> pd.Da
 
 
 @asset
-def boiler_fuel_eia923(raw_boiler_fuel_eia923):
+def clean_boiler_fuel_eia923(raw_boiler_fuel_eia923):
     """Transforms the boiler_fuel_eia923 table.
 
     Transformations include:
@@ -887,7 +888,7 @@ def boiler_fuel_eia923(raw_boiler_fuel_eia923):
 
 
 @asset
-def generation_eia923(raw_generator_eia923):
+def clean_generation_eia923(raw_generator_eia923):
     """Transforms the generation_eia923 table.
 
     Transformations include:
@@ -962,7 +963,7 @@ def generation_eia923(raw_generator_eia923):
 
 
 @asset
-def coalmine_eia923(raw_fuel_receipts_costs_eia923):
+def clean_coalmine_eia923(raw_fuel_receipts_costs_eia923):
     """Transforms the coalmine_eia923 table.
 
     Transformations include:
@@ -1047,7 +1048,9 @@ def coalmine_eia923(raw_fuel_receipts_costs_eia923):
 
 
 @asset
-def fuel_receipts_costs_eia923(raw_fuel_receipts_costs_eia923, coalmine_eia923):
+def clean_fuel_receipts_costs_eia923(
+    raw_fuel_receipts_costs_eia923, clean_coalmine_eia923
+):
     """Transforms the fuel_receipts_costs_eia923 dataframe.
 
     Transformations include:
@@ -1093,7 +1096,7 @@ def fuel_receipts_costs_eia923(raw_fuel_receipts_costs_eia923, coalmine_eia923):
     ]
 
     cmi_df = (
-        coalmine_eia923
+        clean_coalmine_eia923
         # In order for the merge to work, we need to get the county_id_fips
         # field back into ready-to-dump form... so it matches the types of the
         # county_id_fips field that we are going to be merging on in the

@@ -5,6 +5,7 @@ import pandas as pd
 from dagster import asset
 
 import pudl
+from pudl.helpers import convert_cols_dtypes
 from pudl.metadata.classes import DataSource
 from pudl.metadata.codes import CODE_METADATA
 from pudl.metadata.dfs import POLITICAL_SUBDIVISIONS
@@ -15,7 +16,7 @@ logger = pudl.logging_helpers.get_logger(__name__)
 
 
 @asset
-def ownership_eia860(raw_ownership_eia860):
+def clean_ownership_eia860(raw_ownership_eia860):
     """Pull and transform the ownership table.
 
     Transformations include:
@@ -167,11 +168,13 @@ def ownership_eia860(raw_ownership_eia860):
     } | {"CN": "CAN"}
     own_df["owner_country"] = own_df["owner_state"].map(state_to_country)
     own_df.loc[own_df.owner_state == "CN", "owner_state"] = pd.NA
+
+    own_df = convert_cols_dtypes(own_df, data_source="eia")
     return own_df
 
 
 @asset
-def generators_eia860(
+def clean_generators_eia860(
     raw_generator_proposed_eia860,
     raw_generator_existing_eia860,
     raw_generator_retired_eia860,
@@ -354,7 +357,7 @@ def generators_eia860(
 
 
 @asset
-def plants_eia860(raw_plant_eia860):
+def clean_plants_eia860(raw_plant_eia860):
     """Pull and transform the plants table.
 
     Much of the static plant information is reported repeatedly, and scattered across
@@ -446,7 +449,7 @@ def plants_eia860(raw_plant_eia860):
 
 
 @asset
-def boiler_generator_assn_eia860(raw_boiler_generator_assn_eia860):
+def clean_boiler_generator_assn_eia860(raw_boiler_generator_assn_eia860):
     """Pull and transform the boilder generator association table.
 
     Transformations include:
@@ -484,7 +487,7 @@ def boiler_generator_assn_eia860(raw_boiler_generator_assn_eia860):
 
 
 @asset
-def utilities_eia860(raw_utility_eia860):
+def clean_utilities_eia860(raw_utility_eia860):
     """Pull and transform the utilities table.
 
     Transformations include:

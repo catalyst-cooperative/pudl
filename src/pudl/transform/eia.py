@@ -23,7 +23,14 @@ import networkx as nx
 import numpy as np
 import pandas as pd
 import timezonefinder
-from dagster import AssetIn, AssetOut, Output, load_assets_from_modules, multi_asset
+from dagster import (
+    AssetIn,
+    AssetOut,
+    Field,
+    Output,
+    load_assets_from_modules,
+    multi_asset,
+)
 
 import pudl
 from pudl.metadata.classes import DataSource, Package
@@ -621,7 +628,7 @@ def _boiler_generator_assn(  # noqa: C901
     # compile and scrub all the parts
     logger.info("Inferring complete EIA boiler-generator associations.")
     bga_eia860 = (
-        eia_transformed_dfs["boiler_generator_assn_eia860"]
+        eia_transformed_dfs["clean_boiler_generator_assn_eia860"]
         .copy()
         .pipe(_restrict_years, eia923_years, eia860_years)
         .astype(
@@ -633,7 +640,7 @@ def _boiler_generator_assn(  # noqa: C901
         )
     )
     # grab the generation_eia923 table, group annually, generate a new tag
-    gen_eia923 = eia_transformed_dfs["generation_eia923"].copy()
+    gen_eia923 = eia_transformed_dfs["clean_generation_eia923"].copy()
     gen_eia923 = gen_eia923.set_index(pd.DatetimeIndex(gen_eia923.report_date))
     gen_eia923 = (
         _restrict_years(gen_eia923, eia923_years, eia860_years)
@@ -651,7 +658,7 @@ def _boiler_generator_assn(  # noqa: C901
 
     # compile all of the generators
     gens_eia860 = (
-        eia_transformed_dfs["generators_eia860"]
+        eia_transformed_dfs["clean_generators_eia860"]
         .copy()
         .pipe(_restrict_years, eia923_years, eia860_years)
         .astype(
@@ -710,7 +717,7 @@ def _boiler_generator_assn(  # noqa: C901
     # bga_compiled_1[bga_compiled_1['og_tag'].isnull()]
 
     bf_eia923 = (
-        eia_transformed_dfs["boiler_fuel_eia923"]
+        eia_transformed_dfs["clean_boiler_fuel_eia923"]
         .copy()
         .pipe(_restrict_years, eia923_years, eia860_years)
         .astype(
@@ -979,7 +986,7 @@ def _boiler_generator_assn(  # noqa: C901
         )
 
     bga_out = apply_pudl_dtypes(bga_out, group="eia")
-    eia_transformed_dfs["boiler_generator_assn_eia860"] = bga_out
+    eia_transformed_dfs["clean_boiler_generator_assn_eia860"] = bga_out
 
     return eia_transformed_dfs
 
@@ -1125,17 +1132,17 @@ final_eia_table_names = [
     "generators_entity_eia",
     "utilities_entity_eia",
     "boilers_entity_eia",
-    "final_boiler_fuel_eia923",
-    "final_boiler_generator_assn_eia860",
-    "final_coalmine_eia923",
-    "final_fuel_receipts_costs_eia923",
-    "final_generation_eia923",
-    "final_generation_fuel_eia923",
-    "final_generation_fuel_nuclear_eia923",
-    "final_generators_eia860",
-    "final_ownership_eia860",
-    "final_plants_eia860",
-    "final_utilities_eia860",
+    "boiler_fuel_eia923",
+    "boiler_generator_assn_eia860",
+    "coalmine_eia923",
+    "fuel_receipts_costs_eia923",
+    "generation_eia923",
+    "generation_fuel_eia923",
+    "generation_fuel_nuclear_eia923",
+    "generators_eia860",
+    "ownership_eia860",
+    "plants_eia860",
+    "utilities_eia860",
 ]
 
 
@@ -1145,9 +1152,15 @@ final_eia_table_names = [
         for eia_asset in eia_assets
         for asset_key in eia_asset.asset_keys
     },
-    outs={table_name: AssetOut() for table_name in sorted(final_eia_table_names)},
+    outs={
+        table_name: AssetOut(io_manager_key="pudl_sqlite_io_manager")
+        for table_name in sorted(final_eia_table_names)
+    },
+    config_schema={
+        "debug": Field(bool, default_value=False),
+    },
 )
-def eia_transform(**eia_transformed_dfs):
+def eia_transform(context, **eia_transformed_dfs):
     """Creates DataFrames for EIA Entity tables and modifies EIA tables.
 
     This function coordinates two main actions: generating the entity tables
@@ -1183,14 +1196,15 @@ def eia_transform(**eia_transformed_dfs):
             entity,
             eia_transformed_dfs,
             entities_dfs,
-            # debug=debug,
+            debug=context.op_config["debug"],
             # eia860m=eia_settings.eia860.eia860m,
         )
+    # TODO (bendnorman): Figure out how to pass years on
     _boiler_generator_assn(
         eia_transformed_dfs,
         # eia923_years=eia_settings.eia923.years,
         # eia860_years=eia_settings.eia860.years,
-        # debug=debug,
+        debug=context.op_config["debug"],
     )
     # get rid of the original annual dfs in the transformed dict
     remove = ["generators", "plants", "utilities"]
@@ -1225,13 +1239,24 @@ def eia_transform(**eia_transformed_dfs):
     # renaming these tables because I think harvesting relies on the old tables names.
     # I just need to understand what table names harvesting expects.
     eia_transformed_dfs = {
-        f"final_{table_name}": df for table_name, df in eia_transformed_dfs.items()
+        table_name.replace("clean_", ""): df
+        for table_name, df in eia_transformed_dfs.items()
     }
 
     final_dfs = entities_dfs | eia_transformed_dfs
 
     # Ensure they are sorted so they match up with the asset outs
     final_dfs = dict(sorted(final_dfs.items()))
+
+    ownership_eia860 = final_dfs["ownership_eia860"]
+    print(ownership_eia860.owner_zip_code.str.len().value_counts())
+    print()
+    print(ownership_eia860.owner_zip_code.apply(type).value_counts())
+    print()
+    print(
+        ownership_eia860[ownership_eia860.owner_zip_code.str.len() > 5].owner_zip_code
+    )
+    print(ownership_eia860.owner_zip_code.describe())
 
     return (
         Output(output_name=table_name, value=df) for table_name, df in final_dfs.items()
