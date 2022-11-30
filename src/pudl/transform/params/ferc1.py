@@ -237,6 +237,13 @@ FERC1_STRING_NORM = {
     "remove_chars": r"$?={}\x02\x00",
     "nullable": False,
 }
+"""
+Remove characters such as $, ?, =, {}, and unprintable control characters \x02 and \x00
+in addition to the other cleaning executed in the string_normalization function.
+Establishes the param nullable = False to indicate that no rows may have NA values and
+will be replaced with blanks. This is a useful precursor to the string categorization
+process and the FERC plant ID assignment process.
+"""
 
 ##############################################################################
 # String categorizations
@@ -2851,13 +2858,13 @@ TRANSFORM_PARAMS = {
                     "length_dsgnt": "transmission_line_length_miles",
                     "length_another": "transmission_line_and_structures_length_miles",
                     "num_of_circuits": "num_transmission_circuits",
-                    "conductor_size": "conductor_size",
+                    "conductor_size": "conductor_size_and_material",
                     "cost_land": "capex_land",
                     "cost_other": "capex_other",
                     "cost_total": "capex_total",
                     "expns_operations": "opex_operations",
                     "expns_maint": "opex_maintenance",
-                    "expns_rents": "opex_rent",
+                    "expns_rents": "opex_rents",
                     "expns_total": "opex_total",
                     "report_prd": "report_prd",
                 }
@@ -2880,15 +2887,16 @@ TRANSFORM_PARAMS = {
                     "operating_voltage_of_transmission_line": "operating_voltage_kv",
                     "transmission_line_end_point": "end_point",
                     "order_number": "order_number",
-                    "size_of_conductor_and_material": "conductor_size",
+                    "size_of_conductor_and_material": "conductor_size_and_material",
                     "transmission_line_start_point": "start_point",
-                    "rent_expenses_of_transmission_line": "opex_rent",
+                    "rent_expenses_of_transmission_line": "opex_rents",
                     "length_for_stand_alone_transmission_lines": "transmission_line_length_miles",
                     "overall_expenses_of_transmission_line": "opex_total",
                     "report_year": "report_year",
                 }
             },
-        }
+        },
+        # "replace_with_na": {"conductor_size_and_material": {"replace_with_na": [""]}},
     },
 }
 
