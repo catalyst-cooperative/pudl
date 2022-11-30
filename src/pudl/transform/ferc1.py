@@ -2649,7 +2649,13 @@ class ElectricEnergyAccountDispositionsFerc1TableTransformer(
 
         Determine whether the
         """
-        eead_meta = super().normalize_metadata_xbrl(xbrl_fact_names)
+        eead_meta = (
+            super()
+            .normalize_metadata_xbrl(xbrl_fact_names)
+            .assign(
+                xbrl_factoid=lambda x: x.xbrl_fact_name,
+            )
+        )
         # Save the normalized metadata so it can be used by other methods.
         self.xbrl_metadata_normalized = eead_meta
         return eead_meta
