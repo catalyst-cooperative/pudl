@@ -1159,6 +1159,7 @@ final_eia_table_names = [
     config_schema={
         "debug": Field(bool, default_value=False),
     },
+    required_resource_keys={"dataset_settings"},
 )
 def eia_transform(context, **eia_transformed_dfs):
     """Creates DataFrames for EIA Entity tables and modifies EIA tables.
@@ -1182,13 +1183,14 @@ def eia_transform(context, **eia_transformed_dfs):
         tuple: two dictionaries having table names as keys and
         dataframes as values for the entity tables transformed EIA dataframes
     """
+    eia_settings = context.resources.dataset_settings.eia
+
     # create the empty entities df to fill up
     entities_dfs = {}
 
     # for each of the entities, harvest the static and annual columns.
     # the order of the entities matter! the
 
-    # TODO (bendnorman): Figure out how to pass eia860m along
     for entity in ENTITIES:
         logger.info(f"Harvesting IDs & consistently static attributes for EIA {entity}")
 
@@ -1197,13 +1199,12 @@ def eia_transform(context, **eia_transformed_dfs):
             eia_transformed_dfs,
             entities_dfs,
             debug=context.op_config["debug"],
-            # eia860m=eia_settings.eia860.eia860m,
+            eia860m=eia_settings.eia860.eia860m,
         )
-    # TODO (bendnorman): Figure out how to pass years on
     _boiler_generator_assn(
         eia_transformed_dfs,
-        # eia923_years=eia_settings.eia923.years,
-        # eia860_years=eia_settings.eia860.years,
+        eia923_years=eia_settings.eia923.years,
+        eia860_years=eia_settings.eia860.years,
         debug=context.op_config["debug"],
     )
     # get rid of the original annual dfs in the transformed dict

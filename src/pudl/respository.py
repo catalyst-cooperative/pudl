@@ -9,6 +9,7 @@ from dagster import (
 import pudl
 from pudl.etl import eia_raw_dfs, static_eia_assets
 from pudl.io_managers import pudl_sqlite_io_manager
+from pudl.settings import dataset_settings
 from pudl.workspace.datastore import datastore
 
 
@@ -27,6 +28,7 @@ def pudl_repository():
             resource_defs={
                 "datastore": datastore,
                 "pudl_sqlite_io_manager": pudl_sqlite_io_manager,
+                "dataset_settings": dataset_settings,
             },
         ),
         define_asset_job(name="pudl"),

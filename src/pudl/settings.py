@@ -5,6 +5,7 @@ from typing import ClassVar
 
 import pandas as pd
 import yaml
+from dagster import Field, resource
 from pydantic import AnyHttpUrl
 from pydantic import BaseModel as PydanticBaseModel
 from pydantic import BaseSettings, root_validator, validator
@@ -558,3 +559,27 @@ class EtlSettings(BaseSettings):
         with pathlib.Path(path).open() as f:
             yaml_file = yaml.safe_load(f)
         return cls.parse_obj(yaml_file)
+
+
+# TODO (bendnorman): Remove these default values and let the settings objects define the defaults.
+@resource(
+    config_schema={
+        "eia_years": Field(list, default_value=[2021]),
+        "eia860m": Field(bool, default_value=True),
+    }
+)
+def dataset_settings(init_context):
+    """Dagster resource for parameterizing assets.
+
+    We configuring the assets using a resource instead of op configs so the settings can
+    be accesible by any op.
+    """
+    # TODO (bendnorman): Add FERC and CEMS settings to this resource
+    eia_years = init_context.resource_config["eia_years"]
+    eia860m = init_context.resource_config["eia860m"]
+    eia_settings = EiaSettings(
+        eia860=Eia860Settings(years=eia_years, eia860m=eia860m),
+        eia923=Eia923Settings(years=eia_years),
+    )
+
+    return DatasetsSettings(eia=eia_settings)

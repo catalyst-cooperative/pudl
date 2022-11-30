@@ -25,7 +25,7 @@ import pandas as pd
 import pyarrow as pa
 import pyarrow.parquet as pq
 import sqlalchemy as sa
-from dagster import AssetOut, Field, Output, multi_asset
+from dagster import AssetOut, Output, multi_asset
 
 import pudl
 from pudl.helpers import convert_cols_dtypes
@@ -50,13 +50,8 @@ logger = pudl.logging_helpers.get_logger(__name__)
 # EIA EXPORT FUNCTIONS
 ###############################################################################
 
-# TODO: create new config type that checks years exist for the requested data
-# TODO: create a data structure to hold multi_asset outs so we can dynamically create them.
+# TODO (bendnorman): create a data structure to hold multi_asset outs so we can dynamically create them.
 @multi_asset(
-    config_schema={
-        "years": Field(list, default_value=[2021]),
-        "eia860m": Field(bool, default_value=False),
-    },
     outs={
         "raw_boiler_fuel_eia923": AssetOut(),
         "raw_boiler_generator_assn_eia860": AssetOut(),
@@ -72,21 +67,23 @@ logger = pudl.logging_helpers.get_logger(__name__)
         "raw_stocks_eia923": AssetOut(),
         "raw_utility_eia860": AssetOut(),
     },
-    required_resource_keys={"datastore"},
+    required_resource_keys={"datastore", "dataset_settings"},
     group_name="eia_raw_dfs",
 )
 def eia_raw_dfs(context):
     """Extract raw EIA data from excel sheets into dataframes."""
+    eia_settings = context.resources.dataset_settings.eia
+
     # TODO (bendnorman): More verbose doc string.
     ds = context.resources.datastore
     eia923_raw_dfs = pudl.extract.eia923.Extractor(ds).extract(
-        year=context.op_config["years"]
+        year=eia_settings.eia923.years
     )
     eia860_raw_dfs = pudl.extract.eia860.Extractor(ds).extract(
-        year=context.op_config["years"]
+        year=eia_settings.eia860.years
     )
 
-    if context.op_config["eia860m"]:
+    if eia_settings.eia860.eia860m:
         eia860m_data_source = DataSource.from_id("eia860m")
         eia860m_date = eia860m_data_source.working_partitions["year_month"]
         eia860m_raw_dfs = pudl.extract.eia860m.Extractor(ds).extract(
