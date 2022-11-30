@@ -368,9 +368,16 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Account balance at end of year.",
         "unit": "USD",
     },
-    "ferc_account_description": {
-        "type": "string",
+    "energy_mwh": {
+        "type": "number",
+        "unit": "MWh",
+        "description": "Sources and uses of energy in MWh.",
     },
+    "energy_source_type": {
+        "type": "string",
+        "description": "Type of energy source reported in the electric_energy_account_sources_ferc1 table. There are three groups of energy sources: generation, power exchanges and transmission.",
+    },
+    "ferc_account_description": {"type": "string"},
     "fuel_agg": {
         "type": "string",
         "description": "Category of fuel aggregation in EIA bulk electricity data.",
@@ -1497,7 +1504,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "row_type_xbrl": {
         "type": "string",
         "description": "Indicates whether the value reported in the row is calculated, or uniquely reported within the table.",
-        "constraints": {"enum": ["calculated", "ferc_account"]},
+        "constraints": {"enum": ["calculated_value", "reported_value"]},
     },
     "rto_iso_lmp_node_id": {
         "type": "string",

@@ -6,7 +6,12 @@ import pandas as pd
 import pytest
 
 from pudl.settings import Ferc1Settings
-from pudl.transform.ferc1 import fill_dbf_to_xbrl_map, read_dbf_to_xbrl_map
+from pudl.transform.ferc1 import (
+    WideToTidyXbrl,
+    fill_dbf_to_xbrl_map,
+    read_dbf_to_xbrl_map,
+    wide_to_tidy_xbrl,
+)
 
 TEST_DBF_XBRL_MAP = pd.read_csv(
     StringIO(
@@ -79,3 +84,77 @@ report_year,row_number,xbrl_factoid
     actual = fill_dbf_to_xbrl_map(df=test_map, dbf_years=sorted(range(2000, 2004)))
     actual = actual[actual.xbrl_factoid != "HEADER_ROW"].reset_index(drop=True)
     pd.testing.assert_frame_equal(actual, expected)
+
+
+WIDE_TO_TIDY_DF = pd.read_csv(
+    StringIO(
+        """
+idx,x_test_value,y_test_value,z_test_value
+A,10,100,1000
+B,11,110,1100
+C,12,120,1200
+D,13,130,1300
+"""
+    ),
+)
+
+
+def test_wide_to_tidy_xbrl():
+    """Test :func:`wide_to_tidy_xbrl`."""
+    params = WideToTidyXbrl(**{"idx_cols": ["idx"], "value_types": ["test_value"]})
+    df_out = wide_to_tidy_xbrl(df=WIDE_TO_TIDY_DF, params=params)
+
+    df_expected = pd.read_csv(
+        StringIO(
+            """
+idx,xbrl_factoid,test_value
+A,x,10
+A,y,100
+A,z,1000
+B,x,11
+B,y,110
+B,z,1100
+C,x,12
+C,y,120
+C,z,1200
+D,x,13
+D,y,130
+D,z,1300
+"""
+        ),
+    )
+    pd.testing.assert_frame_equal(df_out, df_expected)
+
+
+def test_wide_to_tidy_xbrl_fail():
+    """Test the :func:`wide_to_tidy_xbrl` fails with a bad rename."""
+    params = WideToTidyXbrl(**{"idx_cols": ["idx"], "value_types": ["test_value"]})
+    df_renamed = WIDE_TO_TIDY_DF.rename(columns={"z_test_value": "z_test_values"})
+    with pytest.raises(AssertionError):
+        wide_to_tidy_xbrl(df=df_renamed, params=params)
+
+
+def test_wide_to_tidy_xbrl_rename():
+    """Test the updated ``expected_drop_cols`` params for :func:`wide_to_tidy_xbrl`."""
+    params_renamed = WideToTidyXbrl(
+        **{"idx_cols": ["idx"], "value_types": ["test_value"], "expected_drop_cols": 1}
+    )
+    df_renamed = WIDE_TO_TIDY_DF.rename(columns={"z_test_value": "z_test_values"})
+    df_out = wide_to_tidy_xbrl(df=df_renamed, params=params_renamed)
+    # everything but the xbrl_factoid == "c"
+    df_expected = pd.read_csv(
+        StringIO(
+            """
+idx,xbrl_factoid,test_value
+A,x,10
+A,y,100
+B,x,11
+B,y,110
+C,x,12
+C,y,120
+D,x,13
+D,y,130
+"""
+        ),
+    )
+    pd.testing.assert_frame_equal(df_out, df_expected)
