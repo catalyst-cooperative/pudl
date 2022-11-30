@@ -64,6 +64,20 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "field_namespace": "pudl",
         "sources": ["pudl"],
     },
+    "datasources": {
+        "schema": {
+            "fields": [
+                "datasource",
+                "partitions",
+                "doi",
+                "pudl_version",
+            ],
+            "primary_key": ["datasource"],
+        },
+        "etl_group": "static_pudl",
+        "field_namespace": "pudl",
+        "sources": ["pudl"],
+    },
 }
 """
 PUDL-specifiic resource attributes by PUDL identifier (``resource.name``).

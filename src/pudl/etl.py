@@ -13,7 +13,6 @@ data from:
  - US Environmental Protection Agency (EPA):
    - Continuous Emissions Monitory System (epacems)
 """
-import itertools
 import logging
 import time
 from concurrent.futures import ProcessPoolExecutor
@@ -319,9 +318,9 @@ def etl_epacems(
             compression="snappy",
             version="2.6",
         ) as pqwriter:
-            for year, state in itertools.product(
-                epacems_settings.years, epacems_settings.states
-            ):
+            for part in epacems_settings.partitions:
+                year = part["year"]
+                state = part["state"]
                 logger.info(f"Processing EPA CEMS hourly data for {year}-{state}")
                 df = pudl.extract.epacems.extract(year=year, state=state, ds=ds)
                 df = pudl.transform.epacems.transform(df, pudl_engine=pudl_engine)
@@ -508,6 +507,9 @@ def etl(  # noqa: C901
         epacems_pq_path.mkdir(exist_ok=True)
 
     sqlite_dfs = _read_static_pudl_tables()
+    sqlite_dfs["datasources"] = validated_etl_settings.make_datasources_table(
+        ds=Datastore(**ds_kwargs)
+    )
     # This could be cleaner if we simplified the settings file format:
     if datasets.get("ferc1", False):
         sqlite_dfs.update(_etl_ferc1(datasets["ferc1"], pudl_settings))
