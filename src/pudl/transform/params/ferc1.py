@@ -2959,6 +2959,15 @@ TRANSFORM_PARAMS = {
                 ]
             }
         },
+        "select_date_range_duration_xbrl": {
+            "date_ranges": [
+                {
+                    "report_year": 2021,
+                    "start_date": "2021-01-01",
+                    "end_date": "2021-12-31",
+                },
+            ]
+        },
         "drop_invalid_rows": [
             {
                 "invalid_values": [pd.NA, np.nan, ""],

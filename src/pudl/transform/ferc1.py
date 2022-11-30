@@ -7,11 +7,12 @@ documented in that module.
 See :mod:`pudl.transform.params.ferc1` for the values that parameterize many of these
 transformations.
 """
+import datetime
 import enum
 import importlib.resources
 import re
 from collections import namedtuple
-from typing import Any
+from typing import Any, Literal
 
 import numpy as np
 import pandas as pd
@@ -249,6 +250,49 @@ def align_row_numbers_dbf(
     return df
 
 
+class SelectDateRangeDurationXbrl(TransformParams):
+    """hello."""
+
+    date_ranges: list[
+        dict[Literal["report_year", "start_date", "end_date"], int | datetime.date]
+    ] = []
+
+
+def select_date_range_duration_xbrl(
+    df: pd.DataFrame, params: SelectDateRangeDurationXbrl | None = None
+) -> pd.DataFrame:
+    """Select rows that fall within a date range for each report_year.
+
+    In the XBRL tables, there are occassionally multiple entries for each report year.
+    Sometimes there are sneaky, sneaky quarterly filings that shouldn't be in the annual
+    FERC1 reporting tables. Sometimes this includes data from the previous year. This
+    function enables us to choose specific start_date and end_date for any specific
+    report_year.
+    """
+    if not params:
+        params = SelectDateRangeDurationXbrl()
+    if params.date_ranges:
+        len_og = len(df)
+        df = df.astype({"start_date": "datetime64", "end_date": "datetime64"})
+        # accumulate the dfs in this list so we can concat everything together later
+        ranges = []
+        for date_range in params.date_ranges:
+            logger.debug(f"selecting date range: {date_range}")
+            ranges.append(
+                df[
+                    (df.report_year == date_range["report_year"])
+                    & (df.start_date.dt.date == date_range["start_date"])
+                    & (df.end_date.dt.date == date_range["end_date"])
+                ]
+            )
+        df = pd.concat(ranges)
+        len_out = len(df)
+        logger.info(
+            f"After selection of dates, we have {len_out/len_og:.1%} of the original table."
+        )
+    return df
+
+
 class Ferc1TableTransformParams(TableTransformParams):
     """A model defining what TransformParams are allowed for FERC Form 1.
 
@@ -270,6 +314,9 @@ class Ferc1TableTransformParams(TableTransformParams):
     wide_to_tidy_xbrl: WideToTidyXbrl = WideToTidyXbrl()
     merge_metadata_xbrl: MergeMetadataXbrl = MergeMetadataXbrl()
     align_row_numbers_dbf: AlignRowNumbersDbf = AlignRowNumbersDbf()
+    select_date_range_duration_xbrl: SelectDateRangeDurationXbrl = (
+        SelectDateRangeDurationXbrl()
+    )
 
 
 ################################################################################
@@ -861,7 +908,18 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         conventions of ~95% of all the columns, which we rely on programmatically when
         reshaping and concatenating these tables together.
         """
-        df = self.rename_columns(df, self.params.rename_columns_duration_xbrl)
+        df = self.rename_columns(df, self.params.rename_columns_duration_xbrl).pipe(
+            self.select_date_range_duration_xbrl
+        )
+        return df
+
+    def select_date_range_duration_xbrl(
+        self, df: pd.DataFrame, params: SelectDateRangeDurationXbrl | None = None
+    ) -> pd.DataFrame:
+        """Hello."""
+        if not params:
+            params = self.params.select_date_range_duration_xbrl
+        df = select_date_range_duration_xbrl(df, params=params)
         return df
 
     @cache_df(key="dbf")
@@ -2632,12 +2690,7 @@ class ElectricEnergyAccountSourcesFerc1TableTransformer(Ferc1AbstractTableTransf
 class ElectricEnergyAccountDispositionsFerc1TableTransformer(
     Ferc1AbstractTableTransformer
 ):
-    """Transformer class for :ref:`electric_energy_account_dispositions_ferc1` table.
-
-    For XBRL, this is a duration-only table. Right now we are merging in the metadata
-    but not actually keeping anything from it. We are also not yet doing anything with
-    the sign.
-    """
+    """Transformer class for :ref:`electric_energy_account_dispositions_ferc1` table."""
 
     table_id: Ferc1TableId = Ferc1TableId.ELECTRIC_ENERGY_ACCOUNT_DISPOSITIONS_FERC1
     has_unique_record_ids: bool = False
@@ -2645,10 +2698,7 @@ class ElectricEnergyAccountDispositionsFerc1TableTransformer(
     def normalize_metadata_xbrl(
         self, xbrl_fact_names: list[str] | None
     ) -> pd.DataFrame:
-        """Normie.
-
-        Determine whether the
-        """
+        """Normalize the metadata from the XBRL taxonomy."""
         eead_meta = (
             super()
             .normalize_metadata_xbrl(xbrl_fact_names)
@@ -2692,6 +2742,7 @@ def transform(
         "plants_pumped_storage_ferc1": PlantsPumpedStorageFerc1TableTransformer,
         "purchased_power_ferc1": PurchasedPowerFerc1TableTransformer,
         "electric_energy_account_sources_ferc1": ElectricEnergyAccountSourcesFerc1TableTransformer,
+        "electric_energy_account_dispositions_ferc1": ElectricEnergyAccountDispositionsFerc1TableTransformer,
     }
     # create an empty ditctionary to fill up through the transform fuctions
     ferc1_transformed_dfs = {}
@@ -2753,6 +2804,8 @@ if __name__ == "__main__":
             "plants_pumped_storage_ferc1",
             "purchased_power_ferc1",
             "plants_small_ferc1",
+            "electric_energy_account_sources_ferc1",
+            "electric_energy_account_dispositions_ferc1",
         ],
     )
     pudl_settings = pudl.workspace.setup.get_defaults()

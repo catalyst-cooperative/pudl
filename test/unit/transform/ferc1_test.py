@@ -7,9 +7,11 @@ import pytest
 
 from pudl.settings import Ferc1Settings
 from pudl.transform.ferc1 import (
+    SelectDateRangeDurationXbrl,
     WideToTidyXbrl,
     fill_dbf_to_xbrl_map,
     read_dbf_to_xbrl_map,
+    select_date_range_duration_xbrl,
     wide_to_tidy_xbrl,
 )
 
@@ -156,5 +158,44 @@ D,x,13
 D,y,130
 """
         ),
+    )
+    pd.testing.assert_frame_equal(df_out, df_expected)
+
+
+def test_selection_of_dates_duration_xbrl():
+    """Ensure :func:`select_date_range_duration_xbrl` selects correct date ranges."""
+    df = pd.read_csv(
+        StringIO(
+            """
+report_year,start_date,end_date,values
+2021,2020-01-01,2020-12-31,bad
+2021,2021-01-01,2021-12-31,good
+2021,2021-06-01,2022-12-31,bad
+2022,2020-01-01,2020-12-31,bad
+2022,2022-01-01,2022-12-31,good
+2022,2022-06-01,2022-12-31,bad
+"""
+        )
+    )
+    params = SelectDateRangeDurationXbrl(
+        **{
+            "date_ranges": [
+                {
+                    "report_year": 2021,
+                    "start_date": "2021-01-01",
+                    "end_date": "2021-12-31",
+                },
+                {
+                    "report_year": 2022,
+                    "start_date": "2022-01-01",
+                    "end_date": "2022-12-31",
+                },
+            ]
+        }
+    )
+
+    df_out = select_date_range_duration_xbrl(df, params)
+    df_expected = df[df.values == "good"].astype(
+        {"start_date": "datetime64", "end_date": "datetime64"}
     )
     pd.testing.assert_frame_equal(df_out, df_expected)
