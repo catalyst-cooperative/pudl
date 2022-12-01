@@ -558,6 +558,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             .pipe(self.convert_units)
             .pipe(self.strip_non_numeric_values)
             .pipe(self.nullify_outliers)
+            .pipe(self.replace_with_na)
             .pipe(self.drop_invalid_rows)
             .pipe(
                 pudl.metadata.classes.Package.from_resource_ids()
@@ -2601,8 +2602,7 @@ class TransmissionFerc1TableTransformer(Ferc1AbstractTableTransformer):
             A single transformed table concatenating multiple years of cleaned data
             derived from the raw DBF and/or XBRL inputs.
         """
-        df = self.replace_with_na(df).pipe(self.drop_invalid_rows)
-        return df
+        return super().transform_main(df)
 
 
 class ElectricEnergyAccountSourcesFerc1TableTransformer(Ferc1AbstractTableTransformer):
