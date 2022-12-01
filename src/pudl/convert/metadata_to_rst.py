@@ -39,15 +39,28 @@ def parse_command_line(argv):
         type=lambda x: Path(x).resolve(),
         default=Path().cwd() / "docs",
     )
+    parser.add_argument(
+        "--logfile",
+        default=None,
+        type=str,
+        help="If specified, write logs to this file.",
+    )
+    parser.add_argument(
+        "--loglevel",
+        help="Set logging level (DEBUG, INFO, WARNING, ERROR, or CRITICAL).",
+        default="INFO",
+    )
     arguments = parser.parse_args(argv[1:])
     return arguments
 
 
 def main():
     """Run conversion from json to rst."""
-    pudl.logging_helpers.configure_root_logger()
-
     args = parse_command_line(sys.argv)
+    pudl.logging_helpers.configure_root_logger(
+        logfile=args.logfile, loglevel=args.loglevel
+    )
+
     logger.info(f"Exporting PUDL metadata to: {args.output}")
     resource_ids = [rid for rid in sorted(RESOURCE_METADATA) if rid not in args.skip]
     package = Package.from_resource_ids(resource_ids=tuple(sorted(resource_ids)))

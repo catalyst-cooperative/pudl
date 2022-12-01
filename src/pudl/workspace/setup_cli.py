@@ -93,16 +93,29 @@ def initialize_parser():
         will also update your default PUDL workspace, if you have one.""",
         default=False,
     )
+    parser.add_argument(
+        "--logfile",
+        default=None,
+        type=str,
+        help="If specified, write logs to this file.",
+    )
+    parser.add_argument(
+        "--loglevel",
+        help="Set logging level (DEBUG, INFO, WARNING, ERROR, or CRITICAL).",
+        default="INFO",
+    )
     return parser
 
 
 def main():
     """Set up a new default PUDL workspace."""
     # Display logged output from the PUDL package:
-    pudl.logging_helpers.configure_root_logger()
 
     parser = initialize_parser()
     args = parser.parse_args(sys.argv[1:])
+    pudl.logging_helpers.configure_root_logger(
+        logfile=args.logfile, loglevel=args.loglevel
+    )
 
     if not args.pudl_in:
         args.pudl_in = args.pudl_dir

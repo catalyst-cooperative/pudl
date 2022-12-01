@@ -17,6 +17,7 @@ ferc_to_sqlite_settings:
       - f1_hydro
       - f1_pumped_storage
       - f1_purchased_pwr
+      - f1_elctrc_erg_acct
 
   ferc1_xbrl_to_sqlite_settings:
     years: [2021]
@@ -39,6 +40,8 @@ ferc_to_sqlite_settings:
       - electric_plant_in_service_204_instant
       - purchased_power_326_duration
       - purchased_power_326_instant
+      - electric_energy_account_401a_duration
+      - electric_energy_account_401a_instant
 
   ferc2_xbrl_to_sqlite_settings:
     years: [2021]
@@ -68,6 +71,7 @@ datasets:
       - plant_in_service_ferc1
       - plants_pumped_storage_ferc1
       - purchased_power_ferc1
+      - electric_energy_account_sources_ferc1
     years: [2020, 2021]
   eia:
     eia923:

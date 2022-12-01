@@ -237,13 +237,6 @@ FERC1_STRING_NORM = {
     "remove_chars": r"$?={}\x02\x00",
     "nullable": False,
 }
-"""
-Remove characters such as $, ?, =, {}, and unprintable control characters \x02 and \x00
-in addition to the other cleaning executed in the string_normalization function.
-Establishes the param nullable = False to indicate that no rows may have NA values and
-will be replaced with blanks. This is a useful precursor to the string categorization
-process and the FERC plant ID assignment process.
-"""
 
 ##############################################################################
 # String categorizations
@@ -2558,7 +2551,7 @@ TRANSFORM_PARAMS = {
                 "columns": {
                     "entity_id": "utility_id_ferc1_xbrl",
                     "report_year": "report_year",
-                    "ferc_account_label": "ferc_account_label",
+                    "xbrl_factoid": "ferc_account_label",
                     "starting_balance": "starting_balance",
                     "additions": "additions",
                     "retirements": "retirements",
@@ -2582,6 +2575,7 @@ TRANSFORM_PARAMS = {
                     "adjustments": "adjustments",
                     "transfers": "transfers",
                     "yr_end_bal": "ending_balance",
+                    "xbrl_factoid": "ferc_account_label",
                 }
             },
         },
@@ -2616,6 +2610,23 @@ TRANSFORM_PARAMS = {
                 "asset_retirement_costs_for_regional_transmission_and_market_operations_regional_transmission_and_market_operation_plant_transfers": "asset_retirement_costs_for_regional_transmission_and_market_operation_plant_regional_transmission_and_market_operation_plant_transfers",
             }
         },
+        "wide_to_tidy_xbrl": {
+            "idx_cols": ["entity_id", "report_year"],
+            "value_types": [
+                "starting_balance",
+                "additions",
+                "retirements",
+                "transfers",
+                "adjustments",
+                "ending_balance",
+            ],
+            "expected_drop_cols": 2,
+        },
+        "merge_metadata_xbrl": {
+            "rename_columns": {"xbrl_factoid": "ferc_account_label"},
+            "on": "ferc_account_label",
+        },
+        "align_row_numbers_dbf": {"dbf_table_name": "f1_plant_in_srvce"},
     },
     "plants_pumped_storage_ferc1": {
         "rename_columns_ferc1": {
@@ -2906,6 +2917,73 @@ TRANSFORM_PARAMS = {
                 "required_valid_cols": ["report_year"],
             }
         ],
+    },
+    "electric_energy_account_sources_ferc1": {
+        "rename_columns_ferc1": {
+            "dbf": {
+                "columns": {
+                    "respondent_id": "utility_id_ferc1_dbf",
+                    "report_year": "report_year",
+                    "spplmnt_num": "spplmnt_num",
+                    "row_number": "row_number",
+                    "row_seq": "row_seq",
+                    "row_prvlg": "row_prvlg",
+                    "erg_src_mwh": "energy_mwh",
+                    "erg_disp_mwh": "energy_disposition_mwh",
+                    "report_prd": "report_prd",
+                    "xbrl_factoid": "energy_source_type",
+                }
+            },
+            "xbrl": {
+                "columns": {
+                    "entity_id": "utility_id_ferc1_xbrl",
+                    "report_year": "report_year",
+                    "xbrl_factoid": "energy_source_type",
+                    "energy_source_mwh": "energy_mwh",
+                }
+            },
+        },
+        "rename_columns_duration_xbrl": {
+            "columns": {
+                # generation
+                "steam_generation": "steam_generation_energy_source_mwh",
+                "nuclear_generation": "nuclear_generation_energy_source_mwh",
+                "hydro_conventional_generation": "hydro_conventional_generation_energy_source_mwh",
+                "hydro_pumped_storage_generation": "hydro_pumped_storage_generation_energy_source_mwh",
+                "other_energy_generation": "other_energy_generation_energy_source_mwh",
+                "pumping_energy": "pumping_energy_energy_source_mwh",
+                "net_energy_generation": "net_energy_generation_energy_source_mwh",
+                "megawatt_hours_purchased_other_than_storage": "megawatt_hours_purchased_other_than_storage_energy_source_mwh",
+                "megawatt_hours_purchased_for_energy_storage": "megawatt_hours_purchased_for_energy_storage_energy_source_mwh",
+                # exchanges
+                "energy_received_through_power_exchanges": "energy_received_through_power_exchanges_energy_source_mwh",
+                "energy_delivered_through_power_exchanges": "energy_delivered_through_power_exchanges_energy_source_mwh",
+                "net_energy_through_power_exchanges": "net_energy_through_power_exchanges_energy_source_mwh",
+                # transmission
+                "electric_power_wheeling_energy_received": "electric_power_wheeling_energy_received_energy_source_mwh",
+                "electric_power_wheeling_energy_delivered": "electric_power_wheeling_energy_delivered_energy_source_mwh",
+                "net_transmission_energy_for_others_electric_power_wheeling": "net_transmission_energy_for_others_electric_power_wheeling_energy_source_mwh",
+                "transmission_losses_by_others_electric_power_wheeling": "transmission_losses_by_others_electric_power_wheeling_energy_source_mwh",
+                # total
+                "sources_of_energy": "sources_of_energy_energy_source_mwh",
+            }
+        },
+        "drop_invalid_rows": [
+            {
+                "invalid_values": [pd.NA, np.nan, ""],
+                "required_valid_cols": ["energy_source_mwh"],
+            },
+        ],
+        "wide_to_tidy_xbrl": {
+            "idx_cols": ["entity_id", "report_year"],
+            "value_types": ["energy_source_mwh"],
+            "expected_drop_cols": 10,
+        },
+        "merge_metadata_xbrl": {
+            "rename_columns": {"xbrl_factoid": "energy_source_type"},
+            "on": "energy_source_type",
+        },
+        "align_row_numbers_dbf": {"dbf_table_name": "f1_elctrc_erg_acct"},
     },
 }
 
