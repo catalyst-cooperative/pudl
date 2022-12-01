@@ -2896,7 +2896,10 @@ TRANSFORM_PARAMS = {
                 }
             },
         },
-        "replace_with_na": {"conductor_size_and_material": {"replace_with_na": [""]}},
+        "replace_with_na": {
+            "conductor_size_and_material": {"replace_with_na": [""]},
+            "supporting_structure_type": {"replace_with_na": [""]},
+        },
         "drop_invalid_rows": [
             {
                 "invalid_values": [pd.NA, np.nan, "", None],
