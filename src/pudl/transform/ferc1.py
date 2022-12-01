@@ -7,12 +7,11 @@ documented in that module.
 See :mod:`pudl.transform.params.ferc1` for the values that parameterize many of these
 transformations.
 """
-import datetime
 import enum
 import importlib.resources
 import re
 from collections import namedtuple
-from typing import Any, TypedDict
+from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -248,81 +247,6 @@ def align_row_numbers_dbf(
     return df
 
 
-class DateRange(TypedDict):
-    """Dictionary of column names and corresponding values to select a date range."""
-
-    report_year: int
-    start_date: datetime.date
-    end_date: datetime.date
-
-
-class SelectDateRangeDurationXbrl(TransformParams):
-    """Parameters for selecting date ranges for report_years in the duration table."""
-
-    date_ranges: list[DateRange] = []
-    """List of date ranges.
-
-    Each element of the list must be a dictionary with three keys: report_year,
-    start_date and end_date. The report_year should be an year represented as an int.
-    This will be the report year that you want to apply this date range to. The start
-    and end date must be dates.
-    """
-
-
-def select_date_range_duration_xbrl(
-    df: pd.DataFrame, params: SelectDateRangeDurationXbrl | None = None
-) -> pd.DataFrame:
-    """Select rows that have specific date ranges for each report_year.
-
-    In the XBRL tables, there are occassionally multiple entries for each report year.
-    Sometimes there are sneaky, sneaky quarterly filings that shouldn't be in the annual
-    FERC1 reporting tables. Sometimes this includes data from the previous year. This
-    function enables us to choose specific start_date and end_date for any specific
-    report_year.
-    """
-    if not params:
-        params = SelectDateRangeDurationXbrl()
-    if params.date_ranges:
-        len_og = len(df)
-        df = df.astype({"start_date": "datetime64", "end_date": "datetime64"})
-        # accumulate the dfs in this list so we can concat everything together later
-        ranges = []
-        for date_range in params.date_ranges:
-            logger.debug(f"selecting date range: {date_range}")
-            ranges.append(
-                df[
-                    (df.report_year == date_range["report_year"])
-                    & (df.start_date.dt.date == date_range["start_date"])
-                    & (df.end_date.dt.date == date_range["end_date"])
-                ]
-            )
-        df = pd.concat(ranges)
-        len_out = len(df)
-        logger.info(
-            f"After selection of dates, we have {len_out/len_og:.1%} of the original table."
-        )
-    return df
-
-
-def select_current_year_annual_records_duration_xbrl(df):
-    """Select for records that have an."""
-    len_og = len(df)
-    df = df.astype({"start_date": "datetime64", "end_date": "datetime64"})
-    df = df[
-        (df.start_date.dt.year == df.report_year)
-        & (df.start_date.dt.month == 1)
-        & (df.start_date.dt.day == 1)
-        & (df.end_date.dt.year == df.report_year)
-        & (df.end_date.dt.month == 12)
-        & (df.end_date.dt.day == 31)
-    ]
-    len_out = len(df)
-    logger.info(
-        f"After selection of dates, we have {len_out/len_og:.1%} of the original table."
-    )
-    return df
-
-
 class Ferc1TableTransformParams(TableTransformParams):
     """A model defining what TransformParams are allowed for FERC Form 1.
 
@@ -344,9 +268,6 @@ class Ferc1TableTransformParams(TableTransformParams):
     wide_to_tidy_xbrl: WideToTidyXbrl = WideToTidyXbrl()
     merge_metadata_xbrl: MergeMetadataXbrl = MergeMetadataXbrl()
     align_row_numbers_dbf: AlignRowNumbersDbf = AlignRowNumbersDbf()
-    select_date_range_duration_xbrl: SelectDateRangeDurationXbrl = (
-        SelectDateRangeDurationXbrl()
-    )
 
 
 ################################################################################
@@ -944,7 +865,11 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         return df
 
     def select_current_year_annual_records_duration_xbrl(self, df):
-        """Select for records that have an."""
+        """Select for annual records within their report_year.
+
+        Select only records that have a start_date at begining of the report_year and
+        have an end_date at the end of the report_year.
+        """
         len_og = len(df)
         df = df.astype({"start_date": "datetime64", "end_date": "datetime64"})
         df = df[
