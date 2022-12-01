@@ -824,6 +824,30 @@ def drop_invalid_rows(df: pd.DataFrame, params: InvalidRows) -> pd.DataFrame:
 
 
 ################################################################################
+# Replace values with NA
+################################################################################
+class ReplaceWithNa(TransformParams):
+    """Pameters that replace certain values with NA.
+
+    The categorize strings function replaces bad values, but it requires all the values
+    in the column to fall under a certain category. This function allows you to replace
+    certain specific values with NA without having to categorize the rest of the column.
+    """
+
+    replace_with_na: list[str]
+    """A list of values that should be replaced with NA."""
+
+
+def replace_with_na(col: pd.Series, params: ReplaceWithNa) -> pd.Series:
+    """Replace specified values with NA."""
+    return col.replace(params.replace_with_na, pd.NA)
+
+
+replace_with_na_multicol = multicol_transform_factory(replace_with_na)
+"""A multi-column version of the :func:`nullify_outliers` function."""
+
+
+################################################################################
 # A parameter model collecting all the valid generic transform params:
 ################################################################################
 class TableTransformParams(TransformParams):
@@ -846,6 +870,7 @@ class TableTransformParams(TransformParams):
     nullify_outliers: dict[str, ValidRange] = {}
     normalize_strings: dict[str, StringNormalization] = {}
     strip_non_numeric_values: dict[str, StripNonNumericValues] = {}
+    replace_with_na: dict[str, ReplaceWithNa] = {}
 
     # Transformations that apply to whole dataframes have to be treated individually,
     # with default initializations that result in no transformation taking place.
@@ -1219,6 +1244,17 @@ class AbstractTableTransformer(ABC):
         for param in params:
             df = drop_invalid_rows(df, param)
         return df
+
+    def replace_with_na(
+        self,
+        df: pd.DataFrame,
+        params: dict[str, ReplaceWithNa] | None = None,
+    ) -> pd.DataFrame:
+        """Replace specified values with NA."""
+        if params is None:
+            params = self.params.replace_with_na
+        logger.info(f"{self.table_id.value}: Replacing specified values with NA.")
+        return replace_with_na_multicol(df, params)
 
     def enforce_schema(self, df: pd.DataFrame) -> pd.DataFrame:
         """Drop columns not in the DB schema and enforce specified types."""

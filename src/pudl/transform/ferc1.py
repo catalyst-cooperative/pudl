@@ -2496,7 +2496,7 @@ class TransmissionFerc1TableTransformer(Ferc1AbstractTableTransformer):
             A single transformed table concatenating multiple years of cleaned data
             derived from the raw DBF and/or XBRL inputs.
         """
-        # df = self.normalize_strings(df).pipe(self.nullify_outliers)
+        df = self.replace_with_na(df).pipe(self.drop_invalid_rows)
 
         return df
 
@@ -2531,6 +2531,7 @@ def transform(
         "plant_in_service_ferc1": PlantInServiceFerc1TableTransformer,
         "plants_pumped_storage_ferc1": PlantsPumpedStorageFerc1TableTransformer,
         "purchased_power_ferc1": PurchasedPowerTableTransformer,
+        "transmission_ferc1": TransmissionFerc1TableTransformer,
     }
     # create an empty ditctionary to fill up through the transform fuctions
     ferc1_transformed_dfs = {}
@@ -2592,6 +2593,7 @@ if __name__ == "__main__":
             "plants_pumped_storage_ferc1",
             "purchased_power_ferc1",
             "plants_small_ferc1",
+            "transmission_ferc1",
         ],
     )
     pudl_settings = pudl.workspace.setup.get_defaults()
