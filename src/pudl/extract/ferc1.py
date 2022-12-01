@@ -145,7 +145,11 @@ TABLE_NAME_MAP: dict[str, dict[str, str]] = {
         "dbf": "f1_324_elc_expns",
         "xbrl": "electric_operations_and_maintenance_expenses_320",
     },
-    "electric_energy_account_ferc1": {
+    "electric_energy_account_sources_ferc1": {
+        "dbf": "f1_elctrc_erg_acct",
+        "xbrl": "electric_energy_account_401a",
+    },
+    "electric_energy_account_dispositions_ferc1": {
         "dbf": "f1_elctrc_erg_acct",
         "xbrl": "electric_energy_account_401a",
     },

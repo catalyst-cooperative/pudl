@@ -63,8 +63,8 @@ def test_no_null_cols_ferc1(pudl_out_ferc1, live_dbs, cols, df_name):
 @pytest.mark.parametrize(
     "df_name,expected_rows",
     [
-        ("fbp_ferc1", 25_097),
-        ("fuel_ferc1", 48_218),
+        ("fbp_ferc1", 25_416),
+        ("fuel_ferc1", 48_821),
         ("plant_in_service_ferc1", 311_794),
         ("plants_all_ferc1", 54_276),
         ("plants_hydro_ferc1", 6_796),
