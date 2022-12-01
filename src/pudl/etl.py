@@ -483,7 +483,7 @@ def _read_static_encouding_tables_asset_factory(
 ):
     @multi_asset(
         outs={
-            r.name: AssetOut()
+            r.name: AssetOut(io_manager_key="pudl_sqlite_io_manager")
             for r in Package.from_resource_ids().resources
             if r.etl_group == etl_group and r.encoder
         },

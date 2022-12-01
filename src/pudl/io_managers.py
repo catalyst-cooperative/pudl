@@ -7,6 +7,7 @@ import pandas as pd
 import sqlalchemy as sa
 from dagster import Field, IOManager, io_manager
 from packaging import version
+from sqlalchemy.exc import SQLAlchemyError
 
 import pudl
 from pudl.metadata.classes import Package
@@ -14,6 +15,55 @@ from pudl.metadata.classes import Package
 logger = pudl.logging_helpers.get_logger(__name__)
 
 MINIMUM_SQLITE_VERSION = "3.32.0"
+
+
+class ForeignKeyError(SQLAlchemyError):
+    """Raised when data in a database violates a foreign key constraint."""
+
+    def __init__(
+        self, child_table: str, parent_table: str, foreign_key: str, rowids: list[int]
+    ):
+        """Initialize a new ForeignKeyError object."""
+        self.child_table = child_table
+        self.parent_table = parent_table
+        self.foreign_key = foreign_key
+        self.rowids = rowids
+
+    def __str__(self):
+        """Create string representation of ForeignKeyError object."""
+        return f"Foreign key error for table: {self.child_table} -- {self.parent_table} {self.foreign_key} -- on for rows {self.rowids}\n"
+
+    def __eq__(self, other):
+        """Compare a ForeignKeyError with another object."""
+        if isinstance(other, ForeignKeyError):
+            return (
+                (self.child_table == other.child_table)
+                and (self.parent_table == other.parent_table)
+                and (self.foreign_key == other.foreign_key)
+                and (self.rowids == other.rowids)
+            )
+        return False
+
+
+class ForeignKeyErrors(SQLAlchemyError):
+    """Raised when data in a database violate multiple foreign key constraints."""
+
+    def __init__(self, fk_errors: list[ForeignKeyError]):
+        """Initialize a new ForeignKeyErrors object."""
+        self.fk_errors = fk_errors
+
+    def __str__(self):
+        """Create string representation of ForeignKeyErrors object."""
+        fk_errors = list(map(lambda x: str(x), self.fk_errors))
+        return "\n".join(fk_errors)
+
+    def __iter__(self):
+        """Iterate over the fk errors."""
+        return self.fk_errors
+
+    def __getitem__(self, idx):
+        """Index the fk errors."""
+        return self.fk_errors[idx]
 
 
 class SQLiteIOManager(IOManager):
@@ -30,6 +80,7 @@ class SQLiteIOManager(IOManager):
         db_name: str = None,
         check_types: bool = True,
         check_values: bool = True,
+        md: sa.MetaData = None,
     ):
         """Init a SQLiteIOmanager."""
         self.base_dir = Path(base_dir)
@@ -46,11 +97,14 @@ class SQLiteIOManager(IOManager):
                 "As a result, data type constraint checking has been disabled."
             )
 
-        # Create all database metadata
-        self.md = Package.from_resource_ids().to_sql(
-            check_types=check_types,
-            check_values=check_values,
-        )
+        # If no metadata is specified use PUDL metadata.
+        if not md:
+            self.md = Package.from_resource_ids().to_sql(
+                check_types=check_types,
+                check_values=check_values,
+            )
+        else:
+            self.md = md
 
     def _get_table_name(self, context) -> str:
         """Get asset name from dagster context object."""
@@ -99,6 +153,80 @@ class SQLiteIOManager(IOManager):
             )
         return sa_table
 
+    def _get_fk_list(self, engine, table: str) -> pd.DataFrame:
+        """Retrieve a dataframe of foreign keys for a table."""
+        with engine.connect() as con:
+            table_fks = pd.read_sql_query(f"pragma foreign_key_list({table});", con)
+
+        # Foreign keys with multiple fields are reported in separate records.
+        # Combine the multiple fields into one string for readability.
+        # Drop duplicates so we have one FK for each table and foreign key id
+        table_fks["fk"] = table_fks.groupby("table")["to"].transform(
+            lambda field: "(" + ", ".join(field) + ")"
+        )
+        table_fks = table_fks[["id", "table", "fk"]].drop_duplicates()
+
+        # Rename the fields so we can easily merge with the foreign key errors.
+        table_fks = table_fks.rename(columns={"id": "fkid", "table": "parent"})
+        table_fks["table"] = table
+        return table_fks
+
+    def check_foreign_keys(self) -> None:
+        """Check foreign key relationships in the database.
+
+        The order assets are loaded into the database will not satisfy foreign key
+        constraints so we can't enable foreign key constraints. However, we can
+        check for foreign key failures once all of the data has been loaded into
+        the database using the `foreign_key_check` and `foreign_key_list` PRAGMAs.
+
+        Examples:
+        This method can be used in the test suite or a jupyter notebook for debugging.
+
+            >>> from pudl.io_managers import pudl_sqlite_io_manager
+            >>> from dagster import build_init_resource_context
+            ...
+            >>> init_context = build_init_resource_context()
+            >>> manager = pudl_sqlite_io_manager(init_context)
+            >>> manager.check_foreign_keys()
+
+        Raises:
+            ForeignKeyErrors: if data in the database violate foreign key constraints.
+        """
+        engine = self._get_database_engine()
+
+        with engine.connect() as con:
+            fk_errors = pd.read_sql_query("pragma foreign_key_check;", con)
+
+        if not fk_errors.empty:
+            # Merge in the actual FK descriptions
+            tables_with_fk_errors = fk_errors.table.unique().tolist()
+            table_foreign_keys = pd.concat(
+                [self._get_fk_list(engine, table) for table in tables_with_fk_errors]
+            )
+
+            fk_errors_with_keys = fk_errors.merge(
+                table_foreign_keys,
+                how="left",
+                on=["parent", "fkid", "table"],
+                validate="m:1",
+            )
+
+            errors = []
+            for (
+                table_name,
+                parent_name,
+                parent_fk,
+            ), parent_fk_df in fk_errors_with_keys.groupby(["table", "parent", "fk"]):
+                errors.append(
+                    ForeignKeyError(
+                        child_table=table_name,
+                        parent_table=parent_name,
+                        foreign_key=parent_fk,
+                        rowids=parent_fk_df["rowid"].values,
+                    )
+                )
+            raise ForeignKeyErrors(errors)
+
     def handle_output(self, context, df):
         """Handle an op or asset output."""
         table_name = self._get_table_name(context)
@@ -119,7 +247,6 @@ class SQLiteIOManager(IOManager):
 
     def load_input(self, context) -> pd.DataFrame:
         """Load a dataframe from a sqlite database."""
-        # upstream_output.name is the name given to the Out that we're loading for
         table_name = self._get_table_name(context)
         _ = self._get_sqlalchemy_table(table_name)
 
