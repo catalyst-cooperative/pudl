@@ -2592,7 +2592,7 @@ class TransmissionFerc1TableTransformer(Ferc1AbstractTableTransformer):
 
     @cache_df(key="main")
     def transform_main(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Table specific transforms for plants_small_ferc1.
+        """Table specific transforms for transmission_ferc1.
 
         Params:
             df: Pre-processed, concatenated XBRL and DBF data.
