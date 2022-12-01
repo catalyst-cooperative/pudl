@@ -2996,7 +2996,7 @@ TRANSFORM_PARAMS = {
                     "row_seq": "row_seq",
                     "row_prvlg": "row_prvlg",
                     "report_prd": "report_prd",
-                    "xbrl_factoid": "idkyet",
+                    "xbrl_factoid": "utility_plant_asset_type",
                 }
             },
             "xbrl": {
@@ -3004,34 +3004,42 @@ TRANSFORM_PARAMS = {
                     "entity_id": "utility_id_ferc1_xbrl",
                     "report_year": "report_year",
                     "utility_type_axis": "utility_type",
-                    "xbrl_factoid": "idkyet",
+                    "xbrl_factoid": "utility_plant_asset_type",
                 }
             },
         },
-        # "rename_columns_duration_xbrl": {
-        #     "columns": {
-        #         xbrl_col: f"{xbrl_col}_energy_disposition_mwh"
-        #         for xbrl_col in [
-        #             "energy_stored",
-        #             "energy_losses",
-        #             "megawatt_hours_sold_non_requirements_sales",
-        #             "megawatt_hours_sold_sales_to_ultimate_consumers",
-        #             "internal_use_energy",
-        #             "non_charged_energy",
-        #             "megawatt_hours_sold_requirements_sales",
-        #             # total
-        #             "disposition_of_energy",
-        #         ]
-        #     }
-        # },
-        "select_date_range_duration_xbrl": {
-            "date_ranges": [
-                {
-                    "report_year": 2021,
-                    "start_date": "2021-01-01",
-                    "end_date": "2021-12-31",
-                },
-            ]
+        "rename_columns_instant_xbrl": {
+            "columns": {
+                xbrl_col: f"{xbrl_col}_dollars"
+                for xbrl_col in [
+                    "depreciation_amortization_and_depletion_utility_plant_in_service",
+                    "depreciation_and_amortization_utility_plant_held_for_future_use",
+                    "amortization_of_plant_acquisition_adjustment",
+                    "depreciation_utility_plant_in_service",
+                    "utility_plant_in_service_classified_and_unclassified",
+                    "utility_plant_and_construction_work_in_progress",
+                    "depreciation_utility_plant_leased_to_others",
+                    "utility_plant_in_service_classified",
+                    "depreciation_amortization_and_depletion_utility_plant_leased_to_others",
+                    "depreciation_utility_plant_held_for_future_use",
+                    "abandonment_of_leases",
+                    "utility_plant_net",
+                    "amortization_and_depletion_of_producing_natural_gas_land_and_land_rightsutility_plant_in_service",
+                    "amortization_utility_plant_held_for_future_use",
+                    "amortization_and_depletion_utility_plant_leased_to_others",
+                    "accumulated_provision_for_depreciation_amortization_and_depletion_of_plant_utility",
+                    "utility_plant_in_service_property_under_capital_leases",
+                    "utility_plant_acquisition_adjustment",
+                    "utility_plant_leased_to_others",
+                    "utility_plant_held_for_future_use",
+                    "amortization_of_other_utility_plant_utility_plant_in_service",
+                    "amortization_of_underground_storage_land_and_land_rightsutility_plant_in_service",
+                    "utility_plant_in_service_completed_construction_not_classified",
+                    "utility_plant_in_service_plant_purchased_or_sold",
+                    "construction_work_in_progress",
+                    "utility_plant_in_service_experimental_plant_unclassified",
+                ]
+            }
         },
         "drop_invalid_rows": [
             {
@@ -3040,13 +3048,9 @@ TRANSFORM_PARAMS = {
             },
         ],
         "wide_to_tidy_xbrl": {
-            "idx_cols": ["entity_id", "report_year"],
-            "value_types": [
-                "plant_in_service",
-                "utility_plant_held_for_future_use",
-                "utility_plant_leased_to_others",
-            ],
-            "expected_drop_cols": 2,
+            "idx_cols": ["entity_id", "report_year", "utility_type_axis"],
+            "value_types": ["dollars"],
+            "expected_drop_cols": 1,
         },
         "merge_metadata_xbrl": {
             "rename_columns": {"xbrl_factoid": "energy_disposition_type"},
