@@ -2985,6 +2985,75 @@ TRANSFORM_PARAMS = {
         },
         "align_row_numbers_dbf": {"dbf_table_name": "f1_elctrc_erg_acct"},
     },
+    "utility_plant_summary_ferc1": {
+        "rename_columns_ferc1": {
+            "dbf": {
+                "columns": {
+                    "respondent_id": "utility_id_ferc1_dbf",
+                    "report_year": "report_year",
+                    "spplmnt_num": "spplmnt_num",
+                    "row_number": "row_number",
+                    "row_seq": "row_seq",
+                    "row_prvlg": "row_prvlg",
+                    "report_prd": "report_prd",
+                    "xbrl_factoid": "idkyet",
+                }
+            },
+            "xbrl": {
+                "columns": {
+                    "entity_id": "utility_id_ferc1_xbrl",
+                    "report_year": "report_year",
+                    "utility_type_axis": "utility_type",
+                    "xbrl_factoid": "idkyet",
+                }
+            },
+        },
+        # "rename_columns_duration_xbrl": {
+        #     "columns": {
+        #         xbrl_col: f"{xbrl_col}_energy_disposition_mwh"
+        #         for xbrl_col in [
+        #             "energy_stored",
+        #             "energy_losses",
+        #             "megawatt_hours_sold_non_requirements_sales",
+        #             "megawatt_hours_sold_sales_to_ultimate_consumers",
+        #             "internal_use_energy",
+        #             "non_charged_energy",
+        #             "megawatt_hours_sold_requirements_sales",
+        #             # total
+        #             "disposition_of_energy",
+        #         ]
+        #     }
+        # },
+        "select_date_range_duration_xbrl": {
+            "date_ranges": [
+                {
+                    "report_year": 2021,
+                    "start_date": "2021-01-01",
+                    "end_date": "2021-12-31",
+                },
+            ]
+        },
+        "drop_invalid_rows": [
+            {
+                "invalid_values": [pd.NA, np.nan, ""],
+                "required_valid_cols": ["energy_mwh"],
+            },
+        ],
+        "wide_to_tidy_xbrl": {
+            "idx_cols": ["entity_id", "report_year"],
+            "value_types": [
+                "plant_in_service",
+                "utility_plant_held_for_future_use",
+                "utility_plant_leased_to_others",
+            ],
+            "expected_drop_cols": 2,
+        },
+        "merge_metadata_xbrl": {
+            "rename_columns": {"xbrl_factoid": "energy_disposition_type"},
+            "on": "energy_disposition_type",
+        },
+        "align_row_numbers_dbf": {"dbf_table_name": "f1_elctrc_erg_acct"},
+    },
 }
 
 """The full set of parameters used to transform the FERC Form 1 data.

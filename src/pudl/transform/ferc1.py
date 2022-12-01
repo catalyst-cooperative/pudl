@@ -74,6 +74,7 @@ class Ferc1TableId(enum.Enum):
     ELECTRIC_ENERGY_ACCOUNT_DISPOSITIONS_FERC1 = (
         "electric_energy_account_dispositions_ferc1"
     )
+    UTILITY_PLANT_SUMMARY_FERC1 = "utility_plant_summary_ferc1"
 
 
 class Ferc1RenameColumns(TransformParams):
@@ -2718,6 +2719,28 @@ class ElectricEnergyAccountDispositionsFerc1TableTransformer(
         return eead_meta
 
 
+class UtilityPlantSummaryFerc1TableTransformer(Ferc1AbstractTableTransformer):
+    """Transformer class for :ref:`utility_plant_summary_ferc1` table."""
+
+    table_id: Ferc1TableId = Ferc1TableId.UTILITY_PLANT_SUMMARY_FERC1
+    has_unique_record_ids: bool = False
+
+    def normalize_metadata_xbrl(
+        self, xbrl_fact_names: list[str] | None
+    ) -> pd.DataFrame:
+        """Normalize the metadata from the XBRL taxonomy."""
+        eead_meta = (
+            super()
+            .normalize_metadata_xbrl(xbrl_fact_names)
+            .assign(
+                xbrl_factoid=lambda x: x.xbrl_fact_name,
+            )
+        )
+        # Save the normalized metadata so it can be used by other methods.
+        self.xbrl_metadata_normalized = eead_meta
+        return eead_meta
+
+
 def transform(
     ferc1_dbf_raw_dfs: dict[str, pd.DataFrame],
     ferc1_xbrl_raw_dfs: dict[str, dict[str, pd.DataFrame]],
@@ -2750,6 +2773,7 @@ def transform(
         "purchased_power_ferc1": PurchasedPowerFerc1TableTransformer,
         "electric_energy_account_sources_ferc1": ElectricEnergyAccountSourcesFerc1TableTransformer,
         "electric_energy_account_dispositions_ferc1": ElectricEnergyAccountDispositionsFerc1TableTransformer,
+        "utility_plant_summary_ferc1": UtilityPlantSummaryFerc1TableTransformer,
     }
     # create an empty ditctionary to fill up through the transform fuctions
     ferc1_transformed_dfs = {}

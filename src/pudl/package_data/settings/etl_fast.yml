@@ -42,6 +42,8 @@ ferc_to_sqlite_settings:
       - purchased_power_326_instant
       - electric_energy_account_401a_duration
       - electric_energy_account_401a_instant
+      - summary_of_utility_plant_and_accumulated_provisions_for_depreciation_amortization_and_depletion_200_duration
+      - summary_of_utility_plant_and_accumulated_provisions_for_depreciation_amortization_and_depletion_200_instant
 
   ferc2_xbrl_to_sqlite_settings:
     years: [2021]
@@ -73,6 +75,7 @@ datasets:
       - purchased_power_ferc1
       - electric_energy_account_sources_ferc1
       - electric_energy_account_dispositions_ferc1
+      - utility_plant_summary_ferc1
     years: [2020, 2021]
   eia:
     eia923:

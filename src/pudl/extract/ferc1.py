@@ -153,6 +153,10 @@ TABLE_NAME_MAP: dict[str, dict[str, str]] = {
         "dbf": "f1_elctrc_erg_acct",
         "xbrl": "electric_energy_account_401a",
     },
+    "utility_plant_summary_ferc1": {
+        "dbf": "f1_utltyplnt_smmry",
+        "xbrl": "summary_of_utility_plant_and_accumulated_provisions_for_depreciation_amortization_and_depletion_200",
+    },
 }
 """A mapping of PUDL DB table names to their XBRL and DBF source table names."""
 

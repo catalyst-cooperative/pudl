@@ -387,6 +387,16 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "glue",
         "field_namespace": "ferc1",
     },
+    "utility_plant_summary_ferc1": {
+        "description": "This table maps the assign utility ID FERC1 to the native utility ID from the FERC1 XBRL inputs - originally reported as entity_id.",
+        "schema": {
+            "fields": ["utility_id_ferc1", "report_date"],
+            "primary_key": ["utility_id_ferc1", "report_date"],
+        },
+        "sources": ["ferc1"],
+        "etl_group": "ferc1",
+        "field_namespace": "ferc1",
+    },
 }
 """
 FERC Form 1 resource attributes by PUDL identifier (``resource.name``).
