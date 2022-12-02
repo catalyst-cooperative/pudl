@@ -7,6 +7,8 @@ import pytest
 
 from pudl.settings import Ferc1Settings
 from pudl.transform.ferc1 import (
+    Ferc1AbstractTableTransformer,
+    Ferc1TableId,
     WideToTidyXbrl,
     fill_dbf_to_xbrl_map,
     read_dbf_to_xbrl_map,
@@ -156,5 +158,33 @@ D,x,13
 D,y,130
 """
         ),
+    )
+    pd.testing.assert_frame_equal(df_out, df_expected)
+
+
+def test_select_current_year_annual_records_duration_xbrl():
+    """Test :meth:`select_current_year_annual_records_duration_xbrl` date selection."""
+    df = pd.read_csv(
+        StringIO(
+            """
+report_year,start_date,end_date,values
+2021,2020-01-01,2020-12-31,bad
+2021,2021-01-01,2021-12-31,good
+2021,2021-06-01,2022-12-31,bad
+2022,2020-01-01,2020-12-31,bad
+2022,2022-01-01,2022-12-31,good
+2022,2022-06-01,2022-12-31,bad
+"""
+        )
+    )
+
+    class FakeTransformer(Ferc1AbstractTableTransformer):
+        # just need any table name here so that one method is callable
+        table_id = Ferc1TableId.FUEL_FERC1
+
+    fake_transformer = FakeTransformer()
+    df_out = fake_transformer.select_current_year_annual_records_duration_xbrl(df=df)
+    df_expected = df[df.values == "good"].astype(
+        {"start_date": "datetime64", "end_date": "datetime64"}
     )
     pd.testing.assert_frame_equal(df_out, df_expected)

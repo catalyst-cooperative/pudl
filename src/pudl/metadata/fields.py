@@ -375,7 +375,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "energy_source_type": {
         "type": "string",
-        "description": "Type of energy source reported in the electric_energy_account_sources_ferc1 table. There are three groups of energy sources: generation, power exchanges and transmission.",
+        "description": "Type of energy source reported in the electric_energy_sources_ferc1 table. There are three groups of energy sources: generation, power exchanges and transmission.",
+    },
+    "energy_disposition_type": {
+        "type": "string",
+        "description": "Type of energy disposition reported in the electric_energy_dispositions_ferc1. Dispositions include sales to customers, re-sales of energy, energy used internally, losses, etc.",
     },
     "ferc_account_description": {"type": "string"},
     "fuel_agg": {
