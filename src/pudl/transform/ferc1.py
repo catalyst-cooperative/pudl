@@ -860,9 +860,10 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         conventions of ~95% of all the columns, which we rely on programmatically when
         reshaping and concatenating these tables together.
         """
-        df = self.rename_columns(df, self.params.rename_columns_duration_xbrl).pipe(
-            self.select_current_year_annual_records_duration_xbrl
-        )
+        if not df.empty:
+            df = self.rename_columns(df, self.params.rename_columns_duration_xbrl).pipe(
+                self.select_current_year_annual_records_duration_xbrl
+            )
         return df
 
     def select_current_year_annual_records_duration_xbrl(self, df):

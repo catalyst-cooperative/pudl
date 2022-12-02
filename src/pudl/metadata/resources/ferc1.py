@@ -390,8 +390,21 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     "utility_plant_summary_ferc1": {
         "description": "This table maps the assign utility ID FERC1 to the native utility ID from the FERC1 XBRL inputs - originally reported as entity_id.",
         "schema": {
-            "fields": ["utility_id_ferc1", "report_date"],
-            "primary_key": ["utility_id_ferc1", "report_date"],
+            "fields": [
+                "utility_id_ferc1",
+                "report_year",
+                "utility_type",
+                "utility_plant_asset_type",
+                "row_type_xbrl",
+                "dollars",
+                "record_id",
+            ],
+            "primary_key": [
+                "utility_id_ferc1",
+                "report_year",
+                "utility_type",
+                "utility_plant_asset_type",
+            ],
         },
         "sources": ["ferc1"],
         "etl_group": "ferc1",

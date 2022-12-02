@@ -363,6 +363,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Unique digitial object identifier of Zenodo archive.",
     },
+    "dollars": {"type": "number"},  # is this the right name? add description
     "ending_balance": {
         "type": "number",
         "description": "Account balance at end of year.",
@@ -1846,7 +1847,9 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Utility name, chosen arbitrarily from the several possible utility names available in the utility matching process. Included for human readability only.",
     },
     "utility_owned_capacity_mw": {"type": "number", "unit": "MW"},
+    "utility_plant_asset_type": {"type": "string"},  # description
     "utility_pobox": {"type": "string"},
+    "utility_type": {"type": "string"},  # enum me + description
     "variable_peak_pricing": {"type": "boolean"},
     "virtual_capacity_mw": {"type": "number", "unit": "MW"},
     "virtual_customers": {"type": "integer"},

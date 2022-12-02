@@ -3038,7 +3038,7 @@ TRANSFORM_PARAMS = {
         "drop_invalid_rows": [
             {
                 "invalid_values": [pd.NA, np.nan, ""],
-                "required_valid_cols": ["energy_mwh"],
+                "required_valid_cols": ["dollars"],
             },
         ],
         "wide_to_tidy_xbrl": {
@@ -3047,10 +3047,22 @@ TRANSFORM_PARAMS = {
             "expected_drop_cols": 1,
         },
         "merge_metadata_xbrl": {
-            "rename_columns": {"xbrl_factoid": "energy_disposition_type"},
-            "on": "energy_disposition_type",
+            "rename_columns": {"xbrl_factoid": "utility_plant_asset_type"},
+            "on": "utility_plant_asset_type",
         },
-        "align_row_numbers_dbf": {"dbf_table_name": "f1_elctrc_erg_acct"},
+        "align_row_numbers_dbf": {"dbf_table_name": "f1_utltyplnt_smmry"},
+        "categorize_strings": {
+            "utility_type": {
+                "categories": {
+                    "total": ["ferc:ElectricUtilityMember"],
+                    "gas": ["ferc:GasUtilityMember"],
+                    "common": ["ferc:CommonUtilityMember"],
+                    "other1": ["ferc:OtherUtilityMember"],
+                    "other2": ["ferc:OtherUtility2Member"],
+                    "other3": ["ferc:OtherUtility3Member"],
+                }
+            },
+        },
     },
 }
 
