@@ -70,10 +70,8 @@ class Ferc1TableId(enum.Enum):
     PLANT_IN_SERVICE_FERC1 = "plant_in_service_ferc1"
     PURCHASED_POWER_FERC1 = "purchased_power_ferc1"
     TRANSMISSION_FERC1 = "transmission_ferc1"
-    ELECTRIC_ENERGY_ACCOUNT_SOURCES_FERC1 = "electric_energy_account_sources_ferc1"
-    ELECTRIC_ENERGY_ACCOUNT_DISPOSITIONS_FERC1 = (
-        "electric_energy_account_dispositions_ferc1"
-    )
+    ELECTRIC_ENERGY_SOURCES_FERC1 = "electric_energy_sources_ferc1"
+    ELECTRIC_ENERGY_DISPOSITIONS_FERC1 = "electric_energy_dispositions_ferc1"
 
 
 class Ferc1RenameColumns(TransformParams):
@@ -863,7 +861,32 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         conventions of ~95% of all the columns, which we rely on programmatically when
         reshaping and concatenating these tables together.
         """
-        df = self.rename_columns(df, self.params.rename_columns_duration_xbrl)
+        df = self.rename_columns(df, self.params.rename_columns_duration_xbrl).pipe(
+            self.select_current_year_annual_records_duration_xbrl
+        )
+        return df
+
+    def select_current_year_annual_records_duration_xbrl(self, df):
+        """Select for annual records within their report_year.
+
+        Select only records that have a start_date at begining of the report_year and
+        have an end_date at the end of the report_year.
+        """
+        len_og = len(df)
+        df = df.astype({"start_date": "datetime64", "end_date": "datetime64"})
+        df = df[
+            (df.start_date.dt.year == df.report_year)
+            & (df.start_date.dt.month == 1)
+            & (df.start_date.dt.day == 1)
+            & (df.end_date.dt.year == df.report_year)
+            & (df.end_date.dt.month == 12)
+            & (df.end_date.dt.day == 31)
+        ]
+        len_out = len(df)
+        logger.info(
+            f"{self.table_id.value}: After selection of dates based on the report year,"
+            f" we have {len_out/len_og:.1%} of the original table."
+        )
         return df
 
     @cache_df(key="dbf")
@@ -2607,7 +2630,7 @@ class TransmissionFerc1TableTransformer(Ferc1AbstractTableTransformer):
 
 
 class ElectricEnergyAccountSourcesFerc1TableTransformer(Ferc1AbstractTableTransformer):
-    """Transformer class for :ref:`electric_energy_account_sources_ferc1` table.
+    """Transformer class for :ref:`electric_energy_sources_ferc1` table.
 
     The raw DBF and XBRL table will be split up into two tables. This transformer
     generates the sources of electricity for utilities, dropping the information about
@@ -2616,7 +2639,7 @@ class ElectricEnergyAccountSourcesFerc1TableTransformer(Ferc1AbstractTableTransf
     anything with the sign.
     """
 
-    table_id: Ferc1TableId = Ferc1TableId.ELECTRIC_ENERGY_ACCOUNT_SOURCES_FERC1
+    table_id: Ferc1TableId = Ferc1TableId.ELECTRIC_ENERGY_SOURCES_FERC1
     has_unique_record_ids: bool = False
 
     def normalize_metadata_xbrl(
@@ -2651,6 +2674,28 @@ class ElectricEnergyAccountSourcesFerc1TableTransformer(Ferc1AbstractTableTransf
         return df
 
 
+class ElectricEnergyDispositionsFerc1TableTransformer(Ferc1AbstractTableTransformer):
+    """Transformer class for :ref:`electric_energy_dispositions_ferc1` table."""
+
+    table_id: Ferc1TableId = Ferc1TableId.ELECTRIC_ENERGY_DISPOSITIONS_FERC1
+    has_unique_record_ids: bool = False
+
+    def normalize_metadata_xbrl(
+        self, xbrl_fact_names: list[str] | None
+    ) -> pd.DataFrame:
+        """Normalize the metadata from the XBRL taxonomy."""
+        eead_meta = (
+            super()
+            .normalize_metadata_xbrl(xbrl_fact_names)
+            .assign(
+                xbrl_factoid=lambda x: x.xbrl_fact_name,
+            )
+        )
+        # Save the normalized metadata so it can be used by other methods.
+        self.xbrl_metadata_normalized = eead_meta
+        return eead_meta
+
+
 def transform(
     ferc1_dbf_raw_dfs: dict[str, pd.DataFrame],
     ferc1_xbrl_raw_dfs: dict[str, dict[str, pd.DataFrame]],
@@ -2682,7 +2727,8 @@ def transform(
         "plants_pumped_storage_ferc1": PlantsPumpedStorageFerc1TableTransformer,
         "transmission_ferc1": TransmissionFerc1TableTransformer,
         "purchased_power_ferc1": PurchasedPowerFerc1TableTransformer,
-        "electric_energy_account_sources_ferc1": ElectricEnergyAccountSourcesFerc1TableTransformer,
+        "electric_energy_sources_ferc1": ElectricEnergyAccountSourcesFerc1TableTransformer,
+        "electric_energy_dispositions_ferc1": ElectricEnergyDispositionsFerc1TableTransformer,
     }
     # create an empty ditctionary to fill up through the transform fuctions
     ferc1_transformed_dfs = {}
@@ -2745,6 +2791,8 @@ if __name__ == "__main__":
             "purchased_power_ferc1",
             "plants_small_ferc1",
             "transmission_ferc1",
+            "electric_energy_sources_ferc1",
+            "electric_energy_dispositions_ferc1",
         ],
     )
     pudl_settings = pudl.workspace.setup.get_defaults()

@@ -14,11 +14,14 @@ from pudl.metadata.classes import DataSource
 logger = logging.getLogger(__name__)
 
 # These are tables for which individual records have been sliced up and
-# turned into columns -- so there's no universally unique record ID.
-# Except for the transmission table.
+# turned into columns (except for the transmission table) -- so there's no universally
+# unique record ID. But we should parameterize the has_unique_record_ids class
+# attributes in the FERC classes.
 non_unique_record_id_tables = [
     "plant_in_service_ferc1",
     "purchased_power_ferc1",
+    "electric_energy_sources_ferc1",
+    "electric_energy_dispositions_ferc1",
     "transmission_ferc1",
 ]
 unique_record_tables = [

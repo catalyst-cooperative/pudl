@@ -23,7 +23,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "ferc1_disabled",
         "field_namespace": "ferc1",
     },
-    "electric_energy_account_sources_ferc1": {
+    "electric_energy_sources_ferc1": {
         "description": "Amount of electricity the utility obtained from each of several sources, by year.",
         "schema": {
             "fields": [
@@ -43,16 +43,20 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "ferc1",
         "field_namespace": "ferc1",
     },
-    "electric_energy_account_dispositions_ferc1": {
-        "description": "idk yet.",
+    "electric_energy_dispositions_ferc1": {
+        "description": "Electricity utilities unload to end users, internal uses losses, etc.",
         "schema": {
             "fields": [
                 "utility_id_ferc1",
                 "report_year",
+                "energy_disposition_type",
+                "row_type_xbrl",
+                "energy_mwh",
             ],
             "primary_key": [
                 "utility_id_ferc1",
                 "report_year",
+                "energy_disposition_type",
             ],
         },
         "sources": ["ferc1"],

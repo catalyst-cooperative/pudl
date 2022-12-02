@@ -2933,7 +2933,7 @@ TRANSFORM_PARAMS = {
             }
         ],
     },
-    "electric_energy_account_sources_ferc1": {
+    "electric_energy_sources_ferc1": {
         "rename_columns_ferc1": {
             "dbf": {
                 "columns": {
@@ -2960,27 +2960,30 @@ TRANSFORM_PARAMS = {
         },
         "rename_columns_duration_xbrl": {
             "columns": {
-                # generation
-                "steam_generation": "steam_generation_energy_source_mwh",
-                "nuclear_generation": "nuclear_generation_energy_source_mwh",
-                "hydro_conventional_generation": "hydro_conventional_generation_energy_source_mwh",
-                "hydro_pumped_storage_generation": "hydro_pumped_storage_generation_energy_source_mwh",
-                "other_energy_generation": "other_energy_generation_energy_source_mwh",
-                "pumping_energy": "pumping_energy_energy_source_mwh",
-                "net_energy_generation": "net_energy_generation_energy_source_mwh",
-                "megawatt_hours_purchased_other_than_storage": "megawatt_hours_purchased_other_than_storage_energy_source_mwh",
-                "megawatt_hours_purchased_for_energy_storage": "megawatt_hours_purchased_for_energy_storage_energy_source_mwh",
-                # exchanges
-                "energy_received_through_power_exchanges": "energy_received_through_power_exchanges_energy_source_mwh",
-                "energy_delivered_through_power_exchanges": "energy_delivered_through_power_exchanges_energy_source_mwh",
-                "net_energy_through_power_exchanges": "net_energy_through_power_exchanges_energy_source_mwh",
-                # transmission
-                "electric_power_wheeling_energy_received": "electric_power_wheeling_energy_received_energy_source_mwh",
-                "electric_power_wheeling_energy_delivered": "electric_power_wheeling_energy_delivered_energy_source_mwh",
-                "net_transmission_energy_for_others_electric_power_wheeling": "net_transmission_energy_for_others_electric_power_wheeling_energy_source_mwh",
-                "transmission_losses_by_others_electric_power_wheeling": "transmission_losses_by_others_electric_power_wheeling_energy_source_mwh",
-                # total
-                "sources_of_energy": "sources_of_energy_energy_source_mwh",
+                xbrl_col: f"{xbrl_col}_energy_source_mwh"
+                for xbrl_col in [
+                    # generation
+                    "steam_generation",
+                    "nuclear_generation",
+                    "hydro_conventional_generation",
+                    "hydro_pumped_storage_generation",
+                    "other_energy_generation",
+                    "pumping_energy",
+                    "net_energy_generation",
+                    "megawatt_hours_purchased_other_than_storage",
+                    "megawatt_hours_purchased_for_energy_storage",
+                    # exchanges
+                    "energy_received_through_power_exchanges",
+                    "energy_delivered_through_power_exchanges",
+                    "net_energy_through_power_exchanges",
+                    # transmission
+                    "electric_power_wheeling_energy_received",
+                    "electric_power_wheeling_energy_delivered",
+                    "net_transmission_energy_for_others_electric_power_wheeling",
+                    "transmission_losses_by_others_electric_power_wheeling",
+                    # total
+                    "sources_of_energy",
+                ]
             }
         },
         "drop_invalid_rows": [
@@ -2997,6 +3000,64 @@ TRANSFORM_PARAMS = {
         "merge_metadata_xbrl": {
             "rename_columns": {"xbrl_factoid": "energy_source_type"},
             "on": "energy_source_type",
+        },
+        "align_row_numbers_dbf": {"dbf_table_name": "f1_elctrc_erg_acct"},
+    },
+    "electric_energy_dispositions_ferc1": {
+        "rename_columns_ferc1": {
+            "dbf": {
+                "columns": {
+                    "respondent_id": "utility_id_ferc1_dbf",
+                    "report_year": "report_year",
+                    "spplmnt_num": "spplmnt_num",
+                    "row_number": "row_number",
+                    "row_seq": "row_seq",
+                    "row_prvlg": "row_prvlg",
+                    "erg_src_mwh": "energy_source_mwh",  # drop
+                    "erg_disp_mwh": "energy_mwh",
+                    "report_prd": "report_prd",
+                    "xbrl_factoid": "energy_disposition_type",
+                }
+            },
+            "xbrl": {
+                "columns": {
+                    "entity_id": "utility_id_ferc1_xbrl",
+                    "report_year": "report_year",
+                    "xbrl_factoid": "energy_disposition_type",
+                    "energy_disposition_mwh": "energy_mwh",
+                }
+            },
+        },
+        "rename_columns_duration_xbrl": {
+            "columns": {
+                xbrl_col: f"{xbrl_col}_energy_disposition_mwh"
+                for xbrl_col in [
+                    "energy_stored",
+                    "energy_losses",
+                    "megawatt_hours_sold_non_requirements_sales",
+                    "megawatt_hours_sold_sales_to_ultimate_consumers",
+                    "internal_use_energy",
+                    "non_charged_energy",
+                    "megawatt_hours_sold_requirements_sales",
+                    # total
+                    "disposition_of_energy",
+                ]
+            }
+        },
+        "drop_invalid_rows": [
+            {
+                "invalid_values": [pd.NA, np.nan, ""],
+                "required_valid_cols": ["energy_mwh"],
+            },
+        ],
+        "wide_to_tidy_xbrl": {
+            "idx_cols": ["entity_id", "report_year"],
+            "value_types": ["energy_disposition_mwh"],
+            "expected_drop_cols": 19,
+        },
+        "merge_metadata_xbrl": {
+            "rename_columns": {"xbrl_factoid": "energy_disposition_type"},
+            "on": "energy_disposition_type",
         },
         "align_row_numbers_dbf": {"dbf_table_name": "f1_elctrc_erg_acct"},
     },
