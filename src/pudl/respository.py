@@ -7,7 +7,7 @@ from dagster import (
 )
 
 import pudl
-from pudl.etl import eia_raw_dfs, static_eia_assets
+from pudl.etl import eia_raw_dfs, fuel_receipts_costs_aggs_eia
 from pudl.glue.ferc1_eia import glue
 from pudl.io_managers import pudl_sqlite_io_manager
 from pudl.settings import dataset_settings
@@ -24,11 +24,14 @@ def pudl_repository():
     return [
         *with_resources(
             [
-                static_eia_assets,
-                glue,
                 eia_raw_dfs,
+                fuel_receipts_costs_aggs_eia,
+                glue,
                 *load_assets_from_modules(
                     [pudl.transform.eia], group_name="eia_harvested_dfs"
+                ),
+                *load_assets_from_modules(
+                    [pudl.static_assets], group_name="static_assets"
                 ),
                 *load_assets_from_modules(
                     [pudl.output.output_assets], group_name="output_assets"

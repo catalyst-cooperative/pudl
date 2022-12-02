@@ -15,6 +15,7 @@ from . import (  # noqa: F401
     logging_helpers,
     metadata,
     output,
+    static_assets,
     transform,
     validate,
     workspace,

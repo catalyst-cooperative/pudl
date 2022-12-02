@@ -106,6 +106,8 @@ class SQLiteIOManager(IOManager):
         else:
             self.md = md
 
+        self.engine = self._setup_database()
+
     def _get_table_name(self, context) -> str:
         """Get asset name from dagster context object."""
         if context.has_asset_key:
@@ -114,7 +116,7 @@ class SQLiteIOManager(IOManager):
             table_name = context.get_identifier()
         return table_name
 
-    def _get_database_engine(self) -> sa.engine.Engine:
+    def _setup_database(self) -> sa.engine.Engine:
         """Create database and metadata if they don't exist.
 
         Returns:
@@ -196,7 +198,7 @@ class SQLiteIOManager(IOManager):
         Raises:
             ForeignKeyErrors: if data in the database violate foreign key constraints.
         """
-        engine = self._get_database_engine()
+        engine = self.engine
 
         with engine.connect() as con:
             fk_errors = pd.read_sql_query("pragma foreign_key_check;", con)
@@ -236,7 +238,7 @@ class SQLiteIOManager(IOManager):
         table_name = self._get_table_name(context)
 
         sa_table = self._get_sqlalchemy_table(table_name)
-        engine = self._get_database_engine()
+        engine = self.engine
 
         # TODO (bendnorman) I included this if else statement for the analysis table example.
         if sa_table is None:
@@ -263,7 +265,7 @@ class SQLiteIOManager(IOManager):
 
     def _handle_str_output(self, context: OutputContext, query: str):
         """Execute a sql query on the database."""
-        engine = self._get_database_engine()
+        engine = self.engine
         table_name = self._get_table_name(context)
 
         with engine.connect() as con:
@@ -288,7 +290,7 @@ class SQLiteIOManager(IOManager):
         table_name = self._get_table_name(context)
         _ = self._get_sqlalchemy_table(table_name)
 
-        engine = self._get_database_engine()
+        engine = self.engine
 
         with engine.connect() as con:
             return pudl.metadata.fields.apply_pudl_dtypes(

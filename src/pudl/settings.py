@@ -405,15 +405,15 @@ class DatasetsSettings(BaseModel):
             else:
                 d[k] = Field(Noneable(type(v)), default_value=None)
 
-    @staticmethod
-    def create_dagster_config() -> dict:
+    @classmethod
+    def create_dagster_config(cls) -> dict:
         """Create a dictionary of dagster config for the DatasetsSettings Class.
 
         Returns:
             A dictionary of dagster configuration.
         """
-        ds = DatasetsSettings().dict()
-        DatasetsSettings._convert_settings_to_dagster_config(ds)
+        ds = cls().dict()
+        cls._convert_settings_to_dagster_config(ds)
         return ds
 
 

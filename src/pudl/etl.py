@@ -19,20 +19,17 @@ import time
 from concurrent.futures import ProcessPoolExecutor
 from functools import partial
 from pathlib import Path
-from typing import Any, Literal
+from typing import Any
 
 import pandas as pd
 import pyarrow as pa
 import pyarrow.parquet as pq
 import sqlalchemy as sa
-from dagster import AssetOut, Output, multi_asset
+from dagster import AssetOut, Output, asset, multi_asset
 
 import pudl
 from pudl.helpers import convert_cols_dtypes
 from pudl.metadata.classes import DataSource, Package, Resource
-from pudl.metadata.dfs import (  # FERC_ACCOUNTS,; FERC_DEPRECIATION_LINES,
-    POLITICAL_SUBDIVISIONS,
-)
 from pudl.metadata.fields import apply_pudl_dtypes
 from pudl.settings import (
     EiaSettings,
@@ -138,7 +135,6 @@ def _etl_eia(
         return []
 
     # generate dataframes for the static EIA tables
-    # out_dfs = _read_static_encoding_tables(etl_group="static_eia")
     out_dfs = {}
 
     ds = Datastore(**ds_kwargs)
@@ -197,27 +193,6 @@ def _etl_eia(
 ###############################################################################
 # FERC1 EXPORT FUNCTIONS
 ###############################################################################
-
-# TODO (bendnorman): Create static FERC Form 1 tables
-# def _read_static_tables_ferc1():
-#     """Compile static tables for FERC1 for foriegn key constaints.
-
-#     This function grabs static encoded tables via :func:`_read_static_encoding_tables`
-#     as well as two static tables that are non-encoded tables (``ferc_accounts`` and
-#     ``ferc_depreciation_lines``).
-#     """
-#     static_table_dict = _read_static_encoding_tables("static_ferc1")
-#     static_table_dict.update(
-#         {
-#             "ferc_accounts": FERC_ACCOUNTS[
-#                 ["ferc_account_id", "ferc_account_description"]
-#             ],
-#             "ferc_depreciation_lines": FERC_DEPRECIATION_LINES[
-#                 ["line_id", "ferc_account_description"]
-#             ],
-#         }
-#     )
-#     return static_table_dict
 
 
 def _etl_ferc1(
@@ -403,22 +378,21 @@ def etl_epacems(
 ###############################################################################
 # EIA BULK ELECTRICITY AGGREGATES
 ###############################################################################
-def _etl_eia_bulk_elec(ds_kwargs: dict[str, Any]) -> dict[str, pd.DataFrame]:
+@asset(
+    io_manager_key="pudl_sqlite_io_manager",
+    required_resource_keys={"datastore"},
+)
+def fuel_receipts_costs_aggs_eia(context):
     """Extract and transform EIA bulk electricity aggregates.
-
-    Args:
-        ds_kwargs: Keyword arguments for instantiating a PUDL datastore, so that the
-            ETL can access the raw input data.
 
     Returns:
         A dictionary of DataFrames whose keys are the names of the corresponding
         database table.
     """
     logger.info("Processing EIA bulk electricity aggregates.")
-    ds = Datastore(**ds_kwargs)
+    ds = context.resources.datastore
     raw_bulk_dfs = pudl.extract.eia_bulk_elec.extract(ds)
-    transformed_bulk_dfs = pudl.transform.eia_bulk_elec.transform(raw_bulk_dfs)
-    return transformed_bulk_dfs
+    return pudl.transform.eia_bulk_elec.transform(raw_bulk_dfs)
 
 
 ###############################################################################
@@ -476,52 +450,6 @@ def _etl_glue(
         glue_dfs.update(glue_transformed_dfs)
 
     return glue_dfs
-
-
-def _read_static_encouding_tables_asset_factory(
-    etl_group: Literal["static_eia", "static_ferc1"]
-):
-    @multi_asset(
-        outs={
-            r.name: AssetOut(io_manager_key="pudl_sqlite_io_manager")
-            for r in Package.from_resource_ids().resources
-            if r.etl_group == etl_group and r.encoder
-        },
-        group_name="static_dfs",
-    )
-    def _read_static_encoding_tables():
-        """Build dataframes of static tables from a data source for use as foreign keys.
-
-        There are many values specified within the data that are essentially constant, but
-        which we need to store for data validation purposes, for use as foreign keys.  E.g.
-        the list of valid EIA fuel type codes, or the possible state and country codes
-        indicating a coal delivery's location of origin. For now these values are primarily
-        stored in a large collection of lists, dictionaries, and dataframes which are
-        specified in the :mod:`pudl.metadata` subpackage.  This function uses those data
-        structures to populate a bunch of small infrastructural tables within the PUDL DB.
-
-        Args:
-            etl_group: name of static table etl group.
-
-        Returns:
-            a dictionary with table names as keys and dataframes as values for all tables
-            labeled as static tables in their resource ``etl_group``
-        """
-        return (
-            Output(output_name=r.name, value=r.encoder.df)
-            for r in Package.from_resource_ids().resources
-            if r.etl_group == etl_group and r.encoder
-        )
-
-    return _read_static_encoding_tables
-
-
-static_eia_assets = _read_static_encouding_tables_asset_factory("static_eia")
-
-
-def _read_static_pudl_tables() -> dict[str, pd.DataFrame]:
-    """Read static tables compiled as part of PUDL and not from any agency dataset."""
-    return {"political_subdivisions": POLITICAL_SUBDIVISIONS}
 
 
 ###############################################################################
@@ -585,13 +513,12 @@ def etl(  # noqa: C901
         epacems_pq_path = Path(pudl_settings["parquet_dir"]) / "epacems"
         epacems_pq_path.mkdir(exist_ok=True)
 
-    sqlite_dfs = _read_static_pudl_tables()
+    sqlite_dfs = {}
     # This could be cleaner if we simplified the settings file format:
     if datasets.get("ferc1", False):
         sqlite_dfs.update(_etl_ferc1(datasets["ferc1"], pudl_settings))
     if datasets.get("eia", False):
         sqlite_dfs.update(_etl_eia(datasets["eia"], ds_kwargs))
-        sqlite_dfs.update(_etl_eia_bulk_elec(ds_kwargs))
     if datasets.get("glue", False):
         sqlite_dfs.update(
             _etl_glue(datasets["glue"], ds_kwargs, sqlite_dfs, datasets["eia"])
