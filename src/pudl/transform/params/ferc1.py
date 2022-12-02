@@ -2910,11 +2910,26 @@ TRANSFORM_PARAMS = {
         "replace_with_na": {
             "conductor_size_and_material": {"replace_with_na": [""]},
             "supporting_structure_type": {"replace_with_na": [""]},
+            "start_point": {"replace_with_na": [""]},
+            "end_point": {"replace_with_na": [""]},
         },
         "drop_invalid_rows": [
             {
-                "invalid_values": [pd.NA, np.nan, "", None],
-                "required_valid_cols": ["report_year"],
+                "invalid_values": [pd.NA, np.nan, "", None, "None"],
+                "required_valid_cols": [
+                    "operating_voltage_kv",
+                    "designed_voltage_kv",
+                    "transmission_line_length_miles",
+                    "transmission_line_and_structures_length_miles",
+                    "num_transmission_circuits",
+                    "capex_land",
+                    "capex_other",
+                    "capex_total",
+                    "opex_operations",
+                    "opex_maintenance",
+                    "opex_rents",
+                    "opex_total",
+                ],
             }
         ],
     },

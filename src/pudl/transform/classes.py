@@ -814,10 +814,9 @@ def drop_invalid_rows(df: pd.DataFrame, params: InvalidRows) -> pd.DataFrame:
     mask = ~cols_to_check.isin(params.invalid_values).all(axis="columns")
     # Mask the input dataframe and make a copy to avoid returning a slice.
     df_out = df[mask].copy()
-
     logger.info(
-        f"{1 - (len(df_out)/pre_drop_len):.1%} of records contain only "
-        f"{params.invalid_values} values in required columns. "
+        f"{1 - (len(df_out)/pre_drop_len):.1%} of records ({pre_drop_len-len(df_out)} "
+        f"rows) contain only {params.invalid_values} values in required columns. "
         "Dropped these 💩💩💩 records."
     )
     return df_out
