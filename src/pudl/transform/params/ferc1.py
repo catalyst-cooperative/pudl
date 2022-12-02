@@ -2990,7 +2990,7 @@ TRANSFORM_PARAMS = {
                     "row_seq": "row_seq",
                     "row_prvlg": "row_prvlg",
                     "report_prd": "report_prd",
-                    "xbrl_factoid": "utility_plant_asset_type",
+                    "xbrl_factoid": "utility_type",
                 }
             },
             "xbrl": {

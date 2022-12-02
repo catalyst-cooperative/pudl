@@ -18,6 +18,7 @@ ferc_to_sqlite_settings:
       - f1_pumped_storage
       - f1_purchased_pwr
       - f1_elctrc_erg_acct
+      - f1_utltyplnt_smmry
 
   ferc1_xbrl_to_sqlite_settings:
     years: [2021]
