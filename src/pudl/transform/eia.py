@@ -1126,24 +1126,11 @@ def fix_balancing_authority_codes_with_state(
 
 eia_assets = load_assets_from_modules([eia860, eia923])
 
-# TODO (bendnorman): Get this information from metadata classes
-final_eia_table_names = [
-    "plants_entity_eia",
-    "generators_entity_eia",
-    "utilities_entity_eia",
-    "boilers_entity_eia",
-    "boiler_fuel_eia923",
-    "boiler_generator_assn_eia860",
-    "coalmine_eia923",
-    "fuel_receipts_costs_eia923",
-    "generation_eia923",
-    "generation_fuel_eia923",
-    "generation_fuel_nuclear_eia923",
-    "generators_eia860",
-    "ownership_eia860",
-    "plants_eia860",
-    "utilities_eia860",
-]
+final_eia_table_names = (
+    Package.get_etl_group_tables("entity_eia")
+    + Package.get_etl_group_tables("eia860")
+    + Package.get_etl_group_tables("eia923")
+)
 
 
 @multi_asset(

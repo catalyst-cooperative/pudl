@@ -1780,6 +1780,28 @@ class Package(Base):
 
         return cls(name="pudl", resources=resources)
 
+    @staticmethod
+    def get_etl_group_tables(  # noqa: C901
+        etl_group: str,
+    ) -> tuple[str]:
+        """Get a sorted tuple of table names for an etl_group.
+
+        Args:
+            etl_group: the etl_group key.
+
+        Returns:
+            A sorted tuple of table names for the etl_group.
+        """
+        resource_ids = tuple(
+            sorted(
+                (k for k, v in RESOURCE_METADATA.items() if v["etl_group"] == etl_group)
+            )
+        )
+        if not resource_ids:
+            raise ValueError(f"There are no resources for ETL group: {etl_group}.")
+
+        return resource_ids
+
     def get_resource(self, name: str) -> Resource:
         """Return the resource with the given name if it is in the Package."""
         names = [resource.name for resource in self.resources]

@@ -42,15 +42,10 @@ def _read_static_encoding_tables(
     }
 
 
-# TODO (bendnorman): Store the static table names in a better way.
-# These tables are already in the metadata.
-static_pudl_table_names = sorted(["political_subdivisions"])
-
-
 @multi_asset(
     outs={
         table_name: AssetOut(io_manager_key="pudl_sqlite_io_manager")
-        for table_name in static_pudl_table_names
+        for table_name in Package.get_etl_group_tables("static_pudl")
     },
 )
 def static_pudl_tables():
@@ -65,7 +60,7 @@ def static_pudl_tables():
 @multi_asset(
     outs={
         table_name: AssetOut(io_manager_key="pudl_sqlite_io_manager")
-        for table_name in _read_static_encoding_tables("static_eia")
+        for table_name in Package.get_etl_group_tables("static_eia")
     },
 )
 def static_eia_tables():
@@ -76,16 +71,10 @@ def static_eia_tables():
     )
 
 
-static_ferc1_table_names = sorted(
-    list(_read_static_encoding_tables("static_ferc1"))
-    + ["ferc_accounts", "ferc_depreciation_lines"]
-)
-
-
 @multi_asset(
     outs={
         table_name: AssetOut(io_manager_key="pudl_sqlite_io_manager")
-        for table_name in static_ferc1_table_names
+        for table_name in Package.get_etl_group_tables("static_ferc1")
     },
 )
 def static_ferc1_tables():

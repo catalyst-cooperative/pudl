@@ -31,13 +31,7 @@ import pudl
 from pudl.helpers import convert_cols_dtypes
 from pudl.metadata.classes import DataSource, Package, Resource
 from pudl.metadata.fields import apply_pudl_dtypes
-from pudl.settings import (
-    EiaSettings,
-    EpaCemsSettings,
-    EtlSettings,
-    Ferc1Settings,
-    GlueSettings,
-)
+from pudl.settings import EiaSettings, EpaCemsSettings, EtlSettings, Ferc1Settings
 from pudl.workspace.datastore import Datastore
 
 logger = pudl.logging_helpers.get_logger(__name__)
@@ -47,23 +41,26 @@ logger = pudl.logging_helpers.get_logger(__name__)
 # EIA EXPORT FUNCTIONS
 ###############################################################################
 
-# TODO (bendnorman): create a data structure to hold multi_asset outs so we can dynamically create them.
+# TODO (bendnorman): Add this information to the metadata
+eia_raw_table_names = (
+    "raw_boiler_fuel_eia923",
+    "raw_boiler_generator_assn_eia860",
+    "raw_fuel_receipts_costs_eia923",
+    "raw_generation_fuel_eia923",
+    "raw_generator_eia860",
+    "raw_generator_eia923",
+    "raw_generator_existing_eia860",
+    "raw_generator_proposed_eia860",
+    "raw_generator_retired_eia860",
+    "raw_ownership_eia860",
+    "raw_plant_eia860",
+    "raw_stocks_eia923",
+    "raw_utility_eia860",
+)
+
+
 @multi_asset(
-    outs={
-        "raw_boiler_fuel_eia923": AssetOut(),
-        "raw_boiler_generator_assn_eia860": AssetOut(),
-        "raw_fuel_receipts_costs_eia923": AssetOut(),
-        "raw_generation_fuel_eia923": AssetOut(),
-        "raw_generator_eia860": AssetOut(),
-        "raw_generator_eia923": AssetOut(),
-        "raw_generator_existing_eia860": AssetOut(),
-        "raw_generator_proposed_eia860": AssetOut(),
-        "raw_generator_retired_eia860": AssetOut(),
-        "raw_ownership_eia860": AssetOut(),
-        "raw_plant_eia860": AssetOut(),
-        "raw_stocks_eia923": AssetOut(),
-        "raw_utility_eia860": AssetOut(),
-    },
+    outs={table_name: AssetOut() for table_name in sorted(eia_raw_table_names)},
     required_resource_keys={"datastore", "dataset_settings"},
     group_name="eia_raw_dfs",
 )
@@ -381,6 +378,7 @@ def etl_epacems(
 @asset(
     io_manager_key="pudl_sqlite_io_manager",
     required_resource_keys={"datastore"},
+    group_name="eia_api",
 )
 def fuel_receipts_costs_aggs_eia(context):
     """Extract and transform EIA bulk electricity aggregates.
@@ -398,12 +396,21 @@ def fuel_receipts_costs_aggs_eia(context):
 ###############################################################################
 # GLUE AND STATIC EXPORT FUNCTIONS
 ###############################################################################
-def _etl_glue(
-    glue_settings: GlueSettings,
-    ds_kwargs: dict[str, Any],
-    sqlite_dfs: dict[str, pd.DataFrame],
-    eia_settings: EiaSettings,
-) -> dict[str, pd.DataFrame]:
+# TODO (bendnorman): Currently loading all glue tables. Could potentially allow users
+# to load subsets of the glue tables, see: https://docs.dagster.io/concepts/assets/multi-assets#subsetting-multi-assets
+# Could split out different types of glue tables into different assets. For example the cross walk table could be a separate asset
+# that way dagster doesn't think all glue tables depend on generators_entity_eia, boilers_entity_eia.
+
+
+@multi_asset(
+    outs={
+        table_name: AssetOut(io_manager_key="pudl_sqlite_io_manager")
+        for table_name in Package.get_etl_group_tables("glue")
+    },
+    required_resource_keys={"datastore", "dataset_settings"},
+    group_name="glue",
+)
+def create_glue_tables(context, generators_entity_eia, boilers_entity_eia):
     """Extract, transform and load CSVs for the Glue tables.
 
     Args:
@@ -424,32 +431,38 @@ def _etl_glue(
         A dictionary of DataFrames whose keys are the names of the corresponding
         database table.
     """
+    dataset_settings = context.resources.dataset_settings
     # grab the glue tables for ferc1 & eia
     glue_dfs = pudl.glue.ferc1_eia.glue(
-        ferc1=glue_settings.ferc1,
-        eia=glue_settings.eia,
+        ferc1=dataset_settings.glue.ferc1,
+        eia=dataset_settings.glue.eia,
     )
 
     # Add the EPA to EIA crosswalk, but only if the eia data is being processed.
     # Otherwise the foreign key references will have nothing to point at:
-    ds = Datastore(**ds_kwargs)
-    if glue_settings.eia:
+    ds = context.resources.datastore
+    if dataset_settings.glue.eia:
         # Check to see whether the settings file indicates the processing of all
         # available EIA years.
         processing_all_eia_years = (
-            eia_settings.eia860.years
-            == eia_settings.eia860.data_source.working_partitions["years"]
+            dataset_settings.eia.eia860.years
+            == dataset_settings.eia.eia860.data_source.working_partitions["years"]
         )
         glue_raw_dfs = pudl.glue.epacamd_eia.extract(ds)
         glue_transformed_dfs = pudl.glue.epacamd_eia.transform(
             glue_raw_dfs,
-            sqlite_dfs["generators_entity_eia"],
-            sqlite_dfs["boilers_entity_eia"],
+            generators_entity_eia,
+            boilers_entity_eia,
             processing_all_eia_years,
         )
         glue_dfs.update(glue_transformed_dfs)
 
-    return glue_dfs
+    # Ensure they are sorted so they match up with the asset outs
+    glue_dfs = dict(sorted(glue_dfs.items()))
+
+    return (
+        Output(output_name=table_name, value=df) for table_name, df in glue_dfs.items()
+    )
 
 
 ###############################################################################
@@ -519,10 +532,6 @@ def etl(  # noqa: C901
         sqlite_dfs.update(_etl_ferc1(datasets["ferc1"], pudl_settings))
     if datasets.get("eia", False):
         sqlite_dfs.update(_etl_eia(datasets["eia"], ds_kwargs))
-    if datasets.get("glue", False):
-        sqlite_dfs.update(
-            _etl_glue(datasets["glue"], ds_kwargs, sqlite_dfs, datasets["eia"])
-        )
 
     # Load the ferc1 + eia data directly into the SQLite DB:
     pudl_engine = sa.create_engine(pudl_settings["pudl_db"])

@@ -33,7 +33,6 @@ from collections.abc import Iterable
 
 import pandas as pd
 import sqlalchemy as sa
-from dagster import AssetOut, Output, multi_asset
 
 import pudl
 from pudl.metadata.fields import apply_pudl_dtypes
@@ -487,33 +486,10 @@ def get_util_ids_eia_unmapped(
     return unmapped_utils_eia
 
 
-glue_table_name = [
-    "plants_pudl",
-    "utilities_pudl",
-    "plants_ferc1",
-    "utilities_ferc1",
-    "utilities_ferc1_dbf",
-    "utilities_ferc1_xbrl",
-    "plants_eia",
-    "utilities_eia",
-    "utility_plant_assn",
-]
-
 #################
 # Glue Tables ETL
 #################
-# TODO (bendnorman): Currently loading all glue tables. Could potentially allow users
-# to load subsets of the glue tables, see: https://docs.dagster.io/concepts/assets/multi-assets#subsetting-multi-assets
-
-
-@multi_asset(
-    outs={
-        table_name: AssetOut(io_manager_key="pudl_sqlite_io_manager")
-        for table_name in sorted(glue_table_name)
-    },
-    group_name="glue_tables",
-)
-def glue():
+def glue(ferc1=False, eia=False):
     """Generates a dictionary of dataframes for glue tables between FERC1, EIA.
 
     That data is primarily stored in the plant_output and
@@ -680,9 +656,4 @@ def glue():
         "utility_plant_assn": utility_plant_assn,
     }
 
-    # Ensure they are sorted so they match up with the asset outs
-    glue_dfs = dict(sorted(glue_dfs.items()))
-
-    return (
-        Output(output_name=table_name, value=df) for table_name, df in glue_dfs.items()
-    )
+    return glue_dfs
