@@ -2851,7 +2851,7 @@ TRANSFORM_PARAMS = {
             }
         ],
     },
-    "electric_energy_account_sources_ferc1": {
+    "electric_energy_sources_ferc1": {
         "rename_columns_ferc1": {
             "dbf": {
                 "columns": {
@@ -2878,27 +2878,30 @@ TRANSFORM_PARAMS = {
         },
         "rename_columns_duration_xbrl": {
             "columns": {
-                # generation
-                "steam_generation": "steam_generation_energy_source_mwh",
-                "nuclear_generation": "nuclear_generation_energy_source_mwh",
-                "hydro_conventional_generation": "hydro_conventional_generation_energy_source_mwh",
-                "hydro_pumped_storage_generation": "hydro_pumped_storage_generation_energy_source_mwh",
-                "other_energy_generation": "other_energy_generation_energy_source_mwh",
-                "pumping_energy": "pumping_energy_energy_source_mwh",
-                "net_energy_generation": "net_energy_generation_energy_source_mwh",
-                "megawatt_hours_purchased_other_than_storage": "megawatt_hours_purchased_other_than_storage_energy_source_mwh",
-                "megawatt_hours_purchased_for_energy_storage": "megawatt_hours_purchased_for_energy_storage_energy_source_mwh",
-                # exchanges
-                "energy_received_through_power_exchanges": "energy_received_through_power_exchanges_energy_source_mwh",
-                "energy_delivered_through_power_exchanges": "energy_delivered_through_power_exchanges_energy_source_mwh",
-                "net_energy_through_power_exchanges": "net_energy_through_power_exchanges_energy_source_mwh",
-                # transmission
-                "electric_power_wheeling_energy_received": "electric_power_wheeling_energy_received_energy_source_mwh",
-                "electric_power_wheeling_energy_delivered": "electric_power_wheeling_energy_delivered_energy_source_mwh",
-                "net_transmission_energy_for_others_electric_power_wheeling": "net_transmission_energy_for_others_electric_power_wheeling_energy_source_mwh",
-                "transmission_losses_by_others_electric_power_wheeling": "transmission_losses_by_others_electric_power_wheeling_energy_source_mwh",
-                # total
-                "sources_of_energy": "sources_of_energy_energy_source_mwh",
+                xbrl_col: f"{xbrl_col}_energy_source_mwh"
+                for xbrl_col in [
+                    # generation
+                    "steam_generation",
+                    "nuclear_generation",
+                    "hydro_conventional_generation",
+                    "hydro_pumped_storage_generation",
+                    "other_energy_generation",
+                    "pumping_energy",
+                    "net_energy_generation",
+                    "megawatt_hours_purchased_other_than_storage",
+                    "megawatt_hours_purchased_for_energy_storage",
+                    # exchanges
+                    "energy_received_through_power_exchanges",
+                    "energy_delivered_through_power_exchanges",
+                    "net_energy_through_power_exchanges",
+                    # transmission
+                    "electric_power_wheeling_energy_received",
+                    "electric_power_wheeling_energy_delivered",
+                    "net_transmission_energy_for_others_electric_power_wheeling",
+                    "transmission_losses_by_others_electric_power_wheeling",
+                    # total
+                    "sources_of_energy",
+                ]
             }
         },
         "drop_invalid_rows": [
@@ -2918,7 +2921,7 @@ TRANSFORM_PARAMS = {
         },
         "align_row_numbers_dbf": {"dbf_table_name": "f1_elctrc_erg_acct"},
     },
-    "electric_energy_account_dispositions_ferc1": {
+    "electric_energy_dispositions_ferc1": {
         "rename_columns_ferc1": {
             "dbf": {
                 "columns": {
@@ -2958,15 +2961,6 @@ TRANSFORM_PARAMS = {
                     "disposition_of_energy",
                 ]
             }
-        },
-        "select_date_range_duration_xbrl": {
-            "date_ranges": [
-                {
-                    "report_year": 2021,
-                    "start_date": "2021-01-01",
-                    "end_date": "2021-12-31",
-                },
-            ]
         },
         "drop_invalid_rows": [
             {
