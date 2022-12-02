@@ -2590,6 +2590,7 @@ class TransmissionFerc1TableTransformer(Ferc1AbstractTableTransformer):
     """A table transformer specific to the :ref:`transmission_ferc1` table."""
 
     table_id: Ferc1TableId = Ferc1TableId.TRANSMISSION_FERC1
+    has_unique_record_ids: bool = False
 
     @cache_df(key="main")
     def transform_main(self, df: pd.DataFrame) -> pd.DataFrame:
