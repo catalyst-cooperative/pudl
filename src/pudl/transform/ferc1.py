@@ -2682,6 +2682,27 @@ class UtilityPlantSummaryFerc1TableTransformer(Ferc1AbstractTableTransformer):
     table_id: Ferc1TableId = Ferc1TableId.UTILITY_PLANT_SUMMARY_FERC1
     has_unique_record_ids: bool = False
 
+    def process_dbf(self, raw_dbf):
+        """Temporary version of using the :meth:`wide_to_tidy_xbrl` for this tbl."""
+        df = super().process_dbf(raw_dbf)
+        wtt_dbf = WideToTidyXbrl(
+            **{
+                "idx_cols": [
+                    "report_year",
+                    "record_id",
+                    "utility_id_ferc1",
+                    "utility_type",
+                    "utility_type_other",
+                ],
+                "value_types": ["utility_plant_value"],
+                "expected_drop_cols": 1,
+            }
+        )
+        df = wide_to_tidy_xbrl(df=df, params=wtt_dbf).rename(
+            columns={"xbrl_factoid": "utility_plant_asset_type"}
+        )
+        return df
+
     def normalize_metadata_xbrl(
         self, xbrl_fact_names: list[str] | None
     ) -> pd.DataFrame:

@@ -2990,7 +2990,43 @@ TRANSFORM_PARAMS = {
                     "row_seq": "row_seq",
                     "row_prvlg": "row_prvlg",
                     "report_prd": "report_prd",
+                    "other": "utility_type_other",
                     "xbrl_factoid": "utility_type",
+                    # util plant
+                    # in service
+                    "service_plant": "utility_plant_in_service_classified_utility_plant_value",
+                    "propundr_cptl_ls": "utility_plant_in_service_property_under_capital_leases_utility_plant_value",
+                    "plnt_prchs_sold": "utility_plant_in_service_plant_purchased_or_sold_utility_plant_value",
+                    "cmplt_const_ucls": "utility_plant_in_service_completed_construction_not_classified_utility_plant_value",
+                    "xprmnt_plnt_ucls": "utility_plant_in_service_experimental_plant_unclassified_utility_plant_value",
+                    "in_srvc_total": "utility_plant_in_service_classified_and_unclassified_utility_plant_value",
+                    # rest of util plant
+                    "leased_to_others": "utility_plant_leased_to_others_utility_plant_value",
+                    "held_ftre_use": "utility_plant_held_for_future_use_utility_plant_value",
+                    "const_wrk_prgrs": "construction_work_in_progress_utility_plant_value",
+                    "acqstn_adjstmnt": "utility_plant_acquisition_adjustment_utility_plant_value",
+                    "tot_utlty_plant": "utility_plant_and_construction_work_in_progress_utility_plant_value",
+                    "accum_prvsn_dad": "accumulated_provision_for_depreciation_amortization_and_depletion_of_plant_utility_utility_plant_value",
+                    "net_utlty_plant": "utility_plant_net_utility_plant_value",
+                    # detail of accum deprish
+                    # in service
+                    "in_srvce_depr": "depreciation_utility_plant_in_service_utility_plant_value",
+                    "amrtzd_dplt_nglr": "amortization_and_depletion_of_producing_natural_gas_land_and_land_rightsutility_plant_in_service_utility_plant_value",
+                    "amrtzd_ugrndstrg": "amortization_of_underground_storage_land_and_land_rightsutility_plant_in_service_utility_plant_value",
+                    "amrtz_utlty_plnt": "amortization_of_other_utility_plant_utility_plant_in_service_utility_plant_value",
+                    "tot_in_service": "depreciation_amortization_and_depletion_utility_plant_in_service_utility_plant_value",
+                    # leased to others
+                    "leased_othr_depr": "depreciation_utility_plant_leased_to_others_utility_plant_value",
+                    "amrtz_dplt": "amortization_and_depletion_utility_plant_leased_to_others_utility_plant_value",
+                    "tot_leased_othr": "depreciation_amortization_and_depletion_utility_plant_leased_to_others_utility_plant_value",
+                    # held for future use
+                    "depr_ftre_use": "depreciation_utility_plant_held_for_future_use_utility_plant_value",
+                    "amortization": "amortization_utility_plant_held_for_future_use_utility_plant_value",
+                    "total_ftre_use": "depreciation_and_amortization_utility_plant_held_for_future_use_utility_plant_value",
+                    # rest of details of acum deprish
+                    "abndn_leases": "abandonment_of_leases_utility_plant_value",
+                    "amrtzplnt_acqstn": "amortization_of_plant_acquisition_adjustment_utility_plant_value",
+                    "tot_accum_prvsn": "accumulated_provision_for_depreciation_amortization_and_depletion_of_plant_utility_detail_utility_plant_value",
                 }
             },
             "xbrl": {
@@ -3004,7 +3040,7 @@ TRANSFORM_PARAMS = {
         },
         "rename_columns_instant_xbrl": {
             "columns": {
-                xbrl_col: f"{xbrl_col}_dollars"
+                xbrl_col: f"{xbrl_col}_utility_plant_value"
                 for xbrl_col in [
                     "depreciation_amortization_and_depletion_utility_plant_in_service",
                     "depreciation_and_amortization_utility_plant_held_for_future_use",
@@ -3038,12 +3074,12 @@ TRANSFORM_PARAMS = {
         "drop_invalid_rows": [
             {
                 "invalid_values": [pd.NA, np.nan, ""],
-                "required_valid_cols": ["dollars"],
+                "required_valid_cols": ["utility_plant_value"],
             },
         ],
         "wide_to_tidy_xbrl": {
             "idx_cols": ["entity_id", "report_year", "utility_type_axis"],
-            "value_types": ["dollars"],
+            "value_types": ["utility_plant_value"],
             "expected_drop_cols": 1,
         },
         "merge_metadata_xbrl": {
