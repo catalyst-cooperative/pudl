@@ -5,7 +5,7 @@ from sqlite3 import sqlite_version
 
 import pandas as pd
 import sqlalchemy as sa
-from dagster import Field, IOManager, io_manager
+from dagster import Field, InputContext, IOManager, OutputContext, io_manager
 from packaging import version
 from sqlalchemy.exc import SQLAlchemyError
 
@@ -148,8 +148,12 @@ class SQLiteIOManager(IOManager):
         """
         sa_table = self.md.tables.get(table_name, None)
         if sa_table is None:
-            raise RuntimeError(
-                f"{sa_table} not found in database metadata. Either add the table to the metadata or use a different IO Manager."
+            # TODO (bendnorman): Logging a warning for now so the analysis example can run but we could raise an error.
+            # raise RuntimeError(
+            #     f"{sa_table} not found in database metadata. Either add the table to the metadata or use a different IO Manager."
+            # )
+            logger.warning(
+                f"{sa_table} not found in database metadata. Dtypes of returned DataFrame might be incorrect."
             )
         return sa_table
 
@@ -227,25 +231,59 @@ class SQLiteIOManager(IOManager):
                 )
             raise ForeignKeyErrors(errors)
 
-    def handle_output(self, context, df):
-        """Handle an op or asset output."""
+    def _handle_pandas_output(self, context: OutputContext, df: pd.DataFrame):
+        """Write dataframe to the database."""
         table_name = self._get_table_name(context)
 
         sa_table = self._get_sqlalchemy_table(table_name)
         engine = self._get_database_engine()
 
+        # TODO (bendnorman) I included this if else statement for the analysis table example.
+        if sa_table is None:
+            with engine.connect() as con:
+                # Remove old table records before loading to db
+                df.to_sql(
+                    table_name,
+                    con,
+                    if_exists="replace",
+                    index=False,
+                )
+        else:
+            with engine.connect() as con:
+                # Remove old table records before loading to db
+                con.execute(sa_table.delete())
+
+                df.to_sql(
+                    table_name,
+                    con,
+                    if_exists="append",
+                    index=False,
+                    dtype={c.name: c.type for c in sa_table.columns},
+                )
+
+    def _handle_str_output(self, context: OutputContext, query: str):
+        """Execute a sql query on the database."""
+        engine = self._get_database_engine()
+        table_name = self._get_table_name(context)
+
         with engine.connect() as con:
-            # Remove old table records before loading to db
-            con.execute(sa_table.delete())
-            df.to_sql(
-                table_name,
-                con,
-                if_exists="append",
-                index=False,
-                dtype={c.name: c.type for c in sa_table.columns},
+            # Drop the existing view if it exists and create the new view.
+            # TODO (bendnorman): parameterize this safely.
+            con.execute(f"DROP VIEW IF EXISTS {table_name}")
+            con.execute(query)
+
+    def handle_output(self, context: OutputContext, obj: pd.DataFrame | str):
+        """Handle an op or asset output."""
+        if isinstance(obj, pd.DataFrame):
+            self._handle_pandas_output(context, obj)
+        elif isinstance(obj, str):
+            self._handle_str_output(context, obj)
+        else:
+            raise Exception(
+                "SQLiteIOManager only supports pandas DataFrames and strings of SQL queries."
             )
 
-    def load_input(self, context) -> pd.DataFrame:
+    def load_input(self, context: InputContext) -> pd.DataFrame:
         """Load a dataframe from a sqlite database."""
         table_name = self._get_table_name(context)
         _ = self._get_sqlalchemy_table(table_name)

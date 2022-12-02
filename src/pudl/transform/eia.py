@@ -1124,7 +1124,6 @@ def fix_balancing_authority_codes_with_state(
     return plants.drop(columns=["state"])
 
 
-# TODO (bendnorman): Do this in a more graceful way
 eia_assets = load_assets_from_modules([eia860, eia923])
 
 # TODO (bendnorman): Get this information from metadata classes
@@ -1255,16 +1254,6 @@ def eia_transform(context, **eia_transformed_dfs):
 
     # Ensure they are sorted so they match up with the asset outs
     final_dfs = dict(sorted(final_dfs.items()))
-
-    ownership_eia860 = final_dfs["ownership_eia860"]
-    print(ownership_eia860.owner_zip_code.str.len().value_counts())
-    print()
-    print(ownership_eia860.owner_zip_code.apply(type).value_counts())
-    print()
-    print(
-        ownership_eia860[ownership_eia860.owner_zip_code.str.len() > 5].owner_zip_code
-    )
-    print(ownership_eia860.owner_zip_code.describe())
 
     return (
         Output(output_name=table_name, value=df) for table_name, df in final_dfs.items()

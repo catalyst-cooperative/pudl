@@ -33,6 +33,7 @@ from collections.abc import Iterable
 
 import pandas as pd
 import sqlalchemy as sa
+from dagster import AssetOut, Output, multi_asset
 
 import pudl
 from pudl.metadata.fields import apply_pudl_dtypes
@@ -486,10 +487,33 @@ def get_util_ids_eia_unmapped(
     return unmapped_utils_eia
 
 
+glue_table_name = [
+    "plants_pudl",
+    "utilities_pudl",
+    "plants_ferc1",
+    "utilities_ferc1",
+    "utilities_ferc1_dbf",
+    "utilities_ferc1_xbrl",
+    "plants_eia",
+    "utilities_eia",
+    "utility_plant_assn",
+]
+
 #################
 # Glue Tables ETL
 #################
-def glue(ferc1=False, eia=False):
+# TODO (bendnorman): Currently loading all glue tables. Could potentially allow users
+# to load subsets of the glue tables, see: https://docs.dagster.io/concepts/assets/multi-assets#subsetting-multi-assets
+
+
+@multi_asset(
+    outs={
+        table_name: AssetOut(io_manager_key="pudl_sqlite_io_manager")
+        for table_name in sorted(glue_table_name)
+    },
+    group_name="glue_tables",
+)
+def glue():
     """Generates a dictionary of dataframes for glue tables between FERC1, EIA.
 
     That data is primarily stored in the plant_output and
@@ -529,8 +553,6 @@ def glue(ferc1=False, eia=False):
     # ferc glue tables are structurally entity tables w/ foreign key
     # relationships to ferc datatables, so we need some of the eia/ferc 'glue'
     # even when only ferc is ingested into the database.
-    if not ferc1 and not eia:
-        return
 
     # We need to standardize plant names -- same capitalization and no leading
     # or trailing white space... since this field is being used as a key in
@@ -658,11 +680,9 @@ def glue(ferc1=False, eia=False):
         "utility_plant_assn": utility_plant_assn,
     }
 
-    # if we're not ingesting eia, exclude eia only tables
-    if not eia:
-        glue_dfs = {name: df for (name, df) in glue_dfs.items() if "_eia" not in name}
-    # if we're not ingesting ferc, exclude ferc1 only tables
-    if not ferc1:
-        glue_dfs = {name: df for (name, df) in glue_dfs.items() if "_ferc1" not in name}
+    # Ensure they are sorted so they match up with the asset outs
+    glue_dfs = dict(sorted(glue_dfs.items()))
 
-    return glue_dfs
+    return (
+        Output(output_name=table_name, value=df) for table_name, df in glue_dfs.items()
+    )
