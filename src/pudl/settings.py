@@ -5,7 +5,7 @@ from typing import ClassVar
 
 import pandas as pd
 import yaml
-from dagster import Field, resource
+from dagster import Field, Noneable, resource
 from pydantic import AnyHttpUrl
 from pydantic import BaseModel as PydanticBaseModel
 from pydantic import BaseSettings, root_validator, validator
@@ -62,6 +62,10 @@ class GenericDatasetSettings(BaseModel):
             except KeyError:
                 raise ValueError(f"{cls.__name__} is missing required '{name}' field.")
 
+            # If partition is None, default to working_partitions
+            if not partitions[name]:
+                partition = working_partitions
+
             partitions_not_working = list(set(partition) - set(working_partitions))
             if partitions_not_working:
                 raise ValueError(
@@ -90,7 +94,7 @@ class Ferc1Settings(GenericDatasetSettings):
 
     data_source: ClassVar[DataSource] = DataSource.from_id("ferc1")
 
-    years: list[int] = data_source.working_partitions["years"]
+    years: list[int] | None = data_source.working_partitions["years"]
     tables: list[str] = data_source.get_resource_ids()
 
     @validator("tables")
@@ -139,10 +143,10 @@ class EpaCemsSettings(GenericDatasetSettings):
 
     data_source: ClassVar[DataSource] = DataSource.from_id("epacems")
 
-    years: list[int] = data_source.working_partitions["years"]
-    states: list[str] = data_source.working_partitions["states"]
+    years: list[int] | None = data_source.working_partitions["years"]
+    states: list[str] | None = data_source.working_partitions["states"]
     tables: list[str] = data_source.get_resource_ids()
-    partition: bool = False
+    partition: bool | None = False
 
     @validator("states")
     def allow_all_keyword(cls, states):  # noqa: N805
@@ -163,7 +167,7 @@ class Eia923Settings(GenericDatasetSettings):
 
     data_source: ClassVar[DataSource] = DataSource.from_id("eia923")
 
-    years: list[int] = data_source.working_partitions["years"]
+    years: list[int] | None = data_source.working_partitions["years"]
     tables: list[str] = data_source.get_resource_ids()
 
 
@@ -231,9 +235,9 @@ class Eia860Settings(GenericDatasetSettings):
     eia860m_data_source: ClassVar[DataSource] = DataSource.from_id("eia860m")
     eia860m_date: ClassVar[str] = eia860m_data_source.working_partitions["year_month"]
 
-    years: list[int] = data_source.working_partitions["years"]
+    years: list[int] | None = data_source.working_partitions["years"]
     tables: list[str] = data_source.get_resource_ids()
-    eia860m: bool = True
+    eia860m: bool | None = True
 
     @validator("eia860m")
     def check_eia860m_date(cls, eia860m: bool) -> bool:  # noqa: N805
@@ -268,8 +272,8 @@ class GlueSettings(BaseModel):
         ferc1: Include ferc1 in glue settings.
     """
 
-    eia: bool = True
-    ferc1: bool = True
+    eia: bool | None = True
+    ferc1: bool | None = True
 
 
 class EiaSettings(BaseModel):
@@ -377,6 +381,40 @@ class DatasetsSettings(BaseModel):
     def get_datasets(self):  # noqa: N805
         """Gets dictionary of dataset settings."""
         return vars(self)
+
+    @staticmethod
+    def _convert_settings_to_dagster_config(d: dict) -> None:
+        """Convert dictionary of dataset settings to dagster config.
+
+        For each partition parameter in a GenericDatasetSettings subclass, create a Noneable
+        Dagster field with a default value of None. The GenericDatasetSettings
+        subclasses will default to include all working paritions if the partition value
+        is None. Get the value type so dagster can do some basic type checking.
+
+        The `table` is not included in the dagster config because we are not supporting
+        processing a subset of tables.
+
+        Args:
+            d: dictionary of datasources and their parameters.
+        """
+        # We do not want to configure tables so remove tables from the dict
+        d.pop("tables", None)
+        for k, v in d.items():
+            if isinstance(v, dict):
+                DatasetsSettings._convert_settings_to_dagster_config(v)
+            else:
+                d[k] = Field(Noneable(type(v)), default_value=None)
+
+    @staticmethod
+    def create_dagster_config() -> dict:
+        """Create a dictionary of dagster config for the DatasetsSettings Class.
+
+        Returns:
+            A dictionary of dagster configuration.
+        """
+        ds = DatasetsSettings().dict()
+        DatasetsSettings._convert_settings_to_dagster_config(ds)
+        return ds
 
 
 class Ferc1DbfToSqliteSettings(GenericDatasetSettings):
@@ -561,25 +599,11 @@ class EtlSettings(BaseSettings):
         return cls.parse_obj(yaml_file)
 
 
-# TODO (bendnorman): Remove these default values and let the settings objects define the defaults.
-@resource(
-    config_schema={
-        "eia_years": Field(list, default_value=[2021]),
-        "eia860m": Field(bool, default_value=True),
-    }
-)
+@resource(config_schema=DatasetsSettings.create_dagster_config())
 def dataset_settings(init_context):
     """Dagster resource for parameterizing assets.
 
     We configuring the assets using a resource instead of op configs so the settings can
     be accesible by any op.
     """
-    # TODO (bendnorman): Add FERC and CEMS settings to this resource
-    eia_years = init_context.resource_config["eia_years"]
-    eia860m = init_context.resource_config["eia860m"]
-    eia_settings = EiaSettings(
-        eia860=Eia860Settings(years=eia_years, eia860m=eia860m),
-        eia923=Eia923Settings(years=eia_years),
-    )
-
-    return DatasetsSettings(eia=eia_settings)
+    return DatasetsSettings(**init_context.resource_config)

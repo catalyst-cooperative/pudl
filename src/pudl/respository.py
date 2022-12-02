@@ -12,6 +12,8 @@ from pudl.io_managers import pudl_sqlite_io_manager
 from pudl.settings import dataset_settings
 from pudl.workspace.datastore import datastore
 
+logger = pudl.logging_helpers.get_logger(__name__)
+
 
 @repository
 def pudl_repository():

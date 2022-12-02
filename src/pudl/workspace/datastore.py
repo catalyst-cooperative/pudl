@@ -390,6 +390,7 @@ class Datastore:
         return zipfile.ZipFile(io.BytesIO(self.get_unique_resource(dataset, **filters)))
 
 
+# TODO (bendnorman): Create a new Config type that throws a helpful error when env var isn't set
 @resource(
     config_schema={
         "local_cache_path": Field(

@@ -1,5 +1,11 @@
 """Tests for settings validation."""
 import pytest
+from dagster import (
+    DagsterInvalidConfigError,
+    Field,
+    Noneable,
+    build_init_resource_context,
+)
 from pydantic import ValidationError
 
 from pudl.metadata.classes import DataSource
@@ -12,6 +18,7 @@ from pudl.settings import (
     Ferc1DbfToSqliteSettings,
     Ferc1Settings,
     GenericDatasetSettings,
+    dataset_settings,
 )
 
 
@@ -197,6 +204,27 @@ class TestDatasetsSettings:
         assert settings.glue.eia
         assert settings.glue.ferc1
 
+    def test_convert_settings_to_dagster_config(self):
+        """Test conversion of dictionary to Dagster config."""
+        dct = {
+            "eia": {
+                "eia860": {"tables": ["table_a", "table_b"], "years": [2021, 2022]},
+                "eia923": {"tables": ["table_a", "table_b"], "years": [2021, 2022]},
+            }
+        }
+        expected_dct = {
+            "eia": {
+                "eia860": {"years": Field(Noneable(list), default_value=None)},
+                "eia923": {"years": Field(Noneable(list), default_value=None)},
+            }
+        }
+
+        DatasetsSettings._convert_settings_to_dagster_config(dct)
+        assert dct.keys() == expected_dct.keys()
+        assert dct["eia"].keys() == expected_dct["eia"].keys()
+        assert isinstance(dct["eia"]["eia860"]["years"], Field)
+        assert isinstance(dct["eia"]["eia923"]["years"], Field)
+
 
 class TestGlobalConfig:
     """Test global pydantic model config works."""
@@ -218,3 +246,21 @@ class TestGlobalConfig:
         with pytest.raises(TypeError):
             settings = EiaSettings()
             settings.eia860 = Eia860Settings()
+
+
+class TestDatasetsSettingsResource:
+    """Test the DatasetsSettings dagster resource."""
+
+    def test_invalid_datasource(self):
+        """Test an error is thrown when there is an invalid datasource in the config."""
+        init_context = build_init_resource_context(
+            config={"new_datasource": {"years": [1990]}}
+        )
+        with pytest.raises(DagsterInvalidConfigError):
+            _ = dataset_settings(init_context)
+
+    def test_invalid_field_type(self):
+        """Test an error is thrown when there is an incorrect type in the config."""
+        init_context = build_init_resource_context(config={"ferc1": {"years": 2021}})
+        with pytest.raises(DagsterInvalidConfigError):
+            _ = dataset_settings(init_context)
