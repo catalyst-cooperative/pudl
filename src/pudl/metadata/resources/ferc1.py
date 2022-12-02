@@ -60,7 +60,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             ],
         },
         "sources": ["ferc1"],
-        "etl_group": "ferc1_disabled",
+        "etl_group": "ferc1",
         "field_namespace": "ferc1",
     },
     "ferc_accounts": {
