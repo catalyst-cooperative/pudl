@@ -44,7 +44,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "field_namespace": "ferc1",
     },
     "electric_energy_dispositions_ferc1": {
-        "description": "idk yet.",
+        "description": "Electricity utilities unload to end users, internal uses losses, etc.",
         "schema": {
             "fields": [
                 "utility_id_ferc1",

@@ -2652,9 +2652,7 @@ class ElectricEnergyAccountSourcesFerc1TableTransformer(Ferc1AbstractTableTransf
         return df
 
 
-class ElectricEnergyAccountDispositionsFerc1TableTransformer(
-    Ferc1AbstractTableTransformer
-):
+class ElectricEnergyDispositionsFerc1TableTransformer(Ferc1AbstractTableTransformer):
     """Transformer class for :ref:`electric_energy_dispositions_ferc1` table."""
 
     table_id: Ferc1TableId = Ferc1TableId.ELECTRIC_ENERGY_DISPOSITIONS_FERC1
@@ -2707,7 +2705,7 @@ def transform(
         "plants_pumped_storage_ferc1": PlantsPumpedStorageFerc1TableTransformer,
         "purchased_power_ferc1": PurchasedPowerFerc1TableTransformer,
         "electric_energy_sources_ferc1": ElectricEnergyAccountSourcesFerc1TableTransformer,
-        "electric_energy_dispositions_ferc1": ElectricEnergyAccountDispositionsFerc1TableTransformer,
+        "electric_energy_dispositions_ferc1": ElectricEnergyDispositionsFerc1TableTransformer,
     }
     # create an empty ditctionary to fill up through the transform fuctions
     ferc1_transformed_dfs = {}
