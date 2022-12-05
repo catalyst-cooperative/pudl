@@ -2610,17 +2610,20 @@ TRANSFORM_PARAMS = {
                 "asset_retirement_costs_for_regional_transmission_and_market_operations_regional_transmission_and_market_operation_plant_transfers": "asset_retirement_costs_for_regional_transmission_and_market_operation_plant_regional_transmission_and_market_operation_plant_transfers",
             }
         },
-        "wide_to_tidy_xbrl": {
-            "idx_cols": ["entity_id", "report_year"],
-            "value_types": [
-                "starting_balance",
-                "additions",
-                "retirements",
-                "transfers",
-                "adjustments",
-                "ending_balance",
-            ],
-            "expected_drop_cols": 2,
+        "wide_to_tidy": {
+            "xbrl": {
+                "idx_cols": ["entity_id", "report_year"],
+                "value_types": [
+                    "starting_balance",
+                    "additions",
+                    "retirements",
+                    "transfers",
+                    "adjustments",
+                    "ending_balance",
+                ],
+                "expected_drop_cols": 2,
+                "stacked_column_name": "xbrl_factoid",
+            }
         },
         "merge_metadata_xbrl": {
             "rename_columns": {"xbrl_factoid": "ferc_account_label"},
@@ -2910,10 +2913,13 @@ TRANSFORM_PARAMS = {
                 "required_valid_cols": ["energy_source_mwh"],
             },
         ],
-        "wide_to_tidy_xbrl": {
-            "idx_cols": ["entity_id", "report_year"],
-            "value_types": ["energy_source_mwh"],
-            "expected_drop_cols": 10,
+        "wide_to_tidy": {
+            "xbrl": {
+                "idx_cols": ["entity_id", "report_year"],
+                "value_types": ["energy_source_mwh"],
+                "expected_drop_cols": 10,
+                "stacked_column_name": "xbrl_factoid",
+            }
         },
         "merge_metadata_xbrl": {
             "rename_columns": {"xbrl_factoid": "energy_source_type"},
@@ -2968,10 +2974,13 @@ TRANSFORM_PARAMS = {
                 "required_valid_cols": ["energy_mwh"],
             },
         ],
-        "wide_to_tidy_xbrl": {
-            "idx_cols": ["entity_id", "report_year"],
-            "value_types": ["energy_disposition_mwh"],
-            "expected_drop_cols": 19,
+        "wide_to_tidy": {
+            "xbrl": {
+                "idx_cols": ["entity_id", "report_year"],
+                "value_types": ["energy_disposition_mwh"],
+                "expected_drop_cols": 19,
+                "stacked_column_name": "xbrl_factoid",
+            }
         },
         "merge_metadata_xbrl": {
             "rename_columns": {"xbrl_factoid": "energy_disposition_type"},
@@ -3077,10 +3086,25 @@ TRANSFORM_PARAMS = {
                 "required_valid_cols": ["utility_plant_value"],
             },
         ],
-        "wide_to_tidy_xbrl": {
-            "idx_cols": ["entity_id", "report_year", "utility_type_axis"],
-            "value_types": ["utility_plant_value"],
-            "expected_drop_cols": 1,
+        "wide_to_tidy": {
+            "xbrl": {
+                "idx_cols": ["entity_id", "report_year", "utility_type_axis"],
+                "value_types": ["utility_plant_value"],
+                "expected_drop_cols": 1,
+                "stacked_column_name": "xbrl_factoid",
+            },
+            "dbf": {
+                "idx_cols": [
+                    "report_year",
+                    "record_id",
+                    "utility_id_ferc1",
+                    "utility_type",
+                    "utility_type_other",
+                ],
+                "value_types": ["utility_plant_value"],
+                "expected_drop_cols": 1,
+                "stacked_column_name": "utility_plant_asset_type",
+            },
         },
         "merge_metadata_xbrl": {
             "rename_columns": {"xbrl_factoid": "utility_plant_asset_type"},
@@ -3090,7 +3114,8 @@ TRANSFORM_PARAMS = {
         "categorize_strings": {
             "utility_type": {
                 "categories": {
-                    "total": ["ferc:ElectricUtilityMember"],
+                    "total": ["total"],
+                    "electric": ["ferc:ElectricUtilityMember"],
                     "gas": ["ferc:GasUtilityMember"],
                     "common": ["ferc:CommonUtilityMember"],
                     "other1": ["ferc:OtherUtilityMember"],

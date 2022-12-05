@@ -100,7 +100,7 @@ class Ferc1RenameColumns(TransformParams):
     xbrl: RenameColumns = {}
 
 
-class WideToTidyXbrl(TransformParams):
+class WideToTidyDataSource(TransformParams):
     """Parameters for converting a wide XBRL table to a tidy table with value types."""
 
     idx_cols: list[str] | None
@@ -109,7 +109,7 @@ class WideToTidyXbrl(TransformParams):
     value_types: list[str] | None
     """List of names of value types that will end up being the column names.
 
-    In the input dataframe given to :func:`wide_to_tidy_xbrl`, the value types must be
+    In the input dataframe given to :func:`wide_to_tidy`, the value types must be
     the suffixes of the column names. If the table does not natively have the pattern
     of "{xbrl_factoid}_{value_type}", rename the columns using a
     ``rename_columns_duration_xbrl`` and/or ``rename_columns_instant_xbrl`` paramete
@@ -130,8 +130,17 @@ class WideToTidyXbrl(TransformParams):
     raised.
     """
 
+    stacked_column_name: str | None = None
 
-def wide_to_tidy_xbrl(df: pd.DataFrame, params: WideToTidyXbrl) -> pd.DataFrame:
+
+class WideToTidy(TransformParams):
+    """Parameters for."""
+
+    xbrl = WideToTidyDataSource()
+    dbf = WideToTidyDataSource()
+
+
+def wide_to_tidy(df: pd.DataFrame, params: WideToTidyDataSource) -> pd.DataFrame:
     """Reshape wide tables with FERC account columns to tidy format.
 
     The XBRL table coming into this method could contain all the data from both the
@@ -169,11 +178,11 @@ def wide_to_tidy_xbrl(df: pd.DataFrame, params: WideToTidyXbrl) -> pd.DataFrame:
 
     new_cols = pd.MultiIndex.from_tuples(
         [(re.sub(pat, r"\1", col), re.sub(pat, r"\2", col)) for col in df_out.columns],
-        names=["xbrl_factoid", "value_type"],
+        names=[params.stacked_column_name, "value_type"],
     )
     df_out.columns = new_cols
     df_out = (
-        df_out.stack(level="xbrl_factoid", dropna=False)
+        df_out.stack(params.stacked_column_name, dropna=False)
         .loc[:, params.value_types]
         .reset_index()
     )
@@ -266,7 +275,9 @@ class Ferc1TableTransformParams(TableTransformParams):
     )
     rename_columns_instant_xbrl: RenameColumns = RenameColumns()
     rename_columns_duration_xbrl: RenameColumns = RenameColumns()
-    wide_to_tidy_xbrl: WideToTidyXbrl = WideToTidyXbrl()
+    wide_to_tidy: WideToTidy = WideToTidy(
+        dbf=WideToTidyDataSource(), xbrl=WideToTidyDataSource()
+    )
     merge_metadata_xbrl: MergeMetadataXbrl = MergeMetadataXbrl()
     align_row_numbers_dbf: AlignRowNumbersDbf = AlignRowNumbersDbf()
 
@@ -661,6 +672,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         logger.info(f"{self.table_id.value}: Processing DBF data pre-concatenation.")
         return (
             raw_dbf.drop_duplicates()
+            .pipe(self.select_annual_rows_dbf)
             .pipe(self.drop_footnote_columns_dbf)
             .pipe(self.align_row_numbers_dbf)
             # Note: in this rename_columns we have to pass in params, since we're using
@@ -670,6 +682,10 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             .pipe(self.drop_unused_original_columns_dbf)
             .pipe(
                 self.assign_utility_id_ferc1,
+                source_ferc1=Ferc1Source.DBF,
+            )
+            .pipe(
+                self.wide_to_tidy,
                 source_ferc1=Ferc1Source.DBF,
             )
         )
@@ -693,7 +709,10 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             self.merge_instant_and_duration_tables_xbrl(
                 raw_xbrl_instant, raw_xbrl_duration
             )
-            .pipe(self.wide_to_tidy_xbrl)
+            .pipe(
+                self.wide_to_tidy,
+                source_ferc1=Ferc1Source.XBRL,
+            )
             # Note: in this rename_columns we have to pass in params, since we're using
             # the inherited method, with param specific to the child class.
             .pipe(self.rename_columns, params=self.params.rename_columns_ferc1.xbrl)
@@ -704,9 +723,28 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             )
         )
 
+    @cache_df(key="dbf")
+    def select_annual_rows_dbf(self, df):
+        """Select only annually reported DBF Rows.
+
+        There are some DBF tables that include a mix of reporting frequencies. For now,
+        the default for PUDL tables is to have only the annual records.
+        """
+        if "report_prd" in df and list(df.report_prd.unique()) != [12]:
+            len_og = len(df)
+            df = df[df.report_prd == 12].copy()
+            logger.info(
+                f"{self.table_id.value}: After selection only annual records,"
+                f" we have {len(df)/len_og:.1%} of the original table."
+            )
+        return df
+
     @cache_df(key="xbrl")
-    def wide_to_tidy_xbrl(
-        self, df: pd.DataFrame, params: WideToTidyXbrl | None = None
+    def wide_to_tidy(
+        self,
+        df: pd.DataFrame,
+        source_ferc1: Ferc1Source,
+        params: WideToTidy | None = None,
     ) -> pd.DataFrame:
         """Reshape wide tables with FERC account columns to tidy format.
 
@@ -725,10 +763,16 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         later.
         """
         if not params:
-            params = self.params.wide_to_tidy_xbrl
+            # wide_to_tidy is not scriptable so we can't extract the "xbrl" or "dbf"
+            # portions dynamically w/o converting to dict
+            params = WideToTidyDataSource(
+                **self.params.wide_to_tidy.dict()[source_ferc1.value]
+            )
         if params.idx_cols or params.value_types:
-            logger.info(f"{self.table_id.value}: applying wide_to_tidy_xbrl")
-            df = wide_to_tidy_xbrl(df, params)
+            logger.info(
+                f"{self.table_id.value}: applying wide_to_tidy for {source_ferc1.value}"
+            )
+            df = wide_to_tidy(df, params)
         return df
 
     @cache_df(key="xbrl")
@@ -2682,26 +2726,26 @@ class UtilityPlantSummaryFerc1TableTransformer(Ferc1AbstractTableTransformer):
     table_id: Ferc1TableId = Ferc1TableId.UTILITY_PLANT_SUMMARY_FERC1
     has_unique_record_ids: bool = False
 
-    def process_dbf(self, raw_dbf):
-        """Temporary version of using the :meth:`wide_to_tidy_xbrl` for this tbl."""
-        df = super().process_dbf(raw_dbf)
-        wtt_dbf = WideToTidyXbrl(
-            **{
-                "idx_cols": [
-                    "report_year",
-                    "record_id",
-                    "utility_id_ferc1",
-                    "utility_type",
-                    "utility_type_other",
-                ],
-                "value_types": ["utility_plant_value"],
-                "expected_drop_cols": 1,
-            }
-        )
-        df = wide_to_tidy_xbrl(df=df, params=wtt_dbf).rename(
-            columns={"xbrl_factoid": "utility_plant_asset_type"}
-        )
-        return df
+    # def process_dbf(self, raw_dbf):
+    #     """Temporary version of using the :meth:`wide_to_tidy_xbrl` for this tbl."""
+    #     df = super().process_dbf(raw_dbf)
+    #     wtt_dbf = WideToTidyDataSource(
+    #         **{
+    #             "idx_cols": [
+    #                 "report_year",
+    #                 "record_id",
+    #                 "utility_id_ferc1",
+    #                 "utility_type",
+    #                 "utility_type_other",
+    #             ],
+    #             "value_types": ["utility_plant_value"],
+    #             "expected_drop_cols": 1,
+    #         }
+    #     )
+    #     df = wide_to_tidy(df=df, params=wtt_dbf).rename(
+    #         columns={"xbrl_factoid": "utility_plant_asset_type"}
+    #     )
+    #     return df
 
     def normalize_metadata_xbrl(
         self, xbrl_fact_names: list[str] | None
