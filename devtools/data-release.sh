@@ -13,7 +13,7 @@ DOCKER_TAG=$2
 
 # Path to a local directory where the archive will be assembled. Should be in a place
 # with at least 20GB of disk space.
-# E.g. "/tmp/pudl-v2022.11.30"
+# E.g. "./pudl-v2022.11.30"
 RELEASE_DIR=$3
 
 # Construct the GCS URL:
