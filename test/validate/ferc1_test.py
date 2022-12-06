@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 non_unique_record_id_tables = [
     "plant_in_service_ferc1",
     "purchased_power_ferc1",
-    "electric_energy_account_sources_ferc1",
+    "electric_energy_sources_ferc1",
     "electric_energy_dispositions_ferc1",
 ]
 unique_record_tables = [
