@@ -3115,12 +3115,12 @@ TRANSFORM_PARAMS = {
             "utility_type": {
                 "categories": {
                     "total": ["total"],
-                    "electric": ["ferc:ElectricUtilityMember"],
-                    "gas": ["ferc:GasUtilityMember"],
-                    "common": ["ferc:CommonUtilityMember"],
-                    "other1": ["ferc:OtherUtilityMember"],
-                    "other2": ["ferc:OtherUtility2Member"],
-                    "other3": ["ferc:OtherUtility3Member"],
+                    "electric": ["electric", "ferc:ElectricUtilityMember"],
+                    "gas": ["gas", "ferc:GasUtilityMember"],
+                    "common": ["common", "ferc:CommonUtilityMember"],
+                    "other1": ["other1", "ferc:OtherUtilityMember"],
+                    "other2": ["other2", "ferc:OtherUtility2Member"],
+                    "other3": ["other3", "ferc:OtherUtility3Member"],
                 }
             },
         },

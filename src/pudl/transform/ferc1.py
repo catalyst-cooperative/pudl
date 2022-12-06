@@ -101,20 +101,24 @@ class Ferc1RenameColumns(TransformParams):
 
 
 class WideToTidyDataSource(TransformParams):
-    """Parameters for converting a wide XBRL table to a tidy table with value types."""
+    """Parameters for converting a wide table to a tidy table with value types."""
 
     idx_cols: list[str] | None
     """List of column names to treat as the table index."""
 
+    stacked_column_name: str | None = None
+    """Name of column that will contain the stacked categories."""
+
     value_types: list[str] | None
     """List of names of value types that will end up being the column names.
 
-    In the input dataframe given to :func:`wide_to_tidy`, the value types must be
-    the suffixes of the column names. If the table does not natively have the pattern
-    of "{xbrl_factoid}_{value_type}", rename the columns using a
-    ``rename_columns_duration_xbrl`` and/or ``rename_columns_instant_xbrl`` paramete
-    which will be employed in :meth:`process_duration_xbrl` and
-    :meth:`process_instant_xbrl`."""
+    Some of the FERC tables have multiple data types spread across many different
+    categories.  In the input dataframe given to :func:`wide_to_tidy`, the value types
+    must be the suffixes of the column names. If the table does not natively have the
+    pattern of "{to-be stacked category}_{value_type}", rename the columns using a
+    ``rename_columns_duration_xbrl``, ``rename_columns_instant_xbrl`` or
+    ``rename_columns_ferc1["dbf"]`` parameter which will be employed in
+    :meth:`process_duration_xbrl`, :meth:`process_instant_xbrl` or :meth:`process_dbf`."""
 
     expected_drop_cols: int = 0
     """The number of columns that are expected to be dropped.
@@ -130,11 +134,9 @@ class WideToTidyDataSource(TransformParams):
     raised.
     """
 
-    stacked_column_name: str | None = None
-
 
 class WideToTidy(TransformParams):
-    """Parameters for."""
+    """Parameters for converting either or both XBRL and DBF table from wide to tidy."""
 
     xbrl = WideToTidyDataSource()
     dbf = WideToTidyDataSource()
@@ -763,8 +765,8 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         later.
         """
         if not params:
-            # wide_to_tidy is not scriptable so we can't extract the "xbrl" or "dbf"
-            # portions dynamically w/o converting to dict
+            # params.wide_to_tidy is not scriptable so we can't extract the "xbrl" or
+            # "dbf" portions dynamically w/o converting to dict
             params = WideToTidyDataSource(
                 **self.params.wide_to_tidy.dict()[source_ferc1.value]
             )
@@ -2726,31 +2728,10 @@ class UtilityPlantSummaryFerc1TableTransformer(Ferc1AbstractTableTransformer):
     table_id: Ferc1TableId = Ferc1TableId.UTILITY_PLANT_SUMMARY_FERC1
     has_unique_record_ids: bool = False
 
-    # def process_dbf(self, raw_dbf):
-    #     """Temporary version of using the :meth:`wide_to_tidy_xbrl` for this tbl."""
-    #     df = super().process_dbf(raw_dbf)
-    #     wtt_dbf = WideToTidyDataSource(
-    #         **{
-    #             "idx_cols": [
-    #                 "report_year",
-    #                 "record_id",
-    #                 "utility_id_ferc1",
-    #                 "utility_type",
-    #                 "utility_type_other",
-    #             ],
-    #             "value_types": ["utility_plant_value"],
-    #             "expected_drop_cols": 1,
-    #         }
-    #     )
-    #     df = wide_to_tidy(df=df, params=wtt_dbf).rename(
-    #         columns={"xbrl_factoid": "utility_plant_asset_type"}
-    #     )
-    #     return df
-
     def normalize_metadata_xbrl(
         self, xbrl_fact_names: list[str] | None
     ) -> pd.DataFrame:
-        """Normalize the metadata from the XBRL taxonomy."""
+        """Normalize the metadata from the XBRL taxonomy +."""
         eead_meta = (
             super()
             .normalize_metadata_xbrl(xbrl_fact_names)

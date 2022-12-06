@@ -388,7 +388,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "field_namespace": "ferc1",
     },
     "utility_plant_summary_ferc1": {
-        "description": "This table maps the assign utility ID FERC1 to the native utility ID from the FERC1 XBRL inputs - originally reported as entity_id.",
+        "description": "Summary of utility plant and accumulated provisions for depreviation, amortization and depletion of utilty plant assets reported annually at the end of the report year.",
         "schema": {
             "fields": [
                 "utility_id_ferc1",
