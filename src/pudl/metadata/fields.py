@@ -187,6 +187,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Cost of plant: land and land rights (USD).",
         "unit": "USD",
     },
+    "capex_other": {
+        "type": "number",
+        "description": "Other costs associated with the plant (USD).",
+        "unit": "USD",
+    },
     "capex_per_mw": {
         "type": "number",
         "description": "Cost of plant per megawatt of installed (nameplate) capacity. Nominal USD.",
@@ -244,6 +249,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
         "description": "Average monthly coincident peak (CP) demand (for requirements purchases, and any transactions involving demand charges). Monthly CP demand is the metered demand during the hour (60-minute integration) in which the supplier's system reaches its monthly peak. In megawatts.",
         "unit": "MW",
+    },
+    "conductor_size_and_material": {
+        "type": "string",
+        "description": "Size of transmission conductor and material of the transmission line.",
     },
     "construction_type": {
         "type": "string",
@@ -359,6 +368,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Long human-readable description of the meaning of a code/label.",
     },
+    "designed_voltage_kv": {
+        "type": "number",
+        "description": "Manufactured (Designed) voltage, expressed in kilo-volts, for three-phase 60 cycle alternative current transmission lines",
+        "unit": "KV",
+    },
     "doi": {
         "type": "string",
         "description": "Unique digitial object identifier of Zenodo archive.",
@@ -439,6 +453,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "emissions_unit_id_epa": {
         "type": "string",
         "description": "Emissions (smokestack) unit monitored by EPA CEMS.",
+    },
+    "end_point": {
+        "type": "string",
+        "description": "The end point of a transmission line.",
     },
     "energy_charges": {
         "type": "number",
@@ -1005,6 +1023,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "For nuclear plants only, the unit number .One digit numeric. Nuclear plants are the only type of plants for which data are shown explicitly at the generating unit level.",
     },
+    "num_transmission_circuits": {
+        "type": "integer",
+        "description": "Number of circuits in a transmission line.",
+    },
     "operates_generating_plant": {"type": "boolean"},
     "operating_date": {
         "type": "date",
@@ -1026,6 +1048,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "operating_year": {
         "type": "integer",
         "description": "Year a generator went into service.",
+    },
+    "operating_voltage_kv": {
+        "type": "number",
+        "description": "The operating voltage, expressed kilo-volts, for three-phase 60 cycle alternative current transmission lines.",
+        "unit": "KV",
     },
     "operational_status": {
         "type": "string",
@@ -1582,6 +1609,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Indicates whether the generator is part of a solid fuel gasification system",
     },
     "standard": {"type": "string", "constraints": {"enum": RELIABILITY_STANDARDS}},
+    "start_point": {
+        "type": "string",
+        "description": "The starting point of a transmission line.",
+    },
     "starting_balance": {
         "type": "number",
         "description": "Account balance at beginning of year.",
@@ -1692,6 +1723,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Company that sold the fuel to the plant or, in the case of Natural Gas, pipline owner.",
     },
+    "supporting_structure_type": {
+        "type": "string",
+        "description": "Supporting structure of the transmission line.",
+    },
     "switch_oil_gas": {
         "type": "boolean",
         "description": "Indicates whether the generator switch between oil and natural gas.",
@@ -1775,6 +1810,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "transmission_distribution_owner_state": {
         "type": "string",
         "description": "State location for owner of transmission/distribution system to which the plant is interconnected.",
+    },
+    "transmission_line_and_structures_length_miles": {
+        "type": "number",
+        "description": "Length (in pole miles or circuit miles (if transmission lines are underground)) for lines that are agrregated with other lines / structures (whose cost are aggregated and combined with other structures).",
+    },
+    "transmission_line_length_miles": {
+        "type": "number",
+        "description": "Length (in pole miles or circuit miles (if transmission lines are underground)) for lines that are stand alone structures (whose cost are reported on a stand-alone basis).",
     },
     "true_gran": {
         "type": "boolean",
@@ -2002,6 +2045,23 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
             "constraints": {"enum": set(CODE_METADATA["prime_movers_eia"]["df"].code)}
         },
         "technology_description": {"constraints": {"enum": set(TECH_DESCRIPTIONS)}},
+    },
+    "transmission_ferc1": {
+        "capex_land": {
+            "description": "Cost of Land and land rights for the transmission line."
+        },
+        "capex_other": {
+            "description": "Construction and other costs for the transmission line."
+        },
+        "capex_total": {"description": "Total costs for the transmission line."},
+        "opex_operations": {
+            "description": "Operating expenses for the transmission line."
+        },
+        "opex_maintenance": {
+            "description": "Maintenance expenses for the transmission line."
+        },
+        "opex_rents": {"description": "Rent expenses for the transmission line."},
+        "opex_total": {"description": "Overall expenses for the transmission line."},
     },
 }
 
