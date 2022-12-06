@@ -1889,10 +1889,16 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Utility name, chosen arbitrarily from the several possible utility names available in the utility matching process. Included for human readability only.",
     },
     "utility_owned_capacity_mw": {"type": "number", "unit": "MW"},
-    "utility_plant_asset_type": {"type": "string"},  # description
+    "utility_plant_asset_type": {
+        "type": "string",
+        "description": "Type of utility plant asset reported in the utility_plant_summary_ferc1 table. Assets include those leased to others, held for future use, construction work-in-progress and details of accumulated depreciation.",
+    },
     "utility_plant_value": {"type": "number", "description": "Utility plant value."},
     "utility_pobox": {"type": "string"},
-    "utility_type": {"type": "string"},  # enum me + description
+    "utility_type": {
+        "type": "string",
+        "description": "Listing of utility plant types. Examples include Electric Utility, Gas Utility, and Other Utility.",
+    },
     "utility_type_other": {"type": "string"},
     "variable_peak_pricing": {"type": "boolean"},
     "virtual_capacity_mw": {"type": "number", "unit": "MW"},

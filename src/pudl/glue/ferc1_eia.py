@@ -37,7 +37,11 @@ import sqlalchemy as sa
 import pudl
 from pudl.metadata.fields import apply_pudl_dtypes
 from pudl.transform.classes import StringNormalization, normalize_strings_multicol
-from pudl.transform.ferc1 import Ferc1AbstractTableTransformer, Ferc1TableId
+from pudl.transform.ferc1 import (
+    Ferc1AbstractTableTransformer,
+    SourceFerc1,
+    TableIdFerc1,
+)
 from pudl.transform.params.ferc1 import FERC1_STRING_NORM
 
 logger = pudl.logging_helpers.get_logger(__name__)
@@ -179,7 +183,7 @@ class GenericPlantFerc1TableTransformer(Ferc1AbstractTableTransformer):
     Intended for use in compiling all plant names for manual ID mapping.
     """
 
-    def __init__(self, table_id: Ferc1TableId, **kwargs):
+    def __init__(self, table_id: SourceFerc1, **kwargs):
         """Initialize generic table transformer with table_id."""
         self.table_id = table_id
         super().__init__(**kwargs)
@@ -265,7 +269,7 @@ def get_plants_ferc1_raw(
     plant_dfs: list[pd.DataFrame] = []
     for table in plant_tables:
         plant_df = GenericPlantFerc1TableTransformer(
-            table_id=Ferc1TableId(table)
+            table_id=TableIdFerc1(table)
         ).transform(
             raw_dbf=ferc1_dbf_raw_dfs[table],
             raw_xbrl_instant=ferc1_xbrl_raw_dfs[table].get("instant", pd.DataFrame()),

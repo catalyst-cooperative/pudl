@@ -2578,37 +2578,37 @@ TRANSFORM_PARAMS = {
                     "xbrl_factoid": "ferc_account_label",
                 }
             },
-        },
-        "rename_columns_instant_xbrl": {
-            "columns": {
-                "communication_equipment": "communication_equipment_general_plant",
-                "office_furniture_and_equipment": "office_furniture_and_equipment_general_plant",
-                "structures_and_improvements": "structures_and_improvements_general_plant",
-                "tools_shop_and_garage_equipment": "tools_shop_and_garage_equipment_general_plant",
-                "miscellaneous_equipment": "miscellaneous_equipment_general_plant",
-                "transportation_equipment": "transportation_equipment_general_plant",
-                "laboratory_equipment": "laboratory_equipment_general_plant",
-                "land_and_land_rights": "land_and_land_rights_general_plant",
-                "stores_equipment": "stores_equipment_general_plant",
-                "power_operated_equipment": "power_operated_equipment_general_plant",
-                "other_tangible_property": "other_tangible_property_general_plant",
-                "installations_on_customers_premises_distribution_plant": "installations_on_customer_premises_distribution_plant",
-                "fuel_holders_producers_and_accessories_other_production": "fuel_holders_products_and_accessories_other_production",
-                "structures_and_improvement_nuclear_production": "structures_and_improvements_nuclear_production",
-                "leased_property_on_customers_premises_distribution_plant": "leased_property_on_customer_premises_distribution_plant",
-            }
-        },
-        "rename_columns_duration_xbrl": {
-            "columns": {
-                "energy_storage_equipment_production_other_production_additions": "energy_storage_equipment_other_production_additions",
-                "energy_storage_equipment_production_other_production_adjustments": "energy_storage_equipment_other_production_adjustments",
-                "energy_storage_equipment_production_other_production_retirements": "energy_storage_equipment_other_production_retirements",
-                "energy_storage_equipment_production_other_production_transfers": "energy_storage_equipment_other_production_transfers",
-                "asset_retirement_costs_for_regional_transmission_and_market_operations_regional_transmission_and_market_operation_plant_additions": "asset_retirement_costs_for_regional_transmission_and_market_operation_plant_regional_transmission_and_market_operation_plant_additions",
-                "asset_retirement_costs_for_regional_transmission_and_market_operations_regional_transmission_and_market_operation_plant_adjustments": "asset_retirement_costs_for_regional_transmission_and_market_operation_plant_regional_transmission_and_market_operation_plant_adjustments",
-                "asset_retirement_costs_for_regional_transmission_and_market_operations_regional_transmission_and_market_operation_plant_retirements": "asset_retirement_costs_for_regional_transmission_and_market_operation_plant_regional_transmission_and_market_operation_plant_retirements",
-                "asset_retirement_costs_for_regional_transmission_and_market_operations_regional_transmission_and_market_operation_plant_transfers": "asset_retirement_costs_for_regional_transmission_and_market_operation_plant_regional_transmission_and_market_operation_plant_transfers",
-            }
+            "instant_xbrl": {
+                "columns": {
+                    "communication_equipment": "communication_equipment_general_plant",
+                    "office_furniture_and_equipment": "office_furniture_and_equipment_general_plant",
+                    "structures_and_improvements": "structures_and_improvements_general_plant",
+                    "tools_shop_and_garage_equipment": "tools_shop_and_garage_equipment_general_plant",
+                    "miscellaneous_equipment": "miscellaneous_equipment_general_plant",
+                    "transportation_equipment": "transportation_equipment_general_plant",
+                    "laboratory_equipment": "laboratory_equipment_general_plant",
+                    "land_and_land_rights": "land_and_land_rights_general_plant",
+                    "stores_equipment": "stores_equipment_general_plant",
+                    "power_operated_equipment": "power_operated_equipment_general_plant",
+                    "other_tangible_property": "other_tangible_property_general_plant",
+                    "installations_on_customers_premises_distribution_plant": "installations_on_customer_premises_distribution_plant",
+                    "fuel_holders_producers_and_accessories_other_production": "fuel_holders_products_and_accessories_other_production",
+                    "structures_and_improvement_nuclear_production": "structures_and_improvements_nuclear_production",
+                    "leased_property_on_customers_premises_distribution_plant": "leased_property_on_customer_premises_distribution_plant",
+                }
+            },
+            "duration_xbrl": {
+                "columns": {
+                    "energy_storage_equipment_production_other_production_additions": "energy_storage_equipment_other_production_additions",
+                    "energy_storage_equipment_production_other_production_adjustments": "energy_storage_equipment_other_production_adjustments",
+                    "energy_storage_equipment_production_other_production_retirements": "energy_storage_equipment_other_production_retirements",
+                    "energy_storage_equipment_production_other_production_transfers": "energy_storage_equipment_other_production_transfers",
+                    "asset_retirement_costs_for_regional_transmission_and_market_operations_regional_transmission_and_market_operation_plant_additions": "asset_retirement_costs_for_regional_transmission_and_market_operation_plant_regional_transmission_and_market_operation_plant_additions",
+                    "asset_retirement_costs_for_regional_transmission_and_market_operations_regional_transmission_and_market_operation_plant_adjustments": "asset_retirement_costs_for_regional_transmission_and_market_operation_plant_regional_transmission_and_market_operation_plant_adjustments",
+                    "asset_retirement_costs_for_regional_transmission_and_market_operations_regional_transmission_and_market_operation_plant_retirements": "asset_retirement_costs_for_regional_transmission_and_market_operation_plant_regional_transmission_and_market_operation_plant_retirements",
+                    "asset_retirement_costs_for_regional_transmission_and_market_operations_regional_transmission_and_market_operation_plant_transfers": "asset_retirement_costs_for_regional_transmission_and_market_operation_plant_regional_transmission_and_market_operation_plant_transfers",
+                }
+            },
         },
         "wide_to_tidy": {
             "xbrl": {
@@ -2960,34 +2960,34 @@ TRANSFORM_PARAMS = {
                     "energy_source_mwh": "energy_mwh",
                 }
             },
-        },
-        "rename_columns_duration_xbrl": {
-            "columns": {
-                xbrl_col: f"{xbrl_col}_energy_source_mwh"
-                for xbrl_col in [
-                    # generation
-                    "steam_generation",
-                    "nuclear_generation",
-                    "hydro_conventional_generation",
-                    "hydro_pumped_storage_generation",
-                    "other_energy_generation",
-                    "pumping_energy",
-                    "net_energy_generation",
-                    "megawatt_hours_purchased_other_than_storage",
-                    "megawatt_hours_purchased_for_energy_storage",
-                    # exchanges
-                    "energy_received_through_power_exchanges",
-                    "energy_delivered_through_power_exchanges",
-                    "net_energy_through_power_exchanges",
-                    # transmission
-                    "electric_power_wheeling_energy_received",
-                    "electric_power_wheeling_energy_delivered",
-                    "net_transmission_energy_for_others_electric_power_wheeling",
-                    "transmission_losses_by_others_electric_power_wheeling",
-                    # total
-                    "sources_of_energy",
-                ]
-            }
+            "duration_xbrl": {
+                "columns": {
+                    xbrl_col: f"{xbrl_col}_energy_source_mwh"
+                    for xbrl_col in [
+                        # generation
+                        "steam_generation",
+                        "nuclear_generation",
+                        "hydro_conventional_generation",
+                        "hydro_pumped_storage_generation",
+                        "other_energy_generation",
+                        "pumping_energy",
+                        "net_energy_generation",
+                        "megawatt_hours_purchased_other_than_storage",
+                        "megawatt_hours_purchased_for_energy_storage",
+                        # exchanges
+                        "energy_received_through_power_exchanges",
+                        "energy_delivered_through_power_exchanges",
+                        "net_energy_through_power_exchanges",
+                        # transmission
+                        "electric_power_wheeling_energy_received",
+                        "electric_power_wheeling_energy_delivered",
+                        "net_transmission_energy_for_others_electric_power_wheeling",
+                        "transmission_losses_by_others_electric_power_wheeling",
+                        # total
+                        "sources_of_energy",
+                    ]
+                }
+            },
         },
         "drop_invalid_rows": [
             {
@@ -3033,22 +3033,22 @@ TRANSFORM_PARAMS = {
                     "energy_disposition_mwh": "energy_mwh",
                 }
             },
-        },
-        "rename_columns_duration_xbrl": {
-            "columns": {
-                xbrl_col: f"{xbrl_col}_energy_disposition_mwh"
-                for xbrl_col in [
-                    "energy_stored",
-                    "energy_losses",
-                    "megawatt_hours_sold_non_requirements_sales",
-                    "megawatt_hours_sold_sales_to_ultimate_consumers",
-                    "internal_use_energy",
-                    "non_charged_energy",
-                    "megawatt_hours_sold_requirements_sales",
-                    # total
-                    "disposition_of_energy",
-                ]
-            }
+            "duration_xbrl": {
+                "columns": {
+                    xbrl_col: f"{xbrl_col}_energy_disposition_mwh"
+                    for xbrl_col in [
+                        "energy_stored",
+                        "energy_losses",
+                        "megawatt_hours_sold_non_requirements_sales",
+                        "megawatt_hours_sold_sales_to_ultimate_consumers",
+                        "internal_use_energy",
+                        "non_charged_energy",
+                        "megawatt_hours_sold_requirements_sales",
+                        # total
+                        "disposition_of_energy",
+                    ]
+                }
+            },
         },
         "drop_invalid_rows": [
             {
@@ -3128,39 +3128,39 @@ TRANSFORM_PARAMS = {
                     "xbrl_factoid": "utility_plant_asset_type",
                 }
             },
-        },
-        "rename_columns_instant_xbrl": {
-            "columns": {
-                xbrl_col: f"{xbrl_col}_utility_plant_value"
-                for xbrl_col in [
-                    "depreciation_amortization_and_depletion_utility_plant_in_service",
-                    "depreciation_and_amortization_utility_plant_held_for_future_use",
-                    "amortization_of_plant_acquisition_adjustment",
-                    "depreciation_utility_plant_in_service",
-                    "utility_plant_in_service_classified_and_unclassified",
-                    "utility_plant_and_construction_work_in_progress",
-                    "depreciation_utility_plant_leased_to_others",
-                    "utility_plant_in_service_classified",
-                    "depreciation_amortization_and_depletion_utility_plant_leased_to_others",
-                    "depreciation_utility_plant_held_for_future_use",
-                    "abandonment_of_leases",
-                    "utility_plant_net",
-                    "amortization_and_depletion_of_producing_natural_gas_land_and_land_rightsutility_plant_in_service",
-                    "amortization_utility_plant_held_for_future_use",
-                    "amortization_and_depletion_utility_plant_leased_to_others",
-                    "accumulated_provision_for_depreciation_amortization_and_depletion_of_plant_utility",
-                    "utility_plant_in_service_property_under_capital_leases",
-                    "utility_plant_acquisition_adjustment",
-                    "utility_plant_leased_to_others",
-                    "utility_plant_held_for_future_use",
-                    "amortization_of_other_utility_plant_utility_plant_in_service",
-                    "amortization_of_underground_storage_land_and_land_rightsutility_plant_in_service",
-                    "utility_plant_in_service_completed_construction_not_classified",
-                    "utility_plant_in_service_plant_purchased_or_sold",
-                    "construction_work_in_progress",
-                    "utility_plant_in_service_experimental_plant_unclassified",
-                ]
-            }
+            "instant_xbrl": {
+                "columns": {
+                    xbrl_col: f"{xbrl_col}_utility_plant_value"
+                    for xbrl_col in [
+                        "depreciation_amortization_and_depletion_utility_plant_in_service",
+                        "depreciation_and_amortization_utility_plant_held_for_future_use",
+                        "amortization_of_plant_acquisition_adjustment",
+                        "depreciation_utility_plant_in_service",
+                        "utility_plant_in_service_classified_and_unclassified",
+                        "utility_plant_and_construction_work_in_progress",
+                        "depreciation_utility_plant_leased_to_others",
+                        "utility_plant_in_service_classified",
+                        "depreciation_amortization_and_depletion_utility_plant_leased_to_others",
+                        "depreciation_utility_plant_held_for_future_use",
+                        "abandonment_of_leases",
+                        "utility_plant_net",
+                        "amortization_and_depletion_of_producing_natural_gas_land_and_land_rightsutility_plant_in_service",
+                        "amortization_utility_plant_held_for_future_use",
+                        "amortization_and_depletion_utility_plant_leased_to_others",
+                        "accumulated_provision_for_depreciation_amortization_and_depletion_of_plant_utility",
+                        "utility_plant_in_service_property_under_capital_leases",
+                        "utility_plant_acquisition_adjustment",
+                        "utility_plant_leased_to_others",
+                        "utility_plant_held_for_future_use",
+                        "amortization_of_other_utility_plant_utility_plant_in_service",
+                        "amortization_of_underground_storage_land_and_land_rightsutility_plant_in_service",
+                        "utility_plant_in_service_completed_construction_not_classified",
+                        "utility_plant_in_service_plant_purchased_or_sold",
+                        "construction_work_in_progress",
+                        "utility_plant_in_service_experimental_plant_unclassified",
+                    ]
+                }
+            },
         },
         "drop_invalid_rows": [
             {
@@ -3209,9 +3209,9 @@ TRANSFORM_PARAMS = {
         "normalize_strings": {
             "utility_type_other": FERC1_STRING_NORM,
         },
-        # "replace_with_na": { # this transform will be added within #2103
-        #     "utility_type_other": {"replace_with_na": [""]},
-        # },
+        "replace_with_na": {
+            "utility_type_other": {"replace_with_na": [""]},
+        },
     },
 }
 
