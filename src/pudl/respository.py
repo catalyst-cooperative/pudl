@@ -42,5 +42,20 @@ def pudl_repository():
                 "dataset_settings": dataset_settings,
             },
         ),
-        define_asset_job(name="pudl"),
+        define_asset_job(name="etl_full"),
+        define_asset_job(
+            name="etl_fast",
+            config={
+                "resources": {
+                    "dataset_settings": {
+                        "config": {
+                            "eia": {
+                                "eia860": {"years": [2021], "eia860m": True},
+                                "eia923": {"years": [2021]},
+                            }
+                        }
+                    }
+                }
+            },
+        ),
     ]
