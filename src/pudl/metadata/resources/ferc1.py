@@ -387,6 +387,35 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "glue",
         "field_namespace": "ferc1",
     },
+    "transmission_ferc1": {
+        "description": "Information concerning transmission lines, cost of lines, and expenses for year.",
+        "schema": {
+            "fields": [
+                "record_id",
+                "utility_id_ferc1",
+                "report_year",
+                "start_point",
+                "end_point",
+                "operating_voltage_kv",
+                "designed_voltage_kv",
+                "supporting_structure_type",
+                "transmission_line_length_miles",
+                "transmission_line_and_structures_length_miles",
+                "num_transmission_circuits",
+                "conductor_size_and_material",
+                "capex_land",
+                "capex_other",
+                "capex_total",
+                "opex_operations",
+                "opex_maintenance",
+                "opex_rents",
+                "opex_total",
+            ],
+        },
+        "sources": ["ferc1"],
+        "etl_group": "ferc1",
+        "field_namespace": "ferc1",
+    },
 }
 """
 FERC Form 1 resource attributes by PUDL identifier (``resource.name``).

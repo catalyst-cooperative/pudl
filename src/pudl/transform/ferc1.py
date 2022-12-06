@@ -69,6 +69,7 @@ class Ferc1TableId(enum.Enum):
     PLANTS_PUMPED_STORAGE_FERC1 = "plants_pumped_storage_ferc1"
     PLANT_IN_SERVICE_FERC1 = "plant_in_service_ferc1"
     PURCHASED_POWER_FERC1 = "purchased_power_ferc1"
+    TRANSMISSION_FERC1 = "transmission_ferc1"
     ELECTRIC_ENERGY_SOURCES_FERC1 = "electric_energy_sources_ferc1"
     ELECTRIC_ENERGY_DISPOSITIONS_FERC1 = "electric_energy_dispositions_ferc1"
 
@@ -555,6 +556,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             .pipe(self.convert_units)
             .pipe(self.strip_non_numeric_values)
             .pipe(self.nullify_outliers)
+            .pipe(self.replace_with_na)
             .pipe(self.drop_invalid_rows)
             .pipe(
                 pudl.metadata.classes.Package.from_resource_ids()
@@ -2607,6 +2609,13 @@ class PlantsSmallFerc1TableTransformer(Ferc1AbstractTableTransformer):
         return df
 
 
+class TransmissionFerc1TableTransformer(Ferc1AbstractTableTransformer):
+    """A table transformer specific to the :ref:`transmission_ferc1` table."""
+
+    table_id: Ferc1TableId = Ferc1TableId.TRANSMISSION_FERC1
+    has_unique_record_ids: bool = False
+
+
 class ElectricEnergyAccountSourcesFerc1TableTransformer(Ferc1AbstractTableTransformer):
     """Transformer class for :ref:`electric_energy_sources_ferc1` table.
 
@@ -2703,6 +2712,7 @@ def transform(
         "plants_hydro_ferc1": PlantsHydroFerc1TableTransformer,
         "plant_in_service_ferc1": PlantInServiceFerc1TableTransformer,
         "plants_pumped_storage_ferc1": PlantsPumpedStorageFerc1TableTransformer,
+        "transmission_ferc1": TransmissionFerc1TableTransformer,
         "purchased_power_ferc1": PurchasedPowerFerc1TableTransformer,
         "electric_energy_sources_ferc1": ElectricEnergyAccountSourcesFerc1TableTransformer,
         "electric_energy_dispositions_ferc1": ElectricEnergyDispositionsFerc1TableTransformer,
@@ -2767,6 +2777,7 @@ if __name__ == "__main__":
             "plants_pumped_storage_ferc1",
             "purchased_power_ferc1",
             "plants_small_ferc1",
+            "transmission_ferc1",
             "electric_energy_sources_ferc1",
             "electric_energy_dispositions_ferc1",
         ],
