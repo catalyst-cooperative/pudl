@@ -97,10 +97,10 @@ class RenameColumnsFerc1(TransformParams):
       e.g. in the case of unit conversions with a column rename.
     """
 
-    dbf: RenameColumns = {}
-    xbrl: RenameColumns = {}
-    duration_xbrl: RenameColumns = {}
-    instant_xbrl: RenameColumns = {}
+    dbf: RenameColumns = None
+    xbrl: RenameColumns = None
+    duration_xbrl: RenameColumns = None
+    instant_xbrl: RenameColumns = None
 
 
 class WideToTidy(TransformParams):
@@ -1629,7 +1629,7 @@ class PlantInServiceFerc1TableTransformer(Ferc1AbstractTableTransformer):
             .normalize_metadata_xbrl(xbrl_fact_names)
             .assign(
                 xbrl_factoid=lambda x: x.xbrl_fact_name.replace(
-                    self.params.rename_columns_instant_xbrl.columns
+                    self.params.rename_columns_ferc1.instant_xbrl.columns
                 )
             )
         )
