@@ -9,7 +9,7 @@ from pudl.settings import Ferc1Settings
 from pudl.transform.ferc1 import (
     Ferc1AbstractTableTransformer,
     Ferc1TableId,
-    WideToTidyDataSource,
+    WideToTidySourceFerc1,
     fill_dbf_to_xbrl_map,
     read_dbf_to_xbrl_map,
     wide_to_tidy,
@@ -103,7 +103,7 @@ D,13,130,1300
 
 def test_wide_to_tidy():
     """Test :func:`wide_to_tidy_xbrl`."""
-    params = WideToTidyDataSource(
+    params = WideToTidySourceFerc1(
         **{
             "idx_cols": ["idx"],
             "value_types": ["test_value"],
@@ -136,7 +136,7 @@ D,z,1300
 
 def test_wide_to_tidy_fail():
     """Test the :func:`wide_to_tidy_xbrl` fails with a bad rename."""
-    params = WideToTidyDataSource(
+    params = WideToTidySourceFerc1(
         **{
             "idx_cols": ["idx"],
             "value_types": ["test_value"],
@@ -150,7 +150,7 @@ def test_wide_to_tidy_fail():
 
 def test_wide_to_tidy_rename():
     """Test the updated ``expected_drop_cols`` params for :func:`wide_to_tidy_xbrl`."""
-    params_renamed = WideToTidyDataSource(
+    params_renamed = WideToTidySourceFerc1(
         **{
             "idx_cols": ["idx"],
             "value_types": ["test_value"],

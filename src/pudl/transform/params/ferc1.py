@@ -3124,6 +3124,12 @@ TRANSFORM_PARAMS = {
                 }
             },
         },
+        "normalize_strings": {
+            "utility_type_other": FERC1_STRING_NORM,
+        },
+        # "replace_with_na": { # this transform will be added within #2103
+        #     "utility_type_other": {"replace_with_na": [""]},
+        # },
     },
 }
 

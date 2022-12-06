@@ -100,7 +100,7 @@ class Ferc1RenameColumns(TransformParams):
     xbrl: RenameColumns = {}
 
 
-class WideToTidyDataSource(TransformParams):
+class WideToTidySourceFerc1(TransformParams):
     """Parameters for converting a wide table to a tidy table with value types."""
 
     idx_cols: list[str] | None
@@ -138,11 +138,11 @@ class WideToTidyDataSource(TransformParams):
 class WideToTidy(TransformParams):
     """Parameters for converting either or both XBRL and DBF table from wide to tidy."""
 
-    xbrl = WideToTidyDataSource()
-    dbf = WideToTidyDataSource()
+    xbrl: WideToTidySourceFerc1 = WideToTidySourceFerc1()
+    dbf: WideToTidySourceFerc1 = WideToTidySourceFerc1()
 
 
-def wide_to_tidy(df: pd.DataFrame, params: WideToTidyDataSource) -> pd.DataFrame:
+def wide_to_tidy(df: pd.DataFrame, params: WideToTidySourceFerc1) -> pd.DataFrame:
     """Reshape wide tables with FERC account columns to tidy format.
 
     The XBRL table coming into this method could contain all the data from both the
@@ -278,7 +278,7 @@ class Ferc1TableTransformParams(TableTransformParams):
     rename_columns_instant_xbrl: RenameColumns = RenameColumns()
     rename_columns_duration_xbrl: RenameColumns = RenameColumns()
     wide_to_tidy: WideToTidy = WideToTidy(
-        dbf=WideToTidyDataSource(), xbrl=WideToTidyDataSource()
+        dbf=WideToTidySourceFerc1(), xbrl=WideToTidySourceFerc1()
     )
     merge_metadata_xbrl: MergeMetadataXbrl = MergeMetadataXbrl()
     align_row_numbers_dbf: AlignRowNumbersDbf = AlignRowNumbersDbf()
@@ -767,7 +767,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         if not params:
             # params.wide_to_tidy is not scriptable so we can't extract the "xbrl" or
             # "dbf" portions dynamically w/o converting to dict
-            params = WideToTidyDataSource(
+            params = WideToTidySourceFerc1(
                 **self.params.wide_to_tidy.dict()[source_ferc1.value]
             )
         if params.idx_cols or params.value_types:
@@ -2732,7 +2732,7 @@ class UtilityPlantSummaryFerc1TableTransformer(Ferc1AbstractTableTransformer):
         self, xbrl_fact_names: list[str] | None
     ) -> pd.DataFrame:
         """Normalize the metadata from the XBRL taxonomy +."""
-        eead_meta = (
+        meta = (
             super()
             .normalize_metadata_xbrl(xbrl_fact_names)
             .assign(
@@ -2740,8 +2740,8 @@ class UtilityPlantSummaryFerc1TableTransformer(Ferc1AbstractTableTransformer):
             )
         )
         # Save the normalized metadata so it can be used by other methods.
-        self.xbrl_metadata_normalized = eead_meta
-        return eead_meta
+        self.xbrl_metadata_normalized = meta
+        return meta
 
 
 def transform(
