@@ -67,30 +67,31 @@ class ForeignKeyErrors(SQLAlchemyError):
 
 
 class SQLiteIOManager(IOManager):
-    """Dagster IO manager that stores and retrieves dataframes from a SQLite database.
-
-    Args:
-        base_dir (Optional[str]): base directory where all the step outputs which use this object
-            manager will be stored in.
-    """
+    """Dagster IO manager that stores and retrieves dataframes from a SQLite
+    database."""  # noqa: D205, D209, D415
 
     def __init__(
         self,
         base_dir: str = None,
         db_name: str = None,
-        check_types: bool = True,
-        check_values: bool = True,
         md: sa.MetaData = None,
     ):
-        """Init a SQLiteIOmanager."""
+        """Init a SQLiteIOmanager.
+
+        Args:
+            base_dir: base directory where all the step outputs which use this object
+                manager will be stored in.
+            db_name: the name of sqlite database.
+            md: database metadata described as a SQLAlchemy MetaData object. If not specified,
+                default to metadata stored in the pudl.metadata subpackage.
+        """
         self.base_dir = Path(base_dir)
         self.db_name = db_name
 
         bad_sqlite_version = version.parse(sqlite_version) < version.parse(
             MINIMUM_SQLITE_VERSION
         )
-        if bad_sqlite_version and check_types:
-            check_types = False
+        if bad_sqlite_version:
             logger.warning(
                 f"Found SQLite {sqlite_version} which is less than "
                 f"the minimum required version {MINIMUM_SQLITE_VERSION} "
@@ -99,10 +100,7 @@ class SQLiteIOManager(IOManager):
 
         # If no metadata is specified use PUDL metadata.
         if not md:
-            self.md = Package.from_resource_ids().to_sql(
-                check_types=check_types,
-                check_values=check_values,
-            )
+            self.md = Package.from_resource_ids().to_sql()
         else:
             self.md = md
 
@@ -159,10 +157,19 @@ class SQLiteIOManager(IOManager):
             )
         return sa_table
 
-    def _get_fk_list(self, engine, table: str) -> pd.DataFrame:
-        """Retrieve a dataframe of foreign keys for a table."""
-        with engine.connect() as con:
-            table_fks = pd.read_sql_query(f"pragma foreign_key_list({table});", con)
+    def _get_fk_list(self, table: str) -> pd.DataFrame:
+        """Retrieve a dataframe of foreign keys for a table.
+
+        Description from the SQLite Docs:
+        'This pragma returns one row for each foreign key constraint
+        created by a REFERENCES clause in the CREATE TABLE statement of table "table-name".'
+
+        The PRAGMA returns one row for each field in a foreign key constraint.
+        This method collapses foreign keys with multiple fields into one record
+        for readability.
+        """
+        with self.engine.connect() as con:
+            table_fks = pd.read_sql_query(f"PRAGMA foreign_key_list({table});", con)
 
         # Foreign keys with multiple fields are reported in separate records.
         # Combine the multiple fields into one string for readability.
@@ -195,19 +202,19 @@ class SQLiteIOManager(IOManager):
             >>> manager = pudl_sqlite_io_manager(init_context)
             >>> manager.check_foreign_keys()
 
+        Read about the PRAGMAs here: https://www.sqlite.org/pragma.html#pragma_foreign_key_check
+
         Raises:
             ForeignKeyErrors: if data in the database violate foreign key constraints.
         """
-        engine = self.engine
-
-        with engine.connect() as con:
-            fk_errors = pd.read_sql_query("pragma foreign_key_check;", con)
+        with self.engine.connect() as con:
+            fk_errors = pd.read_sql_query("PRAGMA foreign_key_check;", con)
 
         if not fk_errors.empty:
             # Merge in the actual FK descriptions
             tables_with_fk_errors = fk_errors.table.unique().tolist()
             table_foreign_keys = pd.concat(
-                [self._get_fk_list(engine, table) for table in tables_with_fk_errors]
+                [self._get_fk_list(table) for table in tables_with_fk_errors]
             )
 
             fk_errors_with_keys = fk_errors.merge(
@@ -218,6 +225,7 @@ class SQLiteIOManager(IOManager):
             )
 
             errors = []
+            # For each foreign key error, raise a ForeignKeyError
             for (
                 table_name,
                 parent_name,
@@ -234,7 +242,12 @@ class SQLiteIOManager(IOManager):
             raise ForeignKeyErrors(errors)
 
     def _handle_pandas_output(self, context: OutputContext, df: pd.DataFrame):
-        """Write dataframe to the database."""
+        """Write dataframe to the database.
+
+        Args:
+            context: dagster keyword that provides access output information like asset name.
+            df: dataframe to write to the database.
+        """
         table_name = self._get_table_name(context)
 
         sa_table = self._get_sqlalchemy_table(table_name)
@@ -263,8 +276,16 @@ class SQLiteIOManager(IOManager):
                     dtype={c.name: c.type for c in sa_table.columns},
                 )
 
+    # TODO (bendnorman): Create a SQLQuery type so it's clearer what this method expects
     def _handle_str_output(self, context: OutputContext, query: str):
-        """Execute a sql query on the database."""
+        """Execute a sql query on the database.
+
+        This is used for creating output views in the database.
+
+        Args:
+            context: dagster keyword that provides access output information like asset name.
+            query: sql query to execute in the database.
+        """
         engine = self.engine
         table_name = self._get_table_name(context)
 
@@ -275,7 +296,18 @@ class SQLiteIOManager(IOManager):
             con.execute(query)
 
     def handle_output(self, context: OutputContext, obj: pd.DataFrame | str):
-        """Handle an op or asset output."""
+        """Handle an op or asset output.
+
+        If the output is a dataframe, write it to the database. If it is a string
+        execute it as a SQL query.
+
+        Args:
+            context: dagster keyword that provides access output information like asset name.
+            obj: a sql query or dataframe to add to the database.
+
+        Raises:
+            Exception: if an asset or op returns an unsupported datatype.
+        """
         if isinstance(obj, pd.DataFrame):
             self._handle_pandas_output(context, obj)
         elif isinstance(obj, str):
@@ -286,7 +318,11 @@ class SQLiteIOManager(IOManager):
             )
 
     def load_input(self, context: InputContext) -> pd.DataFrame:
-        """Load a dataframe from a sqlite database."""
+        """Load a dataframe from a sqlite database.
+
+        Args:
+            context: dagster keyword that provides access output information like asset name.
+        """
         table_name = self._get_table_name(context)
         _ = self._get_sqlalchemy_table(table_name)
 
@@ -298,6 +334,8 @@ class SQLiteIOManager(IOManager):
             )
 
 
+# TODO (bendnorman): Create a custom Config type that provides a helpful
+# Error when the environment variable isn't set.
 @io_manager(
     config_schema={
         "pudl_output_path": Field(
@@ -305,18 +343,12 @@ class SQLiteIOManager(IOManager):
             description="Path of directory to store the database in.",
             default_value=os.environ.get("PUDL_OUTPUT"),
         ),
-        "check_types": Field(bool, default_value=True),
-        "check_values": Field(bool, default_value=True),
     }
 )
 def pudl_sqlite_io_manager(init_context) -> SQLiteIOManager:
     """Create a SQLiteManager dagster resource."""
     base_dir = init_context.resource_config["pudl_output_path"]
-    check_types = init_context.resource_config["check_types"]
-    check_values = init_context.resource_config["check_values"]
     return SQLiteIOManager(
         base_dir=base_dir,
         db_name="pudl",
-        check_types=check_types,
-        check_values=check_values,
     )

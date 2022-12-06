@@ -389,7 +389,7 @@ class DatasetsSettings(BaseModel):
         For each partition parameter in a GenericDatasetSettings subclass, create a Noneable
         Dagster field with a default value of None. The GenericDatasetSettings
         subclasses will default to include all working paritions if the partition value
-        is None. Get the value type so dagster can do some basic type checking.
+        is None. Get the value type so dagster can do some basic type checking in the UI.
 
         The `table` is not included in the dagster config because we are not supporting
         processing a subset of tables.
@@ -602,6 +602,9 @@ class EtlSettings(BaseSettings):
 @resource(config_schema=DatasetsSettings.create_dagster_config())
 def dataset_settings(init_context):
     """Dagster resource for parameterizing assets.
+
+    This resource allows us to specify the years we want to process for each datasource
+    in the Dagit UI.
 
     We configuring the assets using a resource instead of op configs so the settings can
     be accesible by any op.

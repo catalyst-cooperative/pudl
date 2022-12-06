@@ -4,7 +4,7 @@ from dagster import asset
 
 # TODO (bendnorman): We could also save the SQL code in sql files so we can
 # take advantage of syntax highlighting and formatting. We could programatically create
-# the view assets give a structure that contains the asset name and non_argument_deps.
+# the view assets with a structure that contains the asset name and non_argument_deps.
 @asset(
     non_argument_deps={"utilities_entity_eia", "utilities_eia860", "utilities_eia"},
     io_manager_key="pudl_sqlite_io_manager",

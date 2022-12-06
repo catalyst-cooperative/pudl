@@ -59,16 +59,23 @@ eia_raw_table_names = (
 )
 
 
+# TODO (bendnorman): Figure out type hint for context keyword and mutli_asset return
 @multi_asset(
     outs={table_name: AssetOut() for table_name in sorted(eia_raw_table_names)},
     required_resource_keys={"datastore", "dataset_settings"},
-    group_name="eia_raw_dfs",
+    group_name="raw_eia",
 )
-def eia_raw_dfs(context):
-    """Extract raw EIA data from excel sheets into dataframes."""
+def extract_eia(context):
+    """Extract raw EIA data from excel sheets into dataframes.
+
+    Args:
+        context: dagster keyword that provides access to resources and config.
+
+    Returns:
+        A tuple of extracted EIA dataframes.
+    """
     eia_settings = context.resources.dataset_settings.eia
 
-    # TODO (bendnorman): More verbose doc string.
     ds = context.resources.datastore
     eia923_raw_dfs = pudl.extract.eia923.Extractor(ds).extract(
         year=eia_settings.eia923.years
@@ -161,7 +168,6 @@ def _etl_eia(
     eia_transformed_dfs = eia860_transformed_dfs.copy()
     eia_transformed_dfs.update(eia923_transformed_dfs.copy())
 
-    # TODO: ensure the individual table transformation functions convert dtypes
     # Do some final cleanup and assign appropriate types:
     eia_transformed_dfs = {
         name: convert_cols_dtypes(df, data_source="eia")

@@ -629,7 +629,7 @@ def _boiler_generator_assn(  # noqa: C901
     # compile and scrub all the parts
     logger.info("Inferring complete EIA boiler-generator associations.")
     bga_eia860 = (
-        eia_transformed_dfs["clean_boiler_generator_assn_eia860"]
+        eia_transformed_dfs["boiler_generator_assn_eia860"]
         .copy()
         .pipe(_restrict_years, eia923_years, eia860_years)
         .astype(
@@ -641,7 +641,7 @@ def _boiler_generator_assn(  # noqa: C901
         )
     )
     # grab the generation_eia923 table, group annually, generate a new tag
-    gen_eia923 = eia_transformed_dfs["clean_generation_eia923"].copy()
+    gen_eia923 = eia_transformed_dfs["generation_eia923"].copy()
     gen_eia923 = gen_eia923.set_index(pd.DatetimeIndex(gen_eia923.report_date))
     gen_eia923 = (
         _restrict_years(gen_eia923, eia923_years, eia860_years)
@@ -659,7 +659,7 @@ def _boiler_generator_assn(  # noqa: C901
 
     # compile all of the generators
     gens_eia860 = (
-        eia_transformed_dfs["clean_generators_eia860"]
+        eia_transformed_dfs["generators_eia860"]
         .copy()
         .pipe(_restrict_years, eia923_years, eia860_years)
         .astype(
@@ -718,7 +718,7 @@ def _boiler_generator_assn(  # noqa: C901
     # bga_compiled_1[bga_compiled_1['og_tag'].isnull()]
 
     bf_eia923 = (
-        eia_transformed_dfs["clean_boiler_fuel_eia923"]
+        eia_transformed_dfs["boiler_fuel_eia923"]
         .copy()
         .pipe(_restrict_years, eia923_years, eia860_years)
         .astype(
@@ -987,7 +987,7 @@ def _boiler_generator_assn(  # noqa: C901
         )
 
     bga_out = apply_pudl_dtypes(bga_out, group="eia")
-    eia_transformed_dfs["clean_boiler_generator_assn_eia860"] = bga_out
+    eia_transformed_dfs["boiler_generator_assn_eia860"] = bga_out
 
     return eia_transformed_dfs
 
@@ -1176,6 +1176,12 @@ def eia_transform(context, **eia_transformed_dfs):
         for name, df in eia_transformed_dfs.items()
     }
 
+    # Remove the clean_ prefix from the table names.
+    eia_transformed_dfs = {
+        table_name.replace("clean_", ""): df
+        for table_name, df in eia_transformed_dfs.items()
+    }
+
     eia_settings = context.resources.dataset_settings.eia
 
     # create the empty entities df to fill up
@@ -1227,15 +1233,6 @@ def eia_transform(context, **eia_transformed_dfs):
         entities_dfs[table] = (
             Package.from_resource_ids().get_resource(table).encode(entities_dfs[table])
         )
-
-    # Rename dfs so they don't conflict with the asset names of the previous assets.
-    # TODO (bendnorman): The previous cleaning steps assets should be renamed. I'm
-    # renaming these tables because I think harvesting relies on the old tables names.
-    # I just need to understand what table names harvesting expects.
-    eia_transformed_dfs = {
-        table_name.replace("clean_", ""): df
-        for table_name, df in eia_transformed_dfs.items()
-    }
 
     final_dfs = entities_dfs | eia_transformed_dfs
 
