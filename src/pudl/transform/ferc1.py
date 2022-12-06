@@ -2615,19 +2615,6 @@ class TransmissionFerc1TableTransformer(Ferc1AbstractTableTransformer):
     table_id: Ferc1TableId = Ferc1TableId.TRANSMISSION_FERC1
     has_unique_record_ids: bool = False
 
-    @cache_df(key="main")
-    def transform_main(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Table specific transforms for transmission_ferc1.
-
-        Params:
-            df: Pre-processed, concatenated XBRL and DBF data.
-
-        Returns:
-            A single transformed table concatenating multiple years of cleaned data
-            derived from the raw DBF and/or XBRL inputs.
-        """
-        return super().transform_main(df)
-
 
 class ElectricEnergyAccountSourcesFerc1TableTransformer(Ferc1AbstractTableTransformer):
     """Transformer class for :ref:`electric_energy_sources_ferc1` table.
