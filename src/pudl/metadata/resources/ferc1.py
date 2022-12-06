@@ -404,7 +404,6 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "utility_id_ferc1",
                 "report_year",
                 "utility_type",
-                "utility_type_other",
                 "utility_plant_asset_type",
             ],
         },
