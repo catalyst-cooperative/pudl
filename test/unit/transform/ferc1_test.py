@@ -104,11 +104,9 @@ D,13,130,1300
 def test_wide_to_tidy():
     """Test :func:`wide_to_tidy_xbrl`."""
     params = WideToTidy(
-        **{
-            "idx_cols": ["idx"],
-            "value_types": ["test_value"],
-            "stacked_column_name": "xbrl_factoid",
-        }
+        idx_cols=["idx"],
+        value_types=["test_value"],
+        stacked_column_name="xbrl_factoid",
     )
     df_out = wide_to_tidy(df=WIDE_TO_TIDY_DF, params=params)
 
@@ -137,11 +135,9 @@ D,z,1300
 def test_wide_to_tidy_fail():
     """Test the :func:`wide_to_tidy_xbrl` fails with a bad rename."""
     params = WideToTidy(
-        **{
-            "idx_cols": ["idx"],
-            "value_types": ["test_value"],
-            "stacked_column_name": "xbrl_factoid",
-        }
+        idx_cols=["idx"],
+        value_types=["test_value"],
+        stacked_column_name="xbrl_factoid",
     )
     df_renamed = WIDE_TO_TIDY_DF.rename(columns={"z_test_value": "z_test_values"})
     with pytest.raises(AssertionError):
@@ -151,12 +147,10 @@ def test_wide_to_tidy_fail():
 def test_wide_to_tidy_rename():
     """Test the updated ``expected_drop_cols`` params for :func:`wide_to_tidy_xbrl`."""
     params_renamed = WideToTidy(
-        **{
-            "idx_cols": ["idx"],
-            "value_types": ["test_value"],
-            "expected_drop_cols": 1,
-            "stacked_column_name": "xbrl_factoid",
-        }
+        idx_cols=["idx"],
+        value_types=["test_value"],
+        expected_drop_cols=1,
+        stacked_column_name="xbrl_factoid",
     )
     df_renamed = WIDE_TO_TIDY_DF.rename(columns={"z_test_value": "z_test_values"})
     df_out = wide_to_tidy(df=df_renamed, params=params_renamed)

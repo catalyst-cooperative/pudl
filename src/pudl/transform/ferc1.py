@@ -97,10 +97,10 @@ class RenameColumnsFerc1(TransformParams):
       e.g. in the case of unit conversions with a column rename.
     """
 
-    dbf: RenameColumns = None
-    xbrl: RenameColumns = None
-    duration_xbrl: RenameColumns = None
-    instant_xbrl: RenameColumns = None
+    dbf: RenameColumns = RenameColumns()
+    xbrl: RenameColumns = RenameColumns()
+    duration_xbrl: RenameColumns = RenameColumns()
+    instant_xbrl: RenameColumns = RenameColumns()
 
 
 class WideToTidy(TransformParams):
@@ -735,9 +735,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             params: Rename column parameters.
         """
         if not params:
-            params = params = self.params.rename_columns_ferc1.__getattribute__(
-                rename_stage
-            )
+            params = self.params.rename_columns_ferc1.__getattribute__(rename_stage)
         df = super().rename_columns(df, params=params)
         return df
 
