@@ -22,6 +22,7 @@ non_unique_record_id_tables = [
     "purchased_power_ferc1",
     "electric_energy_sources_ferc1",
     "electric_energy_dispositions_ferc1",
+    "utility_plant_summary_ferc1",
     "transmission_ferc1",
 ]
 unique_record_tables = [
