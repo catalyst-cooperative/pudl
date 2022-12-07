@@ -1273,12 +1273,12 @@ f1_comp_balance_db,25,2004,Sinking Funds (125),reported_value,sinking_funds,,
 f1_comp_balance_db,26,2004,Depreciation Fund (126),reported_value,depreciation_fund,,
 f1_comp_balance_db,27,2004,Amortization Fund - Federal (127),reported_value,amortization_fund_federal,,
 f1_comp_balance_db,28,2004,Other Special Funds (128),reported_value,other_special_funds,,
-f1_comp_balance_db,29,2004,Special Funds (Non Major Only) (129),reported_value,special_funds_non_major,TRUE,"Close to special_funds, but only includes non major entities"
+f1_comp_balance_db,29,2004,Special Funds (Non Major Only) (129),reported_value,special_funds,,
 f1_comp_balance_db,30,2004,Long-Term Portion of Derivative Assets (175),reported_value,derivative_instrument_assets_long_term,,This xbrl factoid is mapped to two dbf rows that might have different sign conventions.
 f1_comp_balance_db,31,2004,Long-Term Portion of Derivative Assets  Hedges (176),reported_value,derivative_instrument_assets_hedges_long_term,,This xbrl factoid is mapped to two dbf rows that might have different sign conventions.
 f1_comp_balance_db,32,2004,TOTAL Other Property and Investments (Lines 18-21 and 23-31),calculated_value,other_property_and_investments,,
 f1_comp_balance_db,33,2004,CURRENT AND ACCRUED ASSETS,header,,,
-f1_comp_balance_db,34,2004,Cash and Working Funds (Non-major Only) (130),reported_value,cash_and_working_funds,,doesn't say anything about major or non major in xbrl_factoid
+f1_comp_balance_db,34,2004,Cash and Working Funds (Non-major Only) (130),reported_value,cash_and_working_funds,,
 f1_comp_balance_db,35,2004,Cash (131),reported_value,cash,,
 f1_comp_balance_db,36,2004,Special Deposits (132-134),reported_value,special_deposits,,
 f1_comp_balance_db,37,2004,Working Fund (135),reported_value,working_funds,,
@@ -1318,7 +1318,7 @@ f1_comp_balance_db,70,2004,Extraordinary Property Losses (182.1),reported_value,
 f1_comp_balance_db,71,2004,Unrecovered Plant and Regulatory Study Costs (182.2),reported_value,unrecovered_plant_and_regulatory_study_costs,,
 f1_comp_balance_db,72,2004,Other Regulatory Assets (182.3),reported_value,other_regulatory_assets,,
 f1_comp_balance_db,73,2004,Prelim. Survey and Investigation Charges (Electric) (183),reported_value,preliminary_survey_and_investigation_charges,,
-f1_comp_balance_db,74,2004,Preliminary Natural Gas Survey and Investigation Charges 183.1),reported_value,preliminary_natural_gas_survey_and_investigation_charges,TRUE,"This charge was previously combining nat gas and other charged as evidenced by the (183.1, 183.2) and now only showing (183.1). There is no uncombined xbrl factoid for gas even though there is an uncombined xbrl factoid for other."
+f1_comp_balance_db,74,2004,Preliminary Natural Gas Survey and Investigation Charges 183.1),reported_value,preliminary_natural_gas_survey_and_investigation_charges_and_other_preliminary_survey_and_investigation_charges,,
 f1_comp_balance_db,75,2004,Other Preliminary Survey and Investigation Charges (183.2),reported_value,other_preliminary_survey_and_investigation_charges,,
 f1_comp_balance_db,76,2004,Clearing Accounts (184),reported_value,clearing_accounts,,
 f1_comp_balance_db,77,2004,Temporary Facilities (185),reported_value,temporary_facilities,,
@@ -1329,7 +1329,7 @@ f1_comp_balance_db,81,2004,Unamortized Loss on Reaquired Debt (189),reported_val
 f1_comp_balance_db,82,2004,Accumulated Deferred Income Taxes (190),reported_value,accumulated_deferred_income_taxes,,
 f1_comp_balance_db,83,2004,Unrecovered Purchased Gas Costs (191),reported_value,unrecovered_purchased_gas_costs,,
 f1_comp_balance_db,84,2004,Total Deferred Debits (lines 69 through 83),calculated_value,deferred_debits,,
-f1_comp_balance_db,85,2004,"TOTAL ASSETS (lines 14-16, 32, 67, and 84)",calculated_value,total_assets,TRUE,A combination of assets not reflected in xbrl
+f1_comp_balance_db,85,2004,"TOTAL ASSETS (lines 14-16, 32, 67, and 84)",calculated_value,assets_and_other_debits,,
 f1_construction,1,1994,Line 1,,,,
 f1_construction,2,1994,Line 2,,,,
 f1_construction,3,1994,Line 3,,,,
