@@ -1899,7 +1899,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Listing of utility plant types. Examples include Electric Utility, Gas Utility, and Other Utility.",
     },
-    "utility_type_other": {"type": "string"},
+    "utility_type_other": {
+        "type": "string",
+        "description": "Freeform description of type of utility reported in one of the other three other utility_type sections in the utility_plant_summary_ferc1 table. This field is reported only in the DBF reporting years (1994-2020).",
+    },
     "variable_peak_pricing": {"type": "boolean"},
     "virtual_capacity_mw": {"type": "number", "unit": "MW"},
     "virtual_customers": {"type": "integer"},
