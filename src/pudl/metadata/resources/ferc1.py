@@ -387,6 +387,30 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "glue",
         "field_namespace": "ferc1",
     },
+    "utility_plant_summary_ferc1": {
+        "description": "Summary of utility plant and accumulated provisions for depreviation, amortization and depletion of utilty plant assets reported annually at the end of the report year.",
+        "schema": {
+            "fields": [
+                "utility_id_ferc1",
+                "report_year",
+                "utility_type",
+                "utility_type_other",
+                "utility_plant_asset_type",
+                "row_type_xbrl",
+                "utility_plant_value",
+                "record_id",
+            ],
+            "primary_key": [
+                "utility_id_ferc1",
+                "report_year",
+                "utility_type",
+                "utility_plant_asset_type",
+            ],
+        },
+        "sources": ["ferc1"],
+        "etl_group": "ferc1",
+        "field_namespace": "ferc1",
+    },
     "transmission_ferc1": {
         "description": "Information concerning transmission lines, cost of lines, and expenses for year.",
         "schema": {

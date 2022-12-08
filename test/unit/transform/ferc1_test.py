@@ -8,11 +8,11 @@ import pytest
 from pudl.settings import Ferc1Settings
 from pudl.transform.ferc1 import (
     Ferc1AbstractTableTransformer,
-    Ferc1TableId,
-    WideToTidyXbrl,
+    TableIdFerc1,
+    WideToTidy,
     fill_dbf_to_xbrl_map,
     read_dbf_to_xbrl_map,
-    wide_to_tidy_xbrl,
+    wide_to_tidy,
 )
 
 TEST_DBF_XBRL_MAP = pd.read_csv(
@@ -101,10 +101,14 @@ D,13,130,1300
 )
 
 
-def test_wide_to_tidy_xbrl():
+def test_wide_to_tidy():
     """Test :func:`wide_to_tidy_xbrl`."""
-    params = WideToTidyXbrl(**{"idx_cols": ["idx"], "value_types": ["test_value"]})
-    df_out = wide_to_tidy_xbrl(df=WIDE_TO_TIDY_DF, params=params)
+    params = WideToTidy(
+        idx_cols=["idx"],
+        value_types=["test_value"],
+        stacked_column_name="xbrl_factoid",
+    )
+    df_out = wide_to_tidy(df=WIDE_TO_TIDY_DF, params=params)
 
     df_expected = pd.read_csv(
         StringIO(
@@ -128,21 +132,28 @@ D,z,1300
     pd.testing.assert_frame_equal(df_out, df_expected)
 
 
-def test_wide_to_tidy_xbrl_fail():
+def test_wide_to_tidy_fail():
     """Test the :func:`wide_to_tidy_xbrl` fails with a bad rename."""
-    params = WideToTidyXbrl(**{"idx_cols": ["idx"], "value_types": ["test_value"]})
-    df_renamed = WIDE_TO_TIDY_DF.rename(columns={"z_test_value": "z_test_values"})
-    with pytest.raises(AssertionError):
-        wide_to_tidy_xbrl(df=df_renamed, params=params)
-
-
-def test_wide_to_tidy_xbrl_rename():
-    """Test the updated ``expected_drop_cols`` params for :func:`wide_to_tidy_xbrl`."""
-    params_renamed = WideToTidyXbrl(
-        **{"idx_cols": ["idx"], "value_types": ["test_value"], "expected_drop_cols": 1}
+    params = WideToTidy(
+        idx_cols=["idx"],
+        value_types=["test_value"],
+        stacked_column_name="xbrl_factoid",
     )
     df_renamed = WIDE_TO_TIDY_DF.rename(columns={"z_test_value": "z_test_values"})
-    df_out = wide_to_tidy_xbrl(df=df_renamed, params=params_renamed)
+    with pytest.raises(AssertionError):
+        wide_to_tidy(df=df_renamed, params=params)
+
+
+def test_wide_to_tidy_rename():
+    """Test the updated ``expected_drop_cols`` params for :func:`wide_to_tidy_xbrl`."""
+    params_renamed = WideToTidy(
+        idx_cols=["idx"],
+        value_types=["test_value"],
+        expected_drop_cols=1,
+        stacked_column_name="xbrl_factoid",
+    )
+    df_renamed = WIDE_TO_TIDY_DF.rename(columns={"z_test_value": "z_test_values"})
+    df_out = wide_to_tidy(df=df_renamed, params=params_renamed)
     # everything but the xbrl_factoid == "c"
     df_expected = pd.read_csv(
         StringIO(
@@ -180,7 +191,7 @@ report_year,start_date,end_date,values
 
     class FakeTransformer(Ferc1AbstractTableTransformer):
         # just need any table name here so that one method is callable
-        table_id = Ferc1TableId.FUEL_FERC1
+        table_id = TableIdFerc1.FUEL_FERC1
 
     fake_transformer = FakeTransformer()
     df_out = fake_transformer.select_current_year_annual_records_duration_xbrl(df=df)

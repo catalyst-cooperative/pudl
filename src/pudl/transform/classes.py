@@ -1126,9 +1126,7 @@ class AbstractTableTransformer(ABC):
         return df
 
     def rename_columns(
-        self,
-        df: pd.DataFrame,
-        params: RenameColumns | None = None,
+        self, df: pd.DataFrame, params: RenameColumns | None = None, **kwargs
     ) -> pd.DataFrame:
         """Rename the whole collection of dataframe columns using input params.
 
