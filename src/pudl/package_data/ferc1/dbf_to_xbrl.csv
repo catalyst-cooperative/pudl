@@ -1181,7 +1181,7 @@ f1_comp_balance_db,17,1994,Investment in Subsidiary Companies (123.1),reported_v
 f1_comp_balance_db,18,1994,"(For Cost of Account 123.1, See Footnote Page 224, line 42)",header,,,
 f1_comp_balance_db,19,1994,Noncurrent Portion of Allowances,reported_value,noncurrent_portion_of_allowances,,This xbrl factoid is mapped to two dbf rows that might have different sign conventions.
 f1_comp_balance_db,20,1994,Other Investments (124),reported_value,other_investments,,
-f1_comp_balance_db,21,1994,Special Funds (125-128),reported_value,special_funds,,
+f1_comp_balance_db,21,1994,Special Funds (125-128),reported_value,special_funds_all,TRUE,
 f1_comp_balance_db,22,1994,"TOTAL Other Property and Investments (Total of lines 14-17,19-21)",calculated_value,other_property_and_investments,,
 f1_comp_balance_db,23,1994,CURRENT AND ACCRUED ASSETS,header,,,
 f1_comp_balance_db,24,1994,Cash (131),reported_value,cash,,
