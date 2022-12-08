@@ -11,7 +11,7 @@ import enum
 import importlib.resources
 import re
 from collections import namedtuple
-from typing import Any
+from typing import Any, Literal
 
 import numpy as np
 import pandas as pd
@@ -43,7 +43,7 @@ logger = pudl.logging_helpers.get_logger(__name__)
 # FERC 1 Transform Parameter Models
 ################################################################################
 @enum.unique
-class Ferc1Source(enum.Enum):
+class SourceFerc1(enum.Enum):
     """Enumeration of allowed FERC 1 raw data sources."""
 
     XBRL = "xbrl"
@@ -51,7 +51,7 @@ class Ferc1Source(enum.Enum):
 
 
 @enum.unique
-class Ferc1TableId(enum.Enum):
+class TableIdFerc1(enum.Enum):
     """Enumeration of the allowed FERC 1 table IDs.
 
     Hard coding this doesn't seem ideal. Somehow it should be either defined in the
@@ -69,11 +69,13 @@ class Ferc1TableId(enum.Enum):
     PLANTS_PUMPED_STORAGE_FERC1 = "plants_pumped_storage_ferc1"
     PLANT_IN_SERVICE_FERC1 = "plant_in_service_ferc1"
     PURCHASED_POWER_FERC1 = "purchased_power_ferc1"
+    TRANSMISSION_FERC1 = "transmission_ferc1"
     ELECTRIC_ENERGY_SOURCES_FERC1 = "electric_energy_sources_ferc1"
     ELECTRIC_ENERGY_DISPOSITIONS_FERC1 = "electric_energy_dispositions_ferc1"
+    UTILITY_PLANT_SUMMARY_FERC1 = "utility_plant_summary_ferc1"
 
 
-class Ferc1RenameColumns(TransformParams):
+class RenameColumnsFerc1(TransformParams):
     """Dictionaries for renaming either XBRL or DBF derived FERC 1 columns.
 
     This is FERC 1 specific, because we need to store both DBF and XBRL rename
@@ -95,25 +97,31 @@ class Ferc1RenameColumns(TransformParams):
       e.g. in the case of unit conversions with a column rename.
     """
 
-    dbf: RenameColumns = {}
-    xbrl: RenameColumns = {}
+    dbf: RenameColumns = RenameColumns()
+    xbrl: RenameColumns = RenameColumns()
+    duration_xbrl: RenameColumns = RenameColumns()
+    instant_xbrl: RenameColumns = RenameColumns()
 
 
-class WideToTidyXbrl(TransformParams):
-    """Parameters for converting a wide XBRL table to a tidy table with value types."""
+class WideToTidy(TransformParams):
+    """Parameters for converting a wide table to a tidy table with value types."""
 
     idx_cols: list[str] | None
     """List of column names to treat as the table index."""
 
+    stacked_column_name: str | None = None
+    """Name of column that will contain the stacked categories."""
+
     value_types: list[str] | None
     """List of names of value types that will end up being the column names.
 
-    In the input dataframe given to :func:`wide_to_tidy_xbrl`, the value types must be
-    the suffixes of the column names. If the table does not natively have the pattern
-    of "{xbrl_factoid}_{value_type}", rename the columns using a
-    ``rename_columns_duration_xbrl`` and/or ``rename_columns_instant_xbrl`` paramete
-    which will be employed in :meth:`process_duration_xbrl` and
-    :meth:`process_instant_xbrl`."""
+    Some of the FERC tables have multiple data types spread across many different
+    categories.  In the input dataframe given to :func:`wide_to_tidy`, the value types
+    must be the suffixes of the column names. If the table does not natively have the
+    pattern of "{to-be stacked category}_{value_type}", rename the columns using a
+    ``rename_columns.duration_xbrl``, ``rename_columns.instant_xbrl`` or
+    ``rename_columns.dbf`` parameter which will be employed in
+    :meth:`process_duration_xbrl`, :meth:`process_instant_xbrl` or :meth:`process_dbf`."""
 
     expected_drop_cols: int = 0
     """The number of columns that are expected to be dropped.
@@ -130,7 +138,14 @@ class WideToTidyXbrl(TransformParams):
     """
 
 
-def wide_to_tidy_xbrl(df: pd.DataFrame, params: WideToTidyXbrl) -> pd.DataFrame:
+class WideToTidySourceFerc1(TransformParams):
+    """Parameters for converting either or both XBRL and DBF table from wide to tidy."""
+
+    xbrl: WideToTidy = WideToTidy()
+    dbf: WideToTidy = WideToTidy()
+
+
+def wide_to_tidy(df: pd.DataFrame, params: WideToTidy) -> pd.DataFrame:
     """Reshape wide tables with FERC account columns to tidy format.
 
     The XBRL table coming into this method could contain all the data from both the
@@ -168,11 +183,11 @@ def wide_to_tidy_xbrl(df: pd.DataFrame, params: WideToTidyXbrl) -> pd.DataFrame:
 
     new_cols = pd.MultiIndex.from_tuples(
         [(re.sub(pat, r"\1", col), re.sub(pat, r"\2", col)) for col in df_out.columns],
-        names=["xbrl_factoid", "value_type"],
+        names=[params.stacked_column_name, "value_type"],
     )
     df_out.columns = new_cols
     df_out = (
-        df_out.stack(level="xbrl_factoid", dropna=False)
+        df_out.stack(params.stacked_column_name, dropna=False)
         .loc[:, params.value_types]
         .reset_index()
     )
@@ -259,13 +274,15 @@ class Ferc1TableTransformParams(TableTransformParams):
 
         extra = "forbid"
 
-    rename_columns_ferc1: Ferc1RenameColumns = Ferc1RenameColumns(
+    rename_columns_ferc1: RenameColumnsFerc1 = RenameColumnsFerc1(
         dbf=RenameColumns(),
         xbrl=RenameColumns(),
+        xbrl_instant=RenameColumns(),
+        xbrl_duration=RenameColumns(),
     )
-    rename_columns_instant_xbrl: RenameColumns = RenameColumns()
-    rename_columns_duration_xbrl: RenameColumns = RenameColumns()
-    wide_to_tidy_xbrl: WideToTidyXbrl = WideToTidyXbrl()
+    wide_to_tidy: WideToTidySourceFerc1 = WideToTidySourceFerc1(
+        dbf=WideToTidy(), xbrl=WideToTidy()
+    )
     merge_metadata_xbrl: MergeMetadataXbrl = MergeMetadataXbrl()
     align_row_numbers_dbf: AlignRowNumbersDbf = AlignRowNumbersDbf()
 
@@ -488,7 +505,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
     * Methods that only apply to DBF data should end with _dbf
     """
 
-    table_id: Ferc1TableId
+    table_id: TableIdFerc1
     parameter_model = Ferc1TableTransformParams
     params: parameter_model
 
@@ -555,6 +572,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             .pipe(self.convert_units)
             .pipe(self.strip_non_numeric_values)
             .pipe(self.nullify_outliers)
+            .pipe(self.replace_with_na)
             .pipe(self.drop_invalid_rows)
             .pipe(
                 pudl.metadata.classes.Package.from_resource_ids()
@@ -660,16 +678,16 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         logger.info(f"{self.table_id.value}: Processing DBF data pre-concatenation.")
         return (
             raw_dbf.drop_duplicates()
+            .pipe(self.select_annual_rows_dbf)
             .pipe(self.drop_footnote_columns_dbf)
             .pipe(self.align_row_numbers_dbf)
-            # Note: in this rename_columns we have to pass in params, since we're using
-            # the inherited method, with param specific to the child class.
-            .pipe(self.rename_columns, params=self.params.rename_columns_ferc1.dbf)
-            .pipe(self.assign_record_id, source_ferc1=Ferc1Source.DBF)
+            .pipe(self.rename_columns, rename_stage="dbf")
+            .pipe(self.assign_record_id, source_ferc1=SourceFerc1.DBF)
             .pipe(self.drop_unused_original_columns_dbf)
+            .pipe(self.assign_utility_id_ferc1, source_ferc1=SourceFerc1.DBF)
             .pipe(
-                self.assign_utility_id_ferc1,
-                source_ferc1=Ferc1Source.DBF,
+                self.wide_to_tidy,
+                source_ferc1=SourceFerc1.DBF,
             )
         )
 
@@ -692,20 +710,57 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             self.merge_instant_and_duration_tables_xbrl(
                 raw_xbrl_instant, raw_xbrl_duration
             )
-            .pipe(self.wide_to_tidy_xbrl)
-            # Note: in this rename_columns we have to pass in params, since we're using
-            # the inherited method, with param specific to the child class.
-            .pipe(self.rename_columns, params=self.params.rename_columns_ferc1.xbrl)
-            .pipe(self.assign_record_id, source_ferc1=Ferc1Source.XBRL)
+            .pipe(self.wide_to_tidy, source_ferc1=SourceFerc1.XBRL)
+            .pipe(self.rename_columns, rename_stage="xbrl")
+            .pipe(self.assign_record_id, source_ferc1=SourceFerc1.XBRL)
             .pipe(
                 self.assign_utility_id_ferc1,
-                source_ferc1=Ferc1Source.XBRL,
+                source_ferc1=SourceFerc1.XBRL,
             )
         )
 
+    def rename_columns(
+        self,
+        df: pd.DataFrame,
+        rename_stage: Literal["dbf", "xbrl", "xbrl_instant", "xbrl_duration"]
+        | None = None,
+        params: RenameColumns | None = None,
+    ):
+        """Grab the params based on the rename stage and run default rename_columns.
+
+        Args:
+            df: Table to be renamed.
+            rename_stage: Name of stage in the transform process. Used to get specific
+                stage's parameters if None have been passed.
+            params: Rename column parameters.
+        """
+        if not params:
+            params = self.params.rename_columns_ferc1.__getattribute__(rename_stage)
+        df = super().rename_columns(df, params=params)
+        return df
+
+    @cache_df(key="dbf")
+    def select_annual_rows_dbf(self, df):
+        """Select only annually reported DBF Rows.
+
+        There are some DBF tables that include a mix of reporting frequencies. For now,
+        the default for PUDL tables is to have only the annual records.
+        """
+        if "report_prd" in df and list(df.report_prd.unique()) != [12]:
+            len_og = len(df)
+            df = df[df.report_prd == 12].copy()
+            logger.info(
+                f"{self.table_id.value}: After selection only annual records,"
+                f" we have {len(df)/len_og:.1%} of the original table."
+            )
+        return df
+
     @cache_df(key="xbrl")
-    def wide_to_tidy_xbrl(
-        self, df: pd.DataFrame, params: WideToTidyXbrl | None = None
+    def wide_to_tidy(
+        self,
+        df: pd.DataFrame,
+        source_ferc1: SourceFerc1,
+        params: WideToTidy | None = None,
     ) -> pd.DataFrame:
         """Reshape wide tables with FERC account columns to tidy format.
 
@@ -724,10 +779,12 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         later.
         """
         if not params:
-            params = self.params.wide_to_tidy_xbrl
+            params = self.params.wide_to_tidy.__getattribute__(source_ferc1.value)
         if params.idx_cols or params.value_types:
-            logger.info(f"{self.table_id.value}: applying wide_to_tidy_xbrl")
-            df = wide_to_tidy_xbrl(df, params)
+            logger.info(
+                f"{self.table_id.value}: applying wide_to_tidy for {source_ferc1.value}"
+            )
+            df = wide_to_tidy(df, params)
         return df
 
     @cache_df(key="xbrl")
@@ -847,7 +904,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         conventions of ~95% of all the columns, which we rely on programmatically when
         reshaping and concatenating these tables together.
         """
-        df = self.rename_columns(df, self.params.rename_columns_instant_xbrl)
+        df = self.rename_columns(df, rename_stage="instant_xbrl")
         return df
 
     @cache_df("process_duration_xbrl")
@@ -859,9 +916,10 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         conventions of ~95% of all the columns, which we rely on programmatically when
         reshaping and concatenating these tables together.
         """
-        df = self.rename_columns(df, self.params.rename_columns_duration_xbrl).pipe(
-            self.select_current_year_annual_records_duration_xbrl
-        )
+        if not df.empty:
+            df = self.rename_columns(df, rename_stage="duration_xbrl").pipe(
+                self.select_current_year_annual_records_duration_xbrl
+            )
         return df
 
     def select_current_year_annual_records_duration_xbrl(self, df):
@@ -893,13 +951,13 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         logger.debug(f"{self.table_id.value}: Dropping DBF footnote columns.")
         return df.drop(columns=df.filter(regex=r".*_f$").columns)
 
-    def source_table_id(self, source_ferc1: Ferc1Source) -> str:
+    def source_table_id(self, source_ferc1: SourceFerc1) -> str:
         """Look up the ID of the raw data source table."""
         return TABLE_NAME_MAP[self.table_id.value][source_ferc1.value]
 
-    def source_table_primary_key(self, source_ferc1: Ferc1Source) -> list[str]:
+    def source_table_primary_key(self, source_ferc1: SourceFerc1) -> list[str]:
         """Look up the pre-renaming source table primary key columns."""
-        if source_ferc1 == Ferc1Source.DBF:
+        if source_ferc1 == SourceFerc1.DBF:
             pk_cols = [
                 "report_year",
                 "report_prd",
@@ -908,7 +966,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                 "row_number",
             ]
         else:
-            assert source_ferc1 == Ferc1Source.XBRL  # nosec: B101
+            assert source_ferc1 == SourceFerc1.XBRL  # nosec: B101
             cols = self.params.rename_columns_ferc1.xbrl.columns
             pk_cols = ["report_year", "entity_id"]
             # Sort to avoid dependence on the ordering of rename_columns.
@@ -917,12 +975,12 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             pk_cols += sorted(col for col in cols if col.endswith("_axis"))
         return pk_cols
 
-    def renamed_table_primary_key(self, source_ferc1: Ferc1Source) -> list[str]:
+    def renamed_table_primary_key(self, source_ferc1: SourceFerc1) -> list[str]:
         """Look up the post-renaming primary key columns."""
-        if source_ferc1 == Ferc1Source.DBF:
+        if source_ferc1 == SourceFerc1.DBF:
             cols = self.params.rename_columns_ferc1.dbf.columns
         else:
-            assert source_ferc1 == Ferc1Source.XBRL  # nosec: B101
+            assert source_ferc1 == SourceFerc1.XBRL  # nosec: B101
             cols = self.params.rename_columns_ferc1.xbrl.columns
         pk_cols = self.source_table_primary_key(source_ferc1=source_ferc1)
         # Translate to the renamed columns
@@ -951,7 +1009,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         return df.drop(columns=unused_cols)
 
     def assign_record_id(
-        self, df: pd.DataFrame, source_ferc1: Ferc1Source
+        self, df: pd.DataFrame, source_ferc1: SourceFerc1
     ) -> pd.DataFrame:
         """Add a column identifying the original source record for each row.
 
@@ -1011,7 +1069,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         return df
 
     def assign_utility_id_ferc1(
-        self, df: pd.DataFrame, source_ferc1: Ferc1Source
+        self, df: pd.DataFrame, source_ferc1: SourceFerc1
     ) -> pd.DataFrame:
         """Assign the PUDL-assigned utility_id_ferc1 based on the native utility ID.
 
@@ -1100,7 +1158,7 @@ class FuelFerc1TableTransformer(Ferc1AbstractTableTransformer):
     * gas: reported in a mix of MMBTU/cubic foot, and MMBTU/thousand cubic feet.
     """
 
-    table_id: Ferc1TableId = Ferc1TableId.FUEL_FERC1
+    table_id: TableIdFerc1 = TableIdFerc1.FUEL_FERC1
 
     @cache_df(key="main")
     def transform_main(self, df: pd.DataFrame) -> pd.DataFrame:
@@ -1158,18 +1216,16 @@ class FuelFerc1TableTransformer(Ferc1AbstractTableTransformer):
             self.merge_instant_and_duration_tables_xbrl(
                 raw_xbrl_instant, raw_xbrl_duration
             )
-            # Note: in this rename_columns we have to pass in params, since we're using
-            # the inherited method, with param specific to the child class.
-            .pipe(self.rename_columns, params=self.params.rename_columns_ferc1.xbrl)
+            .pipe(self.rename_columns, rename_stage="xbrl")
             .pipe(self.convert_units)
             .pipe(self.normalize_strings)
             .pipe(self.categorize_strings)
             .pipe(self.standardize_physical_fuel_units)
             .pipe(self.aggregate_duplicate_fuel_types_xbrl)
-            .pipe(self.assign_record_id, source_ferc1=Ferc1Source.XBRL)
+            .pipe(self.assign_record_id, source_ferc1=SourceFerc1.XBRL)
             .pipe(
                 self.assign_utility_id_ferc1,
-                source_ferc1=Ferc1Source.XBRL,
+                source_ferc1=SourceFerc1.XBRL,
             )
         )
 
@@ -1265,7 +1321,7 @@ class FuelFerc1TableTransformer(Ferc1AbstractTableTransformer):
         self, fuel_xbrl: pd.DataFrame
     ) -> pd.DataFrame:
         """Aggregate the fuel records having duplicate primary keys."""
-        pk_cols = self.renamed_table_primary_key(source_ferc1=Ferc1Source.XBRL)
+        pk_cols = self.renamed_table_primary_key(source_ferc1=SourceFerc1.XBRL)
         fuel_xbrl.loc[:, "fuel_units_count"] = fuel_xbrl.groupby(pk_cols, dropna=False)[
             "fuel_units"
         ].transform("nunique")
@@ -1374,7 +1430,7 @@ class FuelFerc1TableTransformer(Ferc1AbstractTableTransformer):
 class PlantsSteamFerc1TableTransformer(Ferc1AbstractTableTransformer):
     """Transformer class for the :ref:`plants_steam_ferc1` table."""
 
-    table_id: Ferc1TableId = Ferc1TableId.PLANTS_STEAM_FERC1
+    table_id: TableIdFerc1 = TableIdFerc1.PLANTS_STEAM_FERC1
 
     @cache_df(key="main")
     def transform_main(
@@ -1444,7 +1500,7 @@ class PlantsSteamFerc1TableTransformer(Ferc1AbstractTableTransformer):
 class PlantsHydroFerc1TableTransformer(Ferc1AbstractTableTransformer):
     """A table transformer specific to the :ref:`plants_hydro_ferc1` table."""
 
-    table_id: Ferc1TableId = Ferc1TableId.PLANTS_HYDRO_FERC1
+    table_id: TableIdFerc1 = TableIdFerc1.PLANTS_HYDRO_FERC1
 
     def transform_main(self, df):
         """Add bespoke removal of duplicate record after standard transform_main."""
@@ -1491,7 +1547,7 @@ class PlantsHydroFerc1TableTransformer(Ferc1AbstractTableTransformer):
 class PlantsPumpedStorageFerc1TableTransformer(Ferc1AbstractTableTransformer):
     """Transformer class for :ref:`plants_pumped_storage_ferc1` table."""
 
-    table_id: Ferc1TableId = Ferc1TableId.PLANTS_PUMPED_STORAGE_FERC1
+    table_id: TableIdFerc1 = TableIdFerc1.PLANTS_PUMPED_STORAGE_FERC1
 
 
 class PurchasedPowerFerc1TableTransformer(Ferc1AbstractTableTransformer):
@@ -1505,13 +1561,13 @@ class PurchasedPowerFerc1TableTransformer(Ferc1AbstractTableTransformer):
     eventually.
     """
 
-    table_id: Ferc1TableId = Ferc1TableId.PURCHASED_POWER_FERC1
+    table_id: TableIdFerc1 = TableIdFerc1.PURCHASED_POWER_FERC1
 
 
 class PlantInServiceFerc1TableTransformer(Ferc1AbstractTableTransformer):
     """A transformer for the :ref:`plant_in_service_ferc1` table."""
 
-    table_id: Ferc1TableId = Ferc1TableId.PLANT_IN_SERVICE_FERC1
+    table_id: TableIdFerc1 = TableIdFerc1.PLANT_IN_SERVICE_FERC1
     has_unique_record_ids: bool = False
 
     @cache_df("process_instant_xbrl")
@@ -1571,7 +1627,7 @@ class PlantInServiceFerc1TableTransformer(Ferc1AbstractTableTransformer):
             .normalize_metadata_xbrl(xbrl_fact_names)
             .assign(
                 xbrl_factoid=lambda x: x.xbrl_fact_name.replace(
-                    self.params.rename_columns_instant_xbrl.columns
+                    self.params.rename_columns_ferc1.instant_xbrl.columns
                 )
             )
         )
@@ -1687,7 +1743,7 @@ class PlantInServiceFerc1TableTransformer(Ferc1AbstractTableTransformer):
 class PlantsSmallFerc1TableTransformer(Ferc1AbstractTableTransformer):
     """A table transformer specific to the :ref:`plants_small_ferc1` table."""
 
-    table_id: Ferc1TableId = Ferc1TableId.PLANTS_SMALL_FERC1
+    table_id: TableIdFerc1 = TableIdFerc1.PLANTS_SMALL_FERC1
 
     @cache_df(key="main")
     def transform_main(self, df: pd.DataFrame) -> pd.DataFrame:
@@ -2607,6 +2663,13 @@ class PlantsSmallFerc1TableTransformer(Ferc1AbstractTableTransformer):
         return df
 
 
+class TransmissionFerc1TableTransformer(Ferc1AbstractTableTransformer):
+    """A table transformer specific to the :ref:`transmission_ferc1` table."""
+
+    table_id: TableIdFerc1 = TableIdFerc1.TRANSMISSION_FERC1
+    has_unique_record_ids: bool = False
+
+
 class ElectricEnergyAccountSourcesFerc1TableTransformer(Ferc1AbstractTableTransformer):
     """Transformer class for :ref:`electric_energy_sources_ferc1` table.
 
@@ -2617,7 +2680,7 @@ class ElectricEnergyAccountSourcesFerc1TableTransformer(Ferc1AbstractTableTransf
     anything with the sign.
     """
 
-    table_id: Ferc1TableId = Ferc1TableId.ELECTRIC_ENERGY_SOURCES_FERC1
+    table_id: TableIdFerc1 = TableIdFerc1.ELECTRIC_ENERGY_SOURCES_FERC1
     has_unique_record_ids: bool = False
 
     def normalize_metadata_xbrl(
@@ -2655,7 +2718,7 @@ class ElectricEnergyAccountSourcesFerc1TableTransformer(Ferc1AbstractTableTransf
 class ElectricEnergyDispositionsFerc1TableTransformer(Ferc1AbstractTableTransformer):
     """Transformer class for :ref:`electric_energy_dispositions_ferc1` table."""
 
-    table_id: Ferc1TableId = Ferc1TableId.ELECTRIC_ENERGY_DISPOSITIONS_FERC1
+    table_id: TableIdFerc1 = TableIdFerc1.ELECTRIC_ENERGY_DISPOSITIONS_FERC1
     has_unique_record_ids: bool = False
 
     def normalize_metadata_xbrl(
@@ -2672,6 +2735,28 @@ class ElectricEnergyDispositionsFerc1TableTransformer(Ferc1AbstractTableTransfor
         # Save the normalized metadata so it can be used by other methods.
         self.xbrl_metadata_normalized = eead_meta
         return eead_meta
+
+
+class UtilityPlantSummaryFerc1TableTransformer(Ferc1AbstractTableTransformer):
+    """Transformer class for :ref:`utility_plant_summary_ferc1` table."""
+
+    table_id: TableIdFerc1 = TableIdFerc1.UTILITY_PLANT_SUMMARY_FERC1
+    has_unique_record_ids: bool = False
+
+    def normalize_metadata_xbrl(
+        self, xbrl_fact_names: list[str] | None
+    ) -> pd.DataFrame:
+        """Normalize the metadata from the XBRL taxonomy +."""
+        meta = (
+            super()
+            .normalize_metadata_xbrl(xbrl_fact_names)
+            .assign(
+                xbrl_factoid=lambda x: x.xbrl_fact_name,
+            )
+        )
+        # Save the normalized metadata so it can be used by other methods.
+        self.xbrl_metadata_normalized = meta
+        return meta
 
 
 def transform(
@@ -2703,9 +2788,11 @@ def transform(
         "plants_hydro_ferc1": PlantsHydroFerc1TableTransformer,
         "plant_in_service_ferc1": PlantInServiceFerc1TableTransformer,
         "plants_pumped_storage_ferc1": PlantsPumpedStorageFerc1TableTransformer,
+        "transmission_ferc1": TransmissionFerc1TableTransformer,
         "purchased_power_ferc1": PurchasedPowerFerc1TableTransformer,
         "electric_energy_sources_ferc1": ElectricEnergyAccountSourcesFerc1TableTransformer,
         "electric_energy_dispositions_ferc1": ElectricEnergyDispositionsFerc1TableTransformer,
+        "utility_plant_summary_ferc1": UtilityPlantSummaryFerc1TableTransformer,
     }
     # create an empty ditctionary to fill up through the transform fuctions
     ferc1_transformed_dfs = {}
@@ -2767,6 +2854,7 @@ if __name__ == "__main__":
             "plants_pumped_storage_ferc1",
             "purchased_power_ferc1",
             "plants_small_ferc1",
+            "transmission_ferc1",
             "electric_energy_sources_ferc1",
             "electric_energy_dispositions_ferc1",
         ],
