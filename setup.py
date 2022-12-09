@@ -49,7 +49,7 @@ setup(
     install_requires=[
         "addfips>=0.3.1,<0.4.0",
         "catalystcoop.dbfread>=3.0,<3.1",
-        "catalystcoop.ferc-xbrl-extractor==0.5.0",
+        "catalystcoop.ferc-xbrl-extractor==0.6.0",
         "coloredlogs>=15.0,<15.1",
         "dask>=2021.8,<2022.12.1",
         "datapackage>=1.11,<1.16",  # Transition datastore to use frictionless.
@@ -83,7 +83,7 @@ setup(
             "isort>=5.0,<5.11",
             "jedi>=0.18,<0.19",
             "lxml>=4.6,<4.10",
-            "tox>=3.20,<4.0.0",
+            "tox>=3.20,<4.1",
             "twine>=3.3,<4.1",
         ],
         "doc": [
@@ -115,7 +115,7 @@ setup(
             "pytest-mock>=3.0,<3.11",
             "responses>=0.14,<0.23",
             "rstcheck[sphinx]>=5.0,<6.2",
-            "tox>=3.20,<3.28",
+            "tox>=3.20,<4.1",
         ],
         "datasette": [
             "datasette>=0.60,<0.64",
