@@ -67,7 +67,7 @@ setup(
         "python-snappy>=0.6,<0.7",
         "pygeos>=0.10,<0.14",
         "pyyaml>=5,<6.1",
-        "scikit-learn>=1.0,<1.2",
+        "scikit-learn>=1.0,<1.3",
         "Shapely!=1.8.3",  # Seems to have a bug or incompatibility
         "scipy>=1.6,<1.10",
         "Shapely!=1.8.3",  # Bug or incompatibility in upstream dependencies
