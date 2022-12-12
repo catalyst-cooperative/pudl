@@ -71,7 +71,8 @@ setup(
         "Shapely!=1.8.3",  # Seems to have a bug or incompatibility
         "scipy>=1.6,<1.10",
         "Shapely!=1.8.3",  # Bug or incompatibility in upstream dependencies
-        "sqlalchemy>=1.4,<1.4.45",
+        "Shapely<2.0.0",
+        "sqlalchemy>=1.4,<1.4.46",
         "timezonefinder>=5,<6.2",
         "xlsxwriter>=3,<3.1",
     ],
