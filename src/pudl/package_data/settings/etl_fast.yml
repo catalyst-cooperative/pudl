@@ -20,6 +20,7 @@ ferc_to_sqlite_settings:
       - f1_elctrc_erg_acct
       - f1_utltyplnt_smmry
       - f1_xmssn_line
+      - f1_comp_balance_db
 
   ferc1_xbrl_to_sqlite_settings:
     years: [2021]

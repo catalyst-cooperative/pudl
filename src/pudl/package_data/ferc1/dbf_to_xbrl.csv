@@ -1202,7 +1202,7 @@ f1_comp_balance_db,38,1994,Merchandise (155),reported_value,merchandise,,
 f1_comp_balance_db,39,1994,Other Materials and Supplies (156),reported_value,other_materials_and_supplies,,
 f1_comp_balance_db,40,1994,Nuclear Materials Held for Sale (157),reported_value,nuclear_materials_held_for_sale,,
 f1_comp_balance_db,41,1994,Allowances (158.1 and 158.2),reported_value,allowance_inventory_and_withheld,,
-f1_comp_balance_db,42,1994,(Less) Noncurrent Portion of Allowances,reported_value,noncurrent_portion_of_allowances_duplicate,True,This xbrl factoid is mapped to two dbf rows that might have different sign conventions.
+f1_comp_balance_db,42,1994,(Less) Noncurrent Portion of Allowances,reported_value,noncurrent_portion_of_allowances,True,This xbrl factoid is mapped to two dbf rows that might have different sign conventions.
 f1_comp_balance_db,43,1994,Stores Expense Undistributed (163),reported_value,stores_expense_undistributed,,
 f1_comp_balance_db,44,1994,Gas Stored Underground - Current (164.1),reported_value,gas_stored_current,,
 f1_comp_balance_db,45,1994,Liquefied Natural Gas Stored and Held for Processing (164.2-164.3),reported_value,liquefied_natural_gas_stored_and_held_for_processing,,
@@ -1274,7 +1274,7 @@ f1_comp_balance_db,26,2004,Depreciation Fund (126),reported_value,depreciation_f
 f1_comp_balance_db,27,2004,Amortization Fund - Federal (127),reported_value,amortization_fund_federal,,
 f1_comp_balance_db,28,2004,Other Special Funds (128),reported_value,other_special_funds,,
 f1_comp_balance_db,29,2004,Special Funds (Non Major Only) (129),reported_value,special_funds,,
-f1_comp_balance_db,30,2004,Long-Term Portion of Derivative Assets (175),reported_value,derivative_instrument_assets_long_term_duplicate,TRUE,This xbrl factoid is mapped to two dbf rows that might have different sign conventions.
+f1_comp_balance_db,30,2004,Long-Term Portion of Derivative Assets (175),reported_value,derivative_instrument_assets_long_term,TRUE,This xbrl factoid is mapped to two dbf rows that might have different sign conventions.
 f1_comp_balance_db,31,2004,Long-Term Portion of Derivative Assets  Hedges (176),reported_value,derivative_instrument_assets_hedges_long_term,,This xbrl factoid is mapped to two dbf rows that might have different sign conventions.
 f1_comp_balance_db,32,2004,TOTAL Other Property and Investments (Lines 18-21 and 23-31),calculated_value,other_property_and_investments,,
 f1_comp_balance_db,33,2004,CURRENT AND ACCRUED ASSETS,header,,,
@@ -1297,7 +1297,7 @@ f1_comp_balance_db,49,2004,Merchandise (155),reported_value,merchandise,,
 f1_comp_balance_db,50,2004,Other Materials and Supplies (156),reported_value,other_materials_and_supplies,,
 f1_comp_balance_db,51,2004,Nuclear Materials Held for Sale (157),reported_value,nuclear_materials_held_for_sale,,
 f1_comp_balance_db,52,2004,Allowances (158.1 and 158.2),reported_value,allowance_inventory_and_withheld,,
-f1_comp_balance_db,53,2004,(Less) Noncurrent Portion of Allowances,reported_value,noncurrent_portion_of_allowances_duplicate,TRUE,This xbrl factoid is mapped to two dbf rows that might have different sign conventions.
+f1_comp_balance_db,53,2004,(Less) Noncurrent Portion of Allowances,reported_value,noncurrent_portion_of_allowances,TRUE,This xbrl factoid is mapped to two dbf rows that might have different sign conventions.
 f1_comp_balance_db,54,2004,Stores Expense Undistributed (163),reported_value,stores_expense_undistributed,,
 f1_comp_balance_db,55,2004,Gas Stored Underground - Current (164.1),reported_value,gas_stored_current,,
 f1_comp_balance_db,56,2004,Liquefied Natural Gas Stored and Held for Processing (164.2-164.3),reported_value,liquefied_natural_gas_stored_and_held_for_processing,,
@@ -1310,7 +1310,7 @@ f1_comp_balance_db,62,2004,Miscellaneous Current and Accrued Assets (174),report
 f1_comp_balance_db,63,2004,Derivative Instrument Assets (175),reported_value,derivative_instrument_assets,,
 f1_comp_balance_db,64,2004,(Less) Long-Term Portion of Derivative Instrument Assets (175),reported_value,derivative_instrument_assets_long_term,,This xbrl factoid is mapped to two dbf rows that might have different sign conventions.
 f1_comp_balance_db,65,2004,Derivative Instrument Assets - Hedges (176),reported_value,derivative_instrument_assets_hedges,,
-f1_comp_balance_db,66,2004,(Less) Long-Term Portion of Derivative Instrument Assets - Hedges (176,reported_value,derivative_instrument_assets_hedges_long_term_duplicate,TRUE,This xbrl factoid is mapped to two dbf rows that might have different sign conventions.
+f1_comp_balance_db,66,2004,(Less) Long-Term Portion of Derivative Instrument Assets - Hedges (176,reported_value,derivative_instrument_assets_hedges_long_term,TRUE,This xbrl factoid is mapped to two dbf rows that might have different sign conventions.
 f1_comp_balance_db,67,2004,Total Current and Accrued Assets (Lines 34 through 66),calculated_value,current_and_accrued_assets,,
 f1_comp_balance_db,68,2004,DEFERRED DEBITS,header,,,
 f1_comp_balance_db,69,2004,Unamortized Debt Expenses (181),reported_value,unamortized_debt_expense,,

@@ -3336,6 +3336,10 @@ TRANSFORM_PARAMS = {
                 "stacked_column_name": "xbrl_factoid",
             },
         },
+        "drop_duplicate_rows_dbf": {
+            "data_columns": ["ending_balance", "starting_balance"],
+            "table_name": "balance_sheet_assets_ferc1",
+        },
         "align_row_numbers_dbf": {"dbf_table_name": "f1_comp_balance_db"},
         "merge_metadata_xbrl": {
             "rename_columns": {"xbrl_factoid": "asset_type"},

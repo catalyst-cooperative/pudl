@@ -223,6 +223,49 @@ def merge_metadata_xbrl(
     )
 
 
+class DropDuplicateRowsDbf(TransformParams):
+    """Parameter for dropping duplicate DBF rows."""
+
+    data_columns: list = []
+    table_name: TableIdFerc1 | None = None
+
+
+def drop_duplicate_rows_dbf(df, params: DropDuplicateRowsDbf):
+    """Drop the duplicate DBF rows if all duplicates have indentical data.
+
+    There are several instances of the DBF data reporting the same value on multiple
+    rows. This function checks to see if all of the duplicate values that have the same
+    primary keys have reported the same data. If the duplicates have the same data, the
+    duplicates are dropped with ``keep="first"``. If any duplicates do not contain the
+    same data, an assertion will be raised.
+    """
+    if params is None:
+        params = DropDuplicateRowsDbf()
+    if params.data_columns:
+        pks = (
+            pudl.metadata.classes.Package.from_resource_ids()
+            .get_resource(params.table_name.value)
+            .schema.primary_key
+        )
+        pk_dupes = df[df.duplicated(pks, keep=False)]
+        pk_data_dupes = pk_dupes[
+            pk_dupes.duplicated(pks + params.data_columns, keep=False)
+        ]
+        dupes_w_unique_data = pk_dupes.loc[
+            pk_dupes.index.difference(pk_data_dupes.index)
+        ]
+        if not dupes_w_unique_data.empty:
+            raise AssertionError(
+                "Duplicates have unique data and should not be dropped. Unique data: "
+                f"{len(dupes_w_unique_data)}: {dupes_w_unique_data}"
+            )
+        logger.info(
+            f"Dropping {(len(pk_data_dupes)/2)/len(df):.1%} of duplicate records."
+        )
+        df = df.drop_duplicates(pks, keep="first")
+    return df
+
+
 class AlignRowNumbersDbf(TransformParams):
     """Parameters for aligning DBF row numbers with metadata from mannual maps."""
 
@@ -286,6 +329,7 @@ class Ferc1TableTransformParams(TableTransformParams):
     )
     merge_metadata_xbrl: MergeMetadataXbrl = MergeMetadataXbrl()
     align_row_numbers_dbf: AlignRowNumbersDbf = AlignRowNumbersDbf()
+    drop_duplicate_rows_dbf: DropDuplicateRowsDbf = DropDuplicateRowsDbf()
 
 
 ################################################################################
@@ -671,6 +715,15 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         if params is None:
             params = self.params.align_row_numbers_dbf
         df = align_row_numbers_dbf(df, params=params)
+        return df
+
+    def drop_duplicate_rows_dbf(
+        self, df: pd.DataFrame, params: DropDuplicateRowsDbf | None = None
+    ) -> pd.DataFrame:
+        """Drop the duplicate DBF rows when the PKs and data columns are the same."""
+        if params is None:
+            params = self.params.drop_duplicate_rows_dbf
+        df = drop_duplicate_rows_dbf(df, params=params)
         return df
 
     @cache_df(key="dbf")
@@ -2777,33 +2830,34 @@ class BalanceSheetAssetsFerc1TableTransformer(Ferc1AbstractTableTransformer):
         hard-code a specific value of ``utility_id_ferc1_dbf`` and those IDs are no
         longer available later in the process. I think.
         """
-        # A single utility has double reported data in 2018.
         pks = ["utility_id_ferc1", "report_year", "asset_type"]
-        dupe_mask = (
+        bespoke_dupe_mask = (
             df.duplicated(subset=pks, keep=False)
             & (df.report_year == 1999)
             & (df.utility_id_ferc1_dbf == 165)
         )
-        all_dupes = df[dupe_mask]
-        # The observed pairs of duplicate records have NA values in the starting_balance
-        # column. This selects the one duplicate record that has more complete data
-        good_dupes = all_dupes[all_dupes.starting_balance.notnull()]
-        # Make sure that the good and bad dupes have exactly the same indices:
-        pd.testing.assert_index_equal(
-            good_dupes.set_index(pks).index,
-            all_dupes.set_index(pks).index.drop_duplicates(),
-        )
-        deduped = pd.concat([df[~dupe_mask], good_dupes], axis="index")
-        remaining_dupes = deduped[deduped.duplicated(subset=pks)]
-        logger.info(
-            f"{self.table_id.value}: {len(remaining_dupes)} dupes remaining after "
-            "targeted deduplication."
-        )
+        assert len(df[bespoke_dupe_mask]) == 2
+        assert len(df[(bespoke_dupe_mask & (df.starting_balance.isnull()))]) == 1
+        deduped = df[~(bespoke_dupe_mask & (df.starting_balance.isnull()))].copy()
         return deduped
 
     def process_dbf(self, raw_dbf: pd.DataFrame) -> pd.DataFrame:
-        """Drop targeted duplicates in the DBF data so we can use FERC respondent ID."""
-        return super().process_dbf(raw_dbf).pipe(self.targeted_drop_duplicates_dbf)
+        """Drop targeted duplicates in the DBF data so we can use FERC respondent ID.
+
+        First employ the standard :meth:`process_dbf`. Then deal with the duplicate
+        records. This is done by first running :meth:`drop_invalid_rows` pre-emtively to
+        remove any possible rows with duplicate primary key values that have nulls in
+        the data fields. Then we drop a targeted duplicate. Then we run
+        :meth:`drop_duplicate_rows_dbf`, which drops any records with duplicate primary
+        key values as long as those records also contain duplicate data.
+        """
+        return (
+            super()
+            .process_dbf(raw_dbf)
+            .pipe(self.drop_invalid_rows)
+            .pipe(self.targeted_drop_duplicates_dbf)
+            .pipe(self.drop_duplicate_rows_dbf)
+        )
 
     def normalize_metadata_xbrl(
         self, xbrl_fact_names: list[str] | None
@@ -2833,7 +2887,8 @@ class BalanceSheetAssetsFerc1TableTransformer(Ferc1AbstractTableTransformer):
         dealing with the instant / duration distinction.
 
         NOTE: this is mostly a copy/paste from the plant in service table. We should
-        probably generalize & parameterize it.
+        probably generalize & parameterize it. The only difference here is that the
+        process_instant_xbrl happens AFTER this.
         """
         df["year"] = pd.to_datetime(df["date"]).dt.year
         df.loc[df.report_year == (df.year + 1), "balance_type"] = "starting_balance"
