@@ -1561,6 +1561,94 @@ on Steam (e.g. "steam 72" and "steam and gas") were classified based on addition
 research of the plants on the Internet.
 """
 
+BALANCE_SHEET_COLS = [
+    # utility plant section
+    "utility_plant",
+    "construction_work_in_progress",
+    "utility_plant_and_construction_work_in_progress",
+    "accumulated_provision_for_depreciation_amortization_and_depletion_of_plant_utility",
+    "utility_plant_net",
+    "nuclear_fuel_in_process_of_refinement_conversion_enrichment_and_fabrication",
+    "nuclear_fuel_materials_and_assemblies_stock_account_major_only",
+    "nuclear_fuel_assemblies_in_reactor_major_only",
+    "spent_nuclear_fuel_major_only",
+    "nuclear_fuel_under_capital_leases",
+    "accumulated_provision_for_amortization_of_nuclear_fuel_assemblies",
+    "nuclear_fuel_net",
+    "utility_plant_and_nuclear_fuel_net",
+    "other_electric_plant_adjustments",
+    "gas_stored_underground_noncurrent",
+    # other
+    "nonutility_property",
+    "accumulated_provision_for_depreciation_and_amortization_of_nonutility_property",
+    "investment_in_associated_companies",
+    "investment_in_subsidiary_companies",
+    "noncurrent_portion_of_allowances",
+    "other_investments",
+    "sinking_funds",
+    "depreciation_fund",
+    "amortization_fund_federal",
+    "other_special_funds",
+    "special_funds",
+    "derivative_instrument_assets_long_term",
+    "derivative_instrument_assets_hedges_long_term",
+    "other_property_and_investments",
+    # current & accrued assets
+    "cash_and_working_funds",
+    "cash",
+    "special_deposits",
+    "working_funds",
+    "temporary_cash_investments",
+    "notes_receivable",
+    "customer_accounts_receivable",
+    "other_accounts_receivable",
+    "accumulated_provision_for_uncollectible_accounts_credit",
+    "notes_receivable_from_associated_companies",
+    "accounts_receivable_from_associated_companies",
+    "fuel_stock",
+    "fuel_stock_expenses_undistributed",
+    "residuals",
+    "plant_materials_and_operating_supplies",
+    "merchandise",
+    "other_materials_and_supplies",
+    "nuclear_materials_held_for_sale",
+    "allowance_inventory_and_withheld",
+    # 'noncurrent_portion_of_allowances', # SECOND VERSION
+    "stores_expense_undistributed",
+    "gas_stored_current",
+    "liquefied_natural_gas_stored_and_held_for_processing",
+    "prepayments",
+    "advances_for_gas",
+    "interest_and_dividends_receivable",
+    "rents_receivable",
+    "accrued_utility_revenues",
+    "miscellaneous_current_and_accrued_assets",
+    "derivative_instrument_assets",
+    # 'derivative_instrument_assets_long_term', # SECOND VERSION
+    "derivative_instrument_assets_hedges",
+    # 'derivative_instrument_assets_hedges_long_term', # SECOND VERSION
+    "current_and_accrued_assets",
+    # Defered debits
+    "unamortized_debt_expense",
+    "extraordinary_property_losses",
+    "unrecovered_plant_and_regulatory_study_costs",
+    "other_regulatory_assets",
+    "preliminary_survey_and_investigation_charges",
+    "preliminary_natural_gas_survey_and_investigation_charges_and_other_preliminary_survey_and_investigation_charges",
+    "other_preliminary_survey_and_investigation_charges",
+    "clearing_accounts",
+    "temporary_facilities",
+    "miscellaneous_deferred_debits",
+    "deferred_losses_from_disposition_of_utility_plant",
+    "research_development_and_demonstration_expenditures",
+    "unamortized_loss_on_reacquired_debt",
+    "accumulated_deferred_income_taxes",
+    "unrecovered_purchased_gas_costs",
+    "deferred_debits",
+    # total
+    "assets_and_other_debits",
+]
+
 PLANT_TYPE_CATEGORIES_HYDRO: dict[str, set[str]] = {
     "categories": {
         "hydro": {
@@ -3212,6 +3300,53 @@ TRANSFORM_PARAMS = {
         "replace_with_na": {
             "utility_type_other": {"replace_with_na": [""]},
         },
+    },
+    "balance_sheet_assets_ferc1": {
+        "rename_columns_ferc1": {
+            "dbf": {
+                "columns": {
+                    "respondent_id": "utility_id_ferc1_dbf",
+                    "report_year": "report_year",
+                    "spplmnt_num": "spplmnt_num",
+                    "row_number": "row_number",
+                    "row_seq": "row_seq",
+                    "row_prvlg": "row_prvlg",
+                    "report_prd": "report_prd",
+                    "xbrl_factoid": "asset_type",
+                    "begin_yr_balance": "ending_balance",
+                    "end_yr_balance": "starting_balance",
+                }
+            },
+            "xbrl": {
+                "columns": {
+                    "entity_id": "utility_id_ferc1_xbrl",
+                    "report_year": "report_year",
+                    "xbrl_factoid": "asset_type",
+                }
+            },
+        },
+        "wide_to_tidy": {
+            "xbrl": {
+                "idx_cols": [
+                    "entity_id",
+                    "report_year",
+                ],
+                "value_types": ["starting_balance", "ending_balance"],
+                "expected_drop_cols": 0,
+                "stacked_column_name": "xbrl_factoid",
+            },
+        },
+        "align_row_numbers_dbf": {"dbf_table_name": "f1_comp_balance_db"},
+        "merge_metadata_xbrl": {
+            "rename_columns": {"xbrl_factoid": "asset_type"},
+            "on": "asset_type",
+        },
+        "drop_invalid_rows": [
+            {
+                "invalid_values": [pd.NA, np.nan, ""],
+                "required_valid_cols": ["starting_balance", "ending_balance"],
+            },
+        ],
     },
 }
 
