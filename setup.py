@@ -47,7 +47,7 @@ setup(
     python_requires=">=3.10,<3.11",
     setup_requires=["setuptools_scm"],
     install_requires=[
-        "addfips>=0.3.1,<0.4.0",
+        "addfips>=0.3.1,<0.5.0",
         "catalystcoop.dbfread>=3.0,<3.1",
         "catalystcoop.ferc-xbrl-extractor==0.6.0",
         "coloredlogs>=15.0,<15.1",
