@@ -49,7 +49,7 @@ setup(
     install_requires=[
         "addfips>=0.3.1,<0.4.0",
         "catalystcoop.dbfread>=3.0,<3.1",
-        "catalystcoop.ferc-xbrl-extractor==0.5.0",
+        "catalystcoop.ferc-xbrl-extractor==0.6.0",
         "coloredlogs>=15.0,<15.1",
         "dask>=2021.8,<2022.12.1",
         "datapackage>=1.11,<1.16",  # Transition datastore to use frictionless.
@@ -67,7 +67,7 @@ setup(
         "python-snappy>=0.6,<0.7",
         "pygeos>=0.10,<0.14",
         "pyyaml>=5,<6.1",
-        "scikit-learn>=1.0,<1.2",
+        "scikit-learn>=1.0,<1.3",
         "Shapely!=1.8.3",  # Seems to have a bug or incompatibility
         "scipy>=1.6,<1.10",
         "Shapely!=1.8.3",  # Bug or incompatibility in upstream dependencies
@@ -83,7 +83,7 @@ setup(
             "isort>=5.0,<5.11",
             "jedi>=0.18,<0.19",
             "lxml>=4.6,<4.10",
-            "tox>=3.20,<4.0.0",
+            "tox>=3.20,<4.1",
             "twine>=3.3,<4.1",
         ],
         "doc": [
@@ -115,7 +115,7 @@ setup(
             "pytest-mock>=3.0,<3.11",
             "responses>=0.14,<0.23",
             "rstcheck[sphinx]>=5.0,<6.2",
-            "tox>=3.20,<3.28",
+            "tox>=3.20,<4.1",
         ],
         "datasette": [
             "datasette>=0.60,<0.64",
