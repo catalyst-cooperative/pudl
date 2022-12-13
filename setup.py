@@ -47,9 +47,9 @@ setup(
     python_requires=">=3.10,<3.11",
     setup_requires=["setuptools_scm"],
     install_requires=[
-        "addfips>=0.3.1,<0.4.0",
+        "addfips>=0.4,<0.5",
         "catalystcoop.dbfread>=3.0,<3.1",
-        "catalystcoop.ferc-xbrl-extractor==0.6.0",
+        "catalystcoop.ferc-xbrl-extractor==0.6.1",
         "coloredlogs>=15.0,<15.1",
         "dask>=2021.8,<2022.12.1",
         "datapackage>=1.11,<1.16",  # Transition datastore to use frictionless.
@@ -68,9 +68,8 @@ setup(
         "pygeos>=0.10,<0.15",
         "pyyaml>=5,<6.1",
         "scikit-learn>=1.0,<1.3",
-        "Shapely!=1.8.3",  # Seems to have a bug or incompatibility
         "scipy>=1.6,<1.10",
-        "Shapely!=1.8.3",  # Bug or incompatibility in upstream dependencies
+        "Shapely>1.8.0,!=1.8.3,<2.1",  # Incompatibility in 1.8.3
         "sqlalchemy>=1.4,<1.4.46",
         "timezonefinder>=5,<6.2",
         "xlsxwriter>=3,<3.1",
