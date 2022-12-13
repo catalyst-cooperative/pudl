@@ -2670,7 +2670,7 @@ class TransmissionFerc1TableTransformer(Ferc1AbstractTableTransformer):
     has_unique_record_ids: bool = False
 
 
-class ElectricEnergyAccountSourcesFerc1TableTransformer(Ferc1AbstractTableTransformer):
+class ElectricEnergySourcesFerc1TableTransformer(Ferc1AbstractTableTransformer):
     """Transformer class for :ref:`electric_energy_sources_ferc1` table.
 
     The raw DBF and XBRL table will be split up into two tables. This transformer
@@ -2790,7 +2790,7 @@ def transform(
         "plants_pumped_storage_ferc1": PlantsPumpedStorageFerc1TableTransformer,
         "transmission_ferc1": TransmissionFerc1TableTransformer,
         "purchased_power_ferc1": PurchasedPowerFerc1TableTransformer,
-        "electric_energy_sources_ferc1": ElectricEnergyAccountSourcesFerc1TableTransformer,
+        "electric_energy_sources_ferc1": ElectricEnergySourcesFerc1TableTransformer,
         "electric_energy_dispositions_ferc1": ElectricEnergyDispositionsFerc1TableTransformer,
         "utility_plant_summary_ferc1": UtilityPlantSummaryFerc1TableTransformer,
     }
@@ -2857,6 +2857,7 @@ if __name__ == "__main__":
             "transmission_ferc1",
             "electric_energy_sources_ferc1",
             "electric_energy_dispositions_ferc1",
+            "utility_plant_summary_ferc1",
         ],
     )
     pudl_settings = pudl.workspace.setup.get_defaults()
