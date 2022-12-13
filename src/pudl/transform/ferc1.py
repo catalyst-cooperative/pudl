@@ -226,8 +226,11 @@ def merge_metadata_xbrl(
 class DropDuplicateRowsDbf(TransformParams):
     """Parameter for dropping duplicate DBF rows."""
 
-    data_columns: list = []
     table_name: TableIdFerc1 | None = None
+    """Name of table used to grab primary keys of PUDL table to check for duplicates."""
+
+    data_columns: list = []
+    """List of data column names to ensure primary key duplicates have the same data."""
 
 
 def drop_duplicate_rows_dbf(df, params: DropDuplicateRowsDbf):
@@ -247,6 +250,7 @@ def drop_duplicate_rows_dbf(df, params: DropDuplicateRowsDbf):
             .get_resource(params.table_name.value)
             .schema.primary_key
         )
+        # checks to make sure the drop is targeted as expected
         pk_dupes = df[df.duplicated(pks, keep=False)]
         pk_data_dupes = pk_dupes[
             pk_dupes.duplicated(pks + params.data_columns, keep=False)
@@ -720,7 +724,10 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
     def drop_duplicate_rows_dbf(
         self, df: pd.DataFrame, params: DropDuplicateRowsDbf | None = None
     ) -> pd.DataFrame:
-        """Drop the duplicate DBF rows when the PKs and data columns are the same."""
+        """Drop the duplicate DBF rows when the PKs and data columns are the same.
+
+        Wrapper function for :func:`drop_duplicate_rows_dbf`.
+        """
         if params is None:
             params = self.params.drop_duplicate_rows_dbf
         df = drop_duplicate_rows_dbf(df, params=params)
@@ -2838,6 +2845,7 @@ class BalanceSheetAssetsFerc1TableTransformer(Ferc1AbstractTableTransformer):
                 & (df.utility_id_ferc1_dbf == 165)
             )
             bespoke_dupe_null_mask = bespoke_dupe_mask & (df.starting_balance.isnull())
+            # checks to make sure the drop is targeted as expected
             if len(df[bespoke_dupe_mask]) != 2:
                 raise AssertionError(
                     "Expected to find two duplicate records from 1999 with "
@@ -2898,10 +2906,10 @@ class BalanceSheetAssetsFerc1TableTransformer(Ferc1AbstractTableTransformer):
         the records pertaining to a single ``report_year`` can be identified without
         dealing with the instant / duration distinction.
 
-        NOTE: this is mostly a copy/paste from the plant in service table. We should
-        probably generalize & parameterize it. The only difference here is that the
-        process_instant_xbrl happens AFTER this.
+        NOTE: this is a copy/paste from the plant in service table. We should probably
+        generalize & parameterize it. Right now it looks like it would *only* be a bool.
         """
+        df = super().process_instant_xbrl(df)
         df["year"] = pd.to_datetime(df["date"]).dt.year
         df.loc[df.report_year == (df.year + 1), "balance_type"] = "starting_balance"
         df.loc[df.report_year == df.year, "balance_type"] = "ending_balance"
@@ -2921,7 +2929,6 @@ class BalanceSheetAssetsFerc1TableTransformer(Ferc1AbstractTableTransformer):
         # boiler_plant_equipment_steam_production_starting_balance
         # Is there a better way?
         df.columns = ["_".join(items) for items in df.columns.to_flat_index()]
-        df = super().process_instant_xbrl(df)
         return df.reset_index()
 
 
