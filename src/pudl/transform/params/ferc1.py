@@ -3213,6 +3213,46 @@ TRANSFORM_PARAMS = {
             "utility_type_other": {"replace_with_na": [""]},
         },
     },
+    "balance_sheet_liabilities_ferc1": {
+        "rename_columns_ferc1": {
+            "dbf": {
+                "columns": {
+                    "respondent_id": "utility_id_ferc1_dbf",
+                    "report_year": "report_year",
+                    "spplmnt_num": "spplmnt_num",
+                    "row_number": "row_number",
+                    "row_seq": "row_seq",
+                    "row_prvlg": "row_prvlg",
+                    "begin_yr_balance": "starting_balance",
+                    "end_yr_balance": "ending_balance",
+                    "report_prd": "report_prd",
+                    "end_qtr_bal": "end_qtr_bal",
+                    "pri_yr_q4_bal": "pri_yr_q4_bal",
+                    "xbrl_factoid": "liability_type",
+                }
+            },
+            "xbrl": {
+                "columns": {
+                    "entity_id": "utility_id_ferc1_xbrl",
+                    "report_year": "report_year",
+                    "xbrl_factoid": "liability_type",
+                }
+            },
+        },
+        "wide_to_tidy": {
+            "xbrl": {
+                "idx_cols": ["entity_id", "report_year"],
+                "value_types": ["starting_balance", "ending_balance"],
+                "expected_drop_cols": 0,
+                "stacked_column_name": "xbrl_factoid",
+            }
+        },
+        "merge_metadata_xbrl": {
+            "rename_columns": {"xbrl_factoid": "liability_type"},
+            "on": "liability_type",
+        },
+        "align_row_numbers_dbf": {"dbf_table_name": "f1_bal_sheet_cr"},
+    },
 }
 
 """The full set of parameters used to transform the FERC Form 1 data.

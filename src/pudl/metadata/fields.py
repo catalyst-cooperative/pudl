@@ -97,6 +97,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "automated_meter_reading": {"type": "integer"},
     "avg_num_employees": {"type": "number"},
     "backup_capacity_mw": {"type": "number", "unit": "MW"},
+    "balance": {
+        "type": "string",
+        "description": "Indication of whether a column is a credit or debit, as reported in the XBRL taxonomy.",
+    },
     "balancing_authority_code_eia": {
         "type": "string",
         "description": "EIA short code identifying a balancing authority.",
@@ -828,6 +832,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
         "description": "Electric Plant Leased to Others (USD).",
         "unit": "USD",
+    },
+    "liability_type": {
+        "type": "string",
+        "description": "Type of liability being reported to the balance_sheet_liabilities_ferc1 table.",
     },
     "line_id": {
         "type": "string",

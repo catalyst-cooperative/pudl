@@ -440,6 +440,25 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "ferc1",
         "field_namespace": "ferc1",
     },
+    "balance_sheet_liabilities_ferc1": {
+        "description": "Comparative balance sheet (liabilities and other credits)",
+        "schema": {
+            "fields": [
+                "record_id",
+                "report_year",
+                "utility_id_ferc1",
+                "starting_balance",
+                "ending_balance",
+                "liability_type",
+                "balance",
+                "ferc_account",
+                "row_type_xbrl",
+            ]
+        },
+        "sources": ["ferc1"],
+        "etl_group": "ferc1",
+        "field_namespace": "ferc1",
+    },
 }
 """
 FERC Form 1 resource attributes by PUDL identifier (``resource.name``).
