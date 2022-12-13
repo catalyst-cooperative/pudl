@@ -7,9 +7,11 @@ import pytest
 
 from pudl.settings import Ferc1Settings
 from pudl.transform.ferc1 import (
+    DropDuplicateRowsDbf,
     Ferc1AbstractTableTransformer,
     TableIdFerc1,
     WideToTidy,
+    drop_duplicate_rows_dbf,
     fill_dbf_to_xbrl_map,
     read_dbf_to_xbrl_map,
     wide_to_tidy,
@@ -199,3 +201,41 @@ report_year,start_date,end_date,values
         {"start_date": "datetime64", "end_date": "datetime64"}
     )
     pd.testing.assert_frame_equal(df_out, df_expected)
+
+
+def test_drop_duplicate_rows_dbf():
+    """Tests :func:`drop_duplicate_rows_dbf` outputs and fails as expected."""
+    df = pd.read_csv(
+        StringIO(
+            """
+report_year,utility_id_ferc1,asset_type,data_col1,data_col2
+2021,71,stuff,70,700
+2021,71,stuff,70,700
+2021,81,stuff,80,800
+2021,81,stuff,80,800
+2021,91,stuff,90,900
+2021,91,stuff,90,900
+2021,101,stuff,1,10
+"""
+        )
+    )
+    params = DropDuplicateRowsDbf(
+        table_name="balance_sheet_assets_ferc1", data_columns=["data_col1", "data_col2"]
+    )
+    df_out = drop_duplicate_rows_dbf(df, params=params).reset_index(drop=True)
+    df_expected = pd.read_csv(
+        StringIO(
+            """
+report_year,utility_id_ferc1,asset_type,data_col1,data_col2
+2021,71,stuff,70,700
+2021,81,stuff,80,800
+2021,91,stuff,90,900
+2021,101,stuff,1,10
+"""
+        )
+    )
+    pd.testing.assert_frame_equal(df_out, df_expected)
+    # if the PK dupes have different data an assertion should raise
+    df.loc[0, "data_col1"] = 74
+    with pytest.raises(AssertionError):
+        drop_duplicate_rows_dbf(df, params=params)
