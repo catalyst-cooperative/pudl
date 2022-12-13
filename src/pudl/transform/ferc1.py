@@ -2830,16 +2830,28 @@ class BalanceSheetAssetsFerc1TableTransformer(Ferc1AbstractTableTransformer):
         hard-code a specific value of ``utility_id_ferc1_dbf`` and those IDs are no
         longer available later in the process. I think.
         """
-        pks = ["utility_id_ferc1", "report_year", "asset_type"]
-        bespoke_dupe_mask = (
-            df.duplicated(subset=pks, keep=False)
-            & (df.report_year == 1999)
-            & (df.utility_id_ferc1_dbf == 165)
-        )
-        assert len(df[bespoke_dupe_mask]) == 2
-        assert len(df[(bespoke_dupe_mask & (df.starting_balance.isnull()))]) == 1
-        deduped = df[~(bespoke_dupe_mask & (df.starting_balance.isnull()))].copy()
-        return deduped
+        if 1999 in df.report_year.unique():
+            pks = ["utility_id_ferc1", "report_year", "asset_type"]
+            bespoke_dupe_mask = (
+                df.duplicated(subset=pks, keep=False)
+                & (df.report_year == 1999)
+                & (df.utility_id_ferc1_dbf == 165)
+            )
+            bespoke_dupe_null_mask = bespoke_dupe_mask & (df.starting_balance.isnull())
+            if len(df[bespoke_dupe_mask]) != 2:
+                raise AssertionError(
+                    "Expected to find two duplicate records from 1999 with "
+                    f"utility_id_ferc1_dbf 165, but found {len(df[bespoke_dupe_mask])}"
+                )
+            if len(df[bespoke_dupe_null_mask]) != 1:
+                raise AssertionError(
+                    "Expected to find one record from 1999 with utility_id_ferc1_dbf "
+                    "165 and null starting_balance, but found "
+                    f"{len(df[bespoke_dupe_null_mask])}"
+                )
+            logger.debug(f"{self.table_id.value}: Dropping one duplicate from 1999.")
+            df = df[~bespoke_dupe_null_mask].copy()
+        return df
 
     def process_dbf(self, raw_dbf: pd.DataFrame) -> pd.DataFrame:
         """Drop targeted duplicates in the DBF data so we can use FERC respondent ID.
