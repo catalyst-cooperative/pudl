@@ -234,13 +234,14 @@ class DropDuplicateRowsDbf(TransformParams):
 
 
 def drop_duplicate_rows_dbf(df, params: DropDuplicateRowsDbf):
-    """Drop the duplicate DBF rows if all duplicates have indentical data.
+    """Drop duplicate DBF rows if duplicates have indentical data or one row has nulls.
 
     There are several instances of the DBF data reporting the same value on multiple
     rows. This function checks to see if all of the duplicate values that have the same
-    primary keys have reported the same data. If the duplicates have the same data, the
-    duplicates are dropped with ``keep="first"``. If any duplicates do not contain the
-    same data, an assertion will be raised.
+    primary keys have reported the same data or have records with null data in any of
+    the data columns while the other record has complete data. If the duplicates have no
+    unique data, the duplicates are dropped with ``keep="first"``. If any duplicates do
+    not contain the same data or half null data, an assertion will be raised.
     """
     pks = (
         pudl.metadata.classes.Package.from_resource_ids()
