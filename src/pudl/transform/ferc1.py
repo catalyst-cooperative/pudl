@@ -242,31 +242,42 @@ def drop_duplicate_rows_dbf(df, params: DropDuplicateRowsDbf):
     duplicates are dropped with ``keep="first"``. If any duplicates do not contain the
     same data, an assertion will be raised.
     """
-    if params is None:
-        params = DropDuplicateRowsDbf()
-    if params.data_columns:
-        pks = (
-            pudl.metadata.classes.Package.from_resource_ids()
-            .get_resource(params.table_name.value)
-            .schema.primary_key
+    pks = (
+        pudl.metadata.classes.Package.from_resource_ids()
+        .get_resource(params.table_name.value)
+        .schema.primary_key
+    )
+    # add a column that indicates whether or not any of the data columns contain null data
+    df.loc[:, "null_data"] = df[params.data_columns].isnull().any(axis="columns")
+
+    # checks to make sure the drop is targeted as expected
+    # of the PK dupes, drop all instances when the data *is also the same*
+    dupes_w_unique_data = (
+        df[df.duplicated(pks, keep=False)].drop_duplicates(
+            pks + params.data_columns, keep=False
         )
-        # checks to make sure the drop is targeted as expected
-        pk_dupes = df[df.duplicated(pks, keep=False)]
-        pk_data_dupes = pk_dupes[
-            pk_dupes.duplicated(pks + params.data_columns, keep=False)
-        ]
-        dupes_w_unique_data = pk_dupes.loc[
-            pk_dupes.index.difference(pk_data_dupes.index)
-        ]
-        if not dupes_w_unique_data.empty:
-            raise AssertionError(
-                "Duplicates have unique data and should not be dropped. Unique data: "
-                f"{len(dupes_w_unique_data)}: {dupes_w_unique_data}"
+        # if there are pk+data dupes, is there one record with some null data
+        # an other with completely non-null data??
+        .assign(
+            count_of_null_vs_non_null=lambda x: x.groupby(pks)[["null_data"]].transform(
+                "nunique"
             )
-        logger.info(
-            f"Dropping {(len(pk_data_dupes)/2)/len(df):.1%} of duplicate records."
         )
-        df = df.drop_duplicates(pks, keep="first")
+    )
+    if not dupes_w_unique_data[
+        dupes_w_unique_data.count_of_null_vs_non_null != 2
+    ].empty:
+        raise AssertionError(
+            "Duplicates have unique data and should not be dropped. Unique data: "
+            f"{len(dupes_w_unique_data)}: {dupes_w_unique_data}"
+        )
+    len_og = len(df)
+    df = (
+        df.sort_values(by=["null_data"], ascending=True)
+        .drop_duplicates(pks, keep="first")
+        .drop(columns=["null_data"])
+    )
+    logger.info(f"Dropped {(len_og - len(df))/len_og:.1%} of duplicate records.")
     return df
 
 
@@ -718,7 +729,8 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         """
         if params is None:
             params = self.params.align_row_numbers_dbf
-        df = align_row_numbers_dbf(df, params=params)
+        if params.dbf_table_name:
+            df = align_row_numbers_dbf(df, params=params)
         return df
 
     def drop_duplicate_rows_dbf(
@@ -730,7 +742,8 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         """
         if params is None:
             params = self.params.drop_duplicate_rows_dbf
-        df = drop_duplicate_rows_dbf(df, params=params)
+        if params.table_name:
+            df = drop_duplicate_rows_dbf(df, params=params)
         return df
 
     @cache_df(key="dbf")
@@ -750,6 +763,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                 self.wide_to_tidy,
                 source_ferc1=SourceFerc1.DBF,
             )
+            .pipe(self.drop_duplicate_rows_dbf)
         )
 
     @cache_df(key="xbrl")
@@ -2825,59 +2839,6 @@ class BalanceSheetAssetsFerc1TableTransformer(Ferc1AbstractTableTransformer):
 
     table_id: TableIdFerc1 = TableIdFerc1.BALANCE_SHEET_ASSETS_FERC1
     has_unique_record_ids: bool = False
-
-    def targeted_drop_duplicates_dbf(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Drop bad duplicate records from a specific utility in 1994.
-
-        This is a very specific fix, meant to get rid of a particular observed set of
-        duplicate records: FERC Respondent ID 165 in 1999 has two sets of assets and
-        other debt records, one of which contains one null record.
-
-        This method is part of the DBF processing because we want to be able to
-        hard-code a specific value of ``utility_id_ferc1_dbf`` and those IDs are no
-        longer available later in the process. I think.
-        """
-        if 1999 in df.report_year.unique():
-            pks = ["utility_id_ferc1", "report_year", "asset_type"]
-            bespoke_dupe_mask = (
-                df.duplicated(subset=pks, keep=False)
-                & (df.report_year == 1999)
-                & (df.utility_id_ferc1_dbf == 165)
-            )
-            bespoke_dupe_null_mask = bespoke_dupe_mask & (df.starting_balance.isnull())
-            # checks to make sure the drop is targeted as expected
-            if len(df[bespoke_dupe_mask]) != 2:
-                raise AssertionError(
-                    "Expected to find two duplicate records from 1999 with "
-                    f"utility_id_ferc1_dbf 165, but found {len(df[bespoke_dupe_mask])}"
-                )
-            if len(df[bespoke_dupe_null_mask]) != 1:
-                raise AssertionError(
-                    "Expected to find one record from 1999 with utility_id_ferc1_dbf "
-                    "165 and null starting_balance, but found "
-                    f"{len(df[bespoke_dupe_null_mask])}"
-                )
-            logger.debug(f"{self.table_id.value}: Dropping one duplicate from 1999.")
-            df = df[~bespoke_dupe_null_mask].copy()
-        return df
-
-    def process_dbf(self, raw_dbf: pd.DataFrame) -> pd.DataFrame:
-        """Drop targeted duplicates in the DBF data so we can use FERC respondent ID.
-
-        First employ the standard :meth:`process_dbf`. Then deal with the duplicate
-        records. This is done by first running :meth:`drop_invalid_rows` pre-emtively to
-        remove any possible rows with duplicate primary key values that have nulls in
-        the data fields. Then we drop a targeted duplicate. Then we run
-        :meth:`drop_duplicate_rows_dbf`, which drops any records with duplicate primary
-        key values as long as those records also contain duplicate data.
-        """
-        return (
-            super()
-            .process_dbf(raw_dbf)
-            .pipe(self.drop_invalid_rows)
-            .pipe(self.targeted_drop_duplicates_dbf)
-            .pipe(self.drop_duplicate_rows_dbf)
-        )
 
     def normalize_metadata_xbrl(
         self, xbrl_fact_names: list[str] | None

@@ -211,11 +211,13 @@ def test_drop_duplicate_rows_dbf():
 report_year,utility_id_ferc1,asset_type,data_col1,data_col2
 2021,71,stuff,70,700
 2021,71,stuff,70,700
-2021,81,stuff,80,800
-2021,81,stuff,80,800
-2021,91,stuff,90,900
-2021,91,stuff,90,900
+2021,81,junk,80,800
+2021,81,junk,80,800
+2021,91,big stuff,90,900
+2021,91,big stuff,90,900
 2021,101,stuff,1,10
+2022,111,things,.5,.75
+2022,111,things,,.75
 """
         )
     )
@@ -228,9 +230,10 @@ report_year,utility_id_ferc1,asset_type,data_col1,data_col2
             """
 report_year,utility_id_ferc1,asset_type,data_col1,data_col2
 2021,71,stuff,70,700
-2021,81,stuff,80,800
-2021,91,stuff,90,900
+2021,81,junk,80,800
+2021,91,big stuff,90,900
 2021,101,stuff,1,10
+2022,111,things,.5,.75
 """
         )
     )
