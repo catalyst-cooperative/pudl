@@ -2650,17 +2650,6 @@ class ElectricEnergySourcesFerc1TableTransformer(Ferc1AbstractTableTransformer):
     table_id: TableIdFerc1 = TableIdFerc1.ELECTRIC_ENERGY_SOURCES_FERC1
     has_unique_record_ids: bool = False
 
-    @cache_df(key="dbf")
-    def process_dbf(self, raw_dbf: pd.DataFrame) -> pd.DataFrame:
-        """Start with inherited method and do some energy source-specific processing.
-
-        We have to drop the columns from the disposition table because we are splitting
-        up this one raw table into two PUDL tables.
-        """
-        disposition_cols = ["energy_disposition_mwh"]
-        df = super().process_dbf(raw_dbf).drop(columns=disposition_cols)
-        return df
-
 
 class ElectricEnergyDispositionsFerc1TableTransformer(Ferc1AbstractTableTransformer):
     """Transformer class for :ref:`electric_energy_dispositions_ferc1` table."""
