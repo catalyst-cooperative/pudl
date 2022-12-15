@@ -2625,7 +2625,7 @@ TRANSFORM_PARAMS = {
                 "stacked_column_name": "xbrl_factoid",
             }
         },
-        "merge_metadata_xbrl": {
+        "merge_xbrl_metadata": {
             "rename_columns": {"xbrl_factoid": "ferc_account_label"},
             "on": "ferc_account_label",
         },
@@ -2992,7 +2992,7 @@ TRANSFORM_PARAMS = {
         "drop_invalid_rows": [
             {
                 "invalid_values": [pd.NA, np.nan, ""],
-                "required_valid_cols": ["energy_source_mwh"],
+                "required_valid_cols": ["energy_mwh"],
             },
         ],
         "wide_to_tidy": {
@@ -3003,7 +3003,7 @@ TRANSFORM_PARAMS = {
                 "stacked_column_name": "xbrl_factoid",
             }
         },
-        "merge_metadata_xbrl": {
+        "merge_xbrl_metadata": {
             "rename_columns": {"xbrl_factoid": "energy_source_type"},
             "on": "energy_source_type",
         },
@@ -3064,7 +3064,7 @@ TRANSFORM_PARAMS = {
                 "stacked_column_name": "xbrl_factoid",
             }
         },
-        "merge_metadata_xbrl": {
+        "merge_xbrl_metadata": {
             "rename_columns": {"xbrl_factoid": "energy_disposition_type"},
             "on": "energy_disposition_type",
         },
@@ -3188,7 +3188,7 @@ TRANSFORM_PARAMS = {
                 "stacked_column_name": "utility_plant_asset_type",
             },
         },
-        "merge_metadata_xbrl": {
+        "merge_xbrl_metadata": {
             "rename_columns": {"xbrl_factoid": "utility_plant_asset_type"},
             "on": "utility_plant_asset_type",
         },
