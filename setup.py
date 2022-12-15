@@ -48,6 +48,7 @@ setup(
     setup_requires=["setuptools_scm"],
     install_requires=[
         "addfips>=0.4,<0.5",
+        "awscli>=1.27,<1.28",
         "catalystcoop.dbfread>=3.0,<3.1",
         "catalystcoop.ferc-xbrl-extractor==0.6.1",
         "coloredlogs>=15.0,<15.1",
