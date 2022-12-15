@@ -1611,15 +1611,6 @@ class PlantInServiceFerc1TableTransformer(Ferc1AbstractTableTransformer):
                 )
             )
         )
-        # Remove metadata records that pertain to columns we have eliminated through
-        # reshaping. The *_starting_balance and *_ending_balance columns come from the
-        # instant table, but they have no suffix there -- they just show up as the
-        # stem (e.g. land_and_land_rights_general_plant). So by removing any column
-        # that has these four value type suffixes, we're left with only the stem
-        # categories.
-        value_types = ["additions", "retirements", "adjustments", "transfers"]
-        pattern = ".*(" + "|".join(value_types) + ")$"
-        pis_meta = pis_meta[~pis_meta["xbrl_factoid"].str.match(pattern)]
 
         # Set pseudo-account numbers for rows that split or combine FERC accounts, but
         # which are not calculated values.
