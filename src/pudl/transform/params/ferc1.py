@@ -3213,7 +3213,21 @@ TRANSFORM_PARAMS = {
             "utility_type_other": {"replace_with_na": [""]},
         },
     },
-    "electric_oandm_ferc1": {},
+    "electric_oandm_ferc1": {
+        "rename_columns_ferc1": {
+            "dbf": {
+                "columns": {
+                    "respondent_id": "utility_id_ferc1_dbf",
+                    "report_year": "report_year",
+                    "report_prd": "report_prd",
+                    "row_prvlg": "row_prvlg",
+                    "row_number": "row_number",
+                    "row_seq": "row_seq",
+                    "spplmnt_num": "spplmnt_num",
+                }
+            }
+        },
+    },
 }
 
 """The full set of parameters used to transform the FERC Form 1 data.
