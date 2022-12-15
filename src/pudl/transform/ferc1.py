@@ -284,7 +284,10 @@ def drop_duplicate_rows_dbf(df, params: DropDuplicateRowsDbf):
         .drop_duplicates(pks, keep="first")
         .drop(columns=["null_data"])
     )
-    logger.info(f"Dropped {(len_og - len(df))/len_og:.1%} of duplicate records.")
+    logger.info(
+        f"Dropped {len_og - len(df)} duplicate records: {(len_og - len(df))/len_og:.1%}"
+        " of total rows."
+    )
     return df
 
 

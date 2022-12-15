@@ -3298,6 +3298,10 @@ TRANSFORM_PARAMS = {
                 "stacked_column_name": "xbrl_factoid",
             }
         },
+        "drop_duplicate_rows_dbf": {
+            "data_columns": ["ending_balance", "starting_balance"],
+            "table_name": "balance_sheet_liabilities_ferc1",
+        },
         "merge_metadata_xbrl": {
             "rename_columns": {"xbrl_factoid": "liability_type"},
             "on": "liability_type",
