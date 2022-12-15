@@ -3213,6 +3213,7 @@ TRANSFORM_PARAMS = {
             "utility_type_other": {"replace_with_na": [""]},
         },
     },
+    "electric_oandm_ferc1": {},
 }
 
 """The full set of parameters used to transform the FERC Form 1 data.

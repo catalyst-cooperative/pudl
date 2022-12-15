@@ -20,6 +20,7 @@ ferc_to_sqlite_settings:
       - f1_elctrc_erg_acct
       - f1_utltyplnt_smmry
       - f1_xmssn_line
+      - f1_elc_op_mnt_expn
 
   ferc1_xbrl_to_sqlite_settings:
     years: [2021]
@@ -81,6 +82,7 @@ datasets:
       - electric_energy_sources_ferc1
       - electric_energy_dispositions_ferc1
       - utility_plant_summary_ferc1
+      - electric_oandm_ferc1
     years: [2020, 2021]
   eia:
     eia923:
