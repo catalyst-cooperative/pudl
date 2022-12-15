@@ -55,6 +55,16 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "advanced_metering_infrastructure": {"type": "integer"},
     "alternative_fuel_vehicle_2_activity": {"type": "boolean"},
     "alternative_fuel_vehicle_activity": {"type": "boolean"},
+    "amortization_limited_term_electric_plant": {
+        "type": "integer",
+        "unit": "USD",
+        "description": "Amortization charges applicable to limited-term electric plants.",
+    },
+    "amortization_other_electric_plant": {
+        "type": "integer",
+        "unit": "USD",
+        "description": "Amortization charges applicable to intangible or other electric utility plants.",
+    },
     "annual_indirect_program_cost": {"type": "number", "unit": "USD"},
     "annual_total_cost": {"type": "number", "unit": "USD"},
     "appro_part_label": {
@@ -364,6 +374,21 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "unit": "USD",
     },
     "demand_mwh": {"type": "number", "unit": "MWh"},
+    "depreciation_amortization_total": {
+        "type": "integer",
+        "unit": "USD",
+        "description": "Total of depreciation expense, depreciation expense for asset retirement cost, amortization of limited-term electric plant, and amortization of other electric plant.",
+    },
+    "depreciation_expense": {
+        "type": "integer",
+        "unit": "USD",
+        "description": "Depreciation expense excluding amortization of acquisition adjustments.",
+    },
+    "depreciation_expense_asset_retirement": {
+        "type": "integer",
+        "unit": "USD",
+        "description": "Depreciation expense for asset retirement costs excluding amortization of acquisition adjustments.",
+    },
     "description": {
         "type": "string",
         "description": "Long human-readable description of the meaning of a code/label.",
@@ -738,6 +763,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Reported units of measure for fuel.",
         # Note: Different ENUM constraints are applied below on EIA vs. FERC1
+    },
+    "functional_classification": {
+        "type": "string",
+        "description": "Specifies plant category that record applies to.",
     },
     "furnished_without_charge_mwh": {"type": "number", "unit": "MWh"},
     "future_plant": {

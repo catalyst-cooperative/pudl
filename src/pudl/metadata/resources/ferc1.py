@@ -411,6 +411,29 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "ferc1",
         "field_namespace": "ferc1",
     },
+    "depreciation_amortization_summary_ferc1": {
+        "description": "Summary of depreciation, and amortization of electric plant.",
+        "schema": {
+            "fields": [
+                "utility_id_ferc1",
+                "report_year",
+                "functional_classification",
+                "depreciation_expense",
+                "depreciation_expense_asset_retirement",
+                "amortization_limited_term_electric_plant",
+                "amortization_other_electric_plant",
+                "depreciation_amortization_total",
+            ],
+            "primary_key": [
+                "utility_id_ferc1",
+                "report_year",
+                "functional_classification",
+            ],
+        },
+        "sources": ["ferc1"],
+        "etl_group": "ferc1",
+        "field_namespace": "ferc1",
+    },
     "transmission_ferc1": {
         "description": "Information concerning transmission lines, cost of lines, and expenses for year.",
         "schema": {
