@@ -3211,6 +3211,57 @@ TRANSFORM_PARAMS = {
             "utility_type_other": {"replace_with_na": [""]},
         },
     },
+    "balance_sheet_assets_ferc1": {
+        "rename_columns_ferc1": {
+            "dbf": {
+                "columns": {
+                    "respondent_id": "utility_id_ferc1_dbf",
+                    "report_year": "report_year",
+                    "spplmnt_num": "spplmnt_num",
+                    "row_number": "row_number",
+                    "row_seq": "row_seq",
+                    "row_prvlg": "row_prvlg",
+                    "report_prd": "report_prd",
+                    "xbrl_factoid": "asset_type",
+                    "begin_yr_balance": "ending_balance",
+                    "end_yr_balance": "starting_balance",
+                }
+            },
+            "xbrl": {
+                "columns": {
+                    "entity_id": "utility_id_ferc1_xbrl",
+                    "report_year": "report_year",
+                    "xbrl_factoid": "asset_type",
+                }
+            },
+        },
+        "wide_to_tidy": {
+            "xbrl": {
+                "idx_cols": [
+                    "entity_id",
+                    "report_year",
+                ],
+                "value_types": ["starting_balance", "ending_balance"],
+                "expected_drop_cols": 0,
+                "stacked_column_name": "xbrl_factoid",
+            },
+        },
+        "drop_duplicate_rows_dbf": {
+            "data_columns": ["ending_balance", "starting_balance"],
+            "table_name": "balance_sheet_assets_ferc1",
+        },
+        "align_row_numbers_dbf": {"dbf_table_name": "f1_comp_balance_db"},
+        "merge_xbrl_metadata": {
+            "rename_columns": {"xbrl_factoid": "asset_type"},
+            "on": "asset_type",
+        },
+        "drop_invalid_rows": [
+            {
+                "invalid_values": [pd.NA, np.nan, ""],
+                "required_valid_cols": ["starting_balance", "ending_balance"],
+            },
+        ],
+    },
 }
 
 """The full set of parameters used to transform the FERC Form 1 data.
