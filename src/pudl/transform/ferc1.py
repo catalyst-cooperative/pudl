@@ -253,20 +253,25 @@ def drop_duplicate_rows_dbf(df, params: DropDuplicateRowsDbf):
 
     # checks to make sure the drop is targeted as expected
     # of the PK dupes, drop all instances when the data *is also the same*
-    dupes_w_unique_data = (
-        df[df.duplicated(pks, keep=False)].drop_duplicates(
-            pks + params.data_columns, keep=False
-        )
-        # if there are pk+data dupes, is there one record with some null data
-        # an other with completely non-null data??
-        .assign(
-            count_of_null_vs_non_null=lambda x: x.groupby(pks)[["null_data"]].transform(
-                "nunique"
-            )
-        )
+    dupes_w_unique_data = df[df.duplicated(pks, keep=False)].drop_duplicates(
+        pks + params.data_columns, keep=False
     )
+    # if there are pk+data dupes, is there one record with some null data
+    # an other with completely non-null data??
+    # OR are there any records that have some null data and some actually unique
+    # data
+    nunique_data_columns = [f"{col}_nunique" for col in params.data_columns]
+    dupes_w_unique_data.loc[:, nunique_data_columns + ["null_data_nunique"]] = (
+        dupes_w_unique_data.groupby(pks)[params.data_columns + ["null_data"]]
+        .transform("nunique")
+        .add_suffix("_nunique")
+    )
+
     if not dupes_w_unique_data[
-        dupes_w_unique_data.count_of_null_vs_non_null != 2
+        (dupes_w_unique_data.null_data_nunique != 2)
+        | dupes_w_unique_data[dupes_w_unique_data[nunique_data_columns] != 1].any(
+            axis="columns"
+        )
     ].empty:
         raise AssertionError(
             "Duplicates have unique data and should not be dropped. Unique data: "
