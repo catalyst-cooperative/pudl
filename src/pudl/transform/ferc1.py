@@ -280,7 +280,6 @@ class Ferc1TableTransformParams(TableTransformParams):
         xbrl=RenameColumns(),
         xbrl_instant=RenameColumns(),
         xbrl_duration=RenameColumns(),
-        xbrl_metadata=RenameColumns(),
     )
     wide_to_tidy: WideToTidySourceFerc1 = WideToTidySourceFerc1(
         dbf=WideToTidy(), xbrl=WideToTidy()
