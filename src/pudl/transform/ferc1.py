@@ -74,6 +74,7 @@ class TableIdFerc1(enum.Enum):
     ELECTRIC_ENERGY_DISPOSITIONS_FERC1 = "electric_energy_dispositions_ferc1"
     UTILITY_PLANT_SUMMARY_FERC1 = "utility_plant_summary_ferc1"
     BALANCE_SHEET_LIABILITIES = "balance_sheet_liabilities_ferc1"
+    BALANCE_SHEET_ASSETS_FERC1 = "balance_sheet_assets_ferc1"
 
 
 class RenameColumnsFerc1(TransformParams):
@@ -223,6 +224,70 @@ def merge_metadata_xbrl(
     )
 
 
+class DropDuplicateRowsDbf(TransformParams):
+    """Parameter for dropping duplicate DBF rows."""
+
+    table_name: TableIdFerc1 | None = None
+    """Name of table used to grab primary keys of PUDL table to check for duplicates."""
+
+    data_columns: list = []
+    """List of data column names to ensure primary key duplicates have the same data."""
+
+
+def drop_duplicate_rows_dbf(df, params: DropDuplicateRowsDbf):
+    """Drop duplicate DBF rows if duplicates have indentical data or one row has nulls.
+
+    There are several instances of the DBF data reporting the same value on multiple
+    rows. This function checks to see if all of the duplicate values that have the same
+    primary keys have reported the same data or have records with null data in any of
+    the data columns while the other record has complete data. If the duplicates have no
+    unique data, the duplicates are dropped with ``keep="first"``. If any duplicates do
+    not contain the same data or half null data, an assertion will be raised.
+    """
+    pks = (
+        pudl.metadata.classes.Package.from_resource_ids()
+        .get_resource(params.table_name.value)
+        .schema.primary_key
+    )
+    # add a column that indicates whether or not any of the data columns contain null data
+    df.loc[:, "null_data"] = df[params.data_columns].isnull().any(axis="columns")
+
+    # checks to make sure the drop is targeted as expected
+    # of the PK dupes, drop all instances when the data *is also the same*
+    dupes_w_unique_data = df[df.duplicated(pks, keep=False)].drop_duplicates(
+        pks + params.data_columns, keep=False
+    )
+    # if there are pk+data dupes, is there one record with some null data
+    # an other with completely non-null data??
+    # OR are there any records that have some null data and some actually unique
+    # data
+    nunique_data_columns = [f"{col}_nunique" for col in params.data_columns]
+    dupes_w_unique_data.loc[:, nunique_data_columns + ["null_data_nunique"]] = (
+        dupes_w_unique_data.groupby(pks)[params.data_columns + ["null_data"]]
+        .transform("nunique")
+        .add_suffix("_nunique")
+    )
+
+    if not dupes_w_unique_data[
+        (dupes_w_unique_data.null_data_nunique != 2)
+        | dupes_w_unique_data[dupes_w_unique_data[nunique_data_columns] != 1].any(
+            axis="columns"
+        )
+    ].empty:
+        raise AssertionError(
+            "Duplicates have unique data and should not be dropped. Unique data: "
+            f"{len(dupes_w_unique_data)}: {dupes_w_unique_data}"
+        )
+    len_og = len(df)
+    df = (
+        df.sort_values(by=["null_data"], ascending=True)
+        .drop_duplicates(pks, keep="first")
+        .drop(columns=["null_data"])
+    )
+    logger.info(f"Dropped {(len_og - len(df))/len_og:.1%} of duplicate records.")
+    return df
+
+
 class AlignRowNumbersDbf(TransformParams):
     """Parameters for aligning DBF row numbers with metadata from mannual maps."""
 
@@ -286,6 +351,7 @@ class Ferc1TableTransformParams(TableTransformParams):
     )
     merge_metadata_xbrl: MergeMetadataXbrl = MergeMetadataXbrl()
     align_row_numbers_dbf: AlignRowNumbersDbf = AlignRowNumbersDbf()
+    drop_duplicate_rows_dbf: DropDuplicateRowsDbf = DropDuplicateRowsDbf()
 
 
 ################################################################################
@@ -683,7 +749,21 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         """
         if params is None:
             params = self.params.align_row_numbers_dbf
-        df = align_row_numbers_dbf(df, params=params)
+        if params.dbf_table_name:
+            df = align_row_numbers_dbf(df, params=params)
+        return df
+
+    def drop_duplicate_rows_dbf(
+        self, df: pd.DataFrame, params: DropDuplicateRowsDbf | None = None
+    ) -> pd.DataFrame:
+        """Drop the duplicate DBF rows when the PKs and data columns are the same.
+
+        Wrapper function for :func:`drop_duplicate_rows_dbf`.
+        """
+        if params is None:
+            params = self.params.drop_duplicate_rows_dbf
+        if params.table_name:
+            df = drop_duplicate_rows_dbf(df, params=params)
         return df
 
     @cache_df(key="dbf")
@@ -703,6 +783,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                 self.wide_to_tidy,
                 source_ferc1=SourceFerc1.DBF,
             )
+            .pipe(self.drop_duplicate_rows_dbf)
         )
 
     @cache_df(key="xbrl")
@@ -1734,9 +1815,9 @@ class PlantInServiceFerc1TableTransformer(Ferc1AbstractTableTransformer):
         )
         return deduped
 
-    def process_dbf(self, df: pd.DataFrame) -> pd.DataFrame:
+    def process_dbf(self, raw_dbf: pd.DataFrame) -> pd.DataFrame:
         """Drop targeted duplicates in the DBF data so we can use FERC respondent ID."""
-        return super().process_dbf(df).pipe(self.targeted_drop_duplicates_dbf)
+        return super().process_dbf(raw_dbf).pipe(self.targeted_drop_duplicates_dbf)
 
     @cache_df("main")
     def transform_main(self, df: pd.DataFrame) -> pd.DataFrame:
@@ -2789,6 +2870,29 @@ class BalanceSheetLiabilitiesFerc1TableTransformer(Ferc1AbstractTableTransformer
         return meta
 
 
+class BalanceSheetAssetsFerc1TableTransformer(Ferc1AbstractTableTransformer):
+    """Transformer class for :ref:`balance_sheet_assets_ferc1` table."""
+
+    table_id: TableIdFerc1 = TableIdFerc1.BALANCE_SHEET_ASSETS_FERC1
+    has_unique_record_ids: bool = False
+    create_instant_start_end_cols: bool = True
+
+    def normalize_metadata_xbrl(
+        self, xbrl_fact_names: list[str] | None
+    ) -> pd.DataFrame:
+        """Normalize the metadata from the XBRL taxonomy +."""
+        meta = (
+            super()
+            .normalize_metadata_xbrl(xbrl_fact_names)
+            .assign(
+                xbrl_factoid=lambda x: x.xbrl_fact_name,
+            )
+        )
+        # Save the normalized metadata so it can be used by other methods.
+        self.xbrl_metadata_normalized = meta
+        return meta
+
+
 def transform(
     ferc1_dbf_raw_dfs: dict[str, pd.DataFrame],
     ferc1_xbrl_raw_dfs: dict[str, dict[str, pd.DataFrame]],
@@ -2824,6 +2928,7 @@ def transform(
         "electric_energy_dispositions_ferc1": ElectricEnergyDispositionsFerc1TableTransformer,
         "utility_plant_summary_ferc1": UtilityPlantSummaryFerc1TableTransformer,
         "balance_sheet_liabilities_ferc1": BalanceSheetLiabilitiesFerc1TableTransformer,
+        "balance_sheet_assets_ferc1": BalanceSheetAssetsFerc1TableTransformer,
     }
     # create an empty ditctionary to fill up through the transform fuctions
     ferc1_transformed_dfs = {}
@@ -2888,6 +2993,7 @@ if __name__ == "__main__":
             "transmission_ferc1",
             "electric_energy_sources_ferc1",
             "electric_energy_dispositions_ferc1",
+            "balance_sheet_assets_ferc1",
         ],
     )
     pudl_settings = pudl.workspace.setup.get_defaults()

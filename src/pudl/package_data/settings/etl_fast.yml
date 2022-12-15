@@ -21,6 +21,7 @@ ferc_to_sqlite_settings:
       - f1_utltyplnt_smmry
       - f1_xmssn_line
       - f1_bal_sheet_cr
+      - f1_comp_balance_db
 
   ferc1_xbrl_to_sqlite_settings:
     years: [2021]
@@ -51,6 +52,8 @@ ferc_to_sqlite_settings:
       - transmission_line_statistics_422_instant
       - comparative_balance_sheet_liabilities_and_other_credits_110_duration
       - comparative_balance_sheet_liabilities_and_other_credits_110_instant
+      - comparative_balance_sheet_assets_and_other_debits_110_duration
+      - comparative_balance_sheet_assets_and_other_debits_110_instant
 
   ferc2_xbrl_to_sqlite_settings:
     years: [2021]
@@ -85,6 +88,7 @@ datasets:
       - electric_energy_dispositions_ferc1
       - utility_plant_summary_ferc1
       - balance_sheet_liabilities_ferc1
+      - balance_sheet_assets_ferc1
     years: [2020, 2021]
   eia:
     eia923:
