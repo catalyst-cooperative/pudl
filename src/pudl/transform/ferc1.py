@@ -649,8 +649,19 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
 
     @cache_df(key="end")
     def transform_end(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Enforce the database schema and remove any cached dataframes."""
-        return self.enforce_schema(df)
+        """Standardized final cleanup after the transformations are done.
+
+        Enforces dataframe schema. Checks for empty dataframes and null columns.
+        """
+        df = self.enforce_schema(df)
+        if df.empty:
+            raise ValueError(f"{self.table_id.value}: Final dataframe is empty!!!")
+        for col in df:
+            if df[col].isna().all():
+                raise ValueError(
+                    f"{self.table_id.value}: Column {col} is entirely NULL!"
+                )
+        return df
 
     @cache_df(key="process_xbrl_metadata")
     def process_xbrl_metadata(self, xbrl_metadata_json) -> pd.DataFrame:
