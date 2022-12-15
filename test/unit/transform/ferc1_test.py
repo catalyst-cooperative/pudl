@@ -211,11 +211,15 @@ def test_drop_duplicate_rows_dbf():
 report_year,utility_id_ferc1,asset_type,data_col1,data_col2
 2021,71,stuff,70,700
 2021,71,stuff,70,700
-2021,81,stuff,80,800
-2021,81,stuff,80,800
-2021,91,stuff,90,900
-2021,91,stuff,90,900
+2021,81,junk,80,800
+2021,81,junk,80,800
+2021,91,big stuff,90,900
+2021,91,big stuff,90,900
 2021,101,stuff,1,10
+2022,111,things,.5,.75
+2022,111,things,,.75
+2022,111,nada,,
+2022,111,nada,,
 """
         )
     )
@@ -228,14 +232,46 @@ report_year,utility_id_ferc1,asset_type,data_col1,data_col2
             """
 report_year,utility_id_ferc1,asset_type,data_col1,data_col2
 2021,71,stuff,70,700
-2021,81,stuff,80,800
-2021,91,stuff,90,900
+2021,81,junk,80,800
+2021,91,big stuff,90,900
 2021,101,stuff,1,10
+2022,111,things,.5,.75
+2022,111,nada,,
 """
         )
     )
     pd.testing.assert_frame_equal(df_out, df_expected)
+
     # if the PK dupes have different data an assertion should raise
-    df.loc[0, "data_col1"] = 74
+    df_unique_dupes = df.copy()
+    df_unique_dupes.loc[0, "data_col1"] = 74
     with pytest.raises(AssertionError):
-        drop_duplicate_rows_dbf(df, params=params)
+        drop_duplicate_rows_dbf(df_unique_dupes, params=params)
+
+    # if a PK dupes has mismatched null data
+    df_nulls = pd.read_csv(
+        StringIO(
+            """
+report_year,utility_id_ferc1,asset_type,data_col1,data_col2
+2021,71,stuff,,700
+2021,71,stuff,70,
+"""
+        )
+    )
+    with pytest.raises(AssertionError):
+        drop_duplicate_rows_dbf(df_nulls, params=params)
+
+    # if a PK dupes has mismatched null data
+    df_null_w_unique_data = pd.read_csv(
+        StringIO(
+            """
+report_year,utility_id_ferc1,asset_type,data_col1,data_col2
+2021,71,stuff,,701
+2021,71,stuff,70,700
+2022,111,things,.5,.75
+2022,111,things,,.75
+"""
+        )
+    )
+    with pytest.raises(AssertionError):
+        drop_duplicate_rows_dbf(df_null_w_unique_data, params=params)
