@@ -91,8 +91,9 @@ at the same time.
     If a tag build starts before the previous tag build has finished, the previous build
     will be interrupted.
 
-PUDL's VMs have 32 GB of RAM and 8 CPUs to accommodate the PUDL ETL's memory-intensive
-steps. Currently, these VMs do not have swap space enabled.
+PUDL's VMs use the e2-highmem-8 machine type (64 GB of RAM and 8 CPUs) to accommodate
+the PUDL ETL's memory-intensive steps. Currently, these VMs do not have swap space
+enabled.
 
 Each GCE VM has a service account that gives the VM permissions to GCP resources.
 The two PUDL deployment VMs share the ``deploy-pudl-vm-service-account``. This
@@ -104,7 +105,11 @@ service account has permissions to:
 3. Bill the ``catalyst-cooperative-pudl`` project for egress fees from accessing
    the ``zenodo-cache.catalyst.coop`` bucket. Note: The ``catalyst-cooperative-pudl``
    won't be charged anything because the data stays within Google's network.
-4. Write logs and outputs to ``pudl-etl-logs`` and ``intake.catalyst.coop`` buckets.
+4. Write logs and outputs to the ``gs://nightly-build-outputs.catalyst.coop``,
+   ``gs://intake.catalyst.coop`` and ``s3://intake.catalyst.coop`` buckets.
+   The egress and storage fees of the s3 bucket are covered by
+   `Amazon Web Services's Open Data Sponsorship Program
+   <https://aws.amazon.com/opendata/open-data-sponsorship-program/>`__.
 
 Docker
 ------
