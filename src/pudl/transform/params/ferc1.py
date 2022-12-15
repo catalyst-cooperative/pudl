@@ -239,6 +239,12 @@ FERC1_STRING_NORM = {
 }
 
 ##############################################################################
+# Common invalid plant names
+##############################################################################
+INVALID_PLANT_NAMES = [pd.NA, np.nan, "not applicable", "0", "", "-"]
+"""Invalid plant names which appear in multiple plant tables."""
+
+##############################################################################
 # String categorizations
 ##############################################################################
 FUEL_CATEGORIES: dict[str, set[str]] = {
@@ -2156,15 +2162,8 @@ TRANSFORM_PARAMS = {
                 ],
             },
             {
-                "invalid_values": [
-                    pd.NA,
-                    np.nan,
-                    "",
-                    "must 123",
-                    "must 456",
-                    "ant1-3",
-                    "elk 1-3",
-                ],
+                "invalid_values": INVALID_PLANT_NAMES
+                + ["must 123", "must 456", "ant1-3", "elk 1-3"],
                 "required_valid_cols": ["plant_name_ferc1"],
             },
         ],
@@ -2303,11 +2302,7 @@ TRANSFORM_PARAMS = {
                 ],
             },
             {
-                "invalid_values": [
-                    pd.NA,
-                    np.nan,
-                    "",
-                ],
+                "invalid_values": INVALID_PLANT_NAMES,
                 "required_valid_cols": ["plant_name_ferc1"],
             },
         ],
@@ -2445,7 +2440,7 @@ TRANSFORM_PARAMS = {
                 ],
             },
             {
-                "invalid_values": ["0", "—", ""],
+                "invalid_values": INVALID_PLANT_NAMES,
                 "required_valid_cols": ["plant_name_ferc1"],
             },
         ],
@@ -2542,7 +2537,10 @@ TRANSFORM_PARAMS = {
                     "row_type",
                 ],
             },
-            {"invalid_values": ["0", ""], "required_valid_cols": ["plant_name_ferc1"]},
+            {
+                "invalid_values": INVALID_PLANT_NAMES,
+                "required_valid_cols": ["plant_name_ferc1"],
+            },
         ],
     },
     "plant_in_service_ferc1": {
@@ -2771,7 +2769,7 @@ TRANSFORM_PARAMS = {
                 ],
             },
             {
-                "invalid_values": ["0", "—", ""],
+                "invalid_values": INVALID_PLANT_NAMES,
                 "required_valid_cols": ["plant_name_ferc1"],
             },
         ],
