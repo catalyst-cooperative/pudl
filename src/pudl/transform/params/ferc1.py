@@ -3213,6 +3213,63 @@ TRANSFORM_PARAMS = {
             "utility_type_other": {"replace_with_na": [""]},
         },
     },
+    "depreciation_amortization_summary_ferc1": {
+        "rename_columns_ferc1": {
+            "dbf": {
+                "columns": {
+                    "respondent_id": "utility_id_ferc1_dbf",
+                    "report_year": "report_year",
+                    "spplmnt_num": "spplmnt_num",
+                    "row_number": "row_number",
+                    "row_seq": "row_seq",
+                    "row_prvlg": "row_prvlg",
+                    "depr_expn": "depreciation_expense",
+                    "depr_asset_retire": "depreciation_expense_asset_retirement",
+                    "limterm_elc_plnt": "amortization_limited_term_electric_plant",
+                    "othr_elc_plnt": "amortization_other_electric_plant",
+                    "total": "depreciation_amortization_total",
+                    "xbrl_factoid": "functional_classification",
+                    "report_prd": "report_prd",
+                }
+            },
+            "xbrl": {
+                "columns": {
+                    "entity_id": "utility_id_ferc1_xbrl",
+                    "report_year": "report_year",
+                    "functional_classification_axis": "functional_classification",
+                    "depreciation_expense_excluding_amortization_of_acquisition_adjustments": "depreciation_expense",
+                    "depreciation_expense_for_asset_retirement_costs_excluding_amortizationg_of_acquisition_adjustments": "depreciation_expense_asset_retirement",
+                    "amortization_of_limited_term_plant_or_property": "amortization_limited_term_electric_plant",
+                    "amortization_of_other_electric_plant": "amortization_other_electric_plant",
+                    "depreciation_and_amortization": "depreciation_amortization_total",
+                }
+            },
+        },
+        "categorize_strings": {
+            "functional_classification": {
+                "categories": {
+                    "intangible_plant": ["ferc:IntangiblePlantMember"],
+                    "steam_production_plant": ["ferc:SteamProductionPlantMember"],
+                    "nuclear_production_plant": ["ferc:NuclearProductionPlantMember"],
+                    "hydraulic_production_plant_conventional": [
+                        "ferc:HydraulicProductionPlantConventionalMember"
+                    ],
+                    "hydraulic_production_plant_pumped_storage": [
+                        "ferc:HydraulicProductionPlantPumpedStorageMember"
+                    ],
+                    "other_production_plant": ["ferc:OtherProductionPlantMember"],
+                    "transmission_plant": ["ferc:TransmissionPlantMember"],
+                    "distribution_plant": ["ferc:DistributionPlantMember"],
+                    "regional_transmission_market_plant": [
+                        "ferc:RegionalTransmissionAndMarketOperationMember"
+                    ],
+                    "general_plant": ["ferc:GeneralPlantMember"],
+                    "common_plant_electric": ["ferc:CommonPlantElectricMember"],
+                }
+            },
+        },
+        "align_row_numbers_dbf": {"dbf_table_name": "f1_dacs_epda"},
+    },
 }
 
 """The full set of parameters used to transform the FERC Form 1 data.

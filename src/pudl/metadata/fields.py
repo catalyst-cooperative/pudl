@@ -56,12 +56,12 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "alternative_fuel_vehicle_2_activity": {"type": "boolean"},
     "alternative_fuel_vehicle_activity": {"type": "boolean"},
     "amortization_limited_term_electric_plant": {
-        "type": "integer",
+        "type": "number",
         "unit": "USD",
         "description": "Amortization charges applicable to limited-term electric plants.",
     },
     "amortization_other_electric_plant": {
-        "type": "integer",
+        "type": "number",
         "unit": "USD",
         "description": "Amortization charges applicable to intangible or other electric utility plants.",
     },
@@ -375,17 +375,17 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "demand_mwh": {"type": "number", "unit": "MWh"},
     "depreciation_amortization_total": {
-        "type": "integer",
+        "type": "number",
         "unit": "USD",
         "description": "Total of depreciation expense, depreciation expense for asset retirement cost, amortization of limited-term electric plant, and amortization of other electric plant.",
     },
     "depreciation_expense": {
-        "type": "integer",
+        "type": "number",
         "unit": "USD",
         "description": "Depreciation expense excluding amortization of acquisition adjustments.",
     },
     "depreciation_expense_asset_retirement": {
-        "type": "integer",
+        "type": "number",
         "unit": "USD",
         "description": "Depreciation expense for asset retirement costs excluding amortization of acquisition adjustments.",
     },
