@@ -74,6 +74,7 @@ class TableIdFerc1(enum.Enum):
     ELECTRIC_ENERGY_DISPOSITIONS_FERC1 = "electric_energy_dispositions_ferc1"
     UTILITY_PLANT_SUMMARY_FERC1 = "utility_plant_summary_ferc1"
     BALANCE_SHEET_ASSETS_FERC1 = "balance_sheet_assets_ferc1"
+    INCOME_STATEMENT_FERC1 = "income_statement_ferc1"
 
 
 class RenameColumnsFerc1(TransformParams):
@@ -2899,6 +2900,13 @@ class BalanceSheetAssetsFerc1TableTransformer(Ferc1AbstractTableTransformer):
         return df.reset_index()
 
 
+class IncomeStatementFerc1TableTransformer(Ferc1AbstractTableTransformer):
+    """Transformer class for the :ref:`income_statement_ferc1` table."""
+
+    table_id: TableIdFerc1 = TableIdFerc1.INCOME_STATEMENT_FERC1
+    has_unique_record_ids: bool = False
+
+
 def transform(
     ferc1_dbf_raw_dfs: dict[str, pd.DataFrame],
     ferc1_xbrl_raw_dfs: dict[str, dict[str, pd.DataFrame]],
@@ -2934,6 +2942,7 @@ def transform(
         "electric_energy_dispositions_ferc1": ElectricEnergyDispositionsFerc1TableTransformer,
         "utility_plant_summary_ferc1": UtilityPlantSummaryFerc1TableTransformer,
         "balance_sheet_assets_ferc1": BalanceSheetAssetsFerc1TableTransformer,
+        "income_statement_ferc1": IncomeStatementFerc1TableTransformer,
     }
     # create an empty ditctionary to fill up through the transform fuctions
     ferc1_transformed_dfs = {}
@@ -2999,6 +3008,7 @@ if __name__ == "__main__":
             "electric_energy_sources_ferc1",
             "electric_energy_dispositions_ferc1",
             "balance_sheet_assets_ferc1",
+            "income_statement_ferc1",
         ],
     )
     pudl_settings = pudl.workspace.setup.get_defaults()
