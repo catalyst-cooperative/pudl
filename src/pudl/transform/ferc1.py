@@ -2808,6 +2808,7 @@ class DepreciationAmortizationSummaryFerc1TableTransformer(
     """Transformer class for :ref:`depreciation_amortization_summary_ferc1` table."""
 
     table_id: TableIdFerc1 = TableIdFerc1.DEPRECIATION_AMORTIZATION_SUMMARY_FERC1
+    has_unique_record_ids: bool = False
 
 
 def transform(

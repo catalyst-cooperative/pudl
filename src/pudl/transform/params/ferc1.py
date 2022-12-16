@@ -3272,11 +3272,11 @@ TRANSFORM_PARAMS = {
                     "row_number": "row_number",
                     "row_seq": "row_seq",
                     "row_prvlg": "row_prvlg",
-                    "depr_expn": "depreciation_expense",
-                    "depr_asset_retire": "depreciation_expense_asset_retirement",
-                    "limterm_elc_plnt": "amortization_limited_term_electric_plant",
-                    "othr_elc_plnt": "amortization_other_electric_plant",
-                    "total": "depreciation_amortization_total",
+                    "depr_expn": "depreciation_expense_depreciation_amortization_value",
+                    "depr_asset_retire": "depreciation_expense_asset_retirement_depreciation_amortization_value",
+                    "limterm_elc_plnt": "amortization_limited_term_electric_plant_depreciation_amortization_value",
+                    "othr_elc_plnt": "amortization_other_electric_plant_depreciation_amortization_value",
+                    "total": "depreciation_amortization_total_depreciation_amortization_value",
                     "xbrl_factoid": "functional_classification",
                     "report_prd": "report_prd",
                 }
@@ -3285,13 +3285,39 @@ TRANSFORM_PARAMS = {
                 "columns": {
                     "entity_id": "utility_id_ferc1_xbrl",
                     "report_year": "report_year",
-                    "functional_classification_axis": "functional_classification",
-                    "depreciation_expense_excluding_amortization_of_acquisition_adjustments": "depreciation_expense",
-                    "depreciation_expense_for_asset_retirement_costs_excluding_amortizationg_of_acquisition_adjustments": "depreciation_expense_asset_retirement",
-                    "amortization_of_limited_term_plant_or_property": "amortization_limited_term_electric_plant",
-                    "amortization_of_other_electric_plant": "amortization_other_electric_plant",
-                    "depreciation_and_amortization": "depreciation_amortization_total",
+                    "xbrl_factoid": "ferc_account_label",
                 }
+            },
+            "duration_xbrl": {
+                "columns": {
+                    "functional_classification_axis": "functional_classification",
+                    "depreciation_expense_excluding_amortization_of_acquisition_adjustments": "depreciation_expense_depreciation_amortization_value",
+                    "depreciation_expense_for_asset_retirement_costs_excluding_amortizationg_of_acquisition_adjustments": "depreciation_expense_asset_retirement_depreciation_amortization_value",
+                    "amortization_of_limited_term_plant_or_property": "amortization_limited_term_electric_plant_depreciation_amortization_value",
+                    "amortization_of_other_electric_plant": "amortization_other_electric_plant_depreciation_amortization_value",
+                    "depreciation_and_amortization": "depreciation_amortization_total_depreciation_amortization_value",
+                }
+            },
+        },
+        "wide_to_tidy": {
+            "xbrl": {
+                "idx_cols": ["entity_id", "report_year", "functional_classification"],
+                "value_types": [
+                    "depreciation_amortization_value",
+                ],
+                "expected_drop_cols": 3,
+                "stacked_column_name": "xbrl_factoid",
+            },
+            "dbf": {
+                "idx_cols": [
+                    "report_year",
+                    "record_id",
+                    "utility_id_ferc1",
+                    "functional_classification",
+                ],
+                "value_types": ["depreciation_amortization_value"],
+                "expected_drop_cols": 1,
+                "stacked_column_name": "ferc_account_label",
             },
         },
         "categorize_strings": {
