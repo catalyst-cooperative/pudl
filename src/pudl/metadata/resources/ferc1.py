@@ -438,7 +438,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "field_namespace": "ferc1",
     },
     "depreciation_amortization_summary_ferc1": {
-        "description": "Summary of depreciation, and amortization of electric plant.",
+        "description": "Summary of depreciation, and amortization of electric plant as reported on page 336a of FERC Form 1.",
         "schema": {
             "fields": [
                 "utility_id_ferc1",
