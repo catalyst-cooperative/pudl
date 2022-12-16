@@ -2610,6 +2610,7 @@ TRANSFORM_PARAMS = {
                 }
             },
         },
+        "create_start_end_cols_instant_xbrl": {"create_start_end_cols": True},
         "wide_to_tidy": {
             "xbrl": {
                 "idx_cols": ["entity_id", "report_year"],
@@ -3237,6 +3238,7 @@ TRANSFORM_PARAMS = {
                 }
             },
         },
+        "create_start_end_cols_instant_xbrl": {"create_start_end_cols": True},
         "wide_to_tidy": {
             "xbrl": {
                 "idx_cols": [
@@ -3290,6 +3292,7 @@ TRANSFORM_PARAMS = {
                 }
             },
         },
+        "create_start_end_cols_instant_xbrl": {"create_start_end_cols": True},
         "wide_to_tidy": {
             "xbrl": {
                 "idx_cols": ["entity_id", "report_year"],

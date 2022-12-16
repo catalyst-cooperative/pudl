@@ -331,6 +331,58 @@ def align_row_numbers_dbf(
     return df
 
 
+class CreateStartEndColsInstantXbrl(TransformParams):
+    """Parameters for creating start and end columns for instant xbrl data."""
+
+    create_start_end_cols: bool = False
+    """If True create start and end columns."""
+
+
+def create_start_end_cols_instant_xbrl(
+    df: pd.DataFrame, params: CreateStartEndColsInstantXbrl
+) -> pd.DataFrame:
+    """Turn start year end year rows into columns for each value type.
+
+    This function is utilized in :func:`process_instant_xbrl` to prep the data for
+    :func:`wide_to_tidy`.
+
+    There are some instant tables that report the start-of-year data and the
+    end-of-year data on seperate rows. The dbf version of the table has a column for the
+    starting data, a column for the ending data, and a row number that cooresponds with
+    the row literal that data represents: i.e., cost, etc.
+
+    This kind of table needs two adjustments in order to be compatible with the dbf
+    version. First, it needs this parameter set to True, triggering a restructuring in
+    the :func:`process_instant_xbrl`, then it needs wide_to_tidy parameters.
+    """
+    if params is None:
+        params = CreateStartEndColsInstantXbrl()
+    if params.create_start_end_cols:
+        df["year"] = pd.to_datetime(df["date"]).dt.year
+        df.loc[df.report_year == (df.year + 1), "balance_type"] = "starting_balance"
+        df.loc[df.report_year == df.year, "balance_type"] = "ending_balance"
+        if not df.balance_type.notna().all():
+            # Remove rows from years that are not representative of start/end dates
+            # for a given report year (i.e., the report year and one year prior).
+            logger.warning(
+                f"Dropping unexpected years: "
+                f"{df.loc[df.balance_type.isna(), 'year'].unique()}"
+            )
+            df = df[df["balance_type"].notna()].copy()
+        df = (
+            df.drop(["year", "date"], axis="columns")
+            .set_index(["entity_id", "report_year", "balance_type"])
+            .unstack("balance_type")
+        )
+        # This turns a multi-index into a single-level index with tuples of strings
+        # as the keys, and then converts the tuples of strings into a single string
+        # by joining their values with an underscore. This results in column labels
+        # like boiler_plant_equipment_steam_production_starting_balance
+        df.columns = ["_".join(items) for items in df.columns.to_flat_index()]
+        df = df.reset_index()
+        return df
+
+
 class Ferc1TableTransformParams(TableTransformParams):
     """A model defining what TransformParams are allowed for FERC Form 1.
 
@@ -355,6 +407,9 @@ class Ferc1TableTransformParams(TableTransformParams):
     merge_metadata_xbrl: MergeMetadataXbrl = MergeMetadataXbrl()
     align_row_numbers_dbf: AlignRowNumbersDbf = AlignRowNumbersDbf()
     drop_duplicate_rows_dbf: DropDuplicateRowsDbf = DropDuplicateRowsDbf()
+    create_start_end_cols_instant_xbrl: CreateStartEndColsInstantXbrl = (
+        CreateStartEndColsInstantXbrl()
+    )
 
 
 ################################################################################
@@ -589,18 +644,18 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
     the transformed data.
     """
 
-    create_instant_start_end_cols: bool = False
-    """True if you need to turn rows representing start and end balance into columns.
+    # create_instant_start_end_cols: bool = False
+    # """True if you need to turn rows representing start and end balance into columns.
 
-    There are some instant tables that report the start-of-year data and the
-    end-of-year data on seperate rows. The dbf version of the table has a column for the
-    starting data, a column for the ending data, and a row number that cooresponds with
-    the row literal that data represents: i.e., cost, etc.
+    # There are some instant tables that report the start-of-year data and the
+    # end-of-year data on seperate rows. The dbf version of the table has a column for the
+    # starting data, a column for the ending data, and a row number that cooresponds with
+    # the row literal that data represents: i.e., cost, etc.
 
-    This kind of table needs two adjustments in order to be compatible with the dbf
-    version. First, it needs this parameter set to True, triggering a restructuring in
-    the :func:`process_instant_xbrl`, then it needs wide_to_tidy parameters.
-    """
+    # This kind of table needs two adjustments in order to be compatible with the dbf
+    # version. First, it needs this parameter set to True, triggering a restructuring in
+    # the :func:`process_instant_xbrl`, then it needs wide_to_tidy parameters.
+    # """
 
     xbrl_metadata_json: list[dict] = []
     """An array of JSON objects extracted from the FERC 1 XBRL taxonomy."""
@@ -853,6 +908,19 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             )
         return df
 
+    def create_start_end_cols_instant_xbrl(
+        self, df: pd.DataFrame, params: CreateStartEndColsInstantXbrl | None = None
+    ) -> pd.DataFrame:
+        """Turn start year end year rows into columns for each value type."""
+        logger.info(
+            f"{self.table_id.value}: Creating columns for start and end balance."
+        )
+        if params is None:
+            params = self.params.create_start_end_cols_instant_xbrl
+        if params.create_start_end_cols:
+            df = create_start_end_cols_instant_xbrl(df, params=params)
+        return df
+
     @cache_df(key="xbrl")
     def wide_to_tidy(
         self,
@@ -1002,33 +1070,9 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         conventions of ~95% of all the columns, which we rely on programmatically when
         reshaping and concatenating these tables together.
         """
-        df = self.rename_columns(df, rename_stage="instant_xbrl")
-        if self.create_instant_start_end_cols:
-            logger.info(
-                f"{self.table_id.value}: Creating columns for start and end balance."
-            )
-            df["year"] = pd.to_datetime(df["date"]).dt.year
-            df.loc[df.report_year == (df.year + 1), "balance_type"] = "starting_balance"
-            df.loc[df.report_year == df.year, "balance_type"] = "ending_balance"
-            if not df.balance_type.notna().all():
-                # Remove rows from years that are not representative of start/end dates
-                # for a given report year.
-                logger.warning(
-                    f"Dropping unexpected years found in the {self.table_id.value} "
-                    f"table: {df.loc[df.balance_type.isna(), 'year'].unique()}"
-                )
-                df = df[df["balance_type"].notna()].copy()
-            df = (
-                df.drop(["year", "date"], axis="columns")
-                .set_index(["entity_id", "report_year", "balance_type"])
-                .unstack("balance_type")
-            )
-            # This turns a multi-index into a single-level index with tuples of strings
-            # as the keys, and then converts the tuples of strings into a single string
-            # by joining their values with an underscore. This results in column labels
-            # like boiler_plant_equipment_steam_production_starting_balance
-            df.columns = ["_".join(items) for items in df.columns.to_flat_index()]
-            df = df.reset_index()
+        df = self.rename_columns(df, rename_stage="instant_xbrl").pipe(
+            self.create_start_end_cols_instant_xbrl
+        )
         return df
 
     @cache_df("process_duration_xbrl")
@@ -1693,7 +1737,6 @@ class PlantInServiceFerc1TableTransformer(Ferc1AbstractTableTransformer):
 
     table_id: TableIdFerc1 = TableIdFerc1.PLANT_IN_SERVICE_FERC1
     has_unique_record_ids: bool = False
-    create_instant_start_end_cols: bool = True
 
     def normalize_metadata_xbrl(
         self, xbrl_fact_names: list[str] | None
@@ -2855,7 +2898,6 @@ class BalanceSheetLiabilitiesFerc1TableTransformer(Ferc1AbstractTableTransformer
 
     table_id: TableIdFerc1 = TableIdFerc1.BALANCE_SHEET_LIABILITIES
     has_unique_record_ids: bool = False
-    create_instant_start_end_cols: bool = True
 
     def normalize_metadata_xbrl(
         self, xbrl_fact_names: list[str] | None
@@ -2878,7 +2920,6 @@ class BalanceSheetAssetsFerc1TableTransformer(Ferc1AbstractTableTransformer):
 
     table_id: TableIdFerc1 = TableIdFerc1.BALANCE_SHEET_ASSETS_FERC1
     has_unique_record_ids: bool = False
-    create_instant_start_end_cols: bool = True
 
     def normalize_metadata_xbrl(
         self, xbrl_fact_names: list[str] | None
