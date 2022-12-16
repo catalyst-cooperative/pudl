@@ -14,7 +14,7 @@ import yaml
 import pudl
 from pudl.extract.ferc1 import extract_xbrl_metadata
 from pudl.output.pudltabl import PudlTabl
-from pudl.settings import EtlSettings
+from pudl.settings import DatasetsSettings, EtlSettings
 
 logger = logging.getLogger(__name__)
 
@@ -100,7 +100,7 @@ def check_foreign_keys(request):
 
 
 @pytest.fixture(scope="session", name="etl_settings")
-def etl_parameters(request, test_dir):
+def etl_parameters(request, test_dir) -> EtlSettings:
     """Read the ETL parameters from the test settings or proffered file."""
     if request.config.getoption("--etl-settings"):
         etl_settings_yml = Path(request.config.getoption("--etl-settings"))
@@ -121,7 +121,7 @@ def ferc_to_sqlite_parameters(etl_settings):
 
 
 @pytest.fixture(scope="session", name="pudl_etl_settings")
-def pudl_etl_parameters(etl_settings):
+def pudl_etl_parameters(etl_settings: EtlSettings) -> DatasetsSettings:
     """Read PUDL ETL parameters out of test settings dictionary."""
     return etl_settings.datasets
 
@@ -211,9 +211,14 @@ def ferc1_xbrl_sql_engine(
 
 
 @pytest.fixture(scope="session", name="ferc1_xbrl_taxonomy_metadata")
-def ferc1_xbrl_taxonomy_metadata(pudl_settings_fixture, ferc1_engine_xbrl):
+def ferc1_xbrl_taxonomy_metadata(
+    pudl_settings_fixture, pudl_etl_settings: DatasetsSettings, ferc1_engine_xbrl
+):
     """Read the FERC 1 XBRL taxonomy metadata from JSON."""
-    return extract_xbrl_metadata(pudl_settings=pudl_settings_fixture)
+    return extract_xbrl_metadata(
+        ferc1_settings=pudl_etl_settings.ferc1,
+        pudl_settings=pudl_settings_fixture,
+    )
 
 
 @pytest.fixture(scope="session", name="pudl_engine")

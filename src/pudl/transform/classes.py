@@ -794,9 +794,14 @@ def drop_invalid_rows(df: pd.DataFrame, params: InvalidRows) -> pd.DataFrame:
             params.required_valid_cols or [] + params.allowed_invalid_cols or []
         )
         missing_cols = [col for col in possible_cols if col not in df]
-        if missing_cols:
+        if missing_cols and params.allowed_invalid_cols:
             logger.warning(
                 "Columns used as drop_invalid_rows parameters do not appear in "
+                f"dataframe: {missing_cols}"
+            )
+        if missing_cols and params.required_valid_cols:
+            raise ValueError(
+                "Some required valid columns in drop_invalid_rows are missing from "
                 f"dataframe: {missing_cols}"
             )
         # set filter items using either required_valid_cols or allowed_invalid_cols

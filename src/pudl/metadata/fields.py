@@ -99,6 +99,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Asset retirement cost (USD).",
         "unit": "USD",
     },
+    "asset_type": {
+        "type": "string",
+        "description": "Type of asset being reported to the balance_sheet_assets_ferc1 table.",
+    },
     "associated_combined_heat_power": {
         "type": "boolean",
         "description": "Indicates whether the generator is associated with a combined heat and power system",
@@ -107,6 +111,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "automated_meter_reading": {"type": "integer"},
     "avg_num_employees": {"type": "number"},
     "backup_capacity_mw": {"type": "number", "unit": "MW"},
+    "balance": {
+        "type": "string",
+        "description": "Indication of whether a column is a credit or debit, as reported in the XBRL taxonomy.",
+    },
     "balancing_authority_code_eia": {
         "type": "string",
         "description": "EIA short code identifying a balancing authority.",
