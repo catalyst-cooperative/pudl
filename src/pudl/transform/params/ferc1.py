@@ -3248,6 +3248,7 @@ TRANSFORM_PARAMS = {
         "categorize_strings": {
             "functional_classification": {
                 "categories": {
+                    "total": ["total"],
                     "intangible_plant": ["ferc:IntangiblePlantMember"],
                     "steam_production_plant": ["ferc:SteamProductionPlantMember"],
                     "nuclear_production_plant": ["ferc:NuclearProductionPlantMember"],
