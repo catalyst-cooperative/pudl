@@ -319,7 +319,6 @@ def align_row_numbers_dbf(
             )
 
         df = pd.merge(df, row_map, on=["report_year", "row_number"], how="left")
-        df.to_csv("aligned.csv")
         if df.xbrl_factoid.isna().any():
             raise ValueError(
                 "Found null FERC Account labels after aligning DBF/XBRL rows."
@@ -811,7 +810,6 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         if not params:
             params = self.params.rename_columns_ferc1.__getattribute__(rename_stage)
         df = super().rename_columns(df, params=params)
-        df.to_csv(f"renamed_{rename_stage}.csv")
         return df
 
     @cache_df(key="dbf")
