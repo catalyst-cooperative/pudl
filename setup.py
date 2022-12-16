@@ -49,7 +49,7 @@ setup(
     install_requires=[
         "addfips>=0.4,<0.5",
         "catalystcoop.dbfread>=3.0,<3.1",
-        "catalystcoop.ferc-xbrl-extractor==0.6.1",
+        "catalystcoop.ferc-xbrl-extractor==0.7.0",
         "coloredlogs>=15.0,<15.1",
         "dask>=2021.8,<2022.12.1",
         "datapackage>=1.11,<1.16",  # Transition datastore to use frictionless.
@@ -65,11 +65,10 @@ setup(
         "pyarrow>=5,<10.1",
         "pydantic[email]>=1.7,<2",
         "python-snappy>=0.6,<0.7",
-        "pygeos>=0.10,<0.15",
         "pyyaml>=5,<6.1",
         "scikit-learn>=1.0,<1.3",
         "scipy>=1.6,<1.10",
-        "Shapely>1.8.0,!=1.8.3,<2.1",  # Incompatibility in 1.8.3
+        "Shapely>=2.0,<2.1",
         "sqlalchemy>=1.4,<1.4.46",
         "timezonefinder>=5,<6.2",
         "xlsxwriter>=3,<3.1",

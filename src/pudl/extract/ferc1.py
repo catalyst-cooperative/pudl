@@ -762,10 +762,10 @@ def extract_xbrl(
         return ferc1_raw_dfs
 
     for pudl_table in ferc1_settings.tables:
-        # TODO: Raise exception once XBRL tables are fully integrated
-        # For now skip because map is not defined for all pudl tables
+        if pudl_table not in TABLE_NAME_MAP:
+            raise ValueError(f"{pudl_table} not found in the list of known tables.")
         if "xbrl" not in TABLE_NAME_MAP[pudl_table]:
-            continue
+            raise ValueError(f"No XBRL tables have been associated with {pudl_table}.")
 
         logger.info(
             f"Converting extracted FERC Form 1 table {pudl_table} into a "
@@ -846,8 +846,56 @@ def extract_dbf_generic(
     )
 
 
-def extract_xbrl_metadata(pudl_settings: dict[Any]) -> list[dict[Any]]:
-    """Extract the XBRL Taxonomy we've stored as JSON."""
+def extract_xbrl_metadata(
+    ferc1_settings: Ferc1Settings | None = None,
+    pudl_settings: dict[Any] | None = None,
+) -> dict[str, dict[str, list[dict[str, Any]]]]:
+    """Extract the FERC 1 XBRL Taxonomy metadata we've stored as JSON.
+
+    Args:
+        ferc1_settings: Settings object used to identify which tables metadata should
+            be extracted for.
+        pudl_settings: PUDL settings dictionary used to look up the location of the
+            XBRL metadata.
+
+    Returns:
+        A dictionary keyed by PUDL table name, with an instant and a duration entry
+        for each table, corresponding to the metadata for each of the respective instant
+        or duration tables from XBRL if they exist. Table metadata is returned as a list
+        of dictionaries, each of which can be interpreted as a row in a tabular
+        structure, with each row annotating a separate XBRL concept from the FERC 1
+        filings. If there is no instant/duration table, an empty list is returned
+        instead.
+    """
+    if pudl_settings is None:
+        pudl_settings = pudl.workspace.setup.get_defaults()
+
+    if ferc1_settings is None:
+        ferc1_settings = Ferc1Settings()
+
     with open(pudl_settings["ferc1_xbrl_taxonomy_metadata"]) as f:
-        xbrl_meta = json.load(f)
-    return xbrl_meta
+        xbrl_meta_all = json.load(f)
+
+    xbrl_meta_out = {}
+    for pudl_table in ferc1_settings.tables:
+        if pudl_table not in TABLE_NAME_MAP:
+            raise ValueError(f"{pudl_table} not found in the list of known tables.")
+        if "xbrl" not in TABLE_NAME_MAP[pudl_table]:
+            raise ValueError(f"No XBRL tables have been associated with {pudl_table}.")
+
+        logger.info(
+            f"Reading XBRL Taxonomy metadata for FERC Form 1 table {pudl_table}"
+        )
+        # Attempt to extract both duration and instant tables
+        xbrl_table = TABLE_NAME_MAP[pudl_table]["xbrl"]
+        xbrl_meta_out[pudl_table] = {}
+
+        for period in ["instant", "duration"]:
+            try:
+                xbrl_meta_out[pudl_table][period] = xbrl_meta_all[
+                    f"{xbrl_table}_{period}"
+                ]
+            except KeyError:
+                xbrl_meta_out[pudl_table][period] = []
+
+    return xbrl_meta_out
