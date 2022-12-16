@@ -23,6 +23,30 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "ferc1_disabled",
         "field_namespace": "ferc1",
     },
+    "balance_sheet_assets_ferc1": {
+        "description": "Comparative Balance Sheet (Assets and Other Debits).",
+        "schema": {
+            "fields": [
+                "utility_id_ferc1",
+                "report_year",
+                "record_id",
+                "asset_type",
+                "ending_balance",
+                "starting_balance",
+                "ferc_account",
+                "balance",
+                "row_type_xbrl",
+            ],
+            "primary_key": [
+                "utility_id_ferc1",
+                "report_year",
+                "asset_type",
+            ],
+        },
+        "sources": ["ferc1"],
+        "etl_group": "ferc1",
+        "field_namespace": "ferc1",
+    },
     "electric_energy_sources_ferc1": {
         "description": "Amount of electricity the utility obtained from each of several sources, by year.",
         "schema": {
@@ -32,6 +56,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "energy_source_type",
                 "row_type_xbrl",
                 "energy_mwh",
+                "record_id",
             ],
             "primary_key": [
                 "utility_id_ferc1",
@@ -52,6 +77,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "energy_disposition_type",
                 "row_type_xbrl",
                 "energy_mwh",
+                "record_id",
             ],
             "primary_key": [
                 "utility_id_ferc1",

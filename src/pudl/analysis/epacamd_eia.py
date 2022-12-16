@@ -120,7 +120,7 @@ def _prep_for_networkx(crosswalk: pd.DataFrame) -> pd.DataFrame:
         by=["plant_id_eia", "emissions_unit_id_epa"]
     ).ngroup()
     # node IDs can't overlap so add (max + 1)
-    prepped["generator_id"] = (
+    prepped["generator_id_unique"] = (
         prepped.groupby(by=["plant_id_eia", "generator_id"]).ngroup()
         + prepped["combustor_id"].max()
         + 1
@@ -141,7 +141,7 @@ def _subplant_ids_from_prepped_crosswalk(prepped: pd.DataFrame) -> pd.DataFrame:
     graph = nx.from_pandas_edgelist(
         prepped,
         source="combustor_id",
-        target="generator_id",
+        target="generator_id_unique",
         edge_attr=True,
     )
     for i, node_set in enumerate(nx.connected_components(graph)):
