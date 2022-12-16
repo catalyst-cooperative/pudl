@@ -133,3 +133,148 @@ from the ``pudl`` directory:
 
     docker compose -f docker/docker-compose.yml build
     docker compose -f docker/docker-compose.yml up
+
+
+How to access the nightly build outputs from AWS
+------------------------------------------------
+To access the nightly build outputs you can either use the `PUDL data catalog
+<https://catalystcoop-pudl-catalog.readthedocs.io/en/latest/>`__ or you can download
+the data directly from the ``s3://intake.catalyst.coop`` bucket. To do this, you'll
+need to `follow the instructions
+<https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html>`__
+for installing the AWS CLI tool.
+
+To test that the AWS CLI tool and the bucket are working properly, run:
+
+.. code-block::
+
+   aws s3 ls s3://intake.catalyst.coop --no-sign-request
+
+You should see a list of directories with version names:
+
+.. code-block::
+
+   PRE dev/
+   PRE v2022.11.30/
+   ...
+
+The ``--no-sign-request`` flag allows you to make requsts to the
+public bucket without having to load AWS credentials. If you don't
+include this flag when interacting with the ``s3://intake.catalyst.coop``
+bucket, ``aws`` will give you an authentication error.
+
+.. warning::
+
+   If you download the files directly with ``aws`` then you'll be responsible for
+   updating them, making sure you have the right version, putting them in the right
+   place on your computer, etc. You also won't benefit from the caching that the Intake
+   catalogs do. For easier automatic updates, data versioning and dependency management,
+   we recommend using the Intake catalog rather than direct downloads. But for
+   developent work it can often be convenient to grab the fresh nightly build outputs.
+
+If you want to copy these files directly to your computer, rather than using the
+PUDL Intake catalog, you can use the ``aws s3 cp`` command, which behaves very much like
+the Unix ``cp`` command:
+
+.. code::
+
+   aws s3 cp --no-sign-request s3://intake.catalyst.coop/dev/pudl.sqlite ./
+
+If you wanted to download all of the build outputs (more than 10GB!) you could use ``cp
+--recursive`` flag on the whole directory:
+
+.. code::
+
+   aws s3 cp --no-sign-request --recursive s3://intake.catalyst.coop/dev/ ./
+
+For more details on how to use ``aws`` in general see the
+`online documentation <https://docs.aws.amazon.com/cli/latest/reference/s3/>`__ or run:
+
+.. code::
+
+   aws help
+
+How to access the nightly build outputs and logs (for the Catalyst team only)
+-----------------------------------------------------------------------------
+
+Sometimes it is helpful to download the logs and data outputs of
+nightly builds when debugging failures. To do this you'll need to
+set up the Google Cloud software Development Kit (SDK).
+
+Install the `gcloud utilities <https://cloud.google.com/sdk/docs/install>`__ on your
+computer. There are several ways to do this. We recommend using ``conda`` or its faster
+sibling ``mamba``. If you're not using ``conda`` environments, there are other
+ways to install the Google Cloud SDK explained in the link above.
+
+.. code::
+
+  conda install -c conda-forge google-cloud-sdk
+
+Log into the account you used to create your new project above by running:
+
+.. code::
+
+  gcloud auth login
+
+Initialize the ``gcloud`` command line interface and select the
+``catalyst-cooperative-pudl`` project.
+
+If it asks you whether you want to "re-initialize this configuration with new settings"
+say yes.
+
+.. code::
+
+  gcloud init
+
+Finally, use ``gcloud`` to establish application default credentials; this will allow
+the project to be used for requester pays access through applications:
+
+.. code::
+
+  gcloud auth application-default login
+
+To test whether your GCP account is set up correctly and authenticated you can run the
+following command to list the contents of the cloud storage bucket containing the PUDL
+catalog data. This doesn't actually download any data, but will show you the versions
+that are available:
+
+.. code::
+
+   gsutil ls gs://nightly-build-outputs.catalyst.coop
+
+You should see a list of directories with the naming convention
+``<git commit SHA>-<git branch>``.
+
+To see what the outputs are for a given nightly build, you can use ``gsutil``
+like this:
+
+.. code::
+
+   gsutil ls -l gs://nightly-build-outputs.catalyst.coop/<build name of interest>
+
+      1152800  2022-11-22T12:51:02Z  gs://nightly-build-outputs.catalyst.coop/<build name of interest>/pudl-etl.log
+                                 gs://nightly-build-outputs.catalyst.coop/<build name of interest>/parquet/
+                                 gs://nightly-build-outputs.catalyst.coop/<build name of interest>/pudl_out/
+                                 gs://nightly-build-outputs.catalyst.coop/<build name of interest>/sqlite/
+   TOTAL: 1 objects, 1152800 bytes (1.1 MiB)
+
+If you want to copy these files down directly to your computer, you can use
+the ``gsutil cp`` command, which behaves very much like the Unix ``cp`` command:
+
+.. code::
+
+   gsutil cp gs://nightly-build-outputs.catalyst.coop/<build name of interest>/pudl.sqlite ./
+
+If you wanted to download all of the build outputs (more than 10GB!) you could use ``cp
+-r`` on the whole directory:
+
+.. code::
+
+   gsutil cp -r gs://nightly-build-outputs.catalyst.coop/<build name of interest>/ ./
+
+For more details on how to use ``gsutil`` in general see the
+`online documentation <https://cloud.google.com/storage/docs/gsutil>`__ or run:
+
+.. code::
+
+   gsutil --help
