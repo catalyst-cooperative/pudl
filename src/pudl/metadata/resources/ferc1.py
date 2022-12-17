@@ -80,6 +80,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "energy_source_type",
                 "row_type_xbrl",
                 "energy_mwh",
+                "record_id",
             ],
             "primary_key": [
                 "utility_id_ferc1",
@@ -100,6 +101,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "energy_disposition_type",
                 "row_type_xbrl",
                 "energy_mwh",
+                "record_id",
             ],
             "primary_key": [
                 "utility_id_ferc1",
