@@ -2803,42 +2803,12 @@ class BalanceSheetLiabilitiesFerc1TableTransformer(Ferc1AbstractTableTransformer
     table_id: TableIdFerc1 = TableIdFerc1.BALANCE_SHEET_LIABILITIES
     has_unique_record_ids: bool = False
 
-    def normalize_metadata_xbrl(
-        self, xbrl_fact_names: list[str] | None
-    ) -> pd.DataFrame:
-        """Normalize the metadata from the XBRL taxonomy +."""
-        meta = (
-            super()
-            .normalize_metadata_xbrl(xbrl_fact_names)
-            .assign(
-                xbrl_factoid=lambda x: x.xbrl_fact_name,
-            )
-        )
-        # Save the normalized metadata so it can be used by other methods.
-        self.xbrl_metadata_normalized = meta
-        return meta
-
 
 class BalanceSheetAssetsFerc1TableTransformer(Ferc1AbstractTableTransformer):
     """Transformer class for :ref:`balance_sheet_assets_ferc1` table."""
 
     table_id: TableIdFerc1 = TableIdFerc1.BALANCE_SHEET_ASSETS_FERC1
     has_unique_record_ids: bool = False
-
-    def normalize_metadata_xbrl(
-        self, xbrl_fact_names: list[str] | None
-    ) -> pd.DataFrame:
-        """Normalize the metadata from the XBRL taxonomy +."""
-        meta = (
-            super()
-            .normalize_metadata_xbrl(xbrl_fact_names)
-            .assign(
-                xbrl_factoid=lambda x: x.xbrl_fact_name,
-            )
-        )
-        # Save the normalized metadata so it can be used by other methods.
-        self.xbrl_metadata_normalized = meta
-        return meta
 
 
 def transform(
