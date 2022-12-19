@@ -48,10 +48,11 @@ setup(
     setup_requires=["setuptools_scm"],
     install_requires=[
         "addfips>=0.4,<0.5",
+        "awscli>=1.27,<1.28",
         "catalystcoop.dbfread>=3.0,<3.1",
         "catalystcoop.ferc-xbrl-extractor==0.7.0",
         "coloredlogs>=15.0,<15.1",
-        "dask>=2021.8,<2022.12.1",
+        "dask>=2021.8,<2022.12.2",
         "datapackage>=1.11,<1.16",  # Transition datastore to use frictionless.
         # "email-validator>=1.0.3",  # pydantic[email] dependency
         "fsspec>=2021.7,<2022.11.1",  # For caching datastore on GCS
@@ -60,7 +61,7 @@ setup(
         "jinja2>=2,<3.2",
         "matplotlib>=3.3,<3.7",  # Should make this optional with a "viz" extras
         "networkx>=2.2,<2.9",
-        "numpy>=1.18.5,<1.24,!=1.23.0",
+        "numpy>=1.18.5,!=1.23.0,<1.25",
         "pandas>=1.4,<1.5.3",
         "pyarrow>=5,<10.1",
         "pydantic[email]>=1.7,<2",
@@ -95,7 +96,7 @@ setup(
         ],
         "test": [
             "bandit>=1.6,<1.8",
-            "coverage>=5.3,<6.6",
+            "coverage>=5.3,<7.1",
             "doc8>=0.9,<1.1",
             "flake8>=4.0,<6.1",
             "flake8-builtins>=1.5,<2.1",
