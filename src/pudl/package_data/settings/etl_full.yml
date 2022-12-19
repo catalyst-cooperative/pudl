@@ -562,6 +562,7 @@ datasets:
       - electric_energy_dispositions_ferc1
       - utility_plant_summary_ferc1
       - balance_sheet_assets_ferc1
+      - income_statement_ferc1
     years:
       [
         1994,
