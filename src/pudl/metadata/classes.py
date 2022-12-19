@@ -418,8 +418,8 @@ class Encoder(Base):
     ignored_codes: list[Int | str] = []
     """A list of non-standard codes which appear in the data, and will be set to NA.
 
-    These codes may be the result of data entry errors, and we are unable to map them
-    to the appropriate canonical code. They are discarded from the raw input data.
+    These codes may be the result of data entry errors, and we are unable to map them to
+    the appropriate canonical code. They are discarded from the raw input data.
     """
 
     code_fixes: dict[Int | String, Int | String] = {}
@@ -431,7 +431,7 @@ class Encoder(Base):
     """
 
     name: String = None
-    """The name of the code. """
+    """The name of the code."""
 
     @pydantic.validator("df")
     def _df_is_encoding_table(cls, df):  # noqa: N805
@@ -1015,8 +1015,8 @@ class ResourceHarvest(Base):
     harvest: Bool = False
     """Whether to harvest from dataframes based on field names.
 
-    If `False`, the dataframe with the same name is used
-    and the process is limited to dropping unwanted fields.
+    If `False`, the dataframe with the same name is used and the process is limited to
+    dropping unwanted fields.
     """
 
     tolerance: PositiveFloat = 0.0

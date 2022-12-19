@@ -147,11 +147,10 @@ FERC_ACCOUNTS: pd.DataFrame = pd.DataFrame(
         (104, "total_electric_plant", "TOTAL Electric Plant in Service"),
     ],
 )
-"""
-FERC electric plant account IDs with associated row numbers and descriptions.
+"""FERC electric plant account IDs with associated row numbers and descriptions.
 
-From FERC Form 1 pages 204-207, Electric Plant in Service.
-Descriptions from: https://www.law.cornell.edu/cfr/text/18/part-101
+From FERC Form 1 pages 204-207, Electric Plant in Service. Descriptions from:
+https://www.law.cornell.edu/cfr/text/18/part-101
 """
 
 FERC_DEPRECIATION_LINES: pd.DataFrame = pd.DataFrame(
@@ -227,11 +226,10 @@ FERC_DEPRECIATION_LINES: pd.DataFrame = pd.DataFrame(
         (29, "total", "TOTAL (Enter Total of lines 20 thru 28)"),
     ],
 )
-"""
-Row numbers, FERC account IDs, and FERC account descriptions.
+"""Row numbers, FERC account IDs, and FERC account descriptions.
 
-From FERC Form 1 page 219, Accumulated Provision for Depreciation of electric
-utility plant (Account 108).
+From FERC Form 1 page 219, Accumulated Provision for Depreciation of electric utility
+plant (Account 108).
 """
 
 EIA_SECTOR_AGGREGATE_ASSN = pd.read_csv(
@@ -264,9 +262,8 @@ all_electric_power,3
 """
     ),
 )
-"""Association table describing the many-to-many relationships between plant sectors
-and various aggregates in fuel_receipts_costs_aggs_eia.
-"""
+"""Association table describing the many-to-many relationships between plant sectors and
+various aggregates in fuel_receipts_costs_aggs_eia."""
 
 
 EIA_FUEL_AGGREGATE_ASSN = pd.read_csv(
@@ -290,10 +287,12 @@ petroleum_liquids,WO
     """
     ),
 )
-"""Association table describing the many-to-many relationships between fuel types
-and various aggregates in fuel_receipts_costs_aggs_eia. Missing from these aggregates
-are all the "other" categories of gases: OG, BFG, SGP, SC, PG. But those gases combine
-for about 0.2% of total MMBTU of reported fuel receipts."""
+"""Association table describing the many-to-many relationships between fuel types and
+various aggregates in fuel_receipts_costs_aggs_eia.
+
+Missing from these aggregates are all the "other" categories of gases: OG, BFG, SGP, SC,
+PG. But those gases combine for about 0.2% of total MMBTU of reported fuel receipts.
+"""
 
 
 POLITICAL_SUBDIVISIONS: pd.DataFrame = pd.read_csv(
@@ -385,8 +384,7 @@ YT,Yukon Territory,CAN,Canada,territory,America/Whitehorse,,,,,0
         "is_epacems_state": bool,
     },
 )
-"""
-Static attributes of sub-national political jurisdictions.
+"""Static attributes of sub-national political jurisdictions.
 
 Note AK and PR have incomplete EPA CEMS data, and so are excluded from is_epacems_state:
 See https://github.com/catalyst-cooperative/pudl/issues/1264
