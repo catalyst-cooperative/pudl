@@ -48,6 +48,7 @@ setup(
     setup_requires=["setuptools_scm"],
     install_requires=[
         "addfips>=0.4,<0.5",
+        "awscli>=1.27,<1.28",
         "catalystcoop.dbfread>=3.0,<3.1",
         "catalystcoop.ferc-xbrl-extractor==0.7.0",
         "coloredlogs>=15.0,<15.1",
@@ -60,7 +61,7 @@ setup(
         "jinja2>=2,<3.2",
         "matplotlib>=3.3,<3.7",  # Should make this optional with a "viz" extras
         "networkx>=2.2,<2.9",
-        "numpy>=1.18.5,<1.24,!=1.23.0",
+        "numpy>=1.18.5,!=1.23.0,<1.25",
         "pandas>=1.4,<1.5.3",
         "pyarrow>=5,<10.1",
         "pydantic[email]>=1.7,<2",
