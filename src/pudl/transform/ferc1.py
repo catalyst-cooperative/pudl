@@ -292,7 +292,7 @@ def drop_duplicate_rows_dbf(df, params: DropDuplicateRowsDbf):
 class AlignRowNumbersDbf(TransformParams):
     """Parameters for aligning DBF row numbers with metadata from mannual maps."""
 
-    dbf_table_name: str | None = None
+    dbf_table_names: list[str] | None = None
     """DBF table to use to grab the row map in :func:`align_row_numbers_dbf`.
 
     Default is ``None``.
@@ -305,13 +305,18 @@ def align_row_numbers_dbf(
     """Rename the xbrl_factoid column after :meth:`align_row_numbers_dbf`."""
     if params is None:
         params = AlignRowNumbersDbf()
-    if params.dbf_table_name:
+    if params.dbf_table_names:
         logger.info(
-            f"Aligning row numbers from DBF row to XBRL map for  {params.dbf_table_name}"
+            f"Aligning row numbers from DBF row to XBRL map for  {params.dbf_table_names}"
         )
-        row_map = read_dbf_to_xbrl_map(dbf_table_name=params.dbf_table_name).pipe(
-            fill_dbf_to_xbrl_map
-        )
+        row_maps = []
+        for dbf_table_name in params.dbf_table_names:
+            row_maps.append(
+                read_dbf_to_xbrl_map(dbf_table_name=dbf_table_name).pipe(
+                    fill_dbf_to_xbrl_map
+                )
+            )
+        row_map = pd.concat(row_maps)
         if not row_map.all(axis=None):
             raise ValueError(
                 "Filled DBF-XBRL map contains NA values, which should never happen:"
@@ -432,11 +437,9 @@ def read_dbf_to_xbrl_map(dbf_table_name: str) -> pd.DataFrame:
             ],
         )
     # Select only the rows that pertain to dbf_table_name
-    row_map = row_map.loc[
-        row_map.sched_table_name == dbf_table_name,
-        ["report_year", "row_number", "row_type", "xbrl_factoid"],
-    ]
-    row_map = row_map.fillna(value={"dbf_only": False})
+    row_map = row_map.loc[row_map.sched_table_name == dbf_table_name].fillna(
+        value={"dbf_only": False}
+    )
     return row_map
 
 
@@ -489,7 +492,8 @@ def fill_dbf_to_xbrl_map(
             "Invalid combination of years and DBF-XBRL mapping. The first year cannot\n"
             "be filled and **must** be mapped.\n"
             f"First year: {min(dbf_years)}, "
-            f"Mapped years: {sorted(df.report_years.unique())}"
+            f"Mapped years: {sorted(df.report_year.unique())}\n"
+            f"{df}"
         )
 
     if df.loc[(df.row_type == "header"), "xbrl_factoid"].notna().any():
@@ -498,7 +502,8 @@ def fill_dbf_to_xbrl_map(
 
     if df["xbrl_factoid"].isna().any():
         raise ValueError(
-            "Found NA XBRL values in the DBF-XBRL mapping, which shouldn't happen."
+            "Found NA XBRL values in the DBF-XBRL mapping, which shouldn't happen. \n"
+            f"{df[df['xbrl_factoid'].isna()]}"
         )
     df = df.drop(["row_type"], axis="columns")
 
@@ -734,7 +739,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         """
         if params is None:
             params = self.params.align_row_numbers_dbf
-        if params.dbf_table_name:
+        if params.dbf_table_names:
             df = align_row_numbers_dbf(df, params=params)
         return df
 
@@ -2807,6 +2812,66 @@ class IncomeStatementFerc1TableTransformer(Ferc1AbstractTableTransformer):
 
     table_id: TableIdFerc1 = TableIdFerc1.INCOME_STATEMENT_FERC1
     has_unique_record_ids: bool = False
+
+    def assign_record_id(
+        self, df: pd.DataFrame, source_ferc1: SourceFerc1
+    ) -> pd.DataFrame:
+        """Add a column identifying the original source record for each row.
+
+        Generate the ``record_id`` column in similar fashion to
+        :meth:`Ferc1AbstractTableTransformer.assign_record_id`, but use the table name
+        from the ``dbf_to_xbrl.csv`` during the :meth:`align_row_numbers_dbf` for the
+        DBF side of the table because this DBF input came from two seperate tables.
+
+        Args:
+            df: table to assign ``record_id`` to
+            table_name: name of table
+            source_ferc1: data source of raw ferc1 database.
+
+        Raises:
+            ValueError: If any of the primary key columns are missing from the DataFrame
+                being processed.
+            ValueError: If there are any null values in the primary key columns.
+            ValueError: If the resulting `record_id` column is non-unique.
+        """
+        logger.debug(
+            f"{self.table_id.value}: Assigning {source_ferc1.value} source record IDs."
+        )
+        pk_cols = self.renamed_table_primary_key(source_ferc1)
+        missing_pk_cols = set(pk_cols).difference(df.columns)
+        if missing_pk_cols:
+            raise ValueError(
+                f"{self.table_id.value} ({source_ferc1.value}): Missing primary key "
+                "columns in dataframe while assigning source record_id: "
+                f"{missing_pk_cols}"
+            )
+        if df[pk_cols].isnull().any(axis=None):
+            raise ValueError(
+                f"{self.table_id.value} ({source_ferc1.value}): Found null primary key "
+                "values.\n"
+                f"{df[pk_cols].isnull().any()}"
+            )
+        # assign the source_table_id column based on the source
+        if source_ferc1 == SourceFerc1.DBF:
+            # sched_table_name is a table name. was added in align_row_numbers_dbf
+            df = df.assign(source_table_id=lambda x: x.sched_table_name)
+        else:
+            assert source_ferc1 == SourceFerc1.XBRL
+            df = df.assign(source_table_id=self.source_table_id(source_ferc1))
+        df = df.assign(
+            record_id=lambda x: x.source_table_id.str.cat(
+                x[pk_cols].astype(str), sep="_"
+            ),
+        ).drop(columns=["source_table_id"])
+        df.record_id = enforce_snake_case(df.record_id)
+
+        dupe_ids = df.record_id[df.record_id.duplicated()].values
+        if dupe_ids.any() and self.has_unique_record_ids:
+            logger.warning(
+                f"{self.table_id.value}: Found {len(dupe_ids)} duplicate record_ids: \n"
+                f"{dupe_ids}."
+            )
+        return df
 
 
 def transform(

@@ -801,6 +801,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "highest_distribution_voltage_kv": {"type": "number", "unit": "kV"},
     "home_area_network": {"type": "integer"},
     "inactive_accounts_included": {"type": "boolean"},
+    "income_type": {
+        "type": "string",
+        "description": "Type of income reported in income_statement_ferc1 table.",
+    },
+    "income": {"type": "number", "description": "Dollars of income."},
     "incremental_energy_savings_mwh": {"type": "number", "unit": "MWh"},
     "incremental_life_cycle_energy_savings_mwh": {"type": "number", "unit": "MWh"},
     "incremental_life_cycle_peak_reduction_mwh": {"type": "number", "unit": "MWh"},
