@@ -51,7 +51,7 @@ setup(
         "catalystcoop.dbfread>=3.0,<3.1",
         "catalystcoop.ferc-xbrl-extractor==0.7.0",
         "coloredlogs>=15.0,<15.1",
-        "dask>=2021.8,<2022.12.1",
+        "dask>=2021.8,<2022.12.2",
         "datapackage>=1.11,<1.16",  # Transition datastore to use frictionless.
         # "email-validator>=1.0.3",  # pydantic[email] dependency
         "fsspec>=2021.7,<2022.11.1",  # For caching datastore on GCS
@@ -95,7 +95,7 @@ setup(
         ],
         "test": [
             "bandit>=1.6,<1.8",
-            "coverage>=5.3,<6.6",
+            "coverage>=5.3,<7.1",
             "doc8>=0.9,<1.1",
             "flake8>=4.0,<6.1",
             "flake8-builtins>=1.5,<2.1",
