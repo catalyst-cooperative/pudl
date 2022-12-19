@@ -3303,7 +3303,7 @@ TRANSFORM_PARAMS = {
             "data_columns": ["ending_balance", "starting_balance"],
             "table_name": "balance_sheet_liabilities_ferc1",
         },
-        "merge_metadata_xbrl": {
+        "merge_xbrl_metadata": {
             "rename_columns": {"xbrl_factoid": "liability_type"},
             "on": "liability_type",
         },
