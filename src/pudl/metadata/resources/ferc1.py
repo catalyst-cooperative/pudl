@@ -445,6 +445,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "report_year",
                 "functional_classification",
                 "ferc_account_label",
+                "ferc_account",
                 "depreciation_amortization_value",
             ],
             "primary_key": [

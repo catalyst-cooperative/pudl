@@ -2810,6 +2810,31 @@ class DepreciationAmortizationSummaryFerc1TableTransformer(
     table_id: TableIdFerc1 = TableIdFerc1.DEPRECIATION_AMORTIZATION_SUMMARY_FERC1
     has_unique_record_ids: bool = False
 
+    def map_ferc_accounts(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Map FERC accounts to ``ferc_account_label``.
+
+        The FERC accounts are not provided in the XBRL taxonomy like they are for other
+        tables. However, there are only 4 of them, so a mapping is hardcoded here.
+        """
+        account_map = pd.DataFrame(
+            {
+                "ferc_account_label": [
+                    "depreciation_expense",
+                    "depreciation_expense_asset_retirement",
+                    "amortization_limited_term_electric_plant",
+                    "amortization_other_electric_plant",
+                ],
+                "ferc_account": ["403", "403.1", "404", "405"],
+            }
+        )
+
+        return pd.merge(df, account_map, on=["ferc_account_label"], how="left")
+
+    @cache_df("main")
+    def transform_main(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Apply generic ``transform_main``, then map FERC accounts to labels."""
+        return super().transform_main(df).pipe(self.map_ferc_accounts)
+
 
 def transform(
     ferc1_dbf_raw_dfs: dict[str, pd.DataFrame],
