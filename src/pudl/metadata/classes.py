@@ -947,7 +947,11 @@ class DataSource(Base):
 
     def add_datastore_metadata(self) -> None:
         """Get source file metadata from the datastore."""
-        dp_desc = Datastore(sandbox=False).get_datapackage_descriptor(self.name)
+        dp_desc = Datastore(
+            sandbox=False,
+            local_cache_path=pudl.workspace.setup.get_defaults()["data_dir"],
+            gcs_cache_path="gs://zenodo-cache.catalyst.coop",
+        ).get_datapackage_descriptor(self.name)
         partitions = dp_desc.get_partitions()
         if "year" in partitions:
             partitions["years"] = partitions["year"]
