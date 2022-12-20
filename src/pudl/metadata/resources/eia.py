@@ -401,8 +401,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "field_namespace": "eia",
     },
 }
-"""
-Generic EIA resource attributes organized by PUDL identifier (``resource.name``).
+"""Generic EIA resource attributes organized by PUDL identifier (``resource.name``).
 
 Keys are in alphabetical order.
 

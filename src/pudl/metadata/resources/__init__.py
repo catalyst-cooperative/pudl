@@ -14,8 +14,7 @@ for module_info in pkgutil.iter_modules(__path__):
     RESOURCE_METADATA.update(resources)
 
 FOREIGN_KEYS: dict[str, list[dict]] = build_foreign_keys(RESOURCE_METADATA)
-"""
-Generated foreign key constraints by resource name.
+"""Generated foreign key constraints by resource name.
 
 See :func:`pudl.metadata.helpers.build_foreign_keys`.
 """
@@ -206,8 +205,7 @@ ENTITIES: dict[str, dict[str, list[str]]] = {
         "annual_cols": [],
     },
 }
-"""
-Columns kept for either entity or annual EIA tables in the harvesting process.
+"""Columns kept for either entity or annual EIA tables in the harvesting process.
 
 For each entity type (key), the ID columns, static columns, and annual columns,
 

@@ -530,6 +530,4 @@ SOURCES: dict[str, Any] = {
         "email": "pudl@catalyst.coop",
     },
 }
-"""
-Data source attributes by PUDL identifier.
-"""
+"""Data source attributes by PUDL identifier."""
