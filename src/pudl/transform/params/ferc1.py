@@ -677,10 +677,10 @@ FUEL_CATEGORIES: dict[str, set[str]] = {
         },
     }
 }
-"""
-A mapping a canonical fuel name to a set of strings which are used to represent that
-fuel in the FERC Form 1 Reporting. Case is ignored, as all fuel strings are converted to
-lower case in the data set.
+"""A mapping a canonical fuel name to a set of strings which are used to represent that
+fuel in the FERC Form 1 Reporting.
+
+Case is ignored, as all fuel strings are converted to lower case in the data set.
 """
 
 FUEL_UNIT_CATEGORIES: dict[str, set[str]] = {
@@ -1002,10 +1002,8 @@ FUEL_UNIT_CATEGORIES: dict[str, set[str]] = {
         },
     }
 }
-"""
-A mapping of canonical fuel units (keys) to sets of strings representing those
-fuel units (values)
-"""
+"""A mapping of canonical fuel units (keys) to sets of strings representing those fuel
+units (values)"""
 
 PLANT_TYPE_CATEGORIES: dict[str, set[str]] = {
     "categories": {
@@ -1558,9 +1556,10 @@ PLANT_TYPE_CATEGORIES: dict[str, set[str]] = {
         },
     }
 }
-"""
-A mapping from canonical plant kinds (keys) to the associated freeform strings (values)
-identified as being associated with that kind of plant in the FERC Form 1 raw data.
+"""A mapping from canonical plant kinds (keys) to the associated freeform strings
+(values) identified as being associated with that kind of plant in the FERC Form 1 raw
+data.
+
 There are many strings that weren't categorized, Solar and Solar Project were not
 classified as these do not indicate if they are solar thermal or photovoltaic. Variants
 on Steam (e.g. "steam 72" and "steam and gas") were classified based on additional
@@ -1667,10 +1666,11 @@ PLANT_TYPE_CATEGORIES_HYDRO: dict[str, set[str]] = {
         },
     }
 }
-"""
-A mapping from canonical plant kinds (keys) to the associated freeform strings (values)
-identified as being associated with that kind of plant in the FERC Form 1 Hydro Plants
-data. These are seperated out from the rest of the plant types due to the difference in
+"""A mapping from canonical plant kinds (keys) to the associated freeform strings
+(values) identified as being associated with that kind of plant in the FERC Form 1 Hydro
+Plants data.
+
+These are seperated out from the rest of the plant types due to the difference in
 languaged used to refer to hydro vs. other types of plants. For example: "conventional"
 in the context of a hydro plant means that it is conventional hydro-electric. In the
 context of the steam table, however, it's unclear what conventional means.
@@ -2067,8 +2067,7 @@ CONSTRUCTION_TYPE_CATEGORIES: dict[str, set[str]] = {
         },
     }
 }
-"""
-A dictionary of construction types (keys) and lists of construction type strings
+"""A dictionary of construction types (keys) and lists of construction type strings
 associated with each type (values) from FERC Form 1.
 
 There are many strings that weren't categorized, including crosses between conventional
