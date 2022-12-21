@@ -73,6 +73,7 @@ class TableIdFerc1(enum.Enum):
     ELECTRIC_ENERGY_SOURCES_FERC1 = "electric_energy_sources_ferc1"
     ELECTRIC_ENERGY_DISPOSITIONS_FERC1 = "electric_energy_dispositions_ferc1"
     UTILITY_PLANT_SUMMARY_FERC1 = "utility_plant_summary_ferc1"
+    BALANCE_SHEET_ASSETS_FERC1 = "balance_sheet_assets_ferc1"
 
 
 class RenameColumnsFerc1(TransformParams):
@@ -121,7 +122,8 @@ class WideToTidy(TransformParams):
     pattern of "{to-be stacked category}_{value_type}", rename the columns using a
     ``rename_columns.duration_xbrl``, ``rename_columns.instant_xbrl`` or
     ``rename_columns.dbf`` parameter which will be employed in
-    :meth:`process_duration_xbrl`, :meth:`process_instant_xbrl` or :meth:`process_dbf`."""
+    :meth:`process_duration_xbrl`, :meth:`process_instant_xbrl` or :meth:`process_dbf`.
+    """
 
     expected_drop_cols: int = 0
     """The number of columns that are expected to be dropped.
@@ -197,29 +199,94 @@ def wide_to_tidy(df: pd.DataFrame, params: WideToTidy) -> pd.DataFrame:
     return df_out
 
 
-class MergeMetadataXbrl(TransformParams):
+class MergeXbrlMetadata(TransformParams):
     """Parameters for merging in XBRL metadata."""
 
     rename_columns: dict[str, str] = {}
     """Dictionary to rename columns in the normalized metadata before merging.
 
-    This dictionary will be passed as :func:`pd.DataFrame.rename` ``columns`` parameter."""
+    This dictionary will be passed as :func:`pd.DataFrame.rename` ``columns`` parameter.
+    """
 
     on: str | None = None
-    """Column name to merge on in :func:`merge_metadata_xbrl`."""
+    """Column name to merge on in :func:`merge_xbrl_metadata`."""
 
 
-def merge_metadata_xbrl(
-    df: pd.DataFrame, xbrl_metadata_normalized: pd.DataFrame, params: MergeMetadataXbrl
+def merge_xbrl_metadata(
+    df: pd.DataFrame, xbrl_metadata: pd.DataFrame, params: MergeXbrlMetadata
 ) -> pd.DataFrame:
     """Merge metadata based on params."""
     return pd.merge(
         df,
-        xbrl_metadata_normalized.rename(columns=params.rename_columns),
+        xbrl_metadata.rename(columns=params.rename_columns),
         on=params.on,
         how="left",
         validate="many_to_one",
     )
+
+
+class DropDuplicateRowsDbf(TransformParams):
+    """Parameter for dropping duplicate DBF rows."""
+
+    table_name: TableIdFerc1 | None = None
+    """Name of table used to grab primary keys of PUDL table to check for duplicates."""
+
+    data_columns: list = []
+    """List of data column names to ensure primary key duplicates have the same data."""
+
+
+def drop_duplicate_rows_dbf(df, params: DropDuplicateRowsDbf):
+    """Drop duplicate DBF rows if duplicates have indentical data or one row has nulls.
+
+    There are several instances of the DBF data reporting the same value on multiple
+    rows. This function checks to see if all of the duplicate values that have the same
+    primary keys have reported the same data or have records with null data in any of
+    the data columns while the other record has complete data. If the duplicates have no
+    unique data, the duplicates are dropped with ``keep="first"``. If any duplicates do
+    not contain the same data or half null data, an assertion will be raised.
+    """
+    pks = (
+        pudl.metadata.classes.Package.from_resource_ids()
+        .get_resource(params.table_name.value)
+        .schema.primary_key
+    )
+    # add a column that indicates whether or not any of the data columns contain null data
+    df.loc[:, "null_data"] = df[params.data_columns].isnull().any(axis="columns")
+
+    # checks to make sure the drop is targeted as expected
+    # of the PK dupes, drop all instances when the data *is also the same*
+    dupes_w_unique_data = df[df.duplicated(pks, keep=False)].drop_duplicates(
+        pks + params.data_columns, keep=False
+    )
+    # if there are pk+data dupes, is there one record with some null data
+    # an other with completely non-null data??
+    # OR are there any records that have some null data and some actually unique
+    # data
+    nunique_data_columns = [f"{col}_nunique" for col in params.data_columns]
+    dupes_w_unique_data.loc[:, nunique_data_columns + ["null_data_nunique"]] = (
+        dupes_w_unique_data.groupby(pks)[params.data_columns + ["null_data"]]
+        .transform("nunique")
+        .add_suffix("_nunique")
+    )
+
+    if not dupes_w_unique_data[
+        (dupes_w_unique_data.null_data_nunique != 2)
+        | dupes_w_unique_data[dupes_w_unique_data[nunique_data_columns] != 1].any(
+            axis="columns"
+        )
+    ].empty:
+        raise AssertionError(
+            "Duplicates have unique data and should not be dropped. Unique data: "
+            f"{len(dupes_w_unique_data)}: {dupes_w_unique_data}"
+        )
+    len_og = len(df)
+    df = (
+        df.sort_values(by=["null_data"], ascending=True)
+        .drop_duplicates(pks, keep="first")
+        .drop(columns=["null_data"])
+    )
+    logger.info(f"Dropped {(len_og - len(df))/len_og:.1%} of duplicate records.")
+    return df
 
 
 class AlignRowNumbersDbf(TransformParams):
@@ -283,8 +350,9 @@ class Ferc1TableTransformParams(TableTransformParams):
     wide_to_tidy: WideToTidySourceFerc1 = WideToTidySourceFerc1(
         dbf=WideToTidy(), xbrl=WideToTidy()
     )
-    merge_metadata_xbrl: MergeMetadataXbrl = MergeMetadataXbrl()
+    merge_xbrl_metadata: MergeXbrlMetadata = MergeXbrlMetadata()
     align_row_numbers_dbf: AlignRowNumbersDbf = AlignRowNumbersDbf()
+    drop_duplicate_rows_dbf: DropDuplicateRowsDbf = DropDuplicateRowsDbf()
 
 
 ################################################################################
@@ -519,18 +587,16 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
     the transformed data.
     """
 
-    xbrl_metadata_json: list[dict] = []
-    """An array of JSON objects extracted from the FERC 1 XBRL taxonomy."""
-
-    xbrl_metadata_normalized: pd.DataFrame = pd.DataFrame()
-    """A semi-normalized dataframe containing table-specific XBRL metadata."""
+    xbrl_metadata: pd.DataFrame = pd.DataFrame()
+    """Dataframe combining XBRL metadata for both instant and duration table columns."""
 
     def __init__(
         self,
         params: TableTransformParams | None = None,
         cache_dfs: bool = False,
         clear_cached_dfs: bool = True,
-        xbrl_metadata_json: list[dict] | None = None,
+        xbrl_metadata_json: dict[Literal["instant", "duration"], list[dict[str, Any]]]
+        | None = None,
     ) -> None:
         """Augment inherited initializer to store XBRL metadata in the class."""
         super().__init__(
@@ -538,9 +604,8 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             cache_dfs=cache_dfs,
             clear_cached_dfs=clear_cached_dfs,
         )
-        # Many tables don't require this input:
         if xbrl_metadata_json:
-            self.xbrl_metadata_json = xbrl_metadata_json
+            self.xbrl_metadata = self.process_xbrl_metadata(xbrl_metadata_json)
 
     @cache_df(key="start")
     def transform_start(
@@ -579,71 +644,71 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                 .get_resource(self.table_id.value)
                 .encode
             )
-            .pipe(self.merge_metadata_xbrl)
+            .pipe(self.merge_xbrl_metadata)
         )
         return df
 
     @cache_df(key="end")
     def transform_end(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Enforce the database schema and remove any cached dataframes."""
-        return self.enforce_schema(df)
+        """Standardized final cleanup after the transformations are done.
 
-    def normalize_metadata_xbrl(
-        self, xbrl_fact_names: list[str] | None
-    ) -> pd.DataFrame:
-        """Normalize XBRL metadata, select table-specific rows, and transform them.
-
-        In order to select the relevant rows from the normalized metadata, this function
-        needs to know which XBRL facts pertain to the table being transformed. These are
-        the names of the data columns in the raw XBRL data. To avoid creating a separate
-        dependency on the FERC 1 XBRL DB, we defer the assignment of this class
-        attribute until :meth:`Ferc1AbstractTableTransformer.process_xbrl` is called,
-        and read the column labels from the input dataframes.
+        Enforces dataframe schema. Checks for empty dataframes and null columns.
         """
-        # If the table has no XBRL metadata, return immediately:
-        if not self.xbrl_metadata_json:
-            return pd.DataFrame()
+        df = self.enforce_schema(df)
+        if df.empty:
+            raise ValueError(f"{self.table_id.value}: Final dataframe is empty!!!")
+        for col in df:
+            if df[col].isna().all():
+                raise ValueError(
+                    f"{self.table_id.value}: Column {col} is entirely NULL!"
+                )
+        return df
 
-        normed_meta = (
-            pd.json_normalize(self.xbrl_metadata_json)
+    @cache_df(key="process_xbrl_metadata")
+    def process_xbrl_metadata(self, xbrl_metadata_json) -> pd.DataFrame:
+        """Normalize the XBRL JSON metadata, turning it into a dataframe.
+
+        This process concatenates and deduplicates the metadata which is associated with
+        the instant and duration tables, since the metadata is only combined with the
+        data after the instant and duration (and DBF) tables have been merged. This
+        happens in :meth:`Ferc1AbstractTableTransformer.merge_xbrl_metadata`.
+        """
+        logger.info(f"{self.table_id.value}: Processing XBRL metadata.")
+        return (
+            pd.concat(
+                [
+                    pd.json_normalize(xbrl_metadata_json["instant"]),
+                    pd.json_normalize(xbrl_metadata_json["duration"]),
+                ]
+            )
+            .drop("references.form_location", axis="columns")
+            .drop_duplicates(subset="name")
             .rename(
                 columns={
-                    "name": "xbrl_fact_name",
-                    "references.Account": "ferc_account",
+                    "name": "xbrl_factoid",
+                    "references.account": "ferc_account",
                 }
             )
-            .loc[
-                :,
-                [
-                    "xbrl_fact_name",
-                    "balance",
-                    "calculations",
-                    "ferc_account",
-                ],
-            ]
+            .assign(
+                # Flag metadata record types
+                row_type_xbrl=lambda x: np.where(
+                    x.calculations.astype(bool), "calculated_value", "reported_value"
+                ),
+            )
+            .astype(
+                {
+                    "xbrl_factoid": pd.StringDtype(),
+                    "balance": pd.StringDtype(),
+                    "ferc_account": pd.StringDtype(),
+                    "calculations": pd.StringDtype(),
+                    "row_type_xbrl": pd.StringDtype(),
+                }
+            )
         )
-        # Use nullable strings, converting NaN to pd.NA
-        normed_meta = normed_meta.astype(
-            {
-                "xbrl_fact_name": pd.StringDtype(),
-                "balance": pd.StringDtype(),
-                "ferc_account": pd.StringDtype(),
-            }
-        ).assign(
-            # Flag the metadata record types
-            row_type_xbrl=lambda x: np.where(
-                x.calculations.astype(bool), "calculated_value", "reported_value"
-            ),
-        )
-        if xbrl_fact_names:
-            normed_meta = normed_meta.loc[
-                normed_meta.xbrl_fact_name.isin(xbrl_fact_names)
-            ]
-        self.xbrl_metadata_normalized = normed_meta
-        return normed_meta
 
-    def merge_metadata_xbrl(
-        self, df: pd.DataFrame, params: MergeMetadataXbrl | None = None
+    @cache_df(key="merge_xbrl_metadata")
+    def merge_xbrl_metadata(
+        self, df: pd.DataFrame, params: MergeXbrlMetadata | None = None
     ) -> pd.DataFrame:
         """Combine XBRL-derived metadata with the data it pertains to.
 
@@ -652,10 +717,10 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         method reads the normalized metadata out of an attribute.
         """
         if not params:
-            params = self.params.merge_metadata_xbrl
+            params = self.params.merge_xbrl_metadata
         if params.on:
             logger.info(f"{self.table_id.value}: merging metadata")
-            df = merge_metadata_xbrl(df, self.xbrl_metadata_normalized, params)
+            df = merge_xbrl_metadata(df, self.xbrl_metadata, params)
         return df
 
     @cache_df(key="dbf")
@@ -669,7 +734,21 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         """
         if params is None:
             params = self.params.align_row_numbers_dbf
-        df = align_row_numbers_dbf(df, params=params)
+        if params.dbf_table_name:
+            df = align_row_numbers_dbf(df, params=params)
+        return df
+
+    def drop_duplicate_rows_dbf(
+        self, df: pd.DataFrame, params: DropDuplicateRowsDbf | None = None
+    ) -> pd.DataFrame:
+        """Drop the duplicate DBF rows when the PKs and data columns are the same.
+
+        Wrapper function for :func:`drop_duplicate_rows_dbf`.
+        """
+        if params is None:
+            params = self.params.drop_duplicate_rows_dbf
+        if params.table_name:
+            df = drop_duplicate_rows_dbf(df, params=params)
         return df
 
     @cache_df(key="dbf")
@@ -689,6 +768,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                 self.wide_to_tidy,
                 source_ferc1=SourceFerc1.DBF,
             )
+            .pipe(self.drop_duplicate_rows_dbf)
         )
 
     @cache_df(key="xbrl")
@@ -699,13 +779,6 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
     ) -> pd.DataFrame:
         """XBRL-specific transformations that take place before concatenation."""
         logger.info(f"{self.table_id.value}: Processing XBRL data pre-concatenation.")
-        logger.info(f"{self.table_id.value}: Normalizing XBRL taxonomy metadata.")
-        self.xbrl_metadata_normalized = self.normalize_metadata_xbrl(
-            xbrl_fact_names=get_data_cols_raw_xbrl(
-                raw_xbrl_duration=raw_xbrl_duration,
-                raw_xbrl_instant=raw_xbrl_instant,
-            )
-        )
         return (
             self.merge_instant_and_duration_tables_xbrl(
                 raw_xbrl_instant, raw_xbrl_duration
@@ -1604,9 +1677,8 @@ class PlantInServiceFerc1TableTransformer(Ferc1AbstractTableTransformer):
         df.columns = ["_".join(items) for items in df.columns.to_flat_index()]
         return df.reset_index()
 
-    def normalize_metadata_xbrl(
-        self, xbrl_fact_names: list[str] | None
-    ) -> pd.DataFrame:
+    @cache_df("process_xbrl_metadata")
+    def process_xbrl_metadata(self, xbrl_metadata_json) -> pd.DataFrame:
         """Transform the metadata to reflect the transformed data.
 
         The XBRL Taxonomy metadata as extracted pertains to the XBRL data as extracted.
@@ -1624,39 +1696,27 @@ class PlantInServiceFerc1TableTransformer(Ferc1AbstractTableTransformer):
         """
         pis_meta = (
             super()
-            .normalize_metadata_xbrl(xbrl_fact_names)
+            .process_xbrl_metadata(xbrl_metadata_json)
             .assign(
-                xbrl_factoid=lambda x: x.xbrl_fact_name.replace(
+                xbrl_factoid=lambda x: x.xbrl_factoid.replace(
                     self.params.rename_columns_ferc1.instant_xbrl.columns
                 )
             )
         )
 
-        # Remove metadata records that pertain to columns we have eliminated through
-        # reshaping. The *_starting_balance and *_ending_balance columns come from the
-        # instant table, but they have no suffix there -- they just show up as the
-        # stem (e.g. land_and_land_rights_general_plant). So by removing any column
-        # that has these four value type suffixes, we're left with only the stem
-        # categories.
-        value_types = ["additions", "retirements", "adjustments", "transfers"]
-        pattern = ".*(" + "|".join(value_types) + ")$"
-        pis_meta = pis_meta[~pis_meta["xbrl_fact_name"].str.match(pattern)]
-
         # Set pseudo-account numbers for rows that split or combine FERC accounts, but
         # which are not calculated values.
         pis_meta.loc[
-            pis_meta.xbrl_fact_name == "electric_plant_purchased", "ferc_account"
+            pis_meta.xbrl_factoid == "electric_plant_purchased", "ferc_account"
         ] = "102_purchased"
         pis_meta.loc[
-            pis_meta.xbrl_fact_name == "electric_plant_sold", "ferc_account"
+            pis_meta.xbrl_factoid == "electric_plant_sold", "ferc_account"
         ] = "102_sold"
         pis_meta.loc[
-            pis_meta.xbrl_fact_name
+            pis_meta.xbrl_factoid
             == "electric_plant_in_service_and_completed_construction_not_classified_electric",
             "ferc_account",
         ] = "101_and_106"
-        # Save the normalized metadata so it can be used by other methods.
-        self.xbrl_metadata_normalized = pis_meta
         return pis_meta
 
     def apply_sign_conventions(self, df) -> pd.DataFrame:
@@ -1727,9 +1787,9 @@ class PlantInServiceFerc1TableTransformer(Ferc1AbstractTableTransformer):
         )
         return deduped
 
-    def process_dbf(self, df: pd.DataFrame) -> pd.DataFrame:
+    def process_dbf(self, raw_dbf: pd.DataFrame) -> pd.DataFrame:
         """Drop targeted duplicates in the DBF data so we can use FERC respondent ID."""
-        return super().process_dbf(df).pipe(self.targeted_drop_duplicates_dbf)
+        return super().process_dbf(raw_dbf).pipe(self.targeted_drop_duplicates_dbf)
 
     @cache_df("main")
     def transform_main(self, df: pd.DataFrame) -> pd.DataFrame:
@@ -2670,7 +2730,7 @@ class TransmissionFerc1TableTransformer(Ferc1AbstractTableTransformer):
     has_unique_record_ids: bool = False
 
 
-class ElectricEnergyAccountSourcesFerc1TableTransformer(Ferc1AbstractTableTransformer):
+class ElectricEnergySourcesFerc1TableTransformer(Ferc1AbstractTableTransformer):
     """Transformer class for :ref:`electric_energy_sources_ferc1` table.
 
     The raw DBF and XBRL table will be split up into two tables. This transformer
@@ -2683,58 +2743,12 @@ class ElectricEnergyAccountSourcesFerc1TableTransformer(Ferc1AbstractTableTransf
     table_id: TableIdFerc1 = TableIdFerc1.ELECTRIC_ENERGY_SOURCES_FERC1
     has_unique_record_ids: bool = False
 
-    def normalize_metadata_xbrl(
-        self, xbrl_fact_names: list[str] | None
-    ) -> pd.DataFrame:
-        """Apply table-specific normalization after applying inherited normalization.
-
-        Add a ``row_type_xbrl`` columns which incidates whether a value is calculated or
-        natively reported based on the XBRL metadata.
-        """
-        eeas_meta = (
-            super().normalize_metadata_xbrl(xbrl_fact_names)
-            # should this be a straight up rename? could we just rename it within the
-            # standard normalize_metadata_xbrl??
-            .assign(
-                xbrl_factoid=lambda x: x.xbrl_fact_name,
-            )
-        )
-        # Save the normalized metadata so it can be used by other methods.
-        self.xbrl_metadata_normalized = eeas_meta
-        return eeas_meta
-
-    @cache_df(key="dbf")
-    def process_dbf(self, raw_dbf: pd.DataFrame) -> pd.DataFrame:
-        """Start with inherited method and do some energy source-specific processing.
-
-        We have to drop the columns from the disposition table because we are splitting
-        up this one raw table into two PUDL tables.
-        """
-        disposition_cols = ["energy_disposition_mwh"]
-        df = super().process_dbf(raw_dbf).drop(columns=disposition_cols)
-        return df
-
 
 class ElectricEnergyDispositionsFerc1TableTransformer(Ferc1AbstractTableTransformer):
     """Transformer class for :ref:`electric_energy_dispositions_ferc1` table."""
 
     table_id: TableIdFerc1 = TableIdFerc1.ELECTRIC_ENERGY_DISPOSITIONS_FERC1
     has_unique_record_ids: bool = False
-
-    def normalize_metadata_xbrl(
-        self, xbrl_fact_names: list[str] | None
-    ) -> pd.DataFrame:
-        """Normalize the metadata from the XBRL taxonomy."""
-        eead_meta = (
-            super()
-            .normalize_metadata_xbrl(xbrl_fact_names)
-            .assign(
-                xbrl_factoid=lambda x: x.xbrl_fact_name,
-            )
-        )
-        # Save the normalized metadata so it can be used by other methods.
-        self.xbrl_metadata_normalized = eead_meta
-        return eead_meta
 
 
 class UtilityPlantSummaryFerc1TableTransformer(Ferc1AbstractTableTransformer):
@@ -2743,20 +2757,49 @@ class UtilityPlantSummaryFerc1TableTransformer(Ferc1AbstractTableTransformer):
     table_id: TableIdFerc1 = TableIdFerc1.UTILITY_PLANT_SUMMARY_FERC1
     has_unique_record_ids: bool = False
 
-    def normalize_metadata_xbrl(
-        self, xbrl_fact_names: list[str] | None
-    ) -> pd.DataFrame:
-        """Normalize the metadata from the XBRL taxonomy +."""
-        meta = (
-            super()
-            .normalize_metadata_xbrl(xbrl_fact_names)
-            .assign(
-                xbrl_factoid=lambda x: x.xbrl_fact_name,
+
+class BalanceSheetAssetsFerc1TableTransformer(Ferc1AbstractTableTransformer):
+    """Transformer class for :ref:`balance_sheet_assets_ferc1` table."""
+
+    table_id: TableIdFerc1 = TableIdFerc1.BALANCE_SHEET_ASSETS_FERC1
+    has_unique_record_ids: bool = False
+
+    @cache_df("process_instant_xbrl")
+    def process_instant_xbrl(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Pre-processing required to make the instant and duration tables compatible.
+
+        Each year the plant account balances are reported twice, in two separate
+        records: one for the end of the previous year, and one for the end of the
+        current year, with appropriate dates for the two year ends. Here we are
+        reshaping the table so that we instead have two columns: ``starting_balance``
+        and ``ending_balance`` that both pertain to the current year, so that all of
+        the records pertaining to a single ``report_year`` can be identified without
+        dealing with the instant / duration distinction.
+
+        NOTE: this is a copy/paste from the plant in service table. We should probably
+        generalize & parameterize it. Right now it looks like it would *only* be a bool.
+        """
+        df = super().process_instant_xbrl(df)
+        df["year"] = pd.to_datetime(df["date"]).dt.year
+        df.loc[df.report_year == (df.year + 1), "balance_type"] = "starting_balance"
+        df.loc[df.report_year == df.year, "balance_type"] = "ending_balance"
+        if not df.balance_type.notna().all():
+            raise ValueError(
+                f"Unexpected years found in the {self.table_id.value} table: "
+                f"{df.loc[df.balance_type.isna(), 'year'].unique()}"
             )
+        df = (
+            df.drop(["year", "date"], axis="columns")
+            .set_index(["entity_id", "report_year", "balance_type"])
+            .unstack("balance_type")
         )
-        # Save the normalized metadata so it can be used by other methods.
-        self.xbrl_metadata_normalized = meta
-        return meta
+        # This turns a multi-index into a single-level index with tuples of strings as
+        # the keys, and then converts the tuples of strings into a single string by
+        # joining their values with an underscore. This results in column labels like
+        # boiler_plant_equipment_steam_production_starting_balance
+        # Is there a better way?
+        df.columns = ["_".join(items) for items in df.columns.to_flat_index()]
+        return df.reset_index()
 
 
 def transform(
@@ -2790,9 +2833,10 @@ def transform(
         "plants_pumped_storage_ferc1": PlantsPumpedStorageFerc1TableTransformer,
         "transmission_ferc1": TransmissionFerc1TableTransformer,
         "purchased_power_ferc1": PurchasedPowerFerc1TableTransformer,
-        "electric_energy_sources_ferc1": ElectricEnergyAccountSourcesFerc1TableTransformer,
+        "electric_energy_sources_ferc1": ElectricEnergySourcesFerc1TableTransformer,
         "electric_energy_dispositions_ferc1": ElectricEnergyDispositionsFerc1TableTransformer,
         "utility_plant_summary_ferc1": UtilityPlantSummaryFerc1TableTransformer,
+        "balance_sheet_assets_ferc1": BalanceSheetAssetsFerc1TableTransformer,
     }
     # create an empty ditctionary to fill up through the transform fuctions
     ferc1_transformed_dfs = {}
@@ -2804,7 +2848,7 @@ def transform(
             )
 
             ferc1_transformed_dfs[table] = ferc1_tfr_classes[table](
-                xbrl_metadata_json=xbrl_metadata_json,
+                xbrl_metadata_json=xbrl_metadata_json[table],
             ).transform(
                 raw_dbf=ferc1_dbf_raw_dfs[table],
                 raw_xbrl_instant=ferc1_xbrl_raw_dfs[table].get(
@@ -2818,7 +2862,7 @@ def transform(
     # aid in FERC plant ID assignment.
     if "plants_steam_ferc1" in ferc1_settings.tables:
         ferc1_transformed_dfs["plants_steam_ferc1"] = PlantsSteamFerc1TableTransformer(
-            xbrl_metadata_json=xbrl_metadata_json
+            xbrl_metadata_json=xbrl_metadata_json["plants_steam_ferc1"]
         ).transform(
             raw_dbf=ferc1_dbf_raw_dfs["plants_steam_ferc1"],
             raw_xbrl_instant=ferc1_xbrl_raw_dfs["plants_steam_ferc1"].get(
@@ -2857,6 +2901,8 @@ if __name__ == "__main__":
             "transmission_ferc1",
             "electric_energy_sources_ferc1",
             "electric_energy_dispositions_ferc1",
+            "utility_plant_summary_ferc1",
+            "balance_sheet_assets_ferc1",
         ],
     )
     pudl_settings = pudl.workspace.setup.get_defaults()
@@ -2866,7 +2912,9 @@ if __name__ == "__main__":
     ferc1_xbrl_raw_dfs = pudl.extract.ferc1.extract_xbrl(
         ferc1_settings=ferc1_settings, pudl_settings=pudl_settings
     )
-    xbrl_metadata_json = pudl.extract.ferc1.extract_xbrl_metadata(pudl_settings)
+    xbrl_metadata_json = pudl.extract.ferc1.extract_xbrl_metadata(
+        ferc1_settings=ferc1_settings, pudl_settings=pudl_settings
+    )
     dfs = transform(
         ferc1_dbf_raw_dfs=ferc1_dbf_raw_dfs,
         ferc1_xbrl_raw_dfs=ferc1_xbrl_raw_dfs,

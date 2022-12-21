@@ -13,14 +13,14 @@ dependencies:
   # However, they depend on or benefit from binary libraries
   # which conda can install.
   - geopandas>=0.9,<0.13
-  - pygeos>=0.10,<0.14 # Python wrappers for the GEOS spatial libraries
+  - shapely>=2,<3
   - python-snappy>=0.6,<1
   - sqlite>=3.36,<4
   # These libraries aren't directly specified in setup.py as
   # dependencies, but they are helpful and provide binaries
-  # - numba>=0.55.1,<0.56 # First numba version that's compatible with Python 3.10
+  - numba>=0.55.1,<0.57
 
-  # These are not normal Python packages available on PyPI
+    # These are not normal Python packages available on PyPI
   - nodejs # Useful for Jupyter
   - pandoc # Useful for rendering RST files in Atom
 

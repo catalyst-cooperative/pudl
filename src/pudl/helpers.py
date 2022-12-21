@@ -29,12 +29,11 @@ from pudl.metadata.fields import get_pudl_dtypes
 sum_na = partial(pd.Series.sum, skipna=False)
 """A sum function that returns NA if the Series includes any NA values.
 
-In many of our aggregations we need to override the default behavior of treating
-NA values as if they were zero. E.g. when calculating the heat rates of
-generation units, if there are some months where fuel consumption is reported
-as NA, but electricity generation is reported normally, then the fuel
-consumption for the year needs to be NA, otherwise we'll get unrealistic heat
-rates.
+In many of our aggregations we need to override the default behavior of treating NA
+values as if they were zero. E.g. when calculating the heat rates of generation units,
+if there are some months where fuel consumption is reported as NA, but electricity
+generation is reported normally, then the fuel consumption for the year needs to be NA,
+otherwise we'll get unrealistic heat rates.
 """
 
 logger = pudl.logging_helpers.get_logger(__name__)

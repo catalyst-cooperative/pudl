@@ -89,6 +89,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Asset retirement cost (USD).",
         "unit": "USD",
     },
+    "asset_type": {
+        "type": "string",
+        "description": "Type of asset being reported to the balance_sheet_assets_ferc1 table.",
+    },
     "associated_combined_heat_power": {
         "type": "boolean",
         "description": "Indicates whether the generator is associated with a combined heat and power system",
@@ -97,6 +101,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "automated_meter_reading": {"type": "integer"},
     "avg_num_employees": {"type": "number"},
     "backup_capacity_mw": {"type": "number", "unit": "MW"},
+    "balance": {
+        "type": "string",
+        "description": "Indication of whether a column is a credit or debit, as reported in the XBRL taxonomy.",
+    },
     "balancing_authority_code_eia": {
         "type": "string",
         "description": "EIA short code identifying a balancing authority.",
@@ -1998,9 +2006,9 @@ FIELD_METADATA_BY_GROUP: dict[str, dict[str, Any]] = {
 }
 """Field attributes by resource group (`resource.group`) and PUDL identifier.
 
-If a field exists in more than one data group (e.g. both ``eia`` and ``ferc1``)
-and has distinct metadata in those groups, this is the place to specify the
-override. Only those elements which should be overridden need to be specified.
+If a field exists in more than one data group (e.g. both ``eia`` and ``ferc1``) and has
+distinct metadata in those groups, this is the place to specify the override. Only those
+elements which should be overridden need to be specified.
 """
 
 FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {

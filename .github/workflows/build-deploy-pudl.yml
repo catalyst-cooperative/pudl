@@ -100,7 +100,10 @@ jobs:
             --container-env SLACK_TOKEN=${{ secrets.PUDL_DEPLOY_SLACK_TOKEN }} \
             --container-env GCE_INSTANCE=${{ env.GCE_INSTANCE }} \
             --container-env GCE_INSTANCE_ZONE=${{ env.GCE_INSTANCE_ZONE }} \
-            --container-env GCP_BILLING_PROJECT=${{ secrets.GCP_BILLING_PROJECT }}
+            --container-env GCP_BILLING_PROJECT=${{ secrets.GCP_BILLING_PROJECT }} \
+            --container-env AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }} \
+            --container-env AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} \
+            --container-env AWS_DEFAULT_REGION=${{ secrets.AWS_DEFAULT_REGION }} \
 
       # Start the VM
       - name: Start the deploy-pudl-vm

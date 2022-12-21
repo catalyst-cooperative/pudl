@@ -239,6 +239,12 @@ FERC1_STRING_NORM = {
 }
 
 ##############################################################################
+# Common invalid plant names
+##############################################################################
+INVALID_PLANT_NAMES = [pd.NA, np.nan, "not applicable", "0", "", "-"]
+"""Invalid plant names which appear in multiple plant tables."""
+
+##############################################################################
 # String categorizations
 ##############################################################################
 FUEL_CATEGORIES: dict[str, set[str]] = {
@@ -671,10 +677,10 @@ FUEL_CATEGORIES: dict[str, set[str]] = {
         },
     }
 }
-"""
-A mapping a canonical fuel name to a set of strings which are used to represent that
-fuel in the FERC Form 1 Reporting. Case is ignored, as all fuel strings are converted to
-lower case in the data set.
+"""A mapping a canonical fuel name to a set of strings which are used to represent that
+fuel in the FERC Form 1 Reporting.
+
+Case is ignored, as all fuel strings are converted to lower case in the data set.
 """
 
 FUEL_UNIT_CATEGORIES: dict[str, set[str]] = {
@@ -996,10 +1002,8 @@ FUEL_UNIT_CATEGORIES: dict[str, set[str]] = {
         },
     }
 }
-"""
-A mapping of canonical fuel units (keys) to sets of strings representing those
-fuel units (values)
-"""
+"""A mapping of canonical fuel units (keys) to sets of strings representing those fuel
+units (values)"""
 
 PLANT_TYPE_CATEGORIES: dict[str, set[str]] = {
     "categories": {
@@ -1552,9 +1556,10 @@ PLANT_TYPE_CATEGORIES: dict[str, set[str]] = {
         },
     }
 }
-"""
-A mapping from canonical plant kinds (keys) to the associated freeform strings (values)
-identified as being associated with that kind of plant in the FERC Form 1 raw data.
+"""A mapping from canonical plant kinds (keys) to the associated freeform strings
+(values) identified as being associated with that kind of plant in the FERC Form 1 raw
+data.
+
 There are many strings that weren't categorized, Solar and Solar Project were not
 classified as these do not indicate if they are solar thermal or photovoltaic. Variants
 on Steam (e.g. "steam 72" and "steam and gas") were classified based on additional
@@ -1661,10 +1666,11 @@ PLANT_TYPE_CATEGORIES_HYDRO: dict[str, set[str]] = {
         },
     }
 }
-"""
-A mapping from canonical plant kinds (keys) to the associated freeform strings (values)
-identified as being associated with that kind of plant in the FERC Form 1 Hydro Plants
-data. These are seperated out from the rest of the plant types due to the difference in
+"""A mapping from canonical plant kinds (keys) to the associated freeform strings
+(values) identified as being associated with that kind of plant in the FERC Form 1 Hydro
+Plants data.
+
+These are seperated out from the rest of the plant types due to the difference in
 languaged used to refer to hydro vs. other types of plants. For example: "conventional"
 in the context of a hydro plant means that it is conventional hydro-electric. In the
 context of the steam table, however, it's unclear what conventional means.
@@ -2061,8 +2067,7 @@ CONSTRUCTION_TYPE_CATEGORIES: dict[str, set[str]] = {
         },
     }
 }
-"""
-A dictionary of construction types (keys) and lists of construction type strings
+"""A dictionary of construction types (keys) and lists of construction type strings
 associated with each type (values) from FERC Form 1.
 
 There are many strings that weren't categorized, including crosses between conventional
@@ -2156,15 +2161,8 @@ TRANSFORM_PARAMS = {
                 ],
             },
             {
-                "invalid_values": [
-                    pd.NA,
-                    np.nan,
-                    "",
-                    "must 123",
-                    "must 456",
-                    "ant1-3",
-                    "elk 1-3",
-                ],
+                "invalid_values": INVALID_PLANT_NAMES
+                + ["must 123", "must 456", "ant1-3", "elk 1-3"],
                 "required_valid_cols": ["plant_name_ferc1"],
             },
         ],
@@ -2303,11 +2301,7 @@ TRANSFORM_PARAMS = {
                 ],
             },
             {
-                "invalid_values": [
-                    pd.NA,
-                    np.nan,
-                    "",
-                ],
+                "invalid_values": INVALID_PLANT_NAMES,
                 "required_valid_cols": ["plant_name_ferc1"],
             },
         ],
@@ -2445,7 +2439,7 @@ TRANSFORM_PARAMS = {
                 ],
             },
             {
-                "invalid_values": ["0", "—", ""],
+                "invalid_values": INVALID_PLANT_NAMES,
                 "required_valid_cols": ["plant_name_ferc1"],
             },
         ],
@@ -2542,7 +2536,10 @@ TRANSFORM_PARAMS = {
                     "row_type",
                 ],
             },
-            {"invalid_values": ["0", ""], "required_valid_cols": ["plant_name_ferc1"]},
+            {
+                "invalid_values": INVALID_PLANT_NAMES,
+                "required_valid_cols": ["plant_name_ferc1"],
+            },
         ],
     },
     "plant_in_service_ferc1": {
@@ -2625,7 +2622,7 @@ TRANSFORM_PARAMS = {
                 "stacked_column_name": "xbrl_factoid",
             }
         },
-        "merge_metadata_xbrl": {
+        "merge_xbrl_metadata": {
             "rename_columns": {"xbrl_factoid": "ferc_account_label"},
             "on": "ferc_account_label",
         },
@@ -2771,7 +2768,7 @@ TRANSFORM_PARAMS = {
                 ],
             },
             {
-                "invalid_values": ["0", "—", ""],
+                "invalid_values": INVALID_PLANT_NAMES,
                 "required_valid_cols": ["plant_name_ferc1"],
             },
         ],
@@ -2992,7 +2989,7 @@ TRANSFORM_PARAMS = {
         "drop_invalid_rows": [
             {
                 "invalid_values": [pd.NA, np.nan, ""],
-                "required_valid_cols": ["energy_source_mwh"],
+                "required_valid_cols": ["energy_mwh"],
             },
         ],
         "wide_to_tidy": {
@@ -3003,7 +3000,7 @@ TRANSFORM_PARAMS = {
                 "stacked_column_name": "xbrl_factoid",
             }
         },
-        "merge_metadata_xbrl": {
+        "merge_xbrl_metadata": {
             "rename_columns": {"xbrl_factoid": "energy_source_type"},
             "on": "energy_source_type",
         },
@@ -3064,7 +3061,7 @@ TRANSFORM_PARAMS = {
                 "stacked_column_name": "xbrl_factoid",
             }
         },
-        "merge_metadata_xbrl": {
+        "merge_xbrl_metadata": {
             "rename_columns": {"xbrl_factoid": "energy_disposition_type"},
             "on": "energy_disposition_type",
         },
@@ -3188,7 +3185,7 @@ TRANSFORM_PARAMS = {
                 "stacked_column_name": "utility_plant_asset_type",
             },
         },
-        "merge_metadata_xbrl": {
+        "merge_xbrl_metadata": {
             "rename_columns": {"xbrl_factoid": "utility_plant_asset_type"},
             "on": "utility_plant_asset_type",
         },
@@ -3212,6 +3209,57 @@ TRANSFORM_PARAMS = {
         "replace_with_na": {
             "utility_type_other": {"replace_with_na": [""]},
         },
+    },
+    "balance_sheet_assets_ferc1": {
+        "rename_columns_ferc1": {
+            "dbf": {
+                "columns": {
+                    "respondent_id": "utility_id_ferc1_dbf",
+                    "report_year": "report_year",
+                    "spplmnt_num": "spplmnt_num",
+                    "row_number": "row_number",
+                    "row_seq": "row_seq",
+                    "row_prvlg": "row_prvlg",
+                    "report_prd": "report_prd",
+                    "xbrl_factoid": "asset_type",
+                    "begin_yr_balance": "ending_balance",
+                    "end_yr_balance": "starting_balance",
+                }
+            },
+            "xbrl": {
+                "columns": {
+                    "entity_id": "utility_id_ferc1_xbrl",
+                    "report_year": "report_year",
+                    "xbrl_factoid": "asset_type",
+                }
+            },
+        },
+        "wide_to_tidy": {
+            "xbrl": {
+                "idx_cols": [
+                    "entity_id",
+                    "report_year",
+                ],
+                "value_types": ["starting_balance", "ending_balance"],
+                "expected_drop_cols": 0,
+                "stacked_column_name": "xbrl_factoid",
+            },
+        },
+        "drop_duplicate_rows_dbf": {
+            "data_columns": ["ending_balance", "starting_balance"],
+            "table_name": "balance_sheet_assets_ferc1",
+        },
+        "align_row_numbers_dbf": {"dbf_table_name": "f1_comp_balance_db"},
+        "merge_xbrl_metadata": {
+            "rename_columns": {"xbrl_factoid": "asset_type"},
+            "on": "asset_type",
+        },
+        "drop_invalid_rows": [
+            {
+                "invalid_values": [pd.NA, np.nan, ""],
+                "required_valid_cols": ["starting_balance", "ending_balance"],
+            },
+        ],
     },
 }
 
