@@ -3344,6 +3344,10 @@ TRANSFORM_PARAMS = {
             },
         },
         "align_row_numbers_dbf": {"dbf_table_name": "f1_dacs_epda"},
+        "merge_xbrl_metadata": {
+            "rename_columns": {"ferc_account_label": "ferc_account_label"},
+            "on": "ferc_account_label",
+        },
     },
 }
 

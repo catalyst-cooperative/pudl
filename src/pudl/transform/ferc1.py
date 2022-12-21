@@ -2811,13 +2811,17 @@ class DepreciationAmortizationSummaryFerc1TableTransformer(
     table_id: TableIdFerc1 = TableIdFerc1.DEPRECIATION_AMORTIZATION_SUMMARY_FERC1
     has_unique_record_ids: bool = False
 
-    def map_ferc_accounts(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Map FERC accounts to ``ferc_account_label``.
+    def merge_xbrl_metadata(
+        self, df: pd.DataFrame, params: MergeXbrlMetadata | None = None
+    ) -> pd.DataFrame:
+        """Annotate data using manually compiled FERC accounts & ``ferc_account_label``.
 
         The FERC accounts are not provided in the XBRL taxonomy like they are for other
-        tables. However, there are only 4 of them, so a mapping is hardcoded here.
+        tables. However, there are only 4 of them, so a hand-compiled mapping is
+        hardcoded here, and merged onto the data similar to how the XBRL taxonomy
+        derived metadata is merged on for other tables.
         """
-        account_map = pd.DataFrame(
+        xbrl_metadata = pd.DataFrame(
             {
                 "ferc_account_label": [
                     "depreciation_expense",
@@ -2828,13 +2832,13 @@ class DepreciationAmortizationSummaryFerc1TableTransformer(
                 "ferc_account": ["403", "403.1", "404", "405"],
             }
         )
+        if not params:
+            params = self.params.merge_xbrl_metadata
+        if params.on:
+            logger.info(f"{self.table_id.value}: merging metadata")
+            df = merge_xbrl_metadata(df, xbrl_metadata, params)
 
-        return pd.merge(df, account_map, on=["ferc_account_label"], how="left")
-
-    @cache_df("main")
-    def transform_main(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Apply generic ``transform_main``, then map FERC accounts to labels."""
-        return super().transform_main(df).pipe(self.map_ferc_accounts)
+        return df
 
 
 def transform(
@@ -2939,6 +2943,7 @@ if __name__ == "__main__":
             "electric_energy_dispositions_ferc1",
             "utility_plant_summary_ferc1",
             "balance_sheet_assets_ferc1",
+            "depreciation_amortization_summary_ferc1",
         ],
     )
     pudl_settings = pudl.workspace.setup.get_defaults()
